@@ -139,7 +139,7 @@ const pages = {
     description: 'Backup contacts',
   },
   '/service-member/:serviceMemberId/move-landing': {
-    isInFlow: () => myFirstRodeo && inGhcFlow && !removeForDemo,
+    isInFlow: (props) => myFirstRodeo(props) && inGhcFlow(props) && !removeForDemo(props),
     isComplete: always,
     render: (key, pages) => () => {
       return (
@@ -184,7 +184,7 @@ const pages = {
     },
   },
   '/moves/:moveId/moving-info': {
-    isInFlow: () => inHhgFlow && !removeForDemo,
+    isInFlow: (props) => inHhgFlow(props) && !removeForDemo(props),
     isComplete: always,
     render: (key, pages) => () => {
       return (
