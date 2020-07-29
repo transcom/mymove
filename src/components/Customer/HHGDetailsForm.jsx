@@ -4,18 +4,17 @@ import { get } from 'lodash';
 import { connect } from 'react-redux';
 import { Formik } from 'formik';
 import { Fieldset, Radio, Label } from '@trussworks/react-uswds';
-
-import { Form } from '../form/Form';
-import { DatePickerInput, TextInput } from '../form/fields';
-import { AddressFields } from '../form/AddressFields/AddressFields';
-import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
-
 import { createMTOShipment as createMTOShipmentAction } from 'shared/Entities/modules/mtoShipments';
 import { showLoggedInUser as showLoggedInUserAction, selectLoggedInUser } from 'shared/Entities/modules/user';
 import { WizardPage } from 'shared/WizardPage';
 import { MTOAgentType } from 'shared/constants';
 import { formatSwaggerDate } from 'shared/formatters';
 import Checkbox from 'shared/Checkbox';
+
+import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
+import { AddressFields } from '../form/AddressFields/AddressFields';
+import { DatePickerInput, TextInput } from '../form/fields';
+import { Form } from '../form/Form';
 
 import styles from './index.module.scss';
 
