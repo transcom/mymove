@@ -1,7 +1,6 @@
 package testdatagen
 
 import (
-	"math/rand"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -9,39 +8,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
-
-// MakeGrade makes a service member grade
-func MakeGrade() string {
-	grades := [28]string{"E_1",
-		"E_2",
-		"E_3",
-		"E_4",
-		"E_5",
-		"E_6",
-		"E_7",
-		"E_8",
-		"E_9",
-		"O_1_ACADEMY_GRADUATE",
-		"O_2",
-		"O_3",
-		"O_4",
-		"O_5",
-		"O_6",
-		"O_7",
-		"O_8",
-		"O_9",
-		"O_10",
-		"W_1",
-		"W_2",
-		"W_3",
-		"W_4",
-		"W_5",
-		"AVIATION_CADET",
-		"CIVILIAN_EMPLOYEE",
-		"ACADEMY_CADET",
-		"MIDSHIPMAN"}
-	return grades[rand.Intn(len(grades))]
-}
 
 // MakeOrder creates a single Order and associated data.
 func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
@@ -83,15 +49,11 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 	departmentIndicator := "AIR_FORCE"
 	hasDependents := assertions.Order.HasDependents || false
 	spouseHasProGear := assertions.Order.SpouseHasProGear || false
-
-	grade := assertions.Order.Grade
-	if grade == nil || *grade == "" {
-		grade = stringPointer(MakeGrade())
-	}
+	grade := "E_1"
 
 	entitlement := assertions.Entitlement
 	if isZeroUUID(entitlement.ID) {
-		assertions.Order.Grade = grade
+		assertions.Order.Grade = &grade
 		entitlement = MakeEntitlement(db, assertions)
 	}
 
@@ -122,7 +84,7 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 		Status:              models.OrderStatusDRAFT,
 		TAC:                 &TAC,
 		DepartmentIndicator: &departmentIndicator,
-		Grade:               grade,
+		Grade:               &grade,
 		Entitlement:         &entitlement,
 		EntitlementID:       &entitlement.ID,
 		OriginDutyStation:   &originDutyStation,

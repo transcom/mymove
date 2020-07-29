@@ -21,7 +21,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
-	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{})
+	order := testdatagen.MakeDefaultOrder(suite.DB())
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
 		Order: order,
 	})

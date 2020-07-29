@@ -35,7 +35,7 @@ func (suite *MoveOrderServiceSuite) TestMoveOrderFetcherWithEmptyFields() {
 	// an empty OriginDutyStation. During local testing in the office app, we
 	// noticed an exception due to trying to load empty OriginDutyStations.
 	// This was not caught by any tests, so we're adding one now.
-	expectedOrder := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{})
+	expectedOrder := testdatagen.MakeDefaultOrder(suite.DB())
 
 	expectedOrder.Entitlement = nil
 	expectedOrder.EntitlementID = nil
@@ -81,7 +81,7 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrder() {
 }
 
 func (suite *MoveOrderServiceSuite) TestListMoveOrderWithEmptyFields() {
-	expectedOrder := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{})
+	expectedOrder := testdatagen.MakeDefaultOrder(suite.DB())
 
 	expectedOrder.Entitlement = nil
 	expectedOrder.EntitlementID = nil

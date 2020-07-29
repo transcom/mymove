@@ -10,7 +10,7 @@ import (
 )
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
-	expectedOrder := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{})
+	expectedOrder := testdatagen.MakeDefaultOrder(suite.DB())
 	expectedMTO := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
 		Order: expectedOrder,
 	})
@@ -28,7 +28,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestListMoveTaskOrdersFetcher() {
-	expectedOrder := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{})
+	expectedOrder := testdatagen.MakeDefaultOrder(suite.DB())
 	expectedMTO := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
 		Order: expectedOrder,
 	})
