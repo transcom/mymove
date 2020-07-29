@@ -19,6 +19,7 @@ const ReviewServiceItems = ({
   disableScrollIntoView,
   patchPaymentServiceItem,
   onCompleteReview,
+  completeReviewError,
 }) => {
   const [curCardIndex, setCardIndex] = useState(0);
 
@@ -87,6 +88,7 @@ const ReviewServiceItems = ({
         </div>
         <div className={styles.body}>
           {/* TODO - styling */}
+          {completeReviewError && <p className="text-error">Error: {completeReviewError.detail}</p>}
           <p>Do you authorize this payment of {toDollarString(approvedSum)}?</p>
           <Button type="button" data-testid="authorizePaymentBtn" onClick={handleAuthorizePayment}>
             Authorize Payment
@@ -174,12 +176,17 @@ ReviewServiceItems.propTypes = {
   patchPaymentServiceItem: PropTypes.func.isRequired,
   disableScrollIntoView: PropTypes.bool,
   onCompleteReview: PropTypes.func.isRequired,
+  completeReviewError: PropTypes.shape({
+    detail: PropTypes.string,
+    title: PropTypes.string,
+  }),
 };
 
 ReviewServiceItems.defaultProps = {
   header: 'Review service items',
   serviceItemCards: [],
   disableScrollIntoView: false,
+  completeReviewError: undefined,
 };
 
 export default ReviewServiceItems;

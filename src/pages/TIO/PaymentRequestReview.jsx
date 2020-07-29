@@ -24,6 +24,14 @@ import {
 import { patchPaymentServiceItemStatus as patchPaymentServiceItemStatusAction } from 'shared/Entities/modules/paymentServiceItems';
 
 export class PaymentRequestReview extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      completeReviewError: undefined,
+    };
+  }
+
   componentDidMount() {
     const { match, getPaymentRequest, getMTOServiceItems, getMTOShipments } = this.props;
     const { paymentRequestId } = match.params;
@@ -48,20 +56,27 @@ export class PaymentRequestReview extends Component {
 
   handleCompleteReview = (status) => {
     const { updatePaymentRequest, paymentRequest, history } = this.props;
+    const { completeReviewError } = this.state;
+    // first reset error if there was one
+    if (completeReviewError) this.setState({ completeReviewError: undefined });
+
     const newPaymentRequest = {
       paymentRequestID: paymentRequest.id,
       ifMatchETag: paymentRequest.eTag,
       status,
     };
 
-    updatePaymentRequest(newPaymentRequest).then(() => {
-      // console.log('success', response);
-      // TODO - show flash message?
-      // TODO - show error message if not successful
-      // Go home
-
-      history.push(`/`);
-    });
+    updatePaymentRequest(newPaymentRequest)
+      .then(() => {
+        // TODO - show flash message?
+        history.push(`/`); // Go home
+      })
+      .catch((e) => {
+        const error = e.response?.response?.body;
+        this.setState({
+          completeReviewError: error,
+        });
+      });
   };
 
   handleClose = (moveOrderId) => {
@@ -72,6 +87,7 @@ export class PaymentRequestReview extends Component {
   render() {
     // eslint-disable-next-line react/prop-types
     const { moveOrderId, mtoServiceItems, mtoShipments, paymentRequest } = this.props;
+    const { completeReviewError } = this.state;
 
     const testFiles = [
       {
@@ -108,6 +124,7 @@ export class PaymentRequestReview extends Component {
             serviceItemCards={serviceItemCards}
             patchPaymentServiceItem={this.handleUpdatePaymentServiceItemStatus}
             onCompleteReview={this.handleCompleteReview}
+            completeReviewError={completeReviewError}
           />
         </div>
       </div>
