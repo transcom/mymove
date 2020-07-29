@@ -935,6 +935,7 @@ func init() {
     },
     "MTOAgents": {
       "type": "array",
+      "maxItems": 2,
       "items": {
         "$ref": "#/definitions/MTOAgent"
       }
@@ -2728,6 +2729,7 @@ func init() {
     },
     "MTOAgents": {
       "type": "array",
+      "maxItems": 2,
       "items": {
         "$ref": "#/definitions/MTOAgent"
       }
