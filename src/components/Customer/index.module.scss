@@ -3,9 +3,3 @@
 @import '../../shared/styles/basics';
 @import '../../shared/styles/mixins';
 @import '../../shared/styles/colors';
-
-fieldset,
-legend {
-  @include u-margin-y(0);
-  @include u-padding-y(0);
-}

@@ -202,6 +202,9 @@
   @include u-font-size('body', '3xs');
   @include u-text('bold');
   @include u-text('base-darkest');
+  &:first-of-type {
+    margin-top: 0;
+  }
 }
 
 .usa-radio__input:checked + .usa-radio__label::before {

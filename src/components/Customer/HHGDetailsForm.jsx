@@ -16,8 +16,6 @@ import { AddressFields } from '../form/AddressFields/AddressFields';
 import { DatePickerInput, TextInput } from '../form/fields';
 import { Form } from '../form/Form';
 
-import styles from './index.module.scss';
-
 class HHGDetailsForm extends Component {
   constructor(props) {
     super(props);

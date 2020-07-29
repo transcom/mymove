@@ -23,12 +23,17 @@ html {
     @include u-shadow(2);
   }
   &--accent {
-    &--default, &--hhg, &--ppm, &--ub, &--nts, &--ntsr {
+    &--default,
+    &--hhg,
+    &--ppm,
+    &--ub,
+    &--nts,
+    &--ntsr {
       @include u-radius('0');
     }
 
     &--default {
-      @include cont-border-top($accent-default)
+      @include cont-border-top($accent-default);
     }
 
     &--hhg {
@@ -327,4 +332,8 @@ table {
       font-size: 9px;
     }
   }
+}
+
+.usa-label:first-of-type {
+  margin-top: 0;
 }
