@@ -6,7 +6,7 @@ import { toDollarString } from '../../../shared/formatters';
 
 import ReviewServiceItems from './ReviewServiceItems';
 
-import { SHIPMENT_OPTIONS, SERVICE_ITEM_STATUS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 
 const serviceItemCards = [
   {
@@ -15,7 +15,7 @@ const serviceItemCards = [
     shipmentId: '10',
     serviceItemName: 'Domestic linehaul',
     amount: 6423,
-    status: SERVICE_ITEM_STATUS.SUBMITTED,
+    status: PAYMENT_SERVICE_ITEM_STATUS.SUBMITTED,
     createdAt: '2020-01-01T00:08:00.999Z',
   },
   {
@@ -25,7 +25,7 @@ const serviceItemCards = [
     serviceItemName: 'Fuel Surcharge',
     amount: 50.25,
     createdAt: '2020-01-01T00:08:30.999Z',
-    status: SERVICE_ITEM_STATUS.SUBMITTED,
+    status: PAYMENT_SERVICE_ITEM_STATUS.SUBMITTED,
   },
   {
     id: '3',
@@ -34,7 +34,7 @@ const serviceItemCards = [
     serviceItemName: 'Domestic linehaul',
     amount: 0.1,
     createdAt: '2020-01-01T00:09:00.999Z',
-    status: SERVICE_ITEM_STATUS.SUBMITTED,
+    status: PAYMENT_SERVICE_ITEM_STATUS.SUBMITTED,
   },
   {
     id: '4',
@@ -43,7 +43,7 @@ const serviceItemCards = [
     serviceItemName: 'Counseling Services',
     amount: 1000,
     createdAt: '2020-01-01T00:02:00.999Z',
-    status: SERVICE_ITEM_STATUS.SUBMITTED,
+    status: PAYMENT_SERVICE_ITEM_STATUS.SUBMITTED,
   },
 ];
 
@@ -55,7 +55,7 @@ const basicServiceItemCards = [
     serviceItemName: 'Counseling Services',
     amount: 1000,
     createdAt: '2020-01-01T00:02:00.999Z',
-    status: SERVICE_ITEM_STATUS.SUBMITTED,
+    status: PAYMENT_SERVICE_ITEM_STATUS.SUBMITTED,
   },
   {
     id: '5',
@@ -64,7 +64,7 @@ const basicServiceItemCards = [
     serviceItemName: 'Move management',
     amount: 1,
     createdAt: '2020-01-01T00:01:00.999Z',
-    status: SERVICE_ITEM_STATUS.SUBMITTED,
+    status: PAYMENT_SERVICE_ITEM_STATUS.SUBMITTED,
   },
 ];
 
@@ -265,7 +265,7 @@ describe('ReviewServiceItems component', () => {
         shipmentId: '10',
         serviceItemName: 'Domestic linehaul',
         amount: 6423,
-        status: SERVICE_ITEM_STATUS.SUBMITTED,
+        status: PAYMENT_SERVICE_ITEM_STATUS.SUBMITTED,
         createdAt: '2020-01-01T00:08:00.999Z',
       },
       {
@@ -274,7 +274,7 @@ describe('ReviewServiceItems component', () => {
         shipmentId: '10',
         serviceItemName: 'Fuel Surcharge',
         amount: 50.25,
-        status: SERVICE_ITEM_STATUS.APPROVED,
+        status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
         createdAt: '2020-01-01T00:08:30.999Z',
       },
       {
@@ -291,7 +291,7 @@ describe('ReviewServiceItems component', () => {
         shipmentId: null,
         serviceItemName: 'Counseling Services',
         amount: 1000,
-        status: SERVICE_ITEM_STATUS.APPROVED,
+        status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
         createdAt: '2020-01-01T00:02:00.999Z',
       },
       {
@@ -300,7 +300,7 @@ describe('ReviewServiceItems component', () => {
         shipmentId: null,
         serviceItemName: 'Move management',
         amount: 1,
-        status: SERVICE_ITEM_STATUS.REJECTED,
+        status: PAYMENT_SERVICE_ITEM_STATUS.REJECTED,
         rejectionReason: 'Wrong amount specified',
         createdAt: '2020-01-01T00:01:00.999Z',
       },

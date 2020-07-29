@@ -35,6 +35,13 @@ const ServiceItemCard = ({
             handleChange(event);
             submitForm();
           };
+          const handleFormReset = () => {
+            // eslint-disable-next-line no-param-reassign
+            values.rejectionReason = undefined;
+            // eslint-disable-next-line no-param-reassign
+            values.status = undefined;
+            handleReset();
+          };
 
           return (
             <Form className={styles.form} onSubmit={submitForm}>
@@ -76,23 +83,16 @@ const ServiceItemCard = ({
                       <FormGroup>
                         <Label htmlFor="rejectReason">Reason for rejection</Label>
                         <Textarea
-                          id="rejectReason"
+                          id={`rejectReason-${id}`}
                           name="rejectionReason"
                           onChange={handleChange}
                           value={values.rejectionReason}
                         />
                         <div className={styles.rejectionButtonGroup}>
-                          <Button type="button" data-testid="rejectionSaveButton" onClick={handleApprovalChange}>
+                          <Button type="button" data-testid="rejectionSaveButton" onClick={submitForm}>
                             Save
                           </Button>
-                          <Button
-                            data-testid="cancelRejectionButton"
-                            secondary
-                            onClick={() => {
-                              handleReset();
-                            }}
-                            type="button"
-                          >
+                          <Button data-testid="cancelRejectionButton" secondary onClick={handleFormReset} type="button">
                             Cancel
                           </Button>
                         </div>
@@ -106,9 +106,7 @@ const ServiceItemCard = ({
                       unstyled
                       data-testid="clearStatusButton"
                       className={styles.clearStatus}
-                      onClick={() => {
-                        handleReset();
-                      }}
+                      onClick={handleFormReset}
                     >
                       X Clear selection
                     </Button>
