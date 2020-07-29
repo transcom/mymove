@@ -62,7 +62,7 @@ func MTOAgentsModel(mtoAgents *primemessages.MTOAgents) *models.MTOAgents {
 }
 
 // MTOServiceItemModelListFromCreate model
-func MTOServiceItemModelListFromCreate(mtoShipment *primemessages.CreateShipmentPayload) (models.MTOServiceItems, *validate.Errors) {
+func MTOServiceItemModelListFromCreate(mtoShipment *primemessages.CreateMTOShipment) (models.MTOServiceItems, *validate.Errors) {
 
 	if mtoShipment == nil {
 		return nil, nil
@@ -85,7 +85,7 @@ func MTOServiceItemModelListFromCreate(mtoShipment *primemessages.CreateShipment
 }
 
 // MTOShipmentModelFromCreate model
-func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateShipmentPayload) *models.MTOShipment {
+func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateMTOShipment) *models.MTOShipment {
 	if mtoShipment == nil {
 		return nil
 	}

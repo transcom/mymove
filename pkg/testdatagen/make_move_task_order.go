@@ -11,9 +11,9 @@ import (
 
 // MakeMoveTaskOrder creates a single MoveTaskOrder and associated set relationships
 func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTaskOrder {
-	moveOrder := assertions.MoveOrder
-	if isZeroUUID(moveOrder.ID) {
-		moveOrder = MakeMoveOrder(db, assertions)
+	order := assertions.Order
+	if isZeroUUID(order.ID) {
+		order = MakeOrder(db, assertions)
 	}
 
 	var referenceID string
@@ -36,8 +36,8 @@ func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTas
 
 	moveTaskOrder := models.MoveTaskOrder{
 		AvailableToPrimeAt: assertions.MoveTaskOrder.AvailableToPrimeAt,
-		MoveOrder:          moveOrder,
-		MoveOrderID:        moveOrder.ID,
+		MoveOrder:          order,
+		MoveOrderID:        order.ID,
 		ContractorID:       contractorID,
 		ReferenceID:        referenceID,
 		IsCanceled:         false,

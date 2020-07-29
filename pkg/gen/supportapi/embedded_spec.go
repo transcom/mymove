@@ -511,10 +511,10 @@ func init() {
     "Address": {
       "type": "object",
       "required": [
-        "street_address_1",
+        "streetAddress1",
         "city",
         "state",
-        "postal_code"
+        "postalCode"
       ],
       "properties": {
         "city": {
@@ -530,14 +530,15 @@ func init() {
           "example": "USA"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "postal_code": {
+        "postalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
@@ -654,18 +655,18 @@ func init() {
             "WY": "WY"
           }
         },
-        "street_address_1": {
+        "streetAddress1": {
           "type": "string",
           "title": "Street address 1",
           "example": "123 Main Ave"
         },
-        "street_address_2": {
+        "streetAddress2": {
           "type": "string",
           "title": "Street address 2",
           "x-nullable": true,
           "example": "Apartment 9000"
         },
-        "street_address_3": {
+        "streetAddress3": {
           "type": "string",
           "title": "Address Line 3",
           "x-nullable": true,
@@ -708,7 +709,8 @@ func init() {
           "type": "string"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -764,7 +766,7 @@ func init() {
         "uploads": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/UploadPayload"
+            "$ref": "#/definitions/Upload"
           }
         }
       }
@@ -775,13 +777,14 @@ func init() {
         "address": {
           "$ref": "#/definitions/Address"
         },
-        "address_id": {
+        "addressID": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -885,10 +888,12 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -923,7 +928,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -945,7 +951,8 @@ func init() {
           "type": "string"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "feeType": {
           "type": "string",
@@ -1021,7 +1028,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "customerRemarks": {
           "type": "string",
@@ -1033,7 +1041,8 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -1091,7 +1100,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -1212,11 +1222,13 @@ func init() {
         "createdAt": {
           "description": "Date the MoveTaskOrder was created on.",
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "eTag": {
           "description": "Uniquely identifies the state of the MoveTaskOrder object (but not the nested objects)\n\nIt will change everytime the object is updated. Client should store the value.\nUpdates to this MoveTaskOrder will require that this eTag be passed in with the If-Match header.\n",
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "description": "ID of the MoveTaskOrder object.",
@@ -1275,7 +1287,8 @@ func init() {
         "updatedAt": {
           "description": "Date on which this MoveTaskOrder was last updated.",
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -1326,7 +1339,8 @@ func init() {
           "$ref": "#/definitions/ProofOfServicePackage"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -1485,7 +1499,8 @@ func init() {
       "type": "object",
       "properties": {
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "proofOfServicePackage": {
           "$ref": "#/definitions/ProofOfServicePackage"
@@ -1505,7 +1520,8 @@ func init() {
       "properties": {
         "eTag": {
           "description": "Attribute of the payment request object that automatically changes when the request is updated. This matches the value passed in the header for ` + "`" + `If-Match` + "`" + `. Required when sending PUT or PATCH requests to prevent updating stale data.",
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "rejectionReason": {
           "description": "A written reason to provide context for the status.",
@@ -1544,51 +1560,6 @@ func init() {
         },
         "filename": {
           "type": "string",
-          "format": "binary",
-          "example": "filename.pdf"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "url": {
-          "type": "string",
-          "format": "uri",
-          "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
-        }
-      }
-    },
-    "UploadPayload": {
-      "type": "object",
-      "required": [
-        "id",
-        "url",
-        "filename",
-        "content_type",
-        "bytes",
-        "created_at",
-        "updated_at"
-      ],
-      "properties": {
-        "bytes": {
-          "type": "integer"
-        },
-        "content_type": {
-          "type": "string",
-          "format": "mime-type",
-          "example": "application/pdf"
-        },
-        "created_at": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "filename": {
-          "type": "string",
           "example": "filename.pdf"
         },
         "id": {
@@ -1604,7 +1575,7 @@ func init() {
             "PROCESSING"
           ]
         },
-        "updated_at": {
+        "updatedAt": {
           "type": "string",
           "format": "date-time"
         },
@@ -2333,10 +2304,10 @@ func init() {
     "Address": {
       "type": "object",
       "required": [
-        "street_address_1",
+        "streetAddress1",
         "city",
         "state",
-        "postal_code"
+        "postalCode"
       ],
       "properties": {
         "city": {
@@ -2352,14 +2323,15 @@ func init() {
           "example": "USA"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "postal_code": {
+        "postalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
@@ -2476,18 +2448,18 @@ func init() {
             "WY": "WY"
           }
         },
-        "street_address_1": {
+        "streetAddress1": {
           "type": "string",
           "title": "Street address 1",
           "example": "123 Main Ave"
         },
-        "street_address_2": {
+        "streetAddress2": {
           "type": "string",
           "title": "Street address 2",
           "x-nullable": true,
           "example": "Apartment 9000"
         },
-        "street_address_3": {
+        "streetAddress3": {
           "type": "string",
           "title": "Address Line 3",
           "x-nullable": true,
@@ -2530,7 +2502,8 @@ func init() {
           "type": "string"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -2586,7 +2559,7 @@ func init() {
         "uploads": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/UploadPayload"
+            "$ref": "#/definitions/Upload"
           }
         }
       }
@@ -2597,13 +2570,14 @@ func init() {
         "address": {
           "$ref": "#/definitions/Address"
         },
-        "address_id": {
+        "addressID": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -2707,10 +2681,12 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -2745,7 +2721,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -2767,7 +2744,8 @@ func init() {
           "type": "string"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "feeType": {
           "type": "string",
@@ -2843,7 +2821,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "customerRemarks": {
           "type": "string",
@@ -2855,7 +2834,8 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -2913,7 +2893,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -3034,11 +3015,13 @@ func init() {
         "createdAt": {
           "description": "Date the MoveTaskOrder was created on.",
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "eTag": {
           "description": "Uniquely identifies the state of the MoveTaskOrder object (but not the nested objects)\n\nIt will change everytime the object is updated. Client should store the value.\nUpdates to this MoveTaskOrder will require that this eTag be passed in with the If-Match header.\n",
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "description": "ID of the MoveTaskOrder object.",
@@ -3097,7 +3080,8 @@ func init() {
         "updatedAt": {
           "description": "Date on which this MoveTaskOrder was last updated.",
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -3148,7 +3132,8 @@ func init() {
           "$ref": "#/definitions/ProofOfServicePackage"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -3307,7 +3292,8 @@ func init() {
       "type": "object",
       "properties": {
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "proofOfServicePackage": {
           "$ref": "#/definitions/ProofOfServicePackage"
@@ -3327,7 +3313,8 @@ func init() {
       "properties": {
         "eTag": {
           "description": "Attribute of the payment request object that automatically changes when the request is updated. This matches the value passed in the header for ` + "`" + `If-Match` + "`" + `. Required when sending PUT or PATCH requests to prevent updating stale data.",
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "rejectionReason": {
           "description": "A written reason to provide context for the status.",
@@ -3366,51 +3353,6 @@ func init() {
         },
         "filename": {
           "type": "string",
-          "format": "binary",
-          "example": "filename.pdf"
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "url": {
-          "type": "string",
-          "format": "uri",
-          "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
-        }
-      }
-    },
-    "UploadPayload": {
-      "type": "object",
-      "required": [
-        "id",
-        "url",
-        "filename",
-        "content_type",
-        "bytes",
-        "created_at",
-        "updated_at"
-      ],
-      "properties": {
-        "bytes": {
-          "type": "integer"
-        },
-        "content_type": {
-          "type": "string",
-          "format": "mime-type",
-          "example": "application/pdf"
-        },
-        "created_at": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "filename": {
-          "type": "string",
           "example": "filename.pdf"
         },
         "id": {
@@ -3426,7 +3368,7 @@ func init() {
             "PROCESSING"
           ]
         },
-        "updated_at": {
+        "updatedAt": {
           "type": "string",
           "format": "date-time"
         },

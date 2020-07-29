@@ -92,3 +92,18 @@ export const MTOServiceItemShape = PropTypes.shape({
   submittedAt: PropTypes.string,
   status: PropTypes.string,
 });
+
+export const PaymentRequestShape = PropTypes.shape({
+  id: PropTypes.string,
+  moveTaskOrderID: PropTypes.string,
+  paymentRequestNumber: PropTypes.string,
+  status: PropTypes.string,
+  serviceItems: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string,
+      mtoServiceItemID: PropTypes.string,
+      priceCents: PropTypes.number,
+      status: PropTypes.string,
+    }),
+  ),
+});

@@ -24,10 +24,12 @@ type MTOAgent struct {
 	AgentType string `json:"agentType,omitempty"`
 
 	// created at
+	// Read Only: true
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// e tag
+	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// email
@@ -54,6 +56,7 @@ type MTOAgent struct {
 	Phone *string `json:"phone,omitempty"`
 
 	// updated at
+	// Read Only: true
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 }

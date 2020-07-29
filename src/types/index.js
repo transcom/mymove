@@ -9,5 +9,7 @@ export {
   MoveOrderShape,
   CustomerShape,
   MTOShipmentShape,
+  MTOServiceItemShape,
+  PaymentRequestShape,
 } from './moveOrder';
 export { MatchShape, LocationShape } from './router';
