@@ -27,14 +27,14 @@ const ReviewServiceItems = ({
 
   const totalCards = serviceItemCards.length;
 
-  const { APPROVED, REVIEWED } = PAYMENT_SERVICE_ITEM_STATUS;
+  const { APPROVED } = PAYMENT_SERVICE_ITEM_STATUS;
 
   const handleClick = (index) => {
     setCardIndex(index);
   };
 
   const handleAuthorizePayment = () => {
-    onCompleteReview(REVIEWED);
+    onCompleteReview();
   };
 
   const approvedSum = serviceItemCards.filter((s) => s.status === APPROVED).reduce((sum, cur) => sum + cur.amount, 0);

@@ -22,6 +22,7 @@ import {
   selectMTOServiceItemsByMTOId,
 } from 'shared/Entities/modules/mtoServiceItems';
 import { patchPaymentServiceItemStatus as patchPaymentServiceItemStatusAction } from 'shared/Entities/modules/paymentServiceItems';
+import { PAYMENT_REQUEST_STATUS } from 'shared/constants';
 
 export class PaymentRequestReview extends Component {
   constructor(props) {
@@ -54,7 +55,7 @@ export class PaymentRequestReview extends Component {
     );
   };
 
-  handleCompleteReview = (status) => {
+  handleCompleteReview = () => {
     const { updatePaymentRequest, paymentRequest, history } = this.props;
     const { completeReviewError } = this.state;
     // first reset error if there was one
@@ -63,7 +64,7 @@ export class PaymentRequestReview extends Component {
     const newPaymentRequest = {
       paymentRequestID: paymentRequest.id,
       ifMatchETag: paymentRequest.eTag,
-      status,
+      status: PAYMENT_REQUEST_STATUS.REVIEWED,
     };
 
     updatePaymentRequest(newPaymentRequest)
