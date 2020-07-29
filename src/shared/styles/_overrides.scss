@@ -238,6 +238,9 @@
 .usa-fieldset {
   @include u-padding-top(2);
   @include u-margin-bottom(5);
+  p:first-of-type {
+    @include u-margin-top(0);
+  }
 }
 
 .usa-form-group {
