@@ -14,7 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-const baseGHCDieselFuelPrice =  unit.Millicents(250000)
+const baseGHCDieselFuelPrice = unit.Millicents(250000)
 
 // FuelSurchargePricer is a service object to price domestic shorthaul
 type fuelSurchargePricer struct {
@@ -70,22 +70,39 @@ func (p fuelSurchargePricer) PriceUsingParams(params models.PaymentServiceItemPa
 		return unit.Cents(0), err
 	}
 
-	distanceZip5, err := getParamInt(params, models.ServiceItemParamNameDistanceZip5)
+	var paymentServiceItem models.PaymentServiceItem
+	err = p.db.Eager("MTOServiceItem", "MTOServiceItem.MTOShipment").Find(&paymentServiceItem, params[0].PaymentServiceItemID)
 	if err != nil {
 		return unit.Cents(0), err
 	}
 
-	distanceZip3, err := getParamInt(params, models.ServiceItemParamNameDistanceZip3)
-	if err != nil {
-		return unit.Cents(0), err
-	}
+	mtoShipment := paymentServiceItem.MTOServiceItem.MTOShipment
+	fmt.Println("==========================")
+	fmt.Println("==========================")
+	fmt.Println("==========================")
+	fmt.Printf("%#v\n\n", paymentServiceItem)
+	fmt.Printf("%#v\n\n", mtoShipment)
+	fmt.Println("==========================")
+	fmt.Println("==========================")
+	fmt.Println("==========================")
+	distance := *mtoShipment.Distance
 
-	var distance int
-	if distanceZip3 > 50 && distanceZip5 > 50 {
-		distance = distanceZip3
-	} else {
-		distance = distanceZip5
-	}
+	// distanceZip5, err := getParamInt(params, models.ServiceItemParamNameDistanceZip5)
+	// if err != nil {
+	// 	return unit.Cents(0), err
+	// }
+	//
+	// distanceZip3, err := getParamInt(params, models.ServiceItemParamNameDistanceZip3)
+	// if err != nil {
+	// 	return unit.Cents(0), err
+	// }
+	//
+	// var distance int
+	// if distanceZip3 > 50 && distanceZip5 > 50 {
+	// 	distance = distanceZip3
+	// } else {
+	// 	distance = distanceZip5
+	// }
 
 	weightBilledActual, err := getParamInt(params, models.ServiceItemParamNameWeightBilledActual)
 	if err != nil {

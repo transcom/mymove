@@ -15,7 +15,8 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-const defaultDistance = 1234
+const defaultZip3Distance = 1234
+const defaultZip5Distance = 48
 
 type ServiceParamValueLookupsSuite struct {
 	testingsuite.PopTestSuite
@@ -32,15 +33,15 @@ func TestServiceParamValueLookupsSuite(t *testing.T) {
 	planner.On("Zip5TransitDistanceLineHaul",
 		mock.Anything,
 		mock.Anything,
-	).Return(defaultDistance, nil)
+	).Return(defaultZip5Distance, nil)
 	planner.On("Zip3TransitDistance",
 		mock.Anything,
 		mock.Anything,
-	).Return(defaultDistance, nil)
+	).Return(defaultZip3Distance, nil)
 	planner.On("Zip5TransitDistance",
 		"90210",
 		"94535",
-	).Return(defaultDistance, nil)
+	).Return(defaultZip5Distance, nil)
 
 	ts := &ServiceParamValueLookupsSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),

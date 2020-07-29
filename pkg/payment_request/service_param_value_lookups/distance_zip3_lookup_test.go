@@ -10,6 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
@@ -29,8 +30,13 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 	suite.T().Run("Calculate zip3 distance", func(t *testing.T) {
 		distanceStr, err := paramLookup.ServiceParamValue(key)
 		suite.FatalNoError(err)
-		expected := strconv.Itoa(defaultDistance)
+		expected := strconv.Itoa(defaultZip3Distance)
 		suite.Equal(expected, distanceStr)
+
+		var mtoShipment models.MTOShipment
+		suite.DB().Find(&mtoShipment, mtoServiceItem.MTOShipmentID)
+
+		suite.Equal(unit.Miles(defaultZip3Distance), *mtoShipment.Distance)
 	})
 
 	suite.T().Run("nil PickupAddressID", func(t *testing.T) {

@@ -62,7 +62,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceFuelSurcharge() {
 }
 
 func (suite *GHCRateEngineServiceSuite) setupFuelSurchargeServiceItem() models.PaymentServiceItem {
-	return suite.setupPaymentServiceItemWithParams(
+	model := suite.setupPaymentServiceItemWithParams(
 		models.ReServiceCodeFSC,
 		[]createParams{
 			{
@@ -78,12 +78,12 @@ func (suite *GHCRateEngineServiceSuite) setupFuelSurchargeServiceItem() models.P
 			{
 				models.ServiceItemParamNameDistanceZip3,
 				models.ServiceItemParamTypeInteger,
-				fmt.Sprintf("%d", 0),
+				fmt.Sprintf("%d", int(fscTestDistance)),
 			},
 			{
 				models.ServiceItemParamNameDistanceZip5,
 				models.ServiceItemParamTypeInteger,
-				fmt.Sprintf("%d", int(fscTestDistance)),
+				fmt.Sprintf("%d", 1234), // bogus number, won't be used
 			},
 			{
 				models.ServiceItemParamNameWeightBilledActual,
@@ -102,4 +102,14 @@ func (suite *GHCRateEngineServiceSuite) setupFuelSurchargeServiceItem() models.P
 			},
 		},
 	)
+
+	var mtoServiceItem models.MTOServiceItem
+	suite.DB().Eager("MTOShipment").Find(&mtoServiceItem, model.MTOServiceItemID)
+
+	mtoShipment := mtoServiceItem.MTOShipment
+	distance := fscTestDistance
+	mtoShipment.Distance = &distance
+	suite.DB().Save(&mtoShipment)
+
+	return model
 }

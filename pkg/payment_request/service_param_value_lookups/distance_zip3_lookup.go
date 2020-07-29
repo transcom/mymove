@@ -8,6 +8,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // DistanceZip3Lookup contains zip3 lookup
@@ -39,6 +40,8 @@ func (r DistanceZip3Lookup) lookup(keyData *ServiceItemParamKeyData) (string, er
 		return "", services.NewNotFoundError(uuid.Nil, "looking for MTOShipmentID")
 	}
 
+	mtoShipment := mtoServiceItem.MTOShipment
+
 	// Make sure there's a pickup and destination address since those are nullable
 	pickupAddressID := mtoServiceItem.MTOShipment.PickupAddressID
 	if pickupAddressID == nil || *pickupAddressID == uuid.Nil {
@@ -56,6 +59,12 @@ func (r DistanceZip3Lookup) lookup(keyData *ServiceItemParamKeyData) (string, er
 	distanceMiles, err := planner.Zip3TransitDistance(pickupZip, destinationZip)
 	if err != nil {
 		return "", err
+	}
+
+	if distanceMiles >= 50 && mtoShipment.Distance == nil {
+		miles := unit.Miles(distanceMiles)
+		mtoShipment.Distance = &miles
+		db.Save(&mtoShipment)
 	}
 
 	return strconv.Itoa(distanceMiles), nil
