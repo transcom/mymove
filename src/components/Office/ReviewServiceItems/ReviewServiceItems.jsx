@@ -8,7 +8,7 @@ import styles from './ReviewServiceItems.module.scss';
 import ServiceItemCard from './ServiceItemCard';
 
 import { ServiceItemCardsShape } from 'types/serviceItemCard';
-import { SERVICE_ITEM_STATUS } from 'shared/constants';
+import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
 import { toDollarString } from 'shared/formatters';
 
@@ -18,6 +18,8 @@ const ReviewServiceItems = ({
   handleClose,
   disableScrollIntoView,
   patchPaymentServiceItem,
+  onCompleteReview,
+  completeReviewError,
 }) => {
   const [curCardIndex, setCardIndex] = useState(0);
 
@@ -25,18 +27,18 @@ const ReviewServiceItems = ({
 
   const totalCards = serviceItemCards.length;
 
-  const { APPROVED } = SERVICE_ITEM_STATUS;
+  const { APPROVED } = PAYMENT_SERVICE_ITEM_STATUS;
 
   const handleClick = (index) => {
     setCardIndex(index);
   };
 
   const handleAuthorizePayment = () => {
-    // console.log('authorize payment')
+    onCompleteReview();
   };
 
   const approvedSum = serviceItemCards.filter((s) => s.status === APPROVED).reduce((sum, cur) => sum + cur.amount, 0);
-  // const rejectedSum = serviceItemCards.filter((s) => s.status === REJECTED).reduce((sum, cur) => sum + cur.amount, 0)
+  // const rejectedSum = serviceItemCards.filter((s) => s.status === DENIED).reduce((sum, cur) => sum + cur.amount, 0)
   // const requestedSum = serviceItemCards.reduce((sum, cur) => sum + cur.amount, 0); // TODO - use in Complete review screen
 
   let firstBasicIndex = null;
@@ -85,11 +87,23 @@ const ReviewServiceItems = ({
           <h2 className={styles.header}>Complete request</h2>
         </div>
         <div className={styles.body}>
-          {/* TODO - styling */}
-          <p>Do you authorize this payment of {toDollarString(approvedSum)}?</p>
-          <Button type="button" data-testid="authorizePaymentBtn" onClick={handleAuthorizePayment}>
-            Authorize Payment
-          </Button>
+          <div className={styles.completeReviewCard}>
+            <h4>Review details</h4>
+            {completeReviewError && (
+              <p className="text-error" data-testid="errorMessage">
+                Error: {completeReviewError.detail}
+              </p>
+            )}
+
+            <div className={styles.completeReviewAction}>
+              <p>
+                <strong>Do you authorize this payment of {toDollarString(approvedSum)}?</strong>
+              </p>
+              <Button type="button" data-testid="authorizePaymentBtn" onClick={handleAuthorizePayment}>
+                Authorize Payment
+              </Button>
+            </div>
+          </div>
         </div>
         <div className={styles.bottom}>
           <Button
@@ -157,7 +171,9 @@ const ReviewServiceItems = ({
         </Button>
         <div className={styles.totalApproved}>
           <div className={styles.totalLabel}>Total approved</div>
-          <div className={styles.totalAmount}> {toDollarString(approvedSum)}</div>
+          <div className={styles.totalAmount} data-testid="approvedAmount">
+            {toDollarString(approvedSum)}
+          </div>
         </div>
       </div>
     </div>
@@ -170,12 +186,18 @@ ReviewServiceItems.propTypes = {
   handleClose: PropTypes.func.isRequired,
   patchPaymentServiceItem: PropTypes.func.isRequired,
   disableScrollIntoView: PropTypes.bool,
+  onCompleteReview: PropTypes.func.isRequired,
+  completeReviewError: PropTypes.shape({
+    detail: PropTypes.string,
+    title: PropTypes.string,
+  }),
 };
 
 ReviewServiceItems.defaultProps = {
   header: 'Review service items',
   serviceItemCards: [],
   disableScrollIntoView: false,
+  completeReviewError: undefined,
 };
 
 export default ReviewServiceItems;

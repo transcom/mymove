@@ -8,7 +8,7 @@ import styles from './ServiceItemCard.module.scss';
 import ShipmentContainer from 'components/Office/ShipmentContainer';
 import { mtoShipmentTypeToFriendlyDisplay, toDollarString } from 'shared/formatters';
 import { ShipmentOptionsOneOf } from 'types/shipment';
-import { SERVICE_ITEM_STATUS } from 'shared/constants';
+import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 
 /** This component represents a Payment Request Service Item */
 const ServiceItemCard = ({
@@ -20,7 +20,7 @@ const ServiceItemCard = ({
   rejectionReason,
   patchPaymentServiceItem,
 }) => {
-  const { APPROVED, DENIED } = SERVICE_ITEM_STATUS;
+  const { APPROVED, DENIED } = PAYMENT_SERVICE_ITEM_STATUS;
 
   return (
     <div data-testid="ServiceItemCard" id={`card-${id}`} className={styles.ServiceItemCard}>
@@ -30,10 +30,17 @@ const ServiceItemCard = ({
           patchPaymentServiceItem(id, values);
         }}
       >
-        {({ handleChange, submitForm, handleReset, values }) => {
+        {({ handleChange, submitForm, values, setValues }) => {
           const handleApprovalChange = (event) => {
             handleChange(event);
             submitForm();
+          };
+
+          const handleFormReset = () => {
+            setValues({
+              status: undefined,
+              rejectionReason: undefined,
+            });
           };
 
           return (
@@ -58,6 +65,7 @@ const ServiceItemCard = ({
                       name="status"
                       label="Approve"
                       onChange={handleApprovalChange}
+                      data-testid="approveRadio"
                     />
                   </div>
                   <div className={styles.statusOption}>
@@ -68,29 +76,23 @@ const ServiceItemCard = ({
                       name="status"
                       label="Reject"
                       onChange={handleChange}
+                      data-testid="rejectRadio"
                     />
 
                     {values.status === DENIED && (
                       <FormGroup>
                         <Label htmlFor="rejectReason">Reason for rejection</Label>
                         <Textarea
-                          id="rejectReason"
+                          id={`rejectReason-${id}`}
                           name="rejectionReason"
                           onChange={handleChange}
                           value={values.rejectionReason}
                         />
                         <div className={styles.rejectionButtonGroup}>
-                          <Button type="button" data-testid="rejectionSaveButton" onClick={handleApprovalChange}>
+                          <Button type="button" data-testid="rejectionSaveButton" onClick={submitForm}>
                             Save
                           </Button>
-                          <Button
-                            data-testid="cancelRejectionButton"
-                            secondary
-                            onClick={() => {
-                              handleReset();
-                            }}
-                            type="button"
-                          >
+                          <Button data-testid="cancelRejectionButton" secondary onClick={handleFormReset} type="button">
                             Cancel
                           </Button>
                         </div>
@@ -104,9 +106,7 @@ const ServiceItemCard = ({
                       unstyled
                       data-testid="clearStatusButton"
                       className={styles.clearStatus}
-                      onClick={() => {
-                        handleReset();
-                      }}
+                      onClick={handleFormReset}
                     >
                       X Clear selection
                     </Button>

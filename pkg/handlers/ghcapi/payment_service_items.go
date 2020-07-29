@@ -55,12 +55,13 @@ func (h UpdatePaymentServiceItemStatusHandler) Handle(params paymentServiceItemO
 		paymentServiceItem.RejectionReason = params.Body.RejectionReason
 	}
 	// If we're approving this thing then we don't want there to be a rejection reason
+	// We also will want to update the ApprovedAt field and nil out the DeniedAt field.
 	if paymentServiceItem.Status == models.PaymentServiceItemStatusApproved {
 		paymentServiceItem.RejectionReason = nil
 		paymentServiceItem.ApprovedAt = swag.Time(time.Now())
 		paymentServiceItem.DeniedAt = nil
 	}
-
+	// If we're denying this thing we want to make sure to update the DeniedAt field and nil out ApprovedAt.
 	if paymentServiceItem.Status == models.PaymentServiceItemStatusDenied {
 		paymentServiceItem.DeniedAt = swag.Time(time.Now())
 		paymentServiceItem.ApprovedAt = nil
