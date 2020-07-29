@@ -27,7 +27,7 @@ const ReviewDetailsCard = ({ children, requestedAmount, acceptedAmount, rejected
 };
 
 ReviewDetailsCard.propTypes = {
-  children: PropTypes.oneOf([PropTypes.element, PropTypes.arrayOf(PropTypes.element)]),
+  children: PropTypes.element,
   requestedAmount: PropTypes.number,
   acceptedAmount: PropTypes.number,
   rejectedAmount: PropTypes.number,
