@@ -17,6 +17,8 @@ import { MTOAgentType } from 'shared/constants';
 import { formatSwaggerDate } from 'shared/formatters';
 import Checkbox from 'shared/Checkbox';
 
+import styles from './index.module.scss';
+
 class HHGDetailsForm extends Component {
   constructor(props) {
     super(props);
