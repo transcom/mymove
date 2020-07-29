@@ -70,15 +70,7 @@ const shipments = [
     createdAt: '2020-06-10T15:58:02.431993Z',
     customerRemarks: 'please treat gently',
     destinationAddress: {
-      city: 'Fairfield',
-      country: 'US',
-      eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MTcyMjZa',
-      id: '00a5dfeb-c6a0-4ed8-965c-89943163fee4',
       postal_code: '94535',
-      state: 'CA',
-      street_address_1: '987 Any Avenue',
-      street_address_2: 'P.O. Box 9876',
-      street_address_3: 'c/o Some Person',
     },
     eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MzE5OTVa',
     id: 'c2f68d97-b960-4c86-a418-c70a0aeba04e',
@@ -248,5 +240,22 @@ describe('Shipment preview modal', () => {
 
     wrapper.find('[data-testid="closeShipmentApproval"]').simulate('click');
     expect(cancelClicked).toHaveBeenCalledTimes(2);
+  });
+
+  it('renders a postal only destination address', () => {
+    const wrapper = mount(
+      <ShipmentApprovalPreview
+        customerInfo={customerInfo}
+        mtoShipments={shipments}
+        setIsModalVisible={jest.fn()}
+        onSubmit={jest.fn()}
+        allowancesInfo={allowancesInfo}
+        counselingFee
+        shipmentManagementFee
+      />,
+    );
+    expect(wrapper.find('[data-testid="c2f68d97-b960-4c86-a418-c70a0aeba04e-destinationAddress"]').text()).toEqual(
+      '94535',
+    );
   });
 });

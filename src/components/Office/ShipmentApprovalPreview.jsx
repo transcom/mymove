@@ -5,6 +5,7 @@ import classNames from 'classnames';
 
 import { mtoShipmentTypeToFriendlyDisplay } from '../../shared/formatters';
 import { MTOAgentShape, MTOShipmentShape } from '../../types/moveOrder';
+import formatAddress from '../../utils/shipmentDisplay';
 
 import styles from './shipmentApprovalPreview.module.scss';
 import AllowancesTable from './AllowancesTable';
@@ -86,22 +87,14 @@ const ShipmentApprovalPreview = ({
                             <th className="text-bold" scope="row">
                               Current Address
                             </th>
-                            <td>
-                              {shipment.pickupAddress.street_address_1}
-                              <br />
-                              {shipment.pickupAddress.city}, {shipment.pickupAddress.state}{' '}
-                              {shipment.pickupAddress.postal_code}
-                            </td>
+                            <td>{formatAddress(shipment.pickupAddress)}</td>
                           </tr>
                           <tr>
                             <th className="text-bold" scope="row">
                               Destination Address
                             </th>
-                            <td>
-                              {shipment.destinationAddress.street_address_1}
-                              <br />
-                              {shipment.destinationAddress.city}, {shipment.destinationAddress.state}{' '}
-                              {shipment.destinationAddress.postal_code}
+                            <td data-testid={`${shipment.id}-destinationAddress`}>
+                              {formatAddress(shipment.destinationAddress)}
                             </td>
                           </tr>
                           <tr>
