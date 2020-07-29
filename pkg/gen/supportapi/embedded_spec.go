@@ -81,7 +81,7 @@ func init() {
         }
       },
       "post": {
-        "description": "Creates an instance of moveTaskOrder.\nCurrent this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses or duty stations. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
+        "description": "Creates an instance of moveTaskOrder.\nCurrent this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses or duty stations. It requires an existing contractor ID, destination duty station ID,\norigin duty station ID, and an uploaded orders ID to be passed into the request.\n\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -1114,6 +1114,14 @@ func init() {
     },
     "MoveOrder": {
       "type": "object",
+      "required": [
+        "orderNumber",
+        "ordersType",
+        "rank",
+        "reportByDate",
+        "issueDate",
+        "status"
+      ],
       "properties": {
         "customer": {
           "$ref": "#/definitions/Customer"
@@ -1737,7 +1745,7 @@ func init() {
         }
       },
       "post": {
-        "description": "Creates an instance of moveTaskOrder.\nCurrent this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses or duty stations. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
+        "description": "Creates an instance of moveTaskOrder.\nCurrent this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses or duty stations. It requires an existing contractor ID, destination duty station ID,\norigin duty station ID, and an uploaded orders ID to be passed into the request.\n\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -2908,6 +2916,14 @@ func init() {
     },
     "MoveOrder": {
       "type": "object",
+      "required": [
+        "orderNumber",
+        "ordersType",
+        "rank",
+        "reportByDate",
+        "issueDate",
+        "status"
+      ],
       "properties": {
         "customer": {
           "$ref": "#/definitions/Customer"
