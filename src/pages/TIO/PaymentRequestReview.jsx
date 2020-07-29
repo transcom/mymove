@@ -84,15 +84,13 @@ export class PaymentRequestReview extends Component {
         <div className={styles.embed}>
           <DocumentViewer files={testFiles} />
         </div>
-        {paymentRequest?.serviceItems && (
-          <div className={styles.sidebar}>
-            <ReviewServiceItems
-              handleClose={() => this.handleClose(moveOrderId)}
-              serviceItemCards={serviceItemCards}
-              patchPaymentServiceItem={this.handleUpdatePaymentServiceItemStatus}
-            />
-          </div>
-        )}
+        <div className={styles.sidebar}>
+          <ReviewServiceItems
+            handleClose={() => this.handleClose(moveOrderId)}
+            serviceItemCards={serviceItemCards}
+            patchPaymentServiceItem={this.handleUpdatePaymentServiceItemStatus}
+          />
+        </div>
       </div>
     );
   }
