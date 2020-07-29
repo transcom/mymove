@@ -8,7 +8,7 @@ export const ContactInfoFields = ({ legend, className, subtitle, values, handleC
 
   return (
     <Fieldset legend={legend} className={className}>
-      {subtitle && <span>{subtitle}</span>}
+      {subtitle && <p>{subtitle}</p>}
       <Label hint="(optional)" htmlFor={`firstName_${contactInfoFieldsUUID}`}>
         First name
       </Label>
