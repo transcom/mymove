@@ -11,7 +11,7 @@ func MakeEntitlement(db *pop.Connection, assertions Assertions) models.Entitleme
 	truePtr := true
 	dependents := 1
 	storageInTransit := 2
-	grade := assertions.MoveOrder.Grade
+	grade := assertions.Order.Grade
 
 	if grade == nil || *grade == "" {
 		grade = stringPointer("E_1")

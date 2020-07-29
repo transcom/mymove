@@ -49,6 +49,24 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 	departmentIndicator := "AIR_FORCE"
 	hasDependents := assertions.Order.HasDependents || false
 	spouseHasProGear := assertions.Order.SpouseHasProGear || false
+	grade := "E_1"
+
+	entitlement := assertions.Entitlement
+	if isZeroUUID(entitlement.ID) {
+		assertions.Order.Grade = &grade
+		entitlement = MakeEntitlement(db, assertions)
+	}
+
+	originDutyStation := assertions.OriginDutyStation
+	if isZeroUUID(originDutyStation.ID) {
+		originDutyStation = MakeDutyStation(db, assertions)
+	}
+
+	orderTypeDetail := assertions.Order.OrdersTypeDetail
+	tbdString := internalmessages.OrdersTypeDetail("TBD")
+	if orderTypeDetail == nil || *orderTypeDetail == "" {
+		orderTypeDetail = &tbdString
+	}
 
 	order := models.Order{
 		ServiceMember:       sm,
@@ -66,6 +84,12 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 		Status:              models.OrderStatusDRAFT,
 		TAC:                 &TAC,
 		DepartmentIndicator: &departmentIndicator,
+		Grade:               &grade,
+		Entitlement:         &entitlement,
+		EntitlementID:       &entitlement.ID,
+		OriginDutyStation:   &originDutyStation,
+		OriginDutyStationID: &originDutyStation.ID,
+		OrdersTypeDetail:    orderTypeDetail,
 	}
 
 	// Overwrite values with those from assertions
