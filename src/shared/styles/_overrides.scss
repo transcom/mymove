@@ -247,6 +247,9 @@
 .usa-hint {
   @include u-font-size('body', '3xs');
   @include u-padding-top(1);
+  label & {
+    @include u-padding-left('05');
+  }
 }
 
 .usa-select {
