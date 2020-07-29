@@ -210,8 +210,8 @@ func MoveOrderModel(moveOrderPayload *supportmessages.MoveOrder) *models.Order {
 		ServiceMember:    *CustomerModel(moveOrderPayload.Customer),
 		Entitlement:      EntitlementModel(moveOrderPayload.Entitlement),
 		Status:           (models.OrderStatus)(moveOrderPayload.Status),
-		IssueDate:        (time.Time)(moveOrderPayload.DateIssued),
-		OrdersType:       (internalmessages.OrdersType)(moveOrderPayload.OrderType),
+		IssueDate:        (time.Time)(moveOrderPayload.IssueDate),
+		OrdersType:       (internalmessages.OrdersType)(moveOrderPayload.OrdersType),
 		UploadedOrdersID: uuid.FromStringOrNil(moveOrderPayload.UploadedOrdersID.String()),
 	}
 

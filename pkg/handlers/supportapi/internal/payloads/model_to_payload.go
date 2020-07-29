@@ -90,7 +90,7 @@ func MoveOrder(moveOrder *models.Order) *supportmessages.MoveOrder {
 		Entitlement:              Entitlement(moveOrder.Entitlement),
 		Customer:                 Customer(&moveOrder.ServiceMember),
 		OrderNumber:              moveOrder.OrdersNumber,
-		OrderType:                supportmessages.OrderType(moveOrder.OrdersType),
+		OrdersType:               supportmessages.OrdersType(moveOrder.OrdersType),
 		ID:                       strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:        originDutyStation,
 		ETag:                     etag.GenerateEtag(moveOrder.UpdatedAt),
@@ -98,7 +98,7 @@ func MoveOrder(moveOrder *models.Order) *supportmessages.MoveOrder {
 		UploadedOrders:           uploadedOrders,
 		UploadedOrdersID:         strfmt.UUID(uploadedOrders.ID.String()),
 		ReportByDate:             strfmt.Date(moveOrder.ReportByDate),
-		DateIssued:               strfmt.Date(moveOrder.IssueDate),
+		IssueDate:                strfmt.Date(moveOrder.IssueDate),
 	}
 
 	if moveOrder.Grade != nil {

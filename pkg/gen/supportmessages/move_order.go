@@ -27,10 +27,6 @@ type MoveOrder struct {
 	// Format: uuid
 	CustomerID strfmt.UUID `json:"customerID,omitempty"`
 
-	// The date the orders were issued.
-	// Format: date
-	DateIssued strfmt.Date `json:"dateIssued,omitempty"`
-
 	// destination duty station
 	DestinationDutyStation *DutyStation `json:"destinationDutyStation,omitempty"`
 
@@ -56,11 +52,15 @@ type MoveOrder struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
+	// The date the orders were issued.
+	// Format: date
+	IssueDate strfmt.Date `json:"issueDate,omitempty"`
+
 	// ID of the military orders associated with this move.
 	OrderNumber *string `json:"orderNumber,omitempty"`
 
-	// order type
-	OrderType OrderType `json:"orderType,omitempty"`
+	// orders type
+	OrdersType OrdersType `json:"ordersType,omitempty"`
 
 	// origin duty station
 	OriginDutyStation *DutyStation `json:"originDutyStation,omitempty"`
@@ -102,10 +102,6 @@ func (m *MoveOrder) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateDateIssued(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateDestinationDutyStation(formats); err != nil {
 		res = append(res, err)
 	}
@@ -122,7 +118,11 @@ func (m *MoveOrder) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateOrderType(formats); err != nil {
+	if err := m.validateIssueDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOrdersType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -181,19 +181,6 @@ func (m *MoveOrder) validateCustomerID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("customerID", "body", "uuid", m.CustomerID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MoveOrder) validateDateIssued(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.DateIssued) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("dateIssued", "body", "date", m.DateIssued.String(), formats); err != nil {
 		return err
 	}
 
@@ -262,15 +249,28 @@ func (m *MoveOrder) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MoveOrder) validateOrderType(formats strfmt.Registry) error {
+func (m *MoveOrder) validateIssueDate(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.OrderType) { // not required
+	if swag.IsZero(m.IssueDate) { // not required
 		return nil
 	}
 
-	if err := m.OrderType.Validate(formats); err != nil {
+	if err := validate.FormatOf("issueDate", "body", "date", m.IssueDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveOrder) validateOrdersType(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.OrdersType) { // not required
+		return nil
+	}
+
+	if err := m.OrdersType.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("orderType")
+			return ve.ValidateName("ordersType")
 		}
 		return err
 	}

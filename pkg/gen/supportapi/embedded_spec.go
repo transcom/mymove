@@ -1123,12 +1123,6 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "dateIssued": {
-          "description": "The date the orders were issued.",
-          "type": "string",
-          "format": "date",
-          "example": "2020-01-01"
-        },
         "destinationDutyStation": {
           "$ref": "#/definitions/DutyStation"
         },
@@ -1152,14 +1146,20 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "issueDate": {
+          "description": "The date the orders were issued.",
+          "type": "string",
+          "format": "date",
+          "example": "2020-01-01"
+        },
         "orderNumber": {
           "description": "ID of the military orders associated with this move.",
           "type": "string",
           "x-nullable": true,
           "example": "030-00362"
         },
-        "orderType": {
-          "$ref": "#/definitions/OrderType"
+        "ordersType": {
+          "$ref": "#/definitions/OrdersType"
         },
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"
@@ -1298,24 +1298,6 @@ func init() {
         "$ref": "#/definitions/MoveTaskOrder"
       }
     },
-    "OrderType": {
-      "type": "string",
-      "title": "Order type",
-      "enum": [
-        "PERMANENT_CHANGE_OF_STATION",
-        "RETIREMENT",
-        "SEPARATION",
-        "GHC",
-        "NTS"
-      ],
-      "x-display-value": {
-        "GHC": "GHC",
-        "NTS": "NTS",
-        "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
-        "RETIREMENT": "Retirement",
-        "SEPARATION": "Separation"
-      }
-    },
     "OrdersStatus": {
       "type": "string",
       "title": "Move status",
@@ -1330,6 +1312,24 @@ func init() {
         "CANCELED": "Canceled",
         "DRAFT": "Draft",
         "SUBMITTED": "Submitted"
+      }
+    },
+    "OrdersType": {
+      "type": "string",
+      "title": "Orders type",
+      "enum": [
+        "PERMANENT_CHANGE_OF_STATION",
+        "RETIREMENT",
+        "SEPARATION",
+        "GHC",
+        "NTS"
+      ],
+      "x-display-value": {
+        "GHC": "GHC",
+        "NTS": "NTS",
+        "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
+        "RETIREMENT": "Retirement",
+        "SEPARATION": "Separation"
       }
     },
     "PaymentRequest": {
@@ -2916,12 +2916,6 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "dateIssued": {
-          "description": "The date the orders were issued.",
-          "type": "string",
-          "format": "date",
-          "example": "2020-01-01"
-        },
         "destinationDutyStation": {
           "$ref": "#/definitions/DutyStation"
         },
@@ -2945,14 +2939,20 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "issueDate": {
+          "description": "The date the orders were issued.",
+          "type": "string",
+          "format": "date",
+          "example": "2020-01-01"
+        },
         "orderNumber": {
           "description": "ID of the military orders associated with this move.",
           "type": "string",
           "x-nullable": true,
           "example": "030-00362"
         },
-        "orderType": {
-          "$ref": "#/definitions/OrderType"
+        "ordersType": {
+          "$ref": "#/definitions/OrdersType"
         },
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"
@@ -3091,24 +3091,6 @@ func init() {
         "$ref": "#/definitions/MoveTaskOrder"
       }
     },
-    "OrderType": {
-      "type": "string",
-      "title": "Order type",
-      "enum": [
-        "PERMANENT_CHANGE_OF_STATION",
-        "RETIREMENT",
-        "SEPARATION",
-        "GHC",
-        "NTS"
-      ],
-      "x-display-value": {
-        "GHC": "GHC",
-        "NTS": "NTS",
-        "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
-        "RETIREMENT": "Retirement",
-        "SEPARATION": "Separation"
-      }
-    },
     "OrdersStatus": {
       "type": "string",
       "title": "Move status",
@@ -3123,6 +3105,24 @@ func init() {
         "CANCELED": "Canceled",
         "DRAFT": "Draft",
         "SUBMITTED": "Submitted"
+      }
+    },
+    "OrdersType": {
+      "type": "string",
+      "title": "Orders type",
+      "enum": [
+        "PERMANENT_CHANGE_OF_STATION",
+        "RETIREMENT",
+        "SEPARATION",
+        "GHC",
+        "NTS"
+      ],
+      "x-display-value": {
+        "GHC": "GHC",
+        "NTS": "NTS",
+        "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
+        "RETIREMENT": "Retirement",
+        "SEPARATION": "Separation"
       }
     },
     "PaymentRequest": {

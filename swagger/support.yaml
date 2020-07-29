@@ -719,8 +719,8 @@ definitions:
           ID of the destination duty station.
 
           If creating a MoveTaskOrder, this should match an existing duty station.
-      orderType:
-        $ref: '#/definitions/OrderType'
+      ordersType:
+        $ref: '#/definitions/OrdersType'
       originDutyStation:
         $ref: '#/definitions/DutyStation'
       originDutyStationID:
@@ -754,7 +754,7 @@ definitions:
         type: string
         x-nullable: true
         example: '030-00362'
-      dateIssued:
+      issueDate:
         description: The date the orders were issued.
         type: string
         format: date
@@ -920,9 +920,9 @@ definitions:
       SUBMITTED: Submitted
       APPROVED: Approved
       CANCELED: Canceled
-  OrderType:
+  OrdersType:
     type: string
-    title: Order type
+    title: Orders type
     enum:
       - PERMANENT_CHANGE_OF_STATION
       - RETIREMENT
