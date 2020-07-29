@@ -12,6 +12,8 @@ export default {
 
 export const ReviewDetailsWithNoValues = () => <ReviewDetailsCard />;
 
+export const ReviewDetailsWithError = () => <ReviewDetailsCard completeReviewError={{ detail: 'THIS IS AN ERROR.' }} />;
+
 export const ReviewDetailsWithNeedsReview = () => (
   <ReviewDetailsCard acceptedAmount={1234} rejectedAmount={1234} requestedAmount={1234}>
     <NeedsReview numberOfItems={1} />
