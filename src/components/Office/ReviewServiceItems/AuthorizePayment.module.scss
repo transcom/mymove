@@ -1,0 +1,25 @@
+@import '../../../shared/styles/basics';
+@import '../../../shared/styles/mixins';
+@import '../../../shared/styles/colors';
+
+.AuthorizePayment {
+  @include u-bg('white');
+  @include u-padding('2');
+  @include u-radius('05');
+  @include u-border('base-light');
+  @include u-border('1px');
+  @include u-font-size('base', 4);
+
+  .content {
+    @include u-font-weight('bold');
+  }
+
+  button {
+    @include u-margin-x(0);
+    @include u-margin-bottom(0);
+
+    @media (min-width: 0) {
+      width: auto;
+    }
+  }
+}
