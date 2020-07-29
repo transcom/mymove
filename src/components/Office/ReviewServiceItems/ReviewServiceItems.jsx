@@ -87,16 +87,23 @@ const ReviewServiceItems = ({
           <h2 className={styles.header}>Complete request</h2>
         </div>
         <div className={styles.body}>
-          {/* TODO - styling */}
-          {completeReviewError && (
-            <p className="text-error" data-testid="errorMessage">
-              Error: {completeReviewError.detail}
-            </p>
-          )}
-          <p>Do you authorize this payment of {toDollarString(approvedSum)}?</p>
-          <Button type="button" data-testid="authorizePaymentBtn" onClick={handleAuthorizePayment}>
-            Authorize Payment
-          </Button>
+          <div className={styles.completeReviewCard}>
+            <h4>Review details</h4>
+            {completeReviewError && (
+              <p className="text-error" data-testid="errorMessage">
+                Error: {completeReviewError.detail}
+              </p>
+            )}
+
+            <div className={styles.completeReviewAction}>
+              <p>
+                <strong>Do you authorize this payment of {toDollarString(approvedSum)}?</strong>
+              </p>
+              <Button type="button" data-testid="authorizePaymentBtn" onClick={handleAuthorizePayment}>
+                Authorize Payment
+              </Button>
+            </div>
+          </div>
         </div>
         <div className={styles.bottom}>
           <Button
