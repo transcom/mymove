@@ -6,6 +6,8 @@ import sortServiceItemsByGroup from '../../../utils/serviceItems';
 
 import styles from './ReviewServiceItems.module.scss';
 import ServiceItemCard from './ServiceItemCard';
+import ReviewDetailsCard from './ReviewDetailsCard';
+import AuthorizePayment from './AuthorizePayment';
 
 import { ServiceItemCardsShape } from 'types/serviceItemCard';
 import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
@@ -27,7 +29,7 @@ const ReviewServiceItems = ({
 
   const totalCards = serviceItemCards.length;
 
-  const { APPROVED } = PAYMENT_SERVICE_ITEM_STATUS;
+  const { APPROVED, DENIED } = PAYMENT_SERVICE_ITEM_STATUS;
 
   const handleClick = (index) => {
     setCardIndex(index);
@@ -38,8 +40,8 @@ const ReviewServiceItems = ({
   };
 
   const approvedSum = serviceItemCards.filter((s) => s.status === APPROVED).reduce((sum, cur) => sum + cur.amount, 0);
-  // const rejectedSum = serviceItemCards.filter((s) => s.status === DENIED).reduce((sum, cur) => sum + cur.amount, 0)
-  // const requestedSum = serviceItemCards.reduce((sum, cur) => sum + cur.amount, 0); // TODO - use in Complete review screen
+  const rejectedSum = serviceItemCards.filter((s) => s.status === DENIED).reduce((sum, cur) => sum + cur.amount, 0);
+  const requestedSum = serviceItemCards.reduce((sum, cur) => sum + cur.amount, 0);
 
   let firstBasicIndex = null;
   let lastBasicIndex = null;
@@ -87,23 +89,14 @@ const ReviewServiceItems = ({
           <h2 className={styles.header}>Complete request</h2>
         </div>
         <div className={styles.body}>
-          <div className={styles.completeReviewCard}>
-            <h4>Review details</h4>
-            {completeReviewError && (
-              <p className="text-error" data-testid="errorMessage">
-                Error: {completeReviewError.detail}
-              </p>
-            )}
-
-            <div className={styles.completeReviewAction}>
-              <p>
-                <strong>Do you authorize this payment of {toDollarString(approvedSum)}?</strong>
-              </p>
-              <Button type="button" data-testid="authorizePaymentBtn" onClick={handleAuthorizePayment}>
-                Authorize Payment
-              </Button>
-            </div>
-          </div>
+          <ReviewDetailsCard
+            completeReviewError={completeReviewError}
+            acceptedAmount={approvedSum}
+            rejectedAmount={rejectedSum}
+            requestedAmount={requestedSum}
+          >
+            <AuthorizePayment amount={approvedSum} handleAuthorizePaymentBtn={handleAuthorizePayment} />
+          </ReviewDetailsCard>
         </div>
         <div className={styles.bottom}>
           <Button
