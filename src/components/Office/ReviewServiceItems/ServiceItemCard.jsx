@@ -30,17 +30,17 @@ const ServiceItemCard = ({
           patchPaymentServiceItem(id, values);
         }}
       >
-        {({ handleChange, submitForm, handleReset, values }) => {
+        {({ handleChange, submitForm, values, setValues }) => {
           const handleApprovalChange = (event) => {
             handleChange(event);
             submitForm();
           };
+
           const handleFormReset = () => {
-            // eslint-disable-next-line no-param-reassign
-            values.rejectionReason = undefined;
-            // eslint-disable-next-line no-param-reassign
-            values.status = undefined;
-            handleReset();
+            setValues({
+              status: undefined,
+              rejectionReason: undefined,
+            });
           };
 
           return (
