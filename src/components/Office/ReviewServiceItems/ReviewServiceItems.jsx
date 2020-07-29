@@ -7,7 +7,7 @@ import sortServiceItemsByGroup from '../../../utils/serviceItems';
 import styles from './ReviewServiceItems.module.scss';
 
 import { ServiceItemCardsShape } from 'types/serviceItemCard';
-import { SERVICE_ITEM_STATUS } from 'shared/constants';
+import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
 import ServiceItemCard from 'components/Office/ReviewServiceItems/ServiceItemCard';
 import { toDollarString } from 'shared/formatters';
@@ -25,7 +25,7 @@ const ReviewServiceItems = ({
 
   const totalCards = serviceItemCards.length;
 
-  const { APPROVED } = SERVICE_ITEM_STATUS;
+  const { APPROVED } = PAYMENT_SERVICE_ITEM_STATUS;
 
   const handleClick = (index) => {
     setCardIndex(index);
