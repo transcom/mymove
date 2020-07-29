@@ -3,6 +3,7 @@ import React from 'react';
 import ReviewDetailsCard from './ReviewDetailsCard';
 import NeedsReview from './NeedsReview';
 import RejectRequest from './RejectRequest';
+import AuthorizePayment from './AuthorizePayment';
 
 export default {
   title: 'TOO/TIO Components|ReviewServiceItems/ReviewDetails',
@@ -20,5 +21,11 @@ export const ReviewDetailsWithNeedsReview = () => (
 export const ReviewDetailsWithRejectRequest = () => (
   <ReviewDetailsCard acceptedAmount={1234} rejectedAmount={1234} requestedAmount={1234}>
     <RejectRequest />
+  </ReviewDetailsCard>
+);
+
+export const ReviewDetailsWithAuthorizePayment = () => (
+  <ReviewDetailsCard acceptedAmount={1234} rejectedAmount={1234} requestedAmount={1234}>
+    <AuthorizePayment amount={1234} />
   </ReviewDetailsCard>
 );
