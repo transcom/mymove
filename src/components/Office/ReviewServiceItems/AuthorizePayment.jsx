@@ -14,7 +14,7 @@ const AuthorizePayment = ({ amount, handleAuthorizePaymentBtn }) => {
   return (
     <div data-testid="AuthorizePayment" className={styles.AuthorizePayment}>
       <div className={styles.content}>{`Do you authorize this payment of ${toDollarString(amount)}?`}</div>
-      <Button type="button" onClick={handleAuthorizePaymentBtn}>
+      <Button data-testid="authorizePaymentBtn" type="button" onClick={handleAuthorizePaymentBtn}>
         Authorize payment
       </Button>
     </div>
