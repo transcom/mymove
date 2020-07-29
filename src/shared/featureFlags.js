@@ -25,7 +25,6 @@ const environmentFlags = {
     allOrdersTypes: true,
     hhgFlow: true,
     ghcFlow: true,
-    disableForDemo: false,
   }),
 
   test: Object.assign({}, defaultFlags),
@@ -34,7 +33,6 @@ const environmentFlags = {
     allOrdersTypes: true,
     hhgFlow: true,
     ghcFlow: true,
-    disableForDemo: false,
   }),
 
   staging: Object.assign({}, defaultFlags, {
