@@ -27,18 +27,18 @@ const ReviewServiceItems = ({
 
   const totalCards = serviceItemCards.length;
 
-  const { APPROVED } = PAYMENT_SERVICE_ITEM_STATUS;
+  const { APPROVED, REVIEWED } = PAYMENT_SERVICE_ITEM_STATUS;
 
   const handleClick = (index) => {
     setCardIndex(index);
   };
 
   const handleAuthorizePayment = () => {
-    onCompleteReview('REVIEWED');
+    onCompleteReview(REVIEWED);
   };
 
   const approvedSum = serviceItemCards.filter((s) => s.status === APPROVED).reduce((sum, cur) => sum + cur.amount, 0);
-  // const rejectedSum = serviceItemCards.filter((s) => s.status === REJECTED).reduce((sum, cur) => sum + cur.amount, 0)
+  // const rejectedSum = serviceItemCards.filter((s) => s.status === DENIED).reduce((sum, cur) => sum + cur.amount, 0)
   // const requestedSum = serviceItemCards.reduce((sum, cur) => sum + cur.amount, 0); // TODO - use in Complete review screen
 
   let firstBasicIndex = null;
@@ -88,7 +88,11 @@ const ReviewServiceItems = ({
         </div>
         <div className={styles.body}>
           {/* TODO - styling */}
-          {completeReviewError && <p className="text-error">Error: {completeReviewError.detail}</p>}
+          {completeReviewError && (
+            <p className="text-error" data-testid="errorMessage">
+              Error: {completeReviewError.detail}
+            </p>
+          )}
           <p>Do you authorize this payment of {toDollarString(approvedSum)}?</p>
           <Button type="button" data-testid="authorizePaymentBtn" onClick={handleAuthorizePayment}>
             Authorize Payment

@@ -25,6 +25,8 @@ describe('PaymentRequestReview', () => {
     getMTOServiceItems: jest.fn(() => Promise.resolve()),
     getMTOShipments: jest.fn(() => Promise.resolve()),
     patchPaymentServiceItemStatus: jest.fn(),
+    history: { push: jest.fn() },
+    updatePaymentRequest: jest.fn(),
   };
 
   describe('with or without data loaded', () => {
