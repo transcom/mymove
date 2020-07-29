@@ -267,8 +267,8 @@ bin/milmove-tasks:
 bin/prime-api-client:
 	go build -ldflags "$(LDFLAGS)" -o bin/prime-api-client ./cmd/prime-api-client
 
-bin/notification-api-client:
-	go build -ldflags "$(LDFLAGS)" -o bin/notification-api-client ./cmd/notification-api-client
+bin/event-notification-client:
+	go build -ldflags "$(LDFLAGS)" -o bin/event-notification-client ./cmd/event-notification-client
 
 bin/query-cloudwatch-logs:
 	go build -ldflags "$(LDFLAGS)" -o bin/query-cloudwatch-logs ./cmd/query-cloudwatch-logs

@@ -57,9 +57,9 @@ func CheckRootConfig(v *viper.Viper) error {
 
 func main() {
 	root := cobra.Command{
-		Use:   "notification-api-client [flags]",
-		Short: "Notification API client",
-		Long:  "Notification API client",
+		Use:   "event-notification-client [flags]",
+		Short: "Event Notification client",
+		Long:  "Event Notification client",
 	}
 	initRootFlags(root.PersistentFlags())
 
@@ -76,7 +76,7 @@ func main() {
 	completionCommand := &cobra.Command{
 		Use:   "completion",
 		Short: "Generates bash completion scripts",
-		Long:  "To install completion scripts run:\n\nnotification-api-client completion > /usr/local/etc/bash_completion.d/notification-api-client",
+		Long:  "To install completion scripts run:\n\nevent-notification-client completion > /usr/local/etc/bash_completion.d/event-notification-client",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return root.GenBashCompletion(os.Stdout)
 		},
