@@ -266,6 +266,11 @@
   }
 }
 
+.display-flex .usa-radio:not(:first-child) {
+  @include u-margin-left('105');
+  @include u-margin-bottom(1);
+}
+
 //Modals
 
 .modal {
