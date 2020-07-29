@@ -6,7 +6,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -31,22 +30,19 @@ func (p *paymentRequestStatusUpdater) UpdatePaymentRequestStatus(paymentRequest 
 	// Prevent changing status to REVIEWED if any service items are not reviewed
 	if status == models.PaymentRequestStatusReviewed {
 		var paymentServiceItems models.PaymentServiceItems
-		serviceItemFilter := []services.QueryFilter{query.NewQueryFilter("payment_request_id", "=", id)}
+		serviceItemFilter := []services.QueryFilter{
+			query.NewQueryFilter("payment_request_id", "=", id),
+			query.NewQueryFilter("status", "=", models.PaymentServiceItemStatusRequested),
+		}
 		associations := query.NewQueryAssociations([]services.QueryAssociation{})
-		page, perPage := pagination.DefaultPage(), pagination.DefaultPerPage()
-		pagination := pagination.NewPagination(&page, &perPage)
-		ordering := query.NewQueryOrder(nil, nil)
-
-		error := p.builder.FetchMany(&paymentServiceItems, serviceItemFilter, associations, pagination, ordering)
+		error := p.builder.FetchMany(&paymentServiceItems, serviceItemFilter, associations, nil, nil)
 
 		if error != nil {
 			return nil, error
 		}
 
-		for _, serviceItem := range paymentServiceItems {
-			if serviceItem.Status == models.PaymentServiceItemStatusRequested {
-				return nil, services.NewInvalidInputError(id, nil, nil, "All PaymentServiceItems must be approved or denied to review this PaymentRequest")
-			}
+		if len(paymentServiceItems) > 0 {
+			return nil, services.NewInvalidInputError(id, nil, nil, "All PaymentServiceItems must be approved or denied to review this PaymentRequest")
 		}
 	}
 
