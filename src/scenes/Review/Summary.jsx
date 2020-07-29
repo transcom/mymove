@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { get } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
@@ -22,14 +22,70 @@ import { selectedMoveType as selectMoveType } from 'scenes/Moves/ducks';
 import { checkEntitlement } from './ducks';
 import ServiceMemberSummary from './ServiceMemberSummary';
 import PPMShipmentSummary from './PPMShipmentSummary';
+import HHGShipmentSummary from './HHGShipmentSummary';
 
 import './Review.css';
 import { selectActivePPMForMove } from '../../shared/Entities/modules/ppms';
+// import { showLoggedInUser as showLoggedInUserAction, selectLoggedInUser } from 'shared/Entities/modules/user';
+import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
+// import { selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
+
+// const shipmentHardcoded = {};
+const shipmentHardcoded = {
+  agents: [
+    {
+      agentType: 'RELEASING_AGENT',
+      createdAt: '0001-01-01T00:00:00.000Z',
+      email: 'ra@example.com',
+      firstName: 'ra firstname',
+      id: '00000000-0000-0000-0000-000000000000',
+      lastName: 'ra lastname',
+      mtoShipmentID: '00000000-0000-0000-0000-000000000000',
+      phone: '415-444-4444',
+      updatedAt: '0001-01-01T00:00:00.000Z',
+    },
+    {
+      agentType: 'RECEIVING_AGENT',
+      createdAt: '0001-01-01T00:00:00.000Z',
+      email: 'andrea@truss.works',
+      firstName: 'receivingangetfi',
+      id: '00000000-0000-0000-0000-000000000000',
+      lastName: 'receiginachlast',
+      mtoShipmentID: '00000000-0000-0000-0000-000000000000',
+      phone: '415-555-5555',
+      updatedAt: '0001-01-01T00:00:00.000Z',
+    },
+  ],
+  createdAt: '2020-07-29T00:17:53.236Z',
+  customerRemarks: 'lkjlkj',
+  destinationAddress: {
+    city: 'San Francisco',
+    id: '0fda108d-6c6c-44c8-b5ae-485b779f7539',
+    postal_code: '94611',
+    state: 'CA',
+    street_address_1: '666 no',
+  },
+  id: '3dc3c94f-8264-4dd6-85e0-9a0ec1af3433',
+  moveTaskOrderID: 'b21536b7-22a3-43c1-a4a7-3a8c392c1ad5',
+  pickupAddress: {
+    city: 'San Francisco',
+    id: '3ea70395-e15d-485b-8b5a-51549069b9f0',
+    postal_code: '94611',
+    state: 'CA',
+    street_address_1: '666 no',
+  },
+  requestedDeliveryDate: '2020-07-31',
+  requestedPickupDate: '2020-07-30',
+  shipmentType: 'HHG',
+  updatedAt: '2020-07-29T00:17:53.236Z',
+};
 
 export class Summary extends Component {
   componentDidMount() {
     if (this.props.onDidMount) {
       this.props.onDidMount(this.props.serviceMember.id);
+      const { showLoggedInUser } = this.props;
+      showLoggedInUser();
     }
   }
   componentDidUpdate(prevProps) {
@@ -44,6 +100,7 @@ export class Summary extends Component {
     const {
       currentMove,
       currentPPM,
+      mtoShipment,
       currentBackupContacts,
       currentOrders,
       schemaRank,
@@ -66,6 +123,7 @@ export class Summary extends Component {
 
     const showPPMShipmentSummary =
       (isReviewPage && currentPPM) || (!isReviewPage && currentPPM && currentPPM.status !== 'DRAFT');
+    const showHHGShipmentSummary = !isEmpty(mtoShipment) || (!isEmpty(mtoShipment) && !isReviewPage);
 
     const showProfileAndOrders = isReviewPage || !isReviewPage;
     return (
@@ -102,6 +160,10 @@ export class Summary extends Component {
           />
         )}
 
+        {showHHGShipmentSummary && (
+          <HHGShipmentSummary mtoShipment={mtoShipment} movePath={rootAddressWithMoveId} entitlements={entitlement} />
+        )}
+
         {showPPMShipmentSummary && (
           <PPMShipmentSummary ppm={currentPPM} movePath={rootAddressWithMoveId} orders={currentOrders} />
         )}
@@ -121,20 +183,26 @@ Summary.propTypes = {
   getCurrentMove: PropTypes.func,
   currentOrders: PropTypes.object,
   currentPPM: PropTypes.object,
+  mtoShipment: PropTypes.object,
   schemaRank: PropTypes.object,
   schemaOrdersType: PropTypes.object,
   moveIsApproved: PropTypes.bool,
   lastMoveIsCanceled: PropTypes.bool,
   error: PropTypes.object,
   selectedMoveType: PropTypes.string.isRequired,
+  showLoggedInUser: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
   const moveID = state.moves.currentMove.id;
   const currentOrders = selectActiveOrLatestOrders(state);
+  // TODO: temporary workaround until moves is consolidated from move_task_orders - this should be the move id
+  // const moveTaskOrderID = get(selectLoggedInUser(state), 'service_member.orders[0].move_task_order_id', '');
 
   return {
     currentPPM: selectActivePPMForMove(state, moveID),
+    // mtoShipment: selectMTOShipmentForMTO(state, moveTaskOrderID),
+    mtoShipment: shipmentHardcoded,
     serviceMember: state.serviceMember.currentServiceMember,
     currentMove: selectMove(state, ownProps.match.params.moveId),
     currentBackupContacts: state.serviceMember.currentBackupContacts,
@@ -160,6 +228,7 @@ function mapDispatchToProps(dispatch, ownProps) {
     onCheckEntitlement: (moveId) => {
       dispatch(checkEntitlement(moveId));
     },
+    showLoggedInUser: showLoggedInUserAction,
   };
 }
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Summary));
