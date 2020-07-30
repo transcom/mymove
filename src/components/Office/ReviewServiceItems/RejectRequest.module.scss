@@ -17,9 +17,5 @@
   button {
     @include u-margin-x(0);
     @include u-margin-bottom(0);
-
-    @media (min-width: 0) {
-      width: auto;
-    }
   }
 }
