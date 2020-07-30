@@ -23,15 +23,10 @@ func (gre *GHCRateEngineImporter) importREContractYears(dbTx *pop.Connection) er
 	incrementYear := 0
 	compoundedEscalation := 1.00000
 
-	//These values may change
-	var beginningDate string
-	if gre.ContractStartDate == "" {
-		beginningDate = "2021-02-01"
-	} else {
-		beginningDate = gre.ContractStartDate
+	basePeriodStartDateForPrimeContract1, err := time.Parse("2006-01-02", gre.ContractStartDate)
+	if err != nil {
+		return fmt.Errorf("could not parse the given contract start date [%v]: failed with error %w", gre.ContractStartDate, err)
 	}
-
-	basePeriodStartDateForPrimeContract1, _ := time.Parse("2006-01-02", beginningDate)
 	basePeriodEndDateForPrimeContract1 := basePeriodStartDateForPrimeContract1.AddDate(1, 0, -1)
 
 	//loop through the price escalation discounts data and pull contract year and escalations
