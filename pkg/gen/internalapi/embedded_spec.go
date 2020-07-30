@@ -5160,9 +5160,7 @@ func init() {
       "enum": [
         "PERMANENT_CHANGE_OF_STATION",
         "RETIREMENT",
-        "SEPARATION",
-        "GHC",
-        "NTS"
+        "SEPARATION"
       ],
       "x-display-value": {
         "GHC": "GHC",
@@ -11763,9 +11761,7 @@ func init() {
       "enum": [
         "PERMANENT_CHANGE_OF_STATION",
         "RETIREMENT",
-        "SEPARATION",
-        "GHC",
-        "NTS"
+        "SEPARATION"
       ],
       "x-display-value": {
         "GHC": "GHC",
