@@ -25,7 +25,7 @@ func (gre *GHCRateEngineImporter) importREContractYears(dbTx *pop.Connection) er
 
 	basePeriodStartDateForPrimeContract1, err := time.Parse("2006-01-02", gre.ContractStartDate)
 	if err != nil {
-		return fmt.Errorf("could not parse the given contract start date [%v]: failed with error %w", gre.ContractStartDate, err)
+		return fmt.Errorf("could not parse the given contract start date, failed with error: %w", err)
 	}
 	basePeriodEndDateForPrimeContract1 := basePeriodStartDateForPrimeContract1.AddDate(1, 0, -1)
 
