@@ -30,9 +30,9 @@
 
   dt {
     width: 33%;
+    color: $base-darker;
     @include u-font-size('base', 4);
     @include u-font-weight('bold');
-    @include u-color('gray-90');
   }
 
   dd {
