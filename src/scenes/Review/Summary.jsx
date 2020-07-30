@@ -75,7 +75,8 @@ export class Summary extends Component {
     const editOrdersPath = rootAddressWithMoveId + '/edit-orders';
 
     const showPPMShipmentSummary =
-      (isReviewPage && currentPPM) || (!isReviewPage && currentPPM && currentPPM.status !== 'DRAFT');
+      (isReviewPage && !isEmpty(currentPPM)) ||
+      (!isReviewPage && !isEmpty(currentPPM) && currentPPM.status !== 'DRAFT');
     const showHHGShipmentSummary = !isEmpty(mtoShipment) || (!isEmpty(mtoShipment) && !isReviewPage);
 
     const showProfileAndOrders = isReviewPage || !isReviewPage;
