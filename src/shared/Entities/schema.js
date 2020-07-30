@@ -136,6 +136,10 @@ export const accessCode = new schema.Entity('accessCodes');
 export const mtoServiceItem = new schema.Entity('mtoServiceItems');
 export const mtoServiceItems = new schema.Array(mtoServiceItem);
 
+// Payment Service Items
+export const paymentServiceItem = new schema.Entity('paymentServiceItems');
+export const paymentServiceItems = new schema.Array(paymentServiceItem);
+
 // MTO Shipments
 export const mtoShipment = new schema.Entity('mtoShipments');
 export const mtoShipments = new schema.Array(mtoShipment);

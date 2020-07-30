@@ -24,6 +24,7 @@ type MTOShipment struct {
 	ApprovedDate strfmt.Date `json:"approvedDate,omitempty"`
 
 	// created at
+	// Read Only: true
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
@@ -34,6 +35,7 @@ type MTOShipment struct {
 	DestinationAddress *Address `json:"destinationAddress,omitempty"`
 
 	// e tag
+	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// id
@@ -76,6 +78,7 @@ type MTOShipment struct {
 	Status string `json:"status,omitempty"`
 
 	// updated at
+	// Read Only: true
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 }

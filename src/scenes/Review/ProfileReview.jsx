@@ -30,6 +30,7 @@ class ProfileReview extends Component {
       uploads,
       move,
       ppm,
+      mtoShipment,
       backupContacts,
       context,
     } = this.props;
@@ -42,6 +43,7 @@ class ProfileReview extends Component {
       uploads,
       move,
       ppm,
+      mtoShipment,
       backupContacts,
       context,
     });

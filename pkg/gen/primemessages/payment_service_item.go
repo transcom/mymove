@@ -18,6 +18,7 @@ import (
 type PaymentServiceItem struct {
 
 	// e tag
+	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// id

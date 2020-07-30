@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Radio } from '@trussworks/react-uswds';
-import { func } from 'prop-types';
-import { string } from 'yup';
+import { func, PropTypes } from 'prop-types';
 
 import { setConusStatus, selectedConusStatus } from 'scenes/Moves/ducks';
 import { CONUS_STATUS } from 'shared/constants';
@@ -51,7 +50,7 @@ export class ConusOrNot extends Component {
 
 ConusOrNot.propTypes = {
   setLocation: func.isRequired,
-  conusStatus: string,
+  conusStatus: PropTypes.string,
 };
 
 ConusOrNot.defaultProps = {

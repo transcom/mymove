@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 
-import { SERVICE_ITEM_STATUS } from 'shared/constants';
+import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 import { ShipmentOptionsOneOf } from 'types/shipment';
 
 export const ServiceItemCardShape = PropTypes.shape({
@@ -9,7 +9,7 @@ export const ServiceItemCardShape = PropTypes.shape({
   shipmentType: ShipmentOptionsOneOf,
   serviceItemName: PropTypes.string,
   amount: PropTypes.number,
-  status: PropTypes.oneOf(Object.values(SERVICE_ITEM_STATUS)),
+  status: PropTypes.oneOf(Object.values(PAYMENT_SERVICE_ITEM_STATUS)),
   rejectionReason: PropTypes.string,
   createdAt: PropTypes.string,
 });

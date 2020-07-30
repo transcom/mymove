@@ -24,14 +24,17 @@ import (
 type MoveTaskOrder struct {
 
 	// available to prime at
+	// Read Only: true
 	// Format: date-time
 	AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
 
 	// created at
+	// Read Only: true
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// e tag
+	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// id
@@ -69,6 +72,7 @@ type MoveTaskOrder struct {
 	ReferenceID string `json:"referenceId,omitempty"`
 
 	// updated at
+	// Read Only: true
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 }

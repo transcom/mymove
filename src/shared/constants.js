@@ -64,6 +64,12 @@ export const SERVICE_ITEM_STATUS = {
   REJECTED: 'REJECTED',
 };
 
+export const PAYMENT_SERVICE_ITEM_STATUS = {
+  DENIED: 'DENIED',
+  REQUESTED: 'REQUESTED',
+  APPROVED: 'APPROVED',
+};
+
 export const SERVICE_ITEM_CODES = {
   CS: 'Counseling Services',
   MS: 'Shipment Mgmt. Services',
