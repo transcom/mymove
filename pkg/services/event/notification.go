@@ -12,9 +12,28 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// This file is an example notifications handler to exercise the events package
-// MB-2935 will flesh it out to create a DB table for the notifications payloads
-// These functions just log data instead.
+// isSourcePrime returns true if the source of the event is prime
+func isSourcePrime(event *Event) bool {
+	// We can assume the source is prime if the endpoint that caused the event was
+	// a prime endpoint. Support is considered non-prime endpoint.
+	// Generally we should err on the side of more notifications rather than fewer
+	// since we would not like them to miss an update.
+	apiName := GetEndpointAPI(event.EndpointKey)
+	if apiName == PrimeAPIName {
+		return true
+	}
+	return false
+}
+
+// notificationSave saves the record in the webhook_notification table
+// If it fails, it will return an error.
+func notificationSave(event *Event, objectType string, payload *[]byte) error {
+	payloadString := string(*payload)
+	newNotification := models.WebhookNotification{
+		EventKey: string(event.EventKey),
+		Payload:  swag.String(payloadString),
+		Status:   models.WebhookNotificationPending,
+	}
 
 // PaymentRequestModelToPayload This is an example to log the data
 // Will need to move to payloads to model file.

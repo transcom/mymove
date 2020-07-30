@@ -30,7 +30,7 @@ func TestEventServiceSuite(t *testing.T) {
 	ts.PopTestSuite.TearDown()
 }
 
-func (suite *EventServiceSuite) Test_EventRecord() {
+func (suite *EventServiceSuite) Test_EventTrigger() {
 
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
 	paymentRequestID := paymentRequest.ID
