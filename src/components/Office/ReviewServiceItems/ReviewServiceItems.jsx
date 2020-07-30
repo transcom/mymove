@@ -79,20 +79,12 @@ const ReviewServiceItems = ({
   const isBasicServiceItem =
     firstBasicIndex !== null && curCardIndex >= firstBasicIndex && curCardIndex <= lastBasicIndex;
 
-  const RenderCompleteAction = () => {
-    if (showNeedsReview) {
-      return (
-        <NeedsReview numberOfItems={itemsNeedsReviewLength} onClick={() => setCardIndex(firstItemNeedsReviewIndex)} />
-      );
-    }
-
-    if (showRejectRequest) {
-      // the button should be the same as the authorize payment
-      return <RejectRequest onClick={handleAuthorizePayment} />;
-    }
-
-    return <AuthorizePayment amount={approvedSum} onClick={handleAuthorizePayment} />;
-  };
+  let renderCompleteAction = <AuthorizePayment amount={approvedSum} onClick={handleAuthorizePayment} />;
+  if (showNeedsReview)
+    renderCompleteAction = (
+      <NeedsReview numberOfItems={itemsNeedsReviewLength} onClick={() => setCardIndex(firstItemNeedsReviewIndex)} />
+    );
+  else if (showRejectRequest) renderCompleteAction = <RejectRequest onClick={handleAuthorizePayment} />;
 
   // Similar to componentDidMount and componentDidUpdate
   useEffect(() => {
@@ -122,7 +114,7 @@ const ReviewServiceItems = ({
             rejectedAmount={rejectedSum}
             requestedAmount={requestedSum}
           >
-            <RenderCompleteAction />
+            {renderCompleteAction}
           </ReviewDetailsCard>
         </div>
         <div className={styles.bottom}>
