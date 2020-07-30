@@ -26,7 +26,7 @@ func (gre *GHCRateEngineImporter) importREContractYears(dbTx *pop.Connection) er
 	//These values may change
 	var beginningDate string
 	if gre.ContractStartDate == "" {
-		beginningDate = "2020-02-01"
+		beginningDate = "2021-02-01"
 	} else {
 		beginningDate = gre.ContractStartDate
 	}
