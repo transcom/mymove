@@ -113,9 +113,7 @@ export class Summary extends Component {
           />
         )}
 
-        {showHHGShipmentSummary && (
-          <HHGShipmentSummary mtoShipment={mtoShipment} movePath={rootAddressWithMoveId} entitlements={entitlement} />
-        )}
+        {showHHGShipmentSummary && <HHGShipmentSummary mtoShipment={mtoShipment} movePath={rootAddressWithMoveId} />}
 
         {showPPMShipmentSummary && (
           <PPMShipmentSummary ppm={currentPPM} movePath={rootAddressWithMoveId} orders={currentOrders} />
