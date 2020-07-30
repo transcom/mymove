@@ -3,10 +3,9 @@ import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { shallow, mount } from 'enzyme';
 
-import { toDollarString } from '../../../shared/formatters';
-
 import ReviewServiceItems from './ReviewServiceItems';
 
+import { toDollarString } from 'shared/formatters';
 import { SHIPMENT_OPTIONS, PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 
 const serviceItemCards = [
@@ -127,59 +126,100 @@ describe('ReviewServiceItems component', () => {
   });
 
   describe('navigating through service items', () => {
-    const nextButton = mountedComponent.find('[data-testid="nextServiceItem"]');
-    const prevButton = mountedComponent.find('[data-testid="prevServiceItem"]');
+    const cardsWithInitialValues = [
+      {
+        id: '1',
+        shipmentType: SHIPMENT_OPTIONS.HHG,
+        shipmentId: '10',
+        serviceItemName: 'Domestic linehaul',
+        amount: 6423,
+        status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
+        createdAt: '2020-01-01T00:08:00.999Z',
+      },
+      {
+        id: '2',
+        shipmentType: SHIPMENT_OPTIONS.HHG,
+        shipmentId: '10',
+        serviceItemName: 'Fuel Surcharge',
+        amount: 50.25,
+        createdAt: '2020-01-01T00:08:30.999Z',
+        status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
+      },
+      {
+        id: '3',
+        shipmentType: SHIPMENT_OPTIONS.NTS,
+        shipmentId: '20',
+        serviceItemName: 'Domestic linehaul',
+        amount: 0.1,
+        createdAt: '2020-01-01T00:09:00.999Z',
+        status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
+      },
+      {
+        id: '4',
+        shipmentType: null,
+        shipmentId: null,
+        serviceItemName: 'Counseling Services',
+        amount: 1000,
+        createdAt: '2020-01-01T00:02:00.999Z',
+        status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
+      },
+    ];
+    const componentWithInitialValues = mount(
+      <ReviewServiceItems serviceItemCards={cardsWithInitialValues} {...requiredProps} />,
+    );
+    const nextButton = componentWithInitialValues.find('[data-testid="nextServiceItem"]');
+    const prevButton = componentWithInitialValues.find('[data-testid="prevServiceItem"]');
 
     it('renders the service item cards ordered by timestamp ascending', () => {
-      compareItem(mountedComponent, serviceItemCards[3]);
+      compareItem(componentWithInitialValues, serviceItemCards[3]);
 
       nextButton.simulate('click');
-      mountedComponent.update();
+      componentWithInitialValues.update();
 
-      compareItem(mountedComponent, serviceItemCards[0]);
-
-      nextButton.simulate('click');
-      mountedComponent.update();
-
-      compareItem(mountedComponent, serviceItemCards[1]);
+      compareItem(componentWithInitialValues, serviceItemCards[0]);
 
       nextButton.simulate('click');
-      mountedComponent.update();
+      componentWithInitialValues.update();
 
-      compareItem(mountedComponent, serviceItemCards[2]);
+      compareItem(componentWithInitialValues, serviceItemCards[1]);
+
+      nextButton.simulate('click');
+      componentWithInitialValues.update();
+
+      compareItem(componentWithInitialValues, serviceItemCards[2]);
     });
 
-    it('shows the Complete Review step after the last item', () => {
+    it('shows the Complete Review step after the last item', async () => {
       nextButton.simulate('click');
-      mountedComponent.update();
+      componentWithInitialValues.update();
 
-      expect(mountedComponent.find('[data-testid="authorizePaymentBtn"]').exists()).toBe(true);
+      expect(componentWithInitialValues.find('[data-testid="authorizePaymentBtn"]').exists()).toBe(true);
     });
 
-    it('does not show a Next button on the Complete Review step', () => {
-      expect(mountedComponent.find('[data-testid="nextServiceItem"]').exists()).toBe(false);
+    it('does not show a Next button on the Complete Review step', async () => {
+      expect(componentWithInitialValues.find('[data-testid="nextServiceItem"]').exists()).toBe(false);
     });
 
     it('can click back to the first item', () => {
       prevButton.simulate('click');
-      mountedComponent.update();
+      componentWithInitialValues.update();
 
-      compareItem(mountedComponent, serviceItemCards[2]);
-
-      prevButton.simulate('click');
-      mountedComponent.update();
-
-      compareItem(mountedComponent, serviceItemCards[1]);
+      compareItem(componentWithInitialValues, serviceItemCards[2]);
 
       prevButton.simulate('click');
-      mountedComponent.update();
+      componentWithInitialValues.update();
 
-      compareItem(mountedComponent, serviceItemCards[0]);
+      compareItem(componentWithInitialValues, serviceItemCards[1]);
 
       prevButton.simulate('click');
-      mountedComponent.update();
+      componentWithInitialValues.update();
 
-      compareItem(mountedComponent, serviceItemCards[3]);
+      compareItem(componentWithInitialValues, serviceItemCards[0]);
+
+      prevButton.simulate('click');
+      componentWithInitialValues.update();
+
+      compareItem(componentWithInitialValues, serviceItemCards[3]);
     });
   });
 
@@ -319,8 +359,32 @@ describe('ReviewServiceItems component', () => {
 
   describe('completing the review step', () => {
     describe('with no error', () => {
+      const cardsWithInitialValues = [
+        {
+          id: '1',
+          shipmentType: SHIPMENT_OPTIONS.HHG,
+          shipmentId: '10',
+          serviceItemName: 'Domestic linehaul',
+          amount: 6423,
+          status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
+          createdAt: '2020-01-01T00:08:00.999Z',
+        },
+        {
+          id: '2',
+          shipmentType: SHIPMENT_OPTIONS.HHG,
+          shipmentId: '10',
+          serviceItemName: 'Fuel Surcharge',
+          amount: 50.25,
+          status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
+          createdAt: '2020-01-01T00:08:30.999Z',
+        },
+      ];
+      const componentWithInitialValues = mount(
+        <ReviewServiceItems serviceItemCards={cardsWithInitialValues} {...requiredProps} />,
+      );
+
       it('lands on the Complete Review step after reviewing all items', () => {
-        const nextButton = mountedComponent.find('[data-testid="nextServiceItem"]');
+        const nextButton = componentWithInitialValues.find('[data-testid="nextServiceItem"]');
 
         nextButton.simulate('click');
         mountedComponent.update();
@@ -331,24 +395,24 @@ describe('ReviewServiceItems component', () => {
         nextButton.simulate('click');
         mountedComponent.update();
 
-        const header = mountedComponent.find('h2');
+        const header = componentWithInitialValues.find('h2');
         expect(header.exists()).toBe(true);
         expect(header.text()).toEqual('Complete request');
 
-        const body = mountedComponent.find('.body p');
+        const body = componentWithInitialValues.find('[data-testid="AuthorizePayment"] > div');
         expect(body.exists()).toBe(true);
-        expect(body.text()).toEqual('Do you authorize this payment of $0.00?');
+        expect(body.text()).toEqual('Do you authorize this payment of $6,473.25?');
       });
 
       it('can click on Authorize Payment', async () => {
-        const authorizeBtn = mountedComponent.find('[data-testid="authorizePaymentBtn"]');
+        const authorizeBtn = componentWithInitialValues.find('[data-testid="authorizePaymentBtn"]');
         expect(authorizeBtn.exists()).toBe(true);
 
         await act(async () => {
           authorizeBtn.simulate('click');
         });
 
-        mountedComponent.update();
+        componentWithInitialValues.update();
         expect(onCompleteReview).toHaveBeenCalled();
       });
     });
