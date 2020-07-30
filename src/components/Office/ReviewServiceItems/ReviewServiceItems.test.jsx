@@ -399,7 +399,7 @@ describe('ReviewServiceItems component', () => {
         expect(header.exists()).toBe(true);
         expect(header.text()).toEqual('Complete request');
 
-        const body = componentWithInitialValues.find('[data-testid="AuthorizePayment"] > div');
+        const body = componentWithInitialValues.find('[data-testid="AuthorizePayment"] [data-testid="header"]');
         expect(body.exists()).toBe(true);
         expect(body.text()).toEqual('Do you authorize this payment of $6,473.25?');
       });

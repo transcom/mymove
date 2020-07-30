@@ -11,7 +11,9 @@ import styles from './RejectRequest.module.scss';
 const RejectRequest = ({ onClick }) => {
   return (
     <div data-testid="RejectRequest" className={styles.RejectRequest}>
-      <div data-testid="content">You&apos;re rejecting all service items. No payment will be authorized.</div>
+      <p data-testid="content" className={styles.content}>
+        You&apos;re rejecting all service items. No payment will be authorized.
+      </p>
       <Button data-testid="rejectRequestBtn" type="button" onClick={onClick}>
         Reject request
       </Button>

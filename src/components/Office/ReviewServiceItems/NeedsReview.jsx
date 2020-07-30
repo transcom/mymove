@@ -11,8 +11,10 @@ import styles from './NeedsReview.module.scss';
 const NeedsReview = ({ numberOfItems, onClick }) => {
   return (
     <div data-testid="NeedsReview" className={styles.NeedsReview}>
-      <div data-testid="header" className={styles.header}>{`${numberOfItems} item still needs your review`}</div>
-      <div data-testid="content">Accept or reject all service items, then authorized payment.</div>
+      <strong data-testid="header" className={styles.header}>{`${numberOfItems} item still needs your review`}</strong>
+      <p data-testid="content" className={styles.content}>
+        Accept or reject all service items, then authorized payment.
+      </p>
       <Button data-testid="finishReviewBtn" type="button" secondary onClick={onClick}>
         Finish review
       </Button>

@@ -10,10 +10,6 @@
   @include u-border('1px');
   @include u-font-size('base', 4);
 
-  .content {
-    @include u-font-weight('bold');
-  }
-
   button {
     @include u-margin-x(0);
     @include u-margin-bottom(0);

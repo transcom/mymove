@@ -13,7 +13,7 @@ import { toDollarString } from 'shared/formatters';
 const AuthorizePayment = ({ amount, onClick }) => {
   return (
     <div data-testid="AuthorizePayment" className={styles.AuthorizePayment}>
-      <div className={styles.content}>{`Do you authorize this payment of ${toDollarString(amount)}?`}</div>
+      <strong data-testid="header">Do you authorize this payment of {toDollarString(amount)}?</strong>
       <Button data-testid="authorizePaymentBtn" type="button" onClick={onClick}>
         Authorize payment
       </Button>
