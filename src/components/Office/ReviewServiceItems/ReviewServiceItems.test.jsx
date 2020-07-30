@@ -417,6 +417,46 @@ describe('ReviewServiceItems component', () => {
       });
     });
 
+    describe('with one item that needs review', () => {
+      const cardWithInitialValues = [
+        {
+          id: '1',
+          shipmentType: SHIPMENT_OPTIONS.HHG,
+          shipmentId: '10',
+          serviceItemName: 'Domestic linehaul',
+          amount: 6423,
+          status: PAYMENT_SERVICE_ITEM_STATUS.REQUESTED,
+          createdAt: '2020-01-01T00:08:00.999Z',
+        },
+      ];
+      const componentWithInitialValues = mount(
+        <ReviewServiceItems serviceItemCards={cardWithInitialValues} {...requiredProps} />,
+      );
+
+      it('lands on the Complete Review step after reviewing one item', () => {
+        const nextButton = componentWithInitialValues.find('[data-testid="nextServiceItem"]');
+
+        nextButton.simulate('click');
+        mountedComponent.update();
+
+        const header = componentWithInitialValues.find('h2');
+        expect(header.exists()).toBe(true);
+        expect(header.text()).toEqual('Complete request');
+
+        const needsReviewHeader = componentWithInitialValues.find(
+          '[data-testid="NeedsReview"] > [data-testid="header"]',
+        );
+        expect(needsReviewHeader.exists()).toBe(true);
+        expect(needsReviewHeader.text()).toEqual('1 item still needs your review');
+
+        const needsReviewContent = componentWithInitialValues.find(
+          '[data-testid="NeedsReview"] [data-testid="content"]',
+        );
+        expect(needsReviewContent.exists()).toBe(true);
+        expect(needsReviewContent.text()).toEqual('Accept or reject all service items, then authorized payment.');
+      });
+    });
+
     describe('with items that needs review', () => {
       const cardsWithInitialValues = [
         {
@@ -471,7 +511,7 @@ describe('ReviewServiceItems component', () => {
           '[data-testid="NeedsReview"] > [data-testid="header"]',
         );
         expect(needsReviewHeader.exists()).toBe(true);
-        expect(needsReviewHeader.text()).toEqual('2 item still needs your review');
+        expect(needsReviewHeader.text()).toEqual('2 items still needs your review');
 
         const needsReviewContent = componentWithInitialValues.find(
           '[data-testid="NeedsReview"] [data-testid="content"]',
