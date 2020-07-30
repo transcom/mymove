@@ -48,8 +48,9 @@ const ReviewServiceItems = ({
 
   let firstItemNeedsReviewIndex = null;
   const itemsNeedsReviewLength = serviceItemCards.filter((s, index) => {
-    if (firstItemNeedsReviewIndex === null) firstItemNeedsReviewIndex = index;
-    return s.status === REQUESTED;
+    const isRequested = s.status === REQUESTED;
+    if (firstItemNeedsReviewIndex === null && isRequested) firstItemNeedsReviewIndex = index;
+    return isRequested;
   })?.length;
   const showNeedsReview = !!itemsNeedsReviewLength;
   const showRejectRequest = !serviceItemCards.filter((s) => s.status === APPROVED || s.status === REQUESTED).length;
