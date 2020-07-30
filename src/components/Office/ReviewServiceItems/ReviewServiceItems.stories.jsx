@@ -201,6 +201,14 @@ export const WithNeedsReview = () => (
   />
 );
 
+WithNeedsReview.story = {
+  parameters: {
+    loki: {
+      skip: true,
+    },
+  },
+};
+
 export const WithRejectRequest = () => (
   <ReviewServiceItems
     disableScrollIntoView
@@ -219,6 +227,14 @@ export const WithRejectRequest = () => (
   />
 );
 
+WithRejectRequest.story = {
+  parameters: {
+    loki: {
+      skip: true,
+    },
+  },
+};
+
 export const WithAuthorizedPayment = () => (
   <ReviewServiceItems
     disableScrollIntoView
@@ -236,3 +252,11 @@ export const WithAuthorizedPayment = () => (
     patchPaymentServiceItem={action('patchPaymentServiceItem')}
   />
 );
+
+WithAuthorizedPayment.story = {
+  parameters: {
+    loki: {
+      skip: true,
+    },
+  },
+};
