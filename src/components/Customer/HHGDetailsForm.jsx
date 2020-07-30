@@ -5,10 +5,12 @@ import { connect } from 'react-redux';
 import { Formik } from 'formik';
 import { Fieldset, Radio, Label } from '@trussworks/react-uswds';
 
-import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
-import { AddressFields } from '../form/AddressFields/AddressFields';
-import { DatePickerInput, TextInput } from '../form/fields';
 import { Form } from '../form/Form';
+import { DatePickerInput, TextInput } from '../form/fields';
+import { AddressFields } from '../form/AddressFields/AddressFields';
+import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
+
+import styles from './HHGDetailsForm.module.scss';
 
 import { createMTOShipment as createMTOShipmentAction } from 'shared/Entities/modules/mtoShipments';
 import { showLoggedInUser as showLoggedInUserAction, selectLoggedInUser } from 'shared/Entities/modules/user';

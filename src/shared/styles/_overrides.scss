@@ -202,9 +202,6 @@
   @include u-font-size('body', '3xs');
   @include u-text('bold');
   @include u-text('base-darkest');
-  &:first-of-type {
-    margin-top: 0;
-  }
 }
 
 .usa-radio__input:checked + .usa-radio__label::before {
@@ -237,22 +234,6 @@
 
 .usa-fieldset {
   @include u-padding-top(2);
-  @include u-margin-bottom(5);
-  p:first-of-type {
-    @include u-margin-top(0);
-  }
-}
-
-.usa-form-group {
-  @include u-margin-bottom(1);
-}
-
-.usa-hint {
-  @include u-font-size('body', '3xs');
-  @include u-padding-top(1);
-  label & {
-    @include u-padding-left('05');
-  }
 }
 
 .usa-select {
@@ -264,11 +245,6 @@
     background-image: url('/static/media/arrow-both.0bfe2193.svg'), linear-gradient(transparent, transparent);
     background-color: $link-light;
   }
-}
-
-.display-flex .usa-radio:not(:first-child) {
-  @include u-margin-left('105');
-  @include u-margin-bottom(1);
 }
 
 //Modals
