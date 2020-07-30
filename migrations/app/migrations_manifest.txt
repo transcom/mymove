@@ -533,3 +533,4 @@
 20200728190441_add_remaining_keys_to_fsc.up.sql
 20200729145009_remove_psi_lookups_from_fsc.up.sql
 20200729145933_add_distance_to_mto_shipment.up.sql
+20200730153642_add_ghc_diesel_fuel_price_records.up.sql
