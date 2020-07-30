@@ -8,6 +8,8 @@ import styles from './ReviewServiceItems.module.scss';
 import ServiceItemCard from './ServiceItemCard';
 import ReviewDetailsCard from './ReviewDetailsCard';
 import AuthorizePayment from './AuthorizePayment';
+import NeedsReview from './NeedsReview';
+import RejectRequest from './RejectRequest';
 
 import { ServiceItemCardsShape } from 'types/serviceItemCard';
 import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
@@ -21,6 +23,7 @@ const ReviewServiceItems = ({
   disableScrollIntoView,
   patchPaymentServiceItem,
   onCompleteReview,
+  onRejectRequest,
   completeReviewError,
 }) => {
   const [curCardIndex, setCardIndex] = useState(0);
@@ -29,7 +32,7 @@ const ReviewServiceItems = ({
 
   const totalCards = serviceItemCards.length;
 
-  const { APPROVED, DENIED } = PAYMENT_SERVICE_ITEM_STATUS;
+  const { APPROVED, DENIED, REQUESTED } = PAYMENT_SERVICE_ITEM_STATUS;
 
   const handleClick = (index) => {
     setCardIndex(index);
@@ -39,9 +42,22 @@ const ReviewServiceItems = ({
     onCompleteReview();
   };
 
+  const handleRejectRequest = () => {
+    onRejectRequest();
+  };
+
+  // calculating the sums
   const approvedSum = serviceItemCards.filter((s) => s.status === APPROVED).reduce((sum, cur) => sum + cur.amount, 0);
   const rejectedSum = serviceItemCards.filter((s) => s.status === DENIED).reduce((sum, cur) => sum + cur.amount, 0);
   const requestedSum = serviceItemCards.reduce((sum, cur) => sum + cur.amount, 0);
+
+  let firstItemNeedsReviewIndex = null;
+  const itemsNeedsReviewLength = serviceItemCards.filter((s, index) => {
+    if (firstItemNeedsReviewIndex === null) firstItemNeedsReviewIndex = index;
+    return s.status === REQUESTED;
+  })?.length;
+  const showNeedsReview = !!itemsNeedsReviewLength;
+  const showRejectRequest = !serviceItemCards.filter((s) => s.status === APPROVED || s.status === REQUESTED).length;
 
   let firstBasicIndex = null;
   let lastBasicIndex = null;
@@ -66,6 +82,23 @@ const ReviewServiceItems = ({
 
   const isBasicServiceItem =
     firstBasicIndex !== null && curCardIndex >= firstBasicIndex && curCardIndex <= lastBasicIndex;
+
+  const RenderCompleteAction = () => {
+    if (showNeedsReview) {
+      return (
+        <NeedsReview
+          numberOfItems={itemsNeedsReviewLength}
+          handleFinishReviewBtn={() => setCardIndex(firstItemNeedsReviewIndex)}
+        />
+      );
+    }
+
+    if (showRejectRequest) {
+      return <RejectRequest handleRejectBtn={handleRejectRequest} />;
+    }
+
+    return <AuthorizePayment amount={approvedSum} handleAuthorizePaymentBtn={handleAuthorizePayment} />;
+  };
 
   // Similar to componentDidMount and componentDidUpdate
   useEffect(() => {
@@ -95,7 +128,7 @@ const ReviewServiceItems = ({
             rejectedAmount={rejectedSum}
             requestedAmount={requestedSum}
           >
-            <AuthorizePayment amount={approvedSum} handleAuthorizePaymentBtn={handleAuthorizePayment} />
+            <RenderCompleteAction />
           </ReviewDetailsCard>
         </div>
         <div className={styles.bottom}>
@@ -180,6 +213,7 @@ ReviewServiceItems.propTypes = {
   patchPaymentServiceItem: PropTypes.func.isRequired,
   disableScrollIntoView: PropTypes.bool,
   onCompleteReview: PropTypes.func.isRequired,
+  onRejectRequest: PropTypes.func.isRequired,
   completeReviewError: PropTypes.shape({
     detail: PropTypes.string,
     title: PropTypes.string,
