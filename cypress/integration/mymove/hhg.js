@@ -159,6 +159,10 @@ function customerSetsUpAnHHGMove() {
 
 function customerReviewsMoveDetails() {
   cy.get('h2').contains('Review Move Details');
+
+  cy.get('[data-testid="hhg-summary"]').should((hhgContainer) => {
+    expect(hhgContainer).to.have.length(1);
+  });
   cy.nextPage();
 }
 
