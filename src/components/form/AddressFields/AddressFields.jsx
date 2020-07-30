@@ -1,61 +1,57 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Fieldset, Label, TextInput } from '@trussworks/react-uswds';
+import { Fieldset, Label } from '@trussworks/react-uswds';
 import { v4 as uuidv4 } from 'uuid';
 
-export const AddressFields = ({ legend, className, values, handleChange, name, renderExistingAddressCheckbox }) => {
+import { TextInput } from 'components/form/fields';
+
+export const AddressFields = ({ legend, className, values, name, renderExistingAddressCheckbox }) => {
   const addressFieldsUUID = uuidv4();
 
   return (
     <Fieldset legend={legend} className={className}>
       {renderExistingAddressCheckbox()}
-      <Label htmlFor={`mailingAddress1_${addressFieldsUUID}`}>Street address 1</Label>
       <TextInput
+        label="Street address 1"
         id={`mailingAddress1_${addressFieldsUUID}`}
         data-testid="mailingAddress1"
         name={`${name}.mailingAddress1`}
         type="text"
-        onChange={handleChange}
         value={values.mailingAddress1}
       />
-      <Label hint=" (optional)" htmlFor={`mailingAddress2_${addressFieldsUUID}`}>
-        Street address 2
-      </Label>
       <TextInput
+        label="Street address 2"
+        labelHint=" (optional)"
         id={`mailingAddress2_${addressFieldsUUID}`}
         data-testid="mailingAddress2"
         name={`${name}.mailingAddress2`}
         type="text"
-        onChange={handleChange}
         value={values.mailingAddress2}
       />
-      <Label htmlFor={`city_${addressFieldsUUID}`}>City</Label>
       <TextInput
+        label="City"
         id={`city_${addressFieldsUUID}`}
         data-testid="city"
         name={`${name}.city`}
         type="text"
-        onChange={handleChange}
         value={values.city}
       />
-      <Label htmlFor={`state_${addressFieldsUUID}`}>State</Label>
       <TextInput
+        label="State"
         id={`state_${addressFieldsUUID}`}
         data-testid="state"
         name={`${name}.state`}
         type="text"
-        onChange={handleChange}
         value={values.state}
       />
-      <Label htmlFor={`zip_${addressFieldsUUID}`}>ZIP</Label>
       <TextInput
+        label="ZIP"
         id={`zip_${addressFieldsUUID}`}
         data-testid="zip"
         inputSize="medium"
         name={`${name}.zip`}
         pattern="[\d]{5}(-[\d]{4})?"
         type="text"
-        onChange={handleChange}
         value={values.zip}
       />
     </Fieldset>
@@ -73,7 +69,6 @@ AddressFields.propTypes = {
     zip: PropTypes.string,
   }),
   name: PropTypes.string.isRequired,
-  handleChange: PropTypes.func.isRequired,
   renderExistingAddressCheckbox: PropTypes.func,
 };
 
