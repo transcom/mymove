@@ -23,7 +23,6 @@ const ReviewServiceItems = ({
   disableScrollIntoView,
   patchPaymentServiceItem,
   onCompleteReview,
-  onRejectRequest,
   completeReviewError,
 }) => {
   const [curCardIndex, setCardIndex] = useState(0);
@@ -40,10 +39,6 @@ const ReviewServiceItems = ({
 
   const handleAuthorizePayment = () => {
     onCompleteReview();
-  };
-
-  const handleRejectRequest = () => {
-    onRejectRequest();
   };
 
   // calculating the sums
@@ -94,7 +89,8 @@ const ReviewServiceItems = ({
     }
 
     if (showRejectRequest) {
-      return <RejectRequest handleRejectBtn={handleRejectRequest} />;
+      // the button should be the same as the authorize payment
+      return <RejectRequest handleRejectBtn={handleAuthorizePayment} />;
     }
 
     return <AuthorizePayment amount={approvedSum} handleAuthorizePaymentBtn={handleAuthorizePayment} />;
@@ -213,7 +209,6 @@ ReviewServiceItems.propTypes = {
   patchPaymentServiceItem: PropTypes.func.isRequired,
   disableScrollIntoView: PropTypes.bool,
   onCompleteReview: PropTypes.func.isRequired,
-  onRejectRequest: PropTypes.func.isRequired,
   completeReviewError: PropTypes.shape({
     detail: PropTypes.string,
     title: PropTypes.string,

@@ -27,7 +27,6 @@ export const Basic = () => (
     ]}
     handleClose={action('clicked')}
     onCompleteReview={action('clicked')}
-    onRejectRequest={action('clicked')}
     patchPaymentServiceItem={action('patchPaymentServiceItem')}
   />
 );
@@ -52,7 +51,6 @@ export const BasicWithTwoItems = () => {
       ]}
       handleClose={action('clicked')}
       onCompleteReview={action('clicked')}
-      onRejectRequest={action('clicked')}
       patchPaymentServiceItem={action('patchPaymentServiceItem')}
     />
   );
@@ -72,7 +70,6 @@ export const HHG = () => (
     ]}
     handleClose={action('clicked')}
     onCompleteReview={action('clicked')}
-    onRejectRequest={action('clicked')}
     patchPaymentServiceItem={action('patchPaymentServiceItem')}
   />
 );
@@ -91,7 +88,6 @@ export const NonTemporaryStorage = () => (
     ]}
     handleClose={action('clicked')}
     onCompleteReview={action('clicked')}
-    onRejectRequest={action('clicked')}
     patchPaymentServiceItem={action('patchPaymentServiceItem')}
   />
 );
@@ -132,7 +128,6 @@ export const MultipleShipmentsGroups = () => (
     ]}
     handleClose={action('clicked')}
     onCompleteReview={action('clicked')}
-    onRejectRequest={action('clicked')}
     patchPaymentServiceItem={action('patchPaymentServiceItem')}
   />
 );
@@ -184,7 +179,6 @@ export const WithStatusAndReason = () => (
     ]}
     handleClose={action('clicked')}
     onCompleteReview={action('clicked')}
-    onRejectRequest={action('clicked')}
     patchPaymentServiceItem={action('patchPaymentServiceItem')}
   />
 );
@@ -203,7 +197,6 @@ export const WithNeedsReview = () => (
     ]}
     handleClose={action('clicked')}
     onCompleteReview={action('clicked')}
-    onRejectRequest={action('clicked')}
     patchPaymentServiceItem={action('patchPaymentServiceItem')}
   />
 );
@@ -222,7 +215,6 @@ export const WithRejectRequest = () => (
     ]}
     handleClose={action('clicked')}
     onCompleteReview={action('clicked')}
-    onRejectRequest={action('clicked')}
     patchPaymentServiceItem={action('patchPaymentServiceItem')}
   />
 );
@@ -241,7 +233,6 @@ export const WithAuthorizedPayment = () => (
     ]}
     handleClose={action('clicked')}
     onCompleteReview={action('clicked')}
-    onRejectRequest={action('clicked')}
     patchPaymentServiceItem={action('patchPaymentServiceItem')}
   />
 );
