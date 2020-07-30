@@ -21,32 +21,21 @@ ALTER TABLE moves
     ADD COLUMN ppm_type varchar(10),
     ADD COLUMN ppm_estimated_weight integer;
 
--- Re-map foreign keys, indexes, and column names from move_task_orders to moves.
--- Note that any renamed columns will automatically be reflected in an index/constraint,
--- but the name will not automatically change.
+-- Re-map foreign keys from move_task_orders to moves.
 ALTER TABLE payment_requests
     DROP CONSTRAINT payment_requests_move_task_order_id_fkey;
 ALTER TABLE payment_requests
-    RENAME COLUMN move_task_order_id TO move_id;
-ALTER TABLE payment_requests
-    ADD CONSTRAINT payment_requests_move_id_fkey FOREIGN KEY (move_id) REFERENCES moves (id);
-ALTER INDEX payment_requests_move_task_order_id_idx RENAME TO payment_requests_move_id_idx;
+    ADD CONSTRAINT payment_requests_move_task_order_id_fkey FOREIGN KEY (move_task_order_id) REFERENCES moves (id);
 
 ALTER TABLE mto_shipments
     DROP CONSTRAINT mto_shipments_move_task_order_id_fkey;
 ALTER TABLE mto_shipments
-    RENAME COLUMN move_task_order_id TO move_id;
-ALTER TABLE mto_shipments
-    ADD CONSTRAINT mto_shipments_move_id_fkey FOREIGN KEY (move_id) REFERENCES moves (id);
-ALTER INDEX mto_shipments_move_task_order_id_idx RENAME TO mto_shipments_move_id_idx;
+    ADD CONSTRAINT mto_shipments_move_task_order_id_fkey FOREIGN KEY (move_task_order_id) REFERENCES moves (id);
 
 ALTER TABLE mto_service_items
     DROP CONSTRAINT mto_service_items_move_task_order_id_fkey;
 ALTER TABLE mto_service_items
-    RENAME COLUMN move_task_order_id TO move_id;
-ALTER TABLE mto_service_items
-    ADD CONSTRAINT mto_service_items_move_id_fkey FOREIGN KEY (move_id) REFERENCES moves (id);
-ALTER INDEX mto_service_items_move_task_order_id_idx RENAME TO mto_service_items_move_id_idx;
+    ADD CONSTRAINT mto_service_items_move_task_order_id_fkey FOREIGN KEY (move_task_order_id) REFERENCES moves (id);
 
 -- Drop the old table.
 DROP TABLE move_task_orders;
