@@ -1001,7 +1001,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	msCost := unit.Cents(10000)
 	serviceItemMS := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID: uuid.FromStringOrNil("4fba4249-b5aa-4c29-8448-66aa07ac8560"),
+			ID:     uuid.FromStringOrNil("4fba4249-b5aa-4c29-8448-66aa07ac8560"),
+			Status: models.MTOServiceItemStatusApproved,
 		},
 		MoveTaskOrder: mto,
 		ReService: models.ReService{

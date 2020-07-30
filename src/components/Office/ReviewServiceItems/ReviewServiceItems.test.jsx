@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { shallow, mount } from 'enzyme';
@@ -6,7 +7,7 @@ import { toDollarString } from '../../../shared/formatters';
 
 import ReviewServiceItems from './ReviewServiceItems';
 
-import { SHIPMENT_OPTIONS, SERVICE_ITEM_STATUS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 
 const serviceItemCards = [
   {
@@ -15,7 +16,7 @@ const serviceItemCards = [
     shipmentId: '10',
     serviceItemName: 'Domestic linehaul',
     amount: 6423,
-    status: SERVICE_ITEM_STATUS.SUBMITTED,
+    status: PAYMENT_SERVICE_ITEM_STATUS.REQUESTED,
     createdAt: '2020-01-01T00:08:00.999Z',
   },
   {
@@ -25,6 +26,7 @@ const serviceItemCards = [
     serviceItemName: 'Fuel Surcharge',
     amount: 50.25,
     createdAt: '2020-01-01T00:08:30.999Z',
+    status: PAYMENT_SERVICE_ITEM_STATUS.REQUESTED,
   },
   {
     id: '3',
@@ -33,6 +35,7 @@ const serviceItemCards = [
     serviceItemName: 'Domestic linehaul',
     amount: 0.1,
     createdAt: '2020-01-01T00:09:00.999Z',
+    status: PAYMENT_SERVICE_ITEM_STATUS.REQUESTED,
   },
   {
     id: '4',
@@ -41,6 +44,7 @@ const serviceItemCards = [
     serviceItemName: 'Counseling Services',
     amount: 1000,
     createdAt: '2020-01-01T00:02:00.999Z',
+    status: PAYMENT_SERVICE_ITEM_STATUS.REQUESTED,
   },
 ];
 
@@ -52,6 +56,7 @@ const basicServiceItemCards = [
     serviceItemName: 'Counseling Services',
     amount: 1000,
     createdAt: '2020-01-01T00:02:00.999Z',
+    status: PAYMENT_SERVICE_ITEM_STATUS.REQUESTED,
   },
   {
     id: '5',
@@ -60,6 +65,7 @@ const basicServiceItemCards = [
     serviceItemName: 'Move management',
     amount: 1,
     createdAt: '2020-01-01T00:01:00.999Z',
+    status: PAYMENT_SERVICE_ITEM_STATUS.REQUESTED,
   },
 ];
 
@@ -70,22 +76,25 @@ const compareItem = (component, item) => {
 
 describe('ReviewServiceItems component', () => {
   const handleClose = jest.fn();
-  const shallowComponent = shallow(
-    <ReviewServiceItems serviceItemCards={serviceItemCards} handleClose={handleClose} />,
-  );
-  const mountedComponent = mount(<ReviewServiceItems serviceItemCards={serviceItemCards} handleClose={handleClose} />);
+  const patchPaymentServiceItem = jest.fn();
+  const onCompleteReview = jest.fn();
+
+  const requiredProps = {
+    handleClose,
+    patchPaymentServiceItem,
+    onCompleteReview,
+  };
+
+  const shallowComponent = shallow(<ReviewServiceItems serviceItemCards={serviceItemCards} {...requiredProps} />);
+  const mountedComponent = mount(<ReviewServiceItems serviceItemCards={serviceItemCards} {...requiredProps} />);
 
   it('renders without crashing', () => {
     expect(shallowComponent.find('[data-testid="ReviewServiceItems"]').length).toBe(1);
   });
 
   it('doesn’t crash if there are no cards', () => {
-    const componentWithNoCards = shallow(<ReviewServiceItems handleClose={handleClose} />);
+    const componentWithNoCards = shallow(<ReviewServiceItems {...requiredProps} />);
     expect(componentWithNoCards.exists()).toBe(true);
-  });
-
-  it('renders a Formik form', () => {
-    expect(shallowComponent.find('Formik').length).toBe(1);
   });
 
   it('renders ServiceItemCard component', () => {
@@ -113,9 +122,7 @@ describe('ReviewServiceItems component', () => {
   });
 
   it('renders two basic service item cards', () => {
-    const basicWrapper = mount(
-      <ReviewServiceItems serviceItemCards={basicServiceItemCards} handleClose={handleClose} />,
-    );
+    const basicWrapper = mount(<ReviewServiceItems serviceItemCards={basicServiceItemCards} {...requiredProps} />);
     expect(basicWrapper.find('ServiceItemCard').length).toBe(2);
   });
 
@@ -142,11 +149,23 @@ describe('ReviewServiceItems component', () => {
       compareItem(mountedComponent, serviceItemCards[2]);
     });
 
-    it('disables the Next button on the last item', () => {
-      expect(mountedComponent.find('[data-testid="nextServiceItem"]').prop('disabled')).toBe(true);
+    it('shows the Complete Review step after the last item', () => {
+      nextButton.simulate('click');
+      mountedComponent.update();
+
+      expect(mountedComponent.find('[data-testid="authorizePaymentBtn"]').exists()).toBe(true);
+    });
+
+    it('does not show a Next button on the Complete Review step', () => {
+      expect(mountedComponent.find('[data-testid="nextServiceItem"]').exists()).toBe(false);
     });
 
     it('can click back to the first item', () => {
+      prevButton.simulate('click');
+      mountedComponent.update();
+
+      compareItem(mountedComponent, serviceItemCards[2]);
+
       prevButton.simulate('click');
       mountedComponent.update();
 
@@ -165,77 +184,77 @@ describe('ReviewServiceItems component', () => {
   });
 
   describe('filling out the service item form', () => {
-    const nextButton = mountedComponent.find('[data-testid="nextServiceItem"]');
-
-    it('the item values are blank by default', () => {
-      const serviceItemCard = mountedComponent.find('ServiceItemCard');
-
-      expect(serviceItemCard.prop('value')).toEqual({ status: undefined, rejectionReason: undefined });
-    });
-
     it('can approve an item', async () => {
-      const serviceItemId = serviceItemCards[3].id;
-      const approveInput = mountedComponent.find(`input[name="${serviceItemId}.status"][value="APPROVED"]`);
+      const approveInput = mountedComponent.find(`input[name="status"][value="APPROVED"]`);
       expect(approveInput.length).toBe(1);
 
       await act(async () => {
         approveInput.simulate('change');
       });
       mountedComponent.update();
-      const serviceItemCard = mountedComponent.find('ServiceItemCard');
-      expect(serviceItemCard.prop('value')).toEqual({ status: 'APPROVED', rejectionReason: undefined });
+      expect(patchPaymentServiceItem).toHaveBeenCalled();
     });
 
     it('can reject an item', async () => {
+      const nextButton = mountedComponent.find('[data-testid="nextServiceItem"]');
+
       nextButton.simulate('click');
       mountedComponent.update();
 
-      const serviceItemId = serviceItemCards[0].id;
-      const rejectInput = mountedComponent.find(`input[name="${serviceItemId}.status"][value="REJECTED"]`);
+      const rejectInput = mountedComponent.find(`input[name="status"][value="DENIED"]`);
       expect(rejectInput.length).toBe(1);
 
       await act(async () => {
         rejectInput.simulate('change');
       });
       mountedComponent.update();
-      const serviceItemCard = mountedComponent.find('ServiceItemCard');
-      expect(serviceItemCard.prop('value')).toEqual({ status: 'REJECTED', rejectionReason: undefined });
+      const saveButton = mountedComponent.find('[data-testid="rejectionSaveButton"]');
+      expect(saveButton.length).toBe(1);
+      await act(async () => {
+        saveButton.simulate('click');
+      });
+      mountedComponent.update();
+      expect(patchPaymentServiceItem).toHaveBeenCalled();
     });
 
     it('can enter a reason for rejecting an item', async () => {
-      const serviceItemId = serviceItemCards[0].id;
-      const rejectReasonInput = mountedComponent.find(`textarea[name="${serviceItemId}.rejectionReason"]`);
+      const rejectReasonInput = mountedComponent.find(`textarea[name="rejectionReason"]`);
       expect(rejectReasonInput.length).toBe(1);
 
       await act(async () => {
         rejectReasonInput.simulate('change', {
           target: {
-            name: `${serviceItemId}.rejectionReason`,
+            name: 'rejectionReason',
             value: 'This is why I rejected it',
           },
         });
       });
       mountedComponent.update();
-      const serviceItemCard = mountedComponent.find('ServiceItemCard');
-      expect(serviceItemCard.prop('value')).toEqual({
-        status: 'REJECTED',
-        rejectionReason: 'This is why I rejected it',
-      });
+      expect(rejectReasonInput.text()).toEqual('This is why I rejected it');
     });
 
     it('can clear the selections for an item', async () => {
       const clearSelectionButton = mountedComponent.find('[data-testid="clearStatusButton"]');
       expect(clearSelectionButton.length).toBe(1);
+      const rejectReasonInput = mountedComponent.find(`textarea[name="rejectionReason"]`);
+      expect(rejectReasonInput.length).toBe(1);
+
+      await act(async () => {
+        rejectReasonInput.simulate('change', {
+          target: {
+            name: 'rejectionReason',
+            value: 'This is why I rejected it',
+          },
+        });
+      });
+      mountedComponent.update();
 
       await act(async () => {
         clearSelectionButton.simulate('click');
       });
       mountedComponent.update();
-      const serviceItemCard = mountedComponent.find('ServiceItemCard');
-      expect(serviceItemCard.prop('value')).toEqual({
-        status: undefined,
-        rejectionReason: undefined,
-      });
+      const clearedRejectionInput = mountedComponent.find(`textarea[name="rejectionReason"]`);
+      expect(clearedRejectionInput.length).toBe(0);
     });
   });
 
@@ -247,7 +266,7 @@ describe('ReviewServiceItems component', () => {
         shipmentId: '10',
         serviceItemName: 'Domestic linehaul',
         amount: 6423,
-        status: SERVICE_ITEM_STATUS.SUBMITTED,
+        status: PAYMENT_SERVICE_ITEM_STATUS.REQUESTED,
         createdAt: '2020-01-01T00:08:00.999Z',
       },
       {
@@ -256,7 +275,7 @@ describe('ReviewServiceItems component', () => {
         shipmentId: '10',
         serviceItemName: 'Fuel Surcharge',
         amount: 50.25,
-        status: SERVICE_ITEM_STATUS.APPROVED,
+        status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
         createdAt: '2020-01-01T00:08:30.999Z',
       },
       {
@@ -273,7 +292,7 @@ describe('ReviewServiceItems component', () => {
         shipmentId: null,
         serviceItemName: 'Counseling Services',
         amount: 1000,
-        status: SERVICE_ITEM_STATUS.APPROVED,
+        status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
         createdAt: '2020-01-01T00:02:00.999Z',
       },
       {
@@ -282,70 +301,92 @@ describe('ReviewServiceItems component', () => {
         shipmentId: null,
         serviceItemName: 'Move management',
         amount: 1,
-        status: SERVICE_ITEM_STATUS.REJECTED,
+        status: PAYMENT_SERVICE_ITEM_STATUS.DENIED,
         rejectionReason: 'Wrong amount specified',
         createdAt: '2020-01-01T00:01:00.999Z',
       },
     ];
 
     const componentWithInitialValues = mount(
-      <ReviewServiceItems handleClose={handleClose} serviceItemCards={cardsWithInitialValues} />,
+      <ReviewServiceItems serviceItemCards={cardsWithInitialValues} {...requiredProps} />,
     );
     const approvedAmount = componentWithInitialValues.find('[data-testid="approvedAmount"]');
-    const nextButton = componentWithInitialValues.find('[data-testid="nextServiceItem"]');
 
-    it('calculates the sum for items with initial values', () => {
+    it('calculates the approved sum for items with initial values', () => {
       expect(approvedAmount.text()).toEqual('$1,050.25');
     });
+  });
 
-    it('adds to total newly approved items', async () => {
-      const serviceItemId = cardsWithInitialValues[4].id;
-      const approveInput = componentWithInitialValues.find(`input[name="${serviceItemId}.status"][value="APPROVED"]`);
+  describe('completing the review step', () => {
+    describe('with no error', () => {
+      it('lands on the Complete Review step after reviewing all items', () => {
+        const nextButton = mountedComponent.find('[data-testid="nextServiceItem"]');
 
-      await act(async () => {
-        approveInput.simulate('change');
+        nextButton.simulate('click');
+        mountedComponent.update();
+
+        nextButton.simulate('click');
+        mountedComponent.update();
+
+        nextButton.simulate('click');
+        mountedComponent.update();
+
+        const header = mountedComponent.find('h2');
+        expect(header.exists()).toBe(true);
+        expect(header.text()).toEqual('Complete request');
+
+        const body = mountedComponent.find('.body p');
+        expect(body.exists()).toBe(true);
+        expect(body.text()).toEqual('Do you authorize this payment of $0.00?');
       });
-      componentWithInitialValues.update();
 
-      expect(approvedAmount.text()).toEqual('$1,051.25');
+      it('can click on Authorize Payment', async () => {
+        const authorizeBtn = mountedComponent.find('[data-testid="authorizePaymentBtn"]');
+        expect(authorizeBtn.exists()).toBe(true);
+
+        await act(async () => {
+          authorizeBtn.simulate('click');
+        });
+
+        mountedComponent.update();
+        expect(onCompleteReview).toHaveBeenCalled();
+      });
     });
 
-    it('subtracts from total when an approved item becomes rejected', async () => {
-      const serviceItemId = cardsWithInitialValues[4].id;
-      const rejectedInput = componentWithInitialValues.find(`input[name="${serviceItemId}.status"][value="REJECTED"]`);
+    describe('with a validation error', () => {
+      const componentWithMockError = mount(
+        <ReviewServiceItems
+          serviceItemCards={serviceItemCards}
+          {...requiredProps}
+          completeReviewError={{ detail: 'A validation error occurred' }}
+        />,
+      );
 
-      await act(async () => {
-        rejectedInput.simulate('change');
+      it('lands on the Complete Review step after reviewing all items', () => {
+        const nextButton = componentWithMockError.find('[data-testid="nextServiceItem"]');
+
+        nextButton.simulate('click');
+        componentWithMockError.update();
+
+        nextButton.simulate('click');
+        componentWithMockError.update();
+
+        nextButton.simulate('click');
+        componentWithMockError.update();
+
+        nextButton.simulate('click');
+        componentWithMockError.update();
+
+        const header = componentWithMockError.find('h2');
+        expect(header.exists()).toBe(true);
+        expect(header.text()).toEqual('Complete request');
       });
-      componentWithInitialValues.update();
 
-      expect(approvedAmount.text()).toEqual('$1,050.25');
-    });
-
-    it('subtracts from total when approved item selection is cleared', async () => {
-      nextButton.simulate('click');
-      mountedComponent.update();
-
-      const clearSelectionButton = componentWithInitialValues.find('[data-testid="clearStatusButton"]').at(1);
-
-      await act(async () => {
-        clearSelectionButton.simulate('click');
+      it('displays the validation error', async () => {
+        const errorMsg = componentWithMockError.find('[data-testid="errorMessage"]');
+        expect(errorMsg.exists()).toBe(true);
+        expect(errorMsg.text()).toEqual('Error: A validation error occurred');
       });
-      componentWithInitialValues.update();
-
-      expect(approvedAmount.text()).toEqual('$50.25');
-    });
-
-    it('does not recalculate when rejecting a non-approved item', async () => {
-      const serviceItemId = cardsWithInitialValues[3].id;
-      const rejectedInput = componentWithInitialValues.find(`input[name="${serviceItemId}.status"][value="REJECTED"]`);
-
-      await act(async () => {
-        rejectedInput.simulate('change');
-      });
-      componentWithInitialValues.update();
-
-      expect(approvedAmount.text()).toEqual('$50.25');
     });
   });
 });
