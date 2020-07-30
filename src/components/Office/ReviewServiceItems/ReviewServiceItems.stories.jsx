@@ -3,7 +3,7 @@ import { action } from '@storybook/addon-actions';
 
 import ReviewServiceItems from './ReviewServiceItems';
 
-import { SHIPMENT_OPTIONS, SERVICE_ITEM_STATUS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, SERVICE_ITEM_STATUS, PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 
 export default {
   title: 'TOO/TIO Components|ReviewServiceItems',
@@ -26,6 +26,9 @@ export const Basic = () => (
       },
     ]}
     handleClose={action('clicked')}
+    onCompleteReview={action('clicked')}
+    onRejectRequest={action('clicked')}
+    patchPaymentServiceItem={action('patchPaymentServiceItem')}
   />
 );
 
@@ -48,6 +51,9 @@ export const BasicWithTwoItems = () => {
         },
       ]}
       handleClose={action('clicked')}
+      onCompleteReview={action('clicked')}
+      onRejectRequest={action('clicked')}
+      patchPaymentServiceItem={action('patchPaymentServiceItem')}
     />
   );
 };
@@ -65,6 +71,9 @@ export const HHG = () => (
       },
     ]}
     handleClose={action('clicked')}
+    onCompleteReview={action('clicked')}
+    onRejectRequest={action('clicked')}
+    patchPaymentServiceItem={action('patchPaymentServiceItem')}
   />
 );
 
@@ -81,6 +90,9 @@ export const NonTemporaryStorage = () => (
       },
     ]}
     handleClose={action('clicked')}
+    onCompleteReview={action('clicked')}
+    onRejectRequest={action('clicked')}
+    patchPaymentServiceItem={action('patchPaymentServiceItem')}
   />
 );
 
@@ -119,6 +131,9 @@ export const MultipleShipmentsGroups = () => (
       },
     ]}
     handleClose={action('clicked')}
+    onCompleteReview={action('clicked')}
+    onRejectRequest={action('clicked')}
+    patchPaymentServiceItem={action('patchPaymentServiceItem')}
   />
 );
 
@@ -168,5 +183,65 @@ export const WithStatusAndReason = () => (
       },
     ]}
     handleClose={action('clicked')}
+    onCompleteReview={action('clicked')}
+    onRejectRequest={action('clicked')}
+    patchPaymentServiceItem={action('patchPaymentServiceItem')}
+  />
+);
+
+export const WithNeedsReview = () => (
+  <ReviewServiceItems
+    disableScrollIntoView
+    serviceItemCards={[
+      {
+        id: '1',
+        serviceItemName: 'Counseling services',
+        status: PAYMENT_SERVICE_ITEM_STATUS.REQUESTED,
+        amount: 0.01,
+        createdAt: '2020-01-01T00:09:00.999Z',
+      },
+    ]}
+    handleClose={action('clicked')}
+    onCompleteReview={action('clicked')}
+    onRejectRequest={action('clicked')}
+    patchPaymentServiceItem={action('patchPaymentServiceItem')}
+  />
+);
+
+export const WithRejectRequest = () => (
+  <ReviewServiceItems
+    disableScrollIntoView
+    serviceItemCards={[
+      {
+        id: '1',
+        serviceItemName: 'Counseling services',
+        status: PAYMENT_SERVICE_ITEM_STATUS.DENIED,
+        amount: 0.01,
+        createdAt: '2020-01-01T00:09:00.999Z',
+      },
+    ]}
+    handleClose={action('clicked')}
+    onCompleteReview={action('clicked')}
+    onRejectRequest={action('clicked')}
+    patchPaymentServiceItem={action('patchPaymentServiceItem')}
+  />
+);
+
+export const WithAuthorizedPayment = () => (
+  <ReviewServiceItems
+    disableScrollIntoView
+    serviceItemCards={[
+      {
+        id: '1',
+        serviceItemName: 'Counseling services',
+        status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
+        amount: 0.01,
+        createdAt: '2020-01-01T00:09:00.999Z',
+      },
+    ]}
+    handleClose={action('clicked')}
+    onCompleteReview={action('clicked')}
+    onRejectRequest={action('clicked')}
+    patchPaymentServiceItem={action('patchPaymentServiceItem')}
   />
 );
