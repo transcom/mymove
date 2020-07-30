@@ -9,5 +9,5 @@ export default {
 };
 
 export const RejectRequest = () => (
-  <RejectRequestComponent numberOfItems={1} handleRejectBtn={action('Finish button clicked!')} />
+  <RejectRequestComponent numberOfItems={1} onClick={action('Finish button clicked!')} />
 );

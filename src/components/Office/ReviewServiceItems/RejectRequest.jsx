@@ -8,11 +8,11 @@ import styles from './RejectRequest.module.scss';
  * This component represents a section shown in the ReviewDetailsCard at the end of navigation.
  * Only shows if all service items have been rejected.
  * */
-const RejectRequest = ({ handleRejectBtn }) => {
+const RejectRequest = ({ onClick }) => {
   return (
     <div data-testid="RejectRequest" className={styles.RejectRequest}>
       <div data-testid="content">You&apos;re rejecting all service items. No payment will be authorized.</div>
-      <Button data-testid="rejectRequestBtn" type="button" onClick={handleRejectBtn}>
+      <Button data-testid="rejectRequestBtn" type="button" onClick={onClick}>
         Reject request
       </Button>
     </div>
@@ -20,11 +20,11 @@ const RejectRequest = ({ handleRejectBtn }) => {
 };
 
 RejectRequest.propTypes = {
-  handleRejectBtn: PropTypes.func,
+  onClick: PropTypes.func,
 };
 
 RejectRequest.defaultProps = {
-  handleRejectBtn: null,
+  onClick: null,
 };
 
 export default RejectRequest;

@@ -8,12 +8,12 @@ import styles from './NeedsReview.module.scss';
  * This component represents a section shown in the ReviewDetailsCard at the end of navigation.
  * Only shows if any service items have not been reviewed yet.
  * */
-const NeedsReview = ({ numberOfItems, handleFinishReviewBtn }) => {
+const NeedsReview = ({ numberOfItems, onClick }) => {
   return (
     <div data-testid="NeedsReview" className={styles.NeedsReview}>
       <div data-testid="header" className={styles.header}>{`${numberOfItems} item still needs your review`}</div>
       <div data-testid="content">Accept or reject all service items, then authorized payment.</div>
-      <Button data-testid="finishReviewBtn" type="button" secondary onClick={handleFinishReviewBtn}>
+      <Button data-testid="finishReviewBtn" type="button" secondary onClick={onClick}>
         Finish review
       </Button>
     </div>
@@ -22,11 +22,11 @@ const NeedsReview = ({ numberOfItems, handleFinishReviewBtn }) => {
 
 NeedsReview.propTypes = {
   numberOfItems: PropTypes.number.isRequired,
-  handleFinishReviewBtn: PropTypes.func,
+  onClick: PropTypes.func,
 };
 
 NeedsReview.defaultProps = {
-  handleFinishReviewBtn: null,
+  onClick: null,
 };
 
 export default NeedsReview;

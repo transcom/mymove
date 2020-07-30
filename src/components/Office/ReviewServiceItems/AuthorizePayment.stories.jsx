@@ -8,6 +8,4 @@ export default {
   component: AuthorizePaymentComponent,
 };
 
-export const AuthorizePayment = () => (
-  <AuthorizePaymentComponent handleFinishReviewBtn={action('Finish button clicked!')} />
-);
+export const AuthorizePayment = () => <AuthorizePaymentComponent onClick={action('Finish button clicked!')} />;

@@ -10,11 +10,11 @@ import { toDollarString } from 'shared/formatters';
  * This component represents a section shown in the ReviewDetailsCard at the end of navigation.
  * Only shows if all service items have been reviewed yet and at least 1 is approved.
  * */
-const AuthorizePayment = ({ amount, handleAuthorizePaymentBtn }) => {
+const AuthorizePayment = ({ amount, onClick }) => {
   return (
     <div data-testid="AuthorizePayment" className={styles.AuthorizePayment}>
       <div className={styles.content}>{`Do you authorize this payment of ${toDollarString(amount)}?`}</div>
-      <Button data-testid="authorizePaymentBtn" type="button" onClick={handleAuthorizePaymentBtn}>
+      <Button data-testid="authorizePaymentBtn" type="button" onClick={onClick}>
         Authorize payment
       </Button>
     </div>
@@ -23,12 +23,12 @@ const AuthorizePayment = ({ amount, handleAuthorizePaymentBtn }) => {
 
 AuthorizePayment.propTypes = {
   amount: PropTypes.number,
-  handleAuthorizePaymentBtn: PropTypes.func,
+  onClick: PropTypes.func,
 };
 
 AuthorizePayment.defaultProps = {
   amount: 0,
-  handleAuthorizePaymentBtn: null,
+  onClick: null,
 };
 
 export default AuthorizePayment;

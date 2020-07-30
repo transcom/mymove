@@ -8,6 +8,4 @@ export default {
   component: NeedsReviewComponent,
 };
 
-export const NeedsReview = () => (
-  <NeedsReviewComponent numberOfItems={1} handleFinishReviewBtn={action('Finish button clicked!')} />
-);
+export const NeedsReview = () => <NeedsReviewComponent numberOfItems={1} onClick={action('Finish button clicked!')} />;
