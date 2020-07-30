@@ -5,12 +5,7 @@ export default function formatAddress(address) {
   const { street_address_1, city, state, postal_code } = address;
   return (
     <>
-      {street_address_1 && (
-        <>
-          {street_address_1}
-          <br />
-        </>
-      )}
+      {street_address_1 && <>{street_address_1},&nbsp;</>}
       {city ? `${city}, ${state} ${postal_code}` : postal_code}
     </>
   );

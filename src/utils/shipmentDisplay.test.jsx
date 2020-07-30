@@ -12,9 +12,10 @@ describe('shipmentDisplay utils', () => {
         postal_code: '34747',
       };
       const component = mount(formatAddress(shipmentAddress));
-      it('pretty formats in 2 lines', () => {
+      it('includes full address with comma seperator', () => {
         expect(component.at(0).text()).toEqual('555 Main Street');
-        expect(component.at(1).name()).toEqual('br');
+        // Must use the character code for nbsp
+        expect(component.at(1).text()).toEqual(',\xa0');
         expect(component.at(2).text()).toEqual('Celebration, FL 34747');
       });
     });

@@ -93,9 +93,7 @@ const ShipmentApprovalPreview = ({
                             <th className="text-bold" scope="row">
                               Destination Address
                             </th>
-                            <td data-testid={`${shipment.id}-destinationAddress`}>
-                              {formatAddress(shipment.destinationAddress)}
-                            </td>
+                            <td data-testid="destinationAddress">{formatAddress(shipment.destinationAddress)}</td>
                           </tr>
                           <tr>
                             <th className="text-bold" scope="row">

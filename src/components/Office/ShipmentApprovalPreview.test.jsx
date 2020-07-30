@@ -254,8 +254,6 @@ describe('Shipment preview modal', () => {
         shipmentManagementFee
       />,
     );
-    expect(wrapper.find('[data-testid="c2f68d97-b960-4c86-a418-c70a0aeba04e-destinationAddress"]').text()).toEqual(
-      '94535',
-    );
+    expect(wrapper.find('[data-testid="destinationAddress"]').at(1).text()).toEqual('94535');
   });
 });
