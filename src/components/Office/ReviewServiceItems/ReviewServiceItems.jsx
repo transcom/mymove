@@ -46,14 +46,10 @@ const ReviewServiceItems = ({
   const rejectedSum = sortedCards.filter((s) => s.status === DENIED).reduce((sum, cur) => sum + cur.amount, 0);
   const requestedSum = sortedCards.reduce((sum, cur) => sum + cur.amount, 0);
 
-  let firstItemNeedsReviewIndex = null;
-  const itemsNeedsReviewLength = sortedCards.filter((s, index) => {
-    const isRequested = s.status === REQUESTED;
-    if (firstItemNeedsReviewIndex === null && isRequested) firstItemNeedsReviewIndex = index;
-    return isRequested;
-  })?.length;
-  const showNeedsReview = !!itemsNeedsReviewLength;
-  const showRejectRequest = !serviceItemCards.filter((s) => s.status === APPROVED || s.status === REQUESTED).length;
+  const itemsNeedsReviewLength = sortedCards.filter((s) => s.status === REQUESTED)?.length;
+  const showNeedsReview = sortedCards.some((s) => s.status === REQUESTED);
+  const showRejectRequest = sortedCards.every((s) => s.status === DENIED);
+  const firstItemNeedsReviewIndex = showNeedsReview && sortedCards.findIndex((s) => s.status === REQUESTED);
 
   let firstBasicIndex = null;
   let lastBasicIndex = null;
