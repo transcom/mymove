@@ -22,9 +22,17 @@ func (gre *GHCRateEngineImporter) importREContractYears(dbTx *pop.Connection) er
 	gre.contractYearToIDMap = make(map[string]uuid.UUID)
 	incrementYear := 0
 	compoundedEscalation := 1.00000
-	//These are arbitrary start and end dates while we wait for actual contract year dates.
-	basePeriodStartDateForPrimeContract1 := time.Date(2019, time.June, 01, 0, 0, 0, 0, time.UTC)
-	basePeriodEndDateForPrimeContract1 := time.Date(2020, time.May, 31, 0, 0, 0, 0, time.UTC)
+
+	//These values may change
+	var beginningDate string
+	if gre.ContractStartDate == "" {
+		beginningDate = "2020-02-01"
+	} else {
+		beginningDate = gre.ContractStartDate
+	}
+
+	basePeriodStartDateForPrimeContract1, _ := time.Parse("2006-01-02", beginningDate)
+	basePeriodEndDateForPrimeContract1 := basePeriodStartDateForPrimeContract1.AddDate(1, 0, -1)
 
 	//loop through the price escalation discounts data and pull contract year and escalations
 	for _, stagePriceEscalationDiscount := range priceEscalationDiscounts {

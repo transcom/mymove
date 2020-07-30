@@ -44,6 +44,7 @@ func main() {
 	flag.StringVar(&params.XlsxFilename, "filename", "", "Filename (including path) of the XLSX to parse for the GHC rate engine data import")
 	flag.StringVar(&params.ContractCode, "contract-code", "", "Contract code to use for this import")
 	flag.StringVar(&params.ContractName, "contract-name", "", "Contract name to use for this import; if not provided, the contract-code value will be used")
+	flag.StringVar(&params.ContractStartDate, "contract-start-date", "", "Beginning base date for contracts periods, in format: YYYY-MM-DD; if not provided, 2020-02-01 will be used")
 	flag.BoolVar(&params.ProcessAll, "all", true, "Parse entire GHC Rate Engine XLSX")
 	flag.StringSliceVar(&params.XlsxSheets, "xlsxSheets", []string{}, xlsxSheetsUsage(xlsxDataSheets))
 	flag.BoolVar(&params.ShowOutput, "display", false, "Display output of parsed info")
@@ -132,9 +133,10 @@ func main() {
 	// If the parsing was successful, run GHC Rate Engine importer
 	if params.RunImport {
 		ghcREImporter := ghcimport.GHCRateEngineImporter{
-			Logger:       logger,
-			ContractCode: params.ContractCode,
-			ContractName: params.ContractName,
+			Logger:            logger,
+			ContractCode:      params.ContractCode,
+			ContractName:      params.ContractName,
+			ContractStartDate: params.ContractStartDate,
 		}
 		err = ghcREImporter.Import(db)
 		if err != nil {
