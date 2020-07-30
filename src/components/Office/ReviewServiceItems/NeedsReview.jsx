@@ -11,9 +11,9 @@ import styles from './NeedsReview.module.scss';
 const NeedsReview = ({ numberOfItems, handleFinishReviewBtn }) => {
   return (
     <div data-testid="NeedsReview" className={styles.NeedsReview}>
-      <div className={styles.header}>{`${numberOfItems} item still needs your review`}</div>
-      <div>Accept or reject all service items, then authorized payment.</div>
-      <Button type="button" secondary onClick={handleFinishReviewBtn}>
+      <div data-testid="header" className={styles.header}>{`${numberOfItems} item still needs your review`}</div>
+      <div data-testid="content">Accept or reject all service items, then authorized payment.</div>
+      <Button data-testid="finishReviewBtn" type="button" secondary onClick={handleFinishReviewBtn}>
         Finish review
       </Button>
     </div>

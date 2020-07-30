@@ -29,7 +29,7 @@ const ReviewServiceItems = ({
 
   const sortedCards = sortServiceItemsByGroup(serviceItemCards);
 
-  const totalCards = serviceItemCards.length;
+  const totalCards = sortedCards.length;
 
   const { APPROVED, DENIED, REQUESTED } = PAYMENT_SERVICE_ITEM_STATUS;
 
@@ -42,12 +42,12 @@ const ReviewServiceItems = ({
   };
 
   // calculating the sums
-  const approvedSum = serviceItemCards.filter((s) => s.status === APPROVED).reduce((sum, cur) => sum + cur.amount, 0);
-  const rejectedSum = serviceItemCards.filter((s) => s.status === DENIED).reduce((sum, cur) => sum + cur.amount, 0);
-  const requestedSum = serviceItemCards.reduce((sum, cur) => sum + cur.amount, 0);
+  const approvedSum = sortedCards.filter((s) => s.status === APPROVED).reduce((sum, cur) => sum + cur.amount, 0);
+  const rejectedSum = sortedCards.filter((s) => s.status === DENIED).reduce((sum, cur) => sum + cur.amount, 0);
+  const requestedSum = sortedCards.reduce((sum, cur) => sum + cur.amount, 0);
 
   let firstItemNeedsReviewIndex = null;
-  const itemsNeedsReviewLength = serviceItemCards.filter((s, index) => {
+  const itemsNeedsReviewLength = sortedCards.filter((s, index) => {
     const isRequested = s.status === REQUESTED;
     if (firstItemNeedsReviewIndex === null && isRequested) firstItemNeedsReviewIndex = index;
     return isRequested;

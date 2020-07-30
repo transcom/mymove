@@ -417,6 +417,156 @@ describe('ReviewServiceItems component', () => {
       });
     });
 
+    describe('with items that needs review', () => {
+      const cardsWithInitialValues = [
+        {
+          id: '1',
+          shipmentType: SHIPMENT_OPTIONS.HHG,
+          shipmentId: '10',
+          serviceItemName: 'Domestic linehaul',
+          amount: 6423,
+          status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
+          createdAt: '2020-01-01T00:08:00.999Z',
+        },
+        {
+          id: '2',
+          shipmentType: SHIPMENT_OPTIONS.HHG,
+          shipmentId: '10',
+          serviceItemName: 'Fuel Surcharge',
+          amount: 50.25,
+          status: PAYMENT_SERVICE_ITEM_STATUS.REQUESTED,
+          createdAt: '2020-01-01T00:08:30.999Z',
+        },
+        {
+          id: '3',
+          shipmentType: null,
+          shipmentId: null,
+          serviceItemName: 'Move management',
+          amount: 10.25,
+          status: PAYMENT_SERVICE_ITEM_STATUS.REQUESTED,
+          createdAt: '2020-01-01T00:01:30.999Z',
+        },
+      ];
+      const componentWithInitialValues = mount(
+        <ReviewServiceItems serviceItemCards={cardsWithInitialValues} {...requiredProps} />,
+      );
+
+      it('lands on the Complete Review step after reviewing all items', () => {
+        const nextButton = componentWithInitialValues.find('[data-testid="nextServiceItem"]');
+
+        nextButton.simulate('click');
+        mountedComponent.update();
+
+        nextButton.simulate('click');
+        mountedComponent.update();
+
+        nextButton.simulate('click');
+        mountedComponent.update();
+
+        const header = componentWithInitialValues.find('h2');
+        expect(header.exists()).toBe(true);
+        expect(header.text()).toEqual('Complete request');
+
+        const needsReviewHeader = componentWithInitialValues.find(
+          '[data-testid="NeedsReview"] > [data-testid="header"]',
+        );
+        expect(needsReviewHeader.exists()).toBe(true);
+        expect(needsReviewHeader.text()).toEqual('2 item still needs your review');
+
+        const needsReviewContent = componentWithInitialValues.find(
+          '[data-testid="NeedsReview"] [data-testid="content"]',
+        );
+        expect(needsReviewContent.exists()).toBe(true);
+        expect(needsReviewContent.text()).toEqual('Accept or reject all service items, then authorized payment.');
+      });
+
+      it('can click on Finish review button', async () => {
+        const finishReviewBtn = componentWithInitialValues.find('[data-testid="finishReviewBtn"]');
+        expect(finishReviewBtn.exists()).toBe(true);
+
+        await act(async () => {
+          finishReviewBtn.simulate('click');
+        });
+
+        // goes back to first service item that needs to be reviewed
+        componentWithInitialValues.update();
+        compareItem(componentWithInitialValues, cardsWithInitialValues[2]);
+      });
+    });
+
+    describe('with all items rejected', () => {
+      const cardsWithInitialValues = [
+        {
+          id: '1',
+          shipmentType: SHIPMENT_OPTIONS.HHG,
+          shipmentId: '10',
+          serviceItemName: 'Domestic linehaul',
+          amount: 6423,
+          status: PAYMENT_SERVICE_ITEM_STATUS.DENIED,
+          createdAt: '2020-01-01T00:08:00.999Z',
+        },
+        {
+          id: '2',
+          shipmentType: SHIPMENT_OPTIONS.HHG,
+          shipmentId: '10',
+          serviceItemName: 'Fuel Surcharge',
+          amount: 50.25,
+          status: PAYMENT_SERVICE_ITEM_STATUS.DENIED,
+          createdAt: '2020-01-01T00:08:30.999Z',
+        },
+        {
+          id: '3',
+          shipmentType: null,
+          shipmentId: null,
+          serviceItemName: 'Move management',
+          amount: 10.25,
+          status: PAYMENT_SERVICE_ITEM_STATUS.DENIED,
+          createdAt: '2020-01-01T00:01:30.999Z',
+        },
+      ];
+      const componentWithInitialValues = mount(
+        <ReviewServiceItems serviceItemCards={cardsWithInitialValues} {...requiredProps} />,
+      );
+
+      it('lands on the Complete Review step after reviewing all items', () => {
+        const nextButton = componentWithInitialValues.find('[data-testid="nextServiceItem"]');
+
+        nextButton.simulate('click');
+        mountedComponent.update();
+
+        nextButton.simulate('click');
+        mountedComponent.update();
+
+        nextButton.simulate('click');
+        mountedComponent.update();
+
+        const header = componentWithInitialValues.find('h2');
+        expect(header.exists()).toBe(true);
+        expect(header.text()).toEqual('Complete request');
+
+        const rejectRequestHeader = componentWithInitialValues.find(
+          '[data-testid="RejectRequest"] > [data-testid="content"]',
+        );
+        expect(rejectRequestHeader.exists()).toBe(true);
+        expect(rejectRequestHeader.text()).toEqual(
+          `You're rejecting all service items. No payment will be authorized.`,
+        );
+      });
+
+      it('can click on Reject request button', async () => {
+        const rejectRequestBtn = componentWithInitialValues.find('[data-testid="rejectRequestBtn"]');
+        expect(rejectRequestBtn.exists()).toBe(true);
+
+        await act(async () => {
+          rejectRequestBtn.simulate('click');
+        });
+
+        // this hooks up to the same onCompleteReview function call
+        componentWithInitialValues.update();
+        expect(onCompleteReview).toHaveBeenCalled();
+      });
+    });
+
     describe('with a validation error', () => {
       const componentWithMockError = mount(
         <ReviewServiceItems
