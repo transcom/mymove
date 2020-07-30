@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { arrayOf, string, bool, shape, func } from 'prop-types';
 import { get } from 'lodash';
 import { connect } from 'react-redux';
-import { Formik } from 'formik';
+import { Formik, Field } from 'formik';
 import { Fieldset, Radio, Label } from '@trussworks/react-uswds';
 
 import { Form } from '../form/Form';
@@ -16,6 +16,7 @@ import { WizardPage } from 'shared/WizardPage';
 import { MTOAgentType } from 'shared/constants';
 import { formatSwaggerDate } from 'shared/formatters';
 import Checkbox from 'shared/Checkbox';
+import { validateDate } from 'utils/formikValidators';
 
 class HHGDetailsForm extends Component {
   constructor(props) {
@@ -102,7 +103,7 @@ class HHGDetailsForm extends Component {
         street_address_1: pickupLocation.mailingAddress1,
         street_address_2: pickupLocation.mailingAddress2,
         city: pickupLocation.city,
-        state: pickupLocation.state,
+        state: pickupLocation.state.toUpperCase(),
         postal_code: pickupLocation.zip,
         country: pickupLocation.country,
       },
@@ -114,7 +115,7 @@ class HHGDetailsForm extends Component {
         street_address_1: deliveryLocation.mailingAddress1,
         street_address_2: deliveryLocation.mailingAddress2,
         city: deliveryLocation.city,
-        state: deliveryLocation.state,
+        state: deliveryLocation.state.toUpperCase(),
         postal_code: deliveryLocation.zip,
         country: deliveryLocation.country,
       };
@@ -135,7 +136,7 @@ class HHGDetailsForm extends Component {
     const { hasDeliveryAddress, initialValues, useCurrentResidence } = this.state;
     const fieldsetClasses = 'margin-top-2';
     return (
-      <Formik initialValues={initialValues} enableReinitialize>
+      <Formik initialValues={initialValues} enableReinitialize validateOnBlur validateOnChange>
         {({ handleChange, values }) => (
           <WizardPage
             match={match}
@@ -146,11 +147,13 @@ class HHGDetailsForm extends Component {
           >
             <Form>
               <Fieldset legend="Pickup date" className={fieldsetClasses}>
-                <DatePickerInput
+                <Field
+                  as={DatePickerInput}
                   name="requestedPickupDate"
                   label="Requested pickup date"
                   id="requestedPickupDate"
                   value={values.requestedPickupDate}
+                  validate={validateDate}
                 />
               </Fieldset>
               <span className="usa-hint" id="pickupDateHint">
@@ -161,7 +164,6 @@ class HHGDetailsForm extends Component {
                 name="pickupLocation"
                 legend="Pickup location"
                 className={fieldsetClasses}
-                handleChange={handleChange}
                 renderExistingAddressCheckbox={() => (
                   <Checkbox
                     data-testid="useCurrentResidence"
@@ -235,8 +237,9 @@ class HHGDetailsForm extends Component {
                 values={values.receivingAgent}
               />
               <Fieldset legend="Remarks" className={fieldsetClasses}>
-                <Label hint="(optional)">Anything else you would like us to know?</Label>
                 <TextInput
+                  label="Anything else you would like us to know?"
+                  labelHint="(optional)"
                   data-testid="remarks"
                   name="remarks"
                   id="remarks"

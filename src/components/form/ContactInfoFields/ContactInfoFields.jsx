@@ -1,7 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Fieldset, Label, TextInput } from '@trussworks/react-uswds';
+import { Field } from 'formik';
+import { Fieldset } from '@trussworks/react-uswds';
 import { v4 as uuidv4 } from 'uuid';
+
+import { TextInput } from 'components/form/fields';
 
 export const ContactInfoFields = ({ legend, className, subtitle, values, handleChange, name }) => {
   const contactInfoFieldsUUID = uuidv4();
@@ -9,10 +12,10 @@ export const ContactInfoFields = ({ legend, className, subtitle, values, handleC
   return (
     <Fieldset legend={legend} className={className}>
       {subtitle && <span>{subtitle}</span>}
-      <Label hint="(optional)" htmlFor={`firstName_${contactInfoFieldsUUID}`}>
-        First name
-      </Label>
-      <TextInput
+      <Field
+        as={TextInput}
+        label="First name"
+        labelHint="(optional)"
         id={`firstName_${contactInfoFieldsUUID}`}
         data-testid="firstName"
         name={`${name}.firstName`}
@@ -20,10 +23,10 @@ export const ContactInfoFields = ({ legend, className, subtitle, values, handleC
         onChange={handleChange}
         value={values.firstName}
       />
-      <Label hint="(optional)" htmlFor={`lastName_${contactInfoFieldsUUID}`}>
-        Last name
-      </Label>
-      <TextInput
+      <Field
+        as={TextInput}
+        label="Last name"
+        labelHint="(optional)"
         id={`lastName_${contactInfoFieldsUUID}`}
         data-testid="lastName"
         name={`${name}.lastName`}
@@ -31,21 +34,22 @@ export const ContactInfoFields = ({ legend, className, subtitle, values, handleC
         onChange={handleChange}
         value={values.lastName}
       />
-      <Label hint="(optional)" htmlFor={`phone_${contactInfoFieldsUUID}`}>
-        Phone
-      </Label>
-      <TextInput
+
+      <Field
+        label="Phone"
+        labelHint="(optional)"
         id={`phone_${contactInfoFieldsUUID}`}
         data-testid="phone"
         name={`${name}.phone`}
         type="text"
         onChange={handleChange}
         value={values.phone}
+        validationStatus="error"
       />
-      <Label hint="(optional)" htmlFor={`email_${contactInfoFieldsUUID}`}>
-        Email
-      </Label>
-      <TextInput
+      <Field
+        as={TextInput}
+        label="Email"
+        labelHint="(optional)"
         id={`email_${contactInfoFieldsUUID}`}
         data-testid="email"
         name={`${name}.email`}
