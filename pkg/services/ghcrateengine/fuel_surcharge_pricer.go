@@ -77,32 +77,7 @@ func (p fuelSurchargePricer) PriceUsingParams(params models.PaymentServiceItemPa
 	}
 
 	mtoShipment := paymentServiceItem.MTOServiceItem.MTOShipment
-	fmt.Println("==========================")
-	fmt.Println("==========================")
-	fmt.Println("==========================")
-	fmt.Printf("%#v\n\n", paymentServiceItem)
-	fmt.Printf("%#v\n\n", mtoShipment)
-	fmt.Println("==========================")
-	fmt.Println("==========================")
-	fmt.Println("==========================")
 	distance := *mtoShipment.Distance
-
-	// distanceZip5, err := getParamInt(params, models.ServiceItemParamNameDistanceZip5)
-	// if err != nil {
-	// 	return unit.Cents(0), err
-	// }
-	//
-	// distanceZip3, err := getParamInt(params, models.ServiceItemParamNameDistanceZip3)
-	// if err != nil {
-	// 	return unit.Cents(0), err
-	// }
-	//
-	// var distance int
-	// if distanceZip3 > 50 && distanceZip5 > 50 {
-	// 	distance = distanceZip3
-	// } else {
-	// 	distance = distanceZip5
-	// }
 
 	weightBilledActual, err := getParamInt(params, models.ServiceItemParamNameWeightBilledActual)
 	if err != nil {
@@ -121,5 +96,4 @@ func (p fuelSurchargePricer) PriceUsingParams(params models.PaymentServiceItemPa
 
 	total, err := p.Price(contractCode, actualPickupDate, unit.Miles(distance), unit.Pound(weightBilledActual), weightBasedDistanceMultiplier, unit.Millicents(fuelPrice))
 	return total, err
-	// return unit.Cents(1000), nil
 }

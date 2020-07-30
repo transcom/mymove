@@ -2801,6 +2801,7 @@ func init() {
     "ServiceItemParamName": {
       "type": "string",
       "enum": [
+        "ActualPickupDate",
         "CanStandAlone",
         "ContractCode",
         "CubicFeetBilled",
@@ -2810,6 +2811,7 @@ func init() {
         "DistanceZip5SITDest",
         "DistanceZip5SITOrigin",
         "EIAFuelPrice",
+        "FSCWeightBasedDistanceMultiplier",
         "MarketDest",
         "MarketOrigin",
         "MTOAvailableToPrimeAt",
@@ -6117,6 +6119,7 @@ func init() {
     "ServiceItemParamName": {
       "type": "string",
       "enum": [
+        "ActualPickupDate",
         "CanStandAlone",
         "ContractCode",
         "CubicFeetBilled",
@@ -6126,6 +6129,7 @@ func init() {
         "DistanceZip5SITDest",
         "DistanceZip5SITOrigin",
         "EIAFuelPrice",
+        "FSCWeightBasedDistanceMultiplier",
         "MarketDest",
         "MarketOrigin",
         "MTOAvailableToPrimeAt",
