@@ -50,6 +50,10 @@ describe('PaymentRequestReview', () => {
 
   describe('with data loaded', () => {
     const dataProps = {
+      paymentRequest: {
+        id: testPaymentRequestId,
+        moveTaskOrderID: testMTOID,
+      },
       paymentServiceItems: [
         {
           id: '1',

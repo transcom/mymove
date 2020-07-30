@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import { MTOServiceItemShape, MTOShipmentShape, PaymentServiceItemShape } from 'types/index';
+import { MTOServiceItemShape, MTOShipmentShape, PaymentRequestShape, PaymentServiceItemShape } from 'types/index';
 import { MatchShape, HistoryShape } from 'types/router';
 import samplePDF from 'components/DocumentViewer/sample.pdf';
 import styles from 'pages/TIO/PaymentRequestReview.module.scss';
@@ -139,6 +139,7 @@ PaymentRequestReview.propTypes = {
   getPaymentRequest: PropTypes.func.isRequired,
   getMTOServiceItems: PropTypes.func.isRequired,
   getMTOShipments: PropTypes.func.isRequired,
+  paymentRequest: PaymentRequestShape,
   paymentServiceItems: PropTypes.arrayOf(PaymentServiceItemShape),
   patchPaymentServiceItemStatus: PropTypes.func.isRequired,
   updatePaymentRequest: PropTypes.func.isRequired,
@@ -147,6 +148,7 @@ PaymentRequestReview.propTypes = {
 };
 
 PaymentRequestReview.defaultProps = {
+  paymentRequest: undefined,
   paymentServiceItems: [],
   mtoServiceItems: [],
   mtoShipments: [],
@@ -164,6 +166,7 @@ const mapStateToProps = (state, ownProps) => {
   }
 
   return {
+    paymentRequest,
     paymentServiceItems,
     mtoServiceItems: paymentRequest && selectMTOServiceItemsByMTOId(state, paymentRequest.moveTaskOrderID),
     mtoShipments: paymentRequest && selectMTOShipmentsByMTOId(state, paymentRequest.moveTaskOrderID),
