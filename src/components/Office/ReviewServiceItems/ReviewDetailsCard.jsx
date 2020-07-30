@@ -32,7 +32,7 @@ const ReviewDetailsCard = ({ children, completeReviewError, requestedAmount, acc
 };
 
 ReviewDetailsCard.propTypes = {
-  children: PropTypes.element,
+  children: PropTypes.node,
   completeReviewError: PropTypes.shape({
     detail: PropTypes.string,
   }),
