@@ -1,13 +1,14 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import PropTypes, { string } from 'prop-types';
 import { get, isEmpty } from 'lodash';
-
-import Address from './Address';
-import { formatDateSM } from 'shared/formatters';
-import { MTOAgentType } from 'shared/constants';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
-import { getFullAgentName } from 'shared/formatters';
-import './Review.css';
+
+import Address from 'scenes/Review/Address';
+import { formatDateSM } from 'shared/formatters';
+import { getFullAgentName } from 'utils/moveSetupFlow';
+import { MTOAgentType } from 'shared/constants';
+
+import 'scenes/Review/Review.css';
 
 export default function HHGShipmentSummary(props) {
   const { mtoShipment } = props;
@@ -18,7 +19,7 @@ export default function HHGShipmentSummary(props) {
   const releasingAgent = Object.values(agents).find((agent) => agent.agentType === MTOAgentType.RELEASING);
 
   const requestedDeliveryDate = get(mtoShipment, 'requestedDeliveryDate', '');
-  const dropoffLocation = get(mtoShipment, 'destinationAddress', ''); //OR newduty station
+  const dropoffLocation = get(mtoShipment, 'destinationAddress', '');
   const receivingAgent = Object.values(agents).find((agent) => agent.agentType === MTOAgentType.RECEIVING);
   const remarks = get(mtoShipment, 'customerRemarks', '');
 
@@ -70,7 +71,7 @@ export default function HHGShipmentSummary(props) {
                         <Address address={dropoffLocation} />
                       </td>
                     </tr>
-                    {releasingAgent && (
+                    {receivingAgent && (
                       <tr>
                         <td>Receiving Agent:</td>
                         <td>{getFullAgentName(receivingAgent)}</td>
@@ -100,7 +101,7 @@ export default function HHGShipmentSummary(props) {
               </table>
             </div>
           </Grid>
-          <Grid tablet={{ col: true }}></Grid>
+          <Grid tablet={{ col: true }} />
         </Grid>
       </GridContainer>
     </div>
@@ -108,6 +109,32 @@ export default function HHGShipmentSummary(props) {
 }
 
 HHGShipmentSummary.propTypes = {
-  mtoShipment: PropTypes.object.isRequired,
-  entitlements: PropTypes.object.isRequired,
+  mtoShipment: PropTypes.shape({
+    agents: PropTypes.arrayOf(
+      PropTypes.shape({
+        firstName: string,
+        lastName: string,
+        agentType: string,
+      }),
+    ),
+    customerRemarks: string,
+    requestedPickupDate: string,
+    requestedDeliveryDate: string,
+    pickupAddress: PropTypes.shape({
+      city: string,
+      postal_code: string,
+      state: string,
+      street_address_1: string,
+    }),
+    destinationAddress: PropTypes.shape({
+      city: string,
+      postal_code: string,
+      state: string,
+      street_address_1: string,
+    }),
+  }),
+};
+
+HHGShipmentSummary.defaultProps = {
+  mtoShipment: {},
 };

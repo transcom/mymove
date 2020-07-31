@@ -22,15 +22,12 @@ import { selectedMoveType as selectMoveType } from 'scenes/Moves/ducks';
 import { checkEntitlement } from './ducks';
 import ServiceMemberSummary from './ServiceMemberSummary';
 import PPMShipmentSummary from './PPMShipmentSummary';
-import HHGShipmentSummary from './HHGShipmentSummary';
+import HHGShipmentSummary from 'pages/MyMove/HHGShipmentSummary';
 
 import './Review.css';
 import { selectActivePPMForMove } from '../../shared/Entities/modules/ppms';
 import { showLoggedInUser as showLoggedInUserAction, selectLoggedInUser } from 'shared/Entities/modules/user';
-// import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
-
-// const shipmentHardcoded = {};
 
 export class Summary extends Component {
   componentDidMount() {
@@ -154,7 +151,6 @@ function mapStateToProps(state, ownProps) {
   return {
     currentPPM: selectActivePPMForMove(state, moveID),
     mtoShipment: selectMTOShipmentForMTO(state, moveTaskOrderID),
-    // mtoShipment: shipmentHardcoded,
     serviceMember: state.serviceMember.currentServiceMember,
     currentMove: selectMove(state, ownProps.match.params.moveId),
     currentBackupContacts: state.serviceMember.currentBackupContacts,

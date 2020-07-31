@@ -5,7 +5,8 @@ import PropTypes from 'prop-types';
 
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 
-import { getFullSMName, formatDateSM } from 'shared/formatters';
+import { formatDateSM } from 'shared/formatters';
+import { getFullSMName } from 'utils/moveSetupFlow';
 import Address from './Address';
 
 import './Review.css';
