@@ -161,7 +161,7 @@ const pages = {
       );
     },
   },
-  '/moves/:moveId/move-type-details': {
+  '/moves/:moveId/moving-info': {
     isInFlow: inHhgFlow,
     isComplete: always,
     render: (key, pages) => () => {
