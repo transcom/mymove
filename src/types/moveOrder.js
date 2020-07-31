@@ -95,9 +95,11 @@ export const MTOServiceItemShape = PropTypes.shape({
 
 export const PaymentServiceItemShape = PropTypes.shape({
   id: PropTypes.string,
+  createdAt: PropTypes.string,
   mtoServiceItemID: PropTypes.string,
   priceCents: PropTypes.number,
   status: PropTypes.string,
+  rejectionReason: PropTypes.string,
 });
 
 export const PaymentRequestShape = PropTypes.shape({
