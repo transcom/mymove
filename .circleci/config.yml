@@ -892,6 +892,46 @@ jobs:
           compare_host: '' # leave blank since we want experimental to be able to roll back
           health_check_hosts: gex.experimental.move.mil,dps.experimental.move.mil,orders.experimental.move.mil
 
+  # `deploy_exp_migrations` deploys migrations to the exp environment
+  deploy_exp_migrations:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'exp'
+      - AWS_DEFAULT_REGION: 'us-gov-west-1'
+    steps:
+      - deploy_migrations_steps
+
+  # `deploy_exp_tasks` deploys scheduled tasks to the exp environment
+  deploy_exp_tasks:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'exp'
+      - AWS_DEFAULT_REGION: 'us-gov-west-1'
+    steps:
+      - deploy_tasks_steps
+
+  # `deploy_exp_app` updates the server-TLS app service in the exp environment
+  deploy_exp_app:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'exp'
+      - AWS_DEFAULT_REGION: 'us-gov-west-1'
+    steps:
+      - deploy_app_steps:
+          compare_host: '' # leave blank since we want exp to be able to roll back
+          health_check_hosts: my.exp.move.mil,office.exp.move.mil,admin.exp.move.mil
+
+  # `deploy_exp_app_client_tls` updates the mutual-TLS service in the exp environment
+  deploy_exp_app_client_tls:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'exp'
+      - AWS_DEFAULT_REGION: 'us-gov-west-1'
+    steps:
+      - deploy_app_client_tls_steps:
+          compare_host: '' # leave blank since we want exp to be able to roll back
+          health_check_hosts: gex.exp.move.mil,dps.exp.move.mil,orders.exp.move.mil
+
   check_circle_against_staging_sha:
     executor: mymove_small
     steps:
