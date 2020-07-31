@@ -273,4 +273,32 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		suite.IsType(paymentrequestop.NewUpdatePaymentRequestStatusPreconditionFailed(), response)
 
 	})
+
+	suite.T().Run("unsuccessful status update of payment request, validation errors (422)", func(t *testing.T) {
+		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
+		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.Anything, mock.Anything).Return(nil, services.NewInvalidInputError(paymentRequestID, nil, nil, "")).Once()
+
+		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
+		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
+
+		requestUser := testdatagen.MakeDefaultUser(suite.DB())
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
+		params := paymentrequestop.UpdatePaymentRequestStatusParams{
+			HTTPRequest:      req,
+			Body:             &ghcmessages.UpdatePaymentRequestStatusPayload{Status: "REVIEWED", RejectionReason: nil},
+			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
+		}
+
+		handler := UpdatePaymentRequestStatusHandler{
+			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
+			PaymentRequestFetcher:       paymentRequestFetcher,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(paymentrequestop.NewUpdatePaymentRequestStatusUnprocessableEntity(), response)
+	})
 }

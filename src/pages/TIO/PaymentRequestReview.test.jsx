@@ -24,6 +24,9 @@ describe('PaymentRequestReview', () => {
     getPaymentRequest: mockGetPaymentRequest,
     getMTOServiceItems: jest.fn(() => Promise.resolve()),
     getMTOShipments: jest.fn(() => Promise.resolve()),
+    patchPaymentServiceItemStatus: jest.fn(),
+    history: { push: jest.fn() },
+    updatePaymentRequest: jest.fn(),
   };
 
   describe('with or without data loaded', () => {
@@ -43,10 +46,6 @@ describe('PaymentRequestReview', () => {
     it('renders the document viewer', () => {
       expect(wrapper.find('DocumentViewer').exists()).toBe(true);
     });
-
-    it('renders the ReviewServiceItems sidebar', () => {
-      expect(wrapper.find('ReviewServiceItems').exists()).toBe(true);
-    });
   });
 
   describe('with data loaded', () => {
@@ -54,56 +53,54 @@ describe('PaymentRequestReview', () => {
       paymentRequest: {
         id: testPaymentRequestId,
         moveTaskOrderID: testMTOID,
-        serviceItems: [
-          {
-            id: '1',
-            mtoServiceItemID: 'a',
-            priceCents: 12399,
-          },
-          {
-            id: '2',
-            mtoServiceItemID: 'b',
-            priceCents: 45600,
-          },
-          {
-            id: '3',
-            mtoServiceItemID: 'c',
-            priceCents: 12312,
-          },
-          {
-            id: '4',
-            mtoServiceItemID: 'd',
-            priceCents: 99999,
-          },
-        ],
       },
+      paymentServiceItems: [
+        {
+          id: '1',
+          mtoServiceItemID: 'a',
+          priceCents: 12399,
+          createdAt: '2020-01-01T00:09:00.999Z',
+          status: 'APPROVED',
+        },
+        {
+          id: '2',
+          mtoServiceItemID: 'b',
+          priceCents: 45600,
+          createdAt: '2020-01-01T00:09:00.999Z',
+        },
+        {
+          id: '3',
+          mtoServiceItemID: 'c',
+          priceCents: 12312,
+          createdAt: '2020-01-01T00:09:00.999Z',
+          status: 'DENIED',
+        },
+        {
+          id: '4',
+          mtoServiceItemID: 'd',
+          priceCents: 99999,
+          createdAt: '2020-01-01T00:09:00.999Z',
+        },
+      ],
       mtoServiceItems: [
         {
           id: 'a',
           mtoShipmentID: 'a1',
           reServiceName: 'Test Service Item',
-          status: 'SUBMITTED',
-          createdAt: '2020-01-01T00:09:00.999Z',
         },
         {
           id: 'b',
           mtoShipmentID: 'b2',
           reServiceName: 'Test Service Item 2',
-          status: 'APPROVED',
-          createdAt: '2020-01-01T00:09:00.999Z',
         },
         {
           id: 'c',
           mtoShipmentID: 'a1',
           reServiceName: 'Test Service Item 3',
-          status: 'REJECTED',
-          createdAt: '2020-01-01T00:09:00.999Z',
         },
         {
           id: 'd',
           reServiceName: 'Test Service Item 4',
-          status: 'SUBMITTED',
-          createdAt: '2020-01-01T00:09:00.999Z',
         },
       ],
       mtoShipments: [
@@ -121,42 +118,44 @@ describe('PaymentRequestReview', () => {
     // eslint-disable-next-line react/jsx-props-no-spreading
     const wrapper = mount(<PaymentRequestReview {...requiredProps} {...dataProps} />);
 
+    it('renders the ReviewServiceItems sidebar', () => {
+      expect(wrapper.find('ReviewServiceItems').exists()).toBe(true);
+    });
+
     it('maps the service item card data into the expected format and passes it into the ReviewServiceItems component', () => {
       const reviewServiceItems = wrapper.find('ReviewServiceItems');
       const expectedServiceItemCards = [
         {
-          id: 'a',
+          id: '1',
           shipmentId: 'a1',
           shipmentType: 'HHG',
           serviceItemName: 'Test Service Item',
           amount: 123.99,
           createdAt: '2020-01-01T00:09:00.999Z',
-          status: 'SUBMITTED',
+          status: 'APPROVED',
         },
         {
-          id: 'b',
+          id: '2',
           shipmentId: 'b2',
           shipmentType: 'NTS',
           serviceItemName: 'Test Service Item 2',
           amount: 456.0,
           createdAt: '2020-01-01T00:09:00.999Z',
-          status: 'APPROVED',
         },
         {
-          id: 'c',
+          id: '3',
           shipmentId: 'a1',
           shipmentType: 'HHG',
           serviceItemName: 'Test Service Item 3',
           amount: 123.12,
           createdAt: '2020-01-01T00:09:00.999Z',
-          status: 'REJECTED',
+          status: 'DENIED',
         },
         {
-          id: 'd',
+          id: '4',
           serviceItemName: 'Test Service Item 4',
           amount: 999.99,
           createdAt: '2020-01-01T00:09:00.999Z',
-          status: 'SUBMITTED',
         },
       ];
 
