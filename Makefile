@@ -908,7 +908,7 @@ run_experimental_migrations: run_com_experimental_migrations run_gov_experimenta
 
 .PHONY: run_com_experimental_migrations
 run_com_experimental_migrations: bin/milmove db_deployed_migrations_reset ## Run Experimental migrations against Deployed Migrations DB
-	@echo "Migrating the prod-migrations database with experimental migrations..."
+	@echo "Migrating the experimental-migrations database with experimental migrations..."
 	MIGRATION_PATH="s3://transcom-ppp-app-experimental-us-west-2/secure-migrations;file://migrations/$(APPLICATION)/schema" \
 	DB_HOST=localhost \
 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
