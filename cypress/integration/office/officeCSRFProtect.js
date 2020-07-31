@@ -35,7 +35,7 @@ describe('testing CSRF protection updating move info', function () {
     cy.get('div[class="rt-tr -odd"]').first().dblclick();
 
     // save info
-    cy.get('[data-cy="edit-link"]').first().click();
+    cy.get('[data-testid="edit-link"]').first().click();
 
     cy.get('input[name="orders.orders_number"]').clear().type('CSRF Test').blur();
 
@@ -57,7 +57,7 @@ describe('testing CSRF protection updating move info', function () {
     cy.get('div[class="rt-tr -odd"]').first().dblclick();
 
     // save info
-    cy.get('[data-cy="edit-link"]').first().click();
+    cy.get('[data-testid="edit-link"]').first().click();
 
     cy.get('input[name="orders.orders_number"]').clear().type('CSRF Protection Failed').blur();
 

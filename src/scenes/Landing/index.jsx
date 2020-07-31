@@ -9,7 +9,7 @@ import { withContext } from 'shared/AppContext';
 
 import { MoveSummary } from './MoveSummary';
 import PpmAlert from './PpmAlert';
-import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
+import { selectedMoveType, lastMoveIsCanceled, updateMove } from 'scenes/Moves/ducks';
 import { createServiceMember, isProfileComplete } from 'scenes/ServiceMembers/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import {
@@ -23,10 +23,11 @@ import Alert from 'shared/Alert';
 import SignIn from 'shared/User/SignIn';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import scrollToTop from 'shared/scrollToTop';
-import { updateMove } from 'scenes/Moves/ducks';
 import { getPPM } from 'scenes/Moves/Ppm/ducks';
 import { loadPPMs } from 'shared/Entities/modules/ppms';
+import { showLoggedInUser as showLoggedInUserAction, selectLoggedInUser } from 'shared/Entities/modules/user';
 import { selectActiveOrLatestOrders, selectUploadsForActiveOrders } from 'shared/Entities/modules/orders';
+import { selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 
 export class Landing extends Component {
@@ -85,6 +86,7 @@ export class Landing extends Component {
       uploads,
       move,
       ppm,
+      mtoShipment,
       backupContacts,
       context,
     } = this.props;
@@ -96,6 +98,7 @@ export class Landing extends Component {
       uploads,
       move,
       ppm,
+      mtoShipment,
       backupContacts,
       context,
     });
@@ -167,6 +170,7 @@ Landing.propTypes = {
   context: PropTypes.shape({
     flags: PropTypes.shape({
       hhgFlow: PropTypes.bool,
+      ghcFlow: PropTypes.bool,
     }),
   }).isRequired,
 };
@@ -175,6 +179,7 @@ Landing.defaultProps = {
   context: {
     flags: {
       hhgFlow: false,
+      ghcFlow: false,
     },
   },
 };
@@ -182,6 +187,9 @@ Landing.defaultProps = {
 const mapStateToProps = (state) => {
   const user = selectCurrentUser(state);
   const serviceMember = get(state, 'serviceMember.currentServiceMember');
+  const move = selectActiveOrLatestMove(state);
+  // TODO: use move_id from active or latest move instead of this once db reconciliation work done
+  const moveTaskOrderID = get(selectLoggedInUser(state), 'service_member.orders[0].move_task_order_id', '');
 
   const props = {
     lastMoveIsCanceled: lastMoveIsCanceled(state),
@@ -192,8 +200,10 @@ const mapStateToProps = (state) => {
     backupContacts: state.serviceMember.currentBackupContacts || [],
     orders: selectActiveOrLatestOrders(state),
     uploads: selectUploadsForActiveOrders(state),
-    move: selectActiveOrLatestMove(state),
+    move: move,
     ppm: getPPM(state),
+    // TODO: fetch MTOShipment in componentDidMount - this is a placeholder until able to load the shipments
+    mtoShipment: selectMTOShipmentForMTO(state, moveTaskOrderID),
     loggedInUser: user,
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
     loggedInUserError: selectGetCurrentUserIsError(state),
@@ -210,7 +220,10 @@ const mapStateToProps = (state) => {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ push, createServiceMember, updateMove, loadPPMs }, dispatch);
+  return bindActionCreators(
+    { push, createServiceMember, updateMove, loadPPMs, showLoggedInUser: showLoggedInUserAction },
+    dispatch,
+  );
 }
 
 export default withContext(withLastLocation(connect(mapStateToProps, mapDispatchToProps)(Landing)));

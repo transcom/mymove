@@ -1,6 +1,6 @@
-import { CREATE_OR_UPDATE_MOVE, GET_MOVE, SUBMIT_FOR_APPROVAL, moveReducer } from './ducks';
+import { CREATE_OR_UPDATE_MOVE, GET_MOVE, SUBMIT_FOR_APPROVAL, moveReducer, setConusStatus } from './ducks';
 import loggedInUserPayload, { emptyPayload } from 'shared/User/sampleLoggedInUserPayload';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, CONUS_STATUS } from 'shared/constants';
 
 const expectedMove = {
   id: '593cc830-1a3e-44b3-ba5a-8809f02dfa7d',
@@ -164,6 +164,32 @@ describe('move Reducer', () => {
       expect(newState).toEqual({
         submittedForApproval: false,
         error: 'No bueno.',
+      });
+    });
+  });
+
+  describe('SET_CONUS_STATUS', () => {
+    it('Should set conus status to CONUS', () => {
+      const initialState = {
+        currentMove: { conus_status: '' },
+      };
+
+      const newState = moveReducer(initialState, setConusStatus(CONUS_STATUS.CONUS));
+
+      expect(newState).toEqual({
+        currentMove: { conus_status: CONUS_STATUS.CONUS },
+      });
+    });
+
+    it('Should set selected conus status to OCONUS', () => {
+      const initialState = {
+        currentMove: { conus_status: '' },
+      };
+
+      const newState = moveReducer(initialState, setConusStatus(CONUS_STATUS.OCONUS));
+
+      expect(newState).toEqual({
+        currentMove: { conus_status: CONUS_STATUS.OCONUS },
       });
     });
   });

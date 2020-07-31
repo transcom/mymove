@@ -8,7 +8,7 @@ import { MTOAgentShape, MTOShipmentShape, MoveTaskOrderShape, MTOServiceItemShap
 import ShipmentApprovalPreview from './ShipmentApprovalPreview';
 import styles from './requestedShipments.module.scss';
 
-import ShipmentDisplay from 'components/Office/ShipmentDisplay';
+import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { ReactComponent as FormCheckmarkIcon } from 'shared/icon/form-checkmark.svg';
 import { ReactComponent as XHeavyIcon } from 'shared/icon/x-heavy.svg';
 import { formatDate } from 'shared/dates';
@@ -77,7 +77,7 @@ const RequestedShipments = ({
   const isButtonEnabled =
     formik.values.shipments.length > 0 && (formik.values.counselingFee || formik.values.shipmentManagementFee);
   return (
-    <div className={`${styles['requested-shipments']} container`} data-cy="requested-shipments">
+    <div className={`${styles['requested-shipments']} container`} data-testid="requested-shipments">
       {shipmentsStatus === 'SUBMITTED' && (
         <div>
           <div id="approvalConfirmationModal" style={{ display: isModalVisible ? 'block' : 'none' }}>

@@ -3,33 +3,26 @@ package supportapi
 import (
 	"github.com/go-openapi/runtime/middleware"
 
-	supportoperations "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations"
+	webhookoperations "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/webhook"
 	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/handlers/supportapi/internal/payloads"
-	"github.com/transcom/mymove/pkg/models"
 )
 
-// PostNotificationHandler passes through a message
-type PostNotificationHandler struct {
+// PostWebhookNotifyHandler passes through a message
+type PostWebhookNotifyHandler struct {
 	handlers.HandlerContext
 }
 
 // Handle posts message
-func (h PostNotificationHandler) Handle(params supportoperations.PostNotificationParams) middleware.Responder {
+func (h PostWebhookNotifyHandler) Handle(params webhookoperations.PostWebhookNotifyParams) middleware.Responder {
 
-	ctx := params.HTTPRequest.Context()
+	// Leaving logger commented out here because we'll probably want to use it
+	// as we build this out
 
-	logger := h.LoggerFromContext(ctx)
+	//logger := h.LoggerFromContext(ctx)
 
-	newNotification := &models.ServerNotification{
-		Message: params.Body.Message,
+	payload := &webhookoperations.PostWebhookNotifyOKBody{
+		Message: params.Message.Message,
 	}
 
-	// notificationPayload, err := params.Body.Message
-	notificationPayload, err := payloads.Notification(newNotification)
-	if err != nil {
-		return handlers.ResponseForError(logger, err)
-	}
-	return supportoperations.NewPostNotificationOK().WithPayload(notificationPayload)
-
+	return webhookoperations.NewPostWebhookNotifyOK().WithPayload(payload)
 }

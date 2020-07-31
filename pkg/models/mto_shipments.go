@@ -56,6 +56,7 @@ type MTOShipment struct {
 	MoveTaskOrderID                  uuid.UUID         `db:"move_task_order_id"`
 	ScheduledPickupDate              *time.Time        `db:"scheduled_pickup_date"`
 	RequestedPickupDate              *time.Time        `db:"requested_pickup_date"`
+	RequestedDeliveryDate            *time.Time        `db:"requested_delivery_date"`
 	ApprovedDate                     *time.Time        `db:"approved_date"`
 	FirstAvailableDeliveryDate       *time.Time        `db:"first_available_delivery_date"`
 	ActualPickupDate                 *time.Time        `db:"actual_pickup_date"`
@@ -66,6 +67,7 @@ type MTOShipment struct {
 	DestinationAddress               *Address          `belongs_to:"addresses"`
 	DestinationAddressID             *uuid.UUID        `db:"destination_address_id"`
 	MTOAgents                        MTOAgents         `has_many:"mto_agents" fk_id:"mto_shipment_id"`
+	MTOServiceItems                  MTOServiceItems   `has_many:"mto_service_items" fk_id:"mto_shipment_id"`
 	SecondaryPickupAddress           *Address          `belongs_to:"addresses"`
 	SecondaryPickupAddressID         *uuid.UUID        `db:"secondary_pickup_address_id"`
 	SecondaryDeliveryAddress         *Address          `belongs_to:"addresses"`

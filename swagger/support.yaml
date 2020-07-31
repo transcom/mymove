@@ -372,11 +372,16 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/notifications':
+  '/webhook-notify':
     post:
-      summary: Test endpoint for notifications
-      description: Just a Test
-      operationId: postNotification
+      summary: Test endpoint for sending messages via webhook
+      description: >
+        This endpoint represents the receiving server, The Prime, in our webhook-client testing workflow.
+        The `webhook-client` is responsible for retrieving messages from the events table and
+        sending them to the Prime (this endpoint in our testing case) via an mTLS connection.
+      operationId: postWebhookNotify
+      tags:
+        - webhook
       produces:
         - application/json
       consumes:
@@ -384,14 +389,28 @@ paths:
       parameters:
         - in: body
           required: true
-          name: body
+          name: message
+          description: The message sent by webhook-client.
           schema:
-            $ref: '#/definitions/Notification'
+            type: object
+            required:
+              - message
+            properties:
+              message:
+                type: string
+                description: Message sent
+                example: Hello world.
+                x-nullable: false
       responses:
         '200':
           description: Created
           schema:
-            $ref: '#/definitions/Notification'
+            type: object
+            properties:
+              message:
+                type: string
+                description: Message sent
+                example: Hello world.
         '400':
           description: Bad request
         '401':
@@ -438,16 +457,16 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      street_address_1:
+      streetAddress1:
         type: string
         example: 123 Main Ave
         title: Street address 1
-      street_address_2:
+      streetAddress2:
         type: string
         example: Apartment 9000
         x-nullable: true
         title: Street address 2
-      street_address_3:
+      streetAddress3:
         type: string
         example: Montmârtre
         x-nullable: true
@@ -458,6 +477,7 @@ definitions:
         title: City
       eTag:
         type: string
+        readOnly: true
       state:
         title: State
         type: string
@@ -565,7 +585,7 @@ definitions:
           - WI
           - WV
           - WY
-      postal_code:
+      postalCode:
         type: string
         format: zip
         title: ZIP
@@ -578,10 +598,10 @@ definitions:
         example: 'USA'
         default: USA
     required:
-      - street_address_1
+      - streetAddress1
       - city
       - state
-      - postal_code
+      - postalCode
   Customer:
     type: object
     properties:
@@ -620,6 +640,7 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       eTag:
         type: string
+        readOnly: true
   Document:
     type: object
     properties:
@@ -634,7 +655,7 @@ definitions:
       uploads:
         type: array
         items:
-          $ref: '#/definitions/UploadPayload'
+          $ref: '#/definitions/Upload'
     required:
       - id
       - serviceMemberID
@@ -649,7 +670,7 @@ definitions:
       name:
         type: string
         example: Fort Bragg North Station
-      address_id:
+      addressID:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -657,6 +678,7 @@ definitions:
         $ref: '#/definitions/Address'
       eTag:
         type: string
+        readOnly: true
   Entitlement:
     properties:
       id:
@@ -819,6 +841,7 @@ definitions:
       createdAt:
         format: date-time
         type: string
+        readOnly: true
         description: Date the MoveTaskOrder was created on.
       moveOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -857,6 +880,7 @@ definitions:
       updatedAt:
         format: date-time
         type: string
+        readOnly: true
         description: Date on which this MoveTaskOrder was last updated.
       paymentRequests:
         $ref: '#/definitions/PaymentRequests'
@@ -885,6 +909,7 @@ definitions:
           It will change everytime the object is updated. Client should store the value.
           Updates to this MoveTaskOrder will require that this eTag be passed in with the If-Match header.
         type: string
+        readOnly: true
   MoveOrders:
     items:
       $ref: '#/definitions/MoveOrder'
@@ -911,9 +936,11 @@ definitions:
       createdAt:
         format: date-time
         type: string
+        readOnly: true
       updatedAt:
         format: date-time
         type: string
+        readOnly: true
       firstName:
         type: string
         x-nullable: true
@@ -937,6 +964,7 @@ definitions:
           - RECEIVING_AGENT
       eTag:
         type: string
+        readOnly: true
     type: object
   OrdersStatus:
     type: string
@@ -994,6 +1022,7 @@ definitions:
         type: string
       eTag:
         type: string
+        readOnly: true
     type: object
   PaymentRequests:
     items:
@@ -1032,9 +1061,11 @@ definitions:
       createdAt:
         format: date-time
         type: string
+        readOnly: true
       updatedAt:
         format: date-time
         type: string
+        readOnly: true
       scheduledPickupDate:
         format: date
         type: string
@@ -1080,6 +1111,7 @@ definitions:
         x-nullable: true
       eTag:
         type: string
+        readOnly: true
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
@@ -1138,6 +1170,7 @@ definitions:
         $ref: '#/definitions/MTOServiceItemModelType'
       eTag:
         type: string
+        readOnly: true
     required:
       - modelType
       - moveTaskOrderID
@@ -1173,6 +1206,7 @@ definitions:
         type: array
       eTag:
         type: string
+        readOnly: true
     type: object
   UpdateMTOServiceItemStatus:
     properties:
@@ -1241,44 +1275,10 @@ definitions:
         $ref: '#/definitions/PaymentRequestStatus'
       eTag:
         type: string
+        readOnly: true
         description: Attribute of the payment request object that automatically changes when the request is updated. This matches the value passed in the header for `If-Match`. Required when sending PUT or PATCH requests to prevent updating stale data.
     type: object
   Upload:
-    properties:
-      bytes:
-        type: integer
-      contentType:
-        example: application/pdf
-        format: mime-type
-        type: string
-      createdAt:
-        format: date-time
-        type: string
-      filename:
-        example: filename.pdf
-        format: binary
-        type: string
-      id:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-      updatedAt:
-        format: date-time
-        type: string
-      url:
-        example: 'https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538'
-        format: uri
-        type: string
-    required:
-      - id
-      - url
-      - filename
-      - contentType
-      - bytes
-      - createdAt
-      - updatedAt
-    type: object
-  UploadPayload:
     type: object
     properties:
       id:
@@ -1292,7 +1292,7 @@ definitions:
       filename:
         type: string
         example: filename.pdf
-      content_type:
+      contentType:
         type: string
         format: mime-type
         example: application/pdf
@@ -1304,20 +1304,20 @@ definitions:
           - INFECTED
           - CLEAN
           - PROCESSING
-      created_at:
+      createdAt:
         type: string
         format: date-time
-      updated_at:
+      updatedAt:
         type: string
         format: date-time
     required:
       - id
       - url
       - filename
-      - content_type
+      - contentType
       - bytes
-      - created_at
-      - updated_at
+      - createdAt
+      - updatedAt
 responses:
   InvalidRequest:
     description: The request payload is invalid.

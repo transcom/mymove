@@ -1947,6 +1947,57 @@ func init() {
         ]
       }
     },
+    "/mto-shipments": {
+      "post": {
+        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "createMTOShipment",
+        "operationId": "createMTOShipment",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateShipment"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created a MTO shipment.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/orders": {
       "post": {
         "description": "Creates an instance of orders tied to a service member",
@@ -3421,6 +3472,26 @@ func init() {
         }
       }
     },
+    "ClientError": {
+      "type": "object",
+      "required": [
+        "title",
+        "detail",
+        "instance"
+      ],
+      "properties": {
+        "detail": {
+          "type": "string"
+        },
+        "instance": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string"
+        }
+      }
+    },
     "CreateGenericMoveDocumentPayload": {
       "type": "object",
       "required": [
@@ -3798,6 +3869,46 @@ func init() {
         }
       }
     },
+    "CreateShipment": {
+      "type": "object",
+      "required": [
+        "moveTaskOrderID",
+        "pickupAddress",
+        "shipmentType"
+      ],
+      "properties": {
+        "agents": {
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "customerRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "handle with care"
+        },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "shipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
+        }
+      }
+    },
     "CreateSignedCertificationPayload": {
       "type": "object",
       "required": [
@@ -4091,6 +4202,25 @@ func init() {
         "$ref": "#/definitions/DutyStationPayload"
       }
     },
+    "Error": {
+      "type": "object",
+      "required": [
+        "title",
+        "detail"
+      ],
+      "properties": {
+        "detail": {
+          "type": "string"
+        },
+        "instance": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string"
+        }
+      }
+    },
     "ExpenseSummaryPayload": {
       "type": "object",
       "properties": {
@@ -4237,6 +4367,154 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/ServiceMemberPayload"
         }
+      }
+    },
+    "MTOAgent": {
+      "type": "object",
+      "properties": {
+        "agentType": {
+          "$ref": "#/definitions/MTOAgentType"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
+        "firstName": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "lastName": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "mtoShipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "MTOAgentType": {
+      "type": "string",
+      "title": "MTO Agent Type",
+      "enum": [
+        "RELEASING_AGENT",
+        "RECEIVING_AGENT"
+      ],
+      "example": "RELEASING_AGENT"
+    },
+    "MTOAgents": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOAgent"
+      }
+    },
+    "MTOShipment": {
+      "properties": {
+        "agents": {
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "customerRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "handle with care"
+        },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "readOnly": true
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date",
+          "readOnly": true
+        },
+        "secondaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "secondaryPickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "shipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "MTOShipmentType": {
+      "type": "string",
+      "title": "Shipment Type",
+      "enum": [
+        "HHG",
+        "HHG_LONGHAUL_DOMESTIC",
+        "HHG_SHORTHAUL_DOMESTIC",
+        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS_DOMESTIC"
+      ],
+      "x-display-value": {
+        "HHG": "HHG",
+        "INTERNATIONAL_HHG": "International HHG",
+        "INTERNATIONAL_UB": "International UB"
+      },
+      "example": "HHG"
+    },
+    "MTOShipments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOShipment"
       }
     },
     "MethodOfReceipt": {
@@ -4797,6 +5075,11 @@ func init() {
           "title": "Date issued",
           "example": "2018-04-26"
         },
+        "move_task_order_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "moves": {
           "$ref": "#/definitions/IndexMovesPayload"
         },
@@ -4877,9 +5160,7 @@ func init() {
       "enum": [
         "PERMANENT_CHANGE_OF_STATION",
         "RETIREMENT",
-        "SEPARATION",
-        "GHC",
-        "NTS"
+        "SEPARATION"
       ],
       "x-display-value": {
         "GHC": "GHC",
@@ -6198,6 +6479,31 @@ func init() {
         }
       }
     },
+    "ValidationError": {
+      "required": [
+        "invalidFields"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/ClientError"
+        },
+        {
+          "type": "object"
+        }
+      ],
+      "properties": {
+        "invalidFields": {
+          "type": "object",
+          "additionalProperties": {
+            "description": "List of errors for the field",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
     "WeightAllotment": {
       "type": "object",
       "required": [
@@ -6241,6 +6547,50 @@ func init() {
         "PRO_GEAR": "Pro-gear"
       },
       "x-nullable": true
+    }
+  },
+  "responses": {
+    "Conflict": {
+      "description": "The request could not be processed because of conflict in the current state of the resource.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "InvalidRequest": {
+      "description": "The request payload is invalid.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "NotFound": {
+      "description": "The requested resource wasn't found.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "PermissionDenied": {
+      "description": "The request was denied.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "PreconditionFailed": {
+      "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "ServerError": {
+      "description": "A server error occurred.",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
+    "UnprocessableEntity": {
+      "description": "The payload was unprocessable.",
+      "schema": {
+        "$ref": "#/definitions/ValidationError"
+      }
     }
   }
 }`))
@@ -8174,6 +8524,75 @@ func init() {
         ]
       }
     },
+    "/mto-shipments": {
+      "post": {
+        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "createMTOShipment",
+        "operationId": "createMTOShipment",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateShipment"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created a MTO shipment.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/orders": {
       "post": {
         "description": "Creates an instance of orders tied to a service member",
@@ -9648,6 +10067,26 @@ func init() {
         }
       }
     },
+    "ClientError": {
+      "type": "object",
+      "required": [
+        "title",
+        "detail",
+        "instance"
+      ],
+      "properties": {
+        "detail": {
+          "type": "string"
+        },
+        "instance": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string"
+        }
+      }
+    },
     "CreateGenericMoveDocumentPayload": {
       "type": "object",
       "required": [
@@ -10027,6 +10466,46 @@ func init() {
         }
       }
     },
+    "CreateShipment": {
+      "type": "object",
+      "required": [
+        "moveTaskOrderID",
+        "pickupAddress",
+        "shipmentType"
+      ],
+      "properties": {
+        "agents": {
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "customerRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "handle with care"
+        },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "shipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
+        }
+      }
+    },
     "CreateSignedCertificationPayload": {
       "type": "object",
       "required": [
@@ -10322,6 +10801,25 @@ func init() {
         "$ref": "#/definitions/DutyStationPayload"
       }
     },
+    "Error": {
+      "type": "object",
+      "required": [
+        "title",
+        "detail"
+      ],
+      "properties": {
+        "detail": {
+          "type": "string"
+        },
+        "instance": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string"
+        }
+      }
+    },
     "ExpenseSummaryPayload": {
       "type": "object",
       "properties": {
@@ -10468,6 +10966,154 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/ServiceMemberPayload"
         }
+      }
+    },
+    "MTOAgent": {
+      "type": "object",
+      "properties": {
+        "agentType": {
+          "$ref": "#/definitions/MTOAgentType"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
+        "firstName": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "lastName": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "mtoShipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "MTOAgentType": {
+      "type": "string",
+      "title": "MTO Agent Type",
+      "enum": [
+        "RELEASING_AGENT",
+        "RECEIVING_AGENT"
+      ],
+      "example": "RELEASING_AGENT"
+    },
+    "MTOAgents": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOAgent"
+      }
+    },
+    "MTOShipment": {
+      "properties": {
+        "agents": {
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "customerRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "handle with care"
+        },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "readOnly": true
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date",
+          "readOnly": true
+        },
+        "secondaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "secondaryPickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "shipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "MTOShipmentType": {
+      "type": "string",
+      "title": "Shipment Type",
+      "enum": [
+        "HHG",
+        "HHG_LONGHAUL_DOMESTIC",
+        "HHG_SHORTHAUL_DOMESTIC",
+        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS_DOMESTIC"
+      ],
+      "x-display-value": {
+        "HHG": "HHG",
+        "INTERNATIONAL_HHG": "International HHG",
+        "INTERNATIONAL_UB": "International UB"
+      },
+      "example": "HHG"
+    },
+    "MTOShipments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOShipment"
       }
     },
     "MethodOfReceipt": {
@@ -11030,6 +11676,11 @@ func init() {
           "title": "Date issued",
           "example": "2018-04-26"
         },
+        "move_task_order_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "moves": {
           "$ref": "#/definitions/IndexMovesPayload"
         },
@@ -11110,9 +11761,7 @@ func init() {
       "enum": [
         "PERMANENT_CHANGE_OF_STATION",
         "RETIREMENT",
-        "SEPARATION",
-        "GHC",
-        "NTS"
+        "SEPARATION"
       ],
       "x-display-value": {
         "GHC": "GHC",
@@ -12438,6 +13087,31 @@ func init() {
         }
       }
     },
+    "ValidationError": {
+      "required": [
+        "invalidFields"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/ClientError"
+        },
+        {
+          "type": "object"
+        }
+      ],
+      "properties": {
+        "invalidFields": {
+          "type": "object",
+          "additionalProperties": {
+            "description": "List of errors for the field",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
     "WeightAllotment": {
       "type": "object",
       "required": [
@@ -12481,6 +13155,50 @@ func init() {
         "PRO_GEAR": "Pro-gear"
       },
       "x-nullable": true
+    }
+  },
+  "responses": {
+    "Conflict": {
+      "description": "The request could not be processed because of conflict in the current state of the resource.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "InvalidRequest": {
+      "description": "The request payload is invalid.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "NotFound": {
+      "description": "The requested resource wasn't found.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "PermissionDenied": {
+      "description": "The request was denied.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "PreconditionFailed": {
+      "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "ServerError": {
+      "description": "A server error occurred.",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
+    "UnprocessableEntity": {
+      "description": "The payload was unprocessable.",
+      "schema": {
+        "$ref": "#/definitions/ValidationError"
+      }
     }
   }
 }`))

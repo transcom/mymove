@@ -7,7 +7,7 @@ import ShipmentContainer from '../../components/Office/ShipmentContainer';
 import ShipmentHeading from '../../components/Office/ShipmentHeading';
 import ImportantShipmentDates from '../../components/Office/ImportantShipmentDates';
 import RequestedServiceItemsTable from '../../components/Office/RequestedServiceItemsTable';
-import { getMTOShipments, selectMTOShiomentsByMTOId } from '../../shared/Entities/modules/mtoShipments';
+import { getMTOShipments, selectMTOShipmentsByMTOId } from '../../shared/Entities/modules/mtoShipments';
 import { getMTOServiceItems, selectMTOServiceItemsByMTOId } from '../../shared/Entities/modules/mtoServiceItems';
 
 function formatShipmentType(shipmentType) {
@@ -42,7 +42,7 @@ class MoveTaskOrder extends Component {
 
     return (
       <div style={{ display: 'flex' }}>
-        <div className="" style={{ width: '85%' }} data-cy="too-shipment-container">
+        <div className="" style={{ width: '85%' }} data-testid="too-shipment-container">
           {/* eslint-disable-next-line react/prop-types */}
           {mtoShipments.map((mtoShipment) => {
             return (
@@ -86,7 +86,7 @@ const mapStateToProps = (state, ownProps) => {
   });
 
   return {
-    mtoShipments: selectMTOShiomentsByMTOId(state, moveTaskOrderId),
+    mtoShipments: selectMTOShipmentsByMTOId(state, moveTaskOrderId),
     mtoServiceItems,
   };
 };

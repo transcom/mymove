@@ -42,7 +42,7 @@ const TOO = lazy(() => import('scenes/Office/TOO/too'));
 const CustomerDetails = lazy(() => import('scenes/Office/TOO/customerDetails'));
 const TOOVerificationInProgress = lazy(() => import('scenes/Office/TOO/tooVerificationInProgress'));
 // TIO pages (TODO move into src/pages)
-const TIO = lazy(() => import('scenes/Office/TIO/tio'));
+const PaymentRequestIndex = lazy(() => import('scenes/Office/TIO/paymentRequestIndex'));
 
 export class OfficeApp extends Component {
   constructor(props) {
@@ -88,7 +88,7 @@ export class OfficeApp extends Component {
 
     // TODO - I don't love this solution but it will work for now. Ideally we can abstract the page layout into a separate file where each route can use it or not
     // Don't show Header on OrdersInfo or DocumentViewer pages (PPM only)
-    const hideHeader =
+    const hideHeaderPPM =
       selectedRole === roleTypes.PPM &&
       (matchPath(pathname, {
         path: '/moves/:moveId/documents/:moveDocumentId?',
@@ -135,7 +135,7 @@ export class OfficeApp extends Component {
       <div className="site">
         <FOUOHeader />
         {displayChangeRole && <Link to="/select-application">Change user role</Link>}
-        {!hideHeader && <QueueHeader />}
+        {!hideHeaderPPM && <QueueHeader />}
         <main role="main" className="site__content site-office__content">
           <ConnectedLogoutOnInactivity />
 
@@ -157,7 +157,7 @@ export class OfficeApp extends Component {
 
                 {/* TXO */}
                 <PrivateRoute path="/moves/queue" exact component={TOO} requiredRoles={[roleTypes.TOO]} />
-                <PrivateRoute path="/invoicing/queue" component={TIO} requiredRoles={[roleTypes.TIO]} />
+                <PrivateRoute path="/invoicing/queue" component={PaymentRequestIndex} requiredRoles={[roleTypes.TIO]} />
 
                 {/* PPM & TXO conflicting routes - select based on user role */}
                 {selectedRole === roleTypes.PPM ? ppmRoutes : txoRoutes}
@@ -182,7 +182,7 @@ export class OfficeApp extends Component {
                       case roleTypes.PPM:
                         return <Queues queueType="new" {...routeProps} />;
                       case roleTypes.TIO:
-                        return <TIO {...routeProps} />;
+                        return <PaymentRequestIndex {...routeProps} />;
                       case roleTypes.TOO:
                         return <TOO {...routeProps} />;
                       default:

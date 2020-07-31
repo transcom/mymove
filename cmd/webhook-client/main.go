@@ -63,15 +63,15 @@ func main() {
 	}
 	initRootFlags(root.PersistentFlags())
 
-	postNotificationCommand := &cobra.Command{
-		Use:          "post-notification",
-		Short:        "Post Notification",
-		Long:         "Post Notification",
-		RunE:         postNotification,
+	postWebhookNotifyCommand := &cobra.Command{
+		Use:          "post-webhook-notify",
+		Short:        "Post Webhook Notify",
+		Long:         "Post Webhook Notify",
+		RunE:         postWebhookNotify,
 		SilenceUsage: true,
 	}
-	initPostNotificationFlags(postNotificationCommand.Flags())
-	root.AddCommand(postNotificationCommand)
+	initPostWebhookNotifyFlags(postWebhookNotifyCommand.Flags())
+	root.AddCommand(postWebhookNotifyCommand)
 
 	completionCommand := &cobra.Command{
 		Use:   "completion",

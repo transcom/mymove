@@ -35,6 +35,7 @@ require (
 	github.com/gobuffalo/nulls v0.4.0 // indirect
 	github.com/gobuffalo/packr v1.30.1
 	github.com/gobuffalo/pop v4.13.1+incompatible
+	github.com/gobuffalo/uuid v2.0.5+incompatible
 	github.com/gobuffalo/validate v2.0.4+incompatible
 	github.com/gocarina/gocsv v0.0.0-20190927101021-3ecffd272576
 	github.com/gofrs/flock v0.7.1
@@ -54,7 +55,7 @@ require (
 	github.com/lib/pq v1.7.1
 	github.com/markbates/goth v1.64.2
 	github.com/mattn/go-shellwords v1.0.6 // indirect
-	github.com/mitchellh/mapstructure v1.3.2
+	github.com/mitchellh/mapstructure v1.3.3
 	github.com/namsral/flag v1.7.4-pre
 	github.com/pdfcpu/pdfcpu v0.2.5
 	github.com/pelletier/go-toml v1.6.0 // indirect

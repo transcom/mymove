@@ -72,6 +72,6 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 	}
 
 	supportAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{context, mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder)}
-	supportAPI.PostNotificationHandler = PostNotificationHandler{context}
+	supportAPI.WebhookPostWebhookNotifyHandler = PostWebhookNotifyHandler{context}
 	return supportAPI.Serve(nil)
 }

@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/payment_requests"
+	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/webhook"
 )
 
 //go:generate swagger generate server --target ../../gen --name Mymove --spec ../../../swagger/support.yaml --api-package supportoperations --model-package supportmessages --server-package supportapi --exclude-main
@@ -62,9 +63,9 @@ func configureAPI(api *supportoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation move_task_order.MakeMoveTaskOrderAvailable has not yet been implemented")
 		})
 	}
-	if api.PostNotificationHandler == nil {
-		api.PostNotificationHandler = supportoperations.PostNotificationHandlerFunc(func(params supportoperations.PostNotificationParams) middleware.Responder {
-			return middleware.NotImplemented("operation .PostNotification has not yet been implemented")
+	if api.WebhookPostWebhookNotifyHandler == nil {
+		api.WebhookPostWebhookNotifyHandler = webhook.PostWebhookNotifyHandlerFunc(func(params webhook.PostWebhookNotifyParams) middleware.Responder {
+			return middleware.NotImplemented("operation webhook.PostWebhookNotify has not yet been implemented")
 		})
 	}
 	if api.MtoServiceItemUpdateMTOServiceItemStatusHandler == nil {

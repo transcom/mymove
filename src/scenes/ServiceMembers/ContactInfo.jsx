@@ -10,8 +10,6 @@ import { selectCurrentUser } from 'shared/Data/users';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
-import './ServiceMembers.css';
-
 const subsetOfFields = [
   'telephone',
   'secondary_telephone',

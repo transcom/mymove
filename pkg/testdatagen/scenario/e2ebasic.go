@@ -864,88 +864,103 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		UserUploader: userUploader,
 	})
 
-	customer := testdatagen.MakeCustomer(db, testdatagen.Assertions{
-		Customer: models.ServiceMember{
+	customer := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
 			ID: uuid.FromStringOrNil("6ac40a00-e762-4f5f-b08d-3ea72a8e4b63"),
 		},
 	})
-	moveOrders := testdatagen.MakeMoveOrder(db, testdatagen.Assertions{
-		MoveOrder: models.Order{ID: uuid.FromStringOrNil("6fca843a-a87e-4752-b454-0fac67aa4988")},
-		Customer:  customer,
+	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
+		Order: models.Order{
+			ID:              uuid.FromStringOrNil("6fca843a-a87e-4752-b454-0fac67aa4988"),
+			ServiceMemberID: customer.ID,
+			ServiceMember:   customer,
+		},
 	})
 	mto := testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
 		MoveTaskOrder: models.MoveTaskOrder{
 			ID:                 uuid.FromStringOrNil("5d4b25bb-eb04-4c03-9a81-ee0398cb779e"),
-			MoveOrderID:        moveOrders.ID,
+			MoveOrderID:        orders.ID,
 			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
 	})
 
-	customer2 := testdatagen.MakeCustomer(db, testdatagen.Assertions{
-		Customer: models.ServiceMember{
+	customer2 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
 			ID: uuid.FromStringOrNil("a5cc1277-37dd-4588-a982-df3c9fa7fc20"),
 		},
 	})
-	moveOrders2 := testdatagen.MakeMoveOrder(db, testdatagen.Assertions{
-		MoveOrder: models.Order{ID: uuid.FromStringOrNil("42f9cd3b-d630-4762-9762-542e9a3a67e4")},
-		Customer:  customer2,
+	orders2 := testdatagen.MakeOrder(db, testdatagen.Assertions{
+		Order: models.Order{
+			ID:              uuid.FromStringOrNil("42f9cd3b-d630-4762-9762-542e9a3a67e4"),
+			ServiceMemberID: customer2.ID,
+			ServiceMember:   customer2,
+		},
 	})
 
 	testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
 		MoveTaskOrder: models.MoveTaskOrder{
 			ID:          uuid.FromStringOrNil("302f3509-562c-4f5c-81c5-b770f4af30e8"),
-			MoveOrderID: moveOrders2.ID,
+			MoveOrderID: orders2.ID,
 		},
 	})
 
-	customer3 := testdatagen.MakeCustomer(db, testdatagen.Assertions{
-		Customer: models.ServiceMember{
+	customer3 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
 			ID: uuid.FromStringOrNil("08606458-cee9-4529-a2e6-9121e67dac72"),
 		},
 	})
-	moveOrders3 := testdatagen.MakeMoveOrder(db, testdatagen.Assertions{
-		MoveOrder: models.Order{ID: uuid.FromStringOrNil("eb6b0c75-3972-4a09-a453-3a7b257aa7f7")},
-		Customer:  customer3,
+	orders3 := testdatagen.MakeOrder(db, testdatagen.Assertions{
+		Order: models.Order{
+			ID:              uuid.FromStringOrNil("eb6b0c75-3972-4a09-a453-3a7b257aa7f7"),
+			ServiceMemberID: customer3.ID,
+			ServiceMember:   customer3,
+		},
 	})
 
 	testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
 		MoveTaskOrder: models.MoveTaskOrder{
 			ID:          uuid.FromStringOrNil("a97557cd-ec31-4f00-beed-01ac6e4c0976"),
-			MoveOrderID: moveOrders3.ID,
+			MoveOrderID: orders3.ID,
 		},
 	})
 
-	customer4 := testdatagen.MakeCustomer(db, testdatagen.Assertions{
-		Customer: models.ServiceMember{
+	customer4 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
 			ID: uuid.FromStringOrNil("1a13ee6b-3e21-4170-83bc-0d41f60edb99"),
 		},
 	})
-	moveOrders4 := testdatagen.MakeMoveOrder(db, testdatagen.Assertions{
-		MoveOrder: models.Order{ID: uuid.FromStringOrNil("8779beda-f69a-43bf-8606-ebd22973d474")},
-		Customer:  customer4,
+	orders4 := testdatagen.MakeOrder(db, testdatagen.Assertions{
+		Order: models.Order{
+			ID:              uuid.FromStringOrNil("8779beda-f69a-43bf-8606-ebd22973d474"),
+			ServiceMemberID: customer4.ID,
+			ServiceMember:   customer4,
+		},
 	})
 
 	testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
 		MoveTaskOrder: models.MoveTaskOrder{
 			ID:          uuid.FromStringOrNil("c251267f-dbe1-42b9-8239-4f628fa7279f"),
-			MoveOrderID: moveOrders4.ID,
+			MoveOrderID: orders4.ID,
 		},
 	})
 
-	customer5 := testdatagen.MakeCustomer(db, testdatagen.Assertions{
-		Customer: models.ServiceMember{
+	customer5 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
 			ID: uuid.FromStringOrNil("25a90fef-301e-4682-9758-60f0c76ea8b4"),
 		},
 	})
-	moveOrders5 := testdatagen.MakeMoveOrder(db, testdatagen.Assertions{
-		MoveOrder: models.Order{ID: uuid.FromStringOrNil("f2473488-2504-4872-a6b6-dd385dad4bf9")},
-		Customer:  customer5,
+	orders5 := testdatagen.MakeOrder(db, testdatagen.Assertions{
+		Order: models.Order{
+			ID:              uuid.FromStringOrNil("f2473488-2504-4872-a6b6-dd385dad4bf9"),
+			ServiceMemberID: customer5.ID,
+			ServiceMember:   customer5,
+		},
 	})
 
 	testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
 		MoveTaskOrder: models.MoveTaskOrder{
 			ID:          uuid.FromStringOrNil("2b485ded-a395-4dbb-9aa7-3f902dd4ccea"),
-			MoveOrderID: moveOrders5.ID,
+			MoveOrderID: orders5.ID,
 		},
 	})
 
@@ -973,34 +988,315 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID: uuid.FromStringOrNil("9db1bf43-0964-44ff-8384-3297951f6781"),
-		},
-		MoveTaskOrder: mto,
-		MTOShipment:   MTOShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH
-		},
-	})
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID: uuid.FromStringOrNil("d886431c-c357-46b7-a084-a0c85dd496d3"),
-		},
-		MoveTaskOrder: mto,
-		MTOShipment:   MTOShipment,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("2bc3e5cb-adef-46b1-bde9-55570bfdd43e"), // DOP
-		},
-	})
-
-	testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
+	paymentRequest := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
 			ID:            uuid.FromStringOrNil("a2c34dba-015f-4f96-a38b-0c0b9272e208"),
 			MoveTaskOrder: mto,
 			IsFinal:       false,
 			Status:        models.PaymentRequestStatusPending,
 		},
+		MoveTaskOrder: mto,
+	})
+
+	msCost := unit.Cents(10000)
+	serviceItemMS := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:     uuid.FromStringOrNil("4fba4249-b5aa-4c29-8448-66aa07ac8560"),
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		MoveTaskOrder: mto,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &msCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: serviceItemMS,
+	})
+
+	csCost := unit.Cents(25000)
+	serviceItemCS := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("e43c0df3-0dcd-4b70-adaa-46d669e094ad"),
+		},
+		MoveTaskOrder: mto,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &csCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: serviceItemCS,
+	})
+
+	dlhCost := unit.Cents(99999)
+	serviceItemDLH := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("9db1bf43-0964-44ff-8384-3297951f6781"),
+		},
+		MoveTaskOrder: mto,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH - Domestic Linehaul
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &dlhCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: serviceItemDLH,
+	})
+
+	fscCost := unit.Cents(55555)
+	serviceItemFSC := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("b380f732-2fb2-49a0-8260-7a52ce223c59"),
+		},
+		MoveTaskOrder: mto,
+		MTOShipment:   MTOShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("4780b30c-e846-437a-b39a-c499a6b09872"), // FSC - Fuel Surcharge
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &fscCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: serviceItemFSC,
+	})
+
+	dopCost := unit.Cents(3456)
+	serviceItemDOP := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("d886431c-c357-46b7-a084-a0c85dd496d3"),
+		},
+		MoveTaskOrder: mto,
+		MTOShipment:   MTOShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("2bc3e5cb-adef-46b1-bde9-55570bfdd43e"), // DOP - Domestic Origin Price
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &dopCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: serviceItemDOP,
+	})
+
+	ddpCost := unit.Cents(7890)
+	serviceItemDDP := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("551caa30-72fe-469a-b463-ad1f14780432"),
+		},
+		MoveTaskOrder: mto,
+		MTOShipment:   MTOShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("50f1179a-3b72-4fa1-a951-fe5bcc70bd14"), // DDP - Domestic Destination Price
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &ddpCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: serviceItemDDP,
+	})
+
+	// Schedule 1 peak price
+	dpkCost := unit.Cents(6544)
+	serviceItemDPK := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("616dfdb5-52ec-436d-a570-a464c9dbd47a"),
+		},
+		MoveTaskOrder: mto,
+		MTOShipment:   MTOShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("bdea5a8d-f15f-47d2-85c9-bba5694802ce"), // DPK - Domestic Packing
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &dpkCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: serviceItemDPK,
+	})
+
+	// Schedule 1 peak price
+	dupkCost := unit.Cents(8544)
+	serviceItemDUPK := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("1baeee0e-00d6-4d90-b22c-654c11d50d0f"),
+		},
+		MoveTaskOrder: mto,
+		MTOShipment:   MTOShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("15f01bc1-0754-4341-8e0f-25c8f04d5a77"), // DUPK - Domestic Unpacking
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &dupkCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: serviceItemDUPK,
+	})
+
+	/* Customer with two payment requests */
+	customer7 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID: uuid.FromStringOrNil("4e6e4023-b089-4614-a65a-cac48027ffc2"),
+		},
+	})
+
+	orders7 := testdatagen.MakeOrder(db, testdatagen.Assertions{
+		Order: models.Order{
+			ID:              uuid.FromStringOrNil("f52f851e-91b8-4cb7-9f8a-6b0b8477ae2a"),
+			ServiceMemberID: customer7.ID,
+			ServiceMember:   customer7,
+		},
+	})
+
+	mto7 := testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{
+			ID:                 uuid.FromStringOrNil("99783f4d-ee83-4fc9-8e0c-d32496bef32b"),
+			MoveOrderID:        orders7.ID,
+			AvailableToPrimeAt: swag.Time(time.Now()),
+		},
+	})
+
+	mtoShipmentHHG7 := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID:                   uuid.FromStringOrNil("baa00811-2381-433e-8a96-2ced58e37a14"),
+			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:    &actualWeight,
+			ShipmentType:         models.MTOShipmentTypeHHG,
+		},
+		MoveTaskOrder: mto7,
+	})
+
+	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			ID:            uuid.FromStringOrNil("82036387-a113-4b45-a172-94e49e4600d2"),
+			MTOShipment:   mtoShipmentHHG7,
+			MTOShipmentID: mtoShipmentHHG7.ID,
+			FirstName:     swag.String("Test"),
+			LastName:      swag.String("Agent"),
+			Email:         swag.String("test@test.email.com"),
+			MTOAgentType:  models.MTOAgentReleasing,
+		},
+	})
+
+	paymentRequest7 := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			ID:              uuid.FromStringOrNil("ea945ab7-099a-4819-82de-6968efe131dc"),
+			MoveTaskOrder:   mto7,
+			IsFinal:         false,
+			Status:          models.PaymentRequestStatusPending,
+			RejectionReason: nil,
+		},
+		MoveTaskOrder: mto7,
+	})
+
+	serviceItemMS7 := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("923acbd4-5e65-4d62-aecc-19edf785df69"),
+		},
+		MoveTaskOrder: mto7,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &msCost,
+		},
+		PaymentRequest: paymentRequest7,
+		MTOServiceItem: serviceItemMS7,
+	})
+
+	serviceItemDLH7 := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("aab8df9a-bbc9-4f26-a3ab-d5dcf1c8c40f"),
+		},
+		MoveTaskOrder: mto7,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH - Domestic Linehaul
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &dlhCost,
+		},
+		PaymentRequest: paymentRequest7,
+		MTOServiceItem: serviceItemDLH7,
+	})
+
+	additionalPaymentRequest7 := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			ID:              uuid.FromStringOrNil("540e2268-6899-4b67-828d-bb3b0331ecf2"),
+			MoveTaskOrder:   mto7,
+			IsFinal:         false,
+			Status:          models.PaymentRequestStatusPending,
+			RejectionReason: nil,
+			SequenceNumber:  2,
+		},
+		MoveTaskOrder: mto7,
+	})
+
+	serviceItemCS7 := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("ab37c0a4-ad3f-44aa-b294-f9e646083cec"),
+		},
+		MoveTaskOrder: mto7,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &csCost,
+		},
+		PaymentRequest: additionalPaymentRequest7,
+		MTOServiceItem: serviceItemCS7,
+	})
+
+	serviceItemFSC7 := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("f23eeb02-66c7-43f5-ad9c-1d1c3ae66b15"),
+		},
+		MoveTaskOrder: mto7,
+		MTOShipment:   MTOShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("4780b30c-e846-437a-b39a-c499a6b09872"), // FSC - Fuel Surcharge
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &fscCost,
+		},
+		PaymentRequest: additionalPaymentRequest7,
+		MTOServiceItem: serviceItemFSC7,
 	})
 
 	/* A user with Roles */
@@ -1093,19 +1389,22 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 
 	// A more recent MTO for demonstrating the since parameter
-	customer6 := testdatagen.MakeCustomer(db, testdatagen.Assertions{
-		Customer: models.ServiceMember{
+	customer6 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
 			ID: uuid.FromStringOrNil("6ac40a00-e762-4f5f-b08d-3ea72a8e4b61"),
 		},
 	})
-	moveOrders6 := testdatagen.MakeMoveOrder(db, testdatagen.Assertions{
-		MoveOrder: models.Order{ID: uuid.FromStringOrNil("6fca843a-a87e-4752-b454-0fac67aa4981")},
-		Customer:  customer6,
+	orders6 := testdatagen.MakeOrder(db, testdatagen.Assertions{
+		Order: models.Order{
+			ID:              uuid.FromStringOrNil("6fca843a-a87e-4752-b454-0fac67aa4981"),
+			ServiceMemberID: customer6.ID,
+			ServiceMember:   customer6,
+		},
 	})
 	mto2 := testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
 		MoveTaskOrder: models.MoveTaskOrder{
 			ID:                 uuid.FromStringOrNil("da3f34cc-fb94-4e0b-1c90-ba3333cb7791"),
-			MoveOrderID:        moveOrders6.ID,
+			MoveOrderID:        orders6.ID,
 			UpdatedAt:          time.Unix(1576779681256, 0),
 			AvailableToPrimeAt: swag.Time(time.Now()),
 		},

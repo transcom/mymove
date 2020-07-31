@@ -30,14 +30,19 @@ const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
     <Fragment>
       <div>
         <FormSection name="moveDocument">
-          <SwaggerField data-cy="title" fieldName="title" swagger={moveDocSchema} required />
-          <SwaggerField data-cy="move-document-type" fieldName="move_document_type" swagger={moveDocSchema} required />
+          <SwaggerField data-testid="title" fieldName="title" swagger={moveDocSchema} required />
+          <SwaggerField
+            data-testid="move-document-type"
+            fieldName="move_document_type"
+            swagger={moveDocSchema}
+            required
+          />
           {isExpenseDocument && <ExpenseDocumentForm moveDocSchema={moveDocSchema} />}
           {isWeightTicketDocument && (
             <>
               <div>
                 <SwaggerField
-                  data-cy="weight-ticket-set-type"
+                  data-testid="weight-ticket-set-type"
                   fieldName="weight_ticket_set_type"
                   swagger={moveDocSchema}
                   required
@@ -45,7 +50,7 @@ const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
               </div>
               {isWeightTicketTypeBoxTruck && (
                 <SwaggerField
-                  data-cy="vehicle-nickname"
+                  data-testid="vehicle-nickname"
                   fieldName="vehicle_nickname"
                   swagger={moveDocSchema}
                   required
@@ -53,7 +58,7 @@ const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
               )}
               {isWeightTicketTypeProGear && (
                 <SwaggerField
-                  data-cy="progear-type"
+                  data-testid="progear-type"
                   fieldName="vehicle_nickname"
                   title="Pro-gear type (ex. 'My pro-gear', 'Spouse pro-gear', 'Both')"
                   swagger={moveDocSchema}
@@ -62,12 +67,17 @@ const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
               )}
               {isWeightTicketTypeCarOrTrailer && (
                 <>
-                  <SwaggerField data-cy="vehicle-make" fieldName="vehicle_make" swagger={moveDocSchema} required />
-                  <SwaggerField data-cy="vehicle-model" fieldName="vehicle_model" swagger={moveDocSchema} required />
+                  <SwaggerField data-testid="vehicle-make" fieldName="vehicle_make" swagger={moveDocSchema} required />
+                  <SwaggerField
+                    data-testid="vehicle-model"
+                    fieldName="vehicle_model"
+                    swagger={moveDocSchema}
+                    required
+                  />
                 </>
               )}
               <SwaggerField
-                data-cy="empty-weight"
+                data-testid="empty-weight"
                 className="short-field"
                 title="Empty weight"
                 fieldName="empty_weight"
@@ -76,7 +86,7 @@ const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
               />{' '}
               <span className="field-with-units">lbs</span>
               <SwaggerField
-                data-cy="full-weight"
+                data-testid="full-weight"
                 className="short-field"
                 title="Full weight"
                 fieldName="full_weight"
@@ -89,14 +99,14 @@ const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
           {isStorageExpenseDocument && (
             <>
               <SwaggerField
-                data-cy="storage-start-date"
+                data-testid="storage-start-date"
                 title="Start date"
                 fieldName="storage_start_date"
                 required
                 swagger={moveDocSchema}
               />
               <SwaggerField
-                data-cy="storage-end-date"
+                data-testid="storage-end-date"
                 title="End date"
                 fieldName="storage_end_date"
                 required
@@ -104,8 +114,14 @@ const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
               />
             </>
           )}
-          <SwaggerField data-cy="status" label="Document status" fieldName="status" swagger={moveDocSchema} required />
-          <SwaggerField data-cy="notes" fieldName="notes" swagger={moveDocSchema} />
+          <SwaggerField
+            data-testid="status"
+            label="Document status"
+            fieldName="status"
+            swagger={moveDocSchema}
+            required
+          />
+          <SwaggerField data-testid="notes" fieldName="notes" swagger={moveDocSchema} />
         </FormSection>
       </div>
     </Fragment>

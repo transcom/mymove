@@ -31,11 +31,11 @@ describe('The document viewer', function () {
     });
     it('can upload a new document', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
-      cy.get('[data-cy="document-upload-link"]')
+      cy.get('[data-testid="document-upload-link"]')
         .find('a')
         .should('have.attr', 'href')
         .and('contain', '/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents/new');
-      cy.get('[data-cy="document-upload-link"]');
+      cy.get('[data-testid="document-upload-link"]');
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents/new');
 
       cy.contains('Upload a new document');
@@ -63,7 +63,7 @@ describe('The document viewer', function () {
 
     it('can edit an uploaded weight ticket set', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
-      cy.get('[data-cy="doc-link"]')
+      cy.get('[data-testid="doc-link"]')
         .find('a')
         .contains('Weight ticket document')
         .should('have.attr', 'href')
@@ -117,7 +117,7 @@ describe('The document viewer', function () {
     });
     it('can select and update newly-uploaded expense document', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
-      cy.get('[data-cy="doc-link"]')
+      cy.get('[data-testid="doc-link"]')
         .find('a')
         .contains('expense document')
         .should('have.attr', 'href')
@@ -144,7 +144,7 @@ describe('The document viewer', function () {
     });
     it('can update expense document to other doc type', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
-      cy.get('[data-cy="doc-link"]')
+      cy.get('[data-testid="doc-link"]')
         .find('a')
         .contains('expense document')
         .should('have.attr', 'href')
@@ -166,7 +166,7 @@ describe('The document viewer', function () {
     });
     it('can update other document type back to expense type', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
-      cy.get('[data-cy="doc-link"]')
+      cy.get('[data-testid="doc-link"]')
         .find('a')
         .contains('expense document')
         .should('have.attr', 'href')

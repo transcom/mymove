@@ -52,9 +52,9 @@ describe('Weight tickets page', () => {
   describe('Service member chooses CAR as weight ticket type', () => {
     it('renders vehicle make and model fields', () => {
       const weightTicket = mountComponents('No', true, true, 'CAR');
-      const vehicleNickname = weightTicket.find('[data-cy="vehicle_nickname"]');
-      const vehicleMake = weightTicket.find('[data-cy="vehicle_make"]');
-      const vehicleModel = weightTicket.find('[data-cy="vehicle_model"]');
+      const vehicleNickname = weightTicket.find('[data-testid="vehicle_nickname"]');
+      const vehicleMake = weightTicket.find('[data-testid="vehicle_make"]');
+      const vehicleModel = weightTicket.find('[data-testid="vehicle_model"]');
 
       expect(vehicleNickname.length).toEqual(0);
       expect(vehicleMake.length).toEqual(1);
@@ -64,9 +64,9 @@ describe('Weight tickets page', () => {
   describe('Service member chooses BOX TRUCK as weight ticket type', () => {
     it('renders vehicle nickname field', () => {
       const weightTicket = mountComponents('No', true, true, 'BOX_TRUCK');
-      const vehicleNickname = weightTicket.find('[data-cy="vehicle_nickname"]');
-      const vehicleMake = weightTicket.find('[data-cy="vehicle_make"]');
-      const vehicleModel = weightTicket.find('[data-cy="vehicle_model"]');
+      const vehicleNickname = weightTicket.find('[data-testid="vehicle_nickname"]');
+      const vehicleMake = weightTicket.find('[data-testid="vehicle_make"]');
+      const vehicleModel = weightTicket.find('[data-testid="vehicle_model"]');
 
       expect(vehicleNickname.length).toEqual(1);
       expect(vehicleMake.length).toEqual(0);
@@ -76,9 +76,9 @@ describe('Weight tickets page', () => {
   describe('Service member chooses PROGEAR as weight ticket type', () => {
     it('renders vehicle nickname (progear type) field', () => {
       const weightTicket = mountComponents('No', true, true, 'PRO_GEAR');
-      const vehicleNickname = weightTicket.find('[data-cy="vehicle_nickname"]');
-      const vehicleMake = weightTicket.find('[data-cy="vehicle_make"]');
-      const vehicleModel = weightTicket.find('[data-cy="vehicle_model"]');
+      const vehicleNickname = weightTicket.find('[data-testid="vehicle_nickname"]');
+      const vehicleMake = weightTicket.find('[data-testid="vehicle_make"]');
+      const vehicleModel = weightTicket.find('[data-testid="vehicle_model"]');
 
       expect(vehicleNickname.length).toEqual(1);
       expect(vehicleMake.length).toEqual(0);

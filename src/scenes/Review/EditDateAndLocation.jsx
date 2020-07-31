@@ -83,7 +83,7 @@ let EditDateAndLocationForm = (props) => {
                 />{' '}
                 <span className="grey">You can choose up to 90 days.</span>
                 {displayedSitReimbursement && (
-                  <div data-cy="storage-estimate" className="storage-estimate">
+                  <div data-testid="storage-estimate" className="storage-estimate">
                     You can spend up to {displayedSitReimbursement} on private storage. Save your receipts to submit
                     with your PPM paperwork.
                   </div>

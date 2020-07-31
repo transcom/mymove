@@ -259,5 +259,28 @@ func PaymentRequest(pr *models.PaymentRequest) *ghcmessages.PaymentRequest {
 		RejectionReason:      pr.RejectionReason,
 		Status:               ghcmessages.PaymentRequestStatus(pr.Status),
 		ETag:                 etag.GenerateEtag(pr.UpdatedAt),
+		ServiceItems:         *PaymentServiceItems(&pr.PaymentServiceItems),
 	}
+}
+
+// PaymentServiceItem payload
+func PaymentServiceItem(ps *models.PaymentServiceItem) *ghcmessages.PaymentServiceItem {
+	return &ghcmessages.PaymentServiceItem{
+		ID:               *handlers.FmtUUID(ps.ID),
+		MtoServiceItemID: *handlers.FmtUUID(ps.MTOServiceItemID),
+		CreatedAt:        strfmt.DateTime(ps.CreatedAt),
+		PriceCents:       handlers.FmtCost(ps.PriceCents),
+		RejectionReason:  ps.RejectionReason,
+		Status:           ghcmessages.PaymentServiceItemStatus(ps.Status),
+		ETag:             etag.GenerateEtag(ps.UpdatedAt),
+	}
+}
+
+// PaymentServiceItems payload
+func PaymentServiceItems(paymentServiceItems *models.PaymentServiceItems) *ghcmessages.PaymentServiceItems {
+	payload := make(ghcmessages.PaymentServiceItems, len(*paymentServiceItems))
+	for i, m := range *paymentServiceItems {
+		payload[i] = PaymentServiceItem(&m)
+	}
+	return &payload
 }
