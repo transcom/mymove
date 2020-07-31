@@ -784,24 +784,6 @@ tasks_save_ghc_fuel_price_data: tasks_build_linux_docker ## Run save-ghc-fuel-pr
 		$(TASKS_DOCKER_CONTAINER):latest \
 		milmove-tasks save-ghc-fuel-price-data
 
-.PHONY: tasks_save_ghc_fuel_price_data
-tasks_save_ghc_fuel_price_data: tasks_build_linux_docker ## Run save-ghc-fuel-price-data from inside docker container
-	@echo "Saving the fuel price data to the ${DB_NAME_DEV} database with docker command..."
-	DB_NAME=$(DB_NAME_DEV) DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_DEV) scripts/wait-for-db-docker
-	docker run \
-		-t \
-		-e DB_HOST="database" \
-		-e DB_NAME \
-		-e DB_PORT \
-		-e DB_USER \
-		-e DB_PASSWORD \
-		-e EIA_KEY \
-		-e EIA_URL \
-		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
-		--rm \
-		$(TASKS_DOCKER_CONTAINER):latest \
-		milmove-tasks save-ghc-fuel-price-data
-
 tasks_send_post_move_survey: tasks_build_linux_docker ## Run send-post-move-survey from inside docker container
 	@echo "sending post move survey with docker command..."
 	DB_NAME=$(DB_NAME_DEV) DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_DEV) scripts/wait-for-db-docker
