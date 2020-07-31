@@ -14,8 +14,6 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatDate } from 'shared/dates';
 import { ReactComponent as CheckmarkIcon } from 'shared/icon/checkbox--unchecked.svg';
 
-import { ReactComponent as ChevronDown } from '../../shared/icon/chevron-down.svg';
-
 import ShipmentContainer from './ShipmentContainer';
 
 const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSubmitted }) => {
