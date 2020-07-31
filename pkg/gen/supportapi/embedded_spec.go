@@ -1366,20 +1366,6 @@ func init() {
         "$ref": "#/definitions/MoveTaskOrder"
       }
     },
-    "Notification": {
-      "type": "object",
-      "required": [
-        "message"
-      ],
-      "properties": {
-        "message": {
-          "description": "Message sent",
-          "type": "string",
-          "x-nullable": false,
-          "example": "Hello world."
-        }
-      }
-    },
     "OrderType": {
       "type": "string",
       "title": "Order type",
@@ -3239,20 +3225,6 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MoveTaskOrder"
-      }
-    },
-    "Notification": {
-      "type": "object",
-      "required": [
-        "message"
-      ],
-      "properties": {
-        "message": {
-          "description": "Message sent",
-          "type": "string",
-          "x-nullable": false,
-          "example": "Hello world."
-        }
       }
     },
     "OrderType": {

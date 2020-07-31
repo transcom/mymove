@@ -739,16 +739,6 @@ definitions:
       - title
       - detail
     type: object
-  Notification:
-    type: object
-    properties:
-      message:
-        type: string
-        description: Message sent
-        example: Hello world.
-        x-nullable: false
-    required:
-      - message
   MoveOrder:
     properties:
       id:

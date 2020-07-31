@@ -17,8 +17,6 @@ import (
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
-
-	// notification "github.com/transcom/mymove/pkg/services/notification"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 )
 

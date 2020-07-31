@@ -12,7 +12,11 @@ import (
 	"github.com/spf13/viper"
 	"pault.ag/go/pksigner"
 
-	supportClient "github.com/transcom/mymove/pkg/gen/supportclient" // #TODO: Story to remove dependency on support client
+	// #TODO: Story to remove dependency on gen/supportclient. The support endpoint
+	// in support.yaml will function as our "server" for local testing. In production,
+	// we need to send the payload to the Prime / an external server and will not
+	// know any internals around their implementation.
+	supportClient "github.com/transcom/mymove/pkg/gen/supportclient"
 
 	"github.com/transcom/mymove/pkg/cli"
 )
@@ -43,6 +47,10 @@ func CreateClient(v *viper.Viper) (*supportClient.Mymove, *pksigner.Store, error
 	insecure := v.GetBool(InsecureFlag)
 
 	var httpClient *http.Client
+
+	// #TODO: Remove code dealing with CAC. For this client, there is
+	// no use case for using a CAC. On deployed environments, we will
+	// need DISA certificates.
 
 	// The client certificate comes from a smart card
 	var store *pksigner.Store

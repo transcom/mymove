@@ -59,16 +59,20 @@ func postWebhookNotify(cmd *cobra.Command, args []string) error {
 	}
 
 	message := v.GetString(MessageFlag)
-	newNotification := webhookOperations.PostWebhookNotifyBody{ //#TODO: Replicate this without using supportMessages
+	//#TODO: To remove dependency on gen/supportclient,
+	// replicate the functionality without using webhookOperations
+	newNotification := webhookOperations.PostWebhookNotifyBody{
 		Message: message,
 	}
-
-	notifyParams := webhookOperations.NewPostWebhookNotifyParams() // #TODO: Replicate without using operations, need to find where we're getting context and httpclient
+	//#TODO: To remove dependency on gen/supportclient,
+	// replicate the functionality without using webhookOperations
+	notifyParams := webhookOperations.NewPostWebhookNotifyParams()
 
 	notifyParams.WithMessage(newNotification)
 	notifyParams.SetTimeout(time.Second * 30)
 
 	// Create the client and open the cacStore
+	// #TODO: Remove any CAC-related code since there isn't a use case
 	supportGateway, cacStore, errCreateClient := CreateClient(v)
 	if errCreateClient != nil {
 		return errCreateClient
