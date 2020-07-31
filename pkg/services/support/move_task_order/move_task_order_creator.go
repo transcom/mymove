@@ -205,13 +205,13 @@ func MoveOrderModel(moveOrderPayload *supportmessages.MoveOrder) *models.Order {
 	}
 	model := &models.Order{
 		ID:               uuid.FromStringOrNil(moveOrderPayload.ID.String()),
-		Grade:            &moveOrderPayload.Rank,
+		Grade:            moveOrderPayload.Rank,
 		OrdersNumber:     moveOrderPayload.OrderNumber,
 		ServiceMember:    *CustomerModel(moveOrderPayload.Customer),
 		Entitlement:      EntitlementModel(moveOrderPayload.Entitlement),
 		Status:           (models.OrderStatus)(moveOrderPayload.Status),
-		IssueDate:        (time.Time)(moveOrderPayload.DateIssued),
-		OrdersType:       (internalmessages.OrdersType)(moveOrderPayload.OrderType),
+		IssueDate:        (time.Time)(*moveOrderPayload.IssueDate),
+		OrdersType:       (internalmessages.OrdersType)(moveOrderPayload.OrdersType),
 		UploadedOrdersID: uuid.FromStringOrNil(moveOrderPayload.UploadedOrdersID.String()),
 	}
 
@@ -224,7 +224,7 @@ func MoveOrderModel(moveOrderPayload *supportmessages.MoveOrder) *models.Order {
 	originDutyStationID := uuid.FromStringOrNil(moveOrderPayload.OriginDutyStationID.String())
 	model.OriginDutyStationID = &originDutyStationID
 
-	reportByDate := time.Time(moveOrderPayload.ReportByDate)
+	reportByDate := time.Time(*moveOrderPayload.ReportByDate)
 	if !reportByDate.IsZero() {
 		model.ReportByDate = reportByDate
 	}
