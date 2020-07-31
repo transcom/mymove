@@ -2,17 +2,17 @@ import { Button, Modal, ModalContainer, Overlay } from '@trussworks/react-uswds'
 import React, { Fragment } from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { ReactComponent as XHeavyIcon } from 'shared/icon/x-heavy.svg';
 
 import { mtoShipmentTypeToFriendlyDisplay } from '../../shared/formatters';
 import { MTOAgentShape, MTOShipmentShape } from '../../types/moveOrder';
-import formatAddress from '../../utils/shipmentDisplay';
 
 import styles from './shipmentApprovalPreview.module.scss';
 import AllowancesTable from './AllowancesTable';
 import CustomerInfoTable from './CustomerInfoTable';
 import ShipmentContainer from './ShipmentContainer';
 import ShipmentServiceItemsTable from './ShipmentServiceItemsTable/ShipmentServiceItemsTable';
+
+import { ReactComponent as XHeavyIcon } from 'shared/icon/x-heavy.svg';
 
 const ShipmentApprovalPreview = ({
   mtoShipments,
