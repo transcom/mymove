@@ -372,6 +372,52 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  '/webhook-notify':
+    post:
+      summary: Test endpoint for notifications
+      description: Just a Test
+      operationId: postNotification
+      tags:
+        - webhook
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          required: true
+          name: message
+          description: The message to send.
+          schema:
+            type: object
+            required:
+              - message
+            properties:
+              message:
+                type: string
+                description: Message sent
+                example: Hello world.
+                x-nullable: false
+      responses:
+        '200':
+          description: Created
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Message sent
+                example: Hello world.
+        '400':
+          description: Bad request
+        '401':
+          description: must be authenticated to use this endpoint
+        '403':
+          description: Forbidden
+        '404':
+          description: No orders found
+        '500':
+          description: Server error
 definitions:
   ClientError:
     type: object

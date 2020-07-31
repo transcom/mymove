@@ -505,6 +505,74 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/webhook-notify": {
+      "post": {
+        "description": "Just a Test",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "webhook"
+        ],
+        "summary": "Test endpoint for notifications",
+        "operationId": "postNotification",
+        "parameters": [
+          {
+            "description": "The message to send.",
+            "name": "message",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "message"
+              ],
+              "properties": {
+                "message": {
+                  "description": "Message sent",
+                  "type": "string",
+                  "x-nullable": false,
+                  "example": "Hello world."
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Created",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "description": "Message sent",
+                  "type": "string",
+                  "example": "Hello world."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "must be authenticated to use this endpoint"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "No orders found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -2298,6 +2366,74 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/webhook-notify": {
+      "post": {
+        "description": "Just a Test",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "webhook"
+        ],
+        "summary": "Test endpoint for notifications",
+        "operationId": "postNotification",
+        "parameters": [
+          {
+            "description": "The message to send.",
+            "name": "message",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "message"
+              ],
+              "properties": {
+                "message": {
+                  "description": "Message sent",
+                  "type": "string",
+                  "x-nullable": false,
+                  "example": "Hello world."
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Created",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "description": "Message sent",
+                  "type": "string",
+                  "example": "Hello world."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "must be authenticated to use this endpoint"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "No orders found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
     }
   },
   "definitions": {
