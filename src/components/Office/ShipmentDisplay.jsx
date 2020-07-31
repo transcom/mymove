@@ -3,15 +3,14 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
 import { Checkbox } from '@trussworks/react-uswds';
-
-import { ReactComponent as ChevronDown } from '../../shared/icon/chevron-down.svg';
-
-import ShipmentContainer from './ShipmentContainer';
-
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import styles from 'components/Office/ShipmentDisplay.module.scss';
 import { formatDate } from 'shared/dates';
 import { ReactComponent as CheckmarkIcon } from 'shared/icon/checkbox--unchecked.svg';
+
+import { ReactComponent as ChevronDown } from '../../shared/icon/chevron-down.svg';
+
+import ShipmentContainer from './ShipmentContainer';
 
 const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSubmitted }) => {
   return (
@@ -53,8 +52,7 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
               <td />
               <td className={styles['shipment-display__label']}>Current address</td>
               <td>
-                {displayInfo.currentAddress.street_address_1}
-                ,&nbsp;
+                {displayInfo.currentAddress.street_address_1}, &nbsp;
                 {`${displayInfo.currentAddress.city}, ${displayInfo.currentAddress.state} ${displayInfo.currentAddress.postal_code}`}
               </td>
               <td />

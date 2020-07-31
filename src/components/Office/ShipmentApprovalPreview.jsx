@@ -2,6 +2,7 @@ import { Button, Modal, ModalContainer, Overlay } from '@trussworks/react-uswds'
 import React, { Fragment } from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { ReactComponent as XHeavyIcon } from 'shared/icon/x-heavy.svg';
 
 import { mtoShipmentTypeToFriendlyDisplay } from '../../shared/formatters';
 import { MTOAgentShape, MTOShipmentShape } from '../../types/moveOrder';
@@ -11,8 +12,6 @@ import AllowancesTable from './AllowancesTable';
 import CustomerInfoTable from './CustomerInfoTable';
 import ShipmentContainer from './ShipmentContainer';
 import ShipmentServiceItemsTable from './ShipmentServiceItemsTable/ShipmentServiceItemsTable';
-
-import { ReactComponent as XHeavyIcon } from 'shared/icon/x-heavy.svg';
 
 const ShipmentApprovalPreview = ({
   mtoShipments,
@@ -87,8 +86,7 @@ const ShipmentApprovalPreview = ({
                               Current Address
                             </th>
                             <td>
-                              {shipment.pickupAddress.street_address_1}
-                              <br />
+                              {shipment.pickupAddress.street_address_1}, &nbsp;
                               {shipment.pickupAddress.city}, {shipment.pickupAddress.state}{' '}
                               {shipment.pickupAddress.postal_code}
                             </td>
@@ -98,8 +96,7 @@ const ShipmentApprovalPreview = ({
                               Destination Address
                             </th>
                             <td>
-                              {shipment.destinationAddress.street_address_1}
-                              <br />
+                              {shipment.destinationAddress.street_address_1}, &nbsp;
                               {shipment.destinationAddress.city}, {shipment.destinationAddress.state}{' '}
                               {shipment.destinationAddress.postal_code}
                             </td>
