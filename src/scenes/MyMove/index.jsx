@@ -36,7 +36,7 @@ import Footer from 'shared/Footer';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivacyPolicyStatement from 'shared/Statements/PrivacyAndPolicyStatement';
 import AccessibilityStatement from 'shared/Statements/AccessibilityStatement';
-import { selectedMoveType, lastMoveIsCanceled, selectedConusStatus } from 'scenes/Moves/ducks';
+import { lastMoveIsCanceled, selectedConusStatus, selectedMoveType } from 'scenes/Moves/ducks';
 import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { getCurrentUserInfo } from 'shared/Data/users';
 import { loadInternalSchema } from 'shared/Swagger/ducks';
@@ -171,12 +171,13 @@ AppWrapper.defaultProps = {
 
 const mapStateToProps = (state) => {
   const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
+  const move = selectActiveOrLatestMove(state);
 
   return {
     currentServiceMemberId: serviceMemberId,
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     latestMove: get(state, 'moves.latestMove'),
-    moveId: selectActiveOrLatestMove(state).id,
+    moveId: move.id,
     selectedMoveType: selectedMoveType(state),
     conusStatus: selectedConusStatus(state),
     swaggerError: state.swaggerInternal.hasErrored,
