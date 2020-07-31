@@ -3,8 +3,6 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
 import { Checkbox } from '@trussworks/react-uswds';
-<<<<<<< HEAD:src/components/Office/ShipmentDisplay.jsx
-=======
 
 import ShipmentContainer from '../ShipmentContainer';
 
@@ -12,7 +10,6 @@ import styles from './ShipmentDisplay.module.scss';
 
 import { ReactComponent as ChevronDown } from 'shared/icon/chevron-down.svg';
 import formatAddress from 'utils/shipmentDisplay';
->>>>>>> origin/MB-3326_shipment-display-spacing:src/components/Office/ShipmentDisplay/ShipmentDisplay.jsx
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatDate } from 'shared/dates';
 import { ReactComponent as CheckmarkIcon } from 'shared/icon/checkbox--unchecked.svg';
@@ -60,27 +57,13 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
             <tr>
               <td />
               <td className={styles['shipment-display__label']}>Current address</td>
-<<<<<<< HEAD:src/components/Office/ShipmentDisplay.jsx
-              <td>
-                {displayInfo.currentAddress.street_address_1}, &nbsp;
-                {`${displayInfo.currentAddress.city}, ${displayInfo.currentAddress.state} ${displayInfo.currentAddress.postal_code}`}
-              </td>
-=======
               <td>{formatAddress(displayInfo.currentAddress)}</td>
->>>>>>> master:src/components/Office/ShipmentDisplay/ShipmentDisplay.jsx
               <td />
             </tr>
             <tr>
               <td />
               <td className={styles['shipment-display__label']}>Destination address</td>
-<<<<<<< HEAD:src/components/Office/ShipmentDisplay.jsx
-              <td>
-                {displayInfo.destinationAddress.street_address_1}, &nbsp;
-                {`${displayInfo.destinationAddress.city}, ${displayInfo.destinationAddress.state} ${displayInfo.destinationAddress.postal_code}`}
-              </td>
-=======
               <td>{formatAddress(displayInfo.destinationAddress)}</td>
->>>>>>> master:src/components/Office/ShipmentDisplay/ShipmentDisplay.jsx
               <td />
             </tr>
           </tbody>
