@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { get } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
@@ -34,8 +34,9 @@ export class Summary extends Component {
   }
   componentDidUpdate(prevProps) {
     const { selectedMoveType } = this.props;
+    const hhgMove = isEmpty(prevProps.currentPPM) && isEmpty(this.props.currentPPM);
     // Only check entitlement for PPMs, not HHGs
-    if (prevProps.currentPPM !== this.props.currentPPM && selectedMoveType === SHIPMENT_OPTIONS.PPM) {
+    if (prevProps.currentPPM !== this.props.currentPPM && !hhgMove && selectedMoveType === SHIPMENT_OPTIONS.PPM) {
       this.props.onCheckEntitlement(this.props.match.params.moveId);
     }
   }

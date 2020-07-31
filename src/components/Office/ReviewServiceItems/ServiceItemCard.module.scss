@@ -23,6 +23,19 @@
     @include u-margin-y(1);
   }
 
+  .form {
+    max-width: none;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
+  .rejectionButtonGroup {
+    display: flex;
+    align-items: center;
+  }
+
+
   .cardHeader {
     text-transform: uppercase;
     @include u-margin-top(2);

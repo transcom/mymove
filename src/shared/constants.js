@@ -64,6 +64,20 @@ export const SERVICE_ITEM_STATUS = {
   REJECTED: 'REJECTED',
 };
 
+export const PAYMENT_REQUEST_STATUS = {
+  PENDING: 'PENDING',
+  REVIEWED: 'REVIEWED',
+  SENT_TO_GEX: 'SENT_TO_GEX',
+  RECEIVED_BY_GEX: 'RECEIVED_BY_GEX',
+  PAID: 'PAID',
+};
+
+export const PAYMENT_SERVICE_ITEM_STATUS = {
+  DENIED: 'DENIED',
+  REQUESTED: 'REQUESTED',
+  APPROVED: 'APPROVED',
+};
+
 export const SERVICE_ITEM_CODES = {
   CS: 'Counseling Services',
   MS: 'Shipment Mgmt. Services',
