@@ -8,9 +8,11 @@ import { CONUS_STATUS } from 'shared/constants';
 describe('ConusOrNot', () => {
   const minProps = {
     conusStatus: CONUS_STATUS.CONUS,
+    setLocation: () => {},
   };
   it('should render radio buttons', () => {
-    const wrapper = mount(<ConusOrNot conusStatus={minProps.conusStatus} />);
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    const wrapper = mount(<ConusOrNot {...minProps} />);
     expect(wrapper.find(Radio).length).toBe(2);
 
     // PPM button should be checked on page load

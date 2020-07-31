@@ -122,7 +122,7 @@ check_docker_size: ## Check the amount of disk space used by docker
 	scripts/check-docker-size
 
 .PHONY: deps
-deps: prereqs ensure_pre_commit client_deps redis_pull bin/rds-ca-2019-root.pem /bin/rds-ca-us-gov-west-1-2017-root.pem ## Run all checks and install all depdendencies
+deps: prereqs ensure_pre_commit client_deps redis_pull bin/rds-ca-2019-root.pem ## Run all checks and install all depdendencies
 
 .PHONY: test
 test: client_test server_test e2e_test ## Run all tests
@@ -213,10 +213,6 @@ bin/mockery: .check_go_version.stamp .check_gopath.stamp
 bin/rds-ca-2019-root.pem:
 	mkdir -p bin/
 	curl -sSo bin/rds-ca-2019-root.pem https://s3.amazonaws.com/rds-downloads/rds-ca-2019-root.pem
-
-bin/rds-ca-us-gov-west-1-2017-root.pem:
-	mkdir -p bin/
-	curl -sSo bin/rds-ca-us-gov-west-1-2017-root.pem https://s3.us-gov-west-1.amazonaws.com/rds-downloads/rds-ca-us-gov-west-1-2017-root.pem
 
 ### MilMove Targets
 
@@ -341,7 +337,6 @@ server_run_debug: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp
 build_tools: bin/gin \
 	bin/mockery \
 	bin/rds-ca-2019-root.pem \
-	bin/rds-ca-us-gov-west-1-2017-root.pem \
 	bin/big-cat \
 	bin/compare-secure-migrations \
 	bin/generate-deploy-notes \
@@ -370,10 +365,7 @@ build: server_build build_tools client_build ## Build the server, tools, and cli
 # acceptance_test runs a few acceptance tests against a local or remote environment.
 # This can help identify potential errors before deploying a container.
 .PHONY: acceptance_test
-
-## Run acceptance tests
-acceptance_test: bin/rds-ca-2019-root.pem \
-	bin/rds-ca-us-gov-west-1-2017-root.pem
+acceptance_test: bin/rds-ca-2019-root.pem ## Run acceptance tests
 ifndef TEST_ACC_ENV
 	@echo "Running acceptance tests for webserver using local environment."
 	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
@@ -783,6 +775,24 @@ tasks_save_fuel_price_data: tasks_build_linux_docker ## Run save-fuel-price-data
 		--rm \
 		$(TASKS_DOCKER_CONTAINER):latest \
 		milmove-tasks save-fuel-price-data
+
+.PHONY: tasks_save_ghc_fuel_price_data
+tasks_save_ghc_fuel_price_data: tasks_build_linux_docker ## Run save-ghc-fuel-price-data from inside docker container
+	@echo "Saving the fuel price data to the ${DB_NAME_DEV} database with docker command..."
+	DB_NAME=$(DB_NAME_DEV) DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_DEV) scripts/wait-for-db-docker
+	docker run \
+		-t \
+		-e DB_HOST="database" \
+		-e DB_NAME \
+		-e DB_PORT \
+		-e DB_USER \
+		-e DB_PASSWORD \
+		-e EIA_KEY \
+		-e EIA_URL \
+		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
+		--rm \
+		$(TASKS_DOCKER_CONTAINER):latest \
+		milmove-tasks save-ghc-fuel-price-data
 
 tasks_send_post_move_survey: tasks_build_linux_docker ## Run send-post-move-survey from inside docker container
 	@echo "sending post move survey with docker command..."
