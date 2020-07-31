@@ -64,9 +64,12 @@ const PaymentRequestReview = ({ updatePaymentRequest, history, match }) => {
 
   // TODO - util fn
   // TODO - normalize changes?
-  const paymentServiceItemsArr = Object.keys(paymentServiceItems).map((i) => paymentServiceItems[parseInt(i, 10)]);
-  const mtoServiceItemsArr = Object.keys(mtoServiceItems).map((i) => mtoServiceItems[parseInt(i, 10)]);
-  const mtoShipmentsArr = Object.keys(mtoShipments).map((i) => mtoShipments[parseInt(i, 10)]);
+  // eslint-disable-next-line security/detect-object-injection
+  const paymentServiceItemsArr = Object.keys(paymentServiceItems).map((i) => paymentServiceItems[i]);
+  // eslint-disable-next-line security/detect-object-injection
+  const mtoServiceItemsArr = Object.keys(mtoServiceItems).map((i) => mtoServiceItems[i]);
+  // eslint-disable-next-line security/detect-object-injection
+  const mtoShipmentsArr = Object.keys(mtoShipments).map((i) => mtoShipments[i]);
 
   const handleUpdatePaymentServiceItemStatus = (paymentServiceItemID, values) => {
     const paymentServiceItemForRequest = paymentServiceItemsArr.find((s) => s.id === paymentServiceItemID);
@@ -149,7 +152,6 @@ const PaymentRequestReview = ({ updatePaymentRequest, history, match }) => {
 };
 
 PaymentRequestReview.propTypes = {
-  moveOrderId: PropTypes.string.isRequired,
   history: HistoryShape.isRequired,
   match: MatchShape.isRequired,
   updatePaymentRequest: PropTypes.func.isRequired,
