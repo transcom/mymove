@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Form } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
@@ -13,9 +13,10 @@ import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
 import ServiceItemCard from 'components/Office/ReviewServiceItems/ServiceItemCard';
 import { toDollarString } from 'shared/formatters';
 
-const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
+const ReviewServiceItems = ({ header, serviceItemCards, handleClose, disableScrollIntoView }) => {
   const [curCardIndex, setCardIndex] = useState(0);
-  const [sortedCards] = useState(sortServiceItemsByGroup(serviceItemCards));
+  const sortedCards = sortServiceItemsByGroup(serviceItemCards);
+
   const totalCards = serviceItemCards.length;
 
   const { APPROVED, REJECTED } = SERVICE_ITEM_STATUS;
@@ -42,17 +43,47 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
 
   //  let requestedSum = 0; // TODO - use in Complete review screen
   const formValues = {};
+
+  let firstBasicIndex = null;
+  let lastBasicIndex = null;
   // TODO - preset these based on existing values
-  serviceItemCards.forEach((serviceItem) => {
+  sortedCards.forEach((serviceItem, index) => {
     formValues[serviceItem.id] = {
       status: serviceItem.status,
       rejectionReason: serviceItem.rejectionReason,
     };
 
+    // here we want to set the first and last index
+    // of basic service items to know the bounds
+    if (!serviceItem.shipmentType) {
+      // no shipemntId, then it is a basic service items
+      if (firstBasicIndex === null) {
+        // if not set yet, set it the first time we see a basic
+        // service item
+        firstBasicIndex = index;
+      }
+      // keep setting the last basic index until the last one
+      lastBasicIndex = index;
+    }
+
     // requestedSum += serviceItem.amount; // TODO - use in Complete review screen
   });
 
   const currentCard = sortedCards[parseInt(curCardIndex, 10)];
+  const isBasicServiceItem =
+    firstBasicIndex !== null && curCardIndex >= firstBasicIndex && curCardIndex <= lastBasicIndex;
+
+  // Similar to componentDidMount and componentDidUpdate
+  useEffect(() => {
+    if (currentCard) {
+      const { id } = sortedCards[parseInt(curCardIndex, 10)];
+      const element = document.querySelector(`#card-${id}`);
+      // scroll into element view
+      if (element && !disableScrollIntoView) {
+        element.scrollIntoView();
+      }
+    }
+  });
 
   return (
     <div data-testid="ReviewServiceItems" className={styles.ReviewServiceItems}>
@@ -80,14 +111,30 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
                 <h2 className={styles.header}>{header}</h2>
               </div>
               <div className={styles.body}>
-                <ServiceItemCard
-                  key={`serviceItemCard_${currentCard.id}`}
-                  // eslint-disable-next-line react/jsx-props-no-spreading
-                  {...currentCard}
-                  value={values[currentCard.id]}
-                  onChange={handleChange}
-                  clearValues={clearServiceItemValues}
-                />
+                {currentCard &&
+                  // render multiple basic service item cards
+                  // otherwise, render only one card for shipment
+                  (isBasicServiceItem ? (
+                    sortedCards.slice(firstBasicIndex, lastBasicIndex + 1).map((curCard) => (
+                      <ServiceItemCard
+                        key={`serviceItemCard_${curCard.id}`}
+                        // eslint-disable-next-line react/jsx-props-no-spreading
+                        {...curCard}
+                        value={values[curCard.id]}
+                        onChange={handleChange}
+                        clearValues={clearServiceItemValues}
+                      />
+                    ))
+                  ) : (
+                    <ServiceItemCard
+                      key={`serviceItemCard_${currentCard.id}`}
+                      // eslint-disable-next-line react/jsx-props-no-spreading
+                      {...currentCard}
+                      value={values[currentCard.id]}
+                      onChange={handleChange}
+                      clearValues={clearServiceItemValues}
+                    />
+                  ))}
               </div>
               <div className={styles.bottom}>
                 <Button
@@ -124,12 +171,15 @@ const ReviewServiceItems = ({ header, serviceItemCards, handleClose }) => {
 
 ReviewServiceItems.propTypes = {
   header: PropTypes.string,
-  serviceItemCards: ServiceItemCardsShape.isRequired,
+  serviceItemCards: ServiceItemCardsShape,
   handleClose: PropTypes.func.isRequired,
+  disableScrollIntoView: PropTypes.bool,
 };
 
 ReviewServiceItems.defaultProps = {
   header: 'Review service items',
+  serviceItemCards: [],
+  disableScrollIntoView: false,
 };
 
 export default ReviewServiceItems;

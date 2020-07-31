@@ -115,7 +115,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 	return paymentrequestop.NewCreatePaymentRequestCreated().WithPayload(returnPayload)
 }
 
-func (h CreatePaymentRequestHandler) buildPaymentServiceItems(payload *primemessages.CreatePaymentRequestPayload) (models.PaymentServiceItems, *validate.Errors, error) {
+func (h CreatePaymentRequestHandler) buildPaymentServiceItems(payload *primemessages.CreatePaymentRequest) (models.PaymentServiceItems, *validate.Errors, error) {
 
 	var paymentServiceItems models.PaymentServiceItems
 	verrs := validate.NewErrors()

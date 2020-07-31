@@ -157,11 +157,29 @@ function customerSetsUpAnHHGMove() {
   });
 }
 
+function customerReviewsMoveDetails() {
+  cy.get('h2').contains('Review Move Details');
+  cy.nextPage();
+}
+
+function customerSubmitsMove() {
+  cy.get('h2').contains('Now for the official part...');
+  cy.get('input[name="signature"]').type('Signature');
+  cy.get('button').contains('Complete').click();
+  cy.get('.usa-alert--success').within(() => {
+    cy.contains('Congrats - your move is submitted!');
+    cy.contains('Next, wait for approval. Once approved:');
+    cy.get('a').contains('PPM info sheet').should('have.attr', 'href').and('include', '/downloads/ppm_info_sheet.pdf');
+  });
+}
+
 describe('HHG Setup flow', function () {
   it('Creates a shipment', function () {
     cy.signInAsNewMilMoveUser();
     customerFillsInProfileInformation();
     customerFillsOutOrdersInformation();
     customerSetsUpAnHHGMove();
+    customerReviewsMoveDetails();
+    customerSubmitsMove();
   });
 });

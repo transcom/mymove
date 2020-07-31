@@ -21,6 +21,7 @@ type PaymentRequest struct {
 	DocumentPackage *ProofOfServicePackage `json:"documentPackage,omitempty"`
 
 	// e tag
+	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// id

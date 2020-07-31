@@ -245,7 +245,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/CreateShipmentPayload"
+              "$ref": "#/definitions/CreateMTOShipment"
             }
           }
         ],
@@ -360,7 +360,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/CreatePaymentRequestPayload"
+              "$ref": "#/definitions/CreatePaymentRequest"
             }
           }
         ],
@@ -644,36 +644,7 @@ func init() {
         }
       }
     },
-    "CreatePaymentRequestPayload": {
-      "type": "object",
-      "required": [
-        "moveTaskOrderID",
-        "serviceItems"
-      ],
-      "properties": {
-        "isFinal": {
-          "type": "boolean",
-          "default": false
-        },
-        "moveTaskOrderID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "pointOfContact": {
-          "description": "Email or id of a contact person for this update.",
-          "type": "string"
-        },
-        "serviceItems": {
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "$ref": "#/definitions/ServiceItem"
-          }
-        }
-      }
-    },
-    "CreateShipmentPayload": {
+    "CreateMTOShipment": {
       "type": "object",
       "required": [
         "moveTaskOrderID",
@@ -720,6 +691,35 @@ func init() {
         }
       }
     },
+    "CreatePaymentRequest": {
+      "type": "object",
+      "required": [
+        "moveTaskOrderID",
+        "serviceItems"
+      ],
+      "properties": {
+        "isFinal": {
+          "type": "boolean",
+          "default": false
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "pointOfContact": {
+          "description": "Email or id of a contact person for this update.",
+          "type": "string"
+        },
+        "serviceItems": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/ServiceItem"
+          }
+        }
+      }
+    },
     "Customer": {
       "type": "object",
       "properties": {
@@ -734,7 +734,8 @@ func init() {
           "type": "string"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -794,7 +795,8 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -822,7 +824,8 @@ func init() {
           "example": true
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -1022,6 +1025,7 @@ func init() {
         {
           "type": "object",
           "required": [
+            "reServiceCode",
             "timeMilitary1",
             "firstAvailableDeliveryDate1",
             "timeMilitary2",
@@ -1073,6 +1077,7 @@ func init() {
         {
           "type": "object",
           "required": [
+            "reServiceCode",
             "reason",
             "pickupPostalCode"
           ],
@@ -1228,7 +1233,8 @@ func init() {
         "SUBMITTED",
         "APPROVED",
         "REJECTED"
-      ]
+      ],
+      "readOnly": true
     },
     "MTOShipment": {
       "properties": {
@@ -1396,7 +1402,8 @@ func init() {
           "$ref": "#/definitions/DutyStation"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "entitlement": {
           "$ref": "#/definitions/Entitlements"
@@ -1436,14 +1443,17 @@ func init() {
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
-          "x-nullable": true
+          "x-nullable": true,
+          "readOnly": true
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -1490,7 +1500,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -1504,7 +1515,8 @@ func init() {
       "type": "object",
       "properties": {
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -1563,7 +1575,8 @@ func init() {
       "type": "object",
       "properties": {
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -1604,7 +1617,8 @@ func init() {
       "type": "object",
       "properties": {
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -1726,7 +1740,8 @@ func init() {
       "type": "object",
       "properties": {
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -1829,7 +1844,8 @@ func init() {
       "type": "object",
       "properties": {
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "rejectionReason": {
           "type": "string",
@@ -2226,7 +2242,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/CreateShipmentPayload"
+              "$ref": "#/definitions/CreateMTOShipment"
             }
           }
         ],
@@ -2374,7 +2390,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/CreatePaymentRequestPayload"
+              "$ref": "#/definitions/CreatePaymentRequest"
             }
           }
         ],
@@ -2688,36 +2704,7 @@ func init() {
         }
       }
     },
-    "CreatePaymentRequestPayload": {
-      "type": "object",
-      "required": [
-        "moveTaskOrderID",
-        "serviceItems"
-      ],
-      "properties": {
-        "isFinal": {
-          "type": "boolean",
-          "default": false
-        },
-        "moveTaskOrderID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "pointOfContact": {
-          "description": "Email or id of a contact person for this update.",
-          "type": "string"
-        },
-        "serviceItems": {
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "$ref": "#/definitions/ServiceItem"
-          }
-        }
-      }
-    },
-    "CreateShipmentPayload": {
+    "CreateMTOShipment": {
       "type": "object",
       "required": [
         "moveTaskOrderID",
@@ -2764,6 +2751,35 @@ func init() {
         }
       }
     },
+    "CreatePaymentRequest": {
+      "type": "object",
+      "required": [
+        "moveTaskOrderID",
+        "serviceItems"
+      ],
+      "properties": {
+        "isFinal": {
+          "type": "boolean",
+          "default": false
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "pointOfContact": {
+          "description": "Email or id of a contact person for this update.",
+          "type": "string"
+        },
+        "serviceItems": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/ServiceItem"
+          }
+        }
+      }
+    },
     "Customer": {
       "type": "object",
       "properties": {
@@ -2778,7 +2794,8 @@ func init() {
           "type": "string"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "email": {
           "type": "string",
@@ -2838,7 +2855,8 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -2866,7 +2884,8 @@ func init() {
           "example": true
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -3066,6 +3085,7 @@ func init() {
         {
           "type": "object",
           "required": [
+            "reServiceCode",
             "timeMilitary1",
             "firstAvailableDeliveryDate1",
             "timeMilitary2",
@@ -3117,6 +3137,7 @@ func init() {
         {
           "type": "object",
           "required": [
+            "reServiceCode",
             "reason",
             "pickupPostalCode"
           ],
@@ -3272,7 +3293,8 @@ func init() {
         "SUBMITTED",
         "APPROVED",
         "REJECTED"
-      ]
+      ],
+      "readOnly": true
     },
     "MTOShipment": {
       "properties": {
@@ -3440,7 +3462,8 @@ func init() {
           "$ref": "#/definitions/DutyStation"
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "entitlement": {
           "$ref": "#/definitions/Entitlements"
@@ -3480,14 +3503,17 @@ func init() {
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
-          "x-nullable": true
+          "x-nullable": true,
+          "readOnly": true
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -3534,7 +3560,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -3548,7 +3575,8 @@ func init() {
       "type": "object",
       "properties": {
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -3607,7 +3635,8 @@ func init() {
       "type": "object",
       "properties": {
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -3648,7 +3677,8 @@ func init() {
       "type": "object",
       "properties": {
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -3770,7 +3800,8 @@ func init() {
       "type": "object",
       "properties": {
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "id": {
           "type": "string",
@@ -3873,7 +3904,8 @@ func init() {
       "type": "object",
       "properties": {
         "eTag": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "rejectionReason": {
           "type": "string",

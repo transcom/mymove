@@ -864,14 +864,14 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		UserUploader: userUploader,
 	})
 
-	customer := testdatagen.MakeCustomer(db, testdatagen.Assertions{
-		Customer: models.ServiceMember{
+	customer := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
 			ID: uuid.FromStringOrNil("6ac40a00-e762-4f5f-b08d-3ea72a8e4b63"),
 		},
 	})
 	moveOrders := testdatagen.MakeMoveOrder(db, testdatagen.Assertions{
-		MoveOrder: models.Order{ID: uuid.FromStringOrNil("6fca843a-a87e-4752-b454-0fac67aa4988")},
-		Customer:  customer,
+		MoveOrder:     models.Order{ID: uuid.FromStringOrNil("6fca843a-a87e-4752-b454-0fac67aa4988")},
+		ServiceMember: customer,
 	})
 	mto := testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
 		MoveTaskOrder: models.MoveTaskOrder{
@@ -881,14 +881,14 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 
-	customer2 := testdatagen.MakeCustomer(db, testdatagen.Assertions{
-		Customer: models.ServiceMember{
+	customer2 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
 			ID: uuid.FromStringOrNil("a5cc1277-37dd-4588-a982-df3c9fa7fc20"),
 		},
 	})
 	moveOrders2 := testdatagen.MakeMoveOrder(db, testdatagen.Assertions{
-		MoveOrder: models.Order{ID: uuid.FromStringOrNil("42f9cd3b-d630-4762-9762-542e9a3a67e4")},
-		Customer:  customer2,
+		MoveOrder:     models.Order{ID: uuid.FromStringOrNil("42f9cd3b-d630-4762-9762-542e9a3a67e4")},
+		ServiceMember: customer2,
 	})
 
 	testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
@@ -898,14 +898,14 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 
-	customer3 := testdatagen.MakeCustomer(db, testdatagen.Assertions{
-		Customer: models.ServiceMember{
+	customer3 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
 			ID: uuid.FromStringOrNil("08606458-cee9-4529-a2e6-9121e67dac72"),
 		},
 	})
 	moveOrders3 := testdatagen.MakeMoveOrder(db, testdatagen.Assertions{
-		MoveOrder: models.Order{ID: uuid.FromStringOrNil("eb6b0c75-3972-4a09-a453-3a7b257aa7f7")},
-		Customer:  customer3,
+		MoveOrder:     models.Order{ID: uuid.FromStringOrNil("eb6b0c75-3972-4a09-a453-3a7b257aa7f7")},
+		ServiceMember: customer3,
 	})
 
 	testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
@@ -915,14 +915,14 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 
-	customer4 := testdatagen.MakeCustomer(db, testdatagen.Assertions{
-		Customer: models.ServiceMember{
+	customer4 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
 			ID: uuid.FromStringOrNil("1a13ee6b-3e21-4170-83bc-0d41f60edb99"),
 		},
 	})
 	moveOrders4 := testdatagen.MakeMoveOrder(db, testdatagen.Assertions{
-		MoveOrder: models.Order{ID: uuid.FromStringOrNil("8779beda-f69a-43bf-8606-ebd22973d474")},
-		Customer:  customer4,
+		MoveOrder:     models.Order{ID: uuid.FromStringOrNil("8779beda-f69a-43bf-8606-ebd22973d474")},
+		ServiceMember: customer4,
 	})
 
 	testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
@@ -932,14 +932,14 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 
-	customer5 := testdatagen.MakeCustomer(db, testdatagen.Assertions{
-		Customer: models.ServiceMember{
+	customer5 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
 			ID: uuid.FromStringOrNil("25a90fef-301e-4682-9758-60f0c76ea8b4"),
 		},
 	})
 	moveOrders5 := testdatagen.MakeMoveOrder(db, testdatagen.Assertions{
-		MoveOrder: models.Order{ID: uuid.FromStringOrNil("f2473488-2504-4872-a6b6-dd385dad4bf9")},
-		Customer:  customer5,
+		MoveOrder:     models.Order{ID: uuid.FromStringOrNil("f2473488-2504-4872-a6b6-dd385dad4bf9")},
+		ServiceMember: customer5,
 	})
 
 	testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
@@ -1143,15 +1143,15 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 
 	/* Customer with two payment requests */
-	customer7 := testdatagen.MakeCustomer(db, testdatagen.Assertions{
-		Customer: models.ServiceMember{
+	customer7 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
 			ID: uuid.FromStringOrNil("4e6e4023-b089-4614-a65a-cac48027ffc2"),
 		},
 	})
 
 	moveOrders7 := testdatagen.MakeMoveOrder(db, testdatagen.Assertions{
-		MoveOrder: models.Order{ID: uuid.FromStringOrNil("f52f851e-91b8-4cb7-9f8a-6b0b8477ae2a")},
-		Customer:  customer7,
+		MoveOrder:     models.Order{ID: uuid.FromStringOrNil("f52f851e-91b8-4cb7-9f8a-6b0b8477ae2a")},
+		ServiceMember: customer7,
 	})
 
 	mto7 := testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
@@ -1370,14 +1370,14 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 
 	// A more recent MTO for demonstrating the since parameter
-	customer6 := testdatagen.MakeCustomer(db, testdatagen.Assertions{
-		Customer: models.ServiceMember{
+	customer6 := testdatagen.MakeServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
 			ID: uuid.FromStringOrNil("6ac40a00-e762-4f5f-b08d-3ea72a8e4b61"),
 		},
 	})
 	moveOrders6 := testdatagen.MakeMoveOrder(db, testdatagen.Assertions{
-		MoveOrder: models.Order{ID: uuid.FromStringOrNil("6fca843a-a87e-4752-b454-0fac67aa4981")},
-		Customer:  customer6,
+		MoveOrder:     models.Order{ID: uuid.FromStringOrNil("6fca843a-a87e-4752-b454-0fac67aa4981")},
+		ServiceMember: customer6,
 	})
 	mto2 := testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
 		MoveTaskOrder: models.MoveTaskOrder{

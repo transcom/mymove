@@ -44,8 +44,9 @@ type MTOServiceItemDDFSIT struct {
 	FirstAvailableDeliveryDate2 *strfmt.Date `json:"firstAvailableDeliveryDate2"`
 
 	// Service code allowed for this model type.
+	// Required: true
 	// Enum: [DDFSIT]
-	ReServiceCode string `json:"reServiceCode,omitempty"`
+	ReServiceCode *string `json:"reServiceCode"`
 
 	// Time of delivery corresponding to `firstAvailableDeliveryDate1`.
 	// Required: true
@@ -166,8 +167,9 @@ func (m *MTOServiceItemDDFSIT) UnmarshalJSON(raw []byte) error {
 		FirstAvailableDeliveryDate2 *strfmt.Date `json:"firstAvailableDeliveryDate2"`
 
 		// Service code allowed for this model type.
+		// Required: true
 		// Enum: [DDFSIT]
-		ReServiceCode string `json:"reServiceCode,omitempty"`
+		ReServiceCode *string `json:"reServiceCode"`
 
 		// Time of delivery corresponding to `firstAvailableDeliveryDate1`.
 		// Required: true
@@ -270,8 +272,9 @@ func (m MTOServiceItemDDFSIT) MarshalJSON() ([]byte, error) {
 		FirstAvailableDeliveryDate2 *strfmt.Date `json:"firstAvailableDeliveryDate2"`
 
 		// Service code allowed for this model type.
+		// Required: true
 		// Enum: [DDFSIT]
-		ReServiceCode string `json:"reServiceCode,omitempty"`
+		ReServiceCode *string `json:"reServiceCode"`
 
 		// Time of delivery corresponding to `firstAvailableDeliveryDate1`.
 		// Required: true
@@ -496,12 +499,12 @@ func (m *MTOServiceItemDDFSIT) validateReServiceCodeEnum(path, location string, 
 
 func (m *MTOServiceItemDDFSIT) validateReServiceCode(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.ReServiceCode) { // not required
-		return nil
+	if err := validate.Required("reServiceCode", "body", m.ReServiceCode); err != nil {
+		return err
 	}
 
 	// value enum
-	if err := m.validateReServiceCodeEnum("reServiceCode", "body", m.ReServiceCode); err != nil {
+	if err := m.validateReServiceCodeEnum("reServiceCode", "body", *m.ReServiceCode); err != nil {
 		return err
 	}
 

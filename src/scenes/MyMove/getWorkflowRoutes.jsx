@@ -194,18 +194,17 @@ const pages = {
     },
   },
   '/moves/:moveId/select-type': {
+    // TODO: prevent user from hard-coding URL if they have a PPM or HHG existent?
     isInFlow: inHhgFlow,
-    isComplete: always,
-    render: (key, pages) => () => {
-      return (
-        <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
-          <SelectMoveType />
-        </WizardPage>
-      );
-    },
+    isComplete: ({ sm, orders, move }) => get(move, 'selected_move_type', null),
+    render: (key, pages, props) => ({ match, history }) => (
+      <SelectMoveType pageList={pages} pageKey={key} match={match} push={history.push} />
+    ),
   },
   '/moves/:moveId/ppm-start': {
-    isInFlow: (state) => state.selectedMoveType === SHIPMENT_OPTIONS.PPM,
+    isInFlow: (state) => {
+      return state.selectedMoveType === SHIPMENT_OPTIONS.PPM;
+    },
     isComplete: ({ sm, orders, move, ppm }) => {
       return ppm && every([ppm.original_move_date, ppm.pickup_postal_code, ppm.destination_postal_code]);
     },
@@ -219,8 +218,9 @@ const pages = {
   },
   '/moves/:moveId/hhg-start': {
     isInFlow: (state) => inHhgFlow && state.selectedMoveType === SHIPMENT_OPTIONS.HHG,
-    // isInFlow: inHhgFlow, // temp: use this to view page locally until we can set selectedMoveType
-    isComplete: always,
+    isComplete: ({ sm, orders, move, ppm, mtoShipment }) => {
+      return mtoShipment && every([mtoShipment.requestedPickupDate, mtoShipment.requestedDeliveryDate]);
+    },
     render: (key, pages, description, props) => ({ match, history }) => (
       <HHGMoveSetup pageList={pages} pageKey={key} match={match} push={history.push} />
     ),
@@ -255,6 +255,7 @@ export const getNextIncompletePage = ({
   uploads = [],
   move = {},
   ppm = {},
+  mtoShipment = {},
   backupContacts = [],
   context = {},
 }) => {
@@ -262,7 +263,7 @@ export const getNextIncompletePage = ({
     pages,
     (p) =>
       p.isInFlow({ selectedMoveType, conusStatus, lastMoveIsCanceled, context }) &&
-      !p.isComplete({ sm: serviceMember, orders, uploads, move, ppm, backupContacts }),
+      !p.isComplete({ sm: serviceMember, orders, uploads, move, ppm, mtoShipment, backupContacts }),
   );
   const compiledPath = generatePath(rawPath, {
     serviceMemberId: get(serviceMember, 'id'),

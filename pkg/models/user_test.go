@@ -198,9 +198,7 @@ func (suite *ModelSuite) TestFetchAppUserIdentities() {
 		}
 
 		// Service member is super user
-		testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{
-			User: User{},
-		})
+		testdatagen.MakeDefaultServiceMember(suite.DB())
 		identities, err = FetchAppUserIdentities(suite.DB(), auth.MilApp, 5)
 		suite.NoError(err)
 		suite.NotEmpty(identities)

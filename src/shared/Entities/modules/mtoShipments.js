@@ -43,6 +43,13 @@ export function selectMTOShipments(state, moveOrderId) {
   return filter(state.entities.mtoShipments, (item) => moveTaskOrders.find((mto) => mto.id === item.moveTaskOrderID));
 }
 
-export function selectMTOShiomentsByMTOId(state, moveTaskOrderId) {
+export function selectMTOShipmentsByMTOId(state, moveTaskOrderId) {
   return filter(state.entities.mtoShipments, (mtoShipment) => mtoShipment.moveTaskOrderID === moveTaskOrderId);
+}
+
+export function selectMTOShipmentForMTO(state, moveTaskOrderId) {
+  const mtoShipment = Object.values(state.entities.mtoShipments).find(
+    (mtoShipment) => mtoShipment.move_task_order_id === moveTaskOrderId,
+  );
+  return mtoShipment || {};
 }

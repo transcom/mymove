@@ -54,7 +54,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 	params := mtoshipmentops.CreateMTOShipmentParams{
 		HTTPRequest: req,
-		Body: &primemessages.CreateShipmentPayload{
+		Body: &primemessages.CreateMTOShipment{
 			MoveTaskOrderID: handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
 			Agents:          nil,
 			CustomerRemarks: nil,
@@ -118,10 +118,37 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		errResponse := response.(*mtoshipmentops.CreateMTOShipmentInternalServerError)
 		suite.Equal(handlers.InternalServerErrMessage, *errResponse.Payload.Title, "Payload title is wrong")
-
 	})
 
-	suite.T().Run("POST failure - 400 - invalid input, missing pickup address", func(t *testing.T) {
+	suite.T().Run("POST failure - 422 -- Bad agent IDs set on shipment", func(t *testing.T) {
+		fetcher := fetch.NewFetcher(builder)
+		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
+
+		handler := CreateMTOShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+			mtoChecker,
+		}
+
+		badID := params.Body.MoveTaskOrderID
+		agent := &primemessages.MTOAgent{
+			ID:            *badID,
+			MtoShipmentID: *badID,
+			FirstName:     handlers.FmtString("Mary"),
+		}
+
+		paramsBadIDs := params
+		paramsBadIDs.Body.Agents = primemessages.MTOAgents{agent}
+
+		response := handler.Handle(paramsBadIDs)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
+		typedResponse := response.(*mtoshipmentops.CreateMTOShipmentUnprocessableEntity)
+		suite.NotEmpty(typedResponse.Payload.InvalidFields)
+		suite.Contains(typedResponse.Payload.InvalidFields, "agents:id")
+		suite.Contains(typedResponse.Payload.InvalidFields, "agents:mtoShipmentID")
+	})
+
+	suite.T().Run("POST failure - 422 - invalid input, missing pickup address", func(t *testing.T) {
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
 

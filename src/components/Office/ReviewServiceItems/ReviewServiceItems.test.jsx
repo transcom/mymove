@@ -42,6 +42,17 @@ const serviceItemCards = [
     amount: 1000,
     createdAt: '2020-01-01T00:02:00.999Z',
   },
+];
+
+const basicServiceItemCards = [
+  {
+    id: '4',
+    shipmentType: null,
+    shipmentId: null,
+    serviceItemName: 'Counseling Services',
+    amount: 1000,
+    createdAt: '2020-01-01T00:02:00.999Z',
+  },
   {
     id: '5',
     shipmentType: null,
@@ -68,6 +79,11 @@ describe('ReviewServiceItems component', () => {
     expect(shallowComponent.find('[data-testid="ReviewServiceItems"]').length).toBe(1);
   });
 
+  it('doesn’t crash if there are no cards', () => {
+    const componentWithNoCards = shallow(<ReviewServiceItems handleClose={handleClose} />);
+    expect(componentWithNoCards.exists()).toBe(true);
+  });
+
   it('renders a Formik form', () => {
     expect(shallowComponent.find('Formik').length).toBe(1);
   });
@@ -81,7 +97,7 @@ describe('ReviewServiceItems component', () => {
   });
 
   it('displays the total count', () => {
-    expect(mountedComponent.find('[data-testid="itemCount"]').text()).toEqual('1 OF 5 ITEMS');
+    expect(mountedComponent.find('[data-testid="itemCount"]').text()).toEqual('1 OF 4 ITEMS');
   });
 
   it('disables previous button at beginning', () => {
@@ -96,16 +112,18 @@ describe('ReviewServiceItems component', () => {
     expect(mountedComponent.find('[data-testid="approvedAmount"]').text()).toEqual('$0.00');
   });
 
+  it('renders two basic service item cards', () => {
+    const basicWrapper = mount(
+      <ReviewServiceItems serviceItemCards={basicServiceItemCards} handleClose={handleClose} />,
+    );
+    expect(basicWrapper.find('ServiceItemCard').length).toBe(2);
+  });
+
   describe('navigating through service items', () => {
     const nextButton = mountedComponent.find('[data-testid="nextServiceItem"]');
     const prevButton = mountedComponent.find('[data-testid="prevServiceItem"]');
 
     it('renders the service item cards ordered by timestamp ascending', () => {
-      compareItem(mountedComponent, serviceItemCards[4]);
-
-      nextButton.simulate('click');
-      mountedComponent.update();
-
       compareItem(mountedComponent, serviceItemCards[3]);
 
       nextButton.simulate('click');
@@ -143,11 +161,6 @@ describe('ReviewServiceItems component', () => {
       mountedComponent.update();
 
       compareItem(mountedComponent, serviceItemCards[3]);
-
-      prevButton.simulate('click');
-      mountedComponent.update();
-
-      compareItem(mountedComponent, serviceItemCards[4]);
     });
   });
 
@@ -161,7 +174,7 @@ describe('ReviewServiceItems component', () => {
     });
 
     it('can approve an item', async () => {
-      const serviceItemId = serviceItemCards[4].id;
+      const serviceItemId = serviceItemCards[3].id;
       const approveInput = mountedComponent.find(`input[name="${serviceItemId}.status"][value="APPROVED"]`);
       expect(approveInput.length).toBe(1);
 
@@ -177,7 +190,7 @@ describe('ReviewServiceItems component', () => {
       nextButton.simulate('click');
       mountedComponent.update();
 
-      const serviceItemId = serviceItemCards[3].id;
+      const serviceItemId = serviceItemCards[0].id;
       const rejectInput = mountedComponent.find(`input[name="${serviceItemId}.status"][value="REJECTED"]`);
       expect(rejectInput.length).toBe(1);
 
@@ -190,7 +203,7 @@ describe('ReviewServiceItems component', () => {
     });
 
     it('can enter a reason for rejecting an item', async () => {
-      const serviceItemId = serviceItemCards[3].id;
+      const serviceItemId = serviceItemCards[0].id;
       const rejectReasonInput = mountedComponent.find(`textarea[name="${serviceItemId}.rejectionReason"]`);
       expect(rejectReasonInput.length).toBe(1);
 
@@ -313,7 +326,7 @@ describe('ReviewServiceItems component', () => {
       nextButton.simulate('click');
       mountedComponent.update();
 
-      const clearSelectionButton = componentWithInitialValues.find('[data-testid="clearStatusButton"]');
+      const clearSelectionButton = componentWithInitialValues.find('[data-testid="clearStatusButton"]').at(1);
 
       await act(async () => {
         clearSelectionButton.simulate('click');
