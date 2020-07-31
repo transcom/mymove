@@ -1,65 +1,89 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
+import { useQuery, useMutation, queryCache } from 'react-query';
 
-import { MTOServiceItemShape, MTOShipmentShape, PaymentRequestShape, PaymentServiceItemShape } from 'types/index';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { MatchShape, HistoryShape } from 'types/router';
 import samplePDF from 'components/DocumentViewer/sample.pdf';
 import styles from 'pages/TIO/PaymentRequestReview.module.scss';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import ReviewServiceItems from 'components/Office/ReviewServiceItems/ReviewServiceItems';
-import {
-  getPaymentRequest as getPaymentRequestAction,
-  updatePaymentRequest as updatePaymentRequestAction,
-} from 'shared/Entities/modules/paymentRequests';
-import {
-  getMTOShipments as getMTOShipmentsAction,
-  selectMTOShipmentsByMTOId,
-} from 'shared/Entities/modules/mtoShipments';
-import {
-  getMTOServiceItems as getMTOServiceItemsAction,
-  selectMTOServiceItemsByMTOId,
-} from 'shared/Entities/modules/mtoServiceItems';
-import { patchPaymentServiceItemStatus as patchPaymentServiceItemStatusAction } from 'shared/Entities/modules/paymentServiceItems';
+import { updatePaymentRequest as updatePaymentRequestAction } from 'shared/Entities/modules/paymentRequests';
 import { PAYMENT_REQUEST_STATUS } from 'shared/constants';
+import { getPaymentRequest, getMTOShipments, getMTOServiceItems, patchPaymentServiceItemStatus } from 'services/ghcApi';
 
-export class PaymentRequestReview extends Component {
-  constructor(props) {
-    super(props);
+const PaymentRequestReview = ({ updatePaymentRequest, history, match }) => {
+  const [completeReviewError, setCompleteReviewError] = useState(undefined);
+  const { paymentRequestId, moveOrderId } = match.params;
 
-    this.state = {
-      completeReviewError: undefined,
-    };
-  }
+  const { data: { paymentRequests, paymentServiceItems } = {}, ...paymentRequestQuery } = useQuery(
+    ['paymentRequest', paymentRequestId],
+    getPaymentRequest,
+    {
+      retry: false,
+    },
+  );
 
-  componentDidMount() {
-    const { match, getPaymentRequest, getMTOServiceItems, getMTOShipments } = this.props;
-    const { paymentRequestId } = match.params;
-    getPaymentRequest(paymentRequestId).then(({ entities: { paymentRequests } }) => {
-      const pr = paymentRequests[`${paymentRequestId}`];
-      getMTOShipments(pr.moveTaskOrderID);
-      getMTOServiceItems(pr.moveTaskOrderID);
-    });
-  }
+  const paymentRequest = paymentRequests && paymentRequests[`${paymentRequestId}`];
+  const mtoID = paymentRequest?.moveTaskOrderID;
 
-  handleUpdatePaymentServiceItemStatus = (paymentServiceItemID, values) => {
-    const { patchPaymentServiceItemStatus, mtoServiceItems, paymentServiceItems } = this.props;
-    const paymentServiceItemForRequest = paymentServiceItems.find((s) => s.id === paymentServiceItemID);
-    patchPaymentServiceItemStatus(
-      mtoServiceItems[0].moveTaskOrderID,
+  const { data: { mtoShipments = [] } = {}, ...mtoShipmentQuery } = useQuery(['mtoShipment', mtoID], getMTOShipments, {
+    enabled: !!mtoID,
+  });
+
+  const { data: { mtoServiceItems = [] } = {}, ...mtoServiceItemQuery } = useQuery(
+    ['mtoServiceItem', mtoID],
+    getMTOServiceItems,
+    {
+      enabled: !!mtoID,
+    },
+  );
+
+  const [mutatePaymentServiceItemStatus] = useMutation(patchPaymentServiceItemStatus, {
+    onSuccess: (data, variables) => {
+      const newPaymentServiceItem = data.paymentServiceItems[variables.paymentServiceItemID];
+      queryCache.setQueryData(['paymentRequest', paymentRequestId], {
+        paymentRequests,
+        paymentServiceItems: {
+          ...paymentServiceItems,
+          [`${variables.paymentServiceItemID}`]: newPaymentServiceItem,
+        },
+      });
+    },
+  });
+
+  const isLoading = paymentRequestQuery.isLoading || mtoShipmentQuery.isLoading || mtoServiceItemQuery.isLoading;
+  const isError = paymentRequestQuery.isError || mtoShipmentQuery.isError || mtoServiceItemQuery.isError;
+  const error = paymentRequestQuery.error || mtoShipmentQuery.error || mtoServiceItemQuery.error;
+
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong error={error} />;
+
+  // TODO - util fn
+  // TODO - normalize changes?
+  const paymentServiceItemsArr = Object.keys(paymentServiceItems).map((i) => paymentServiceItems[parseInt(i, 10)]);
+  const mtoServiceItemsArr = Object.keys(mtoServiceItems).map((i) => mtoServiceItems[parseInt(i, 10)]);
+  const mtoShipmentsArr = Object.keys(mtoShipments).map((i) => mtoShipments[parseInt(i, 10)]);
+
+  const handleUpdatePaymentServiceItemStatus = (paymentServiceItemID, values) => {
+    const paymentServiceItemForRequest = paymentServiceItemsArr.find((s) => s.id === paymentServiceItemID);
+
+    mutatePaymentServiceItemStatus({
+      moveTaskOrderID: mtoServiceItemsArr[0].moveTaskOrderID,
       paymentServiceItemID,
-      values.status,
-      paymentServiceItemForRequest.eTag,
-      values.rejectionReason,
-    );
+      status: values.status,
+      ifMatchEtag: paymentServiceItemForRequest.eTag,
+      rejectionReason: values.rejectionReason,
+    });
   };
 
-  handleCompleteReview = () => {
-    const { updatePaymentRequest, paymentRequest, history } = this.props;
-    const { completeReviewError } = this.state;
+  const handleCompleteReview = () => {
+    // TODO - rewrite with mutation
     // first reset error if there was one
-    if (completeReviewError) this.setState({ completeReviewError: undefined });
+    if (completeReviewError) setCompleteReviewError(undefined);
 
     const newPaymentRequest = {
       paymentRequestID: paymentRequest.id,
@@ -73,112 +97,69 @@ export class PaymentRequestReview extends Component {
         history.push(`/`); // Go home
       })
       .catch((e) => {
-        const error = e.response?.response?.body;
-        this.setState({
-          completeReviewError: error,
-        });
+        const errorMsg = e.response?.response?.body;
+        setCompleteReviewError(errorMsg);
       });
   };
 
-  handleClose = (moveOrderId) => {
-    const { history } = this.props;
+  const handleClose = () => {
     history.push(`/moves/${moveOrderId}/payment-requests/`);
   };
 
-  render() {
-    // eslint-disable-next-line react/prop-types
-    const { moveOrderId, mtoServiceItems, mtoShipments, paymentServiceItems } = this.props;
-    const { completeReviewError } = this.state;
+  const testFiles = [
+    {
+      filename: 'Test File.pdf',
+      fileType: 'pdf',
+      filePath: samplePDF,
+    },
+  ];
 
-    const testFiles = [
-      {
-        filename: 'Test File.pdf',
-        fileType: 'pdf',
-        filePath: samplePDF,
-      },
-    ];
+  const serviceItemCards = paymentServiceItemsArr.map((item) => {
+    const mtoServiceItem = mtoServiceItemsArr.find((s) => s.id === item.mtoServiceItemID);
+    const itemShipment = mtoServiceItem && mtoShipmentsArr.find((s) => s.id === mtoServiceItem.mtoShipmentID);
 
-    const serviceItemCards = paymentServiceItems.map((item) => {
-      const mtoServiceItem = mtoServiceItems.find((s) => s.id === item.mtoServiceItemID);
-      const itemShipment = mtoServiceItem && mtoShipments.find((s) => s.id === mtoServiceItem.mtoShipmentID);
+    return {
+      id: item.id,
+      shipmentId: mtoServiceItem?.mtoShipmentID,
+      shipmentType: itemShipment?.shipmentType,
+      serviceItemName: mtoServiceItem?.reServiceName,
+      amount: item.priceCents ? item.priceCents / 100 : 0,
+      createdAt: item.createdAt,
+      status: item.status,
+      rejectionReason: item.rejectionReason,
+    };
+  });
 
-      return {
-        id: item.id,
-        shipmentId: mtoServiceItem?.mtoShipmentID,
-        shipmentType: itemShipment?.shipmentType,
-        serviceItemName: mtoServiceItem?.reServiceName,
-        amount: item.priceCents ? item.priceCents / 100 : 0,
-        createdAt: item.createdAt,
-        status: item.status,
-        rejectionReason: item.rejectionReason,
-      };
-    });
-
-    return (
-      <div data-testid="PaymentRequestReview" className={styles.PaymentRequestReview}>
-        <div className={styles.embed}>
-          <DocumentViewer files={testFiles} />
-        </div>
-        <div className={styles.sidebar}>
-          <ReviewServiceItems
-            handleClose={() => this.handleClose(moveOrderId)}
-            serviceItemCards={serviceItemCards}
-            patchPaymentServiceItem={this.handleUpdatePaymentServiceItemStatus}
-            onCompleteReview={this.handleCompleteReview}
-            completeReviewError={completeReviewError}
-          />
-        </div>
+  return (
+    <div data-testid="PaymentRequestReview" className={styles.PaymentRequestReview}>
+      <div className={styles.embed}>
+        <DocumentViewer files={testFiles} />
       </div>
-    );
-  }
-}
+      <div className={styles.sidebar}>
+        <ReviewServiceItems
+          handleClose={handleClose}
+          serviceItemCards={serviceItemCards}
+          patchPaymentServiceItem={handleUpdatePaymentServiceItemStatus}
+          onCompleteReview={handleCompleteReview}
+          completeReviewError={completeReviewError}
+        />
+      </div>
+    </div>
+  );
+};
 
 PaymentRequestReview.propTypes = {
+  moveOrderId: PropTypes.string.isRequired,
   history: HistoryShape.isRequired,
   match: MatchShape.isRequired,
-  getPaymentRequest: PropTypes.func.isRequired,
-  getMTOServiceItems: PropTypes.func.isRequired,
-  getMTOShipments: PropTypes.func.isRequired,
-  paymentRequest: PaymentRequestShape,
-  paymentServiceItems: PropTypes.arrayOf(PaymentServiceItemShape),
-  patchPaymentServiceItemStatus: PropTypes.func.isRequired,
   updatePaymentRequest: PropTypes.func.isRequired,
-  mtoServiceItems: PropTypes.arrayOf(MTOServiceItemShape),
-  mtoShipments: PropTypes.arrayOf(MTOShipmentShape),
 };
 
-PaymentRequestReview.defaultProps = {
-  paymentRequest: undefined,
-  paymentServiceItems: [],
-  mtoServiceItems: [],
-  mtoShipments: [],
-};
+PaymentRequestReview.defaultProps = {};
 
-const mapStateToProps = (state, ownProps) => {
-  const { moveOrderId, paymentRequestId } = ownProps.match.params;
-  const paymentRequest = state.entities.paymentRequests && state.entities.paymentRequests[`${paymentRequestId}`];
-  const paymentServiceItems = [];
-  if (paymentRequest?.serviceItems) {
-    Object.values(paymentRequest.serviceItems).forEach((id) => {
-      if (state.entities.paymentServiceItems[`${id}`])
-        paymentServiceItems.push(state.entities.paymentServiceItems[`${id}`]);
-    });
-  }
-
-  return {
-    paymentRequest,
-    paymentServiceItems,
-    mtoServiceItems: paymentRequest && selectMTOServiceItemsByMTOId(state, paymentRequest.moveTaskOrderID),
-    mtoShipments: paymentRequest && selectMTOShipmentsByMTOId(state, paymentRequest.moveTaskOrderID),
-    moveOrderId,
-  };
-};
+const mapStateToProps = () => ({});
 
 const mapDispatchToProps = {
-  getPaymentRequest: getPaymentRequestAction,
-  getMTOServiceItems: getMTOServiceItemsAction,
-  getMTOShipments: getMTOShipmentsAction,
-  patchPaymentServiceItemStatus: patchPaymentServiceItemStatusAction,
   updatePaymentRequest: updatePaymentRequestAction,
 };
 

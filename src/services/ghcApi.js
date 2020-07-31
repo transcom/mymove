@@ -37,9 +37,46 @@ export async function getPaymentRequestList() {
   return makeSwaggerRequest(client, operationPath);
 }
 
-export async function getPaymentRequest(paymentRequestID) {
+export async function getPaymentRequest(key, paymentRequestID) {
   const operationPath = 'paymentRequests.getPaymentRequest';
   const client = await getGHCClient();
 
   return makeSwaggerRequest(client, operationPath, { paymentRequestID });
+}
+
+export async function getMTOShipments(key, moveTaskOrderID) {
+  const operationPath = 'mtoShipment.listMTOShipments';
+  const client = await getGHCClient();
+
+  return makeSwaggerRequest(client, operationPath, { moveTaskOrderID }, { schemaKey: 'mtoShipments' });
+}
+
+export async function getMTOServiceItems(key, moveTaskOrderID) {
+  const operationPath = 'mtoServiceItem.listMTOServiceItems';
+  const client = await getGHCClient();
+
+  return makeSwaggerRequest(client, operationPath, { moveTaskOrderID }, { schemaKey: 'mtoServiceItems' });
+}
+
+export async function patchPaymentServiceItemStatus({
+  moveTaskOrderID,
+  paymentServiceItemID,
+  status,
+  ifMatchEtag,
+  rejectionReason,
+}) {
+  const operationPath = 'paymentServiceItem.updatePaymentServiceItemStatus';
+  const client = await getGHCClient();
+
+  return makeSwaggerRequest(
+    client,
+    operationPath,
+    {
+      moveTaskOrderID,
+      paymentServiceItemID,
+      'If-Match': ifMatchEtag,
+      body: { status, rejectionReason },
+    },
+    { label: operationPath, schemaKey: 'paymentServiceItem' },
+  );
 }
