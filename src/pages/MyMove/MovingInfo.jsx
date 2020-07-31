@@ -14,7 +14,12 @@ export class MovingInfo extends Component {
           <div className="grid-col">
             <h1 className="sm-heading">Figure out your move details</h1>
             <p>Handy tips to help you decide how to move</p>
-            <p>Your weight allowance is {entitlement.sum} lbs.</p>
+            <p>Your weight entitlement is {entitlement.weight.toLocaleString()} lbs.</p>
+            <p>
+              This is how much the government will pay to move. {entitlement.weight.toLocaleString()} lbs is about what
+              one large moving truck can hold, usually enough to move what’s in a standard 3-bedroom house. You can move
+              more weight than that if you pay for the excess.
+            </p>
             <h2 className="sm-heading">One move, several parts</h2>
             <p>
               It’s common to move some things yourself and have professional movers do the rest. You can also move
