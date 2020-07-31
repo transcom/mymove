@@ -6,6 +6,7 @@ import { ReactComponent as XHeavyIcon } from 'shared/icon/x-heavy.svg';
 
 import { mtoShipmentTypeToFriendlyDisplay } from '../../shared/formatters';
 import { MTOAgentShape, MTOShipmentShape } from '../../types/moveOrder';
+import formatAddress from '../../utils/shipmentDisplay';
 
 import styles from './shipmentApprovalPreview.module.scss';
 import AllowancesTable from './AllowancesTable';

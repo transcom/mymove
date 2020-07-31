@@ -51,11 +51,17 @@ const mapStateToProps = (state, ownProps) => {
     'WEIGHT_TICKET_SET',
   ]).some((doc) => doc.empty_weight_ticket_missing || doc.full_weight_ticket_missing);
   const moveID = state.moves.currentMove.id;
+  let currentPPM = selectActivePPMForMove(state, moveID);
+  let tempCurrentPPM = get(state, 'ppm.currentPpm');
+  if (isEmpty(currentPPM) && isEmpty(tempCurrentPPM)) {
+    currentPPM = {};
+    tempCurrentPPM = {};
+  }
 
   const props = {
-    currentPPM: selectActivePPMForMove(state, moveID),
+    currentPPM,
     // TODO this is a work around till we refactor more SM data...
-    tempCurrentPPM: get(state, 'ppm.currentPpm'),
+    tempCurrentPPM,
     ppm: get(state, 'ppm', {}),
     advance,
     isMissingWeightTicketDocuments,

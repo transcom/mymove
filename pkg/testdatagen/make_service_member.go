@@ -4,6 +4,7 @@ import (
 	"math/rand"
 	"strconv"
 
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -18,8 +19,12 @@ func randomEdipi() string {
 
 // MakeServiceMember creates a single ServiceMember with associated data.
 func MakeServiceMember(db *pop.Connection, assertions Assertions) models.ServiceMember {
-	user := assertions.ServiceMember.User
+	aServiceMember := assertions.ServiceMember
+	user := aServiceMember.User
+	agency := aServiceMember.Affiliation
 	email := "leo_spaceman_sm@example.com"
+	currentAddressID := aServiceMember.ResidentialAddressID
+	currentAddress := aServiceMember.ResidentialAddress
 
 	// ID is required because it must be populated for Eager saving to work.
 	if isZeroUUID(assertions.ServiceMember.UserID) {
@@ -32,14 +37,28 @@ func MakeServiceMember(db *pop.Connection, assertions Assertions) models.Service
 		email = assertions.User.LoginGovEmail
 	}
 
+	if agency == nil {
+		army := models.AffiliationARMY
+		agency = &army
+	}
+
+	if currentAddressID == nil || isZeroUUID(*currentAddressID) {
+		newAddress := MakeAddress(db, Assertions{})
+		currentAddressID = &newAddress.ID
+		currentAddress = &newAddress
+	}
+
 	serviceMember := models.ServiceMember{
-		UserID:        user.ID,
-		User:          user,
-		Edipi:         models.StringPointer(randomEdipi()),
-		FirstName:     models.StringPointer("Leo"),
-		LastName:      models.StringPointer("Spacemen"),
-		PersonalEmail: models.StringPointer(email),
-		Telephone:     models.StringPointer("212-123-4567"),
+		UserID:               user.ID,
+		User:                 user,
+		Edipi:                swag.String(randomEdipi()),
+		Affiliation:          agency,
+		FirstName:            swag.String("Leo"),
+		LastName:             swag.String("Spacemen"),
+		Telephone:            swag.String("212-123-4567"),
+		PersonalEmail:        &email,
+		ResidentialAddressID: currentAddressID,
+		ResidentialAddress:   currentAddress,
 	}
 
 	// Overwrite values with those from assertions
@@ -60,22 +79,21 @@ func MakeDefaultServiceMember(db *pop.Connection) models.ServiceMember {
 func MakeExtendedServiceMember(db *pop.Connection, assertions Assertions) models.ServiceMember {
 	residentialAddress := MakeDefaultAddress(db)
 	backupMailingAddress := MakeDefaultAddress(db)
-	Army := models.AffiliationARMY
-	E1 := models.ServiceMemberRankE1
-
+	army := models.AffiliationARMY
+	e1 := models.ServiceMemberRankE1
 	station := FetchOrMakeDefaultCurrentDutyStation(db)
-	emailPreferred := true
+
 	// Combine extended SM defaults with assertions
 	smDefaults := models.ServiceMember{
-		Edipi:                  models.StringPointer(randomEdipi()),
-		Rank:                   &E1,
-		Affiliation:            &Army,
+		Edipi:                  swag.String(randomEdipi()),
+		Rank:                   &e1,
+		Affiliation:            &army,
 		ResidentialAddressID:   &residentialAddress.ID,
 		BackupMailingAddressID: &backupMailingAddress.ID,
 		DutyStationID:          &station.ID,
 		DutyStation:            station,
-		EmailIsPreferred:       &emailPreferred,
-		Telephone:              models.StringPointer("555-555-5555"),
+		EmailIsPreferred:       swag.Bool(true),
+		Telephone:              swag.String("555-555-5555"),
 	}
 
 	mergeModels(&smDefaults, assertions.ServiceMember)
@@ -95,11 +113,4 @@ func MakeExtendedServiceMember(db *pop.Connection, assertions Assertions) models
 	mustSave(db, &serviceMember)
 
 	return serviceMember
-}
-
-// MakeServiceMemberData created 5 ServiceMembers (and in turn a User for each)
-func MakeServiceMemberData(db *pop.Connection) {
-	for i := 0; i < 5; i++ {
-		MakeDefaultServiceMember(db)
-	}
 }
