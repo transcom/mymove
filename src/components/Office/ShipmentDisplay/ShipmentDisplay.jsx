@@ -3,18 +3,15 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
 import { Checkbox } from '@trussworks/react-uswds';
-
-import ShipmentContainer from '../ShipmentContainer';
-
-import styles from './ShipmentDisplay.module.scss';
-
 import { ReactComponent as ChevronDown } from 'shared/icon/chevron-down.svg';
 import formatAddress from 'utils/shipmentDisplay';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatDate } from 'shared/dates';
 import { ReactComponent as CheckmarkIcon } from 'shared/icon/checkbox--unchecked.svg';
 
-import ShipmentContainer from './ShipmentContainer';
+import ShipmentContainer from '../ShipmentContainer';
+
+import styles from './ShipmentDisplay.module.scss';
 
 const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSubmitted }) => {
   return (

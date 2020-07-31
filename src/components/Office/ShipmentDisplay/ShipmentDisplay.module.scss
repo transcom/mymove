@@ -27,10 +27,6 @@
 
     th,
     td {
-<<<<<<< HEAD:src/components/Office/ShipmentDisplay.module.scss
-=======
-      min-width: 11.01rem;
->>>>>>> master:src/components/Office/ShipmentDisplay/ShipmentDisplay.module.scss
       @include u-vertical-align('top');
       @include u-border('base-lighter');
       @include u-font('body', 'xs');
@@ -48,7 +44,6 @@
       @include u-padding-y('105');
     }
 
-<<<<<<< HEAD:src/components/Office/ShipmentDisplay.module.scss
     tr th:first-child,
     tr th:last-child {
       @include u-padding-top(2);
@@ -64,15 +59,12 @@
       @include u-padding-top(2);
     }
 
-=======
->>>>>>> master:src/components/Office/ShipmentDisplay/ShipmentDisplay.module.scss
     th:nth-child(2),
     td:nth-child(2) {
       @include u-padding-left(0);
       @include u-maxw(3);
     }
 
-<<<<<<< HEAD:src/components/Office/ShipmentDisplay.module.scss
     td:nth-child(2) {
       min-width: 88px;
       max-width: 130px;
@@ -80,14 +72,6 @@
 
     td:nth-child(3) {
       width: 100%;
-=======
-    th:first-child,
-    td:first-child,
-    th:last-child,
-    td:last-child {
-      @include u-minw('6');
-      line-height: 1.6rem;
->>>>>>> master:src/components/Office/ShipmentDisplay/ShipmentDisplay.module.scss
     }
 
     tr:last-child td {
@@ -105,12 +89,9 @@
   &__checkbox__label:before {
     @include u-margin-right(0);
   }
-<<<<<<< HEAD:src/components/Office/ShipmentDisplay.module.scss
 
   svg {
     @include u-width(4);
     margin-bottom: 5px;
   }
-=======
->>>>>>> master:src/components/Office/ShipmentDisplay/ShipmentDisplay.module.scss
 }
