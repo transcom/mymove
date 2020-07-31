@@ -1,9 +1,7 @@
 import Swagger from 'swagger-client';
 import * as Cookies from 'js-cookie';
-import { get } from 'lodash';
-import { normalize } from 'normalizr';
 
-import * as schema from 'shared/Entities/schema';
+import { makeSwaggerRequest } from './swaggerRequest';
 
 // setting up the same config from Swagger/api.js
 const requestInterceptor = (req) => {
@@ -32,33 +30,16 @@ export async function getGHCClient() {
   return ghcClient;
 }
 
-// this is what makes the API call instead of SwaggerRequest (but very similar)
 export async function getPaymentRequestList() {
   const operationPath = 'paymentRequests.listPaymentRequests';
   const client = await getGHCClient();
-  const operation = get(client, `apis.${operationPath}`);
 
-  if (!operation) {
-    // eslint-disable-next-line no-console
-    console.log('Operation does not exist', operationPath);
-  }
+  return makeSwaggerRequest(client, operationPath);
+}
 
-  let request;
-  try {
-    request = operation();
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error('operation failed', e);
-  }
+export async function getPaymentRequest(paymentRequestID) {
+  const operationPath = 'paymentRequests.getPaymentRequest';
+  const client = await getGHCClient();
 
-  return request
-    .then((response) => {
-      const payloadSchema = schema.paymentRequests;
-      return normalize(response.body, payloadSchema).entities;
-    })
-    .catch((response) => {
-      // eslint-disable-next-line no-console
-      console.log('response failed', response);
-      return Promise.reject();
-    });
+  return makeSwaggerRequest(client, operationPath, { paymentRequestID });
 }

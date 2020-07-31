@@ -2,14 +2,18 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from 'react-query';
 
-// Need functions that actually make the API call(s)
 import { getPaymentRequestList } from 'services/ghcApi';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
 
 const PaymentRequestIndex = () => {
-  const { isLoading, isError, data } = useQuery('paymentRequestList', getPaymentRequestList);
+  const { isLoading, isError, data, error } = useQuery('paymentRequestList', getPaymentRequestList, {
+    retry: false,
+  });
 
   // These values can be used to return the loading screen or error UI
-  if (isLoading || isError) return '';
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong error={error} />;
 
   const { paymentRequests } = data;
 
@@ -19,7 +23,7 @@ const PaymentRequestIndex = () => {
   return (
     <>
       <h1>Payment Requests</h1>
-      <table>
+      <table data-testid="PaymentRequestIndex">
         <thead>
           <tr>
             <th>ID</th>
