@@ -56,17 +56,17 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 		return nil, err
 	}
 
-	var moveTaskOrder models.MoveTaskOrder
-	moveTaskOrderID := shipment.MoveTaskOrderID
+	var move models.Move
+	moveID := shipment.MoveTaskOrderID
 
 	queryFilters := []services.QueryFilter{
-		query.NewQueryFilter("id", "=", moveTaskOrderID),
+		query.NewQueryFilter("id", "=", moveID),
 	}
 
-	// check if MTO exists
-	err = f.builder.FetchOne(&moveTaskOrder, queryFilters)
+	// check if Move exists
+	err = f.builder.FetchOne(&move, queryFilters)
 	if err != nil {
-		return nil, services.NewNotFoundError(moveTaskOrderID, "for moveTaskOrder")
+		return nil, services.NewNotFoundError(moveID, "for move")
 	}
 
 	if serviceItems != nil {

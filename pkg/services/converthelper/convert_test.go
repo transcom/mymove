@@ -91,11 +91,11 @@ func (suite *ConvertSuite) TestConvertFromPPMToGHC() {
 	suite.NotEqual(uuid.Nil, customer.UserID)
 	suite.Equal(customer.ID, mo.ServiceMemberID)
 
-	var mto models.MoveTaskOrder
-	suite.FatalNoError(suite.DB().Eager().Where("move_order_id = ?", mo.ID).First(&mto))
+	var mto models.Move
+	suite.FatalNoError(suite.DB().Eager().Where("moves.orders_id = ?", mo.ID).First(&mto))
 
 	var mtoShipmentHHG models.MTOShipment
-	suite.FatalNoError(suite.DB().Eager().Where("move_task_order_id = ? and shipment_type = ?", mto.ID, models.MTOShipmentTypeHHGLongHaulDom).First(&mtoShipmentHHG))
+	suite.FatalNoError(suite.DB().Eager().Where("move_id = ? and shipment_type = ?", mto.ID, models.MTOShipmentTypeHHGLongHaulDom).First(&mtoShipmentHHG))
 
 	suite.NotNil(mtoShipmentHHG.ScheduledPickupDate)
 	suite.Equal(unit.Pound(4096), *mtoShipmentHHG.PrimeEstimatedWeight)
@@ -106,7 +106,7 @@ func (suite *ConvertSuite) TestConvertFromPPMToGHC() {
 	suite.NotEqual(expectedNilTime, *mtoShipmentHHG.PrimeEstimatedWeightRecordedDate)
 
 	var mtoShipmentHHGDomShortHaul models.MTOShipment
-	suite.FatalNoError(suite.DB().Eager().Where("move_task_order_id = ? and shipment_type = ?", mto.ID, models.MTOShipmentTypeHHGShortHaulDom).First(&mtoShipmentHHGDomShortHaul))
+	suite.FatalNoError(suite.DB().Eager().Where("move_id = ? and shipment_type = ?", mto.ID, models.MTOShipmentTypeHHGShortHaulDom).First(&mtoShipmentHHGDomShortHaul))
 
 	suite.NotNil(mtoShipmentHHGDomShortHaul.ScheduledPickupDate)
 	suite.Equal(unit.Pound(4096), *mtoShipmentHHGDomShortHaul.PrimeEstimatedWeight)
@@ -173,8 +173,8 @@ func (suite *ConvertSuite) TestConvertProfileOrdersToGHC() {
 	suite.NotEqual(uuid.Nil, customer.UserID)
 	suite.Equal(customer.ID, mo.ServiceMemberID)
 
-	var mto models.MoveTaskOrder
-	suite.FatalNoError(suite.DB().Eager().Where("move_order_id = ?", mo.ID).First(&mto))
+	var mto models.Move
+	suite.FatalNoError(suite.DB().Where("moves.orders_id = ?", mo.ID).First(&mto))
 }
 
 func (suite *ConvertSuite) TestConvertFromPPMToGHCMoveOrdersExist() {
@@ -213,8 +213,8 @@ func (suite *ConvertSuite) TestConvertFromPPMToGHCMoveOrdersExist() {
 	suite.FatalNoError(err)
 	suite.Equal(1, len(orders))
 
-	var moveTaskOrders []models.MoveTaskOrder
-	err = suite.DB().Where("move_order_id = $1", orders[0].ID).All(&moveTaskOrders)
+	var moveTaskOrders []models.Move
+	err = suite.DB().Where("moves.orders_id = $1", orders[0].ID).All(&moveTaskOrders)
 	suite.FatalNoError(err)
 	suite.Equal(1, len(moveTaskOrders))
 }

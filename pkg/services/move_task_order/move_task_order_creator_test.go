@@ -3,6 +3,7 @@ package movetaskorder_test
 import (
 	"testing"
 
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/services/query"
@@ -34,9 +35,12 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderCreatorIntegration() {
 
 	order := testdatagen.MakeDefaultOrder(suite.DB())
 	contractor := testdatagen.MakeContractor(suite.DB(), testdatagen.Assertions{})
-	newMto := models.MoveTaskOrder{
-		MoveOrderID:  order.ID,
+	newMto := models.Move{
+		OrdersID:     order.ID,
 		ContractorID: contractor.ID,
+		Status:       models.MoveStatusDRAFT,
+		Locator:      models.GenerateLocator(),
+		Show:         swag.Bool(true),
 	}
 	actualMTO, verrs, err := mtoCreator.CreateMoveTaskOrder(&newMto)
 	suite.NoError(err)

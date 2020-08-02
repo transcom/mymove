@@ -28,7 +28,7 @@ func Move(move *models.Move) *ghcmessages.Move {
 }
 
 // MoveTaskOrder payload
-func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *ghcmessages.MoveTaskOrder {
+func MoveTaskOrder(moveTaskOrder *models.Move) *ghcmessages.MoveTaskOrder {
 	if moveTaskOrder == nil {
 		return nil
 	}
@@ -37,8 +37,8 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *ghcmessages.MoveTaskOrd
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.DateTime(moveTaskOrder.CreatedAt),
 		AvailableToPrimeAt: handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
-		IsCanceled:         &moveTaskOrder.IsCanceled,
-		MoveOrderID:        strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
+		IsCanceled:         isCanceled(moveTaskOrder),
+		MoveOrderID:        strfmt.UUID(moveTaskOrder.OrdersID.String()),
 		ReferenceID:        moveTaskOrder.ReferenceID,
 		UpdatedAt:          strfmt.DateTime(moveTaskOrder.UpdatedAt),
 		ETag:               etag.GenerateEtag(moveTaskOrder.UpdatedAt),
@@ -283,4 +283,14 @@ func PaymentServiceItems(paymentServiceItems *models.PaymentServiceItems) *ghcme
 		payload[i] = PaymentServiceItem(&m)
 	}
 	return &payload
+}
+
+func isCanceled(move *models.Move) *bool {
+	truePointer := true
+	falsePointer := false
+	if move.Status == models.MoveStatusCANCELED {
+		return &truePointer
+	}
+
+	return &falsePointer
 }

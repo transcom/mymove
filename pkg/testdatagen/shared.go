@@ -40,7 +40,7 @@ type Assertions struct {
 	Invoice                                  models.Invoice
 	Move                                     models.Move
 	MoveDocument                             models.MoveDocument
-	MoveTaskOrder                            models.MoveTaskOrder
+	MoveTaskOrder                            models.Move
 	MovingExpenseDocument                    models.MovingExpenseDocument
 	MTOAgent                                 models.MTOAgent
 	MTOServiceItem                           models.MTOServiceItem

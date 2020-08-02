@@ -720,10 +720,10 @@ func (e ConflictStatusError) Error() string {
 }
 
 func (f mtoShipmentUpdater) MTOShipmentsMTOAvailableToPrime(mtoShipmentID uuid.UUID) (bool, error) {
-	var mto models.MoveTaskOrder
+	var mto models.Move
 
 	err := f.db.Q().
-		Join("mto_shipments", "move_task_orders.id = mto_shipments.move_task_order_id").
+		Join("mto_shipments", "moves.id = mto_shipments.move_id").
 		Where("available_to_prime_at IS NOT NULL").
 		Where("mto_shipments.id = ?", mtoShipmentID).
 		First(&mto)

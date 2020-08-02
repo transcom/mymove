@@ -25,8 +25,8 @@ type moveTaskOrderCreator struct {
 }
 
 // InternalCreateMoveTaskOrder creates a move task order for the supportapi (internal use only, not used in production)
-func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessages.MoveTaskOrder, logger handlers.Logger) (*models.MoveTaskOrder, error) {
-	var moveTaskOrder *models.MoveTaskOrder
+func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessages.MoveTaskOrder, logger handlers.Logger) (*models.Move, error) {
+	var moveTaskOrder *models.Move
 	var refID string
 	if payload.MoveOrder == nil {
 		return nil, services.NewQueryError("MoveTaskOrder", nil, "MoveOrder is necessary")
@@ -50,11 +50,14 @@ func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessage
 			refID, err = movetaskordershared.GenerateReferenceID(tx)
 			moveTaskOrder.ReferenceID = refID
 		}
+		if moveTaskOrder.Locator == "" {
+			moveTaskOrder.Locator = models.GenerateLocator()
+		}
 		if err != nil {
 			return err
 		}
-		moveTaskOrder.MoveOrder = *moveOrder
-		moveTaskOrder.MoveOrderID = moveOrder.ID
+		moveTaskOrder.Orders = *moveOrder
+		moveTaskOrder.OrdersID = moveOrder.ID
 
 		verrs, err := tx.ValidateAndCreate(moveTaskOrder)
 
@@ -261,16 +264,19 @@ func EntitlementModel(entitlementPayload *supportmessages.Entitlement) *models.E
 
 // MoveTaskOrderModel return an MTO model constructed from the payload.
 // Does not create nested mtoServiceItems, mtoShipments, or paymentRequests
-func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.MoveTaskOrder {
+func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.Move {
 	if mtoPayload == nil {
 		return nil
 	}
 	ppmEstimatedWeight := unit.Pound(mtoPayload.PpmEstimatedWeight)
-	model := &models.MoveTaskOrder{
+	model := &models.Move{
 		ReferenceID:        mtoPayload.ReferenceID,
+		Locator:            mtoPayload.Locator,
 		PPMEstimatedWeight: &ppmEstimatedWeight,
 		PPMType:            &mtoPayload.PpmType,
 		ContractorID:       uuid.FromStringOrNil(mtoPayload.ContractorID.String()),
+		Status:             (models.MoveStatus)(mtoPayload.Status),
+		Show:               swag.Bool(mtoPayload.Show),
 	}
 
 	if mtoPayload.AvailableToPrimeAt != nil {
@@ -278,8 +284,11 @@ func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.MoveT
 		model.AvailableToPrimeAt = &availableToPrimeAt
 	}
 
-	if mtoPayload.IsCanceled != nil {
-		model.IsCanceled = *mtoPayload.IsCanceled
+	// TODO: We should remove this and let people know that the API
+	// has changed. To set the status to canceled, you now pass that in
+	// via the Status attribute.
+	if mtoPayload.IsCanceled != nil && *mtoPayload.IsCanceled == true {
+		model.Status = models.MoveStatusCANCELED
 	}
 
 	return model

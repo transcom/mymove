@@ -4,13 +4,12 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 
-	mtoservicehelper "github.com/transcom/mymove/pkg/services/move_task_order/shared"
-
 	"github.com/transcom/mymove/pkg/models"
+	mtoservicehelper "github.com/transcom/mymove/pkg/services/move_task_order/shared"
 )
 
 // MakeMoveTaskOrder creates a single MoveTaskOrder and associated set relationships
-func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTaskOrder {
+func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.Move {
 	order := assertions.Order
 	if isZeroUUID(order.ID) {
 		order = MakeOrder(db, assertions)
@@ -34,14 +33,16 @@ func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTas
 		ppmType = &partialType
 	}
 
-	moveTaskOrder := models.MoveTaskOrder{
+	moveTaskOrder := models.Move{
 		AvailableToPrimeAt: assertions.MoveTaskOrder.AvailableToPrimeAt,
-		MoveOrder:          order,
-		MoveOrderID:        order.ID,
+		Orders:             order,
+		OrdersID:           order.ID,
 		ContractorID:       contractorID,
 		ReferenceID:        referenceID,
-		IsCanceled:         false,
+		Locator:            models.GenerateLocator(),
+		Status:             models.MoveStatusDRAFT,
 		PPMType:            ppmType,
+		Show:               setShow(assertions.Move.Show),
 	}
 
 	// Overwrite values with those from assertions
@@ -53,6 +54,6 @@ func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTas
 }
 
 // MakeDefaultMoveTaskOrder makes an MoveTaskOrder with default values
-func MakeDefaultMoveTaskOrder(db *pop.Connection) models.MoveTaskOrder {
+func MakeDefaultMoveTaskOrder(db *pop.Connection) models.Move {
 	return MakeMoveTaskOrder(db, Assertions{})
 }

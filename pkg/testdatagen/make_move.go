@@ -3,8 +3,10 @@ package testdatagen
 import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
+	mtoservicehelper "github.com/transcom/mymove/pkg/services/move_task_order/shared"
 )
 
 // MakeMove creates a single Move and associated set of Orders
@@ -15,6 +17,19 @@ func MakeMove(db *pop.Connection, assertions Assertions) models.Move {
 	// ID is required because it must be populated for Eager saving to work.
 	if isZeroUUID(assertions.Order.ID) {
 		orders = MakeOrder(db, assertions)
+	}
+
+	var referenceID string
+	if assertions.MoveTaskOrder.ReferenceID == "" {
+		referenceID, _ = mtoservicehelper.GenerateReferenceID(db)
+	}
+
+	var contractorID uuid.UUID
+	mtoContractorID := assertions.MoveTaskOrder.ContractorID
+	moveContractorID := assertions.Move.ContractorID
+	if mtoContractorID == uuid.Nil || moveContractorID == uuid.Nil {
+		contractor := MakeContractor(db, assertions)
+		contractorID = contractor.ID
 	}
 
 	defaultMoveType := models.SelectedMoveTypePPM
@@ -29,6 +44,8 @@ func MakeMove(db *pop.Connection, assertions Assertions) models.Move {
 		Status:           models.MoveStatusDRAFT,
 		Locator:          models.GenerateLocator(),
 		Show:             setShow(assertions.Move.Show),
+		ContractorID:     contractorID,
+		ReferenceID:      referenceID,
 	}
 
 	// Overwrite values with those from assertions
@@ -48,12 +65,21 @@ func MakeMoveWithoutMoveType(db *pop.Connection, assertions Assertions) models.M
 		orders = MakeOrder(db, assertions)
 	}
 
+	var contractorID uuid.UUID
+	mtoContractorID := assertions.MoveTaskOrder.ContractorID
+	moveContractorID := assertions.Move.ContractorID
+	if mtoContractorID == uuid.Nil || moveContractorID == uuid.Nil {
+		contractor := MakeContractor(db, assertions)
+		contractorID = contractor.ID
+	}
+
 	move := models.Move{
-		Orders:   orders,
-		OrdersID: orders.ID,
-		Status:   models.MoveStatusDRAFT,
-		Locator:  models.GenerateLocator(),
-		Show:     setShow(assertions.Move.Show),
+		Orders:       orders,
+		OrdersID:     orders.ID,
+		Status:       models.MoveStatusDRAFT,
+		Locator:      models.GenerateLocator(),
+		Show:         setShow(assertions.Move.Show),
+		ContractorID: contractorID,
 	}
 
 	// Overwrite values with those from assertions

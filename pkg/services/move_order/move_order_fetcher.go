@@ -16,14 +16,14 @@ type moveOrderFetcher struct {
 
 func (f moveOrderFetcher) ListMoveOrders() ([]models.Order, error) {
 	// Now that we've joined orders and move_orders, we only want to return orders that
-	// have an associated move_task_order.
+	// have an associated move.
 	var moveOrders []models.Order
 	err := f.db.Q().Eager(
 		"ServiceMember",
 		"NewDutyStation.Address",
 		"OriginDutyStation",
 		"Entitlement",
-	).InnerJoin("move_task_orders mto", "orders.id = mto.move_order_id").All(&moveOrders)
+	).InnerJoin("moves move", "orders.id = move.orders_id").All(&moveOrders)
 
 	if err != nil {
 		switch err {
@@ -61,7 +61,7 @@ func (f moveOrderFetcher) FetchMoveOrder(moveOrderID uuid.UUID) (*models.Order, 
 		"NewDutyStation.Address",
 		"OriginDutyStation",
 		"Entitlement",
-	).InnerJoin("move_task_orders mto", "orders.id = mto.move_order_id").Find(moveOrder, moveOrderID)
+	).InnerJoin("moves move", "orders.id = move.orders_id").Find(moveOrder, moveOrderID)
 
 	if err != nil {
 		switch err {

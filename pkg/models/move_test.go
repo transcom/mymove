@@ -18,6 +18,7 @@ func (suite *ModelSuite) TestBasicMoveInstantiation() {
 		"locator":   {"Locator can not be blank."},
 		"orders_id": {"OrdersID can not be blank."},
 		"status":    {"Status can not be blank."},
+		//"contractor_id": {"ContractorID can not be blank."},
 	}
 
 	suite.verifyValidationErrors(move, expErrors)
@@ -25,6 +26,7 @@ func (suite *ModelSuite) TestBasicMoveInstantiation() {
 
 func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
+	testdatagen.MakeDefaultContractor(suite.DB())
 	selectedMoveType := SelectedMoveTypeHHG
 
 	moveOptions := MoveOptions{
@@ -32,7 +34,6 @@ func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
 		Show:         swag.Bool(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
-	//move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType, true)
 
 	suite.NoError(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
@@ -45,6 +46,7 @@ func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
 func (suite *ModelSuite) TestFetchMove() {
 	order1 := testdatagen.MakeDefaultOrder(suite.DB())
 	order2 := testdatagen.MakeDefaultOrder(suite.DB())
+	testdatagen.MakeDefaultContractor(suite.DB())
 
 	session := &auth.Session{
 		UserID:          order1.ServiceMember.UserID,
@@ -96,6 +98,7 @@ func (suite *ModelSuite) TestMoveCancellationWithReason() {
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	orders.Status = OrderStatusSUBMITTED // NEVER do this outside of a test.
 	suite.MustSave(&orders)
+	testdatagen.MakeDefaultContractor(suite.DB())
 
 	selectedMoveType := SelectedMoveTypeHHGPPM
 
@@ -126,6 +129,7 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	orders.Status = OrderStatusSUBMITTED // NEVER do this outside of a test.
 	suite.MustSave(&orders)
+	testdatagen.MakeDefaultContractor(suite.DB())
 
 	selectedMoveType := SelectedMoveTypeHHGPPM
 
@@ -172,6 +176,7 @@ func (suite *ModelSuite) TestCancelMoveCancelsOrdersPPM() {
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	orders.Status = OrderStatusSUBMITTED // NEVER do this outside of a test.
 	suite.MustSave(&orders)
+	testdatagen.MakeDefaultContractor(suite.DB())
 
 	selectedMoveType := SelectedMoveTypeHHGPPM
 
@@ -210,7 +215,7 @@ func (suite *ModelSuite) TestSaveMoveDependenciesFail() {
 	// Given: A move with Orders with unacceptable status
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	orders.Status = ""
-
+	testdatagen.MakeDefaultContractor(suite.DB())
 	selectedMoveType := SelectedMoveTypeHHGPPM
 
 	moveOptions := MoveOptions{
@@ -230,7 +235,7 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSuccess() {
 	// Given: A move with Orders with acceptable status
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	orders.Status = OrderStatusSUBMITTED
-
+	testdatagen.MakeDefaultContractor(suite.DB())
 	selectedMoveType := SelectedMoveTypeHHGPPM
 
 	moveOptions := MoveOptions{

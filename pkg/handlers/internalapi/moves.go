@@ -176,7 +176,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 			logger.Error("PPM->GHC conversion error", zap.Error(convertErr))
 			// don't return an error here because we don't want this to break the endpoint
 		} else {
-			logger.Info("PPM->GHC conversion successful. New MoveOrder, MoveTaskOrder, and shipments created.", zap.String("move_order_id", moID.String()))
+			logger.Info("PPM->GHC conversion successful. New MoveOrder, MoveTaskOrder, and shipments created.", zap.String("orders_id", moID.String()))
 		}
 	} else {
 		logger.Info("PPM->GHC conversion skipped (env var not set)")

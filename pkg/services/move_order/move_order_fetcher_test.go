@@ -6,7 +6,7 @@ import (
 
 func (suite *MoveOrderServiceSuite) TestMoveOrderFetcher() {
 	expectedMoveTaskOrder := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
-	expectedMoveOrder := expectedMoveTaskOrder.MoveOrder
+	expectedMoveOrder := expectedMoveTaskOrder.Orders
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
 
 	moveOrder, err := moveOrderFetcher.FetchMoveOrder(expectedMoveOrder.ID)
@@ -58,7 +58,7 @@ func (suite *MoveOrderServiceSuite) TestMoveOrderFetcherWithEmptyFields() {
 
 func (suite *MoveOrderServiceSuite) TestListMoveOrder() {
 	expectedMoveTaskOrder := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
-	expectedMoveOrder := expectedMoveTaskOrder.MoveOrder
+	expectedMoveOrder := expectedMoveTaskOrder.Orders
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
 	moveOrders, err := moveOrderFetcher.ListMoveOrders()
 	suite.FatalNoError(err)

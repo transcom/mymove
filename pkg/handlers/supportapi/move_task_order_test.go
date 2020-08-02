@@ -33,7 +33,7 @@ func (suite *HandlerSuite) TestListMTOsHandler() {
 	testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
 
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: models.MoveTaskOrder{
+		MoveTaskOrder: models.Move{
 			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
 	})
@@ -125,12 +125,19 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 	issueDate := swag.Time(time.Now())
 	reportByDate := swag.Time(time.Now().AddDate(0, 0, -1))
 
-	mtoWithoutCustomer := models.MoveTaskOrder{
+	mtoWithoutCustomer := models.Move{
+		// Hmm. This Reference ID doesn't match the expected dddd-dddd format.
+		// Sounds like we don't have a validation for the format. We will need
+		// a validation if there is indeed a legal requirement for a separate
+		// referenceID that uses the format dddd-dddd.
 		ReferenceID:        "4857363",
+		Locator:            models.GenerateLocator(),
 		AvailableToPrimeAt: swag.Time(time.Now()),
 		PPMType:            swag.String("FULL"),
 		ContractorID:       contractor.ID,
-		MoveOrder: models.Order{
+		Status:             models.MoveStatusDRAFT,
+		Show:               swag.Bool(true),
+		Orders: models.Order{
 			Grade:               swag.String("E_6"),
 			OrdersNumber:        swag.String("4554"),
 			NewDutyStationID:    destinationDutyStation.ID,
@@ -143,7 +150,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 			Status:           models.OrderStatusDRAFT,
 			IssueDate:        *issueDate,
 			ReportByDate:     *reportByDate,
-			OrdersType:       "GHC",
+			OrdersType:       "PERMANENT_CHANGE_OF_STATION",
 			UploadedOrders:   document,
 			UploadedOrdersID: document.ID,
 		},
@@ -175,6 +182,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
 		suite.Assertions.IsType(&move_task_order.CreateMoveTaskOrderCreated{}, response)
 		suite.Equal(mtoWithoutCustomer.ReferenceID, moveTaskOrdersPayload.ReferenceID)
+		suite.Equal(mtoWithoutCustomer.Locator, moveTaskOrdersPayload.Locator)
 		suite.NotNil(moveTaskOrdersPayload.AvailableToPrimeAt)
 	})
 
@@ -184,7 +192,9 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 			FirstName: swag.String("Grace"),
 			LastName:  swag.String("Griffin"),
 		}
+		// Need to regenerate the ReferenceID and Locator because they are unique
 		mtoWithoutCustomer.ReferenceID = "346523"
+		mtoWithoutCustomer.Locator = models.GenerateLocator()
 
 		// If customerID is provided create MTO without creating a new customer
 		mtoPayload := payloads.MoveTaskOrder(&mtoWithoutCustomer)

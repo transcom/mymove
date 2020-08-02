@@ -56,6 +56,9 @@ type MoveTaskOrder struct {
 	// Indicated this MoveTaskOrder has been canceled.
 	IsCanceled *bool `json:"isCanceled,omitempty"`
 
+	// Unique 6-character code the customer can use to refer to their move
+	Locator string `json:"locator,omitempty"`
+
 	// MoveOrder associated with this MoveTaskOrder.
 	// Required: true
 	MoveOrder *MoveOrder `json:"moveOrder"`
@@ -85,6 +88,15 @@ type MoveTaskOrder struct {
 	// Attempting to create a MoveTaskOrder may fail if this referenceId has been used already.
 	//
 	ReferenceID string `json:"referenceId,omitempty"`
+
+	// A boolean that defaults to true and can be set to false to prevent a
+	// move from showing up in the app. This can be useful for erroneous or
+	// fraudulent moves.
+	//
+	Show bool `json:"show,omitempty"`
+
+	// move status
+	Status MoveStatus `json:"status,omitempty"`
 
 	// Date on which this MoveTaskOrder was last updated.
 	// Read Only: true
@@ -117,6 +129,8 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 
 		IsCanceled *bool `json:"isCanceled,omitempty"`
 
+		Locator string `json:"locator,omitempty"`
+
 		MoveOrder *MoveOrder `json:"moveOrder"`
 
 		MoveOrderID strfmt.UUID `json:"moveOrderID,omitempty"`
@@ -132,6 +146,10 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 		PpmType string `json:"ppmType,omitempty"`
 
 		ReferenceID string `json:"referenceId,omitempty"`
+
+		Show bool `json:"show,omitempty"`
+
+		Status MoveStatus `json:"status,omitempty"`
 
 		UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 	}
@@ -172,6 +190,9 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 	// isCanceled
 	result.IsCanceled = data.IsCanceled
 
+	// locator
+	result.Locator = data.Locator
+
 	// moveOrder
 	result.MoveOrder = data.MoveOrder
 
@@ -195,6 +216,12 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 
 	// referenceId
 	result.ReferenceID = data.ReferenceID
+
+	// show
+	result.Show = data.Show
+
+	// status
+	result.Status = data.Status
 
 	// updatedAt
 	result.UpdatedAt = data.UpdatedAt
@@ -221,6 +248,8 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 
 		IsCanceled *bool `json:"isCanceled,omitempty"`
 
+		Locator string `json:"locator,omitempty"`
+
 		MoveOrder *MoveOrder `json:"moveOrder"`
 
 		MoveOrderID strfmt.UUID `json:"moveOrderID,omitempty"`
@@ -234,6 +263,10 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 		PpmType string `json:"ppmType,omitempty"`
 
 		ReferenceID string `json:"referenceId,omitempty"`
+
+		Show bool `json:"show,omitempty"`
+
+		Status MoveStatus `json:"status,omitempty"`
 
 		UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 	}{
@@ -250,6 +283,8 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 
 		IsCanceled: m.IsCanceled,
 
+		Locator: m.Locator,
+
 		MoveOrder: m.MoveOrder,
 
 		MoveOrderID: m.MoveOrderID,
@@ -263,6 +298,10 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 		PpmType: m.PpmType,
 
 		ReferenceID: m.ReferenceID,
+
+		Show: m.Show,
+
+		Status: m.Status,
 
 		UpdatedAt: m.UpdatedAt,
 	},
@@ -325,6 +364,10 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePpmType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -510,6 +553,22 @@ func (m *MoveTaskOrder) validatePpmType(formats strfmt.Registry) error {
 
 	// value enum
 	if err := m.validatePpmTypeEnum("ppmType", "body", m.PpmType); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status) { // not required
+		return nil
+	}
+
+	if err := m.Status.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
 		return err
 	}
 

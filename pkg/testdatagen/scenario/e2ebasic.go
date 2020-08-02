@@ -877,9 +877,9 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 	mto := testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
-		MoveTaskOrder: models.MoveTaskOrder{
+		MoveTaskOrder: models.Move{
 			ID:                 uuid.FromStringOrNil("5d4b25bb-eb04-4c03-9a81-ee0398cb779e"),
-			MoveOrderID:        orders.ID,
+			OrdersID:           orders.ID,
 			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
 	})
@@ -898,9 +898,9 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 
 	testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
-		MoveTaskOrder: models.MoveTaskOrder{
-			ID:          uuid.FromStringOrNil("302f3509-562c-4f5c-81c5-b770f4af30e8"),
-			MoveOrderID: orders2.ID,
+		MoveTaskOrder: models.Move{
+			ID:       uuid.FromStringOrNil("302f3509-562c-4f5c-81c5-b770f4af30e8"),
+			OrdersID: orders2.ID,
 		},
 	})
 
@@ -918,9 +918,9 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 
 	testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
-		MoveTaskOrder: models.MoveTaskOrder{
-			ID:          uuid.FromStringOrNil("a97557cd-ec31-4f00-beed-01ac6e4c0976"),
-			MoveOrderID: orders3.ID,
+		MoveTaskOrder: models.Move{
+			ID:       uuid.FromStringOrNil("a97557cd-ec31-4f00-beed-01ac6e4c0976"),
+			OrdersID: orders3.ID,
 		},
 	})
 
@@ -938,9 +938,9 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 
 	testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
-		MoveTaskOrder: models.MoveTaskOrder{
-			ID:          uuid.FromStringOrNil("c251267f-dbe1-42b9-8239-4f628fa7279f"),
-			MoveOrderID: orders4.ID,
+		MoveTaskOrder: models.Move{
+			ID:       uuid.FromStringOrNil("c251267f-dbe1-42b9-8239-4f628fa7279f"),
+			OrdersID: orders4.ID,
 		},
 	})
 
@@ -958,9 +958,9 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 
 	testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
-		MoveTaskOrder: models.MoveTaskOrder{
-			ID:          uuid.FromStringOrNil("2b485ded-a395-4dbb-9aa7-3f902dd4ccea"),
-			MoveOrderID: orders5.ID,
+		MoveTaskOrder: models.Move{
+			ID:       uuid.FromStringOrNil("2b485ded-a395-4dbb-9aa7-3f902dd4ccea"),
+			OrdersID: orders5.ID,
 		},
 	})
 
@@ -1174,9 +1174,9 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 
 	mto7 := testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
-		MoveTaskOrder: models.MoveTaskOrder{
+		MoveTaskOrder: models.Move{
 			ID:                 uuid.FromStringOrNil("99783f4d-ee83-4fc9-8e0c-d32496bef32b"),
-			MoveOrderID:        orders7.ID,
+			OrdersID:           orders7.ID,
 			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
 	})
@@ -1402,9 +1402,9 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 	mto2 := testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
-		MoveTaskOrder: models.MoveTaskOrder{
+		MoveTaskOrder: models.Move{
 			ID:                 uuid.FromStringOrNil("da3f34cc-fb94-4e0b-1c90-ba3333cb7791"),
-			MoveOrderID:        orders6.ID,
+			OrdersID:           orders6.ID,
 			UpdatedAt:          time.Unix(1576779681256, 0),
 			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
@@ -1481,7 +1481,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 
 	mtoWithTaskOrderServices := testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
-		MoveTaskOrder: models.MoveTaskOrder{
+		MoveTaskOrder: models.Move{
 			ID:                 uuid.FromStringOrNil("9c7b255c-2981-4bf8-839f-61c7458e2b4d"),
 			AvailableToPrimeAt: swag.Time(time.Now()),
 		},

@@ -377,7 +377,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	suite.T().Run("Payment request numbers increment by 1", func(t *testing.T) {
 		// Determine the max sequence number we already have for this MTO ID
 		var max int
-		err := suite.DB().RawQuery("SELECT COALESCE(MAX(sequence_number),0) FROM payment_requests WHERE move_task_order_id = $1", moveTaskOrder.ID).First(&max)
+		err := suite.DB().RawQuery("SELECT COALESCE(MAX(sequence_number),0) FROM payment_requests WHERE move_id = $1", moveTaskOrder.ID).First(&max)
 		suite.FatalNoError(err)
 
 		// Create two new ones

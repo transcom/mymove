@@ -284,7 +284,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	primeEstimatedWeight := unit.Pound(500)
 	primeEstimatedWeightDate := testdatagen.DateInsidePeakRateCycle
 	mto := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: models.MoveTaskOrder{
+		MoveTaskOrder: models.Move{
 			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
 	})

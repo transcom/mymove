@@ -31,7 +31,14 @@ func generateReferenceIDHelper(db *pop.Connection) (string, error) {
 	firstNum := rand.Intn(max - min + 1)
 	secondNum := rand.Intn(max - min + 1)
 	newReferenceID := fmt.Sprintf("%04d-%04d", firstNum, secondNum)
-	count, err := db.Where(`reference_id= $1`, newReferenceID).Count(&models.MoveTaskOrder{})
+	// TODO: change this to use SELECT 1 AS one with a LIMIT of 1 instead of
+	// count. Count on a large table is a slow operation. We don't need the
+	// actual count here. All we're looking for is whether or not there is
+	// already a match, so we can have the DB query return the match if there
+	// is one, or none otherwise. Then we can check the size of the result.
+	// ActiveRecord has the `.any?` method for this. I'm not sure if Pop has
+	// something similar.
+	count, err := db.Where(`reference_id= $1`, newReferenceID).Count(&models.Move{})
 	if err != nil {
 		return "", err
 	} else if count > 0 {

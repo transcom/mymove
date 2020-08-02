@@ -25,7 +25,7 @@ type moveTaskOrderCreator struct {
 }
 
 // CreateMoveTaskOrder creates a move task order
-func (o *moveTaskOrderCreator) CreateMoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) (*models.MoveTaskOrder, *validate.Errors, error) {
+func (o *moveTaskOrderCreator) CreateMoveTaskOrder(moveTaskOrder *models.Move) (*models.Move, *validate.Errors, error) {
 	// generate reference id if empty
 	if strings.TrimSpace(moveTaskOrder.ReferenceID) == "" {
 		referenceID, err := mtoservicehelper.GenerateReferenceID(o.db)
@@ -58,7 +58,7 @@ func NewMoveTaskOrderCreator(builder createMoveTaskOrderQueryBuilder, db *pop.Co
 	return &moveTaskOrderCreator{builder, db}
 }
 
-func (o *moveTaskOrderCreator) createDefaultServiceItems(moveTaskOrder *models.MoveTaskOrder) error {
+func (o *moveTaskOrderCreator) createDefaultServiceItems(moveTaskOrder *models.Move) error {
 	var reServices []models.ReService
 	err := o.db.Where("code in (?)", []string{"MS", "CS"}).All(&reServices)
 

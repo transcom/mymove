@@ -13,7 +13,7 @@ import (
 )
 
 // MoveTaskOrder payload
-func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskOrder {
+func MoveTaskOrder(moveTaskOrder *models.Move) *primemessages.MoveTaskOrder {
 	if moveTaskOrder == nil {
 		return nil
 	}
@@ -24,9 +24,9 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.DateTime(moveTaskOrder.CreatedAt),
 		AvailableToPrimeAt: handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
-		IsCanceled:         &moveTaskOrder.IsCanceled,
-		MoveOrderID:        strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
-		MoveOrder:          MoveOrder(&moveTaskOrder.MoveOrder),
+		IsCanceled:         isCanceled(moveTaskOrder),
+		MoveOrderID:        strfmt.UUID(moveTaskOrder.OrdersID.String()),
+		MoveOrder:          MoveOrder(&moveTaskOrder.Orders),
 		ReferenceID:        moveTaskOrder.ReferenceID,
 		PaymentRequests:    *paymentRequests,
 		MtoShipments:       *mtoShipments,
@@ -49,7 +49,7 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 }
 
 // MoveTaskOrders payload
-func MoveTaskOrders(moveTaskOrders *models.MoveTaskOrders) []*primemessages.MoveTaskOrder {
+func MoveTaskOrders(moveTaskOrders *models.Moves) []*primemessages.MoveTaskOrder {
 	payload := make(primemessages.MoveTaskOrders, len(*moveTaskOrders))
 
 	for i, m := range *moveTaskOrders {
@@ -535,4 +535,14 @@ func getCustomerContact(customerContacts models.MTOServiceItemCustomerContacts, 
 	}
 
 	return models.MTOServiceItemCustomerContact{}
+}
+
+func isCanceled(move *models.Move) *bool {
+	truePointer := true
+	falsePointer := false
+	if move.Status == models.MoveStatusCANCELED {
+		return &truePointer
+	}
+
+	return &falsePointer
 }

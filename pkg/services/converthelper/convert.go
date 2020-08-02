@@ -48,13 +48,13 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 		return uuid.Nil, fmt.Errorf("Could not save order, %w", err)
 	}
 
-	var moveTaskOrders []models.MoveTaskOrder
-	err := db.Where("move_order_id = $1", orders.ID).All(&moveTaskOrders)
+	var moveTaskOrders []models.Move
+	err := db.Where("orders_id = $1", orders.ID).All(&moveTaskOrders)
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("Could not fetch move task order, %w", err)
 	}
 	// create mto -> move task order
-	var mto models.MoveTaskOrder
+	var mto models.Move
 	if len(moveTaskOrders) == 0 {
 		var contractor models.Contractor
 
@@ -63,11 +63,13 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 			return uuid.Nil, fmt.Errorf("Could not find contractor, %w", err)
 		}
 
-		mto = models.MoveTaskOrder{
-			MoveOrderID:  orders.ID,
+		mto = models.Move{
+			OrdersID:     orders.ID,
 			CreatedAt:    time.Now(),
 			UpdatedAt:    time.Now(),
 			ContractorID: contractor.ID,
+			Status:       models.MoveStatusDRAFT,
+			Locator:      models.GenerateLocator(),
 		}
 
 		builder := query.NewQueryBuilder(db)
@@ -181,20 +183,6 @@ func ConvertProfileOrdersToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID,
 	err := db.Where("contract_number = ?", "HTC111-11-1-1111").First(&contractor)
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("Could not find contractor, %w", err)
-	}
-	// create mto -> move task order
-	var mto = models.MoveTaskOrder{
-		MoveOrderID:  orders.ID,
-		CreatedAt:    time.Now(),
-		UpdatedAt:    time.Now(),
-		ContractorID: contractor.ID,
-	}
-
-	builder := query.NewQueryBuilder(db)
-	mtoCreator := movetaskorder.NewMoveTaskOrderCreator(builder, db)
-
-	if _, verrs, err := mtoCreator.CreateMoveTaskOrder(&mto); err != nil || (verrs != nil && verrs.HasAny()) {
-		return uuid.Nil, fmt.Errorf("Could not save move task order, %w, %v", err, verrs)
 	}
 
 	return orders.ID, nil
