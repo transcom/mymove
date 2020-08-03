@@ -58,6 +58,17 @@ export async function getMTOServiceItems(key, moveTaskOrderID) {
   return makeSwaggerRequest(client, operationPath, { moveTaskOrderID }, { schemaKey: 'mtoServiceItems' });
 }
 
+export async function patchPaymentRequest({ paymentRequestID, status, ifMatchETag, rejectionReason }) {
+  const operationPath = 'paymentRequests.updatePaymentRequestStatus';
+  const client = await getGHCClient();
+
+  return makeSwaggerRequest(client, operationPath, {
+    paymentRequestID,
+    'If-Match': ifMatchETag,
+    body: { status, rejectionReason },
+  });
+}
+
 export async function patchPaymentServiceItemStatus({
   moveTaskOrderID,
   paymentServiceItemID,

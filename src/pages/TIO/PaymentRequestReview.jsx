@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
-import { connect } from 'react-redux';
 import { useQuery, useMutation, queryCache } from 'react-query';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -11,11 +9,16 @@ import samplePDF from 'components/DocumentViewer/sample.pdf';
 import styles from 'pages/TIO/PaymentRequestReview.module.scss';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import ReviewServiceItems from 'components/Office/ReviewServiceItems/ReviewServiceItems';
-import { updatePaymentRequest as updatePaymentRequestAction } from 'shared/Entities/modules/paymentRequests';
 import { PAYMENT_REQUEST_STATUS } from 'shared/constants';
-import { getPaymentRequest, getMTOShipments, getMTOServiceItems, patchPaymentServiceItemStatus } from 'services/ghcApi';
+import {
+  getPaymentRequest,
+  getMTOShipments,
+  getMTOServiceItems,
+  patchPaymentRequest,
+  patchPaymentServiceItemStatus,
+} from 'services/ghcApi';
 
-const PaymentRequestReview = ({ updatePaymentRequest, history, match }) => {
+const PaymentRequestReview = ({ history, match }) => {
   const [completeReviewError, setCompleteReviewError] = useState(undefined);
   const { paymentRequestId, moveOrderId } = match.params;
 
@@ -41,6 +44,18 @@ const PaymentRequestReview = ({ updatePaymentRequest, history, match }) => {
       enabled: !!mtoID,
     },
   );
+
+  const [mutatePaymentRequest] = useMutation(patchPaymentRequest, {
+    onSuccess: () => {
+      // TODO - update cache?
+      // TODO - show flash message?
+      history.push(`/`); // Go home
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      setCompleteReviewError(errorMsg);
+    },
+  });
 
   const [mutatePaymentServiceItemStatus] = useMutation(patchPaymentServiceItemStatus, {
     onSuccess: (data, variables) => {
@@ -84,7 +99,6 @@ const PaymentRequestReview = ({ updatePaymentRequest, history, match }) => {
   };
 
   const handleCompleteReview = () => {
-    // TODO - rewrite with mutation
     // first reset error if there was one
     if (completeReviewError) setCompleteReviewError(undefined);
 
@@ -94,15 +108,7 @@ const PaymentRequestReview = ({ updatePaymentRequest, history, match }) => {
       status: PAYMENT_REQUEST_STATUS.REVIEWED,
     };
 
-    updatePaymentRequest(newPaymentRequest)
-      .then(() => {
-        // TODO - show flash message?
-        history.push(`/`); // Go home
-      })
-      .catch((e) => {
-        const errorMsg = e.response?.response?.body;
-        setCompleteReviewError(errorMsg);
-      });
+    mutatePaymentRequest(newPaymentRequest);
   };
 
   const handleClose = () => {
@@ -154,15 +160,6 @@ const PaymentRequestReview = ({ updatePaymentRequest, history, match }) => {
 PaymentRequestReview.propTypes = {
   history: HistoryShape.isRequired,
   match: MatchShape.isRequired,
-  updatePaymentRequest: PropTypes.func.isRequired,
 };
 
-PaymentRequestReview.defaultProps = {};
-
-const mapStateToProps = () => ({});
-
-const mapDispatchToProps = {
-  updatePaymentRequest: updatePaymentRequestAction,
-};
-
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(PaymentRequestReview));
+export default withRouter(PaymentRequestReview);

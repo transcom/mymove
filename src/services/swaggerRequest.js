@@ -88,6 +88,6 @@ export async function makeSwaggerRequest(client, operationPath, params = {}, opt
       console.error(`Operation ${operationPath} failed: ${response} (${response.status})`);
       // TODO - log error
       // TODO - return error
-      return Promise.reject();
+      return Promise.reject(response);
     });
 }
