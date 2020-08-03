@@ -133,7 +133,6 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		PPMType:            swag.String("FULL"),
 		ContractorID:       contractor.ID,
 		Status:             models.MoveStatusDRAFT,
-		Show:               swag.Bool(true),
 		Orders: models.Order{
 			Grade:               swag.String("E_6"),
 			OrdersNumber:        swag.String("4554"),

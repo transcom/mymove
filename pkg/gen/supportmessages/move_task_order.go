@@ -89,12 +89,6 @@ type MoveTaskOrder struct {
 	//
 	ReferenceID string `json:"referenceId,omitempty"`
 
-	// A boolean that defaults to true and can be set to false to prevent a
-	// move from showing up in the app. This can be useful for erroneous or
-	// fraudulent moves.
-	//
-	Show bool `json:"show,omitempty"`
-
 	// move status
 	Status MoveStatus `json:"status,omitempty"`
 
@@ -146,8 +140,6 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 		PpmType string `json:"ppmType,omitempty"`
 
 		ReferenceID string `json:"referenceId,omitempty"`
-
-		Show bool `json:"show,omitempty"`
 
 		Status MoveStatus `json:"status,omitempty"`
 
@@ -217,9 +209,6 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 	// referenceId
 	result.ReferenceID = data.ReferenceID
 
-	// show
-	result.Show = data.Show
-
 	// status
 	result.Status = data.Status
 
@@ -264,8 +253,6 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 
 		ReferenceID string `json:"referenceId,omitempty"`
 
-		Show bool `json:"show,omitempty"`
-
 		Status MoveStatus `json:"status,omitempty"`
 
 		UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
@@ -298,8 +285,6 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 		PpmType: m.PpmType,
 
 		ReferenceID: m.ReferenceID,
-
-		Show: m.Show,
 
 		Status: m.Status,
 

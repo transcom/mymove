@@ -858,12 +858,6 @@ definitions:
         description: Unique 6-character code the customer can use to refer to their move
         type: string
         example: ABC123
-      show:
-        description: |
-          A boolean that defaults to true and can be set to false to prevent a
-          move from showing up in the app. This can be useful for erroneous or
-          fraudulent moves.
-        type: boolean
   MoveOrders:
     items:
       $ref: '#/definitions/MoveOrder'

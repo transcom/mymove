@@ -1305,10 +1305,6 @@ func init() {
           "type": "string",
           "example": "1001-3456"
         },
-        "show": {
-          "description": "A boolean that defaults to true and can be set to false to prevent a\nmove from showing up in the app. This can be useful for erroneous or\nfraudulent moves.\n",
-          "type": "boolean"
-        },
         "status": {
           "description": "move status",
           "$ref": "#/definitions/MoveStatus"
@@ -3126,10 +3122,6 @@ func init() {
           "description": "Unique ID associated with this MoveOrder.\n\nNo two MoveTaskOrders may have the same ID.\nAttempting to create a MoveTaskOrder may fail if this referenceId has been used already.\n",
           "type": "string",
           "example": "1001-3456"
-        },
-        "show": {
-          "description": "A boolean that defaults to true and can be set to false to prevent a\nmove from showing up in the app. This can be useful for erroneous or\nfraudulent moves.\n",
-          "type": "boolean"
         },
         "status": {
           "description": "move status",

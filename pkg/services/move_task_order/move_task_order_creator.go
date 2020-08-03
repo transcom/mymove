@@ -5,10 +5,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gofrs/uuid"
-
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -35,6 +35,9 @@ func (o *moveTaskOrderCreator) CreateMoveTaskOrder(moveTaskOrder *models.Move) (
 		moveTaskOrder.ReferenceID = referenceID
 	}
 
+	moveTaskOrder.Show = swag.Bool(true)
+
+	// TODO: Remove this? Doesn't Pop automatically do this?
 	moveTaskOrder.CreatedAt = time.Now()
 	moveTaskOrder.UpdatedAt = time.Now()
 

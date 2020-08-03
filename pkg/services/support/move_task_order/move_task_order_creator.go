@@ -55,6 +55,7 @@ func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessage
 		if moveTaskOrder.Locator == "" {
 			moveTaskOrder.Locator = models.GenerateLocator()
 		}
+		moveTaskOrder.Show = swag.Bool(true)
 		moveTaskOrder.Orders = *moveOrder
 		moveTaskOrder.OrdersID = moveOrder.ID
 
@@ -275,7 +276,6 @@ func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.Move 
 		PPMType:            &mtoPayload.PpmType,
 		ContractorID:       uuid.FromStringOrNil(mtoPayload.ContractorID.String()),
 		Status:             (models.MoveStatus)(mtoPayload.Status),
-		Show:               swag.Bool(mtoPayload.Show),
 	}
 
 	if mtoPayload.AvailableToPrimeAt != nil {
