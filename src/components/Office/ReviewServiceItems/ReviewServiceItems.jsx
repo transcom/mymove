@@ -6,6 +6,10 @@ import sortServiceItemsByGroup from '../../../utils/serviceItems';
 
 import styles from './ReviewServiceItems.module.scss';
 import ServiceItemCard from './ServiceItemCard';
+import ReviewDetailsCard from './ReviewDetailsCard';
+import AuthorizePayment from './AuthorizePayment';
+import NeedsReview from './NeedsReview';
+import RejectRequest from './RejectRequest';
 
 import { ServiceItemCardsShape } from 'types/serviceItemCard';
 import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
@@ -25,9 +29,9 @@ const ReviewServiceItems = ({
 
   const sortedCards = sortServiceItemsByGroup(serviceItemCards);
 
-  const totalCards = serviceItemCards.length;
+  const totalCards = sortedCards.length;
 
-  const { APPROVED } = PAYMENT_SERVICE_ITEM_STATUS;
+  const { APPROVED, DENIED, REQUESTED } = PAYMENT_SERVICE_ITEM_STATUS;
 
   const handleClick = (index) => {
     setCardIndex(index);
@@ -37,9 +41,15 @@ const ReviewServiceItems = ({
     onCompleteReview();
   };
 
-  const approvedSum = serviceItemCards.filter((s) => s.status === APPROVED).reduce((sum, cur) => sum + cur.amount, 0);
-  // const rejectedSum = serviceItemCards.filter((s) => s.status === DENIED).reduce((sum, cur) => sum + cur.amount, 0)
-  // const requestedSum = serviceItemCards.reduce((sum, cur) => sum + cur.amount, 0); // TODO - use in Complete review screen
+  // calculating the sums
+  const approvedSum = sortedCards.filter((s) => s.status === APPROVED).reduce((sum, cur) => sum + cur.amount, 0);
+  const rejectedSum = sortedCards.filter((s) => s.status === DENIED).reduce((sum, cur) => sum + cur.amount, 0);
+  const requestedSum = sortedCards.reduce((sum, cur) => sum + cur.amount, 0);
+
+  const itemsNeedsReviewLength = sortedCards.filter((s) => s.status === REQUESTED)?.length;
+  const showNeedsReview = sortedCards.some((s) => s.status === REQUESTED);
+  const showRejectRequest = sortedCards.every((s) => s.status === DENIED);
+  const firstItemNeedsReviewIndex = showNeedsReview && sortedCards.findIndex((s) => s.status === REQUESTED);
 
   let firstBasicIndex = null;
   let lastBasicIndex = null;
@@ -65,6 +75,13 @@ const ReviewServiceItems = ({
   const isBasicServiceItem =
     firstBasicIndex !== null && curCardIndex >= firstBasicIndex && curCardIndex <= lastBasicIndex;
 
+  let renderCompleteAction = <AuthorizePayment amount={approvedSum} onClick={handleAuthorizePayment} />;
+  if (showNeedsReview)
+    renderCompleteAction = (
+      <NeedsReview numberOfItems={itemsNeedsReviewLength} onClick={() => setCardIndex(firstItemNeedsReviewIndex)} />
+    );
+  else if (showRejectRequest) renderCompleteAction = <RejectRequest onClick={handleAuthorizePayment} />;
+
   // Similar to componentDidMount and componentDidUpdate
   useEffect(() => {
     if (currentCard) {
@@ -87,23 +104,14 @@ const ReviewServiceItems = ({
           <h2 className={styles.header}>Complete request</h2>
         </div>
         <div className={styles.body}>
-          <div className={styles.completeReviewCard}>
-            <h4>Review details</h4>
-            {completeReviewError && (
-              <p className="text-error" data-testid="errorMessage">
-                Error: {completeReviewError.detail}
-              </p>
-            )}
-
-            <div className={styles.completeReviewAction}>
-              <p>
-                <strong>Do you authorize this payment of {toDollarString(approvedSum)}?</strong>
-              </p>
-              <Button type="button" data-testid="authorizePaymentBtn" onClick={handleAuthorizePayment}>
-                Authorize Payment
-              </Button>
-            </div>
-          </div>
+          <ReviewDetailsCard
+            completeReviewError={completeReviewError}
+            acceptedAmount={approvedSum}
+            rejectedAmount={rejectedSum}
+            requestedAmount={requestedSum}
+          >
+            {renderCompleteAction}
+          </ReviewDetailsCard>
         </div>
         <div className={styles.bottom}>
           <Button

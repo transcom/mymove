@@ -271,6 +271,9 @@ bin/milmove-tasks:
 bin/prime-api-client:
 	go build -ldflags "$(LDFLAGS)" -o bin/prime-api-client ./cmd/prime-api-client
 
+bin/webhook-client:
+	go build -ldflags "$(LDFLAGS)" -o bin/webhook-client ./cmd/webhook-client
+
 bin/query-cloudwatch-logs:
 	go build -ldflags "$(LDFLAGS)" -o bin/query-cloudwatch-logs ./cmd/query-cloudwatch-logs
 
