@@ -14,17 +14,20 @@
     @include u-flex('wrap');
   }
 
-  dt, dd {
+  dt,
+  dd {
     @include u-border-y('1px');
     @include u-border-color('gray-10');
     @include u-padding(1);
   }
 
-  dt:first-of-type, dd:first-of-type {
+  dt:first-of-type,
+  dd:first-of-type {
     @include u-border-bottom(0);
   }
 
-  dt:last-of-type, dd:last-of-type {
+  dt:last-of-type,
+  dd:last-of-type {
     @include u-border-y(0);
   }
 
@@ -37,7 +40,8 @@
 
   dd {
     width: 66%;
-    margin-inline-start: 0;
+    margin-left: 0;
+
     @include u-text-align('right');
     @include u-font-size('base', 4);
   }
