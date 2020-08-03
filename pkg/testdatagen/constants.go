@@ -112,3 +112,6 @@ const DefaultServiceItemParamKeyName = "testkey"
 
 // DefaultContractNumber is the default contract number for  testing
 const DefaultContractNumber = "HTC111-11-1-1111"
+
+// DefaultWebhookSubscriptionCallbackURL is the default webhooksubscription callback url for testing
+const DefaultWebhookSubscriptionCallbackURL = "/some/callback/url"
