@@ -17,6 +17,7 @@ import (
 const testContractCode = "TEST"
 const testContractCode2 = "TEST2"
 const testContractName = "Test Contract"
+const testContractStartDate = "2021-02-01"
 
 var tablesToTruncate = [...]string{
 	"re_contract_years",
@@ -105,9 +106,10 @@ func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_Import() {
 		{
 			name: "Run GHC Rate Engine Importer",
 			gre: &GHCRateEngineImporter{
-				Logger:       suite.logger,
-				ContractCode: testContractCode,
-				ContractName: testContractName,
+				Logger:            suite.logger,
+				ContractCode:      testContractCode,
+				ContractName:      testContractName,
+				ContractStartDate: "2021-02-01",
 			},
 			wantErr: false,
 		},
