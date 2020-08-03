@@ -159,6 +159,7 @@ function customerSetsUpAnHHGMove() {
 
 function customerReviewsMoveDetails() {
   cy.get('h2').contains('Review Move Details');
+
   cy.nextPage();
 }
 

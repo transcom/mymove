@@ -71,6 +71,7 @@ const notMyFirstRodeo = (props) => props.lastMoveIsCanceled;
 const hasPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === SHIPMENT_OPTIONS.PPM;
 const inHhgFlow = (props) => props.context.flags.hhgFlow;
 const inGhcFlow = (props) => props.context.flags.ghcFlow;
+const removeForDemo = (props) => props.context.flags.disableForDemo;
 const isCurrentMoveSubmitted = ({ move }) => {
   return get(move, 'status', 'DRAFT') === 'SUBMITTED';
 };
@@ -138,7 +139,7 @@ const pages = {
     description: 'Backup contacts',
   },
   '/service-member/:serviceMemberId/move-landing': {
-    isInFlow: myFirstRodeo && inGhcFlow,
+    isInFlow: (props) => myFirstRodeo(props) && inGhcFlow(props) && !removeForDemo(props),
     isComplete: always,
     render: (key, pages) => () => {
       return (
@@ -183,7 +184,7 @@ const pages = {
     },
   },
   '/moves/:moveId/moving-info': {
-    isInFlow: inHhgFlow,
+    isInFlow: (props) => inHhgFlow(props) && !removeForDemo(props),
     isComplete: always,
     render: (key, pages) => () => {
       return (
