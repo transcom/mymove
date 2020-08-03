@@ -6,7 +6,6 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
-	mtoservicehelper "github.com/transcom/mymove/pkg/services/move_task_order/shared"
 )
 
 // MakeMove creates a single Move and associated set of Orders
@@ -21,7 +20,7 @@ func MakeMove(db *pop.Connection, assertions Assertions) models.Move {
 
 	var referenceID string
 	if assertions.MoveTaskOrder.ReferenceID == "" {
-		referenceID, _ = mtoservicehelper.GenerateReferenceID(db)
+		referenceID, _ = models.GenerateReferenceID(db)
 	}
 
 	var contractorID uuid.UUID

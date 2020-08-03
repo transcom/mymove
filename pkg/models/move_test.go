@@ -1,6 +1,10 @@
 package models_test
 
 import (
+	"reflect"
+	"strconv"
+	"strings"
+	"testing"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -41,6 +45,22 @@ func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
 	suite.Regexp("^[346789BCDFGHJKMPQRTVWXY]+$", move.Locator)
 	// Verify invalid items are not in locator - this should produce "non-word" locators
 	suite.NotRegexp("[0125AEIOULNSZ]", move.Locator)
+}
+
+func (suite *ModelSuite) TestGenerateReferenceID() {
+
+	refID, err := GenerateReferenceID(suite.DB())
+	suite.T().Run("reference id is properly created", func(t *testing.T) {
+		// testing reference id
+		suite.NoError(err)
+		suite.NotZero(refID)
+		firstNum, _ := strconv.Atoi(strings.Split(refID, "-")[0])
+		secondNum, _ := strconv.Atoi(strings.Split(refID, "-")[1])
+		suite.Equal(reflect.TypeOf(refID).String(), "string")
+		suite.Equal(firstNum >= 0 && firstNum <= 9999, true)
+		suite.Equal(secondNum >= 0 && secondNum <= 9999, true)
+		suite.Equal(string(refID[4]), "-")
+	})
 }
 
 func (suite *ModelSuite) TestFetchMove() {

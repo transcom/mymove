@@ -12,7 +12,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	mtoservicehelper "github.com/transcom/mymove/pkg/services/move_task_order/shared"
 )
 
 type createMoveTaskOrderQueryBuilder interface {
@@ -28,7 +27,7 @@ type moveTaskOrderCreator struct {
 func (o *moveTaskOrderCreator) CreateMoveTaskOrder(moveTaskOrder *models.Move) (*models.Move, *validate.Errors, error) {
 	// generate reference id if empty
 	if strings.TrimSpace(moveTaskOrder.ReferenceID) == "" {
-		referenceID, err := mtoservicehelper.GenerateReferenceID(o.db)
+		referenceID, err := models.GenerateReferenceID(o.db)
 		if err != nil {
 			return nil, nil, err
 		}

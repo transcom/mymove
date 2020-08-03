@@ -15,7 +15,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	movetaskordershared "github.com/transcom/mymove/pkg/services/move_task_order/shared"
 	"github.com/transcom/mymove/pkg/services/office_user/customer"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -47,7 +46,7 @@ func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessage
 
 		moveTaskOrder = MoveTaskOrderModel(&payload)
 		if moveTaskOrder.ReferenceID == "" {
-			refID, err = movetaskordershared.GenerateReferenceID(tx)
+			refID, err = models.GenerateReferenceID(tx)
 			moveTaskOrder.ReferenceID = refID
 		}
 		if moveTaskOrder.Locator == "" {
