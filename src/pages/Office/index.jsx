@@ -24,7 +24,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { QueueHeader } from 'shared/Header/Office';
 import FOUOHeader from 'components/FOUOHeader';
 import { ConnectedSelectApplication } from 'pages/SelectApplication/SelectApplication';
-import { roleTypes } from 'constants/userRoles';
+import { roleTypes, officeRoles } from 'constants/userRoles';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { withContext } from 'shared/AppContext';
 import { LocationShape, UserRolesShape } from 'types/index';
@@ -83,7 +83,8 @@ export class OfficeApp extends Component {
       location: { pathname },
     } = this.props;
 
-    const selectedRole = userIsLoggedIn && (activeRole || userRoles[0]?.roleType);
+    let selectedRole = userIsLoggedIn && activeRole;
+    if (!selectedRole) selectedRole = userRoles?.find((r) => officeRoles.indexOf(r.roleType) > -1)?.roleType;
 
     // TODO - test login page?
 
