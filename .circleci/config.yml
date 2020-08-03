@@ -648,6 +648,7 @@ jobs:
     executor: mymove_large
     steps:
       - checkout
+      - aws_vars_legacy
       - setup_remote_docker:
           docker_layer_caching: false
       - restore_cache:
@@ -681,6 +682,7 @@ jobs:
     executor: mymove_medium_plus
     steps:
       - checkout
+      - aws_vars_legacy
       - setup_remote_docker:
           docker_layer_caching: false
       - restore_cache:
