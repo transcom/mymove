@@ -46,7 +46,7 @@
   .body {
     @include u-padding-y('3');
     @include u-padding-x('4');
-    @include u-bg('gray-5');
+    background-color: $bg-gray;
     @include u-overflow-y('auto');
     flex: 1 1 0;
     flex-basis: 0;

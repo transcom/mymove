@@ -44,7 +44,9 @@ func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(isAvailableToPrime bool, sin
 		"MTOShipments.SecondaryPickupAddress",
 		"MTOShipments.MTOAgents",
 		"MoveOrder.ServiceMember",
-		"MoveOrder.Entitlement")
+		"MoveOrder.Entitlement",
+		"MoveOrder.NewDutyStation.Address",
+	)
 
 	if isAvailableToPrime {
 		query = query.Where("available_to_prime_at IS NOT NULL")
@@ -83,7 +85,8 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*mo
 		"MTOShipments.SecondaryPickupAddress",
 		"MTOShipments.MTOAgents",
 		"MoveOrder.ServiceMember",
-		"MoveOrder.Entitlement").Find(mto, moveTaskOrderID); err != nil {
+		"MoveOrder.Entitlement",
+		"MoveOrder.NewDutyStation.Address").Find(mto, moveTaskOrderID); err != nil {
 
 		switch err {
 		case sql.ErrNoRows:

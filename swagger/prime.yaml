@@ -771,6 +771,7 @@ definitions:
     items:
       $ref: '#/definitions/MTOAgent'
     type: array
+    maxItems: 2
   MTOAgent:
     properties:
       id:

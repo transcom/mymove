@@ -535,3 +535,4 @@
 20200729145933_add_distance_to_mto_shipment.up.sql
 20200730151934_drop_customers.up.sql
 20200730153642_add_ghc_diesel_fuel_price_records.up.sql
+20200803200704_create_subscriptions_table.up.sql
