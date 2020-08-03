@@ -109,7 +109,7 @@ func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_Import() {
 				Logger:            suite.logger,
 				ContractCode:      testContractCode,
 				ContractName:      testContractName,
-				ContractStartDate: "2021-02-01",
+				ContractStartDate: testContractStartDate,
 			},
 			wantErr: false,
 		},
