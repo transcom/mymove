@@ -13,6 +13,11 @@ func MakeWebhookSubscription(db *pop.Connection, assertions Assertions) models.W
 		subscriber = MakeContractor(db, assertions)
 	}
 
+	status := assertions.WebhookSubscription.Status
+	if status == "" {
+		status = models.WebhookSubscriptionStatusActive
+	}
+
 	callbackURL := assertions.WebhookSubscription.CallbackURL
 	if callbackURL == "" {
 		callbackURL = DefaultWebhookSubscriptionCallbackURL
@@ -26,6 +31,7 @@ func MakeWebhookSubscription(db *pop.Connection, assertions Assertions) models.W
 	webhookSubscription := models.WebhookSubscription{
 		Subscriber:   subscriber,
 		SubscriberID: subscriber.ID,
+		Status:       status,
 		EventKey:     eventKey,
 		CallbackURL:  callbackURL,
 	}
