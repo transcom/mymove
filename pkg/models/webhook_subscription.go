@@ -9,9 +9,6 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-// WebhookSubscriptionStatus is a type representing the webhook subscription status type - string
-type WebhookSubscriptionStatus string
-
 // A WebhookSubscription represents a webhook subscription
 type WebhookSubscription struct {
 	ID           uuid.UUID  `db:"id"`
