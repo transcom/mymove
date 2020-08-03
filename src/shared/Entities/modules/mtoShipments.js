@@ -46,3 +46,10 @@ export function selectMTOShipments(state, moveOrderId) {
 export function selectMTOShipmentsByMTOId(state, moveTaskOrderId) {
   return filter(state.entities.mtoShipments, (mtoShipment) => mtoShipment.moveTaskOrderID === moveTaskOrderId);
 }
+
+export function selectMTOShipmentForMTO(state, moveTaskOrderId) {
+  const mtoShipment = Object.values(state.entities.mtoShipments).find(
+    (mtoShipment) => mtoShipment.moveTaskOrderID === moveTaskOrderId,
+  );
+  return mtoShipment || {};
+}

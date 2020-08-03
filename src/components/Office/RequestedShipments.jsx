@@ -8,7 +8,7 @@ import { MTOAgentShape, MTOShipmentShape, MoveTaskOrderShape, MTOServiceItemShap
 import ShipmentApprovalPreview from './ShipmentApprovalPreview';
 import styles from './requestedShipments.module.scss';
 
-import ShipmentDisplay from 'components/Office/ShipmentDisplay';
+import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { ReactComponent as FormCheckmarkIcon } from 'shared/icon/form-checkmark.svg';
 import { ReactComponent as XHeavyIcon } from 'shared/icon/x-heavy.svg';
 import { formatDate } from 'shared/dates';

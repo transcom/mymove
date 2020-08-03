@@ -17,16 +17,30 @@ const defaultFlags = {
   allOrdersTypes: false,
   hhgFlow: false,
   ghcFlow: false,
+  disableForDemo: false,
 };
 
 const environmentFlags = {
-  development: Object.assign({}, defaultFlags, { allOrdersTypes: true, hhgFlow: true, ghcFlow: true }),
+  development: Object.assign({}, defaultFlags, {
+    allOrdersTypes: true,
+    hhgFlow: true,
+    ghcFlow: true,
+  }),
 
   test: Object.assign({}, defaultFlags),
 
-  experimental: Object.assign({}, defaultFlags, { allOrdersTypes: true, hhgFlow: true, ghcFlow: true }),
+  experimental: Object.assign({}, defaultFlags, {
+    allOrdersTypes: true,
+    hhgFlow: true,
+    ghcFlow: true,
+  }),
 
-  staging: Object.assign({}, defaultFlags, { allOrdersTypes: true, hhgFlow: true, ghcFlow: true }),
+  staging: Object.assign({}, defaultFlags, {
+    allOrdersTypes: true,
+    hhgFlow: true,
+    ghcFlow: true,
+    disableForDemo: true,
+  }),
 
   production: Object.assign({}, defaultFlags, {
     sitPanel: false,

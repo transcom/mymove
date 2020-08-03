@@ -35,6 +35,7 @@ const initialState = {
   moves: {},
   orders: {},
   personallyProcuredMoves: {},
+  mtoShipments: {},
   reimbursements: {},
   signedCertifications: {},
   tariff400ngItems: {},

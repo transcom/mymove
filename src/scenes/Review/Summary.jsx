@@ -22,14 +22,19 @@ import { selectedMoveType as selectMoveType } from 'scenes/Moves/ducks';
 import { checkEntitlement } from './ducks';
 import ServiceMemberSummary from './ServiceMemberSummary';
 import PPMShipmentSummary from './PPMShipmentSummary';
+import HHGShipmentSummary from 'pages/MyMove/HHGShipmentSummary';
 
 import './Review.css';
 import { selectActivePPMForMove } from '../../shared/Entities/modules/ppms';
+import { showLoggedInUser as showLoggedInUserAction, selectLoggedInUser } from 'shared/Entities/modules/user';
+import { selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
 
 export class Summary extends Component {
   componentDidMount() {
     if (this.props.onDidMount) {
       this.props.onDidMount(this.props.serviceMember.id);
+      const { showLoggedInUser } = this.props;
+      showLoggedInUser();
     }
   }
   componentDidUpdate(prevProps) {
@@ -45,6 +50,7 @@ export class Summary extends Component {
     const {
       currentMove,
       currentPPM,
+      mtoShipment,
       currentBackupContacts,
       currentOrders,
       schemaRank,
@@ -66,7 +72,9 @@ export class Summary extends Component {
     const editOrdersPath = rootAddressWithMoveId + '/edit-orders';
 
     const showPPMShipmentSummary =
-      (isReviewPage && currentPPM) || (!isReviewPage && currentPPM && currentPPM.status !== 'DRAFT');
+      (isReviewPage && !isEmpty(currentPPM)) ||
+      (!isReviewPage && !isEmpty(currentPPM) && currentPPM.status !== 'DRAFT');
+    const showHHGShipmentSummary = !isEmpty(mtoShipment) || (!isEmpty(mtoShipment) && !isReviewPage);
 
     const showProfileAndOrders = isReviewPage || !isReviewPage;
     return (
@@ -103,6 +111,8 @@ export class Summary extends Component {
           />
         )}
 
+        {showHHGShipmentSummary && <HHGShipmentSummary mtoShipment={mtoShipment} movePath={rootAddressWithMoveId} />}
+
         {showPPMShipmentSummary && (
           <PPMShipmentSummary ppm={currentPPM} movePath={rootAddressWithMoveId} orders={currentOrders} />
         )}
@@ -122,20 +132,25 @@ Summary.propTypes = {
   getCurrentMove: PropTypes.func,
   currentOrders: PropTypes.object,
   currentPPM: PropTypes.object,
+  mtoShipment: PropTypes.object,
   schemaRank: PropTypes.object,
   schemaOrdersType: PropTypes.object,
   moveIsApproved: PropTypes.bool,
   lastMoveIsCanceled: PropTypes.bool,
   error: PropTypes.object,
   selectedMoveType: PropTypes.string.isRequired,
+  showLoggedInUser: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
   const moveID = state.moves.currentMove.id;
   const currentOrders = selectActiveOrLatestOrders(state);
+  // TODO: temporary workaround until moves is consolidated from move_task_orders - this should be the move id
+  const moveTaskOrderID = get(selectLoggedInUser(state), 'service_member.orders[0].move_task_order_id', '');
 
   return {
     currentPPM: selectActivePPMForMove(state, moveID),
+    mtoShipment: selectMTOShipmentForMTO(state, moveTaskOrderID),
     serviceMember: state.serviceMember.currentServiceMember,
     currentMove: selectMove(state, ownProps.match.params.moveId),
     currentBackupContacts: state.serviceMember.currentBackupContacts,
@@ -161,6 +176,7 @@ function mapDispatchToProps(dispatch, ownProps) {
     onCheckEntitlement: (moveId) => {
       dispatch(checkEntitlement(moveId));
     },
+    showLoggedInUser: showLoggedInUserAction,
   };
 }
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Summary));
