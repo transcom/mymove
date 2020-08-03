@@ -72,7 +72,7 @@ func postWebhookNotify(cmd *cobra.Command, args []string) error {
 	notifyParams.SetTimeout(time.Second * 30)
 
 	// Create the client and open the cacStore
-	// #TODO: Remove any CAC-related code since there isn't a use case
+
 	supportGateway, cacStore, errCreateClient := CreateClient(v)
 	if errCreateClient != nil {
 		return errCreateClient
