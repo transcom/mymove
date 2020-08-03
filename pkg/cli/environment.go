@@ -22,7 +22,7 @@ const (
 	// EnvironmentDevelopment is the Development Environment name
 	EnvironmentDevelopment string = "development"
 	// Environmentexp is the GovCloud exp Environment name
-	Environmentexp string = "exp"
+	EnvironmentExp string = "exp"
 )
 
 var environments = []string{
