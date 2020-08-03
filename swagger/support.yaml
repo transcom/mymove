@@ -377,7 +377,7 @@ paths:
       summary: Test endpoint for sending messages via webhook
       description: >
         This endpoint represents the receiving server, The Prime, in our webhook-client testing workflow.
-        The `webhook-client` is responsible for retrieving messages from the events table and
+        The `webhook-client` is responsible for retrieving messages from the webhook_notifications table and
         sending them to the Prime (this endpoint in our testing case) via an mTLS connection.
       operationId: postWebhookNotify
       tags:

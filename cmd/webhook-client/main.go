@@ -12,9 +12,9 @@ import (
 )
 
 const (
-	// CertPathFlag is the path to the certificate to use for TLS
+	// CertPathFlag is the path to the client mTLS certificate
 	CertPathFlag string = "certpath"
-	// KeyPathFlag is the path to the key to use for TLS
+	// KeyPathFlag is the path to the key mTLS certificate
 	KeyPathFlag string = "keypath"
 	// HostnameFlag is the hostname to connect to
 	HostnameFlag string = "hostname"

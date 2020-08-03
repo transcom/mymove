@@ -29,7 +29,7 @@ type Client struct {
 /*
 PostWebhookNotify tests endpoint for sending messages via webhook
 
-This endpoint represents the receiving server, The Prime, in our webhook-client testing workflow. The `webhook-client` is responsible for retrieving messages from the events table and sending them to the Prime (this endpoint in our testing case) via an mTLS connection.
+This endpoint represents the receiving server, The Prime, in our webhook-client testing workflow. The `webhook-client` is responsible for retrieving messages from the webhook_notifications table and sending them to the Prime (this endpoint in our testing case) via an mTLS connection.
 
 */
 func (a *Client) PostWebhookNotify(params *PostWebhookNotifyParams) (*PostWebhookNotifyOK, error) {

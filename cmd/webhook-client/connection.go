@@ -48,10 +48,6 @@ func CreateClient(v *viper.Viper) (*supportClient.Mymove, *pksigner.Store, error
 
 	var httpClient *http.Client
 
-	// #TODO: Remove code dealing with CAC. For this client, there is
-	// no use case for using a CAC. On deployed environments, we will
-	// need DISA certificates.
-
 	// The client certificate comes from a smart card
 	var store *pksigner.Store
 	if v.GetBool(cli.CACFlag) {
