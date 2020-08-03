@@ -21,7 +21,7 @@ const (
 	EnvironmentTest string = "test"
 	// EnvironmentDevelopment is the Development Environment name
 	EnvironmentDevelopment string = "development"
-	// Environmentexp is the GovCloud exp Environment name
+	// EnvironmentExp is the GovCloud exp Environment name
 	EnvironmentExp string = "exp"
 )
 
