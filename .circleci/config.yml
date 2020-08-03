@@ -71,19 +71,21 @@ commands:
       - run:
           name: 'Setting up AWS environment variables for legacy env'
           command: |
-            echo "export AWS_REGION=$LEGACY_REGION" >> $BASH_ENV
+            echo "export AWS_DEFAULT_REGION=$LEGACY_REGION" >> $BASH_ENV
             echo "export AWS_ACCOUNT_ID=$LEGACY_ACCOUNT_ID" >> $BASH_ENV
             echo "export AWS_ACCESS_KEY_ID=$LEGACY_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$LEGACY_SECRET_ACCESS_KEY" >> $BASH_ENV
+            source $BASH_ENV
   aws_vars_exp:
-      steps:
-        - run:
-            name: 'Setting up AWS environment variables for exp env'
-            command: |
-              echo "export AWS_REGION=$EXP_REGION" >> $BASH_ENV
-              echo "export AWS_ACCOUNT_ID=$EXP_ACCOUNT_ID" >> $BASH_ENV
-              echo "export AWS_ACCESS_KEY_ID=$EXP_ACCESS_KEY_ID" >> $BASH_ENV
-              echo "export AWS_SECRET_ACCESS_KEY=$EXP_SECRET_ACCESS_KEY" >> $BASH_ENV
+    steps:
+      - run:
+          name: 'Setting up AWS environment variables for exp env'
+          command: |
+            echo "export AWS_DEFAULT_REGION=$EXP_REGION" >> $BASH_ENV
+            echo "export AWS_ACCOUNT_ID=$EXP_ACCOUNT_ID" >> $BASH_ENV
+            echo "export AWS_ACCESS_KEY_ID=$EXP_ACCESS_KEY_ID" >> $BASH_ENV
+            echo "export AWS_SECRET_ACCESS_KEY=$EXP_SECRET_ACCESS_KEY" >> $BASH_ENV
+            source $BASH_ENV
   announce_failure:
     parameters:
     steps:
@@ -280,9 +282,9 @@ commands:
       - run:
           name: 'Tag and push docker image'
           command: |
-            bash -c "$(aws ecr get-login --no-include-email --region $AWS_REGION)"
-            docker tag << parameters.image_name >>:<< parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/<< parameters.repo >>:git-commit-${CIRCLE_SHA1}
-            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/<< parameters.repo >>:git-commit-${CIRCLE_SHA1}
+            bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
+            docker tag << parameters.image_name >>:<< parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-commit-${CIRCLE_SHA1}
+            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-commit-${CIRCLE_SHA1}
             shopt -s extglob
             docker tag << parameters.image_name >>:<< parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
             docker tag << parameters.image_name >>:<< parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
@@ -648,6 +650,7 @@ jobs:
     executor: mymove_large
     steps:
       - checkout
+      - aws_vars_legacy
       - setup_remote_docker:
           docker_layer_caching: false
       - restore_cache:
@@ -681,6 +684,7 @@ jobs:
     executor: mymove_medium_plus
     steps:
       - checkout
+      - aws_vars_legacy
       - setup_remote_docker:
           docker_layer_caching: false
       - restore_cache:
@@ -766,8 +770,8 @@ jobs:
   build_app:
     executor: mymove_medium_plus
     steps:
-      - checkout
       - aws_vars_legacy
+      - checkout
       - setup_remote_docker:
           docker_layer_caching: false
       - restore_cache:
@@ -827,6 +831,7 @@ jobs:
   build_migrations:
     executor: mymove_medium
     steps:
+      - aws_vars_legacy
       - checkout
       - setup_remote_docker:
           docker_layer_caching: false
@@ -843,6 +848,7 @@ jobs:
   build_milmove_admin_app:
     executor: mymove_and_postgres_medium
     steps:
+      - aws_vars_legacy
       - checkout
       - restore_cache:
           keys:
@@ -917,6 +923,7 @@ jobs:
   build_tasks:
     executor: mymove_medium
     steps:
+      - aws_vars_legacy
       - checkout
       - setup_remote_docker:
           docker_layer_caching: false
@@ -1008,7 +1015,6 @@ jobs:
     executor: mymove_small
     environment:
       - APP_ENVIRONMENT: 'exp'
-      - AWS_DEFAULT_REGION: 'us-gov-west-1'
     steps:
       - deploy_app_client_tls_steps:
           compare_host: '' # leave blank since we want exp to be able to roll back
