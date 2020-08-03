@@ -25,7 +25,7 @@ readonly usage="usage: $0 <production_migration_file>"
 
 function proceed() {
   proceed_message=${1:-"proceed"}
-  echo -n "${proceed_message} (y/N) "
+  echo -en "\e[31m${proceed_message} (y/N) \e[39m"
   read -r proceed
   if [[ "$proceed" =~ ^[^yY]*$ ]]; then
     echo "exiting"
@@ -136,7 +136,7 @@ proceed "Are you ready to upload the migrations? This will overwrite files of th
       echo "Uploading to: $environment in $cloud"
       sleep 1
       if [[ ${cloud} == "legacy" ]]; then
-      echo "${aws_path_prefix}"
+       echo "${aws_path_prefix}"
        DISABLE_AWS_VAULT_WRAPPER=1 \
         AWS_PROFILE=${aws_legacy_account} \
         AWS_REGION=${aws_com_region} \
