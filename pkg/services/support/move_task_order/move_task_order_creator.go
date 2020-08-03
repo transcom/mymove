@@ -49,11 +49,11 @@ func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessage
 			refID, err = models.GenerateReferenceID(tx)
 			moveTaskOrder.ReferenceID = refID
 		}
-		if moveTaskOrder.Locator == "" {
-			moveTaskOrder.Locator = models.GenerateLocator()
-		}
 		if err != nil {
 			return err
+		}
+		if moveTaskOrder.Locator == "" {
+			moveTaskOrder.Locator = models.GenerateLocator()
 		}
 		moveTaskOrder.Orders = *moveOrder
 		moveTaskOrder.OrdersID = moveOrder.ID
@@ -283,9 +283,6 @@ func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.Move 
 		model.AvailableToPrimeAt = &availableToPrimeAt
 	}
 
-	// TODO: We should remove this and let people know that the API
-	// has changed. To set the status to canceled, you now pass that in
-	// via the Status attribute.
 	if mtoPayload.IsCanceled != nil && *mtoPayload.IsCanceled == true {
 		model.Status = models.MoveStatusCANCELED
 	}

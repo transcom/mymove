@@ -124,13 +124,10 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 	document := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
 	issueDate := swag.Time(time.Now())
 	reportByDate := swag.Time(time.Now().AddDate(0, 0, -1))
+	referenceID, _ := models.GenerateReferenceID(suite.DB())
 
 	mtoWithoutCustomer := models.Move{
-		// Hmm. This Reference ID doesn't match the expected dddd-dddd format.
-		// Sounds like we don't have a validation for the format. We will need
-		// a validation if there is indeed a legal requirement for a separate
-		// referenceID that uses the format dddd-dddd.
-		ReferenceID:        "4857363",
+		ReferenceID:        referenceID,
 		Locator:            models.GenerateLocator(),
 		AvailableToPrimeAt: swag.Time(time.Now()),
 		PPMType:            swag.String("FULL"),
@@ -192,8 +189,9 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 			FirstName: swag.String("Grace"),
 			LastName:  swag.String("Griffin"),
 		}
-		// Need to regenerate the ReferenceID and Locator because they are unique
-		mtoWithoutCustomer.ReferenceID = "346523"
+		// Need to regenerate the ReferenceID and Locator because need to be unique
+		referenceID, _ := models.GenerateReferenceID(suite.DB())
+		mtoWithoutCustomer.ReferenceID = referenceID
 		mtoWithoutCustomer.Locator = models.GenerateLocator()
 
 		// If customerID is provided create MTO without creating a new customer

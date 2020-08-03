@@ -51,7 +51,6 @@ func (suite *ModelSuite) TestGenerateReferenceID() {
 
 	refID, err := GenerateReferenceID(suite.DB())
 	suite.T().Run("reference id is properly created", func(t *testing.T) {
-		// testing reference id
 		suite.NoError(err)
 		suite.NotZero(refID)
 		firstNum, _ := strconv.Atoi(strings.Split(refID, "-")[0])

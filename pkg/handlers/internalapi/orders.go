@@ -128,7 +128,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 			logger.Error("ProfileOrders->GHC conversion error", zap.Error(convertErr))
 			// don't return an error here because we don't want this to break the endpoint
 		} else {
-			logger.Info("ProfileOrders->GHC conversion successful. New MoveOrder and MoveTaskOrder created.", zap.String("orders_id", moID.String()))
+			logger.Info("ProfileOrders->GHC conversion successful. New Order and Move created.", zap.String("orders_id", moID.String()))
 		}
 	} else {
 		logger.Info("ProfileOrders->GHC conversion skipped (env var not set)")

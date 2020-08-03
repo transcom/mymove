@@ -1,7 +1,6 @@
 package internalapi
 
 import (
-	"fmt"
 	"net/http/httptest"
 	"time"
 
@@ -673,12 +672,8 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 	suite.Nil(err, "Failed to save move")
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
-	fmt.Println("move.Locator:", move.Locator)
 
 	move2, verrs, err := orders1.CreateNewMove(suite.DB(), moveOptions)
-	fmt.Println("verrs:", verrs)
-	fmt.Println("err:", err)
-	fmt.Println("move2.Locator:", move2.Locator)
 	suite.Nil(err, "Failed to save move")
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move2.Orders = orders1
