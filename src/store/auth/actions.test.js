@@ -1,4 +1,4 @@
-import { setActiveRole, SET_ACTIVE_ROLE, loadUser, LOAD_USER } from './actions';
+import { setActiveRole, SET_ACTIVE_ROLE, loadUser, LOAD_USER, logOut, LOG_OUT } from './actions';
 
 describe('auth actions', () => {
   it('setActiveRole returns the expected action', () => {
@@ -16,5 +16,13 @@ describe('auth actions', () => {
     };
 
     expect(loadUser()).toEqual(expectedAction);
+  });
+
+  it('logOut returns the expected action', () => {
+    const expectedAction = {
+      type: LOG_OUT,
+    };
+
+    expect(logOut()).toEqual(expectedAction);
   });
 });

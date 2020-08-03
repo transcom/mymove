@@ -1,4 +1,4 @@
-import { SET_ACTIVE_ROLE } from './actions';
+import { SET_ACTIVE_ROLE, LOG_OUT } from './actions';
 
 import { officeRoles } from 'constants/userRoles';
 
@@ -8,6 +8,10 @@ export const initialState = {
 
 const authReducer = (state = initialState, action) => {
   switch (action?.type) {
+    case LOG_OUT: {
+      return initialState;
+    }
+
     case 'GET_LOGGED_IN_USER_SUCCESS': {
       if (state.activeRole) return state;
 

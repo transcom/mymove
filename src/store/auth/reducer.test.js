@@ -1,5 +1,5 @@
 import authReducer, { initialState } from './reducer';
-import { setActiveRole } from './actions';
+import { setActiveRole, logOut } from './actions';
 
 import { roleTypes } from 'constants/userRoles';
 
@@ -22,6 +22,15 @@ describe('authReducer', () => {
       ...initialState,
       activeRole: 'myRole',
     });
+  });
+
+  it('handles the logOut action', () => {
+    const currentState = {
+      ...initialState,
+      activeRole: 'myRole',
+    };
+
+    expect(authReducer(currentState, logOut)).toEqual(initialState);
   });
 
   it('handles the GET_LOGGED_IN_USER_SUCCESS action with no activeRole set', () => {
