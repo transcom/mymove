@@ -75,15 +75,17 @@ commands:
             echo "export AWS_ACCOUNT_ID=$LEGACY_ACCOUNT_ID" >> $BASH_ENV
             echo "export AWS_ACCESS_KEY_ID=$LEGACY_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$LEGACY_SECRET_ACCESS_KEY" >> $BASH_ENV
+            source $BASH_ENV
   aws_vars_exp:
-      steps:
-        - run:
-            name: 'Setting up AWS environment variables for exp env'
-            command: |
-              echo "export AWS_REGION=$EXP_REGION" >> $BASH_ENV
-              echo "export AWS_ACCOUNT_ID=$EXP_ACCOUNT_ID" >> $BASH_ENV
-              echo "export AWS_ACCESS_KEY_ID=$EXP_ACCESS_KEY_ID" >> $BASH_ENV
-              echo "export AWS_SECRET_ACCESS_KEY=$EXP_SECRET_ACCESS_KEY" >> $BASH_ENV
+    steps:
+      - run:
+          name: 'Setting up AWS environment variables for exp env'
+          command: |
+            echo "export AWS_REGION=$EXP_REGION" >> $BASH_ENV
+            echo "export AWS_ACCOUNT_ID=$EXP_ACCOUNT_ID" >> $BASH_ENV
+            echo "export AWS_ACCESS_KEY_ID=$EXP_ACCESS_KEY_ID" >> $BASH_ENV
+            echo "export AWS_SECRET_ACCESS_KEY=$EXP_SECRET_ACCESS_KEY" >> $BASH_ENV
+            source $BASH_ENV
   announce_failure:
     parameters:
     steps:
