@@ -287,7 +287,6 @@ commands:
             docker tag << parameters.image_name >>:<< parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
             docker tag << parameters.image_name >>:<< parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
 
-
   build_tag_push:
     parameters:
       dockerfile:
@@ -611,6 +610,7 @@ jobs:
             MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
             NO_TLS_ENABLED: true
             PWD: /home/circleci/transcom/mymove
+      - aws_vars_legacy
       - run:
           name: Run Experimental acceptance tests
           command: make acceptance_test
@@ -767,6 +767,7 @@ jobs:
     executor: mymove_medium_plus
     steps:
       - checkout
+      - aws_vars_legacy
       - setup_remote_docker:
           docker_layer_caching: false
       - restore_cache:
@@ -939,6 +940,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'experimental'
     steps:
+      - aws_vars_legacy
       - deploy_migrations_steps
 
   # `deploy_experimental_tasks` deploys scheduled tasks to the experimental environment
@@ -947,6 +949,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'experimental'
     steps:
+      - aws_vars_legacy
       - deploy_tasks_steps
 
   # `deploy_experimental_app` updates the server-TLS app service in the experimental environment
@@ -955,6 +958,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'experimental'
     steps:
+      - aws_vars_legacy
       - deploy_app_steps:
           compare_host: '' # leave blank since we want experimental to be able to roll back
           health_check_hosts: my.experimental.move.mil,office.experimental.move.mil,admin.experimental.move.mil
@@ -965,6 +969,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'experimental'
     steps:
+      - aws_vars_legacy
       - deploy_app_client_tls_steps:
           compare_host: '' # leave blank since we want experimental to be able to roll back
           health_check_hosts: gex.experimental.move.mil,dps.experimental.move.mil,orders.experimental.move.mil
@@ -974,8 +979,8 @@ jobs:
     executor: mymove_small
     environment:
       - APP_ENVIRONMENT: 'exp'
-      - AWS_DEFAULT_REGION: 'us-gov-west-1'
     steps:
+      - aws_vars_exp
       - deploy_migrations_steps
 
   # `deploy_exp_tasks` deploys scheduled tasks to the exp environment
@@ -983,8 +988,8 @@ jobs:
     executor: mymove_small
     environment:
       - APP_ENVIRONMENT: 'exp'
-      - AWS_DEFAULT_REGION: 'us-gov-west-1'
     steps:
+      - aws_vars_exp
       - deploy_tasks_steps
 
   # `deploy_exp_app` updates the server-TLS app service in the exp environment
@@ -992,8 +997,8 @@ jobs:
     executor: mymove_small
     environment:
       - APP_ENVIRONMENT: 'exp'
-      - AWS_DEFAULT_REGION: 'us-gov-west-1'
     steps:
+      - aws_vars_exp
       - deploy_app_steps:
           compare_host: '' # leave blank since we want exp to be able to roll back
           health_check_hosts: my.exp.move.mil,office.exp.move.mil,admin.exp.move.mil
@@ -1023,6 +1028,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'staging'
     steps:
+      - aws_vars_legacy
       - deploy_migrations_steps
 
   # `deploy_staging_tasks` deploys scheduled tasks to the staging environment
@@ -1031,6 +1037,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'staging'
     steps:
+      - aws_vars_legacy
       - deploy_tasks_steps
 
   # `deploy_staging_app` updates the server-TLS app service in staging environment
@@ -1039,6 +1046,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'staging'
     steps:
+      - aws_vars_legacy
       - deploy_app_steps:
           compare_host: my.staging.move.mil
           health_check_hosts: my.staging.move.mil,office.staging.move.mil,admin.staging.move.mil
@@ -1049,6 +1057,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'staging'
     steps:
+      - aws_vars_legacy
       - deploy_app_client_tls_steps:
           compare_host: gex.staging.move.mil
           health_check_hosts: gex.staging.move.mil,dps.staging.move.mil,orders.staging.move.mil
@@ -1059,6 +1068,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'prod'
     steps:
+      - aws_vars_legacy
       - deploy_migrations_steps
 
   # `deploy_prod_tasks` deploys scheduled tasks to the prod environment
@@ -1067,6 +1077,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'prod'
     steps:
+      - aws_vars_legacy
       - deploy_tasks_steps
 
   # `deploy_prod_app` updates the server-TLS app service in the prod environment
@@ -1075,6 +1086,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'prod'
     steps:
+      - aws_vars_legacy
       - deploy_app_steps:
           compare_host: my.move.mil
           health_check_hosts: my.move.mil,office.move.mil,admin.move.mil
@@ -1085,6 +1097,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'prod'
     steps:
+      - aws_vars_legacy
       - deploy_app_client_tls_steps:
           compare_host: gex.move.mil
           health_check_hosts: gex.move.mil,dps.move.mil,orders.move.mil
@@ -1092,6 +1105,7 @@ jobs:
   deploy_prod_storybook:
     executor: mymove_small
     steps:
+      - aws_vars_legacy
       - deploy_app_storybook:
           s3_bucket: storybook.move.mil
 
