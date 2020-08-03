@@ -770,8 +770,8 @@ jobs:
   build_app:
     executor: mymove_medium_plus
     steps:
-      - checkout
       - aws_vars_legacy
+      - checkout
       - setup_remote_docker:
           docker_layer_caching: false
       - restore_cache:
@@ -831,6 +831,7 @@ jobs:
   build_migrations:
     executor: mymove_medium
     steps:
+      - aws_vars_legacy
       - checkout
       - setup_remote_docker:
           docker_layer_caching: false
@@ -847,6 +848,7 @@ jobs:
   build_milmove_admin_app:
     executor: mymove_and_postgres_medium
     steps:
+      - aws_vars_legacy
       - checkout
       - restore_cache:
           keys:
@@ -921,6 +923,7 @@ jobs:
   build_tasks:
     executor: mymove_medium
     steps:
+      - aws_vars_legacy
       - checkout
       - setup_remote_docker:
           docker_layer_caching: false
