@@ -768,6 +768,19 @@ jobs:
           repo: app
       - announce_failure
 
+  # `push_app_exp` pushes the app container to the milmove-exp container repository
+  push_app_exp:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_exp
+      - push_image:
+          image_name: ppp
+          tag: web-dev
+          repo: app
+      - announce_failure
+
   # `storybook_tests` builds the storybook application container and pushes to the container repository
   storybook_tests:
     executor: mymove_medium_plus
@@ -819,13 +832,26 @@ jobs:
           working_dir: ~/transcom/mymove
       - announce_failure
 
-  # `push_migrations` pushes the migrations container to the legacy container repository
+  # `push_migrations_legacy` pushes the migrations container to the legacy container repository
   push_migrations_legacy:
     executor: mymove_small
     steps:
       - setup_remote_docker:
           docker_layer_caching: false
       - aws_vars_legacy
+      - push_image:
+          image_name: ppp-migrations
+          tag: dev
+          repo: app-migrations
+      - announce_failure
+
+  # `push_migrations_exp` pushes the migrations container to the milmove-exp container repository
+  push_migrations_exp:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_exp
       - push_image:
           image_name: ppp-migrations
           tag: dev
@@ -923,6 +949,23 @@ jobs:
           repo: app-engadmin-nginx
       - announce_failure
 
+  # `push_milmove_admin_app_exp` pushes the django admin container to the milmove-exp container repository
+  push_milmove_admin_app_exp:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_exp
+      - push_image:
+          image_name: engadmin
+          tag: dev
+          repo: app-engadmin
+      - push_image:
+          image_name: engadmin-nginx
+          tag: dev
+          repo: app-engadmin-nginx
+      - announce_failure
+
   # `build_tasks` builds the tasks containers
   build_tasks:
     executor: mymove_medium
@@ -952,6 +995,19 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: false
       - aws_vars_legacy
+      - push_image:
+          image_name: tasks
+          tag: dev
+          repo: app-tasks
+      - announce_failure
+
+  # `push_tasks_exp` pushes the tasks containers to the milmove-exp container repository
+  push_tasks_exp:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_exp
       - push_image:
           image_name: tasks
           tag: dev
@@ -1178,7 +1234,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: cblkwell-MB-2392-update-circleci-for-exp-env
 
       - integration_tests_mtls:
           requires:
@@ -1190,7 +1246,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: cblkwell-MB-2392-update-circleci-for-exp-env
 
       - client_test:
           requires:
@@ -1198,7 +1254,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: cblkwell-MB-2392-update-circleci-for-exp-env
 
       - server_test:
           requires:
@@ -1206,7 +1262,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: cblkwell-MB-2392-update-circleci-for-exp-env
 
       - build_app:
           requires:
@@ -1253,28 +1309,91 @@ workflows:
             - push_migrations_legacy
           filters:
             branches:
-              only: placeholder_branch_name
+              only: cblkwell-MB-2392-update-circleci-for-exp-env
 
       - deploy_experimental_tasks:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: cblkwell-MB-2392-update-circleci-for-exp-env
 
       - deploy_experimental_app:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: cblkwell-MB-2392-update-circleci-for-exp-env
 
       - deploy_experimental_app_client_tls:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: cblkwell-MB-2392-update-circleci-for-exp-env
+
+      - push_milmove_admin_app_exp:
+          requires:
+            - build_milmove_admin_app
+          filters:
+            branches:
+              only: cblkwell-MB-2392-update-circleci-for-exp-env
+
+      - push_app_exp:
+          requires:
+            - build_app
+          filters:
+            branches:
+              only: cblkwell-MB-2392-update-circleci-for-exp-env
+
+      - push_migrations_exp:
+          requires:
+            - build_migrations
+          filters:
+            branches:
+              only: cblkwell-MB-2392-update-circleci-for-exp-env
+
+      - push_tasks_exp:
+          requires:
+            - build_tasks
+          filters:
+            branches:
+              only: cblkwell-MB-2392-update-circleci-for-exp-env
+
+      - deploy_exp_migrations:
+          requires:
+            - pre_test
+            - client_test
+            - server_test
+            - acceptance_tests
+            - push_app_exp
+            - build_tools
+            - push_tasks_exp
+            - push_migrations_legacy
+          filters:
+            branches:
+              only: cblkwell-MB-2392-update-circleci-for-exp-env
+
+      - deploy_exp_tasks:
+          requires:
+            - deploy_exp_migrations
+          filters:
+            branches:
+              only: cblkwell-MB-2392-update-circleci-for-exp-env
+
+      - deploy_exp_app:
+          requires:
+            - deploy_exp_migrations
+          filters:
+            branches:
+              only: cblkwell-MB-2392-update-circleci-for-exp-env
+
+      - deploy_exp_app_client_tls:
+          requires:
+            - deploy_exp_migrations
+          filters:
+            branches:
+              only: cblkwell-MB-2392-update-circleci-for-exp-env
 
       - check_circle_against_staging_sha:
           requires:
