@@ -30,7 +30,7 @@ describe('authReducer', () => {
       activeRole: 'myRole',
     };
 
-    expect(authReducer(currentState, logOut)).toEqual(initialState);
+    expect(authReducer(currentState, logOut())).toEqual(initialState);
   });
 
   it('handles the GET_LOGGED_IN_USER_SUCCESS action with no activeRole set', () => {
