@@ -20,8 +20,10 @@ export default {
   ],
 };
 
+const pendingPaymentRequest = { status: PAYMENT_REQUEST_STATUS.PENDING };
 export const Basic = () => (
   <ReviewServiceItems
+    paymentRequest={pendingPaymentRequest}
     serviceItemCards={[
       {
         id: '1',
@@ -40,6 +42,7 @@ export const BasicWithTwoItems = () => {
   return (
     <ReviewServiceItems
       disableScrollIntoView
+      paymentRequest={pendingPaymentRequest}
       serviceItemCards={[
         {
           id: '1',
@@ -63,6 +66,7 @@ export const BasicWithTwoItems = () => {
 
 export const HHG = () => (
   <ReviewServiceItems
+    paymentRequest={pendingPaymentRequest}
     serviceItemCards={[
       {
         id: '1',
@@ -81,6 +85,7 @@ export const HHG = () => (
 
 export const NonTemporaryStorage = () => (
   <ReviewServiceItems
+    paymentRequest={pendingPaymentRequest}
     serviceItemCards={[
       {
         id: '1',
@@ -99,6 +104,7 @@ export const NonTemporaryStorage = () => (
 
 export const MultipleShipmentsGroups = () => (
   <ReviewServiceItems
+    paymentRequest={pendingPaymentRequest}
     serviceItemCards={[
       {
         id: '1',
@@ -140,6 +146,7 @@ export const MultipleShipmentsGroups = () => (
 export const WithStatusAndReason = () => (
   <ReviewServiceItems
     disableScrollIntoView
+    paymentRequest={pendingPaymentRequest}
     serviceItemCards={[
       {
         id: '1',
@@ -191,6 +198,7 @@ export const WithStatusAndReason = () => (
 export const WithNeedsReview = () => (
   <ReviewServiceItems
     disableScrollIntoView
+    paymentRequest={pendingPaymentRequest}
     serviceItemCards={[
       {
         id: '1',
@@ -217,6 +225,7 @@ WithNeedsReview.story = {
 export const WithRejectRequest = () => (
   <ReviewServiceItems
     disableScrollIntoView
+    paymentRequest={pendingPaymentRequest}
     serviceItemCards={[
       {
         id: '1',
@@ -243,6 +252,7 @@ WithRejectRequest.story = {
 export const WithAuthorizePayment = () => (
   <ReviewServiceItems
     disableScrollIntoView
+    paymentRequest={pendingPaymentRequest}
     serviceItemCards={[
       {
         id: '1',
