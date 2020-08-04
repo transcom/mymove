@@ -86,25 +86,28 @@ func MoveOrder(moveOrder *models.Order) *supportmessages.MoveOrder {
 		moveOrder.Entitlement.SetWeightAllotment(*moveOrder.Grade)
 	}
 
+	reportByDate := strfmt.Date(moveOrder.ReportByDate)
+	issueDate := strfmt.Date(moveOrder.IssueDate)
+
 	payload := supportmessages.MoveOrder{
 		DestinationDutyStation:   destinationDutyStation,
 		DestinationDutyStationID: destinationDutyStation.ID,
 		Entitlement:              Entitlement(moveOrder.Entitlement),
 		Customer:                 Customer(&moveOrder.ServiceMember),
 		OrderNumber:              moveOrder.OrdersNumber,
-		OrderType:                supportmessages.OrderType(moveOrder.OrdersType),
+		OrdersType:               supportmessages.OrdersType(moveOrder.OrdersType),
 		ID:                       strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:        originDutyStation,
 		ETag:                     etag.GenerateEtag(moveOrder.UpdatedAt),
 		Status:                   supportmessages.OrdersStatus(moveOrder.Status),
 		UploadedOrders:           uploadedOrders,
 		UploadedOrdersID:         strfmt.UUID(uploadedOrders.ID.String()),
-		ReportByDate:             strfmt.Date(moveOrder.ReportByDate),
-		DateIssued:               strfmt.Date(moveOrder.IssueDate),
+		ReportByDate:             &reportByDate,
+		IssueDate:                &issueDate,
 	}
 
 	if moveOrder.Grade != nil {
-		payload.Rank = *moveOrder.Grade
+		payload.Rank = moveOrder.Grade
 	}
 	return &payload
 }

@@ -86,6 +86,7 @@ type Assertions struct {
 	UserUpload                               models.UserUpload
 	UserUploader                             *uploader.UserUploader
 	User                                     models.User
+	WebhookSubscription                      models.WebhookSubscription
 }
 
 func stringPointer(s string) *string {

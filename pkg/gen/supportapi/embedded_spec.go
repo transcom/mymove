@@ -81,7 +81,7 @@ func init() {
         }
       },
       "post": {
-        "description": "Creates an instance of moveTaskOrder.\nCurrent this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses or duty stations. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
+        "description": "Creates an instance of moveTaskOrder.\nCurrent this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses or duty stations. It requires an existing contractor ID, destination duty station ID,\norigin duty station ID, and an uploaded orders ID to be passed into the request.\n\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -505,6 +505,74 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/webhook-notify": {
+      "post": {
+        "description": "This endpoint represents the receiving server, The Prime, in our webhook-client testing workflow. The ` + "`" + `webhook-client` + "`" + ` is responsible for retrieving messages from the webhook_notifications table and sending them to the Prime (this endpoint in our testing case) via an mTLS connection.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "webhook"
+        ],
+        "summary": "Test endpoint for sending messages via webhook",
+        "operationId": "postWebhookNotify",
+        "parameters": [
+          {
+            "description": "The message sent by webhook-client.",
+            "name": "message",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "message"
+              ],
+              "properties": {
+                "message": {
+                  "description": "Message sent",
+                  "type": "string",
+                  "x-nullable": false,
+                  "example": "Hello world."
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Created",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "description": "Message sent",
+                  "type": "string",
+                  "example": "Hello world."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "must be authenticated to use this endpoint"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "No orders found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -935,6 +1003,7 @@ func init() {
     },
     "MTOAgents": {
       "type": "array",
+      "maxItems": 2,
       "items": {
         "$ref": "#/definitions/MTOAgent"
       }
@@ -1113,6 +1182,14 @@ func init() {
     },
     "MoveOrder": {
       "type": "object",
+      "required": [
+        "orderNumber",
+        "ordersType",
+        "rank",
+        "reportByDate",
+        "issueDate",
+        "status"
+      ],
       "properties": {
         "customer": {
           "$ref": "#/definitions/Customer"
@@ -1122,12 +1199,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "dateIssued": {
-          "description": "The date the orders were issued.",
-          "type": "string",
-          "format": "date",
-          "example": "2020-01-01"
         },
         "destinationDutyStation": {
           "$ref": "#/definitions/DutyStation"
@@ -1152,14 +1223,20 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "issueDate": {
+          "description": "The date the orders were issued.",
+          "type": "string",
+          "format": "date",
+          "example": "2020-01-01"
+        },
         "orderNumber": {
           "description": "ID of the military orders associated with this move.",
           "type": "string",
           "x-nullable": true,
           "example": "030-00362"
         },
-        "orderType": {
-          "$ref": "#/definitions/OrderType"
+        "ordersType": {
+          "$ref": "#/definitions/OrdersType"
         },
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"
@@ -1323,24 +1400,6 @@ func init() {
         "$ref": "#/definitions/MoveTaskOrder"
       }
     },
-    "OrderType": {
-      "type": "string",
-      "title": "Order type",
-      "enum": [
-        "PERMANENT_CHANGE_OF_STATION",
-        "RETIREMENT",
-        "SEPARATION",
-        "GHC",
-        "NTS"
-      ],
-      "x-display-value": {
-        "GHC": "GHC",
-        "NTS": "NTS",
-        "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
-        "RETIREMENT": "Retirement",
-        "SEPARATION": "Separation"
-      }
-    },
     "OrdersStatus": {
       "type": "string",
       "title": "Move status",
@@ -1355,6 +1414,24 @@ func init() {
         "CANCELED": "Canceled",
         "DRAFT": "Draft",
         "SUBMITTED": "Submitted"
+      }
+    },
+    "OrdersType": {
+      "type": "string",
+      "title": "Orders type",
+      "enum": [
+        "PERMANENT_CHANGE_OF_STATION",
+        "RETIREMENT",
+        "SEPARATION",
+        "GHC",
+        "NTS"
+      ],
+      "x-display-value": {
+        "GHC": "GHC",
+        "NTS": "NTS",
+        "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
+        "RETIREMENT": "Retirement",
+        "SEPARATION": "Separation"
       }
     },
     "PaymentRequest": {
@@ -1761,7 +1838,7 @@ func init() {
         }
       },
       "post": {
-        "description": "Creates an instance of moveTaskOrder.\nCurrent this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses or duty stations. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
+        "description": "Creates an instance of moveTaskOrder.\nCurrent this will also create a number of nested objects but not all.\nIt will currently create\n* MoveTaskOrder\n* MoveOrder\n* Customer\n* User\n* Entitlement\n\nIt will not create addresses or duty stations. It requires an existing contractor ID, destination duty station ID,\norigin duty station ID, and an uploaded orders ID to be passed into the request.\n\nThis is a support endpoint and will not be available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -2323,6 +2400,74 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/webhook-notify": {
+      "post": {
+        "description": "This endpoint represents the receiving server, The Prime, in our webhook-client testing workflow. The ` + "`" + `webhook-client` + "`" + ` is responsible for retrieving messages from the webhook_notifications table and sending them to the Prime (this endpoint in our testing case) via an mTLS connection.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "webhook"
+        ],
+        "summary": "Test endpoint for sending messages via webhook",
+        "operationId": "postWebhookNotify",
+        "parameters": [
+          {
+            "description": "The message sent by webhook-client.",
+            "name": "message",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "message"
+              ],
+              "properties": {
+                "message": {
+                  "description": "Message sent",
+                  "type": "string",
+                  "x-nullable": false,
+                  "example": "Hello world."
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Created",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "description": "Message sent",
+                  "type": "string",
+                  "example": "Hello world."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "must be authenticated to use this endpoint"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "No orders found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -2753,6 +2898,7 @@ func init() {
     },
     "MTOAgents": {
       "type": "array",
+      "maxItems": 2,
       "items": {
         "$ref": "#/definitions/MTOAgent"
       }
@@ -2931,6 +3077,14 @@ func init() {
     },
     "MoveOrder": {
       "type": "object",
+      "required": [
+        "orderNumber",
+        "ordersType",
+        "rank",
+        "reportByDate",
+        "issueDate",
+        "status"
+      ],
       "properties": {
         "customer": {
           "$ref": "#/definitions/Customer"
@@ -2940,12 +3094,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "dateIssued": {
-          "description": "The date the orders were issued.",
-          "type": "string",
-          "format": "date",
-          "example": "2020-01-01"
         },
         "destinationDutyStation": {
           "$ref": "#/definitions/DutyStation"
@@ -2970,14 +3118,20 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "issueDate": {
+          "description": "The date the orders were issued.",
+          "type": "string",
+          "format": "date",
+          "example": "2020-01-01"
+        },
         "orderNumber": {
           "description": "ID of the military orders associated with this move.",
           "type": "string",
           "x-nullable": true,
           "example": "030-00362"
         },
-        "orderType": {
-          "$ref": "#/definitions/OrderType"
+        "ordersType": {
+          "$ref": "#/definitions/OrdersType"
         },
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"
@@ -3141,24 +3295,6 @@ func init() {
         "$ref": "#/definitions/MoveTaskOrder"
       }
     },
-    "OrderType": {
-      "type": "string",
-      "title": "Order type",
-      "enum": [
-        "PERMANENT_CHANGE_OF_STATION",
-        "RETIREMENT",
-        "SEPARATION",
-        "GHC",
-        "NTS"
-      ],
-      "x-display-value": {
-        "GHC": "GHC",
-        "NTS": "NTS",
-        "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
-        "RETIREMENT": "Retirement",
-        "SEPARATION": "Separation"
-      }
-    },
     "OrdersStatus": {
       "type": "string",
       "title": "Move status",
@@ -3173,6 +3309,24 @@ func init() {
         "CANCELED": "Canceled",
         "DRAFT": "Draft",
         "SUBMITTED": "Submitted"
+      }
+    },
+    "OrdersType": {
+      "type": "string",
+      "title": "Orders type",
+      "enum": [
+        "PERMANENT_CHANGE_OF_STATION",
+        "RETIREMENT",
+        "SEPARATION",
+        "GHC",
+        "NTS"
+      ],
+      "x-display-value": {
+        "GHC": "GHC",
+        "NTS": "NTS",
+        "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
+        "RETIREMENT": "Retirement",
+        "SEPARATION": "Separation"
       }
     },
     "PaymentRequest": {

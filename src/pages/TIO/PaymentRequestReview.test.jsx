@@ -25,6 +25,8 @@ describe('PaymentRequestReview', () => {
     getMTOServiceItems: jest.fn(() => Promise.resolve()),
     getMTOShipments: jest.fn(() => Promise.resolve()),
     patchPaymentServiceItemStatus: jest.fn(),
+    history: { push: jest.fn() },
+    updatePaymentRequest: jest.fn(),
   };
 
   describe('with or without data loaded', () => {
@@ -51,35 +53,35 @@ describe('PaymentRequestReview', () => {
       paymentRequest: {
         id: testPaymentRequestId,
         moveTaskOrderID: testMTOID,
-        serviceItems: [
-          {
-            id: '1',
-            mtoServiceItemID: 'a',
-            priceCents: 12399,
-            createdAt: '2020-01-01T00:09:00.999Z',
-            status: 'APPROVED',
-          },
-          {
-            id: '2',
-            mtoServiceItemID: 'b',
-            priceCents: 45600,
-            createdAt: '2020-01-01T00:09:00.999Z',
-          },
-          {
-            id: '3',
-            mtoServiceItemID: 'c',
-            priceCents: 12312,
-            createdAt: '2020-01-01T00:09:00.999Z',
-            status: 'DENIED',
-          },
-          {
-            id: '4',
-            mtoServiceItemID: 'd',
-            priceCents: 99999,
-            createdAt: '2020-01-01T00:09:00.999Z',
-          },
-        ],
       },
+      paymentServiceItems: [
+        {
+          id: '1',
+          mtoServiceItemID: 'a',
+          priceCents: 12399,
+          createdAt: '2020-01-01T00:09:00.999Z',
+          status: 'APPROVED',
+        },
+        {
+          id: '2',
+          mtoServiceItemID: 'b',
+          priceCents: 45600,
+          createdAt: '2020-01-01T00:09:00.999Z',
+        },
+        {
+          id: '3',
+          mtoServiceItemID: 'c',
+          priceCents: 12312,
+          createdAt: '2020-01-01T00:09:00.999Z',
+          status: 'DENIED',
+        },
+        {
+          id: '4',
+          mtoServiceItemID: 'd',
+          priceCents: 99999,
+          createdAt: '2020-01-01T00:09:00.999Z',
+        },
+      ],
       mtoServiceItems: [
         {
           id: 'a',

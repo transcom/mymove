@@ -11,12 +11,14 @@ const ppmContext = {
 const hhgContext = {
   flags: {
     hhgFlow: true,
+    disableForDemo: false,
   },
 };
 const ghcContext = {
   flags: {
     ghcFlow: true,
     hhgFlow: false,
+    disableForDemo: false,
   },
 };
 
