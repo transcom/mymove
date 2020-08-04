@@ -23,7 +23,7 @@ func getPaymentServiceItem(keyData *ServiceItemParamKeyData) (models.PaymentServ
 	mtoServiceItemID := keyData.MTOServiceItemID
 
 	var mtoServiceItem models.MTOServiceItem
-	err := db.Eager("ReService").Where("id = ?", mtoServiceItemID).First(&mtoServiceItem)
+	err := db.Where("id = ?", mtoServiceItemID).First(&mtoServiceItem)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
