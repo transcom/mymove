@@ -3,7 +3,6 @@ package ghcimport
 import (
 	"fmt"
 	"strconv"
-	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
@@ -23,11 +22,7 @@ func (gre *GHCRateEngineImporter) importREContractYears(dbTx *pop.Connection) er
 	incrementYear := 0
 	compoundedEscalation := 1.00000
 
-	basePeriodStartDateForPrimeContract1, err := time.Parse("2006-01-02", gre.ContractStartDate)
-	if err != nil {
-		return fmt.Errorf("could not parse the given contract start date, failed with error: %w", err)
-	}
-	basePeriodEndDateForPrimeContract1 := basePeriodStartDateForPrimeContract1.AddDate(1, 0, -1)
+	basePeriodEndDateForPrimeContract1 := gre.ContractStartDate.AddDate(1, 0, -1)
 
 	//loop through the price escalation discounts data and pull contract year and escalations
 	for _, stagePriceEscalationDiscount := range priceEscalationDiscounts {
@@ -40,7 +35,7 @@ func (gre *GHCRateEngineImporter) importREContractYears(dbTx *pop.Connection) er
 		contractYear := models.ReContractYear{
 			ContractID:           gre.ContractID,
 			Name:                 stagePriceEscalationDiscount.ContractYear,
-			StartDate:            basePeriodStartDateForPrimeContract1.AddDate(incrementYear, 0, 0),
+			StartDate:            gre.ContractStartDate.AddDate(incrementYear, 0, 0),
 			EndDate:              basePeriodEndDateForPrimeContract1.AddDate(incrementYear, 0, 0),
 			Escalation:           escalation,
 			EscalationCompounded: compoundedEscalation,

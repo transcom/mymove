@@ -114,6 +114,12 @@ func main() {
 		logger.Fatal("Did not receive a contract code; missing --contract-code")
 	}
 
+	// Before parsing spreadsheet, ensure there's a valid contract start date
+	basePeriodStartDateForPrimeContract1, err := time.Parse("2006-01-02", params.ContractStartDate)
+	if err != nil {
+		logger.Fatal("could not parse the given contract start date", zap.Error(err))
+	}
+
 	// Open the spreadsheet
 	logger.Info("Importing file", zap.String("XlsxFilename", params.XlsxFilename))
 	params.XlsxFile, err = xlsx.OpenFile(params.XlsxFilename)
@@ -136,7 +142,7 @@ func main() {
 			Logger:            logger,
 			ContractCode:      params.ContractCode,
 			ContractName:      params.ContractName,
-			ContractStartDate: params.ContractStartDate,
+			ContractStartDate: basePeriodStartDateForPrimeContract1,
 		}
 		err = ghcREImporter.Import(db)
 		if err != nil {

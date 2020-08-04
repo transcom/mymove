@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
@@ -17,7 +18,8 @@ import (
 const testContractCode = "TEST"
 const testContractCode2 = "TEST2"
 const testContractName = "Test Contract"
-const testContractStartDate = "2021-02-01"
+
+var testContractStartDate = time.Date(2021, time.February, 01, 0, 0, 0, 0, time.UTC)
 
 var tablesToTruncate = [...]string{
 	"re_contract_years",
