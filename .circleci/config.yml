@@ -272,7 +272,7 @@ commands:
       - run:
           name: 'Tag and push docker image'
           command: |
-            bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
+            aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
             docker tag << parameters.image_name >>:<< parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-commit-${CIRCLE_SHA1}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
             shopt -s extglob
@@ -282,7 +282,6 @@ commands:
           name: 'Record ECR Image Digest'
           command: |
             mkdir -p /home/circleci/transcom/mymove/bin/sha
-            echo "aws ecr describe-images --repository-name << parameters.repo >> --image-ids imageTag=git-${CIRCLE_SHA1} | jq ".imageDetails[0] .imageDigest" -r) > /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>"
             echo $(aws ecr describe-images --repository-name << parameters.repo >> --image-ids imageTag=git-${CIRCLE_SHA1} | jq ".imageDetails[0] .imageDigest" -r) > /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>
             cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>
       - run:
