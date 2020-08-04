@@ -19,9 +19,9 @@ const ServiceItemCard = ({
   status,
   rejectionReason,
   patchPaymentServiceItem,
+  disabled,
 }) => {
   const { APPROVED, DENIED } = PAYMENT_SERVICE_ITEM_STATUS;
-
   return (
     <div data-testid="ServiceItemCard" id={`card-${id}`} className={styles.ServiceItemCard}>
       <Formik
@@ -65,6 +65,7 @@ const ServiceItemCard = ({
                       name="status"
                       label="Approve"
                       onChange={handleApprovalChange}
+                      disabled={disabled}
                       data-testid="approveRadio"
                     />
                   </div>
@@ -76,6 +77,7 @@ const ServiceItemCard = ({
                       name="status"
                       label="Reject"
                       onChange={handleChange}
+                      disabled={disabled}
                       data-testid="rejectRadio"
                     />
 
@@ -87,20 +89,28 @@ const ServiceItemCard = ({
                           name="rejectionReason"
                           onChange={handleChange}
                           value={values.rejectionReason}
+                          disabled={disabled}
                         />
-                        <div className={styles.rejectionButtonGroup}>
-                          <Button type="button" data-testid="rejectionSaveButton" onClick={submitForm}>
-                            Save
-                          </Button>
-                          <Button data-testid="cancelRejectionButton" secondary onClick={handleFormReset} type="button">
-                            Cancel
-                          </Button>
-                        </div>
+                        {!disabled && (
+                          <div className={styles.rejectionButtonGroup}>
+                            <Button type="button" data-testid="rejectionSaveButton" onClick={submitForm}>
+                              Save
+                            </Button>
+                            <Button
+                              data-testid="cancelRejectionButton"
+                              secondary
+                              onClick={handleFormReset}
+                              type="button"
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        )}
                       </FormGroup>
                     )}
                   </div>
 
-                  {(values.status === APPROVED || values.status === DENIED) && (
+                  {!disabled && (values.status === APPROVED || values.status === DENIED) && (
                     <Button
                       type="button"
                       unstyled
@@ -124,17 +134,20 @@ const ServiceItemCard = ({
 ServiceItemCard.propTypes = {
   id: PropTypes.string.isRequired,
   shipmentType: ShipmentOptionsOneOf,
-  serviceItemName: PropTypes.string.isRequired,
+  serviceItemName: PropTypes.string,
   amount: PropTypes.number.isRequired,
   status: PropTypes.string,
   rejectionReason: PropTypes.string,
   patchPaymentServiceItem: PropTypes.func.isRequired,
+  disabled: PropTypes.bool,
 };
 
 ServiceItemCard.defaultProps = {
   shipmentType: null,
+  serviceItemName: null,
   status: undefined,
   rejectionReason: '',
+  disabled: false,
 };
 
 export default ServiceItemCard;

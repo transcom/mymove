@@ -87,7 +87,7 @@ export class PaymentRequestReview extends Component {
 
   render() {
     // eslint-disable-next-line react/prop-types
-    const { moveOrderId, mtoServiceItems, mtoShipments, paymentServiceItems } = this.props;
+    const { paymentRequest, moveOrderId, mtoServiceItems, mtoShipments, paymentServiceItems } = this.props;
     const { completeReviewError } = this.state;
 
     const testFiles = [
@@ -122,6 +122,7 @@ export class PaymentRequestReview extends Component {
         <div className={styles.sidebar}>
           <ReviewServiceItems
             handleClose={() => this.handleClose(moveOrderId)}
+            paymentRequest={paymentRequest}
             serviceItemCards={serviceItemCards}
             patchPaymentServiceItem={this.handleUpdatePaymentServiceItemStatus}
             onCompleteReview={this.handleCompleteReview}
