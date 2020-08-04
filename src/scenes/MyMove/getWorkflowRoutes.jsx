@@ -184,7 +184,7 @@ const pages = {
     },
   },
   '/moves/:moveId/moving-info': {
-    isInFlow: inHhgFlow,
+    isInFlow: (props) => inHhgFlow(props) && !removeForDemo(props),
     isComplete: always,
     render: (key, pages) => () => {
       return (
@@ -194,18 +194,6 @@ const pages = {
       );
     },
   },
-  // '/moves/:moveId/select-type': {
-  //   // isInFlow: inHhgFlow,
-  //   isInFlow: (props) => inHhgFlow(props) && !removeForDemo(props),
-  //   isComplete: always,
-  //   render: (key, pages) => () => {
-  //     return (
-  //       <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
-  //         <MovingInfo />
-  //       </WizardPage>
-  //     );
-  //   },
-  // },
   '/moves/:moveId/select-type': {
     // TODO: prevent user from hard-coding URL if they have a PPM or HHG existent?
     isInFlow: inHhgFlow,
