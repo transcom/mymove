@@ -128,7 +128,6 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 
 	mtoWithoutCustomer := models.Move{
 		ReferenceID:        referenceID,
-		Locator:            models.GenerateLocator(),
 		AvailableToPrimeAt: swag.Time(time.Now()),
 		PPMType:            swag.String("FULL"),
 		ContractorID:       contractor.ID,
@@ -178,7 +177,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
 		suite.Assertions.IsType(&move_task_order.CreateMoveTaskOrderCreated{}, response)
 		suite.Equal(mtoWithoutCustomer.ReferenceID, moveTaskOrdersPayload.ReferenceID)
-		suite.Equal(mtoWithoutCustomer.Locator, moveTaskOrdersPayload.Locator)
+		suite.NotNil(moveTaskOrdersPayload.Locator)
 		suite.NotNil(moveTaskOrdersPayload.AvailableToPrimeAt)
 	})
 
@@ -188,10 +187,9 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 			FirstName: swag.String("Grace"),
 			LastName:  swag.String("Griffin"),
 		}
-		// Need to regenerate the ReferenceID and Locator because need to be unique
+		// Regenerate the ReferenceID because it needs to be unique
 		referenceID, _ := models.GenerateReferenceID(suite.DB())
 		mtoWithoutCustomer.ReferenceID = referenceID
-		mtoWithoutCustomer.Locator = models.GenerateLocator()
 
 		// If customerID is provided create MTO without creating a new customer
 		mtoPayload := payloads.MoveTaskOrder(&mtoWithoutCustomer)
@@ -217,6 +215,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 
 		suite.Assertions.IsType(&move_task_order.CreateMoveTaskOrderCreated{}, response)
 		suite.Equal(mtoWithoutCustomer.ReferenceID, moveTaskOrdersPayload.ReferenceID)
+		suite.NotNil(moveTaskOrdersPayload.Locator)
 		suite.NotNil(moveTaskOrdersPayload.AvailableToPrimeAt)
 	})
 	suite.T().Run("failed create movetaskorder request 400 -- repeat ReferenceID", func(t *testing.T) {
