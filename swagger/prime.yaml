@@ -891,7 +891,6 @@ definitions:
         type: string
         readOnly: true
         enum:
-          - DRAFT
           - APPROVED
           - SUBMITTED
           - REJECTED

@@ -79,6 +79,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 
 		suite.NoError(err)
 		suite.NotNil(createdShipment)
+		suite.Equal(models.MTOShipmentStatusDraft, createdShipment.Status)
 	})
 
 	suite.T().Run("If the shipment has mto service items", func(t *testing.T) {
