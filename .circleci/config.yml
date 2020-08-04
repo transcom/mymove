@@ -263,12 +263,13 @@ commands:
       repo:
         type: string
     steps:
+      - checkout
       - attach_workspace:
-          at: /tmp/workspace
+          at: /home/circleci/transcom/mymove/bin
       - run:
           name: 'Retrieve docker image from workspace'
           command: |
-            docker load -i /tmp/workspace/images/<< parameters.image_name >>
+            docker load -i /home/circleci/transcom/mymove/bin/images/<< parameters.image_name >>
       - run:
           name: 'Tag and push docker image'
           command: |
