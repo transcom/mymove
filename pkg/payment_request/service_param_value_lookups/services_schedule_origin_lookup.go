@@ -10,7 +10,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 )
 
 // ServicesScheduleOriginLookup does lookup on services schedule origin
@@ -54,10 +53,10 @@ func (s ServicesScheduleOriginLookup) lookup(keyData *ServiceItemParamKeyData) (
 		Join("re_zip3s", "re_zip3s.domestic_service_area_id = re_domestic_service_areas.id").
 		Join("re_contracts", "re_contracts.id = re_domestic_service_areas.contract_id").
 		Where("re_zip3s.zip3 = ?", zip3).
-		Where("re_contracts.code = ?", ghcrateengine.DefaultContractCode).
+		Where("re_contracts.code = ?", keyData.ContractCode).
 		First(&domesticServiceArea)
 	if err != nil {
-		return "", fmt.Errorf("unable to find domestic service area for %s under contract code %s", zip3, ghcrateengine.DefaultContractCode)
+		return "", fmt.Errorf("unable to find domestic service area for %s under contract code %s", zip3, keyData.ContractCode)
 	}
 
 	return strconv.Itoa(domesticServiceArea.ServicesSchedule), nil

@@ -8,7 +8,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 )
 
 // ServiceAreaDestLookup does lookup on destination address postal code
@@ -54,7 +53,7 @@ func (r ServiceAreaDestLookup) lookup(keyData *ServiceItemParamKeyData) (string,
 		Join("re_zip3s", "re_zip3s.domestic_service_area_id = re_domestic_service_areas.id").
 		Join("re_contracts", "re_contracts.id = re_domestic_service_areas.contract_id").
 		Where("zip3 = ?", zip3).
-		Where("re_contracts.code = ?", ghcrateengine.DefaultContractCode)
+		Where("re_contracts.code = ?", keyData.ContractCode)
 
 	err = query.First(&domesticServiceArea)
 
