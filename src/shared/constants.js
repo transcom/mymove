@@ -45,6 +45,11 @@ export const UPLOAD_SCAN_STATUS = {
   PROCESSING: 'PROCESSING',
 };
 
+export const CONUS_STATUS = {
+  CONUS: 'CONUS',
+  OCONUS: 'OCONUS',
+};
+
 export const SHIPMENT_OPTIONS = {
   HHG: 'HHG',
   PPM: 'PPM',
@@ -59,6 +64,20 @@ export const SERVICE_ITEM_STATUS = {
   REJECTED: 'REJECTED',
 };
 
+export const PAYMENT_REQUEST_STATUS = {
+  PENDING: 'PENDING',
+  REVIEWED: 'REVIEWED',
+  SENT_TO_GEX: 'SENT_TO_GEX',
+  RECEIVED_BY_GEX: 'RECEIVED_BY_GEX',
+  PAID: 'PAID',
+};
+
+export const PAYMENT_SERVICE_ITEM_STATUS = {
+  DENIED: 'DENIED',
+  REQUESTED: 'REQUESTED',
+  APPROVED: 'APPROVED',
+};
+
 export const SERVICE_ITEM_CODES = {
   CS: 'Counseling Services',
   MS: 'Shipment Mgmt. Services',
@@ -68,6 +87,11 @@ export const SERVICE_ITEM_CODES = {
   DDP: 'Dom. Destination Price',
   DPK: 'Dom. Packing',
   DUPK: 'Dom. Unpacking',
+};
+
+export const MTOAgentType = {
+  RELEASING: 'RELEASING_AGENT',
+  RECEIVING: 'RECEIVING_AGENT',
 };
 
 // These constants are used to track network requests using component state

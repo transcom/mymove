@@ -3,6 +3,15 @@
 @import '../../../shared/styles/colors';
 
 .ServiceItemCard {
+  &:not(:first-child) .shipmentContainerCard {
+    @include u-border-width('2px');
+    @include u-border-color('gray-10');
+
+    .cardHeader {
+      @include u-display('none');
+    }
+  }
+
   dt {
     @include u-font-size('base', 2);
     @include u-font-weight('bold');
@@ -10,8 +19,20 @@
   }
 
   dd {
-    margin-inline-start: 0;
+    margin-left: 0;
     @include u-margin-y(1);
+  }
+
+  .form {
+    max-width: none;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
+  .rejectionButtonGroup {
+    display: flex;
+    align-items: center;
   }
 
   .cardHeader {

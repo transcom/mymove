@@ -36,7 +36,7 @@ import Footer from 'shared/Footer';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivacyPolicyStatement from 'shared/Statements/PrivacyAndPolicyStatement';
 import AccessibilityStatement from 'shared/Statements/AccessibilityStatement';
-import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
+import { lastMoveIsCanceled, selectedConusStatus, selectedMoveType } from 'scenes/Moves/ducks';
 import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { getCurrentUserInfo } from 'shared/Data/users';
 import { loadInternalSchema } from 'shared/Swagger/ducks';
@@ -48,6 +48,7 @@ import PaymentReview from 'scenes/Moves/Ppm/PaymentReview/index';
 import CustomerAgreementLegalese from 'scenes/Moves/Ppm/CustomerAgreementLegalese';
 import { withContext } from 'shared/AppContext';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
+import { CONUS_STATUS } from 'shared/constants';
 
 export class AppWrapper extends Component {
   state = { hasError: false };
@@ -159,22 +160,26 @@ export class AppWrapper extends Component {
 AppWrapper.defaultProps = {
   loadInternalSchema: no_op,
   getCurrentUserInfo: no_op,
+  conusStatus: CONUS_STATUS.CONUS,
   context: PropTypes.shape({
     flags: PropTypes.shape({
       hhgFlow: false,
+      ghcFlow: false,
     }),
   }).isRequired,
 };
 
 const mapStateToProps = (state) => {
   const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
+  const move = selectActiveOrLatestMove(state);
 
   return {
     currentServiceMemberId: serviceMemberId,
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     latestMove: get(state, 'moves.latestMove'),
-    moveId: selectActiveOrLatestMove(state).id,
+    moveId: move.id,
     selectedMoveType: selectedMoveType(state),
+    conusStatus: selectedConusStatus(state),
     swaggerError: state.swaggerInternal.hasErrored,
   };
 };

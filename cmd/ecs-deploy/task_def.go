@@ -55,6 +55,7 @@ var servicesToEntryPoints = map[string][]string{
 	"app-migrations": {fmt.Sprintf("%s migrate", binMilMove)},
 	"app-tasks": {
 		fmt.Sprintf("%s save-fuel-price-data", binMilMoveTasks),
+		fmt.Sprintf("%s save-ghc-fuel-price-data", binMilMoveTasks),
 		fmt.Sprintf("%s send-post-move-survey", binMilMoveTasks),
 		fmt.Sprintf("%s send-payment-reminder", binMilMoveTasks),
 		fmt.Sprintf("%s post-file-to-gex", binMilMoveTasks),

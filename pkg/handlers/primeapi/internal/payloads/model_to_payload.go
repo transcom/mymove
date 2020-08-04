@@ -340,6 +340,11 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
 	}
 
+	if mtoShipment.MTOServiceItems != nil {
+		// sets MTOServiceItems
+		payload.SetMtoServiceItems(*MTOServiceItems(&mtoShipment.MTOServiceItems))
+	}
+
 	if mtoShipment.ApprovedDate != nil {
 		payload.ApprovedDate = strfmt.Date(*mtoShipment.ApprovedDate)
 	}
@@ -394,15 +399,16 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 	switch mtoServiceItem.ReService.Code {
 	case models.ReServiceCodeDOFSIT:
 		payload = &primemessages.MTOServiceItemDOFSIT{
-			ReServiceCode:    string(mtoServiceItem.ReService.Code),
+			ReServiceCode:    handlers.FmtString(string(mtoServiceItem.ReService.Code)),
 			PickupPostalCode: mtoServiceItem.PickupPostalCode,
 			Reason:           mtoServiceItem.Reason,
 		}
+		payload.SetID(strfmt.UUID(mtoServiceItem.ID.String()))
 	case models.ReServiceCodeDDFSIT:
 		firstContact := getCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeFirst)
 		secondContact := getCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeSecond)
 		payload = &primemessages.MTOServiceItemDDFSIT{
-			ReServiceCode:               string(mtoServiceItem.ReService.Code),
+			ReServiceCode:               handlers.FmtString(string(mtoServiceItem.ReService.Code)),
 			TimeMilitary1:               handlers.FmtString(firstContact.TimeMilitary),
 			FirstAvailableDeliveryDate1: handlers.FmtDate(firstContact.FirstAvailableDeliveryDate),
 			TimeMilitary2:               handlers.FmtString(secondContact.TimeMilitary),

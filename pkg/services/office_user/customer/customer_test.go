@@ -5,7 +5,7 @@ import (
 )
 
 func (suite *CustomerServiceSuite) TestCustomerFetcher() {
-	customer := testdatagen.MakeDefaultCustomer(suite.DB())
+	customer := testdatagen.MakeDefaultServiceMember(suite.DB())
 	mtoFetcher := NewCustomerFetcher(suite.DB())
 
 	actualCustomer, err := mtoFetcher.FetchCustomer(customer.ID)
