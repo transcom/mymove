@@ -10,6 +10,7 @@ readonly aws_command="aws"
 # Environments to upload production migrations to
 # shellcheck disable=SC2206
 readonly environments=(${ENVIRONMENTS:-experimental staging prod})
+readonly valid_envs=("experimental" "staging" "prod")
 readonly clouds=("legacy" "govcloud")
 readonly aws_gov_bucket_prefix="transcom-gov-milmove-"
 readonly aws_gov_bucket_suffix="-app-us-gov-west-1"
@@ -42,6 +43,13 @@ function run() {
 #
 # Pre-flight checks
 #
+
+for environment in "${environments[@]}"; do
+  if [[ ! ${valid_envs[*]} =~ $environment ]]; then
+    echo "error: you submitted environment $environment. You may only pass in a subset of the following: ${valid_envs[*]}."
+    exit 1
+  fi
+done
 
 if [[ -z "${1:-}" ]]; then
   echo "$usage"
