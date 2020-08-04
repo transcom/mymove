@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/supportclient/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/supportclient/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/supportclient/payment_requests"
+	"github.com/transcom/mymove/pkg/gen/supportclient/webhook"
 )
 
 // Default mymove HTTP client.
@@ -68,6 +69,8 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *Mymove {
 
 	cli.PaymentRequests = payment_requests.New(transport, formats)
 
+	cli.Webhook = webhook.New(transport, formats)
+
 	return cli
 }
 
@@ -120,6 +123,8 @@ type Mymove struct {
 
 	PaymentRequests *payment_requests.Client
 
+	Webhook *webhook.Client
+
 	Transport runtime.ClientTransport
 }
 
@@ -134,5 +139,7 @@ func (c *Mymove) SetTransport(transport runtime.ClientTransport) {
 	c.MtoShipment.SetTransport(transport)
 
 	c.PaymentRequests.SetTransport(transport)
+
+	c.Webhook.SetTransport(transport)
 
 }

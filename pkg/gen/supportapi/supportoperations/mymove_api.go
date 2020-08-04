@@ -23,6 +23,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/payment_requests"
+	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/webhook"
 )
 
 // NewMymoveAPI creates a new Mymove instance
@@ -56,6 +57,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		MoveTaskOrderMakeMoveTaskOrderAvailableHandler: move_task_order.MakeMoveTaskOrderAvailableHandlerFunc(func(params move_task_order.MakeMoveTaskOrderAvailableParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderMakeMoveTaskOrderAvailable has not yet been implemented")
+		}),
+		WebhookPostWebhookNotifyHandler: webhook.PostWebhookNotifyHandlerFunc(func(params webhook.PostWebhookNotifyParams) middleware.Responder {
+			return middleware.NotImplemented("operation WebhookPostWebhookNotify has not yet been implemented")
 		}),
 		MtoServiceItemUpdateMTOServiceItemStatusHandler: mto_service_item.UpdateMTOServiceItemStatusHandlerFunc(func(params mto_service_item.UpdateMTOServiceItemStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation MtoServiceItemUpdateMTOServiceItemStatus has not yet been implemented")
@@ -112,6 +116,8 @@ type MymoveAPI struct {
 	MoveTaskOrderListMTOsHandler move_task_order.ListMTOsHandler
 	// MoveTaskOrderMakeMoveTaskOrderAvailableHandler sets the operation handler for the make move task order available operation
 	MoveTaskOrderMakeMoveTaskOrderAvailableHandler move_task_order.MakeMoveTaskOrderAvailableHandler
+	// WebhookPostWebhookNotifyHandler sets the operation handler for the post webhook notify operation
+	WebhookPostWebhookNotifyHandler webhook.PostWebhookNotifyHandler
 	// MtoServiceItemUpdateMTOServiceItemStatusHandler sets the operation handler for the update m t o service item status operation
 	MtoServiceItemUpdateMTOServiceItemStatusHandler mto_service_item.UpdateMTOServiceItemStatusHandler
 	// MtoShipmentUpdateMTOShipmentStatusHandler sets the operation handler for the update m t o shipment status operation
@@ -199,6 +205,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.MoveTaskOrderMakeMoveTaskOrderAvailableHandler == nil {
 		unregistered = append(unregistered, "move_task_order.MakeMoveTaskOrderAvailableHandler")
+	}
+
+	if o.WebhookPostWebhookNotifyHandler == nil {
+		unregistered = append(unregistered, "webhook.PostWebhookNotifyHandler")
 	}
 
 	if o.MtoServiceItemUpdateMTOServiceItemStatusHandler == nil {
@@ -335,6 +345,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/available-to-prime"] = move_task_order.NewMakeMoveTaskOrderAvailable(o.context, o.MoveTaskOrderMakeMoveTaskOrderAvailableHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/webhook-notify"] = webhook.NewPostWebhookNotify(o.context, o.WebhookPostWebhookNotifyHandler)
 
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
