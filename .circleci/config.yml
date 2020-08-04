@@ -292,43 +292,6 @@ commands:
           root: bin
           paths: sha/
 
-
-  build_tag_push:
-    parameters:
-      dockerfile:
-        type: string
-      tag:
-        type: string
-      repo:
-        type: string
-      working_dir:
-        type: string
-    steps:
-      - run:
-          name: 'Build, tag, and push docker image << parameters.tag >> from Dockerfile << parameters.dockerfile >>'
-          working_directory: << parameters.working_dir >>
-          command: |
-            docker build -f << parameters.dockerfile >> -t << parameters.tag >> .
-            aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
-            docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
-            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
-            shopt -s extglob
-            docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
-            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
-      - run:
-          name: Record ECR Image Digest
-          command: |
-            mkdir -p /home/circleci/transcom/mymove/bin/sha
-            echo $(aws ecr describe-images --repository-name << parameters.repo >> --image-ids imageTag=git-${CIRCLE_SHA1} | jq ".imageDetails[0] .imageDigest" -r) > /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>
-            cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>
-      - run:
-          name: 'Describe image scan findings'
-          command: scripts/ecr-describe-image-scan-findings << parameters.repo >> ${CIRCLE_SHA1}
-      - persist_to_workspace:
-          root: bin
-          paths:
-            - sha/
-
   server_tests_step:
     parameters:
       application:
@@ -1220,7 +1183,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: cblkwell-MB-2392-update-circleci-for-exp-env
+              ignore: placeholder_branch_name
 
       - integration_tests_mtls:
           requires:
@@ -1232,7 +1195,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: cblkwell-MB-2392-update-circleci-for-exp-env
+              ignore: placeholder_branch_name
 
       - client_test:
           requires:
@@ -1240,7 +1203,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: cblkwell-MB-2392-update-circleci-for-exp-env
+              ignore: placeholder_branch_name
 
       - server_test:
           requires:
@@ -1248,7 +1211,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: cblkwell-MB-2392-update-circleci-for-exp-env
+              ignore: placeholder_branch_name
 
       - build_app:
           requires:
@@ -1295,28 +1258,28 @@ workflows:
             - push_migrations_legacy
           filters:
             branches:
-              only: cblkwell-MB-2392-update-circleci-for-exp-env
+              only: placeholder_branch_name
 
       - deploy_experimental_tasks:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: cblkwell-MB-2392-update-circleci-for-exp-env
+              only: placeholder_branch_name
 
       - deploy_experimental_app:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: cblkwell-MB-2392-update-circleci-for-exp-env
+              only: placeholder_branch_name
 
       - deploy_experimental_app_client_tls:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: cblkwell-MB-2392-update-circleci-for-exp-env
+              only: placeholder_branch_name
 
       - check_circle_against_staging_sha:
           requires:
