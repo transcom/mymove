@@ -1998,6 +1998,65 @@ func init() {
         }
       }
     },
+    "/mto-shipments/{mtoShipmentId}": {
+      "patch": {
+        "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* No fields required in body\n  \nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Releasing / Receiving agents\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "updateMTOShipment",
+        "operationId": "updateMTOShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the MTO Shipment to update",
+            "name": "mtoShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UpdateShipment"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the specified MTO shipment.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/orders": {
       "post": {
         "description": "Creates an instance of orders tied to a service member",
@@ -6427,6 +6486,46 @@ func init() {
         }
       }
     },
+    "UpdateShipment": {
+      "type": "object",
+      "required": [
+        "moveTaskOrderID",
+        "pickupAddress",
+        "shipmentType"
+      ],
+      "properties": {
+        "agents": {
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "customerRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "handle with care"
+        },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "shipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
+        }
+      }
+    },
     "UploadPayload": {
       "type": "object",
       "required": [
@@ -8550,6 +8649,83 @@ func init() {
         "responses": {
           "200": {
             "description": "Successfully created a MTO shipment.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/mto-shipments/{mtoShipmentId}": {
+      "patch": {
+        "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* No fields required in body\n  \nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Releasing / Receiving agents\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "updateMTOShipment",
+        "operationId": "updateMTOShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the MTO Shipment to update",
+            "name": "mtoShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UpdateShipment"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the specified MTO shipment.",
             "schema": {
               "$ref": "#/definitions/MTOShipment"
             }
@@ -13032,6 +13208,46 @@ func init() {
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true,
           "example": "212-555-5555"
+        }
+      }
+    },
+    "UpdateShipment": {
+      "type": "object",
+      "required": [
+        "moveTaskOrderID",
+        "pickupAddress",
+        "shipmentType"
+      ],
+      "properties": {
+        "agents": {
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "customerRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "handle with care"
+        },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "shipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
         }
       }
     },
