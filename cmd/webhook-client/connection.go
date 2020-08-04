@@ -21,7 +21,7 @@ import (
 	"github.com/transcom/mymove/pkg/cli"
 )
 
-// ParseFlags parses the command line flags
+// ParseFlags parses the root command line flags
 func ParseFlags(cmd *cobra.Command, v *viper.Viper, args []string) error {
 
 	errParseFlags := cmd.ParseFlags(args)

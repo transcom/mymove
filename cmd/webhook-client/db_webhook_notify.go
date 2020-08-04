@@ -2,8 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
-
 	"fmt"
 	"time"
 
@@ -13,30 +11,15 @@ import (
 	"go.uber.org/zap"
 
 	webhookOperations "github.com/transcom/mymove/pkg/gen/supportclient/webhook"
+	"github.com/transcom/mymove/pkg/models"
 )
 
-const (
-	// MessageFlag could be moved out to utils folder later
-	MessageFlag string = "message"
-)
-
-func initPostWebhookNotifyFlags(flag *pflag.FlagSet) {
-	flag.String(MessageFlag, "", "Message to send")
+func initDbWebhookNotifyFlags(flag *pflag.FlagSet) {
 
 	flag.SortFlags = false
 }
 
-func checkPostWebhookNotifyConfig(v *viper.Viper, args []string) error {
-
-	message := v.GetString(MessageFlag)
-	if len(message) == 0 {
-		return errors.New("missing message, expected to be set")
-	}
-
-	return nil
-}
-
-func postWebhookNotify(cmd *cobra.Command, args []string) error {
+func dbWebhookNotify(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 
 	errParseFlags := ParseFlags(cmd, v, args)
@@ -44,18 +27,26 @@ func postWebhookNotify(cmd *cobra.Command, args []string) error {
 		return errParseFlags
 	}
 
-	_, logger, err := InitRootConfig(v)
+	db, logger, err := InitRootConfig(v)
 	if err != nil {
-		logger.Fatal("Invalid configuration", zap.Error(err))
+		logger.Fatal("invalid configuration", zap.Error(err))
 	}
 
-	// Check the config before talking to the CAC
-	err = checkPostWebhookNotifyConfig(v, args)
+	notifications := []models.WebhookNotification{}
+	err = db.All(&notifications)
 	if err != nil {
-		logger.Fatal("Error:", zap.Error(err))
+		fmt.Print("ERROR!\n")
+		fmt.Printf("%v\n", err)
+	} else {
+
+		fmt.Printf("Success! %d notifications found.\n", len(notifications))
+	}
+	message := "There were no notifications."
+	if len(notifications) > 0 {
+		message = fmt.Sprintf("There was a %s notification", string(notifications[0].EventKey))
 	}
 
-	message := v.GetString(MessageFlag)
+	//	message := v.GetString(MessageFlag)
 	//#TODO: To remove dependency on gen/supportclient,
 	// replicate the functionality without using webhookOperations
 	newNotification := webhookOperations.PostWebhookNotifyBody{

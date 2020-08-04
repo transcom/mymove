@@ -2,14 +2,27 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 
+	"github.com/gobuffalo/pop"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/cli"
+	"github.com/transcom/mymove/pkg/logging"
 )
+
+// Logger type exports the logger for use in the command files
+type Logger interface {
+	Debug(msg string, fields ...zap.Field)
+	Info(msg string, fields ...zap.Field)
+	Error(msg string, fields ...zap.Field)
+	Warn(msg string, fields ...zap.Field)
+	Fatal(msg string, fields ...zap.Field)
+}
 
 const (
 	// CertPathFlag is the path to the client mTLS certificate
@@ -28,6 +41,8 @@ const (
 func initRootFlags(flag *pflag.FlagSet) {
 	cli.InitCACFlags(flag)
 	cli.InitVerboseFlags(flag)
+	// DB Config
+	cli.InitDatabaseFlags(flag)
 
 	flag.String(CertPathFlag, "./config/tls/devlocal-mtls.cer", "Path to the public cert")
 	flag.String(KeyPathFlag, "./config/tls/devlocal-mtls.key", "Path to the private key")
@@ -36,26 +51,51 @@ func initRootFlags(flag *pflag.FlagSet) {
 	flag.Bool(InsecureFlag, false, "Skip TLS verification and validation")
 }
 
-// CheckRootConfig checks the validity of the notification api flags
-func CheckRootConfig(v *viper.Viper) error {
-	err := cli.CheckCAC(v)
+// InitRootConfig checks the validity of the api flags and initializes a db connection.
+func InitRootConfig(v *viper.Viper) (*pop.Connection, Logger, error) {
+
+	// LOGGER SETUP
+	// Get the db env to configure the logger level
+	dbEnv := v.GetString(cli.DbEnvFlag)
+	fmt.Println("dbEnv: ", dbEnv)
+	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
 	if err != nil {
-		return err
+		log.Fatalf("Failed to initialize Zap logging due to %v", err)
+	}
+	zap.ReplaceGlobals(logger)
+	logger.Info("Checking config and initializing")
+
+	// FLAG CHECKS
+	err = cli.CheckDatabase(v, logger)
+	if err != nil {
+		return nil, logger, err
+	}
+
+	err = cli.CheckCAC(v)
+	if err != nil {
+		return nil, logger, err
 	}
 
 	err = cli.CheckVerbose(v)
 	if err != nil {
-		return err
+		return nil, logger, err
 	}
 
 	if (v.GetString(CertPathFlag) != "" && v.GetString(KeyPathFlag) == "") || (v.GetString(CertPathFlag) == "" && v.GetString(KeyPathFlag) != "") {
-		return fmt.Errorf("Both TLS certificate and key paths must be provided")
+		return nil, logger, fmt.Errorf("Both TLS certificate and key paths must be provided")
 	}
 
-	return nil
+	// DB CONNECTION CHECK
+	dbConnection, err := cli.InitDatabase(v, nil, logger)
+	if err != nil {
+		logger.Fatal("Connecting to DB", zap.Error(err))
+	}
+
+	return dbConnection, logger, nil
 }
 
 func main() {
+	// Root command
 	root := cobra.Command{
 		Use:   "webhook-client [flags]",
 		Short: "Webhook client",
@@ -63,6 +103,7 @@ func main() {
 	}
 	initRootFlags(root.PersistentFlags())
 
+	// Sub-commands
 	postWebhookNotifyCommand := &cobra.Command{
 		Use:          "post-webhook-notify",
 		Short:        "Post Webhook Notify",
@@ -72,6 +113,16 @@ func main() {
 	}
 	initPostWebhookNotifyFlags(postWebhookNotifyCommand.Flags())
 	root.AddCommand(postWebhookNotifyCommand)
+
+	dbWebhookNotifyCommand := &cobra.Command{
+		Use:          "db-webhook-notify",
+		Short:        "Database Webhook Notify",
+		Long:         "Database Webhook Notify checks the webhook_notification table and sends the first notification it finds there.",
+		RunE:         dbWebhookNotify,
+		SilenceUsage: true,
+	}
+	initDbWebhookNotifyFlags(dbWebhookNotifyCommand.Flags())
+	root.AddCommand(dbWebhookNotifyCommand)
 
 	completionCommand := &cobra.Command{
 		Use:   "completion",
