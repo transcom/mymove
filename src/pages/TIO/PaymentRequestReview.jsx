@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { withRouter } from 'react-router-dom';
-import { useQuery, useMutation, queryCache } from 'react-query';
+import { useMutation, queryCache } from 'react-query';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -10,58 +10,11 @@ import styles from 'pages/TIO/PaymentRequestReview.module.scss';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import ReviewServiceItems from 'components/Office/ReviewServiceItems/ReviewServiceItems';
 import { PAYMENT_REQUEST_STATUS } from 'shared/constants';
-import {
-  getPaymentRequest,
-  getMTOShipments,
-  getMTOServiceItems,
-  patchPaymentRequest,
-  patchPaymentServiceItemStatus,
-} from 'services/ghcApi';
-import { mapObjectToArray, getQueriesStatus } from 'utils/api';
+import { patchPaymentRequest, patchPaymentServiceItemStatus } from 'services/ghcApi';
+import { usePaymentRequestQueries } from 'hooks/queries';
+import { mapObjectToArray } from 'utils/api';
 
-const usePaymentRequestQueries = (paymentRequestId) => {
-  // get payment request by ID
-  const { data: { paymentRequests, paymentServiceItems } = {}, ...paymentRequestQuery } = useQuery(
-    ['paymentRequest', paymentRequestId],
-    getPaymentRequest,
-  );
-
-  const paymentRequest = paymentRequests && paymentRequests[`${paymentRequestId}`];
-  const mtoID = paymentRequest?.moveTaskOrderID;
-
-  // get MTO shipments
-  const { data: { mtoShipments = [] } = {}, ...mtoShipmentQuery } = useQuery(['mtoShipment', mtoID], getMTOShipments, {
-    enabled: !!mtoID,
-  });
-
-  // get MTO service items
-  const { data: { mtoServiceItems = [] } = {}, ...mtoServiceItemQuery } = useQuery(
-    ['mtoServiceItem', mtoID],
-    getMTOServiceItems,
-    {
-      enabled: !!mtoID,
-    },
-  );
-
-  const { isLoading, isError, isSuccess } = getQueriesStatus([
-    paymentRequestQuery,
-    mtoShipmentQuery,
-    mtoServiceItemQuery,
-  ]);
-
-  return {
-    paymentRequest,
-    paymentRequests,
-    paymentServiceItems,
-    mtoShipments,
-    mtoServiceItems,
-    isLoading,
-    isError,
-    isSuccess,
-  };
-};
-
-const PaymentRequestReview = ({ history, match }) => {
+export const PaymentRequestReview = ({ history, match }) => {
   const [completeReviewError, setCompleteReviewError] = useState(undefined);
   const { paymentRequestId, moveOrderId } = match.params;
 
