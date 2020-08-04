@@ -2,6 +2,9 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import Loadable from 'react-loadable';
 import { ConnectedRouter } from 'connected-react-router';
+import { ReactQueryConfigProvider } from 'react-query';
+// eslint-disable-next-line
+import { ReactQueryDevtools } from 'react-query-devtools';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { isOfficeSite, isAdminSite, isSystemAdminSite } from 'shared/constants';
@@ -38,16 +41,30 @@ const officeContext = { ...defaultOfficeContext, flags };
 const myMoveContext = { ...defaultMyMoveContext, flags };
 const adminContext = { ...defaultAdminContext, flags };
 
+const officeQueryConfig = {
+  queries: {
+    retry: 3, // TODO
+    refetchOnWindowFocus: true,
+    // onError: noop, // TODO
+  },
+  mutations: {
+    // onError: noop, // TODO
+  },
+};
+
 const App = () => {
   if (isOfficeSite)
     return (
-      <Provider store={store}>
-        <AppContext.Provider value={officeContext}>
-          <ConnectedRouter history={history}>
-            <Office />
-          </ConnectedRouter>
-        </AppContext.Provider>
-      </Provider>
+      <ReactQueryConfigProvider config={officeQueryConfig}>
+        <Provider store={store}>
+          <AppContext.Provider value={officeContext}>
+            <ConnectedRouter history={history}>
+              <Office />
+              <ReactQueryDevtools initialIsOpen={false} /> {/* TODO: only add this in dev environment */}
+            </ConnectedRouter>
+          </AppContext.Provider>
+        </Provider>
+      </ReactQueryConfigProvider>
     );
 
   if (isSystemAdminSite)

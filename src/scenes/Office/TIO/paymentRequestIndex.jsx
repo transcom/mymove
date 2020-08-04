@@ -5,20 +5,17 @@ import { useQuery } from 'react-query';
 import { getPaymentRequestList } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { mapObjectToArray } from 'utils/api';
 
 const PaymentRequestIndex = () => {
-  const { isLoading, isError, data, error } = useQuery('paymentRequestList', getPaymentRequestList, {
-    retry: false,
-  });
+  const { isLoading, isError, data, error } = useQuery('paymentRequestList', getPaymentRequestList);
 
   // These values can be used to return the loading screen or error UI
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong error={error} />;
 
   const { paymentRequests } = data;
-
-  // eslint-disable-next-line security/detect-object-injection
-  const paymentRequestsArr = Object.keys(paymentRequests).map((i) => paymentRequests[i]);
+  const paymentRequestsArr = mapObjectToArray(paymentRequests);
 
   return (
     <>

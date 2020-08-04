@@ -5,8 +5,6 @@ import { Route, Switch, withRouter, matchPath, Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import classnames from 'classnames';
-// eslint-disable-next-line
-import { ReactQueryDevtools } from 'react-query-devtools';
 
 import 'uswds';
 import '../../../node_modules/uswds/dist/css/uswds.css';
@@ -206,7 +204,6 @@ export class OfficeApp extends Component {
             )}
           </Suspense>
         </main>
-        <ReactQueryDevtools initialIsOpen /> {/* TODO: only add this in dev environment */}
       </div>
     );
   }

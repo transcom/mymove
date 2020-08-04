@@ -17,26 +17,24 @@ import {
   patchPaymentRequest,
   patchPaymentServiceItemStatus,
 } from 'services/ghcApi';
+import { mapObjectToArray, getQueriesStatus } from 'utils/api';
 
-const PaymentRequestReview = ({ history, match }) => {
-  const [completeReviewError, setCompleteReviewError] = useState(undefined);
-  const { paymentRequestId, moveOrderId } = match.params;
-
+const usePaymentRequestQueries = (paymentRequestId) => {
+  // get payment request by ID
   const { data: { paymentRequests, paymentServiceItems } = {}, ...paymentRequestQuery } = useQuery(
     ['paymentRequest', paymentRequestId],
     getPaymentRequest,
-    {
-      retry: false,
-    },
   );
 
   const paymentRequest = paymentRequests && paymentRequests[`${paymentRequestId}`];
   const mtoID = paymentRequest?.moveTaskOrderID;
 
+  // get MTO shipments
   const { data: { mtoShipments = [] } = {}, ...mtoShipmentQuery } = useQuery(['mtoShipment', mtoID], getMTOShipments, {
     enabled: !!mtoID,
   });
 
+  // get MTO service items
   const { data: { mtoServiceItems = [] } = {}, ...mtoServiceItemQuery } = useQuery(
     ['mtoServiceItem', mtoID],
     getMTOServiceItems,
@@ -44,6 +42,38 @@ const PaymentRequestReview = ({ history, match }) => {
       enabled: !!mtoID,
     },
   );
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([
+    paymentRequestQuery,
+    mtoShipmentQuery,
+    mtoServiceItemQuery,
+  ]);
+
+  return {
+    paymentRequest,
+    paymentRequests,
+    paymentServiceItems,
+    mtoShipments,
+    mtoServiceItems,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+const PaymentRequestReview = ({ history, match }) => {
+  const [completeReviewError, setCompleteReviewError] = useState(undefined);
+  const { paymentRequestId, moveOrderId } = match.params;
+
+  const {
+    paymentRequest,
+    paymentRequests,
+    paymentServiceItems,
+    mtoShipments,
+    mtoServiceItems,
+    isLoading,
+    isError,
+  } = usePaymentRequestQueries(paymentRequestId);
 
   const [mutatePaymentRequest] = useMutation(patchPaymentRequest, {
     onSuccess: () => {
@@ -70,21 +100,12 @@ const PaymentRequestReview = ({ history, match }) => {
     },
   });
 
-  const isLoading = paymentRequestQuery.isLoading || mtoShipmentQuery.isLoading || mtoServiceItemQuery.isLoading;
-  const isError = paymentRequestQuery.isError || mtoShipmentQuery.isError || mtoServiceItemQuery.isError;
-  const error = paymentRequestQuery.error || mtoShipmentQuery.error || mtoServiceItemQuery.error;
-
   if (isLoading) return <LoadingPlaceholder />;
-  if (isError) return <SomethingWentWrong error={error} />;
+  if (isError) return <SomethingWentWrong />;
 
-  // TODO - util fn
-  // TODO - normalize changes?
-  // eslint-disable-next-line security/detect-object-injection
-  const paymentServiceItemsArr = Object.keys(paymentServiceItems).map((i) => paymentServiceItems[i]);
-  // eslint-disable-next-line security/detect-object-injection
-  const mtoServiceItemsArr = Object.keys(mtoServiceItems).map((i) => mtoServiceItems[i]);
-  // eslint-disable-next-line security/detect-object-injection
-  const mtoShipmentsArr = Object.keys(mtoShipments).map((i) => mtoShipments[i]);
+  const paymentServiceItemsArr = mapObjectToArray(paymentServiceItems);
+  const mtoServiceItemsArr = mapObjectToArray(mtoServiceItems);
+  const mtoShipmentsArr = mapObjectToArray(mtoShipments);
 
   const handleUpdatePaymentServiceItemStatus = (paymentServiceItemID, values) => {
     const paymentServiceItemForRequest = paymentServiceItemsArr.find((s) => s.id === paymentServiceItemID);
