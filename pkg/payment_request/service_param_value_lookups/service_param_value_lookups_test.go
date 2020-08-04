@@ -3,12 +3,14 @@ package serviceparamvaluelookups
 import (
 	"testing"
 
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/route/mocks"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -47,4 +49,13 @@ func TestServiceParamValueLookupsSuite(t *testing.T) {
 
 	suite.Run(t, ts)
 	ts.PopTestSuite.TearDown()
+}
+
+func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
+	suite.T().Run("contract passed path", func(t *testing.T) {
+		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()))
+
+		suite.FatalNoError(nil)
+		suite.Equal(ghcrateengine.DefaultContractCode, paramLookup.ContractCode)
+	})
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 )
 
 // ServiceItemParamKeyData contains service item parameter keys
@@ -19,6 +20,7 @@ type ServiceItemParamKeyData struct {
 	MTOServiceItemID uuid.UUID
 	PaymentRequestID uuid.UUID
 	MoveTaskOrderID  uuid.UUID
+	ContractCode     string
 }
 
 // ServiceItemParamKeyLookup does lookup on service item parameter keys
@@ -42,6 +44,17 @@ func ServiceParamLookupInitialize(
 		MTOServiceItemID: mtoServiceItemID,
 		PaymentRequestID: paymentRequestID,
 		MoveTaskOrderID:  moveTaskOrderID,
+		/*
+			DefaultContractCode = TRUSS_TEST is temporarily being used here because the contract
+			code is not currently accessible. This is caused by:
+				- mtoServiceItem is not linked or associated with a contract record
+				- MTO currently has a contractor_id but not a contract_id
+			In order for this lookup's query to have accesss to a contract code there must be a contract_code field created on either the mtoServiceItem or the MTO models
+			If it'll will be possible for a MTO to contain service items that are associated with different contracts
+			then it would be ideal for the mtoServiceItem records to contain a contract code that can then be passed
+			to this query. Otherwise the contract_code field could be added to the MTO.
+		*/
+		ContractCode: ghcrateengine.DefaultContractCode,
 	}
 
 	for _, key := range models.ValidServiceItemParamNames {
