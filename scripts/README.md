@@ -136,7 +136,7 @@ migrations.
 | --- | --- |
 | `download-secure-migration` |  A script to download secure migrations from all environments |
 | `generate-secure-migration` |  A script to help manage the creation of secure migrations |
-| `upload-secure-migration` | A script to upload secure migrations to all environments in GovCloud and commercial AWS|
+| `upload-secure-migration` | A script to upload secure migrations to all environments in commercial AWS and experimental in GovCloud |
 
 ### Database Scripts
 
