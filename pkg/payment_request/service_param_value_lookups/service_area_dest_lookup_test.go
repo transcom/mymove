@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -41,7 +39,8 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceAreaDest() {
 		},
 	})
 
-	paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+	paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+	suite.FatalNoError(err)
 
 	suite.T().Run("golden path", func(t *testing.T) {
 		valueStr, err := paramLookup.ServiceParamValue(key)
@@ -79,16 +78,5 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceAreaDest() {
 
 		mtoServiceItem.MTOShipmentID = oldMTOShipmentID
 		suite.MustSave(&mtoServiceItem)
-	})
-
-	suite.T().Run("nil MTOServiceItem ID", func(t *testing.T) {
-		// Pass in a non-existent MTOServiceItemID
-		invalidMTOServiceItemID := uuid.Must(uuid.NewV4())
-		badParamLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, invalidMTOServiceItemID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
-
-		valueStr, err := badParamLookup.ServiceParamValue(key)
-		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, errors.Unwrap(err))
-		suite.Equal("", valueStr)
 	})
 }

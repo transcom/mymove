@@ -5,8 +5,6 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -24,7 +22,8 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 			},
 		})
 
-	paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+	paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+	suite.FatalNoError(err)
 
 	suite.T().Run("Calculate zip3 distance", func(t *testing.T) {
 		distanceStr, err := paramLookup.ServiceParamValue(key)
@@ -79,16 +78,5 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 
 		mtoServiceItem.MTOShipmentID = oldMTOShipmentID
 		suite.MustSave(&mtoServiceItem)
-	})
-
-	suite.T().Run("bogus MTOServiceItemID", func(t *testing.T) {
-		// Pass in a non-existent MTOServiceItemID
-		invalidMTOServiceItemID := uuid.Must(uuid.NewV4())
-		badParamLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, invalidMTOServiceItemID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
-
-		valueStr, err := badParamLookup.ServiceParamValue(key)
-		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, errors.Unwrap(err))
-		suite.Equal("", valueStr)
 	})
 }

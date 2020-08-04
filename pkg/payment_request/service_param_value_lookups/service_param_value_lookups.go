@@ -1,6 +1,7 @@
 package serviceparamvaluelookups
 
 import (
+	"database/sql"
 	"fmt"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -9,6 +10,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 )
 
@@ -18,6 +20,7 @@ type ServiceItemParamKeyData struct {
 	planner          route.Planner
 	lookups          map[string]ServiceItemParamKeyLookup
 	MTOServiceItemID uuid.UUID
+	MTOServiceItem   models.MTOServiceItem
 	PaymentRequestID uuid.UUID
 	MoveTaskOrderID  uuid.UUID
 	ContractCode     string
@@ -35,13 +38,26 @@ func ServiceParamLookupInitialize(
 	mtoServiceItemID uuid.UUID,
 	paymentRequestID uuid.UUID,
 	moveTaskOrderID uuid.UUID,
-) *ServiceItemParamKeyData {
+) (*ServiceItemParamKeyData, error) {
+
+	// Get the MTOServiceItem and associated MTOShipment
+	var mtoServiceItem models.MTOServiceItem
+	err := db.Find(&mtoServiceItem, mtoServiceItemID)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, services.NewNotFoundError(mtoServiceItemID, "looking for MTOServiceItemID")
+		default:
+			return nil, err
+		}
+	}
 
 	s := ServiceItemParamKeyData{
 		db:               db,
 		planner:          planner,
 		lookups:          make(map[string]ServiceItemParamKeyLookup),
 		MTOServiceItemID: mtoServiceItemID,
+		MTOServiceItem:   mtoServiceItem,
 		PaymentRequestID: paymentRequestID,
 		MoveTaskOrderID:  moveTaskOrderID,
 		/*
@@ -79,7 +95,7 @@ func ServiceParamLookupInitialize(
 	s.lookups[models.ServiceItemParamNameServicesScheduleDest.String()] = ServicesScheduleDestLookup{}
 	s.lookups[models.ServiceItemParamNameServicesScheduleOrigin.String()] = ServicesScheduleOriginLookup{}
 
-	return &s
+	return &s, nil
 }
 
 // ServiceParamValue returns a service parameter value from a key

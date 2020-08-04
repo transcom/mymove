@@ -4,8 +4,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -44,18 +42,11 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 		})
 
 	suite.T().Run("lookup GHC diesel fuel price successfully", func(t *testing.T) {
-		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		suite.FatalNoError(err)
 		valueStr, err := paramLookup.ServiceParamValue(key)
 		suite.FatalNoError(err)
 		suite.Equal("243799", valueStr)
-	})
-
-	suite.T().Run("No MTO service item found", func(t *testing.T) {
-		badMTOServiceItemID := uuid.FromStringOrNil("f3be656b-28e3-423b-849a-60c3a95b88b4")
-
-		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, badMTOServiceItemID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
-		_, err := paramLookup.ServiceParamValue(key)
-		suite.Error(err)
 	})
 
 	suite.T().Run("No MTO shipment found", func(t *testing.T) {
@@ -71,7 +62,8 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 				},
 			})
 
-		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		suite.FatalNoError(err)
 		_, err = paramLookup.ServiceParamValue(key)
 		suite.Error(err)
 	})
@@ -86,8 +78,9 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 				},
 			})
 
-		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
-		_, err := paramLookup.ServiceParamValue(key)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		suite.FatalNoError(err)
+		_, err = paramLookup.ServiceParamValue(key)
 		suite.Error(err)
 	})
 }

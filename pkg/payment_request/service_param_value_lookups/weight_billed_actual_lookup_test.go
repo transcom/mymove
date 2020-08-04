@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -34,7 +32,8 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithWeight(es
 			},
 		})
 
-	paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+	paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+	suite.FatalNoError(err)
 
 	return mtoServiceItem, paymentRequest, paramLookup
 }
@@ -182,20 +181,6 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, errors.Unwrap(err))
 		expected := fmt.Sprintf("looking for MTOShipmentID")
-		suite.Contains(err.Error(), expected)
-		suite.Equal("", valueStr)
-	})
-
-	suite.T().Run("bogus MTOServiceItemID", func(t *testing.T) {
-		// Pass in a non-existent MTOServiceItemID
-		_, paymentRequest, _ := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(450), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
-		invalidMTOServiceItemID := uuid.Must(uuid.NewV4())
-		badParamLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, invalidMTOServiceItemID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
-
-		valueStr, err := badParamLookup.ServiceParamValue(key)
-		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, errors.Unwrap(err))
-		expected := fmt.Sprintf("looking for MTOServiceItemID")
 		suite.Contains(err.Error(), expected)
 		suite.Equal("", valueStr)
 	})

@@ -1,6 +1,7 @@
 package serviceparamvaluelookups
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/gofrs/uuid"
@@ -10,7 +11,9 @@ import (
 
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/route/mocks"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -52,10 +55,33 @@ func TestServiceParamValueLookupsSuite(t *testing.T) {
 }
 
 func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
-	suite.T().Run("contract passed path", func(t *testing.T) {
-		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()))
+	suite.T().Run("contract passed in", func(t *testing.T) {
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{})
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()))
 
-		suite.FatalNoError(nil)
+		suite.FatalNoError(err)
 		suite.Equal(ghcrateengine.DefaultContractCode, paramLookup.ContractCode)
+	})
+
+	suite.T().Run("MTOServiceItem passed in", func(t *testing.T) {
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{})
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()))
+
+		suite.FatalNoError(err)
+		suite.Equal(mtoServiceItem.ID, paramLookup.MTOServiceItemID)
+		suite.NotNil(paramLookup.MTOServiceItem)
+		suite.Equal(mtoServiceItem.MoveTaskOrderID, paramLookup.MTOServiceItem.MoveTaskOrderID)
+	})
+
+	suite.T().Run("nil MTOServiceItemID", func(t *testing.T) {
+		badMTOServiceItemID := uuid.Must(uuid.NewV4())
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, badMTOServiceItemID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()))
+
+		suite.Error(err)
+		suite.IsType(services.NotFoundError{}, err)
+		suite.Contains(err.Error(), fmt.Sprintf("id: %s not found looking for MTOServiceItemID", badMTOServiceItemID))
+		var expected *ServiceItemParamKeyData = nil
+		suite.Equal(expected, paramLookup)
 	})
 }
