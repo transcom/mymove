@@ -7,11 +7,9 @@ const wrapper = mount(<MovingInfo />);
 
 describe('MovingInfo component', () => {
   it('renders', () => {
-    // expect(wrapper.find('MovingInfo').length).toBe(1);
-    expect(wrapper.find('MovingInfo').exists()).toBe(true);
-    // expect(wrapper.find(Radio).length).toBe(2);
-
-    // check for weight estimate
-    // expect(wrapper.find(Radio).at(0).text()).toContain('I’ll move things myself');
+    expect(wrapper.exists('MovingInfo')).to.equal(true);
+    // JUST CHECK FOR EXISTENCE OF
+    // PAGE HEADING
+    // SUBHEADERS
   });
 });
