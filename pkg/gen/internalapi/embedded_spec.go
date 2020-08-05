@@ -2023,7 +2023,7 @@ func init() {
           "200": {
             "description": "Successfully retrieved all mto shipments for a move task order.",
             "schema": {
-              "$ref": "#/definitions/MTOShipment"
+              "$ref": "#/definitions/MTOShipments"
             }
           },
           "400": {
@@ -8667,7 +8667,7 @@ func init() {
           "200": {
             "description": "Successfully retrieved all mto shipments for a move task order.",
             "schema": {
-              "$ref": "#/definitions/MTOShipment"
+              "$ref": "#/definitions/MTOShipments"
             }
           },
           "400": {

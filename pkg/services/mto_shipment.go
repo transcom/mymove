@@ -24,10 +24,3 @@ type MTOShipmentStatusUpdater interface {
 type MTOShipmentCreator interface {
 	CreateMTOShipment(MTOShipment *models.MTOShipment, MTOServiceItems models.MTOServiceItems) (*models.MTOShipment, error)
 }
-
-// MTOShipmentFetcher is the service object interface for FetchMTOShipment
-//go:generate mockery -name MTOShipmentFetcher
-type MTOShipmentFetcher interface {
-	// FetchMTOShipment(MTOShipmentID uuid.UUID) (*models.MTOShipment, error)
-	ListMTOShipments(moveOrderID uuid.UUID) ([]models.MTOShipment, error)
-}

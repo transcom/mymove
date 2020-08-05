@@ -25,7 +25,7 @@ type ListMTOShipmentsOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *internalmessages.MTOShipment `json:"body,omitempty"`
+	Payload internalmessages.MTOShipments `json:"body,omitempty"`
 }
 
 // NewListMTOShipmentsOK creates ListMTOShipmentsOK with default headers values
@@ -35,13 +35,13 @@ func NewListMTOShipmentsOK() *ListMTOShipmentsOK {
 }
 
 // WithPayload adds the payload to the list m t o shipments o k response
-func (o *ListMTOShipmentsOK) WithPayload(payload *internalmessages.MTOShipment) *ListMTOShipmentsOK {
+func (o *ListMTOShipmentsOK) WithPayload(payload internalmessages.MTOShipments) *ListMTOShipmentsOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the list m t o shipments o k response
-func (o *ListMTOShipmentsOK) SetPayload(payload *internalmessages.MTOShipment) {
+func (o *ListMTOShipmentsOK) SetPayload(payload internalmessages.MTOShipments) {
 	o.Payload = payload
 }
 
@@ -49,11 +49,14 @@ func (o *ListMTOShipmentsOK) SetPayload(payload *internalmessages.MTOShipment) {
 func (o *ListMTOShipmentsOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(200)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
+	payload := o.Payload
+	if payload == nil {
+		// return empty array
+		payload = internalmessages.MTOShipments{}
+	}
+
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
 	}
 }
 

@@ -1,11 +1,14 @@
 package internalapi
 
 import (
+	"fmt"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/query"
 
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -59,4 +62,57 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 
 	returnPayload := payloads.MTOShipment(mtoShipment)
 	return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload)
+}
+
+// ListMTOShipmentsHandler returns a list of MTO Shipments
+type ListMTOShipmentsHandler struct {
+	handlers.HandlerContext
+	services.ListFetcher
+	services.Fetcher
+}
+
+// Handle listing mto shipments for the move task order
+func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	if session == nil || (!session.IsMilApp() && session.ServiceMemberID == uuid.Nil) {
+		return mtoshipmentops.NewListMTOShipmentsUnauthorized()
+	}
+
+	moveTaskOrderID, err := uuid.FromString(params.MoveTaskOrderID.String())
+	// return any parsing error
+	if err != nil {
+		logger.Error("Invalid request: move task order ID not valid")
+		return mtoshipmentops.NewListMTOShipmentsBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
+			"The MTO Shipment request body cannot be empty.", h.GetTraceID()))
+	}
+
+	// check if move task order exists first
+	queryFilters := []services.QueryFilter{
+		query.NewQueryFilter("id", "=", moveTaskOrderID.String()),
+	}
+
+	moveTaskOrder := &models.MoveTaskOrder{}
+	err = h.Fetcher.FetchRecord(moveTaskOrder, queryFilters)
+	if err != nil {
+		logger.Error("Error fetching move task order: ", zap.Error(fmt.Errorf("Move Task Order ID: %s", moveTaskOrder.ID)), zap.Error(err))
+		return mtoshipmentops.NewListMTOShipmentsNotFound()
+	}
+
+	queryFilters = []services.QueryFilter{
+		query.NewQueryFilter("move_task_order_id", "=", moveTaskOrderID.String()),
+	}
+	queryAssociations := query.NewQueryAssociations([]services.QueryAssociation{})
+
+	var shipments models.MTOShipments
+	err = h.ListFetcher.FetchRecordList(&shipments, queryFilters, queryAssociations, nil, nil)
+	// return any errors
+	if err != nil {
+		logger.Error("Error fetching mto shipments : ", zap.Error(err))
+
+		return mtoshipmentops.NewListMTOShipmentsInternalServerError()
+	}
+
+	payload := payloads.MTOShipments(&shipments)
+	return mtoshipmentops.NewListMTOShipmentsOK().WithPayload(*payload)
 }
