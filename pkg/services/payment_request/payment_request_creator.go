@@ -129,7 +129,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			}
 
 			// Get values for needed service item params (do lookups)
-			paramLookup := serviceparamlookups.ServiceParamLookupInitialize(tx, p.planner, paymentServiceItem.MTOServiceItemID, paymentServiceItem.ID, paymentRequestArg.MoveTaskOrderID)
+			paramLookup := serviceparamlookups.ServiceParamLookupInitialize(tx, p.planner, paymentServiceItem.MTOServiceItemID, paymentServiceItem.ID, paymentRequestArg.MoveTaskOrderID, serviceparamlookups.ServiceParamsCache{})
 			for _, reServiceParam := range reServiceParams {
 				if _, found := incomingMTOServiceItemParams[reServiceParam.ServiceItemParamKey.Key.String()]; !found {
 					// create the missing service item param
