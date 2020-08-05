@@ -66,6 +66,26 @@ executors:
         command: '-c fsync=off -c full_page_writes=off -c max_connections=200'
 
 commands:
+  aws_vars_legacy:
+    steps:
+      - run:
+          name: 'Setting up AWS environment variables for legacy env'
+          command: |
+            echo "export AWS_DEFAULT_REGION=$LEGACY_REGION" >> $BASH_ENV
+            echo "export AWS_ACCOUNT_ID=$LEGACY_ACCOUNT_ID" >> $BASH_ENV
+            echo "export AWS_ACCESS_KEY_ID=$LEGACY_ACCESS_KEY_ID" >> $BASH_ENV
+            echo "export AWS_SECRET_ACCESS_KEY=$LEGACY_SECRET_ACCESS_KEY" >> $BASH_ENV
+            source $BASH_ENV
+  aws_vars_exp:
+    steps:
+      - run:
+          name: 'Setting up AWS environment variables for exp env'
+          command: |
+            echo "export AWS_DEFAULT_REGION=$EXP_REGION" >> $BASH_ENV
+            echo "export AWS_ACCOUNT_ID=$EXP_ACCOUNT_ID" >> $BASH_ENV
+            echo "export AWS_ACCESS_KEY_ID=$EXP_ACCESS_KEY_ID" >> $BASH_ENV
+            echo "export AWS_SECRET_ACCESS_KEY=$EXP_SECRET_ACCESS_KEY" >> $BASH_ENV
+            source $BASH_ENV
   announce_failure:
     parameters:
     steps:
@@ -105,12 +125,7 @@ commands:
           name: Get Digest from filesystem
           command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app-tasks)' | tee -a "${BASH_ENV}"
       - deploy:
-          name: Deploy fuel price data task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container save-fuel-price-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
-          no_output_timeout: 20m
-      - announce_failure
-      - deploy:
-          name: Deploy ghc fuel price data task service
+          name: Deploy GHC fuel price data task service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - announce_failure
@@ -211,30 +226,56 @@ commands:
           name: Push StoryBook build to S3
           command: scripts/push-storybook-assets "<< parameters.s3_bucket>>"
 
-  build_tag_push:
+  build_image:
     parameters:
       dockerfile:
         type: string
-      tag:
+      image_name:
         type: string
-      repo:
+      tag:
         type: string
       working_dir:
         type: string
     steps:
       - run:
-          name: 'Build, tag, and push docker image << parameters.tag >> from Dockerfile << parameters.dockerfile >>'
+          name: 'Build docker image'
           working_directory: << parameters.working_dir >>
           command: |
-            docker build -f << parameters.dockerfile >> -t << parameters.tag >> .
+            docker build -f << parameters.dockerfile>> -t << parameters.image_name >>:<< parameters.tag >> .
+            mkdir -p /home/circleci/transcom/mymove/bin/images
+            docker save -o /home/circleci/transcom/mymove/bin/images/<< parameters.image_name >> << parameters.image_name >>:<< parameters.tag >>
+      - persist_to_workspace:
+          root: bin
+          paths:
+            - images/<< parameters.image_name >>
+
+  push_image:
+    parameters:
+      image_name:
+        type: string
+      tag:
+        type: string
+      repo:
+        type: string
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /home/circleci/transcom/mymove/bin
+      - run:
+          name: 'Retrieve docker image from workspace'
+          command: |
+            docker load -i /home/circleci/transcom/mymove/bin/images/<< parameters.image_name >>
+      - run:
+          name: 'Tag and push docker image'
+          command: |
             aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
-            docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
+            docker tag << parameters.image_name >>:<< parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
             shopt -s extglob
-            docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
-            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
+            docker tag << parameters.image_name >>:<< parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
+            docker tag << parameters.image_name >>:<< parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
       - run:
-          name: Record ECR Image Digest
+          name: 'Record ECR Image Digest'
           command: |
             mkdir -p /home/circleci/transcom/mymove/bin/sha
             echo $(aws ecr describe-images --repository-name << parameters.repo >> --image-ids imageTag=git-${CIRCLE_SHA1} | jq ".imageDetails[0] .imageDigest" -r) > /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>
@@ -244,8 +285,7 @@ commands:
           command: scripts/ecr-describe-image-scan-findings << parameters.repo >> ${CIRCLE_SHA1}
       - persist_to_workspace:
           root: bin
-          paths:
-            - sha/
+          paths: sha/
 
   server_tests_step:
     parameters:
@@ -505,6 +545,7 @@ jobs:
   acceptance_tests:
     executor: mymove_medium
     steps:
+      - aws_vars_legacy
       - checkout
       - restore_cache:
           keys:
@@ -570,6 +611,7 @@ jobs:
     parallelism: 5
     executor: mymove_large
     steps:
+      - aws_vars_legacy
       - checkout
       - setup_remote_docker:
           docker_layer_caching: false
@@ -603,6 +645,7 @@ jobs:
   integration_tests_mtls:
     executor: mymove_medium_plus
     steps:
+      - aws_vars_legacy
       - checkout
       - setup_remote_docker:
           docker_layer_caching: false
@@ -685,7 +728,7 @@ jobs:
             - prime-api-client #for running Prime API integration tests
       - announce_failure
 
-  # `build_app` builds the application container and pushes to the container repository
+  # `build_app` builds the application container
   build_app:
     executor: mymove_medium_plus
     steps:
@@ -702,13 +745,27 @@ jobs:
           keys:
             - v3-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run: make bin/rds-ca-2019-root.pem
+      - run: make bin/rds-ca-us-gov-west-1-2017-root.pem
       - run: make client_build
       - run: make server_build
-      - build_tag_push:
+      - build_image:
           dockerfile: Dockerfile
-          tag: ppp:web-dev
-          repo: app
+          image_name: ppp
+          tag: web-dev
           working_dir: ~/transcom/mymove
+      - announce_failure
+
+  # `push_app_legacy` pushes the app container to the legacy container repository
+  push_app_legacy:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_legacy
+      - push_image:
+          image_name: ppp
+          tag: web-dev
+          repo: app
       - announce_failure
 
   # `storybook_tests` builds the storybook application container and pushes to the container repository
@@ -745,7 +802,7 @@ jobs:
           destination: reference
       - announce_failure
 
-  # `build_migrations` builds the migrations container and pushes to the container repository
+  # `build_migrations` builds the migrations container
   build_migrations:
     executor: mymove_medium
     steps:
@@ -753,15 +810,29 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: false
       - run: make bin/rds-ca-2019-root.pem
+      - run: make bin/rds-ca-us-gov-west-1-2017-root.pem
       - run: make server_build
-      - build_tag_push:
+      - build_image:
           dockerfile: Dockerfile.migrations
-          tag: ppp-migrations:dev
-          repo: app-migrations
+          image_name: ppp-migrations
+          tag: dev
           working_dir: ~/transcom/mymove
       - announce_failure
 
-  # `build_django_app` builds the django app container and pushes to container repository
+  # `push_migrations` pushes the migrations container to the legacy container repository
+  push_migrations_legacy:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_legacy
+      - push_image:
+          image_name: ppp-migrations
+          tag: dev
+          repo: app-migrations
+      - announce_failure
+
+  # `build_django_app` builds the django app container
   build_milmove_admin_app:
     executor: mymove_and_postgres_medium
     steps:
@@ -823,19 +894,36 @@ jobs:
             LOGIN_GOV_JWK_SET_FILENAME: keyset.jwk
       - setup_remote_docker:
           docker_layer_caching: false
-      - build_tag_push:
+      - build_image:
           dockerfile: Dockerfile.prod
-          tag: engadmin:dev
-          repo: app-engadmin
+          image_name: engadmin
+          tag: dev
           working_dir: ~/transcom/milmove_admin/app
-      - build_tag_push:
+      - build_image:
           dockerfile: Dockerfile
-          tag: engadmin-nginx:dev
-          repo: app-engadmin-nginx
+          image_name: engadmin-nginx
+          tag: dev
           working_dir: ~/transcom/milmove_admin/nginx
       - announce_failure
 
-  # `build_tasks` builds the tasks containers and pushes them to the container repository
+  # `push_milmove_admin_app_legacy` pushes the django admin container to the legacy container repository
+  push_milmove_admin_app_legacy:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_legacy
+      - push_image:
+          image_name: engadmin
+          tag: dev
+          repo: app-engadmin
+      - push_image:
+          image_name: engadmin-nginx
+          tag: dev
+          repo: app-engadmin-nginx
+      - announce_failure
+
+  # `build_tasks` builds the tasks containers
   build_tasks:
     executor: mymove_medium
     steps:
@@ -846,14 +934,28 @@ jobs:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}
       - run: make bin/rds-ca-2019-root.pem
+      - run: make bin/rds-ca-us-gov-west-1-2017-root.pem
       - run: rm -f pkg/assets/assets.go && make pkg/assets/assets.go
       - run: make server_generate
       - run: rm -f bin/milmove-tasks && make bin/milmove-tasks
-      - build_tag_push:
+      - build_image:
           dockerfile: Dockerfile.tasks
-          tag: tasks:dev
-          repo: app-tasks
+          image_name: tasks
+          tag: dev
           working_dir: ~/transcom/mymove
+      - announce_failure
+
+  # `push_tasks_legacy` pushes the tasks containers to the legacy container repository
+  push_tasks_legacy:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_legacy
+      - push_image:
+          image_name: tasks
+          tag: dev
+          repo: app-tasks
       - announce_failure
 
   # `deploy_experimental_migrations` deploys migrations to the experimental environment
@@ -862,6 +964,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'experimental'
     steps:
+      - aws_vars_legacy
       - deploy_migrations_steps
 
   # `deploy_experimental_tasks` deploys scheduled tasks to the experimental environment
@@ -870,6 +973,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'experimental'
     steps:
+      - aws_vars_legacy
       - deploy_tasks_steps
 
   # `deploy_experimental_app` updates the server-TLS app service in the experimental environment
@@ -878,6 +982,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'experimental'
     steps:
+      - aws_vars_legacy
       - deploy_app_steps:
           compare_host: '' # leave blank since we want experimental to be able to roll back
           health_check_hosts: my.experimental.move.mil,office.experimental.move.mil,admin.experimental.move.mil
@@ -888,9 +993,49 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'experimental'
     steps:
+      - aws_vars_legacy
       - deploy_app_client_tls_steps:
           compare_host: '' # leave blank since we want experimental to be able to roll back
           health_check_hosts: gex.experimental.move.mil,dps.experimental.move.mil,orders.experimental.move.mil
+
+  # `deploy_exp_migrations` deploys migrations to the exp environment
+  deploy_exp_migrations:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'exp'
+    steps:
+      - aws_vars_exp
+      - deploy_migrations_steps
+
+  # `deploy_exp_tasks` deploys scheduled tasks to the exp environment
+  deploy_exp_tasks:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'exp'
+    steps:
+      - aws_vars_exp
+      - deploy_tasks_steps
+
+  # `deploy_exp_app` updates the server-TLS app service in the exp environment
+  deploy_exp_app:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'exp'
+    steps:
+      - aws_vars_exp
+      - deploy_app_steps:
+          compare_host: '' # leave blank since we want exp to be able to roll back
+          health_check_hosts: my.exp.move.mil,office.exp.move.mil,admin.exp.move.mil
+
+  # `deploy_exp_app_client_tls` updates the mutual-TLS service in the exp environment
+  deploy_exp_app_client_tls:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'exp'
+    steps:
+      - deploy_app_client_tls_steps:
+          compare_host: '' # leave blank since we want exp to be able to roll back
+          health_check_hosts: gex.exp.move.mil,dps.exp.move.mil,orders.exp.move.mil
 
   check_circle_against_staging_sha:
     executor: mymove_small
@@ -906,6 +1051,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'staging'
     steps:
+      - aws_vars_legacy
       - deploy_migrations_steps
 
   # `deploy_staging_tasks` deploys scheduled tasks to the staging environment
@@ -914,6 +1060,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'staging'
     steps:
+      - aws_vars_legacy
       - deploy_tasks_steps
 
   # `deploy_staging_app` updates the server-TLS app service in staging environment
@@ -922,6 +1069,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'staging'
     steps:
+      - aws_vars_legacy
       - deploy_app_steps:
           compare_host: my.staging.move.mil
           health_check_hosts: my.staging.move.mil,office.staging.move.mil,admin.staging.move.mil
@@ -932,6 +1080,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'staging'
     steps:
+      - aws_vars_legacy
       - deploy_app_client_tls_steps:
           compare_host: gex.staging.move.mil
           health_check_hosts: gex.staging.move.mil,dps.staging.move.mil,orders.staging.move.mil
@@ -942,6 +1091,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'prod'
     steps:
+      - aws_vars_legacy
       - deploy_migrations_steps
 
   # `deploy_prod_tasks` deploys scheduled tasks to the prod environment
@@ -950,6 +1100,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'prod'
     steps:
+      - aws_vars_legacy
       - deploy_tasks_steps
 
   # `deploy_prod_app` updates the server-TLS app service in the prod environment
@@ -958,6 +1109,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'prod'
     steps:
+      - aws_vars_legacy
       - deploy_app_steps:
           compare_host: my.move.mil
           health_check_hosts: my.move.mil,office.move.mil,admin.move.mil
@@ -968,6 +1120,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'prod'
     steps:
+      - aws_vars_legacy
       - deploy_app_client_tls_steps:
           compare_host: gex.move.mil
           health_check_hosts: gex.move.mil,dps.move.mil,orders.move.mil
@@ -975,6 +1128,7 @@ jobs:
   deploy_prod_storybook:
     executor: mymove_small
     steps:
+      - aws_vars_legacy
       - deploy_app_storybook:
           s3_bucket: storybook.move.mil
 
@@ -990,6 +1144,10 @@ workflows:
       - build_milmove_admin_app:
           requires:
             - pre_deps_golang
+
+      - push_milmove_admin_app_legacy:
+          requires:
+            - build_milmove_admin_app
 
       - check_generated_code:
           requires:
@@ -1014,8 +1172,8 @@ workflows:
             - pre_deps_golang
             - pre_deps_yarn
             - check_generated_code
-            - build_app
-            - build_migrations
+            - push_app_legacy
+            - push_migrations_legacy
             - acceptance_tests
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
@@ -1026,8 +1184,8 @@ workflows:
           requires:
             - pre_deps_golang
             - check_generated_code
-            - build_app
-            - build_migrations
+            - push_app_legacy
+            - push_migrations_legacy
             - acceptance_tests
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
@@ -1057,6 +1215,10 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests # don't bother building and pushing the application if it won't even start properly
 
+      - push_app_legacy:
+          requires:
+            - build_app
+
       - build_tools:
           requires:
             - anti_virus
@@ -1067,9 +1229,17 @@ workflows:
             - anti_virus
             - pre_deps_golang
 
+      - push_migrations_legacy:
+          requires:
+            - build_migrations
+
       - build_tasks:
           requires:
             - build_tools
+
+      - push_tasks_legacy:
+          requires:
+            - build_tasks
 
       - deploy_experimental_migrations:
           requires:
@@ -1077,10 +1247,10 @@ workflows:
             - client_test
             - server_test
             - acceptance_tests
-            - build_app
+            - push_app_legacy
             - build_tools
-            - build_tasks
-            - build_migrations
+            - push_tasks_legacy
+            - push_migrations_legacy
           filters:
             branches:
               only: placeholder_branch_name
@@ -1111,10 +1281,10 @@ workflows:
             - pre_test
             - client_test
             - server_test
-            - build_app
+            - push_app_legacy
             - build_tools
-            - build_migrations
-            - build_tasks
+            - push_migrations_legacy
+            - push_tasks_legacy
             - acceptance_tests
             - integration_tests
             - integration_tests_mtls

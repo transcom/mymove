@@ -2,6 +2,7 @@ package ghcimport
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
@@ -9,9 +10,10 @@ import (
 
 // GHCRateEngineImporter is the rate engine importer for GHC
 type GHCRateEngineImporter struct {
-	Logger       Logger
-	ContractCode string
-	ContractName string
+	Logger            Logger
+	ContractCode      string
+	ContractName      string
+	ContractStartDate time.Time
 	// TODO: add reference maps here as needed for dependencies between tables
 	ContractID                   uuid.UUID
 	serviceAreaToIDMap           map[string]uuid.UUID

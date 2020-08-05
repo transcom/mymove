@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
@@ -17,6 +18,8 @@ import (
 const testContractCode = "TEST"
 const testContractCode2 = "TEST2"
 const testContractName = "Test Contract"
+
+var testContractStartDate = time.Date(2021, time.February, 01, 0, 0, 0, 0, time.UTC)
 
 var tablesToTruncate = [...]string{
 	"re_contract_years",
@@ -105,9 +108,10 @@ func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_Import() {
 		{
 			name: "Run GHC Rate Engine Importer",
 			gre: &GHCRateEngineImporter{
-				Logger:       suite.logger,
-				ContractCode: testContractCode,
-				ContractName: testContractName,
+				Logger:            suite.logger,
+				ContractCode:      testContractCode,
+				ContractName:      testContractName,
+				ContractStartDate: testContractStartDate,
 			},
 			wantErr: false,
 		},

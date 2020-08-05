@@ -122,7 +122,7 @@ check_docker_size: ## Check the amount of disk space used by docker
 	scripts/check-docker-size
 
 .PHONY: deps
-deps: prereqs ensure_pre_commit client_deps redis_pull bin/rds-ca-2019-root.pem ## Run all checks and install all depdendencies
+deps: prereqs ensure_pre_commit client_deps redis_pull bin/rds-ca-2019-root.pem bin/rds-ca-us-gov-west-1-2017-root.pem ## Run all checks and install all depdendencies
 
 .PHONY: test
 test: client_test server_test e2e_test ## Run all tests
@@ -214,6 +214,10 @@ bin/rds-ca-2019-root.pem:
 	mkdir -p bin/
 	curl -sSo bin/rds-ca-2019-root.pem https://s3.amazonaws.com/rds-downloads/rds-ca-2019-root.pem
 
+bin/rds-ca-us-gov-west-1-2017-root.pem:
+	mkdir -p bin/
+	curl -sSo bin/rds-ca-us-gov-west-1-2017-root.pem https://s3.us-gov-west-1.amazonaws.com/rds-downloads/rds-ca-us-gov-west-1-2017-root.pem
+
 ### MilMove Targets
 
 bin/big-cat:
@@ -266,6 +270,9 @@ bin/milmove-tasks:
 
 bin/prime-api-client:
 	go build -ldflags "$(LDFLAGS)" -o bin/prime-api-client ./cmd/prime-api-client
+
+bin/webhook-client:
+	go build -ldflags "$(LDFLAGS)" -o bin/webhook-client ./cmd/webhook-client
 
 bin/query-cloudwatch-logs:
 	go build -ldflags "$(LDFLAGS)" -o bin/query-cloudwatch-logs ./cmd/query-cloudwatch-logs
@@ -337,6 +344,7 @@ server_run_debug: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp
 build_tools: bin/gin \
 	bin/mockery \
 	bin/rds-ca-2019-root.pem \
+	bin/rds-ca-us-gov-west-1-2017-root.pem \
 	bin/big-cat \
 	bin/compare-secure-migrations \
 	bin/generate-deploy-notes \
@@ -365,7 +373,7 @@ build: server_build build_tools client_build ## Build the server, tools, and cli
 # acceptance_test runs a few acceptance tests against a local or remote environment.
 # This can help identify potential errors before deploying a container.
 .PHONY: acceptance_test
-acceptance_test: bin/rds-ca-2019-root.pem ## Run acceptance tests
+acceptance_test: bin/rds-ca-2019-root.pem bin/rds-ca-us-gov-west-1-2017-root.pem ## Run acceptance tests
 ifndef TEST_ACC_ENV
 	@echo "Running acceptance tests for webserver using local environment."
 	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
@@ -758,24 +766,6 @@ tasks_build_linux_docker:  ## Build Scheduled Task binaries (linux) and Docker i
 	@echo "Build the docker scheduled tasks container..."
 	docker build -f Dockerfile.tasks_local --tag $(TASKS_DOCKER_CONTAINER):latest .
 
-.PHONY: tasks_save_fuel_price_data
-tasks_save_fuel_price_data: tasks_build_linux_docker ## Run save-fuel-price-data from inside docker container
-	@echo "Saving the fuel price data to the ${DB_NAME_DEV} database with docker command..."
-	DB_NAME=$(DB_NAME_DEV) DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_DEV) scripts/wait-for-db-docker
-	docker run \
-		-t \
-		-e DB_HOST="database" \
-		-e DB_NAME \
-		-e DB_PORT \
-		-e DB_USER \
-		-e DB_PASSWORD \
-		-e EIA_KEY \
-		-e EIA_URL \
-		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
-		--rm \
-		$(TASKS_DOCKER_CONTAINER):latest \
-		milmove-tasks save-fuel-price-data
-
 .PHONY: tasks_save_ghc_fuel_price_data
 tasks_save_ghc_fuel_price_data: tasks_build_linux_docker ## Run save-ghc-fuel-price-data from inside docker container
 	@echo "Saving the fuel price data to the ${DB_NAME_DEV} database with docker command..."
@@ -847,8 +837,12 @@ tasks_post_file_to_gex: tasks_build_linux_docker ## Run post-file-to-gex from in
 # ----- START Deployed MIGRATION TARGETS -----
 #
 
-.PHONY: run_prod_migrations
-run_prod_migrations: bin/milmove db_deployed_migrations_reset ## Run Prod migrations against Deployed Migrations DB
+.PHONY: run_prod_migrations ## Currently: Run Commercial Prod migrations against Deployed Migrations DB
+run_prod_migrations: run_com_prod_migrations
+	# run_gov_prod_migrations
+
+.PHONY: run_com_prod_migrations
+run_com_prod_migrations: bin/milmove db_deployed_migrations_reset ## Run Commercial Prod migrations against Deployed Migrations DB
 	@echo "Migrating the prod-migrations database with prod migrations..."
 	MIGRATION_PATH="s3://transcom-ppp-app-prod-us-west-2/secure-migrations;file://migrations/$(APPLICATION)/schema" \
 	DB_HOST=localhost \
@@ -857,9 +851,24 @@ run_prod_migrations: bin/milmove db_deployed_migrations_reset ## Run Prod migrat
 	DB_DEBUG=0 \
 	bin/milmove migrate
 
+# This will be added once GovCloud prod env is up
+# .PHONY: run_gov_prod_migrations
+# run_gov_prod_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud Prod migrations against Deployed Migrations DB
+# 	@echo "Migrating the prod-migrations database with prod migrations..."
+# 	MIGRATION_PATH="s3://transcom-gov-milmove-prd-app/secure-migrations;file://migrations/$(APPLICATION)/schema" \
+# 	DB_HOST=localhost \
+# 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
+# 	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
+# 	DB_DEBUG=0 \
+# 	bin/milmove migrate
+
 .PHONY: run_staging_migrations
-run_staging_migrations: bin/milmove db_deployed_migrations_reset ## Run Staging migrations against Deployed Migrations DB
-	@echo "Migrating the prod-migrations database with staging migrations..."
+run_staging_migrations: run_com_staging_migrations ## Currently: Run Commercial Staging migrations against Deployed Migrations DB
+	# run_gov_staging_migrations
+
+.PHONY: run_com_staging_migrations
+run_com_staging_migrations: bin/milmove db_deployed_migrations_reset ## Run Commercial Staging migrations against Deployed Migrations DB
+	@echo "Migrating the staging-migrations database with staging migrations..."
 	MIGRATION_PATH="s3://transcom-ppp-app-staging-us-west-2/secure-migrations;file://migrations/$(APPLICATION)/schema" \
 	DB_HOST=localhost \
 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
@@ -867,10 +876,35 @@ run_staging_migrations: bin/milmove db_deployed_migrations_reset ## Run Staging 
 	DB_DEBUG=0 \
 	bin/milmove migrate
 
-.PHONY: run_experimental_migrations
-run_experimental_migrations: bin/milmove db_deployed_migrations_reset ## Run Experimental migrations against Deployed Migrations DB
-	@echo "Migrating the prod-migrations database with experimental migrations..."
+# This will be added once GovCloud staging env is up
+# .PHONY: run_gov_staging_migrations ## Run GovCloud Staging migrations against Deployed Migrations DB
+# run_gov_staging_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud Staging migrations against Deployed Migrations DB
+# 	@echo "Migrating the staging-migrations database with staging migrations..."
+# 	MIGRATION_PATH="s3://transcom-gov-milmove-stg-app/secure-migrations;file://migrations/$(APPLICATION)/schema" \
+# 	DB_HOST=localhost \
+# 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
+# 	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
+# 	DB_DEBUG=0 \
+# 	bin/milmove migrate
+
+.PHONY: run_experimental_migrations ## Currently: Run Commercial Experimental migrations against Deployed Migrations DB
+run_experimental_migrations: run_com_experimental_migrations
+# run_gov_experimental_migrations
+
+.PHONY: run_com_experimental_migrations
+run_com_experimental_migrations: bin/milmove db_deployed_migrations_reset ## Run Commercial Experimental migrations against Deployed Migrations DB
+	@echo "Migrating the experimental-migrations database with experimental migrations..."
 	MIGRATION_PATH="s3://transcom-ppp-app-experimental-us-west-2/secure-migrations;file://migrations/$(APPLICATION)/schema" \
+	DB_HOST=localhost \
+	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
+	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
+	DB_DEBUG=0 \
+	bin/milmove migrate
+
+.PHONY: run_gov_experimental_migrations
+run_gov_experimental_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud Experimental migrations against Deployed Migrations DB
+	@echo "Migrating the experimental-migrations database with experimental migrations..."
+	MIGRATION_PATH="s3://transcom-gov-milmove-exp-app/secure-migrations;file://migrations/$(APPLICATION)/schema" \
 	DB_HOST=localhost \
 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
 	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
