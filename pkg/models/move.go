@@ -655,3 +655,11 @@ func FetchMoveByMoveID(db *pop.Connection, moveID uuid.UUID) (Move, error) {
 	}
 	return move, nil
 }
+
+// IsCanceled returns true if the Move's status is `CANCELED`, false otherwise
+func (m Move) IsCanceled() *bool {
+	if m.Status == MoveStatusCANCELED {
+		return swag.Bool(true)
+	}
+	return swag.Bool(false)
+}

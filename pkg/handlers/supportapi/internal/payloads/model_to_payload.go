@@ -32,7 +32,7 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *supportmessages.MoveTaskOrder {
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.DateTime(moveTaskOrder.CreatedAt),
 		AvailableToPrimeAt: handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
-		IsCanceled:         isCanceled(moveTaskOrder),
+		IsCanceled:         moveTaskOrder.IsCanceled(),
 		MoveOrder:          MoveOrder(&moveTaskOrder.Orders),
 		ReferenceID:        moveTaskOrder.ReferenceID,
 		ContractorID:       strfmt.UUID(moveTaskOrder.ContractorID.String()),
@@ -340,14 +340,4 @@ func ClientError(title string, detail string, instance uuid.UUID) *supportmessag
 		Detail:   handlers.FmtString(detail),
 		Instance: handlers.FmtUUID(instance),
 	}
-}
-
-func isCanceled(move *models.Move) *bool {
-	truePointer := true
-	falsePointer := false
-	if move.Status == models.MoveStatusCANCELED {
-		return &truePointer
-	}
-
-	return &falsePointer
 }

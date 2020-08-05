@@ -20,7 +20,7 @@ ALTER TABLE moves
     ADD COLUMN available_to_prime_at timestamp with time zone,
     ADD COLUMN ppm_type varchar(10),
     ADD COLUMN ppm_estimated_weight integer,
-    ADD COLUMN reference_id CHAR(9) UNIQUE;
+    ADD COLUMN reference_id varchar(255) UNIQUE;
 
 -- Re-map foreign keys, indexes, and column names from move_task_orders to moves.
 -- Note that any renamed columns will automatically be reflected in an index/constraint,

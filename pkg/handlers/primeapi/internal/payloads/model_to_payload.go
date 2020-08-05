@@ -24,7 +24,7 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primemessages.MoveTaskOrder {
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.DateTime(moveTaskOrder.CreatedAt),
 		AvailableToPrimeAt: handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
-		IsCanceled:         isCanceled(moveTaskOrder),
+		IsCanceled:         moveTaskOrder.IsCanceled(),
 		MoveOrderID:        strfmt.UUID(moveTaskOrder.OrdersID.String()),
 		MoveOrder:          MoveOrder(&moveTaskOrder.Orders),
 		ReferenceID:        moveTaskOrder.ReferenceID,
@@ -535,14 +535,4 @@ func getCustomerContact(customerContacts models.MTOServiceItemCustomerContacts, 
 	}
 
 	return models.MTOServiceItemCustomerContact{}
-}
-
-func isCanceled(move *models.Move) *bool {
-	truePointer := true
-	falsePointer := false
-	if move.Status == models.MoveStatusCANCELED {
-		return &truePointer
-	}
-
-	return &falsePointer
 }
