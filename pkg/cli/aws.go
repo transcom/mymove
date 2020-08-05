@@ -37,11 +37,27 @@ func CheckAWSRegion(v *viper.Viper) (string, error) {
 
 // CheckAWSRegionForService validates AWS command line flags against a region
 func CheckAWSRegionForService(region, awsServiceName string) error {
-	if service, ok := endpoints.AwsPartition().Services()[awsServiceName]; ok {
-		regions := service.Regions()
-		if _, ok := regions[region]; !ok {
-			return &errInvalidRegion{Region: region}
+	partition, ok := endpoints.PartitionForRegion(endpoints.DefaultPartitions(), region)
+	if !ok {
+		return fmt.Errorf("Error finding partition for region: %s", region)
+	}
+
+	if partition.ID() == "aws" {
+		if service, ok := endpoints.AwsPartition().Services()[awsServiceName]; ok {
+			regions := service.Regions()
+			if _, ok := regions[region]; !ok {
+				return &errInvalidRegion{Region: region}
+			}
 		}
+	} else if partition.ID() == "aws-us-gov" {
+		if service, ok := endpoints.AwsUsGovPartition().Services()[awsServiceName]; ok {
+			regions := service.Regions()
+			if _, ok := regions[region]; !ok {
+				return &errInvalidRegion{Region: region}
+			}
+		}
+	} else {
+		return fmt.Errorf("Error unknown partition: %s", partition.ID())
 	}
 	return nil
 }
