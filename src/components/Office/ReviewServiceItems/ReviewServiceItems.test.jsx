@@ -258,7 +258,6 @@ describe('ReviewServiceItems component', () => {
     it('can approve an item', async () => {
       const approveInput = mountedComponent.find(`input[name="status"][value="APPROVED"]`);
       expect(approveInput.length).toBe(1);
-      expect(approveInput.prop('disabled')).toBe(false);
 
       await act(async () => {
         approveInput.simulate('change');
@@ -275,7 +274,6 @@ describe('ReviewServiceItems component', () => {
 
       const rejectInput = mountedComponent.find(`input[name="status"][value="DENIED"]`);
       expect(rejectInput.length).toBe(1);
-      expect(rejectInput.prop('disabled')).toBe(false);
 
       await act(async () => {
         rejectInput.simulate('change');
@@ -293,7 +291,6 @@ describe('ReviewServiceItems component', () => {
     it('can enter a reason for rejecting an item', async () => {
       const rejectReasonInput = mountedComponent.find(`textarea[name="rejectionReason"]`);
       expect(rejectReasonInput.length).toBe(1);
-      expect(rejectReasonInput.prop('disabled')).toBe(false);
 
       await act(async () => {
         rejectReasonInput.simulate('change', {
@@ -754,28 +751,15 @@ describe('ReviewServiceItems component', () => {
         backButton.simulate('click');
         reviewedComponent.update();
 
-        let approveInput = reviewedComponent.find(`input[name="status"][value="APPROVED"]`);
-        expect(approveInput.prop('disabled')).toBe(true);
-        expect(approveInput.prop('checked')).toBe(true);
-
-        let rejectInput = reviewedComponent.find(`input[name="status"][value="DENIED"]`);
-        expect(rejectInput.prop('disabled')).toBe(true);
-        expect(rejectInput.prop('checked')).toBe(false);
+        let statusSummary = reviewedComponent.find('[data-testid="statusHeading"]');
+        expect(statusSummary.text()).toBe('form-checkmark.svgAccepted');
 
         backButton.simulate('click');
         reviewedComponent.update();
 
-        approveInput = reviewedComponent.find(`input[name="status"][value="APPROVED"]`);
-        expect(approveInput.prop('disabled')).toBe(true);
-        expect(approveInput.prop('checked')).toBe(false);
-
-        rejectInput = reviewedComponent.find(`input[name="status"][value="DENIED"]`);
-        expect(rejectInput.prop('disabled')).toBe(true);
-        expect(rejectInput.prop('checked')).toBe(true);
-
-        const rejectReasonInput = reviewedComponent.find(`textarea[name="rejectionReason"]`);
-        expect(rejectReasonInput.prop('disabled')).toBe(true);
-        expect(rejectReasonInput.prop('value')).toBe('Duplicate charge');
+        statusSummary = reviewedComponent.find('[data-testid="statusHeading"]');
+        expect(statusSummary.text()).toBe('x-heavy.svgRejected');
+        expect(reviewedComponent.find('[data-testid="rejectionReason"]').text()).toBe('Duplicate charge');
       });
     });
 
@@ -827,38 +811,22 @@ describe('ReviewServiceItems component', () => {
         expect(alert.text()).toEqual('The payment request was successfully submitted.');
       });
 
-      it('disables the form elements', () => {
+      it('displays service item status summary', () => {
         const backButton = reviewedComponent.find('[data-testid="prevServiceItem"]');
 
         backButton.simulate('click');
         reviewedComponent.update();
 
-        let approveInput = reviewedComponent.find(`input[name="status"][value="APPROVED"]`);
-        expect(approveInput.prop('disabled')).toBe(true);
-        expect(approveInput.prop('checked')).toBe(false);
-
-        let rejectInput = reviewedComponent.find(`input[name="status"][value="DENIED"]`);
-        expect(rejectInput.prop('disabled')).toBe(true);
-        expect(rejectInput.prop('checked')).toBe(true);
-
-        let rejectReasonInput = reviewedComponent.find(`textarea[name="rejectionReason"]`);
-        expect(rejectReasonInput.prop('disabled')).toBe(true);
-        expect(rejectReasonInput.prop('value')).toBe('Not applicable');
+        let statusSummary = reviewedComponent.find('[data-testid="statusHeading"]');
+        expect(statusSummary.text()).toBe('x-heavy.svgRejected');
+        expect(reviewedComponent.find('[data-testid="rejectionReason"]').text()).toBe('Not applicable');
 
         backButton.simulate('click');
         reviewedComponent.update();
 
-        approveInput = reviewedComponent.find(`input[name="status"][value="APPROVED"]`);
-        expect(approveInput.prop('disabled')).toBe(true);
-        expect(approveInput.prop('checked')).toBe(false);
-
-        rejectInput = reviewedComponent.find(`input[name="status"][value="DENIED"]`);
-        expect(rejectInput.prop('disabled')).toBe(true);
-        expect(rejectInput.prop('checked')).toBe(true);
-
-        rejectReasonInput = reviewedComponent.find(`textarea[name="rejectionReason"]`);
-        expect(rejectReasonInput.prop('disabled')).toBe(true);
-        expect(rejectReasonInput.prop('value')).toBe('Duplicate charge');
+        statusSummary = reviewedComponent.find('[data-testid="statusHeading"]');
+        expect(statusSummary.text()).toBe('x-heavy.svgRejected');
+        expect(reviewedComponent.find('[data-testid="rejectionReason"]').text()).toBe('Duplicate charge');
       });
     });
   });

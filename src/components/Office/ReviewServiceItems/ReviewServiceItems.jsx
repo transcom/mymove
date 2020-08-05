@@ -172,7 +172,7 @@ const ReviewServiceItems = ({
                 patchPaymentServiceItem={patchPaymentServiceItem}
                 // eslint-disable-next-line react/jsx-props-no-spreading
                 {...curCard}
-                disabled={requestReviewed}
+                requestComplete={requestReviewed}
               />
             ))
           ) : (
@@ -181,7 +181,7 @@ const ReviewServiceItems = ({
               patchPaymentServiceItem={patchPaymentServiceItem}
               // eslint-disable-next-line react/jsx-props-no-spreading
               {...currentCard}
-              disabled={requestReviewed}
+              requestComplete={requestReviewed}
             />
           ))}
       </div>
