@@ -8,8 +8,9 @@ import (
 
 func (suite *GHCRateEngineImportSuite) Test_importREContractYears() {
 	gre := &GHCRateEngineImporter{
-		Logger:       suite.logger,
-		ContractCode: testContractCode,
+		Logger:            suite.logger,
+		ContractCode:      testContractCode,
+		ContractStartDate: testContractStartDate,
 	}
 
 	suite.T().Run("import success", func(t *testing.T) {

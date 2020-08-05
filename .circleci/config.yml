@@ -125,12 +125,7 @@ commands:
           name: Get Digest from filesystem
           command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app-tasks)' | tee -a "${BASH_ENV}"
       - deploy:
-          name: Deploy fuel price data task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container save-fuel-price-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
-          no_output_timeout: 20m
-      - announce_failure
-      - deploy:
-          name: Deploy ghc fuel price data task service
+          name: Deploy GHC fuel price data task service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - announce_failure
