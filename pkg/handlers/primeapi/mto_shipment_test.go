@@ -91,9 +91,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mtoChecker,
 		}
 		response := handler.Handle(params)
-
+		okResponse := response.(*mtoshipmentops.CreateMTOShipmentOK)
+		createMTOShipmentPayload := okResponse.Payload
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
-
+		// check that the mto shipment status is Submitted
+		suite.Require().Equal(createMTOShipmentPayload.Status, primemessages.MTOShipmentStatusSUBMITTED, "MTO Shipment should have been submitted")
 	})
 
 	suite.T().Run("POST failure - 500", func(t *testing.T) {
