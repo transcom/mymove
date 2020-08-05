@@ -28,7 +28,6 @@ type Assertions struct {
 	BackupContact                            models.BackupContact
 	BlackoutDate                             models.BlackoutDate
 	Contractor                               models.Contractor
-	Customer                                 models.ServiceMember // TODO: Delete customer in another round of cleanups
 	DestinationAddress                       models.Address
 	DestinationDutyStation                   models.DutyStation
 	DistanceCalculation                      models.DistanceCalculation
@@ -41,7 +40,6 @@ type Assertions struct {
 	Invoice                                  models.Invoice
 	Move                                     models.Move
 	MoveDocument                             models.MoveDocument
-	MoveOrder                                models.Order // TODO: Delete MoveOrder in another round of cleanups
 	MoveTaskOrder                            models.MoveTaskOrder
 	MovingExpenseDocument                    models.MovingExpenseDocument
 	MTOAgent                                 models.MTOAgent
@@ -88,6 +86,7 @@ type Assertions struct {
 	UserUpload                               models.UserUpload
 	UserUploader                             *uploader.UserUploader
 	User                                     models.User
+	WebhookSubscription                      models.WebhookSubscription
 }
 
 func stringPointer(s string) *string {

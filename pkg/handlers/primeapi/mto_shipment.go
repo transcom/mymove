@@ -39,8 +39,23 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			"The MTO Shipment request body cannot be empty.", h.GetTraceID()))
 	}
 
+	for _, mtoServiceItem := range params.Body.MtoServiceItems() {
+		// restrict creation to a list
+		if _, ok := AllowedServiceItemMap[mtoServiceItem.ModelType()]; !ok {
+			// throw error if modelType() not on the list
+			mapKeys := GetMapKeys(AllowedServiceItemMap)
+			detailErr := fmt.Sprintf("MTOServiceItem modelType() not allowed: %s ", mtoServiceItem.ModelType())
+			verrs := validate.NewErrors()
+			verrs.Add("modelType", fmt.Sprintf("allowed modelType() %v", mapKeys))
+
+			logger.Error("primeapi.CreateMTOShipmentHandler error", zap.Error(verrs))
+			return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(
+				detailErr, h.GetTraceID(), verrs))
+		}
+	}
+
 	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
-	mtoServiceItemsList, verrs := payloads.MTOServiceItemList(payload)
+	mtoServiceItemsList, verrs := payloads.MTOServiceItemModelListFromCreate(payload)
 
 	if verrs != nil && verrs.HasAny() {
 		logger.Error("Error validating mto service item list: ", zap.Error(verrs))
@@ -67,7 +82,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 		case services.NotFoundError:
 			return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
 		case services.InvalidInputError:
-			return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
+			return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(err.Error(), h.GetTraceID(), e.ValidationErrors))
 		case services.QueryError:
 			if e.Unwrap() != nil {
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging

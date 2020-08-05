@@ -39,8 +39,9 @@ type MTOServiceItemDOFSIT struct {
 	PickupPostalCode *string `json:"pickupPostalCode"`
 
 	// Service code allowed for this model type.
+	// Required: true
 	// Enum: [DOFSIT]
-	ReServiceCode string `json:"reServiceCode,omitempty"`
+	ReServiceCode *string `json:"reServiceCode"`
 
 	// Explanation of why Prime is picking up SIT item.
 	// Required: true
@@ -143,8 +144,9 @@ func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
 		PickupPostalCode *string `json:"pickupPostalCode"`
 
 		// Service code allowed for this model type.
+		// Required: true
 		// Enum: [DOFSIT]
-		ReServiceCode string `json:"reServiceCode,omitempty"`
+		ReServiceCode *string `json:"reServiceCode"`
 
 		// Explanation of why Prime is picking up SIT item.
 		// Required: true
@@ -229,8 +231,9 @@ func (m MTOServiceItemDOFSIT) MarshalJSON() ([]byte, error) {
 		PickupPostalCode *string `json:"pickupPostalCode"`
 
 		// Service code allowed for this model type.
+		// Required: true
 		// Enum: [DOFSIT]
-		ReServiceCode string `json:"reServiceCode,omitempty"`
+		ReServiceCode *string `json:"reServiceCode"`
 
 		// Explanation of why Prime is picking up SIT item.
 		// Required: true
@@ -417,12 +420,12 @@ func (m *MTOServiceItemDOFSIT) validateReServiceCodeEnum(path, location string, 
 
 func (m *MTOServiceItemDOFSIT) validateReServiceCode(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.ReServiceCode) { // not required
-		return nil
+	if err := validate.Required("reServiceCode", "body", m.ReServiceCode); err != nil {
+		return err
 	}
 
 	// value enum
-	if err := m.validateReServiceCodeEnum("reServiceCode", "body", m.ReServiceCode); err != nil {
+	if err := m.validateReServiceCodeEnum("reServiceCode", "body", *m.ReServiceCode); err != nil {
 		return err
 	}
 

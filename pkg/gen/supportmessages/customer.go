@@ -27,6 +27,7 @@ type Customer struct {
 	DodID string `json:"dodID,omitempty"`
 
 	// e tag
+	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// email

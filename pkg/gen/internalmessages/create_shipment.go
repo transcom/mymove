@@ -24,8 +24,7 @@ type CreateShipment struct {
 	CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
 	// destination address
-	// Required: true
-	DestinationAddress *Address `json:"destinationAddress"`
+	DestinationAddress *Address `json:"destinationAddress,omitempty"`
 
 	// move task order ID
 	// Required: true
@@ -105,8 +104,8 @@ func (m *CreateShipment) validateAgents(formats strfmt.Registry) error {
 
 func (m *CreateShipment) validateDestinationAddress(formats strfmt.Registry) error {
 
-	if err := validate.Required("destinationAddress", "body", m.DestinationAddress); err != nil {
-		return err
+	if swag.IsZero(m.DestinationAddress) { // not required
+		return nil
 	}
 
 	if m.DestinationAddress != nil {
