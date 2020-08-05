@@ -126,19 +126,20 @@ type xlsxProcessInfo struct {
 
 // ParamConfig is the parameter conifguration
 type ParamConfig struct {
-	ProcessAll    bool
-	ShowOutput    bool
-	XlsxFilename  string
-	XlsxSheets    []string
-	SaveToFile    bool
-	RunTime       time.Time
-	XlsxFile      *xlsx.File
-	RunVerify     bool
-	RunImport     bool
-	UseTempTables bool
-	DropIfExists  bool
-	ContractCode  string
-	ContractName  string
+	ProcessAll        bool
+	ShowOutput        bool
+	XlsxFilename      string
+	XlsxSheets        []string
+	SaveToFile        bool
+	RunTime           time.Time
+	XlsxFile          *xlsx.File
+	RunVerify         bool
+	RunImport         bool
+	UseTempTables     bool
+	DropIfExists      bool
+	ContractCode      string
+	ContractName      string
+	ContractStartDate string
 }
 
 // InitDataSheetInfo - When adding new functions for parsing sheets, must add new XlsxDataSheetInfo
