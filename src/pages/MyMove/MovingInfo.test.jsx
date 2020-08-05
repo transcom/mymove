@@ -7,9 +7,9 @@ const wrapper = mount(<MovingInfo />);
 
 describe('MovingInfo component', () => {
   it('renders', () => {
-    expect(wrapper.exists('MovingInfo')).to.equal(true);
-    // JUST CHECK FOR EXISTENCE OF
-    // PAGE HEADING
-    // SUBHEADERS
+    expect(wrapper.find('MovingInfo').length).toBe(1);
+    expect(wrapper.text()).toContain('Figure out your shipments');
+    expect(wrapper.find('[data-testid="shipmentsHeader"]').length).toBe(1);
+    expect(wrapper.find('[data-testid="shipmentsSubHeader"]').length).toBe(3);
   });
 });
