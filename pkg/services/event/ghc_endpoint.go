@@ -5,6 +5,74 @@ package event
 // GhcAPIName is a const string to use the EndpointTypes
 const GhcAPIName string = "ghcapi"
 
+// -------------------- ENDPOINT KEYS --------------------
+
+// GhcGetCustomerEndpointKey is the key for the getCustomer endpoint in ghc
+const GhcGetCustomerEndpointKey = "Ghc.GetCustomer"
+
+// GhcGetMoveEndpointKey is the key for the getMove endpoint in ghc
+const GhcGetMoveEndpointKey = "Ghc.GetMove"
+
+// GhcListMoveOrdersEndpointKey is the key for the listMoveOrders endpoint in ghc
+const GhcListMoveOrdersEndpointKey = "Ghc.ListMoveOrders"
+
+// GhcGetMoveOrderEndpointKey is the key for the getMoveOrder endpoint in ghc
+const GhcGetMoveOrderEndpointKey = "Ghc.GetMoveOrder"
+
+// GhcListMoveTaskOrdersEndpointKey is the key for the listMoveTaskOrders endpoint in ghc
+const GhcListMoveTaskOrdersEndpointKey = "Ghc.ListMoveTaskOrders"
+
+// GhcGetMoveTaskOrderEndpointKey is the key for the getMoveTaskOrder endpoint in ghc
+const GhcGetMoveTaskOrderEndpointKey = "Ghc.GetMoveTaskOrder"
+
+// GhcUpdateMoveTaskOrderEndpointKey is the key for the updateMoveTaskOrder endpoint in ghc
+const GhcUpdateMoveTaskOrderEndpointKey = "Ghc.UpdateMoveTaskOrder"
+
+// GhcListMTOServiceItemsEndpointKey is the key for the listMTOServiceItems endpoint in ghc
+const GhcListMTOServiceItemsEndpointKey = "Ghc.ListMTOServiceItems"
+
+// GhcCreateMTOServiceItemEndpointKey is the key for the createMTOServiceItem endpoint in ghc
+const GhcCreateMTOServiceItemEndpointKey = "Ghc.CreateMTOServiceItem"
+
+// GhcListMTOShipmentsEndpointKey is the key for the listMTOShipments endpoint in ghc
+const GhcListMTOShipmentsEndpointKey = "Ghc.ListMTOShipments"
+
+// GhcPatchMTOShipmentStatusEndpointKey is the key for the patchMTOShipmentStatus endpoint in ghc
+const GhcPatchMTOShipmentStatusEndpointKey = "Ghc.PatchMTOShipmentStatus"
+
+// GhcFetchMTOAgentListEndpointKey is the key for the fetchMTOAgentList endpoint in ghc
+const GhcFetchMTOAgentListEndpointKey = "Ghc.FetchMTOAgentList"
+
+// GhcGetMTOServiceItemEndpointKey is the key for the getMTOServiceItem endpoint in ghc
+const GhcGetMTOServiceItemEndpointKey = "Ghc.GetMTOServiceItem"
+
+// GhcUpdateMTOServiceItemEndpointKey is the key for the updateMTOServiceItem endpoint in ghc
+const GhcUpdateMTOServiceItemEndpointKey = "Ghc.UpdateMTOServiceItem"
+
+// GhcUpdateMTOServiceItemStatusEndpointKey is the key for the updateMTOServiceItemStatus endpoint in ghc
+const GhcUpdateMTOServiceItemStatusEndpointKey = "Ghc.UpdateMTOServiceItemStatus"
+
+// GhcUpdateMoveTaskOrderStatusEndpointKey is the key for the updateMoveTaskOrderStatus endpoint in ghc
+const GhcUpdateMoveTaskOrderStatusEndpointKey = "Ghc.UpdateMoveTaskOrderStatus"
+
+// GhcUpdatePaymentServiceItemStatusEndpointKey is the key for the updatePaymentServiceItemStatus endpoint in ghc
+const GhcUpdatePaymentServiceItemStatusEndpointKey = "Ghc.UpdatePaymentServiceItemStatus"
+
+// GhcGetEntitlementsEndpointKey is the key for the getEntitlements endpoint in ghc
+const GhcGetEntitlementsEndpointKey = "Ghc.GetEntitlements"
+
+// GhcListPaymentRequestsEndpointKey is the key for the listPaymentRequests endpoint in ghc
+const GhcListPaymentRequestsEndpointKey = "Ghc.ListPaymentRequests"
+
+// GhcGetPaymentRequestEndpointKey is the key for the getPaymentRequest endpoint in ghc
+const GhcGetPaymentRequestEndpointKey = "Ghc.GetPaymentRequest"
+
+// GhcUpdatePaymentRequestEndpointKey is the key for the updatePaymentRequest endpoint in ghc
+const GhcUpdatePaymentRequestEndpointKey = "Ghc.UpdatePaymentRequest"
+
+// GhcUpdatePaymentRequestStatusEndpointKey is the key for the updatePaymentRequestStatus endpoint in ghc
+const GhcUpdatePaymentRequestStatusEndpointKey = "Ghc.UpdatePaymentRequestStatus"
+
 // -------------------- ENDPOINT MAP ENTRIES --------------------
 var ghcEndpoints = EndpointMapType{
 	GhcGetCustomerEndpointKey: {
@@ -96,71 +164,3 @@ var ghcEndpoints = EndpointMapType{
 		OperationID: "updatePaymentRequestStatus",
 	},
 }
-
-// -------------------- ENDPOINT KEYS --------------------
-
-// GhcGetCustomerEndpointKey is the key for the getCustomer endpoint in ghc
-const GhcGetCustomerEndpointKey = "Ghc.GetCustomer"
-
-// GhcGetMoveEndpointKey is the key for the getMove endpoint in ghc
-const GhcGetMoveEndpointKey = "Ghc.GetMove"
-
-// GhcListMoveOrdersEndpointKey is the key for the listMoveOrders endpoint in ghc
-const GhcListMoveOrdersEndpointKey = "Ghc.ListMoveOrders"
-
-// GhcGetMoveOrderEndpointKey is the key for the getMoveOrder endpoint in ghc
-const GhcGetMoveOrderEndpointKey = "Ghc.GetMoveOrder"
-
-// GhcListMoveTaskOrdersEndpointKey is the key for the listMoveTaskOrders endpoint in ghc
-const GhcListMoveTaskOrdersEndpointKey = "Ghc.ListMoveTaskOrders"
-
-// GhcGetMoveTaskOrderEndpointKey is the key for the getMoveTaskOrder endpoint in ghc
-const GhcGetMoveTaskOrderEndpointKey = "Ghc.GetMoveTaskOrder"
-
-// GhcUpdateMoveTaskOrderEndpointKey is the key for the updateMoveTaskOrder endpoint in ghc
-const GhcUpdateMoveTaskOrderEndpointKey = "Ghc.UpdateMoveTaskOrder"
-
-// GhcListMTOServiceItemsEndpointKey is the key for the listMTOServiceItems endpoint in ghc
-const GhcListMTOServiceItemsEndpointKey = "Ghc.ListMTOServiceItems"
-
-// GhcCreateMTOServiceItemEndpointKey is the key for the createMTOServiceItem endpoint in ghc
-const GhcCreateMTOServiceItemEndpointKey = "Ghc.CreateMTOServiceItem"
-
-// GhcListMTOShipmentsEndpointKey is the key for the listMTOShipments endpoint in ghc
-const GhcListMTOShipmentsEndpointKey = "Ghc.ListMTOShipments"
-
-// GhcPatchMTOShipmentStatusEndpointKey is the key for the patchMTOShipmentStatus endpoint in ghc
-const GhcPatchMTOShipmentStatusEndpointKey = "Ghc.PatchMTOShipmentStatus"
-
-// GhcFetchMTOAgentListEndpointKey is the key for the fetchMTOAgentList endpoint in ghc
-const GhcFetchMTOAgentListEndpointKey = "Ghc.FetchMTOAgentList"
-
-// GhcGetMTOServiceItemEndpointKey is the key for the getMTOServiceItem endpoint in ghc
-const GhcGetMTOServiceItemEndpointKey = "Ghc.GetMTOServiceItem"
-
-// GhcUpdateMTOServiceItemEndpointKey is the key for the updateMTOServiceItem endpoint in ghc
-const GhcUpdateMTOServiceItemEndpointKey = "Ghc.UpdateMTOServiceItem"
-
-// GhcUpdateMTOServiceItemStatusEndpointKey is the key for the updateMTOServiceItemStatus endpoint in ghc
-const GhcUpdateMTOServiceItemStatusEndpointKey = "Ghc.UpdateMTOServiceItemStatus"
-
-// GhcUpdateMoveTaskOrderStatusEndpointKey is the key for the updateMoveTaskOrderStatus endpoint in ghc
-const GhcUpdateMoveTaskOrderStatusEndpointKey = "Ghc.UpdateMoveTaskOrderStatus"
-
-// GhcUpdatePaymentServiceItemStatusEndpointKey is the key for the updatePaymentServiceItemStatus endpoint in ghc
-const GhcUpdatePaymentServiceItemStatusEndpointKey = "Ghc.UpdatePaymentServiceItemStatus"
-
-// GhcGetEntitlementsEndpointKey is the key for the getEntitlements endpoint in ghc
-const GhcGetEntitlementsEndpointKey = "Ghc.GetEntitlements"
-
-// GhcListPaymentRequestsEndpointKey is the key for the listPaymentRequests endpoint in ghc
-const GhcListPaymentRequestsEndpointKey = "Ghc.ListPaymentRequests"
-
-// GhcGetPaymentRequestEndpointKey is the key for the getPaymentRequest endpoint in ghc
-const GhcGetPaymentRequestEndpointKey = "Ghc.GetPaymentRequest"
-
-// GhcUpdatePaymentRequestEndpointKey is the key for the updatePaymentRequest endpoint in ghc
-const GhcUpdatePaymentRequestEndpointKey = "Ghc.UpdatePaymentRequest"
-
-// GhcUpdatePaymentRequestStatusEndpointKey is the key for the updatePaymentRequestStatus endpoint in ghc
-const GhcUpdatePaymentRequestStatusEndpointKey = "Ghc.UpdatePaymentRequestStatus"
