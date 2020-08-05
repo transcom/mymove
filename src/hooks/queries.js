@@ -7,7 +7,7 @@ import { getQueriesStatus } from 'utils/api';
 export const usePaymentRequestQueries = (paymentRequestId) => {
   // get payment request by ID
   const { data: { paymentRequests, paymentServiceItems } = {}, ...paymentRequestQuery } = useQuery(
-    ['paymentRequest', paymentRequestId],
+    ['paymentRequests', paymentRequestId],
     getPaymentRequest,
   );
 
@@ -15,13 +15,13 @@ export const usePaymentRequestQueries = (paymentRequestId) => {
   const mtoID = paymentRequest?.moveTaskOrderID;
 
   // get MTO shipments
-  const { data: { mtoShipments } = {}, ...mtoShipmentQuery } = useQuery(['mtoShipment', mtoID], getMTOShipments, {
+  const { data: { mtoShipments } = {}, ...mtoShipmentQuery } = useQuery(['mtoShipments', mtoID], getMTOShipments, {
     enabled: !!mtoID,
   });
 
   // get MTO service items
   const { data: { mtoServiceItems } = {}, ...mtoServiceItemQuery } = useQuery(
-    ['mtoServiceItem', mtoID],
+    ['mtoServiceItems', mtoID],
     getMTOServiceItems,
     {
       enabled: !!mtoID,

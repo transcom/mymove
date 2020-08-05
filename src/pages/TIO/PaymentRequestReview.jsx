@@ -29,8 +29,12 @@ export const PaymentRequestReview = ({ history, match }) => {
   } = usePaymentRequestQueries(paymentRequestId);
 
   const [mutatePaymentRequest] = useMutation(patchPaymentRequest, {
-    onSuccess: () => {
-      // TODO - update cache?
+    onSuccess: (data, variables) => {
+      const { paymentRequestID } = variables;
+      queryCache.setQueryData(['paymentRequests', paymentRequestID], {
+        paymentRequests: data.paymentRequests,
+        paymentServiceItems,
+      });
       // TODO - show flash message?
       history.push(`/`); // Go home
     },
@@ -43,7 +47,7 @@ export const PaymentRequestReview = ({ history, match }) => {
   const [mutatePaymentServiceItemStatus] = useMutation(patchPaymentServiceItemStatus, {
     onSuccess: (data, variables) => {
       const newPaymentServiceItem = data.paymentServiceItems[variables.paymentServiceItemID];
-      queryCache.setQueryData(['paymentRequest', paymentRequestId], {
+      queryCache.setQueryData(['paymentRequests', paymentRequestId], {
         paymentRequests,
         paymentServiceItems: {
           ...paymentServiceItems,
