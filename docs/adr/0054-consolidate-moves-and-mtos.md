@@ -36,6 +36,7 @@ backwards-compatibility with the current production process.
   * `available_to_prime_at` (new)
   * `ppm_type` (new)
   * `ppm_estimated_weight` (new)
+  * `reference_id` (new)
 
 ### Definitions of fields
 
@@ -76,15 +77,17 @@ different from having the `selected_move_type` in the `moves` table be `PPM` vs
 * `ppm_estimated_weight`: this is being set by the Prime currently so we are
 keeping it for now.
 
+* `reference_id`: A unique identifier for an MTO (which also serves as the prefix
+for payment request numbers) in `dddd-dddd` format. There is still an ongoing
+discussion as to whether or not we need this `reference_id` in addition to the
+unique `locator` identifier, so we are keeping `reference_id` for now.
+
 ### Fields that we are not moving from move_task_orders to moves
 
 * `is_canceled`: used to determine if an MTO was canceled or not. The moves
 table already has a `status` field with a `CANCELED` option, so we can get rid of
 `is_canceled` and use `status` instead.
 
-* `reference_id`: A unique identifier for an MTO (which also serves as the prefix
-for payment request numbers) in `dddd-dddd` format. A `moves` record already has a
-unique identifier with `locator`, so we shouldn't need both after merging.
 
 ## Pros and Cons of the Alternatives
 
