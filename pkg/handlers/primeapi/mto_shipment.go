@@ -69,9 +69,6 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 
 	if mtoAvailableToPrime {
 		mtoShipment, err = h.mtoShipmentCreator.CreateMTOShipment(mtoShipment, mtoServiceItemsList)
-		if err == nil {
-			mtoShipment.Status = models.MTOShipmentStatusSubmitted
-		}
 	} else if err == nil {
 		logger.Error("primeapi.CreateMTOShipmentHandler error - MTO is not available to Prime")
 		return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(payloads.ClientError(
@@ -96,7 +93,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
 		}
 	}
-
+	mtoShipment.Status = models.MTOShipmentStatusSubmitted
 	returnPayload := payloads.MTOShipment(mtoShipment)
 	return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload)
 }
