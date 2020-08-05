@@ -1089,6 +1089,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'exp'
     steps:
+      - aws_vars_exp
       - deploy_app_client_tls_steps:
           compare_host: '' # leave blank since we want exp to be able to roll back
           health_check_hosts: gex.exp.move.mil,dps.exp.move.mil,orders.exp.move.mil
