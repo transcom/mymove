@@ -17,6 +17,7 @@ CREATE TABLE webhook_notifications
 	updated_at timestamp NOT NULL
 );
 
-CREATE INDEX webhook_notifications_pending ON webhook_notifications(status)
-    WHERE status = 'PENDING';
+CREATE INDEX webhook_notifications_pending ON webhook_notifications(created_at)
+    WHERE status != 'SENT';
 
+CREATE INDEX ON webhook_notifications(move_task_order_id);
