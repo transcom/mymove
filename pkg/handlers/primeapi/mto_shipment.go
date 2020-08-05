@@ -33,6 +33,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	payload := params.Body
+
 	if payload == nil {
 		logger.Error("Invalid mto shipment: params Body is nil")
 		return mtoshipmentops.NewCreateMTOShipmentBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
@@ -55,6 +56,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	}
 
 	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
+	mtoShipment.Status = models.MTOShipmentStatusSubmitted
 	mtoServiceItemsList, verrs := payloads.MTOServiceItemModelListFromCreate(payload)
 
 	if verrs != nil && verrs.HasAny() {
@@ -93,7 +95,6 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
 		}
 	}
-	mtoShipment.Status = models.MTOShipmentStatusSubmitted
 	returnPayload := payloads.MTOShipment(mtoShipment)
 	return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload)
 }

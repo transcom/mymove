@@ -82,6 +82,18 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 		suite.Equal(models.MTOShipmentStatusDraft, createdShipment.Status)
 	})
 
+	suite.T().Run("If the shipment is created successfully with submitted status it should be returned", func(t *testing.T) {
+		mtoShipment := clearShipmentIDFields(&mtoShipment)
+		mtoShipment.Status = models.MTOShipmentStatusSubmitted
+		serviceItemsList := models.MTOServiceItems{}
+
+		createdShipment, err := creator.CreateMTOShipment(mtoShipment, serviceItemsList)
+
+		suite.NoError(err)
+		suite.NotNil(createdShipment)
+		suite.Equal(models.MTOShipmentStatusSubmitted, createdShipment.Status)
+	})
+
 	suite.T().Run("If the shipment has mto service items", func(t *testing.T) {
 		testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
