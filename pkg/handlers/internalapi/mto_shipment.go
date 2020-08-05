@@ -5,6 +5,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/mto_shipment"
@@ -12,6 +13,11 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/services"
 )
+
+// isSessionValidForThisOperation returns boolean value indicating whether a given sessioon is authorized for an internalapi MTO shipment operation
+func isSessionValidForThisOperation(session *auth.Session) bool {
+	return session != nil && session.IsMilApp() && session.ServiceMemberID != uuid.Nil
+}
 
 //
 // CREATE
@@ -27,7 +33,7 @@ type CreateMTOShipmentHandler struct {
 func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipmentParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
-	if session == nil || (!session.IsMilApp() && session.ServiceMemberID == uuid.Nil) {
+	if !isSessionValidForThisOperation(session) {
 		return mtoshipmentops.NewCreateMTOShipmentUnauthorized()
 	}
 
@@ -79,7 +85,7 @@ type UpdateMTOShipmentHandler struct {
 func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
-	if session == nil || (!session.IsMilApp() && session.ServiceMemberID == uuid.Nil) {
+	if !isSessionValidForThisOperation(session) {
 		return mtoshipmentops.NewUpdateMTOShipmentUnauthorized()
 	}
 
@@ -90,6 +96,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 			"The MTO Shipment request body cannot be empty.", h.GetTraceID()))
 	}
 
+	// TODO: incorporate draft status, only push update thru mto updater if status not draft
 	mtoShipment := payloads.MTOShipmentModelFromUpdate(payload)
 
 	mtoShipment, err := h.mtoShipmentUpdater.UpdateMTOShipment(mtoShipment, "")

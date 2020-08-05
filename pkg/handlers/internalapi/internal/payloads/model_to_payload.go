@@ -63,6 +63,7 @@ func MTOAgents(mtoAgents *models.MTOAgents) *internalmessages.MTOAgents {
 
 // MTOShipment payload
 func MTOShipment(mtoShipment *models.MTOShipment) *internalmessages.MTOShipment {
+	// TODO: handle now-optional props
 	payload := &internalmessages.MTOShipment{
 		ID:                 strfmt.UUID(mtoShipment.ID.String()),
 		Agents:             *MTOAgents(&mtoShipment.MTOAgents),

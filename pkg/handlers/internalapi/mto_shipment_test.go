@@ -46,6 +46,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	params := mtoshipmentops.CreateMTOShipmentParams{
 		HTTPRequest: req,
 		Body: &internalmessages.CreateShipment{
+			// TODO: convert most of these props to optional
 			MoveTaskOrderID: handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
 			Agents:          internalmessages.MTOAgents{},
 			CustomerRemarks: nil,
@@ -85,6 +86,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
 	})
 
+	// TODO: this test should be invalid; check some other required prop?
 	suite.T().Run("POST failure - 400 - invalid input, missing pickup address", func(t *testing.T) {
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
@@ -255,7 +257,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 // UPDATE
 //
 
-func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
+func (suite *HandlerSuite) getCreateMTOShipmentParams() (mtoshipmentops.CreateMTOShipmentParams, uuid.UUID) {
 	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 	pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
@@ -266,15 +268,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 	mtoShipment.MoveTaskOrderID = mto.ID
 
-	builder := query.NewQueryBuilder(suite.DB())
-
-	req := httptest.NewRequest("PATCH", "/mto-shipments", nil)
-	unauthorizedReq := httptest.NewRequest("PATCH", "/mto-shipments", nil)
+	req := httptest.NewRequest("POST", "/mto-shipments", nil)
 	req = suite.AuthenticateRequest(req, serviceMember)
 
-	params := mtoshipmentops.UpdateMTOShipmentParams{
+	return mtoshipmentops.CreateMTOShipmentParams{
 		HTTPRequest: req,
-		Body: &internalmessages.UpdateShipment{
+		Body: &internalmessages.CreateShipment{
 			MoveTaskOrderID: handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
 			Agents:          internalmessages.MTOAgents{},
 			CustomerRemarks: nil,
@@ -300,7 +299,65 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			RequestedDeliveryDate: strfmt.Date(*mtoShipment.RequestedDeliveryDate),
 			ShipmentType:          internalmessages.MTOShipmentTypeHHG,
 		},
+	}, mtoShipment.ID
+}
+
+func (suite *HandlerSuite) createMTOShipment() uuid.UUID {
+	builder := query.NewQueryBuilder(suite.DB())
+
+	params, id := suite.getCreateMTOShipmentParams()
+
+	fetcher := fetch.NewFetcher(builder)
+	creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
+	handler := CreateMTOShipmentHandler{
+		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+		creator,
 	}
+	response := handler.Handle(params)
+
+	suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+
+	return id
+}
+
+func (suite *HandlerSuite) getUpdateMTOShipmentParams(id uuid.UUID) mtoshipmentops.UpdateMTOShipmentParams {
+	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+	pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+	pickupAddress.StreetAddress1 = "123 Fake Test St NW"
+	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: mto,
+	})
+	mtoShipment.MoveTaskOrderID = mto.ID
+	mtoShipment.ID = id
+
+	req := httptest.NewRequest("PATCH", "/mto-shipments/some_id", nil)
+	req = suite.AuthenticateRequest(req, serviceMember)
+
+	return mtoshipmentops.UpdateMTOShipmentParams{
+		HTTPRequest: req,
+		Body: &internalmessages.UpdateShipment{
+			MoveTaskOrderID: handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
+			PickupAddress: &internalmessages.Address{
+				City:           &pickupAddress.City,
+				Country:        pickupAddress.Country,
+				PostalCode:     &pickupAddress.PostalCode,
+				State:          &pickupAddress.State,
+				StreetAddress1: &pickupAddress.StreetAddress1,
+				StreetAddress2: pickupAddress.StreetAddress2,
+				StreetAddress3: pickupAddress.StreetAddress3,
+			},
+		},
+	}
+}
+
+func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
+	builder := query.NewQueryBuilder(suite.DB())
+
+	unauthorizedReq := httptest.NewRequest("PATCH", "/mto-shipments/some_id", nil)
+
+	mtoShipmentID := suite.createMTOShipment()
+	params := suite.getUpdateMTOShipmentParams(mtoShipmentID)
 
 	suite.T().Run("Successful POST - Integration Test", func(t *testing.T) {
 		fetcher := fetch.NewFetcher(builder)
@@ -334,35 +391,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	suite.T().Run("POST failure - 401- permission denied - not authenticated", func(t *testing.T) {
 		fetcher := fetch.NewFetcher(builder)
 		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, nil)
-		unauthorizedParams := mtoshipmentops.UpdateMTOShipmentParams{
-			HTTPRequest: unauthorizedReq,
-			Body: &internalmessages.UpdateShipment{
-				MoveTaskOrderID: handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
-				Agents:          internalmessages.MTOAgents{},
-				CustomerRemarks: nil,
-				DestinationAddress: &internalmessages.Address{
-					City:           &destinationAddress.City,
-					Country:        destinationAddress.Country,
-					PostalCode:     &destinationAddress.PostalCode,
-					State:          &destinationAddress.State,
-					StreetAddress1: &destinationAddress.StreetAddress1,
-					StreetAddress2: destinationAddress.StreetAddress2,
-					StreetAddress3: destinationAddress.StreetAddress3,
-				},
-				PickupAddress: &internalmessages.Address{
-					City:           &pickupAddress.City,
-					Country:        pickupAddress.Country,
-					PostalCode:     &pickupAddress.PostalCode,
-					State:          &pickupAddress.State,
-					StreetAddress1: &pickupAddress.StreetAddress1,
-					StreetAddress2: pickupAddress.StreetAddress2,
-					StreetAddress3: pickupAddress.StreetAddress3,
-				},
-				RequestedPickupDate:   strfmt.Date(*mtoShipment.RequestedPickupDate),
-				RequestedDeliveryDate: strfmt.Date(*mtoShipment.RequestedDeliveryDate),
-				ShipmentType:          internalmessages.MTOShipmentTypeHHG,
-			},
-		}
+		unauthorizedParams := suite.getUpdateMTOShipmentParams(mtoShipmentID)
+		unauthorizedParams.HTTPRequest = unauthorizedReq
 
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -378,36 +408,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 		fetcher := fetch.NewFetcher(builder)
 		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, nil)
-		unauthorizedReq = suite.AuthenticateOfficeRequest(req, officeUser)
-		unauthorizedParams := mtoshipmentops.UpdateMTOShipmentParams{
-			HTTPRequest: unauthorizedReq,
-			Body: &internalmessages.UpdateShipment{
-				MoveTaskOrderID: handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
-				Agents:          internalmessages.MTOAgents{},
-				CustomerRemarks: nil,
-				DestinationAddress: &internalmessages.Address{
-					City:           &destinationAddress.City,
-					Country:        destinationAddress.Country,
-					PostalCode:     &destinationAddress.PostalCode,
-					State:          &destinationAddress.State,
-					StreetAddress1: &destinationAddress.StreetAddress1,
-					StreetAddress2: destinationAddress.StreetAddress2,
-					StreetAddress3: destinationAddress.StreetAddress3,
-				},
-				PickupAddress: &internalmessages.Address{
-					City:           &pickupAddress.City,
-					Country:        pickupAddress.Country,
-					PostalCode:     &pickupAddress.PostalCode,
-					State:          &pickupAddress.State,
-					StreetAddress1: &pickupAddress.StreetAddress1,
-					StreetAddress2: pickupAddress.StreetAddress2,
-					StreetAddress3: pickupAddress.StreetAddress3,
-				},
-				RequestedPickupDate:   strfmt.Date(*mtoShipment.RequestedPickupDate),
-				RequestedDeliveryDate: strfmt.Date(*mtoShipment.RequestedDeliveryDate),
-				ShipmentType:          internalmessages.MTOShipmentTypeHHG,
-			},
-		}
+		unauthorizedReq = suite.AuthenticateOfficeRequest(unauthorizedReq, officeUser)
+		unauthorizedParams := suite.getUpdateMTOShipmentParams(mtoShipmentID)
+		unauthorizedParams.HTTPRequest = unauthorizedReq
 
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -446,6 +449,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
 		}
+
+		serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+		req := httptest.NewRequest("PATCH", "/mto-shipments/some_id", nil)
+		req = suite.AuthenticateRequest(req, serviceMember)
 
 		otherParams := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest: req,
