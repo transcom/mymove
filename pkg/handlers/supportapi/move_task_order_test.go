@@ -181,6 +181,66 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		suite.Equal((models.MoveStatus)(moveTaskOrdersPayload.Status), models.MoveStatusDRAFT)
 	})
 
+	suite.T().Run("successful cancel movetaskorder request 201", func(t *testing.T) {
+		// Regenerate the ReferenceID because it needs to be unique
+		referenceID, _ := models.GenerateReferenceID(suite.DB())
+		mtoWithoutCustomer.ReferenceID = referenceID
+
+		// If customerID is provided create MTO without creating a new customer
+		mtoPayload := payloads.MoveTaskOrder(&mtoWithoutCustomer)
+		mtoPayload.MoveOrder.CustomerID = strfmt.UUID(dbCustomer.ID.String())
+		mtoPayload.MoveOrder.DestinationDutyStationID = strfmt.UUID(destinationDutyStation.ID.String())
+		mtoPayload.MoveOrder.OriginDutyStationID = strfmt.UUID(originDutyStation.ID.String())
+		// Set IsCanceled to true to set the Move's status to CANCELED
+		mtoPayload.IsCanceled = swag.Bool(true)
+		params := movetaskorderops.CreateMoveTaskOrderParams{
+			HTTPRequest: request,
+			Body:        mtoPayload,
+		}
+		// make the request
+		handler := CreateMoveTaskOrderHandler{context,
+			internalmovetaskorder.NewInternalMoveTaskOrderCreator(context.DB()),
+		}
+		response := handler.Handle(params)
+
+		suite.IsType(&movetaskorderops.CreateMoveTaskOrderCreated{}, response)
+
+		moveTaskOrdersResponse := response.(*movetaskorderops.CreateMoveTaskOrderCreated)
+		moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
+		suite.Assertions.IsType(&move_task_order.CreateMoveTaskOrderCreated{}, response)
+		suite.Equal((models.MoveStatus)(moveTaskOrdersPayload.Status), models.MoveStatusCANCELED)
+	})
+
+	suite.T().Run("move status stays as DRAFT when IsCanceled is false", func(t *testing.T) {
+		// Regenerate the ReferenceID because it needs to be unique
+		referenceID, _ := models.GenerateReferenceID(suite.DB())
+		mtoWithoutCustomer.ReferenceID = referenceID
+
+		// If customerID is provided create MTO without creating a new customer
+		mtoPayload := payloads.MoveTaskOrder(&mtoWithoutCustomer)
+		mtoPayload.MoveOrder.CustomerID = strfmt.UUID(dbCustomer.ID.String())
+		mtoPayload.MoveOrder.DestinationDutyStationID = strfmt.UUID(destinationDutyStation.ID.String())
+		mtoPayload.MoveOrder.OriginDutyStationID = strfmt.UUID(originDutyStation.ID.String())
+		// Set IsCanceled to true to set the Move's status to CANCELED
+		mtoPayload.IsCanceled = swag.Bool(false)
+		params := movetaskorderops.CreateMoveTaskOrderParams{
+			HTTPRequest: request,
+			Body:        mtoPayload,
+		}
+		// make the request
+		handler := CreateMoveTaskOrderHandler{context,
+			internalmovetaskorder.NewInternalMoveTaskOrderCreator(context.DB()),
+		}
+		response := handler.Handle(params)
+
+		suite.IsType(&movetaskorderops.CreateMoveTaskOrderCreated{}, response)
+
+		moveTaskOrdersResponse := response.(*movetaskorderops.CreateMoveTaskOrderCreated)
+		moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
+		suite.Assertions.IsType(&move_task_order.CreateMoveTaskOrderCreated{}, response)
+		suite.Equal((models.MoveStatus)(moveTaskOrdersPayload.Status), models.MoveStatusDRAFT)
+	})
+
 	suite.T().Run("successful create movetaskorder request -- with customer creation", func(t *testing.T) {
 
 		newCustomer := models.ServiceMember{
