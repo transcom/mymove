@@ -52,7 +52,7 @@ func (suite *ModelSuite) TestWebhookNotification() {
 	})
 
 	suite.T().Run("test simple notification", func(t *testing.T) {
-		// Allowing for a simple message notification, with a key and payload
+		// Allowing for a simple message notification, with an eventkey and payload
 		newNotification := models.WebhookNotification{
 			EventKey: "PaymentRequest.Update",
 			Payload:  swag.String("{\"msg\": \"This is the payload\"}"),

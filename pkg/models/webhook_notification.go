@@ -10,6 +10,9 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+// This file is auto-generated with soda g model table_name. It is not generated automatically
+// though, so changes will persist.
+
 // WebhookNotificationStatus represents the possible statuses for a mto shipment
 type WebhookNotificationStatus string
 
@@ -52,7 +55,6 @@ func (w WebhookNotifications) String() string {
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (w *WebhookNotification) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&OptionalRegexMatch{Field: &w.EventKey, Name: "EventKey", Expr: `\w+\.\w+`, Message: "Eventkey should be in Subject.Action format."},
@@ -67,13 +69,11 @@ func (w *WebhookNotification) Validate(tx *pop.Connection) (*validate.Errors, er
 }
 
 // ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
-// This method is not required and may be deleted.
 func (w *WebhookNotification) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
 
 // ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
-// This method is not required and may be deleted.
 func (w *WebhookNotification) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }

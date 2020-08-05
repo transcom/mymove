@@ -15,7 +15,7 @@ type EndpointKeyType string
 const PrimeAPIName string = "primeapi"
 
 // SupportAPIName is a const string to use the EndpointTypes
-const SupportAPIName string = "SupportAPI"
+const SupportAPIName string = "supportapi"
 
 // -------------------- ENDPOINT KEYS --------------------
 

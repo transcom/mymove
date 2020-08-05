@@ -26,13 +26,14 @@ func isSourcePrime(event *Event) bool {
 
 // notificationSave saves the record in the webhook_notification table
 // If it fails, it will return an error.
-func notificationSave(event *Event, objectType string, payload *[]byte) error {
+func notificationSave(event *Event, payload *[]byte) error {
 	payloadString := string(*payload)
 	newNotification := models.WebhookNotification{
-		EventKey:   string(event.EventKey),
-		ObjectType: swag.String(objectType),
-		Payload:    swag.String(payloadString),
-		Status:     models.WebhookNotificationPending,
+		EventKey:        string(event.EventKey),
+		MoveTaskOrderID: &event.MtoID,
+		ObjectID:        &event.UpdatedObjectID,
+		Payload:         swag.String(payloadString),
+		Status:          models.WebhookNotificationPending,
 	}
 
 	trace := event.HandlerContext.GetTraceID()
@@ -105,7 +106,7 @@ func paymentRequestEventHandler(event *Event) (bool, error) {
 	}
 
 	// STORE NOTIFICATION IN DB
-	err = notificationSave(event, "PaymentRequest", &payloadArray)
+	err = notificationSave(event, &payloadArray)
 	if err != nil {
 		unknownErr := services.NewEventError("Unknown error storing notification", err)
 		return false, unknownErr
