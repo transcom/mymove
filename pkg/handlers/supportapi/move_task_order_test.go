@@ -131,7 +131,6 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		AvailableToPrimeAt: swag.Time(time.Now()),
 		PPMType:            swag.String("FULL"),
 		ContractorID:       contractor.ID,
-		Status:             models.MoveStatusDRAFT,
 		Orders: models.Order{
 			Grade:               swag.String("E_6"),
 			OrdersNumber:        swag.String("4554"),
@@ -179,6 +178,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		suite.Equal(mtoWithoutCustomer.ReferenceID, moveTaskOrdersPayload.ReferenceID)
 		suite.NotNil(moveTaskOrdersPayload.Locator)
 		suite.NotNil(moveTaskOrdersPayload.AvailableToPrimeAt)
+		suite.Equal((models.MoveStatus)(moveTaskOrdersPayload.Status), models.MoveStatusDRAFT)
 	})
 
 	suite.T().Run("successful create movetaskorder request -- with customer creation", func(t *testing.T) {

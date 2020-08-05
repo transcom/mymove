@@ -55,6 +55,9 @@ func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessage
 		if moveTaskOrder.Locator == "" {
 			moveTaskOrder.Locator = models.GenerateLocator()
 		}
+		if moveTaskOrder.Status == "" {
+			moveTaskOrder.Status = models.MoveStatusDRAFT
+		}
 		moveTaskOrder.Show = swag.Bool(true)
 		moveTaskOrder.Orders = *moveOrder
 		moveTaskOrder.OrdersID = moveOrder.ID
