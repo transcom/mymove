@@ -4,6 +4,10 @@ import { normalize } from 'normalizr';
 
 import * as schema from 'shared/Entities/schema';
 
+/**
+ * This is a new Swagger request function that does not rely on Redux
+ */
+
 // Given a schema path (e.g. shipments.getShipment), return the
 // route's definition from the Swagger spec
 function findMatchingRoute(paths, operationPath) {

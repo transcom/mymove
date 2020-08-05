@@ -30,39 +30,29 @@ export async function getGHCClient() {
   return ghcClient;
 }
 
-export async function getPaymentRequestList() {
-  const operationPath = 'paymentRequests.listPaymentRequests';
+export async function makeGHCRequest(operationPath, params = {}, options = {}) {
   const client = await getGHCClient();
+  return makeSwaggerRequest(client, operationPath, params, options);
+}
 
-  return makeSwaggerRequest(client, operationPath);
+export async function getPaymentRequestList() {
+  return makeGHCRequest('paymentRequests.listPaymentRequests');
 }
 
 export async function getPaymentRequest(key, paymentRequestID) {
-  const operationPath = 'paymentRequests.getPaymentRequest';
-  const client = await getGHCClient();
-
-  return makeSwaggerRequest(client, operationPath, { paymentRequestID });
+  return makeGHCRequest('paymentRequests.getPaymentRequest', { paymentRequestID });
 }
 
 export async function getMTOShipments(key, moveTaskOrderID) {
-  const operationPath = 'mtoShipment.listMTOShipments';
-  const client = await getGHCClient();
-
-  return makeSwaggerRequest(client, operationPath, { moveTaskOrderID }, { schemaKey: 'mtoShipments' });
+  return makeGHCRequest('mtoShipment.listMTOShipments', { moveTaskOrderID }, { schemaKey: 'mtoShipments' });
 }
 
 export async function getMTOServiceItems(key, moveTaskOrderID) {
-  const operationPath = 'mtoServiceItem.listMTOServiceItems';
-  const client = await getGHCClient();
-
-  return makeSwaggerRequest(client, operationPath, { moveTaskOrderID }, { schemaKey: 'mtoServiceItems' });
+  return makeGHCRequest('mtoServiceItem.listMTOServiceItems', { moveTaskOrderID }, { schemaKey: 'mtoServiceItems' });
 }
 
 export async function patchPaymentRequest({ paymentRequestID, status, ifMatchETag, rejectionReason }) {
-  const operationPath = 'paymentRequests.updatePaymentRequestStatus';
-  const client = await getGHCClient();
-
-  return makeSwaggerRequest(client, operationPath, {
+  return makeGHCRequest('paymentRequests.updatePaymentRequestStatus', {
     paymentRequestID,
     'If-Match': ifMatchETag,
     body: { status, rejectionReason },
@@ -77,10 +67,7 @@ export async function patchPaymentServiceItemStatus({
   rejectionReason,
 }) {
   const operationPath = 'paymentServiceItem.updatePaymentServiceItemStatus';
-  const client = await getGHCClient();
-
-  return makeSwaggerRequest(
-    client,
+  return makeGHCRequest(
     operationPath,
     {
       moveTaskOrderID,
