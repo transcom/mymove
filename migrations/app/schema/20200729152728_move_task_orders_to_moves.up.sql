@@ -49,5 +49,13 @@ ALTER TABLE mto_service_items
     ADD CONSTRAINT mto_service_items_move_id_fkey FOREIGN KEY (move_id) REFERENCES moves (id);
 ALTER INDEX mto_service_items_move_task_order_id_idx RENAME TO mto_service_items_move_id_idx;
 
+ALTER TABLE webhook_notifications
+    DROP CONSTRAINT webhook_notifications_move_task_order_id_fkey;
+ALTER TABLE webhook_notifications
+    RENAME COLUMN move_task_order_id TO move_id;
+ALTER TABLE webhook_notifications
+    ADD CONSTRAINT webhook_notifications_move_id_fkey FOREIGN KEY (move_id) REFERENCES moves (id);
+ALTER INDEX webhook_notifications_move_task_order_id_idx RENAME TO webhook_notifications_move_id_idx;
+
 -- Drop the old table.
 DROP TABLE move_task_orders;
