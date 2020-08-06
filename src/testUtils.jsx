@@ -12,7 +12,7 @@ export const MockProviders = ({ children, initialState = {}, initialEntries = []
   const mockStore = configureStore(mockHistory, initialState);
 
   return (
-    <Provider store={mockStore}>
+    <Provider store={mockStore.store}>
       <ConnectedRouter history={mockHistory}>{children}</ConnectedRouter>
     </Provider>
   );

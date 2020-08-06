@@ -130,8 +130,10 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 			return services.NewInvalidInputError(uuid.Nil, nil, nil, "RequestedPickupDate is required to create MTO shipment")
 		}
 
-		//assign status to shipment submitted
-		shipment.Status = models.MTOShipmentStatusSubmitted
+		//assign status to shipment draft by default
+		if shipment.Status != models.MTOShipmentStatusSubmitted {
+			shipment.Status = models.MTOShipmentStatusDraft
+		}
 
 		// create a shipment
 		verrs, err = txBuilder.CreateOne(shipment)

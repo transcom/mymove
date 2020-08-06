@@ -86,6 +86,26 @@ commands:
             echo "export AWS_ACCESS_KEY_ID=$EXP_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$EXP_SECRET_ACCESS_KEY" >> $BASH_ENV
             source $BASH_ENV
+  aws_vars_stg:
+    steps:
+      - run:
+          name: 'Setting up AWS environment variables for stg env'
+          command: |
+            echo "export AWS_DEFAULT_REGION=$STG_REGION" >> $BASH_ENV
+            echo "export AWS_ACCOUNT_ID=$STG_ACCOUNT_ID" >> $BASH_ENV
+            echo "export AWS_ACCESS_KEY_ID=$STG_ACCESS_KEY_ID" >> $BASH_ENV
+            echo "export AWS_SECRET_ACCESS_KEY=$STG_SECRET_ACCESS_KEY" >> $BASH_ENV
+            source $BASH_ENV
+  aws_vars_prd:
+    steps:
+      - run:
+          name: 'Setting up AWS environment variables for prd env'
+          command: |
+            echo "export AWS_DEFAULT_REGION=$PRD_REGION" >> $BASH_ENV
+            echo "export AWS_ACCOUNT_ID=$PRD_ACCOUNT_ID" >> $BASH_ENV
+            echo "export AWS_ACCESS_KEY_ID=$PRD_ACCESS_KEY_ID" >> $BASH_ENV
+            echo "export AWS_SECRET_ACCESS_KEY=$PRD_SECRET_ACCESS_KEY" >> $BASH_ENV
+            source $BASH_ENV
   announce_failure:
     parameters:
     steps:
