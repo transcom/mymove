@@ -5,7 +5,6 @@ import { Fieldset } from '@trussworks/react-uswds';
 import { v4 as uuidv4 } from 'uuid';
 
 import { TextInput } from 'components/form/fields';
-import { validateZIPCode } from 'utils/formikValidators';
 
 export const AddressFields = ({ legend, className, values, name, renderExistingAddressCheckbox }) => {
   const addressFieldsUUID = uuidv4();
@@ -48,6 +47,7 @@ export const AddressFields = ({ legend, className, values, name, renderExistingA
         name={`${name}.state`}
         type="text"
         value={values.state}
+        maxLength={2}
       />
       <Field
         as={TextInput}
@@ -58,7 +58,7 @@ export const AddressFields = ({ legend, className, values, name, renderExistingA
         name={`${name}.zip`}
         type="text"
         value={values.zip}
-        validate={validateZIPCode}
+        maxLength={10}
       />
     </Fieldset>
   );

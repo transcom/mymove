@@ -24,7 +24,7 @@ const AddressSchema = Yup.object()
     mailingAddress1: Yup.string().required('Required'),
     mailingAddress2: Yup.string(),
     city: Yup.string().required('Required'),
-    state: Yup.string().required('Required'),
+    state: Yup.string().length(2, 'Must use state abbreviation').required('Required'),
     zip: Yup.string()
       // eslint-disable-next-line security/detect-unsafe-regex
       .matches(/^(\d{5}([-]\d{4})?)$/, 'Must be valid zip code')
