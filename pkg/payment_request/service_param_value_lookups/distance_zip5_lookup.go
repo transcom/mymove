@@ -60,7 +60,6 @@ func (r DistanceZip5Lookup) lookup(keyData *ServiceItemParamKeyData) (string, er
 		return "", err
 	}
 
-	// if pickupZip[0:3] == destinationZip[0:3]
 	if distanceMiles < 50 && mtoShipment.Distance == nil {
 		miles := unit.Miles(distanceMiles)
 		mtoShipment.Distance = &miles
