@@ -391,6 +391,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			MoveDocumentType:         "WEIGHT_TICKET",
 		},
 		Document: models.Document{
+			ID:              uuid.FromStringOrNil("c26421b0-e4c3-446b-88f3-493bb25c1756"),
 			ServiceMemberID: ppm3.Move.Orders.ServiceMember.ID,
 			ServiceMember:   ppm3.Move.Orders.ServiceMember,
 		},
