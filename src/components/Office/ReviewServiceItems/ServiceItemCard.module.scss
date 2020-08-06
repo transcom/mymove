@@ -104,11 +104,11 @@
     }
 
     .statusApproved svg {
-      fill: green;
+      fill: $success;
     }
 
     .statusRejected svg {
-      fill: red;
+      fill: $error;
     }
 
     .rejectionReason {
