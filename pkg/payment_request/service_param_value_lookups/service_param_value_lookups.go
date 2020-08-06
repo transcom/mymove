@@ -63,6 +63,7 @@ func ServiceParamLookupInitialize(
 	s.lookups[models.ServiceItemParamNamePSILinehaulDom.String()] = PSILinehaulDomLookup{}
 	s.lookups[models.ServiceItemParamNamePSILinehaulDomPrice.String()] = PSILinehaulDomPriceLookup{}
 	s.lookups[models.ServiceItemParamNameEIAFuelPrice.String()] = EIAFuelPriceLookup{}
+	s.lookups[models.ServiceItemParamNameServicesScheduleOrigin.String()] = ServicesScheduleOriginLookup{}
 
 	return &s
 }
