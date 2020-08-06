@@ -3,19 +3,15 @@ import { TOOOfficeUserType } from '../../../support/constants';
 describe('TOO user', () => {
   before(() => {
     const userId = 'dcf86235-53d3-43dd-8ee8-54212ae3078f';
-    // cy.signInAsNewTOOUser();
     cy.signInAsUserPostRequest(TOOOfficeUserType, userId);
   });
 
   beforeEach(() => {
-    Cypress.Cookies.preserveOnce('masked_gorilla_csrf', 'office_session_token', '_gorilla_csrf');
+    cy.persistSessionCookies();
   });
 
   describe('approve shipment flow', () => {
-    /* This test performs a mutation so it can only succeed on a fresh DB.
-     * This can be improved once the TOO queue UI contains information about
-     * moves with requested shipments
-     */
+    // This test performs a mutation so it can only succeed on a fresh DB.
     it('clicks on a move with requested shipments', () => {
       const moveOrderId = '6fca843a-a87e-4752-b454-0fac67aa4988';
       cy.contains(moveOrderId).click();
