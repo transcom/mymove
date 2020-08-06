@@ -41,6 +41,9 @@ func (r DistanceZip5Lookup) lookup(keyData *ServiceItemParamKeyData) (string, er
 	}
 
 	mtoShipment := mtoServiceItem.MTOShipment
+	if mtoShipment.Distance != nil {
+		return strconv.Itoa(mtoShipment.Distance.Int()), nil
+	}
 
 	// Make sure there's a pickup and destination address since those are nullable
 	pickupAddressID := mtoServiceItem.MTOShipment.PickupAddressID
