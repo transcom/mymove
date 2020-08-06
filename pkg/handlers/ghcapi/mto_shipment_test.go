@@ -32,6 +32,9 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: mto,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
 	})
 
 	shipments := models.MTOShipments{mtoShipment}
@@ -116,6 +119,9 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: mto,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
 	})
 
 	requestUser := testdatagen.MakeDefaultUser(suite.DB())

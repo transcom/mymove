@@ -11,8 +11,11 @@ type EndpointKeyType string
 
 // -------------------- API NAMES --------------------
 
-// primeAPIName is a const string to use the EndpointTypes
-const supportAPIName string = "supportapi"
+// PrimeAPIName is a const string to use the EndpointTypes
+const PrimeAPIName string = "primeapi"
+
+// SupportAPIName is a const string to use the EndpointTypes
+const SupportAPIName string = "supportapi"
 
 // -------------------- ENDPOINT KEYS --------------------
 
@@ -43,35 +46,35 @@ const SupportUpdateMTOShipmentStatusEndpointKey = "Support.UpdateMTOShipmentStat
 // -------------------- ENDPOINT MAP --------------------
 var endpoints map[EndpointKeyType]EndpointType = map[EndpointKeyType]EndpointType{
 	SupportListMTOsEndpointKey: {
-		APIName:     supportAPIName,
+		APIName:     SupportAPIName,
 		OperationID: "listMTOs",
 	},
 	SupportCreateMoveTaskOrderEndpointKey: {
-		APIName:     supportAPIName,
+		APIName:     SupportAPIName,
 		OperationID: "createMoveTaskOrder",
 	},
 	SupportGetMoveTaskOrderEndpointKey: {
-		APIName:     supportAPIName,
+		APIName:     SupportAPIName,
 		OperationID: "getMoveTaskOrder",
 	},
 	SupportMakeMoveTaskOrderAvailableEndpointKey: {
-		APIName:     supportAPIName,
+		APIName:     SupportAPIName,
 		OperationID: "makeMoveTaskOrderAvailable",
 	},
 	SupportListMTOPaymentRequestsEndpointKey: {
-		APIName:     supportAPIName,
+		APIName:     SupportAPIName,
 		OperationID: "listMTOPaymentRequests",
 	},
 	SupportUpdatePaymentRequestStatusEndpointKey: {
-		APIName:     supportAPIName,
+		APIName:     SupportAPIName,
 		OperationID: "updatePaymentRequestStatus",
 	},
 	SupportUpdateMTOServiceItemStatusEndpointKey: {
-		APIName:     supportAPIName,
+		APIName:     SupportAPIName,
 		OperationID: "updateMTOServiceItemStatus",
 	},
 	SupportUpdateMTOShipmentStatusEndpointKey: {
-		APIName:     supportAPIName,
+		APIName:     SupportAPIName,
 		OperationID: "updateMTOShipmentStatus",
 	},
 }
