@@ -528,6 +528,7 @@
 20200715153454_add_contract_code_param_to_ddp.up.sql
 20200715202720_add_contract_code_param_to_dop.up.sql
 20200716142734_add_and_update_priority_to_re_service.up.sql
+20200729012657_create_webhook_notifications_table.up.sql
 20200730151934_drop_customers.up.sql
 20200803200704_create_subscriptions_table.up.sql
 20200804003845_add-draft-status-to-mto-shipments.up.sql
