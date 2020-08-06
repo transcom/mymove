@@ -39,7 +39,7 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *ghcmessages.MoveTaskOrder {
 		AvailableToPrimeAt: handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
 		IsCanceled:         moveTaskOrder.IsCanceled(),
 		MoveOrderID:        strfmt.UUID(moveTaskOrder.OrdersID.String()),
-		ReferenceID:        moveTaskOrder.ReferenceID,
+		ReferenceID:        *moveTaskOrder.ReferenceID,
 		UpdatedAt:          strfmt.DateTime(moveTaskOrder.UpdatedAt),
 		ETag:               etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 	}

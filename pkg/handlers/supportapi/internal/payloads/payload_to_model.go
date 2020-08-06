@@ -94,11 +94,12 @@ func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.Move 
 		return nil
 	}
 	ppmEstimatedWeight := unit.Pound(mtoPayload.PpmEstimatedWeight)
+	contractorID := uuid.FromStringOrNil(mtoPayload.ContractorID.String())
 	model := &models.Move{
-		ReferenceID:        mtoPayload.ReferenceID,
+		ReferenceID:        &mtoPayload.ReferenceID,
 		PPMEstimatedWeight: &ppmEstimatedWeight,
 		PPMType:            &mtoPayload.PpmType,
-		ContractorID:       uuid.FromStringOrNil(mtoPayload.ContractorID.String()),
+		ContractorID:       &contractorID,
 	}
 
 	if mtoPayload.AvailableToPrimeAt != nil {

@@ -127,10 +127,10 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 	referenceID, _ := models.GenerateReferenceID(suite.DB())
 
 	mtoWithoutCustomer := models.Move{
-		ReferenceID:        referenceID,
+		ReferenceID:        &referenceID,
 		AvailableToPrimeAt: swag.Time(time.Now()),
 		PPMType:            swag.String("FULL"),
-		ContractorID:       contractor.ID,
+		ContractorID:       &contractor.ID,
 		Orders: models.Order{
 			Grade:               swag.String("E_6"),
 			OrdersNumber:        swag.String("4554"),
@@ -175,7 +175,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		moveTaskOrdersResponse := response.(*movetaskorderops.CreateMoveTaskOrderCreated)
 		moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
 		suite.Assertions.IsType(&move_task_order.CreateMoveTaskOrderCreated{}, response)
-		suite.Equal(mtoWithoutCustomer.ReferenceID, moveTaskOrdersPayload.ReferenceID)
+		suite.Equal(*mtoWithoutCustomer.ReferenceID, moveTaskOrdersPayload.ReferenceID)
 		suite.NotNil(moveTaskOrdersPayload.Locator)
 		suite.NotNil(moveTaskOrdersPayload.AvailableToPrimeAt)
 		suite.Equal((models.MoveStatus)(moveTaskOrdersPayload.Status), models.MoveStatusDRAFT)
@@ -184,7 +184,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 	suite.T().Run("successful cancel movetaskorder request 201", func(t *testing.T) {
 		// Regenerate the ReferenceID because it needs to be unique
 		referenceID, _ := models.GenerateReferenceID(suite.DB())
-		mtoWithoutCustomer.ReferenceID = referenceID
+		mtoWithoutCustomer.ReferenceID = &referenceID
 
 		// If customerID is provided create MTO without creating a new customer
 		mtoPayload := payloads.MoveTaskOrder(&mtoWithoutCustomer)
@@ -214,7 +214,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 	suite.T().Run("move status stays as DRAFT when IsCanceled is false", func(t *testing.T) {
 		// Regenerate the ReferenceID because it needs to be unique
 		referenceID, _ := models.GenerateReferenceID(suite.DB())
-		mtoWithoutCustomer.ReferenceID = referenceID
+		mtoWithoutCustomer.ReferenceID = &referenceID
 
 		// If customerID is provided create MTO without creating a new customer
 		mtoPayload := payloads.MoveTaskOrder(&mtoWithoutCustomer)
@@ -249,7 +249,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		}
 		// Regenerate the ReferenceID because it needs to be unique
 		referenceID, _ := models.GenerateReferenceID(suite.DB())
-		mtoWithoutCustomer.ReferenceID = referenceID
+		mtoWithoutCustomer.ReferenceID = &referenceID
 
 		// If customerID is provided create MTO without creating a new customer
 		mtoPayload := payloads.MoveTaskOrder(&mtoWithoutCustomer)
@@ -274,7 +274,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 		moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
 
 		suite.Assertions.IsType(&move_task_order.CreateMoveTaskOrderCreated{}, response)
-		suite.Equal(mtoWithoutCustomer.ReferenceID, moveTaskOrdersPayload.ReferenceID)
+		suite.Equal(*mtoWithoutCustomer.ReferenceID, moveTaskOrdersPayload.ReferenceID)
 		suite.NotNil(moveTaskOrdersPayload.Locator)
 		suite.NotNil(moveTaskOrdersPayload.AvailableToPrimeAt)
 	})

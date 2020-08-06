@@ -79,13 +79,13 @@ type Move struct {
 	CancelReason            *string                 `json:"cancel_reason" db:"cancel_reason"`
 	Show                    *bool                   `json:"show" db:"show"`
 	AvailableToPrimeAt      *time.Time              `db:"available_to_prime_at"`
-	ContractorID            uuid.UUID               `db:"contractor_id"`
+	ContractorID            *uuid.UUID              `db:"contractor_id"`
 	PPMEstimatedWeight      *unit.Pound             `db:"ppm_estimated_weight"`
 	PPMType                 *string                 `db:"ppm_type"`
 	MTOServiceItems         MTOServiceItems         `has_many:"mto_service_items"`
 	PaymentRequests         PaymentRequests         `has_many:"payment_requests"`
 	MTOShipments            MTOShipments            `has_many:"mto_shipments"`
-	ReferenceID             string                  `db:"reference_id"`
+	ReferenceID             *string                 `db:"reference_id"`
 }
 
 // MoveOptions is used when creating new moves based on parameters
@@ -104,7 +104,6 @@ func (m *Move) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.StringIsPresent{Field: m.Locator, Name: "Locator"},
 		&validators.UUIDIsPresent{Field: m.OrdersID, Name: "OrdersID"},
 		&validators.StringIsPresent{Field: string(m.Status), Name: "Status"},
-		//&validators.UUIDIsPresent{Field: m.ContractorID, Name: "ContractorID"},
 	), nil
 }
 
@@ -518,8 +517,8 @@ func createNewMove(db *pop.Connection,
 			SelectedMoveType: &stringSelectedType,
 			Status:           MoveStatusDRAFT,
 			Show:             show,
-			ContractorID:     contractor.ID,
-			ReferenceID:      referenceID,
+			ContractorID:     &contractor.ID,
+			ReferenceID:      &referenceID,
 		}
 		verrs, err := db.ValidateAndCreate(&move)
 		if verrs.HasAny() {

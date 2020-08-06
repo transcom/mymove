@@ -67,7 +67,7 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 			OrdersID:     orders.ID,
 			CreatedAt:    time.Now(),
 			UpdatedAt:    time.Now(),
-			ContractorID: contractor.ID,
+			ContractorID: &contractor.ID,
 			Status:       models.MoveStatusDRAFT,
 			Locator:      models.GenerateLocator(),
 		}

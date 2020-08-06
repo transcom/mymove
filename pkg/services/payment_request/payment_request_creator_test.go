@@ -136,7 +136,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		suite.FatalNoError(err)
 
 		expectedSequenceNumber := 1
-		expectedPaymentRequestNumber := fmt.Sprintf("%s-%d", moveTaskOrder.ReferenceID, expectedSequenceNumber)
+		expectedPaymentRequestNumber := fmt.Sprintf("%s-%d", *moveTaskOrder.ReferenceID, expectedSequenceNumber)
 		// Verify some of the data that came back
 		suite.Equal(expectedPaymentRequestNumber, paymentRequestReturn.PaymentRequestNumber)
 		suite.Equal(expectedSequenceNumber, paymentRequestReturn.SequenceNumber)
@@ -421,12 +421,12 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 
 		// Verify expected payment request numbers
 		expectedSequenceNumber1 := max + 1
-		expectedPaymentRequestNumber1 := fmt.Sprintf("%s-%d", moveTaskOrder.ReferenceID, expectedSequenceNumber1)
+		expectedPaymentRequestNumber1 := fmt.Sprintf("%s-%d", *moveTaskOrder.ReferenceID, expectedSequenceNumber1)
 		suite.Equal(expectedPaymentRequestNumber1, paymentRequest1.PaymentRequestNumber)
 		suite.Equal(expectedSequenceNumber1, paymentRequest1.SequenceNumber)
 
 		expectedSequenceNumber2 := max + 2
-		expectedPaymentRequestNumber2 := fmt.Sprintf("%s-%d", moveTaskOrder.ReferenceID, expectedSequenceNumber2)
+		expectedPaymentRequestNumber2 := fmt.Sprintf("%s-%d", *moveTaskOrder.ReferenceID, expectedSequenceNumber2)
 		suite.Equal(expectedPaymentRequestNumber2, paymentRequest2.PaymentRequestNumber)
 		suite.Equal(expectedSequenceNumber2, paymentRequest2.SequenceNumber)
 	})

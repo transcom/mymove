@@ -26,13 +26,13 @@ type moveTaskOrderCreator struct {
 // CreateMoveTaskOrder creates a move task order
 func (o *moveTaskOrderCreator) CreateMoveTaskOrder(moveTaskOrder *models.Move) (*models.Move, *validate.Errors, error) {
 	// generate reference id if empty
-	if strings.TrimSpace(moveTaskOrder.ReferenceID) == "" {
+	if moveTaskOrder.ReferenceID == nil || strings.TrimSpace(*moveTaskOrder.ReferenceID) == "" {
 		referenceID, err := models.GenerateReferenceID(o.db)
 		if err != nil {
 			return nil, nil, err
 		}
 
-		moveTaskOrder.ReferenceID = referenceID
+		moveTaskOrder.ReferenceID = &referenceID
 	}
 
 	moveTaskOrder.Show = swag.Bool(true)

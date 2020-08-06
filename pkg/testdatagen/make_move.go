@@ -18,15 +18,16 @@ func MakeMove(db *pop.Connection, assertions Assertions) models.Move {
 		orders = MakeOrder(db, assertions)
 	}
 
+	assertedReferenceID := assertions.MoveTaskOrder.ReferenceID
 	var referenceID string
-	if assertions.MoveTaskOrder.ReferenceID == "" {
+	if assertedReferenceID == nil || *assertedReferenceID == "" {
 		referenceID, _ = models.GenerateReferenceID(db)
 	}
 
 	var contractorID uuid.UUID
 	mtoContractorID := assertions.MoveTaskOrder.ContractorID
 	moveContractorID := assertions.Move.ContractorID
-	if mtoContractorID == uuid.Nil || moveContractorID == uuid.Nil {
+	if mtoContractorID == nil || moveContractorID == nil {
 		contractor := MakeContractor(db, assertions)
 		contractorID = contractor.ID
 	}
@@ -43,8 +44,8 @@ func MakeMove(db *pop.Connection, assertions Assertions) models.Move {
 		Status:           models.MoveStatusDRAFT,
 		Locator:          models.GenerateLocator(),
 		Show:             setShow(assertions.Move.Show),
-		ContractorID:     contractorID,
-		ReferenceID:      referenceID,
+		ContractorID:     &contractorID,
+		ReferenceID:      &referenceID,
 	}
 
 	// Overwrite values with those from assertions
@@ -64,10 +65,16 @@ func MakeMoveWithoutMoveType(db *pop.Connection, assertions Assertions) models.M
 		orders = MakeOrder(db, assertions)
 	}
 
+	var referenceID string
+	assertedReferenceID := assertions.MoveTaskOrder.ReferenceID
+	if assertedReferenceID == nil || *assertedReferenceID == "" {
+		referenceID, _ = models.GenerateReferenceID(db)
+	}
+
 	var contractorID uuid.UUID
 	mtoContractorID := assertions.MoveTaskOrder.ContractorID
 	moveContractorID := assertions.Move.ContractorID
-	if mtoContractorID == uuid.Nil || moveContractorID == uuid.Nil {
+	if mtoContractorID == nil || moveContractorID == nil {
 		contractor := MakeContractor(db, assertions)
 		contractorID = contractor.ID
 	}
@@ -78,7 +85,8 @@ func MakeMoveWithoutMoveType(db *pop.Connection, assertions Assertions) models.M
 		Status:       models.MoveStatusDRAFT,
 		Locator:      models.GenerateLocator(),
 		Show:         setShow(assertions.Move.Show),
-		ContractorID: contractorID,
+		ContractorID: &contractorID,
+		ReferenceID:  &referenceID,
 	}
 
 	// Overwrite values with those from assertions

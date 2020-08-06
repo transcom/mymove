@@ -15,13 +15,14 @@ func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.Move {
 	}
 
 	var referenceID string
-	if assertions.MoveTaskOrder.ReferenceID == "" {
+	assertedReferenceID := assertions.MoveTaskOrder.ReferenceID
+	if assertedReferenceID == nil || *assertedReferenceID == "" {
 		referenceID, _ = models.GenerateReferenceID(db)
 	}
 
 	var contractorID uuid.UUID
 
-	if assertions.MoveTaskOrder.ContractorID == uuid.Nil {
+	if assertions.MoveTaskOrder.ContractorID == nil {
 		contractor := MakeContractor(db, assertions)
 		contractorID = contractor.ID
 	}
@@ -36,8 +37,8 @@ func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.Move {
 		AvailableToPrimeAt: assertions.MoveTaskOrder.AvailableToPrimeAt,
 		Orders:             order,
 		OrdersID:           order.ID,
-		ContractorID:       contractorID,
-		ReferenceID:        referenceID,
+		ContractorID:       &contractorID,
+		ReferenceID:        &referenceID,
 		Locator:            models.GenerateLocator(),
 		Status:             models.MoveStatusDRAFT,
 		PPMType:            ppmType,

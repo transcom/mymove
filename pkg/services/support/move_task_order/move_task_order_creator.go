@@ -45,9 +45,9 @@ func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessage
 		}
 
 		moveTaskOrder = MoveTaskOrderModel(&payload)
-		if moveTaskOrder.ReferenceID == "" {
+		if *moveTaskOrder.ReferenceID == "" {
 			refID, err = models.GenerateReferenceID(tx)
-			moveTaskOrder.ReferenceID = refID
+			moveTaskOrder.ReferenceID = &refID
 		}
 		if err != nil {
 			return err
@@ -272,12 +272,13 @@ func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.Move 
 		return nil
 	}
 	ppmEstimatedWeight := unit.Pound(mtoPayload.PpmEstimatedWeight)
+	contractorID := uuid.FromStringOrNil(mtoPayload.ContractorID.String())
 	model := &models.Move{
-		ReferenceID:        mtoPayload.ReferenceID,
+		ReferenceID:        &mtoPayload.ReferenceID,
 		Locator:            mtoPayload.Locator,
 		PPMEstimatedWeight: &ppmEstimatedWeight,
 		PPMType:            &mtoPayload.PpmType,
-		ContractorID:       uuid.FromStringOrNil(mtoPayload.ContractorID.String()),
+		ContractorID:       &contractorID,
 		Status:             (models.MoveStatus)(mtoPayload.Status),
 	}
 
