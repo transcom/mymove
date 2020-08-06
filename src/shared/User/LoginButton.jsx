@@ -5,6 +5,7 @@ import { get } from 'lodash';
 import { selectCurrentUser } from 'shared/Data/users';
 import { isDevelopment } from 'shared/constants';
 import { LogoutUser } from 'shared/User/api.js';
+import { logOut } from 'store/auth/actions';
 
 const LoginButton = (props) => {
   if (!props.isLoggedIn) {
@@ -30,9 +31,14 @@ const LoginButton = (props) => {
       </React.Fragment>
     );
   } else {
+    const handleLogOut = () => {
+      props.logOut();
+      LogoutUser();
+    };
+
     return (
       <li className="usa-nav__primary-item">
-        <a className="usa-nav__link" href="#" onClick={LogoutUser}>
+        <a className="usa-nav__link" href="#" onClick={handleLogOut}>
           Sign Out
         </a>
       </li>
@@ -47,4 +53,9 @@ function mapStateToProps(state) {
     showDevlocalButton: get(state, 'isDevelopment', isDevelopment),
   };
 }
-export default connect(mapStateToProps)(LoginButton);
+
+const mapDispatchToProps = {
+  logOut,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(LoginButton);

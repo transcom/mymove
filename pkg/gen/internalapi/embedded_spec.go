@@ -4560,6 +4560,16 @@ func init() {
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
         },
+        "status": {
+          "type": "string",
+          "enum": [
+            "DRAFT",
+            "APPROVED",
+            "SUBMITTED",
+            "REJECTED"
+          ],
+          "readOnly": true
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time",
@@ -11285,6 +11295,16 @@ func init() {
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "DRAFT",
+            "APPROVED",
+            "SUBMITTED",
+            "REJECTED"
+          ],
+          "readOnly": true
         },
         "updatedAt": {
           "type": "string",

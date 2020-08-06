@@ -46,9 +46,4 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderCreatorIntegration() {
 		// testing mto
 		suite.NotZero(actualMTO.ID)
 	})
-
-	suite.T().Run("default service items properly created", func(t *testing.T) {
-		// testing default service items
-		suite.Equal(2, len(actualMTO.MTOServiceItems))
-	})
 }

@@ -35,7 +35,7 @@ show_logs() {
     local arn=$1
     local task_id
     echo "Attempting to get CloudWatch logs for ${arn}:"
-    task_id=$(echo "${arn}" | grep -Eo ":task/${cluster}/([[:alnum:]-]+)$" | cut -d / -f 3)
+    task_id=$(echo "${arn}" | grep -Eo "/([[:alnum:]-]+)$" | cut -d / -f 2)
     echo "Found task_id ${task_id} for cluster ${cluster}"
     echo
     aws logs get-log-events --log-group-name "ecs-tasks-$cluster" --log-stream-name "$log_prefix/$container_name/$task_id" --query 'events[].message' || true
@@ -56,7 +56,7 @@ echo "* Registering new task definition"
 set +e
 task_definition_arn=$("${DIR}/../bin/ecs-deploy" task-def \
   --aws-account-id "${AWS_ACCOUNT_ID}" \
-  --aws-region us-west-2 \
+  --aws-region "${AWS_DEFAULT_REGION}" \
   --service "${name}" \
   --environment "${environment}" \
   --image "${image}" \
