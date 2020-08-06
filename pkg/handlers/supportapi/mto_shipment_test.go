@@ -5,6 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/transcom/mymove/pkg/models"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/go-openapi/strfmt"
@@ -29,6 +31,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: mto,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
 	})
 
 	requestUser := testdatagen.MakeDefaultUser(suite.DB())
