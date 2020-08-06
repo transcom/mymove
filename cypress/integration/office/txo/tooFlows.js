@@ -23,11 +23,11 @@ describe('TOO user', () => {
     });
 
     it('does not show any Approved Shipments', () => {
-      cy.contains('#approved-shipments').should('not.exist');
+      cy.get('#approved-shipments').should('not.exist');
     });
 
     it('shows Requested Shipments', () => {
-      cy.contains('#requested-shipments');
+      cy.get('#requested-shipments');
     });
 
     it('can’t click the Approve Shipments button yet', () => {
@@ -77,8 +77,8 @@ describe('TOO user', () => {
 
     it('the page refreshes to show new data', () => {
       cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.be.visible');
-      cy.contains('#approved-shipments');
-      cy.contains('#requested-shipments').should('not.exist');
+      cy.get('#approved-shipments');
+      cy.get('#requested-shipments').should('not.exist');
       cy.contains('Approve selected shipments').should('not.exist');
     });
   });
