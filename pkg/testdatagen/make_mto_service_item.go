@@ -15,11 +15,13 @@ func makeServiceItem(db *pop.Connection, assertions Assertions, isBasicServiceIt
 	}
 
 	var MTOShipmentID *uuid.UUID
+	var MTOShipment models.MTOShipment
 	if !isBasicServiceItem {
 		if isZeroUUID(assertions.MTOShipment.ID) {
-			MTOShipment := MakeMTOShipment(db, assertions)
+			MTOShipment = MakeMTOShipment(db, assertions)
 			MTOShipmentID = &MTOShipment.ID
 		} else {
+			MTOShipment = assertions.MTOShipment
 			MTOShipmentID = &assertions.MTOShipment.ID
 		}
 	}
@@ -37,6 +39,7 @@ func makeServiceItem(db *pop.Connection, assertions Assertions, isBasicServiceIt
 	MTOServiceItem := models.MTOServiceItem{
 		MoveTaskOrder:   moveTaskOrder,
 		MoveTaskOrderID: moveTaskOrder.ID,
+		MTOShipment:     MTOShipment,
 		MTOShipmentID:   MTOShipmentID,
 		ReService:       reService,
 		ReServiceID:     reService.ID,
