@@ -43,7 +43,7 @@ require (
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/google/go-github/v31 v31.0.0
 	github.com/gorilla/csrf v1.7.0
-	github.com/imdario/mergo v0.3.9
+	github.com/imdario/mergo v0.3.10
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/jstemmer/go-junit-report v0.9.1
@@ -61,7 +61,7 @@ require (
 	github.com/spf13/cobra v0.0.7
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.1
-	github.com/stretchr/objx v0.2.0
+	github.com/stretchr/objx v0.3.0
 	github.com/stretchr/testify v1.6.1
 	github.com/tcnksm/go-input v0.0.0-20180404061846-548a7d7a8ee8
 	github.com/tealeg/xlsx v1.0.5

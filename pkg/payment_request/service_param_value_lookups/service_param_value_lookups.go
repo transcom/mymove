@@ -56,13 +56,15 @@ func ServiceParamLookupInitialize(
 	s.lookups[models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier.String()] = FSCWeightBasedDistanceMultiplierLookup{}
 	s.lookups[models.ServiceItemParamNameMTOAvailableToPrimeAt.String()] = MTOAvailableToPrimeAtLookup{}
 	s.lookups[models.ServiceItemParamNameRequestedPickupDate.String()] = RequestedPickupDateLookup{}
-	s.lookups[models.ServiceItemParamNameWeightActual.String()] = WeightActualLookup{}
+	s.lookups[models.ServiceItemParamNameServiceAreaDest.String()] = ServiceAreaDestLookup{}
+	s.lookups[models.ServiceItemParamNameServiceAreaOrigin.String()] = ServiceAreaOriginLookup{}
+	s.lookups[models.ServiceItemParamNameServicesScheduleDest.String()] = ServicesScheduleDestLookup{}
+	s.lookups[models.ServiceItemParamNameServicesScheduleOrigin.String()] = ServicesScheduleOriginLookup{}
+  s.lookups[models.ServiceItemParamNameWeightActual.String()] = WeightActualLookup{}
 	s.lookups[models.ServiceItemParamNameWeightBilledActual.String()] = WeightBilledActualLookup{}
 	s.lookups[models.ServiceItemParamNameWeightEstimated.String()] = WeightEstimatedLookup{}
 	s.lookups[models.ServiceItemParamNameZipDestAddress.String()] = ZipDestAddressLookup{}
 	s.lookups[models.ServiceItemParamNameZipPickupAddress.String()] = ZipPickupAddressLookup{}
-	s.lookups[models.ServiceItemParamNameServiceAreaDest.String()] = ServiceAreaDestLookup{}
-	s.lookups[models.ServiceItemParamNameServiceAreaOrigin.String()] = ServiceAreaOriginLookup{}
 
 	return &s
 }
