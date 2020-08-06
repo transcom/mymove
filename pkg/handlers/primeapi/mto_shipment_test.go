@@ -292,6 +292,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: mto,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
 	})
 	mtoShipment.PrimeEstimatedWeight = &primeEstimatedWeight
 	mtoShipment.PrimeEstimatedWeightRecordedDate = &primeEstimatedWeightDate
@@ -299,6 +302,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	mtoNotAvailable := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
 	mtoShipmentNotAvailable := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: mtoNotAvailable,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
 	})
 
 	ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -439,6 +445,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 	mtoShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: mto,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
 	})
 
 	testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
