@@ -95,9 +95,7 @@ func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *m
 	requestedPickupDate := time.Time(mtoShipment.RequestedPickupDate)
 	requestedDeliveryDate := time.Time(mtoShipment.RequestedDeliveryDate)
 
-	// TODO: handle now-optional props
 	model := &models.MTOShipment{
-		MoveTaskOrderID:       uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:          models.MTOShipmentType(mtoShipment.ShipmentType),
 		RequestedPickupDate:   &requestedPickupDate,
 		RequestedDeliveryDate: &requestedDeliveryDate,

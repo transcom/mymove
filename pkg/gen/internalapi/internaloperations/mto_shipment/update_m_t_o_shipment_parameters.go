@@ -34,6 +34,12 @@ type UpdateMTOShipmentParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
+	/*Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+
+	  Required: true
+	  In: header
+	*/
+	IfMatch string
 	/*
 	  In: body
 	*/
@@ -53,6 +59,10 @@ func (o *UpdateMTOShipmentParams) BindRequest(r *http.Request, route *middleware
 	var res []error
 
 	o.HTTPRequest = r
+
+	if err := o.bindIfMatch(r.Header[http.CanonicalHeaderKey("If-Match")], true, route.Formats); err != nil {
+		res = append(res, err)
+	}
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
@@ -78,6 +88,27 @@ func (o *UpdateMTOShipmentParams) BindRequest(r *http.Request, route *middleware
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// bindIfMatch binds and validates parameter IfMatch from header.
+func (o *UpdateMTOShipmentParams) bindIfMatch(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	if !hasKey {
+		return errors.Required("If-Match", "header")
+	}
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: true
+
+	if err := validate.RequiredString("If-Match", "header", raw); err != nil {
+		return err
+	}
+
+	o.IfMatch = raw
+
 	return nil
 }
 

@@ -2000,7 +2000,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentId}": {
       "patch": {
-        "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* No fields required in body\n  \nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Releasing / Receiving agents\n",
+        "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\n\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Releasing / Receiving agents\n",
         "consumes": [
           "application/json"
         ],
@@ -2019,6 +2019,13 @@ func init() {
             "description": "UUID of the MTO Shipment to update",
             "name": "mtoShipmentId",
             "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
             "required": true
           },
           {
@@ -2047,6 +2054,9 @@ func init() {
           },
           "404": {
             "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
           },
           "422": {
             "$ref": "#/responses/UnprocessableEntity"
@@ -3937,6 +3947,7 @@ func init() {
       ],
       "properties": {
         "agents": {
+          "x-nullable": true,
           "$ref": "#/definitions/MTOAgents"
         },
         "customerRemarks": {
@@ -3945,6 +3956,7 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "moveTaskOrderID": {
@@ -3953,6 +3965,7 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "pickupAddress": {
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "requestedDeliveryDate": {
@@ -3964,6 +3977,7 @@ func init() {
           "format": "date"
         },
         "shipmentType": {
+          "x-nullable": true,
           "$ref": "#/definitions/MTOShipmentType"
         }
       }
@@ -6488,13 +6502,9 @@ func init() {
     },
     "UpdateShipment": {
       "type": "object",
-      "required": [
-        "moveTaskOrderID",
-        "pickupAddress",
-        "shipmentType"
-      ],
       "properties": {
         "agents": {
+          "x-nullable": true,
           "$ref": "#/definitions/MTOAgents"
         },
         "customerRemarks": {
@@ -6503,12 +6513,8 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
-        },
-        "moveTaskOrderID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
@@ -6522,6 +6528,7 @@ func init() {
           "format": "date"
         },
         "shipmentType": {
+          "x-nullable": true,
           "$ref": "#/definitions/MTOShipmentType"
         }
       }
@@ -8694,7 +8701,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentId}": {
       "patch": {
-        "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* No fields required in body\n  \nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Releasing / Receiving agents\n",
+        "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\n\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Releasing / Receiving agents\n",
         "consumes": [
           "application/json"
         ],
@@ -8713,6 +8720,13 @@ func init() {
             "description": "UUID of the MTO Shipment to update",
             "name": "mtoShipmentId",
             "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
             "required": true
           },
           {
@@ -8750,6 +8764,12 @@ func init() {
           },
           "404": {
             "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
             "schema": {
               "$ref": "#/definitions/ClientError"
             }
@@ -10651,6 +10671,7 @@ func init() {
       ],
       "properties": {
         "agents": {
+          "x-nullable": true,
           "$ref": "#/definitions/MTOAgents"
         },
         "customerRemarks": {
@@ -10659,6 +10680,7 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "moveTaskOrderID": {
@@ -10667,6 +10689,7 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "pickupAddress": {
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "requestedDeliveryDate": {
@@ -10678,6 +10701,7 @@ func init() {
           "format": "date"
         },
         "shipmentType": {
+          "x-nullable": true,
           "$ref": "#/definitions/MTOShipmentType"
         }
       }
@@ -13213,13 +13237,9 @@ func init() {
     },
     "UpdateShipment": {
       "type": "object",
-      "required": [
-        "moveTaskOrderID",
-        "pickupAddress",
-        "shipmentType"
-      ],
       "properties": {
         "agents": {
+          "x-nullable": true,
           "$ref": "#/definitions/MTOAgents"
         },
         "customerRemarks": {
@@ -13228,12 +13248,8 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
-        },
-        "moveTaskOrderID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
@@ -13247,6 +13263,7 @@ func init() {
           "format": "date"
         },
         "shipmentType": {
+          "x-nullable": true,
           "$ref": "#/definitions/MTOShipmentType"
         }
       }

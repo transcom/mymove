@@ -26,14 +26,8 @@ type UpdateShipment struct {
 	// destination address
 	DestinationAddress *Address `json:"destinationAddress,omitempty"`
 
-	// move task order ID
-	// Required: true
-	// Format: uuid
-	MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
-
 	// pickup address
-	// Required: true
-	PickupAddress *Address `json:"pickupAddress"`
+	PickupAddress *Address `json:"pickupAddress,omitempty"`
 
 	// requested delivery date
 	// Format: date
@@ -44,8 +38,7 @@ type UpdateShipment struct {
 	RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
 
 	// shipment type
-	// Required: true
-	ShipmentType MTOShipmentType `json:"shipmentType"`
+	ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
 }
 
 // Validate validates this update shipment
@@ -57,10 +50,6 @@ func (m *UpdateShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateDestinationAddress(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateMoveTaskOrderID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -120,23 +109,10 @@ func (m *UpdateShipment) validateDestinationAddress(formats strfmt.Registry) err
 	return nil
 }
 
-func (m *UpdateShipment) validateMoveTaskOrderID(formats strfmt.Registry) error {
-
-	if err := validate.Required("moveTaskOrderID", "body", m.MoveTaskOrderID); err != nil {
-		return err
-	}
-
-	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *UpdateShipment) validatePickupAddress(formats strfmt.Registry) error {
 
-	if err := validate.Required("pickupAddress", "body", m.PickupAddress); err != nil {
-		return err
+	if swag.IsZero(m.PickupAddress) { // not required
+		return nil
 	}
 
 	if m.PickupAddress != nil {
@@ -178,6 +154,10 @@ func (m *UpdateShipment) validateRequestedPickupDate(formats strfmt.Registry) er
 }
 
 func (m *UpdateShipment) validateShipmentType(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ShipmentType) { // not required
+		return nil
+	}
 
 	if err := m.ShipmentType.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {

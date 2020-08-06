@@ -37,6 +37,7 @@ Updates a specified MTO shipment.
 
 Required fields include:
 * MTO Shipment ID required in path
+* If-Match required in headers
 * No fields required in body
 
 Optional fields include:

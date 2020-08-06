@@ -233,6 +233,50 @@ func (o *UpdateMTOShipmentNotFound) WriteResponse(rw http.ResponseWriter, produc
 	}
 }
 
+// UpdateMTOShipmentPreconditionFailedCode is the HTTP code returned for type UpdateMTOShipmentPreconditionFailed
+const UpdateMTOShipmentPreconditionFailedCode int = 412
+
+/*UpdateMTOShipmentPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
+
+swagger:response updateMTOShipmentPreconditionFailed
+*/
+type UpdateMTOShipmentPreconditionFailed struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *internalmessages.ClientError `json:"body,omitempty"`
+}
+
+// NewUpdateMTOShipmentPreconditionFailed creates UpdateMTOShipmentPreconditionFailed with default headers values
+func NewUpdateMTOShipmentPreconditionFailed() *UpdateMTOShipmentPreconditionFailed {
+
+	return &UpdateMTOShipmentPreconditionFailed{}
+}
+
+// WithPayload adds the payload to the update m t o shipment precondition failed response
+func (o *UpdateMTOShipmentPreconditionFailed) WithPayload(payload *internalmessages.ClientError) *UpdateMTOShipmentPreconditionFailed {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update m t o shipment precondition failed response
+func (o *UpdateMTOShipmentPreconditionFailed) SetPayload(payload *internalmessages.ClientError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *UpdateMTOShipmentPreconditionFailed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(412)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // UpdateMTOShipmentUnprocessableEntityCode is the HTTP code returned for type UpdateMTOShipmentUnprocessableEntity
 const UpdateMTOShipmentUnprocessableEntityCode int = 422
 

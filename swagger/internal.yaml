@@ -2650,6 +2650,7 @@ definitions:
         type: string
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
+        x-nullable: true
       requestedPickupDate:
         format: date
         type: string
@@ -2662,10 +2663,13 @@ definitions:
         x-nullable: true
       pickupAddress:
         $ref: '#/definitions/Address'
+        x-nullable: true
       destinationAddress:
         $ref: '#/definitions/Address'
+        x-nullable: true
       agents:
         $ref: '#/definitions/MTOAgents'
+        x-nullable: true
     required:
       - moveTaskOrderID
       - pickupAddress
@@ -2673,12 +2677,9 @@ definitions:
   UpdateShipment:
     type: object
     properties:
-      moveTaskOrderID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
+        x-nullable: true
       requestedPickupDate:
         format: date
         type: string
@@ -2693,12 +2694,10 @@ definitions:
         $ref: '#/definitions/Address'
       destinationAddress:
         $ref: '#/definitions/Address'
+        x-nullable: true
       agents:
         $ref: '#/definitions/MTOAgents'
-    required:
-      - moveTaskOrderID
-      - pickupAddress
-      - shipmentType
+        x-nullable: true
   ClientError:
     type: object
     properties:
@@ -4863,7 +4862,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  /mto-shipments/{mtoShipmentId}:
+  '/mto-shipments/{mtoShipmentId}':
     patch:
       summary: updateMTOShipment
       description: |
@@ -4871,6 +4870,7 @@ paths:
 
         Required fields include:
         * MTO Shipment ID required in path
+        * If-Match required in headers
         * No fields required in body
 
         Optional fields include:
@@ -4895,6 +4895,13 @@ paths:
           format: uuid
           required: true
           description: UUID of the MTO Shipment to update
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
         - in: body
           name: body
           schema:
@@ -4912,6 +4919,8 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
