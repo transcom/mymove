@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { arrayOf, string, bool, shape, func } from 'prop-types';
-import { get } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
@@ -25,14 +25,25 @@ const AddressSchema = Yup.object()
     mailingAddress2: Yup.string(),
     city: Yup.string().required('Required'),
     state: Yup.string().required('Required'),
-    zip: Yup.string().required('Required'),
+    zip: Yup.string()
+      // eslint-disable-next-line security/detect-unsafe-regex
+      .matches(/^(\d{5}([-]\d{4})?)$/, 'Must be valid zip code')
+      .required('Required'),
   })
   .required('Required');
 
+const AgentSchema = Yup.object().shape({
+  firstName: Yup.string(),
+  lastName: Yup.string(),
+  phone: Yup.string().matches(/^[2-9]\d{2}\d{3}\d{4}$/, 'Must be valid phone number'),
+  email: Yup.string().email('Must be valid email'),
+});
 const HHGDetailsFormSchema = Yup.object().shape({
   // requiredPickupDate, requiredDeliveryDate are also required, but using field level validation
   pickupLocation: AddressSchema,
-  deliveryLocation: AddressSchema,
+  deliveryLocation: AddressSchema, // for now, both addresses are required, this will change where delivery location's zip code and all pickup location information are the only ones required
+  releasingAgent: AgentSchema,
+  receivingAgent: AgentSchema,
   remarks: Yup.string(),
 });
 class HHGDetailsForm extends Component {
@@ -141,25 +152,29 @@ class HHGDetailsForm extends Component {
     function formatAgent(agent) {
       const agentCopy = { ...agent };
       Object.keys(agentCopy).forEach((key) => {
-        // eslint-disable-next-line security/detect-object-injection
+        /* eslint-disable security/detect-object-injection */
         if (agentCopy[key] === '') {
-          // eslint-disable-next-line security/detect-object-injection
           delete agentCopy[key];
+        } else if (key === 'phone') {
+          const phoneNum = agentCopy[key];
+          // will be in format xxx-xxx-xxxx
+          agentCopy[key] = `${phoneNum.slice(0, 3)}-${phoneNum.slice(3, 6)}-${phoneNum.slice(6, 10)}`;
         }
+        /* eslint-enable security/detect-object-injection */
       });
       return agentCopy;
     }
 
     if (releasingAgent) {
       const formattedAgent = formatAgent(releasingAgent);
-      if (Object.keys(formattedAgent).length) {
+      if (!isEmpty(formattedAgent)) {
         mtoShipment.agents.push({ ...formattedAgent, agentType: MTOAgentType.RELEASING });
       }
     }
 
     if (receivingAgent) {
       const formattedAgent = formatAgent(receivingAgent);
-      if (Object.keys(formattedAgent).length) {
+      if (!isEmpty(formattedAgent)) {
         mtoShipment.agents.push({ ...formattedAgent, agentType: MTOAgentType.RECEIVING });
       }
     }
@@ -178,16 +193,15 @@ class HHGDetailsForm extends Component {
         validateOnBlur
         validateOnChange
         validationSchema={HHGDetailsFormSchema}
-        onSubmit={(values) => this.submitMTOSHipment(values)}
       >
-        {({ handleChange, handleSubmit, values, dirty, isValid }) => (
+        {({ values, dirty, isValid }) => (
           <WizardPage
             canMoveNext={dirty && isValid}
             match={match}
             pageKey={pageKey}
             pageList={pageList}
             push={push}
-            handleSubmit={handleSubmit}
+            handleSubmit={() => this.submitMTOShipment(values)}
           >
             <Form>
               <Fieldset legend="Pickup date" className={fieldsetClasses}>
@@ -224,7 +238,6 @@ class HHGDetailsForm extends Component {
                 legend="Releasing agent"
                 className={fieldsetClasses}
                 subtitle="Who can allow the movers to take your stuff if you're not there?"
-                handleChange={handleChange}
                 values={values.releasingAgent}
               />
               <Fieldset legend="Delivery date" className={fieldsetClasses}>
@@ -258,12 +271,7 @@ class HHGDetailsForm extends Component {
                   />
                 </div>
                 {hasDeliveryAddress ? (
-                  <AddressFields
-                    name="deliveryLocation"
-                    className={fieldsetClasses}
-                    handleChange={handleChange}
-                    values={values.deliveryLocation}
-                  />
+                  <AddressFields name="deliveryLocation" className={fieldsetClasses} values={values.deliveryLocation} />
                 ) : (
                   <>
                     <div className={fieldsetClasses}>We can use the zip of your new duty station.</div>
@@ -278,7 +286,6 @@ class HHGDetailsForm extends Component {
                 legend="Receiving agent"
                 className={fieldsetClasses}
                 subtitle="Who can take delivery for you if the movers arrive and you're not there?"
-                handleChange={handleChange}
                 values={values.receivingAgent}
               />
               <Fieldset legend="Remarks" className={fieldsetClasses}>
@@ -289,7 +296,6 @@ class HHGDetailsForm extends Component {
                   name="remarks"
                   id="remarks"
                   maxLength={1500}
-                  onChange={handleChange}
                   value={values.remarks}
                 />
               </Fieldset>
@@ -319,16 +325,23 @@ HHGDetailsForm.propTypes = {
     url: string.isRequired,
   }).isRequired,
   newDutyStationAddress: shape({
-    city: string.isRequired,
-    state: string.isRequired,
-    postal_code: string.isRequired,
-  }).isRequired,
+    city: string,
+    state: string,
+    postal_code: string,
+  }),
   moveTaskOrderID: string.isRequired,
   createMTOShipment: func.isRequired,
   showLoggedInUser: func.isRequired,
   push: func.isRequired,
 };
 
+HHGDetailsForm.defaultProps = {
+  newDutyStationAddress: {
+    city: '',
+    state: '',
+    postal_code: '',
+  },
+};
 const mapStateToProps = (state) => ({
   moveTaskOrderID: get(selectLoggedInUser(state), 'service_member.orders[0].move_task_order_id', ''),
   currentResidence: get(selectLoggedInUser(state), 'service_member.residential_address', {}),
