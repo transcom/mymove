@@ -7599,10 +7599,10 @@ filepond@^3.0.2:
   resolved "https://registry.yarnpkg.com/filepond/-/filepond-3.9.0.tgz#a11457ea432420585406b2511f67f2516246add8"
   integrity sha512-6XqRwzdpCOHYvnp7hqPpYbOH03zweOcGkgv5ixQlihbRxLFUw2AJId4lHwLdbKW7LX9EaQPqZ6qRF+3T0dkDVw==
 
-filepond@^4.18.0:
-  version "4.18.0"
-  resolved "https://registry.yarnpkg.com/filepond/-/filepond-4.18.0.tgz#6d56d3d13b55b5f49530351c4b11946ab682dfc4"
-  integrity sha512-lIRv27uYU0DQjUNa0G+aGsdmkhxdEzk9k2gbOsWLQdO+4u6FGNPjA1lUfy5vkF4ifx2GEeO1X+xP6Kqyb6tWaw==
+filepond@^4.19.2:
+  version "4.19.2"
+  resolved "https://registry.yarnpkg.com/filepond/-/filepond-4.19.2.tgz#79ecabc5840e3ac33d5aef7b4cb1454a861bb418"
+  integrity sha512-2NgemeQGIx9TfjaRwn6LpjJFXILzGXl0FD+Er7veI/25Nn+4qu0mA8rk22S3vpJPajMRn+dD1EUTEOMgUolJ7w==
 
 filesize@3.6.1:
   version "3.6.1"
