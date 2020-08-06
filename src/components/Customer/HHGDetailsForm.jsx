@@ -3,6 +3,7 @@ import { arrayOf, string, bool, shape, func } from 'prop-types';
 import { get } from 'lodash';
 import { connect } from 'react-redux';
 import { Formik, Field } from 'formik';
+import * as Yup from 'yup';
 import { Fieldset, Radio, Label } from '@trussworks/react-uswds';
 
 import { Form } from '../form/Form';
@@ -18,6 +19,22 @@ import { formatSwaggerDate } from 'shared/formatters';
 import Checkbox from 'shared/Checkbox';
 import { validateDate } from 'utils/formikValidators';
 
+const AddressSchema = Yup.object()
+  .shape({
+    mailingAddress1: Yup.string().required('Required'),
+    mailingAddress2: Yup.string(),
+    city: Yup.string().required('Required'),
+    state: Yup.string().required('Required'),
+    zip: Yup.string().required('Required'),
+  })
+  .required('Required');
+
+const HHGDetailsFormSchema = Yup.object().shape({
+  // requiredPickupDate, requiredDeliveryDate are also required, but using field level validation
+  pickupLocation: AddressSchema,
+  deliveryLocation: AddressSchema,
+  remarks: Yup.string(),
+});
 class HHGDetailsForm extends Component {
   constructor(props) {
     super(props);
@@ -120,12 +137,31 @@ class HHGDetailsForm extends Component {
         country: deliveryLocation.country,
       };
     }
+
+    function formatAgent(agent) {
+      const agentCopy = { ...agent };
+      Object.keys(agentCopy).forEach((key) => {
+        // eslint-disable-next-line security/detect-object-injection
+        if (agentCopy[key] === '') {
+          // eslint-disable-next-line security/detect-object-injection
+          delete agentCopy[key];
+        }
+      });
+      return agentCopy;
+    }
+
     if (releasingAgent) {
-      mtoShipment.agents.push({ ...releasingAgent, agentType: MTOAgentType.RELEASING });
+      const formattedAgent = formatAgent(releasingAgent);
+      if (Object.keys(formattedAgent).length) {
+        mtoShipment.agents.push({ ...formattedAgent, agentType: MTOAgentType.RELEASING });
+      }
     }
 
     if (receivingAgent) {
-      mtoShipment.agents.push({ ...receivingAgent, agentType: MTOAgentType.RECEIVING });
+      const formattedAgent = formatAgent(receivingAgent);
+      if (Object.keys(formattedAgent).length) {
+        mtoShipment.agents.push({ ...formattedAgent, agentType: MTOAgentType.RECEIVING });
+      }
     }
     createMTOShipment(mtoShipment);
   };
@@ -136,14 +172,22 @@ class HHGDetailsForm extends Component {
     const { hasDeliveryAddress, initialValues, useCurrentResidence } = this.state;
     const fieldsetClasses = 'margin-top-2';
     return (
-      <Formik initialValues={initialValues} enableReinitialize validateOnBlur validateOnChange>
-        {({ handleChange, values }) => (
+      <Formik
+        initialValues={initialValues}
+        enableReinitialize
+        validateOnBlur
+        validateOnChange
+        validationSchema={HHGDetailsFormSchema}
+        onSubmit={(values) => this.submitMTOSHipment(values)}
+      >
+        {({ handleChange, handleSubmit, values, dirty, isValid }) => (
           <WizardPage
+            canMoveNext={dirty && isValid}
             match={match}
             pageKey={pageKey}
             pageList={pageList}
             push={push}
-            handleSubmit={() => this.submitMTOShipment(values)}
+            handleSubmit={handleSubmit}
           >
             <Form>
               <Fieldset legend="Pickup date" className={fieldsetClasses}>
@@ -189,6 +233,7 @@ class HHGDetailsForm extends Component {
                   label="Requested delivery date"
                   id="requestedDeliveryDate"
                   value={values.requestedDeliveryDate}
+                  validate={validateDate}
                 />
                 <span className="usa-hint" id="deliveryDateHint">
                   Your movers will confirm this date or one shortly before or after.

@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { TextInput } from 'components/form/fields';
 
-export const ContactInfoFields = ({ legend, className, subtitle, values, handleChange, name }) => {
+export const ContactInfoFields = ({ legend, className, subtitle, values, name }) => {
   const contactInfoFieldsUUID = uuidv4();
 
   return (
@@ -20,7 +20,6 @@ export const ContactInfoFields = ({ legend, className, subtitle, values, handleC
         data-testid="firstName"
         name={`${name}.firstName`}
         type="text"
-        onChange={handleChange}
         value={values.firstName}
       />
       <Field
@@ -31,20 +30,19 @@ export const ContactInfoFields = ({ legend, className, subtitle, values, handleC
         data-testid="lastName"
         name={`${name}.lastName`}
         type="text"
-        onChange={handleChange}
         value={values.lastName}
       />
 
       <Field
+        as={TextInput}
         label="Phone"
         labelHint="(optional)"
         id={`phone_${contactInfoFieldsUUID}`}
         data-testid="phone"
         name={`${name}.phone`}
-        type="text"
-        onChange={handleChange}
+        type="tel"
+        maxLength="10"
         value={values.phone}
-        validationStatus="error"
       />
       <Field
         as={TextInput}
@@ -54,7 +52,6 @@ export const ContactInfoFields = ({ legend, className, subtitle, values, handleC
         data-testid="email"
         name={`${name}.email`}
         type="text"
-        onChange={handleChange}
         value={values.email}
       />
     </Fieldset>
@@ -72,7 +69,6 @@ ContactInfoFields.propTypes = {
     email: PropTypes.string,
   }),
   name: PropTypes.string.isRequired,
-  handleChange: PropTypes.func.isRequired,
 };
 
 ContactInfoFields.defaultProps = {
