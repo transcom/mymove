@@ -54,7 +54,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightEstimatedLookup() {
 		// Pass in a non-existent MTOServiceItemID
 		_, paymentRequest, _ := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(450), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 		invalidMTOServiceItemID := uuid.Must(uuid.NewV4())
-		badParamLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, invalidMTOServiceItemID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		badParamLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, invalidMTOServiceItemID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 
 		valueStr, err := badParamLookup.ServiceParamValue(key)
 		suite.Error(err)

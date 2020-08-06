@@ -24,7 +24,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 			},
 		})
 
-	paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+	paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 
 	suite.T().Run("Calculate zip3 distance", func(t *testing.T) {
 		distanceStr, err := paramLookup.ServiceParamValue(key)
@@ -84,7 +84,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 	suite.T().Run("bogus MTOServiceItemID", func(t *testing.T) {
 		// Pass in a non-existent MTOServiceItemID
 		invalidMTOServiceItemID := uuid.Must(uuid.NewV4())
-		badParamLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, invalidMTOServiceItemID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		badParamLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, invalidMTOServiceItemID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 
 		valueStr, err := badParamLookup.ServiceParamValue(key)
 		suite.Error(err)

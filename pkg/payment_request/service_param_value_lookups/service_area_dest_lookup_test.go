@@ -40,8 +40,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceAreaDest() {
 			Zip3:                "350",
 		},
 	})
-
-	paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+	paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 
 	suite.T().Run("golden path", func(t *testing.T) {
 		valueStr, err := paramLookup.ServiceParamValue(key)
@@ -84,7 +83,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceAreaDest() {
 	suite.T().Run("nil MTOServiceItem ID", func(t *testing.T) {
 		// Pass in a non-existent MTOServiceItemID
 		invalidMTOServiceItemID := uuid.Must(uuid.NewV4())
-		badParamLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, invalidMTOServiceItemID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		badParamLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, invalidMTOServiceItemID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 
 		valueStr, err := badParamLookup.ServiceParamValue(key)
 		suite.Error(err)

@@ -64,7 +64,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPSILinehaulDomLookup() {
 	suite.T().Run("Domestic Linehaul Price has been calculated", func(t *testing.T) {
 
 		psiLinehaulDom, expectedPSILinehaulDom := suite.setupPSILinehaulTestData(nil, nil)
-		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDom.MTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID)
+		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDom.MTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID, nil)
 
 		valueStr, err := paramLookup.ServiceParamValue(key)
 		suite.FatalNoError(err)
@@ -89,7 +89,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPSILinehaulDomLookup() {
 			},
 		)
 
-		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDom.MTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID)
+		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDom.MTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID, nil)
 
 		valueStr, err := paramLookup.ServiceParamValue(key)
 		suite.FatalNoError(err)
@@ -101,7 +101,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPSILinehaulDomLookup() {
 		status := models.PaymentServiceItemStatusDenied
 		psiLinehaulDom, _ := suite.setupPSILinehaulTestData(&price, &status)
 
-		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDom.MTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID)
+		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDom.MTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID, nil)
 
 		_, err := paramLookup.ServiceParamValue(key)
 		suite.Error(err)
@@ -111,9 +111,8 @@ func (suite *ServiceParamValueLookupsSuite) TestPSILinehaulDomLookup() {
 
 	suite.T().Run("Invalid MTO Service ID", func(t *testing.T) {
 		psiLinehaulDom, _ := suite.setupPSILinehaulTestData(nil, nil)
-
 		invalidMTOServiceItemID := uuid.Must(uuid.NewV4())
-		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, invalidMTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID)
+		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, invalidMTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID, nil)
 
 		_, err := paramLookup.ServiceParamValue(key)
 		suite.Error(err)
@@ -135,7 +134,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPSILinehaulDomLookup() {
 			},
 		)
 
-		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDomFSC.MTOServiceItemID, psiLinehaulDomFSC.PaymentRequestID, psiLinehaulDomFSC.PaymentRequest.MoveTaskOrderID)
+		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDomFSC.MTOServiceItemID, psiLinehaulDomFSC.PaymentRequestID, psiLinehaulDomFSC.PaymentRequest.MoveTaskOrderID, nil)
 
 		_, err := paramLookup.ServiceParamValue(key)
 		suite.Error(err)
@@ -148,9 +147,8 @@ func (suite *ServiceParamValueLookupsSuite) TestPSILinehaulDomPriceLookup() {
 	key := models.ServiceItemParamNamePSILinehaulDomPrice.String()
 
 	suite.T().Run("Domestic Linehaul Price has been calculated", func(t *testing.T) {
-
 		psiLinehaulDom, expectedPSILinehaulDom := suite.setupPSILinehaulTestData(nil, nil)
-		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDom.MTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID)
+		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDom.MTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID, nil)
 
 		valueStr, err := paramLookup.ServiceParamValue(key)
 		suite.FatalNoError(err)
@@ -175,7 +173,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPSILinehaulDomPriceLookup() {
 			},
 		)
 
-		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDom.MTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID)
+		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDom.MTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID, nil)
 
 		valueStr, err := paramLookup.ServiceParamValue(key)
 		suite.FatalNoError(err)
@@ -187,7 +185,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPSILinehaulDomPriceLookup() {
 		status := models.PaymentServiceItemStatusDenied
 		psiLinehaulDom, _ := suite.setupPSILinehaulTestData(&price, &status)
 
-		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDom.MTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID)
+		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDom.MTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID, nil)
 
 		_, err := paramLookup.ServiceParamValue(key)
 		suite.Error(err)
@@ -199,7 +197,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPSILinehaulDomPriceLookup() {
 		psiLinehaulDom, _ := suite.setupPSILinehaulTestData(nil, nil)
 
 		invalidMTOServiceItemID := uuid.Must(uuid.NewV4())
-		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, invalidMTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID)
+		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, invalidMTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID, nil)
 
 		_, err := paramLookup.ServiceParamValue(key)
 		suite.Error(err)
@@ -221,7 +219,7 @@ func (suite *ServiceParamValueLookupsSuite) TestPSILinehaulDomPriceLookup() {
 			},
 		)
 
-		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDomFSC.MTOServiceItemID, psiLinehaulDomFSC.PaymentRequestID, psiLinehaulDomFSC.PaymentRequest.MoveTaskOrderID)
+		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDomFSC.MTOServiceItemID, psiLinehaulDomFSC.PaymentRequestID, psiLinehaulDomFSC.PaymentRequest.MoveTaskOrderID, nil)
 
 		_, err := paramLookup.ServiceParamValue(key)
 		suite.Error(err)

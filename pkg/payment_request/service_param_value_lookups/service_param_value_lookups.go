@@ -5,6 +5,7 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/transcom/mymove/pkg/route"
@@ -18,8 +19,8 @@ type ServiceItemParamKeyData struct {
 	MTOServiceItemID uuid.UUID
 	PaymentRequestID uuid.UUID
 	MoveTaskOrderID  uuid.UUID
-	mtoShipmentID 	 *uuid.UUID
-	paramCache 		 ServiceParamsCache
+	mtoShipmentID    *uuid.UUID
+	paramCache       *ServiceParamsCache
 }
 
 // ServiceItemParamKeyLookup does lookup on service item parameter keys
@@ -34,14 +35,14 @@ func ServiceParamLookupInitialize(
 	mtoServiceItemID uuid.UUID,
 	paymentRequestID uuid.UUID,
 	moveTaskOrderID uuid.UUID,
-	paramCache ServiceParamsCache,
+	paramCache *ServiceParamsCache,
 ) *ServiceItemParamKeyData {
 
 	// Get the MTOServiceItem and associated MTOShipment
 	var mtoServiceItem models.MTOServiceItem
 	err := db.Eager("ReService").Find(&mtoServiceItem, mtoServiceItemID)
 	if err != nil {
-		// TODO
+		// return fmt.Errorf("error in ServiceParamLookupInitialize() querying for MTOServiceItem using ID: %s with error: %w", mtoServiceItemID, err)
 	}
 
 	s := ServiceItemParamKeyData{
@@ -51,9 +52,8 @@ func ServiceParamLookupInitialize(
 		MTOServiceItemID: mtoServiceItemID,
 		PaymentRequestID: paymentRequestID,
 		MoveTaskOrderID:  moveTaskOrderID,
-		paramCache:		  paramCache,
+		paramCache:       paramCache,
 		mtoShipmentID:    mtoServiceItem.MTOShipmentID,
-
 	}
 
 	for _, key := range models.ValidServiceItemParamNames {
@@ -62,77 +62,91 @@ func ServiceParamLookupInitialize(
 
 	// ReService code for current MTO Service Item
 	serviceItemCode := mtoServiceItem.ReService.Code
-	useKey, err := s.paramCache.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNameRequestedPickupDate)
+
+	paramKey := models.ServiceItemParamNameRequestedPickupDate
+	useKey, err := s.ServiceItemNeedsParamKey(serviceItemCode, paramKey)
 	if useKey && err == nil {
-		s.lookups[models.ServiceItemParamNameRequestedPickupDate.String()] = RequestedPickupDateLookup{}
+		s.lookups[paramKey.String()] = RequestedPickupDateLookup{}
+	} else if err != nil {
+		// TODO fmt and return error
+		// return fmt.Errorf("error with ParamKey: %s using ServiceItemNeedsParamKey(): %w", paramKey, err)
 	}
 
-	useKey, err = s.paramCache.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNameDistanceZip5)
+	paramKey = models.ServiceItemParamNameDistanceZip5
+	useKey, err = s.ServiceItemNeedsParamKey(serviceItemCode, paramKey)
 	if useKey && err == nil {
-		s.lookups[models.ServiceItemParamNameDistanceZip5.String()] = DistanceZip5Lookup{}
+		s.lookups[paramKey.String()] = DistanceZip5Lookup{}
+	} else if err != nil {
+		// TODO fmt and return error
+		// return fmt.Errorf("error with ParamKey: %s using ServiceItemNeedsParamKey(): %w", paramKey, err)
 	}
 
-	useKey, err = s.paramCache.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNameDistanceZip3)
+	paramKey = models.ServiceItemParamNameDistanceZip3
+	useKey, err = s.ServiceItemNeedsParamKey(serviceItemCode, paramKey)
 	if useKey && err == nil {
-		s.lookups[models.ServiceItemParamNameDistanceZip3.String()] = DistanceZip3Lookup{}
+		s.lookups[paramKey.String()] = DistanceZip3Lookup{}
+	} else if err != nil {
+		// TODO fmt and return error
+		// return fmt.Errorf("error with ParamKey: %s using ServiceItemNeedsParamKey(): %w", paramKey, err)
 	}
 
-	useKey, err = s.paramCache.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNameWeightBilledActual)
+	paramKey = models.ServiceItemParamNameWeightBilledActual
+	useKey, err = s.ServiceItemNeedsParamKey(serviceItemCode, paramKey)
 	if useKey && err == nil {
-		s.lookups[models.ServiceItemParamNameWeightBilledActual.String()] = WeightBilledActualLookup{}
+		s.lookups[paramKey.String()] = WeightBilledActualLookup{}
 	}
 
-	useKey, err = s.paramCache.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNameWeightEstimated)
+	useKey, err = s.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNameWeightEstimated)
 	if useKey && err == nil {
 		s.lookups[models.ServiceItemParamNameWeightEstimated.String()] = WeightEstimatedLookup{}
 	}
 
-	useKey, err = s.paramCache.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNameWeightActual)
+	useKey, err = s.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNameWeightActual)
 	if useKey && err == nil {
 		s.lookups[models.ServiceItemParamNameWeightActual.String()] = WeightActualLookup{}
 	}
 
-	useKey, err = s.paramCache.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNameZipPickupAddress)
+	useKey, err = s.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNameZipPickupAddress)
 	if useKey && err == nil {
 		s.lookups[models.ServiceItemParamNameZipPickupAddress.String()] = ZipPickupAddressLookup{}
 	}
 
-	useKey, err = s.paramCache.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNameZipDestAddress)
+	useKey, err = s.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNameZipDestAddress)
 	if useKey && err == nil {
 		s.lookups[models.ServiceItemParamNameZipDestAddress.String()] = ZipDestAddressLookup{}
 	}
 
-	useKey, err = s.paramCache.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNameMTOAvailableToPrimeAt)
+	useKey, err = s.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNameMTOAvailableToPrimeAt)
 	if useKey && err == nil {
 		s.lookups[models.ServiceItemParamNameMTOAvailableToPrimeAt.String()] = MTOAvailableToPrimeAtLookup{}
 	}
 
-	useKey, err = s.paramCache.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNameServiceAreaOrigin)
+	useKey, err = s.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNameServiceAreaOrigin)
 	if useKey && err == nil {
 		s.lookups[models.ServiceItemParamNameServiceAreaOrigin.String()] = ServiceAreaOriginLookup{}
 	}
 
-	useKey, err = s.paramCache.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNameServiceAreaDest)
+	useKey, err = s.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNameServiceAreaDest)
 	if useKey && err == nil {
 		s.lookups[models.ServiceItemParamNameServiceAreaDest.String()] = ServiceAreaDestLookup{}
 	}
 
-	useKey, err = s.paramCache.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNameContractCode)
+	useKey, err = s.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNameContractCode)
 	if useKey && err == nil {
 		s.lookups[models.ServiceItemParamNameContractCode.String()] = ContractCodeLookup{}
 	}
 
-	useKey, err = s.paramCache.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNamePSILinehaulDom)
+	useKey, err = s.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNamePSILinehaulDom)
 	if useKey && err == nil {
 		s.lookups[models.ServiceItemParamNamePSILinehaulDom.String()] = PSILinehaulDomLookup{}
 	}
 
-	useKey, err = s.paramCache.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNamePSILinehaulDomPrice)
+	useKey, err = s.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNamePSILinehaulDomPrice)
 	if useKey && err == nil {
 		s.lookups[models.ServiceItemParamNamePSILinehaulDomPrice.String()] = PSILinehaulDomPriceLookup{}
 	}
 
-	useKey, err = s.paramCache.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNameEIAFuelPrice)
+	useKey, err = s.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNameEIAFuelPrice)
 	if useKey && err == nil {
 		s.lookups[models.ServiceItemParamNameEIAFuelPrice.String()] = EIAFuelPriceLookup{}
 	}
@@ -140,11 +154,22 @@ func ServiceParamLookupInitialize(
 	return &s
 }
 
+// ServiceItemNeedsParamKey wrapper for using paramCache.ServiceItemNeedsParamKey, if s.paramCache is nil
+// we are not using the ParamCache and all lookups be initialized and all will run their own
+// database queries
+func (s *ServiceItemParamKeyData) ServiceItemNeedsParamKey(serviceItemCode models.ReServiceCode, paramKey models.ServiceItemParamName) (bool, error) {
+	if s.paramCache == nil {
+		return true, nil
+	}
+
+	return s.paramCache.ServiceItemNeedsParamKey(serviceItemCode, paramKey)
+}
+
 // ServiceParamValue returns a service parameter value from a key
 func (s *ServiceItemParamKeyData) ServiceParamValue(key string) (string, error) {
 
 	// Check cache for lookup value
-	if s.mtoShipmentID != nil {
+	if s.paramCache != nil && s.mtoShipmentID != nil {
 		paramCacheValue := s.paramCache.ParamValue(*s.mtoShipmentID, key)
 		if paramCacheValue != nil {
 			return *paramCacheValue, nil
@@ -157,7 +182,7 @@ func (s *ServiceItemParamKeyData) ServiceParamValue(key string) (string, error) 
 			return "", fmt.Errorf(" failed ServiceParamValue %sLookup with error %w", key, err)
 		}
 		// Save param value to cache
-		if s.mtoShipmentID != nil {
+		if s.paramCache != nil && s.mtoShipmentID != nil {
 			s.paramCache.addParamValue(*s.mtoShipmentID, key, value)
 		}
 		return value, nil

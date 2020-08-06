@@ -33,8 +33,7 @@ func (suite *ServiceParamValueLookupsSuite) TestZipDestAddressLookup() {
 					MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
 				},
 			})
-
-		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 
 		valueStr, err := paramLookup.ServiceParamValue(key)
 		suite.FatalNoError(err)
@@ -61,7 +60,7 @@ func (suite *ServiceParamValueLookupsSuite) TestZipDestAddressLookup() {
 				},
 			})
 
-		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 
 		valueStr, err := paramLookup.ServiceParamValue(key)
 		suite.Error(err)
@@ -91,7 +90,7 @@ func (suite *ServiceParamValueLookupsSuite) TestZipDestAddressLookup() {
 				},
 			})
 
-		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 
 		valueStr, err := paramLookup.ServiceParamValue(key)
 		suite.Error(err)
@@ -119,7 +118,7 @@ func (suite *ServiceParamValueLookupsSuite) TestZipDestAddressLookup() {
 
 		// Pass in a non-existent MTOServiceItemID
 		invalidMTOServiceItemID := uuid.Must(uuid.NewV4())
-		badParamLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, invalidMTOServiceItemID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		badParamLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, invalidMTOServiceItemID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 
 		valueStr, err := badParamLookup.ServiceParamValue(key)
 		suite.Error(err)

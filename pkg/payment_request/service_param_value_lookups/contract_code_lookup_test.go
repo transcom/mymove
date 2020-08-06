@@ -13,7 +13,7 @@ func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
 	key := models.ServiceItemParamNameContractCode.String()
 
 	// No database setup needed while this is stubbed out.
-	paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()))
+	paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 
 	suite.T().Run("golden path", func(t *testing.T) {
 		valueStr, err := paramLookup.ServiceParamValue(key)

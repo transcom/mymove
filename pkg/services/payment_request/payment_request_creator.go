@@ -62,6 +62,10 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			return fmt.Errorf("failure creating payment request <nil> for %s", mtoMessageString+prMessageString)
 		}
 
+		// Service Item Param Cache
+		serviceParamCache := serviceparamlookups.ServiceParamsCache{}
+		serviceParamCache.Initialize(p.db)
+
 		// Run the pricer within this transactional context
 		txPricer := p.pricer.UsingConnection(tx)
 
@@ -129,7 +133,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			}
 
 			// Get values for needed service item params (do lookups)
-			paramLookup := serviceparamlookups.ServiceParamLookupInitialize(tx, p.planner, paymentServiceItem.MTOServiceItemID, paymentServiceItem.ID, paymentRequestArg.MoveTaskOrderID, serviceparamlookups.ServiceParamsCache{})
+			paramLookup := serviceparamlookups.ServiceParamLookupInitialize(tx, p.planner, paymentServiceItem.MTOServiceItemID, paymentServiceItem.ID, paymentRequestArg.MoveTaskOrderID, &serviceParamCache)
 			for _, reServiceParam := range reServiceParams {
 				if _, found := incomingMTOServiceItemParams[reServiceParam.ServiceItemParamKey.Key.String()]; !found {
 					// create the missing service item param
