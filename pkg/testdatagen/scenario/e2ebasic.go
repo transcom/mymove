@@ -391,6 +391,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			MoveDocumentType:         "WEIGHT_TICKET",
 		},
 		Document: models.Document{
+			ID:              uuid.FromStringOrNil("c26421b0-e4c3-446b-88f3-493bb25c1756"),
 			ServiceMemberID: ppm3.Move.Orders.ServiceMember.ID,
 			ServiceMember:   ppm3.Move.Orders.ServiceMember,
 		},
@@ -972,6 +973,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			PrimeEstimatedWeight: &estimatedWeight,
 			PrimeActualWeight:    &actualWeight,
 			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
+			ApprovedDate:         swag.Time(time.Now()),
 		},
 		MoveTaskOrder: mto,
 	})
@@ -999,7 +1001,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 
 	msCost := unit.Cents(10000)
-	serviceItemMS := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+	serviceItemMS := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			ID:     uuid.FromStringOrNil("4fba4249-b5aa-4c29-8448-66aa07ac8560"),
 			Status: models.MTOServiceItemStatusApproved,
@@ -1019,9 +1021,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 
 	csCost := unit.Cents(25000)
-	serviceItemCS := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+	serviceItemCS := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID: uuid.FromStringOrNil("e43c0df3-0dcd-4b70-adaa-46d669e094ad"),
+			ID:     uuid.FromStringOrNil("e43c0df3-0dcd-4b70-adaa-46d669e094ad"),
+			Status: models.MTOServiceItemStatusApproved,
 		},
 		MoveTaskOrder: mto,
 		ReService: models.ReService{
@@ -1186,7 +1189,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			ID:                   uuid.FromStringOrNil("baa00811-2381-433e-8a96-2ced58e37a14"),
 			PrimeEstimatedWeight: &estimatedWeight,
 			PrimeActualWeight:    &actualWeight,
-			ShipmentType:         models.MTOShipmentTypeHHG,
+			ShipmentType:         models.MTOShipmentTypeHHGShortHaulDom,
+			ApprovedDate:         swag.Time(time.Now()),
 		},
 		MoveTaskOrder: mto7,
 	})
@@ -1214,9 +1218,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		MoveTaskOrder: mto7,
 	})
 
-	serviceItemMS7 := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+	serviceItemMS7 := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID: uuid.FromStringOrNil("923acbd4-5e65-4d62-aecc-19edf785df69"),
+			ID:     uuid.FromStringOrNil("923acbd4-5e65-4d62-aecc-19edf785df69"),
+			Status: models.MTOServiceItemStatusApproved,
 		},
 		MoveTaskOrder: mto7,
 		ReService: models.ReService{
@@ -1262,9 +1267,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		MoveTaskOrder: mto7,
 	})
 
-	serviceItemCS7 := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+	serviceItemCS7 := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID: uuid.FromStringOrNil("ab37c0a4-ad3f-44aa-b294-f9e646083cec"),
+			ID:     uuid.FromStringOrNil("ab37c0a4-ad3f-44aa-b294-f9e646083cec"),
+			Status: models.MTOServiceItemStatusApproved,
 		},
 		MoveTaskOrder: mto7,
 		ReService: models.ReService{
@@ -1437,6 +1443,9 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 
 	mtoShipment3 := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+		},
 		MoveTaskOrder: mto2,
 	})
 
@@ -1487,28 +1496,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.FromStringOrNil("76055c99-0990-410c-a7c9-69373b0b53eb"),
-			Status: models.MTOServiceItemStatusApproved,
-		},
-		MoveTaskOrder: mtoWithTaskOrderServices,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS
-		},
-	})
-
-	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.FromStringOrNil("05fbfad0-731f-4342-87e9-abe55566bb63"),
-			Status: models.MTOServiceItemStatusApproved,
-		},
-		MoveTaskOrder: mtoWithTaskOrderServices,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS
-		},
-	})
-
 	estimated := unit.Pound(1400)
 	mtoShipment4 := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
@@ -1516,6 +1503,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			RequestedPickupDate:  swag.Time(time.Now()),
 			ScheduledPickupDate:  swag.Time(time.Now().AddDate(0, 0, -1)),
 			PrimeEstimatedWeight: &estimated, // so we can price Dom. Destination Price
+			Status:               models.MTOShipmentStatusApproved,
+			ApprovedDate:         swag.Time(time.Now()),
 		},
 		MoveTaskOrder: mtoWithTaskOrderServices,
 	})
@@ -1541,6 +1530,28 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		MTOShipment:   mtoShipment4,
 		ReService: models.ReService{
 			ID: uuid.FromStringOrNil("4b85962e-25d3-4485-b43c-2497c4365598"), // DSH
+		},
+	})
+
+	testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:     uuid.FromStringOrNil("ca9aeb58-e5a9-44b0-abe8-81d233dbdebf"),
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		MoveTaskOrder: mtoWithTaskOrderServices,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
+		},
+	})
+
+	testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:     uuid.FromStringOrNil("722a6f4e-b438-4655-88c7-51609056550d"),
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		MoveTaskOrder: mtoWithTaskOrderServices,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
 		},
 	})
 }

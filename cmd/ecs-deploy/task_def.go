@@ -13,6 +13,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/arn"
+	"github.com/aws/aws-sdk-go/aws/endpoints"
 	"github.com/aws/aws-sdk-go/aws/request"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/private/protocol/json/jsonutil"
@@ -353,13 +354,15 @@ func buildSecrets(serviceSSM *ssm.SSM, awsRegion, awsAccountID, serviceName, env
 		},
 	}
 
+	partition, _ := endpoints.PartitionForRegion(endpoints.DefaultPartitions(), awsRegion)
+
 	for p.Next() {
 		page := p.Page().(*ssm.DescribeParametersOutput)
 
 		for _, parameter := range page.Parameters {
 			if strings.HasPrefix(*parameter.Name, fmt.Sprintf("/%s-%s", serviceName, environmentName)) {
 				parameterARN := arn.ARN{
-					Partition: "aws",
+					Partition: partition.ID(),
 					Service:   "ssm",
 					Region:    awsRegion,
 					AccountID: awsAccountID,
