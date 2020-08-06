@@ -12,6 +12,9 @@ type EndpointKeyType string
 // EndpointMapType is used to map EndpointKeyType to info about the endpoint
 type EndpointMapType map[EndpointKeyType]EndpointType
 
+// PrimeAPIName is a const string to use the EndpointTypes
+const PrimeAPIName string = "primeapi"
+
 var apiEndpoints = []EndpointMapType{
 	supportEndpoints,
 	ghcEndpoints,

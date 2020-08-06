@@ -495,7 +495,10 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 		return nil, services.NewNotFoundError(shipmentID, "Shipment not found")
 	}
 
-	if shipment.Status != models.MTOShipmentStatusSubmitted {
+	if shipment.Status == models.MTOShipmentStatusDraft && status != models.MTOShipmentStatusSubmitted {
+		return nil, ConflictStatusError{id: shipment.ID, transitionFromStatus: shipment.Status, transitionToStatus: models.MTOShipmentStatus(status)}
+	}
+	if shipment.Status != models.MTOShipmentStatusSubmitted && shipment.Status != models.MTOShipmentStatusDraft {
 		return nil, ConflictStatusError{id: shipment.ID, transitionFromStatus: shipment.Status, transitionToStatus: models.MTOShipmentStatus(status)}
 	} else if status != models.MTOShipmentStatusRejected {
 		rejectionReason = nil

@@ -2629,6 +2629,14 @@ definitions:
         x-nullable: true
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
+      status:
+        type: string
+        readOnly: true
+        enum:
+          - DRAFT
+          - APPROVED
+          - SUBMITTED
+          - REJECTED
       pickupAddress:
         $ref: '#/definitions/Address'
       destinationAddress:

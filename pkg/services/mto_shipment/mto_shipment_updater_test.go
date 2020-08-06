@@ -416,16 +416,32 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
 			ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
 			PrimeEstimatedWeight: &estimatedWeight,
+			Status:               models.MTOShipmentStatusSubmitted,
+		},
+	})
+	draftShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: mto,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusDraft,
 		},
 	})
 	shipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: mto,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
 	})
 	shipment3 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: mto,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
 	})
 	shipment4 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: mto,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
 	})
 	approvedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: mto,
@@ -521,6 +537,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 				ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
 				ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
 				PrimeEstimatedWeight: &estimatedWeight,
+				Status:               models.MTOShipmentStatusSubmitted,
 			},
 		})
 		shipmentHeavyEtag := etag.GenerateEtag(shipmentHeavy.UpdatedAt)
@@ -533,6 +550,12 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		suite.NoError(err)
 		// We also should have a required delivery date
 		suite.NotNil(fetchedShipment.RequiredDeliveryDate)
+	})
+
+	suite.T().Run("Update MTO Shipment status DRAFT to SUBMITTED should return no error", func(t *testing.T) {
+		eTag = etag.GenerateEtag(draftShipment.UpdatedAt)
+		_, err := updater.UpdateMTOShipmentStatus(draftShipment.ID, "SUBMITTED", nil, eTag)
+		suite.NoError(err)
 	})
 
 	suite.T().Run("Update MTO Shipment SUBMITTED status to REJECTED with a rejection reason should return no error", func(t *testing.T) {
@@ -595,6 +618,9 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	suite.T().Run("Changing to APPROVED status records approved_date", func(t *testing.T) {
 		shipment5 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MoveTaskOrder: mto,
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
 		})
 		eTag = etag.GenerateEtag(shipment5.UpdatedAt)
 
@@ -609,6 +635,9 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	suite.T().Run("Changing to a non-APPROVED status does not record approved_date", func(t *testing.T) {
 		shipment6 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MoveTaskOrder: mto,
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
 		})
 		eTag = etag.GenerateEtag(shipment6.UpdatedAt)
 		rejectionReason := "reason"
