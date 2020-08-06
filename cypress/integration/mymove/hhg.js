@@ -114,7 +114,15 @@ function customerFillsOutOrdersInformation() {
 function customerSetsUpAnHHGMove() {
   cy.get('input[type="radio"]').last().check({ force: true });
   cy.nextPage();
-  cy.get('input[name="requestedPickupDate"]').first().type('08/02/2020').blur();
+
+  cy.get('button[class="usa-button next"]').should('be.disabled');
+
+  cy.get('input[name="requestedPickupDate"]').focus().blur();
+  cy.get('[class="usa-error-message"]').contains('Required');
+  cy.get('input[name="requestedPickupDate"]').type('08/02/2020').blur();
+  cy.get('[class="usa-error-message"]').should('not.exist');
+
+  cy.get('button[class="usa-button next"]').should('be.disabled');
 
   // should be empty before using "Use current residence" checkbox
   cy.get(`[data-testid="mailingAddress1"]`).first().should('be.empty');
@@ -122,31 +130,90 @@ function customerSetsUpAnHHGMove() {
   cy.get(`[data-testid="state"]`).first().should('be.empty');
   cy.get(`[data-testid="zip"]`).first().should('be.empty');
 
+  // should have expected "Required" error for required fields
+  cy.get(`[data-testid="mailingAddress1"]`).first().focus().blur();
+  cy.get('[class="usa-error-message"]').contains('Required');
+  cy.get(`[data-testid="mailingAddress1"]`).first().type('Some address');
+  cy.get('[class="usa-error-message"]').should('not.exist');
+
+  cy.get(`[data-testid="city"]`).first().focus().blur();
+  cy.get('[class="usa-error-message"]').contains('Required');
+  cy.get(`[data-testid="city"]`).first().type('Some city');
+  cy.get('[class="usa-error-message"]').should('not.exist');
+
+  cy.get(`[data-testid="state"]`).first().focus().blur();
+  cy.get('[class="usa-error-message"]').contains('Required');
+  cy.get(`[data-testid="state"]`).first().type('CA');
+  cy.get('[class="usa-error-message"]').should('not.exist');
+
+  cy.get(`[data-testid="zip"]`).first().focus().blur();
+  cy.get('[class="usa-error-message"]').contains('Required');
+  cy.get(`[data-testid="zip"]`).first().type('9').blur();
+  cy.get('[class="usa-error-message"]').contains('Must be valid zip code');
+  cy.get(`[data-testid="zip"]`).first().type('1111').blur();
+  cy.get('[class="usa-error-message"]').should('not.exist');
+
+  // Next button disabled
+  cy.get('button[class="usa-button next"]').should('be.disabled');
+
+  // overwrites data typed from above
   cy.get(`input[name="useCurrentResidence"]`).check({ force: true });
 
   // releasing agent
   cy.get(`[data-testid="firstName"]`).first().type('John');
   cy.get(`[data-testid="lastName"]`).first().type('Lee');
-  cy.get(`[data-testid="phone"]`).first().type('999-999-9999');
-  cy.get(`[data-testid="email"]`).first().type('ron@example.com');
+  cy.get(`[data-testid="phone"]`).first().type('9999999999');
+  cy.get(`[data-testid="email"]`).first().type('ron').blur();
+  cy.get('[class="usa-error-message"]').contains('Must be valid email');
+  cy.get(`[data-testid="email"]`).first().type('@example.com');
+  cy.get('[class="usa-error-message"]').should('not.exist');
+
+  cy.get('button[class="usa-button next"]').should('be.disabled');
 
   // requested delivery date
   cy.get('input[name="requestedDeliveryDate"]').first().type('09/20/2020').blur();
+
+  cy.get('button[class="usa-button next"]').should('be.disabled');
   // checks has delivery address (default does not have delivery address)
   cy.get('input[type="radio"]').first().check({ force: true });
 
   // delivery location
-  cy.get(`[data-testid="mailingAddress1"]`).last().type('412 Avenue M ');
+
+  cy.get(`[data-testid="mailingAddress1"]`).last().focus().blur();
+  cy.get('[class="usa-error-message"]').contains('Required');
+  cy.get(`[data-testid="mailingAddress1"]`).last().type('412 Avenue M');
+  cy.get('[class="usa-error-message"]').should('not.exist');
+
   cy.get(`[data-testid="mailingAddress2"]`).last().type('#3E');
+
+  cy.get(`[data-testid="city"]`).last().focus().blur();
+  cy.get('[class="usa-error-message"]').contains('Required');
   cy.get(`[data-testid="city"]`).last().type('Los Angeles');
+  cy.get('[class="usa-error-message"]').should('not.exist');
+
+  cy.get(`[data-testid="state"]`).last().focus().blur();
+  cy.get('[class="usa-error-message"]').contains('Required');
   cy.get(`[data-testid="state"]`).last().type('CA');
-  cy.get(`[data-testid="zip"]`).last().type('90011');
+  cy.get('[class="usa-error-message"]').should('not.exist');
+
+  cy.get(`[data-testid="zip"]`).last().focus().blur();
+  cy.get('[class="usa-error-message"]').contains('Required');
+  cy.get(`[data-testid="zip"]`).last().type('9').blur();
+  cy.get('[class="usa-error-message"]').contains('Must be valid zip code');
+  cy.get(`[data-testid="zip"]`).last().type('1111').blur();
+  cy.get('[class="usa-error-message"]').should('not.exist');
+
+  // Next button should be enabled because all required information is filled out
+  cy.get('button[class="usa-button next"]').should('be.enabled');
 
   // releasing agent
   cy.get(`[data-testid="firstName"]`).last().type('John');
   cy.get(`[data-testid="lastName"]`).last().type('Lee');
-  cy.get(`[data-testid="phone"]`).last().type('999-999-9999');
-  cy.get(`[data-testid="email"]`).last().type('ron@example.com');
+  cy.get(`[data-testid="phone"]`).last().type('9999999999');
+  cy.get(`[data-testid="email"]`).last().type('ron').blur();
+  cy.get('[class="usa-error-message"]').contains('Must be valid email');
+  cy.get(`[data-testid="email"]`).last().type('@example.com');
+  cy.get('[class="usa-error-message"]').should('not.exist');
 
   // customer remarks
   cy.get(`[data-testid="remarks"]`).first().type('some customer remark');
@@ -159,7 +226,6 @@ function customerSetsUpAnHHGMove() {
 
 function customerReviewsMoveDetails() {
   cy.get('h2').contains('Review Move Details');
-
   cy.nextPage();
 }
 
