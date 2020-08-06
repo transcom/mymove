@@ -41,6 +41,8 @@ const (
 type MTOShipmentStatus string
 
 const (
+	// MTOShipmentStatusDraft is the draft status type for MTO Shipments
+	MTOShipmentStatusDraft MTOShipmentStatus = "DRAFT"
 	// MTOShipmentStatusSubmitted is the submitted status type for MTO Shipments
 	MTOShipmentStatusSubmitted MTOShipmentStatus = "SUBMITTED"
 	// MTOShipmentStatusApproved is the approved status type for MTO Shipments
@@ -93,6 +95,7 @@ func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		string(MTOShipmentStatusApproved),
 		string(MTOShipmentStatusRejected),
 		string(MTOShipmentStatusSubmitted),
+		string(MTOShipmentStatusDraft),
 	}})
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.MoveTaskOrderID, Name: "MoveTaskOrderID"})
 	if m.PrimeEstimatedWeight != nil {

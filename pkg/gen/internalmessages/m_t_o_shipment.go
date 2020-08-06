@@ -6,6 +6,8 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
+
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -64,6 +66,11 @@ type MTOShipment struct {
 	// shipment type
 	ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
 
+	// status
+	// Read Only: true
+	// Enum: [DRAFT APPROVED SUBMITTED REJECTED]
+	Status string `json:"status,omitempty"`
+
 	// updated at
 	// Read Only: true
 	// Format: date-time
@@ -115,6 +122,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateShipmentType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -291,6 +302,55 @@ func (m *MTOShipment) validateShipmentType(formats strfmt.Registry) error {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("shipmentType")
 		}
+		return err
+	}
+
+	return nil
+}
+
+var mTOShipmentTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["DRAFT","APPROVED","SUBMITTED","REJECTED"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		mTOShipmentTypeStatusPropEnum = append(mTOShipmentTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// MTOShipmentStatusDRAFT captures enum value "DRAFT"
+	MTOShipmentStatusDRAFT string = "DRAFT"
+
+	// MTOShipmentStatusAPPROVED captures enum value "APPROVED"
+	MTOShipmentStatusAPPROVED string = "APPROVED"
+
+	// MTOShipmentStatusSUBMITTED captures enum value "SUBMITTED"
+	MTOShipmentStatusSUBMITTED string = "SUBMITTED"
+
+	// MTOShipmentStatusREJECTED captures enum value "REJECTED"
+	MTOShipmentStatusREJECTED string = "REJECTED"
+)
+
+// prop value enum
+func (m *MTOShipment) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, mTOShipmentTypeStatusPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *MTOShipment) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateStatusEnum("status", "body", m.Status); err != nil {
 		return err
 	}
 
