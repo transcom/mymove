@@ -1,1 +1,0 @@
-DELETE FROM service_item_param_keys WHERE id in ('f84159a2-62b9-468b-a1cd-4014f8fb0075', '6089319e-3cff-4f99-a5a1-c4c1119957fa', '1d861c97-05d4-446f-8d2c-6b0502a74f53', '10c87582-b612-47c3-beef-042bf73769b7')
