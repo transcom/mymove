@@ -617,12 +617,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	handlerContext.SetFeatureFlag(
 		handlers.FeatureFlag{Name: cli.FeatureFlagAccessCode, Active: v.GetBool(cli.FeatureFlagAccessCode)},
 	)
-	handlerContext.SetFeatureFlag(
-		handlers.FeatureFlag{Name: cli.FeatureFlagConvertPPMsToGHC, Active: v.GetBool(cli.FeatureFlagConvertPPMsToGHC)},
-	)
-	handlerContext.SetFeatureFlag(
-		handlers.FeatureFlag{Name: cli.FeatureFlagConvertProfileOrdersToGHC, Active: v.GetBool(cli.FeatureFlagConvertProfileOrdersToGHC)},
-	)
 
 	// Set the ICNSequencer in the handler: if we are in dev/test mode and sending to a real
 	// GEX URL, then we should use a random ICN number within a defined range to avoid duplicate

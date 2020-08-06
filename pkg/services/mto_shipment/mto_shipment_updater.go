@@ -543,7 +543,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 		// More info in MB-1140: https://dp3.atlassian.net/browse/MB-1140
 		var serviceItemsToCreate models.MTOServiceItems
 		switch shipment.ShipmentType {
-		case models.MTOShipmentTypeHHGLongHaulDom:
+		case models.MTOShipmentTypeHHG, models.MTOShipmentTypeHHGLongHaulDom:
 			//Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, and Dom Unpacking.
 			reServiceCodes := []models.ReServiceCode{
 				models.ReServiceCodeDLH,
