@@ -3,12 +3,14 @@ package serviceparamvaluelookups
 import (
 	"strconv"
 	"testing"
-	"time"
 
+	"github.com/gobuffalo/pop"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
+
+/*
 
 type createParams struct {
 	key     models.ServiceItemParamName
@@ -22,6 +24,136 @@ const (
 
 var csAvailableToPrimeAt = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
 
+ */
+
+
+func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
+	// Create some records we'll need to link to
+
+	pop.Debug = true
+
+	moveTaskOrder := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+
+	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
+		testdatagen.Assertions{
+			PaymentRequest: models.PaymentRequest{
+				MoveTaskOrderID: moveTaskOrder.ID,
+			},
+		})
+
+	estimatedWeight := unit.Pound(2048)
+	mtoShipment1 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: moveTaskOrder})
+	mtoShipment1.PrimeEstimatedWeight = &estimatedWeight
+	suite.MustSave(&mtoShipment1)
+
+	reService1 := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+		ReService: models.ReService{
+			Code:      "DLH",
+		},
+	})
+
+	reService2 := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+		ReService: models.ReService{
+			Code:      "DOP",
+		},
+	})
+
+	mtoServiceItem1 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: moveTaskOrder,
+		ReService: reService1,
+		MTOShipment: mtoShipment1,
+	})
+	mtoServiceItem2 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: moveTaskOrder,
+		ReService: reService2,
+		MTOShipment: mtoShipment1,
+	})
+
+
+	mtoShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: moveTaskOrder})
+
+	mtoServiceItem3 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: moveTaskOrder,
+		ReService: models.ReService{
+			Code: "MS",
+		},
+		MTOShipment: mtoShipment2,
+	})
+
+	serviceItemParamKey1 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:         models.ServiceItemParamNameWeightEstimated,
+			Description: "estimated weight",
+			Type:        models.ServiceItemParamTypeInteger,
+			Origin:      models.ServiceItemParamOriginPrime,
+		},
+	})
+	serviceItemParamKey2 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			Key:         models.ServiceItemParamNameRequestedPickupDate,
+			Description: "requested pickup date",
+			Type:        models.ServiceItemParamTypeDate,
+			Origin:      models.ServiceItemParamOriginPrime,
+		},
+	})
+
+	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             mtoServiceItem1.ReServiceID,
+			ServiceItemParamKeyID: serviceItemParamKey1.ID,
+			ServiceItemParamKey:   serviceItemParamKey1,
+		},
+	})
+
+	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             mtoServiceItem1.ReServiceID,
+			ServiceItemParamKeyID: serviceItemParamKey2.ID,
+			ServiceItemParamKey:   serviceItemParamKey2,
+		},
+	})
+
+	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             mtoServiceItem2.ReServiceID,
+			ServiceItemParamKeyID: serviceItemParamKey1.ID,
+			ServiceItemParamKey:   serviceItemParamKey1,
+		},
+	})
+
+	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             mtoServiceItem3.ReServiceID,
+			ServiceItemParamKeyID: serviceItemParamKey2.ID,
+			ServiceItemParamKey:   serviceItemParamKey2,
+		},
+	})
+
+
+	paramCache := ServiceParamsCache{}
+	paramCache.Initialize(suite.DB())
+
+	paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem1.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, &paramCache)
+
+	suite.T().Run("Shipment 1 " + serviceItemParamKey1.Key.String(), func(t *testing.T) {
+		distanceStr, err := paramLookup.ServiceParamValue(serviceItemParamKey1.Key.String())
+		suite.FatalNoError(err)
+		expected := strconv.Itoa(defaultDistance)
+		suite.Equal(expected, distanceStr)
+	})
+
+	suite.T().Run("Shipment 1 " + serviceItemParamKey2.Key.String(), func(t *testing.T) {
+		distanceStr, err := paramLookup.ServiceParamValue(serviceItemParamKey2.Key.String())
+		suite.FatalNoError(err)
+		expected := strconv.Itoa(defaultDistance)
+		suite.Equal(expected, distanceStr)
+	})
+
+}
+
+/*
 
 func (suite *ServiceParamValueLookupsSuite) TestParamCacheDistanceZip3Lookup() {
 	key := models.ServiceItemParamNameDistanceZip3.String()
@@ -34,6 +166,26 @@ func (suite *ServiceParamValueLookupsSuite) TestParamCacheDistanceZip3Lookup() {
 				MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
 			},
 		})
+
+
+	//serviceItemsToCreate := make(map[models.ReServiceCode][]createParams)
+
+	serviceItemsToCreate := map[models.ReServiceCode][]createParams{
+		models.ReServiceCodeCS: {
+			{
+				models.ServiceItemParamNameContractCode,
+				models.ServiceItemParamTypeString,
+				testdatagen.DefaultContractCode,
+			},
+			{
+				models.ServiceItemParamNameMTOAvailableToPrimeAt,
+				models.ServiceItemParamTypeTimestamp,
+				csAvailableToPrimeAt.Format(ghcrateengine.TimestampParamFormat),
+			},
+		},
+	}
+
+
 
 	paramCache := ServiceParamsCache{}
 	paramCache.Initialize(suite.DB())
@@ -140,3 +292,5 @@ func (suite *ServiceParamValueLookupsSuite) setupPaymentServiceItemWithParams(se
 
 	return paymentServiceItem
 }
+
+ */
