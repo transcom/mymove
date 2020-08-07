@@ -54,7 +54,7 @@ func ServiceParamLookupInitialize(
 
 	var mtoShipment models.MTOShipment
 	switch mtoServiceItem.ReService.Code {
-	case models.ReServiceCodeCS:
+	case models.ReServiceCodeCS, models.ReServiceCodeMS:
 		// Do nothing, these service items don't use the MTOShipment
 	default:
 		// Make sure there's an MTOShipment since that's nullable

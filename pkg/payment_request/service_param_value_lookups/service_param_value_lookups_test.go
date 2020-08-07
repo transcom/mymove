@@ -78,6 +78,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	// Setup data for testing service items not dependent on the shipment
 	serviceCodesWithoutShipment := []models.ReServiceCode{
 		models.ReServiceCodeCS,
+		models.ReServiceCodeMS,
 	}
 
 	for _, code := range serviceCodesWithoutShipment {
