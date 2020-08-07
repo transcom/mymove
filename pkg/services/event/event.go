@@ -113,8 +113,8 @@ func TriggerEvent(event Event) (*Event, error) {
 	}
 	// Check endpointKey if exists
 	if event.EndpointKey != "" {
-		_, success = endpoints[event.EndpointKey]
-		if !success {
+		result := GetEndpointAPI(event.EndpointKey)
+		if result == nil {
 			err := services.NewEventError(fmt.Sprintf("Endpoint Key %s was not found in endpoints. Must use known endpoint key.", event.EndpointKey), nil)
 			return nil, err
 		}
