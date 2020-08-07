@@ -70,35 +70,4 @@ func (suite *ServiceParamValueLookupsSuite) TestZipDestAddressLookup() {
 		suite.Contains(err.Error(), expected)
 		suite.Equal("", valueStr)
 	})
-
-	suite.T().Run("nil MTOShipmentID", func(t *testing.T) {
-		// Set the MTOShipmentID to nil
-		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
-			testdatagen.Assertions{
-				ReService: models.ReService{
-					Code: models.ReServiceCodeDLH,
-					Name: "Domestic Line Haul",
-				},
-			})
-
-		mtoServiceItem.MTOShipmentID = nil
-		suite.MustSave(&mtoServiceItem)
-
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
-			testdatagen.Assertions{
-				PaymentRequest: models.PaymentRequest{
-					MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
-				},
-			})
-
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
-		suite.FatalNoError(err)
-
-		valueStr, err := paramLookup.ServiceParamValue(key)
-		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, errors.Unwrap(err))
-		expected := fmt.Sprintf("looking for MTOShipmentID")
-		suite.Contains(err.Error(), expected)
-		suite.Equal("", valueStr)
-	})
 }

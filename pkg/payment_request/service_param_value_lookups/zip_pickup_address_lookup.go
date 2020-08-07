@@ -12,39 +12,28 @@ import (
 
 // ZipPickupAddressLookup does lookup on the postal code for the pickup address
 type ZipPickupAddressLookup struct {
+	MTOShipment models.MTOShipment
 }
 
 func (r ZipPickupAddressLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
 	db := *keyData.db
 
-	// Get the MTOServiceItem and associated MTOShipment
-	mtoServiceItemID := keyData.MTOServiceItemID
-	var mtoServiceItem models.MTOServiceItem
-	err := db.Eager("MTOShipment", "MTOShipment.PickupAddress").Find(&mtoServiceItem, mtoServiceItemID)
+	// Make sure there's a pickup and destination address since those are nullable
+	pickupAddressID := r.MTOShipment.PickupAddressID
+	if pickupAddressID == nil {
+		return "", services.NewNotFoundError(uuid.Nil, "looking for PickupAddressID")
+	}
+	var pickupAddress models.Address
+	err := db.Find(&pickupAddress, r.MTOShipment.PickupAddressID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return "", services.NewNotFoundError(mtoServiceItemID, "looking for MTOServiceItemID")
+			return "", services.NewNotFoundError(*r.MTOShipment.PickupAddressID, "looking for PickupAddressID")
 		default:
 			return "", err
 		}
 	}
 
-	// Make sure there's an MTOShipment since that's nullable
-	mtoShipmentID := mtoServiceItem.MTOShipmentID
-	if mtoShipmentID == nil {
-		return "", services.NewNotFoundError(uuid.Nil, "looking for MTOShipmentID")
-	}
-
-	// Make sure there's a pickup address zip code since pickupAddress is nullable
-	pickupAddress := mtoServiceItem.MTOShipment.PickupAddress
-
-	if pickupAddress == nil {
-		return "", fmt.Errorf("could not find pickup address for MTOShipment [%s]", mtoShipmentID)
-	}
-
-	zipPickupAddress := pickupAddress.PostalCode
-
-	value := fmt.Sprintf("%s", zipPickupAddress)
+	value := fmt.Sprintf("%s", pickupAddress.PostalCode)
 	return value, nil
 }

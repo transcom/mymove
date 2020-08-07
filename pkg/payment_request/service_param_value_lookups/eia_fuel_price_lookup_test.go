@@ -49,25 +49,6 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 		suite.Equal("243799", valueStr)
 	})
 
-	suite.T().Run("No MTO shipment found", func(t *testing.T) {
-		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{})
-		mtoServiceItem.MTOShipmentID = nil
-		err := suite.DB().Save(&mtoServiceItem)
-		suite.NoError(err)
-
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
-			testdatagen.Assertions{
-				PaymentRequest: models.PaymentRequest{
-					MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
-				},
-			})
-
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
-		suite.FatalNoError(err)
-		_, err = paramLookup.ServiceParamValue(key)
-		suite.Error(err)
-	})
-
 	suite.T().Run("No MTO shipment pickup date found", func(t *testing.T) {
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{})
 

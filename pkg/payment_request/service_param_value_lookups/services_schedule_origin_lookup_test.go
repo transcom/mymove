@@ -1,12 +1,10 @@
 package serviceparamvaluelookups
 
 import (
-	"errors"
 	"fmt"
 	"testing"
 
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -84,30 +82,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServicesScheduleOrigin() {
 		suite.FatalNoError(err)
 		valueStr, err := paramLookup.ServiceParamValue(key)
 		suite.Error(err)
-		expected := fmt.Sprintf("could not find pickup address for MTOShipment [%s]", mtoServiceItem.MTOShipment.ID)
-		suite.Contains(err.Error(), expected)
-		suite.Equal("", valueStr)
-	})
-
-	suite.T().Run("nil MTOShipment ID", func(t *testing.T) {
-		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				PostalCode: "45007",
-			},
-		})
-		mtoServiceItem.MTOShipmentID = nil
-		suite.MustSave(&mtoServiceItem)
-
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
-			testdatagen.Assertions{
-				MoveTaskOrder: mtoServiceItem.MoveTaskOrder,
-			})
-
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
-		suite.FatalNoError(err)
-		valueStr, err := paramLookup.ServiceParamValue(key)
-		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, errors.Unwrap(err))
+		suite.Contains(err.Error(), "looking for PickupAddressID")
 		suite.Equal("", valueStr)
 	})
 }

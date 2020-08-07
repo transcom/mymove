@@ -13,19 +13,19 @@ import (
 func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 	key := models.ServiceItemParamNameDistanceZip3.String()
 
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{})
-
-	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
-		testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
-			},
-		})
-
-	paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
-	suite.FatalNoError(err)
-
 	suite.T().Run("Calculate zip3 distance", func(t *testing.T) {
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{})
+
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
+			testdatagen.Assertions{
+				PaymentRequest: models.PaymentRequest{
+					MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
+				},
+			})
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		suite.FatalNoError(err)
+
 		distanceStr, err := paramLookup.ServiceParamValue(key)
 		suite.FatalNoError(err)
 		expected := strconv.Itoa(defaultDistance)
@@ -33,50 +33,49 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 	})
 
 	suite.T().Run("nil PickupAddressID", func(t *testing.T) {
-		oldPickupAddressID := mtoServiceItem.MTOShipment.PickupAddressID
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{})
+
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
+			testdatagen.Assertions{
+				PaymentRequest: models.PaymentRequest{
+					MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
+				},
+			})
 
 		mtoServiceItem.MTOShipment.PickupAddress = nil
 		mtoServiceItem.MTOShipment.PickupAddressID = nil
 		suite.MustSave(&mtoServiceItem.MTOShipment)
 
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		suite.FatalNoError(err)
+
 		valueStr, err := paramLookup.ServiceParamValue(key)
 
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, errors.Unwrap(err))
 		suite.Equal("", valueStr)
-
-		mtoServiceItem.MTOShipment.PickupAddressID = oldPickupAddressID
-		suite.MustSave(&mtoServiceItem.MTOShipment)
 	})
 
 	suite.T().Run("nil DestinationAddressID", func(t *testing.T) {
-		oldDestinationAddressID := mtoServiceItem.MTOShipment.PickupAddressID
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{})
+
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
+			testdatagen.Assertions{
+				PaymentRequest: models.PaymentRequest{
+					MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
+				},
+			})
 
 		mtoServiceItem.MTOShipment.DestinationAddress = nil
 		mtoServiceItem.MTOShipment.DestinationAddressID = nil
 		suite.MustSave(&mtoServiceItem.MTOShipment)
 
-		valueStr, err := paramLookup.ServiceParamValue(key)
-		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, errors.Unwrap(err))
-		suite.Equal("", valueStr)
-
-		mtoServiceItem.MTOShipment.PickupAddressID = oldDestinationAddressID
-		suite.MustSave(&mtoServiceItem.MTOShipment)
-	})
-
-	suite.T().Run("nil MTOShipmentID", func(t *testing.T) {
-		// Set the MTOShipmentID to nil
-		oldMTOShipmentID := mtoServiceItem.MTOShipmentID
-		mtoServiceItem.MTOShipmentID = nil
-		suite.MustSave(&mtoServiceItem)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		suite.FatalNoError(err)
 
 		valueStr, err := paramLookup.ServiceParamValue(key)
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, errors.Unwrap(err))
 		suite.Equal("", valueStr)
-
-		mtoServiceItem.MTOShipmentID = oldMTOShipmentID
-		suite.MustSave(&mtoServiceItem)
 	})
 }

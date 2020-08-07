@@ -1,11 +1,7 @@
 package serviceparamvaluelookups
 
 import (
-	"errors"
-	"fmt"
 	"testing"
-
-	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -39,10 +35,10 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceAreaOrigin() {
 		},
 	})
 
-	paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
-	suite.FatalNoError(err)
-
 	suite.T().Run("golden path", func(t *testing.T) {
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		suite.FatalNoError(err)
+
 		valueStr, err := paramLookup.ServiceParamValue(key)
 		suite.FatalNoError(err)
 		suite.Equal("004", valueStr)
@@ -55,28 +51,15 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceAreaOrigin() {
 		mtoServiceItem.MTOShipment.PickupAddressID = nil
 		suite.MustSave(&mtoServiceItem.MTOShipment)
 
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		suite.FatalNoError(err)
+
 		valueStr, err := paramLookup.ServiceParamValue(key)
 		suite.Error(err)
-		expected := fmt.Sprintf("could not find pickup address for MTOShipment [%s]", mtoServiceItem.MTOShipment.ID)
-		suite.Contains(err.Error(), expected)
+		suite.Contains(err.Error(), "looking for PickupAddressID")
 		suite.Equal("", valueStr)
 
 		mtoServiceItem.MTOShipment.PickupAddressID = oldPickupAddressID
 		suite.MustSave(&mtoServiceItem.MTOShipment)
-	})
-
-	suite.T().Run("nil MTOShipment ID", func(t *testing.T) {
-		// Set the MTOShipmentID to nil
-		oldMTOShipmentID := mtoServiceItem.MTOShipmentID
-		mtoServiceItem.MTOShipmentID = nil
-		suite.MustSave(&mtoServiceItem)
-
-		valueStr, err := paramLookup.ServiceParamValue(key)
-		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, errors.Unwrap(err))
-		suite.Equal("", valueStr)
-
-		mtoServiceItem.MTOShipmentID = oldMTOShipmentID
-		suite.MustSave(&mtoServiceItem)
 	})
 }

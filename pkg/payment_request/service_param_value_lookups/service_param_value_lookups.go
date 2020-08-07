@@ -40,15 +40,35 @@ func ServiceParamLookupInitialize(
 	moveTaskOrderID uuid.UUID,
 ) (*ServiceItemParamKeyData, error) {
 
-	// Get the MTOServiceItem and associated MTOShipment
+	// Get the MTOServiceItem
 	var mtoServiceItem models.MTOServiceItem
-	err := db.Find(&mtoServiceItem, mtoServiceItemID)
+	err := db.Eager("ReService").Find(&mtoServiceItem, mtoServiceItemID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			return nil, services.NewNotFoundError(mtoServiceItemID, "looking for MTOServiceItemID")
 		default:
 			return nil, err
+		}
+	}
+
+	var mtoShipment models.MTOShipment
+	switch mtoServiceItem.ReService.Code {
+	case models.ReServiceCodeCS:
+		// Do nothing, these service items don't use the MTOShipment
+	default:
+		// Make sure there's an MTOShipment since that's nullable
+		if mtoServiceItem.MTOShipmentID == nil {
+			return nil, services.NewNotFoundError(uuid.Nil, "looking for MTOShipmentID")
+		}
+		err := db.Find(&mtoShipment, mtoServiceItem.MTOShipmentID)
+		if err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				return nil, services.NewNotFoundError(mtoServiceItemID, "looking for MTOServiceItemID")
+			default:
+				return nil, err
+			}
 		}
 	}
 
@@ -77,23 +97,53 @@ func ServiceParamLookupInitialize(
 		s.lookups[key] = NotImplementedLookup{}
 	}
 
-	s.lookups[models.ServiceItemParamNameRequestedPickupDate.String()] = RequestedPickupDateLookup{}
-	s.lookups[models.ServiceItemParamNameDistanceZip5.String()] = DistanceZip5Lookup{}
-	s.lookups[models.ServiceItemParamNameDistanceZip3.String()] = DistanceZip3Lookup{}
-	s.lookups[models.ServiceItemParamNameWeightBilledActual.String()] = WeightBilledActualLookup{}
-	s.lookups[models.ServiceItemParamNameWeightEstimated.String()] = WeightEstimatedLookup{}
-	s.lookups[models.ServiceItemParamNameWeightActual.String()] = WeightActualLookup{}
-	s.lookups[models.ServiceItemParamNameZipPickupAddress.String()] = ZipPickupAddressLookup{}
-	s.lookups[models.ServiceItemParamNameZipDestAddress.String()] = ZipDestAddressLookup{}
+	s.lookups[models.ServiceItemParamNameRequestedPickupDate.String()] = RequestedPickupDateLookup{
+		MTOShipment: mtoShipment,
+	}
+	s.lookups[models.ServiceItemParamNameDistanceZip5.String()] = DistanceZip5Lookup{
+		MTOShipment: mtoShipment,
+	}
+	s.lookups[models.ServiceItemParamNameDistanceZip3.String()] = DistanceZip3Lookup{
+		MTOShipment: mtoShipment,
+	}
+	s.lookups[models.ServiceItemParamNameWeightBilledActual.String()] = WeightBilledActualLookup{
+		MTOShipment: mtoShipment,
+	}
+	s.lookups[models.ServiceItemParamNameWeightEstimated.String()] = WeightEstimatedLookup{
+		MTOShipment: mtoShipment,
+	}
+	s.lookups[models.ServiceItemParamNameWeightActual.String()] = WeightActualLookup{
+		MTOShipment: mtoShipment,
+	}
+	s.lookups[models.ServiceItemParamNameZipPickupAddress.String()] = ZipPickupAddressLookup{
+		MTOShipment: mtoShipment,
+	}
+	s.lookups[models.ServiceItemParamNameZipDestAddress.String()] = ZipDestAddressLookup{
+		MTOShipment: mtoShipment,
+	}
 	s.lookups[models.ServiceItemParamNameMTOAvailableToPrimeAt.String()] = MTOAvailableToPrimeAtLookup{}
-	s.lookups[models.ServiceItemParamNameServiceAreaOrigin.String()] = ServiceAreaOriginLookup{}
-	s.lookups[models.ServiceItemParamNameServiceAreaDest.String()] = ServiceAreaDestLookup{}
+	s.lookups[models.ServiceItemParamNameServiceAreaOrigin.String()] = ServiceAreaOriginLookup{
+		MTOShipment: mtoShipment,
+	}
+	s.lookups[models.ServiceItemParamNameServiceAreaDest.String()] = ServiceAreaDestLookup{
+		MTOShipment: mtoShipment,
+	}
 	s.lookups[models.ServiceItemParamNameContractCode.String()] = ContractCodeLookup{}
-	s.lookups[models.ServiceItemParamNamePSILinehaulDom.String()] = PSILinehaulDomLookup{}
-	s.lookups[models.ServiceItemParamNamePSILinehaulDomPrice.String()] = PSILinehaulDomPriceLookup{}
-	s.lookups[models.ServiceItemParamNameEIAFuelPrice.String()] = EIAFuelPriceLookup{}
-	s.lookups[models.ServiceItemParamNameServicesScheduleDest.String()] = ServicesScheduleDestLookup{}
-	s.lookups[models.ServiceItemParamNameServicesScheduleOrigin.String()] = ServicesScheduleOriginLookup{}
+	s.lookups[models.ServiceItemParamNamePSILinehaulDom.String()] = PSILinehaulDomLookup{
+		MTOShipment: mtoShipment,
+	}
+	s.lookups[models.ServiceItemParamNamePSILinehaulDomPrice.String()] = PSILinehaulDomPriceLookup{
+		MTOShipment: mtoShipment,
+	}
+	s.lookups[models.ServiceItemParamNameEIAFuelPrice.String()] = EIAFuelPriceLookup{
+		MTOShipment: mtoShipment,
+	}
+	s.lookups[models.ServiceItemParamNameServicesScheduleOrigin.String()] = ServicesScheduleOriginLookup{
+		MTOShipment: mtoShipment,
+	}
+	s.lookups[models.ServiceItemParamNameServicesScheduleDest.String()] = ServicesScheduleDestLookup{
+		MTOShipment: mtoShipment,
+	}
 
 	return &s, nil
 }

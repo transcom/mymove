@@ -13,37 +13,29 @@ import (
 
 // ZipDestAddressLookup does lookup on actual weight billed
 type ZipDestAddressLookup struct {
+	MTOShipment models.MTOShipment
 }
 
 func (r ZipDestAddressLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
 	db := *keyData.db
 
-	// Get the MTOServiceItem and associated MTOShipment
-	mtoServiceItemID := keyData.MTOServiceItemID
-	var mtoServiceItem models.MTOServiceItem
-	err := db.Eager("ReService", "MTOShipment", "MTOShipment.DestinationAddress").Find(&mtoServiceItem, mtoServiceItemID)
+	// Make sure there's a destination address since those are nullable
+	destinationAddressID := r.MTOShipment.DestinationAddressID
+	if destinationAddressID == nil {
+		return "", services.NewNotFoundError(uuid.Nil, "looking for DestinationAddressID")
+	}
+
+	var destinationAddress models.Address
+	err := db.Find(&destinationAddress, r.MTOShipment.DestinationAddressID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return "", services.NewNotFoundError(mtoServiceItemID, "looking for MTOServiceItemID")
+			return "", services.NewNotFoundError(*r.MTOShipment.DestinationAddressID, "looking for DestinationAddressID")
 		default:
 			return "", err
 		}
 	}
 
-	// Make sure there's an MTOShipment since that's nullable
-	mtoShipmentID := mtoServiceItem.MTOShipmentID
-	if mtoShipmentID == nil {
-		return "", services.NewNotFoundError(uuid.Nil, "looking for MTOShipmentID")
-	}
-
-	// Make sure there's a destination address since those are nullable
-	destAddressID := mtoServiceItem.MTOShipment.DestinationAddressID
-	if destAddressID == nil || *destAddressID == uuid.Nil {
-		//check for string of all zeros
-		return "", services.NewNotFoundError(uuid.Nil, "looking for DestinationAddressID")
-	}
-
-	value := fmt.Sprintf("%+v", mtoServiceItem.MTOShipment.DestinationAddress.PostalCode)
+	value := fmt.Sprintf("%+v", destinationAddress.PostalCode)
 	return value, nil
 }
