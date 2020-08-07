@@ -111,10 +111,12 @@ func ServiceParamLookupInitialize(
 		MTOShipment: mtoShipment,
 	}
 	s.lookups[models.ServiceItemParamNameDistanceZip5.String()] = DistanceZip5Lookup{
-		MTOShipment: mtoShipment,
+		PickupAddress:      pickupAddress,
+		DestinationAddress: destinationAddress,
 	}
 	s.lookups[models.ServiceItemParamNameDistanceZip3.String()] = DistanceZip3Lookup{
-		MTOShipment: mtoShipment,
+		PickupAddress:      pickupAddress,
+		DestinationAddress: destinationAddress,
 	}
 	s.lookups[models.ServiceItemParamNameWeightBilledActual.String()] = WeightBilledActualLookup{
 		MTOShipment: mtoShipment,
@@ -132,11 +134,11 @@ func ServiceParamLookupInitialize(
 		Address: destinationAddress,
 	}
 	s.lookups[models.ServiceItemParamNameMTOAvailableToPrimeAt.String()] = MTOAvailableToPrimeAtLookup{}
-	s.lookups[models.ServiceItemParamNameServiceAreaOrigin.String()] = ServiceAreaOriginLookup{
-		MTOShipment: mtoShipment,
+	s.lookups[models.ServiceItemParamNameServiceAreaOrigin.String()] = ServiceAreaLookup{
+		Address: pickupAddress,
 	}
-	s.lookups[models.ServiceItemParamNameServiceAreaDest.String()] = ServiceAreaDestLookup{
-		MTOShipment: mtoShipment,
+	s.lookups[models.ServiceItemParamNameServiceAreaDest.String()] = ServiceAreaLookup{
+		Address: destinationAddress,
 	}
 	s.lookups[models.ServiceItemParamNameContractCode.String()] = ContractCodeLookup{}
 	s.lookups[models.ServiceItemParamNamePSILinehaulDom.String()] = PSILinehaulDomLookup{
@@ -148,11 +150,11 @@ func ServiceParamLookupInitialize(
 	s.lookups[models.ServiceItemParamNameEIAFuelPrice.String()] = EIAFuelPriceLookup{
 		MTOShipment: mtoShipment,
 	}
-	s.lookups[models.ServiceItemParamNameServicesScheduleOrigin.String()] = ServicesScheduleOriginLookup{
-		MTOShipment: mtoShipment,
+	s.lookups[models.ServiceItemParamNameServicesScheduleOrigin.String()] = ServicesScheduleLookup{
+		Address: pickupAddress,
 	}
-	s.lookups[models.ServiceItemParamNameServicesScheduleDest.String()] = ServicesScheduleDestLookup{
-		MTOShipment: mtoShipment,
+	s.lookups[models.ServiceItemParamNameServicesScheduleDest.String()] = ServicesScheduleLookup{
+		Address: destinationAddress,
 	}
 
 	return &s, nil

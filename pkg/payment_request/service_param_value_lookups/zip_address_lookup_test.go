@@ -8,23 +8,30 @@ import (
 )
 
 func (suite *ServiceParamValueLookupsSuite) TestZipAddressLookup() {
-	key := models.ServiceItemParamNameZipPickupAddress.String()
+	pickupKey := models.ServiceItemParamNameZipPickupAddress.String()
+	destKey := models.ServiceItemParamNameZipDestAddress.String()
+
+	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{})
+
+	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
+		testdatagen.Assertions{
+			PaymentRequest: models.PaymentRequest{
+				MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
+			},
+		})
+
+	paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+	suite.FatalNoError(err)
 
 	suite.T().Run("zip code for the pickup address is present on MTO Shipment", func(t *testing.T) {
-		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{})
-
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
-			testdatagen.Assertions{
-				PaymentRequest: models.PaymentRequest{
-					MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
-				},
-			})
-
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		valueStr, err := paramLookup.ServiceParamValue(pickupKey)
 		suite.FatalNoError(err)
+		suite.Equal(mtoServiceItem.MTOShipment.PickupAddress.PostalCode, valueStr)
+	})
 
-		valueStr, err := paramLookup.ServiceParamValue(key)
+	suite.T().Run("zip code for the destination address is present on MTO Shipment", func(t *testing.T) {
+		valueStr, err := paramLookup.ServiceParamValue(destKey)
 		suite.FatalNoError(err)
-		suite.Equal("90210", valueStr)
+		suite.Equal(mtoServiceItem.MTOShipment.DestinationAddress.PostalCode, valueStr)
 	})
 }
