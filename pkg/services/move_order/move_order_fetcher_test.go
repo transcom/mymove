@@ -58,7 +58,7 @@ func (suite *MoveOrderServiceSuite) TestMoveOrderFetcherWithEmptyFields() {
 }
 
 func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
-	// Create a Move without a shipment to test that only orders with shipments
+	// Create a Move without a shipment to test that only Orders with shipments
 	// are displayed to the TOO
 	testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
 
@@ -109,6 +109,14 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrdersWithEmptyFields() {
 	})
 	// Only orders with shipments are returned, so we need to add a shipment
 	// to the move we just created
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: moveTaskOrder,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+	})
+	// Add a second shipment to make sure we only return 1 order even if its
+	// move has more than one shipment
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: moveTaskOrder,
 		MTOShipment: models.MTOShipment{
