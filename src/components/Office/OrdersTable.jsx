@@ -1,6 +1,7 @@
 import React from 'react';
-import * as PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
+
+import { OrdersInfoShape } from '../../types/moveOrder';
 
 function OrdersTable({ ordersInfo }) {
   return (
@@ -25,13 +26,13 @@ function OrdersTable({ ordersInfo }) {
             <th scope="row" className="text-bold">
               Current duty Station
             </th>
-            <td data-testid="currentDutyStation">{ordersInfo.currentDutyStation}</td>
+            <td data-testid="currentDutyStation">{ordersInfo.currentDutyStation?.name}</td>
           </tr>
           <tr>
             <th scope="row" className="text-bold">
               New duty station
             </th>
-            <td data-testid="newDutyStation">{ordersInfo.newDutyStation}</td>
+            <td data-testid="newDutyStation">{ordersInfo.newDutyStation?.name}</td>
           </tr>
           <tr>
             <th scope="row" className="text-bold">
@@ -88,18 +89,7 @@ function OrdersTable({ ordersInfo }) {
 }
 
 OrdersTable.propTypes = {
-  ordersInfo: PropTypes.shape({
-    currentDutyStation: PropTypes.string,
-    newDutyStation: PropTypes.string,
-    issuedDate: PropTypes.string,
-    reportByDate: PropTypes.string,
-    departmentIndicator: PropTypes.string,
-    ordersNumber: PropTypes.string,
-    ordersType: PropTypes.string,
-    ordersTypeDetail: PropTypes.string,
-    tacMDC: PropTypes.string,
-    sacSDN: PropTypes.string,
-  }).isRequired,
+  ordersInfo: OrdersInfoShape.isRequired,
 };
 
 export default OrdersTable;
