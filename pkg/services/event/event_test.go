@@ -54,6 +54,7 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 	logger, _ := zap.NewDevelopment()
 	handler := handlers.NewHandlerContext(suite.DB(), logger)
 
+	// Test successful event passing with Support API
 	suite.T().Run("trigger event passing", func(t *testing.T) {
 		count, _ := suite.DB().Count(&models.WebhookNotification{})
 
@@ -71,6 +72,28 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 		suite.Equal(count+1, newCount)
 
 	})
+
+	// Test successful event passing with GHC API
+	suite.T().Run("trigger event passing with ghc endpoint", func(t *testing.T) {
+		count, _ := suite.DB().Count(&models.WebhookNotification{})
+
+		_, err := TriggerEvent(Event{
+			EventKey:        PaymentRequestCreateEventKey,
+			MtoID:           mtoID,
+			UpdatedObjectID: paymentRequestID,
+			Request:         &dummyRequest,
+			EndpointKey:     GhcUpdatePaymentRequestStatusEndpointKey,
+			HandlerContext:  handler,
+			DBConnection:    suite.DB(),
+		})
+		suite.Nil(err)
+		newCount, _ := suite.DB().Count(&models.WebhookNotification{})
+		suite.Equal(count+1, newCount)
+
+	})
+
+	// Test successful event passing with Internal API
+	// #TODO
 
 	// This test verifies that if the object updated is not on an MTO that
 	// is available to prime, no notification is created.
