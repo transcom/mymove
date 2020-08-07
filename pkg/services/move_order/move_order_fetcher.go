@@ -23,7 +23,9 @@ func (f moveOrderFetcher) ListMoveOrders() ([]models.Order, error) {
 		"NewDutyStation.Address",
 		"OriginDutyStation",
 		"Entitlement",
-	).InnerJoin("moves", "orders.id = moves.orders_id").All(&moveOrders)
+	).LeftJoin("moves", "orders.id = moves.orders_id").
+		InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
+		All(&moveOrders)
 
 	if err != nil {
 		switch err {
@@ -61,7 +63,7 @@ func (f moveOrderFetcher) FetchMoveOrder(moveOrderID uuid.UUID) (*models.Order, 
 		"NewDutyStation.Address",
 		"OriginDutyStation",
 		"Entitlement",
-	).InnerJoin("moves move", "orders.id = move.orders_id").Find(moveOrder, moveOrderID)
+	).Find(moveOrder, moveOrderID)
 
 	if err != nil {
 		switch err {
