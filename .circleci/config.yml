@@ -1638,7 +1638,7 @@ workflows:
 
       - deploy_stg_app_client_tls:
           requires:
-            - deploy_staging_migrations
+            - deploy_stg_migrations
           filters:
             branches:
               only: cblkwell-MB-3576-deploy-stg-env
