@@ -78,7 +78,7 @@ const isCurrentMoveSubmitted = ({ move }) => {
 
 const pages = {
   '/service-member/:serviceMemberId/conus-status': {
-    isInFlow: always,
+    isInFlow: inGhcFlow,
     isComplete: ({ sm }) => sm.is_profile_complete || every([sm.rank, sm.edipi, sm.affiliation]),
     render: (key, pages, description, props) => ({ match }) => {
       return (
