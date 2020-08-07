@@ -801,6 +801,19 @@ jobs:
           repo: app
       - announce_failure
 
+  # `push_app_stg` pushes the app container to the milmove-stg container repository
+  push_app_stg:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_stg
+      - push_image:
+          image_name: ppp
+          tag: web-dev
+          repo: app
+      - announce_failure
+
   # `storybook_tests` builds the storybook application container and pushes to the container repository
   storybook_tests:
     executor: mymove_medium_plus
@@ -872,6 +885,19 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: false
       - aws_vars_exp
+      - push_image:
+          image_name: ppp-migrations
+          tag: dev
+          repo: app-migrations
+      - announce_failure
+
+  # `push_migrations_stg` pushes the migrations container to the milmove-stg container repository
+  push_migrations_stg:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_stg
       - push_image:
           image_name: ppp-migrations
           tag: dev
@@ -986,6 +1012,23 @@ jobs:
           repo: app-engadmin-nginx
       - announce_failure
 
+  # `push_milmove_admin_app_stg` pushes the django admin container to the milmove-stg container repository
+  push_milmove_admin_app_stg:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_stg
+      - push_image:
+          image_name: engadmin
+          tag: dev
+          repo: app-engadmin
+      - push_image:
+          image_name: engadmin-nginx
+          tag: dev
+          repo: app-engadmin-nginx
+      - announce_failure
+
   # `build_tasks` builds the tasks containers
   build_tasks:
     executor: mymove_medium
@@ -1028,6 +1071,19 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: false
       - aws_vars_exp
+      - push_image:
+          image_name: tasks
+          tag: dev
+          repo: app-tasks
+      - announce_failure
+
+  # `push_tasks_stg` pushes the tasks containers to the milmove-stg container repository
+  push_tasks_stg:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_stg
       - push_image:
           image_name: tasks
           tag: dev
@@ -1161,6 +1217,54 @@ jobs:
       - deploy_app_client_tls_steps:
           compare_host: gex.staging.move.mil
           health_check_hosts: gex.staging.move.mil,dps.staging.move.mil,orders.staging.move.mil
+
+  check_circle_against_stg_sha:
+    executor: mymove_small
+    steps:
+      - checkout
+      - run:
+          name: Halt workflow to prevent old master deploying to staging
+          command: scripts/compare-deployed-commit my.stg.move.mil $CIRCLE_SHA1
+
+  # `deploy_stg_migrations` deploys migrations to the stg environment
+  deploy_stg_migrations:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'stg'
+    steps:
+      - aws_vars_stg
+      - deploy_migrations_steps
+
+  # `deploy_stg_tasks` deploys scheduled tasks to the stg environment
+  deploy_stg_tasks:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'stg'
+    steps:
+      - aws_vars_stg
+      - deploy_tasks_steps
+
+  # `deploy_stg_app` updates the server-TLS app service in stg environment
+  deploy_stg_app:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'stg'
+    steps:
+      - aws_vars_stg
+      - deploy_app_steps:
+          compare_host: my.stg.move.mil
+          health_check_hosts: my.stg.move.mil,office.stg.move.mil,admin.stg.move.mil
+
+  # `deploy_stg_app_client_tls` updates the mutual-TLS service in the stg environment
+  deploy_stg_app_client_tls:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'stg'
+    steps:
+      - aws_vars_stg
+      - deploy_app_client_tls_steps:
+          compare_host: gex.stg.move.mil
+          health_check_hosts: gex.stg.move.mil,dps.stg.move.mil,orders.stg.move.mil
 
   # `deploy_prod_migrations` deploys migrations to the staging environment
   deploy_prod_migrations:
@@ -1459,6 +1563,85 @@ workflows:
           filters:
             branches:
               only: master
+
+      - push_app_stg:
+          requires:
+            - build_app
+          filters:
+            branches:
+              only: cblkwell-MB-3576-deploy-stg-env
+
+      - push_migrations_stg:
+          requires:
+            - build_migrations
+          filters:
+            branches:
+              only: cblkwell-MB-3576-deploy-stg-env
+
+      - push_tasks_stg:
+          requires:
+            - build_tasks
+          filters:
+            branches:
+              only: cblkwell-MB-3576-deploy-stg-env
+
+      # Disabled for now by requiring a nonexistent branch because
+      # otherwise the first deploy will fail
+      - check_circle_against_stg_sha:
+          requires:
+            - pre_test
+            - client_test
+            - server_test
+            - push_app_stg
+            - build_tools
+            - push_migrations_stg
+            - push_tasks_stg
+            - acceptance_tests
+            - integration_tests
+            - integration_tests_mtls
+          filters:
+            branches:
+              only: NO_BRANCH
+
+      # The requirements for this need to be changed to just the
+      # check_circle_against_stg_sha after the first successful
+      # deploy.
+      - deploy_stg_migrations:
+          requires:
+            - pre_test
+            - client_test
+            - server_test
+            - push_app_stg
+            - build_tools
+            - push_migrations_stg
+            - push_tasks_stg
+            - acceptance_tests
+            - integration_tests
+            - integration_tests_mtls
+          filters:
+            branches:
+              only: cblkwell-MB-3576-deploy-stg-env
+
+      - deploy_stg_tasks:
+          requires:
+            - deploy_stg_migrations
+          filters:
+            branches:
+              only: cblkwell-MB-3576-deploy-stg-env
+
+      - deploy_stg_app:
+          requires:
+            - deploy_stg_migrations
+          filters:
+            branches:
+              only: cblkwell-MB-3576-deploy-stg-env
+
+      - deploy_stg_app_client_tls:
+          requires:
+            - deploy_staging_migrations
+          filters:
+            branches:
+              only: cblkwell-MB-3576-deploy-stg-env
 
       - approve_prod_deploy:
           type: approval
