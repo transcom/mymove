@@ -55,7 +55,7 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 	handler := handlers.NewHandlerContext(suite.DB(), logger)
 
 	// Test successful event passing with Support API
-	suite.T().Run("trigger event passing", func(t *testing.T) {
+	suite.T().Run("trigger event passing with support api endpoint", func(t *testing.T) {
 		count, _ := suite.DB().Count(&models.WebhookNotification{})
 
 		_, err := TriggerEvent(Event{
@@ -74,7 +74,7 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 	})
 
 	// Test successful event passing with GHC API
-	suite.T().Run("trigger event passing with ghc endpoint", func(t *testing.T) {
+	suite.T().Run("trigger event passing with ghc api endpoint", func(t *testing.T) {
 		count, _ := suite.DB().Count(&models.WebhookNotification{})
 
 		_, err := TriggerEvent(Event{
@@ -91,9 +91,6 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 		suite.Equal(count+1, newCount)
 
 	})
-
-	// Test successful event passing with Internal API
-	// #TODO
 
 	// This test verifies that if the object updated is not on an MTO that
 	// is available to prime, no notification is created.
