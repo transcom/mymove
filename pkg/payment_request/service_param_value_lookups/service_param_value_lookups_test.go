@@ -103,6 +103,16 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 			} else {
 				suite.Fail("lookup not RequestedPickupDateLookup type")
 			}
+			if zpal, ok := paramLookup.lookups[models.ServiceItemParamNameZipPickupAddress.String()].(ZipAddressLookup); ok {
+				suite.Equal(uuid.Nil, zpal.Address.ID)
+			} else {
+				suite.Fail("lookup not ZipAddressLookup type")
+			}
+			if zdal, ok := paramLookup.lookups[models.ServiceItemParamNameZipDestAddress.String()].(ZipAddressLookup); ok {
+				suite.Equal(uuid.Nil, zdal.Address.ID)
+			} else {
+				suite.Fail("lookup not ZipAddressLookup type")
+			}
 		})
 	}
 
@@ -122,6 +132,44 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 			suite.Equal(*mtoServiceItem.MTOShipmentID, rpdl.MTOShipment.ID)
 		} else {
 			suite.Fail("lookup not RequestedPickupDateLookup type")
+		}
+	})
+
+	suite.T().Run("DestinationAddress is looked up for other serivce items", func(t *testing.T) {
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDLH,
+				Name: "DLH",
+			},
+		})
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()))
+		suite.FatalNoError(err)
+
+		suite.NotNil(paramLookup.MTOServiceItem)
+		if zdal, ok := paramLookup.lookups[models.ServiceItemParamNameZipDestAddress.String()].(ZipAddressLookup); ok {
+			suite.Equal(mtoServiceItem.MTOShipment.DestinationAddress.PostalCode, zdal.Address.PostalCode)
+		} else {
+			suite.Fail("lookup not ZipAddressLookup type")
+		}
+	})
+
+	suite.T().Run("PickupAddress is looked up for other serivce items", func(t *testing.T) {
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDLH,
+				Name: "DLH",
+			},
+		})
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()))
+		suite.FatalNoError(err)
+
+		suite.NotNil(paramLookup.MTOServiceItem)
+		if zpal, ok := paramLookup.lookups[models.ServiceItemParamNameZipPickupAddress.String()].(ZipAddressLookup); ok {
+			suite.Equal(mtoServiceItem.MTOShipment.PickupAddress.PostalCode, zpal.Address.PostalCode)
+		} else {
+			suite.Fail("lookup not ZipAddressLookup type")
 		}
 	})
 

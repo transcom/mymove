@@ -53,6 +53,8 @@ func ServiceParamLookupInitialize(
 	}
 
 	var mtoShipment models.MTOShipment
+	var pickupAddress models.Address
+	var destinationAddress models.Address
 	switch mtoServiceItem.ReService.Code {
 	case models.ReServiceCodeCS, models.ReServiceCodeMS:
 		// Do nothing, these service items don't use the MTOShipment
@@ -61,7 +63,7 @@ func ServiceParamLookupInitialize(
 		if mtoServiceItem.MTOShipmentID == nil {
 			return nil, services.NewNotFoundError(uuid.Nil, "looking for MTOShipmentID")
 		}
-		err := db.Find(&mtoShipment, mtoServiceItem.MTOShipmentID)
+		err := db.Eager("PickupAddress", "DestinationAddress").Find(&mtoShipment, mtoServiceItem.MTOShipmentID)
 		if err != nil {
 			switch err {
 			case sql.ErrNoRows:
@@ -70,6 +72,14 @@ func ServiceParamLookupInitialize(
 				return nil, err
 			}
 		}
+		if mtoShipment.PickupAddressID == nil {
+			return nil, services.NewNotFoundError(uuid.Nil, "looking for PickupAddressID")
+		}
+		pickupAddress = *mtoShipment.PickupAddress
+		if mtoShipment.DestinationAddressID == nil {
+			return nil, services.NewNotFoundError(uuid.Nil, "looking for DestinationAddressID")
+		}
+		destinationAddress = *mtoShipment.DestinationAddress
 	}
 
 	s := ServiceItemParamKeyData{
@@ -115,11 +125,11 @@ func ServiceParamLookupInitialize(
 	s.lookups[models.ServiceItemParamNameWeightActual.String()] = WeightActualLookup{
 		MTOShipment: mtoShipment,
 	}
-	s.lookups[models.ServiceItemParamNameZipPickupAddress.String()] = ZipPickupAddressLookup{
-		MTOShipment: mtoShipment,
+	s.lookups[models.ServiceItemParamNameZipPickupAddress.String()] = ZipAddressLookup{
+		Address: pickupAddress,
 	}
-	s.lookups[models.ServiceItemParamNameZipDestAddress.String()] = ZipDestAddressLookup{
-		MTOShipment: mtoShipment,
+	s.lookups[models.ServiceItemParamNameZipDestAddress.String()] = ZipAddressLookup{
+		Address: destinationAddress,
 	}
 	s.lookups[models.ServiceItemParamNameMTOAvailableToPrimeAt.String()] = MTOAvailableToPrimeAtLookup{}
 	s.lookups[models.ServiceItemParamNameServiceAreaOrigin.String()] = ServiceAreaOriginLookup{
