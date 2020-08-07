@@ -57,7 +57,7 @@ describe('allows a SM to request a payment', function () {
     cy.location().should((loc) => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-review/);
     });
-    cy.get('[data-testid="weight-ticket-link"]').click();
+    cy.get('[data-testid="weight-ticket-link"]', { timeout: 30000 }).click();
     cy.location().should((loc) => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-weight-ticket/);
     });
@@ -73,7 +73,7 @@ describe('allows a SM to request a payment', function () {
     cy.location().should((loc) => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-review/);
     });
-    cy.get('[data-testid="expense-link"]').click();
+    cy.get('[data-testid="expense-link"]', { timeout: 30000 }).click();
     cy.location().should((loc) => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-expenses/);
     });
@@ -116,7 +116,7 @@ function serviceMemberSubmitsPaymentRequestWithMissingDocuments() {
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-review/);
   });
-  cy.get('.missing-label').contains('Your estimated payment is unknown');
+  cy.get('.missing-label', { timeout: 30000 }).contains('Your estimated payment is unknown');
 
   cy.get('input[id="agree-checkbox"]').check({ force: true });
 
@@ -130,7 +130,6 @@ function serviceMemberSubmitsPaymentRequestWithMissingDocuments() {
   );
 
   cy.get('.title').contains('Next step: Contact the PPPO office');
-  cy.get('.missing-label').contains('Unknown');
 }
 
 function serviceMemberReviewsDocuments() {
