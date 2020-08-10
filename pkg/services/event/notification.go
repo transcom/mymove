@@ -18,7 +18,7 @@ func isSourcePrime(event *Event) bool {
 	// Generally we should err on the side of more notifications rather than fewer
 	// since we would not like them to miss an update.
 	apiName := GetEndpointAPI(event.EndpointKey)
-	if apiName == PrimeAPIName {
+	if apiName != nil && *apiName == PrimeAPIName {
 		return true
 	}
 	return false
