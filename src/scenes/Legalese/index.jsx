@@ -41,13 +41,13 @@ export class SignedCertification extends Component {
 
   submitCertificate = () => {
     const signatureTime = moment().format();
-    const { currentPpm, moveId } = this.props;
+    const { currentPpm, moveId, values } = this.props;
     const certificate = {
       certification_text: this.getCertificationText(currentPpm.has_sit, currentPpm.has_requested_advance),
       date: signatureTime,
-      signature: 'CHECKBOX',
+      signature: values.signature,
       personally_procured_move_id: currentPpm.id,
-      certification_type: 'PPM_PAYMENT',
+      certification_type: 'PPM',
     };
     return this.props.createSignedCertification(moveId, certificate);
   };
