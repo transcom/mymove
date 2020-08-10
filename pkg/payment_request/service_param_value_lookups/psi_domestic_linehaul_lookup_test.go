@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -64,7 +62,8 @@ func (suite *ServiceParamValueLookupsSuite) TestPSILinehaulDomLookup() {
 	suite.T().Run("Domestic Linehaul Price has been calculated", func(t *testing.T) {
 
 		psiLinehaulDom, expectedPSILinehaulDom := suite.setupPSILinehaulTestData(nil, nil)
-		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDom.MTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDom.MTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID)
+		suite.FatalNoError(err)
 
 		valueStr, err := paramLookup.ServiceParamValue(key)
 		suite.FatalNoError(err)
@@ -89,7 +88,8 @@ func (suite *ServiceParamValueLookupsSuite) TestPSILinehaulDomLookup() {
 			},
 		)
 
-		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDom.MTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDom.MTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID)
+		suite.FatalNoError(err)
 
 		valueStr, err := paramLookup.ServiceParamValue(key)
 		suite.FatalNoError(err)
@@ -101,23 +101,12 @@ func (suite *ServiceParamValueLookupsSuite) TestPSILinehaulDomLookup() {
 		status := models.PaymentServiceItemStatusDenied
 		psiLinehaulDom, _ := suite.setupPSILinehaulTestData(&price, &status)
 
-		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDom.MTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDom.MTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID)
+		suite.FatalNoError(err)
 
-		_, err := paramLookup.ServiceParamValue(key)
+		_, err = paramLookup.ServiceParamValue(key)
 		suite.Error(err)
 		expected := fmt.Sprintf(" failed ServiceParamValue PSI_LinehaulDomLookup with error couldn't find PaymentServiceItem for dom linehaul using paymentRequestID: %s and mtoServiceItemID: %s", psiLinehaulDom.PaymentRequestID, psiLinehaulDom.MTOServiceItemID)
-		suite.Equal(expected, err.Error())
-	})
-
-	suite.T().Run("Invalid MTO Service ID", func(t *testing.T) {
-		psiLinehaulDom, _ := suite.setupPSILinehaulTestData(nil, nil)
-
-		invalidMTOServiceItemID := uuid.Must(uuid.NewV4())
-		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, invalidMTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID)
-
-		_, err := paramLookup.ServiceParamValue(key)
-		suite.Error(err)
-		expected := fmt.Sprintf(" failed ServiceParamValue PSI_LinehaulDomLookup with error id: %s not found looking for MTOServiceItemID", invalidMTOServiceItemID)
 		suite.Equal(expected, err.Error())
 	})
 
@@ -135,9 +124,10 @@ func (suite *ServiceParamValueLookupsSuite) TestPSILinehaulDomLookup() {
 			},
 		)
 
-		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDomFSC.MTOServiceItemID, psiLinehaulDomFSC.PaymentRequestID, psiLinehaulDomFSC.PaymentRequest.MoveTaskOrderID)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDomFSC.MTOServiceItemID, psiLinehaulDomFSC.PaymentRequestID, psiLinehaulDomFSC.PaymentRequest.MoveTaskOrderID)
+		suite.FatalNoError(err)
 
-		_, err := paramLookup.ServiceParamValue(key)
+		_, err = paramLookup.ServiceParamValue(key)
 		suite.Error(err)
 		expected := fmt.Sprintf(" failed ServiceParamValue PSI_LinehaulDomLookup with error couldn't find PaymentServiceItem for dom linehaul using paymentRequestID: %s and mtoServiceItemID: %s", psiLinehaulDomFSC.PaymentRequestID, psiLinehaulDomFSC.MTOServiceItemID)
 		suite.Equal(expected, err.Error())
@@ -150,7 +140,8 @@ func (suite *ServiceParamValueLookupsSuite) TestPSILinehaulDomPriceLookup() {
 	suite.T().Run("Domestic Linehaul Price has been calculated", func(t *testing.T) {
 
 		psiLinehaulDom, expectedPSILinehaulDom := suite.setupPSILinehaulTestData(nil, nil)
-		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDom.MTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDom.MTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID)
+		suite.FatalNoError(err)
 
 		valueStr, err := paramLookup.ServiceParamValue(key)
 		suite.FatalNoError(err)
@@ -175,7 +166,8 @@ func (suite *ServiceParamValueLookupsSuite) TestPSILinehaulDomPriceLookup() {
 			},
 		)
 
-		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDom.MTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDom.MTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID)
+		suite.FatalNoError(err)
 
 		valueStr, err := paramLookup.ServiceParamValue(key)
 		suite.FatalNoError(err)
@@ -187,23 +179,12 @@ func (suite *ServiceParamValueLookupsSuite) TestPSILinehaulDomPriceLookup() {
 		status := models.PaymentServiceItemStatusDenied
 		psiLinehaulDom, _ := suite.setupPSILinehaulTestData(&price, &status)
 
-		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDom.MTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDom.MTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID)
+		suite.FatalNoError(err)
 
-		_, err := paramLookup.ServiceParamValue(key)
+		_, err = paramLookup.ServiceParamValue(key)
 		suite.Error(err)
 		expected := fmt.Sprintf(" failed ServiceParamValue PSI_LinehaulDomPriceLookup with error couldn't find PaymentServiceItem for dom linehaul using paymentRequestID: %s and mtoServiceItemID: %s", psiLinehaulDom.PaymentRequestID, psiLinehaulDom.MTOServiceItemID)
-		suite.Equal(expected, err.Error())
-	})
-
-	suite.T().Run("Invalid MTO Service ID", func(t *testing.T) {
-		psiLinehaulDom, _ := suite.setupPSILinehaulTestData(nil, nil)
-
-		invalidMTOServiceItemID := uuid.Must(uuid.NewV4())
-		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, invalidMTOServiceItemID, psiLinehaulDom.PaymentRequestID, psiLinehaulDom.PaymentRequest.MoveTaskOrderID)
-
-		_, err := paramLookup.ServiceParamValue(key)
-		suite.Error(err)
-		expected := fmt.Sprintf(" failed ServiceParamValue PSI_LinehaulDomPriceLookup with error id: %s not found looking for MTOServiceItemID", invalidMTOServiceItemID)
 		suite.Equal(expected, err.Error())
 	})
 
@@ -221,9 +202,10 @@ func (suite *ServiceParamValueLookupsSuite) TestPSILinehaulDomPriceLookup() {
 			},
 		)
 
-		paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDomFSC.MTOServiceItemID, psiLinehaulDomFSC.PaymentRequestID, psiLinehaulDomFSC.PaymentRequest.MoveTaskOrderID)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, psiLinehaulDomFSC.MTOServiceItemID, psiLinehaulDomFSC.PaymentRequestID, psiLinehaulDomFSC.PaymentRequest.MoveTaskOrderID)
+		suite.FatalNoError(err)
 
-		_, err := paramLookup.ServiceParamValue(key)
+		_, err = paramLookup.ServiceParamValue(key)
 		suite.Error(err)
 		expected := fmt.Sprintf(" failed ServiceParamValue PSI_LinehaulDomPriceLookup with error couldn't find PaymentServiceItem for dom linehaul using paymentRequestID: %s and mtoServiceItemID: %s", psiLinehaulDomFSC.PaymentRequestID, psiLinehaulDomFSC.MTOServiceItemID)
 		suite.Equal(expected, err.Error())

@@ -4,52 +4,27 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/gofrs/uuid"
-
-	"database/sql"
-
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 )
 
 // WeightBilledActualLookup does lookup on actual weight billed
 type WeightBilledActualLookup struct {
+	MTOShipment models.MTOShipment
 }
 
 func (r WeightBilledActualLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
-	db := *keyData.db
-
-	// Get the MTOServiceItem and associated MTOShipment
-	mtoServiceItemID := keyData.MTOServiceItemID
-	var mtoServiceItem models.MTOServiceItem
-	err := db.Eager("ReService", "MTOShipment").Find(&mtoServiceItem, mtoServiceItemID)
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return "", services.NewNotFoundError(mtoServiceItemID, "looking for MTOServiceItemID")
-		default:
-			return "", err
-		}
-	}
-
-	// Make sure there's an MTOShipment since that's nullable
-	mtoShipmentID := mtoServiceItem.MTOShipmentID
-	if mtoShipmentID == nil {
-		return "", services.NewNotFoundError(uuid.Nil, "looking for MTOShipmentID")
-	}
-
 	// Make sure there's an estimated weight since that's nullable
-	estimatedWeight := mtoServiceItem.MTOShipment.PrimeEstimatedWeight
+	estimatedWeight := r.MTOShipment.PrimeEstimatedWeight
 	if estimatedWeight == nil {
 		// TODO: Do we need a different error -- is this a "normal" scenario?
-		return "", fmt.Errorf("could not find estimated weight for MTOShipmentID [%s]", mtoShipmentID)
+		return "", fmt.Errorf("could not find estimated weight for MTOShipmentID [%s]", r.MTOShipment.ID)
 	}
 
 	// Make sure there's an actual weight since that's nullable
-	actualWeight := mtoServiceItem.MTOShipment.PrimeActualWeight
+	actualWeight := r.MTOShipment.PrimeActualWeight
 	if actualWeight == nil {
 		// TODO: Do we need a different error -- is this a "normal" scenario?
-		return "", fmt.Errorf("could not find actual weight for MTOShipmentID [%s]", mtoShipmentID)
+		return "", fmt.Errorf("could not find actual weight for MTOShipmentID [%s]", r.MTOShipment.ID)
 	}
 
 	var value string
@@ -57,7 +32,7 @@ func (r WeightBilledActualLookup) lookup(keyData *ServiceItemParamKeyData) (stri
 	if float64(*actualWeight) > estimatedWeightCap {
 		value = fmt.Sprintf("%d", int(estimatedWeightCap))
 	} else {
-		value = applyMinimum(mtoServiceItem.ReService.Code, mtoServiceItem.MTOShipment.ShipmentType, int(*actualWeight))
+		value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(*actualWeight))
 	}
 
 	return value, nil

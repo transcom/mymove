@@ -3,7 +3,13 @@ import { useFormik } from 'formik';
 import * as PropTypes from 'prop-types';
 import { Button, Checkbox, Fieldset } from '@trussworks/react-uswds';
 
-import { MTOAgentShape, MTOShipmentShape, MoveTaskOrderShape, MTOServiceItemShape } from '../../types/moveOrder';
+import {
+  MTOAgentShape,
+  MTOShipmentShape,
+  MoveTaskOrderShape,
+  MTOServiceItemShape,
+  OrdersInfoShape,
+} from '../../types/moveOrder';
 
 import ShipmentApprovalPreview from './ShipmentApprovalPreview';
 import styles from './requestedShipments.module.scss';
@@ -15,6 +21,7 @@ import { formatDate } from 'shared/dates';
 
 const RequestedShipments = ({
   mtoShipments,
+  ordersInfo,
   allowancesInfo,
   customerInfo,
   mtoAgents,
@@ -76,6 +83,10 @@ const RequestedShipments = ({
 
   const isButtonEnabled =
     formik.values.shipments.length > 0 && (formik.values.counselingFee || formik.values.shipmentManagementFee);
+
+  // eslint-disable-next-line camelcase
+  const dutyStationPostal = { postal_code: ordersInfo.newDutyStation?.address?.postal_code };
+
   return (
     <div className={`${styles['requested-shipments']} container`} data-testid="requested-shipments">
       {shipmentsStatus === 'SUBMITTED' && (
@@ -83,6 +94,7 @@ const RequestedShipments = ({
           <div id="approvalConfirmationModal" style={{ display: isModalVisible ? 'block' : 'none' }}>
             <ShipmentApprovalPreview
               mtoShipments={filteredShipments}
+              ordersInfo={ordersInfo}
               allowancesInfo={allowancesInfo}
               customerInfo={customerInfo}
               setIsModalVisible={setIsModalVisible}
@@ -107,7 +119,7 @@ const RequestedShipments = ({
                       heading: shipment.shipmentType,
                       requestedMoveDate: shipment.requestedPickupDate,
                       currentAddress: shipment.pickupAddress,
-                      destinationAddress: shipment.destinationAddress,
+                      destinationAddress: shipment.destinationAddress || dutyStationPostal,
                     }}
                     /* eslint-disable-next-line react/jsx-props-no-spreading */
                     {...formik.getFieldProps(`shipments`)}
@@ -159,7 +171,7 @@ const RequestedShipments = ({
                     heading: shipment.shipmentType,
                     requestedMoveDate: shipment.requestedPickupDate,
                     currentAddress: shipment.pickupAddress,
-                    destinationAddress: shipment.destinationAddress,
+                    destinationAddress: shipment.destinationAddress || dutyStationPostal,
                   }}
                   isSubmitted={false}
                 />
@@ -213,6 +225,7 @@ RequestedShipments.propTypes = {
   mtoAgents: PropTypes.arrayOf(MTOAgentShape),
   shipmentsStatus: PropTypes.string.isRequired,
   mtoServiceItems: PropTypes.arrayOf(MTOServiceItemShape),
+  ordersInfo: OrdersInfoShape.isRequired,
   allowancesInfo: PropTypes.shape({
     branch: PropTypes.string,
     rank: PropTypes.string,

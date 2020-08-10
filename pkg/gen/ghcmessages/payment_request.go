@@ -42,6 +42,10 @@ type PaymentRequest struct {
 	// rejection reason
 	RejectionReason *string `json:"rejectionReason,omitempty"`
 
+	// reviewed at
+	// Format: date-time
+	ReviewedAt *strfmt.DateTime `json:"reviewedAt,omitempty"`
+
 	// service items
 	ServiceItems PaymentServiceItems `json:"serviceItems,omitempty"`
 
@@ -62,6 +66,10 @@ func (m *PaymentRequest) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateMoveTaskOrderID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateReviewedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -117,6 +125,19 @@ func (m *PaymentRequest) validateMoveTaskOrderID(formats strfmt.Registry) error 
 	}
 
 	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PaymentRequest) validateReviewedAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ReviewedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("reviewedAt", "body", "date-time", m.ReviewedAt.String(), formats); err != nil {
 		return err
 	}
 

@@ -51,6 +51,7 @@ ifdef GOLAND
 	GOLAND_GC_FLAGS=all=-N -l
 endif
 
+SCHEMASPY_OUTPUT=./tmp/schemaspy
 
 .PHONY: help
 help:  ## Print the help documentation
@@ -863,7 +864,7 @@ run_com_prod_migrations: bin/milmove db_deployed_migrations_reset ## Run Commerc
 # 	bin/milmove migrate
 
 .PHONY: run_staging_migrations
-run_staging_migrations: run_com_staging_migrations ## Currently: Run Commercial Staging migrations against Deployed Migrations DB
+run_staging_migrations: run_com_staging_migrations ## Currently: Run Commercial Staging migrations against Deployed Migrations DB in commercial
 	# run_gov_staging_migrations
 
 .PHONY: run_com_staging_migrations
@@ -876,16 +877,15 @@ run_com_staging_migrations: bin/milmove db_deployed_migrations_reset ## Run Comm
 	DB_DEBUG=0 \
 	bin/milmove migrate
 
-# This will be added once GovCloud staging env is up
-# .PHONY: run_gov_staging_migrations ## Run GovCloud Staging migrations against Deployed Migrations DB
-# run_gov_staging_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud Staging migrations against Deployed Migrations DB
-# 	@echo "Migrating the staging-migrations database with staging migrations..."
-# 	MIGRATION_PATH="s3://transcom-gov-milmove-stg-app/secure-migrations;file://migrations/$(APPLICATION)/schema" \
-# 	DB_HOST=localhost \
-# 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
-# 	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
-# 	DB_DEBUG=0 \
-# 	bin/milmove migrate
+.PHONY: run_gov_staging_migrations ## Run GovCloud Staging migrations against Deployed Migrations DB
+run_gov_staging_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud Staging migrations against Deployed Migrations DB in commercial
+	@echo "Migrating the staging-migrations database with staging migrations..."
+	MIGRATION_PATH="s3://transcom-gov-milmove-stg-app/secure-migrations;file://migrations/$(APPLICATION)/schema" \
+	DB_HOST=localhost \
+	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
+	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
+	DB_DEBUG=0 \
+	bin/milmove migrate
 
 .PHONY: run_experimental_migrations ## Currently: Run Commercial Experimental migrations against Deployed Migrations DB
 run_experimental_migrations: run_com_experimental_migrations
@@ -992,6 +992,7 @@ clean: ## Clean all generated files
 	rm -rf ./public/swagger-ui/*.{css,js,png}
 	rm -rf ./tmp/secure_migrations
 	rm -rf ./tmp/storage
+	rm -rf $(SCHEMASPY_OUTPUT)
 	rm -rf ./storybook-static
 	rm -rf ./coverage
 	rm -rf ./log
@@ -1025,6 +1026,14 @@ storybook_tests: ## Run the Loki storybook tests to ensure no breaking changes
 .PHONY: loki_approve_changes
 loki_approve_changes: ## Approves differences in Loki test results
 	yarn run loki approve
+
+.PHONY: schemaspy
+schemaspy: db_test_reset db_test_migrate ## Generates database documentation using schemaspy
+	rm -rf $(SCHEMASPY_OUTPUT)
+	docker run -v $(PWD)/$(SCHEMASPY_OUTPUT):/output schemaspy/schemaspy:latest \
+		-t pgsql11 -host host.docker.internal -port $(DB_PORT_TEST) -db $(DB_NAME_TEST) -u postgres -p $(PGPASSWORD) \
+		-norows -nopages
+	@echo "Schemaspy output can be found in $(SCHEMASPY_OUTPUT)"
 
 #
 # ----- END RANDOM TARGETS -----

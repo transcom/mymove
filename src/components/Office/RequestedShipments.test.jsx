@@ -67,17 +67,6 @@ const shipments = [
     approvedDate: '0001-01-01',
     createdAt: '2020-06-10T15:58:02.431993Z',
     customerRemarks: 'please treat gently',
-    destinationAddress: {
-      city: 'Fairfield',
-      country: 'US',
-      eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MTcyMjZa',
-      id: '00a5dfeb-c6a0-4ed8-965c-89943163fee4',
-      postal_code: '94535',
-      state: 'CA',
-      street_address_1: '987 Any Avenue',
-      street_address_2: 'P.O. Box 9876',
-      street_address_3: 'c/o Some Person',
-    },
     eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MzE5OTVa',
     id: 'c2f68d97-b960-4c86-a418-c70a0aeba04e',
     moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
@@ -122,6 +111,49 @@ const shipments = [
     updatedAt: '2020-06-10T15:58:02.431995Z',
   },
 ];
+
+const ordersInfo = {
+  newDutyStation: {
+    address: {
+      city: 'Augusta',
+      country: 'United States',
+      eTag: 'MjAyMC0wOC0wNlQxNDo1Mjo0MS45NDQ0ODla',
+      id: '5ac95be8-0230-47ea-90b4-b0f6f60de364',
+      postal_code: '30813',
+      state: 'GA',
+      street_address_1: 'Fort Gordon',
+    },
+    address_id: '5ac95be8-0230-47ea-90b4-b0f6f60de364',
+    eTag: 'MjAyMC0wOC0wNlQxNDo1Mjo0MS45NDQ0ODla',
+    id: '2d5ada83-e09a-47f8-8de6-83ec51694a86',
+    name: 'Fort Gordon',
+  },
+  currentDutyStation: {
+    address: {
+      city: 'Des Moines',
+      country: 'US',
+      eTag: 'MjAyMC0wOC0wNlQxNDo1MzozMC42NjEwODFa',
+      id: '37880d6d-2c78-47f1-a71b-53c0ea1a0107',
+      postal_code: '50309',
+      state: 'IA',
+      street_address_1: '987 Other Avenue',
+      street_address_2: 'P.O. Box 1234',
+      street_address_3: 'c/o Another Person',
+    },
+    address_id: '37880d6d-2c78-47f1-a71b-53c0ea1a0107',
+    eTag: 'MjAyMC0wOC0wNlQxNDo1MzozMC42Njg5MDFa',
+    id: '07282a8f-a496-4648-ae24-119775eef57d',
+    name: 'vC6w22RPYC',
+  },
+  issuedDate: '2018-03-15',
+  reportByDate: '2018-08-01',
+  departmentIndicator: 'COAST_GUARD',
+  ordersNumber: 'ORDER3',
+  ordersType: 'PERMANENT_CHANGE_OF_STATION',
+  ordersTypeDetail: 'TBD',
+  tacMDC: '',
+  sacSDN: '',
+};
 
 const customerInfo = {
   name: 'Smith, Kerry',
@@ -176,6 +208,7 @@ const approveMTO = jest.fn().mockResolvedValue({ response: { status: 200 } });
 
 const requestedShipmentsComponent = (
   <RequestedShipments
+    ordersInfo={ordersInfo}
     allowancesInfo={allowancesInfo}
     mtoAgents={agents}
     customerInfo={customerInfo}
@@ -208,6 +241,18 @@ describe('RequestedShipments', () => {
     const wrapper = mount(requestedShipmentsComponent);
     expect(wrapper.find('div[data-testid="checkbox"]').exists()).toBe(true);
     expect(wrapper.find('div[data-testid="checkbox"]').length).toEqual(4);
+  });
+
+  it('uses the duty station postal code if there is no destination address', () => {
+    const wrapper = mount(requestedShipmentsComponent);
+    // The first shipment has a destination address so will not use the duty station postal code
+    const destination = shipments[0].destinationAddress;
+    expect(wrapper.find('[data-testid="shipmentDestinationAddress"]').at(0).text()).toEqual(
+      `${destination.street_address_1},\xa0${destination.city}, ${destination.state} ${destination.postal_code}`,
+    );
+    expect(wrapper.find('[data-testid="shipmentDestinationAddress"]').at(1).text()).toEqual(
+      ordersInfo.newDutyStation.address.postal_code,
+    );
   });
 
   it('enables the modal button when a shipment and service item are checked', async () => {
@@ -257,6 +302,7 @@ describe('RequestedShipments', () => {
       <RequestedShipments
         mtoShipments={shipments}
         mtoAgents={agents}
+        ordersInfo={ordersInfo}
         allowancesInfo={allowancesInfo}
         customerInfo={customerInfo}
         moveTaskOrder={moveTaskOrder}
