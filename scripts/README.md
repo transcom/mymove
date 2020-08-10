@@ -136,8 +136,7 @@ migrations.
 | --- | --- |
 | `download-secure-migration` |  A script to download secure migrations from all environments |
 | `generate-secure-migration` |  A script to help manage the creation of secure migrations |
-| `update-s3-sql-files` | A script to rename secure migration files to have .up.sql extension |
-| `upload-secure-migration` | A script to upload secure migrations to all environments |
+| `upload-secure-migration` | A script to upload secure migrations to all environments in commercial AWS and experimental in GovCloud |
 
 ### Database Scripts
 

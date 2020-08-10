@@ -83,7 +83,7 @@ export class OfficeApp extends Component {
       location: { pathname },
     } = this.props;
 
-    const selectedRole = userIsLoggedIn && (activeRole || userRoles[0]?.roleType);
+    const selectedRole = userIsLoggedIn && activeRole;
 
     // TODO - test login page?
 

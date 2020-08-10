@@ -31,6 +31,7 @@ var environments = []string{
 	EnvironmentExperimental,
 	EnvironmentTest,
 	EnvironmentDevelopment,
+	EnvironmentExp,
 }
 
 type errInvalidEnvironment struct {
