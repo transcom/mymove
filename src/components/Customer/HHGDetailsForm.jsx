@@ -19,18 +19,26 @@ import { formatSwaggerDate } from 'shared/formatters';
 import Checkbox from 'shared/Checkbox';
 import { validateDate } from 'utils/formikValidators';
 
-const AddressSchema = Yup.object()
-  .shape({
-    mailingAddress1: Yup.string().required('Required'),
-    mailingAddress2: Yup.string(),
-    city: Yup.string().required('Required'),
-    state: Yup.string().length(2, 'Must use state abbreviation').required('Required'),
-    zip: Yup.string()
-      // eslint-disable-next-line security/detect-unsafe-regex
-      .matches(/^(\d{5}([-]\d{4})?)$/, 'Must be valid zip code')
-      .required('Required'),
-  })
-  .required('Required');
+const PickupAddressSchema = Yup.object().shape({
+  mailingAddress1: Yup.string().required('Required'),
+  mailingAddress2: Yup.string(),
+  city: Yup.string().required('Required'),
+  state: Yup.string().length(2, 'Must use state abbreviation').required('Required'),
+  zip: Yup.string()
+    // eslint-disable-next-line security/detect-unsafe-regex
+    .matches(/^(\d{5}([-]\d{4})?)$/, 'Must be valid zip code')
+    .required('Required'),
+});
+
+const DeliveryAddressSchema = Yup.object().shape({
+  mailingAddress1: Yup.string(),
+  mailingAddress2: Yup.string(),
+  city: Yup.string(),
+  state: Yup.string().length(2, 'Must use state abbreviation'),
+  zip: Yup.string()
+    // eslint-disable-next-line security/detect-unsafe-regex
+    .matches(/^(\d{5}([-]\d{4})?)$/, 'Must be valid zip code'),
+});
 
 const AgentSchema = Yup.object().shape({
   firstName: Yup.string(),
@@ -40,8 +48,8 @@ const AgentSchema = Yup.object().shape({
 });
 const HHGDetailsFormSchema = Yup.object().shape({
   // requiredPickupDate, requiredDeliveryDate are also required, but using field level validation
-  pickupLocation: AddressSchema,
-  deliveryLocation: AddressSchema, // for now, both addresses are required, this will change where delivery location's zip code and all pickup location information are the only ones required
+  pickupLocation: PickupAddressSchema,
+  deliveryLocation: DeliveryAddressSchema,
   releasingAgent: AgentSchema,
   receivingAgent: AgentSchema,
   remarks: Yup.string(),
