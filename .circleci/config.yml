@@ -1400,7 +1400,9 @@ workflows:
             - pre_deps_yarn
             - check_generated_code
             - push_app_legacy
+            - push_app_stg
             - push_migrations_legacy
+            - push_migrations_stg
             - acceptance_tests
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
@@ -1412,7 +1414,9 @@ workflows:
             - pre_deps_golang
             - check_generated_code
             - push_app_legacy
+            - push_app_stg
             - push_migrations_legacy
+            - push_migrations_stg
             - acceptance_tests
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
