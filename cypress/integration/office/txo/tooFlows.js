@@ -4,14 +4,14 @@ describe('TOO user', () => {
   beforeEach(() => {
     cy.removeFetch();
     cy.server();
-    cy.route('GET', '/api/v1/swagger.yaml').as('getGHCClient');
-    cy.route('GET', 'ghc/v1/move-orders').as('getMoveOrders');
-    cy.route('GET', 'ghc/v1/move-orders/**/move-task-orders').as('getMoveTaskOrders');
-    cy.route('GET', 'ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
-    cy.route('GET', 'ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
+    cy.route('GET', '/ghc/v1/swagger.yaml').as('getGHCClient');
+    cy.route('GET', '/ghc/v1/move-orders').as('getMoveOrders');
+    cy.route('GET', '/ghc/v1/move-orders/**/move-task-orders').as('getMoveTaskOrders');
+    cy.route('GET', '/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
+    cy.route('GET', '/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
 
-    cy.route('PATCH', 'ghc/v1/move_task_orders/**/mto_shipments/**/status').as('patchMTOShipmentStatus');
-    cy.route('PATCH', 'ghc/v1/move-task-orders/**/status').as('patchMTOStatus');
+    cy.route('PATCH', '/ghc/v1/move_task_orders/**/mto_shipments/**/status').as('patchMTOShipmentStatus');
+    cy.route('PATCH', '/ghc/v1/move-task-orders/**/status').as('patchMTOStatus');
 
     const userId = 'dcf86235-53d3-43dd-8ee8-54212ae3078f';
     cy.signInAsUserPostRequest(TOOOfficeUserType, userId);
@@ -22,9 +22,7 @@ describe('TOO user', () => {
     const moveOrderId = '6fca843a-a87e-4752-b454-0fac67aa4988';
 
     // TOO Moves queue
-    cy.wait('@getGHCClient');
-    cy.wait('@getMoveOrders');
-
+    cy.wait(['@getGHCClient', '@getMoveOrders']);
     cy.contains(moveOrderId).click();
     cy.url().should('include', `/moves/${moveOrderId}/details`);
 
