@@ -426,7 +426,8 @@ There are a few handy targets in the Makefile to help you run tests:
 
 * `make client_test`: Run front-end testing suites.
 * `make server_test`: Run back-end testing suites. [Additional info for running go tests](https://github.com/transcom/mymove/wiki/run-go-tests)
-* `make e2e_test`: Run e2e testing suite.
+* `make e2e_test`: Run e2e testing suite. Note: this will not necessarily reflect the same results as in the CI environment, run with caution.
+* `make e2e_test_docker`: Run e2e testing suite in the same docker container as is run in CircleCI.
 * `make test`: Run e2e, client- and server-side testing suites.
 
 ### Logging

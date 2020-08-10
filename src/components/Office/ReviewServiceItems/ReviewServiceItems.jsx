@@ -6,14 +6,22 @@ import sortServiceItemsByGroup from '../../../utils/serviceItems';
 
 import styles from './ReviewServiceItems.module.scss';
 import ServiceItemCard from './ServiceItemCard';
+import ReviewDetailsCard from './ReviewDetailsCard';
+import AuthorizePayment from './AuthorizePayment';
+import NeedsReview from './NeedsReview';
+import RejectRequest from './RejectRequest';
+import PaymentReviewed from './PaymentReviewed';
 
+import Alert from 'shared/Alert';
 import { ServiceItemCardsShape } from 'types/serviceItemCard';
-import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
+import { PAYMENT_SERVICE_ITEM_STATUS, PAYMENT_REQUEST_STATUS } from 'shared/constants';
 import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
 import { toDollarString } from 'shared/formatters';
+import { PaymentRequestShape } from 'types/index';
 
 const ReviewServiceItems = ({
   header,
+  paymentRequest,
   serviceItemCards,
   handleClose,
   disableScrollIntoView,
@@ -21,13 +29,15 @@ const ReviewServiceItems = ({
   onCompleteReview,
   completeReviewError,
 }) => {
-  const [curCardIndex, setCardIndex] = useState(0);
+  const requestReviewed = paymentRequest?.status !== PAYMENT_REQUEST_STATUS.PENDING;
 
   const sortedCards = sortServiceItemsByGroup(serviceItemCards);
 
-  const totalCards = serviceItemCards.length;
+  const totalCards = sortedCards.length;
 
-  const { APPROVED } = PAYMENT_SERVICE_ITEM_STATUS;
+  const [curCardIndex, setCardIndex] = useState(requestReviewed ? totalCards : 0);
+
+  const { APPROVED, DENIED, REQUESTED } = PAYMENT_SERVICE_ITEM_STATUS;
 
   const handleClick = (index) => {
     setCardIndex(index);
@@ -37,26 +47,39 @@ const ReviewServiceItems = ({
     onCompleteReview();
   };
 
-  const approvedSum = serviceItemCards.filter((s) => s.status === APPROVED).reduce((sum, cur) => sum + cur.amount, 0);
-  // const rejectedSum = serviceItemCards.filter((s) => s.status === DENIED).reduce((sum, cur) => sum + cur.amount, 0)
-  // const requestedSum = serviceItemCards.reduce((sum, cur) => sum + cur.amount, 0); // TODO - use in Complete review screen
+  // calculating the sums
+  const approvedSum = sortedCards.filter((s) => s.status === APPROVED).reduce((sum, cur) => sum + cur.amount, 0);
+  const rejectedSum = sortedCards.filter((s) => s.status === DENIED).reduce((sum, cur) => sum + cur.amount, 0);
+  const requestedSum = sortedCards.reduce((sum, cur) => sum + cur.amount, 0);
 
+  let itemsNeedsReviewLength;
+  let showNeedsReview;
+  let showRejectRequest;
+  let firstItemNeedsReviewIndex;
   let firstBasicIndex = null;
   let lastBasicIndex = null;
-  sortedCards.forEach((serviceItem, index) => {
-    // here we want to set the first and last index
-    // of basic service items to know the bounds
-    if (!serviceItem.shipmentType) {
-      // no shipemntId, then it is a basic service items
-      if (firstBasicIndex === null) {
-        // if not set yet, set it the first time we see a basic
-        // service item
-        firstBasicIndex = index;
+
+  if (!requestReviewed) {
+    itemsNeedsReviewLength = sortedCards.filter((s) => s.status === REQUESTED)?.length;
+    showNeedsReview = sortedCards.some((s) => s.status === REQUESTED);
+    showRejectRequest = sortedCards.every((s) => s.status === DENIED);
+    firstItemNeedsReviewIndex = showNeedsReview && sortedCards.findIndex((s) => s.status === REQUESTED);
+
+    sortedCards.forEach((serviceItem, index) => {
+      // here we want to set the first and last index
+      // of basic service items to know the bounds
+      if (!serviceItem.shipmentType) {
+        // no shipemntId, then it is a basic service items
+        if (firstBasicIndex === null) {
+          // if not set yet, set it the first time we see a basic
+          // service item
+          firstBasicIndex = index;
+        }
+        // keep setting the last basic index until the last one
+        lastBasicIndex = index;
       }
-      // keep setting the last basic index until the last one
-      lastBasicIndex = index;
-    }
-  });
+    });
+  }
 
   const displayCompleteReview = curCardIndex === totalCards;
 
@@ -64,6 +87,19 @@ const ReviewServiceItems = ({
 
   const isBasicServiceItem =
     firstBasicIndex !== null && curCardIndex >= firstBasicIndex && curCardIndex <= lastBasicIndex;
+
+  let renderCompleteAction = <AuthorizePayment amount={approvedSum} onClick={handleAuthorizePayment} />;
+  if (requestReviewed) {
+    renderCompleteAction = (
+      <PaymentReviewed authorizedAmount={approvedSum} dateAuthorized={paymentRequest?.reviewedAt} />
+    );
+  } else if (showNeedsReview) {
+    renderCompleteAction = (
+      <NeedsReview numberOfItems={itemsNeedsReviewLength} onClick={() => setCardIndex(firstItemNeedsReviewIndex)} />
+    );
+  } else if (showRejectRequest) {
+    renderCompleteAction = <RejectRequest onClick={handleAuthorizePayment} />;
+  }
 
   // Similar to componentDidMount and componentDidUpdate
   useEffect(() => {
@@ -87,23 +123,19 @@ const ReviewServiceItems = ({
           <h2 className={styles.header}>Complete request</h2>
         </div>
         <div className={styles.body}>
-          <div className={styles.completeReviewCard}>
-            <h4>Review details</h4>
-            {completeReviewError && (
-              <p className="text-error" data-testid="errorMessage">
-                Error: {completeReviewError.detail}
-              </p>
-            )}
-
-            <div className={styles.completeReviewAction}>
-              <p>
-                <strong>Do you authorize this payment of {toDollarString(approvedSum)}?</strong>
-              </p>
-              <Button type="button" data-testid="authorizePaymentBtn" onClick={handleAuthorizePayment}>
-                Authorize Payment
-              </Button>
-            </div>
-          </div>
+          {requestReviewed && (
+            <Alert heading={null} type="success">
+              The payment request was successfully submitted.
+            </Alert>
+          )}
+          <ReviewDetailsCard
+            completeReviewError={completeReviewError}
+            acceptedAmount={approvedSum}
+            rejectedAmount={rejectedSum}
+            requestedAmount={requestedSum}
+          >
+            {renderCompleteAction}
+          </ReviewDetailsCard>
         </div>
         <div className={styles.bottom}>
           <Button
@@ -140,6 +172,7 @@ const ReviewServiceItems = ({
                 patchPaymentServiceItem={patchPaymentServiceItem}
                 // eslint-disable-next-line react/jsx-props-no-spreading
                 {...curCard}
+                requestComplete={requestReviewed}
               />
             ))
           ) : (
@@ -148,6 +181,7 @@ const ReviewServiceItems = ({
               patchPaymentServiceItem={patchPaymentServiceItem}
               // eslint-disable-next-line react/jsx-props-no-spreading
               {...currentCard}
+              requestComplete={requestReviewed}
             />
           ))}
       </div>
@@ -182,6 +216,7 @@ const ReviewServiceItems = ({
 
 ReviewServiceItems.propTypes = {
   header: PropTypes.string,
+  paymentRequest: PaymentRequestShape,
   serviceItemCards: ServiceItemCardsShape,
   handleClose: PropTypes.func.isRequired,
   patchPaymentServiceItem: PropTypes.func.isRequired,
@@ -195,6 +230,7 @@ ReviewServiceItems.propTypes = {
 
 ReviewServiceItems.defaultProps = {
   header: 'Review service items',
+  paymentRequest: undefined,
   serviceItemCards: [],
   disableScrollIntoView: false,
   completeReviewError: undefined,

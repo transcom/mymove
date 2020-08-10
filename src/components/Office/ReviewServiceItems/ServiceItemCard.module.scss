@@ -3,7 +3,7 @@
 @import '../../../shared/styles/colors';
 
 .ServiceItemCard {
-  &:not(:first-child) .shipmentContainerCard{
+  &:not(:first-child) .shipmentContainerCard {
     @include u-border-width('2px');
     @include u-border-color('gray-10');
 
@@ -19,7 +19,7 @@
   }
 
   dd {
-    margin-inline-start: 0;
+    margin-left: 0;
     @include u-margin-y(1);
   }
 
@@ -34,7 +34,6 @@
     display: flex;
     align-items: center;
   }
-
 
   .cardHeader {
     text-transform: uppercase;
@@ -81,5 +80,40 @@
 
   .statusOption + .clearStatus {
     @include u-margin-top(2);
+  }
+
+  .completeContainer {
+    @include u-margin(0);
+    @include u-margin-top(4);
+    @include u-padding(2);
+    background-color: $bg-gray;
+    color: $base-darkest;
+    border: 1px solid $base-lighter;
+    @include u-radius('05');
+
+    svg {
+      @include u-margin-right(1);
+      height: 16px;
+      width: 16px;
+    }
+
+    .statusHeading {
+      @include u-font-weight(bold);
+      @include u-display(flex);
+      align-items: center;
+    }
+
+    .statusApproved svg {
+      fill: $success;
+    }
+
+    .statusRejected svg {
+      fill: $error;
+    }
+
+    .rejectionReason {
+      @include u-font-size('base', 2);
+      @include u-margin-bottom(0);
+    }
   }
 }

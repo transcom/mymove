@@ -50,40 +50,9 @@
     @include u-overflow-y('auto');
     flex: 1 1 0;
     flex-basis: 0;
-  }
 
-  .completeReviewCard {
-    @include u-bg('white');
-    border: 1px solid;
-    @include u-border-color('base-light');
-    border-radius: 3px;
-    @include u-padding(2);
-
-    h4 {
-      margin: 0;
-    }
-  }
-
-  h4 + .completeReviewAction {
-    @include u-margin-top(2);
-  }
-
-  .completeReviewAction {
-    @include u-padding(2);
-    border: 1px solid;
-    @include u-border-color('base-lighter');
-    border-radius: 3px;
-
-    p {
-      margin: 0;
-    }
-
-    :global(.usa-button) {
-      margin: 0;
-    }
-
-    p + :global(.usa-button) {
-      @include u-margin-top(2);
+    :global .usa-alert {
+      @include u-margin-bottom(2);
     }
   }
 

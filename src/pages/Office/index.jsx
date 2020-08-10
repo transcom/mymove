@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { Route, Switch, withRouter, matchPath, Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import classnames from 'classnames';
 
 import 'uswds';
 import '../../../node_modules/uswds/dist/css/uswds.css';
@@ -82,7 +83,7 @@ export class OfficeApp extends Component {
       location: { pathname },
     } = this.props;
 
-    const selectedRole = userIsLoggedIn && (activeRole || userRoles[0]?.roleType);
+    const selectedRole = userIsLoggedIn && activeRole;
 
     // TODO - test login page?
 
@@ -131,8 +132,16 @@ export class OfficeApp extends Component {
       />,
     ];
 
+    const isFullscreenPage = matchPath(pathname, {
+      path: '/moves/:moveOrderId/payment-requests/:id',
+    });
+
+    const siteClasses = classnames('site', {
+      [`site--fullscreen`]: isFullscreenPage,
+    });
+
     return (
-      <div className="site">
+      <div className={siteClasses}>
         <FOUOHeader />
         {displayChangeRole && <Link to="/select-application">Change user role</Link>}
         {!hideHeaderPPM && <QueueHeader />}

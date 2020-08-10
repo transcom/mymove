@@ -61,8 +61,9 @@ paths:
         * User
         * Entitlement
 
-        It will not create addresses or duty stations. <br />
-        <br />
+        It will not create addresses or duty stations. It requires an existing contractor ID, destination duty station ID,
+        origin duty station ID, and an uploaded orders ID to be passed into the request.
+
         This is a support endpoint and will not be available in production.
       operationId: createMoveTaskOrder
       consumes:
@@ -372,6 +373,55 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  '/webhook-notify':
+    post:
+      summary: Test endpoint for sending messages via webhook
+      description: >
+        This endpoint represents the receiving server, The Prime, in our webhook-client testing workflow.
+        The `webhook-client` is responsible for retrieving messages from the webhook_notifications table and
+        sending them to the Prime (this endpoint in our testing case) via an mTLS connection.
+      operationId: postWebhookNotify
+      tags:
+        - webhook
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          required: true
+          name: message
+          description: The message sent by webhook-client.
+          schema:
+            type: object
+            required:
+              - message
+            properties:
+              message:
+                type: string
+                description: Message sent
+                example: Hello world.
+                x-nullable: false
+      responses:
+        '200':
+          description: Created
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Message sent
+                example: Hello world.
+        '400':
+          description: Bad request
+        '401':
+          description: must be authenticated to use this endpoint
+        '403':
+          description: Forbidden
+        '404':
+          description: No orders found
+        '500':
+          description: Server error
 definitions:
   ClientError:
     type: object
@@ -719,8 +769,8 @@ definitions:
           ID of the destination duty station.
 
           If creating a MoveTaskOrder, this should match an existing duty station.
-      orderType:
-        $ref: '#/definitions/OrderType'
+      ordersType:
+        $ref: '#/definitions/OrdersType'
       originDutyStation:
         $ref: '#/definitions/DutyStation'
       originDutyStationID:
@@ -754,7 +804,7 @@ definitions:
         type: string
         x-nullable: true
         example: '030-00362'
-      dateIssued:
+      issueDate:
         description: The date the orders were issued.
         type: string
         format: date
@@ -768,6 +818,13 @@ definitions:
         type: string
         readOnly: true
     type: object
+    required:
+      - orderNumber
+      - ordersType
+      - rank
+      - reportByDate
+      - issueDate
+      - status
   MoveTaskOrder:
     type: object
     required:
@@ -863,6 +920,7 @@ definitions:
     items:
       $ref: '#/definitions/MTOAgent'
     type: array
+    maxItems: 2
   MTOAgent:
     properties:
       id:
@@ -920,9 +978,9 @@ definitions:
       SUBMITTED: Submitted
       APPROVED: Approved
       CANCELED: Canceled
-  OrderType:
+  OrdersType:
     type: string
-    title: Order type
+    title: Orders type
     enum:
       - PERMANENT_CHANGE_OF_STATION
       - RETIREMENT
