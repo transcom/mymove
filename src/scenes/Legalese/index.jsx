@@ -41,13 +41,13 @@ export class SignedCertification extends Component {
 
   submitCertificate = () => {
     const signatureTime = moment().format();
-    const { currentPpm, moveId, values } = this.props;
+    const { currentPpm, moveId, values, selectedMoveType } = this.props;
     const certificate = {
       certification_text: this.getCertificationText(currentPpm.has_sit, currentPpm.has_requested_advance),
       date: signatureTime,
       signature: values.signature,
       personally_procured_move_id: currentPpm.id,
-      certification_type: 'PPM',
+      certification_type: selectedMoveType,
     };
     return this.props.createSignedCertification(moveId, certificate);
   };
@@ -169,6 +169,7 @@ function mapStateToProps(state, ownProps) {
     tempPpmId: get(state.ppm, 'currentPpm.id', null),
     has_sit: get(state.ppm, 'currentPpm.has_sit', false),
     has_advance: get(state.ppm, 'currentPpm.has_requested_advance', false),
+    selectedMoveType: ownProps.selectedMoveType,
   };
 }
 
