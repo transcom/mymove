@@ -3,7 +3,12 @@ import { action } from '@storybook/addon-actions';
 
 import ReviewServiceItems from './ReviewServiceItems';
 
-import { SHIPMENT_OPTIONS, SERVICE_ITEM_STATUS, PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
+import {
+  SHIPMENT_OPTIONS,
+  SERVICE_ITEM_STATUS,
+  PAYMENT_SERVICE_ITEM_STATUS,
+  PAYMENT_REQUEST_STATUS,
+} from 'shared/constants';
 
 export default {
   title: 'TOO/TIO Components|ReviewServiceItems',
@@ -15,8 +20,10 @@ export default {
   ],
 };
 
+const pendingPaymentRequest = { status: PAYMENT_REQUEST_STATUS.PENDING };
 export const Basic = () => (
   <ReviewServiceItems
+    paymentRequest={pendingPaymentRequest}
     serviceItemCards={[
       {
         id: '1',
@@ -35,6 +42,7 @@ export const BasicWithTwoItems = () => {
   return (
     <ReviewServiceItems
       disableScrollIntoView
+      paymentRequest={pendingPaymentRequest}
       serviceItemCards={[
         {
           id: '1',
@@ -58,6 +66,7 @@ export const BasicWithTwoItems = () => {
 
 export const HHG = () => (
   <ReviewServiceItems
+    paymentRequest={pendingPaymentRequest}
     serviceItemCards={[
       {
         id: '1',
@@ -76,6 +85,7 @@ export const HHG = () => (
 
 export const NonTemporaryStorage = () => (
   <ReviewServiceItems
+    paymentRequest={pendingPaymentRequest}
     serviceItemCards={[
       {
         id: '1',
@@ -94,6 +104,7 @@ export const NonTemporaryStorage = () => (
 
 export const MultipleShipmentsGroups = () => (
   <ReviewServiceItems
+    paymentRequest={pendingPaymentRequest}
     serviceItemCards={[
       {
         id: '1',
@@ -135,6 +146,7 @@ export const MultipleShipmentsGroups = () => (
 export const WithStatusAndReason = () => (
   <ReviewServiceItems
     disableScrollIntoView
+    paymentRequest={pendingPaymentRequest}
     serviceItemCards={[
       {
         id: '1',
@@ -186,6 +198,7 @@ export const WithStatusAndReason = () => (
 export const WithNeedsReview = () => (
   <ReviewServiceItems
     disableScrollIntoView
+    paymentRequest={pendingPaymentRequest}
     serviceItemCards={[
       {
         id: '1',
@@ -212,6 +225,7 @@ WithNeedsReview.story = {
 export const WithRejectRequest = () => (
   <ReviewServiceItems
     disableScrollIntoView
+    paymentRequest={pendingPaymentRequest}
     serviceItemCards={[
       {
         id: '1',
@@ -235,9 +249,10 @@ WithRejectRequest.story = {
   },
 };
 
-export const WithAuthorizedPayment = () => (
+export const WithAuthorizePayment = () => (
   <ReviewServiceItems
     disableScrollIntoView
+    paymentRequest={pendingPaymentRequest}
     serviceItemCards={[
       {
         id: '1',
@@ -253,10 +268,54 @@ export const WithAuthorizedPayment = () => (
   />
 );
 
-WithAuthorizedPayment.story = {
+WithAuthorizePayment.story = {
   parameters: {
     loki: {
       skip: true,
     },
   },
 };
+
+export const WithPaymentReviewedApproved = () => (
+  <ReviewServiceItems
+    disableScrollIntoView
+    paymentRequest={{
+      status: PAYMENT_REQUEST_STATUS.REVIEWED,
+      reviewedAt: '2020-08-31T20:30:59.000Z',
+    }}
+    serviceItemCards={[
+      {
+        id: '1',
+        serviceItemName: 'Counseling services',
+        status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
+        amount: 0.01,
+        createdAt: '2020-01-01T00:09:00.999Z',
+      },
+    ]}
+    handleClose={action('clicked')}
+    onCompleteReview={action('clicked')}
+    patchPaymentServiceItem={action('patchPaymentServiceItem')}
+  />
+);
+
+export const WithPaymentReviewedRejected = () => (
+  <ReviewServiceItems
+    disableScrollIntoView
+    paymentRequest={{
+      status: PAYMENT_REQUEST_STATUS.REVIEWED,
+    }}
+    serviceItemCards={[
+      {
+        id: '1',
+        serviceItemName: 'Counseling services',
+        status: PAYMENT_SERVICE_ITEM_STATUS.DENIED,
+        rejectionReason: 'Service member already counseled',
+        amount: 0.01,
+        createdAt: '2020-01-01T00:09:00.999Z',
+      },
+    ]}
+    handleClose={action('clicked')}
+    onCompleteReview={action('clicked')}
+    patchPaymentServiceItem={action('patchPaymentServiceItem')}
+  />
+);
