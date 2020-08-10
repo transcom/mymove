@@ -15,7 +15,6 @@ const (
 	fscTestWeight               = unit.Pound(4025)
 	fscWeightDistanceMultiplier = float64(0.000417)
 	fscFuelPrice                = unit.Millicents(281400)
-	fscLowFuelPrice             = unit.Millicents(249000)
 	fscPriceCents               = unit.Cents(2980)
 )
 
@@ -54,10 +53,10 @@ func (suite *GHCRateEngineServiceSuite) TestPriceFuelSurcharge() {
 		suite.Equal(unit.Cents(0), priceCents)
 	})
 
-	suite.T().Run("FSC is zero if fuel price from EIA is below $2.50", func(t *testing.T) {
-		priceCents, err := fuelSurchargePricer.Price(testdatagen.DefaultContractCode, fscActualPickupDate, fscTestDistance, fscTestWeight, fscWeightDistanceMultiplier, fscLowFuelPrice)
+	suite.T().Run("FSC is negative if fuel price from EIA is below $2.50", func(t *testing.T) {
+		priceCents, err := fuelSurchargePricer.Price(testdatagen.DefaultContractCode, fscActualPickupDate, fscTestDistance, fscTestWeight, fscWeightDistanceMultiplier, 242400)
 		suite.NoError(err)
-		suite.Equal(unit.Cents(0), priceCents)
+		suite.Equal(unit.Cents(-721), priceCents)
 	})
 }
 

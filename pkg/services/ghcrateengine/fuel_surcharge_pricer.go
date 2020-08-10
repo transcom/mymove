@@ -48,13 +48,9 @@ func (p fuelSurchargePricer) Price(contractCode string, actualPickupDate time.Ti
 	}
 
 	priceDifference := (fuelPrice - baseGHCDieselFuelPrice).Float64() / 1000.00
-	if priceDifference <= 0 {
-		totalCost = unit.Cents(0)
-	} else {
-		surchargeMultiplier := weightBasedDistanceMultiplier * distance.Float64()
-		fscPrice := surchargeMultiplier * priceDifference * 100
-		totalCost = unit.Cents(math.Round(fscPrice))
-	}
+	surchargeMultiplier := weightBasedDistanceMultiplier * distance.Float64()
+	fscPrice := surchargeMultiplier * priceDifference * 100
+	totalCost = unit.Cents(math.Round(fscPrice))
 
 	return totalCost, err
 }
