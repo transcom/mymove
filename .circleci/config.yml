@@ -1292,7 +1292,7 @@ jobs:
     steps:
       - aws_vars_stg
       - deploy_app_steps:
-          compare_host: '' #my.stg.move.mil
+          compare_host: my.stg.move.mil
           health_check_hosts: my.stg.move.mil,office.stg.move.mil,admin.stg.move.mil
           ecr_env: stg
 
@@ -1304,7 +1304,7 @@ jobs:
     steps:
       - aws_vars_stg
       - deploy_app_client_tls_steps:
-          compare_host: '' #gex.stg.move.mil
+          compare_host: gex.stg.move.mil
           health_check_hosts: gex.stg.move.mil,dps.stg.move.mil,orders.stg.move.mil
           ecr_env: stg
 
@@ -1631,8 +1631,6 @@ workflows:
             branches:
               only: cblkwell-MB-3576-deploy-stg-env
 
-      # Disabled for now by requiring a nonexistent branch because
-      # otherwise the first deploy will fail
       - check_circle_against_stg_sha:
           requires:
             - pre_test
@@ -1647,21 +1645,11 @@ workflows:
             - integration_tests_mtls
           filters:
             branches:
-              only: NO_BRANCH
+              only: cblkwell-MB-3576-deploy-stg-env
 
-      # The requirements for this need to be changed to just the
-      # check_circle_against_stg_sha after the first successful
-      # deploy.
       - deploy_stg_migrations:
           requires:
-            - pre_test
-            - client_test
-            - server_test
-            - push_app_stg
-            - build_tools
-            - push_migrations_stg
-            - push_tasks_stg
-            - acceptance_tests
+            - check_circle_against_stg_sha
           filters:
             branches:
               only: cblkwell-MB-3576-deploy-stg-env
