@@ -254,6 +254,8 @@ commands:
         type: string
       tag:
         type: string
+      repo:
+        type: string
       working_dir:
         type: string
     steps:
@@ -264,10 +266,17 @@ commands:
             docker build -f << parameters.dockerfile>> -t << parameters.image_name >>:<< parameters.tag >> .
             mkdir -p /home/circleci/transcom/mymove/bin/images
             docker save -o /home/circleci/transcom/mymove/bin/images/<< parameters.image_name >> << parameters.image_name >>:<< parameters.tag >>
+      - run:
+          name: 'Record docker image digest'
+          command: |
+            mkdir -p /home/circleci/transcom/mymove/bin/sha
+            echo $(docker image inspect << parameters.image_name >>:<< parameters.tag >> | jq .[0] | jq ".ContainerConfig.Image" -r) > /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>
+            cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>
       - persist_to_workspace:
           root: bin
           paths:
             - images/<< parameters.image_name >>
+            - sha/ECR_DIGEST_<< parameters.repo >>
 
   push_image:
     parameters:
@@ -295,17 +304,8 @@ commands:
             docker tag << parameters.image_name >>:<< parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
       - run:
-          name: 'Record ECR Image Digest'
-          command: |
-            mkdir -p /home/circleci/transcom/mymove/bin/sha
-            echo $(aws ecr describe-images --repository-name << parameters.repo >> --image-ids imageTag=git-${CIRCLE_SHA1} | jq ".imageDetails[0] .imageDigest" -r) > /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>
-            cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>
-      - run:
           name: 'Describe image scan findings'
           command: scripts/ecr-describe-image-scan-findings << parameters.repo >> ${CIRCLE_SHA1}
-      - persist_to_workspace:
-          root: bin
-          paths: sha/
 
   server_tests_step:
     parameters:
@@ -772,6 +772,7 @@ jobs:
           dockerfile: Dockerfile
           image_name: ppp
           tag: web-dev
+          repo: app
           working_dir: ~/transcom/mymove
       - announce_failure
 
@@ -862,6 +863,7 @@ jobs:
           dockerfile: Dockerfile.migrations
           image_name: ppp-migrations
           tag: dev
+          repo: app-migrations
           working_dir: ~/transcom/mymove
       - announce_failure
 
@@ -970,11 +972,13 @@ jobs:
           dockerfile: Dockerfile.prod
           image_name: engadmin
           tag: dev
+          repo: app-engadmin
           working_dir: ~/transcom/milmove_admin/app
       - build_image:
           dockerfile: Dockerfile
           image_name: engadmin-nginx
           tag: dev
+          repo: app-engadmin-nginx
           working_dir: ~/transcom/milmove_admin/nginx
       - announce_failure
 
@@ -1048,6 +1052,7 @@ jobs:
           dockerfile: Dockerfile.tasks
           image_name: tasks
           tag: dev
+          repo: app-tasks
           working_dir: ~/transcom/mymove
       - announce_failure
 
