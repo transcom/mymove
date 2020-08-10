@@ -116,13 +116,16 @@ commands:
             scripts/circleci-announce-broken-branch
           when: on_fail
   deploy_migrations_steps:
+    parameters:
+      ecr_env:
+        type: string
     steps:
       - checkout
       - attach_workspace:
           at: /home/circleci/transcom/mymove/bin
       - run:
           name: Get Digest from filesystem
-          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app-migrations)' | tee -a "${BASH_ENV}"
+          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app-migrations_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
       - run:
           name: Snapshot database
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/rds-snapshot-app-db $APP_ENVIRONMENT
@@ -134,6 +137,9 @@ commands:
             CHAMBER_RETRIES: 20
       - announce_failure
   deploy_tasks_steps:
+    parameters:
+      ecr_env:
+        type: string
     steps:
       - checkout
       - restore_cache:
@@ -143,7 +149,7 @@ commands:
           at: /home/circleci/transcom/mymove/bin
       - run:
           name: Get Digest from filesystem
-          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app-tasks)' | tee -a "${BASH_ENV}"
+          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app-tasks_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
       - deploy:
           name: Deploy GHC fuel price data task service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
@@ -170,6 +176,8 @@ commands:
         type: string
       health_check_hosts:
         type: string
+      ecr_env:
+        type: string
     steps:
       - checkout
       - run:
@@ -183,7 +191,7 @@ commands:
           at: /home/circleci/transcom/mymove/bin
       - run:
           name: Get Digest from filesystem
-          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app)' | tee -a "${BASH_ENV}"
+          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
       - deploy:
           name: Deploy app service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
@@ -204,6 +212,8 @@ commands:
         type: string
       health_check_hosts:
         type: string
+      ecr_env:
+        type: string
     steps:
       - checkout
       - run:
@@ -217,7 +227,7 @@ commands:
           at: /home/circleci/transcom/mymove/bin
       - run:
           name: Get Digest from filesystem
-          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app)' | tee -a "${BASH_ENV}"
+          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app_<< parameters.ecr_env >>)' | tee -a "${BASH_ENV}"
       - deploy:
           name: Deploy app-client-tls service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app-client-tls "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
@@ -254,8 +264,6 @@ commands:
         type: string
       tag:
         type: string
-      repo:
-        type: string
       working_dir:
         type: string
     steps:
@@ -266,20 +274,15 @@ commands:
             docker build -f << parameters.dockerfile>> -t << parameters.image_name >>:<< parameters.tag >> .
             mkdir -p /home/circleci/transcom/mymove/bin/images
             docker save -o /home/circleci/transcom/mymove/bin/images/<< parameters.image_name >> << parameters.image_name >>:<< parameters.tag >>
-      - run:
-          name: 'Record docker image digest'
-          command: |
-            mkdir -p /home/circleci/transcom/mymove/bin/sha
-            echo $(docker image inspect << parameters.image_name >>:<< parameters.tag >> | jq .[0] | jq ".Id" -r) > /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>
-            cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>
       - persist_to_workspace:
           root: bin
           paths:
             - images/<< parameters.image_name >>
-            - sha/ECR_DIGEST_<< parameters.repo >>
 
   push_image:
     parameters:
+      ecr_env:
+        type: string
       image_name:
         type: string
       tag:
@@ -304,8 +307,17 @@ commands:
             docker tag << parameters.image_name >>:<< parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
       - run:
+          name: 'Record ECR Image Digest'
+          command: |
+            mkdir -p /home/circleci/transcom/mymove/bin/sha
+            echo $(aws ecr describe-images --repository-name << parameters.repo >> --image-ids imageTag=git-${CIRCLE_SHA1} | jq ".imageDetails[0] .imageDigest" -r) > /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>
+            cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>
+      - run:
           name: 'Describe image scan findings'
           command: scripts/ecr-describe-image-scan-findings << parameters.repo >> ${CIRCLE_SHA1}
+      - persist_to_workspace:
+          root: bin
+          paths: sha/
 
   server_tests_step:
     parameters:
@@ -772,7 +784,6 @@ jobs:
           dockerfile: Dockerfile
           image_name: ppp
           tag: web-dev
-          repo: app
           working_dir: ~/transcom/mymove
       - announce_failure
 
@@ -784,6 +795,7 @@ jobs:
           docker_layer_caching: false
       - aws_vars_legacy
       - push_image:
+          ecr_env: legacy
           image_name: ppp
           tag: web-dev
           repo: app
@@ -797,6 +809,7 @@ jobs:
           docker_layer_caching: false
       - aws_vars_exp
       - push_image:
+          ecr_env: exp
           image_name: ppp
           tag: web-dev
           repo: app
@@ -810,6 +823,7 @@ jobs:
           docker_layer_caching: false
       - aws_vars_stg
       - push_image:
+          ecr_env: stg
           image_name: ppp
           tag: web-dev
           repo: app
@@ -863,7 +877,6 @@ jobs:
           dockerfile: Dockerfile.migrations
           image_name: ppp-migrations
           tag: dev
-          repo: app-migrations
           working_dir: ~/transcom/mymove
       - announce_failure
 
@@ -875,6 +888,7 @@ jobs:
           docker_layer_caching: false
       - aws_vars_legacy
       - push_image:
+          ecr_env: legacy
           image_name: ppp-migrations
           tag: dev
           repo: app-migrations
@@ -888,6 +902,7 @@ jobs:
           docker_layer_caching: false
       - aws_vars_exp
       - push_image:
+          ecr_env: exp
           image_name: ppp-migrations
           tag: dev
           repo: app-migrations
@@ -901,6 +916,7 @@ jobs:
           docker_layer_caching: false
       - aws_vars_stg
       - push_image:
+          ecr_env: stg
           image_name: ppp-migrations
           tag: dev
           repo: app-migrations
@@ -972,13 +988,11 @@ jobs:
           dockerfile: Dockerfile.prod
           image_name: engadmin
           tag: dev
-          repo: app-engadmin
           working_dir: ~/transcom/milmove_admin/app
       - build_image:
           dockerfile: Dockerfile
           image_name: engadmin-nginx
           tag: dev
-          repo: app-engadmin-nginx
           working_dir: ~/transcom/milmove_admin/nginx
       - announce_failure
 
@@ -990,10 +1004,12 @@ jobs:
           docker_layer_caching: false
       - aws_vars_legacy
       - push_image:
+          ecr_env: legacy
           image_name: engadmin
           tag: dev
           repo: app-engadmin
       - push_image:
+          ecr_env: legacy
           image_name: engadmin-nginx
           tag: dev
           repo: app-engadmin-nginx
@@ -1007,10 +1023,12 @@ jobs:
           docker_layer_caching: false
       - aws_vars_exp
       - push_image:
+          ecr_env: exp
           image_name: engadmin
           tag: dev
           repo: app-engadmin
       - push_image:
+          ecr_env: exp
           image_name: engadmin-nginx
           tag: dev
           repo: app-engadmin-nginx
@@ -1024,10 +1042,12 @@ jobs:
           docker_layer_caching: false
       - aws_vars_stg
       - push_image:
+          ecr_env: stg
           image_name: engadmin
           tag: dev
           repo: app-engadmin
       - push_image:
+          ecr_env: stg
           image_name: engadmin-nginx
           tag: dev
           repo: app-engadmin-nginx
@@ -1052,7 +1072,6 @@ jobs:
           dockerfile: Dockerfile.tasks
           image_name: tasks
           tag: dev
-          repo: app-tasks
           working_dir: ~/transcom/mymove
       - announce_failure
 
@@ -1064,6 +1083,7 @@ jobs:
           docker_layer_caching: false
       - aws_vars_legacy
       - push_image:
+          ecr_env: legacy
           image_name: tasks
           tag: dev
           repo: app-tasks
@@ -1077,6 +1097,7 @@ jobs:
           docker_layer_caching: false
       - aws_vars_exp
       - push_image:
+          ecr_env: exp
           image_name: tasks
           tag: dev
           repo: app-tasks
@@ -1090,6 +1111,7 @@ jobs:
           docker_layer_caching: false
       - aws_vars_stg
       - push_image:
+          ecr_env: stg
           image_name: tasks
           tag: dev
           repo: app-tasks
@@ -1102,7 +1124,8 @@ jobs:
       - APP_ENVIRONMENT: 'experimental'
     steps:
       - aws_vars_legacy
-      - deploy_migrations_steps
+      - deploy_migrations_steps:
+          ecr_env: legacy
 
   # `deploy_experimental_tasks` deploys scheduled tasks to the experimental environment
   deploy_experimental_tasks:
@@ -1111,7 +1134,8 @@ jobs:
       - APP_ENVIRONMENT: 'experimental'
     steps:
       - aws_vars_legacy
-      - deploy_tasks_steps
+      - deploy_tasks_steps:
+          ecr_env: legacy
 
   # `deploy_experimental_app` updates the server-TLS app service in the experimental environment
   deploy_experimental_app:
@@ -1123,6 +1147,7 @@ jobs:
       - deploy_app_steps:
           compare_host: '' # leave blank since we want experimental to be able to roll back
           health_check_hosts: my.experimental.move.mil,office.experimental.move.mil,admin.experimental.move.mil
+          ecr_env: legacy
 
   # `deploy_experimental_app_client_tls` updates the mutual-TLS service in the experimental environment
   deploy_experimental_app_client_tls:
@@ -1134,6 +1159,7 @@ jobs:
       - deploy_app_client_tls_steps:
           compare_host: '' # leave blank since we want experimental to be able to roll back
           health_check_hosts: gex.experimental.move.mil,dps.experimental.move.mil,orders.experimental.move.mil
+          ecr_env: legacy
 
   # `deploy_exp_migrations` deploys migrations to the exp environment
   deploy_exp_migrations:
@@ -1142,7 +1168,8 @@ jobs:
       - APP_ENVIRONMENT: 'exp'
     steps:
       - aws_vars_exp
-      - deploy_migrations_steps
+      - deploy_migrations_steps:
+          ecr_env: exp
 
   # `deploy_exp_tasks` deploys scheduled tasks to the exp environment
   deploy_exp_tasks:
@@ -1151,7 +1178,8 @@ jobs:
       - APP_ENVIRONMENT: 'exp'
     steps:
       - aws_vars_exp
-      - deploy_tasks_steps
+      - deploy_tasks_steps:
+          ecr_env: exp
 
   # `deploy_exp_app` updates the server-TLS app service in the exp environment
   deploy_exp_app:
@@ -1163,7 +1191,7 @@ jobs:
       - deploy_app_steps:
           compare_host: '' # leave blank since we want exp to be able to roll back
           health_check_hosts: my.exp.move.mil,office.exp.move.mil,admin.exp.move.mil
-
+          ecr_env: exp
   # `deploy_exp_app_client_tls` updates the mutual-TLS service in the exp environment
   deploy_exp_app_client_tls:
     executor: mymove_small
@@ -1174,6 +1202,7 @@ jobs:
       - deploy_app_client_tls_steps:
           compare_host: '' # leave blank since we want exp to be able to roll back
           health_check_hosts: gex.exp.move.mil,dps.exp.move.mil,orders.exp.move.mil
+          ecr_env: exp
 
   check_circle_against_staging_sha:
     executor: mymove_small
@@ -1190,7 +1219,8 @@ jobs:
       - APP_ENVIRONMENT: 'staging'
     steps:
       - aws_vars_legacy
-      - deploy_migrations_steps
+      - deploy_migrations_steps:
+          ecr_env: legacy
 
   # `deploy_staging_tasks` deploys scheduled tasks to the staging environment
   deploy_staging_tasks:
@@ -1199,7 +1229,8 @@ jobs:
       - APP_ENVIRONMENT: 'staging'
     steps:
       - aws_vars_legacy
-      - deploy_tasks_steps
+      - deploy_tasks_steps:
+          ecr_env: legacy
 
   # `deploy_staging_app` updates the server-TLS app service in staging environment
   deploy_staging_app:
@@ -1211,6 +1242,7 @@ jobs:
       - deploy_app_steps:
           compare_host: my.staging.move.mil
           health_check_hosts: my.staging.move.mil,office.staging.move.mil,admin.staging.move.mil
+          ecr_env: legacy
 
   # `deploy_staging_app_client_tls` updates the mutual-TLS service in the staging environment
   deploy_staging_app_client_tls:
@@ -1222,6 +1254,7 @@ jobs:
       - deploy_app_client_tls_steps:
           compare_host: gex.staging.move.mil
           health_check_hosts: gex.staging.move.mil,dps.staging.move.mil,orders.staging.move.mil
+          ecr_env: legacy
 
   check_circle_against_stg_sha:
     executor: mymove_small
@@ -1238,7 +1271,8 @@ jobs:
       - APP_ENVIRONMENT: 'stg'
     steps:
       - aws_vars_stg
-      - deploy_migrations_steps
+      - deploy_migrations_steps:
+          ecr_env: stg
 
   # `deploy_stg_tasks` deploys scheduled tasks to the stg environment
   deploy_stg_tasks:
@@ -1247,7 +1281,8 @@ jobs:
       - APP_ENVIRONMENT: 'stg'
     steps:
       - aws_vars_stg
-      - deploy_tasks_steps
+      - deploy_tasks_steps:
+          ecr_env: stg
 
   # `deploy_stg_app` updates the server-TLS app service in stg environment
   deploy_stg_app:
@@ -1259,6 +1294,7 @@ jobs:
       - deploy_app_steps:
           compare_host: my.stg.move.mil
           health_check_hosts: my.stg.move.mil,office.stg.move.mil,admin.stg.move.mil
+          ecr_env: stg
 
   # `deploy_stg_app_client_tls` updates the mutual-TLS service in the stg environment
   deploy_stg_app_client_tls:
@@ -1270,6 +1306,7 @@ jobs:
       - deploy_app_client_tls_steps:
           compare_host: gex.stg.move.mil
           health_check_hosts: gex.stg.move.mil,dps.stg.move.mil,orders.stg.move.mil
+          ecr_env: stg
 
   # `deploy_prod_migrations` deploys migrations to the staging environment
   deploy_prod_migrations:
@@ -1278,7 +1315,8 @@ jobs:
       - APP_ENVIRONMENT: 'prod'
     steps:
       - aws_vars_legacy
-      - deploy_migrations_steps
+      - deploy_migrations_steps:
+          ecr_env: legacy
 
   # `deploy_prod_tasks` deploys scheduled tasks to the prod environment
   deploy_prod_tasks:
@@ -1287,7 +1325,8 @@ jobs:
       - APP_ENVIRONMENT: 'prod'
     steps:
       - aws_vars_legacy
-      - deploy_tasks_steps
+      - deploy_tasks_steps:
+          ecr_env: legacy
 
   # `deploy_prod_app` updates the server-TLS app service in the prod environment
   deploy_prod_app:
@@ -1299,6 +1338,7 @@ jobs:
       - deploy_app_steps:
           compare_host: my.move.mil
           health_check_hosts: my.move.mil,office.move.mil,admin.move.mil
+          ecr_env: legacy
 
   # `deploy_prod_app_client_tls` updates the mutual-TLS service in the prod environment
   deploy_prod_app_client_tls:
@@ -1310,6 +1350,7 @@ jobs:
       - deploy_app_client_tls_steps:
           compare_host: gex.move.mil
           health_check_hosts: gex.move.mil,dps.move.mil,orders.move.mil
+          ecr_env: legacy
 
   deploy_prod_storybook:
     executor: mymove_small
