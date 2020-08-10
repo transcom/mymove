@@ -1292,7 +1292,7 @@ jobs:
     steps:
       - aws_vars_stg
       - deploy_app_steps:
-          compare_host: my.stg.move.mil
+          compare_host: '' #my.stg.move.mil
           health_check_hosts: my.stg.move.mil,office.stg.move.mil,admin.stg.move.mil
           ecr_env: stg
 
@@ -1304,7 +1304,7 @@ jobs:
     steps:
       - aws_vars_stg
       - deploy_app_client_tls_steps:
-          compare_host: gex.stg.move.mil
+          compare_host: '' #gex.stg.move.mil
           health_check_hosts: gex.stg.move.mil,dps.stg.move.mil,orders.stg.move.mil
           ecr_env: stg
 
