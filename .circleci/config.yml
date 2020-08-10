@@ -270,7 +270,7 @@ commands:
           name: 'Record docker image digest'
           command: |
             mkdir -p /home/circleci/transcom/mymove/bin/sha
-            echo $(docker image inspect << parameters.image_name >>:<< parameters.tag >> | jq .[0] | jq ".ContainerConfig.Image" -r) > /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>
+            echo $(docker image inspect << parameters.image_name >>:<< parameters.tag >> | jq .[0] | jq ".Id" -r) > /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>
             cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>
       - persist_to_workspace:
           root: bin
@@ -1621,8 +1621,6 @@ workflows:
             - push_migrations_stg
             - push_tasks_stg
             - acceptance_tests
-            - integration_tests
-            - integration_tests_mtls
           filters:
             branches:
               only: cblkwell-MB-3576-deploy-stg-env
