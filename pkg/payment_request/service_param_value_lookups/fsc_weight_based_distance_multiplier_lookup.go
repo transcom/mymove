@@ -5,6 +5,11 @@ import (
 	"strconv"
 )
 
+const weightBasedDistanceMultiplierLevelOne = "0.000417"
+const weightBasedDistanceMultiplierLevelTwo = "0.0006255"
+const weightBasedDistanceMultiplierLevelThree = "0.000834"
+const weightBasedDistanceMultiplierLevelFour = "0.00139"
+
 // FSCWeightBasedDistanceMultiplierLookup does lookup on fuel surcharge related weight based distance multiplier rate based on billed actual weight
 type FSCWeightBasedDistanceMultiplierLookup struct {
 }
@@ -21,12 +26,12 @@ func (r FSCWeightBasedDistanceMultiplierLookup) lookup(keyData *ServiceItemParam
 	}
 
 	if weightBilledActual <= 5000 {
-		return "0.000417", nil
+		return weightBasedDistanceMultiplierLevelOne, nil
 	} else if weightBilledActual <= 10000 {
-		return "0.0006255", nil
+		return weightBasedDistanceMultiplierLevelTwo, nil
 	} else if weightBilledActual <= 24000 {
-		return "0.000834", nil
+		return weightBasedDistanceMultiplierLevelThree, nil
 	} else {
-		return "0.00139", nil
+		return weightBasedDistanceMultiplierLevelFour, nil
 	}
 }
