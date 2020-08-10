@@ -38,7 +38,8 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	}
 
 	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
-
+	// TODO: remove this status change once the UpdateMTOShipment api is implemented and can update to Submitted
+	mtoShipment.Status = models.MTOShipmentStatusSubmitted
 	serviceItemsList := make(models.MTOServiceItems, 0)
 	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(mtoShipment, serviceItemsList)
 
@@ -59,7 +60,6 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
 		}
 	}
-
 	returnPayload := payloads.MTOShipment(mtoShipment)
 	return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload)
 }

@@ -2571,6 +2571,11 @@ func init() {
           "x-nullable": true,
           "example": "documentation was incomplete"
         },
+        "reviewedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "serviceItems": {
           "$ref": "#/definitions/PaymentServiceItems"
         },
@@ -5886,6 +5891,11 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "documentation was incomplete"
+        },
+        "reviewedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         },
         "serviceItems": {
           "$ref": "#/definitions/PaymentServiceItems"

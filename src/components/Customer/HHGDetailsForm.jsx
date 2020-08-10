@@ -273,7 +273,7 @@ HHGDetailsForm.propTypes = {
   newDutyStationAddress: shape({
     city: string.isRequired,
     state: string.isRequired,
-    post_code: string.isRequired,
+    postal_code: string.isRequired,
   }).isRequired,
   moveTaskOrderID: string.isRequired,
   createMTOShipment: func.isRequired,

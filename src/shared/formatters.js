@@ -181,10 +181,14 @@ export const displayDateRange = (dates, formatType = 'long') => {
 // Office Formatters
 
 // Format a date and ignore any time values, e.g. 03-Jan-18
-export function formatDate(date, inputFormat, locale = 'en', isStrict = false) {
+export function formatDate(date, inputFormat, outputFormat = 'DD-MMM-YY', locale = 'en', isStrict = false) {
   if (date) {
-    return moment(date, inputFormat, locale, isStrict).format('DD-MMM-YY');
+    return moment(date, inputFormat, locale, isStrict).format(outputFormat);
   }
+}
+
+export function formatDateFromIso(date, outputFormat) {
+  return formatDate(date, 'YYYY-MM-DDTHH:mm:ss.sssZ', outputFormat);
 }
 
 export function formatDate4DigitYear(date) {
@@ -287,17 +291,3 @@ export const mtoShipmentTypeToFriendlyDisplay = (shipmentType) => {
       return shipmentType;
   }
 };
-
-// Concat service member's full name for display
-export function getFullSMName(serviceMember) {
-  if (!serviceMember) return;
-  return `${serviceMember.first_name} ${serviceMember.middle_name || ''} ${serviceMember.last_name} ${
-    serviceMember.suffix || ''
-  }`;
-}
-
-// Concat agent's full name for display
-export function getFullAgentName(agent) {
-  if (!agent) return;
-  return `${agent.firstName} ${agent.lastName}`;
-}

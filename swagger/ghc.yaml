@@ -1673,6 +1673,10 @@ definitions:
         type: string
       eTag:
         type: string
+      reviewedAt:
+        format: date-time
+        type: string
+        x-nullable: true
     type: object
   PaymentRequests:
     items:
