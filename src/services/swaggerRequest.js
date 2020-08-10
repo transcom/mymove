@@ -64,12 +64,16 @@ export async function makeSwaggerRequest(client, operationPath, params = {}, opt
     // eslint-disable-next-line no-console
     console.error(`Operation ${operationPath} failed: ${e}`);
     // TODO - log error?
+    return Promise.reject(e);
   }
 
   return request
     .then((response) => {
-      // TODO - clean up get schema key
       const routeDefinition = findMatchingRoute(client.spec.paths, operationPath);
+      if (!routeDefinition) {
+        throw new Error(`Could not find routeDefinition for ${operationPath}`);
+      }
+
       let schemaKey = options.schemaKey || successfulReturnType(routeDefinition, response.status);
       if (!schemaKey) {
         throw new Error(`Could not find schemaKey for ${operationPath} status ${response.status}`);
@@ -85,13 +89,16 @@ export async function makeSwaggerRequest(client, operationPath, params = {}, opt
       }
 
       const payloadSchema = schema[`${schemaKey}`];
+      if (!payloadSchema) {
+        throw new Error(`Could not find a schema for ${schemaKey}`);
+      }
+
       return normalize(response.body, payloadSchema).entities;
     })
     .catch((response) => {
       // eslint-disable-next-line no-console
       console.error(`Operation ${operationPath} failed: ${response} (${response.status})`);
-      // TODO - log error
-      // TODO - return error
+      // TODO - log error?
       return Promise.reject(response);
     });
 }

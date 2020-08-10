@@ -4,7 +4,6 @@ import Loadable from 'react-loadable';
 import { ConnectedRouter } from 'connected-react-router';
 import { PersistGate } from 'redux-persist/integration/react';
 import { ReactQueryConfigProvider } from 'react-query';
-// eslint-disable-next-line
 import { ReactQueryDevtools } from 'react-query-devtools';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -44,12 +43,12 @@ const adminContext = { ...defaultAdminContext, flags };
 
 const officeQueryConfig = {
   queries: {
-    retry: 3, // TODO
+    retry: false, // default to no retries for now
     refetchOnWindowFocus: true,
-    // onError: noop, // TODO
+    // onError: noop, // TODO - log errors?
   },
   mutations: {
-    // onError: noop, // TODO
+    // onError: noop, // TODO - log errors?
   },
 };
 

@@ -5,7 +5,7 @@
 export const mapObjectToArray = (obj) => Object.keys(obj).map((i) => obj[i]);
 
 export const getQueriesStatus = (queries) => {
-  // Queries should be the status returned by useQuery (https://react-query.tanstack.com/docs/api#usequery)
+  // Queries should be an array of statuses returned by useQuery (https://react-query.tanstack.com/docs/api#usequery)
   return {
     isLoading: queries.some((q) => q.status === 'loading'),
     isError: queries.some((q) => q.status === 'error'),
