@@ -74,6 +74,7 @@ func MTOShipmentModelFromCreate(mtoShipment *internalmessages.CreateShipment) *m
 		RequestedPickupDate:   &requestedPickupDate,
 		RequestedDeliveryDate: &requestedDeliveryDate,
 		CustomerRemarks:       mtoShipment.CustomerRemarks,
+		Status:                models.MTOShipmentStatusDraft,
 	}
 
 	model.PickupAddress = AddressModel(mtoShipment.PickupAddress)

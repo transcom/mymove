@@ -2630,13 +2630,7 @@ definitions:
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       status:
-        type: string
-        readOnly: true
-        enum:
-          - DRAFT
-          - APPROVED
-          - SUBMITTED
-          - REJECTED
+        $ref: '#/definitions/MTOShipmentStatus'
       pickupAddress:
         $ref: '#/definitions/Address'
       destinationAddress:
@@ -2649,6 +2643,14 @@ definitions:
     items:
       $ref: '#/definitions/MTOShipment'
     type: array
+  MTOShipmentStatus:
+    type: string
+    readOnly: true
+    enum:
+      - DRAFT
+      - APPROVED
+      - SUBMITTED
+      - REJECTED
   CreateShipment:
     type: object
     properties:
@@ -2685,6 +2687,9 @@ definitions:
   UpdateShipment:
     type: object
     properties:
+      status:
+        $ref: '#/definitions/MTOShipmentStatus'
+        x-nullable: true
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
         x-nullable: true

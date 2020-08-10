@@ -39,8 +39,6 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	}
 
 	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
-	// TODO: remove this status change once the UpdateMTOShipment api is implemented and can update to Submitted
-	mtoShipment.Status = models.MTOShipmentStatusSubmitted
 	serviceItemsList := make(models.MTOServiceItems, 0)
 	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(mtoShipment, serviceItemsList)
 
@@ -97,7 +95,6 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 			"The MTO Shipment request body cannot be empty.", h.GetTraceID()))
 	}
 
-	// TODO: incorporate draft status, only push update thru mto updater if status not draft
 	mtoShipment := payloads.MTOShipmentModelFromUpdate(payload)
 	mtoShipment.ID = uuid.FromStringOrNil(mtoShipmentID.String())
 

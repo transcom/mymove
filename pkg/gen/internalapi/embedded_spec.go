@@ -4561,14 +4561,7 @@ func init() {
           "$ref": "#/definitions/MTOShipmentType"
         },
         "status": {
-          "type": "string",
-          "enum": [
-            "DRAFT",
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ],
-          "readOnly": true
+          "$ref": "#/definitions/MTOShipmentStatus"
         },
         "updatedAt": {
           "type": "string",
@@ -4576,6 +4569,16 @@ func init() {
           "readOnly": true
         }
       }
+    },
+    "MTOShipmentStatus": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "APPROVED",
+        "SUBMITTED",
+        "REJECTED"
+      ],
+      "readOnly": true
     },
     "MTOShipmentType": {
       "type": "string",
@@ -6540,6 +6543,10 @@ func init() {
         "shipmentType": {
           "x-nullable": true,
           "$ref": "#/definitions/MTOShipmentType"
+        },
+        "status": {
+          "x-nullable": true,
+          "$ref": "#/definitions/MTOShipmentStatus"
         }
       }
     },
@@ -11297,14 +11304,7 @@ func init() {
           "$ref": "#/definitions/MTOShipmentType"
         },
         "status": {
-          "type": "string",
-          "enum": [
-            "DRAFT",
-            "APPROVED",
-            "SUBMITTED",
-            "REJECTED"
-          ],
-          "readOnly": true
+          "$ref": "#/definitions/MTOShipmentStatus"
         },
         "updatedAt": {
           "type": "string",
@@ -11312,6 +11312,16 @@ func init() {
           "readOnly": true
         }
       }
+    },
+    "MTOShipmentStatus": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "APPROVED",
+        "SUBMITTED",
+        "REJECTED"
+      ],
+      "readOnly": true
     },
     "MTOShipmentType": {
       "type": "string",
@@ -13285,6 +13295,10 @@ func init() {
         "shipmentType": {
           "x-nullable": true,
           "$ref": "#/definitions/MTOShipmentType"
+        },
+        "status": {
+          "x-nullable": true,
+          "$ref": "#/definitions/MTOShipmentStatus"
         }
       }
     },

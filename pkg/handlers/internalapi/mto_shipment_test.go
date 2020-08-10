@@ -305,6 +305,25 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		// TODO: confirm values actually updated correctly
 	})
 
+	suite.T().Run("Successful PATCH - Can update shipment status", func(t *testing.T) {
+		fetcher := fetch.NewFetcher(builder)
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+		handler := UpdateMTOShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			updater,
+		}
+
+		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
+		params := suite.getUpdateMTOShipmentParams(oldShipment)
+		params.Body.Status = "SUBMITTED"
+
+		response := handler.Handle(params)
+
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+
+		// TODO: confirm values actually updated correctly
+	})
+
 	suite.T().Run("PATCH failure - 400 -- nil body", func(t *testing.T) {
 		fetcher := fetch.NewFetcher(builder)
 		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
