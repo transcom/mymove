@@ -158,7 +158,7 @@ func checkServeConfig(v *viper.Viper, logger logger) error {
 	logger.Info("checking webserver config")
 
 	if err := cli.CheckEnvironment(v); err != nil {
-		return err
+		logger.Info(fmt.Sprintf("Environment check failed: %v", err.Error()))
 	}
 
 	if err := cli.CheckBuild(v); err != nil {

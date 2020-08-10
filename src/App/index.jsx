@@ -2,13 +2,14 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import Loadable from 'react-loadable';
 import { ConnectedRouter } from 'connected-react-router';
+import { PersistGate } from 'redux-persist/integration/react';
 import { ReactQueryConfigProvider } from 'react-query';
 // eslint-disable-next-line
 import { ReactQueryDevtools } from 'react-query-devtools';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { isOfficeSite, isAdminSite, isSystemAdminSite } from 'shared/constants';
-import { store, history } from 'shared/store';
+import { store, persistor, history } from 'shared/store';
 import { AppContext, defaultOfficeContext, defaultMyMoveContext, defaultAdminContext } from 'shared/AppContext';
 import { detectFlags } from 'shared/featureFlags';
 
@@ -57,12 +58,14 @@ const App = () => {
     return (
       <ReactQueryConfigProvider config={officeQueryConfig}>
         <Provider store={store}>
-          <AppContext.Provider value={officeContext}>
-            <ConnectedRouter history={history}>
-              <Office />
-              <ReactQueryDevtools initialIsOpen={false} /> {/* TODO: only add this in dev environment */}
-            </ConnectedRouter>
-          </AppContext.Provider>
+          <PersistGate loading={<LoadingPlaceholder />} persistor={persistor}>
+            <AppContext.Provider value={officeContext}>
+              <ConnectedRouter history={history}>
+                <Office />
+                <ReactQueryDevtools initialIsOpen={false} />
+              </ConnectedRouter>
+            </AppContext.Provider>
+          </PersistGate>
         </Provider>
       </ReactQueryConfigProvider>
     );

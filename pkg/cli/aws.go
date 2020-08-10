@@ -17,8 +17,16 @@ type errInvalidRegion struct {
 	Region string
 }
 
+type errUnknownPartition struct {
+	Region string
+}
+
 func (e *errInvalidRegion) Error() string {
 	return fmt.Sprintf("invalid region %s", e.Region)
+}
+
+func (e *errUnknownPartition) Error() string {
+	return fmt.Sprintf("unknown partition for region %s", e.Region)
 }
 
 // InitAWSFlags initializes AWS command line flags
@@ -37,7 +45,12 @@ func CheckAWSRegion(v *viper.Viper) (string, error) {
 
 // CheckAWSRegionForService validates AWS command line flags against a region
 func CheckAWSRegionForService(region, awsServiceName string) error {
-	if service, ok := endpoints.AwsPartition().Services()[awsServiceName]; ok {
+	partition, ok := endpoints.PartitionForRegion(endpoints.DefaultPartitions(), region)
+	if !ok {
+		return &errUnknownPartition{Region: region}
+	}
+
+	if service, ok := partition.Services()[awsServiceName]; ok {
 		regions := service.Regions()
 		if _, ok := regions[region]; !ok {
 			return &errInvalidRegion{Region: region}

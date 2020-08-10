@@ -50,6 +50,10 @@
     @include u-overflow-y('auto');
     flex: 1 1 0;
     flex-basis: 0;
+
+    :global .usa-alert {
+      @include u-margin-bottom(2);
+    }
   }
 
   .bottom {

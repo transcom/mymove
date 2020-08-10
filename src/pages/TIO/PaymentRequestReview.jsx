@@ -125,6 +125,7 @@ export const PaymentRequestReview = ({ history, match }) => {
       <div className={styles.sidebar}>
         <ReviewServiceItems
           handleClose={handleClose}
+          paymentRequest={paymentRequest}
           serviceItemCards={serviceItemCards}
           patchPaymentServiceItem={handleUpdatePaymentServiceItemStatus}
           onCompleteReview={handleCompleteReview}

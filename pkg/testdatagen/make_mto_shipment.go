@@ -55,7 +55,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		SecondaryPickupAddress:   &secondaryPickupAddress,
 		SecondaryDeliveryAddress: &secondaryDeliveryAddress,
 		ShipmentType:             shipmentType,
-		Status:                   "SUBMITTED",
+		Status:                   "DRAFT",
 		RejectionReason:          &rejectionReason,
 	}
 
