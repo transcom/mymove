@@ -4842,7 +4842,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/mto-shipments/{moveTaskOrderID}':
+  /moves/{moveTaskOrderID}/mto-shipment:
     get:
       summary: Gets all shipments for a move task order
       description: |
@@ -4868,12 +4868,8 @@ paths:
           $ref: '#/responses/InvalidRequest'
         '401':
           $ref: '#/responses/PermissionDenied'
-        '403':
-          $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
-        '422':
-          $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
 responses:

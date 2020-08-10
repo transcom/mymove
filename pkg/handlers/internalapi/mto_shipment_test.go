@@ -257,7 +257,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 	shipments := models.MTOShipments{mtoShipment}
 	requestUser := testdatagen.MakeDefaultUser(suite.DB())
 
-	req := httptest.NewRequest("GET", fmt.Sprintf("/mto-shipments/%s", mto.ID.String()), nil)
+	req := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/mto-shipment", mto.ID.String()), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
 	params := mtoshipmentops.ListMTOShipmentsParams{
@@ -265,7 +265,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
 	}
 
-	suite.T().Run("Successful list fetch - Integration Test", func(t *testing.T) {
+	suite.T().Run("Successful list fetch - 200 - Integration Test", func(t *testing.T) {
 		queryBuilder := query.NewQueryBuilder(suite.DB())
 		listFetcher := fetch.NewListFetcher(queryBuilder)
 		fetcher := fetch.NewFetcher(queryBuilder)
@@ -283,7 +283,65 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		suite.Equal(shipments[0].ID.String(), okResponse.Payload[0].ID.String())
 	})
 
-	suite.T().Run("Failure list fetch - Internal Server Error", func(t *testing.T) {
+	suite.T().Run("POST failure - 400 - Bad Request", func(t *testing.T) {
+		emtpyMTOID := mtoshipmentops.ListMTOShipmentsParams{
+			HTTPRequest:     req,
+			MoveTaskOrderID: "",
+		}
+		mockListFetcher := mocks.ListFetcher{}
+		mockFetcher := mocks.Fetcher{}
+		handler := ListMTOShipmentsHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			&mockListFetcher,
+			&mockFetcher,
+		}
+
+		response := handler.Handle(emtpyMTOID)
+
+		suite.IsType(&mtoshipmentops.ListMTOShipmentsBadRequest{}, response)
+	})
+
+	suite.T().Run("POST failure - 401 - permission denied - not authenticated", func(t *testing.T) {
+		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		unauthorizedReq := suite.AuthenticateOfficeRequest(req, officeUser)
+		unauthorizedParams := mtoshipmentops.ListMTOShipmentsParams{
+			HTTPRequest:     unauthorizedReq,
+			MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
+		}
+		mockListFetcher := mocks.ListFetcher{}
+		mockFetcher := mocks.Fetcher{}
+		handler := ListMTOShipmentsHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			&mockListFetcher,
+			&mockFetcher,
+		}
+
+		response := handler.Handle(unauthorizedParams)
+
+		suite.IsType(&mtoshipmentops.ListMTOShipmentsUnauthorized{}, response)
+	})
+
+	suite.T().Run("Failure list fetch - 404 Not Found - Move Task Order ID", func(t *testing.T) {
+		mockListFetcher := mocks.ListFetcher{}
+		mockFetcher := mocks.Fetcher{}
+		handler := ListMTOShipmentsHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			&mockListFetcher,
+			&mockFetcher,
+		}
+
+		notfound := errors.New("Not found error")
+
+		mockFetcher.On("FetchRecord",
+			mock.Anything,
+			mock.Anything,
+		).Return(notfound)
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.ListMTOShipmentsNotFound{}, response)
+	})
+
+	suite.T().Run("Failure list fetch - 500 Internal Server Error", func(t *testing.T) {
 		mockListFetcher := mocks.ListFetcher{}
 		mockFetcher := mocks.Fetcher{}
 		handler := ListMTOShipmentsHandler{
@@ -309,25 +367,5 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsInternalServerError{}, response)
-	})
-
-	suite.T().Run("Failure list fetch - 404 Not Found - Move Task Order ID", func(t *testing.T) {
-		mockListFetcher := mocks.ListFetcher{}
-		mockFetcher := mocks.Fetcher{}
-		handler := ListMTOShipmentsHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			&mockListFetcher,
-			&mockFetcher,
-		}
-
-		notfound := errors.New("Not found error")
-
-		mockFetcher.On("FetchRecord",
-			mock.Anything,
-			mock.Anything,
-		).Return(notfound)
-
-		response := handler.Handle(params)
-		suite.IsType(&mtoshipmentops.ListMTOShipmentsNotFound{}, response)
 	})
 }

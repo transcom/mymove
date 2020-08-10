@@ -148,50 +148,6 @@ func (o *ListMTOShipmentsUnauthorized) WriteResponse(rw http.ResponseWriter, pro
 	}
 }
 
-// ListMTOShipmentsForbiddenCode is the HTTP code returned for type ListMTOShipmentsForbidden
-const ListMTOShipmentsForbiddenCode int = 403
-
-/*ListMTOShipmentsForbidden The request was denied.
-
-swagger:response listMTOShipmentsForbidden
-*/
-type ListMTOShipmentsForbidden struct {
-
-	/*
-	  In: Body
-	*/
-	Payload *internalmessages.ClientError `json:"body,omitempty"`
-}
-
-// NewListMTOShipmentsForbidden creates ListMTOShipmentsForbidden with default headers values
-func NewListMTOShipmentsForbidden() *ListMTOShipmentsForbidden {
-
-	return &ListMTOShipmentsForbidden{}
-}
-
-// WithPayload adds the payload to the list m t o shipments forbidden response
-func (o *ListMTOShipmentsForbidden) WithPayload(payload *internalmessages.ClientError) *ListMTOShipmentsForbidden {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the list m t o shipments forbidden response
-func (o *ListMTOShipmentsForbidden) SetPayload(payload *internalmessages.ClientError) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *ListMTOShipmentsForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(403)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
-	}
-}
-
 // ListMTOShipmentsNotFoundCode is the HTTP code returned for type ListMTOShipmentsNotFound
 const ListMTOShipmentsNotFoundCode int = 404
 
@@ -228,50 +184,6 @@ func (o *ListMTOShipmentsNotFound) SetPayload(payload *internalmessages.ClientEr
 func (o *ListMTOShipmentsNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
-	}
-}
-
-// ListMTOShipmentsUnprocessableEntityCode is the HTTP code returned for type ListMTOShipmentsUnprocessableEntity
-const ListMTOShipmentsUnprocessableEntityCode int = 422
-
-/*ListMTOShipmentsUnprocessableEntity The payload was unprocessable.
-
-swagger:response listMTOShipmentsUnprocessableEntity
-*/
-type ListMTOShipmentsUnprocessableEntity struct {
-
-	/*
-	  In: Body
-	*/
-	Payload *internalmessages.ValidationError `json:"body,omitempty"`
-}
-
-// NewListMTOShipmentsUnprocessableEntity creates ListMTOShipmentsUnprocessableEntity with default headers values
-func NewListMTOShipmentsUnprocessableEntity() *ListMTOShipmentsUnprocessableEntity {
-
-	return &ListMTOShipmentsUnprocessableEntity{}
-}
-
-// WithPayload adds the payload to the list m t o shipments unprocessable entity response
-func (o *ListMTOShipmentsUnprocessableEntity) WithPayload(payload *internalmessages.ValidationError) *ListMTOShipmentsUnprocessableEntity {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the list m t o shipments unprocessable entity response
-func (o *ListMTOShipmentsUnprocessableEntity) SetPayload(payload *internalmessages.ValidationError) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *ListMTOShipmentsUnprocessableEntity) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(422)
 	if o.Payload != nil {
 		payload := o.Payload
 		if err := producer.Produce(rw, payload); err != nil {
