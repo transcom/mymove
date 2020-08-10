@@ -93,7 +93,6 @@ describe('PaymentRequestReview', () => {
   };
 
   describe('with data loaded', () => {
-    // eslint-disable-next-line react/jsx-props-no-spreading
     const wrapper = mount(<PaymentRequestReview {...requiredProps} />);
 
     it('renders without errors', () => {

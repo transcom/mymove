@@ -10,7 +10,6 @@ import { mapObjectToArray } from 'utils/api';
 const PaymentRequestIndex = () => {
   const { isLoading, isError, data, error } = useQuery('paymentRequests', getPaymentRequestList);
 
-  // These values can be used to return the loading screen or error UI
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong error={error} />;
 

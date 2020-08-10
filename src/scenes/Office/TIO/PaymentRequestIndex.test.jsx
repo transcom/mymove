@@ -6,8 +6,6 @@ import PaymentRequestIndex from './paymentRequestIndex';
 
 import { MockProviders } from 'testUtils';
 
-const mockGetPaymentRequestListError = jest.fn(() => Promise.reject('API error'));
-
 const mockGetPaymentRequestListSuccess = jest.fn(() =>
   Promise.resolve({
     paymentRequests: {
@@ -36,29 +34,11 @@ describe('PaymentRequestIndex', () => {
     });
   });
 
-  // eslint-disable-next-line no-only-tests/no-only-tests
-  describe.skip('error state', () => {
-    const cache = makeQueryCache();
-    it('shows an error', async () => {
-      await cache.prefetchQuery('paymentRequestList', mockGetPaymentRequestListError, { retry: false });
-
-      const wrapper = mount(
-        <ReactQueryCacheProvider queryCache={cache}>
-          <MockProviders initialEntries={['/']}>
-            <PaymentRequestIndex />
-          </MockProviders>
-        </ReactQueryCacheProvider>,
-      );
-
-      expect(wrapper.find('SomethingWentWrong').exists()).toBe(true);
-    });
-  });
-
   describe('with data loaded', () => {
     const cache = makeQueryCache();
 
     it('renders without errors', async () => {
-      await cache.prefetchQuery('paymentRequestList', mockGetPaymentRequestListSuccess);
+      await cache.prefetchQuery('paymentRequests', mockGetPaymentRequestListSuccess);
 
       const wrapper = mount(
         <ReactQueryCacheProvider queryCache={cache}>
