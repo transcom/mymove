@@ -46,7 +46,7 @@ func initRootFlags(flag *pflag.FlagSet) {
 
 	flag.String(CertPathFlag, "./config/tls/devlocal-mtls.cer", "Path to the public cert")
 	flag.String(KeyPathFlag, "./config/tls/devlocal-mtls.key", "Path to the private key")
-	flag.String(HostnameFlag, cli.HTTPOrdersServerNameLocal, "The hostname to connect to")
+	flag.String(HostnameFlag, cli.HTTPPrimeServerNameLocal, "The hostname to connect to")
 	flag.Int(PortFlag, cli.MutualTLSPort, "The port to connect to")
 	flag.Bool(InsecureFlag, false, "Skip TLS verification and validation")
 }
@@ -57,7 +57,6 @@ func InitRootConfig(v *viper.Viper) (*pop.Connection, Logger, error) {
 	// LOGGER SETUP
 	// Get the db env to configure the logger level
 	dbEnv := v.GetString(cli.DbEnvFlag)
-	fmt.Println("dbEnv: ", dbEnv)
 	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
@@ -123,6 +122,16 @@ func main() {
 	}
 	initDbWebhookNotifyFlags(dbWebhookNotifyCommand.Flags())
 	root.AddCommand(dbWebhookNotifyCommand)
+
+	dbConnectionCommand := &cobra.Command{
+		Use:          "db-connection-test",
+		Short:        "Database Webhook Notify",
+		Long:         "Database Webhook Notify checks the webhook_notification table and sends the first notification it finds there.",
+		RunE:         dbConnection,
+		SilenceUsage: true,
+	}
+	initDbConnectionFlags(dbConnectionCommand.Flags())
+	root.AddCommand(dbConnectionCommand)
 
 	completionCommand := &cobra.Command{
 		Use:   "completion",

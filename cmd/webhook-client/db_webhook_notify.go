@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -22,36 +23,40 @@ func initDbWebhookNotifyFlags(flag *pflag.FlagSet) {
 func dbWebhookNotify(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 
-	errParseFlags := ParseFlags(cmd, v, args)
-	if errParseFlags != nil {
-		return errParseFlags
+	err := ParseFlags(cmd, v, args)
+	if err != nil {
+		return err
 	}
 
 	db, logger, err := InitRootConfig(v)
 	if err != nil {
-		logger.Fatal("invalid configuration", zap.Error(err))
+		logger.Error("invalid configuration", zap.Error(err))
+		return err
 	}
 
+	// Read notifications
 	notifications := []models.WebhookNotification{}
 	err = db.All(&notifications)
 	if err != nil {
-		fmt.Print("ERROR!\n")
-		fmt.Printf("%v\n", err)
-	} else {
-
-		fmt.Printf("Success! %d notifications found.\n", len(notifications))
+		logger.Error("Error:", zap.Error(err))
+		return err
 	}
+	logger.Info("Success!", zap.Int("Num notifications found", len(notifications)))
+
+	// Construct msg to send
 	message := "There were no notifications."
 	if len(notifications) > 0 {
-		message = fmt.Sprintf("There was a %s notification", string(notifications[0].EventKey))
+		not := notifications[0]
+		message = fmt.Sprintf("There was a %s notification, id: %s, moveTaskOrderID: %s",
+			string(not.EventKey), not.ObjectID.String(), not.MoveTaskOrderID.String())
 	}
 
-	//	message := v.GetString(MessageFlag)
 	//#TODO: To remove dependency on gen/supportclient,
 	// replicate the functionality without using webhookOperations
 	newNotification := webhookOperations.PostWebhookNotifyBody{
 		Message: message,
 	}
+
 	//#TODO: To remove dependency on gen/supportclient,
 	// replicate the functionality without using webhookOperations
 	notifyParams := webhookOperations.NewPostWebhookNotifyParams()
@@ -60,30 +65,34 @@ func dbWebhookNotify(cmd *cobra.Command, args []string) error {
 	notifyParams.SetTimeout(time.Second * 30)
 
 	// Create the client and open the cacStore
-
 	supportGateway, cacStore, errCreateClient := CreateClient(v)
 	if errCreateClient != nil {
 		return errCreateClient
 	}
+
 	// Defer closing the store until after the api call has completed
 	if cacStore != nil {
 		defer cacStore.Close()
 	}
+
 	// Make the API call
 	resp, err := supportGateway.Webhook.PostWebhookNotify(notifyParams)
 	if err != nil {
-		logger.Fatal("Error:", zap.Error(err))
+		return HandleGatewayError(err, logger)
 	}
 
 	payload := resp.GetPayload()
+
 	if payload != nil {
 		payload, errJSONMarshall := json.Marshal(payload)
 		if errJSONMarshall != nil {
-			logger.Fatal("Error", zap.Error(errJSONMarshall))
+			logger.Error("Error", zap.Error(errJSONMarshall))
+			return errJSONMarshall
 		}
-		fmt.Println("payload", string(payload))
+		logger.Info("Success!", zap.String("Payload", string(payload)))
 	} else {
-		logger.Fatal("Error:", zap.String("Error", resp.Error()))
+		logger.Error("Error:", zap.String("Error", resp.Error()))
+		return errors.New(resp.Error())
 	}
 
 	return nil
