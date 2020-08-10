@@ -1,7 +1,7 @@
 /* global cy */
 import { milmoveAppName } from '../../support/constants';
 
-describe('allows a SM to request a payment', function () {
+describe.skip('allows a SM to request a payment', function () {
   const moveID = 'f9f10492-587e-43b3-af2a-9f67d2ac8757';
   beforeEach(() => {
     cy.removeFetch();
