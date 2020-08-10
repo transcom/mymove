@@ -77,23 +77,23 @@ function ServiceMemberSummary(props) {
               <table>
                 <tbody>
                   <tr>
-                    <td> Name: </td>
+                    <td>Name </td>
                     <td>{getFullSMName(serviceMember)}</td>
                   </tr>
                   <tr>
-                    <td>Branch:</td>
+                    <td>Branch </td>
                     <td>{get(schemaAffiliation['x-display-value'], get(serviceMember, 'affiliation'))}</td>
                   </tr>
                   <tr>
-                    <td> Rank/Pay Grade: </td>
+                    <td>Rank </td>
                     <td>{get(schemaRank['x-display-value'], get(serviceMember, 'rank'))}</td>
                   </tr>
                   <tr>
-                    <td> DoD ID#: </td>
+                    <td>DoD ID# </td>
                     <td>{get(serviceMember, 'edipi')}</td>
                   </tr>
                   <tr>
-                    <td> Current Duty Station: </td>
+                    <td>Current duty station </td>
                     <td>{get(serviceMember, 'current_station.name')}</td>
                   </tr>
                 </tbody>
