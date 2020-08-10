@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { ReactQueryCacheProvider, makeQueryCache } from 'react-query';
 
-import PaymentRequestIndex from './paymentRequestIndex';
+import PaymentRequestIndex from './PaymentRequestIndex';
 
 import { MockProviders } from 'testUtils';
 

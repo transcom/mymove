@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import { useMutation, queryCache } from 'react-query';
 
+import styles from './PaymentRequestReview.module.scss';
+
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { MatchShape, HistoryShape } from 'types/router';
 import samplePDF from 'components/DocumentViewer/sample.pdf';
-import styles from 'pages/TIO/PaymentRequestReview.module.scss';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import ReviewServiceItems from 'components/Office/ReviewServiceItems/ReviewServiceItems';
 import { PAYMENT_REQUEST_STATUS } from 'shared/constants';
