@@ -11,12 +11,12 @@ import (
 )
 
 const (
-	fscTestDistance             = unit.Miles(4200)
-	fscTestWeight               = unit.Pound(5800)
-	fscWeightDistanceMultiplier = float64(0.0006255)
-	fscFuelPrice                = unit.Millicents(320000)
+	fscTestDistance             = unit.Miles(2276)
+	fscTestWeight               = unit.Pound(4025)
+	fscWeightDistanceMultiplier = float64(0.000417)
+	fscFuelPrice                = unit.Millicents(281400)
 	fscLowFuelPrice             = unit.Millicents(249000)
-	fscPriceCents               = unit.Cents(18390)
+	fscPriceCents               = unit.Cents(2980)
 )
 
 var fscActualPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)

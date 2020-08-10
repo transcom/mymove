@@ -47,7 +47,7 @@ func (p fuelSurchargePricer) Price(contractCode string, actualPickupDate time.Ti
 		return 0, errors.New("WeightBasedDistanceMultiplier is required")
 	}
 
-	priceDifference := (fuelPrice.ToCents() - baseGHCDieselFuelPrice.ToCents()).Float64()
+	priceDifference := (fuelPrice - baseGHCDieselFuelPrice).Float64() / 1000.00
 	if priceDifference <= 0 {
 		totalCost = unit.Cents(0)
 	} else {
