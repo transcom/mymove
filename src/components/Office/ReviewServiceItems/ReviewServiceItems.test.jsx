@@ -6,7 +6,16 @@ import { shallow, mount } from 'enzyme';
 import ReviewServiceItems from './ReviewServiceItems';
 
 import { toDollarString } from 'shared/formatters';
-import { SHIPMENT_OPTIONS, PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, PAYMENT_SERVICE_ITEM_STATUS, PAYMENT_REQUEST_STATUS } from 'shared/constants';
+
+const pendingPaymentRequest = {
+  status: PAYMENT_REQUEST_STATUS.PENDING,
+};
+
+const reviewedPaymentRequest = {
+  status: PAYMENT_REQUEST_STATUS.REVIEWED,
+  reviewedAt: '2020-11-03T20:01:01.001Z',
+};
 
 const serviceItemCards = [
   {
@@ -84,8 +93,20 @@ describe('ReviewServiceItems component', () => {
     onCompleteReview,
   };
 
-  const shallowComponent = shallow(<ReviewServiceItems serviceItemCards={serviceItemCards} {...requiredProps} />);
-  const mountedComponent = mount(<ReviewServiceItems serviceItemCards={serviceItemCards} {...requiredProps} />);
+  const shallowComponent = shallow(
+    <ReviewServiceItems
+      paymentRequest={pendingPaymentRequest}
+      serviceItemCards={serviceItemCards}
+      {...requiredProps}
+    />,
+  );
+  const mountedComponent = mount(
+    <ReviewServiceItems
+      paymentRequest={pendingPaymentRequest}
+      serviceItemCards={serviceItemCards}
+      {...requiredProps}
+    />,
+  );
 
   it('renders without crashing', () => {
     expect(shallowComponent.find('[data-testid="ReviewServiceItems"]').length).toBe(1);
@@ -121,7 +142,13 @@ describe('ReviewServiceItems component', () => {
   });
 
   it('renders two basic service item cards', () => {
-    const basicWrapper = mount(<ReviewServiceItems serviceItemCards={basicServiceItemCards} {...requiredProps} />);
+    const basicWrapper = mount(
+      <ReviewServiceItems
+        paymentRequest={pendingPaymentRequest}
+        serviceItemCards={basicServiceItemCards}
+        {...requiredProps}
+      />,
+    );
     expect(basicWrapper.find('ServiceItemCard').length).toBe(2);
   });
 
@@ -165,7 +192,11 @@ describe('ReviewServiceItems component', () => {
       },
     ];
     const componentWithInitialValues = mount(
-      <ReviewServiceItems serviceItemCards={cardsWithInitialValues} {...requiredProps} />,
+      <ReviewServiceItems
+        paymentRequest={pendingPaymentRequest}
+        serviceItemCards={cardsWithInitialValues}
+        {...requiredProps}
+      />,
     );
     const nextButton = componentWithInitialValues.find('[data-testid="nextServiceItem"]');
     const prevButton = componentWithInitialValues.find('[data-testid="prevServiceItem"]');
@@ -348,7 +379,11 @@ describe('ReviewServiceItems component', () => {
     ];
 
     const componentWithInitialValues = mount(
-      <ReviewServiceItems serviceItemCards={cardsWithInitialValues} {...requiredProps} />,
+      <ReviewServiceItems
+        paymentRequest={pendingPaymentRequest}
+        serviceItemCards={cardsWithInitialValues}
+        {...requiredProps}
+      />,
     );
     const approvedAmount = componentWithInitialValues.find('[data-testid="approvedAmount"]');
 
@@ -380,7 +415,11 @@ describe('ReviewServiceItems component', () => {
         },
       ];
       const componentWithInitialValues = mount(
-        <ReviewServiceItems serviceItemCards={cardsWithInitialValues} {...requiredProps} />,
+        <ReviewServiceItems
+          paymentRequest={pendingPaymentRequest}
+          serviceItemCards={cardsWithInitialValues}
+          {...requiredProps}
+        />,
       );
 
       it('lands on the Complete Review step after reviewing all items', () => {
@@ -430,7 +469,11 @@ describe('ReviewServiceItems component', () => {
         },
       ];
       const componentWithInitialValues = mount(
-        <ReviewServiceItems serviceItemCards={cardWithInitialValues} {...requiredProps} />,
+        <ReviewServiceItems
+          paymentRequest={pendingPaymentRequest}
+          serviceItemCards={cardWithInitialValues}
+          {...requiredProps}
+        />,
       );
 
       it('lands on the Complete Review step after reviewing one item', () => {
@@ -488,7 +531,11 @@ describe('ReviewServiceItems component', () => {
         },
       ];
       const componentWithInitialValues = mount(
-        <ReviewServiceItems serviceItemCards={cardsWithInitialValues} {...requiredProps} />,
+        <ReviewServiceItems
+          paymentRequest={pendingPaymentRequest}
+          serviceItemCards={cardsWithInitialValues}
+          {...requiredProps}
+        />,
       );
 
       it('lands on the Complete Review step after reviewing all items', () => {
@@ -565,7 +612,11 @@ describe('ReviewServiceItems component', () => {
         },
       ];
       const componentWithInitialValues = mount(
-        <ReviewServiceItems serviceItemCards={cardsWithInitialValues} {...requiredProps} />,
+        <ReviewServiceItems
+          paymentRequest={pendingPaymentRequest}
+          serviceItemCards={cardsWithInitialValues}
+          {...requiredProps}
+        />,
       );
 
       it('lands on the Complete Review step after reviewing all items', () => {
@@ -610,6 +661,7 @@ describe('ReviewServiceItems component', () => {
     describe('with a validation error', () => {
       const componentWithMockError = mount(
         <ReviewServiceItems
+          paymentRequest={pendingPaymentRequest}
           serviceItemCards={serviceItemCards}
           {...requiredProps}
           completeReviewError={{ detail: 'A validation error occurred' }}
@@ -640,6 +692,141 @@ describe('ReviewServiceItems component', () => {
         const errorMsg = componentWithMockError.find('[data-testid="errorMessage"]');
         expect(errorMsg.exists()).toBe(true);
         expect(errorMsg.text()).toEqual('Error: A validation error occurred');
+      });
+    });
+  });
+
+  describe('viewing authorized payment request', () => {
+    describe('with approved service items', () => {
+      const cardsWithInitialValues = [
+        {
+          id: '1',
+          shipmentType: SHIPMENT_OPTIONS.HHG,
+          shipmentId: '10',
+          serviceItemName: 'Domestic linehaul',
+          amount: 6423,
+          status: PAYMENT_SERVICE_ITEM_STATUS.DENIED,
+          rejectionReason: 'Duplicate charge',
+          createdAt: '2020-01-01T00:08:00.999Z',
+        },
+        {
+          id: '2',
+          shipmentType: SHIPMENT_OPTIONS.HHG,
+          shipmentId: '10',
+          serviceItemName: 'Fuel Surcharge',
+          amount: 50.25,
+          status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
+          createdAt: '2020-01-01T00:08:30.999Z',
+        },
+      ];
+      const reviewedComponent = mount(
+        <ReviewServiceItems
+          paymentRequest={reviewedPaymentRequest}
+          serviceItemCards={cardsWithInitialValues}
+          {...requiredProps}
+        />,
+      );
+
+      it('displays the payment reviewed component', () => {
+        expect(reviewedComponent.find('[data-testid="PaymentReviewed"]').length).toBe(1);
+      });
+
+      it('displays the authorized amount and reviewed on date', () => {
+        expect(reviewedComponent.find('[data-testid="paymentAuthorizedAmt"]').text()).toEqual(
+          'Payment authorized: $50.25',
+        );
+        expect(reviewedComponent.find('[data-testid="reviewedOn"]').text()).toEqual('On: 03 Nov 2020');
+      });
+
+      it('displays the success alert', () => {
+        const alert = reviewedComponent.find('Alert');
+        expect(alert.length).toBe(1);
+        expect(alert.prop('type')).toBe('success');
+        expect(alert.text()).toEqual('The payment request was successfully submitted.');
+      });
+
+      it('disables the form elements', () => {
+        const backButton = reviewedComponent.find('[data-testid="prevServiceItem"]');
+
+        backButton.simulate('click');
+        reviewedComponent.update();
+
+        let statusSummary = reviewedComponent.find('[data-testid="statusHeading"]');
+        expect(statusSummary.text()).toBe('form-checkmark.svgAccepted');
+
+        backButton.simulate('click');
+        reviewedComponent.update();
+
+        statusSummary = reviewedComponent.find('[data-testid="statusHeading"]');
+        expect(statusSummary.text()).toBe('x-heavy.svgRejected');
+        expect(reviewedComponent.find('[data-testid="rejectionReason"]').text()).toBe('Duplicate charge');
+      });
+    });
+
+    describe('with all rejected service items', () => {
+      const cardsWithInitialValues = [
+        {
+          id: '1',
+          shipmentType: SHIPMENT_OPTIONS.HHG,
+          shipmentId: '10',
+          serviceItemName: 'Domestic linehaul',
+          amount: 6423,
+          status: PAYMENT_SERVICE_ITEM_STATUS.DENIED,
+          rejectionReason: 'Duplicate charge',
+          createdAt: '2020-01-01T00:08:00.999Z',
+        },
+        {
+          id: '2',
+          shipmentType: SHIPMENT_OPTIONS.HHG,
+          shipmentId: '10',
+          serviceItemName: 'Fuel Surcharge',
+          amount: 50.25,
+          status: PAYMENT_SERVICE_ITEM_STATUS.DENIED,
+          rejectionReason: 'Not applicable',
+          createdAt: '2020-01-01T00:08:30.999Z',
+        },
+      ];
+      const reviewedComponent = mount(
+        <ReviewServiceItems
+          paymentRequest={reviewedPaymentRequest}
+          serviceItemCards={cardsWithInitialValues}
+          {...requiredProps}
+        />,
+      );
+
+      it('displays the payment reviewed component', () => {
+        expect(reviewedComponent.find('[data-testid="PaymentReviewed"]').length).toBe(1);
+      });
+
+      it('displays authorized amount none', () => {
+        expect(reviewedComponent.find('[data-testid="paymentAuthorizedAmt"]').text()).toEqual(
+          'Payment authorized: none',
+        );
+      });
+
+      it('displays the success alert', () => {
+        const alert = reviewedComponent.find('Alert');
+        expect(alert.length).toBe(1);
+        expect(alert.prop('type')).toBe('success');
+        expect(alert.text()).toEqual('The payment request was successfully submitted.');
+      });
+
+      it('displays service item status summary', () => {
+        const backButton = reviewedComponent.find('[data-testid="prevServiceItem"]');
+
+        backButton.simulate('click');
+        reviewedComponent.update();
+
+        let statusSummary = reviewedComponent.find('[data-testid="statusHeading"]');
+        expect(statusSummary.text()).toBe('x-heavy.svgRejected');
+        expect(reviewedComponent.find('[data-testid="rejectionReason"]').text()).toBe('Not applicable');
+
+        backButton.simulate('click');
+        reviewedComponent.update();
+
+        statusSummary = reviewedComponent.find('[data-testid="statusHeading"]');
+        expect(statusSummary.text()).toBe('x-heavy.svgRejected');
+        expect(reviewedComponent.find('[data-testid="rejectionReason"]').text()).toBe('Duplicate charge');
       });
     });
   });

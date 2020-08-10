@@ -51,14 +51,24 @@ describe('formatters', () => {
   describe('formatDate', () => {
     it('should be formatted as expected', () => {
       const inputFormat = 'MMM-DD-YY';
-      const formattedDate = formatters.formatDate('Nov-11-19', inputFormat, 'en', true);
+      const formattedDate = formatters.formatDate('Nov-11-19', inputFormat, 'DD-MMM-YY', 'en', true);
       expect(formattedDate).toBe('11-Nov-19');
     });
 
     it('should be invalid with unexpected input and strict mode on', () => {
       const inputFormat = 'MMM-DD-YY';
-      const formattedDate = formatters.formatDate('Nov-11-1999', inputFormat, 'en', true);
+      const formattedDate = formatters.formatDate('Nov-11-1999', inputFormat, 'DD-MMM-YY', 'en', true);
       expect(formattedDate).toBe('Invalid date');
+    });
+
+    it('should default to DD-MMM-YY ouptut format', () => {
+      expect(formatters.formatDate('Nov-11-99')).toBe('11-Nov-99');
+    });
+  });
+
+  describe('formatDateFromIso', () => {
+    it('should be formatted as expected', () => {
+      expect(formatters.formatDateFromIso('1999-11-11T12:01:02.123Z', 'DD MMM YYYY')).toBe('11 Nov 1999');
     });
   });
 

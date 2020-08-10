@@ -260,6 +260,7 @@ func PaymentRequest(pr *models.PaymentRequest) *ghcmessages.PaymentRequest {
 		Status:               ghcmessages.PaymentRequestStatus(pr.Status),
 		ETag:                 etag.GenerateEtag(pr.UpdatedAt),
 		ServiceItems:         *PaymentServiceItems(&pr.PaymentServiceItems),
+		ReviewedAt:           handlers.FmtDateTimePtr(pr.ReviewedAt),
 	}
 }
 
