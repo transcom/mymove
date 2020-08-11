@@ -27,13 +27,15 @@ import HHGShipmentSummary from 'pages/MyMove/HHGShipmentSummary';
 import './Review.css';
 import { selectActivePPMForMove } from '../../shared/Entities/modules/ppms';
 import { showLoggedInUser as showLoggedInUserAction, selectLoggedInUser } from 'shared/Entities/modules/user';
+import { loadMTOShipments as loadMTOShipmentsAction } from 'shared/Entities/modules/mtoShipments';
 import { selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
 
 export class Summary extends Component {
   componentDidMount() {
     if (this.props.onDidMount) {
       this.props.onDidMount(this.props.serviceMember.id);
-      const { showLoggedInUser } = this.props;
+      const { showLoggedInUser, loadMTOShipments } = this.props;
+      loadMTOShipments(this.props.movetaskOrderID);
       showLoggedInUser();
     }
   }
@@ -62,6 +64,7 @@ export class Summary extends Component {
       match,
       uploads,
     } = this.props;
+    console.log('mto shipment', mtoShipment);
     const currentStation = get(serviceMember, 'current_station');
     const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
 
@@ -151,6 +154,7 @@ function mapStateToProps(state, ownProps) {
 
   return {
     currentPPM: selectActivePPMForMove(state, moveID),
+    moveTaskOrderID: moveTaskOrderID,
     mtoShipment: selectMTOShipmentForMTO(state, moveTaskOrderID),
     serviceMember: state.serviceMember.currentServiceMember,
     currentMove: selectMove(state, ownProps.match.params.moveId),
@@ -169,14 +173,16 @@ function mapStateToProps(state, ownProps) {
 }
 function mapDispatchToProps(dispatch, ownProps) {
   return {
-    onDidMount: function (smId) {
+    onDidMount: function (smId, moveTaskOrderID) {
       const moveID = ownProps.match.params.moveId;
       dispatch(loadMove(moveID, 'Summary.getMove'));
+      // dispatch(loadMTOShipments(moveTaskOrderID));
       dispatch(fetchLatestOrders(smId));
     },
     onCheckEntitlement: (moveId) => {
       dispatch(checkEntitlement(moveId));
     },
+    loadMTOShipments: loadMTOShipmentsAction,
     showLoggedInUser: showLoggedInUserAction,
   };
 }

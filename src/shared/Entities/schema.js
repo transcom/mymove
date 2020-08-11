@@ -41,7 +41,7 @@ export const serviceAgents = new schema.Array(serviceAgent);
 
 // Moves
 export const move = new schema.Entity('moves', {
-  personally_procured_moves: personallyProcuredMoves,
+  // personally_procured_moves: personallyProcuredMoves,
   shipments: shipments,
 });
 export const moves = new schema.Array(move);
