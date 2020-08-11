@@ -36,8 +36,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 	builder := query.NewQueryBuilder(suite.DB())
 
-	req := httptest.NewRequest("POST", "/mto-shipments", nil)
-	unauthorizedReq := httptest.NewRequest("POST", "/mto-shipments", nil)
+	req := httptest.NewRequest("POST", "/mto_shipments", nil)
+	unauthorizedReq := httptest.NewRequest("POST", "/mto_shipments", nil)
 	req = suite.AuthenticateRequest(req, serviceMember)
 
 	params := mtoshipmentops.CreateMTOShipmentParams{
@@ -257,7 +257,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 	shipments := models.MTOShipments{mtoShipment}
 	requestUser := testdatagen.MakeDefaultUser(suite.DB())
 
-	req := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/mto-shipment", mto.ID.String()), nil)
+	req := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/mto_shipments", mto.ID.String()), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
 	params := mtoshipmentops.ListMTOShipmentsParams{

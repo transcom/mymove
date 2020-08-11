@@ -4799,7 +4799,7 @@ paths:
           description: not found
         500:
           description: server error
-  '/mto-shipments':
+  '/mto_shipments':
     post:
       summary: createMTOShipment
       description: |
@@ -4842,7 +4842,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  /moves/{moveTaskOrderID}/mto-shipment:
+  /moves/{moveTaskOrderID}/mto_shipments:
     get:
       summary: Gets all shipments for a move task order
       description: |
