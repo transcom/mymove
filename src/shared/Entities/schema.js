@@ -22,6 +22,10 @@ personallyProcuredMove.define({
 export const personallyProcuredMoves = new schema.Array(personallyProcuredMove);
 export const indexPersonallyProcuredMove = personallyProcuredMoves;
 
+// Shipments
+export const shipment = new schema.Entity('shipments');
+export const shipments = new schema.Array(shipment);
+
 // Addresses
 export const address = new schema.Entity('addresses');
 export const addresses = new schema.Array(address);
