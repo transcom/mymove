@@ -34,43 +34,45 @@ describe('TOO user', () => {
     cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.be.visible');
 
     // Select & approve items
-    cy.get('input[data-testid="shipment-display-checkbox"]').then(($shipments) => {
+    cy.get('input[data-testid="shipment-display-checkbox"]').as('shipments');
+    cy.get('@shipments').each((el) => {
       // Select each shipment
-      $shipments.each((i, el) => {
-        const { id } = el;
-        cy.get(`label[for="${id}"]`).click({ force: true }); // force because of shipment wrapping bug
-      });
-
-      // Select additional service items
-      cy.get('label[for="shipmentManagementFee"]').click();
-      cy.get('label[for="counselingFee"]').click();
-
-      // Open modal
-      const button = cy.contains('Approve selected shipments');
-      button.should('be.enabled');
-      button.click();
-
-      cy.get('#approvalConfirmationModal [data-testid="modal"]').then(($modal) => {
-        cy.get($modal).should('be.visible');
-
-        // Verify modal content
-        cy.contains('Preview and post move task order');
-        cy.get('#approvalConfirmationModal [data-testid="ShipmentContainer"]').should('have.length', $shipments.length);
-        cy.contains('Approved service items for this move')
-          .next('table')
-          .should('contain', 'Shipment management fee')
-          .and('contain', 'Counseling fee');
-      });
-
-      // Click approve
-      cy.contains('Approve and send').click();
-      cy.wait(['@patchMTOShipmentStatus', '@patchMTOStatus']);
-
-      // Page refresh
-      cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.be.visible');
-      cy.get('#approved-shipments');
-      cy.get('#requested-shipments').should('not.exist');
-      cy.contains('Approve selected shipments').should('not.exist');
+      const { id } = el.invoke('attr', 'id');
+      cy.get(`label[for="${id}"]`).click({ force: true }); // force because of shipment wrapping bug
     });
+
+    // Select additional service items
+    cy.get('label[for="shipmentManagementFee"]').click();
+    cy.get('label[for="counselingFee"]').click();
+
+    // Open modal
+    const button = cy.contains('Approve selected shipments');
+    button.should('be.enabled');
+    button.click();
+
+    cy.get('#approvalConfirmationModal [data-testid="modal"]').then(($modal) => {
+      cy.get($modal).should('be.visible');
+
+      // Verify modal content
+      cy.contains('Preview and post move task order');
+      cy.get('#approvalConfirmationModal [data-testid="ShipmentContainer"]').should(
+        'have.length',
+        cy.get('@shipments').length,
+      );
+      cy.contains('Approved service items for this move')
+        .next('table')
+        .should('contain', 'Shipment management fee')
+        .and('contain', 'Counseling fee');
+    });
+
+    // Click approve
+    cy.contains('Approve and send').click();
+    cy.wait(['@patchMTOShipmentStatus', '@patchMTOStatus']);
+
+    // Page refresh
+    cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.be.visible');
+    cy.get('#approved-shipments');
+    cy.get('#requested-shipments').should('not.exist');
+    cy.contains('Approve selected shipments').should('not.exist');
   });
 });
