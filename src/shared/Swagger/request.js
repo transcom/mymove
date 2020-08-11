@@ -92,6 +92,7 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
 
     return request
       .then((response) => {
+        console.log('response', response);
         const updatedRequestLog = Object.assign({}, requestLog, {
           ok: response.ok,
           end: new Date(),

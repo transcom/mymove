@@ -30,7 +30,6 @@ export function approvePPM(personallyProcuredMoveId, personallyProcuredMoveAppro
 }
 
 export function loadPPMs(moveId, label = loadPPMsLabel) {
-  console.log('got into loadppms');
   const swaggerTag = 'ppm.indexPersonallyProcuredMoves';
   return swaggerRequest(getClient, swaggerTag, { moveId }, { label });
 }

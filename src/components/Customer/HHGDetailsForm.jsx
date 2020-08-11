@@ -10,7 +10,11 @@ import { DatePickerInput, TextInput } from '../form/fields';
 import { AddressFields } from '../form/AddressFields/AddressFields';
 import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
 
-import { createMTOShipment as createMTOShipmentAction } from 'shared/Entities/modules/mtoShipments';
+import {
+  loadMTOShipments as loadMTOShipmentsAction,
+  selectMTOShipmentForMTO,
+  createMTOShipment as createMTOShipmentAction,
+} from 'shared/Entities/modules/mtoShipments';
 import { showLoggedInUser as showLoggedInUserAction, selectLoggedInUser } from 'shared/Entities/modules/user';
 import { WizardPage } from 'shared/WizardPage';
 import { MTOAgentType } from 'shared/constants';
@@ -30,6 +34,13 @@ class HHGDetailsForm extends Component {
   componentDidMount() {
     const { showLoggedInUser } = this.props;
     showLoggedInUser();
+  }
+
+  componentDidUpdate(prevProps) {
+    const { moveTaskOrderID, loadMTOShipments } = this.props;
+    if (prevProps.moveTaskOrderID !== moveTaskOrderID) {
+      loadMTOShipments(moveTaskOrderID);
+    }
   }
 
   // TODO: when we can pull in initialValues from redux, set state.hasDeliveryAddress to true if a delivery address exists
@@ -278,18 +289,25 @@ HHGDetailsForm.propTypes = {
   moveTaskOrderID: string.isRequired,
   createMTOShipment: func.isRequired,
   showLoggedInUser: func.isRequired,
+  loadMTOShipments: func.isRequired,
   push: func.isRequired,
 };
 
-const mapStateToProps = (state) => ({
-  moveTaskOrderID: get(selectLoggedInUser(state), 'service_member.orders[0].move_task_order_id', ''),
-  currentResidence: get(selectLoggedInUser(state), 'service_member.residential_address', {}),
-  newDutyStationAddress: get(selectLoggedInUser(state), 'service_member.orders[0].new_duty_station.address', {}),
-});
+const mapStateToProps = (state) => {
+  const moveTaskOrderID = get(selectLoggedInUser(state), 'service_member.orders[0].move_task_order_id', '');
+  const props = {
+    moveTaskOrderID,
+    mtoShipment: selectMTOShipmentForMTO(state, moveTaskOrderID),
+    currentResidence: get(selectLoggedInUser(state), 'service_member.residential_address', {}),
+    newDutyStationAddress: get(selectLoggedInUser(state), 'service_member.orders[0].new_duty_station.address', {}),
+  };
+  return props;
+};
 
 const mapDispatchToProps = {
   createMTOShipment: createMTOShipmentAction,
   showLoggedInUser: showLoggedInUserAction,
+  loadMTOShipments: loadMTOShipmentsAction,
 };
 
 export { HHGDetailsForm as HHGDetailsFormComponent };
