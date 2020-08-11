@@ -122,6 +122,49 @@ const shipments = [
   },
 ];
 
+const ordersInfo = {
+  newDutyStation: {
+    address: {
+      city: 'Augusta',
+      country: 'United States',
+      eTag: 'MjAyMC0wOC0wNlQxNDo1Mjo0MS45NDQ0ODla',
+      id: '5ac95be8-0230-47ea-90b4-b0f6f60de364',
+      postal_code: '30813',
+      state: 'GA',
+      street_address_1: 'Fort Gordon',
+    },
+    address_id: '5ac95be8-0230-47ea-90b4-b0f6f60de364',
+    eTag: 'MjAyMC0wOC0wNlQxNDo1Mjo0MS45NDQ0ODla',
+    id: '2d5ada83-e09a-47f8-8de6-83ec51694a86',
+    name: 'Fort Gordon',
+  },
+  currentDutyStation: {
+    address: {
+      city: 'Des Moines',
+      country: 'US',
+      eTag: 'MjAyMC0wOC0wNlQxNDo1MzozMC42NjEwODFa',
+      id: '37880d6d-2c78-47f1-a71b-53c0ea1a0107',
+      postal_code: '50309',
+      state: 'IA',
+      street_address_1: '987 Other Avenue',
+      street_address_2: 'P.O. Box 1234',
+      street_address_3: 'c/o Another Person',
+    },
+    address_id: '37880d6d-2c78-47f1-a71b-53c0ea1a0107',
+    eTag: 'MjAyMC0wOC0wNlQxNDo1MzozMC42Njg5MDFa',
+    id: '07282a8f-a496-4648-ae24-119775eef57d',
+    name: 'vC6w22RPYC',
+  },
+  issuedDate: '2018-03-15',
+  reportByDate: '2018-08-01',
+  departmentIndicator: 'COAST_GUARD',
+  ordersNumber: 'ORDER3',
+  ordersType: 'PERMANENT_CHANGE_OF_STATION',
+  ordersTypeDetail: 'TBD',
+  tacMDC: '',
+  sacSDN: '',
+};
+
 const allowancesInfo = {
   branch: 'Navy',
   rank: 'E-6',
@@ -191,6 +234,7 @@ storiesOf('TOO/TIO Components|RequestedShipments', module)
       <div style={{ padding: '20px' }}>
         <RequestedShipments
           mtoShipments={[shipments[0]]}
+          ordersInfo={ordersInfo}
           allowancesInfo={allowancesInfo}
           customerInfo={customerInfo}
           mtoAgents={agents}
@@ -204,6 +248,7 @@ storiesOf('TOO/TIO Components|RequestedShipments', module)
       <div style={{ position: 'relative', padding: '20px' }}>
         <RequestedShipments
           mtoShipments={shipments}
+          ordersInfo={ordersInfo}
           allowancesInfo={allowancesInfo}
           customerInfo={customerInfo}
           mtoAgents={agents}
@@ -217,6 +262,7 @@ storiesOf('TOO/TIO Components|RequestedShipments', module)
       <div style={{ position: 'relative', padding: '20px' }}>
         <RequestedShipments
           mtoShipments={[shipments[0]]}
+          ordersInfo={ordersInfo}
           allowancesInfo={allowancesInfo}
           customerInfo={customerInfo}
           mtoAgents={agents}
@@ -231,6 +277,7 @@ storiesOf('TOO/TIO Components|RequestedShipments', module)
       <div style={{ position: 'relative', padding: '20px' }}>
         <RequestedShipments
           mtoShipments={shipments}
+          ordersInfo={ordersInfo}
           allowancesInfo={allowancesInfo}
           customerInfo={customerInfo}
           mtoAgents={agents}
