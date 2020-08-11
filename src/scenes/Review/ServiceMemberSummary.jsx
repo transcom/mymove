@@ -11,34 +11,6 @@ import Address from './Address';
 
 import './Review.css';
 
-function getFullContactPreferences(serviceMember) {
-  if (!serviceMember) return;
-  const prefs = {
-    phone_is_preferred: 'Phone',
-    email_is_preferred: 'Email',
-  };
-  const preferredMethods = [];
-  Object.keys(prefs).forEach((propertyName) => {
-    /* eslint-disable security/detect-object-injection */
-    if (serviceMember[propertyName]) {
-      preferredMethods.push(prefs[propertyName]);
-    }
-    /* eslint-enable security/detect-object-injection */
-  });
-  return preferredMethods.join(', ');
-}
-
-// TODO: Uncomment function below after backup contact auth is implemented.
-// function getFullBackupPermission(backup_contact) {
-//   const perms = {
-//     NONE: '',
-//     VIEW: 'View all aspects of this move',
-//     EDIT:
-//       'Authorized to represent me in all aspects of this move (letter of authorization)',
-//   };
-//   return `${perms[backup_contact.permission]}`;
-// }
-
 function ServiceMemberSummary(props) {
   const {
     backupContacts,
@@ -55,7 +27,6 @@ function ServiceMemberSummary(props) {
   const rootPath = `/moves/review`;
   const editProfilePath = rootPath + '/edit-profile';
   const editBackupContactPath = rootPath + '/edit-backup-contact';
-  const editContactInfoPath = rootPath + '/edit-contact-info';
 
   const yesNoMap = { true: 'Yes', false: 'No' };
 
@@ -64,16 +35,15 @@ function ServiceMemberSummary(props) {
       <GridContainer>
         <Grid row>
           <Grid tablet={{ col: true }}>
-            <h3>Profile and Orders</h3>
             <div className="review-section">
-              <p className="heading">
+              <h2 className="heading">
                 Profile
                 <span className="edit-section-link">
                   <Link to={editProfilePath} className="usa-link">
                     Edit
                   </Link>
                 </span>
-              </p>
+              </h2>
               <table>
                 <tbody>
                   <tr>
@@ -102,42 +72,21 @@ function ServiceMemberSummary(props) {
           </Grid>
           <Grid tablet={{ col: true }}>
             <div className="review-section">
-              <p className="heading">
-                Contact Info
-                <span className="edit-section-link">
-                  <Link to={editContactInfoPath} className="usa-link">
-                    Edit
-                  </Link>
-                </span>
-              </p>
+              <p>Contact info</p>
               <table>
                 <tbody>
                   <tr>
-                    <td> Best Contact Phone: </td>
+                    <td>Best contact phone </td>
                     <td>{get(serviceMember, 'telephone')}</td>
                   </tr>
                   <tr>
-                    <td> Alt. Phone: </td>
-                    <td>{get(serviceMember, 'secondary_telephone')}</td>
-                  </tr>
-                  <tr>
-                    <td> Personal Email: </td>
+                    <td>Personal email </td>
                     <td>{get(serviceMember, 'personal_email')}</td>
                   </tr>
                   <tr>
-                    <td> Preferred Contact Method: </td>
-                    <td>{getFullContactPreferences(serviceMember)}</td>
-                  </tr>
-                  <tr>
-                    <td> Current Mailing Address: </td>
+                    <td>Current mailing address </td>
                     <td>
                       <Address address={get(serviceMember, 'residential_address')} />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td> Backup Mailing Address: </td>
-                    <td>
-                      <Address address={get(serviceMember, 'backup_mailing_address')} />
                     </td>
                   </tr>
                 </tbody>
@@ -150,7 +99,7 @@ function ServiceMemberSummary(props) {
             <div className="review-section">
               {orders && (
                 <Fragment>
-                  <p className="heading">
+                  <h2 className="heading">
                     Orders
                     {moveIsApproved && '*'}
                     {!moveIsApproved && (
@@ -160,37 +109,31 @@ function ServiceMemberSummary(props) {
                         </Link>
                       </span>
                     )}
-                  </p>
+                  </h2>
                   <table>
                     <tbody>
                       <tr>
-                        <td> Orders Type: </td>
+                        <td>Orders type </td>
                         <td>{get(schemaOrdersType['x-display-value'], get(orders, 'orders_type'))}</td>
                       </tr>
                       <tr>
-                        <td> Orders Date: </td>
+                        <td>Orders date </td>
                         <td> {formatDateSM(get(orders, 'issue_date'))}</td>
                       </tr>
                       <tr>
-                        <td> Report-by Date: </td>
+                        <td>Report by date </td>
                         <td>{formatDateSM(get(orders, 'report_by_date'))}</td>
                       </tr>
                       <tr>
-                        <td> New Duty Station: </td>
+                        <td>New duty station </td>
                         <td> {get(orders, 'new_duty_station.name')}</td>
                       </tr>
                       <tr>
-                        <td> Dependents?: </td>
+                        <td>Dependents </td>
                         <td> {orders && yesNoMap[get(orders, 'has_dependents', '').toString()]}</td>
                       </tr>
-                      {orders && get(orders, 'spouse_has_pro_gear') && (
-                        <tr>
-                          <td> Spouse Pro Gear?: </td>
-                          <td>{orders && yesNoMap[get(orders, 'spouse_has_pro_gear', '').toString()]}</td>
-                        </tr>
-                      )}
                       <tr>
-                        <td> Orders Uploaded: </td>
+                        <td>Orders </td>
                         <td>{uploads && uploads.length}</td>
                       </tr>
                     </tbody>
