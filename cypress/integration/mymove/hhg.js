@@ -177,32 +177,11 @@ function customerSetsUpAnHHGMove() {
   cy.get('input[type="radio"]').first().check({ force: true });
 
   // delivery location
-  cy.get(`[data-testid="mailingAddress1"]`).last().focus().blur();
-  cy.get('[class="usa-error-message"]').contains('Required');
   cy.get(`[data-testid="mailingAddress1"]`).last().type('412 Avenue M');
-  cy.get('[class="usa-error-message"]').should('not.exist');
-
   cy.get(`[data-testid="mailingAddress2"]`).last().type('#3E');
-
-  cy.get(`[data-testid="city"]`).last().focus().blur();
-  cy.get('[class="usa-error-message"]').contains('Required');
   cy.get(`[data-testid="city"]`).last().type('Los Angeles');
-  cy.get('[class="usa-error-message"]').should('not.exist');
-
-  cy.get(`[data-testid="state"]`).last().focus().blur();
-  cy.get('[class="usa-error-message"]').contains('Required');
   cy.get(`[data-testid="state"]`).last().type('CA');
-  cy.get('[class="usa-error-message"]').should('not.exist');
-
-  cy.get(`[data-testid="zip"]`).last().focus().blur();
-  cy.get('[class="usa-error-message"]').contains('Required');
-  cy.get(`[data-testid="zip"]`).last().type('9').blur();
-  cy.get('[class="usa-error-message"]').contains('Must be valid zip code');
-  cy.get(`[data-testid="zip"]`).last().type('1111').blur();
-  cy.get('[class="usa-error-message"]').should('not.exist');
-
-  // Next button should be enabled because all required information is filled out
-  cy.get('button[class="usa-button next"]').should('be.enabled');
+  cy.get(`[data-testid="zip"]`).last().type('91111').blur();
 
   // releasing agent
   cy.get(`[data-testid="firstName"]`).last().type('John');
