@@ -173,12 +173,10 @@ function customerSetsUpAnHHGMove() {
   // requested delivery date
   cy.get('input[name="requestedDeliveryDate"]').first().type('09/20/2020').blur();
 
-  cy.get('button[class="usa-button next"]').should('be.disabled');
   // checks has delivery address (default does not have delivery address)
   cy.get('input[type="radio"]').first().check({ force: true });
 
   // delivery location
-
   cy.get(`[data-testid="mailingAddress1"]`).last().focus().blur();
   cy.get('[class="usa-error-message"]').contains('Required');
   cy.get(`[data-testid="mailingAddress1"]`).last().type('412 Avenue M');
