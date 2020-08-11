@@ -7,6 +7,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -136,8 +137,10 @@ func (h UpdateMTOShipmentHandler) handleShipmentStatus(logger handlers.Logger, s
 		shipment.ID, newStatus, shipment.RejectionReason, eTag)
 
 	if err != nil {
-		logger.Error("internalapi.UpdateMTOShipmentHandler", zap.Error(err))
+		logger.Error("internalapi.UpdateMTOShipmentHandler.UpdateMTOShipmentStatus", zap.Error(err))
 		switch e := err.(type) {
+		case mtoshipment.ConflictStatusError:
+			return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, err.Error(), h.GetTraceID()))
 		case services.InvalidInputError:
 			return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
 		case services.QueryError:

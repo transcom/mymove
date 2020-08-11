@@ -353,6 +353,26 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentBadRequest{}, response)
 	})
 
+	suite.T().Run("PATCH failure - 400 -- invalid requested status update", func(t *testing.T) {
+		fetcher := fetch.NewFetcher(builder)
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		statusUpdater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), builder, siCreator, planner)
+		handler := UpdateMTOShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			updater,
+			statusUpdater,
+		}
+
+		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
+		params := suite.getUpdateMTOShipmentParams(oldShipment)
+		params.Body.Status = internalmessages.MTOShipmentStatusREJECTED
+
+		response := handler.Handle(params)
+
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentBadRequest{}, response)
+	})
+
 	suite.T().Run("PATCH failure - 401- permission denied - not authenticated", func(t *testing.T) {
 		fetcher := fetch.NewFetcher(builder)
 		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
