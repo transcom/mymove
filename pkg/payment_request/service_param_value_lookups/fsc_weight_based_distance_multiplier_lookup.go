@@ -3,6 +3,8 @@ package serviceparamvaluelookups
 import (
 	"fmt"
 	"strconv"
+
+	"github.com/transcom/mymove/pkg/models"
 )
 
 const weightBasedDistanceMultiplierLevelOne = "0.000417"
@@ -12,10 +14,13 @@ const weightBasedDistanceMultiplierLevelFour = "0.00139"
 
 // FSCWeightBasedDistanceMultiplierLookup does lookup on fuel surcharge related weight based distance multiplier rate based on billed actual weight
 type FSCWeightBasedDistanceMultiplierLookup struct {
+	MTOShipment models.MTOShipment
 }
 
 func (r FSCWeightBasedDistanceMultiplierLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
-	weight, err := WeightBilledActualLookup{}.lookup(keyData)
+	weight, err := WeightBilledActualLookup{
+		MTOShipment: r.MTOShipment,
+	}.lookup(keyData)
 	if err != nil {
 		return "", err
 	}

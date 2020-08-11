@@ -13,6 +13,7 @@ import (
 
 // ActualPickupDateLookup does lookup on actual pickup date
 type ActualPickupDateLookup struct {
+	MTOShipment models.MTOShipment
 }
 
 func (r ActualPickupDateLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {

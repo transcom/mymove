@@ -75,11 +75,8 @@ func (suite *ServiceParamValueLookupsSuite) TestActualPickupDateLookup() {
 		// Pass in a non-existent MTOServiceItemID
 		invalidMTOServiceItemID := uuid.Must(uuid.NewV4())
 		_, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, invalidMTOServiceItemID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
-		// suite.FatalNoError(err)
 
-		// valueStr, err := badParamLookup.ServiceParamValue(key)
 		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, errors.Unwrap(err))
-		// suite.Equal("", valueStr)
+		suite.IsType(services.NotFoundError{}, err)
 	})
 }
