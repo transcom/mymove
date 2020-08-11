@@ -13,7 +13,7 @@ import ReviewServiceItems from 'components/Office/ReviewServiceItems/ReviewServi
 import { PAYMENT_REQUEST_STATUS } from 'shared/constants';
 import { patchPaymentRequest, patchPaymentServiceItemStatus } from 'services/ghcApi';
 import { usePaymentRequestQueries } from 'hooks/queries';
-import { mapObjectToArray } from 'utils/api';
+import { PAYMENT_REQUESTS } from 'constants/queryKeys';
 
 export const PaymentRequestReview = ({ history, match }) => {
   const [completeReviewError, setCompleteReviewError] = useState(undefined);
@@ -32,7 +32,7 @@ export const PaymentRequestReview = ({ history, match }) => {
   const [mutatePaymentRequest] = useMutation(patchPaymentRequest, {
     onSuccess: (data, variables) => {
       const { paymentRequestID } = variables;
-      queryCache.setQueryData(['paymentRequests', paymentRequestID], {
+      queryCache.setQueryData([PAYMENT_REQUESTS, paymentRequestID], {
         paymentRequests: data.paymentRequests,
         paymentServiceItems,
       });
@@ -48,7 +48,7 @@ export const PaymentRequestReview = ({ history, match }) => {
   const [mutatePaymentServiceItemStatus] = useMutation(patchPaymentServiceItemStatus, {
     onSuccess: (data, variables) => {
       const newPaymentServiceItem = data.paymentServiceItems[variables.paymentServiceItemID];
-      queryCache.setQueryData(['paymentRequests', paymentRequestId], {
+      queryCache.setQueryData([PAYMENT_REQUESTS, paymentRequestId], {
         paymentRequests,
         paymentServiceItems: {
           ...paymentServiceItems,
@@ -61,9 +61,9 @@ export const PaymentRequestReview = ({ history, match }) => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const paymentServiceItemsArr = mapObjectToArray(paymentServiceItems);
-  const mtoServiceItemsArr = mapObjectToArray(mtoServiceItems);
-  const mtoShipmentsArr = mapObjectToArray(mtoShipments);
+  const paymentServiceItemsArr = Object.values(paymentServiceItems);
+  const mtoServiceItemsArr = Object.values(mtoServiceItems);
+  const mtoShipmentsArr = Object.values(mtoShipments);
 
   const handleUpdatePaymentServiceItemStatus = (paymentServiceItemID, values) => {
     const paymentServiceItemForRequest = paymentServiceItemsArr.find((s) => s.id === paymentServiceItemID);

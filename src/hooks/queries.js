@@ -3,11 +3,12 @@ import { useQuery } from 'react-query';
 
 import { getPaymentRequest, getMTOShipments, getMTOServiceItems } from 'services/ghcApi';
 import { getQueriesStatus } from 'utils/api';
+import { PAYMENT_REQUESTS, MTO_SHIPMENTS, MTO_SERVICE_ITEMS } from 'constants/queryKeys';
 
 export const usePaymentRequestQueries = (paymentRequestId) => {
   // get payment request by ID
   const { data: { paymentRequests, paymentServiceItems } = {}, ...paymentRequestQuery } = useQuery(
-    ['paymentRequests', paymentRequestId],
+    [PAYMENT_REQUESTS, paymentRequestId],
     getPaymentRequest,
   );
 
@@ -15,13 +16,13 @@ export const usePaymentRequestQueries = (paymentRequestId) => {
   const mtoID = paymentRequest?.moveTaskOrderID;
 
   // get MTO shipments
-  const { data: { mtoShipments } = {}, ...mtoShipmentQuery } = useQuery(['mtoShipments', mtoID], getMTOShipments, {
+  const { data: { mtoShipments } = {}, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENTS, mtoID], getMTOShipments, {
     enabled: !!mtoID,
   });
 
   // get MTO service items
   const { data: { mtoServiceItems } = {}, ...mtoServiceItemQuery } = useQuery(
-    ['mtoServiceItems', mtoID],
+    [MTO_SERVICE_ITEMS, mtoID],
     getMTOServiceItems,
     {
       enabled: !!mtoID,

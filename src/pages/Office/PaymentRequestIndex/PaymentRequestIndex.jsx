@@ -5,16 +5,16 @@ import { useQuery } from 'react-query';
 import { getPaymentRequestList } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { mapObjectToArray } from 'utils/api';
+import { PAYMENT_REQUESTS } from 'constants/queryKeys';
 
 const PaymentRequestIndex = () => {
-  const { isLoading, isError, data, error } = useQuery('paymentRequests', getPaymentRequestList);
+  const { isLoading, isError, data, error } = useQuery(PAYMENT_REQUESTS, getPaymentRequestList);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong error={error} />;
 
   const { paymentRequests } = data;
-  const paymentRequestsArr = mapObjectToArray(paymentRequests);
+  const paymentRequestsArr = Object.values(paymentRequests);
 
   return (
     <>

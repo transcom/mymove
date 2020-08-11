@@ -5,6 +5,7 @@ import { ReactQueryCacheProvider, makeQueryCache } from 'react-query';
 import PaymentRequestIndex from './PaymentRequestIndex';
 
 import { MockProviders } from 'testUtils';
+import { PAYMENT_REQUESTS } from 'constants/queryKeys';
 
 const mockGetPaymentRequestListSuccess = jest.fn(() =>
   Promise.resolve({
@@ -38,7 +39,7 @@ describe('PaymentRequestIndex', () => {
     const cache = makeQueryCache();
 
     it('renders without errors', async () => {
-      await cache.prefetchQuery('paymentRequests', mockGetPaymentRequestListSuccess);
+      await cache.prefetchQuery(PAYMENT_REQUESTS, mockGetPaymentRequestListSuccess);
 
       const wrapper = mount(
         <ReactQueryCacheProvider queryCache={cache}>
