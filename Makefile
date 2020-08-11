@@ -1028,7 +1028,7 @@ loki_approve_changes: ## Approves differences in Loki test results
 	yarn run loki approve
 
 .PHONY: schemaspy
- schemaspy: db_test_reset db_test_migrate ## Generates database documentation using schemaspy
+schemaspy: db_test_reset db_test_migrate ## Generates database documentation using schemaspy
 	rm -rf $(SCHEMASPY_OUTPUT)
 	docker run -v $(PWD)/$(SCHEMASPY_OUTPUT):/output schemaspy/schemaspy:latest \
 		-t pgsql11 -host host.docker.internal -port $(DB_PORT_TEST) -db $(DB_NAME_TEST) -u postgres -p $(PGPASSWORD) \
