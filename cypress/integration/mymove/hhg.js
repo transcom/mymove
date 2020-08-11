@@ -107,7 +107,7 @@ function customerFillsOutOrdersInformation() {
   cy.get('button.next', { timeout: fileUploadTimeout }).should('not.be.disabled').click();
   cy.nextPage();
 
-  cy.get('h1').contains('Moving 101');
+  cy.get('h1').contains('Figure out your shipments');
   cy.nextPage();
 }
 

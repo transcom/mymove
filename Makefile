@@ -864,7 +864,7 @@ run_com_prod_migrations: bin/milmove db_deployed_migrations_reset ## Run Commerc
 # 	bin/milmove migrate
 
 .PHONY: run_staging_migrations
-run_staging_migrations: run_com_staging_migrations ## Currently: Run Commercial Staging migrations against Deployed Migrations DB
+run_staging_migrations: run_com_staging_migrations ## Currently: Run Commercial Staging migrations against Deployed Migrations DB in commercial
 	# run_gov_staging_migrations
 
 .PHONY: run_com_staging_migrations
@@ -877,16 +877,15 @@ run_com_staging_migrations: bin/milmove db_deployed_migrations_reset ## Run Comm
 	DB_DEBUG=0 \
 	bin/milmove migrate
 
-# This will be added once GovCloud staging env is up
-# .PHONY: run_gov_staging_migrations ## Run GovCloud Staging migrations against Deployed Migrations DB
-# run_gov_staging_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud Staging migrations against Deployed Migrations DB
-# 	@echo "Migrating the staging-migrations database with staging migrations..."
-# 	MIGRATION_PATH="s3://transcom-gov-milmove-stg-app/secure-migrations;file://migrations/$(APPLICATION)/schema" \
-# 	DB_HOST=localhost \
-# 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
-# 	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
-# 	DB_DEBUG=0 \
-# 	bin/milmove migrate
+.PHONY: run_gov_staging_migrations ## Run GovCloud Staging migrations against Deployed Migrations DB
+run_gov_staging_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud Staging migrations against Deployed Migrations DB in commercial
+	@echo "Migrating the staging-migrations database with staging migrations..."
+	MIGRATION_PATH="s3://transcom-gov-milmove-stg-app/secure-migrations;file://migrations/$(APPLICATION)/schema" \
+	DB_HOST=localhost \
+	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
+	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
+	DB_DEBUG=0 \
+	bin/milmove migrate
 
 .PHONY: run_experimental_migrations ## Currently: Run Commercial Experimental migrations against Deployed Migrations DB
 run_experimental_migrations: run_com_experimental_migrations
