@@ -65,6 +65,13 @@ type DomesticDestinationPricer interface {
 	ParamsPricer
 }
 
+// DomesticPackPricer prices the domestic packing and unpacking for a GHC Move
+//go:generate mockery -name DomesticPackPricer
+type DomesticPackPricer interface {
+	Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int) (unit.Cents, error)
+	ParamsPricer
+}
+
 // Older pricers below (pre-dates payment requests)
 
 // DomesticServiceAreaPricer domestic prices: origin and destination service area, SIT day 1, SIT Addt'l days
