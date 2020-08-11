@@ -63,7 +63,6 @@ func MTOAgents(mtoAgents *models.MTOAgents) *internalmessages.MTOAgents {
 
 // MTOShipment payload
 func MTOShipment(mtoShipment *models.MTOShipment) *internalmessages.MTOShipment {
-	// TODO: handle now-optional props
 	payload := &internalmessages.MTOShipment{
 		ID:                 strfmt.UUID(mtoShipment.ID.String()),
 		Agents:             *MTOAgents(&mtoShipment.MTOAgents),
@@ -74,6 +73,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *internalmessages.MTOShipment 
 		DestinationAddress: Address(mtoShipment.DestinationAddress),
 		CreatedAt:          strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:          strfmt.DateTime(mtoShipment.UpdatedAt),
+		Status:             internalmessages.MTOShipmentStatus(mtoShipment.Status),
 	}
 
 	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
