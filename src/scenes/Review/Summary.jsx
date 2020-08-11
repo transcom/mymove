@@ -74,7 +74,7 @@ export class Summary extends Component {
     const showPPMShipmentSummary =
       (isReviewPage && !isEmpty(currentPPM)) ||
       (!isReviewPage && !isEmpty(currentPPM) && currentPPM.status !== 'DRAFT');
-    const showHHGShipmentSummary = !isEmpty(mtoShipment) || (!isEmpty(mtoShipment) && !isReviewPage);
+    const showHHGShipmentSummary = isReviewPage && !isEmpty(mtoShipment);
 
     const showProfileAndOrders = isReviewPage || !isReviewPage;
     return (
@@ -111,11 +111,12 @@ export class Summary extends Component {
           />
         )}
 
-        {showHHGShipmentSummary && <HHGShipmentSummary mtoShipment={mtoShipment} movePath={rootAddressWithMoveId} />}
-
         {showPPMShipmentSummary && (
           <PPMShipmentSummary ppm={currentPPM} movePath={rootAddressWithMoveId} orders={currentOrders} />
         )}
+
+        {showHHGShipmentSummary && <HHGShipmentSummary mtoShipment={mtoShipment} movePath={rootAddressWithMoveId} />}
+
         {moveIsApproved && (
           <div className="approved-edit-warning">
             *To change these fields, contact your local PPPO office at {get(currentStation, 'name')}{' '}

@@ -30,7 +30,7 @@ func (suite *ServiceParamValueLookupsSuite) TestActualPickupDateLookup() {
 			MoveTaskOrder: mtoServiceItem.MoveTaskOrder,
 		})
 
-	paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+	paramLookup, _ := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
 
 	suite.T().Run("golden path", func(t *testing.T) {
 		valueStr, err := paramLookup.ServiceParamValue(key)
@@ -74,11 +74,12 @@ func (suite *ServiceParamValueLookupsSuite) TestActualPickupDateLookup() {
 	suite.T().Run("bogus MTOServiceItemID", func(t *testing.T) {
 		// Pass in a non-existent MTOServiceItemID
 		invalidMTOServiceItemID := uuid.Must(uuid.NewV4())
-		badParamLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, invalidMTOServiceItemID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		_, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, invalidMTOServiceItemID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		// suite.FatalNoError(err)
 
-		valueStr, err := badParamLookup.ServiceParamValue(key)
+		// valueStr, err := badParamLookup.ServiceParamValue(key)
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, errors.Unwrap(err))
-		suite.Equal("", valueStr)
+		// suite.Equal("", valueStr)
 	})
 }

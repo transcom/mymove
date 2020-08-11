@@ -13,11 +13,13 @@ import (
 
 // DistanceZip3Lookup contains zip3 lookup
 type DistanceZip3Lookup struct {
+	PickupAddress      models.Address
+	DestinationAddress models.Address
 }
 
 func (r DistanceZip3Lookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
-	db := *keyData.db
 	planner := keyData.planner
+	db := keyData.db
 
 	// Get the MTOServiceItem and associated MTOShipment and addresses
 	mtoServiceItemID := keyData.MTOServiceItemID
@@ -45,19 +47,9 @@ func (r DistanceZip3Lookup) lookup(keyData *ServiceItemParamKeyData) (string, er
 		return strconv.Itoa(mtoShipment.Distance.Int()), nil
 	}
 
-	// Make sure there's a pickup and destination address since those are nullable
-	pickupAddressID := mtoServiceItem.MTOShipment.PickupAddressID
-	if pickupAddressID == nil || *pickupAddressID == uuid.Nil {
-		return "", services.NewNotFoundError(uuid.Nil, "looking for PickupAddressID")
-	}
-	destinationAddressID := mtoServiceItem.MTOShipment.DestinationAddressID
-	if destinationAddressID == nil || *destinationAddressID == uuid.Nil {
-		return "", services.NewNotFoundError(uuid.Nil, "looking for DestinationAddressID")
-	}
-
 	// Now calculate the distance between zip3s
-	pickupZip := mtoServiceItem.MTOShipment.PickupAddress.PostalCode
-	destinationZip := mtoServiceItem.MTOShipment.DestinationAddress.PostalCode
+	pickupZip := r.PickupAddress.PostalCode
+	destinationZip := r.DestinationAddress.PostalCode
 	distanceMiles, err := planner.Zip3TransitDistance(pickupZip, destinationZip)
 	if err != nil {
 		return "", err
