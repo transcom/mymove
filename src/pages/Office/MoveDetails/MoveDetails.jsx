@@ -147,8 +147,8 @@ export class MoveDetails extends Component {
     const { activeSection, sections } = this.state;
 
     const ordersInfo = {
-      newDutyStation: moveOrder.destinationDutyStation?.name,
-      currentDutyStation: moveOrder.originDutyStation?.name,
+      newDutyStation: moveOrder.destinationDutyStation,
+      currentDutyStation: moveOrder.originDutyStation,
       issuedDate: moveOrder.date_issued,
       reportByDate: moveOrder.report_by_date,
       departmentIndicator: moveOrder.department_indicator,
@@ -200,6 +200,7 @@ export class MoveDetails extends Component {
               <div className={styles.section} id="requested-shipments">
                 <RequestedShipments
                   mtoShipments={submittedShipments}
+                  ordersInfo={ordersInfo}
                   allowancesInfo={allowancesInfo}
                   customerInfo={customerInfo}
                   mtoAgents={mtoAgents}
@@ -214,11 +215,13 @@ export class MoveDetails extends Component {
               <div className={styles.section} id="approved-shipments">
                 <RequestedShipments
                   mtoShipments={approvedShipments}
+                  ordersInfo={ordersInfo}
                   allowancesInfo={allowancesInfo}
                   customerInfo={customerInfo}
                   mtoAgents={mtoAgents}
                   mtoServiceItems={mtoServiceItems}
                   shipmentsStatus="APPROVED"
+                  moveTaskOrder={moveTaskOrder}
                 />
               </div>
             )}
