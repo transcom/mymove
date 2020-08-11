@@ -54,7 +54,8 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 	logger, _ := zap.NewDevelopment()
 	handler := handlers.NewHandlerContext(suite.DB(), logger)
 
-	suite.T().Run("trigger event passing", func(t *testing.T) {
+	// Test successful event passing with Support API
+	suite.T().Run("trigger event passing with support api endpoint", func(t *testing.T) {
 		count, _ := suite.DB().Count(&models.WebhookNotification{})
 
 		_, err := TriggerEvent(Event{
@@ -63,6 +64,25 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 			UpdatedObjectID: paymentRequestID,
 			Request:         &dummyRequest,
 			EndpointKey:     SupportUpdatePaymentRequestStatusEndpointKey,
+			HandlerContext:  handler,
+			DBConnection:    suite.DB(),
+		})
+		suite.Nil(err)
+		newCount, _ := suite.DB().Count(&models.WebhookNotification{})
+		suite.Equal(count+1, newCount)
+
+	})
+
+	// Test successful event passing with GHC API
+	suite.T().Run("trigger event passing with ghc api endpoint", func(t *testing.T) {
+		count, _ := suite.DB().Count(&models.WebhookNotification{})
+
+		_, err := TriggerEvent(Event{
+			EventKey:        PaymentRequestCreateEventKey,
+			MtoID:           mtoID,
+			UpdatedObjectID: paymentRequestID,
+			Request:         &dummyRequest,
+			EndpointKey:     GhcUpdatePaymentRequestStatusEndpointKey,
 			HandlerContext:  handler,
 			DBConnection:    suite.DB(),
 		})
