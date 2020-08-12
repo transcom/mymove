@@ -131,7 +131,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticPack() {
 		)
 
 		suite.Error(err)
-		suite.Equal("Could not lookup Domestic Service Area Price: sql: no rows in result set", err.Error())
+		suite.Equal("Could not lookup Domestic Other Price: sql: no rows in result set", err.Error())
 	})
 
 	suite.T().Run("failure if move date is outside of contract year", func(t *testing.T) {
@@ -179,7 +179,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticPack() {
 		// No service area
 		_, err = pricer.Price(testdatagen.DefaultContractCode, requestedPickupDate, dshTestWeight, 0)
 		suite.Error(err)
-		suite.Equal("ServiceArea is required", err.Error())
+		suite.Equal("Service schedule is required", err.Error())
 	})
 }
 

@@ -47,12 +47,11 @@ func (p domesticPackPricer) Price(contractCode string, requestedPickupDate time.
 	var contractYear models.ReContractYear
 	var domOtherPrice models.ReDomesticOtherPrice
 	err = p.db.Q().
-		Join("re_domestic_service_areas sa", "domestic_service_area_id = sa.id").
 		Join("re_services", "service_id = re_services.id").
 		Join("re_contracts", "re_contracts.id = re_domestic_other_prices.contract_id").
-		Where("re_contracts.code = $3", contractCode).
+		Where("re_contracts.code = $1", contractCode).
 		Where("re_services.code = $2", models.ReServiceCodeDPK).
-		Where("is_peak_period = $4", isPeakPeriod).
+		Where("is_peak_period = $3", isPeakPeriod).
 		First(&domOtherPrice)
 	if err != nil {
 		return 0, fmt.Errorf("Could not lookup Domestic Other Price: %w", err)
