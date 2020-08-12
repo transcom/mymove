@@ -6,6 +6,7 @@ import { formatDateForSwagger } from 'shared/dates';
 import { getClient } from 'shared/Swagger/api';
 import { get, filter, isEmpty, isNull, head } from 'lodash';
 import { fetchActive } from 'shared/utils';
+import { selectServiceMemberFromLoggedInUser } from './serviceMembers';
 
 export const STATE_KEY = 'orders';
 export const loadOrdersLabel = 'Orders.loadOrders';
@@ -104,5 +105,16 @@ export function selectActiveOrLatestOrders(state) {
     const orders = get(state, 'user.userInfo.service_member.orders', {});
     activeOrLatestOrders = fetchActive(orders) || head(orders);
   }
+  return activeOrLatestOrders || {};
+}
+
+// use this for redux refactored parts where we've loaded orders into entities
+export function selectActiveOrLatestOrdersFromEntities(state) {
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+  if (isNull(serviceMember)) {
+    return {};
+  }
+  const orders = selectOrdersForServiceMemberId(state, serviceMember.id);
+  let activeOrLatestOrders = fetchActive(orders) || head(orders);
   return activeOrLatestOrders || {};
 }

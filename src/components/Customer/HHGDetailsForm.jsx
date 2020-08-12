@@ -12,7 +12,9 @@ import { AddressFields } from '../form/AddressFields/AddressFields';
 import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
 
 import { createMTOShipment as createMTOShipmentAction } from 'shared/Entities/modules/mtoShipments';
-import { showLoggedInUser as showLoggedInUserAction, selectLoggedInUser } from 'shared/Entities/modules/user';
+import { selectActiveOrLatestOrdersFromEntities } from 'shared/Entities/modules/orders';
+import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
+import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { WizardPage } from 'shared/WizardPage';
 import { MTOAgentType } from 'shared/constants';
 import { formatSwaggerDate } from 'shared/formatters';
@@ -350,11 +352,14 @@ HHGDetailsForm.defaultProps = {
     postal_code: '',
   },
 };
-const mapStateToProps = (state) => ({
-  moveTaskOrderID: get(selectLoggedInUser(state), 'service_member.orders[0].move_task_order_id', ''),
-  currentResidence: get(selectLoggedInUser(state), 'service_member.residential_address', {}),
-  newDutyStationAddress: get(selectLoggedInUser(state), 'service_member.orders[0].new_duty_station.address', {}),
-});
+const mapStateToProps = (state) => {
+  const orders = selectActiveOrLatestOrdersFromEntities(state);
+  return {
+    moveTaskOrderID: get(orders, 'move_task_order_id', ''),
+    currentResidence: get(selectServiceMemberFromLoggedInUser(state), 'residential_address', {}),
+    newDutyStationAddress: get(orders, 'new_duty_station.address', {}),
+  };
+};
 
 const mapDispatchToProps = {
   createMTOShipment: createMTOShipmentAction,
