@@ -44,10 +44,10 @@ export class PaymentRequestReview extends Component {
   }
 
   handleUpdatePaymentServiceItemStatus = (paymentServiceItemID, values) => {
-    const { patchPaymentServiceItemStatus, mtoServiceItems, paymentServiceItems } = this.props;
+    const { patchPaymentServiceItemStatus, paymentRequest, paymentServiceItems } = this.props;
     const paymentServiceItemForRequest = paymentServiceItems.find((s) => s.id === paymentServiceItemID);
     patchPaymentServiceItemStatus(
-      mtoServiceItems[0].moveTaskOrderID,
+      paymentRequest.moveTaskOrderID,
       paymentServiceItemID,
       values.status,
       paymentServiceItemForRequest.eTag,
@@ -98,6 +98,8 @@ export class PaymentRequestReview extends Component {
       },
     ];
 
+    const isLoaded = paymentServiceItems?.length && mtoServiceItems?.length && mtoShipments?.length;
+
     const serviceItemCards = paymentServiceItems.map((item) => {
       const mtoServiceItem = mtoServiceItems.find((s) => s.id === item.mtoServiceItemID);
       const itemShipment = mtoServiceItem && mtoShipments.find((s) => s.id === mtoServiceItem.mtoShipmentID);
@@ -120,14 +122,16 @@ export class PaymentRequestReview extends Component {
           <DocumentViewer files={testFiles} />
         </div>
         <div className={styles.sidebar}>
-          <ReviewServiceItems
-            handleClose={() => this.handleClose(moveOrderId)}
-            paymentRequest={paymentRequest}
-            serviceItemCards={serviceItemCards}
-            patchPaymentServiceItem={this.handleUpdatePaymentServiceItemStatus}
-            onCompleteReview={this.handleCompleteReview}
-            completeReviewError={completeReviewError}
-          />
+          {isLoaded > 0 && (
+            <ReviewServiceItems
+              handleClose={() => this.handleClose(moveOrderId)}
+              paymentRequest={paymentRequest}
+              serviceItemCards={serviceItemCards}
+              patchPaymentServiceItem={this.handleUpdatePaymentServiceItemStatus}
+              onCompleteReview={this.handleCompleteReview}
+              completeReviewError={completeReviewError}
+            />
+          )}
         </div>
       </div>
     );

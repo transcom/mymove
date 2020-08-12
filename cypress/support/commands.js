@@ -139,6 +139,11 @@ Cypress.Commands.add('setFeatureFlag', (flagVal, url = '/queues/new') => {
   cy.visit(`${url}?flag:${flagVal}`);
 });
 
+// Persist session cookies throughout a testing block (use in beforeEach)
+Cypress.Commands.add('persistSessionCookies', () => {
+  Cypress.Cookies.preserveOnce('masked_gorilla_csrf', 'office_session_token', '_gorilla_csrf');
+});
+
 Cypress.Commands.add(
   'signInAsUserPostRequest',
   (
