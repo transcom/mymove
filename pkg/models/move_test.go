@@ -22,7 +22,6 @@ func (suite *ModelSuite) TestBasicMoveInstantiation() {
 		"locator":   {"Locator can not be blank."},
 		"orders_id": {"OrdersID can not be blank."},
 		"status":    {"Status can not be blank."},
-		//"contractor_id": {"ContractorID can not be blank."},
 	}
 
 	suite.verifyValidationErrors(move, expErrors)
