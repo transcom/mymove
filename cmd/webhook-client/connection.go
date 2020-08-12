@@ -7,16 +7,9 @@ import (
 	"net/http"
 	"strings"
 
-	runtimeClient "github.com/go-openapi/runtime/client"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"pault.ag/go/pksigner"
-
-	// #TODO: Story to remove dependency on gen/supportclient. The support endpoint
-	// in support.yaml will function as our "server" for local testing. In production,
-	// we need to send the payload to the Prime / an external server and will not
-	// know any internals around their implementation.
-	supportClient "github.com/transcom/mymove/pkg/gen/supportclient"
 
 	"github.com/transcom/mymove/pkg/cli"
 )
@@ -39,11 +32,11 @@ func ParseFlags(cmd *cobra.Command, v *viper.Viper, args []string) error {
 }
 
 // CreateClient creates the support api client
-func CreateClient(v *viper.Viper) (*supportClient.Mymove, *pksigner.Store, error) {
+func CreateClient(v *viper.Viper) (*http.Client, *pksigner.Store, error) {
 
 	// Use command line inputs
-	hostname := v.GetString(HostnameFlag)
-	port := v.GetInt(PortFlag)
+	//hostname := v.GetString(HostnameFlag)
+	//port := v.GetInt(PortFlag)
 	insecure := v.GetBool(InsecureFlag)
 
 	var httpClient *http.Client
@@ -81,23 +74,42 @@ func CreateClient(v *viper.Viper) (*supportClient.Mymove, *pksigner.Store, error
 		certPath := v.GetString(CertPathFlag)
 		keyPath := v.GetString(KeyPathFlag)
 
-		var errRuntimeClientTLS error
-		httpClient, errRuntimeClientTLS = runtimeClient.TLSClient(runtimeClient.TLSClientOptions{
-			Key:                keyPath,
-			Certificate:        certPath,
-			InsecureSkipVerify: insecure})
-		if errRuntimeClientTLS != nil {
-			log.Fatal(errRuntimeClientTLS)
+		// var errRuntimeClientTLS error
+		// httpClient, errRuntimeClientTLS = runtimeClient.TLSClient(runtimeClient.TLSClientOptions{
+		// 	Key:                keyPath,
+		// 	Certificate:        certPath,
+		// 	InsecureSkipVerify: insecure})
+		// if errRuntimeClientTLS != nil {
+		// 	log.Fatal(errRuntimeClientTLS)
+		// }
+		// Create a HTTPS client and supply the created CA pool and certificate
+		// Read the key pair to create certificate
+		// certPath = "config/tls/devlocal-mtls.cer"
+		// keyPath = "config/tls/devlocal-mtls.key"
+		cert, err := tls.LoadX509KeyPair(certPath, keyPath)
+		cert.SupportedSignatureAlgorithms = []tls.SignatureScheme{tls.PKCS1WithSHA256}
+		if err != nil {
+			log.Fatal(err)
 		}
+		// #nosec
+		httpClient = &http.Client{
+			Transport: &http.Transport{
+				TLSClientConfig: &tls.Config{
+					Certificates:       []tls.Certificate{cert},
+					InsecureSkipVerify: insecure,
+				},
+			},
+		}
+
 	}
 
-	verbose := v.GetBool(cli.VerboseFlag)
-	hostWithPort := fmt.Sprintf("%s:%d", hostname, port)
-	myRuntime := runtimeClient.NewWithClient(hostWithPort, supportClient.DefaultBasePath, []string{"https"}, httpClient)
-	myRuntime.EnableConnectionReuse()
-	myRuntime.SetDebug(verbose)
+	// verbose := v.GetBool(cli.VerboseFlag)
+	// hostWithPort := fmt.Sprintf("%s:%d", hostname, port)
+	// myRuntime := runtimeClient.NewWithClient(hostWithPort, "/support/v1", []string{"https"}, httpClient)
+	// myRuntime.EnableConnectionReuse()
+	// myRuntime.SetDebug(verbose)
 
-	supportGateway := supportClient.New(myRuntime, nil)
+	// gateway := supportClient.New(myRuntime, nil)
 
-	return supportGateway, store, nil
+	return httpClient, store, nil
 }
