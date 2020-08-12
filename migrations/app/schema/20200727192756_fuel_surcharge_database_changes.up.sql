@@ -21,12 +21,6 @@ DELETE FROM service_params WHERE id IN
 '8dc69dda-e979-487f-ac5f-52feadc2ba00',  -- Remove PSI_LinehaulShort from Dom. Haul Away Boat Factor
 '4bc8aca0-dee2-41cb-9b2e-1f4dc00d998c'); -- Remove PSI_LinehaulShortPrice from Dom. Haul Away Boat Factor
 
-DELETE FROM service_item_param_keys WHERE key IN
-('PSI_LinehaulDom',
-'PSI_LinehaulDomPrice',
-'PSI_LinehaulShort',
-'PSI_LinehaulShortPrice');
-
 INSERT INTO service_params(id, service_id, service_item_param_key_id, created_at, updated_at)
 VALUES
 ('6327acfb-f05f-4bc6-936e-98a37e0161f5', (SELECT id from re_services WHERE code = 'FSC'), (SELECT id FROM service_item_param_keys where key = 'ContractCode'), now(), now()),
