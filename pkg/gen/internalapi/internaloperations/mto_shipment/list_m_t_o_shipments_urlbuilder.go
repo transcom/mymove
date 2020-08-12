@@ -9,17 +9,24 @@ import (
 	"errors"
 	"net/url"
 	golangswaggerpaths "path"
+	"strings"
+
+	"github.com/go-openapi/strfmt"
 )
 
-// CreateMTOShipmentURL generates an URL for the create m t o shipment operation
-type CreateMTOShipmentURL struct {
+// ListMTOShipmentsURL generates an URL for the list m t o shipments operation
+type ListMTOShipmentsURL struct {
+	MoveTaskOrderID strfmt.UUID
+
 	_basePath string
+	// avoid unkeyed usage
+	_ struct{}
 }
 
 // WithBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *CreateMTOShipmentURL) WithBasePath(bp string) *CreateMTOShipmentURL {
+func (o *ListMTOShipmentsURL) WithBasePath(bp string) *ListMTOShipmentsURL {
 	o.SetBasePath(bp)
 	return o
 }
@@ -27,15 +34,22 @@ func (o *CreateMTOShipmentURL) WithBasePath(bp string) *CreateMTOShipmentURL {
 // SetBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *CreateMTOShipmentURL) SetBasePath(bp string) {
+func (o *ListMTOShipmentsURL) SetBasePath(bp string) {
 	o._basePath = bp
 }
 
 // Build a url path and query string
-func (o *CreateMTOShipmentURL) Build() (*url.URL, error) {
+func (o *ListMTOShipmentsURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/mto_shipments"
+	var _path = "/moves/{moveTaskOrderID}/mto_shipments"
+
+	moveTaskOrderID := o.MoveTaskOrderID.String()
+	if moveTaskOrderID != "" {
+		_path = strings.Replace(_path, "{moveTaskOrderID}", moveTaskOrderID, -1)
+	} else {
+		return nil, errors.New("moveTaskOrderId is required on ListMTOShipmentsURL")
+	}
 
 	_basePath := o._basePath
 	if _basePath == "" {
@@ -47,7 +61,7 @@ func (o *CreateMTOShipmentURL) Build() (*url.URL, error) {
 }
 
 // Must is a helper function to panic when the url builder returns an error
-func (o *CreateMTOShipmentURL) Must(u *url.URL, err error) *url.URL {
+func (o *ListMTOShipmentsURL) Must(u *url.URL, err error) *url.URL {
 	if err != nil {
 		panic(err)
 	}
@@ -58,17 +72,17 @@ func (o *CreateMTOShipmentURL) Must(u *url.URL, err error) *url.URL {
 }
 
 // String returns the string representation of the path with query string
-func (o *CreateMTOShipmentURL) String() string {
+func (o *ListMTOShipmentsURL) String() string {
 	return o.Must(o.Build()).String()
 }
 
 // BuildFull builds a full url with scheme, host, path and query string
-func (o *CreateMTOShipmentURL) BuildFull(scheme, host string) (*url.URL, error) {
+func (o *ListMTOShipmentsURL) BuildFull(scheme, host string) (*url.URL, error) {
 	if scheme == "" {
-		return nil, errors.New("scheme is required for a full url on CreateMTOShipmentURL")
+		return nil, errors.New("scheme is required for a full url on ListMTOShipmentsURL")
 	}
 	if host == "" {
-		return nil, errors.New("host is required for a full url on CreateMTOShipmentURL")
+		return nil, errors.New("host is required for a full url on ListMTOShipmentsURL")
 	}
 
 	base, err := o.Build()
@@ -82,6 +96,6 @@ func (o *CreateMTOShipmentURL) BuildFull(scheme, host string) (*url.URL, error) 
 }
 
 // StringFull returns the string representation of a complete url
-func (o *CreateMTOShipmentURL) StringFull(scheme, host string) string {
+func (o *ListMTOShipmentsURL) StringFull(scheme, host string) string {
 	return o.Must(o.BuildFull(scheme, host)).String()
 }

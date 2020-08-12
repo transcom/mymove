@@ -51,6 +51,7 @@ ifdef GOLAND
 	GOLAND_GC_FLAGS=all=-N -l
 endif
 
+SCHEMASPY_OUTPUT=./tmp/schemaspy
 
 .PHONY: help
 help:  ## Print the help documentation
@@ -991,6 +992,7 @@ clean: ## Clean all generated files
 	rm -rf ./public/swagger-ui/*.{css,js,png}
 	rm -rf ./tmp/secure_migrations
 	rm -rf ./tmp/storage
+	rm -rf $(SCHEMASPY_OUTPUT)
 	rm -rf ./storybook-static
 	rm -rf ./coverage
 	rm -rf ./log
@@ -1024,6 +1026,14 @@ storybook_tests: ## Run the Loki storybook tests to ensure no breaking changes
 .PHONY: loki_approve_changes
 loki_approve_changes: ## Approves differences in Loki test results
 	yarn run loki approve
+
+.PHONY: schemaspy
+schemaspy: db_test_reset db_test_migrate ## Generates database documentation using schemaspy
+	rm -rf $(SCHEMASPY_OUTPUT)
+	docker run -v $(PWD)/$(SCHEMASPY_OUTPUT):/output schemaspy/schemaspy:latest \
+		-t pgsql11 -host host.docker.internal -port $(DB_PORT_TEST) -db $(DB_NAME_TEST) -u postgres -p $(PGPASSWORD) \
+		-norows -nopages
+	@echo "Schemaspy output can be found in $(SCHEMASPY_OUTPUT)"
 
 #
 # ----- END RANDOM TARGETS -----
