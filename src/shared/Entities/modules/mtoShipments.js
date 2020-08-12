@@ -44,7 +44,6 @@ export function loadMTOShipments(
   label = loadMTOShipmentsOperation,
   schemaKey = mtoShipmentsSchemaKey,
 ) {
-  console.log('MTOSHIPMENTSGET', moveTaskOrderID);
   return swaggerRequest(getClient, loadMTOShipmentsOperation, { moveTaskOrderID }, { label, schemaKey });
 }
 

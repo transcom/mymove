@@ -34,17 +34,20 @@ export class Summary extends Component {
   componentDidMount() {
     if (this.props.onDidMount) {
       this.props.onDidMount(this.props.serviceMember.id);
-      const { showLoggedInUser, loadMTOShipments } = this.props;
-      loadMTOShipments(this.props.movetaskOrderID);
+      const { showLoggedInUser } = this.props;
       showLoggedInUser();
     }
   }
   componentDidUpdate(prevProps) {
-    const { selectedMoveType } = this.props;
+    const { selectedMoveType, moveTaskOrderID, loadMTOShipments } = this.props;
     const hhgMove = isEmpty(prevProps.currentPPM) && isEmpty(this.props.currentPPM);
     // Only check entitlement for PPMs, not HHGs
     if (prevProps.currentPPM !== this.props.currentPPM && !hhgMove && selectedMoveType === SHIPMENT_OPTIONS.PPM) {
       this.props.onCheckEntitlement(this.props.match.params.moveId);
+    }
+    if (prevProps.moveTaskOrderID !== moveTaskOrderID) {
+      // TODO: Not yet working...
+      loadMTOShipments(moveTaskOrderID);
     }
   }
 
@@ -64,7 +67,6 @@ export class Summary extends Component {
       match,
       uploads,
     } = this.props;
-    console.log('mto shipment', mtoShipment);
     const currentStation = get(serviceMember, 'current_station');
     const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
 

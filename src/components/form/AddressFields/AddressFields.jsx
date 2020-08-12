@@ -9,25 +9,25 @@ export const AddressFields = ({ legend, className, values, handleChange, name, r
   return (
     <Fieldset legend={legend} className={className}>
       {renderExistingAddressCheckbox()}
-      <Label htmlFor={`mailingAddress1_${addressFieldsUUID}`}>Street address 1</Label>
+      <Label htmlFor={`street_address_1_${addressFieldsUUID}`}>Street address 1</Label>
       <TextInput
-        id={`mailingAddress1_${addressFieldsUUID}`}
+        id={`street_address_1_${addressFieldsUUID}`}
         data-testid="mailingAddress1"
-        name={`${name}.mailingAddress1`}
+        name={`${name}.street_address_1`}
         type="text"
         onChange={handleChange}
-        value={values.mailingAddress1}
+        value={values.street_address_1}
       />
-      <Label hint=" (optional)" htmlFor={`mailingAddress2_${addressFieldsUUID}`}>
+      <Label hint=" (optional)" htmlFor={`street_address_2_${addressFieldsUUID}`}>
         Street address 2
       </Label>
       <TextInput
-        id={`mailingAddress2_${addressFieldsUUID}`}
+        id={`street_address_2_${addressFieldsUUID}`}
         data-testid="mailingAddress2"
-        name={`${name}.mailingAddress2`}
+        name={`${name}.street_address_2`}
         type="text"
         onChange={handleChange}
-        value={values.mailingAddress2}
+        value={values.street_address_2}
       />
       <Label htmlFor={`city_${addressFieldsUUID}`}>City</Label>
       <TextInput
@@ -47,16 +47,16 @@ export const AddressFields = ({ legend, className, values, handleChange, name, r
         onChange={handleChange}
         value={values.state}
       />
-      <Label htmlFor={`zip_${addressFieldsUUID}`}>ZIP</Label>
+      <Label htmlFor={`postal_code_${addressFieldsUUID}`}>ZIP</Label>
       <TextInput
-        id={`zip_${addressFieldsUUID}`}
+        id={`postal_code_${addressFieldsUUID}`}
         data-testid="zip"
         inputSize="medium"
-        name={`${name}.zip`}
+        name={`${name}.postal_code`}
         pattern="[\d]{5}(-[\d]{4})?"
         type="text"
         onChange={handleChange}
-        value={values.zip}
+        value={values.postal_code}
       />
     </Fieldset>
   );
@@ -66,11 +66,11 @@ AddressFields.propTypes = {
   legend: PropTypes.string,
   className: PropTypes.string,
   values: PropTypes.shape({
-    mailingAddress1: PropTypes.string,
-    mailingAddress2: PropTypes.string,
+    street_address_1: PropTypes.string,
+    street_address_2: PropTypes.string,
     city: PropTypes.string,
     state: PropTypes.string,
-    zip: PropTypes.string,
+    postal_code: PropTypes.string,
   }),
   name: PropTypes.string.isRequired,
   handleChange: PropTypes.func.isRequired,
