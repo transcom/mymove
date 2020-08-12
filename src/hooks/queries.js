@@ -46,3 +46,33 @@ export const usePaymentRequestQueries = (paymentRequestId) => {
     isSuccess,
   };
 };
+
+export const useMoveTaskOrderQueries = (moveTaskOrderId) => {
+  // get MTO shipments
+  const { data: { mtoShipments } = {}, ...mtoShipmentQuery } = useQuery(
+    [MTO_SHIPMENTS, moveTaskOrderId],
+    getMTOShipments,
+    {
+      enabled: !!moveTaskOrderId,
+    },
+  );
+
+  // get MTO service items
+  const { data: { mtoServiceItems } = {}, ...mtoServiceItemQuery } = useQuery(
+    [MTO_SERVICE_ITEMS, moveTaskOrderId],
+    getMTOServiceItems,
+    {
+      enabled: !!moveTaskOrderId,
+    },
+  );
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([mtoShipmentQuery, mtoServiceItemQuery]);
+
+  return {
+    mtoShipments,
+    mtoServiceItems,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
