@@ -33,7 +33,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 	pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
-	destinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: mto,
 		MTOShipment:   models.MTOShipment{},
@@ -49,20 +48,9 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	params := mtoshipmentops.CreateMTOShipmentParams{
 		HTTPRequest: req,
 		Body: &internalmessages.CreateShipment{
-			// TODO: convert most of these props to optional
-			// TODO: write test for minimal create props
 			MoveTaskOrderID: handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
 			Agents:          internalmessages.MTOAgents{},
 			CustomerRemarks: nil,
-			DestinationAddress: &internalmessages.Address{
-				City:           &destinationAddress.City,
-				Country:        destinationAddress.Country,
-				PostalCode:     &destinationAddress.PostalCode,
-				State:          &destinationAddress.State,
-				StreetAddress1: &destinationAddress.StreetAddress1,
-				StreetAddress2: destinationAddress.StreetAddress2,
-				StreetAddress3: destinationAddress.StreetAddress3,
-			},
 			PickupAddress: &internalmessages.Address{
 				City:           &pickupAddress.City,
 				Country:        pickupAddress.Country,
@@ -90,7 +78,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
 	})
 
-	// TODO: this test should be invalid; check some other required prop?
 	suite.T().Run("POST failure - 400 - invalid input, missing pickup address", func(t *testing.T) {
 		fetcher := fetch.NewFetcher(builder)
 		creator := mtoshipment.NewMTOShipmentCreator(suite.DB(), builder, fetcher)
@@ -117,15 +104,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				MoveTaskOrderID: handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
 				Agents:          internalmessages.MTOAgents{},
 				CustomerRemarks: nil,
-				DestinationAddress: &internalmessages.Address{
-					City:           &destinationAddress.City,
-					Country:        destinationAddress.Country,
-					PostalCode:     &destinationAddress.PostalCode,
-					State:          &destinationAddress.State,
-					StreetAddress1: &destinationAddress.StreetAddress1,
-					StreetAddress2: destinationAddress.StreetAddress2,
-					StreetAddress3: destinationAddress.StreetAddress3,
-				},
 				PickupAddress: &internalmessages.Address{
 					City:           &pickupAddress.City,
 					Country:        pickupAddress.Country,
