@@ -37,7 +37,6 @@ func (p domesticPackPricer) Price(contractCode string, requestedPickupDate time.
 	if weight < minDomesticWeight {
 		return 0, fmt.Errorf("Weight must be a minimum of %d", minDomesticWeight)
 	}
-	// TODO update to reject if schedule isn't 1, 2 or 3
 	if servicesScheduleOrigin == 0 {
 		return 0, errors.New("Service schedule is required")
 	}
@@ -45,17 +44,12 @@ func (p domesticPackPricer) Price(contractCode string, requestedPickupDate time.
 	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
 	// look up rate for domestic pack/unpack price
 	var contractYear models.ReContractYear
-	var domOtherPrice models.ReDomesticOtherPrice
-	err = p.db.Q().
-		Join("re_services", "service_id = re_services.id").
-		Join("re_contracts", "re_contracts.id = re_domestic_other_prices.contract_id").
-		Where("re_contracts.code = $1", contractCode).
-		Where("re_services.code = $2", models.ReServiceCodeDPK).
-		Where("is_peak_period = $3", isPeakPeriod).
-		First(&domOtherPrice)
+	domOtherPrice, err := fetchDomOtherPrice(p.db, contractCode, models.ReServiceCodeDPK, servicesScheduleOrigin, isPeakPeriod)
+
 	if err != nil {
 		return 0, fmt.Errorf("Could not lookup Domestic Other Price: %w", err)
 	}
+
 	err = p.db.Where("contract_id = $1", domOtherPrice.ContractID).
 		Where("$2 between start_date and end_date", requestedPickupDate).
 		First(&contractYear)

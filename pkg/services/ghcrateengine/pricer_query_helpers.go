@@ -25,3 +25,20 @@ func fetchTaskOrderFee(db *pop.Connection, contractCode string, serviceCode mode
 
 	return taskOrderFee, nil
 }
+
+func fetchDomOtherPrice(db *pop.Connection, contractCode string, serviceCode models.ReServiceCode, servicesScheduleOrigin int, isPeakPeriod bool) (models.ReDomesticOtherPrice, error) {
+	var domOtherPrice models.ReDomesticOtherPrice
+	err := db.Q().
+		Join("re_services", "service_id = re_services.id").
+		Join("re_contracts", "re_contracts.id = re_domestic_other_prices.contract_id").
+		Where("re_contracts.code = $1", contractCode).
+		Where("re_services.code = $2", serviceCode).
+		Where("is_peak_period = $3", isPeakPeriod).
+		First(&domOtherPrice)
+
+	if err != nil {
+		return models.ReDomesticOtherPrice{}, err
+	}
+
+	return domOtherPrice, nil
+}

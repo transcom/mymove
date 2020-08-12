@@ -533,3 +533,4 @@
 20200803200704_create_subscriptions_table.up.sql
 20200804003845_add-draft-status-to-mto-shipments.up.sql
 20200804194318_replace-default-status-on-shipment.up.sql
+20200812180333_add_contract_code_param_to_dpk.up.sql
