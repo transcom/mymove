@@ -126,7 +126,7 @@
     "prettier": "=2.0.5",
     "react-test-renderer": "^16.13.1",
     "storybook-addons-abstract": "^5.0.6",
-    "terser-webpack-plugin": "^4.0.0"
+    "terser-webpack-plugin": "^4.1.0"
   },
   "browserslist": [
     ">0.2%",
