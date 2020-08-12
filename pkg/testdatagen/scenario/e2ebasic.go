@@ -974,6 +974,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			PrimeActualWeight:    &actualWeight,
 			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
 			ApprovedDate:         swag.Time(time.Now()),
+			Status:               models.MTOShipmentStatusSubmitted,
 		},
 		MoveTaskOrder: mto,
 	})
@@ -1544,6 +1545,18 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		MTOShipment:   mtoShipment4,
 		ReService: models.ReService{
 			ID: uuid.FromStringOrNil("4b85962e-25d3-4485-b43c-2497c4365598"), // DSH
+		},
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:     uuid.FromStringOrNil("6431e3e2-4ee4-41b5-b226-393f9133eb6c"),
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		MoveTaskOrder: mtoWithTaskOrderServices,
+		MTOShipment:   mtoShipment4,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("4780b30c-e846-437a-b39a-c499a6b09872"), // FSC
 		},
 	})
 
