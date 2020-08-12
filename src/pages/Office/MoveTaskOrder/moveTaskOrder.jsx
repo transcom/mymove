@@ -1,14 +1,13 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { withRouter } from 'react-router-dom';
-import { connect } from 'react-redux';
-import { get } from 'lodash';
+import { get, map } from 'lodash';
 
 import ShipmentContainer from 'components/Office/ShipmentContainer';
 import ShipmentHeading from 'components/Office/ShipmentHeading';
 import ImportantShipmentDates from 'components/Office/ImportantShipmentDates';
 import RequestedServiceItemsTable from 'components/Office/RequestedServiceItemsTable';
-import { getMTOShipments, selectMTOShipmentsByMTOId } from 'shared/Entities/modules/mtoShipments';
-import { getMTOServiceItems, selectMTOServiceItemsByMTOId } from 'shared/Entities/modules/mtoServiceItems';
+import { useMoveTaskOrderQueries } from 'hooks/queries';
+import { MatchShape } from 'types/router';
 
 function formatShipmentType(shipmentType) {
   if (shipmentType === 'HHG') {
@@ -25,57 +24,13 @@ function formatShipmentDate(shipmentDateString) {
   return `${day} ${month} ${year}`;
 }
 
-class MoveTaskOrder extends Component {
-  componentDidMount() {
-    // eslint-disable-next-line react/prop-types,react/destructuring-assignment
-    const { moveTaskOrderId } = this.props.match.params;
+export const MoveTaskOrder = ({ match }) => {
+  const { moveTaskOrderId } = match.params;
 
-    /* eslint-disable react/prop-types,react/destructuring-assignment */
-    this.props.getMTOShipments(moveTaskOrderId);
-    this.props.getMTOServiceItems(moveTaskOrderId);
-  }
+  // TODO - Do something with isLoading and isError?
+  const { mtoShipments, mtoServiceItems } = useMoveTaskOrderQueries(moveTaskOrderId);
 
-  render() {
-    // eslint-disable-next-line react/prop-types
-    const { mtoShipments, mtoServiceItems } = this.props;
-
-    return (
-      <div style={{ display: 'flex' }}>
-        <div className="" style={{ width: '85%' }} data-testid="too-shipment-container">
-          {/* eslint-disable-next-line react/prop-types */}
-          {mtoShipments.map((mtoShipment) => {
-            return (
-              <ShipmentContainer>
-                <ShipmentHeading
-                  key={mtoShipment.id}
-                  shipmentInfo={{
-                    shipmentType: formatShipmentType(mtoShipment.shipmentType),
-                    originCity: get(mtoShipment.pickupAddress, 'city'),
-                    originState: get(mtoShipment.pickupAddress, 'state'),
-                    originPostalCode: get(mtoShipment.pickupAddress, 'postal_code'),
-                    destinationCity: get(mtoShipment.destinationAddress, 'city'),
-                    destinationState: get(mtoShipment.destinationAddress, 'state'),
-                    destinationPostalCode: get(mtoShipment.destinationAddress, 'postal_code'),
-                    scheduledPickupDate: formatShipmentDate(mtoShipment.scheduledPickupDate),
-                  }}
-                />
-                <ImportantShipmentDates
-                  requestedPickupDate={formatShipmentDate(mtoShipment.requestedPickupDate)}
-                  scheduledPickupDate={formatShipmentDate(mtoShipment.scheduledPickupDate)}
-                />
-                <RequestedServiceItemsTable serviceItems={mtoServiceItems} />
-              </ShipmentContainer>
-            );
-          })}
-        </div>
-      </div>
-    );
-  }
-}
-
-const mapStateToProps = (state, ownProps) => {
-  const { moveTaskOrderId } = ownProps.match.params;
-  const mtoServiceItems = selectMTOServiceItemsByMTOId(state, moveTaskOrderId).map((item) => {
+  const serviceItems = map(mtoServiceItems, (item) => {
     const detailText = { ZIP: item.pickupPostalCode, Reason: item.reason };
     /* eslint-disable no-param-reassign */
     item.serviceItem = item.reServiceName;
@@ -84,15 +39,42 @@ const mapStateToProps = (state, ownProps) => {
     return item;
   });
 
-  return {
-    mtoShipments: selectMTOShipmentsByMTOId(state, moveTaskOrderId),
-    mtoServiceItems,
-  };
+  return (
+    <div style={{ display: 'flex' }}>
+      <div className="" style={{ width: '85%' }} data-testid="too-shipment-container">
+        {/* eslint-disable-next-line react/prop-types */}
+        {map(mtoShipments, (mtoShipment) => {
+          return (
+            <ShipmentContainer>
+              <ShipmentHeading
+                key={mtoShipment.id}
+                shipmentInfo={{
+                  shipmentType: formatShipmentType(mtoShipment.shipmentType),
+                  originCity: get(mtoShipment.pickupAddress, 'city'),
+                  originState: get(mtoShipment.pickupAddress, 'state'),
+                  originPostalCode: get(mtoShipment.pickupAddress, 'postal_code'),
+                  destinationCity: get(mtoShipment.destinationAddress, 'city'),
+                  destinationState: get(mtoShipment.destinationAddress, 'state'),
+                  destinationPostalCode: get(mtoShipment.destinationAddress, 'postal_code'),
+                  scheduledPickupDate: formatShipmentDate(mtoShipment.scheduledPickupDate),
+                }}
+              />
+              <ImportantShipmentDates
+                requestedPickupDate={formatShipmentDate(mtoShipment.requestedPickupDate)}
+                scheduledPickupDate={formatShipmentDate(mtoShipment.scheduledPickupDate)}
+              />
+              <RequestedServiceItemsTable serviceItems={serviceItems} />
+            </ShipmentContainer>
+          );
+        })}
+      </div>
+    </div>
+  );
 };
 
-const mapDispatchToProps = {
-  getMTOShipments,
-  getMTOServiceItems,
+MoveTaskOrder.propTypes = {
+  // history: HistoryShape.isRequired,
+  match: MatchShape.isRequired,
 };
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(MoveTaskOrder));
+export default withRouter(MoveTaskOrder);
