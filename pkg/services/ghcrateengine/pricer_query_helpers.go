@@ -33,7 +33,8 @@ func fetchDomOtherPrice(db *pop.Connection, contractCode string, serviceCode mod
 		Join("re_contracts", "re_contracts.id = re_domestic_other_prices.contract_id").
 		Where("re_contracts.code = $1", contractCode).
 		Where("re_services.code = $2", serviceCode).
-		Where("is_peak_period = $3", isPeakPeriod).
+		Where("schedule = $3", servicesScheduleOrigin).
+		Where("is_peak_period = $4", isPeakPeriod).
 		First(&domOtherPrice)
 
 	if err != nil {

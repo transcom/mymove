@@ -176,8 +176,8 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticPack() {
 		suite.Error(err)
 		suite.Equal("Weight must be a minimum of 500", err.Error())
 
-		// No service area
-		_, err = pricer.Price(testdatagen.DefaultContractCode, requestedPickupDate, dshTestWeight, 0)
+		// No service schedule
+		_, err = pricer.Price(testdatagen.DefaultContractCode, requestedPickupDate, weightBilledActual, 0)
 		suite.Error(err)
 		suite.Equal("Service schedule is required", err.Error())
 	})
