@@ -7,7 +7,7 @@ import TabNav from 'components/TabNav';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
 const MoveDetails = lazy(() => import('pages/Office/MoveDetails/MoveDetails'));
-const TOOMoveTaskOrder = lazy(() => import('pages/TOO/moveTaskOrder'));
+const MoveTaskOrder = lazy(() => import('pages/Office/MoveTaskOrder/moveTaskOrder'));
 const MoveOrders = lazy(() => import('pages/Office/MoveOrders/MoveOrders'));
 const PaymentRequestIndex = lazy(() => import('pages/Office/PaymentRequestIndex/PaymentRequestIndex'));
 const PaymentRequestReview = lazy(() => import('pages/Office/PaymentRequestReview/PaymentRequestReview'));
@@ -63,7 +63,7 @@ const TXOMoveInfo = () => {
 
           {/* TODO - the nav to this url is passing moveOrderId instead of moveTaskOrderId */}
           <Route path="/moves/:moveTaskOrderId/mto" exact>
-            <TOOMoveTaskOrder />
+            <MoveTaskOrder />
           </Route>
 
           <Route path="/moves/:moveOrderId/payment-requests/:paymentRequestId" exact>

@@ -3,12 +3,12 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 
-import ShipmentContainer from '../../components/Office/ShipmentContainer';
-import ShipmentHeading from '../../components/Office/ShipmentHeading';
-import ImportantShipmentDates from '../../components/Office/ImportantShipmentDates';
-import RequestedServiceItemsTable from '../../components/Office/RequestedServiceItemsTable';
-import { getMTOShipments, selectMTOShipmentsByMTOId } from '../../shared/Entities/modules/mtoShipments';
-import { getMTOServiceItems, selectMTOServiceItemsByMTOId } from '../../shared/Entities/modules/mtoServiceItems';
+import ShipmentContainer from 'components/Office/ShipmentContainer';
+import ShipmentHeading from 'components/Office/ShipmentHeading';
+import ImportantShipmentDates from 'components/Office/ImportantShipmentDates';
+import RequestedServiceItemsTable from 'components/Office/RequestedServiceItemsTable';
+import { getMTOShipments, selectMTOShipmentsByMTOId } from 'shared/Entities/modules/mtoShipments';
+import { getMTOServiceItems, selectMTOServiceItemsByMTOId } from 'shared/Entities/modules/mtoServiceItems';
 
 function formatShipmentType(shipmentType) {
   if (shipmentType === 'HHG') {
@@ -33,7 +33,6 @@ class MoveTaskOrder extends Component {
     /* eslint-disable react/prop-types,react/destructuring-assignment */
     this.props.getMTOShipments(moveTaskOrderId);
     this.props.getMTOServiceItems(moveTaskOrderId);
-    /* eslint-enable react/prop-types,react/destructuring-assignment */
   }
 
   render() {
