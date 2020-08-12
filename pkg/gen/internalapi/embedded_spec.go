@@ -1947,34 +1947,32 @@ func init() {
         ]
       }
     },
-    "/mto-shipments": {
-      "post": {
-        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n",
-        "consumes": [
-          "application/json"
-        ],
+    "/moves/{moveTaskOrderID}/mto_shipments": {
+      "get": {
+        "description": "Gets all MTO shipments for the specified Move Task Order.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "mtoShipment"
         ],
-        "summary": "createMTOShipment",
-        "operationId": "createMTOShipment",
+        "summary": "Gets all shipments for a move task order",
+        "operationId": "listMTOShipments",
         "parameters": [
           {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/CreateShipment"
-            }
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of move task order for mto shipment to use",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
           }
         ],
         "responses": {
           "200": {
-            "description": "Successfully created a MTO shipment.",
+            "description": "Successfully retrieved all mto shipments for a move task order.",
             "schema": {
-              "$ref": "#/definitions/MTOShipment"
+              "$ref": "#/definitions/MTOShipments"
             }
           },
           "400": {
@@ -1983,14 +1981,8 @@ func init() {
           "401": {
             "$ref": "#/responses/PermissionDenied"
           },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
           "404": {
             "$ref": "#/responses/NotFound"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
           },
           "500": {
             "$ref": "#/responses/ServerError"
@@ -2057,6 +2049,57 @@ func init() {
           },
           "412": {
             "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/mto_shipments": {
+      "post": {
+        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "createMTOShipment",
+        "operationId": "createMTOShipment",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateShipment"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created a MTO shipment.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
           },
           "422": {
             "$ref": "#/responses/UnprocessableEntity"
@@ -8647,34 +8690,32 @@ func init() {
         ]
       }
     },
-    "/mto-shipments": {
-      "post": {
-        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n",
-        "consumes": [
-          "application/json"
-        ],
+    "/moves/{moveTaskOrderID}/mto_shipments": {
+      "get": {
+        "description": "Gets all MTO shipments for the specified Move Task Order.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "mtoShipment"
         ],
-        "summary": "createMTOShipment",
-        "operationId": "createMTOShipment",
+        "summary": "Gets all shipments for a move task order",
+        "operationId": "listMTOShipments",
         "parameters": [
           {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/CreateShipment"
-            }
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of move task order for mto shipment to use",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
           }
         ],
         "responses": {
           "200": {
-            "description": "Successfully created a MTO shipment.",
+            "description": "Successfully retrieved all mto shipments for a move task order.",
             "schema": {
-              "$ref": "#/definitions/MTOShipment"
+              "$ref": "#/definitions/MTOShipments"
             }
           },
           "400": {
@@ -8689,22 +8730,10 @@ func init() {
               "$ref": "#/definitions/ClientError"
             }
           },
-          "403": {
-            "description": "The request was denied.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
           "404": {
             "description": "The requested resource wasn't found.",
             "schema": {
               "$ref": "#/definitions/ClientError"
-            }
-          },
-          "422": {
-            "description": "The payload was unprocessable.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
@@ -8787,6 +8816,75 @@ func init() {
           },
           "412": {
             "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/mto_shipments": {
+      "post": {
+        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "createMTOShipment",
+        "operationId": "createMTOShipment",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateShipment"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created a MTO shipment.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
             "schema": {
               "$ref": "#/definitions/ClientError"
             }
