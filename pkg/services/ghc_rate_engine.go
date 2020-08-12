@@ -71,6 +71,13 @@ type DomesticPackPricer interface {
 	Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int) (unit.Cents, error)
 	ParamsPricer
 }
+  
+// FuelSurchargePricer prices the domestic destination price for a GHC Move
+//go:generate mockery -name FuelSurchargePricer
+type FuelSurchargePricer interface {
+	Price(contractCode string, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, weightBasedDistanceMultiplier float64, fuelPrice unit.Millicents) (unit.Cents, error)
+	ParamsPricer
+}
 
 // Older pricers below (pre-dates payment requests)
 

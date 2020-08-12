@@ -1243,7 +1243,7 @@ func init() {
         "operationId": "listMTOShipments",
         "responses": {
           "200": {
-            "description": "Successfully retrieved all line items for a move task order",
+            "description": "Successfully retrieved all mto shipments for a move task order",
             "schema": {
               "$ref": "#/definitions/MTOShipments"
             }
@@ -2806,6 +2806,7 @@ func init() {
     "ServiceItemParamName": {
       "type": "string",
       "enum": [
+        "ActualPickupDate",
         "CanStandAlone",
         "ContractCode",
         "CubicFeetBilled",
@@ -2815,6 +2816,7 @@ func init() {
         "DistanceZip5SITDest",
         "DistanceZip5SITOrigin",
         "EIAFuelPrice",
+        "FSCWeightBasedDistanceMultiplier",
         "MarketDest",
         "MarketOrigin",
         "MTOAvailableToPrimeAt",
@@ -4489,7 +4491,7 @@ func init() {
         "operationId": "listMTOShipments",
         "responses": {
           "200": {
-            "description": "Successfully retrieved all line items for a move task order",
+            "description": "Successfully retrieved all mto shipments for a move task order",
             "schema": {
               "$ref": "#/definitions/MTOShipments"
             }
@@ -6127,6 +6129,7 @@ func init() {
     "ServiceItemParamName": {
       "type": "string",
       "enum": [
+        "ActualPickupDate",
         "CanStandAlone",
         "ContractCode",
         "CubicFeetBilled",
@@ -6136,6 +6139,7 @@ func init() {
         "DistanceZip5SITDest",
         "DistanceZip5SITOrigin",
         "EIAFuelPrice",
+        "FSCWeightBasedDistanceMultiplier",
         "MarketDest",
         "MarketOrigin",
         "MTOAvailableToPrimeAt",
