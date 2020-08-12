@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -64,7 +63,6 @@ func NewDbWebhookNotifyCommand() *cobra.Command {
 }
 
 func (suite *WebhookClientTestingSuite) Test_DBConnection() {
-	fmt.Println("got to 53")
 
 	rootCmd := NewRootCmd()
 	cmd := NewDbConnectionCommand()
@@ -81,7 +79,6 @@ func (suite *WebhookClientTestingSuite) Test_DBConnection() {
 }
 
 func (suite *WebhookClientTestingSuite) Test_DBWebhookNotify() {
-	fmt.Println("got to 53")
 
 	rootCmd := NewRootCmd()
 	cmd := NewDbWebhookNotifyCommand()
