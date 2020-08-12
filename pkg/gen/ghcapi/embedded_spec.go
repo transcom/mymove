@@ -1243,7 +1243,7 @@ func init() {
         "operationId": "listMTOShipments",
         "responses": {
           "200": {
-            "description": "Successfully retrieved all line items for a move task order",
+            "description": "Successfully retrieved all mto shipments for a move task order",
             "schema": {
               "$ref": "#/definitions/MTOShipments"
             }
@@ -4489,7 +4489,7 @@ func init() {
         "operationId": "listMTOShipments",
         "responses": {
           "200": {
-            "description": "Successfully retrieved all line items for a move task order",
+            "description": "Successfully retrieved all mto shipments for a move task order",
             "schema": {
               "$ref": "#/definitions/MTOShipments"
             }
