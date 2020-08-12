@@ -107,9 +107,6 @@ func ServiceParamLookupInitialize(
 		s.lookups[key] = NotImplementedLookup{}
 	}
 
-	s.lookups[models.ServiceItemParamNameActualPickupDate.String()] = ActualPickupDateLookup{
-		MTOShipment: mtoShipment,
-	}
 	s.lookups[models.ServiceItemParamNameRequestedPickupDate.String()] = RequestedPickupDateLookup{
 		MTOShipment: mtoShipment,
 	}
@@ -120,10 +117,6 @@ func ServiceParamLookupInitialize(
 	s.lookups[models.ServiceItemParamNameDistanceZip3.String()] = DistanceZip3Lookup{
 		PickupAddress:      pickupAddress,
 		DestinationAddress: destinationAddress,
-	}
-	s.lookups[models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier.String()] = FSCWeightBasedDistanceMultiplierLookup{
-
-		MTOShipment: mtoShipment,
 	}
 	s.lookups[models.ServiceItemParamNameWeightBilledActual.String()] = WeightBilledActualLookup{
 		MTOShipment: mtoShipment,

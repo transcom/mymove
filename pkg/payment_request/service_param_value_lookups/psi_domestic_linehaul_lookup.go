@@ -1,8 +1,9 @@
 package serviceparamvaluelookups
 
 import (
-	"database/sql"
 	"fmt"
+
+	"database/sql"
 
 	"github.com/transcom/mymove/pkg/models"
 )

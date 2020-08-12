@@ -80,7 +80,6 @@ type MTOShipment struct {
 	ShipmentType                     MTOShipmentType   `db:"shipment_type"`
 	Status                           MTOShipmentStatus `db:"status"`
 	RejectionReason                  *string           `db:"rejection_reason"`
-	Distance                         *unit.Miles       `db:"distance"`
 	CreatedAt                        time.Time         `db:"created_at"`
 	UpdatedAt                        time.Time         `db:"updated_at"`
 }
