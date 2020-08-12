@@ -201,6 +201,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation users.IsLoggedInUser has not yet been implemented")
 		})
 	}
+	if api.MtoShipmentListMTOShipmentsHandler == nil {
+		api.MtoShipmentListMTOShipmentsHandler = mto_shipment.ListMTOShipmentsHandlerFunc(func(params mto_shipment.ListMTOShipmentsParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.ListMTOShipments has not yet been implemented")
+		})
+	}
 	if api.MovesPatchMoveHandler == nil {
 		api.MovesPatchMoveHandler = moves.PatchMoveHandlerFunc(func(params moves.PatchMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation moves.PatchMove has not yet been implemented")
