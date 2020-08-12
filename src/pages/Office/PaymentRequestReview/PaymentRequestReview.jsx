@@ -69,7 +69,7 @@ export const PaymentRequestReview = ({ history, match }) => {
     const paymentServiceItemForRequest = paymentServiceItemsArr.find((s) => s.id === paymentServiceItemID);
 
     mutatePaymentServiceItemStatus({
-      moveTaskOrderID: mtoServiceItemsArr[0].moveTaskOrderID,
+      moveTaskOrderID: paymentRequest.moveTaskOrderID,
       paymentServiceItemID,
       status: values.status,
       ifMatchEtag: paymentServiceItemForRequest.eTag,

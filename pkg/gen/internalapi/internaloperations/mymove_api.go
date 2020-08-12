@@ -148,6 +148,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		UsersIsLoggedInUserHandler: users.IsLoggedInUserHandlerFunc(func(params users.IsLoggedInUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation UsersIsLoggedInUser has not yet been implemented")
 		}),
+		MtoShipmentListMTOShipmentsHandler: mto_shipment.ListMTOShipmentsHandlerFunc(func(params mto_shipment.ListMTOShipmentsParams) middleware.Responder {
+			return middleware.NotImplemented("operation MtoShipmentListMTOShipments has not yet been implemented")
+		}),
 		MovesPatchMoveHandler: moves.PatchMoveHandlerFunc(func(params moves.PatchMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation MovesPatchMove has not yet been implemented")
 		}),
@@ -341,6 +344,8 @@ type MymoveAPI struct {
 	CertificationIndexSignedCertificationHandler certification.IndexSignedCertificationHandler
 	// UsersIsLoggedInUserHandler sets the operation handler for the is logged in user operation
 	UsersIsLoggedInUserHandler users.IsLoggedInUserHandler
+	// MtoShipmentListMTOShipmentsHandler sets the operation handler for the list m t o shipments operation
+	MtoShipmentListMTOShipmentsHandler mto_shipment.ListMTOShipmentsHandler
 	// MovesPatchMoveHandler sets the operation handler for the patch move operation
 	MovesPatchMoveHandler moves.PatchMoveHandler
 	// PpmPatchPersonallyProcuredMoveHandler sets the operation handler for the patch personally procured move operation
@@ -590,6 +595,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.UsersIsLoggedInUserHandler == nil {
 		unregistered = append(unregistered, "users.IsLoggedInUserHandler")
+	}
+
+	if o.MtoShipmentListMTOShipmentsHandler == nil {
+		unregistered = append(unregistered, "mto_shipment.ListMTOShipmentsHandler")
 	}
 
 	if o.MovesPatchMoveHandler == nil {
@@ -870,7 +879,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/mto-shipments"] = mto_shipment.NewCreateMTOShipment(o.context, o.MtoShipmentCreateMTOShipmentHandler)
+	o.handlers["POST"]["/mto_shipments"] = mto_shipment.NewCreateMTOShipment(o.context, o.MtoShipmentCreateMTOShipmentHandler)
 
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
@@ -971,6 +980,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/users/is_logged_in"] = users.NewIsLoggedInUser(o.context, o.UsersIsLoggedInUserHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/moves/{moveTaskOrderID}/mto_shipments"] = mto_shipment.NewListMTOShipments(o.context, o.MtoShipmentListMTOShipmentsHandler)
 
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
