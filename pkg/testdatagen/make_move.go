@@ -3,6 +3,7 @@ package testdatagen
 import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -17,6 +18,20 @@ func MakeMove(db *pop.Connection, assertions Assertions) models.Move {
 		orders = MakeOrder(db, assertions)
 	}
 
+	assertedReferenceID := assertions.MoveTaskOrder.ReferenceID
+	var referenceID string
+	if assertedReferenceID == nil || *assertedReferenceID == "" {
+		referenceID, _ = models.GenerateReferenceID(db)
+	}
+
+	var contractorID uuid.UUID
+	mtoContractorID := assertions.MoveTaskOrder.ContractorID
+	moveContractorID := assertions.Move.ContractorID
+	if mtoContractorID == nil || moveContractorID == nil {
+		contractor := MakeContractor(db, assertions)
+		contractorID = contractor.ID
+	}
+
 	defaultMoveType := models.SelectedMoveTypePPM
 	selectedMoveType := assertions.Move.SelectedMoveType
 	if selectedMoveType == nil {
@@ -29,6 +44,8 @@ func MakeMove(db *pop.Connection, assertions Assertions) models.Move {
 		Status:           models.MoveStatusDRAFT,
 		Locator:          models.GenerateLocator(),
 		Show:             setShow(assertions.Move.Show),
+		ContractorID:     &contractorID,
+		ReferenceID:      &referenceID,
 	}
 
 	// Overwrite values with those from assertions
@@ -48,12 +65,28 @@ func MakeMoveWithoutMoveType(db *pop.Connection, assertions Assertions) models.M
 		orders = MakeOrder(db, assertions)
 	}
 
+	var referenceID string
+	assertedReferenceID := assertions.MoveTaskOrder.ReferenceID
+	if assertedReferenceID == nil || *assertedReferenceID == "" {
+		referenceID, _ = models.GenerateReferenceID(db)
+	}
+
+	var contractorID uuid.UUID
+	mtoContractorID := assertions.MoveTaskOrder.ContractorID
+	moveContractorID := assertions.Move.ContractorID
+	if mtoContractorID == nil || moveContractorID == nil {
+		contractor := MakeContractor(db, assertions)
+		contractorID = contractor.ID
+	}
+
 	move := models.Move{
-		Orders:   orders,
-		OrdersID: orders.ID,
-		Status:   models.MoveStatusDRAFT,
-		Locator:  models.GenerateLocator(),
-		Show:     setShow(assertions.Move.Show),
+		Orders:       orders,
+		OrdersID:     orders.ID,
+		Status:       models.MoveStatusDRAFT,
+		Locator:      models.GenerateLocator(),
+		Show:         setShow(assertions.Move.Show),
+		ContractorID: &contractorID,
+		ReferenceID:  &referenceID,
 	}
 
 	// Overwrite values with those from assertions

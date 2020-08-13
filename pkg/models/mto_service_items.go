@@ -24,8 +24,8 @@ const (
 // MTOServiceItem is an object representing service items for a move task order.
 type MTOServiceItem struct {
 	ID               uuid.UUID                      `db:"id"`
-	MoveTaskOrder    MoveTaskOrder                  `belongs_to:"move_task_orders"`
-	MoveTaskOrderID  uuid.UUID                      `db:"move_task_order_id"`
+	MoveTaskOrder    Move                           `belongs_to:"moves"`
+	MoveTaskOrderID  uuid.UUID                      `db:"move_id"`
 	MTOShipment      MTOShipment                    `belongs_to:"mto_shipments"`
 	MTOShipmentID    *uuid.UUID                     `db:"mto_shipment_id"`
 	ReService        ReService                      `belongs_to:"re_services"`

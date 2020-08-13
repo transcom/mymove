@@ -149,6 +149,8 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveTest() {
 func (suite *HandlerSuite) TestCreatePPMHandler() {
 	user1 := testdatagen.MakeDefaultServiceMember(suite.DB())
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
+	testdatagen.MakeDefaultContractor(suite.DB())
+
 	selectedMoveType := models.SelectedMoveTypeHHGPPM
 
 	moveOptions := models.MoveOptions{
@@ -658,6 +660,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	orders1 := testdatagen.MakeDefaultOrder(suite.DB())
+	testdatagen.MakeDefaultContractor(suite.DB())
 
 	selectedMoveType := models.SelectedMoveTypeHHGPPM
 

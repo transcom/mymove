@@ -42,7 +42,7 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandler() {
 	testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
 
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: models.MoveTaskOrder{
+		MoveTaskOrder: models.Move{
 			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
 	})
@@ -174,7 +174,7 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandler() {
 
 func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerPaymentRequest() {
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: models.MoveTaskOrder{
+		MoveTaskOrder: models.Move{
 			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
 	})
@@ -218,7 +218,7 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerMinimal() {
 	// Creates a move task order with one minimal shipment and no payment requests
 	// or service items
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: models.MoveTaskOrder{
+		MoveTaskOrder: models.Move{
 			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
 	})
@@ -250,20 +250,20 @@ func (suite *HandlerSuite) TestListMoveTaskOrdersHandlerReturnsUpdated() {
 	lastFetch := now.Add(-time.Second)
 
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: models.MoveTaskOrder{
+		MoveTaskOrder: models.Move{
 			AvailableToPrimeAt: &now,
 		},
 	})
 
 	// this MTO should not be returned
 	olderMoveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: models.MoveTaskOrder{
+		MoveTaskOrder: models.Move{
 			AvailableToPrimeAt: &now,
 		},
 	})
 
 	// Pop will overwrite UpdatedAt when saving a model, so use SQL to set it in the past
-	suite.NoError(suite.DB().RawQuery("UPDATE move_task_orders SET updated_at=? WHERE id=?",
+	suite.NoError(suite.DB().RawQuery("UPDATE moves SET updated_at=? WHERE id=?",
 		now.Add(-2*time.Second), olderMoveTaskOrder.ID).Exec())
 
 	since := lastFetch.Unix()
