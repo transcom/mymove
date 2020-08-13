@@ -128,6 +128,12 @@ func NewInternalAPI(context handlers.HandlerContext) *internalops.MymoveAPI {
 		mtoshipment.NewMTOShipmentCreator(context.DB(), builder, fetcher),
 	}
 
+	internalAPI.MtoShipmentListMTOShipmentsHandler = ListMTOShipmentsHandler{
+		context,
+		fetch.NewListFetcher(builder),
+		fetch.NewFetcher(builder),
+	}
+
 	return internalAPI
 }
 

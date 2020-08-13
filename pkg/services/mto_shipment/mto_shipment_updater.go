@@ -546,7 +546,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 		// More info in MB-1140: https://dp3.atlassian.net/browse/MB-1140
 		var serviceItemsToCreate models.MTOServiceItems
 		switch shipment.ShipmentType {
-		case models.MTOShipmentTypeHHGLongHaulDom:
+		case models.MTOShipmentTypeHHG, models.MTOShipmentTypeHHGLongHaulDom:
 			//Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, and Dom Unpacking.
 			reServiceCodes := []models.ReServiceCode{
 				models.ReServiceCodeDLH,
@@ -723,10 +723,10 @@ func (e ConflictStatusError) Error() string {
 }
 
 func (f mtoShipmentUpdater) MTOShipmentsMTOAvailableToPrime(mtoShipmentID uuid.UUID) (bool, error) {
-	var mto models.MoveTaskOrder
+	var mto models.Move
 
 	err := f.db.Q().
-		Join("mto_shipments", "move_task_orders.id = mto_shipments.move_task_order_id").
+		Join("mto_shipments", "moves.id = mto_shipments.move_id").
 		Where("available_to_prime_at IS NOT NULL").
 		Where("mto_shipments.id = ?", mtoShipmentID).
 		First(&mto)

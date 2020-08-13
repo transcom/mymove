@@ -23,7 +23,7 @@ func MakePaymentRequest(db *pop.Connection, assertions Assertions) models.Paymen
 		if sequenceNumber == 0 {
 			sequenceNumber = 1
 		}
-		paymentRequestNumber = fmt.Sprintf("%s-%d", moveTaskOrder.ReferenceID, sequenceNumber)
+		paymentRequestNumber = fmt.Sprintf("%s-%d", *moveTaskOrder.ReferenceID, sequenceNumber)
 	}
 
 	paymentRequest := models.PaymentRequest{

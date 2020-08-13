@@ -12,6 +12,7 @@ import (
 
 func (suite *ModelSuite) TestCreateNewMoveShow() {
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
+	testdatagen.MakeDefaultContractor(suite.DB())
 
 	selectedMoveType := SelectedMoveTypeHHG
 
@@ -30,6 +31,7 @@ func (suite *ModelSuite) TestCreateNewMoveShow() {
 
 func (suite *ModelSuite) TestCreateNewMoveShowFalse() {
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
+	testdatagen.MakeDefaultContractor(suite.DB())
 
 	selectedMoveType := SelectedMoveTypeHHG
 

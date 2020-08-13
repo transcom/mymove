@@ -1,9 +1,14 @@
 import React from 'react';
 import { mount } from 'enzyme';
+import { Formik } from 'formik';
 
 import { AddressFields } from './AddressFields';
 
-const wrapper = mount(<AddressFields handleChange={jest.fn()} name="fieldsetName" />);
+const wrapper = mount(
+  <Formik>
+    <AddressFields handleChange={jest.fn()} name="fieldsetName" />
+  </Formik>,
+);
 
 describe('AddressFields component', () => {
   it('renders', () => {

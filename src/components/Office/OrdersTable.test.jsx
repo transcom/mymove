@@ -4,8 +4,8 @@ import { shallow } from 'enzyme';
 import OrdersTable from './OrdersTable';
 
 const ordersInfo = {
-  currentDutyStation: 'JBSA Lackland',
-  newDutyStation: 'JB Lewis-McChord',
+  currentDutyStation: { name: 'JBSA Lackland' },
+  newDutyStation: { name: 'JB Lewis-McChord' },
   issuedDate: '8 Mar 2020',
   reportByDate: '1 Apr 2020',
   departmentIndicator: '17 (Navy and Marine Corps)',

@@ -35,7 +35,7 @@ func (o *CreateMTOShipmentURL) SetBasePath(bp string) {
 func (o *CreateMTOShipmentURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/mto-shipments"
+	var _path = "/mto_shipments"
 
 	_basePath := o._basePath
 	if _basePath == "" {
