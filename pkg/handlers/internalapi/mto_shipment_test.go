@@ -441,6 +441,30 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentPreconditionFailed{}, response)
 	})
 
+	suite.T().Run("PATCH failure - 422 -- invalid input", func(t *testing.T) {
+		fetcher := fetch.NewFetcher(builder)
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		statusUpdater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), builder, siCreator, planner)
+		handler := UpdateMTOShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			updater,
+			statusUpdater,
+		}
+
+		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
+		params := suite.getUpdateMTOShipmentParams(oldShipment)
+		params.Body.Agents = internalmessages.MTOAgents{
+			&internalmessages.MTOAgent{
+				ID: "intentionally-invalid-id",
+			},
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, response)
+	})
+
 	suite.T().Run("PATCH failure - 500", func(t *testing.T) {
 		mockUpdater := mocks.MTOShipmentUpdater{}
 		mockStatusUpater := mocks.MTOShipmentStatusUpdater{}
