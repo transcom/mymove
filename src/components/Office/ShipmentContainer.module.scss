@@ -3,7 +3,7 @@
 .shipmentContainer {
   @include u-padding-top(0);
   @include u-padding-x(2);
-  padding-bottom: 11px; //this is because the unstyled button has a set min height and adds space so its touch target meets accessibility standards
+  @include u-padding-bottom(3);
   @include u-bg('white');
   @include u-margin-bottom(
     2
