@@ -79,7 +79,7 @@
   }
 
   .statusOption + .clearStatus {
-    @include u-margin-top(2);
+    margin-top: 3px;
   }
 
   .completeContainer {
