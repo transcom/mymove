@@ -9,8 +9,8 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 const MoveDetails = lazy(() => import('pages/Office/MoveDetails/MoveDetails'));
 const TOOMoveTaskOrder = lazy(() => import('pages/TOO/moveTaskOrder'));
 const MoveOrders = lazy(() => import('pages/Office/MoveOrders/MoveOrders'));
-const PaymentRequestIndex = lazy(() => import('scenes/Office/TIO/paymentRequestIndex'));
-const PaymentRequestReview = lazy(() => import('pages/TIO/PaymentRequestReview'));
+const PaymentRequestIndex = lazy(() => import('pages/Office/PaymentRequestIndex/PaymentRequestIndex'));
+const PaymentRequestReview = lazy(() => import('pages/Office/PaymentRequestReview/PaymentRequestReview'));
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 
 const TXOMoveInfo = () => {

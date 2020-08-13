@@ -1947,7 +1947,7 @@ func init() {
         ]
       }
     },
-    "/moves/{moveTaskOrderID}/mto-shipment": {
+    "/moves/{moveTaskOrderID}/mto_shipments": {
       "get": {
         "description": "Gets all MTO shipments for the specified Move Task Order.\n",
         "produces": [
@@ -1990,7 +1990,7 @@ func init() {
         }
       }
     },
-    "/mto-shipments": {
+    "/mto_shipments": {
       "post": {
         "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n",
         "consumes": [
@@ -8577,7 +8577,7 @@ func init() {
         ]
       }
     },
-    "/moves/{moveTaskOrderID}/mto-shipment": {
+    "/moves/{moveTaskOrderID}/mto_shipments": {
       "get": {
         "description": "Gets all MTO shipments for the specified Move Task Order.\n",
         "produces": [
@@ -8632,7 +8632,7 @@ func init() {
         }
       }
     },
-    "/mto-shipments": {
+    "/mto_shipments": {
       "post": {
         "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n",
         "consumes": [

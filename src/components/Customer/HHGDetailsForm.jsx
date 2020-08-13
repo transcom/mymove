@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { arrayOf, string, bool, shape, func } from 'prop-types';
-import { get } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import { connect } from 'react-redux';
-import { Formik } from 'formik';
+import { Formik, Field } from 'formik';
+import * as Yup from 'yup';
 import { Fieldset, Radio, Label } from '@trussworks/react-uswds';
 
 import { Form } from '../form/Form';
@@ -15,12 +16,50 @@ import {
   selectMTOShipmentForMTO,
   createMTOShipment as createMTOShipmentAction,
 } from 'shared/Entities/modules/mtoShipments';
-import { showLoggedInUser as showLoggedInUserAction, selectLoggedInUser } from 'shared/Entities/modules/user';
+import { selectActiveOrLatestOrdersFromEntities } from 'shared/Entities/modules/orders';
+import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
+import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { WizardPage } from 'shared/WizardPage';
 import { MTOAgentType, SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatSwaggerDate } from 'shared/formatters';
 import Checkbox from 'shared/Checkbox';
+import { validateDate } from 'utils/formikValidators';
 
+const PickupAddressSchema = Yup.object().shape({
+  mailingAddress1: Yup.string().required('Required'),
+  mailingAddress2: Yup.string(),
+  city: Yup.string().required('Required'),
+  state: Yup.string().length(2, 'Must use state abbreviation').required('Required'),
+  zip: Yup.string()
+    // eslint-disable-next-line security/detect-unsafe-regex
+    .matches(/^(\d{5}([-]\d{4})?)$/, 'Must be valid zip code')
+    .required('Required'),
+});
+
+const DeliveryAddressSchema = Yup.object().shape({
+  mailingAddress1: Yup.string(),
+  mailingAddress2: Yup.string(),
+  city: Yup.string(),
+  state: Yup.string().length(2, 'Must use state abbreviation'),
+  zip: Yup.string()
+    // eslint-disable-next-line security/detect-unsafe-regex
+    .matches(/^(\d{5}([-]\d{4})?)$/, 'Must be valid zip code'),
+});
+
+const AgentSchema = Yup.object().shape({
+  firstName: Yup.string(),
+  lastName: Yup.string(),
+  phone: Yup.string().matches(/^[2-9]\d{2}\d{3}\d{4}$/, 'Must be valid phone number'),
+  email: Yup.string().email('Must be valid email'),
+});
+const HHGDetailsFormSchema = Yup.object().shape({
+  // requiredPickupDate, requiredDeliveryDate are also required, but using field level validation
+  pickupLocation: PickupAddressSchema,
+  deliveryLocation: DeliveryAddressSchema,
+  releasingAgent: AgentSchema,
+  receivingAgent: AgentSchema,
+  remarks: Yup.string(),
+});
 class HHGDetailsForm extends Component {
   constructor(props) {
     super(props);
@@ -128,17 +167,40 @@ class HHGDetailsForm extends Component {
         street_address_1: destinationAddress.street_address_1,
         street_address_2: destinationAddress.street_address_2,
         city: destinationAddress.city,
-        state: destinationAddress.state,
+        state: destinationAddress.state.toUpperCase(),
         postal_code: destinationAddress.postal_code,
         country: destinationAddress.country,
       };
     }
+
+    function formatAgent(agent) {
+      const agentCopy = { ...agent };
+      Object.keys(agentCopy).forEach((key) => {
+        /* eslint-disable security/detect-object-injection */
+        if (agentCopy[key] === '') {
+          delete agentCopy[key];
+        } else if (key === 'phone') {
+          const phoneNum = agentCopy[key];
+          // will be in format xxx-xxx-xxxx
+          agentCopy[key] = `${phoneNum.slice(0, 3)}-${phoneNum.slice(3, 6)}-${phoneNum.slice(6, 10)}`;
+        }
+        /* eslint-enable security/detect-object-injection */
+      });
+      return agentCopy;
+    }
+
     if (releasingAgent) {
-      mtoShipment.agents.push({ ...releasingAgent, agentType: MTOAgentType.RELEASING });
+      const formattedAgent = formatAgent(releasingAgent);
+      if (!isEmpty(formattedAgent)) {
+        mtoShipment.agents.push({ ...formattedAgent, agentType: MTOAgentType.RELEASING });
+      }
     }
 
     if (receivingAgent) {
-      mtoShipment.agents.push({ ...receivingAgent, agentType: MTOAgentType.RECEIVING });
+      const formattedAgent = formatAgent(receivingAgent);
+      if (!isEmpty(formattedAgent)) {
+        mtoShipment.agents.push({ ...formattedAgent, agentType: MTOAgentType.RECEIVING });
+      }
     }
     // TODO: If extant values, update shipment rather than create. Passing in agents that
     // exist cause server validation error
@@ -157,9 +219,16 @@ class HHGDetailsForm extends Component {
     }
     const fieldsetClasses = 'margin-top-2';
     return (
-      <Formik initialValues={mtoShipment} enableReinitialize>
-        {({ handleChange, values }) => (
+      <Formik
+        initialValues={mtoShipment}
+        enableReinitialize
+        validateOnBlur
+        validateOnChange
+        validationSchema={HHGDetailsFormSchema}
+      >
+        {({ values, dirty, isValid }) => (
           <WizardPage
+            canMoveNext={dirty && isValid}
             match={match}
             pageKey={pageKey}
             pageList={pageList}
@@ -168,11 +237,13 @@ class HHGDetailsForm extends Component {
           >
             <Form>
               <Fieldset legend="Pickup date" className={fieldsetClasses}>
-                <DatePickerInput
+                <Field
+                  as={DatePickerInput}
                   name="requestedPickupDate"
                   label="Requested pickup date"
                   id="requestedPickupDate"
                   value={values.requestedPickupDate}
+                  validate={validateDate}
                 />
               </Fieldset>
               <span className="usa-hint" id="pickupDateHint">
@@ -182,7 +253,6 @@ class HHGDetailsForm extends Component {
                 name="pickupAddress"
                 legend="Pickup location"
                 className={fieldsetClasses}
-                handleChange={handleChange}
                 renderExistingAddressCheckbox={() => (
                   <Checkbox
                     data-testid="useCurrentResidence"
@@ -199,7 +269,6 @@ class HHGDetailsForm extends Component {
                 legend="Releasing agent"
                 className={fieldsetClasses}
                 subtitle="Who can allow the movers to take your stuff if you're not there?"
-                handleChange={handleChange}
                 values={values.releasingAgent}
               />
               <Fieldset legend="Delivery date" className={fieldsetClasses}>
@@ -208,6 +277,7 @@ class HHGDetailsForm extends Component {
                   label="Requested delivery date"
                   id="requestedDeliveryDate"
                   value={values.requestedDeliveryDate}
+                  validate={validateDate}
                 />
                 <span className="usa-hint" id="deliveryDateHint">
                   Your movers will confirm this date or one shortly before or after.
@@ -235,7 +305,6 @@ class HHGDetailsForm extends Component {
                   <AddressFields
                     name="destinationAddress"
                     className={fieldsetClasses}
-                    handleChange={handleChange}
                     values={values.destinationAddress}
                   />
                 ) : (
@@ -252,17 +321,16 @@ class HHGDetailsForm extends Component {
                 legend="Receiving agent"
                 className={fieldsetClasses}
                 subtitle="Who can take delivery for you if the movers arrive and you're not there?"
-                handleChange={handleChange}
                 values={values.receivingAgent}
               />
               <Fieldset legend="Remarks" className={fieldsetClasses}>
-                <Label hint="(optional)">Anything else you would like us to know?</Label>
                 <TextInput
+                  label="Anything else you would like us to know?"
+                  labelHint="(optional)"
                   data-testid="remarks"
                   name="customerRemarks"
                   id="customerRemarks"
                   maxLength={1500}
-                  onChange={handleChange}
                   value={values.customerRemarks}
                 />
               </Fieldset>
@@ -292,10 +360,10 @@ HHGDetailsForm.propTypes = {
     url: string.isRequired,
   }).isRequired,
   newDutyStationAddress: shape({
-    city: string.isRequired,
-    state: string.isRequired,
-    postal_code: string.isRequired,
-  }).isRequired,
+    city: string,
+    state: string,
+    postal_code: string,
+  }),
   moveTaskOrderID: string.isRequired,
   createMTOShipment: func.isRequired,
   showLoggedInUser: func.isRequired,
@@ -329,15 +397,22 @@ HHGDetailsForm.propTypes = {
   }).isRequired,
 };
 
+HHGDetailsForm.defaultProps = {
+  newDutyStationAddress: {
+    city: '',
+    state: '',
+    postal_code: '',
+  },
+};
 const mapStateToProps = (state) => {
-  const moveTaskOrderID = get(selectLoggedInUser(state), 'service_member.orders[0].move_task_order_id', '');
-  const props = {
-    moveTaskOrderID,
+  const orders = selectActiveOrLatestOrdersFromEntities(state);
+  const moveTaskOrderID = get(orders, 'move_task_order_id', '');
+
+  return {
     mtoShipment: selectMTOShipmentForMTO(state, moveTaskOrderID),
-    currentResidence: get(selectLoggedInUser(state), 'service_member.residential_address', {}),
-    newDutyStationAddress: get(selectLoggedInUser(state), 'service_member.orders[0].new_duty_station.address', {}),
+    currentResidence: get(selectServiceMemberFromLoggedInUser(state), 'residential_address', {}),
+    newDutyStationAddress: get(orders, 'new_duty_station.address', {}),
   };
-  return props;
 };
 
 const mapDispatchToProps = {

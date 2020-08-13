@@ -46,6 +46,8 @@
     "react-idle-timer": "^4.3.4",
     "react-loadable": "^5.3.1",
     "react-numeric-input": "^2.2.3",
+    "react-query": "^2.5.9",
+    "react-query-devtools": "^2.4.1",
     "react-rangeslider": "^2.2.0",
     "react-redux": "^7.2.1",
     "react-router": "^5.1.2",
@@ -75,7 +77,8 @@
     "yup": "^0.29.1"
   },
   "resolutions": {
-    "kind-of": "^6.0.2"
+    "kind-of": "^6.0.2",
+    "serialize-javascript": "^3.1.0"
   },
   "name": "client",
   "private": true,
@@ -105,6 +108,7 @@
     "@storybook/addon-links": "^5.3.19",
     "@storybook/addons": "^5.3.17",
     "@storybook/react": "^5.3.19",
+    "@testing-library/react-hooks": "^3.4.1",
     "case-sensitive-paths-webpack-plugin": "^2.3.0",
     "danger": "^10.3.0",
     "danger-plugin-jira-issue": "^1.4.1",
@@ -120,6 +124,7 @@
     "mime-types": "^2.1.27",
     "mockdate": "^3.0.2",
     "prettier": "=2.0.5",
+    "react-test-renderer": "^16.13.1",
     "storybook-addons-abstract": "^5.0.6",
     "terser-webpack-plugin": "^4.0.0"
   },
