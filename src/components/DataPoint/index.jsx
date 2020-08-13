@@ -1,28 +1,42 @@
 import React from 'react';
 import propTypes from 'prop-types';
+import classnames from 'classnames';
 
-const DataPoint = ({ header, body, custClass }) => (
-  <table className={`table--data-point ${custClass}`}>
+import styles from './index.module.scss';
+
+const DataPoint = ({ columnHeaders, dataRow, Icon, custClass }) => (
+  <table className={classnames(styles.dataPoint, 'table--data-point', custClass)}>
     <thead className="table--small">
       <tr>
-        <th>{header}</th>
+        {columnHeaders.map((header) => (
+          <th key={header}>{header}</th>
+        ))}
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td>{body}</td>
+        {dataRow.map((cell, i) => (
+          <td key={cell}>
+            <div className={classnames({ [`${styles.iconCellContainer}`]: !!Icon && i === 0 })}>
+              <span>{cell}</span>
+              {!!Icon && i === 0 && <Icon />}
+            </div>
+          </td>
+        ))}
       </tr>
     </tbody>
   </table>
 );
 
 DataPoint.propTypes = {
-  header: propTypes.string.isRequired,
-  body: propTypes.element.isRequired,
+  columnHeaders: propTypes.arrayOf(propTypes.node).isRequired,
+  dataRow: propTypes.arrayOf(propTypes.node).isRequired,
+  Icon: propTypes.elementType,
   custClass: propTypes.string,
 };
 
 DataPoint.defaultProps = {
+  Icon: undefined,
   custClass: '',
 };
 
