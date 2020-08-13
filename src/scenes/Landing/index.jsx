@@ -25,8 +25,12 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import scrollToTop from 'shared/scrollToTop';
 import { getPPM } from 'scenes/Moves/Ppm/ducks';
 import { loadPPMs } from 'shared/Entities/modules/ppms';
-import { showLoggedInUser as showLoggedInUserAction, selectLoggedInUser } from 'shared/Entities/modules/user';
-import { selectActiveOrLatestOrders, selectUploadsForActiveOrders } from 'shared/Entities/modules/orders';
+import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
+import {
+  selectActiveOrLatestOrders,
+  selectActiveOrLatestOrdersFromEntities,
+  selectUploadsForActiveOrders,
+} from 'shared/Entities/modules/orders';
 import { loadMTOShipments, selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 
@@ -60,6 +64,9 @@ export class Landing extends Component {
       this.props.loadMTOShipments(this.props.moveTaskOrderID);
       this.props.loadPPMs(this.props.move.id);
     }
+    // if (prevProps.moveTaskOrderID !== this.props.moveTaskOrderID) {
+    //   this.props.loadMTOShipments(this.props.moveTaskOrderID);
+    // }
   }
   startMove = (values) => {
     const { serviceMember } = this.props;
@@ -192,8 +199,11 @@ const mapStateToProps = (state) => {
   const user = selectCurrentUser(state);
   const serviceMember = get(state, 'serviceMember.currentServiceMember');
   const move = selectActiveOrLatestMove(state);
+  const orders = selectActiveOrLatestOrdersFromEntities(state);
+  const MTOID = get(orders, 'move_task_order_id', '');
+
   // TODO: Use the move ID, not the MTOID, once moves have been consolidated to 1 table
-  const MTOID = get(selectLoggedInUser(state), 'service_member.orders[0].move_task_order_id', '');
+  // const MTOID = get(selectLoggedInUser(state), 'service_member.orders[0].move_task_order_id', '');
 
   const props = {
     moveTaskOrderID: MTOID,

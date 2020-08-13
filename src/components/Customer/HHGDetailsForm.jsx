@@ -63,10 +63,7 @@ const HHGDetailsFormSchema = Yup.object().shape({
 class HHGDetailsForm extends Component {
   constructor(props) {
     super(props);
-    let hasDeliveryAddress = false;
-    if (get(props.mtoShipment, 'destinationAddress', {})) {
-      hasDeliveryAddress = true;
-    }
+    const hasDeliveryAddress = get(props.mtoShipment, 'destinationAddress', false);
     this.state = {
       hasDeliveryAddress,
       useCurrentResidence: false,
@@ -75,8 +72,12 @@ class HHGDetailsForm extends Component {
   }
 
   componentDidMount() {
-    const { showLoggedInUser } = this.props;
+    const { showLoggedInUser, mtoShipment } = this.props;
     showLoggedInUser();
+    this.setState(() => {
+      const initialVals = !isEmpty(mtoShipment) ? mtoShipment : {};
+      return { initialValues: initialVals };
+    });
   }
 
   componentDidUpdate(prevProps) {
@@ -94,16 +95,27 @@ class HHGDetailsForm extends Component {
 
   // Use current residence
   handleUseCurrentResidenceChange = (currentValues) => {
+    const { initialValues, useCurrentResidence } = this.state;
+    const { currentResidence, mtoShipment } = this.props;
+    // Set pickupAddress on mtoShipment on props? Not working...
+    if (useCurrentResidence) {
+      mtoShipment.pickupAddress = {
+        street_address_1: currentResidence.street_address_1,
+        street_address_2: currentResidence.street_address_2,
+        city: currentResidence.city,
+        state: currentResidence.state,
+        postal_code: currentResidence.postal_code,
+      };
+    }
     // eslint-disable-next-line react/destructuring-assignment
     this.setState(
       (state) => ({ useCurrentResidence: !state.useCurrentResidence }),
       () => {
-        const { initialValues, useCurrentResidence } = this.state;
-        const { currentResidence } = this.props;
         if (useCurrentResidence) {
           this.setState({
             // eslint-disable-next-line prettier/prettier
             initialValues: {
+              ...mtoShipment,
               ...initialValues,
               ...currentValues,
               pickupAddress: {
@@ -118,6 +130,7 @@ class HHGDetailsForm extends Component {
         } else {
           this.setState({
             initialValues: {
+              ...mtoShipment,
               ...initialValues,
               ...currentValues,
               pickupAddress: {
@@ -408,11 +421,14 @@ const mapStateToProps = (state) => {
   const orders = selectActiveOrLatestOrdersFromEntities(state);
   const moveTaskOrderID = get(orders, 'move_task_order_id', '');
 
-  return {
+  const props = {
+    moveTaskOrderID,
     mtoShipment: selectMTOShipmentForMTO(state, moveTaskOrderID),
     currentResidence: get(selectServiceMemberFromLoggedInUser(state), 'residential_address', {}),
     newDutyStationAddress: get(orders, 'new_duty_station.address', {}),
   };
+  // props.initialValues = !isEmpty(props.mtoShipment) ? props.mtoShipment : null;
+  return props;
 };
 
 const mapDispatchToProps = {
