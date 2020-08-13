@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react-hooks';
 
-import { usePaymentRequestQueries } from './queries';
+import { usePaymentRequestQueries, useMoveTaskOrderQueries } from './queries';
 
 jest.mock('services/ghcApi', () => ({
   getPaymentRequest: (key, id) =>
@@ -64,6 +64,45 @@ describe('usePaymentRequestQueries', () => {
         },
       },
       paymentServiceItems: {},
+      mtoShipments: {
+        a1: {
+          shipmentType: 'HHG',
+        },
+        b2: {
+          shipmentType: 'NTS',
+        },
+      },
+      mtoServiceItems: {
+        a: {
+          reServiceName: 'Test Service Item',
+        },
+        b: {
+          reServiceName: 'Test Service Item 2',
+        },
+      },
+      isLoading: false,
+      isError: false,
+      isSuccess: true,
+    });
+  });
+});
+
+describe('useMoveTaskOrderQueries', () => {
+  it('loads data', async () => {
+    const testId = 'a1b2';
+    const { result, waitForNextUpdate } = renderHook(() => useMoveTaskOrderQueries(testId));
+
+    expect(result.current).toEqual({
+      mtoShipments: undefined,
+      mtoServiceItems: undefined,
+      isLoading: true,
+      isError: false,
+      isSuccess: false,
+    });
+
+    await waitForNextUpdate();
+
+    expect(result.current).toEqual({
       mtoShipments: {
         a1: {
           shipmentType: 'HHG',
