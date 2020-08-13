@@ -1,22 +1,15 @@
 import React from 'react';
+import classnames from 'classnames';
+import propTypes from 'prop-types';
 
-const DataPair = () => (
-  <div className="table--data-pair">
-    <table className="table--data-point">
-      <thead className="table--small">
-        <tr>
-          <th>Customer requested pick up date</th>
-          <th>Scheduled pick up date</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Thursday, 26 Mar 2020</td>
-          <td>Friday, 27 Mar 2020</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-);
+import styles from './index.module.scss';
+
+const DataPair = ({ children }) => {
+  return <div className={classnames(styles.dataPair, 'table--data-pair')}>{children}</div>;
+};
+
+DataPair.propTypes = {
+  children: propTypes.node.isRequired,
+};
 
 export default DataPair;

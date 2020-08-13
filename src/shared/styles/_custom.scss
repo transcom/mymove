@@ -23,12 +23,17 @@ html {
     @include u-shadow(2);
   }
   &--accent {
-    &--default, &--hhg, &--ppm, &--ub, &--nts, &--ntsr {
+    &--default,
+    &--hhg,
+    &--ppm,
+    &--ub,
+    &--nts,
+    &--ntsr {
       @include u-radius('0');
     }
 
     &--default {
-      @include cont-border-top($accent-default)
+      @include cont-border-top($accent-default);
     }
 
     &--hhg {
@@ -185,12 +190,10 @@ table {
   @include u-border(0);
   .table--small th {
     @include u-border('base-lighter');
-    @include u-padding-x(0);
   }
   td {
     @include u-border(0);
     @include u-padding-top(1.5);
-    @include u-padding-x(0);
     &:hover {
       background-color: rgba(255, 255, 255, 0);
     }
@@ -215,15 +218,11 @@ table {
 }
 
 .table--data-pair {
-  width: 600px;
   @include u-padding(2px);
   @include u-bg('gray-2');
   @include u-border('base-lighter');
   @include u-border('1px');
   @include u-radius('05');
-  table {
-    @include u-margin-left(1);
-  }
 }
 
 .table--queue {
