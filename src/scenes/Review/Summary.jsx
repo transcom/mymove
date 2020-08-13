@@ -6,11 +6,7 @@ import PropTypes from 'prop-types';
 
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import { loadMove, selectMove } from 'shared/Entities/modules/moves';
-import {
-  fetchLatestOrders,
-  selectActiveOrLatestOrders,
-  selectUploadsForActiveOrders,
-} from 'shared/Entities/modules/orders';
+import { selectActiveOrLatestOrdersFromEntities, selectUploadsForActiveOrders } from 'shared/Entities/modules/orders';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 import { moveIsApproved, lastMoveIsCanceled } from 'scenes/Moves/ducks';
@@ -26,7 +22,7 @@ import HHGShipmentSummary from 'pages/MyMove/HHGShipmentSummary';
 
 import './Review.css';
 import { selectActivePPMForMove } from '../../shared/Entities/modules/ppms';
-import { showLoggedInUser as showLoggedInUserAction, selectLoggedInUser } from 'shared/Entities/modules/user';
+import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
 
 export class Summary extends Component {
@@ -74,7 +70,7 @@ export class Summary extends Component {
     const showPPMShipmentSummary =
       (isReviewPage && !isEmpty(currentPPM)) ||
       (!isReviewPage && !isEmpty(currentPPM) && currentPPM.status !== 'DRAFT');
-    const showHHGShipmentSummary = !isEmpty(mtoShipment) || (!isEmpty(mtoShipment) && !isReviewPage);
+    const showHHGShipmentSummary = isReviewPage && !isEmpty(mtoShipment);
 
     const showProfileAndOrders = isReviewPage || !isReviewPage;
     return (
@@ -111,11 +107,12 @@ export class Summary extends Component {
           />
         )}
 
-        {showHHGShipmentSummary && <HHGShipmentSummary mtoShipment={mtoShipment} movePath={rootAddressWithMoveId} />}
-
         {showPPMShipmentSummary && (
           <PPMShipmentSummary ppm={currentPPM} movePath={rootAddressWithMoveId} orders={currentOrders} />
         )}
+
+        {showHHGShipmentSummary && <HHGShipmentSummary mtoShipment={mtoShipment} movePath={rootAddressWithMoveId} />}
+
         {moveIsApproved && (
           <div className="approved-edit-warning">
             *To change these fields, contact your local PPPO office at {get(currentStation, 'name')}{' '}
@@ -144,10 +141,9 @@ Summary.propTypes = {
 
 function mapStateToProps(state, ownProps) {
   const moveID = state.moves.currentMove.id;
-  const currentOrders = selectActiveOrLatestOrders(state);
+  const currentOrders = selectActiveOrLatestOrdersFromEntities(state);
   // TODO: temporary workaround until moves is consolidated from move_task_orders - this should be the move id
-  const moveTaskOrderID = get(selectLoggedInUser(state), 'service_member.orders[0].move_task_order_id', '');
-
+  const moveTaskOrderID = get(currentOrders, 'move_task_order_id', '');
   return {
     currentPPM: selectActivePPMForMove(state, moveID),
     mtoShipment: selectMTOShipmentForMTO(state, moveTaskOrderID),
@@ -168,10 +164,9 @@ function mapStateToProps(state, ownProps) {
 }
 function mapDispatchToProps(dispatch, ownProps) {
   return {
-    onDidMount: function (smId) {
+    onDidMount: function () {
       const moveID = ownProps.match.params.moveId;
       dispatch(loadMove(moveID, 'Summary.getMove'));
-      dispatch(fetchLatestOrders(smId));
     },
     onCheckEntitlement: (moveId) => {
       dispatch(checkEntitlement(moveId));

@@ -4,10 +4,14 @@ import { AddressShape } from './address';
 
 export const DestinationDutyStationShape = PropTypes.shape({
   name: PropTypes.string,
+  address: PropTypes.AddressShape,
 });
 
 export const OriginDutyStationShape = PropTypes.shape({
+  id: PropTypes.string,
   name: PropTypes.string,
+  address_id: PropTypes.string,
+  address: PropTypes.AddressShape,
 });
 
 export const EntitlementShape = PropTypes.shape({
@@ -34,6 +38,19 @@ export const MoveOrderShape = PropTypes.shape({
   destinationDutyStation: DestinationDutyStationShape,
   originDutyStation: OriginDutyStationShape,
   entitlement: EntitlementShape,
+});
+
+export const OrdersInfoShape = PropTypes.shape({
+  currentDutyStation: OriginDutyStationShape,
+  newDutyStation: DestinationDutyStationShape,
+  issuedDate: PropTypes.string,
+  reportByDate: PropTypes.string,
+  departmentIndicator: PropTypes.string,
+  ordersNumber: PropTypes.string,
+  ordersType: PropTypes.string,
+  ordersTypeDetail: PropTypes.string,
+  tacMDC: PropTypes.string,
+  sacSDN: PropTypes.string,
 });
 
 export const CustomerShape = PropTypes.shape({
@@ -108,5 +125,6 @@ export const PaymentRequestShape = PropTypes.shape({
   paymentRequestNumber: PropTypes.string,
   status: PropTypes.string,
   eTag: PropTypes.string,
-  serviceItems: PropTypes.arrayOf(PaymentServiceItemShape),
+  serviceItems: PropTypes.arrayOf(PropTypes.string),
+  reviewedAt: PropTypes.string,
 });

@@ -28,7 +28,7 @@ func Move(move *models.Move) *ghcmessages.Move {
 }
 
 // MoveTaskOrder payload
-func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *ghcmessages.MoveTaskOrder {
+func MoveTaskOrder(moveTaskOrder *models.Move) *ghcmessages.MoveTaskOrder {
 	if moveTaskOrder == nil {
 		return nil
 	}
@@ -37,9 +37,9 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *ghcmessages.MoveTaskOrd
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.DateTime(moveTaskOrder.CreatedAt),
 		AvailableToPrimeAt: handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
-		IsCanceled:         &moveTaskOrder.IsCanceled,
-		MoveOrderID:        strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
-		ReferenceID:        moveTaskOrder.ReferenceID,
+		IsCanceled:         moveTaskOrder.IsCanceled(),
+		MoveOrderID:        strfmt.UUID(moveTaskOrder.OrdersID.String()),
+		ReferenceID:        *moveTaskOrder.ReferenceID,
 		UpdatedAt:          strfmt.DateTime(moveTaskOrder.UpdatedAt),
 		ETag:               etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 	}
@@ -260,6 +260,7 @@ func PaymentRequest(pr *models.PaymentRequest) *ghcmessages.PaymentRequest {
 		Status:               ghcmessages.PaymentRequestStatus(pr.Status),
 		ETag:                 etag.GenerateEtag(pr.UpdatedAt),
 		ServiceItems:         *PaymentServiceItems(&pr.PaymentServiceItems),
+		ReviewedAt:           handlers.FmtDateTimePtr(pr.ReviewedAt),
 	}
 }
 

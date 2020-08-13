@@ -48,11 +48,17 @@ describe('Office App', () => {
 
   describe('if the user is logged in with multiple roles', () => {
     const multiRoleState = {
+      auth: {
+        activeRole: roleTypes.TOO,
+      },
       user: {
         isLoading: false,
         userInfo: {
           isLoggedIn: true,
           roles: [
+            {
+              roleType: roleTypes.CONTRACTING_OFFICER,
+            },
             {
               roleType: roleTypes.TOO,
             },
@@ -95,6 +101,9 @@ describe('Office App', () => {
     // I FIGURED OUT HOW - need to mock the loadUser (this sets loading back to true and prevents content from rendering)
 
     const loggedInState = {
+      auth: {
+        activeRole: roleTypes.PPM,
+      },
       user: {
         isLoading: false,
         userInfo: {
@@ -109,6 +118,9 @@ describe('Office App', () => {
     };
 
     const loggedOutState = {
+      auth: {
+        activeRole: null,
+      },
       user: {
         isLoading: false,
         userInfo: {
@@ -155,6 +167,9 @@ describe('Office App', () => {
 
     describe('PPM routes', () => {
       const loggedInPPMState = {
+        auth: {
+          activeRole: roleTypes.PPM,
+        },
         user: {
           isLoading: false,
           userInfo: {
@@ -225,6 +240,9 @@ describe('Office App', () => {
 
     describe('TOO routes', () => {
       const loggedInTOOState = {
+        auth: {
+          activeRole: roleTypes.TOO,
+        },
         user: {
           isLoading: false,
           userInfo: {
@@ -289,6 +307,9 @@ describe('Office App', () => {
 
     describe('TIO routes', () => {
       const loggedInTIOState = {
+        auth: {
+          activeRole: roleTypes.TIO,
+        },
         user: {
           isLoading: false,
           userInfo: {

@@ -158,7 +158,7 @@ func checkServeConfig(v *viper.Viper, logger logger) error {
 	logger.Info("checking webserver config")
 
 	if err := cli.CheckEnvironment(v); err != nil {
-		return err
+		logger.Info(fmt.Sprintf("Environment check failed: %v", err.Error()))
 	}
 
 	if err := cli.CheckBuild(v); err != nil {
@@ -616,9 +616,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	// Set feature flags
 	handlerContext.SetFeatureFlag(
 		handlers.FeatureFlag{Name: cli.FeatureFlagAccessCode, Active: v.GetBool(cli.FeatureFlagAccessCode)},
-	)
-	handlerContext.SetFeatureFlag(
-		handlers.FeatureFlag{Name: cli.FeatureFlagConvertPPMsToGHC, Active: v.GetBool(cli.FeatureFlagConvertPPMsToGHC)},
 	)
 	handlerContext.SetFeatureFlag(
 		handlers.FeatureFlag{Name: cli.FeatureFlagConvertProfileOrdersToGHC, Active: v.GetBool(cli.FeatureFlagConvertProfileOrdersToGHC)},
