@@ -2660,7 +2660,6 @@ definitions:
         type: string
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
-        x-nullable: true
       requestedPickupDate:
         format: date
         type: string
@@ -2673,13 +2672,10 @@ definitions:
         x-nullable: true
       pickupAddress:
         $ref: '#/definitions/Address'
-        x-nullable: true
       destinationAddress:
         $ref: '#/definitions/Address'
-        x-nullable: true
       agents:
         $ref: '#/definitions/MTOAgents'
-        x-nullable: true
     required:
       - moveTaskOrderID
       - pickupAddress
@@ -2689,10 +2685,8 @@ definitions:
     properties:
       status:
         $ref: '#/definitions/MTOShipmentStatus'
-        x-nullable: true
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
-        x-nullable: true
       requestedPickupDate:
         format: date
         type: string
@@ -2707,10 +2701,8 @@ definitions:
         $ref: '#/definitions/Address'
       destinationAddress:
         $ref: '#/definitions/Address'
-        x-nullable: true
       agents:
         $ref: '#/definitions/MTOAgents'
-        x-nullable: true
   ClientError:
     type: object
     properties:

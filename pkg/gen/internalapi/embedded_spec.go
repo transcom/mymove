@@ -3990,7 +3990,6 @@ func init() {
       ],
       "properties": {
         "agents": {
-          "x-nullable": true,
           "$ref": "#/definitions/MTOAgents"
         },
         "customerRemarks": {
@@ -3999,7 +3998,6 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "moveTaskOrderID": {
@@ -4008,7 +4006,6 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "pickupAddress": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "requestedDeliveryDate": {
@@ -4020,7 +4017,6 @@ func init() {
           "format": "date"
         },
         "shipmentType": {
-          "x-nullable": true,
           "$ref": "#/definitions/MTOShipmentType"
         }
       }
@@ -6560,7 +6556,6 @@ func init() {
       "type": "object",
       "properties": {
         "agents": {
-          "x-nullable": true,
           "$ref": "#/definitions/MTOAgents"
         },
         "customerRemarks": {
@@ -6569,7 +6564,6 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "pickupAddress": {
@@ -6584,11 +6578,9 @@ func init() {
           "format": "date"
         },
         "shipmentType": {
-          "x-nullable": true,
           "$ref": "#/definitions/MTOShipmentType"
         },
         "status": {
-          "x-nullable": true,
           "$ref": "#/definitions/MTOShipmentStatus"
         }
       }
@@ -10786,7 +10778,6 @@ func init() {
       ],
       "properties": {
         "agents": {
-          "x-nullable": true,
           "$ref": "#/definitions/MTOAgents"
         },
         "customerRemarks": {
@@ -10795,7 +10786,6 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "moveTaskOrderID": {
@@ -10804,7 +10794,6 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "pickupAddress": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "requestedDeliveryDate": {
@@ -10816,7 +10805,6 @@ func init() {
           "format": "date"
         },
         "shipmentType": {
-          "x-nullable": true,
           "$ref": "#/definitions/MTOShipmentType"
         }
       }
@@ -13367,7 +13355,6 @@ func init() {
       "type": "object",
       "properties": {
         "agents": {
-          "x-nullable": true,
           "$ref": "#/definitions/MTOAgents"
         },
         "customerRemarks": {
@@ -13376,7 +13363,6 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "pickupAddress": {
@@ -13391,11 +13377,9 @@ func init() {
           "format": "date"
         },
         "shipmentType": {
-          "x-nullable": true,
           "$ref": "#/definitions/MTOShipmentType"
         },
         "status": {
-          "x-nullable": true,
           "$ref": "#/definitions/MTOShipmentStatus"
         }
       }

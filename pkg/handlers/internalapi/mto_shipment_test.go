@@ -16,7 +16,6 @@ import (
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/mocks"
-	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 
 	"net/http/httptest"
 	"testing"
@@ -270,8 +269,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	suite.T().Run("Successful PATCH - Integration Test", func(t *testing.T) {
 		fetcher := fetch.NewFetcher(builder)
 		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(builder)
-		statusUpdater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), builder, siCreator, planner)
+		statusUpdater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), builder, nil, planner)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -289,8 +287,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	suite.T().Run("Successful PATCH - Can update shipment status", func(t *testing.T) {
 		fetcher := fetch.NewFetcher(builder)
 		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(builder)
-		statusUpdater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), builder, siCreator, planner)
+		statusUpdater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), builder, nil, planner)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -315,8 +312,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	suite.T().Run("PATCH failure - 400 -- nil body", func(t *testing.T) {
 		fetcher := fetch.NewFetcher(builder)
 		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(builder)
-		statusUpdater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), builder, siCreator, planner)
+		statusUpdater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), builder, nil, planner)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -335,8 +331,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	suite.T().Run("PATCH failure - 400 -- invalid requested status update", func(t *testing.T) {
 		fetcher := fetch.NewFetcher(builder)
 		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(builder)
-		statusUpdater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), builder, siCreator, planner)
+		statusUpdater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), builder, nil, planner)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -355,8 +350,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	suite.T().Run("PATCH failure - 401- permission denied - not authenticated", func(t *testing.T) {
 		fetcher := fetch.NewFetcher(builder)
 		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(builder)
-		statusUpdater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), builder, siCreator, planner)
+		statusUpdater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), builder, nil, planner)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -379,8 +373,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 		fetcher := fetch.NewFetcher(builder)
 		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(builder)
-		statusUpdater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), builder, siCreator, planner)
+		statusUpdater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), builder, nil, planner)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -403,8 +396,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	suite.T().Run("PATCH failure - 404 -- not found", func(t *testing.T) {
 		fetcher := fetch.NewFetcher(builder)
 		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(builder)
-		statusUpdater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), builder, siCreator, planner)
+		statusUpdater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), builder, nil, planner)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -424,8 +416,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	suite.T().Run("PATCH failure - 412 -- etag mismatch", func(t *testing.T) {
 		fetcher := fetch.NewFetcher(builder)
 		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(builder)
-		statusUpdater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), builder, siCreator, planner)
+		statusUpdater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), builder, nil, planner)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
@@ -444,8 +435,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	suite.T().Run("PATCH failure - 422 -- invalid input", func(t *testing.T) {
 		fetcher := fetch.NewFetcher(builder)
 		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
-		siCreator := mtoserviceitem.NewMTOServiceItemCreator(builder)
-		statusUpdater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), builder, siCreator, planner)
+		statusUpdater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), builder, nil, planner)
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			updater,
