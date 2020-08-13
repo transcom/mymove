@@ -26,22 +26,22 @@ import Checkbox from 'shared/Checkbox';
 import { validateDate } from 'utils/formikValidators';
 
 const PickupAddressSchema = Yup.object().shape({
-  mailingAddress1: Yup.string().required('Required'),
-  mailingAddress2: Yup.string(),
+  street_address_1: Yup.string().required('Required'),
+  street_address_2: Yup.string(),
   city: Yup.string().required('Required'),
   state: Yup.string().length(2, 'Must use state abbreviation').required('Required'),
-  zip: Yup.string()
+  postal_code: Yup.string()
     // eslint-disable-next-line security/detect-unsafe-regex
     .matches(/^(\d{5}([-]\d{4})?)$/, 'Must be valid zip code')
     .required('Required'),
 });
 
 const DeliveryAddressSchema = Yup.object().shape({
-  mailingAddress1: Yup.string(),
-  mailingAddress2: Yup.string(),
+  street_address_1: Yup.string(),
+  street_address_2: Yup.string(),
   city: Yup.string(),
   state: Yup.string().length(2, 'Must use state abbreviation'),
-  zip: Yup.string()
+  postal_code: Yup.string()
     // eslint-disable-next-line security/detect-unsafe-regex
     .matches(/^(\d{5}([-]\d{4})?)$/, 'Must be valid zip code'),
 });
@@ -54,11 +54,11 @@ const AgentSchema = Yup.object().shape({
 });
 const HHGDetailsFormSchema = Yup.object().shape({
   // requiredPickupDate, requiredDeliveryDate are also required, but using field level validation
-  pickupLocation: PickupAddressSchema,
-  deliveryLocation: DeliveryAddressSchema,
+  pickupAddress: PickupAddressSchema,
+  destinationAddress: DeliveryAddressSchema,
   releasingAgent: AgentSchema,
   receivingAgent: AgentSchema,
-  remarks: Yup.string(),
+  customerRemarks: Yup.string(),
 });
 class HHGDetailsForm extends Component {
   constructor(props) {
@@ -81,11 +81,26 @@ class HHGDetailsForm extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { moveTaskOrderID, loadMTOShipments } = this.props;
+    const { moveTaskOrderID } = this.props;
     if (prevProps.moveTaskOrderID !== moveTaskOrderID) {
-      loadMTOShipments(moveTaskOrderID);
+      this.setInitialState(moveTaskOrderID);
     }
   }
+
+  setInitialState = (mtoId) => {
+    const { loadMTOShipments } = this.props;
+    loadMTOShipments(mtoId).then((response) => {
+      // TODO: handle more than one HHG - one that was last created?
+      const HHG = { ...response.response.body[0] };
+      const { agents } = HHG;
+      if (agents) {
+        HHG.receivingAgent = agents.find((agent) => agent.agentType === 'RECEIVING_AGENT');
+        HHG.releasingAgent = agents.find((agent) => agent.agentType === 'RELEASING_AGENT');
+        // TODO: Remove dashses from phones if they have phone to make form valid
+      }
+      this.setState({ initialValues: HHG });
+    });
+  };
 
   handleChangeHasDeliveryAddress = () => {
     this.setState((prevState) => {
@@ -95,27 +110,15 @@ class HHGDetailsForm extends Component {
 
   // Use current residence
   handleUseCurrentResidenceChange = (currentValues) => {
-    const { initialValues, useCurrentResidence } = this.state;
-    const { currentResidence, mtoShipment } = this.props;
-    // Set pickupAddress on mtoShipment on props? Not working...
-    if (useCurrentResidence) {
-      mtoShipment.pickupAddress = {
-        street_address_1: currentResidence.street_address_1,
-        street_address_2: currentResidence.street_address_2,
-        city: currentResidence.city,
-        state: currentResidence.state,
-        postal_code: currentResidence.postal_code,
-      };
-    }
-    // eslint-disable-next-line react/destructuring-assignment
+    const { initialValues } = this.state;
+    const { currentResidence, match } = this.props;
     this.setState(
       (state) => ({ useCurrentResidence: !state.useCurrentResidence }),
       () => {
-        if (useCurrentResidence) {
+        // eslint-disable-next-line react/destructuring-assignment
+        if (this.state.useCurrentResidence) {
           this.setState({
-            // eslint-disable-next-line prettier/prettier
             initialValues: {
-              ...mtoShipment,
               ...initialValues,
               ...currentValues,
               pickupAddress: {
@@ -128,20 +131,37 @@ class HHGDetailsForm extends Component {
             },
           });
         } else {
-          this.setState({
-            initialValues: {
-              ...mtoShipment,
-              ...initialValues,
-              ...currentValues,
-              pickupAddress: {
-                street_address_1: '',
-                street_address_2: '',
-                city: '',
-                state: '',
-                postal_code: '',
+          // TODO: Once move consolidated from mto, check against move id
+          // eslint-disable-next-line no-lonely-if
+          if (match.params.moveId === initialValues.moveTaskOrderID) {
+            this.setState({
+              initialValues: {
+                ...initialValues,
+                ...currentValues,
+                pickupAddress: {
+                  street_address_1: initialValues.street_address_1,
+                  street_address_2: initialValues.street_address_2,
+                  city: initialValues.city,
+                  state: initialValues.state,
+                  postal_code: initialValues.postal_code,
+                },
               },
-            },
-          });
+            });
+          } else {
+            this.setState({
+              initialValues: {
+                ...initialValues,
+                ...currentValues,
+                pickupAddress: {
+                  street_address_1: '',
+                  street_address_2: '',
+                  city: '',
+                  state: '',
+                  postal_code: '',
+                },
+              },
+            });
+          }
         }
       },
     );
@@ -163,7 +183,7 @@ class HHGDetailsForm extends Component {
       shipmentType: SHIPMENT_OPTIONS.HHG,
       requestedPickupDate: formatSwaggerDate(requestedPickupDate),
       requestedDeliveryDate: formatSwaggerDate(requestedDeliveryDate),
-      remarks: customerRemarks,
+      customerRemarks,
       pickupAddress: {
         street_address_1: pickupAddress.street_address_1,
         street_address_2: pickupAddress.street_address_2,
@@ -222,18 +242,13 @@ class HHGDetailsForm extends Component {
 
   render() {
     // TODO: replace minimal styling with actual styling during UI phase
-    const { pageKey, pageList, match, push, newDutyStationAddress, mtoShipment } = this.props;
-    const { hasDeliveryAddress, useCurrentResidence } = this.state;
+    const { pageKey, pageList, match, push, newDutyStationAddress } = this.props;
+    const { hasDeliveryAddress, useCurrentResidence, initialValues } = this.state;
     // for existing mtoShipment, reshape agents from array of objects to key/object for proper handling
-    const { agents } = mtoShipment;
-    if (agents) {
-      mtoShipment.receivingAgent = agents.find((agent) => agent.agentType === 'RECEIVING_AGENT');
-      mtoShipment.releasingAgent = agents.find((agent) => agent.agentType === 'RELEASING_AGENT');
-    }
     const fieldsetClasses = 'margin-top-2';
     return (
       <Formik
-        initialValues={mtoShipment}
+        initialValues={initialValues}
         enableReinitialize
         validateOnBlur
         validateOnChange
@@ -427,7 +442,6 @@ const mapStateToProps = (state) => {
     currentResidence: get(selectServiceMemberFromLoggedInUser(state), 'residential_address', {}),
     newDutyStationAddress: get(orders, 'new_duty_station.address', {}),
   };
-  // props.initialValues = !isEmpty(props.mtoShipment) ? props.mtoShipment : null;
   return props;
 };
 
