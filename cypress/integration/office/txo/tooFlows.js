@@ -67,6 +67,7 @@ describe('TOO user', () => {
       cy.wait(['@patchMTOShipmentStatus', '@patchMTOStatus']);
 
       // Page refresh
+      cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
       cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.be.visible');
       cy.get('#approved-shipments');
       cy.get('#requested-shipments').should('not.exist');

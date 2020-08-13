@@ -1,122 +1,107 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { mount } from 'enzyme';
 
 import { PaymentRequestReview } from './PaymentRequestReview';
 
-const testPaymentRequestId = 'test-payment-id-123';
-const testMTOID = 'test-mto-id-456';
-
-const mockGetPaymentRequest = jest.fn(() =>
-  Promise.resolve({
-    entities: {
-      paymentRequests: {
-        [testPaymentRequestId]: {
-          moveTaskOrderID: testMTOID,
-        },
-      },
-    },
-  }),
-);
-
-describe('PaymentRequestReview', () => {
-  const requiredProps = {
-    match: { params: { paymentRequestId: testPaymentRequestId } },
-    getPaymentRequest: mockGetPaymentRequest,
-    getMTOServiceItems: jest.fn(() => Promise.resolve()),
-    getMTOShipments: jest.fn(() => Promise.resolve()),
-    patchPaymentServiceItemStatus: jest.fn(),
-    history: { push: jest.fn() },
-    updatePaymentRequest: jest.fn(),
-  };
-
-  describe('with or without data loaded', () => {
-    // eslint-disable-next-line react/jsx-props-no-spreading
-    const wrapper = mount(<PaymentRequestReview {...requiredProps} />);
-
-    it('renders without errors', () => {
-      expect(wrapper.find('[data-testid="PaymentRequestReview"]').exists()).toBe(true);
-    });
-
-    it('loads the required API data on mount', () => {
-      expect(requiredProps.getPaymentRequest).toHaveBeenCalledWith(testPaymentRequestId);
-      expect(requiredProps.getMTOServiceItems).toHaveBeenCalledWith(testMTOID);
-      expect(requiredProps.getMTOShipments).toHaveBeenCalledWith(testMTOID);
-    });
-
-    it('renders the document viewer', () => {
-      expect(wrapper.find('DocumentViewer').exists()).toBe(true);
-    });
-  });
-
-  describe('with data loaded', () => {
-    const dataProps = {
+jest.mock('hooks/queries', () => ({
+  usePaymentRequestQueries: () => {
+    const testPaymentRequestId = 'test-payment-id-123';
+    return {
       paymentRequest: {
         id: testPaymentRequestId,
-        moveTaskOrderID: testMTOID,
+        moveTaskOrderID: '123',
       },
-      paymentServiceItems: [
-        {
+      paymentRequests: {
+        [testPaymentRequestId]: {
+          id: testPaymentRequestId,
+          moveTaskOrderID: '123',
+        },
+      },
+      paymentServiceItems: {
+        '1': {
           id: '1',
           mtoServiceItemID: 'a',
           priceCents: 12399,
           createdAt: '2020-01-01T00:09:00.999Z',
           status: 'APPROVED',
         },
-        {
+        '2': {
           id: '2',
           mtoServiceItemID: 'b',
           priceCents: 45600,
           createdAt: '2020-01-01T00:09:00.999Z',
         },
-        {
+        '3': {
           id: '3',
           mtoServiceItemID: 'c',
           priceCents: 12312,
           createdAt: '2020-01-01T00:09:00.999Z',
           status: 'DENIED',
         },
-        {
+        '4': {
           id: '4',
           mtoServiceItemID: 'd',
           priceCents: 99999,
           createdAt: '2020-01-01T00:09:00.999Z',
         },
-      ],
-      mtoServiceItems: [
-        {
+      },
+      mtoShipments: {
+        a1: {
+          id: 'a1',
+          shipmentType: 'HHG',
+        },
+        b2: {
+          id: 'b2',
+          shipmentType: 'NTS',
+        },
+      },
+      mtoServiceItems: {
+        a: {
           id: 'a',
           mtoShipmentID: 'a1',
           reServiceName: 'Test Service Item',
         },
-        {
+        b: {
           id: 'b',
           mtoShipmentID: 'b2',
           reServiceName: 'Test Service Item 2',
         },
-        {
+        c: {
           id: 'c',
           mtoShipmentID: 'a1',
           reServiceName: 'Test Service Item 3',
         },
-        {
+        d: {
           id: 'd',
           reServiceName: 'Test Service Item 4',
         },
-      ],
-      mtoShipments: [
-        {
-          id: 'a1',
-          shipmentType: 'HHG',
-        },
-        {
-          id: 'b2',
-          shipmentType: 'NTS',
-        },
-      ],
+      },
+      isLoading: false,
+      isError: false,
+      isSuccess: true,
     };
+  },
+}));
 
-    // eslint-disable-next-line react/jsx-props-no-spreading
-    const wrapper = mount(<PaymentRequestReview {...requiredProps} {...dataProps} />);
+describe('PaymentRequestReview', () => {
+  const testPaymentRequestId = 'test-payment-id-123';
+
+  const requiredProps = {
+    match: { params: { paymentRequestId: testPaymentRequestId } },
+    history: { push: jest.fn() },
+  };
+
+  describe('with data loaded', () => {
+    const wrapper = mount(<PaymentRequestReview {...requiredProps} />);
+
+    it('renders without errors', () => {
+      expect(wrapper.find('[data-testid="PaymentRequestReview"]').exists()).toBe(true);
+    });
+
+    it('renders the DocumentViewer', () => {
+      expect(wrapper.find('DocumentViewer').exists()).toBe(true);
+    });
 
     it('renders the ReviewServiceItems sidebar', () => {
       expect(wrapper.find('ReviewServiceItems').exists()).toBe(true);
