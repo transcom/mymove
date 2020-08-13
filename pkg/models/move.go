@@ -2,6 +2,8 @@ package models
 
 import (
 	"crypto/sha256"
+	"fmt"
+	"math/rand"
 	"strings"
 	"time"
 
@@ -76,6 +78,14 @@ type Move struct {
 	SignedCertifications    SignedCertifications    `has_many:"signed_certifications" order_by:"created_at desc"`
 	CancelReason            *string                 `json:"cancel_reason" db:"cancel_reason"`
 	Show                    *bool                   `json:"show" db:"show"`
+	AvailableToPrimeAt      *time.Time              `db:"available_to_prime_at"`
+	ContractorID            *uuid.UUID              `db:"contractor_id"`
+	PPMEstimatedWeight      *unit.Pound             `db:"ppm_estimated_weight"`
+	PPMType                 *string                 `db:"ppm_type"`
+	MTOServiceItems         MTOServiceItems         `has_many:"mto_service_items"`
+	PaymentRequests         PaymentRequests         `has_many:"payment_requests"`
+	MTOShipments            MTOShipments            `has_many:"mto_shipments"`
+	ReferenceID             *string                 `db:"reference_id"`
 }
 
 // MoveOptions is used when creating new moves based on parameters
@@ -488,6 +498,17 @@ func createNewMove(db *pop.Connection,
 		show = moveOptions.Show
 	}
 
+	var contractor Contractor
+	err := db.Where("contract_number = ?", "HTC111-11-1-1111").First(&contractor)
+	if err != nil {
+		return nil, nil, fmt.Errorf("Could not find contractor: %w", err)
+	}
+
+	referenceID, err := GenerateReferenceID(db)
+	if err != nil {
+		return nil, nil, fmt.Errorf("Could not generate a unique ReferenceID: %w", err)
+	}
+
 	for i := 0; i < maxLocatorAttempts; i++ {
 		move := Move{
 			Orders:           orders,
@@ -496,6 +517,8 @@ func createNewMove(db *pop.Connection,
 			SelectedMoveType: &stringSelectedType,
 			Status:           MoveStatusDRAFT,
 			Show:             show,
+			ContractorID:     &contractor.ID,
+			ReferenceID:      &referenceID,
 		}
 		verrs, err := db.ValidateAndCreate(&move)
 		if verrs.HasAny() {
@@ -514,6 +537,38 @@ func createNewMove(db *pop.Connection,
 	// the only way we get here is if we got a unique constraint error maxLocatorAttempts times.
 	verrs := validate.NewErrors()
 	return nil, verrs, ErrLocatorGeneration
+}
+
+// GenerateReferenceID generates a reference ID for the MTO
+func GenerateReferenceID(db *pop.Connection) (string, error) {
+	const maxAttempts = 10
+	var referenceID string
+	var err error
+	for i := 0; i < maxAttempts; i++ {
+		referenceID, err = generateReferenceIDHelper(db)
+		if err == nil {
+			return referenceID, nil
+		}
+	}
+	return "", fmt.Errorf("move: failed to generate reference id; %w", err)
+}
+
+// GenerateReferenceID creates a random ID for an MTO. Format (xxxx-xxxx) with X being a number 0-9 (ex. 0009-1234. 4321-4444)
+func generateReferenceIDHelper(db *pop.Connection) (string, error) {
+	min := 0
+	max := 9999
+	firstNum := rand.Intn(max - min + 1)
+	secondNum := rand.Intn(max - min + 1)
+	newReferenceID := fmt.Sprintf("%04d-%04d", firstNum, secondNum)
+
+	count, err := db.Where(`reference_id= $1`, newReferenceID).Count(&Move{})
+	if err != nil {
+		return "", err
+	} else if count > 0 {
+		return "", errors.New("move: reference_id already exists")
+	}
+
+	return newReferenceID, nil
 }
 
 // SaveMoveDependencies safely saves a Move status, ppms' advances' statuses, orders statuses,
@@ -598,4 +653,12 @@ func FetchMoveByMoveID(db *pop.Connection, moveID uuid.UUID) (Move, error) {
 		return Move{}, err
 	}
 	return move, nil
+}
+
+// IsCanceled returns true if the Move's status is `CANCELED`, false otherwise
+func (m Move) IsCanceled() *bool {
+	if m.Status == MoveStatusCANCELED {
+		return swag.Bool(true)
+	}
+	return swag.Bool(false)
 }

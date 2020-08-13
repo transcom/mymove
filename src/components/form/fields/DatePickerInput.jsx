@@ -13,7 +13,6 @@ export const DatePickerInput = (props) => {
   const { label, name } = props;
   const [field, meta, helpers] = useField(props);
   const hasError = meta.touched && !!meta.error;
-
   return (
     <FormGroup error={hasError}>
       <Label error={hasError} htmlFor={field.name}>

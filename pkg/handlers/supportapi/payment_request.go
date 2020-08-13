@@ -155,7 +155,7 @@ func (h ListMTOPaymentRequestsHandler) Handle(params paymentrequestop.ListMTOPay
 
 	var paymentRequests models.PaymentRequests
 
-	query := h.DB().Where("move_task_order_id = ?", mtoID)
+	query := h.DB().Where("move_id = ?", mtoID)
 
 	err = query.All(&paymentRequests)
 

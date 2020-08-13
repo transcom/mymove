@@ -1,7 +1,7 @@
 /* global cy */
 import { milmoveAppName } from '../../support/constants';
 
-describe.skip('allows a SM to request a payment', function () {
+describe('allows a SM to request a payment', function () {
   const moveID = 'f9f10492-587e-43b3-af2a-9f67d2ac8757';
   beforeEach(() => {
     cy.removeFetch();
@@ -130,7 +130,8 @@ function serviceMemberSubmitsPaymentRequestWithMissingDocuments() {
   );
 
   cy.get('.title').contains('Next step: Contact the PPPO office');
-  cy.get('.missing-label').contains('Unknown');
+  //TODO add this back in when we have BVS scores
+  // cy.get('.missing-label').contains('Unknown');
 }
 
 function serviceMemberReviewsDocuments() {
