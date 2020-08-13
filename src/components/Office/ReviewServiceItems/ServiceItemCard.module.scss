@@ -71,7 +71,7 @@
   }
 
   .statusOption + .statusOption {
-    margin-top: 14px;
+    @include u-margin-top(1);
   }
 
   .clearStatus {
