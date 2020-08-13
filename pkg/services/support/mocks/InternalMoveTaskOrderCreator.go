@@ -17,15 +17,15 @@ type InternalMoveTaskOrderCreator struct {
 }
 
 // InternalCreateMoveTaskOrder provides a mock function with given fields: moveTaskOrder, logger
-func (_m *InternalMoveTaskOrderCreator) InternalCreateMoveTaskOrder(moveTaskOrder supportmessages.MoveTaskOrder, logger handlers.Logger) (*models.MoveTaskOrder, error) {
+func (_m *InternalMoveTaskOrderCreator) InternalCreateMoveTaskOrder(moveTaskOrder supportmessages.MoveTaskOrder, logger handlers.Logger) (*models.Move, error) {
 	ret := _m.Called(moveTaskOrder, logger)
 
-	var r0 *models.MoveTaskOrder
-	if rf, ok := ret.Get(0).(func(supportmessages.MoveTaskOrder, handlers.Logger) *models.MoveTaskOrder); ok {
+	var r0 *models.Move
+	if rf, ok := ret.Get(0).(func(supportmessages.MoveTaskOrder, handlers.Logger) *models.Move); ok {
 		r0 = rf(moveTaskOrder, logger)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.MoveTaskOrder)
+			r0 = ret.Get(0).(*models.Move)
 		}
 	}
 
