@@ -22,25 +22,26 @@ import (
 
 // Assertions defines assertions about what the data contains
 type Assertions struct {
-	AccessCode                               models.AccessCode
-	Address                                  models.Address
-	AdminUser                                models.AdminUser
-	BackupContact                            models.BackupContact
-	BlackoutDate                             models.BlackoutDate
-	Contractor                               models.Contractor
-	DestinationAddress                       models.Address
-	DestinationDutyStation                   models.DutyStation
-	DistanceCalculation                      models.DistanceCalculation
-	Document                                 models.Document
-	DutyStation                              models.DutyStation
-	ElectronicOrder                          models.ElectronicOrder
-	ElectronicOrdersRevision                 models.ElectronicOrdersRevision
-	Entitlement                              models.Entitlement
-	FuelEIADieselPrice                       models.FuelEIADieselPrice
-	Invoice                                  models.Invoice
-	Move                                     models.Move
-	MoveDocument                             models.MoveDocument
-	MoveTaskOrder                            models.MoveTaskOrder
+	AccessCode               models.AccessCode
+	Address                  models.Address
+	AdminUser                models.AdminUser
+	BackupContact            models.BackupContact
+	BlackoutDate             models.BlackoutDate
+	Contractor               models.Contractor
+	DestinationAddress       models.Address
+	DestinationDutyStation   models.DutyStation
+	DistanceCalculation      models.DistanceCalculation
+	Document                 models.Document
+	DutyStation              models.DutyStation
+	ElectronicOrder          models.ElectronicOrder
+	ElectronicOrdersRevision models.ElectronicOrdersRevision
+	Entitlement              models.Entitlement
+	FuelEIADieselPrice       models.FuelEIADieselPrice
+	Invoice                  models.Invoice
+	Move                     models.Move
+	MoveDocument             models.MoveDocument
+	// TODO: Remove this after consolidation. See JIRA MB-3540
+	MoveTaskOrder                            models.Move
 	MovingExpenseDocument                    models.MovingExpenseDocument
 	MTOAgent                                 models.MTOAgent
 	MTOServiceItem                           models.MTOServiceItem

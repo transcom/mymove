@@ -17,15 +17,15 @@ type MoveTaskOrderUpdater struct {
 }
 
 // MakeAvailableToPrime provides a mock function with given fields: moveTaskOrderID, eTag, mtoApprovalServiceItems
-func (_m *MoveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eTag string, mtoApprovalServiceItems *[]models.ReServiceCode) (*models.MoveTaskOrder, error) {
+func (_m *MoveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eTag string, mtoApprovalServiceItems *[]models.ReServiceCode) (*models.Move, error) {
 	ret := _m.Called(moveTaskOrderID, eTag, mtoApprovalServiceItems)
 
-	var r0 *models.MoveTaskOrder
-	if rf, ok := ret.Get(0).(func(uuid.UUID, string, *[]models.ReServiceCode) *models.MoveTaskOrder); ok {
+	var r0 *models.Move
+	if rf, ok := ret.Get(0).(func(uuid.UUID, string, *[]models.ReServiceCode) *models.Move); ok {
 		r0 = rf(moveTaskOrderID, eTag, mtoApprovalServiceItems)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.MoveTaskOrder)
+			r0 = ret.Get(0).(*models.Move)
 		}
 	}
 
@@ -40,15 +40,15 @@ func (_m *MoveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, 
 }
 
 // UpdatePostCounselingInfo provides a mock function with given fields: moveTaskOrderID, body, eTag
-func (_m *MoveTaskOrderUpdater) UpdatePostCounselingInfo(moveTaskOrderID uuid.UUID, body move_task_order.UpdateMTOPostCounselingInformationBody, eTag string) (*models.MoveTaskOrder, error) {
+func (_m *MoveTaskOrderUpdater) UpdatePostCounselingInfo(moveTaskOrderID uuid.UUID, body move_task_order.UpdateMTOPostCounselingInformationBody, eTag string) (*models.Move, error) {
 	ret := _m.Called(moveTaskOrderID, body, eTag)
 
-	var r0 *models.MoveTaskOrder
-	if rf, ok := ret.Get(0).(func(uuid.UUID, move_task_order.UpdateMTOPostCounselingInformationBody, string) *models.MoveTaskOrder); ok {
+	var r0 *models.Move
+	if rf, ok := ret.Get(0).(func(uuid.UUID, move_task_order.UpdateMTOPostCounselingInformationBody, string) *models.Move); ok {
 		r0 = rf(moveTaskOrderID, body, eTag)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.MoveTaskOrder)
+			r0 = ret.Get(0).(*models.Move)
 		}
 	}
 
