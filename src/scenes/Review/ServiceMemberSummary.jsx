@@ -1,9 +1,7 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
-
-import { GridContainer, Grid } from '@trussworks/react-uswds';
 
 import { formatDateSM } from 'shared/formatters';
 import { getFullSMName } from 'utils/moveSetupFlow';
@@ -13,7 +11,6 @@ import './Review.css';
 
 function ServiceMemberSummary(props) {
   const {
-    backupContacts,
     orders,
     serviceMember,
     schemaRank,
@@ -26,11 +23,129 @@ function ServiceMemberSummary(props) {
 
   const rootPath = `/moves/review`;
   const editProfilePath = rootPath + '/edit-profile';
-  const editBackupContactPath = rootPath + '/edit-backup-contact';
 
   const yesNoMap = { true: 'Yes', false: 'No' };
 
   return (
+    <div>
+      <div className="stackedtable-header">
+        <div>
+          <h2>
+            Profile
+            <span className="edit-section-link">
+              <Link to={editProfilePath} className="usa-link">
+                Edit
+              </Link>
+            </span>
+          </h2>
+        </div>
+      </div>
+      <table className="table--stacked">
+        <colgroup>
+          <col style={{ width: '25%' }} />
+          <col style={{ width: '75%' }} />
+        </colgroup>
+        <tbody>
+          <tr>
+            <th scope="row">Name</th>
+            <td>{getFullSMName(serviceMember)}</td>
+          </tr>
+          <tr>
+            <th scope="row">Branch</th>
+            <td>{get(schemaAffiliation['x-display-value'], get(serviceMember, 'affiliation'))}</td>
+          </tr>
+          <tr>
+            <th scope="row">Rank</th>
+            <td>{get(schemaRank['x-display-value'], get(serviceMember, 'rank'))}</td>
+          </tr>
+          <tr>
+            <th scope="row">DoD ID#</th>
+            <td>{get(serviceMember, 'edipi')}</td>
+          </tr>
+          <tr>
+            <th scope="row">Current duty station</th>
+            <td>{get(serviceMember, 'current_station.name')}</td>
+          </tr>
+        </tbody>
+      </table>
+      <table className="table--stacked">
+        <colgroup>
+          <col style={{ width: '25%' }} />
+          <col style={{ width: '75%' }} />
+        </colgroup>
+        <tbody>
+          <tr>
+            <th scope="row">Contact info</th>
+          </tr>
+          <tr>
+            <th scope="row">Best contact phone</th>
+            <td>{get(serviceMember, 'telephone')}</td>
+          </tr>
+          <tr>
+            <th scope="row">Personal email</th>
+            <td>{get(serviceMember, 'personal_email')}</td>
+          </tr>
+          <tr>
+            <th scope="row">Current mailing address</th>
+            <td>
+              <Address address={get(serviceMember, 'residential_address')} />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div className="stackedtable-header">
+        <div>
+          <h2>
+            Orders
+            {moveIsApproved && '*'}
+            {!moveIsApproved && (
+              <span className="edit-section-link">
+                <Link to={editOrdersPath} className="usa-link">
+                  Edit
+                </Link>
+              </span>
+            )}
+          </h2>
+        </div>
+      </div>
+      <table className="table--stacked">
+        <colgroup>
+          <col style={{ width: '25%' }} />
+          <col style={{ width: '75%' }} />
+        </colgroup>
+        <tbody>
+          <tr>
+            <th scope="row">Orders type</th>
+            <td>{get(schemaOrdersType['x-display-value'], get(orders, 'orders_type'))}</td>
+          </tr>
+          <tr>
+            <th scope="row">Orders date</th>
+            <td>{formatDateSM(get(orders, 'issue_date'))}</td>
+          </tr>
+          <tr>
+            <th scope="row">Report by date</th>
+            <td>{formatDateSM(get(orders, 'report_by_date'))}</td>
+          </tr>
+          <tr>
+            <th scope="row">New duty station</th>
+            <td>{get(orders, 'new_duty_station.name')}</td>
+          </tr>
+          <tr>
+            <th scope="row">Dependents</th>
+            <td>{orders && yesNoMap[get(orders, 'has_dependents', '').toString()]}</td>
+          </tr>
+          <tr>
+            <th scope="row">Orders</th>
+            <td>{uploads && uploads.length}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/*
+
     <div className="service-member-summary">
       <GridContainer>
         <Grid row>
@@ -160,7 +275,7 @@ function ServiceMemberSummary(props) {
                         <td> Backup Contact: </td>
                         <td>
                           {contact.name} <br />
-                          {/* getFullBackupPermission(contact) */}
+                          { / * getFullBackupPermission(contact) * / }
                         </td>
                       </tr>
                       <tr>
@@ -180,8 +295,7 @@ function ServiceMemberSummary(props) {
         </Grid>
       </GridContainer>
     </div>
-  );
-}
+*/
 
 ServiceMemberSummary.propTypes = {
   backupContacts: PropTypes.array.isRequired,
