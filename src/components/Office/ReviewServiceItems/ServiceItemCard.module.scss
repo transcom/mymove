@@ -76,6 +76,7 @@
 
   .clearStatus {
     padding: 0;
+    @include u-text('light');
   }
 
   .statusOption + .clearStatus {
