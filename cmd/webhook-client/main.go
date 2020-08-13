@@ -2,11 +2,14 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/cli"
 )
@@ -31,9 +34,27 @@ func initRootFlags(flag *pflag.FlagSet) {
 
 	flag.String(CertPathFlag, "./config/tls/devlocal-mtls.cer", "Path to the public cert")
 	flag.String(KeyPathFlag, "./config/tls/devlocal-mtls.key", "Path to the private key")
-	flag.String(HostnameFlag, cli.HTTPOrdersServerNameLocal, "The hostname to connect to")
+	flag.String(HostnameFlag, cli.HTTPPrimeServerNameLocal, "The hostname to connect to")
 	flag.Int(PortFlag, cli.MutualTLSPort, "The port to connect to")
 	flag.Bool(InsecureFlag, false, "Skip TLS verification and validation")
+}
+
+// Debug prints helpful debugging information for requests
+func Debug(data []byte, err error) {
+	if err == nil {
+		log.Printf("%s\n\n", data)
+	} else {
+		log.Fatalf("%s\n\n", err)
+	}
+}
+
+// Logger type exports the logger for use in the command files
+type Logger interface {
+	Debug(msg string, fields ...zap.Field)
+	Info(msg string, fields ...zap.Field)
+	Error(msg string, fields ...zap.Field)
+	Warn(msg string, fields ...zap.Field)
+	Fatal(msg string, fields ...zap.Field)
 }
 
 // CheckRootConfig checks the validity of the notification api flags

@@ -1,11 +1,15 @@
 package main
 
 import (
+	"bytes"
 	"crypto/tls"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"net/http/httputil"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -31,12 +35,46 @@ func ParseFlags(cmd *cobra.Command, v *viper.Viper, args []string) error {
 	return nil
 }
 
-// CreateClient creates the support api client
+// WebhookRuntime comment here
+type WebhookRuntime struct {
+	client      *http.Client
+	Debug       bool
+	Logger      Logger
+	Host        string
+	BasePath    string
+	ContentType string
+}
+
+// Post WebhookRuntime comment goes here
+func (wr *WebhookRuntime) Post(data []byte) error {
+	json := bytes.NewBuffer(data)
+	r, err := wr.client.Post(wr.Host+wr.BasePath, wr.ContentType, json)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer r.Body.Close()
+	if wr.Debug {
+		Debug(httputil.DumpResponse(r, true))
+	}
+
+	body, err := ioutil.ReadAll(r.Body)
+
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+
+	// Print response body to stdout
+	fmt.Printf("%s\n", body)
+
+	return nil
+}
+
+// CreateClient creates the webhook client
 func CreateClient(v *viper.Viper) (*http.Client, *pksigner.Store, error) {
 
-	// Use command line inputs
-	//hostname := v.GetString(HostnameFlag)
-	//port := v.GetInt(PortFlag)
 	insecure := v.GetBool(InsecureFlag)
 
 	var httpClient *http.Client
@@ -73,25 +111,12 @@ func CreateClient(v *viper.Viper) (*http.Client, *pksigner.Store, error) {
 	} else if !v.GetBool(cli.CACFlag) {
 		certPath := v.GetString(CertPathFlag)
 		keyPath := v.GetString(KeyPathFlag)
-
-		// var errRuntimeClientTLS error
-		// httpClient, errRuntimeClientTLS = runtimeClient.TLSClient(runtimeClient.TLSClientOptions{
-		// 	Key:                keyPath,
-		// 	Certificate:        certPath,
-		// 	InsecureSkipVerify: insecure})
-		// if errRuntimeClientTLS != nil {
-		// 	log.Fatal(errRuntimeClientTLS)
-		// }
-		// Create a HTTPS client and supply the created CA pool and certificate
-		// Read the key pair to create certificate
-		// certPath = "config/tls/devlocal-mtls.cer"
-		// keyPath = "config/tls/devlocal-mtls.key"
 		cert, err := tls.LoadX509KeyPair(certPath, keyPath)
-		cert.SupportedSignatureAlgorithms = []tls.SignatureScheme{tls.PKCS1WithSHA256}
+
 		if err != nil {
 			log.Fatal(err)
 		}
-		// #nosec
+		// #nosec b/c gosec triggers on InsecureSkipVerify
 		httpClient = &http.Client{
 			Transport: &http.Transport{
 				TLSClientConfig: &tls.Config{
@@ -99,17 +124,10 @@ func CreateClient(v *viper.Viper) (*http.Client, *pksigner.Store, error) {
 					InsecureSkipVerify: insecure,
 				},
 			},
+			Timeout: time.Second * 30,
 		}
 
 	}
-
-	// verbose := v.GetBool(cli.VerboseFlag)
-	// hostWithPort := fmt.Sprintf("%s:%d", hostname, port)
-	// myRuntime := runtimeClient.NewWithClient(hostWithPort, "/support/v1", []string{"https"}, httpClient)
-	// myRuntime.EnableConnectionReuse()
-	// myRuntime.SetDebug(verbose)
-
-	// gateway := supportClient.New(myRuntime, nil)
 
 	return httpClient, store, nil
 }
