@@ -217,7 +217,7 @@ table {
   }
 }
 
-.table--data-pair {
+.table--data-point-group {
   @include u-padding(2px);
   @include u-bg('gray-2');
   @include u-border('base-lighter');

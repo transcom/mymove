@@ -1,7 +1,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import DataPair from '.';
+import DataPointGroup from '.';
 
 import DataPoint from 'components/DataPoint';
 import { ReactComponent as ArrowRight } from 'shared/icon/arrow-right.svg';
@@ -11,9 +11,9 @@ describe('DataPair', () => {
     const headers = ['column 1', 'column 2'];
     const row = ['cell 1', 'cell 2'];
     const wrapper = shallow(
-      <DataPair>
+      <DataPointGroup>
         <DataPoint columnHeaders={[headers]} dataRow={[row]} />
-      </DataPair>,
+      </DataPointGroup>,
     );
     expect(wrapper.find(DataPoint).length).toBe(1);
   });
@@ -22,10 +22,10 @@ describe('DataPair', () => {
     const headers = ['column 1', 'column 2'];
     const row = ['cell 1', 'cell 2'];
     const wrapper = shallow(
-      <DataPair>
+      <DataPointGroup>
         <DataPoint columnHeaders={[headers]} dataRow={[row]} Icon={ArrowRight} />
         <DataPoint columnHeaders={[headers]} dataRow={[row]} Icon={ArrowRight} />
-      </DataPair>,
+      </DataPointGroup>,
     );
     expect(wrapper.find(DataPoint).length).toBe(2);
   });
