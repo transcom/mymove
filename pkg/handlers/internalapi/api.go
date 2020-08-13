@@ -10,7 +10,6 @@ import (
 
 	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
 	movedocument "github.com/transcom/mymove/pkg/services/move_documents"
-	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	postalcodeservice "github.com/transcom/mymove/pkg/services/postal_codes"
 	"github.com/transcom/mymove/pkg/services/ppmservices"
 
@@ -129,11 +128,10 @@ func NewInternalAPI(context handlers.HandlerContext) *internalops.MymoveAPI {
 		mtoshipment.NewMTOShipmentCreator(context.DB(), builder, fetcher),
 	}
 
-	mtoServiceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(builder)
 	internalAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateMTOShipmentHandler{
 		context,
 		mtoshipment.NewMTOShipmentUpdater(context.DB(), builder, fetcher, context.Planner()),
-		mtoshipment.NewMTOShipmentStatusUpdater(context.DB(), builder, mtoServiceItemCreator, context.Planner()),
+		mtoshipment.NewMTOShipmentStatusUpdater(context.DB(), builder, nil, context.Planner()),
 	}
 
 	internalAPI.MtoShipmentListMTOShipmentsHandler = ListMTOShipmentsHandler{

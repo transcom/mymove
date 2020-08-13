@@ -103,6 +103,16 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 	mtoShipment := payloads.MTOShipmentModelFromUpdate(payload)
 	mtoShipment.ID = uuid.FromStringOrNil(mtoShipmentID.String())
 
+	status := mtoShipment.Status
+	if status != "" && status != models.MTOShipmentStatusDraft && status != models.MTOShipmentStatusSubmitted {
+		logger.Error("Invalid mto shipment status: shipment in service member app can only have draft or submitted status")
+
+		return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(
+			payloads.ClientError(handlers.BadRequestErrMessage,
+				"When present, the MTO Shipment status must be one of: DRAFT or SUBMITTED.",
+				h.GetTraceID()))
+	}
+
 	updatedMtoShipment, err := h.mtoShipmentUpdater.UpdateMTOShipment(mtoShipment, params.IfMatch)
 
 	if err != nil {
