@@ -1,9 +1,11 @@
 @import '../../shared/styles/basics';
 
 .shipmentContainer {
-    @include u-padding-top(0);
-    @include u-padding-x(2);
-    @include u-padding-bottom(2);
-    @include u-bg('white');
+  @include u-padding-top(0);
+  @include u-padding-x(2);
+  padding-bottom: 11px; //this is because the unstyled button has a set min height and adds space so its touch target meets accessibility standards
+  @include u-bg('white');
+  @include u-margin-bottom(
+    2
+  ); //this ensures in a vertically compressed window you can still scroll down to the bottom all the way and have some space below the card
 }
-
