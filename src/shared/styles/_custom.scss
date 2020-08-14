@@ -23,12 +23,17 @@ html {
     @include u-shadow(2);
   }
   &--accent {
-    &--default, &--hhg, &--ppm, &--ub, &--nts, &--ntsr {
+    &--default,
+    &--hhg,
+    &--ppm,
+    &--ub,
+    &--nts,
+    &--ntsr {
       @include u-radius('0');
     }
 
     &--default {
-      @include cont-border-top($accent-default)
+      @include cont-border-top($accent-default);
     }
 
     &--hhg {
@@ -141,6 +146,7 @@ table {
       @include u-border(0);
       @include u-border-top(1px);
       @include u-border('base-lighter');
+      vertical-align: middle;
     }
     .error {
       @include u-border-left(0.5);
