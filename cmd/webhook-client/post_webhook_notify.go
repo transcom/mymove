@@ -72,7 +72,6 @@ func postWebhookNotify(cmd *cobra.Command, args []string) error {
 
 	// Create the client and open the cacStore
 	runtime, cacStore, err := CreateClient(v)
-	runtime.BasePath = basePath
 
 	if err != nil {
 		logger.Fatal(err.Error())
@@ -81,7 +80,9 @@ func postWebhookNotify(cmd *cobra.Command, args []string) error {
 	if cacStore != nil {
 		defer cacStore.Close()
 	}
+
 	// Make the API call
+	runtime.BasePath = basePath
 	runtime.Post(json)
 
 	return nil
