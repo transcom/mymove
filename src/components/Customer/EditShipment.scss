@@ -1,13 +1,13 @@
 @import 'shared/styles/_variables';
 @import 'shared/styles/colors';
 
-.hhg-label {
-  background-color: #aacdec;
-  width: 51px;
-  text-align: center;
-}
+@media (min-width: $mobile) {
+  .hhg-label {
+    background-color: #aacdec;
+    width: 51px;
+    text-align: center;
+  }
 
-@media (max-width: $mobile) {
   .fieldset-legend > legend {
     font-size: 21px;
   }
@@ -45,17 +45,17 @@
     font-size: 13px;
     font-weight: bold;
   }
-}
 
-.hhg-examples-container {
-  padding: 15px;
-  border-radius: 4px;
-  border: 1px solid $base-lighter;
-  background-color: $bg-gray;
-  font-size: 13px;
-  & ul {
-    padding: 0;
-    list-style-position: inside;
-    margin: 0;
+  .hhg-examples-container {
+    padding: 15px;
+    border-radius: 4px;
+    border: 1px solid $base-lighter;
+    background-color: $bg-gray;
+    font-size: 13px;
+    & ul {
+      padding: 0;
+      list-style-position: inside;
+      margin: 0;
+    }
   }
 }

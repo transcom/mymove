@@ -4,18 +4,7 @@ import { mount } from 'enzyme';
 
 import EditShipment from './EditShipment';
 
-const defaultProps = {
-  pageList: ['page1', 'anotherPage/:foo/:bar'],
-  pageKey: 'page1',
-  match: { isExact: false, path: '', url: '' },
-  showLoggedInUser: () => {},
-  newDutyStationAddress: {
-    city: 'Fort Benning',
-    state: 'GA',
-    postal_code: '31905',
-  },
-};
-function mountEditShipment(props = defaultProps) {
+function mountEditShipment(props) {
   return mount(<EditShipment {...props} />);
 }
 describe('EditShipment component', () => {
