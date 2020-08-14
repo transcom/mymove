@@ -26,3 +26,16 @@ func (suite *GHCRateEngineServiceSuite) Test_fetchTaskOrderFee() {
 		suite.Error(err)
 	})
 }
+
+func (suite *GHCRateEngineServiceSuite) Test_fetchDomOtherPrice() {
+	testCents := unit.Cents(146)
+	servicesSchedule := 1
+	isPeakPeriod := true
+	suite.setUpDomesticPackData(models.ReServiceCodeDPK)
+
+	suite.T().Run("golden path", func(t *testing.T) {
+		domOtherPrice, err := fetchDomOtherPrice(suite.DB(), testdatagen.DefaultContractCode, models.ReServiceCodeDPK, servicesSchedule, isPeakPeriod)
+		suite.NoError(err)
+		suite.Equal(testCents, domOtherPrice.PriceCents)
+	})
+}

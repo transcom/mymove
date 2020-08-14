@@ -538,3 +538,5 @@
 20200807135812_add_mto_db_comments.up.sql
 20200807222709_update_mto_service_items_columns.up.sql
 20200811152728_move_task_orders_to_moves.up.sql
+20200812180333_add_contract_code_param_to_dpk.up.sql
+20200812202513_convert_schedule_params_to_integer.up.sql
