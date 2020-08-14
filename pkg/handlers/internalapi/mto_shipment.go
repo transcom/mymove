@@ -7,9 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
-	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
 
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/mto_shipment"
@@ -75,8 +73,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 // UpdateMTOShipmentHandler is the handler to update MTO shipments
 type UpdateMTOShipmentHandler struct {
 	handlers.HandlerContext
-	mtoShipmentUpdater       services.MTOShipmentUpdater
-	mtoShipmentStatusUpdater services.MTOShipmentStatusUpdater
+	mtoShipmentUpdater services.MTOShipmentUpdater
 }
 
 // Handle updates the mto shipment
@@ -137,37 +134,6 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 
 	returnPayload := payloads.MTOShipment(updatedMtoShipment)
 
-	if mtoShipment.Status != "" {
-		eTag := etag.GenerateEtag(updatedMtoShipment.UpdatedAt)
-		return h.handleShipmentStatus(logger, updatedMtoShipment, mtoShipment.Status, eTag)
-	}
-
-	return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(returnPayload)
-}
-
-func (h UpdateMTOShipmentHandler) handleShipmentStatus(logger handlers.Logger, shipment *models.MTOShipment, newStatus models.MTOShipmentStatus, eTag string) middleware.Responder {
-	updatedMtoShipment, err := h.mtoShipmentStatusUpdater.UpdateMTOShipmentStatus(
-		shipment.ID, newStatus, shipment.RejectionReason, eTag)
-
-	if err != nil {
-		logger.Error("internalapi.UpdateMTOShipmentHandler.UpdateMTOShipmentStatus", zap.Error(err))
-		switch e := err.(type) {
-		case mtoshipment.ConflictStatusError:
-			return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, err.Error(), h.GetTraceID()))
-		case services.InvalidInputError:
-			return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
-		case services.QueryError:
-			if e.Unwrap() != nil {
-				// If you can unwrap, log the internal error (usually a pq error) for better debugging
-				logger.Error("internalapi.UpdateMTOServiceItemHandler error", zap.Error(e.Unwrap()))
-			}
-			return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
-		default:
-			return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
-		}
-	}
-
-	returnPayload := payloads.MTOShipment(updatedMtoShipment)
 	return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(returnPayload)
 }
 

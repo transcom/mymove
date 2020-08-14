@@ -131,7 +131,6 @@ func NewInternalAPI(context handlers.HandlerContext) *internalops.MymoveAPI {
 	internalAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateMTOShipmentHandler{
 		context,
 		mtoshipment.NewMTOShipmentUpdater(context.DB(), builder, fetcher, context.Planner()),
-		mtoshipment.NewMTOShipmentStatusUpdater(context.DB(), builder, nil, context.Planner()),
 	}
 
 	internalAPI.MtoShipmentListMTOShipmentsHandler = ListMTOShipmentsHandler{
