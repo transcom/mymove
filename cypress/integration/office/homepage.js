@@ -41,26 +41,31 @@ describe('Office authorization', () => {
   });
 
   describe('multiple role selection', () => {
-    it('displays the first role home page by default', () => {
-      cy.signInAsMultiRoleUser();
-      cy.contains('All Customer Moves'); // TOO home
+    beforeEach(() => {
+      cy.removeFetch();
+      cy.server();
+      cy.route('GET', '/ghc/v1/swagger.yaml').as('getGHCClient');
+      cy.route('GET', '/ghc/v1/move-orders').as('getMoveOrders');
+      cy.route('GET', '/ghc/v1/payment-requests').as('getPaymentRequests');
     });
 
-    it('displays a link to change role', () => {
+    it('can switch between TOO & TIO roles', () => {
+      cy.signInAsMultiRoleUser();
+      cy.wait(['@getGHCClient', '@getMoveOrders']);
+      cy.contains('All Customer Moves'); // TOO home
+
       cy.contains('Change user role').click();
       cy.url().should('contain', '/select-application');
-    });
 
-    it('can change role to TIO', () => {
       cy.contains('Select transportation_invoicing_officer').click();
       cy.url().should('eq', officeBaseURL + '/');
+      cy.wait('@getPaymentRequests');
       cy.contains('Payment Requests');
-    });
 
-    it('can change role back to TOO', () => {
       cy.contains('Change user role').click();
       cy.url().should('contain', '/select-application');
       cy.contains('Select transportation_ordering_officer').click();
+      cy.wait('@getMoveOrders');
       cy.url().should('eq', officeBaseURL + '/');
       cy.contains('All Customer Moves');
     });

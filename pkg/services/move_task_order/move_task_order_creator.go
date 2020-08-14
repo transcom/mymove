@@ -4,12 +4,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	mtoservicehelper "github.com/transcom/mymove/pkg/services/move_task_order/shared"
 )
 
 type createMoveTaskOrderQueryBuilder interface {
@@ -22,17 +22,20 @@ type moveTaskOrderCreator struct {
 }
 
 // CreateMoveTaskOrder creates a move task order
-func (o *moveTaskOrderCreator) CreateMoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) (*models.MoveTaskOrder, *validate.Errors, error) {
+func (o *moveTaskOrderCreator) CreateMoveTaskOrder(moveTaskOrder *models.Move) (*models.Move, *validate.Errors, error) {
 	// generate reference id if empty
-	if strings.TrimSpace(moveTaskOrder.ReferenceID) == "" {
-		referenceID, err := mtoservicehelper.GenerateReferenceID(o.db)
+	if moveTaskOrder.ReferenceID == nil || strings.TrimSpace(*moveTaskOrder.ReferenceID) == "" {
+		referenceID, err := models.GenerateReferenceID(o.db)
 		if err != nil {
 			return nil, nil, err
 		}
 
-		moveTaskOrder.ReferenceID = referenceID
+		moveTaskOrder.ReferenceID = &referenceID
 	}
 
+	moveTaskOrder.Show = swag.Bool(true)
+
+	// TODO: Remove this? Doesn't Pop automatically do this?
 	moveTaskOrder.CreatedAt = time.Now()
 	moveTaskOrder.UpdatedAt = time.Now()
 

@@ -53,6 +53,33 @@ func (suite *GHCRateEngineServiceSuite) Test_getParamInt() {
 	})
 }
 
+func (suite *GHCRateEngineServiceSuite) Test_getParamFloat() {
+	params := models.PaymentServiceItemParams{
+		setupParamConvertParam(models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier, models.ServiceItemParamTypeDecimal, "0.0006255"),
+	}
+
+	suite.T().Run("finding expected param value", func(t *testing.T) {
+		value, err := getParamFloat(params, models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier)
+		suite.NoError(err)
+		suite.Equal(0.0006255, value)
+	})
+
+	suite.T().Run("param not found", func(t *testing.T) {
+		_, err := getParamFloat(params, models.ServiceItemParamNameWeightEstimated)
+		suite.Error(err)
+		suite.Equal("could not find param with key WeightEstimated", err.Error())
+	})
+
+	suite.T().Run("unexpected type", func(t *testing.T) {
+		badParams := models.PaymentServiceItemParams{
+			setupParamConvertParam(models.ServiceItemParamNameContractCode, models.ServiceItemParamTypeTimestamp, testdatagen.DefaultContractCode),
+		}
+		_, err := getParamFloat(badParams, models.ServiceItemParamNameContractCode)
+		suite.Error(err)
+		suite.Equal("trying to convert ContractCode to an float, but param is of type TIMESTAMP", err.Error())
+	})
+}
+
 func (suite *GHCRateEngineServiceSuite) Test_getParamString() {
 	params := models.PaymentServiceItemParams{
 		setupParamConvertParam(models.ServiceItemParamNameContractCode, models.ServiceItemParamTypeString, testdatagen.DefaultContractCode),

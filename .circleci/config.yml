@@ -1544,7 +1544,7 @@ workflows:
             - push_app_exp
             - build_tools
             - push_tasks_exp
-            - push_migrations_legacy
+            - push_migrations_exp
           filters:
             branches:
               only: placeholder_branch_name

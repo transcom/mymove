@@ -1,0 +1,88 @@
+import { renderHook } from '@testing-library/react-hooks';
+
+import { usePaymentRequestQueries } from './queries';
+
+jest.mock('services/ghcApi', () => ({
+  getPaymentRequest: (key, id) =>
+    Promise.resolve({
+      paymentRequests: {
+        [id]: {
+          moveTaskOrderID: '123',
+        },
+      },
+      paymentServiceItems: {},
+    }),
+  getMTOShipments: () =>
+    Promise.resolve({
+      mtoShipments: {
+        a1: {
+          shipmentType: 'HHG',
+        },
+        b2: {
+          shipmentType: 'NTS',
+        },
+      },
+    }),
+  getMTOServiceItems: () =>
+    Promise.resolve({
+      mtoServiceItems: {
+        a: {
+          reServiceName: 'Test Service Item',
+        },
+        b: {
+          reServiceName: 'Test Service Item 2',
+        },
+      },
+    }),
+}));
+
+describe('usePaymentRequestQueries', () => {
+  it('loads data', async () => {
+    const testId = 'a1b2';
+    const { result, waitForNextUpdate } = renderHook(() => usePaymentRequestQueries(testId));
+
+    expect(result.current).toEqual({
+      paymentRequest: undefined,
+      paymentRequests: undefined,
+      paymentServiceItems: undefined,
+      mtoShipments: undefined,
+      mtoServiceItems: undefined,
+      isLoading: true,
+      isError: false,
+      isSuccess: false,
+    });
+
+    await waitForNextUpdate();
+
+    expect(result.current).toEqual({
+      paymentRequest: {
+        moveTaskOrderID: '123',
+      },
+      paymentRequests: {
+        a1b2: {
+          moveTaskOrderID: '123',
+        },
+      },
+      paymentServiceItems: {},
+      mtoShipments: {
+        a1: {
+          shipmentType: 'HHG',
+        },
+        b2: {
+          shipmentType: 'NTS',
+        },
+      },
+      mtoServiceItems: {
+        a: {
+          reServiceName: 'Test Service Item',
+        },
+        b: {
+          reServiceName: 'Test Service Item 2',
+        },
+      },
+      isLoading: false,
+      isError: false,
+      isSuccess: true,
+    });
+  });
+});

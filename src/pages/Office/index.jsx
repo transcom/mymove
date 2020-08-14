@@ -42,8 +42,8 @@ const TXOMoveInfo = lazy(() => import('pages/Office/TXOMoveInfo/TXOMoveInfo'));
 const TOO = lazy(() => import('scenes/Office/TOO/too'));
 const CustomerDetails = lazy(() => import('scenes/Office/TOO/customerDetails'));
 const TOOVerificationInProgress = lazy(() => import('scenes/Office/TOO/tooVerificationInProgress'));
-// TIO pages (TODO move into src/pages)
-const PaymentRequestIndex = lazy(() => import('scenes/Office/TIO/paymentRequestIndex'));
+// TIO pages
+const PaymentRequestIndex = lazy(() => import('pages/Office/PaymentRequestIndex/PaymentRequestIndex'));
 
 export class OfficeApp extends Component {
   constructor(props) {

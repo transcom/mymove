@@ -384,7 +384,7 @@ ifndef TEST_ACC_ENV
 	SERVE_ORDERS=true \
 	SERVE_DPS=true \
 	SERVE_API_INTERNAL=true \
-	SERVE_API_GHC=false \
+	SERVE_API_GHC=true \
 	MUTUAL_TLS_ENABLED=true \
 	go test -v -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
 else

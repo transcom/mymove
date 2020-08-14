@@ -1838,6 +1838,7 @@ definitions:
   ServiceItemParamName:
     type: string
     enum:
+      - ActualPickupDate
       - CanStandAlone
       - ContractCode
       - CubicFeetBilled
@@ -1847,6 +1848,7 @@ definitions:
       - DistanceZip5SITDest
       - DistanceZip5SITOrigin
       - EIAFuelPrice
+      - FSCWeightBasedDistanceMultiplier
       - MarketDest
       - MarketOrigin
       - MTOAvailableToPrimeAt
