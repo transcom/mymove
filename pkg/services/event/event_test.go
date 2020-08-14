@@ -37,7 +37,7 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 	now := time.Now()
 
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: models.Move{
+		Move: models.Move{
 			AvailableToPrimeAt: &now,
 		},
 	})
