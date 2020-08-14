@@ -146,11 +146,11 @@ export const mtoShipment = new schema.Entity('mtoShipments');
 export const mtoShipments = new schema.Array(mtoShipment);
 
 // Move Task Orders
-export const moveTaskOrder = new schema.Entity('moveTaskOrder');
+export const moveTaskOrder = new schema.Entity('moveTaskOrders');
 export const moveTaskOrders = new schema.Array(moveTaskOrder);
 
 // Move Orders
-export const moveOrder = new schema.Entity('moveOrder');
+export const moveOrder = new schema.Entity('moveOrders');
 export const moveOrders = new schema.Array(moveOrder);
 
 // Customer
