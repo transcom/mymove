@@ -8,7 +8,6 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -37,9 +36,7 @@ type Event struct {
 	EndpointKey     EndpointKeyType         // Pick from a select list of endpoints
 	DBConnection    *pop.Connection         // The pop connection DB
 	HandlerContext  handlers.HandlerContext // The handler context
-	logger          handlers.Logger
-	session         *auth.Session
-	clientCert      *models.ClientCert
+	logger          handlers.Logger         // The logger
 }
 
 // PaymentRequestCreateEventKey is a key containing PaymentRequest.Create
@@ -116,21 +113,19 @@ func TriggerEvent(event Event) (*Event, error) {
 	}
 	// Check endpointKey if exists
 	if event.EndpointKey != "" {
-		_, success = endpoints[event.EndpointKey]
-		if !success {
+		result := GetEndpointAPI(event.EndpointKey)
+		if result == nil {
 			err := services.NewEventError(fmt.Sprintf("Endpoint Key %s was not found in endpoints. Must use known endpoint key.", event.EndpointKey), nil)
 			return nil, err
 		}
 	}
 
-	event.clientCert = authentication.ClientCertFromRequestContext(event.Request)
-
-	// Get logger info
-	if event.clientCert != nil {
+	// Get logger from HandlerContext
+	clientCert := authentication.ClientCertFromRequestContext(event.Request)
+	if clientCert != nil {
 		event.logger = event.HandlerContext.LoggerFromRequest(event.Request)
 	} else {
-		event.session, event.logger = event.HandlerContext.SessionAndLoggerFromRequest(event.Request)
-		//add back session
+		_, event.logger = event.HandlerContext.SessionAndLoggerFromRequest(event.Request)
 	}
 
 	// Call each registered event handler with the event info and context

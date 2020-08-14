@@ -34,9 +34,12 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderCreatorIntegration() {
 
 	order := testdatagen.MakeDefaultOrder(suite.DB())
 	contractor := testdatagen.MakeContractor(suite.DB(), testdatagen.Assertions{})
-	newMto := models.MoveTaskOrder{
-		MoveOrderID:  order.ID,
-		ContractorID: contractor.ID,
+	contractorID := contractor.ID
+	newMto := models.Move{
+		OrdersID:     order.ID,
+		ContractorID: &contractorID,
+		Status:       models.MoveStatusDRAFT,
+		Locator:      models.GenerateLocator(),
 	}
 	actualMTO, verrs, err := mtoCreator.CreateMoveTaskOrder(&newMto)
 	suite.NoError(err)
@@ -45,10 +48,5 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderCreatorIntegration() {
 	suite.T().Run("move task order is created", func(t *testing.T) {
 		// testing mto
 		suite.NotZero(actualMTO.ID)
-	})
-
-	suite.T().Run("default service items properly created", func(t *testing.T) {
-		// testing default service items
-		suite.Equal(2, len(actualMTO.MTOServiceItems))
 	})
 }

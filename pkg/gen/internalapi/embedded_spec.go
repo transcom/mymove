@@ -1947,7 +1947,50 @@ func init() {
         ]
       }
     },
-    "/mto-shipments": {
+    "/moves/{moveTaskOrderID}/mto_shipments": {
+      "get": {
+        "description": "Gets all MTO shipments for the specified Move Task Order.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "Gets all shipments for a move task order",
+        "operationId": "listMTOShipments",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of move task order for mto shipment to use",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all mto shipments for a move task order.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipments"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/mto_shipments": {
       "post": {
         "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n",
         "consumes": [
@@ -4486,6 +4529,16 @@ func init() {
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "DRAFT",
+            "APPROVED",
+            "SUBMITTED",
+            "REJECTED"
+          ],
+          "readOnly": true
         },
         "updatedAt": {
           "type": "string",
@@ -8524,7 +8577,62 @@ func init() {
         ]
       }
     },
-    "/mto-shipments": {
+    "/moves/{moveTaskOrderID}/mto_shipments": {
+      "get": {
+        "description": "Gets all MTO shipments for the specified Move Task Order.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "Gets all shipments for a move task order",
+        "operationId": "listMTOShipments",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of move task order for mto shipment to use",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all mto shipments for a move task order.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipments"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/mto_shipments": {
       "post": {
         "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n",
         "consumes": [
@@ -11085,6 +11193,16 @@ func init() {
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "DRAFT",
+            "APPROVED",
+            "SUBMITTED",
+            "REJECTED"
+          ],
+          "readOnly": true
         },
         "updatedAt": {
           "type": "string",

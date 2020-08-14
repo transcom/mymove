@@ -5,6 +5,7 @@ import * as PropTypes from 'prop-types';
 import { Checkbox } from '@trussworks/react-uswds';
 
 import ShipmentContainer from '../ShipmentContainer';
+import { AddressShape } from '../../../types/address';
 
 import styles from './ShipmentDisplay.module.scss';
 
@@ -59,7 +60,7 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
             <tr>
               <td />
               <td className={styles['shipment-display__label']}>Destination address</td>
-              <td>{formatAddress(displayInfo.destinationAddress)}</td>
+              <td data-testid="shipmentDestinationAddress">{formatAddress(displayInfo.destinationAddress)}</td>
               <td />
             </tr>
           </tbody>
@@ -82,18 +83,8 @@ ShipmentDisplay.propTypes = {
   displayInfo: PropTypes.shape({
     heading: PropTypes.string.isRequired,
     requestedMoveDate: PropTypes.string.isRequired,
-    currentAddress: PropTypes.shape({
-      street_address_1: PropTypes.string.isRequired,
-      city: PropTypes.string.isRequired,
-      state: PropTypes.string.isRequired,
-      postal_code: PropTypes.string.isRequired,
-    }).isRequired,
-    destinationAddress: PropTypes.shape({
-      street_address_1: PropTypes.string,
-      city: PropTypes.string,
-      state: PropTypes.string,
-      postal_code: PropTypes.string.isRequired,
-    }).isRequired,
+    currentAddress: AddressShape.isRequired,
+    destinationAddress: AddressShape,
   }).isRequired,
 };
 

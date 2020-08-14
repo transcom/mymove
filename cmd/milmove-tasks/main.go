@@ -27,16 +27,6 @@ func main() {
 		SilenceUsage: true,
 	})
 
-	saveFuelPriceDataCommand := &cobra.Command{
-		Use:          "save-fuel-price-data",
-		Short:        "saves fuel price data",
-		Long:         "saves fuel price data",
-		RunE:         saveFuelPriceData,
-		SilenceUsage: true,
-	}
-	initSaveFuelPriceFlags(saveFuelPriceDataCommand.Flags())
-	root.AddCommand(saveFuelPriceDataCommand)
-
 	saveGHCFuelPriceDataCommand := &cobra.Command{
 		Use:          "save-ghc-fuel-price-data",
 		Short:        "saves GHC diesel fuel price data",

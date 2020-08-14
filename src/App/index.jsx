@@ -2,10 +2,13 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import Loadable from 'react-loadable';
 import { ConnectedRouter } from 'connected-react-router';
+import { PersistGate } from 'redux-persist/integration/react';
+import { ReactQueryConfigProvider } from 'react-query';
+import { ReactQueryDevtools } from 'react-query-devtools';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { isOfficeSite, isAdminSite, isSystemAdminSite } from 'shared/constants';
-import { store, history } from 'shared/store';
+import { store, persistor, history } from 'shared/store';
 import { AppContext, defaultOfficeContext, defaultMyMoveContext, defaultAdminContext } from 'shared/AppContext';
 import { detectFlags } from 'shared/featureFlags';
 
@@ -38,16 +41,32 @@ const officeContext = { ...defaultOfficeContext, flags };
 const myMoveContext = { ...defaultMyMoveContext, flags };
 const adminContext = { ...defaultAdminContext, flags };
 
+const officeQueryConfig = {
+  queries: {
+    retry: false, // default to no retries for now
+    refetchOnWindowFocus: true,
+    // onError: noop, // TODO - log errors?
+  },
+  mutations: {
+    // onError: noop, // TODO - log errors?
+  },
+};
+
 const App = () => {
   if (isOfficeSite)
     return (
-      <Provider store={store}>
-        <AppContext.Provider value={officeContext}>
-          <ConnectedRouter history={history}>
-            <Office />
-          </ConnectedRouter>
-        </AppContext.Provider>
-      </Provider>
+      <ReactQueryConfigProvider config={officeQueryConfig}>
+        <Provider store={store}>
+          <PersistGate loading={<LoadingPlaceholder />} persistor={persistor}>
+            <AppContext.Provider value={officeContext}>
+              <ConnectedRouter history={history}>
+                <Office />
+                <ReactQueryDevtools initialIsOpen={false} />
+              </ConnectedRouter>
+            </AppContext.Provider>
+          </PersistGate>
+        </Provider>
+      </ReactQueryConfigProvider>
     );
 
   if (isSystemAdminSite)

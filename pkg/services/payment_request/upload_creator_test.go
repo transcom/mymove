@@ -24,7 +24,7 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadSuccess() {
 	suite.NoError(err)
 
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: models.MoveTaskOrder{ID: moveTaskOrderID},
+		MoveTaskOrder: models.Move{ID: moveTaskOrderID},
 	})
 
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{

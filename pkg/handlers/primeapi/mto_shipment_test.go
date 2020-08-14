@@ -91,9 +91,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mtoChecker,
 		}
 		response := handler.Handle(params)
-
+		okResponse := response.(*mtoshipmentops.CreateMTOShipmentOK)
+		createMTOShipmentPayload := okResponse.Payload
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
-
+		// check that the mto shipment status is Submitted
+		suite.Require().Equal(createMTOShipmentPayload.Status, primemessages.MTOShipmentStatusSUBMITTED, "MTO Shipment should have been submitted")
 	})
 
 	suite.T().Run("POST failure - 500", func(t *testing.T) {
@@ -284,12 +286,15 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	primeEstimatedWeight := unit.Pound(500)
 	primeEstimatedWeightDate := testdatagen.DateInsidePeakRateCycle
 	mto := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: models.MoveTaskOrder{
+		MoveTaskOrder: models.Move{
 			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
 	})
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: mto,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
 	})
 	mtoShipment.PrimeEstimatedWeight = &primeEstimatedWeight
 	mtoShipment.PrimeEstimatedWeightRecordedDate = &primeEstimatedWeightDate
@@ -297,6 +302,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	mtoNotAvailable := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
 	mtoShipmentNotAvailable := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: mtoNotAvailable,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
 	})
 
 	ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -437,6 +445,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 	mtoShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: mto,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
 	})
 
 	testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{

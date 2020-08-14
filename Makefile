@@ -51,6 +51,7 @@ ifdef GOLAND
 	GOLAND_GC_FLAGS=all=-N -l
 endif
 
+SCHEMASPY_OUTPUT=./tmp/schemaspy
 
 .PHONY: help
 help:  ## Print the help documentation
@@ -383,7 +384,7 @@ ifndef TEST_ACC_ENV
 	SERVE_ORDERS=true \
 	SERVE_DPS=true \
 	SERVE_API_INTERNAL=true \
-	SERVE_API_GHC=false \
+	SERVE_API_GHC=true \
 	MUTUAL_TLS_ENABLED=true \
 	go test -v -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
 else
@@ -766,24 +767,6 @@ tasks_build_linux_docker:  ## Build Scheduled Task binaries (linux) and Docker i
 	@echo "Build the docker scheduled tasks container..."
 	docker build -f Dockerfile.tasks_local --tag $(TASKS_DOCKER_CONTAINER):latest .
 
-.PHONY: tasks_save_fuel_price_data
-tasks_save_fuel_price_data: tasks_build_linux_docker ## Run save-fuel-price-data from inside docker container
-	@echo "Saving the fuel price data to the ${DB_NAME_DEV} database with docker command..."
-	DB_NAME=$(DB_NAME_DEV) DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_DEV) scripts/wait-for-db-docker
-	docker run \
-		-t \
-		-e DB_HOST="database" \
-		-e DB_NAME \
-		-e DB_PORT \
-		-e DB_USER \
-		-e DB_PASSWORD \
-		-e EIA_KEY \
-		-e EIA_URL \
-		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
-		--rm \
-		$(TASKS_DOCKER_CONTAINER):latest \
-		milmove-tasks save-fuel-price-data
-
 .PHONY: tasks_save_ghc_fuel_price_data
 tasks_save_ghc_fuel_price_data: tasks_build_linux_docker ## Run save-ghc-fuel-price-data from inside docker container
 	@echo "Saving the fuel price data to the ${DB_NAME_DEV} database with docker command..."
@@ -855,8 +838,12 @@ tasks_post_file_to_gex: tasks_build_linux_docker ## Run post-file-to-gex from in
 # ----- START Deployed MIGRATION TARGETS -----
 #
 
-.PHONY: run_prod_migrations
-run_prod_migrations: bin/milmove db_deployed_migrations_reset ## Run Prod migrations against Deployed Migrations DB
+.PHONY: run_prod_migrations ## Currently: Run Commercial Prod migrations against Deployed Migrations DB
+run_prod_migrations: run_com_prod_migrations
+	# run_gov_prod_migrations
+
+.PHONY: run_com_prod_migrations
+run_com_prod_migrations: bin/milmove db_deployed_migrations_reset ## Run Commercial Prod migrations against Deployed Migrations DB
 	@echo "Migrating the prod-migrations database with prod migrations..."
 	MIGRATION_PATH="s3://transcom-ppp-app-prod-us-west-2/secure-migrations;file://migrations/$(APPLICATION)/schema" \
 	DB_HOST=localhost \
@@ -865,9 +852,24 @@ run_prod_migrations: bin/milmove db_deployed_migrations_reset ## Run Prod migrat
 	DB_DEBUG=0 \
 	bin/milmove migrate
 
+# This will be added once GovCloud prod env is up
+# .PHONY: run_gov_prod_migrations
+# run_gov_prod_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud Prod migrations against Deployed Migrations DB
+# 	@echo "Migrating the prod-migrations database with prod migrations..."
+# 	MIGRATION_PATH="s3://transcom-gov-milmove-prd-app/secure-migrations;file://migrations/$(APPLICATION)/schema" \
+# 	DB_HOST=localhost \
+# 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
+# 	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
+# 	DB_DEBUG=0 \
+# 	bin/milmove migrate
+
 .PHONY: run_staging_migrations
-run_staging_migrations: bin/milmove db_deployed_migrations_reset ## Run Staging migrations against Deployed Migrations DB
-	@echo "Migrating the prod-migrations database with staging migrations..."
+run_staging_migrations: run_com_staging_migrations ## Currently: Run Commercial Staging migrations against Deployed Migrations DB in commercial
+	# run_gov_staging_migrations
+
+.PHONY: run_com_staging_migrations
+run_com_staging_migrations: bin/milmove db_deployed_migrations_reset ## Run Commercial Staging migrations against Deployed Migrations DB
+	@echo "Migrating the staging-migrations database with staging migrations..."
 	MIGRATION_PATH="s3://transcom-ppp-app-staging-us-west-2/secure-migrations;file://migrations/$(APPLICATION)/schema" \
 	DB_HOST=localhost \
 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
@@ -875,10 +877,34 @@ run_staging_migrations: bin/milmove db_deployed_migrations_reset ## Run Staging 
 	DB_DEBUG=0 \
 	bin/milmove migrate
 
-.PHONY: run_experimental_migrations
-run_experimental_migrations: bin/milmove db_deployed_migrations_reset ## Run Experimental migrations against Deployed Migrations DB
-	@echo "Migrating the prod-migrations database with experimental migrations..."
+.PHONY: run_gov_staging_migrations ## Run GovCloud Staging migrations against Deployed Migrations DB
+run_gov_staging_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud Staging migrations against Deployed Migrations DB in commercial
+	@echo "Migrating the staging-migrations database with staging migrations..."
+	MIGRATION_PATH="s3://transcom-gov-milmove-stg-app/secure-migrations;file://migrations/$(APPLICATION)/schema" \
+	DB_HOST=localhost \
+	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
+	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
+	DB_DEBUG=0 \
+	bin/milmove migrate
+
+.PHONY: run_experimental_migrations ## Currently: Run Commercial Experimental migrations against Deployed Migrations DB
+run_experimental_migrations: run_com_experimental_migrations
+# run_gov_experimental_migrations
+
+.PHONY: run_com_experimental_migrations
+run_com_experimental_migrations: bin/milmove db_deployed_migrations_reset ## Run Commercial Experimental migrations against Deployed Migrations DB
+	@echo "Migrating the experimental-migrations database with experimental migrations..."
 	MIGRATION_PATH="s3://transcom-ppp-app-experimental-us-west-2/secure-migrations;file://migrations/$(APPLICATION)/schema" \
+	DB_HOST=localhost \
+	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
+	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
+	DB_DEBUG=0 \
+	bin/milmove migrate
+
+.PHONY: run_gov_experimental_migrations
+run_gov_experimental_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud Experimental migrations against Deployed Migrations DB
+	@echo "Migrating the experimental-migrations database with experimental migrations..."
+	MIGRATION_PATH="s3://transcom-gov-milmove-exp-app/secure-migrations;file://migrations/$(APPLICATION)/schema" \
 	DB_HOST=localhost \
 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
 	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
@@ -966,6 +992,7 @@ clean: ## Clean all generated files
 	rm -rf ./public/swagger-ui/*.{css,js,png}
 	rm -rf ./tmp/secure_migrations
 	rm -rf ./tmp/storage
+	rm -rf $(SCHEMASPY_OUTPUT)
 	rm -rf ./storybook-static
 	rm -rf ./coverage
 	rm -rf ./log
@@ -999,6 +1026,14 @@ storybook_tests: ## Run the Loki storybook tests to ensure no breaking changes
 .PHONY: loki_approve_changes
 loki_approve_changes: ## Approves differences in Loki test results
 	yarn run loki approve
+
+.PHONY: schemaspy
+schemaspy: db_test_reset db_test_migrate ## Generates database documentation using schemaspy
+	rm -rf $(SCHEMASPY_OUTPUT)
+	docker run -v $(PWD)/$(SCHEMASPY_OUTPUT):/output schemaspy/schemaspy:latest \
+		-t pgsql11 -host host.docker.internal -port $(DB_PORT_TEST) -db $(DB_NAME_TEST) -u postgres -p $(PGPASSWORD) \
+		-norows -nopages
+	@echo "Schemaspy output can be found in $(SCHEMASPY_OUTPUT)"
 
 #
 # ----- END RANDOM TARGETS -----

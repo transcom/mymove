@@ -15,7 +15,7 @@ import (
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderChecker() {
 	now := time.Now()
 	availableMTO := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: models.MoveTaskOrder{
+		MoveTaskOrder: models.Move{
 			AvailableToPrimeAt: &now,
 		},
 	})

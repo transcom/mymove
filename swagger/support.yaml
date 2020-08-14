@@ -908,10 +908,30 @@ definitions:
           Updates to this MoveTaskOrder will require that this eTag be passed in with the If-Match header.
         type: string
         readOnly: true
+      status:
+        $ref: '#/definitions/MoveStatus'
+        description: move status
+      locator:
+        description: Unique 6-character code the customer can use to refer to their move
+        type: string
+        example: ABC123
   MoveOrders:
     items:
       $ref: '#/definitions/MoveOrder'
     type: array
+  MoveStatus:
+    type: string
+    title: Move status
+    enum:
+      - DRAFT
+      - SUBMITTED
+      - APPROVED
+      - CANCELED
+    x-display-value:
+      DRAFT: Draft
+      SUBMITTED: Submitted
+      APPROVED: Approved
+      CANCELED: Canceled
   MoveTaskOrders:
     items:
       $ref: '#/definitions/MoveTaskOrder'

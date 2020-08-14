@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"net/http/httptest"
 	"testing"
-
-	"github.com/gofrs/uuid"
+	"time"
 
 	"github.com/go-openapi/strfmt"
-
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
 
@@ -16,6 +15,7 @@ import (
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/mocks"
@@ -29,7 +29,31 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: mto,
+		MTOShipment: models.MTOShipment{
+			Status:       models.MTOShipmentStatusSubmitted,
+			ShipmentType: models.MTOShipmentTypeHHGLongHaulDom,
+		},
 	})
+	// Populate the reServices table with codes needed by the
+	// HHG_LONGHAUL_DOMESTIC shipment type
+	reServiceCodes := []models.ReServiceCode{
+		models.ReServiceCodeDLH,
+		models.ReServiceCodeFSC,
+		models.ReServiceCodeDOP,
+		models.ReServiceCodeDDP,
+		models.ReServiceCodeDPK,
+		models.ReServiceCodeDUPK,
+	}
+	for _, serviceCode := range reServiceCodes {
+		testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code:      serviceCode,
+				Name:      "test",
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
+			},
+		})
+	}
 
 	requestUser := testdatagen.MakeDefaultUser(suite.DB())
 	eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
