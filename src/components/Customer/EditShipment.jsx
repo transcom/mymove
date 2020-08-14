@@ -3,7 +3,7 @@ import { string, shape, func } from 'prop-types';
 import { isEmpty } from 'lodash';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
-import { Fieldset, Radio, Label, Textarea, Button, Checkbox } from '@trussworks/react-uswds';
+import { Radio, Label, Textarea, Button, Checkbox } from '@trussworks/react-uswds';
 
 import { Form } from '../form/Form';
 import { DatePickerInput } from '../form/fields';
@@ -13,6 +13,9 @@ import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
 import { MTOAgentType } from 'shared/constants';
 import { formatSwaggerDate } from 'shared/formatters';
 import { validateDate } from 'utils/formikValidators';
+import Hint from 'shared/Hint';
+import Fieldset from 'shared/Fieldset';
+import Divider from 'shared/Divider';
 
 import './EditShipment.scss';
 
@@ -51,32 +54,6 @@ const HHGDetailsFormSchema = Yup.object().shape({
   receivingAgent: AgentSchema,
   remarks: Yup.string(),
 });
-
-const Divider = ({ className }) => <hr className={className} />;
-
-Divider.propTypes = {
-  className: string,
-};
-
-Divider.defaultProps = {
-  className: '',
-};
-
-const Hint = ({ className, children, ...props }) => (
-  // eslint-disable-next-line react/jsx-props-no-spreading
-  <div {...props} className={`usa-hint ${className}`}>
-    {children}
-  </div>
-);
-
-Hint.propTypes = {
-  className: string,
-  children: React.Children.isRequired,
-};
-
-Hint.defaultProps = {
-  className: '',
-};
 
 class EditShipment extends Component {
   constructor(props) {
@@ -263,7 +240,9 @@ class EditShipment extends Component {
                 className="fieldset-legend margin-bottom-5"
                 name="releasingAgent"
                 legend="Releasing agent"
+                hintText="Optional"
                 subtitle="Who can allow the movers to take your stuff if you're not there?"
+                subtitleClassName="margin-top-3"
                 values={values.releasingAgent}
               />
               <Divider className="margin-bottom-6" />
@@ -307,11 +286,13 @@ class EditShipment extends Component {
                 className="fieldset-legend"
                 name="receivingAgent"
                 legend="Receiving agent"
+                hintText="Optional"
+                subtitleClassName="margin-top-3"
                 subtitle="Who can take delivery for you if the movers arrive and you're not there?"
                 values={values.receivingAgent}
               />
               <Divider className="margin-top-4 margin-bottom-4" />
-              <Fieldset legend="Remarks" className="fieldset-legend">
+              <Fieldset hintText="Optional" legend="Remarks" className="fieldset-legend">
                 <div className="small-bold margin-top-3 margin-bottom-1">
                   Is there anything special about this shipment that the movers should know?
                 </div>
@@ -326,7 +307,6 @@ class EditShipment extends Component {
 
                 <Textarea
                   label="Anything else you would like us to know?"
-                  labelHint="(optional)"
                   data-testid="remarks"
                   name="remarks"
                   id="remarks"
@@ -344,8 +324,10 @@ class EditShipment extends Component {
                 your final pickup date.
               </Hint>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <Button>Save</Button>
-                <Button className="usa-button--unstyled">
+                <Button>
+                  <span>Save</span>
+                </Button>
+                <Button className="cancel-button">
                   <span>Cancel</span>
                 </Button>
               </div>

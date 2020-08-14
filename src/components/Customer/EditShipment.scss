@@ -1,46 +1,32 @@
 @import 'shared/styles/_variables';
 @import 'shared/styles/colors';
 
-@media (min-width: $mobile) {
+@media (max-width: $mobile) {
   .hhg-label {
     background-color: #aacdec;
     width: 51px;
     text-align: center;
   }
 
-  .fieldset-legend > legend {
-    font-size: 21px;
-  }
-
   .usa-hint {
     font-size: 13px;
+    font-weight: normal;
   }
 
   #remarks {
     height: 100px;
   }
 
-  .usa-button {
-    background-color: #0050d8;
-    padding-left: 1.6rem;
-    padding-right: 1.6rem;
-    padding-bottom: 0.8rem;
-    padding-top: 0.8rem;
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .usa-button--unstyled {
+  .cancel-button {
     background-color: transparent;
     color: #0050d8;
     text-decoration: none;
     margin: 0;
     padding-bottom: 0;
     padding-top: 0;
-    height: auto;
+    height: 42px;
   }
+
   .small-bold {
     font-size: 13px;
     font-weight: bold;
@@ -57,5 +43,12 @@
       list-style-position: inside;
       margin: 0;
     }
+  }
+
+  .legend-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 21px;
   }
 }
