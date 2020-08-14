@@ -34,6 +34,22 @@ jest.mock('services/ghcApi', () => ({
         },
       },
     }),
+  getMoveOrder: () =>
+    Promise.resolve({
+      moveOrders: {
+        1: {
+          id: '1',
+        },
+      },
+    }),
+  getMoveTaskOrderList: () =>
+    Promise.resolve({
+      moveTaskOrders: {
+        1: {
+          id: '1',
+        },
+      },
+    }),
 }));
 
 describe('usePaymentRequestQueries', () => {
@@ -93,6 +109,8 @@ describe('useMoveTaskOrderQueries', () => {
     const { result, waitForNextUpdate } = renderHook(() => useMoveTaskOrderQueries(testId));
 
     expect(result.current).toEqual({
+      moveOrders: undefined,
+      moveTaskOrders: undefined,
       mtoShipments: undefined,
       mtoServiceItems: undefined,
       isLoading: true,
@@ -103,6 +121,16 @@ describe('useMoveTaskOrderQueries', () => {
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
+      moveOrders: {
+        1: {
+          id: '1',
+        },
+      },
+      moveTaskOrders: {
+        1: {
+          id: '1',
+        },
+      },
       mtoShipments: {
         a1: {
           shipmentType: 'HHG',
