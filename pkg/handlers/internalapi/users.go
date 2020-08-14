@@ -53,7 +53,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 	}
 	// Load Servicemember and first level associations
 	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, session.ServiceMemberID)
-	var mto models.MoveTaskOrder
+	var mto models.Move
 
 	if err != nil {
 		logger.Error("Error retrieving service_member", zap.Error(err))
@@ -91,7 +91,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 			return handlers.ResponseForError(logger, orderErr)
 		}
 		filters := []services.QueryFilter{
-			query.NewQueryFilter("move_order_id", "=", orders.ID),
+			query.NewQueryFilter("orders_id", "=", orders.ID),
 		}
 		mtoErr := h.builder.FetchOne(&mto, filters)
 

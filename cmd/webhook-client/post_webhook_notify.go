@@ -3,14 +3,14 @@ package main
 import (
 	"encoding/json"
 	"errors"
+
 	"fmt"
-	"log"
-	"os"
 	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 
 	webhookOperations "github.com/transcom/mymove/pkg/gen/supportclient/webhook"
 )
@@ -26,11 +26,7 @@ func initPostWebhookNotifyFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = false
 }
 
-func checkPostWebhookNotifyConfig(v *viper.Viper, args []string, logger *log.Logger) error {
-	err := CheckRootConfig(v)
-	if err != nil {
-		logger.Fatal(err)
-	}
+func checkPostWebhookNotifyConfig(v *viper.Viper, args []string) error {
 
 	message := v.GetString(MessageFlag)
 	if len(message) == 0 {
@@ -43,19 +39,20 @@ func checkPostWebhookNotifyConfig(v *viper.Viper, args []string, logger *log.Log
 func postWebhookNotify(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 
-	//Create the logger
-	//Remove the prefix and any datetime data
-	logger := log.New(os.Stdout, "", log.LstdFlags)
-
 	errParseFlags := ParseFlags(cmd, v, args)
 	if errParseFlags != nil {
 		return errParseFlags
 	}
 
-	// Check the config before talking to the CAC
-	err := checkPostWebhookNotifyConfig(v, args, logger)
+	_, logger, err := InitRootConfig(v)
 	if err != nil {
-		logger.Fatal(err)
+		logger.Fatal("Invalid configuration", zap.Error(err))
+	}
+
+	// Check the config before talking to the CAC
+	err = checkPostWebhookNotifyConfig(v, args)
+	if err != nil {
+		logger.Fatal("Error:", zap.Error(err))
 	}
 
 	message := v.GetString(MessageFlag)
@@ -84,18 +81,18 @@ func postWebhookNotify(cmd *cobra.Command, args []string) error {
 	// Make the API call
 	resp, err := supportGateway.Webhook.PostWebhookNotify(notifyParams)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal("Error:", zap.Error(err))
 	}
 
 	payload := resp.GetPayload()
 	if payload != nil {
 		payload, errJSONMarshall := json.Marshal(payload)
 		if errJSONMarshall != nil {
-			logger.Fatal(errJSONMarshall)
+			logger.Fatal("Error", zap.Error(errJSONMarshall))
 		}
-		fmt.Println(string(payload))
+		fmt.Println("payload", string(payload))
 	} else {
-		logger.Fatal(resp.Error())
+		logger.Fatal("Error:", zap.String("Error", resp.Error()))
 	}
 
 	return nil
