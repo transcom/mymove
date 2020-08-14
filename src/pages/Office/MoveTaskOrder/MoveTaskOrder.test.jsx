@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import { MoveTaskOrder } from './moveTaskOrder';
+import { MoveTaskOrder } from 'pages/Office/MoveTaskOrder/MoveTaskOrder';
 
 describe('MoveTaskOrder', () => {
   const testId = 'test-id-123';
