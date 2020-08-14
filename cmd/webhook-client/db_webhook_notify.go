@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"errors"
-
 	"fmt"
 	"time"
 
@@ -13,54 +12,51 @@ import (
 	"go.uber.org/zap"
 
 	webhookOperations "github.com/transcom/mymove/pkg/gen/supportclient/webhook"
+	"github.com/transcom/mymove/pkg/models"
 )
 
-const (
-	// MessageFlag could be moved out to utils folder later
-	MessageFlag string = "message"
-)
-
-func initPostWebhookNotifyFlags(flag *pflag.FlagSet) {
-	flag.String(MessageFlag, "", "Message to send")
+func initDbWebhookNotifyFlags(flag *pflag.FlagSet) {
 
 	flag.SortFlags = false
 }
 
-func checkPostWebhookNotifyConfig(v *viper.Viper, args []string) error {
-
-	message := v.GetString(MessageFlag)
-	if len(message) == 0 {
-		return errors.New("missing message, expected to be set")
-	}
-
-	return nil
-}
-
-func postWebhookNotify(cmd *cobra.Command, args []string) error {
+func dbWebhookNotify(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 
-	errParseFlags := ParseFlags(cmd, v, args)
-	if errParseFlags != nil {
-		return errParseFlags
-	}
-
-	_, logger, err := InitRootConfig(v)
+	err := ParseFlags(cmd, v, args)
 	if err != nil {
-		logger.Fatal("Invalid configuration", zap.Error(err))
+		return err
 	}
 
-	// Check the config before talking to the CAC
-	err = checkPostWebhookNotifyConfig(v, args)
+	db, logger, err := InitRootConfig(v)
 	if err != nil {
-		logger.Fatal("Error:", zap.Error(err))
+		logger.Error("invalid configuration", zap.Error(err))
+		return err
 	}
 
-	message := v.GetString(MessageFlag)
+	// Read notifications
+	notifications := []models.WebhookNotification{}
+	err = db.All(&notifications)
+	if err != nil {
+		logger.Error("Error:", zap.Error(err))
+		return err
+	}
+	logger.Info("Success!", zap.Int("Num notifications found", len(notifications)))
+
+	// Construct msg to send
+	message := "There were no notifications."
+	if len(notifications) > 0 {
+		not := notifications[0]
+		message = fmt.Sprintf("There was a %s notification, id: %s, moveTaskOrderID: %s",
+			string(not.EventKey), not.ObjectID.String(), not.MoveTaskOrderID.String())
+	}
+
 	//#TODO: To remove dependency on gen/supportclient,
 	// replicate the functionality without using webhookOperations
 	newNotification := webhookOperations.PostWebhookNotifyBody{
 		Message: message,
 	}
+
 	//#TODO: To remove dependency on gen/supportclient,
 	// replicate the functionality without using webhookOperations
 	notifyParams := webhookOperations.NewPostWebhookNotifyParams()
@@ -69,30 +65,34 @@ func postWebhookNotify(cmd *cobra.Command, args []string) error {
 	notifyParams.SetTimeout(time.Second * 30)
 
 	// Create the client and open the cacStore
-
 	supportGateway, cacStore, errCreateClient := CreateClient(v)
 	if errCreateClient != nil {
 		return errCreateClient
 	}
+
 	// Defer closing the store until after the api call has completed
 	if cacStore != nil {
 		defer cacStore.Close()
 	}
+
 	// Make the API call
 	resp, err := supportGateway.Webhook.PostWebhookNotify(notifyParams)
 	if err != nil {
-		logger.Fatal("Error:", zap.Error(err))
+		return HandleGatewayError(err, logger)
 	}
 
 	payload := resp.GetPayload()
+
 	if payload != nil {
 		payload, errJSONMarshall := json.Marshal(payload)
 		if errJSONMarshall != nil {
-			logger.Fatal("Error", zap.Error(errJSONMarshall))
+			logger.Error("Error", zap.Error(errJSONMarshall))
+			return errJSONMarshall
 		}
-		fmt.Println("payload", string(payload))
+		logger.Info("Success!", zap.String("Payload", string(payload)))
 	} else {
-		logger.Fatal("Error:", zap.String("Error", resp.Error()))
+		logger.Error("Error:", zap.String("Error", resp.Error()))
+		return errors.New(resp.Error())
 	}
 
 	return nil
