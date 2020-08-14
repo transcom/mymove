@@ -2,12 +2,14 @@ import React from 'react';
 import { string, node, bool } from 'prop-types';
 import classnames from 'classnames';
 
+import styles from './index.module.scss';
+
 import Hint from 'shared/Hint';
 
 const Fieldset = ({ children, legend, className, legendSrOnly, legendClassName, hintText }) => {
   const classes = classnames('usa-fieldset', className);
 
-  const legendClasses = classnames(`usa-legend legend-container ${legendClassName}`, {
+  const legendClasses = classnames(`usa-legend ${styles['legend-container']} ${legendClassName}`, {
     'usa-sr-only': legendSrOnly,
   });
 

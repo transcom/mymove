@@ -10,14 +10,14 @@ import { DatePickerInput } from '../form/fields';
 import { AddressFields } from '../form/AddressFields/AddressFields';
 import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
 
+import styles from './EditShipment.module.scss';
+
 import { MTOAgentType } from 'shared/constants';
 import { formatSwaggerDate } from 'shared/formatters';
 import { validateDate } from 'utils/formikValidators';
 import Hint from 'shared/Hint';
 import Fieldset from 'shared/Fieldset';
 import Divider from 'shared/Divider';
-
-import './EditShipment.scss';
 
 const PickupAddressSchema = Yup.object().shape({
   mailingAddress1: Yup.string().required('Required'),
@@ -187,7 +187,7 @@ class EditShipment extends Component {
     const { hasDeliveryAddress, initialValues, useCurrentResidence } = this.state;
     return (
       <div className="grid-container">
-        <div className="margin-top-2 hhg-label">HHG</div>
+        <div className={`margin-top-2 ${styles['hhg-label']}`}>HHG</div>
         <h2 className="margin-top-1" style={{ fontSize: 28 }}>
           When and where will you move this shipment?
         </h2>
@@ -232,9 +232,7 @@ class EditShipment extends Component {
                 )}
                 values={values.pickupLocation}
               />
-              <div className="usa-hint">
-                If you have more things at another pickup location, you can schedule for them later.
-              </div>
+              <Hint>If you have more things at another pickup location, you can schedule for them later.</Hint>
               <hr className="margin-top-4 margin-bottom-4" />
               <ContactInfoFields
                 className="margin-bottom-5"
@@ -292,10 +290,10 @@ class EditShipment extends Component {
               />
               <Divider className="margin-top-4 margin-bottom-4" />
               <Fieldset hintText="Optional" legend="Remarks">
-                <div className="small-bold margin-top-3 margin-bottom-1">
+                <div className={`${styles['small-bold']} margin-top-3 margin-bottom-1`}>
                   Is there anything special about this shipment that the movers should know?
                 </div>
-                <div className="hhg-examples-container">
+                <div className={`${styles['hhg-examples-container']}`}>
                   <strong>Examples</strong>
                   <ul>
                     <li>Things that might need special handling</li>
@@ -308,10 +306,9 @@ class EditShipment extends Component {
                   label="Anything else you would like us to know?"
                   data-testid="remarks"
                   name="remarks"
-                  id="remarks"
+                  className={`${styles.remarks}`}
                   placeholder="This is 500 characters of customer remarks placeholder"
                   maxLength={500}
-                  style={{ resize: 'vertical' }}
                   type="textarea"
                   value={values.remarks}
                 />
@@ -326,7 +323,7 @@ class EditShipment extends Component {
                 <Button>
                   <span>Save</span>
                 </Button>
-                <Button className="cancel-button">
+                <Button className={`${styles['cancel-button']}`}>
                   <span>Cancel</span>
                 </Button>
               </div>

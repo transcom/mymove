@@ -1,0 +1,10 @@
+@import 'shared/styles/_variables';
+@import 'shared/styles/colors';
+
+@media (max-width: $mobile) {
+  .usa-hint {
+    font-size: 13px;
+    font-weight: normal;
+    color: $base;
+  }
+}
