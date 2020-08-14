@@ -17,7 +17,7 @@ func (m MTOAvailableToPrimeAtLookup) lookup(keyData *ServiceItemParamKeyData) (s
 
 	// Get the MoveTaskOrder
 	moveTaskOrderID := keyData.MoveTaskOrderID
-	var moveTaskOrder models.MoveTaskOrder
+	var moveTaskOrder models.Move
 	err := db.Find(&moveTaskOrder, moveTaskOrderID)
 	if err != nil {
 		switch err {

@@ -29,15 +29,15 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	var verrs *validate.Errors
 	var err error
 
-	var moveTaskOrder models.MoveTaskOrder
-	moveTaskOrderID := serviceItem.MoveTaskOrderID
+	var move models.Move
+	moveID := serviceItem.MoveTaskOrderID
 	queryFilters := []services.QueryFilter{
-		query.NewQueryFilter("id", "=", moveTaskOrderID),
+		query.NewQueryFilter("id", "=", moveID),
 	}
-	// check if MTO exists
-	err = o.builder.FetchOne(&moveTaskOrder, queryFilters)
+	// check if Move exists
+	err = o.builder.FetchOne(&move, queryFilters)
 	if err != nil {
-		return nil, nil, services.NewNotFoundError(moveTaskOrderID, "in MoveTaskOrders")
+		return nil, nil, services.NewNotFoundError(moveID, "in Moves")
 	}
 
 	// find the re service code id
@@ -79,12 +79,12 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	mtoShipmentID = *serviceItem.MTOShipmentID
 	queryFilters = []services.QueryFilter{
 		query.NewQueryFilter("id", "=", mtoShipmentID),
-		query.NewQueryFilter("move_task_order_id", "=", moveTaskOrderID),
+		query.NewQueryFilter("move_id", "=", moveID),
 	}
 	err = o.builder.FetchOne(&mtoShipment, queryFilters)
 	if err != nil {
 		return nil, nil, services.NewNotFoundError(mtoShipmentID,
-			fmt.Sprintf("for mtoShipment with moveTaskOrderID: %s", moveTaskOrderID.String()))
+			fmt.Sprintf("for mtoShipment with moveID: %s", moveID.String()))
 	}
 
 	if serviceItem.ReService.Code == models.ReServiceCodeDOSHUT || serviceItem.ReService.Code == models.ReServiceCodeDDSHUT {

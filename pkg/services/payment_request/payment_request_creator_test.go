@@ -136,7 +136,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		suite.FatalNoError(err)
 
 		expectedSequenceNumber := 1
-		expectedPaymentRequestNumber := fmt.Sprintf("%s-%d", moveTaskOrder.ReferenceID, expectedSequenceNumber)
+		expectedPaymentRequestNumber := fmt.Sprintf("%s-%d", *moveTaskOrder.ReferenceID, expectedSequenceNumber)
 		// Verify some of the data that came back
 		suite.Equal(expectedPaymentRequestNumber, paymentRequestReturn.PaymentRequestNumber)
 		suite.Equal(expectedSequenceNumber, paymentRequestReturn.SequenceNumber)
@@ -377,7 +377,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	suite.T().Run("Payment request numbers increment by 1", func(t *testing.T) {
 		// Determine the max sequence number we already have for this MTO ID
 		var max int
-		err := suite.DB().RawQuery("SELECT COALESCE(MAX(sequence_number),0) FROM payment_requests WHERE move_task_order_id = $1", moveTaskOrder.ID).First(&max)
+		err := suite.DB().RawQuery("SELECT COALESCE(MAX(sequence_number),0) FROM payment_requests WHERE move_id = $1", moveTaskOrder.ID).First(&max)
 		suite.FatalNoError(err)
 
 		// Create two new ones
@@ -421,12 +421,12 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 
 		// Verify expected payment request numbers
 		expectedSequenceNumber1 := max + 1
-		expectedPaymentRequestNumber1 := fmt.Sprintf("%s-%d", moveTaskOrder.ReferenceID, expectedSequenceNumber1)
+		expectedPaymentRequestNumber1 := fmt.Sprintf("%s-%d", *moveTaskOrder.ReferenceID, expectedSequenceNumber1)
 		suite.Equal(expectedPaymentRequestNumber1, paymentRequest1.PaymentRequestNumber)
 		suite.Equal(expectedSequenceNumber1, paymentRequest1.SequenceNumber)
 
 		expectedSequenceNumber2 := max + 2
-		expectedPaymentRequestNumber2 := fmt.Sprintf("%s-%d", moveTaskOrder.ReferenceID, expectedSequenceNumber2)
+		expectedPaymentRequestNumber2 := fmt.Sprintf("%s-%d", *moveTaskOrder.ReferenceID, expectedSequenceNumber2)
 		suite.Equal(expectedPaymentRequestNumber2, paymentRequest2.PaymentRequestNumber)
 		suite.Equal(expectedSequenceNumber2, paymentRequest2.SequenceNumber)
 	})

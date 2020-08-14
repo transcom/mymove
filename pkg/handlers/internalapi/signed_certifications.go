@@ -3,6 +3,8 @@ package internalapi
 import (
 	"time"
 
+	"go.uber.org/zap"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 
@@ -77,6 +79,18 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 	signedCertificationPayload := payloadForSignedCertificationModel(*newSignedCertification)
+	stringCertType := ""
+	if signedCertificationPayload.CertificationType != nil {
+		stringCertType = string(*signedCertificationPayload.CertificationType)
+	}
+
+	logger.Info("signedCertification created",
+		zap.String("id", signedCertificationPayload.ID.String()),
+		zap.String("moveId", signedCertificationPayload.MoveID.String()),
+		zap.String("createdAt", signedCertificationPayload.CreatedAt.String()),
+		zap.String("certification_type", stringCertType),
+		zap.String("certification_text", *signedCertificationPayload.CertificationText),
+	)
 
 	return certop.NewCreateSignedCertificationCreated().WithPayload(signedCertificationPayload)
 }

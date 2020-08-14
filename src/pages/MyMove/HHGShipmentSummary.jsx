@@ -14,12 +14,12 @@ export default function HHGShipmentSummary(props) {
   const { mtoShipment } = props;
 
   const requestedPickupDate = get(mtoShipment, 'requestedPickupDate', '');
-  const pickupLocation = get(mtoShipment, 'pickupAddress', '');
+  const pickupLocation = get(mtoShipment, 'pickupAddress', {});
   const agents = get(mtoShipment, 'agents', {});
   const releasingAgent = Object.values(agents).find((agent) => agent.agentType === MTOAgentType.RELEASING);
 
   const requestedDeliveryDate = get(mtoShipment, 'requestedDeliveryDate', '');
-  const dropoffLocation = get(mtoShipment, 'destinationAddress', '');
+  const dropoffLocation = get(mtoShipment, 'destinationAddress', {});
   const receivingAgent = Object.values(agents).find((agent) => agent.agentType === MTOAgentType.RECEIVING);
   const remarks = get(mtoShipment, 'customerRemarks', '');
 

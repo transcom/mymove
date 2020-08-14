@@ -16,9 +16,11 @@ import (
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
-const defaultDistance = 1234
+const defaultZip3Distance = 1234
+const defaultZip5Distance = 48
 
 type ServiceParamValueLookupsSuite struct {
 	testingsuite.PopTestSuite
@@ -35,15 +37,15 @@ func TestServiceParamValueLookupsSuite(t *testing.T) {
 	planner.On("Zip5TransitDistanceLineHaul",
 		mock.Anything,
 		mock.Anything,
-	).Return(defaultDistance, nil)
+	).Return(defaultZip5Distance, nil)
 	planner.On("Zip3TransitDistance",
 		mock.Anything,
 		mock.Anything,
-	).Return(defaultDistance, nil)
+	).Return(defaultZip3Distance, nil)
 	planner.On("Zip5TransitDistance",
 		"90210",
 		"94535",
-	).Return(defaultDistance, nil)
+	).Return(defaultZip5Distance, nil)
 
 	ts := &ServiceParamValueLookupsSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
@@ -53,6 +55,33 @@ func TestServiceParamValueLookupsSuite(t *testing.T) {
 
 	suite.Run(t, ts)
 	ts.PopTestSuite.TearDown()
+}
+
+func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithWeight(estimatedWeight unit.Pound, actualWeight unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
+	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
+		testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: code,
+				Name: string(code),
+			},
+			MTOShipment: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         shipmentType,
+			},
+		})
+
+	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
+		testdatagen.Assertions{
+			PaymentRequest: models.PaymentRequest{
+				MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
+			},
+		})
+
+	paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+	suite.FatalNoError(err)
+
+	return mtoServiceItem, paymentRequest, paramLookup
 }
 
 func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {

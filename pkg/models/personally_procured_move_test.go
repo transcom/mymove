@@ -59,6 +59,7 @@ func (suite *ModelSuite) TestPPMStateMachine() {
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	orders.Status = OrderStatusSUBMITTED // NEVER do this outside of a test.
 	suite.MustSave(&orders)
+	testdatagen.MakeDefaultContractor(suite.DB())
 
 	selectedMoveType := SelectedMoveTypeHHGPPM
 
