@@ -8,10 +8,14 @@ import ImportantShipmentDates from '../../components/Office/ImportantShipmentDat
 import RequestedServiceItemsTable from '../../components/Office/RequestedServiceItemsTable';
 import { getMTOShipments, selectMTOShipmentsByMTOId } from '../../shared/Entities/modules/mtoShipments';
 import { getMTOServiceItems, selectMTOServiceItemsByMTOId } from '../../shared/Entities/modules/mtoServiceItems';
-import { getMoveTaskOrder } from '../../shared/Entities/modules/moveTaskOrders';
+import {
+  getMoveOrder,
+  getAllMoveTaskOrders,
+  selectMoveOrder,
+  selectMoveTaskOrders,
+} from '../../shared/Entities/modules/moveTaskOrders';
 
 import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
-import { selectMoveTaskOrder } from 'shared/Entities/modules/moveTaskOrders';
 
 function formatShipmentType(shipmentType) {
   if (shipmentType === 'HHG') {
@@ -31,18 +35,22 @@ function formatShipmentDate(shipmentDateString) {
 class MoveTaskOrder extends Component {
   componentDidMount() {
     // eslint-disable-next-line react/prop-types,react/destructuring-assignment
-    const { moveTaskOrderId } = this.props.match.params;
+    const { moveOrderId } = this.props.match.params;
 
     /* eslint-disable react/prop-types,react/destructuring-assignment */
-    this.props.getMoveTaskOrder(moveTaskOrderId);
-    this.props.getMTOShipments(moveTaskOrderId);
-    this.props.getMTOServiceItems(moveTaskOrderId);
+    this.props.getMoveOrder(moveOrderId);
+    this.props.getAllMoveTaskOrders(moveOrderId).then(({ response: { body: moveTaskOrder } }) => {
+      moveTaskOrder.forEach((item) => {
+        this.props.getMTOShipments(item.id);
+        this.props.getMTOServiceItems(item.id);
+      });
+    });
     /* eslint-enable react/prop-types,react/destructuring-assignment */
   }
 
   render() {
-    // eslint-disable-next-line react/prop-types
-    const { moveTaskOrder, mtoShipments, mtoServiceItems } = this.props;
+    // eslint-disable-next-line react/prop-types, no-unused-vars
+    const { moveOrder, moveTaskOrder, mtoShipments, mtoServiceItems } = this.props;
 
     return (
       <div style={{ display: 'flex' }}>
@@ -81,9 +89,9 @@ class MoveTaskOrder extends Component {
                   pickupAddress={pickupAddress}
                   destinationAddress={destinationAddress}
                   // eslint-disable-next-line react/prop-types
-                  originDutyStation={moveTaskOrder.originDutyStation}
+                  originDutyStation={moveOrder?.originDutyStation?.address}
                   // eslint-disable-next-line react/prop-types
-                  destinationDutyStation={moveTaskOrder.destinationDutyStation}
+                  destinationDutyStation={moveOrder?.destinationDutyStation?.address}
                 />
                 <RequestedServiceItemsTable serviceItems={mtoServiceItems} />
               </ShipmentContainer>
@@ -96,7 +104,11 @@ class MoveTaskOrder extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
-  const { moveTaskOrderId } = ownProps.match.params;
+  const { moveOrderId } = ownProps.match.params;
+  const moveOrder = selectMoveOrder(state, moveOrderId);
+  const moveTaskOrders = selectMoveTaskOrders(state, moveOrderId);
+  const moveTaskOrder = moveTaskOrders[0];
+  const moveTaskOrderId = moveTaskOrder?.id;
   const mtoServiceItems = selectMTOServiceItemsByMTOId(state, moveTaskOrderId).map((item) => {
     const detailText = { ZIP: item.pickupPostalCode, Reason: item.reason };
     /* eslint-disable no-param-reassign */
@@ -107,14 +119,16 @@ const mapStateToProps = (state, ownProps) => {
   });
 
   return {
-    moveTaskOrder: selectMoveTaskOrder(state, moveTaskOrderId),
+    moveOrder,
+    moveTaskOrder,
     mtoShipments: selectMTOShipmentsByMTOId(state, moveTaskOrderId),
     mtoServiceItems,
   };
 };
 
 const mapDispatchToProps = {
-  getMoveTaskOrder,
+  getMoveOrder,
+  getAllMoveTaskOrders,
   getMTOShipments,
   getMTOServiceItems,
 };

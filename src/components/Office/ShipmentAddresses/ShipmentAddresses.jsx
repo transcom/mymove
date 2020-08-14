@@ -8,7 +8,7 @@ import DataPoint from '../../DataPoint/index';
 
 import { ReactComponent as ArrowRight } from 'shared/icon/arrow-right.svg';
 
-const ShipmentAddresses = ({ pickupAddress, destinationAddresss, originDutyStation, destinationDutyStation }) => {
+const ShipmentAddresses = ({ pickupAddress, destinationAddress, originDutyStation, destinationDutyStation }) => {
   return (
     <DataPointGroup>
       <DataPoint
@@ -18,7 +18,7 @@ const ShipmentAddresses = ({ pickupAddress, destinationAddresss, originDutyStati
       />
       <DataPoint
         columnHeaders={["Customer's addresses", '']}
-        dataRow={[formatAddress(pickupAddress), formatAddress(destinationAddresss)]}
+        dataRow={[formatAddress(pickupAddress), formatAddress(destinationAddress)]}
         Icon={ArrowRight}
       />
     </DataPointGroup>
@@ -27,14 +27,14 @@ const ShipmentAddresses = ({ pickupAddress, destinationAddresss, originDutyStati
 
 ShipmentAddresses.propTypes = {
   pickupAddress: AddressShape,
-  destinationAddresss: AddressShape,
+  destinationAddress: AddressShape,
   originDutyStation: DutyStationShape,
   destinationDutyStation: DutyStationShape,
 };
 
 ShipmentAddresses.defaultProps = {
   pickupAddress: {},
-  destinationAddresss: {},
+  destinationAddress: {},
   originDutyStation: {},
   destinationDutyStation: {},
 };

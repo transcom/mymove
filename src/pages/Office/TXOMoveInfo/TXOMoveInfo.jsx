@@ -62,7 +62,7 @@ const TXOMoveInfo = () => {
           </Route>
 
           {/* TODO - the nav to this url is passing moveOrderId instead of moveTaskOrderId */}
-          <Route path="/moves/:moveTaskOrderId/mto" exact>
+          <Route path="/moves/:moveOrderId/mto" exact>
             <TOOMoveTaskOrder />
           </Route>
 
