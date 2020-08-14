@@ -3,7 +3,7 @@ import { string, shape, func } from 'prop-types';
 import { isEmpty } from 'lodash';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
-import { Fieldset, Radio, Label, Textarea, Button } from '@trussworks/react-uswds';
+import { Fieldset, Radio, Label, Textarea, Button, Checkbox } from '@trussworks/react-uswds';
 
 import { Form } from '../form/Form';
 import { DatePickerInput } from '../form/fields';
@@ -12,7 +12,6 @@ import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
 
 import { MTOAgentType } from 'shared/constants';
 import { formatSwaggerDate } from 'shared/formatters';
-import Checkbox from 'shared/Checkbox';
 import { validateDate } from 'utils/formikValidators';
 
 import './EditShipment.scss';
@@ -208,13 +207,10 @@ class EditShipment extends Component {
   };
 
   render() {
-    const { newDutyStationAddress } = this.props;
     const { hasDeliveryAddress, initialValues, useCurrentResidence } = this.state;
     return (
       <div className="grid-container">
-        <div className="margin-top" style={{ backgroundColor: '#aacdec', width: 51, textAlign: 'center' }}>
-          HHG
-        </div>
+        <div className="margin-top-2 hhg-label">HHG</div>
         <h2 className="margin-top-1" style={{ fontSize: 28 }}>
           When and where will you move this shipment?
         </h2>
@@ -238,20 +234,20 @@ class EditShipment extends Component {
                   validate={validateDate}
                 />
               </Fieldset>
-              <Hint className="margin-top-1 margin-bottom-4" id="pickupDateHint">
+              <Hint className="margin-top-1" id="pickupDateHint">
                 Movers will contact you to schedule the actual pickup date. That date should fall within 7 days of your
                 requested date. Tip: Avoid scheduling multiple shipments on the same day.{' '}
               </Hint>
-              <Divider className="margin-bottom-4" />
+              <Divider className="margin-top-4 margin-bottom-4" />
               <AddressFields
                 className="margin-bottom-3 fieldset-legend"
                 name="pickupLocation"
                 legend="Pickup location"
                 renderExistingAddressCheckbox={() => (
                   <Checkbox
+                    className="margin-top-3"
                     data-testid="useCurrentResidence"
                     label="Use my current residence address"
-                    className="margin-top-3"
                     name="useCurrentResidence"
                     checked={useCurrentResidence}
                     onChange={() => this.handleUseCurrentResidenceChange(values)}
@@ -289,6 +285,7 @@ class EditShipment extends Component {
                 <Label className="margin-top-3 margin-bottom-1">Do you know your delivery address?</Label>
                 <div className="display-flex margin-top-1">
                   <Radio
+                    className="margin-right-3"
                     id="has-delivery-address"
                     label="Yes"
                     name="hasDeliveryAddress"
@@ -303,16 +300,7 @@ class EditShipment extends Component {
                     onChange={this.handleChangeHasDeliveryAddress}
                   />
                 </div>
-                {hasDeliveryAddress ? (
-                  <AddressFields name="deliveryLocation" values={values.deliveryLocation} />
-                ) : (
-                  <>
-                    <div>We can use the zip of your new duty station.</div>
-                    <div>
-                      {newDutyStationAddress.city}, {newDutyStationAddress.state} {newDutyStationAddress.postal_code}
-                    </div>
-                  </>
-                )}
+                {hasDeliveryAddress && <AddressFields name="deliveryLocation" values={values.deliveryLocation} />}
               </Fieldset>
               <Divider className="margin-top-4 margin-bottom-4" />
               <ContactInfoFields
@@ -324,21 +312,12 @@ class EditShipment extends Component {
               />
               <Divider className="margin-top-4 margin-bottom-4" />
               <Fieldset legend="Remarks" className="fieldset-legend">
-                <div className="margin-top-3 margin-bottom-1" style={{ fontSize: 13 }}>
-                  <strong>Is there anything special about this shipment that the movers should know?</strong>
+                <div className="small-bold margin-top-3 margin-bottom-1">
+                  Is there anything special about this shipment that the movers should know?
                 </div>
-                <div
-                  className="shadow-0"
-                  style={{
-                    padding: 15,
-                    borderRadius: 4,
-                    border: '1px solid black',
-                    backgroundColor: '#f9f9f9',
-                    fontSize: 13,
-                  }}
-                >
+                <div className="hhg-examples-container">
                   <strong>Examples</strong>
-                  <ul style={{ padding: 0, listStylePosition: 'inside', margin: 0 }}>
+                  <ul>
                     <li>Things that might need special handling</li>
                     <li>Access info for a location</li>
                     <li>Weapons or alcohol</li>
@@ -359,7 +338,7 @@ class EditShipment extends Component {
                 />
               </Fieldset>
               <Divider className="margin-top-6 margin-bottom-3" />
-              <Hint>
+              <Hint className="margin-bottom-2">
                 You can change details for your HHG shipment when you talk to your move counselor or the person
                 who&apos;s your point of contact with the movers. You can also edit in MilMove up to 24 hours before
                 your final pickup date.
@@ -385,21 +364,8 @@ EditShipment.propTypes = {
     state: string,
     postal_code: string,
   }).isRequired,
-  newDutyStationAddress: shape({
-    city: string,
-    state: string,
-    postal_code: string,
-  }),
   moveTaskOrderID: string.isRequired,
   createMTOShipment: func.isRequired,
-};
-
-EditShipment.defaultProps = {
-  newDutyStationAddress: {
-    city: '',
-    state: '',
-    postal_code: '',
-  },
 };
 
 export default EditShipment;
