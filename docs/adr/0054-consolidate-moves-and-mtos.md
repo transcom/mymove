@@ -61,7 +61,8 @@ merge. See [Slack discussion](https://ustcdp3.slack.com/archives/CP6PTUPQF/p1595
 * `cancel_reason`: A string to explain why a move was canceled.
 
 * `show`: A boolean that allows admin users to prevent a move from showing up
-anywhere in the app. This came out of a HackerOne engagement where hundreds of fake moves were created.
+in the TxO queue. This came out of a HackerOne engagement where hundreds of fake
+moves were created. This defaults to `true`.
 
 * `contractor_id`: This was added to represent the prime contractor who will
 handle the move. This makes it easy to point the move to a different contractor in case it changes.
@@ -81,6 +82,9 @@ keeping it for now.
 for payment request numbers) in `dddd-dddd` format. There is still an ongoing
 discussion as to whether or not we need this `reference_id` in addition to the
 unique `locator` identifier, so we are keeping `reference_id` for now.
+
+There will be future work to reconcile the `ppm_type` and `ppm_estimated_weight`
+fields when we reenter conversations with the prime.
 
 ### Fields that we are not moving from move_task_orders to moves
 
