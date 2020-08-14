@@ -23,7 +23,7 @@ const Fieldset = ({ children, legend, className, legendSrOnly, legendClassName, 
 };
 
 Fieldset.propTypes = {
-  children: React.Children.isRequired,
+  children: node,
   className: string,
   legendClassName: string,
   legendSrOnly: bool,

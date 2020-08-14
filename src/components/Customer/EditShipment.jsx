@@ -200,7 +200,7 @@ class EditShipment extends Component {
         >
           {({ values }) => (
             <Form>
-              <Fieldset legend="Pickup date" className="fieldset-legend margin-top-4">
+              <Fieldset legend="Pickup date" className="margin-top-4">
                 <Field
                   as={DatePickerInput}
                   name="requestedPickupDate"
@@ -217,7 +217,7 @@ class EditShipment extends Component {
               </Hint>
               <Divider className="margin-top-4 margin-bottom-4" />
               <AddressFields
-                className="margin-bottom-3 fieldset-legend"
+                className="margin-bottom-3"
                 name="pickupLocation"
                 legend="Pickup location"
                 renderExistingAddressCheckbox={() => (
@@ -237,7 +237,7 @@ class EditShipment extends Component {
               </div>
               <hr className="margin-top-4 margin-bottom-4" />
               <ContactInfoFields
-                className="fieldset-legend margin-bottom-5"
+                className="margin-bottom-5"
                 name="releasingAgent"
                 legend="Releasing agent"
                 hintText="Optional"
@@ -246,7 +246,7 @@ class EditShipment extends Component {
                 values={values.releasingAgent}
               />
               <Divider className="margin-bottom-6" />
-              <Fieldset legend="Delivery date" className="fieldset-legend">
+              <Fieldset legend="Delivery date">
                 <DatePickerInput
                   name="requestedDeliveryDate"
                   label="Requested delivery date"
@@ -260,7 +260,7 @@ class EditShipment extends Component {
                 </Hint>
               </Fieldset>
               <Divider className="margin-top-4 margin-bottom-4" />
-              <Fieldset legend="Delivery location" className="fieldset-legend">
+              <Fieldset legend="Delivery location">
                 <Label className="margin-top-3 margin-bottom-1">Do you know your delivery address?</Label>
                 <div className="display-flex margin-top-1">
                   <Radio
@@ -283,7 +283,6 @@ class EditShipment extends Component {
               </Fieldset>
               <Divider className="margin-top-4 margin-bottom-4" />
               <ContactInfoFields
-                className="fieldset-legend"
                 name="receivingAgent"
                 legend="Receiving agent"
                 hintText="Optional"
@@ -292,7 +291,7 @@ class EditShipment extends Component {
                 values={values.receivingAgent}
               />
               <Divider className="margin-top-4 margin-bottom-4" />
-              <Fieldset hintText="Optional" legend="Remarks" className="fieldset-legend">
+              <Fieldset hintText="Optional" legend="Remarks">
                 <div className="small-bold margin-top-3 margin-bottom-1">
                   Is there anything special about this shipment that the movers should know?
                 </div>
