@@ -8,6 +8,8 @@ import ImportantShipmentDates from 'components/Office/ImportantShipmentDates';
 import RequestedServiceItemsTable from 'components/Office/RequestedServiceItemsTable';
 import { useMoveTaskOrderQueries } from 'hooks/queries';
 import { MatchShape } from 'types/router';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
 
 function formatShipmentType(shipmentType) {
   if (shipmentType === 'HHG') {
@@ -27,23 +29,26 @@ function formatShipmentDate(shipmentDateString) {
 export const MoveTaskOrder = ({ match }) => {
   const { moveOrderId } = match.params;
 
-  // TODO - Do something with isLoading and isError?
-  const { mtoShipments, mtoServiceItems } = useMoveTaskOrderQueries(moveOrderId);
+  // TODO - Do something with moveOrder and moveTaskOrder?
+  const { mtoShipments, mtoServiceItems, isLoading, isError } = useMoveTaskOrderQueries(moveOrderId);
+
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong />;
 
   const serviceItems = map(mtoServiceItems, (item) => {
-    const detailText = { ZIP: item.pickupPostalCode, Reason: item.reason };
-    /* eslint-disable no-param-reassign */
-    item.serviceItem = item.reServiceName;
-    item.details = { text: detailText, imgURL: '' };
-    /* eslint-enable no-param-reassign */
-    return item;
+    const newItem = { ...item };
+    newItem.serviceItem = item.reServiceName;
+    newItem.details = { text: { ZIP: item.pickupPostalCode, Reason: item.reason }, imgURL: '' };
+
+    return newItem;
   });
 
   return (
     <div style={{ display: 'flex' }}>
       <div className="" style={{ width: '85%' }} data-testid="too-shipment-container">
-        {/* eslint-disable-next-line react/prop-types */}
         {map(mtoShipments, (mtoShipment) => {
+          const serviceItemsForShipment = serviceItems.filter((item) => item.mtoShipmentID === mtoShipment.id);
+
           return (
             <ShipmentContainer>
               <ShipmentHeading
@@ -63,7 +68,7 @@ export const MoveTaskOrder = ({ match }) => {
                 requestedPickupDate={formatShipmentDate(mtoShipment.requestedPickupDate)}
                 scheduledPickupDate={formatShipmentDate(mtoShipment.scheduledPickupDate)}
               />
-              <RequestedServiceItemsTable serviceItems={serviceItems} />
+              <RequestedServiceItemsTable serviceItems={serviceItemsForShipment} />
             </ShipmentContainer>
           );
         })}
