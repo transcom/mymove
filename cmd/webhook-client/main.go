@@ -25,9 +25,11 @@ const (
 	PortFlag string = "port"
 	// InsecureFlag indicates that TLS verification and validation can be skipped
 	InsecureFlag string = "insecure"
+	// MessageFlag is the string to send in the payload
+	MessageFlag string = "message"
 )
 
-// initRootFlags initializes flags relating to the notification api
+// initRootFlags initializes flags relating to the webhook client
 func initRootFlags(flag *pflag.FlagSet) {
 	cli.InitCACFlags(flag)
 	cli.InitVerboseFlags(flag)
@@ -37,6 +39,7 @@ func initRootFlags(flag *pflag.FlagSet) {
 	flag.String(HostnameFlag, cli.HTTPPrimeServerNameLocal, "The hostname to connect to")
 	flag.Int(PortFlag, cli.MutualTLSPort, "The port to connect to")
 	flag.Bool(InsecureFlag, false, "Skip TLS verification and validation")
+	flag.String(MessageFlag, "Hello World", "Message for the client to send")
 }
 
 // Debug prints helpful debugging information for requests
