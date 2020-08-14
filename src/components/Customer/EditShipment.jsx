@@ -82,7 +82,7 @@ class EditShipment extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      hasDeliveryAddress: true,
+      hasDeliveryAddress: false,
       initialValues: {},
     };
   }
