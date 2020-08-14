@@ -2701,8 +2701,10 @@ definitions:
         $ref: '#/definitions/Address'
       destinationAddress:
         $ref: '#/definitions/Address'
+        x-nullable: true
       agents:
         $ref: '#/definitions/MTOAgents'
+        x-nullable: true
   ClientError:
     type: object
     properties:
