@@ -42,6 +42,8 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	}
 
 	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
+	// TODO: remove this status change once MB-3428 is implemented and can update to Submitted on second page
+	mtoShipment.Status = models.MTOShipmentStatusSubmitted
 	serviceItemsList := make(models.MTOServiceItems, 0)
 	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(mtoShipment, serviceItemsList)
 
@@ -88,8 +90,6 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 		return mtoshipmentops.NewUpdateMTOShipmentForbidden()
 	}
 
-	mtoShipmentID := params.MtoShipmentID
-
 	payload := params.Body
 	if payload == nil {
 		logger.Error("Invalid mto shipment: params Body is nil")
@@ -98,7 +98,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 	}
 
 	mtoShipment := payloads.MTOShipmentModelFromUpdate(payload)
-	mtoShipment.ID = uuid.FromStringOrNil(mtoShipmentID.String())
+	mtoShipment.ID = uuid.FromStringOrNil(params.MtoShipmentID.String())
 
 	status := mtoShipment.Status
 	if status != "" && status != models.MTOShipmentStatusDraft && status != models.MTOShipmentStatusSubmitted {

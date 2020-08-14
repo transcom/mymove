@@ -6556,6 +6556,7 @@ func init() {
       "type": "object",
       "properties": {
         "agents": {
+          "x-nullable": true,
           "$ref": "#/definitions/MTOAgents"
         },
         "customerRemarks": {
@@ -6564,6 +6565,7 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "pickupAddress": {
@@ -13355,6 +13357,7 @@ func init() {
       "type": "object",
       "properties": {
         "agents": {
+          "x-nullable": true,
           "$ref": "#/definitions/MTOAgents"
         },
         "customerRemarks": {
@@ -13363,6 +13366,7 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "pickupAddress": {
