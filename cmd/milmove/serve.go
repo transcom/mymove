@@ -618,9 +618,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		handlers.FeatureFlag{Name: cli.FeatureFlagAccessCode, Active: v.GetBool(cli.FeatureFlagAccessCode)},
 	)
 	handlerContext.SetFeatureFlag(
-		handlers.FeatureFlag{Name: cli.FeatureFlagConvertPPMsToGHC, Active: v.GetBool(cli.FeatureFlagConvertPPMsToGHC)},
-	)
-	handlerContext.SetFeatureFlag(
 		handlers.FeatureFlag{Name: cli.FeatureFlagConvertProfileOrdersToGHC, Active: v.GetBool(cli.FeatureFlagConvertProfileOrdersToGHC)},
 	)
 

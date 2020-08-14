@@ -89,16 +89,17 @@ func EntitlementModel(entitlementPayload *supportmessages.Entitlement) *models.E
 
 // MoveTaskOrderModel return an MTO model constructed from the payload.
 // Does not create nested mtoServiceItems, mtoShipments, or paymentRequests
-func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.MoveTaskOrder {
+func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.Move {
 	if mtoPayload == nil {
 		return nil
 	}
 	ppmEstimatedWeight := unit.Pound(mtoPayload.PpmEstimatedWeight)
-	model := &models.MoveTaskOrder{
-		ReferenceID:        mtoPayload.ReferenceID,
+	contractorID := uuid.FromStringOrNil(mtoPayload.ContractorID.String())
+	model := &models.Move{
+		ReferenceID:        &mtoPayload.ReferenceID,
 		PPMEstimatedWeight: &ppmEstimatedWeight,
 		PPMType:            &mtoPayload.PpmType,
-		ContractorID:       uuid.FromStringOrNil(mtoPayload.ContractorID.String()),
+		ContractorID:       &contractorID,
 	}
 
 	if mtoPayload.AvailableToPrimeAt != nil {
@@ -106,8 +107,8 @@ func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.MoveT
 		model.AvailableToPrimeAt = &availableToPrimeAt
 	}
 
-	if mtoPayload.IsCanceled != nil {
-		model.IsCanceled = *mtoPayload.IsCanceled
+	if mtoPayload.IsCanceled != nil && *mtoPayload.IsCanceled == true {
+		model.Status = models.MoveStatusCANCELED
 	}
 
 	return model
