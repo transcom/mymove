@@ -1,0 +1,37 @@
+@import 'shared/styles/_variables';
+
+@media (max-width: $mobile) {
+  .fieldset-legend > legend {
+    font-size: 21px;
+  }
+
+  .usa-hint {
+    font-size: 13px;
+  }
+
+  #remarks {
+    height: 100px;
+  }
+
+  .usa-button {
+    background-color: #0050d8;
+    padding-left: 1.6rem;
+    padding-right: 1.6rem;
+    padding-bottom: 0.8rem;
+    padding-top: 0.8rem;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .usa-button--unstyled {
+    background-color: transparent;
+    color: #0050d8;
+    text-decoration: none;
+    margin: 0;
+    padding-bottom: 0;
+    padding-top: 0;
+    height: auto;
+  }
+}
