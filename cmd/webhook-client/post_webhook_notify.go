@@ -79,23 +79,28 @@ func postWebhookNotify(cmd *cobra.Command, args []string) error {
 	}
 
 	// Create the client and open the cacStore
-	client, cacStore, errCreateClient := CreateClient(v)
-	if errCreateClient != nil {
-		return errCreateClient
-	}
-	// Defer closing the store until after the api call has completed
-	if cacStore != nil {
-		defer cacStore.Close()
-	}
-	runtime := WebhookRuntime{
-		client:      client,
-		Host:        "https://primelocal:9443",
-		BasePath:    "/support/v1/webhook-notify",
-		Debug:       true,
-		Logger:      logger,
-		ContentType: "application/json; charset=utf-8",
-	}
+	// client, cacStore, errCreateClient := CreateClient(v)
+	// if errCreateClient != nil {
+	// 	return errCreateClient
+	// }
+	// // Defer closing the store until after the api call has completed
+	// if cacStore != nil {
+	// 	defer cacStore.Close()
+	// }
+	// runtime := WebhookRuntime{
+	// 	client:      client,
+	// 	Host:        "https://primelocal:9443",
+	// 	BasePath:    "/support/v1/webhook-notify",
+	// 	Debug:       true,
+	// 	Logger:      logger,
+	// 	ContentType: "application/json; charset=utf-8",
+	// }
 
+	runtime, err := CreateClient(v)
+
+	if err != nil {
+		logger.Fatal(err.Error())
+	}
 	// Make the API call
 
 	runtime.Post(json)
