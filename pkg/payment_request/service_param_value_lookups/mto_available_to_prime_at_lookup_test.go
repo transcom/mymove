@@ -20,7 +20,7 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOAvailableToPrimeLookup() {
 	availableToPrimeAt := time.Date(testdatagen.TestYear, time.June, 3, 12, 57, 33, 123, time.UTC)
 	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
 		testdatagen.Assertions{
-			MoveTaskOrder: models.MoveTaskOrder{
+			MoveTaskOrder: models.Move{
 				AvailableToPrimeAt: &availableToPrimeAt,
 			},
 		})

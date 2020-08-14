@@ -68,7 +68,7 @@ describe('formatters', () => {
 
   describe('formatDateFromIso', () => {
     it('should be formatted as expected', () => {
-      expect(formatters.formatDateFromIso('1999-11-11T12:01:02.123Z', 'DD MMM YYYY')).toBe('11 Nov 1999');
+      expect(formatters.formatDateFromIso('2020-08-11T21:00:59.126987Z', 'DD MMM YYYY')).toBe('11 Aug 2020');
     });
   });
 

@@ -29,10 +29,10 @@ func NewMoveTaskOrderUpdater(db *pop.Connection, builder UpdateMoveTaskOrderQuer
 
 //MakeAvailableToPrime updates the status of a MoveTaskOrder for a given UUID to make it available to prime
 func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eTag string,
-	mtoApprovalServiceItems *[]models.ReServiceCode) (*models.MoveTaskOrder, error) {
+	mtoApprovalServiceItems *[]models.ReServiceCode) (*models.Move, error) {
 	mto, err := o.FetchMoveTaskOrder(moveTaskOrderID)
 	if err != nil {
-		return &models.MoveTaskOrder{}, err
+		return &models.Move{}, err
 	}
 
 	if mto.AvailableToPrimeAt == nil {
@@ -42,14 +42,14 @@ func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eT
 
 	verrs, err := o.builder.UpdateOne(mto, &eTag)
 	if verrs != nil && verrs.HasAny() {
-		return &models.MoveTaskOrder{}, services.InvalidInputError{}
+		return &models.Move{}, services.InvalidInputError{}
 	}
 	if err != nil {
 		switch err.(type) {
 		case query.StaleIdentifierError:
 			return nil, services.NewPreconditionFailedError(mto.ID, err)
 		default:
-			return &models.MoveTaskOrder{}, err
+			return &models.Move{}, err
 		}
 	}
 
@@ -65,10 +65,10 @@ func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eT
 				Status:          models.MTOServiceItemStatusApproved,
 			})
 			if err != nil {
-				return &models.MoveTaskOrder{}, err
+				return &models.Move{}, err
 			}
 			if verrs != nil {
-				return &models.MoveTaskOrder{}, verrs
+				return &models.Move{}, verrs
 			}
 		}
 	}
@@ -82,8 +82,8 @@ type UpdateMoveTaskOrderQueryBuilder interface {
 	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
 }
 
-func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(moveTaskOrderID uuid.UUID, body movetaskorderops.UpdateMTOPostCounselingInformationBody, eTag string) (*models.MoveTaskOrder, error) {
-	var moveTaskOrder models.MoveTaskOrder
+func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(moveTaskOrderID uuid.UUID, body movetaskorderops.UpdateMTOPostCounselingInformationBody, eTag string) (*models.Move, error) {
+	var moveTaskOrder models.Move
 
 	queryFilters := []services.QueryFilter{
 		query.NewQueryFilter("id", "=", moveTaskOrderID),

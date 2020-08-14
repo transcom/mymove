@@ -188,7 +188,7 @@ export function formatDate(date, inputFormat, outputFormat = 'DD-MMM-YY', locale
 }
 
 export function formatDateFromIso(date, outputFormat) {
-  return formatDate(date, 'YYYY-MM-DDTHH:mm:ss.sssZ', outputFormat);
+  return formatDate(date, 'YYYY-MM-DDTHH:mm:ss.SSSZ', outputFormat);
 }
 
 export function formatDate4DigitYear(date) {
