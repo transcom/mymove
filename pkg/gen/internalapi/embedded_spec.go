@@ -4867,6 +4867,9 @@ func init() {
           "type": "string",
           "example": "12432"
         },
+        "mto_shipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
         "orders_id": {
           "type": "string",
           "format": "uuid",
@@ -11532,6 +11535,9 @@ func init() {
         "locator": {
           "type": "string",
           "example": "12432"
+        },
+        "mto_shipments": {
+          "$ref": "#/definitions/MTOShipments"
         },
         "orders_id": {
           "type": "string",

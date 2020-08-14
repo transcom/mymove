@@ -22,7 +22,6 @@ import HHGShipmentSummary from 'pages/MyMove/HHGShipmentSummary';
 
 import './Review.css';
 import { selectActivePPMForMove } from '../../shared/Entities/modules/ppms';
-import { loadMTOShipments as loadMTOShipmentsAction } from 'shared/Entities/modules/mtoShipments';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
 
@@ -30,20 +29,14 @@ export class Summary extends Component {
   componentDidMount() {
     if (this.props.onDidMount) {
       this.props.onDidMount(this.props.serviceMember.id);
-      const { showLoggedInUser } = this.props;
-      showLoggedInUser();
     }
   }
   componentDidUpdate(prevProps) {
-    const { selectedMoveType, moveTaskOrderID, loadMTOShipments } = this.props;
+    const { selectedMoveType } = this.props;
     const hhgMove = isEmpty(prevProps.currentPPM) && isEmpty(this.props.currentPPM);
     // Only check entitlement for PPMs, not HHGs
     if (prevProps.currentPPM !== this.props.currentPPM && !hhgMove && selectedMoveType === SHIPMENT_OPTIONS.PPM) {
       this.props.onCheckEntitlement(this.props.match.params.moveId);
-    }
-    if (prevProps.moveTaskOrderID !== moveTaskOrderID) {
-      // TODO: Not yet working...
-      loadMTOShipments(moveTaskOrderID);
     }
   }
 
@@ -145,16 +138,14 @@ Summary.propTypes = {
 };
 
 function mapStateToProps(state, ownProps) {
-  const moveID = state.moves.currentMove.id;
+  const moveID = ownProps.match.params.moveId;
   const currentOrders = selectActiveOrLatestOrdersFromEntities(state);
-  // TODO: temporary workaround until moves is consolidated from move_task_orders - this should be the move id
-  const moveTaskOrderID = get(currentOrders, 'move_task_order_id', '');
+
   return {
     currentPPM: selectActivePPMForMove(state, moveID),
-    moveTaskOrderID: moveTaskOrderID,
-    mtoShipment: selectMTOShipmentForMTO(state, moveTaskOrderID),
+    mtoShipment: selectMTOShipmentForMTO(state, moveID),
     serviceMember: state.serviceMember.currentServiceMember,
-    currentMove: selectMove(state, ownProps.match.params.moveId),
+    currentMove: selectMove(state, moveID),
     currentBackupContacts: state.serviceMember.currentBackupContacts,
     currentOrders: currentOrders,
     uploads: selectUploadsForActiveOrders(state),
@@ -173,11 +164,11 @@ function mapDispatchToProps(dispatch, ownProps) {
     onDidMount: function () {
       const moveID = ownProps.match.params.moveId;
       dispatch(loadMove(moveID, 'Summary.getMove'));
+      dispatch(showLoggedInUserAction());
     },
     onCheckEntitlement: (moveId) => {
       dispatch(checkEntitlement(moveId));
     },
-    loadMTOShipments: loadMTOShipmentsAction,
     showLoggedInUser: showLoggedInUserAction,
   };
 }

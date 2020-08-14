@@ -712,6 +712,8 @@ definitions:
         format: date-time
       personally_procured_moves:
         $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
+      mto_shipments:
+        $ref: '#/definitions/MTOShipments'
       cancel_reason:
         type: string
         example: 'Change of orders'
