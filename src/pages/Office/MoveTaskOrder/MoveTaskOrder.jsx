@@ -25,10 +25,10 @@ function formatShipmentDate(shipmentDateString) {
 }
 
 export const MoveTaskOrder = ({ match }) => {
-  const { moveTaskOrderId } = match.params;
+  const { moveOrderId } = match.params;
 
   // TODO - Do something with isLoading and isError?
-  const { mtoShipments, mtoServiceItems } = useMoveTaskOrderQueries(moveTaskOrderId);
+  const { mtoShipments, mtoServiceItems } = useMoveTaskOrderQueries(moveOrderId);
 
   const serviceItems = map(mtoServiceItems, (item) => {
     const detailText = { ZIP: item.pickupPostalCode, Reason: item.reason };
