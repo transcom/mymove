@@ -10,6 +10,6 @@ function mountHint(props) {
 describe('Hint component', () => {
   it('renders expected component with class', () => {
     const wrapper = mountHint();
-    expect(wrapper.find('div.usa-hint').length).toBe(1);
+    expect(wrapper.find('div.hint').length).toBe(1);
   });
 });
