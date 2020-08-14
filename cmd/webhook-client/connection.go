@@ -47,10 +47,15 @@ type WebhookRuntime struct {
 }
 
 // NewWebhookRuntime creates and returns a runtime client
-func NewWebhookRuntime() *WebhookRuntime {
-	wr := WebhookRuntime{}
-	// #TODO: Does anything else need to go here?
-	// Confused as to what should be here vs SetupClient
+func NewWebhookRuntime(host string, basePath string, contentType string, insecure bool, debug bool) *WebhookRuntime {
+	wr := WebhookRuntime{
+		Host:        host,
+		BasePath:    basePath,
+		ContentType: contentType,
+		Insecure:    insecure,
+		Debug:       debug,
+	}
+
 	return &wr
 }
 
@@ -74,11 +79,8 @@ func (wr *WebhookRuntime) SetupClient(cert *tls.Certificate) (*WebhookRuntime, e
 		Timeout:   time.Second * 30,
 	}
 
-	// Add runtime values to our runtime client
+	// Add http client to our runtime client
 	wr.client = &httpClient
-	wr.Host = "https://primelocal:9443"
-	wr.BasePath = "/support/v1/webhook-notify"
-	wr.ContentType = "application/json; charset=utf-8"
 
 	return wr, nil
 }
@@ -140,6 +142,9 @@ func CreateClient(v *viper.Viper) (*WebhookRuntime, *pksigner.Store, error) {
 
 	insecure := v.GetBool(InsecureFlag)
 	verbose := v.GetBool(cli.VerboseFlag)
+	host := "https://primelocal:9443"
+	basePath := "/support/v1/webhook-notify"
+	contentType := "application/json; charset=utf-8"
 
 	// Get the tls certificate
 	// If using a CAC, the client cert comes from the card
@@ -161,9 +166,7 @@ func CreateClient(v *viper.Viper) (*WebhookRuntime, *pksigner.Store, error) {
 		}
 	}
 
-	runtimeClient := NewWebhookRuntime()
-	runtimeClient.Insecure = insecure
-	runtimeClient.Debug = verbose
+	runtimeClient := NewWebhookRuntime(host, basePath, contentType, insecure, verbose)
 
 	rc, err = runtimeClient.SetupClient(&cert)
 
