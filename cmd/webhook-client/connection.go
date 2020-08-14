@@ -85,22 +85,39 @@ func (wr *WebhookRuntime) SetupClient(cert *tls.Certificate) (*WebhookRuntime, e
 // Post WebhookRuntime comment goes here
 func (wr *WebhookRuntime) Post(data []byte) error {
 	json := bytes.NewBuffer(data)
-	r, err := wr.client.Post(wr.Host+wr.BasePath, wr.ContentType, json)
+	// Create the POST request
+	req, err := http.NewRequest(
+		"POST",
+		wr.Host+wr.BasePath,
+		json,
+	)
+	req.Header.Set("Content-type", wr.ContentType)
 
 	if err != nil {
 		return err
-		// log.Fatal(err)
 	}
 
-	defer r.Body.Close()
+	// Print out the request when debug mode is on
 	if wr.Debug {
-		Debug(httputil.DumpResponse(r, true))
+		Debug(httputil.DumpRequest(req, true))
 	}
 
-	body, err := ioutil.ReadAll(r.Body)
+	// Send request and capture the response
+	resp, err := wr.client.Do(req)
 
 	if err != nil {
-		// log.Fatal(err)
+		return err
+	}
+
+	defer resp.Body.Close()
+	// Print out the response when debug mode is on
+	if wr.Debug {
+		Debug(httputil.DumpResponse(resp, true))
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+
+	if err != nil {
 		return err
 	}
 
