@@ -41,10 +41,12 @@ func checkPostWebhookNotifyConfig(v *viper.Viper, args []string, logger Logger) 
 
 func postWebhookNotify(cmd *cobra.Command, args []string) error {
 	v := viper.New()
+	// basePath represents url where we're sending our request
+	// For now this is hardcoded to our support endpoint
+	basePath := "/support/v1/webhook-notify"
 
 	// Create the logger
 	dbEnv := v.GetString(cli.DbEnvFlag)
-	// #TODO: move logger or pass it into setup
 	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
 
 	errParseFlags := ParseFlags(cmd, v, args)
@@ -70,6 +72,7 @@ func postWebhookNotify(cmd *cobra.Command, args []string) error {
 
 	// Create the client and open the cacStore
 	runtime, cacStore, err := CreateClient(v)
+	runtime.BasePath = basePath
 
 	if err != nil {
 		logger.Fatal(err.Error())
@@ -79,7 +82,6 @@ func postWebhookNotify(cmd *cobra.Command, args []string) error {
 		defer cacStore.Close()
 	}
 	// Make the API call
-
 	runtime.Post(json)
 
 	return nil

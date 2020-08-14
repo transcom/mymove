@@ -47,10 +47,9 @@ type WebhookRuntime struct {
 }
 
 // NewWebhookRuntime creates and returns a runtime client
-func NewWebhookRuntime(host string, basePath string, contentType string, insecure bool, debug bool) *WebhookRuntime {
+func NewWebhookRuntime(hostWithPort string, contentType string, insecure bool, debug bool) *WebhookRuntime {
 	wr := WebhookRuntime{
-		Host:        host,
-		BasePath:    basePath,
+		Host:        "https://" + hostWithPort,
 		ContentType: contentType,
 		Insecure:    insecure,
 		Debug:       debug,
@@ -142,8 +141,11 @@ func CreateClient(v *viper.Viper) (*WebhookRuntime, *pksigner.Store, error) {
 
 	insecure := v.GetBool(InsecureFlag)
 	verbose := v.GetBool(cli.VerboseFlag)
-	host := "https://primelocal:9443"
-	basePath := "/support/v1/webhook-notify"
+
+	hostname := v.GetString(HostnameFlag)
+	port := v.GetInt(PortFlag)
+	hostWithPort := fmt.Sprintf("%s:%d", hostname, port)
+
 	contentType := "application/json; charset=utf-8"
 
 	// Get the tls certificate
@@ -166,7 +168,7 @@ func CreateClient(v *viper.Viper) (*WebhookRuntime, *pksigner.Store, error) {
 		}
 	}
 
-	runtimeClient := NewWebhookRuntime(host, basePath, contentType, insecure, verbose)
+	runtimeClient := NewWebhookRuntime(hostWithPort, contentType, insecure, verbose)
 
 	rc, err = runtimeClient.SetupClient(&cert)
 
