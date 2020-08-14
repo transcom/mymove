@@ -15,7 +15,7 @@ import (
 func (suite *ModelSuite) TestWebhookNotification() {
 	now := time.Now()
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: models.MoveTaskOrder{
+		MoveTaskOrder: models.Move{
 			AvailableToPrimeAt: &now,
 		},
 	})

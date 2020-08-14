@@ -7,32 +7,13 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httputil"
-	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"pault.ag/go/pksigner"
 
 	"github.com/transcom/mymove/pkg/cli"
 )
-
-// ParseFlags parses the command line flags
-func ParseFlags(cmd *cobra.Command, v *viper.Viper, args []string) error {
-
-	errParseFlags := cmd.ParseFlags(args)
-	if errParseFlags != nil {
-		return fmt.Errorf("Could not parse args: %w", errParseFlags)
-	}
-	flags := cmd.Flags()
-	errBindPFlags := v.BindPFlags(flags)
-	if errBindPFlags != nil {
-		return fmt.Errorf("Could not bind flags: %w", errBindPFlags)
-	}
-	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
-	v.AutomaticEnv()
-	return nil
-}
 
 // WebhookRuntime comment here
 type WebhookRuntime struct {
@@ -83,7 +64,7 @@ func (wr *WebhookRuntime) SetupClient(cert *tls.Certificate) (*WebhookRuntime, e
 }
 
 // Post WebhookRuntime comment goes here
-func (wr *WebhookRuntime) Post(data []byte) error {
+func (wr *WebhookRuntime) Post(data []byte) (*http.Response, error) {
 	json := bytes.NewBuffer(data)
 	// Create the POST request
 	req, err := http.NewRequest(
@@ -94,7 +75,7 @@ func (wr *WebhookRuntime) Post(data []byte) error {
 	req.Header.Set("Content-type", wr.ContentType)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// Print out the request when debug mode is on
@@ -106,7 +87,7 @@ func (wr *WebhookRuntime) Post(data []byte) error {
 	resp, err := wr.client.Do(req)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	defer resp.Body.Close()
@@ -116,15 +97,14 @@ func (wr *WebhookRuntime) Post(data []byte) error {
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
-
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// Print response body to stdout
 	fmt.Printf("%s\n", body)
 
-	return nil
+	return resp, nil
 }
 
 // GetCacCertificate returns cert to use for tls

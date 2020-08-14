@@ -7,9 +7,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-
-	"github.com/transcom/mymove/pkg/cli"
-	"github.com/transcom/mymove/pkg/logging"
+	"go.uber.org/zap"
 )
 
 //WebhookMessage is the body of our request
@@ -26,7 +24,7 @@ func initPostWebhookNotifyFlags(flag *pflag.FlagSet) {
 }
 
 func checkPostWebhookNotifyConfig(v *viper.Viper, args []string, logger Logger) error {
-	err := CheckRootConfig(v)
+	_, _, err := InitRootConfig(v)
 	if err != nil {
 		logger.Fatal(err.Error())
 	}
@@ -45,19 +43,20 @@ func postWebhookNotify(cmd *cobra.Command, args []string) error {
 	// For now this is hardcoded to our support endpoint
 	basePath := "/support/v1/webhook-notify"
 
-	// Create the logger
-	dbEnv := v.GetString(cli.DbEnvFlag)
-	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
-
 	errParseFlags := ParseFlags(cmd, v, args)
 	if errParseFlags != nil {
 		return errParseFlags
 	}
 
+	_, logger, err := InitRootConfig(v)
+	if err != nil {
+		logger.Fatal("Invalid configuration", zap.Error(err))
+	}
+
 	// Check the config before talking to the CAC
 	err = checkPostWebhookNotifyConfig(v, args, logger)
 	if err != nil {
-		logger.Fatal(err.Error())
+		logger.Fatal("Error:", zap.Error(err))
 	}
 
 	message := v.GetString(MessageFlag)
@@ -67,14 +66,16 @@ func postWebhookNotify(cmd *cobra.Command, args []string) error {
 	json, err := json.Marshal(payload)
 
 	if err != nil {
-		panic(err)
+		logger.Error("Error creating payload:", zap.Error(err))
+		return err
 	}
 
 	// Create the client and open the cacStore
-	runtime, cacStore, err := CreateClient(v)
+	runtime, cacStore, errCreateClient := CreateClient(v)
 
-	if err != nil {
-		logger.Fatal(err.Error())
+	if errCreateClient != nil {
+		logger.Error("Error creating runtime client:", zap.Error(errCreateClient))
+		return errCreateClient
 	}
 
 	if cacStore != nil {
@@ -83,7 +84,14 @@ func postWebhookNotify(cmd *cobra.Command, args []string) error {
 
 	// Make the API call
 	runtime.BasePath = basePath
-	runtime.Post(json)
+	resp, err := runtime.Post(json)
+
+	if err != nil {
+		logger.Error("Error making request:", zap.Error(err))
+		return err
+	}
+
+	logger.Info("Request complete: ", zap.String("Status", resp.Status))
 
 	return nil
 }

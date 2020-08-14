@@ -1278,6 +1278,22 @@ func init() {
         "$ref": "#/definitions/MoveOrder"
       }
     },
+    "MoveStatus": {
+      "type": "string",
+      "title": "Move status",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED",
+        "APPROVED",
+        "CANCELED"
+      ],
+      "x-display-value": {
+        "APPROVED": "Approved",
+        "CANCELED": "Canceled",
+        "DRAFT": "Draft",
+        "SUBMITTED": "Submitted"
+      }
+    },
     "MoveTaskOrder": {
       "type": "object",
       "required": [
@@ -1318,6 +1334,11 @@ func init() {
           "description": "Indicated this MoveTaskOrder has been canceled.",
           "type": "boolean",
           "x-nullable": true
+        },
+        "locator": {
+          "description": "Unique 6-character code the customer can use to refer to their move",
+          "type": "string",
+          "example": "ABC123"
         },
         "moveOrder": {
           "description": "MoveOrder associated with this MoveTaskOrder.",
@@ -1360,6 +1381,10 @@ func init() {
           "description": "Unique ID associated with this MoveOrder.\n\nNo two MoveTaskOrders may have the same ID.\nAttempting to create a MoveTaskOrder may fail if this referenceId has been used already.\n",
           "type": "string",
           "example": "1001-3456"
+        },
+        "status": {
+          "description": "move status",
+          "$ref": "#/definitions/MoveStatus"
         },
         "updatedAt": {
           "description": "Date on which this MoveTaskOrder was last updated.",
@@ -3148,6 +3173,22 @@ func init() {
         "$ref": "#/definitions/MoveOrder"
       }
     },
+    "MoveStatus": {
+      "type": "string",
+      "title": "Move status",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED",
+        "APPROVED",
+        "CANCELED"
+      ],
+      "x-display-value": {
+        "APPROVED": "Approved",
+        "CANCELED": "Canceled",
+        "DRAFT": "Draft",
+        "SUBMITTED": "Submitted"
+      }
+    },
     "MoveTaskOrder": {
       "type": "object",
       "required": [
@@ -3188,6 +3229,11 @@ func init() {
           "description": "Indicated this MoveTaskOrder has been canceled.",
           "type": "boolean",
           "x-nullable": true
+        },
+        "locator": {
+          "description": "Unique 6-character code the customer can use to refer to their move",
+          "type": "string",
+          "example": "ABC123"
         },
         "moveOrder": {
           "description": "MoveOrder associated with this MoveTaskOrder.",
@@ -3230,6 +3276,10 @@ func init() {
           "description": "Unique ID associated with this MoveOrder.\n\nNo two MoveTaskOrders may have the same ID.\nAttempting to create a MoveTaskOrder may fail if this referenceId has been used already.\n",
           "type": "string",
           "example": "1001-3456"
+        },
+        "status": {
+          "description": "move status",
+          "$ref": "#/definitions/MoveStatus"
         },
         "updatedAt": {
           "description": "Date on which this MoveTaskOrder was last updated.",

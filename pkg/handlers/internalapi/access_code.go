@@ -44,7 +44,7 @@ type FetchAccessCodeHandler struct {
 func (h FetchAccessCodeHandler) Handle(params accesscodeop.FetchAccessCodeParams) middleware.Responder {
 	accessCodeRequired := h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode)
 	if accessCodeRequired == false {
-		return nil
+		return accesscodeop.NewFetchAccessCodeOK().WithPayload(&internalmessages.AccessCode{})
 	}
 
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
