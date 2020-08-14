@@ -205,7 +205,7 @@ class EditShipment extends Component {
                   as={DatePickerInput}
                   name="requestedPickupDate"
                   label="Requested pickup date"
-                  labelClassName="margin-top-2"
+                  labelClassName={`margin-top-2 ${styles['small-bold']}`}
                   id="requestedPickupDate"
                   value={values.requestedPickupDate}
                   validate={validateDate}
@@ -248,6 +248,7 @@ class EditShipment extends Component {
                 <DatePickerInput
                   name="requestedDeliveryDate"
                   label="Requested delivery date"
+                  labelClassName={`${styles['small-bold']}`}
                   id="requestedDeliveryDate"
                   value={values.requestedDeliveryDate}
                   validate={validateDate}

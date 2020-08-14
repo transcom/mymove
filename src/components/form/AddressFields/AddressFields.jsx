@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { Field } from 'formik';
 import { v4 as uuidv4 } from 'uuid';
 
+import styles from '../../Customer/EditShipment.module.scss';
+
 import Fieldset from 'shared/Fieldset';
 import { TextInput } from 'components/form/fields';
 
@@ -14,6 +16,7 @@ export const AddressFields = ({ legend, className, values, name, renderExistingA
       {renderExistingAddressCheckbox()}
       <Field
         as={TextInput}
+        labelClassName={`${styles['small-bold']}`}
         label="Street address 1"
         id={`mailingAddress1_${addressFieldsUUID}`}
         data-testid="mailingAddress1"
@@ -23,6 +26,7 @@ export const AddressFields = ({ legend, className, values, name, renderExistingA
       />
       <Field
         as={TextInput}
+        labelClassName={`${styles['small-bold']}`}
         label="Street address 2"
         labelHint=" (optional)"
         id={`mailingAddress2_${addressFieldsUUID}`}
@@ -32,6 +36,7 @@ export const AddressFields = ({ legend, className, values, name, renderExistingA
       />
       <Field
         as={TextInput}
+        labelClassName={`${styles['small-bold']}`}
         label="City"
         id={`city_${addressFieldsUUID}`}
         data-testid="city"
@@ -41,6 +46,7 @@ export const AddressFields = ({ legend, className, values, name, renderExistingA
       />
       <Field
         as={TextInput}
+        labelClassName={`${styles['small-bold']}`}
         label="State"
         id={`state_${addressFieldsUUID}`}
         data-testid="state"
@@ -51,6 +57,7 @@ export const AddressFields = ({ legend, className, values, name, renderExistingA
       />
       <Field
         as={TextInput}
+        labelClassName={`${styles['small-bold']}`}
         label="ZIP"
         id={`zip_${addressFieldsUUID}`}
         data-testid="zip"

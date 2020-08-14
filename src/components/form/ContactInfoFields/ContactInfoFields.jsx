@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { Field } from 'formik';
 import { v4 as uuidv4 } from 'uuid';
 
+import styles from '../../Customer/EditShipment.module.scss';
+
 import Fieldset from 'shared/Fieldset';
 import { TextInput } from 'components/form/fields';
 
@@ -14,6 +16,7 @@ export const ContactInfoFields = ({ legend, className, subtitle, values, name, s
       {subtitle && <div className={subtitleClassName}>{subtitle}</div>}
       <Field
         as={TextInput}
+        labelClassName={`${styles['small-bold']}`}
         label="First name"
         id={`firstName_${contactInfoFieldsUUID}`}
         data-testid="firstName"
@@ -24,6 +27,7 @@ export const ContactInfoFields = ({ legend, className, subtitle, values, name, s
       <Field
         as={TextInput}
         label="Last name"
+        labelClassName={`${styles['small-bold']}`}
         id={`lastName_${contactInfoFieldsUUID}`}
         data-testid="lastName"
         name={`${name}.lastName`}
@@ -34,6 +38,7 @@ export const ContactInfoFields = ({ legend, className, subtitle, values, name, s
       <Field
         as={TextInput}
         label="Phone"
+        labelClassName={`${styles['small-bold']}`}
         id={`phone_${contactInfoFieldsUUID}`}
         data-testid="phone"
         name={`${name}.phone`}
@@ -44,6 +49,7 @@ export const ContactInfoFields = ({ legend, className, subtitle, values, name, s
       <Field
         as={TextInput}
         label="Email"
+        labelClassName={`${styles['small-bold']}`}
         id={`email_${contactInfoFieldsUUID}`}
         data-testid="email"
         name={`${name}.email`}
