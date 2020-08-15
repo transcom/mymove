@@ -8,15 +8,25 @@ import { history, store } from '../../shared/store';
 
 import HHGDetailsForm, { HHGDetailsFormComponent } from './HHGDetailsForm';
 
+const loadMTOShipments = jest.fn(() => ({ then: () => {} }));
 const defaultProps = {
   pageList: ['page1', 'anotherPage/:foo/:bar'],
   pageKey: 'page1',
-  match: { isExact: false, path: '', url: '' },
+  match: { isExact: false, path: '', url: '', params: { moveId: '' } },
   showLoggedInUser: () => {},
+  createMTOShipment: () => {},
+  push: () => {},
+  loadMTOShipments,
   newDutyStationAddress: {
     city: 'Fort Benning',
     state: 'GA',
     postal_code: '31905',
+  },
+  currentResidence: {
+    city: 'Fort Benning',
+    state: 'GA',
+    postal_code: '31905',
+    street_address_1: '123 Main',
   },
 };
 function mountHHGDetailsForm(props = defaultProps) {
@@ -35,7 +45,7 @@ describe('HHGDetailsForm component', () => {
     expect(wrapper.find('DatePickerInput').length).toBe(2);
     expect(wrapper.find('AddressFields').length).toBe(1);
     expect(wrapper.find('ContactInfoFields').length).toBe(2);
-    expect(wrapper.find('input[name="remarks"]').length).toBe(1);
+    expect(wrapper.find('input[name="customerRemarks"]').length).toBe(1);
   });
 
   it('renders second address field when has delivery address', () => {

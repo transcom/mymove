@@ -27,6 +27,10 @@ export const indexPersonallyProcuredMove = personallyProcuredMoves;
 export const mtoShipment = new schema.Entity('mtoShipments');
 export const mtoShipments = new schema.Array(mtoShipment);
 
+// Shipments
+export const shipment = new schema.Entity('shipments');
+export const shipments = new schema.Array(shipment);
+
 // Addresses
 export const address = new schema.Entity('addresses');
 export const addresses = new schema.Array(address);
