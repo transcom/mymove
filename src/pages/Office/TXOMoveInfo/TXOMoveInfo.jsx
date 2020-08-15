@@ -38,7 +38,13 @@ const TXOMoveInfo = () => {
                   <span className="tab-title">Move details</span>
                   <Tag>2</Tag>
                 </NavLink>,
-                <NavLink exact activeClassName="usa-current" to={`/moves/${moveOrderId}/mto`} role="tab">
+                <NavLink
+                  data-testid="MoveTaskOrder-Tab"
+                  exact
+                  activeClassName="usa-current"
+                  to={`/moves/${moveOrderId}/mto`}
+                  role="tab"
+                >
                   <span className="tab-title">Move task order</span>
                 </NavLink>,
                 <NavLink exact activeClassName="usa-current" to={`/moves/${moveOrderId}/payment-requests`} role="tab">
