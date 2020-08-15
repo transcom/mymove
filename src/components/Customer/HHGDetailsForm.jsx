@@ -72,33 +72,52 @@ class HHGDetailsForm extends Component {
   }
 
   componentDidMount() {
-    const { showLoggedInUser, mtoShipment } = this.props;
+    const { showLoggedInUser, match } = this.props;
     showLoggedInUser();
-    this.setState(() => {
-      const initialVals = !isEmpty(mtoShipment) ? mtoShipment : {};
-      return { initialValues: initialVals };
-    });
-  }
-
-  componentDidUpdate(prevProps) {
-    const { moveTaskOrderID } = this.props;
-    if (prevProps.moveTaskOrderID !== moveTaskOrderID) {
-      this.setInitialState(moveTaskOrderID);
-    }
+    this.setInitialState(match.params.moveId);
   }
 
   setInitialState = (mtoId) => {
     const { loadMTOShipments } = this.props;
     loadMTOShipments(mtoId).then((response) => {
       // TODO: handle more than one HHG - one that was last created?
-      const HHG = { ...response.response.body[0] };
-      const { agents } = HHG;
-      if (agents) {
-        HHG.receivingAgent = agents.find((agent) => agent.agentType === 'RECEIVING_AGENT');
-        HHG.releasingAgent = agents.find((agent) => agent.agentType === 'RELEASING_AGENT');
-        // TODO: Remove dashses from phones if they have phone to make form valid
+      const mtoShipment = { ...response.response.body[0] };
+
+      function cleanAgentPhone(agent) {
+        const agentCopy = { ...agent };
+        Object.keys(agentCopy).forEach((key) => {
+          /* eslint-disable security/detect-object-injection */
+          if (key === 'phone') {
+            const phoneNum = agentCopy[key];
+            // will be in format xxxxxxxxxx
+            agentCopy[key] = phoneNum.split('-').join('');
+          }
+          /* eslint-enable security/detect-object-injection */
+        });
+        return agentCopy;
       }
-      this.setState({ initialValues: HHG });
+      // for existing mtoShipment, reshape agents from array of objects to key/object for proper handling
+      const { agents } = mtoShipment;
+      if (agents) {
+        const receivingAgent = agents.find((agent) => agent.agentType === 'RECEIVING_AGENT');
+        const releasingAgent = agents.find((agent) => agent.agentType === 'RELEASING_AGENT');
+
+        // Remove dashes from agent phones for expected form phone format
+        if (receivingAgent) {
+          const formattedAgent = cleanAgentPhone(releasingAgent);
+          if (!isEmpty(formattedAgent)) {
+            mtoShipment.receivingAgent = { ...formattedAgent };
+          }
+        }
+        if (releasingAgent) {
+          const formattedAgent = cleanAgentPhone(releasingAgent);
+          if (!isEmpty(formattedAgent)) {
+            mtoShipment.releasingAgent = { ...formattedAgent };
+          }
+        }
+      }
+
+      this.setState({ initialValues: mtoShipment });
     });
   };
 
@@ -111,7 +130,7 @@ class HHGDetailsForm extends Component {
   // Use current residence
   handleUseCurrentResidenceChange = (currentValues) => {
     const { initialValues } = this.state;
-    const { currentResidence, match } = this.props;
+    const { currentResidence, match, mtoShipment } = this.props;
     this.setState(
       (state) => ({ useCurrentResidence: !state.useCurrentResidence }),
       () => {
@@ -131,7 +150,6 @@ class HHGDetailsForm extends Component {
             },
           });
         } else {
-          // TODO: Once move consolidated from mto, check against move id
           // eslint-disable-next-line no-lonely-if
           if (match.params.moveId === initialValues.moveTaskOrderID) {
             this.setState({
@@ -139,11 +157,11 @@ class HHGDetailsForm extends Component {
                 ...initialValues,
                 ...currentValues,
                 pickupAddress: {
-                  street_address_1: initialValues.street_address_1,
-                  street_address_2: initialValues.street_address_2,
-                  city: initialValues.city,
-                  state: initialValues.state,
-                  postal_code: initialValues.postal_code,
+                  street_address_1: mtoShipment.pickupAddress.street_address_1,
+                  street_address_2: mtoShipment.pickupAddress.street_address_2,
+                  city: mtoShipment.pickupAddress.city,
+                  state: mtoShipment.pickupAddress.state,
+                  postal_code: mtoShipment.pickupAddress.postal_code,
                 },
               },
             });
@@ -167,15 +185,18 @@ class HHGDetailsForm extends Component {
     );
   };
 
-  submitMTOShipment = ({
-    requestedPickupDate,
-    requestedDeliveryDate,
-    pickupAddress,
-    destinationAddress,
-    receivingAgent,
-    releasingAgent,
-    customerRemarks,
-  }) => {
+  submitMTOShipment = (
+    {
+      requestedPickupDate,
+      requestedDeliveryDate,
+      pickupAddress,
+      destinationAddress,
+      receivingAgent,
+      releasingAgent,
+      customerRemarks,
+    },
+    dirty,
+  ) => {
     const { createMTOShipment, moveTaskOrderID } = this.props;
     const { hasDeliveryAddress } = this.state;
     const mtoShipment = {
@@ -237,14 +258,15 @@ class HHGDetailsForm extends Component {
     }
     // TODO: If extant values, update shipment rather than create. Passing in agents that
     // exist cause server validation error
-    createMTOShipment(mtoShipment);
+    if (!dirty) {
+      createMTOShipment(mtoShipment);
+    }
   };
 
   render() {
     // TODO: replace minimal styling with actual styling during UI phase
     const { pageKey, pageList, match, push, newDutyStationAddress } = this.props;
     const { hasDeliveryAddress, useCurrentResidence, initialValues } = this.state;
-    // for existing mtoShipment, reshape agents from array of objects to key/object for proper handling
     const fieldsetClasses = 'margin-top-2';
     return (
       <Formik
@@ -256,12 +278,12 @@ class HHGDetailsForm extends Component {
       >
         {({ values, dirty, isValid }) => (
           <WizardPage
-            canMoveNext={dirty && isValid}
+            canMoveNext={(dirty && isValid) || (!dirty && isValid)}
             match={match}
             pageKey={pageKey}
             pageList={pageList}
             push={push}
-            handleSubmit={() => this.submitMTOShipment(values)}
+            handleSubmit={() => this.submitMTOShipment(values, dirty)}
           >
             <Form>
               <Fieldset legend="Pickup date" className={fieldsetClasses}>
