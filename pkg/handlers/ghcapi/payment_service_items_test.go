@@ -20,7 +20,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
-	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	mto := testdatagen.MakeDefaultMove(suite.DB())
 	paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItem(suite.DB())
 	requestUser := testdatagen.MakeDefaultUser(suite.DB())
 

@@ -33,7 +33,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceAreaLookup() {
 
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 		testdatagen.Assertions{
-			MoveTaskOrder: mtoServiceItem.MoveTaskOrder,
+			Move: mtoServiceItem.MoveTaskOrder,
 		})
 
 	originDomesticServiceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{

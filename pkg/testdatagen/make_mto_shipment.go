@@ -11,9 +11,9 @@ import (
 
 // MakeMTOShipment creates a single MTOShipment and associated set relationships
 func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipment {
-	moveTaskOrder := assertions.MoveTaskOrder
+	moveTaskOrder := assertions.Move
 	if isZeroUUID(moveTaskOrder.ID) {
-		moveTaskOrder = MakeMoveTaskOrder(db, assertions)
+		moveTaskOrder = MakeMove(db, assertions)
 	}
 
 	pickupAddress := MakeAddress(db, assertions)
@@ -80,9 +80,9 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 // MakeMTOShipmentMinimal creates a single MTOShipment with a minimal set of data as could be possible
 // through milmove UI.
 func MakeMTOShipmentMinimal(db *pop.Connection, assertions Assertions) models.MTOShipment {
-	moveTaskOrder := assertions.MoveTaskOrder
+	moveTaskOrder := assertions.Move
 	if isZeroUUID(moveTaskOrder.ID) {
-		moveTaskOrder = MakeMoveTaskOrder(db, assertions)
+		moveTaskOrder = MakeMove(db, assertions)
 	}
 	pickupAddress := MakeAddress(db, assertions)
 	destinationAddress := MakeAddress2(db, assertions)

@@ -30,20 +30,20 @@ import (
 
 func (suite *HandlerSuite) TestListMTOsHandler() {
 	// unavailable MTO
-	testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+	testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 
-	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: models.Move{
+	moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
 			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
 	})
 
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: moveTaskOrder,
+		Move: moveTaskOrder,
 	})
 
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: moveTaskOrder,
+		Move: moveTaskOrder,
 	})
 
 	request := httptest.NewRequest("GET", "/move-task-orders", nil)
@@ -67,7 +67,7 @@ func (suite *HandlerSuite) TestListMTOsHandler() {
 }
 
 func (suite *HandlerSuite) TestMakeMoveTaskOrderAvailableHandlerIntegrationSuccess() {
-	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+	moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/available-to-prime", nil)
 	params := move_task_order.MakeMoveTaskOrderAvailableParams{
 		HTTPRequest:     request,
@@ -94,7 +94,7 @@ func (suite *HandlerSuite) TestMakeMoveTaskOrderAvailableHandlerIntegrationSucce
 }
 
 func (suite *HandlerSuite) TestGetMoveTaskOrder() {
-	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+	moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
 	params := move_task_order.GetMoveTaskOrderParams{
 		HTTPRequest:     request,

@@ -81,7 +81,7 @@ func (suite *HandlerSuite) TestFetchAccessCodeHandler_FeatureFlagIsOff() {
 	response := handler.Handle(params)
 
 	suite.IsNotErrResponse(response)
-	suite.Nil(response)
+	suite.Assertions.IsType(&accesscodeops.FetchAccessCodeOK{}, response)
 }
 
 func (suite *HandlerSuite) TestValidateAccessCodeHandler_Valid() {
