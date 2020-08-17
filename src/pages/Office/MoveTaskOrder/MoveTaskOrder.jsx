@@ -1,6 +1,9 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { get, map } from 'lodash';
+import { GridContainer } from '@trussworks/react-uswds';
+
+import styles from '../MoveDetails/MoveDetails.module.scss';
 
 import ShipmentContainer from 'components/Office/ShipmentContainer';
 import ShipmentHeading from 'components/Office/ShipmentHeading';
@@ -44,8 +47,10 @@ export const MoveTaskOrder = ({ match }) => {
   });
 
   return (
-    <div style={{ display: 'flex' }}>
-      <div className="" style={{ width: '85%' }} data-testid="too-shipment-container">
+    <div className={styles.MoveDetails}>
+      <GridContainer className={styles.gridContainer} data-testid="too-shipment-container">
+        <h1>Move task order</h1>
+
         {map(mtoShipments, (mtoShipment) => {
           const serviceItemsForShipment = serviceItems.filter((item) => item.mtoShipmentID === mtoShipment.id);
 
@@ -72,7 +77,7 @@ export const MoveTaskOrder = ({ match }) => {
             </ShipmentContainer>
           );
         })}
-      </div>
+      </GridContainer>
     </div>
   );
 };
