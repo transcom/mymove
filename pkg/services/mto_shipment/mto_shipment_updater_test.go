@@ -408,10 +408,10 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 }
 
 func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
-	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	mto := testdatagen.MakeDefaultMove(suite.DB())
 	estimatedWeight := unit.Pound(2000)
 	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: mto,
+		Move: mto,
 		MTOShipment: models.MTOShipment{
 			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
 			ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
@@ -420,37 +420,37 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		},
 	})
 	draftShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: mto,
+		Move: mto,
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusDraft,
 		},
 	})
 	shipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: mto,
+		Move: mto,
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusSubmitted,
 		},
 	})
 	shipment3 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: mto,
+		Move: mto,
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusSubmitted,
 		},
 	})
 	shipment4 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: mto,
+		Move: mto,
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusSubmitted,
 		},
 	})
 	approvedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: mto,
+		Move: mto,
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusApproved,
 		},
 	})
 	rejectedShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: mto,
+		Move: mto,
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusRejected,
 		},
@@ -532,7 +532,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	suite.T().Run("If we act on a shipment with a weight that has a 0 upper weight it should still work", func(t *testing.T) {
 		estimatedWeight := unit.Pound(11000)
 		shipmentHeavy := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MoveTaskOrder: mto,
+			Move: mto,
 			MTOShipment: models.MTOShipment{
 				ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
 				ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
@@ -617,7 +617,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 
 	suite.T().Run("Changing to APPROVED status records approved_date", func(t *testing.T) {
 		shipment5 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MoveTaskOrder: mto,
+			Move: mto,
 			MTOShipment: models.MTOShipment{
 				Status: models.MTOShipmentStatusSubmitted,
 			},
@@ -634,7 +634,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 
 	suite.T().Run("Changing to a non-APPROVED status does not record approved_date", func(t *testing.T) {
 		shipment6 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MoveTaskOrder: mto,
+			Move: mto,
 			MTOShipment: models.MTOShipment{
 				Status: models.MTOShipmentStatusSubmitted,
 			},

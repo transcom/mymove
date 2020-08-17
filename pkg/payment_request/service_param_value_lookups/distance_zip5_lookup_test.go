@@ -17,7 +17,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip5Lookup() {
 
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 			testdatagen.Assertions{
-				MoveTaskOrder: mtoServiceItem.MoveTaskOrder,
+				Move: mtoServiceItem.MoveTaskOrder,
 			})
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)

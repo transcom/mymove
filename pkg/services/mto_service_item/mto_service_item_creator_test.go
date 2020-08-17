@@ -37,7 +37,7 @@ func (t *testMTOServiceItemQueryBuilder) Transaction(fn func(tx *pop.Connection)
 }
 
 func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
-	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+	moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 	dimension := testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{})
 	serviceItem := models.MTOServiceItem{
 		MoveTaskOrderID: moveTaskOrder.ID,

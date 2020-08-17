@@ -11,7 +11,7 @@ import (
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 	expectedOrder := testdatagen.MakeDefaultOrder(suite.DB())
-	expectedMTO := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
+	expectedMTO := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Order: expectedOrder,
 	})
 	mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
@@ -30,7 +30,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 
 func (suite *MoveTaskOrderServiceSuite) TestListMoveTaskOrdersFetcher() {
 	expectedOrder := testdatagen.MakeDefaultOrder(suite.DB())
-	expectedMTO := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
+	expectedMTO := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Order: expectedOrder,
 	})
 	mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
@@ -51,9 +51,9 @@ func (suite *MoveTaskOrderServiceSuite) TestListMoveTaskOrdersFetcher() {
 
 func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 	suite.T().Run("all move task orders", func(t *testing.T) {
-		testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
-		testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
-		testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 
 		mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
 
@@ -70,24 +70,24 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		time1 := time.Now()
 		time2 := time.Now()
 		time3 := time.Now()
-		testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-			MoveTaskOrder: models.Move{
+		testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
 				AvailableToPrimeAt: &time1,
 			},
 		})
-		testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-			MoveTaskOrder: models.Move{
+		testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
 				AvailableToPrimeAt: &time2,
 			},
 		})
 
-		oldMTO := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-			MoveTaskOrder: models.Move{
+		oldMTO := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
 				AvailableToPrimeAt: &time3,
 			},
 		})
-		testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
-		testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 
 		mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
 
