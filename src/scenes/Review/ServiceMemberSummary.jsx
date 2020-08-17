@@ -26,8 +26,10 @@ function ServiceMemberSummary(props) {
 
   const yesNoMap = { true: 'Yes', false: 'No' };
 
+  // using <table className="review-section"> because using "table--stacked"
+  // resulted in text-align being centered for some reason
   return (
-    <div>
+    <div className="service-member-summary">
       <div className="stackedtable-header">
         <div>
           <h2>
@@ -40,7 +42,7 @@ function ServiceMemberSummary(props) {
           </h2>
         </div>
       </div>
-      <table className="table--stacked">
+      <table className="table--stacked review-section">
         <colgroup>
           <col style={{ width: '25%' }} />
           <col style={{ width: '75%' }} />
@@ -68,7 +70,7 @@ function ServiceMemberSummary(props) {
           </tr>
         </tbody>
       </table>
-      <table className="table--stacked">
+      <table className="table--stacked review-section">
         <colgroup>
           <col style={{ width: '25%' }} />
           <col style={{ width: '75%' }} />
@@ -93,7 +95,7 @@ function ServiceMemberSummary(props) {
           </tr>
         </tbody>
       </table>
-      <div className="stackedtable-header">
+      <div className="table--stacked">
         <div>
           <h2>
             Orders
@@ -108,7 +110,7 @@ function ServiceMemberSummary(props) {
           </h2>
         </div>
       </div>
-      <table className="table--stacked">
+      <table className="table--stacked review-section">
         <colgroup>
           <col style={{ width: '25%' }} />
           <col style={{ width: '75%' }} />
