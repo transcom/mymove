@@ -20,6 +20,14 @@
   }
 }
 
+.mtoShipment + .mtoShipment {
+  @include u-margin-top(4);
+}
+
+.mtoShipment:last-child {
+  @include u-margin-bottom(8);
+}
+
 .sidebar {
   position: sticky;
   align-self: flex-start;

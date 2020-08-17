@@ -55,7 +55,7 @@ export const MoveTaskOrder = ({ match }) => {
           const serviceItemsForShipment = serviceItems.filter((item) => item.mtoShipmentID === mtoShipment.id);
 
           return (
-            <ShipmentContainer>
+            <ShipmentContainer shipmentType={mtoShipment.shipmentType} className={styles.mtoShipment}>
               <ShipmentHeading
                 key={mtoShipment.id}
                 shipmentInfo={{
@@ -83,7 +83,6 @@ export const MoveTaskOrder = ({ match }) => {
 };
 
 MoveTaskOrder.propTypes = {
-  // history: HistoryShape.isRequired,
   match: MatchShape.isRequired,
 };
 
