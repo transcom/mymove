@@ -279,7 +279,7 @@ class HHGDetailsForm extends Component {
       >
         {({ values, dirty, isValid }) => (
           <WizardPage
-            canMoveNext={(dirty && isValid) || (!dirty && isValid)}
+            canMoveNext={(dirty && isValid) || (!isEmpty(initialValues) && !dirty && isValid)}
             match={match}
             pageKey={pageKey}
             pageList={pageList}
