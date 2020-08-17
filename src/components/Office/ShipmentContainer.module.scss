@@ -1,9 +1,12 @@
 @import '../../shared/styles/basics';
 
 .shipmentContainer {
-    @include u-padding-top(0);
-    @include u-padding-x(2);
-    @include u-padding-bottom(2);
-    @include u-bg('white');
-}
+  @include u-padding-top(0);
+  @include u-padding-x(2);
+  @include u-padding-bottom(2);
+  @include u-bg('white');
 
+  :global .table--data-point-group {
+    @include u-margin-bottom(3);
+  }
+}

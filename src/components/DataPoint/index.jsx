@@ -1,5 +1,5 @@
 import React from 'react';
-import propTypes from 'prop-types';
+import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
 import styles from './index.module.scss';
@@ -8,15 +8,17 @@ const DataPoint = ({ columnHeaders, dataRow, Icon, custClass }) => (
   <table className={classnames(styles.dataPoint, 'table--data-point', custClass)}>
     <thead className="table--small">
       <tr>
-        {columnHeaders.map((header) => (
-          <th key={header}>{header}</th>
+        {columnHeaders.map((header, i) => (
+          // eslint-disable-next-line react/no-array-index-key
+          <th key={i}>{header}</th>
         ))}
       </tr>
     </thead>
     <tbody>
       <tr>
         {dataRow.map((cell, i) => (
-          <td key={columnHeaders[`${i}`]}>
+          // eslint-disable-next-line react/no-array-index-key
+          <td key={i}>
             <div className={classnames({ [`${styles.iconCellContainer}`]: !!Icon && i === 0 })}>
               <span>{cell}</span>
               {!!Icon && i === 0 && <Icon />}
@@ -29,10 +31,10 @@ const DataPoint = ({ columnHeaders, dataRow, Icon, custClass }) => (
 );
 
 DataPoint.propTypes = {
-  columnHeaders: propTypes.arrayOf(propTypes.node).isRequired,
-  dataRow: propTypes.arrayOf(propTypes.node).isRequired,
-  Icon: propTypes.elementType,
-  custClass: propTypes.string,
+  columnHeaders: PropTypes.arrayOf(PropTypes.node).isRequired,
+  dataRow: PropTypes.arrayOf(PropTypes.node).isRequired,
+  Icon: PropTypes.elementType,
+  custClass: PropTypes.string,
 };
 
 DataPoint.defaultProps = {
