@@ -71,7 +71,7 @@
     "reselect": "^4.0.0",
     "selenium-webdriver": "^3.6.0",
     "swagger-client": "^3.10.12",
-    "swagger-ui-dist": "^3.30.2",
+    "swagger-ui-dist": "^3.32.1",
     "uswds": "2.8.0",
     "uuid": "^8.3.0",
     "yup": "^0.29.1"
