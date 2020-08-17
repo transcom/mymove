@@ -51,9 +51,9 @@ func (suite *MoveTaskOrderServiceSuite) TestListMoveTaskOrdersFetcher() {
 
 func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 	suite.T().Run("all move task orders", func(t *testing.T) {
-		testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
-		testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
-		testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeDefaultMove(suite.DB())
+		testdatagen.MakeDefaultMove(suite.DB())
+		testdatagen.MakeDefaultMove(suite.DB())
 
 		mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
 
@@ -86,8 +86,8 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 				AvailableToPrimeAt: &time3,
 			},
 		})
-		testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
-		testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeDefaultMove(suite.DB())
+		testdatagen.MakeDefaultMove(suite.DB())
 
 		mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
 
