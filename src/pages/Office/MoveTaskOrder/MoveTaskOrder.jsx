@@ -33,10 +33,12 @@ export const MoveTaskOrder = ({ match }) => {
   const { moveOrderId } = match.params;
 
   // TODO - Do something with moveOrder and moveTaskOrder?
-  const { mtoShipments, mtoServiceItems, isLoading, isError } = useMoveTaskOrderQueries(moveOrderId);
+  const { moveTaskOrders, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveTaskOrderQueries(moveOrderId);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
+
+  const moveTaskOrder = Object.values(moveTaskOrders)[0];
 
   const serviceItems = map(mtoServiceItems, (item) => {
     const newItem = { ...item };
@@ -49,7 +51,13 @@ export const MoveTaskOrder = ({ match }) => {
   return (
     <div className={styles.MoveDetails}>
       <GridContainer className={styles.gridContainer} data-testid="too-shipment-container">
-        <h1>Move task order</h1>
+        <div className={styles.pageHeader}>
+          <h1>Move task order</h1>
+          <div className={styles.pageHeaderDetails}>
+            <h6>MTO Reference ID #{moveTaskOrder?.referenceId}</h6>
+            <h6>Contract #1234567890</h6> {/* TODO - need this value from the API */}
+          </div>
+        </div>
 
         {map(mtoShipments, (mtoShipment) => {
           const serviceItemsForShipment = serviceItems.filter((item) => item.mtoShipmentID === mtoShipment.id);
