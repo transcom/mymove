@@ -38,7 +38,7 @@ export const MoveTaskOrder = ({ match }) => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const moveTaskOrder = Object.values(moveTaskOrders)[0];
+  const moveTaskOrder = Object.values(moveTaskOrders)?.[0];
 
   const serviceItems = map(mtoServiceItems, (item) => {
     const newItem = { ...item };
