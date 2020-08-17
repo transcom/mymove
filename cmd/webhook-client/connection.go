@@ -1,84 +1,181 @@
 package main
 
 import (
+	"bytes"
 	"crypto/tls"
 	"fmt"
-	"log"
+	"io/ioutil"
 	"net/http"
+	"net/http/httputil"
+	"time"
 
-	runtimeClient "github.com/go-openapi/runtime/client"
 	"github.com/spf13/viper"
 	"pault.ag/go/pksigner"
-
-	// #TODO: Story to remove dependency on gen/supportclient. The support endpoint
-	// in support.yaml will function as our "server" for local testing. In production,
-	// we need to send the payload to the Prime / an external server and will not
-	// know any internals around their implementation.
-	supportClient "github.com/transcom/mymove/pkg/gen/supportclient"
 
 	"github.com/transcom/mymove/pkg/cli"
 )
 
-// CreateClient creates the support api client
-func CreateClient(v *viper.Viper) (*supportClient.Mymove, *pksigner.Store, error) {
+// WebhookRuntime comment here
+type WebhookRuntime struct {
+	client      *http.Client
+	Debug       bool
+	Host        string
+	BasePath    string
+	ContentType string
+	Insecure    bool
+}
 
-	// Use command line inputs
-	hostname := v.GetString(HostnameFlag)
-	port := v.GetInt(PortFlag)
-	insecure := v.GetBool(InsecureFlag)
-
-	var httpClient *http.Client
-
-	// The client certificate comes from a smart card
-	var store *pksigner.Store
-	if v.GetBool(cli.CACFlag) {
-		var errGetCACStore error
-		store, errGetCACStore = cli.GetCACStore(v)
-		if errGetCACStore != nil {
-			log.Fatal(errGetCACStore)
-		}
-		cert, errTLSCert := store.TLSCertificate()
-		if errTLSCert != nil {
-			log.Fatal(errTLSCert)
-		}
-
-		// must explicitly state what signature algorithms we allow as of Go 1.14 to disable RSA-PSS signatures
-		cert.SupportedSignatureAlgorithms = []tls.SignatureScheme{tls.PKCS1WithSHA256}
-
-		// #nosec b/c gosec triggers on InsecureSkipVerify
-		tlsConfig := &tls.Config{
-			Certificates:       []tls.Certificate{*cert},
-			InsecureSkipVerify: insecure,
-			MinVersion:         tls.VersionTLS12,
-			MaxVersion:         tls.VersionTLS12,
-		}
-		transport := &http.Transport{
-			TLSClientConfig: tlsConfig,
-		}
-		httpClient = &http.Client{
-			Transport: transport,
-		}
-	} else if !v.GetBool(cli.CACFlag) {
-		certPath := v.GetString(CertPathFlag)
-		keyPath := v.GetString(KeyPathFlag)
-
-		var errRuntimeClientTLS error
-		httpClient, errRuntimeClientTLS = runtimeClient.TLSClient(runtimeClient.TLSClientOptions{
-			Key:                keyPath,
-			Certificate:        certPath,
-			InsecureSkipVerify: insecure})
-		if errRuntimeClientTLS != nil {
-			log.Fatal(errRuntimeClientTLS)
-		}
+// NewWebhookRuntime creates and returns a runtime client
+func NewWebhookRuntime(hostWithPort string, contentType string, insecure bool, debug bool) *WebhookRuntime {
+	wr := WebhookRuntime{
+		Host:        "https://" + hostWithPort,
+		ContentType: contentType,
+		Insecure:    insecure,
+		Debug:       debug,
 	}
 
+	return &wr
+}
+
+// SetupClient sets up either CAC or cert, key client
+func (wr *WebhookRuntime) SetupClient(cert *tls.Certificate) (*WebhookRuntime, error) {
+
+	// Set up the httpClient with tls certificate
+
+	// #nosec b/c gosec triggers on InsecureSkipVerify
+	tlsConfig := tls.Config{
+		Certificates:       []tls.Certificate{*cert},
+		InsecureSkipVerify: wr.Insecure,
+		MinVersion:         tls.VersionTLS12,
+		MaxVersion:         tls.VersionTLS12,
+	}
+	transport := &http.Transport{
+		TLSClientConfig: &tlsConfig,
+	}
+	httpClient := http.Client{
+		Transport: transport,
+		Timeout:   time.Second * 30,
+	}
+
+	// Add http client to our runtime client
+	wr.client = &httpClient
+
+	return wr, nil
+}
+
+// Post WebhookRuntime comment goes here
+func (wr *WebhookRuntime) Post(data []byte) (*http.Response, error) {
+	json := bytes.NewBuffer(data)
+	// Create the POST request
+	req, err := http.NewRequest(
+		"POST",
+		wr.Host+wr.BasePath,
+		json,
+	)
+	req.Header.Set("Content-type", wr.ContentType)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Print out the request when debug mode is on
+	if wr.Debug {
+		Debug(httputil.DumpRequest(req, true))
+	}
+
+	// Send request and capture the response
+	resp, err := wr.client.Do(req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+	// Print out the response when debug mode is on
+	if wr.Debug {
+		Debug(httputil.DumpResponse(resp, true))
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	// Print response body to stdout
+	fmt.Printf("%s\n", body)
+
+	return resp, nil
+}
+
+// GetCacCertificate returns cert to use for tls
+func GetCacCertificate(v *viper.Viper) (*tls.Certificate, *pksigner.Store, error) {
+	var store *pksigner.Store
+	var errGetCACStore error
+
+	store, errGetCACStore = cli.GetCACStore(v)
+
+	if errGetCACStore != nil {
+		return nil, nil, errGetCACStore
+	}
+
+	cert, errTLSCert := store.TLSCertificate()
+	if errTLSCert != nil {
+		return nil, nil, errTLSCert
+	}
+
+	// Must explicitly state what signature algorithms we allow as of Go 1.14 to disable RSA-PSS signatures
+	cert.SupportedSignatureAlgorithms = []tls.SignatureScheme{tls.PKCS1WithSHA256}
+
+	return cert, store, nil
+}
+
+// CreateClient creates the webhook client
+func CreateClient(v *viper.Viper) (*WebhookRuntime, *pksigner.Store, error) {
+	var rc *WebhookRuntime
+	var cert *tls.Certificate
+	var err error
+	var store *pksigner.Store
+
+	insecure := v.GetBool(InsecureFlag)
 	verbose := v.GetBool(cli.VerboseFlag)
+
+	hostname := v.GetString(HostnameFlag)
+	port := v.GetInt(PortFlag)
 	hostWithPort := fmt.Sprintf("%s:%d", hostname, port)
-	myRuntime := runtimeClient.NewWithClient(hostWithPort, supportClient.DefaultBasePath, []string{"https"}, httpClient)
-	myRuntime.EnableConnectionReuse()
-	myRuntime.SetDebug(verbose)
 
-	supportGateway := supportClient.New(myRuntime, nil)
+	contentType := "application/json; charset=utf-8"
 
-	return supportGateway, store, nil
+	// Get the tls certificate
+	// If using a CAC, the client cert comes from the card
+	// Otherwise, use the certpath and keypath values
+	if v.GetBool(cli.CACFlag) {
+		cert, store, err = GetCacCertificate(v)
+
+		if err != nil {
+			return nil, nil, err
+		}
+
+	} else if !v.GetBool(cli.CACFlag) {
+		var loadCert tls.Certificate
+
+		certPath := v.GetString(CertPathFlag)
+		keyPath := v.GetString(KeyPathFlag)
+		loadCert, err = tls.LoadX509KeyPair(certPath, keyPath)
+
+		if err != nil {
+			return nil, nil, err
+		}
+
+		cert = &loadCert
+	}
+
+	runtimeClient := NewWebhookRuntime(hostWithPort, contentType, insecure, verbose)
+
+	rc, err = runtimeClient.SetupClient(cert)
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return rc, store, nil
 }

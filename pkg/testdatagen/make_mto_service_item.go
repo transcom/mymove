@@ -9,9 +9,9 @@ import (
 
 // makeServiceItem creates a single service item and associated set relationships
 func makeServiceItem(db *pop.Connection, assertions Assertions, isBasicServiceItem bool) models.MTOServiceItem {
-	moveTaskOrder := assertions.MoveTaskOrder
+	moveTaskOrder := assertions.Move
 	if isZeroUUID(moveTaskOrder.ID) {
-		moveTaskOrder = MakeMoveTaskOrder(db, assertions)
+		moveTaskOrder = MakeMove(db, assertions)
 	}
 
 	var MTOShipmentID *uuid.UUID

@@ -49,6 +49,7 @@ import CustomerAgreementLegalese from 'scenes/Moves/Ppm/CustomerAgreementLegales
 import { withContext } from 'shared/AppContext';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 import { CONUS_STATUS } from 'shared/constants';
+import EditShipment from '../../components/Customer/EditShipment';
 
 export class AppWrapper extends Component {
   state = { hasError: false };
@@ -112,6 +113,7 @@ export class AppWrapper extends Component {
                   {getWorkflowRoutes(props)}
                   <ValidatedPrivateRoute exact path="/moves/:moveId/edit" component={Edit} />
                   <ValidatedPrivateRoute exact path="/moves/review/edit-profile" component={EditProfile} />
+                  <ValidatedPrivateRoute exact path="/moves/review/edit-shipment" component={EditShipment} />
                   <ValidatedPrivateRoute exact path="/moves/review/edit-backup-contact" component={EditBackupContact} />
                   <ValidatedPrivateRoute exact path="/moves/review/edit-contact-info" component={EditContactInfo} />
 

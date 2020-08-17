@@ -62,6 +62,16 @@ func NewDbWebhookNotifyCommand() *cobra.Command {
 	return cmd
 }
 
+func NewPostWebhookNotifyCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:          "post-webhook-notify",
+		RunE:         postWebhookNotify,
+		SilenceUsage: true,
+	}
+	initPostWebhookNotifyFlags(cmd.Flags())
+	return cmd
+}
+
 func (suite *WebhookClientTestingSuite) Test_DBConnection() {
 
 	rootCmd := NewRootCmd()
@@ -92,6 +102,27 @@ func (suite *WebhookClientTestingSuite) Test_DBWebhookNotify() {
 			"--keypath", suite.keyPath,
 			"--insecure",
 			"db-webhook-notify"})
+		err := rootCmd.Execute()
+		suite.Nil(err)
+	})
+
+}
+
+func (suite *WebhookClientTestingSuite) Test_PostWebhookNotify() {
+
+	rootCmd := NewRootCmd()
+	cmd := NewPostWebhookNotifyCommand()
+	rootCmd.AddCommand(cmd)
+	b := bytes.NewBufferString("")
+	message := "Lorem ipsum"
+	rootCmd.SetOut(b)
+	suite.T().Run("post-webhook-notify: Send a request to server", func(t *testing.T) {
+		rootCmd.SetArgs([]string{
+			"--message", message,
+			"--certpath", suite.certPath,
+			"--keypath", suite.keyPath,
+			"--insecure",
+			"post-webhook-notify"})
 		err := rootCmd.Execute()
 		suite.Nil(err)
 	})
