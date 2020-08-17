@@ -20,14 +20,14 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOAvailableToPrimeLookup() {
 	availableToPrimeAt := time.Date(testdatagen.TestYear, time.June, 3, 12, 57, 33, 123, time.UTC)
 	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
 		testdatagen.Assertions{
-			MoveTaskOrder: models.Move{
+			Move: models.Move{
 				AvailableToPrimeAt: &availableToPrimeAt,
 			},
 		})
 
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 		testdatagen.Assertions{
-			MoveTaskOrder: mtoServiceItem.MoveTaskOrder,
+			Move: mtoServiceItem.MoveTaskOrder,
 		})
 
 	paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)

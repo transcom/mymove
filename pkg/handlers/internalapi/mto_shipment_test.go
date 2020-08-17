@@ -24,13 +24,13 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
-	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	mto := testdatagen.MakeDefaultMove(suite.DB())
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 	pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
 	destinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: mto,
-		MTOShipment:   models.MTOShipment{},
+		Move:        mto,
+		MTOShipment: models.MTOShipment{},
 	})
 	mtoShipment.MoveTaskOrderID = mto.ID
 
@@ -249,9 +249,9 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 }
 
 func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
-	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	mto := testdatagen.MakeDefaultMove(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: mto,
+		Move: mto,
 	})
 
 	shipments := models.MTOShipments{mtoShipment}

@@ -9,16 +9,16 @@ import (
 
 func (suite *PaymentRequestHelperSuite) TestValidServiceParamList() {
 	// Create some records we'll need to link to
-	moveTaskOrder := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	moveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
 	mtoServiceItem1 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: moveTaskOrder,
+		Move: moveTaskOrder,
 		ReService: models.ReService{
 			Code: "DLH",
 			Name: "Domestic Linehaul",
 		},
 	})
 	mtoServiceItem2 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: moveTaskOrder,
+		Move: moveTaskOrder,
 		ReService: models.ReService{
 			Code: "DOP",
 			Name: "Domestic Origin Pickup",
