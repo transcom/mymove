@@ -58,7 +58,8 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0051](0051-swagger-date-formats.md) - Use only Swagger supported formats for dates
 - [ADR-0052](0052-use-data-testid.md) - Use `data-testid` as an attribute for finding components in tests
 - [ADR-0053](0053-use-react-query-office-app.md) - Use React Query for Office App API interactions
-- [ADR-0054](0054-consolidate-moves-and-mtos.md) - Consolidate moves and move task orders into one database table
+- [ADR-0054](0054-use-CSS-to-highlight-unfinished-features.md) - Use CSS to highlight unfinished features
+- [ADR-0055](0055-consolidate-moves-and-mtos.md) - Consolidate moves and move task orders into one database table
 
 <!-- adrlogstop -->
 
