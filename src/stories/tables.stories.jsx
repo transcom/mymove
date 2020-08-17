@@ -6,7 +6,7 @@ import QueueTable from '../components/QueueTable';
 import ServiceItemTable from '../components/ServiceItemTable';
 import ServiceItemTableHasImg from '../components/ServiceItemTableHasImg';
 import DataPoint from '../components/DataPoint';
-import DataPair from '../components/DataPair';
+import DataPointGroup from '../components/DataPointGroup';
 
 import { ReactComponent as ChevronRight } from 'shared/icon/chevron-right.svg';
 import { ReactComponent as ChevronLeft } from 'shared/icon/chevron-left.svg';
@@ -248,12 +248,12 @@ export const TableElements = () => (
       </div>
       <div className="sb-table-wrapper">
         <code>data-pair</code>
-        <DataPair>
+        <DataPointGroup>
           <DataPoint
             columnHeaders={['Customer requested pick up date', 'Scheduled pick up date']}
             dataRow={['Thursday, 26 Mar 2020', 'Friday, 27 Mar 2020']}
           />
-        </DataPair>
+        </DataPointGroup>
       </div>
     </div>
   </div>
@@ -282,14 +282,14 @@ export const StandardTables = () => (
       <div style={{ width: '40px' }} />
       <div>
         <h3>Data pair</h3>
-        <DataPair>
+        <DataPointGroup>
           <DataPoint
             columnHeaders={['Customer requested pick up date', 'Scheduled pick up date']}
             dataRow={['Thursday, 26 Mar 2020', 'Friday, 27 Mar 2020']}
           />
-        </DataPair>
+        </DataPointGroup>
         <div style={{ 'margin-bottom': '1em' }} />
-        <DataPair>
+        <DataPointGroup>
           <DataPoint
             columnHeaders={['Authorized addresses', '']}
             dataRow={['San Antonio, TX 78234', 'Tacoma, WA 98421']}
@@ -300,7 +300,7 @@ export const StandardTables = () => (
             dataRow={['812 S 129th St, San Antonio, TX 78234', '441 SW Rio de la Plata Drive, Tacoma, WA 98421']}
             Icon={ArrowRight}
           />
-        </DataPair>
+        </DataPointGroup>
       </div>
     </div>
   </div>

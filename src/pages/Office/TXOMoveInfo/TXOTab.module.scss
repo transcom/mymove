@@ -2,9 +2,20 @@
 @import 'shared/styles/_mixins';
 @import 'shared/styles/colors';
 
-.MoveDetails {
+.tabContent {
   background: $bg-gray;
   scroll-behavior: smooth;
+  flex-grow: 1;
+
+  .gridContainer {
+    .shipmentCard {
+      @include u-padding-left(4);
+    }
+
+    .shipmentCard > div {
+      @include u-margin-bottom(3);
+    }
+  }
 }
 
 .container {
@@ -16,6 +27,29 @@
 
   .gridContainer {
     flex-grow: 1;
+  }
+}
+
+.pageHeader {
+  display: flex;
+  align-items: center;
+
+  h1 {
+    flex-grow: 1;
+  }
+
+  h6 {
+    margin: 0;
+    line-height: 1.25;
+  }
+
+  h6 + h6 {
+    @include u-margin-top(1);
+  }
+
+  .pageHeaderDetails {
+    color: $base;
+    text-align: right;
   }
 }
 
@@ -32,10 +66,12 @@
   border: 1px solid #dfe1e2;
 }
 
-.section + .section {
+.section + .section,
+.shipmentCard + .shipmentCard {
   @include u-margin-top(4);
 }
 
-.section:last-child {
+.section:last-child,
+.shipmentCard:last-child {
   margin-bottom: 135px;
 }

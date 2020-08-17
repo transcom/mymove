@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 import { arrayOf, shape, string } from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
-import { getAllMoveOrders } from 'shared/Entities/modules/moveOrders';
+import { getAllMoveOrders, selectMoveOrderList } from 'shared/Entities/modules/moveOrders';
 
 class TOO extends Component {
   componentDidMount() {
@@ -40,7 +39,6 @@ class TOO extends Component {
                 agency,
                 originDutyStation,
                 customerID,
-                moveTaskOrderId,
               }) => (
                 <tr data-testid="too-row" key={moveOrderId}>
                   <td onClick={() => this.handleCustomerInfoClick(moveOrderId)}>{`${last_name}, ${first_name}`}</td>
@@ -80,7 +78,7 @@ TOO.propTypes = {
 
 const mapStateToProps = (state) => {
   return {
-    moveOrders: Object.values(get(state, 'entities.moveOrder', {})),
+    moveOrders: selectMoveOrderList(state),
   };
 };
 const mapDispatchToProps = {
