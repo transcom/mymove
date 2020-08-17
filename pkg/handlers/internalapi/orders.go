@@ -3,11 +3,6 @@ package internalapi
 import (
 	"time"
 
-	"go.uber.org/zap"
-
-	"github.com/transcom/mymove/pkg/cli"
-	"github.com/transcom/mymove/pkg/services/converthelper"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
@@ -85,9 +80,25 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
-	dutyStation, err := models.FetchDutyStation(h.DB(), stationID)
+	newDutyStation, err := models.FetchDutyStation(h.DB(), stationID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
+	}
+	originDutyStation := serviceMember.DutyStation
+	originDutyStationID := originDutyStation.ID
+	grade := (*string)(serviceMember.Rank)
+
+	weight, entitlementErr := models.GetEntitlement(*serviceMember.Rank, *payload.HasDependents, *payload.SpouseHasProGear)
+	if entitlementErr != nil {
+		return handlers.ResponseForError(logger, entitlementErr)
+	}
+	entitlement := models.Entitlement{
+		DependentsAuthorized: payload.HasDependents,
+		DBAuthorizedWeight:   models.IntPointer(weight),
+	}
+
+	if saveEntitlementErr := h.DB().Save(&entitlement); saveEntitlementErr != nil {
+		return handlers.ResponseForError(logger, saveEntitlementErr)
 	}
 
 	var deptIndicator *string
@@ -103,11 +114,17 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 		payload.OrdersType,
 		*payload.HasDependents,
 		*payload.SpouseHasProGear,
-		dutyStation,
+		newDutyStation,
 		payload.OrdersNumber,
 		payload.Tac,
 		payload.Sac,
-		deptIndicator)
+		deptIndicator,
+		&originDutyStation,
+		&originDutyStationID,
+		grade,
+		&entitlement,
+		&entitlement.ID,
+	)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
@@ -122,17 +139,6 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 	}
 	newOrder.Moves = append(newOrder.Moves, *newMove)
 
-	// temp create corresponding move order and move task order until db is reconciled
-	if h.HandlerContext.GetFeatureFlag(cli.FeatureFlagConvertProfileOrdersToGHC) {
-		if moID, convertErr := converthelper.ConvertProfileOrdersToGHC(h.DB(), newMove.ID); convertErr != nil {
-			logger.Error("ProfileOrders->GHC conversion error", zap.Error(convertErr))
-			// don't return an error here because we don't want this to break the endpoint
-		} else {
-			logger.Info("ProfileOrders->GHC conversion successful. New Order and Move created.", zap.String("orders_id", moID.String()))
-		}
-	} else {
-		logger.Info("ProfileOrders->GHC conversion skipped (env var not set)")
-	}
 	orderPayload, err := payloadForOrdersModel(h.FileStorer(), newOrder)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)

@@ -226,7 +226,12 @@ func (s ServiceMember) CreateOrder(db *pop.Connection,
 	ordersNumber *string,
 	tac *string,
 	sac *string,
-	departmentIndicator *string) (Order, *validate.Errors, error) {
+	departmentIndicator *string,
+	originDutyStation *DutyStation,
+	originDutyStationID *uuid.UUID,
+	grade *string,
+	entitlement *Entitlement,
+	entitlementID *uuid.UUID) (Order, *validate.Errors, error) {
 
 	var newOrders Order
 	responseVErrors := validate.NewErrors()
@@ -262,6 +267,11 @@ func (s ServiceMember) CreateOrder(db *pop.Connection,
 			TAC:                 tac,
 			SAC:                 sac,
 			DepartmentIndicator: departmentIndicator,
+			Grade:               grade,
+			OriginDutyStationID: originDutyStationID,
+			OriginDutyStation:   originDutyStation,
+			Entitlement:         entitlement,
+			EntitlementID:       entitlementID,
 		}
 
 		verrs, err = db.ValidateAndCreate(&newOrders)
