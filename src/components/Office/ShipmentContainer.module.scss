@@ -5,7 +5,5 @@
   @include u-padding-x(2);
   @include u-padding-bottom(3);
   @include u-bg('white');
-  @include u-margin-bottom(
-    2
-  ); //this ensures in a vertically compressed window you can still scroll down to the bottom all the way and have some space below the card
+  @include u-margin-bottom(2);
 }
