@@ -3,6 +3,9 @@ import PropTypes from 'prop-types';
 import { Radio, Textarea, FormGroup, Fieldset, Label, Button, Form } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import classnames from 'classnames';
+
+import styles from './ServiceItemCard.module.scss';
+
 import ShipmentContainer from 'components/Office/ShipmentContainer';
 import { mtoShipmentTypeToFriendlyDisplay, toDollarString } from 'shared/formatters';
 import { ShipmentOptionsOneOf } from 'types/shipment';
@@ -10,8 +13,6 @@ import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 import { ReactComponent as XHeavyIcon } from 'shared/icon/x-heavy.svg';
 import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
 import { ReactComponent as FormCheckmarkIcon } from 'shared/icon/form-checkmark.svg';
-
-import styles from './ServiceItemCard.module.scss';
 
 /** This component represents a Payment Request Service Item */
 const ServiceItemCard = ({
