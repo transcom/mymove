@@ -26,10 +26,11 @@ function formatShipmentType(shipmentType) {
 
 function formatShipmentDate(shipmentDateString) {
   const dateObj = new Date(shipmentDateString);
+  const weekday = new Intl.DateTimeFormat('en', { weekday: 'long' }).format(dateObj);
   const year = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(dateObj);
   const month = new Intl.DateTimeFormat('en', { month: 'short' }).format(dateObj);
   const day = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(dateObj);
-  return `${day} ${month} ${year}`;
+  return `${weekday}, ${day} ${month} ${year}`;
 }
 
 class MoveTaskOrder extends Component {
