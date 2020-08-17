@@ -2,7 +2,7 @@
 @import 'shared/styles/_mixins';
 @import 'shared/styles/colors';
 
-.MoveDetails {
+.tabContent {
   background: $bg-gray;
   scroll-behavior: smooth;
   flex-grow: 1;
@@ -43,14 +43,6 @@
   }
 }
 
-.mtoShipment + .mtoShipment {
-  @include u-margin-top(4);
-}
-
-.mtoShipment:last-child {
-  @include u-margin-bottom(8);
-}
-
 .sidebar {
   position: sticky;
   align-self: flex-start;
@@ -64,10 +56,12 @@
   border: 1px solid #dfe1e2;
 }
 
-.section + .section {
+.section + .section,
+.shipmentCard + .shipmentCard {
   @include u-margin-top(4);
 }
 
-.section:last-child {
+.section:last-child,
+.shipmentCard:last-child {
   margin-bottom: 135px;
 }

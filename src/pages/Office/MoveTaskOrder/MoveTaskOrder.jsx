@@ -3,7 +3,7 @@ import { withRouter } from 'react-router-dom';
 import { get, map } from 'lodash';
 import { GridContainer } from '@trussworks/react-uswds';
 
-import styles from '../MoveDetails/MoveDetails.module.scss';
+import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
 import ShipmentContainer from 'components/Office/ShipmentContainer';
 import ShipmentHeading from 'components/Office/ShipmentHeading';
@@ -49,7 +49,7 @@ export const MoveTaskOrder = ({ match }) => {
   });
 
   return (
-    <div className={styles.MoveDetails}>
+    <div className={styles.tabContent}>
       <GridContainer className={styles.gridContainer} data-testid="too-shipment-container">
         <div className={styles.pageHeader}>
           <h1>Move task order</h1>
@@ -63,7 +63,7 @@ export const MoveTaskOrder = ({ match }) => {
           const serviceItemsForShipment = serviceItems.filter((item) => item.mtoShipmentID === mtoShipment.id);
 
           return (
-            <ShipmentContainer shipmentType={mtoShipment.shipmentType} className={styles.mtoShipment}>
+            <ShipmentContainer shipmentType={mtoShipment.shipmentType} className={styles.shipmentCard}>
               <ShipmentHeading
                 key={mtoShipment.id}
                 shipmentInfo={{
