@@ -16,7 +16,7 @@ const DataPoint = ({ columnHeaders, dataRow, Icon, custClass }) => (
     <tbody>
       <tr>
         {dataRow.map((cell, i) => (
-          <td key={cell}>
+          <td key={columnHeaders[`${i}`]}>
             <div className={classnames({ [`${styles.iconCellContainer}`]: !!Icon && i === 0 })}>
               <span>{cell}</span>
               {!!Icon && i === 0 && <Icon />}

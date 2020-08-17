@@ -7,7 +7,7 @@ import TabNav from 'components/TabNav';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
 const MoveDetails = lazy(() => import('pages/Office/MoveDetails/MoveDetails'));
-const TOOMoveTaskOrder = lazy(() => import('pages/TOO/moveTaskOrder'));
+const MoveTaskOrder = lazy(() => import('pages/Office/MoveTaskOrder/MoveTaskOrder'));
 const MoveOrders = lazy(() => import('pages/Office/MoveOrders/MoveOrders'));
 const PaymentRequestIndex = lazy(() => import('pages/Office/PaymentRequestIndex/PaymentRequestIndex'));
 const PaymentRequestReview = lazy(() => import('pages/Office/PaymentRequestReview/PaymentRequestReview'));
@@ -38,7 +38,13 @@ const TXOMoveInfo = () => {
                   <span className="tab-title">Move details</span>
                   <Tag>2</Tag>
                 </NavLink>,
-                <NavLink exact activeClassName="usa-current" to={`/moves/${moveOrderId}/mto`} role="tab">
+                <NavLink
+                  data-testid="MoveTaskOrder-Tab"
+                  exact
+                  activeClassName="usa-current"
+                  to={`/moves/${moveOrderId}/mto`}
+                  role="tab"
+                >
                   <span className="tab-title">Move task order</span>
                 </NavLink>,
                 <NavLink exact activeClassName="usa-current" to={`/moves/${moveOrderId}/payment-requests`} role="tab">
@@ -61,9 +67,8 @@ const TXOMoveInfo = () => {
             <MoveOrders />
           </Route>
 
-          {/* TODO - the nav to this url is passing moveOrderId instead of moveTaskOrderId */}
           <Route path="/moves/:moveOrderId/mto" exact>
-            <TOOMoveTaskOrder />
+            <MoveTaskOrder />
           </Route>
 
           <Route path="/moves/:moveOrderId/payment-requests/:paymentRequestId" exact>
