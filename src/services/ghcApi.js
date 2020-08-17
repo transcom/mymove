@@ -44,7 +44,7 @@ export async function getPaymentRequest(key, paymentRequestID) {
 }
 
 export async function getMoveOrder(key, moveOrderID) {
-  return makeGHCRequest('moveOrder.getMoveOrder', { moveOrderID }, { schemaKey: 'moveOrders' });
+  return makeGHCRequest('moveOrder.getMoveOrder', { moveOrderID }, { schemaKey: 'moveOrder' });
 }
 
 export async function getMoveTaskOrderList(key, moveOrderID) {
