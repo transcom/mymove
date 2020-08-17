@@ -1,6 +1,9 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { get, map } from 'lodash';
+import { GridContainer } from '@trussworks/react-uswds';
+
+import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
 import ShipmentContainer from 'components/Office/ShipmentContainer';
 import ShipmentHeading from 'components/Office/ShipmentHeading';
@@ -32,12 +35,21 @@ export const MoveTaskOrder = ({ match }) => {
   const { moveOrderId } = match.params;
 
   // TODO - Do something with moveOrder and moveTaskOrder?
-  const { moveOrders = {}, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveTaskOrderQueries(moveOrderId);
+  const {
+    moveOrders = {},
+    moveTaskOrders,
+    mtoShipments,
+    mtoServiceItems,
+    isLoading,
+    isError,
+  } = useMoveTaskOrderQueries(moveOrderId);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
   const moveOrder = Object.values(moveOrders)?.[0];
+  const moveTaskOrder = Object.values(moveTaskOrders)[0];
+
   const serviceItems = map(mtoServiceItems, (item) => {
     const newItem = { ...item };
     newItem.serviceItem = item.reServiceName;
@@ -47,12 +59,20 @@ export const MoveTaskOrder = ({ match }) => {
   });
 
   return (
-    <div style={{ display: 'flex' }}>
-      <div className="" style={{ width: '85%' }} data-testid="too-shipment-container">
+    <div className={styles.tabContent}>
+      <GridContainer className={styles.gridContainer} data-testid="too-shipment-container">
+        <div className={styles.pageHeader}>
+          <h1>Move task order</h1>
+          <div className={styles.pageHeaderDetails}>
+            <h6>MTO Reference ID #{moveTaskOrder?.referenceId}</h6>
+            <h6>Contract #1234567890</h6> {/* TODO - need this value from the API */}
+          </div>
+        </div>
+
         {map(mtoShipments, (mtoShipment) => {
           const serviceItemsForShipment = serviceItems.filter((item) => item.mtoShipmentID === mtoShipment.id);
           return (
-            <ShipmentContainer>
+            <ShipmentContainer shipmentType={mtoShipment.shipmentType} className={styles.shipmentCard}>
               <ShipmentHeading
                 key={mtoShipment.id}
                 shipmentInfo={{
@@ -82,13 +102,12 @@ export const MoveTaskOrder = ({ match }) => {
             </ShipmentContainer>
           );
         })}
-      </div>
+      </GridContainer>
     </div>
   );
 };
 
 MoveTaskOrder.propTypes = {
-  // history: HistoryShape.isRequired,
   match: MatchShape.isRequired,
 };
 
