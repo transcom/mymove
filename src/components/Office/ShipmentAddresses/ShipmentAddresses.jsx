@@ -10,7 +10,7 @@ import { ReactComponent as ArrowRight } from 'shared/icon/arrow-right.svg';
 
 const ShipmentAddresses = ({ pickupAddress, destinationAddress, originDutyStation, destinationDutyStation }) => {
   return (
-    <DataPointGroup>
+    <DataPointGroup className="maxw-tablet">
       <DataPoint
         columnHeaders={['Authorized addresses', '']}
         dataRow={[formatAddress(originDutyStation), formatAddress(destinationDutyStation)]}
