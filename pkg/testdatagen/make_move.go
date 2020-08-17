@@ -1,6 +1,8 @@
 package testdatagen
 
 import (
+	"time"
+
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
@@ -101,6 +103,18 @@ func MakeMoveWithoutMoveType(db *pop.Connection, assertions Assertions) models.M
 
 	mustCreate(db, &move)
 
+	return move
+}
+
+// MakeAvailableMove makes a Move that is available to the prime at
+// the time of its creation
+func MakeAvailableMove(db *pop.Connection) models.Move {
+	now := time.Now()
+	move := MakeMove(db, Assertions{
+		Move: models.Move{
+			AvailableToPrimeAt: &now,
+		},
+	})
 	return move
 }
 

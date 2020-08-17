@@ -6,19 +6,11 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	. "github.com/transcom/mymove/pkg/services/move_task_order"
 
-	"time"
-
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderChecker() {
-	now := time.Now()
-	availableMTO := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			AvailableToPrimeAt: &now,
-		},
-	})
+	availableMTO := testdatagen.MakeAvailableMove(suite.DB())
 	notAvailableMTO := testdatagen.MakeDefaultMove(suite.DB())
 	mtoChecker := NewMoveTaskOrderChecker(suite.DB())
 
