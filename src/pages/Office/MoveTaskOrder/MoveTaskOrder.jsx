@@ -99,7 +99,10 @@ export const MoveTaskOrder = ({ match }) => {
                 // eslint-disable-next-line react/prop-types
                 destinationDutyStation={moveOrder?.destinationDutyStation?.address}
               />
-              <ShipmentWeightDetails />
+              <ShipmentWeightDetails
+                estimatedWeight={mtoShipment?.primeEstimatedWeight}
+                actualWeight={mtoShipment?.primeActualWeight}
+              />
               <RequestedServiceItemsTable serviceItems={serviceItemsForShipment} />
             </ShipmentContainer>
           );
