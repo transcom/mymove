@@ -122,7 +122,7 @@ export class WizardFormPage extends Component {
               </button>
             )}
           </div>
-          <div className="grid-col-10 text-right margin-top-6 tablet:margin-top-3 display-flex">
+          <div className="grid-col-10 text-right margin-top-6 tablet:margin-top-3">
             {!hideBackBtn && (
               <button
                 className="usa-button usa-button--secondary prev"
