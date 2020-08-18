@@ -38,7 +38,7 @@ func (t *testMTOShipmentQueryBuilder) Transaction(fn func(tx *pop.Connection) er
 }
 
 func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
-	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
+	mtoShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 	builder := query.NewQueryBuilder(suite.DB())
 	createNewBuilder := func(db *pop.Connection) createMTOShipmentQueryBuilder {
 		return builder

@@ -1,6 +1,8 @@
 package testdatagen
 
 import (
+	"time"
+
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
@@ -104,22 +106,21 @@ func MakeMoveWithoutMoveType(db *pop.Connection, assertions Assertions) models.M
 	return move
 }
 
+// MakeAvailableMove makes a Move that is available to the prime at
+// the time of its creation
+func MakeAvailableMove(db *pop.Connection) models.Move {
+	now := time.Now()
+	move := MakeMove(db, Assertions{
+		Move: models.Move{
+			AvailableToPrimeAt: &now,
+		},
+	})
+	return move
+}
+
 // MakeDefaultMove makes a Move with default values
 func MakeDefaultMove(db *pop.Connection) models.Move {
 	return MakeMove(db, Assertions{})
-}
-
-// MakeMoveData created 5 Moves (and in turn a set of Orders for each)
-func MakeMoveData(db *pop.Connection) {
-	for i := 0; i < 3; i++ {
-		MakeDefaultMove(db)
-	}
-
-	for i := 0; i < 2; i++ {
-		move := MakeDefaultMove(db)
-		move.Approve()
-		db.ValidateAndUpdate(&move)
-	}
 }
 
 func setShow(assertionShow *bool) *bool {
