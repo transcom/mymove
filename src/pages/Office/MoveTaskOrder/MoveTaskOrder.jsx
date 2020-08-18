@@ -48,7 +48,7 @@ export const MoveTaskOrder = ({ match }) => {
   if (isError) return <SomethingWentWrong />;
 
   const moveOrder = Object.values(moveOrders)?.[0];
-  const moveTaskOrder = Object.values(moveTaskOrders)[0];
+  const moveTaskOrder = Object.values(moveTaskOrders)?.[0];
 
   const serviceItems = map(mtoServiceItems, (item) => {
     const newItem = { ...item };
