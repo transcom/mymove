@@ -9,4 +9,8 @@
   :global .table--data-point-group {
     @include u-margin-bottom(3);
   }
+
+  :global .shipment-heading {
+    @include u-margin-bottom(3);
+  }
 }
