@@ -1,9 +1,11 @@
 import React from 'react';
+import { withRouter } from 'react-router-dom';
+
 import { ProfileStatusTimeline } from 'scenes/Landing/StatusTimeline';
 import truck from 'shared/icon/truck-gray.svg';
 
 const DraftMoveSummary = (props) => {
-  const { profile, resumeMove } = props;
+  const { profile, resumeMove, move } = props;
   return (
     <div>
       <div className="shipment_box">
@@ -40,6 +42,12 @@ const DraftMoveSummary = (props) => {
               <button className="usa-button" onClick={resumeMove}>
                 Continue Move Setup
               </button>
+              <button className="usa-button" onClick={() => props.history.push('/orders')}>
+                Add orders
+              </button>
+              <button className="usa-button" onClick={() => props.history.push(`/moves/${move.id}/hhg-start`)}>
+                Plan your shipment
+              </button>
             </div>
           </div>
         </div>
@@ -48,4 +56,4 @@ const DraftMoveSummary = (props) => {
   );
 };
 
-export default DraftMoveSummary;
+export default withRouter(DraftMoveSummary);
