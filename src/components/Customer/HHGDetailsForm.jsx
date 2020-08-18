@@ -15,7 +15,7 @@ import {
   loadMTOShipments as loadMTOShipmentsAction,
   selectMTOShipmentForMTO,
   createMTOShipment as createMTOShipmentAction,
-  updateMTOShipment as updateMTOShipmentAction,
+  // updateMTOShipment as updateMTOShipmentAction,
 } from 'shared/Entities/modules/mtoShipments';
 import { selectActiveOrLatestOrdersFromEntities } from 'shared/Entities/modules/orders';
 import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
@@ -195,7 +195,7 @@ class HHGDetailsForm extends Component {
     releasingAgent,
     customerRemarks,
   }) => {
-    const { createMTOShipment, updateMTOShipment, match, mtoShipment } = this.props;
+    const { createMTOShipment, match, mtoShipment } = this.props;
     const { hasDeliveryAddress } = this.state;
     const { moveId } = match.params;
     const pendingMtoShipment = {
@@ -258,9 +258,11 @@ class HHGDetailsForm extends Component {
 
     if (isEmpty(mtoShipment)) {
       createMTOShipment(pendingMtoShipment);
-    } else {
-      updateMTOShipment(mtoShipment.id, pendingMtoShipment, mtoShipment.eTag);
     }
+    // } else {
+    // TODO: Update if existing MTOShipment once UpdateMTOShipment service for Customer Flow is merged
+    // updateMTOShipment(mtoShipment.id, pendingMtoShipment, mtoShipment.eTag);
+    // }
   };
 
   render() {
@@ -415,7 +417,7 @@ HHGDetailsForm.propTypes = {
     postal_code: string,
   }),
   createMTOShipment: func.isRequired,
-  updateMTOShipment: func.isRequired,
+  // updateMTOShipment: func.isRequired,
   showLoggedInUser: func.isRequired,
   loadMTOShipments: func.isRequired,
   push: func.isRequired,
@@ -479,7 +481,7 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = {
   createMTOShipment: createMTOShipmentAction,
-  updateMTOShipment: updateMTOShipmentAction,
+  // updateMTOShipment: updateMTOShipmentAction,
   showLoggedInUser: showLoggedInUserAction,
   loadMTOShipments: loadMTOShipmentsAction,
 };
