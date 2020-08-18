@@ -32,7 +32,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
-	mto := MakeAvailableMoveTaskOrder(suite.DB())
+	mto := testdatagen.MakeAvailableMove(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 	})
@@ -176,7 +176,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	})
 
 	suite.T().Run("POST failure - 404 - Integration - ShipmentID not linked by MoveTaskOrderID", func(t *testing.T) {
-		mto2 := MakeAvailableMoveTaskOrder(suite.DB())
+		mto2 := testdatagen.MakeAvailableMove(suite.DB())
 		mtoShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: mto2,
 		})
@@ -250,7 +250,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 }
 
 func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
-	mto := MakeAvailableMoveTaskOrder(suite.DB())
+	mto := testdatagen.MakeAvailableMove(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 	})
@@ -386,7 +386,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 }
 
 func (suite *HandlerSuite) TestCreateMTOServiceItemDDFSITHandler() {
-	mto := MakeAvailableMoveTaskOrder(suite.DB())
+	mto := testdatagen.MakeAvailableMove(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 	})

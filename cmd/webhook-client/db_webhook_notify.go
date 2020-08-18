@@ -2,16 +2,13 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
-	webhookOperations "github.com/transcom/mymove/pkg/gen/supportclient/webhook"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -22,6 +19,8 @@ func initDbWebhookNotifyFlags(flag *pflag.FlagSet) {
 
 func dbWebhookNotify(cmd *cobra.Command, args []string) error {
 	v := viper.New()
+	// Temp url to use when making requests
+	basePath := "/support/v1/webhook-notify"
 
 	err := ParseFlags(cmd, v, args)
 	if err != nil {
@@ -51,22 +50,21 @@ func dbWebhookNotify(cmd *cobra.Command, args []string) error {
 			string(not.EventKey), not.ObjectID.String(), not.MoveTaskOrderID.String())
 	}
 
-	//#TODO: To remove dependency on gen/supportclient,
-	// replicate the functionality without using webhookOperations
-	newNotification := webhookOperations.PostWebhookNotifyBody{
+	payload := &WebhookMessage{
 		Message: message,
 	}
+	json, err := json.Marshal(payload)
 
-	//#TODO: To remove dependency on gen/supportclient,
-	// replicate the functionality without using webhookOperations
-	notifyParams := webhookOperations.NewPostWebhookNotifyParams()
-
-	notifyParams.WithMessage(newNotification)
-	notifyParams.SetTimeout(time.Second * 30)
+	if err != nil {
+		logger.Error("Error creating payload:", zap.Error(err))
+		return err
+	}
 
 	// Create the client and open the cacStore
-	supportGateway, cacStore, errCreateClient := CreateClient(v)
+	runtime, cacStore, errCreateClient := CreateClient(v)
+
 	if errCreateClient != nil {
+		logger.Error("Error creating client:", zap.Error(errCreateClient))
 		return errCreateClient
 	}
 
@@ -76,24 +74,15 @@ func dbWebhookNotify(cmd *cobra.Command, args []string) error {
 	}
 
 	// Make the API call
-	resp, err := supportGateway.Webhook.PostWebhookNotify(notifyParams)
+	runtime.BasePath = basePath
+	resp, err := runtime.Post(json)
+
 	if err != nil {
-		return HandleGatewayError(err, logger)
+		logger.Error("Error making request:", zap.Error(err))
+		return err
 	}
 
-	payload := resp.GetPayload()
-
-	if payload != nil {
-		payload, errJSONMarshall := json.Marshal(payload)
-		if errJSONMarshall != nil {
-			logger.Error("Error", zap.Error(errJSONMarshall))
-			return errJSONMarshall
-		}
-		logger.Info("Success!", zap.String("Payload", string(payload)))
-	} else {
-		logger.Error("Error:", zap.String("Error", resp.Error()))
-		return errors.New(resp.Error())
-	}
+	logger.Info("Request complete: ", zap.String("Status", resp.Status))
 
 	return nil
 }

@@ -17,6 +17,21 @@ describe('TOO user', () => {
     cy.signInAsUserPostRequest(TOOOfficeUserType, userId);
   });
 
+  it('is able to navigate to move task order page', () => {
+    const moveOrderId = '6fca843a-a87e-4752-b454-0fac67aa4988';
+
+    // TOO Moves queue
+    cy.wait(['@getGHCClient', '@getMoveOrders']);
+    cy.contains(moveOrderId).click();
+    cy.url().should('include', `/moves/${moveOrderId}/details`);
+
+    cy.get('[data-testid="MoveTaskOrder-Tab"]').click();
+
+    cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
+
+    cy.url().should('include', `/moves/${moveOrderId}/mto`);
+  });
+
   // This test performs a mutation so it can only succeed on a fresh DB.
   it('is able to approve a shipment', () => {
     const moveOrderId = '6fca843a-a87e-4752-b454-0fac67aa4988';

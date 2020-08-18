@@ -30,13 +30,9 @@ import (
 
 func (suite *HandlerSuite) TestListMTOsHandler() {
 	// unavailable MTO
-	testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	testdatagen.MakeDefaultMove(suite.DB())
 
-	moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			AvailableToPrimeAt: swag.Time(time.Now()),
-		},
-	})
+	moveTaskOrder := testdatagen.MakeAvailableMove(suite.DB())
 
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: moveTaskOrder,
@@ -67,7 +63,7 @@ func (suite *HandlerSuite) TestListMTOsHandler() {
 }
 
 func (suite *HandlerSuite) TestMakeMoveTaskOrderAvailableHandlerIntegrationSuccess() {
-	moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	moveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/available-to-prime", nil)
 	params := move_task_order.MakeMoveTaskOrderAvailableParams{
 		HTTPRequest:     request,
@@ -94,7 +90,7 @@ func (suite *HandlerSuite) TestMakeMoveTaskOrderAvailableHandlerIntegrationSucce
 }
 
 func (suite *HandlerSuite) TestGetMoveTaskOrder() {
-	moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	moveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
 	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
 	params := move_task_order.GetMoveTaskOrderParams{
 		HTTPRequest:     request,
@@ -117,11 +113,11 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 
-	destinationDutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{})
-	originDutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{})
+	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
 	dbCustomer := testdatagen.MakeDefaultServiceMember(suite.DB())
-	contractor := testdatagen.MakeContractor(suite.DB(), testdatagen.Assertions{})
-	document := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{})
+	contractor := testdatagen.MakeDefaultContractor(suite.DB())
+	document := testdatagen.MakeDefaultDocument(suite.DB())
 	issueDate := swag.Time(time.Now())
 	reportByDate := swag.Time(time.Now().AddDate(0, 0, -1))
 	referenceID, _ := models.GenerateReferenceID(suite.DB())

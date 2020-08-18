@@ -51,9 +51,9 @@ func (suite *MoveTaskOrderServiceSuite) TestListMoveTaskOrdersFetcher() {
 
 func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 	suite.T().Run("all move task orders", func(t *testing.T) {
-		testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
-		testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
-		testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeDefaultMove(suite.DB())
+		testdatagen.MakeDefaultMove(suite.DB())
+		testdatagen.MakeDefaultMove(suite.DB())
 
 		mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
 
@@ -67,27 +67,13 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 	})
 
 	suite.T().Run("all move task orders that are available to prime and using since", func(t *testing.T) {
-		time1 := time.Now()
-		time2 := time.Now()
-		time3 := time.Now()
-		testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &time1,
-			},
-		})
-		testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &time2,
-			},
-		})
+		now := time.Now()
 
-		oldMTO := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Move: models.Move{
-				AvailableToPrimeAt: &time3,
-			},
-		})
-		testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
-		testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeAvailableMove(suite.DB())
+		testdatagen.MakeAvailableMove(suite.DB())
+		oldMTO := testdatagen.MakeAvailableMove(suite.DB())
+		testdatagen.MakeDefaultMove(suite.DB())
+		testdatagen.MakeDefaultMove(suite.DB())
 
 		mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
 
@@ -97,8 +83,8 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 
 		// Put 1 Move updatedAt in the past
 		suite.NoError(suite.DB().RawQuery("UPDATE moves SET updated_at=? WHERE id=?",
-			time3.Add(-2*time.Second), oldMTO.ID).Exec())
-		since := time3.Unix()
+			now.Add(-2*time.Second), oldMTO.ID).Exec())
+		since := now.Unix()
 		mtosWithSince, err := mtoFetcher.ListAllMoveTaskOrders(true, &since)
 		suite.NoError(err)
 		suite.Equal(len(mtosWithSince), 2)

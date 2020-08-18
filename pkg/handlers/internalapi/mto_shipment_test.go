@@ -32,7 +32,7 @@ import (
 func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	mto := testdatagen.MakeDefaultMove(suite.DB())
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
-	pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+	pickupAddress := testdatagen.MakeDefaultAddress(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move:        mto,
 		MTOShipment: models.MTOShipment{},
@@ -214,9 +214,9 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 func (suite *HandlerSuite) getUpdateMTOShipmentParams(originalShipment models.MTOShipment) mtoshipmentops.UpdateMTOShipmentParams {
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
-	pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+	pickupAddress := testdatagen.MakeDefaultAddress(suite.DB())
 	pickupAddress.StreetAddress1 = "123 Fake Test St NW"
-	destinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+	destinationAddress := testdatagen.MakeDefaultAddress(suite.DB())
 	destinationAddress.StreetAddress1 = "54321 Test Fake Rd SE"
 
 	req := httptest.NewRequest("PATCH", "/mto-shipments/"+originalShipment.ID.String(), nil)
@@ -274,7 +274,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			updater,
 		}
 
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
+		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 		params := suite.getUpdateMTOShipmentParams(oldShipment)
 
 		response := handler.Handle(params)
@@ -292,7 +292,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		expectedStatus := internalmessages.MTOShipmentStatusSUBMITTED
 
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
+		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 		params := suite.getUpdateMTOShipmentParams(oldShipment)
 		params.Body.Status = expectedStatus
 
@@ -313,7 +313,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			updater,
 		}
 
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
+		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 		params := suite.getUpdateMTOShipmentParams(oldShipment)
 		params.Body = nil
 
@@ -330,7 +330,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			updater,
 		}
 
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
+		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 		params := suite.getUpdateMTOShipmentParams(oldShipment)
 		params.Body.Status = internalmessages.MTOShipmentStatusREJECTED
 
@@ -347,7 +347,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			updater,
 		}
 
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
+		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 		params := suite.getUpdateMTOShipmentParams(oldShipment)
 		updateURI := "/mto-shipments/" + oldShipment.ID.String()
 
@@ -368,7 +368,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			updater,
 		}
 
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
+		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 		params := suite.getUpdateMTOShipmentParams(oldShipment)
 		updateURI := "/mto-shipments/" + oldShipment.ID.String()
 
@@ -390,7 +390,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		}
 
 		uuidString := handlers.FmtUUID(uuid.FromStringOrNil("d874d002-5582-4a91-97d3-786e8f66c763"))
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
+		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 		params := suite.getUpdateMTOShipmentParams(oldShipment)
 		params.MtoShipmentID = *uuidString
 
@@ -407,7 +407,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			updater,
 		}
 
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
+		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 		params := suite.getUpdateMTOShipmentParams(oldShipment)
 		params.IfMatch = "intentionally-bad-if-match-header-value"
 
@@ -424,7 +424,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			updater,
 		}
 
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
+		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 		params := suite.getUpdateMTOShipmentParams(oldShipment)
 		params.Body.Agents = internalmessages.MTOAgents{
 			&internalmessages.MTOAgent{
@@ -452,7 +452,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			mock.Anything,
 		).Return(nil, err)
 
-		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
+		oldShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 		params := suite.getUpdateMTOShipmentParams(oldShipment)
 
 		response := handler.Handle(params)

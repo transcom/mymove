@@ -44,7 +44,7 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 	paymentRequestID := paymentRequest.ID
 	mtoID := paymentRequest.MoveTaskOrderID
 
-	unavailablePaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+	unavailablePaymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 
 	dummyRequest := http.Request{
 		URL: &url.URL{

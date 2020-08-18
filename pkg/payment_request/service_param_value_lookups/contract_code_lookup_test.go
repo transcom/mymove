@@ -14,7 +14,7 @@ func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
 	key := models.ServiceItemParamNameContractCode.String()
 
 	suite.T().Run("golden path", func(t *testing.T) {
-		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{})
+		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()))
 		suite.FatalNoError(err)
 
