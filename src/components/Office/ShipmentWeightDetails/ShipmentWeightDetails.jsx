@@ -10,7 +10,7 @@ const ShipmentWeightDetails = ({ estimatedWeight, actualWeight }) => {
   const headers = ['Estimated weight', 'Actual weight'];
   const row = [estimatedWeight ? formatWeight(estimatedWeight) : '', actualWeight ? formatWeight(actualWeight) : null];
   return (
-    <DataPointGroup>
+    <DataPointGroup className="maxw-tablet">
       <DataPoint columnHeaders={headers} dataRow={row} />
     </DataPointGroup>
   );
