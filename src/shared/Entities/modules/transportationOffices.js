@@ -9,11 +9,18 @@ export function loadDutyStationTransportationOffice(dutyStationId, label = loadD
   return swaggerRequest(getClient, swaggerTag, { dutyStationId }, { label });
 }
 
-export function selectDutyStationTransportationOffice(state, dutyStationId) {
-  // TODO: Add the dutyStationId to the return payload
-  // check for Transportation office that has the dutyStationId
+function selectCurrentDutyStation(state) {
+  // TODO: change when service member is refactored
+  return get(state, 'serviceMember.currentServiceMember.current_station');
+}
+
+export function selectDutyStationTransportationOffice(state) {
+  // check for the service member's duty station outside of entities until refactored to be in entities
+  const dutyStation = selectCurrentDutyStation(state);
+  const transportationOffice = dutyStation.transportation_office;
+  // check in entities for the loaded transporation office
   const offices = get(state, 'entities.TransportationOffices');
-  const officesOfDutyStation = offices.filter((office) => office.duty_station_id === dutyStationId);
+  const officesOfDutyStation = offices.filter((office) => office.id === transportationOffice.id);
 
   return officesOfDutyStation[0];
 }
