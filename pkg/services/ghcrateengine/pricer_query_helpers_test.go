@@ -31,10 +31,23 @@ func (suite *GHCRateEngineServiceSuite) Test_fetchDomOtherPrice() {
 	testCents := unit.Cents(146)
 	servicesSchedule := 1
 	isPeakPeriod := true
-	suite.setUpDomesticPackData(models.ReServiceCodeDPK)
+	suite.setUpDomesticPackUnpackData(models.ReServiceCodeDPK)
 
 	suite.T().Run("golden path", func(t *testing.T) {
 		domOtherPrice, err := fetchDomOtherPrice(suite.DB(), testdatagen.DefaultContractCode, models.ReServiceCodeDPK, servicesSchedule, isPeakPeriod)
+		suite.NoError(err)
+		suite.Equal(testCents, domOtherPrice.PriceCents)
+	})
+}
+
+func (suite *GHCRateEngineServiceSuite) Test_unpackFetchDomOtherPrice() {
+	testCents := unit.Cents(146)
+	servicesSchedule := 1
+	isPeakPeriod := true
+	suite.setUpDomesticPackUnpackData(models.ReServiceCodeDUPK)
+
+	suite.T().Run("golden path", func(t *testing.T) {
+		domOtherPrice, err := fetchDomOtherPrice(suite.DB(), testdatagen.DefaultContractCode, models.ReServiceCodeDUPK, servicesSchedule, isPeakPeriod)
 		suite.NoError(err)
 		suite.Equal(testCents, domOtherPrice.PriceCents)
 	})
