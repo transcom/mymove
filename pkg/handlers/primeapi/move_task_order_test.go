@@ -39,7 +39,7 @@ type FeatureFlag struct {
 
 func (suite *HandlerSuite) TestFetchMTOUpdatesHandler() {
 	// unavailable MTO
-	testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	testdatagen.MakeDefaultMove(suite.DB())
 
 	moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{

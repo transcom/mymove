@@ -19,7 +19,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderChecker() {
 			AvailableToPrimeAt: &now,
 		},
 	})
-	notAvailableMTO := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	notAvailableMTO := testdatagen.MakeDefaultMove(suite.DB())
 	mtoChecker := NewMoveTaskOrderChecker(suite.DB())
 
 	availableToPrime, err := mtoChecker.MTOAvailableToPrime(availableMTO.ID)

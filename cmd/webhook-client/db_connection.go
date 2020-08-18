@@ -85,7 +85,7 @@ func dbConnection(cmd *cobra.Command, args []string) error {
 	logger.Info("Notification deleted", zap.String("ID", notification.ID.String()))
 
 	// Create a webhookSubscription
-	subscription := testdatagen.MakeWebhookSubscription(db, testdatagen.Assertions{})
+	subscription := testdatagen.MakeDefaultWebhookSubscription(db)
 	verrs, err = db.ValidateAndSave(&subscription)
 	if err != nil {
 		logger.Error("Error:", zap.Error(err))
