@@ -18,16 +18,15 @@ func MakeMove(db *pop.Connection, assertions Assertions) models.Move {
 		orders = MakeOrder(db, assertions)
 	}
 
-	assertedReferenceID := assertions.MoveTaskOrder.ReferenceID
+	assertedReferenceID := assertions.Move.ReferenceID
 	var referenceID string
 	if assertedReferenceID == nil || *assertedReferenceID == "" {
 		referenceID, _ = models.GenerateReferenceID(db)
 	}
 
 	var contractorID uuid.UUID
-	mtoContractorID := assertions.MoveTaskOrder.ContractorID
 	moveContractorID := assertions.Move.ContractorID
-	if mtoContractorID == nil || moveContractorID == nil {
+	if moveContractorID == nil {
 		contractor := MakeContractor(db, assertions)
 		contractorID = contractor.ID
 	}
@@ -37,15 +36,24 @@ func MakeMove(db *pop.Connection, assertions Assertions) models.Move {
 	if selectedMoveType == nil {
 		selectedMoveType = &defaultMoveType
 	}
+
+	ppmType := assertions.Move.PPMType
+	if assertions.Move.PPMType == nil {
+		partialType := "PARTIAL"
+		ppmType = &partialType
+	}
+
 	move := models.Move{
-		Orders:           orders,
-		OrdersID:         orders.ID,
-		SelectedMoveType: selectedMoveType,
-		Status:           models.MoveStatusDRAFT,
-		Locator:          models.GenerateLocator(),
-		Show:             setShow(assertions.Move.Show),
-		ContractorID:     &contractorID,
-		ReferenceID:      &referenceID,
+		AvailableToPrimeAt: assertions.Move.AvailableToPrimeAt,
+		Orders:             orders,
+		OrdersID:           orders.ID,
+		SelectedMoveType:   selectedMoveType,
+		PPMType:            ppmType,
+		Status:             models.MoveStatusDRAFT,
+		Locator:            models.GenerateLocator(),
+		Show:               setShow(assertions.Move.Show),
+		ContractorID:       &contractorID,
+		ReferenceID:        &referenceID,
 	}
 
 	// Overwrite values with those from assertions
@@ -66,15 +74,14 @@ func MakeMoveWithoutMoveType(db *pop.Connection, assertions Assertions) models.M
 	}
 
 	var referenceID string
-	assertedReferenceID := assertions.MoveTaskOrder.ReferenceID
+	assertedReferenceID := assertions.Move.ReferenceID
 	if assertedReferenceID == nil || *assertedReferenceID == "" {
 		referenceID, _ = models.GenerateReferenceID(db)
 	}
 
 	var contractorID uuid.UUID
-	mtoContractorID := assertions.MoveTaskOrder.ContractorID
 	moveContractorID := assertions.Move.ContractorID
-	if mtoContractorID == nil || moveContractorID == nil {
+	if moveContractorID == nil {
 		contractor := MakeContractor(db, assertions)
 		contractorID = contractor.ID
 	}
@@ -100,19 +107,6 @@ func MakeMoveWithoutMoveType(db *pop.Connection, assertions Assertions) models.M
 // MakeDefaultMove makes a Move with default values
 func MakeDefaultMove(db *pop.Connection) models.Move {
 	return MakeMove(db, Assertions{})
-}
-
-// MakeMoveData created 5 Moves (and in turn a set of Orders for each)
-func MakeMoveData(db *pop.Connection) {
-	for i := 0; i < 3; i++ {
-		MakeDefaultMove(db)
-	}
-
-	for i := 0; i < 2; i++ {
-		move := MakeDefaultMove(db)
-		move.Approve()
-		db.ValidateAndUpdate(&move)
-	}
 }
 
 func setShow(assertionShow *bool) *bool {

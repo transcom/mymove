@@ -54,8 +54,8 @@ func TestHandlerSuite(t *testing.T) {
 // MakeAvailableMoveTaskOrder returns a default MTO with AvailableToPrimeAt set. Shared throughout this test package.
 func MakeAvailableMoveTaskOrder(db *pop.Connection) models.Move {
 	now := time.Now()
-	mto := testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
-		MoveTaskOrder: models.Move{
+	mto := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
 			AvailableToPrimeAt: &now,
 		},
 	})

@@ -25,7 +25,7 @@ func (suite *ModelSuite) TestWebhookSubscription_NotNullConstraint() {
 
 func (suite *ModelSuite) TestWebhookSubscription_Instantiation() {
 	t := suite.T()
-	webhookSubscription := testdatagen.MakeWebhookSubscription(suite.DB(), testdatagen.Assertions{})
+	webhookSubscription := testdatagen.MakeDefaultWebhookSubscription(suite.DB())
 
 	verrs, err := suite.DB().ValidateAndSave(&webhookSubscription)
 

@@ -14,12 +14,12 @@ import (
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderChecker() {
 	now := time.Now()
-	availableMTO := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: models.Move{
+	availableMTO := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
 			AvailableToPrimeAt: &now,
 		},
 	})
-	notAvailableMTO := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+	notAvailableMTO := testdatagen.MakeDefaultMove(suite.DB())
 	mtoChecker := NewMoveTaskOrderChecker(suite.DB())
 
 	availableToPrime, err := mtoChecker.MTOAvailableToPrime(availableMTO.ID)

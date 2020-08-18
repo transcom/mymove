@@ -19,7 +19,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestListMTOAgentsHandler() {
-	testMTOAgent := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{})
+	testMTOAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
 
 	requestUser := testdatagen.MakeDefaultUser(suite.DB())
 	req := httptest.NewRequest("GET", fmt.Sprintf("/move-task-orders/%s/mto-agents", testMTOAgent.ID.String()), nil)

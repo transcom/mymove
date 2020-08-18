@@ -18,7 +18,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerApproveSuccess() {
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{})
+	mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 
 	request := httptest.NewRequest("PATCH", "/service-items/{mtoServiceItemID}/status", nil)
 	reason := "should not update reason"
@@ -50,7 +50,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerApproveSuccess()
 }
 
 func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectSuccess() {
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{})
+	mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 
 	request := httptest.NewRequest("PATCH", "/service-items/{mtoServiceItemID}/status", nil)
 	reason := "item too heavy"
@@ -116,7 +116,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerUpdateFailed() {
 }
 
 func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectionFailedNoReason() {
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{})
+	mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 
 	request := httptest.NewRequest("PATCH", "/service-items/{mtoServiceItemID}/status", nil)
 	mtoServiceItem.Status = models.MTOServiceItemStatusRejected

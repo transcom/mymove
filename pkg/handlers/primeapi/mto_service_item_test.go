@@ -34,7 +34,7 @@ import (
 func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	mto := MakeAvailableMoveTaskOrder(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: mto,
+		Move: mto,
 	})
 	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
@@ -151,7 +151,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	})
 
 	suite.T().Run("POST failure - 404 - MTO is not available to Prime", func(t *testing.T) {
-		mtoNotAvailable := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+		mtoNotAvailable := testdatagen.MakeDefaultMove(suite.DB())
 
 		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
 		handler := CreateMTOServiceItemHandler{
@@ -178,7 +178,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	suite.T().Run("POST failure - 404 - Integration - ShipmentID not linked by MoveTaskOrderID", func(t *testing.T) {
 		mto2 := MakeAvailableMoveTaskOrder(suite.DB())
 		mtoShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MoveTaskOrder: mto2,
+			Move: mto2,
 		})
 		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
 		handler := CreateMTOServiceItemHandler{
@@ -252,7 +252,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 	mto := MakeAvailableMoveTaskOrder(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: mto,
+		Move: mto,
 	})
 	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
@@ -388,7 +388,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 func (suite *HandlerSuite) TestCreateMTOServiceItemDDFSITHandler() {
 	mto := MakeAvailableMoveTaskOrder(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: mto,
+		Move: mto,
 	})
 	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
