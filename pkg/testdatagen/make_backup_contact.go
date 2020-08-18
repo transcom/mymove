@@ -35,10 +35,3 @@ func MakeBackupContact(db *pop.Connection, assertions Assertions) models.BackupC
 func MakeDefaultBackupContact(db *pop.Connection) models.BackupContact {
 	return MakeBackupContact(db, Assertions{})
 }
-
-// MakeBackupContactData created 5 BackupContacts (and in turn a User for each)
-func MakeBackupContactData(db *pop.Connection) {
-	for i := 0; i < 5; i++ {
-		MakeDefaultBackupContact(db)
-	}
-}

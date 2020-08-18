@@ -109,19 +109,6 @@ func MakeDefaultMove(db *pop.Connection) models.Move {
 	return MakeMove(db, Assertions{})
 }
 
-// MakeMoveData created 5 Moves (and in turn a set of Orders for each)
-func MakeMoveData(db *pop.Connection) {
-	for i := 0; i < 3; i++ {
-		MakeDefaultMove(db)
-	}
-
-	for i := 0; i < 2; i++ {
-		move := MakeDefaultMove(db)
-		move.Approve()
-		db.ValidateAndUpdate(&move)
-	}
-}
-
 func setShow(assertionShow *bool) *bool {
 	show := swag.Bool(true)
 	if assertionShow != nil {

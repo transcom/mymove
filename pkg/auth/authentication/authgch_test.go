@@ -330,7 +330,7 @@ func (suite *AuthSuite) TestVerifyHasTOORoleError() {
 		},
 	}
 	suite.NoError(suite.DB().Create(&rs))
-	user := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{})
+	user := testdatagen.MakeDefaultUser(suite.DB())
 	ta := tooRoleChecker{suite.DB(), suite.logger}
 	ui, err := ta.FetchUserIdentity(&user)
 	suite.NoError(err)
