@@ -71,7 +71,7 @@ export class WizardPage extends Component {
           <div className="grid-col-2 margin-top-6 tablet:margin-top-3">
             {!isMobile && (
               <button
-                className="usa-button usa-button--outline cancel padding-left-0"
+                className="usa-button usa-button--secondary padding-left-0"
                 onClick={this.cancelFlow}
                 disabled={false}
               >
