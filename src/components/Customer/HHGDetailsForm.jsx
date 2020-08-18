@@ -15,6 +15,7 @@ import {
   loadMTOShipments as loadMTOShipmentsAction,
   selectMTOShipmentForMTO,
   createMTOShipment as createMTOShipmentAction,
+  updateMTOShipment as updateMTOShipmentAction,
 } from 'shared/Entities/modules/mtoShipments';
 import { selectActiveOrLatestOrdersFromEntities } from 'shared/Entities/modules/orders';
 import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
@@ -185,23 +186,20 @@ class HHGDetailsForm extends Component {
     );
   };
 
-  submitMTOShipment = (
-    {
-      requestedPickupDate,
-      requestedDeliveryDate,
-      pickupAddress,
-      destinationAddress,
-      receivingAgent,
-      releasingAgent,
-      customerRemarks,
-    },
-    dirty,
-  ) => {
-    const { createMTOShipment, match } = this.props;
+  submitMTOShipment = ({
+    requestedPickupDate,
+    requestedDeliveryDate,
+    pickupAddress,
+    destinationAddress,
+    receivingAgent,
+    releasingAgent,
+    customerRemarks,
+  }) => {
+    const { createMTOShipment, updateMTOShipment, match, mtoShipment } = this.props;
     const { hasDeliveryAddress } = this.state;
     const { moveId } = match.params;
-    const mtoShipment = {
-      moveId,
+    const pendingMtoShipment = {
+      moveTaskOrderID: moveId,
       shipmentType: SHIPMENT_OPTIONS.HHG,
       requestedPickupDate: formatSwaggerDate(requestedPickupDate),
       requestedDeliveryDate: formatSwaggerDate(requestedDeliveryDate),
@@ -218,7 +216,7 @@ class HHGDetailsForm extends Component {
     };
 
     if (hasDeliveryAddress) {
-      mtoShipment.destinationAddress = {
+      pendingMtoShipment.destinationAddress = {
         street_address_1: destinationAddress.street_address_1,
         street_address_2: destinationAddress.street_address_2,
         city: destinationAddress.city,
@@ -247,26 +245,27 @@ class HHGDetailsForm extends Component {
     if (releasingAgent) {
       const formattedAgent = formatAgent(releasingAgent);
       if (!isEmpty(formattedAgent)) {
-        mtoShipment.agents.push({ ...formattedAgent, agentType: MTOAgentType.RELEASING });
+        pendingMtoShipment.agents.push({ ...formattedAgent, agentType: MTOAgentType.RELEASING });
       }
     }
 
     if (receivingAgent) {
       const formattedAgent = formatAgent(receivingAgent);
       if (!isEmpty(formattedAgent)) {
-        mtoShipment.agents.push({ ...formattedAgent, agentType: MTOAgentType.RECEIVING });
+        pendingMtoShipment.agents.push({ ...formattedAgent, agentType: MTOAgentType.RECEIVING });
       }
     }
-    // TODO: If extant values, update shipment rather than create. Passing in agents that
-    // exist cause server validation error
-    if (!dirty) {
-      createMTOShipment(mtoShipment);
+
+    if (isEmpty(mtoShipment)) {
+      createMTOShipment(pendingMtoShipment);
+    } else {
+      updateMTOShipment(mtoShipment.id, pendingMtoShipment, mtoShipment.eTag);
     }
   };
 
   render() {
     // TODO: replace minimal styling with actual styling during UI phase
-    const { pageKey, pageList, match, push, newDutyStationAddress } = this.props;
+    const { pageKey, pageList, match, push, newDutyStationAddress, mtoShipment } = this.props;
     const { hasDeliveryAddress, useCurrentResidence, initialValues } = this.state;
     const fieldsetClasses = 'margin-top-2';
     return (
@@ -279,7 +278,7 @@ class HHGDetailsForm extends Component {
       >
         {({ values, dirty, isValid }) => (
           <WizardPage
-            canMoveNext={(dirty && isValid) || (!isEmpty(initialValues) && !dirty && isValid)}
+            canMoveNext={(dirty && isValid) || (!isEmpty(mtoShipment) && !dirty && isValid)}
             match={match}
             pageKey={pageKey}
             pageList={pageList}
@@ -416,6 +415,7 @@ HHGDetailsForm.propTypes = {
     postal_code: string,
   }),
   createMTOShipment: func.isRequired,
+  updateMTOShipment: func.isRequired,
   showLoggedInUser: func.isRequired,
   loadMTOShipments: func.isRequired,
   push: func.isRequired,
@@ -479,6 +479,7 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = {
   createMTOShipment: createMTOShipmentAction,
+  updateMTOShipment: updateMTOShipmentAction,
   showLoggedInUser: showLoggedInUserAction,
   loadMTOShipments: loadMTOShipmentsAction,
 };

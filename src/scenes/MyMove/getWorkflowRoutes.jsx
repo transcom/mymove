@@ -220,7 +220,15 @@ const pages = {
   '/moves/:moveId/hhg-start': {
     isInFlow: (state) => inHhgFlow && state.selectedMoveType === SHIPMENT_OPTIONS.HHG,
     isComplete: ({ sm, orders, move, ppm, mtoShipment }) => {
-      return mtoShipment && every([mtoShipment.requestedPickupDate, mtoShipment.requestedDeliveryDate]);
+      return (
+        mtoShipment &&
+        every([
+          mtoShipment.requestedPickupDate,
+          mtoShipment.requestedDeliveryDate,
+          mtoShipment.PickupAddress,
+          mtoShipment.ShipmentType,
+        ])
+      );
     },
     render: (key, pages, description, props) => ({ match, history }) => (
       <HHGMoveSetup pageList={pages} pageKey={key} match={match} push={history.push} />
@@ -228,12 +236,12 @@ const pages = {
   },
   '/moves/:moveId/review': {
     isInFlow: always,
-    isComplete: ({ sm, orders, move, ppm }) => isCurrentMoveSubmitted(move, ppm),
+    isComplete: ({ sm, orders, move, ppm, mtoShipment }) => isCurrentMoveSubmitted(move),
     render: (key, pages) => ({ match }) => <Review pages={pages} pageKey={key} match={match} />,
   },
   '/moves/:moveId/agreement': {
     isInFlow: always,
-    isComplete: ({ sm, orders, move, ppm }) => isCurrentMoveSubmitted(move, ppm),
+    isComplete: ({ sm, orders, move, ppm, mtoShipment }) => isCurrentMoveSubmitted(move),
     render: (key, pages, description, props) => ({ match }) => {
       return <Agreement pages={pages} pageKey={key} match={match} selectedMoveType={props.selectedMoveType} />;
     },
