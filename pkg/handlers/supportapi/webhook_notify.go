@@ -15,14 +15,13 @@ type PostWebhookNotifyHandler struct {
 // Handle posts message
 func (h PostWebhookNotifyHandler) Handle(params webhookoperations.PostWebhookNotifyParams) middleware.Responder {
 
-	// Leaving logger commented out here because we'll probably want to use it
-	// as we build this out
-
-	//logger := h.LoggerFromContext(ctx)
-
-	payload := &webhookoperations.PostWebhookNotifyOKBody{
-		Message: params.Message.Message,
+	payload := &webhookoperations.PostWebhookNotifyCreatedBody{
+		ID:          *params.Body.ID,
+		EventName:   *params.Body.EventName,
+		TriggeredAt: *params.Body.TriggeredAt,
+		ObjectType:  *params.Body.ObjectType,
+		Object:      *params.Body.Object,
 	}
 
-	return webhookoperations.NewPostWebhookNotifyOK().WithPayload(payload)
+	return webhookoperations.NewPostWebhookNotifyCreated().WithPayload(payload)
 }

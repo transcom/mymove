@@ -68,16 +68,50 @@ func (o *PostWebhookNotify) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 // swagger:model PostWebhookNotifyBody
 type PostWebhookNotifyBody struct {
 
-	// Message sent
+	// Name of event triggered
 	// Required: true
-	Message string `json:"message"`
+	EventName *string `json:"eventName"`
+
+	// id
+	// Required: true
+	// Format: uuid
+	ID *strfmt.UUID `json:"id"`
+
+	// object
+	// Required: true
+	Object *string `json:"object"`
+
+	// The type of object that's being updated
+	// Required: true
+	ObjectType *string `json:"objectType"`
+
+	// Time representing when the event was triggered
+	// Required: true
+	// Format: date-time
+	TriggeredAt *strfmt.DateTime `json:"triggeredAt"`
 }
 
 // Validate validates this post webhook notify body
 func (o *PostWebhookNotifyBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateMessage(formats); err != nil {
+	if err := o.validateEventName(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateObject(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateObjectType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateTriggeredAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -87,9 +121,53 @@ func (o *PostWebhookNotifyBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *PostWebhookNotifyBody) validateMessage(formats strfmt.Registry) error {
+func (o *PostWebhookNotifyBody) validateEventName(formats strfmt.Registry) error {
 
-	if err := validate.RequiredString("message"+"."+"message", "body", string(o.Message)); err != nil {
+	if err := validate.Required("body"+"."+"eventName", "body", o.EventName); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *PostWebhookNotifyBody) validateID(formats strfmt.Registry) error {
+
+	if err := validate.Required("body"+"."+"id", "body", o.ID); err != nil {
+		return err
+	}
+
+	if err := validate.FormatOf("body"+"."+"id", "body", "uuid", o.ID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *PostWebhookNotifyBody) validateObject(formats strfmt.Registry) error {
+
+	if err := validate.Required("body"+"."+"object", "body", o.Object); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *PostWebhookNotifyBody) validateObjectType(formats strfmt.Registry) error {
+
+	if err := validate.Required("body"+"."+"objectType", "body", o.ObjectType); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *PostWebhookNotifyBody) validateTriggeredAt(formats strfmt.Registry) error {
+
+	if err := validate.Required("body"+"."+"triggeredAt", "body", o.TriggeredAt); err != nil {
+		return err
+	}
+
+	if err := validate.FormatOf("body"+"."+"triggeredAt", "body", "date-time", o.TriggeredAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -114,21 +192,74 @@ func (o *PostWebhookNotifyBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-// PostWebhookNotifyOKBody post webhook notify o k body
-// swagger:model PostWebhookNotifyOKBody
-type PostWebhookNotifyOKBody struct {
+// PostWebhookNotifyCreatedBody post webhook notify created body
+// swagger:model PostWebhookNotifyCreatedBody
+type PostWebhookNotifyCreatedBody struct {
 
-	// Message sent
-	Message string `json:"message,omitempty"`
+	// Name of event triggered
+	EventName string `json:"eventName,omitempty"`
+
+	// id
+	// Format: uuid
+	ID strfmt.UUID `json:"id,omitempty"`
+
+	// object
+	Object string `json:"object,omitempty"`
+
+	// The type of object that's being updated
+	ObjectType string `json:"objectType,omitempty"`
+
+	// Time representing when the event was triggered
+	// Format: date-time
+	TriggeredAt strfmt.DateTime `json:"triggeredAt,omitempty"`
 }
 
-// Validate validates this post webhook notify o k body
-func (o *PostWebhookNotifyOKBody) Validate(formats strfmt.Registry) error {
+// Validate validates this post webhook notify created body
+func (o *PostWebhookNotifyCreatedBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateTriggeredAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *PostWebhookNotifyCreatedBody) validateID(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("postWebhookNotifyCreated"+"."+"id", "body", "uuid", o.ID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *PostWebhookNotifyCreatedBody) validateTriggeredAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.TriggeredAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("postWebhookNotifyCreated"+"."+"triggeredAt", "body", "date-time", o.TriggeredAt.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *PostWebhookNotifyOKBody) MarshalBinary() ([]byte, error) {
+func (o *PostWebhookNotifyCreatedBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -136,8 +267,8 @@ func (o *PostWebhookNotifyOKBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *PostWebhookNotifyOKBody) UnmarshalBinary(b []byte) error {
-	var res PostWebhookNotifyOKBody
+func (o *PostWebhookNotifyCreatedBody) UnmarshalBinary(b []byte) error {
+	var res PostWebhookNotifyCreatedBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
