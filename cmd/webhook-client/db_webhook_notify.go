@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -75,14 +76,21 @@ func dbWebhookNotify(cmd *cobra.Command, args []string) error {
 
 	// Make the API call
 	runtime.BasePath = basePath
-	resp, err := runtime.Post(json)
-
+	resp, body, err := runtime.Post(json)
+	// Check for error making the request
 	if err != nil {
 		logger.Error("Error making request:", zap.Error(err))
 		return err
 	}
+	// Check for error response from server
+	if resp.StatusCode != 200 {
+		errmsg := fmt.Sprintf("Received %d response from server: %s. Body: %s", resp.StatusCode, resp.Status, body)
+		err = errors.New(errmsg)
+		logger.Error("db-webhook-notify:", zap.Error(err))
+		return err
+	}
 
 	logger.Info("Request complete: ", zap.String("Status", resp.Status))
-
+	fmt.Println(body)
 	return nil
 }

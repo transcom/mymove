@@ -92,7 +92,7 @@ func postWebhookNotify(cmd *cobra.Command, args []string) error {
 
 	// Make the API call
 	runtime.BasePath = basePath
-	resp, err := runtime.Post(json)
+	resp, _, err := runtime.Post(json)
 
 	if err != nil {
 		logger.Error("Error making request:", zap.Error(err))

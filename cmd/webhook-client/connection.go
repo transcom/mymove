@@ -63,8 +63,9 @@ func (wr *WebhookRuntime) SetupClient(cert *tls.Certificate) (*WebhookRuntime, e
 	return wr, nil
 }
 
-// Post WebhookRuntime comment goes here
-func (wr *WebhookRuntime) Post(data []byte) (*http.Response, error) {
+// Post function of the WebhookRuntime http posts the data passed in and returns the
+// response, body data, and any error
+func (wr *WebhookRuntime) Post(data []byte) (*http.Response, []byte, error) {
 	json := bytes.NewBuffer(data)
 	// Create the POST request
 	req, err := http.NewRequest(
@@ -75,7 +76,7 @@ func (wr *WebhookRuntime) Post(data []byte) (*http.Response, error) {
 	req.Header.Set("Content-type", wr.ContentType)
 
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// Print out the request when debug mode is on
@@ -87,10 +88,11 @@ func (wr *WebhookRuntime) Post(data []byte) (*http.Response, error) {
 	resp, err := wr.client.Do(req)
 
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	defer resp.Body.Close()
+
 	// Print out the response when debug mode is on
 	if wr.Debug {
 		Debug(httputil.DumpResponse(resp, true))
@@ -98,13 +100,10 @@ func (wr *WebhookRuntime) Post(data []byte) (*http.Response, error) {
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	// Print response body to stdout
-	fmt.Printf("%s\n", body)
-
-	return resp, nil
+	return resp, body, nil
 }
 
 // GetCacCertificate returns cert to use for tls
