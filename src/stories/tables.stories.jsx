@@ -281,7 +281,7 @@ export const StandardTables = () => (
       </div>
       <div style={{ width: '40px' }} />
       <div>
-        <h3>Data pair</h3>
+        <h3>Data point group</h3>
         <DataPointGroup>
           <DataPoint
             columnHeaders={['Customer requested pick up date', 'Scheduled pick up date']}

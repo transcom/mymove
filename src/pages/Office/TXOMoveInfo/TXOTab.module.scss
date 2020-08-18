@@ -11,10 +11,6 @@
     .shipmentCard {
       @include u-padding-left(4);
     }
-
-    .shipmentCard > div {
-      @include u-margin-bottom(3);
-    }
   }
 }
 

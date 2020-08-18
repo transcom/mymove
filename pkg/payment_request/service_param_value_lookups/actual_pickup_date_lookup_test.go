@@ -27,7 +27,7 @@ func (suite *ServiceParamValueLookupsSuite) TestActualPickupDateLookup() {
 
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 		testdatagen.Assertions{
-			MoveTaskOrder: mtoServiceItem.MoveTaskOrder,
+			Move: mtoServiceItem.MoveTaskOrder,
 		})
 
 	paramLookup, _ := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)

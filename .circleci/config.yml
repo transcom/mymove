@@ -1649,35 +1649,35 @@ workflows:
             - integration_tests_mtls
           filters:
             branches:
-              only: REPLACE_WHEN_CERTS_UPDATED
+              only: master
 
       - deploy_stg_migrations:
           requires:
             - check_circle_against_stg_sha
           filters:
             branches:
-              only: REPLACE_WHEN_CERTS_UPDATED
+              only: master
 
       - deploy_stg_tasks:
           requires:
             - deploy_stg_migrations
           filters:
             branches:
-              only: REPLACE_WHEN_CERTS_UPDATED
+              only: master
 
       - deploy_stg_app:
           requires:
             - deploy_stg_migrations
           filters:
             branches:
-              only: REPLACE_WHEN_CERTS_UPDATED
+              only: master
 
       - deploy_stg_app_client_tls:
           requires:
             - deploy_stg_migrations
           filters:
             branches:
-              only: REPLACE_WHEN_CERTS_UPDATED
+              only: master
 
       - approve_prod_deploy:
           type: approval

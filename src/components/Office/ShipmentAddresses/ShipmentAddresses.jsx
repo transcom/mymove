@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { AddressShape } from '../../../types/address';
-import { DutyStationShape } from '../../../types/dutyStation';
 import formatAddress from '../../../utils/shipmentDisplay';
 import DataPointGroup from '../../DataPointGroup/index';
 import DataPoint from '../../DataPoint/index';
@@ -28,8 +27,8 @@ const ShipmentAddresses = ({ pickupAddress, destinationAddress, originDutyStatio
 ShipmentAddresses.propTypes = {
   pickupAddress: AddressShape,
   destinationAddress: AddressShape,
-  originDutyStation: DutyStationShape,
-  destinationDutyStation: DutyStationShape,
+  originDutyStation: AddressShape,
+  destinationDutyStation: AddressShape,
 };
 
 ShipmentAddresses.defaultProps = {
