@@ -14,6 +14,7 @@ import { MatchShape } from 'types/router';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
+import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
 
 function formatShipmentType(shipmentType) {
   if (shipmentType === 'HHG') {
@@ -98,6 +99,7 @@ export const MoveTaskOrder = ({ match }) => {
                 // eslint-disable-next-line react/prop-types
                 destinationDutyStation={moveOrder?.destinationDutyStation?.address}
               />
+              <ShipmentWeightDetails />
               <RequestedServiceItemsTable serviceItems={serviceItemsForShipment} />
             </ShipmentContainer>
           );
