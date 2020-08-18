@@ -63,7 +63,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 }
 
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
-	moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	moveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
 
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
 	requestUser := testdatagen.MakeDefaultUser(suite.DB())
@@ -93,7 +93,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 }
 
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithStaleEtag() {
-	moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	moveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
 
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
 	requestUser := testdatagen.MakeDefaultUser(suite.DB())

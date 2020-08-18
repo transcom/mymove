@@ -24,7 +24,7 @@ import (
 )
 
 func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
-	oldMTOShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
+	oldMTOShipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 	builder := query.NewQueryBuilder(suite.DB())
 	fetcher := fetch.NewFetcher(builder)
 	planner := &mocks.Planner{}
@@ -98,7 +98,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.True(firstAvailableDeliveryDate.Equal(*updatedMTOShipment.FirstAvailableDeliveryDate))
 	})
 
-	oldMTOShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
+	oldMTOShipment2 := testdatagen.MakeDefaultMTOShipment(suite.DB())
 	mtoShipment2 := models.MTOShipment{
 		ID:           oldMTOShipment2.ID,
 		ShipmentType: "INTERNATIONAL_UB",
@@ -349,7 +349,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	})
 
 	suite.T().Run("Successfully update MTO Agents", func(t *testing.T) {
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
+		shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 		mtoAgent1 := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
 			MTOAgent: models.MTOAgent{
 				MTOShipment:   shipment,
@@ -395,7 +395,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 	suite.T().Run("Successful update to a minimal MTO shipment", func(t *testing.T) {
 
-		oldShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{})
+		oldShipment := testdatagen.MakeDefaultMTOShipmentMinimal(suite.DB())
 		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
 		updatedShipment := models.MTOShipment{
 			ID:                   oldShipment.ID,

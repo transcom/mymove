@@ -13,7 +13,7 @@ import (
 )
 
 func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
-	organization := testdatagen.MakeOrganization(suite.DB(), testdatagen.Assertions{})
+	organization := testdatagen.MakeDefaultOrganization(suite.DB())
 	userInfo := models.AdminUser{
 		LastName:       "Spaceman",
 		FirstName:      "Leo",

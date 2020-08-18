@@ -24,7 +24,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
-	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+	paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 	paymentRequestID := paymentRequest.ID
 
 	suite.T().Run("successful status update of payment request", func(t *testing.T) {
@@ -146,8 +146,8 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 }
 
 func (suite *HandlerSuite) TestListMTOPaymentRequestHandler() {
-	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
-	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+	mto := testdatagen.MakeDefaultMove(suite.DB())
 	suite.T().Run("successful get an MTO with payment requests", func(t *testing.T) {
 		mtoID := paymentRequest.MoveTaskOrderID
 		req := httptest.NewRequest("GET", fmt.Sprintf("/move-task-orders/%s/payment-requests", mtoID), nil)
