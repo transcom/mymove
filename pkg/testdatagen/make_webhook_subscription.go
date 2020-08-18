@@ -42,3 +42,8 @@ func MakeWebhookSubscription(db *pop.Connection, assertions Assertions) models.W
 
 	return webhookSubscription
 }
+
+// MakeDefaultWebhookSubscription makes an WebhookSubscription with default values
+func MakeDefaultWebhookSubscription(db *pop.Connection) models.WebhookSubscription {
+	return MakeWebhookSubscription(db, Assertions{})
+}

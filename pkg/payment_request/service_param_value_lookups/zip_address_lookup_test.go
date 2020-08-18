@@ -11,7 +11,7 @@ func (suite *ServiceParamValueLookupsSuite) TestZipAddressLookup() {
 	pickupKey := models.ServiceItemParamNameZipPickupAddress.String()
 	destKey := models.ServiceItemParamNameZipDestAddress.String()
 
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{})
+	mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 		testdatagen.Assertions{

@@ -129,7 +129,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 	serviceItemID, _ := uuid.NewV4()
 	mtoShipmentID, _ := uuid.NewV4()
 
-	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	mto := testdatagen.MakeDefaultMove(suite.DB())
 	reService := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
 			ID:   reServiceID,

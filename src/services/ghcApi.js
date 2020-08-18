@@ -48,7 +48,7 @@ export async function getMoveOrder(key, moveOrderID) {
 }
 
 export async function getMoveTaskOrderList(key, moveOrderID) {
-  return makeGHCRequest('moveOrder.listMoveTaskOrders', { moveOrderID }, { schemaKey: 'moveTaskOrders' });
+  return makeGHCRequest('moveOrder.listMoveTaskOrders', { moveOrderID });
 }
 
 export async function getMTOShipments(key, moveTaskOrderID) {

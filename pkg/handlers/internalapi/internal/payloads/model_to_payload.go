@@ -73,6 +73,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *internalmessages.MTOShipment 
 		DestinationAddress: Address(mtoShipment.DestinationAddress),
 		CreatedAt:          strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:          strfmt.DateTime(mtoShipment.UpdatedAt),
+		Status:             internalmessages.MTOShipmentStatus(mtoShipment.Status),
 	}
 
 	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {

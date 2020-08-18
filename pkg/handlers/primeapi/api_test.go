@@ -3,12 +3,6 @@ package primeapi
 import (
 	"log"
 	"testing"
-	"time"
-
-	"github.com/gobuffalo/pop"
-
-	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 
 	"github.com/transcom/mymove/pkg/testingsuite"
 
@@ -49,15 +43,4 @@ func TestHandlerSuite(t *testing.T) {
 
 	suite.Run(t, hs)
 	hs.PopTestSuite.TearDown()
-}
-
-// MakeAvailableMoveTaskOrder returns a default MTO with AvailableToPrimeAt set. Shared throughout this test package.
-func MakeAvailableMoveTaskOrder(db *pop.Connection) models.Move {
-	now := time.Now()
-	mto := testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
-		MoveTaskOrder: models.Move{
-			AvailableToPrimeAt: &now,
-		},
-	})
-	return mto
 }
