@@ -79,7 +79,7 @@ export class WizardPage extends Component {
               </button>
             )}
           </div>
-          <div className="grid-col-10 text-right margin-top-6 tablet:margin-top-3">
+          <div className="grid-col-10 text-right margin-top-6 tablet:margin-top-3 display-flex">
             {!isFirstPage(pageList, pageKey) && (
               <button
                 className="usa-button usa-button--secondary prev"
