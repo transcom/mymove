@@ -93,9 +93,7 @@ export const MoveTaskOrder = ({ match }) => {
               <ShipmentAddresses
                 pickupAddress={mtoShipment?.pickupAddress}
                 destinationAddress={mtoShipment?.destinationAddress}
-                // eslint-disable-next-line react/prop-types
                 originDutyStation={moveOrder?.originDutyStation?.address}
-                // eslint-disable-next-line react/prop-types
                 destinationDutyStation={moveOrder?.destinationDutyStation?.address}
               />
               <RequestedServiceItemsTable serviceItems={serviceItemsForShipment} />
