@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
 
@@ -46,7 +46,7 @@ function ServiceMemberSummary(props) {
     { label: 'Report by date', value: formatDateSM(get(orders, 'report_by_date')) },
     { label: 'New duty station', value: get(orders, 'new_duty_station.name') },
     { label: 'Dependents', value: orders && yesNoMap[get(orders, 'has_dependents', '').toString()] },
-    { label: 'uploads && uploads.length', value: uploads && uploads.length },
+    { label: 'Orders', value: uploads && uploads.length },
   ];
 
   return (
@@ -66,184 +66,13 @@ function ServiceMemberSummary(props) {
           </tr>
         </tbody>
       </table>
-      <ReviewSection fieldData={ordersData} title="Orders" editLink={editOrdersPath} />
-      <div className="table--stacked">
-        <div>
-          <h2>
-            Orders
-            {moveIsApproved && '*'}
-            {!moveIsApproved && (
-              <span className="edit-section-link">
-                <Link to={editOrdersPath} className="usa-link">
-                  Edit
-                </Link>
-              </span>
-            )}
-          </h2>
-        </div>
+      <div>
+        {moveIsApproved && '*'}
+        {!moveIsApproved && <ReviewSection fieldData={ordersData} title="Orders" editLink={editOrdersPath} />}
       </div>
-      <table className="table--stacked review-section">
-        <colgroup>
-          <col style={{ width: '25%' }} />
-          <col style={{ width: '75%' }} />
-        </colgroup>
-        <tbody></tbody>
-      </table>
     </div>
   );
 }
-
-/*
-    <div className="service-member-summary">
-      <GridContainer>
-        <Grid row>
-          <Grid tablet={{ col: true }}>
-            <div className="review-section">
-              <h2 className="heading">
-                Profile
-                <span className="edit-section-link">
-                  <Link to={editProfilePath} className="usa-link">
-                    Edit
-                  </Link>
-                </span>
-              </h2>
-              <table>
-                <tbody>
-                  <tr>
-                    <td>Name </td>
-                    <td>{getFullSMName(serviceMember)}</td>
-                  </tr>
-                  <tr>
-                    <td>Branch </td>
-                    <td>{get(schemaAffiliation['x-display-value'], get(serviceMember, 'affiliation'))}</td>
-                  </tr>
-                  <tr>
-                    <td>Rank </td>
-                    <td>{get(schemaRank['x-display-value'], get(serviceMember, 'rank'))}</td>
-                  </tr>
-                  <tr>
-                    <td>DoD ID# </td>
-                    <td>{get(serviceMember, 'edipi')}</td>
-                  </tr>
-                  <tr>
-                    <td>Current duty station </td>
-                    <td>{get(serviceMember, 'current_station.name')}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </Grid>
-          <Grid tablet={{ col: true }}>
-            <div className="review-section">
-              <p>Contact info</p>
-              <table>
-                <tbody>
-                  <tr>
-                    <td>Best contact phone </td>
-                    <td>{get(serviceMember, 'telephone')}</td>
-                  </tr>
-                  <tr>
-                    <td>Personal email </td>
-                    <td>{get(serviceMember, 'personal_email')}</td>
-                  </tr>
-                  <tr>
-                    <td>Current mailing address </td>
-                    <td>
-                      <Address address={get(serviceMember, 'residential_address')} />
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </Grid>
-        </Grid>
-        <Grid row>
-          <Grid tablet={{ col: true }}>
-            <div className="review-section">
-              {orders && (
-                <Fragment>
-                  <h2 className="heading">
-                    Orders
-                    {moveIsApproved && '*'}
-                    {!moveIsApproved && (
-                      <span className="edit-section-link">
-                        <Link to={editOrdersPath} className="usa-link">
-                          Edit
-                        </Link>
-                      </span>
-                    )}
-                  </h2>
-                  <table>
-                    <tbody>
-                      <tr>
-                        <td>Orders type </td>
-                        <td>{get(schemaOrdersType['x-display-value'], get(orders, 'orders_type'))}</td>
-                      </tr>
-                      <tr>
-                        <td>Orders date </td>
-                        <td> {formatDateSM(get(orders, 'issue_date'))}</td>
-                      </tr>
-                      <tr>
-                        <td>Report by date </td>
-                        <td>{formatDateSM(get(orders, 'report_by_date'))}</td>
-                      </tr>
-                      <tr>
-                        <td>New duty station </td>
-                        <td> {get(orders, 'new_duty_station.name')}</td>
-                      </tr>
-                      <tr>
-                        <td>Dependents </td>
-                        <td> {orders && yesNoMap[get(orders, 'has_dependents', '').toString()]}</td>
-                      </tr>
-                      <tr>
-                        <td>Orders </td>
-                        <td>{uploads && uploads.length}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </Fragment>
-              )}
-            </div>
-          </Grid>
-          <Grid tablet={{ col: true }}>
-            <div className="review-section">
-              {backupContacts.map((contact) => (
-                <Fragment key={contact.id}>
-                  <p className="heading">
-                    Backup Contact Info
-                    <span className="edit-section-link">
-                      <Link to={editBackupContactPath} className="usa-link">
-                        Edit
-                      </Link>
-                    </span>
-                  </p>
-                  <table key={contact.id}>
-                    <tbody>
-                      <tr>
-                        <td> Backup Contact: </td>
-                        <td>
-                          {contact.name} <br />
-                          { / * getFullBackupPermission(contact) * / }
-                        </td>
-                      </tr>
-                      <tr>
-                        <td> Email: </td>
-                        <td> {contact.email} </td>
-                      </tr>
-                      <tr>
-                        <td> Phone: </td>
-                        <td> {contact.telephone}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </Fragment>
-              ))}
-            </div>
-          </Grid>
-        </Grid>
-      </GridContainer>
-    </div>
-*/
 
 ServiceMemberSummary.propTypes = {
   backupContacts: PropTypes.array.isRequired,
