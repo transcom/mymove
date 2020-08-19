@@ -14,19 +14,19 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-type domesticPackPricer struct {
+type domesticUnpackPricer struct {
 	db *pop.Connection
 }
 
-// NewDomesticPackPricer creates a new pricer for domestic pack services
-func NewDomesticPackPricer(db *pop.Connection) services.DomesticPackPricer {
-	return &domesticPackPricer{
+// NewDomesticUnpackPricer creates a new pricer for domestic pack services
+func NewDomesticUnpackPricer(db *pop.Connection) services.DomesticUnpackPricer {
+	return &domesticUnpackPricer{
 		db: db,
 	}
 }
 
 // Price determines the price for a domestic pack/unpack service
-func (p domesticPackPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int) (totalCost unit.Cents, err error) {
+func (p domesticUnpackPricer) Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int) (totalCost unit.Cents, err error) {
 	// Validate parameters
 	if len(contractCode) == 0 {
 		return 0, errors.New("ContractCode is required")
@@ -37,13 +37,13 @@ func (p domesticPackPricer) Price(contractCode string, requestedPickupDate time.
 	if weight < minDomesticWeight {
 		return 0, fmt.Errorf("Weight must be a minimum of %d", minDomesticWeight)
 	}
-	if servicesScheduleOrigin == 0 {
+	if servicesScheduleDest == 0 {
 		return 0, errors.New("Service schedule is required")
 	}
 
 	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
 	var contractYear models.ReContractYear
-	domOtherPrice, err := fetchDomOtherPrice(p.db, contractCode, models.ReServiceCodeDPK, servicesScheduleOrigin, isPeakPeriod)
+	domOtherPrice, err := fetchDomOtherPrice(p.db, contractCode, models.ReServiceCodeDUPK, servicesScheduleDest, isPeakPeriod)
 
 	if err != nil {
 		return 0, fmt.Errorf("Could not lookup Domestic Other Price: %w", err)
@@ -64,7 +64,7 @@ func (p domesticPackPricer) Price(contractCode string, requestedPickupDate time.
 }
 
 // PriceUsingParams determines the price for a domestic pack given PaymentServiceItemParams
-func (p domesticPackPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, error) {
+func (p domesticUnpackPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
 		return unit.Cents(0), err
@@ -80,10 +80,10 @@ func (p domesticPackPricer) PriceUsingParams(params models.PaymentServiceItemPar
 		return unit.Cents(0), err
 	}
 
-	servicesScheduleOrigin, err := getParamInt(params, models.ServiceItemParamNameServicesScheduleOrigin)
+	servicesScheduleDest, err := getParamInt(params, models.ServiceItemParamNameServicesScheduleDest)
 	if err != nil {
 		return unit.Cents(0), err
 	}
 
-	return p.Price(contractCode, requestedPickupDate, unit.Pound(weightBilledActual), servicesScheduleOrigin)
+	return p.Price(contractCode, requestedPickupDate, unit.Pound(weightBilledActual), servicesScheduleDest)
 }
