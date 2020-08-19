@@ -1,52 +1,86 @@
 import React from 'react';
 import styles from './Home.module.scss';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import checkCircle from '@fortawesome/fontawesome-free-solid/faCheckCircle';
 import { Button } from '@trussworks/react-uswds';
+import { ReactComponent as DocsIcon } from 'shared/icon/documents.svg';
+import { ReactComponent as AcceptIcon } from 'shared/icon/accept.svg';
+import { ReactComponent as EditIcon } from 'shared/icon/edit.svg';
 
 const NumberCircle = ({ num }) => <div className={styles['number-circle']}>{num}</div>;
 
 const Step = ({
   actionBtnDisabled,
   actionBtnLabel,
+  children,
   complete,
   containerClassName,
   description,
+  editDisabled,
   editLabel,
-  onEditClick,
   legend,
   onActionBtnClick,
+  onEditClick,
+  secondary,
   step,
 }) => (
   <div className={containerClassName}>
     <div className={styles['step-header-container']}>
       <h4 className={styles['step-header']}>
-        {complete ? (
-          <FontAwesomeIcon aria-hidden className={styles.accept} icon={checkCircle} />
-        ) : (
-          <NumberCircle num={step} />
-        )}
+        {complete ? <AcceptIcon aria-hidden className={styles.accept} /> : <NumberCircle num={step} />}
         {legend}
       </h4>
       {editLabel && (
-        <a href="#" onClick={onEditClick}>
+        <a href={editDisabled ? null : '#'} onClick={editDisabled ? null : onEditClick}>
           {editLabel}
         </a>
       )}
     </div>
 
-    <p>{description}</p>
+    <p>{children ? children : description}</p>
     {actionBtnLabel && (
-      <Button disabled={actionBtnDisabled} onClick={onActionBtnClick}>
+      <Button disabled={actionBtnDisabled} secondary={secondary} onClick={onActionBtnClick}>
         {actionBtnLabel}
       </Button>
     )}
   </div>
 );
 
+const FilesUploaded = ({ files }) => (
+  <div className={styles['doc-list-container']}>
+    <h6>{files.length} FILES UPLOADED</h6>
+    {files.map((file) => (
+      <div>
+        <DocsIcon className={styles['docs-icon']} />
+        {file.filename}
+      </div>
+    ))}
+  </div>
+);
+
+const ShipmentListItem = ({ shipment }) => {
+  const shipmentClassName = styles[`shipment-list-item-${shipment.shipmentType}`];
+  return (
+    <div className={`${styles['shipment-list-item-container']} ${shipmentClassName}`}>
+      <strong>{shipment.shipmentType}</strong> <span>{shipment.id}</span> <EditIcon />
+    </div>
+  );
+};
+
+const ShipmentList = ({ shipments }) => (
+  <div>
+    {shipments.map((shipment) => (
+      <ShipmentListItem shipment={shipment} />
+    ))}
+  </div>
+);
+
+const shipments = [
+  { shipmentType: 'PPM', id: '#123ABC-001' },
+  { shipmentType: 'HHG', id: '#123ABC-002' },
+  { shipmentType: 'NTS', id: '#123ABC-003' },
+];
 const Home = () => (
-  <div style={{ marginTop: -20 }}>
-    <header className={styles['customer-header']}>
+  <div>
+    <header className={`${styles['customer-header']} padding-top-3 padding-bottom-3`}>
       <h2>Riley Baker</h2>
       <p>
         You're leaving <strong>Buckley AFB</strong>
@@ -59,7 +93,11 @@ const Home = () => (
       description="Make sure to keep your personal information up to date during your move"
       onActionBtnClick={() => console.log('some action')}
       editLabel="Edit"
-      onEditClick={() => console.log('what')}
+      editDisabled
+      onEditClick={(e) => {
+        e.preventDefault();
+        console.log('what');
+      }}
     />
 
     <Step
@@ -70,7 +108,9 @@ const Home = () => (
       actionBtnLabel="Add orders"
       actionBtnDisabled
       onActionBtnClick={() => console.log('some action')}
-    />
+    >
+      <FilesUploaded files={[{ filename: 'file 1' }, { filename: 'file 2' }, { filename: 'file 3' }]} />
+    </Step>
 
     <Step
       containerClassName={styles['step-container']}
@@ -78,9 +118,11 @@ const Home = () => (
       legend="Shipments"
       description="Tell us where you're going and when you want to get there. We'll help you set up shipments to make it work"
       actionBtnLabel="Plan your shipments"
-      actionBtnDisabled
+      secondary={shipments.length > 0}
       onActionBtnClick={() => console.log('some action')}
-    />
+    >
+      <ShipmentList shipments={shipments} />
+    </Step>
 
     <Step
       containerClassName={styles['step-container']}
