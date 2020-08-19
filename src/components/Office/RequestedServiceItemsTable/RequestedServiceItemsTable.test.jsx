@@ -8,7 +8,7 @@ describe('RequestedServiceItemsTable', () => {
     const serviceItems = [
       {
         id: 'abc123',
-        dateRequested: '20 Nov 2020',
+        submittedAt: '2020-11-20',
         serviceItem: 'Domestic Crating',
         code: 'DCRT',
         details: {
@@ -20,11 +20,11 @@ describe('RequestedServiceItemsTable', () => {
 
     let wrapper = shallow(<RequestedServiceItemsTable serviceItems={serviceItems} />);
 
-    expect(wrapper.text().includes('1')).toBe(true);
+    expect(wrapper.text().includes('1 item')).toBe(true);
 
     serviceItems.push({
       id: 'abc1234',
-      dateRequested: '20 Nov 2020',
+      submittedAt: '2020-11-20',
       serviceItem: 'Domestic origin SIT',
       code: 'DOMSIT',
       details: {
@@ -34,6 +34,6 @@ describe('RequestedServiceItemsTable', () => {
     });
 
     wrapper = shallow(<RequestedServiceItemsTable serviceItems={serviceItems} />);
-    expect(wrapper.text().includes('2')).toBe(true);
+    expect(wrapper.text().includes('2 items')).toBe(true);
   });
 });

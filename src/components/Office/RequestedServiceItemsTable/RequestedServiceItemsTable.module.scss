@@ -1,0 +1,16 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+@import 'shared/styles/_custom';
+
+h4 {
+  span {
+    @include u-font-weight(normal);
+  }
+}
+
+:global .table--service-item--hasimg {
+  td:last-child {
+    vertical-align: top;
+  }
+}

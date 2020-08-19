@@ -78,5 +78,26 @@ describe('MoveTaskOrder', () => {
 
   it('should render the h1', () => {
     expect(wrapper.find({ 'data-testid': 'too-shipment-container' }).exists()).toBe(true);
+    expect(wrapper.find('h1').text()).toBe('Move task order');
+  });
+
+  it('should render the ShipmentContainer', () => {
+    expect(wrapper.find('ShipmentContainer').exists()).toBe(true);
+  });
+
+  it('should render the ShipmentHeading', () => {
+    expect(wrapper.find('ShipmentHeading').exists()).toBe(true);
+  });
+
+  it('should render the ImportantShipmentDates', () => {
+    expect(wrapper.find('ImportantShipmentDates').exists()).toBe(true);
+  });
+
+  it('should render the ShipmentAddresses', () => {
+    expect(wrapper.find('ShipmentAddresses').exists()).toBe(true);
+  });
+
+  it('should render the RequestedServiceItemsTable', () => {
+    expect(wrapper.find('RequestedServiceItemsTable').exists()).toBe(true);
   });
 });
