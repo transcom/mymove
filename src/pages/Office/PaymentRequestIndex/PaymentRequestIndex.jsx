@@ -8,13 +8,15 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { PAYMENT_REQUESTS } from 'constants/queryKeys';
 
 const PaymentRequestIndex = () => {
-  const { isLoading, isError, data, error } = useQuery(PAYMENT_REQUESTS, getPaymentRequestList);
+  const { isLoading, isError, data: { paymentRequests } = {}, error } = useQuery(
+    PAYMENT_REQUESTS,
+    getPaymentRequestList,
+  );
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong error={error} />;
 
-  const { paymentRequests } = data;
-  const paymentRequestsArr = Object.values(paymentRequests);
+  const paymentRequestsArr = paymentRequests ? Object.values(paymentRequests) : [];
 
   return (
     <>
