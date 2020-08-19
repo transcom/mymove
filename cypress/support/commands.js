@@ -253,7 +253,7 @@ Cypress.Commands.add('setBaseUrlAndClearAllCookies', (userType) => {
 });
 
 Cypress.Commands.add('nextPage', () => {
-  cy.get('button.next').should('be.enabled').click();
+  cy.get('button.next').should('be.enabled').click({ force: true });
 });
 
 Cypress.Commands.add('nextPageAndCheckLocation', (dataCyValue, pageTitle, locationMatch) => {
