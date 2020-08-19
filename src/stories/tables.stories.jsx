@@ -6,10 +6,11 @@ import QueueTable from '../components/QueueTable';
 import ServiceItemTable from '../components/ServiceItemTable';
 import ServiceItemTableHasImg from '../components/ServiceItemTableHasImg';
 import DataPoint from '../components/DataPoint';
-import DataPair from '../components/DataPair';
+import DataPointGroup from '../components/DataPointGroup';
 
 import { ReactComponent as ChevronRight } from 'shared/icon/chevron-right.svg';
 import { ReactComponent as ChevronLeft } from 'shared/icon/chevron-left.svg';
+import { ReactComponent as ArrowRight } from 'shared/icon/arrow-right.svg';
 
 const dataPointBody = (
   <>
@@ -226,7 +227,7 @@ export const TableElements = () => (
         <code>data point</code>
         <br />
         <br />
-        <DataPoint header="Receiving agent" body={dataPointBody} />
+        <DataPoint columnHeaders={['Receiving agent']} dataRow={[dataPointBody]} />
         <br />
         <br />
         <code>data point compact</code>
@@ -247,7 +248,12 @@ export const TableElements = () => (
       </div>
       <div className="sb-table-wrapper">
         <code>data-pair</code>
-        <DataPair />
+        <DataPointGroup>
+          <DataPoint
+            columnHeaders={['Customer requested pick up date', 'Scheduled pick up date']}
+            dataRow={['Thursday, 26 Mar 2020', 'Friday, 27 Mar 2020']}
+          />
+        </DataPointGroup>
       </div>
     </div>
   </div>
@@ -261,18 +267,40 @@ export const StandardTables = () => (
     <br />
     <hr />
     <div className="display-flex">
-      <div>
+      <div style={{ 'margin-right': '1em' }}>
         <h3>Data point</h3>
-        <DataPoint header="Receiving agent" body={dataPointBody} />
+        <DataPoint columnHeaders={['Receiving agent']} dataRow={[dataPointBody]} />
       </div>
-      <div>
+      <div style={{ 'margin-right': '1em' }}>
         <h3>Data point compact</h3>
-        <DataPoint header="Receiving agent" body={dataPointBody} custClass="table--data-point--compact" />
+        <DataPoint
+          columnHeaders={['Receiving agent']}
+          dataRow={[dataPointBody]}
+          custClass="table--data-point--compact"
+        />
       </div>
       <div style={{ width: '40px' }} />
       <div>
-        <h3>Data pair</h3>
-        <DataPair />
+        <h3>Data point group</h3>
+        <DataPointGroup>
+          <DataPoint
+            columnHeaders={['Customer requested pick up date', 'Scheduled pick up date']}
+            dataRow={['Thursday, 26 Mar 2020', 'Friday, 27 Mar 2020']}
+          />
+        </DataPointGroup>
+        <div style={{ 'margin-bottom': '1em' }} />
+        <DataPointGroup>
+          <DataPoint
+            columnHeaders={['Authorized addresses', '']}
+            dataRow={['San Antonio, TX 78234', 'Tacoma, WA 98421']}
+            Icon={ArrowRight}
+          />
+          <DataPoint
+            columnHeaders={["Customer's addresses", '']}
+            dataRow={['812 S 129th St, San Antonio, TX 78234', '441 SW Rio de la Plata Drive, Tacoma, WA 98421']}
+            Icon={ArrowRight}
+          />
+        </DataPointGroup>
       </div>
     </div>
   </div>

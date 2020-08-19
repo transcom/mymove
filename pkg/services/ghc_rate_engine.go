@@ -72,6 +72,13 @@ type DomesticPackPricer interface {
 	ParamsPricer
 }
 
+// DomesticUnpackPricer prices the domestic unpacking for a GHC Move
+//go:generate mockery -name DomesticUnpackPricer
+type DomesticUnpackPricer interface {
+	Price(contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int) (unit.Cents, error)
+	ParamsPricer
+}
+
 // FuelSurchargePricer prices the domestic destination price for a GHC Move
 //go:generate mockery -name FuelSurchargePricer
 type FuelSurchargePricer interface {
