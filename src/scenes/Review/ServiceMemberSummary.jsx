@@ -7,6 +7,8 @@ import { formatDateSM } from 'shared/formatters';
 import { getFullSMName } from 'utils/moveSetupFlow';
 import Address from './Address';
 
+import ReviewSection from '../../components/Customer/ReviewSection';
+
 import './Review.css';
 
 function ServiceMemberSummary(props) {
@@ -26,50 +28,17 @@ function ServiceMemberSummary(props) {
 
   const yesNoMap = { true: 'Yes', false: 'No' };
 
-  // using <table className="review-section"> because using "table--stacked"
-  // resulted in text-align being centered for some reason
+  const serviceMemberData = [
+    { label: 'Name', value: getFullSMName(serviceMember) },
+    { label: 'Branch', value: get(schemaAffiliation['x-display-value'], get(serviceMember, 'affiliation')) },
+    { label: 'Rank', value: get(schemaRank['x-display-value'], get(serviceMember, 'rank')) },
+    { label: 'DoD ID#', value: get(serviceMember, 'edipi') },
+    { label: 'Current duty station', value: get(serviceMember, 'current_station.name') },
+  ];
+
   return (
     <div className="service-member-summary">
-      <div className="stackedtable-header">
-        <div>
-          <h2>
-            Profile
-            <span className="edit-section-link">
-              <Link to={editProfilePath} className="usa-link">
-                Edit
-              </Link>
-            </span>
-          </h2>
-        </div>
-      </div>
-      <table className="table--stacked review-section">
-        <colgroup>
-          <col style={{ width: '25%' }} />
-          <col style={{ width: '75%' }} />
-        </colgroup>
-        <tbody>
-          <tr>
-            <th scope="row">Name</th>
-            <td>{getFullSMName(serviceMember)}</td>
-          </tr>
-          <tr>
-            <th scope="row">Branch</th>
-            <td>{get(schemaAffiliation['x-display-value'], get(serviceMember, 'affiliation'))}</td>
-          </tr>
-          <tr>
-            <th scope="row">Rank</th>
-            <td>{get(schemaRank['x-display-value'], get(serviceMember, 'rank'))}</td>
-          </tr>
-          <tr>
-            <th scope="row">DoD ID#</th>
-            <td>{get(serviceMember, 'edipi')}</td>
-          </tr>
-          <tr>
-            <th scope="row">Current duty station</th>
-            <td>{get(serviceMember, 'current_station.name')}</td>
-          </tr>
-        </tbody>
-      </table>
+      <ReviewSection fieldData={serviceMemberData} title="Profile" editLink={editProfilePath} />
       <table className="table--stacked review-section">
         <colgroup>
           <col style={{ width: '25%' }} />
@@ -147,7 +116,6 @@ function ServiceMemberSummary(props) {
 }
 
 /*
-
     <div className="service-member-summary">
       <GridContainer>
         <Grid row>
