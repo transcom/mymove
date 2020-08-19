@@ -631,3 +631,24 @@ triaged
  - ./docs/backend/route-planner.md
  - docs/adr/0050-doc-viewer-fork.md
 MB-2346
+ - docs/adr/0056-lodash.md
+isEmpty
+concat
+mapValues
+findLast
+isNull
+toUpper
+forEach
+findKey
+memoize
+cloneDeep
+debounce
+snakeCase
+startCase
+isFinite
+uniqueId
+startsWith
+uniq
+isNil
+isInteger
+sortBy
