@@ -14,6 +14,7 @@ import { MatchShape } from 'types/router';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
+import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
 
 function formatShipmentType(shipmentType) {
   if (shipmentType === 'HHG') {
@@ -95,6 +96,10 @@ export const MoveTaskOrder = ({ match }) => {
                 destinationAddress={mtoShipment?.destinationAddress}
                 originDutyStation={moveOrder?.originDutyStation?.address}
                 destinationDutyStation={moveOrder?.destinationDutyStation?.address}
+              />
+              <ShipmentWeightDetails
+                estimatedWeight={mtoShipment?.primeEstimatedWeight}
+                actualWeight={mtoShipment?.primeActualWeight}
               />
               <RequestedServiceItemsTable serviceItems={serviceItemsForShipment} />
             </ShipmentContainer>

@@ -193,6 +193,8 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
 		SecondaryPickupAddress:   Address(mtoShipment.SecondaryPickupAddress),
 		DestinationAddress:       Address(mtoShipment.DestinationAddress),
+		PrimeEstimatedWeight:     handlers.FmtPoundPtr(mtoShipment.PrimeEstimatedWeight),
+		PrimeActualWeight:        handlers.FmtPoundPtr(mtoShipment.PrimeActualWeight),
 		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
 		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
