@@ -3,16 +3,12 @@
 @import '../../shared/styles/colors';
 @import '../../shared/styles/custom';
 
-.shipment-dates-container {
-  @extend .container;
-  @extend.container--gray;
-  @include u-padding-top(0);
-  @include u-padding-x('2');
-  @include u-padding-bottom('05');
+.shipmentDatesContainer {
+  @include u-padding-x(0);
   @include u-margin-x(0);
 }
 
-.header, .date {
+.header,
+.date {
   width: 50%;
 }
-

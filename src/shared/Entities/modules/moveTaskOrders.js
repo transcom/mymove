@@ -28,6 +28,10 @@ export function selectMoveTaskOrders(state, moveOrderId) {
   return filter(mtos, (mto) => mto.moveOrderID === moveOrderId);
 }
 
+export function selectMoveTaskOrder(state, moveTaskOrderId) {
+  return get(state, `entities.moveTaskOrder.${moveTaskOrderId}`, {});
+}
+
 const getMoveTaskOrderLabel = 'moveTaskOrder.getMoveTaskOrder';
 export function getMoveTaskOrder(moveTaskOrderID, label = getMoveTaskOrderLabel) {
   const swaggerTag = 'moveTaskOrder.getMoveTaskOrder';

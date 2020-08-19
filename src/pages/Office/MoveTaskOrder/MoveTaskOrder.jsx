@@ -8,11 +8,13 @@ import styles from '../TXOMoveInfo/TXOTab.module.scss';
 import ShipmentContainer from 'components/Office/ShipmentContainer';
 import ShipmentHeading from 'components/Office/ShipmentHeading';
 import ImportantShipmentDates from 'components/Office/ImportantShipmentDates';
-import RequestedServiceItemsTable from 'components/Office/RequestedServiceItemsTable';
+import RequestedServiceItemsTable from 'components/Office/RequestedServiceItemsTable/RequestedServiceItemsTable';
 import { useMoveTaskOrderQueries } from 'hooks/queries';
 import { MatchShape } from 'types/router';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
+import { SERVICE_ITEM_STATUS } from 'shared/constants';
 
 function formatShipmentType(shipmentType) {
   if (shipmentType === 'HHG') {
@@ -23,21 +25,30 @@ function formatShipmentType(shipmentType) {
 
 function formatShipmentDate(shipmentDateString) {
   const dateObj = new Date(shipmentDateString);
+  const weekday = new Intl.DateTimeFormat('en', { weekday: 'long' }).format(dateObj);
   const year = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(dateObj);
   const month = new Intl.DateTimeFormat('en', { month: 'short' }).format(dateObj);
   const day = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(dateObj);
-  return `${day} ${month} ${year}`;
+  return `${weekday}, ${day} ${month} ${year}`;
 }
 
 export const MoveTaskOrder = ({ match }) => {
   const { moveOrderId } = match.params;
 
   // TODO - Do something with moveOrder and moveTaskOrder?
-  const { moveTaskOrders, mtoShipments, mtoServiceItems, isLoading, isError } = useMoveTaskOrderQueries(moveOrderId);
+  const {
+    moveOrders = {},
+    moveTaskOrders,
+    mtoShipments,
+    mtoServiceItems,
+    isLoading,
+    isError,
+  } = useMoveTaskOrderQueries(moveOrderId);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
+  const moveOrder = Object.values(moveOrders)?.[0];
   const moveTaskOrder = Object.values(moveTaskOrders)?.[0];
 
   const serviceItems = map(mtoServiceItems, (item) => {
@@ -61,7 +72,9 @@ export const MoveTaskOrder = ({ match }) => {
 
         {map(mtoShipments, (mtoShipment) => {
           const serviceItemsForShipment = serviceItems.filter((item) => item.mtoShipmentID === mtoShipment.id);
-
+          const requestedServiceItems = serviceItemsForShipment.filter(
+            (item) => item.status === SERVICE_ITEM_STATUS.SUBMITTED,
+          );
           return (
             <ShipmentContainer shipmentType={mtoShipment.shipmentType} className={styles.shipmentCard}>
               <ShipmentHeading
@@ -81,7 +94,15 @@ export const MoveTaskOrder = ({ match }) => {
                 requestedPickupDate={formatShipmentDate(mtoShipment.requestedPickupDate)}
                 scheduledPickupDate={formatShipmentDate(mtoShipment.scheduledPickupDate)}
               />
-              <RequestedServiceItemsTable serviceItems={serviceItemsForShipment} />
+              <ShipmentAddresses
+                pickupAddress={mtoShipment?.pickupAddress}
+                destinationAddress={mtoShipment?.destinationAddress}
+                // eslint-disable-next-line react/prop-types
+                originDutyStation={moveOrder?.originDutyStation?.address}
+                // eslint-disable-next-line react/prop-types
+                destinationDutyStation={moveOrder?.destinationDutyStation?.address}
+              />
+              {requestedServiceItems && <RequestedServiceItemsTable serviceItems={requestedServiceItems} />}
             </ShipmentContainer>
           );
         })}
