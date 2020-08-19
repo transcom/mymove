@@ -32,11 +32,7 @@ func (suite *HandlerSuite) TestListMTOsHandler() {
 	// unavailable MTO
 	testdatagen.MakeDefaultMove(suite.DB())
 
-	moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			AvailableToPrimeAt: swag.Time(time.Now()),
-		},
-	})
+	moveTaskOrder := testdatagen.MakeAvailableMove(suite.DB())
 
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: moveTaskOrder,
