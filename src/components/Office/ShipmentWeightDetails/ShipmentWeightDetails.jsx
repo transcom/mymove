@@ -8,7 +8,7 @@ import { formatWeight } from 'shared/formatters';
 
 const ShipmentWeightDetails = ({ estimatedWeight, actualWeight }) => {
   const headers = ['Estimated weight', 'Actual weight'];
-  const row = [estimatedWeight ? formatWeight(estimatedWeight) : '', actualWeight ? formatWeight(actualWeight) : null];
+  const row = [estimatedWeight ? formatWeight(estimatedWeight) : '', actualWeight ? formatWeight(actualWeight) : ''];
   return (
     <DataPointGroup className="maxw-tablet">
       <DataPoint columnHeaders={headers} dataRow={row} />
