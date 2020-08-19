@@ -5,7 +5,7 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 
-import styles from './MoveDetails.module.scss';
+import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
 import { getMTOAgentList, selectMTOAgents } from 'shared/Entities/modules/mtoAgents';
 import {
@@ -180,7 +180,7 @@ export class MoveDetails extends Component {
     };
 
     return (
-      <div className={styles.MoveDetails}>
+      <div className={styles.tabContent}>
         <div className={styles.container}>
           <LeftNav className={styles.sidebar}>
             {sections.map((s) => {
