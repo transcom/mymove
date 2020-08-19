@@ -9,6 +9,22 @@ jest.mock('hooks/queries', () => ({
       moveOrders: {
         1: {
           id: '1',
+          originDutyStation: {
+            address: {
+              street_address_1: '',
+              city: 'Fort Knox',
+              state: 'KY',
+              postal_code: '40121',
+            },
+          },
+          destinationDutyStation: {
+            address: {
+              street_address_1: '',
+              city: 'Fort Irwin',
+              state: 'CA',
+              postal_code: '92310',
+            },
+          },
         },
       },
       moveTaskOrders: {
@@ -22,6 +38,18 @@ jest.mock('hooks/queries', () => ({
           shipmentType: 'HHG',
           scheduledPickupDate: '2020-03-16',
           requestedPickupDate: '2020-03-15',
+          pickupAddress: {
+            street_address_1: '932 Baltic Avenue',
+            city: 'Chicago',
+            state: 'IL',
+            postal_code: '60601',
+          },
+          destinationAddress: {
+            street_address_1: '10 Park Place',
+            city: 'Atlantic City',
+            state: 'NJ',
+            postal_code: '08401',
+          },
         },
       },
       mtoServiceItems: {
