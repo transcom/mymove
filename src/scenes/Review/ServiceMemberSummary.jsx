@@ -34,6 +34,19 @@ function ServiceMemberSummary(props) {
     { label: 'Rank', value: get(schemaRank['x-display-value'], get(serviceMember, 'rank')) },
     { label: 'DoD ID#', value: get(serviceMember, 'edipi') },
     { label: 'Current duty station', value: get(serviceMember, 'current_station.name') },
+    { label: 'Contact info' },
+    { label: 'Best contact phone', value: get(serviceMember, 'telephone') },
+    { label: 'Personal email', value: get(serviceMember, 'personal_email') },
+    // { label: 'Current mailing address', value: get(serviceMember, 'residential_address') },
+  ];
+
+  const ordersData = [
+    { label: 'Orders type', value: get(schemaOrdersType['x-display-value'], get(orders, 'orders_type')) },
+    { label: 'Orders date', value: formatDateSM(get(orders, 'issue_date')) },
+    { label: 'Report by date', value: formatDateSM(get(orders, 'report_by_date')) },
+    { label: 'New duty station', value: get(orders, 'new_duty_station.name') },
+    { label: 'Dependents', value: orders && yesNoMap[get(orders, 'has_dependents', '').toString()] },
+    { label: 'uploads && uploads.length', value: uploads && uploads.length },
   ];
 
   return (
@@ -46,17 +59,6 @@ function ServiceMemberSummary(props) {
         </colgroup>
         <tbody>
           <tr>
-            <th scope="row">Contact info</th>
-          </tr>
-          <tr>
-            <th scope="row">Best contact phone</th>
-            <td>{get(serviceMember, 'telephone')}</td>
-          </tr>
-          <tr>
-            <th scope="row">Personal email</th>
-            <td>{get(serviceMember, 'personal_email')}</td>
-          </tr>
-          <tr>
             <th scope="row">Current mailing address</th>
             <td>
               <Address address={get(serviceMember, 'residential_address')} />
@@ -64,6 +66,7 @@ function ServiceMemberSummary(props) {
           </tr>
         </tbody>
       </table>
+      <ReviewSection fieldData={ordersData} title="Orders" editLink={editOrdersPath} />
       <div className="table--stacked">
         <div>
           <h2>
@@ -84,32 +87,7 @@ function ServiceMemberSummary(props) {
           <col style={{ width: '25%' }} />
           <col style={{ width: '75%' }} />
         </colgroup>
-        <tbody>
-          <tr>
-            <th scope="row">Orders type</th>
-            <td>{get(schemaOrdersType['x-display-value'], get(orders, 'orders_type'))}</td>
-          </tr>
-          <tr>
-            <th scope="row">Orders date</th>
-            <td>{formatDateSM(get(orders, 'issue_date'))}</td>
-          </tr>
-          <tr>
-            <th scope="row">Report by date</th>
-            <td>{formatDateSM(get(orders, 'report_by_date'))}</td>
-          </tr>
-          <tr>
-            <th scope="row">New duty station</th>
-            <td>{get(orders, 'new_duty_station.name')}</td>
-          </tr>
-          <tr>
-            <th scope="row">Dependents</th>
-            <td>{orders && yesNoMap[get(orders, 'has_dependents', '').toString()]}</td>
-          </tr>
-          <tr>
-            <th scope="row">Orders</th>
-            <td>{uploads && uploads.length}</td>
-          </tr>
-        </tbody>
+        <tbody></tbody>
       </table>
     </div>
   );
