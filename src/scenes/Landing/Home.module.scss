@@ -1,0 +1,34 @@
+@import 'shared/styles/_variables';
+@import 'shared/styles/colors';
+
+@media (min-width: $mobile) {
+  .customer-header {
+    color: white;
+    background-color: $base-darker;
+  }
+  .step-header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .step-header {
+    margin: 0;
+  }
+}
+.accept {
+  color: $primary-darker;
+  font-size: 32px;
+  margin-right: 12px;
+}
+
+.number-circle {
+  display: inline-block;
+  height: 32px;
+  width: 32px;
+  border-radius: 50%;
+  color: white;
+  background-color: $primary-darker;
+  text-align: center;
+  padding: 5px;
+  margin-right: 12px;
+}
