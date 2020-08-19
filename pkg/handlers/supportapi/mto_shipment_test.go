@@ -26,9 +26,9 @@ import (
 )
 
 func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
-	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	mto := testdatagen.MakeDefaultMove(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: mto,
+		Move: mto,
 		MTOShipment: models.MTOShipment{
 			Status:       models.MTOShipmentStatusSubmitted,
 			ShipmentType: models.MTOShipmentTypeHHGLongHaulDom,

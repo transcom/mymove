@@ -22,7 +22,7 @@ import (
 
 func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 	order := testdatagen.MakeDefaultOrder(suite.DB())
-	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
+	moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Order: order,
 	})
 	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
@@ -58,12 +58,12 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 	suite.Equal(strfmt.UUID(moveTaskOrder.ID.String()), moveTaskOrderPayload.ID)
 	suite.Nil(moveTaskOrderPayload.AvailableToPrimeAt)
 	suite.False(*moveTaskOrderPayload.IsCanceled)
-	suite.Equal(strfmt.UUID(moveTaskOrder.MoveOrderID.String()), moveTaskOrderPayload.MoveOrderID)
+	suite.Equal(strfmt.UUID(moveTaskOrder.OrdersID.String()), moveTaskOrderPayload.MoveOrderID)
 	suite.NotNil(moveTaskOrderPayload.ReferenceID)
 }
 
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
-	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+	moveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
 
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
 	requestUser := testdatagen.MakeDefaultUser(suite.DB())
@@ -93,7 +93,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 }
 
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithStaleEtag() {
-	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+	moveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
 
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
 	requestUser := testdatagen.MakeDefaultUser(suite.DB())

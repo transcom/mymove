@@ -47,7 +47,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		// create a custom verrs for returning a 422
 		verrs :=
 			&validate.Errors{Errors: map[string][]string{
-				"move_task_order_id": {"id cannot be converted to UUID"},
+				"move_id": {"id cannot be converted to UUID"},
 			},
 			}
 		errPayload := payloads.ValidationError(err.Error(), h.GetTraceID(), verrs)

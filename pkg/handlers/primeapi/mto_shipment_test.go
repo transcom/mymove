@@ -37,12 +37,12 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
-	mto := MakeAvailableMoveTaskOrder(suite.DB())
-	pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
-	destinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+	mto := testdatagen.MakeAvailableMove(suite.DB())
+	pickupAddress := testdatagen.MakeDefaultAddress(suite.DB())
+	destinationAddress := testdatagen.MakeDefaultAddress(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: mto,
-		MTOShipment:   models.MTOShipment{},
+		Move:        mto,
+		MTOShipment: models.MTOShipment{},
 	})
 
 	mtoShipment.MoveTaskOrderID = mto.ID
@@ -217,7 +217,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mtoChecker,
 		}
 
-		mtoNotAvailable := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+		mtoNotAvailable := testdatagen.MakeDefaultMove(suite.DB())
 		mtoIDNotAvailable := strfmt.UUID(mtoNotAvailable.ID.String())
 
 		paramsNotAvailable := params
@@ -285,13 +285,9 @@ func ClearNonUpdateFields(mtoShipment *models.MTOShipment) *primemessages.MTOShi
 func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	primeEstimatedWeight := unit.Pound(500)
 	primeEstimatedWeightDate := testdatagen.DateInsidePeakRateCycle
-	mto := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: models.MoveTaskOrder{
-			AvailableToPrimeAt: swag.Time(time.Now()),
-		},
-	})
+	move := testdatagen.MakeAvailableMove(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: mto,
+		Move: move,
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusSubmitted,
 		},
@@ -299,9 +295,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	mtoShipment.PrimeEstimatedWeight = &primeEstimatedWeight
 	mtoShipment.PrimeEstimatedWeightRecordedDate = &primeEstimatedWeightDate
 
-	mtoNotAvailable := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	mtoNotAvailable := testdatagen.MakeDefaultMove(suite.DB())
 	mtoShipmentNotAvailable := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: mtoNotAvailable,
+		Move: mtoNotAvailable,
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusSubmitted,
 		},
@@ -444,7 +440,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	mtoShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: mto,
+		Move: move,
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusSubmitted,
 		},

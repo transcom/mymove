@@ -13,7 +13,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 	key := models.ServiceItemParamNameDistanceZip3.String()
 
 	suite.T().Run("Calculate zip3 distance", func(t *testing.T) {
-		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{})
+		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 			testdatagen.Assertions{

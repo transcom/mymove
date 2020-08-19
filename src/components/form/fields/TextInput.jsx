@@ -5,13 +5,13 @@ import { FormGroup, Label, TextInput as UswdsTextInput } from '@trussworks/react
 
 import { ErrorMessage } from '../index';
 
-export const TextInput = ({ label, id, name, labelHint, ...props }) => {
+export const TextInput = ({ label, labelClassName, id, name, labelHint, ...props }) => {
   /* eslint-disable react/jsx-props-no-spreading */
   const [, meta] = useField({ id, name, ...props });
   const hasError = meta.touched && !!meta.error;
   return (
     <FormGroup error={hasError}>
-      <Label hint={labelHint} error={hasError} htmlFor={id || name}>
+      <Label className={labelClassName} hint={labelHint} error={hasError} htmlFor={id || name}>
         {label}
       </Label>
       <TextInputMinimal id={id} name={name} {...props} />
@@ -21,6 +21,7 @@ export const TextInput = ({ label, id, name, labelHint, ...props }) => {
 };
 
 TextInput.propTypes = {
+  labelClassName: PropTypes.string,
   labelHint: PropTypes.string,
   id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
@@ -29,6 +30,7 @@ TextInput.propTypes = {
 
 TextInput.defaultProps = {
   labelHint: '',
+  labelClassName: '',
 };
 
 export default TextInput;

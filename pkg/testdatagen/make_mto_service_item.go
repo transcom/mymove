@@ -9,9 +9,9 @@ import (
 
 // makeServiceItem creates a single service item and associated set relationships
 func makeServiceItem(db *pop.Connection, assertions Assertions, isBasicServiceItem bool) models.MTOServiceItem {
-	moveTaskOrder := assertions.MoveTaskOrder
+	moveTaskOrder := assertions.Move
 	if isZeroUUID(moveTaskOrder.ID) {
-		moveTaskOrder = MakeMoveTaskOrder(db, assertions)
+		moveTaskOrder = MakeMove(db, assertions)
 	}
 
 	var MTOShipmentID *uuid.UUID
@@ -59,6 +59,11 @@ func MakeMTOServiceItem(db *pop.Connection, assertions Assertions) models.MTOSer
 	return makeServiceItem(db, assertions, false)
 }
 
+// MakeDefaultMTOServiceItem returns a MTOServiceItem with default values
+func MakeDefaultMTOServiceItem(db *pop.Connection) models.MTOServiceItem {
+	return MakeMTOServiceItem(db, Assertions{})
+}
+
 // MakeMTOServiceItemBasic creates a single MTOServiceItem that is a basic type, meaning no shipment id associated.
 func MakeMTOServiceItemBasic(db *pop.Connection, assertions Assertions) models.MTOServiceItem {
 	return makeServiceItem(db, assertions, true)
@@ -67,6 +72,6 @@ func MakeMTOServiceItemBasic(db *pop.Connection, assertions Assertions) models.M
 // MakeMTOServiceItems makes an array of MTOServiceItems
 func MakeMTOServiceItems(db *pop.Connection) models.MTOServiceItems {
 	var serviceItemList models.MTOServiceItems
-	serviceItemList = append(serviceItemList, MakeMTOServiceItem(db, Assertions{}))
+	serviceItemList = append(serviceItemList, MakeDefaultMTOServiceItem(db))
 	return serviceItemList
 }
