@@ -102,7 +102,7 @@ export const MoveTaskOrder = ({ match }) => {
                 // eslint-disable-next-line react/prop-types
                 destinationDutyStation={moveOrder?.destinationDutyStation?.address}
               />
-              {requestedServiceItems && <RequestedServiceItemsTable serviceItems={requestedServiceItems} />}
+              {requestedServiceItems?.length > 0 && <RequestedServiceItemsTable serviceItems={requestedServiceItems} />}
             </ShipmentContainer>
           );
         })}
