@@ -12,10 +12,8 @@ import { AddressFields } from '../form/AddressFields/AddressFields';
 import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
 
 import {
-  loadMTOShipments as loadMTOShipmentsAction,
   selectMTOShipmentForMTO,
   createMTOShipment as createMTOShipmentAction,
-  // updateMTOShipment as updateMTOShipmentAction,
 } from 'shared/Entities/modules/mtoShipments';
 import { selectActiveOrLatestOrdersFromEntities } from 'shared/Entities/modules/orders';
 import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
@@ -73,53 +71,48 @@ class HHGDetailsForm extends Component {
   }
 
   componentDidMount() {
-    const { showLoggedInUser, match } = this.props;
+    const { showLoggedInUser, mtoShipment } = this.props;
     showLoggedInUser();
-    this.setInitialState(match.params.moveId);
+    this.setInitialState(mtoShipment);
   }
 
-  setInitialState = (mtoId) => {
-    const { loadMTOShipments } = this.props;
-    loadMTOShipments(mtoId).then((response) => {
-      // TODO: handle more than one HHG - one that was last created?
-      const mtoShipment = { ...response.response.body[0] };
-
-      function cleanAgentPhone(agent) {
-        const agentCopy = { ...agent };
-        Object.keys(agentCopy).forEach((key) => {
-          /* eslint-disable security/detect-object-injection */
-          if (key === 'phone') {
-            const phoneNum = agentCopy[key];
-            // will be in format xxxxxxxxxx
-            agentCopy[key] = phoneNum.split('-').join('');
-          }
-          /* eslint-enable security/detect-object-injection */
-        });
-        return agentCopy;
-      }
-      // for existing mtoShipment, reshape agents from array of objects to key/object for proper handling
-      const { agents } = mtoShipment;
-      if (agents) {
-        const receivingAgent = agents.find((agent) => agent.agentType === 'RECEIVING_AGENT');
-        const releasingAgent = agents.find((agent) => agent.agentType === 'RELEASING_AGENT');
-
-        // Remove dashes from agent phones for expected form phone format
-        if (receivingAgent) {
-          const formattedAgent = cleanAgentPhone(releasingAgent);
-          if (!isEmpty(formattedAgent)) {
-            mtoShipment.receivingAgent = { ...formattedAgent };
-          }
+  setInitialState = (mtoShipment) => {
+    // TODO: handle more than one HHG - one that was last created?
+    const mtoShipmentCopy = { ...mtoShipment };
+    function cleanAgentPhone(agent) {
+      const agentCopy = { ...agent };
+      Object.keys(agentCopy).forEach((key) => {
+        /* eslint-disable security/detect-object-injection */
+        if (key === 'phone') {
+          const phoneNum = agentCopy[key];
+          // will be in format xxxxxxxxxx
+          agentCopy[key] = phoneNum.split('-').join('');
         }
-        if (releasingAgent) {
-          const formattedAgent = cleanAgentPhone(releasingAgent);
-          if (!isEmpty(formattedAgent)) {
-            mtoShipment.releasingAgent = { ...formattedAgent };
-          }
+      });
+      return agentCopy;
+    }
+    // for existing mtoShipment, reshape agents from array of objects to key/object for proper handling
+    const { agents } = mtoShipmentCopy;
+    if (agents) {
+      const receivingAgent = agents.find((agent) => agent.agentType === 'RECEIVING_AGENT');
+      const releasingAgent = agents.find((agent) => agent.agentType === 'RELEASING_AGENT');
+
+      // Remove dashes from agent phones for expected form phone format
+      if (receivingAgent) {
+        const formattedAgent = cleanAgentPhone(releasingAgent);
+        if (!isEmpty(formattedAgent)) {
+          mtoShipmentCopy.receivingAgent = { ...formattedAgent };
         }
       }
+      if (releasingAgent) {
+        const formattedAgent = cleanAgentPhone(releasingAgent);
+        if (!isEmpty(formattedAgent)) {
+          mtoShipmentCopy.releasingAgent = { ...formattedAgent };
+        }
+      }
+    }
 
-      this.setState({ initialValues: mtoShipment });
-    });
+    this.setState({ initialValues: mtoShipmentCopy });
   };
 
   handleChangeHasDeliveryAddress = () => {
@@ -417,9 +410,7 @@ HHGDetailsForm.propTypes = {
     postal_code: string,
   }),
   createMTOShipment: func.isRequired,
-  // updateMTOShipment: func.isRequired,
   showLoggedInUser: func.isRequired,
-  loadMTOShipments: func.isRequired,
   push: func.isRequired,
   mtoShipment: shape({
     agents: arrayOf(
@@ -481,9 +472,7 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = {
   createMTOShipment: createMTOShipmentAction,
-  // updateMTOShipment: updateMTOShipmentAction,
   showLoggedInUser: showLoggedInUserAction,
-  loadMTOShipments: loadMTOShipmentsAction,
 };
 
 export { HHGDetailsForm as HHGDetailsFormComponent };
