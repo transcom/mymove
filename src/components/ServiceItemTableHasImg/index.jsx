@@ -51,13 +51,13 @@ const ServiceItemTableHasImg = ({ serviceItems }) => {
         <td className={styles.detail}>{detailSection}</td>
         <td>
           <div className={styles.statusAction}>
-            <Button className="usa-button--icon usa-button--small">
+            <Button className="usa-button--icon usa-button--small" data-testid="acceptButton">
               <span className="icon">
                 <Check />
               </span>
               <span>Accept</span>
             </Button>
-            <Button secondary className="usa-button--small usa-button--icon">
+            <Button secondary className="usa-button--small usa-button--icon" data-testid="rejectButton">
               <span className="icon">
                 <Ex />
               </span>
