@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	"github.com/transcom/mymove/cmd/webhook-client/utils"
 	"github.com/transcom/mymove/pkg/testingsuite"
 
 	"github.com/spf13/cobra"
@@ -16,7 +17,7 @@ import (
 // WebhookClientTestingSuite is a suite for testing the webhook client
 type WebhookClientTestingSuite struct {
 	testingsuite.PopTestSuite
-	logger   Logger
+	logger   utils.Logger
 	certPath string
 	keyPath  string
 }

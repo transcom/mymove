@@ -8,6 +8,8 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/cmd/webhook-client/utils"
 )
 
 //WebhookRequest is the body of our request
@@ -19,13 +21,18 @@ type WebhookRequest struct {
 	Object      string `json:"object"`
 }
 
-func initPostWebhookNotifyFlags(flag *pflag.FlagSet) {
-	flag.String(FilenameFlag, "", "Path to the file with the payment request JSON payload")
+// Flags specific to this command
+const (
+	// MessageFlag is the string to send in the payload
+	MessageFlag string = "message"
+)
 
+func initPostWebhookNotifyFlags(flag *pflag.FlagSet) {
+	flag.String(MessageFlag, "Hello World", "Message for the client to send")
 	flag.SortFlags = false
 }
 
-func checkPostWebhookNotifyConfig(v *viper.Viper, args []string, logger Logger) error {
+func checkPostWebhookNotifyConfig(v *viper.Viper, args []string, logger utils.Logger) error {
 	_, _, err := InitRootConfig(v)
 	if err != nil {
 		logger.Fatal(err.Error())
@@ -43,7 +50,7 @@ func checkPostWebhookNotifyConfig(v *viper.Viper, args []string, logger Logger) 
 func postWebhookNotify(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 
-	errParseFlags := ParseFlags(cmd, v, args)
+	errParseFlags := utils.ParseFlags(cmd, v, args)
 	if errParseFlags != nil {
 		return errParseFlags
 	}
@@ -77,7 +84,7 @@ func postWebhookNotify(cmd *cobra.Command, args []string) error {
 	}
 
 	// Create the client and open the cacStore
-	runtime, cacStore, errCreateClient := CreateClient(v)
+	runtime, cacStore, errCreateClient := utils.CreateClient(v)
 
 	if errCreateClient != nil {
 		logger.Error("Error creating runtime client:", zap.Error(errCreateClient))
@@ -89,8 +96,8 @@ func postWebhookNotify(cmd *cobra.Command, args []string) error {
 	}
 
 	// Make the API call
-	hostname := v.GetString(HostnameFlag)
-	port := v.GetInt(PortFlag)
+	hostname := v.GetString(utils.HostnameFlag)
+	port := v.GetInt(utils.PortFlag)
 	// For now this is hardcoded to our support endpoint
 	path := "/support/v1/webhook-notify"
 

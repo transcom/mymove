@@ -1,8 +1,9 @@
-package main
+package utils
 
 import (
 	"bytes"
 	"crypto/tls"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httputil"
@@ -11,6 +12,7 @@ import (
 	"github.com/spf13/viper"
 	"pault.ag/go/pksigner"
 
+	"github.com/transcom/mymove/cmd/prime-api-client/utils"
 	"github.com/transcom/mymove/pkg/cli"
 )
 
@@ -77,7 +79,8 @@ func (wr *WebhookRuntime) Post(data []byte, url string) (*http.Response, []byte,
 
 	// Print out the request when debug mode is on
 	if wr.Debug {
-		Debug(httputil.DumpRequest(req, true))
+		output, _ := httputil.DumpRequest(req, true)
+		fmt.Println(string(output)) //todo switch to logger
 	}
 
 	// Send request and capture the response
@@ -91,7 +94,8 @@ func (wr *WebhookRuntime) Post(data []byte, url string) (*http.Response, []byte,
 
 	// Print out the response when debug mode is on
 	if wr.Debug {
-		Debug(httputil.DumpResponse(resp, true))
+		output, _ := httputil.DumpResponse(resp, true)
+		fmt.Println(string(output))
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
@@ -131,7 +135,7 @@ func CreateClient(v *viper.Viper) (*WebhookRuntime, *pksigner.Store, error) {
 	var err error
 	var store *pksigner.Store
 
-	insecure := v.GetBool(InsecureFlag)
+	insecure := v.GetBool(utils.InsecureFlag)
 	verbose := v.GetBool(cli.VerboseFlag)
 	contentType := "application/json; charset=utf-8"
 
@@ -148,8 +152,8 @@ func CreateClient(v *viper.Viper) (*WebhookRuntime, *pksigner.Store, error) {
 	} else if !v.GetBool(cli.CACFlag) {
 		var loadCert tls.Certificate
 
-		certPath := v.GetString(CertPathFlag)
-		keyPath := v.GetString(KeyPathFlag)
+		certPath := v.GetString(utils.CertPathFlag)
+		keyPath := v.GetString(utils.KeyPathFlag)
 		loadCert, err = tls.LoadX509KeyPair(certPath, keyPath)
 
 		if err != nil {
