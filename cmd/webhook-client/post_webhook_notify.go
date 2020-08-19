@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -41,9 +42,6 @@ func checkPostWebhookNotifyConfig(v *viper.Viper, args []string, logger Logger) 
 
 func postWebhookNotify(cmd *cobra.Command, args []string) error {
 	v := viper.New()
-	// basePath represents url where we're sending our request
-	// For now this is hardcoded to our support endpoint
-	basePath := "/support/v1/webhook-notify"
 
 	errParseFlags := ParseFlags(cmd, v, args)
 	if errParseFlags != nil {
@@ -91,8 +89,14 @@ func postWebhookNotify(cmd *cobra.Command, args []string) error {
 	}
 
 	// Make the API call
-	runtime.BasePath = basePath
-	resp, _, err := runtime.Post(json)
+	hostname := v.GetString(HostnameFlag)
+	port := v.GetInt(PortFlag)
+	// For now this is hardcoded to our support endpoint
+	path := "/support/v1/webhook-notify"
+
+	url := fmt.Sprintf("%s:%d/%s", hostname, port, path)
+
+	resp, _, err := runtime.Post(json, url)
 
 	if err != nil {
 		logger.Error("Error making request:", zap.Error(err))

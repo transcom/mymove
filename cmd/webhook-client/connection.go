@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"crypto/tls"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httputil"
@@ -19,16 +18,13 @@ import (
 type WebhookRuntime struct {
 	client      *http.Client
 	Debug       bool
-	Host        string
-	BasePath    string
 	ContentType string
 	Insecure    bool
 }
 
 // NewWebhookRuntime creates and returns a runtime client
-func NewWebhookRuntime(hostWithPort string, contentType string, insecure bool, debug bool) *WebhookRuntime {
+func NewWebhookRuntime(contentType string, insecure bool, debug bool) *WebhookRuntime {
 	wr := WebhookRuntime{
-		Host:        "https://" + hostWithPort,
 		ContentType: contentType,
 		Insecure:    insecure,
 		Debug:       debug,
@@ -65,13 +61,13 @@ func (wr *WebhookRuntime) SetupClient(cert *tls.Certificate) (*WebhookRuntime, e
 
 // Post function of the WebhookRuntime http posts the data passed in and returns the
 // response, body data, and any error
-func (wr *WebhookRuntime) Post(data []byte) (*http.Response, []byte, error) {
-	json := bytes.NewBuffer(data)
+func (wr *WebhookRuntime) Post(data []byte, url string) (*http.Response, []byte, error) {
+	bufferData := bytes.NewBuffer(data)
 	// Create the POST request
 	req, err := http.NewRequest(
 		"POST",
-		wr.Host+wr.BasePath,
-		json,
+		url,
+		bufferData,
 	)
 	req.Header.Set("Content-type", wr.ContentType)
 
@@ -137,11 +133,6 @@ func CreateClient(v *viper.Viper) (*WebhookRuntime, *pksigner.Store, error) {
 
 	insecure := v.GetBool(InsecureFlag)
 	verbose := v.GetBool(cli.VerboseFlag)
-
-	hostname := v.GetString(HostnameFlag)
-	port := v.GetInt(PortFlag)
-	hostWithPort := fmt.Sprintf("%s:%d", hostname, port)
-
 	contentType := "application/json; charset=utf-8"
 
 	// Get the tls certificate
@@ -168,7 +159,7 @@ func CreateClient(v *viper.Viper) (*WebhookRuntime, *pksigner.Store, error) {
 		cert = &loadCert
 	}
 
-	runtimeClient := NewWebhookRuntime(hostWithPort, contentType, insecure, verbose)
+	runtimeClient := NewWebhookRuntime(contentType, insecure, verbose)
 
 	rc, err = runtimeClient.SetupClient(cert)
 
