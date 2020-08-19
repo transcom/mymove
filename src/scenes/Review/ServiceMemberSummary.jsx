@@ -28,6 +28,8 @@ function ServiceMemberSummary(props) {
 
   const yesNoMap = { true: 'Yes', false: 'No' };
 
+  const currentResidentialAddress = <Address address={get(serviceMember, 'residential_address')} />;
+
   const serviceMemberData = [
     { label: 'Name', value: getFullSMName(serviceMember) },
     { label: 'Branch', value: get(schemaAffiliation['x-display-value'], get(serviceMember, 'affiliation')) },
@@ -37,7 +39,7 @@ function ServiceMemberSummary(props) {
     { label: 'Contact info' },
     { label: 'Best contact phone', value: get(serviceMember, 'telephone') },
     { label: 'Personal email', value: get(serviceMember, 'personal_email') },
-    // { label: 'Current mailing address', value: get(serviceMember, 'residential_address') },
+    { label: 'Current mailing address', value: currentResidentialAddress },
   ];
 
   const ordersData = [
@@ -52,20 +54,6 @@ function ServiceMemberSummary(props) {
   return (
     <div className="service-member-summary">
       <ReviewSection fieldData={serviceMemberData} title="Profile" editLink={editProfilePath} />
-      <table className="table--stacked review-section">
-        <colgroup>
-          <col style={{ width: '25%' }} />
-          <col style={{ width: '75%' }} />
-        </colgroup>
-        <tbody>
-          <tr>
-            <th scope="row">Current mailing address</th>
-            <td>
-              <Address address={get(serviceMember, 'residential_address')} />
-            </td>
-          </tr>
-        </tbody>
-      </table>
       <div>
         {moveIsApproved && '*'}
         {!moveIsApproved && <ReviewSection fieldData={ordersData} title="Orders" editLink={editOrdersPath} />}
