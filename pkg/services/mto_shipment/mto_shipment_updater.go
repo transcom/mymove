@@ -112,6 +112,13 @@ func setNewShipmentFields(planner route.Planner, db *pop.Connection, oldShipment
 		oldShipment.ShipmentType = updatedShipment.ShipmentType
 	}
 
+	if updatedShipment.Status != "" {
+		oldShipment.Status = updatedShipment.Status
+		if oldShipment.Status != models.MTOShipmentStatusDraft && oldShipment.Status != models.MTOShipmentStatusSubmitted {
+			verrs.Add("status", "can only update status to DRAFT or SUBMITTED. use UpdateMTOShipmentStatus for other status updates")
+		}
+	}
+
 	// Updated based on existing fields that may have been updated:
 	if oldShipment.ScheduledPickupDate != nil && oldShipment.PrimeEstimatedWeight != nil {
 		requiredDeliveryDate, err := calculateRequiredDeliveryDate(planner, db, *oldShipment.PickupAddress,
@@ -332,6 +339,7 @@ func generateMTOShipmentParams(mtoShipment models.MTOShipment) []interface{} {
 		mtoShipment.ApprovedDate,
 		mtoShipment.FirstAvailableDeliveryDate,
 		mtoShipment.RequiredDeliveryDate,
+		mtoShipment.Status,
 		mtoShipment.ID,
 	}
 }
@@ -350,7 +358,8 @@ func generateUpdateMTOShipmentQuery() string {
 			actual_pickup_date = ?,
 			approved_date = ?,
 			first_available_delivery_date = ?,
-			required_delivery_date = ?
+			required_delivery_date = ?,
+			status = ?
 		WHERE
 			id = ?
 	`

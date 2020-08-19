@@ -87,7 +87,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServicesScheduleOrigin() {
 	})
 
 	suite.T().Run("lookup origin ServicesSchedule not found", func(t *testing.T) {
-		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{})
+		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 			testdatagen.Assertions{
@@ -104,7 +104,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServicesScheduleOrigin() {
 	})
 
 	suite.T().Run("lookup dest ServicesSchedule not found", func(t *testing.T) {
-		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{})
+		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 			testdatagen.Assertions{
