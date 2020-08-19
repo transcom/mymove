@@ -17,7 +17,7 @@ const (
 )
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticUnpackWithServiceItemParamsBadData() {
-	suite.setUpDomesticPackUnpackData(models.ReServiceCodeDUPK)
+	suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDUPK)
 	paymentServiceItem := suite.setupPaymentServiceItemWithParams(
 		models.ReServiceCodeDUPK,
 		[]createParams{
@@ -54,7 +54,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticUnpackWithServiceItemPa
 }
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticUnpackWithServiceItemParams() {
-	suite.setUpDomesticPackUnpackData(models.ReServiceCodeDUPK)
+	suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDUPK)
 	paymentServiceItem := suite.setupDomesticUnpackServiceItems()
 
 	pricer := NewDomesticUnpackPricer(suite.DB())
@@ -93,7 +93,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticUnpackWithServiceItemPa
 }
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticUnpack() {
-	suite.setUpDomesticPackUnpackData(models.ReServiceCodeDUPK)
+	suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDUPK)
 
 	pricer := NewDomesticUnpackPricer(suite.DB())
 
