@@ -1,9 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { Provider } from 'react-redux';
-import { ConnectedRouter } from 'connected-react-router';
-
-import { history, store } from '../../shared/store';
 
 import { HHGDetailsFormComponent as HHGDetailsForm } from './HHGDetailsForm';
 
@@ -29,10 +25,4 @@ export default {
   title: 'Customer Components | HHGDetailsForm',
 };
 
-export const Basic = () => (
-  <Provider store={store}>
-    <ConnectedRouter history={history}>
-      <HHGDetailsForm {...defaultProps} />
-    </ConnectedRouter>
-  </Provider>
-);
+export const Basic = () => <HHGDetailsForm {...defaultProps} />;

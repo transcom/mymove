@@ -196,7 +196,7 @@ func (m *Move) Cancel(reason string) error {
 func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, error) {
 	var move Move
 	err := db.Q().Eager("PersonallyProcuredMoves.Advance",
-		"MTOShipments.MTOAgents.Email",
+		"MTOShipments.MTOAgents",
 		"MTOShipments.PickupAddress",
 		"MTOShipments.DestinationAddress",
 		"SignedCertifications",
