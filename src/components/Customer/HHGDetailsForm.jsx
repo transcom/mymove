@@ -73,12 +73,20 @@ class HHGDetailsForm extends Component {
   componentDidMount() {
     const { showLoggedInUser, mtoShipment } = this.props;
     showLoggedInUser();
-    this.setInitialState(mtoShipment);
+    if (mtoShipment.id) {
+      this.setInitialState(mtoShipment);
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    const { mtoShipment } = this.props;
+    // If refreshing page, need to handle mtoShipment populating from a promise
+    if (mtoShipment.id && prevProps.mtoShipment.id !== mtoShipment.id) {
+      this.setInitialState(mtoShipment);
+    }
   }
 
   setInitialState = (mtoShipment) => {
-    // TODO: handle more than one HHG - one that was last created?
-    const mtoShipmentCopy = { ...mtoShipment };
     function cleanAgentPhone(agent) {
       const agentCopy = { ...agent };
       Object.keys(agentCopy).forEach((key) => {
@@ -92,7 +100,8 @@ class HHGDetailsForm extends Component {
       return agentCopy;
     }
     // for existing mtoShipment, reshape agents from array of objects to key/object for proper handling
-    const { agents } = mtoShipmentCopy;
+    const { agents } = mtoShipment;
+    const formattedMTOShipment = { ...mtoShipment };
     if (agents) {
       const receivingAgent = agents.find((agent) => agent.agentType === 'RECEIVING_AGENT');
       const releasingAgent = agents.find((agent) => agent.agentType === 'RELEASING_AGENT');
@@ -101,24 +110,17 @@ class HHGDetailsForm extends Component {
       if (receivingAgent) {
         const formattedAgent = cleanAgentPhone(releasingAgent);
         if (!isEmpty(formattedAgent)) {
-          mtoShipmentCopy.receivingAgent = { ...formattedAgent };
+          formattedMTOShipment.receivingAgent = { ...formattedAgent };
         }
       }
       if (releasingAgent) {
         const formattedAgent = cleanAgentPhone(releasingAgent);
         if (!isEmpty(formattedAgent)) {
-          mtoShipmentCopy.releasingAgent = { ...formattedAgent };
+          formattedMTOShipment.releasingAgent = { ...formattedAgent };
         }
       }
     }
-
-    this.setState({ initialValues: mtoShipmentCopy });
-  };
-
-  handleChangeHasDeliveryAddress = () => {
-    this.setState((prevState) => {
-      return { hasDeliveryAddress: !prevState.hasDeliveryAddress };
-    });
+    this.setState({ initialValues: formattedMTOShipment });
   };
 
   // Use current residence
@@ -177,6 +179,12 @@ class HHGDetailsForm extends Component {
         }
       },
     );
+  };
+
+  handleChangeHasDeliveryAddress = () => {
+    this.setState((prevState) => {
+      return { hasDeliveryAddress: !prevState.hasDeliveryAddress };
+    });
   };
 
   submitMTOShipment = ({
@@ -447,6 +455,7 @@ HHGDetailsForm.defaultProps = {
     postal_code: '',
   },
   mtoShipment: {
+    id: '',
     customerRemarks: '',
     requestedPickupDate: '',
     requestedDeliveryDate: '',

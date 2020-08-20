@@ -225,8 +225,8 @@ const pages = {
         every([
           mtoShipment.requestedPickupDate,
           mtoShipment.requestedDeliveryDate,
-          mtoShipment.PickupAddress,
-          mtoShipment.ShipmentType,
+          mtoShipment.pickupAddress,
+          mtoShipment.shipmentType,
         ])
       );
     },
