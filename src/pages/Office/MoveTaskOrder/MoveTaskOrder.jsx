@@ -15,6 +15,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
 import { SERVICE_ITEM_STATUS } from 'shared/constants';
+import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
 
 function formatShipmentType(shipmentType) {
   if (shipmentType === 'HHG') {
@@ -101,6 +102,10 @@ export const MoveTaskOrder = ({ match }) => {
                 destinationDutyStation={moveOrder?.destinationDutyStation?.address}
               />
               {requestedServiceItems?.length > 0 && <RequestedServiceItemsTable serviceItems={requestedServiceItems} />}
+              <ShipmentWeightDetails
+                estimatedWeight={mtoShipment?.primeEstimatedWeight}
+                actualWeight={mtoShipment?.primeActualWeight}
+              />
             </ShipmentContainer>
           );
         })}
