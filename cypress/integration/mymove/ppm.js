@@ -72,7 +72,7 @@ function SMSubmitsMove() {
   cy.get('input[name="destination_postal_code"]').clear().type('76127');
 
   cy.get('input[type="radio"][value="yes"]').eq(1).check('yes', { force: true });
-  cy.get('input[name="days_in_storage"]').clear().type('30');
+  cy.get('input[name="days_in_storage"]').clear({ force: true }).type('30', { force: true });
 
   cy.nextPageAndCheckLocation(
     'weight-page-title',
@@ -81,7 +81,7 @@ function SMSubmitsMove() {
   );
 
   cy.get('.wizard-header').should('not.exist');
-  cy.get('#incentive-estimation-slider').click();
+  cy.get('#incentive-estimation-slider').click({ force: true });
 
   cy.get('[data-testid="incentive-range-values"]').contains('$');
 
@@ -103,7 +103,7 @@ function SMSubmitsMove() {
 
   cy.get('[data-testid="storage-estimate"]').contains('$726.76');
 
-  cy.get('input[name="days_in_storage"]').clear().type('35');
+  cy.get('input[name="days_in_storage"]').clear().type('35', { force: true });
 
   cy.get('[data-testid="storage-estimate"]').contains('$726.76');
 
@@ -153,7 +153,7 @@ function SMCompletesMove() {
   cy.get('input[name="destination_postal_code"]').clear().type('76127');
 
   cy.get('input[type="radio"][value="yes"]').eq(1).check('yes', { force: true });
-  cy.get('input[name="days_in_storage"]').clear().type('30');
+  cy.get('input[name="days_in_storage"]').clear({ force: true }).type('30', { force: true });
 
   cy.nextPageAndCheckLocation(
     'weight-page-title',
@@ -211,7 +211,7 @@ function SMCompletesMove() {
   cy.get('[data-testid="edit-move"]').contains('Edit Move').click();
 
   cy.get('td').contains('Not ready yet');
-  cy.get('[data-icon="question-circle"]').click();
+  cy.get('[data-icon="question-circle"]').click({ force: true });
   cy.get('[data-testid="tooltip"]').contains(
     'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
   );
