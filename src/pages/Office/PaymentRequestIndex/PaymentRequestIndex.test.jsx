@@ -22,6 +22,8 @@ const mockGetPaymentRequestListSuccess = jest.fn(() =>
   }),
 );
 
+const mockGetPaymentRequestListEmpty = jest.fn(() => Promise.resolve({}));
+
 describe('PaymentRequestIndex', () => {
   describe('loading state', () => {
     it('shows the loader', () => {
@@ -40,6 +42,24 @@ describe('PaymentRequestIndex', () => {
 
     it('renders without errors', async () => {
       await cache.prefetchQuery(PAYMENT_REQUESTS, mockGetPaymentRequestListSuccess);
+
+      const wrapper = mount(
+        <ReactQueryCacheProvider queryCache={cache}>
+          <MockProviders initialEntries={['/']}>
+            <PaymentRequestIndex />
+          </MockProviders>
+        </ReactQueryCacheProvider>,
+      );
+
+      expect(wrapper.find('[data-testid="PaymentRequestIndex"]').exists()).toBe(true);
+    });
+  });
+
+  describe('with no payment requests', () => {
+    const cache = makeQueryCache();
+
+    it('renders without errors', async () => {
+      await cache.prefetchQuery(PAYMENT_REQUESTS, mockGetPaymentRequestListEmpty);
 
       const wrapper = mount(
         <ReactQueryCacheProvider queryCache={cache}>

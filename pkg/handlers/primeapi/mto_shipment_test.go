@@ -37,9 +37,9 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
-	mto := MakeAvailableMoveTaskOrder(suite.DB())
-	pickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
-	destinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+	mto := testdatagen.MakeAvailableMove(suite.DB())
+	pickupAddress := testdatagen.MakeDefaultAddress(suite.DB())
+	destinationAddress := testdatagen.MakeDefaultAddress(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move:        mto,
 		MTOShipment: models.MTOShipment{},
@@ -285,13 +285,9 @@ func ClearNonUpdateFields(mtoShipment *models.MTOShipment) *primemessages.MTOShi
 func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	primeEstimatedWeight := unit.Pound(500)
 	primeEstimatedWeightDate := testdatagen.DateInsidePeakRateCycle
-	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			AvailableToPrimeAt: swag.Time(time.Now()),
-		},
-	})
+	move := testdatagen.MakeAvailableMove(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: mto,
+		Move: move,
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusSubmitted,
 		},
@@ -444,7 +440,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	mtoShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: mto,
+		Move: move,
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusSubmitted,
 		},

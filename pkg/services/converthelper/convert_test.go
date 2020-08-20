@@ -9,7 +9,7 @@ import (
 )
 
 func (suite *ConvertSuite) TestConvertProfileOrdersToGHC() {
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	move := testdatagen.MakeDefaultMove(suite.DB())
 	suite.NotNil(move)
 
 	contractor := testdatagen.MakeContractor(suite.DB(), testdatagen.Assertions{
@@ -67,7 +67,7 @@ func (suite *ConvertSuite) TestConvertProfileOrdersToGHC() {
 }
 
 func (suite *ConvertSuite) TestConvertFromPPMToGHCMoveOrdersExist() {
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	move := testdatagen.MakeDefaultMove(suite.DB())
 	suite.NotNil(move)
 
 	sm := move.Orders.ServiceMember
