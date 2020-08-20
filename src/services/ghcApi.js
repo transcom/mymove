@@ -59,6 +59,15 @@ export async function getMTOServiceItems(key, moveTaskOrderID) {
   return makeGHCRequest('mtoServiceItem.listMTOServiceItems', { moveTaskOrderID }, { schemaKey: 'mtoServiceItems' });
 }
 
+export async function patchMTOServiceItemStatus({ moveTaskOrderId, mtoServiceItemID, ifMatchEtag, status, reason }) {
+  return makeGHCRequest('mtoServiceItem.updateMTOServiceItemStatus', {
+    moveTaskOrderId,
+    mtoServiceItemID,
+    'If-Match': ifMatchEtag,
+    body: { status, reason },
+  });
+}
+
 export async function patchPaymentRequest({ paymentRequestID, status, ifMatchETag, rejectionReason }) {
   return makeGHCRequest('paymentRequests.updatePaymentRequestStatus', {
     paymentRequestID,

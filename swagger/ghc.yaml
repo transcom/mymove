@@ -805,6 +805,10 @@ paths:
           description: Precondition Failed
           schema:
             $ref: '#/responses/PreconditionFailed'
+        '422':
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
         '500':
           description: A server error occurred
           schema:
