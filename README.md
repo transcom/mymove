@@ -426,8 +426,12 @@ There are a few handy targets in the Makefile to help you run tests:
 
 * `make client_test`: Run front-end testing suites.
 * `make server_test`: Run back-end testing suites. [Additional info for running go tests](https://github.com/transcom/mymove/wiki/run-go-tests)
-* `make e2e_test`: Run e2e testing suite. Note: this will not necessarily reflect the same results as in the CI environment, run with caution.
+* `make e2e_test`: Run e2e testing suite.
+  * Note: this will not necessarily reflect the same results as in the CI environment, run with caution.
+  * Note also: this runs with a full clean/rebuild, so it is not great for fast iteration. Use `yarn cypress open` when working with individual tests
+* `yarn cypress open`: Open the cypress test runner and inspect/run individual e2e tests. (Should better reflect CI environment than above, but not as well as below.)
 * `make e2e_test_docker`: Run e2e testing suite in the same docker container as is run in CircleCI.
+  * Note: this also runs with a full clean/rebuild, so it is not great for fast iteration. Use `yarn cypress open` when working with individual tests
 * `make test`: Run e2e, client- and server-side testing suites.
 
 ### Logging
