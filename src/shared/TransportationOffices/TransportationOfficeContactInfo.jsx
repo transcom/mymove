@@ -37,6 +37,7 @@ TransportationOfficeContactInfo.propTypes = {
   dutyStation: PropTypes.shape({
     name: PropTypes.string.isRequired,
     id: PropTypes.string.isRequired,
+    transportation_office: PropTypes.shape({ phone_lines: PropTypes.array }),
   }),
   isOrigin: PropTypes.bool.isRequired,
 };
