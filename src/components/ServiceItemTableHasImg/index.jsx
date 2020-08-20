@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
+import classnames from 'classnames';
 
 import { ReactComponent as Check } from '../../shared/icon/check.svg';
 import { ReactComponent as Ex } from '../../shared/icon/ex.svg';
@@ -14,13 +15,13 @@ function generateDetailText(details, id) {
     return details.text;
   }
 
-  return Object.keys(details.text).map((detail) => {
-    return (
-      <p key={`${id}-${detail}`} className={styles.detailLine}>
-        <span className={styles.detailType}>{detail}:</span> {details.text[`${detail}`]}
-      </p>
-    );
-  });
+  const detailList = Object.keys(details.text).map((detail) => (
+    <div key={`${id}-${detail}`} className={styles.detailLine}>
+      <dt className={styles.detailType}>{detail}:</dt> <dd>{details.text[`${detail}`]}</dd>
+    </div>
+  ));
+
+  return <dl>{detailList}</dl>;
 }
 
 const ServiceItemTableHasImg = ({ serviceItems }) => {
@@ -70,7 +71,7 @@ const ServiceItemTableHasImg = ({ serviceItems }) => {
   });
 
   return (
-    <div className="table--service-item table--service-item--hasimg">
+    <div className={classnames(styles.ServiceItemTable, 'table--service-item', 'table--service-item--hasimg')}>
       <table>
         <thead className="table--small">
           <tr>

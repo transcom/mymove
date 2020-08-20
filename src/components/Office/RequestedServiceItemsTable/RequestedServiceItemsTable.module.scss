@@ -3,14 +3,29 @@
 @import 'shared/styles/colors';
 @import 'shared/styles/_custom';
 
-h4 {
-  span {
-    @include u-font-weight(normal);
+.RequestedServiceItemsTable {
+  h4 {
+    span {
+      @include u-font-weight(normal);
+    }
   }
-}
 
-:global .table--service-item--hasimg {
-  td:last-child {
-    vertical-align: top;
+  :global .table--service-item--hasimg {
+    td {
+      vertical-align: top;
+    }
+
+    dl {
+      @include u-margin-top(0);
+    }
+
+    dt,
+    dd {
+      @include u-display(inline);
+    }
+
+    dd {
+      @include u-margin-left(0);
+    }
   }
 }

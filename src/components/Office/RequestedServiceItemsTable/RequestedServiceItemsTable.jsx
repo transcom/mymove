@@ -8,7 +8,7 @@ import ServiceItemTableHasImg from 'components/ServiceItemTableHasImg';
 
 const RequestedServiceItemsTable = ({ serviceItems }) => {
   return (
-    <>
+    <div className={styles.RequestedServiceItemsTable}>
       <h4>
         Requested service items&nbsp;
         <span>
@@ -16,7 +16,7 @@ const RequestedServiceItemsTable = ({ serviceItems }) => {
         </span>
       </h4>
       <ServiceItemTableHasImg serviceItems={serviceItems} />
-    </>
+    </div>
   );
 };
 
