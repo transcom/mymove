@@ -20,7 +20,7 @@ COMMENT ON COLUMN invoice_number_trackers.standard_carrier_alpha_code IS 'The as
 COMMENT ON COLUMN invoice_number_trackers.year IS 'The associated year for this sequence number.';
 COMMENT ON COLUMN invoice_number_trackers.sequence_number IS 'The last used sequence number for the given SCAC/year.';
 
-COMMENT ON TABLE invoices IS 'Represents an invoice sent to GEX.';
+COMMENT ON TABLE invoices IS 'Represents an invoice sent to GEX; only used by pre-GHC HHG moves at the moment.';
 COMMENT ON COLUMN invoices.id IS 'UUID that uniquely identifies the record.';
 COMMENT ON COLUMN invoices.status IS 'Status of this invoice; options are DRAFT, IN_PROCESS, SUBMITTED, SUBMISSION_FAILURE, UPDATE_FAILURE.';
 COMMENT ON COLUMN invoices.invoiced_date IS 'Timestamp when this invoice was sent to GEX.';
@@ -30,7 +30,7 @@ COMMENT ON COLUMN invoices.updated_at IS 'Timestamp when the record was last upd
 COMMENT ON COLUMN invoices.approver_id IS 'The office user that approved this invoice.';
 COMMENT ON COLUMN invoices.user_uploads_id IS 'The associated uploads used as justification for this invoice.';
 
-COMMENT ON TABLE payment_requests IS 'Represents a payment request requested by the prime.';
+COMMENT ON TABLE payment_requests IS 'Represents a payment request from the GHC prime contractor.';
 COMMENT ON COLUMN payment_requests.id IS 'UUID that uniquely identifies the record.';
 COMMENT ON COLUMN payment_requests.is_final IS 'True if this is the final payment request for the move task order (MTO).';
 COMMENT ON COLUMN payment_requests.rejection_reason IS 'The reason the payment request was rejected (if it was rejected).';
@@ -69,7 +69,7 @@ COMMENT ON COLUMN payment_service_items.created_at IS 'Timestamp when the record
 COMMENT ON COLUMN payment_service_items.updated_at IS 'Timestamp when the record was last updated.';
 COMMENT ON COLUMN payment_service_items.mto_service_item_id IS 'The associated MTO service item for which payment is requested.';
 
-COMMENT ON TABLE prime_uploads IS 'Represents uploads made by the prime contractor.';
+COMMENT ON TABLE prime_uploads IS 'Represents uploads made by the GHC prime contractor.';
 COMMENT ON COLUMN prime_uploads.id IS 'UUID that uniquely identifies the record.';
 COMMENT ON COLUMN prime_uploads.proof_of_service_docs_id IS 'The associated set of proof of service documents this upload belongs to.';
 COMMENT ON COLUMN prime_uploads.contractor_id IS 'The associated contractor for this upload.';
@@ -245,7 +245,7 @@ COMMENT ON COLUMN service_item_param_keys.id IS 'UUID that uniquely identifies t
 COMMENT ON COLUMN service_item_param_keys.key IS 'A short, human-readable string for the parameter.';
 COMMENT ON COLUMN service_item_param_keys.description IS 'A descriptive name for the parameter.';
 COMMENT ON COLUMN service_item_param_keys.type IS 'The type of the value associated with this key; options are STRING, DATE, INTEGER, DECIMAL, TIMESTAMP, PaymentServiceItemUUID.';
-COMMENT ON COLUMN service_item_param_keys.origin IS 'Where values for this key originate; options are PRIME (i.e., the prime contractor provides) or SYSTEM (the system determines the value).';
+COMMENT ON COLUMN service_item_param_keys.origin IS 'Where values for this key originate; options are PRIME (the GHC prime contractor provides) or SYSTEM (the system determines the value).';
 COMMENT ON COLUMN service_item_param_keys.created_at IS 'Timestamp when the record was first created.';
 COMMENT ON COLUMN service_item_param_keys.updated_at IS 'Timestamp when the record was last updated.';
 
