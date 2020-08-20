@@ -5,13 +5,13 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import {
   loadDutyStationTransportationOffice,
-  getDutyStationTransportationOffice,
-} from 'shared/TransportationOffices/ducks';
-import { no_op } from 'shared/utils';
+  selectDutyStationTransportationOffice,
+} from 'shared/Entities/modules/transportationOffices';
 
 export class TransportationOfficeContactInfo extends Component {
   componentDidMount() {
-    this.props.loadDutyStationTransportationOffice(get(this.props, 'dutyStation.id'));
+    const { dutyStation } = this.props;
+    this.props.loadDutyStationTransportationOffice(dutyStation.id);
   }
   render() {
     const { isOrigin, dutyStation, transportationOffice } = this.props;
@@ -33,7 +33,6 @@ export class TransportationOfficeContactInfo extends Component {
   }
 }
 TransportationOfficeContactInfo.propTypes = {
-  getDutyStationTransportationOffice: PropTypes.func.isRequired,
   loadDutyStationTransportationOffice: PropTypes.func.isRequired,
   dutyStation: PropTypes.shape({
     name: PropTypes.string.isRequired,
@@ -42,14 +41,15 @@ TransportationOfficeContactInfo.propTypes = {
   isOrigin: PropTypes.bool.isRequired,
 };
 TransportationOfficeContactInfo.defaultProps = {
-  getDutyStationTransportationOffice: no_op,
-  loadDutyStationTransportationOffice: no_op,
+  transportationOffice: {},
   isOrigin: false,
 };
 
-const mapStateToProps = (state, ownProps) => ({
-  transportationOffice: getDutyStationTransportationOffice(state, get(ownProps, 'dutyStation.id')),
-});
+const mapStateToProps = (state, ownProps) => {
+  return {
+    transportationOffice: selectDutyStationTransportationOffice(state),
+  };
+};
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({ loadDutyStationTransportationOffice }, dispatch);
