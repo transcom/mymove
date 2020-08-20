@@ -11,6 +11,8 @@ import { formatDateSM } from 'shared/formatters';
 import { hasShortHaulError } from 'shared/incentive';
 import { getRequestStatus } from 'shared/Swagger/selectors';
 
+// import ReviewSection from '../../components/Customer/ReviewSection';
+
 import './Review.css';
 
 const getPPMEstimateLabel = 'ppm.showPPMEstimate';
@@ -55,6 +57,8 @@ export class PPMShipmentSummary extends Component {
           ppm.days_in_storage
         } days ${privateStorageString}`
       : 'Not requested';
+
+    // <ReviewSection fieldData={serviceMemberData} title="Profile" editLink={editProfilePath} />
 
     return (
       <div data-testid="ppm-summary" className="review-content">
