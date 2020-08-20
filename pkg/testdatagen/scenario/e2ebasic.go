@@ -1042,9 +1042,13 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 
 	dlhCost := unit.Cents(99999)
+	pickupPostalCode := "30812"
+	dlhReason := "Storage Unit"
 	serviceItemDLH := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID: uuid.FromStringOrNil("9db1bf43-0964-44ff-8384-3297951f6781"),
+			ID:               uuid.FromStringOrNil("9db1bf43-0964-44ff-8384-3297951f6781"),
+			PickupPostalCode: &pickupPostalCode,
+			Reason:           &dlhReason,
 		},
 		Move: mto,
 		ReService: models.ReService{
@@ -1063,7 +1067,9 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	fscCost := unit.Cents(55555)
 	serviceItemFSC := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID: uuid.FromStringOrNil("b380f732-2fb2-49a0-8260-7a52ce223c59"),
+			ID:               uuid.FromStringOrNil("b380f732-2fb2-49a0-8260-7a52ce223c59"),
+			PickupPostalCode: &pickupPostalCode,
+			Reason:           &dlhReason,
 		},
 		Move:        mto,
 		MTOShipment: MTOShipment,

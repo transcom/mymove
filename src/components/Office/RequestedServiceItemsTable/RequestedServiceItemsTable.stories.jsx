@@ -4,12 +4,13 @@ import RequestedServiceItemsTable from './RequestedServiceItemsTable';
 
 export default {
   title: 'TOO/TIO Components|RequestedServiceItemsTable',
+  component: RequestedServiceItemsTable,
 };
 
 const serviceItems = [
   {
     id: 'abc-123',
-    dateRequested: '20 Nov 2020',
+    submittedAt: '2020-11-20',
     serviceItem: 'Dom. Origin 1st Day SIT',
     code: 'DOMSIT',
     details: {
@@ -22,7 +23,7 @@ const serviceItems = [
   },
   {
     id: 'abc-1234',
-    dateRequested: '22 Nov 2020',
+    submittedAt: '2020-11-20',
     serviceItem: 'Dom. Destination 1st Day SIT',
     code: 'DDFSIT',
     details: {
@@ -36,7 +37,7 @@ const serviceItems = [
   },
   {
     id: 'cba-123',
-    dateRequested: '22 Nov 2020',
+    submittedAt: '2020-11-20',
     serviceItem: 'Dom. Origin Shuttle Service',
     code: 'DOSHUT',
     details: {
@@ -49,7 +50,7 @@ const serviceItems = [
   },
   {
     id: 'cba-1234',
-    dateRequested: '22 Nov 2020',
+    submittedAt: '2020-11-20',
     serviceItem: 'Dom. Destination Shuttle Service',
     code: 'DDSHUT',
     details: {
@@ -62,7 +63,7 @@ const serviceItems = [
   },
   {
     id: 'abc12345',
-    dateRequested: '22 Nov 2020',
+    submittedAt: '2020-11-20',
     serviceItem: 'Dom. Crating',
     code: 'DCRT',
     details: {
