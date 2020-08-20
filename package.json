@@ -89,6 +89,7 @@
     "test": "rescripts test --env=jsdom",
     "test:debug": "rescripts --inspect-brk test --runInBand --env=jsdom",
     "test:coverage": "rescripts test --coverage --env=jsdom",
+    "test:e2e": "cypress open --config baseUrl=http://milmovelocal:3000",
     "prettier": "prettier --loglevel warn 'src/**/*.{js,jsx}'",
     "lint": "eslint --ext .js,.jsx src",
     "storybook": "start-storybook -p 6006",

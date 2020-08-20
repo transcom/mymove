@@ -427,11 +427,12 @@ There are a few handy targets in the Makefile to help you run tests:
 * `make client_test`: Run front-end testing suites.
 * `make server_test`: Run back-end testing suites. [Additional info for running go tests](https://github.com/transcom/mymove/wiki/run-go-tests)
 * `make e2e_test`: Run e2e testing suite.
-  * Note: this will not necessarily reflect the same results as in the CI environment, run with caution.
-  * Note also: this runs with a full clean/rebuild, so it is not great for fast iteration. Use `yarn cypress open` when working with individual tests
-* `yarn cypress open`: Open the cypress test runner and inspect/run individual e2e tests. (Should better reflect CI environment than above, but not as well as below.)
+  * Note: this will not necessarily reflect the same results as in the CI environment, run with caution. One of the reasons for this is it's pulling actual cypress latest, which as of this writing is `5.0.0`. Another reason is your `.envrc` is going to populate your dev environment with a bunch of values that `make e2e_test_docker` won't have.
+  * Note also: this runs with a full clean/rebuild, so it is not great for fast iteration. Use `yarn test:e2e` when working with individual tests
+* `yarn test:e2e`: Open the cypress test runner against your already running servers and inspect/run individual e2e tests. (Should better reflect CI environment than above, but not as well as below.)
+  * Note: You must already have the servers running for this to work! This may not reflect the same results as CI for the same reason as the above re: `.envrc` values. However, it is __significantly__ faster because you can run individual tests and not have to deal with the clean/rebuild.
 * `make e2e_test_docker`: Run e2e testing suite in the same docker container as is run in CircleCI.
-  * Note: this also runs with a full clean/rebuild, so it is not great for fast iteration. Use `yarn cypress open` when working with individual tests
+  * Note: this also runs with a full clean/rebuild, so it is not great for fast iteration. Use `yarn test:e2e` when working with individual tests.
 * `make test`: Run e2e, client- and server-side testing suites.
 
 ### Logging
