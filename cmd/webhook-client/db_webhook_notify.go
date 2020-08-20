@@ -50,8 +50,8 @@ func dbWebhookNotify(cmd *cobra.Command, args []string) error {
 			string(not.EventKey), not.ObjectID.String(), not.MoveTaskOrderID.String())
 	}
 
-	payload := &WebhookMessage{
-		Message: message,
+	payload := &WebhookRequest{
+		Object: message,
 	}
 	json, err := json.Marshal(payload)
 

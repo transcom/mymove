@@ -37,6 +37,8 @@ const (
 	InsecureFlag string = "insecure"
 	// MessageFlag is the string to send in the payload
 	MessageFlag string = "message"
+	// FilenameFlag is the name of the file being passed in
+	FilenameFlag string = "filename"
 )
 
 // initRootFlags initializes flags relating to the webhook client
@@ -52,6 +54,7 @@ func initRootFlags(flag *pflag.FlagSet) {
 	flag.Int(PortFlag, cli.MutualTLSPort, "The port to connect to")
 	flag.Bool(InsecureFlag, false, "Skip TLS verification and validation")
 	flag.String(MessageFlag, "Hello World", "Message for the client to send")
+	flag.String(FilenameFlag, "", "Data file passed in to the client")
 }
 
 // Debug prints helpful debugging information for requests
