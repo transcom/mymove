@@ -24,6 +24,7 @@
 
   svg {
     @include u-margin-right(2);
+    flex-shrink: 0;
     fill: #000000;
     width: 15px;
     height: 15px;

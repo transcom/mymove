@@ -1,12 +1,13 @@
 import React from 'react';
-import { withKnobs, text, object } from '@storybook/addon-knobs';
+import { withKnobs, text, object, number } from '@storybook/addon-knobs';
 
 import ShipmentContainer from './ShipmentContainer';
 import ShipmentHeading from './ShipmentHeading';
 
+import RequestedServiceItemsTable from 'components/Office/RequestedServiceItemsTable/RequestedServiceItemsTable';
 import ImportantShipmentDates from 'components/Office/ImportantShipmentDates';
 import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
-import RequestedServiceItemsTable from 'components/Office/RequestedServiceItemsTable';
+import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
 
 export default {
   title: 'TOO/TIO Components|ShipmentContainer',
@@ -75,11 +76,17 @@ export const MTOAccessorial = () => (
         postal_code: '92310',
       })}
     />
+
+    <ShipmentWeightDetails
+      estimatedWeight={number('ShipmentWeight.estimatedWeight', 1000)}
+      actualWeight={number('ShipmentWeight.actualWeight', 999.99)}
+    />
+
     <RequestedServiceItemsTable
       serviceItems={[
         object('ServiceItem.first', {
           id: '1',
-          dateRequested: '10 Jan 2020',
+          submittedAt: '2020-01-10',
           serviceItem: 'Fuel Surcharge',
           code: 'FSC',
           details: { text: 'Details text only' },

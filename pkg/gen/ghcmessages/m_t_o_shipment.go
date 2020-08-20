@@ -47,6 +47,12 @@ type MTOShipment struct {
 	// pickup address
 	PickupAddress *Address `json:"pickupAddress,omitempty"`
 
+	// prime actual weight
+	PrimeActualWeight *int64 `json:"primeActualWeight,omitempty"`
+
+	// prime estimated weight
+	PrimeEstimatedWeight *int64 `json:"primeEstimatedWeight,omitempty"`
+
 	// rejection reason
 	RejectionReason *string `json:"rejectionReason,omitempty"`
 
