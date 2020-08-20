@@ -35,7 +35,6 @@ require (
 	github.com/gobuffalo/nulls v0.4.0 // indirect
 	github.com/gobuffalo/packr v1.30.1
 	github.com/gobuffalo/pop v4.13.1+incompatible
-	github.com/gobuffalo/uuid v2.0.5+incompatible
 	github.com/gobuffalo/validate v2.0.4+incompatible
 	github.com/gocarina/gocsv v0.0.0-20190927101021-3ecffd272576
 	github.com/gofrs/flock v0.7.1
