@@ -114,11 +114,11 @@ func (suite *WebhookClientTestingSuite) Test_PostWebhookNotify() {
 	cmd := NewPostWebhookNotifyCommand()
 	rootCmd.AddCommand(cmd)
 	b := bytes.NewBufferString("")
-	message := "Lorem ipsum"
+	filename := "webhook_test_data.json"
 	rootCmd.SetOut(b)
 	suite.T().Run("post-webhook-notify: Send a request to server", func(t *testing.T) {
 		rootCmd.SetArgs([]string{
-			"--message", message,
+			"--filename", filename,
 			"--certpath", suite.certPath,
 			"--keypath", suite.keyPath,
 			"--insecure",
