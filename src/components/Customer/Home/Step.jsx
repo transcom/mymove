@@ -5,7 +5,7 @@ import { Button } from '@trussworks/react-uswds';
 
 import styles from './Home.module.scss';
 
-import { ReactComponent as AcceptIcon } from 'shared/icon/accept.svg';
+import { ReactComponent as AcceptIcon } from 'shared/icon/accept-inversed.svg';
 
 const NumberCircle = ({ num }) => <div className={styles['number-circle']}>{num}</div>;
 
