@@ -481,6 +481,32 @@ jobs:
             - ~/transcom/mymove/node_modules
       - announce_failure
 
+  pre_deps_cypress:
+    executor: mymove_medium
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-cache-cypress-yarn-{{ checksum "cypress/yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v1-cache-cypress-node-modules-{{ checksum "cypress/yarn.lock" }}
+      - run:
+          name: Install YARN dependencies
+          # setting network concurrency to 1 to follow the others; this is pretty standard for cloud yarning. see note in pre_deps_yarn for more detail.
+          command: yarn install --network-concurrency 1
+      # `v1-cache-cypress-yarn-{{ checksum "cypress/yarn.lock" }}` is used to cache yarn sources
+      - save_cache:
+          key: v1-cache-cypress-yarn-{{ checksum "cypress/yarn.lock" }}
+          paths:
+            - ~/.cache/cypress/yarn/v1
+      # `v1-cache-cypress-node-modules-{{ checksum "cypress/yarn.lock" }}` is used to cache installed node modules
+      - save_cache:
+          key: v1-cache-cypress-node-modules-{{ checksum "cypress/yarn.lock" }}
+          paths:
+            - ~/.cache/cypress/node_modules/v1
+      - announce_failure
+
   # `check_generated_code` is used to ensure generated code doesn't change
   check_generated_code:
     executor: mymove_medium
@@ -656,6 +682,12 @@ jobs:
       - restore_cache:
           keys:
             - v3-mymove-node-modules-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v1-cache-cypress-yarn-{{ checksum "cypress/yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v1-cache-cypress-node-modules-{{ checksum "cypress/yarn.lock" }}
       - attach_workspace:
           at: /home/circleci/transcom/mymove/bin
       - run: rm -f pkg/assets/assets.go && make pkg/assets/assets.go
@@ -1394,10 +1426,13 @@ workflows:
           requires:
             - pre_deps_golang
 
+      - pre_deps_cypress
+
       - integration_tests:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
+            - pre_deps_cypress
             - check_generated_code
             - push_app_legacy
             - push_app_stg
