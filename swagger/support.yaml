@@ -394,17 +394,7 @@ paths:
           description: The notification sent by webhook-client.
           schema:
             type: object
-            # required:
-            #   - id
-            #   - eventName
-            #   - triggeredAt
-            #   - objectType
-            #   - object
             properties:
-              # message:
-              #   type: string
-              #   description: Test message not included in sample payload
-              #   example: This is a test.
               id:
                 type: string
                 format: uuid

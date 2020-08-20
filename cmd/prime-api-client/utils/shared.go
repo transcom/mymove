@@ -92,7 +92,6 @@ func DecodeJSONFileToPayload(filename string, isStdin bool, payload interface{})
 	var reader *bufio.Reader
 	if filename != "" {
 		file, err := os.Open(filepath.Clean(filename))
-
 		if err != nil {
 			return fmt.Errorf("File open failed: %w", err)
 		}

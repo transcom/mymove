@@ -7,8 +7,6 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
-
-	"github.com/transcom/mymove/cmd/prime-api-client/utils"
 )
 
 //WebhookRequest is the body of our request
@@ -32,7 +30,7 @@ func checkPostWebhookNotifyConfig(v *viper.Viper, args []string, logger Logger) 
 		logger.Fatal(err.Error())
 	}
 
-	missingFilenameFlag := v.GetString(FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !utils.ContainsDash(args))
+	missingFilenameFlag := v.GetString(FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !ContainsDash(args))
 
 	if missingFilenameFlag {
 		logger.Fatal("post-webhook-notify expects --filename with json file passed in")
@@ -66,7 +64,7 @@ func postWebhookNotify(cmd *cobra.Command, args []string) error {
 	// Decode the json file that was passed in
 	filename := v.GetString(FilenameFlag)
 	payload := &WebhookRequest{}
-	err = DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &payload)
+	err = DecodeJSONFileToPayload(filename, ContainsDash(args), &payload)
 
 	if err != nil {
 		logger.Error("Error opening file:", zap.Error(err))

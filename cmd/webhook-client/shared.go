@@ -60,3 +60,13 @@ func DecodeJSONFileToPayload(filename string, isStdin bool, payload interface{})
 
 	return nil
 }
+
+// ContainsDash returns true if the original command included an empty dash
+func ContainsDash(args []string) bool {
+	for _, arg := range args {
+		if arg == "-" {
+			return true
+		}
+	}
+	return false
+}
