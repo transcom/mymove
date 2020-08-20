@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+/* eslint-disable no-console */
 import React from 'react';
 import { Alert } from '@trussworks/react-uswds';
 
@@ -9,10 +9,12 @@ import ShipmentList from './ShipmentList';
 import Footer from './Footer';
 import styles from './Home.module.scss';
 
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+
 const shipments = [
-  { type: 'PPM', id: '#123ABC-001' },
-  { type: 'HHG', id: '#123ABC-002' },
-  { type: 'NTS', id: '#123ABC-003' },
+  { type: SHIPMENT_OPTIONS.PPM, id: '#123ABC-001' },
+  { type: SHIPMENT_OPTIONS.HHG, id: '#123ABC-002' },
+  { type: SHIPMENT_OPTIONS.NTS, id: '#123ABC-003' },
 ];
 
 const Home = () => {
@@ -21,7 +23,7 @@ const Home = () => {
   }
 
   return (
-    <div>
+    <div className="grid-container usa-prose">
       <header className={`${styles['customer-header']} padding-top-3 padding-bottom-3 margin-bottom-2`}>
         <h2>Riley Baker</h2>
         <p>
@@ -44,14 +46,14 @@ const Home = () => {
         completedHeaderText="Profile complete"
         containerClassName={styles['step-container']}
         description="Make sure to keep your personal information up to date during your move"
-        editDisabled
+        editBtnDisabled
         editBtnLabel="Edit"
         headerText="Profile complete"
         onActionBtnClick={() => console.log('some action')}
         step="1"
         onEditClick={(e) => {
           e.preventDefault();
-          console.log('what');
+          console.log('edit clicked');
         }}
       />
 

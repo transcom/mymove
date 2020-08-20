@@ -9,9 +9,9 @@ const Footer = ({ header, dutyStationName, officeType, telephone }) => (
     <p>
       <strong>{dutyStationName}</strong>
       <br />
-      {officeType}
+      <span>{officeType}</span>
       <br />
-      {telephone}
+      <span>{telephone}</span>
     </p>
   </div>
 );

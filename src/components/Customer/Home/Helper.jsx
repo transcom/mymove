@@ -30,7 +30,7 @@ Helper.propTypes = {
     if (!props.helpList && props.description) {
       return '';
     }
-    console.log('what', props.helpList, props.description);
+
     if (!Array.isArray(props.helpList)) {
       return new Error('Prop helpList must be of type array');
     }

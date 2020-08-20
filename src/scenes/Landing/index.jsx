@@ -8,7 +8,6 @@ import { withLastLocation } from 'react-router-last-location';
 import { withContext } from 'shared/AppContext';
 
 import { MoveSummary } from './MoveSummary';
-import Home from '../../components/Customer/Home/';
 import PpmAlert from './PpmAlert';
 import { selectedMoveType, lastMoveIsCanceled, updateMove } from 'scenes/Moves/ducks';
 import { createServiceMember, isProfileComplete } from 'scenes/ServiceMembers/ducks';
@@ -150,7 +149,7 @@ export class Landing extends Component {
               )}
             </div>
 
-            {/* {isLoggedIn && !isEmpty(serviceMember) && isProfileComplete && (
+            {isLoggedIn && !isEmpty(serviceMember) && isProfileComplete && (
               <MoveSummary
                 entitlement={entitlement}
                 profile={serviceMember}
@@ -163,8 +162,7 @@ export class Landing extends Component {
                 requestPaymentSuccess={requestPaymentSuccess}
                 updateMove={updateMove}
               />
-            )} */}
-            {isLoggedIn && !isEmpty(serviceMember) && isProfileComplete && <Home />}
+            )}
           </Fragment>
         )}
       </div>

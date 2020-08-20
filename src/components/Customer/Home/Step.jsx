@@ -21,7 +21,7 @@ const Step = ({
   completedHeaderText,
   containerClassName,
   description,
-  editDisabled,
+  editBtnDisabled,
   editBtnLabel,
   headerText,
   onActionBtnClick,
@@ -30,13 +30,18 @@ const Step = ({
   step,
 }) => {
   const secondaryClassName = styles['usa-button--secondary'];
+  const disabledClassName = styles['btn--disabled'];
   return (
     <div className={`${containerClassName} margin-bottom-6`}>
       <div className={`${styles['step-header-container']} margin-bottom-2`}>
         {complete ? <AcceptIcon aria-hidden className={styles.accept} /> : <NumberCircle num={step} />}
         <strong>{complete ? completedHeaderText : headerText}</strong>
         {editBtnLabel && (
-          <Button editDisabled={editDisabled} className={styles['edit-button']} onClick={onEditBtnClick}>
+          <Button
+            disabled={editBtnDisabled}
+            className={`${styles['edit-button']} ${editBtnDisabled ? disabledClassName : ''}`}
+            onClick={onEditBtnClick}
+          >
             {editBtnLabel}
           </Button>
         )}
@@ -45,7 +50,9 @@ const Step = ({
       {children || <p>{description}</p>}
       {actionBtnLabel && (
         <Button
-          className={`margin-top-3 ${secondary ? secondaryClassName : ''}`}
+          className={`margin-top-3 ${styles['action-btn']} ${secondary ? secondaryClassName : ''} ${
+            actionBtnDisabled ? disabledClassName : ''
+          }`}
           disabled={actionBtnDisabled}
           onClick={onActionBtnClick}
         >
@@ -64,7 +71,7 @@ Step.propTypes = {
   completedHeaderText: string,
   containerClassName: string,
   description: string,
-  editDisabled: bool,
+  editBtnDisabled: bool,
   editBtnLabel: string,
   headerText: string.isRequired,
   onActionBtnClick: func,
@@ -81,7 +88,7 @@ Step.defaultProps = {
   completedHeaderText: '',
   containerClassName: '',
   description: '',
-  editDisabled: false,
+  editBtnDisabled: false,
   editBtnLabel: '',
   onActionBtnClick: () => {},
   onEditBtnClick: () => {},
