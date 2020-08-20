@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 
-import Home from './Home';
+import Home from '.';
 
 export default {
   title: 'Customer Components | Home',
