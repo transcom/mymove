@@ -158,10 +158,7 @@
       color: $primary;
       background-color: white;
     }
-    &:focus,
-    &:not([disabled]):focus {
-      outline: none;
-    }
+
     &:disabled {
       color: $base-light;
       background-color: transparent;
@@ -190,24 +187,23 @@
       margin: 0px;
     }
   }
-  // TODO: remove when GHC styles are integrated into customer app
+  // TODO: remove when GHC styles are integrated into customer app and migrate to using "secondary" prop on button, you will still need the box-shadow tho since secondary has a different outline
   .usa-button--secondary {
     color: $primary;
     background-color: white;
-    box-shadow: inset 0 0 0 2px $primary;
+    box-shadow: inset 0 0 0 2px $base-lighter;
 
     &:active,
     &:hover {
       color: $primary;
       background-color: white;
-      box-shadow: inset 0 0 0 2px $primary;
+      box-shadow: inset 0 0 0 2px $base-lighter;
     }
     &:focus,
     &:not([disabled]):focus {
-      outline: none;
       color: $primary;
       background-color: white;
-      box-shadow: inset 0 0 0 2px $primary;
+      box-shadow: inset 0 0 0 2px $base-lighter;
     }
   }
 }

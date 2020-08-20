@@ -17,7 +17,7 @@ const defaultProps = {
   headerText: '',
   onActionBtnClick: () => {},
   onEditBtnClick: () => {},
-  secondary: false,
+  secondaryBtn: false,
   step: '',
 };
 

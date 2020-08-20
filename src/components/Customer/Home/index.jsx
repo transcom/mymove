@@ -44,7 +44,6 @@ const Home = () => {
       <Step
         complete
         completedHeaderText="Profile complete"
-        containerClassName={styles['step-container']}
         description="Make sure to keep your personal information up to date during your move"
         editBtnDisabled
         editBtnLabel="Edit"
@@ -60,7 +59,6 @@ const Home = () => {
       <Step
         complete
         completedHeaderText="Orders uploaded"
-        containerClassName={styles['step-container']}
         description="Upload photos of each page, or upload a PDF"
         editBtnLabel="Edit"
         onEditClick={() => console.log('edit button clicked')}
@@ -81,10 +79,9 @@ const Home = () => {
         actionBtnLabel="Add another shipment"
         complete
         completedHeaderText="Shipments"
-        containerClassName={styles['step-container']}
         description="Tell us where you're going and when you want to get there. We'll help you set up shipments to make it work"
         headerText="Shipments"
-        secondary
+        secondaryBtn
         step="3"
       >
         <ShipmentList shipments={shipments} onShipmentClick={handleShipmentClick} />
@@ -93,7 +90,7 @@ const Home = () => {
       <Step
         actionBtnDisabled
         actionBtnLabel="Review and submit"
-        containerClassName={styles['step-container']}
+        containerClassName="margin-bottom-8"
         description="Review your move details and sign the legal paperwork, then send the info on to your move counselor"
         headerText="Confirm move request"
         onActionBtnClick={() => console.log('some action')}

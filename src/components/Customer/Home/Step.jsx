@@ -26,13 +26,13 @@ const Step = ({
   headerText,
   onActionBtnClick,
   onEditBtnClick,
-  secondary,
+  secondaryBtn,
   step,
 }) => {
   const secondaryClassName = styles['usa-button--secondary'];
   const disabledClassName = styles['btn--disabled'];
   return (
-    <div className={`${containerClassName} margin-bottom-6`}>
+    <div className={`margin-bottom-6 ${containerClassName}`}>
       <div className={`${styles['step-header-container']} margin-bottom-2`}>
         {complete ? <AcceptIcon aria-hidden className={styles.accept} /> : <NumberCircle num={step} />}
         <strong>{complete ? completedHeaderText : headerText}</strong>
@@ -50,7 +50,7 @@ const Step = ({
       {children || <p>{description}</p>}
       {actionBtnLabel && (
         <Button
-          className={`margin-top-3 ${styles['action-btn']} ${secondary ? secondaryClassName : ''} ${
+          className={`margin-top-3 ${styles['action-btn']} ${secondaryBtn ? secondaryClassName : ''} ${
             actionBtnDisabled ? disabledClassName : ''
           }`}
           disabled={actionBtnDisabled}
@@ -76,7 +76,7 @@ Step.propTypes = {
   headerText: string.isRequired,
   onActionBtnClick: func,
   onEditBtnClick: func,
-  secondary: bool,
+  secondaryBtn: bool,
   step: oneOfType([string, number]).isRequired,
 };
 
@@ -92,7 +92,7 @@ Step.defaultProps = {
   editBtnLabel: '',
   onActionBtnClick: () => {},
   onEditBtnClick: () => {},
-  secondary: false,
+  secondaryBtn: false,
 };
 
 export default Step;
