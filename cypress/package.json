@@ -2,7 +2,6 @@
   "name": "mymove-cypress-tests",
   "private": true,
   "version": "0.1.0",
-  "NOTE-RE-CYPRESS": "if you upgrade cypress here, upgrade in the root package.json as well",
   "devDependencies": {
     "cypress": "~4.8.0",
     "cypress-multi-reporters": "^1.2.3",
