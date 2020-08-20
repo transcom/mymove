@@ -8,7 +8,7 @@ import { withLastLocation } from 'react-router-last-location';
 import { withContext } from 'shared/AppContext';
 
 import { MoveSummary } from './MoveSummary';
-import Home from './Home';
+import Home from '../../components/Customer/Home';
 import PpmAlert from './PpmAlert';
 import { selectedMoveType, lastMoveIsCanceled, updateMove } from 'scenes/Moves/ducks';
 import { createServiceMember, isProfileComplete } from 'scenes/ServiceMembers/ducks';
