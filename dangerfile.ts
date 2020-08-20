@@ -52,7 +52,7 @@ const fileChecks = () => {
   }
 };
 
-const cypressUpdateChecks = () => {
+const cypressUpdateChecks = async () => {
   // load all modified and new files
   const allFiles = danger.git.modified_files.concat(danger.git.created_files);
 
