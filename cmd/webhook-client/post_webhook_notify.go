@@ -2,23 +2,26 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/cmd/prime-api-client/utils"
 )
 
-//WebhookMessage is the body of our request
-type WebhookMessage struct {
-	// Message sent
-	// Required: true
-	Message string `json:"message"`
+//WebhookRequest is the body of our request
+type WebhookRequest struct {
+	ID          string `json:"id"`
+	EventName   string `json:"eventName"`
+	TriggeredAt string `json:"triggeredAt"`
+	ObjectType  string `json:"objectType"`
+	Object      string `json:"object"`
 }
 
 func initPostWebhookNotifyFlags(flag *pflag.FlagSet) {
-	flag.String(MessageFlag, "", "Message to send")
+	flag.String(FilenameFlag, "", "Path to the file with the payment request JSON payload")
 
 	flag.SortFlags = false
 }
@@ -29,9 +32,10 @@ func checkPostWebhookNotifyConfig(v *viper.Viper, args []string, logger Logger) 
 		logger.Fatal(err.Error())
 	}
 
-	message := v.GetString(MessageFlag)
-	if len(message) == 0 {
-		return errors.New("missing message, expected to be set")
+	missingFilenameFlag := v.GetString(FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !utils.ContainsDash(args))
+
+	if missingFilenameFlag {
+		logger.Fatal("post-webhook-notify expects --filename with json file passed in")
 	}
 
 	return nil
@@ -59,10 +63,16 @@ func postWebhookNotify(cmd *cobra.Command, args []string) error {
 		logger.Fatal("Error:", zap.Error(err))
 	}
 
-	message := v.GetString(MessageFlag)
-	payload := &WebhookMessage{
-		Message: message,
+	// Decode the json file that was passed in
+	filename := v.GetString(FilenameFlag)
+	payload := &WebhookRequest{}
+	err = DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &payload)
+
+	if err != nil {
+		logger.Error("Error opening file:", zap.Error(err))
+		return err
 	}
+
 	json, err := json.Marshal(payload)
 
 	if err != nil {

@@ -11,42 +11,42 @@ import (
 	"github.com/go-openapi/runtime"
 )
 
-// PostWebhookNotifyCreatedCode is the HTTP code returned for type PostWebhookNotifyCreated
-const PostWebhookNotifyCreatedCode int = 201
+// PostWebhookNotifyOKCode is the HTTP code returned for type PostWebhookNotifyOK
+const PostWebhookNotifyOKCode int = 200
 
-/*PostWebhookNotifyCreated Created
+/*PostWebhookNotifyOK Sent
 
-swagger:response postWebhookNotifyCreated
+swagger:response postWebhookNotifyOK
 */
-type PostWebhookNotifyCreated struct {
+type PostWebhookNotifyOK struct {
 
 	/*
 	  In: Body
 	*/
-	Payload *PostWebhookNotifyCreatedBody `json:"body,omitempty"`
+	Payload *PostWebhookNotifyOKBody `json:"body,omitempty"`
 }
 
-// NewPostWebhookNotifyCreated creates PostWebhookNotifyCreated with default headers values
-func NewPostWebhookNotifyCreated() *PostWebhookNotifyCreated {
+// NewPostWebhookNotifyOK creates PostWebhookNotifyOK with default headers values
+func NewPostWebhookNotifyOK() *PostWebhookNotifyOK {
 
-	return &PostWebhookNotifyCreated{}
+	return &PostWebhookNotifyOK{}
 }
 
-// WithPayload adds the payload to the post webhook notify created response
-func (o *PostWebhookNotifyCreated) WithPayload(payload *PostWebhookNotifyCreatedBody) *PostWebhookNotifyCreated {
+// WithPayload adds the payload to the post webhook notify o k response
+func (o *PostWebhookNotifyOK) WithPayload(payload *PostWebhookNotifyOKBody) *PostWebhookNotifyOK {
 	o.Payload = payload
 	return o
 }
 
-// SetPayload sets the payload to the post webhook notify created response
-func (o *PostWebhookNotifyCreated) SetPayload(payload *PostWebhookNotifyCreatedBody) {
+// SetPayload sets the payload to the post webhook notify o k response
+func (o *PostWebhookNotifyOK) SetPayload(payload *PostWebhookNotifyOKBody) {
 	o.Payload = payload
 }
 
 // WriteResponse to the client
-func (o *PostWebhookNotifyCreated) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *PostWebhookNotifyOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.WriteHeader(201)
+	rw.WriteHeader(200)
 	if o.Payload != nil {
 		payload := o.Payload
 		if err := producer.Produce(rw, payload); err != nil {

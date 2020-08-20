@@ -528,13 +528,6 @@ func init() {
             "required": true,
             "schema": {
               "type": "object",
-              "required": [
-                "id",
-                "eventName",
-                "triggeredAt",
-                "objectType",
-                "object"
-              ],
               "properties": {
                 "eventName": {
                   "description": "Name of event triggered",
@@ -565,8 +558,8 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "Created",
+          "200": {
+            "description": "Sent",
             "schema": {
               "type": "object",
               "properties": {
@@ -2464,13 +2457,6 @@ func init() {
             "required": true,
             "schema": {
               "type": "object",
-              "required": [
-                "id",
-                "eventName",
-                "triggeredAt",
-                "objectType",
-                "object"
-              ],
               "properties": {
                 "eventName": {
                   "description": "Name of event triggered",
@@ -2501,8 +2487,8 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "Created",
+          "200": {
+            "description": "Sent",
             "schema": {
               "type": "object",
               "properties": {

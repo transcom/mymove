@@ -32,7 +32,7 @@ PostWebhookNotify tests endpoint for sending messages via webhook
 This endpoint represents the receiving server, The Prime, in our webhook-client testing workflow. The `webhook-client` is responsible for retrieving messages from the webhook_notifications table and sending them to the Prime (this endpoint in our testing case) via an mTLS connection.
 
 */
-func (a *Client) PostWebhookNotify(params *PostWebhookNotifyParams) (*PostWebhookNotifyCreated, error) {
+func (a *Client) PostWebhookNotify(params *PostWebhookNotifyParams) (*PostWebhookNotifyOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewPostWebhookNotifyParams()
@@ -53,7 +53,7 @@ func (a *Client) PostWebhookNotify(params *PostWebhookNotifyParams) (*PostWebhoo
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*PostWebhookNotifyCreated)
+	success, ok := result.(*PostWebhookNotifyOK)
 	if ok {
 		return success, nil
 	}
