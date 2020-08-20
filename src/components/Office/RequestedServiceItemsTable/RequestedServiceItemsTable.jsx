@@ -1,14 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import ServiceItemTableHasImg from '../ServiceItemTableHasImg';
+import styles from './RequestedServiceItemsTable.module.scss';
+
+import ServiceItemTableHasImg from 'components/ServiceItemTableHasImg';
 
 const RequestedServiceItemsTable = ({ serviceItems }) => {
   return (
-    <>
-      <h3>Requested service items ({serviceItems.length})</h3>
+    <div className={styles.RequestedServiceItemsTable}>
+      <h4>
+        Requested service items&nbsp;
+        <span>
+          ({serviceItems.length} {serviceItems.length === 1 ? 'item' : 'items'})
+        </span>
+      </h4>
       <ServiceItemTableHasImg serviceItems={serviceItems} />
-    </>
+    </div>
   );
 };
 
@@ -16,7 +23,7 @@ RequestedServiceItemsTable.propTypes = {
   serviceItems: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string,
-      dateRequested: PropTypes.string,
+      submittedAt: PropTypes.string,
       serviceItem: PropTypes.string,
       code: PropTypes.string,
       details: PropTypes.object,

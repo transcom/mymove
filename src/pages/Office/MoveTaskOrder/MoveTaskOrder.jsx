@@ -8,12 +8,13 @@ import styles from '../TXOMoveInfo/TXOTab.module.scss';
 import ShipmentContainer from 'components/Office/ShipmentContainer';
 import ShipmentHeading from 'components/Office/ShipmentHeading';
 import ImportantShipmentDates from 'components/Office/ImportantShipmentDates';
-import RequestedServiceItemsTable from 'components/Office/RequestedServiceItemsTable';
+import RequestedServiceItemsTable from 'components/Office/RequestedServiceItemsTable/RequestedServiceItemsTable';
 import { useMoveTaskOrderQueries } from 'hooks/queries';
 import { MatchShape } from 'types/router';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
+import { SERVICE_ITEM_STATUS } from 'shared/constants';
 import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
 
 function formatShipmentType(shipmentType) {
@@ -72,6 +73,9 @@ export const MoveTaskOrder = ({ match }) => {
 
         {map(mtoShipments, (mtoShipment) => {
           const serviceItemsForShipment = serviceItems.filter((item) => item.mtoShipmentID === mtoShipment.id);
+          const requestedServiceItems = serviceItemsForShipment.filter(
+            (item) => item.status === SERVICE_ITEM_STATUS.SUBMITTED,
+          );
           return (
             <ShipmentContainer shipmentType={mtoShipment.shipmentType} className={styles.shipmentCard}>
               <ShipmentHeading
@@ -101,7 +105,7 @@ export const MoveTaskOrder = ({ match }) => {
                 estimatedWeight={mtoShipment?.primeEstimatedWeight}
                 actualWeight={mtoShipment?.primeActualWeight}
               />
-              <RequestedServiceItemsTable serviceItems={serviceItemsForShipment} />
+              {requestedServiceItems?.length > 0 && <RequestedServiceItemsTable serviceItems={requestedServiceItems} />}
             </ShipmentContainer>
           );
         })}
