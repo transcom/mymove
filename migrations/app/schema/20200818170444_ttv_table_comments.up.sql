@@ -26,7 +26,7 @@ COMMENT ON COLUMN distance_calculations.distance_miles IS 'The distance in miles
 COMMENT ON TABLE dps_users IS 'Users who have permission to access MyMove - DPS integration resources';
 COMMENT ON COLUMN dps_users.created_at IS 'Date & time the dps_user was created';
 COMMENT ON COLUMN dps_users.updated_at IS 'Date & time the dps_user was updated';
-COMMENT ON COLUMN dps_users.login_gov_email IS 'Represents the origin address as a foreign key to the addresses table.';
+COMMENT ON COLUMN dps_users.login_gov_email IS 'The login.gov email of the user.';
 COMMENT ON COLUMN dps_users.active IS 'A boolean that determines whether or not a DPS user is active. Users that are not active are not allowed to access the DPS resources. See https://github.com/transcom/mymove/wiki/create-or-deactivate-users.';
 
 COMMENT ON TABLE ghc_domestic_transit_times IS 'Allows calculation of the maximum transit time based on the distance and weight ranges.';
@@ -101,7 +101,6 @@ COMMENT ON TABLE users IS 'Holds all users. Anyone who signs in to any of the my
 COMMENT ON COLUMN users.created_at IS 'Date & time the user was created.';
 COMMENT ON COLUMN users.updated_at IS 'Date & time the user was updated.';
 COMMENT ON COLUMN users.login_gov_uuid IS 'The login.gov uuid of the user.';
-COMMENT ON COLUMN users.login_gov_email IS 'The login.gov email of the user.';
 COMMENT ON COLUMN users.login_gov_email IS 'The login.gov email of the user.';
 COMMENT ON COLUMN users.active IS 'A boolean that determines whether or not a user is active. Users that are not active are not allowed to access the mymove apps. See https://github.com/transcom/mymove/wiki/create-or-deactivate-users.';
 COMMENT ON COLUMN users.current_mil_session_id IS 'This field gets populated when a user signs into the mil app. The string matches the session id stored in Redis. It is used to allow an admin user to revoke the session if necessary.';
