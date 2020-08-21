@@ -58,6 +58,7 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
   * [Test Data Generator](#test-data-generator)
   * [API / Swagger](#api--swagger)
   * [Testing](#testing)
+    * [Troubleshooting tips -- integration / e2e tests](#troubleshooting-tips----integration--e2e-tests)
   * [Logging](#logging)
     * [Log files](#log-files)
   * [Database](#database)
@@ -431,9 +432,19 @@ There are a few handy targets in the Makefile to help you run tests:
   * Note also: this runs with a full clean/rebuild, so it is not great for fast iteration. Use `yarn test:e2e` when working with individual tests
 * `yarn test:e2e`: Open the cypress test runner against your already running servers and inspect/run individual e2e tests. (Should better reflect CI environment than above, but not as well as below.)
   * Note: You must already have the servers running for this to work! This may not reflect the same results as CI for the same reason as the above re: `.envrc` values. However, it is __significantly__ faster because you can run individual tests and not have to deal with the clean/rebuild.
+* `yarn test:e2e-clean`: Resets your dev DB to a clean state before opening the Cypress test runner.
 * `make e2e_test_docker`: Run e2e testing suite in the same docker container as is run in CircleCI.
   * Note: this also runs with a full clean/rebuild, so it is not great for fast iteration. Use `yarn test:e2e` when working with individual tests.
 * `make test`: Run e2e, client- and server-side testing suites.
+
+#### Troubleshooting tips -- integration / e2e tests
+
+When running locally, you may find that retries or successive runs have unexpected failures. Some of the integration tests are written with the assumption that they will only be run against a clean DB. If you're working with one of these and don't have time to fix them to properly set up and clean up their state, you can use this command to reset your local dev db before opening the test runner. Note that if you choose not to fix the offending test(s), you'll have to repeatedly close the test runner to re-clean the the DB. You won't be able to take advantage of Cypress's hot reloading!
+
+If you suspect memory issues, you can further inspect this with the commands:
+
+* `yarn test:e2e-debug`, which runs `yarn test:e2e` with DEBUG stats
+* `yarn test:e2e-debug-clean`, which runs `yarn test:e2e-clean` with DEBUG stats
 
 ### Logging
 
