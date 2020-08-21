@@ -25,9 +25,10 @@ type mtoServiceItemCreator struct {
 }
 
 // CreateMTOServiceItem creates a MTO Service Item
-func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServiceItem) (*models.MTOServiceItem, *validate.Errors, error) {
+func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, *validate.Errors, error) {
 	var verrs *validate.Errors
 	var err error
+	var createdServiceItems models.MTOServiceItems
 
 	var move models.Move
 	moveID := serviceItem.MoveTaskOrderID
@@ -68,7 +69,10 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		if err != nil {
 			return nil, nil, err
 		}
-		return serviceItem, nil, nil
+
+		createdServiceItems = append(createdServiceItems, *serviceItem)
+
+		return &createdServiceItems, nil, nil
 	}
 
 	// TODO: Once customer onboarding is built, we can revisit to figure out which service items goes under each type of shipment
@@ -104,6 +108,8 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 			return fmt.Errorf("%#v %e", verrs, err)
 		}
 
+		createdServiceItems = append(createdServiceItems, *serviceItem)
+
 		// create dimensions if any
 		for index := range serviceItem.Dimensions {
 			createDimension := &serviceItem.Dimensions[index]
@@ -132,7 +138,8 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	} else if err != nil {
 		return nil, verrs, services.NewQueryError("unknown", err, "")
 	}
-	return serviceItem, nil, nil
+
+	return &createdServiceItems, nil, nil
 }
 
 // NewMTOServiceItemCreator returns a new MTO service item creator
