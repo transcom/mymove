@@ -9,5 +9,5 @@ export function getFullSMName(serviceMember) {
 // Concat agent's full name for display
 export function getFullAgentName(agent) {
   if (!agent) return '';
-  return `${agent.firstName} ${agent.lastName}`;
+  return `${agent.firstName || ''} ${agent.lastName || ''}`;
 }
