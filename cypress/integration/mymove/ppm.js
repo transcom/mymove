@@ -107,7 +107,7 @@ function SMSubmitsMove() {
 
   cy.get('[data-testid="storage-estimate"]').contains('$726.76');
 
-  cy.get('button').contains('Save').click();
+  cy.get('button').contains('Save').click({ force: true });
 
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
@@ -162,7 +162,7 @@ function SMCompletesMove() {
   );
 
   cy.get('.wizard-header').should('not.exist');
-  cy.get('#incentive-estimation-slider').click();
+  cy.get('#incentive-estimation-slider').click({ force: true });
 
   cy.get('[data-testid="incentive-range-text"]').contains('Not ready yet');
   cy.get('[data-icon="question-circle"]').click();
@@ -176,7 +176,7 @@ function SMCompletesMove() {
   });
   cy.get('.wizard-header').should('not.exist');
   cy.get('td').contains('Not ready yet');
-  cy.get('[data-icon="question-circle"]').click();
+  cy.get('[data-icon="question-circle"]').click({ force: true });
   cy.get('[data-testid="tooltip"]').contains(
     'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
   );
