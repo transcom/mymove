@@ -25,7 +25,7 @@ type webhookMessage struct {
 type Engine struct {
 	Connection      *pop.Connection
 	Logger          utils.Logger
-	Client          *utils.WebhookRuntime
+	Client          utils.WebhookClientPoster
 	Cmd             *cobra.Command
 	PeriodInSeconds int
 }
@@ -55,7 +55,7 @@ func (eng *Engine) processNotifications(notifications []models.WebhookNotificati
 	}
 }
 
-// sendPushNotication sends the notification and marks the notification as sent or failed
+// sendPushNotication sends the notification and marks the notification as sent or failed in the model (not database)
 func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *models.WebhookSubscription) error {
 	logger := eng.Logger
 
@@ -77,11 +77,13 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 
 	// Check for error making the request
 	if err != nil {
+		notif.Status = models.WebhookNotificationFailed
 		logger.Error("Failed to send, error making request:", zap.Error(err))
 		return err
 	}
 	// Check for error response from server
 	if resp.StatusCode != 200 {
+		notif.Status = models.WebhookNotificationFailed
 		errmsg := fmt.Sprintf("Failed to send. Response Status: %s. Body: %s", resp.Status, string(body))
 		err = errors.New(errmsg)
 		logger.Error("db-webhook-notify: Failed to send notification", zap.Error(err))
@@ -131,7 +133,7 @@ func (eng *Engine) run() error {
 		return nil
 	}
 
-	// If found, store in memory todo
+	// MYTODO: Maybe want to reorganize subs in memory for faster access
 	// process notifications
 	eng.processNotifications(notifications, subscriptions)
 	return nil

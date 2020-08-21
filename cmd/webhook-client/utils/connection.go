@@ -16,6 +16,12 @@ import (
 	"github.com/transcom/mymove/pkg/cli"
 )
 
+// WebhookClientPoster is an interface that WebhookRuntime implements
+type WebhookClientPoster interface {
+	SetupClient(cert *tls.Certificate) (*WebhookRuntime, error)
+	Post(data []byte, url string) (*http.Response, []byte, error)
+}
+
 // WebhookRuntime comment here
 type WebhookRuntime struct {
 	client      *http.Client
