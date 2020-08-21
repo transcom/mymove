@@ -42,120 +42,125 @@ func NewMTOShipmentUpdater(db *pop.Connection, builder UpdateMTOShipmentQueryBui
 }
 
 // setNewShipmentFields validates the updated shipment
-func setNewShipmentFields(planner route.Planner, db *pop.Connection, oldShipment *models.MTOShipment, updatedShipment *models.MTOShipment) error {
+func setNewShipmentFields(planner route.Planner, db *pop.Connection, dbShipment *models.MTOShipment, requestedUpdatedShipment *models.MTOShipment) error {
 	verrs := validate.NewErrors()
-	oldShipmentCopy := oldShipment // make a copy to restore values in case there were errors while setting
+	oldShipmentCopy := dbShipment // make a copy to restore values in case there were errors while setting
 
-	if updatedShipment.RequestedPickupDate != nil {
-		requestedPickupDate := updatedShipment.RequestedPickupDate
+	if requestedUpdatedShipment.RequestedPickupDate != nil {
+		requestedPickupDate := requestedUpdatedShipment.RequestedPickupDate
 		// if requestedPickupDate isn't valid then return InvalidInputError
-		if !requestedPickupDate.Equal(*oldShipment.RequestedPickupDate) {
+		// TODO: move this prime-specific check into prime handler (prime can't edit the customer's requestedPickupDate)
+		if !requestedPickupDate.Equal(*dbShipment.RequestedPickupDate) {
 			verrs.Add("requestedPickupDate", "must match what customer has requested")
 		}
-		oldShipment.RequestedPickupDate = requestedPickupDate
+		dbShipment.RequestedPickupDate = requestedPickupDate
 	}
 
-	if updatedShipment.PrimeActualWeight != nil {
-		oldShipment.PrimeActualWeight = updatedShipment.PrimeActualWeight
+	if requestedUpdatedShipment.PrimeActualWeight != nil {
+		dbShipment.PrimeActualWeight = requestedUpdatedShipment.PrimeActualWeight
 	}
 
-	if updatedShipment.FirstAvailableDeliveryDate != nil {
-		oldShipment.FirstAvailableDeliveryDate = updatedShipment.FirstAvailableDeliveryDate
+	if requestedUpdatedShipment.FirstAvailableDeliveryDate != nil {
+		dbShipment.FirstAvailableDeliveryDate = requestedUpdatedShipment.FirstAvailableDeliveryDate
 	}
 
-	if updatedShipment.ActualPickupDate != nil {
-		oldShipment.ActualPickupDate = updatedShipment.ActualPickupDate
+	if requestedUpdatedShipment.ActualPickupDate != nil {
+		dbShipment.ActualPickupDate = requestedUpdatedShipment.ActualPickupDate
 	}
 
-	if updatedShipment.ScheduledPickupDate != nil {
-		scheduledPickupTime := updatedShipment.ScheduledPickupDate
-		oldShipment.ScheduledPickupDate = scheduledPickupTime
+	if requestedUpdatedShipment.ScheduledPickupDate != nil {
+		scheduledPickupTime := requestedUpdatedShipment.ScheduledPickupDate
+		dbShipment.ScheduledPickupDate = scheduledPickupTime
 	}
 
-	if updatedShipment.PrimeEstimatedWeight != nil {
-		if oldShipment.PrimeEstimatedWeight != nil {
+	// TODO: Prime-specific logic- once created, can't be updated
+	if requestedUpdatedShipment.PrimeEstimatedWeight != nil {
+		if dbShipment.PrimeEstimatedWeight != nil {
 			verrs.Add("primeEstimatedWeight", "cannot be updated after initial estimation")
 		}
 		now := time.Now()
-		if oldShipment.ApprovedDate != nil {
-			err := validatePrimeEstimatedWeightRecordedDate(now, *oldShipment.ScheduledPickupDate, *oldShipment.ApprovedDate)
+		if dbShipment.ApprovedDate != nil {
+			err := validatePrimeEstimatedWeightRecordedDate(now, *dbShipment.ScheduledPickupDate, *dbShipment.ApprovedDate)
 			if err != nil {
 				verrs.Add("primeEstimatedWeight", "the time period for updating the estimated weight for a shipment has expired, please contact the TOO directly to request updates to this shipment’s estimated weight")
 				verrs.Add("primeEstimatedWeight", err.Error())
 			}
 		}
-		oldShipment.PrimeEstimatedWeight = updatedShipment.PrimeEstimatedWeight
-		oldShipment.PrimeEstimatedWeightRecordedDate = &now
+		dbShipment.PrimeEstimatedWeight = requestedUpdatedShipment.PrimeEstimatedWeight
+		dbShipment.PrimeEstimatedWeightRecordedDate = &now
 	}
 
-	if updatedShipment.PickupAddress != nil {
-		pickupAddress := updatedShipment.PickupAddress
-		oldShipment.PickupAddress = pickupAddress
+	if requestedUpdatedShipment.PickupAddress != nil {
+		pickupAddress := requestedUpdatedShipment.PickupAddress
+		dbShipment.PickupAddress = pickupAddress
 	}
 
-	if updatedShipment.DestinationAddress != nil {
-		destinationAddress := updatedShipment.DestinationAddress
-		oldShipment.DestinationAddress = destinationAddress
+	if requestedUpdatedShipment.DestinationAddress != nil {
+		destinationAddress := requestedUpdatedShipment.DestinationAddress
+		dbShipment.DestinationAddress = destinationAddress
 	}
 
-	if updatedShipment.SecondaryPickupAddress != nil {
-		secondaryPickupAddress := updatedShipment.SecondaryPickupAddress
-		oldShipment.SecondaryPickupAddress = secondaryPickupAddress
+	if requestedUpdatedShipment.SecondaryPickupAddress != nil {
+		secondaryPickupAddress := requestedUpdatedShipment.SecondaryPickupAddress
+		dbShipment.SecondaryPickupAddress = secondaryPickupAddress
 	}
 
-	if updatedShipment.SecondaryDeliveryAddress != nil {
-		secondaryDeliveryAddress := updatedShipment.SecondaryDeliveryAddress
-		oldShipment.SecondaryPickupAddress = secondaryDeliveryAddress
+	if requestedUpdatedShipment.SecondaryDeliveryAddress != nil {
+		secondaryDeliveryAddress := requestedUpdatedShipment.SecondaryDeliveryAddress
+		dbShipment.SecondaryPickupAddress = secondaryDeliveryAddress
 	}
 
-	if updatedShipment.ShipmentType != "" {
-		oldShipment.ShipmentType = updatedShipment.ShipmentType
+	if requestedUpdatedShipment.ShipmentType != "" {
+		dbShipment.ShipmentType = requestedUpdatedShipment.ShipmentType
 	}
 
-	if updatedShipment.Status != "" {
-		oldShipment.Status = updatedShipment.Status
-		if oldShipment.Status != models.MTOShipmentStatusDraft && oldShipment.Status != models.MTOShipmentStatusSubmitted {
+	if requestedUpdatedShipment.Status != "" {
+		dbShipment.Status = requestedUpdatedShipment.Status
+		if dbShipment.Status != models.MTOShipmentStatusDraft && dbShipment.Status != models.MTOShipmentStatusSubmitted {
 			verrs.Add("status", "can only update status to DRAFT or SUBMITTED. use UpdateMTOShipmentStatus for other status updates")
 		}
 	}
 
 	// Updated based on existing fields that may have been updated:
-	if oldShipment.ScheduledPickupDate != nil && oldShipment.PrimeEstimatedWeight != nil {
-		requiredDeliveryDate, err := calculateRequiredDeliveryDate(planner, db, *oldShipment.PickupAddress,
-			*oldShipment.DestinationAddress, *oldShipment.ScheduledPickupDate, oldShipment.PrimeEstimatedWeight.Int())
+	// TODO: Prime-specific: move to handler
+	if dbShipment.ScheduledPickupDate != nil && dbShipment.PrimeEstimatedWeight != nil {
+		requiredDeliveryDate, err := calculateRequiredDeliveryDate(planner, db, *dbShipment.PickupAddress,
+			*dbShipment.DestinationAddress, *dbShipment.ScheduledPickupDate, dbShipment.PrimeEstimatedWeight.Int())
 		if err != nil {
 			verrs.Add("requiredDeliveryDate", err.Error())
 		}
-		oldShipment.RequiredDeliveryDate = requiredDeliveryDate
+		dbShipment.RequiredDeliveryDate = requiredDeliveryDate
 	}
 
-	if len(updatedShipment.MTOAgents) > 0 {
-		if len(oldShipment.MTOAgents) < len(updatedShipment.MTOAgents) {
+	// Should not update MTOAgents here because we don't have an eTag
+	// TODO: move this logic to prime handler; allow MTOAgents to be updated by customer without eTag for now
+	if len(requestedUpdatedShipment.MTOAgents) > 0 {
+		if len(dbShipment.MTOAgents) < len(requestedUpdatedShipment.MTOAgents) {
 			verrs.Add("agents", "cannot add MTO agents to a shipment")
 		}
 
-		for _, newAgentInfo := range updatedShipment.MTOAgents {
+		for _, newAgentInfo := range requestedUpdatedShipment.MTOAgents {
 			foundAgent := false
-			for i, oldAgent := range oldShipment.MTOAgents {
+			for i, oldAgent := range dbShipment.MTOAgents {
 				if oldAgent.ID == newAgentInfo.ID {
 					foundAgent = true
 					if newAgentInfo.MTOAgentType != "" && newAgentInfo.MTOAgentType != oldAgent.MTOAgentType {
-						oldShipment.MTOAgents[i].MTOAgentType = newAgentInfo.MTOAgentType
+						dbShipment.MTOAgents[i].MTOAgentType = newAgentInfo.MTOAgentType
 					}
 
 					if newAgentInfo.FirstName != nil {
-						oldShipment.MTOAgents[i].FirstName = newAgentInfo.FirstName
+						dbShipment.MTOAgents[i].FirstName = newAgentInfo.FirstName
 					}
 					if newAgentInfo.LastName != nil {
-						oldShipment.MTOAgents[i].LastName = newAgentInfo.LastName
+						dbShipment.MTOAgents[i].LastName = newAgentInfo.LastName
 					}
 
 					if newAgentInfo.Email != nil {
-						oldShipment.MTOAgents[i].Email = newAgentInfo.Email
+						dbShipment.MTOAgents[i].Email = newAgentInfo.Email
 					}
 
 					if newAgentInfo.Phone != nil {
-						oldShipment.MTOAgents[i].Phone = newAgentInfo.Phone
+						dbShipment.MTOAgents[i].Phone = newAgentInfo.Phone
 					}
 				}
 			}
@@ -166,8 +171,8 @@ func setNewShipmentFields(planner route.Planner, db *pop.Connection, oldShipment
 	}
 
 	if verrs.HasAny() {
-		oldShipment = oldShipmentCopy
-		return services.NewInvalidInputError(oldShipment.ID, nil, verrs, "Invalid input found while updating the shipment.")
+		dbShipment = oldShipmentCopy
+		return services.NewInvalidInputError(dbShipment.ID, nil, verrs, "Invalid input found while updating the shipment.")
 	}
 
 	return nil
@@ -216,8 +221,8 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, 
 	if err != nil {
 		return &oldShipment, err
 	}
-
-	err = f.updateShipmentRecord(mtoShipment, &oldShipment, eTag)
+	newShipment := &oldShipment // old shipment has now been updated with requested changes
+	err = f.updateShipmentRecord(mtoShipment, newShipment, eTag)
 
 	if err != nil {
 		switch err.(type) {
@@ -239,7 +244,7 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, 
 
 // Takes the validated shipment input and updates the database using a transaction. If any part of the
 // update fails, the entire transaction will be rolled back.
-func (f *mtoShipmentUpdater) updateShipmentRecord(mtoShipment *models.MTOShipment, oldShipment *models.MTOShipment, eTag string) error {
+func (f *mtoShipmentUpdater) updateShipmentRecord(mtoShipment *models.MTOShipment, newShipment *models.MTOShipment, eTag string) error {
 
 	transactionError := f.db.Transaction(func(tx *pop.Connection) error {
 
@@ -248,14 +253,14 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(mtoShipment *models.MTOShipmen
 			`
 
 		// temp optimistic locking solution til query builder is re-tooled to handle nested updates
-		encodedUpdatedAt := etag.GenerateEtag(oldShipment.UpdatedAt)
+		encodedUpdatedAt := etag.GenerateEtag(newShipment.UpdatedAt)
 
 		if encodedUpdatedAt != eTag {
 			return StaleIdentifierError{StaleIdentifier: eTag}
 		}
 
 		updateMTOShipmentQuery := generateUpdateMTOShipmentQuery()
-		params := generateMTOShipmentParams(*oldShipment)
+		params := generateMTOShipmentParams(*newShipment)
 
 		if err := tx.RawQuery(updateMTOShipmentQuery, params...).Exec(); err != nil {
 			return err
@@ -263,7 +268,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(mtoShipment *models.MTOShipmen
 
 		if mtoShipment.DestinationAddress != nil {
 			destinationAddressQuery := generateAddressQuery()
-			params := generateAddressParams(mtoShipment.DestinationAddress)
+			params := generateAddressParams(newShipment.DestinationAddress)
 
 			if err := tx.RawQuery(addressBaseQuery+destinationAddressQuery, params...).Exec(); err != nil {
 				return err
@@ -301,7 +306,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(mtoShipment *models.MTOShipmen
 			agentQuery := `UPDATE mto_agents
 					SET
 				`
-			for _, agent := range oldShipment.MTOAgents {
+			for _, agent := range newShipment.MTOAgents {
 				updateAgentQuery := generateAgentQuery()
 				params := generateMTOAgentsParams(agent)
 
