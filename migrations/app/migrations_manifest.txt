@@ -543,3 +543,4 @@
 20200818170444_ttv_table_comments.up.sql
 20200818192857_add_contract_code_param_to_dupk.up.sql
 20200819211216_ateam_table_comments.up.sql
+20200821202900_suz_cac.up.sql
