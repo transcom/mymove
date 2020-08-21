@@ -377,7 +377,7 @@ func (suite *QueryBuilderSuite) TestCount() {
 func (suite *QueryBuilderSuite) TestCreateOne() {
 	builder := NewQueryBuilder(suite.DB())
 
-	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{})
+	transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
 	userInfo := models.OfficeUser{
 		LastName:               "Spaceman",
 		FirstName:              "Leo",
@@ -403,7 +403,7 @@ func (suite *QueryBuilderSuite) TestCreateOne() {
 func (suite *QueryBuilderSuite) TestTransaction() {
 	builder := NewQueryBuilder(suite.DB())
 
-	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{})
+	transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
 
 	suite.T().Run("Successfully creates a record in a transaction", func(t *testing.T) {
 		userInfo := models.OfficeUser{
@@ -463,7 +463,7 @@ func (suite *QueryBuilderSuite) TestTransaction() {
 func (suite *QueryBuilderSuite) TestUpdateOne() {
 	builder := NewQueryBuilder(suite.DB())
 
-	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{})
+	transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
 	userInfo := models.OfficeUser{
 		LastName:               "Spaceman",
 		FirstName:              "Leo",

@@ -32,3 +32,8 @@ func MakeMTOServiceItemDimension(db *pop.Connection, assertions Assertions) mode
 
 	return MTOServiceItemDimension
 }
+
+// MakeDefaultMTOServiceItemDimension returns a MTOServiceItemDimension with default values
+func MakeDefaultMTOServiceItemDimension(db *pop.Connection) models.MTOServiceItemDimension {
+	return MakeMTOServiceItemDimension(db, Assertions{})
+}

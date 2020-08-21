@@ -23,7 +23,7 @@ func (suite *ServiceParamValueLookupsSuite) TestRequestedPickupDateLookup() {
 
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 		testdatagen.Assertions{
-			MoveTaskOrder: mtoServiceItem.MoveTaskOrder,
+			Move: mtoServiceItem.MoveTaskOrder,
 		})
 
 	suite.T().Run("golden path", func(t *testing.T) {

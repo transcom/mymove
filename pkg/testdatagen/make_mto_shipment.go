@@ -11,9 +11,9 @@ import (
 
 // MakeMTOShipment creates a single MTOShipment and associated set relationships
 func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipment {
-	moveTaskOrder := assertions.MoveTaskOrder
+	moveTaskOrder := assertions.Move
 	if isZeroUUID(moveTaskOrder.ID) {
-		moveTaskOrder = MakeMoveTaskOrder(db, assertions)
+		moveTaskOrder = MakeMove(db, assertions)
 	}
 
 	pickupAddress := MakeAddress(db, assertions)
@@ -77,12 +77,17 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	return MTOShipment
 }
 
+// MakeDefaultMTOShipment makes an MTOShipment with default values
+func MakeDefaultMTOShipment(db *pop.Connection) models.MTOShipment {
+	return MakeMTOShipment(db, Assertions{})
+}
+
 // MakeMTOShipmentMinimal creates a single MTOShipment with a minimal set of data as could be possible
 // through milmove UI.
 func MakeMTOShipmentMinimal(db *pop.Connection, assertions Assertions) models.MTOShipment {
-	moveTaskOrder := assertions.MoveTaskOrder
+	moveTaskOrder := assertions.Move
 	if isZeroUUID(moveTaskOrder.ID) {
-		moveTaskOrder = MakeMoveTaskOrder(db, assertions)
+		moveTaskOrder = MakeMove(db, assertions)
 	}
 	pickupAddress := MakeAddress(db, assertions)
 	destinationAddress := MakeAddress2(db, assertions)
@@ -114,4 +119,9 @@ func MakeMTOShipmentMinimal(db *pop.Connection, assertions Assertions) models.MT
 	mustCreate(db, &MTOShipment)
 
 	return MTOShipment
+}
+
+// MakeDefaultMTOShipmentMinimal makes a minimal MTOShipment with default values
+func MakeDefaultMTOShipmentMinimal(db *pop.Connection) models.MTOShipment {
+	return MakeMTOShipmentMinimal(db, Assertions{})
 }

@@ -2,35 +2,38 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
-
-	"fmt"
-	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
-
-	webhookOperations "github.com/transcom/mymove/pkg/gen/supportclient/webhook"
 )
 
-const (
-	// MessageFlag could be moved out to utils folder later
-	MessageFlag string = "message"
-)
+//WebhookRequest is the body of our request
+type WebhookRequest struct {
+	ID          string `json:"id"`
+	EventName   string `json:"eventName"`
+	TriggeredAt string `json:"triggeredAt"`
+	ObjectType  string `json:"objectType"`
+	Object      string `json:"object"`
+}
 
 func initPostWebhookNotifyFlags(flag *pflag.FlagSet) {
-	flag.String(MessageFlag, "", "Message to send")
+	flag.String(FilenameFlag, "", "Path to the file with the payment request JSON payload")
 
 	flag.SortFlags = false
 }
 
-func checkPostWebhookNotifyConfig(v *viper.Viper, args []string) error {
+func checkPostWebhookNotifyConfig(v *viper.Viper, args []string, logger Logger) error {
+	_, _, err := InitRootConfig(v)
+	if err != nil {
+		logger.Fatal(err.Error())
+	}
 
-	message := v.GetString(MessageFlag)
-	if len(message) == 0 {
-		return errors.New("missing message, expected to be set")
+	missingFilenameFlag := v.GetString(FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !ContainsDash(args))
+
+	if missingFilenameFlag {
+		logger.Fatal("post-webhook-notify expects --filename with json file passed in")
 	}
 
 	return nil
@@ -38,6 +41,9 @@ func checkPostWebhookNotifyConfig(v *viper.Viper, args []string) error {
 
 func postWebhookNotify(cmd *cobra.Command, args []string) error {
 	v := viper.New()
+	// basePath represents url where we're sending our request
+	// For now this is hardcoded to our support endpoint
+	basePath := "/support/v1/webhook-notify"
 
 	errParseFlags := ParseFlags(cmd, v, args)
 	if errParseFlags != nil {
@@ -50,50 +56,50 @@ func postWebhookNotify(cmd *cobra.Command, args []string) error {
 	}
 
 	// Check the config before talking to the CAC
-	err = checkPostWebhookNotifyConfig(v, args)
+	err = checkPostWebhookNotifyConfig(v, args, logger)
 	if err != nil {
 		logger.Fatal("Error:", zap.Error(err))
 	}
 
-	message := v.GetString(MessageFlag)
-	//#TODO: To remove dependency on gen/supportclient,
-	// replicate the functionality without using webhookOperations
-	newNotification := webhookOperations.PostWebhookNotifyBody{
-		Message: message,
-	}
-	//#TODO: To remove dependency on gen/supportclient,
-	// replicate the functionality without using webhookOperations
-	notifyParams := webhookOperations.NewPostWebhookNotifyParams()
+	// Decode the json file that was passed in
+	filename := v.GetString(FilenameFlag)
+	payload := &WebhookRequest{}
+	err = DecodeJSONFileToPayload(filename, ContainsDash(args), &payload)
 
-	notifyParams.WithMessage(newNotification)
-	notifyParams.SetTimeout(time.Second * 30)
+	if err != nil {
+		logger.Error("Error opening file:", zap.Error(err))
+		return err
+	}
+
+	json, err := json.Marshal(payload)
+
+	if err != nil {
+		logger.Error("Error creating payload:", zap.Error(err))
+		return err
+	}
 
 	// Create the client and open the cacStore
+	runtime, cacStore, errCreateClient := CreateClient(v)
 
-	supportGateway, cacStore, errCreateClient := CreateClient(v)
 	if errCreateClient != nil {
+		logger.Error("Error creating runtime client:", zap.Error(errCreateClient))
 		return errCreateClient
 	}
-	// Defer closing the store until after the api call has completed
+
 	if cacStore != nil {
 		defer cacStore.Close()
 	}
+
 	// Make the API call
-	resp, err := supportGateway.Webhook.PostWebhookNotify(notifyParams)
+	runtime.BasePath = basePath
+	resp, err := runtime.Post(json)
+
 	if err != nil {
-		logger.Fatal("Error:", zap.Error(err))
+		logger.Error("Error making request:", zap.Error(err))
+		return err
 	}
 
-	payload := resp.GetPayload()
-	if payload != nil {
-		payload, errJSONMarshall := json.Marshal(payload)
-		if errJSONMarshall != nil {
-			logger.Fatal("Error", zap.Error(errJSONMarshall))
-		}
-		fmt.Println("payload", string(payload))
-	} else {
-		logger.Fatal("Error:", zap.String("Error", resp.Error()))
-	}
+	logger.Info("Request complete: ", zap.String("Status", resp.Status))
 
 	return nil
 }

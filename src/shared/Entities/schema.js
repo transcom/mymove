@@ -14,6 +14,7 @@ export const uploads = new schema.Array(upload);
 
 // PPMs
 export const reimbursement = new schema.Entity('reimbursements');
+
 export const personallyProcuredMove = new schema.Entity('personallyProcuredMoves');
 personallyProcuredMove.define({
   advance: reimbursement,
@@ -21,6 +22,10 @@ personallyProcuredMove.define({
 
 export const personallyProcuredMoves = new schema.Array(personallyProcuredMove);
 export const indexPersonallyProcuredMove = personallyProcuredMoves;
+
+// MTO Shipments
+export const mtoShipment = new schema.Entity('mtoShipments');
+export const mtoShipments = new schema.Array(mtoShipment);
 
 // Shipments
 export const shipment = new schema.Entity('shipments');
@@ -37,6 +42,7 @@ export const serviceAgents = new schema.Array(serviceAgent);
 // Moves
 export const move = new schema.Entity('moves', {
   personally_procured_moves: personallyProcuredMoves,
+  mto_shipments: mtoShipments,
 });
 export const moves = new schema.Array(move);
 
@@ -141,16 +147,12 @@ export const mtoServiceItems = new schema.Array(mtoServiceItem);
 export const paymentServiceItem = new schema.Entity('paymentServiceItems');
 export const paymentServiceItems = new schema.Array(paymentServiceItem);
 
-// MTO Shipments
-export const mtoShipment = new schema.Entity('mtoShipments');
-export const mtoShipments = new schema.Array(mtoShipment);
-
 // Move Task Orders
-export const moveTaskOrder = new schema.Entity('moveTaskOrder');
+export const moveTaskOrder = new schema.Entity('moveTaskOrders');
 export const moveTaskOrders = new schema.Array(moveTaskOrder);
 
 // Move Orders
-export const moveOrder = new schema.Entity('moveOrder');
+export const moveOrder = new schema.Entity('moveOrders');
 export const moveOrders = new schema.Array(moveOrder);
 
 // Customer

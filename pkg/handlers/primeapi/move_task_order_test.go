@@ -9,8 +9,6 @@ import (
 
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 
-	"github.com/go-openapi/swag"
-
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -39,20 +37,16 @@ type FeatureFlag struct {
 
 func (suite *HandlerSuite) TestFetchMTOUpdatesHandler() {
 	// unavailable MTO
-	testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+	testdatagen.MakeDefaultMove(suite.DB())
 
-	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: models.Move{
-			AvailableToPrimeAt: swag.Time(time.Now()),
-		},
+	moveTaskOrder := testdatagen.MakeAvailableMove(suite.DB())
+
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: moveTaskOrder,
 	})
 
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: moveTaskOrder,
-	})
-
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: moveTaskOrder,
+		Move: moveTaskOrder,
 	})
 
 	request := httptest.NewRequest("GET", "/move-task-orders", nil)
@@ -173,15 +167,11 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandler() {
 }
 
 func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerPaymentRequest() {
-	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: models.Move{
-			AvailableToPrimeAt: swag.Time(time.Now()),
-		},
-	})
+	moveTaskOrder := testdatagen.MakeAvailableMove(suite.DB())
 
 	// This should create all the other associated records we need.
 	paymentServiceItemParam := testdatagen.MakePaymentServiceItemParam(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: moveTaskOrder,
+		Move: moveTaskOrder,
 		ServiceItemParamKey: models.ServiceItemParamKey{
 			Key: models.ServiceItemParamNameRequestedPickupDate,
 		},
@@ -217,14 +207,10 @@ func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerPaymentRequest() {
 func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerMinimal() {
 	// Creates a move task order with one minimal shipment and no payment requests
 	// or service items
-	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: models.Move{
-			AvailableToPrimeAt: swag.Time(time.Now()),
-		},
-	})
+	moveTaskOrder := testdatagen.MakeAvailableMove(suite.DB())
 
 	testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: moveTaskOrder,
+		Move: moveTaskOrder,
 	})
 
 	request := httptest.NewRequest("GET", "/move-task-orders", nil)
@@ -249,18 +235,10 @@ func (suite *HandlerSuite) TestListMoveTaskOrdersHandlerReturnsUpdated() {
 	now := time.Now()
 	lastFetch := now.Add(-time.Second)
 
-	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: models.Move{
-			AvailableToPrimeAt: &now,
-		},
-	})
+	moveTaskOrder := testdatagen.MakeAvailableMove(suite.DB())
 
 	// this MTO should not be returned
-	olderMoveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: models.Move{
-			AvailableToPrimeAt: &now,
-		},
-	})
+	olderMoveTaskOrder := testdatagen.MakeAvailableMove(suite.DB())
 
 	// Pop will overwrite UpdatedAt when saving a model, so use SQL to set it in the past
 	suite.NoError(suite.DB().RawQuery("UPDATE moves SET updated_at=? WHERE id=?",
@@ -285,7 +263,7 @@ func (suite *HandlerSuite) TestListMoveTaskOrdersHandlerReturnsUpdated() {
 }
 
 func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
-	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	mto := testdatagen.MakeDefaultMove(suite.DB())
 
 	requestUser := testdatagen.MakeDefaultUser(suite.DB())
 	eTag := base64.StdEncoding.EncodeToString([]byte(mto.UpdatedAt.Format(time.RFC3339Nano)))

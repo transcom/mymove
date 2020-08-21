@@ -131,7 +131,7 @@ func (suite *ModelSuite) TestFuelEIADieselPriceOverlappingDatesConstraint() {
 // Can change the dates for start and end ranges and
 // can create a default baseline and price to use via assertions
 func (suite *ModelSuite) TestMakeFuelEIADieselPrices() {
-	testdatagen.MakeFuelEIADieselPrices(suite.DB(), testdatagen.Assertions{})
+	testdatagen.MakeDefaultFuelEIADieselPrices(suite.DB())
 	// or call testdatagen.MakeDefaultFuelEIADieselPrices(suite.DB())
 	// to change the date range:
 	//     assertions testdatagen.Assertions{}

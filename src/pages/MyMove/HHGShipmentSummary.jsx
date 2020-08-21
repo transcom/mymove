@@ -44,7 +44,7 @@ export default function HHGShipmentSummary(props) {
                         <Address address={pickupLocation} />
                       </td>
                     </tr>
-                    {releasingAgent && (
+                    {!isEmpty(releasingAgent) && (
                       <tr>
                         <td>Releasing Agent:</td>
                         <td>{getFullAgentName(releasingAgent)}</td>
@@ -56,50 +56,52 @@ export default function HHGShipmentSummary(props) {
             </div>
           </Grid>
           <Grid tablet={{ col: true }}>
-            <div className="review-section">
-              <p className="heading">Delivery Dates & Locations</p>
-              <table>
-                {!isEmpty(mtoShipment) && (
+            {!isEmpty(mtoShipment) && (
+              <div className="review-section">
+                <p className="heading">Delivery Dates & Locations</p>
+                <table>
                   <tbody>
                     <tr>
                       <td>Requested Delivery Date: </td>
-                      <td>{formatDateSM(requestedDeliveryDate)}</td>
+                      {!isEmpty(requestedDeliveryDate) && <td>{formatDateSM(requestedDeliveryDate)}</td>}
                     </tr>
+
                     <tr>
                       <td>Drop-off Location: </td>
-                      <td>
-                        <Address address={dropoffLocation} />
-                      </td>
+                      {!isEmpty(dropoffLocation) && (
+                        <td>
+                          <Address address={dropoffLocation} />
+                        </td>
+                      )}
                     </tr>
-                    {receivingAgent && (
+
+                    {!isEmpty(receivingAgent) && (
                       <tr>
                         <td>Receiving Agent:</td>
                         <td>{getFullAgentName(receivingAgent)}</td>
                       </tr>
                     )}
                   </tbody>
-                )}
-              </table>
-            </div>
+                </table>
+              </div>
+            )}
           </Grid>
         </Grid>
         <Grid row>
           <Grid tablet={{ col: true }}>
-            <div className="review-section">
-              <p className="heading">Customer Remarks</p>
-              <table>
-                {!isEmpty(mtoShipment) && (
+            {!isEmpty(mtoShipment) && !isEmpty(remarks) && (
+              <div className="review-section">
+                <p className="heading">Customer Remarks</p>
+                <table>
                   <tbody>
-                    {remarks !== '' && (
-                      <tr>
-                        <td>Notes:</td>
-                        <td>{remarks}</td>
-                      </tr>
-                    )}
+                    <tr>
+                      <td>Notes:</td>
+                      <td>{remarks}</td>
+                    </tr>
                   </tbody>
-                )}
-              </table>
-            </div>
+                </table>
+              </div>
+            )}
           </Grid>
           <Grid tablet={{ col: true }} />
         </Grid>

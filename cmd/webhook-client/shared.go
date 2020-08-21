@@ -1,12 +1,14 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
 
-	openapi "github.com/go-openapi/runtime"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -28,24 +30,43 @@ func ParseFlags(cmd *cobra.Command, v *viper.Viper, args []string) error {
 	return nil
 }
 
-// HandleGatewayError handles errors returned by the gateway
-func HandleGatewayError(err error, logger Logger) error {
-	if _, ok := err.(*openapi.APIError); ok {
-		// If you see an error like "unknown error (status 422)", it means
-		// we hit a completely unhandled error that we should handle.
-		// We should be enabling said error in the endpoint in swagger.
-		// 422 for example is an Unprocessable Entity and is returned by the swagger
-		// validation before it even hits the handler.
-		apiErr := err.(*openapi.APIError).Response.(openapi.ClientResponse)
-		logger.Fatal(fmt.Sprintf("%s: %s", err, apiErr.Message()))
-
-	} else if typedErr, ok := err.(*url.Error); ok {
-		// If the server is not running you are likely to see a connection error
-		// This catches the error and prints a useful message.
-		logger.Fatal(fmt.Sprintf("%s operation to %s failed, check if server is running : %s", typedErr.Op, typedErr.URL, typedErr.Err.Error()))
+// DecodeJSONFileToPayload takes a filename, or stdin and decodes the file into
+// the supplied json payload.
+// If the filename is not supplied, the isStdin bool should be set to true to use stdin.
+// If the file contains parameters that do not exist in the payload struct, it will fail with an error
+// Otherwise it will populate the payload
+func DecodeJSONFileToPayload(filename string, isStdin bool, payload interface{}) error {
+	var reader *bufio.Reader
+	if filename != "" {
+		file, err := os.Open(filepath.Clean(filename))
+		if err != nil {
+			return fmt.Errorf("File open failed: %w", err)
+		}
+		reader = bufio.NewReader(file)
+	} else if isStdin { // Uses std in if "-"" is provided instead
+		reader = bufio.NewReader(os.Stdin)
+	} else {
+		return errors.New("no file input was found")
 	}
-	// If it is a handled error, we should be able to pull out the payload here
-	data, _ := json.Marshal(err)
-	fmt.Printf("%s", data)
+
+	jsonDecoder := json.NewDecoder(reader)
+	jsonDecoder.DisallowUnknownFields()
+
+	// Read the json into the mto payload
+	err := jsonDecoder.Decode(payload)
+	if err != nil {
+		return fmt.Errorf("File decode failed: %w", err)
+	}
+
 	return nil
+}
+
+// ContainsDash returns true if the original command included an empty dash
+func ContainsDash(args []string) bool {
+	for _, arg := range args {
+		if arg == "-" {
+			return true
+		}
+	}
+	return false
 }
