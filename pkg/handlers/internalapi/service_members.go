@@ -15,11 +15,10 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 )
 
-func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember models.ServiceMember, requiresAccessCode bool, moveTaskOrderID uuid.UUID) *internalmessages.ServiceMemberPayload {
+func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember models.ServiceMember, requiresAccessCode bool) *internalmessages.ServiceMemberPayload {
 	orders := make([]*internalmessages.Orders, len(serviceMember.Orders))
 	for i, order := range serviceMember.Orders {
 		orderPayload, _ := payloadForOrdersModel(storer, order)
-		orderPayload.MoveTaskOrderID = *handlers.FmtUUID(moveTaskOrderID)
 		orders[i] = orderPayload
 	}
 
@@ -150,7 +149,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 		session.LastName = *(newServiceMember.LastName)
 	}
 	// And return
-	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), newServiceMember, h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode), uuid.Nil)
+	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), newServiceMember, h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode))
 	responder := servicememberop.NewCreateServiceMemberCreated().WithPayload(serviceMemberPayload)
 	sessionManager := h.SessionManager(session)
 	return handlers.NewCookieUpdateResponder(params.HTTPRequest, logger, responder, sessionManager, session)
@@ -176,7 +175,7 @@ func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMembe
 		return handlers.ResponseForError(logger, err)
 	}
 
-	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember, h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode), uuid.Nil)
+	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember, h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode))
 	return servicememberop.NewShowServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 
@@ -207,7 +206,7 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
-	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember, h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode), uuid.Nil)
+	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember, h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode))
 	return servicememberop.NewPatchServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 

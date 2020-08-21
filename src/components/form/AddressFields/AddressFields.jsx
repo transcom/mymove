@@ -20,9 +20,9 @@ export const AddressFields = ({ legend, className, values, name, renderExistingA
         label="Street address 1"
         id={`mailingAddress1_${addressFieldsUUID}`}
         data-testid="mailingAddress1"
-        name={`${name}.mailingAddress1`}
+        name={`${name}.street_address_1`}
         type="text"
-        value={values.mailingAddress1}
+        value={values.street_address_1}
       />
       <Field
         as={TextInput}
@@ -31,8 +31,9 @@ export const AddressFields = ({ legend, className, values, name, renderExistingA
         labelHint=" (optional)"
         id={`mailingAddress2_${addressFieldsUUID}`}
         data-testid="mailingAddress2"
-        name={`${name}.mailingAddress2`}
+        name={`${name}.street_address_2`}
         type="text"
+        value={values.street_address_2}
       />
       <Field
         as={TextInput}
@@ -62,9 +63,9 @@ export const AddressFields = ({ legend, className, values, name, renderExistingA
         id={`zip_${addressFieldsUUID}`}
         data-testid="zip"
         inputSize="medium"
-        name={`${name}.zip`}
+        name={`${name}.postal_code`}
         type="text"
-        value={values.zip}
+        value={values.postal_code}
         maxLength={10}
       />
     </Fieldset>
@@ -75,11 +76,11 @@ AddressFields.propTypes = {
   legend: PropTypes.string,
   className: PropTypes.string,
   values: PropTypes.shape({
-    mailingAddress1: PropTypes.string,
-    mailingAddress2: PropTypes.string,
+    street_address_1: PropTypes.string,
+    street_address_2: PropTypes.string,
     city: PropTypes.string,
     state: PropTypes.string,
-    zip: PropTypes.string,
+    postal_code: PropTypes.string,
   }),
   name: PropTypes.string.isRequired,
   renderExistingAddressCheckbox: PropTypes.func,

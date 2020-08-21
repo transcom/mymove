@@ -18,6 +18,7 @@ import (
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/storage"
@@ -34,6 +35,12 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 		ppmPayloads = append(ppmPayloads, payload)
 	}
 
+	var hhgPayloads internalmessages.MTOShipments
+	for _, hhg := range move.MTOShipments {
+		payload := payloads.MTOShipment(&hhg)
+		hhgPayloads = append(hhgPayloads, payload)
+	}
+
 	var SelectedMoveType internalmessages.SelectedMoveType
 	if move.SelectedMoveType != nil {
 		SelectedMoveType = internalmessages.SelectedMoveType(*move.SelectedMoveType)
@@ -46,6 +53,7 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 		ID:                      handlers.FmtUUID(move.ID),
 		UpdatedAt:               handlers.FmtDateTime(move.UpdatedAt),
 		PersonallyProcuredMoves: ppmPayloads,
+		MtoShipments:            hhgPayloads,
 		OrdersID:                handlers.FmtUUID(order.ID),
 		ServiceMemberID:         *handlers.FmtUUID(order.ServiceMemberID),
 		Status:                  internalmessages.MoveStatus(move.Status),
