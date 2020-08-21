@@ -46,32 +46,38 @@ const CustomerRemarksAgentsDetails = ({ customerRemarks, releasingAgent, receivi
   return (
     <>
       <div className="container">
-        <DataPoint header="Customer remarks" body={customerRemarksBody} />
+        <DataPoint columnHeaders={['Customer remarks']} dataRow={[customerRemarksBody]} />
       </div>
       <div className="container">
-        <DataPoint header="Releasing agent" body={releasingAgentBody} />
+        <DataPoint columnHeaders={['Releasing agent']} dataRow={[releasingAgentBody]} />
       </div>
       <div className="container">
-        <DataPoint header="Receiving agent" body={receivingAgentBody} />
+        <DataPoint columnHeaders={['Receiving agent']} dataRow={[receivingAgentBody]} />
       </div>
     </>
   );
 };
 
 CustomerRemarksAgentsDetails.propTypes = {
-  customerRemarks: propTypes.string.isRequired,
+  customerRemarks: propTypes.string,
   releasingAgent: propTypes.shape({
     firstName: propTypes.string,
     lastName: propTypes.string,
     phone: propTypes.string,
     email: propTypes.string,
-  }).isRequired,
+  }),
   receivingAgent: propTypes.shape({
     firstName: propTypes.string,
     lastName: propTypes.string,
     phone: propTypes.string,
     email: propTypes.string,
-  }).isRequired,
+  }),
+};
+
+CustomerRemarksAgentsDetails.defaultProps = {
+  customerRemarks: '',
+  releasingAgent: {},
+  receivingAgent: {},
 };
 
 export default CustomerRemarksAgentsDetails;

@@ -1,0 +1,17 @@
+@import '../../shared/styles/basics';
+@import '../../shared/styles/mixins';
+@import '../../shared/styles/colors';
+
+.dataPointGroup {
+  @include u-padding(1);
+  box-sizing: border-box;
+
+  table {
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  table:not(:first-child) {
+    @include u-margin-top(2);
+  }
+}

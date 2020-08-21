@@ -1,14 +1,12 @@
 import React from 'react';
-import classNames from 'classnames/bind';
+import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
 import styles from './shipmentHeading.module.scss';
 
-const cx = classNames.bind(styles);
-
 function ShipmentHeading({ shipmentInfo }) {
   return (
-    <div className={cx('shipment-heading')}>
+    <div className={classNames(styles.shipmentHeading, 'shipment-heading')}>
       <h3 data-testid="office-shipment-heading-h3">{shipmentInfo.shipmentType}</h3>
       <small>
         {`${shipmentInfo.originCity} ${shipmentInfo.originState} ${shipmentInfo.originPostalCode} to

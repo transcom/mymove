@@ -34,6 +34,9 @@ type MovePayload struct {
 	// Required: true
 	Locator *string `json:"locator"`
 
+	// mto shipments
+	MtoShipments MTOShipments `json:"mto_shipments,omitempty"`
+
 	// orders id
 	// Required: true
 	// Format: uuid
@@ -72,6 +75,10 @@ func (m *MovePayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateLocator(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMtoShipments(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -134,6 +141,22 @@ func (m *MovePayload) validateID(formats strfmt.Registry) error {
 func (m *MovePayload) validateLocator(formats strfmt.Registry) error {
 
 	if err := validate.Required("locator", "body", m.Locator); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MovePayload) validateMtoShipments(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.MtoShipments) { // not required
+		return nil
+	}
+
+	if err := m.MtoShipments.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("mto_shipments")
+		}
 		return err
 	}
 
