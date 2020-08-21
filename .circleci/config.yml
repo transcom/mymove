@@ -1448,7 +1448,7 @@ jobs:
     steps:
       - aws_vars_prd
       - deploy_app_steps:
-          compare_host: '' # my.prd.move.mil
+          compare_host: my.prd.move.mil
           health_check_hosts: my.prd.move.mil,office.prd.move.mil,admin.prd.move.mil
           ecr_env: prd
 
@@ -1460,7 +1460,7 @@ jobs:
     steps:
       - aws_vars_prd
       - deploy_app_client_tls_steps:
-          compare_host: '' # gex.prd.move.mil
+          compare_host: gex.prd.move.mil
           health_check_hosts: gex.prd.move.mil,dps.prd.move.mil,orders.prd.move.mil
           ecr_env: prd
 
