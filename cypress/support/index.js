@@ -24,20 +24,6 @@ Cypress.Screenshot.defaults({
   capture: 'fullPage',
 });
 
-cy.on('before:browser:launch', (browser = {}, args) => {
-  // Disable shared memory when running headless since running out of memory can cause cypress to hang indefinitely
-  // https://on.cypress.io/continuous-integration#In-Docker
-  // https://github.com/cypress-io/cypress/issues/7026
-  // https://github.com/cypress-io/cypress/issues/8206
-  if (browser.family === 'chromium') {
-    if (browser.name !== 'electron') {
-      launchOptions.args.push('--disable-dev-shm-usage');
-    } else {
-      args['disable-dev-shm-usage'] = true;
-    }
-  }
-});
-
 afterEach(function () {
   if (this.currentTest.state === 'failed') {
     // Take another screenshot so we get the full page

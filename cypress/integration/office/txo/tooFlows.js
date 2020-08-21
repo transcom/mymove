@@ -57,13 +57,13 @@ describe('TOO user', () => {
       });
 
       // Select additional service items
-      cy.get('label[for="shipmentManagementFee"]').click();
-      cy.get('label[for="counselingFee"]').click();
+      cy.get('label[for="shipmentManagementFee"]').click({ force: true }); // force because off screen on local run
+      cy.get('label[for="counselingFee"]').click({ force: true }); // force because off screen on local run
 
       // Open modal
       const button = cy.contains('Approve selected shipments');
       button.should('be.enabled');
-      button.click();
+      button.click({ force: true }); // force because off screen on local run
 
       cy.get('#approvalConfirmationModal [data-testid="modal"]').then(($modal) => {
         cy.get($modal).should('be.visible');
@@ -78,11 +78,11 @@ describe('TOO user', () => {
       });
 
       // Click approve
-      cy.contains('Approve and send').click();
+      cy.contains('Approve and send').click({ force: true });
       cy.wait(['@patchMTOShipmentStatus', '@patchMTOStatus']);
 
       // Page refresh
-      cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
+      cy.wait(2000);
       cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.be.visible');
       cy.get('#approved-shipments');
       cy.get('#requested-shipments').should('not.exist');

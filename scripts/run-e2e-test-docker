@@ -153,6 +153,7 @@ $DOCKER_RUN \
   --net "${NETWORK}" \
   --ipc=host \
   --detach \
+  --shm-size="1g" \
   ${CONTAINER_CYPRESS}:latest run --spec "${spec}"
 
 # Tail the logs so users can follow along
