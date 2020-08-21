@@ -372,3 +372,12 @@ Cypress.Commands.add('nextAvailable', (startDate = moment().format('YYYY-MM-DD')
     return response.body.available.map((date) => moment(date));
   });
 });
+
+Cypress.Commands.overwrite('visit', (originalFn, url, options) => {
+  originalFn(url, options);
+  return cy.document().then((document) => {
+    const node = document.createElement('style');
+    node.innerHTML = 'html { scroll-behavior: inherit !important; }';
+    document.body.appendChild(node);
+  });
+});
