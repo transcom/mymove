@@ -313,7 +313,7 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true, ordina
   cy.wait('@postUploadDocument');
   cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 1);
 
-  cy.get('input[name="full_weight"]').type('5000');
+  cy.get('input[name="full_weight"]').type('5000', { force: true });
   cy.upload_file('[data-testid=full-weight-upload] .filepond--root', 'top-secret.png');
   cy.wait('@postUploadDocument');
   cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 2);

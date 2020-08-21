@@ -108,7 +108,7 @@ function serviceMemberSkipsStep() {
 }
 
 function serviceMemberSubmitsPaymentRequestWithMissingDocuments() {
-  cy.get('.review-customer-agreement a').contains('Legal Agreement').click();
+  cy.get('.review-customer-agreement a').contains('Legal Agreement').click({ force: true });
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/ppm-customer-agreement/);
   });
