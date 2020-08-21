@@ -74,7 +74,7 @@ func NewPostWebhookNotifyOK() *PostWebhookNotifyOK {
 
 /*PostWebhookNotifyOK handles this case with default header values.
 
-Created
+Sent
 */
 type PostWebhookNotifyOK struct {
 	Payload *PostWebhookNotifyOKBody
@@ -210,16 +210,33 @@ swagger:model PostWebhookNotifyBody
 */
 type PostWebhookNotifyBody struct {
 
-	// Message sent
-	// Required: true
-	Message string `json:"message"`
+	// Name of event triggered
+	EventName string `json:"eventName,omitempty"`
+
+	// id
+	// Format: uuid
+	ID strfmt.UUID `json:"id,omitempty"`
+
+	// object
+	Object string `json:"object,omitempty"`
+
+	// The type of object that's being updated
+	ObjectType string `json:"objectType,omitempty"`
+
+	// Time representing when the event was triggered
+	// Format: date-time
+	TriggeredAt strfmt.DateTime `json:"triggeredAt,omitempty"`
 }
 
 // Validate validates this post webhook notify body
 func (o *PostWebhookNotifyBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateMessage(formats); err != nil {
+	if err := o.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateTriggeredAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -229,9 +246,26 @@ func (o *PostWebhookNotifyBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *PostWebhookNotifyBody) validateMessage(formats strfmt.Registry) error {
+func (o *PostWebhookNotifyBody) validateID(formats strfmt.Registry) error {
 
-	if err := validate.RequiredString("message"+"."+"message", "body", string(o.Message)); err != nil {
+	if swag.IsZero(o.ID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("body"+"."+"id", "body", "uuid", o.ID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *PostWebhookNotifyBody) validateTriggeredAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.TriggeredAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("body"+"."+"triggeredAt", "body", "date-time", o.TriggeredAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -261,12 +295,65 @@ swagger:model PostWebhookNotifyOKBody
 */
 type PostWebhookNotifyOKBody struct {
 
-	// Message sent
-	Message string `json:"message,omitempty"`
+	// Name of event triggered
+	EventName string `json:"eventName,omitempty"`
+
+	// id
+	// Format: uuid
+	ID strfmt.UUID `json:"id,omitempty"`
+
+	// object
+	Object string `json:"object,omitempty"`
+
+	// The type of object that's being updated
+	ObjectType string `json:"objectType,omitempty"`
+
+	// Time representing when the event was triggered
+	// Format: date-time
+	TriggeredAt strfmt.DateTime `json:"triggeredAt,omitempty"`
 }
 
 // Validate validates this post webhook notify o k body
 func (o *PostWebhookNotifyOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateTriggeredAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *PostWebhookNotifyOKBody) validateID(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("postWebhookNotifyOK"+"."+"id", "body", "uuid", o.ID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *PostWebhookNotifyOKBody) validateTriggeredAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.TriggeredAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("postWebhookNotifyOK"+"."+"triggeredAt", "body", "date-time", o.TriggeredAt.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 

@@ -41,10 +41,6 @@ type Orders struct {
 	// Format: date
 	IssueDate *strfmt.Date `json:"issue_date"`
 
-	// move task order id
-	// Format: uuid
-	MoveTaskOrderID strfmt.UUID `json:"move_task_order_id,omitempty"`
-
 	// moves
 	Moves IndexMovesPayload `json:"moves,omitempty"`
 
@@ -118,10 +114,6 @@ func (m *Orders) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateIssueDate(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateMoveTaskOrderID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -231,19 +223,6 @@ func (m *Orders) validateIssueDate(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("issue_date", "body", "date", m.IssueDate.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *Orders) validateMoveTaskOrderID(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.MoveTaskOrderID) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("move_task_order_id", "body", "uuid", m.MoveTaskOrderID.String(), formats); err != nil {
 		return err
 	}
 

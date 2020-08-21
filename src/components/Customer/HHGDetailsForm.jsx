@@ -11,33 +11,36 @@ import { DatePickerInput, TextInput } from '../form/fields';
 import { AddressFields } from '../form/AddressFields/AddressFields';
 import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
 
-import { createMTOShipment as createMTOShipmentAction } from 'shared/Entities/modules/mtoShipments';
+import {
+  selectMTOShipmentForMTO,
+  createMTOShipment as createMTOShipmentAction,
+} from 'shared/Entities/modules/mtoShipments';
 import { selectActiveOrLatestOrdersFromEntities } from 'shared/Entities/modules/orders';
 import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { WizardPage } from 'shared/WizardPage';
-import { MTOAgentType } from 'shared/constants';
+import { MTOAgentType, SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatSwaggerDate } from 'shared/formatters';
 import Checkbox from 'shared/Checkbox';
 import { validateDate } from 'utils/formikValidators';
 
 const PickupAddressSchema = Yup.object().shape({
-  mailingAddress1: Yup.string().required('Required'),
-  mailingAddress2: Yup.string(),
+  street_address_1: Yup.string().required('Required'),
+  street_address_2: Yup.string(),
   city: Yup.string().required('Required'),
   state: Yup.string().length(2, 'Must use state abbreviation').required('Required'),
-  zip: Yup.string()
+  postal_code: Yup.string()
     // eslint-disable-next-line security/detect-unsafe-regex
     .matches(/^(\d{5}([-]\d{4})?)$/, 'Must be valid zip code')
     .required('Required'),
 });
 
 const DeliveryAddressSchema = Yup.object().shape({
-  mailingAddress1: Yup.string(),
-  mailingAddress2: Yup.string(),
+  street_address_1: Yup.string(),
+  street_address_2: Yup.string(),
   city: Yup.string(),
   state: Yup.string().length(2, 'Must use state abbreviation'),
-  zip: Yup.string()
+  postal_code: Yup.string()
     // eslint-disable-next-line security/detect-unsafe-regex
     .matches(/^(\d{5}([-]\d{4})?)$/, 'Must be valid zip code'),
 });
@@ -50,112 +53,177 @@ const AgentSchema = Yup.object().shape({
 });
 const HHGDetailsFormSchema = Yup.object().shape({
   // requiredPickupDate, requiredDeliveryDate are also required, but using field level validation
-  pickupLocation: PickupAddressSchema,
-  deliveryLocation: DeliveryAddressSchema,
+  pickupAddress: PickupAddressSchema,
+  destinationAddress: DeliveryAddressSchema,
   releasingAgent: AgentSchema,
   receivingAgent: AgentSchema,
-  remarks: Yup.string(),
+  customerRemarks: Yup.string(),
 });
 class HHGDetailsForm extends Component {
   constructor(props) {
     super(props);
+    const hasDeliveryAddress = get(props.mtoShipment, 'destinationAddress', false);
     this.state = {
-      hasDeliveryAddress: false,
+      hasDeliveryAddress,
       useCurrentResidence: false,
       initialValues: {},
     };
   }
 
   componentDidMount() {
-    const { showLoggedInUser } = this.props;
+    const { showLoggedInUser, mtoShipment } = this.props;
     showLoggedInUser();
+    if (mtoShipment.id) {
+      this.setInitialState(mtoShipment);
+    }
   }
 
-  // TODO: when we can pull in initialValues from redux, set state.hasDeliveryAddress to true if a delivery address exists
+  componentDidUpdate(prevProps) {
+    const { mtoShipment } = this.props;
+    // If refreshing page, need to handle mtoShipment populating from a promise
+    if (mtoShipment.id && prevProps.mtoShipment.id !== mtoShipment.id) {
+      this.setInitialState(mtoShipment);
+    }
+  }
+
+  setInitialState = (mtoShipment) => {
+    function cleanAgentPhone(agent) {
+      const agentCopy = { ...agent };
+      Object.keys(agentCopy).forEach((key) => {
+        /* eslint-disable security/detect-object-injection */
+        if (key === 'phone') {
+          const phoneNum = agentCopy[key];
+          // will be in format xxxxxxxxxx
+          agentCopy[key] = phoneNum.split('-').join('');
+        }
+      });
+      return agentCopy;
+    }
+    // for existing mtoShipment, reshape agents from array of objects to key/object for proper handling
+    const { agents } = mtoShipment;
+    const formattedMTOShipment = { ...mtoShipment };
+    if (agents) {
+      const receivingAgent = agents.find((agent) => agent.agentType === 'RECEIVING_AGENT');
+      const releasingAgent = agents.find((agent) => agent.agentType === 'RELEASING_AGENT');
+
+      // Remove dashes from agent phones for expected form phone format
+      if (receivingAgent) {
+        const formattedAgent = cleanAgentPhone(releasingAgent);
+        if (!isEmpty(formattedAgent)) {
+          formattedMTOShipment.receivingAgent = { ...formattedAgent };
+        }
+      }
+      if (releasingAgent) {
+        const formattedAgent = cleanAgentPhone(releasingAgent);
+        if (!isEmpty(formattedAgent)) {
+          formattedMTOShipment.releasingAgent = { ...formattedAgent };
+        }
+      }
+    }
+    this.setState({ initialValues: formattedMTOShipment });
+  };
+
+  // Use current residence
+  handleUseCurrentResidenceChange = (currentValues) => {
+    const { initialValues } = this.state;
+    const { currentResidence, match, mtoShipment } = this.props;
+    this.setState(
+      (state) => ({ useCurrentResidence: !state.useCurrentResidence }),
+      () => {
+        // eslint-disable-next-line react/destructuring-assignment
+        if (this.state.useCurrentResidence) {
+          this.setState({
+            initialValues: {
+              ...initialValues,
+              ...currentValues,
+              pickupAddress: {
+                street_address_1: currentResidence.street_address_1,
+                street_address_2: currentResidence.street_address_2,
+                city: currentResidence.city,
+                state: currentResidence.state,
+                postal_code: currentResidence.postal_code,
+              },
+            },
+          });
+        } else {
+          // eslint-disable-next-line no-lonely-if
+          if (match.params.moveId === initialValues.moveTaskOrderID) {
+            this.setState({
+              initialValues: {
+                ...initialValues,
+                ...currentValues,
+                pickupAddress: {
+                  street_address_1: mtoShipment.pickupAddress.street_address_1,
+                  street_address_2: mtoShipment.pickupAddress.street_address_2,
+                  city: mtoShipment.pickupAddress.city,
+                  state: mtoShipment.pickupAddress.state,
+                  postal_code: mtoShipment.pickupAddress.postal_code,
+                },
+              },
+            });
+          } else {
+            this.setState({
+              initialValues: {
+                ...initialValues,
+                ...currentValues,
+                pickupAddress: {
+                  street_address_1: '',
+                  street_address_2: '',
+                  city: '',
+                  state: '',
+                  postal_code: '',
+                },
+              },
+            });
+          }
+        }
+      },
+    );
+  };
+
   handleChangeHasDeliveryAddress = () => {
     this.setState((prevState) => {
       return { hasDeliveryAddress: !prevState.hasDeliveryAddress };
     });
   };
 
-  // Use current residence
-  handleUseCurrentResidenceChange = (currentValues) => {
-    // eslint-disable-next-line react/destructuring-assignment
-    this.setState(
-      (state) => ({ useCurrentResidence: !state.useCurrentResidence }),
-      () => {
-        const { initialValues, useCurrentResidence } = this.state;
-        const { currentResidence } = this.props;
-        if (useCurrentResidence) {
-          this.setState({
-            // eslint-disable-next-line prettier/prettier
-            initialValues: {
-              ...initialValues,
-              ...currentValues,
-              pickupLocation: {
-                mailingAddress1: currentResidence.street_address_1,
-                mailingAddress2: currentResidence.street_address_2,
-                city: currentResidence.city,
-                state: currentResidence.state,
-                zip: currentResidence.postal_code,
-              },
-            },
-          });
-        } else {
-          this.setState({
-            initialValues: {
-              ...initialValues,
-              ...currentValues,
-              pickupLocation: {
-                mailingAddress1: '',
-                mailingAddress2: '',
-                city: '',
-                state: '',
-                zip: '',
-              },
-            },
-          });
-        }
-      },
-    );
-  };
-
   submitMTOShipment = ({
     requestedPickupDate,
     requestedDeliveryDate,
-    pickupLocation,
-    deliveryLocation,
+    pickupAddress,
+    destinationAddress,
     receivingAgent,
     releasingAgent,
-    remarks,
+    customerRemarks,
   }) => {
-    const { createMTOShipment, moveTaskOrderID } = this.props;
+    const { createMTOShipment, match, mtoShipment } = this.props;
     const { hasDeliveryAddress } = this.state;
-    const mtoShipment = {
-      moveTaskOrderID,
-      shipmentType: 'HHG',
+    const { moveId } = match.params;
+    const pendingMtoShipment = {
+      moveTaskOrderID: moveId,
+      shipmentType: SHIPMENT_OPTIONS.HHG,
       requestedPickupDate: formatSwaggerDate(requestedPickupDate),
       requestedDeliveryDate: formatSwaggerDate(requestedDeliveryDate),
-      customerRemarks: remarks,
+      customerRemarks,
       pickupAddress: {
-        street_address_1: pickupLocation.mailingAddress1,
-        street_address_2: pickupLocation.mailingAddress2,
-        city: pickupLocation.city,
-        state: pickupLocation.state.toUpperCase(),
-        postal_code: pickupLocation.zip,
-        country: pickupLocation.country,
+        street_address_1: pickupAddress.street_address_1,
+        street_address_2: pickupAddress.street_address_2,
+        city: pickupAddress.city,
+        state: pickupAddress.state,
+        postal_code: pickupAddress.postal_code,
+        country: pickupAddress.country,
       },
       agents: [],
     };
 
     if (hasDeliveryAddress) {
-      mtoShipment.destinationAddress = {
-        street_address_1: deliveryLocation.mailingAddress1,
-        street_address_2: deliveryLocation.mailingAddress2,
-        city: deliveryLocation.city,
-        state: deliveryLocation.state.toUpperCase(),
-        postal_code: deliveryLocation.zip,
-        country: deliveryLocation.country,
+      pendingMtoShipment.destinationAddress = {
+        street_address_1: destinationAddress.street_address_1,
+        street_address_2: destinationAddress.street_address_2,
+        city: destinationAddress.city,
+        state: destinationAddress.state.toUpperCase(),
+        postal_code: destinationAddress.postal_code,
+        country: destinationAddress.country,
       };
     }
 
@@ -178,23 +246,30 @@ class HHGDetailsForm extends Component {
     if (releasingAgent) {
       const formattedAgent = formatAgent(releasingAgent);
       if (!isEmpty(formattedAgent)) {
-        mtoShipment.agents.push({ ...formattedAgent, agentType: MTOAgentType.RELEASING });
+        pendingMtoShipment.agents.push({ ...formattedAgent, agentType: MTOAgentType.RELEASING });
       }
     }
 
     if (receivingAgent) {
       const formattedAgent = formatAgent(receivingAgent);
       if (!isEmpty(formattedAgent)) {
-        mtoShipment.agents.push({ ...formattedAgent, agentType: MTOAgentType.RECEIVING });
+        pendingMtoShipment.agents.push({ ...formattedAgent, agentType: MTOAgentType.RECEIVING });
       }
     }
-    createMTOShipment(mtoShipment);
+
+    if (isEmpty(mtoShipment)) {
+      createMTOShipment(pendingMtoShipment);
+    }
+    // } else {
+    // TODO: Update if existing MTOShipment once UpdateMTOShipment service for Customer Flow is merged
+    // updateMTOShipment(mtoShipment.id, pendingMtoShipment, mtoShipment.eTag);
+    // }
   };
 
   render() {
     // TODO: replace minimal styling with actual styling during UI phase
-    const { pageKey, pageList, match, push, newDutyStationAddress } = this.props;
-    const { hasDeliveryAddress, initialValues, useCurrentResidence } = this.state;
+    const { pageKey, pageList, match, push, newDutyStationAddress, mtoShipment } = this.props;
+    const { hasDeliveryAddress, useCurrentResidence, initialValues } = this.state;
     const fieldsetClasses = 'margin-top-2';
     return (
       <Formik
@@ -206,12 +281,12 @@ class HHGDetailsForm extends Component {
       >
         {({ values, dirty, isValid }) => (
           <WizardPage
-            canMoveNext={dirty && isValid}
+            canMoveNext={(dirty && isValid) || (!isEmpty(mtoShipment) && !dirty && isValid)}
             match={match}
             pageKey={pageKey}
             pageList={pageList}
             push={push}
-            handleSubmit={() => this.submitMTOShipment(values)}
+            handleSubmit={() => this.submitMTOShipment(values, dirty)}
           >
             <Form>
               <Fieldset legend="Pickup date" className={fieldsetClasses}>
@@ -227,9 +302,8 @@ class HHGDetailsForm extends Component {
               <span className="usa-hint" id="pickupDateHint">
                 Your movers will confirm this date or one shortly before or after.
               </span>
-
               <AddressFields
-                name="pickupLocation"
+                name="pickupAddress"
                 legend="Pickup location"
                 className={fieldsetClasses}
                 renderExistingAddressCheckbox={() => (
@@ -241,7 +315,7 @@ class HHGDetailsForm extends Component {
                     onChange={() => this.handleUseCurrentResidenceChange(values)}
                   />
                 )}
-                values={values.pickupLocation}
+                values={values.pickupAddress}
               />
               <ContactInfoFields
                 name="releasingAgent"
@@ -281,10 +355,14 @@ class HHGDetailsForm extends Component {
                   />
                 </div>
                 {hasDeliveryAddress ? (
-                  <AddressFields name="deliveryLocation" className={fieldsetClasses} values={values.deliveryLocation} />
+                  <AddressFields
+                    name="destinationAddress"
+                    className={fieldsetClasses}
+                    values={values.destinationAddress}
+                  />
                 ) : (
                   <>
-                    <div className={fieldsetClasses}>We can use the zip of your new duty station.</div>
+                    <div className={fieldsetClasses}>We can use the postal_code of your new duty station.</div>
                     <div>
                       {newDutyStationAddress.city}, {newDutyStationAddress.state} {newDutyStationAddress.postal_code}
                     </div>
@@ -303,10 +381,10 @@ class HHGDetailsForm extends Component {
                   label="Anything else you would like us to know?"
                   labelHint="(optional)"
                   data-testid="remarks"
-                  name="remarks"
-                  id="remarks"
+                  name="customerRemarks"
+                  id="customerRemarks"
                   maxLength={1500}
-                  value={values.remarks}
+                  value={values.customerRemarks}
                 />
               </Fieldset>
             </Form>
@@ -339,10 +417,35 @@ HHGDetailsForm.propTypes = {
     state: string,
     postal_code: string,
   }),
-  moveTaskOrderID: string.isRequired,
   createMTOShipment: func.isRequired,
   showLoggedInUser: func.isRequired,
   push: func.isRequired,
+  mtoShipment: shape({
+    agents: arrayOf(
+      shape({
+        firstName: string,
+        lastName: string,
+        phone: string,
+        email: string,
+        agentType: string,
+      }),
+    ),
+    customerRemarks: string,
+    requestedPickupDate: string,
+    requestedDeliveryDate: string,
+    pickupAddress: shape({
+      city: string,
+      postal_code: string,
+      state: string,
+      street_address_1: string,
+    }),
+    destinationAddress: shape({
+      city: string,
+      postal_code: string,
+      state: string,
+      street_address_1: string,
+    }),
+  }),
 };
 
 HHGDetailsForm.defaultProps = {
@@ -351,14 +454,29 @@ HHGDetailsForm.defaultProps = {
     state: '',
     postal_code: '',
   },
+  mtoShipment: {
+    id: '',
+    customerRemarks: '',
+    requestedPickupDate: '',
+    requestedDeliveryDate: '',
+    destinationAddress: {
+      city: '',
+      postal_code: '',
+      state: '',
+      street_address_1: '',
+    },
+  },
 };
-const mapStateToProps = (state) => {
+
+const mapStateToProps = (state, ownProps) => {
   const orders = selectActiveOrLatestOrdersFromEntities(state);
-  return {
-    moveTaskOrderID: get(orders, 'move_task_order_id', ''),
+
+  const props = {
+    mtoShipment: selectMTOShipmentForMTO(state, ownProps.match.params.moveId),
     currentResidence: get(selectServiceMemberFromLoggedInUser(state), 'residential_address', {}),
     newDutyStationAddress: get(orders, 'new_duty_station.address', {}),
   };
+  return props;
 };
 
 const mapDispatchToProps = {

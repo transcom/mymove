@@ -30,11 +30,11 @@ type PostWebhookNotifyParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*The message sent by webhook-client.
+	/*The notification sent by webhook-client.
 	  Required: true
 	  In: body
 	*/
-	Message PostWebhookNotifyBody
+	Body PostWebhookNotifyBody
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -51,9 +51,9 @@ func (o *PostWebhookNotifyParams) BindRequest(r *http.Request, route *middleware
 		var body PostWebhookNotifyBody
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
-				res = append(res, errors.Required("message", "body"))
+				res = append(res, errors.Required("body", "body"))
 			} else {
-				res = append(res, errors.NewParseError("message", "body", "", err))
+				res = append(res, errors.NewParseError("body", "body", "", err))
 			}
 		} else {
 			// validate body object
@@ -62,11 +62,11 @@ func (o *PostWebhookNotifyParams) BindRequest(r *http.Request, route *middleware
 			}
 
 			if len(res) == 0 {
-				o.Message = body
+				o.Body = body
 			}
 		}
 	} else {
-		res = append(res, errors.Required("message", "body"))
+		res = append(res, errors.Required("body", "body"))
 	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
