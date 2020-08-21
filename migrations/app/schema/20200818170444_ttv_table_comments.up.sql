@@ -18,7 +18,7 @@ COMMENT ON COLUMN contractors.type IS 'A string to represent the type of contrac
 
 COMMENT ON TABLE distance_calculations IS 'Represents a distance calculation in miles between an origin and destination address.';
 COMMENT ON COLUMN distance_calculations.created_at IS 'Date & time the distance_calculation was created';
-COMMENT ON COLUMN distance_calculations.updated_at IS 'Date & time the cdistance_calculation was updated';
+COMMENT ON COLUMN distance_calculations.updated_at IS 'Date & time the distance_calculation was updated';
 COMMENT ON COLUMN distance_calculations.origin_address_id IS 'Represents the origin address as a foreign key to the addresses table.';
 COMMENT ON COLUMN distance_calculations.destination_address_id IS 'Represents the destination address as a foreign key to the addresses table.';
 COMMENT ON COLUMN distance_calculations.distance_miles IS 'The distance in miles between the origin and destination address.';
@@ -61,7 +61,7 @@ COMMENT ON COLUMN office_users.last_name IS 'The last name of the office user.';
 COMMENT ON COLUMN office_users.middle_initials IS 'The middle initials of the office user.';
 COMMENT ON COLUMN office_users.email IS 'The email of the office user. This will match their login_gov_email in the users table.';
 COMMENT ON COLUMN office_users.telephone IS 'The phone number of the office user.';
-COMMENT ON COLUMN office_users.transportation_office_id IS 'The id of the tranporation office the office user is assigned to.';
+COMMENT ON COLUMN office_users.transportation_office_id IS 'The id of the transportation office the office user is assigned to.';
 COMMENT ON COLUMN office_users.active IS 'A boolean that determines whether or not an office user is active. Users that are not active are not allowed to access the office site. See https://github.com/transcom/mymove/wiki/create-or-deactivate-users.';
 
 COMMENT ON TABLE organizations IS 'Holds all organizations that admin users belong to.';
@@ -72,8 +72,8 @@ COMMENT ON COLUMN organizations.poc_email IS 'The email of the organization''s p
 COMMENT ON COLUMN organizations.poc_phone IS 'The phone number of the organization''s point of contact.';
 
 COMMENT ON TABLE roles IS 'Holds all roles that users can have.';
-COMMENT ON COLUMN roles.created_at IS 'Date & time the organization was created.';
-COMMENT ON COLUMN roles.updated_at IS 'Date & time the organization was updated.';
+COMMENT ON COLUMN roles.created_at IS 'Date & time the role was created.';
+COMMENT ON COLUMN roles.updated_at IS 'Date & time the role was updated.';
 COMMENT ON COLUMN roles.role_type IS 'The name of the role in snake case. Current values are: ''transportation_ordering_officer'', ''transportation_invoicing_officer'', ''customer'', ''ppm_office_users'', ''contracting_officer''.';
 COMMENT ON COLUMN roles.role_name IS 'The reader-friendly capitalized name of the role.';
 
@@ -131,8 +131,8 @@ COMMENT ON COLUMN jppso_regions.code IS 'The 4-character code for the region.';
 COMMENT ON COLUMN jppso_regions.name IS 'The human-readable name of the region.';
 
 COMMENT ON TABLE jppso_region_state_assignments IS 'Maps US states to JPPSO regions. This table is not currently used, but will be soon in order to associate a TOO with a specific JPPSO, which will allow the TOO to filter the list of moves by region.';
-COMMENT ON COLUMN jppso_region_state_assignments.created_at IS 'Date & time the jppso_region was created.';
-COMMENT ON COLUMN jppso_region_state_assignments.updated_at IS 'Date & time the jppso_region was updated.';
+COMMENT ON COLUMN jppso_region_state_assignments.created_at IS 'Date & time the jppso_region_state_assignment was created.';
+COMMENT ON COLUMN jppso_region_state_assignments.updated_at IS 'Date & time the jppso_region_state_assignment was updated.';
 COMMENT ON COLUMN jppso_region_state_assignments.jppso_region_id IS 'The JPPSO region this state is part of. A foreign key to the jppso_regions table.';
 COMMENT ON COLUMN jppso_region_state_assignments.state_name IS 'The full capitalized US state name.';
 COMMENT ON COLUMN jppso_region_state_assignments.state_abbreviation IS 'The two-letter state abbreviation.';
