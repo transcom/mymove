@@ -11,6 +11,7 @@ import { mtoShipmentTypeToFriendlyDisplay, toDollarString } from 'shared/formatt
 import { ShipmentOptionsOneOf } from 'types/shipment';
 import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 import { ReactComponent as XHeavyIcon } from 'shared/icon/x-heavy.svg';
+import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
 import { ReactComponent as FormCheckmarkIcon } from 'shared/icon/form-checkmark.svg';
 
 /** This component represents a Payment Request Service Item */
@@ -159,7 +160,10 @@ const ServiceItemCard = ({
                       className={styles.clearStatus}
                       onClick={handleFormReset}
                     >
-                      X Clear selection
+                      <span className="icon">
+                        <XLightIcon />
+                      </span>
+                      Clear selection
                     </Button>
                   )}
                 </Fieldset>

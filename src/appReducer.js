@@ -17,7 +17,6 @@ import { ordersReducer } from 'scenes/Orders/ducks';
 import { signedCertificationReducer } from 'scenes/Legalese/ducks';
 import { documentReducer } from 'shared/Uploader/ducks';
 import { reviewReducer } from 'scenes/Review/ducks';
-import transportationOfficeReducer from 'shared/TransportationOffices/ducks';
 import { officeFlashMessagesReducer } from 'scenes/Office/ducks';
 import officePpmReducer from 'scenes/Office/Ppm/ducks';
 
@@ -47,7 +46,6 @@ export const appReducer = (history) =>
     upload: documentReducer,
     review: reviewReducer,
     flashMessages: officeFlashMessagesReducer,
-    transportationOffices: transportationOfficeReducer,
     ppmIncentive: officePpmReducer,
   });
 

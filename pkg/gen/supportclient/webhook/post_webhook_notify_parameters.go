@@ -61,11 +61,11 @@ for the post webhook notify operation typically these are written to a http.Requ
 */
 type PostWebhookNotifyParams struct {
 
-	/*Message
-	  The message sent by webhook-client.
+	/*Body
+	  The notification sent by webhook-client.
 
 	*/
-	Message PostWebhookNotifyBody
+	Body PostWebhookNotifyBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -105,15 +105,15 @@ func (o *PostWebhookNotifyParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithMessage adds the message to the post webhook notify params
-func (o *PostWebhookNotifyParams) WithMessage(message PostWebhookNotifyBody) *PostWebhookNotifyParams {
-	o.SetMessage(message)
+// WithBody adds the body to the post webhook notify params
+func (o *PostWebhookNotifyParams) WithBody(body PostWebhookNotifyBody) *PostWebhookNotifyParams {
+	o.SetBody(body)
 	return o
 }
 
-// SetMessage adds the message to the post webhook notify params
-func (o *PostWebhookNotifyParams) SetMessage(message PostWebhookNotifyBody) {
-	o.Message = message
+// SetBody adds the body to the post webhook notify params
+func (o *PostWebhookNotifyParams) SetBody(body PostWebhookNotifyBody) {
+	o.Body = body
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -124,7 +124,7 @@ func (o *PostWebhookNotifyParams) WriteToRequest(r runtime.ClientRequest, reg st
 	}
 	var res []error
 
-	if err := r.SetBodyParam(o.Message); err != nil {
+	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}
 

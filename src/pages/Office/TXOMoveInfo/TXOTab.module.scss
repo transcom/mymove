@@ -6,6 +6,12 @@
   background: $bg-gray;
   scroll-behavior: smooth;
   flex-grow: 1;
+
+  .gridContainer {
+    .shipmentCard {
+      @include u-padding-left(4);
+    }
+  }
 }
 
 .container {

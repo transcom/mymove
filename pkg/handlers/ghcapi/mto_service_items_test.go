@@ -45,9 +45,12 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	serviceItemCreator := &mocks.MTOServiceItemCreator{}
 
 	suite.T().Run("Successful create", func(t *testing.T) {
+		var serviceItems models.MTOServiceItems
+		serviceItems = append(serviceItems, serviceItem)
+
 		serviceItemCreator.On("CreateMTOServiceItem",
 			mock.Anything,
-		).Return(&serviceItem, nil, nil).Once()
+		).Return(&serviceItems, nil, nil).Once()
 
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
