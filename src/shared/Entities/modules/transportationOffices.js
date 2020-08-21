@@ -10,7 +10,6 @@ export function loadDutyStationTransportationOffice(
   label = loadDutyStationTransportationOfficeOperation,
   schemaKey = dutyStationTransportationOfficeSchemaKey,
 ) {
-  console.log('inside load');
   const swaggerTag = 'transportation_offices.showDutyStationTransportationOffice';
   return swaggerRequest(getClient, swaggerTag, { dutyStationId }, { label, schemaKey });
 }
