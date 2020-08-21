@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/transcom/mymove/pkg/models"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -64,9 +66,10 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 
 	moveTaskOrderID := uuid.FromStringOrNil(mtoServiceItem.MoveTaskOrderID.String())
 	mtoAvailableToPrime, err := h.mtoAvailabilityChecker.MTOAvailableToPrime(moveTaskOrderID)
+	var mtoServiceItems *models.MTOServiceItems
 
 	if mtoAvailableToPrime {
-		mtoServiceItem, verrs, err = h.mtoServiceItemCreator.CreateMTOServiceItem(mtoServiceItem)
+		mtoServiceItems, verrs, err = h.mtoServiceItemCreator.CreateMTOServiceItem(mtoServiceItem)
 	} else if err == nil {
 		logger.Error("primeapi.CreateMTOServiceItemHandler error - MTO is not available to Prime")
 		return mtoserviceitemops.NewCreateMTOServiceItemNotFound().WithPayload(payloads.ClientError(
@@ -99,8 +102,8 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 		}
 	}
 
-	mtoServiceItemPayload := payloads.MTOServiceItem(mtoServiceItem)
-	return mtoserviceitemops.NewCreateMTOServiceItemOK().WithPayload(mtoServiceItemPayload)
+	mtoServiceItemsPayload := *payloads.MTOServiceItems(mtoServiceItems)
+	return mtoserviceitemops.NewCreateMTOServiceItemOK().WithPayload(mtoServiceItemsPayload)
 }
 
 // GetMapKeys is a helper function that returns the keys that are MTOServiceItemModelTypes from the map

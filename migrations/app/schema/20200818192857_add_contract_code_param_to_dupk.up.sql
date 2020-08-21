@@ -1,0 +1,2 @@
+INSERT INTO service_params(id, service_id, service_item_param_key_id, created_at, updated_at)
+VALUES ('089bdef0-7924-4eb0-9439-b4353f80eaf1', (SELECT id from re_services WHERE code = 'DUPK'), (SELECT id FROM service_item_param_keys WHERE key = 'ContractCode'), now(), now());

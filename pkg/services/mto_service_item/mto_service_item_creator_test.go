@@ -37,8 +37,8 @@ func (t *testMTOServiceItemQueryBuilder) Transaction(fn func(tx *pop.Connection)
 }
 
 func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
-	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
-	dimension := testdatagen.MakeMTOServiceItemDimension(suite.DB(), testdatagen.Assertions{})
+	moveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
+	dimension := testdatagen.MakeDefaultMTOServiceItemDimension(suite.DB())
 	serviceItem := models.MTOServiceItem{
 		MoveTaskOrderID: moveTaskOrder.ID,
 		MoveTaskOrder:   moveTaskOrder,
@@ -78,7 +78,9 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.NotNil(createdServiceItem)
-		suite.NotEmpty(createdServiceItem.Dimensions)
+
+		createdServiceItemList := *createdServiceItem
+		suite.NotEmpty(createdServiceItemList[0].Dimensions)
 	})
 
 	// If error when trying to create, the create should fail.
@@ -176,7 +178,9 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		createdServiceItemCS, _, err := creator.CreateMTOServiceItem(&serviceItemCS)
 		suite.NotNil(createdServiceItemCS)
 		suite.NoError(err)
-		suite.Equal(createdServiceItemCS.Status, models.MTOServiceItemStatus("APPROVED"))
+
+		createdServiceItemCSList := *createdServiceItemCS
+		suite.Equal(createdServiceItemCSList[0].Status, models.MTOServiceItemStatus("APPROVED"))
 	})
 
 	// Should return a "NotFoundError" if the mtoShipmentID passed in isn't found
@@ -185,7 +189,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		builder := query.NewQueryBuilder(suite.DB())
 		creator := NewMTOServiceItemCreator(builder)
 
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
+		shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 		reService := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: "ANY",
@@ -209,7 +213,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 	// If the service item we're trying to create is shuttle service and there is no estimated weight, it fails.
 	suite.T().Run("MTOServiceItemShuttle no prime weight", func(t *testing.T) {
-		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
+		shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
 
 		serviceItemNoWeight := models.MTOServiceItem{
 			MoveTaskOrderID: moveTaskOrder.ID,

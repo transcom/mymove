@@ -73,6 +73,34 @@ func MTOShipmentModelFromCreate(mtoShipment *internalmessages.CreateShipment) *m
 		RequestedPickupDate:   &requestedPickupDate,
 		RequestedDeliveryDate: &requestedDeliveryDate,
 		CustomerRemarks:       mtoShipment.CustomerRemarks,
+		Status:                models.MTOShipmentStatusDraft,
+	}
+
+	model.PickupAddress = AddressModel(mtoShipment.PickupAddress)
+	model.DestinationAddress = AddressModel(mtoShipment.DestinationAddress)
+
+	if mtoShipment.Agents != nil {
+		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
+	}
+
+	return model
+}
+
+// MTOShipmentModelFromUpdate model
+func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *models.MTOShipment {
+	if mtoShipment == nil {
+		return nil
+	}
+
+	requestedPickupDate := time.Time(mtoShipment.RequestedPickupDate)
+	requestedDeliveryDate := time.Time(mtoShipment.RequestedDeliveryDate)
+
+	model := &models.MTOShipment{
+		ShipmentType:          models.MTOShipmentType(mtoShipment.ShipmentType),
+		RequestedPickupDate:   &requestedPickupDate,
+		RequestedDeliveryDate: &requestedDeliveryDate,
+		CustomerRemarks:       mtoShipment.CustomerRemarks,
+		Status:                models.MTOShipmentStatus(mtoShipment.Status),
 	}
 
 	model.PickupAddress = AddressModel(mtoShipment.PickupAddress)

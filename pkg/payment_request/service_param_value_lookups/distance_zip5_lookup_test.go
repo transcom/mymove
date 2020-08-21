@@ -13,11 +13,11 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip5Lookup() {
 	key := models.ServiceItemParamNameDistanceZip5.String()
 
 	suite.T().Run("golden path", func(t *testing.T) {
-		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{})
+		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
 			testdatagen.Assertions{
-				MoveTaskOrder: mtoServiceItem.MoveTaskOrder,
+				Move: mtoServiceItem.MoveTaskOrder,
 			})
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)

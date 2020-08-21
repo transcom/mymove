@@ -35,9 +35,13 @@ const (
 	PortFlag string = "port"
 	// InsecureFlag indicates that TLS verification and validation can be skipped
 	InsecureFlag string = "insecure"
+	// MessageFlag is the string to send in the payload
+	MessageFlag string = "message"
+	// FilenameFlag is the name of the file being passed in
+	FilenameFlag string = "filename"
 )
 
-// initRootFlags initializes flags relating to the notification api
+// initRootFlags initializes flags relating to the webhook client
 func initRootFlags(flag *pflag.FlagSet) {
 	cli.InitCACFlags(flag)
 	cli.InitVerboseFlags(flag)
@@ -49,6 +53,17 @@ func initRootFlags(flag *pflag.FlagSet) {
 	flag.String(HostnameFlag, cli.HTTPPrimeServerNameLocal, "The hostname to connect to")
 	flag.Int(PortFlag, cli.MutualTLSPort, "The port to connect to")
 	flag.Bool(InsecureFlag, false, "Skip TLS verification and validation")
+	flag.String(MessageFlag, "Hello World", "Message for the client to send")
+	flag.String(FilenameFlag, "", "Data file passed in to the client")
+}
+
+// Debug prints helpful debugging information for requests
+func Debug(data []byte, err error) {
+	if err == nil {
+		log.Printf("%s\n\n", data)
+	} else {
+		log.Fatalf("%s\n\n", err)
+	}
 }
 
 // InitRootConfig checks the validity of the api flags and initializes a db connection.

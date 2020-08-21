@@ -45,9 +45,12 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	serviceItemCreator := &mocks.MTOServiceItemCreator{}
 
 	suite.T().Run("Successful create", func(t *testing.T) {
+		var serviceItems models.MTOServiceItems
+		serviceItems = append(serviceItems, serviceItem)
+
 		serviceItemCreator.On("CreateMTOServiceItem",
 			mock.Anything,
-		).Return(&serviceItem, nil, nil).Once()
+		).Return(&serviceItems, nil, nil).Once()
 
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -129,7 +132,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 	serviceItemID, _ := uuid.NewV4()
 	mtoShipmentID, _ := uuid.NewV4()
 
-	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	mto := testdatagen.MakeDefaultMove(suite.DB())
 	reService := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
 			ID:   reServiceID,

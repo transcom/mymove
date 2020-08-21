@@ -7,7 +7,7 @@ import (
 
 	"github.com/go-openapi/swag"
 
-	"github.com/gobuffalo/uuid"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -20,7 +20,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
-	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	mto := testdatagen.MakeDefaultMove(suite.DB())
 	paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItem(suite.DB())
 	requestUser := testdatagen.MakeDefaultUser(suite.DB())
 
