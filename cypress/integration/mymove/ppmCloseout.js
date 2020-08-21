@@ -390,7 +390,7 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true) {
   cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('not.be.checked');
   cy.get('input[name="additional_weight_ticket"][value="No"]').should('be.checked');
   if (hasAnother) {
-    cy.get('input[name="additional_weight_ticket"][value="Yes"]+label').click();
+    cy.get('input[name="additional_weight_ticket"][value="Yes"]+label').click({ force: true });
     cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('be.checked');
     cy.get('button').contains('Save & Add Another').click({ force: true });
     cy.wait('@postWeightTicket').its('status').should('eq', 200);

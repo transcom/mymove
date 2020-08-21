@@ -323,11 +323,11 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true, ordina
   if (hasAnother) {
     cy.get('input[name="additional_weight_ticket"][value="Yes"]+label').click();
     cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('be.checked');
-    cy.get('button').contains('Save & Add Another').click();
+    cy.get('button').contains('Save & Add Another').click({ force: true });
     cy.wait('@postWeightTicket').its('status').should('eq', 200);
     cy.get('[data-testid=documents-uploaded]').should('exist');
   } else {
-    cy.get('button').contains('Save & Continue').click();
+    cy.get('button').contains('Save & Continue').click({ force: true });
     cy.wait('@postWeightTicket').its('status').should('eq', 200);
   }
 }
