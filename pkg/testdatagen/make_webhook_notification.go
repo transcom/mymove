@@ -22,7 +22,7 @@ func MakeWebhookNotification(db *pop.Connection, assertions Assertions) models.W
 		EventKey:        "Payment.Create",
 		MoveTaskOrderID: &move.ID,
 		Payload:         swag.String("{\"message\":\"This is a default Payment.Create notification.\"}"),
-		Status:          "PENDING",
+		Status:          models.WebhookNotificationPending,
 	}
 
 	// Overwrite the defaults with values provided

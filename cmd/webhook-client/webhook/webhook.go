@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
+	"github.com/gofrs/uuid"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 
@@ -19,6 +20,8 @@ type webhookMessage struct {
 	// Message sent
 	// Required: true
 	Message string `json:"message"`
+	// Notification ID
+	ID uuid.UUID `json:"id"`
 }
 
 // Engine encapsulates the services used by the webhook notification engine
@@ -31,31 +34,51 @@ type Engine struct {
 }
 
 func (eng *Engine) processNotifications(notifications []models.WebhookNotification, subscriptions []models.WebhookSubscription) {
-	for _, not := range notifications {
+	for _, notif := range notifications {
 
 		// search for subscription
 		foundSub := false
 		for _, sub := range subscriptions {
-			if sub.EventKey == not.EventKey {
-				fmt.Println("Found sub for ", not.EventKey)
+			if sub.EventKey == notif.EventKey {
 				foundSub = true
-				// If found, send notification to subscription
-				err := eng.sendOneNotification(&not, &sub)
+				// If found, send  to subscription
+				err := eng.sendOneNotification(&notif, &sub)
 				if err != nil {
-					eng.Logger.Error("Notification should be updated as sent")
+					eng.Logger.Error("Webhook Notification send failed", zap.Error(err))
+					return
 				}
-
-				not.Status = models.WebhookNotificationSent
-				eng.Logger.Info("Notification should be updated as sent")
+				continue
 			}
 		}
 		if foundSub == false {
-			eng.Logger.Debug("No subscription found for notification event.", zap.String("eventKey", not.EventKey))
+			// MYTODO: Update notification status to skipped, once that's available. Currently updating to pending.
+			eng.Logger.Debug("No subscription found for notification event.", zap.String("eventKey", notif.EventKey))
+			notif.Status = models.WebhookNotificationPending
+			err := eng.updateNotification(&notif)
+			if err != nil {
+				eng.Logger.Error("Notification update failed", zap.Error(err))
+			}
 		}
+
 	}
 }
 
-// sendPushNotication sends the notification and marks the notification as sent or failed in the model (not database)
+func (eng *Engine) updateNotification(notif *models.WebhookNotification) error {
+	// Update notification (status is updated by sendOneNotification)
+	verrs, err := eng.Connection.ValidateAndUpdate(notif)
+	if verrs != nil && verrs.HasAny() {
+		err = errors.New(verrs.Error())
+		eng.Logger.Error(err.Error())
+		return err
+	}
+	if err != nil {
+		eng.Logger.Error(err.Error())
+		return err
+	}
+	return nil
+}
+
+// sendOneNotification sends the notification and marks the notification as sent or failed
 func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *models.WebhookSubscription) error {
 	logger := eng.Logger
 
@@ -64,9 +87,12 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 		string(notif.EventKey), notif.ID.String(), notif.MoveTaskOrderID.String())
 	payload := &webhookMessage{
 		Message: message,
+		ID:      notif.ID,
 	}
 	json, err := json.Marshal(payload)
 	if err != nil {
+		notif.Status = models.WebhookNotificationFailed
+		eng.updateNotification(notif)
 		logger.Error("Error creating payload:", zap.Error(err))
 		return err
 	}
@@ -78,18 +104,22 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 	// Check for error making the request
 	if err != nil {
 		notif.Status = models.WebhookNotificationFailed
+		eng.updateNotification(notif)
 		logger.Error("Failed to send, error making request:", zap.Error(err))
 		return err
 	}
 	// Check for error response from server
 	if resp.StatusCode != 200 {
 		notif.Status = models.WebhookNotificationFailed
+		eng.updateNotification(notif)
 		errmsg := fmt.Sprintf("Failed to send. Response Status: %s. Body: %s", resp.Status, string(body))
 		err = errors.New(errmsg)
 		logger.Error("db-webhook-notify: Failed to send notification", zap.Error(err))
 		return err
 	}
 
+	notif.Status = models.WebhookNotificationSent
+	eng.updateNotification(notif)
 	logger.Info("Notification successfully sent:", zap.String("Status", resp.Status), zap.String("Body", string(body)))
 	return nil
 

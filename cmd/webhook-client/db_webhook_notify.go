@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -27,19 +26,7 @@ func initDbWebhookNotifyFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = false
 }
 
-// func populateTestNotifications(db *pop.Connection, logger Logger) error {
-// 	subID, _ := uuid.FromString("5db13bb4-6d29-4bdb-bc81-262f4513ecf6")
-// 	subscription := testdatagen.MakeWebhookSubscription(db, testdatagen.Assertions{
-// 		WebhookSubscription: models.WebhookSubscription{
-// 			ID:           uuid.Must(uuid.NewV4()),
-// 			SubscriberID: subID,
-// 			EventKey:     "PaymentRequest.Create",
-// 			CallbackURL:  "/support/v1/webhook-notify",
-// 		},
-// 	})
-// 	_, err := db.ValidateAndSave(&subscription)
-// 	return err
-// }
+// MYTODO: Populate test webhook notifications in a migration
 func dbWebhookNotify(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 
@@ -48,15 +35,6 @@ func dbWebhookNotify(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-
-	// Print all flag values
-	cmd.Flags().VisitAll(func(f *pflag.Flag) {
-		changed := ""
-		if f.Changed {
-			changed = "user-defined"
-		}
-		fmt.Println(f.Name, ": \t", f.Value, " \t", changed)
-	})
 
 	// Validate all arguments passed in including DB, CAC, etc...
 	// Also this opens the db connection and creates a logger
@@ -79,8 +57,7 @@ func dbWebhookNotify(cmd *cobra.Command, args []string) error {
 		defer cacStore.Close()
 	}
 
-	// Create an DBPoller engine
-	//populateTestNotifications(db, logger)
+	// Create a webhook engine
 	webhookEngine := webhook.Engine{
 		Connection:      db,
 		Logger:          logger,
