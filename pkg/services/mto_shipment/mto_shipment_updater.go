@@ -110,7 +110,6 @@ func setNewShipmentFields(planner route.Planner, db *pop.Connection, dbShipment 
 
 	//// Should not update MTOAgents here because we don't have an eTag
 	//// TODO: move this logic to prime handler; allow MTOAgents to be updated by customer without eTag for now
-
 	if len(requestedUpdatedShipment.MTOAgents) > 0 {
 		for _, newAgentInfo := range requestedUpdatedShipment.MTOAgents {
 			foundAgent := false
@@ -275,7 +274,17 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(mtoShipment *models.MTOShipmen
 						}
 					}
 				}
-
+				if agent.ID == uuid.Nil {
+					// create a new agent
+					agent.MTOShipmentID = mtoShipment.ID
+					verrs, err := f.builder.CreateOne(&agent)
+					if verrs != nil && verrs.HasAny() {
+						return verrs
+					}
+					if err != nil {
+						return err
+					}
+				}
 			}
 		}
 

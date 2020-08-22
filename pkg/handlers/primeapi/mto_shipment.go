@@ -286,7 +286,6 @@ func (h UpdateMTOShipmentHandler) checkPrimeValidationsOnModel(mtoShipment *mode
 	}
 
 	// Updated based on existing fields that may have been updated:
-	// TODO: Prime-specific: move to handler
 	if mtoShipment.ScheduledPickupDate != nil && mtoShipment.PrimeEstimatedWeight != nil {
 		pickupAddress := dbShipment.PickupAddress
 		if mtoShipment.PickupAddress != nil {
