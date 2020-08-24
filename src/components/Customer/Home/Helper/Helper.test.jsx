@@ -35,8 +35,6 @@ describe('Helper component', () => {
     };
     const wrapper = mountHelper(props);
     expect(wrapper.find('h3').text()).toBe(title);
-    // first item does not have padding
-    expect(wrapper.find('li').at(0).props().className).toBe('');
     expect(wrapper.find('li').at(0).text()).toBe(helpList[0]);
     expect(wrapper.find('li').at(1).text()).toBe(helpList[1]);
     expect(wrapper.find('li').at(2).text()).toBe(helpList[2]);
