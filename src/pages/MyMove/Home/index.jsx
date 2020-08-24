@@ -34,13 +34,17 @@ const Home = () => {
         Thank you for adding your Profile information
       </Alert>
 
-      <Helper
-        title="Next step: Add your orders"
-        helpList={[
-          'If you have a hard copy, you can take photos of each page',
-          'If you have a PDF, you can upload that',
-        ]}
-      />
+      <Helper title="Next step: Add your orders">
+        <ul>
+          {['If you have a hard copy, you can take photos of each page', 'If you have a PDF, you can upload that'].map(
+            (helpText) => (
+              <li key={helpText}>
+                <span>{helpText}</span>
+              </li>
+            ),
+          )}
+        </ul>
+      </Helper>
       <Step
         complete
         completedHeaderText="Profile complete"

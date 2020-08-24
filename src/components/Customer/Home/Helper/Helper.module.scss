@@ -11,11 +11,6 @@
   @include u-padding-left(1);
   @include u-margin-bottom(4);
 
-  h3 {
-    margin-top: 0px;
-    font-weight: normal;
-    font-size: 21px;
-  }
   ul {
     margin: 0px;
     padding: 0px;
@@ -34,67 +29,9 @@
   }
 }
 
-.action-btn {
-  margin-left: 0px;
-  margin-right: 0px;
-  // equivalent to margin-top-3, clashes with storybook styles
-  margin-top: 1.6rem;
-  background-color: white;
-}
-
-.action-btn.btn--disabled {
-  pointer-events: auto;
-  &:disabled:hover {
-    cursor: not-allowed;
-  }
-}
-
-.edit-btn {
-  background-color: transparent;
-  color: $primary;
-  text-decoration: none;
-  width: 42px;
-  font-size: 15px;
+.helper-header {
+  @include u-margin-bottom(1);
+  margin-top: 0px;
   font-weight: normal;
-  text-align: center;
-  margin-left: auto;
-  &:active,
-  &:hover {
-    color: $primary;
-    background-color: white;
-  }
-
-  &:disabled {
-    color: $base-light;
-    background-color: transparent;
-  }
-}
-.edit-button.btn--disabled {
-  pointer-events: auto;
-  &:disabled:hover {
-    cursor: not-allowed;
-    background-color: transparent;
-  }
-}
-
-// TODO: remove when GHC styles are integrated into customer app and migrate to using "secondary" prop on button, you will still need the box-shadow tho since secondary has a different outline
-.usa-button--secondary {
-  color: $primary;
-  background-color: white;
-  box-shadow: inset 0 0 0 2px $base-lighter;
-  height: 42px;
-  margin-top: 1rem;
-
-  &:active,
-  &:hover {
-    color: $primary;
-    background-color: white;
-    box-shadow: inset 0 0 0 2px $base-lighter;
-  }
-  &:focus,
-  &:not([disabled]):focus {
-    color: $primary;
-    background-color: white;
-    box-shadow: inset 0 0 0 2px $base-lighter;
-  }
+  font-size: 21px;
 }

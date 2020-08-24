@@ -11,27 +11,31 @@ const defaultProps = {
   description: '',
 };
 function mountHelper(props = defaultProps) {
-  return mount(<Helper {...props} />);
+  return mount(<Helper {...props}>{props.children}</Helper>);
 }
 describe('Helper component', () => {
   it('renders Helper with description', () => {
     const title = 'Title';
-    const description = 'description';
+    const description = <p>description</p>;
     const props = {
       title,
-      description,
+      children: description,
     };
     const wrapper = mountHelper(props);
 
     expect(wrapper.find('h3').text()).toBe(title);
-    expect(wrapper.find('p').text()).toBe(description);
+    expect(wrapper.find('p').text()).toBe('description');
   });
   it('renders Helper with helpList', () => {
     const title = 'Title';
     const helpList = ['bullet 1', 'bullet 2', 'bullet 3'];
     const props = {
       title,
-      helpList,
+      children: helpList.map((helpText) => (
+        <li key={helpText}>
+          <span>{helpText}</span>
+        </li>
+      )),
     };
     const wrapper = mountHelper(props);
     expect(wrapper.find('h3').text()).toBe(title);
