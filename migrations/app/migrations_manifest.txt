@@ -544,3 +544,4 @@
 20200818192857_add_contract_code_param_to_dupk.up.sql
 20200819184221_remove_unused_tables_and_columns.up.sql
 20200819211216_ateam_table_comments.up.sql
+20200821202900_suz_cac.up.sql
