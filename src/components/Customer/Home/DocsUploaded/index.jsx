@@ -8,7 +8,7 @@ import { ReactComponent as DocsIcon } from 'shared/icon/documents.svg';
 const DocsUploaded = ({ files }) => (
   <div className={styles['doc-list-container']}>
     <h6 className={styles['doc-list-header']}>
-      {files.length} Files{files.length > 1 ? 's' : ''} uploaded
+      {files.length} File{files.length > 1 ? 's' : ''} uploaded
     </h6>
     {files.map((file) => (
       <div key={file.filename} className={styles['doc-list-item']}>

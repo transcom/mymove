@@ -16,7 +16,7 @@ describe('DocsUploaded component', () => {
       files: [{ filename: 'The fellowship of the file' }],
     };
     const wrapper = mountDocsUploaded(props);
-    expect(wrapper.find('h6').text()).toBe('1 FILE UPLOADED');
+    expect(wrapper.find('h6').text()).toBe('1 File uploaded');
     expect(wrapper.find('.doc-list-item').length).toBe(1);
   });
 
@@ -25,7 +25,7 @@ describe('DocsUploaded component', () => {
       files: [{ filename: 'The twin files' }, { filename: 'The return of the file' }],
     };
     const wrapper = mountDocsUploaded(props);
-    expect(wrapper.find('h6').text()).toBe('2 FILES UPLOADED');
+    expect(wrapper.find('h6').text()).toBe('2 Files uploaded');
     expect(wrapper.find('.doc-list-item').length).toBe(2);
   });
 });

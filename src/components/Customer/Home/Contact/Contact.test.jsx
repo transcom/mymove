@@ -26,7 +26,7 @@ describe('Contact component', () => {
       telephone,
     };
     const wrapper = mountFooter(props);
-    expect(wrapper.find('h6').text()).toBe(header.toUpperCase());
+    expect(wrapper.find('h6').text()).toBe(header);
     expect(wrapper.find('strong').text()).toBe(dutyStationName);
     expect(wrapper.find('span').length).toBe(2);
     expect(wrapper.find('span').at(0).text()).toBe(officeType);
