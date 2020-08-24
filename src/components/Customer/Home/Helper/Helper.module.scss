@@ -2,7 +2,7 @@
 @import 'shared/styles/_basics';
 
 .helper-container {
-  border: 2px solid $base-lightest;
+  border: 1px solid $base-lighter;
   border-radius: 5px;
   background-color: $bg-blue-warm-10;
   @include u-padding-top(2);
