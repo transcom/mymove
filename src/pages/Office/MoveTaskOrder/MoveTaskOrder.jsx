@@ -18,6 +18,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
 import { SERVICE_ITEM_STATUS } from 'shared/constants';
 import { patchMTOServiceItemStatus } from 'services/ghcApi';
+import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
 
 function formatShipmentType(shipmentType) {
   if (shipmentType === 'HHG') {
@@ -138,12 +139,14 @@ export const MoveTaskOrder = ({ match }) => {
               <ShipmentAddresses
                 pickupAddress={mtoShipment?.pickupAddress}
                 destinationAddress={mtoShipment?.destinationAddress}
-                // eslint-disable-next-line react/prop-types
                 originDutyStation={moveOrder?.originDutyStation?.address}
-                // eslint-disable-next-line react/prop-types
                 destinationDutyStation={moveOrder?.destinationDutyStation?.address}
               />
-              {requestedServiceItems && (
+              <ShipmentWeightDetails
+                estimatedWeight={mtoShipment?.primeEstimatedWeight}
+                actualWeight={mtoShipment?.primeActualWeight}
+              />
+              {requestedServiceItems?.length > 0 && (
                 <RequestedServiceItemsTable
                   serviceItems={requestedServiceItems}
                   handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}

@@ -1944,6 +1944,14 @@ definitions:
       updatedAt:
         format: date-time
         type: string
+      primeEstimatedWeight:
+        x-nullable: true
+        example: 2000
+        type: integer
+      primeActualWeight:
+        x-nullable: true
+        example: 2000
+        type: integer
       scheduledPickupDate:
         format: date
         type: string
@@ -1954,16 +1962,16 @@ definitions:
         format: date
         type: string
       pickupAddress:
-        x-nullabe: true
+        x-nullable: true
         $ref: '#/definitions/Address'
       destinationAddress:
-        x-nullabe: true
+        x-nullable: true
         $ref: '#/definitions/Address'
       secondaryPickupAddress:
-        x-nullabe: true
+        x-nullable: true
         $ref: '#/definitions/Address'
       secondaryDeliveryAddress:
-        x-nullabe: true
+        x-nullable: true
         $ref: '#/definitions/Address'
       customerRemarks:
         type: string

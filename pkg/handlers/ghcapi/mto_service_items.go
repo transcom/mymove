@@ -112,7 +112,7 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemop.CreateMTOSer
 		return mtoserviceitemop.NewCreateMTOServiceItemInternalServerError()
 	}
 
-	createdServiceItem, verrs, err := h.MTOServiceItemCreator.CreateMTOServiceItem(&serviceItem)
+	createdServiceItems, verrs, err := h.MTOServiceItemCreator.CreateMTOServiceItem(&serviceItem)
 	if verrs != nil && verrs.HasAny() {
 		logger.Error("Error validating mto service item: ", zap.Error(verrs))
 		payload := payloadForValidationError(handlers.ValidationErrMessage, "The information you provided is invalid.", h.GetTraceID(), verrs)
@@ -133,8 +133,8 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemop.CreateMTOSer
 		return mtoserviceitemop.NewCreateMTOServiceItemInternalServerError()
 	}
 
-	returnPayload := payloadForMTOServiceItemModel(createdServiceItem)
-	return mtoserviceitemop.NewCreateMTOServiceItemCreated().WithPayload(returnPayload)
+	serviceItemsPayload := payloadForMTOServiceItemModels(*createdServiceItems)
+	return mtoserviceitemop.NewCreateMTOServiceItemCreated().WithPayload(serviceItemsPayload[0])
 }
 
 // UpdateMTOServiceItemStatusHandler struct that describes updating service item status

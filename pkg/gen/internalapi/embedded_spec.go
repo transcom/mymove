@@ -4565,6 +4565,9 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -4939,6 +4942,9 @@ func init() {
           "type": "string",
           "example": "12432"
         },
+        "mto_shipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
         "orders_id": {
           "type": "string",
           "format": "uuid",
@@ -5199,11 +5205,6 @@ func init() {
           "format": "date",
           "title": "Date issued",
           "example": "2018-04-26"
-        },
-        "move_task_order_id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "moves": {
           "$ref": "#/definitions/IndexMovesPayload"
@@ -11357,6 +11358,9 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
+        "eTag": {
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -11733,6 +11737,9 @@ func init() {
           "type": "string",
           "example": "12432"
         },
+        "mto_shipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
         "orders_id": {
           "type": "string",
           "format": "uuid",
@@ -11993,11 +12000,6 @@ func init() {
           "format": "date",
           "title": "Date issued",
           "example": "2018-04-26"
-        },
-        "move_task_order_id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "moves": {
           "$ref": "#/definitions/IndexMovesPayload"

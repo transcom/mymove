@@ -2277,7 +2277,7 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "eTag": {
@@ -2294,8 +2294,18 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "pickupAddress": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
+        },
+        "primeActualWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "primeEstimatedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
         },
         "rejectionReason": {
           "type": "string",
@@ -2311,11 +2321,11 @@ func init() {
           "format": "date"
         },
         "secondaryDeliveryAddress": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "shipmentType": {
@@ -5619,7 +5629,7 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "eTag": {
@@ -5636,8 +5646,18 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "pickupAddress": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
+        },
+        "primeActualWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "primeEstimatedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
         },
         "rejectionReason": {
           "type": "string",
@@ -5653,11 +5673,11 @@ func init() {
           "format": "date"
         },
         "secondaryDeliveryAddress": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "shipmentType": {

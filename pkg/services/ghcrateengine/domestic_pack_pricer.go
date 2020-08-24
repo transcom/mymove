@@ -42,7 +42,6 @@ func (p domesticPackPricer) Price(contractCode string, requestedPickupDate time.
 	}
 
 	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
-	// look up rate for domestic pack/unpack price
 	var contractYear models.ReContractYear
 	domOtherPrice, err := fetchDomOtherPrice(p.db, contractCode, models.ReServiceCodeDPK, servicesScheduleOrigin, isPeakPeriod)
 

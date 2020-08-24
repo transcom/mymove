@@ -712,6 +712,8 @@ definitions:
         format: date-time
       personally_procured_moves:
         $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
+      mto_shipments:
+        $ref: '#/definitions/MTOShipments'
       cancel_reason:
         type: string
         example: 'Change of orders'
@@ -2089,10 +2091,6 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      move_task_order_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       service_member_id:
         type: string
         format: uuid
@@ -2639,6 +2637,8 @@ definitions:
         $ref: '#/definitions/Address'
       secondaryDeliveryAddress:
         $ref: '#/definitions/Address'
+      eTag:
+        type: string
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'

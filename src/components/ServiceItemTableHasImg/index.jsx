@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
+import classnames from 'classnames';
 
 import { ReactComponent as Check } from '../../shared/icon/check.svg';
 import { ReactComponent as Ex } from '../../shared/icon/ex.svg';
@@ -15,13 +16,13 @@ function generateDetailText(details, id) {
     return details.text;
   }
 
-  return Object.keys(details.text).map((detail) => {
-    return (
-      <p key={`${id}-${detail}`} className={styles.detailLine}>
-        <span className={styles.detailType}>{detail}:</span> {details.text[`${detail}`]}
-      </p>
-    );
-  });
+  const detailList = Object.keys(details.text).map((detail) => (
+    <div key={`${id}-${detail}`} className={styles.detailLine}>
+      <dt className={styles.detailType}>{detail}:</dt> <dd>{details.text[`${detail}`]}</dd>
+    </div>
+  ));
+
+  return <dl>{detailList}</dl>;
 }
 
 const ServiceItemTableHasImg = ({ serviceItems, handleUpdateMTOServiceItemStatus }) => {
@@ -53,7 +54,9 @@ const ServiceItemTableHasImg = ({ serviceItems, handleUpdateMTOServiceItemStatus
         <td>
           <div className={styles.statusAction}>
             <Button
+              type="button"
               className="usa-button--icon usa-button--small"
+              data-testid="acceptButton"
               onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.APPROVED)}
             >
               <span className="icon">
@@ -62,8 +65,10 @@ const ServiceItemTableHasImg = ({ serviceItems, handleUpdateMTOServiceItemStatus
               <span>Accept</span>
             </Button>
             <Button
+              type="button"
               secondary
               className="usa-button--small usa-button--icon"
+              data-testid="rejectButton"
               onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.REJECTED)}
             >
               <span className="icon">
@@ -78,7 +83,7 @@ const ServiceItemTableHasImg = ({ serviceItems, handleUpdateMTOServiceItemStatus
   });
 
   return (
-    <div className="table--service-item table--service-item--hasimg">
+    <div className={classnames(styles.ServiceItemTable, 'table--service-item', 'table--service-item--hasimg')}>
       <table>
         <thead className="table--small">
           <tr>

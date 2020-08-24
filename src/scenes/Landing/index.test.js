@@ -17,6 +17,7 @@ describe('HomePage tests', () => {
   let store;
 
   const minProps = {
+    showLoggedInUser: () => {},
     context: {
       flags: {
         hhgFlow: false,

@@ -14,7 +14,7 @@ import (
 // PostWebhookNotifyOKCode is the HTTP code returned for type PostWebhookNotifyOK
 const PostWebhookNotifyOKCode int = 200
 
-/*PostWebhookNotifyOK Created
+/*PostWebhookNotifyOK Sent
 
 swagger:response postWebhookNotifyOK
 */
