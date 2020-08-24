@@ -15,6 +15,6 @@ describe('Home component', () => {
     expect(wrapper.find('Step').length).toBe(4);
     expect(wrapper.find('.usa-alert--success').length).toBe(1);
     expect(wrapper.find('Helper').length).toBe(1);
-    expect(wrapper.find('Contact').length).toBe(1);
+    expect(wrapper.find('Footer').length).toBe(1);
   });
 });
