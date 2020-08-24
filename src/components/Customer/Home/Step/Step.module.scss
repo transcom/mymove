@@ -1,10 +1,16 @@
 @import 'shared/styles/colors';
+@import 'shared/styles/_basics';
+
+.step-container {
+  @include u-margin-bottom(6);
+}
 
 .step-header-container {
   margin-top: 0px;
   font-size: 17px;
   display: flex;
   align-items: center;
+  @include u-margin-bottom(2);
 
   .edit-disabled {
     color: $base-light;
@@ -33,10 +39,9 @@
 }
 
 .action-btn {
+  @include u-margin-top(3);
   margin-left: 0px;
   margin-right: 0px;
-  // equivalent to margin-top-3, clashes with storybook styles
-  margin-top: 1.6rem;
   background-color: white;
 }
 

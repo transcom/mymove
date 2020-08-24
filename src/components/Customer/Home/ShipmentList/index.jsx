@@ -16,7 +16,7 @@ const ShipmentListItem = ({ shipment, onShipmentClick }) => {
   const shipmentClassName = styles[`shipment-list-item-${shipment.type}`];
   return (
     <div
-      className={`${styles['shipment-list-item-container']} ${shipmentClassName} margin-bottom-1`}
+      className={`${styles['shipment-list-item-container']} ${shipmentClassName}`}
       onClick={() => onShipmentClick(shipment)}
       onKeyDown={(event) => handleEnterOrSpace(event)}
       role="button"

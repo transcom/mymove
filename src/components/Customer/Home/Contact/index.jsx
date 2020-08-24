@@ -4,8 +4,8 @@ import { string } from 'prop-types';
 import styles from './Contact.module.scss';
 
 const Contact = ({ header, dutyStationName, officeType, telephone }) => (
-  <div className={`${styles['contact-container']} padding-top-2 padding-left-2 padding-right-2 padding-bottom-3`}>
-    <h6 className="margin-bottom-1">{header.toUpperCase()}</h6>
+  <div className={styles['contact-container']}>
+    <h6 className={styles['contact-header']}>{header}</h6>
     <p>
       <strong>{dutyStationName}</strong>
       <br />

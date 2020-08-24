@@ -1,4 +1,5 @@
 @import 'shared/styles/colors';
+@import 'shared/styles/_basics';
 
 .grid-container {
   margin-left: auto;
@@ -16,9 +17,13 @@
   margin-top: -21px;
   margin-left: -1.25rem;
   margin-right: -1.25rem;
+  @include u-margin-bottom(2);
 
+  @include u-padding-top(3);
+  @include u-padding-bottom(3);
   padding-left: 20px;
   padding-right: 20px;
+
   h2 {
     font-size: 28px;
     margin: 0px;

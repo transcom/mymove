@@ -32,14 +32,14 @@ const Step = ({
   const editBtnClassName = classnames(`${styles['edit-btn']}`, {
     [styles['btn--disabled']]: editBtnDisabled,
   });
-  const actionBtnClassName = classnames(`margin-top-3 ${styles['action-btn']}`, {
+  const actionBtnClassName = classnames(styles['action-btn'], {
     [styles['usa-button--secondary']]: secondaryBtn,
     [styles['btn--disabled']]: actionBtnDisabled,
   });
 
   return (
-    <div className={`margin-bottom-6 ${containerClassName}`}>
-      <div className={`${styles['step-header-container']} margin-bottom-2`}>
+    <div className={`${styles['step-container']} ${containerClassName}`}>
+      <div className={styles['step-header-container']}>
         {complete ? <AcceptIcon aria-hidden className={styles.accept} /> : <NumberCircle num={step} />}
         <strong>{complete ? completedHeaderText : headerText}</strong>
         {editBtnLabel && (

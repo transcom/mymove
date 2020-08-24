@@ -4,16 +4,13 @@ import { string, object } from 'prop-types';
 import styles from './Helper.module.scss';
 
 const Helper = ({ containerStyles, helpList, description, title }) => (
-  <div
-    className={`${styles['helper-container']} padding-top-2 padding-right-1 padding-bottom-2 padding-left-1 margin-bottom-4`}
-    style={containerStyles}
-  >
+  <div className={styles['helper-container']} style={containerStyles}>
     <h3 className="margin-bottom-1">{title}</h3>
     {description && <p>{description}</p>}
     {helpList && (
       <ul>
-        {helpList.map((helpText, index) => (
-          <li key={helpText} className={index > 0 ? 'margin-top-1' : ''}>
+        {helpList.map((helpText) => (
+          <li key={helpText}>
             <span>{helpText}</span>
           </li>
         ))}

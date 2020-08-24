@@ -1,8 +1,11 @@
 @import 'shared/styles/colors';
+@import 'shared/styles/_basics';
 
 .doc-list-container {
   border-radius: 5px;
   border: 2px solid $base-lightest;
+  @include u-padding-left(2);
+  @include u-padding-right(2);
 
   h6,
   div {
@@ -11,9 +14,16 @@
   }
 
   .doc-list-item {
+    @include u-margin-bottom(2);
     display: flex;
     align-items: center;
   }
+}
+
+.doc-list-header {
+  @include u-margin-top(2);
+  @include u-margin-bottom(2);
+  text-transform: uppercase;
 }
 
 .docs-icon {

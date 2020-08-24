@@ -1,9 +1,16 @@
 @import 'shared/styles/colors';
+@import 'shared/styles/_basics';
 
 .helper-container {
   border: 2px solid $base-lightest;
   border-radius: 5px;
   background-color: $bg-blue-warm-10;
+  @include u-padding-top(2);
+  @include u-padding-right(1);
+  @include u-padding-bottom(2);
+  @include u-padding-left(1);
+  @include u-margin-bottom(4);
+
   h3 {
     margin-top: 0px;
     font-weight: normal;
@@ -17,6 +24,9 @@
       margin-left: 1.2em;
       text-indent: -1em;
       font-size: 15px;
+      &:not(:first-child) {
+        @include u-margin-top(1);
+      }
       span {
         margin-left: -0.5em;
       }

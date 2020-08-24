@@ -6,12 +6,12 @@ import styles from './DocsUploaded.module.scss';
 import { ReactComponent as DocsIcon } from 'shared/icon/documents.svg';
 
 const DocsUploaded = ({ files }) => (
-  <div className={`${styles['doc-list-container']} padding-left-2 padding-right-2`}>
-    <h6 className="margin-top-2 margin-bottom-2">
-      {files.length} FILE{files.length > 1 ? 'S' : ''} UPLOADED
+  <div className={styles['doc-list-container']}>
+    <h6 className={styles['doc-list-header']}>
+      {files.length} Files{files.length > 1 ? 's' : ''} uploaded
     </h6>
     {files.map((file) => (
-      <div key={file.filename} className={`margin-bottom-2 ${styles['doc-list-item']}`}>
+      <div key={file.filename} className={styles['doc-list-item']}>
         <DocsIcon className={styles['docs-icon']} />
         {file.filename}
       </div>

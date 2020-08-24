@@ -24,7 +24,7 @@ const Home = () => {
 
   return (
     <div className={`usa-prose grid-container ${styles['grid-container']}`}>
-      <header className={`${styles['customer-header']} padding-top-3 padding-bottom-3 margin-bottom-2`}>
+      <header className={styles['customer-header']}>
         <h2>Riley Baker</h2>
         <p>
           You&apos;re leaving <strong>Buckley AFB</strong>
