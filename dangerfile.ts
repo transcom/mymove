@@ -61,7 +61,7 @@ const cypressUpdateChecks = async () => {
   const cypressPackageFile = 'cypress/package.json';
   const rootPackageChanged = includes(allFiles, rootPackageFile);
   const cypressPackageChanged = includes(allFiles, 'cypress/package.json');
-  const cypressPackageName = 'cypress';
+  const cypressPackageName = '"cypress":';
   const versionRegex = /(~|\^|)\d+.\d+.\d+/;
 
   let hasRootCypressDepChanged = false;
