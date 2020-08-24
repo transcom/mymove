@@ -1,0 +1,29 @@
+@import 'shared/styles/colors';
+
+.shipment-list-item-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 5px;
+  border: 2px solid $base-lighter;
+  padding-left: 6px;
+  padding-right: 13px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+
+  &:last-child {
+    margin-bottom: 0px;
+  }
+}
+
+.shipment-list-item-PPM {
+  border-left: 5px solid $accent-ppm;
+}
+
+.shipment-list-item-HHG {
+  border-left: 5px solid $accent-hhg;
+}
+
+.shipment-list-item-NTS {
+  border-left: 5px solid $accent-nts;
+}

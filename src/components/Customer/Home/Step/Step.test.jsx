@@ -2,7 +2,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import Step from './Step';
+import Step from '.';
 
 const defaultProps = {
   actionBtnDisabled: false,
@@ -11,7 +11,6 @@ const defaultProps = {
   complete: false,
   completedHeaderText: '',
   containerClassName: '',
-  description: '',
   editBtnDisabled: false,
   editBtnLabel: '',
   headerText: '',
@@ -60,7 +59,7 @@ describe('Step component', () => {
     const props = {
       headerText,
       step,
-      description,
+      children: <p>{description}</p>,
     };
     const wrapper = mountStep(props);
     expect(wrapper.find('p').text()).toBe(description);

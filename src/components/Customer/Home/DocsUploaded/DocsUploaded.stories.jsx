@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 
-import DocsUploaded from './DocsUploaded';
+import DocsUploaded from '.';
 
 const files = [{ filename: 'File 1' }, { filename: 'File 2' }, { filename: 'File 3' }];
 export const Basic = () => (

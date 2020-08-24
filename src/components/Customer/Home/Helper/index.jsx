@@ -1,7 +1,7 @@
 import React from 'react';
 import { string, object } from 'prop-types';
 
-import styles from './Home.module.scss';
+import styles from './Helper.module.scss';
 
 const Helper = ({ containerStyles, helpList, description, title }) => (
   <div

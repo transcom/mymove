@@ -1,10 +1,10 @@
 import React from 'react';
 import { string } from 'prop-types';
 
-import styles from './Home.module.scss';
+import styles from './Contact.module.scss';
 
-const Footer = ({ header, dutyStationName, officeType, telephone }) => (
-  <div className={`${styles['footer-container']} padding-top-2 padding-left-2 padding-right-2 padding-bottom-3`}>
+const Contact = ({ header, dutyStationName, officeType, telephone }) => (
+  <div className={`${styles['contact-container']} padding-top-2 padding-left-2 padding-right-2 padding-bottom-3`}>
     <h6 className="margin-bottom-1">{header.toUpperCase()}</h6>
     <p>
       <strong>{dutyStationName}</strong>
@@ -16,11 +16,11 @@ const Footer = ({ header, dutyStationName, officeType, telephone }) => (
   </div>
 );
 
-Footer.propTypes = {
+Contact.propTypes = {
   header: string.isRequired,
   dutyStationName: string.isRequired,
   officeType: string.isRequired,
   telephone: string.isRequired,
 };
 
-export default Footer;
+export default Contact;

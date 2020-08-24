@@ -2,11 +2,11 @@
 import React from 'react';
 import { Alert } from '@trussworks/react-uswds';
 
-import Helper from './Helper';
-import Step from './Step';
-import DocsUploaded from './DocsUploaded';
-import ShipmentList from './ShipmentList';
-import Footer from './Footer';
+import Helper from './Helper/index';
+import Step from './Step/index';
+import DocsUploaded from './DocsUploaded/index';
+import ShipmentList from './ShipmentList/index';
+import Contact from './Contact/index';
 import styles from './Home.module.scss';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
@@ -44,7 +44,6 @@ const Home = () => {
       <Step
         complete
         completedHeaderText="Profile complete"
-        description="Make sure to keep your personal information up to date during your move"
         editBtnDisabled
         editBtnLabel="Edit"
         headerText="Profile complete"
@@ -54,12 +53,13 @@ const Home = () => {
           e.preventDefault();
           console.log('edit clicked');
         }}
-      />
+      >
+        <p className={styles.description}>Make sure to keep your personal information up to date during your move</p>
+      </Step>
 
       <Step
         complete
         completedHeaderText="Orders uploaded"
-        description="Upload photos of each page, or upload a PDF"
         editBtnLabel="Edit"
         onEditClick={() => console.log('edit button clicked')}
         headerText="Upload orders"
@@ -79,9 +79,9 @@ const Home = () => {
         actionBtnLabel="Add another shipment"
         complete
         completedHeaderText="Shipments"
-        description="Tell us where you're going and when you want to get there. We'll help you set up shipments to make it work"
         headerText="Shipments"
         secondaryBtn
+        secondaryClassName="margin-top-2"
         step="3"
       >
         <ShipmentList shipments={shipments} onShipmentClick={handleShipmentClick} />
@@ -91,12 +91,15 @@ const Home = () => {
         actionBtnDisabled
         actionBtnLabel="Review and submit"
         containerClassName="margin-bottom-8"
-        description="Review your move details and sign the legal paperwork, then send the info on to your move counselor"
         headerText="Confirm move request"
         onActionBtnClick={() => console.log('some action')}
         step="4"
-      />
-      <Footer
+      >
+        <p className={styles.description}>
+          Review your move details and sign the legal paperwork, then send the info on to your move counselor
+        </p>
+      </Step>
+      <Contact
         header="Contacts"
         dutyStationName="Seymour Johnson AFB"
         officeType="Origin Transportation Office"

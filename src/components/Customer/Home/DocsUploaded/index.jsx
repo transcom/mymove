@@ -1,7 +1,7 @@
 import React from 'react';
 import { string, arrayOf, shape } from 'prop-types';
 
-import styles from './Home.module.scss';
+import styles from './DocsUploaded.module.scss';
 
 import { ReactComponent as DocsIcon } from 'shared/icon/documents.svg';
 

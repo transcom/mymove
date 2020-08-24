@@ -1,9 +1,10 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
-import { bool, element, string, oneOfType, number, func } from 'prop-types';
+import { bool, node, string, oneOfType, number, func } from 'prop-types';
+import classnames from 'classnames';
 import { Button } from '@trussworks/react-uswds';
 
-import styles from './Home.module.scss';
+import styles from './Step.module.scss';
 
 import { ReactComponent as AcceptIcon } from 'shared/icon/accept-inversed.svg';
 
@@ -20,7 +21,6 @@ const Step = ({
   complete,
   completedHeaderText,
   containerClassName,
-  description,
   editBtnDisabled,
   editBtnLabel,
   headerText,
@@ -29,33 +29,29 @@ const Step = ({
   secondaryBtn,
   step,
 }) => {
-  const secondaryClassName = styles['usa-button--secondary'];
-  const disabledClassName = styles['btn--disabled'];
+  const editBtnClassName = classnames(`${styles['edit-btn']}`, {
+    [styles['btn--disabled']]: editBtnDisabled,
+  });
+  const actionBtnClassName = classnames(`margin-top-3 ${styles['action-btn']}`, {
+    [styles['usa-button--secondary']]: secondaryBtn,
+    [styles['btn--disabled']]: actionBtnDisabled,
+  });
+
   return (
     <div className={`margin-bottom-6 ${containerClassName}`}>
       <div className={`${styles['step-header-container']} margin-bottom-2`}>
         {complete ? <AcceptIcon aria-hidden className={styles.accept} /> : <NumberCircle num={step} />}
         <strong>{complete ? completedHeaderText : headerText}</strong>
         {editBtnLabel && (
-          <Button
-            disabled={editBtnDisabled}
-            className={`${styles['edit-button']} ${editBtnDisabled ? disabledClassName : ''}`}
-            onClick={onEditBtnClick}
-          >
+          <Button disabled={editBtnDisabled} className={editBtnClassName} onClick={onEditBtnClick} type="button">
             {editBtnLabel}
           </Button>
         )}
       </div>
 
-      {children || <p>{description}</p>}
+      {children}
       {actionBtnLabel && (
-        <Button
-          className={`margin-top-3 ${styles['action-btn']} ${secondaryBtn ? secondaryClassName : ''} ${
-            actionBtnDisabled ? disabledClassName : ''
-          }`}
-          disabled={actionBtnDisabled}
-          onClick={onActionBtnClick}
-        >
+        <Button className={actionBtnClassName} disabled={actionBtnDisabled} onClick={onActionBtnClick} type="button">
           {actionBtnLabel}
         </Button>
       )}
@@ -66,11 +62,10 @@ const Step = ({
 Step.propTypes = {
   actionBtnDisabled: bool,
   actionBtnLabel: string,
-  children: element,
+  children: node,
   complete: bool,
   completedHeaderText: string,
   containerClassName: string,
-  description: string,
   editBtnDisabled: bool,
   editBtnLabel: string,
   headerText: string.isRequired,
@@ -87,7 +82,6 @@ Step.defaultProps = {
   complete: false,
   completedHeaderText: '',
   containerClassName: '',
-  description: '',
   editBtnDisabled: false,
   editBtnLabel: '',
   onActionBtnClick: () => {},

@@ -2,7 +2,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import ShipmentList from './ShipmentList';
+import ShipmentList from '.';
 
 const defaultProps = {
   shipments: [],

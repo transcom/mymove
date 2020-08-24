@@ -2,7 +2,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import Helper from './Helper';
+import Helper from '.';
 
 const defaultProps = {
   containerStyles: {},

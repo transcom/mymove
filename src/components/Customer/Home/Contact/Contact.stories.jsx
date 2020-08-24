@@ -2,11 +2,11 @@
 import React from 'react';
 import { withKnobs, text } from '@storybook/addon-knobs';
 
-import Footer from './Footer';
+import Contact from '.';
 
 export const Basic = () => (
   <div className="grid-container">
-    <Footer
+    <Contact
       header={text('Header', 'This is the header')}
       dutyStationName={text('Duty Station Name', 'Some duty station')}
       officeType={text('Office type', 'Some office type')}
@@ -16,6 +16,6 @@ export const Basic = () => (
 );
 
 export default {
-  title: 'Customer Components | Footer',
+  title: 'Customer Components | Contact',
   decorators: [withKnobs],
 };

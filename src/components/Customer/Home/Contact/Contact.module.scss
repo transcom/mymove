@@ -1,0 +1,17 @@
+@import 'shared/styles/colors';
+
+.contact-container {
+  border-radius: 5px;
+  border: 1px solid $base-lighter;
+
+  h6 {
+    margin-top: 0px;
+    font-size: 13px;
+    font-weight: normal;
+  }
+  p {
+    font-size: 15px;
+    line-height: 18px;
+    margin: 0px;
+  }
+}

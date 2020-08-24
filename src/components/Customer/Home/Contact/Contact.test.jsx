@@ -2,7 +2,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import Footer from './Footer';
+import Contact from '.';
 
 const defaultProps = {
   header: '',
@@ -11,9 +11,9 @@ const defaultProps = {
   telephone: '',
 };
 function mountFooter(props = defaultProps) {
-  return mount(<Footer {...props} />);
+  return mount(<Contact {...props} />);
 }
-describe('Footer component', () => {
+describe('Contact component', () => {
   it('renders footer with given required props', () => {
     const header = 'Contact Info';
     const dutyStationName = 'Headquarters';

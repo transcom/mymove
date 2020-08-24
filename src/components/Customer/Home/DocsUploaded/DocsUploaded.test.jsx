@@ -2,7 +2,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import DocsUploaded from './DocsUploaded';
+import DocsUploaded from '.';
 
 const defaultProps = {
   files: [],

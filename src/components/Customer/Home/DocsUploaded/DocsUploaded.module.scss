@@ -1,0 +1,22 @@
+@import 'shared/styles/colors';
+
+.doc-list-container {
+  border-radius: 5px;
+  border: 1px solid $base-lighter;
+
+  h6,
+  div {
+    font-size: 13px;
+    font-weight: normal;
+  }
+
+  .doc-list-item {
+    display: flex;
+    align-items: center;
+  }
+}
+
+.docs-icon {
+  margin-right: 12px;
+  fill: $base-light;
+}

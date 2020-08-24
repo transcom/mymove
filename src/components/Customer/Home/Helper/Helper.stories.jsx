@@ -2,7 +2,7 @@
 import React from 'react';
 import { withKnobs, text, array } from '@storybook/addon-knobs';
 
-import Helper from './Helper';
+import Helper from '.';
 
 const title = 'Next step: Add your orders';
 const separator = '\n';

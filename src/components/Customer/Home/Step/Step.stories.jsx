@@ -2,9 +2,10 @@
 import React from 'react';
 import { withKnobs, text, boolean } from '@storybook/addon-knobs';
 
-import Step from './Step';
-import DocsUploaded from './DocsUploaded';
-import ShipmentList from './ShipmentList';
+import DocsUploaded from '../DocsUploaded/index';
+import ShipmentList from '../ShipmentList/index';
+
+import Step from '.';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
@@ -14,12 +15,13 @@ export const ProfileComplete = () => (
     <Step
       complete={boolean('Complete', true)}
       completedHeaderText={text('Complete Header Text', 'Profile Complete')}
-      description={(text('Description'), 'Make sure to keep your personal information up to date during your move')}
       editBtnLabel={text('Edit Button Label', 'Edit')}
       headerText={text('Header Text', 'Profile')}
       onEditBtnClick={() => {}}
       step={text('Step', '1')}
-    />
+    >
+      <p>{(text('Description'), 'Make sure to keep your personal information up to date during your move')}</p>
+    </Step>
   </div>
 );
 
@@ -29,12 +31,13 @@ export const UploadOrders = () => (
     <Step
       actionBtnLabel="Add orders"
       onActionBtnClick={() => {}}
-      description={(text('Description'), 'Upload photos of each page, or upload a PDF')}
       editBtnLabel={text('Edit Button Label', 'Edit')}
       headerText={text('Header Text', 'Upload orders')}
       onEditBtnClick={() => {}}
       step={text('Step', '2')}
-    />
+    >
+      <p>{(text('Description'), 'Upload photos of each page, or upload a PDF')}</p>
+    </Step>
   </div>
 );
 
@@ -44,7 +47,6 @@ export const OrdersUploaded = () => (
     <Step
       complete={boolean('Complete', true)}
       completedHeaderText={text('Complete Header Text', 'Orders uploaded')}
-      description={(text('Description'), 'Upload photos of each page, or upload a PDF')}
       editBtnLabel={text('Edit Button Label', 'Edit')}
       headerText={text('Header Text', 'Upload orders')}
       onEditBtnClick={() => {}}
@@ -67,13 +69,14 @@ export const ShipmentSelection = () => (
     <Step
       complete={boolean('Complete', true)}
       completedHeaderText={text('Complete Header Text', 'Orders uploaded')}
-      description={(text('Description'), 'Upload photos of each page, or upload a PDF')}
       editBtnLabel={text('Edit Button Label', 'Edit')}
       headerText={text('Header Text', 'Upload orders')}
       onEditBtnClick={() => {}}
       step={text('Step', '2')}
       actionBtnLabel="Plan your shipments"
-    />
+    >
+      <p>{(text('Description'), 'Upload photos of each page, or upload a PDF')}</p>
+    </Step>
   </div>
 );
 
@@ -83,10 +86,6 @@ export const Shipments = () => (
     <Step
       complete={boolean('Complete', false)}
       completedHeaderText={text('Complete Header Text', 'Shipments')}
-      description={
-        (text('Description'),
-        `Tell us where you're going and when you want to get there. We'll help you set up shipments to make it work`)
-      }
       headerText={text('Header Text', 'Upload orders')}
       step={text('Step', '3')}
       actionBtnLabel="Plan your shipments"
@@ -111,15 +110,18 @@ export const ConfirmMove = () => (
     <Step
       complete={boolean('Complete', false)}
       completedHeaderText={text('Complete Header Text', 'Shipments')}
-      description={
-        (text('Description'),
-        'Review your move details and sign the legal paperwor , then send the info on to your move counselor')
-      }
       headerText={text('Header Text', 'Confirm and move request')}
       step={text('Step', '4')}
       actionBtnLabel="Review and submit"
       actionBtnDisabled
-    />
+    >
+      <p>
+        {
+          (text('Description'),
+          'Review your move details and sign the legal paperwor , then send the info on to your move counselor')
+        }
+      </p>
+    </Step>
   </div>
 );
 
