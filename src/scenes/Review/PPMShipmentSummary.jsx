@@ -45,7 +45,7 @@ export class PPMShipmentSummary extends Component {
 
   render() {
     // const { advance, movePath, ppm, ppmEstimate, estimated_storage_reimbursement } = this.props;
-    const { movePath, ppm, estimated_storage_reimbursement } = this.props;
+    const { movePath, ppm, ppmEstimate, estimated_storage_reimbursement } = this.props;
 
     const editDateAndLocationAddress = movePath + '/edit-date-and-location';
     // const editWeightAddress = movePath + '/edit-weight';
@@ -53,6 +53,9 @@ export class PPMShipmentSummary extends Component {
     const privateStorageString = get(ppm, 'estimated_storage_reimbursement')
       ? `= ${estimated_storage_reimbursement} estimated reimbursement`
       : '';
+
+    const hasSit = get(ppm, 'has_sit', false) ? `Yes, ${ppm.days_in_storage} days` : 'No';
+
     const sitDisplay = get(ppm, 'has_sit', false)
       ? `${ppm.weight_estimate && ppm.weight_estimate.toLocaleString()} lbs for ${
           ppm.days_in_storage
@@ -62,11 +65,11 @@ export class PPMShipmentSummary extends Component {
     const ppmShipmentData = [
       { label: 'Expected departure', value: formatDateSM(get(ppm, 'original_move_date')) },
       { label: 'Starting ZIP', value: ppm && ppm.pickup_postal_code },
-      { label: 'Storage (SIT)', value: sitDisplay }, // val: "No" || "Yes, [x] days"
+      { label: 'Storage (SIT)', value: hasSit }, // val: "No" || "Yes, [x] days"
       { label: 'Destination ZIP', value: ppm && ppm.destination_postal_code },
-      // { label: 'PPM shipment weight' }, // subheading, needs to be editable, but has the same styling as the rest...
-      // { label: 'Estimated weight', value: },
-      // { label: 'Estimated incentive', value: }, // val: [x] lbs
+      { label: 'PPM shipment weight' }, // subheading, needs to be editable, but has the same styling as the rest...
+      { label: 'Estimated weight', value: sitDisplay },
+      { label: 'Estimated incentive', value: this.chooseEstimateText(ppmEstimate) }, // val: [x] lbs
       // { label: '', value: },
     ];
 
