@@ -1,16 +1,15 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { get } from 'lodash';
 import { object, string, shape, bool, number } from 'prop-types';
+import { GridContainer, Grid } from '@trussworks/react-uswds';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import { selectActivePPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
-// import { formatCentsRange, formatCents } from 'shared/formatters';
-import { formatCentsRange } from 'shared/formatters';
+import { formatCentsRange, formatCents } from 'shared/formatters';
 import { formatDateSM } from 'shared/formatters';
 import { hasShortHaulError } from 'shared/incentive';
 import { getRequestStatus } from 'shared/Swagger/selectors';
-
-import ReviewSection from '../../components/Customer/ReviewSection';
 
 import './Review.css';
 
@@ -44,119 +43,100 @@ export class PPMShipmentSummary extends Component {
   }
 
   render() {
-    // const { advance, movePath, ppm, ppmEstimate, estimated_storage_reimbursement } = this.props;
-    const { movePath, ppm, ppmEstimate, estimated_storage_reimbursement } = this.props;
-
+    const { advance, movePath, ppm, ppmEstimate, estimated_storage_reimbursement } = this.props;
     const editDateAndLocationAddress = movePath + '/edit-date-and-location';
-    // const editWeightAddress = movePath + '/edit-weight';
+    const editWeightAddress = movePath + '/edit-weight';
 
     const privateStorageString = get(ppm, 'estimated_storage_reimbursement')
       ? `= ${estimated_storage_reimbursement} estimated reimbursement`
       : '';
-
-    const hasSit = get(ppm, 'has_sit', false) ? `Yes, ${ppm.days_in_storage} days` : 'No';
-
     const sitDisplay = get(ppm, 'has_sit', false)
       ? `${ppm.weight_estimate && ppm.weight_estimate.toLocaleString()} lbs for ${
           ppm.days_in_storage
         } days ${privateStorageString}`
-      : 'No';
-
-    const ppmShipmentData = [
-      { label: 'Expected departure', value: formatDateSM(get(ppm, 'original_move_date')) },
-      { label: 'Starting ZIP', value: ppm && ppm.pickup_postal_code },
-      { label: 'Storage (SIT)', value: hasSit }, // val: "No" || "Yes, [x] days"
-      { label: 'Destination ZIP', value: ppm && ppm.destination_postal_code },
-      { label: 'PPM shipment weight' }, // subheading, needs to be editable, but has the same styling as the rest...
-      { label: 'Estimated weight', value: sitDisplay },
-      { label: 'Estimated incentive', value: this.chooseEstimateText(ppmEstimate) }, // val: [x] lbs
-      // { label: '', value: },
-    ];
+      : 'Not requested';
 
     return (
       <div data-testid="ppm-summary" className="review-content">
-        <ReviewSection fieldData={ppmShipmentData} title="Shipment [x]: PPM" editLink={editDateAndLocationAddress} />
+        <GridContainer>
+          <h3>Shipment - You move your stuff (PPM)</h3>
+          <Grid row>
+            <Grid tablet={{ col: true }}>
+              <div className="review-section">
+                <p className="heading">
+                  Dates & Locations
+                  <span className="edit-section-link">
+                    <Link data-testid="edit-ppm-dates" to={editDateAndLocationAddress} className="usa-link">
+                      Edit
+                    </Link>
+                  </span>
+                </p>
+
+                <table>
+                  <tbody>
+                    <tr>
+                      <td> Scheduled move date: </td>
+                      <td>{formatDateSM(get(ppm, 'original_move_date'))}</td>
+                    </tr>
+                    <tr>
+                      <td> Pickup ZIP: </td>
+                      <td> {ppm && ppm.pickup_postal_code}</td>
+                    </tr>
+                    {ppm.has_additional_postal_code && (
+                      <tr>
+                        <td> Additional pickup: </td>
+                        <td> {ppm.additional_pickup_postal_code}</td>
+                      </tr>
+                    )}
+                    <tr>
+                      <td> Delivery ZIP: </td>
+                      <td> {ppm && ppm.destination_postal_code}</td>
+                    </tr>
+                    <tr>
+                      <td> Storage: </td>
+                      <td data-testid="sit-display">{sitDisplay}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </Grid>
+            <Grid tablet={{ col: true }}>
+              <div className="review-section">
+                <p className="heading">
+                  Pre-move Estimated Weight
+                  <span className="edit-section-link">
+                    <Link data-testid="edit-ppm-weight" to={editWeightAddress} className="usa-link">
+                      Edit
+                    </Link>
+                  </span>
+                </p>
+
+                <table>
+                  <tbody>
+                    <tr>
+                      <td> Estimated weight: </td>
+                      <td> {ppm.weight_estimate && ppm.weight_estimate.toLocaleString()} lbs</td>
+                    </tr>
+                    <tr>
+                      <td> Estimated PPM incentive: </td>
+                      {this.chooseEstimateText(ppmEstimate)}
+                    </tr>
+                    {ppm.has_requested_advance && (
+                      <tr>
+                        <td> Advance: </td>
+                        <td> ${formatCents(advance.requested_amount)}</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </Grid>
+          </Grid>
+        </GridContainer>
       </div>
     );
   }
 }
-
-/*
-  <GridContainer>
-    <h3>Shipment - You move your stuff (PPM)</h3>
-    <Grid row>
-      <Grid tablet={{ col: true }}>
-        <div className="review-section">
-          <p className="heading">
-            Dates & Locations
-            <span className="edit-section-link">
-              <Link data-testid="edit-ppm-dates" to={editDateAndLocationAddress} className="usa-link">
-                Edit
-              </Link>
-            </span>
-          </p>
-          <table>
-            <tbody>
-              <tr>
-                <td> Scheduled move date: </td>
-                <td>{formatDateSM(get(ppm, 'original_move_date'))}</td>
-              </tr>
-              <tr>
-                <td> Pickup ZIP: </td>
-                <td> {ppm && ppm.pickup_postal_code}</td>
-              </tr>
-              {ppm.has_additional_postal_code && (
-                <tr>
-                  <td> Additional pickup: </td>
-                  <td> {ppm.additional_pickup_postal_code}</td>
-                </tr>
-              )}
-              <tr>
-                <td> Delivery ZIP: </td>
-                <td> {ppm && ppm.destination_postal_code}</td>
-              </tr>
-              <tr>
-                <td> Storage: </td>
-                <td data-testid="sit-display">{sitDisplay}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </Grid>
-      <Grid tablet={{ col: true }}>
-        <div className="review-section">
-          <p className="heading">
-            Pre-move Estimated Weight
-            <span className="edit-section-link">
-              <Link data-testid="edit-ppm-weight" to={editWeightAddress} className="usa-link">
-                Edit
-              </Link>
-            </span>
-          </p>
-
-          <table>
-            <tbody>
-              <tr>
-                <td> Estimated weight: </td>
-                <td> {ppm.weight_estimate && ppm.weight_estimate.toLocaleString()} lbs</td>
-              </tr>
-              <tr>
-                <td> Estimated PPM incentive: </td>
-                {this.chooseEstimateText(ppmEstimate)}
-              </tr>
-              {ppm.has_requested_advance && (
-                <tr>
-                  <td> Advance: </td>
-                  <td> ${formatCents(advance.requested_amount)}</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </Grid>
-    </Grid>
-  </GridContainer>
-*/
 
 PPMShipmentSummary.propTypes = {
   ppm: object.isRequired,
