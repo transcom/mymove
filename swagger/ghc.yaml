@@ -773,7 +773,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/MTOServiceItem'
+            $ref: '#/definitions/PatchMTOServiceItemStatusPayload'
         - in: header
           name: If-Match
           type: string
@@ -805,6 +805,10 @@ paths:
           description: Precondition Failed
           schema:
             $ref: '#/responses/PreconditionFailed'
+        '422':
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
         '500':
           description: A server error occurred
           schema:
@@ -2006,6 +2010,15 @@ definitions:
         type: string
         example: MTO Shipment not good enough
         x-nullable: true
+  PatchMTOServiceItemStatusPayload:
+    properties:
+      status:
+        description: Describes all statuses for a MTOServiceItem
+        type: string
+        enum:
+          - SUBMITTED
+          - APPROVED
+          - REJECTED
   MTOServiceItemStatus:
     description: Describes all statuses for a MTOServiceItem
     type: string

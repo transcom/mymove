@@ -71,15 +71,17 @@
   }
 
   .statusOption + .statusOption {
-    margin-top: 14px;
+    @include u-margin-top(1);
   }
 
   .clearStatus {
     padding: 0;
+    @include u-padding-top(2);
+    @include u-text('light');
   }
 
   .statusOption + .clearStatus {
-    @include u-margin-top(2);
+    margin-top: 3px;
   }
 
   .completeContainer {

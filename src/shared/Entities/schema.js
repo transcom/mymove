@@ -62,11 +62,20 @@ export const indexServiceMemberBackupContacts = new schema.Array(backupContact);
 
 export const serviceMemberBackupContact = backupContact;
 
+// DutyStations and TransportationOffices
+export const transportationOffice = new schema.Entity('transportationOffices');
+export const transportationOffices = new schema.Array(transportationOffice);
+export const dutyStation = new schema.Entity('dutyStations', {
+  transportation_office: transportationOffice,
+});
+export const dutyStations = new schema.Array(dutyStation);
+
 // Service Member
 export const serviceMember = new schema.Entity('serviceMembers', {
   backup_contacts: backupContacts,
   user,
   orders: ordersArray,
+  current_station: dutyStation,
 });
 
 // Loggedin User
