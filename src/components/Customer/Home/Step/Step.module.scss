@@ -45,7 +45,7 @@
   background-color: white;
 }
 
-.action-btn.btn--disabled {
+.action-btn:disabled {
   pointer-events: auto;
   &:disabled:hover {
     cursor: not-allowed;
@@ -72,7 +72,8 @@
     background-color: transparent;
   }
 }
-.edit-button.btn--disabled {
+
+.edit-btn:disabled {
   pointer-events: auto;
   &:disabled:hover {
     cursor: not-allowed;

@@ -29,12 +29,8 @@ const Step = ({
   secondaryBtn,
   step,
 }) => {
-  const editBtnClassName = classnames(`${styles['edit-btn']}`, {
-    [styles['btn--disabled']]: editBtnDisabled,
-  });
   const actionBtnClassName = classnames(styles['action-btn'], {
     [styles['usa-button--secondary']]: secondaryBtn,
-    [styles['btn--disabled']]: actionBtnDisabled,
   });
 
   return (
@@ -43,7 +39,7 @@ const Step = ({
         {complete ? <AcceptIcon aria-hidden className={styles.accept} /> : <NumberCircle num={step} />}
         <strong>{complete ? completedHeaderText : headerText}</strong>
         {editBtnLabel && (
-          <Button disabled={editBtnDisabled} className={editBtnClassName} onClick={onEditBtnClick} type="button">
+          <Button className={styles['edit-btn']} disabled={editBtnDisabled} onClick={onEditBtnClick} type="button">
             {editBtnLabel}
           </Button>
         )}
