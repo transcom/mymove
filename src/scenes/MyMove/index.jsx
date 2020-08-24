@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { get } from 'lodash';
 import { LastLocationProvider } from 'react-router-last-location';
 
@@ -7,7 +8,6 @@ import { Route, Switch } from 'react-router-dom';
 import { ConnectedRouter, push, goBack } from 'connected-react-router';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import PropTypes from 'prop-types';
 
 import 'uswds';
 import '../../../node_modules/uswds/dist/css/uswds.css';
@@ -38,7 +38,6 @@ import PrivacyPolicyStatement from 'shared/Statements/PrivacyAndPolicyStatement'
 import AccessibilityStatement from 'shared/Statements/AccessibilityStatement';
 import { lastMoveIsCanceled, selectedConusStatus, selectedMoveType } from 'scenes/Moves/ducks';
 import { getWorkflowRoutes } from './getWorkflowRoutes';
-import { getCurrentUserInfo } from 'shared/Data/users';
 import { loadInternalSchema } from 'shared/Swagger/ducks';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { detectIE11, no_op } from 'shared/utils';
@@ -51,12 +50,17 @@ import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 import { CONUS_STATUS } from 'shared/constants';
 import EditShipment from '../../components/Customer/EditShipment';
 import Home from '../../pages/MyMove/Home';
+
+import { loadUser as loadUserAction } from 'store/auth/actions';
+
 export class AppWrapper extends Component {
   state = { hasError: false };
 
   componentDidMount() {
-    this.props.loadInternalSchema();
-    this.props.getCurrentUserInfo();
+    const { loadUser, loadInternalSchema } = this.props;
+
+    loadInternalSchema();
+    loadUser();
   }
 
   componentDidCatch(error, info) {
@@ -160,16 +164,29 @@ export class AppWrapper extends Component {
     );
   }
 }
-AppWrapper.defaultProps = {
-  loadInternalSchema: no_op,
-  getCurrentUserInfo: no_op,
-  conusStatus: CONUS_STATUS.CONUS,
+
+AppWrapper.propTypes = {
+  loadInternalSchema: PropTypes.func,
+  loadUser: PropTypes.func,
+  conusStatus: PropTypes.string.isRequired,
   context: PropTypes.shape({
     flags: PropTypes.shape({
-      hhgFlow: false,
-      ghcFlow: false,
+      hhgFlow: PropTypes.bool,
+      ghcFlow: PropTypes.bool,
     }),
   }).isRequired,
+};
+
+AppWrapper.defaultProps = {
+  loadInternalSchema: no_op,
+  loadUser: no_op,
+  conusStatus: CONUS_STATUS.CONUS,
+  context: {
+    flags: {
+      hhgFlow: false,
+      ghcFlow: false,
+    },
+  },
 };
 
 const mapStateToProps = (state) => {
@@ -187,6 +204,14 @@ const mapStateToProps = (state) => {
   };
 };
 const mapDispatchToProps = (dispatch) =>
-  bindActionCreators({ goBack, push, loadInternalSchema, getCurrentUserInfo }, dispatch);
+  bindActionCreators(
+    {
+      goBack,
+      push,
+      loadInternalSchema,
+      loadUser: loadUserAction,
+    },
+    dispatch,
+  );
 
 export default withContext(connect(mapStateToProps, mapDispatchToProps)(AppWrapper));
