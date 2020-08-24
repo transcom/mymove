@@ -1,16 +1,13 @@
 # Deprecate use of lodash over time
 
-We are currently using the utility library [lodash](https://lodash.com/)
-throughout the frontend codebase. However, many of the methods
-provided by lodash have been superseded by native ES6+ methods. Even the latest
-ECMAScript functionality that is not natively supported by our target browsers (such as
-IE11) will be transpiled and/or polyfilled with our existing Webpack & Babel
-configuration. Continuing to use lodash methods as-is has two negative effects:
+We are currently using the utility library [lodash](https://lodash.com/) throughout the frontend codebase. However, many of the methods provided by lodash have been superseded by native ES6+ methods. Even the latest ECMAScript functionality that is not natively supported by our target browsers (such as IE11) will be transpiled and/or polyfilled with our existing Webpack & Babel configuration. Continuing to use lodash methods as-is has two negative effects:
 
 - Inconsistent usage as some contributors will opt to use native JS functions instead of the lodash alternative
 - An additional 3rd party dependency that we need to keep updated, and adds to our bundle size
 
 I am proposing that we fully deprecate usage of lodash methods that have native JavaScript equivalents. We can use the [You Don’t Need Lodash/Underscore](https://github.com/you-dont-need/You-Dont-Need-Lodash-Underscore) ESLint plugin to begin enforcing consistent usage on a per-method basis. Additionally, we can use the [lodash-webpack-plugin](https://www.npmjs.com/package/lodash-webpack-plugin) and [babel-plugin-lodash](https://www.npmjs.com/package/babel-plugin-lodash) to cherry-pick lodash methods with no native equivalent that we may want to continue using (such as `uniqueId`), and result in a smaller bundle.
+
+Additionally, this strategy leaves us open to completely removing lodash as a dependency in the future if we so choose. I'm focusing on bundle size over individual method benchmarks, because it is [well-documented](https://medium.com/dev-channel/the-cost-of-javascript-84009f51e99e) that reducing parse & compile time is the most effective way to improve performance on mobile devices.
 
 _Note that some of the native equivalents are not exactly the same as the lodash versions. The links below point to documentation for any differences._
 
