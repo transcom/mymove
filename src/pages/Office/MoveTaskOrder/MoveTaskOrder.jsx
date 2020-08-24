@@ -69,7 +69,7 @@ export const MoveTaskOrder = ({ match }) => {
           [`${variables.mtoServiceItemID}`]: newMTOServiceItem,
         },
       });
-      window.location.reload(false);
+      queryCache.invalidateQueries(MTO_SERVICE_ITEMS);
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
