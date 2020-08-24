@@ -25,16 +25,12 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import scrollToTop from 'shared/scrollToTop';
 import { getPPM } from 'scenes/Moves/Ppm/ducks';
 import { loadPPMs } from 'shared/Entities/modules/ppms';
-import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { selectActiveOrLatestOrders, selectUploadsForActiveOrders } from 'shared/Entities/modules/orders';
 import { loadMTOShipments, selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 
 export class Landing extends Component {
   componentDidMount() {
-    // Load user into entities
-    const { showLoggedInUser } = this.props;
-    showLoggedInUser();
     scrollToTop();
   }
   componentDidUpdate(prevProps) {
@@ -221,10 +217,7 @@ const mapStateToProps = (state) => {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    { push, createServiceMember, updateMove, loadPPMs, loadMTOShipments, showLoggedInUser: showLoggedInUserAction },
-    dispatch,
-  );
+  return bindActionCreators({ push, createServiceMember, updateMove, loadPPMs, loadMTOShipments }, dispatch);
 }
 
 export default withContext(withLastLocation(connect(mapStateToProps, mapDispatchToProps)(Landing)));

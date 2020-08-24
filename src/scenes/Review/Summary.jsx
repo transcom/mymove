@@ -22,7 +22,6 @@ import HHGShipmentSummary from 'pages/MyMove/HHGShipmentSummary';
 
 import './Review.css';
 import { selectActivePPMForMove } from '../../shared/Entities/modules/ppms';
-import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
 
 export class Summary extends Component {
@@ -134,7 +133,6 @@ Summary.propTypes = {
   lastMoveIsCanceled: PropTypes.bool,
   error: PropTypes.object,
   selectedMoveType: PropTypes.string.isRequired,
-  showLoggedInUser: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
@@ -164,12 +162,10 @@ function mapDispatchToProps(dispatch, ownProps) {
     onDidMount: function () {
       const moveID = ownProps.match.params.moveId;
       dispatch(loadMove(moveID, 'Summary.getMove'));
-      dispatch(showLoggedInUserAction());
     },
     onCheckEntitlement: (moveId) => {
       dispatch(checkEntitlement(moveId));
     },
-    showLoggedInUser: showLoggedInUserAction,
   };
 }
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Summary));

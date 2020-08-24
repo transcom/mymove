@@ -6,6 +6,7 @@ import { GetIsLoggedIn, GetLoggedInUser } from 'shared/User/api';
 import { ordersArray } from 'shared/Entities/schema';
 import { addEntities } from 'shared/Entities/actions';
 import { getLoggedInActions } from 'shared/Data/users';
+import { showLoggedInUser } from 'shared/Entities/modules/user';
 
 /**
  * This saga mirrors the getCurrentUserInfo thunk (shared/Data/users.js)
@@ -19,7 +20,12 @@ export function* fetchUser() {
     const isLoggedIn = yield call(GetIsLoggedIn);
     if (isLoggedIn) {
       try {
+        // Fire API call to put user info in entities
+        yield put(showLoggedInUser());
+
+        // Legacy call to put user in user reducer
         const user = yield call(GetLoggedInUser);
+
         if (user.service_member) {
           const data = normalize(user.service_member.orders, ordersArray);
           const filtered = { ...data.entities.addresses };

@@ -17,7 +17,6 @@ import {
 } from 'shared/Entities/modules/mtoShipments';
 import { selectActiveOrLatestOrdersFromEntities } from 'shared/Entities/modules/orders';
 import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
-import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { WizardPage } from 'shared/WizardPage';
 import { MTOAgentType, SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatSwaggerDate } from 'shared/formatters';
@@ -71,8 +70,7 @@ class HHGDetailsForm extends Component {
   }
 
   componentDidMount() {
-    const { showLoggedInUser, mtoShipment } = this.props;
-    showLoggedInUser();
+    const { mtoShipment } = this.props;
     if (mtoShipment.id) {
       this.setInitialState(mtoShipment);
     }
@@ -418,7 +416,6 @@ HHGDetailsForm.propTypes = {
     postal_code: string,
   }),
   createMTOShipment: func.isRequired,
-  showLoggedInUser: func.isRequired,
   push: func.isRequired,
   mtoShipment: shape({
     agents: arrayOf(
@@ -481,7 +478,6 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = {
   createMTOShipment: createMTOShipmentAction,
-  showLoggedInUser: showLoggedInUserAction,
 };
 
 export { HHGDetailsForm as HHGDetailsFormComponent };

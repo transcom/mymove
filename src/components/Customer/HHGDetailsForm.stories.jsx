@@ -12,7 +12,6 @@ const defaultProps = {
     state: 'GA',
     postal_code: '31905',
   },
-  showLoggedInUser: () => {},
   currentResidence: {
     city: 'Fort Benning',
     state: 'GA',
