@@ -50,7 +50,7 @@ import { withContext } from 'shared/AppContext';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 import { CONUS_STATUS } from 'shared/constants';
 import EditShipment from '../../components/Customer/EditShipment';
-import Home from '../../components/Customer/Home/';
+import Home from '../../pages/MyMove/Home';
 export class AppWrapper extends Component {
   state = { hasError: false };
 

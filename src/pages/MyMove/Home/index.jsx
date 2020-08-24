@@ -2,13 +2,13 @@
 import React from 'react';
 import { Alert } from '@trussworks/react-uswds';
 
-import Helper from './Helper/index';
-import Step from './Step/index';
-import DocsUploaded from './DocsUploaded/index';
-import ShipmentList from './ShipmentList/index';
-import Contact from './Contact/index';
 import styles from './Home.module.scss';
 
+import Helper from 'components/Customer/Home/Helper';
+import Step from 'components/Customer/Home/Step';
+import DocsUploaded from 'components/Customer/Home/DocsUploaded';
+import ShipmentList from 'components/Customer/Home/ShipmentList';
+import Contact from 'components/Customer/Home/Contact';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const shipments = [
