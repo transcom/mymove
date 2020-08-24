@@ -240,7 +240,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 	params := mtoserviceitemop.UpdateMTOServiceItemStatusParams{
 		HTTPRequest:      req,
 		IfMatch:          etag.GenerateEtag(time.Now()),
-		Body:             &ghcmessages.MTOServiceItem{Status: "APPROVED"},
+		Body:             &ghcmessages.PatchMTOServiceItemStatusPayload{Status: "APPROVED"},
 		MoveTaskOrderID:  moveTaskOrderID.String(),
 		MtoServiceItemID: serviceItemID.String(),
 	}
@@ -369,7 +369,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		params := mtoserviceitemop.UpdateMTOServiceItemStatusParams{
 			HTTPRequest:      req,
 			IfMatch:          etag.GenerateEtag(mtoServiceItem.UpdatedAt),
-			Body:             &ghcmessages.MTOServiceItem{Status: "APPROVED"},
+			Body:             &ghcmessages.PatchMTOServiceItemStatusPayload{Status: "APPROVED"},
 			MoveTaskOrderID:  mto.ID.String(),
 			MtoServiceItemID: mtoServiceItem.ID.String(),
 		}

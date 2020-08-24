@@ -773,7 +773,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/MTOServiceItem'
+            $ref: '#/definitions/PatchMTOServiceItemStatusPayload'
         - in: header
           name: If-Match
           type: string
@@ -2002,6 +2002,15 @@ definitions:
         type: string
         example: MTO Shipment not good enough
         x-nullable: true
+  PatchMTOServiceItemStatusPayload:
+    properties:
+      status:
+        description: Describes all statuses for a MTOServiceItem
+        type: string
+        enum:
+          - SUBMITTED
+          - APPROVED
+          - REJECTED
   MTOServiceItemStatus:
     description: Describes all statuses for a MTOServiceItem
     type: string

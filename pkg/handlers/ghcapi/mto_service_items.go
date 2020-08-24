@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/transcom/mymove/pkg/etag"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
@@ -34,6 +36,7 @@ func payloadForMTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOSer
 		Reason:           handlers.FmtStringPtr(s.Reason),
 		PickupPostalCode: handlers.FmtStringPtr(s.PickupPostalCode),
 		Status:           ghcmessages.MTOServiceItemStatus(s.Status),
+		ETag:             etag.GenerateEtag(s.UpdatedAt),
 	}
 }
 
@@ -171,8 +174,8 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 		logger.Error("Auditing service error for service item update.", zap.Error(err))
 		return mtoserviceitemop.NewUpdateMTOServiceItemStatusInternalServerError()
 	}
-
-	updatedMTOServiceItem, err := h.MTOServiceItemUpdater.UpdateMTOServiceItemStatus(mtoServiceItemID, models.MTOServiceItemStatus(params.Body.Status), params.Body.Reason, params.IfMatch)
+	// TODO: We don't yet have a rejectionReason for mtoServiceItems. When we do a rejection pop up dialog story we will need to add this in, so for now passing in nil.
+	updatedMTOServiceItem, err := h.MTOServiceItemUpdater.UpdateMTOServiceItemStatus(mtoServiceItemID, models.MTOServiceItemStatus(params.Body.Status), nil, params.IfMatch)
 
 	if err != nil {
 		switch err.(type) {

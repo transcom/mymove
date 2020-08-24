@@ -866,7 +866,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MTOServiceItem"
+              "$ref": "#/definitions/PatchMTOServiceItemStatusPayload"
             }
           },
           {
@@ -2526,6 +2526,19 @@ func init() {
         "$ref": "#/definitions/MoveTaskOrder"
       }
     },
+    "PatchMTOServiceItemStatusPayload": {
+      "properties": {
+        "status": {
+          "description": "Describes all statuses for a MTOServiceItem",
+          "type": "string",
+          "enum": [
+            "SUBMITTED",
+            "APPROVED",
+            "REJECTED"
+          ]
+        }
+      }
+    },
     "PatchMTOShipmentStatusPayload": {
       "properties": {
         "rejectionReason": {
@@ -4063,7 +4076,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MTOServiceItem"
+              "$ref": "#/definitions/PatchMTOServiceItemStatusPayload"
             }
           },
           {
@@ -5853,6 +5866,19 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MoveTaskOrder"
+      }
+    },
+    "PatchMTOServiceItemStatusPayload": {
+      "properties": {
+        "status": {
+          "description": "Describes all statuses for a MTOServiceItem",
+          "type": "string",
+          "enum": [
+            "SUBMITTED",
+            "APPROVED",
+            "REJECTED"
+          ]
+        }
       }
     },
     "PatchMTOShipmentStatusPayload": {

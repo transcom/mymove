@@ -4,6 +4,7 @@ import { Button } from '@trussworks/react-uswds';
 
 import { ReactComponent as Check } from '../../shared/icon/check.svg';
 import { ReactComponent as Ex } from '../../shared/icon/ex.svg';
+import { SERVICE_ITEM_STATUS } from '../../shared/constants';
 
 import styles from './index.module.scss';
 
@@ -23,7 +24,7 @@ function generateDetailText(details, id) {
   });
 }
 
-const ServiceItemTableHasImg = ({ serviceItems }) => {
+const ServiceItemTableHasImg = ({ serviceItems, handleUpdateMTOServiceItemStatus }) => {
   const tableRows = serviceItems.map(({ id, submittedAt, serviceItem, details }, i) => {
     let detailSection;
     if (details.imgURL) {
@@ -51,13 +52,20 @@ const ServiceItemTableHasImg = ({ serviceItems }) => {
         <td className={styles.detail}>{detailSection}</td>
         <td>
           <div className={styles.statusAction}>
-            <Button className="usa-button--icon usa-button--small">
+            <Button
+              className="usa-button--icon usa-button--small"
+              onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.APPROVED)}
+            >
               <span className="icon">
                 <Check />
               </span>
               <span>Accept</span>
             </Button>
-            <Button secondary className="usa-button--small usa-button--icon">
+            <Button
+              secondary
+              className="usa-button--small usa-button--icon"
+              onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.REJECTED)}
+            >
               <span className="icon">
                 <Ex />
               </span>
@@ -86,6 +94,7 @@ const ServiceItemTableHasImg = ({ serviceItems }) => {
 };
 
 ServiceItemTableHasImg.propTypes = {
+  handleUpdateMTOServiceItemStatus: PropTypes.func.isRequired,
   serviceItems: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string,
