@@ -23,6 +23,28 @@ export default function HHGShipmentSummary(props) {
   const receivingAgent = Object.values(agents).find((agent) => agent.agentType === MTOAgentType.RECEIVING);
   const remarks = get(mtoShipment, 'customerRemarks', '');
 
+  // <ReviewSection fieldData={hhgShipmentData} title="Shipment [x]: HHG" editLink='' />
+
+  /*
+const hhgShipmentData = [
+  { label: 'Expected departure', value: },
+  { label: 'Starting ZIP', value: },
+  { label: 'Storage (SIT)', value: }, // val: "No" || "Yes, [x] days"
+  { label: 'Destination ZIP', value: },
+  { label: 'HHG shipment weight' }, // subheading, needs to be editable, but has the same styling as the rest...
+  { label: 'Estimated weight', value: },
+  { label: 'Estimated incentive', value: }, // val: [x] lbs
+  { label: 'Requested pickup date', value: },
+  { label: 'Pickup location', value: },
+  { label: 'Releasing agent', value: },
+  { label: 'Requested delivery date', value: },
+  { label: 'Destination', value: },
+  { label: 'Receiving agent', value: },
+  { label: 'Remarks', value: },
+  { label: '', value: },
+];
+*/
+
   return (
     <div data-testid="hhg-summary" className="review-content">
       <GridContainer>

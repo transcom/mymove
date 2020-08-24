@@ -58,7 +58,27 @@ export class PPMShipmentSummary extends Component {
         } days ${privateStorageString}`
       : 'Not requested';
 
-    // <ReviewSection fieldData={serviceMemberData} title="Profile" editLink={editProfilePath} />
+    // <ReviewSection fieldData={ppmShipmentData} title="Shipment [x]: PPM" editLink='' />
+
+    /*
+    const ppmShipmentData = [
+      { label: 'Expected departure', value: },
+      { label: 'Starting ZIP', value: },
+      { label: 'Storage (SIT)', value: }, // val: "No" || "Yes, [x] days"
+      { label: 'Destination ZIP', value: },
+      { label: 'PPM shipment weight' }, // subheading, needs to be editable, but has the same styling as the rest...
+      { label: 'Estimated weight', value: },
+      { label: 'Estimated incentive', value: }, // val: [x] lbs
+      { label: 'Requested pickup date', value: },
+      { label: 'Pickup location', value: },
+      { label: 'Releasing agent', value: },
+      { label: 'Requested delivery date', value: },
+      { label: 'Destination', value: },
+      { label: 'Receiving agent', value: },
+      { label: 'Remarks', value: },
+      { label: '', value: },
+    ];
+    */
 
     return (
       <div data-testid="ppm-summary" className="review-content">
