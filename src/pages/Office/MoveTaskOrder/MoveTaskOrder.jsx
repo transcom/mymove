@@ -118,7 +118,11 @@ export const MoveTaskOrder = ({ match }) => {
             (item) => item.status === SERVICE_ITEM_STATUS.SUBMITTED,
           );
           return (
-            <ShipmentContainer shipmentType={mtoShipment.shipmentType} className={styles.shipmentCard}>
+            <ShipmentContainer
+              key={mtoShipment.id}
+              shipmentType={mtoShipment.shipmentType}
+              className={styles.shipmentCard}
+            >
               <ShipmentHeading
                 key={mtoShipment.id}
                 shipmentInfo={{
