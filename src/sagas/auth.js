@@ -3,15 +3,13 @@ import { normalize } from 'normalizr';
 
 import { LOAD_USER } from 'store/auth/actions';
 import { GetIsLoggedIn, GetLoggedInUser } from 'shared/User/api';
-import { ordersArray } from 'shared/Entities/schema';
+import { loggedInUser } from 'shared/Entities/schema';
 import { addEntities } from 'shared/Entities/actions';
 import { getLoggedInActions } from 'shared/Data/users';
-import { showLoggedInUser } from 'shared/Entities/modules/user';
 
 /**
  * This saga mirrors the getCurrentUserInfo thunk (shared/Data/users.js)
- * and is triggered by the 'LOAD_USER' action (currently only called by
- * the OfficeApp)
+ * and is triggered by the 'LOAD_USER' action
  */
 export function* fetchUser() {
   yield put(getLoggedInActions.start());
@@ -20,19 +18,13 @@ export function* fetchUser() {
     const isLoggedIn = yield call(GetIsLoggedIn);
     if (isLoggedIn) {
       try {
-        // Fire API call to put user info in entities
-        yield put(showLoggedInUser());
+        const user = yield call(GetLoggedInUser); // make user API call
 
-        // Legacy call to put user in user reducer
-        const user = yield call(GetLoggedInUser);
+        const userEntities = normalize(user, loggedInUser);
 
-        if (user.service_member) {
-          const data = normalize(user.service_member.orders, ordersArray);
-          const filtered = { ...data.entities.addresses };
-          yield put(addEntities(filtered));
-        }
-
-        yield put(getLoggedInActions.success(user));
+        yield put(addEntities(userEntities.entities)); // populate entities
+        // TODO - delete when deprecating the user reducer
+        yield put(getLoggedInActions.success(user)); // populate user (legacy)
       } catch (e) {
         yield put(getLoggedInActions.error(e));
       }
