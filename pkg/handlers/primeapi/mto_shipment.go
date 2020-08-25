@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
@@ -19,7 +21,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/services"
-	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 )
 
 // CreateMTOShipmentHandler is the handler to create MTO shipments
@@ -216,7 +217,6 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 			return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(errPayload)
 		}
 
-		// TODO: run a function to run validations moved over from service to compare against db mtoShipment
 		var dbShipment models.MTOShipment
 		err := h.DB().Find(&dbShipment, mtoShipment.ID)
 		if err != nil {
@@ -224,8 +224,8 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 		}
 
 		mtoShipment, validationErrs := h.checkPrimeValidationsOnModel(mtoShipment, &dbShipment)
-		if validationErrs != nil {
-			logger.Error("primeapi.UpdateMTOShipmentHandler error - extra fields in request", zap.Error(fieldErrs))
+		if validationErrs != nil && validationErrs.HasAny() {
+			logger.Error("primeapi.UpdateMTOShipmentHandler error - extra fields in request", zap.Error(validationErrs))
 
 			errPayload := payloads.ValidationError("Fields that cannot be updated found in input",
 				h.GetTraceID(), validationErrs)
