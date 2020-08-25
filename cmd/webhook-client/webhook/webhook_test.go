@@ -46,9 +46,9 @@ func (suite *WebhookClientTestingSuite) Test_SendOneNotification() {
 
 	// Create the engine replacing the client with the mock client
 	engine := Engine{
-		Connection: suite.DB(),
-		Logger:     suite.logger,
-		Client:     &mockClient,
+		DB:     suite.DB(),
+		Logger: suite.logger,
+		Client: &mockClient,
 	}
 	// Create a notification
 	notification := testdatagen.MakeWebhookNotification(suite.DB(), testdatagen.Assertions{
@@ -370,9 +370,9 @@ func setupEngineRun(suite *WebhookClientTestingSuite) (*Engine, []models.Webhook
 
 	// Create the engine replacing the client with the mock client
 	engine := Engine{
-		Connection: suite.DB(),
-		Logger:     suite.logger,
-		Client:     &mockClient,
+		DB:     suite.DB(),
+		Logger: suite.logger,
+		Client: &mockClient,
 	}
 	// Create 3 notifications
 	// Pending notification for Payment.Update

@@ -26,13 +26,14 @@ type webhookMessage struct {
 
 // Engine encapsulates the services used by the webhook notification engine
 type Engine struct {
-	Connection      *pop.Connection
+	DB              *pop.Connection
 	Logger          utils.Logger
 	Client          utils.WebhookClientPoster
 	Cmd             *cobra.Command
 	PeriodInSeconds int
 }
 
+// processNotifications reads all the notifications and all the subscriptions and processes them one by one
 func (eng *Engine) processNotifications(notifications []models.WebhookNotification, subscriptions []models.WebhookSubscription) {
 	for _, notif := range notifications {
 
@@ -51,7 +52,7 @@ func (eng *Engine) processNotifications(notifications []models.WebhookNotificati
 			}
 		}
 		if foundSub == false {
-			// MYTODO: Update notification status to skipped, once that's available. Currently updating to pending.
+			//Need to update notification status to skipped, once that's available. Currently updating to pending. [MB-3875]
 			eng.Logger.Debug("No subscription found for notification event.", zap.String("eventKey", notif.EventKey))
 			notif.Status = models.WebhookNotificationPending
 			err := eng.updateNotification(&notif)
@@ -63,9 +64,10 @@ func (eng *Engine) processNotifications(notifications []models.WebhookNotificati
 	}
 }
 
+// updateNotification is a helper function to write the notification to the db.
 func (eng *Engine) updateNotification(notif *models.WebhookNotification) error {
 	// Update notification (status is updated by sendOneNotification)
-	verrs, err := eng.Connection.ValidateAndUpdate(notif)
+	verrs, err := eng.DB.ValidateAndUpdate(notif)
 	if verrs != nil && verrs.HasAny() {
 		err = errors.New(verrs.Error())
 		eng.Logger.Error(err.Error())
@@ -135,13 +137,13 @@ func (eng *Engine) run() error {
 	logger := eng.Logger
 	// Read all notifications
 	notifications := []models.WebhookNotification{}
-	err := eng.Connection.Order("created_at asc").Where("status = ?", models.WebhookNotificationPending).All(&notifications)
+	err := eng.DB.Order("created_at asc").Where("status = ?", models.WebhookNotificationPending).All(&notifications)
 
 	if err != nil {
 		logger.Error("Error:", zap.Error(err))
 		return err
 	}
-	logger.Debug("Success!", zap.Int("Num notifications found", len(notifications)))
+	logger.Debug("Notification Check:", zap.Int("Num notifications found", len(notifications)))
 
 	// If none, return
 	if len(notifications) == 0 {
@@ -150,13 +152,13 @@ func (eng *Engine) run() error {
 
 	// If there are notifications, get subscriptions
 	subscriptions := []models.WebhookSubscription{}
-	err = eng.Connection.Where("status = ?", models.WebhookSubscriptionStatusActive).All(&subscriptions)
+	err = eng.DB.Where("status = ?", models.WebhookSubscriptionStatusActive).All(&subscriptions)
 
 	if err != nil {
 		logger.Error("Error:", zap.Error(err))
 		return err
 	}
-	logger.Debug("Success!", zap.Int("Num subscriptions found", len(subscriptions)))
+	logger.Debug("Subscription Check!", zap.Int("Num subscriptions found", len(subscriptions)))
 
 	// If none, return
 	if len(notifications) == 0 {
@@ -171,7 +173,7 @@ func (eng *Engine) run() error {
 
 // Start starts the timer for the webhook engine
 // The process will run once every period to send pending notifications
-// The period is defined in the WebhookEngine PeriodInSeconds
+// The period is defined in the Engine.PeriodInSeconds
 func (eng *Engine) Start() error {
 
 	// Set timer tick
@@ -184,6 +186,5 @@ func (eng *Engine) Start() error {
 		eng.run()
 	}
 
-	// todo when and how should we kick out of this function?
 	return nil
 }
