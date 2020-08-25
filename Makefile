@@ -839,7 +839,8 @@ tasks_post_file_to_gex: tasks_build_linux_docker ## Run post-file-to-gex from in
 #
 
 .PHONY: run_prod_migrations
-run_prod_migrations: run_com_prod_migrations run_gov_prod_migrations
+run_prod_migrations: run_com_prod_migrations
+	# run_gov_prod_migrations
 
 .PHONY: run_com_prod_migrations
 run_com_prod_migrations: bin/milmove db_deployed_migrations_reset ## Run Commercial Prod migrations against Deployed Migrations DB
@@ -862,7 +863,8 @@ run_gov_prod_migrations: bin/milmove db_deployed_migrations_reset ## Run GovClou
  	bin/milmove migrate
 
 .PHONY: run_staging_migrations
-run_staging_migrations: run_com_staging_migrations run_gov_staging_migrations
+run_staging_migrations: run_com_staging_migrations i
+  # run_gov_staging_migrations
 
 .PHONY: run_com_staging_migrations
 run_com_staging_migrations: bin/milmove db_deployed_migrations_reset ## Run Commercial Staging migrations against Deployed Migrations DB
@@ -885,7 +887,8 @@ run_gov_staging_migrations: bin/milmove db_deployed_migrations_reset ## Run GovC
 	bin/milmove migrate
 
 .PHONY: run_experimental_migrations
-run_experimental_migrations: run_com_experimental_migrations run_gov_experimental_migrations
+run_experimental_migrations: run_com_experimental_migrations
+	# run_gov_experimental_migrations
 
 .PHONY: run_com_experimental_migrations
 run_com_experimental_migrations: bin/milmove db_deployed_migrations_reset ## Run Commercial Experimental migrations against Deployed Migrations DB
