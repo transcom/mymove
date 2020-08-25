@@ -299,7 +299,6 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 				}
 				if agent.ID == uuid.Nil {
 					// create a new agent if it doesn't already exist
-					agent.MTOShipmentID = dbShipment.ID
 					verrs, err := f.builder.CreateOne(&agent)
 					if verrs != nil && verrs.HasAny() {
 						return verrs
