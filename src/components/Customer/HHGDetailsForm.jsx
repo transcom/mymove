@@ -289,7 +289,7 @@ class HHGDetailsForm extends Component {
             push={push}
             handleSubmit={() => this.submitMTOShipment(values, dirty)}
           >
-            <Form>
+            <Form className={styles.HHGDetailsForm}>
               <Fieldset legend="Pickup date" className={fieldsetClasses}>
                 <Field
                   as={DatePickerInput}

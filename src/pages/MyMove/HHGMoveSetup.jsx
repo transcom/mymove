@@ -2,12 +2,19 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { arrayOf, string, shape, bool, func } from 'prop-types';
 
+<<<<<<< HEAD
 import {
   loadMTOShipments as loadMTOShipmentsAction,
   selectMTOShipmentForMTO,
 } from 'shared/Entities/modules/mtoShipments';
-import HHGDetailsForm from 'components/Customer/HHGDetailsForm';
+=======
+import styles from './HHGMove.module.scss';
 
+>>>>>>> origin/MB-3484_pre-demo-cleanup
+import HHGDetailsForm from 'components/Customer/HHGDetailsForm';
+import '../../ghc_index.scss';
+
+<<<<<<< HEAD
 class HHGMoveSetup extends Component {
   componentDidMount() {
     const { match, loadMTOShipments } = this.props;
@@ -36,6 +43,14 @@ const mapStateToProps = (state, ownProps) => {
 const mapDispatchToProps = {
   loadMTOShipments: loadMTOShipmentsAction,
 };
+=======
+const HHGMoveSetup = ({ pageList, pageKey, match, push }) => (
+  <div className={styles.HHGMovePage}>
+    <h3>Now let’s arrange details for the professional movers</h3>
+    <HHGDetailsForm pageList={pageList} pageKey={pageKey} match={match} push={push} />
+  </div>
+);
+>>>>>>> origin/MB-3484_pre-demo-cleanup
 
 HHGMoveSetup.propTypes = {
   pageList: arrayOf(string).isRequired,
