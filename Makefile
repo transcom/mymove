@@ -863,7 +863,7 @@ run_gov_prod_migrations: bin/milmove db_deployed_migrations_reset ## Run GovClou
  	bin/milmove migrate
 
 .PHONY: run_staging_migrations
-run_staging_migrations: run_com_staging_migrations i
+run_staging_migrations: run_com_staging_migrations
   # run_gov_staging_migrations
 
 .PHONY: run_com_staging_migrations
