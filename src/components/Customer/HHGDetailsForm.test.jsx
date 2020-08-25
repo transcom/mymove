@@ -13,6 +13,7 @@ const defaultProps = {
   pageList: ['page1', 'anotherPage/:foo/:bar'],
   pageKey: 'page1',
   match: { isExact: false, path: '', url: '', params: { moveId: '' } },
+  showLoggedInUser: () => {},
   createMTOShipment: () => {},
   push: () => {},
   loadMTOShipments,
