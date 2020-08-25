@@ -309,7 +309,7 @@ class HHGDetailsForm extends Component {
                 legend="Pickup location"
                 className={fieldsetClasses}
                 renderExistingAddressCheckbox={() => (
-                  <div className="margin-top-2">
+                  <div className="margin-y-2">
                     <Checkbox
                       data-testid="useCurrentResidence"
                       label="Use my current residence address"
@@ -326,6 +326,7 @@ class HHGDetailsForm extends Component {
                 legend="Releasing agent"
                 className={fieldsetClasses}
                 subtitle="Who can allow the movers to take your stuff if you're not there?"
+                subtitleClassName="margin-y-2"
                 values={values.releasingAgent}
               />
               <Fieldset legend="Delivery date" className={fieldsetClasses}>
@@ -359,11 +360,7 @@ class HHGDetailsForm extends Component {
                   />
                 </div>
                 {hasDeliveryAddress ? (
-                  <AddressFields
-                    name="destinationAddress"
-                    className={fieldsetClasses}
-                    values={values.destinationAddress}
-                  />
+                  <AddressFields name="destinationAddress" values={values.destinationAddress} />
                 ) : (
                   <>
                     <div className={fieldsetClasses}>We can use the postal_code of your new duty station.</div>
