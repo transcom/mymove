@@ -11,6 +11,7 @@ import PropTypes from 'prop-types';
 
 import 'uswds';
 import '../../../node_modules/uswds/dist/css/uswds.css';
+import 'styles/customer.scss';
 
 import Alert from 'shared/Alert';
 import InfectedUpload from 'shared/Uploader/InfectedUpload';

@@ -157,7 +157,7 @@ export class MoveSummaryComponent extends React.Component {
           <div className="sidebar tablet:grid-col-3 grid-col-12">
             <div>
               <button
-                className="usa-button usa-button--outline"
+                className="usa-button usa-button--secondary"
                 onClick={() => editMove(move)}
                 disabled={includes(['DRAFT', 'CANCELED'], move.status)}
                 data-testid="edit-move"
