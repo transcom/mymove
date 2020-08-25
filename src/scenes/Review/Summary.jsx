@@ -21,6 +21,10 @@ import PPMShipmentSummary from './PPMShipmentSummary';
 import HHGShipmentSummary from 'pages/MyMove/HHGShipmentSummary';
 
 import './Review.css';
+import {
+  selectServiceMemberFromLoggedInUser,
+  selectBackupContactsForServiceMember,
+} from 'shared/Entities/modules/serviceMembers';
 import { selectActivePPMForMove } from '../../shared/Entities/modules/ppms';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
@@ -151,13 +155,14 @@ Summary.propTypes = {
 function mapStateToProps(state, ownProps) {
   const moveID = ownProps.match.params.moveId;
   const currentOrders = selectActiveOrLatestOrdersFromEntities(state);
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
 
   return {
     currentPPM: selectActivePPMForMove(state, moveID),
     mtoShipment: selectMTOShipmentForMTO(state, moveID),
-    serviceMember: state.serviceMember.currentServiceMember,
+    serviceMember,
     currentMove: selectMove(state, moveID),
-    currentBackupContacts: state.serviceMember.currentBackupContacts,
+    currentBackupContacts: selectBackupContactsForServiceMember(serviceMember?.id),
     currentOrders: currentOrders,
     uploads: selectUploadsForActiveOrders(state),
     selectedMoveType: selectMoveType(state),

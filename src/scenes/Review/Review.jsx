@@ -5,7 +5,6 @@ import Summary from './Summary';
 import { connect } from 'react-redux';
 import scrollToTop from 'shared/scrollToTop';
 import { hasShortHaulError } from 'shared/incentive';
-
 import './Review.css';
 
 class Review extends Component {
@@ -47,7 +46,6 @@ const mapStateToProps = (state, ownProps) => {
     hasEstimateSuccess: state.ppm.hasEstimateSuccess,
     hasEstimateInProgress: state.ppm.hasEstimateInProgress,
     rateEngineError: state.ppm.rateEngineError || null,
-    originDutyStationZip: state.serviceMember.currentServiceMember.current_station.address.postal_code,
   };
   return {
     ...ownProps,

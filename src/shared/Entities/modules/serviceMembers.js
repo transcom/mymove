@@ -99,6 +99,20 @@ export function selectServiceMemberForMove(state, moveId) {
   return serviceMember;
 }
 
+export function selectCurrentDutyStationForServiceMember(state, serviceMemberId) {
+  const serviceMember = selectServiceMember(state, serviceMemberId);
+  const currentDutyStationId = serviceMember?.current_station;
+  return get(state, `entities.dutyStations.${currentDutyStationId}`);
+}
+
+export function selectBackupContactsForServiceMember(state, serviceMemberId) {
+  const backupContacts = Object.values(state.entities.backupContacts).filter((backupContact) => {
+    return backupContact.service_member_id === serviceMemberId;
+  });
+
+  return backupContacts || [];
+}
+
 export function selectBackupContactForServiceMember(state, serviceMemberId) {
   const backupContact = Object.values(state.entities.backupContacts).find((backupContact) => {
     return backupContact.service_member_id === serviceMemberId;

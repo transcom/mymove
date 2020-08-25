@@ -25,6 +25,7 @@ import scrollToTop from 'shared/scrollToTop';
 import { getPPM } from 'scenes/Moves/Ppm/ducks';
 import {
   selectServiceMemberFromLoggedInUser,
+  selectBackupContactsForServiceMember,
   createServiceMember as createServiceMemberAction,
   isProfileComplete,
 } from 'shared/Entities/modules/serviceMembers';
@@ -46,23 +47,17 @@ export class Landing extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const {
-      serviceMember,
-      createdServiceMemberIsLoading,
-      createdServiceMemberError,
-      loggedInUserSuccess,
-      createServiceMember,
-      isProfileComplete,
-    } = this.props;
+    const { serviceMember, loggedInUserSuccess, createServiceMember, isProfileComplete } = this.props;
 
     if (!prevProps.loggedInUserSuccess && loggedInUserSuccess) {
-      if (!createdServiceMemberIsLoading && isEmpty(serviceMember) && !createdServiceMemberError) {
+      if (isEmpty(serviceMember)) {
         // Once the logged in user loads, if the service member doesn't
         // exist we need to dispatch creating one, once.
         createServiceMember({}).then(() => {
           // re-fetch user data to populate serviceMember
           this.props.showLoggedInUser();
         });
+        // TODO - handle service member create error
       } else if (!isEmpty(serviceMember) && !isProfileComplete) {
         // If the service member exists, but is not complete, redirect to next incomplete page.
         this.resumeMove();
@@ -210,6 +205,7 @@ Landing.defaultProps = {
 const mapStateToProps = (state) => {
   const user = selectCurrentUser(state);
   const move = selectActiveOrLatestMove(state);
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
 
   const props = {
     mtoShipment: selectMTOShipmentForMTO(state, get(move, 'id', '')),
@@ -217,8 +213,8 @@ const mapStateToProps = (state) => {
     selectedMoveType: selectedMoveType(state),
     isLoggedIn: user.isLoggedIn,
     isProfileComplete: isProfileComplete(state),
-    serviceMember: selectServiceMemberFromLoggedInUser(state) || {},
-    backupContacts: state.serviceMember.currentBackupContacts || [],
+    serviceMember,
+    backupContacts: selectBackupContactsForServiceMember(serviceMember?.id),
     orders: selectActiveOrLatestOrders(state),
     uploads: selectUploadsForActiveOrders(state),
     move: move,
@@ -227,10 +223,7 @@ const mapStateToProps = (state) => {
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
     loggedInUserError: selectGetCurrentUserIsError(state),
     loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
-    createdServiceMemberIsLoading: state.serviceMember.isLoading,
-    createdServiceMemberSuccess: state.serviceMember.hasSubmitSuccess,
-    createdServiceMemberError: state.serviceMember.error,
-    createdServiceMember: state.serviceMember.currentServiceMember,
+    createdServiceMemberError: state.serviceMember.error, // TODO
     moveSubmitSuccess: state.signedCertification.moveSubmitSuccess,
     entitlement: loadEntitlementsFromState(state),
     requestPaymentSuccess: state.ppm.requestPaymentSuccess,

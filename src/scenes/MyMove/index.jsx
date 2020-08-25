@@ -191,11 +191,9 @@ AppWrapper.defaultProps = {
 };
 
 const mapStateToProps = (state) => {
-  const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
   const move = selectActiveOrLatestMove(state);
 
   return {
-    currentServiceMemberId: serviceMemberId,
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     latestMove: get(state, 'moves.latestMove'),
     moveId: move.id,

@@ -8,10 +8,13 @@ import { withContext } from 'shared/AppContext';
 
 import { selectedMoveType, selectedConusStatus, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
-
 import ServiceMemberSummary from './ServiceMemberSummary';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
 import scrollToTop from 'shared/scrollToTop';
+import {
+  selectServiceMemberFromLoggedInUser,
+  selectBackupContactsForServiceMember,
+} from 'shared/Entities/modules/serviceMembers';
 
 class ProfileReview extends Component {
   componentDidMount() {
@@ -91,15 +94,17 @@ ProfileReview.propTypes = {
 };
 
 function mapStateToProps(state) {
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+
   return {
-    serviceMember: state.serviceMember.currentServiceMember,
+    serviceMember,
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     selectedMoveType: selectedMoveType(state),
     conusStatus: selectedConusStatus(state),
     schemaRank: getInternalSwaggerDefinition(state, 'ServiceMemberRank'),
     schemaOrdersType: getInternalSwaggerDefinition(state, 'OrdersType'),
     schemaAffiliation: getInternalSwaggerDefinition(state, 'Affiliation'),
-    backupContacts: state.serviceMember.currentBackupContacts,
+    currentBackupContacts: selectBackupContactsForServiceMember(serviceMember?.id),
   };
 }
 function mapDispatchToProps(dispatch) {

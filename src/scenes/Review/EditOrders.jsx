@@ -22,6 +22,8 @@ import {
   selectUploadsForActiveOrders,
 } from 'shared/Entities/modules/orders';
 import { createUpload, deleteUpload, selectDocument } from 'shared/Entities/modules/documents';
+import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
+
 import { moveIsApproved, isPpm } from 'scenes/Moves/ducks';
 import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
@@ -208,13 +210,13 @@ class EditOrders extends Component {
 }
 
 function mapStateToProps(state) {
-  const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const currentOrders = selectActiveOrLatestOrders(state);
   const uploads = selectUploadsForActiveOrders(state);
 
   const props = {
     currentOrders,
-    serviceMemberId: serviceMemberId,
+    serviceMemberId: serviceMember?.id,
     existingUploads: uploads,
     document: selectDocument(state, currentOrders.uploaded_orders),
     error: get(state, 'orders.error'),

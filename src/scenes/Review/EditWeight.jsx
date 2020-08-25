@@ -18,6 +18,10 @@ import {
   getPpmWeightEstimate,
 } from 'shared/Entities/modules/ppms';
 import { fetchLatestOrders, selectActiveOrLatestOrders } from 'shared/Entities/modules/orders';
+import {
+  selectServiceMemberFromLoggedInUser,
+  selectCurrentDutyStationForServiceMember,
+} from 'shared/Entities/modules/serviceMembers';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCentsRange } from 'shared/formatters';
 import { editBegin, editSuccessful, entitlementChangeBegin, checkEntitlement } from './ducks';
@@ -331,17 +335,19 @@ class EditWeight extends Component {
 
 function mapStateToProps(state) {
   const moveID = state.moves.currentMove.id;
-  const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+  const currentDutyStation = selectCurrentDutyStationForServiceMember(state, serviceMember?.id);
+
   return {
-    serviceMemberId: serviceMemberId,
+    serviceMemberId: serviceMember?.id,
     currentPPM: selectActivePPMForMove(state, moveID),
     incentiveEstimateMin: selectPPMEstimateRange(state).range_min,
     incentiveEstimateMax: selectPPMEstimateRange(state).range_max,
-    error: get(state, 'serviceMember.error'),
-    hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
+    error: get(state, 'serviceMember.error'), // TODO
+    hasSubmitError: get(state, 'serviceMember.hasSubmitError'), // TODO
     entitlement: loadEntitlementsFromState(state),
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
-    originDutyStationZip: state.serviceMember.currentServiceMember.current_station.address.postal_code,
+    originDutyStationZip: currentDutyStation?.address?.postal_code,
     orders: selectActiveOrLatestOrders(state),
   };
 }

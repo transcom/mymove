@@ -20,6 +20,7 @@ import {
   getPPMSitEstimate,
   selectPPMSitEstimate,
 } from 'shared/Entities/modules/ppms';
+import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
 import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
 import { formatCents } from 'shared/formatters';
@@ -230,8 +231,11 @@ EditDateAndLocation.propTypes = {
   updatePPM: PropTypes.func.isRequired,
   error: PropTypes.object,
 };
+
 function mapStateToProps(state) {
   const moveID = state.moves.currentMove.id;
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+
   const props = {
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
     move: get(state, 'moves.currentMove'),
@@ -248,7 +252,8 @@ function mapStateToProps(state) {
       '',
     ),
   };
-  const defaultPickupZip = get(state.serviceMember, 'currentServiceMember.residential_address.postal_code');
+  const defaultPickupZip = serviceMember?.residential_address?.postal_code;
+
   props.initialValues = props.currentPPM
     ? props.currentPPM
     : defaultPickupZip
