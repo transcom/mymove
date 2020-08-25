@@ -1,65 +1,76 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
+import classnames from 'classnames';
 
 import { ReactComponent as Check } from '../../shared/icon/check.svg';
 import { ReactComponent as Ex } from '../../shared/icon/ex.svg';
+import { SERVICE_ITEM_STATUS } from '../../shared/constants';
+
+import styles from './index.module.scss';
+
+import { formatDate } from 'shared/dates';
 
 function generateDetailText(details, id) {
   if (typeof details.text === 'string') {
     return details.text;
   }
 
-  return Object.keys(details.text).map((detail) => {
-    /* eslint-disable */
-    return (
-      <p key={id} className="font-sans-3xs">
-        {detail}: {details.text[detail]}
-      </p>
-    );
-    /* eslint-enable */
-  });
+  const detailList = Object.keys(details.text).map((detail) => (
+    <div key={`${id}-${detail}`} className={styles.detailLine}>
+      <dt className={styles.detailType}>{detail}:</dt> <dd>{details.text[`${detail}`]}</dd>
+    </div>
+  ));
+
+  return <dl>{detailList}</dl>;
 }
 
-const ServiceItemTableHasImg = ({ serviceItems }) => {
-  const tableRows = serviceItems.map(({ id, dateRequested, serviceItem, details }) => {
+const ServiceItemTableHasImg = ({ serviceItems, handleUpdateMTOServiceItemStatus }) => {
+  const tableRows = serviceItems.map(({ id, submittedAt, serviceItem, details }, i) => {
     let detailSection;
     if (details.imgURL) {
       detailSection = (
-        <div className="display-flex" style={{ alignItems: 'center' }}>
-          <div
-            className="si-thumbnail"
-            style={{
-              width: '100px',
-              height: '100px',
-              backgroundImage: `url(${details.imgURL})`,
-            }}
-            aria-labelledby="si-thumbnail--caption"
+        <div className={styles.detailImage}>
+          <img
+            className={styles.siThumbnail}
+            alt="requested service item"
+            aria-labelledby={`si-thumbnail--caption-${i}`}
+            src={details.imgURL}
           />
-          <small id="si-thumbnail--caption">{generateDetailText(details, id)}</small>
+          <small id={`si-thumbnail--caption-${i}`}>{generateDetailText(details, id)}</small>
         </div>
       );
     } else {
-      detailSection = <p className="si-details">{generateDetailText(details, id)}</p>;
+      detailSection = <div>{generateDetailText(details, id)}</div>;
     }
 
     return (
-      <tr key={id} style={{ height: '80px' }}>
-        <td style={{ paddingTop: '19px', verticalAlign: 'top' }}>
-          <strong>{serviceItem}</strong>
-          <br />
-          <span>{dateRequested}</span>
+      <tr key={id}>
+        <td className={styles.nameAndDate}>
+          <p className={styles.codeName}>{serviceItem}</p>
+          <p>{formatDate(submittedAt, 'DD MMM YYYY')}</p>
         </td>
-        <td style={{ verticalAlign: 'top' }}>{detailSection}</td>
+        <td className={styles.detail}>{detailSection}</td>
         <td>
-          <div className="display-flex">
-            <Button className="usa-button--icon usa-button--small">
+          <div className={styles.statusAction}>
+            <Button
+              type="button"
+              className="usa-button--icon usa-button--small"
+              data-testid="acceptButton"
+              onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.APPROVED)}
+            >
               <span className="icon">
                 <Check />
               </span>
               <span>Accept</span>
             </Button>
-            <Button secondary className="usa-button--small usa-button--icon">
+            <Button
+              type="button"
+              secondary
+              className="usa-button--small usa-button--icon"
+              data-testid="rejectButton"
+              onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.REJECTED)}
+            >
               <span className="icon">
                 <Ex />
               </span>
@@ -72,11 +83,8 @@ const ServiceItemTableHasImg = ({ serviceItems }) => {
   });
 
   return (
-    <div className="table--service-item table--service-item--hasimg">
+    <div className={classnames(styles.ServiceItemTable, 'table--service-item', 'table--service-item--hasimg')}>
       <table>
-        <col style={{ width: '300px' }} />
-        <col style={{ width: '350px' }} />
-        <col />
         <thead className="table--small">
           <tr>
             <th>Service item</th>
@@ -91,13 +99,17 @@ const ServiceItemTableHasImg = ({ serviceItems }) => {
 };
 
 ServiceItemTableHasImg.propTypes = {
+  handleUpdateMTOServiceItemStatus: PropTypes.func.isRequired,
   serviceItems: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string,
-      dateRequested: PropTypes.string,
+      submittedAt: PropTypes.string,
       serviceItem: PropTypes.string,
       code: PropTypes.string,
-      details: PropTypes.object,
+      details: PropTypes.shape({
+        imgURL: PropTypes.string,
+        text: PropTypes.oneOf([PropTypes.string, PropTypes.object]),
+      }),
     }),
   ).isRequired,
 };

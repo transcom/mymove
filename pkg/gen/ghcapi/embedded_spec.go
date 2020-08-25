@@ -866,7 +866,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MTOServiceItem"
+              "$ref": "#/definitions/PatchMTOServiceItemStatusPayload"
             }
           },
           {
@@ -911,6 +911,12 @@ func init() {
             "description": "Precondition Failed",
             "schema": {
               "$ref": "#/responses/PreconditionFailed"
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
@@ -2271,7 +2277,7 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "eTag": {
@@ -2288,8 +2294,18 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "pickupAddress": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
+        },
+        "primeActualWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "primeEstimatedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
         },
         "rejectionReason": {
           "type": "string",
@@ -2305,11 +2321,11 @@ func init() {
           "format": "date"
         },
         "secondaryDeliveryAddress": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "shipmentType": {
@@ -2518,6 +2534,19 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MoveTaskOrder"
+      }
+    },
+    "PatchMTOServiceItemStatusPayload": {
+      "properties": {
+        "status": {
+          "description": "Describes all statuses for a MTOServiceItem",
+          "type": "string",
+          "enum": [
+            "SUBMITTED",
+            "APPROVED",
+            "REJECTED"
+          ]
+        }
       }
     },
     "PatchMTOShipmentStatusPayload": {
@@ -4057,7 +4086,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MTOServiceItem"
+              "$ref": "#/definitions/PatchMTOServiceItemStatusPayload"
             }
           },
           {
@@ -4117,6 +4146,12 @@ func init() {
               "schema": {
                 "$ref": "#/definitions/Error"
               }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
@@ -5594,7 +5629,7 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "eTag": {
@@ -5611,8 +5646,18 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "pickupAddress": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
+        },
+        "primeActualWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "primeEstimatedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
         },
         "rejectionReason": {
           "type": "string",
@@ -5628,11 +5673,11 @@ func init() {
           "format": "date"
         },
         "secondaryDeliveryAddress": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "shipmentType": {
@@ -5841,6 +5886,19 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MoveTaskOrder"
+      }
+    },
+    "PatchMTOServiceItemStatusPayload": {
+      "properties": {
+        "status": {
+          "description": "Describes all statuses for a MTOServiceItem",
+          "type": "string",
+          "enum": [
+            "SUBMITTED",
+            "APPROVED",
+            "REJECTED"
+          ]
+        }
       }
     },
     "PatchMTOShipmentStatusPayload": {

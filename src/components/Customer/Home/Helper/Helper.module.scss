@@ -1,0 +1,37 @@
+@import 'shared/styles/colors';
+@import 'shared/styles/_basics';
+
+.helper-container {
+  border: 1px solid $base-lighter;
+  border-radius: 5px;
+  background-color: $bg-blue-warm-10;
+  @include u-padding-top(2);
+  @include u-padding-right(1);
+  @include u-padding-bottom(2);
+  @include u-padding-left(1);
+  @include u-margin-bottom(4);
+
+  ul {
+    margin: 0px;
+    padding: 0px;
+    li {
+      list-style-position: inside;
+      margin-left: 1.2em;
+      text-indent: -1em;
+      font-size: 15px;
+      &:not(:first-child) {
+        @include u-margin-top(1);
+      }
+      span {
+        margin-left: -0.5em;
+      }
+    }
+  }
+}
+
+.helper-header {
+  @include u-margin-bottom(1);
+  margin-top: 0px;
+  font-weight: normal;
+  font-size: 21px;
+}

@@ -78,7 +78,9 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.NotNil(createdServiceItem)
-		suite.NotEmpty(createdServiceItem.Dimensions)
+
+		createdServiceItemList := *createdServiceItem
+		suite.NotEmpty(createdServiceItemList[0].Dimensions)
 	})
 
 	// If error when trying to create, the create should fail.
@@ -176,7 +178,9 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		createdServiceItemCS, _, err := creator.CreateMTOServiceItem(&serviceItemCS)
 		suite.NotNil(createdServiceItemCS)
 		suite.NoError(err)
-		suite.Equal(createdServiceItemCS.Status, models.MTOServiceItemStatus("APPROVED"))
+
+		createdServiceItemCSList := *createdServiceItemCS
+		suite.Equal(createdServiceItemCSList[0].Status, models.MTOServiceItemStatus("APPROVED"))
 	})
 
 	// Should return a "NotFoundError" if the mtoShipmentID passed in isn't found
