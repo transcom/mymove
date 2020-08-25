@@ -299,13 +299,10 @@ class HHGDetailsForm extends Component {
                   value={values.requestedPickupDate}
                   validate={validateDate}
                 />
-                <small className="usa-hint" id="pickupDateHint">
+                <span className="usa-hint" id="pickupDateHint">
                   Your movers will confirm this date or one shortly before or after.
-                </small>
+                </span>
               </Fieldset>
-              <span className="usa-hint" id="pickupDateHint">
-                Your movers will confirm this date or one shortly before or after.
-              </span>
               <AddressFields
                 name="pickupAddress"
                 legend="Pickup location"
