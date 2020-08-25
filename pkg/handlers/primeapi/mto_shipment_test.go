@@ -393,6 +393,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
 		suite.Equal(minimalMtoShipment.ID.String(), okResponse.Payload.ID.String())
+		suite.Equal(minimalMtoShipment.PrimeActualWeight.Int64(), okResponse.Payload.PrimeActualWeight)
+		suite.Equal(minimalMtoShipment.PrimeEstimatedWeight.Int64(), okResponse.Payload.PrimeEstimatedWeight)
 	})
 
 	suite.T().Run("PUT failure - Shipment is not part of MTO available to prime", func(t *testing.T) {
