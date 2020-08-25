@@ -96,7 +96,9 @@ export const MoveTaskOrderShape = PropTypes.shape({
 export const MTOServiceItemShape = PropTypes.shape({
   approvedAt: PropTypes.string,
   createdAt: PropTypes.string,
+  customerContacts: PropTypes.string,
   deletedAt: PropTypes.string,
+  dimensions: PropTypes.object,
   id: PropTypes.string,
   moveTaskOrderID: PropTypes.string,
   mtoShipmentID: PropTypes.string,
@@ -108,6 +110,19 @@ export const MTOServiceItemShape = PropTypes.shape({
   rejectedAt: PropTypes.string,
   submittedAt: PropTypes.string,
   status: PropTypes.string,
+});
+
+export const MTOServiceItemDimensionShape = PropTypes.shape({
+  type: PropTypes.oneOf(['ITEM', 'CRATE']),
+  length: PropTypes.number,
+  height: PropTypes.number,
+  width: PropTypes.number,
+});
+
+export const MTOServiceItemCustomerContactShape = PropTypes.shape({
+  type: PropTypes.oneOf(['FIRST', 'SECOND']),
+  timeMilitary: PropTypes.string,
+  firstAvailableDeliveryDate: PropTypes.string,
 });
 
 export const PaymentServiceItemShape = PropTypes.shape({

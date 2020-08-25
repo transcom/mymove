@@ -19,6 +19,8 @@ import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddre
 import { SERVICE_ITEM_STATUS } from 'shared/constants';
 import { patchMTOServiceItemStatus } from 'services/ghcApi';
 import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
+import dimensionTypes from 'constants/dimensionTypes';
+import customerContactTypes from 'constants/customerContactTypes';
 
 function formatShipmentType(shipmentType) {
   if (shipmentType === 'HHG') {
@@ -96,7 +98,18 @@ export const MoveTaskOrder = ({ match }) => {
   const serviceItems = map(mtoServiceItems, (item) => {
     const newItem = { ...item };
     newItem.serviceItem = item.reServiceName;
-    newItem.details = { text: { ZIP: item.pickupPostalCode, Reason: item.reason }, imgURL: '' };
+    const itemDimensions = item.dimensions?.find((dimension) => dimension.type === dimensionTypes.ITEM);
+    const crateDimensions = item.dimensions?.find((dimension) => dimension.type === dimensionTypes.CRATE);
+    const firstCustContact = item.customerContacts?.find((contact) => contact.type === customerContactTypes.FIRST);
+    const secondCustContact = item.customerContacts?.find((contact) => contact.type === customerContactTypes.SECOND);
+    newItem.details = {
+      text: { ZIP: item.pickupPostalCode, Reason: item.reason },
+      imgURL: '',
+      itemDimensions,
+      crateDimensions,
+      firstCustContact,
+      secondCustContact,
+    };
 
     return newItem;
   });
