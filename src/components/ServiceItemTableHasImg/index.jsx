@@ -87,7 +87,7 @@ const ServiceItemTableHasImg = ({ serviceItems, handleUpdateMTOServiceItemStatus
               <span
                 data-testid="rejectTextButton"
                 role="button"
-                className="text-blue"
+                className="text-blue cursor-pointer"
                 onKeyDown={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.REJECTED)}
                 onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.REJECTED)}
                 tabIndex={i}
@@ -104,7 +104,7 @@ const ServiceItemTableHasImg = ({ serviceItems, handleUpdateMTOServiceItemStatus
               <span
                 data-testid="approveTextButton"
                 role="button"
-                className="text-blue"
+                className="text-blue cursor-pointer"
                 onKeyDown={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.APPROVED)}
                 onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.APPROVED)}
                 tabIndex={i}
