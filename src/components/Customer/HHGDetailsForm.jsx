@@ -303,18 +303,21 @@ class HHGDetailsForm extends Component {
                   Your movers will confirm this date or one shortly before or after.
                 </span>
               </Fieldset>
+
               <AddressFields
                 name="pickupAddress"
                 legend="Pickup location"
                 className={fieldsetClasses}
                 renderExistingAddressCheckbox={() => (
-                  <Checkbox
-                    data-testid="useCurrentResidence"
-                    label="Use my current residence address"
-                    name="useCurrentResidence"
-                    checked={useCurrentResidence}
-                    onChange={() => this.handleUseCurrentResidenceChange(values)}
-                  />
+                  <div className="margin-top-2">
+                    <Checkbox
+                      data-testid="useCurrentResidence"
+                      label="Use my current residence address"
+                      name="useCurrentResidence"
+                      checked={useCurrentResidence}
+                      onChange={() => this.handleUseCurrentResidenceChange(values)}
+                    />
+                  </div>
                 )}
                 values={values.pickupAddress}
               />
