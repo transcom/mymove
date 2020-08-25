@@ -3,10 +3,27 @@ import { getClient } from 'shared/Swagger/api';
 import { get } from 'lodash';
 import { selectLoggedInUser } from './user';
 
+const createBackupContactLabel = 'ServiceMember.createBackupContact';
 const loadBackupContactsLabel = 'ServiceMember.loadBackupContacts';
 const updateBackupContactLabel = 'ServiceMember.updateBackupContact';
+
+const createServiceMemberLabel = 'ServiceMember.createServiceMember';
 export const loadServiceMemberLabel = 'ServiceMember.loadServiceMember';
 export const updateServiceMemberLabel = 'ServiceMember.updateServiceMember';
+
+/** Swagger Requests */
+export function createBackupContact(serviceMemberId, backupContact) {
+  const swaggerTag = 'backup_contacts.createServiceMemberBackupContact';
+  return swaggerRequest(
+    getClient,
+    swaggerTag,
+    {
+      serviceMemberId,
+      createBackupContactPayload: backupContact,
+    },
+    { label: createBackupContactLabel },
+  );
+}
 
 export function loadBackupContacts(serviceMemberId, label = loadBackupContactsLabel) {
   const swaggerTag = 'backup_contacts.indexServiceMemberBackupContacts';
@@ -20,6 +37,16 @@ export function updateBackupContact(backupContactId, backupContact, label = upda
     swaggerTag,
     { backupContactId, updateServiceMemberBackupContactPayload: backupContact },
     { label },
+  );
+}
+
+export function createServiceMember(serviceMember) {
+  const swaggerTag = 'service_members.createServiceMember';
+  return swaggerRequest(
+    getClient,
+    swaggerTag,
+    { createServiceMemberPayload: serviceMember },
+    { label: createServiceMemberLabel },
   );
 }
 
@@ -38,6 +65,7 @@ export function updateServiceMember(serviceMemberId, serviceMember, label = upda
   );
 }
 
+/** Selectors */
 export function selectServiceMember(state, serviceMemberId) {
   return get(state, `entities.serviceMembers.${serviceMemberId}`, {});
 }
