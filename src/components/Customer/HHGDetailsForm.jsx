@@ -382,6 +382,7 @@ class HHGDetailsForm extends Component {
                 legend="Receiving agent"
                 className={fieldsetClasses}
                 subtitle="Who can take delivery for you if the movers arrive and you're not there?"
+                subtitleClassName="margin-y-2"
                 values={values.receivingAgent}
               />
               <Fieldset legend="Remarks" className={fieldsetClasses}>
