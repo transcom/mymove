@@ -148,7 +148,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			},
 		})
 		requestedPickupDate := time.Date(2019, time.March, 15, 0, 0, 0, 0, time.UTC)
+		scheduledPickupDate := time.Date(2019, time.March, 17, 0, 0, 0, 0, time.UTC)
 		requestedDeliveryDate := time.Date(2019, time.March, 30, 0, 0, 0, 0, time.UTC)
+		primeEstimatedWeightRecordedDate := time.Date(2019, time.March, 12, 0, 0, 0, 0, time.UTC)
 		customerRemarks := "I have a grandfather clock"
 		updatedShipment := models.MTOShipment{
 			ID:                   oldShipment.ID,
@@ -158,17 +160,17 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			PickupAddressID:      &newPickupAddress.ID,
 			//SecondaryPickupAddress:     &secondaryPickupAddress,
 			//SecondaryDeliveryAddress:   &secondaryDeliveryAddress,
-			RequestedPickupDate:        &requestedPickupDate,
-			ScheduledPickupDate:        &scheduledPickupDate,
-			RequestedDeliveryDate:      &requestedDeliveryDate,
-			ActualPickupDate:           &actualPickupDate,
-			ApprovedDate:               &firstAvailableDeliveryDate,
-			PrimeActualWeight:          &primeActualWeight,
-			PrimeEstimatedWeight:       &primeEstimatedWeight,
-			FirstAvailableDeliveryDate: &firstAvailableDeliveryDate,
-			Status:                     models.MTOShipmentStatusSubmitted,
-			CustomerRemarks:            &customerRemarks,
-			// PrimeEstimatedWeightRecordedDate
+			RequestedPickupDate:              &requestedPickupDate,
+			ScheduledPickupDate:              &scheduledPickupDate,
+			RequestedDeliveryDate:            &requestedDeliveryDate,
+			ActualPickupDate:                 &actualPickupDate,
+			ApprovedDate:                     &firstAvailableDeliveryDate,
+			PrimeActualWeight:                &primeActualWeight,
+			PrimeEstimatedWeight:             &primeEstimatedWeight,
+			FirstAvailableDeliveryDate:       &firstAvailableDeliveryDate,
+			PrimeEstimatedWeightRecordedDate: &primeEstimatedWeightRecordedDate,
+			Status:                           models.MTOShipmentStatusSubmitted,
+			CustomerRemarks:                  &customerRemarks,
 		}
 
 		newShipment, err := mtoShipmentUpdater.UpdateMTOShipment(&updatedShipment, eTag)
@@ -180,12 +182,17 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.True(actualPickupDate.Equal(*newShipment.ActualPickupDate))
 		suite.True(firstAvailableDeliveryDate.Equal(*newShipment.ApprovedDate))
 		suite.True(firstAvailableDeliveryDate.Equal(*newShipment.FirstAvailableDeliveryDate))
+		suite.True(primeEstimatedWeightRecordedDate.Equal(*newShipment.PrimeEstimatedWeightRecordedDate))
 		suite.Equal(primeEstimatedWeight, *newShipment.PrimeEstimatedWeight)
 		suite.Equal(primeActualWeight, *newShipment.PrimeActualWeight)
 		suite.Equal(customerRemarks, *newShipment.CustomerRemarks)
 		suite.Equal(models.MTOShipmentStatusSubmitted, newShipment.Status)
+		// TODO: uncomment below when address bug is fixed MB-
 		//suite.Equal(newDestinationAddress, *newShipment.DestinationAddress)
 		//suite.Equal(newPickupAddress, *newShipment.PickupAddress)
+		// TODO: uncomment below when able to create if doesn't exist
+		//suite.Equal(secondaryPickupAddress, *newShipment.SecondaryPickupAddress)
+		//suite.Equal(secondaryDeliveryAddress, *newShipment.SecondaryDeliveryAddress)
 
 	})
 

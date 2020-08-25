@@ -20,7 +20,7 @@ import (
 // UpdateMTOShipmentQueryBuilder is the query builder for updating MTO Shipments
 type UpdateMTOShipmentQueryBuilder interface {
 	FetchOne(model interface{}, filters []services.QueryFilter) error
-	CreateOne(model interface{}) (*validate.Errors, error) // temp until Agent creation is pulled out as separate service
+	CreateOne(model interface{}) (*validate.Errors, error)
 	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
 	Count(model interface{}, filters []services.QueryFilter) (int, error)
 	FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error
@@ -47,7 +47,7 @@ func NewMTOShipmentUpdater(db *pop.Connection, builder UpdateMTOShipmentQueryBui
 func setNewShipmentFields(dbShipment *models.MTOShipment, requestedUpdatedShipment *models.MTOShipment) error {
 	verrs := validate.NewErrors()
 	var oldShipmentCopy *models.MTOShipment
-	deepcopy.Copy(oldShipmentCopy, dbShipment) // make a copy to restore values in case there were errors while setting
+	oldShipmentCopy = dbShipment // make a copy to restore values in case there were errors while setting
 
 	if requestedUpdatedShipment.RequestedPickupDate != nil {
 		dbShipment.RequestedPickupDate = requestedUpdatedShipment.RequestedPickupDate
@@ -96,7 +96,7 @@ func setNewShipmentFields(dbShipment *models.MTOShipment, requestedUpdatedShipme
 	}
 
 	if requestedUpdatedShipment.SecondaryDeliveryAddress != nil {
-		dbShipment.SecondaryPickupAddress = requestedUpdatedShipment.SecondaryDeliveryAddress
+		dbShipment.SecondaryDeliveryAddress = requestedUpdatedShipment.SecondaryDeliveryAddress
 	}
 
 	if requestedUpdatedShipment.ShipmentType != "" {
@@ -112,6 +112,10 @@ func setNewShipmentFields(dbShipment *models.MTOShipment, requestedUpdatedShipme
 
 	if requestedUpdatedShipment.RequiredDeliveryDate != nil {
 		dbShipment.RequiredDeliveryDate = requestedUpdatedShipment.RequiredDeliveryDate
+	}
+
+	if requestedUpdatedShipment.PrimeEstimatedWeightRecordedDate != nil {
+		dbShipment.PrimeEstimatedWeightRecordedDate = requestedUpdatedShipment.PrimeEstimatedWeightRecordedDate
 	}
 
 	if requestedUpdatedShipment.CustomerRemarks != nil {
@@ -238,14 +242,8 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 			return StaleIdentifierError{StaleIdentifier: eTag}
 		}
 
-		updateMTOShipmentQuery := generateUpdateMTOShipmentQuery()
-		params := generateMTOShipmentParams(*newShipment)
-
-		if err := tx.RawQuery(updateMTOShipmentQuery, params...).Exec(); err != nil {
-			return err
-		}
-
 		if newShipment.DestinationAddress != nil {
+			// TODO: add conditional to create the address if it does not exist in dbShipment
 			destinationAddressQuery := generateAddressQuery()
 			params := generateAddressParams(newShipment.DestinationAddress)
 
@@ -264,6 +262,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 		}
 
 		if newShipment.SecondaryPickupAddress != nil {
+			// TODO: add conditional to create the address if it does not exist in dbShipment
 			secondaryPickupAddressQuery := generateAddressQuery()
 			params := generateAddressParams(newShipment.SecondaryPickupAddress)
 
@@ -273,6 +272,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 		}
 
 		if newShipment.SecondaryDeliveryAddress != nil {
+			// TODO: add conditional to create the address if it does not exist in dbShipment
 			secondaryDeliveryAddressQuery := generateAddressQuery()
 			params := generateAddressParams(newShipment.SecondaryDeliveryAddress)
 
@@ -309,7 +309,12 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 				}
 			}
 		}
+		updateMTOShipmentQuery := generateUpdateMTOShipmentQuery()
+		params := generateMTOShipmentParams(*newShipment)
 
+		if err := tx.RawQuery(updateMTOShipmentQuery, params...).Exec(); err != nil {
+			return err
+		}
 		return nil
 
 	})
