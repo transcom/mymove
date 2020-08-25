@@ -120,12 +120,12 @@ func setNewShipmentFields(dbShipment *models.MTOShipment, requestedUpdatedShipme
 
 	//// TODO: move mtoagent creation into service: Should not update MTOAgents here because we don't have an eTag
 	if len(requestedUpdatedShipment.MTOAgents) > 0 {
-		agentsToCreate := []models.MTOAgent{}
+		agentsToCreateOrUpdate := []models.MTOAgent{}
 		for _, newAgentInfo := range requestedUpdatedShipment.MTOAgents {
 			// if no record exists in the db
 			if newAgentInfo.ID == uuid.Nil {
 				newAgentInfo.MTOShipmentID = requestedUpdatedShipment.ID
-				agentsToCreate = append(agentsToCreate, newAgentInfo)
+				agentsToCreateOrUpdate = append(agentsToCreateOrUpdate, newAgentInfo)
 			} else {
 				foundAgent := false
 				// make sure there is an existing record in the db
@@ -154,13 +154,12 @@ func setNewShipmentFields(dbShipment *models.MTOShipment, requestedUpdatedShipme
 						if newAgentInfo.Phone != nil {
 							dbShipment.MTOAgents[i].Phone = newAgentInfo.Phone
 						}
+						agentsToCreateOrUpdate = append(agentsToCreateOrUpdate, dbShipment.MTOAgents[i])
 					}
 				}
 			}
 		}
-		for _, agent := range agentsToCreate {
-			dbShipment.MTOAgents = append(dbShipment.MTOAgents, agent)
-		}
+		dbShipment.MTOAgents = agentsToCreateOrUpdate // don't return unchanged existing agents
 	}
 
 	if verrs.HasAny() {

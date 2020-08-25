@@ -447,8 +447,12 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		updatedAgents[1] = mtoAgent2
 		newFirstName := "hey this is new"
 		newLastName := "new thing"
+		phone := "555-666-7777"
+		email := "updatedemail@test.email.com"
 		updatedAgents[0].FirstName = &newFirstName
+		updatedAgents[0].Phone = &phone
 		updatedAgents[1].LastName = &newLastName
+		updatedAgents[1].Email = &email
 
 		updatedShipment := models.MTOShipment{
 			ID:        shipment.ID,
@@ -459,13 +463,15 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		suite.NoError(err)
 		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
+		suite.Equal(phone, *updatedMTOShipment.MTOAgents[0].Phone)
 		suite.Equal(newFirstName, *updatedMTOShipment.MTOAgents[0].FirstName)
+		suite.Equal(email, *updatedMTOShipment.MTOAgents[1].Email)
 		suite.Equal(newLastName, *updatedMTOShipment.MTOAgents[1].LastName)
 	})
 
-	suite.T().Run("Successfully add MTO Agents", func(t *testing.T) {
+	suite.T().Run("Successfully add new MTO Agent and edit another", func(t *testing.T) {
 		shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
-		testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
+		existingAgent := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
 			MTOAgent: models.MTOAgent{
 				MTOShipment:   shipment,
 				MTOShipmentID: shipment.ID,
@@ -486,7 +492,10 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		}
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 
-		updatedAgents := make(models.MTOAgents, 1)
+		updatedAgents := make(models.MTOAgents, 2)
+		phone := "555-555-5555"
+		existingAgent.Phone = &phone
+		updatedAgents[1] = existingAgent
 		updatedAgents[0] = mtoAgentToCreate
 
 		updatedShipment := models.MTOShipment{
@@ -498,7 +507,10 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		suite.NoError(err)
 		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
-		suite.Equal(*mtoAgentToCreate.FirstName, *updatedMTOShipment.MTOAgents[0].FirstName)
+		suite.Equal(phone, *updatedMTOShipment.MTOAgents[0].Phone)
+		suite.Equal(*mtoAgentToCreate.FirstName, *updatedMTOShipment.MTOAgents[1].FirstName)
+		suite.Equal(*mtoAgentToCreate.LastName, *updatedMTOShipment.MTOAgents[1].LastName)
+		suite.Equal(*mtoAgentToCreate.Email, *updatedMTOShipment.MTOAgents[1].Email)
 	})
 }
 
