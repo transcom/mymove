@@ -117,7 +117,7 @@ export class WizardFormPage extends Component {
         <div className="grid-row" style={{ marginTop: '0.5rem' }}>
           <div className="grid-col-2 margin-top-6 tablet:margin-top-3">
             {!isMobile && (
-              <button className="usa-button usa-button--outline cancel padding-left-0" onClick={this.cancelFlow}>
+              <button className="usa-button usa-button--secondary padding-left-0" onClick={this.cancelFlow}>
                 Cancel
               </button>
             )}
@@ -125,7 +125,7 @@ export class WizardFormPage extends Component {
           <div className="grid-col-10 text-right margin-top-6 tablet:margin-top-3">
             {!hideBackBtn && (
               <button
-                className="usa-button usa-button--outline prev"
+                className="usa-button usa-button--secondary prev"
                 onClick={hasReduxFormSubmitHandler ? handleSubmit(this.previousPage) : this.previousPage}
                 disabled={!canMoveBackward}
               >

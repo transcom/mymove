@@ -18,6 +18,14 @@
 // Import commands.js using ES2015 syntax:
 import './commands';
 
+// Disable smooth-scrolling on every page load (https://github.com/cypress-io/cypress/issues/3200)
+Cypress.on('window:load', (win) => {
+  const { document } = win;
+  const node = document.createElement('style');
+  node.innerHTML = 'html { scroll-behavior: inherit !important; }';
+  document.body.appendChild(node);
+});
+
 // Capture the full screen by default
 // These options are overridden for auto-screenshot on fail
 Cypress.Screenshot.defaults({
