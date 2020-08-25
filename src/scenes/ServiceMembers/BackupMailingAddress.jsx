@@ -4,8 +4,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
-import { updateServiceMember } from './ducks';
-
+import { updateServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import AddressForm from 'shared/AddressForm';
 
@@ -15,7 +14,7 @@ const BackupMailingWizardForm = reduxifyWizardForm(formName);
 export class BackupMailingAddress extends Component {
   handleSubmit = () => {
     const newAddress = { backup_mailing_address: this.props.values };
-    return this.props.updateServiceMember(newAddress);
+    return this.props.updateServiceMember(this.props.currentServiceMember.id, newAddress);
   };
 
   render() {

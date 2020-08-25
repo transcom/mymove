@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
-import { updateServiceMember } from './ducks';
+import { updateServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { selectCurrentUser } from 'shared/Data/users';
 
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
@@ -37,7 +37,7 @@ export class ContactInfo extends Component {
   handleSubmit = () => {
     const pendingValues = this.props.values;
     if (pendingValues) {
-      return this.props.updateServiceMember(pendingValues);
+      return this.props.updateServiceMember(this.props.currentServiceMember.id, pendingValues);
     }
   };
 

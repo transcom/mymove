@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
-import { updateServiceMember, createBackupContact, updateBackupContact } from './ducks';
+import { createBackupContact, updateBackupContact } from 'shared/Entities/modules/serviceMembers';
 import { renderField, recursivelyAnnotateRequiredFields } from 'shared/JsonSchemaForm';
 import { reduxForm } from 'redux-form';
 import { no_op } from 'shared/utils';
@@ -213,7 +213,6 @@ export class BackupContact extends Component {
 }
 BackupContact.propTypes = {
   schema: PropTypes.object.isRequired,
-  updateServiceMember: PropTypes.func.isRequired,
   currentServiceMember: PropTypes.object,
   error: PropTypes.object,
 };
@@ -221,7 +220,6 @@ BackupContact.propTypes = {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
-      updateServiceMember,
       createBackupContact,
       updateBackupContact,
     },

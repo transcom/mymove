@@ -10,7 +10,7 @@ import { reduxForm } from 'redux-form';
 import Alert from 'shared/Alert'; // eslint-disable-line
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
-import { updateBackupContact } from 'scenes/ServiceMembers/ducks';
+import { updateBackupContact } from 'shared/Entities/modules/serviceMembers';
 import SaveCancelButtons from './SaveCancelButtons';
 import './Review.css';
 import profileImage from './images/profile.png';

@@ -1,7 +1,8 @@
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient } from 'shared/Swagger/api';
-import { get } from 'lodash';
+import { get, every } from 'lodash';
 import { selectLoggedInUser } from './user';
+import { NULL_UUID } from 'shared/constants';
 
 const createBackupContactLabel = 'ServiceMember.createBackupContact';
 const loadBackupContactsLabel = 'ServiceMember.loadBackupContacts';
@@ -104,3 +105,21 @@ export function selectBackupContactForServiceMember(state, serviceMemberId) {
   });
   return backupContact || {};
 }
+
+//this is similar to go service_member.IsProfileComplete and we should figure out how to use just one if possible
+export const isProfileComplete = (state) => {
+  const sm = get(state, 'serviceMember.currentServiceMember') || {};
+  return every([
+    sm.rank,
+    sm.edipi,
+    sm.affiliation,
+    sm.first_name,
+    sm.last_name,
+    sm.telephone,
+    sm.personal_email,
+    get(sm, 'current_station.id', NULL_UUID) !== NULL_UUID,
+    get(sm, 'residential_address.postal_code'),
+    get(sm, 'backup_mailing_address.postal_code'),
+    get(state, 'serviceMember.currentBackupContacts', []).length > 0,
+  ]);
+};

@@ -10,7 +10,6 @@ import { withContext } from 'shared/AppContext';
 import { MoveSummary } from './MoveSummary';
 import PpmAlert from './PpmAlert';
 import { selectedMoveType, lastMoveIsCanceled, updateMove } from 'scenes/Moves/ducks';
-import { createServiceMember, isProfileComplete } from 'scenes/ServiceMembers/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import {
   selectCurrentUser,
@@ -24,6 +23,11 @@ import SignIn from 'shared/User/SignIn';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import scrollToTop from 'shared/scrollToTop';
 import { getPPM } from 'scenes/Moves/Ppm/ducks';
+import {
+  selectServiceMemberFromLoggedInUser,
+  createServiceMember as createServiceMemberAction,
+  isProfileComplete,
+} from 'shared/Entities/modules/serviceMembers';
 import { loadPPMs } from 'shared/Entities/modules/ppms';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { selectActiveOrLatestOrders, selectUploadsForActiveOrders } from 'shared/Entities/modules/orders';
@@ -50,21 +54,32 @@ export class Landing extends Component {
       createServiceMember,
       isProfileComplete,
     } = this.props;
-    if (loggedInUserSuccess) {
+
+    if (!prevProps.loggedInUserSuccess && loggedInUserSuccess) {
       if (!createdServiceMemberIsLoading && isEmpty(serviceMember) && !createdServiceMemberError) {
         // Once the logged in user loads, if the service member doesn't
         // exist we need to dispatch creating one, once.
-        createServiceMember({});
+        createServiceMember({}).then(() => {
+          // re-fetch user data to populate serviceMember
+          this.props.showLoggedInUser();
+        });
       } else if (!isEmpty(serviceMember) && !isProfileComplete) {
         // If the service member exists, but is not complete, redirect to next incomplete page.
         this.resumeMove();
       }
     }
+
+    if (isEmpty(prevProps.serviceMember) && !isEmpty(serviceMember) && !isProfileComplete) {
+      // If the service member exists, but is not complete, redirect to next incomplete page.
+      this.resumeMove();
+    }
+
     if (prevProps.move && prevProps.move.id !== this.props.move.id) {
       this.props.loadMTOShipments(this.props.move.id);
       this.props.loadPPMs(this.props.move.id);
     }
   }
+
   startMove = (values) => {
     const { serviceMember } = this.props;
     if (isEmpty(serviceMember)) {
@@ -194,7 +209,6 @@ Landing.defaultProps = {
 
 const mapStateToProps = (state) => {
   const user = selectCurrentUser(state);
-  const serviceMember = get(state, 'serviceMember.currentServiceMember');
   const move = selectActiveOrLatestMove(state);
 
   const props = {
@@ -203,7 +217,7 @@ const mapStateToProps = (state) => {
     selectedMoveType: selectedMoveType(state),
     isLoggedIn: user.isLoggedIn,
     isProfileComplete: isProfileComplete(state),
-    serviceMember: serviceMember || {},
+    serviceMember: selectServiceMemberFromLoggedInUser(state) || {},
     backupContacts: state.serviceMember.currentBackupContacts || [],
     orders: selectActiveOrLatestOrders(state),
     uploads: selectUploadsForActiveOrders(state),
@@ -226,7 +240,14 @@ const mapStateToProps = (state) => {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { push, createServiceMember, updateMove, loadPPMs, loadMTOShipments, showLoggedInUser: showLoggedInUserAction },
+    {
+      push,
+      createServiceMember: createServiceMemberAction,
+      updateMove,
+      loadPPMs,
+      loadMTOShipments,
+      showLoggedInUser: showLoggedInUserAction,
+    },
     dispatch,
   );
 }

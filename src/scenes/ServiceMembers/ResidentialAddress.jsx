@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
-import { updateServiceMember } from './ducks';
+import { updateServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { ValidateZipRateData } from 'shared/api';
 import AddressForm from 'shared/AddressForm';
@@ -27,7 +27,7 @@ const ResidentalWizardForm = reduxifyWizardForm(formName, null, asyncValidate, [
 export class ResidentialAddress extends Component {
   handleSubmit = () => {
     const newAddress = { residential_address: this.props.values };
-    return this.props.updateServiceMember(newAddress);
+    return this.props.updateServiceMember(this.props.currentServiceMember.id, newAddress);
   };
 
   render() {

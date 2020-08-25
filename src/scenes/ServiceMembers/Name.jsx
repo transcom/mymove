@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
-import { updateServiceMember } from './ducks';
+import { updateServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
@@ -17,7 +17,7 @@ export class Name extends Component {
     const pendingValues = this.props.values;
     if (pendingValues) {
       const patch = pick(pendingValues, subsetOfFields);
-      return this.props.updateServiceMember(patch);
+      return this.props.updateServiceMember(this.props.currentServiceMember.id, patch);
     }
   };
 

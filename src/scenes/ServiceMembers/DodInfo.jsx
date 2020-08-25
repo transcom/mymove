@@ -8,7 +8,7 @@ import { Field } from 'redux-form';
 import { normalizeSSN } from 'shared/JsonSchemaForm/reduxFieldNormalizer';
 import classNames from 'classnames';
 
-import { updateServiceMember } from './ducks';
+import { updateServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
@@ -105,7 +105,7 @@ export class DodInfo extends Component {
     const pendingValues = this.props.values;
     if (pendingValues) {
       const patch = pick(pendingValues, subsetOfFields);
-      return this.props.updateServiceMember(patch);
+      return this.props.updateServiceMember(this.props.currentServiceMember.id, patch);
     }
   };
 

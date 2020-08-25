@@ -10,7 +10,7 @@ import Alert from 'shared/Alert'; // eslint-disable-line
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 import SaveCancelButtons from './SaveCancelButtons';
-import { updateServiceMember } from 'scenes/ServiceMembers/ducks';
+import { updateServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { moveIsApproved, isPpm } from 'scenes/Moves/ducks';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
@@ -103,7 +103,7 @@ class EditProfile extends Component {
       this.props.entitlementChanged();
     }
     const moveId = this.props.move.id;
-    return this.props.updateServiceMember(fieldValues).then(() => {
+    return this.props.updateServiceMember(this.props.serviceMember.id, fieldValues).then(() => {
       // This promise resolves regardless of error.
       if (!this.props.hasSubmitError) {
         this.props.editSuccessful();

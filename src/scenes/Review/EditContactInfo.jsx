@@ -10,7 +10,7 @@ import Alert from 'shared/Alert'; // eslint-disable-line
 import AddressForm from 'shared/AddressForm';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { updateServiceMember } from 'scenes/ServiceMembers/ducks';
+import { updateServiceMember } from 'shared/Entities/modules/serviceMembers';
 
 import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
 import './Review.css';
@@ -87,7 +87,7 @@ class EditContact extends Component {
     let serviceMember = fieldValues.serviceMember;
     serviceMember.residential_address = fieldValues.resAddress;
     serviceMember.backup_mailing_address = fieldValues.backupAddress;
-    return this.props.updateServiceMember(serviceMember).then(() => {
+    return this.props.updateServiceMember(this.props.serviceMember.id, serviceMember).then(() => {
       // This promise resolves regardless of error.
       if (!this.props.hasSubmitError) {
         this.props.editSuccessful();

@@ -47,7 +47,7 @@ describe('HomePage tests', () => {
           <Provider store={store}>
             <Landing
               isLoggedIn={true}
-              serviceMember={service_member}
+              serviceMember={{}}
               createdServiceMemberIsLoading={false}
               loggedInUserSuccess={true}
               isProfileComplete={false}
@@ -59,7 +59,7 @@ describe('HomePage tests', () => {
         );
         const landing = wrapper.find(Landing).dive();
         const resumeMoveFn = jest.spyOn(landing.instance(), 'resumeMove');
-        landing.setProps({ createdServiceMemberIsLoading: true });
+        landing.setProps({ serviceMember: service_member });
         expect(resumeMoveFn).toHaveBeenCalledTimes(1);
       });
     });

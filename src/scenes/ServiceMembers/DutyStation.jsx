@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 import { Field } from 'redux-form';
 import { get } from 'lodash';
-import { updateServiceMember } from './ducks';
+import { updateServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { NULL_UUID } from 'shared/constants';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { selectActiveOrLatestOrders } from 'shared/Entities/modules/orders';
@@ -47,7 +47,7 @@ export class DutyStation extends Component {
   handleSubmit = (somethings, elses) => {
     const pendingValues = this.props.values;
     if (pendingValues) {
-      return this.props.updateServiceMember({
+      return this.props.updateServiceMember(this.props.currentServiceMember.id, {
         current_station_id: pendingValues.current_station.id,
       });
     }
