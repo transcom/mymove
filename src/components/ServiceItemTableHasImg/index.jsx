@@ -85,6 +85,7 @@ const ServiceItemTableHasImg = ({ serviceItems, handleUpdateMTOServiceItemStatus
                 <Ex />
               </span>
               <span
+                data-testid="rejectTextButton"
                 role="button"
                 className="text-blue"
                 onKeyDown={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.REJECTED)}
@@ -101,6 +102,7 @@ const ServiceItemTableHasImg = ({ serviceItems, handleUpdateMTOServiceItemStatus
                 <Ex />
               </span>
               <span
+                data-testid="approveTextButton"
                 role="button"
                 className="text-blue"
                 onKeyDown={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.APPROVED)}
