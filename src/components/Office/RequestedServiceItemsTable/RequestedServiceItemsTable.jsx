@@ -33,7 +33,8 @@ RequestedServiceItemsTable.propTypes = {
       serviceItem: PropTypes.string,
       code: PropTypes.string,
       details: PropTypes.shape({
-        text: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+        reason: PropTypes.string,
+        pickupPostalCode: PropTypes.string,
         imgURL: PropTypes.string,
         itemDimensions: MTOServiceItemDimensionShape,
         crateDimensions: MTOServiceItemDimensionShape,

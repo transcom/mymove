@@ -97,20 +97,18 @@ export const MoveTaskOrder = ({ match }) => {
 
   const serviceItems = map(mtoServiceItems, (item) => {
     const newItem = { ...item };
+    newItem.code = item.reServiceCode;
     newItem.serviceItem = item.reServiceName;
-    const itemDimensions = item.dimensions?.find((dimension) => dimension.type === dimensionTypes.ITEM);
-    const crateDimensions = item.dimensions?.find((dimension) => dimension.type === dimensionTypes.CRATE);
-    const firstCustContact = item.customerContacts?.find((contact) => contact.type === customerContactTypes.FIRST);
-    const secondCustContact = item.customerContacts?.find((contact) => contact.type === customerContactTypes.SECOND);
     newItem.details = {
-      text: { ZIP: item.pickupPostalCode, Reason: item.reason },
+      pickupPostalCode: item.pickupPostalCode,
+      reason: item.reason,
       imgURL: '',
-      itemDimensions,
-      crateDimensions,
-      firstCustContact,
-      secondCustContact,
+      description: item.description,
+      itemDimensions: item.dimensions?.find((dimension) => dimension?.type === dimensionTypes.ITEM),
+      crateDimensions: item.dimensions?.find((dimension) => dimension?.type === dimensionTypes.CRATE),
+      firstCustomerContact: item.customerContacts?.find((contact) => contact?.type === customerContactTypes.FIRST),
+      secondCustomerContact: item.customerContacts?.find((contact) => contact?.type === customerContactTypes.SECOND),
     };
-
     return newItem;
   });
 

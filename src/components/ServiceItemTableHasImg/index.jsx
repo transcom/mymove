@@ -6,42 +6,109 @@ import classnames from 'classnames';
 import { ReactComponent as Check } from '../../shared/icon/check.svg';
 import { ReactComponent as Ex } from '../../shared/icon/ex.svg';
 import { SERVICE_ITEM_STATUS } from '../../shared/constants';
+import { MTOServiceItemCustomerContactShape, MTOServiceItemDimensionShape } from '../../types/moveOrder';
 
 import styles from './index.module.scss';
 
 import { formatDate } from 'shared/dates';
+import { convertFromThousandthInchToInch } from 'shared/formatters';
 
 function generateDetailText(details, id) {
-  if (typeof details.text === 'string') {
-    return details.text;
-  }
-
-  const detailList = Object.keys(details.text).map((detail) => (
+  const detailList = Object.keys(details).map((detail) => (
     <div key={`${id}-${detail}`} className={styles.detailLine}>
-      <dt className={styles.detailType}>{detail}:</dt> <dd>{details.text[`${detail}`]}</dd>
+      <dt className={styles.detailType}>{detail}:</dt> <dd>{details[`${detail}`]}</dd>
     </div>
   ));
 
-  return <dl>{detailList}</dl>;
+  return detailList;
 }
 
 const ServiceItemTableHasImg = ({ serviceItems, handleUpdateMTOServiceItemStatus }) => {
-  const tableRows = serviceItems.map(({ id, submittedAt, serviceItem, details }, i) => {
+  const tableRows = serviceItems.map(({ id, code, submittedAt, serviceItem, details }, i) => {
     let detailSection;
-    if (details.imgURL) {
-      detailSection = (
-        <div className={styles.detailImage}>
-          <img
-            className={styles.siThumbnail}
-            alt="requested service item"
-            aria-labelledby={`si-thumbnail--caption-${i}`}
-            src={details.imgURL}
-          />
-          <small id={`si-thumbnail--caption-${i}`}>{generateDetailText(details, id)}</small>
-        </div>
-      );
-    } else {
-      detailSection = <div>{generateDetailText(details, id)}</div>;
+    switch (code) {
+      case 'DOFSIT':
+      case 'DOASIT':
+      case 'DOPSIT': {
+        detailSection = (
+          <div>
+            <dl>{generateDetailText({ ZIP: details.pickupPostalCode, Reason: details.reason }, id)}</dl>
+          </div>
+        );
+        break;
+      }
+      case 'DDFSIT':
+      case 'DDASIT':
+      case 'DDDSIT': {
+        const { firstCustomerContact, secondCustomerContact } = details;
+        detailSection = (
+          <div>
+            <dl>
+              {firstCustomerContact &&
+                generateDetailText(
+                  {
+                    'First Customer Contact': firstCustomerContact.timeMilitary,
+                    'First Available Delivery Date': firstCustomerContact.firstAvailableDeliveryDate,
+                  },
+                  id,
+                )}
+              <div className={styles.customerContact}>
+                {secondCustomerContact &&
+                  generateDetailText(
+                    {
+                      'Second Customer Contact': secondCustomerContact.timeMilitary,
+                      'Second Available Delivery Date': secondCustomerContact.firstAvailableDeliveryDate,
+                    },
+                    id,
+                  )}
+              </div>
+            </dl>
+          </div>
+        );
+        break;
+      }
+      case 'DCRT': {
+        const { imgURL, description, itemDimensions, crateDimensions } = details;
+        const itemDimensionFormat = `${convertFromThousandthInchToInch(
+          itemDimensions?.length,
+        )}"x${convertFromThousandthInchToInch(itemDimensions?.width)}"x${convertFromThousandthInchToInch(
+          itemDimensions?.height,
+        )}`;
+        const crateDimensionFormat = `${convertFromThousandthInchToInch(
+          crateDimensions?.length,
+        )}"x${convertFromThousandthInchToInch(crateDimensions?.width)}"x${convertFromThousandthInchToInch(
+          crateDimensions?.height,
+        )}`;
+        detailSection = (
+          <div className={styles.detailImage}>
+            <img
+              className={styles.siThumbnail}
+              alt={description}
+              aria-labelledby={`si-thumbnail--caption-${i}`}
+              src={imgURL}
+            />
+            <small id={`si-thumbnail--caption-${i}`}>
+              <dl>
+                <p className={styles.detailLine}>{description}</p>
+                {itemDimensions && generateDetailText({ 'Item Dimensions': itemDimensionFormat }, id)}
+                {crateDimensions && generateDetailText({ 'Crate Dimensions': crateDimensionFormat }, id)}
+              </dl>
+            </small>
+          </div>
+        );
+        break;
+      }
+      case 'DOSHUT':
+      case 'DDSHUT': {
+        detailSection = (
+          <div>
+            <dl>{generateDetailText({ 'Estimated Weight': '', Reason: details.reason })}</dl>
+          </div>
+        );
+        break;
+      }
+      default:
+        detailSection = <div>—</div>;
     }
 
     return (
@@ -107,8 +174,13 @@ ServiceItemTableHasImg.propTypes = {
       serviceItem: PropTypes.string,
       code: PropTypes.string,
       details: PropTypes.shape({
+        pickupPostalCode: PropTypes.string,
+        reason: PropTypes.string,
         imgURL: PropTypes.string,
-        text: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+        itemDimensions: MTOServiceItemDimensionShape,
+        createDimensions: MTOServiceItemDimensionShape,
+        firstCustomerContact: MTOServiceItemCustomerContactShape,
+        secondCustmoerContact: MTOServiceItemCustomerContactShape,
       }),
     }),
   ).isRequired,

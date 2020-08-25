@@ -2160,7 +2160,8 @@ func init() {
         "reServiceName",
         "mtoShipmentID",
         "reason",
-        "pickupPostalCode"
+        "pickupPostalCode",
+        "description"
       ],
       "properties": {
         "approvedAt": {
@@ -5603,7 +5604,8 @@ func init() {
         "reServiceName",
         "mtoShipmentID",
         "reason",
-        "pickupPostalCode"
+        "pickupPostalCode",
+        "description"
       ],
       "properties": {
         "approvedAt": {

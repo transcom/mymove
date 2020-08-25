@@ -35,7 +35,8 @@ type MTOServiceItem struct {
 	DeletedAt strfmt.Date `json:"deletedAt,omitempty"`
 
 	// description
-	Description string `json:"description,omitempty"`
+	// Required: true
+	Description *string `json:"description"`
 
 	// dimensions
 	Dimensions MTOServiceItemDimensions `json:"dimensions,omitempty"`
@@ -125,6 +126,10 @@ func (m *MTOServiceItem) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateDeletedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDescription(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -239,6 +244,15 @@ func (m *MTOServiceItem) validateDeletedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("deletedAt", "body", "date", m.DeletedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItem) validateDescription(formats strfmt.Registry) error {
+
+	if err := validate.Required("description", "body", m.Description); err != nil {
 		return err
 	}
 

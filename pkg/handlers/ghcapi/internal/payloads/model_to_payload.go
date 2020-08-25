@@ -304,6 +304,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOServiceItem {
 		Reason:           handlers.FmtStringPtr(s.Reason),
 		PickupPostalCode: handlers.FmtStringPtr(s.PickupPostalCode),
 		Status:           ghcmessages.MTOServiceItemStatus(s.Status),
+		Description:      handlers.FmtStringPtr(s.Description),
 		Dimensions:       MTOServiceItemDimensions(s.Dimensions),
 		CustomerContacts: MTOServiceItemCustomerContacts(s.CustomerContacts),
 		ETag:             etag.GenerateEtag(s.UpdatedAt),
@@ -322,10 +323,6 @@ func MTOServiceItemModels(s models.MTOServiceItems) ghcmessages.MTOServiceItems 
 
 // MTOServiceItemDimension payload
 func MTOServiceItemDimension(d *models.MTOServiceItemDimension) *ghcmessages.MTOServiceItemDimension {
-	if d == nil {
-		return nil
-	}
-
 	return &ghcmessages.MTOServiceItemDimension{
 		ID:     *handlers.FmtUUID(d.ID),
 		Type:   ghcmessages.DimensionType(d.Type),
@@ -338,18 +335,14 @@ func MTOServiceItemDimension(d *models.MTOServiceItemDimension) *ghcmessages.MTO
 // MTOServiceItemDimensions payload
 func MTOServiceItemDimensions(d models.MTOServiceItemDimensions) ghcmessages.MTOServiceItemDimensions {
 	payload := make(ghcmessages.MTOServiceItemDimensions, len(d))
-	for _, item := range d {
-		payload = append(payload, MTOServiceItemDimension(&item))
+	for i, item := range d {
+		payload[i] = MTOServiceItemDimension(&item)
 	}
 	return payload
 }
 
 // MTOServiceItemCustomerContact payload
 func MTOServiceItemCustomerContact(c *models.MTOServiceItemCustomerContact) *ghcmessages.MTOServiceItemCustomerContact {
-	if c == nil {
-		return nil
-	}
-
 	return &ghcmessages.MTOServiceItemCustomerContact{
 		Type:                       ghcmessages.CustomerContactType(c.Type),
 		TimeMilitary:               c.TimeMilitary,
@@ -360,8 +353,8 @@ func MTOServiceItemCustomerContact(c *models.MTOServiceItemCustomerContact) *ghc
 // MTOServiceItemCustomerContacts payload
 func MTOServiceItemCustomerContacts(c models.MTOServiceItemCustomerContacts) ghcmessages.MTOServiceItemCustomerContacts {
 	payload := make(ghcmessages.MTOServiceItemCustomerContacts, len(c))
-	for _, item := range c {
-		payload = append(payload, MTOServiceItemCustomerContact(&item))
+	for i, item := range c {
+		payload[i] = MTOServiceItemCustomerContact(&item)
 	}
 	return payload
 }

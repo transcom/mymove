@@ -33,7 +33,6 @@
 
 .detailImage {
   @include u-display(flex);
-  align-items: center;
 }
 
 .siThumbnail {
@@ -47,4 +46,12 @@
   button {
     @include u-margin-top(0);
   }
+}
+
+.customerContact {
+  @include u-margin-top(2);
+}
+
+.detailImage p {
+  @include u-margin-top(0);
 }

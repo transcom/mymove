@@ -2103,6 +2103,7 @@ definitions:
       - mtoShipmentID
       - reason
       - pickupPostalCode
+      - description
     type: object
   MTOServiceItems:
     type: array
