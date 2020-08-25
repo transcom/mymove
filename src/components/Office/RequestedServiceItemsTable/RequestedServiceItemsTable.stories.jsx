@@ -13,6 +13,7 @@ const serviceItems = [
     submittedAt: '2020-11-20',
     serviceItem: 'Dom. Origin 1st Day SIT',
     code: 'DOMSIT',
+    status: 'SUBMITTED',
     details: {
       text: {
         ZIP: '60612',
@@ -26,6 +27,7 @@ const serviceItems = [
     submittedAt: '2020-11-20',
     serviceItem: 'Dom. Destination 1st Day SIT',
     code: 'DDFSIT',
+    status: 'SUBMITTED',
     details: {
       text: {
         'First available delivery date': '22 Nov 2020',
@@ -40,6 +42,7 @@ const serviceItems = [
     submittedAt: '2020-11-20',
     serviceItem: 'Dom. Origin Shuttle Service',
     code: 'DOSHUT',
+    status: 'SUBMITTED',
     details: {
       text: {
         'Reason for request': "Here's the reason",
@@ -53,6 +56,7 @@ const serviceItems = [
     submittedAt: '2020-11-20',
     serviceItem: 'Dom. Destination Shuttle Service',
     code: 'DDSHUT',
+    status: 'SUBMITTED',
     details: {
       text: {
         'Reason for request': "Here's the reason",
@@ -66,6 +70,7 @@ const serviceItems = [
     submittedAt: '2020-11-20',
     serviceItem: 'Dom. Crating',
     code: 'DCRT',
+    status: 'SUBMITTED',
     details: {
       text: {
         Description: "Here's the description",
@@ -77,4 +82,13 @@ const serviceItems = [
   },
 ];
 
+const approvedServiceItems = serviceItems.map((serviceItem) => {
+  return { ...serviceItem, status: 'APPROVED' };
+});
+const rejectedServiceItems = serviceItems.map((serviceItem) => {
+  return { ...serviceItem, status: 'REJECTED' };
+});
+
 export const Default = () => <RequestedServiceItemsTable serviceItems={serviceItems} />;
+export const ApprovedServiceItems = () => <RequestedServiceItemsTable serviceItems={approvedServiceItems} />;
+export const RejectedServiceItems = () => <RequestedServiceItemsTable serviceItems={rejectedServiceItems} />;
