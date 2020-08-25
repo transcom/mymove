@@ -110,7 +110,7 @@
     "@storybook/addon-info": "^5.3.19",
     "@storybook/addon-knobs": "^5.3.19",
     "@storybook/addon-links": "^5.3.19",
-    "@storybook/addons": "^5.3.17",
+    "@storybook/addons": "^6.0.17",
     "@storybook/react": "^5.3.19",
     "@testing-library/react-hooks": "^3.4.1",
     "case-sensitive-paths-webpack-plugin": "^2.3.0",
