@@ -23,7 +23,6 @@ import faQuestionCircle from '@fortawesome/fontawesome-free-solid/faQuestionCirc
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { withContext } from 'shared/AppContext';
-import { loadDutyStationTransportationOffice } from 'shared/TransportationOffices/ducks';
 
 import { getNextPage } from './utility';
 import DocumentsUploaded from './PaymentReview/DocumentsUploaded';
@@ -72,7 +71,6 @@ class WeightTicket extends Component {
   componentDidMount() {
     const { moveId } = this.props;
     this.props.getMoveDocumentsForMove(moveId);
-    this.props.loadDutyStationTransportationOffice(this.props.dutyStationId);
   }
 
   get isCarTrailer() {
@@ -546,8 +544,8 @@ WeightTicket.propTypes = {
 function mapStateToProps(state, ownProps) {
   const moveId = ownProps.match.params.moveId;
   const dutyStationId = get(state, 'serviceMember.currentServiceMember.current_station.id');
-  const officeId = get(state, `transportationOffices.byDutyStationId[${dutyStationId}]`);
-
+  // TODO: get this from entities when getLoggedInUser info is normalized
+  const transportationOffice = get(state, 'user.userInfo.service_member.current_station.transportation_office', {});
   return {
     moveId: moveId,
     formValues: getFormValues(formName)(state),
@@ -556,7 +554,7 @@ function mapStateToProps(state, ownProps) {
     schema: get(state, 'swaggerInternal.spec.definitions.CreateWeightTicketDocumentsPayload', {}),
     currentPpm: get(state, 'ppm.currentPpm'),
     weightTicketSets: selectPPMCloseoutDocumentsForMove(state, moveId, ['WEIGHT_TICKET_SET']),
-    transportationOffice: get(state, `transportationOffices.byId.${officeId}`),
+    transportationOffice: transportationOffice,
     dutyStationId: dutyStationId,
   };
 }
@@ -564,7 +562,6 @@ function mapStateToProps(state, ownProps) {
 const mapDispatchToProps = {
   getMoveDocumentsForMove,
   createWeightTicketSetDocument,
-  loadDutyStationTransportationOffice,
 };
 
 export default withContext(withLastLocation(connect(mapStateToProps, mapDispatchToProps)(WeightTicket)));

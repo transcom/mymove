@@ -32,6 +32,9 @@ type MTOShipment struct {
 	// destination address
 	DestinationAddress *Address `json:"destinationAddress,omitempty"`
 
+	// e tag
+	ETag string `json:"eTag,omitempty"`
+
 	// id
 	// Read Only: true
 	// Format: uuid

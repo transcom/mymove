@@ -3,6 +3,8 @@ import { shallow, mount } from 'enzyme';
 
 import RequestedServiceItemsTable from './RequestedServiceItemsTable';
 
+const handleUpdateServiceItems = jest.fn();
+
 const serviceItemWithImg = {
   id: 'abc123',
   submittedAt: '2020-11-20',
@@ -38,19 +40,34 @@ describe('RequestedServiceItemsTable', () => {
   it('show the correct number of service items in the table', () => {
     const serviceItems = [serviceItemWithImg];
 
-    let wrapper = shallow(<RequestedServiceItemsTable serviceItems={serviceItems} />);
+    let wrapper = shallow(
+      <RequestedServiceItemsTable
+        handleUpdateMTOServiceItemStatus={handleUpdateServiceItems}
+        serviceItems={serviceItems}
+      />,
+    );
 
     expect(wrapper.text().includes('1 item')).toBe(true);
 
     serviceItems.push(serviceItemWithText);
 
-    wrapper = shallow(<RequestedServiceItemsTable serviceItems={serviceItems} />);
+    wrapper = shallow(
+      <RequestedServiceItemsTable
+        handleUpdateMTOServiceItemStatus={handleUpdateServiceItems}
+        serviceItems={serviceItems}
+      />,
+    );
     expect(wrapper.text().includes('2 items')).toBe(true);
   });
 
   it('displays the service item name and submitted date', () => {
     const serviceItems = [serviceItemWithImg, serviceItemWithText, serviceItemWithDetails];
-    const wrapper = mount(<RequestedServiceItemsTable serviceItems={serviceItems} />);
+    const wrapper = mount(
+      <RequestedServiceItemsTable
+        handleUpdateMTOServiceItemStatus={handleUpdateServiceItems}
+        serviceItems={serviceItems}
+      />,
+    );
 
     expect(wrapper.find('.codeName').at(0).text()).toBe('Domestic Crating');
     expect(wrapper.find('.nameAndDate').at(0).text().includes('20 Nov 2020')).toBe(true);
@@ -64,7 +81,12 @@ describe('RequestedServiceItemsTable', () => {
 
   it('shows the service item detail text', () => {
     const serviceItems = [serviceItemWithImg, serviceItemWithText, serviceItemWithDetails];
-    const wrapper = mount(<RequestedServiceItemsTable serviceItems={serviceItems} />);
+    const wrapper = mount(
+      <RequestedServiceItemsTable
+        handleUpdateMTOServiceItemStatus={handleUpdateServiceItems}
+        serviceItems={serviceItems}
+      />,
+    );
 
     expect(wrapper.find('.detailImage').text()).toBe('grandfather clock 7ft x 2ft x 3.5ft');
     expect(wrapper.find('.detail').at(1).text()).toBe('Another service item');
@@ -76,7 +98,12 @@ describe('RequestedServiceItemsTable', () => {
 
   it('displays the approve and reject status buttons', () => {
     const serviceItems = [serviceItemWithImg, serviceItemWithText, serviceItemWithDetails];
-    const wrapper = mount(<RequestedServiceItemsTable serviceItems={serviceItems} />);
+    const wrapper = mount(
+      <RequestedServiceItemsTable
+        handleUpdateMTOServiceItemStatus={handleUpdateServiceItems}
+        serviceItems={serviceItems}
+      />,
+    );
 
     const acceptButtons = wrapper.find({ 'data-testid': 'acceptButton' });
     expect(acceptButtons.at(0).text().includes('Accept')).toBe(true);

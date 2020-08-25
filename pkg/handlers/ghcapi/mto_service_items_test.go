@@ -5,6 +5,12 @@ import (
 	"fmt"
 	"net/http/httptest"
 	"testing"
+	"time"
+
+	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
+	"github.com/transcom/mymove/pkg/services"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
@@ -45,9 +51,12 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	serviceItemCreator := &mocks.MTOServiceItemCreator{}
 
 	suite.T().Run("Successful create", func(t *testing.T) {
+		var serviceItems models.MTOServiceItems
+		serviceItems = append(serviceItems, serviceItem)
+
 		serviceItemCreator.On("CreateMTOServiceItem",
 			mock.Anything,
-		).Return(&serviceItem, nil, nil).Once()
+		).Return(&serviceItems, nil, nil).Once()
 
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -220,4 +229,167 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemop.ListMTOServiceItemsNotFound{}, response)
 	})
+}
+
+func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
+	moveTaskOrderID, _ := uuid.NewV4()
+	serviceItemID, _ := uuid.NewV4()
+
+	req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_service_items/%s/status",
+		moveTaskOrderID, serviceItemID), nil)
+	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	req = suite.AuthenticateUserRequest(req, requestUser)
+
+	params := mtoserviceitemop.UpdateMTOServiceItemStatusParams{
+		HTTPRequest:      req,
+		IfMatch:          etag.GenerateEtag(time.Now()),
+		Body:             &ghcmessages.PatchMTOServiceItemStatusPayload{Status: "APPROVED"},
+		MoveTaskOrderID:  moveTaskOrderID.String(),
+		MtoServiceItemID: serviceItemID.String(),
+	}
+
+	// With this first set of tests we'll use mocked service object responses so that we can make sure the handler
+	// is returning the right HTTP code given a set of circumstances.
+	suite.T().Run("404 - not found response", func(t *testing.T) {
+		serviceItemStatusUpdater := mocks.MTOServiceItemUpdater{}
+		fetcher := mocks.Fetcher{}
+		fetcher.On("FetchRecord",
+			mock.Anything,
+			mock.Anything,
+		).Return(errors.New("Not found error")).Once()
+
+		handler := UpdateMTOServiceItemStatusHandler{
+			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			MTOServiceItemUpdater: &serviceItemStatusUpdater,
+			Fetcher:               &fetcher,
+		}
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusNotFound{}, response)
+	})
+
+	suite.T().Run("200 - success response", func(t *testing.T) {
+		serviceItemStatusUpdater := mocks.MTOServiceItemUpdater{}
+		fetcher := mocks.Fetcher{}
+		fetcher.On("FetchRecord",
+			mock.Anything,
+			mock.Anything,
+		).Return(nil).Once()
+
+		serviceItemStatusUpdater.On("UpdateMTOServiceItemStatus",
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		).Return(&models.MTOServiceItem{ID: serviceItemID}, nil).Once()
+
+		handler := UpdateMTOServiceItemStatusHandler{
+			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			MTOServiceItemUpdater: &serviceItemStatusUpdater,
+			Fetcher:               &fetcher,
+		}
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusOK{}, response)
+	})
+
+	suite.T().Run("412 - precondition failed response", func(t *testing.T) {
+		serviceItemStatusUpdater := mocks.MTOServiceItemUpdater{}
+		fetcher := mocks.Fetcher{}
+		fetcher.On("FetchRecord",
+			mock.Anything,
+			mock.Anything,
+		).Return(nil).Once()
+
+		serviceItemStatusUpdater.On("UpdateMTOServiceItemStatus",
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, services.NewPreconditionFailedError(serviceItemID, errors.New("oh no"))).Once()
+
+		handler := UpdateMTOServiceItemStatusHandler{
+			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			MTOServiceItemUpdater: &serviceItemStatusUpdater,
+			Fetcher:               &fetcher,
+		}
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusPreconditionFailed{}, response)
+	})
+
+	suite.T().Run("500 - internal server error response", func(t *testing.T) {
+		serviceItemStatusUpdater := mocks.MTOServiceItemUpdater{}
+		fetcher := mocks.Fetcher{}
+		fetcher.On("FetchRecord",
+			mock.Anything,
+			mock.Anything,
+		).Return(nil).Once()
+
+		serviceItemStatusUpdater.On("UpdateMTOServiceItemStatus",
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, errors.New("oh no")).Once()
+
+		handler := UpdateMTOServiceItemStatusHandler{
+			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			MTOServiceItemUpdater: &serviceItemStatusUpdater,
+			Fetcher:               &fetcher,
+		}
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusInternalServerError{}, response)
+	})
+
+	suite.T().Run("422 - unprocessable entity response", func(t *testing.T) {
+		serviceItemStatusUpdater := mocks.MTOServiceItemUpdater{}
+		fetcher := mocks.Fetcher{}
+		params.MtoServiceItemID = ""
+		fetcher.On("FetchRecord",
+			mock.Anything,
+			mock.Anything,
+		).Return(nil).Once()
+
+		handler := UpdateMTOServiceItemStatusHandler{
+			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			MTOServiceItemUpdater: &serviceItemStatusUpdater,
+			Fetcher:               &fetcher,
+		}
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusUnprocessableEntity{}, response)
+	})
+
+	// With this we'll do a happy path integration test to ensure that the use of the service object
+	// by the handler is working as expected.
+	suite.T().Run("Successful status update - Integration test", func(t *testing.T) {
+		queryBuilder := query.NewQueryBuilder(suite.DB())
+		mto := testdatagen.MakeDefaultMove(suite.DB())
+		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		requestUser := testdatagen.MakeDefaultUser(suite.DB())
+
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_service_items/%s/status",
+			moveTaskOrderID, serviceItemID), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
+		params := mtoserviceitemop.UpdateMTOServiceItemStatusParams{
+			HTTPRequest:      req,
+			IfMatch:          etag.GenerateEtag(mtoServiceItem.UpdatedAt),
+			Body:             &ghcmessages.PatchMTOServiceItemStatusPayload{Status: "APPROVED"},
+			MoveTaskOrderID:  mto.ID.String(),
+			MtoServiceItemID: mtoServiceItem.ID.String(),
+		}
+
+		fetcher := fetch.NewFetcher(queryBuilder)
+		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder)
+
+		handler := UpdateMTOServiceItemStatusHandler{
+			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			MTOServiceItemUpdater: mtoServiceItemStatusUpdater,
+			Fetcher:               fetcher,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusOK{}, response)
+		okResponse := response.(*mtoserviceitemop.UpdateMTOServiceItemStatusOK)
+		suite.Equal(ghcmessages.MTOServiceItemstatusStatusAPPROVED, string(okResponse.Payload.Status))
+	})
+
 }

@@ -15,15 +15,15 @@ type MTOServiceItemCreator struct {
 }
 
 // CreateMTOServiceItem provides a mock function with given fields: serviceItem
-func (_m *MTOServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServiceItem) (*models.MTOServiceItem, *validate.Errors, error) {
+func (_m *MTOServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, *validate.Errors, error) {
 	ret := _m.Called(serviceItem)
 
-	var r0 *models.MTOServiceItem
-	if rf, ok := ret.Get(0).(func(*models.MTOServiceItem) *models.MTOServiceItem); ok {
+	var r0 *models.MTOServiceItems
+	if rf, ok := ret.Get(0).(func(*models.MTOServiceItem) *models.MTOServiceItems); ok {
 		r0 = rf(serviceItem)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.MTOServiceItem)
+			r0 = ret.Get(0).(*models.MTOServiceItems)
 		}
 	}
 

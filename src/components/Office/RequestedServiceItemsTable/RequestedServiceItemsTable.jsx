@@ -5,7 +5,7 @@ import styles from './RequestedServiceItemsTable.module.scss';
 
 import ServiceItemTableHasImg from 'components/ServiceItemTableHasImg';
 
-const RequestedServiceItemsTable = ({ serviceItems }) => {
+const RequestedServiceItemsTable = ({ serviceItems, handleUpdateMTOServiceItemStatus }) => {
   return (
     <div className={styles.RequestedServiceItemsTable}>
       <h4>
@@ -14,12 +14,16 @@ const RequestedServiceItemsTable = ({ serviceItems }) => {
           ({serviceItems.length} {serviceItems.length === 1 ? 'item' : 'items'})
         </span>
       </h4>
-      <ServiceItemTableHasImg serviceItems={serviceItems} />
+      <ServiceItemTableHasImg
+        serviceItems={serviceItems}
+        handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
+      />
     </div>
   );
 };
 
 RequestedServiceItemsTable.propTypes = {
+  handleUpdateMTOServiceItemStatus: PropTypes.func.isRequired,
   serviceItems: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string,

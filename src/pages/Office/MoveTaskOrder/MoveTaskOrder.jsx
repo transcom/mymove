@@ -2,9 +2,11 @@ import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { get, map } from 'lodash';
 import { GridContainer } from '@trussworks/react-uswds';
+import { queryCache, useMutation } from 'react-query';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
+import { MTO_SERVICE_ITEMS } from 'constants/queryKeys';
 import ShipmentContainer from 'components/Office/ShipmentContainer';
 import ShipmentHeading from 'components/Office/ShipmentHeading';
 import ImportantShipmentDates from 'components/Office/ImportantShipmentDates';
@@ -15,6 +17,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
 import { SERVICE_ITEM_STATUS } from 'shared/constants';
+import { patchMTOServiceItemStatus } from 'services/ghcApi';
 import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
 
 function formatShipmentType(shipmentType) {
@@ -46,11 +49,49 @@ export const MoveTaskOrder = ({ match }) => {
     isError,
   } = useMoveTaskOrderQueries(moveOrderId);
 
-  if (isLoading) return <LoadingPlaceholder />;
-  if (isError) return <SomethingWentWrong />;
+  let mtoServiceItemsArr;
+  if (mtoServiceItems) {
+    mtoServiceItemsArr = Object.values(mtoServiceItems);
+  }
 
   const moveOrder = Object.values(moveOrders)?.[0];
-  const moveTaskOrder = Object.values(moveTaskOrders)?.[0];
+  let moveTaskOrder;
+  if (moveTaskOrders) {
+    moveTaskOrder = Object.values(moveTaskOrders)?.[0];
+  }
+
+  const [mutateMTOServiceItemStatus] = useMutation(patchMTOServiceItemStatus, {
+    onSuccess: (data, variables) => {
+      const newMTOServiceItem = data.mtoServiceItems[variables.mtoServiceItemID];
+      queryCache.setQueryData([MTO_SERVICE_ITEMS, variables.mtoServiceItemID], {
+        mtoServiceItems: {
+          ...mtoServiceItems,
+          [`${variables.mtoServiceItemID}`]: newMTOServiceItem,
+        },
+      });
+      queryCache.invalidateQueries(MTO_SERVICE_ITEMS);
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      // TODO: Handle error some how
+      // eslint-disable-next-line no-console
+      console.log(errorMsg);
+    },
+  });
+
+  const handleUpdateMTOServiceItemStatus = (mtoServiceItemID, status) => {
+    const mtoServiceItemForRequest = mtoServiceItemsArr.find((s) => s.id === mtoServiceItemID);
+
+    mutateMTOServiceItemStatus({
+      moveTaskOrderId: moveTaskOrder.id,
+      mtoServiceItemID,
+      status,
+      ifMatchEtag: mtoServiceItemForRequest.eTag,
+    });
+  };
+
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong />;
 
   const serviceItems = map(mtoServiceItems, (item) => {
     const newItem = { ...item };
@@ -77,7 +118,11 @@ export const MoveTaskOrder = ({ match }) => {
             (item) => item.status === SERVICE_ITEM_STATUS.SUBMITTED,
           );
           return (
-            <ShipmentContainer shipmentType={mtoShipment.shipmentType} className={styles.shipmentCard}>
+            <ShipmentContainer
+              key={mtoShipment.id}
+              shipmentType={mtoShipment.shipmentType}
+              className={styles.shipmentCard}
+            >
               <ShipmentHeading
                 key={mtoShipment.id}
                 shipmentInfo={{
@@ -105,7 +150,12 @@ export const MoveTaskOrder = ({ match }) => {
                 estimatedWeight={mtoShipment?.primeEstimatedWeight}
                 actualWeight={mtoShipment?.primeActualWeight}
               />
-              {requestedServiceItems?.length > 0 && <RequestedServiceItemsTable serviceItems={requestedServiceItems} />}
+              {requestedServiceItems?.length > 0 && (
+                <RequestedServiceItemsTable
+                  serviceItems={requestedServiceItems}
+                  handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
+                />
+              )}
             </ShipmentContainer>
           );
         })}

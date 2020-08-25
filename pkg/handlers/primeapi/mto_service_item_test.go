@@ -73,7 +73,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
 
 		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
-		suite.NotZero(okResponse.Payload.ID())
+		suite.NotZero(okResponse.Payload[0].ID())
 	})
 
 	suite.T().Run("POST failure - 500", func(t *testing.T) {
@@ -314,7 +314,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
 
 		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
-		suite.NotZero(okResponse.Payload.ID())
+		suite.NotZero(okResponse.Payload[0].ID())
 	})
 
 	suite.T().Run("Successful POST - Integration Test - Domestic Uncrating", func(t *testing.T) {
@@ -335,7 +335,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
 
 		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
-		suite.NotZero(okResponse.Payload.ID())
+		suite.NotZero(okResponse.Payload[0].ID())
 	})
 
 	suite.T().Run("Successful POST - Integration Test - Domestic Crating Standalone", func(t *testing.T) {
@@ -356,7 +356,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
 
 		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
-		suite.NotZero(okResponse.Payload.ID())
+		suite.NotZero(okResponse.Payload[0].ID())
 	})
 
 	suite.T().Run("POST failure - 422", func(t *testing.T) {
@@ -437,6 +437,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDDFSITHandler() {
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
 
 		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
-		suite.NotZero(okResponse.Payload.ID())
+		suite.NotZero(okResponse.Payload[0].ID())
 	})
 }

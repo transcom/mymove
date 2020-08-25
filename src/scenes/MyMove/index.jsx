@@ -50,7 +50,7 @@ import { withContext } from 'shared/AppContext';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 import { CONUS_STATUS } from 'shared/constants';
 import EditShipment from '../../components/Customer/EditShipment';
-
+import Home from '../../pages/MyMove/Home';
 export class AppWrapper extends Component {
   state = { hasError: false };
 
@@ -111,6 +111,7 @@ export class AppWrapper extends Component {
                   <Route path="/privacy-and-security-policy" component={PrivacyPolicyStatement} />
                   <Route path="/accessibility" component={AccessibilityStatement} />
                   {getWorkflowRoutes(props)}
+                  {props.context.flags.hhgFlow && <ValidatedPrivateRoute exact path="/home-2" component={Home} />}
                   <ValidatedPrivateRoute exact path="/moves/:moveId/edit" component={Edit} />
                   <ValidatedPrivateRoute exact path="/moves/review/edit-profile" component={EditProfile} />
                   <ValidatedPrivateRoute exact path="/moves/review/edit-shipment" component={EditShipment} />

@@ -65,7 +65,7 @@ const customerMoveProps = shape({
   id: string.isRequired,
   first_name: string.isRequired,
   last_name: string.isRequired,
-  confirmation_number: string.isRequired,
+  confirmation_number: string,
   branch_of_service: string,
   originDutyStation: shape({
     name: string.isRequired,
