@@ -46,7 +46,8 @@ func NewMTOShipmentUpdater(db *pop.Connection, builder UpdateMTOShipmentQueryBui
 // setNewShipmentFields validates the updated shipment
 func setNewShipmentFields(dbShipment *models.MTOShipment, requestedUpdatedShipment *models.MTOShipment) error {
 	verrs := validate.NewErrors()
-	oldShipmentCopy := dbShipment // make a copy to restore values in case there were errors while setting
+	var oldShipmentCopy *models.MTOShipment
+	deepcopy.Copy(oldShipmentCopy, dbShipment) // make a copy to restore values in case there were errors while setting
 
 	if requestedUpdatedShipment.RequestedPickupDate != nil {
 		dbShipment.RequestedPickupDate = requestedUpdatedShipment.RequestedPickupDate
@@ -83,23 +84,19 @@ func setNewShipmentFields(dbShipment *models.MTOShipment, requestedUpdatedShipme
 	}
 
 	if requestedUpdatedShipment.PickupAddress != nil {
-		pickupAddress := requestedUpdatedShipment.PickupAddress
-		dbShipment.PickupAddress = pickupAddress
+		dbShipment.PickupAddress = requestedUpdatedShipment.PickupAddress
 	}
 
 	if requestedUpdatedShipment.DestinationAddress != nil {
-		destinationAddress := requestedUpdatedShipment.DestinationAddress
-		dbShipment.DestinationAddress = destinationAddress
+		dbShipment.DestinationAddress = requestedUpdatedShipment.DestinationAddress
 	}
 
 	if requestedUpdatedShipment.SecondaryPickupAddress != nil {
-		secondaryPickupAddress := requestedUpdatedShipment.SecondaryPickupAddress
-		dbShipment.SecondaryPickupAddress = secondaryPickupAddress
+		dbShipment.SecondaryPickupAddress = requestedUpdatedShipment.SecondaryPickupAddress
 	}
 
 	if requestedUpdatedShipment.SecondaryDeliveryAddress != nil {
-		secondaryDeliveryAddress := requestedUpdatedShipment.SecondaryDeliveryAddress
-		dbShipment.SecondaryPickupAddress = secondaryDeliveryAddress
+		dbShipment.SecondaryPickupAddress = requestedUpdatedShipment.SecondaryDeliveryAddress
 	}
 
 	if requestedUpdatedShipment.ShipmentType != "" {
@@ -121,38 +118,48 @@ func setNewShipmentFields(dbShipment *models.MTOShipment, requestedUpdatedShipme
 		dbShipment.CustomerRemarks = requestedUpdatedShipment.CustomerRemarks
 	}
 
-	//// Should not update MTOAgents here because we don't have an eTag
+	//// TODO: move mtoagent creation into service: Should not update MTOAgents here because we don't have an eTag
 	if len(requestedUpdatedShipment.MTOAgents) > 0 {
+		agentsToCreate := []models.MTOAgent{}
 		for _, newAgentInfo := range requestedUpdatedShipment.MTOAgents {
-			foundAgent := false
-			for i, dbAgent := range dbShipment.MTOAgents {
-				if dbAgent.ID == newAgentInfo.ID {
-					foundAgent = true
-					if newAgentInfo.MTOAgentType != "" && newAgentInfo.MTOAgentType != dbAgent.MTOAgentType {
-						dbShipment.MTOAgents[i].MTOAgentType = newAgentInfo.MTOAgentType
+			// if no record exists in the db
+			if newAgentInfo.ID == uuid.Nil {
+				newAgentInfo.MTOShipmentID = requestedUpdatedShipment.ID
+				agentsToCreate = append(agentsToCreate, newAgentInfo)
+			} else {
+				foundAgent := false
+				// make sure there is an existing record in the db
+				for i, dbAgent := range dbShipment.MTOAgents {
+					if foundAgent == true {
+						break
 					}
+					if dbAgent.ID == newAgentInfo.ID {
+						foundAgent = true
+						if newAgentInfo.MTOAgentType != "" && newAgentInfo.MTOAgentType != dbAgent.MTOAgentType {
+							dbShipment.MTOAgents[i].MTOAgentType = newAgentInfo.MTOAgentType
+						}
 
-					if newAgentInfo.FirstName != nil {
-						dbShipment.MTOAgents[i].FirstName = newAgentInfo.FirstName
-					}
+						if newAgentInfo.FirstName != nil {
+							dbShipment.MTOAgents[i].FirstName = newAgentInfo.FirstName
+						}
 
-					if newAgentInfo.LastName != nil {
-						dbShipment.MTOAgents[i].LastName = newAgentInfo.LastName
-					}
+						if newAgentInfo.LastName != nil {
+							dbShipment.MTOAgents[i].LastName = newAgentInfo.LastName
+						}
 
-					if newAgentInfo.Email != nil {
-						dbShipment.MTOAgents[i].Email = newAgentInfo.Email
-					}
+						if newAgentInfo.Email != nil {
+							dbShipment.MTOAgents[i].Email = newAgentInfo.Email
+						}
 
-					if newAgentInfo.Phone != nil {
-						dbShipment.MTOAgents[i].Phone = newAgentInfo.Phone
+						if newAgentInfo.Phone != nil {
+							dbShipment.MTOAgents[i].Phone = newAgentInfo.Phone
+						}
 					}
-				}
-				if !foundAgent {
-					newAgentInfo.MTOShipmentID = requestedUpdatedShipment.ID
-					dbShipment.MTOAgents[i] = newAgentInfo
 				}
 			}
+		}
+		for _, agent := range agentsToCreate {
+			dbShipment.MTOAgents = append(dbShipment.MTOAgents, agent)
 		}
 	}
 
@@ -191,7 +198,7 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, 
 	}
 	err = setNewShipmentFields(&oldShipment, mtoShipment)
 	if err != nil {
-		return mtoShipment, err
+		return nil, err
 	}
 	newShipment := &oldShipment // old shipment has now been updated with requested changes
 	// db version is used to check if agents need creating or updating
@@ -275,7 +282,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 			}
 		}
 
-		if newShipment.MTOAgents != nil {
+		if len(newShipment.MTOAgents) != 0 {
 			agentQuery := `UPDATE mto_agents
 					SET
 				`
@@ -292,7 +299,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 					}
 				}
 				if agent.ID == uuid.Nil {
-					// create a new agent
+					// create a new agent if it doesn't already exist
 					agent.MTOShipmentID = dbShipment.ID
 					verrs, err := f.builder.CreateOne(&agent)
 					if verrs != nil && verrs.HasAny() {
@@ -453,7 +460,7 @@ func generateAddressQuery() string {
 }
 
 func generateAddressParams(address *models.Address) []interface{} {
-	destinationAddressID := address.ID
+	addressID := address.ID
 	city := address.City
 	country := address.Country
 	postalCode := address.PostalCode
@@ -462,21 +469,22 @@ func generateAddressParams(address *models.Address) []interface{} {
 	streetAddress2 := address.StreetAddress2
 	streetAddress3 := address.StreetAddress3
 	paramArr := []interface{}{
-		destinationAddressID,
-		destinationAddressID,
+		addressID,
+		addressID,
 		city,
-		destinationAddressID,
+		addressID,
 		country,
-		destinationAddressID,
+		addressID,
 		postalCode,
-		destinationAddressID,
+		addressID,
 		state,
-		destinationAddressID,
+		addressID,
 		streetAddress1,
-		destinationAddressID,
+		addressID,
 		streetAddress2,
-		destinationAddressID,
-		streetAddress3}
+		addressID,
+		streetAddress3,
+	}
 	return paramArr
 }
 

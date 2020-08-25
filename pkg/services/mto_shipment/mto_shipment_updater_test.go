@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-openapi/swag"
+
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/route/mocks"
@@ -123,37 +125,37 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			},
 		})
 		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
-		//newDestinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-		//	Address: models.Address{
-		//		StreetAddress1: "987 Other Avenue",
-		//		StreetAddress2: swag.String("P.O. Box 1234"),
-		//		StreetAddress3: swag.String("c/o Another Person"),
-		//		City:           "Des Moines",
-		//		State:          "IA",
-		//		PostalCode:     "50309",
-		//		Country:        swag.String("US"),
-		//	},
-		//})
-		//newPickupAddress := testdatagen.MakeAddress4(suite.DB(), testdatagen.Assertions{
-		//	Address : models.Address{
-		//		StreetAddress1: "987 Over There Avenue",
-		//		StreetAddress2: swag.String("P.O. Box 1234"),
-		//		StreetAddress3: swag.String("c/o Another Person"),
-		//		City:           "Houston",
-		//		State:          "TX",
-		//		PostalCode:     "77083",
-		//		Country:        swag.String("US"),
-		//	},
-		//})
+		newDestinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+			Address: models.Address{
+				StreetAddress1: "987 Other Avenue",
+				StreetAddress2: swag.String("P.O. Box 1234"),
+				StreetAddress3: swag.String("c/o Another Person"),
+				City:           "Des Moines",
+				State:          "IA",
+				PostalCode:     "50309",
+				Country:        swag.String("US"),
+			},
+		})
+		newPickupAddress := testdatagen.MakeAddress4(suite.DB(), testdatagen.Assertions{
+			Address: models.Address{
+				StreetAddress1: "987 Over There Avenue",
+				StreetAddress2: swag.String("P.O. Box 1234"),
+				StreetAddress3: swag.String("c/o Another Person"),
+				City:           "Houston",
+				State:          "TX",
+				PostalCode:     "77083",
+				Country:        swag.String("US"),
+			},
+		})
 		requestedPickupDate := time.Date(2019, time.March, 15, 0, 0, 0, 0, time.UTC)
 		requestedDeliveryDate := time.Date(2019, time.March, 30, 0, 0, 0, 0, time.UTC)
 		customerRemarks := "I have a grandfather clock"
 		updatedShipment := models.MTOShipment{
-			ID: oldShipment.ID,
-			//DestinationAddress:         &newDestinationAddress,
-			//DestinationAddressID:       &newDestinationAddress.ID,
-			//PickupAddress:              &newPickupAddress,
-			//PickupAddressID:            &newPickupAddress.ID,
+			ID:                   oldShipment.ID,
+			DestinationAddress:   &newDestinationAddress,
+			DestinationAddressID: &newDestinationAddress.ID,
+			PickupAddress:        &newPickupAddress,
+			PickupAddressID:      &newPickupAddress.ID,
 			//SecondaryPickupAddress:     &secondaryPickupAddress,
 			//SecondaryDeliveryAddress:   &secondaryDeliveryAddress,
 			RequestedPickupDate:        &requestedPickupDate,
@@ -166,11 +168,11 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			FirstAvailableDeliveryDate: &firstAvailableDeliveryDate,
 			Status:                     models.MTOShipmentStatusSubmitted,
 			CustomerRemarks:            &customerRemarks,
-			//MTOAgents:
 			// PrimeEstimatedWeightRecordedDate
-			//UpdatedAt: oldShipment.UpdatedAt,
 		}
+
 		newShipment, err := mtoShipmentUpdater.UpdateMTOShipment(&updatedShipment, eTag)
+
 		suite.NoError(err)
 		suite.True(requestedPickupDate.Equal(*newShipment.RequestedPickupDate))
 		suite.True(scheduledPickupDate.Equal(*newShipment.ScheduledPickupDate))
@@ -182,6 +184,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(primeActualWeight, *newShipment.PrimeActualWeight)
 		suite.Equal(customerRemarks, *newShipment.CustomerRemarks)
 		suite.Equal(models.MTOShipmentStatusSubmitted, newShipment.Status)
+		//suite.Equal(newDestinationAddress, *newShipment.DestinationAddress)
+		//suite.Equal(newPickupAddress, *newShipment.PickupAddress)
+
 	})
 
 	//suite.T().Run("Failed case if not both approved date and estimated weight recorded date is more than ten days prior to scheduled move date", func(t *testing.T) {
@@ -413,50 +418,88 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	//	suite.NotNil(updatedMTOShipment.PrimeEstimatedWeightRecordedDate)
 	//})
 	//
-	//suite.T().Run("Successfully update MTO Agents", func(t *testing.T) {
-	//	shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
-	//	mtoAgent1 := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-	//		MTOAgent: models.MTOAgent{
-	//			MTOShipment:   shipment,
-	//			MTOShipmentID: shipment.ID,
-	//			FirstName:     swag.String("Test"),
-	//			LastName:      swag.String("Agent"),
-	//			Email:         swag.String("test@test.email.com"),
-	//			MTOAgentType:  models.MTOAgentReleasing,
-	//		},
-	//	})
-	//	mtoAgent2 := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-	//		MTOAgent: models.MTOAgent{
-	//			MTOShipment:   shipment,
-	//			MTOShipmentID: shipment.ID,
-	//			FirstName:     swag.String("Test"),
-	//			LastName:      swag.String("Agent2"),
-	//			Email:         swag.String("test2@test.email.com"),
-	//			MTOAgentType:  models.MTOAgentReceiving,
-	//		},
-	//	})
-	//	eTag := etag.GenerateEtag(shipment.UpdatedAt)
-	//
-	//	updatedAgents := make(models.MTOAgents, 2)
-	//	updatedAgents[0] = mtoAgent1
-	//	updatedAgents[1] = mtoAgent2
-	//	newFirstName := "hey this is new"
-	//	newLastName := "new thing"
-	//	updatedAgents[0].FirstName = &newFirstName
-	//	updatedAgents[1].LastName = &newLastName
-	//
-	//	updatedShipment := models.MTOShipment{
-	//		ID:        shipment.ID,
-	//		MTOAgents: updatedAgents,
-	//	}
-	//
-	//	updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipment(&updatedShipment, eTag)
-	//
-	//	suite.NoError(err)
-	//	suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
-	//	suite.Equal(*updatedMTOShipment.MTOAgents[0].FirstName, newFirstName)
-	//	suite.Equal(*updatedMTOShipment.MTOAgents[1].LastName, newLastName)
-	//})
+	suite.T().Run("Successfully update MTO Agents", func(t *testing.T) {
+		shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		mtoAgent1 := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
+			MTOAgent: models.MTOAgent{
+				MTOShipment:   shipment,
+				MTOShipmentID: shipment.ID,
+				FirstName:     swag.String("Test"),
+				LastName:      swag.String("Agent"),
+				Email:         swag.String("test@test.email.com"),
+				MTOAgentType:  models.MTOAgentReleasing,
+			},
+		})
+		mtoAgent2 := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
+			MTOAgent: models.MTOAgent{
+				MTOShipment:   shipment,
+				MTOShipmentID: shipment.ID,
+				FirstName:     swag.String("Test2"),
+				LastName:      swag.String("Agent2"),
+				Email:         swag.String("test2@test.email.com"),
+				MTOAgentType:  models.MTOAgentReceiving,
+			},
+		})
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+
+		updatedAgents := make(models.MTOAgents, 2)
+		updatedAgents[0] = mtoAgent1
+		updatedAgents[1] = mtoAgent2
+		newFirstName := "hey this is new"
+		newLastName := "new thing"
+		updatedAgents[0].FirstName = &newFirstName
+		updatedAgents[1].LastName = &newLastName
+
+		updatedShipment := models.MTOShipment{
+			ID:        shipment.ID,
+			MTOAgents: updatedAgents,
+		}
+
+		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipment(&updatedShipment, eTag)
+
+		suite.NoError(err)
+		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
+		suite.Equal(newFirstName, *updatedMTOShipment.MTOAgents[0].FirstName)
+		suite.Equal(newLastName, *updatedMTOShipment.MTOAgents[1].LastName)
+	})
+
+	suite.T().Run("Successfully add MTO Agents", func(t *testing.T) {
+		shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
+			MTOAgent: models.MTOAgent{
+				MTOShipment:   shipment,
+				MTOShipmentID: shipment.ID,
+				FirstName:     swag.String("Test"),
+				LastName:      swag.String("Agent"),
+				Email:         swag.String("test@test.email.com"),
+				MTOAgentType:  models.MTOAgentReleasing,
+			},
+		})
+
+		mtoAgentToCreate := models.MTOAgent{
+			MTOShipment:   shipment,
+			MTOShipmentID: shipment.ID,
+			FirstName:     swag.String("Ima"),
+			LastName:      swag.String("Newagent"),
+			Email:         swag.String("test2@test.email.com"),
+			MTOAgentType:  models.MTOAgentReceiving,
+		}
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+
+		updatedAgents := make(models.MTOAgents, 1)
+		updatedAgents[0] = mtoAgentToCreate
+
+		updatedShipment := models.MTOShipment{
+			ID:        shipment.ID,
+			MTOAgents: updatedAgents,
+		}
+
+		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipment(&updatedShipment, eTag)
+
+		suite.NoError(err)
+		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
+		suite.Equal(*mtoAgentToCreate.FirstName, *updatedMTOShipment.MTOAgents[0].FirstName)
+	})
 }
 
 func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
