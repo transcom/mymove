@@ -17,7 +17,6 @@ import ProfileReview from 'scenes/Review/ProfileReview';
 import Orders from 'scenes/Orders/Orders';
 import DutyStation from 'scenes/ServiceMembers/DutyStation';
 
-import TransitionToMove from 'scenes/Orders/TransitionToMove';
 import UploadOrders from 'scenes/Orders/UploadOrders';
 
 import MoveLanding from 'pages/MyMove/MoveLanding';
@@ -71,7 +70,6 @@ const notMyFirstRodeo = (props) => props.lastMoveIsCanceled;
 const hasPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === SHIPMENT_OPTIONS.PPM;
 const inHhgFlow = (props) => props.context.flags.hhgFlow;
 const inGhcFlow = (props) => props.context.flags.ghcFlow;
-const removeForDemo = (props) => props.context.flags.disableForDemo;
 const isCurrentMoveSubmitted = ({ move }) => {
   return get(move, 'status', 'DRAFT') === 'SUBMITTED';
 };
@@ -139,7 +137,7 @@ const pages = {
     description: 'Backup contacts',
   },
   '/service-member/:serviceMemberId/move-landing': {
-    isInFlow: (props) => myFirstRodeo(props) && inGhcFlow(props) && !removeForDemo(props),
+    isInFlow: (props) => myFirstRodeo(props) && inGhcFlow(props),
     isComplete: always,
     render: (key, pages) => () => {
       return (
@@ -172,19 +170,8 @@ const pages = {
     render: (key, pages) => ({ match }) => <UploadOrders pages={pages} pageKey={key} match={match} />,
     description: 'Upload your orders',
   },
-  '/orders/transition': {
-    isInFlow: always,
-    isComplete: always,
-    render: (key, pages, description, props) => ({ match }) => {
-      return (
-        <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key} additionalParams={{ moveId: props.moveId }}>
-          <TransitionToMove />
-        </WizardPage>
-      );
-    },
-  },
   '/moves/:moveId/moving-info': {
-    isInFlow: (props) => inHhgFlow(props) && !removeForDemo(props),
+    isInFlow: (props) => inHhgFlow(props),
     isComplete: always,
     render: (key, pages) => () => {
       return (
@@ -195,8 +182,7 @@ const pages = {
     },
   },
   '/moves/:moveId/select-type': {
-    // TODO: prevent user from hard-coding URL if they have a PPM or HHG existent?
-    isInFlow: inHhgFlow,
+    isInFlow: always,
     isComplete: ({ sm, orders, move }) => get(move, 'selected_move_type', null),
     render: (key, pages, props) => ({ match, history }) => (
       <SelectMoveType pageList={pages} pageKey={key} match={match} push={history.push} />
