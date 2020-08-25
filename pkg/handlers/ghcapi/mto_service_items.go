@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/transcom/mymove/pkg/etag"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
@@ -15,79 +13,12 @@ import (
 	mtoserviceitemop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/audit"
 	"github.com/transcom/mymove/pkg/services/query"
 )
-
-func payloadForMTOServiceItemModel(s *models.MTOServiceItem, logger handlers.Logger) *ghcmessages.MTOServiceItem {
-	if s == nil {
-		return nil
-	}
-
-	return &ghcmessages.MTOServiceItem{
-		ID:               handlers.FmtUUID(s.ID),
-		MoveTaskOrderID:  handlers.FmtUUID(s.MoveTaskOrderID),
-		MtoShipmentID:    handlers.FmtUUIDPtr(s.MTOShipmentID),
-		ReServiceID:      handlers.FmtUUID(s.ReServiceID),
-		ReServiceCode:    handlers.FmtString(string(s.ReService.Code)),
-		ReServiceName:    handlers.FmtStringPtr(&s.ReService.Name),
-		Reason:           handlers.FmtStringPtr(s.Reason),
-		PickupPostalCode: handlers.FmtStringPtr(s.PickupPostalCode),
-		Status:           ghcmessages.MTOServiceItemStatus(s.Status),
-		Dimensions:       MTOServiceItemDimensions(s.Dimensions),
-		CustomerContacts: MTOServiceItemCustomerContacts(s.CustomerContacts),
-		ETag:             etag.GenerateEtag(s.UpdatedAt),
-	}
-}
-
-// MTOServiceItemDimension payload
-func MTOServiceItemDimension(d *models.MTOServiceItemDimension) *ghcmessages.MTOServiceItemDimension {
-	return &ghcmessages.MTOServiceItemDimension{
-		ID:     *handlers.FmtUUID(d.ID),
-		Type:   ghcmessages.DimensionType(d.Type),
-		Length: *d.Length.Int32Ptr(),
-		Height: *d.Height.Int32Ptr(),
-		Width:  *d.Width.Int32Ptr(),
-	}
-}
-
-// MTOServiceItemDimensions payload
-func MTOServiceItemDimensions(d models.MTOServiceItemDimensions) ghcmessages.MTOServiceItemDimensions {
-	payload := ghcmessages.MTOServiceItemDimensions{}
-	for _, item := range d {
-		payload = append(payload, MTOServiceItemDimension(&item))
-	}
-	return payload
-}
-
-// MTOServiceItemCustomerContact payload
-func MTOServiceItemCustomerContact(c *models.MTOServiceItemCustomerContact) *ghcmessages.MTOServiceItemCustomerContact {
-	return &ghcmessages.MTOServiceItemCustomerContact{
-		Type:                       ghcmessages.CustomerContactType(c.Type),
-		TimeMilitary:               c.TimeMilitary,
-		FirstAvailableDeliveryDate: *handlers.FmtDate(c.FirstAvailableDeliveryDate),
-	}
-}
-
-// MTOServiceItemCustomerContacts payload
-func MTOServiceItemCustomerContacts(c models.MTOServiceItemCustomerContacts) ghcmessages.MTOServiceItemCustomerContacts {
-	payload := ghcmessages.MTOServiceItemCustomerContacts{}
-	for _, item := range c {
-		payload = append(payload, MTOServiceItemCustomerContact(&item))
-	}
-	return payload
-}
-
-func payloadForMTOServiceItemModels(s models.MTOServiceItems, logger handlers.Logger) ghcmessages.MTOServiceItems {
-	serviceItems := ghcmessages.MTOServiceItems{}
-	for _, item := range s {
-		serviceItems = append(serviceItems, payloadForMTOServiceItemModel(&item, logger))
-	}
-
-	return serviceItems
-}
 
 func payloadForClientError(title string, detail string, instance uuid.UUID) *ghcmessages.ClientError {
 	return &ghcmessages.ClientError{
@@ -173,7 +104,7 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemop.CreateMTOSer
 		return mtoserviceitemop.NewCreateMTOServiceItemInternalServerError()
 	}
 
-	serviceItemsPayload := payloadForMTOServiceItemModels(*createdServiceItems, logger)
+	serviceItemsPayload := payloads.MTOServiceItemModels(*createdServiceItems)
 	return mtoserviceitemop.NewCreateMTOServiceItemCreated().WithPayload(serviceItemsPayload[0])
 }
 
@@ -233,7 +164,7 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 		}
 	}
 
-	payload := payloadForMTOServiceItemModel(updatedMTOServiceItem, logger)
+	payload := payloads.MTOServiceItemModel(updatedMTOServiceItem)
 	return mtoserviceitemop.NewUpdateMTOServiceItemStatusOK().WithPayload(payload)
 }
 
@@ -289,6 +220,6 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 		return mtoserviceitemop.NewListMTOServiceItemsInternalServerError()
 	}
 
-	returnPayload := payloadForMTOServiceItemModels(serviceItems, logger)
+	returnPayload := payloads.MTOServiceItemModels(serviceItems)
 	return mtoserviceitemop.NewListMTOServiceItemsOK().WithPayload(returnPayload)
 }

@@ -2,6 +2,9 @@ import PropTypes from 'prop-types';
 
 import { AddressShape } from './address';
 
+import dimensionTypes from 'constants/dimensionTypes';
+import customerContactTypes from 'constants/customerContactTypes';
+
 export const DestinationDutyStationShape = PropTypes.shape({
   name: PropTypes.string,
   address: PropTypes.AddressShape,
@@ -93,12 +96,25 @@ export const MoveTaskOrderShape = PropTypes.shape({
   updatedAt: PropTypes.string,
 });
 
+export const MTOServiceItemDimensionShape = PropTypes.shape({
+  type: PropTypes.oneOf(Object.values(dimensionTypes)),
+  length: PropTypes.number,
+  height: PropTypes.number,
+  width: PropTypes.number,
+});
+
+export const MTOServiceItemCustomerContactShape = PropTypes.shape({
+  type: PropTypes.oneOf(Object.values(customerContactTypes)),
+  timeMilitary: PropTypes.string,
+  firstAvailableDeliveryDate: PropTypes.string,
+});
+
 export const MTOServiceItemShape = PropTypes.shape({
   approvedAt: PropTypes.string,
   createdAt: PropTypes.string,
-  customerContacts: PropTypes.string,
+  customerContacts: PropTypes.arrayOf(MTOServiceItemCustomerContactShape),
   deletedAt: PropTypes.string,
-  dimensions: PropTypes.object,
+  dimensions: PropTypes.arrayOf(MTOServiceItemDimensionShape),
   id: PropTypes.string,
   moveTaskOrderID: PropTypes.string,
   mtoShipmentID: PropTypes.string,
@@ -110,19 +126,6 @@ export const MTOServiceItemShape = PropTypes.shape({
   rejectedAt: PropTypes.string,
   submittedAt: PropTypes.string,
   status: PropTypes.string,
-});
-
-export const MTOServiceItemDimensionShape = PropTypes.shape({
-  type: PropTypes.oneOf(['ITEM', 'CRATE']),
-  length: PropTypes.number,
-  height: PropTypes.number,
-  width: PropTypes.number,
-});
-
-export const MTOServiceItemCustomerContactShape = PropTypes.shape({
-  type: PropTypes.oneOf(['FIRST', 'SECOND']),
-  timeMilitary: PropTypes.string,
-  firstAvailableDeliveryDate: PropTypes.string,
 });
 
 export const PaymentServiceItemShape = PropTypes.shape({
