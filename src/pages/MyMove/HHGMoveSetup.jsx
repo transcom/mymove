@@ -10,7 +10,11 @@ import {
 =======
 import styles from './HHGMove.module.scss';
 
+<<<<<<< Updated upstream
 >>>>>>> origin/MB-3484_pre-demo-cleanup
+=======
+>>>>>>> ecf3e1a213f2901963951d4b88d6383742788c95
+>>>>>>> Stashed changes
 import HHGDetailsForm from 'components/Customer/HHGDetailsForm';
 import '../../ghc_index.scss';
 
@@ -50,7 +54,11 @@ const HHGMoveSetup = ({ pageList, pageKey, match, push }) => (
     <HHGDetailsForm pageList={pageList} pageKey={pageKey} match={match} push={push} />
   </div>
 );
+<<<<<<< Updated upstream
 >>>>>>> origin/MB-3484_pre-demo-cleanup
+=======
+>>>>>>> ecf3e1a213f2901963951d4b88d6383742788c95
+>>>>>>> Stashed changes
 
 HHGMoveSetup.propTypes = {
   pageList: arrayOf(string).isRequired,
