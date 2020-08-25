@@ -7,11 +7,8 @@ import (
 	"testing"
 
 	"github.com/gofrs/uuid"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zaptest/observer"
 
 	"github.com/transcom/mymove/pkg/etag"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/query"
 
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
@@ -76,16 +73,14 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			IfMatch:          eTag,
 		}
 		queryBuilder := query.NewQueryBuilder(suite.DB())
-		// Set up the observer so we can check the log output later:
-		logCore, logs := observer.New(zap.InfoLevel)
 
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerContext:              handlers.NewHandlerContext(suite.DB(), zap.New(logCore)),
+			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
 			PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(queryBuilder),
 		}
 		traceID, err := uuid.NewV4()
-		suite.NoError(err, "Error creating a new trace ID.")
+		suite.FatalNoError(err, "Error creating a new trace ID.")
 		handler.SetTraceID(traceID)
 
 		response := handler.Handle(params)
@@ -95,17 +90,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 		suite.Equal(paymentRequestStatusPayload.Status, params.Body.Status)
 		suite.IsType(paymentrequestop.NewUpdatePaymentRequestStatusOK(), response)
-
-		notification := &models.WebhookNotification{}
-		err = suite.DB().Where("object_id = $1 AND trace_id = $2", availablePaymentRequestID.String(), traceID.String()).First(notification)
-		suite.NoError(err)
-		suite.Equal(string(notification.Status), "PENDING")
-
-		suite.Greater(logs.Len(), 0)
-		if logs.Len() > 0 {
-			entry := logs.All()[0]
-			suite.Contains(entry.Message, "Notification created and stored.")
-		}
+		suite.HasWebhookNotification(availablePaymentRequestID, traceID)
 	})
 
 	suite.T().Run("unsuccessful status update of payment request (500)", func(t *testing.T) {
