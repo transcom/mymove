@@ -9,6 +9,7 @@ const serviceItemWithImg = {
   id: 'abc123',
   submittedAt: '2020-11-20',
   serviceItem: 'Domestic Crating',
+  status: 'SUBMITTED',
   code: 'DCRT',
   details: {
     text: 'grandfather clock 7ft x 2ft x 3.5ft',
@@ -20,6 +21,7 @@ const serviceItemWithText = {
   id: 'abc1234',
   submittedAt: '2020-09-01',
   serviceItem: 'Domestic origin SIT',
+  status: 'SUBMITTED',
   code: 'DOMSIT',
   details: {
     text: 'Another service item',
@@ -30,6 +32,7 @@ const serviceItemWithDetails = {
   id: 'abc1234',
   submittedAt: '2020-10-15',
   serviceItem: 'Fuel Surcharge',
+  status: 'SUBMITTED',
   code: 'FSC',
   details: {
     text: { ZIP: '20050', Reason: 'Took a detour' },
