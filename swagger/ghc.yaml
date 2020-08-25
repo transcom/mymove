@@ -2050,11 +2050,15 @@ definitions:
       createdAt:
         format: date-time
         type: string
+      customerContacts:
+        $ref: '#/definitions/MTOServiceItemCustomerContacts'
       deletedAt:
         format: date
         type: string
       description:
         type: string
+      dimensions:
+        $ref: '#/definitions/MTOServiceItemDimensions'
       reason:
         type: string
       pickupPostalCode:
@@ -2113,6 +2117,70 @@ definitions:
           - REJECTED
         type: string
     type: object
+  DimensionType:
+    description: Describes a dimension type for a MTOServiceItemDimension.
+    type: string
+    enum:
+      - ITEM
+      - CRATE
+  MTOServiceItemDimension:
+    description: Describes a dimension object for the MTOServiceItem.
+    type: object
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      type:
+        $ref: '#/definitions/DimensionType'
+      length:
+        description: Length in thousandth inches. 1000 thou = 1 inch.
+        example: 1000
+        type: integer
+        format: int32
+      width:
+        description: Width in thousandth inches. 1000 thou = 1 inch.
+        example: 1000
+        type: integer
+        format: int32
+      height:
+        description: Height in thousandth inches. 1000 thou = 1 inch.
+        example: 1000
+        type: integer
+        format: int32
+  MTOServiceItemDimensions:
+    type: array
+    items:
+      $ref: '#/definitions/MTOServiceItemDimension'
+  CustomerContactType:
+    description: Describes a customer contact type for a MTOServiceItem of type domestic destination SIT.
+    type: string
+    enum:
+      - FIRST
+      - SECOND
+  MTOServiceItemCustomerContact:
+    description: Customer contact information for a destination SIT service item
+    type: object
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      type:
+        $ref: '#/definitions/CustomerContactType'
+      timeMilitary:
+        type: string
+        example: 0400Z
+        description: Time of delivery corresponding to `firstAvailableDeliveryDate`.
+      firstAvailableDeliveryDate:
+        format: date
+        type: string
+        example: '2020-12-31'
+        description: First available date that Prime can deliver SIT service item.
+  MTOServiceItemCustomerContacts:
+    type: array
+    items:
+      $ref: '#/definitions/MTOServiceItemCustomerContact'
   MTOApprovalServiceItemCodes:
     type: array
     items:

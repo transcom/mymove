@@ -21,7 +21,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
-func payloadForMTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOServiceItem {
+func payloadForMTOServiceItemModel(s *models.MTOServiceItem, logger handlers.Logger) *ghcmessages.MTOServiceItem {
 	if s == nil {
 		return nil
 	}
@@ -36,14 +36,54 @@ func payloadForMTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOSer
 		Reason:           handlers.FmtStringPtr(s.Reason),
 		PickupPostalCode: handlers.FmtStringPtr(s.PickupPostalCode),
 		Status:           ghcmessages.MTOServiceItemStatus(s.Status),
+		Dimensions:       MTOServiceItemDimensions(s.Dimensions),
+		CustomerContacts: MTOServiceItemCustomerContacts(s.CustomerContacts),
 		ETag:             etag.GenerateEtag(s.UpdatedAt),
 	}
 }
 
-func payloadForMTOServiceItemModels(s models.MTOServiceItems) ghcmessages.MTOServiceItems {
+// MTOServiceItemDimension payload
+func MTOServiceItemDimension(d *models.MTOServiceItemDimension) *ghcmessages.MTOServiceItemDimension {
+	return &ghcmessages.MTOServiceItemDimension{
+		ID:     *handlers.FmtUUID(d.ID),
+		Type:   ghcmessages.DimensionType(d.Type),
+		Length: *d.Length.Int32Ptr(),
+		Height: *d.Height.Int32Ptr(),
+		Width:  *d.Width.Int32Ptr(),
+	}
+}
+
+// MTOServiceItemDimensions payload
+func MTOServiceItemDimensions(d models.MTOServiceItemDimensions) ghcmessages.MTOServiceItemDimensions {
+	payload := ghcmessages.MTOServiceItemDimensions{}
+	for _, item := range d {
+		payload = append(payload, MTOServiceItemDimension(&item))
+	}
+	return payload
+}
+
+// MTOServiceItemCustomerContact payload
+func MTOServiceItemCustomerContact(c *models.MTOServiceItemCustomerContact) *ghcmessages.MTOServiceItemCustomerContact {
+	return &ghcmessages.MTOServiceItemCustomerContact{
+		Type:                       ghcmessages.CustomerContactType(c.Type),
+		TimeMilitary:               c.TimeMilitary,
+		FirstAvailableDeliveryDate: *handlers.FmtDate(c.FirstAvailableDeliveryDate),
+	}
+}
+
+// MTOServiceItemCustomerContacts payload
+func MTOServiceItemCustomerContacts(c models.MTOServiceItemCustomerContacts) ghcmessages.MTOServiceItemCustomerContacts {
+	payload := ghcmessages.MTOServiceItemCustomerContacts{}
+	for _, item := range c {
+		payload = append(payload, MTOServiceItemCustomerContact(&item))
+	}
+	return payload
+}
+
+func payloadForMTOServiceItemModels(s models.MTOServiceItems, logger handlers.Logger) ghcmessages.MTOServiceItems {
 	serviceItems := ghcmessages.MTOServiceItems{}
 	for _, item := range s {
-		serviceItems = append(serviceItems, payloadForMTOServiceItemModel(&item))
+		serviceItems = append(serviceItems, payloadForMTOServiceItemModel(&item, logger))
 	}
 
 	return serviceItems
@@ -133,7 +173,7 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemop.CreateMTOSer
 		return mtoserviceitemop.NewCreateMTOServiceItemInternalServerError()
 	}
 
-	serviceItemsPayload := payloadForMTOServiceItemModels(*createdServiceItems)
+	serviceItemsPayload := payloadForMTOServiceItemModels(*createdServiceItems, logger)
 	return mtoserviceitemop.NewCreateMTOServiceItemCreated().WithPayload(serviceItemsPayload[0])
 }
 
@@ -193,7 +233,7 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 		}
 	}
 
-	payload := payloadForMTOServiceItemModel(updatedMTOServiceItem)
+	payload := payloadForMTOServiceItemModel(updatedMTOServiceItem, logger)
 	return mtoserviceitemop.NewUpdateMTOServiceItemStatusOK().WithPayload(payload)
 }
 
@@ -236,6 +276,8 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 	}
 	queryAssociations := query.NewQueryAssociations([]services.QueryAssociation{
 		query.NewQueryAssociation("ReService"),
+		query.NewQueryAssociation("CustomerContacts"),
+		query.NewQueryAssociation("Dimensions"),
 	})
 
 	var serviceItems models.MTOServiceItems
@@ -247,6 +289,6 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 		return mtoserviceitemop.NewListMTOServiceItemsInternalServerError()
 	}
 
-	returnPayload := payloadForMTOServiceItemModels(serviceItems)
+	returnPayload := payloadForMTOServiceItemModels(serviceItems, logger)
 	return mtoserviceitemop.NewListMTOServiceItemsOK().WithPayload(returnPayload)
 }
