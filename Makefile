@@ -855,7 +855,7 @@ run_com_prod_migrations: bin/milmove db_deployed_migrations_reset ## Run Commerc
 .PHONY: run_gov_prod_migrations
 run_gov_prod_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud Prod migrations against Deployed Migrations DB
 	@echo "Migrating the prod-migrations database with prod migrations..."
- 	MIGRATION_PATH="s3://transcom-gov-milmove-prd-app-us-gov-west-1/secure-migrations;file://migrations/$(APPLICATION)/schema" \
+	MIGRATION_PATH="s3://transcom-gov-milmove-prd-app-us-gov-west-1/secure-migrations;file://migrations/$(APPLICATION)/schema" \
  	DB_HOST=localhost \
  	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
  	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
