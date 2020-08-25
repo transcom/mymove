@@ -48,7 +48,10 @@ const ServiceItemTableHasImg = ({ serviceItems, handleUpdateMTOServiceItemStatus
                 generateDetailText(
                   {
                     'First Customer Contact': firstCustomerContact.timeMilitary,
-                    'First Available Delivery Date': firstCustomerContact.firstAvailableDeliveryDate,
+                    'First Available Delivery Date': formatDate(
+                      firstCustomerContact.firstAvailableDeliveryDate,
+                      'DD MMM YYYY',
+                    ),
                   },
                   id,
                 )}
@@ -57,7 +60,10 @@ const ServiceItemTableHasImg = ({ serviceItems, handleUpdateMTOServiceItemStatus
                   generateDetailText(
                     {
                       'Second Customer Contact': secondCustomerContact.timeMilitary,
-                      'Second Available Delivery Date': secondCustomerContact.firstAvailableDeliveryDate,
+                      'Second Available Delivery Date': formatDate(
+                        secondCustomerContact.firstAvailableDeliveryDate,
+                        'DD MMM YYYY',
+                      ),
                     },
                     id,
                   )}
@@ -73,12 +79,12 @@ const ServiceItemTableHasImg = ({ serviceItems, handleUpdateMTOServiceItemStatus
           itemDimensions?.length,
         )}"x${convertFromThousandthInchToInch(itemDimensions?.width)}"x${convertFromThousandthInchToInch(
           itemDimensions?.height,
-        )}`;
+        )}"`;
         const crateDimensionFormat = `${convertFromThousandthInchToInch(
           crateDimensions?.length,
         )}"x${convertFromThousandthInchToInch(crateDimensions?.width)}"x${convertFromThousandthInchToInch(
           crateDimensions?.height,
-        )}`;
+        )}"`;
         detailSection = (
           <div className={styles.detailImage}>
             <img
