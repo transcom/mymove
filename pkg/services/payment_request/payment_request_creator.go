@@ -129,7 +129,10 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			}
 
 			// Get values for needed service item params (do lookups)
-			paramLookup := serviceparamlookups.ServiceParamLookupInitialize(tx, p.planner, paymentServiceItem.MTOServiceItemID, paymentServiceItem.ID, paymentRequestArg.MoveTaskOrderID)
+			paramLookup, err := serviceparamlookups.ServiceParamLookupInitialize(tx, p.planner, paymentServiceItem.MTOServiceItemID, paymentServiceItem.ID, paymentRequestArg.MoveTaskOrderID)
+			if err != nil {
+				return err
+			}
 			for _, reServiceParam := range reServiceParams {
 				if _, found := incomingMTOServiceItemParams[reServiceParam.ServiceItemParamKey.Key.String()]; !found {
 					// create the missing service item param
@@ -188,21 +191,21 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 	// Verify that the MTO ID exists
 	//
 	// Lock on the parent row to keep multiple transactions from getting this count at the same time
-	// for the same move_task_order_id.  This should block if another payment request comes in for the
-	// same move_task_order_id.  Payment requests for other move_task_order_ids should run concurrently.
+	// for the same move_id.  This should block if another payment request comes in for the
+	// same move_id.  Payment requests for other move_ids should run concurrently.
 	// Also note that we use "FOR NO KEY UPDATE" to allow concurrent mods to other tables that have a
 	// FK to move_task_orders.
-	var moveTaskOrder models.MoveTaskOrder
+	var moveTaskOrder models.Move
 	sqlString, sqlArgs := tx.Where("id = $1", paymentRequest.MoveTaskOrderID).ToSQL(&pop.Model{Value: &moveTaskOrder})
 	sqlString += " FOR NO KEY UPDATE"
 	err := tx.RawQuery(sqlString, sqlArgs...).First(&moveTaskOrder)
 
 	if err != nil {
 		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-			msg := fmt.Sprint("for MoveTaskOrder")
+			msg := fmt.Sprint("for Move")
 			return nil, services.NewNotFoundError(paymentRequest.MoveTaskOrderID, msg)
 		}
-		return nil, fmt.Errorf("could not retrieve MoveTaskOrder with ID [%s]: %w", paymentRequest.MoveTaskOrderID, err)
+		return nil, fmt.Errorf("could not retrieve Move with ID [%s]: %w", paymentRequest.MoveTaskOrderID, err)
 	}
 
 	// Update PaymentRequest
@@ -380,21 +383,21 @@ func (p *paymentRequestCreator) createServiceItemParamFromLookup(tx *pop.Connect
 	return &paymentServiceItemParam, nil
 }
 
-func (p *paymentRequestCreator) makeUniqueIdentifier(tx *pop.Connection, mto models.MoveTaskOrder) (string, int, error) {
+func (p *paymentRequestCreator) makeUniqueIdentifier(tx *pop.Connection, mto models.Move) (string, int, error) {
 	// Get the max sequence number that exists for the payment requests associated with the given MTO.
 	// Since we have a lock to prevent concurrent payment requests for this MTO, this should be safe.
 	var max int
-	err := tx.RawQuery("SELECT COALESCE(MAX(sequence_number),0) FROM payment_requests WHERE move_task_order_id = $1", mto.ID).First(&max)
+	err := tx.RawQuery("SELECT COALESCE(MAX(sequence_number),0) FROM payment_requests WHERE move_id = $1", mto.ID).First(&max)
 	if err != nil {
 		return "", 0, fmt.Errorf("max sequence_number for MoveTaskOrderID [%s] failed: %w", mto.ID, err)
 	}
 
-	if mto.ReferenceID == "" {
+	if *mto.ReferenceID == "" {
 		return "", 0, fmt.Errorf("could not find reference ID for MoveTaskOrderID [%s]", mto.ID)
 	}
 
 	nextSequence := max + 1
-	paymentRequestNumber := fmt.Sprintf("%s-%d", mto.ReferenceID, nextSequence)
+	paymentRequestNumber := fmt.Sprintf("%s-%d", *mto.ReferenceID, nextSequence)
 
 	return paymentRequestNumber, nextSequence, nil
 }

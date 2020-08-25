@@ -130,7 +130,8 @@ function serviceMemberSubmitsPaymentRequestWithMissingDocuments() {
   );
 
   cy.get('.title').contains('Next step: Contact the PPPO office');
-  cy.get('.missing-label').contains('Unknown');
+  //TODO add this back in when we have BVS scores
+  // cy.get('.missing-label').contains('Unknown');
 }
 
 function serviceMemberReviewsDocuments() {

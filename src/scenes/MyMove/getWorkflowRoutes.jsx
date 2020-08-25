@@ -71,6 +71,7 @@ const notMyFirstRodeo = (props) => props.lastMoveIsCanceled;
 const hasPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === SHIPMENT_OPTIONS.PPM;
 const inHhgFlow = (props) => props.context.flags.hhgFlow;
 const inGhcFlow = (props) => props.context.flags.ghcFlow;
+const removeForDemo = (props) => props.context.flags.disableForDemo;
 const isCurrentMoveSubmitted = ({ move }) => {
   return get(move, 'status', 'DRAFT') === 'SUBMITTED';
 };
@@ -138,7 +139,7 @@ const pages = {
     description: 'Backup contacts',
   },
   '/service-member/:serviceMemberId/move-landing': {
-    isInFlow: myFirstRodeo && inGhcFlow,
+    isInFlow: (props) => myFirstRodeo(props) && inGhcFlow(props) && !removeForDemo(props),
     isComplete: always,
     render: (key, pages) => () => {
       return (
@@ -183,7 +184,7 @@ const pages = {
     },
   },
   '/moves/:moveId/moving-info': {
-    isInFlow: inHhgFlow,
+    isInFlow: (props) => inHhgFlow(props) && !removeForDemo(props),
     isComplete: always,
     render: (key, pages) => () => {
       return (
@@ -219,7 +220,15 @@ const pages = {
   '/moves/:moveId/hhg-start': {
     isInFlow: (state) => inHhgFlow && state.selectedMoveType === SHIPMENT_OPTIONS.HHG,
     isComplete: ({ sm, orders, move, ppm, mtoShipment }) => {
-      return mtoShipment && every([mtoShipment.requestedPickupDate, mtoShipment.requestedDeliveryDate]);
+      return (
+        mtoShipment &&
+        every([
+          mtoShipment.requestedPickupDate,
+          mtoShipment.requestedDeliveryDate,
+          mtoShipment.pickupAddress,
+          mtoShipment.shipmentType,
+        ])
+      );
     },
     render: (key, pages, description, props) => ({ match, history }) => (
       <HHGMoveSetup pageList={pages} pageKey={key} match={match} push={history.push} />
@@ -227,14 +236,14 @@ const pages = {
   },
   '/moves/:moveId/review': {
     isInFlow: always,
-    isComplete: ({ sm, orders, move, ppm }) => isCurrentMoveSubmitted(move, ppm),
+    isComplete: ({ sm, orders, move, ppm, mtoShipment }) => isCurrentMoveSubmitted(move),
     render: (key, pages) => ({ match }) => <Review pages={pages} pageKey={key} match={match} />,
   },
   '/moves/:moveId/agreement': {
     isInFlow: always,
-    isComplete: ({ sm, orders, move, ppm }) => isCurrentMoveSubmitted(move, ppm),
+    isComplete: ({ sm, orders, move, ppm, mtoShipment }) => isCurrentMoveSubmitted(move),
     render: (key, pages, description, props) => ({ match }) => {
-      return <Agreement pages={pages} pageKey={key} match={match} />;
+      return <Agreement pages={pages} pageKey={key} match={match} selectedMoveType={props.selectedMoveType} />;
     },
   },
 };

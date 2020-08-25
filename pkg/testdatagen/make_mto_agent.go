@@ -30,3 +30,8 @@ func MakeMTOAgent(db *pop.Connection, assertions Assertions) models.MTOAgent {
 
 	return mtoAgent
 }
+
+// MakeDefaultMTOAgent makes an MTOAgent with default values
+func MakeDefaultMTOAgent(db *pop.Connection) models.MTOAgent {
+	return MakeMTOAgent(db, Assertions{})
+}

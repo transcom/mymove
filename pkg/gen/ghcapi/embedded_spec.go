@@ -543,6 +543,101 @@ func init() {
         }
       ]
     },
+    "/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status": {
+      "patch": {
+        "description": "Changes the status of a line item for a move order by ID",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentServiceItem"
+        ],
+        "summary": "Change the status of a payment service item for a move order by ID",
+        "operationId": "updatePaymentServiceItemStatus",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PaymentServiceItem"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated status for a line item for a move task order by ID",
+            "schema": {
+              "$ref": "#/definitions/PaymentServiceItem"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "412": {
+            "description": "Precondition Failed",
+            "schema": {
+              "$ref": "#/responses/PreconditionFailed"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        },
+        "x-swagger-roles": [
+          "transportation_invoicing_officer"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "ID of move order to use",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "description": "ID of payment service item to use",
+          "name": "paymentServiceItemID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}": {
       "get": {
         "description": "Gets a line item by ID for a move order by ID",
@@ -771,7 +866,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MTOServiceItem"
+              "$ref": "#/definitions/PatchMTOServiceItemStatusPayload"
             }
           },
           {
@@ -816,6 +911,12 @@ func init() {
             "description": "Precondition Failed",
             "schema": {
               "$ref": "#/responses/PreconditionFailed"
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
@@ -1148,7 +1249,7 @@ func init() {
         "operationId": "listMTOShipments",
         "responses": {
           "200": {
-            "description": "Successfully retrieved all line items for a move task order",
+            "description": "Successfully retrieved all mto shipments for a move task order",
             "schema": {
               "$ref": "#/definitions/MTOShipments"
             }
@@ -2176,7 +2277,7 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "eTag": {
@@ -2193,8 +2294,18 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "pickupAddress": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
+        },
+        "primeActualWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "primeEstimatedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
         },
         "rejectionReason": {
           "type": "string",
@@ -2210,11 +2321,11 @@ func init() {
           "format": "date"
         },
         "secondaryDeliveryAddress": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "shipmentType": {
@@ -2425,6 +2536,19 @@ func init() {
         "$ref": "#/definitions/MoveTaskOrder"
       }
     },
+    "PatchMTOServiceItemStatusPayload": {
+      "properties": {
+        "status": {
+          "description": "Describes all statuses for a MTOServiceItem",
+          "type": "string",
+          "enum": [
+            "SUBMITTED",
+            "APPROVED",
+            "REJECTED"
+          ]
+        }
+      }
+    },
     "PatchMTOShipmentStatusPayload": {
       "properties": {
         "rejectionReason": {
@@ -2476,6 +2600,11 @@ func init() {
           "x-nullable": true,
           "example": "documentation was incomplete"
         },
+        "reviewedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "serviceItems": {
           "$ref": "#/definitions/PaymentServiceItems"
         },
@@ -2504,6 +2633,10 @@ func init() {
     "PaymentServiceItem": {
       "type": "object",
       "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
         "eTag": {
           "type": "string"
         },
@@ -2702,6 +2835,7 @@ func init() {
     "ServiceItemParamName": {
       "type": "string",
       "enum": [
+        "ActualPickupDate",
         "CanStandAlone",
         "ContractCode",
         "CubicFeetBilled",
@@ -2711,6 +2845,7 @@ func init() {
         "DistanceZip5SITDest",
         "DistanceZip5SITOrigin",
         "EIAFuelPrice",
+        "FSCWeightBasedDistanceMultiplier",
         "MarketDest",
         "MarketOrigin",
         "MTOAvailableToPrimeAt",
@@ -3562,6 +3697,119 @@ func init() {
         }
       ]
     },
+    "/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status": {
+      "patch": {
+        "description": "Changes the status of a line item for a move order by ID",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentServiceItem"
+        ],
+        "summary": "Change the status of a payment service item for a move order by ID",
+        "operationId": "updatePaymentServiceItemStatus",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PaymentServiceItem"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated status for a line item for a move task order by ID",
+            "schema": {
+              "$ref": "#/definitions/PaymentServiceItem"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "412": {
+            "description": "Precondition Failed",
+            "schema": {
+              "description": "Precondition failed",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        },
+        "x-swagger-roles": [
+          "transportation_invoicing_officer"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "ID of move order to use",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "description": "ID of payment service item to use",
+          "name": "paymentServiceItemID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}": {
       "get": {
         "description": "Gets a line item by ID for a move order by ID",
@@ -3838,7 +4086,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MTOServiceItem"
+              "$ref": "#/definitions/PatchMTOServiceItemStatusPayload"
             }
           },
           {
@@ -3898,6 +4146,12 @@ func init() {
               "schema": {
                 "$ref": "#/definitions/Error"
               }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
@@ -4272,7 +4526,7 @@ func init() {
         "operationId": "listMTOShipments",
         "responses": {
           "200": {
-            "description": "Successfully retrieved all line items for a move task order",
+            "description": "Successfully retrieved all mto shipments for a move task order",
             "schema": {
               "$ref": "#/definitions/MTOShipments"
             }
@@ -5375,7 +5629,7 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "eTag": {
@@ -5392,8 +5646,18 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "pickupAddress": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
+        },
+        "primeActualWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "primeEstimatedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
         },
         "rejectionReason": {
           "type": "string",
@@ -5409,11 +5673,11 @@ func init() {
           "format": "date"
         },
         "secondaryDeliveryAddress": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "shipmentType": {
@@ -5624,6 +5888,19 @@ func init() {
         "$ref": "#/definitions/MoveTaskOrder"
       }
     },
+    "PatchMTOServiceItemStatusPayload": {
+      "properties": {
+        "status": {
+          "description": "Describes all statuses for a MTOServiceItem",
+          "type": "string",
+          "enum": [
+            "SUBMITTED",
+            "APPROVED",
+            "REJECTED"
+          ]
+        }
+      }
+    },
     "PatchMTOShipmentStatusPayload": {
       "properties": {
         "rejectionReason": {
@@ -5675,6 +5952,11 @@ func init() {
           "x-nullable": true,
           "example": "documentation was incomplete"
         },
+        "reviewedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "serviceItems": {
           "$ref": "#/definitions/PaymentServiceItems"
         },
@@ -5703,6 +5985,10 @@ func init() {
     "PaymentServiceItem": {
       "type": "object",
       "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
         "eTag": {
           "type": "string"
         },
@@ -5901,6 +6187,7 @@ func init() {
     "ServiceItemParamName": {
       "type": "string",
       "enum": [
+        "ActualPickupDate",
         "CanStandAlone",
         "ContractCode",
         "CubicFeetBilled",
@@ -5910,6 +6197,7 @@ func init() {
         "DistanceZip5SITDest",
         "DistanceZip5SITOrigin",
         "EIAFuelPrice",
+        "FSCWeightBasedDistanceMultiplier",
         "MarketDest",
         "MarketOrigin",
         "MTOAvailableToPrimeAt",

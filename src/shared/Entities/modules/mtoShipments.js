@@ -38,6 +38,31 @@ export function createMTOShipment(mtoShipment, label = createMTOShipmentOperatio
   return swaggerRequest(getClient, createMTOShipmentOperation, { body: mtoShipment }, { label, schemaKey });
 }
 
+const updateMTOShipmentOperation = 'mtoShipment.updateMTOShipment';
+export function updateMTOShipment(
+  mtoShipmentId,
+  mtoShipment,
+  ifMatchETag,
+  label = updateMTOShipmentOperation,
+  schemaKey = mtoShipmentSchemaKey,
+) {
+  return swaggerRequest(
+    getClient,
+    updateMTOShipmentOperation,
+    { mtoShipmentId, 'If-Match': ifMatchETag, body: mtoShipment },
+    { label, schemaKey },
+  );
+}
+
+const loadMTOShipmentsOperation = 'mtoShipment.listMTOShipments';
+export function loadMTOShipments(
+  moveTaskOrderID,
+  label = loadMTOShipmentsOperation,
+  schemaKey = mtoShipmentsSchemaKey,
+) {
+  return swaggerRequest(getClient, loadMTOShipmentsOperation, { moveTaskOrderID }, { label, schemaKey });
+}
+
 export function selectMTOShipments(state, moveOrderId) {
   const moveTaskOrders = selectMoveTaskOrders(state, moveOrderId);
   return filter(state.entities.mtoShipments, (item) => moveTaskOrders.find((mto) => mto.id === item.moveTaskOrderID));
@@ -49,7 +74,7 @@ export function selectMTOShipmentsByMTOId(state, moveTaskOrderId) {
 
 export function selectMTOShipmentForMTO(state, moveTaskOrderId) {
   const mtoShipment = Object.values(state.entities.mtoShipments).find(
-    (mtoShipment) => mtoShipment.move_task_order_id === moveTaskOrderId,
+    (mtoShipment) => mtoShipment.moveTaskOrderID === moveTaskOrderId,
   );
   return mtoShipment || {};
 }

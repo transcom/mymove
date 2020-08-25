@@ -4,7 +4,8 @@ import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import { mtoShipmentTypeToFriendlyDisplay } from '../../shared/formatters';
-import { MTOAgentShape, MTOShipmentShape } from '../../types/moveOrder';
+import { MTOAgentShape, MTOShipmentShape, OrdersInfoShape } from '../../types/moveOrder';
+import formatAddress from '../../utils/shipmentDisplay';
 
 import styles from './shipmentApprovalPreview.module.scss';
 import AllowancesTable from './AllowancesTable';
@@ -16,6 +17,7 @@ import { ReactComponent as XHeavyIcon } from 'shared/icon/x-heavy.svg';
 
 const ShipmentApprovalPreview = ({
   mtoShipments,
+  ordersInfo,
   allowancesInfo,
   customerInfo,
   mtoAgents,
@@ -86,22 +88,16 @@ const ShipmentApprovalPreview = ({
                             <th className="text-bold" scope="row">
                               Current Address
                             </th>
-                            <td>
-                              {shipment.pickupAddress.street_address_1}
-                              <br />
-                              {shipment.pickupAddress.city}, {shipment.pickupAddress.state}{' '}
-                              {shipment.pickupAddress.postal_code}
-                            </td>
+                            <td>{formatAddress(shipment.pickupAddress)}</td>
                           </tr>
                           <tr>
                             <th className="text-bold" scope="row">
                               Destination Address
                             </th>
-                            <td>
-                              {shipment.destinationAddress.street_address_1}
-                              <br />
-                              {shipment.destinationAddress.city}, {shipment.destinationAddress.state}{' '}
-                              {shipment.destinationAddress.postal_code}
+                            <td data-testid="destinationAddress">
+                              {shipment.destinationAddress
+                                ? formatAddress(shipment.destinationAddress)
+                                : ordersInfo.newDutyStation.address.postal_code}
                             </td>
                           </tr>
                           <tr>
@@ -167,6 +163,7 @@ ShipmentApprovalPreview.propTypes = {
   mtoAgents: PropTypes.arrayOf(MTOAgentShape),
   counselingFee: PropTypes.bool.isRequired,
   shipmentManagementFee: PropTypes.bool.isRequired,
+  ordersInfo: OrdersInfoShape.isRequired,
   allowancesInfo: PropTypes.shape({
     branch: PropTypes.string,
     rank: PropTypes.string,

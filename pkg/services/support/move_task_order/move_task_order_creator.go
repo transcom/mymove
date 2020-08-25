@@ -15,7 +15,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	movetaskordershared "github.com/transcom/mymove/pkg/services/move_task_order/shared"
 	"github.com/transcom/mymove/pkg/services/office_user/customer"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -25,8 +24,8 @@ type moveTaskOrderCreator struct {
 }
 
 // InternalCreateMoveTaskOrder creates a move task order for the supportapi (internal use only, not used in production)
-func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessages.MoveTaskOrder, logger handlers.Logger) (*models.MoveTaskOrder, error) {
-	var moveTaskOrder *models.MoveTaskOrder
+func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessages.MoveTaskOrder, logger handlers.Logger) (*models.Move, error) {
+	var moveTaskOrder *models.Move
 	var refID string
 	if payload.MoveOrder == nil {
 		return nil, services.NewQueryError("MoveTaskOrder", nil, "MoveOrder is necessary")
@@ -46,15 +45,22 @@ func (f moveTaskOrderCreator) InternalCreateMoveTaskOrder(payload supportmessage
 		}
 
 		moveTaskOrder = MoveTaskOrderModel(&payload)
-		if moveTaskOrder.ReferenceID == "" {
-			refID, err = movetaskordershared.GenerateReferenceID(tx)
-			moveTaskOrder.ReferenceID = refID
+		if *moveTaskOrder.ReferenceID == "" {
+			refID, err = models.GenerateReferenceID(tx)
+			moveTaskOrder.ReferenceID = &refID
 		}
 		if err != nil {
 			return err
 		}
-		moveTaskOrder.MoveOrder = *moveOrder
-		moveTaskOrder.MoveOrderID = moveOrder.ID
+		if moveTaskOrder.Locator == "" {
+			moveTaskOrder.Locator = models.GenerateLocator()
+		}
+		if moveTaskOrder.Status == "" {
+			moveTaskOrder.Status = models.MoveStatusDRAFT
+		}
+		moveTaskOrder.Show = swag.Bool(true)
+		moveTaskOrder.Orders = *moveOrder
+		moveTaskOrder.OrdersID = moveOrder.ID
 
 		verrs, err := tx.ValidateAndCreate(moveTaskOrder)
 
@@ -205,13 +211,13 @@ func MoveOrderModel(moveOrderPayload *supportmessages.MoveOrder) *models.Order {
 	}
 	model := &models.Order{
 		ID:               uuid.FromStringOrNil(moveOrderPayload.ID.String()),
-		Grade:            &moveOrderPayload.Rank,
+		Grade:            moveOrderPayload.Rank,
 		OrdersNumber:     moveOrderPayload.OrderNumber,
 		ServiceMember:    *CustomerModel(moveOrderPayload.Customer),
 		Entitlement:      EntitlementModel(moveOrderPayload.Entitlement),
 		Status:           (models.OrderStatus)(moveOrderPayload.Status),
-		IssueDate:        (time.Time)(moveOrderPayload.DateIssued),
-		OrdersType:       (internalmessages.OrdersType)(moveOrderPayload.OrderType),
+		IssueDate:        (time.Time)(*moveOrderPayload.IssueDate),
+		OrdersType:       (internalmessages.OrdersType)(moveOrderPayload.OrdersType),
 		UploadedOrdersID: uuid.FromStringOrNil(moveOrderPayload.UploadedOrdersID.String()),
 	}
 
@@ -224,7 +230,7 @@ func MoveOrderModel(moveOrderPayload *supportmessages.MoveOrder) *models.Order {
 	originDutyStationID := uuid.FromStringOrNil(moveOrderPayload.OriginDutyStationID.String())
 	model.OriginDutyStationID = &originDutyStationID
 
-	reportByDate := time.Time(moveOrderPayload.ReportByDate)
+	reportByDate := time.Time(*moveOrderPayload.ReportByDate)
 	if !reportByDate.IsZero() {
 		model.ReportByDate = reportByDate
 	}
@@ -261,16 +267,19 @@ func EntitlementModel(entitlementPayload *supportmessages.Entitlement) *models.E
 
 // MoveTaskOrderModel return an MTO model constructed from the payload.
 // Does not create nested mtoServiceItems, mtoShipments, or paymentRequests
-func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.MoveTaskOrder {
+func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.Move {
 	if mtoPayload == nil {
 		return nil
 	}
 	ppmEstimatedWeight := unit.Pound(mtoPayload.PpmEstimatedWeight)
-	model := &models.MoveTaskOrder{
-		ReferenceID:        mtoPayload.ReferenceID,
+	contractorID := uuid.FromStringOrNil(mtoPayload.ContractorID.String())
+	model := &models.Move{
+		ReferenceID:        &mtoPayload.ReferenceID,
+		Locator:            mtoPayload.Locator,
 		PPMEstimatedWeight: &ppmEstimatedWeight,
 		PPMType:            &mtoPayload.PpmType,
-		ContractorID:       uuid.FromStringOrNil(mtoPayload.ContractorID.String()),
+		ContractorID:       &contractorID,
+		Status:             (models.MoveStatus)(mtoPayload.Status),
 	}
 
 	if mtoPayload.AvailableToPrimeAt != nil {
@@ -278,8 +287,8 @@ func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.MoveT
 		model.AvailableToPrimeAt = &availableToPrimeAt
 	}
 
-	if mtoPayload.IsCanceled != nil {
-		model.IsCanceled = *mtoPayload.IsCanceled
+	if mtoPayload.IsCanceled != nil && *mtoPayload.IsCanceled == true {
+		model.Status = models.MoveStatusCANCELED
 	}
 
 	return model

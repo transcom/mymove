@@ -87,3 +87,36 @@ func (suite *GHCRateEngineServiceSuite) setupTaskOrderFeeData(code models.ReServ
 	}
 	suite.MustSave(&taskOrderFee)
 }
+
+func (suite *GHCRateEngineServiceSuite) setUpDomesticPackAndUnpackData(code models.ReServiceCode) {
+	contractYear := testdatagen.MakeReContractYear(suite.DB(),
+		testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Escalation:           1.0197,
+				EscalationCompounded: 1.0407,
+			},
+		})
+
+	domesticPackUnpackService := testdatagen.MakeReService(suite.DB(),
+		testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: code,
+			},
+		})
+
+	domesticPackUnpackPrice := models.ReDomesticOtherPrice{
+		ContractID:   contractYear.Contract.ID,
+		Schedule:     1,
+		IsPeakPeriod: true,
+		ServiceID:    domesticPackUnpackService.ID,
+	}
+
+	domesticPackUnpackPeakPrice := domesticPackUnpackPrice
+	domesticPackUnpackPeakPrice.PriceCents = 146
+	suite.MustSave(&domesticPackUnpackPeakPrice)
+
+	domesticPackUnpackNonpeakPrice := domesticPackUnpackPrice
+	domesticPackUnpackNonpeakPrice.IsPeakPeriod = false
+	domesticPackUnpackNonpeakPrice.PriceCents = 127
+	suite.MustSave(&domesticPackUnpackNonpeakPrice)
+}

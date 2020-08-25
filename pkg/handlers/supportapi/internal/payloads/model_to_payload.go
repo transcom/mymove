@@ -13,7 +13,7 @@ import (
 )
 
 // MoveTaskOrders payload
-func MoveTaskOrders(moveTaskOrders *models.MoveTaskOrders) []*supportmessages.MoveTaskOrder {
+func MoveTaskOrders(moveTaskOrders *models.Moves) []*supportmessages.MoveTaskOrder {
 	payload := make(supportmessages.MoveTaskOrders, len(*moveTaskOrders))
 
 	for i, m := range *moveTaskOrders {
@@ -23,7 +23,7 @@ func MoveTaskOrders(moveTaskOrders *models.MoveTaskOrders) []*supportmessages.Mo
 }
 
 // MoveTaskOrder payload
-func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *supportmessages.MoveTaskOrder {
+func MoveTaskOrder(moveTaskOrder *models.Move) *supportmessages.MoveTaskOrder {
 	if moveTaskOrder == nil {
 		return nil
 	}
@@ -32,13 +32,15 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *supportmessages.MoveTas
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.DateTime(moveTaskOrder.CreatedAt),
 		AvailableToPrimeAt: handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
-		IsCanceled:         &moveTaskOrder.IsCanceled,
-		MoveOrder:          MoveOrder(&moveTaskOrder.MoveOrder),
-		ReferenceID:        moveTaskOrder.ReferenceID,
+		IsCanceled:         moveTaskOrder.IsCanceled(),
+		MoveOrder:          MoveOrder(&moveTaskOrder.Orders),
+		ReferenceID:        *moveTaskOrder.ReferenceID,
 		ContractorID:       strfmt.UUID(moveTaskOrder.ContractorID.String()),
 		MtoShipments:       *mtoShipments,
 		UpdatedAt:          strfmt.DateTime(moveTaskOrder.UpdatedAt),
 		ETag:               etag.GenerateEtag(moveTaskOrder.UpdatedAt),
+		Status:             (supportmessages.MoveStatus)(moveTaskOrder.Status),
+		Locator:            moveTaskOrder.Locator,
 	}
 
 	if moveTaskOrder.PPMEstimatedWeight != nil {
@@ -84,25 +86,28 @@ func MoveOrder(moveOrder *models.Order) *supportmessages.MoveOrder {
 		moveOrder.Entitlement.SetWeightAllotment(*moveOrder.Grade)
 	}
 
+	reportByDate := strfmt.Date(moveOrder.ReportByDate)
+	issueDate := strfmt.Date(moveOrder.IssueDate)
+
 	payload := supportmessages.MoveOrder{
 		DestinationDutyStation:   destinationDutyStation,
 		DestinationDutyStationID: destinationDutyStation.ID,
 		Entitlement:              Entitlement(moveOrder.Entitlement),
 		Customer:                 Customer(&moveOrder.ServiceMember),
 		OrderNumber:              moveOrder.OrdersNumber,
-		OrderType:                supportmessages.OrderType(moveOrder.OrdersType),
+		OrdersType:               supportmessages.OrdersType(moveOrder.OrdersType),
 		ID:                       strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:        originDutyStation,
 		ETag:                     etag.GenerateEtag(moveOrder.UpdatedAt),
 		Status:                   supportmessages.OrdersStatus(moveOrder.Status),
 		UploadedOrders:           uploadedOrders,
 		UploadedOrdersID:         strfmt.UUID(uploadedOrders.ID.String()),
-		ReportByDate:             strfmt.Date(moveOrder.ReportByDate),
-		DateIssued:               strfmt.Date(moveOrder.IssueDate),
+		ReportByDate:             &reportByDate,
+		IssueDate:                &issueDate,
 	}
 
 	if moveOrder.Grade != nil {
-		payload.Rank = *moveOrder.Grade
+		payload.Rank = moveOrder.Grade
 	}
 	return &payload
 }

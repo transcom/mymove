@@ -13,7 +13,7 @@ import (
 )
 
 func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
-	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{})
+	transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
 	userInfo := models.OfficeUser{
 		LastName:               "Spaceman",
 		FirstName:              "Leo",

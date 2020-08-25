@@ -43,7 +43,7 @@ func MakeServiceMember(db *pop.Connection, assertions Assertions) models.Service
 	}
 
 	if currentAddressID == nil || isZeroUUID(*currentAddressID) {
-		newAddress := MakeAddress(db, Assertions{})
+		newAddress := MakeDefaultAddress(db)
 		currentAddressID = &newAddress.ID
 		currentAddress = &newAddress
 	}

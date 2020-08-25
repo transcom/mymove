@@ -10,9 +10,9 @@ import (
 )
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
-	expectedMoveOrder := testdatagen.MakeMoveOrder(suite.DB(), testdatagen.Assertions{})
-	expectedMTO := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-		MoveOrder: expectedMoveOrder,
+	expectedOrder := testdatagen.MakeDefaultOrder(suite.DB())
+	expectedMTO := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Order: expectedOrder,
 	})
 	mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
 
@@ -20,38 +20,40 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 	suite.NoError(err)
 
 	suite.NotZero(expectedMTO.ID, actualMTO.ID)
-	suite.Equal(expectedMTO.MoveOrder.ID, actualMTO.MoveOrder.ID)
-	suite.NotZero(actualMTO.MoveOrder)
+	suite.Equal(expectedMTO.Orders.ID, actualMTO.Orders.ID)
+	suite.NotZero(actualMTO.Orders)
 	suite.NotNil(expectedMTO.ReferenceID)
+	suite.NotNil(expectedMTO.Locator)
 	suite.Nil(expectedMTO.AvailableToPrimeAt)
-	suite.False(expectedMTO.IsCanceled)
+	suite.NotEqual(expectedMTO.Status, models.MoveStatusCANCELED)
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestListMoveTaskOrdersFetcher() {
-	expectedMoveOrder := testdatagen.MakeMoveOrder(suite.DB(), testdatagen.Assertions{})
-	expectedMTO := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-		MoveOrder: expectedMoveOrder,
+	expectedOrder := testdatagen.MakeDefaultOrder(suite.DB())
+	expectedMTO := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Order: expectedOrder,
 	})
 	mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
 
-	moveTaskOrders, err := mtoFetcher.ListMoveTaskOrders(expectedMoveOrder.ID)
+	moveTaskOrders, err := mtoFetcher.ListMoveTaskOrders(expectedOrder.ID)
 	suite.NoError(err)
 
 	actualMTO := moveTaskOrders[0]
 
 	suite.NotZero(expectedMTO.ID, actualMTO.ID)
-	suite.Equal(expectedMTO.MoveOrder.ID, actualMTO.MoveOrder.ID)
-	suite.NotZero(actualMTO.MoveOrder)
+	suite.Equal(expectedMTO.Orders.ID, actualMTO.Orders.ID)
+	suite.NotZero(actualMTO.Orders)
+	suite.NotNil(expectedMTO.Locator)
 	suite.NotNil(expectedMTO.ReferenceID)
 	suite.Nil(expectedMTO.AvailableToPrimeAt)
-	suite.False(expectedMTO.IsCanceled)
+	suite.NotEqual(expectedMTO.Status, models.MoveStatusCANCELED)
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 	suite.T().Run("all move task orders", func(t *testing.T) {
-		testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
-		testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
-		testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeDefaultMove(suite.DB())
+		testdatagen.MakeDefaultMove(suite.DB())
+		testdatagen.MakeDefaultMove(suite.DB())
 
 		mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
 
@@ -65,27 +67,13 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 	})
 
 	suite.T().Run("all move task orders that are available to prime and using since", func(t *testing.T) {
-		time1 := time.Now()
-		time2 := time.Now()
-		time3 := time.Now()
-		testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-			MoveTaskOrder: models.MoveTaskOrder{
-				AvailableToPrimeAt: &time1,
-			},
-		})
-		testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-			MoveTaskOrder: models.MoveTaskOrder{
-				AvailableToPrimeAt: &time2,
-			},
-		})
+		now := time.Now()
 
-		oldMTO := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-			MoveTaskOrder: models.MoveTaskOrder{
-				AvailableToPrimeAt: &time3,
-			},
-		})
-		testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
-		testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+		testdatagen.MakeAvailableMove(suite.DB())
+		testdatagen.MakeAvailableMove(suite.DB())
+		oldMTO := testdatagen.MakeAvailableMove(suite.DB())
+		testdatagen.MakeDefaultMove(suite.DB())
+		testdatagen.MakeDefaultMove(suite.DB())
 
 		mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
 
@@ -93,10 +81,10 @@ func (suite *MoveTaskOrderServiceSuite) TestListAllMoveTaskOrdersFetcher() {
 		suite.NoError(err)
 		suite.Equal(len(moveTaskOrders), 3)
 
-		// Put 1 MTOs updatedAt in the past
-		suite.NoError(suite.DB().RawQuery("UPDATE move_task_orders SET updated_at=? WHERE id=?",
-			time3.Add(-2*time.Second), oldMTO.ID).Exec())
-		since := time3.Unix()
+		// Put 1 Move updatedAt in the past
+		suite.NoError(suite.DB().RawQuery("UPDATE moves SET updated_at=? WHERE id=?",
+			now.Add(-2*time.Second), oldMTO.ID).Exec())
+		since := now.Unix()
 		mtosWithSince, err := mtoFetcher.ListAllMoveTaskOrders(true, &since)
 		suite.NoError(err)
 		suite.Equal(len(mtosWithSince), 2)

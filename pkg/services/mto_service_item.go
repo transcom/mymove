@@ -10,7 +10,7 @@ import (
 // MTOServiceItemCreator is the exported interface for creating a mto service item
 //go:generate mockery -name MTOServiceItemCreator
 type MTOServiceItemCreator interface {
-	CreateMTOServiceItem(serviceItem *models.MTOServiceItem) (*models.MTOServiceItem, *validate.Errors, error)
+	CreateMTOServiceItem(serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, *validate.Errors, error)
 }
 
 // MTOServiceItemUpdater is the exported interface for updating an mto service item

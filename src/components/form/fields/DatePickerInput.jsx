@@ -10,13 +10,12 @@ import { formatDate } from 'shared/dates';
 export const DatePickerInput = (props) => {
   const dateFormat = 'DD MMM YYYY';
   // eslint-disable-next-line react/prop-types
-  const { label, name } = props;
+  const { label, name, labelClassName } = props;
   const [field, meta, helpers] = useField(props);
   const hasError = meta.touched && !!meta.error;
-
   return (
     <FormGroup error={hasError}>
-      <Label error={hasError} htmlFor={field.name}>
+      <Label className={labelClassName} error={hasError} htmlFor={field.name}>
         {label}
       </Label>
       <ErrorMessage display={hasError}>{meta.error}</ErrorMessage>

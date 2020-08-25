@@ -112,6 +112,13 @@ func setNewShipmentFields(planner route.Planner, db *pop.Connection, oldShipment
 		oldShipment.ShipmentType = updatedShipment.ShipmentType
 	}
 
+	if updatedShipment.Status != "" {
+		oldShipment.Status = updatedShipment.Status
+		if oldShipment.Status != models.MTOShipmentStatusDraft && oldShipment.Status != models.MTOShipmentStatusSubmitted {
+			verrs.Add("status", "can only update status to DRAFT or SUBMITTED. use UpdateMTOShipmentStatus for other status updates")
+		}
+	}
+
 	// Updated based on existing fields that may have been updated:
 	if oldShipment.ScheduledPickupDate != nil && oldShipment.PrimeEstimatedWeight != nil {
 		requiredDeliveryDate, err := calculateRequiredDeliveryDate(planner, db, *oldShipment.PickupAddress,
@@ -332,6 +339,7 @@ func generateMTOShipmentParams(mtoShipment models.MTOShipment) []interface{} {
 		mtoShipment.ApprovedDate,
 		mtoShipment.FirstAvailableDeliveryDate,
 		mtoShipment.RequiredDeliveryDate,
+		mtoShipment.Status,
 		mtoShipment.ID,
 	}
 }
@@ -350,7 +358,8 @@ func generateUpdateMTOShipmentQuery() string {
 			actual_pickup_date = ?,
 			approved_date = ?,
 			first_available_delivery_date = ?,
-			required_delivery_date = ?
+			required_delivery_date = ?,
+			status = ?
 		WHERE
 			id = ?
 	`
@@ -495,7 +504,10 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 		return nil, services.NewNotFoundError(shipmentID, "Shipment not found")
 	}
 
-	if shipment.Status != models.MTOShipmentStatusSubmitted {
+	if shipment.Status == models.MTOShipmentStatusDraft && status != models.MTOShipmentStatusSubmitted {
+		return nil, ConflictStatusError{id: shipment.ID, transitionFromStatus: shipment.Status, transitionToStatus: models.MTOShipmentStatus(status)}
+	}
+	if shipment.Status != models.MTOShipmentStatusSubmitted && shipment.Status != models.MTOShipmentStatusDraft {
 		return nil, ConflictStatusError{id: shipment.ID, transitionFromStatus: shipment.Status, transitionToStatus: models.MTOShipmentStatus(status)}
 	} else if status != models.MTOShipmentStatusRejected {
 		rejectionReason = nil
@@ -543,7 +555,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 		// More info in MB-1140: https://dp3.atlassian.net/browse/MB-1140
 		var serviceItemsToCreate models.MTOServiceItems
 		switch shipment.ShipmentType {
-		case models.MTOShipmentTypeHHGLongHaulDom:
+		case models.MTOShipmentTypeHHG, models.MTOShipmentTypeHHGLongHaulDom:
 			//Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, and Dom Unpacking.
 			reServiceCodes := []models.ReServiceCode{
 				models.ReServiceCodeDLH,
@@ -720,10 +732,10 @@ func (e ConflictStatusError) Error() string {
 }
 
 func (f mtoShipmentUpdater) MTOShipmentsMTOAvailableToPrime(mtoShipmentID uuid.UUID) (bool, error) {
-	var mto models.MoveTaskOrder
+	var mto models.Move
 
 	err := f.db.Q().
-		Join("mto_shipments", "move_task_orders.id = mto_shipments.move_task_order_id").
+		Join("mto_shipments", "moves.id = mto_shipments.move_id").
 		Where("available_to_prime_at IS NOT NULL").
 		Where("mto_shipments.id = ?", mtoShipmentID).
 		First(&mto)

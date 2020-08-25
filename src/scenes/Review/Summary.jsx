@@ -6,11 +6,7 @@ import PropTypes from 'prop-types';
 
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import { loadMove, selectMove } from 'shared/Entities/modules/moves';
-import {
-  fetchLatestOrders,
-  selectActiveOrLatestOrders,
-  selectUploadsForActiveOrders,
-} from 'shared/Entities/modules/orders';
+import { selectActiveOrLatestOrdersFromEntities, selectUploadsForActiveOrders } from 'shared/Entities/modules/orders';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 import { moveIsApproved, lastMoveIsCanceled } from 'scenes/Moves/ducks';
@@ -22,9 +18,12 @@ import { selectedMoveType as selectMoveType } from 'scenes/Moves/ducks';
 import { checkEntitlement } from './ducks';
 import ServiceMemberSummary from './ServiceMemberSummary';
 import PPMShipmentSummary from './PPMShipmentSummary';
+import HHGShipmentSummary from 'pages/MyMove/HHGShipmentSummary';
 
 import './Review.css';
 import { selectActivePPMForMove } from '../../shared/Entities/modules/ppms';
+import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
+import { selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
 
 export class Summary extends Component {
   componentDidMount() {
@@ -45,6 +44,7 @@ export class Summary extends Component {
     const {
       currentMove,
       currentPPM,
+      mtoShipment,
       currentBackupContacts,
       currentOrders,
       schemaRank,
@@ -66,7 +66,9 @@ export class Summary extends Component {
     const editOrdersPath = rootAddressWithMoveId + '/edit-orders';
 
     const showPPMShipmentSummary =
-      (isReviewPage && currentPPM) || (!isReviewPage && currentPPM && currentPPM.status !== 'DRAFT');
+      (isReviewPage && !isEmpty(currentPPM)) ||
+      (!isReviewPage && !isEmpty(currentPPM) && currentPPM.status !== 'DRAFT');
+    const showHHGShipmentSummary = isReviewPage && !isEmpty(mtoShipment);
 
     const showProfileAndOrders = isReviewPage || !isReviewPage;
     return (
@@ -106,6 +108,9 @@ export class Summary extends Component {
         {showPPMShipmentSummary && (
           <PPMShipmentSummary ppm={currentPPM} movePath={rootAddressWithMoveId} orders={currentOrders} />
         )}
+
+        {showHHGShipmentSummary && <HHGShipmentSummary mtoShipment={mtoShipment} movePath={rootAddressWithMoveId} />}
+
         {moveIsApproved && (
           <div className="approved-edit-warning">
             *To change these fields, contact your local PPPO office at {get(currentStation, 'name')}{' '}
@@ -122,22 +127,25 @@ Summary.propTypes = {
   getCurrentMove: PropTypes.func,
   currentOrders: PropTypes.object,
   currentPPM: PropTypes.object,
+  mtoShipment: PropTypes.object,
   schemaRank: PropTypes.object,
   schemaOrdersType: PropTypes.object,
   moveIsApproved: PropTypes.bool,
   lastMoveIsCanceled: PropTypes.bool,
   error: PropTypes.object,
   selectedMoveType: PropTypes.string.isRequired,
+  showLoggedInUser: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
-  const moveID = state.moves.currentMove.id;
-  const currentOrders = selectActiveOrLatestOrders(state);
+  const moveID = ownProps.match.params.moveId;
+  const currentOrders = selectActiveOrLatestOrdersFromEntities(state);
 
   return {
     currentPPM: selectActivePPMForMove(state, moveID),
+    mtoShipment: selectMTOShipmentForMTO(state, moveID),
     serviceMember: state.serviceMember.currentServiceMember,
-    currentMove: selectMove(state, ownProps.match.params.moveId),
+    currentMove: selectMove(state, moveID),
     currentBackupContacts: state.serviceMember.currentBackupContacts,
     currentOrders: currentOrders,
     uploads: selectUploadsForActiveOrders(state),
@@ -153,14 +161,15 @@ function mapStateToProps(state, ownProps) {
 }
 function mapDispatchToProps(dispatch, ownProps) {
   return {
-    onDidMount: function (smId) {
+    onDidMount: function () {
       const moveID = ownProps.match.params.moveId;
       dispatch(loadMove(moveID, 'Summary.getMove'));
-      dispatch(fetchLatestOrders(smId));
+      dispatch(showLoggedInUserAction());
     },
     onCheckEntitlement: (moveId) => {
       dispatch(checkEntitlement(moveId));
     },
+    showLoggedInUser: showLoggedInUserAction,
   };
 }
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Summary));

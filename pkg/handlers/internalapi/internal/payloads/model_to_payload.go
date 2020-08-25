@@ -5,6 +5,7 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -73,6 +74,8 @@ func MTOShipment(mtoShipment *models.MTOShipment) *internalmessages.MTOShipment 
 		DestinationAddress: Address(mtoShipment.DestinationAddress),
 		CreatedAt:          strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:          strfmt.DateTime(mtoShipment.UpdatedAt),
+		Status:             internalmessages.MTOShipmentStatus(mtoShipment.Status),
+		ETag:               etag.GenerateEtag(mtoShipment.UpdatedAt),
 	}
 
 	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
@@ -84,6 +87,16 @@ func MTOShipment(mtoShipment *models.MTOShipment) *internalmessages.MTOShipment 
 	}
 
 	return payload
+}
+
+// MTOShipments payload
+func MTOShipments(mtoShipments *models.MTOShipments) *internalmessages.MTOShipments {
+	payload := make(internalmessages.MTOShipments, len(*mtoShipments))
+
+	for i, m := range *mtoShipments {
+		payload[i] = MTOShipment(&m)
+	}
+	return &payload
 }
 
 // InternalServerError describes errors in a standard structure to be returned in the payload.

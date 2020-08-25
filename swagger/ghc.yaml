@@ -474,7 +474,7 @@ paths:
       parameters: []
       responses:
         '200':
-          description: Successfully retrieved all line items for a move task order
+          description: Successfully retrieved all mto shipments for a move task order
           schema:
             $ref: '#/definitions/MTOShipments'
         '404':
@@ -773,7 +773,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/MTOServiceItem'
+            $ref: '#/definitions/PatchMTOServiceItemStatusPayload'
         - in: header
           name: If-Match
           type: string
@@ -805,6 +805,10 @@ paths:
           description: Precondition Failed
           schema:
             $ref: '#/responses/PreconditionFailed'
+        '422':
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
         '500':
           description: A server error occurred
           schema:
@@ -879,6 +883,71 @@ paths:
         - contracting_officer
         - ppm_office_users
       summary: Change the status of a move task order to make it available to prime
+  '/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status':
+    parameters:
+      - description: ID of move order to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+      - description: ID of payment service item to use
+        in: path
+        name: paymentServiceItemID
+        required: true
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/PaymentServiceItem'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: >-
+            Successfully updated status for a line item for a move task order by
+            ID
+          schema:
+            $ref: '#/definitions/PaymentServiceItem'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '412':
+          description: Precondition Failed
+          schema:
+            $ref: '#/responses/PreconditionFailed'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - paymentServiceItem
+      description: Changes the status of a line item for a move order by ID
+      x-swagger-roles:
+        - transportation_invoicing_officer
+      operationId: updatePaymentServiceItemStatus
+      summary: Change the status of a payment service item for a move order by ID
   '/move-task-orders/{moveTaskOrderID}/entitlements':
     parameters:
       - description: ID of move order to use
@@ -1608,6 +1677,10 @@ definitions:
         type: string
       eTag:
         type: string
+      reviewedAt:
+        format: date-time
+        type: string
+        x-nullable: true
     type: object
   PaymentRequests:
     items:
@@ -1623,6 +1696,9 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         readOnly: true
+        type: string
+      createdAt:
+        format: date-time
         type: string
       paymentRequestID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -1766,6 +1842,7 @@ definitions:
   ServiceItemParamName:
     type: string
     enum:
+      - ActualPickupDate
       - CanStandAlone
       - ContractCode
       - CubicFeetBilled
@@ -1775,6 +1852,7 @@ definitions:
       - DistanceZip5SITDest
       - DistanceZip5SITOrigin
       - EIAFuelPrice
+      - FSCWeightBasedDistanceMultiplier
       - MarketDest
       - MarketOrigin
       - MTOAvailableToPrimeAt
@@ -1866,6 +1944,14 @@ definitions:
       updatedAt:
         format: date-time
         type: string
+      primeEstimatedWeight:
+        x-nullable: true
+        example: 2000
+        type: integer
+      primeActualWeight:
+        x-nullable: true
+        example: 2000
+        type: integer
       scheduledPickupDate:
         format: date
         type: string
@@ -1876,16 +1962,16 @@ definitions:
         format: date
         type: string
       pickupAddress:
-        x-nullabe: true
+        x-nullable: true
         $ref: '#/definitions/Address'
       destinationAddress:
-        x-nullabe: true
+        x-nullable: true
         $ref: '#/definitions/Address'
       secondaryPickupAddress:
-        x-nullabe: true
+        x-nullable: true
         $ref: '#/definitions/Address'
       secondaryDeliveryAddress:
-        x-nullabe: true
+        x-nullable: true
         $ref: '#/definitions/Address'
       customerRemarks:
         type: string
@@ -1924,6 +2010,15 @@ definitions:
         type: string
         example: MTO Shipment not good enough
         x-nullable: true
+  PatchMTOServiceItemStatusPayload:
+    properties:
+      status:
+        description: Describes all statuses for a MTOServiceItem
+        type: string
+        enum:
+          - SUBMITTED
+          - APPROVED
+          - REJECTED
   MTOServiceItemStatus:
     description: Describes all statuses for a MTOServiceItem
     type: string

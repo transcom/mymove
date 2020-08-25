@@ -52,6 +52,51 @@ const fileChecks = () => {
   }
 };
 
+const cypressUpdateChecks = async () => {
+  // load all modified and new files
+  const allFiles = danger.git.modified_files.concat(danger.git.created_files);
+
+  // check if relevant package.jsons have changed
+  const rootPackageFile = 'package.json';
+  const cypressPackageFile = 'cypress/package.json';
+  const rootPackageChanged = includes(allFiles, rootPackageFile);
+  const cypressPackageChanged = includes(allFiles, 'cypress/package.json');
+  const cypressPackageName = '"cypress":';
+  const versionRegex = /(~|\^|)\d+.\d+.\d+/;
+
+  let hasRootCypressDepChanged = false;
+  let hasCypressPackageCypressDepChanged = false;
+  let rootVersion, cypressPackageVersion;
+
+  // if root changed, check for cypress in diff
+  if (rootPackageChanged) {
+    const rootPackageDiff = await danger.git.diffForFile(rootPackageFile)
+    if (rootPackageDiff && rootPackageDiff.diff.includes(cypressPackageName)) {
+      hasRootCypressDepChanged = true
+
+      let diff = rootPackageDiff.diff.split(cypressPackageName)[1]; // we don't care about diff before cypress
+      rootVersion = diff.match(versionRegex)[0]; // the first version # will be cypress's
+    }
+  }
+
+  // if cypress package changed, check for cypress in diff
+  if (cypressPackageChanged) {
+    const cypressPackageDiff = await danger.git.diffForFile(cypressPackageFile)
+    if (cypressPackageDiff && cypressPackageDiff.diff.includes(cypressPackageName)) {
+      hasCypressPackageCypressDepChanged = true
+
+      let diff = cypressPackageDiff.diff.split(cypressPackageName)[1]; // we don't care about diff before cypress
+      cypressPackageVersion = diff.match(versionRegex)[0]; // the first version # will be cypress's
+    }
+  }
+
+  if (hasRootCypressDepChanged != hasCypressPackageCypressDepChanged) {
+    warn(`It looks like you updated the Cypress package dependency in one of two required places. Please update it in both the root package.json and the cypress/ folder's separate package.json`)
+  } else if (rootVersion != cypressPackageVersion) {
+    warn(`It looks like there is a Cypress version mismatch between the root package.json and the cypress/ folder's separate package.json. Please double check they have the same version.`)
+  }
+}
+
 const checkYarnAudit = () => {
   const result = child.spawnSync('yarn', ['audit', '--groups=dependencies', '--level=high', '--json']);
   const output = result.stdout.toString().split('\n');
@@ -95,4 +140,5 @@ if (!danger.github || (danger.github && danger.github.pr.user.login !== 'dependa
   githubChecks();
   fileChecks();
   checkYarnAudit();
+  cypressUpdateChecks();
 }
