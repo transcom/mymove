@@ -167,7 +167,9 @@ const pages = {
     isInFlow: always,
     isComplete: ({ sm, orders, uploads }) =>
       get(orders, 'uploaded_orders.uploads', []).length > 0 || uploads.length > 0,
-    render: (key, pages) => ({ match }) => <UploadOrders pages={pages} pageKey={key} match={match} />,
+    render: (key, pages, description, props) => ({ match }) => (
+      <UploadOrders pages={pages} pageKey={key} additionalParams={{ moveId: props.moveId }} match={match} />
+    ),
     description: 'Upload your orders',
   },
   '/moves/:moveId/moving-info': {
