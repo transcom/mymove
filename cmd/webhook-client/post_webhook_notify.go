@@ -33,10 +33,6 @@ func initPostWebhookNotifyFlags(flag *pflag.FlagSet) {
 }
 
 func checkPostWebhookNotifyConfig(v *viper.Viper, args []string, logger utils.Logger) error {
-	_, _, err := InitRootConfig(v)
-	if err != nil {
-		logger.Fatal(err.Error())
-	}
 
 	missingFilenameFlag := v.GetString(FilenameFlag) == "" && (len(args) < 1 || len(args) > 0 && !ContainsDash(args))
 
@@ -55,9 +51,12 @@ func postWebhookNotify(cmd *cobra.Command, args []string) error {
 		return errParseFlags
 	}
 
+	// Validate all arguments passed in including DB, CAC, etc...
+	// Also this opens the db connection and creates a logger
 	_, logger, err := InitRootConfig(v)
 	if err != nil {
-		logger.Fatal("Invalid configuration", zap.Error(err))
+		logger.Error("invalid configuration", zap.Error(err))
+		return err
 	}
 
 	// Check the config before talking to the CAC
@@ -99,17 +98,22 @@ func postWebhookNotify(cmd *cobra.Command, args []string) error {
 	hostname := v.GetString(utils.HostnameFlag)
 	port := v.GetInt(utils.PortFlag)
 	// For now this is hardcoded to our support endpoint
-	path := "/support/v1/webhook-notify"
+	path := "support/v1/webhook-notify"
 
-	url := fmt.Sprintf("%s:%d/%s", hostname, port, path)
-
-	resp, _, err := runtime.Post(json, url)
+	url := fmt.Sprintf("https://%s:%d/%s", hostname, port, path)
+	fmt.Println("url is", url)
+	resp, body, err := runtime.Post(json, url)
 
 	if err != nil {
 		logger.Error("Error making request:", zap.Error(err))
 		return err
 	}
-
+	// Check for error response from server
+	if resp.StatusCode != 200 {
+		errmsg := fmt.Sprintf("Failed to send. Response Status: %s. Body: %s", resp.Status, string(body))
+		err = errors.New(errmsg)
+		return err
+	}
 	logger.Info("Request complete: ", zap.String("Status", resp.Status))
 
 	return nil

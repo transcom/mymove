@@ -94,18 +94,6 @@ func main() {
 	initPostWebhookNotifyFlags(postWebhookNotifyCommand.Flags())
 	root.AddCommand(postWebhookNotifyCommand)
 
-	dbWebhookNotifyCommand := &cobra.Command{
-		Use:   "db-webhook-notify",
-		Short: "Database Webhook Notify",
-		Long: `
-	Database Webhook Notify checks the webhook_notification
-	table and sends the first notification it finds there.`,
-		RunE:         dbWebhookNotify,
-		SilenceUsage: true,
-	}
-	initDbWebhookNotifyFlags(dbWebhookNotifyCommand.Flags())
-	root.AddCommand(dbWebhookNotifyCommand)
-
 	dbConnectionCommand := &cobra.Command{
 		Use:   "db-connection-test",
 		Short: "Database Connection Test",

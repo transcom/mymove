@@ -176,6 +176,8 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunSuccessful() {
 	response.StatusCode = 200
 	response.Status = "200 Success"
 
+	fmt.Printf("%v", suite.DB())
+
 	// SETUP MOCKED OBJECT EXPECTATIONS
 	// Expectation: When Post is called, verify it was called with the callback url from the subscription.
 	// Then, make it return 200 success and a body
