@@ -26,7 +26,7 @@ function generateDetailText(details, id) {
 }
 
 const ServiceItemTableHasImg = ({ serviceItems, handleUpdateMTOServiceItemStatus }) => {
-  const tableRows = serviceItems.map(({ id, submittedAt, serviceItem, details }, i) => {
+  const tableRows = serviceItems.map(({ id, submittedAt, serviceItem, details, status }, i) => {
     let detailSection;
     if (details.imgURL) {
       detailSection = (
@@ -52,31 +52,65 @@ const ServiceItemTableHasImg = ({ serviceItems, handleUpdateMTOServiceItemStatus
         </td>
         <td className={styles.detail}>{detailSection}</td>
         <td>
-          <div className={styles.statusAction}>
-            <Button
-              type="button"
-              className="usa-button--icon usa-button--small"
-              data-testid="acceptButton"
-              onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.APPROVED)}
-            >
-              <span className="icon">
-                <Check />
-              </span>
-              <span>Accept</span>
-            </Button>
-            <Button
-              type="button"
-              secondary
-              className="usa-button--small usa-button--icon"
-              data-testid="rejectButton"
-              onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.REJECTED)}
-            >
+          {status === SERVICE_ITEM_STATUS.SUBMITTED && (
+            <div className={styles.statusAction}>
+              <Button
+                type="button"
+                className="usa-button--icon usa-button--small"
+                data-testid="acceptButton"
+                onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.APPROVED)}
+              >
+                <span className="icon">
+                  <Check />
+                </span>
+                <span>Accept</span>
+              </Button>
+              <Button
+                type="button"
+                secondary
+                className="usa-button--small usa-button--icon"
+                data-testid="rejectButton"
+                onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.REJECTED)}
+              >
+                <span className="icon">
+                  <Ex />
+                </span>
+                <span>Reject</span>
+              </Button>
+            </div>
+          )}{' '}
+          {status === SERVICE_ITEM_STATUS.APPROVED && (
+            <div className={styles.statusAction}>
               <span className="icon">
                 <Ex />
               </span>
-              <span>Reject</span>
-            </Button>
-          </div>
+              <span
+                role="button"
+                className="text-blue"
+                onKeyDown={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.REJECTED)}
+                onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.REJECTED)}
+                tabIndex={i}
+              >
+                Reject
+              </span>
+            </div>
+          )}
+          {status === SERVICE_ITEM_STATUS.REJECTED && (
+            <div className={styles.statusAction}>
+              <span className="icon">
+                <Ex />
+              </span>
+              <span
+                role="button"
+                className="text-blue"
+                onKeyDown={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.APPROVED)}
+                onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.APPROVED)}
+                tabIndex={i}
+              >
+                Approve
+              </span>
+            </div>
+          )}
         </td>
       </tr>
     );

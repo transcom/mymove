@@ -117,6 +117,12 @@ export const MoveTaskOrder = ({ match }) => {
           const requestedServiceItems = serviceItemsForShipment.filter(
             (item) => item.status === SERVICE_ITEM_STATUS.SUBMITTED,
           );
+          const approvedServiceItems = serviceItemsForShipment.filter(
+            (item) => item.status === SERVICE_ITEM_STATUS.APPROVED,
+          );
+          const rejectedServiceItems = serviceItemsForShipment.filter(
+            (item) => item.status === SERVICE_ITEM_STATUS.REJECTED,
+          );
           return (
             <ShipmentContainer
               key={mtoShipment.id}
@@ -153,6 +159,18 @@ export const MoveTaskOrder = ({ match }) => {
               {requestedServiceItems?.length > 0 && (
                 <RequestedServiceItemsTable
                   serviceItems={requestedServiceItems}
+                  handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
+                />
+              )}
+              {approvedServiceItems?.length > 0 && (
+                <RequestedServiceItemsTable
+                  serviceItems={approvedServiceItems}
+                  handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
+                />
+              )}
+              {rejectedServiceItems?.length > 0 && (
+                <RequestedServiceItemsTable
+                  serviceItems={rejectedServiceItems}
                   handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
                 />
               )}
