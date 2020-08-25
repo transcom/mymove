@@ -123,7 +123,7 @@ Next:
     2. If everything looks good, upload the migration to S3 with this utility:
        scripts/upload-secure-migration \\
           ${prod_migration_name}
-    3. Run make run_prod_migrations to verify that the upload worked and that the migration can be applied successfully. Currently this only works for commercial AWS prod.
+    3. Run make run_prod_migrations to verify that the upload worked and that the migration can be applied successfully. This will check against both the commercial and GovCloud environments.
     4. Open a pull request for this change; when it is accepted, your migration will run on staging.
     5. Delete local test and production migrations
 EOM

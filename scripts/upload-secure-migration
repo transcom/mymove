@@ -136,7 +136,7 @@ echo
 # Upload secure migration
 #
 
-proceed "Are you ready to upload your new migration? Currently only works in Commercial environments (experimental, staging, prod) and GovCloud experimental and staging environments."
+proceed "Are you ready to upload your new migration? This will upload to all commercial environments (experimental, staging, prod) and GovCloud environments (exp, stg, prd)."
 
 # This will currently only work for commercial AWS envs and GovCloud experimental.
   for environment in "${environments[@]}"; do
