@@ -104,6 +104,7 @@ function customerFillsOutOrdersInformation() {
   });
 
   cy.upload_file('.filepond--root', 'top-secret.png');
+  cy.wait('@postUploadDocument');
   cy.get('button.next', { timeout: fileUploadTimeout }).should('not.be.disabled').click();
   cy.nextPage();
 
@@ -218,6 +219,12 @@ function customerSubmitsMove() {
 }
 
 describe('HHG Setup flow', function () {
+  beforeEach(() => {
+    cy.removeFetch();
+    cy.server();
+    cy.route('POST', '**/internal/uploads?documentId=**').as('postUploadDocument');
+  });
+
   it('Creates a shipment', function () {
     cy.signInAsNewMilMoveUser();
     customerFillsInProfileInformation();
