@@ -2,10 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Field } from 'formik';
 import { v4 as uuidv4 } from 'uuid';
-import Fieldset from 'shared/Fieldset';
-import { TextInput } from 'components/form/fields';
 
 import styles from '../../Customer/EditShipment.module.scss';
+
+import Fieldset from 'shared/Fieldset';
+import { TextInput } from 'components/form/fields';
 
 export const ContactInfoFields = ({ legend, className, subtitle, values, name, subtitleClassName, hintText }) => {
   const contactInfoFieldsUUID = uuidv4();

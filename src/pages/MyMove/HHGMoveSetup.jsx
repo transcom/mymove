@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { arrayOf, string, shape, bool, func } from 'prop-types';
+
 import {
   loadMTOShipments as loadMTOShipmentsAction,
   selectMTOShipmentForMTO,
