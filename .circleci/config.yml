@@ -666,7 +666,7 @@ jobs:
 
   # `integration_tests` runs integration tests using Cypress.  https://www.cypress.io/
   integration_tests:
-    parallelism: 5
+    parallelism: 10
     executor: mymove_large
     steps:
       - aws_vars_legacy
