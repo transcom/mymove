@@ -81,36 +81,32 @@ const ServiceItemTableHasImg = ({ serviceItems, handleUpdateMTOServiceItemStatus
           )}{' '}
           {statusForTableType === SERVICE_ITEM_STATUS.APPROVED && (
             <div className={styles.statusAction}>
-              <span className="icon">
-                <Ex />
-              </span>
-              <span
+              <Button
+                type="button"
                 data-testid="rejectTextButton"
-                role="button"
-                className="text-blue cursor-pointer"
-                onKeyDown={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.REJECTED)}
+                className="text-blue usa-button--unstyled"
                 onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.REJECTED)}
-                tabIndex={i}
               >
+                <span className="icon">
+                  <Ex />
+                </span>{' '}
                 Reject
-              </span>
+              </Button>
             </div>
           )}
           {statusForTableType === SERVICE_ITEM_STATUS.REJECTED && (
             <div className={styles.statusAction}>
-              <span className="icon">
-                <Ex />
-              </span>
-              <span
+              <Button
+                type="button"
                 data-testid="approveTextButton"
-                role="button"
-                className="text-blue cursor-pointer"
-                onKeyDown={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.APPROVED)}
+                className="text-blue usa-button--unstyled"
                 onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.APPROVED)}
-                tabIndex={i}
               >
+                <span className="icon">
+                  <Ex />
+                </span>{' '}
                 Approve
-              </span>
+              </Button>
             </div>
           )}
         </td>
