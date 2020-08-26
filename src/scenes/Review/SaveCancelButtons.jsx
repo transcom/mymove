@@ -13,7 +13,7 @@ const SaveCancelButtons = (props) => {
       </button>
       <button
         type="button"
-        className="usa-button usa-button--outline margin-bottom-1"
+        className="usa-button usa-button--secondary margin-bottom-1"
         disabled={submitting}
         onClick={goBack}
       >
