@@ -36,7 +36,7 @@ const PaymentRequestedSummary = (props) => {
                     packet.
                   </div>
                   <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer" className="usa-link">
-                    <button className="usa-button usa-button--outline">Read PPM Info Packet</button>
+                    <button className="usa-button usa-button--secondary">Read PPM Info Packet</button>
                   </a>
                 </div>
               )}

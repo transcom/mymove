@@ -35,7 +35,7 @@ function TrailerCriteria(props) {
         the trailer.
       </p>
       <div className="usa-grid button-bar">
-        <button className="usa-button usa-button--outline" onClick={goBack}>
+        <button className="usa-button usa-button--secondary" onClick={goBack}>
           Back
         </button>
       </div>
