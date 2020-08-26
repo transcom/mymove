@@ -563,197 +563,347 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		}
 
 		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
 		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
 		suite.Equal(oldShipment.ID.String(), okResponse.Payload.ID.String())
 	})
 
-	//suite.T().Run("Successful case if scheduled pickup is changed. RequiredDeliveryDate should be generated.", func(t *testing.T) {
-	//	tenDaysFromNow := now.AddDate(0, 0, 11)
-	//	oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-	//		MTOShipment: models.MTOShipment{
-	//			Status:       "APPROVED",
-	//			ApprovedDate: &now,
-	//		},
-	//	})
-	//	eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
-	//	updatedShipment := models.MTOShipment{
-	//		ID:                   oldShipment.ID,
-	//		PrimeEstimatedWeight: &primeEstimatedWeight,
-	//		ScheduledPickupDate:  &tenDaysFromNow,
-	//	}
-	//	updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipment(&updatedShipment, eTag)
-	//	suite.NoError(err)
-	//	suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
-	//	suite.NotNil(updatedMTOShipment.RequiredDeliveryDate)
-	//
-	//	// Let's double check our maths.
-	//	expectedRDD := updatedShipment.ScheduledPickupDate.AddDate(0, 0, 12)
-	//	actualRDD := *updatedMTOShipment.RequiredDeliveryDate
-	//	suite.Equal(expectedRDD.Year(), actualRDD.Year())
-	//	suite.Equal(expectedRDD.Month(), actualRDD.Month())
-	//	suite.Equal(expectedRDD.Day(), actualRDD.Day())
-	//
-	//})
-	//
-	//suite.T().Run("Successful case if in Alaska, should add an extra 10 days to required delivery date", func(t *testing.T) {
-	//	tenDaysFromNow := now.AddDate(0, 0, 11)
-	//	akAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-	//		Address: models.Address{
-	//			PostalCode: "12345",
-	//			State:      "AK",
-	//		},
-	//	})
-	//	oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-	//		MTOShipment: models.MTOShipment{
-	//			Status:               "APPROVED",
-	//			ApprovedDate:         &now,
-	//			DestinationAddress:   &akAddress,
-	//			DestinationAddressID: &akAddress.ID,
-	//		},
-	//	})
-	//	eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
-	//	updatedShipment := models.MTOShipment{
-	//		ID:                   oldShipment.ID,
-	//		PrimeEstimatedWeight: &primeEstimatedWeight,
-	//		ScheduledPickupDate:  &tenDaysFromNow,
-	//		DestinationAddress:   &akAddress,
-	//		DestinationAddressID: &akAddress.ID,
-	//	}
-	//	updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipment(&updatedShipment, eTag)
-	//	suite.NoError(err)
-	//	suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
-	//	suite.NotNil(updatedMTOShipment.RequiredDeliveryDate)
-	//
-	//	// Let's double check our maths.
-	//	expectedRDD := updatedShipment.ScheduledPickupDate.AddDate(0, 0, 22)
-	//	actualRDD := *updatedMTOShipment.RequiredDeliveryDate
-	//	suite.Equal(expectedRDD.Year(), actualRDD.Year())
-	//	suite.Equal(expectedRDD.Month(), actualRDD.Month())
-	//	suite.Equal(expectedRDD.Day(), actualRDD.Day())
-	//
-	//})
-	//
-	//suite.T().Run("Successful case in Adak, Alaska, should add 20 days to required delivery date", func(t *testing.T) {
-	//	tenDaysFromNow := now.AddDate(0, 0, 11)
-	//	adakAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-	//		Address: models.Address{
-	//			PostalCode: "99546",
-	//			State:      "AK",
-	//			City:       "Adak",
-	//		},
-	//	})
-	//	oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-	//		MTOShipment: models.MTOShipment{
-	//			Status:               "APPROVED",
-	//			ApprovedDate:         &now,
-	//			DestinationAddress:   &adakAddress,
-	//			DestinationAddressID: &adakAddress.ID,
-	//		},
-	//	})
-	//	eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
-	//	updatedShipment := models.MTOShipment{
-	//		ID:                   oldShipment.ID,
-	//		PrimeEstimatedWeight: &primeEstimatedWeight,
-	//		ScheduledPickupDate:  &tenDaysFromNow,
-	//		DestinationAddress:   &adakAddress,
-	//		DestinationAddressID: &adakAddress.ID,
-	//	}
-	//	updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipment(&updatedShipment, eTag)
-	//	suite.NoError(err)
-	//	suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
-	//	suite.NotNil(updatedMTOShipment.RequiredDeliveryDate)
-	//
-	//	// Let's double check our maths.
-	//	expectedRDD := updatedShipment.ScheduledPickupDate.AddDate(0, 0, 32)
-	//	actualRDD := *updatedMTOShipment.RequiredDeliveryDate
-	//	suite.Equal(expectedRDD.Year(), actualRDD.Year())
-	//	suite.Equal(expectedRDD.Month(), actualRDD.Month())
-	//	suite.Equal(expectedRDD.Day(), actualRDD.Day())
-	//
-	//})
-	//
-	//suite.T().Run("Failed case if approved date is 3-9 days from scheduled move date but estimated weight recorded date isn't at least 3 days prior to scheduled move date", func(t *testing.T) {
-	//	twoDaysFromNow := now.AddDate(0, 0, 2)
-	//	twoDaysBefore := now.AddDate(0, 0, -2)
-	//	oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-	//		MTOShipment: models.MTOShipment{
-	//			Status:              "APPROVED",
-	//			ScheduledPickupDate: &twoDaysFromNow,
-	//			ApprovedDate:        &twoDaysBefore,
-	//		},
-	//	})
-	//	eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
-	//	updatedShipment := models.MTOShipment{
-	//		ID:                   oldShipment.ID,
-	//		PrimeEstimatedWeight: &primeEstimatedWeight,
-	//	}
-	//
-	//	_, err := mtoShipmentUpdater.UpdateMTOShipment(&updatedShipment, eTag)
-	//	suite.Error(err)
-	//})
-	//
-	//suite.T().Run("Successful case if approved date is 3-9 days from scheduled move date and estimated weight recorded date is at least 3 days prior to scheduled move date", func(t *testing.T) {
-	//	sixDaysFromNow := now.AddDate(0, 0, 6)
-	//	twoDaysBefore := now.AddDate(0, 0, -2)
-	//	oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-	//		MTOShipment: models.MTOShipment{
-	//			Status:              "APPROVED",
-	//			ScheduledPickupDate: &sixDaysFromNow,
-	//			ApprovedDate:        &twoDaysBefore,
-	//		},
-	//	})
-	//	eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
-	//	updatedShipment := models.MTOShipment{
-	//		ID:                   oldShipment.ID,
-	//		PrimeEstimatedWeight: &primeEstimatedWeight,
-	//	}
-	//	updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipment(&updatedShipment, eTag)
-	//	suite.NoError(err)
-	//
-	//	suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
-	//	suite.NotNil(updatedMTOShipment.PrimeEstimatedWeightRecordedDate)
-	//})
-	//
-	//suite.T().Run("Failed case if approved date is less than 3 days from scheduled move date but estimated weight recorded date isn't at least 1 day prior to scheduled move date", func(t *testing.T) {
-	//	oneDayFromNow := now.AddDate(0, 0, 1)
-	//	oneDayBefore := now.AddDate(0, 0, -1)
-	//	oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-	//		MTOShipment: models.MTOShipment{
-	//			Status:              "APPROVED",
-	//			ScheduledPickupDate: &oneDayFromNow,
-	//			ApprovedDate:        &oneDayBefore,
-	//		},
-	//	})
-	//	eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
-	//	updatedShipment := models.MTOShipment{
-	//		ID:                   oldShipment.ID,
-	//		PrimeEstimatedWeight: &primeEstimatedWeight,
-	//	}
-	//
-	//	_, err := mtoShipmentUpdater.UpdateMTOShipment(&updatedShipment, eTag)
-	//	suite.Error(err)
-	//})
-	//
-	//suite.T().Run("Successful case if approved date is less than 3 days from scheduled move date and estimated weight recorded date is at least 1 day prior to scheduled move date", func(t *testing.T) {
-	//	twoDaysFromNow := now.AddDate(0, 0, 2)
-	//	oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-	//		MTOShipment: models.MTOShipment{
-	//			Status:              "APPROVED",
-	//			ScheduledPickupDate: &twoDaysFromNow,
-	//			ApprovedDate:        &now,
-	//		},
-	//	})
-	//	eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
-	//	updatedShipment := models.MTOShipment{
-	//		ID:                   oldShipment.ID,
-	//		PrimeEstimatedWeight: &primeEstimatedWeight,
-	//	}
-	//	updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipment(&updatedShipment, eTag)
-	//	suite.NoError(err)
-	//
-	//	suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
-	//	suite.NotNil(updatedMTOShipment.PrimeEstimatedWeightRecordedDate)
-	//})
-}
+	suite.T().Run("Successful case if scheduled pickup is changed. RequiredDeliveryDate should be generated.", func(t *testing.T) {
+		tenDaysFromNow := now.AddDate(0, 0, 11)
+		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				Status:       "APPROVED",
+				ApprovedDate: &now,
+			},
+		})
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+		payload := primemessages.MTOShipment{
+			ID:                   strfmt.UUID(oldShipment.ID.String()),
+			PrimeEstimatedWeight: int64(primeEstimatedWeight),
+			ScheduledPickupDate:  strfmt.Date(tenDaysFromNow),
+		}
 
-//
+		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+
+		params := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
+			Body:          &payload,
+			IfMatch:       eTag,
+		}
+
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+		handler := UpdateMTOShipmentHandler{
+			context,
+			updater,
+		}
+
+		response := handler.Handle(params)
+
+		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+
+		responsePayload := okResponse.Payload
+		suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
+		suite.NotNil(responsePayload.RequiredDeliveryDate)
+
+		// Let's double check our maths.
+		expectedRDD := time.Time(responsePayload.ScheduledPickupDate).AddDate(0, 0, 12)
+		actualRDD := time.Time(responsePayload.RequiredDeliveryDate)
+		suite.Equal(expectedRDD.Year(), actualRDD.Year())
+		suite.Equal(expectedRDD.Month(), actualRDD.Month())
+		suite.Equal(expectedRDD.Day(), actualRDD.Day())
+
+	})
+
+	suite.T().Run("Successful case if in Alaska, should add an extra 10 days to required delivery date", func(t *testing.T) {
+		tenDaysFromNow := now.AddDate(0, 0, 11)
+		akAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+			Address: models.Address{
+				PostalCode: "12345",
+				State:      "AK",
+			},
+		})
+		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				Status:               "APPROVED",
+				ApprovedDate:         &now,
+				DestinationAddress:   &akAddress,
+				DestinationAddressID: &akAddress.ID,
+			},
+		})
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+		payloadAKAddress := primemessages.Address{
+			City:           &akAddress.City,
+			Country:        akAddress.Country,
+			ETag:           eTag,
+			ID:             strfmt.UUID(akAddress.ID.String()),
+			PostalCode:     &akAddress.PostalCode,
+			State:          &akAddress.State,
+			StreetAddress1: &akAddress.StreetAddress1,
+			StreetAddress2: akAddress.StreetAddress2,
+			StreetAddress3: akAddress.StreetAddress3,
+		}
+		payload := primemessages.MTOShipment{
+			ID:                   strfmt.UUID(oldShipment.ID.String()),
+			PrimeEstimatedWeight: int64(primeEstimatedWeight),
+			ScheduledPickupDate:  strfmt.Date(tenDaysFromNow),
+			DestinationAddress:   &payloadAKAddress,
+		}
+		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+
+		params := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
+			Body:          &payload,
+			IfMatch:       eTag,
+		}
+
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+		handler := UpdateMTOShipmentHandler{
+			context,
+			updater,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+
+		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
+		responsePayload := okResponse.Payload
+		suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
+		suite.NotNil(responsePayload.RequiredDeliveryDate)
+
+		// Let's double check our maths.
+		expectedRDD := time.Time(responsePayload.ScheduledPickupDate).AddDate(0, 0, 22)
+		actualRDD := time.Time(responsePayload.RequiredDeliveryDate)
+		suite.Equal(expectedRDD.Year(), actualRDD.Year())
+		suite.Equal(expectedRDD.Month(), actualRDD.Month())
+		suite.Equal(expectedRDD.Day(), actualRDD.Day())
+	})
+
+	suite.T().Run("Successful case in Adak, Alaska, should add 20 days to required delivery date", func(t *testing.T) {
+		tenDaysFromNow := now.AddDate(0, 0, 11)
+		adakAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+			Address: models.Address{
+				PostalCode: "99546",
+				State:      "AK",
+				City:       "Adak",
+			},
+		})
+		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				Status:               "APPROVED",
+				ApprovedDate:         &now,
+				DestinationAddress:   &adakAddress,
+				DestinationAddressID: &adakAddress.ID,
+			},
+		})
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+
+		payloadAdakAddress := primemessages.Address{
+			City:           &adakAddress.City,
+			Country:        adakAddress.Country,
+			ETag:           eTag,
+			ID:             strfmt.UUID(adakAddress.ID.String()),
+			PostalCode:     &adakAddress.PostalCode,
+			State:          &adakAddress.State,
+			StreetAddress1: &adakAddress.StreetAddress1,
+			StreetAddress2: adakAddress.StreetAddress2,
+			StreetAddress3: adakAddress.StreetAddress3,
+		}
+
+		payload := primemessages.MTOShipment{
+			ID:                   strfmt.UUID(oldShipment.ID.String()),
+			PrimeEstimatedWeight: int64(primeEstimatedWeight),
+			ScheduledPickupDate:  strfmt.Date(tenDaysFromNow),
+			DestinationAddress:   &payloadAdakAddress,
+		}
+
+		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+
+		params := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
+			Body:          &payload,
+			IfMatch:       eTag,
+		}
+
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+		handler := UpdateMTOShipmentHandler{
+			context,
+			updater,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+
+		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
+		responsePayload := okResponse.Payload
+		suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
+		suite.NotNil(responsePayload.RequiredDeliveryDate)
+
+		// Let's double check our maths.
+		expectedRDD := time.Time(responsePayload.ScheduledPickupDate).AddDate(0, 0, 32)
+		actualRDD := time.Time(responsePayload.RequiredDeliveryDate)
+		suite.Equal(expectedRDD.Year(), actualRDD.Year())
+		suite.Equal(expectedRDD.Month(), actualRDD.Month())
+		suite.Equal(expectedRDD.Day(), actualRDD.Day())
+
+	})
+
+	suite.T().Run("Failed case if approved date is 3-9 days from scheduled move date but estimated weight recorded date isn't at least 3 days prior to scheduled move date", func(t *testing.T) {
+		twoDaysFromNow := now.AddDate(0, 0, 2)
+		twoDaysBefore := now.AddDate(0, 0, -2)
+		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				Status:              "APPROVED",
+				ScheduledPickupDate: &twoDaysFromNow,
+				ApprovedDate:        &twoDaysBefore,
+			},
+		})
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+		payload := primemessages.MTOShipment{
+			ID:                   strfmt.UUID(oldShipment.ID.String()),
+			PrimeEstimatedWeight: int64(primeEstimatedWeight),
+		}
+
+		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+
+		params := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
+			Body:          &payload,
+			IfMatch:       eTag,
+		}
+
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+		handler := UpdateMTOShipmentHandler{
+			context,
+			updater,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, response)
+	})
+
+	suite.T().Run("Successful case if approved date is 3-9 days from scheduled move date and estimated weight recorded date is at least 3 days prior to scheduled move date", func(t *testing.T) {
+		sixDaysFromNow := now.AddDate(0, 0, 6)
+		twoDaysBefore := now.AddDate(0, 0, -2)
+		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				Status:              "APPROVED",
+				ScheduledPickupDate: &sixDaysFromNow,
+				ApprovedDate:        &twoDaysBefore,
+			},
+		})
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+		payload := primemessages.MTOShipment{
+			ID:                   strfmt.UUID(oldShipment.ID.String()),
+			PrimeEstimatedWeight: int64(primeEstimatedWeight),
+		}
+
+		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+
+		params := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
+			Body:          &payload,
+			IfMatch:       eTag,
+		}
+
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+		handler := UpdateMTOShipmentHandler{
+			context,
+			updater,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+
+		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
+		responsePayload := okResponse.Payload
+		suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
+		suite.NotNil(responsePayload.RequiredDeliveryDate)
+	})
+
+	suite.T().Run("Failed case if approved date is less than 3 days from scheduled move date but estimated weight recorded date isn't at least 1 day prior to scheduled move date", func(t *testing.T) {
+		oneDayFromNow := now.AddDate(0, 0, 1)
+		oneDayBefore := now.AddDate(0, 0, -1)
+		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				Status:              "APPROVED",
+				ScheduledPickupDate: &oneDayFromNow,
+				ApprovedDate:        &oneDayBefore,
+			},
+		})
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+		payload := primemessages.MTOShipment{
+			ID:                   strfmt.UUID(oldShipment.ID.String()),
+			PrimeEstimatedWeight: int64(primeEstimatedWeight),
+		}
+
+		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+
+		params := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
+			Body:          &payload,
+			IfMatch:       eTag,
+		}
+
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+		handler := UpdateMTOShipmentHandler{
+			context,
+			updater,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, response)
+	})
+
+	suite.T().Run("Successful case if approved date is less than 3 days from scheduled move date and estimated weight recorded date is at least 1 day prior to scheduled move date", func(t *testing.T) {
+		twoDaysFromNow := now.AddDate(0, 0, 2)
+		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				Status:              "APPROVED",
+				ScheduledPickupDate: &twoDaysFromNow,
+				ApprovedDate:        &now,
+			},
+		})
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+		payload := primemessages.MTOShipment{
+			ID:                   strfmt.UUID(oldShipment.ID.String()),
+			PrimeEstimatedWeight: int64(primeEstimatedWeight),
+		}
+
+		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+
+		params := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
+			Body:          &payload,
+			IfMatch:       eTag,
+		}
+
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+		handler := UpdateMTOShipmentHandler{
+			context,
+			updater,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+
+		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
+		responsePayload := okResponse.Payload
+		suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
+		suite.NotNil(responsePayload.RequiredDeliveryDate)
+	})
+}
