@@ -1,7 +1,11 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
+import { SERVICE_ITEM_STATUS } from '../../shared/constants';
+
 import ServiceItemTableHasImg from './index';
+
+const handleUpdateServiceItemStatus = jest.fn();
 
 describe('ServiceItemTableHasImg', () => {
   it('should render a thumbnail image when an image url is passed in', () => {
@@ -18,7 +22,13 @@ describe('ServiceItemTableHasImg', () => {
       },
     ];
 
-    const wrapper = shallow(<ServiceItemTableHasImg serviceItems={serviceItems} />);
+    const wrapper = shallow(
+      <ServiceItemTableHasImg
+        serviceItems={serviceItems}
+        statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+        handleUpdateMTOServiceItemStatus={handleUpdateServiceItemStatus}
+      />,
+    );
 
     expect(wrapper.find('.siThumbnail').exists()).toBe(true);
   });
@@ -36,7 +46,13 @@ describe('ServiceItemTableHasImg', () => {
       },
     ];
 
-    const wrapper = shallow(<ServiceItemTableHasImg serviceItems={serviceItems} />);
+    const wrapper = shallow(
+      <ServiceItemTableHasImg
+        serviceItems={serviceItems}
+        statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+        handleUpdateMTOServiceItemStatus={handleUpdateServiceItemStatus}
+      />,
+    );
     expect(wrapper.find('table').exists()).toBe(true);
     expect(wrapper.find('.siThumbnail').exists()).toBe(false);
     expect(wrapper.find('.detail').text()).toBe(serviceItems[0].details.text);
@@ -58,7 +74,13 @@ describe('ServiceItemTableHasImg', () => {
       },
     ];
 
-    const wrapper = shallow(<ServiceItemTableHasImg serviceItems={serviceItems} />);
+    const wrapper = shallow(
+      <ServiceItemTableHasImg
+        serviceItems={serviceItems}
+        statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+        handleUpdateMTOServiceItemStatus={handleUpdateServiceItemStatus}
+      />,
+    );
     expect(wrapper.find('.detail').contains('This is the reason')).toBe(true);
     expect(wrapper.find('.detail').contains('11111')).toBe(true);
   });

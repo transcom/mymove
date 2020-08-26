@@ -160,18 +160,21 @@ export const MoveTaskOrder = ({ match }) => {
                 <RequestedServiceItemsTable
                   serviceItems={requestedServiceItems}
                   handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
+                  statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
                 />
               )}
               {approvedServiceItems?.length > 0 && (
                 <RequestedServiceItemsTable
                   serviceItems={approvedServiceItems}
                   handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
+                  statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
                 />
               )}
               {rejectedServiceItems?.length > 0 && (
                 <RequestedServiceItemsTable
                   serviceItems={rejectedServiceItems}
                   handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
+                  statusForTableType={SERVICE_ITEM_STATUS.REJECTED}
                 />
               )}
             </ShipmentContainer>

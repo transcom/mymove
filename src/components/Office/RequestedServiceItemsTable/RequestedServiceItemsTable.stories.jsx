@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { SERVICE_ITEM_STATUS } from '../../../shared/constants';
+
 import RequestedServiceItemsTable from './RequestedServiceItemsTable';
 
 export default {
@@ -89,6 +91,12 @@ const rejectedServiceItems = serviceItems.map((serviceItem) => {
   return { ...serviceItem, status: 'REJECTED' };
 });
 
-export const Default = () => <RequestedServiceItemsTable serviceItems={serviceItems} />;
-export const ApprovedServiceItems = () => <RequestedServiceItemsTable serviceItems={approvedServiceItems} />;
-export const RejectedServiceItems = () => <RequestedServiceItemsTable serviceItems={rejectedServiceItems} />;
+export const Default = () => (
+  <RequestedServiceItemsTable serviceItems={serviceItems} statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED} />
+);
+export const ApprovedServiceItems = () => (
+  <RequestedServiceItemsTable serviceItems={approvedServiceItems} statusForTableType={SERVICE_ITEM_STATUS.APPROVED} />
+);
+export const RejectedServiceItems = () => (
+  <RequestedServiceItemsTable serviceItems={rejectedServiceItems} statusForTableType={SERVICE_ITEM_STATUS.REJECTED} />
+);

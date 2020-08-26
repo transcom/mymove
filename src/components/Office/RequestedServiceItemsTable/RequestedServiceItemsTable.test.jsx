@@ -1,6 +1,8 @@
 import React from 'react';
 import { shallow, mount } from 'enzyme';
 
+import { SERVICE_ITEM_STATUS } from '../../../shared/constants';
+
 import RequestedServiceItemsTable from './RequestedServiceItemsTable';
 
 const handleUpdateServiceItems = jest.fn();
@@ -53,6 +55,7 @@ describe('RequestedServiceItemsTable', () => {
       <RequestedServiceItemsTable
         handleUpdateMTOServiceItemStatus={handleUpdateServiceItems}
         serviceItems={serviceItems}
+        statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
       />,
     );
 
@@ -64,6 +67,7 @@ describe('RequestedServiceItemsTable', () => {
       <RequestedServiceItemsTable
         handleUpdateMTOServiceItemStatus={handleUpdateServiceItems}
         serviceItems={serviceItems}
+        statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
       />,
     );
     expect(wrapper.text().includes('2 items')).toBe(true);
@@ -75,6 +79,7 @@ describe('RequestedServiceItemsTable', () => {
       <RequestedServiceItemsTable
         handleUpdateMTOServiceItemStatus={handleUpdateServiceItems}
         serviceItems={serviceItems}
+        statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
       />,
     );
 
@@ -94,6 +99,7 @@ describe('RequestedServiceItemsTable', () => {
       <RequestedServiceItemsTable
         handleUpdateMTOServiceItemStatus={handleUpdateServiceItems}
         serviceItems={serviceItems}
+        statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
       />,
     );
 
@@ -110,6 +116,7 @@ describe('RequestedServiceItemsTable', () => {
       <RequestedServiceItemsTable
         handleUpdateMTOServiceItemStatus={handleUpdateServiceItems}
         serviceItems={serviceItems}
+        statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
       />,
     );
 
@@ -133,6 +140,7 @@ describe('RequestedServiceItemsTable', () => {
       <RequestedServiceItemsTable
         handleUpdateMTOServiceItemStatus={handleUpdateServiceItems}
         serviceItems={serviceItems}
+        statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
       />,
     );
 
@@ -152,6 +160,7 @@ describe('RequestedServiceItemsTable', () => {
       <RequestedServiceItemsTable
         handleUpdateMTOServiceItemStatus={handleUpdateServiceItems}
         serviceItems={serviceItems}
+        statusForTableType={SERVICE_ITEM_STATUS.REJECTED}
       />,
     );
 

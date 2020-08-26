@@ -25,8 +25,8 @@ function generateDetailText(details, id) {
   return <dl>{detailList}</dl>;
 }
 
-const ServiceItemTableHasImg = ({ serviceItems, handleUpdateMTOServiceItemStatus }) => {
-  const tableRows = serviceItems.map(({ id, submittedAt, serviceItem, details, status }, i) => {
+const ServiceItemTableHasImg = ({ serviceItems, handleUpdateMTOServiceItemStatus, statusForTableType }) => {
+  const tableRows = serviceItems.map(({ id, submittedAt, serviceItem, details }, i) => {
     let detailSection;
     if (details.imgURL) {
       detailSection = (
@@ -52,7 +52,7 @@ const ServiceItemTableHasImg = ({ serviceItems, handleUpdateMTOServiceItemStatus
         </td>
         <td className={styles.detail}>{detailSection}</td>
         <td>
-          {status === SERVICE_ITEM_STATUS.SUBMITTED && (
+          {statusForTableType === SERVICE_ITEM_STATUS.SUBMITTED && (
             <div className={styles.statusAction}>
               <Button
                 type="button"
@@ -79,7 +79,7 @@ const ServiceItemTableHasImg = ({ serviceItems, handleUpdateMTOServiceItemStatus
               </Button>
             </div>
           )}{' '}
-          {status === SERVICE_ITEM_STATUS.APPROVED && (
+          {statusForTableType === SERVICE_ITEM_STATUS.APPROVED && (
             <div className={styles.statusAction}>
               <span className="icon">
                 <Ex />
@@ -96,7 +96,7 @@ const ServiceItemTableHasImg = ({ serviceItems, handleUpdateMTOServiceItemStatus
               </span>
             </div>
           )}
-          {status === SERVICE_ITEM_STATUS.REJECTED && (
+          {statusForTableType === SERVICE_ITEM_STATUS.REJECTED && (
             <div className={styles.statusAction}>
               <span className="icon">
                 <Ex />
@@ -136,6 +136,7 @@ const ServiceItemTableHasImg = ({ serviceItems, handleUpdateMTOServiceItemStatus
 
 ServiceItemTableHasImg.propTypes = {
   handleUpdateMTOServiceItemStatus: PropTypes.func.isRequired,
+  statusForTableType: PropTypes.string.isRequired,
   serviceItems: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string,
