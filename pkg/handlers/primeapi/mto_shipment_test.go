@@ -285,6 +285,7 @@ func ClearNonUpdateFields(mtoShipment *models.MTOShipment) *primemessages.MTOShi
 func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	primeEstimatedWeight := unit.Pound(500)
 	primeEstimatedWeightDate := testdatagen.DateInsidePeakRateCycle
+	primeActualWeight := unit.Pound(600)
 	move := testdatagen.MakeAvailableMove(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: move,
@@ -292,6 +293,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			Status: models.MTOShipmentStatusSubmitted,
 		},
 	})
+
 	mtoShipment.PrimeEstimatedWeight = &primeEstimatedWeight
 	mtoShipment.PrimeEstimatedWeightRecordedDate = &primeEstimatedWeightDate
 
@@ -300,6 +302,14 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		Move: mtoNotAvailable,
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusSubmitted,
+		},
+	})
+
+	minimalMtoShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			Status:              models.MTOShipmentStatusDraft,
+			ScheduledPickupDate: &time.Time{},
 		},
 	})
 
@@ -363,6 +373,28 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
 		suite.Equal(mtoShipment.ID.String(), okResponse.Payload.ID.String())
+	})
+
+	suite.T().Run("Successful PUT - Update weights on minimal shipment estimated weights", func(t *testing.T) {
+		minimalMtoShipment.PrimeEstimatedWeight = &primeEstimatedWeight
+		minimalMtoShipment.PrimeActualWeight = &primeActualWeight
+
+		req = httptest.NewRequest("PUT", fmt.Sprintf("/mto-shipments/%s", minimalMtoShipment.ID.String()), nil)
+		eTag = etag.GenerateEtag(minimalMtoShipment.UpdatedAt)
+		params = mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(minimalMtoShipment.ID),
+			Body:          ClearNonUpdateFields(&minimalMtoShipment),
+			IfMatch:       eTag,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+
+		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
+		suite.Equal(minimalMtoShipment.ID.String(), okResponse.Payload.ID.String())
+		suite.Equal(minimalMtoShipment.PrimeActualWeight.Int64(), okResponse.Payload.PrimeActualWeight)
+		suite.Equal(minimalMtoShipment.PrimeEstimatedWeight.Int64(), okResponse.Payload.PrimeEstimatedWeight)
 	})
 
 	suite.T().Run("PUT failure - Shipment is not part of MTO available to prime", func(t *testing.T) {
