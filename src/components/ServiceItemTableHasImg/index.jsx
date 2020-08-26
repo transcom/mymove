@@ -10,120 +10,20 @@ import { MTOServiceItemCustomerContactShape, MTOServiceItemDimensionShape } from
 
 import styles from './index.module.scss';
 
+import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
 import { formatDate } from 'shared/dates';
-import { convertFromThousandthInchToInch } from 'shared/formatters';
-
-function generateDetailText(details, id) {
-  const detailList = Object.keys(details).map((detail) => (
-    <div key={`${id}-${detail}`} className={styles.detailLine}>
-      <dt className={styles.detailType}>{detail}:</dt> <dd>{details[`${detail}`]}</dd>
-    </div>
-  ));
-
-  return detailList;
-}
 
 const ServiceItemTableHasImg = ({ serviceItems, handleUpdateMTOServiceItemStatus }) => {
-  const tableRows = serviceItems.map(({ id, code, submittedAt, serviceItem, details }, i) => {
-    let detailSection;
-    switch (code) {
-      case 'DOFSIT':
-      case 'DOASIT':
-      case 'DOPSIT': {
-        detailSection = (
-          <div>
-            <dl>{generateDetailText({ ZIP: details.pickupPostalCode, Reason: details.reason }, id)}</dl>
-          </div>
-        );
-        break;
-      }
-      case 'DDFSIT':
-      case 'DDASIT':
-      case 'DDDSIT': {
-        const { firstCustomerContact, secondCustomerContact } = details;
-        detailSection = (
-          <div>
-            <dl>
-              {firstCustomerContact &&
-                generateDetailText(
-                  {
-                    'First Customer Contact': firstCustomerContact.timeMilitary,
-                    'First Available Delivery Date': formatDate(
-                      firstCustomerContact.firstAvailableDeliveryDate,
-                      'DD MMM YYYY',
-                    ),
-                  },
-                  id,
-                )}
-              <div className={styles.customerContact}>
-                {secondCustomerContact &&
-                  generateDetailText(
-                    {
-                      'Second Customer Contact': secondCustomerContact.timeMilitary,
-                      'Second Available Delivery Date': formatDate(
-                        secondCustomerContact.firstAvailableDeliveryDate,
-                        'DD MMM YYYY',
-                      ),
-                    },
-                    id,
-                  )}
-              </div>
-            </dl>
-          </div>
-        );
-        break;
-      }
-      case 'DCRT': {
-        const { imgURL, description, itemDimensions, crateDimensions } = details;
-        const itemDimensionFormat = `${convertFromThousandthInchToInch(
-          itemDimensions?.length,
-        )}"x${convertFromThousandthInchToInch(itemDimensions?.width)}"x${convertFromThousandthInchToInch(
-          itemDimensions?.height,
-        )}"`;
-        const crateDimensionFormat = `${convertFromThousandthInchToInch(
-          crateDimensions?.length,
-        )}"x${convertFromThousandthInchToInch(crateDimensions?.width)}"x${convertFromThousandthInchToInch(
-          crateDimensions?.height,
-        )}"`;
-        detailSection = (
-          <div className={styles.detailImage}>
-            <img
-              className={styles.siThumbnail}
-              alt={description}
-              aria-labelledby={`si-thumbnail--caption-${i}`}
-              src={imgURL}
-            />
-            <small id={`si-thumbnail--caption-${i}`}>
-              <dl>
-                <p className={styles.detailLine}>{description}</p>
-                {itemDimensions && generateDetailText({ 'Item Dimensions': itemDimensionFormat }, id)}
-                {crateDimensions && generateDetailText({ 'Crate Dimensions': crateDimensionFormat }, id)}
-              </dl>
-            </small>
-          </div>
-        );
-        break;
-      }
-      case 'DOSHUT':
-      case 'DDSHUT': {
-        detailSection = (
-          <div>
-            <dl>{generateDetailText({ 'Estimated Weight': '', Reason: details.reason })}</dl>
-          </div>
-        );
-        break;
-      }
-      default:
-        detailSection = <div>—</div>;
-    }
-
+  const tableRows = serviceItems.map(({ id, code, submittedAt, serviceItem, details }) => {
     return (
       <tr key={id}>
         <td className={styles.nameAndDate}>
           <p className={styles.codeName}>{serviceItem}</p>
           <p>{formatDate(submittedAt, 'DD MMM YYYY')}</p>
         </td>
-        <td className={styles.detail}>{detailSection}</td>
+        <td className={styles.detail}>
+          <ServiceItemDetails code={code} details={details} />
+        </td>
         <td>
           <div className={styles.statusAction}>
             <Button
