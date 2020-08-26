@@ -227,7 +227,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 		if validationErrs != nil && validationErrs.HasAny() {
 			logger.Error("primeapi.UpdateMTOShipmentHandler error - extra fields in request", zap.Error(validationErrs))
 
-			errPayload := payloads.ValidationError("Fields that cannot be updated found in input",
+			errPayload := payloads.ValidationError("Invalid data found in input",
 				h.GetTraceID(), validationErrs)
 
 			return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(errPayload)
