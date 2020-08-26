@@ -290,6 +290,7 @@ class HHGDetailsForm extends Component {
             push={push}
             handleSubmit={() => this.submitMTOShipment(values, dirty)}
           >
+            <h3>Now lets arrange details for the professional movers</h3>
             <Form className={styles.HHGDetailsForm}>
               <Fieldset legend="Pickup date" className={fieldsetClasses}>
                 <Field

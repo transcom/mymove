@@ -20,7 +20,6 @@ class HHGMoveSetup extends Component {
 
     return (
       <div>
-        <h3>Now lets arrange details for the professional movers</h3>
         <HHGDetailsForm pageList={pageList} pageKey={pageKey} match={match} push={push} mtoShipment={mtoShipment} />
       </div>
     );
