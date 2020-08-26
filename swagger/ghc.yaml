@@ -2057,6 +2057,9 @@ definitions:
         type: string
       reason:
         type: string
+      rejectionReason:
+        type: string
+        x-nullable: true
       pickupPostalCode:
         type: string
       feeType:

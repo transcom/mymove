@@ -2216,6 +2216,10 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true
+        },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
         },
@@ -5567,6 +5571,10 @@ func init() {
         "rejectedAt": {
           "type": "string",
           "format": "date"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true
         },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"

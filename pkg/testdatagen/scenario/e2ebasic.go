@@ -1087,10 +1087,12 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 
 	dopCost := unit.Cents(3456)
+	rejectionReason := "Customer no longer required this service"
 	serviceItemDOP := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.FromStringOrNil("d886431c-c357-46b7-a084-a0c85dd496d3"),
-			Status: models.MTOServiceItemStatusRejected,
+			ID:              uuid.FromStringOrNil("d886431c-c357-46b7-a084-a0c85dd496d3"),
+			Status:          models.MTOServiceItemStatusRejected,
+			RejectionReason: &rejectionReason,
 		},
 		Move:        mto,
 		MTOShipment: MTOShipment,

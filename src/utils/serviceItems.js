@@ -1,6 +1,7 @@
 import { dateSort } from 'shared/utils';
+import { convertFromThousandthInchToInch } from 'shared/formatters';
 
-export default function sortServiceItemsByGroup(serviceItemCards) {
+export function sortServiceItemsByGroup(serviceItemCards) {
   // Make a copy so we're not mutating the props
   const cards = [...serviceItemCards];
   // Will populate with earliest service item of each shipment id
@@ -29,4 +30,14 @@ export default function sortServiceItemsByGroup(serviceItemCards) {
   });
 
   return sortedCards;
+}
+
+export function formatDimensions(dimensions, conversion = convertFromThousandthInchToInch, symbol = '"') {
+  if (!dimensions) {
+    return '';
+  }
+
+  return `${conversion(dimensions.length)}${symbol}x${conversion(dimensions.width)}${symbol}x${conversion(
+    dimensions.height,
+  )}${symbol}}`;
 }

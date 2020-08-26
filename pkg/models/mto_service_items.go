@@ -31,6 +31,7 @@ type MTOServiceItem struct {
 	ReService        ReService                      `belongs_to:"re_services"`
 	ReServiceID      uuid.UUID                      `db:"re_service_id"`
 	Reason           *string                        `db:"reason"`
+	RejectionReason  *string                        `db:"rejection_reason"`
 	Status           MTOServiceItemStatus           `db:"status"`
 	PickupPostalCode *string                        `db:"pickup_postal_code"`
 	Description      *string                        `db:"description"`

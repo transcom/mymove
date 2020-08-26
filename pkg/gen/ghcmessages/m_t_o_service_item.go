@@ -87,6 +87,9 @@ type MTOServiceItem struct {
 	// Format: date
 	RejectedAt strfmt.Date `json:"rejectedAt,omitempty"`
 
+	// rejection reason
+	RejectionReason *string `json:"rejectionReason,omitempty"`
+
 	// status
 	Status MTOServiceItemStatus `json:"status,omitempty"`
 

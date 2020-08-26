@@ -34,6 +34,7 @@ func payloadForMTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOSer
 		ReServiceCode:    handlers.FmtString(string(s.ReService.Code)),
 		ReServiceName:    handlers.FmtStringPtr(&s.ReService.Name),
 		Reason:           handlers.FmtStringPtr(s.Reason),
+		RejectionReason:  handlers.FmtStringPtr(s.RejectionReason),
 		PickupPostalCode: handlers.FmtStringPtr(s.PickupPostalCode),
 		Status:           ghcmessages.MTOServiceItemStatus(s.Status),
 		ETag:             etag.GenerateEtag(s.UpdatedAt),
