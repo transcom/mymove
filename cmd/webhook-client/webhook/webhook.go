@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"github.com/spf13/cobra"
@@ -15,13 +16,14 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-//webhookMessage is the body of our request
-type webhookMessage struct {
-	// Message sent
-	// Required: true
-	Message string `json:"message"`
-	// Notification ID
-	ID uuid.UUID `json:"id"`
+// Message is the body of our request
+type Message struct {
+	ID              uuid.UUID       `json:"id"`
+	EventName       string          `json:"eventName"`
+	TriggeredAt     strfmt.DateTime `json:"triggeredAt"`
+	ObjectType      string          `json:"objectType"`
+	UpdatedObjectID uuid.UUID       `json:"updatedObjectID"`
+	Object          string          `json:"object"`
 }
 
 // Engine encapsulates the services used by the webhook notification engine
@@ -85,13 +87,20 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 	logger := eng.Logger
 
 	// Construct notification to send
-	message := fmt.Sprintf("There was a %s notification, id: %s, moveTaskOrderID: %s",
-		string(notif.EventKey), notif.ID.String(), notif.MoveTaskOrderID.String())
-	payload := &webhookMessage{
-		Message: message,
-		ID:      notif.ID,
+	// message := fmt.Sprintf("There was a %s notification, id: %s, moveTaskOrderID: %s",
+	// 	string(notif.EventKey), notif.ID.String(), notif.MoveTaskOrderID.String())
+	message := &Message{
+		ID:          notif.ID,
+		EventName:   notif.EventKey,
+		TriggeredAt: strfmt.DateTime(notif.UpdatedAt),
 	}
-	json, err := json.Marshal(payload)
+	if notif.Payload != nil {
+		message.Object = *notif.Payload
+	}
+	if notif.ObjectID != nil {
+		message.UpdatedObjectID = *notif.ObjectID
+	}
+	json, err := json.Marshal(message)
 	if err != nil {
 		notif.Status = models.WebhookNotificationFailed
 		eng.updateNotification(notif)
@@ -122,7 +131,12 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 
 	notif.Status = models.WebhookNotificationSent
 	eng.updateNotification(notif)
-	logger.Info("Notification successfully sent:", zap.String("Status", resp.Status), zap.String("Body", string(body)))
+	logger.Info("Notification successfully sent:",
+		zap.String("Status", resp.Status),
+		zap.String("EventName", message.EventName),
+		zap.String("NotificationID", message.ID.String()),
+		zap.String("UpdatedObjectID", message.UpdatedObjectID.String()),
+	)
 	return nil
 
 }

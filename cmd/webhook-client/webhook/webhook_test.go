@@ -443,8 +443,8 @@ func teardownEngineRun(suite *WebhookClientTestingSuite) {
 }
 
 // convertBodyToPayload is a helper function to convert []byte to a webhookMessage payload
-func convertBodyToPayload(body []byte) webhookMessage {
-	message := webhookMessage{}
+func convertBodyToPayload(body []byte) Message {
+	message := Message{}
 	json.Unmarshal(body, &message)
 	return message
 }
