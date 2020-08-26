@@ -4,10 +4,10 @@ import { get, isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
-import { Fieldset, Radio, Label } from '@trussworks/react-uswds';
+import { Fieldset, Radio, Label, Textarea } from '@trussworks/react-uswds';
 
 import { Form } from '../form/Form';
-import { DatePickerInput, TextInput } from '../form/fields';
+import { DatePickerInput } from '../form/fields';
 import { AddressFields } from '../form/AddressFields/AddressFields';
 import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
 
@@ -209,7 +209,7 @@ class HHGDetailsForm extends Component {
         street_address_1: pickupAddress.street_address_1,
         street_address_2: pickupAddress.street_address_2,
         city: pickupAddress.city,
-        state: pickupAddress.state,
+        state: pickupAddress.state.toUpperCase(),
         postal_code: pickupAddress.postal_code,
         country: pickupAddress.country,
       },
@@ -377,13 +377,14 @@ class HHGDetailsForm extends Component {
                 values={values.receivingAgent}
               />
               <Fieldset legend="Remarks" className={fieldsetClasses}>
-                <TextInput
+                <Textarea
                   label="Anything else you would like us to know?"
                   labelHint="(optional)"
                   data-testid="remarks"
+                  placeholder="This is 500 characters of customer remarks placeholder"
                   name="customerRemarks"
                   id="customerRemarks"
-                  maxLength={1500}
+                  maxLength={500}
                   value={values.customerRemarks}
                 />
               </Fieldset>
