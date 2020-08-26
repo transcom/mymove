@@ -86,7 +86,7 @@
   background-color: white;
   box-shadow: inset 0 0 0 2px $base-lighter;
   height: 42px;
-  @include u-margin-bottom(2);
+  margin-top: 1rem;
 
   &:active,
   &:hover {
