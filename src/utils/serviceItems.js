@@ -39,5 +39,5 @@ export function formatDimensions(dimensions, conversion = convertFromThousandthI
 
   return `${conversion(dimensions.length)}${symbol}x${conversion(dimensions.width)}${symbol}x${conversion(
     dimensions.height,
-  )}${symbol}}`;
+  )}${symbol}`;
 }
