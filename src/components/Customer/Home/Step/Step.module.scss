@@ -42,7 +42,6 @@
   @include u-margin-top(3);
   margin-left: 0px;
   margin-right: 0px;
-  background-color: white;
 }
 
 .action-btn:disabled {
@@ -87,7 +86,7 @@
   background-color: white;
   box-shadow: inset 0 0 0 2px $base-lighter;
   height: 42px;
-  margin-top: 1rem;
+  @include u-margin-bottom(2);
 
   &:active,
   &:hover {
