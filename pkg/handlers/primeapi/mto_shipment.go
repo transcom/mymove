@@ -286,17 +286,17 @@ func (h UpdateMTOShipmentHandler) checkPrimeValidationsOnModel(mtoShipment *mode
 		}
 		mtoShipment.PrimeEstimatedWeightRecordedDate = &now
 	}
-
+	pickupAddress := dbShipment.PickupAddress
+	if mtoShipment.PickupAddress != nil {
+		pickupAddress = mtoShipment.PickupAddress
+	}
+	destinationAddress := dbShipment.DestinationAddress
+	if mtoShipment.DestinationAddress != nil {
+		destinationAddress = mtoShipment.DestinationAddress
+	}
 	// Updated based on existing fields that may have been updated:
-	if mtoShipment.ScheduledPickupDate != nil && mtoShipment.PrimeEstimatedWeight != nil {
-		pickupAddress := dbShipment.PickupAddress
-		if mtoShipment.PickupAddress != nil {
-			pickupAddress = mtoShipment.PickupAddress
-		}
-		destinationAddress := dbShipment.DestinationAddress
-		if mtoShipment.DestinationAddress != nil {
-			destinationAddress = mtoShipment.DestinationAddress
-		}
+	if mtoShipment.ScheduledPickupDate != nil && mtoShipment.PrimeEstimatedWeight != nil && pickupAddress != nil && destinationAddress != nil {
+
 		requiredDeliveryDate, err := mtoshipment.CalculateRequiredDeliveryDate(h.Planner(), h.DB(), *pickupAddress,
 			*destinationAddress, *mtoShipment.ScheduledPickupDate, mtoShipment.PrimeEstimatedWeight.Int())
 		if err != nil {
