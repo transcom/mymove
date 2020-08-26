@@ -218,7 +218,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 		}
 
 		var dbShipment models.MTOShipment
-		err := h.DB().Find(&dbShipment, mtoShipment.ID)
+		err := h.DB().Eager("PickupAddress", "DestinationAddress").Find(&dbShipment, params.MtoShipmentID)
 		if err != nil {
 			return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
 		}
@@ -258,7 +258,6 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 
 func (h UpdateMTOShipmentHandler) checkPrimeValidationsOnModel(mtoShipment *models.MTOShipment, dbShipment *models.MTOShipment) (*models.MTOShipment, *validate.Errors) {
 	verrs := validate.NewErrors()
-	var validatedShipment models.MTOShipment
 	if mtoShipment.RequestedPickupDate != nil {
 		requestedPickupDate := mtoShipment.RequestedPickupDate
 		// Prime cannot edit the customer's requestedPickupDate
@@ -266,7 +265,7 @@ func (h UpdateMTOShipmentHandler) checkPrimeValidationsOnModel(mtoShipment *mode
 		if !requestedPickupDate.Equal(*dbShipment.RequestedPickupDate) {
 			verrs.Add("requestedPickupDate", "must match what customer has requested")
 		}
-		validatedShipment.RequestedPickupDate = requestedPickupDate
+		mtoShipment.RequestedPickupDate = requestedPickupDate
 	}
 
 	if mtoShipment.PrimeEstimatedWeight != nil {
@@ -281,8 +280,7 @@ func (h UpdateMTOShipmentHandler) checkPrimeValidationsOnModel(mtoShipment *mode
 				verrs.Add("primeEstimatedWeight", err.Error())
 			}
 		}
-		validatedShipment.PrimeEstimatedWeight = mtoShipment.PrimeEstimatedWeight
-		validatedShipment.PrimeEstimatedWeightRecordedDate = &now
+		mtoShipment.PrimeEstimatedWeightRecordedDate = &now
 	}
 
 	// Updated based on existing fields that may have been updated:
@@ -300,7 +298,7 @@ func (h UpdateMTOShipmentHandler) checkPrimeValidationsOnModel(mtoShipment *mode
 		if err != nil {
 			verrs.Add("requiredDeliveryDate", err.Error())
 		}
-		validatedShipment.RequiredDeliveryDate = requiredDeliveryDate
+		mtoShipment.RequiredDeliveryDate = requiredDeliveryDate
 	}
 
 	if len(mtoShipment.MTOAgents) > 0 {
@@ -308,7 +306,6 @@ func (h UpdateMTOShipmentHandler) checkPrimeValidationsOnModel(mtoShipment *mode
 			verrs.Add("agents", "cannot add MTO agents to a shipment")
 		}
 	}
-
 	return mtoShipment, verrs
 }
 
