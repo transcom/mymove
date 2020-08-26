@@ -272,9 +272,13 @@ func (h UpdateMTOShipmentHandler) checkPrimeValidationsOnModel(mtoShipment *mode
 		if dbShipment.PrimeEstimatedWeight != nil {
 			verrs.Add("primeEstimatedWeight", "cannot be updated after initial estimation")
 		}
+		scheduledPickupDate := dbShipment.ScheduledPickupDate
+		if mtoShipment.ScheduledPickupDate != nil {
+			scheduledPickupDate = mtoShipment.ScheduledPickupDate
+		}
 		now := time.Now()
-		if mtoShipment.ApprovedDate != nil {
-			err := validatePrimeEstimatedWeightRecordedDate(now, *dbShipment.ScheduledPickupDate, *dbShipment.ApprovedDate)
+		if dbShipment.ApprovedDate != nil {
+			err := validatePrimeEstimatedWeightRecordedDate(now, *scheduledPickupDate, *dbShipment.ApprovedDate)
 			if err != nil {
 				verrs.Add("primeEstimatedWeight", "the time period for updating the estimated weight for a shipment has expired, please contact the TOO directly to request updates to this shipment’s estimated weight")
 				verrs.Add("primeEstimatedWeight", err.Error())
