@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 
-import { no_op } from 'shared/utils.js';
 import { get } from 'lodash';
 import Home from './Home';
 import SignIn from 'scenes/SystemAdmin/shared/SignIn';
@@ -23,8 +22,6 @@ class AdminWrapper extends Component {
       .catch(() => this.setState({ isLoggedIn: false }));
 
     document.title = 'Transcom PPP: Admin';
-    this.props.loadPublicSchema();
-    this.props.getCurrentUserInfo();
   }
 
   render() {
@@ -44,10 +41,5 @@ class AdminWrapper extends Component {
     }
   }
 }
-
-AdminWrapper.defaultProps = {
-  loadPublicSchema: no_op,
-  getCurrentUserInfo: no_op,
-};
 
 export default AdminWrapper;
