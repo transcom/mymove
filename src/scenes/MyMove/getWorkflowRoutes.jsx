@@ -173,7 +173,7 @@ const pages = {
     description: 'Upload your orders',
   },
   '/moves/:moveId/moving-info': {
-    isInFlow: (props) => inHhgFlow(props),
+    isInFlow: (props) => inGhcFlow(props),
     isComplete: always,
     render: (key, pages) => () => {
       return (

@@ -108,6 +108,7 @@ describe('when getting the routes for the current workflow', () => {
             '/service-member/:serviceMemberId/move-landing',
             '/orders/',
             '/orders/upload',
+            '/moves/:moveId/moving-info',
             '/moves/:moveId/select-type',
 
             '/moves/:moveId/review',
@@ -158,7 +159,6 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/:serviceMemberId/backup-contacts',
           '/orders/',
           '/orders/upload',
-          '/moves/:moveId/moving-info',
           '/moves/:moveId/select-type',
           '/moves/:moveId/hhg-start',
           '/moves/:moveId/review',
