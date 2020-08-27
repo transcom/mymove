@@ -1079,6 +1079,7 @@ definitions:
             type: string
             example: 0400Z
             description: Time of delivery corresponding to `firstAvailableDeliveryDate1`.
+            pattern: '\d{4}Z'
           firstAvailableDeliveryDate1:
             format: date
             type: string
@@ -1088,6 +1089,7 @@ definitions:
             type: string
             example: 0400Z
             description: Time of delivery corresponding to `firstAvailableDeliveryDate2`.
+            pattern: '\d{4}Z'
           firstAvailableDeliveryDate2:
             format: date
             type: string

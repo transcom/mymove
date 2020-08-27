@@ -1058,11 +1058,13 @@ func init() {
             "timeMilitary1": {
               "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate1` + "`" + `.",
               "type": "string",
+              "pattern": "\\d{4}Z",
               "example": "0400Z"
             },
             "timeMilitary2": {
               "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate2` + "`" + `.",
               "type": "string",
+              "pattern": "\\d{4}Z",
               "example": "0400Z"
             },
             "type": {
@@ -3124,11 +3126,13 @@ func init() {
             "timeMilitary1": {
               "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate1` + "`" + `.",
               "type": "string",
+              "pattern": "\\d{4}Z",
               "example": "0400Z"
             },
             "timeMilitary2": {
               "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate2` + "`" + `.",
               "type": "string",
+              "pattern": "\\d{4}Z",
               "example": "0400Z"
             },
             "type": {
