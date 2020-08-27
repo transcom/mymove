@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes, { string } from 'prop-types';
 // import { get, isEmpty } from 'lodash';
 import { get } from 'lodash';
-// import { GridContainer, Grid } from '@trussworks/react-uswds';
 
 import ReviewSection from '../../components/Customer/ReviewSection';
 
@@ -14,8 +13,10 @@ import { MTOAgentType } from 'shared/constants';
 import 'scenes/Review/Review.css';
 
 export default function HHGShipmentSummary(props) {
+  // const { mtoShipment, serviceMember } = props;
   const { mtoShipment } = props;
 
+  const scheduledPickupDate = get(mtoShipment, 'scheduledPickupDate', ''); // when/where is ScheduledPickupDate set
   const requestedPickupDate = get(mtoShipment, 'requestedPickupDate', '');
   const pickupLocation = get(mtoShipment, 'pickupAddress', {});
   const agents = get(mtoShipment, 'agents', {});
@@ -32,13 +33,14 @@ export default function HHGShipmentSummary(props) {
   const destination = <Address address={dropoffLocation} />;
 
   const hhgShipmentData = [
-    { label: 'Expected departure', value: '' },
-    { label: 'Starting ZIP', value: '' },
+    { label: 'Expected departure', value: scheduledPickupDate }, // when/where is ScheduledPickupDate set
+    { label: 'Starting ZIP', value: pickupLocation.postal_code },
     { label: 'Storage (SIT)', value: '' }, // val: "No" || "Yes, [x] days"
     { label: 'Destination ZIP', value: '' },
-    { label: 'HHG shipment weight' }, // subheading, needs to be editable, but has the same styling as the rest...
-    { label: 'Estimated weight', value: '' },
-    { label: 'Estimated incentive', value: '' }, // val: [x] lbs
+    { label: 'HHG shipment weight' }, // subheading, needs to be editable, but has the same styling as the other rows
+    { label: 'Estimated weight', value: '' }, // val: [x] lbs
+    // { label: 'Estimated weight', value: get(serviceMember, 'current_station.name') },
+    { label: 'Estimated incentive', value: '' }, // "[range: $X,XXX.XX–$X,XXX.XX] || "Rate info unavailable"
     { label: 'Requested pickup date', value: formatDateSM(requestedPickupDate) },
     { label: 'Pickup location', value: hhgPickupLocation },
     { label: 'Releasing agent', value: releasingAgentFullName }, // optional field
@@ -48,9 +50,10 @@ export default function HHGShipmentSummary(props) {
     { label: 'Remarks', value: remarks },
   ];
 
+  // update title when we can support multiple shipments
   return (
     <div data-testid="hhg-summary" className="review-content">
-      <ReviewSection fieldData={hhgShipmentData} title="Shipment [x]: HHG" editLink="" />
+      <ReviewSection fieldData={hhgShipmentData} title="Shipment 1: HHG" editLink="" />
     </div>
   );
 }

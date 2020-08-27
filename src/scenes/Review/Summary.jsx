@@ -71,6 +71,7 @@ export class Summary extends Component {
     const showHHGShipmentSummary = isReviewPage && !isEmpty(mtoShipment);
 
     const showProfileAndOrders = isReviewPage || !isReviewPage;
+    const showMoveSetup = showPPMShipmentSummary || showHHGShipmentSummary;
     return (
       <Fragment>
         {get(this.props.reviewState.error, 'statusCode', false) === 409 && (
@@ -104,6 +105,8 @@ export class Summary extends Component {
             editOrdersPath={editOrdersPath}
           />
         )}
+
+        {showMoveSetup && <h2 className="review-title">Move setup</h2>}
 
         {showPPMShipmentSummary && (
           <PPMShipmentSummary ppm={currentPPM} movePath={rootAddressWithMoveId} orders={currentOrders} />
