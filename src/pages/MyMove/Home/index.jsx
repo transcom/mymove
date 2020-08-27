@@ -144,8 +144,15 @@ const mapStateToProps = (state) => {
   };
 };
 
+// in order to avoid setting up proxy server only for storybook, pass in stub function so API requests don't fail
+const mergeProps = (stateProps, dispatchProps, ownProps) => ({
+  ...stateProps,
+  ...dispatchProps,
+  ...ownProps,
+});
+
 const mapDispatchToProps = {
   showLoggedInUser: showLoggedInUserAction,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Home);
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(Home);

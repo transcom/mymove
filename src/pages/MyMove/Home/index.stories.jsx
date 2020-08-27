@@ -13,7 +13,7 @@ export default {
 export const Basic = () => (
   <Provider store={store}>
     <div className="grid-container usa-prose">
-      <Home />
+      <Home showLoggedInUser={() => {}} />
     </div>
   </Provider>
 );
