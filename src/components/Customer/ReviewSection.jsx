@@ -2,13 +2,15 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
-import './ReviewSection.module.scss';
+import styles from './ReviewSection.module.scss';
 
 const ReviewSection = ({ fieldData, title, editLink, useH4 }) => {
   const reviewSectionInputs = (fields) => {
     return fields.map((field) => (
       <tr key={field.label}>
-        <th scope="row">{field.label}</th>
+        <th scope="row">
+          <strong>{field.label}</strong>
+        </th>
         <td>{field.value}</td>
       </tr>
     ));
@@ -21,7 +23,7 @@ const ReviewSection = ({ fieldData, title, editLink, useH4 }) => {
           {!useH4 ? (
             <h3>
               {title}
-              <span className="edit-section-link">
+              <span className={styles['edit-section-link']}>
                 <Link to={editLink} className="usa-link">
                   Edit
                 </Link>
@@ -30,7 +32,7 @@ const ReviewSection = ({ fieldData, title, editLink, useH4 }) => {
           ) : (
             <h4>
               {title}
-              <span className="edit-section-link">
+              <span className={styles['edit-section-link']}>
                 <Link to={editLink} className="usa-link">
                   Edit
                 </Link>
@@ -39,10 +41,10 @@ const ReviewSection = ({ fieldData, title, editLink, useH4 }) => {
           )}
         </div>
       )}
-      <table className="review-section">
+      <table className={styles['review-section']}>
         <colgroup>
-          <col style={{ width: '25%' }} />
-          <col style={{ width: '75%' }} />
+          <col style={{ width: '33%' }} />
+          <col style={{ width: '64%' }} />
         </colgroup>
         <tbody>{reviewSectionInputs(fieldData)}</tbody>
       </table>
