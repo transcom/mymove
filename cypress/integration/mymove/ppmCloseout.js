@@ -2,7 +2,10 @@
 import { milmoveAppName } from '../../support/constants';
 
 describe('allows a SM to request a payment', function () {
-  const moveID = 'f9f10492-587e-43b3-af2a-9f67d2ac8757';
+  before(() => {
+    cy.prepareCustomerApp();
+  });
+
   beforeEach(() => {
     cy.removeFetch();
     cy.server();
@@ -13,8 +16,10 @@ describe('allows a SM to request a payment', function () {
     cy.route('POST', '**/moves/**/signed_certifications').as('signedCertifications');
   });
 
+  const moveID = 'f9f10492-587e-43b3-af2a-9f67d2ac8757';
+
   it('service member goes through entire request payment flow', () => {
-    cy.signInAsUserPostRequest(milmoveAppName, '8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e');
+    cy.apiSignInAsUser('8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e');
     serviceMemberStartsPPMPaymentRequest();
     serviceMemberSubmitsWeightTicket('CAR', true);
     serviceMemberChecksNumberOfWeightTickets('2nd');
@@ -28,31 +33,31 @@ describe('allows a SM to request a payment', function () {
   });
 
   it('service member reads introduction to ppm payment and goes back to homepage', () => {
-    cy.signInAsUserPostRequest(milmoveAppName, '745e0eba-4028-4c78-a262-818b00802748');
+    cy.apiSignInAsUser('745e0eba-4028-4c78-a262-818b00802748');
     serviceMemberStartsPPMPaymentRequest();
   });
 
   it('service member can save a weight ticket for later', () => {
-    cy.signInAsUserPostRequest(milmoveAppName, '745e0eba-4028-4c78-a262-818b00802748');
+    cy.apiSignInAsUser('745e0eba-4028-4c78-a262-818b00802748');
 
     cy.visit(`/moves/${moveID}/ppm-weight-ticket`);
     serviceMemberCanFinishWeightTicketLater('BOX_TRUCK');
   });
 
   it('service member submits weight tickets without any documents', () => {
-    cy.signInAsUserPostRequest(milmoveAppName, '745e0eba-4028-4c78-a262-818b00802748');
+    cy.apiSignInAsUser(milmoveAppName, '745e0eba-4028-4c78-a262-818b00802748');
     cy.visit(`/moves/${moveID}/ppm-weight-ticket`);
     serviceMemberSubmitsWeightsTicketsWithoutReceipts();
   });
 
   it('service member requests a car + trailer weight ticket payment', () => {
-    cy.signInAsUserPostRequest(milmoveAppName, '745e0eba-4028-4c78-a262-818b00802748');
+    cy.apiSignInAsUser('745e0eba-4028-4c78-a262-818b00802748');
     cy.visit(`/moves/${moveID}/ppm-weight-ticket`);
     serviceMemberSubmitsCarTrailerWeightTicket();
   });
 
   it('service member starting at review page returns to review page after adding a weight ticket', () => {
-    cy.signInAsUserPostRequest(milmoveAppName, '745e0eba-4028-4c78-a262-818b00802748');
+    cy.apiSignInAsUser('745e0eba-4028-4c78-a262-818b00802748');
     cy.visit(`/moves/${moveID}/ppm-payment-review`);
     cy.location().should((loc) => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-review/);
@@ -68,7 +73,7 @@ describe('allows a SM to request a payment', function () {
   });
 
   it('service member starting at review page returns to review page after adding an expense', () => {
-    cy.signInAsUserPostRequest(milmoveAppName, '745e0eba-4028-4c78-a262-818b00802748');
+    cy.apiSignInAsUser('745e0eba-4028-4c78-a262-818b00802748');
     cy.visit(`/moves/${moveID}/ppm-payment-review`);
     cy.location().should((loc) => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-review/);
@@ -84,7 +89,7 @@ describe('allows a SM to request a payment', function () {
   });
 
   it('service member can skip weight tickets and expenses if already have one', () => {
-    cy.signInAsUserPostRequest(milmoveAppName, '745e0eba-4028-4c78-a262-818b00802748');
+    cy.apiSignInAsUser('745e0eba-4028-4c78-a262-818b00802748');
     cy.visit(`/moves/${moveID}/ppm-weight-ticket`);
     serviceMemberSubmitsWeightTicket('CAR', true);
     serviceMemberSkipsStep();
@@ -94,7 +99,7 @@ describe('allows a SM to request a payment', function () {
   });
 
   it('service member with old weight tickets can see and delete them', () => {
-    cy.signInAsUserPostRequest(milmoveAppName, 'beccca28-6e15-40cc-8692-261cae0d4b14');
+    cy.apiSignInAsUser('beccca28-6e15-40cc-8692-261cae0d4b14');
     cy.get('[data-testid="edit-payment-request"]').contains('Edit Payment Request').should('exist').click();
     cy.get('.ticket-item').first().should('not.contain', 'set');
     cy.get('[data-testid="delete-ticket"]').first().click();
