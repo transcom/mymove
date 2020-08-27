@@ -4,7 +4,7 @@ import { get, isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
-import { Fieldset, Radio, Label, Textarea } from '@trussworks/react-uswds';
+import { Fieldset, Radio, Label, TextInput } from '@trussworks/react-uswds';
 
 import { Form } from '../form/Form';
 import { AddressFields } from '../form/AddressFields/AddressFields';
@@ -387,15 +387,28 @@ class HHGDetailsForm extends Component {
                 subtitleClassName="margin-y-2"
                 values={values.receivingAgent}
               />
-              <Fieldset legend="Remarks" className={fieldsetClasses}>
+              {/* <Fieldset legend="Remarks" className={fieldsetClasses}>
                 <Textarea
                   label="Anything else you would like us to know?"
                   labelHint="(optional)"
-                  data-testid="remarks"
+                  data-testid="customerRemarks"
                   placeholder="This is 500 characters of customer remarks placeholder"
                   name="customerRemarks"
                   id="customerRemarks"
                   maxLength={500}
+                  as="textarea"
+                  value={values.customerRemarks}
+                />
+              </Fieldset> */}
+
+              <Fieldset legend="Remarks" className={fieldsetClasses}>
+                <TextInput
+                  label="Anything else you would like us to know?"
+                  labelHint="(optional)"
+                  data-testid="remarks"
+                  name="customerRemarks"
+                  id="customerRemarks"
+                  maxLength={1500}
                   value={values.customerRemarks}
                 />
               </Fieldset>
