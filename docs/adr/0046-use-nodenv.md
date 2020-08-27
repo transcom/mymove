@@ -1,7 +1,5 @@
 # Use [nodenv](https://github.com/nodenv/nodenv) to manage Node versions in development
 
-**This superseded by [ADR 0056 Use ASDF To Manage Node, Yarn, and Golang Versions In Development](0056-use-asdf-to-manage-node-yarn-and-golang-versions-in-development.md)**
-
 `nodenv` makes it easy for developers to upgrade Node in their development
 environments.
 
