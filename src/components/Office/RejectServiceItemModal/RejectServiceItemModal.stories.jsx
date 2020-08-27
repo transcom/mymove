@@ -15,10 +15,10 @@ const serviceItem = {
   status: 'SUBMITTED',
   submittedAt: '2020-10-31',
   details: {
-    description: '',
-    itemDimensions: {},
-    crateDimensions: {},
-    imgURL: '',
+    description: 'Trombone',
+    itemDimensions: { length: 1000, width: 2500, height: 3000 },
+    crateDimensions: { length: 1000, width: 2500, height: 3000 },
+    imgURL: 'https://live.staticflickr.com/4735/24289917967_27840ed1af_b.jpg',
   },
 };
 

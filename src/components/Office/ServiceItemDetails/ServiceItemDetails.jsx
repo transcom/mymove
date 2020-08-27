@@ -87,7 +87,7 @@ const ServiceItemDetails = ({ className, id, code, details }) => {
                 aria-labelledby={`si-thumbnail--caption-${id}`}
                 src={imgURL}
               />
-              <small id={`si-thumbnail--caption-${id}`}>
+              <small className={styles.detailCaption} id={`si-thumbnail--caption-${id}`}>
                 <dl>
                   <p className={styles.detailLine}>{description}</p>
                   {itemDimensions && generateDetailText({ 'Item Dimensions': itemDimensionFormat }, id)}

@@ -8,17 +8,18 @@ import styles from './RejectServiceItemModal.module.scss';
 
 import { Form } from 'components/form';
 import { TextInput } from 'components/form/fields';
+import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
 import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
 import { formatDate } from 'shared/dates';
 
 const RejectServiceItemModal = ({ serviceItem, onSubmit, onClose }) => {
   // eslint-disable-next-line no-unused-vars
-  const { serviceItem: serviceItemName, code, submittedAt, details } = serviceItem;
+  const { serviceItem: serviceItemName, id, code, submittedAt, details } = serviceItem;
   return (
     <>
       <Overlay />
       <ModalContainer>
-        <Modal className="modal container container--popout">
+        <Modal className={classNames(styles.RejectServiceItemModal, 'modal', 'container', 'container--popout')}>
           <div>
             <div className={styles.modalTopContainer}>
               <h4>Are you sure you want to reject this request?</h4>
@@ -48,7 +49,9 @@ const RejectServiceItemModal = ({ serviceItem, onSubmit, onClose }) => {
                           <p className={styles.codeName}>{serviceItemName}</p>
                           <p>{formatDate(submittedAt, 'DD MMM YYYY')}</p>
                         </td>
-                        <td />
+                        <td className={styles.detail}>
+                          <ServiceItemDetails id={id} code={code} details={details} />
+                        </td>
                       </tr>
                     </tbody>
                   </table>

@@ -2019,6 +2019,11 @@ definitions:
           - SUBMITTED
           - APPROVED
           - REJECTED
+      rejectionReason:
+        description: Reason the service item was rejected
+        type: string
+        example: Insufficent details provided
+        x-nullable: true
   MTOServiceItemStatus:
     description: Describes all statuses for a MTOServiceItem
     type: string
@@ -2043,9 +2048,6 @@ definitions:
       reServiceCode:
         type: string
       reServiceName:
-        type: string
-      approvedAt:
-        format: date
         type: string
       createdAt:
         format: date-time
@@ -2081,9 +2083,6 @@ definitions:
         type: integer
       rate:
         type: integer
-      rejectedAt:
-        format: date
-        type: string
       status:
         $ref: '#/definitions/MTOServiceItemStatus'
       submittedAt:
@@ -2095,6 +2094,14 @@ definitions:
       updatedAt:
         format: date-time
         type: string
+      approvedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      rejectedAt:
+        format: date-time
+        type: string
+        x-nullable: true
       eTag:
         type: string
     required:

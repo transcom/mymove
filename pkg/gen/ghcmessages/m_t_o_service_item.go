@@ -20,8 +20,8 @@ import (
 type MTOServiceItem struct {
 
 	// approved at
-	// Format: date
-	ApprovedAt strfmt.Date `json:"approvedAt,omitempty"`
+	// Format: date-time
+	ApprovedAt *strfmt.DateTime `json:"approvedAt,omitempty"`
 
 	// created at
 	// Format: date-time
@@ -91,8 +91,8 @@ type MTOServiceItem struct {
 	Reason *string `json:"reason"`
 
 	// rejected at
-	// Format: date
-	RejectedAt strfmt.Date `json:"rejectedAt,omitempty"`
+	// Format: date-time
+	RejectedAt *strfmt.DateTime `json:"rejectedAt,omitempty"`
 
 	// rejection reason
 	RejectionReason *string `json:"rejectionReason,omitempty"`
@@ -204,7 +204,7 @@ func (m *MTOServiceItem) validateApprovedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("approvedAt", "body", "date", m.ApprovedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("approvedAt", "body", "date-time", m.ApprovedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -421,7 +421,7 @@ func (m *MTOServiceItem) validateRejectedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("rejectedAt", "body", "date", m.RejectedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("rejectedAt", "body", "date-time", m.RejectedAt.String(), formats); err != nil {
 		return err
 	}
 

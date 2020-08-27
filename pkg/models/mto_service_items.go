@@ -39,6 +39,8 @@ type MTOServiceItem struct {
 	CustomerContacts MTOServiceItemCustomerContacts `has_many:"mto_service_item_customer_contacts" fk_id:"mto_service_item_id"`
 	CreatedAt        time.Time                      `db:"created_at"`
 	UpdatedAt        time.Time                      `db:"updated_at"`
+	ApprovedAt       *time.Time                     `db:"approved_at"`
+	RejectedAt       *time.Time                     `db:"rejected_at"`
 }
 
 // MTOServiceItems is a slice containing MTOServiceItems

@@ -2166,7 +2166,8 @@ func init() {
       "properties": {
         "approvedAt": {
           "type": "string",
-          "format": "date"
+          "format": "date-time",
+          "x-nullable": true
         },
         "createdAt": {
           "type": "string",
@@ -2237,7 +2238,8 @@ func init() {
         },
         "rejectedAt": {
           "type": "string",
-          "format": "date"
+          "format": "date-time",
+          "x-nullable": true
         },
         "rejectionReason": {
           "type": "string",
@@ -2634,6 +2636,12 @@ func init() {
     },
     "PatchMTOServiceItemStatusPayload": {
       "properties": {
+        "rejectionReason": {
+          "description": "Reason the service item was rejected",
+          "type": "string",
+          "x-nullable": true,
+          "example": "Insufficent details provided"
+        },
         "status": {
           "description": "Describes all statuses for a MTOServiceItem",
           "type": "string",
@@ -5614,7 +5622,8 @@ func init() {
       "properties": {
         "approvedAt": {
           "type": "string",
-          "format": "date"
+          "format": "date-time",
+          "x-nullable": true
         },
         "createdAt": {
           "type": "string",
@@ -5685,7 +5694,8 @@ func init() {
         },
         "rejectedAt": {
           "type": "string",
-          "format": "date"
+          "format": "date-time",
+          "x-nullable": true
         },
         "rejectionReason": {
           "type": "string",
@@ -6082,6 +6092,12 @@ func init() {
     },
     "PatchMTOServiceItemStatusPayload": {
       "properties": {
+        "rejectionReason": {
+          "description": "Reason the service item was rejected",
+          "type": "string",
+          "x-nullable": true,
+          "example": "Insufficent details provided"
+        },
         "status": {
           "description": "Describes all statuses for a MTOServiceItem",
           "type": "string",
