@@ -108,7 +108,7 @@ ServiceItemTableHasImg.propTypes = {
       code: PropTypes.string,
       details: PropTypes.shape({
         imgURL: PropTypes.string,
-        text: PropTypes.oneOf([PropTypes.string, PropTypes.object]),
+        text: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
       }),
     }),
   ).isRequired,

@@ -103,7 +103,7 @@ export class MoveDetails extends Component {
 
     sections.forEach((section) => {
       const sectionEl = document.querySelector(`#${section}`);
-      if (sectionEl.offsetTop <= distanceFromTop && sectionEl.offsetTop + sectionEl.offsetHeight > distanceFromTop) {
+      if (sectionEl?.offsetTop <= distanceFromTop && sectionEl?.offsetTop + sectionEl?.offsetHeight > distanceFromTop) {
         newActiveSection = section;
       }
     });
