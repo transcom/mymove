@@ -287,3 +287,75 @@ func PaymentServiceItems(paymentServiceItems *models.PaymentServiceItems) *ghcme
 	}
 	return &payload
 }
+
+// MTOServiceItemModel payload
+func MTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOServiceItem {
+	if s == nil {
+		return nil
+	}
+
+	return &ghcmessages.MTOServiceItem{
+		ID:               handlers.FmtUUID(s.ID),
+		MoveTaskOrderID:  handlers.FmtUUID(s.MoveTaskOrderID),
+		MtoShipmentID:    handlers.FmtUUIDPtr(s.MTOShipmentID),
+		ReServiceID:      handlers.FmtUUID(s.ReServiceID),
+		ReServiceCode:    handlers.FmtString(string(s.ReService.Code)),
+		ReServiceName:    handlers.FmtStringPtr(&s.ReService.Name),
+		Reason:           handlers.FmtStringPtr(s.Reason),
+		RejectionReason:  handlers.FmtStringPtr(s.RejectionReason),
+		PickupPostalCode: handlers.FmtStringPtr(s.PickupPostalCode),
+		Status:           ghcmessages.MTOServiceItemStatus(s.Status),
+		Description:      handlers.FmtStringPtr(s.Description),
+		Dimensions:       MTOServiceItemDimensions(s.Dimensions),
+		CustomerContacts: MTOServiceItemCustomerContacts(s.CustomerContacts),
+		ETag:             etag.GenerateEtag(s.UpdatedAt),
+	}
+}
+
+// MTOServiceItemModels payload
+func MTOServiceItemModels(s models.MTOServiceItems) ghcmessages.MTOServiceItems {
+	serviceItems := ghcmessages.MTOServiceItems{}
+	for _, item := range s {
+		serviceItems = append(serviceItems, MTOServiceItemModel(&item))
+	}
+
+	return serviceItems
+}
+
+// MTOServiceItemDimension payload
+func MTOServiceItemDimension(d *models.MTOServiceItemDimension) *ghcmessages.MTOServiceItemDimension {
+	return &ghcmessages.MTOServiceItemDimension{
+		ID:     *handlers.FmtUUID(d.ID),
+		Type:   ghcmessages.DimensionType(d.Type),
+		Length: *d.Length.Int32Ptr(),
+		Height: *d.Height.Int32Ptr(),
+		Width:  *d.Width.Int32Ptr(),
+	}
+}
+
+// MTOServiceItemDimensions payload
+func MTOServiceItemDimensions(d models.MTOServiceItemDimensions) ghcmessages.MTOServiceItemDimensions {
+	payload := make(ghcmessages.MTOServiceItemDimensions, len(d))
+	for i, item := range d {
+		payload[i] = MTOServiceItemDimension(&item)
+	}
+	return payload
+}
+
+// MTOServiceItemCustomerContact payload
+func MTOServiceItemCustomerContact(c *models.MTOServiceItemCustomerContact) *ghcmessages.MTOServiceItemCustomerContact {
+	return &ghcmessages.MTOServiceItemCustomerContact{
+		Type:                       ghcmessages.CustomerContactType(c.Type),
+		TimeMilitary:               c.TimeMilitary,
+		FirstAvailableDeliveryDate: *handlers.FmtDate(c.FirstAvailableDeliveryDate),
+	}
+}
+
+// MTOServiceItemCustomerContacts payload
+func MTOServiceItemCustomerContacts(c models.MTOServiceItemCustomerContacts) ghcmessages.MTOServiceItemCustomerContacts {
+	payload := make(ghcmessages.MTOServiceItemCustomerContacts, len(c))
+	for i, item := range c {
+		payload[i] = MTOServiceItemCustomerContact(&item)
+	}
+	return payload
+}

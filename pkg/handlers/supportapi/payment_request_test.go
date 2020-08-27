@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/services/query"
 
@@ -52,6 +54,43 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 		suite.Equal(paymentRequestStatusPayload.Status, params.Body.Status)
 		suite.IsType(paymentrequestop.NewUpdatePaymentRequestStatusOK(), response)
+	})
+
+	suite.T().Run("successful status update of prime-available payment request", func(t *testing.T) {
+		availableMove := testdatagen.MakeAvailableMove(suite.DB())
+		availablePaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			Move: availableMove,
+		})
+		availablePaymentRequestID := availablePaymentRequest.ID
+
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", availablePaymentRequestID), nil)
+		eTag := etag.GenerateEtag(availablePaymentRequest.UpdatedAt)
+
+		params := paymentrequestop.UpdatePaymentRequestStatusParams{
+			HTTPRequest:      req,
+			Body:             &supportmessages.UpdatePaymentRequestStatus{Status: "REVIEWED", RejectionReason: nil, ETag: eTag},
+			PaymentRequestID: strfmt.UUID(availablePaymentRequestID.String()),
+			IfMatch:          eTag,
+		}
+		queryBuilder := query.NewQueryBuilder(suite.DB())
+
+		handler := UpdatePaymentRequestStatusHandler{
+			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
+			PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(queryBuilder),
+		}
+		traceID, err := uuid.NewV4()
+		suite.FatalNoError(err, "Error creating a new trace ID.")
+		handler.SetTraceID(traceID)
+
+		response := handler.Handle(params)
+
+		paymentRequestStatusResponse := response.(*paymentrequestop.UpdatePaymentRequestStatusOK)
+		paymentRequestStatusPayload := paymentRequestStatusResponse.Payload
+
+		suite.Equal(paymentRequestStatusPayload.Status, params.Body.Status)
+		suite.IsType(paymentrequestop.NewUpdatePaymentRequestStatusOK(), response)
+		suite.HasWebhookNotification(availablePaymentRequestID, traceID)
 	})
 
 	suite.T().Run("unsuccessful status update of payment request (500)", func(t *testing.T) {

@@ -27,12 +27,19 @@ type MTOServiceItem struct {
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
+	// customer contacts
+	CustomerContacts MTOServiceItemCustomerContacts `json:"customerContacts,omitempty"`
+
 	// deleted at
 	// Format: date
 	DeletedAt strfmt.Date `json:"deletedAt,omitempty"`
 
 	// description
-	Description string `json:"description,omitempty"`
+	// Required: true
+	Description *string `json:"description"`
+
+	// dimensions
+	Dimensions MTOServiceItemDimensions `json:"dimensions,omitempty"`
 
 	// e tag
 	ETag string `json:"eTag,omitempty"`
@@ -117,7 +124,19 @@ func (m *MTOServiceItem) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateCustomerContacts(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateDeletedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDescription(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDimensions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -205,6 +224,22 @@ func (m *MTOServiceItem) validateCreatedAt(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MTOServiceItem) validateCustomerContacts(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.CustomerContacts) { // not required
+		return nil
+	}
+
+	if err := m.CustomerContacts.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("customerContacts")
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (m *MTOServiceItem) validateDeletedAt(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.DeletedAt) { // not required
@@ -212,6 +247,31 @@ func (m *MTOServiceItem) validateDeletedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("deletedAt", "body", "date", m.DeletedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItem) validateDescription(formats strfmt.Registry) error {
+
+	if err := validate.Required("description", "body", m.Description); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItem) validateDimensions(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Dimensions) { // not required
+		return nil
+	}
+
+	if err := m.Dimensions.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("dimensions")
+		}
 		return err
 	}
 

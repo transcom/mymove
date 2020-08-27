@@ -20,30 +20,32 @@ h5 {
   @include typeset('body', 4, 3);
 }
 h6 {
-  @include typeset('body',  2, 3);
+  @include typeset('body', 2, 3);
   @include u-text('normal');
 }
 p {
-  @include typeset('body',  4, 3);
+  @include typeset('body', 4, 3);
 }
 small {
-  @include typeset('body',  2, 2);
+  @include typeset('body', 2, 2);
 }
 a {
-  @include u-text('no-underline')
-  &:hover , &.hover {
+  @include u-text('no-underline') &:hover, &.hover {
     @include u-text('underline');
   }
-  &:visited, &.visited {
+  &:visited,
+  &.visited {
     @include u-text('violet-warm-60');
   }
-  &:disabled, &.disabled {
+  &:disabled,
+  &.disabled {
     @include u-text('gray-40');
-    &:hover  {
-      @include u-text('no-underline')
+    &:hover {
+      @include u-text('no-underline');
     }
   }
-  &:focus , &.focus {
+  &:focus,
+  &.focus {
     @include u-outline('05', 'blue-40v');
   }
 }
@@ -52,4 +54,11 @@ ul {
   @include u-line-height('body', 4);
   color: $base-darkest;
   @include u-padding-left(1.5);
+}
+
+.usa-prose {
+  h1, h2, h3, h4, h5, h6 {
+    font-family: Public Sans Web, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif,
+      Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol;
+  }
 }
