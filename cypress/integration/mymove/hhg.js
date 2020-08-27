@@ -105,10 +105,11 @@ function customerFillsOutOrdersInformation() {
 
   cy.upload_file('.filepond--root', 'top-secret.png');
   cy.get('button.next', { timeout: fileUploadTimeout }).should('not.be.disabled').click();
-  cy.nextPage();
 
   cy.get('h1').contains('Figure out your shipments');
   cy.nextPage();
+
+  cy.get('h1').contains('How do you want to move your belongings?');
 }
 
 function customerSetsUpAnHHGMove() {
