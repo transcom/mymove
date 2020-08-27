@@ -1,4 +1,7 @@
 import * as mime from 'mime-types';
+import 'cypress-wait-until';
+import moment from 'moment';
+
 import {
   milmoveBaseURL,
   officeBaseURL,
@@ -12,7 +15,6 @@ import {
   userTypeToBaseURL,
   longPageLoadTimeout,
 } from './constants';
-import moment from 'moment';
 
 /* global Cypress, cy */
 // ***********************************************
@@ -59,6 +61,18 @@ Cypress.Commands.add('signInAsNewMilMoveUser', () => {
   cy.location('pathname').should('contain', 'service-member');
   cy.location('pathname').should('contain', 'conus-status');
 });
+
+/*
+Cypress.Commands.add('signInAsNewUser', (userType) => {
+  cy.visit('/devlocal-auth/login');
+  // select the user type and then login as new user
+  cy.get('button[data-hook="new-user-login-' + userType + '"]').click();
+});
+
+Cypress.Commands.add('signInAsNewMilMoveUser', () => {
+  cy.signInAsNewUser(milmoveUserType);
+});
+*/
 
 Cypress.Commands.add('signInAsNewOfficeUser', () => {
   cy.signInAsNewUser(PPMOfficeUserType);
@@ -139,9 +153,38 @@ Cypress.Commands.add('setFeatureFlag', (flagVal, url = '/queues/new') => {
   cy.visit(`${url}?flag:${flagVal}`);
 });
 
+Cypress.Commands.add('prepareCustomerApp', () => {
+  Cypress.config('baseUrl', milmoveBaseURL);
+});
+
+Cypress.Commands.add('prepareOfficeApp', () => {
+  Cypress.config('baseUrl', officeBaseURL);
+});
+
 // Persist session cookies throughout a testing block (use in beforeEach)
 Cypress.Commands.add('persistSessionCookies', () => {
   Cypress.Cookies.preserveOnce('masked_gorilla_csrf', 'office_session_token', '_gorilla_csrf');
+});
+
+// Defaults to service member user type, pass in param if signing into Office app
+Cypress.Commands.add('apiSignInAsUser', (userId, userType = milmoveUserType) => {
+  cy.visit('/');
+
+  cy.waitUntil(() => cy.getCookie('masked_gorilla_csrf').then((cookie) => cookie?.value)).then((csrfToken) => {
+    cy.request({
+      url: '/devlocal-auth/login',
+      method: 'POST',
+      headers: { 'X-CSRF-TOKEN': csrfToken },
+      body: {
+        id: userId,
+        userType,
+      },
+      form: true,
+      failOnStatusCode: false,
+    }).then((response) => {
+      cy.visit('/');
+    });
+  });
 });
 
 Cypress.Commands.add(
