@@ -1,7 +1,11 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { mount } from 'enzyme';
+
+import { SERVICE_ITEM_STATUS } from '../../shared/constants';
 
 import ServiceItemTableHasImg from './index';
+
+const handleUpdateServiceItemStatus = jest.fn();
 
 describe('ServiceItemTableHasImg', () => {
   it('should render no details', () => {
@@ -14,7 +18,7 @@ describe('ServiceItemTableHasImg', () => {
         details: {},
       },
     ];
-    const wrapper = shallow(<ServiceItemTableHasImg serviceItems={serviceItems} />);
+    const wrapper = mount(<ServiceItemTableHasImg serviceItems={serviceItems} />);
     expect(wrapper.find('td').at(1).text()).toBe('—');
   });
 
@@ -34,7 +38,15 @@ describe('ServiceItemTableHasImg', () => {
       },
     ];
 
-    const wrapper = shallow(<ServiceItemTableHasImg serviceItems={serviceItems} />);
+    const wrapper = mount(
+      <ServiceItemTableHasImg
+        serviceItems={serviceItems}
+        statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+        handleUpdateMTOServiceItemStatus={handleUpdateServiceItemStatus}
+      />,
+    );
+
+    expect(wrapper.find('.siThumbnail').exists()).toBe(true);
     expect(wrapper.find('img').prop('src')).toBe(serviceItems[0].details.imgURL);
     expect(wrapper.find('dt').at(0).text()).toBe('Item Dimensions:');
     expect(wrapper.find('dd').at(0).text()).toBe('7"x2"x3.5"');
@@ -56,7 +68,16 @@ describe('ServiceItemTableHasImg', () => {
       },
     ];
 
-    const wrapper = shallow(<ServiceItemTableHasImg serviceItems={serviceItems} />);
+    const wrapper = mount(
+      <ServiceItemTableHasImg
+        serviceItems={serviceItems}
+        statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+        handleUpdateMTOServiceItemStatus={handleUpdateServiceItemStatus}
+      />,
+    );
+
+    expect(wrapper.find('table').exists()).toBe(true);
+    expect(wrapper.find('.siThumbnail').exists()).toBe(false);
     expect(wrapper.find('dt').at(0).text()).toBe('First Customer Contact:');
     expect(wrapper.find('dd').at(0).text()).toBe('0400Z');
     expect(wrapper.find('dt').at(1).text()).toBe('First Available Delivery Date:');
@@ -82,7 +103,13 @@ describe('ServiceItemTableHasImg', () => {
       },
     ];
 
-    const wrapper = shallow(<ServiceItemTableHasImg serviceItems={serviceItems} />);
+    const wrapper = mount(
+      <ServiceItemTableHasImg
+        serviceItems={serviceItems}
+        statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+        handleUpdateMTOServiceItemStatus={handleUpdateServiceItemStatus}
+      />,
+    );
     expect(wrapper.find('dt').at(0).contains('ZIP')).toBe(true);
     expect(wrapper.find('dd').at(0).contains('11111')).toBe(true);
     expect(wrapper.find('dt').at(1).contains('Reason')).toBe(true);

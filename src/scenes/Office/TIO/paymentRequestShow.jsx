@@ -32,7 +32,7 @@ class PaymentRequestShow extends React.Component {
             <li>serviceItemIds: {serviceItemIDs}</li>
             <li>status: {status}</li>
           </ul>
-          <button className="usa-button usa-button--outline" onClick={this.updatePaymentRequest}>
+          <button className="usa-button usa-button--secondary" onClick={this.updatePaymentRequest}>
             Approve
           </button>
 
@@ -46,7 +46,7 @@ class PaymentRequestShow extends React.Component {
             {({ isSubmitting }) => (
               <Form>
                 <Field type="text" name="rejectionReason" />
-                <button className="usa-button usa-button--outline" type="submit" disabled={isSubmitting}>
+                <button className="usa-button usa-button--secondary" type="submit" disabled={isSubmitting}>
                   Reject
                 </button>
               </Form>

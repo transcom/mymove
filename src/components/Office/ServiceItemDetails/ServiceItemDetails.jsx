@@ -3,7 +3,8 @@ import { PropTypes } from 'prop-types';
 
 import styles from './ServiceItemDetails.module.scss';
 
-import { formatDate, convertFromThousandthInchToInch } from 'shared/formatters';
+import { formatDate } from 'shared/dates';
+import { convertFromThousandthInchToInch } from 'shared/formatters';
 
 function generateDetailText(details, id) {
   const detailList = Object.keys(details).map((detail) => (

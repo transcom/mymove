@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { SERVICE_ITEM_STATUS } from '../../../shared/constants';
+
 import RequestedServiceItemsTable from './RequestedServiceItemsTable';
 
 export default {
@@ -13,6 +15,7 @@ const serviceItems = [
     submittedAt: '2020-11-20',
     serviceItem: 'Dom. Origin 1st Day SIT',
     code: 'DOFSIT',
+    status: 'SUBMITTED',
     details: {
       pickupPostalCode: '60612',
       reason: "here's the reason",
@@ -23,6 +26,7 @@ const serviceItems = [
     submittedAt: '2020-11-20',
     serviceItem: 'Dom. Destination 1st Day SIT',
     code: 'DDFSIT',
+    status: 'SUBMITTED',
     details: {
       firstCustomerContact: { timeMilitary: '', firstAvailableDeliveryDate: '2020-11-22' },
       secondCustomerContact: { timeMilitary: '', firstAvailableDeliveryDate: '2020-11-23' },
@@ -33,6 +37,7 @@ const serviceItems = [
     submittedAt: '2020-11-20',
     serviceItem: 'Dom. Origin Shuttle Service',
     code: 'DOSHUT',
+    status: 'SUBMITTED',
     details: {
       reason: "Here's the reason",
     },
@@ -42,6 +47,7 @@ const serviceItems = [
     submittedAt: '2020-11-20',
     serviceItem: 'Dom. Destination Shuttle Service',
     code: 'DDSHUT',
+    status: 'SUBMITTED',
     details: {
       reason: "Here's the reason",
     },
@@ -51,6 +57,7 @@ const serviceItems = [
     submittedAt: '2020-11-20',
     serviceItem: 'Dom. Crating',
     code: 'DCRT',
+    status: 'SUBMITTED',
     details: {
       description: "Here's the description",
       itemDimensions: { length: 8400, width: 2600, height: 4200 },
@@ -60,4 +67,19 @@ const serviceItems = [
   },
 ];
 
-export const Default = () => <RequestedServiceItemsTable serviceItems={serviceItems} />;
+const approvedServiceItems = serviceItems.map((serviceItem) => {
+  return { ...serviceItem, status: 'APPROVED' };
+});
+const rejectedServiceItems = serviceItems.map((serviceItem) => {
+  return { ...serviceItem, status: 'REJECTED' };
+});
+
+export const Default = () => (
+  <RequestedServiceItemsTable serviceItems={serviceItems} statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED} />
+);
+export const ApprovedServiceItems = () => (
+  <RequestedServiceItemsTable serviceItems={approvedServiceItems} statusForTableType={SERVICE_ITEM_STATUS.APPROVED} />
+);
+export const RejectedServiceItems = () => (
+  <RequestedServiceItemsTable serviceItems={rejectedServiceItems} statusForTableType={SERVICE_ITEM_STATUS.REJECTED} />
+);

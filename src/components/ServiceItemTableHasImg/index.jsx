@@ -13,7 +13,7 @@ import styles from './index.module.scss';
 import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
 import { formatDate } from 'shared/dates';
 
-const ServiceItemTableHasImg = ({ serviceItems, handleUpdateMTOServiceItemStatus }) => {
+const ServiceItemTableHasImg = ({ serviceItems, statusForTableType, handleUpdateMTOServiceItemStatus }) => {
   const tableRows = serviceItems.map(({ id, code, submittedAt, serviceItem, details }) => {
     return (
       <tr key={id}>
@@ -25,31 +25,63 @@ const ServiceItemTableHasImg = ({ serviceItems, handleUpdateMTOServiceItemStatus
           <ServiceItemDetails id={id} code={code} details={details} />
         </td>
         <td>
-          <div className={styles.statusAction}>
-            <Button
-              type="button"
-              className="usa-button--icon usa-button--small"
-              data-testid="acceptButton"
-              onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.APPROVED)}
-            >
-              <span className="icon">
-                <Check />
-              </span>
-              <span>Accept</span>
-            </Button>
-            <Button
-              type="button"
-              secondary
-              className="usa-button--small usa-button--icon"
-              data-testid="rejectButton"
-              onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.REJECTED)}
-            >
-              <span className="icon">
-                <Ex />
-              </span>
-              <span>Reject</span>
-            </Button>
-          </div>
+          {statusForTableType === SERVICE_ITEM_STATUS.SUBMITTED && (
+            <div className={styles.statusAction}>
+              <Button
+                type="button"
+                className="usa-button--icon usa-button--small"
+                data-testid="acceptButton"
+                onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.APPROVED)}
+              >
+                <span className="icon">
+                  <Check />
+                </span>
+                <span>Accept</span>
+              </Button>
+              <Button
+                type="button"
+                secondary
+                className="usa-button--small usa-button--icon"
+                data-testid="rejectButton"
+                onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.REJECTED)}
+              >
+                <span className="icon">
+                  <Ex />
+                </span>
+                <span>Reject</span>
+              </Button>
+            </div>
+          )}{' '}
+          {statusForTableType === SERVICE_ITEM_STATUS.APPROVED && (
+            <div className={styles.statusAction}>
+              <Button
+                type="button"
+                data-testid="rejectTextButton"
+                className="text-blue usa-button--unstyled"
+                onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.REJECTED)}
+              >
+                <span className="icon">
+                  <Ex />
+                </span>{' '}
+                Reject
+              </Button>
+            </div>
+          )}
+          {statusForTableType === SERVICE_ITEM_STATUS.REJECTED && (
+            <div className={styles.statusAction}>
+              <Button
+                type="button"
+                data-testid="approveTextButton"
+                className="text-blue usa-button--unstyled"
+                onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.APPROVED)}
+              >
+                <span className="icon">
+                  <Ex />
+                </span>{' '}
+                Approve
+              </Button>
+            </div>
+          )}
         </td>
       </tr>
     );
@@ -73,6 +105,7 @@ const ServiceItemTableHasImg = ({ serviceItems, handleUpdateMTOServiceItemStatus
 
 ServiceItemTableHasImg.propTypes = {
   handleUpdateMTOServiceItemStatus: PropTypes.func.isRequired,
+  statusForTableType: PropTypes.string.isRequired,
   serviceItems: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string,

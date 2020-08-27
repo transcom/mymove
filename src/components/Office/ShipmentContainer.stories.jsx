@@ -1,6 +1,8 @@
 import React from 'react';
 import { withKnobs, text, object, number } from '@storybook/addon-knobs';
 
+import { SERVICE_ITEM_STATUS } from '../../shared/constants';
+
 import ShipmentContainer from './ShipmentContainer';
 import ShipmentHeading from './ShipmentHeading';
 
@@ -83,6 +85,7 @@ export const MTOAccessorial = () => (
     />
 
     <RequestedServiceItemsTable
+      statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
       serviceItems={[
         object('ServiceItem.first', {
           id: '1',

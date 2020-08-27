@@ -38,10 +38,6 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 		return nil, services.NewNotFoundError(mtoServiceItemID, "MTOServiceItemID")
 	}
 
-	if mtoServiceItem.Status != models.MTOServiceItemStatusSubmitted || (status != models.MTOServiceItemStatusApproved && status != models.MTOServiceItemStatusRejected) {
-		return nil, services.NewConflictError(mtoServiceItemID, "MTOServiceItemID")
-	}
-
 	mtoServiceItem.Status = status
 	mtoServiceItem.UpdatedAt = time.Now()
 

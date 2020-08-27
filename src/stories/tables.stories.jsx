@@ -315,6 +315,7 @@ export const ServiceItemTables = () => (
     <hr />
     <h3>Service item table with images and buttons</h3>
     <ServiceItemTableHasImg
+      statusForTableType="SUBMITTED"
       serviceItems={[
         {
           id: 'abc12345',
