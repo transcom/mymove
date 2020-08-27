@@ -14,14 +14,11 @@ const serviceItems = [
     id: 'abc-123',
     submittedAt: '2020-11-20',
     serviceItem: 'Dom. Origin 1st Day SIT',
-    code: 'DOMSIT',
+    code: 'DOFSIT',
     status: 'SUBMITTED',
     details: {
-      text: {
-        ZIP: '60612',
-        Reason: "here's the reason",
-      },
-      imgURL: null,
+      pickupPostalCode: '60612',
+      reason: "here's the reason",
     },
   },
   {
@@ -31,12 +28,8 @@ const serviceItems = [
     code: 'DDFSIT',
     status: 'SUBMITTED',
     details: {
-      text: {
-        'First available delivery date': '22 Nov 2020',
-        'First customer contact': '22 Nov 2020 12:00pm',
-        'Second customer contact': '22 Nov 2020 12:00pm',
-      },
-      imgURL: null,
+      firstCustomerContact: { timeMilitary: '', firstAvailableDeliveryDate: '2020-11-22' },
+      secondCustomerContact: { timeMilitary: '', firstAvailableDeliveryDate: '2020-11-23' },
     },
   },
   {
@@ -46,11 +39,7 @@ const serviceItems = [
     code: 'DOSHUT',
     status: 'SUBMITTED',
     details: {
-      text: {
-        'Reason for request': "Here's the reason",
-        'Estimated weight': '3,500lbs',
-      },
-      imgURL: null,
+      reason: "Here's the reason",
     },
   },
   {
@@ -60,11 +49,7 @@ const serviceItems = [
     code: 'DDSHUT',
     status: 'SUBMITTED',
     details: {
-      text: {
-        'Reason for request': "Here's the reason",
-        'Estimated weight': '3,500lbs',
-      },
-      imgURL: null,
+      reason: "Here's the reason",
     },
   },
   {
@@ -74,11 +59,9 @@ const serviceItems = [
     code: 'DCRT',
     status: 'SUBMITTED',
     details: {
-      text: {
-        Description: "Here's the description",
-        'Item dimensions': '84"x26"x42"',
-        'Crate dimensions': '110"x36"x54"',
-      },
+      description: "Here's the description",
+      itemDimensions: { length: 8400, width: 2600, height: 4200 },
+      crateDimensions: { length: 110000, width: 36000, height: 54000 },
       imgURL: 'https://live.staticflickr.com/4735/24289917967_27840ed1af_b.jpg',
     },
   },

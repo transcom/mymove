@@ -92,7 +92,6 @@ export const MTOAccessorial = () => (
           submittedAt: '2020-01-10',
           serviceItem: 'Fuel Surcharge',
           code: 'FSC',
-          details: { text: 'Details text only' },
         }),
       ]}
     />
