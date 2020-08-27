@@ -30,7 +30,6 @@ export default function HHGShipmentSummary(props) {
   const destination = isEmpty(dropoffLocation) ? newDutyStationPostalCode : <Address address={dropoffLocation} />;
 
   // make ReviewSection component a storybook component
-  // add move locator as shipment subheading
 
   // CSS
   // heading 'edit' should be right aligned
@@ -45,17 +44,18 @@ export default function HHGShipmentSummary(props) {
   const hhgShipmentData = [
     { label: 'Requested pickup date', value: formatDateSM(requestedPickupDate) },
     { label: 'Pickup location', value: hhgPickupLocation },
-    { label: 'Releasing agent', value: isEmpty(releasingAgent) ? '–' : releasingAgentFullName }, // optional field, or show –
+    { label: 'Releasing agent', value: isEmpty(releasingAgent) ? '–' : releasingAgentFullName },
     { label: 'Requested delivery date', value: formatDateSM(requestedDeliveryDate) },
     { label: 'Destination', value: destination },
-    { label: 'Receiving agent', value: isEmpty(receivingAgent) ? '–' : receivingAgentFullName }, // optional field, or show –
-    { label: 'Remarks', value: remarks }, // or –
+    { label: 'Receiving agent', value: isEmpty(receivingAgent) ? '–' : receivingAgentFullName },
+    { label: 'Remarks', value: !remarks ? '–' : remarks },
   ];
 
-  // update title when we can support multiple shipments
+  // update title number when we can support multiple shipments
+  // add shipment locator as shipment subheading when it exists
   return (
     <div data-testid="hhg-summary" className="review-content">
-      <ReviewSection fieldData={hhgShipmentData} title="Shipment 1: HHG" editLink="" />
+      <ReviewSection fieldData={hhgShipmentData} title="Shipment 1: HHG" editLink="" useH4 />
     </div>
   );
 }
