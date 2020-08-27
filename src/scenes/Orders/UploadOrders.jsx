@@ -59,7 +59,7 @@ export class UploadOrders extends Component {
   }
 
   render() {
-    const { pages, pageKey, error, currentOrders, uploads, document } = this.props;
+    const { pages, pageKey, error, currentOrders, uploads, document, additionalParams } = this.props;
     const isValid = Boolean(uploads.length || this.state.newUploads.length);
     const isDirty = Boolean(this.state.newUploads.length);
     return (
@@ -70,6 +70,7 @@ export class UploadOrders extends Component {
         pageIsValid={isValid}
         dirty={isDirty}
         error={error}
+        additionalParams={additionalParams}
       >
         <div>
           <h1 className="sm-heading">Upload your orders</h1>
