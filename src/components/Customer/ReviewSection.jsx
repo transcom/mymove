@@ -18,14 +18,14 @@ const ReviewSection = ({ fieldData, title, editLink }) => {
     <div>
       {title && (
         <div>
-          <h2>
+          <h3>
             {title}
             <span className="edit-section-link">
               <Link to={editLink} className="usa-link">
                 Edit
               </Link>
             </span>
-          </h2>
+          </h3>
         </div>
       )}
       <table className="review-section">

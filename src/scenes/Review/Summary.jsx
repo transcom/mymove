@@ -106,7 +106,7 @@ export class Summary extends Component {
           />
         )}
 
-        {showMoveSetup && <h2 className="review-title">Move setup</h2>}
+        {showMoveSetup && <h3>Move setup</h3>}
 
         {showPPMShipmentSummary && (
           <PPMShipmentSummary ppm={currentPPM} movePath={rootAddressWithMoveId} orders={currentOrders} />
