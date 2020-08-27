@@ -22,7 +22,7 @@ const ServiceItemTableHasImg = ({ serviceItems, handleUpdateMTOServiceItemStatus
           <p>{formatDate(submittedAt, 'DD MMM YYYY')}</p>
         </td>
         <td className={styles.detail}>
-          <ServiceItemDetails code={code} details={details} />
+          <ServiceItemDetails id={id} code={code} details={details} />
         </td>
         <td>
           <div className={styles.statusAction}>
