@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes, { string } from 'prop-types';
-import { get } from 'lodash';
+import { get, isEmpty } from 'lodash';
 
 import ReviewSection from '../../components/Customer/ReviewSection';
 
@@ -12,7 +12,7 @@ import { MTOAgentType } from 'shared/constants';
 import 'scenes/Review/Review.css';
 
 export default function HHGShipmentSummary(props) {
-  const { mtoShipment } = props;
+  const { mtoShipment, newDutyStationPostalCode } = props;
 
   const requestedPickupDate = get(mtoShipment, 'requestedPickupDate', '');
   const pickupLocation = get(mtoShipment, 'pickupAddress', {});
@@ -27,10 +27,8 @@ export default function HHGShipmentSummary(props) {
 
   const hhgPickupLocation = <Address address={pickupLocation} />;
 
-  const destination = <Address address={dropoffLocation} />;
+  const destination = isEmpty(dropoffLocation) ? newDutyStationPostalCode : <Address address={dropoffLocation} />;
 
-  // pull Destination ZIP from duty station if no destination address
-  // conditionally add option dash ( – ) for when optional fields are left blank
   // make ReviewSection component a storybook component
   // add move locator as shipment subheading
 
@@ -47,10 +45,10 @@ export default function HHGShipmentSummary(props) {
   const hhgShipmentData = [
     { label: 'Requested pickup date', value: formatDateSM(requestedPickupDate) },
     { label: 'Pickup location', value: hhgPickupLocation },
-    { label: 'Releasing agent', value: releasingAgentFullName }, // optional field, or show –
+    { label: 'Releasing agent', value: isEmpty(releasingAgent) ? '–' : releasingAgentFullName }, // optional field, or show –
     { label: 'Requested delivery date', value: formatDateSM(requestedDeliveryDate) },
     { label: 'Destination', value: destination },
-    { label: 'Receiving agent', value: receivingAgentFullName }, // optional field, or show –
+    { label: 'Receiving agent', value: isEmpty(receivingAgent) ? '–' : receivingAgentFullName }, // optional field, or show –
     { label: 'Remarks', value: remarks }, // or –
   ];
 
@@ -87,6 +85,7 @@ HHGShipmentSummary.propTypes = {
       street_address_1: string,
     }),
   }),
+  newDutyStationPostalCode: PropTypes.string.isRequired,
 };
 
 HHGShipmentSummary.defaultProps = {

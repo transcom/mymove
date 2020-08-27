@@ -112,7 +112,13 @@ export class Summary extends Component {
           <PPMShipmentSummary ppm={currentPPM} movePath={rootAddressWithMoveId} orders={currentOrders} />
         )}
 
-        {showHHGShipmentSummary && <HHGShipmentSummary mtoShipment={mtoShipment} movePath={rootAddressWithMoveId} />}
+        {showHHGShipmentSummary && (
+          <HHGShipmentSummary
+            mtoShipment={mtoShipment}
+            movePath={rootAddressWithMoveId}
+            newDutyStationPostalCode={currentOrders.new_duty_station.address.postal_code}
+          />
+        )}
 
         {moveIsApproved && (
           <div className="approved-edit-warning">
