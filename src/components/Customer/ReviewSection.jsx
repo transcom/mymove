@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
-import 'scenes/Review/Review.css';
+import './ReviewSection.module.scss';
 
 const ReviewSection = ({ fieldData, title, editLink }) => {
   const reviewSectionInputs = (fields) => {
