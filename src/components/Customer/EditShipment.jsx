@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { string, shape, func, bool } from 'prop-types';
-import { isEmpty } from 'lodash';
+import { arrayOf, string, shape, func, bool } from 'prop-types';
+import { get, isEmpty } from 'lodash';
+import { connect } from 'react-redux';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
 import { Radio, Label, Textarea, Button, Checkbox } from '@trussworks/react-uswds';
@@ -12,6 +13,10 @@ import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
 
 import styles from './EditShipment.module.scss';
 
+import { selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
+import { selectActiveOrLatestOrdersFromEntities } from 'shared/Entities/modules/orders';
+import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
+import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { MTOAgentType, SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatSwaggerDate } from 'shared/formatters';
 import { validateDate } from 'utils/formikValidators';
@@ -65,13 +70,13 @@ class EditShipment extends Component {
     };
   }
 
-  // componentDidMount() {
-  //   const { showLoggedInUser, mtoShipment } = this.props;
-  //   showLoggedInUser();
-  //   if (mtoShipment.id) {
-  //     this.setInitialState(mtoShipment);
-  //   }
-  // }
+  componentDidMount() {
+    const { showLoggedInUser, mtoShipment } = this.props;
+    showLoggedInUser();
+    if (mtoShipment.id) {
+      this.setInitialState(mtoShipment);
+    }
+  }
 
   // componentDidUpdate(prevProps) {
   //   const { mtoShipment } = this.props;
@@ -402,6 +407,7 @@ EditShipment.propTypes = {
   }).isRequired,
   // moveTaskOrderID: string.isRequired,
   createMTOShipment: func.isRequired,
+  showLoggedInUser: func.isRequired,
   match: shape({
     isExact: bool.isRequired,
     params: shape({
@@ -410,6 +416,68 @@ EditShipment.propTypes = {
     path: string.isRequired,
     url: string.isRequired,
   }).isRequired,
+  mtoShipment: shape({
+    agents: arrayOf(
+      shape({
+        firstName: string,
+        lastName: string,
+        phone: string,
+        email: string,
+        agentType: string,
+      }),
+    ),
+    customerRemarks: string,
+    requestedPickupDate: string,
+    requestedDeliveryDate: string,
+    pickupAddress: shape({
+      city: string,
+      postal_code: string,
+      state: string,
+      street_address_1: string,
+    }),
+    destinationAddress: shape({
+      city: string,
+      postal_code: string,
+      state: string,
+      street_address_1: string,
+    }),
+  }),
 };
 
-export default EditShipment;
+EditShipment.defaultProps = {
+  // newDutyStationAddress: {
+  //   city: '',
+  //   state: '',
+  //   postal_code: '',
+  // },
+  mtoShipment: {
+    id: '',
+    customerRemarks: '',
+    requestedPickupDate: '',
+    requestedDeliveryDate: '',
+    destinationAddress: {
+      city: '',
+      postal_code: '',
+      state: '',
+      street_address_1: '',
+    },
+  },
+};
+
+const mapStateToProps = (state, ownProps) => {
+  const orders = selectActiveOrLatestOrdersFromEntities(state);
+
+  const props = {
+    mtoShipment: selectMTOShipmentForMTO(state, ownProps.match.params.moveId),
+    currentResidence: get(selectServiceMemberFromLoggedInUser(state), 'residential_address', {}),
+    newDutyStationAddress: get(orders, 'new_duty_station.address', {}),
+  };
+  return props;
+};
+
+const mapDispatchToProps = {
+  // createMTOShipment: createMTOShipmentAction,
+  showLoggedInUser: showLoggedInUserAction,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(EditShipment);

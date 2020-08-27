@@ -1,15 +1,30 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import { SERVICE_ITEM_STATUS } from '../../../shared/constants';
+
 import styles from './RequestedServiceItemsTable.module.scss';
 
 import ServiceItemTableHasImg from 'components/ServiceItemTableHasImg';
 
-const RequestedServiceItemsTable = ({ serviceItems, handleUpdateMTOServiceItemStatus }) => {
+const RequestedServiceItemsTable = ({ serviceItems, handleUpdateMTOServiceItemStatus, statusForTableType }) => {
+  const chooseTitleText = (status) => {
+    switch (status) {
+      case SERVICE_ITEM_STATUS.SUBMITTED:
+        return 'Requested';
+      case SERVICE_ITEM_STATUS.APPROVED:
+        return 'Approved';
+      case SERVICE_ITEM_STATUS.REJECTED:
+        return 'Rejected';
+      default:
+        return 'Requested';
+    }
+  };
+
   return (
     <div className={styles.RequestedServiceItemsTable}>
       <h4>
-        Requested service items&nbsp;
+        {chooseTitleText(statusForTableType)} service items&nbsp;
         <span>
           ({serviceItems.length} {serviceItems.length === 1 ? 'item' : 'items'})
         </span>
@@ -17,6 +32,7 @@ const RequestedServiceItemsTable = ({ serviceItems, handleUpdateMTOServiceItemSt
       <ServiceItemTableHasImg
         serviceItems={serviceItems}
         handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
+        statusForTableType={statusForTableType}
       />
     </div>
   );
@@ -24,6 +40,7 @@ const RequestedServiceItemsTable = ({ serviceItems, handleUpdateMTOServiceItemSt
 
 RequestedServiceItemsTable.propTypes = {
   handleUpdateMTOServiceItemStatus: PropTypes.func.isRequired,
+  statusForTableType: PropTypes.string.isRequired,
   serviceItems: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string,
