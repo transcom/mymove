@@ -133,7 +133,6 @@ func setNewShipmentFields(planner route.Planner, db *pop.Connection, oldShipment
 		if len(oldShipment.MTOAgents) < len(updatedShipment.MTOAgents) {
 			verrs.Add("agents", "cannot add MTO agents to a shipment")
 		}
-		// TODO: something
 		for _, newAgentInfo := range updatedShipment.MTOAgents {
 			foundAgent := false
 			for i, oldAgent := range oldShipment.MTOAgents {
