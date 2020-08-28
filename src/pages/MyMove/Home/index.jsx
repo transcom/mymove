@@ -33,21 +33,18 @@ class Home extends Component {
     console.log('this is the shipment', shipment);
   };
 
-  handleCLickToOrders = () => {
+  handleActionButtonClick = (path) => {
     const { history } = this.props;
-    const path = '/orders/';
-    history.push(path);
-  };
-
-  handleCLickToSelectShipment = () => {
-    const { history, move } = this.props;
-    const path = `/moves/${move.id}/select-type`;
     history.push(path);
   };
 
   render() {
+    const { move } = this.props;
+    const ordersPath = '/orders/';
+    const shipmentSelectionPath = `/moves/${move.id}/select-type`;
+    const confirmationPath = `/moves/${move.id}/review`;
     const ordersCompleted = false;
-    const hasShipment = false;
+    const hasShipment = true;
     return (
       <div className={`usa-prose grid-container ${styles['grid-container']}`}>
         <header className={styles['customer-header']}>
@@ -94,7 +91,7 @@ class Home extends Component {
           onEditClick={() => console.log('edit button clicked')}
           headerText="Upload orders"
           actionBtnLabel={!ordersCompleted ? 'Add orders' : ''}
-          onActionBtnClick={this.handleCLickToOrders}
+          onActionBtnClick={() => this.handleActionButtonClick(ordersPath)}
           step="2"
         >
           {ordersCompleted && (
@@ -110,7 +107,8 @@ class Home extends Component {
 
         <Step
           actionBtnLabel={hasShipment ? 'Add another shipment' : 'Plan your shipments'}
-          onActionBtnClick={this.handleCLickToSelectShipment}
+          actionBtnDisabled={!hasShipment}
+          onActionBtnClick={() => this.handleActionButtonClick(shipmentSelectionPath)}
           complete={hasShipment}
           completedHeaderText="Shipments"
           headerText="Shipments"
@@ -126,7 +124,7 @@ class Home extends Component {
           actionBtnLabel="Review and submit"
           containerClassName="margin-bottom-8"
           headerText="Confirm move request"
-          onActionBtnClick={() => console.log('some action')}
+          onActionBtnClick={() => this.handleActionButtonClick(confirmationPath)}
           step="4"
         >
           <p className={styles.description}>
