@@ -162,6 +162,12 @@ func NewMTOServiceItemCreator(builder createMTOServiceItemQueryBuilder) services
 }
 
 func validateTimeMilitaryField(timeMilitary string) error {
+	if len(timeMilitary) == 0 {
+		return nil
+	} else if len(timeMilitary) != 5 {
+		return fmt.Errorf("timeMilitary must be in format HHMMZ")
+	}
+
 	hours := timeMilitary[:2]
 	minutes := timeMilitary[2:4]
 	suffix := timeMilitary[len(timeMilitary)-1:]
