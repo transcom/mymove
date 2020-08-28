@@ -68,17 +68,6 @@ export class WizardPage extends Component {
         )}
         {children}
         <div className="grid-row" style={{ marginTop: '0.5rem' }}>
-          <div className="grid-col-2 margin-top-6 tablet:margin-top-3">
-            {!isMobile && (
-              <button
-                className="usa-button usa-button--secondary padding-left-0"
-                onClick={this.cancelFlow}
-                disabled={false}
-              >
-                Cancel
-              </button>
-            )}
-          </div>
           <div className="grid-col-10 text-right margin-top-6 tablet:margin-top-3 display-flex">
             {!isFirstPage(pageList, pageKey) && (
               <button
@@ -97,6 +86,15 @@ export class WizardPage extends Component {
             {isLastPage(pageList, pageKey) && (
               <button className="usa-button next" onClick={handleSubmit} disabled={!canMoveForward}>
                 Complete
+              </button>
+            )}
+            {!isMobile && (
+              <button
+                className="usa-button usa-button--unstyled padding-left-0"
+                onClick={this.cancelFlow}
+                disabled={false}
+              >
+                Cancel
               </button>
             )}
           </div>
