@@ -1,16 +1,18 @@
 import { milmoveAppName } from '../../support/constants';
 
-/* global cy */
-
 // CSRF protection is turned on for all routes.
 // We can test with the local dev login that uses POST
 describe('testing CSRF protection for dev login', function () {
+  before(() => {
+    cy.prepareCustomerApp();
+  });
+
   const csrfForbiddenMsg = 'Forbidden - CSRF token invalid\n';
   const csrfForbiddenRespCode = 403;
   const userId = '9ceb8321-6a82-4f6d-8bb3-a1d85922a202';
 
   it('tests dev login with both unmasked and masked token', function () {
-    cy.signInAsUserPostRequest(milmoveAppName, userId);
+    cy.apiSignInAsUser(userId);
     cy.contains('Move to be scheduled');
     cy.contains('Next Step: Finish setting up your move');
   });
@@ -29,11 +31,16 @@ describe('testing CSRF protection for dev login', function () {
 });
 
 describe('testing CSRF protection updating user profile', function () {
-  const userId = '9ceb8321-6a82-4f6d-8bb3-a1d85922a202';
+  before(() => {
+    cy.prepareCustomerApp();
+  });
+
+  beforeEach(() => {
+    const userId = '9ceb8321-6a82-4f6d-8bb3-a1d85922a202';
+    cy.apiSignInAsUser(userId);
+  });
 
   it('tests updating user profile with proper tokens', function () {
-    cy.signIntoMyMoveAsUser(userId);
-
     cy.visit('/moves/review/edit-profile');
 
     // update info
@@ -55,8 +62,6 @@ describe('testing CSRF protection updating user profile', function () {
   });
 
   it('tests updating user profile without masked token', function () {
-    cy.signIntoMyMoveAsUser(userId);
-
     cy.visit('/moves/review/edit-profile');
 
     // update info

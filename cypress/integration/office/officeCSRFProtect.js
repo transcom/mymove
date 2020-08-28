@@ -1,16 +1,18 @@
 import { PPMOfficeUserType } from '../../support/constants';
 
-/* global cy */
-
 // CSRF protection is turned on for all routes.
 // We can test with the local dev login that uses POST
 describe('testing CSRF protection', function () {
+  before(() => {
+    cy.prepareOfficeApp();
+  });
+
   const csrfForbiddenMsg = 'Forbidden - CSRF token invalid\n';
   const csrfForbiddenRespCode = 403;
   const userId = '9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b';
 
   it('tests dev login with both unmasked and masked token', function () {
-    cy.signInAsUserPostRequest(PPMOfficeUserType, userId);
+    cy.apiSignInAsUser(userId, PPMOfficeUserType);
     cy.contains('New moves');
   });
 
@@ -28,6 +30,10 @@ describe('testing CSRF protection', function () {
 });
 
 describe('testing CSRF protection updating move info', function () {
+  before(() => {
+    cy.prepareOfficeApp();
+  });
+
   it('tests updating user profile with proper tokens', function () {
     cy.signIntoOffice();
 

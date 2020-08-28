@@ -1,6 +1,10 @@
 import { fileUploadTimeout } from '../../support/constants';
 
 describe('HHG Setup flow', function () {
+  before(() => {
+    cy.prepareCustomerApp();
+  });
+
   beforeEach(() => {
     cy.removeFetch();
     cy.server();

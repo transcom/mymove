@@ -3,7 +3,7 @@
 // This causes the test to fail because of an uncaught exception (the fetch error is not handled)
 
 describe('testing landing pages', function () {
-  beforeEach(() => {
+  before(() => {
     cy.prepareCustomerApp();
   });
 

@@ -1,4 +1,3 @@
-/* global cy */
 import { milmoveAppName } from '../../support/constants';
 
 describe('allows a SM to request a payment', function () {
