@@ -2,6 +2,7 @@ package mtoserviceitem
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
@@ -97,6 +98,14 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		}
 	}
 
+	for index := range serviceItem.CustomerContacts {
+		createCustContacts := &serviceItem.CustomerContacts[index]
+		err = validateTimeMilitaryField(createCustContacts.TimeMilitary)
+		if err != nil {
+			return nil, nil, services.NewInvalidInputError(serviceItem.ID, err, nil, err.Error())
+		}
+	}
+
 	// create new items in a transaction in case of failure
 	o.builder.Transaction(func(tx *pop.Connection) error {
 		// create new builder to use tx
@@ -150,4 +159,33 @@ func NewMTOServiceItemCreator(builder createMTOServiceItemQueryBuilder) services
 	}
 
 	return &mtoServiceItemCreator{builder: builder, createNewBuilder: createNewBuilder}
+}
+
+func validateTimeMilitaryField(timeMilitary string) error {
+	hours := timeMilitary[:2]
+	minutes := timeMilitary[2:4]
+	suffix := timeMilitary[len(timeMilitary)-1:]
+
+	hoursInt, err := strconv.Atoi(hours)
+	if err != nil {
+		return fmt.Errorf("timeMilitary must have a valid number for hours")
+	}
+
+	minutesInt, err := strconv.Atoi(minutes)
+	if err != nil {
+		return fmt.Errorf("timeMilitary must have a valid number for minutes")
+	}
+
+	if !(0 <= hoursInt) || !(hoursInt < 24) {
+		return fmt.Errorf("timeMilitary hours must be between 00 and 23")
+	}
+	if !(0 <= minutesInt) || !(minutesInt < 60) {
+		return fmt.Errorf("timeMilitary minutes must be between 00 and 59")
+	}
+
+	if suffix != "Z" {
+		return fmt.Errorf("timeMilitary must end with 'Z'")
+	}
+
+	return nil
 }
