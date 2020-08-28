@@ -19,7 +19,6 @@ const rejectionSchema = Yup.object().shape({
 });
 
 const RejectServiceItemModal = ({ serviceItem, onSubmit, onClose }) => {
-  // eslint-disable-next-line no-unused-vars
   const { serviceItem: serviceItemName, id, code, status, createdAt, approvedAt, details } = serviceItem;
   return (
     <>
@@ -84,10 +83,10 @@ const RejectServiceItemModal = ({ serviceItem, onSubmit, onClose }) => {
                       onChange={handleChange}
                     />
                     <div className={styles.modalActions}>
-                      <Button type="submit" disabled={!isValid || !dirty}>
+                      <Button type="submit" disabled={!isValid || !dirty} data-testid="submitButton">
                         Submit
                       </Button>
-                      <Button secondary type="reset" onClick={() => onClose()}>
+                      <Button secondary type="reset" onClick={() => onClose()} data-testid="backButton">
                         Back
                       </Button>
                     </div>

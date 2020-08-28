@@ -12,8 +12,9 @@ const serviceItem = {
   id: 'abc123',
   serviceItem: 'Domestic Crating',
   code: 'DCRT',
-  status: 'SUBMITTED',
-  submittedAt: '2020-10-31',
+  status: 'APPROVED',
+  createdAt: '2020-10-31T00:00:00.12345',
+  approvedAt: '2020-11-01T00:00:00.12345',
   details: {
     description: 'Trombone',
     itemDimensions: { length: 1000, width: 2500, height: 3000 },
@@ -23,5 +24,5 @@ const serviceItem = {
 };
 
 export const Basic = () => (
-  <RejectServiceItemModal serviceItem={serviceItem} onSubmit={action('Submit')} onClose="Close" />
+  <RejectServiceItemModal serviceItem={serviceItem} onSubmit={action('Submit')} onClose={action('Close')} />
 );
