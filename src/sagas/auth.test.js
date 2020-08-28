@@ -40,36 +40,16 @@ describe('fetchUser saga', () => {
     });
   });
 
-  describe('if the user is logged in and is not a service member', () => {
-    const testUser = { id: 'testUserId' };
-
-    const generator = fetchUser();
-
-    it('dispatches the GET_LOGGED_IN_USER_START action', () => {
-      expect(generator.next().value).toEqual(put(getLoggedInActions.start()));
-    });
-
-    it('makes the GetIsLoggedIn API call', () => {
-      expect(generator.next().value).toEqual(call(GetIsLoggedIn));
-    });
-
-    it('makes the GetLoggedInUser API call', () => {
-      expect(generator.next(true).value).toEqual(call(GetLoggedInUser));
-    });
-
-    it('stores the user data in Redux', () => {
-      expect(generator.next(testUser).value).toEqual(put(getLoggedInActions.success(testUser)));
-    });
-
-    it('is done', () => {
-      expect(generator.next().done).toEqual(true);
-    });
-  });
-
-  describe('if the user is logged in and is a service member', () => {
+  describe('if the user is logged in', () => {
     const testUser = {
       id: 'testUserId',
-      service_member: { orders: [{ id: 'testorder1' }, { id: 'testorder2' }] },
+      email: 'test@example.com',
+      first_name: 'Tester',
+      roles: [{ id: 'testRole', roleType: 'customer' }],
+      service_member: {
+        id: 'testServiceMemberId',
+        orders: [{ id: 'testorder1' }, { id: 'testorder2' }],
+      },
     };
 
     const generator = fetchUser();
@@ -86,11 +66,37 @@ describe('fetchUser saga', () => {
       expect(generator.next(true).value).toEqual(call(GetLoggedInUser));
     });
 
-    it('normalizes the user orders data', () => {
-      expect(generator.next(testUser).value).toEqual(put(addEntities({})));
+    it('stores the user data in the entities reducer', () => {
+      const normalizedUser = {
+        orders: {
+          testorder1: { id: 'testorder1' },
+          testorder2: { id: 'testorder2' },
+        },
+        roles: {
+          testRole: { id: 'testRole', roleType: 'customer' },
+        },
+        serviceMembers: {
+          testServiceMemberId: {
+            id: 'testServiceMemberId',
+            orders: ['testorder1', 'testorder2'],
+          },
+        },
+        user: {
+          testUserId: {
+            id: 'testUserId',
+            email: 'test@example.com',
+            first_name: 'Tester',
+            roles: ['testRole'],
+            service_member: 'testServiceMemberId',
+          },
+        },
+      };
+
+      expect(generator.next(testUser).value).toEqual(put(addEntities(normalizedUser)));
     });
 
-    it('stores the user data in Redux', () => {
+    it('stores the user data in the user reducer (legacy)', () => {
+      // TODO - delete when deprecating the user reducer
       expect(generator.next().value).toEqual(put(getLoggedInActions.success(testUser)));
     });
 

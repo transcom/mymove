@@ -20,7 +20,7 @@ const (
 	CustomerContactTypeSecond CustomerContactType = "SECOND"
 )
 
-// MTOServiceItemCustomerContact is an object representing dimensions for a service item.
+// MTOServiceItemCustomerContact is an object representing customer contact for a service item.
 type MTOServiceItemCustomerContact struct {
 	ID                         uuid.UUID           `db:"id"`
 	MTOServiceItem             MTOServiceItem      `belongs_to:"mto_service_items"`

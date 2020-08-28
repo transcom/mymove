@@ -19,6 +19,8 @@ import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddre
 import { SERVICE_ITEM_STATUS } from 'shared/constants';
 import { patchMTOServiceItemStatus } from 'services/ghcApi';
 import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
+import dimensionTypes from 'constants/dimensionTypes';
+import customerContactTypes from 'constants/customerContactTypes';
 
 function formatShipmentType(shipmentType) {
   if (shipmentType === 'HHG') {
@@ -95,9 +97,18 @@ export const MoveTaskOrder = ({ match }) => {
 
   const serviceItems = map(mtoServiceItems, (item) => {
     const newItem = { ...item };
+    newItem.code = item.reServiceCode;
     newItem.serviceItem = item.reServiceName;
-    newItem.details = { text: { ZIP: item.pickupPostalCode, Reason: item.reason }, imgURL: '' };
-
+    newItem.details = {
+      pickupPostalCode: item.pickupPostalCode,
+      reason: item.reason,
+      imgURL: '',
+      description: item.description,
+      itemDimensions: item.dimensions?.find((dimension) => dimension?.type === dimensionTypes.ITEM),
+      crateDimensions: item.dimensions?.find((dimension) => dimension?.type === dimensionTypes.CRATE),
+      firstCustomerContact: item.customerContacts?.find((contact) => contact?.type === customerContactTypes.FIRST),
+      secondCustomerContact: item.customerContacts?.find((contact) => contact?.type === customerContactTypes.SECOND),
+    };
     return newItem;
   });
 
@@ -116,6 +127,12 @@ export const MoveTaskOrder = ({ match }) => {
           const serviceItemsForShipment = serviceItems.filter((item) => item.mtoShipmentID === mtoShipment.id);
           const requestedServiceItems = serviceItemsForShipment.filter(
             (item) => item.status === SERVICE_ITEM_STATUS.SUBMITTED,
+          );
+          const approvedServiceItems = serviceItemsForShipment.filter(
+            (item) => item.status === SERVICE_ITEM_STATUS.APPROVED,
+          );
+          const rejectedServiceItems = serviceItemsForShipment.filter(
+            (item) => item.status === SERVICE_ITEM_STATUS.REJECTED,
           );
           return (
             <ShipmentContainer
@@ -154,6 +171,21 @@ export const MoveTaskOrder = ({ match }) => {
                 <RequestedServiceItemsTable
                   serviceItems={requestedServiceItems}
                   handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
+                  statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+                />
+              )}
+              {approvedServiceItems?.length > 0 && (
+                <RequestedServiceItemsTable
+                  serviceItems={approvedServiceItems}
+                  handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
+                  statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
+                />
+              )}
+              {rejectedServiceItems?.length > 0 && (
+                <RequestedServiceItemsTable
+                  serviceItems={rejectedServiceItems}
+                  handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
+                  statusForTableType={SERVICE_ITEM_STATUS.REJECTED}
                 />
               )}
             </ShipmentContainer>

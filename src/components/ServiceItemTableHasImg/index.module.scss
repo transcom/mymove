@@ -22,25 +22,6 @@
   }
 }
 
-.detailLine {
-  @include u-font-size('body', '3xs');
-}
-
-// abstract called for thin semi bold which isn't a variant
-.detailType {
-  @include u-font-weight(600);
-}
-
-.detailImage {
-  @include u-display(flex);
-  align-items: center;
-}
-
-.siThumbnail {
-  width: 100px;
-  height: 100px;
-}
-
 .statusAction {
   @include u-display(flex);
 
