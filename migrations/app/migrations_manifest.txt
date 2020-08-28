@@ -546,3 +546,4 @@
 20200819184221_remove_unused_tables_and_columns.up.sql
 20200819211216_ateam_table_comments.up.sql
 20200821202900_suz_cac.up.sql
+20200827155542_add_db_comments.up.sql
