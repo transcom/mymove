@@ -48,12 +48,12 @@ type MTOServiceItemDDFSIT struct {
 	// Enum: [DDFSIT]
 	ReServiceCode *string `json:"reServiceCode"`
 
-	// Time of delivery corresponding to `firstAvailableDeliveryDate1`.
+	// Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
 	// Required: true
 	// Pattern: \d{4}Z
 	TimeMilitary1 *string `json:"timeMilitary1"`
 
-	// Time of delivery corresponding to `firstAvailableDeliveryDate2`.
+	// Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
 	// Required: true
 	// Pattern: \d{4}Z
 	TimeMilitary2 *string `json:"timeMilitary2"`
@@ -173,12 +173,12 @@ func (m *MTOServiceItemDDFSIT) UnmarshalJSON(raw []byte) error {
 		// Enum: [DDFSIT]
 		ReServiceCode *string `json:"reServiceCode"`
 
-		// Time of delivery corresponding to `firstAvailableDeliveryDate1`.
+		// Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
 		// Required: true
 		// Pattern: \d{4}Z
 		TimeMilitary1 *string `json:"timeMilitary1"`
 
-		// Time of delivery corresponding to `firstAvailableDeliveryDate2`.
+		// Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
 		// Required: true
 		// Pattern: \d{4}Z
 		TimeMilitary2 *string `json:"timeMilitary2"`
@@ -280,12 +280,12 @@ func (m MTOServiceItemDDFSIT) MarshalJSON() ([]byte, error) {
 		// Enum: [DDFSIT]
 		ReServiceCode *string `json:"reServiceCode"`
 
-		// Time of delivery corresponding to `firstAvailableDeliveryDate1`.
+		// Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
 		// Required: true
 		// Pattern: \d{4}Z
 		TimeMilitary1 *string `json:"timeMilitary1"`
 
-		// Time of delivery corresponding to `firstAvailableDeliveryDate2`.
+		// Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
 		// Required: true
 		// Pattern: \d{4}Z
 		TimeMilitary2 *string `json:"timeMilitary2"`
