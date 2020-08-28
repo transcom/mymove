@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes, { string } from 'prop-types';
 import { get, isEmpty } from 'lodash';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
@@ -11,7 +12,8 @@ import { MTOAgentType } from 'shared/constants';
 import 'scenes/Review/Review.css';
 
 export default function HHGShipmentSummary(props) {
-  const { mtoShipment } = props;
+  const { mtoShipment, movePath } = props;
+  const editShipmentPath = `${movePath}/edit-shipment`;
 
   const requestedPickupDate = get(mtoShipment, 'requestedPickupDate', '');
   const pickupLocation = get(mtoShipment, 'pickupAddress', {});
@@ -27,6 +29,11 @@ export default function HHGShipmentSummary(props) {
     <div data-testid="hhg-summary" className="review-content">
       <GridContainer>
         <h3>Shipment - Government moves all of your stuff (HHG)</h3>
+        <span>
+          <Link data-testid="edit-shipment" to={editShipmentPath}>
+            Edit
+          </Link>
+        </span>
         <Grid row>
           <Grid tablet={{ col: true }}>
             <div className="review-section">
@@ -111,6 +118,7 @@ export default function HHGShipmentSummary(props) {
 }
 
 HHGShipmentSummary.propTypes = {
+  movePath: string.isRequired,
   mtoShipment: PropTypes.shape({
     agents: PropTypes.arrayOf(
       PropTypes.shape({

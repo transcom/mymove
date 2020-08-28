@@ -4,18 +4,19 @@ import { get, isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
-import { Fieldset, Radio, Label, TextInput } from '@trussworks/react-uswds';
+import { Fieldset, Radio, Label } from '@trussworks/react-uswds';
 
 import { Form } from '../form/Form';
 import { AddressFields } from '../form/AddressFields/AddressFields';
 import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
-import { DatePickerInput } from '../form/fields';
+import { DatePickerInput, TextInput } from '../form/fields';
 
 import styles from './HHGDetailsForm.module.scss';
 
 import {
   selectMTOShipmentForMTO,
   createMTOShipment as createMTOShipmentAction,
+  updateMTOShipment as updateMTOShipmentAction,
 } from 'shared/Entities/modules/mtoShipments';
 import { selectActiveOrLatestOrdersFromEntities } from 'shared/Entities/modules/orders';
 import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
@@ -110,7 +111,7 @@ class HHGDetailsForm extends Component {
 
       // Remove dashes from agent phones for expected form phone format
       if (receivingAgent) {
-        const formattedAgent = cleanAgentPhone(releasingAgent);
+        const formattedAgent = cleanAgentPhone(receivingAgent);
         if (!isEmpty(formattedAgent)) {
           formattedMTOShipment.receivingAgent = { ...formattedAgent };
         }
@@ -198,7 +199,7 @@ class HHGDetailsForm extends Component {
     releasingAgent,
     customerRemarks,
   }) => {
-    const { createMTOShipment, match, mtoShipment } = this.props;
+    const { createMTOShipment, updateMTOShipment, match, mtoShipment } = this.props;
     const { hasDeliveryAddress } = this.state;
     const { moveId } = match.params;
     const pendingMtoShipment = {
@@ -258,14 +259,11 @@ class HHGDetailsForm extends Component {
         pendingMtoShipment.agents.push({ ...formattedAgent, agentType: MTOAgentType.RECEIVING });
       }
     }
-
     if (isEmpty(mtoShipment)) {
       createMTOShipment(pendingMtoShipment);
+    } else {
+      updateMTOShipment(mtoShipment.id, pendingMtoShipment, mtoShipment.eTag);
     }
-    // } else {
-    // TODO: Update if existing MTOShipment once UpdateMTOShipment service for Customer Flow is merged
-    // updateMTOShipment(mtoShipment.id, pendingMtoShipment, mtoShipment.eTag);
-    // }
   };
 
   render() {
@@ -365,7 +363,7 @@ class HHGDetailsForm extends Component {
                   <AddressFields name="destinationAddress" values={values.destinationAddress} />
                 ) : (
                   <>
-                    <div className={fieldsetClasses}>We can use the postal_code of your new duty station.</div>
+                    <div className={fieldsetClasses}>We can use the zip of your new duty station.</div>
                     <div>
                       <p className={fieldsetClasses}>
                         We can use the zip of your new duty station.
@@ -387,20 +385,6 @@ class HHGDetailsForm extends Component {
                 subtitleClassName="margin-y-2"
                 values={values.receivingAgent}
               />
-              {/* <Fieldset legend="Remarks" className={fieldsetClasses}>
-                <Textarea
-                  label="Anything else you would like us to know?"
-                  labelHint="(optional)"
-                  data-testid="customerRemarks"
-                  placeholder="This is 500 characters of customer remarks placeholder"
-                  name="customerRemarks"
-                  id="customerRemarks"
-                  maxLength={500}
-                  as="textarea"
-                  value={values.customerRemarks}
-                />
-              </Fieldset> */}
-
               <Fieldset legend="Remarks" className={fieldsetClasses}>
                 <TextInput
                   label="Anything else you would like us to know?"
@@ -443,6 +427,7 @@ HHGDetailsForm.propTypes = {
     postal_code: string,
   }),
   createMTOShipment: func.isRequired,
+  updateMTOShipment: func.isRequired,
   showLoggedInUser: func.isRequired,
   push: func.isRequired,
   mtoShipment: shape({
@@ -506,6 +491,7 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = {
   createMTOShipment: createMTOShipmentAction,
+  updateMTOShipment: updateMTOShipmentAction,
   showLoggedInUser: showLoggedInUserAction,
 };
 

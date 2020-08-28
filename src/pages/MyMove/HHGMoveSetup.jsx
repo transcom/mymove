@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { arrayOf, string, shape, bool, func } from 'prop-types';
 
+import EditShipment from '../../components/Customer/EditShipment';
+
 import {
   loadMTOShipments as loadMTOShipmentsAction,
   selectMTOShipmentForMTO,
@@ -16,11 +18,15 @@ class HHGMoveSetup extends Component {
   }
 
   render() {
-    const { pageList, pageKey, match, push, mtoShipment } = this.props;
-
+    const { pageList, pageKey, match, history, push, mtoShipment } = this.props;
+    const isEditShipmentPage = match.path === '/moves/:moveId/review/edit-shipment';
+    const isHHGFormPage = match.path === '/moves/:moveId/hhg-start';
     return (
       <div>
-        <HHGDetailsForm pageList={pageList} pageKey={pageKey} match={match} push={push} mtoShipment={mtoShipment} />
+        {isHHGFormPage && (
+          <HHGDetailsForm pageList={pageList} pageKey={pageKey} match={match} push={push} mtoShipment={mtoShipment} />
+        )}
+        {isEditShipmentPage && <EditShipment mtoShipment={mtoShipment} match={match} history={history} />}
       </div>
     );
   }
@@ -47,6 +53,9 @@ HHGMoveSetup.propTypes = {
     }),
     path: string.isRequired,
     url: string.isRequired,
+  }).isRequired,
+  history: shape({
+    goBack: func.isRequired,
   }).isRequired,
   loadMTOShipments: func.isRequired,
   push: func.isRequired,

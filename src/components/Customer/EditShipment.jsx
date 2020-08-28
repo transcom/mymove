@@ -13,10 +13,12 @@ import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
 
 import styles from './EditShipment.module.scss';
 
-import { selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
+import {
+  selectMTOShipmentForMTO,
+  updateMTOShipment as updateMTOShipmentAction,
+} from 'shared/Entities/modules/mtoShipments';
 import { selectActiveOrLatestOrdersFromEntities } from 'shared/Entities/modules/orders';
 import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
-import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { MTOAgentType, SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatSwaggerDate } from 'shared/formatters';
 import { validateDate } from 'utils/formikValidators';
@@ -66,62 +68,63 @@ class EditShipment extends Component {
     super(props);
     this.state = {
       hasDeliveryAddress: false,
+      useCurrentResidence: false,
       initialValues: {},
     };
   }
 
   componentDidMount() {
-    const { showLoggedInUser, mtoShipment } = this.props;
-    showLoggedInUser();
+    const { mtoShipment } = this.props;
     if (mtoShipment.id) {
       this.setInitialState(mtoShipment);
     }
   }
 
-  // componentDidUpdate(prevProps) {
-  //   const { mtoShipment } = this.props;
-  //   // If refreshing page, need to handle mtoShipment populating from a promise
-  //   if (mtoShipment.id && prevProps.mtoShipment.id !== mtoShipment.id) {
-  //     this.setInitialState(mtoShipment);
-  //   }
-  // }
+  componentDidUpdate(prevProps) {
+    const { mtoShipment } = this.props;
+    // If refreshing page, need to handle mtoShipment populating from a promise
+    if (mtoShipment.id && prevProps.mtoShipment.id !== mtoShipment.id) {
+      this.setInitialState(mtoShipment);
+    }
+  }
 
-  // setInitialState = (mtoShipment) => {
-  //   function cleanAgentPhone(agent) {
-  //     const agentCopy = { ...agent };
-  //     Object.keys(agentCopy).forEach((key) => {
-  //       /* eslint-disable security/detect-object-injection */
-  //       if (key === 'phone') {
-  //         const phoneNum = agentCopy[key];
-  //         // will be in format xxxxxxxxxx
-  //         agentCopy[key] = phoneNum.split('-').join('');
-  //       }
-  //     });
-  //     return agentCopy;
-  //   }
-  //   // for existing mtoShipment, reshape agents from array of objects to key/object for proper handling
-  //   const { agents } = mtoShipment;
-  //   const formattedMTOShipment = { ...mtoShipment };
-  //   if (agents) {
-  //     const receivingAgent = agents.find((agent) => agent.agentType === 'RECEIVING_AGENT');
-  //     const releasingAgent = agents.find((agent) => agent.agentType === 'RELEASING_AGENT');
+  setInitialState = (mtoShipment) => {
+    function cleanAgentPhone(agent) {
+      const agentCopy = { ...agent };
+      Object.keys(agentCopy).forEach((key) => {
+        /* eslint-disable security/detect-object-injection */
+        if (key === 'phone') {
+          const phoneNum = agentCopy[key];
+          // will be in format xxxxxxxxxx
+          agentCopy[key] = phoneNum.split('-').join('');
+        }
+      });
+      return agentCopy;
+    }
+    // for existing mtoShipment, reshape agents from array of objects to key/object for proper handling
+    const { agents } = mtoShipment;
+    const formattedMTOShipment = { ...mtoShipment };
+    if (agents) {
+      const receivingAgent = agents.find((agent) => agent.agentType === 'RECEIVING_AGENT');
+      const releasingAgent = agents.find((agent) => agent.agentType === 'RELEASING_AGENT');
 
-  //     // Remove dashes from agent phones for expected form phone format
-  //     if (receivingAgent) {
-  //       const formattedAgent = cleanAgentPhone(releasingAgent);
-  //       if (!isEmpty(formattedAgent)) {
-  //         formattedMTOShipment.receivingAgent = { ...formattedAgent };
-  //       }
-  //     }
-  //     if (releasingAgent) {
-  //       const formattedAgent = cleanAgentPhone(releasingAgent);
-  //       if (!isEmpty(formattedAgent)) {
-  //         formattedMTOShipment.releasingAgent = { ...formattedAgent };
-  //       }
-  //     }
-  //   }
-  //   this.setState({ initialValues: formattedMTOShipment });
-  // };
+      // Remove dashes from agent phones for expected form phone format
+      if (receivingAgent) {
+        const formattedAgent = cleanAgentPhone(receivingAgent);
+        if (!isEmpty(formattedAgent)) {
+          formattedMTOShipment.receivingAgent = { ...formattedAgent };
+        }
+      }
+      if (releasingAgent) {
+        const formattedAgent = cleanAgentPhone(releasingAgent);
+        if (!isEmpty(formattedAgent)) {
+          formattedMTOShipment.releasingAgent = { ...formattedAgent };
+        }
+      }
+    }
+    const hasDeliveryAddress = get(mtoShipment, 'destinationAddress', false);
+    this.setState({ initialValues: formattedMTOShipment, hasDeliveryAddress });
+  };
 
   handleChangeHasDeliveryAddress = () => {
     this.setState((prevState) => {
@@ -132,14 +135,14 @@ class EditShipment extends Component {
   // Use current residence
   handleUseCurrentResidenceChange = (currentValues) => {
     // eslint-disable-next-line react/destructuring-assignment
+    const { initialValues } = this.state;
+    const { currentResidence, match, mtoShipment } = this.props;
     this.setState(
       (state) => ({ useCurrentResidence: !state.useCurrentResidence }),
       () => {
-        const { initialValues, useCurrentResidence } = this.state;
-        const { currentResidence } = this.props;
-        if (useCurrentResidence) {
+        // eslint-disable-next-line react/destructuring-assignment
+        if (this.state.useCurrentResidence) {
           this.setState({
-            // eslint-disable-next-line prettier/prettier
             initialValues: {
               ...initialValues,
               ...currentValues,
@@ -153,19 +156,36 @@ class EditShipment extends Component {
             },
           });
         } else {
-          this.setState({
-            initialValues: {
-              ...initialValues,
-              ...currentValues,
-              pickupAddress: {
-                street_address_1: '',
-                street_address_2: '',
-                city: '',
-                state: '',
-                postal_code: '',
+          // eslint-disable-next-line no-lonely-if
+          if (match.params.moveId === initialValues.moveTaskOrderID) {
+            this.setState({
+              initialValues: {
+                ...initialValues,
+                ...currentValues,
+                pickupAddress: {
+                  street_address_1: mtoShipment.pickupAddress.street_address_1,
+                  street_address_2: mtoShipment.pickupAddress.street_address_2,
+                  city: mtoShipment.pickupAddress.city,
+                  state: mtoShipment.pickupAddress.state,
+                  postal_code: mtoShipment.pickupAddress.postal_code,
+                },
               },
-            },
-          });
+            });
+          } else {
+            this.setState({
+              initialValues: {
+                ...initialValues,
+                ...currentValues,
+                pickupAddress: {
+                  street_address_1: '',
+                  street_address_2: '',
+                  city: '',
+                  state: '',
+                  postal_code: '',
+                },
+              },
+            });
+          }
         }
       },
     );
@@ -180,7 +200,7 @@ class EditShipment extends Component {
     releasingAgent,
     customerRemarks,
   }) => {
-    const { createMTOShipment, match } = this.props;
+    const { updateMTOShipment, match, mtoShipment } = this.props;
     const { hasDeliveryAddress } = this.state;
     const { moveId } = match.params;
     const pendingMtoShipment = {
@@ -240,13 +260,13 @@ class EditShipment extends Component {
         pendingMtoShipment.agents.push({ ...formattedAgent, agentType: MTOAgentType.RECEIVING });
       }
     }
-    createMTOShipment(pendingMtoShipment);
+    updateMTOShipment(mtoShipment.id, pendingMtoShipment, mtoShipment.eTag);
   };
 
   render() {
-    // const { pageKey, pageList, match, push, newDutyStationAddress, mtoShipment } = this.props;
-
+    const { history } = this.props;
     const { hasDeliveryAddress, initialValues, useCurrentResidence } = this.state;
+    const goBack = get(history, 'goBack', '');
     return (
       <div className="grid-container">
         <div className={`margin-top-2 ${styles['hhg-label']}`}>HHG</div>
@@ -259,10 +279,13 @@ class EditShipment extends Component {
           validateOnBlur
           validateOnChange
           validationSchema={HHGDetailsFormSchema}
+          onSubmit={(values) => {
+            this.submitMTOShipment(values);
+          }}
         >
-          {({ values }) => (
+          {({ values, isValid, submitForm, isSubmitting }) => (
             <Form>
-              <Fieldset legend="Pickup date" className="margin-top-4">
+              <Fieldset legend="Pickup date" className="margin-top-4" onSubmit={submitForm}>
                 <Field
                   as={DatePickerInput}
                   name="requestedPickupDate"
@@ -286,7 +309,7 @@ class EditShipment extends Component {
                   <Checkbox
                     className="margin-top-3"
                     data-testid="useCurrentResidence"
-                    label="Use my current address"
+                    label="Use my current residence address"
                     name="useCurrentResidence"
                     checked={useCurrentResidence}
                     onChange={() => this.handleUseCurrentResidenceChange(values)}
@@ -340,7 +363,7 @@ class EditShipment extends Component {
                     onChange={this.handleChangeHasDeliveryAddress}
                   />
                 </div>
-                {hasDeliveryAddress && <AddressFields name="deliveryLocation" values={values.deliveryLocation} />}
+                {hasDeliveryAddress && <AddressFields name="destinationAddress" values={values.destinationAddress} />}
               </Fieldset>
               <Divider className="margin-top-4 margin-bottom-4" />
               <ContactInfoFields
@@ -383,10 +406,15 @@ class EditShipment extends Component {
                 your final pickup date.
               </Hint>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <Button>
-                  <span>Save</span>
+                <Button
+                  type="button"
+                  data-testid="editShipment"
+                  disabled={isSubmitting || !isValid}
+                  onClick={submitForm}
+                >
+                  Save
                 </Button>
-                <Button className={`${styles['cancel-button']}`}>
+                <Button className={`${styles['cancel-button']}`} onClick={goBack}>
                   <span>Cancel</span>
                 </Button>
               </div>
@@ -405,9 +433,7 @@ EditShipment.propTypes = {
     state: string,
     postal_code: string,
   }).isRequired,
-  // moveTaskOrderID: string.isRequired,
-  createMTOShipment: func.isRequired,
-  showLoggedInUser: func.isRequired,
+  updateMTOShipment: func.isRequired,
   match: shape({
     isExact: bool.isRequired,
     params: shape({
@@ -415,6 +441,9 @@ EditShipment.propTypes = {
     }),
     path: string.isRequired,
     url: string.isRequired,
+  }).isRequired,
+  history: shape({
+    goBack: func.isRequired,
   }).isRequired,
   mtoShipment: shape({
     agents: arrayOf(
@@ -445,11 +474,6 @@ EditShipment.propTypes = {
 };
 
 EditShipment.defaultProps = {
-  // newDutyStationAddress: {
-  //   city: '',
-  //   state: '',
-  //   postal_code: '',
-  // },
   mtoShipment: {
     id: '',
     customerRemarks: '',
@@ -476,8 +500,7 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 const mapDispatchToProps = {
-  // createMTOShipment: createMTOShipmentAction,
-  showLoggedInUser: showLoggedInUserAction,
+  updateMTOShipment: updateMTOShipmentAction,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditShipment);
