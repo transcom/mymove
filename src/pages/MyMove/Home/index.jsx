@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import { isNil } from 'lodash';
 import { func, arrayOf, shape, string, objectOf, object } from 'prop-types';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
 import { Alert } from '@trussworks/react-uswds';
 
 import styles from './Home.module.scss';
@@ -35,8 +34,8 @@ class Home extends Component {
   };
 
   handleNewPathClick = (path) => {
-    const { history } = this.props;
-    history.push(path);
+    const { push } = this.props;
+    push(path);
   };
 
   checkOrdersCompleted = () => {
@@ -163,7 +162,7 @@ Home.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   orders: object.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
-  history: object.isRequired,
+  push: func.isRequired,
   move: objectOf(
     shape({
       id: string,
@@ -191,4 +190,4 @@ const mapDispatchToProps = {
   showLoggedInUser: showLoggedInUserAction,
 };
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps, mergeProps)(Home));
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(Home);

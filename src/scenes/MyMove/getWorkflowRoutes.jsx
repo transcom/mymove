@@ -139,8 +139,8 @@ const pages = {
   '/home-2': {
     isInFlow: (props) => myFirstRodeo(props) && inGhcFlow(props),
     isComplete: always,
-    render: (key, pages) => () => {
-      return <Home />;
+    render: (key, pages) => ({ history }) => {
+      return <Home push={history.push} />;
     },
   },
   '/profile-review': {
