@@ -4,7 +4,7 @@ import { get, isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
-import { Radio, Label, Textarea, Button, Checkbox } from '@trussworks/react-uswds';
+import { Radio, Label, Textarea, Button } from '@trussworks/react-uswds';
 
 import { Form } from '../form/Form';
 import { DatePickerInput } from '../form/fields';
@@ -17,6 +17,7 @@ import {
   selectMTOShipmentForMTO,
   updateMTOShipment as updateMTOShipmentAction,
 } from 'shared/Entities/modules/mtoShipments';
+import Checkbox from 'shared/Checkbox';
 import { selectActiveOrLatestOrdersFromEntities } from 'shared/Entities/modules/orders';
 import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
 import { MTOAgentType, SHIPMENT_OPTIONS } from 'shared/constants';
@@ -200,9 +201,10 @@ class EditShipment extends Component {
     releasingAgent,
     customerRemarks,
   }) => {
-    const { updateMTOShipment, match, mtoShipment } = this.props;
+    const { updateMTOShipment, match, mtoShipment, history } = this.props;
     const { hasDeliveryAddress } = this.state;
     const { moveId } = match.params;
+    const goBack = get(history, 'goBack', '');
     const pendingMtoShipment = {
       moveTaskOrderID: moveId,
       shipmentType: SHIPMENT_OPTIONS.HHG,
@@ -260,7 +262,9 @@ class EditShipment extends Component {
         pendingMtoShipment.agents.push({ ...formattedAgent, agentType: MTOAgentType.RECEIVING });
       }
     }
-    updateMTOShipment(mtoShipment.id, pendingMtoShipment, mtoShipment.eTag);
+    updateMTOShipment(mtoShipment.id, pendingMtoShipment, mtoShipment.eTag).then(() => {
+      goBack();
+    });
   };
 
   render() {
@@ -279,13 +283,10 @@ class EditShipment extends Component {
           validateOnBlur
           validateOnChange
           validationSchema={HHGDetailsFormSchema}
-          onSubmit={(values) => {
-            this.submitMTOShipment(values);
-          }}
         >
-          {({ values, isValid, submitForm, isSubmitting }) => (
+          {({ values, isValid, dirty, isSubmitting, handleChange }) => (
             <Form>
-              <Fieldset legend="Pickup date" className="margin-top-4" onSubmit={submitForm}>
+              <Fieldset legend="Pickup date" className="margin-top-4">
                 <Field
                   as={DatePickerInput}
                   name="requestedPickupDate"
@@ -397,6 +398,7 @@ class EditShipment extends Component {
                   maxLength={500}
                   type="textarea"
                   value={values.customerRemarks}
+                  onChange={handleChange}
                 />
               </Fieldset>
               <Divider className="margin-top-6 margin-bottom-3" />
@@ -409,8 +411,8 @@ class EditShipment extends Component {
                 <Button
                   type="button"
                   data-testid="editShipment"
-                  disabled={isSubmitting || !isValid}
-                  onClick={submitForm}
+                  disabled={isSubmitting || (!isValid && !dirty) || (isValid && !dirty)}
+                  onClick={() => this.submitMTOShipment(values)}
                 >
                   Save
                 </Button>
