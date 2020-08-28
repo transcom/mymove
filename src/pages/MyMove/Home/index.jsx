@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import React, { Component } from 'react';
-import { func, arrayOf, shape, string, objectOf } from 'prop-types';
+import { func, arrayOf, shape, string, objectOf, object } from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { Alert } from '@trussworks/react-uswds';
@@ -14,7 +14,7 @@ import ShipmentList from 'components/Customer/Home/ShipmentList';
 import Contact from 'components/Customer/Home/Contact';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
-import { selectUploadedOrders } from 'shared/Entities/modules/orders';
+import { selectActiveOrLatestOrdersFromEntities, selectUploadedOrders } from 'shared/Entities/modules/orders';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 
 const shipments = [
@@ -38,12 +38,21 @@ class Home extends Component {
     history.push(path);
   };
 
+  checkOrdersCompleted = () => {
+    const { orders, uploadedOrderDocuments } = this.props;
+    console.log(
+      'orders complete?',
+      (orders?.['uploaded_orders']?.uploads || []).length > 0 || uploadedOrderDocuments.length > 0,
+    );
+    return (orders?.['uploaded_orders']?.uploads || []).length > 0 || uploadedOrderDocuments.length > 0;
+  };
+
   render() {
     const { move } = this.props;
     const ordersPath = '/orders/';
     const shipmentSelectionPath = `/moves/${move.id}/select-type`;
     const confirmationPath = `/moves/${move.id}/review`;
-    const ordersCompleted = false;
+    const ordersCompleted = this.checkOrdersCompleted();
     const hasShipment = true;
     return (
       <div className={`usa-prose grid-container ${styles['grid-container']}`}>
@@ -150,7 +159,10 @@ Home.propTypes = {
       filename: string.isRequired,
     }),
   ).isRequired,
-  history: string.isRequired,
+  // eslint-disable-next-line react/forbid-prop-types
+  orders: object.isRequired,
+  // eslint-disable-next-line react/forbid-prop-types
+  history: object.isRequired,
   move: objectOf(
     shape({
       id: string,
@@ -163,6 +175,7 @@ const mapStateToProps = (state) => {
     uploadedOrderDocuments: selectUploadedOrders(state),
     // TODO: change when we support multiple moves
     move: selectActiveOrLatestMove(state),
+    orders: selectActiveOrLatestOrdersFromEntities(state),
   };
 };
 
