@@ -3,6 +3,7 @@ import { Formik } from 'formik';
 import { Modal, Button, ModalContainer, Overlay } from '@trussworks/react-uswds';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
+import * as Yup from 'yup';
 
 import styles from './RejectServiceItemModal.module.scss';
 
@@ -11,6 +12,11 @@ import { TextInput } from 'components/form/fields';
 import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
 import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
 import { formatDate } from 'shared/dates';
+import { SERVICE_ITEM_STATUS } from 'shared/constants';
+
+const rejectionSchema = Yup.object().shape({
+  rejectionReason: Yup.string().required('Required'),
+});
 
 const RejectServiceItemModal = ({ serviceItem, onSubmit, onClose }) => {
   // eslint-disable-next-line no-unused-vars
@@ -33,37 +39,56 @@ const RejectServiceItemModal = ({ serviceItem, onSubmit, onClose }) => {
                 <XLightIcon />
               </button>
             </div>
-            <Formik initialValues={{ rejectionReason: '' }} onSubmit={onSubmit}>
-              <Form>
-                <div className={('table--service-item', 'table--service-item--hasimg')}>
-                  <table>
-                    <thead className="table--small">
-                      <tr>
-                        <th>Service item</th>
-                        <th>Details</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td className={styles.nameAndDate}>
-                          <p className={styles.codeName}>{serviceItemName}</p>
-                          <p>{formatDate(submittedAt, 'DD MMM YYYY')}</p>
-                        </td>
-                        <td className={styles.detail}>
-                          <ServiceItemDetails id={id} code={code} details={details} />
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                <TextInput name="rejectionReason" label="Reason for rejection" type="text" />
-                <div className={styles.modalActions}>
-                  <Button type="submit">Submit</Button>
-                  <Button secondary type="reset" onClick={() => onClose()}>
-                    Back
-                  </Button>
-                </div>
-              </Form>
+            <Formik
+              initialValues={{ rejectionReason: '' }}
+              validationSchema={rejectionSchema}
+              onSubmit={(values) => {
+                onSubmit(id, SERVICE_ITEM_STATUS.REJECTED, values.rejectionReason);
+              }}
+            >
+              {({ handleChange, values, isValid, dirty }) => {
+                return (
+                  <Form>
+                    <div className={('table--service-item', 'table--service-item--hasimg')}>
+                      <table>
+                        <thead className="table--small">
+                          <tr>
+                            <th>Service item</th>
+                            <th>Details</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td className={styles.nameAndDate}>
+                              <p className={styles.codeName}>{serviceItemName}</p>
+                              <p>{formatDate(submittedAt, 'DD MMM YYYY')}</p>
+                            </td>
+                            <td className={styles.detail}>
+                              <ServiceItemDetails id={id} code={code} details={details} />
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <TextInput
+                      id="rejectionReason"
+                      name="rejectionReason"
+                      label="Reason for rejection"
+                      type="text"
+                      value={values.rejectionReason}
+                      onChange={handleChange}
+                    />
+                    <div className={styles.modalActions}>
+                      <Button type="submit" disabled={!isValid || !dirty}>
+                        Submit
+                      </Button>
+                      <Button secondary type="reset" onClick={() => onClose()}>
+                        Back
+                      </Button>
+                    </div>
+                  </Form>
+                );
+              }}
             </Formik>
           </div>
         </Modal>
