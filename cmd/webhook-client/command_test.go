@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	"github.com/transcom/mymove/cmd/webhook-client/utils"
 	"github.com/transcom/mymove/pkg/testingsuite"
 
 	"github.com/spf13/cobra"
@@ -16,7 +17,7 @@ import (
 // WebhookClientTestingSuite is a suite for testing the webhook client
 type WebhookClientTestingSuite struct {
 	testingsuite.PopTestSuite
-	logger   Logger
+	logger   utils.Logger
 	certPath string
 	keyPath  string
 }
@@ -52,16 +53,6 @@ func NewDbConnectionCommand() *cobra.Command {
 	return cmd
 }
 
-func NewDbWebhookNotifyCommand() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:          "db-webhook-notify",
-		RunE:         dbWebhookNotify,
-		SilenceUsage: true,
-	}
-	initDbWebhookNotifyFlags(cmd.Flags())
-	return cmd
-}
-
 func NewPostWebhookNotifyCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:          "post-webhook-notify",
@@ -81,27 +72,9 @@ func (suite *WebhookClientTestingSuite) Test_DBConnection() {
 	rootCmd.SetOut(b)
 
 	suite.T().Run("db-connection: Success", func(t *testing.T) {
-		rootCmd.SetArgs([]string{"db-connection-test"})
-		err := rootCmd.Execute()
-		suite.Nil(err)
-	})
-
-}
-
-func (suite *WebhookClientTestingSuite) Test_DBWebhookNotify() {
-
-	rootCmd := NewRootCmd()
-	cmd := NewDbWebhookNotifyCommand()
-	rootCmd.AddCommand(cmd)
-	b := bytes.NewBufferString("")
-	rootCmd.SetOut(b)
-
-	suite.T().Run("db-webhook-notify: Send a notification to server (maybe empty)", func(t *testing.T) {
 		rootCmd.SetArgs([]string{
-			"--certpath", suite.certPath,
-			"--keypath", suite.keyPath,
-			"--insecure",
-			"db-webhook-notify"})
+			"db-connection-test",
+		})
 		err := rootCmd.Execute()
 		suite.Nil(err)
 	})
