@@ -1,7 +1,8 @@
 /* eslint-disable no-console */
 import React, { Component } from 'react';
-import { func, arrayOf, shape, string } from 'prop-types';
+import { func, arrayOf, shape, string, objectOf } from 'prop-types';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 import { Alert } from '@trussworks/react-uswds';
 
 import styles from './Home.module.scss';
@@ -32,7 +33,21 @@ class Home extends Component {
     console.log('this is the shipment', shipment);
   };
 
+  handleCLickToOrders = () => {
+    const { history } = this.props;
+    const path = '/orders/';
+    history.push(path);
+  };
+
+  handleCLickToSelectShipment = () => {
+    const { history, move } = this.props;
+    const path = `/moves/${move.id}/select-type`;
+    history.push(path);
+  };
+
   render() {
+    const ordersCompleted = false;
+    const hasShipment = false;
     return (
       <div className={`usa-prose grid-container ${styles['grid-container']}`}>
         <header className={styles['customer-header']}>
@@ -63,7 +78,6 @@ class Home extends Component {
           editBtnDisabled
           editBtnLabel="Edit"
           headerText="Profile complete"
-          onActionBtnClick={() => console.log('some action')}
           step="1"
           onEditClick={(e) => {
             e.preventDefault();
@@ -74,37 +88,41 @@ class Home extends Component {
         </Step>
 
         <Step
-          complete
+          complete={ordersCompleted}
           completedHeaderText="Orders uploaded"
-          editBtnLabel="Edit"
+          editBtnLabel={ordersCompleted ? 'Edit' : ''}
           onEditClick={() => console.log('edit button clicked')}
           headerText="Upload orders"
-          onActionBtnClick={() => console.log('some action')}
+          actionBtnLabel={!ordersCompleted ? 'Add orders' : ''}
+          onActionBtnClick={this.handleCLickToOrders}
           step="2"
         >
-          <DocsUploaded
-            files={[
-              { filename: 'Screen Shot 2020-09-11 at 12.56.58 PM.png' },
-              { filename: 'Screen Shot 2020-09-11 at 12.58.12 PM.png' },
-              { filename: 'orderspage3_20200723.png' },
-            ]}
-          />
+          {ordersCompleted && (
+            <DocsUploaded
+              files={[
+                { filename: 'Screen Shot 2020-09-11 at 12.56.58 PM.png' },
+                { filename: 'Screen Shot 2020-09-11 at 12.58.12 PM.png' },
+                { filename: 'orderspage3_20200723.png' },
+              ]}
+            />
+          )}
         </Step>
 
         <Step
-          actionBtnLabel="Add another shipment"
-          complete
+          actionBtnLabel={hasShipment ? 'Add another shipment' : 'Plan your shipments'}
+          onActionBtnClick={this.handleCLickToSelectShipment}
+          complete={hasShipment}
           completedHeaderText="Shipments"
           headerText="Shipments"
           secondaryBtn
           secondaryClassName="margin-top-2"
           step="3"
         >
-          <ShipmentList shipments={shipments} onShipmentClick={this.handleShipmentClick} />
+          {hasShipment && <ShipmentList shipments={shipments} onShipmentClick={this.handleShipmentClick} />}
         </Step>
 
         <Step
-          actionBtnDisabled
+          actionBtnDisabled={!hasShipment}
           actionBtnLabel="Review and submit"
           containerClassName="margin-bottom-8"
           headerText="Confirm move request"
@@ -134,6 +152,12 @@ Home.propTypes = {
       filename: string.isRequired,
     }),
   ).isRequired,
+  history: string.isRequired,
+  move: objectOf(
+    shape({
+      id: string,
+    }),
+  ).isRequired,
 };
 
 const mapStateToProps = (state) => {
@@ -155,4 +179,4 @@ const mapDispatchToProps = {
   showLoggedInUser: showLoggedInUserAction,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(Home);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps, mergeProps)(Home));
