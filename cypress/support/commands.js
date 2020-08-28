@@ -108,8 +108,8 @@ Cypress.Commands.add('signIntoOffice', () => {
 // Log in via a direct API request, not the devlocal UI
 // Defaults to service member user type, pass in param if signing into Office app
 Cypress.Commands.add('apiSignInAsUser', (userId, userType = milmoveUserType) => {
-  // Visiting the root URL will trigger an is_logged_in API call and set CSRF cookies
-  cy.visit('/');
+  // This API call is what sets CSRF cookies from the server
+  cy.request('/internal/users/is_logged_in');
 
   cy.waitUntil(() => cy.getCookie('masked_gorilla_csrf').then((cookie) => cookie && cookie.value)).then((csrfToken) => {
     cy.request({
@@ -127,98 +127,6 @@ Cypress.Commands.add('apiSignInAsUser', (userId, userType = milmoveUserType) => 
     });
   });
 });
-
-// TODO - see if we can remove this (cookies are cleared between tests by default)
-Cypress.Commands.add('setBaseUrlAndClearAllCookies', (userType) => {
-  [milmoveBaseURL, officeBaseURL].forEach((url) => {
-    Cypress.config('baseUrl', url);
-    cy.visit('/');
-    cy.clearCookies();
-  });
-  const baseUrl = userTypeToBaseURL[userType]; // eslint-disable-line security/detect-object-injection
-  Cypress.config('baseUrl', baseUrl);
-  cy.visit('/');
-});
-
-Cypress.Commands.add(
-  'signInAsUserPostRequest',
-  (
-    userType,
-    userId,
-    expectedStatusCode = 200,
-    expectedRespBody = null,
-    sendGorillaCSRF = true,
-    sendMaskedGorillaCSRF = true,
-    checkSessionToken = true,
-  ) => {
-    // setup baseurl
-    cy.setBaseUrlAndClearAllCookies(userType);
-
-    // request use to log in
-    let sendRequest = (sendRequestUserType, maskedCSRFToken) => {
-      cy.request({
-        url: '/devlocal-auth/login',
-        method: 'POST',
-        headers: {
-          'X-CSRF-TOKEN': maskedCSRFToken,
-        },
-        body: {
-          id: userId,
-          userType: sendRequestUserType,
-        },
-        form: true,
-        failOnStatusCode: false,
-      }).then((resp) => {
-        cy.visit('/');
-        // Default status code to check is 200
-        expect(resp.status).to.eq(expectedStatusCode);
-        // check response body if needed
-        if (expectedRespBody) {
-          expect(resp.body).to.eq(expectedRespBody);
-        }
-
-        // Login should provide named session tokens
-        if (checkSessionToken) {
-          // Check that two CSRF cookies and one session cookie exists
-          cy.getCookies().should('have.length', 3);
-          if (sendRequestUserType === milmoveAppName) {
-            cy.getCookie('mil_session_token').should('exist');
-            cy.getCookie('office_session_token').should('not.exist');
-          } else if (sendRequestUserType === officeAppName) {
-            cy.getCookie('mil_session_token').should('not.exist');
-            cy.getCookie('office_session_token').should('exist');
-          }
-        }
-      });
-    };
-
-    // make sure we log out first before sign in
-    cy.logout();
-    // GET landing page to get csrf cookies
-    cy.request('/');
-
-    // Wait for cookies to be present to make sure the page is fully loaded
-    // Otherwise we delete cookies before they exist
-    cy.getCookie('_gorilla_csrf').should('exist');
-    // Clear out cookies if we don't want to send in request
-    if (!sendGorillaCSRF) {
-      // Don't include cookie in request header
-      cy.clearCookie('_gorilla_csrf');
-    }
-
-    if (!sendMaskedGorillaCSRF) {
-      // Clear out the masked CSRF token
-      cy.clearCookie('masked_gorilla_csrf');
-      // Send request without masked token
-      sendRequest(userType);
-    } else {
-      // Send request with masked token
-      cy.getCookie('masked_gorilla_csrf').then((cookie) => {
-        sendRequest(userType, cookie.value);
-      });
-    }
-  },
-);
 
 Cypress.Commands.add('logout', () => {
   cy.patientVisit('/');

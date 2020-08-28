@@ -10,6 +10,16 @@ describe('testing CSRF protection for dev login', function () {
   const csrfForbiddenMsg = 'Forbidden - CSRF token invalid\n';
   const csrfForbiddenRespCode = 403;
   const userId = '9ceb8321-6a82-4f6d-8bb3-a1d85922a202';
+  const requestParams = {
+    url: '/devlocal-auth/login',
+    method: 'POST',
+    body: {
+      id: userId,
+      userType: milmoveAppName,
+    },
+    form: true,
+    failOnStatusCode: false,
+  };
 
   it('tests dev login with both unmasked and masked token', function () {
     cy.apiSignInAsUser(userId);
@@ -17,16 +27,62 @@ describe('testing CSRF protection for dev login', function () {
     cy.contains('Next Step: Finish setting up your move');
   });
 
-  it('tests dev login with masked token only', function () {
-    cy.signInAsUserPostRequest(milmoveAppName, userId, csrfForbiddenRespCode, csrfForbiddenMsg, false, true, false);
+  it('cannot dev login with masked token only', function () {
+    cy.request('/internal/users/is_logged_in');
+    cy.getCookie('_gorilla_csrf').should('exist');
+
+    // Remove unmasked token
+    cy.clearCookie('_gorilla_csrf');
+
+    cy.getCookie('masked_gorilla_csrf')
+      .then((cookie) => cookie && cookie.value)
+      .then((csrfToken) => {
+        cy.request({
+          ...requestParams,
+          headers: { 'X-CSRF-TOKEN': csrfToken },
+        }).then((response) => {
+          cy.visit('/');
+          expect(response.status).to.eq(csrfForbiddenRespCode);
+          expect(response.body).to.eq(csrfForbiddenMsg);
+        });
+      });
   });
 
-  it('tests dev login with unmasked token only', function () {
-    cy.signInAsUserPostRequest(milmoveAppName, userId, csrfForbiddenRespCode, csrfForbiddenMsg, true, false, false);
+  it('cannot dev login with unmasked token only', function () {
+    cy.request('/internal/users/is_logged_in');
+    cy.getCookie('_gorilla_csrf').should('exist');
+
+    // Remove masked CSRF token
+    cy.clearCookie('masked_gorilla_csrf');
+
+    // Attempt to log in with no X-CSRF-TOKEN
+    cy.request({
+      ...requestParams,
+      headers: { 'X-CSRF-TOKEN': null },
+    }).then((response) => {
+      cy.visit('/');
+      expect(response.status).to.eq(csrfForbiddenRespCode);
+      expect(response.body).to.eq(csrfForbiddenMsg);
+    });
   });
 
-  it('tests dev login without unmasked and masked token', function () {
-    cy.signInAsUserPostRequest(milmoveAppName, userId, csrfForbiddenRespCode, csrfForbiddenMsg, false, false, false);
+  it('cannot dev login without unmasked and masked token', function () {
+    cy.request('/internal/users/is_logged_in');
+    cy.getCookie('_gorilla_csrf').should('exist');
+
+    // Remove both CSRF tokens
+    cy.clearCookie('_gorilla_csrf');
+    cy.clearCookie('masked_gorilla_csrf');
+
+    // Attempt to log in with no X-CSRF-TOKEN
+    cy.request({
+      ...requestParams,
+      headers: { 'X-CSRF-TOKEN': null },
+    }).then((response) => {
+      cy.visit('/');
+      expect(response.status).to.eq(csrfForbiddenRespCode);
+      expect(response.body).to.eq(csrfForbiddenMsg);
+    });
   });
 });
 
