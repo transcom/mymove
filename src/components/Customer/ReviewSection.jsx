@@ -71,4 +71,5 @@ ReviewSection.propTypes = {
   useH4: PropTypes.bool,
 };
 
+export { ReviewSection as ReviewSectionComponent };
 export default ReviewSection;

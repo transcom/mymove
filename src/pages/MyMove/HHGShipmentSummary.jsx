@@ -34,12 +34,9 @@ export default function HHGShipmentSummary(props) {
   // CSS
   // heading 'edit' should be right aligned
   // line under each field needs to go all the way across
-  // field labels should be bold
   // Move setup heading should match Orders and Profile
   // box around each shipment
   // blue line at the top of the shipment box
-  // reference CSS module styles
-  // style shipment title using an h4
 
   const hhgShipmentData = [
     { label: 'Requested pickup date', value: formatDateSM(requestedPickupDate) },
