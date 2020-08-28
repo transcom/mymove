@@ -120,8 +120,6 @@ export const MoveTaskOrder = ({ match }) => {
   });
 
   const handleShowRejectionDialog = (mtoServiceItemID) => {
-    // eslint-disable-next-line no-console
-    console.log('show reject dialog: ', mtoServiceItemID);
     const serviceItem = serviceItems?.find((item) => item.id === mtoServiceItemID);
     setSelectedServiceItem(serviceItem);
     setIsModalVisible(true);
