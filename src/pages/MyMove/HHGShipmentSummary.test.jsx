@@ -1,5 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
+import { BrowserRouter } from 'react-router-dom';
 
 import HHGShipmentSummary from './HHGShipmentSummary';
 
@@ -53,7 +54,11 @@ describe('Review -> Hhg Shipment Summary', () => {
     updatedAt: '2020-07-29T00:17:53.236Z',
   };
   it('Should display shipment details', () => {
-    const wrapper = mount(<HHGShipmentSummary mtoShipment={mtoShipment} />);
+    const wrapper = mount(
+      <BrowserRouter>
+        <HHGShipmentSummary mtoShipment={mtoShipment} movePath="123" />
+      </BrowserRouter>,
+    );
     // Address
     expect(wrapper.find(HHGShipmentSummary).html()).toContain('666 no');
     // Agent name

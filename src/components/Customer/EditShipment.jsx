@@ -503,4 +503,5 @@ const mapDispatchToProps = {
   updateMTOShipment: updateMTOShipmentAction,
 };
 
+export { EditShipment as EditShipmentComponent };
 export default connect(mapStateToProps, mapDispatchToProps)(EditShipment);
