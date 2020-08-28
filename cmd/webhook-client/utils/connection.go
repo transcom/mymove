@@ -1,4 +1,4 @@
-package main
+package utils
 
 import (
 	"bytes"
@@ -12,23 +12,27 @@ import (
 	"github.com/spf13/viper"
 	"pault.ag/go/pksigner"
 
+	"github.com/transcom/mymove/cmd/prime-api-client/utils"
 	"github.com/transcom/mymove/pkg/cli"
 )
+
+// WebhookClientPoster is an interface that WebhookRuntime implements
+type WebhookClientPoster interface {
+	SetupClient(cert *tls.Certificate) (*WebhookRuntime, error)
+	Post(data []byte, url string) (*http.Response, []byte, error)
+}
 
 // WebhookRuntime comment here
 type WebhookRuntime struct {
 	client      *http.Client
 	Debug       bool
-	Host        string
-	BasePath    string
 	ContentType string
 	Insecure    bool
 }
 
 // NewWebhookRuntime creates and returns a runtime client
-func NewWebhookRuntime(hostWithPort string, contentType string, insecure bool, debug bool) *WebhookRuntime {
+func NewWebhookRuntime(contentType string, insecure bool, debug bool) *WebhookRuntime {
 	wr := WebhookRuntime{
-		Host:        "https://" + hostWithPort,
 		ContentType: contentType,
 		Insecure:    insecure,
 		Debug:       debug,
@@ -63,48 +67,49 @@ func (wr *WebhookRuntime) SetupClient(cert *tls.Certificate) (*WebhookRuntime, e
 	return wr, nil
 }
 
-// Post WebhookRuntime comment goes here
-func (wr *WebhookRuntime) Post(data []byte) (*http.Response, error) {
-	json := bytes.NewBuffer(data)
+// Post function of the WebhookRuntime http posts the data passed in and returns the
+// response, body data, and any error
+func (wr *WebhookRuntime) Post(data []byte, url string) (*http.Response, []byte, error) {
+	bufferData := bytes.NewBuffer(data)
 	// Create the POST request
 	req, err := http.NewRequest(
 		"POST",
-		wr.Host+wr.BasePath,
-		json,
+		url,
+		bufferData,
 	)
 	req.Header.Set("Content-type", wr.ContentType)
 
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// Print out the request when debug mode is on
 	if wr.Debug {
-		Debug(httputil.DumpRequest(req, true))
+		output, _ := httputil.DumpRequest(req, true)
+		fmt.Println(string(output)) //todo switch to logger
 	}
 
 	// Send request and capture the response
 	resp, err := wr.client.Do(req)
 
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	defer resp.Body.Close()
+
 	// Print out the response when debug mode is on
 	if wr.Debug {
-		Debug(httputil.DumpResponse(resp, true))
+		output, _ := httputil.DumpResponse(resp, true)
+		fmt.Println(string(output))
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	// Print response body to stdout
-	fmt.Printf("%s\n", body)
-
-	return resp, nil
+	return resp, body, nil
 }
 
 // GetCacCertificate returns cert to use for tls
@@ -136,13 +141,8 @@ func CreateClient(v *viper.Viper) (*WebhookRuntime, *pksigner.Store, error) {
 	var err error
 	var store *pksigner.Store
 
-	insecure := v.GetBool(InsecureFlag)
+	insecure := v.GetBool(utils.InsecureFlag)
 	verbose := v.GetBool(cli.VerboseFlag)
-
-	hostname := v.GetString(HostnameFlag)
-	port := v.GetInt(PortFlag)
-	hostWithPort := fmt.Sprintf("%s:%d", hostname, port)
-
 	contentType := "application/json; charset=utf-8"
 
 	// Get the tls certificate
@@ -158,8 +158,8 @@ func CreateClient(v *viper.Viper) (*WebhookRuntime, *pksigner.Store, error) {
 	} else if !v.GetBool(cli.CACFlag) {
 		var loadCert tls.Certificate
 
-		certPath := v.GetString(CertPathFlag)
-		keyPath := v.GetString(KeyPathFlag)
+		certPath := v.GetString(utils.CertPathFlag)
+		keyPath := v.GetString(utils.KeyPathFlag)
 		loadCert, err = tls.LoadX509KeyPair(certPath, keyPath)
 
 		if err != nil {
@@ -169,7 +169,7 @@ func CreateClient(v *viper.Viper) (*WebhookRuntime, *pksigner.Store, error) {
 		cert = &loadCert
 	}
 
-	runtimeClient := NewWebhookRuntime(hostWithPort, contentType, insecure, verbose)
+	runtimeClient := NewWebhookRuntime(contentType, insecure, verbose)
 
 	rc, err = runtimeClient.SetupClient(cert)
 

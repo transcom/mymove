@@ -7,6 +7,7 @@ import {
   selectMTOShipmentForMTO,
 } from 'shared/Entities/modules/mtoShipments';
 import HHGDetailsForm from 'components/Customer/HHGDetailsForm';
+import '../../ghc_index.scss';
 
 class HHGMoveSetup extends Component {
   componentDidMount() {
@@ -19,7 +20,6 @@ class HHGMoveSetup extends Component {
 
     return (
       <div>
-        <h3>Now lets arrange details for the professional movers</h3>
         <HHGDetailsForm pageList={pageList} pageKey={pageKey} match={match} push={push} mtoShipment={mtoShipment} />
       </div>
     );
