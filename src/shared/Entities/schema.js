@@ -9,7 +9,7 @@ export const roles = new schema.Array(role);
 export const user = new schema.Entity('users');
 
 // Uploads
-export const upload = new schema.Entity('uploads');
+export const upload = new schema.Entity('upload');
 export const uploads = new schema.Array(upload);
 
 // PPMs
@@ -47,10 +47,12 @@ export const move = new schema.Entity('moves', {
 export const moves = new schema.Array(move);
 
 // Orders
+
 export const orders = new schema.Entity('orders');
 orders.define({
   moves: moves,
 });
+
 export const ordersArray = new schema.Array(orders);
 
 // ServiceMemberBackupContacts
@@ -90,10 +92,6 @@ export const document = new schema.Entity('documents', {
   service_member: serviceMember,
 });
 export const documents = new schema.Array(document);
-
-orders.define({
-  uploaded_orders: document,
-});
 
 // MoveDocuments
 export const moveDocument = new schema.Entity('moveDocuments', {

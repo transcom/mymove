@@ -6,51 +6,24 @@ import classnames from 'classnames';
 import { ReactComponent as Check } from '../../shared/icon/check.svg';
 import { ReactComponent as Ex } from '../../shared/icon/ex.svg';
 import { SERVICE_ITEM_STATUS } from '../../shared/constants';
+import { MTOServiceItemCustomerContactShape, MTOServiceItemDimensionShape } from '../../types/moveOrder';
 
 import styles from './index.module.scss';
 
+import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
 import { formatDate } from 'shared/dates';
 
-function generateDetailText(details, id) {
-  if (typeof details.text === 'string') {
-    return details.text;
-  }
-
-  const detailList = Object.keys(details.text).map((detail) => (
-    <div key={`${id}-${detail}`} className={styles.detailLine}>
-      <dt className={styles.detailType}>{detail}:</dt> <dd>{details.text[`${detail}`]}</dd>
-    </div>
-  ));
-
-  return <dl>{detailList}</dl>;
-}
-
-const ServiceItemTableHasImg = ({ serviceItems, handleUpdateMTOServiceItemStatus, statusForTableType }) => {
-  const tableRows = serviceItems.map(({ id, submittedAt, serviceItem, details }, i) => {
-    let detailSection;
-    if (details.imgURL) {
-      detailSection = (
-        <div className={styles.detailImage}>
-          <img
-            className={styles.siThumbnail}
-            alt="requested service item"
-            aria-labelledby={`si-thumbnail--caption-${i}`}
-            src={details.imgURL}
-          />
-          <small id={`si-thumbnail--caption-${i}`}>{generateDetailText(details, id)}</small>
-        </div>
-      );
-    } else {
-      detailSection = <div>{generateDetailText(details, id)}</div>;
-    }
-
+const ServiceItemTableHasImg = ({ serviceItems, statusForTableType, handleUpdateMTOServiceItemStatus }) => {
+  const tableRows = serviceItems.map(({ id, code, submittedAt, serviceItem, details }) => {
     return (
       <tr key={id}>
         <td className={styles.nameAndDate}>
           <p className={styles.codeName}>{serviceItem}</p>
           <p>{formatDate(submittedAt, 'DD MMM YYYY')}</p>
         </td>
-        <td className={styles.detail}>{detailSection}</td>
+        <td className={styles.detail}>
+          <ServiceItemDetails id={id} code={code} details={details} />
+        </td>
         <td>
           {statusForTableType === SERVICE_ITEM_STATUS.SUBMITTED && (
             <div className={styles.statusAction}>
@@ -140,8 +113,13 @@ ServiceItemTableHasImg.propTypes = {
       serviceItem: PropTypes.string,
       code: PropTypes.string,
       details: PropTypes.shape({
+        pickupPostalCode: PropTypes.string,
+        reason: PropTypes.string,
         imgURL: PropTypes.string,
-        text: PropTypes.oneOf([PropTypes.string, PropTypes.object]),
+        itemDimensions: MTOServiceItemDimensionShape,
+        createDimensions: MTOServiceItemDimensionShape,
+        firstCustomerContact: MTOServiceItemCustomerContactShape,
+        secondCustmoerContact: MTOServiceItemCustomerContactShape,
       }),
     }),
   ).isRequired,

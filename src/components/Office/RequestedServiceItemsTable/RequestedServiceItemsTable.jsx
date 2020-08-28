@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import { MTOServiceItemDimensionShape, MTOServiceItemCustomerContactShape } from '../../../types/moveOrder';
 import { SERVICE_ITEM_STATUS } from '../../../shared/constants';
 
 import styles from './RequestedServiceItemsTable.module.scss';
@@ -47,7 +48,15 @@ RequestedServiceItemsTable.propTypes = {
       submittedAt: PropTypes.string,
       serviceItem: PropTypes.string,
       code: PropTypes.string,
-      details: PropTypes.object,
+      details: PropTypes.shape({
+        reason: PropTypes.string,
+        pickupPostalCode: PropTypes.string,
+        imgURL: PropTypes.string,
+        itemDimensions: MTOServiceItemDimensionShape,
+        crateDimensions: MTOServiceItemDimensionShape,
+        firstCustContact: MTOServiceItemCustomerContactShape,
+        secondCustContact: MTOServiceItemCustomerContactShape,
+      }),
     }),
   ).isRequired,
 };
