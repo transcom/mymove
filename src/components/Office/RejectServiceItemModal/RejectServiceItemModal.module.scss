@@ -10,6 +10,7 @@
 }
 
 .rejectReasonClose {
+  @include u-padding-right(0);
   align-self: flex-start;
   cursor: pointer;
   svg {
@@ -21,7 +22,7 @@
 
 .modalActions {
   @include u-display(flex);
-  margin-top: 21px;
+  @include u-margin-top(3);
 
   button[type='submit'],
   button[type='reset'] {
@@ -32,10 +33,19 @@
 .RejectServiceItemModal {
   :global .table--service-item--hasimg {
     td {
+      @include u-border-bottom(0);
+      @include u-padding-x(1);
       vertical-align: top;
 
       p {
         @include u-margin-top(0);
+        @include u-margin-bottom(1);
+      }
+    }
+
+    td:nth-of-type(1) {
+      p:first-child {
+        font-weight: bold;
       }
     }
 
@@ -51,5 +61,10 @@
     dd {
       @include u-margin-left(0);
     }
+  }
+
+  label {
+    @include u-margin-top(3);
+    color: $base-darker;
   }
 }

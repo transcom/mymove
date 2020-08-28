@@ -22,7 +22,7 @@ const ServiceItemTableHasImg = ({
   let dateField;
   switch (statusForTableType) {
     case SERVICE_ITEM_STATUS.SUBMITTED:
-      dateField = 'submittedAt';
+      dateField = 'createdAt';
       break;
     case SERVICE_ITEM_STATUS.APPROVED:
       dateField = 'approvedAt';
@@ -31,7 +31,7 @@ const ServiceItemTableHasImg = ({
       dateField = 'rejectedAt';
       break;
     default:
-      dateField = 'submittedAt';
+      dateField = 'createdAt';
   }
   const tableRows = serviceItems.map(({ id, code, serviceItem, details, ...item }) => {
     return (
@@ -70,7 +70,7 @@ const ServiceItemTableHasImg = ({
                 <span>Reject</span>
               </Button>
             </div>
-          )}{' '}
+          )}
           {statusForTableType === SERVICE_ITEM_STATUS.APPROVED && (
             <div className={styles.statusAction}>
               <Button

@@ -52,7 +52,7 @@ RequestedServiceItemsTable.propTypes = {
   serviceItems: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string,
-      submittedAt: PropTypes.string,
+      createdAt: PropTypes.string,
       approvedAt: PropTypes.string,
       rejectedAt: PropTypes.string,
       serviceItem: PropTypes.string,

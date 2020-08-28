@@ -308,6 +308,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOServiceItem {
 		Description:      handlers.FmtStringPtr(s.Description),
 		Dimensions:       MTOServiceItemDimensions(s.Dimensions),
 		CustomerContacts: MTOServiceItemCustomerContacts(s.CustomerContacts),
+		CreatedAt:        strfmt.DateTime(s.CreatedAt),
 		ApprovedAt:       handlers.FmtDateTimePtr(s.ApprovedAt),
 		RejectedAt:       handlers.FmtDateTimePtr(s.RejectedAt),
 		ETag:             etag.GenerateEtag(s.UpdatedAt),

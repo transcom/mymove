@@ -11,7 +11,7 @@ import { Form } from 'components/form';
 import { TextInput } from 'components/form/fields';
 import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
 import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
-import { formatDate } from 'shared/dates';
+import { formatDateFromIso } from 'shared/formatters';
 import { SERVICE_ITEM_STATUS } from 'shared/constants';
 
 const rejectionSchema = Yup.object().shape({
@@ -20,7 +20,7 @@ const rejectionSchema = Yup.object().shape({
 
 const RejectServiceItemModal = ({ serviceItem, onSubmit, onClose }) => {
   // eslint-disable-next-line no-unused-vars
-  const { serviceItem: serviceItemName, id, code, submittedAt, details } = serviceItem;
+  const { serviceItem: serviceItemName, id, code, status, createdAt, approvedAt, details } = serviceItem;
   return (
     <>
       <Overlay />
@@ -29,7 +29,7 @@ const RejectServiceItemModal = ({ serviceItem, onSubmit, onClose }) => {
           <div>
             <div className={styles.modalTopContainer}>
               <h4>Are you sure you want to reject this request?</h4>
-              <button
+              <Button
                 type="button"
                 title="Close reject service item modal"
                 onClick={() => onClose()}
@@ -37,7 +37,7 @@ const RejectServiceItemModal = ({ serviceItem, onSubmit, onClose }) => {
                 data-testid="closeRejectServiceItem"
               >
                 <XLightIcon />
-              </button>
+              </Button>
             </div>
             <Formik
               initialValues={{ rejectionReason: '' }}
@@ -61,7 +61,12 @@ const RejectServiceItemModal = ({ serviceItem, onSubmit, onClose }) => {
                           <tr>
                             <td className={styles.nameAndDate}>
                               <p className={styles.codeName}>{serviceItemName}</p>
-                              <p>{formatDate(submittedAt, 'DD MMM YYYY')}</p>
+                              <p>
+                                {formatDateFromIso(
+                                  status === SERVICE_ITEM_STATUS.SUBMITTED ? createdAt : approvedAt,
+                                  'DD MMM YYYY',
+                                )}
+                              </p>
                             </td>
                             <td className={styles.detail}>
                               <ServiceItemDetails id={id} code={code} details={details} />
@@ -101,8 +106,11 @@ RejectServiceItemModal.propTypes = {
   serviceItem: PropTypes.shape({
     id: PropTypes.string,
     code: PropTypes.string,
+    status: PropTypes.string,
     serviceItem: PropTypes.string,
-    submittedAt: PropTypes.string,
+    createdAt: PropTypes.string,
+    rejectedAt: PropTypes.string,
+    approvedAt: PropTypes.string,
     details: {
       description: PropTypes.string,
       pickupPostalCode: PropTypes.string,
