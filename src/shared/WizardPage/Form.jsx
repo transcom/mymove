@@ -115,13 +115,6 @@ export class WizardFormPage extends Component {
         )}
         <form className={className}>{children}</form>
         <div className="grid-row" style={{ marginTop: '0.5rem' }}>
-          <div className="grid-col-2 margin-top-6 tablet:margin-top-3">
-            {!isMobile && (
-              <button className="usa-button usa-button--secondary padding-left-0" onClick={this.cancelFlow}>
-                Cancel
-              </button>
-            )}
-          </div>
           <div className="grid-col-10 text-right margin-top-6 tablet:margin-top-3">
             {!hideBackBtn && (
               <button
@@ -141,6 +134,13 @@ export class WizardFormPage extends Component {
                 Next
               </button>
             )}
+            <div className="grid-col-2 margin-top-6 tablet:margin-top-3">
+              {!isMobile && (
+                <button className="usa-button usa-button--secondary padding-left-0" onClick={this.cancelFlow}>
+                  Cancel
+                </button>
+              )}
+            </div>
             {isLastPage(pageList, pageKey) && (
               <button
                 className="usa-button next"
