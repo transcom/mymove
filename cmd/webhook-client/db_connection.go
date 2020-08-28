@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/cmd/webhook-client/utils"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -20,7 +21,7 @@ func initDbConnectionFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = false
 }
 
-func notificationCreate(db *pop.Connection, logger Logger) (*models.WebhookNotification, error) {
+func notificationCreate(db *pop.Connection, logger utils.Logger) (*models.WebhookNotification, error) {
 	// Create a notification model
 	notID := uuid.Must(uuid.NewV4())
 	message := "{ \"message\" : \"A move task order was created.\" }"
@@ -47,7 +48,7 @@ func notificationCreate(db *pop.Connection, logger Logger) (*models.WebhookNotif
 func dbConnection(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 
-	err := ParseFlags(cmd, v, args)
+	err := utils.ParseFlags(cmd, v, args)
 	if err != nil {
 		return err
 	}
