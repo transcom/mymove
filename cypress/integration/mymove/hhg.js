@@ -79,9 +79,6 @@ function customerFillsInProfileInformation(reloadAfterEveryPage) {
   cy.get('input[name="name"]').type('Douglas Glass');
   cy.get('input[name="email"]').type('doug@glass.net');
   cy.nextPage();
-
-  cy.get('h2').contains('Welcome Jane');
-  cy.nextPage();
 }
 
 function customerFillsOutOrdersInformation() {

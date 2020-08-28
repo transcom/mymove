@@ -105,7 +105,6 @@ describe('when getting the routes for the current workflow', () => {
             '/service-member/:serviceMemberId/residence-address',
             '/service-member/:serviceMemberId/backup-mailing-address',
             '/service-member/:serviceMemberId/backup-contacts',
-            '/service-member/:serviceMemberId/move-landing',
             '/orders/',
             '/orders/upload',
             '/moves/:moveId/moving-info',

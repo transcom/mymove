@@ -19,7 +19,6 @@ import DutyStation from 'scenes/ServiceMembers/DutyStation';
 
 import UploadOrders from 'scenes/Orders/UploadOrders';
 
-import MoveLanding from 'pages/MyMove/MoveLanding';
 import SelectMoveType from 'pages/MyMove/SelectMoveType';
 import ConusOrNot from 'pages/MyMove/ConusOrNot';
 import MovingInfo from 'pages/MyMove/MovingInfo';
@@ -135,17 +134,6 @@ const pages = {
     },
     render: (key, pages) => ({ match }) => <BackupContact pages={pages} pageKey={key} match={match} />,
     description: 'Backup contacts',
-  },
-  '/service-member/:serviceMemberId/move-landing': {
-    isInFlow: (props) => myFirstRodeo(props) && inGhcFlow(props),
-    isComplete: always,
-    render: (key, pages) => () => {
-      return (
-        <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
-          <MoveLanding />
-        </WizardPage>
-      );
-    },
   },
   '/profile-review': {
     isInFlow: notMyFirstRodeo,
