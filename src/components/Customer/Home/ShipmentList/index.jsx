@@ -13,7 +13,7 @@ const ShipmentListItem = ({ shipment, onShipmentClick }) => {
       onShipmentClick(shipment);
     }
   }
-  const shipmentClassName = styles[`shipment-list-item-${shipment.type}`];
+  const shipmentClassName = styles[`shipment-list-item-${shipment.shipmentType}`];
   return (
     <div
       className={`${styles['shipment-list-item-container']} ${shipmentClassName}`}
@@ -22,31 +22,26 @@ const ShipmentListItem = ({ shipment, onShipmentClick }) => {
       role="button"
       tabIndex="0"
     >
-      <strong>{shipment.type}</strong> <span>{shipment.id}</span> <EditIcon className={styles.edit} />
+      <strong>{shipment.shipmentType}</strong> <span>{shipment.id}</span> <EditIcon className={styles.edit} />
     </div>
   );
 };
 
 ShipmentListItem.propTypes = {
-  shipment: shape({ id: string.isRequired, type: string.isRequired }).isRequired,
+  shipment: shape({ id: string.isRequired, shipmentType: string.isRequired }).isRequired,
   onShipmentClick: func.isRequired,
 };
 
 const ShipmentList = ({ shipments, onShipmentClick }) => (
   <div>
-    {shipments.map((shipment, index) => (
-      <ShipmentListItem
-        key={shipment.id}
-        onShipmentClick={onShipmentClick}
-        shipment={shipment}
-        isLastItem={shipments.length - 1 === index}
-      />
+    {shipments.map((shipment) => (
+      <ShipmentListItem key={shipment.id} onShipmentClick={onShipmentClick} shipment={shipment} />
     ))}
   </div>
 );
 
 ShipmentList.propTypes = {
-  shipments: arrayOf(shape({ id: string.isRequired, type: string.isRequired })).isRequired,
+  shipments: arrayOf(shape({ id: string.isRequired, shipmentType: string.isRequired })).isRequired,
   onShipmentClick: func.isRequired,
 };
 
