@@ -44,7 +44,7 @@ describe('allows a SM to request a payment', function () {
   });
 
   it('service member submits weight tickets without any documents', () => {
-    cy.apiSignInAsUser(milmoveAppName, '745e0eba-4028-4c78-a262-818b00802748');
+    cy.apiSignInAsUser('745e0eba-4028-4c78-a262-818b00802748');
     cy.visit(`/moves/${moveID}/ppm-weight-ticket`);
     serviceMemberSubmitsWeightsTicketsWithoutReceipts();
   });
