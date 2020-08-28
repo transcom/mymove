@@ -14,13 +14,13 @@ type MTOServiceItemUpdater struct {
 	mock.Mock
 }
 
-// UpdateMTOServiceItemStatus provides a mock function with given fields: mtoServiceItemID, status, reason, eTag
-func (_m *MTOServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid.UUID, status models.MTOServiceItemStatus, reason *string, eTag string) (*models.MTOServiceItem, error) {
-	ret := _m.Called(mtoServiceItemID, status, reason, eTag)
+// UpdateMTOServiceItemStatus provides a mock function with given fields: mtoServiceItemID, status, rejectionReason, eTag
+func (_m *MTOServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid.UUID, status models.MTOServiceItemStatus, rejectionReason *string, eTag string) (*models.MTOServiceItem, error) {
+	ret := _m.Called(mtoServiceItemID, status, rejectionReason, eTag)
 
 	var r0 *models.MTOServiceItem
 	if rf, ok := ret.Get(0).(func(uuid.UUID, models.MTOServiceItemStatus, *string, string) *models.MTOServiceItem); ok {
-		r0 = rf(mtoServiceItemID, status, reason, eTag)
+		r0 = rf(mtoServiceItemID, status, rejectionReason, eTag)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MTOServiceItem)
@@ -29,7 +29,7 @@ func (_m *MTOServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uui
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(uuid.UUID, models.MTOServiceItemStatus, *string, string) error); ok {
-		r1 = rf(mtoServiceItemID, status, reason, eTag)
+		r1 = rf(mtoServiceItemID, status, rejectionReason, eTag)
 	} else {
 		r1 = ret.Error(1)
 	}
