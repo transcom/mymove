@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import React, { Component } from 'react';
+import { isNil } from 'lodash';
 import { func, arrayOf, shape, string, objectOf, object } from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
@@ -53,7 +54,7 @@ class Home extends Component {
     const shipmentSelectionPath = `/moves/${move.id}/select-type`;
     const confirmationPath = `/moves/${move.id}/review`;
     const ordersCompleted = this.checkOrdersCompleted();
-    const hasShipment = true;
+    const hasShipment = !isNil(move.personally_procured_moves) || !isNil(move.shipments);
     return (
       <div className={`usa-prose grid-container ${styles['grid-container']}`}>
         <header className={styles['customer-header']}>
@@ -116,7 +117,7 @@ class Home extends Component {
 
         <Step
           actionBtnLabel={hasShipment ? 'Add another shipment' : 'Plan your shipments'}
-          actionBtnDisabled={!hasShipment}
+          actionBtnDisabled={!ordersCompleted}
           onActionBtnClick={() => this.handleActionButtonClick(shipmentSelectionPath)}
           complete={hasShipment}
           completedHeaderText="Shipments"
