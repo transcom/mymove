@@ -231,10 +231,6 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 
 	transactionError := f.db.Transaction(func(tx *pop.Connection) error {
 
-		addressBaseQuery := `UPDATE addresses
-				SET
-			`
-
 		// temp optimistic locking solution til query builder is re-tooled to handle nested updates
 		encodedUpdatedAt := etag.GenerateEtag(newShipment.UpdatedAt)
 
@@ -243,42 +239,61 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 		}
 
 		if newShipment.DestinationAddress != nil {
-			// TODO: add conditional to create the address if it does not exist in dbShipment
-			destinationAddressQuery := generateAddressQuery()
-			params := generateAddressParams(newShipment.DestinationAddress)
-
-			if err := tx.RawQuery(addressBaseQuery+destinationAddressQuery, params...).Exec(); err != nil {
+			// If there is an existing DestinationAddressID associated
+			// with the shipment, grab it.
+			if dbShipment.DestinationAddressID != nil {
+				newShipment.DestinationAddress.ID = *dbShipment.DestinationAddressID
+			}
+			// If there is an existing DestinationAddressID, tx.Save will use it
+			// to find and update the existing record. If there isn't, it will create
+			// a new record.
+			err := tx.Save(newShipment.DestinationAddress)
+			if err != nil {
 				return err
 			}
+			// Make sure the shipment has the updated DestinationAddressID to store
+			// in mto_shipments table
+			newShipment.DestinationAddressID = &newShipment.DestinationAddress.ID
+
 		}
 
 		if newShipment.PickupAddress != nil {
-			pickupAddressQuery := generateAddressQuery()
-			params := generateAddressParams(newShipment.PickupAddress)
+			if dbShipment.PickupAddressID != nil {
+				newShipment.PickupAddress.ID = *dbShipment.PickupAddressID
+			}
 
-			if err := tx.RawQuery(addressBaseQuery+pickupAddressQuery, params...).Exec(); err != nil {
+			err := tx.Save(newShipment.PickupAddress)
+			if err != nil {
 				return err
 			}
+
+			newShipment.PickupAddressID = &newShipment.PickupAddress.ID
 		}
 
 		if newShipment.SecondaryPickupAddress != nil {
-			// TODO: add conditional to create the address if it does not exist in dbShipment
-			secondaryPickupAddressQuery := generateAddressQuery()
-			params := generateAddressParams(newShipment.SecondaryPickupAddress)
+			if dbShipment.SecondaryPickupAddressID != nil {
+				newShipment.PickupAddress.ID = *dbShipment.SecondaryPickupAddressID
+			}
 
-			if err := tx.RawQuery(addressBaseQuery+secondaryPickupAddressQuery, params...).Exec(); err != nil {
+			err := tx.Save(newShipment.SecondaryPickupAddress)
+			if err != nil {
 				return err
 			}
+
+			newShipment.SecondaryPickupAddressID = &newShipment.SecondaryPickupAddress.ID
 		}
 
 		if newShipment.SecondaryDeliveryAddress != nil {
-			// TODO: add conditional to create the address if it does not exist in dbShipment
-			secondaryDeliveryAddressQuery := generateAddressQuery()
-			params := generateAddressParams(newShipment.SecondaryDeliveryAddress)
+			if dbShipment.SecondaryDeliveryAddressID != nil {
+				newShipment.SecondaryDeliveryAddress.ID = *dbShipment.SecondaryDeliveryAddressID
+			}
 
-			if err := tx.RawQuery(addressBaseQuery+secondaryDeliveryAddressQuery, params...).Exec(); err != nil {
+			err := tx.Save(newShipment.SecondaryDeliveryAddress)
+			if err != nil {
 				return err
 			}
+
+			newShipment.SecondaryDeliveryAddressID = &newShipment.SecondaryDeliveryAddress.ID
 		}
 
 		if len(newShipment.MTOAgents) != 0 {
@@ -315,6 +330,10 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 		if err := tx.RawQuery(updateMTOShipmentQuery, params...).Exec(); err != nil {
 			return err
 		}
+		// Is there any reason we can't remover the above query and just use Update?
+		// if err := tx.Update(newShipment); err != nil {
+		// 	return err
+		// }
 		return nil
 
 	})
@@ -345,6 +364,10 @@ func generateMTOShipmentParams(mtoShipment models.MTOShipment) []interface{} {
 		mtoShipment.FirstAvailableDeliveryDate,
 		mtoShipment.RequiredDeliveryDate,
 		mtoShipment.Status,
+		mtoShipment.DestinationAddressID,
+		mtoShipment.PickupAddressID,
+		mtoShipment.SecondaryDeliveryAddressID,
+		mtoShipment.SecondaryPickupAddressID,
 		mtoShipment.ID,
 	}
 }
@@ -365,7 +388,11 @@ func generateUpdateMTOShipmentQuery() string {
 			approved_date = ?,
 			first_available_delivery_date = ?,
 			required_delivery_date = ?,
-			status = ?
+			status = ?,
+			destination_address_id = ?,
+			pickup_address_id = ?,
+			secondary_delivery_address_id = ?,
+			secondary_pickup_address_id = ?
 		WHERE
 			id = ?
 	`
@@ -423,72 +450,6 @@ func generateAgentQuery() string {
 			   WHEN id = ? THEN ? ELSE phone
 			END;
 	`
-}
-
-func generateAddressQuery() string {
-	return `
-		updated_at =
-			CASE
-			   WHEN id = ? THEN NOW() ELSE updated_at
-			END,
-		city =
-			CASE
-			   WHEN id = ? THEN ? ELSE city
-			END,
-		country =
-			CASE
-			   WHEN id = ? THEN ? ELSE country
-			END,
-		postal_code =
-			CASE
-			   WHEN id = ? THEN ? ELSE postal_code
-			END,
-		state =
-			CASE
-			   WHEN id = ? THEN ? ELSE state
-			END,
-		street_address_1 =
-			CASE
-			   WHEN id = ? THEN ? ELSE street_address_1
-			END,
-		street_address_2 =
-			CASE
-			   WHEN id = ? THEN ? ELSE street_address_2
-			END,
-		street_address_3 =
-			CASE
-			   WHEN id = ? THEN ? ELSE street_address_3
-			END;
-	`
-}
-
-func generateAddressParams(address *models.Address) []interface{} {
-	addressID := address.ID
-	city := address.City
-	country := address.Country
-	postalCode := address.PostalCode
-	state := address.State
-	streetAddress1 := address.StreetAddress1
-	streetAddress2 := address.StreetAddress2
-	streetAddress3 := address.StreetAddress3
-	paramArr := []interface{}{
-		addressID,
-		addressID,
-		city,
-		addressID,
-		country,
-		addressID,
-		postalCode,
-		addressID,
-		state,
-		addressID,
-		streetAddress1,
-		addressID,
-		streetAddress2,
-		addressID,
-		streetAddress3,
-	}
-	return paramArr
 }
 
 type mtoShipmentStatusUpdater struct {
