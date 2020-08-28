@@ -76,10 +76,10 @@ func ServiceParamLookupInitialize(
 			return nil, services.NewNotFoundError(uuid.Nil, "looking for PickupAddressID")
 		}
 		pickupAddress = *mtoShipment.PickupAddress
-		if mtoShipment.DestinationAddressID == nil {
-			return nil, services.NewNotFoundError(uuid.Nil, "looking for DestinationAddressID")
+		if mtoShipment.DestinationAddressID != nil {
+			destinationAddress = *mtoShipment.DestinationAddress
 		}
-		destinationAddress = *mtoShipment.DestinationAddress
+
 	}
 
 	s := ServiceItemParamKeyData{

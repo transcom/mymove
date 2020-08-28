@@ -183,6 +183,22 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 		}
 	})
 
+	suite.T().Run("DestinationAddress is not required for service items like domestic pack", func(t *testing.T) {
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDPK,
+				Name: "DPK",
+			},
+		})
+
+		mtoShipment := mtoServiceItem.MTOShipment
+		mtoShipment.DestinationAddressID = nil
+		suite.DB().Save(&mtoShipment)
+
+		_, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()))
+		suite.FatalNoError(err)
+	})
+
 	suite.T().Run("PickupAddress is looked up for other serivce items", func(t *testing.T) {
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
