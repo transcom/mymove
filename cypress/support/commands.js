@@ -170,7 +170,7 @@ Cypress.Commands.add('persistSessionCookies', () => {
 Cypress.Commands.add('apiSignInAsUser', (userId, userType = milmoveUserType) => {
   cy.visit('/');
 
-  cy.waitUntil(() => cy.getCookie('masked_gorilla_csrf').then((cookie) => cookie?.value)).then((csrfToken) => {
+  cy.waitUntil(() => cy.getCookie('masked_gorilla_csrf').then((cookie) => cookie && cookie.value)).then((csrfToken) => {
     cy.request({
       url: '/devlocal-auth/login',
       method: 'POST',
