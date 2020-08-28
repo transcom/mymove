@@ -11,7 +11,7 @@ if [[ $GOLANG_VERSION = *$VERSION* ]]; then
   echo "Golang $GOLANG_VERSION installed"
 else
   echo "Golang ${VERSION} is required to run this project! Found ${GOLANG_VERSION}"
-  echo "Install go with 'asdf install'"
+  echo "Install go with 'asdf plugin add golang; asdf install'"
   exit 1
 fi
 
