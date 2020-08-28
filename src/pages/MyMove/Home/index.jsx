@@ -53,6 +53,8 @@ class Home extends Component {
     const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
     const ordersCompleted = this.checkOrdersCompleted();
     const hasShipment = !isNil(move.personally_procured_moves) || !isNil(move.shipments);
+    const hasSubmittedMove = move.status !== 'DRAFT';
+
     return (
       <div className={`usa-prose grid-container ${styles['grid-container']}`}>
         <header className={styles['customer-header']}>
@@ -124,15 +126,19 @@ class Home extends Component {
         </Step>
 
         <Step
+          complete={hasSubmittedMove}
           actionBtnDisabled={!hasShipment}
-          actionBtnLabel="Review and submit"
+          actionBtnLabel={!hasSubmittedMove ? 'Review and submit' : ''}
           containerClassName="margin-bottom-8"
           headerText="Confirm move request"
+          completedHeaderText="Move request confirmed"
           onActionBtnClick={() => this.handleNewPathClick(confirmationPath)}
           step="4"
         >
           <p className={styles.description}>
-            Review your move details and sign the legal paperwork, then send the info on to your move counselor
+            {hasSubmittedMove
+              ? 'Move submitted.'
+              : 'Review your move details and sign the legal paperwork, then send the info on to your move counselor.'}
           </p>
         </Step>
         <Contact

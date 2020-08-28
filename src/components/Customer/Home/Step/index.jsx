@@ -29,6 +29,7 @@ const Step = ({
   secondaryBtn,
   step,
 }) => {
+  const showThoughNotFunctional = false; // remove when all Edit buttons work
   const actionBtnClassName = classnames(styles['action-btn'], {
     [styles['usa-button--secondary']]: secondaryBtn,
   });
@@ -38,7 +39,7 @@ const Step = ({
       <div className={styles['step-header-container']}>
         {complete ? <AcceptIcon aria-hidden className={styles.accept} /> : <NumberCircle num={step} />}
         <strong>{complete ? completedHeaderText : headerText}</strong>
-        {editBtnLabel && (
+        {showThoughNotFunctional && editBtnLabel && (
           <Button className={styles['edit-btn']} disabled={editBtnDisabled} onClick={onEditBtnClick} type="button">
             {editBtnLabel}
           </Button>
