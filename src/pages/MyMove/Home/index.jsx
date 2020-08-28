@@ -34,17 +34,13 @@ class Home extends Component {
     console.log('this is the shipment', shipment);
   };
 
-  handleActionButtonClick = (path) => {
+  handleNewPathClick = (path) => {
     const { history } = this.props;
     history.push(path);
   };
 
   checkOrdersCompleted = () => {
     const { orders, uploadedOrderDocuments } = this.props;
-    console.log(
-      'orders complete?',
-      (orders?.['uploaded_orders']?.uploads || []).length > 0 || uploadedOrderDocuments.length > 0,
-    );
     return (orders?.['uploaded_orders']?.uploads || []).length > 0 || uploadedOrderDocuments.length > 0;
   };
 
@@ -53,6 +49,8 @@ class Home extends Component {
     const ordersPath = '/orders/';
     const shipmentSelectionPath = `/moves/${move.id}/select-type`;
     const confirmationPath = `/moves/${move.id}/review`;
+    const profileEditPath = '/moves/review/edit-profile';
+    const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
     const ordersCompleted = this.checkOrdersCompleted();
     const hasShipment = !isNil(move.personally_procured_moves) || !isNil(move.shipments);
     return (
@@ -82,14 +80,10 @@ class Home extends Component {
         <Step
           complete
           completedHeaderText="Profile complete"
-          editBtnDisabled
           editBtnLabel="Edit"
           headerText="Profile complete"
           step="1"
-          onEditClick={(e) => {
-            e.preventDefault();
-            console.log('edit clicked');
-          }}
+          onEditBtnClick={() => this.handleNewPathClick(profileEditPath)}
         >
           <p className={styles.description}>Make sure to keep your personal information up to date during your move</p>
         </Step>
@@ -98,10 +92,10 @@ class Home extends Component {
           complete={ordersCompleted}
           completedHeaderText="Orders uploaded"
           editBtnLabel={ordersCompleted ? 'Edit' : ''}
-          onEditClick={() => console.log('edit button clicked')}
+          onEditBtnClick={() => this.handleNewPathClick(ordersEditPath)}
           headerText="Upload orders"
           actionBtnLabel={!ordersCompleted ? 'Add orders' : ''}
-          onActionBtnClick={() => this.handleActionButtonClick(ordersPath)}
+          onActionBtnClick={() => this.handleNewPathClick(ordersPath)}
           step="2"
         >
           {ordersCompleted && (
@@ -118,7 +112,7 @@ class Home extends Component {
         <Step
           actionBtnLabel={hasShipment ? 'Add another shipment' : 'Plan your shipments'}
           actionBtnDisabled={!ordersCompleted}
-          onActionBtnClick={() => this.handleActionButtonClick(shipmentSelectionPath)}
+          onActionBtnClick={() => this.handleNewPathClick(shipmentSelectionPath)}
           complete={hasShipment}
           completedHeaderText="Shipments"
           headerText="Shipments"
@@ -134,7 +128,7 @@ class Home extends Component {
           actionBtnLabel="Review and submit"
           containerClassName="margin-bottom-8"
           headerText="Confirm move request"
-          onActionBtnClick={() => this.handleActionButtonClick(confirmationPath)}
+          onActionBtnClick={() => this.handleNewPathClick(confirmationPath)}
           step="4"
         >
           <p className={styles.description}>
