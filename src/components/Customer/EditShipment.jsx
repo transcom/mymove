@@ -409,12 +409,10 @@ class EditShipment extends Component {
               </Hint>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <Button
-                  type="button"
-                  data-testid="editShipment"
                   disabled={isSubmitting || (!isValid && !dirty) || (isValid && !dirty)}
                   onClick={() => this.submitMTOShipment(values)}
                 >
-                  Save
+                  <span>Save</span>
                 </Button>
                 <Button className={`${styles['cancel-button']}`} onClick={goBack}>
                   <span>Cancel</span>

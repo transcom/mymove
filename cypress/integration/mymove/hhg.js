@@ -211,17 +211,21 @@ function customerReviewsMoveDetails() {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review\/edit-shipment/);
   });
 
-  // Ensure existing pickup date is displayed in form
-  cy.get('input[name="firstName"]').contains('John');
+  // Ensure remarks is displayed in form
+  cy.get(`[data-testid="firstName"]`).last().type('Johnson');
 
-  // Edit receiving agent first name
-  cy.get('input[name="firstName"]').clear().type('Jon');
-
+  cy.get(`[data-testid="remarks"]`).contains('some customer remark');
+  // Edit remarks
+  cy.get(`[data-testid="remarks"]`).clear().type('some edited customer remark');
   cy.get('button').contains('Save').click();
+
+  cy.wait('@patchShipment');
 
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
   });
+
+  cy.get(`[data-testid="remarks"]`).contains('some edited customer remark');
 
   cy.nextPage();
 }
@@ -239,6 +243,11 @@ function customerSubmitsMove() {
 
 describe('HHG Setup flow', function () {
   it('Creates a shipment', function () {
+    // Set up patch shipment route
+    cy.removeFetch();
+    cy.server();
+    cy.route('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
+
     cy.signInAsNewMilMoveUser();
     customerFillsInProfileInformation();
     customerFillsOutOrdersInformation();
