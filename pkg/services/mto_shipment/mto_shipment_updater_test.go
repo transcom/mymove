@@ -153,13 +153,13 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		primeEstimatedWeightRecordedDate := time.Date(2019, time.March, 12, 0, 0, 0, 0, time.UTC)
 		customerRemarks := "I have a grandfather clock"
 		updatedShipment := models.MTOShipment{
-			ID:                   oldShipment.ID,
-			DestinationAddress:   &newDestinationAddress,
-			DestinationAddressID: &newDestinationAddress.ID,
-			PickupAddress:        &newPickupAddress,
-			PickupAddressID:      &newPickupAddress.ID,
-			//SecondaryPickupAddress:     &secondaryPickupAddress,
-			//SecondaryDeliveryAddress:   &secondaryDeliveryAddress,
+			ID:                               oldShipment.ID,
+			DestinationAddress:               &newDestinationAddress,
+			DestinationAddressID:             &newDestinationAddress.ID,
+			PickupAddress:                    &newPickupAddress,
+			PickupAddressID:                  &newPickupAddress.ID,
+			SecondaryPickupAddress:           &secondaryPickupAddress,
+			SecondaryDeliveryAddress:         &secondaryDeliveryAddress,
 			RequestedPickupDate:              &requestedPickupDate,
 			ScheduledPickupDate:              &scheduledPickupDate,
 			RequestedDeliveryDate:            &requestedDeliveryDate,
@@ -174,7 +174,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		}
 
 		newShipment, err := mtoShipmentUpdater.UpdateMTOShipment(&updatedShipment, eTag)
-
 		suite.NoError(err)
 		suite.True(requestedPickupDate.Equal(*newShipment.RequestedPickupDate))
 		suite.True(scheduledPickupDate.Equal(*newShipment.ScheduledPickupDate))
@@ -187,12 +186,10 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(primeActualWeight, *newShipment.PrimeActualWeight)
 		suite.Equal(customerRemarks, *newShipment.CustomerRemarks)
 		suite.Equal(models.MTOShipmentStatusSubmitted, newShipment.Status)
-		// TODO: uncomment below when address bug is fixed MB-
-		//suite.Equal(newDestinationAddress, *newShipment.DestinationAddress)
-		//suite.Equal(newPickupAddress, *newShipment.PickupAddress)
-		// TODO: uncomment below when able to create if doesn't exist
-		//suite.Equal(secondaryPickupAddress, *newShipment.SecondaryPickupAddress)
-		//suite.Equal(secondaryDeliveryAddress, *newShipment.SecondaryDeliveryAddress)
+		suite.Equal(newDestinationAddress.ID, *newShipment.DestinationAddressID)
+		suite.Equal(newPickupAddress.ID, *newShipment.PickupAddressID)
+		suite.Equal(secondaryPickupAddress.ID, *newShipment.SecondaryPickupAddressID)
+		suite.Equal(secondaryDeliveryAddress.ID, *newShipment.SecondaryDeliveryAddressID)
 
 	})
 
