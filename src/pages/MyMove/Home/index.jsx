@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import React, { Component } from 'react';
-import { isNil } from 'lodash';
+import { isNil, isEmpty } from 'lodash';
 import { func, arrayOf, shape, string, objectOf, object } from 'prop-types';
 import { connect } from 'react-redux';
 import { Alert } from '@trussworks/react-uswds';
@@ -52,7 +52,7 @@ class Home extends Component {
     const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
     const ordersCompleted = this.checkOrdersCompleted();
     const hasShipment = !isNil(move.personally_procured_moves) || !isNil(move.shipments);
-    const hasSubmittedMove = move.status !== 'DRAFT';
+    const hasSubmittedMove = !isEmpty(move) && move.status !== 'DRAFT';
 
     return (
       <div className={`usa-prose grid-container ${styles['grid-container']}`}>
