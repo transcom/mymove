@@ -204,6 +204,25 @@ function customerSetsUpAnHHGMove() {
 
 function customerReviewsMoveDetails() {
   cy.get('h2').contains('Review Move Details');
+
+  cy.get('[data-testid="edit-shipment"]').click();
+
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review\/edit-shipment/);
+  });
+
+  // Ensure existing pickup date is displayed in form
+  cy.get('input[name="firstName"]').contains('John');
+
+  // Edit receiving agent first name
+  cy.get('input[name="firstName"]').clear().type('Jon');
+
+  cy.get('button').contains('Save').click();
+
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
+  });
+
   cy.nextPage();
 }
 
