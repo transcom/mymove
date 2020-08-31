@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import { get, map } from 'lodash';
 import { GridContainer } from '@trussworks/react-uswds';
@@ -16,6 +16,7 @@ import { MatchShape } from 'types/router';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
+import RejectServiceItemModal from 'components/Office/RejectServiceItemModal/RejectServiceItemModal';
 import { SERVICE_ITEM_STATUS } from 'shared/constants';
 import { patchMTOServiceItemStatus } from 'services/ghcApi';
 import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
@@ -39,6 +40,9 @@ function formatShipmentDate(shipmentDateString) {
 }
 
 export const MoveTaskOrder = ({ match }) => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedServiceItem, setSelectedServiceItem] = useState(undefined);
+
   const { moveOrderId } = match.params;
 
   // TODO - Do something with moveOrder and moveTaskOrder?
@@ -72,6 +76,8 @@ export const MoveTaskOrder = ({ match }) => {
         },
       });
       queryCache.invalidateQueries(MTO_SERVICE_ITEMS);
+      setSelectedServiceItem({});
+      setIsModalVisible(false);
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -81,13 +87,14 @@ export const MoveTaskOrder = ({ match }) => {
     },
   });
 
-  const handleUpdateMTOServiceItemStatus = (mtoServiceItemID, status) => {
+  const handleUpdateMTOServiceItemStatus = (mtoServiceItemID, status, rejectionReason) => {
     const mtoServiceItemForRequest = mtoServiceItemsArr.find((s) => s.id === mtoServiceItemID);
 
     mutateMTOServiceItemStatus({
       moveTaskOrderId: moveTaskOrder.id,
       mtoServiceItemID,
       status,
+      rejectionReason,
       ifMatchEtag: mtoServiceItemForRequest.eTag,
     });
   };
@@ -112,9 +119,22 @@ export const MoveTaskOrder = ({ match }) => {
     return newItem;
   });
 
+  const handleShowRejectionDialog = (mtoServiceItemID) => {
+    const serviceItem = serviceItems?.find((item) => item.id === mtoServiceItemID);
+    setSelectedServiceItem(serviceItem);
+    setIsModalVisible(true);
+  };
+
   return (
     <div className={styles.tabContent}>
       <GridContainer className={styles.gridContainer} data-testid="too-shipment-container">
+        {isModalVisible && (
+          <RejectServiceItemModal
+            serviceItem={selectedServiceItem}
+            onSubmit={handleUpdateMTOServiceItemStatus}
+            onClose={setIsModalVisible}
+          />
+        )}
         <div className={styles.pageHeader}>
           <h1>Move task order</h1>
           <div className={styles.pageHeaderDetails}>
@@ -171,6 +191,7 @@ export const MoveTaskOrder = ({ match }) => {
                 <RequestedServiceItemsTable
                   serviceItems={requestedServiceItems}
                   handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
+                  handleShowRejectionDialog={handleShowRejectionDialog}
                   statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
                 />
               )}
@@ -178,6 +199,7 @@ export const MoveTaskOrder = ({ match }) => {
                 <RequestedServiceItemsTable
                   serviceItems={approvedServiceItems}
                   handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
+                  handleShowRejectionDialog={handleShowRejectionDialog}
                   statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
                 />
               )}
@@ -185,6 +207,7 @@ export const MoveTaskOrder = ({ match }) => {
                 <RequestedServiceItemsTable
                   serviceItems={rejectedServiceItems}
                   handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
+                  handleShowRejectionDialog={handleShowRejectionDialog}
                   statusForTableType={SERVICE_ITEM_STATUS.REJECTED}
                 />
               )}

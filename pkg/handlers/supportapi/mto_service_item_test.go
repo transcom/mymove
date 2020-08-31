@@ -55,7 +55,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectSuccess() 
 	request := httptest.NewRequest("PATCH", "/service-items/{mtoServiceItemID}/status", nil)
 	reason := "item too heavy"
 	mtoServiceItem.Status = models.MTOServiceItemStatusRejected
-	mtoServiceItem.Reason = &reason
+	mtoServiceItem.RejectionReason = &reason
 	params := mtoserviceitemop.UpdateMTOServiceItemStatusParams{
 		HTTPRequest:      request,
 		MtoServiceItemID: mtoServiceItem.ID.String(),
