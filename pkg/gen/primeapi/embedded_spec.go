@@ -1039,14 +1039,12 @@ func init() {
             "firstAvailableDeliveryDate1": {
               "description": "First available date that Prime can deliver SIT service item.",
               "type": "string",
-              "format": "date",
-              "example": "2020-01-20"
+              "format": "date"
             },
             "firstAvailableDeliveryDate2": {
               "description": "Second available date that Prime can deliver SIT service item.",
               "type": "string",
-              "format": "date",
-              "example": "2020-01-20"
+              "format": "date"
             },
             "reServiceCode": {
               "description": "Service code allowed for this model type.",
@@ -3107,14 +3105,12 @@ func init() {
             "firstAvailableDeliveryDate1": {
               "description": "First available date that Prime can deliver SIT service item.",
               "type": "string",
-              "format": "date",
-              "example": "2020-01-20"
+              "format": "date"
             },
             "firstAvailableDeliveryDate2": {
               "description": "Second available date that Prime can deliver SIT service item.",
               "type": "string",
-              "format": "date",
-              "example": "2020-01-20"
+              "format": "date"
             },
             "reServiceCode": {
               "description": "Service code allowed for this model type.",

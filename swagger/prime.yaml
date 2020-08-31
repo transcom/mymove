@@ -1083,7 +1083,6 @@ definitions:
           firstAvailableDeliveryDate1:
             format: date
             type: string
-            example: "2020-01-20"
             description: First available date that Prime can deliver SIT service item.
           timeMilitary2:
             type: string
@@ -1093,7 +1092,6 @@ definitions:
           firstAvailableDeliveryDate2:
             format: date
             type: string
-            example: "2020-01-20"
             description: Second available date that Prime can deliver SIT service item.
         required:
           - reServiceCode
