@@ -1674,6 +1674,18 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:     uuid.FromStringOrNil("999504a9-45b0-477f-a00b-3ede8ffde379"),
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		Move:        mtoWithTaskOrderServices,
+		MTOShipment: mtoShipment5,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("15f01bc1-0754-4341-8e0f-25c8f04d5a77"), // DUPK
+		},
+	})
+
 	testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			ID:     uuid.FromStringOrNil("ca9aeb58-e5a9-44b0-abe8-81d233dbdebf"),

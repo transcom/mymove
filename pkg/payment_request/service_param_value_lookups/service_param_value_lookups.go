@@ -72,14 +72,20 @@ func ServiceParamLookupInitialize(
 				return nil, err
 			}
 		}
-		if mtoShipment.PickupAddressID == nil {
-			return nil, services.NewNotFoundError(uuid.Nil, "looking for PickupAddressID")
+
+		if mtoServiceItem.ReService.Code != models.ReServiceCodeDUPK {
+			if mtoShipment.PickupAddressID == nil {
+				return nil, services.NewNotFoundError(uuid.Nil, "looking for PickupAddressID")
+			}
+			pickupAddress = *mtoShipment.PickupAddress
 		}
-		pickupAddress = *mtoShipment.PickupAddress
-		if mtoShipment.DestinationAddressID == nil {
-			return nil, services.NewNotFoundError(uuid.Nil, "looking for DestinationAddressID")
+
+		if mtoServiceItem.ReService.Code != models.ReServiceCodeDPK {
+			if mtoShipment.DestinationAddressID == nil {
+				return nil, services.NewNotFoundError(uuid.Nil, "looking for DestinationAddressID")
+			}
+			destinationAddress = *mtoShipment.DestinationAddress
 		}
-		destinationAddress = *mtoShipment.DestinationAddress
 	}
 
 	s := ServiceItemParamKeyData{
@@ -113,14 +119,18 @@ func ServiceParamLookupInitialize(
 	s.lookups[models.ServiceItemParamNameRequestedPickupDate.String()] = RequestedPickupDateLookup{
 		MTOShipment: mtoShipment,
 	}
-	s.lookups[models.ServiceItemParamNameDistanceZip5.String()] = DistanceZip5Lookup{
-		PickupAddress:      pickupAddress,
-		DestinationAddress: destinationAddress,
+
+	if mtoServiceItem.ReService.Code != models.ReServiceCodeDPK && mtoServiceItem.ReService.Code != models.ReServiceCodeDUPK {
+		s.lookups[models.ServiceItemParamNameDistanceZip5.String()] = DistanceZip5Lookup{
+			PickupAddress:      pickupAddress,
+			DestinationAddress: destinationAddress,
+		}
+		s.lookups[models.ServiceItemParamNameDistanceZip3.String()] = DistanceZip3Lookup{
+			PickupAddress:      pickupAddress,
+			DestinationAddress: destinationAddress,
+		}
 	}
-	s.lookups[models.ServiceItemParamNameDistanceZip3.String()] = DistanceZip3Lookup{
-		PickupAddress:      pickupAddress,
-		DestinationAddress: destinationAddress,
-	}
+
 	s.lookups[models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier.String()] = FSCWeightBasedDistanceMultiplierLookup{
 
 		MTOShipment: mtoShipment,
@@ -134,18 +144,31 @@ func ServiceParamLookupInitialize(
 	s.lookups[models.ServiceItemParamNameWeightActual.String()] = WeightActualLookup{
 		MTOShipment: mtoShipment,
 	}
-	s.lookups[models.ServiceItemParamNameZipPickupAddress.String()] = ZipAddressLookup{
-		Address: pickupAddress,
+
+	if mtoServiceItem.ReService.Code != models.ReServiceCodeDUPK {
+		s.lookups[models.ServiceItemParamNameZipPickupAddress.String()] = ZipAddressLookup{
+			Address: pickupAddress,
+		}
 	}
-	s.lookups[models.ServiceItemParamNameZipDestAddress.String()] = ZipAddressLookup{
-		Address: destinationAddress,
+
+	if mtoServiceItem.ReService.Code != models.ReServiceCodeDPK {
+		s.lookups[models.ServiceItemParamNameZipDestAddress.String()] = ZipAddressLookup{
+			Address: destinationAddress,
+		}
 	}
+
 	s.lookups[models.ServiceItemParamNameMTOAvailableToPrimeAt.String()] = MTOAvailableToPrimeAtLookup{}
-	s.lookups[models.ServiceItemParamNameServiceAreaOrigin.String()] = ServiceAreaLookup{
-		Address: pickupAddress,
+
+	if mtoServiceItem.ReService.Code != models.ReServiceCodeDUPK {
+		s.lookups[models.ServiceItemParamNameServiceAreaOrigin.String()] = ServiceAreaLookup{
+			Address: pickupAddress,
+		}
 	}
-	s.lookups[models.ServiceItemParamNameServiceAreaDest.String()] = ServiceAreaLookup{
-		Address: destinationAddress,
+
+	if mtoServiceItem.ReService.Code != models.ReServiceCodeDPK {
+		s.lookups[models.ServiceItemParamNameServiceAreaDest.String()] = ServiceAreaLookup{
+			Address: destinationAddress,
+		}
 	}
 	s.lookups[models.ServiceItemParamNameContractCode.String()] = ContractCodeLookup{}
 	s.lookups[models.ServiceItemParamNamePSILinehaulDom.String()] = PSILinehaulDomLookup{
@@ -157,11 +180,17 @@ func ServiceParamLookupInitialize(
 	s.lookups[models.ServiceItemParamNameEIAFuelPrice.String()] = EIAFuelPriceLookup{
 		MTOShipment: mtoShipment,
 	}
-	s.lookups[models.ServiceItemParamNameServicesScheduleOrigin.String()] = ServicesScheduleLookup{
-		Address: pickupAddress,
+
+	if mtoServiceItem.ReService.Code != models.ReServiceCodeDUPK {
+		s.lookups[models.ServiceItemParamNameServicesScheduleOrigin.String()] = ServicesScheduleLookup{
+			Address: pickupAddress,
+		}
 	}
-	s.lookups[models.ServiceItemParamNameServicesScheduleDest.String()] = ServicesScheduleLookup{
-		Address: destinationAddress,
+
+	if mtoServiceItem.ReService.Code != models.ReServiceCodeDPK {
+		s.lookups[models.ServiceItemParamNameServicesScheduleDest.String()] = ServicesScheduleLookup{
+			Address: destinationAddress,
+		}
 	}
 
 	return &s, nil
