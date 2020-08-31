@@ -341,16 +341,16 @@ describe('given a WizardPage', () => {
       });
     });
   });
-  describe('when there is a canMoveNext prop', () => {
+  describe.only('when there is a canMoveNext prop', () => {
     describe('when canMoveNext is true', () => {
       wrapper = shallow(<WizardPage {...minProps} />);
-      const nextButton = wrapper.find('button').last();
+      const nextButton = wrapper.find('button').first();
       expect(nextButton.text()).toBe('Next');
       expect(nextButton.prop('disabled')).toEqual(false);
     });
     describe('when canMoveNext is false', () => {
       wrapper = shallow(<WizardPage {...minProps} canMoveNext={false} />);
-      const nextButton = wrapper.find('button').at(1);
+      const nextButton = wrapper.find('button').first();
       expect(nextButton.text()).toBe('Next');
       expect(nextButton.prop('disabled')).toEqual(true);
     });
