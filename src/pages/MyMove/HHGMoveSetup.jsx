@@ -19,7 +19,7 @@ class HHGMoveSetup extends Component {
 
   render() {
     const { pageList, pageKey, match, history, push, mtoShipment } = this.props;
-    const isEditShipmentPage = match.path === '/moves/:moveId/review/edit-shipment';
+    const isEditShipmentPage = match.path === '/moves/:moveId/edit-shipment';
     const isHHGFormPage = match.path === '/moves/:moveId/hhg-start';
     return (
       <div>

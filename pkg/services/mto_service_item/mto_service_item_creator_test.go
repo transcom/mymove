@@ -3,6 +3,7 @@ package mtoserviceitem
 import (
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/gofrs/uuid"
 
@@ -242,5 +243,113 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.Nil(createdServiceItem)
 		suite.Error(err)
 		suite.IsType(services.ConflictError{}, err)
+	})
+
+	// The timeMilitary fields need to be in the correct format.
+	suite.T().Run("timeMilitary formatting for DDFSIT", func(t *testing.T) {
+		shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		contact := models.MTOServiceItemCustomerContact{
+			Type:                       models.CustomerContactTypeFirst,
+			FirstAvailableDeliveryDate: time.Now(),
+		}
+		serviceItemDDFSIT := models.MTOServiceItem{
+			MoveTaskOrderID: moveTaskOrder.ID,
+			MoveTaskOrder:   moveTaskOrder,
+			MTOShipment:     shipment,
+			MTOShipmentID:   &shipment.ID,
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDDFSIT,
+			},
+		}
+
+		fakeCreateOne := func(model interface{}) (*validate.Errors, error) {
+			return nil, nil
+		}
+		fakeFetchOne := func(model interface{}, filters []services.QueryFilter) error {
+			return nil
+		}
+		fakeTx := func(fn func(tx *pop.Connection) error) error {
+			return fn(&pop.Connection{})
+		}
+		builder := &testMTOServiceItemQueryBuilder{
+			fakeCreateOne:   fakeCreateOne,
+			fakeFetchOne:    fakeFetchOne,
+			fakeTransaction: fakeTx,
+		}
+		fakeCreateNewBuilder := func(db *pop.Connection) createMTOServiceItemQueryBuilder {
+			return builder
+		}
+		creator := mtoServiceItemCreator{
+			builder:          builder,
+			createNewBuilder: fakeCreateNewBuilder,
+		}
+
+		suite.T().Run("timeMilitary=HH:MMZ", func(t *testing.T) {
+			contact.TimeMilitary = "10:30Z"
+			serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
+			createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDFSIT)
+
+			suite.Nil(createdServiceItems)
+			suite.Error(err)
+			suite.IsType(services.InvalidInputError{}, err)
+			suite.Contains(err.Error(), "timeMilitary")
+		})
+
+		suite.T().Run("timeMilitary=XXMMZ bad hours", func(t *testing.T) {
+			contact.TimeMilitary = "2645Z"
+			serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
+			createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDFSIT)
+
+			suite.Nil(createdServiceItems)
+			suite.Error(err)
+			suite.IsType(services.InvalidInputError{}, err)
+			suite.Contains(err.Error(), "timeMilitary")
+			suite.Contains(err.Error(), "hours must be between 00 and 23")
+		})
+
+		suite.T().Run("timeMilitary=HHXXZ bad minutes", func(t *testing.T) {
+			contact.TimeMilitary = "2167Z"
+			serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
+			createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDFSIT)
+
+			suite.Nil(createdServiceItems)
+			suite.Error(err)
+			suite.IsType(services.InvalidInputError{}, err)
+			suite.Contains(err.Error(), "timeMilitary")
+			suite.Contains(err.Error(), "minutes must be between 00 and 59")
+		})
+
+		suite.T().Run("timeMilitary=HHXXZ bad minutes", func(t *testing.T) {
+			contact.TimeMilitary = "2167Z"
+			serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
+			createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDFSIT)
+
+			suite.Nil(createdServiceItems)
+			suite.Error(err)
+			suite.IsType(services.InvalidInputError{}, err)
+			suite.Contains(err.Error(), "timeMilitary")
+			suite.Contains(err.Error(), "minutes must be between 00 and 59")
+		})
+
+		suite.T().Run("timeMilitary=HHMMX bad suffix", func(t *testing.T) {
+			contact.TimeMilitary = "2050M"
+			serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
+			createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDFSIT)
+
+			suite.Nil(createdServiceItems)
+			suite.Error(err)
+			suite.IsType(services.InvalidInputError{}, err)
+			suite.Contains(err.Error(), "timeMilitary")
+			suite.Contains(err.Error(), "must end with 'Z'")
+		})
+
+		suite.T().Run("timeMilitary=HHMMZ success", func(t *testing.T) {
+			contact.TimeMilitary = "1405Z"
+			serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
+			createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDFSIT)
+
+			suite.NotNil(createdServiceItems)
+			suite.NoError(err)
+		})
 	})
 }

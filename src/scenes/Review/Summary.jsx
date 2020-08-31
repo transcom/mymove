@@ -59,11 +59,13 @@ export class Summary extends Component {
     const currentStation = get(serviceMember, 'current_station');
     const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
 
-    const rootAddressWithMoveId = `/moves/${this.props.match.params.moveId}/review`;
+    const rootAddressWithMoveId = `/moves/${this.props.match.params.moveId}`;
+    const rootReviewAddressWithMoveId = rootAddressWithMoveId + `/review`;
+
     // isReviewPage being false is the same thing as being in the /edit route
-    const isReviewPage = rootAddressWithMoveId === match.url;
+    const isReviewPage = rootReviewAddressWithMoveId === match.url;
     const editSuccessBlurb = this.props.reviewState.editSuccess ? 'Your changes have been saved. ' : '';
-    const editOrdersPath = rootAddressWithMoveId + '/edit-orders';
+    const editOrdersPath = rootReviewAddressWithMoveId + '/edit-orders';
 
     const showPPMShipmentSummary =
       (isReviewPage && !isEmpty(currentPPM)) ||
@@ -106,7 +108,7 @@ export class Summary extends Component {
         )}
 
         {showPPMShipmentSummary && (
-          <PPMShipmentSummary ppm={currentPPM} movePath={rootAddressWithMoveId} orders={currentOrders} />
+          <PPMShipmentSummary ppm={currentPPM} movePath={rootReviewAddressWithMoveId} orders={currentOrders} />
         )}
 
         {showHHGShipmentSummary && <HHGShipmentSummary mtoShipment={mtoShipment} movePath={rootAddressWithMoveId} />}

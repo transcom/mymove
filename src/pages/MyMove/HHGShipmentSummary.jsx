@@ -97,7 +97,7 @@ export default function HHGShipmentSummary(props) {
         <Grid row>
           <Grid tablet={{ col: true }}>
             {!isEmpty(mtoShipment) && !isEmpty(remarks) && (
-              <div className="review-section">
+              <div data-testid="remarks" className="review-section">
                 <p className="heading">Customer Remarks</p>
                 <table>
                   <tbody>

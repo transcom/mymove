@@ -80,7 +80,10 @@ function customerFillsInProfileInformation(reloadAfterEveryPage) {
   cy.get('input[name="email"]').type('doug@glass.net');
   cy.nextPage();
 
-  cy.get('h2').contains('Welcome Jane');
+  cy.visit('/home-2');
+  cy.get('[data-testid="customer-header"]').contains('Jane Doe');
+  cy.get('p').contains("You're leaving Fort Carson");
+  cy.go('back');
   cy.nextPage();
 }
 
@@ -109,10 +112,14 @@ function customerFillsOutOrdersInformation() {
   cy.get('h1').contains('Figure out your shipments');
   cy.nextPage();
 
-  cy.get('h1').contains('How do you want to move your belongings?');
+  cy.visit('/home-2');
+  cy.get('[data-testid="doc-list-container"]').contains('top-secret.png');
+  cy.go('back');
 }
 
 function customerSetsUpAnHHGMove() {
+  cy.get('h1').contains('How do you want to move your belongings?');
+
   cy.get('input[type="radio"]').last().check({ force: true });
   cy.nextPage();
 
@@ -197,26 +204,28 @@ function customerSetsUpAnHHGMove() {
   cy.get(`[data-testid="remarks"]`).first().type('some customer remark');
   cy.nextPage();
 
-  cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
-  });
+  cy.visit('/home-2');
+  cy.get('[data-testid="shipment-list-item-container"]').contains('HHG');
+  cy.go('back');
 }
 
 function customerReviewsMoveDetails() {
-  cy.get('h2').contains('Review Move Details');
+  cy.get('[data-testid="review-move-header"]').contains('Review Move Details');
 
   cy.get('[data-testid="edit-shipment"]').click();
 
   cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review\/edit-shipment/);
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/edit-shipment/);
   });
 
   // Ensure remarks is displayed in form
   cy.get(`[data-testid="firstName"]`).last().type('Johnson');
 
   cy.get(`[data-testid="remarks"]`).contains('some customer remark');
-  // Edit remarks
+
+  // Edit remarks and agent info
   cy.get(`[data-testid="remarks"]`).clear().type('some edited customer remark');
+  cy.get(`[data-testid="email"]`).last().clear().type('John@example.com').blur();
   cy.get('button').contains('Save').click();
 
   cy.wait('@patchShipment');
@@ -226,7 +235,7 @@ function customerReviewsMoveDetails() {
   });
 
   cy.get(`[data-testid="remarks"]`).contains('some edited customer remark');
-
+  cy.get(`[data-testid="email"]`).last().contains('John@example.com');
   cy.nextPage();
 }
 
