@@ -3,7 +3,7 @@ COMMENT ON TABLE access_codes IS 'Holds access code needed to log into the custo
 COMMENT ON COLUMN access_codes.service_member_id IS 'A foreign key that points the service_members table';
 COMMENT ON COLUMN access_codes.code IS 'A code used to allow a customer access to submit a move';
 COMMENT ON COLUMN access_codes.move_type IS 'Date & time the access code was created';
-COMMENT ON COLUMN access_codes.created_at IS 'Date & time the acccess code was last updated';
+COMMENT ON COLUMN access_codes.created_at IS 'Date & time the access code was last updated';
 COMMENT ON COLUMN access_codes.claimed_at IS 'Date & time the access code was used';
 
 -- addresses
@@ -30,8 +30,8 @@ COMMENT ON COLUMN backup_contacts.updated_at IS 'Date & time the backup contacts
 
 -- documents
 COMMENT ON TABLE documents IS 'Holds information about uploaded documents';
-COMMENT ON COLUMN documents.created_at IS 'Date & time the access code was created';
-COMMENT ON COLUMN documents.updated_at IS 'Date & time the access code was last updated';
+COMMENT ON COLUMN documents.created_at IS 'Date & time the document was created';
+COMMENT ON COLUMN documents.updated_at IS 'Date & time the document was last updated';
 COMMENT ON COLUMN documents.service_member_id IS 'A foreign key that points the service_members table';
 COMMENT ON COLUMN documents.deleted_at IS 'Date & time document was deleted';
 
@@ -48,8 +48,8 @@ COMMENT ON TABLE duty_stations IS 'Holds information about the duty stations';
 COMMENT ON COLUMN duty_stations.name IS 'The name of the duty station';
 COMMENT ON COLUMN duty_stations.affiliation IS 'The affiliation of the duty station (Army, Air Force, Navy, Marines, Coast Guard';
 COMMENT ON COLUMN duty_stations.address_id IS 'A foreign key that points the address table';
-COMMENT ON COLUMN duty_stations.created_at IS 'Date & time the access code was created';
-COMMENT ON COLUMN duty_stations.updated_at IS 'Date & time the access code was last updated';
+COMMENT ON COLUMN duty_stations.created_at IS 'Date & time the duty station was created';
+COMMENT ON COLUMN duty_stations.updated_at IS 'Date & time the duty station was last updated';
 COMMENT ON COLUMN duty_stations.transportation_office_id IS 'A foreign key that points the transportation_offices table';
 
 -- orders
@@ -61,7 +61,7 @@ COMMENT ON COLUMN orders.status IS 'Date & time the address was last updated';
 COMMENT ON COLUMN orders.department_indicator IS 'Name of the service branch. NAVY_AND_MARINES, ARMY, AIR_FORCE, COAST_GUARD';
 COMMENT ON COLUMN orders.spouse_has_pro_gear IS 'Does the spouse have any pro-gear';
 COMMENT ON COLUMN orders.sac IS 'Shipment Account Classification - used for accounting';
-COMMENT ON COLUMN orders.confirmation_number IS 'Is a confirmation number';
+COMMENT ON COLUMN orders.confirmation_number IS 'This column is not used and should be deleted';
 COMMENT ON COLUMN orders.entitlement_id IS 'A foreign key that points the entitlements table';
 
 -- notifications
