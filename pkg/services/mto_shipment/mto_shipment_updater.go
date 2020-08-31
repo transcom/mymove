@@ -330,7 +330,8 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 		if err := tx.RawQuery(updateMTOShipmentQuery, params...).Exec(); err != nil {
 			return err
 		}
-		// Is there any reason we can't remover the above query and just use Update?
+		// #TODO: Is there any reason we can't remove updateMTOShipmentQuery and use tx.Update?
+		//
 		// if err := tx.Update(newShipment); err != nil {
 		// 	return err
 		// }
