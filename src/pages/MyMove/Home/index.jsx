@@ -29,13 +29,9 @@ Description.propTypes = {
 
 class Home extends Component {
   componentDidMount() {
-    const { showLoggedInUser } = this.props;
+    const { showLoggedInUser, move, loadMTOShipments } = this.props;
     showLoggedInUser();
-  }
-
-  componentDidUpdate(prevProps) {
-    const { loadMTOShipments, move } = this.props;
-    if (!prevProps.move.id && move.id) {
+    if (move.id) {
       loadMTOShipments(move.id);
     }
   }
