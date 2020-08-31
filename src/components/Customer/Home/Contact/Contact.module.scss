@@ -1,0 +1,27 @@
+@import 'shared/styles/colors';
+@import 'shared/styles/_basics';
+
+.contact-container {
+  border-radius: 5px;
+  border: 1px solid $base-lighter;
+  @include u-padding-top(2);
+  @include u-padding-left(2);
+  @include u-padding-right(2);
+  @include u-padding-bottom(3);
+
+  h6 {
+    margin-top: 0px;
+    font-size: 13px;
+    font-weight: normal;
+  }
+  p {
+    font-size: 15px;
+    line-height: 18px;
+    margin: 0px;
+  }
+}
+
+.contact-header {
+  @include u-margin-bottom(1);
+  text-transform: uppercase;
+}

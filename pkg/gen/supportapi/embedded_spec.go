@@ -522,21 +522,36 @@ func init() {
         "operationId": "postWebhookNotify",
         "parameters": [
           {
-            "description": "The message sent by webhook-client.",
-            "name": "message",
+            "description": "The notification sent by webhook-client.",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
               "type": "object",
-              "required": [
-                "message"
-              ],
               "properties": {
-                "message": {
-                  "description": "Message sent",
+                "eventName": {
+                  "description": "Name of event triggered",
                   "type": "string",
-                  "x-nullable": false,
-                  "example": "Hello world."
+                  "example": "paymentRequest.updated"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+                },
+                "object": {
+                  "type": "string",
+                  "format": "object"
+                },
+                "objectType": {
+                  "description": "The type of object that's being updated",
+                  "type": "string",
+                  "example": "paymentRequest"
+                },
+                "triggeredAt": {
+                  "description": "Time representing when the event was triggered",
+                  "type": "string",
+                  "format": "date-time"
                 }
               }
             }
@@ -544,14 +559,33 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Created",
+            "description": "Sent",
             "schema": {
               "type": "object",
               "properties": {
-                "message": {
-                  "description": "Message sent",
+                "eventName": {
+                  "description": "Name of event triggered",
                   "type": "string",
-                  "example": "Hello world."
+                  "example": "paymentRequest.updated"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+                },
+                "object": {
+                  "type": "string",
+                  "format": "object"
+                },
+                "objectType": {
+                  "description": "The type of object that's being updated",
+                  "type": "string",
+                  "example": "paymentRequest"
+                },
+                "triggeredAt": {
+                  "description": "Time representing when the event was triggered",
+                  "type": "string",
+                  "format": "date-time"
                 }
               }
             }
@@ -2417,21 +2451,36 @@ func init() {
         "operationId": "postWebhookNotify",
         "parameters": [
           {
-            "description": "The message sent by webhook-client.",
-            "name": "message",
+            "description": "The notification sent by webhook-client.",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
               "type": "object",
-              "required": [
-                "message"
-              ],
               "properties": {
-                "message": {
-                  "description": "Message sent",
+                "eventName": {
+                  "description": "Name of event triggered",
                   "type": "string",
-                  "x-nullable": false,
-                  "example": "Hello world."
+                  "example": "paymentRequest.updated"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+                },
+                "object": {
+                  "type": "string",
+                  "format": "object"
+                },
+                "objectType": {
+                  "description": "The type of object that's being updated",
+                  "type": "string",
+                  "example": "paymentRequest"
+                },
+                "triggeredAt": {
+                  "description": "Time representing when the event was triggered",
+                  "type": "string",
+                  "format": "date-time"
                 }
               }
             }
@@ -2439,14 +2488,33 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Created",
+            "description": "Sent",
             "schema": {
               "type": "object",
               "properties": {
-                "message": {
-                  "description": "Message sent",
+                "eventName": {
+                  "description": "Name of event triggered",
                   "type": "string",
-                  "example": "Hello world."
+                  "example": "paymentRequest.updated"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+                },
+                "object": {
+                  "type": "string",
+                  "format": "object"
+                },
+                "objectType": {
+                  "description": "The type of object that's being updated",
+                  "type": "string",
+                  "example": "paymentRequest"
+                },
+                "triggeredAt": {
+                  "description": "Time representing when the event was triggered",
+                  "type": "string",
+                  "format": "date-time"
                 }
               }
             }

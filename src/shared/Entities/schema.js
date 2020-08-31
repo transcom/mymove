@@ -9,11 +9,12 @@ export const roles = new schema.Array(role);
 export const user = new schema.Entity('users');
 
 // Uploads
-export const upload = new schema.Entity('uploads');
+export const upload = new schema.Entity('upload');
 export const uploads = new schema.Array(upload);
 
 // PPMs
 export const reimbursement = new schema.Entity('reimbursements');
+
 export const personallyProcuredMove = new schema.Entity('personallyProcuredMoves');
 personallyProcuredMove.define({
   advance: reimbursement,
@@ -21,6 +22,10 @@ personallyProcuredMove.define({
 
 export const personallyProcuredMoves = new schema.Array(personallyProcuredMove);
 export const indexPersonallyProcuredMove = personallyProcuredMoves;
+
+// MTO Shipments
+export const mtoShipment = new schema.Entity('mtoShipments');
+export const mtoShipments = new schema.Array(mtoShipment);
 
 // Shipments
 export const shipment = new schema.Entity('shipments');
@@ -37,14 +42,17 @@ export const serviceAgents = new schema.Array(serviceAgent);
 // Moves
 export const move = new schema.Entity('moves', {
   personally_procured_moves: personallyProcuredMoves,
+  mto_shipments: mtoShipments,
 });
 export const moves = new schema.Array(move);
 
 // Orders
+
 export const orders = new schema.Entity('orders');
 orders.define({
   moves: moves,
 });
+
 export const ordersArray = new schema.Array(orders);
 
 // ServiceMemberBackupContacts
@@ -56,11 +64,20 @@ export const indexServiceMemberBackupContacts = new schema.Array(backupContact);
 
 export const serviceMemberBackupContact = backupContact;
 
+// DutyStations and TransportationOffices
+export const transportationOffice = new schema.Entity('transportationOffices');
+export const transportationOffices = new schema.Array(transportationOffice);
+export const dutyStation = new schema.Entity('dutyStations', {
+  transportation_office: transportationOffice,
+});
+export const dutyStations = new schema.Array(dutyStation);
+
 // Service Member
 export const serviceMember = new schema.Entity('serviceMembers', {
   backup_contacts: backupContacts,
   user,
   orders: ordersArray,
+  current_station: dutyStation,
 });
 
 // Loggedin User
@@ -75,10 +92,6 @@ export const document = new schema.Entity('documents', {
   service_member: serviceMember,
 });
 export const documents = new schema.Array(document);
-
-orders.define({
-  uploaded_orders: document,
-});
 
 // MoveDocuments
 export const moveDocument = new schema.Entity('moveDocuments', {
@@ -140,10 +153,6 @@ export const mtoServiceItems = new schema.Array(mtoServiceItem);
 // Payment Service Items
 export const paymentServiceItem = new schema.Entity('paymentServiceItems');
 export const paymentServiceItems = new schema.Array(paymentServiceItem);
-
-// MTO Shipments
-export const mtoShipment = new schema.Entity('mtoShipments');
-export const mtoShipments = new schema.Array(mtoShipment);
 
 // Move Task Orders
 export const moveTaskOrder = new schema.Entity('moveTaskOrders');

@@ -5,6 +5,8 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/transcom/mymove/pkg/services/event"
+
 	"github.com/gobuffalo/validate"
 
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
@@ -193,6 +195,19 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 			logger.Error(fmt.Sprintf("Error saving payment request status for ID: %s: %s", paymentRequestID, err))
 			return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError()
 		}
+	}
+
+	_, err = event.TriggerEvent(event.Event{
+		EventKey:        event.PaymentRequestUpdateEventKey,
+		MtoID:           updatedPaymentRequest.MoveTaskOrderID,
+		UpdatedObjectID: updatedPaymentRequest.ID,
+		Request:         params.HTTPRequest,
+		EndpointKey:     event.GhcUpdatePaymentRequestStatusEndpointKey,
+		DBConnection:    h.DB(),
+		HandlerContext:  h,
+	})
+	if err != nil {
+		logger.Error("ghcapi.UpdatePaymentRequestStatusHandler could not generate the event")
 	}
 
 	returnPayload := payloads.PaymentRequest(updatedPaymentRequest)

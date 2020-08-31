@@ -627,6 +627,10 @@ SwaggerClient
 polyfill
 TxO
 triaged
+MB-2346
+asdf
+goenv
+gvm
 lodash
 natively
 transpiled
@@ -635,7 +639,7 @@ polyfilled
  - ./docs/backend/route-planner.md
  - docs/adr/0050-doc-viewer-fork.md
 MB-2346
- - docs/adr/0056-lodash.md
+ - docs/adr/0057-lodash.md
 isEmpty
 concat
 mapValues

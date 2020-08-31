@@ -152,7 +152,7 @@ export class EditablePanel extends Component {
       controls = (
         <div>
           <p>
-            <button className="usa-button usa-button--outline editable-panel-cancel" onClick={this.handleCancelClick}>
+            <button className="usa-button usa-button--secondary editable-panel-cancel" onClick={this.handleCancelClick}>
               Cancel
             </button>
             <button
