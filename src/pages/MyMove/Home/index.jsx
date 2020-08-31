@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
 import React, { Component } from 'react';
-import { isNil, isEmpty } from 'lodash';
 import { func, arrayOf, shape, string, objectOf, object } from 'prop-types';
 import { connect } from 'react-redux';
 import { Alert } from '@trussworks/react-uswds';
@@ -32,13 +31,13 @@ class Home extends Component {
   handleShipmentClick = (shipment) => {
     // TODO: use shipment id in review path with multiple shipments functionality
     console.log('this is the shipment', shipment);
-    const { push } = this.props;
-    push('/moves/review/edit-shipment');
+    const { history } = this.props;
+    history.push('/moves/review/edit-shipment');
   };
 
   handleNewPathClick = (path) => {
-    const { push } = this.props;
-    push(path);
+    const { history } = this.props;
+    history.push(path);
   };
 
   checkOrdersCompleted = () => {
@@ -53,9 +52,9 @@ class Home extends Component {
     const confirmationPath = `/moves/${move.id}/review`;
     const profileEditPath = '/moves/review/edit-profile';
     const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
-    const ordersCompleted = this.checkOrdersCompleted();
-    const hasShipment = !isNil(move.personally_procured_moves) || !isNil(move.shipments);
-    const hasSubmittedMove = !isEmpty(move) && move.status !== 'DRAFT';
+    const hasOrders = this.checkOrdersCompleted();
+    const hasShipment = !!move?.['personally_procured_moves']?.length || !!move?.shipments?.length;
+    const hasSubmittedMove = !!move.length && move.status !== 'DRAFT';
 
     return (
       <div className={`usa-prose grid-container ${styles['grid-container']}`}>
@@ -93,16 +92,16 @@ class Home extends Component {
         </Step>
 
         <Step
-          complete={ordersCompleted}
+          complete={hasOrders}
           completedHeaderText="Orders uploaded"
-          editBtnLabel={ordersCompleted ? 'Edit' : ''}
+          editBtnLabel={hasOrders ? 'Edit' : ''}
           onEditBtnClick={() => this.handleNewPathClick(ordersEditPath)}
           headerText="Upload orders"
-          actionBtnLabel={!ordersCompleted ? 'Add orders' : ''}
+          actionBtnLabel={!hasOrders ? 'Add orders' : ''}
           onActionBtnClick={() => this.handleNewPathClick(ordersPath)}
           step="2"
         >
-          {ordersCompleted && (
+          {hasOrders && (
             <DocsUploaded
               files={[
                 { filename: 'Screen Shot 2020-09-11 at 12.56.58 PM.png' },
@@ -115,7 +114,7 @@ class Home extends Component {
 
         <Step
           actionBtnLabel={hasShipment ? 'Add another shipment' : 'Plan your shipments'}
-          actionBtnDisabled={!ordersCompleted}
+          actionBtnDisabled={!hasOrders}
           onActionBtnClick={() => this.handleNewPathClick(shipmentSelectionPath)}
           complete={hasShipment}
           completedHeaderText="Shipments"
@@ -165,7 +164,7 @@ Home.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   orders: object.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
-  push: func.isRequired,
+  history: object.isRequired,
   move: objectOf(
     shape({
       id: string,
