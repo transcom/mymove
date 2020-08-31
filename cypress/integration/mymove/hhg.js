@@ -210,7 +210,7 @@ function customerSetsUpAnHHGMove() {
 }
 
 function customerReviewsMoveDetails() {
-  cy.get('[data-testid="review-move-header"]').contains('Review Move Details');
+  cy.get('[data-testid="review-move-header"]').contains('Review your details');
   cy.nextPage();
 }
 
