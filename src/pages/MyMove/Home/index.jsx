@@ -91,7 +91,7 @@ class Home extends Component {
         <ul>
           {this.renderHelperListItems([
             'Preferred moving details',
-            'Destination address (your new place, your duty station ZIP, or somewhere else',
+            'Destination address (your new place, your duty station ZIP, or somewhere else)',
             'Names and contact info for anyone you authorize to act on your behalf',
           ])}
         </ul>
