@@ -28,8 +28,8 @@ describe('given a WizardPage', () => {
             );
             buttons = wrapper.find('button');
           });
-          it('the next button is last and is disabled', () => {
-            const nextButton = buttons.last();
+          it('the next button is first and is disabled', () => {
+            const nextButton = buttons.first();
             expect(nextButton.text()).toBe('Next');
             expect(nextButton.prop('disabled')).toBeTruthy();
           });
@@ -45,8 +45,8 @@ describe('given a WizardPage', () => {
             );
             buttons = wrapper.find('button');
           });
-          it('the complete button is last and is disabled', () => {
-            const nextButton = buttons.last();
+          it('the complete button is second to last and is disabled', () => {
+            const nextButton = buttons.at(1);
             expect(nextButton.text()).toBe('Complete');
             expect(nextButton.prop('disabled')).toBeTruthy();
           });
@@ -63,8 +63,8 @@ describe('given a WizardPage', () => {
           );
           buttons = wrapper.find('button');
         });
-        it('the next button is last and is enabled', () => {
-          const nextButton = buttons.last();
+        it('the next button is enabled', () => {
+          const nextButton = buttons.at(0);
           expect(nextButton.text()).toBe('Next');
           expect(nextButton.prop('disabled')).toBeFalsy();
         });
@@ -96,18 +96,18 @@ describe('given a WizardPage', () => {
         it('it renders button for cancel, back, next', () => {
           expect(buttons.length).toBe(3);
         });
-        it('the cancel button is first and is enabled', () => {
-          const cancelButton = buttons.first();
+        it('the cancel button is last and is enabled', () => {
+          const cancelButton = buttons.last();
           expect(cancelButton.text()).toBe('Cancel');
           expect(cancelButton.prop('disabled')).toBe(false);
         });
-        it('the back button is second and is enabled', () => {
-          const backButton = buttons.at(1);
+        it('the back button is first and is enabled', () => {
+          const backButton = buttons.first();
           expect(backButton.text()).toBe('Back');
           expect(backButton.prop('disabled')).toBe(false);
         });
-        it('the next button is last and is enabled', () => {
-          const nextButton = buttons.last();
+        it('the next button is second and is enabled', () => {
+          const nextButton = buttons.at(1);
           expect(nextButton.text()).toBe('Next');
           expect(nextButton.prop('disabled')).toBe(false);
         });
@@ -123,14 +123,14 @@ describe('given a WizardPage', () => {
         );
         buttons = wrapper.find('button');
       });
-      it('the previous button is second and is enabled', () => {
-        const prevButton = buttons.at(1);
+      it('the previous button is first and is enabled', () => {
+        const prevButton = buttons.first();
         expect(prevButton.text()).toBe('Back');
         expect(prevButton.prop('disabled')).toBe(false);
       });
       describe('when the prev button is clicked', () => {
         beforeEach(() => {
-          const prevButton = buttons.at(1);
+          const prevButton = buttons.first();
           prevButton.simulate('click');
         });
         it('push gets the prev page', () => {
@@ -141,13 +141,13 @@ describe('given a WizardPage', () => {
           expect(submit.mock.calls.length).toBe(0);
         });
       });
-      it('the cancel button is first and is enabled', () => {
-        const prevButton = buttons.first();
+      it('the cancel button is last and is enabled', () => {
+        const prevButton = buttons.last();
         expect(prevButton.text()).toBe('Cancel');
         expect(prevButton.prop('disabled')).toBe(false);
       });
-      it('the next button is last and is enabled', () => {
-        const nextButton = buttons.last();
+      it('the next button is second and is enabled', () => {
+        const nextButton = buttons.at(1);
         expect(nextButton.text()).toBe('Next');
         expect(nextButton.prop('disabled')).toBeFalsy();
       });
@@ -181,14 +181,14 @@ describe('given a WizardPage', () => {
       it('it renders button for cancel and next', () => {
         expect(buttons.length).toBe(2);
       });
-      it('the cancel button is first and is enabled', () => {
-        const prevButton = buttons.first();
+      it('the cancel button is last and is enabled', () => {
+        const prevButton = buttons.last();
 
         expect(prevButton.text()).toBe('Cancel');
         expect(prevButton.prop('disabled')).toBe(false);
       });
-      it('the next button is last and is enabled', () => {
-        const nextButton = buttons.last();
+      it('the next button is first and is enabled', () => {
+        const nextButton = buttons.first();
         expect(nextButton.text()).toBe('Next');
         expect(nextButton.prop('disabled')).toBeFalsy();
       });
@@ -221,8 +221,8 @@ describe('given a WizardPage', () => {
       it('it renders button for cancel, back, next', () => {
         expect(buttons.length).toBe(3);
       });
-      it('the back button is second and is enabled', () => {
-        const prevButton = buttons.at(1);
+      it('the back button is first and is enabled', () => {
+        const prevButton = buttons.first();
         expect(prevButton.text()).toBe('Back');
         expect(prevButton.prop('disabled')).toBe(false);
       });
@@ -236,13 +236,13 @@ describe('given a WizardPage', () => {
           expect(mockPush.mock.calls[0][0]).toBe('1');
         });
       });
-      it('the cancel button is first and is enabled', () => {
-        const prevButton = buttons.first();
+      it('the cancel button is last and is enabled', () => {
+        const prevButton = buttons.last();
         expect(prevButton.text()).toBe('Cancel');
         expect(prevButton.prop('disabled')).toBe(false);
       });
-      it('the next button is last and is enabled', () => {
-        const nextButton = buttons.last();
+      it('the next button is second and is enabled', () => {
+        const nextButton = buttons.at(1);
         expect(nextButton.text()).toBe('Next');
         expect(nextButton.prop('disabled')).toBeFalsy();
       });
@@ -277,8 +277,8 @@ describe('given a WizardPage', () => {
       it('it renders button for cancel, back, next', () => {
         expect(buttons.length).toBe(3);
       });
-      it('the back button is second and is enabled', () => {
-        const prevButton = buttons.at(1);
+      it('the back button is first and is enabled', () => {
+        const prevButton = buttons.first();
         expect(prevButton.text()).toBe('Back');
         expect(prevButton.prop('disabled')).toBe(false);
       });
@@ -292,13 +292,13 @@ describe('given a WizardPage', () => {
           expect(mockPush.mock.calls[0][0]).toBe('2');
         });
       });
-      it('the cancel button is first and is enabled', () => {
-        const saveButton = buttons.first();
+      it('the cancel button is last and is enabled', () => {
+        const saveButton = buttons.last();
         expect(saveButton.text()).toBe('Cancel');
         expect(saveButton.prop('disabled')).toBe(false);
       });
-      it('the Complete button is last and is enabled', () => {
-        const nextButton = buttons.last();
+      it('the Complete button is second and is enabled', () => {
+        const nextButton = buttons.at(1);
         expect(nextButton.text()).toBe('Complete');
         expect(nextButton.prop('disabled')).toBeFalsy();
       });
@@ -350,7 +350,7 @@ describe('given a WizardPage', () => {
     });
     describe('when canMoveNext is false', () => {
       wrapper = shallow(<WizardPage {...minProps} canMoveNext={false} />);
-      const nextButton = wrapper.find('button').last();
+      const nextButton = wrapper.find('button').at(1);
       expect(nextButton.text()).toBe('Next');
       expect(nextButton.prop('disabled')).toEqual(true);
     });
