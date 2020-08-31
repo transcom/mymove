@@ -80,7 +80,11 @@ function customerFillsInProfileInformation(reloadAfterEveryPage) {
   cy.get('input[name="email"]').type('doug@glass.net');
   cy.nextPage();
 
+  cy.get('[data-testid="customer-header"]').contains('Jane Doe');
+  cy.get('p').contains("You're leaving Fort Carson");
   cy.get('[data-testid="stepContainer2"]').get('[data-testid="button"]').contains('Add orders').click();
+
+  cy.nextPage();
 }
 
 function customerFillsOutOrdersInformation() {
@@ -108,10 +112,14 @@ function customerFillsOutOrdersInformation() {
   cy.get('h1').contains('Figure out your shipments');
   cy.nextPage();
 
-  cy.get('h1').contains('How do you want to move your belongings?');
+  cy.visit('/home-2');
+  cy.get('[data-testid="doc-list-container"]').contains('top-secret.png');
+  cy.go('back');
 }
 
 function customerSetsUpAnHHGMove() {
+  cy.get('h1').contains('How do you want to move your belongings?');
+
   cy.get('input[type="radio"]').last().check({ force: true });
   cy.nextPage();
 
@@ -196,13 +204,13 @@ function customerSetsUpAnHHGMove() {
   cy.get(`[data-testid="remarks"]`).first().type('some customer remark');
   cy.nextPage();
 
-  cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
-  });
+  cy.visit('/home-2');
+  cy.get('[data-testid="shipment-list-item-container"]').contains('HHG');
+  cy.go('back');
 }
 
 function customerReviewsMoveDetails() {
-  cy.get('h2').contains('Review Move Details');
+  cy.get('[data-testid="review-move-header"]').contains('Review Move Details');
   cy.nextPage();
 }
 

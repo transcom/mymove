@@ -11,34 +11,9 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/cmd/webhook-client/utils"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
-)
-
-// Logger type exports the logger for use in the command files
-type Logger interface {
-	Debug(msg string, fields ...zap.Field)
-	Info(msg string, fields ...zap.Field)
-	Error(msg string, fields ...zap.Field)
-	Warn(msg string, fields ...zap.Field)
-	Fatal(msg string, fields ...zap.Field)
-}
-
-const (
-	// CertPathFlag is the path to the client mTLS certificate
-	CertPathFlag string = "certpath"
-	// KeyPathFlag is the path to the key mTLS certificate
-	KeyPathFlag string = "keypath"
-	// HostnameFlag is the hostname to connect to
-	HostnameFlag string = "hostname"
-	// PortFlag is the port to connect to
-	PortFlag string = "port"
-	// InsecureFlag indicates that TLS verification and validation can be skipped
-	InsecureFlag string = "insecure"
-	// MessageFlag is the string to send in the payload
-	MessageFlag string = "message"
-	// FilenameFlag is the name of the file being passed in
-	FilenameFlag string = "filename"
 )
 
 // initRootFlags initializes flags relating to the webhook client
@@ -48,26 +23,16 @@ func initRootFlags(flag *pflag.FlagSet) {
 	// DB Config
 	cli.InitDatabaseFlags(flag)
 
-	flag.String(CertPathFlag, "./config/tls/devlocal-mtls.cer", "Path to the public cert")
-	flag.String(KeyPathFlag, "./config/tls/devlocal-mtls.key", "Path to the private key")
-	flag.String(HostnameFlag, cli.HTTPPrimeServerNameLocal, "The hostname to connect to")
-	flag.Int(PortFlag, cli.MutualTLSPort, "The port to connect to")
-	flag.Bool(InsecureFlag, false, "Skip TLS verification and validation")
-	flag.String(MessageFlag, "Hello World", "Message for the client to send")
-	flag.String(FilenameFlag, "", "Data file passed in to the client")
-}
-
-// Debug prints helpful debugging information for requests
-func Debug(data []byte, err error) {
-	if err == nil {
-		log.Printf("%s\n\n", data)
-	} else {
-		log.Fatalf("%s\n\n", err)
-	}
+	// Additional flags pertinent to all commands using this tool
+	flag.String(utils.CertPathFlag, "./config/tls/devlocal-mtls.cer", "Path to the public cert")
+	flag.String(utils.KeyPathFlag, "./config/tls/devlocal-mtls.key", "Path to the private key")
+	flag.String(utils.HostnameFlag, cli.HTTPPrimeServerNameLocal, "The hostname to connect to")
+	flag.Int(utils.PortFlag, cli.MutualTLSPort, "The port to connect to")
+	flag.Bool(utils.InsecureFlag, false, "Skip TLS verification and validation")
 }
 
 // InitRootConfig checks the validity of the api flags and initializes a db connection.
-func InitRootConfig(v *viper.Viper) (*pop.Connection, Logger, error) {
+func InitRootConfig(v *viper.Viper) (*pop.Connection, utils.Logger, error) {
 
 	// LOGGER SETUP
 	// Get the db env to configure the logger level
@@ -95,7 +60,8 @@ func InitRootConfig(v *viper.Viper) (*pop.Connection, Logger, error) {
 		return nil, logger, err
 	}
 
-	if (v.GetString(CertPathFlag) != "" && v.GetString(KeyPathFlag) == "") || (v.GetString(CertPathFlag) == "" && v.GetString(KeyPathFlag) != "") {
+	if (v.GetString(utils.CertPathFlag) != "" && v.GetString(utils.KeyPathFlag) == "") ||
+		(v.GetString(utils.CertPathFlag) == "" && v.GetString(utils.KeyPathFlag) != "") {
 		return nil, logger, fmt.Errorf("Both TLS certificate and key paths must be provided")
 	}
 
