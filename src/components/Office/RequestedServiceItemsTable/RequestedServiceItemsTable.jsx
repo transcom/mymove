@@ -6,7 +6,7 @@ import { SERVICE_ITEM_STATUS } from '../../../shared/constants';
 
 import styles from './RequestedServiceItemsTable.module.scss';
 
-import ServiceItemTableHasImg from 'components/ServiceItemTableHasImg';
+import ServiceItemTableHasImg from 'components/ServiceItemTableHasImg/index';
 
 const RequestedServiceItemsTable = ({ serviceItems, handleUpdateMTOServiceItemStatus, statusForTableType }) => {
   const chooseTitleText = (status) => {
