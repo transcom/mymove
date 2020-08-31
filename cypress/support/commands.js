@@ -109,13 +109,19 @@ Cypress.Commands.add('signIntoOffice', () => {
 // Defaults to service member user type, pass in param if signing into Office app
 Cypress.Commands.add('apiSignInAsUser', (userId, userType = milmoveUserType) => {
   // This API call is what sets CSRF cookies from the server
-  cy.request('/internal/users/is_logged_in');
+  // cy.request('/internal/users/is_logged_in');
+
+  // TODO: Above is not working, I believe because of handling cross-domain cookies/setting baseUrl in between tests
+  // https://github.com/cypress-io/cypress/issues/781
+  cy.visit('/');
 
   cy.waitUntil(() => cy.getCookie('masked_gorilla_csrf').then((cookie) => cookie && cookie.value)).then((csrfToken) => {
     cy.request({
       url: '/devlocal-auth/login',
       method: 'POST',
-      headers: { 'X-CSRF-TOKEN': csrfToken },
+      headers: {
+        'X-CSRF-TOKEN': csrfToken,
+      },
       body: {
         id: userId,
         userType,
