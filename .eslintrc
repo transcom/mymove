@@ -1,6 +1,13 @@
 {
   "plugins": ["prettier", "security", "no-only-tests"],
-  "extends": ["react-app", "airbnb", "prettier", "prettier/react", "plugin:security/recommended"],
+  "extends": [
+    "react-app",
+    "airbnb",
+    "prettier",
+    "prettier/react",
+    "plugin:security/recommended",
+    "plugin:you-dont-need-lodash-underscore/compatible"
+  ],
   "root": true,
   "rules": {
     "prettier/prettier": "error",
@@ -18,7 +25,19 @@
       {
         "newlines-between": "always"
       }
-    ]
+    ],
+    "you-dont-need-lodash-underscore/capitalize": "off",
+    "you-dont-need-lodash-underscore/clone": "off",
+    "you-dont-need-lodash-underscore/cloneDeep": "off",
+    "you-dont-need-lodash-underscore/findKey": "off",
+    "you-dont-need-lodash-underscore/findLast": "off",
+    "you-dont-need-lodash-underscore/mapValues": "off",
+    "you-dont-need-lodash-underscore/memoize": "off",
+    "you-dont-need-lodash-underscore/snakeCase": "off",
+    "you-dont-need-lodash-underscore/startCase": "off",
+    "you-dont-need-lodash-underscore/sum": "off",
+    "you-dont-need-lodash-underscore/union": "off",
+    "you-dont-need-lodash-underscore/uniqueId": "off"
   },
   "overrides": [
     {
