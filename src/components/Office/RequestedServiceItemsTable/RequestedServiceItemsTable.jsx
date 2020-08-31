@@ -8,7 +8,12 @@ import styles from './RequestedServiceItemsTable.module.scss';
 
 import ServiceItemTableHasImg from 'components/ServiceItemTableHasImg/index';
 
-const RequestedServiceItemsTable = ({ serviceItems, handleUpdateMTOServiceItemStatus, statusForTableType }) => {
+const RequestedServiceItemsTable = ({
+  serviceItems,
+  handleUpdateMTOServiceItemStatus,
+  handleShowRejectionDialog,
+  statusForTableType,
+}) => {
   const chooseTitleText = (status) => {
     switch (status) {
       case SERVICE_ITEM_STATUS.SUBMITTED:
@@ -33,6 +38,7 @@ const RequestedServiceItemsTable = ({ serviceItems, handleUpdateMTOServiceItemSt
       <ServiceItemTableHasImg
         serviceItems={serviceItems}
         handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
+        handleShowRejectionDialog={handleShowRejectionDialog}
         statusForTableType={statusForTableType}
       />
     </div>
@@ -41,11 +47,14 @@ const RequestedServiceItemsTable = ({ serviceItems, handleUpdateMTOServiceItemSt
 
 RequestedServiceItemsTable.propTypes = {
   handleUpdateMTOServiceItemStatus: PropTypes.func.isRequired,
+  handleShowRejectionDialog: PropTypes.func.isRequired,
   statusForTableType: PropTypes.string.isRequired,
   serviceItems: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string,
-      submittedAt: PropTypes.string,
+      createdAt: PropTypes.string,
+      approvedAt: PropTypes.string,
+      rejectedAt: PropTypes.string,
       serviceItem: PropTypes.string,
       code: PropTypes.string,
       details: PropTypes.shape({

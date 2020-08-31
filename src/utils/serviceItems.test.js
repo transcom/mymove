@@ -1,8 +1,24 @@
-import sortServiceItemsByGroup from './serviceItems';
+import { formatToThousandthInches } from '../shared/formatters';
+
+import { sortServiceItemsByGroup, formatDimensions } from './serviceItems';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 describe('serviceItems utils', () => {
+  describe('formatDimensions', () => {
+    describe('default conversion from thousands of inch', () => {
+      it('converts to inches and adds inches symbol', () => {
+        expect(formatDimensions({ length: 10000, width: 2500, height: 50000 })).toBe('10"x2.5"x50"');
+      });
+    });
+    describe('conversion from inches to thousands of an inch', () => {
+      it('converts to inches and adds inches symbol', () => {
+        expect(formatDimensions({ length: 10, width: 2.5, height: 50 }, formatToThousandthInches, '')).toBe(
+          '10000x2500x50000',
+        );
+      });
+    });
+  });
   describe('sortServiceItemsByGroup', () => {
     describe('when there are service items without a shipment', () => {
       it('sorts basic service items together', () => {

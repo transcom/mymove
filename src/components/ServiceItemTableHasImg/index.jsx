@@ -11,15 +11,34 @@ import { MTOServiceItemCustomerContactShape, MTOServiceItemDimensionShape } from
 import styles from './index.module.scss';
 
 import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
-import { formatDate } from 'shared/dates';
+import { formatDateFromIso } from 'shared/formatters';
 
-const ServiceItemTableHasImg = ({ serviceItems, statusForTableType, handleUpdateMTOServiceItemStatus }) => {
-  const tableRows = serviceItems.map(({ id, code, submittedAt, serviceItem, details }) => {
+const ServiceItemTableHasImg = ({
+  serviceItems,
+  statusForTableType,
+  handleUpdateMTOServiceItemStatus,
+  handleShowRejectionDialog,
+}) => {
+  let dateField;
+  switch (statusForTableType) {
+    case SERVICE_ITEM_STATUS.SUBMITTED:
+      dateField = 'createdAt';
+      break;
+    case SERVICE_ITEM_STATUS.APPROVED:
+      dateField = 'approvedAt';
+      break;
+    case SERVICE_ITEM_STATUS.REJECTED:
+      dateField = 'rejectedAt';
+      break;
+    default:
+      dateField = 'createdAt';
+  }
+  const tableRows = serviceItems.map(({ id, code, serviceItem, details, ...item }) => {
     return (
       <tr key={id}>
         <td className={styles.nameAndDate}>
           <p className={styles.codeName}>{serviceItem}</p>
-          <p>{formatDate(submittedAt, 'DD MMM YYYY')}</p>
+          <p>{formatDateFromIso(item[`${dateField}`], 'DD MMM YYYY')}</p>
         </td>
         <td className={styles.detail}>
           <ServiceItemDetails id={id} code={code} details={details} />
@@ -43,7 +62,7 @@ const ServiceItemTableHasImg = ({ serviceItems, statusForTableType, handleUpdate
                 secondary
                 className="usa-button--small usa-button--icon"
                 data-testid="rejectButton"
-                onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.REJECTED)}
+                onClick={() => handleShowRejectionDialog(id)}
               >
                 <span className="icon">
                   <Ex />
@@ -51,14 +70,14 @@ const ServiceItemTableHasImg = ({ serviceItems, statusForTableType, handleUpdate
                 <span>Reject</span>
               </Button>
             </div>
-          )}{' '}
+          )}
           {statusForTableType === SERVICE_ITEM_STATUS.APPROVED && (
             <div className={styles.statusAction}>
               <Button
                 type="button"
                 data-testid="rejectTextButton"
                 className="text-blue usa-button--unstyled"
-                onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.REJECTED)}
+                onClick={() => handleShowRejectionDialog(id)}
               >
                 <span className="icon">
                   <Ex />
@@ -105,6 +124,7 @@ const ServiceItemTableHasImg = ({ serviceItems, statusForTableType, handleUpdate
 
 ServiceItemTableHasImg.propTypes = {
   handleUpdateMTOServiceItemStatus: PropTypes.func.isRequired,
+  handleShowRejectionDialog: PropTypes.func.isRequired,
   statusForTableType: PropTypes.string.isRequired,
   serviceItems: PropTypes.arrayOf(
     PropTypes.shape({
