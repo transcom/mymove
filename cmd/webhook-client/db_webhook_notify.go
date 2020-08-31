@@ -1,67 +1,50 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
+	"log"
+	"os"
+	"os/signal"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/cmd/webhook-client/utils"
+	"github.com/transcom/mymove/cmd/webhook-client/webhook"
+
+	"go.uber.org/zap"
 )
 
-func initDbWebhookNotifyFlags(flag *pflag.FlagSet) {
+const (
+	// PeriodFlag indicates how often to check the db in seconds
+	PeriodFlag string = "period"
+)
 
+// Init flags specific to this command
+func initDbWebhookNotifyFlags(flag *pflag.FlagSet) {
+	flag.Int(PeriodFlag, 5, "Period in secs to check for notifications")
 	flag.SortFlags = false
 }
 
 func dbWebhookNotify(cmd *cobra.Command, args []string) error {
 	v := viper.New()
-	// Temp url to use when making requests
-	basePath := "/support/v1/webhook-notify"
 
-	err := ParseFlags(cmd, v, args)
+	// Parse flags from command line
+	err := utils.ParseFlags(cmd, v, args)
 	if err != nil {
 		return err
 	}
 
+	// Validate all arguments passed in including DB, CAC, etc...
+	// Also this opens the db connection and creates a logger
 	db, logger, err := InitRootConfig(v)
 	if err != nil {
 		logger.Error("invalid configuration", zap.Error(err))
 		return err
 	}
 
-	// Read notifications
-	notifications := []models.WebhookNotification{}
-	err = db.All(&notifications)
-	if err != nil {
-		logger.Error("Error:", zap.Error(err))
-		return err
-	}
-	logger.Info("Success!", zap.Int("Num notifications found", len(notifications)))
-
-	// Construct msg to send
-	message := "There were no notifications."
-	if len(notifications) > 0 {
-		not := notifications[0]
-		message = fmt.Sprintf("There was a %s notification, id: %s, moveTaskOrderID: %s",
-			string(not.EventKey), not.ObjectID.String(), not.MoveTaskOrderID.String())
-	}
-
-	payload := &WebhookRequest{
-		Object: message,
-	}
-	json, err := json.Marshal(payload)
-
-	if err != nil {
-		logger.Error("Error creating payload:", zap.Error(err))
-		return err
-	}
-
-	// Create the client and open the cacStore
-	runtime, cacStore, errCreateClient := CreateClient(v)
+	// Create the client and open the cacStore (which has to stay open?)
+	runtime, cacStore, errCreateClient := utils.CreateClient(v)
 
 	if errCreateClient != nil {
 		logger.Error("Error creating client:", zap.Error(errCreateClient))
@@ -73,16 +56,29 @@ func dbWebhookNotify(cmd *cobra.Command, args []string) error {
 		defer cacStore.Close()
 	}
 
-	// Make the API call
-	runtime.BasePath = basePath
-	resp, err := runtime.Post(json)
-
-	if err != nil {
-		logger.Error("Error making request:", zap.Error(err))
-		return err
+	// Create a webhook engine
+	webhookEngine := webhook.Engine{
+		DB:              db,
+		Logger:          logger,
+		Client:          runtime,
+		PeriodInSeconds: v.GetInt(PeriodFlag),
 	}
 
-	logger.Info("Request complete: ", zap.String("Status", resp.Status))
+	// Start polling the db for changes
+	go webhookEngine.Start()
 
+	// Wait for interrupt signal to gracefully shutdown the server with
+	// a timeout of 5 seconds.
+	quit := make(chan os.Signal)
+	signal.Notify(quit, os.Interrupt)
+	<-quit
+	log.Println("Shutdown Server ...")
+	if err = db.Close(); err == nil {
+		logger.Info("Db connection closed")
+	} else {
+		logger.Error("Db connection close failed", zap.Error(err))
+	}
+
+	log.Println("Listener exiting")
 	return nil
 }
