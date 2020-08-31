@@ -159,7 +159,7 @@ class Home extends Component {
       <div className={`usa-prose grid-container ${styles['grid-container']}`}>
         <header data-testid="customer-header" className={styles['customer-header']}>
           <h2>
-            {serviceMember.first_name} {serviceMember.last_name}
+            {serviceMember?.['first_name']} {serviceMember?.['last_name']}
           </h2>
           {this.renderCustomerHeader()}
         </header>
