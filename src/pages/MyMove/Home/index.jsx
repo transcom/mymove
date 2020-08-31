@@ -30,7 +30,10 @@ class Home extends Component {
   }
 
   handleShipmentClick = (shipment) => {
+    // TODO: use shipment id in review path with multiple shipments functionality
     console.log('this is the shipment', shipment);
+    const { push } = this.props;
+    push('/moves/review/edit-shipment');
   };
 
   handleNewPathClick = (path) => {
