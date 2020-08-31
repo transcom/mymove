@@ -227,8 +227,7 @@ Home.propTypes = {
   shipments: arrayOf(
     shape({
       id: string,
-      locator: string,
-      select_move_type: string,
+      shipmentType: string,
     }),
   ).isRequired,
   uploadedOrderDocuments: arrayOf(
