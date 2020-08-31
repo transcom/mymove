@@ -48,12 +48,14 @@ type MTOServiceItemDDFSIT struct {
 	// Enum: [DDFSIT]
 	ReServiceCode *string `json:"reServiceCode"`
 
-	// Time of delivery corresponding to `firstAvailableDeliveryDate1`.
+	// Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
 	// Required: true
+	// Pattern: \d{4}Z
 	TimeMilitary1 *string `json:"timeMilitary1"`
 
-	// Time of delivery corresponding to `firstAvailableDeliveryDate2`.
+	// Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
 	// Required: true
+	// Pattern: \d{4}Z
 	TimeMilitary2 *string `json:"timeMilitary2"`
 
 	// type
@@ -171,12 +173,14 @@ func (m *MTOServiceItemDDFSIT) UnmarshalJSON(raw []byte) error {
 		// Enum: [DDFSIT]
 		ReServiceCode *string `json:"reServiceCode"`
 
-		// Time of delivery corresponding to `firstAvailableDeliveryDate1`.
+		// Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
 		// Required: true
+		// Pattern: \d{4}Z
 		TimeMilitary1 *string `json:"timeMilitary1"`
 
-		// Time of delivery corresponding to `firstAvailableDeliveryDate2`.
+		// Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
 		// Required: true
+		// Pattern: \d{4}Z
 		TimeMilitary2 *string `json:"timeMilitary2"`
 
 		// type
@@ -276,12 +280,14 @@ func (m MTOServiceItemDDFSIT) MarshalJSON() ([]byte, error) {
 		// Enum: [DDFSIT]
 		ReServiceCode *string `json:"reServiceCode"`
 
-		// Time of delivery corresponding to `firstAvailableDeliveryDate1`.
+		// Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
 		// Required: true
+		// Pattern: \d{4}Z
 		TimeMilitary1 *string `json:"timeMilitary1"`
 
-		// Time of delivery corresponding to `firstAvailableDeliveryDate2`.
+		// Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
 		// Required: true
+		// Pattern: \d{4}Z
 		TimeMilitary2 *string `json:"timeMilitary2"`
 
 		// type
@@ -517,12 +523,20 @@ func (m *MTOServiceItemDDFSIT) validateTimeMilitary1(formats strfmt.Registry) er
 		return err
 	}
 
+	if err := validate.Pattern("timeMilitary1", "body", string(*m.TimeMilitary1), `\d{4}Z`); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func (m *MTOServiceItemDDFSIT) validateTimeMilitary2(formats strfmt.Registry) error {
 
 	if err := validate.Required("timeMilitary2", "body", m.TimeMilitary2); err != nil {
+		return err
+	}
+
+	if err := validate.Pattern("timeMilitary2", "body", string(*m.TimeMilitary2), `\d{4}Z`); err != nil {
 		return err
 	}
 

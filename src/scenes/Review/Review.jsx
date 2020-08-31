@@ -27,7 +27,7 @@ class Review extends Component {
         >
           <div className="grid-row">
             <div className="grid-col-12 edit-title">
-              <h2>Review Move Details</h2>
+              <h2 data-testid="review-move-header">Review Move Details</h2>
               <p>You're almost done! Please review your details before we finalize the move.</p>
             </div>
           </div>
