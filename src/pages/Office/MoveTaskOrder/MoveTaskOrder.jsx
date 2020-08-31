@@ -95,7 +95,7 @@ export const MoveTaskOrder = ({ match }) => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const serviceItems = mtoServiceItems.map((item) => {
+  const serviceItems = mtoServiceItemsArr.map((item) => {
     const newItem = { ...item };
     newItem.code = item.reServiceCode;
     newItem.serviceItem = item.reServiceName;
@@ -123,7 +123,7 @@ export const MoveTaskOrder = ({ match }) => {
           </div>
         </div>
 
-        {mtoShipments.map((mtoShipment) => {
+        {Object.values(mtoShipments).map((mtoShipment) => {
           const serviceItemsForShipment = serviceItems.filter((item) => item.mtoShipmentID === mtoShipment.id);
           const requestedServiceItems = serviceItemsForShipment.filter(
             (item) => item.status === SERVICE_ITEM_STATUS.SUBMITTED,
