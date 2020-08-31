@@ -62,7 +62,7 @@ ReviewSection.propTypes = {
   fieldData: PropTypes.arrayOf(
     PropTypes.shape({
       label: PropTypes.string,
-      value: PropTypes.string,
+      value: PropTypes.node,
       key: PropTypes.string,
     }),
   ).isRequired,

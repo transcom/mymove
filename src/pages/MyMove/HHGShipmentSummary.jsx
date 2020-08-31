@@ -29,15 +29,6 @@ export default function HHGShipmentSummary(props) {
 
   const destination = isEmpty(dropoffLocation) ? newDutyStationPostalCode : <Address address={dropoffLocation} />;
 
-  // make ReviewSection component a storybook component
-
-  // CSS
-  // heading 'edit' should be right aligned
-  // line under each field needs to go all the way across
-  // Move setup heading should match Orders and Profile
-  // box around each shipment
-  // blue line at the top of the shipment box
-
   const hhgShipmentData = [
     { label: 'Requested pickup date', value: formatDateSM(requestedPickupDate) },
     { label: 'Pickup location', value: hhgPickupLocation },
