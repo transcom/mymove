@@ -35,7 +35,7 @@ const Step = ({
   });
 
   return (
-    <div className={`${styles['step-container']} ${containerClassName}`}>
+    <div data-testid={`stepContainer${step}`} className={`${styles['step-container']} ${containerClassName}`}>
       <div className={styles['step-header-container']}>
         {complete ? <AcceptIcon aria-hidden className={styles.accept} /> : <NumberCircle num={step} />}
         <strong>{complete ? completedHeaderText : headerText}</strong>

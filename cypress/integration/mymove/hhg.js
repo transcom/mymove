@@ -80,8 +80,7 @@ function customerFillsInProfileInformation(reloadAfterEveryPage) {
   cy.get('input[name="email"]').type('doug@glass.net');
   cy.nextPage();
 
-  cy.get('h2').contains('Welcome Jane');
-  cy.nextPage();
+  cy.get('[data-testid="stepContainer2"]').get('[data-testid="button"]').contains('Add orders').click();
 }
 
 function customerFillsOutOrdersInformation() {
