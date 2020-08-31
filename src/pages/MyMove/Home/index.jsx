@@ -2,6 +2,7 @@
 /* eslint-disable no-console */
 import React, { Component } from 'react';
 import { func, arrayOf, shape, string, node } from 'prop-types';
+import moment from 'moment';
 import { connect } from 'react-redux';
 
 import styles from './Home.module.scss';
@@ -106,6 +107,26 @@ class Home extends Component {
     return null;
   };
 
+  renderCustomerHeader = () => {
+    const { serviceMember, orders } = this.props;
+    if (!this.hasOrders) {
+      return (
+        <p>
+          You&apos;re leaving <strong>{serviceMember.current_station.name}</strong>
+        </p>
+      );
+    }
+    return (
+      <p>
+        You&apos;re moving from <strong>{orders.new_duty_station.name}</strong> from{' '}
+        <strong>{serviceMember.current_station.name}.</strong> Report by{' '}
+        <strong>{moment(orders.report_by_date).format('DD MMM YYYY')}.</strong>
+        <br />
+        Weight allowance: <strong>{serviceMember.weight_allotment.total_weight_self} lbs</strong>
+      </p>
+    );
+  };
+
   handleShipmentClick = (shipment) => {
     console.log('this is the shipment', shipment);
   };
@@ -114,13 +135,11 @@ class Home extends Component {
     const { serviceMember, uploadedOrderDocuments, shipments } = this.props;
     return (
       <div className={`usa-prose grid-container ${styles['grid-container']}`}>
-        <header className={styles['customer-header']}>
+        <header data-testid="customer-header" className={styles['customer-header']}>
           <h2>
             {serviceMember.first_name} {serviceMember.last_name}
           </h2>
-          <p>
-            You&apos;re leaving <strong>{serviceMember.current_station.name}</strong>
-          </p>
+          {this.renderCustomerHeader()}
         </header>
         <Helper title={this.getHelperHeaderText}>{this.renderHelperDescription()}</Helper>
         <Step
@@ -223,7 +242,6 @@ Home.propTypes = {
 const mapStateToProps = (state) => {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const move = selectActiveOrLatestMove(state);
-  console.log('move', move);
   return {
     orders: selectActiveOrLatestOrdersFromEntities(state),
     uploadedOrderDocuments: selectUploadedOrders(state),

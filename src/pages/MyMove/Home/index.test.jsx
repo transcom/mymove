@@ -7,7 +7,11 @@ import Home from '.';
 
 import { store } from 'shared/store';
 
-const defaultProps = {};
+const defaultProps = {
+  serviceMember: {
+    current_station: {},
+  },
+};
 
 function mountHome(props = defaultProps) {
   return mount(
@@ -20,7 +24,6 @@ describe('Home component', () => {
   it('renders Home with the right amount of components', () => {
     const wrapper = mountHome();
     expect(wrapper.find('Step').length).toBe(4);
-    expect(wrapper.find('.usa-alert--success').length).toBe(1);
     expect(wrapper.find('Helper').length).toBe(1);
     expect(wrapper.find('Contact').length).toBe(1);
   });
