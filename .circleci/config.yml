@@ -1452,6 +1452,13 @@ jobs:
       - deploy_app_storybook:
           s3_bucket: storybook.move.mil
 
+  deploy_exp_storybook_dp3:
+    executor: mymove_small
+    steps:
+      - aws_vars_legacy
+      - deploy_app_storybook:
+          s3_bucket: storybook.dp3.us
+
   # `deploy_prd_migrations` deploys migrations to the milmove-prd environment
   deploy_prd_migrations:
     executor: mymove_small
@@ -1709,6 +1716,13 @@ workflows:
           filters:
             branches:
               only: placeholder_branch_name
+
+      - deploy_exp_storybook_dp3:
+          requires:
+            - storybook_tests
+          filters:
+            branches:
+              only: rd-MB-3431
 
       - check_circle_against_staging_sha:
           requires:
