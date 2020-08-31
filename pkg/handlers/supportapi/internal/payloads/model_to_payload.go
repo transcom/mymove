@@ -243,7 +243,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) *supportmessages.Upda
 		MoveTaskOrderID: strfmt.UUID(mtoServiceItem.MoveTaskOrderID.String()),
 		MtoShipmentID:   strfmt.UUID(mtoServiceItem.MTOShipmentID.String()),
 		Status:          supportmessages.MTOServiceItemStatus(mtoServiceItem.Status),
-		RejectionReason: mtoServiceItem.Reason,
+		RejectionReason: mtoServiceItem.RejectionReason,
 	}
 
 	return payload
