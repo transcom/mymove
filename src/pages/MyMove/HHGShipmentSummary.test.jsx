@@ -1,8 +1,9 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { BrowserRouter } from 'react-router-dom';
 
 import HHGShipmentSummary from './HHGShipmentSummary';
+
+import { MockProviders } from 'testUtils';
 
 describe('Review -> Hhg Shipment Summary', () => {
   const mtoShipment = {
@@ -53,11 +54,16 @@ describe('Review -> Hhg Shipment Summary', () => {
     shipmentType: 'HHG',
     updatedAt: '2020-07-29T00:17:53.236Z',
   };
+  const newDutyStationPostalCode = '94703';
   it('Should display shipment details', () => {
     const wrapper = mount(
-      <BrowserRouter>
-        <HHGShipmentSummary mtoShipment={mtoShipment} movePath="123" />
-      </BrowserRouter>,
+      <MockProviders initialEntries={['/']}>
+        <HHGShipmentSummary
+          mtoShipment={mtoShipment}
+          newDutyStationPostalCode={newDutyStationPostalCode}
+          movePath="123"
+        />
+      </MockProviders>,
     );
     // Address
     expect(wrapper.find(HHGShipmentSummary).html()).toContain('666 no');

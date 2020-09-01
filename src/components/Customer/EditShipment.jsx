@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { arrayOf, string, shape, func, bool } from 'prop-types';
-import { get, isEmpty } from 'lodash';
+import { get } from 'lodash';
 import { connect } from 'react-redux';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
@@ -112,13 +112,13 @@ class EditShipment extends Component {
       // Remove dashes from agent phones for expected form phone format
       if (receivingAgent) {
         const formattedAgent = cleanAgentPhone(receivingAgent);
-        if (!isEmpty(formattedAgent)) {
+        if (Object.keys(formattedAgent).length) {
           formattedMTOShipment.receivingAgent = { ...formattedAgent };
         }
       }
       if (releasingAgent) {
         const formattedAgent = cleanAgentPhone(releasingAgent);
-        if (!isEmpty(formattedAgent)) {
+        if (Object.keys(formattedAgent).length) {
           formattedMTOShipment.releasingAgent = { ...formattedAgent };
         }
       }
@@ -251,14 +251,14 @@ class EditShipment extends Component {
 
     if (releasingAgent) {
       const formattedAgent = formatAgent(releasingAgent);
-      if (!isEmpty(formattedAgent)) {
+      if (Object.keys(formattedAgent).length) {
         pendingMtoShipment.agents.push({ ...formattedAgent, agentType: MTOAgentType.RELEASING });
       }
     }
 
     if (receivingAgent) {
       const formattedAgent = formatAgent(receivingAgent);
-      if (!isEmpty(formattedAgent)) {
+      if (Object.keys(formattedAgent).length) {
         pendingMtoShipment.agents.push({ ...formattedAgent, agentType: MTOAgentType.RECEIVING });
       }
     }

@@ -210,7 +210,7 @@ function customerSetsUpAnHHGMove() {
 }
 
 function customerReviewsMoveDetails() {
-  cy.get('[data-testid="review-move-header"]').contains('Review Move Details');
+  cy.get('[data-testid="review-move-header"]').contains('Review your details');
 
   cy.get('[data-testid="edit-shipment"]').click();
 
@@ -236,6 +236,7 @@ function customerReviewsMoveDetails() {
 
   cy.get(`[data-testid="remarks"]`).contains('some edited customer remark');
   cy.get(`[data-testid="email"]`).last().contains('John@example.com');
+
   cy.nextPage();
 }
 

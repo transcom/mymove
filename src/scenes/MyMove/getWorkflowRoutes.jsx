@@ -29,7 +29,7 @@ import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import Review from 'scenes/Review/Review';
 import Agreement from 'scenes/Legalese';
 
-import HHGMoveSetup from 'pages/MyMove/HHGMoveSetup';
+import HHGShipmentSetup from 'pages/MyMove/HHGShipmentSetup';
 
 const PageNotInFlow = ({ location }) => (
   <div className="usa-grid">
@@ -219,7 +219,7 @@ const pages = {
       );
     },
     render: (key, pages, description, props) => ({ match, history }) => (
-      <HHGMoveSetup pageList={pages} pageKey={key} match={match} push={history.push} />
+      <HHGShipmentSetup pageList={pages} pageKey={key} match={match} history={history} />
     ),
   },
   '/moves/:moveId/review': {

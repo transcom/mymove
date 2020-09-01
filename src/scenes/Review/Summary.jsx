@@ -73,6 +73,7 @@ export class Summary extends Component {
     const showHHGShipmentSummary = isReviewPage && !isEmpty(mtoShipment);
 
     const showProfileAndOrders = isReviewPage || !isReviewPage;
+    const showMoveSetup = showPPMShipmentSummary || showHHGShipmentSummary;
     return (
       <Fragment>
         {get(this.props.reviewState.error, 'statusCode', false) === 409 && (
@@ -107,11 +108,19 @@ export class Summary extends Component {
           />
         )}
 
+        {showMoveSetup && <h3>Move setup</h3>}
+
         {showPPMShipmentSummary && (
           <PPMShipmentSummary ppm={currentPPM} movePath={rootReviewAddressWithMoveId} orders={currentOrders} />
         )}
 
-        {showHHGShipmentSummary && <HHGShipmentSummary mtoShipment={mtoShipment} movePath={rootAddressWithMoveId} />}
+        {showHHGShipmentSummary && (
+          <HHGShipmentSummary
+            mtoShipment={mtoShipment}
+            movePath={rootAddressWithMoveId}
+            newDutyStationPostalCode={currentOrders.new_duty_station.address.postal_code}
+          />
+        )}
 
         {moveIsApproved && (
           <div className="approved-edit-warning">
