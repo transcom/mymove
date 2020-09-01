@@ -19,7 +19,7 @@ COMMENT ON COLUMN addresses.street_address_3 IS 'Third street address value for 
 COMMENT ON COLUMN addresses.country IS 'Country address value for address record';
 
 -- backup_contacts
-COMMENT ON TABLE backup_contacts IS 'Holds all information reguarding a backup contact for the customer';
+COMMENT ON TABLE backup_contacts IS 'Holds all information regarding a backup contact for the customer';
 COMMENT ON COLUMN backup_contacts.service_member_id IS 'A foreign key that points to the service_members table';
 COMMENT ON COLUMN backup_contacts.name IS 'The name of the backup contact';
 COMMENT ON COLUMN backup_contacts.email IS 'The email of the backup contact';
@@ -74,7 +74,7 @@ COMMENT ON COLUMN notifications.created_at IS 'Date & time the notification was 
 -- personally_procured_moves
 COMMENT ON TABLE personally_procured_moves IS 'Holds information about the personally procured moves - moves when customers move themselves';
 COMMENT ON COLUMN personally_procured_moves.move_id IS 'A foreign key that points to the moves table';
-COMMENT ON COLUMN personally_procured_moves.size IS 'The size of a move: Large, Medimum, Small';
+COMMENT ON COLUMN personally_procured_moves.size IS 'The size of a move: Large, Medium, Small';
 COMMENT ON COLUMN personally_procured_moves.weight_estimate IS 'The estimated weight the customer think they will move';
 COMMENT ON COLUMN personally_procured_moves.created_at IS 'Date & time the personally procured move was created';
 COMMENT ON COLUMN personally_procured_moves.updated_at IS 'Date & time the personally procured move was last updated';
@@ -88,28 +88,28 @@ COMMENT ON COLUMN personally_procured_moves.has_sit IS 'A boolean to determine i
 COMMENT ON COLUMN personally_procured_moves.has_requested_advance IS 'A Boolean to determine if the requested an advance';
 COMMENT ON COLUMN personally_procured_moves.advance_id IS 'A foreign key that points to the reimbursements table';
 COMMENT ON COLUMN personally_procured_moves.estimated_storage_reimbursement IS 'The estimated value of the SIT reimbursements from the rate engine';
-COMMENT ON COLUMN personally_procured_moves.mileage IS 'The milaeg between the pickup postal code and destination postal code';
+COMMENT ON COLUMN personally_procured_moves.mileage IS 'The mileage between the pickup postal code and destination postal code';
 COMMENT ON COLUMN personally_procured_moves.planned_sit_max IS 'The maximum SIT reimbursement for the planned SIT duration';
 COMMENT ON COLUMN personally_procured_moves.sit_max IS 'Maximum SIT reimbursement for maximum SIT duration. Typically 90 days';
 COMMENT ON COLUMN personally_procured_moves.incentive_estimate_min IS 'The minimum of the estimate range returned from  the rate engine';
 COMMENT ON COLUMN personally_procured_moves.incentive_estimate_max IS 'The maximum of the estimate range returned from the rate engine';
-COMMENT ON COLUMN personally_procured_moves.advance_worksheet_id IS 'A foreign key that points to the documnts table';
-COMMENT ON COLUMN personally_procured_moves.net_weight IS 'Total weight moved. This number is comes from the actual weights from the weight tickets. Sum of (total weight - empty weight) for all weight tickets';
+COMMENT ON COLUMN personally_procured_moves.advance_worksheet_id IS 'A foreign key that points to the documents table';
+COMMENT ON COLUMN personally_procured_moves.net_weight IS 'Total weight moved (actual). This number is the sum of (total weight - empty weight) for all weight tickets.';
 COMMENT ON COLUMN personally_procured_moves.original_move_date IS 'The date the customer plans to move';
 COMMENT ON COLUMN personally_procured_moves.actual_move_date IS 'The actual date the customer moved';
-COMMENT ON COLUMN personally_procured_moves.total_sit_cost IS 'The total cost of sit returned from rate engine';
-COMMENT ON COLUMN personally_procured_moves.submit_date IS 'Date & time the customer submitted the ppm';
-COMMENT ON COLUMN personally_procured_moves.approve_date IS 'Date & time the office user approved a customer''s ppm';
-COMMENT ON COLUMN personally_procured_moves.reviewed_date IS 'Date & time the office user reviewed weight tickets and expences entered by the customer';
-COMMENT ON COLUMN personally_procured_moves.has_pro_gear IS 'A boolean to determine if the customer says they pro-gear';
+COMMENT ON COLUMN personally_procured_moves.total_sit_cost IS 'The total cost of SIT returned from rate engine';
+COMMENT ON COLUMN personally_procured_moves.submit_date IS 'Date & time the customer submitted the PPM';
+COMMENT ON COLUMN personally_procured_moves.approve_date IS 'Date & time the office user approved a customer''s PPM';
+COMMENT ON COLUMN personally_procured_moves.reviewed_date IS 'Date & time the office user reviewed weight tickets and expenses entered by the customer';
+COMMENT ON COLUMN personally_procured_moves.has_pro_gear IS 'A boolean to indicating if the customer says they have pro-gear';
 COMMENT ON COLUMN personally_procured_moves.has_pro_gear_over_thousand IS 'Does the customer have pro-gear that weighs over 1000 lbs? If so, that is handled differently and may require a visit from the PPO office';
 
 -- reimbursements
 COMMENT ON TABLE reimbursements IS 'Holds information about reimbursements to a customer';
 COMMENT ON COLUMN reimbursements.requested_amount IS 'The reimbursement amount the customer is requesting in cents';
-COMMENT ON COLUMN reimbursements.method_of_receipt IS 'The way the customer wants to be reimbursed: MIL_PAY, OTHER_DD, GTCC';
+COMMENT ON COLUMN reimbursements.method_of_receipt IS 'The way the customer wants to be reimbursed: OTHER (any other payment type other than GTCC), GTCC (Govt travel charge card)';
 COMMENT ON COLUMN reimbursements.status IS 'The current status of the reimbursement: DRAFT, REQUESTED, APPROVED, REJECTED, PAID';
-COMMENT ON COLUMN reimbursements.requested_date IS 'Date the reim was requested';
+COMMENT ON COLUMN reimbursements.requested_date IS 'Date the reimbursement was requested';
 COMMENT ON COLUMN reimbursements.created_at IS 'Date & time the reimbursement was created';
 COMMENT ON COLUMN reimbursements.updated_at IS 'Date & time the reimbursement was last updated';
 
@@ -120,8 +120,8 @@ COMMENT ON COLUMN service_members.rank IS 'The customer''s rank';
 COMMENT ON COLUMN service_members.middle_name IS 'The customer''s middle name';
 COMMENT ON COLUMN service_members.suffix IS 'The customer''s suffix';
 COMMENT ON COLUMN service_members.secondary_telephone IS 'The customer''s secondary phone number';
-COMMENT ON COLUMN service_members.phone_is_preferred IS 'Does the customer perfer a phone call';
-COMMENT ON COLUMN service_members.email_is_preferred IS 'Does the customer perfer an email';
+COMMENT ON COLUMN service_members.phone_is_preferred IS 'Does the customer prefer a phone call';
+COMMENT ON COLUMN service_members.email_is_preferred IS 'Does the customer prefer an email';
 COMMENT ON COLUMN service_members.residential_address_id IS 'A foreign key that points to the addresses table - containing the customer''s residential address';
 COMMENT ON COLUMN service_members.backup_mailing_address_id IS 'A foreign key that points to the addresses table - containing the customer''s backup mailing address';
 COMMENT ON COLUMN service_members.created_at IS 'Date & time the customer was created';
@@ -134,7 +134,7 @@ COMMENT ON COLUMN service_members.requires_access_code IS 'A boolean value that 
 COMMENT ON TABLE signed_certifications IS 'Holds information about when the customer signed the certificate';
 COMMENT ON COLUMN signed_certifications.submitting_user_id IS 'A foreign key that points to the users table';
 COMMENT ON COLUMN signed_certifications.move_id IS 'A foreign key that points to the moves table';
-COMMENT ON COLUMN signed_certifications.certification_text IS 'The legalese text the customer agrees to. Stored in: ppmPaymentLegal ';
+COMMENT ON COLUMN signed_certifications.certification_text IS 'The legalese text the customer agrees to. Value is hard coded and stored in: src/scenes/Legalese/legaleseText.js -> ppmPaymentLegal';
 COMMENT ON COLUMN signed_certifications.signature IS 'Currently hard coded to, CHECKBOX, coming from the frontend';
 COMMENT ON COLUMN signed_certifications.date IS 'Date & time the customer signed';
 COMMENT ON COLUMN signed_certifications.created_at IS 'Date & time the notification was created';
