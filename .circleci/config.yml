@@ -1462,7 +1462,7 @@ jobs:
       - deploy_app_storybook:
           s3_bucket: storybook.move.mil
 
-  deploy_exp_storybook_dp3:
+  deploy_prod_storybook_dp3:
     executor: mymove_small
     steps:
       - aws_vars_transcom_com_dev
@@ -1727,13 +1727,6 @@ workflows:
             branches:
               only: placeholder_branch_name
 
-      - deploy_exp_storybook_dp3:
-          requires:
-            - storybook_tests
-          filters:
-            branches:
-              only: rd-MB-3431
-
       - check_circle_against_staging_sha:
           requires:
             - pre_test
@@ -1884,6 +1877,13 @@ workflows:
           filters:
             branches:
               only: master
+
+      - deploy_prod_storybook_dp3:
+          requires:
+            - storybook_tests
+          filters:
+            branches:
+              only: rd-MB-3431
 
       - storybook_tests:
           requires:
