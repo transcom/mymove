@@ -41,9 +41,15 @@ class Home extends Component {
     return !!Object.keys(orders).length && !!uploadedOrderDocuments.length;
   }
 
-  get hasShipments() {
+  get hasShipment() {
     const { shipments } = this.props;
+    // TODO: check for PPM when PPM is integrated
     return this.hasOrders && !!shipments.length;
+  }
+
+  get hasSubmittedMove() {
+    const { move } = this.props;
+    return !!Object.keys(move).length && move.status !== 'DRAFT';
   }
 
   get getHelperHeaderText() {
@@ -51,12 +57,16 @@ class Home extends Component {
       return 'Next step: Add your orders';
     }
 
-    if (!this.hasShipments) {
+    if (!this.hasShipment) {
       return 'Gather this info, then plan your shipments';
     }
 
-    if (this.hasShipments) {
+    if (this.hasShipment && !this.hasSubmittedMove) {
       return 'Time to submit your move';
+    }
+
+    if (this.hasSubmittedMove) {
+      return 'Track your HHG move here';
     }
 
     return '';
@@ -82,7 +92,7 @@ class Home extends Component {
       );
     }
 
-    if (!this.hasShipments) {
+    if (!this.hasShipment) {
       return (
         <ul>
           {this.renderHelperListItems([
@@ -94,13 +104,24 @@ class Home extends Component {
       );
     }
 
-    if (this.hasShipments) {
+    if (this.hasShipment && !this.hasSubmittedMove) {
       return (
         <ul>
           {this.renderHelperListItems([
             "Double check the info you've entered",
             'Sign the legal agreement',
             "You'll hear from a move counselor or your transportation office within a few days",
+          ])}
+        </ul>
+      );
+    }
+
+    if (this.hasSubmittedMove) {
+      return (
+        <ul>
+          {this.renderHelperListItems([
+            'Create a custom checklist at Plan My Move',
+            'Learn more about your new duty station',
           ])}
         </ul>
       );
@@ -114,7 +135,7 @@ class Home extends Component {
     if (!this.hasOrders) {
       return (
         <p>
-          You&apos;re leaving <strong>{serviceMember.current_station.name}</strong>
+          You&apos;re leaving <strong>{serviceMember?.['current_station']?.name}</strong>
         </p>
       );
     }
@@ -130,16 +151,30 @@ class Home extends Component {
   };
 
   handleShipmentClick = (shipment) => {
+    // TODO: use shipment id in review path with multiple shipments functionality
     console.log('this is the shipment', shipment);
+    const { history } = this.props;
+    history.push('/moves/review/edit-shipment');
+  };
+
+  handleNewPathClick = (path) => {
+    const { history } = this.props;
+    history.push(path);
   };
 
   render() {
-    const { serviceMember, uploadedOrderDocuments, shipments } = this.props;
+    const { move, serviceMember, uploadedOrderDocuments, shipments } = this.props;
+    const ordersPath = '/orders/';
+    const shipmentSelectionPath = `/moves/${move.id}/select-type`;
+    const confirmationPath = `/moves/${move.id}/review`;
+    const profileEditPath = '/moves/review/edit-profile';
+    const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
+
     return (
       <div className={`usa-prose grid-container ${styles['grid-container']}`}>
         <header data-testid="customer-header" className={styles['customer-header']}>
           <h2>
-            {serviceMember.first_name} {serviceMember.last_name}
+            {serviceMember?.['first_name']} {serviceMember?.['last_name']}
           </h2>
           {this.renderCustomerHeader()}
         </header>
@@ -150,22 +185,19 @@ class Home extends Component {
           editBtnLabel="Edit"
           headerText="Profile complete"
           step="1"
-          onEditClick={(e) => {
-            e.preventDefault();
-            console.log('edit clicked');
-          }}
+          onEditBtnClick={() => this.handleNewPathClick(profileEditPath)}
         >
           <Description>Make sure to keep your personal information up to date during your move</Description>
         </Step>
 
         <Step
-          actionBtnLabel={!this.hasOrders ? 'Add orders' : ''}
           complete={this.hasOrders}
           completedHeaderText="Orders uploaded"
           editBtnLabel={this.hasOrders ? 'Edit' : ''}
-          onEditClick={() => console.log('edit button clicked')}
+          onEditBtnClick={() => this.handleNewPathClick(ordersEditPath)}
           headerText="Upload orders"
-          onActionBtnClick={() => console.log('some action')}
+          actionBtnLabel={!this.hasOrders ? 'Add orders' : ''}
+          onActionBtnClick={() => this.handleNewPathClick(ordersPath)}
           step="2"
         >
           {this.hasOrders ? (
@@ -176,16 +208,17 @@ class Home extends Component {
         </Step>
 
         <Step
+          actionBtnLabel={this.hasShipment ? 'Add another shipment' : 'Plan your shipments'}
           actionBtnDisabled={!this.hasOrders}
-          actionBtnLabel={this.hasShipments ? 'Add another shipment' : 'Plan your shipments'}
-          complete={this.hasShipments}
+          onActionBtnClick={() => this.handleNewPathClick(shipmentSelectionPath)}
+          complete={this.hasShipment}
           completedHeaderText="Shipments"
           headerText="Shipment selection"
-          secondaryBtn={this.hasShipments}
+          secondaryBtn={this.hasShipment}
           secondaryClassName="margin-top-2"
           step="3"
         >
-          {this.hasShipments ? (
+          {this.hasShipment ? (
             <ShipmentList shipments={shipments} onShipmentClick={this.handleShipmentClick} />
           ) : (
             <Description>
@@ -196,16 +229,25 @@ class Home extends Component {
         </Step>
 
         <Step
-          actionBtnDisabled={!this.hasShipments}
-          actionBtnLabel="Review and submit"
+          complete={this.hasSubmittedMove}
+          actionBtnDisabled={!this.hasShipment}
+          actionBtnLabel={!this.hasSubmittedMove ? 'Review and submit' : ''}
           containerClassName="margin-bottom-8"
           headerText="Confirm move request"
-          onActionBtnClick={() => console.log('some action')}
+          completedHeaderText="Move request confirmed"
+          onActionBtnClick={() => this.handleNewPathClick(confirmationPath)}
           step="4"
         >
-          <Description>
-            Review your move details and sign the legal paperwork, then send the info on to your move counselor
-          </Description>
+          <p className={styles.description}>
+            {this.hasSubmittedMove
+              ? 'Move submitted.'
+              : 'Review your move details and sign the legal paperwork, then send the info on to your move counselor.'}
+          </p>
+          {this.hasSubmittedMove && (
+            <Description>
+              Review your move details and sign the legal paperwork, then send the info on to your move counselor
+            </Description>
+          )}
         </Step>
         <Contact
           header="Contacts"
@@ -237,6 +279,7 @@ Home.propTypes = {
       filename: string.isRequired,
     }),
   ).isRequired,
+  history: shape({}).isRequired,
   move: shape({}).isRequired,
 };
 
@@ -249,6 +292,7 @@ const mapStateToProps = (state) => {
     serviceMember,
     // TODO: change when we support PPM shipments as well
     shipments: selectMTOShipmentsByMoveId(state, move.id),
+    // TODO: change when we support multiple moves
     move,
   };
 };

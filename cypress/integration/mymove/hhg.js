@@ -80,11 +80,9 @@ function customerFillsInProfileInformation(reloadAfterEveryPage) {
   cy.get('input[name="email"]').type('doug@glass.net');
   cy.nextPage();
 
-  cy.visit('/home-2');
   cy.get('[data-testid="customer-header"]').contains('Jane Doe');
   cy.get('p').contains("You're leaving Fort Carson");
-  cy.go('back');
-  cy.nextPage();
+  cy.get('[data-testid="stepContainer2"]').get('[data-testid="button"]').contains('Add orders').click();
 }
 
 function customerFillsOutOrdersInformation() {
