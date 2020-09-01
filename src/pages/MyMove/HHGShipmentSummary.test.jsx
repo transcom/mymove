@@ -3,6 +3,8 @@ import { mount } from 'enzyme';
 
 import HHGShipmentSummary from './HHGShipmentSummary';
 
+import { MockProviders } from 'testUtils';
+
 describe('Review -> Hhg Shipment Summary', () => {
   const mtoShipment = {
     agents: [
@@ -52,8 +54,13 @@ describe('Review -> Hhg Shipment Summary', () => {
     shipmentType: 'HHG',
     updatedAt: '2020-07-29T00:17:53.236Z',
   };
+  const newDutyStationPostalCode = '94703';
   it('Should display shipment details', () => {
-    const wrapper = mount(<HHGShipmentSummary mtoShipment={mtoShipment} />);
+    const wrapper = mount(
+      <MockProviders initialEntries={['/']}>
+        <HHGShipmentSummary mtoShipment={mtoShipment} newDutyStationPostalCode={newDutyStationPostalCode} />
+      </MockProviders>,
+    );
     // Address
     expect(wrapper.find(HHGShipmentSummary).html()).toContain('666 no');
     // Agent name
