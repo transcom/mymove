@@ -17,7 +17,6 @@ const defaultFlags = {
   allOrdersTypes: false,
   hhgFlow: false,
   ghcFlow: false,
-  disableForDemo: false,
 };
 
 const environmentFlags = {
@@ -39,7 +38,6 @@ const environmentFlags = {
     allOrdersTypes: true,
     hhgFlow: true,
     ghcFlow: true,
-    disableForDemo: true,
   }),
 
   production: Object.assign({}, defaultFlags, {

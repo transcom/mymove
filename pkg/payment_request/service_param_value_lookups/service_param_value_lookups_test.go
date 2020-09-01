@@ -165,41 +165,93 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	})
 
 	suite.T().Run("DestinationAddress is looked up for other serivce items", func(t *testing.T) {
-		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: models.ReServiceCodeDLH,
-				Name: "DLH",
-			},
-		})
+		testData := []models.MTOServiceItem{
+			testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+				ReService: models.ReService{
+					Code: models.ReServiceCodeDLH,
+					Name: "DLH",
+				},
+			}),
+			testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+				ReService: models.ReService{
+					Code: models.ReServiceCodeDUPK,
+					Name: "DUPK",
+				},
+			}),
+		}
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()))
-		suite.FatalNoError(err)
+		for _, mtoServiceItem := range testData {
+			paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()))
+			suite.FatalNoError(err)
 
-		suite.NotNil(paramLookup.MTOServiceItem)
-		if zdal, ok := paramLookup.lookups[models.ServiceItemParamNameZipDestAddress.String()].(ZipAddressLookup); ok {
-			suite.Equal(mtoServiceItem.MTOShipment.DestinationAddress.PostalCode, zdal.Address.PostalCode)
-		} else {
-			suite.Fail("lookup not ZipAddressLookup type")
+			suite.NotNil(paramLookup.MTOServiceItem)
+			if zdal, ok := paramLookup.lookups[models.ServiceItemParamNameZipDestAddress.String()].(ZipAddressLookup); ok {
+				suite.Equal(mtoServiceItem.MTOShipment.DestinationAddress.PostalCode, zdal.Address.PostalCode)
+			} else {
+				suite.Fail("lookup not ZipAddressLookup type")
+			}
 		}
 	})
 
-	suite.T().Run("PickupAddress is looked up for other serivce items", func(t *testing.T) {
+	suite.T().Run("DestinationAddress is not required for service items like domestic pack", func(t *testing.T) {
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
-				Code: models.ReServiceCodeDLH,
-				Name: "DLH",
+				Code: models.ReServiceCodeDPK,
+				Name: "DPK",
 			},
 		})
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()))
-		suite.FatalNoError(err)
+		mtoShipment := mtoServiceItem.MTOShipment
+		mtoShipment.DestinationAddressID = nil
+		suite.DB().Save(&mtoShipment)
 
-		suite.NotNil(paramLookup.MTOServiceItem)
-		if zpal, ok := paramLookup.lookups[models.ServiceItemParamNameZipPickupAddress.String()].(ZipAddressLookup); ok {
-			suite.Equal(mtoServiceItem.MTOShipment.PickupAddress.PostalCode, zpal.Address.PostalCode)
-		} else {
-			suite.Fail("lookup not ZipAddressLookup type")
+		_, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()))
+		suite.FatalNoError(err)
+	})
+
+	suite.T().Run("PickupAddress is looked up for other serivce items", func(t *testing.T) {
+		testData := []models.MTOServiceItem{
+			testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+				ReService: models.ReService{
+					Code: models.ReServiceCodeDLH,
+					Name: "DLH",
+				},
+			}),
+			testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+				ReService: models.ReService{
+					Code: models.ReServiceCodeDPK,
+					Name: "DPK",
+				},
+			}),
 		}
+
+		for _, mtoServiceItem := range testData {
+			paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()))
+			suite.FatalNoError(err)
+
+			suite.NotNil(paramLookup.MTOServiceItem)
+			if zpal, ok := paramLookup.lookups[models.ServiceItemParamNameZipPickupAddress.String()].(ZipAddressLookup); ok {
+				suite.Equal(mtoServiceItem.MTOShipment.PickupAddress.PostalCode, zpal.Address.PostalCode)
+			} else {
+				suite.Fail("lookup not ZipAddressLookup type")
+			}
+		}
+	})
+
+	suite.T().Run("PickupAddress is not required for service items like domestic unpack", func(t *testing.T) {
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDUPK,
+				Name: "DUPK",
+			},
+		})
+
+		mtoShipment := mtoServiceItem.MTOShipment
+		mtoShipment.PickupAddressID = nil
+		suite.DB().Save(&mtoShipment)
+
+		_, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()))
+		suite.FatalNoError(err)
 	})
 
 	suite.T().Run("nil MTOServiceItemID", func(t *testing.T) {

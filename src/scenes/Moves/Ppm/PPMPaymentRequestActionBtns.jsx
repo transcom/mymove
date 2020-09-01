@@ -58,7 +58,7 @@ class PPMPaymentRequestActionBtns extends Component {
             <div className="ppm-payment-request-footer align-right">
               <button
                 type="button"
-                className="usa-button usa-button--outline"
+                className="usa-button usa-button--secondary"
                 onClick={this.showConfirmationOrFinishLater}
               >
                 Finish Later
@@ -67,7 +67,7 @@ class PPMPaymentRequestActionBtns extends Component {
                 <button
                   data-testid="skip"
                   type="button"
-                  className="usa-button usa-button--outline"
+                  className="usa-button usa-button--secondary"
                   onClick={skipHandler}
                 >
                   Skip

@@ -60,6 +60,7 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0053](0053-use-react-query-office-app.md) - Use React Query for Office App API interactions
 - [ADR-0054](0054-use-CSS-to-highlight-unfinished-features.md) - Use CSS to highlight unfinished features
 - [ADR-0055](0055-consolidate-moves-and-mtos.md) - Consolidate moves and move task orders into one database table
+- [ADR-0056](0056-use-asdf-to-manage-golang-versions-in-development.md) - Use ASDF To Manage Golang Versions In Development
 
 <!-- adrlogstop -->
 

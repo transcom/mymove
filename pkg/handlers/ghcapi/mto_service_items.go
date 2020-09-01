@@ -13,38 +13,12 @@ import (
 	mtoserviceitemop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/audit"
 	"github.com/transcom/mymove/pkg/services/query"
 )
-
-func payloadForMTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOServiceItem {
-	if s == nil {
-		return nil
-	}
-
-	return &ghcmessages.MTOServiceItem{
-		ID:               handlers.FmtUUID(s.ID),
-		MoveTaskOrderID:  handlers.FmtUUID(s.MoveTaskOrderID),
-		MtoShipmentID:    handlers.FmtUUIDPtr(s.MTOShipmentID),
-		ReServiceID:      handlers.FmtUUID(s.ReServiceID),
-		ReServiceCode:    handlers.FmtString(string(s.ReService.Code)),
-		ReServiceName:    handlers.FmtStringPtr(&s.ReService.Name),
-		Reason:           handlers.FmtStringPtr(s.Reason),
-		PickupPostalCode: handlers.FmtStringPtr(s.PickupPostalCode),
-		Status:           ghcmessages.MTOServiceItemStatus(s.Status),
-	}
-}
-
-func payloadForMTOServiceItemModels(s models.MTOServiceItems) ghcmessages.MTOServiceItems {
-	serviceItems := ghcmessages.MTOServiceItems{}
-	for _, item := range s {
-		serviceItems = append(serviceItems, payloadForMTOServiceItemModel(&item))
-	}
-
-	return serviceItems
-}
 
 func payloadForClientError(title string, detail string, instance uuid.UUID) *ghcmessages.ClientError {
 	return &ghcmessages.ClientError{
@@ -109,7 +83,7 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemop.CreateMTOSer
 		return mtoserviceitemop.NewCreateMTOServiceItemInternalServerError()
 	}
 
-	createdServiceItem, verrs, err := h.MTOServiceItemCreator.CreateMTOServiceItem(&serviceItem)
+	createdServiceItems, verrs, err := h.MTOServiceItemCreator.CreateMTOServiceItem(&serviceItem)
 	if verrs != nil && verrs.HasAny() {
 		logger.Error("Error validating mto service item: ", zap.Error(verrs))
 		payload := payloadForValidationError(handlers.ValidationErrMessage, "The information you provided is invalid.", h.GetTraceID(), verrs)
@@ -130,8 +104,68 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemop.CreateMTOSer
 		return mtoserviceitemop.NewCreateMTOServiceItemInternalServerError()
 	}
 
-	returnPayload := payloadForMTOServiceItemModel(createdServiceItem)
-	return mtoserviceitemop.NewCreateMTOServiceItemCreated().WithPayload(returnPayload)
+	serviceItemsPayload := payloads.MTOServiceItemModels(*createdServiceItems)
+	return mtoserviceitemop.NewCreateMTOServiceItemCreated().WithPayload(serviceItemsPayload[0])
+}
+
+// UpdateMTOServiceItemStatusHandler struct that describes updating service item status
+type UpdateMTOServiceItemStatusHandler struct {
+	handlers.HandlerContext
+	services.MTOServiceItemUpdater
+	services.Fetcher
+}
+
+// Handle handler that handles the handling for updating service item status
+func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.UpdateMTOServiceItemStatusParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	existingMTOServiceItem := models.MTOServiceItem{}
+
+	mtoServiceItemID, err := uuid.FromString(params.MtoServiceItemID)
+	// return parsing errors
+	if err != nil {
+		parsingError := fmt.Errorf("UUID parsing failed for mtoServiceItem: %w", err).Error()
+		logger.Error(parsingError)
+		payload := payloadForValidationError("UUID(s) parsing error", parsingError, h.GetTraceID(), validate.NewErrors())
+
+		return mtoserviceitemop.NewUpdateMTOServiceItemStatusUnprocessableEntity().WithPayload(payload)
+	}
+
+	// Fetch the existing service item
+	filter := []services.QueryFilter{query.NewQueryFilter("id", "=", mtoServiceItemID)}
+	err = h.Fetcher.FetchRecord(&existingMTOServiceItem, filter)
+
+	if err != nil {
+		logger.Error(fmt.Sprintf("Error finding MTOServiceItem for status update with ID: %s", mtoServiceItemID), zap.Error(err))
+		return mtoserviceitemop.NewUpdateMTOServiceItemStatusNotFound()
+	}
+
+	// Capture update attempt in audit log
+	_, err = audit.Capture(&existingMTOServiceItem, nil, logger, session, params.HTTPRequest)
+	if err != nil {
+		logger.Error("Auditing service error for service item update.", zap.Error(err))
+		return mtoserviceitemop.NewUpdateMTOServiceItemStatusInternalServerError()
+	}
+
+	updatedMTOServiceItem, err := h.MTOServiceItemUpdater.UpdateMTOServiceItemStatus(mtoServiceItemID, models.MTOServiceItemStatus(params.Body.Status), params.Body.RejectionReason, params.IfMatch)
+
+	if err != nil {
+		switch err.(type) {
+		case services.NotFoundError:
+			payload := payloadForClientError("Unknown UUID(s)", "Unknown UUID(s) used to update a mto service item", h.GetTraceID())
+			return mtoserviceitemop.NewUpdateMTOServiceItemStatusNotFound().WithPayload(payload)
+		case services.PreconditionFailedError:
+			return mtoserviceitemop.NewUpdateMTOServiceItemStatusPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		case services.InvalidInputError:
+			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
+			return mtoserviceitemop.NewUpdateMTOServiceItemStatusUnprocessableEntity().WithPayload(payload)
+		default:
+			logger.Error(fmt.Sprintf("Error saving payment request status for ID: %s: %s", mtoServiceItemID, err))
+			return mtoserviceitemop.NewUpdateMTOServiceItemStatusInternalServerError()
+		}
+	}
+
+	payload := payloads.MTOServiceItemModel(updatedMTOServiceItem)
+	return mtoserviceitemop.NewUpdateMTOServiceItemStatusOK().WithPayload(payload)
 }
 
 // ListMTOServiceItemsHandler struct that describes listing service items for the move task order
@@ -173,6 +207,8 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 	}
 	queryAssociations := query.NewQueryAssociations([]services.QueryAssociation{
 		query.NewQueryAssociation("ReService"),
+		query.NewQueryAssociation("CustomerContacts"),
+		query.NewQueryAssociation("Dimensions"),
 	})
 
 	var serviceItems models.MTOServiceItems
@@ -184,6 +220,6 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 		return mtoserviceitemop.NewListMTOServiceItemsInternalServerError()
 	}
 
-	returnPayload := payloadForMTOServiceItemModels(serviceItems)
+	returnPayload := payloads.MTOServiceItemModels(serviceItems)
 	return mtoserviceitemop.NewListMTOServiceItemsOK().WithPayload(returnPayload)
 }

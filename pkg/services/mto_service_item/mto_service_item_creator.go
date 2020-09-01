@@ -2,6 +2,7 @@ package mtoserviceitem
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
@@ -25,9 +26,10 @@ type mtoServiceItemCreator struct {
 }
 
 // CreateMTOServiceItem creates a MTO Service Item
-func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServiceItem) (*models.MTOServiceItem, *validate.Errors, error) {
+func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, *validate.Errors, error) {
 	var verrs *validate.Errors
 	var err error
+	var createdServiceItems models.MTOServiceItems
 
 	var move models.Move
 	moveID := serviceItem.MoveTaskOrderID
@@ -68,7 +70,10 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		if err != nil {
 			return nil, nil, err
 		}
-		return serviceItem, nil, nil
+
+		createdServiceItems = append(createdServiceItems, *serviceItem)
+
+		return &createdServiceItems, nil, nil
 	}
 
 	// TODO: Once customer onboarding is built, we can revisit to figure out which service items goes under each type of shipment
@@ -93,6 +98,14 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		}
 	}
 
+	for index := range serviceItem.CustomerContacts {
+		createCustContacts := &serviceItem.CustomerContacts[index]
+		err = validateTimeMilitaryField(createCustContacts.TimeMilitary)
+		if err != nil {
+			return nil, nil, services.NewInvalidInputError(serviceItem.ID, err, nil, err.Error())
+		}
+	}
+
 	// create new items in a transaction in case of failure
 	o.builder.Transaction(func(tx *pop.Connection) error {
 		// create new builder to use tx
@@ -103,6 +116,8 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		if verrs != nil || err != nil {
 			return fmt.Errorf("%#v %e", verrs, err)
 		}
+
+		createdServiceItems = append(createdServiceItems, *serviceItem)
 
 		// create dimensions if any
 		for index := range serviceItem.Dimensions {
@@ -132,7 +147,8 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	} else if err != nil {
 		return nil, verrs, services.NewQueryError("unknown", err, "")
 	}
-	return serviceItem, nil, nil
+
+	return &createdServiceItems, nil, nil
 }
 
 // NewMTOServiceItemCreator returns a new MTO service item creator
@@ -143,4 +159,39 @@ func NewMTOServiceItemCreator(builder createMTOServiceItemQueryBuilder) services
 	}
 
 	return &mtoServiceItemCreator{builder: builder, createNewBuilder: createNewBuilder}
+}
+
+func validateTimeMilitaryField(timeMilitary string) error {
+	if len(timeMilitary) == 0 {
+		return nil
+	} else if len(timeMilitary) != 5 {
+		return fmt.Errorf("timeMilitary must be in format HHMMZ")
+	}
+
+	hours := timeMilitary[:2]
+	minutes := timeMilitary[2:4]
+	suffix := timeMilitary[len(timeMilitary)-1:]
+
+	hoursInt, err := strconv.Atoi(hours)
+	if err != nil {
+		return fmt.Errorf("timeMilitary must have a valid number for hours")
+	}
+
+	minutesInt, err := strconv.Atoi(minutes)
+	if err != nil {
+		return fmt.Errorf("timeMilitary must have a valid number for minutes")
+	}
+
+	if !(0 <= hoursInt) || !(hoursInt < 24) {
+		return fmt.Errorf("timeMilitary hours must be between 00 and 23")
+	}
+	if !(0 <= minutesInt) || !(minutesInt < 60) {
+		return fmt.Errorf("timeMilitary minutes must be between 00 and 59")
+	}
+
+	if suffix != "Z" {
+		return fmt.Errorf("timeMilitary must end with 'Z'")
+	}
+
+	return nil
 }

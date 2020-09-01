@@ -90,22 +90,19 @@ func MakeMTOShipmentMinimal(db *pop.Connection, assertions Assertions) models.MT
 		moveTaskOrder = MakeMove(db, assertions)
 	}
 	pickupAddress := MakeAddress(db, assertions)
-	destinationAddress := MakeAddress2(db, assertions)
 	shipmentType := models.MTOShipmentTypeHHG
 
 	// mock dates
 	requestedPickupDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
 
 	MTOShipment := models.MTOShipment{
-		MoveTaskOrder:        moveTaskOrder,
-		MoveTaskOrderID:      moveTaskOrder.ID,
-		RequestedPickupDate:  &requestedPickupDate,
-		PickupAddress:        &pickupAddress,
-		PickupAddressID:      &pickupAddress.ID,
-		DestinationAddress:   &destinationAddress,
-		DestinationAddressID: &destinationAddress.ID,
-		ShipmentType:         shipmentType,
-		Status:               "SUBMITTED",
+		MoveTaskOrder:       moveTaskOrder,
+		MoveTaskOrderID:     moveTaskOrder.ID,
+		RequestedPickupDate: &requestedPickupDate,
+		PickupAddress:       &pickupAddress,
+		PickupAddressID:     &pickupAddress.ID,
+		ShipmentType:        shipmentType,
+		Status:              "SUBMITTED",
 	}
 
 	if assertions.MTOShipment.Status == models.MTOShipmentStatusApproved {

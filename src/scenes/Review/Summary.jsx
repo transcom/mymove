@@ -29,8 +29,6 @@ export class Summary extends Component {
   componentDidMount() {
     if (this.props.onDidMount) {
       this.props.onDidMount(this.props.serviceMember.id);
-      const { showLoggedInUser } = this.props;
-      showLoggedInUser();
     }
   }
   componentDidUpdate(prevProps) {
@@ -73,6 +71,7 @@ export class Summary extends Component {
     const showHHGShipmentSummary = isReviewPage && !isEmpty(mtoShipment);
 
     const showProfileAndOrders = isReviewPage || !isReviewPage;
+    const showMoveSetup = showPPMShipmentSummary || showHHGShipmentSummary;
     return (
       <Fragment>
         {get(this.props.reviewState.error, 'statusCode', false) === 409 && (
@@ -107,11 +106,19 @@ export class Summary extends Component {
           />
         )}
 
+        {showMoveSetup && <h3>Move setup</h3>}
+
         {showPPMShipmentSummary && (
           <PPMShipmentSummary ppm={currentPPM} movePath={rootAddressWithMoveId} orders={currentOrders} />
         )}
 
-        {showHHGShipmentSummary && <HHGShipmentSummary mtoShipment={mtoShipment} movePath={rootAddressWithMoveId} />}
+        {showHHGShipmentSummary && (
+          <HHGShipmentSummary
+            mtoShipment={mtoShipment}
+            movePath={rootAddressWithMoveId}
+            newDutyStationPostalCode={currentOrders.new_duty_station.address.postal_code}
+          />
+        )}
 
         {moveIsApproved && (
           <div className="approved-edit-warning">
@@ -140,15 +147,14 @@ Summary.propTypes = {
 };
 
 function mapStateToProps(state, ownProps) {
-  const moveID = state.moves.currentMove.id;
+  const moveID = ownProps.match.params.moveId;
   const currentOrders = selectActiveOrLatestOrdersFromEntities(state);
-  // TODO: temporary workaround until moves is consolidated from move_task_orders - this should be the move id
-  const moveTaskOrderID = get(currentOrders, 'move_task_order_id', '');
+
   return {
     currentPPM: selectActivePPMForMove(state, moveID),
-    mtoShipment: selectMTOShipmentForMTO(state, moveTaskOrderID),
+    mtoShipment: selectMTOShipmentForMTO(state, moveID),
     serviceMember: state.serviceMember.currentServiceMember,
-    currentMove: selectMove(state, ownProps.match.params.moveId),
+    currentMove: selectMove(state, moveID),
     currentBackupContacts: state.serviceMember.currentBackupContacts,
     currentOrders: currentOrders,
     uploads: selectUploadsForActiveOrders(state),
@@ -167,6 +173,7 @@ function mapDispatchToProps(dispatch, ownProps) {
     onDidMount: function () {
       const moveID = ownProps.match.params.moveId;
       dispatch(loadMove(moveID, 'Summary.getMove'));
+      dispatch(showLoggedInUserAction());
     },
     onCheckEntitlement: (moveId) => {
       dispatch(checkEntitlement(moveId));

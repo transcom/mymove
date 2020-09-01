@@ -11,14 +11,12 @@ const ppmContext = {
 const hhgContext = {
   flags: {
     hhgFlow: true,
-    disableForDemo: false,
   },
 };
 const ghcContext = {
   flags: {
     ghcFlow: true,
     hhgFlow: false,
-    disableForDemo: false,
   },
 };
 
@@ -41,7 +39,7 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/:serviceMemberId/backup-contacts',
           '/orders/',
           '/orders/upload',
-          '/orders/transition',
+          '/moves/:moveId/select-type',
           '/moves/:moveId/ppm-start',
           '/moves/:moveId/ppm-incentive',
           '/moves/:moveId/review',
@@ -57,7 +55,7 @@ describe('when getting the routes for the current workflow', () => {
           '/profile-review',
           '/orders/',
           '/orders/upload',
-          '/orders/transition',
+          '/moves/:moveId/select-type',
           '/moves/:moveId/ppm-start',
           '/moves/:moveId/ppm-incentive',
           '/moves/:moveId/review',
@@ -84,7 +82,7 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/:serviceMemberId/backup-contacts',
           '/orders/',
           '/orders/upload',
-          '/orders/transition',
+          '/moves/:moveId/select-type',
           '/moves/:moveId/review',
           '/moves/:moveId/agreement',
         ]);
@@ -107,10 +105,12 @@ describe('when getting the routes for the current workflow', () => {
             '/service-member/:serviceMemberId/residence-address',
             '/service-member/:serviceMemberId/backup-mailing-address',
             '/service-member/:serviceMemberId/backup-contacts',
-            '/service-member/:serviceMemberId/move-landing',
+            '/home-2',
             '/orders/',
             '/orders/upload',
-            '/orders/transition',
+            '/moves/:moveId/moving-info',
+            '/moves/:moveId/select-type',
+
             '/moves/:moveId/review',
             '/moves/:moveId/agreement',
           ]);
@@ -134,7 +134,7 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/:serviceMemberId/backup-contacts',
           '/orders/',
           '/orders/upload',
-          '/orders/transition',
+          '/moves/:moveId/select-type',
           '/moves/:moveId/ppm-start',
           '/moves/:moveId/ppm-incentive',
           '/moves/:moveId/review',
@@ -159,8 +159,6 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/:serviceMemberId/backup-contacts',
           '/orders/',
           '/orders/upload',
-          '/orders/transition',
-          '/moves/:moveId/moving-info',
           '/moves/:moveId/select-type',
           '/moves/:moveId/hhg-start',
           '/moves/:moveId/review',
@@ -442,7 +440,7 @@ describe('when getting the next incomplete page', () => {
           ],
           context: ppmContext,
         });
-        expect(result).toEqual('/moves/bar/review');
+        expect(result).toEqual('/moves/bar/select-type');
       });
     });
     describe('when ppm date is complete', () => {

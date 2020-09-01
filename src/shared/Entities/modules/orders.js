@@ -118,3 +118,8 @@ export function selectActiveOrLatestOrdersFromEntities(state) {
   let activeOrLatestOrders = fetchActive(orders) || head(orders);
   return activeOrLatestOrders || {};
 }
+
+export function selectUploadedOrders(state) {
+  const orders = selectActiveOrLatestOrdersFromEntities(state);
+  return Object.keys(orders).length ? orders['uploaded_orders'].uploads : [];
+}

@@ -1,0 +1,31 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+
+@import 'shared/styles/_custom';
+
+.ServiceItemTable {
+  @include u-margin-bottom(4);
+  td {
+    @include u-padding-top(2);
+  }
+}
+
+.nameAndDate {
+  p {
+    @include u-margin-y(0);
+  }
+
+  .codeName {
+    @include u-margin-bottom(1);
+    @include u-font-weight(bold);
+  }
+}
+
+.statusAction {
+  @include u-display(flex);
+
+  button {
+    @include u-margin-top(0);
+  }
+}

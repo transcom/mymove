@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes, { string } from 'prop-types';
 import { get, isEmpty } from 'lodash';
-import { GridContainer, Grid } from '@trussworks/react-uswds';
+
+import ReviewSection from '../../components/Customer/ReviewSection';
 
 import Address from 'scenes/Review/Address';
 import { formatDateSM } from 'shared/formatters';
@@ -11,99 +12,38 @@ import { MTOAgentType } from 'shared/constants';
 import 'scenes/Review/Review.css';
 
 export default function HHGShipmentSummary(props) {
-  const { mtoShipment } = props;
+  const { mtoShipment, newDutyStationPostalCode } = props;
 
   const requestedPickupDate = get(mtoShipment, 'requestedPickupDate', '');
   const pickupLocation = get(mtoShipment, 'pickupAddress', {});
   const agents = get(mtoShipment, 'agents', {});
   const releasingAgent = Object.values(agents).find((agent) => agent.agentType === MTOAgentType.RELEASING);
-
+  const releasingAgentFullName = getFullAgentName(releasingAgent);
   const requestedDeliveryDate = get(mtoShipment, 'requestedDeliveryDate', '');
   const dropoffLocation = get(mtoShipment, 'destinationAddress', {});
   const receivingAgent = Object.values(agents).find((agent) => agent.agentType === MTOAgentType.RECEIVING);
+  const receivingAgentFullName = getFullAgentName(receivingAgent);
   const remarks = get(mtoShipment, 'customerRemarks', '');
 
+  const hhgPickupLocation = <Address address={pickupLocation} />;
+
+  const destination = isEmpty(dropoffLocation) ? newDutyStationPostalCode : <Address address={dropoffLocation} />;
+
+  const hhgShipmentData = [
+    { label: 'Requested pickup date', value: formatDateSM(requestedPickupDate) },
+    { label: 'Pickup location', value: hhgPickupLocation },
+    { label: 'Releasing agent', value: isEmpty(releasingAgent) ? '–' : releasingAgentFullName },
+    { label: 'Requested delivery date', value: formatDateSM(requestedDeliveryDate) },
+    { label: 'Destination', value: destination },
+    { label: 'Receiving agent', value: isEmpty(receivingAgent) ? '–' : receivingAgentFullName },
+    { label: 'Remarks', value: !remarks ? '–' : remarks },
+  ];
+
+  // update title number when we can support multiple shipments
+  // add shipment locator as shipment subheading when it exists
   return (
     <div data-testid="hhg-summary" className="review-content">
-      <GridContainer>
-        <h3>Shipment - Government moves all of your stuff (HHG)</h3>
-        <Grid row>
-          <Grid tablet={{ col: true }}>
-            <div className="review-section">
-              <p className="heading">Pickup Dates & Locations</p>
-              <table>
-                {!isEmpty(mtoShipment) && (
-                  <tbody>
-                    <tr>
-                      <td>Requested Pickup Date: </td>
-                      <td>{formatDateSM(requestedPickupDate)}</td>
-                    </tr>
-                    <tr>
-                      <td>Pickup Location: </td>
-                      <td>
-                        <Address address={pickupLocation} />
-                      </td>
-                    </tr>
-                    {releasingAgent && (
-                      <tr>
-                        <td>Releasing Agent:</td>
-                        <td>{getFullAgentName(releasingAgent)}</td>
-                      </tr>
-                    )}
-                  </tbody>
-                )}
-              </table>
-            </div>
-          </Grid>
-          <Grid tablet={{ col: true }}>
-            <div className="review-section">
-              <p className="heading">Delivery Dates & Locations</p>
-              <table>
-                {!isEmpty(mtoShipment) && (
-                  <tbody>
-                    <tr>
-                      <td>Requested Delivery Date: </td>
-                      <td>{formatDateSM(requestedDeliveryDate)}</td>
-                    </tr>
-                    <tr>
-                      <td>Drop-off Location: </td>
-                      <td>
-                        <Address address={dropoffLocation} />
-                      </td>
-                    </tr>
-                    {receivingAgent && (
-                      <tr>
-                        <td>Receiving Agent:</td>
-                        <td>{getFullAgentName(receivingAgent)}</td>
-                      </tr>
-                    )}
-                  </tbody>
-                )}
-              </table>
-            </div>
-          </Grid>
-        </Grid>
-        <Grid row>
-          <Grid tablet={{ col: true }}>
-            <div className="review-section">
-              <p className="heading">Customer Remarks</p>
-              <table>
-                {!isEmpty(mtoShipment) && (
-                  <tbody>
-                    {remarks !== '' && (
-                      <tr>
-                        <td>Notes:</td>
-                        <td>{remarks}</td>
-                      </tr>
-                    )}
-                  </tbody>
-                )}
-              </table>
-            </div>
-          </Grid>
-          <Grid tablet={{ col: true }} />
-        </Grid>
-      </GridContainer>
+      <ReviewSection fieldData={hhgShipmentData} title="Shipment 1: HHG" editLink="" useH4 />
     </div>
   );
 }
@@ -133,6 +73,7 @@ HHGShipmentSummary.propTypes = {
       street_address_1: string,
     }),
   }),
+  newDutyStationPostalCode: PropTypes.string.isRequired,
 };
 
 HHGShipmentSummary.defaultProps = {

@@ -773,7 +773,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/MTOServiceItem'
+            $ref: '#/definitions/PatchMTOServiceItemStatusPayload'
         - in: header
           name: If-Match
           type: string
@@ -805,6 +805,10 @@ paths:
           description: Precondition Failed
           schema:
             $ref: '#/responses/PreconditionFailed'
+        '422':
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
         '500':
           description: A server error occurred
           schema:
@@ -1940,6 +1944,14 @@ definitions:
       updatedAt:
         format: date-time
         type: string
+      primeEstimatedWeight:
+        x-nullable: true
+        example: 2000
+        type: integer
+      primeActualWeight:
+        x-nullable: true
+        example: 2000
+        type: integer
       scheduledPickupDate:
         format: date
         type: string
@@ -1950,16 +1962,16 @@ definitions:
         format: date
         type: string
       pickupAddress:
-        x-nullabe: true
+        x-nullable: true
         $ref: '#/definitions/Address'
       destinationAddress:
-        x-nullabe: true
+        x-nullable: true
         $ref: '#/definitions/Address'
       secondaryPickupAddress:
-        x-nullabe: true
+        x-nullable: true
         $ref: '#/definitions/Address'
       secondaryDeliveryAddress:
-        x-nullabe: true
+        x-nullable: true
         $ref: '#/definitions/Address'
       customerRemarks:
         type: string
@@ -1998,6 +2010,20 @@ definitions:
         type: string
         example: MTO Shipment not good enough
         x-nullable: true
+  PatchMTOServiceItemStatusPayload:
+    properties:
+      status:
+        description: Describes all statuses for a MTOServiceItem
+        type: string
+        enum:
+          - SUBMITTED
+          - APPROVED
+          - REJECTED
+      rejectionReason:
+        description: Reason the service item was rejected
+        type: string
+        example: Insufficent details provided
+        x-nullable: true
   MTOServiceItemStatus:
     description: Describes all statuses for a MTOServiceItem
     type: string
@@ -2023,19 +2049,23 @@ definitions:
         type: string
       reServiceName:
         type: string
-      approvedAt:
-        format: date
-        type: string
       createdAt:
         format: date-time
         type: string
+      customerContacts:
+        $ref: '#/definitions/MTOServiceItemCustomerContacts'
       deletedAt:
         format: date
         type: string
       description:
         type: string
+      dimensions:
+        $ref: '#/definitions/MTOServiceItemDimensions'
       reason:
         type: string
+      rejectionReason:
+        type: string
+        x-nullable: true
       pickupPostalCode:
         type: string
       feeType:
@@ -2053,9 +2083,6 @@ definitions:
         type: integer
       rate:
         type: integer
-      rejectedAt:
-        format: date
-        type: string
       status:
         $ref: '#/definitions/MTOServiceItemStatus'
       submittedAt:
@@ -2067,6 +2094,14 @@ definitions:
       updatedAt:
         format: date-time
         type: string
+      approvedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      rejectedAt:
+        format: date-time
+        type: string
+        x-nullable: true
       eTag:
         type: string
     required:
@@ -2078,6 +2113,7 @@ definitions:
       - mtoShipmentID
       - reason
       - pickupPostalCode
+      - description
     type: object
   MTOServiceItems:
     type: array
@@ -2092,6 +2128,70 @@ definitions:
           - REJECTED
         type: string
     type: object
+  DimensionType:
+    description: Describes a dimension type for a MTOServiceItemDimension.
+    type: string
+    enum:
+      - ITEM
+      - CRATE
+  MTOServiceItemDimension:
+    description: Describes a dimension object for the MTOServiceItem.
+    type: object
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      type:
+        $ref: '#/definitions/DimensionType'
+      length:
+        description: Length in thousandth inches. 1000 thou = 1 inch.
+        example: 1000
+        type: integer
+        format: int32
+      width:
+        description: Width in thousandth inches. 1000 thou = 1 inch.
+        example: 1000
+        type: integer
+        format: int32
+      height:
+        description: Height in thousandth inches. 1000 thou = 1 inch.
+        example: 1000
+        type: integer
+        format: int32
+  MTOServiceItemDimensions:
+    type: array
+    items:
+      $ref: '#/definitions/MTOServiceItemDimension'
+  CustomerContactType:
+    description: Describes a customer contact type for a MTOServiceItem of type domestic destination SIT.
+    type: string
+    enum:
+      - FIRST
+      - SECOND
+  MTOServiceItemCustomerContact:
+    description: Customer contact information for a destination SIT service item
+    type: object
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      type:
+        $ref: '#/definitions/CustomerContactType'
+      timeMilitary:
+        type: string
+        example: 0400Z
+        description: Time of delivery corresponding to `firstAvailableDeliveryDate`.
+      firstAvailableDeliveryDate:
+        format: date
+        type: string
+        example: '2020-12-31'
+        description: First available date that Prime can deliver SIT service item.
+  MTOServiceItemCustomerContacts:
+    type: array
+    items:
+      $ref: '#/definitions/MTOServiceItemCustomerContact'
   MTOApprovalServiceItemCodes:
     type: array
     items:
