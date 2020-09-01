@@ -363,7 +363,6 @@ class HHGDetailsForm extends Component {
                   <AddressFields name="destinationAddress" values={values.destinationAddress} />
                 ) : (
                   <>
-                    <div className={fieldsetClasses}>We can use the zip of your new duty station.</div>
                     <div>
                       <p className={fieldsetClasses}>
                         We can use the zip of your new duty station.
