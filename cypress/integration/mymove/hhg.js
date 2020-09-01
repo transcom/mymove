@@ -1,9 +1,31 @@
-/* global cy */
 import { fileUploadTimeout } from '../../support/constants';
+
+describe('HHG Setup flow', function () {
+  before(() => {
+    cy.prepareCustomerApp();
+  });
+
+  beforeEach(() => {
+    cy.removeFetch();
+    cy.server();
+    cy.route('POST', '/internal/service_members').as('createServiceMember');
+    cy.route('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
+  });
+
+  it('Creates a shipment', function () {
+    cy.signInAsNewMilMoveUser();
+    customerFillsInProfileInformation();
+    customerFillsOutOrdersInformation();
+    customerSetsUpAnHHGMove();
+    customerReviewsMoveDetails();
+    customerSubmitsMove();
+  });
+});
 
 function customerFillsInProfileInformation(reloadAfterEveryPage) {
   // dod info
   // does not have welcome message throughout setup
+  cy.wait('@createServiceMember');
   cy.get('span').contains('Welcome,').should('not.exist');
   cy.nextPage();
 
@@ -248,19 +270,3 @@ function customerSubmitsMove() {
     cy.get('a').contains('PPM info sheet').should('have.attr', 'href').and('include', '/downloads/ppm_info_sheet.pdf');
   });
 }
-
-describe('HHG Setup flow', function () {
-  it('Creates a shipment', function () {
-    // Set up patch shipment route
-    cy.removeFetch();
-    cy.server();
-    cy.route('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
-
-    cy.signInAsNewMilMoveUser();
-    customerFillsInProfileInformation();
-    customerFillsOutOrdersInformation();
-    customerSetsUpAnHHGMove();
-    customerReviewsMoveDetails();
-    customerSubmitsMove();
-  });
-});

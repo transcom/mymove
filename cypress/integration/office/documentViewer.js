@@ -1,12 +1,12 @@
-import { fileUploadTimeout, officeAppName } from '../../support/constants';
+import { fileUploadTimeout } from '../../support/constants';
 
-/* global cy */
 describe('The document viewer', function () {
   describe('When not logged in', function () {
     beforeEach(() => {
-      cy.setupBaseUrl(officeAppName);
+      cy.prepareOfficeApp();
       cy.logout();
     });
+
     it('shows page not found', function () {
       cy.patientVisit('/moves/foo/documents');
       cy.contains('Welcome');
@@ -16,8 +16,7 @@ describe('The document viewer', function () {
 
   describe('When user is logged in', function () {
     beforeEach(() => {
-      // The document viewer is launched in a new tab, so pass in false to prevent visiting home page first
-      cy.signIntoOffice(false);
+      cy.signIntoOffice();
     });
     it('produces error when move cannot be found', () => {
       cy.patientVisit('/moves/9bfa91d2-7a0c-4de0-ae02-b90988cf8b4b858b/documents');
