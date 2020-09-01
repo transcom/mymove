@@ -24,7 +24,7 @@ const ReviewSection = ({ fieldData, title, editLink, useH4 }) => {
             <h3>
               {title}
               <span className={styles['edit-section-link']}>
-                <Link to={editLink} className="usa-link">
+                <Link to={editLink} data-testid="edit-shipment" className="usa-link">
                   Edit
                 </Link>
               </span>
@@ -33,7 +33,7 @@ const ReviewSection = ({ fieldData, title, editLink, useH4 }) => {
             <h4>
               {title}
               <span className={styles['edit-section-link']}>
-                <Link to={editLink} className="usa-link">
+                <Link to={editLink} data-testid="edit-shipment" className="usa-link">
                   Edit
                 </Link>
               </span>
