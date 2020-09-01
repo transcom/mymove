@@ -49,7 +49,7 @@ class Home extends Component {
 
   get hasSubmittedMove() {
     const { move } = this.props;
-    return !!move.length && move.status !== 'DRAFT';
+    return !!Object.keys(move).length && move.status !== 'DRAFT';
   }
 
   get getHelperHeaderText() {
@@ -61,8 +61,12 @@ class Home extends Component {
       return 'Gather this info, then plan your shipments';
     }
 
-    if (this.hasShipment) {
+    if (this.hasShipment && !this.hasSubmittedMove) {
       return 'Time to submit your move';
+    }
+
+    if (this.hasSubmittedMove) {
+      return 'Track your HHG move here';
     }
 
     return '';
@@ -100,13 +104,24 @@ class Home extends Component {
       );
     }
 
-    if (this.hasShipment) {
+    if (this.hasShipment && !this.hasSubmittedMove) {
       return (
         <ul>
           {this.renderHelperListItems([
             "Double check the info you've entered",
             'Sign the legal agreement',
             "You'll hear from a move counselor or your transportation office within a few days",
+          ])}
+        </ul>
+      );
+    }
+
+    if (this.hasSubmittedMove) {
+      return (
+        <ul>
+          {this.renderHelperListItems([
+            'Create a custom checklist at Plan My Move',
+            'Learn more about your new duty station',
           ])}
         </ul>
       );
