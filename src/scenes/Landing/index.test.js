@@ -1,20 +1,17 @@
 import 'raf/polyfill';
 import React from 'react';
 
-import { Provider } from 'react-redux';
 import moment from 'moment';
-import configureStore from 'redux-mock-store';
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
 
-import { Landing } from '.';
+import ConnectedLanding, { Landing } from './index';
 import { MoveSummary } from './MoveSummary';
 import PpmAlert from './PpmAlert';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { MockProviders } from 'testUtils';
 
 describe('HomePage tests', () => {
   let wrapper;
-  const mockStore = configureStore();
-  let store;
 
   const minProps = {
     showLoggedInUser: () => {},
@@ -32,6 +29,7 @@ describe('HomePage tests', () => {
       expect(wrapper.find('.grid-container').length).toEqual(1);
     });
   });
+
   describe('When loggedIn', () => {
     let service_member = { id: 'foo' };
     it('renders without crashing', () => {
@@ -39,30 +37,46 @@ describe('HomePage tests', () => {
       wrapper = shallow(<Landing isLoggedIn={true} {...minProps} />, div);
       expect(wrapper.find('.grid-container').length).toEqual(1);
     });
+
+    describe('if the service member is not created', () => {
+      it('creates the service member', () => {
+        const testProps = {
+          createServiceMember: jest.fn(() => Promise.resolve()),
+          showLoggedInUser: jest.fn(),
+          push: jest.fn(),
+        };
+
+        const wrapper = mount(
+          <Landing isLoggedIn={true} loggedInUserSuccess={false} serviceMember={{}} {...testProps} />,
+        );
+
+        wrapper.setProps({ loggedInUserSuccess: true });
+        expect(testProps.createServiceMember).toHaveBeenCalledTimes(1);
+        expect(testProps.showLoggedInUser).toHaveBeenCalledTimes(1);
+      });
+    });
+
     describe('When the user has never logged in before', () => {
       it('redirects to enter profile page', () => {
         const mockPush = jest.fn();
-        store = mockStore({});
-        const wrapper = shallow(
-          <Provider store={store}>
-            <Landing
-              isLoggedIn={true}
-              serviceMember={{}}
-              createdServiceMemberIsLoading={false}
-              loggedInUserSuccess={true}
-              isProfileComplete={false}
-              push={mockPush}
-              reduxState={{}}
-              {...minProps}
-            />
-          </Provider>,
+        const wrapper = mount(
+          <Landing
+            isLoggedIn={true}
+            serviceMember={{}}
+            createdServiceMemberIsLoading={false}
+            loggedInUserSuccess={true}
+            isProfileComplete={false}
+            push={mockPush}
+            {...minProps}
+          />,
         );
-        const landing = wrapper.find(Landing).dive();
-        const resumeMoveFn = jest.spyOn(landing.instance(), 'resumeMove');
-        landing.setProps({ serviceMember: service_member });
+
+        const resumeMoveFn = jest.spyOn(wrapper.instance(), 'resumeMove');
+        wrapper.setProps({ serviceMember: service_member });
         expect(resumeMoveFn).toHaveBeenCalledTimes(1);
       });
     });
+
     describe('When the user profile has started but is not complete', () => {
       it('MoveSummary does not render', () => {
         const div = document.createElement('div');
@@ -118,5 +132,28 @@ describe('HomePage tests', () => {
         });
       });
     });
+  });
+});
+
+describe('ConnectedLanding', () => {
+  const initialState = {
+    entities: {
+      user: {},
+      orders: {},
+      mtoShipments: {},
+      backupContacts: {},
+      personallyProcuredMoves: {},
+    },
+  };
+
+  it('renders while loading', () => {
+    const wrapper = mount(
+      <MockProviders initialState={initialState}>
+        <ConnectedLanding />
+      </MockProviders>,
+    );
+
+    console.log(wrapper.debug());
+    expect(wrapper.exists()).toBe(true);
   });
 });

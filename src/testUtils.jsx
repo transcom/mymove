@@ -7,7 +7,7 @@ import { ConnectedRouter } from 'connected-react-router';
 
 import { configureStore } from 'shared/store';
 
-export const MockProviders = ({ children, initialState = {}, initialEntries = [] }) => {
+export const MockProviders = ({ children, initialState = {}, initialEntries = ['/'] }) => {
   const mockHistory = createMemoryHistory({ initialEntries });
   const mockStore = configureStore(mockHistory, initialState);
 
@@ -27,5 +27,5 @@ MockProviders.propTypes = {
 
 MockProviders.defaultProps = {
   initialState: {},
-  initialEntries: [],
+  initialEntries: ['/'],
 };

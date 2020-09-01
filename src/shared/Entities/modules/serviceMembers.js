@@ -73,7 +73,7 @@ export function selectServiceMember(state, serviceMemberId) {
 
 export function selectServiceMemberFromLoggedInUser(state) {
   const user = selectLoggedInUser(state);
-  const serviceMemberId = user.service_member;
+  const serviceMemberId = user?.service_member;
   return selectServiceMember(state, serviceMemberId);
 }
 

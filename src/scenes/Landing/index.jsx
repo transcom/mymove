@@ -214,7 +214,7 @@ const mapStateToProps = (state) => {
     isLoggedIn: user.isLoggedIn,
     isProfileComplete: isProfileComplete(state),
     serviceMember,
-    backupContacts: selectBackupContactsForServiceMember(serviceMember?.id),
+    backupContacts: selectBackupContactsForServiceMember(state, serviceMember?.id),
     orders: selectActiveOrLatestOrders(state),
     uploads: selectUploadsForActiveOrders(state),
     move: move,
