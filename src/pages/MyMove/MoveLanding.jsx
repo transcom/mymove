@@ -1,13 +1,15 @@
-import { get } from 'lodash';
-import PropTypes from 'prop-types';
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+
+import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
 
 export const MoveLanding = ({ serviceMember }) => {
   return (
     <div className="usa-grid">
       <h1 className="sm-heading">Home</h1>
-      <h2>Welcome {get(serviceMember, 'first_name', '')}</h2>
+      {/* eslint-disable-next-line camelcase */}
+      <h2>Welcome {serviceMember?.first_name}</h2>
     </div>
   );
 };
@@ -21,9 +23,10 @@ MoveLanding.propTypes = {
 MoveLanding.defaultProps = {
   serviceMember: {},
 };
+
 function mapStateToProps(state) {
   return {
-    serviceMember: get(state, 'serviceMember.currentServiceMember'),
+    serviceMember: selectServiceMemberFromLoggedInUser(state),
   };
 }
 

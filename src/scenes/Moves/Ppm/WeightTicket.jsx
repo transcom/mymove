@@ -543,7 +543,6 @@ WeightTicket.propTypes = {
 
 function mapStateToProps(state, ownProps) {
   const moveId = ownProps.match.params.moveId;
-  const dutyStationId = get(state, 'serviceMember.currentServiceMember.current_station.id');
   // TODO: get this from entities when getLoggedInUser info is normalized
   const transportationOffice = get(state, 'user.userInfo.service_member.current_station.transportation_office', {});
   return {
@@ -555,7 +554,6 @@ function mapStateToProps(state, ownProps) {
     currentPpm: get(state, 'ppm.currentPpm'),
     weightTicketSets: selectPPMCloseoutDocumentsForMove(state, moveId, ['WEIGHT_TICKET_SET']),
     transportationOffice: transportationOffice,
-    dutyStationId: dutyStationId,
   };
 }
 

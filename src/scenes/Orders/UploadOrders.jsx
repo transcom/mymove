@@ -2,7 +2,6 @@ import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { get } from 'lodash';
 
 import {
   fetchLatestOrders,
@@ -15,6 +14,7 @@ import OrdersUploader from 'components/OrdersUploader';
 import UploadsTable from 'shared/Uploader/UploadsTable';
 import WizardPage from 'shared/WizardPage';
 import { documentSizeLimitMsg } from 'shared/constants';
+import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
 
 import './UploadOrders.css';
 import { no_op } from 'shared/utils';
@@ -123,11 +123,11 @@ UploadOrders.propTypes = {
 };
 
 function mapStateToProps(state) {
-  const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const currentOrders = selectActiveOrLatestOrders(state);
 
   const props = {
-    serviceMemberId: serviceMemberId,
+    serviceMemberId: serviceMember?.id,
     currentOrders,
     uploads: selectUploadsForActiveOrders(state),
     document: selectDocument(state, currentOrders.uploaded_orders),

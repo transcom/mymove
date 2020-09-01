@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
-import { updateServiceMember } from 'shared/Entities/modules/serviceMembers';
+import { updateServiceMember, selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import AddressForm from 'shared/AddressForm';
 
@@ -60,7 +60,7 @@ function mapStateToProps(state) {
   return {
     schema: get(state, 'swaggerInternal.spec.definitions.Address', {}),
     values: getFormValues(formName)(state),
-    ...state.serviceMember,
+    currentServiceMember: selectServiceMemberFromLoggedInUser(state),
   };
 }
 export default connect(mapStateToProps, mapDispatchToProps)(BackupMailingAddress);

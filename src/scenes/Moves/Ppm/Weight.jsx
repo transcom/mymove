@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { get, isNull, toUpper } from 'lodash';
 import PropTypes from 'prop-types';
+
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import Alert from 'shared/Alert';
 import { formatCentsRange } from 'shared/formatters';
@@ -16,6 +17,7 @@ import {
   selectPPMEstimateRange,
 } from 'shared/Entities/modules/ppms';
 import { fetchLatestOrders, selectActiveOrLatestOrders } from 'shared/Entities/modules/orders';
+import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import RadioButton from 'shared/RadioButton';
 import 'react-rangeslider/lib/index.css';
@@ -413,9 +415,10 @@ PpmWeight.propTypes = {
 };
 function mapStateToProps(state) {
   const schema = get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {});
-  const originDutyStationZip = state.serviceMember.currentServiceMember.current_station.address.postal_code;
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+  const originDutyStationZip = serviceMember?.current_station?.address?.postal_code;
+  const serviceMemberId = serviceMember?.id;
   const moveID = state.moves.currentMove.id;
-  const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
 
   const props = {
     ...state.ppm,

@@ -4,7 +4,12 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
-import { createBackupContact, updateBackupContact } from 'shared/Entities/modules/serviceMembers';
+import {
+  createBackupContact,
+  updateBackupContact,
+  selectServiceMemberFromLoggedInUser,
+  selectBackupContactsForServiceMember,
+} from 'shared/Entities/modules/serviceMembers';
 import { renderField, recursivelyAnnotateRequiredFields } from 'shared/JsonSchemaForm';
 import { reduxForm } from 'redux-form';
 import { no_op } from 'shared/utils';
@@ -227,9 +232,12 @@ function mapDispatchToProps(dispatch) {
   );
 }
 function mapStateToProps(state) {
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+  const backupContacts = serviceMember && selectBackupContactsForServiceMember(serviceMember?.id);
+
   return {
-    currentBackupContacts: state.serviceMember.currentBackupContacts,
-    error: state.serviceMember.error,
+    currentBackupContacts: backupContacts,
+    error: state.serviceMember.error, // TODO
     schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberBackupContactPayload', {}),
     values: getFormValues(formName)(state),
   };

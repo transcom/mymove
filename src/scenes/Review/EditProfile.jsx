@@ -10,7 +10,7 @@ import Alert from 'shared/Alert'; // eslint-disable-line
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 import SaveCancelButtons from './SaveCancelButtons';
-import { updateServiceMember } from 'shared/Entities/modules/serviceMembers';
+import { updateServiceMember, selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
 import { moveIsApproved, isPpm } from 'scenes/Moves/ducks';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
@@ -152,11 +152,13 @@ class EditProfile extends Component {
 }
 
 function mapStateToProps(state) {
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+
   return {
-    serviceMember: get(state, 'serviceMember.currentServiceMember'),
+    serviceMember,
     move: get(state, 'moves.currentMove'),
-    error: get(state, 'serviceMember.error'),
-    hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
+    error: get(state, 'serviceMember.error'), // TODO
+    hasSubmitError: get(state, 'serviceMember.hasSubmitError'), // TODO
     schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),
     moveIsApproved: moveIsApproved(state),
     isPpm: isPpm(state),

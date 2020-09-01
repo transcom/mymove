@@ -20,6 +20,7 @@ import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 import { createModifiedSchemaForOrdersTypesFlag } from 'shared/featureFlags';
+import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
 
 const validateOrdersForm = validateAdditionalFields(['new_duty_station']);
 
@@ -57,7 +58,7 @@ export class Orders extends Component {
     // initialValues has to be null until there are values from the action since only the first values are taken
     const initialValues = currentOrders ? currentOrders : null;
     const newDutyStationErrorMsg =
-      newDutyStation.name === currentStation.name
+      newDutyStation.name === currentStation?.name
         ? 'You entered the same duty station for your origin and destination. Please change one of them.'
         : '';
     const showAllOrdersTypes = this.props.context.flags.allOrdersTypes;
@@ -108,14 +109,14 @@ Orders.propTypes = {
 
 function mapStateToProps(state) {
   const formValues = getFormValues(formName)(state);
-  const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
 
   return {
-    serviceMemberId: serviceMemberId,
+    serviceMemberId: serviceMember?.id,
     currentOrders: selectActiveOrLatestOrders(state),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateUpdateOrders', {}),
     formValues,
-    currentStation: get(state, 'serviceMember.currentServiceMember.current_station', {}),
+    currentStation: serviceMember?.current_station,
     newDutyStation: get(formValues, 'new_duty_station', {}),
   };
 }

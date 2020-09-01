@@ -4,9 +4,9 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
-import { updateServiceMember } from 'shared/Entities/modules/serviceMembers';
-import { selectCurrentUser } from 'shared/Data/users';
 
+import { updateServiceMember, selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
+import { selectCurrentUser } from 'shared/Data/users';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
@@ -86,13 +86,14 @@ ContactInfo.propTypes = {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({ updateServiceMember }, dispatch);
 }
+
 function mapStateToProps(state) {
   const user = selectCurrentUser(state);
   return {
     userEmail: user.email,
     schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),
     values: getFormValues(formName)(state),
-    ...state.serviceMember,
+    currentServiceMember: selectServiceMemberFromLoggedInUser(state),
   };
 }
 export default connect(mapStateToProps, mapDispatchToProps)(ContactInfo);

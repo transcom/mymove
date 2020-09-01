@@ -10,7 +10,11 @@ import { reduxForm } from 'redux-form';
 import Alert from 'shared/Alert'; // eslint-disable-line
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
-import { updateBackupContact } from 'shared/Entities/modules/serviceMembers';
+import {
+  updateBackupContact,
+  selectServiceMemberFromLoggedInUser,
+  selectBackupContactsForServiceMember,
+} from 'shared/Entities/modules/serviceMembers';
 import SaveCancelButtons from './SaveCancelButtons';
 import './Review.css';
 import profileImage from './images/profile.png';
@@ -101,11 +105,13 @@ class EditBackupContact extends Component {
 }
 
 function mapStateToProps(state) {
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+
   return {
-    backupContacts: state.serviceMember.currentBackupContacts,
-    serviceMember: state.serviceMember.currentServiceMember,
-    error: get(state, 'serviceMember.error'),
-    hasSubmitError: get(state, 'serviceMember.updateBackupContactError'),
+    backupContacts: serviceMember && selectBackupContactsForServiceMember(state, serviceMember.id),
+    serviceMember,
+    error: get(state, 'serviceMember.error'), // TODO
+    hasSubmitError: get(state, 'serviceMember.updateBackupContactError'), // TODO
     schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberBackupContactPayload', {}),
   };
 }

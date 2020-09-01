@@ -10,7 +10,7 @@ import Alert from 'shared/Alert'; // eslint-disable-line
 import AddressForm from 'shared/AddressForm';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { updateServiceMember } from 'shared/Entities/modules/serviceMembers';
+import { updateServiceMember, selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
 
 import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
 import './Review.css';
@@ -136,9 +136,9 @@ class EditContact extends Component {
 
 function mapStateToProps(state) {
   return {
-    serviceMember: state.serviceMember.currentServiceMember,
-    error: get(state, 'serviceMember.error'),
-    hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
+    serviceMember: selectServiceMemberFromLoggedInUser(state),
+    error: get(state, 'serviceMember.error'), // TODO
+    hasSubmitError: get(state, 'serviceMember.hasSubmitError'), // TODO
     serviceMemberSchema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),
     addressSchema: get(state, 'swaggerInternal.spec.definitions.Address', {}),
   };

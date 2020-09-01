@@ -4,7 +4,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
-import { updateServiceMember } from 'shared/Entities/modules/serviceMembers';
+
+import { updateServiceMember, selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { ValidateZipRateData } from 'shared/api';
 import AddressForm from 'shared/AddressForm';
@@ -65,11 +66,13 @@ ResidentialAddress.propTypes = {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({ updateServiceMember }, dispatch);
 }
+
 function mapStateToProps(state) {
   return {
     schema: get(state, 'swaggerInternal.spec.definitions.Address', {}),
     values: getFormValues(formName)(state),
-    ...state.serviceMember,
+    currentServiceMember: selectServiceMemberFromLoggedInUser(state),
   };
 }
+
 export default connect(mapStateToProps, mapDispatchToProps)(ResidentialAddress);

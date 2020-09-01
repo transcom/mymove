@@ -100,16 +100,14 @@ AccessCode = reduxForm({
 
 AccessCode.propTypes = {
   schema: PropTypes.object.isRequired,
-  serviceMemberId: PropTypes.string.isRequired,
 };
 
 function mapStateToProps(state) {
-  const serviceMember = get(state, 'serviceMember.currentServiceMember');
   const props = {
     schema: get(state, 'swaggerInternal.spec.definitions.ClaimAccessCode', {}),
-    serviceMemberId: get(serviceMember, 'id'),
     formValues: getFormValues(formName)(state),
   };
+
   return props;
 }
 

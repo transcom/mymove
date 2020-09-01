@@ -5,11 +5,11 @@ import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 import { Field } from 'redux-form';
 import { get } from 'lodash';
-import { updateServiceMember } from 'shared/Entities/modules/serviceMembers';
+
+import { updateServiceMember, selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
 import { NULL_UUID } from 'shared/constants';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { selectActiveOrLatestOrders } from 'shared/Entities/modules/orders';
-
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 
 import './DutyStation.css';
@@ -57,7 +57,7 @@ export class DutyStation extends Component {
     const { pages, pageKey, error, existingStation, newDutyStation, currentStation } = this.props;
 
     let initialValues = null;
-    if (existingStation.name) {
+    if (existingStation?.name) {
       initialValues = { current_station: existingStation };
     }
 
@@ -98,13 +98,14 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ updateServiceMember }, dispatch);
 }
 function mapStateToProps(state) {
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const formValues = getFormValues(dutyStationFormName)(state);
   const orders = selectActiveOrLatestOrders(state);
 
   return {
     values: getFormValues(dutyStationFormName)(state),
-    existingStation: get(state, 'serviceMember.currentServiceMember.current_station', {}),
-    ...state.serviceMember,
+    existingStation: serviceMember?.current_station,
+    currentServiceMember: serviceMember,
     currentStation: get(formValues, 'current_station', {}),
     newDutyStation: get(orders, 'new_duty_station', {}),
   };

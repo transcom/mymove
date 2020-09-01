@@ -4,6 +4,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
+
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -16,6 +17,7 @@ import {
   updatePPMEstimate,
 } from 'shared/Entities/modules/ppms';
 import { fetchLatestOrders, selectActiveOrLatestOrders } from 'shared/Entities/modules/orders';
+import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
 import Alert from 'shared/Alert';
 import { ValidateZipRateData } from 'shared/api';
 import { setInitialFormValues } from './ducks';
@@ -194,11 +196,11 @@ DateAndLocation.propTypes = {
 
 function mapStateToProps(state) {
   const moveID = state.moves.currentMove.id;
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
 
-  const defaultPickupZip = get(state.serviceMember, 'currentServiceMember.residential_address.postal_code');
-  const originDutyStationZip = state.serviceMember.currentServiceMember.current_station.address.postal_code;
-
-  const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
+  const defaultPickupZip = serviceMember?.residential_address?.postal_code;
+  const originDutyStationZip = serviceMember?.current_station?.address?.postal_code;
+  const serviceMemberId = serviceMember?.id;
 
   const props = {
     serviceMemberId: serviceMemberId,
@@ -207,8 +209,9 @@ function mapStateToProps(state) {
     currentOrders: selectActiveOrLatestOrders(state),
     formValues: getFormValues(formName)(state),
     entitlement: loadEntitlementsFromState(state),
-    originDutyStationZip: state.serviceMember.currentServiceMember.current_station.address.postal_code,
+    originDutyStationZip,
   };
+
   props.initialValues = !isEmpty(props.currentPPM)
     ? props.currentPPM
     : defaultPickupZip
