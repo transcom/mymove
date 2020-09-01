@@ -33,10 +33,14 @@ import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 export class Landing extends Component {
   componentDidMount() {
     // Load user into entities
-    const { showLoggedInUser } = this.props;
-    showLoggedInUser();
+    const { isLoggedIn, showLoggedInUser } = this.props;
+    if (isLoggedIn) {
+      showLoggedInUser();
+    }
+
     scrollToTop();
   }
+
   componentDidUpdate(prevProps) {
     const {
       serviceMember,
