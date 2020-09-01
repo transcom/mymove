@@ -158,7 +158,7 @@ describe('given a WizardPage', () => {
         });
         it('push gets the next page', () => {
           expect(mockPush.mock.calls.length).toBe(1);
-          expect(mockPush.mock.calls[0][0]).toBe('3');
+          expect(mockPush.mock.calls[0][0]).toBe('/');
         });
         it('submit is not called', () => {
           expect(submit.mock.calls.length).toBe(0);
@@ -200,7 +200,7 @@ describe('given a WizardPage', () => {
         });
         it('push gets the next page', () => {
           expect(mockPush.mock.calls.length).toBe(1);
-          expect(mockPush.mock.calls[0][0]).toBe('2');
+          expect(mockPush.mock.calls[0][0]).toBe('/');
         });
       });
     });
@@ -233,7 +233,7 @@ describe('given a WizardPage', () => {
         });
         it('push gets the prev page', () => {
           expect(mockPush.mock.calls.length).toBe(1);
-          expect(mockPush.mock.calls[0][0]).toBe('1');
+          expect(mockPush.mock.calls[0][0]).toBe('3');
         });
       });
       it('the cancel button is last and is enabled', () => {
@@ -253,7 +253,7 @@ describe('given a WizardPage', () => {
         });
         it('push gets the next page', () => {
           expect(mockPush.mock.calls.length).toBe(1);
-          expect(mockPush.mock.calls[0][0]).toBe('3');
+          expect(mockPush.mock.calls[0][0]).toBe('/');
         });
       });
     });
@@ -288,7 +288,7 @@ describe('given a WizardPage', () => {
           prevButton.simulate('click');
         });
         it('push gets the prev page', () => {
-          expect(mockPush.mock.calls.length).toBe(1);
+          expect(mockPush.mock.calls.length).toBe("0");
           expect(mockPush.mock.calls[0][0]).toBe('2');
         });
       });
@@ -308,7 +308,7 @@ describe('given a WizardPage', () => {
           nextButton.simulate('click');
         });
         it('submit is called', () => {
-          expect(submit.mock.calls.length).toBe(1);
+          expect(submit.mock.calls.length).toBe(0);
         });
       });
     });
