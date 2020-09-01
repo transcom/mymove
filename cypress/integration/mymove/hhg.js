@@ -83,8 +83,6 @@ function customerFillsInProfileInformation(reloadAfterEveryPage) {
   cy.get('[data-testid="customer-header"]').contains('Jane Doe');
   cy.get('p').contains("You're leaving Fort Carson");
   cy.get('[data-testid="stepContainer2"]').get('[data-testid="button"]').contains('Add orders').click();
-
-  cy.nextPage();
 }
 
 function customerFillsOutOrdersInformation() {
