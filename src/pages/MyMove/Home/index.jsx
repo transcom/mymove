@@ -120,7 +120,7 @@ class Home extends Component {
     }
     return (
       <p>
-        You&apos;re moving from <strong>{orders.new_duty_station.name}</strong> from{' '}
+        You&apos;re moving to <strong>{orders.new_duty_station.name}</strong> from{' '}
         <strong>{serviceMember.current_station.name}.</strong> Report by{' '}
         <strong>{moment(orders.report_by_date).format('DD MMM YYYY')}.</strong>
         <br />
