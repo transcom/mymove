@@ -101,7 +101,7 @@ COMMENT ON COLUMN personally_procured_moves.total_sit_cost IS 'The total cost of
 COMMENT ON COLUMN personally_procured_moves.submit_date IS 'Date & time the customer submitted the PPM';
 COMMENT ON COLUMN personally_procured_moves.approve_date IS 'Date & time the office user approved a customer''s PPM';
 COMMENT ON COLUMN personally_procured_moves.reviewed_date IS 'Date & time the office user reviewed weight tickets and expenses entered by the customer';
-COMMENT ON COLUMN personally_procured_moves.has_pro_gear IS 'A boolean to indicating if the customer says they have pro-gear';
+COMMENT ON COLUMN personally_procured_moves.has_pro_gear IS 'A boolean to indicate if the customer says they have pro-gear';
 COMMENT ON COLUMN personally_procured_moves.has_pro_gear_over_thousand IS 'Does the customer have pro-gear that weighs over 1000 lbs? If so, that is handled differently and may require a visit from the PPO office';
 
 -- reimbursements
