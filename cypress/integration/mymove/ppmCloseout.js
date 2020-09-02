@@ -134,7 +134,7 @@ function serviceMemberSubmitsPaymentRequestWithMissingDocuments() {
   );
 
   cy.get('.title').contains('Next step: Contact the PPPO office');
-  cy.get('.missing-label').contains('Unknown');
+  cy.get('.missing-label').contains('Unknown'); // If this test fails, we probably need to update our BVS data for the most recent performance period.
 }
 
 function serviceMemberReviewsDocuments() {
