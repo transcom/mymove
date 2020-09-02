@@ -241,7 +241,7 @@ function customerCheckShipmentsOnHomepage(numOfShipments) {
   cy.visit('/home-2');
   cy.wait('@getLoggedInUser');
   cy.wait('@getMTOShipments');
-  cy.get('[data-testid="shipment-list-item-container"]', { timeout: 10000 }).should('have.length', numOfShipments);
+  cy.get('[data-testid="shipment-list-item-container"]').should('have.length', numOfShipments);
   cy.go('back');
 }
 
