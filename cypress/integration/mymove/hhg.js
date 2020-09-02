@@ -10,6 +10,7 @@ describe('HHG Setup flow', function () {
     cy.server();
     cy.route('POST', '/internal/service_members').as('createServiceMember');
     cy.route('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
+    cy.route('GET', '/internal/moves/**/mto_shipments').as('getMTOShipments');
   });
 
   it('Creates a shipment', function () {
@@ -237,7 +238,8 @@ function customerAddsAnotherShipment() {
 
 function customerCheckShipmentsOnHomepage(numOfShipments) {
   cy.visit('/home-2');
-  cy.get('[data-testid="shipment-list-item-container"]', { timeout: 10000 }).should('have.length', numOfShipments);
+  cy.wait('@getMTOShipments');
+  cy.get('[data-testid="shipment-list-item-container"]').should('have.length', numOfShipments);
   cy.go('back');
 }
 
