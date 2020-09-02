@@ -11,6 +11,7 @@ describe('HHG Setup flow', function () {
     cy.route('POST', '/internal/service_members').as('createServiceMember');
     cy.route('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
     cy.route('GET', '/internal/moves/**/mto_shipments').as('getMTOShipments');
+    cy.route('GET', '/internal/users/logged_in').as('getLoggedInUser');
   });
 
   it('Creates a shipment', function () {
@@ -238,6 +239,7 @@ function customerAddsAnotherShipment() {
 
 function customerCheckShipmentsOnHomepage(numOfShipments) {
   cy.visit('/home-2');
+  cy.wait('@getLoggedInUser');
   cy.wait('@getMTOShipments');
   cy.get('[data-testid="shipment-list-item-container"]', { timeout: 10000 }).should('have.length', numOfShipments);
   cy.go('back');
