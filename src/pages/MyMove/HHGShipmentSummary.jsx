@@ -12,7 +12,8 @@ import { MTOAgentType } from 'shared/constants';
 import 'scenes/Review/Review.css';
 
 export default function HHGShipmentSummary(props) {
-  const { mtoShipment, newDutyStationPostalCode } = props;
+  const { mtoShipment, movePath, newDutyStationPostalCode } = props;
+  const editShipmentPath = `${movePath}/edit-shipment`;
 
   const requestedPickupDate = get(mtoShipment, 'requestedPickupDate', '');
   const pickupLocation = get(mtoShipment, 'pickupAddress', {});
@@ -43,12 +44,13 @@ export default function HHGShipmentSummary(props) {
   // add shipment locator as shipment subheading when it exists
   return (
     <div data-testid="hhg-summary" className="review-content">
-      <ReviewSection fieldData={hhgShipmentData} title="Shipment 1: HHG" editLink="" useH4 />
+      <ReviewSection fieldData={hhgShipmentData} title="Shipment 1: HHG" editLink={editShipmentPath} useH4 />
     </div>
   );
 }
 
 HHGShipmentSummary.propTypes = {
+  movePath: string.isRequired,
   mtoShipment: PropTypes.shape({
     agents: PropTypes.arrayOf(
       PropTypes.shape({

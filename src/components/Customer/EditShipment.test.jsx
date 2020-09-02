@@ -1,11 +1,33 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { mount } from 'enzyme';
+import { Provider } from 'react-redux';
+import { ConnectedRouter } from 'connected-react-router';
 
-import EditShipment from './EditShipment';
+import { history, store } from '../../shared/store';
 
-function mountEditShipment(props) {
-  return mount(<EditShipment {...props} />);
+import EditShipment, { EditShipmentComponent } from './EditShipment';
+
+const defaultProps = {
+  match: { isExact: false, path: '', url: '', params: { moveId: '' } },
+  history: { goBack: () => {} },
+  updateMTOShipment: () => {},
+  push: () => {},
+  currentResidence: {
+    city: 'Fort Benning',
+    state: 'GA',
+    postal_code: '31905',
+    street_address_1: '123 Main',
+  },
+};
+function mountEditShipment(props = defaultProps) {
+  return mount(
+    <Provider store={store}>
+      <ConnectedRouter history={history}>
+        <EditShipment {...props} />
+      </ConnectedRouter>
+    </Provider>,
+  );
 }
 describe('EditShipment component', () => {
   it('renders expected form components', () => {
@@ -17,7 +39,7 @@ describe('EditShipment component', () => {
   });
 
   it('renders second address field when has delivery address', () => {
-    const wrapper = mountEditShipment();
+    const wrapper = mount(<EditShipmentComponent {...defaultProps} />);
     wrapper.setState({ hasDeliveryAddress: true });
     expect(wrapper.find('AddressFields').length).toBe(2);
   });

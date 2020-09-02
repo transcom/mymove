@@ -94,12 +94,12 @@ describe('Step component', () => {
       onActionBtnClick,
     };
     const wrapper = mountStep(props);
-    const EditButton = wrapper.find('[data-testid="button"]').at(0);
-    const ActionButton = wrapper.find('[data-testid="button"]').at(1);
-    expect(EditButton.text()).toBe(editBtnLabel);
-    expect(onEditBtnClick.mock.calls.length).toBe(0);
-    EditButton.simulate('click');
-    expect(onEditBtnClick.mock.calls.length).toBe(1);
+    // const EditButton = wrapper.find('[data-testid="button"]').at(0);
+    const ActionButton = wrapper.find('[data-testid="button"]').at(0);
+    // expect(EditButton.text()).toBe(editBtnLabel);
+    // expect(onEditBtnClick.mock.calls.length).toBe(0);
+    // EditButton.simulate('click');
+    // expect(onEditBtnClick.mock.calls.length).toBe(1);
     expect(ActionButton.text()).toBe(actionBtnLabel);
     ActionButton.simulate('click');
     expect(onActionBtnClick.mock.calls.length).toBe(1);
@@ -123,10 +123,10 @@ describe('Step component', () => {
       actionBtnDisabled: true,
     };
     const wrapper = mountStep(props);
-    const EditButton = wrapper.find('[data-testid="button"]').at(0);
-    const ActionButton = wrapper.find('[data-testid="button"]').at(1);
-    expect(onEditBtnClick.mock.calls.length).toBe(0);
-    EditButton.simulate('click');
+    // const EditButton = wrapper.find('[data-testid="button"]').at(0);
+    const ActionButton = wrapper.find('[data-testid="button"]').at(0);
+    // expect(onEditBtnClick.mock.calls.length).toBe(0);
+    // EditButton.simulate('click');
     expect(onEditBtnClick.mock.calls.length).toBe(0);
     ActionButton.simulate('click');
     expect(onActionBtnClick.mock.calls.length).toBe(0);
