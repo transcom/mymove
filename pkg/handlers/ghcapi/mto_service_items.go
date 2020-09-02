@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/transcom/mymove/pkg/etag"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
@@ -15,39 +13,12 @@ import (
 	mtoserviceitemop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/audit"
 	"github.com/transcom/mymove/pkg/services/query"
 )
-
-func payloadForMTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOServiceItem {
-	if s == nil {
-		return nil
-	}
-
-	return &ghcmessages.MTOServiceItem{
-		ID:               handlers.FmtUUID(s.ID),
-		MoveTaskOrderID:  handlers.FmtUUID(s.MoveTaskOrderID),
-		MtoShipmentID:    handlers.FmtUUIDPtr(s.MTOShipmentID),
-		ReServiceID:      handlers.FmtUUID(s.ReServiceID),
-		ReServiceCode:    handlers.FmtString(string(s.ReService.Code)),
-		ReServiceName:    handlers.FmtStringPtr(&s.ReService.Name),
-		Reason:           handlers.FmtStringPtr(s.Reason),
-		PickupPostalCode: handlers.FmtStringPtr(s.PickupPostalCode),
-		Status:           ghcmessages.MTOServiceItemStatus(s.Status),
-		ETag:             etag.GenerateEtag(s.UpdatedAt),
-	}
-}
-
-func payloadForMTOServiceItemModels(s models.MTOServiceItems) ghcmessages.MTOServiceItems {
-	serviceItems := ghcmessages.MTOServiceItems{}
-	for _, item := range s {
-		serviceItems = append(serviceItems, payloadForMTOServiceItemModel(&item))
-	}
-
-	return serviceItems
-}
 
 func payloadForClientError(title string, detail string, instance uuid.UUID) *ghcmessages.ClientError {
 	return &ghcmessages.ClientError{
@@ -133,7 +104,7 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemop.CreateMTOSer
 		return mtoserviceitemop.NewCreateMTOServiceItemInternalServerError()
 	}
 
-	serviceItemsPayload := payloadForMTOServiceItemModels(*createdServiceItems)
+	serviceItemsPayload := payloads.MTOServiceItemModels(*createdServiceItems)
 	return mtoserviceitemop.NewCreateMTOServiceItemCreated().WithPayload(serviceItemsPayload[0])
 }
 
@@ -174,8 +145,8 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 		logger.Error("Auditing service error for service item update.", zap.Error(err))
 		return mtoserviceitemop.NewUpdateMTOServiceItemStatusInternalServerError()
 	}
-	// TODO: We don't yet have a rejectionReason for mtoServiceItems. When we do a rejection pop up dialog story we will need to add this in, so for now passing in nil.
-	updatedMTOServiceItem, err := h.MTOServiceItemUpdater.UpdateMTOServiceItemStatus(mtoServiceItemID, models.MTOServiceItemStatus(params.Body.Status), nil, params.IfMatch)
+
+	updatedMTOServiceItem, err := h.MTOServiceItemUpdater.UpdateMTOServiceItemStatus(mtoServiceItemID, models.MTOServiceItemStatus(params.Body.Status), params.Body.RejectionReason, params.IfMatch)
 
 	if err != nil {
 		switch err.(type) {
@@ -193,7 +164,7 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 		}
 	}
 
-	payload := payloadForMTOServiceItemModel(updatedMTOServiceItem)
+	payload := payloads.MTOServiceItemModel(updatedMTOServiceItem)
 	return mtoserviceitemop.NewUpdateMTOServiceItemStatusOK().WithPayload(payload)
 }
 
@@ -236,6 +207,8 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 	}
 	queryAssociations := query.NewQueryAssociations([]services.QueryAssociation{
 		query.NewQueryAssociation("ReService"),
+		query.NewQueryAssociation("CustomerContacts"),
+		query.NewQueryAssociation("Dimensions"),
 	})
 
 	var serviceItems models.MTOServiceItems
@@ -247,6 +220,6 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 		return mtoserviceitemop.NewListMTOServiceItemsInternalServerError()
 	}
 
-	returnPayload := payloadForMTOServiceItemModels(serviceItems)
+	returnPayload := payloads.MTOServiceItemModels(serviceItems)
 	return mtoserviceitemop.NewListMTOServiceItemsOK().WithPayload(returnPayload)
 }

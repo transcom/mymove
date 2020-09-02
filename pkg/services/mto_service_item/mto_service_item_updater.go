@@ -26,7 +26,7 @@ func NewMTOServiceItemUpdater(builder mtoServiceItemQueryBuilder) services.MTOSe
 	return &mtoServiceItemUpdater{builder}
 }
 
-func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid.UUID, status models.MTOServiceItemStatus, reason *string, eTag string) (*models.MTOServiceItem, error) {
+func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid.UUID, status models.MTOServiceItemStatus, rejectionReason *string, eTag string) (*models.MTOServiceItem, error) {
 	var mtoServiceItem models.MTOServiceItem
 
 	queryFilters := []services.QueryFilter{
@@ -38,20 +38,23 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 		return nil, services.NewNotFoundError(mtoServiceItemID, "MTOServiceItemID")
 	}
 
-	if mtoServiceItem.Status != models.MTOServiceItemStatusSubmitted || (status != models.MTOServiceItemStatusApproved && status != models.MTOServiceItemStatusRejected) {
-		return nil, services.NewConflictError(mtoServiceItemID, "MTOServiceItemID")
-	}
-
 	mtoServiceItem.Status = status
-	mtoServiceItem.UpdatedAt = time.Now()
+	updatedAt := time.Now()
+	mtoServiceItem.UpdatedAt = updatedAt
 
 	if status == models.MTOServiceItemStatusRejected {
-		if reason == nil {
+		if rejectionReason == nil {
 			return nil, services.NewConflictError(mtoServiceItemID, "Rejecting an MTO Service item requires a rejection reason")
 		}
-		mtoServiceItem.Reason = reason
+		mtoServiceItem.RejectionReason = rejectionReason
+		mtoServiceItem.RejectedAt = &updatedAt
+		// clear field if previously accepted
+		mtoServiceItem.ApprovedAt = nil
 	} else if status == models.MTOServiceItemStatusApproved {
-		mtoServiceItem.Reason = nil
+		// clear fields if previously rejected
+		mtoServiceItem.RejectionReason = nil
+		mtoServiceItem.RejectedAt = nil
+		mtoServiceItem.ApprovedAt = &updatedAt
 	}
 
 	verrs, err := p.builder.UpdateOne(&mtoServiceItem, &eTag)

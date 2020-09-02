@@ -1968,6 +1968,22 @@ func init() {
         }
       }
     },
+    "CustomerContactType": {
+      "description": "Describes a customer contact type for a MTOServiceItem of type domestic destination SIT.",
+      "type": "string",
+      "enum": [
+        "FIRST",
+        "SECOND"
+      ]
+    },
+    "DimensionType": {
+      "description": "Describes a dimension type for a MTOServiceItemDimension.",
+      "type": "string",
+      "enum": [
+        "ITEM",
+        "CRATE"
+      ]
+    },
     "DutyStation": {
       "type": "object",
       "properties": {
@@ -2144,16 +2160,21 @@ func init() {
         "reServiceName",
         "mtoShipmentID",
         "reason",
-        "pickupPostalCode"
+        "pickupPostalCode",
+        "description"
       ],
       "properties": {
         "approvedAt": {
           "type": "string",
-          "format": "date"
+          "format": "date-time",
+          "x-nullable": true
         },
         "createdAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "customerContacts": {
+          "$ref": "#/definitions/MTOServiceItemCustomerContacts"
         },
         "deletedAt": {
           "type": "string",
@@ -2161,6 +2182,9 @@ func init() {
         },
         "description": {
           "type": "string"
+        },
+        "dimensions": {
+          "$ref": "#/definitions/MTOServiceItemDimensions"
         },
         "eTag": {
           "type": "string"
@@ -2214,7 +2238,12 @@ func init() {
         },
         "rejectedAt": {
           "type": "string",
-          "format": "date"
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true
         },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
@@ -2231,6 +2260,75 @@ func init() {
           "type": "string",
           "format": "date-time"
         }
+      }
+    },
+    "MTOServiceItemCustomerContact": {
+      "description": "Customer contact information for a destination SIT service item",
+      "type": "object",
+      "properties": {
+        "firstAvailableDeliveryDate": {
+          "description": "First available date that Prime can deliver SIT service item.",
+          "type": "string",
+          "format": "date",
+          "example": "2020-12-31"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "timeMilitary": {
+          "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate` + "`" + `.",
+          "type": "string",
+          "example": "0400Z"
+        },
+        "type": {
+          "$ref": "#/definitions/CustomerContactType"
+        }
+      }
+    },
+    "MTOServiceItemCustomerContacts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOServiceItemCustomerContact"
+      }
+    },
+    "MTOServiceItemDimension": {
+      "description": "Describes a dimension object for the MTOServiceItem.",
+      "type": "object",
+      "properties": {
+        "height": {
+          "description": "Height in thousandth inches. 1000 thou = 1 inch.",
+          "type": "integer",
+          "format": "int32",
+          "example": 1000
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "length": {
+          "description": "Length in thousandth inches. 1000 thou = 1 inch.",
+          "type": "integer",
+          "format": "int32",
+          "example": 1000
+        },
+        "type": {
+          "$ref": "#/definitions/DimensionType"
+        },
+        "width": {
+          "description": "Width in thousandth inches. 1000 thou = 1 inch.",
+          "type": "integer",
+          "format": "int32",
+          "example": 1000
+        }
+      }
+    },
+    "MTOServiceItemDimensions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOServiceItemDimension"
       }
     },
     "MTOServiceItemStatus": {
@@ -2538,6 +2636,12 @@ func init() {
     },
     "PatchMTOServiceItemStatusPayload": {
       "properties": {
+        "rejectionReason": {
+          "description": "Reason the service item was rejected",
+          "type": "string",
+          "x-nullable": true,
+          "example": "Insufficent details provided"
+        },
         "status": {
           "description": "Describes all statuses for a MTOServiceItem",
           "type": "string",
@@ -5320,6 +5424,22 @@ func init() {
         }
       }
     },
+    "CustomerContactType": {
+      "description": "Describes a customer contact type for a MTOServiceItem of type domestic destination SIT.",
+      "type": "string",
+      "enum": [
+        "FIRST",
+        "SECOND"
+      ]
+    },
+    "DimensionType": {
+      "description": "Describes a dimension type for a MTOServiceItemDimension.",
+      "type": "string",
+      "enum": [
+        "ITEM",
+        "CRATE"
+      ]
+    },
     "DutyStation": {
       "type": "object",
       "properties": {
@@ -5496,16 +5616,21 @@ func init() {
         "reServiceName",
         "mtoShipmentID",
         "reason",
-        "pickupPostalCode"
+        "pickupPostalCode",
+        "description"
       ],
       "properties": {
         "approvedAt": {
           "type": "string",
-          "format": "date"
+          "format": "date-time",
+          "x-nullable": true
         },
         "createdAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "customerContacts": {
+          "$ref": "#/definitions/MTOServiceItemCustomerContacts"
         },
         "deletedAt": {
           "type": "string",
@@ -5513,6 +5638,9 @@ func init() {
         },
         "description": {
           "type": "string"
+        },
+        "dimensions": {
+          "$ref": "#/definitions/MTOServiceItemDimensions"
         },
         "eTag": {
           "type": "string"
@@ -5566,7 +5694,12 @@ func init() {
         },
         "rejectedAt": {
           "type": "string",
-          "format": "date"
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true
         },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
@@ -5583,6 +5716,75 @@ func init() {
           "type": "string",
           "format": "date-time"
         }
+      }
+    },
+    "MTOServiceItemCustomerContact": {
+      "description": "Customer contact information for a destination SIT service item",
+      "type": "object",
+      "properties": {
+        "firstAvailableDeliveryDate": {
+          "description": "First available date that Prime can deliver SIT service item.",
+          "type": "string",
+          "format": "date",
+          "example": "2020-12-31"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "timeMilitary": {
+          "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate` + "`" + `.",
+          "type": "string",
+          "example": "0400Z"
+        },
+        "type": {
+          "$ref": "#/definitions/CustomerContactType"
+        }
+      }
+    },
+    "MTOServiceItemCustomerContacts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOServiceItemCustomerContact"
+      }
+    },
+    "MTOServiceItemDimension": {
+      "description": "Describes a dimension object for the MTOServiceItem.",
+      "type": "object",
+      "properties": {
+        "height": {
+          "description": "Height in thousandth inches. 1000 thou = 1 inch.",
+          "type": "integer",
+          "format": "int32",
+          "example": 1000
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "length": {
+          "description": "Length in thousandth inches. 1000 thou = 1 inch.",
+          "type": "integer",
+          "format": "int32",
+          "example": 1000
+        },
+        "type": {
+          "$ref": "#/definitions/DimensionType"
+        },
+        "width": {
+          "description": "Width in thousandth inches. 1000 thou = 1 inch.",
+          "type": "integer",
+          "format": "int32",
+          "example": 1000
+        }
+      }
+    },
+    "MTOServiceItemDimensions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOServiceItemDimension"
       }
     },
     "MTOServiceItemStatus": {
@@ -5890,6 +6092,12 @@ func init() {
     },
     "PatchMTOServiceItemStatusPayload": {
       "properties": {
+        "rejectionReason": {
+          "description": "Reason the service item was rejected",
+          "type": "string",
+          "x-nullable": true,
+          "example": "Insufficent details provided"
+        },
         "status": {
           "description": "Describes all statuses for a MTOServiceItem",
           "type": "string",

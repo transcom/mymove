@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import { string, shape, func } from 'prop-types';
-import { isEmpty } from 'lodash';
+import { arrayOf, string, shape, func, bool } from 'prop-types';
+import { get } from 'lodash';
+import { connect } from 'react-redux';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
-import { Radio, Label, Textarea, Button, Checkbox } from '@trussworks/react-uswds';
+import { Radio, Label, Textarea, Button } from '@trussworks/react-uswds';
 
 import { Form } from '../form/Form';
 import { DatePickerInput } from '../form/fields';
@@ -12,7 +13,14 @@ import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
 
 import styles from './EditShipment.module.scss';
 
-import { MTOAgentType } from 'shared/constants';
+import {
+  selectMTOShipmentForMTO,
+  updateMTOShipment as updateMTOShipmentAction,
+} from 'shared/Entities/modules/mtoShipments';
+import Checkbox from 'shared/Checkbox';
+import { selectActiveOrLatestOrdersFromEntities } from 'shared/Entities/modules/orders';
+import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
+import { MTOAgentType, SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatSwaggerDate } from 'shared/formatters';
 import { validateDate } from 'utils/formikValidators';
 import Hint from 'shared/Hint';
@@ -20,22 +28,22 @@ import Fieldset from 'shared/Fieldset';
 import Divider from 'shared/Divider';
 
 const PickupAddressSchema = Yup.object().shape({
-  mailingAddress1: Yup.string().required('Required'),
-  mailingAddress2: Yup.string(),
+  street_address_1: Yup.string().required('Required'),
+  street_address_2: Yup.string(),
   city: Yup.string().required('Required'),
   state: Yup.string().length(2, 'Must use state abbreviation').required('Required'),
-  zip: Yup.string()
+  postal_code: Yup.string()
     // eslint-disable-next-line security/detect-unsafe-regex
     .matches(/^(\d{5}([-]\d{4})?)$/, 'Must be valid zip code')
     .required('Required'),
 });
 
 const DeliveryAddressSchema = Yup.object().shape({
-  mailingAddress1: Yup.string(),
-  mailingAddress2: Yup.string(),
+  street_address_1: Yup.string(),
+  street_address_2: Yup.string(),
   city: Yup.string(),
   state: Yup.string().length(2, 'Must use state abbreviation'),
-  zip: Yup.string()
+  postal_code: Yup.string()
     // eslint-disable-next-line security/detect-unsafe-regex
     .matches(/^(\d{5}([-]\d{4})?)$/, 'Must be valid zip code'),
 });
@@ -46,13 +54,14 @@ const AgentSchema = Yup.object().shape({
   phone: Yup.string().matches(/^[2-9]\d{2}\d{3}\d{4}$/, 'Must be valid phone number'),
   email: Yup.string().email('Must be valid email'),
 });
+
 const HHGDetailsFormSchema = Yup.object().shape({
   // requiredPickupDate, requiredDeliveryDate are also required, but using field level validation
-  pickupLocation: PickupAddressSchema,
-  deliveryLocation: DeliveryAddressSchema,
+  pickupAddress: PickupAddressSchema,
+  destinationAddress: DeliveryAddressSchema,
   releasingAgent: AgentSchema,
   receivingAgent: AgentSchema,
-  remarks: Yup.string(),
+  customerRemarks: Yup.string(),
 });
 
 class EditShipment extends Component {
@@ -60,9 +69,63 @@ class EditShipment extends Component {
     super(props);
     this.state = {
       hasDeliveryAddress: false,
+      useCurrentResidence: false,
       initialValues: {},
     };
   }
+
+  componentDidMount() {
+    const { mtoShipment } = this.props;
+    if (mtoShipment.id) {
+      this.setInitialState(mtoShipment);
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    const { mtoShipment } = this.props;
+    // If refreshing page, need to handle mtoShipment populating from a promise
+    if (mtoShipment.id && prevProps.mtoShipment.id !== mtoShipment.id) {
+      this.setInitialState(mtoShipment);
+    }
+  }
+
+  setInitialState = (mtoShipment) => {
+    function cleanAgentPhone(agent) {
+      const agentCopy = { ...agent };
+      Object.keys(agentCopy).forEach((key) => {
+        /* eslint-disable security/detect-object-injection */
+        if (key === 'phone') {
+          const phoneNum = agentCopy[key];
+          // will be in format xxxxxxxxxx
+          agentCopy[key] = phoneNum.split('-').join('');
+        }
+      });
+      return agentCopy;
+    }
+    // for existing mtoShipment, reshape agents from array of objects to key/object for proper handling
+    const { agents } = mtoShipment;
+    const formattedMTOShipment = { ...mtoShipment };
+    if (agents) {
+      const receivingAgent = agents.find((agent) => agent.agentType === 'RECEIVING_AGENT');
+      const releasingAgent = agents.find((agent) => agent.agentType === 'RELEASING_AGENT');
+
+      // Remove dashes from agent phones for expected form phone format
+      if (receivingAgent) {
+        const formattedAgent = cleanAgentPhone(receivingAgent);
+        if (Object.keys(formattedAgent).length) {
+          formattedMTOShipment.receivingAgent = { ...formattedAgent };
+        }
+      }
+      if (releasingAgent) {
+        const formattedAgent = cleanAgentPhone(releasingAgent);
+        if (Object.keys(formattedAgent).length) {
+          formattedMTOShipment.releasingAgent = { ...formattedAgent };
+        }
+      }
+    }
+    const hasDeliveryAddress = get(mtoShipment, 'destinationAddress', false);
+    this.setState({ initialValues: formattedMTOShipment, hasDeliveryAddress });
+  };
 
   handleChangeHasDeliveryAddress = () => {
     this.setState((prevState) => {
@@ -73,40 +136,57 @@ class EditShipment extends Component {
   // Use current residence
   handleUseCurrentResidenceChange = (currentValues) => {
     // eslint-disable-next-line react/destructuring-assignment
+    const { initialValues } = this.state;
+    const { currentResidence, match, mtoShipment } = this.props;
     this.setState(
       (state) => ({ useCurrentResidence: !state.useCurrentResidence }),
       () => {
-        const { initialValues, useCurrentResidence } = this.state;
-        const { currentResidence } = this.props;
-        if (useCurrentResidence) {
+        // eslint-disable-next-line react/destructuring-assignment
+        if (this.state.useCurrentResidence) {
           this.setState({
-            // eslint-disable-next-line prettier/prettier
             initialValues: {
               ...initialValues,
               ...currentValues,
-              pickupLocation: {
-                mailingAddress1: currentResidence.street_address_1,
-                mailingAddress2: currentResidence.street_address_2,
+              pickupAddress: {
+                street_address_1: currentResidence.street_address_1,
+                street_address_2: currentResidence.street_address_2,
                 city: currentResidence.city,
                 state: currentResidence.state,
-                zip: currentResidence.postal_code,
+                postal_code: currentResidence.postal_code,
               },
             },
           });
         } else {
-          this.setState({
-            initialValues: {
-              ...initialValues,
-              ...currentValues,
-              pickupLocation: {
-                mailingAddress1: '',
-                mailingAddress2: '',
-                city: '',
-                state: '',
-                zip: '',
+          // eslint-disable-next-line no-lonely-if
+          if (match.params.moveId === initialValues.moveTaskOrderID) {
+            this.setState({
+              initialValues: {
+                ...initialValues,
+                ...currentValues,
+                pickupAddress: {
+                  street_address_1: mtoShipment.pickupAddress.street_address_1,
+                  street_address_2: mtoShipment.pickupAddress.street_address_2,
+                  city: mtoShipment.pickupAddress.city,
+                  state: mtoShipment.pickupAddress.state,
+                  postal_code: mtoShipment.pickupAddress.postal_code,
+                },
               },
-            },
-          });
+            });
+          } else {
+            this.setState({
+              initialValues: {
+                ...initialValues,
+                ...currentValues,
+                pickupAddress: {
+                  street_address_1: '',
+                  street_address_2: '',
+                  city: '',
+                  state: '',
+                  postal_code: '',
+                },
+              },
+            });
+          }
         }
       },
     );
@@ -115,39 +195,41 @@ class EditShipment extends Component {
   submitMTOShipment = ({
     requestedPickupDate,
     requestedDeliveryDate,
-    pickupLocation,
-    deliveryLocation,
+    pickupAddress,
+    destinationAddress,
     receivingAgent,
     releasingAgent,
-    remarks,
+    customerRemarks,
   }) => {
-    const { createMTOShipment, moveTaskOrderID } = this.props;
+    const { updateMTOShipment, match, mtoShipment, history } = this.props;
     const { hasDeliveryAddress } = this.state;
-    const mtoShipment = {
-      moveTaskOrderID,
-      shipmentType: 'HHG',
+    const { moveId } = match.params;
+    const goBack = get(history, 'goBack', '');
+    const pendingMtoShipment = {
+      moveTaskOrderID: moveId,
+      shipmentType: SHIPMENT_OPTIONS.HHG,
       requestedPickupDate: formatSwaggerDate(requestedPickupDate),
       requestedDeliveryDate: formatSwaggerDate(requestedDeliveryDate),
-      customerRemarks: remarks,
+      customerRemarks,
       pickupAddress: {
-        street_address_1: pickupLocation.mailingAddress1,
-        street_address_2: pickupLocation.mailingAddress2,
-        city: pickupLocation.city,
-        state: pickupLocation.state.toUpperCase(),
-        postal_code: pickupLocation.zip,
-        country: pickupLocation.country,
+        street_address_1: pickupAddress.street_address_1,
+        street_address_2: pickupAddress.street_address_2,
+        city: pickupAddress.city,
+        state: pickupAddress.state.toUpperCase(),
+        postal_code: pickupAddress.postal_code,
+        country: pickupAddress.country,
       },
       agents: [],
     };
 
     if (hasDeliveryAddress) {
-      mtoShipment.destinationAddress = {
-        street_address_1: deliveryLocation.mailingAddress1,
-        street_address_2: deliveryLocation.mailingAddress2,
-        city: deliveryLocation.city,
-        state: deliveryLocation.state.toUpperCase(),
-        postal_code: deliveryLocation.zip,
-        country: deliveryLocation.country,
+      pendingMtoShipment.destinationAddress = {
+        street_address_1: destinationAddress.street_address_1,
+        street_address_2: destinationAddress.street_address_2,
+        city: destinationAddress.city,
+        state: destinationAddress.state.toUpperCase(),
+        postal_code: destinationAddress.postal_code,
+        country: destinationAddress.country,
       };
     }
 
@@ -169,27 +251,31 @@ class EditShipment extends Component {
 
     if (releasingAgent) {
       const formattedAgent = formatAgent(releasingAgent);
-      if (!isEmpty(formattedAgent)) {
-        mtoShipment.agents.push({ ...formattedAgent, agentType: MTOAgentType.RELEASING });
+      if (Object.keys(formattedAgent).length) {
+        pendingMtoShipment.agents.push({ ...formattedAgent, agentType: MTOAgentType.RELEASING });
       }
     }
 
     if (receivingAgent) {
       const formattedAgent = formatAgent(receivingAgent);
-      if (!isEmpty(formattedAgent)) {
-        mtoShipment.agents.push({ ...formattedAgent, agentType: MTOAgentType.RECEIVING });
+      if (Object.keys(formattedAgent).length) {
+        pendingMtoShipment.agents.push({ ...formattedAgent, agentType: MTOAgentType.RECEIVING });
       }
     }
-    createMTOShipment(mtoShipment);
+    updateMTOShipment(mtoShipment.id, pendingMtoShipment, mtoShipment.eTag).then(() => {
+      goBack();
+    });
   };
 
   render() {
+    const { history } = this.props;
     const { hasDeliveryAddress, initialValues, useCurrentResidence } = this.state;
+    const goBack = get(history, 'goBack', '');
     return (
       <div className="grid-container">
         <div className={`margin-top-2 ${styles['hhg-label']}`}>HHG</div>
         <h2 className="margin-top-1" style={{ fontSize: 28 }}>
-          When and where will you move this shipment?
+          When and where can the movers pick up and deliver this shipment?
         </h2>
         <Formik
           initialValues={initialValues}
@@ -198,7 +284,7 @@ class EditShipment extends Component {
           validateOnChange
           validationSchema={HHGDetailsFormSchema}
         >
-          {({ values }) => (
+          {({ values, isValid, dirty, isSubmitting, handleChange }) => (
             <Form>
               <Fieldset legend="Pickup date" className="margin-top-4">
                 <Field
@@ -218,7 +304,7 @@ class EditShipment extends Component {
               <Divider className="margin-top-4 margin-bottom-4" />
               <AddressFields
                 className="margin-bottom-3"
-                name="pickupLocation"
+                name="pickupAddress"
                 legend="Pickup location"
                 renderExistingAddressCheckbox={() => (
                   <Checkbox
@@ -230,7 +316,7 @@ class EditShipment extends Component {
                     onChange={() => this.handleUseCurrentResidenceChange(values)}
                   />
                 )}
-                values={values.pickupLocation}
+                values={values.pickupAddress}
               />
               <Hint>If you have more things at another pickup location, you can schedule for them later.</Hint>
               <hr className="margin-top-4 margin-bottom-4" />
@@ -278,7 +364,7 @@ class EditShipment extends Component {
                     onChange={this.handleChangeHasDeliveryAddress}
                   />
                 </div>
-                {hasDeliveryAddress && <AddressFields name="deliveryLocation" values={values.deliveryLocation} />}
+                {hasDeliveryAddress && <AddressFields name="destinationAddress" values={values.destinationAddress} />}
               </Fieldset>
               <Divider className="margin-top-4 margin-bottom-4" />
               <ContactInfoFields
@@ -306,12 +392,13 @@ class EditShipment extends Component {
                 <Textarea
                   label="Anything else you would like us to know?"
                   data-testid="remarks"
-                  name="remarks"
+                  name="customerRemarks"
                   className={`${styles.remarks}`}
                   placeholder="This is 500 characters of customer remarks placeholder"
                   maxLength={500}
                   type="textarea"
-                  value={values.remarks}
+                  value={values.customerRemarks}
+                  onChange={handleChange}
                 />
               </Fieldset>
               <Divider className="margin-top-6 margin-bottom-3" />
@@ -321,10 +408,13 @@ class EditShipment extends Component {
                 your final pickup date.
               </Hint>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <Button>
+                <Button
+                  disabled={isSubmitting || (!isValid && !dirty) || (isValid && !dirty)}
+                  onClick={() => this.submitMTOShipment(values)}
+                >
                   <span>Save</span>
                 </Button>
-                <Button className={`${styles['cancel-button']}`}>
+                <Button className={`${styles['cancel-button']}`} onClick={goBack}>
                   <span>Cancel</span>
                 </Button>
               </div>
@@ -343,8 +433,75 @@ EditShipment.propTypes = {
     state: string,
     postal_code: string,
   }).isRequired,
-  moveTaskOrderID: string.isRequired,
-  createMTOShipment: func.isRequired,
+  updateMTOShipment: func.isRequired,
+  match: shape({
+    isExact: bool.isRequired,
+    params: shape({
+      moveId: string.isRequired,
+    }),
+    path: string.isRequired,
+    url: string.isRequired,
+  }).isRequired,
+  history: shape({
+    goBack: func.isRequired,
+  }).isRequired,
+  mtoShipment: shape({
+    agents: arrayOf(
+      shape({
+        firstName: string,
+        lastName: string,
+        phone: string,
+        email: string,
+        agentType: string,
+      }),
+    ),
+    customerRemarks: string,
+    requestedPickupDate: string,
+    requestedDeliveryDate: string,
+    pickupAddress: shape({
+      city: string,
+      postal_code: string,
+      state: string,
+      street_address_1: string,
+    }),
+    destinationAddress: shape({
+      city: string,
+      postal_code: string,
+      state: string,
+      street_address_1: string,
+    }),
+  }),
 };
 
-export default EditShipment;
+EditShipment.defaultProps = {
+  mtoShipment: {
+    id: '',
+    customerRemarks: '',
+    requestedPickupDate: '',
+    requestedDeliveryDate: '',
+    destinationAddress: {
+      city: '',
+      postal_code: '',
+      state: '',
+      street_address_1: '',
+    },
+  },
+};
+
+const mapStateToProps = (state, ownProps) => {
+  const orders = selectActiveOrLatestOrdersFromEntities(state);
+
+  const props = {
+    mtoShipment: selectMTOShipmentForMTO(state, ownProps.match.params.moveId),
+    currentResidence: get(selectServiceMemberFromLoggedInUser(state), 'residential_address', {}),
+    newDutyStationAddress: get(orders, 'new_duty_station.address', {}),
+  };
+  return props;
+};
+
+const mapDispatchToProps = {
+  updateMTOShipment: updateMTOShipmentAction,
+};
+
+export { EditShipment as EditShipmentComponent };
+export default connect(mapStateToProps, mapDispatchToProps)(EditShipment);

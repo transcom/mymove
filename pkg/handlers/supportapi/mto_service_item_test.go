@@ -55,7 +55,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectSuccess() 
 	request := httptest.NewRequest("PATCH", "/service-items/{mtoServiceItemID}/status", nil)
 	reason := "item too heavy"
 	mtoServiceItem.Status = models.MTOServiceItemStatusRejected
-	mtoServiceItem.Reason = &reason
+	mtoServiceItem.RejectionReason = &reason
 	params := mtoserviceitemop.UpdateMTOServiceItemStatusParams{
 		HTTPRequest:      request,
 		MtoServiceItemID: mtoServiceItem.ID.String(),
@@ -79,40 +79,6 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectSuccess() 
 	suite.Assertions.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusOK{}, response)
 	suite.Equal(mtoServiceItemPayload.Status, supportmessages.MTOServiceItemStatusREJECTED)
 	suite.Equal(*mtoServiceItemPayload.RejectionReason, reason)
-}
-
-func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerUpdateFailed() {
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			Status: models.MTOServiceItemStatusApproved,
-		},
-	})
-
-	request := httptest.NewRequest("PATCH", "/service-items/{mtoServiceItemID}/status", nil)
-	reason := "item too heavy"
-	mtoServiceItem.Status = models.MTOServiceItemStatusRejected
-	mtoServiceItem.Reason = &reason
-	params := mtoserviceitemop.UpdateMTOServiceItemStatusParams{
-		HTTPRequest:      request,
-		MtoServiceItemID: mtoServiceItem.ID.String(),
-		Body:             payloads.MTOServiceItem(&mtoServiceItem),
-		IfMatch:          etag.GenerateEtag(mtoServiceItem.UpdatedAt),
-	}
-
-	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	queryBuilder := query.NewQueryBuilder(suite.DB())
-
-	// make the request
-	handler := UpdateMTOServiceItemStatusHandler{context,
-		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder),
-	}
-	response := handler.Handle(params)
-
-	mtoServiceItemResponse := response.(*mtoserviceitemop.UpdateMTOServiceItemStatusConflict)
-	mtoServiceItemPayload := mtoServiceItemResponse.Payload
-
-	suite.Assertions.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusConflict{}, mtoServiceItemResponse)
-	suite.Assertions.IsType(mtoServiceItemPayload, &supportmessages.ClientError{})
 }
 
 func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectionFailedNoReason() {

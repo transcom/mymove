@@ -7,13 +7,16 @@ import * as Yup from 'yup';
 import { Fieldset, Radio, Label } from '@trussworks/react-uswds';
 
 import { Form } from '../form/Form';
-import { DatePickerInput, TextInput } from '../form/fields';
 import { AddressFields } from '../form/AddressFields/AddressFields';
 import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
+import { DatePickerInput, TextInput } from '../form/fields';
+
+import styles from './HHGDetailsForm.module.scss';
 
 import {
   selectMTOShipmentForMTO,
   createMTOShipment as createMTOShipmentAction,
+  updateMTOShipment as updateMTOShipmentAction,
 } from 'shared/Entities/modules/mtoShipments';
 import { selectActiveOrLatestOrdersFromEntities } from 'shared/Entities/modules/orders';
 import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
@@ -108,7 +111,7 @@ class HHGDetailsForm extends Component {
 
       // Remove dashes from agent phones for expected form phone format
       if (receivingAgent) {
-        const formattedAgent = cleanAgentPhone(releasingAgent);
+        const formattedAgent = cleanAgentPhone(receivingAgent);
         if (!isEmpty(formattedAgent)) {
           formattedMTOShipment.receivingAgent = { ...formattedAgent };
         }
@@ -196,7 +199,7 @@ class HHGDetailsForm extends Component {
     releasingAgent,
     customerRemarks,
   }) => {
-    const { createMTOShipment, match, mtoShipment } = this.props;
+    const { createMTOShipment, updateMTOShipment, match, mtoShipment } = this.props;
     const { hasDeliveryAddress } = this.state;
     const { moveId } = match.params;
     const pendingMtoShipment = {
@@ -209,7 +212,7 @@ class HHGDetailsForm extends Component {
         street_address_1: pickupAddress.street_address_1,
         street_address_2: pickupAddress.street_address_2,
         city: pickupAddress.city,
-        state: pickupAddress.state,
+        state: pickupAddress.state.toUpperCase(),
         postal_code: pickupAddress.postal_code,
         country: pickupAddress.country,
       },
@@ -256,14 +259,11 @@ class HHGDetailsForm extends Component {
         pendingMtoShipment.agents.push({ ...formattedAgent, agentType: MTOAgentType.RECEIVING });
       }
     }
-
     if (isEmpty(mtoShipment)) {
       createMTOShipment(pendingMtoShipment);
+    } else {
+      updateMTOShipment(mtoShipment.id, pendingMtoShipment, mtoShipment.eTag);
     }
-    // } else {
-    // TODO: Update if existing MTOShipment once UpdateMTOShipment service for Customer Flow is merged
-    // updateMTOShipment(mtoShipment.id, pendingMtoShipment, mtoShipment.eTag);
-    // }
   };
 
   render() {
@@ -288,7 +288,8 @@ class HHGDetailsForm extends Component {
             push={push}
             handleSubmit={() => this.submitMTOShipment(values, dirty)}
           >
-            <Form>
+            <h3>Now lets arrange details for the professional movers</h3>
+            <Form className={styles.HHGDetailsForm}>
               <Fieldset legend="Pickup date" className={fieldsetClasses}>
                 <Field
                   as={DatePickerInput}
@@ -298,22 +299,25 @@ class HHGDetailsForm extends Component {
                   value={values.requestedPickupDate}
                   validate={validateDate}
                 />
+                <span className="usa-hint" id="pickupDateHint">
+                  Your movers will confirm this date or one shortly before or after.
+                </span>
               </Fieldset>
-              <span className="usa-hint" id="pickupDateHint">
-                Your movers will confirm this date or one shortly before or after.
-              </span>
+
               <AddressFields
                 name="pickupAddress"
                 legend="Pickup location"
                 className={fieldsetClasses}
                 renderExistingAddressCheckbox={() => (
-                  <Checkbox
-                    data-testid="useCurrentResidence"
-                    label="Use my current residence address"
-                    name="useCurrentResidence"
-                    checked={useCurrentResidence}
-                    onChange={() => this.handleUseCurrentResidenceChange(values)}
-                  />
+                  <div className="margin-y-2">
+                    <Checkbox
+                      data-testid="useCurrentResidence"
+                      label="Use my current residence address"
+                      name="useCurrentResidence"
+                      checked={useCurrentResidence}
+                      onChange={() => this.handleUseCurrentResidenceChange(values)}
+                    />
+                  </div>
                 )}
                 values={values.pickupAddress}
               />
@@ -322,6 +326,7 @@ class HHGDetailsForm extends Component {
                 legend="Releasing agent"
                 className={fieldsetClasses}
                 subtitle="Who can allow the movers to take your stuff if you're not there?"
+                subtitleClassName="margin-y-2"
                 values={values.releasingAgent}
               />
               <Fieldset legend="Delivery date" className={fieldsetClasses}>
@@ -332,9 +337,9 @@ class HHGDetailsForm extends Component {
                   value={values.requestedDeliveryDate}
                   validate={validateDate}
                 />
-                <span className="usa-hint" id="deliveryDateHint">
+                <small className="usa-hint" id="deliveryDateHint">
                   Your movers will confirm this date or one shortly before or after.
-                </span>
+                </small>
               </Fieldset>
               <Fieldset legend="Delivery location" className={fieldsetClasses}>
                 <Label>Do you know your delivery address?</Label>
@@ -355,16 +360,18 @@ class HHGDetailsForm extends Component {
                   />
                 </div>
                 {hasDeliveryAddress ? (
-                  <AddressFields
-                    name="destinationAddress"
-                    className={fieldsetClasses}
-                    values={values.destinationAddress}
-                  />
+                  <AddressFields name="destinationAddress" values={values.destinationAddress} />
                 ) : (
                   <>
-                    <div className={fieldsetClasses}>We can use the postal_code of your new duty station.</div>
                     <div>
-                      {newDutyStationAddress.city}, {newDutyStationAddress.state} {newDutyStationAddress.postal_code}
+                      <p className={fieldsetClasses}>
+                        We can use the zip of your new duty station.
+                        <br />
+                        <strong>
+                          {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
+                          {newDutyStationAddress.postal_code}{' '}
+                        </strong>
+                      </p>
                     </div>
                   </>
                 )}
@@ -374,6 +381,7 @@ class HHGDetailsForm extends Component {
                 legend="Receiving agent"
                 className={fieldsetClasses}
                 subtitle="Who can take delivery for you if the movers arrive and you're not there?"
+                subtitleClassName="margin-y-2"
                 values={values.receivingAgent}
               />
               <Fieldset legend="Remarks" className={fieldsetClasses}>
@@ -418,6 +426,7 @@ HHGDetailsForm.propTypes = {
     postal_code: string,
   }),
   createMTOShipment: func.isRequired,
+  updateMTOShipment: func.isRequired,
   showLoggedInUser: func.isRequired,
   push: func.isRequired,
   mtoShipment: shape({
@@ -481,6 +490,7 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = {
   createMTOShipment: createMTOShipmentAction,
+  updateMTOShipment: updateMTOShipmentAction,
   showLoggedInUser: showLoggedInUserAction,
 };
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/getlantern/deepcopy"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
@@ -19,6 +20,7 @@ import (
 // UpdateMTOShipmentQueryBuilder is the query builder for updating MTO Shipments
 type UpdateMTOShipmentQueryBuilder interface {
 	FetchOne(model interface{}, filters []services.QueryFilter) error
+	CreateOne(model interface{}) (*validate.Errors, error)
 	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
 	Count(model interface{}, filters []services.QueryFilter) (int, error)
 	FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error
@@ -42,153 +44,134 @@ func NewMTOShipmentUpdater(db *pop.Connection, builder UpdateMTOShipmentQueryBui
 }
 
 // setNewShipmentFields validates the updated shipment
-func setNewShipmentFields(planner route.Planner, db *pop.Connection, oldShipment *models.MTOShipment, updatedShipment *models.MTOShipment) error {
+func setNewShipmentFields(dbShipment *models.MTOShipment, requestedUpdatedShipment *models.MTOShipment) error {
 	verrs := validate.NewErrors()
-	oldShipmentCopy := oldShipment // make a copy to restore values in case there were errors while setting
+	var oldShipmentCopy *models.MTOShipment
+	oldShipmentCopy = dbShipment // make a copy to restore values in case there were errors while setting
 
-	if updatedShipment.RequestedPickupDate != nil {
-		requestedPickupDate := updatedShipment.RequestedPickupDate
-		// if requestedPickupDate isn't valid then return InvalidInputError
-		if !requestedPickupDate.Equal(*oldShipment.RequestedPickupDate) {
-			verrs.Add("requestedPickupDate", "must match what customer has requested")
-		}
-		oldShipment.RequestedPickupDate = requestedPickupDate
+	if requestedUpdatedShipment.RequestedPickupDate != nil {
+		dbShipment.RequestedPickupDate = requestedUpdatedShipment.RequestedPickupDate
 	}
 
-	if updatedShipment.PrimeActualWeight != nil {
-		oldShipment.PrimeActualWeight = updatedShipment.PrimeActualWeight
+	if requestedUpdatedShipment.RequestedDeliveryDate != nil {
+		dbShipment.RequestedDeliveryDate = requestedUpdatedShipment.RequestedDeliveryDate
 	}
 
-	if updatedShipment.FirstAvailableDeliveryDate != nil {
-		oldShipment.FirstAvailableDeliveryDate = updatedShipment.FirstAvailableDeliveryDate
+	if requestedUpdatedShipment.PrimeActualWeight != nil {
+		dbShipment.PrimeActualWeight = requestedUpdatedShipment.PrimeActualWeight
 	}
 
-	if updatedShipment.ActualPickupDate != nil {
-		oldShipment.ActualPickupDate = updatedShipment.ActualPickupDate
+	if requestedUpdatedShipment.FirstAvailableDeliveryDate != nil {
+		dbShipment.FirstAvailableDeliveryDate = requestedUpdatedShipment.FirstAvailableDeliveryDate
 	}
 
-	if updatedShipment.ScheduledPickupDate != nil {
-		scheduledPickupTime := updatedShipment.ScheduledPickupDate
-		oldShipment.ScheduledPickupDate = scheduledPickupTime
+	if requestedUpdatedShipment.ActualPickupDate != nil {
+		dbShipment.ActualPickupDate = requestedUpdatedShipment.ActualPickupDate
 	}
 
-	if updatedShipment.PrimeEstimatedWeight != nil {
-		if oldShipment.PrimeEstimatedWeight != nil {
-			verrs.Add("primeEstimatedWeight", "cannot be updated after initial estimation")
-		}
+	if requestedUpdatedShipment.ScheduledPickupDate != nil {
+		dbShipment.ScheduledPickupDate = requestedUpdatedShipment.ScheduledPickupDate
+	}
+
+	if requestedUpdatedShipment.ScheduledPickupDate != nil {
+		dbShipment.ApprovedDate = requestedUpdatedShipment.ApprovedDate
+	}
+
+	if requestedUpdatedShipment.PrimeEstimatedWeight != nil {
 		now := time.Now()
-		if oldShipment.ApprovedDate != nil {
-			err := validatePrimeEstimatedWeightRecordedDate(now, *oldShipment.ScheduledPickupDate, *oldShipment.ApprovedDate)
-			if err != nil {
-				verrs.Add("primeEstimatedWeight", "the time period for updating the estimated weight for a shipment has expired, please contact the TOO directly to request updates to this shipment’s estimated weight")
-				verrs.Add("primeEstimatedWeight", err.Error())
-			}
-		}
-		oldShipment.PrimeEstimatedWeight = updatedShipment.PrimeEstimatedWeight
-		oldShipment.PrimeEstimatedWeightRecordedDate = &now
+		dbShipment.PrimeEstimatedWeight = requestedUpdatedShipment.PrimeEstimatedWeight
+		dbShipment.PrimeEstimatedWeightRecordedDate = &now
 	}
 
-	if updatedShipment.PickupAddress != nil {
-		pickupAddress := updatedShipment.PickupAddress
-		oldShipment.PickupAddress = pickupAddress
+	if requestedUpdatedShipment.PickupAddress != nil {
+		dbShipment.PickupAddress = requestedUpdatedShipment.PickupAddress
 	}
 
-	if updatedShipment.DestinationAddress != nil {
-		destinationAddress := updatedShipment.DestinationAddress
-		oldShipment.DestinationAddress = destinationAddress
+	if requestedUpdatedShipment.DestinationAddress != nil {
+		dbShipment.DestinationAddress = requestedUpdatedShipment.DestinationAddress
 	}
 
-	if updatedShipment.SecondaryPickupAddress != nil {
-		secondaryPickupAddress := updatedShipment.SecondaryPickupAddress
-		oldShipment.SecondaryPickupAddress = secondaryPickupAddress
+	if requestedUpdatedShipment.SecondaryPickupAddress != nil {
+		dbShipment.SecondaryPickupAddress = requestedUpdatedShipment.SecondaryPickupAddress
 	}
 
-	if updatedShipment.SecondaryDeliveryAddress != nil {
-		secondaryDeliveryAddress := updatedShipment.SecondaryDeliveryAddress
-		oldShipment.SecondaryPickupAddress = secondaryDeliveryAddress
+	if requestedUpdatedShipment.SecondaryDeliveryAddress != nil {
+		dbShipment.SecondaryDeliveryAddress = requestedUpdatedShipment.SecondaryDeliveryAddress
 	}
 
-	if updatedShipment.ShipmentType != "" {
-		oldShipment.ShipmentType = updatedShipment.ShipmentType
+	if requestedUpdatedShipment.ShipmentType != "" {
+		dbShipment.ShipmentType = requestedUpdatedShipment.ShipmentType
 	}
 
-	if updatedShipment.Status != "" {
-		oldShipment.Status = updatedShipment.Status
-		if oldShipment.Status != models.MTOShipmentStatusDraft && oldShipment.Status != models.MTOShipmentStatusSubmitted {
+	if requestedUpdatedShipment.Status != "" {
+		dbShipment.Status = requestedUpdatedShipment.Status
+		if dbShipment.Status != models.MTOShipmentStatusDraft && dbShipment.Status != models.MTOShipmentStatusSubmitted {
 			verrs.Add("status", "can only update status to DRAFT or SUBMITTED. use UpdateMTOShipmentStatus for other status updates")
 		}
 	}
 
-	// Updated based on existing fields that may have been updated:
-	if oldShipment.ScheduledPickupDate != nil && oldShipment.PrimeEstimatedWeight != nil {
-		requiredDeliveryDate, err := calculateRequiredDeliveryDate(planner, db, *oldShipment.PickupAddress,
-			*oldShipment.DestinationAddress, *oldShipment.ScheduledPickupDate, oldShipment.PrimeEstimatedWeight.Int())
-		if err != nil {
-			verrs.Add("requiredDeliveryDate", err.Error())
-		}
-		oldShipment.RequiredDeliveryDate = requiredDeliveryDate
+	if requestedUpdatedShipment.RequiredDeliveryDate != nil {
+		dbShipment.RequiredDeliveryDate = requestedUpdatedShipment.RequiredDeliveryDate
 	}
 
-	if len(updatedShipment.MTOAgents) > 0 {
-		if len(oldShipment.MTOAgents) < len(updatedShipment.MTOAgents) {
-			verrs.Add("agents", "cannot add MTO agents to a shipment")
-		}
+	if requestedUpdatedShipment.PrimeEstimatedWeightRecordedDate != nil {
+		dbShipment.PrimeEstimatedWeightRecordedDate = requestedUpdatedShipment.PrimeEstimatedWeightRecordedDate
+	}
 
-		for _, newAgentInfo := range updatedShipment.MTOAgents {
-			foundAgent := false
-			for i, oldAgent := range oldShipment.MTOAgents {
-				if oldAgent.ID == newAgentInfo.ID {
-					foundAgent = true
-					if newAgentInfo.MTOAgentType != "" && newAgentInfo.MTOAgentType != oldAgent.MTOAgentType {
-						oldShipment.MTOAgents[i].MTOAgentType = newAgentInfo.MTOAgentType
-					}
+	if requestedUpdatedShipment.CustomerRemarks != nil {
+		dbShipment.CustomerRemarks = requestedUpdatedShipment.CustomerRemarks
+	}
 
-					if newAgentInfo.FirstName != nil {
-						oldShipment.MTOAgents[i].FirstName = newAgentInfo.FirstName
+	//// TODO: move mtoagent creation into service: Should not update MTOAgents here because we don't have an eTag
+	if len(requestedUpdatedShipment.MTOAgents) > 0 {
+		agentsToCreateOrUpdate := []models.MTOAgent{}
+		for _, newAgentInfo := range requestedUpdatedShipment.MTOAgents {
+			// if no record exists in the db
+			if newAgentInfo.ID == uuid.Nil {
+				newAgentInfo.MTOShipmentID = requestedUpdatedShipment.ID
+				agentsToCreateOrUpdate = append(agentsToCreateOrUpdate, newAgentInfo)
+			} else {
+				foundAgent := false
+				// make sure there is an existing record in the db
+				for i, dbAgent := range dbShipment.MTOAgents {
+					if foundAgent == true {
+						break
 					}
-					if newAgentInfo.LastName != nil {
-						oldShipment.MTOAgents[i].LastName = newAgentInfo.LastName
-					}
+					if dbAgent.ID == newAgentInfo.ID {
+						foundAgent = true
+						if newAgentInfo.MTOAgentType != "" && newAgentInfo.MTOAgentType != dbAgent.MTOAgentType {
+							dbShipment.MTOAgents[i].MTOAgentType = newAgentInfo.MTOAgentType
+						}
 
-					if newAgentInfo.Email != nil {
-						oldShipment.MTOAgents[i].Email = newAgentInfo.Email
-					}
+						if newAgentInfo.FirstName != nil {
+							dbShipment.MTOAgents[i].FirstName = newAgentInfo.FirstName
+						}
 
-					if newAgentInfo.Phone != nil {
-						oldShipment.MTOAgents[i].Phone = newAgentInfo.Phone
+						if newAgentInfo.LastName != nil {
+							dbShipment.MTOAgents[i].LastName = newAgentInfo.LastName
+						}
+
+						if newAgentInfo.Email != nil {
+							dbShipment.MTOAgents[i].Email = newAgentInfo.Email
+						}
+
+						if newAgentInfo.Phone != nil {
+							dbShipment.MTOAgents[i].Phone = newAgentInfo.Phone
+						}
+						agentsToCreateOrUpdate = append(agentsToCreateOrUpdate, dbShipment.MTOAgents[i])
 					}
 				}
 			}
-			if !foundAgent {
-				verrs.Add("agents", fmt.Sprintf("agent with id=%s not found for this shipment", newAgentInfo.ID.String()))
-			}
 		}
+		dbShipment.MTOAgents = agentsToCreateOrUpdate // don't return unchanged existing agents
 	}
 
 	if verrs.HasAny() {
-		oldShipment = oldShipmentCopy
-		return services.NewInvalidInputError(oldShipment.ID, nil, verrs, "Invalid input found while updating the shipment.")
+		dbShipment = oldShipmentCopy
+		return services.NewInvalidInputError(dbShipment.ID, nil, verrs, "Invalid input found while updating the shipment.")
 	}
 
 	return nil
-}
-
-func validatePrimeEstimatedWeightRecordedDate(estimatedWeightRecordedDate time.Time, scheduledPickupDate time.Time, approvedDate time.Time) error {
-	approvedDaysFromScheduled := scheduledPickupDate.Sub(approvedDate).Hours() / 24
-	daysFromScheduled := scheduledPickupDate.Sub(estimatedWeightRecordedDate).Hours() / 24
-	if approvedDaysFromScheduled >= 10 && daysFromScheduled >= 10 {
-		return nil
-	}
-
-	if (approvedDaysFromScheduled >= 3 && approvedDaysFromScheduled <= 9) && daysFromScheduled >= 3 {
-		return nil
-	}
-
-	if approvedDaysFromScheduled < 3 && daysFromScheduled >= 1 {
-		return nil
-	}
-
-	return services.InvalidInputError{}
 }
 
 // StaleIdentifierError is used when optimistic locking determines that the identifier refers to stale data
@@ -211,13 +194,18 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, 
 	if err != nil {
 		return nil, services.NewNotFoundError(mtoShipment.ID, "while looking for mtoShipment")
 	}
-
-	err = setNewShipmentFields(f.planner, f.db, &oldShipment, mtoShipment)
+	var dbShipment models.MTOShipment
+	err = deepcopy.Copy(&dbShipment, &oldShipment) // save the original db version, oldShipment will be modified
 	if err != nil {
-		return &oldShipment, err
+		return nil, fmt.Errorf("error copying shipment data %w", err)
 	}
-
-	err = f.updateShipmentRecord(mtoShipment, &oldShipment, eTag)
+	err = setNewShipmentFields(&oldShipment, mtoShipment)
+	if err != nil {
+		return nil, err
+	}
+	newShipment := &oldShipment // old shipment has now been updated with requested changes
+	// db version is used to check if agents need creating or updating
+	err = f.updateShipmentRecord(&dbShipment, newShipment, eTag)
 
 	if err != nil {
 		switch err.(type) {
@@ -239,78 +227,114 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, 
 
 // Takes the validated shipment input and updates the database using a transaction. If any part of the
 // update fails, the entire transaction will be rolled back.
-func (f *mtoShipmentUpdater) updateShipmentRecord(mtoShipment *models.MTOShipment, oldShipment *models.MTOShipment, eTag string) error {
+func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment, newShipment *models.MTOShipment, eTag string) error {
 
 	transactionError := f.db.Transaction(func(tx *pop.Connection) error {
 
-		addressBaseQuery := `UPDATE addresses
-				SET
-			`
-
 		// temp optimistic locking solution til query builder is re-tooled to handle nested updates
-		encodedUpdatedAt := etag.GenerateEtag(oldShipment.UpdatedAt)
+		encodedUpdatedAt := etag.GenerateEtag(newShipment.UpdatedAt)
 
 		if encodedUpdatedAt != eTag {
 			return StaleIdentifierError{StaleIdentifier: eTag}
 		}
 
+		if newShipment.DestinationAddress != nil {
+			// If there is an existing DestinationAddressID associated
+			// with the shipment, grab it.
+			if dbShipment.DestinationAddressID != nil {
+				newShipment.DestinationAddress.ID = *dbShipment.DestinationAddressID
+			}
+			// If there is an existing DestinationAddressID, tx.Save will use it
+			// to find and update the existing record. If there isn't, it will create
+			// a new record.
+			err := tx.Save(newShipment.DestinationAddress)
+			if err != nil {
+				return err
+			}
+			// Make sure the shipment has the updated DestinationAddressID to store
+			// in mto_shipments table
+			newShipment.DestinationAddressID = &newShipment.DestinationAddress.ID
+
+		}
+
+		if newShipment.PickupAddress != nil {
+			if dbShipment.PickupAddressID != nil {
+				newShipment.PickupAddress.ID = *dbShipment.PickupAddressID
+			}
+
+			err := tx.Save(newShipment.PickupAddress)
+			if err != nil {
+				return err
+			}
+
+			newShipment.PickupAddressID = &newShipment.PickupAddress.ID
+		}
+
+		if newShipment.SecondaryPickupAddress != nil {
+			if dbShipment.SecondaryPickupAddressID != nil {
+				newShipment.PickupAddress.ID = *dbShipment.SecondaryPickupAddressID
+			}
+
+			err := tx.Save(newShipment.SecondaryPickupAddress)
+			if err != nil {
+				return err
+			}
+
+			newShipment.SecondaryPickupAddressID = &newShipment.SecondaryPickupAddress.ID
+		}
+
+		if newShipment.SecondaryDeliveryAddress != nil {
+			if dbShipment.SecondaryDeliveryAddressID != nil {
+				newShipment.SecondaryDeliveryAddress.ID = *dbShipment.SecondaryDeliveryAddressID
+			}
+
+			err := tx.Save(newShipment.SecondaryDeliveryAddress)
+			if err != nil {
+				return err
+			}
+
+			newShipment.SecondaryDeliveryAddressID = &newShipment.SecondaryDeliveryAddress.ID
+		}
+
+		if len(newShipment.MTOAgents) != 0 {
+			agentQuery := `UPDATE mto_agents
+					SET
+				`
+			for _, agent := range newShipment.MTOAgents {
+				for _, dbAgent := range dbShipment.MTOAgents {
+					// if the updates already have an agent in the system
+					if dbAgent.ID == agent.ID {
+						updateAgentQuery := generateAgentQuery()
+						params := generateMTOAgentsParams(agent)
+
+						if err := tx.RawQuery(agentQuery+updateAgentQuery, params...).Exec(); err != nil {
+							return err
+						}
+					}
+				}
+				if agent.ID == uuid.Nil {
+					// create a new agent if it doesn't already exist
+					verrs, err := f.builder.CreateOne(&agent)
+					if verrs != nil && verrs.HasAny() {
+						return verrs
+					}
+					if err != nil {
+						return err
+					}
+				}
+			}
+		}
 		updateMTOShipmentQuery := generateUpdateMTOShipmentQuery()
-		params := generateMTOShipmentParams(*oldShipment)
+		params := generateMTOShipmentParams(*newShipment)
 
 		if err := tx.RawQuery(updateMTOShipmentQuery, params...).Exec(); err != nil {
 			return err
 		}
-
-		if mtoShipment.DestinationAddress != nil {
-			destinationAddressQuery := generateAddressQuery()
-			params := generateAddressParams(mtoShipment.DestinationAddress)
-
-			if err := tx.RawQuery(addressBaseQuery+destinationAddressQuery, params...).Exec(); err != nil {
-				return err
-			}
-		}
-
-		if mtoShipment.PickupAddress != nil {
-			pickupAddressQuery := generateAddressQuery()
-			params := generateAddressParams(mtoShipment.PickupAddress)
-
-			if err := tx.RawQuery(addressBaseQuery+pickupAddressQuery, params...).Exec(); err != nil {
-				return err
-			}
-		}
-
-		if mtoShipment.SecondaryPickupAddress != nil {
-			secondaryPickupAddressQuery := generateAddressQuery()
-			params := generateAddressParams(mtoShipment.SecondaryPickupAddress)
-
-			if err := tx.RawQuery(addressBaseQuery+secondaryPickupAddressQuery, params...).Exec(); err != nil {
-				return err
-			}
-		}
-
-		if mtoShipment.SecondaryDeliveryAddress != nil {
-			secondaryDeliveryAddressQuery := generateAddressQuery()
-			params := generateAddressParams(mtoShipment.SecondaryDeliveryAddress)
-
-			if err := tx.RawQuery(addressBaseQuery+secondaryDeliveryAddressQuery, params...).Exec(); err != nil {
-				return err
-			}
-		}
-
-		if mtoShipment.MTOAgents != nil {
-			agentQuery := `UPDATE mto_agents
-					SET
-				`
-			for _, agent := range oldShipment.MTOAgents {
-				updateAgentQuery := generateAgentQuery()
-				params := generateMTOAgentsParams(agent)
-
-				if err := tx.RawQuery(agentQuery+updateAgentQuery, params...).Exec(); err != nil {
-					return err
-				}
-			}
-		}
-
+		// #TODO: Is there any reason we can't remove updateMTOShipmentQuery and use tx.Update?
+		//
+		// if err := tx.Update(newShipment); err != nil {
+		// 	return err
+		// }
 		return nil
 
 	})
@@ -318,7 +342,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(mtoShipment *models.MTOShipmen
 	if transactionError != nil {
 		// Two possible types of transaction errors to handle
 		if t, ok := transactionError.(StaleIdentifierError); ok {
-			return services.NewPreconditionFailedError(mtoShipment.ID, t)
+			return services.NewPreconditionFailedError(dbShipment.ID, t)
 		}
 		return services.NewQueryError("mtoShipment", transactionError, "")
 	}
@@ -330,6 +354,7 @@ func generateMTOShipmentParams(mtoShipment models.MTOShipment) []interface{} {
 	return []interface{}{
 		mtoShipment.ScheduledPickupDate,
 		mtoShipment.RequestedPickupDate,
+		mtoShipment.RequestedDeliveryDate,
 		mtoShipment.CustomerRemarks,
 		mtoShipment.PrimeEstimatedWeight,
 		mtoShipment.PrimeEstimatedWeightRecordedDate,
@@ -340,6 +365,10 @@ func generateMTOShipmentParams(mtoShipment models.MTOShipment) []interface{} {
 		mtoShipment.FirstAvailableDeliveryDate,
 		mtoShipment.RequiredDeliveryDate,
 		mtoShipment.Status,
+		mtoShipment.DestinationAddressID,
+		mtoShipment.PickupAddressID,
+		mtoShipment.SecondaryDeliveryAddressID,
+		mtoShipment.SecondaryPickupAddressID,
 		mtoShipment.ID,
 	}
 }
@@ -350,6 +379,7 @@ func generateUpdateMTOShipmentQuery() string {
 			updated_at = NOW(),
 			scheduled_pickup_date = ?,
 			requested_pickup_date = ?,
+			requested_delivery_date = ?,
 			customer_remarks = ?,
 			prime_estimated_weight = ?,
 			prime_estimated_weight_recorded_date = ?,
@@ -359,7 +389,11 @@ func generateUpdateMTOShipmentQuery() string {
 			approved_date = ?,
 			first_available_delivery_date = ?,
 			required_delivery_date = ?,
-			status = ?
+			status = ?,
+			destination_address_id = ?,
+			pickup_address_id = ?,
+			secondary_delivery_address_id = ?,
+			secondary_pickup_address_id = ?
 		WHERE
 			id = ?
 	`
@@ -419,71 +453,6 @@ func generateAgentQuery() string {
 	`
 }
 
-func generateAddressQuery() string {
-	return `
-		updated_at =
-			CASE
-			   WHEN id = ? THEN NOW() ELSE updated_at
-			END,
-		city =
-			CASE
-			   WHEN id = ? THEN ? ELSE city
-			END,
-		country =
-			CASE
-			   WHEN id = ? THEN ? ELSE country
-			END,
-		postal_code =
-			CASE
-			   WHEN id = ? THEN ? ELSE postal_code
-			END,
-		state =
-			CASE
-			   WHEN id = ? THEN ? ELSE state
-			END,
-		street_address_1 =
-			CASE
-			   WHEN id = ? THEN ? ELSE street_address_1
-			END,
-		street_address_2 =
-			CASE
-			   WHEN id = ? THEN ? ELSE street_address_2
-			END,
-		street_address_3 =
-			CASE
-			   WHEN id = ? THEN ? ELSE street_address_3
-			END;
-	`
-}
-
-func generateAddressParams(address *models.Address) []interface{} {
-	destinationAddressID := address.ID
-	city := address.City
-	country := address.Country
-	postalCode := address.PostalCode
-	state := address.State
-	streetAddress1 := address.StreetAddress1
-	streetAddress2 := address.StreetAddress2
-	streetAddress3 := address.StreetAddress3
-	paramArr := []interface{}{
-		destinationAddressID,
-		destinationAddressID,
-		city,
-		destinationAddressID,
-		country,
-		destinationAddressID,
-		postalCode,
-		destinationAddressID,
-		state,
-		destinationAddressID,
-		streetAddress1,
-		destinationAddressID,
-		streetAddress2,
-		destinationAddressID,
-		streetAddress3}
-	return paramArr
-}
-
 type mtoShipmentStatusUpdater struct {
 	db        *pop.Connection
 	builder   UpdateMTOShipmentQueryBuilder
@@ -523,7 +492,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 		if shipment.ScheduledPickupDate != nil &&
 			shipment.RequiredDeliveryDate == nil &&
 			shipment.PrimeEstimatedWeight != nil {
-			requiredDeliveryDate, calcErr := calculateRequiredDeliveryDate(o.planner, o.db, *shipment.PickupAddress, *shipment.DestinationAddress, *shipment.ScheduledPickupDate, shipment.PrimeEstimatedWeight.Int())
+			requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(o.planner, o.db, *shipment.PickupAddress, *shipment.DestinationAddress, *shipment.ScheduledPickupDate, shipment.PrimeEstimatedWeight.Int())
 			if calcErr != nil {
 				return nil, calcErr
 			}
@@ -646,26 +615,10 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 	return &shipment, nil
 }
 
-// This private function is used to generically construct service items when shipments are approved.
-func constructMTOServiceItemModels(shipmentID uuid.UUID, mtoID uuid.UUID, reServiceCodes []models.ReServiceCode) models.MTOServiceItems {
-	serviceItems := make(models.MTOServiceItems, len(reServiceCodes))
-
-	for i, reServiceCode := range reServiceCodes {
-		serviceItem := models.MTOServiceItem{
-			MoveTaskOrderID: mtoID,
-			MTOShipmentID:   &shipmentID,
-			ReService:       models.ReService{Code: reServiceCode},
-			Status:          "APPROVED",
-		}
-		serviceItems[i] = serviceItem
-	}
-	return serviceItems
-}
-
-// This private function is used to get a distance calculation using the pickup and destination addresses. It then uses
+// CalculateRequiredDeliveryDate function is used to get a distance calculation using the pickup and destination addresses. It then uses
 // the value returned to make a fetch on the ghc_domestic_transit_times table and returns a required delivery date
 // based on the max_days_transit_time.
-func calculateRequiredDeliveryDate(planner route.Planner, db *pop.Connection, pickupAddress models.Address, destinationAddress models.Address, pickupDate time.Time, weight int) (*time.Time, error) {
+func CalculateRequiredDeliveryDate(planner route.Planner, db *pop.Connection, pickupAddress models.Address, destinationAddress models.Address, pickupDate time.Time, weight int) (*time.Time, error) {
 	// Okay, so this is something to get us able to take care of the 20 day condition over in the gdoc linked in this
 	// story: https://dp3.atlassian.net/browse/MB-1141
 	// We unfortunately didn't get a lot of guidance regarding vicinity. So for now we're taking zip codes that are the
@@ -711,6 +664,22 @@ func calculateRequiredDeliveryDate(planner route.Planner, db *pop.Connection, pi
 
 	// return the value
 	return &requiredDeliveryDate, nil
+}
+
+// This private function is used to generically construct service items when shipments are approved.
+func constructMTOServiceItemModels(shipmentID uuid.UUID, mtoID uuid.UUID, reServiceCodes []models.ReServiceCode) models.MTOServiceItems {
+	serviceItems := make(models.MTOServiceItems, len(reServiceCodes))
+
+	for i, reServiceCode := range reServiceCodes {
+		serviceItem := models.MTOServiceItem{
+			MoveTaskOrderID: mtoID,
+			MTOShipmentID:   &shipmentID,
+			ReService:       models.ReService{Code: reServiceCode},
+			Status:          "APPROVED",
+		}
+		serviceItems[i] = serviceItem
+	}
+	return serviceItems
 }
 
 // NewMTOShipmentStatusUpdater creates a new MTO Shipment Status Updater

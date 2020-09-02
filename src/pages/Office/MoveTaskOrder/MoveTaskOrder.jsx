@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import { get, map } from 'lodash';
 import { GridContainer } from '@trussworks/react-uswds';
@@ -16,9 +16,12 @@ import { MatchShape } from 'types/router';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import ShipmentAddresses from 'components/Office/ShipmentAddresses/ShipmentAddresses';
+import RejectServiceItemModal from 'components/Office/RejectServiceItemModal/RejectServiceItemModal';
 import { SERVICE_ITEM_STATUS } from 'shared/constants';
 import { patchMTOServiceItemStatus } from 'services/ghcApi';
 import ShipmentWeightDetails from 'components/Office/ShipmentWeightDetails/ShipmentWeightDetails';
+import dimensionTypes from 'constants/dimensionTypes';
+import customerContactTypes from 'constants/customerContactTypes';
 
 function formatShipmentType(shipmentType) {
   if (shipmentType === 'HHG') {
@@ -37,6 +40,9 @@ function formatShipmentDate(shipmentDateString) {
 }
 
 export const MoveTaskOrder = ({ match }) => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedServiceItem, setSelectedServiceItem] = useState(undefined);
+
   const { moveOrderId } = match.params;
 
   // TODO - Do something with moveOrder and moveTaskOrder?
@@ -70,6 +76,8 @@ export const MoveTaskOrder = ({ match }) => {
         },
       });
       queryCache.invalidateQueries(MTO_SERVICE_ITEMS);
+      setSelectedServiceItem({});
+      setIsModalVisible(false);
     },
     onError: (error) => {
       const errorMsg = error?.response?.body;
@@ -79,13 +87,14 @@ export const MoveTaskOrder = ({ match }) => {
     },
   });
 
-  const handleUpdateMTOServiceItemStatus = (mtoServiceItemID, status) => {
+  const handleUpdateMTOServiceItemStatus = (mtoServiceItemID, status, rejectionReason) => {
     const mtoServiceItemForRequest = mtoServiceItemsArr.find((s) => s.id === mtoServiceItemID);
 
     mutateMTOServiceItemStatus({
       moveTaskOrderId: moveTaskOrder.id,
       mtoServiceItemID,
       status,
+      rejectionReason,
       ifMatchEtag: mtoServiceItemForRequest.eTag,
     });
   };
@@ -95,15 +104,37 @@ export const MoveTaskOrder = ({ match }) => {
 
   const serviceItems = map(mtoServiceItems, (item) => {
     const newItem = { ...item };
+    newItem.code = item.reServiceCode;
     newItem.serviceItem = item.reServiceName;
-    newItem.details = { text: { ZIP: item.pickupPostalCode, Reason: item.reason }, imgURL: '' };
-
+    newItem.details = {
+      pickupPostalCode: item.pickupPostalCode,
+      reason: item.reason,
+      imgURL: '',
+      description: item.description,
+      itemDimensions: item.dimensions?.find((dimension) => dimension?.type === dimensionTypes.ITEM),
+      crateDimensions: item.dimensions?.find((dimension) => dimension?.type === dimensionTypes.CRATE),
+      firstCustomerContact: item.customerContacts?.find((contact) => contact?.type === customerContactTypes.FIRST),
+      secondCustomerContact: item.customerContacts?.find((contact) => contact?.type === customerContactTypes.SECOND),
+    };
     return newItem;
   });
+
+  const handleShowRejectionDialog = (mtoServiceItemID) => {
+    const serviceItem = serviceItems?.find((item) => item.id === mtoServiceItemID);
+    setSelectedServiceItem(serviceItem);
+    setIsModalVisible(true);
+  };
 
   return (
     <div className={styles.tabContent}>
       <GridContainer className={styles.gridContainer} data-testid="too-shipment-container">
+        {isModalVisible && (
+          <RejectServiceItemModal
+            serviceItem={selectedServiceItem}
+            onSubmit={handleUpdateMTOServiceItemStatus}
+            onClose={setIsModalVisible}
+          />
+        )}
         <div className={styles.pageHeader}>
           <h1>Move task order</h1>
           <div className={styles.pageHeaderDetails}>
@@ -116,6 +147,12 @@ export const MoveTaskOrder = ({ match }) => {
           const serviceItemsForShipment = serviceItems.filter((item) => item.mtoShipmentID === mtoShipment.id);
           const requestedServiceItems = serviceItemsForShipment.filter(
             (item) => item.status === SERVICE_ITEM_STATUS.SUBMITTED,
+          );
+          const approvedServiceItems = serviceItemsForShipment.filter(
+            (item) => item.status === SERVICE_ITEM_STATUS.APPROVED,
+          );
+          const rejectedServiceItems = serviceItemsForShipment.filter(
+            (item) => item.status === SERVICE_ITEM_STATUS.REJECTED,
           );
           return (
             <ShipmentContainer
@@ -154,6 +191,24 @@ export const MoveTaskOrder = ({ match }) => {
                 <RequestedServiceItemsTable
                   serviceItems={requestedServiceItems}
                   handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
+                  handleShowRejectionDialog={handleShowRejectionDialog}
+                  statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+                />
+              )}
+              {approvedServiceItems?.length > 0 && (
+                <RequestedServiceItemsTable
+                  serviceItems={approvedServiceItems}
+                  handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
+                  handleShowRejectionDialog={handleShowRejectionDialog}
+                  statusForTableType={SERVICE_ITEM_STATUS.APPROVED}
+                />
+              )}
+              {rejectedServiceItems?.length > 0 && (
+                <RequestedServiceItemsTable
+                  serviceItems={rejectedServiceItems}
+                  handleUpdateMTOServiceItemStatus={handleUpdateMTOServiceItemStatus}
+                  handleShowRejectionDialog={handleShowRejectionDialog}
+                  statusForTableType={SERVICE_ITEM_STATUS.REJECTED}
                 />
               )}
             </ShipmentContainer>

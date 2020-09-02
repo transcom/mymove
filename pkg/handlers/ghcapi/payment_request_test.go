@@ -187,6 +187,44 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 	})
 
+	suite.T().Run("successful status update of prime-available payment request", func(t *testing.T) {
+		availableMove := testdatagen.MakeAvailableMove(suite.DB())
+		availablePaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			Move: availableMove,
+		})
+		availablePaymentRequestID := availablePaymentRequest.ID
+
+		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
+		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.Anything, mock.Anything).Return(&availablePaymentRequest, nil).Once()
+
+		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
+		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(availablePaymentRequest, nil).Once()
+
+		requestUser := testdatagen.MakeDefaultUser(suite.DB())
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", availablePaymentRequestID), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
+		params := paymentrequestop.UpdatePaymentRequestStatusParams{
+			HTTPRequest:      req,
+			Body:             &ghcmessages.UpdatePaymentRequestStatusPayload{Status: "REVIEWED", RejectionReason: nil},
+			PaymentRequestID: strfmt.UUID(availablePaymentRequestID.String()),
+		}
+
+		handler := UpdatePaymentRequestStatusHandler{
+			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
+			PaymentRequestFetcher:       paymentRequestFetcher,
+		}
+		traceID, err := uuid.NewV4()
+		suite.FatalNoError(err, "Error creating a new trace ID.")
+		handler.SetTraceID(traceID)
+
+		response := handler.Handle(params)
+
+		suite.IsType(paymentrequestop.NewUpdatePaymentRequestStatusOK(), response)
+		suite.HasWebhookNotification(availablePaymentRequestID, traceID)
+	})
+
 	suite.T().Run("unsuccessful status update of payment request (500)", func(t *testing.T) {
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
 		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.Anything, mock.Anything).Return(nil, errors.New("Something bad happened")).Once()

@@ -390,6 +390,45 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		suite.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusOK{}, response)
 		okResponse := response.(*mtoserviceitemop.UpdateMTOServiceItemStatusOK)
 		suite.Equal(ghcmessages.MTOServiceItemstatusStatusAPPROVED, string(okResponse.Payload.Status))
+		suite.NotNil(okResponse.Payload.ApprovedAt)
+	})
+
+	// With this we'll do a happy path integration test to ensure that the use of the service object
+	// by the handler is working as expected.
+	suite.T().Run("Successful rejected status update - Integration test", func(t *testing.T) {
+		queryBuilder := query.NewQueryBuilder(suite.DB())
+		mto := testdatagen.MakeDefaultMove(suite.DB())
+		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		requestUser := testdatagen.MakeDefaultUser(suite.DB())
+
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_service_items/%s/status",
+			moveTaskOrderID, serviceItemID), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
+		rejectionReason := "No justification given"
+		params := mtoserviceitemop.UpdateMTOServiceItemStatusParams{
+			HTTPRequest:      req,
+			IfMatch:          etag.GenerateEtag(mtoServiceItem.UpdatedAt),
+			Body:             &ghcmessages.PatchMTOServiceItemStatusPayload{Status: "REJECTED", RejectionReason: &rejectionReason},
+			MoveTaskOrderID:  mto.ID.String(),
+			MtoServiceItemID: mtoServiceItem.ID.String(),
+		}
+
+		fetcher := fetch.NewFetcher(queryBuilder)
+		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder)
+
+		handler := UpdateMTOServiceItemStatusHandler{
+			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			MTOServiceItemUpdater: mtoServiceItemStatusUpdater,
+			Fetcher:               fetcher,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusOK{}, response)
+		okResponse := response.(*mtoserviceitemop.UpdateMTOServiceItemStatusOK)
+		suite.Equal(ghcmessages.MTOServiceItemstatusStatusREJECTED, string(okResponse.Payload.Status))
+		suite.NotNil(okResponse.Payload.RejectedAt)
+		suite.Equal(rejectionReason, *okResponse.Payload.RejectionReason)
 	})
 
 }
