@@ -1879,11 +1879,11 @@ workflows:
               only: master
 
       - deploy_storybook_dp3:
-          requires:
-            - storybook_tests
+#          requires:
+#            - storybook_tests
           filters:
             branches:
-              only: master
+              only: rd-MB-3431
 
       - storybook_tests:
           requires:
