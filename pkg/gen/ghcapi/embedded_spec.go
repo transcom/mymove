@@ -1976,6 +1976,22 @@ func init() {
         "SECOND"
       ]
     },
+    "DeptIndicator": {
+      "type": "string",
+      "title": "Dept. indicator",
+      "enum": [
+        "NAVY_AND_MARINES",
+        "ARMY",
+        "AIR_FORCE",
+        "COAST_GUARD"
+      ],
+      "x-display-value": {
+        "AIR_FORCE": "57 Air Force",
+        "ARMY": "21 Army",
+        "COAST_GUARD": "70 Coast Guard",
+        "NAVY_AND_MARINES": "17 Navy and Marine Corps"
+      }
+    },
     "DimensionType": {
       "description": "Describes a dimension type for a MTOServiceItemDimension.",
       "type": "string",
@@ -2500,6 +2516,10 @@ func init() {
           "format": "date",
           "example": "2020-01-01"
         },
+        "department_indicator": {
+          "x-nullable": true,
+          "$ref": "#/definitions/DeptIndicator"
+        },
         "destinationDutyStation": {
           "$ref": "#/definitions/DutyStation"
         },
@@ -2539,16 +2559,11 @@ func init() {
           "example": "030-00362"
         },
         "order_type": {
-          "type": "string",
-          "example": "GHC"
+          "$ref": "#/definitions/OrdersType"
         },
         "order_type_detail": {
-          "type": "string",
-          "enum": [
-            "GHC",
-            "NTS"
-          ],
-          "x-nullable": true
+          "x-nullable": true,
+          "$ref": "#/definitions/OrdersTypeDetail"
         },
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"
@@ -2557,6 +2572,18 @@ func init() {
           "type": "string",
           "format": "date",
           "example": "2020-01-01"
+        },
+        "sac": {
+          "type": "string",
+          "title": "SAC",
+          "x-nullable": true,
+          "example": "N002214CSW32Y9"
+        },
+        "tac": {
+          "type": "string",
+          "title": "TAC",
+          "x-nullable": true,
+          "example": "F8J1"
         }
       }
     },
@@ -2632,6 +2659,42 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MoveTaskOrder"
+      }
+    },
+    "OrdersType": {
+      "type": "string",
+      "title": "Orders type",
+      "enum": [
+        "PERMANENT_CHANGE_OF_STATION",
+        "RETIREMENT",
+        "SEPARATION"
+      ],
+      "x-display-value": {
+        "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
+        "RETIREMENT": "Retirement",
+        "SEPARATION": "Separation"
+      }
+    },
+    "OrdersTypeDetail": {
+      "type": "string",
+      "title": "Orders type detail",
+      "enum": [
+        "HHG_PERMITTED",
+        "PCS_TDY",
+        "HHG_RESTRICTED_PROHIBITED",
+        "HHG_RESTRICTED_AREA",
+        "INSTRUCTION_20_WEEKS",
+        "HHG_PROHIBITED_20_WEEKS",
+        "DELAYED_APPROVAL"
+      ],
+      "x-display-value": {
+        "DELAYED_APPROVAL": "Delayed Approval 20 Weeks or More",
+        "HHG_PERMITTED": "Shipment of HHG Permitted",
+        "HHG_PROHIBITED_20_WEEKS": "Shipment of HHG Prohibited but Authorized within 20 weeks",
+        "HHG_RESTRICTED_AREA": "HHG Restricted Area-HHG Prohibited",
+        "HHG_RESTRICTED_PROHIBITED": "Shipment of HHG Restricted or Prohibited",
+        "INSTRUCTION_20_WEEKS": "Course of Instruction 20 Weeks or More",
+        "PCS_TDY": "PCS with TDY Enroute"
       }
     },
     "PatchMTOServiceItemStatusPayload": {
@@ -5432,6 +5495,22 @@ func init() {
         "SECOND"
       ]
     },
+    "DeptIndicator": {
+      "type": "string",
+      "title": "Dept. indicator",
+      "enum": [
+        "NAVY_AND_MARINES",
+        "ARMY",
+        "AIR_FORCE",
+        "COAST_GUARD"
+      ],
+      "x-display-value": {
+        "AIR_FORCE": "57 Air Force",
+        "ARMY": "21 Army",
+        "COAST_GUARD": "70 Coast Guard",
+        "NAVY_AND_MARINES": "17 Navy and Marine Corps"
+      }
+    },
     "DimensionType": {
       "description": "Describes a dimension type for a MTOServiceItemDimension.",
       "type": "string",
@@ -5956,6 +6035,10 @@ func init() {
           "format": "date",
           "example": "2020-01-01"
         },
+        "department_indicator": {
+          "x-nullable": true,
+          "$ref": "#/definitions/DeptIndicator"
+        },
         "destinationDutyStation": {
           "$ref": "#/definitions/DutyStation"
         },
@@ -5995,16 +6078,11 @@ func init() {
           "example": "030-00362"
         },
         "order_type": {
-          "type": "string",
-          "example": "GHC"
+          "$ref": "#/definitions/OrdersType"
         },
         "order_type_detail": {
-          "type": "string",
-          "enum": [
-            "GHC",
-            "NTS"
-          ],
-          "x-nullable": true
+          "x-nullable": true,
+          "$ref": "#/definitions/OrdersTypeDetail"
         },
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"
@@ -6013,6 +6091,18 @@ func init() {
           "type": "string",
           "format": "date",
           "example": "2020-01-01"
+        },
+        "sac": {
+          "type": "string",
+          "title": "SAC",
+          "x-nullable": true,
+          "example": "N002214CSW32Y9"
+        },
+        "tac": {
+          "type": "string",
+          "title": "TAC",
+          "x-nullable": true,
+          "example": "F8J1"
         }
       }
     },
@@ -6088,6 +6178,42 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MoveTaskOrder"
+      }
+    },
+    "OrdersType": {
+      "type": "string",
+      "title": "Orders type",
+      "enum": [
+        "PERMANENT_CHANGE_OF_STATION",
+        "RETIREMENT",
+        "SEPARATION"
+      ],
+      "x-display-value": {
+        "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
+        "RETIREMENT": "Retirement",
+        "SEPARATION": "Separation"
+      }
+    },
+    "OrdersTypeDetail": {
+      "type": "string",
+      "title": "Orders type detail",
+      "enum": [
+        "HHG_PERMITTED",
+        "PCS_TDY",
+        "HHG_RESTRICTED_PROHIBITED",
+        "HHG_RESTRICTED_AREA",
+        "INSTRUCTION_20_WEEKS",
+        "HHG_PROHIBITED_20_WEEKS",
+        "DELAYED_APPROVAL"
+      ],
+      "x-display-value": {
+        "DELAYED_APPROVAL": "Delayed Approval 20 Weeks or More",
+        "HHG_PERMITTED": "Shipment of HHG Permitted",
+        "HHG_PROHIBITED_20_WEEKS": "Shipment of HHG Prohibited but Authorized within 20 weeks",
+        "HHG_RESTRICTED_AREA": "HHG Restricted Area-HHG Prohibited",
+        "HHG_RESTRICTED_PROHIBITED": "Shipment of HHG Restricted or Prohibited",
+        "INSTRUCTION_20_WEEKS": "Course of Instruction 20 Weeks or More",
+        "PCS_TDY": "PCS with TDY Enroute"
       }
     },
     "PatchMTOServiceItemStatusPayload": {

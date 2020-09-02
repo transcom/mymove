@@ -32,7 +32,7 @@ import LeftNav from 'components/LeftNav';
 import CustomerInfoTable from 'components/Office/CustomerInfoTable';
 import RequestedShipments from 'components/Office/RequestedShipments';
 import AllowancesTable from 'components/Office/AllowancesTable';
-import OrdersTable from 'components/Office/OrdersTable';
+import OrdersTable from 'components/Office/OrdersTable/OrdersTable';
 import {
   MoveOrderShape,
   EntitlementShape,
@@ -156,7 +156,7 @@ export class MoveDetails extends Component {
       ordersType: moveOrder.order_type,
       ordersTypeDetail: moveOrder.order_type_detail,
       tacMDC: moveOrder.tac,
-      sacSDN: moveOrder.sacSDN,
+      sacSDN: moveOrder.sac,
     };
     const allowancesInfo = {
       branch: customer.agency,
