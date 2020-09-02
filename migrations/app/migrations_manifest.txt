@@ -548,4 +548,5 @@
 20200819211216_ateam_table_comments.up.sql
 20200821202900_suz_cac.up.sql
 20200826154256_add_rejection_reason_to_mto_service_items.up.sql
+20200827155542_add_db_comments.up.sql
 20200827190454_add_approved_at_rejected_at_timestamps_to_service_items.up.sql
