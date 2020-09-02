@@ -65,6 +65,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MtoShipmentUpdateMTOShipmentHandler: mto_shipment.UpdateMTOShipmentHandlerFunc(func(params mto_shipment.UpdateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation MtoShipmentUpdateMTOShipment has not yet been implemented")
 		}),
+		MtoShipmentUpdateMTOShipmentAddressHandler: mto_shipment.UpdateMTOShipmentAddressHandlerFunc(func(params mto_shipment.UpdateMTOShipmentAddressParams) middleware.Responder {
+			return middleware.NotImplemented("operation MtoShipmentUpdateMTOShipmentAddress has not yet been implemented")
+		}),
 	}
 }
 
@@ -115,6 +118,8 @@ type MymoveAPI struct {
 	MoveTaskOrderUpdateMTOPostCounselingInformationHandler move_task_order.UpdateMTOPostCounselingInformationHandler
 	// MtoShipmentUpdateMTOShipmentHandler sets the operation handler for the update m t o shipment operation
 	MtoShipmentUpdateMTOShipmentHandler mto_shipment.UpdateMTOShipmentHandler
+	// MtoShipmentUpdateMTOShipmentAddressHandler sets the operation handler for the update m t o shipment address operation
+	MtoShipmentUpdateMTOShipmentAddressHandler mto_shipment.UpdateMTOShipmentAddressHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -208,6 +213,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.MtoShipmentUpdateMTOShipmentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.UpdateMTOShipmentHandler")
+	}
+
+	if o.MtoShipmentUpdateMTOShipmentAddressHandler == nil {
+		unregistered = append(unregistered, "mto_shipment.UpdateMTOShipmentAddressHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -345,6 +354,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
 	o.handlers["PUT"]["/mto-shipments/{mtoShipmentID}"] = mto_shipment.NewUpdateMTOShipment(o.context, o.MtoShipmentUpdateMTOShipmentHandler)
+
+	if o.handlers["PUT"] == nil {
+		o.handlers["PUT"] = make(map[string]http.Handler)
+	}
+	o.handlers["PUT"]["/mto-shipment/{mtoShipmentID}/address/{addressID}"] = mto_shipment.NewUpdateMTOShipmentAddress(o.context, o.MtoShipmentUpdateMTOShipmentAddressHandler)
 
 }
 
