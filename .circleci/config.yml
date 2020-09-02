@@ -1883,7 +1883,7 @@ workflows:
             - storybook_tests
           filters:
             branches:
-              only: rd-MB-3431
+              only: master
 
       - storybook_tests:
           requires:
