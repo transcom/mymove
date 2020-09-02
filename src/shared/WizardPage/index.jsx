@@ -68,7 +68,7 @@ export class WizardPage extends Component {
         )}
         {children}
         <div className="grid-row" style={{ marginTop: '0.5rem' }}>
-          <div className="grid-col-10 text-right margin-top-6 tablet:margin-top-3 display-flex">
+          <div className="grid-col-10 text-right margin-top-6 margin-left-neg-1 tablet:margin-top-3 display-flex">
             {!isFirstPage(pageList, pageKey) && (
               <button
                 className="usa-button usa-button--secondary prev"
