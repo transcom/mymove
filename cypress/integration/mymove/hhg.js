@@ -16,7 +16,9 @@ describe('HHG Setup flow', function () {
     cy.signInAsNewMilMoveUser();
     customerFillsInProfileInformation();
     customerFillsOutOrdersInformation();
+    customerChoosesAnHHGMove();
     customerSetsUpAnHHGMove();
+    customerAddsAnotherShipment();
     customerReviewsMoveDetails();
     customerSubmitsMove();
   });
@@ -137,12 +139,14 @@ function customerFillsOutOrdersInformation() {
   cy.go('back');
 }
 
-function customerSetsUpAnHHGMove() {
+function customerChoosesAnHHGMove() {
   cy.get('h1').contains('How do you want to move your belongings?');
 
   cy.get('input[type="radio"]').last().check({ force: true });
   cy.nextPage();
+}
 
+function customerSetsUpAnHHGMove() {
   cy.get('button[class="usa-button next"]').should('be.disabled');
 
   cy.get('input[name="requestedPickupDate"]').focus().blur();
@@ -223,10 +227,11 @@ function customerSetsUpAnHHGMove() {
   // customer remarks
   cy.get(`[data-testid="remarks"]`).first().type('some customer remark');
   cy.nextPage();
+}
 
-  cy.visit('/home-2');
-  cy.get('[data-testid="shipment-list-item-container"]').contains('HHG');
-  cy.go('back');
+function customerAddsAnotherShipment() {
+  cy.get('button.prev').should('be.enabled').click();
+  customerSetsUpAnHHGMove();
 }
 
 function customerReviewsMoveDetails() {
