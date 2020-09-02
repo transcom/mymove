@@ -19,6 +19,7 @@ describe('HHG Setup flow', function () {
     customerChoosesAnHHGMove();
     customerSetsUpAnHHGMove();
     customerAddsAnotherShipment();
+    customerCheckShipmentsOnHomepage(2);
     customerReviewsMoveDetails();
     customerSubmitsMove();
   });
@@ -232,6 +233,12 @@ function customerSetsUpAnHHGMove() {
 function customerAddsAnotherShipment() {
   cy.get('button.prev').should('be.enabled').click();
   customerSetsUpAnHHGMove();
+}
+
+function customerCheckShipmentsOnHomepage(numOfShipments) {
+  cy.visit('/home-2');
+  cy.get('[data-testid="shipment-list-item-container"]', { timeout: 10000 }).should('have.length', numOfShipments);
+  cy.go('back');
 }
 
 function customerReviewsMoveDetails() {
