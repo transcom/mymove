@@ -118,7 +118,7 @@ export class Summary extends Component {
           mtoShipments.map((shipment, index) => {
             return (
               <HHGShipmentSummary
-                key={index + 1}
+                key={shipment.id}
                 mtoShipment={shipment}
                 shipmentNumber={index + 1}
                 movePath={rootAddressWithMoveId}
