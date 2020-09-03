@@ -14496,12 +14496,10 @@ react-query-devtools@^2.4.1:
   dependencies:
     match-sorter "^4.1.0"
 
-react-query@^2.5.9:
-  version "2.5.9"
-  resolved "https://registry.yarnpkg.com/react-query/-/react-query-2.5.9.tgz#eab250afc3f121c694f1cd01214dda0d1ba18330"
-  integrity sha512-QKMkY9C71ccjVan9bGzDq03z7FUO7n+B7TCJDoeLc0scuKP22/7NlT3y6DK5MLSznoqG/IkkNykfN0k2Z46bTg==
-  dependencies:
-    ts-toolbelt "^6.9.4"
+react-query@^2.14.1:
+  version "2.14.1"
+  resolved "https://registry.yarnpkg.com/react-query/-/react-query-2.14.1.tgz#d4a0a721c6155fc7dc682e036c284243ff48f74e"
+  integrity sha512-3NONArLC0SrYSOmdJMHBGkQBNFo76YjLgN38bpWXz5NIeK0qaVxjwqobfipSX3N7dsHbLGFV9jImkky0DHLfoA==
 
 react-rangeslider@^2.2.0:
   version "2.2.0"
@@ -16965,11 +16963,6 @@ ts-pnp@^1.1.2, ts-pnp@^1.1.6:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/ts-pnp/-/ts-pnp-1.2.0.tgz#a500ad084b0798f1c3071af391e65912c86bca92"
   integrity sha512-csd+vJOb/gkzvcCHgTGSChYpy5f1/XKNsmvBGO4JXS+z1v2HobugDz4s1IeFXM3wZB44uczs+eazB5Q/ccdhQw==
-
-ts-toolbelt@^6.9.4:
-  version "6.13.28"
-  resolved "https://registry.yarnpkg.com/ts-toolbelt/-/ts-toolbelt-6.13.28.tgz#7afbdd5b95ccb947085aec400fe59545d02de448"
-  integrity sha512-89amEuUFvgcErtKh0+8egz8I+DertVSSGYaFAtNK56H7DXx4czFDL+wApauD4xSq4NZrB12kM++ZYu9e/1l3lA==
 
 tslib@^1.10.0, tslib@^1.8.1, tslib@^1.9.0, tslib@^1.9.3:
   version "1.13.0"
