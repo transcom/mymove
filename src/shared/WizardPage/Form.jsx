@@ -115,7 +115,7 @@ export class WizardFormPage extends Component {
         )}
         <form className={className}>{children}</form>
         <div className="grid-row" style={{ marginTop: '0.5rem' }}>
-          <div className="grid-col-12 text-right margin-top-6 tablet:margin-top-3">
+          <div className="grid-col-12 text-right margin-top-6 margin-left-neg-1 tablet:margin-top-3">
             <div className="display-flex">
               {!hideBackBtn && (
                 <button
