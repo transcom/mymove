@@ -58,7 +58,11 @@ describe('Review -> Hhg Shipment Summary', () => {
   it('Should display shipment details', () => {
     const wrapper = mount(
       <MockProviders initialEntries={['/']}>
-        <HHGShipmentSummary mtoShipment={mtoShipment} newDutyStationPostalCode={newDutyStationPostalCode} />
+        <HHGShipmentSummary
+          mtoShipment={mtoShipment}
+          newDutyStationPostalCode={newDutyStationPostalCode}
+          movePath="123"
+        />
       </MockProviders>,
     );
     // Address

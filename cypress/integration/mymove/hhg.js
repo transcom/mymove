@@ -9,13 +9,18 @@ describe('HHG Setup flow', function () {
     cy.removeFetch();
     cy.server();
     cy.route('POST', '/internal/service_members').as('createServiceMember');
+    cy.route('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
+    cy.route('GET', '/internal/moves/**/mto_shipments').as('getMTOShipments');
+    cy.route('GET', '/internal/users/logged_in').as('getLoggedInUser');
   });
 
   it('Creates a shipment', function () {
     cy.signInAsNewMilMoveUser();
     customerFillsInProfileInformation();
     customerFillsOutOrdersInformation();
+    customerChoosesAnHHGMove();
     customerSetsUpAnHHGMove();
+    customerAddsAnotherShipment();
     customerReviewsMoveDetails();
     customerSubmitsMove();
   });
@@ -136,12 +141,14 @@ function customerFillsOutOrdersInformation() {
   cy.go('back');
 }
 
-function customerSetsUpAnHHGMove() {
+function customerChoosesAnHHGMove() {
   cy.get('h1').contains('How do you want to move your belongings?');
 
   cy.get('input[type="radio"]').last().check({ force: true });
   cy.nextPage();
+}
 
+function customerSetsUpAnHHGMove() {
   cy.get('button[class="usa-button next"]').should('be.disabled');
 
   cy.get('input[name="requestedPickupDate"]').focus().blur();
@@ -222,14 +229,41 @@ function customerSetsUpAnHHGMove() {
   // customer remarks
   cy.get(`[data-testid="remarks"]`).first().type('some customer remark');
   cy.nextPage();
+}
 
-  cy.visit('/home-2');
-  cy.get('[data-testid="shipment-list-item-container"]').contains('HHG');
-  cy.go('back');
+function customerAddsAnotherShipment() {
+  cy.get('button.prev').should('be.enabled').click();
+  customerSetsUpAnHHGMove();
 }
 
 function customerReviewsMoveDetails() {
   cy.get('[data-testid="review-move-header"]').contains('Review your details');
+
+  cy.get('[data-testid="hhg-summary"]').find('h4').contains('Shipment 1: HHG').find('a').contains('Edit').click();
+
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/edit-shipment/);
+  });
+
+  // Ensure remarks is displayed in form
+  cy.get(`[data-testid="firstName"]`).last().type('Johnson');
+
+  cy.get(`[data-testid="remarks"]`).contains('some customer remark');
+
+  // Edit remarks and agent info
+  cy.get(`[data-testid="remarks"]`).clear().type('some edited customer remark');
+  cy.get(`[data-testid="email"]`).last().clear().type('John@example.com').blur();
+  cy.get('button').contains('Save').click();
+
+  cy.wait('@patchShipment');
+
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
+  });
+
+  cy.get('[data-testid="hhg-summary"]').find('table').contains('some edited customer remark');
+  cy.get('[data-testid="hhg-summary"]').find('table').contains('JohnJohnson Lee');
+
   cy.nextPage();
 }
 

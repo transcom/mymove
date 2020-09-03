@@ -6,16 +6,17 @@ import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
 import { Fieldset, Radio, Label } from '@trussworks/react-uswds';
 
-import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
-import { AddressFields } from '../form/AddressFields/AddressFields';
-import { DatePickerInput, TextInput } from '../form/fields';
 import { Form } from '../form/Form';
+import { AddressFields } from '../form/AddressFields/AddressFields';
+import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
+import { DatePickerInput, TextInput } from '../form/fields';
 
 import styles from './HHGDetailsForm.module.scss';
 
 import {
   selectMTOShipmentForMTO,
   createMTOShipment as createMTOShipmentAction,
+  updateMTOShipment as updateMTOShipmentAction,
 } from 'shared/Entities/modules/mtoShipments';
 import { selectActiveOrLatestOrdersFromEntities } from 'shared/Entities/modules/orders';
 import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
@@ -73,57 +74,9 @@ class HHGDetailsForm extends Component {
   }
 
   componentDidMount() {
-    const { showLoggedInUser, mtoShipment } = this.props;
+    const { showLoggedInUser } = this.props;
     showLoggedInUser();
-    if (mtoShipment.id) {
-      this.setInitialState(mtoShipment);
-    }
   }
-
-  componentDidUpdate(prevProps) {
-    const { mtoShipment } = this.props;
-    // If refreshing page, need to handle mtoShipment populating from a promise
-    if (mtoShipment.id && prevProps.mtoShipment.id !== mtoShipment.id) {
-      this.setInitialState(mtoShipment);
-    }
-  }
-
-  setInitialState = (mtoShipment) => {
-    function cleanAgentPhone(agent) {
-      const agentCopy = { ...agent };
-      Object.keys(agentCopy).forEach((key) => {
-        /* eslint-disable security/detect-object-injection */
-        if (key === 'phone') {
-          const phoneNum = agentCopy[key];
-          // will be in format xxxxxxxxxx
-          agentCopy[key] = phoneNum.split('-').join('');
-        }
-      });
-      return agentCopy;
-    }
-    // for existing mtoShipment, reshape agents from array of objects to key/object for proper handling
-    const { agents } = mtoShipment;
-    const formattedMTOShipment = { ...mtoShipment };
-    if (agents) {
-      const receivingAgent = agents.find((agent) => agent.agentType === 'RECEIVING_AGENT');
-      const releasingAgent = agents.find((agent) => agent.agentType === 'RELEASING_AGENT');
-
-      // Remove dashes from agent phones for expected form phone format
-      if (receivingAgent) {
-        const formattedAgent = cleanAgentPhone(releasingAgent);
-        if (!isEmpty(formattedAgent)) {
-          formattedMTOShipment.receivingAgent = { ...formattedAgent };
-        }
-      }
-      if (releasingAgent) {
-        const formattedAgent = cleanAgentPhone(releasingAgent);
-        if (!isEmpty(formattedAgent)) {
-          formattedMTOShipment.releasingAgent = { ...formattedAgent };
-        }
-      }
-    }
-    this.setState({ initialValues: formattedMTOShipment });
-  };
 
   // Use current residence
   handleUseCurrentResidenceChange = (currentValues) => {
@@ -198,7 +151,7 @@ class HHGDetailsForm extends Component {
     releasingAgent,
     customerRemarks,
   }) => {
-    const { createMTOShipment, match, mtoShipment } = this.props;
+    const { createMTOShipment, match } = this.props;
     const { hasDeliveryAddress } = this.state;
     const { moveId } = match.params;
     const pendingMtoShipment = {
@@ -211,7 +164,7 @@ class HHGDetailsForm extends Component {
         street_address_1: pickupAddress.street_address_1,
         street_address_2: pickupAddress.street_address_2,
         city: pickupAddress.city,
-        state: pickupAddress.state,
+        state: pickupAddress.state.toUpperCase(),
         postal_code: pickupAddress.postal_code,
         country: pickupAddress.country,
       },
@@ -258,19 +211,12 @@ class HHGDetailsForm extends Component {
         pendingMtoShipment.agents.push({ ...formattedAgent, agentType: MTOAgentType.RECEIVING });
       }
     }
-
-    if (isEmpty(mtoShipment)) {
-      createMTOShipment(pendingMtoShipment);
-    }
-    // } else {
-    // TODO: Update if existing MTOShipment once UpdateMTOShipment service for Customer Flow is merged
-    // updateMTOShipment(mtoShipment.id, pendingMtoShipment, mtoShipment.eTag);
-    // }
+    createMTOShipment(pendingMtoShipment);
   };
 
   render() {
     // TODO: replace minimal styling with actual styling during UI phase
-    const { pageKey, pageList, match, push, newDutyStationAddress, mtoShipment } = this.props;
+    const { pageKey, pageList, match, push, newDutyStationAddress } = this.props;
     const { hasDeliveryAddress, useCurrentResidence, initialValues } = this.state;
     const fieldsetClasses = 'margin-top-2';
     return (
@@ -283,7 +229,7 @@ class HHGDetailsForm extends Component {
       >
         {({ values, dirty, isValid }) => (
           <WizardPage
-            canMoveNext={(dirty && isValid) || (!isEmpty(mtoShipment) && !dirty && isValid)}
+            canMoveNext={dirty && isValid}
             match={match}
             pageKey={pageKey}
             pageList={pageList}
@@ -491,6 +437,7 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = {
   createMTOShipment: createMTOShipmentAction,
+  updateMTOShipment: updateMTOShipmentAction,
   showLoggedInUser: showLoggedInUserAction,
 };
 

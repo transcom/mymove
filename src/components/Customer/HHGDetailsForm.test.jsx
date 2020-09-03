@@ -8,15 +8,14 @@ import { history, store } from '../../shared/store';
 
 import HHGDetailsForm, { HHGDetailsFormComponent } from './HHGDetailsForm';
 
-const loadMTOShipments = jest.fn(() => ({ then: () => {} }));
 const defaultProps = {
   pageList: ['page1', 'anotherPage/:foo/:bar'],
   pageKey: 'page1',
   match: { isExact: false, path: '', url: '', params: { moveId: '' } },
   showLoggedInUser: () => {},
   createMTOShipment: () => {},
+  updateMTOShipment: () => {},
   push: () => {},
-  loadMTOShipments,
   newDutyStationAddress: {
     city: 'Fort Benning',
     state: 'GA',
