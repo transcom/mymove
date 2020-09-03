@@ -15,6 +15,10 @@ const completeServiceItemCard = ($serviceItem, approve = false) => {
 };
 
 describe('TIO user', () => {
+  before(() => {
+    cy.prepareOfficeApp();
+  });
+
   beforeEach(() => {
     cy.removeFetch();
     cy.server();
@@ -30,7 +34,7 @@ describe('TIO user', () => {
     cy.route('PATCH', '/ghc/v1/payment-requests/**/status').as('patchPaymentRequestStatus');
 
     const userId = '3b2cc1b0-31a2-4d1b-874f-0591f9127374';
-    cy.signInAsUserPostRequest(TIOOfficeUserType, userId);
+    cy.apiSignInAsUser(userId, TIOOfficeUserType);
   });
 
   // This test performs a mutation so it can only succeed on a fresh DB.

@@ -19,7 +19,7 @@ import DutyStation from 'scenes/ServiceMembers/DutyStation';
 
 import UploadOrders from 'scenes/Orders/UploadOrders';
 
-import MoveLanding from 'pages/MyMove/MoveLanding';
+import Home from 'pages/MyMove/Home';
 import SelectMoveType from 'pages/MyMove/SelectMoveType';
 import ConusOrNot from 'pages/MyMove/ConusOrNot';
 import MovingInfo from 'pages/MyMove/MovingInfo';
@@ -29,7 +29,7 @@ import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import Review from 'scenes/Review/Review';
 import Agreement from 'scenes/Legalese';
 
-import HHGMoveSetup from 'pages/MyMove/HHGMoveSetup';
+import HHGShipmentSetup from 'pages/MyMove/HHGShipmentSetup';
 
 const PageNotInFlow = ({ location }) => (
   <div className="usa-grid">
@@ -136,15 +136,11 @@ const pages = {
     render: (key, pages) => ({ match }) => <BackupContact pages={pages} pageKey={key} match={match} />,
     description: 'Backup contacts',
   },
-  '/service-member/:serviceMemberId/move-landing': {
+  '/home-2': {
     isInFlow: (props) => myFirstRodeo(props) && inGhcFlow(props),
     isComplete: always,
-    render: (key, pages) => () => {
-      return (
-        <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
-          <MoveLanding />
-        </WizardPage>
-      );
+    render: (key, pages) => ({ history }) => {
+      return <Home history={history} />;
     },
   },
   '/profile-review': {
@@ -219,7 +215,7 @@ const pages = {
       );
     },
     render: (key, pages, description, props) => ({ match, history }) => (
-      <HHGMoveSetup pageList={pages} pageKey={key} match={match} push={history.push} />
+      <HHGShipmentSetup pageList={pages} pageKey={key} match={match} history={history} />
     ),
   },
   '/moves/:moveId/review': {

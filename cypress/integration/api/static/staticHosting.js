@@ -1,8 +1,6 @@
-/* global cy, before */
-
 describe('static file hosting', () => {
   before(() => {
-    cy.setupBaseUrl('milmove');
+    cy.prepareCustomerApp();
   });
 
   it('returns the correct content type', () => {

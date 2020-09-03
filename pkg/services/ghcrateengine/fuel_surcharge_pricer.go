@@ -85,7 +85,7 @@ func (p fuelSurchargePricer) PriceUsingParams(params models.PaymentServiceItemPa
 		return unit.Cents(0), err
 	}
 
-	fuelPrice, err := getParamFloat(params, models.ServiceItemParamNameEIAFuelPrice)
+	fuelPrice, err := getParamInt(params, models.ServiceItemParamNameEIAFuelPrice)
 	if err != nil {
 		return unit.Cents(0), err
 	}
