@@ -302,11 +302,15 @@ func MTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOServiceItem {
 		ReServiceCode:    handlers.FmtString(string(s.ReService.Code)),
 		ReServiceName:    handlers.FmtStringPtr(&s.ReService.Name),
 		Reason:           handlers.FmtStringPtr(s.Reason),
+		RejectionReason:  handlers.FmtStringPtr(s.RejectionReason),
 		PickupPostalCode: handlers.FmtStringPtr(s.PickupPostalCode),
 		Status:           ghcmessages.MTOServiceItemStatus(s.Status),
 		Description:      handlers.FmtStringPtr(s.Description),
 		Dimensions:       MTOServiceItemDimensions(s.Dimensions),
 		CustomerContacts: MTOServiceItemCustomerContacts(s.CustomerContacts),
+		CreatedAt:        strfmt.DateTime(s.CreatedAt),
+		ApprovedAt:       handlers.FmtDateTimePtr(s.ApprovedAt),
+		RejectedAt:       handlers.FmtDateTimePtr(s.RejectedAt),
 		ETag:             etag.GenerateEtag(s.UpdatedAt),
 	}
 }
