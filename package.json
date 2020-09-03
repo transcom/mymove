@@ -101,7 +101,7 @@
   },
   "version": "0.1.0",
   "devDependencies": {
-    "@babel/core": "~7.10.5",
+    "@babel/core": "~7.11.5",
     "@dump247/storybook-state": "^1.6.1",
     "@rescripts/cli": "^0.0.14",
     "@rescripts/rescript-env": "^0.0.12",
