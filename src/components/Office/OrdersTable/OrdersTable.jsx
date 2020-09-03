@@ -27,7 +27,7 @@ function OrdersTable({ ordersInfo }) {
         </colgroup>
         <tbody>
           <tr>
-            <th scope="row">Current duty Station</th>
+            <th scope="row">Current duty station</th>
             <td data-testid="currentDutyStation">{ordersInfo.currentDutyStation?.name}</td>
           </tr>
           <tr>
