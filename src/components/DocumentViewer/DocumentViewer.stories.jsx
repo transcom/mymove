@@ -5,7 +5,8 @@ import pdf from './sample.pdf';
 import pdf2 from './sample2.pdf';
 import pdf3 from './sample3.pdf';
 import jpg from './sample.jpg';
-import jpg2 from './sample2.jpg';
+import png from './sample2.png';
+import gif from './sample3.gif';
 
 export default {
   title: 'Components|Document Viewer|Document Viewer',
@@ -37,9 +38,14 @@ const testImageFiles = [
     filePath: jpg,
   },
   {
-    filename: 'PCS Orders TACOMA Page 2.jpg',
-    fileType: 'jpg',
-    filePath: jpg2,
+    filename: 'PCS Orders TACOMA Page 2.png',
+    fileType: 'png',
+    filePath: png,
+  },
+  {
+    filename: 'PCS Orders TACOMA Page 3.gif',
+    fileType: 'gif',
+    filePath: gif,
   },
 ];
 
