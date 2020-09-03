@@ -2769,7 +2769,7 @@
 
 "@trussworks/react-file-viewer@https://github.com/trussworks/react-file-viewer#ds-enable-image-file-type-support":
   version "1.2.1"
-  resolved "https://github.com/trussworks/react-file-viewer#f65c6311695dc7600397d2c5ef81a68ebf045da6"
+  resolved "https://github.com/trussworks/react-file-viewer#e64180b65690aef56ea05d0a018c899782a8de1a"
   dependencies:
     pdfjs-dist "1.8.357"
     prop-types "^15.5.10"
