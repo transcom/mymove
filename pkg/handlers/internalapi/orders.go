@@ -85,7 +85,6 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 		return handlers.ResponseForError(logger, err)
 	}
 	originDutyStation := serviceMember.DutyStation
-	originDutyStationID := originDutyStation.ID
 	grade := (*string)(serviceMember.Rank)
 
 	weight, entitlementErr := models.GetEntitlement(*serviceMember.Rank, *payload.HasDependents, *payload.SpouseHasProGear)
@@ -120,10 +119,8 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 		payload.Sac,
 		deptIndicator,
 		&originDutyStation,
-		&originDutyStationID,
 		grade,
 		&entitlement,
-		&entitlement.ID,
 	)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(logger, verrs, err)
