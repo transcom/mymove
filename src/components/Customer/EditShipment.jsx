@@ -14,7 +14,7 @@ import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
 import styles from './EditShipment.module.scss';
 
 import {
-  selectMTOShipmentForMTO,
+  selectMTOShipmentById,
   updateMTOShipment as updateMTOShipmentAction,
 } from 'shared/Entities/modules/mtoShipments';
 import Checkbox from 'shared/Checkbox';
@@ -492,7 +492,7 @@ const mapStateToProps = (state, ownProps) => {
   const orders = selectActiveOrLatestOrdersFromEntities(state);
 
   const props = {
-    mtoShipment: selectMTOShipmentForMTO(state, ownProps.match.params.moveId),
+    mtoShipment: selectMTOShipmentById(state, ownProps.match.params.mtoShipmentId),
     currentResidence: get(selectServiceMemberFromLoggedInUser(state), 'residential_address', {}),
     newDutyStationAddress: get(orders, 'new_duty_station.address', {}),
   };
