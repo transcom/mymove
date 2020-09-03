@@ -50,7 +50,7 @@ export class SelectMoveType extends Component {
                 value={SHIPMENT_OPTIONS.PPM}
                 name="moveType"
                 onChange={(e) => this.setMoveType(e)}
-                checked={moveType === SHIPMENT_OPTIONS.PPM}
+                checked={false}
               />
               <ul>
                 <li>This is a PPM - “personally procured move”</li>
