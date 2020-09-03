@@ -4,6 +4,7 @@
 
 h1 {
   @include typeset('body', 11, 2);
+  @include u-text('normal');
   @include at-media('tablet') {
     @include typeset('body', '2xl', 2);
   }
