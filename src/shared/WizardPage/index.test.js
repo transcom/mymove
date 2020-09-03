@@ -196,7 +196,6 @@ describe('given a WizardPage', () => {
           nextButton.simulate('click');
         });
         it('push gets the next page', () => {
-          console.log(mockPush.mock.calls);
           expect(mockPush.mock.calls.length).toBe(1);
           expect(mockPush.mock.calls[0][0]).toBe('3');
         });
