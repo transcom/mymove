@@ -20,6 +20,7 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ghc_documents"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
@@ -61,6 +62,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		CustomerGetCustomerHandler: customer.GetCustomerHandlerFunc(func(params customer.GetCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation CustomerGetCustomer has not yet been implemented")
+		}),
+		GhcDocumentsGetDocumentHandler: ghc_documents.GetDocumentHandlerFunc(func(params ghc_documents.GetDocumentParams) middleware.Responder {
+			return middleware.NotImplemented("operation GhcDocumentsGetDocument has not yet been implemented")
 		}),
 		MoveTaskOrderGetEntitlementsHandler: move_task_order.GetEntitlementsHandlerFunc(func(params move_task_order.GetEntitlementsParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderGetEntitlements has not yet been implemented")
@@ -160,6 +164,8 @@ type MymoveAPI struct {
 	MtoAgentFetchMTOAgentListHandler mto_agent.FetchMTOAgentListHandler
 	// CustomerGetCustomerHandler sets the operation handler for the get customer operation
 	CustomerGetCustomerHandler customer.GetCustomerHandler
+	// GhcDocumentsGetDocumentHandler sets the operation handler for the get document operation
+	GhcDocumentsGetDocumentHandler ghc_documents.GetDocumentHandler
 	// MoveTaskOrderGetEntitlementsHandler sets the operation handler for the get entitlements operation
 	MoveTaskOrderGetEntitlementsHandler move_task_order.GetEntitlementsHandler
 	// MtoServiceItemGetMTOServiceItemHandler sets the operation handler for the get m t o service item operation
@@ -279,6 +285,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.CustomerGetCustomerHandler == nil {
 		unregistered = append(unregistered, "customer.GetCustomerHandler")
+	}
+
+	if o.GhcDocumentsGetDocumentHandler == nil {
+		unregistered = append(unregistered, "ghc_documents.GetDocumentHandler")
 	}
 
 	if o.MoveTaskOrderGetEntitlementsHandler == nil {
@@ -479,6 +489,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/customer/{customerID}"] = customer.NewGetCustomer(o.context, o.CustomerGetCustomerHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/documents/{documentId}"] = ghc_documents.NewGetDocument(o.context, o.GhcDocumentsGetDocumentHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

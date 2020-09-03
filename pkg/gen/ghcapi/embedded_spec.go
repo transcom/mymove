@@ -103,6 +103,82 @@ func init() {
         }
       ]
     },
+    "/documents/{documentId}": {
+      "get": {
+        "description": "Returns a document and its uploads",
+        "tags": [
+          "ghcDocuments"
+        ],
+        "summary": "Returns a document",
+        "operationId": "getDocument",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the document to return",
+            "name": "documentId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the requested document",
+            "schema": {
+              "$ref": "#/definitions/DocumentPayload"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "412": {
+            "description": "Precondition Failed",
+            "schema": {
+              "$ref": "#/responses/PreconditionFailed"
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        },
+        "x-swagger-roles": [
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
+        ]
+      }
+    },
     "/move-orders": {
       "get": {
         "description": "Gets all move orders",
@@ -1984,6 +2060,32 @@ func init() {
         "CRATE"
       ]
     },
+    "DocumentPayload": {
+      "type": "object",
+      "required": [
+        "id",
+        "service_member_id",
+        "uploads"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "service_member_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "The service member this document belongs to"
+        },
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Upload"
+          }
+        }
+      }
+    },
     "DutyStation": {
       "type": "object",
       "properties": {
@@ -3072,13 +3174,20 @@ func init() {
         },
         "filename": {
           "type": "string",
-          "format": "binary",
           "example": "filename.pdf"
         },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "INFECTED",
+            "CLEAN",
+            "PROCESSING"
+          ]
         },
         "updatedAt": {
           "type": "string",
@@ -3252,6 +3361,100 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/documents/{documentId}": {
+      "get": {
+        "description": "Returns a document and its uploads",
+        "tags": [
+          "ghcDocuments"
+        ],
+        "summary": "Returns a document",
+        "operationId": "getDocument",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the document to return",
+            "name": "documentId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the requested document",
+            "schema": {
+              "$ref": "#/definitions/DocumentPayload"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "412": {
+            "description": "Precondition Failed",
+            "schema": {
+              "description": "Precondition failed",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        },
+        "x-swagger-roles": [
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
+        ]
+      }
     },
     "/move-orders": {
       "get": {
@@ -5440,6 +5643,32 @@ func init() {
         "CRATE"
       ]
     },
+    "DocumentPayload": {
+      "type": "object",
+      "required": [
+        "id",
+        "service_member_id",
+        "uploads"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "service_member_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "The service member this document belongs to"
+        },
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Upload"
+          }
+        }
+      }
+    },
     "DutyStation": {
       "type": "object",
       "properties": {
@@ -6528,13 +6757,20 @@ func init() {
         },
         "filename": {
           "type": "string",
-          "format": "binary",
           "example": "filename.pdf"
         },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "INFECTED",
+            "CLEAN",
+            "PROCESSING"
+          ]
         },
         "updatedAt": {
           "type": "string",
