@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
+
 	"github.com/transcom/mymove/pkg/models"
 
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
@@ -14,7 +15,7 @@ import (
 
 // GHCPaymentRequestInvoiceGenerator is a service object to turn payment requests into 858s
 type GHCPaymentRequestInvoiceGenerator struct {
-	db *pop.Connection
+	DB *pop.Connection
 }
 
 const dateFormat = "060102"
@@ -39,7 +40,7 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	}
 
 	var edi858 ediinvoice.Invoice858C
-	isa := edisegment.ISA{
+	edi858.ISA = edisegment.ISA{
 		AuthorizationInformationQualifier: "00", // No authorization information
 		AuthorizationInformation:          "0084182369",
 		SecurityInformationQualifier:      "00", // No security information
@@ -57,7 +58,6 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		UsageIndicator:                    usageIndicator, // T for test, P for production
 		ComponentElementSeparator:         "|",
 	}
-	edi858.ISA = append(edi858.ISA, &isa)
 
 	bx := edisegment.BX{
 		TransactionSetPurposeCode:    "00",
@@ -76,25 +76,24 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	edi858.Header = append(edi858.Header, &paymentRequestNumberSegment)
 
 	var paymentServiceItems models.PaymentServiceItems
-	error := g.db.Q().
+	error := g.DB.Q().
 		Eager("MTOServiceItem.ReService").
-		Where("payment_request_id", paymentRequest.ID).
+		Where("payment_request_id = ?", paymentRequest.ID).
 		All(&paymentServiceItems)
 	if error != nil {
-		return edi858, fmt.Errorf("Could not find payment service items: %w", error)
+		return ediinvoice.Invoice858C{}, fmt.Errorf("Could not find payment service items: %w", error)
 	}
 
-	paymentServiceItemSegments, err := generatePaymentServiceItemSegments(paymentServiceItems)
+	paymentServiceItemSegments, err := g.generatePaymentServiceItemSegments(paymentServiceItems)
 	if err != nil {
-		return edi858, fmt.Errorf("Could not generate payment service item segments: %w", err)
+		return ediinvoice.Invoice858C{}, fmt.Errorf("Could not generate payment service item segments: %w", err)
 	}
-	edi858.ServiceItems = append(edi858.ServiceItems, &paymentServiceItemSegments)
-	}
+	edi858.ServiceItems = append(edi858.ServiceItems, paymentServiceItemSegments...)
 
 	return edi858, nil
 }
 
-func generatePaymentServiceItemSegments(paymentRequest) ([]edisegment.Segment, error) {
+func (g GHCPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(paymentServiceItems models.PaymentServiceItems) ([]edisegment.Segment, error) {
 	//Initialize empty collection of segments
 	var segments []edisegment.Segment
 
@@ -103,10 +102,10 @@ func generatePaymentServiceItemSegments(paymentRequest) ([]edisegment.Segment, e
 		// Initialize empty edisegment
 		var tariffSegments []edisegment.Segment
 
-		hierarchicalIDNumber := strconv.Itoa(idx + 1)
+		hierarchicalIDNumber := idx + 1
 		// Build and put together the segments
 		hlSegment := edisegment.HL{
-			HierarchicalIDNumber:  hierarchicalIDNumber, // may need to change if sending multiple payment request in a single edi
+			HierarchicalIDNumber:  strconv.Itoa(hierarchicalIDNumber), // may need to change if sending multiple payment request in a single edi
 			HierarchicalLevelCode: "|",
 		}
 
@@ -123,32 +122,44 @@ func generatePaymentServiceItemSegments(paymentRequest) ([]edisegment.Segment, e
 		var weight models.PaymentServiceItemParam
 		// TODO: update to have a case statement as different service items may or may not have weight
 		// and the distance key can differ (zip3 v zip5, and distances for SIT)
-		error := g.db.Q().
+		err := g.DB.Q().
 			Join("service_item_param_key sk", "payment_service_item_params.service_item_param_key_id = sk.id").
-			Where("payment_service_item_id", serviceItem.ID).
-			Where("sk.key = ?", ServiceItemParamNameWeightBilledActual)
-		First(&weight)
+			Where("payment_service_item_id = ?", serviceItem.ID).
+			Where("sk.key = ?", models.ServiceItemParamNameWeightBilledActual).
+			First(&weight)
+		if err != nil {
+			return nil, fmt.Errorf("Could not lookup PaymentServiceItemParam: %w", err)
+		}
+		weightFloat, err := strconv.ParseFloat(weight.Value, 64)
+		if err != nil {
+			return nil, fmt.Errorf("Could not parse Distance Zip3 for PSI %s: %w", serviceItem.ID, err)
+		}
 		var distance models.PaymentServiceItemParam
-		error := g.db.Q().
+		err = g.DB.Q().
 			Join("service_item_param_key sk", "payment_service_item_params.service_item_param_key_id = sk.id").
-			Where("payment_service_item_id", serviceItem.ID).
-			Where("sk.key = ?", ServiceItemParamNameDistanceZip3)
-		First(&distance)
-		if error != nil {
-			return edi858, fmt.Errorf("Could not lookup PaymentServiceItemParam: %w", error)
+			Where("payment_service_item_id = ?", serviceItem.ID).
+			Where("sk.key = ?", models.ServiceItemParamNameDistanceZip3).
+			First(&distance)
+		if err != nil {
+			return nil, fmt.Errorf("Could not lookup PaymentServiceItemParam: %w", err)
+		}
+		distanceFloat, err := strconv.ParseFloat(distance.Value, 64)
+		if err != nil {
+			return nil, fmt.Errorf("Could not parse Distance Zip3 for PSI %s: %w", serviceItem.ID, err)
 		}
 		l0Segment := edisegment.L0{
 			LadingLineItemNumber:   hierarchicalIDNumber,
-			BilledRatedAsQuantity:  distance.Value,
+			BilledRatedAsQuantity:  distanceFloat,
 			BilledRatedAsQualifier: "DM",
-			Weight:                 weight.Value,
+			Weight:                 weightFloat,
 			WeightQualifier:        "B",
 			WeightUnitCode:         "L",
 		}
 
-		tariffSegments = append(tariffSegments, hlSegment, n9Segment, l0Segment)
+		tariffSegments = append(tariffSegments, &hlSegment, &n9Segment, &l0Segment)
 
 		segments = append(segments, tariffSegments...)
+	}
 
-		return segments, nil;
+	return segments, nil
 }
