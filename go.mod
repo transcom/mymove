@@ -17,6 +17,7 @@ require (
 	github.com/dustin/go-humanize v1.0.0
 	github.com/facebookgo/clock v0.0.0-20150410010913-600d898af40a
 	github.com/felixge/httpsnoop v1.0.1
+	github.com/getlantern/deepcopy v0.0.0-20160317154340-7f45deb8130a
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
 	github.com/go-ini/ini v1.49.0 // indirect
 	github.com/go-openapi/errors v0.19.4
@@ -35,10 +36,9 @@ require (
 	github.com/gobuffalo/nulls v0.4.0 // indirect
 	github.com/gobuffalo/packr v1.30.1
 	github.com/gobuffalo/pop v4.13.1+incompatible
-	github.com/gobuffalo/uuid v2.0.5+incompatible
 	github.com/gobuffalo/validate v2.0.4+incompatible
 	github.com/gocarina/gocsv v0.0.0-20190927101021-3ecffd272576
-	github.com/gofrs/flock v0.7.1
+	github.com/gofrs/flock v0.7.3
 	github.com/gofrs/uuid v3.3.0+incompatible
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/google/go-github/v31 v31.0.0

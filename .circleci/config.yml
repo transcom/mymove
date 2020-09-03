@@ -106,6 +106,16 @@ commands:
             echo "export AWS_ACCESS_KEY_ID=$PRD_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$PRD_SECRET_ACCESS_KEY" >> $BASH_ENV
             source $BASH_ENV
+  aws_vars_transcom_com_dev:
+    steps:
+      - run:
+          name: 'Setting up AWS environment variables for prd env'
+          command: |
+            echo "export AWS_DEFAULT_REGION=$COM_REGION" >> $BASH_ENV
+            echo "export AWS_ACCOUNT_ID=$DEV_ACCOUNT_ID" >> $BASH_ENV
+            echo "export AWS_ACCESS_KEY_ID=$DEV_ACCESS_KEY_ID" >> $BASH_ENV
+            echo "export AWS_SECRET_ACCESS_KEY=$DEV_SECRET_KEY" >> $BASH_ENV
+            source $BASH_ENV
   announce_failure:
     parameters:
     steps:
@@ -481,6 +491,32 @@ jobs:
             - ~/transcom/mymove/node_modules
       - announce_failure
 
+  pre_deps_cypress:
+    executor: mymove_medium
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-cache-cypress-yarn-{{ checksum "cypress/yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v1-cache-cypress-node-modules-{{ checksum "cypress/yarn.lock" }}
+      - run:
+          name: Install YARN dependencies
+          # setting network concurrency to 1 to follow the others; this is pretty standard for cloud yarning. see note in pre_deps_yarn for more detail.
+          command: yarn install --network-concurrency 1
+      # `v1-cache-cypress-yarn-{{ checksum "cypress/yarn.lock" }}` is used to cache yarn sources
+      - save_cache:
+          key: v1-cache-cypress-yarn-{{ checksum "cypress/yarn.lock" }}
+          paths:
+            - ~/.cache/cypress/yarn/v1
+      # `v1-cache-cypress-node-modules-{{ checksum "cypress/yarn.lock" }}` is used to cache installed node modules
+      - save_cache:
+          key: v1-cache-cypress-node-modules-{{ checksum "cypress/yarn.lock" }}
+          paths:
+            - ~/.cache/cypress/node_modules/v1
+      - announce_failure
+
   # `check_generated_code` is used to ensure generated code doesn't change
   check_generated_code:
     executor: mymove_medium
@@ -656,6 +692,12 @@ jobs:
       - restore_cache:
           keys:
             - v3-mymove-node-modules-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v1-cache-cypress-yarn-{{ checksum "cypress/yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v1-cache-cypress-node-modules-{{ checksum "cypress/yarn.lock" }}
       - attach_workspace:
           at: /home/circleci/transcom/mymove/bin
       - run: rm -f pkg/assets/assets.go && make pkg/assets/assets.go
@@ -829,6 +871,20 @@ jobs:
           repo: app
       - announce_failure
 
+  # `push_app_prd` pushes the app container to the milmove-prd container repository
+  push_app_prd:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_prd
+      - push_image:
+          ecr_env: prd
+          image_name: ppp
+          tag: web-dev
+          repo: app
+      - announce_failure
+
   # `storybook_tests` builds the storybook application container and pushes to the container repository
   storybook_tests:
     executor: mymove_medium_plus
@@ -917,6 +973,20 @@ jobs:
       - aws_vars_stg
       - push_image:
           ecr_env: stg
+          image_name: ppp-migrations
+          tag: dev
+          repo: app-migrations
+      - announce_failure
+
+  # `push_migrations_prd` pushes the migrations container to the milmove-prd container repository
+  push_migrations_prd:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_prd
+      - push_image:
+          ecr_env: prd
           image_name: ppp-migrations
           tag: dev
           repo: app-migrations
@@ -1053,6 +1123,25 @@ jobs:
           repo: app-engadmin-nginx
       - announce_failure
 
+  # `push_milmove_admin_app_prd` pushes the django admin container to the milmove-prd container repository
+  push_milmove_admin_app_prd:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_prd
+      - push_image:
+          ecr_env: prd
+          image_name: engadmin
+          tag: dev
+          repo: app-engadmin
+      - push_image:
+          ecr_env: prd
+          image_name: engadmin-nginx
+          tag: dev
+          repo: app-engadmin-nginx
+      - announce_failure
+
   # `build_tasks` builds the tasks containers
   build_tasks:
     executor: mymove_medium
@@ -1112,6 +1201,20 @@ jobs:
       - aws_vars_stg
       - push_image:
           ecr_env: stg
+          image_name: tasks
+          tag: dev
+          repo: app-tasks
+      - announce_failure
+
+  # `push_tasks_prd` pushes the tasks containers to the milmove-prd container repository
+  push_tasks_prd:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_prd
+      - push_image:
+          ecr_env: prd
           image_name: tasks
           tag: dev
           repo: app-tasks
@@ -1308,7 +1411,7 @@ jobs:
           health_check_hosts: gex.stg.move.mil,dps.stg.move.mil,orders.stg.move.mil
           ecr_env: stg
 
-  # `deploy_prod_migrations` deploys migrations to the staging environment
+  # `deploy_prod_migrations` deploys migrations to the prod environment
   deploy_prod_migrations:
     executor: mymove_small
     environment:
@@ -1359,6 +1462,57 @@ jobs:
       - deploy_app_storybook:
           s3_bucket: storybook.move.mil
 
+  deploy_storybook_dp3:
+    executor: mymove_small
+    steps:
+      - aws_vars_transcom_com_dev
+      - deploy_app_storybook:
+          s3_bucket: storybook.dp3.us
+
+  # `deploy_prd_migrations` deploys migrations to the milmove-prd environment
+  deploy_prd_migrations:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'prd'
+    steps:
+      - aws_vars_prd
+      - deploy_migrations_steps:
+          ecr_env: prd
+
+  # `deploy_prd_tasks` deploys ECS tasks in the milmove-prd environment
+  deploy_prd_tasks:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'prd'
+    steps:
+      - aws_vars_prd
+      - deploy_tasks_steps:
+          ecr_env: prd
+
+  # `deploy_prd_app` updates the server-TLS app service in the milmove-prd environment
+  deploy_prd_app:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'prd'
+    steps:
+      - aws_vars_prd
+      - deploy_app_steps:
+          compare_host: my.prd.move.mil
+          health_check_hosts: my.prd.move.mil,office.prd.move.mil,admin.prd.move.mil
+          ecr_env: prd
+
+  # `deploy_prd_app_client_tls` updates the mutual-TLS service in the milmove-prd environment
+  deploy_prd_app_client_tls:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'prd'
+    steps:
+      - aws_vars_prd
+      - deploy_app_client_tls_steps:
+          compare_host: gex.prd.move.mil
+          health_check_hosts: gex.prd.move.mil,dps.prd.move.mil,orders.prd.move.mil
+          ecr_env: prd
+
 workflows:
   version: 2
 
@@ -1394,10 +1548,13 @@ workflows:
           requires:
             - pre_deps_golang
 
+      - pre_deps_cypress
+
       - integration_tests:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
+            - pre_deps_cypress
             - check_generated_code
             - push_app_legacy
             - push_app_stg
@@ -1721,10 +1878,76 @@ workflows:
             branches:
               only: master
 
+      - deploy_storybook_dp3:
+          requires:
+            - storybook_tests
+          filters:
+            branches:
+              only: master
+
       - storybook_tests:
           requires:
             - anti_virus
             - pre_deps_yarn
+
+      - push_app_prd:
+          requires:
+            - build_app # replace with approve_prod_deploy
+          filters:
+            branches:
+              only: DEPLOY_PRD_PLACEHOLDER
+
+      - push_migrations_prd:
+          requires:
+            - build_migrations # replace with approve_prod_deploy
+          filters:
+            branches:
+              only: DEPLOY_PRD_PLACEHOLDER
+
+      - push_tasks_prd:
+          requires:
+            - build_tasks # replace with approve_prod_deploy
+          filters:
+            branches:
+              only: DEPLOY_PRD_PLACEHOLDER
+
+      - deploy_prd_migrations:
+          requires:
+            - push_migrations_prd
+            - pre_test # delete
+            - client_test # delete
+            - server_test # delete
+            - acceptance_tests # delete
+            - build_tools # delete
+            - push_app_prd
+            - push_tasks_prd
+          filters:
+            branches:
+              only: DEPLOY_PRD_PLACEHOLDER
+
+      - deploy_prd_tasks:
+          requires:
+            - deploy_prd_migrations
+            - push_tasks_prd
+          filters:
+            branches:
+              only: DEPLOY_PRD_PLACEHOLDER
+
+      - deploy_prd_app:
+          requires:
+            - deploy_prd_migrations
+            - push_app_prd
+          filters:
+            branches:
+              only: DEPLOY_PRD_PLACEHOLDER
+
+      - deploy_prd_app_client_tls:
+          requires:
+            - deploy_prd_migrations
+            - push_app_prd
+          filters:
+            branches:
+              only: DEPLOY_PRD_PLACEHOLDER
 
 experimental:
   notify:

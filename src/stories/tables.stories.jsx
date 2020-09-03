@@ -315,18 +315,17 @@ export const ServiceItemTables = () => (
     <hr />
     <h3>Service item table with images and buttons</h3>
     <ServiceItemTableHasImg
+      statusForTableType="SUBMITTED"
       serviceItems={[
         {
           id: 'abc12345',
-          dateRequested: '22 Nov 2020',
+          createdAt: '2020-11-22T00:00:00',
           serviceItem: 'Dom. Crating',
           code: 'DCRT',
           details: {
-            text: {
-              Description: "Here's the description",
-              'Item dimensions': '84"x26"x42"',
-              'Crate dimensions': '110"x36"x54"',
-            },
+            description: "Here's the description",
+            itemDimensions: { length: 8400, width: 2600, height: 4200 },
+            crateDimensions: { length: 110000, width: 36000, height: 54000 },
             imgURL: 'https://live.staticflickr.com/4735/24289917967_27840ed1af_b.jpg',
           },
         },

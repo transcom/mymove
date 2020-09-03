@@ -5,6 +5,7 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -74,6 +75,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *internalmessages.MTOShipment 
 		CreatedAt:          strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:          strfmt.DateTime(mtoShipment.UpdatedAt),
 		Status:             internalmessages.MTOShipmentStatus(mtoShipment.Status),
+		ETag:               etag.GenerateEtag(mtoShipment.UpdatedAt),
 	}
 
 	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {

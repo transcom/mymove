@@ -42,7 +42,7 @@ function CustomerAgreementLegalese(props) {
             </p>
           </div>
           <div className="usa-grid button-bar">
-            <button className="usa-button usa-button--outline" data-testid="back-button" onClick={goBack}>
+            <button className="usa-button usa-button--secondary" data-testid="back-button" onClick={goBack}>
               Back
             </button>
           </div>

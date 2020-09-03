@@ -19,7 +19,7 @@ export function AlertWithConfirmation(props) {
                   <div className="cancel-or-ok-buttons">
                     <button
                       type="button"
-                      className="usa-button usa-button--outline"
+                      className="usa-button usa-button--secondary"
                       onClick={props.cancelActionHandler}
                     >
                       Cancel

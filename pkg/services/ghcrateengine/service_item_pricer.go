@@ -53,6 +53,8 @@ func (p serviceItemPricer) getPricer(serviceCode models.ReServiceCode) (services
 		return NewDomesticDestinationPricer(p.db), nil
 	case models.ReServiceCodeDPK:
 		return NewDomesticPackPricer(p.db), nil
+	case models.ReServiceCodeDUPK:
+		return NewDomesticUnpackPricer(p.db), nil
 	case models.ReServiceCodeFSC:
 		return NewFuelSurchargePricer(p.db), nil
 	default:

@@ -88,21 +88,21 @@ func NewCreateMTOServiceItemOK() *CreateMTOServiceItemOK {
 Successfully created an MTO service item.
 */
 type CreateMTOServiceItemOK struct {
-	Payload primemessages.MTOServiceItem
+	Payload []primemessages.MTOServiceItem
 }
 
 func (o *CreateMTOServiceItemOK) Error() string {
 	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemOK  %+v", 200, o.Payload)
 }
 
-func (o *CreateMTOServiceItemOK) GetPayload() primemessages.MTOServiceItem {
+func (o *CreateMTOServiceItemOK) GetPayload() []primemessages.MTOServiceItem {
 	return o.Payload
 }
 
 func (o *CreateMTOServiceItemOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	// response payload as interface type
-	payload, err := primemessages.UnmarshalMTOServiceItem(response.Body(), consumer)
+	payload, err := primemessages.UnmarshalMTOServiceItemSlice(response.Body(), consumer)
 	if err != nil {
 		return err
 	}

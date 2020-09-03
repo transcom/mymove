@@ -17,10 +17,9 @@ import ProfileReview from 'scenes/Review/ProfileReview';
 import Orders from 'scenes/Orders/Orders';
 import DutyStation from 'scenes/ServiceMembers/DutyStation';
 
-import TransitionToMove from 'scenes/Orders/TransitionToMove';
 import UploadOrders from 'scenes/Orders/UploadOrders';
 
-import MoveLanding from 'pages/MyMove/MoveLanding';
+import Home from 'pages/MyMove/Home';
 import SelectMoveType from 'pages/MyMove/SelectMoveType';
 import ConusOrNot from 'pages/MyMove/ConusOrNot';
 import MovingInfo from 'pages/MyMove/MovingInfo';
@@ -30,7 +29,7 @@ import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import Review from 'scenes/Review/Review';
 import Agreement from 'scenes/Legalese';
 
-import HHGMoveSetup from 'pages/MyMove/HHGMoveSetup';
+import HHGShipmentSetup from 'pages/MyMove/HHGShipmentSetup';
 
 const PageNotInFlow = ({ location }) => (
   <div className="usa-grid">
@@ -71,7 +70,6 @@ const notMyFirstRodeo = (props) => props.lastMoveIsCanceled;
 const hasPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === SHIPMENT_OPTIONS.PPM;
 const inHhgFlow = (props) => props.context.flags.hhgFlow;
 const inGhcFlow = (props) => props.context.flags.ghcFlow;
-const removeForDemo = (props) => props.context.flags.disableForDemo;
 const isCurrentMoveSubmitted = ({ move }) => {
   return get(move, 'status', 'DRAFT') === 'SUBMITTED';
 };
@@ -138,15 +136,11 @@ const pages = {
     render: (key, pages) => ({ match }) => <BackupContact pages={pages} pageKey={key} match={match} />,
     description: 'Backup contacts',
   },
-  '/service-member/:serviceMemberId/move-landing': {
-    isInFlow: (props) => myFirstRodeo(props) && inGhcFlow(props) && !removeForDemo(props),
+  '/home-2': {
+    isInFlow: (props) => myFirstRodeo(props) && inGhcFlow(props),
     isComplete: always,
-    render: (key, pages) => () => {
-      return (
-        <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
-          <MoveLanding />
-        </WizardPage>
-      );
+    render: (key, pages) => ({ history }) => {
+      return <Home history={history} />;
     },
   },
   '/profile-review': {
@@ -169,22 +163,13 @@ const pages = {
     isInFlow: always,
     isComplete: ({ sm, orders, uploads }) =>
       get(orders, 'uploaded_orders.uploads', []).length > 0 || uploads.length > 0,
-    render: (key, pages) => ({ match }) => <UploadOrders pages={pages} pageKey={key} match={match} />,
+    render: (key, pages, description, props) => ({ match }) => (
+      <UploadOrders pages={pages} pageKey={key} additionalParams={{ moveId: props.moveId }} match={match} />
+    ),
     description: 'Upload your orders',
   },
-  '/orders/transition': {
-    isInFlow: always,
-    isComplete: always,
-    render: (key, pages, description, props) => ({ match }) => {
-      return (
-        <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key} additionalParams={{ moveId: props.moveId }}>
-          <TransitionToMove />
-        </WizardPage>
-      );
-    },
-  },
   '/moves/:moveId/moving-info': {
-    isInFlow: (props) => inHhgFlow(props) && !removeForDemo(props),
+    isInFlow: (props) => inGhcFlow(props),
     isComplete: always,
     render: (key, pages) => () => {
       return (
@@ -195,8 +180,7 @@ const pages = {
     },
   },
   '/moves/:moveId/select-type': {
-    // TODO: prevent user from hard-coding URL if they have a PPM or HHG existent?
-    isInFlow: inHhgFlow,
+    isInFlow: always,
     isComplete: ({ sm, orders, move }) => get(move, 'selected_move_type', null),
     render: (key, pages, props) => ({ match, history }) => (
       <SelectMoveType pageList={pages} pageKey={key} match={match} push={history.push} />
@@ -220,20 +204,28 @@ const pages = {
   '/moves/:moveId/hhg-start': {
     isInFlow: (state) => inHhgFlow && state.selectedMoveType === SHIPMENT_OPTIONS.HHG,
     isComplete: ({ sm, orders, move, ppm, mtoShipment }) => {
-      return mtoShipment && every([mtoShipment.requestedPickupDate, mtoShipment.requestedDeliveryDate]);
+      return (
+        mtoShipment &&
+        every([
+          mtoShipment.requestedPickupDate,
+          mtoShipment.requestedDeliveryDate,
+          mtoShipment.pickupAddress,
+          mtoShipment.shipmentType,
+        ])
+      );
     },
     render: (key, pages, description, props) => ({ match, history }) => (
-      <HHGMoveSetup pageList={pages} pageKey={key} match={match} push={history.push} />
+      <HHGShipmentSetup pageList={pages} pageKey={key} match={match} history={history} />
     ),
   },
   '/moves/:moveId/review': {
     isInFlow: always,
-    isComplete: ({ sm, orders, move, ppm }) => isCurrentMoveSubmitted(move, ppm),
+    isComplete: ({ sm, orders, move, ppm, mtoShipment }) => isCurrentMoveSubmitted(move),
     render: (key, pages) => ({ match }) => <Review pages={pages} pageKey={key} match={match} />,
   },
   '/moves/:moveId/agreement': {
     isInFlow: always,
-    isComplete: ({ sm, orders, move, ppm }) => isCurrentMoveSubmitted(move, ppm),
+    isComplete: ({ sm, orders, move, ppm, mtoShipment }) => isCurrentMoveSubmitted(move),
     render: (key, pages, description, props) => ({ match }) => {
       return <Agreement pages={pages} pageKey={key} match={match} selectedMoveType={props.selectedMoveType} />;
     },

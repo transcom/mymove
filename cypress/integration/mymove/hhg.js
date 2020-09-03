@@ -1,9 +1,35 @@
-/* global cy */
 import { fileUploadTimeout } from '../../support/constants';
+
+describe('HHG Setup flow', function () {
+  before(() => {
+    cy.prepareCustomerApp();
+  });
+
+  beforeEach(() => {
+    cy.removeFetch();
+    cy.server();
+    cy.route('POST', '/internal/service_members').as('createServiceMember');
+    cy.route('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
+    cy.route('GET', '/internal/moves/**/mto_shipments').as('getMTOShipments');
+    cy.route('GET', '/internal/users/logged_in').as('getLoggedInUser');
+  });
+
+  it('Creates a shipment', function () {
+    cy.signInAsNewMilMoveUser();
+    customerFillsInProfileInformation();
+    customerFillsOutOrdersInformation();
+    customerChoosesAnHHGMove();
+    customerSetsUpAnHHGMove();
+    customerAddsAnotherShipment();
+    customerReviewsMoveDetails();
+    customerSubmitsMove();
+  });
+});
 
 function customerFillsInProfileInformation(reloadAfterEveryPage) {
   // dod info
   // does not have welcome message throughout setup
+  cy.wait('@createServiceMember');
   cy.get('span').contains('Welcome,').should('not.exist');
   cy.nextPage();
 
@@ -80,8 +106,9 @@ function customerFillsInProfileInformation(reloadAfterEveryPage) {
   cy.get('input[name="email"]').type('doug@glass.net');
   cy.nextPage();
 
-  cy.get('h2').contains('Welcome Jane');
-  cy.nextPage();
+  cy.get('[data-testid="customer-header"]').contains('Jane Doe');
+  cy.get('p').contains("You're leaving Fort Carson");
+  cy.get('[data-testid="stepContainer2"]').get('[data-testid="button"]').contains('Add orders').click();
 }
 
 function customerFillsOutOrdersInformation() {
@@ -105,16 +132,23 @@ function customerFillsOutOrdersInformation() {
 
   cy.upload_file('.filepond--root', 'top-secret.png');
   cy.get('button.next', { timeout: fileUploadTimeout }).should('not.be.disabled').click();
-  cy.nextPage();
 
   cy.get('h1').contains('Figure out your shipments');
+  cy.nextPage();
+
+  cy.visit('/home-2');
+  cy.get('[data-testid="doc-list-container"]').contains('top-secret.png');
+  cy.go('back');
+}
+
+function customerChoosesAnHHGMove() {
+  cy.get('h1').contains('How do you want to move your belongings?');
+
+  cy.get('input[type="radio"]').last().check({ force: true });
   cy.nextPage();
 }
 
 function customerSetsUpAnHHGMove() {
-  cy.get('input[type="radio"]').last().check({ force: true });
-  cy.nextPage();
-
   cy.get('button[class="usa-button next"]').should('be.disabled');
 
   cy.get('input[name="requestedPickupDate"]').focus().blur();
@@ -195,14 +229,41 @@ function customerSetsUpAnHHGMove() {
   // customer remarks
   cy.get(`[data-testid="remarks"]`).first().type('some customer remark');
   cy.nextPage();
+}
+
+function customerAddsAnotherShipment() {
+  cy.get('button.prev').should('be.enabled').click();
+  customerSetsUpAnHHGMove();
+}
+
+function customerReviewsMoveDetails() {
+  cy.get('[data-testid="review-move-header"]').contains('Review your details');
+
+  cy.get('[data-testid="hhg-summary"]').find('h4').contains('Shipment 1: HHG').find('a').contains('Edit').click();
+
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/edit-shipment/);
+  });
+
+  // Ensure remarks is displayed in form
+  cy.get(`[data-testid="firstName"]`).last().type('Johnson');
+
+  cy.get(`[data-testid="remarks"]`).contains('some customer remark');
+
+  // Edit remarks and agent info
+  cy.get(`[data-testid="remarks"]`).clear().type('some edited customer remark');
+  cy.get(`[data-testid="email"]`).last().clear().type('John@example.com').blur();
+  cy.get('button').contains('Save').click();
+
+  cy.wait('@patchShipment');
 
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
   });
-}
 
-function customerReviewsMoveDetails() {
-  cy.get('h2').contains('Review Move Details');
+  cy.get('[data-testid="hhg-summary"]').find('table').contains('some edited customer remark');
+  cy.get('[data-testid="hhg-summary"]').find('table').contains('JohnJohnson Lee');
+
   cy.nextPage();
 }
 
@@ -216,14 +277,3 @@ function customerSubmitsMove() {
     cy.get('a').contains('PPM info sheet').should('have.attr', 'href').and('include', '/downloads/ppm_info_sheet.pdf');
   });
 }
-
-describe('HHG Setup flow', function () {
-  it('Creates a shipment', function () {
-    cy.signInAsNewMilMoveUser();
-    customerFillsInProfileInformation();
-    customerFillsOutOrdersInformation();
-    customerSetsUpAnHHGMove();
-    customerReviewsMoveDetails();
-    customerSubmitsMove();
-  });
-});

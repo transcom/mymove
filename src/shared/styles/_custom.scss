@@ -146,6 +146,7 @@ table {
       @include u-border(0);
       @include u-border-top(1px);
       @include u-border('base-lighter');
+      vertical-align: middle;
     }
     .error {
       @include u-border-left(0.5);
@@ -173,6 +174,9 @@ table {
   .usa-button--unstyled {
     @include u-margin(0);
     @include u-padding-x(0);
+    .icon {
+      @include u-padding-left('05');
+    }
   }
 }
 .tcontrol--rows-per-page {

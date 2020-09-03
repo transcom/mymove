@@ -29,8 +29,6 @@ export class Summary extends Component {
   componentDidMount() {
     if (this.props.onDidMount) {
       this.props.onDidMount(this.props.serviceMember.id);
-      const { showLoggedInUser } = this.props;
-      showLoggedInUser();
     }
   }
   componentDidUpdate(prevProps) {
@@ -61,11 +59,13 @@ export class Summary extends Component {
     const currentStation = get(serviceMember, 'current_station');
     const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
 
-    const rootAddressWithMoveId = `/moves/${this.props.match.params.moveId}/review`;
+    const rootAddressWithMoveId = `/moves/${this.props.match.params.moveId}`;
+    const rootReviewAddressWithMoveId = rootAddressWithMoveId + `/review`;
+
     // isReviewPage being false is the same thing as being in the /edit route
-    const isReviewPage = rootAddressWithMoveId === match.url;
+    const isReviewPage = rootReviewAddressWithMoveId === match.url;
     const editSuccessBlurb = this.props.reviewState.editSuccess ? 'Your changes have been saved. ' : '';
-    const editOrdersPath = rootAddressWithMoveId + '/edit-orders';
+    const editOrdersPath = rootReviewAddressWithMoveId + '/edit-orders';
 
     const showPPMShipmentSummary =
       (isReviewPage && !isEmpty(currentPPM)) ||
@@ -73,6 +73,7 @@ export class Summary extends Component {
     const showHHGShipmentSummary = isReviewPage && !isEmpty(mtoShipment);
 
     const showProfileAndOrders = isReviewPage || !isReviewPage;
+    const showMoveSetup = showPPMShipmentSummary || showHHGShipmentSummary;
     return (
       <Fragment>
         {get(this.props.reviewState.error, 'statusCode', false) === 409 && (
@@ -107,11 +108,19 @@ export class Summary extends Component {
           />
         )}
 
+        {showMoveSetup && <h3>Move setup</h3>}
+
         {showPPMShipmentSummary && (
-          <PPMShipmentSummary ppm={currentPPM} movePath={rootAddressWithMoveId} orders={currentOrders} />
+          <PPMShipmentSummary ppm={currentPPM} movePath={rootReviewAddressWithMoveId} orders={currentOrders} />
         )}
 
-        {showHHGShipmentSummary && <HHGShipmentSummary mtoShipment={mtoShipment} movePath={rootAddressWithMoveId} />}
+        {showHHGShipmentSummary && (
+          <HHGShipmentSummary
+            mtoShipment={mtoShipment}
+            movePath={rootAddressWithMoveId}
+            newDutyStationPostalCode={currentOrders.new_duty_station.address.postal_code}
+          />
+        )}
 
         {moveIsApproved && (
           <div className="approved-edit-warning">
@@ -140,15 +149,14 @@ Summary.propTypes = {
 };
 
 function mapStateToProps(state, ownProps) {
-  const moveID = state.moves.currentMove.id;
+  const moveID = ownProps.match.params.moveId;
   const currentOrders = selectActiveOrLatestOrdersFromEntities(state);
-  // TODO: temporary workaround until moves is consolidated from move_task_orders - this should be the move id
-  const moveTaskOrderID = get(currentOrders, 'move_task_order_id', '');
+
   return {
     currentPPM: selectActivePPMForMove(state, moveID),
-    mtoShipment: selectMTOShipmentForMTO(state, moveTaskOrderID),
+    mtoShipment: selectMTOShipmentForMTO(state, moveID),
     serviceMember: state.serviceMember.currentServiceMember,
-    currentMove: selectMove(state, ownProps.match.params.moveId),
+    currentMove: selectMove(state, moveID),
     currentBackupContacts: state.serviceMember.currentBackupContacts,
     currentOrders: currentOrders,
     uploads: selectUploadsForActiveOrders(state),
@@ -167,6 +175,7 @@ function mapDispatchToProps(dispatch, ownProps) {
     onDidMount: function () {
       const moveID = ownProps.match.params.moveId;
       dispatch(loadMove(moveID, 'Summary.getMove'));
+      dispatch(showLoggedInUserAction());
     },
     onCheckEntitlement: (moveId) => {
       dispatch(checkEntitlement(moveId));

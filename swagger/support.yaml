@@ -390,28 +390,55 @@ paths:
       parameters:
         - in: body
           required: true
-          name: message
-          description: The message sent by webhook-client.
+          name: body
+          description: The notification sent by webhook-client.
           schema:
             type: object
-            required:
-              - message
             properties:
-              message:
+              id:
                 type: string
-                description: Message sent
-                example: Hello world.
-                x-nullable: false
+                format: uuid
+                example: c56a4180-65aa-42ec-a945-5fd21dec0538
+              eventName:
+                type: string
+                description: Name of event triggered
+                example: paymentRequest.updated
+              triggeredAt:
+                  type: string
+                  format: date-time
+                  description: Time representing when the event was triggered
+              objectType:
+                type: string
+                description: The type of object that's being updated
+                example: paymentRequest
+              object:
+                type: string
+                format: object
       responses:
         '200':
-          description: Created
+          description: Sent
           schema:
             type: object
             properties:
-              message:
+              id:
                 type: string
-                description: Message sent
-                example: Hello world.
+                format: uuid
+                example: c56a4180-65aa-42ec-a945-5fd21dec0538
+              eventName:
+                type: string
+                description: Name of event triggered
+                example: paymentRequest.updated
+              triggeredAt:
+                  type: string
+                  format: date-time
+                  description: Time representing when the event was triggered
+              objectType:
+                type: string
+                description: The type of object that's being updated
+                example: paymentRequest
+              object:
+                type: string
+                format: object
         '400':
           description: Bad request
         '401':

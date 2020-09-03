@@ -1,9 +1,12 @@
-/* global cy */
 import { userCancelsStorageDetails, userSavesStorageDetails } from '../../support/storagePanel';
 
 describe('office user finds the move', function () {
+  before(() => {
+    cy.prepareOfficeApp();
+  });
+
   beforeEach(() => {
-    cy.signInAsNewOfficeUser();
+    cy.signInAsNewPPMOfficeUser();
   });
 
   it('office user views moves in queue new moves', function () {

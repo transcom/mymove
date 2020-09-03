@@ -25,15 +25,22 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import scrollToTop from 'shared/scrollToTop';
 import { getPPM } from 'scenes/Moves/Ppm/ducks';
 import { loadPPMs } from 'shared/Entities/modules/ppms';
-import { showLoggedInUser as showLoggedInUserAction, selectLoggedInUser } from 'shared/Entities/modules/user';
+import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { selectActiveOrLatestOrders, selectUploadsForActiveOrders } from 'shared/Entities/modules/orders';
-import { selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
+import { loadMTOShipments, selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 
 export class Landing extends Component {
   componentDidMount() {
+    // Load user into entities
+    const { isLoggedIn, showLoggedInUser } = this.props;
+    if (isLoggedIn) {
+      showLoggedInUser();
+    }
+
     scrollToTop();
   }
+
   componentDidUpdate(prevProps) {
     const {
       serviceMember,
@@ -54,6 +61,7 @@ export class Landing extends Component {
       }
     }
     if (prevProps.move && prevProps.move.id !== this.props.move.id) {
+      this.props.loadMTOShipments(this.props.move.id);
       this.props.loadPPMs(this.props.move.id);
     }
   }
@@ -188,10 +196,9 @@ const mapStateToProps = (state) => {
   const user = selectCurrentUser(state);
   const serviceMember = get(state, 'serviceMember.currentServiceMember');
   const move = selectActiveOrLatestMove(state);
-  // TODO: use move_id from active or latest move instead of this once db reconciliation work done
-  const moveTaskOrderID = get(selectLoggedInUser(state), 'service_member.orders[0].move_task_order_id', '');
 
   const props = {
+    mtoShipment: selectMTOShipmentForMTO(state, get(move, 'id', '')),
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     selectedMoveType: selectedMoveType(state),
     isLoggedIn: user.isLoggedIn,
@@ -202,8 +209,6 @@ const mapStateToProps = (state) => {
     uploads: selectUploadsForActiveOrders(state),
     move: move,
     ppm: getPPM(state),
-    // TODO: fetch MTOShipment in componentDidMount - this is a placeholder until able to load the shipments
-    mtoShipment: selectMTOShipmentForMTO(state, moveTaskOrderID),
     loggedInUser: user,
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
     loggedInUserError: selectGetCurrentUserIsError(state),
@@ -221,7 +226,7 @@ const mapStateToProps = (state) => {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { push, createServiceMember, updateMove, loadPPMs, showLoggedInUser: showLoggedInUserAction },
+    { push, createServiceMember, updateMove, loadPPMs, loadMTOShipments, showLoggedInUser: showLoggedInUserAction },
     dispatch,
   );
 }

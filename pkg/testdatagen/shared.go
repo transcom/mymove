@@ -76,7 +76,6 @@ type Assertions struct {
 	Tariff400ngZip3                          models.Tariff400ngZip3
 	TrafficDistributionList                  models.TrafficDistributionList
 	TransportationOffice                     models.TransportationOffice
-	TransportationOrderingOfficer            models.TransportationOrderingOfficer
 	TransportationServiceProvider            models.TransportationServiceProvider
 	TransportationServiceProviderPerformance models.TransportationServiceProviderPerformance
 	Upload                                   models.Upload
@@ -85,6 +84,7 @@ type Assertions struct {
 	UserUpload                               models.UserUpload
 	UserUploader                             *uploader.UserUploader
 	User                                     models.User
+	WebhookNotification                      models.WebhookNotification
 	WebhookSubscription                      models.WebhookSubscription
 }
 

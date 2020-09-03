@@ -1081,9 +1081,12 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 
 	dopCost := unit.Cents(3456)
+	rejectionReason := "Customer no longer required this service"
 	serviceItemDOP := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID: uuid.FromStringOrNil("d886431c-c357-46b7-a084-a0c85dd496d3"),
+			ID:              uuid.FromStringOrNil("d886431c-c357-46b7-a084-a0c85dd496d3"),
+			Status:          models.MTOServiceItemStatusRejected,
+			RejectionReason: &rejectionReason,
 		},
 		Move:        mto,
 		MTOShipment: MTOShipment,
@@ -1160,6 +1163,95 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		PaymentRequest: paymentRequest,
 		MTOServiceItem: serviceItemDUPK,
+	})
+
+	dofsitPostal := "90210"
+	dofsitReason := "Storage items need to be picked up"
+	serviceItemDOFSIT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:               uuid.FromStringOrNil("61ce8a9b-5fcf-4d98-b192-a35f17819ae6"),
+			PickupPostalCode: &dofsitPostal,
+			Reason:           &dofsitReason,
+		},
+		Move:        mto,
+		MTOShipment: MTOShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("998beda7-e390-4a83-b15e-578a24326937"), // DOFSIT - Domestic Origin 1st Day SIT
+		},
+	})
+
+	dofsitCost := unit.Cents(8544)
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &dofsitCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: serviceItemDOFSIT,
+	})
+
+	serviceItemDDFSIT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("b2c770ab-db6f-465c-87f1-164ecd2f36a4"),
+		},
+		Move:        mto,
+		MTOShipment: MTOShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("d0561c49-e1a9-40b8-a739-3e639a9d77af"), // DDFSIT - Domestic Destination 1st Day SIT
+		},
+	})
+
+	firstDeliveryDate := swag.Time(time.Now())
+	testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
+		MTOServiceItem: serviceItemDDFSIT,
+		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
+			ID:                         uuid.FromStringOrNil("f0f38ee0-0148-4892-9b5b-a091a8c5a645"),
+			MTOServiceItemID:           serviceItemDDFSIT.ID,
+			Type:                       models.CustomerContactTypeFirst,
+			TimeMilitary:               "0400Z",
+			FirstAvailableDeliveryDate: *firstDeliveryDate,
+		},
+	})
+
+	testdatagen.MakeMTOServiceItemCustomerContact(db, testdatagen.Assertions{
+		MTOServiceItem: serviceItemDDFSIT,
+		MTOServiceItemCustomerContact: models.MTOServiceItemCustomerContact{
+			ID:                         uuid.FromStringOrNil("1398aea3-d09b-485d-81c7-3bb72c21fb38"),
+			MTOServiceItemID:           serviceItemDDFSIT.ID,
+			Type:                       models.CustomerContactTypeSecond,
+			TimeMilitary:               "1200Z",
+			FirstAvailableDeliveryDate: firstDeliveryDate.Add(time.Hour * 24),
+		},
+	})
+
+	ddfsitCost := unit.Cents(8544)
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &ddfsitCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: serviceItemDDFSIT,
+	})
+
+	dcrtDescription := "Decorated horse head to be crated."
+	serviceItemDCRT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:          uuid.FromStringOrNil("9b2b7cae-e8fa-4447-9a00-dcfc4ffc9b6f"),
+			Description: &dcrtDescription,
+		},
+		Move:        mto,
+		MTOShipment: MTOShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Domestic Crating
+		},
+	})
+
+	testdatagen.MakeMTOServiceItemDimension(db, testdatagen.Assertions{
+		MTOServiceItem: serviceItemDCRT,
+		MTOServiceItemDimension: models.MTOServiceItemDimension{
+			Length: 10000,
+			Height: 5000,
+			Width:  2500,
+		},
 	})
 
 	/* Customer with two payment requests */
@@ -1581,6 +1673,18 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		MTOShipment: mtoShipment5,
 		ReService: models.ReService{
 			ID: uuid.FromStringOrNil("bdea5a8d-f15f-47d2-85c9-bba5694802ce"), // DPK
+		},
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:     uuid.FromStringOrNil("999504a9-45b0-477f-a00b-3ede8ffde379"),
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		Move:        mtoWithTaskOrderServices,
+		MTOShipment: mtoShipment5,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("15f01bc1-0754-4341-8e0f-25c8f04d5a77"), // DUPK
 		},
 	})
 
