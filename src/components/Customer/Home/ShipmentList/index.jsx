@@ -36,7 +36,7 @@ ShipmentListItem.propTypes = {
 const ShipmentList = ({ shipments, onShipmentClick }) => (
   <div>
     {shipments.map((shipment) => (
-      <ShipmentListItem key={shipment.id} onShipmentClick={onShipmentClick} shipment={shipment} />
+      <ShipmentListItem key={shipment.id} onShipmentClick={() => onShipmentClick(shipment.id)} shipment={shipment} />
     ))}
   </div>
 );

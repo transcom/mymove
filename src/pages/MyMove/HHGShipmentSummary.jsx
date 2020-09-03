@@ -13,7 +13,7 @@ import 'scenes/Review/Review.css';
 
 export default function HHGShipmentSummary(props) {
   const { mtoShipment, movePath, newDutyStationPostalCode, shipmentNumber } = props;
-  const editShipmentPath = `${movePath}/edit-shipment`;
+  const editShipmentPath = `${movePath}/mto-shipments/${mtoShipment?.id}/edit-shipment`;
 
   const requestedPickupDate = get(mtoShipment, 'requestedPickupDate', '');
   const pickupLocation = get(mtoShipment, 'pickupAddress', {});
