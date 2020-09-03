@@ -145,8 +145,8 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 		logger.Error("Auditing service error for service item update.", zap.Error(err))
 		return mtoserviceitemop.NewUpdateMTOServiceItemStatusInternalServerError()
 	}
-	// TODO: We don't yet have a rejectionReason for mtoServiceItems. When we do a rejection pop up dialog story we will need to add this in, so for now passing in nil.
-	updatedMTOServiceItem, err := h.MTOServiceItemUpdater.UpdateMTOServiceItemStatus(mtoServiceItemID, models.MTOServiceItemStatus(params.Body.Status), nil, params.IfMatch)
+
+	updatedMTOServiceItem, err := h.MTOServiceItemUpdater.UpdateMTOServiceItemStatus(mtoServiceItemID, models.MTOServiceItemStatus(params.Body.Status), params.Body.RejectionReason, params.IfMatch)
 
 	if err != nil {
 		switch err.(type) {

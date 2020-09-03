@@ -1,8 +1,12 @@
-/* global cy */
 describe('setting up service member profile requiring an access code', function () {
+  before(() => {
+    cy.prepareCustomerApp();
+  });
+
   beforeEach(() => {
     cy.signInAsNewMilMoveUser();
   });
+
   it('progresses thru forms', function () {
     cy.get('body').then(($body) => {
       if ($body.find('input[name="claim_access_code"]').length) {
@@ -12,6 +16,7 @@ describe('setting up service member profile requiring an access code', function 
     serviceMemberChoosesConusOrOconus();
     serviceMemberProfile();
   });
+
   it.skip('restarts app after every page', function () {
     serviceMemberProfile(true);
   });

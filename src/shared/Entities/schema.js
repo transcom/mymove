@@ -77,7 +77,6 @@ export const serviceMember = new schema.Entity('serviceMembers', {
   backup_contacts: backupContacts,
   user,
   orders: ordersArray,
-  current_station: dutyStation,
 });
 
 // Loggedin User

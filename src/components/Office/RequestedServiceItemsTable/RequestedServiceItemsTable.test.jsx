@@ -9,7 +9,7 @@ const handleUpdateServiceItems = jest.fn();
 
 const serviceItemWithImg = {
   id: 'abc123',
-  submittedAt: '2020-11-20',
+  createdAt: '2020-11-20',
   serviceItem: 'Domestic Crating',
   code: 'DCRT',
   details: {
@@ -21,7 +21,7 @@ const serviceItemWithImg = {
 
 const serviceItemWithContact = {
   id: 'abc1234',
-  submittedAt: '2020-09-01',
+  createdAt: '2020-09-01',
   serviceItem: 'Domestic Destination 1st Day SIT',
   code: 'DDFSIT',
   details: {
@@ -32,7 +32,7 @@ const serviceItemWithContact = {
 
 const serviceItemWithDetails = {
   id: 'abc12345',
-  submittedAt: '2020-10-15',
+  createdAt: '2020-10-15',
   serviceItem: 'Domestic Origin 1st Day SIT',
   code: 'DOFSIT',
   details: {

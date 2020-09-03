@@ -25,19 +25,3 @@ Cypress.on('window:load', (win) => {
   node.innerHTML = 'html { scroll-behavior: inherit !important; }';
   document.body.appendChild(node);
 });
-
-// Capture the full screen by default
-// These options are overridden for auto-screenshot on fail
-Cypress.Screenshot.defaults({
-  capture: 'fullPage',
-});
-
-afterEach(function () {
-  if (this.currentTest.state === 'failed') {
-    // Take another screenshot so we get the full page
-    cy.screenshot();
-  }
-});
-
-// Alternatively you can use CommonJS syntax:
-// require('./commands')
