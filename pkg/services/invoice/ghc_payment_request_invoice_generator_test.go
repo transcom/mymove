@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 
@@ -29,13 +30,13 @@ func TestGHCInvoiceSuite(t *testing.T) {
 	ts.PopTestSuite.TearDown()
 }
 
-func (suite *GHCInvoiceSuite) TestGenerateGHCInvoice() {
+func (suite *GHCInvoiceSuite) TestGenerateGHCInvoiceStartEndSegments() {
 	const testDateFormat = "060102"
 	const testTimeFormat = "1504"
 	currentTime := time.Now()
 	generator := GHCPaymentRequestInvoiceGenerator{DB: suite.DB()}
 
-	suite.T().Run("adds isa header line", func(t *testing.T) {
+	suite.T().Run("adds isa start segment", func(t *testing.T) {
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
 		result, err := generator.Generate(paymentRequest, false)
 		suite.FatalNoError(err)
@@ -57,7 +58,41 @@ func (suite *GHCInvoiceSuite) TestGenerateGHCInvoice() {
 		suite.Equal("|", result.ISA.ComponentElementSeparator)
 	})
 
-	suite.T().Run("adds bx header line", func(t *testing.T) {
+	suite.T().Run("adds gs start segment", func(t *testing.T) {
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		result, err := generator.Generate(paymentRequest, false)
+		suite.FatalNoError(err)
+		suite.Equal("SI", result.GS.FunctionalIdentifierCode)
+		suite.Equal("MYMOVE", result.GS.ApplicationSendersCode)
+		suite.Equal("8004171844", result.GS.ApplicationReceiversCode)
+		suite.Equal(currentTime.Format(dateFormat), result.GS.Date)
+		suite.Equal(currentTime.Format(timeFormat), result.GS.Time)
+		suite.Equal(int64(100001251), result.GS.GroupControlNumber)
+		suite.Equal("X", result.GS.ResponsibleAgencyCode)
+		suite.Equal("004010", result.GS.Version)
+	})
+
+	suite.T().Run("adds ge end segment", func(t *testing.T) {
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		result, err := generator.Generate(paymentRequest, false)
+		suite.FatalNoError(err)
+		suite.Equal(1, result.GE.NumberOfTransactionSetsIncluded)
+		suite.Equal(int64(100001251), result.GE.GroupControlNumber)
+	})
+
+	suite.T().Run("adds iea end segment", func(t *testing.T) {
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		result, err := generator.Generate(paymentRequest, false)
+		suite.FatalNoError(err)
+		suite.Equal(1, result.IEA.NumberOfIncludedFunctionalGroups)
+		suite.Equal(int64(100001272), result.IEA.InterchangeControlNumber)
+	})
+}
+
+func (suite *GHCInvoiceSuite) TestGenerateGHCInvoiceHeader() {
+	generator := GHCPaymentRequestInvoiceGenerator{DB: suite.DB()}
+
+	suite.T().Run("adds bx header segment", func(t *testing.T) {
 		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
 		result, err := generator.Generate(paymentRequest, false)
 		suite.FatalNoError(err)
@@ -87,5 +122,75 @@ func (suite *GHCInvoiceSuite) TestGenerateGHCInvoice() {
 		suite.FatalNoError(err)
 		_, err = result.EDIString()
 		suite.NoError(err)
+	})
+}
+
+func (suite *GHCInvoiceSuite) TestGenerateGHCInvoiceBody() {
+	generator := GHCPaymentRequestInvoiceGenerator{DB: suite.DB()}
+
+	suite.T().Run("adds l0 service item segment", func(t *testing.T) {
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		// add PSIs
+		var params models.PaymentServiceItemParams
+
+		paymentServiceItem := testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDLH,
+			},
+			PaymentServiceItem: models.PaymentServiceItem{
+				PaymentRequestID: paymentRequest.ID,
+			},
+		})
+
+		weightServiceItemParamKey := testdatagen.MakeServiceItemParamKey(suite.DB(),
+			testdatagen.Assertions{
+				ServiceItemParamKey: models.ServiceItemParamKey{
+					Key:  models.ServiceItemParamNameWeightBilledActual,
+					Type: models.ServiceItemParamTypeInteger,
+				},
+			})
+
+		weightServiceItemParam := testdatagen.MakePaymentServiceItemParam(suite.DB(),
+			testdatagen.Assertions{
+				PaymentServiceItem:  paymentServiceItem,
+				ServiceItemParamKey: weightServiceItemParamKey,
+				PaymentServiceItemParam: models.PaymentServiceItemParam{
+					Value: "4242",
+				},
+			})
+		params = append(params, weightServiceItemParam)
+
+		distanceServiceItemParamKey := testdatagen.MakeServiceItemParamKey(suite.DB(),
+			testdatagen.Assertions{
+				ServiceItemParamKey: models.ServiceItemParamKey{
+					Key:  models.ServiceItemParamNameDistanceZip3,
+					Type: models.ServiceItemParamTypeInteger,
+				},
+			})
+
+		distanceServiceItemParam := testdatagen.MakePaymentServiceItemParam(suite.DB(),
+			testdatagen.Assertions{
+				PaymentServiceItem:  paymentServiceItem,
+				ServiceItemParamKey: distanceServiceItemParamKey,
+				PaymentServiceItemParam: models.PaymentServiceItemParam{
+					Value: "2424",
+				},
+			})
+		params = append(params, distanceServiceItemParam)
+
+		paymentServiceItem.PaymentServiceItemParams = params
+		suite.MustSave(&paymentServiceItem)
+
+		result, err := generator.Generate(paymentRequest, false)
+		suite.FatalNoError(err)
+		lastIdx := len(result.ServiceItems) - 1
+		suite.IsType(&edisegment.L0{}, result.ServiceItems[lastIdx])
+		l0 := result.ServiceItems[lastIdx].(*edisegment.L0)
+		suite.Equal(1, l0.LadingLineItemNumber)
+		suite.Equal(float64(2424), l0.BilledRatedAsQuantity)
+		suite.Equal("DM", l0.BilledRatedAsQualifier)
+		suite.Equal(float64(4242), l0.Weight)
+		suite.Equal("B", l0.WeightQualifier)
+		suite.Equal("L", l0.WeightUnitCode)
 	})
 }

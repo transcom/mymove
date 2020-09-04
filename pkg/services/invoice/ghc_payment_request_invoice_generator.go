@@ -59,6 +59,26 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		UsageIndicator:                    usageIndicator, // T for test, P for production
 		ComponentElementSeparator:         "|",
 	}
+	edi858.IEA = edisegment.IEA{
+		NumberOfIncludedFunctionalGroups: 1,
+		InterchangeControlNumber:         100001272,
+	}
+
+	edi858.GS = edisegment.GS{
+		FunctionalIdentifierCode: "SI",
+		ApplicationSendersCode:   "MYMOVE",
+		ApplicationReceiversCode: "8004171844",
+		Date:                     currentTime.Format(dateFormat),
+		Time:                     currentTime.Format(timeFormat),
+		GroupControlNumber:       100001251,
+		ResponsibleAgencyCode:    "X",
+		Version:                  "004010",
+	}
+
+	edi858.GE = edisegment.GE{
+		NumberOfTransactionSetsIncluded: 1,
+		GroupControlNumber:              100001251,
+	}
 
 	bx := edisegment.BX{
 		TransactionSetPurposeCode:    "00",
