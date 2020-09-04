@@ -11,6 +11,7 @@
   },
   "globals": {
     "cy": "readonly",
-    "Cypress": "readonly"
+    "Cypress": "readonly",
+    "before": "readonly"
   }
 }
