@@ -1,0 +1,30 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+@import 'shared/styles/_custom';
+
+.OrdersTable {
+  @include u-padding-y(2);
+  :global .stackedtable-header {
+    max-width: unset;
+
+    h4 {
+      color: $base-darkest;
+    }
+
+    button {
+      @include u-margin-right(0);
+      @include u-margin-y(0);
+    }
+  }
+
+  :global .table--stacked {
+    width: 100%;
+    //color: $base-darkest;
+  }
+
+  th {
+    @include u-font-weight(bold);
+    color: $base-darker;
+  }
+}

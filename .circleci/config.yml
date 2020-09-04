@@ -106,6 +106,16 @@ commands:
             echo "export AWS_ACCESS_KEY_ID=$PRD_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$PRD_SECRET_ACCESS_KEY" >> $BASH_ENV
             source $BASH_ENV
+  aws_vars_transcom_com_dev:
+    steps:
+      - run:
+          name: 'Setting up AWS environment variables for prd env'
+          command: |
+            echo "export AWS_DEFAULT_REGION=$COM_REGION" >> $BASH_ENV
+            echo "export AWS_ACCOUNT_ID=$DEV_ACCOUNT_ID" >> $BASH_ENV
+            echo "export AWS_ACCESS_KEY_ID=$DEV_ACCESS_KEY_ID" >> $BASH_ENV
+            echo "export AWS_SECRET_ACCESS_KEY=$DEV_SECRET_KEY" >> $BASH_ENV
+            source $BASH_ENV
   announce_failure:
     parameters:
     steps:
@@ -982,156 +992,6 @@ jobs:
           repo: app-migrations
       - announce_failure
 
-  # `build_django_app` builds the django app container
-  build_milmove_admin_app:
-    executor: mymove_and_postgres_medium
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
-      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
-      - run: sudo apt-get update && sudo apt-get install -yy postgresql-client
-      - run:
-          name: make db_test_reset for milmove_admin
-          command: make db_test_reset
-          environment:
-            APPLICATION: app
-            DB_PASSWORD: mysecretpassword
-            DB_USER: postgres
-            DB_HOST: localhost
-            DB_PORT_TEST: 5433
-            DB_PORT: 5432
-            DB_NAME: test_db
-            DB_NAME_TEST: test_db
-            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
-            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
-      - run:
-          name: make db_test_migrate for milmove_admin
-          command: make db_test_migrate
-          environment:
-            APPLICATION: app
-            DB_PASSWORD: mysecretpassword
-            DB_USER: postgres
-            DB_HOST: localhost
-            DB_PORT_TEST: 5433
-            DB_PORT: 5432
-            DB_NAME: test_db
-            DB_NAME_TEST: test_db
-            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
-            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
-      - run:
-          name: clone mymove_admin repo
-          command: git clone https://github.com/transcom/milmove_admin.git
-          working_directory: ~/transcom
-      - run:
-          name: generate models file for migrations
-          command: make generate_models_standalone
-          working_directory: ~/transcom/milmove_admin
-          environment:
-            DB_PASSWORD: mysecretpassword
-            DB_USER: postgres
-            DB_HOST: localhost
-            DB_PORT: 5432
-            DB_NAME: test_db
-            DJANGO_ALLOWED_HOSTS: 'localhost 127.0.0.1 [::1]'
-            LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
-            LOGIN_GOV_CALLBACK_PROTOCOL: http
-            LOGIN_GOV_ENGADMIN_CLIENT_ID: 'urn:gov:gsa:openidconnect.profiles:sp:sso:dod:engadminmovemillocal'
-            LOCAL_HOST_NAME: engadminlocal
-            LOGIN_GOV_CALLBACK_PORT: 3000
-            LOGIN_GOV_KID_JWK: milmove_admin
-            LOGIN_GOV_JWK_SET_FILENAME: keyset.jwk
-      - setup_remote_docker:
-          docker_layer_caching: false
-      - build_image:
-          dockerfile: Dockerfile.prod
-          image_name: engadmin
-          tag: dev
-          working_dir: ~/transcom/milmove_admin/app
-      - build_image:
-          dockerfile: Dockerfile
-          image_name: engadmin-nginx
-          tag: dev
-          working_dir: ~/transcom/milmove_admin/nginx
-      - announce_failure
-
-  # `push_milmove_admin_app_legacy` pushes the django admin container to the legacy container repository
-  push_milmove_admin_app_legacy:
-    executor: mymove_small
-    steps:
-      - setup_remote_docker:
-          docker_layer_caching: false
-      - aws_vars_legacy
-      - push_image:
-          ecr_env: legacy
-          image_name: engadmin
-          tag: dev
-          repo: app-engadmin
-      - push_image:
-          ecr_env: legacy
-          image_name: engadmin-nginx
-          tag: dev
-          repo: app-engadmin-nginx
-      - announce_failure
-
-  # `push_milmove_admin_app_exp` pushes the django admin container to the milmove-exp container repository
-  push_milmove_admin_app_exp:
-    executor: mymove_small
-    steps:
-      - setup_remote_docker:
-          docker_layer_caching: false
-      - aws_vars_exp
-      - push_image:
-          ecr_env: exp
-          image_name: engadmin
-          tag: dev
-          repo: app-engadmin
-      - push_image:
-          ecr_env: exp
-          image_name: engadmin-nginx
-          tag: dev
-          repo: app-engadmin-nginx
-      - announce_failure
-
-  # `push_milmove_admin_app_stg` pushes the django admin container to the milmove-stg container repository
-  push_milmove_admin_app_stg:
-    executor: mymove_small
-    steps:
-      - setup_remote_docker:
-          docker_layer_caching: false
-      - aws_vars_stg
-      - push_image:
-          ecr_env: stg
-          image_name: engadmin
-          tag: dev
-          repo: app-engadmin
-      - push_image:
-          ecr_env: stg
-          image_name: engadmin-nginx
-          tag: dev
-          repo: app-engadmin-nginx
-      - announce_failure
-
-  # `push_milmove_admin_app_prd` pushes the django admin container to the milmove-prd container repository
-  push_milmove_admin_app_prd:
-    executor: mymove_small
-    steps:
-      - setup_remote_docker:
-          docker_layer_caching: false
-      - aws_vars_prd
-      - push_image:
-          ecr_env: prd
-          image_name: engadmin
-          tag: dev
-          repo: app-engadmin
-      - push_image:
-          ecr_env: prd
-          image_name: engadmin-nginx
-          tag: dev
-          repo: app-engadmin-nginx
-      - announce_failure
-
   # `build_tasks` builds the tasks containers
   build_tasks:
     executor: mymove_medium
@@ -1445,12 +1305,12 @@ jobs:
           health_check_hosts: gex.move.mil,dps.move.mil,orders.move.mil
           ecr_env: legacy
 
-  deploy_prod_storybook:
+  deploy_storybook_dp3:
     executor: mymove_small
     steps:
-      - aws_vars_legacy
+      - aws_vars_transcom_com_dev
       - deploy_app_storybook:
-          s3_bucket: storybook.move.mil
+          s3_bucket: storybook.dp3.us
 
   # `deploy_prd_migrations` deploys migrations to the milmove-prd environment
   deploy_prd_migrations:
@@ -1504,14 +1364,6 @@ workflows:
       - pre_deps_golang
 
       - pre_deps_yarn
-
-      - build_milmove_admin_app:
-          requires:
-            - pre_deps_golang
-
-      - push_milmove_admin_app_legacy:
-          requires:
-            - build_milmove_admin_app
 
       - check_generated_code:
           requires:
@@ -1643,13 +1495,6 @@ workflows:
       - deploy_experimental_app_client_tls:
           requires:
             - deploy_experimental_migrations
-          filters:
-            branches:
-              only: placeholder_branch_name
-
-      - push_milmove_admin_app_exp:
-          requires:
-            - build_milmove_admin_app
           filters:
             branches:
               only: placeholder_branch_name
@@ -1854,7 +1699,7 @@ workflows:
             branches:
               only: master
 
-      - deploy_prod_storybook:
+      - deploy_storybook_dp3:
           requires:
             - storybook_tests
           filters:

@@ -96,8 +96,8 @@ func (suite *GHCRateEngineServiceSuite) setupFuelSurchargeServiceItem() models.P
 			},
 			{
 				models.ServiceItemParamNameEIAFuelPrice,
-				models.ServiceItemParamTypeDecimal,
-				fmt.Sprintf("%f", float64(fscFuelPrice)),
+				models.ServiceItemParamTypeInteger,
+				fmt.Sprintf("%d", int(fscFuelPrice)),
 			},
 		},
 	)
