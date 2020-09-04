@@ -44,7 +44,13 @@ export default function HHGShipmentSummary(props) {
   // add shipment locator as shipment subheading when it exists
   return (
     <div data-testid="hhg-summary" className="review-content">
-      <ReviewSection fieldData={hhgShipmentData} title="Shipment 1: HHG" editLink={editShipmentPath} useH4 />
+      <ReviewSection
+        fieldData={hhgShipmentData}
+        title="Shipment 1: HHG"
+        editLink={editShipmentPath}
+        datatestid="edit-shipment"
+        useH4
+      />
     </div>
   );
 }
