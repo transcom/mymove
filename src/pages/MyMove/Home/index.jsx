@@ -150,9 +150,14 @@ class Home extends Component {
     );
   };
 
-  handleShipmentClick = (shipmentId) => {
+  handleShipmentClick = (shipmentId, shipmentNumber) => {
     const { move, history } = this.props;
-    history.push(`/moves/${move.id}/mto-shipments/${shipmentId}/edit-shipment`);
+    let queryString = '';
+    if (shipmentNumber) {
+      queryString = `?shipmentNumber=${shipmentNumber}`;
+    }
+
+    history.push(`/moves/${move.id}/mto-shipments/${shipmentId}/edit-shipment${queryString}`);
   };
 
   handleNewPathClick = (path) => {
