@@ -40,7 +40,7 @@ const ShipmentList = ({ shipments, onShipmentClick }) => (
       <ShipmentListItem
         key={shipment.id}
         shipmentNumber={index + 1}
-        onShipmentClick={onShipmentClick(shipment.id, index + 1)}
+        onShipmentClick={() => onShipmentClick(shipment.id, index + 1)}
         shipment={shipment}
       />
     ))}
