@@ -1,0 +1,70 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+
+.modalTopContainer {
+  @include u-display(flex);
+  h4 {
+    flex-grow: 1;
+  }
+}
+
+.rejectReasonClose {
+  @include u-padding-right(0);
+  align-self: flex-start;
+  cursor: pointer;
+  svg {
+    height: 16px;
+    width: 16px;
+    fill: $base;
+  }
+}
+
+.modalActions {
+  @include u-display(flex);
+  @include u-margin-top(3);
+
+  button[type='submit'],
+  button[type='reset'] {
+    margin-top: 0;
+  }
+}
+
+.RejectServiceItemModal {
+  :global .table--service-item--hasimg {
+    td {
+      @include u-border-bottom(0);
+      @include u-padding-x(1);
+      vertical-align: top;
+
+      p {
+        @include u-margin-top(0);
+        @include u-margin-bottom(1);
+      }
+    }
+
+    td:nth-of-type(1) {
+      p:first-child {
+        font-weight: bold;
+      }
+    }
+
+    dl {
+      @include u-margin-top(0);
+    }
+
+    dt,
+    dd {
+      @include u-display(inline);
+    }
+
+    dd {
+      @include u-margin-left(0);
+    }
+  }
+
+  label {
+    @include u-margin-top(3);
+    color: $base-darker;
+  }
+}

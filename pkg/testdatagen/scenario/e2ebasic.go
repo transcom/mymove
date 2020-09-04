@@ -1081,10 +1081,12 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 
 	dopCost := unit.Cents(3456)
+	rejectionReason := "Customer no longer required this service"
 	serviceItemDOP := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.FromStringOrNil("d886431c-c357-46b7-a084-a0c85dd496d3"),
-			Status: models.MTOServiceItemStatusRejected,
+			ID:              uuid.FromStringOrNil("d886431c-c357-46b7-a084-a0c85dd496d3"),
+			Status:          models.MTOServiceItemStatusRejected,
+			RejectionReason: &rejectionReason,
 		},
 		Move:        mto,
 		MTOShipment: MTOShipment,
@@ -1671,6 +1673,18 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		MTOShipment: mtoShipment5,
 		ReService: models.ReService{
 			ID: uuid.FromStringOrNil("bdea5a8d-f15f-47d2-85c9-bba5694802ce"), // DPK
+		},
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:     uuid.FromStringOrNil("999504a9-45b0-477f-a00b-3ede8ffde379"),
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		Move:        mtoWithTaskOrderServices,
+		MTOShipment: mtoShipment5,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("15f01bc1-0754-4341-8e0f-25c8f04d5a77"), // DUPK
 		},
 	})
 

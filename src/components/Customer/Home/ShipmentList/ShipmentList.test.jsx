@@ -15,9 +15,9 @@ function mountShipmentList(props = defaultProps) {
 describe('ShipmentList component', () => {
   it('renders ShipmentList with shipments', () => {
     const shipments = [
-      { id: '#ID-1', type: 'PPM' },
-      { id: '#ID-2', type: 'HHG' },
-      { id: '#ID-3', type: 'NTS' },
+      { id: '#ID-1', shipmentType: 'PPM' },
+      { id: '#ID-2', shipmentType: 'HHG' },
+      { id: '#ID-3', shipmentType: 'NTS' },
     ];
     const onShipmentClick = () => {};
     const props = {
@@ -39,9 +39,9 @@ describe('ShipmentList component', () => {
 
   it('ShipmentList calls onShipmentClick when clicked', () => {
     const shipments = [
-      { id: '#ID-1', type: 'PPM' },
-      { id: '#ID-2', type: 'HHG' },
-      { id: '#ID-3', type: 'NTS' },
+      { id: '#ID-1', shipmentType: 'PPM' },
+      { id: '#ID-2', shipmentType: 'HHG' },
+      { id: '#ID-3', shipmentType: 'NTS' },
     ];
     const onShipmentClick = jest.fn();
     const props = {

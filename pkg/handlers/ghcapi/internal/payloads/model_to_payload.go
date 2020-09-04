@@ -78,11 +78,21 @@ func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
 	}
 	entitlements := Entitlement(moveOrder.Entitlement)
 
+	var deptIndicator ghcmessages.DeptIndicator
+	if moveOrder.DepartmentIndicator != nil {
+		deptIndicator = ghcmessages.DeptIndicator(*moveOrder.DepartmentIndicator)
+	}
+
+	var orderTypeDetail ghcmessages.OrdersTypeDetail
+	if moveOrder.OrdersTypeDetail != nil {
+		orderTypeDetail = ghcmessages.OrdersTypeDetail(*moveOrder.OrdersTypeDetail)
+	}
+
 	payload := ghcmessages.MoveOrder{
 		DestinationDutyStation: destinationDutyStation,
 		Entitlement:            entitlements,
 		OrderNumber:            moveOrder.OrdersNumber,
-		OrderTypeDetail:        (*string)(moveOrder.OrdersTypeDetail),
+		OrderTypeDetail:        orderTypeDetail,
 		ID:                     strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:      originDutyStation,
 		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
@@ -92,7 +102,10 @@ func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
 		LastName:               swag.StringValue(moveOrder.ServiceMember.LastName),
 		ReportByDate:           strfmt.Date(moveOrder.ReportByDate),
 		DateIssued:             strfmt.Date(moveOrder.IssueDate),
-		OrderType:              swag.StringValue((*string)(&moveOrder.OrdersType)),
+		OrderType:              ghcmessages.OrdersType(moveOrder.OrdersType),
+		DepartmentIndicator:    deptIndicator,
+		Tac:                    handlers.FmtStringPtr(moveOrder.TAC),
+		Sac:                    handlers.FmtStringPtr(moveOrder.SAC),
 	}
 
 	if moveOrder.Grade != nil {
@@ -302,11 +315,15 @@ func MTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOServiceItem {
 		ReServiceCode:    handlers.FmtString(string(s.ReService.Code)),
 		ReServiceName:    handlers.FmtStringPtr(&s.ReService.Name),
 		Reason:           handlers.FmtStringPtr(s.Reason),
+		RejectionReason:  handlers.FmtStringPtr(s.RejectionReason),
 		PickupPostalCode: handlers.FmtStringPtr(s.PickupPostalCode),
 		Status:           ghcmessages.MTOServiceItemStatus(s.Status),
 		Description:      handlers.FmtStringPtr(s.Description),
 		Dimensions:       MTOServiceItemDimensions(s.Dimensions),
 		CustomerContacts: MTOServiceItemCustomerContacts(s.CustomerContacts),
+		CreatedAt:        strfmt.DateTime(s.CreatedAt),
+		ApprovedAt:       handlers.FmtDateTimePtr(s.ApprovedAt),
+		RejectedAt:       handlers.FmtDateTimePtr(s.RejectedAt),
 		ETag:             etag.GenerateEtag(s.UpdatedAt),
 	}
 }
