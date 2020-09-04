@@ -3,6 +3,8 @@ import moment from 'moment';
 import numeral from 'numeral';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import DEPT_INDICATOR from 'constants/departmentIndicators';
+import { ORDERS_TYPE, ORDERS_TYPE_DETAILS } from 'constants/orders';
 
 /**
  * Formats number into a dollar string. Eg. $1,234.12
@@ -289,5 +291,54 @@ export const mtoShipmentTypeToFriendlyDisplay = (shipmentType) => {
       return 'Household goods shorthaul domestic';
     default:
       return shipmentType;
+  }
+};
+
+export const departmentIndicatorReadable = (departmentIndicator) => {
+  switch (departmentIndicator) {
+    case DEPT_INDICATOR.AIR_FORCE:
+      return '57 (Air Force)';
+    case DEPT_INDICATOR.ARMY:
+      return '21 (Army)';
+    case DEPT_INDICATOR.COAST_GUARD:
+      return '70 (Coast Guard)';
+    case DEPT_INDICATOR.NAVY_AND_MARINES:
+      return '17 (Navy and Marine Corps)';
+    default:
+      return departmentIndicator;
+  }
+};
+
+export const ordersTypeReadable = (ordersType) => {
+  switch (ordersType) {
+    case ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION:
+      return 'Permanent Change Of Station';
+    case ORDERS_TYPE.RETIREMENT:
+      return 'Retirement';
+    case ORDERS_TYPE.SEPARATION:
+      return 'Separation';
+    default:
+      return ordersType;
+  }
+};
+
+export const ordersTypeDetailReadable = (ordersTypeDetail) => {
+  switch (ordersTypeDetail) {
+    case ORDERS_TYPE_DETAILS.HHG_PERMITTED:
+      return 'Shipment of HHG Permitted';
+    case ORDERS_TYPE_DETAILS.PCS_TDY:
+      return 'PCS with TDY Enroute';
+    case ORDERS_TYPE_DETAILS.HHG_RESTRICTED_PROHIBITED:
+      return 'Shipment of HHG Restricted or Prohibited';
+    case ORDERS_TYPE_DETAILS.HHG_RESTRICTED_AREA:
+      return 'HHG Restricted Area-HHG Prohibited';
+    case ORDERS_TYPE_DETAILS.INSTRUCTION_20_WEEKS:
+      return 'Course of Instruction 20 Weeks or More';
+    case ORDERS_TYPE_DETAILS.HHG_PROHIBITED_20_WEEKS:
+      return 'Shipment of HHG Prohibited but Authorized within 20 weeks';
+    case ORDERS_TYPE_DETAILS.DELAYED_APPROVAL:
+      return 'Delayed Approval 20 Weeks or More';
+    default:
+      return ordersTypeDetail;
   }
 };

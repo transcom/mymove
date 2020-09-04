@@ -3,7 +3,6 @@ package authentication
 import (
 	"context"
 	"encoding/gob"
-	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -17,16 +16,12 @@ import (
 	"github.com/alexedwards/scs/v2/memstore"
 	"github.com/markbates/goth"
 
-	middleware "github.com/go-openapi/runtime/middleware"
-	spec "github.com/go-openapi/spec"
-
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
@@ -101,13 +96,8 @@ type AuthSuite struct {
 	logger Logger
 }
 
-var useNewAuth = flag.Bool("new_auth", false, "use new auth code for tests")
-
 func (suite *AuthSuite) SetupTest() {
 	suite.DB().TruncateAll()
-	if *useNewAuth {
-		authorizeUnknownUser = authorizeUnknownUserNew
-	}
 	gob.Register(auth.Session{})
 }
 
@@ -757,12 +747,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeNotFound() {
 
 	authorizeUnknownUser(user, h, &session, rr, req.WithContext(ctx), "")
 
-	if *useNewAuth {
-		suite.Equal(http.StatusTemporaryRedirect, rr.Code, "Office user not found")
-	} else {
-		suite.Equal(http.StatusUnauthorized, rr.Code, "Office user not found")
-	}
-
+	suite.Equal(http.StatusUnauthorized, rr.Code, "Office user not found")
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
@@ -926,78 +911,4 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
 	suite.Equal(adminUser.ID, session.AdminUserID)
 	suite.Equal(uuid.Nil, session.OfficeUserID)
 	suite.NotEqual("", foundUser.CurrentAdminSessionID)
-}
-
-type MockAPIContext struct{}
-
-func (m MockAPIContext) RouteInfo(r *http.Request) (*middleware.MatchedRoute, *http.Request, bool) {
-	matchedRouteMiddleware := middleware.MatchedRoute{}
-	matchedRouteMiddleware.Operation = &spec.Operation{}
-	matchedRouteMiddleware.Operation.VendorExtensible = spec.VendorExtensible{}
-	matchedRouteMiddleware.Operation.VendorExtensible.Extensions = spec.Extensions{}
-	matchedRouteMiddleware.Operation.VendorExtensible.Extensions["x-swagger-roles"] = []interface{}{"office", "contracting_officer", "customer"}
-	return &matchedRouteMiddleware, nil, false
-}
-
-func (suite *AuthSuite) TestRequireRoleAuthMiddlewareAuthorized() {
-	// Given: a logged in user
-	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
-	user := models.User{
-		LoginGovUUID:  loginGovUUID,
-		LoginGovEmail: "email@example.com",
-		Active:        true,
-	}
-	suite.MustSave(&user)
-
-	rr := httptest.NewRecorder()
-	req := httptest.NewRequest("GET", "/logged_in", nil)
-
-	// And: the context contains the auth values
-	role := roles.Role{RoleType: roles.RoleTypeContractingOfficer}
-	session := auth.Session{
-		UserID:  user.ID,
-		IDToken: "fake Token",
-		Roles:   roles.Roles{role},
-	}
-	ctx := auth.SetSessionInRequestContext(req, &session)
-
-	req = req.WithContext(ctx)
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-
-	mockAPIContext := MockAPIContext{}
-
-	middleware := RoleAuthMiddleware(suite.logger)(mockAPIContext)(handler)
-
-	middleware.ServeHTTP(rr, req)
-
-	suite.Equal(http.StatusOK, rr.Code)
-}
-
-func (suite *AuthSuite) TestRequireRoleAuthMiddleware() {
-	// Given: a logged in user
-	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
-	user := models.User{
-		LoginGovUUID:  loginGovUUID,
-		LoginGovEmail: "email@example.com",
-		Active:        true,
-	}
-	suite.MustSave(&user)
-
-	rr := httptest.NewRecorder()
-	req := httptest.NewRequest("GET", "/logged_in", nil)
-
-	// And: the context contains the auth values
-	session := auth.Session{UserID: user.ID, IDToken: "fake Token"}
-	ctx := auth.SetSessionInRequestContext(req, &session)
-
-	req = req.WithContext(ctx)
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-
-	mockAPIContext := MockAPIContext{}
-
-	middleware := RoleAuthMiddleware(suite.logger)(mockAPIContext)(handler)
-
-	middleware.ServeHTTP(rr, req)
-
-	suite.Equal(http.StatusUnauthorized, rr.Code)
 }
