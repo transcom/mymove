@@ -114,5 +114,7 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 		ListFetcher:    fetch.NewListFetcher(queryBuilder),
 	}
 
+	ghcAPI.GhcDocumentsGetDocumentHandler = GetDocumentHandler{context}
+
 	return ghcAPI
 }

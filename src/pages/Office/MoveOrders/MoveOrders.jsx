@@ -1,39 +1,42 @@
 import React from 'react';
+import { withRouter } from 'react-router-dom';
 
 import styles from './MoveOrders.module.scss';
 
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
-import samplePDF from 'components/DocumentViewer/sample.pdf';
-import samplePDF2 from 'components/DocumentViewer/sample2.pdf';
-import samplePDF3 from 'components/DocumentViewer/sample3.pdf';
+import { useOrdersDocumentQueries } from 'hooks/queries';
+import { MatchShape } from 'types';
 
-const MoveOrders = () => {
-  const testFiles = [
-    {
-      filename: 'Test File.pdf',
-      fileType: 'pdf',
-      filePath: samplePDF,
-    },
-    {
-      filename: 'Test File 2.pdf',
-      fileType: 'pdf',
-      filePath: samplePDF2,
-    },
-    {
-      filename: 'Test File 3.pdf',
-      fileType: 'pdf',
-      filePath: samplePDF3,
-    },
-  ];
+const MoveOrders = ({ match }) => {
+  const { moveOrderId } = match.params;
+  const {
+    documents,
+    // eslint-disable-next-line no-unused-vars
+    isLoading,
+    // eslint-disable-next-line no-unused-vars
+    isError,
+  } = useOrdersDocumentQueries(moveOrderId);
+
+  let documentsForViewer;
+  if (documents) {
+    // eslint-disable-next-line prefer-destructuring
+    documentsForViewer = Object.values(documents.undefined);
+  }
 
   return (
     <div className={styles.MoveOrders}>
-      <div className={styles.embed}>
-        <DocumentViewer files={testFiles} />
-      </div>
+      {documentsForViewer && (
+        <div className={styles.embed}>
+          <DocumentViewer files={documentsForViewer} />
+        </div>
+      )}
       <div className={styles.sidebar}>View orders</div>
     </div>
   );
 };
 
-export default MoveOrders;
+MoveOrders.propTypes = {
+  match: MatchShape.isRequired,
+};
+
+export default withRouter(MoveOrders);

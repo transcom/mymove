@@ -93,6 +93,7 @@ func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
 		ReportByDate:           strfmt.Date(moveOrder.ReportByDate),
 		DateIssued:             strfmt.Date(moveOrder.IssueDate),
 		OrderType:              swag.StringValue((*string)(&moveOrder.OrdersType)),
+		UploadedOrderID:        strfmt.UUID(moveOrder.UploadedOrdersID.String()),
 	}
 
 	if moveOrder.Grade != nil {

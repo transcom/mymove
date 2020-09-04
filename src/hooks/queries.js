@@ -7,9 +7,17 @@ import {
   getMTOServiceItems,
   getMoveOrder,
   getMoveTaskOrderList,
+  getDocument,
 } from 'services/ghcApi';
 import { getQueriesStatus } from 'utils/api';
-import { PAYMENT_REQUESTS, MTO_SHIPMENTS, MTO_SERVICE_ITEMS, MOVE_ORDERS, MOVE_TASK_ORDERS } from 'constants/queryKeys';
+import {
+  PAYMENT_REQUESTS,
+  MTO_SHIPMENTS,
+  MTO_SERVICE_ITEMS,
+  MOVE_ORDERS,
+  MOVE_TASK_ORDERS,
+  ORDERS_DOCUMENTS,
+} from 'constants/queryKeys';
 
 export const usePaymentRequestQueries = (paymentRequestId) => {
   // get payment request by ID
@@ -90,6 +98,29 @@ export const useMoveTaskOrderQueries = (moveOrderId) => {
     moveTaskOrders,
     mtoShipments,
     mtoServiceItems,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useOrdersDocumentQueries = (moveOrderId) => {
+  // Get the orders info so we can get the uploaded_orders_id (which is a document id)
+  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, moveOrderId], getMoveOrder);
+
+  const orders = moveOrders && Object.values(moveOrders)[0];
+  // eslint-disable-next-line camelcase
+  const documentId = orders?.uploaded_order_id;
+
+  // Get a document
+  const { data: { documents } = {}, ...ordersDocumentsQuery } = useQuery([ORDERS_DOCUMENTS, documentId], getDocument, {
+    enabled: !!documentId,
+  });
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([moveOrderQuery, ordersDocumentsQuery]);
+
+  return {
+    documents,
     isLoading,
     isError,
     isSuccess,
