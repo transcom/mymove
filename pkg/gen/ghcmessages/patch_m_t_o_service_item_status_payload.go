@@ -19,6 +19,9 @@ import (
 // swagger:model PatchMTOServiceItemStatusPayload
 type PatchMTOServiceItemStatusPayload struct {
 
+	// Reason the service item was rejected
+	RejectionReason *string `json:"rejectionReason,omitempty"`
+
 	// Describes all statuses for a MTOServiceItem
 	// Enum: [SUBMITTED APPROVED REJECTED]
 	Status string `json:"status,omitempty"`

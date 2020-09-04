@@ -31,6 +31,7 @@ type MTOServiceItem struct {
 	ReService        ReService                      `belongs_to:"re_services"`
 	ReServiceID      uuid.UUID                      `db:"re_service_id"`
 	Reason           *string                        `db:"reason"`
+	RejectionReason  *string                        `db:"rejection_reason"`
 	Status           MTOServiceItemStatus           `db:"status"`
 	PickupPostalCode *string                        `db:"pickup_postal_code"`
 	Description      *string                        `db:"description"`
@@ -38,6 +39,8 @@ type MTOServiceItem struct {
 	CustomerContacts MTOServiceItemCustomerContacts `has_many:"mto_service_item_customer_contacts" fk_id:"mto_service_item_id"`
 	CreatedAt        time.Time                      `db:"created_at"`
 	UpdatedAt        time.Time                      `db:"updated_at"`
+	ApprovedAt       *time.Time                     `db:"approved_at"`
+	RejectedAt       *time.Time                     `db:"rejected_at"`
 }
 
 // MTOServiceItems is a slice containing MTOServiceItems

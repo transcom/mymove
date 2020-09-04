@@ -23,7 +23,7 @@ import HHGShipmentSummary from 'pages/MyMove/HHGShipmentSummary';
 import './Review.css';
 import { selectActivePPMForMove } from '../../shared/Entities/modules/ppms';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
-import { selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
+import { selectMTOShipmentsByMoveId } from 'shared/Entities/modules/mtoShipments';
 
 export class Summary extends Component {
   componentDidMount() {
@@ -44,7 +44,7 @@ export class Summary extends Component {
     const {
       currentMove,
       currentPPM,
-      mtoShipment,
+      mtoShipments,
       currentBackupContacts,
       currentOrders,
       schemaRank,
@@ -59,18 +59,21 @@ export class Summary extends Component {
     const currentStation = get(serviceMember, 'current_station');
     const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
 
-    const rootAddressWithMoveId = `/moves/${this.props.match.params.moveId}/review`;
+    const rootAddressWithMoveId = `/moves/${this.props.match.params.moveId}`;
+    const rootReviewAddressWithMoveId = rootAddressWithMoveId + `/review`;
+
     // isReviewPage being false is the same thing as being in the /edit route
-    const isReviewPage = rootAddressWithMoveId === match.url;
+    const isReviewPage = rootReviewAddressWithMoveId === match.url;
     const editSuccessBlurb = this.props.reviewState.editSuccess ? 'Your changes have been saved. ' : '';
-    const editOrdersPath = rootAddressWithMoveId + '/edit-orders';
+    const editOrdersPath = rootReviewAddressWithMoveId + '/edit-orders';
 
     const showPPMShipmentSummary =
       (isReviewPage && !isEmpty(currentPPM)) ||
       (!isReviewPage && !isEmpty(currentPPM) && currentPPM.status !== 'DRAFT');
-    const showHHGShipmentSummary = isReviewPage && !isEmpty(mtoShipment);
+    const showHHGShipmentSummary = isReviewPage && !!mtoShipments.length;
 
     const showProfileAndOrders = isReviewPage || !isReviewPage;
+    const showMoveSetup = showPPMShipmentSummary || showHHGShipmentSummary;
     return (
       <Fragment>
         {get(this.props.reviewState.error, 'statusCode', false) === 409 && (
@@ -105,11 +108,24 @@ export class Summary extends Component {
           />
         )}
 
+        {showMoveSetup && <h3>Move setup</h3>}
+
         {showPPMShipmentSummary && (
-          <PPMShipmentSummary ppm={currentPPM} movePath={rootAddressWithMoveId} orders={currentOrders} />
+          <PPMShipmentSummary ppm={currentPPM} movePath={rootReviewAddressWithMoveId} orders={currentOrders} />
         )}
 
-        {showHHGShipmentSummary && <HHGShipmentSummary mtoShipment={mtoShipment} movePath={rootAddressWithMoveId} />}
+        {showHHGShipmentSummary &&
+          mtoShipments.map((shipment, index) => {
+            return (
+              <HHGShipmentSummary
+                key={shipment.id}
+                mtoShipment={shipment}
+                shipmentNumber={index + 1}
+                movePath={rootAddressWithMoveId}
+                newDutyStationPostalCode={currentOrders.new_duty_station.address.postal_code}
+              />
+            );
+          })}
 
         {moveIsApproved && (
           <div className="approved-edit-warning">
@@ -127,7 +143,6 @@ Summary.propTypes = {
   getCurrentMove: PropTypes.func,
   currentOrders: PropTypes.object,
   currentPPM: PropTypes.object,
-  mtoShipment: PropTypes.object,
   schemaRank: PropTypes.object,
   schemaOrdersType: PropTypes.object,
   moveIsApproved: PropTypes.bool,
@@ -143,7 +158,7 @@ function mapStateToProps(state, ownProps) {
 
   return {
     currentPPM: selectActivePPMForMove(state, moveID),
-    mtoShipment: selectMTOShipmentForMTO(state, moveID),
+    mtoShipments: selectMTOShipmentsByMoveId(state, moveID),
     serviceMember: state.serviceMember.currentServiceMember,
     currentMove: selectMove(state, moveID),
     currentBackupContacts: state.serviceMember.currentBackupContacts,
