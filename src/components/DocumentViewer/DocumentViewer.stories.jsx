@@ -10,7 +10,6 @@ import gif from './sample3.gif';
 
 export default {
   title: 'Components|Document Viewer|Document Viewer',
-  parameters: { loki: { skip: true } },
 };
 
 const testPDFFiles = [
@@ -54,6 +53,10 @@ export const PDFViewer = () => (
     <DocumentViewer files={testPDFFiles} />
   </div>
 );
+
+PDFViewer.story = {
+  parameters: { loki: { skip: true } },
+};
 
 export const ImageViewer = () => (
   <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
