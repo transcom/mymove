@@ -1305,13 +1305,6 @@ jobs:
           health_check_hosts: gex.move.mil,dps.move.mil,orders.move.mil
           ecr_env: legacy
 
-  deploy_prod_storybook:
-    executor: mymove_small
-    steps:
-      - aws_vars_legacy
-      - deploy_app_storybook:
-          s3_bucket: storybook.move.mil
-
   deploy_storybook_dp3:
     executor: mymove_small
     steps:
@@ -1702,13 +1695,6 @@ workflows:
       - deploy_prod_app_client_tls:
           requires:
             - deploy_prod_migrations
-          filters:
-            branches:
-              only: master
-
-      - deploy_prod_storybook:
-          requires:
-            - storybook_tests
           filters:
             branches:
               only: master
