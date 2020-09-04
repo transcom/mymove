@@ -58,6 +58,7 @@ export class Summary extends Component {
       history,
       uploads,
     } = this.props;
+
     const currentStation = get(serviceMember, 'current_station');
     const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
 
@@ -75,7 +76,7 @@ export class Summary extends Component {
     const showHHGShipmentSummary =
       (isReviewPage && Object.keys(mtoShipment).length) ||
       (!isReviewPage && Object.keys(mtoShipment).length && mtoShipment.status !== 'DRAFT');
-    // const hasPPMorHHG = (isReviewPage && Object.keys(currentPPM).length) || Object.keys(mtoShipment).length;
+    const hasPPMorHHG = (isReviewPage && Object.keys(currentPPM).length) || Object.keys(mtoShipment).length;
 
     const showProfileAndOrders = isReviewPage || !isReviewPage;
     const showMoveSetup = showPPMShipmentSummary || showHHGShipmentSummary;
@@ -129,7 +130,7 @@ export class Summary extends Component {
           />
         )}
 
-        {showHHGShipmentSummary && (
+        {hasPPMorHHG && (
           <div className="grid-col-row margin-top-5">
             <span className="float-right">Optional</span>
             <h3>Add another shipment</h3>
