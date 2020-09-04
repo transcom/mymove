@@ -32,12 +32,12 @@ export const EntitlementShape = PropTypes.shape({
 export const MoveOrderShape = PropTypes.shape({
   date_issued: PropTypes.string,
   report_by_date: PropTypes.string,
-  department_indicator: PropTypes.string, // TODO - is this in the API response?
+  department_indicator: PropTypes.string,
   order_number: PropTypes.string,
   order_type: PropTypes.string,
   order_type_detail: PropTypes.string,
   tac: PropTypes.string,
-  sacSDN: PropTypes.string,
+  sac: PropTypes.string,
   destinationDutyStation: DestinationDutyStationShape,
   originDutyStation: OriginDutyStationShape,
   entitlement: EntitlementShape,

@@ -6,7 +6,7 @@ import styles from './DocsUploaded.module.scss';
 import { ReactComponent as DocsIcon } from 'shared/icon/documents.svg';
 
 const DocsUploaded = ({ files }) => (
-  <div className={styles['doc-list-container']}>
+  <div className={styles['doc-list-container']} data-testid="doc-list-container">
     <h6 className={styles['doc-list-header']}>
       {files.length} File{files.length > 1 ? 's' : ''} uploaded
     </h6>
