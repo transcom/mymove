@@ -20,8 +20,10 @@ const ICNRandomMax int64 = 999999999
 type Invoice858C struct {
 	ISA          edisegment.ISA
 	GS           edisegment.GS
+	ST           edisegment.ST
 	Header       []edisegment.Segment
 	ServiceItems []edisegment.Segment
+	SE           edisegment.SE
 	GE           edisegment.GE
 	IEA          edisegment.IEA
 }
