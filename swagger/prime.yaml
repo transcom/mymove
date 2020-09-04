@@ -241,6 +241,7 @@ paths:
           format: uuid
           type: string
         - in: body
+          required: true
           name: body
           schema:
             $ref: '#/definitions/Address'
@@ -264,6 +265,8 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
         '412':
           $ref: '#/responses/PreconditionFailed'
         '422':

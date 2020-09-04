@@ -263,6 +263,7 @@ func init() {
           {
             "name": "body",
             "in": "body",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/Address"
             }
@@ -293,6 +294,9 @@ func init() {
           },
           "404": {
             "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
           },
           "412": {
             "$ref": "#/responses/PreconditionFailed"
@@ -2343,6 +2347,7 @@ func init() {
           {
             "name": "body",
             "in": "body",
+            "required": true,
             "schema": {
               "$ref": "#/definitions/Address"
             }
@@ -2382,6 +2387,12 @@ func init() {
           },
           "404": {
             "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "The request could not be processed because of conflict in the current state of the resource.",
             "schema": {
               "$ref": "#/definitions/ClientError"
             }

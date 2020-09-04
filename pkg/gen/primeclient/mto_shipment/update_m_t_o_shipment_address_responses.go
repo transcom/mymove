@@ -54,6 +54,12 @@ func (o *UpdateMTOShipmentAddressReader) ReadResponse(response runtime.ClientRes
 			return nil, err
 		}
 		return nil, result
+	case 409:
+		result := NewUpdateMTOShipmentAddressConflict()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	case 412:
 		result := NewUpdateMTOShipmentAddressPreconditionFailed()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -232,6 +238,39 @@ func (o *UpdateMTOShipmentAddressNotFound) GetPayload() *primemessages.ClientErr
 }
 
 func (o *UpdateMTOShipmentAddressNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(primemessages.ClientError)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewUpdateMTOShipmentAddressConflict creates a UpdateMTOShipmentAddressConflict with default headers values
+func NewUpdateMTOShipmentAddressConflict() *UpdateMTOShipmentAddressConflict {
+	return &UpdateMTOShipmentAddressConflict{}
+}
+
+/*UpdateMTOShipmentAddressConflict handles this case with default header values.
+
+The request could not be processed because of conflict in the current state of the resource.
+*/
+type UpdateMTOShipmentAddressConflict struct {
+	Payload *primemessages.ClientError
+}
+
+func (o *UpdateMTOShipmentAddressConflict) Error() string {
+	return fmt.Sprintf("[PUT /mto-shipment/{mtoShipmentID}/address/{addressID}][%d] updateMTOShipmentAddressConflict  %+v", 409, o.Payload)
+}
+
+func (o *UpdateMTOShipmentAddressConflict) GetPayload() *primemessages.ClientError {
+	return o.Payload
+}
+
+func (o *UpdateMTOShipmentAddressConflict) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(primemessages.ClientError)
 

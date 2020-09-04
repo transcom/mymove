@@ -6,6 +6,7 @@ package mto_shipment
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"io"
 	"net/http"
 
 	"github.com/go-openapi/errors"
@@ -46,6 +47,7 @@ type UpdateMTOShipmentAddressParams struct {
 	*/
 	AddressID strfmt.UUID
 	/*
+	  Required: true
 	  In: body
 	*/
 	Body *primemessages.Address
@@ -78,7 +80,11 @@ func (o *UpdateMTOShipmentAddressParams) BindRequest(r *http.Request, route *mid
 		defer r.Body.Close()
 		var body primemessages.Address
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
-			res = append(res, errors.NewParseError("body", "body", "", err))
+			if err == io.EOF {
+				res = append(res, errors.Required("body", "body"))
+			} else {
+				res = append(res, errors.NewParseError("body", "body", "", err))
+			}
 		} else {
 			// validate body object
 			if err := body.Validate(route.Formats); err != nil {
@@ -89,6 +95,8 @@ func (o *UpdateMTOShipmentAddressParams) BindRequest(r *http.Request, route *mid
 				o.Body = &body
 			}
 		}
+	} else {
+		res = append(res, errors.Required("body", "body"))
 	}
 	rMtoShipmentID, rhkMtoShipmentID, _ := route.Params.GetOK("mtoShipmentID")
 	if err := o.bindMtoShipmentID(rMtoShipmentID, rhkMtoShipmentID, route.Formats); err != nil {

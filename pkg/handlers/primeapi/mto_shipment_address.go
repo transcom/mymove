@@ -1,11 +1,11 @@
 package primeapi
 
 import (
-	"fmt"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/etag"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
@@ -20,7 +20,6 @@ import (
 type UpdateMTOShipmentAddressHandler struct {
 	handlers.HandlerContext
 	MTOShipmentAddressUpdater
-	// mtoAvailabilityChecker services.MoveTaskOrderChecker
 }
 
 // MTOShipmentAddressUpdater handles the db connection
@@ -35,32 +34,31 @@ func NewMTOShipmentAddressUpdater(db *pop.Connection) *MTOShipmentAddressUpdater
 		db: db}
 }
 
-// StaleIdentifierError is used when optimistic locking determines that the identifier refers to stale data
-type StaleIdentifierError struct {
-	StaleIdentifier string
-}
-
-func (e StaleIdentifierError) Error() string {
-	return fmt.Sprintf("stale identifier: %s", e.StaleIdentifier)
-}
-
-// ValidateAddress does some validation #TODO rename to validate shipment. Should the receiver be the handler instead?
+// ValidateAddress does some validation. #TODO: Should the receiver be the handler instead?
 func (f MTOShipmentAddressUpdater) ValidateAddress(newAddress *models.Address, mtoShipmentID uuid.UUID, eTag string) (bool, error) {
 	// Use the existing service for checking mtoAvailableToPrime.
 	// Instantiate on MTOShipmentAddressUpdater
 	f.mtoAvailabilityChecker = movetaskorder.NewMoveTaskOrderChecker(f.db)
 	// Find the mtoShipment based on id, so we can pull the uuid for the move
 	mtoShipment := models.MTOShipment{}
+	oldAddress := models.Address{}
+
 	err := f.db.Find(&mtoShipment, mtoShipmentID)
+
 	if err != nil {
-		return false, err
+		//#TODO: What other types of errors need to be handled here?
+		if errors.Cause(err).Error() == "sql: no rows in result set" {
+			return false, services.NewNotFoundError(mtoShipmentID, "")
+		}
 	}
 
-	oldAddress := models.Address{}
 	err = f.db.Find(&oldAddress, newAddress.ID)
 
 	if err != nil {
-		return false, err
+		//#TODO: What other types of errors need to be handled here?
+		if errors.Cause(err).Error() == "sql: no rows in result set" {
+			return false, services.NewNotFoundError(mtoShipmentID, "")
+		}
 	}
 
 	// Check the If-Match header against existing eTag before updating
@@ -73,15 +71,20 @@ func (f MTOShipmentAddressUpdater) ValidateAddress(newAddress *models.Address, m
 	// Find the move associated with the mtoShipment
 	move := &models.Move{}
 	err = f.db.Find(move, mtoShipment.MoveTaskOrderID)
+
 	if err != nil {
-		return false, err
+		//#TODO: What other types of errors need to be handled here?
+		if errors.Cause(err).Error() == "sql: no rows in result set" {
+			return false, services.NewNotFoundError(mtoShipmentID, "")
+		}
 	}
 
 	// Make sure the associated move is available to the prime, otherwise
 	// they should not be updating anything
-	mtoAvailableToPrime, err := f.mtoAvailabilityChecker.MTOAvailableToPrime(move.ID)
+	mtoAvailableToPrime, _ := f.mtoAvailabilityChecker.MTOAvailableToPrime(move.ID)
 	if !mtoAvailableToPrime {
-		return false, err // #TODO: return proper error msg
+		return false, services.NewNotFoundError(newAddress.ID, "")
+
 	}
 
 	// Gather existing addressIDs for the shipment and see if our ID
@@ -102,6 +105,7 @@ func (f MTOShipmentAddressUpdater) ValidateAddress(newAddress *models.Address, m
 
 	}
 
+	err = services.NewConflictError(newAddress.ID, "Address is not associated with the provided MTOShipmentID.")
 	return false, err
 }
 
@@ -114,9 +118,10 @@ func (h UpdateMTOShipmentAddressHandler) Handle(params mtoshipmentops.UpdateMTOS
 	addressID := params.AddressID.String()
 
 	if payload == nil {
-		logger.Error("Error")
-		return mtoshipmentops.NewUpdateMTOShipmentAddressBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
-			"The MTO Shipment Address request body cannot be empty.", h.GetTraceID()))
+		// #TODO: Confirm how to handle this validation error. Swagger validation returns the error,
+		// so this would be backup validation.
+		logger.Error("Invalid request: params Body is nil", zap.Any("payload", payload))
+		return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), nil))
 	}
 
 	newAddress := payloads.AddressModel(payload)
@@ -124,23 +129,43 @@ func (h UpdateMTOShipmentAddressHandler) Handle(params mtoshipmentops.UpdateMTOS
 
 	isValidated, err := h.MTOShipmentAddressUpdater.ValidateAddress(newAddress, uuid.FromStringOrNil(mtoShipmentID), eTag)
 
-	if !isValidated {
-		fmt.Println(err) //TODO: replace with error msg
-		return mtoshipmentops.NewUpdateMTOShipmentAddressBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
-			"The MTO Shipment Address cannot be updated.", h.GetTraceID())) // #TODO: update this error msg
+	if isValidated {
+		// Make the update
+		err = h.db.Save(newAddress)
 	}
-
-	// Make the update
-	err = h.db.Save(newAddress) //#TODO: Add validation?
 
 	if err != nil {
-		fmt.Println("There was err")
-		fmt.Println(err)
-	} else {
+		logger.Error("primeapi.UpdateMTOShipmentAddressHandler", zap.Error(err))
 
-		mtoShipmentAddressPayload := payloads.Address(newAddress)
-		return mtoshipmentops.NewUpdateMTOShipmentAddressOK().WithPayload(mtoShipmentAddressPayload)
+		switch e := err.(type) {
+		case services.PreconditionFailedError:
+			return mtoshipmentops.NewUpdateMTOShipmentAddressPreconditionFailed().WithPayload(
+				payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
+		// Not Found Error -> Not Found Response
+		case services.NotFoundError:
+			return mtoshipmentops.NewUpdateMTOShipmentAddressNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+			// InvalidInputError -> Unprocessable Entity Response
+		case services.InvalidInputError:
+			return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(
+				payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
+		case services.ConflictError:
+			return mtoshipmentops.NewUpdateMTOShipmentAddressConflict().WithPayload(
+				payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID()))
+			// QueryError -> Internal Server Error
+		case services.QueryError: // #TODO: When would this be used?
+			if e.Unwrap() != nil {
+				logger.Error("primeapi.UpdateMTOShipmentAddressHandler error", zap.Error(e.Unwrap()))
+			}
+			return mtoshipmentops.NewUpdateMTOShipmentAddressInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+			// Unknown -> Internal Server Error
+		default:
+			return mtoshipmentops.NewUpdateMTOShipmentAddressInternalServerError().
+				WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+		}
+
 	}
 
-	return nil
+	mtoShipmentAddressPayload := payloads.Address(newAddress)
+	return mtoshipmentops.NewUpdateMTOShipmentAddressOK().WithPayload(mtoShipmentAddressPayload)
+
 }
