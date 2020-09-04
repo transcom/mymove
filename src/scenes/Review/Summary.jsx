@@ -23,7 +23,7 @@ import HHGShipmentSummary from 'pages/MyMove/HHGShipmentSummary';
 import './Review.css';
 import { selectActivePPMForMove } from '../../shared/Entities/modules/ppms';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
-import { selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
+import { selectMTOShipmentsByMoveId } from 'shared/Entities/modules/mtoShipments';
 
 export class Summary extends Component {
   componentDidMount() {
@@ -44,7 +44,7 @@ export class Summary extends Component {
     const {
       currentMove,
       currentPPM,
-      mtoShipment,
+      mtoShipments,
       currentBackupContacts,
       currentOrders,
       schemaRank,
@@ -70,7 +70,7 @@ export class Summary extends Component {
     const showPPMShipmentSummary =
       (isReviewPage && !isEmpty(currentPPM)) ||
       (!isReviewPage && !isEmpty(currentPPM) && currentPPM.status !== 'DRAFT');
-    const showHHGShipmentSummary = isReviewPage && !isEmpty(mtoShipment);
+    const showHHGShipmentSummary = isReviewPage && !!mtoShipments.length;
 
     const showProfileAndOrders = isReviewPage || !isReviewPage;
     const showMoveSetup = showPPMShipmentSummary || showHHGShipmentSummary;
@@ -114,13 +114,18 @@ export class Summary extends Component {
           <PPMShipmentSummary ppm={currentPPM} movePath={rootReviewAddressWithMoveId} orders={currentOrders} />
         )}
 
-        {showHHGShipmentSummary && (
-          <HHGShipmentSummary
-            mtoShipment={mtoShipment}
-            movePath={rootAddressWithMoveId}
-            newDutyStationPostalCode={currentOrders.new_duty_station.address.postal_code}
-          />
-        )}
+        {showHHGShipmentSummary &&
+          mtoShipments.map((shipment, index) => {
+            return (
+              <HHGShipmentSummary
+                key={shipment.id}
+                mtoShipment={shipment}
+                shipmentNumber={index + 1}
+                movePath={rootAddressWithMoveId}
+                newDutyStationPostalCode={currentOrders.new_duty_station.address.postal_code}
+              />
+            );
+          })}
 
         {moveIsApproved && (
           <div className="approved-edit-warning">
@@ -138,7 +143,6 @@ Summary.propTypes = {
   getCurrentMove: PropTypes.func,
   currentOrders: PropTypes.object,
   currentPPM: PropTypes.object,
-  mtoShipment: PropTypes.object,
   schemaRank: PropTypes.object,
   schemaOrdersType: PropTypes.object,
   moveIsApproved: PropTypes.bool,
@@ -154,7 +158,7 @@ function mapStateToProps(state, ownProps) {
 
   return {
     currentPPM: selectActivePPMForMove(state, moveID),
-    mtoShipment: selectMTOShipmentForMTO(state, moveID),
+    mtoShipments: selectMTOShipmentsByMoveId(state, moveID),
     serviceMember: state.serviceMember.currentServiceMember,
     currentMove: selectMove(state, moveID),
     currentBackupContacts: state.serviceMember.currentBackupContacts,
