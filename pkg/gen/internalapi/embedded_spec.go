@@ -5289,8 +5289,6 @@ func init() {
         "SEPARATION"
       ],
       "x-display-value": {
-        "GHC": "GHC",
-        "NTS": "NTS",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
         "RETIREMENT": "Retirement",
         "SEPARATION": "Separation"
@@ -12084,8 +12082,6 @@ func init() {
         "SEPARATION"
       ],
       "x-display-value": {
-        "GHC": "GHC",
-        "NTS": "NTS",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
         "RETIREMENT": "Retirement",
         "SEPARATION": "Separation"

@@ -43,6 +43,29 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	secondaryDeliveryAddress := testdatagen.MakeAddress4(suite.DB(), testdatagen.Assertions{})
 	primeActualWeight := unit.Pound(1234)
 	primeEstimatedWeight := unit.Pound(1234)
+	newDestinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+		Address: models.Address{
+			StreetAddress1: "987 Other Avenue",
+			StreetAddress2: swag.String("P.O. Box 1234"),
+			StreetAddress3: swag.String("c/o Another Person"),
+			City:           "Des Moines",
+			State:          "IA",
+			PostalCode:     "50309",
+			Country:        swag.String("US"),
+		},
+	})
+
+	newPickupAddress := testdatagen.MakeAddress4(suite.DB(), testdatagen.Assertions{
+		Address: models.Address{
+			StreetAddress1: "987 Over There Avenue",
+			StreetAddress2: swag.String("P.O. Box 1234"),
+			StreetAddress3: swag.String("c/o Another Person"),
+			City:           "Houston",
+			State:          "TX",
+			PostalCode:     "77083",
+			Country:        swag.String("US"),
+		},
+	})
 
 	mtoShipment := models.MTOShipment{
 		ID:                         oldMTOShipment.ID,
@@ -117,49 +140,59 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Nil(updatedMTOShipment.PrimeEstimatedWeight)
 	})
 
-	suite.T().Run("Successful update to a minimal MTO shipment", func(t *testing.T) {
+	suite.T().Run("Successful update to all address fields", func(t *testing.T) {
+		// Ensure we can update every address field on the shipment
+		// Create an mtoShipment to update that has every address populated
+		oldMTOShipment3 := testdatagen.MakeDefaultMTOShipment(suite.DB())
 
+		eTag := etag.GenerateEtag(oldMTOShipment3.UpdatedAt)
+
+		updatedShipment := &models.MTOShipment{
+			ID:                         oldMTOShipment3.ID,
+			DestinationAddress:         &newDestinationAddress,
+			DestinationAddressID:       &newDestinationAddress.ID,
+			PickupAddress:              &newPickupAddress,
+			PickupAddressID:            &newPickupAddress.ID,
+			SecondaryPickupAddress:     &secondaryPickupAddress,
+			SecondaryPickupAddressID:   &secondaryDeliveryAddress.ID,
+			SecondaryDeliveryAddress:   &secondaryDeliveryAddress,
+			SecondaryDeliveryAddressID: &secondaryDeliveryAddress.ID,
+		}
+
+		updatedShipment, err := mtoShipmentUpdater.UpdateMTOShipment(updatedShipment, eTag)
+		suite.NoError(err)
+		suite.Equal(newDestinationAddress.ID, *updatedShipment.DestinationAddressID)
+		suite.Equal(newPickupAddress.ID, *updatedShipment.PickupAddressID)
+		suite.Equal(secondaryPickupAddress.ID, *updatedShipment.SecondaryPickupAddressID)
+		suite.Equal(secondaryDeliveryAddress.ID, *updatedShipment.SecondaryDeliveryAddressID)
+
+	})
+
+	suite.T().Run("Successful update to a minimal MTO shipment", func(t *testing.T) {
+		// Minimal MTO Shipment has only pickup address created by default
+		// Part of this test ensures that if an address doesn't exist on a shipment,
+		// the updater can successfully create it.
 		oldShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				Status: models.MTOShipmentStatusDraft,
 			},
 		})
+
 		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
-		newDestinationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				StreetAddress1: "987 Other Avenue",
-				StreetAddress2: swag.String("P.O. Box 1234"),
-				StreetAddress3: swag.String("c/o Another Person"),
-				City:           "Des Moines",
-				State:          "IA",
-				PostalCode:     "50309",
-				Country:        swag.String("US"),
-			},
-		})
-		newPickupAddress := testdatagen.MakeAddress4(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				StreetAddress1: "987 Over There Avenue",
-				StreetAddress2: swag.String("P.O. Box 1234"),
-				StreetAddress3: swag.String("c/o Another Person"),
-				City:           "Houston",
-				State:          "TX",
-				PostalCode:     "77083",
-				Country:        swag.String("US"),
-			},
-		})
+
 		requestedPickupDate := time.Date(2019, time.March, 15, 0, 0, 0, 0, time.UTC)
 		scheduledPickupDate := time.Date(2019, time.March, 17, 0, 0, 0, 0, time.UTC)
 		requestedDeliveryDate := time.Date(2019, time.March, 30, 0, 0, 0, 0, time.UTC)
 		primeEstimatedWeightRecordedDate := time.Date(2019, time.March, 12, 0, 0, 0, 0, time.UTC)
 		customerRemarks := "I have a grandfather clock"
 		updatedShipment := models.MTOShipment{
-			ID:                   oldShipment.ID,
-			DestinationAddress:   &newDestinationAddress,
-			DestinationAddressID: &newDestinationAddress.ID,
-			PickupAddress:        &newPickupAddress,
-			PickupAddressID:      &newPickupAddress.ID,
-			//SecondaryPickupAddress:     &secondaryPickupAddress,
-			//SecondaryDeliveryAddress:   &secondaryDeliveryAddress,
+			ID:                               oldShipment.ID,
+			DestinationAddress:               &newDestinationAddress,
+			DestinationAddressID:             &newDestinationAddress.ID,
+			PickupAddress:                    &newPickupAddress,
+			PickupAddressID:                  &newPickupAddress.ID,
+			SecondaryPickupAddress:           &secondaryPickupAddress,
+			SecondaryDeliveryAddress:         &secondaryDeliveryAddress,
 			RequestedPickupDate:              &requestedPickupDate,
 			ScheduledPickupDate:              &scheduledPickupDate,
 			RequestedDeliveryDate:            &requestedDeliveryDate,
@@ -174,7 +207,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		}
 
 		newShipment, err := mtoShipmentUpdater.UpdateMTOShipment(&updatedShipment, eTag)
-
 		suite.NoError(err)
 		suite.True(requestedPickupDate.Equal(*newShipment.RequestedPickupDate))
 		suite.True(scheduledPickupDate.Equal(*newShipment.ScheduledPickupDate))
@@ -187,12 +219,10 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(primeActualWeight, *newShipment.PrimeActualWeight)
 		suite.Equal(customerRemarks, *newShipment.CustomerRemarks)
 		suite.Equal(models.MTOShipmentStatusSubmitted, newShipment.Status)
-		// TODO: uncomment below when address bug is fixed MB-
-		//suite.Equal(newDestinationAddress, *newShipment.DestinationAddress)
-		//suite.Equal(newPickupAddress, *newShipment.PickupAddress)
-		// TODO: uncomment below when able to create if doesn't exist
-		//suite.Equal(secondaryPickupAddress, *newShipment.SecondaryPickupAddress)
-		//suite.Equal(secondaryDeliveryAddress, *newShipment.SecondaryDeliveryAddress)
+		suite.Equal(newDestinationAddress.ID, *newShipment.DestinationAddressID)
+		suite.Equal(newPickupAddress.ID, *newShipment.PickupAddressID)
+		suite.Equal(secondaryPickupAddress.ID, *newShipment.SecondaryPickupAddressID)
+		suite.Equal(secondaryDeliveryAddress.ID, *newShipment.SecondaryDeliveryAddressID)
 
 	})
 

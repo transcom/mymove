@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { arrayOf, string, shape, bool, func } from 'prop-types';
 
+import EditShipment from '../../components/Customer/EditShipment';
+
 import {
   loadMTOShipments as loadMTOShipmentsAction,
   selectMTOShipmentForMTO,
@@ -9,18 +11,28 @@ import {
 import HHGDetailsForm from 'components/Customer/HHGDetailsForm';
 import '../../ghc_index.scss';
 
-class HHGMoveSetup extends Component {
+class HHGShipmentSetup extends Component {
   componentDidMount() {
     const { match, loadMTOShipments } = this.props;
     loadMTOShipments(match.params.moveId);
   }
 
   render() {
-    const { pageList, pageKey, match, push, mtoShipment } = this.props;
-
+    const { pageList, pageKey, match, history, mtoShipment } = this.props;
+    const isEditShipmentPage = match.path === '/moves/:moveId/edit-shipment';
+    const isHHGFormPage = match.path === '/moves/:moveId/hhg-start';
     return (
       <div>
-        <HHGDetailsForm pageList={pageList} pageKey={pageKey} match={match} push={push} mtoShipment={mtoShipment} />
+        {isHHGFormPage && (
+          <HHGDetailsForm
+            pageList={pageList}
+            pageKey={pageKey}
+            match={match}
+            push={history.push}
+            mtoShipment={mtoShipment}
+          />
+        )}
+        {isEditShipmentPage && <EditShipment mtoShipment={mtoShipment} match={match} history={history} />}
       </div>
     );
   }
@@ -37,7 +49,7 @@ const mapDispatchToProps = {
   loadMTOShipments: loadMTOShipmentsAction,
 };
 
-HHGMoveSetup.propTypes = {
+HHGShipmentSetup.propTypes = {
   pageList: arrayOf(string).isRequired,
   pageKey: string.isRequired,
   match: shape({
@@ -48,8 +60,11 @@ HHGMoveSetup.propTypes = {
     path: string.isRequired,
     url: string.isRequired,
   }).isRequired,
+  history: shape({
+    goBack: func.isRequired,
+    push: func.isRequired,
+  }).isRequired,
   loadMTOShipments: func.isRequired,
-  push: func.isRequired,
   mtoShipment: shape({
     agents: arrayOf(
       shape({
@@ -78,7 +93,7 @@ HHGMoveSetup.propTypes = {
   }),
 };
 
-HHGMoveSetup.defaultProps = {
+HHGShipmentSetup.defaultProps = {
   mtoShipment: {
     customerRemarks: '',
     requestedPickupDate: '',
@@ -92,4 +107,4 @@ HHGMoveSetup.defaultProps = {
   },
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(HHGMoveSetup);
+export default connect(mapStateToProps, mapDispatchToProps)(HHGShipmentSetup);
