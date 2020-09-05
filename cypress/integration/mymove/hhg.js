@@ -20,9 +20,8 @@ describe('HHG Setup flow', function () {
     customerFillsOutOrdersInformation();
     customerChoosesAnHHGMove();
     customerSetsUpAnHHGMove();
-    customerReviewsMoveDetails();
-    customerEditsShipment();
     customerAddsAnotherShipment();
+    customerReviewsMoveDetails();
     customerSubmitsMove();
   });
 });
@@ -232,14 +231,15 @@ function customerSetsUpAnHHGMove() {
   cy.nextPage();
 }
 
+function customerAddsAnotherShipment() {
+  cy.get('button.prev').should('be.enabled').click();
+  customerSetsUpAnHHGMove();
+}
+
 function customerReviewsMoveDetails() {
   cy.get('[data-testid="review-move-header"]').contains('Review your details');
 
-  cy.get('[data-testid="hhg-summary"]').find('h4').contains('Shipment 1: HHG');
-}
-
-function customerEditsShipment() {
-  cy.get('[data-testid="edit-shipment"]').first().click();
+  cy.get('[data-testid="hhg-summary"]').find('h4').contains('Shipment 1: HHG').find('a').contains('Edit').click();
 
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/edit-shipment/);
@@ -264,17 +264,6 @@ function customerEditsShipment() {
   cy.get('[data-testid="hhg-summary"]').find('table').contains('some edited customer remark');
   cy.get('[data-testid="hhg-summary"]').find('table').contains('JohnJohnson Lee');
 
-  cy.nextPage();
-}
-
-function customerAddsAnotherShipment() {
-  cy.get('[data-testid="button"]').contains('Add another shipment').click();
-  cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/select-type/);
-  });
-  customerChoosesAnHHGMove();
-  customerSetsUpAnHHGMove();
-  customerReviewsMoveDetails();
   cy.nextPage();
 }
 
