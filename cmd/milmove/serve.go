@@ -541,12 +541,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, appnames, sessionManagers)
 	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(logger, useSecureCookie)
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
-	if v.GetBool(cli.FeatureFlagRoleBasedAuth) {
-		userAuthMiddleware = authentication.RoleAuthLogin(logger)
-	}
 	isLoggedInMiddleware := authentication.IsLoggedInMiddleware(logger)
 	clientCertMiddleware := authentication.ClientCertMiddleware(logger, dbConnection)
-	roleAuthMiddleware := authentication.RoleAuthMiddleware(logger)
 
 	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
 	handlerContext.SetSessionManagers(sessionManagers)
@@ -907,9 +903,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		internalAPIMux.Use(middleware.NoCache(logger))
 		api := internalapi.NewInternalAPI(handlerContext)
 		internalAPIMux.Handle(pat.New("/*"), api.Serve(nil))
-		if handlerContext.GetFeatureFlag(cli.FeatureFlagRoleBasedAuth) {
-			internalAPIMux.Use(roleAuthMiddleware(api.Context()))
-		}
 	}
 
 	if v.GetBool(cli.ServeAdminFlag) {
@@ -950,18 +943,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		ghcAPIMux.Use(middleware.NoCache(logger))
 		api := ghcapi.NewGhcAPIHandler(handlerContext)
 		ghcAPIMux.Handle(pat.New("/*"), api.Serve(nil))
-		if handlerContext.GetFeatureFlag(cli.FeatureFlagRoleBasedAuth) {
-			ghcAPIMux.Use(roleAuthMiddleware(api.Context()))
-		}
 	}
 
 	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort, sessionManagers)
-	authContext.SetFeatureFlag(
-		authentication.FeatureFlag{
-			Name:   cli.FeatureFlagRoleBasedAuth,
-			Active: v.GetBool(cli.FeatureFlagRoleBasedAuth),
-		},
-	)
 	authMux := goji.SubMux()
 	root.Handle(pat.New("/auth/*"), authMux)
 	authMux.Handle(pat.Get("/login-gov"), authentication.RedirectHandler{Context: authContext})

@@ -8,8 +8,6 @@ import (
 const (
 	// FeatureFlagAccessCode is the access-code feature flag
 	FeatureFlagAccessCode string = "feature-flag-access-code"
-	// FeatureFlagRoleBasedAuth is the role-based-auth feature flag
-	FeatureFlagRoleBasedAuth string = "feature-flag-role-based-auth"
 	// FeatureFlagConvertProfileOrdersToGHC is the convert-ppms-to-ghc feature flag
 	FeatureFlagConvertProfileOrdersToGHC string = "feature-flag-convert-profile-orders-to-ghc"
 )
@@ -17,7 +15,6 @@ const (
 // InitFeatureFlags initializes FeatureFlags command line flags
 func InitFeatureFlags(flag *pflag.FlagSet) {
 	flag.Bool(FeatureFlagAccessCode, false, "Flag (bool) to enable requires-access-code")
-	flag.Bool(FeatureFlagRoleBasedAuth, false, "Flag (bool) to enable role-based-auth")
 	flag.Bool(FeatureFlagConvertProfileOrdersToGHC, false, "Flag (bool) to enable convert-profile-orders-to-ghc")
 }
 

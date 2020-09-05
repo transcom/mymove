@@ -1,5 +1,5 @@
 import React from 'react';
-import PropTypes, { string } from 'prop-types';
+import PropTypes, { string, number } from 'prop-types';
 import { get, isEmpty } from 'lodash';
 
 import ReviewSection from '../../components/Customer/ReviewSection';
@@ -12,7 +12,7 @@ import { MTOAgentType } from 'shared/constants';
 import 'scenes/Review/Review.css';
 
 export default function HHGShipmentSummary(props) {
-  const { mtoShipment, movePath, newDutyStationPostalCode } = props;
+  const { mtoShipment, movePath, newDutyStationPostalCode, shipmentNumber } = props;
   const editShipmentPath = `${movePath}/edit-shipment`;
 
   const requestedPickupDate = get(mtoShipment, 'requestedPickupDate', '');
@@ -46,9 +46,8 @@ export default function HHGShipmentSummary(props) {
     <div data-testid="hhg-summary" className="review-content">
       <ReviewSection
         fieldData={hhgShipmentData}
-        title="Shipment 1: HHG"
+        title={`Shipment ${shipmentNumber}: HHG`}
         editLink={editShipmentPath}
-        datatestid="edit-shipment"
         useH4
       />
     </div>
@@ -82,6 +81,7 @@ HHGShipmentSummary.propTypes = {
     }),
   }),
   newDutyStationPostalCode: PropTypes.string.isRequired,
+  shipmentNumber: number.isRequired,
 };
 
 HHGShipmentSummary.defaultProps = {
