@@ -13,18 +13,18 @@ export default {
 const testFiles = [
   {
     filename: 'Test File.pdf',
-    fileType: 'pdf',
-    filePath: pdf,
+    contentType: 'pdf',
+    url: pdf,
   },
   {
     filename: 'Test File 2.pdf',
-    fileType: 'pdf',
-    filePath: pdf2,
+    contentType: 'pdf',
+    url: pdf2,
   },
   {
     filename: 'Test File 3.pdf',
-    fileType: 'pdf',
-    filePath: pdf3,
+    contentType: 'pdf',
+    url: pdf3,
   },
 ];
 
