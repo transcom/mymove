@@ -3,6 +3,7 @@ package internalapi
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
@@ -497,7 +498,11 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		Move: mto,
 	})
 
-	shipments := models.MTOShipments{mtoShipment}
+	mtoShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: mto,
+	})
+
+	shipments := models.MTOShipments{mtoShipment, mtoShipment2}
 	requestUser := testdatagen.MakeDefaultUser(suite.DB())
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/mto_shipments", mto.ID.String()), nil)
@@ -522,8 +527,26 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsOK{}, response)
 
 		okResponse := response.(*mtoshipmentops.ListMTOShipmentsOK)
-		suite.Len(okResponse.Payload, 1)
+		suite.Len(okResponse.Payload, 2)
 		suite.Equal(shipments[0].ID.String(), okResponse.Payload[0].ID.String())
+
+		firstCreatedShipment := mtoShipment
+		nextCreatedShipment := mtoShipment2
+		if mtoShipment2.CreatedAt.Before(mtoShipment.CreatedAt) {
+			firstCreatedShipment = mtoShipment2
+			nextCreatedShipment = mtoShipment
+		}
+		actualCreatedAt0, err := time.Parse(time.RFC3339, okResponse.Payload[0].CreatedAt.String())
+		if err != nil {
+			suite.TestLogger().Fatal("unable to parse string time")
+		}
+
+		actualCreatedAt1, err := time.Parse(time.RFC3339, okResponse.Payload[1].CreatedAt.String())
+		if err != nil {
+			suite.TestLogger().Fatal("unable to parse string time")
+		}
+		suite.True(firstCreatedShipment.CreatedAt.Before(actualCreatedAt1))
+		suite.True(nextCreatedShipment.CreatedAt.After(actualCreatedAt0))
 	})
 
 	suite.T().Run("POST failure - 400 - Bad Request", func(t *testing.T) {

@@ -53,11 +53,6 @@ paths:
         - customer
       description: Returns a given customer
       operationId: getCustomer
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       summary: Returns a given customer
   '/move/{locator}':
     parameters:
@@ -98,11 +93,6 @@ paths:
       description: Returns a given move
       summary: Returns a given move
       operationId: getMove
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
   /move-orders:
     get:
       produces:
@@ -136,11 +126,6 @@ paths:
       tags:
         - moveOrder
       description: Gets all move orders
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       operationId: listMoveOrders
       summary: Gets all move orders
   '/move-orders/{moveOrderID}':
@@ -267,11 +252,6 @@ paths:
         - moveTaskOrder
       description: Deletes a move order by ID
       operationId: deleteMoveTaskOrder
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       summary: Deletes a move order by ID
     get:
       produces:
@@ -306,11 +286,6 @@ paths:
         - moveTaskOrder
       description: Gets a move order
       operationId: getMoveTaskOrder
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       summary: Gets a move order by ID
     patch:
       consumes:
@@ -360,11 +335,6 @@ paths:
         - moveTaskOrder
       description: Updates a move order by ID
       operationId: updateMoveTaskOrder
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       summary: Updates a move order by ID
   '/move_task_orders/{moveTaskOrderID}/mto_service_items':
     parameters:
@@ -398,11 +368,6 @@ paths:
       tags:
         - mtoServiceItem
       description: Gets all line items for a move orders
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       operationId: listMTOServiceItems
       summary: Gets all line items for a move order
     post:
@@ -453,11 +418,6 @@ paths:
       tags:
         - mtoServiceItem
       description: Creates a service item for a move order by id
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       operationId: createMTOServiceItem
       summary: Creates a service item for a move order by id
   '/move_task_orders/{moveTaskOrderID}/mto_shipments':
@@ -492,11 +452,6 @@ paths:
       tags:
         - mtoShipment
       description: Gets all shipments for a move task order
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       operationId: listMTOShipments
       summary: Gets all shipments for a move task order
   '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/status':
@@ -556,10 +511,6 @@ paths:
       tags:
         - mtoShipment
       description: Updates a shipment's status
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
       operationId: patchMTOShipmentStatus
       summary: Updates a shipment's status
   '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents':
@@ -600,11 +551,6 @@ paths:
       tags:
         - mtoAgent
       description: Fetches a list of agents associated with a move task order.
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       operationId: fetchMTOAgentList
       summary: Fetch move task order agents.
   '/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}':
@@ -651,11 +597,6 @@ paths:
       tags:
         - mtoServiceItem
       description: Deletes a line item by ID for a move order by ID
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       operationId: deleteMTOServiceItem
       summary: Deletes a line item by ID for a move order by ID
     get:
@@ -690,11 +631,6 @@ paths:
       tags:
         - mtoServiceItem
       description: Gets a line item by ID for a move order by ID
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       operationId: getMTOServiceItem
       summary: Gets a line item by ID for a move order by ID
     patch:
@@ -744,11 +680,6 @@ paths:
       tags:
         - mtoServiceItem
       description: Updates a service item by ID for a move order by ID
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       operationId: updateMTOServiceItem
       summary: Updates a service item by ID for a move order by ID
   '/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}/status':
@@ -816,11 +747,6 @@ paths:
       tags:
         - mtoServiceItem
       description: Changes the status of a line item for a move order by ID
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       operationId: updateMTOServiceItemStatus
       summary: Change the status of a line item for a move order by ID
   '/move-task-orders/{moveTaskOrderID}/status':
@@ -877,11 +803,6 @@ paths:
         - moveTaskOrder
       description: Changes move task order status to make it available to prime
       operationId: updateMoveTaskOrderStatus
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       summary: Change the status of a move task order to make it available to prime
   '/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status':
     parameters:
@@ -944,8 +865,6 @@ paths:
       tags:
         - paymentServiceItem
       description: Changes the status of a line item for a move order by ID
-      x-swagger-roles:
-        - transportation_invoicing_officer
       operationId: updatePaymentServiceItemStatus
       summary: Change the status of a payment service item for a move order by ID
   '/move-task-orders/{moveTaskOrderID}/entitlements':
@@ -1059,11 +978,6 @@ paths:
         - gov
       description: Fetches an instance of a payment request by id
       operationId: getPaymentRequest
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       summary: Fetches a payment request by id
     patch:
       consumes:
@@ -1113,11 +1027,6 @@ paths:
         - paymentRequests
       description: Updates a payment request by id
       operationId: updatePaymentRequest
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       summary: Updates a payment request by id
   '/payment-requests/{paymentRequestID}/status':
     patch:
@@ -1179,11 +1088,6 @@ paths:
         - gov
       description: Updates status of a payment request by id
       operationId: updatePaymentRequestStatus
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       summary: Updates status of a payment request by id
   /documents/{documentId}:
     get:
@@ -1539,6 +1443,49 @@ definitions:
       updated_at:
         type: string
         format: date-time
+  DeptIndicator:
+    type: string
+    title: Dept. indicator
+    enum:
+      - NAVY_AND_MARINES
+      - ARMY
+      - AIR_FORCE
+      - COAST_GUARD
+    x-display-value:
+      NAVY_AND_MARINES: 17 Navy and Marine Corps
+      ARMY: 21 Army
+      AIR_FORCE: 57 Air Force
+      COAST_GUARD: 70 Coast Guard
+  OrdersType:
+    type: string
+    title: Orders type
+    enum:
+      - PERMANENT_CHANGE_OF_STATION
+      - RETIREMENT
+      - SEPARATION
+    x-display-value:
+      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
+      RETIREMENT: Retirement
+      SEPARATION: Separation
+  OrdersTypeDetail:
+    type: string
+    title: Orders type detail
+    enum:
+      - HHG_PERMITTED
+      - PCS_TDY
+      - HHG_RESTRICTED_PROHIBITED
+      - HHG_RESTRICTED_AREA
+      - INSTRUCTION_20_WEEKS
+      - HHG_PROHIBITED_20_WEEKS
+      - DELAYED_APPROVAL
+    x-display-value:
+      HHG_PERMITTED: Shipment of HHG Permitted
+      PCS_TDY: PCS with TDY Enroute
+      HHG_RESTRICTED_PROHIBITED: Shipment of HHG Restricted or Prohibited
+      HHG_RESTRICTED_AREA: HHG Restricted Area-HHG Prohibited
+      INSTRUCTION_20_WEEKS: Course of Instruction 20 Weeks or More
+      HHG_PROHIBITED_20_WEEKS: Shipment of HHG Prohibited but Authorized within 20 weeks
+      DELAYED_APPROVAL: Delayed Approval 20 Weeks or More
   MoveOrder:
     properties:
       id:
@@ -1585,13 +1532,9 @@ definitions:
         x-nullable: true
         example: '030-00362'
       order_type:
-        example: GHC
-        type: string
+        $ref: '#/definitions/OrdersType'
       order_type_detail:
-        type: string
-        enum:
-          - GHC
-          - NTS
+        $ref: '#/definitions/OrdersTypeDetail'
         x-nullable: true
       date_issued:
         type: string
@@ -1601,6 +1544,19 @@ definitions:
         type: string
         format: date
         example: '2020-01-01'
+      department_indicator:
+        $ref: '#/definitions/DeptIndicator'
+        x-nullable: true
+      tac:
+        type: string
+        title: TAC
+        example: 'F8J1'
+        x-nullable: true
+      sac:
+        type: string
+        title: SAC
+        example: 'N002214CSW32Y9'
+        x-nullable: true
       eTag:
         type: string
     type: object

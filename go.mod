@@ -31,14 +31,14 @@ require (
 	github.com/go-playground/universal-translator v0.17.0
 	github.com/gobuffalo/envy v1.9.0
 	github.com/gobuffalo/fizz v1.11.0
-	github.com/gobuffalo/flect v0.2.1
+	github.com/gobuffalo/flect v0.2.2
 	github.com/gobuffalo/genny v0.6.0 // indirect
 	github.com/gobuffalo/nulls v0.4.0 // indirect
 	github.com/gobuffalo/packr v1.30.1
 	github.com/gobuffalo/pop v4.13.1+incompatible
 	github.com/gobuffalo/validate v2.0.4+incompatible
 	github.com/gocarina/gocsv v0.0.0-20190927101021-3ecffd272576
-	github.com/gofrs/flock v0.7.1
+	github.com/gofrs/flock v0.7.3
 	github.com/gofrs/uuid v3.3.0+incompatible
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/google/go-github/v31 v31.0.0
