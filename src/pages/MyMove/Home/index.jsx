@@ -1,5 +1,6 @@
 /* eslint-disable react/no-unused-prop-types */
 /* eslint-disable no-console */
+/* eslint-disable camelcase */
 import React, { Component } from 'react';
 import { func, arrayOf, shape, string, node } from 'prop-types';
 import moment from 'moment';
