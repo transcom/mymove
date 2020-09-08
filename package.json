@@ -6,6 +6,7 @@
     "@fortawesome/react-fontawesome": "^0.0.20",
     "@trussworks/react-file-viewer": "https://github.com/trussworks/react-file-viewer#sr-custom-controls",
     "@trussworks/react-uswds": "^1.6.0",
+    "bl": "^4.0.3",
     "bytes": "^3.0.0",
     "classnames": "^2.2.5",
     "connected-react-router": "^6.8.0",
