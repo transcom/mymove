@@ -596,6 +596,7 @@ definitions:
       requestedPickupDate:
         format: date
         type: string
+        description: The date the customer requested that this shipment be picked up.
       customerRemarks:
         type: string
         example: handle with care
@@ -618,6 +619,7 @@ definitions:
       - pickupAddress
       - destinationAddress
       - shipmentType
+      - requestedPickupDate
   Customer:
     type: object
     properties:

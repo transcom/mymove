@@ -734,7 +734,8 @@ func init() {
         "moveTaskOrderID",
         "pickupAddress",
         "destinationAddress",
-        "shipmentType"
+        "shipmentType",
+        "requestedPickupDate"
       ],
       "properties": {
         "agents": {
@@ -767,6 +768,7 @@ func init() {
           "type": "string"
         },
         "requestedPickupDate": {
+          "description": "The date the customer requested that this shipment be picked up.",
           "type": "string",
           "format": "date"
         },
@@ -2905,7 +2907,8 @@ func init() {
         "moveTaskOrderID",
         "pickupAddress",
         "destinationAddress",
-        "shipmentType"
+        "shipmentType",
+        "requestedPickupDate"
       ],
       "properties": {
         "agents": {
@@ -2938,6 +2941,7 @@ func init() {
           "type": "string"
         },
         "requestedPickupDate": {
+          "description": "The date the customer requested that this shipment be picked up.",
           "type": "string",
           "format": "date"
         },
