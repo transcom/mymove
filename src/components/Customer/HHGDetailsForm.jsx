@@ -248,7 +248,8 @@ class HHGDetailsForm extends Component {
                   validate={validateDate}
                 />
                 <span className="usa-hint" id="pickupDateHint">
-                  Your movers will confirm this date or one shortly before or after.
+                  Your movers will confirm this date or one shortly before or after. This is changing things just to
+                  change
                 </span>
               </Fieldset>
 
