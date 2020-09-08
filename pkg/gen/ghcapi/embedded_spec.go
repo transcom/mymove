@@ -164,13 +164,7 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       }
     },
     "/move-orders": {
@@ -3393,13 +3387,7 @@ func init() {
               }
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       }
     },
     "/move-orders": {
