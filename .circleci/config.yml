@@ -1340,8 +1340,8 @@ jobs:
     steps:
       - aws_vars_prd
       - deploy_app_steps:
-          compare_host: my.prd.move.mil
-          health_check_hosts: my.prd.move.mil,office.prd.move.mil,admin.prd.move.mil
+          compare_host: my.move.mil
+          health_check_hosts: my.move.mil,office.move.mil,admin.move.mil
           ecr_env: prd
 
   # `deploy_prd_app_client_tls` updates the mutual-TLS service in the milmove-prd environment
@@ -1352,8 +1352,8 @@ jobs:
     steps:
       - aws_vars_prd
       - deploy_app_client_tls_steps:
-          compare_host: gex.prd.move.mil
-          health_check_hosts: gex.prd.move.mil,dps.prd.move.mil,orders.prd.move.mil
+          compare_host: gex.move.mil
+          health_check_hosts: gex.move.mil,dps.move.mil,orders.move.mil
           ecr_env: prd
 
 workflows:
@@ -1713,38 +1713,33 @@ workflows:
 
       - push_app_prd:
           requires:
-            - build_app # replace with approve_prod_deploy
+            - approve_prod_deploy
           filters:
             branches:
-              only: DEPLOY_PRD_PLACEHOLDER
+              only: master
 
       - push_migrations_prd:
           requires:
-            - build_migrations # replace with approve_prod_deploy
+            - approve_prod_deploy
           filters:
             branches:
-              only: DEPLOY_PRD_PLACEHOLDER
+              only: master
 
       - push_tasks_prd:
           requires:
-            - build_tasks # replace with approve_prod_deploy
+            - approve_prod_deploy
           filters:
             branches:
-              only: DEPLOY_PRD_PLACEHOLDER
+              only: master
 
       - deploy_prd_migrations:
           requires:
             - push_migrations_prd
-            - pre_test # delete
-            - client_test # delete
-            - server_test # delete
-            - acceptance_tests # delete
-            - build_tools # delete
             - push_app_prd
             - push_tasks_prd
           filters:
             branches:
-              only: DEPLOY_PRD_PLACEHOLDER
+              only: master
 
       - deploy_prd_tasks:
           requires:
@@ -1752,7 +1747,7 @@ workflows:
             - push_tasks_prd
           filters:
             branches:
-              only: DEPLOY_PRD_PLACEHOLDER
+              only: master
 
       - deploy_prd_app:
           requires:
@@ -1760,7 +1755,7 @@ workflows:
             - push_app_prd
           filters:
             branches:
-              only: DEPLOY_PRD_PLACEHOLDER
+              only: master
 
       - deploy_prd_app_client_tls:
           requires:
@@ -1768,7 +1763,7 @@ workflows:
             - push_app_prd
           filters:
             branches:
-              only: DEPLOY_PRD_PLACEHOLDER
+              only: master
 
 experimental:
   notify:
