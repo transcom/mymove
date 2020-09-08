@@ -46,6 +46,21 @@ const defaultProps = {
     status: 'SUBMITTED',
     updatedAt: '2020-09-02T21:08:38.392Z',
   },
+  mtoShipments: [
+    {
+      agents: [],
+      customerRemarks: 'please be carefule',
+      moveTaskOrderID: '123',
+      pickupAddress: {
+        city: 'Beverly Hills',
+      },
+      requestedDeliveryDate: '2020-08-31',
+      requestedPickupDate: '2020-08-31',
+      shipmentType: 'HHG',
+      status: 'SUBMITTED',
+      updatedAt: '2020-09-02T21:08:38.392Z',
+    },
+  ],
   reviewState: {
     editSuccess: null,
     entitlementChange: null,
