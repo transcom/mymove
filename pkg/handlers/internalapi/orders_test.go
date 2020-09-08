@@ -5,6 +5,8 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/transcom/mymove/pkg/models"
+
 	"github.com/gofrs/uuid"
 
 	ordersop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
@@ -15,7 +17,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreateOrder() {
-	sm := testdatagen.MakeDefaultServiceMember(suite.DB())
+	sm := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{})
 	station := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
 	testdatagen.MakeDefaultContractor(suite.DB())
 
@@ -56,6 +58,8 @@ func (suite *HandlerSuite) TestCreateOrder() {
 
 	suite.Assertions.IsType(&ordersop.CreateOrdersCreated{}, response)
 	okResponse := response.(*ordersop.CreateOrdersCreated)
+	orderID := okResponse.Payload.ID.String()
+	createdOrder, _ := models.FetchOrder(suite.DB(), uuid.FromStringOrNil(orderID))
 
 	suite.Assertions.Equal(sm.ID.String(), okResponse.Payload.ServiceMemberID.String())
 	suite.Assertions.Len(okResponse.Payload.Moves, 1)
@@ -64,6 +68,9 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	suite.Assertions.Equal(handlers.FmtString("TacNumber"), okResponse.Payload.Tac)
 	suite.Assertions.Equal(handlers.FmtString("SacNumber"), okResponse.Payload.Sac)
 	suite.Assertions.Equal(&deptIndicator, okResponse.Payload.DepartmentIndicator)
+	suite.Equal(sm.DutyStationID, createdOrder.OriginDutyStationID)
+	suite.Equal((*string)(sm.Rank), createdOrder.Grade)
+	suite.NotNil(&createdOrder.Entitlement)
 }
 
 func (suite *HandlerSuite) TestShowOrder() {
