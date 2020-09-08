@@ -88,6 +88,7 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		StandardCarrierAlphaCode:     "TRUS",
 		ShipmentQualifier:            "4",
 	}
+
 	edi858.Header = append(edi858.Header, &bx)
 
 	paymentRequestNumberSegment := edisegment.N9{
@@ -95,6 +96,11 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		ReferenceIdentification:          paymentRequest.PaymentRequestNumber,
 	}
 	edi858.Header = append(edi858.Header, &paymentRequestNumberSegment)
+
+	customerName := edisegment.N9{
+		ReferenceIdentificationQualifier: "1W",
+		//ReferenceIdentification:          paymentRequest.PaymentRequestNumber,
+	}
 
 	var paymentServiceItems models.PaymentServiceItems
 	error := g.DB.Q().
@@ -116,6 +122,7 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 
 func (g GHCPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(serviceItemID uuid.UUID, key models.ServiceItemParamName) (models.PaymentServiceItemParam, error) {
 	var paymentServiceItemParam models.PaymentServiceItemParam
+
 	err := g.DB.Q().
 		Join("service_item_param_keys sk", "payment_service_item_params.service_item_param_key_id = sk.id").
 		Where("payment_service_item_id = ?", serviceItemID).
@@ -125,6 +132,19 @@ func (g GHCPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(serviceI
 		return models.PaymentServiceItemParam{}, fmt.Errorf("Could not lookup PaymentServiceItemParam key (%s) payment service item id (%s): %w", key, serviceItemID, err)
 	}
 	return paymentServiceItemParam, nil
+}
+
+func (g GHCPaymentRequestInvoiceGenerator) fetchServiceMember(mto models.Move) (models.ServiceMember, error) {
+	var serviceMember models.ServiceMember
+
+	err := g.DB.Q().
+		Join("service_member sm", "orders.service_member_id = sm.id").
+		//Where("payment_service_item_id = ?", serviceItemID).
+		First(&serviceMember)
+	if err != nil {
+		return models.ServiceMember{}, fmt.Errorf("Could not lookup ServiceMember key (%s) payment service item id (%s): %w", err)
+	}
+	return serviceMember, nil
 }
 
 func (g GHCPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(paymentServiceItems models.PaymentServiceItems) ([]edisegment.Segment, error) {
