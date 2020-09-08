@@ -114,7 +114,6 @@
     "@storybook/addons": "^5.3.17",
     "@storybook/react": "^5.3.19",
     "@testing-library/react-hooks": "^3.4.1",
-    "babel-plugin-lodash": "^3.3.4",
     "case-sensitive-paths-webpack-plugin": "^2.3.0",
     "cypress": "~4.8.0",
     "cypress-wait-until": "^1.7.1",
