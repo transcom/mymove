@@ -1092,11 +1092,6 @@ paths:
   /documents/{documentId}:
     get:
       summary: Returns a document
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       description: Returns a document and its uploads
       operationId: getDocument
       tags:
