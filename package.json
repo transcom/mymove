@@ -77,6 +77,7 @@
     "yup": "^0.29.1"
   },
   "resolutions": {
+    "bl": "^4.0.3",
     "kind-of": "^6.0.2",
     "serialize-javascript": "^3.1.0"
   },
