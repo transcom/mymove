@@ -1,14 +1,13 @@
 import React from 'react';
 import { action } from '@storybook/addon-actions';
-
-import ReviewServiceItems from './ReviewServiceItems';
-
 import {
   SHIPMENT_OPTIONS,
   SERVICE_ITEM_STATUS,
   PAYMENT_SERVICE_ITEM_STATUS,
   PAYMENT_REQUEST_STATUS,
 } from 'shared/constants';
+
+import ReviewServiceItems from './ReviewServiceItems';
 
 export default {
   title: 'TOO/TIO Components|ReviewServiceItems',
@@ -18,6 +17,9 @@ export default {
       <div style={{ margin: '10px', height: '80vh', display: 'flex', flexDirection: 'column' }}>{storyFn()}</div>
     ),
   ],
+  parameters: {
+    loki: { skip: true },
+  },
 };
 
 const pendingPaymentRequest = { status: PAYMENT_REQUEST_STATUS.PENDING };
