@@ -23,7 +23,10 @@ const ShipmentListItem = ({ shipment, onShipmentClick, shipmentNumber }) => {
       role="button"
       tabIndex="0"
     >
-      <strong>{shipment.shipmentType}</strong> <span>{shipment.id}</span> <EditIcon className={styles.edit} />
+      <strong>
+        {shipment.shipmentType} {shipmentNumber}
+      </strong>{' '}
+      <span>{shipment.id}</span> <EditIcon className={styles.edit} />
     </div>
   );
 };
