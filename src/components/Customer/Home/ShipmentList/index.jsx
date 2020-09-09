@@ -24,7 +24,8 @@ const ShipmentListItem = ({ shipment, onShipmentClick, shipmentNumber }) => {
       tabIndex="0"
     >
       <strong>
-        {shipment.shipmentType} {shipmentNumber}
+        {shipment.shipmentType}
+        {` ${shipmentNumber}`}
       </strong>{' '}
       <span>{shipment.id}</span> <EditIcon className={styles.edit} />
     </div>
