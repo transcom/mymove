@@ -4,7 +4,7 @@
     "@fortawesome/fontawesome": "^1.1.6",
     "@fortawesome/fontawesome-free-solid": "^5.0.11",
     "@fortawesome/react-fontawesome": "^0.0.20",
-    "@trussworks/react-file-viewer": "https://github.com/trussworks/react-file-viewer#sr-custom-controls",
+    "@trussworks/react-file-viewer": "https://github.com/trussworks/react-file-viewer#ds-enable-image-file-type-support",
     "@trussworks/react-uswds": "^1.6.0",
     "bytes": "^3.0.0",
     "classnames": "^2.2.5",
@@ -71,12 +71,13 @@
     "reselect": "^4.0.0",
     "selenium-webdriver": "^3.6.0",
     "swagger-client": "^3.10.12",
-    "swagger-ui-dist": "^3.30.2",
+    "swagger-ui-dist": "^3.32.5",
     "uswds": "2.8.0",
     "uuid": "^8.3.0",
     "yup": "^0.29.1"
   },
   "resolutions": {
+    "bl": "^4.0.3",
     "kind-of": "^6.0.2",
     "serialize-javascript": "^3.1.0"
   },
@@ -115,10 +116,11 @@
     "@testing-library/react-hooks": "^3.4.1",
     "case-sensitive-paths-webpack-plugin": "^2.3.0",
     "cypress": "~4.8.0",
+    "cypress-wait-until": "^1.7.1",
     "danger": "^10.3.0",
     "danger-plugin-jira-issue": "^1.4.1",
     "enzyme": "^3.11.0",
-    "enzyme-adapter-react-16": "^1.15.2",
+    "enzyme-adapter-react-16": "^1.15.4",
     "eslint-config-airbnb": "^18.2.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-no-only-tests": "^2.4.0",
@@ -131,7 +133,7 @@
     "prettier": "=2.0.5",
     "react-test-renderer": "^16.13.1",
     "storybook-addons-abstract": "^5.0.6",
-    "terser-webpack-plugin": "^4.0.0"
+    "terser-webpack-plugin": "^4.1.0"
   },
   "browserslist": [
     ">0.2%",

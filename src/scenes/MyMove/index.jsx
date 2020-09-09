@@ -122,7 +122,6 @@ export class AppWrapper extends Component {
                   <ValidatedPrivateRoute exact path="/moves/:moveId/edit-shipment" component={HHGShipmentSetup} />
                   <ValidatedPrivateRoute exact path="/moves/review/edit-backup-contact" component={EditBackupContact} />
                   <ValidatedPrivateRoute exact path="/moves/review/edit-contact-info" component={EditContactInfo} />
-
                   <ValidatedPrivateRoute path="/moves/:moveId/review/edit-orders" component={EditOrders} />
                   <ValidatedPrivateRoute
                     path="/moves/:moveId/review/edit-date-and-location"
