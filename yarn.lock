@@ -2776,10 +2776,10 @@
     react-visibility-sensor "^5.0.2"
     three "0.85.2"
 
-"@trussworks/react-uswds@^1.6.0":
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/@trussworks/react-uswds/-/react-uswds-1.6.0.tgz#fbba34ecfe6ee75613aad48aadf3e3ed77caea81"
-  integrity sha512-3Ok8+IPzTd806TpteGqNQVe9qWWRgDU5w/lFIw9h9OID/XLFNp+Pj+r/mXDX8TtXNP+crOa5BH9x6nF807KGZw==
+"@trussworks/react-uswds@^1.9.1":
+  version "1.9.1"
+  resolved "https://registry.yarnpkg.com/@trussworks/react-uswds/-/react-uswds-1.9.1.tgz#079c9e38c5e39ca2903a45e0415481490088d4a1"
+  integrity sha512-Ps67SJFRc3AfWnIkLHgdyG2hcNawaorswcHm9t0pgSjJ0ZpAGvhVwKbPdeTheZEeS11mFGj/VXD991oloe12ag==
   dependencies:
     classnames "^2.2.6"
     dotenv "^8.2.0"
