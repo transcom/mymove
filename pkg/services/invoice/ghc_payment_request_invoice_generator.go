@@ -104,6 +104,22 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	}
 	edi858.Header = append(edi858.Header, serviceMemberSegments...)
 
+	// TODO: Determine correct values to fill in the l7 segment
+	// l7 := edisegment.L7{
+	// 	LadingLineItemNumber:    812,
+	// 	TariffNumber:    "T",
+	// 	TariffItemNumber:      "",
+	// 	TariffDistance: ,
+	// }
+	// edi858.Header = append(edi858.Header, &l7)
+
+	// Add NTE lines to header
+	nteSegment, err := g.createNteLines()
+	if err != nil {
+		return ediinvoice.Invoice858C{}, err
+	}
+	edi858.Header = append(edi858.Header, nteSegment...)
+
 	// Add origin and destination details to header
 	originDestinationSegments, err := g.createOriginAndDestinationSegments(paymentRequest)
 	if err != nil {
@@ -167,6 +183,35 @@ func (g GHCPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 	serviceMemberDetails = append(serviceMemberDetails, &serviceMemberBranch)
 
 	return serviceMemberDetails, nil
+}
+
+func (g GHCPaymentRequestInvoiceGenerator) createNteLines() ([]edisegment.Segment, error) {
+	nteSegments := []edisegment.Segment{}
+
+	nteZip3 := edisegment.NTE{
+		NoteReferenceCode: "ADD",
+		Description:       "DistanceZip3",
+	}
+
+	nteZip5 := edisegment.NTE{
+		NoteReferenceCode: "ADD",
+		Description:       "DistanceZip5",
+	}
+
+	nteSitOrigin := edisegment.NTE{
+		NoteReferenceCode: "ADD",
+		Description:       "DistanceZip5SITOrigin",
+	}
+
+	nteSitDest := edisegment.NTE{
+		NoteReferenceCode: "ADD",
+		Description:       "DistanceZip5SITDest",
+	}
+
+	nteSegments = append(nteSegments, &nteZip3, &nteZip5, &nteSitOrigin, &nteSitDest)
+
+	return nteSegments, nil
+
 }
 
 func (g GHCPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(paymentRequest models.PaymentRequest) ([]edisegment.Segment, error) {
