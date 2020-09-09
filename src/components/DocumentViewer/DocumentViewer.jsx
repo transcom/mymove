@@ -14,7 +14,6 @@ import { ReactComponent as DocMenu } from 'shared/icon/doc-menu.svg';
  * - implement open in a new window
  * - implement next/previous pages instead of scroll through pages
  * - implement rotate left/right
- * - support images in addition to PDFs
  * - handle fetch doc errors
  */
 
