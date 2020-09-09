@@ -134,6 +134,28 @@ func (suite *GHCInvoiceSuite) TestGenerateGHCInvoiceHeader() {
 			suite.Equal(data.ExpectedValue, n9.ReferenceIdentification)
 		})
 	}
+
+	testNteData := []struct {
+		TestName          string
+		Position          int
+		NoteReferenceCode string
+		Description       string
+	}{
+		{TestName: "distance zip3", Position: 1, NoteReferenceCode: "ADD", Description: "DistanceZip3"},
+		{TestName: "distance zip5", Position: 2, NoteReferenceCode: "ADD", Description: "DistanceZip5"},
+		{TestName: "distance SIT origin", Position: 3, NoteReferenceCode: "ADD", Description: "DistanceZip5SITOrigin"},
+		{TestName: "distance SIT destination", Position: 4, NoteReferenceCode: "ADD", Description: "DistanceZip5SITDest"},
+	}
+
+	for _, data := range testNteData {
+		suite.T().Run(fmt.Sprintf("adds %s to header", data.TestName), func(t *testing.T) {
+			suite.IsType(&edisegment.N9{}, result.Header[data.Position])
+			nte := result.Header[data.Position].(*edisegment.NTE)
+			suite.Equal(data.NoteReferenceCode, nte.NoteReferenceCode)
+			suite.Equal(data.Description, nte.Description)
+		})
+	}
+
 }
 
 func (suite *GHCInvoiceSuite) TestGenerateGHCInvoiceBody() {
