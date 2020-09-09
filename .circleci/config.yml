@@ -327,7 +327,7 @@ commands:
           command: scripts/ecr-describe-image-scan-findings << parameters.repo >> ${CIRCLE_SHA1}
       - persist_to_workspace:
           root: bin
-          paths: sha/
+          paths: sha/ECR_DIGEST_<< parameters.repo >>_<< parameters.ecr_env >>
 
   server_tests_step:
     parameters:
