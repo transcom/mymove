@@ -1620,12 +1620,12 @@ workflows:
             branches:
               only: master
 
-      - approve_prod_deploy:
+      - approve_prd_deploy:
           type: approval
           requires:
-            - deploy_staging_tasks
-            - deploy_staging_app
-            - deploy_staging_app_client_tls
+            - deploy_stg_tasks
+            - deploy_stg_app
+            - deploy_stg_app_client_tls
 
       - deploy_storybook_dp3:
           requires:
@@ -1641,21 +1641,21 @@ workflows:
 
       - push_app_prd:
           requires:
-            - approve_prod_deploy
+            - approve_prd_deploy
           filters:
             branches:
               only: master
 
       - push_migrations_prd:
           requires:
-            - approve_prod_deploy
+            - approve_prd_deploy
           filters:
             branches:
               only: master
 
       - push_tasks_prd:
           requires:
-            - approve_prod_deploy
+            - approve_prd_deploy
           filters:
             branches:
               only: master
