@@ -358,7 +358,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
-	o.handlers["PUT"]["/mto-shipment/{mtoShipmentID}/address/{addressID}"] = mto_shipment.NewUpdateMTOShipmentAddress(o.context, o.MtoShipmentUpdateMTOShipmentAddressHandler)
+	o.handlers["PUT"]["/mto-shipments/{mtoShipmentID}/addresses/{addressID}"] = mto_shipment.NewUpdateMTOShipmentAddress(o.context, o.MtoShipmentUpdateMTOShipmentAddressHandler)
 
 }
 

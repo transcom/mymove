@@ -1,8 +1,10 @@
 package testdatagen
 
 import (
+	"fmt"
 	"time"
 
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -11,24 +13,43 @@ import (
 
 // MakeMTOShipment creates a single MTOShipment and associated set relationships
 func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipment {
+
+	// Make move if it was not provided
 	moveTaskOrder := assertions.Move
 	if isZeroUUID(moveTaskOrder.ID) {
 		moveTaskOrder = MakeMove(db, assertions)
+		fmt.Println("No MTO so making it, id", moveTaskOrder.ID)
 	}
 
-	pickupAddress := MakeAddress(db, assertions)
-	destinationAddress := MakeAddress2(db, assertions)
-	secondaryPickupAddress := MakeAddress(db, assertions)
-	secondaryDeliveryAddress := MakeAddress(db, assertions)
-	shipmentType := models.MTOShipmentTypeHHG
-
-	if assertions.MTOShipment.ShipmentType != "" {
-		shipmentType = assertions.MTOShipment.ShipmentType
+	// Make pickup address if it was not provided
+	pickupAddress := assertions.PickupAddress
+	if isZeroUUID(pickupAddress.ID) {
+		pickupAddress = MakeAddress(db, Assertions{
+			Address: assertions.PickupAddress,
+		})
+		fmt.Println("No pickupAddress so making it, id", pickupAddress.ID)
 	}
 
-	// mock remarks
-	remarks := "please treat gently"
-	rejectionReason := "shipment not good enough"
+	destinationAddress := assertions.DestinationAddress
+	if isZeroUUID(destinationAddress.ID) {
+		destinationAddress = MakeAddress2(db, Assertions{
+			Address: assertions.DestinationAddress,
+		})
+	}
+
+	secondaryPickupAddress := assertions.SecondaryPickupAddress
+	if isZeroUUID(secondaryPickupAddress.ID) {
+		secondaryPickupAddress = MakeAddress(db, Assertions{
+			Address: assertions.SecondaryPickupAddress,
+		})
+	}
+
+	secondaryDeliveryAddress := assertions.SecondaryDeliveryAddress
+	if isZeroUUID(secondaryDeliveryAddress.ID) {
+		secondaryDeliveryAddress = MakeAddress(db, Assertions{
+			Address: assertions.SecondaryDeliveryAddress,
+		})
+	}
 
 	// mock weights
 	actualWeight := unit.Pound(980)
@@ -46,7 +67,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		ScheduledPickupDate:      &scheduledPickupDate,
 		ActualPickupDate:         &actualPickupDate,
 		RequestedDeliveryDate:    &requestedDeliveryDate,
-		CustomerRemarks:          &remarks,
+		CustomerRemarks:          swag.String("Please treat gently"),
 		PickupAddress:            &pickupAddress,
 		PickupAddressID:          &pickupAddress.ID,
 		DestinationAddress:       &destinationAddress,
@@ -54,9 +75,9 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		PrimeActualWeight:        &actualWeight,
 		SecondaryPickupAddress:   &secondaryPickupAddress,
 		SecondaryDeliveryAddress: &secondaryDeliveryAddress,
-		ShipmentType:             shipmentType,
+		ShipmentType:             models.MTOShipmentTypeHHG,
 		Status:                   "DRAFT",
-		RejectionReason:          &rejectionReason,
+		RejectionReason:          swag.String("Not enough information"),
 	}
 
 	if assertions.MTOShipment.Status == models.MTOShipmentStatusApproved {

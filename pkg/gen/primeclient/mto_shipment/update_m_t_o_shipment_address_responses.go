@@ -98,7 +98,7 @@ type UpdateMTOShipmentAddressOK struct {
 }
 
 func (o *UpdateMTOShipmentAddressOK) Error() string {
-	return fmt.Sprintf("[PUT /mto-shipment/{mtoShipmentID}/address/{addressID}][%d] updateMTOShipmentAddressOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressOK  %+v", 200, o.Payload)
 }
 
 func (o *UpdateMTOShipmentAddressOK) GetPayload() *primemessages.Address {
@@ -131,7 +131,7 @@ type UpdateMTOShipmentAddressBadRequest struct {
 }
 
 func (o *UpdateMTOShipmentAddressBadRequest) Error() string {
-	return fmt.Sprintf("[PUT /mto-shipment/{mtoShipmentID}/address/{addressID}][%d] updateMTOShipmentAddressBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressBadRequest  %+v", 400, o.Payload)
 }
 
 func (o *UpdateMTOShipmentAddressBadRequest) GetPayload() *primemessages.ClientError {
@@ -164,7 +164,7 @@ type UpdateMTOShipmentAddressUnauthorized struct {
 }
 
 func (o *UpdateMTOShipmentAddressUnauthorized) Error() string {
-	return fmt.Sprintf("[PUT /mto-shipment/{mtoShipmentID}/address/{addressID}][%d] updateMTOShipmentAddressUnauthorized  %+v", 401, o.Payload)
+	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressUnauthorized  %+v", 401, o.Payload)
 }
 
 func (o *UpdateMTOShipmentAddressUnauthorized) GetPayload() *primemessages.ClientError {
@@ -197,7 +197,7 @@ type UpdateMTOShipmentAddressForbidden struct {
 }
 
 func (o *UpdateMTOShipmentAddressForbidden) Error() string {
-	return fmt.Sprintf("[PUT /mto-shipment/{mtoShipmentID}/address/{addressID}][%d] updateMTOShipmentAddressForbidden  %+v", 403, o.Payload)
+	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressForbidden  %+v", 403, o.Payload)
 }
 
 func (o *UpdateMTOShipmentAddressForbidden) GetPayload() *primemessages.ClientError {
@@ -230,7 +230,7 @@ type UpdateMTOShipmentAddressNotFound struct {
 }
 
 func (o *UpdateMTOShipmentAddressNotFound) Error() string {
-	return fmt.Sprintf("[PUT /mto-shipment/{mtoShipmentID}/address/{addressID}][%d] updateMTOShipmentAddressNotFound  %+v", 404, o.Payload)
+	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressNotFound  %+v", 404, o.Payload)
 }
 
 func (o *UpdateMTOShipmentAddressNotFound) GetPayload() *primemessages.ClientError {
@@ -263,7 +263,7 @@ type UpdateMTOShipmentAddressConflict struct {
 }
 
 func (o *UpdateMTOShipmentAddressConflict) Error() string {
-	return fmt.Sprintf("[PUT /mto-shipment/{mtoShipmentID}/address/{addressID}][%d] updateMTOShipmentAddressConflict  %+v", 409, o.Payload)
+	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressConflict  %+v", 409, o.Payload)
 }
 
 func (o *UpdateMTOShipmentAddressConflict) GetPayload() *primemessages.ClientError {
@@ -296,7 +296,7 @@ type UpdateMTOShipmentAddressPreconditionFailed struct {
 }
 
 func (o *UpdateMTOShipmentAddressPreconditionFailed) Error() string {
-	return fmt.Sprintf("[PUT /mto-shipment/{mtoShipmentID}/address/{addressID}][%d] updateMTOShipmentAddressPreconditionFailed  %+v", 412, o.Payload)
+	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressPreconditionFailed  %+v", 412, o.Payload)
 }
 
 func (o *UpdateMTOShipmentAddressPreconditionFailed) GetPayload() *primemessages.ClientError {
@@ -329,7 +329,7 @@ type UpdateMTOShipmentAddressUnprocessableEntity struct {
 }
 
 func (o *UpdateMTOShipmentAddressUnprocessableEntity) Error() string {
-	return fmt.Sprintf("[PUT /mto-shipment/{mtoShipmentID}/address/{addressID}][%d] updateMTOShipmentAddressUnprocessableEntity  %+v", 422, o.Payload)
+	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressUnprocessableEntity  %+v", 422, o.Payload)
 }
 
 func (o *UpdateMTOShipmentAddressUnprocessableEntity) GetPayload() *primemessages.ValidationError {
@@ -362,7 +362,7 @@ type UpdateMTOShipmentAddressInternalServerError struct {
 }
 
 func (o *UpdateMTOShipmentAddressInternalServerError) Error() string {
-	return fmt.Sprintf("[PUT /mto-shipment/{mtoShipmentID}/address/{addressID}][%d] updateMTOShipmentAddressInternalServerError  %+v", 500, o.Payload)
+	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/addresses/{addressID}][%d] updateMTOShipmentAddressInternalServerError  %+v", 500, o.Payload)
 }
 
 func (o *UpdateMTOShipmentAddressInternalServerError) GetPayload() *primemessages.Error {

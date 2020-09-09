@@ -43,7 +43,7 @@ func (o *UpdateMTOShipmentAddressURL) SetBasePath(bp string) {
 func (o *UpdateMTOShipmentAddressURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/mto-shipment/{mtoShipmentID}/address/{addressID}"
+	var _path = "/mto-shipments/{mtoShipmentID}/addresses/{addressID}"
 
 	addressID := o.AddressID.String()
 	if addressID != "" {

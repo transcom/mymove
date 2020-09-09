@@ -216,7 +216,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/mto-shipment/{mtoShipmentID}/address/{addressID}':
+  '/mto-shipments/{mtoShipmentID}/addresses/{addressID}':
     put:
       summary: updateMTOShipmentAddress
       description: TK

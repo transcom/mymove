@@ -27,13 +27,12 @@ type UpdateMTOShipmentAddressHandler struct {
 
 // MTOShipmentAddressUpdater handles the db connection
 type MTOShipmentAddressUpdater struct {
-	db                     *pop.Connection
-	mtoAvailabilityChecker services.MoveTaskOrderChecker
+	db *pop.Connection
 }
 
 // NewMTOShipmentAddressUpdater updates the address for an MTO Shipment
-func NewMTOShipmentAddressUpdater(db *pop.Connection) *MTOShipmentAddressUpdater {
-	return &MTOShipmentAddressUpdater{
+func NewMTOShipmentAddressUpdater(db *pop.Connection) MTOShipmentAddressUpdater {
+	return MTOShipmentAddressUpdater{
 		db: db}
 }
 
@@ -73,8 +72,8 @@ func (f MTOShipmentAddressUpdater) ValidateAddress(newAddress *models.Address, m
 	}
 
 	// Make sure the associated move is available to the prime
-	f.mtoAvailabilityChecker = movetaskorder.NewMoveTaskOrderChecker(f.db)
-	mtoAvailableToPrime, _ := f.mtoAvailabilityChecker.MTOAvailableToPrime(mtoShipment.MoveTaskOrderID)
+	mtoChecker := movetaskorder.NewMoveTaskOrderChecker(f.db)
+	mtoAvailableToPrime, _ := mtoChecker.MTOAvailableToPrime(mtoShipment.MoveTaskOrderID)
 	if !mtoAvailableToPrime {
 		return false, services.NewNotFoundError(mtoShipment.MoveTaskOrderID, "looking for moveTaskOrder")
 	}
