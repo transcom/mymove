@@ -97,10 +97,19 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	}
 	edi858.Header = append(edi858.Header, &paymentRequestNumberSegment)
 
-	customerName := edisegment.N9{
-		ReferenceIdentificationQualifier: "1W",
-		//ReferenceIdentification:          paymentRequest.PaymentRequestNumber,
+	// Add service member details to header
+	serviceMemberSegments, err := g.createServiceMemberDetailSegments(paymentRequest)
+	if err != nil {
+		return ediinvoice.Invoice858C{}, err
 	}
+	edi858.Header = append(edi858.Header, serviceMemberSegments...)
+
+	// Add origin and destination details to header
+	originDestinationSegments, err := g.createOriginAndDestinationSegments(paymentRequest)
+	if err != nil {
+		return ediinvoice.Invoice858C{}, err
+	}
+	edi858.Header = append(edi858.Header, originDestinationSegments...)
 
 	var paymentServiceItems models.PaymentServiceItems
 	error := g.DB.Q().
@@ -120,6 +129,150 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	return edi858, nil
 }
 
+func (g GHCPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(paymentRequest models.PaymentRequest) ([]edisegment.Segment, error) {
+	serviceMemberDetails := []edisegment.Segment{}
+
+	serviceMember := paymentRequest.MoveTaskOrder.Orders.ServiceMember
+	if serviceMember.ID == uuid.Nil {
+		return []edisegment.Segment{}, fmt.Errorf("no ServiceMember found for Payment Request ID: %s", paymentRequest.ID)
+	}
+
+	// name
+	serviceMemberName := edisegment.N9{
+		ReferenceIdentificationQualifier: "1W",
+		ReferenceIdentification:          serviceMember.ReverseNameLineFormat(),
+	}
+	serviceMemberDetails = append(serviceMemberDetails, &serviceMemberName)
+
+	// rank
+	rank := serviceMember.Rank
+	if rank == nil {
+		return []edisegment.Segment{}, fmt.Errorf("no rank found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequest.ID)
+	}
+	serviceMemberRank := edisegment.N9{
+		ReferenceIdentificationQualifier: "ML",
+		ReferenceIdentification:          string(*rank),
+	}
+	serviceMemberDetails = append(serviceMemberDetails, &serviceMemberRank)
+
+	// branch
+	branch := serviceMember.Affiliation
+	if branch == nil {
+		return []edisegment.Segment{}, fmt.Errorf("no branch found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequest.ID)
+	}
+	serviceMemberBranch := edisegment.N9{
+		ReferenceIdentificationQualifier: "3L",
+		ReferenceIdentification:          string(*branch),
+	}
+	serviceMemberDetails = append(serviceMemberDetails, &serviceMemberBranch)
+
+	return serviceMemberDetails, nil
+}
+
+func (g GHCPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(paymentRequest models.PaymentRequest) ([]edisegment.Segment, error) {
+	originAndDestinationSegments := []edisegment.Segment{}
+
+	order := paymentRequest.MoveTaskOrder.Orders
+	mtoShipment := paymentRequest.MoveTaskOrder.MTOShipments[0]
+
+	if order.ID == uuid.Nil {
+		return []edisegment.Segment{}, fmt.Errorf("no order found for Payment Request ID: %s", paymentRequest.ID)
+	}
+
+	if mtoShipment.ID == uuid.Nil {
+		return []edisegment.Segment{}, fmt.Errorf("no MTO shipment found for Payment Request ID: %s", paymentRequest.ID)
+	}
+
+	// destination name
+	destinationStationName := order.NewDutyStation.Name
+	if len(destinationStationName) == 0 {
+		return []edisegment.Segment{}, fmt.Errorf("no destination duty station name found for Order ID: %s Payment Request ID: %s", order.ID, paymentRequest.ID)
+	}
+	destinationName := edisegment.N1{
+		EntityIdentifierCode:        "ST",
+		Name:                        destinationStationName,
+		IdentificationCodeQualifier: "10",
+		IdentificationCode:          "GBLOC/DODAAC",
+	}
+	originAndDestinationSegments = append(originAndDestinationSegments, &destinationName)
+
+	// destination address
+	destinationAddress := mtoShipment.DestinationAddress.StreetAddress1
+
+	if len(destinationAddress) == 0 {
+		return []edisegment.Segment{}, fmt.Errorf("no destination street address found for MTO shipment ID: %s Payment Request ID: %s", mtoShipment.ID, paymentRequest.ID)
+	}
+
+	destinationStreetAddress := edisegment.N3{
+		AddressInformation1: destinationAddress,
+	}
+	originAndDestinationSegments = append(originAndDestinationSegments, &destinationStreetAddress)
+
+	// destination city/state/postal
+	destinationAddressDetails := mtoShipment.DestinationAddress
+
+	if destinationAddressDetails.ID == uuid.Nil {
+		return []edisegment.Segment{}, fmt.Errorf("no destination address found for MTO shipment ID: %s Payment Request ID: %s", mtoShipment.ID, paymentRequest.ID)
+	}
+
+	destinationPostalDetails := edisegment.N4{
+		CityName:            destinationAddressDetails.City,
+		StateOrProvinceCode: destinationAddressDetails.State,
+		PostalCode:          destinationAddressDetails.PostalCode,
+		CountryCode:         string(*destinationAddressDetails.Country),
+		LocationQualifier:   "SL",
+		LocationIdentifier:  "237740290",
+	}
+	originAndDestinationSegments = append(originAndDestinationSegments, &destinationPostalDetails)
+
+	// TODO: Create PER segment and implement Destination POC Phone
+
+	// ========  ORIGIN ========= //
+	// origin station name
+	originStationName := order.OriginDutyStation.Name
+	if len(originStationName) == 0 {
+		return []edisegment.Segment{}, fmt.Errorf("no origin duty station name found for Order ID: %s Payment Request ID: %s", order.ID, paymentRequest.ID)
+	}
+	originName := edisegment.N1{
+		EntityIdentifierCode:        "ST",
+		Name:                        originStationName,
+		IdentificationCodeQualifier: "10",
+		IdentificationCode:          "GBLOC/DODAAC",
+	}
+	originAndDestinationSegments = append(originAndDestinationSegments, &originName)
+
+	// origin address
+	originAddress := mtoShipment.PickupAddress.StreetAddress1
+
+	if len(originAddress) == 0 {
+		return []edisegment.Segment{}, fmt.Errorf("no origin street address found for MTO shipment ID: %s Payment Request ID: %s", mtoShipment.ID, paymentRequest.ID)
+	}
+
+	originStreetAddress := edisegment.N3{
+		AddressInformation1: originAddress,
+	}
+	originAndDestinationSegments = append(originAndDestinationSegments, &originStreetAddress)
+
+	// origin city/state/postal
+	originAddressDetails := mtoShipment.PickupAddress
+
+	if originAddressDetails.ID == uuid.Nil {
+		return []edisegment.Segment{}, fmt.Errorf("no origin address found for MTO shipment ID: %s Payment Request ID: %s", mtoShipment.ID, paymentRequest.ID)
+	}
+
+	originPostalDetails := edisegment.N4{
+		CityName:            originAddressDetails.City,
+		StateOrProvinceCode: originAddressDetails.State,
+		PostalCode:          originAddressDetails.PostalCode,
+		CountryCode:         string(*originAddressDetails.Country),
+		LocationQualifier:   "SL",
+		LocationIdentifier:  "237740290",
+	}
+	originAndDestinationSegments = append(originAndDestinationSegments, &originPostalDetails)
+
+	return originAndDestinationSegments, nil
+}
+
 func (g GHCPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(serviceItemID uuid.UUID, key models.ServiceItemParamName) (models.PaymentServiceItemParam, error) {
 	var paymentServiceItemParam models.PaymentServiceItemParam
 
@@ -132,19 +285,6 @@ func (g GHCPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(serviceI
 		return models.PaymentServiceItemParam{}, fmt.Errorf("Could not lookup PaymentServiceItemParam key (%s) payment service item id (%s): %w", key, serviceItemID, err)
 	}
 	return paymentServiceItemParam, nil
-}
-
-func (g GHCPaymentRequestInvoiceGenerator) fetchServiceMember(mto models.Move) (models.ServiceMember, error) {
-	var serviceMember models.ServiceMember
-
-	err := g.DB.Q().
-		Join("service_member sm", "orders.service_member_id = sm.id").
-		//Where("payment_service_item_id = ?", serviceItemID).
-		First(&serviceMember)
-	if err != nil {
-		return models.ServiceMember{}, fmt.Errorf("Could not lookup ServiceMember key (%s) payment service item id (%s): %w", err)
-	}
-	return serviceMember, nil
 }
 
 func (g GHCPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(paymentServiceItems models.PaymentServiceItems) ([]edisegment.Segment, error) {
