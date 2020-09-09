@@ -96,6 +96,13 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	}
 	edi858.Header = append(edi858.Header, &paymentRequestNumberSegment)
 
+	// Add service member details to header
+	serviceMemberSegments, err := g.createServiceMemberDetailSegments(paymentRequest)
+	if err != nil {
+		return ediinvoice.Invoice858C{}, err
+	}
+	edi858.Header = append(edi858.Header, serviceMemberSegments...)
+
 	var paymentServiceItems models.PaymentServiceItems
 	error := g.DB.Q().
 		Eager("MTOServiceItem.ReService").
@@ -112,6 +119,46 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	edi858.ServiceItems = append(edi858.ServiceItems, paymentServiceItemSegments...)
 
 	return edi858, nil
+}
+
+func (g GHCPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(paymentRequest models.PaymentRequest) ([]edisegment.Segment, error) {
+	serviceMemberDetails := []edisegment.Segment{}
+
+	serviceMember := paymentRequest.MoveTaskOrder.Orders.ServiceMember
+	if serviceMember.ID == uuid.Nil {
+		return []edisegment.Segment{}, fmt.Errorf("no ServiceMember found for Payment Request ID: %s", paymentRequest.ID)
+	}
+
+	// name
+	serviceMemberName := edisegment.N9{
+		ReferenceIdentificationQualifier: "1W",
+		ReferenceIdentification:          serviceMember.ReverseNameLineFormat(),
+	}
+	serviceMemberDetails = append(serviceMemberDetails, &serviceMemberName)
+
+	// rank
+	rank := serviceMember.Rank
+	if rank == nil {
+		return []edisegment.Segment{}, fmt.Errorf("no rank found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequest.ID)
+	}
+	serviceMemberRank := edisegment.N9{
+		ReferenceIdentificationQualifier: "ML",
+		ReferenceIdentification:          string(*rank),
+	}
+	serviceMemberDetails = append(serviceMemberDetails, &serviceMemberRank)
+
+	// branch
+	branch := serviceMember.Affiliation
+	if branch == nil {
+		return []edisegment.Segment{}, fmt.Errorf("no branch found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequest.ID)
+	}
+	serviceMemberBranch := edisegment.N9{
+		ReferenceIdentificationQualifier: "3L",
+		ReferenceIdentification:          string(*branch),
+	}
+	serviceMemberDetails = append(serviceMemberDetails, &serviceMemberBranch)
+
+	return serviceMemberDetails, nil
 }
 
 func (g GHCPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(serviceItemID uuid.UUID, key models.ServiceItemParamName) (models.PaymentServiceItemParam, error) {

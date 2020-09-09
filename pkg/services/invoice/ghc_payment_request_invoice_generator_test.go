@@ -1,6 +1,7 @@
 package invoice
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -91,11 +92,12 @@ func (suite *GHCInvoiceSuite) TestGenerateGHCInvoiceStartEndSegments() {
 
 func (suite *GHCInvoiceSuite) TestGenerateGHCInvoiceHeader() {
 	generator := GHCPaymentRequestInvoiceGenerator{DB: suite.DB()}
+	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+
+	result, err := generator.Generate(paymentRequest, false)
+	suite.FatalNoError(err)
 
 	suite.T().Run("adds bx header segment", func(t *testing.T) {
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
-		result, err := generator.Generate(paymentRequest, false)
-		suite.FatalNoError(err)
 		suite.IsType(&edisegment.BX{}, result.Header[0])
 		bx := result.Header[0].(*edisegment.BX)
 		suite.Equal("00", bx.TransactionSetPurposeCode)
@@ -106,23 +108,32 @@ func (suite *GHCInvoiceSuite) TestGenerateGHCInvoiceHeader() {
 		suite.Equal("4", bx.ShipmentQualifier)
 	})
 
-	suite.T().Run("adds payment request number to header", func(t *testing.T) {
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
-		result, err := generator.Generate(paymentRequest, false)
-		suite.FatalNoError(err)
-		suite.IsType(&edisegment.N9{}, result.Header[1])
-		n9 := result.Header[1].(*edisegment.N9)
-		suite.Equal("CN", n9.ReferenceIdentificationQualifier)
-		suite.Equal(paymentRequest.PaymentRequestNumber, n9.ReferenceIdentification)
-	})
-
 	suite.T().Run("does not error out creating EDI from Invoice858", func(t *testing.T) {
-		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
-		result, err := generator.Generate(paymentRequest, false)
-		suite.FatalNoError(err)
-		_, err = result.EDIString()
+		_, err := result.EDIString()
 		suite.NoError(err)
 	})
+
+	serviceMember := paymentRequest.MoveTaskOrder.Orders.ServiceMember
+	testData := []struct {
+		TestName      string
+		Position      int
+		Qualifier     string
+		ExpectedValue string
+	}{
+		{TestName: "payment request number", Position: 1, Qualifier: "CN", ExpectedValue: paymentRequest.PaymentRequestNumber},
+		{TestName: "service member name", Position: 2, Qualifier: "1W", ExpectedValue: serviceMember.ReverseNameLineFormat()},
+		{TestName: "service member rank", Position: 3, Qualifier: "ML", ExpectedValue: string(*serviceMember.Rank)},
+		{TestName: "service member branch", Position: 4, Qualifier: "3L", ExpectedValue: string(*serviceMember.Affiliation)},
+	}
+
+	for _, data := range testData {
+		suite.T().Run(fmt.Sprintf("adds %s to header", data.TestName), func(t *testing.T) {
+			suite.IsType(&edisegment.N9{}, result.Header[data.Position])
+			n9 := result.Header[data.Position].(*edisegment.N9)
+			suite.Equal(data.Qualifier, n9.ReferenceIdentificationQualifier)
+			suite.Equal(data.ExpectedValue, n9.ReferenceIdentification)
+		})
+	}
 }
 
 func (suite *GHCInvoiceSuite) TestGenerateGHCInvoiceBody() {
