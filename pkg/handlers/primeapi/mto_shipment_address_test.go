@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -52,7 +53,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 	// Create handler
 	handler := UpdateMTOShipmentAddressHandler{
 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-		NewMTOShipmentAddressUpdater(suite.DB()),
+		mtoshipment.NewMTOShipmentAddressUpdater(suite.DB()),
 	}
 
 	suite.T().Run("Success updating address", func(t *testing.T) {

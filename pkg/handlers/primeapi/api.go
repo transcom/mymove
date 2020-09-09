@@ -80,7 +80,7 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	primeAPI.MtoShipmentUpdateMTOShipmentAddressHandler = UpdateMTOShipmentAddressHandler{
 		context,
-		NewMTOShipmentAddressUpdater(context.DB()),
+		mtoshipment.NewMTOShipmentAddressUpdater(context.DB()),
 	}
 
 	return primeAPI.Serve(nil)
