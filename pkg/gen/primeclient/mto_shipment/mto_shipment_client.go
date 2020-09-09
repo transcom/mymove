@@ -128,7 +128,21 @@ func (a *Client) UpdateMTOShipment(params *UpdateMTOShipmentParams) (*UpdateMTOS
 /*
 UpdateMTOShipmentAddress updates m t o shipment address
 
-TK
+### Functionality
+This endpoint is used to **update** the addresses on an MTO Shipment. The address details completely replace the original, except for the UUID.
+Therefore a complete address should be sent in the request.
+
+This endpoint **cannot create** an address.
+To create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.
+
+### Errors:
+The address must be associated with the mtoShipment passed in the url.
+In other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress on the mtoShipment provided.
+If it is not, caller will receive a **Conflict** Error.
+
+The mtoShipment should be associated with an MTO that is available to prime.
+If the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.
+
 */
 func (a *Client) UpdateMTOShipmentAddress(params *UpdateMTOShipmentAddressParams) (*UpdateMTOShipmentAddressOK, error) {
 	// TODO: Validate the params before sending

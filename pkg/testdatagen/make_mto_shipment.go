@@ -1,7 +1,6 @@
 package testdatagen
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -18,7 +17,6 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	moveTaskOrder := assertions.Move
 	if isZeroUUID(moveTaskOrder.ID) {
 		moveTaskOrder = MakeMove(db, assertions)
-		fmt.Println("No MTO so making it, id", moveTaskOrder.ID)
 	}
 
 	// Make pickup address if it was not provided
@@ -27,7 +25,6 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		pickupAddress = MakeAddress(db, Assertions{
 			Address: assertions.PickupAddress,
 		})
-		fmt.Println("No pickupAddress so making it, id", pickupAddress.ID)
 	}
 
 	destinationAddress := assertions.DestinationAddress
@@ -110,8 +107,6 @@ func MakeMTOShipmentMinimal(db *pop.Connection, assertions Assertions) models.MT
 	if isZeroUUID(moveTaskOrder.ID) {
 		moveTaskOrder = MakeMove(db, assertions)
 	}
-	pickupAddress := MakeAddress(db, assertions)
-	shipmentType := models.MTOShipmentTypeHHG
 
 	// mock dates
 	requestedPickupDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
@@ -120,9 +115,7 @@ func MakeMTOShipmentMinimal(db *pop.Connection, assertions Assertions) models.MT
 		MoveTaskOrder:       moveTaskOrder,
 		MoveTaskOrderID:     moveTaskOrder.ID,
 		RequestedPickupDate: &requestedPickupDate,
-		PickupAddress:       &pickupAddress,
-		PickupAddressID:     &pickupAddress.ID,
-		ShipmentType:        shipmentType,
+		ShipmentType:        models.MTOShipmentTypeHHG,
 		Status:              "SUBMITTED",
 	}
 

@@ -1,8 +1,6 @@
 package primeapi
 
 import (
-	"fmt"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
@@ -80,12 +78,9 @@ func (f MTOShipmentAddressUpdater) ValidateAddress(newAddress *models.Address, m
 
 	// Check the If-Match header against existing eTag before updating
 	encodedUpdatedAt := etag.GenerateEtag(oldAddress.UpdatedAt)
-	fmt.Println(encodedUpdatedAt)
-
-	// MYTODO: Revert etag check!
-	// if encodedUpdatedAt != eTag {
-	// 	return false, services.NewPreconditionFailedError(newAddress.ID, err)
-	// }
+	if encodedUpdatedAt != eTag {
+		return false, services.NewPreconditionFailedError(newAddress.ID, err)
+	}
 
 	// Find the address, return error if not found
 	err = f.db.Find(&oldAddress, newAddress.ID)

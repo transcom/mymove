@@ -1,14 +1,13 @@
 package primeapi
 
 import (
-	"bytes"
 	"fmt"
 	"net/http/httptest"
-	"reflect"
 	"testing"
 
 	"github.com/go-openapi/strfmt"
 
+	"github.com/transcom/mymove/pkg/etag"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -17,33 +16,14 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func ObjectsAreEqual(expected, actual interface{}) bool {
-	if expected == nil || actual == nil {
-		return expected == actual
-	}
-
-	exp, ok := expected.([]byte)
-	if !ok {
-		return reflect.DeepEqual(expected, actual)
-	}
-
-	act, ok := actual.([]byte)
-	if !ok {
-		return false
-	}
-	if exp == nil || act == nil {
-		return exp == nil && act == nil
-	}
-	return bytes.Equal(exp, act)
-}
 func isAddressEqual(suite *HandlerSuite, reqAddress *primemessages.Address, respAddress *primemessages.Address) {
-	if reqAddress.StreetAddress1 != nil {
+	if reqAddress.StreetAddress1 != nil && respAddress.StreetAddress1 != nil {
 		suite.Equal(*reqAddress.StreetAddress1, *respAddress.StreetAddress1)
 	}
-	if reqAddress.StreetAddress2 != nil {
+	if reqAddress.StreetAddress2 != nil && respAddress.StreetAddress2 != nil {
 		suite.Equal(*reqAddress.StreetAddress2, *respAddress.StreetAddress2)
 	}
-	if reqAddress.StreetAddress3 != nil {
+	if reqAddress.StreetAddress3 != nil && respAddress.StreetAddress3 != nil {
 		suite.Equal(*reqAddress.StreetAddress3, *respAddress.StreetAddress3)
 	}
 	suite.Equal(*reqAddress.PostalCode, *respAddress.PostalCode)
@@ -51,6 +31,7 @@ func isAddressEqual(suite *HandlerSuite, reqAddress *primemessages.Address, resp
 	suite.Equal(*reqAddress.City, *respAddress.City)
 
 }
+
 func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 	// Make an available MTO
 	mto := testdatagen.MakeAvailableMove(suite.DB())
@@ -74,8 +55,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 		NewMTOShipmentAddressUpdater(suite.DB()),
 	}
 
-	suite.T().Run("Successful case updating address", func(t *testing.T) {
+	suite.T().Run("Success updating address", func(t *testing.T) {
 
+		// Update with new address
 		payload := payloads.Address(&newAddress)
 		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto-shipments/%s/addresses/%s", mtoShipment1.ID.String(), mtoShipment1.ID.String()), nil)
 		params := mtoshipmentops.UpdateMTOShipmentAddressParams{
@@ -83,7 +65,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 			AddressID:     *handlers.FmtUUID(pickupAddress1.ID),
 			MtoShipmentID: *handlers.FmtUUID(mtoShipment1.ID),
 			Body:          payload,
-			IfMatch:       "who-cares",
+			IfMatch:       etag.GenerateEtag(newAddress.UpdatedAt),
 		}
 		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
@@ -96,14 +78,18 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 		shipmentOk := response.(*mtoshipmentops.UpdateMTOShipmentAddressOK)
 		respPayload := shipmentOk.Payload
 		isAddressEqual(suite, payload, respPayload)
-		suite.True(true)
 	})
 	suite.T().Run("Fail - NotFound due to unavailable MTO", func(t *testing.T) {
 
 		// Make a shipment with an unavailable MTO
-		mtoShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
-		pickupAddress2 := mtoShipment1.PickupAddress
+		pickupAddress2 := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
+		mtoShipment2 := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				PickupAddress: &pickupAddress2,
+			},
+		})
 
+		// Update with new address
 		payload := payloads.Address(&newAddress)
 		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto-shipments/%s/addresses/%s", mtoShipment1.ID.String(), mtoShipment1.ID.String()), nil)
 		params := mtoshipmentops.UpdateMTOShipmentAddressParams{
@@ -111,7 +97,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 			AddressID:     *handlers.FmtUUID(pickupAddress2.ID),
 			MtoShipmentID: *handlers.FmtUUID(mtoShipment2.ID),
 			Body:          payload,
-			IfMatch:       "who-cares",
+			IfMatch:       etag.GenerateEtag(newAddress.UpdatedAt),
 		}
 		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
@@ -138,7 +124,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 			AddressID:     *handlers.FmtUUID(randomAddress.ID),
 			MtoShipmentID: *handlers.FmtUUID(mtoShipment3.ID),
 			Body:          payload,
-			IfMatch:       "who-cares",
+			IfMatch:       etag.GenerateEtag(newAddress.UpdatedAt),
 		}
 		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
@@ -146,6 +132,26 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 		// Run handler and check response
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentAddressConflict{}, response)
+
+	})
+	suite.T().Run("Fail - PreconditionFailed due to wrong etag", func(t *testing.T) {
+
+		// Update with new address with a bad etag
+		payload := payloads.Address(&newAddress)
+		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto-shipments/%s/addresses/%s", mtoShipment1.ID.String(), mtoShipment1.ID.String()), nil)
+		params := mtoshipmentops.UpdateMTOShipmentAddressParams{
+			HTTPRequest:   req,
+			AddressID:     *handlers.FmtUUID(pickupAddress1.ID),
+			MtoShipmentID: *handlers.FmtUUID(mtoShipment1.ID),
+			Body:          payload,
+			IfMatch:       "bad-etag",
+		}
+		// Run swagger validations
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		// Run handler and check response
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentAddressPreconditionFailed{}, response)
 
 	})
 
