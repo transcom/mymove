@@ -97,6 +97,25 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	}
 	edi858.Header = append(edi858.Header, &paymentRequestNumberSegment)
 
+	// contract code to header
+	var contractCodeServiceItemParam models.PaymentServiceItemParam
+	err := g.DB.Q().
+		Join("service_item_param_keys sipk", "payment_service_item_params.service_item_param_key_id = sipk.id").
+		Join("payment_service_items psi", "payment_service_item_params.payment_service_item_id = psi.id").
+		Join("payment_requests pr", "psi.payment_request_id = pr.id").
+		Where("pr.id = ?", paymentRequest.ID).
+		Where("sipk.key = ?", models.ServiceItemParamNameContractCode).
+		First(&contractCodeServiceItemParam)
+	if err != nil {
+		return ediinvoice.Invoice858C{}, err
+	}
+
+	contractCodeSegment := edisegment.N9{
+		ReferenceIdentificationQualifier: "CT",
+		ReferenceIdentification:          contractCodeServiceItemParam.Value,
+	}
+	edi858.Header = append(edi858.Header, &contractCodeSegment)
+
 	// Add service member details to header
 	serviceMemberSegments, err := g.createServiceMemberDetailSegments(paymentRequest)
 	if err != nil {
@@ -128,12 +147,12 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	edi858.Header = append(edi858.Header, originDestinationSegments...)
 
 	var paymentServiceItems models.PaymentServiceItems
-	error := g.DB.Q().
+	err = g.DB.Q().
 		Eager("MTOServiceItem.ReService").
 		Where("payment_request_id = ?", paymentRequest.ID).
 		All(&paymentServiceItems)
-	if error != nil {
-		return ediinvoice.Invoice858C{}, fmt.Errorf("Could not find payment service items: %w", error)
+	if err != nil {
+		return ediinvoice.Invoice858C{}, fmt.Errorf("Could not find payment service items: %w", err)
 	}
 
 	paymentServiceItemSegments, err := g.generatePaymentServiceItemSegments(paymentServiceItems)
