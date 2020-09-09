@@ -148,7 +148,7 @@ func (suite *GHCInvoiceSuite) TestGenerateGHCInvoiceHeader() {
 
 	for _, data := range testNteData {
 		suite.T().Run(fmt.Sprintf("adds %s to header", data.TestName), func(t *testing.T) {
-			suite.IsType(&edisegment.N9{}, result.Header[data.Position])
+			suite.IsType(&edisegment.NTE{}, result.Header[data.Position])
 			nte := result.Header[data.Position].(*edisegment.NTE)
 			suite.Equal(data.NoteReferenceCode, nte.NoteReferenceCode)
 			suite.Equal(data.Description, nte.Description)
