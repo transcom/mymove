@@ -56,6 +56,7 @@ export default function HHGShipmentSummary(props) {
 HHGShipmentSummary.propTypes = {
   movePath: string.isRequired,
   mtoShipment: PropTypes.shape({
+    id: string.isRequired,
     agents: PropTypes.arrayOf(
       PropTypes.shape({
         firstName: string,
