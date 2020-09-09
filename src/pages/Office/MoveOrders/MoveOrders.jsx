@@ -6,6 +6,7 @@ import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import samplePDF from 'components/DocumentViewer/sample.pdf';
 import samplePDF2 from 'components/DocumentViewer/sample2.pdf';
 import samplePDF3 from 'components/DocumentViewer/sample3.pdf';
+import sampleJPG from 'components/DocumentViewer/sample.jpg';
 
 const MoveOrders = () => {
   const testFiles = [
@@ -23,6 +24,11 @@ const MoveOrders = () => {
       filename: 'Test File 3.pdf',
       fileType: 'pdf',
       filePath: samplePDF3,
+    },
+    {
+      filename: 'Test File 4.jpg',
+      fileType: 'jpg',
+      filePath: sampleJPG,
     },
   ];
 

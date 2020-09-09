@@ -1261,50 +1261,6 @@ jobs:
           health_check_hosts: gex.stg.move.mil,dps.stg.move.mil,orders.stg.move.mil
           ecr_env: stg
 
-  # `deploy_prod_migrations` deploys migrations to the prod environment
-  deploy_prod_migrations:
-    executor: mymove_small
-    environment:
-      - APP_ENVIRONMENT: 'prod'
-    steps:
-      - aws_vars_legacy
-      - deploy_migrations_steps:
-          ecr_env: legacy
-
-  # `deploy_prod_tasks` deploys scheduled tasks to the prod environment
-  deploy_prod_tasks:
-    executor: mymove_small
-    environment:
-      - APP_ENVIRONMENT: 'prod'
-    steps:
-      - aws_vars_legacy
-      - deploy_tasks_steps:
-          ecr_env: legacy
-
-  # `deploy_prod_app` updates the server-TLS app service in the prod environment
-  deploy_prod_app:
-    executor: mymove_small
-    environment:
-      - APP_ENVIRONMENT: 'prod'
-    steps:
-      - aws_vars_legacy
-      - deploy_app_steps:
-          compare_host: my.move.mil
-          health_check_hosts: my.move.mil,office.move.mil,admin.move.mil
-          ecr_env: legacy
-
-  # `deploy_prod_app_client_tls` updates the mutual-TLS service in the prod environment
-  deploy_prod_app_client_tls:
-    executor: mymove_small
-    environment:
-      - APP_ENVIRONMENT: 'prod'
-    steps:
-      - aws_vars_legacy
-      - deploy_app_client_tls_steps:
-          compare_host: gex.move.mil
-          health_check_hosts: gex.move.mil,dps.move.mil,orders.move.mil
-          ecr_env: legacy
-
   deploy_storybook_dp3:
     executor: mymove_small
     steps:
@@ -1670,34 +1626,6 @@ workflows:
             - deploy_staging_tasks
             - deploy_staging_app
             - deploy_staging_app_client_tls
-
-      - deploy_prod_migrations:
-          requires:
-            - approve_prod_deploy
-          filters:
-            branches:
-              only: master
-
-      - deploy_prod_tasks:
-          requires:
-            - deploy_prod_migrations
-          filters:
-            branches:
-              only: master
-
-      - deploy_prod_app:
-          requires:
-            - deploy_prod_migrations
-          filters:
-            branches:
-              only: master
-
-      - deploy_prod_app_client_tls:
-          requires:
-            - deploy_prod_migrations
-          filters:
-            branches:
-              only: master
 
       - deploy_storybook_dp3:
           requires:

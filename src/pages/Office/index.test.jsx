@@ -291,18 +291,6 @@ describe('Office App', () => {
         expect(renderedRoute).toHaveLength(1);
         expect(renderedRoute.prop('path')).toEqual('/too/:moveOrderId/customer/:customerId');
       });
-
-      it('handles the Verification URL', () => {
-        const app = mount(
-          <MockProviders initialState={loggedInTOOState} initialEntries={['/verification-in-progress']}>
-            <ConnectedOffice />
-          </MockProviders>,
-        );
-
-        const renderedRoute = app.find('Route');
-        expect(renderedRoute).toHaveLength(1);
-        expect(renderedRoute.prop('path')).toEqual('/verification-in-progress');
-      });
     });
 
     describe('TIO routes', () => {
