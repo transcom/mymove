@@ -22,7 +22,7 @@ describe('testing CSRF protection for dev login', function () {
   };
 
   it('tests dev login with both unmasked and masked token', function () {
-    cy.apiSignInAsUser(userId);
+    cy.apiSignInAsPpmUser(userId);
     cy.contains('Move to be scheduled');
     cy.contains('Next Step: Finish setting up your move');
   });
@@ -93,7 +93,7 @@ describe('testing CSRF protection updating user profile', function () {
 
   beforeEach(() => {
     const userId = '9ceb8321-6a82-4f6d-8bb3-a1d85922a202';
-    cy.apiSignInAsUser(userId);
+    cy.apiSignInAsPpmUser(userId);
   });
 
   it('tests updating user profile with proper tokens', function () {
@@ -108,7 +108,7 @@ describe('testing CSRF protection updating user profile', function () {
     cy.get('button[type="submit"]').click();
 
     cy.location().should((loc) => {
-      expect(loc.pathname).to.match(/^\/$/);
+      expect(loc.pathname).to.match(/^\/ppm$/);
     });
 
     // reload page

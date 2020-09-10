@@ -4,7 +4,7 @@ describe('orders entry', function () {
   });
 
   it('will accept orders information', function () {
-    cy.apiSignInAsUser('feac0e92-66ec-4cab-ad29-538129bf918e');
+    cy.apiSignInAsPpmUser('feac0e92-66ec-4cab-ad29-538129bf918e');
     cy.contains('New move (from Yuma AFB)');
     cy.contains('No details');
     cy.contains('No documents');
@@ -39,7 +39,7 @@ describe('orders entry', function () {
       expect(loc.pathname).to.eq('/orders/upload');
     });
 
-    cy.setFeatureFlag('ppmPaymentRequest=false', '/');
+    cy.setFeatureFlag('ppmPaymentRequest=false', '/ppm');
     cy.contains('NAS Fort Worth JRB (from Yuma AFB)');
     cy.get('[data-testid="move-header-weight-estimate"]').contains('5,000 lbs');
     cy.contains('Continue Move Setup').click();
