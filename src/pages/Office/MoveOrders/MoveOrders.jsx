@@ -6,16 +6,16 @@ import styles from './MoveOrders.module.scss';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import { useOrdersDocumentQueries } from 'hooks/queries';
 import { MatchShape } from 'types';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
 
 const MoveOrders = ({ match }) => {
   const { moveOrderId } = match.params;
-  const {
-    documents,
-    // eslint-disable-next-line no-unused-vars
-    isLoading,
-    // eslint-disable-next-line no-unused-vars
-    isError,
-  } = useOrdersDocumentQueries(moveOrderId);
+
+  const { documents, isLoading, isError } = useOrdersDocumentQueries(moveOrderId);
+
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong />;
 
   let documentsForViewer;
   if (documents) {
