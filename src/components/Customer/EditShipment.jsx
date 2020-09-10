@@ -316,14 +316,15 @@ class EditShipment extends Component {
                 name="pickupAddress"
                 legend="Pickup location"
                 renderExistingAddressCheckbox={() => (
-                  <Checkbox
-                    className="margin-top-3"
-                    data-testid="useCurrentResidence"
-                    label="Use my current residence address"
-                    name="useCurrentResidence"
-                    checked={useCurrentResidence}
-                    onChange={() => this.handleUseCurrentResidenceChange(values)}
-                  />
+                  <div className="margin-y-2">
+                    <Checkbox
+                      data-testid="useCurrentResidence"
+                      label="Use my current residence address"
+                      name="useCurrentResidence"
+                      checked={useCurrentResidence}
+                      onChange={() => this.handleUseCurrentResidenceChange(values)}
+                    />
+                  </div>
                 )}
                 values={values.pickupAddress}
               />

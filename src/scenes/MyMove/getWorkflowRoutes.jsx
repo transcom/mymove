@@ -221,7 +221,9 @@ const pages = {
   '/moves/:moveId/review': {
     isInFlow: always,
     isComplete: ({ sm, orders, move, ppm, mtoShipment }) => isCurrentMoveSubmitted(move),
-    render: (key, pages) => ({ match }) => <Review pages={pages} pageKey={key} match={match} />,
+    render: (key, pages) => ({ match, history }) => (
+      <Review pages={pages} pageKey={key} match={match} history={history} />
+    ),
   },
   '/moves/:moveId/agreement': {
     isInFlow: always,
