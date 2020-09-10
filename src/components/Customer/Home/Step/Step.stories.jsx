@@ -118,7 +118,7 @@ export const ConfirmMove = () => (
       <p>
         {
           (text('Description'),
-          'Review your move details and sign the legal paperwor , then send the info on to your move counselor')
+          'Review your move details and sign the legal paperwork, then send the info on to your move counselor')
         }
       </p>
     </Step>

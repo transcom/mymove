@@ -56,9 +56,9 @@ describe('ShipmentList component', () => {
     expect(onShipmentClick.mock.calls.length).toBe(2);
     wrapper.find('ShipmentListItem').at(2).simulate('click');
     expect(onShipmentClick.mock.calls.length).toBe(3);
-    const [shipmentOne, shipmentTwo, shipmentThree] = onShipmentClick.mock.calls;
-    expect(shipmentOne[0]).toEqual(shipments[0]);
-    expect(shipmentTwo[0]).toEqual(shipments[1]);
-    expect(shipmentThree[0]).toEqual(shipments[2]);
+    const [shipmentOneId, shipmentTwoId, shipmentThreeId] = onShipmentClick.mock.calls;
+    expect(shipmentOneId[0]).toEqual(shipments[0].id);
+    expect(shipmentTwoId[0]).toEqual(shipments[1].id);
+    expect(shipmentThreeId[0]).toEqual(shipments[2].id);
   });
 });
