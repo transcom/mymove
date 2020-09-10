@@ -1,3 +1,4 @@
+/* eslint-ignore */
 import React, { Component, Fragment } from 'react';
 import { get } from 'lodash';
 import { connect } from 'react-redux';
@@ -25,6 +26,72 @@ import './Review.css';
 import { selectActivePPMForMove } from '../../shared/Entities/modules/ppms';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { selectMTOShipmentsByMoveId } from 'shared/Entities/modules/mtoShipments';
+
+/*
+ const OrdersContainer = ({children}) => (<div className="table-container">{children}</div>)
+
+ <OrdersContainer>
+   <THeader>
+     Profile
+     <Link>Edit</Link>
+   </THeader>
+   <TContents>
+     <tRow>
+       <tHeader>Orders type</tHeader>
+       <tData>Permanent Change of Station</tData>
+     </tRow>
+   </TContents>
+ </OrdersContainer>;
+
+        <OrdersContainer>
+          <THeader>
+            Profile
+            <Link>Edit</Link>
+          </THeader>
+          <TContents>
+            <tRow>
+              <tHeader>Orders type</tHeader>
+              <tData>Permanent Change of Station</tData>
+            </tRow>
+          </TContents>
+        </OrdersContainer>
+
+        <div className="table-container">
+          <div className="header-container">
+            <h3>Orders</h3>
+            <button>Edit</button>
+          </div>
+          <table className="table-contents">
+            <tr>
+              <td>Orders type</td>
+              <td>Permanent Change of Station</td>
+            </tr>
+            <tr>
+              <td>Orders date</td>
+              <td>09/01/2020</td>
+            </tr>
+            <tr>
+              <td>Report by date</td>
+              <td>09/30/2020</td>
+            </tr>
+            <tr>
+              <td>New duty station</td>
+              <td>Fort Jackson</td>
+            </tr>
+            <td>
+              <tr>
+                <td>Dependents</td>
+                <td>No</td>
+              </tr>
+              <tr>
+                <td>Orders</td>
+                <td>0</td>
+              </tr>
+            </td>
+          </table>
+        </div>
+
+*/
 
 export class Summary extends Component {
   componentDidMount() {
