@@ -97,7 +97,7 @@ export class DutyStationSearchBox extends Component {
     );
   }
   render() {
-    const { errorMsg } = this.props;
+    const { errorMsg, displayAddress } = this.props;
     const defaultTitle = 'Name of Duty Station:';
     const inputContainerClasses = classNames({ 'usa-input-error': errorMsg });
     const searchBoxHeaderClasses = classNames({ 'duty-station-header': errorMsg });
@@ -170,7 +170,7 @@ export class DutyStationSearchBox extends Component {
               placeholder="Start typing a duty station..."
               styles={customStyles}
             />
-            {!isEmptyStation && (
+            {displayAddress && !isEmptyStation && (
               <p className={locationClasses}>
                 {this.props.input.value.address.city}, {this.props.input.value.address.state}{' '}
                 {this.props.input.value.address.postal_code}
@@ -188,6 +188,13 @@ DutyStationSearchBox.propTypes = {
   existingStation: PropTypes.object,
   title: PropTypes.string,
   name: PropTypes.string,
+  displayAddress: PropTypes.bool,
+  errorMsg: PropTypes.string,
+};
+
+DutyStationSearchBox.defaultProps = {
+  displayAddress: true,
+  errorMsg: undefined,
 };
 
 export default DutyStationSearchBox;

@@ -2117,6 +2117,9 @@ definitions:
       spouse_has_pro_gear:
         type: boolean
         title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
+      origin_duty_station:
+        $ref: '#/definitions/DutyStationPayload'
+        x-nullable: true
       new_duty_station:
         $ref: '#/definitions/DutyStationPayload'
       uploaded_orders:

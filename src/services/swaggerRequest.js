@@ -52,7 +52,6 @@ function successfulReturnType(routeDefinition, status) {
 
 export async function makeSwaggerRequest(client, operationPath, params = {}, options = {}) {
   const operation = get(client, `apis.${operationPath}`);
-
   if (!operation) {
     throw new Error(`Operation '${operationPath}' does not exist!`);
   }

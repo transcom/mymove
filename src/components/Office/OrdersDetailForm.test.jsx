@@ -1,7 +1,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import { OrdersDetailForm } from './OrdersDetailForm';
+import OrdersDetailForm from './OrdersDetailForm';
 
 import { Form } from 'components/form/Form';
 

@@ -12,10 +12,10 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForDutyStationModel(station models.DutyStation) *internalmessages.DutyStationPayload {
+func payloadForDutyStationModel(station *models.DutyStation) *internalmessages.DutyStationPayload {
 	// If the station ID has no UUID then it isn't real data
 	// Unlike other payloads the
-	if station.ID == uuid.Nil {
+	if station == nil || station.ID == uuid.Nil {
 		return nil
 	}
 	payload := internalmessages.DutyStationPayload{
@@ -52,7 +52,7 @@ func (h SearchDutyStationsHandler) Handle(params stationop.SearchDutyStationsPar
 
 	stationPayloads := make(internalmessages.DutyStationsPayload, len(stations))
 	for i, station := range stations {
-		stationPayload := payloadForDutyStationModel(station)
+		stationPayload := payloadForDutyStationModel(&station)
 		stationPayloads[i] = stationPayload
 	}
 	return stationop.NewSearchDutyStationsOK().WithPayload(stationPayloads)

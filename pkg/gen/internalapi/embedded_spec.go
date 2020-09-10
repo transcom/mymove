@@ -4974,6 +4974,10 @@ func init() {
         "orders_type_detail": {
           "$ref": "#/definitions/OrdersTypeDetail"
         },
+        "origin_duty_station": {
+          "x-nullable": true,
+          "$ref": "#/definitions/DutyStationPayload"
+        },
         "report_by_date": {
           "description": "Report By Date",
           "type": "string",
@@ -11516,6 +11520,10 @@ func init() {
         },
         "orders_type_detail": {
           "$ref": "#/definitions/OrdersTypeDetail"
+        },
+        "origin_duty_station": {
+          "x-nullable": true,
+          "$ref": "#/definitions/DutyStationPayload"
         },
         "report_by_date": {
           "description": "Report By Date",

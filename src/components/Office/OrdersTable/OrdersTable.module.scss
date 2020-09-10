@@ -15,6 +15,14 @@
     button {
       @include u-margin-right(0);
       @include u-margin-y(0);
+
+      a:visited {
+        color: unset;
+      }
+
+      a:hover {
+        text-decoration: none;
+      }
     }
   }
 

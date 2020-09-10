@@ -3,13 +3,13 @@
 @import '../../shared/styles/colors';
 @import '../../shared/styles/custom';
 
-.form-buttons {
-  @include u-display('flex');
+.OrdersDetailForm {
+  label {
+    @include u-margin-bottom(1);
+    color: $base-darker;
+  }
 
-  :global .usa-button {
-    @include u-margin-top(2);
-    &:first-of-type {
-      @include u-margin-left(0);
-    }
+  :global .DayPickerInput {
+    width: 100%;
   }
 }

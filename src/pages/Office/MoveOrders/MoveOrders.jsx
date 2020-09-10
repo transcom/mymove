@@ -1,4 +1,10 @@
+/* eslint-disable camelcase */
 import React from 'react';
+import { withRouter } from 'react-router-dom';
+import { Button } from '@trussworks/react-uswds';
+import * as Yup from 'yup';
+import { Formik } from 'formik';
+import { queryCache, useMutation } from 'react-query';
 
 import styles from './MoveOrders.module.scss';
 
@@ -6,8 +12,89 @@ import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import samplePDF from 'components/DocumentViewer/sample.pdf';
 import samplePDF2 from 'components/DocumentViewer/sample2.pdf';
 import samplePDF3 from 'components/DocumentViewer/sample3.pdf';
+import { useMoveOrderQueries } from 'hooks/queries';
+import { updateMoveOrder } from 'services/ghcApi';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
+import OrdersDetailForm from 'components/Office/OrdersDetailForm';
+import { MatchShape, HistoryShape } from 'types/router';
+import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
+import { dropdownInputOptions } from 'shared/formatters';
+import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
+import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orders';
+import { MOVE_ORDERS } from 'constants/queryKeys';
 
-const MoveOrders = () => {
+const deptIndicatorDropdownOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
+const ordersTypeDropdownOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
+const ordersTypeDetailsDropdownOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
+
+const validationSchema = Yup.object({
+  originDutyStation: Yup.object().defined('Required'),
+  newDutyStation: Yup.object().required('Required'),
+  issueDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY').required('Required'),
+  reportByDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY').required('Required'),
+  departmentIndicator: Yup.string().required('Required'),
+  ordersNumber: Yup.string().required('Required'),
+  ordersType: Yup.string().required('Required'),
+  ordersTypeDetail: Yup.string().required('Required'),
+  tac: Yup.string().required('Required'),
+  sac: Yup.string().required('Required'),
+});
+
+const MoveOrders = ({ history, match }) => {
+  const { moveOrderId } = match.params;
+  const { orders = {}, isLoading, isError } = useMoveOrderQueries(moveOrderId);
+
+  const moveOrders = Object.values(orders)?.[0];
+
+  const handleClose = () => {
+    history.push(`/moves/${moveOrderId}/details`);
+  };
+
+  const [mutateOrders] = useMutation(updateMoveOrder, {
+    onSuccess: (data, variables) => {
+      const updatedOrder = data.moveOrders[variables.moveOrderId];
+      queryCache.setQueryData([MOVE_ORDERS, variables.moveOrderId], {
+        orders: {
+          [`${variables.moveOrderId}`]: updatedOrder,
+        },
+      });
+      queryCache.invalidateQueries(MOVE_ORDERS);
+      handleClose();
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      // TODO: Handle error some how
+      // eslint-disable-next-line no-console
+      console.log(errorMsg);
+    },
+  });
+
+  const onSubmit = (values) => {
+    const body = {
+      ...values,
+      originDutyStationId: values.originDutyStation.id,
+      newDutyStationId: values.newDutyStation.id,
+    };
+    mutateOrders({ moveOrderID: moveOrderId, body });
+  };
+
+  const initialValues = {
+    originDutyStation: moveOrders?.origin_duty_station,
+    newDutyStation: moveOrders?.new_duty_station,
+    issueDate: moveOrders?.issue_date,
+    reportByDate: moveOrders?.report_by_date,
+    departmentIndicator: moveOrders?.department_indicator,
+    ordersNumber: moveOrders?.orders_number,
+    ordersType: moveOrders?.orders_type,
+    ordersTypeDetail: moveOrders?.orders_type_detail,
+    tac: moveOrders?.tac,
+    sac: moveOrders?.sac,
+    hasDependents: moveOrders?.has_dependents,
+    spouseHasProGear: moveOrders?.spouse_has_pro_gear,
+    serviceMemberId: moveOrders?.service_member_id,
+  };
+
   const testFiles = [
     {
       filename: 'Test File.pdf',
@@ -26,14 +113,65 @@ const MoveOrders = () => {
     },
   ];
 
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong />;
+
   return (
     <div className={styles.MoveOrders}>
       <div className={styles.embed}>
         <DocumentViewer files={testFiles} />
       </div>
-      <div className={styles.sidebar}>View orders</div>
+      <div className={styles.sidebar}>
+        <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
+          {(formik) => (
+            <form onSubmit={formik.handleSubmit}>
+              <div className={styles.orderDetails}>
+                <div className={styles.top}>
+                  <Button
+                    className={styles.closeButton}
+                    data-testid="closeSidebar"
+                    type="button"
+                    onClick={handleClose}
+                    unstyled
+                  >
+                    <XLightIcon />
+                  </Button>
+                  <h2 className={styles.header}>View Orders</h2>
+                  <div>
+                    <Button className={styles.viewAllowances} unstyled>
+                      View Allowances
+                    </Button>
+                  </div>
+                </div>
+                <div className={styles.body}>
+                  <OrdersDetailForm
+                    deptIndicatorOptions={deptIndicatorDropdownOptions}
+                    ordersTypeOptions={ordersTypeDropdownOptions}
+                    ordersTypeDetailOptions={ordersTypeDetailsDropdownOptions}
+                  />
+                </div>
+                <div className={styles.bottom}>
+                  <div className={styles.buttonGroup}>
+                    <Button primary type="submit" disabled={formik.isSubmitting}>
+                      Save
+                    </Button>
+                    <Button secondary onClick={handleClose}>
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          )}
+        </Formik>
+      </div>
     </div>
   );
 };
 
-export default MoveOrders;
+MoveOrders.propTypes = {
+  history: HistoryShape.isRequired,
+  match: MatchShape.isRequired,
+};
+
+export default withRouter(MoveOrders);

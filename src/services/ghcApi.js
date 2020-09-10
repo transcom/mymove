@@ -109,3 +109,8 @@ export async function patchPaymentServiceItemStatus({
     { label: operationPath, schemaKey: 'paymentServiceItem' },
   );
 }
+
+export async function updateMoveOrder({ moveOrderID, body }) {
+  const operationPath = 'moveOrder.updateMoveOrder';
+  return makeGHCRequest(operationPath, { moveOrderID, body });
+}
