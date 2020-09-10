@@ -23,9 +23,6 @@ const defaultProps = {
 
 export default {
   title: 'Customer Components | HHGDetailsForm',
-  parameters: {
-    loki: { skip: true },
-  },
 };
 
 export const Basic = () => <HHGDetailsForm {...defaultProps} />;
