@@ -48,6 +48,13 @@ Cypress.Commands.add('persistSessionCookies', () => {
   Cypress.Cookies.preserveOnce('masked_gorilla_csrf', 'office_session_token', '_gorilla_csrf');
 });
 
+// Use this for issue where Cypress is not clearing cookies between tests
+// Delete ALL cookies across domains (milmove, office)
+// https://github.com/cypress-io/cypress/issues/781
+Cypress.Commands.add('clearAllCookies', () => {
+  cy.clearCookies({ domain: null });
+});
+
 // Reloads the page but makes an attempt to wait for the loading screen to disappear
 Cypress.Commands.add('patientReload', () => {
   cy.reload();

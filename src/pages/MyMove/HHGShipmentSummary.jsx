@@ -13,7 +13,7 @@ import 'scenes/Review/Review.css';
 
 export default function HHGShipmentSummary(props) {
   const { mtoShipment, movePath, newDutyStationPostalCode, shipmentNumber } = props;
-  const editShipmentPath = `${movePath}/edit-shipment`;
+  const editShipmentPath = `${movePath}/mto-shipments/${mtoShipment?.id}/edit-shipment?shipmentNumber=${shipmentNumber}`;
 
   const requestedPickupDate = get(mtoShipment, 'requestedPickupDate', '');
   const pickupLocation = get(mtoShipment, 'pickupAddress', {});
@@ -40,7 +40,6 @@ export default function HHGShipmentSummary(props) {
     { label: 'Remarks', value: !remarks ? '–' : remarks },
   ];
 
-  // update title number when we can support multiple shipments
   // add shipment locator as shipment subheading when it exists
   return (
     <div data-testid="hhg-summary" className="review-content">
