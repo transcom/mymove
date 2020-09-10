@@ -17,7 +17,7 @@ type UpdateMTOShipmentAddressHandler struct {
 	MTOShipmentAddressUpdater services.MTOShipmentAddressUpdater
 }
 
-// Handle updates the shipment
+// Handle updates an address on a shipment
 func (h UpdateMTOShipmentAddressHandler) Handle(params mtoshipmentops.UpdateMTOShipmentAddressParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
@@ -34,6 +34,7 @@ func (h UpdateMTOShipmentAddressHandler) Handle(params mtoshipmentops.UpdateMTOS
 	// Call the service object
 	updatedAddress, err := h.MTOShipmentAddressUpdater.UpdateMTOShipmentAddress(newAddress, mtoShipmentID, eTag, true)
 
+	// Convert the errors into error responses to return to caller
 	if err != nil {
 		logger.Error("primeapi.UpdateMTOShipmentAddressHandler", zap.Error(err))
 
@@ -66,6 +67,7 @@ func (h UpdateMTOShipmentAddressHandler) Handle(params mtoshipmentops.UpdateMTOS
 
 	}
 
+	// If no error, create a successful payload to return
 	mtoShipmentAddressPayload := payloads.Address(updatedAddress)
 	return mtoshipmentops.NewUpdateMTOShipmentAddressOK().WithPayload(mtoShipmentAddressPayload)
 
