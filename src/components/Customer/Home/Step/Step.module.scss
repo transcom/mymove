@@ -81,23 +81,14 @@
 }
 
 // TODO: remove when GHC styles are integrated into customer app and migrate to using "secondary" prop on button, you will still need the box-shadow tho since secondary has a different outline
-.usa-button--secondary {
-  color: $primary;
-  background-color: white;
+.action-button--secondary {
   box-shadow: inset 0 0 0 2px $base-lighter;
-  height: 42px;
-  margin-top: 1rem;
-
   &:active,
   &:hover {
-    color: $primary;
-    background-color: white;
     box-shadow: inset 0 0 0 2px $base-lighter;
   }
   &:focus,
   &:not([disabled]):focus {
-    color: $primary;
-    background-color: white;
     box-shadow: inset 0 0 0 2px $base-lighter;
   }
 }

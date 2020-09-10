@@ -242,7 +242,7 @@ function customerReviewsMoveDetails() {
   cy.get('[data-testid="hhg-summary"]').find('h4').contains('Shipment 1: HHG').find('a').contains('Edit').click();
 
   cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/edit-shipment/);
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/mto-shipments\/[^/]+\/edit-shipment/);
   });
 
   // Ensure remarks is displayed in form
