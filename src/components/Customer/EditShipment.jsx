@@ -14,7 +14,7 @@ import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
 import styles from './EditShipment.module.scss';
 
 import {
-  selectMTOShipmentForMTO,
+  selectMTOShipmentById,
   updateMTOShipment as updateMTOShipmentAction,
 } from 'shared/Entities/modules/mtoShipments';
 import Checkbox from 'shared/Checkbox';
@@ -267,13 +267,22 @@ class EditShipment extends Component {
     });
   };
 
+  getShipmentNumber = () => {
+    const { search } = window.location;
+    const params = new URLSearchParams(search);
+    const shipmentNumber = params.get('shipmentNumber');
+    return shipmentNumber;
+  };
+
   render() {
     const { history } = this.props;
     const { hasDeliveryAddress, initialValues, useCurrentResidence } = this.state;
     const goBack = get(history, 'goBack', '');
+    const shipmentNumber = this.getShipmentNumber();
+
     return (
       <div className="grid-container">
-        <div className={`margin-top-2 ${styles['hhg-label']}`}>HHG</div>
+        <div className={`margin-top-2 ${styles['hhg-label']}`}>{`HHG ${!!shipmentNumber && shipmentNumber}`}</div>
         <h2 className="margin-top-1" style={{ fontSize: 28 }}>
           When and where can the movers pick up and deliver this shipment?
         </h2>
@@ -395,7 +404,7 @@ class EditShipment extends Component {
                   data-testid="remarks"
                   name="customerRemarks"
                   className={`${styles.remarks}`}
-                  placeholder="This is 500 characters of customer remarks placeholder"
+                  placeholder="500 characters"
                   maxLength={500}
                   type="textarea"
                   value={values.customerRemarks}
@@ -493,7 +502,7 @@ const mapStateToProps = (state, ownProps) => {
   const orders = selectActiveOrLatestOrdersFromEntities(state);
 
   const props = {
-    mtoShipment: selectMTOShipmentForMTO(state, ownProps.match.params.moveId),
+    mtoShipment: selectMTOShipmentById(state, ownProps.match.params.mtoShipmentId),
     currentResidence: get(selectServiceMemberFromLoggedInUser(state), 'residential_address', {}),
     newDutyStationAddress: get(orders, 'new_duty_station.address', {}),
   };

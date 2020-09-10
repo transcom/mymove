@@ -7,8 +7,9 @@ import DocViewerContent from './Content/Content';
 import DocViewerMenu from './Menu/Menu';
 import DocumentViewer from './DocumentViewer';
 import samplePDF from './sample.pdf';
-import samplePDF2 from './sample2.pdf';
-import samplePDF3 from './sample3.pdf';
+import sampleJPG from './sample.jpg';
+import samplePNG from './sample2.png';
+import sampleGIF from './sample3.gif';
 
 const mockFile = {
   fileType: 'pdf',
@@ -22,14 +23,19 @@ const mockFiles = [
     filePath: samplePDF,
   },
   {
-    filename: 'Test File 2.pdf',
-    fileType: 'pdf',
-    filePath: samplePDF2,
+    filename: 'Test File 2.jpg',
+    fileType: 'jpg',
+    filePath: sampleJPG,
   },
   {
-    filename: 'Test File 3.pdf',
-    fileType: 'pdf',
-    filePath: samplePDF3,
+    filename: 'Test File 3.png',
+    fileType: 'png',
+    filePath: samplePNG,
+  },
+  {
+    filename: 'Test File 4.gif',
+    fileType: 'gif',
+    filePath: sampleGIF,
   },
 ];
 
@@ -136,11 +142,39 @@ describe('DocumentViewer component', () => {
   it('handles selecting a different file', () => {
     act(() => {
       component.find('[data-testid="openMenu"]').prop('onClick')();
+      menu.find('li button').at(1).simulate('click');
+    });
+    component.update();
+    expect(component.find('DocViewerMenu').prop('isOpen')).toBe(false);
+    expect(component.find('DocViewerMenu').prop('selectedFileIndex')).toBe(1);
+    expect(component.find('DocViewerContent').prop('filePath')).toBe(mockFiles[1].filePath);
+    expect(component.find('.unsupported-message').exists()).toBe(false);
+
+    act(() => {
+      component.find('[data-testid="openMenu"]').prop('onClick')();
       menu.find('li button').at(2).simulate('click');
     });
     component.update();
     expect(component.find('DocViewerMenu').prop('isOpen')).toBe(false);
     expect(component.find('DocViewerMenu').prop('selectedFileIndex')).toBe(2);
     expect(component.find('DocViewerContent').prop('filePath')).toBe(mockFiles[2].filePath);
+    expect(component.find('.unsupported-message').exists()).toBe(false);
+
+    act(() => {
+      component.find('[data-testid="openMenu"]').prop('onClick')();
+      menu.find('li button').at(3).simulate('click');
+    });
+    component.update();
+    expect(component.find('DocViewerMenu').prop('isOpen')).toBe(false);
+    expect(component.find('DocViewerMenu').prop('selectedFileIndex')).toBe(3);
+    expect(component.find('DocViewerContent').prop('filePath')).toBe(mockFiles[3].filePath);
+    expect(component.find('.unsupported-message').exists()).toBe(false);
+  });
+
+  it('shows error if file type is unsupported', () => {
+    const wrapper = mount(
+      <DocumentViewer files={[{ filename: 'archive.zip', fileType: 'zip', filePath: '/path/to/archive.zip' }]} />,
+    );
+    expect(wrapper.find('.unsupported-message').text()).toEqual('.zip is not supported.');
   });
 });
