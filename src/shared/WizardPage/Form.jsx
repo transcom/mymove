@@ -115,37 +115,46 @@ export class WizardFormPage extends Component {
         )}
         <form className={className}>{children}</form>
         <div className="grid-row" style={{ marginTop: '0.5rem' }}>
-          <div className="grid-col-2 margin-top-6 tablet:margin-top-3">
-            {!isMobile && (
-              <button className="usa-button usa-button--secondary padding-left-0" onClick={this.cancelFlow}>
-                Cancel
-              </button>
-            )}
-          </div>
-          <div className="grid-col-10 text-right margin-top-6 tablet:margin-top-3">
-            {!hideBackBtn && (
-              <button
-                className="usa-button usa-button--secondary prev"
-                onClick={hasReduxFormSubmitHandler ? handleSubmit(this.previousPage) : this.previousPage}
-                disabled={!canMoveBackward}
-              >
-                Back
-              </button>
-            )}
-            {!isLastPage(pageList, pageKey) && (
-              <button
-                className="usa-button next"
-                onClick={hasReduxFormSubmitHandler ? handleSubmit(this.nextPage) : this.nextPage}
-                disabled={!canMoveForward}
-              >
-                Next
-              </button>
-            )}
+          <div className="grid-col-12 text-right margin-top-6 margin-left-neg-1 tablet:margin-top-3">
+            <div className="display-flex">
+              {!hideBackBtn && (
+                <button
+                  className="usa-button usa-button--secondary"
+                  onClick={hasReduxFormSubmitHandler ? handleSubmit(this.previousPage) : this.previousPage}
+                  disabled={!canMoveBackward}
+                  data-testid="wizardBackButton"
+                >
+                  Back
+                </button>
+              )}
+              {!isLastPage(pageList, pageKey) && (
+                <button
+                  className="usa-button"
+                  onClick={hasReduxFormSubmitHandler ? handleSubmit(this.nextPage) : this.nextPage}
+                  disabled={!canMoveForward}
+                  data-testid="wizardNextButton"
+                >
+                  Next
+                </button>
+              )}
+            </div>
+            <div className="grid-col-2 margin-top-6 tablet:margin-top-3">
+              {!isMobile && (
+                <button
+                  className="usa-button usa-button--unstyled padding-left-0"
+                  onClick={this.cancelFlow}
+                  data-testid="wizardCancelButton"
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
             {isLastPage(pageList, pageKey) && (
               <button
-                className="usa-button next"
+                className="usa-button"
                 onClick={hasReduxFormSubmitHandler ? handleSubmit(this.submit) : this.submit}
                 disabled={!canMoveForward}
+                data-testid="wizardCompleteButton"
               >
                 Complete
               </button>

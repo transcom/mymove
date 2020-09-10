@@ -167,7 +167,11 @@ Cypress.Commands.add('selectQueueItemMoveLocator', (moveLocator) => {
 });
 
 Cypress.Commands.add('nextPage', () => {
-  cy.get('button.next').should('be.enabled').click();
+  cy.get('[data-testid="wizardNextButton"]').should('be.enabled').click();
+});
+
+Cypress.Commands.add('completeFlow', () => {
+  cy.get('[data-testid="wizardCompleteButton"]').should('be.enabled').click();
 });
 
 Cypress.Commands.add('nextPageAndCheckLocation', (dataCyValue, pageTitle, locationMatch) => {
