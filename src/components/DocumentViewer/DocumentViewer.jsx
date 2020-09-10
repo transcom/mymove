@@ -26,6 +26,15 @@ const DocumentViewer = ({ files }) => {
   if (selectedFile.contentType === 'application/pdf') {
     selectedFile.contentType = 'pdf';
   }
+  if (selectedFile.contentType === 'image/png') {
+    selectedFile.contentType = 'png';
+  }
+  if (selectedFile.contentType === 'image/jpeg') {
+    selectedFile.contentType = 'jpg';
+  }
+  if (selectedFile.contentType === 'image/gif') {
+    selectedFile.contentType = 'gif';
+  }
 
   const openMenu = () => {
     setMenuOpen(true);

@@ -19,22 +19,22 @@ const mockFile = {
 const mockFiles = [
   {
     filename: 'Test File.pdf',
-    contentType: 'pdf',
+    contentType: 'application/pdf',
     url: samplePDF,
   },
   {
     filename: 'Test File 2.jpg',
-    contentType: 'jpg',
+    contentType: 'image/jpeg',
     url: sampleJPG,
   },
   {
     filename: 'Test File 3.png',
-    contentType: 'png',
+    contentType: 'image/png',
     url: samplePNG,
   },
   {
     filename: 'Test File 4.gif',
-    contentType: 'gif',
+    contentType: 'image/gif',
     url: sampleGIF,
   },
 ];
@@ -51,7 +51,7 @@ describe('DocViewerContent', () => {
   it('renders the FileViewer with the file props', () => {
     const fileViewer = component.find('FileViewer');
     expect(fileViewer.exists()).toBe(true);
-    expect(fileViewer.prop('fileType')).toBe(mockFile.contentType);
+    expect(fileViewer.prop('fileType')).toBe('pdf');
     expect(fileViewer.prop('filePath')).toBe(mockFile.url);
   });
 });
@@ -150,6 +150,7 @@ describe('DocumentViewer component', () => {
     expect(component.find('DocViewerMenu').prop('isOpen')).toBe(false);
     expect(component.find('DocViewerMenu').prop('selectedFileIndex')).toBe(1);
     expect(component.find('DocViewerContent').prop('filePath')).toBe(mockFiles[1].url);
+    expect(component.find('DocViewerContent').prop('fileType')).toBe('jpg');
     expect(component.find('.unsupported-message').exists()).toBe(false);
 
     act(() => {
@@ -160,6 +161,7 @@ describe('DocumentViewer component', () => {
     expect(component.find('DocViewerMenu').prop('isOpen')).toBe(false);
     expect(component.find('DocViewerMenu').prop('selectedFileIndex')).toBe(2);
     expect(component.find('DocViewerContent').prop('filePath')).toBe(mockFiles[2].url);
+    expect(component.find('DocViewerContent').prop('fileType')).toBe('png');
     expect(component.find('.unsupported-message').exists()).toBe(false);
 
     act(() => {
@@ -170,6 +172,7 @@ describe('DocumentViewer component', () => {
     expect(component.find('DocViewerMenu').prop('isOpen')).toBe(false);
     expect(component.find('DocViewerMenu').prop('selectedFileIndex')).toBe(3);
     expect(component.find('DocViewerContent').prop('filePath')).toBe(mockFiles[3].url);
+    expect(component.find('DocViewerContent').prop('fileType')).toBe('gif');
     expect(component.find('.unsupported-message').exists()).toBe(false);
   });
 

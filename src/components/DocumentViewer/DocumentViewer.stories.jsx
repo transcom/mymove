@@ -33,18 +33,18 @@ const testPDFFiles = [
 const testImageFiles = [
   {
     filename: 'PCS Orders TACOMA.jpg',
-    fileType: 'jpg',
-    filePath: jpg,
+    contentType: 'jpg',
+    url: jpg,
   },
   {
     filename: 'PCS Orders TACOMA Page 2.png',
-    fileType: 'png',
-    filePath: png,
+    contentType: 'png',
+    url: png,
   },
   {
     filename: 'PCS Orders TACOMA Page 3.gif',
-    fileType: 'gif',
-    filePath: gif,
+    contentType: 'gif',
+    url: gif,
   },
 ];
 
