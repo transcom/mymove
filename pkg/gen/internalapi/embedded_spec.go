@@ -4715,6 +4715,11 @@ func init() {
         "status": {
           "$ref": "#/definitions/MoveStatus"
         },
+        "submitted_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "updated_at": {
           "type": "string",
           "format": "date-time"
@@ -11257,6 +11262,11 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/MoveStatus"
+        },
+        "submitted_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         },
         "updated_at": {
           "type": "string",

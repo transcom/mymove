@@ -710,6 +710,10 @@ definitions:
       updated_at:
         type: string
         format: date-time
+      submitted_at:
+        type: string
+        format: date-time
+        x-nullable: true
       personally_procured_moves:
         $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
       mto_shipments:
