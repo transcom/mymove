@@ -12,7 +12,8 @@
       height: 100%;
     }
 
-    .pdf-viewer {
+    .pdf-viewer,
+    .photo-viewer-container {
       height: 100%;
       overflow-y: scroll;
     }
@@ -22,6 +23,12 @@
       // spacing for controls/title bar
       padding-top: 75px;
       padding-bottom: 75px;
+    }
+
+    .photo-viewer-container {
+      align-items: unset; // must override to get it to respect calculating padding-top
+      padding-top: 75px;
+      // no zoom controls at bottom for image viewer, adding bottom padding could distort/make the image unnecessarily smaller
     }
   }
 }

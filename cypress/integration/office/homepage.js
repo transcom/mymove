@@ -32,6 +32,10 @@ describe('Office authorization', () => {
     cy.prepareOfficeApp();
   });
 
+  beforeEach(() => {
+    cy.clearAllCookies();
+  });
+
   it('redirects TOO to TOO homepage', () => {
     cy.signInAsNewTOOUser();
     cy.contains('All Customer Moves');

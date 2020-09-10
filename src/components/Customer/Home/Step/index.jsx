@@ -31,7 +31,7 @@ const Step = ({
 }) => {
   const showThoughNotFunctional = false; // remove when all Edit buttons work
   const actionBtnClassName = classnames(styles['action-btn'], {
-    [styles['usa-button--secondary']]: secondaryBtn,
+    [styles['action-button--secondary']]: secondaryBtn,
   });
 
   return (
@@ -48,7 +48,13 @@ const Step = ({
 
       {children}
       {actionBtnLabel && (
-        <Button className={actionBtnClassName} disabled={actionBtnDisabled} onClick={onActionBtnClick} type="button">
+        <Button
+          className={actionBtnClassName}
+          disabled={actionBtnDisabled}
+          onClick={onActionBtnClick}
+          type="button"
+          secondary={secondaryBtn}
+        >
           {actionBtnLabel}
         </Button>
       )}

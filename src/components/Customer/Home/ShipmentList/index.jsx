@@ -1,11 +1,11 @@
 import React from 'react';
-import { string, arrayOf, shape, func } from 'prop-types';
+import { string, arrayOf, shape, func, number } from 'prop-types';
 
 import styles from './ShipmentList.module.scss';
 
 import { ReactComponent as EditIcon } from 'shared/icon/edit.svg';
 
-const ShipmentListItem = ({ shipment, onShipmentClick }) => {
+const ShipmentListItem = ({ shipment, onShipmentClick, shipmentNumber }) => {
   function handleEnterOrSpace(event) {
     const key = event.which || event.keyCode; // Use either which or keyCode, depending on browser support
     // enter or space
@@ -18,7 +18,7 @@ const ShipmentListItem = ({ shipment, onShipmentClick }) => {
     <div
       className={`${styles['shipment-list-item-container']} ${shipmentClassName}`}
       data-testid="shipment-list-item-container"
-      onClick={() => onShipmentClick(shipment)}
+      onClick={() => onShipmentClick(shipment, shipmentNumber)}
       onKeyDown={(event) => handleEnterOrSpace(event)}
       role="button"
       tabIndex="0"
@@ -31,12 +31,18 @@ const ShipmentListItem = ({ shipment, onShipmentClick }) => {
 ShipmentListItem.propTypes = {
   shipment: shape({ id: string.isRequired, shipmentType: string.isRequired }).isRequired,
   onShipmentClick: func.isRequired,
+  shipmentNumber: number.isRequired,
 };
 
 const ShipmentList = ({ shipments, onShipmentClick }) => (
   <div>
-    {shipments.map((shipment) => (
-      <ShipmentListItem key={shipment.id} onShipmentClick={onShipmentClick} shipment={shipment} />
+    {shipments.map((shipment, index) => (
+      <ShipmentListItem
+        key={shipment.id}
+        shipmentNumber={index + 1}
+        onShipmentClick={() => onShipmentClick(shipment.id, index + 1)}
+        shipment={shipment}
+      />
     ))}
   </div>
 );
