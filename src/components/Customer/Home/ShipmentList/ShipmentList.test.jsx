@@ -27,13 +27,13 @@ describe('ShipmentList component', () => {
     const wrapper = mountShipmentList(props);
     expect(wrapper.find('ShipmentListItem').length).toBe(3);
     expect(wrapper.find('.shipment-list-item-PPM').length).toBe(1);
-    expect(wrapper.find('.shipment-list-item-PPM strong').text()).toBe('PPM');
+    expect(wrapper.find('.shipment-list-item-PPM strong').text()).toBe('PPM 1');
     expect(wrapper.find('.shipment-list-item-PPM span').text()).toBe('#ID-1');
     expect(wrapper.find('.shipment-list-item-HHG').length).toBe(1);
-    expect(wrapper.find('.shipment-list-item-HHG strong').text()).toBe('HHG');
+    expect(wrapper.find('.shipment-list-item-HHG strong').text()).toBe('HHG 2');
     expect(wrapper.find('.shipment-list-item-HHG span').text()).toBe('#ID-2');
     expect(wrapper.find('.shipment-list-item-NTS').length).toBe(1);
-    expect(wrapper.find('.shipment-list-item-NTS strong').text()).toBe('NTS');
+    expect(wrapper.find('.shipment-list-item-NTS strong').text()).toBe('NTS 3');
     expect(wrapper.find('.shipment-list-item-NTS span').text()).toBe('#ID-3');
   });
 
