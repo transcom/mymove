@@ -1,7 +1,9 @@
 import React from 'react';
-import { PpmWeight } from './Weight';
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
 import moment from 'moment';
+
+import ConnectedPpmWeight, { PpmWeight } from './Weight';
+import { MockProviders } from 'testUtils';
 
 describe('Weight', () => {
   const moveDate = moment().add(7, 'day');
@@ -221,5 +223,96 @@ describe('Weight', () => {
       );
       expect(wrapper.find('ReduxForm').props().readyToSubmit).toEqual(true);
     });
+  });
+});
+
+describe('ConnectedPpmWeight', () => {
+  it('renders without errors', () => {
+    const initialState = {
+      entities: {
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'testServiceMemberId456',
+          },
+        },
+        serviceMembers: {
+          testServiceMemberId456: {
+            id: 'testServiceMemberId456',
+            first_name: 'Frida',
+            current_station: {
+              address: {
+                postal_code: '90813',
+              },
+            },
+            weight_allotment: {
+              total_weight_self: 2000,
+              total_weight_self_plus_dependents: 2000,
+              pro_gear_weight: 500,
+              pro_gear_weight_spouse: 0,
+            },
+          },
+        },
+        orders: {
+          testOrder123: {
+            service_member_id: 'testServiceMemberId456',
+            has_dependents: false,
+            spouse_has_pro_gear: false,
+          },
+        },
+        mtoShipments: {},
+        backupContacts: {},
+        personallyProcuredMoves: {
+          testPPM345: {
+            id: 'testPPM345',
+            moveId: 'testMove890',
+            status: 'DRAFT',
+            original_move_date: moment().add(7, 'day'),
+            pickup_postal_code: '80913',
+          },
+        },
+      },
+      moves: {
+        currentMove: {
+          id: 'testMove890',
+        },
+      },
+      user: {
+        userInfo: {
+          service_member: {
+            id: 'testServiceMemberId456',
+          },
+        },
+      },
+      serviceMember: {
+        currentServiceMember: {
+          id: 'testServiceMemberId456',
+          first_name: 'Frida',
+          current_station: {
+            address: {
+              postal_code: '90813',
+            },
+          },
+          weight_allotment: {
+            total_weight_self: 2500,
+            total_weight_self_plus_dependents: 2000,
+            pro_gear_weight: 500,
+            pro_gear_weight_spouse: 0,
+          },
+        },
+      },
+    };
+
+    const wrapper = mount(
+      <MockProviders initialState={initialState}>
+        <ConnectedPpmWeight
+          pages={[]}
+          pageKey="/moves/:moveId/ppm-incentive"
+          match={{ params: { moveId: 'testMove890' } }}
+        />
+      </MockProviders>,
+    );
+
+    expect(wrapper.find('[data-testid="weight-entitlement"]').text()).toContain('2,500');
   });
 });

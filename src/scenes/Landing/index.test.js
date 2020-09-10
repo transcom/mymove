@@ -1,6 +1,4 @@
-import 'raf/polyfill';
 import React from 'react';
-
 import moment from 'moment';
 import { shallow, mount } from 'enzyme';
 
@@ -136,24 +134,55 @@ describe('HomePage tests', () => {
 });
 
 describe('ConnectedLanding', () => {
-  const initialState = {
-    entities: {
-      user: {},
-      orders: {},
-      mtoShipments: {},
-      backupContacts: {},
-      personallyProcuredMoves: {},
-    },
-  };
+  describe('loading state', () => {
+    const initialState = {
+      entities: {
+        user: {},
+        orders: {},
+        mtoShipments: {},
+        backupContacts: {},
+        personallyProcuredMoves: {},
+      },
+    };
 
-  it('renders while loading', () => {
-    const wrapper = mount(
-      <MockProviders initialState={initialState}>
-        <ConnectedLanding />
-      </MockProviders>,
-    );
+    it('renders the LoadingPlaceholder', () => {
+      const wrapper = mount(
+        <MockProviders initialState={initialState}>
+          <ConnectedLanding />
+        </MockProviders>,
+      );
 
-    console.log(wrapper.debug());
-    expect(wrapper.exists()).toBe(true);
+      expect(wrapper.find('LoadingPlaceholder').length).toBe(1);
+    });
   });
+
+  describe('logged out state', () => {
+    const initialState = {
+      entities: {
+        user: {},
+        orders: {},
+        mtoShipments: {},
+        backupContacts: {},
+        personallyProcuredMoves: {},
+      },
+      user: {
+        isLoading: false,
+      },
+    };
+
+    it('renders the SignIn', () => {
+      const wrapper = mount(
+        <MockProviders initialState={initialState}>
+          <ConnectedLanding />
+        </MockProviders>,
+      );
+
+      expect(wrapper.find('SignIn').length).toBe(1);
+    });
+  });
+
+  /**
+   * TODO - this component should be refactored to move things out of relying
+   * on component lifecycle / props changing
+   */
 });

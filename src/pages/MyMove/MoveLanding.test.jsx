@@ -39,7 +39,7 @@ describe('ConnectedMoveLanding', () => {
         <ConnectedMoveLanding />
       </MockProviders>,
     );
-    expect(wrapper.find('h1').length).toBe(1);
+
     expect(wrapper.find('h2').text()).toContain('Frida');
   });
 });
