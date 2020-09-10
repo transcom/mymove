@@ -214,6 +214,7 @@ func (suite *HandlerSuite) TestSubmitPPMMoveForApprovalHandler() {
 	suite.Assertions.Equal(
 		internalmessages.ReimbursementStatusREQUESTED,
 		*okResponse.Payload.PersonallyProcuredMoves[0].Advance.Status)
+	suite.Assertions.NotNil(okResponse.Payload.SubmittedAt)
 }
 
 func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
