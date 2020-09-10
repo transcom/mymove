@@ -133,6 +133,54 @@ func (suite *GHCInvoiceSuite) TestGenerateGHCInvoiceHeader() {
 			suite.Equal(data.ExpectedValue, n9.ReferenceIdentification)
 		})
 	}
+
+	suite.T().Run("adds orders destination address", func(t *testing.T) {
+		// name
+		expectedDutyStation := paymentRequest.MoveTaskOrder.Orders.NewDutyStation
+		suite.IsType(&edisegment.N1{}, result.Header[6])
+		n1 := result.Header[6].(*edisegment.N1)
+		suite.Equal("ST", n1.EntityIdentifierCode)
+		suite.Equal(expectedDutyStation.Name, n1.Name)
+		suite.Equal("10", n1.IdentificationCodeQualifier)
+		suite.Equal(expectedDutyStation.TransportationOffice.Gbloc, n1.IdentificationCode)
+		// street address
+		address := expectedDutyStation.Address
+		suite.IsType(&edisegment.N3{}, result.Header[7])
+		n3 := result.Header[7].(*edisegment.N3)
+		suite.Equal(address.StreetAddress1, n3.AddressInformation1)
+		suite.Equal(*address.StreetAddress2, n3.AddressInformation2)
+		// city state info
+		suite.IsType(&edisegment.N4{}, result.Header[8])
+		n4 := result.Header[8].(*edisegment.N4)
+		suite.Equal(address.City, n4.CityName)
+		suite.Equal(address.State, n4.StateOrProvinceCode)
+		suite.Equal(address.PostalCode, n4.PostalCode)
+		suite.Equal(*address.Country, n4.CountryCode)
+	})
+
+	suite.T().Run("adds orders origin address", func(t *testing.T) {
+		// name
+		expectedDutyStation := paymentRequest.MoveTaskOrder.Orders.OriginDutyStation
+		suite.IsType(&edisegment.N1{}, result.Header[9])
+		n1 := result.Header[9].(*edisegment.N1)
+		suite.Equal("SF", n1.EntityIdentifierCode)
+		suite.Equal(expectedDutyStation.Name, n1.Name)
+		suite.Equal("10", n1.IdentificationCodeQualifier)
+		suite.Equal(expectedDutyStation.TransportationOffice.Gbloc, n1.IdentificationCode)
+		// street address
+		address := expectedDutyStation.Address
+		suite.IsType(&edisegment.N3{}, result.Header[10])
+		n3 := result.Header[10].(*edisegment.N3)
+		suite.Equal(address.StreetAddress1, n3.AddressInformation1)
+		suite.Equal(*address.StreetAddress2, n3.AddressInformation2)
+		// city state info
+		suite.IsType(&edisegment.N4{}, result.Header[11])
+		n4 := result.Header[11].(*edisegment.N4)
+		suite.Equal(address.City, n4.CityName)
+		suite.Equal(address.State, n4.StateOrProvinceCode)
+		suite.Equal(address.PostalCode, n4.PostalCode)
+		suite.Equal(*address.Country, n4.CountryCode)
+	})
 }
 
 func (suite *GHCInvoiceSuite) TestGenerateGHCInvoiceBody() {
@@ -143,6 +191,7 @@ func (suite *GHCInvoiceSuite) TestGenerateGHCInvoiceBody() {
 
 		result, err := generator.Generate(paymentRequest, false)
 		suite.FatalNoError(err)
+
 		lastIdx := len(result.ServiceItems) - 1
 		suite.IsType(&edisegment.L0{}, result.ServiceItems[lastIdx])
 		l0 := result.ServiceItems[lastIdx].(*edisegment.L0)

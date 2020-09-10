@@ -201,55 +201,36 @@ func (g GHCPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	originAndDestinationSegments := []edisegment.Segment{}
 
 	order := paymentRequest.MoveTaskOrder.Orders
-	mtoShipment := paymentRequest.MoveTaskOrder.MTOShipments[0]
 
 	if order.ID == uuid.Nil {
 		return []edisegment.Segment{}, fmt.Errorf("no order found for Payment Request ID: %s", paymentRequest.ID)
 	}
 
-	if mtoShipment.ID == uuid.Nil {
-		return []edisegment.Segment{}, fmt.Errorf("no MTO shipment found for Payment Request ID: %s", paymentRequest.ID)
-	}
-
 	// destination name
 	destinationStationName := order.NewDutyStation.Name
-	if len(destinationStationName) == 0 {
-		return []edisegment.Segment{}, fmt.Errorf("no destination duty station name found for Order ID: %s Payment Request ID: %s", order.ID, paymentRequest.ID)
-	}
 	destinationName := edisegment.N1{
 		EntityIdentifierCode:        "ST",
 		Name:                        destinationStationName,
 		IdentificationCodeQualifier: "10",
-		IdentificationCode:          "GBLOC/DODAAC",
+		IdentificationCode:          order.NewDutyStation.TransportationOffice.Gbloc,
 	}
 	originAndDestinationSegments = append(originAndDestinationSegments, &destinationName)
 
-	// destination address
-	destinationAddress := mtoShipment.DestinationAddress.StreetAddress1
-
-	if len(destinationAddress) == 0 {
-		return []edisegment.Segment{}, fmt.Errorf("no destination street address found for MTO shipment ID: %s Payment Request ID: %s", mtoShipment.ID, paymentRequest.ID)
-	}
+	//// destination address
+	destinationAddress := order.NewDutyStation.Address
 
 	destinationStreetAddress := edisegment.N3{
-		AddressInformation1: destinationAddress,
+		AddressInformation1: destinationAddress.StreetAddress1,
+		AddressInformation2: *destinationAddress.StreetAddress2,
 	}
 	originAndDestinationSegments = append(originAndDestinationSegments, &destinationStreetAddress)
 
 	// destination city/state/postal
-	destinationAddressDetails := mtoShipment.DestinationAddress
-
-	if destinationAddressDetails.ID == uuid.Nil {
-		return []edisegment.Segment{}, fmt.Errorf("no destination address found for MTO shipment ID: %s Payment Request ID: %s", mtoShipment.ID, paymentRequest.ID)
-	}
-
 	destinationPostalDetails := edisegment.N4{
-		CityName:            destinationAddressDetails.City,
-		StateOrProvinceCode: destinationAddressDetails.State,
-		PostalCode:          destinationAddressDetails.PostalCode,
-		CountryCode:         string(*destinationAddressDetails.Country),
-		LocationQualifier:   "SL",
-		LocationIdentifier:  "237740290",
+		CityName:            destinationAddress.City,
+		StateOrProvinceCode: destinationAddress.State,
+		PostalCode:          destinationAddress.PostalCode,
+		CountryCode:         string(*destinationAddress.Country),
 	}
 	originAndDestinationSegments = append(originAndDestinationSegments, &destinationPostalDetails)
 
@@ -258,45 +239,33 @@ func (g GHCPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	// ========  ORIGIN ========= //
 	// origin station name
 	originStationName := order.OriginDutyStation.Name
-	if len(originStationName) == 0 {
-		return []edisegment.Segment{}, fmt.Errorf("no origin duty station name found for Order ID: %s Payment Request ID: %s", order.ID, paymentRequest.ID)
-	}
 	originName := edisegment.N1{
-		EntityIdentifierCode:        "ST",
+		EntityIdentifierCode:        "SF",
 		Name:                        originStationName,
 		IdentificationCodeQualifier: "10",
-		IdentificationCode:          "GBLOC/DODAAC",
+		IdentificationCode:          order.OriginDutyStation.TransportationOffice.Gbloc,
 	}
 	originAndDestinationSegments = append(originAndDestinationSegments, &originName)
 
 	// origin address
-	originAddress := mtoShipment.PickupAddress.StreetAddress1
-
-	if len(originAddress) == 0 {
-		return []edisegment.Segment{}, fmt.Errorf("no origin street address found for MTO shipment ID: %s Payment Request ID: %s", mtoShipment.ID, paymentRequest.ID)
-	}
+	originAddress := order.OriginDutyStation.Address
 
 	originStreetAddress := edisegment.N3{
-		AddressInformation1: originAddress,
+		AddressInformation1: originAddress.StreetAddress1,
+		AddressInformation2: *originAddress.StreetAddress2,
 	}
 	originAndDestinationSegments = append(originAndDestinationSegments, &originStreetAddress)
 
 	// origin city/state/postal
-	originAddressDetails := mtoShipment.PickupAddress
-
-	if originAddressDetails.ID == uuid.Nil {
-		return []edisegment.Segment{}, fmt.Errorf("no origin address found for MTO shipment ID: %s Payment Request ID: %s", mtoShipment.ID, paymentRequest.ID)
-	}
-
 	originPostalDetails := edisegment.N4{
-		CityName:            originAddressDetails.City,
-		StateOrProvinceCode: originAddressDetails.State,
-		PostalCode:          originAddressDetails.PostalCode,
-		CountryCode:         string(*originAddressDetails.Country),
-		LocationQualifier:   "SL",
-		LocationIdentifier:  "237740290",
+		CityName:            originAddress.City,
+		StateOrProvinceCode: originAddress.State,
+		PostalCode:          originAddress.PostalCode,
+		CountryCode:         string(*originAddress.Country),
 	}
 	originAndDestinationSegments = append(originAndDestinationSegments, &originPostalDetails)
+
+	// TODO: Create PER segment and implement Origin POC Phone
 
 	return originAndDestinationSegments, nil
 }
