@@ -1,8 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { get, isEmpty } from 'lodash';
+import { get } from 'lodash';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { Button } from '@trussworks/react-uswds';
 
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import { loadMove, selectMove } from 'shared/Entities/modules/moves';
@@ -33,7 +34,7 @@ export class Summary extends Component {
   }
   componentDidUpdate(prevProps) {
     const { selectedMoveType } = this.props;
-    const hhgMove = isEmpty(prevProps.currentPPM) && isEmpty(this.props.currentPPM);
+    const hhgMove = !Object.keys(prevProps.currentPPM).length && !Object.keys(this.props.currentPPM).length;
     // Only check entitlement for PPMs, not HHGs
     if (prevProps.currentPPM !== this.props.currentPPM && !hhgMove && selectedMoveType === SHIPMENT_OPTIONS.PPM) {
       this.props.onCheckEntitlement(this.props.match.params.moveId);
@@ -54,8 +55,10 @@ export class Summary extends Component {
       serviceMember,
       entitlement,
       match,
+      history,
       uploads,
     } = this.props;
+
     const currentStation = get(serviceMember, 'current_station');
     const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
 
@@ -68,12 +71,15 @@ export class Summary extends Component {
     const editOrdersPath = rootReviewAddressWithMoveId + '/edit-orders';
 
     const showPPMShipmentSummary =
-      (isReviewPage && !isEmpty(currentPPM)) ||
-      (!isReviewPage && !isEmpty(currentPPM) && currentPPM.status !== 'DRAFT');
+      (isReviewPage && Object.keys(currentPPM).length) ||
+      (!isReviewPage && Object.keys(currentPPM).length && currentPPM.status !== 'DRAFT');
     const showHHGShipmentSummary = isReviewPage && !!mtoShipments.length;
+    const hasPPMorHHG = (isReviewPage && Object.keys(currentPPM).length) || !!mtoShipments.length;
 
     const showProfileAndOrders = isReviewPage || !isReviewPage;
     const showMoveSetup = showPPMShipmentSummary || showHHGShipmentSummary;
+    const shipmentSelectionPath = `/moves/${currentMove.id}/select-type`;
+
     return (
       <Fragment>
         {get(this.props.reviewState.error, 'statusCode', false) === 409 && (
@@ -126,6 +132,17 @@ export class Summary extends Component {
               />
             );
           })}
+
+        {hasPPMorHHG && (
+          <div className="grid-col-row margin-top-5">
+            <span className="float-right">Optional</span>
+            <h3>Add another shipment</h3>
+            <p>Will you move any belongings to or from another location?</p>
+            <Button className="usa-button--secondary" onClick={() => history.push(shipmentSelectionPath)}>
+              Add another shipment
+            </Button>
+          </div>
+        )}
 
         {moveIsApproved && (
           <div className="approved-edit-warning">
