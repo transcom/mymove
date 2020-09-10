@@ -119,18 +119,20 @@ export class WizardFormPage extends Component {
             <div className="display-flex">
               {!hideBackBtn && (
                 <button
-                  className="usa-button usa-button--secondary prev"
+                  className="usa-button usa-button--secondary"
                   onClick={hasReduxFormSubmitHandler ? handleSubmit(this.previousPage) : this.previousPage}
                   disabled={!canMoveBackward}
+                  data-testid="wizardBackButton"
                 >
                   Back
                 </button>
               )}
               {!isLastPage(pageList, pageKey) && (
                 <button
-                  className="usa-button next"
+                  className="usa-button"
                   onClick={hasReduxFormSubmitHandler ? handleSubmit(this.nextPage) : this.nextPage}
                   disabled={!canMoveForward}
+                  data-testid="wizardNextButton"
                 >
                   Next
                 </button>
@@ -138,16 +140,21 @@ export class WizardFormPage extends Component {
             </div>
             <div className="grid-col-2 margin-top-6 tablet:margin-top-3">
               {!isMobile && (
-                <button className="usa-button usa-button--unstyled padding-left-0" onClick={this.cancelFlow}>
+                <button
+                  className="usa-button usa-button--unstyled padding-left-0"
+                  onClick={this.cancelFlow}
+                  data-testid="wizardCancelButton"
+                >
                   Cancel
                 </button>
               )}
             </div>
             {isLastPage(pageList, pageKey) && (
               <button
-                className="usa-button next"
+                className="usa-button"
                 onClick={hasReduxFormSubmitHandler ? handleSubmit(this.submit) : this.submit}
                 disabled={!canMoveForward}
+                data-testid="wizardCompleteButton"
               >
                 Complete
               </button>

@@ -170,6 +170,10 @@ Cypress.Commands.add('nextPage', () => {
   cy.get('[data-testid="wizardNextButton"]').should('be.enabled').click();
 });
 
+Cypress.Commands.add('completeFlow', () => {
+  cy.get('[data-testid="wizardCompleteButton"]').should('be.enabled').click();
+});
+
 Cypress.Commands.add('nextPageAndCheckLocation', (dataCyValue, pageTitle, locationMatch) => {
   const locationRegex = new RegExp(locationMatch); // eslint-disable-line security/detect-non-literal-regexp
 
