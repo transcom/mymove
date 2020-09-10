@@ -69,6 +69,7 @@ type Move struct {
 	Locator                 string                  `json:"locator" db:"locator"`
 	CreatedAt               time.Time               `json:"created_at" db:"created_at"`
 	UpdatedAt               time.Time               `json:"updated_at" db:"updated_at"`
+	SubmittedAt             *time.Time              `json:"submitted_at" db:"submitted_at"`
 	OrdersID                uuid.UUID               `json:"orders_id" db:"orders_id"`
 	Orders                  Order                   `belongs_to:"orders"`
 	SelectedMoveType        *SelectedMoveType       `json:"selected_move_type" db:"selected_move_type"`
@@ -127,8 +128,8 @@ func (m *Move) Submit(submitDate time.Time) error {
 	if m.Status != MoveStatusDRAFT {
 		return errors.Wrap(ErrInvalidTransition, "Submit")
 	}
-
 	m.Status = MoveStatusSUBMITTED
+	m.SubmittedAt = swag.Time(time.Now())
 
 	// Update PPM status too
 	for i := range m.PersonallyProcuredMoves {
