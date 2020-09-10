@@ -5,6 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/transcom/mymove/pkg/models"
+
 	"github.com/go-openapi/swag"
 
 	"github.com/gofrs/uuid"
@@ -29,10 +31,10 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 
 	params := paymentServiceItemOp.UpdatePaymentServiceItemStatusParams{
 		HTTPRequest:          req,
-		IfMatch:              etag.GenerateEtag(paymentServiceItem.CreatedAt),
+		IfMatch:              etag.GenerateEtag(paymentServiceItem.UpdatedAt),
 		PaymentServiceItemID: paymentServiceItem.ID.String(),
 		Body: &ghcmessages.PaymentServiceItem{
-			ETag:                     etag.GenerateEtag(paymentServiceItem.CreatedAt),
+			ETag:                     etag.GenerateEtag(paymentServiceItem.UpdatedAt),
 			ID:                       *handlers.FmtUUID(paymentServiceItem.ID),
 			MtoServiceItemID:         *handlers.FmtUUID(paymentServiceItem.MTOServiceItemID),
 			PaymentRequestID:         *handlers.FmtUUID(paymentServiceItem.PaymentRequestID),
@@ -79,6 +81,7 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 	})
 
 	suite.T().Run("Successful patch - Rejection - Integration Test", func(t *testing.T) {
+		paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItem(suite.DB())
 		queryBuilder := query.NewQueryBuilder(suite.DB())
 
 		fetcher := fetch.NewFetcher(queryBuilder)
@@ -88,6 +91,7 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 			Fetcher:        fetcher,
 			Builder:        *queryBuilder,
 		}
+		params.IfMatch = etag.GenerateEtag(paymentServiceItem.UpdatedAt)
 		params.PaymentServiceItemID = paymentServiceItem.ID.String()
 		params.Body.Status = ghcmessages.PaymentServiceItemStatusDENIED
 		params.Body.RejectionReason = swag.String("Because reasons")
@@ -101,6 +105,11 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 	})
 
 	suite.T().Run("Successful patch - Approval of previously rejected - Integration Test", func(t *testing.T) {
+		deniedPaymentServiceItem := testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
+			PaymentServiceItem: models.PaymentServiceItem{
+				Status: models.PaymentServiceItemStatusDenied,
+			},
+		})
 		queryBuilder := query.NewQueryBuilder(suite.DB())
 
 		fetcher := fetch.NewFetcher(queryBuilder)
@@ -110,15 +119,62 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 			Fetcher:        fetcher,
 			Builder:        *queryBuilder,
 		}
-
+		params.IfMatch = etag.GenerateEtag(deniedPaymentServiceItem.UpdatedAt)
+		params.PaymentServiceItemID = deniedPaymentServiceItem.ID.String()
 		params.Body.Status = ghcmessages.PaymentServiceItemStatusAPPROVED
 
 		response := handler.Handle(params)
 		suite.IsType(&paymentServiceItemOp.UpdatePaymentServiceItemStatusOK{}, response)
 		okResponse := response.(*paymentServiceItemOp.UpdatePaymentServiceItemStatusOK)
-		suite.Equal(paymentServiceItem.ID.String(), okResponse.Payload.ID.String())
+		suite.Equal(deniedPaymentServiceItem.ID.String(), okResponse.Payload.ID.String())
 		suite.Equal(ghcmessages.PaymentServiceItemStatusAPPROVED, okResponse.Payload.Status)
 		suite.Nil(okResponse.Payload.RejectionReason)
 	})
 
+	suite.T().Run("Successful patch - Approval of Prime available paymentServiceItem", func(t *testing.T) {
+		availableMTO := testdatagen.MakeAvailableMove(suite.DB())
+		availablePaymentServiceItem := testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
+			PaymentRequest: testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+				Move: availableMTO,
+			}),
+			MTOServiceItem: testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+				Move: availableMTO,
+			}),
+		})
+		requestUser := testdatagen.MakeDefaultUser(suite.DB())
+
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move-task-orders/%s/payment-service-items/%s/status", availableMTO.ID.String(), availablePaymentServiceItem.ID.String()), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
+		params := paymentServiceItemOp.UpdatePaymentServiceItemStatusParams{
+			HTTPRequest:          req,
+			IfMatch:              etag.GenerateEtag(availablePaymentServiceItem.UpdatedAt),
+			PaymentServiceItemID: availablePaymentServiceItem.ID.String(),
+			Body: &ghcmessages.PaymentServiceItem{
+				ID:              *handlers.FmtUUID(availablePaymentServiceItem.ID),
+				RejectionReason: nil,
+				Status:          ghcmessages.PaymentServiceItemStatusAPPROVED,
+			},
+		}
+		queryBuilder := query.NewQueryBuilder(suite.DB())
+
+		fetcher := fetch.NewFetcher(queryBuilder)
+
+		handler := UpdatePaymentServiceItemStatusHandler{
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			Fetcher:        fetcher,
+			Builder:        *queryBuilder,
+		}
+		traceID, err := uuid.NewV4()
+		suite.FatalNoError(err, "Error creating a new trace ID.")
+		handler.SetTraceID(traceID)
+
+		response := handler.Handle(params)
+		suite.IsType(&paymentServiceItemOp.UpdatePaymentServiceItemStatusOK{}, response)
+		okResponse := response.(*paymentServiceItemOp.UpdatePaymentServiceItemStatusOK)
+		suite.Equal(availablePaymentServiceItem.ID.String(), okResponse.Payload.ID.String())
+		suite.Equal(ghcmessages.PaymentServiceItemStatusAPPROVED, okResponse.Payload.Status)
+		suite.Nil(okResponse.Payload.RejectionReason)
+		suite.HasWebhookNotification(availablePaymentServiceItem.PaymentRequestID, traceID)
+	})
 }
