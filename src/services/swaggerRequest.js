@@ -1,5 +1,5 @@
 /* eslint-disable import/prefer-default-export */
-import { get, some } from 'lodash';
+import { get } from 'lodash';
 import { normalize } from 'normalizr';
 
 import * as schema from 'shared/Entities/schema';
@@ -15,7 +15,7 @@ function findMatchingRoute(paths, operationPath) {
 
   let routeDefinition;
   Object.values(paths).some((path) => {
-    return some(path, (route, method) => {
+    return Object.values(path).some((route, method) => {
       if (route.operationId === operationId && route.tags[0] === tagName) {
         routeDefinition = route;
         routeDefinition.method = method;

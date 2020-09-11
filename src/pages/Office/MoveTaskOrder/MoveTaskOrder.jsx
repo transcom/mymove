@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { withRouter } from 'react-router-dom';
-import { get, map } from 'lodash';
+import { get } from 'lodash';
 import { GridContainer } from '@trussworks/react-uswds';
 import { queryCache, useMutation } from 'react-query';
 
@@ -102,7 +102,7 @@ export const MoveTaskOrder = ({ match }) => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const serviceItems = map(mtoServiceItems, (item) => {
+  const serviceItems = mtoServiceItemsArr.map((item) => {
     const newItem = { ...item };
     newItem.code = item.reServiceCode;
     newItem.serviceItem = item.reServiceName;
@@ -143,7 +143,7 @@ export const MoveTaskOrder = ({ match }) => {
           </div>
         </div>
 
-        {map(mtoShipments, (mtoShipment) => {
+        {Object.values(mtoShipments).map((mtoShipment) => {
           const serviceItemsForShipment = serviceItems.filter((item) => item.mtoShipmentID === mtoShipment.id);
           const requestedServiceItems = serviceItemsForShipment.filter(
             (item) => item.status === SERVICE_ITEM_STATUS.SUBMITTED,
