@@ -60,7 +60,6 @@ export class AddressElementEdit extends Component {
             />
           </div>
         </div>
-        <p>test</p>
       </FormSection>
     );
   }

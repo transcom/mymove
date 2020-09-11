@@ -17,6 +17,11 @@ const AddressForm = ({ schema }) => (
         <SwaggerField fieldName="state" swagger={schema} required />
       </div>
     </div>
+    <div className="grid-row grid-gap">
+      <div className="tablet:grid-col-2 grid-col-4">
+        <SwaggerField fieldName="postal_code" swagger={schema} required />
+      </div>
+    </div>
   </>
 );
 
