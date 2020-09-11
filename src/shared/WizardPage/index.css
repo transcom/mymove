@@ -24,14 +24,3 @@
 .hide-btn {
   display: none;
 }
-
-@media only screen and (max-width: 481px) {
-  .prev {
-    float: left;
-    width: 45%;
-  }
-  .next {
-    float: right;
-    width: 45%;
-  }
-}

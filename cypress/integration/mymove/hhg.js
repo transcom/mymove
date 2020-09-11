@@ -33,7 +33,7 @@ function customerFillsInProfileInformation(reloadAfterEveryPage) {
   cy.get('span').contains('Welcome,').should('not.exist');
   cy.nextPage();
 
-  cy.get('button.next').should('be.disabled');
+  cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
   cy.get('select[name="affiliation"]').select('Army');
   cy.get('input[name="edipi"]').type('1234567890');
   cy.get('input[name="social_security_number').type('123456789');
@@ -44,7 +44,7 @@ function customerFillsInProfileInformation(reloadAfterEveryPage) {
   });
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   // name
-  cy.get('button.next').should('be.disabled');
+  cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
   cy.get('input[name="first_name"]').type('Jane');
   cy.get('input[name="last_name"]').type('Doe');
   cy.nextPage();
@@ -54,7 +54,7 @@ function customerFillsInProfileInformation(reloadAfterEveryPage) {
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   // contact info
-  cy.get('button.next').should('be.disabled');
+  cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
   cy.get('input[name="telephone"]').type('6784567890');
   cy.get('[type="checkbox"]').not('[disabled]').check({ force: true }).should('be.checked');
   cy.nextPage();
@@ -64,7 +64,7 @@ function customerFillsInProfileInformation(reloadAfterEveryPage) {
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   // duty station
-  cy.get('button.next').should('be.disabled');
+  cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
   cy.selectDutyStation('Fort Carson', 'current_station');
 
   cy.nextPage();
@@ -74,13 +74,13 @@ function customerFillsInProfileInformation(reloadAfterEveryPage) {
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   // residential-address
-  cy.get('button.next').should('be.disabled');
+  cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
   cy.get('input[name="street_address_1"]').type('123 main');
   cy.get('input[name="city"]').type('Anytown');
   cy.get('select[name="state"]').select('CO');
   cy.get('input[name="postal_code"]').clear().type('00001').blur();
   cy.get('#postal_code-error').should('exist');
-  cy.get('button.next').should('be.disabled');
+  cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
   cy.get('input[name="postal_code"]').clear().type('80913');
   cy.get('#postal_code-error').should('not.exist');
   cy.nextPage();
@@ -90,7 +90,7 @@ function customerFillsInProfileInformation(reloadAfterEveryPage) {
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   // backup address
-  cy.get('button.next').should('be.disabled');
+  cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
   cy.get('input[name="street_address_1"]').type('567 Another St');
   cy.get('input[name="city"]').type('Anytown');
   cy.get('select[name="state"]').select('CO');
@@ -131,7 +131,7 @@ function customerFillsOutOrdersInformation() {
   });
 
   cy.upload_file('.filepond--root', 'top-secret.png');
-  cy.get('button.next', { timeout: fileUploadTimeout }).should('not.be.disabled').click();
+  cy.get('button[data-testid="wizardNextButton"]', { timeout: fileUploadTimeout }).should('not.be.disabled').click();
 
   cy.get('h1').contains('Figure out your shipments');
   cy.nextPage();
@@ -149,14 +149,14 @@ function customerChoosesAnHHGMove() {
 }
 
 function customerSetsUpAnHHGMove() {
-  cy.get('button[class="usa-button next"]').should('be.disabled');
+  cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
 
   cy.get('input[name="requestedPickupDate"]').focus().blur();
   cy.get('[class="usa-error-message"]').contains('Required');
   cy.get('input[name="requestedPickupDate"]').type('08/02/2020').blur();
   cy.get('[class="usa-error-message"]').should('not.exist');
 
-  cy.get('button[class="usa-button next"]').should('be.disabled');
+  cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
 
   // should be empty before using "Use current residence" checkbox
   cy.get(`[data-testid="mailingAddress1"]`).first().should('be.empty');
@@ -188,7 +188,7 @@ function customerSetsUpAnHHGMove() {
   cy.get('[class="usa-error-message"]').should('not.exist');
 
   // Next button disabled
-  cy.get('button[class="usa-button next"]').should('be.disabled');
+  cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
 
   // overwrites data typed from above
   cy.get(`input[name="useCurrentResidence"]`).check({ force: true });
@@ -202,7 +202,7 @@ function customerSetsUpAnHHGMove() {
   cy.get(`[data-testid="email"]`).first().type('@example.com');
   cy.get('[class="usa-error-message"]').should('not.exist');
 
-  cy.get('button[class="usa-button next"]').should('be.disabled');
+  cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
 
   // requested delivery date
   cy.get('input[name="requestedDeliveryDate"]').first().type('09/20/2020').blur();
@@ -232,7 +232,7 @@ function customerSetsUpAnHHGMove() {
 }
 
 function customerAddsAnotherShipment() {
-  cy.get('button.prev').should('be.enabled').click();
+  cy.get('button[data-testid="wizardBackButton"]').should('be.enabled').click();
   customerSetsUpAnHHGMove();
 }
 
@@ -242,7 +242,7 @@ function customerReviewsMoveDetails() {
   cy.get('[data-testid="hhg-summary"]').find('h4').contains('Shipment 1: HHG').find('a').contains('Edit').click();
 
   cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/edit-shipment/);
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/mto-shipments\/[^/]+\/edit-shipment/);
   });
 
   // Ensure remarks is displayed in form
