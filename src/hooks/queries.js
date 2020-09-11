@@ -108,7 +108,7 @@ export const useOrdersDocumentQueries = (moveOrderId) => {
   // Get the orders info so we can get the uploaded_orders_id (which is a document id)
   const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, moveOrderId], getMoveOrder);
 
-  const orders = moveOrders && Object.values(moveOrders)[0];
+  const orders = moveOrders && moveOrders[`${moveOrderId}`];
   // eslint-disable-next-line camelcase
   const documentId = orders?.uploaded_order_id;
 
