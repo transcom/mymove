@@ -88,10 +88,6 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		UsageIndicator:                    usageIndicator, // T for test, P for production
 		ComponentElementSeparator:         "|",
 	}
-	edi858.IEA = edisegment.IEA{
-		NumberOfIncludedFunctionalGroups: 1,
-		InterchangeControlNumber:         100001272,
-	}
 
 	edi858.GS = edisegment.GS{
 		FunctionalIdentifierCode: "SI",
@@ -104,9 +100,9 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		Version:                  "004010",
 	}
 
-	edi858.GE = edisegment.GE{
-		NumberOfTransactionSetsIncluded: 1,
-		GroupControlNumber:              100001251,
+	edi858.ST = edisegment.ST{
+		TransactionSetIdentifierCode: "858",
+		TransactionSetControlNumber:  "0001",
 	}
 
 	bx := edisegment.BX{
@@ -192,6 +188,22 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		return ediinvoice.Invoice858C{}, fmt.Errorf("Could not generate payment service item segments: %w", err)
 	}
 	edi858.ServiceItems = append(edi858.ServiceItems, paymentServiceItemSegments...)
+
+	// the total NumberOfIncludedSegments is ST + SE + all segments other than GS, GE, ISA, and IEA
+	edi858.SE = edisegment.SE{
+		NumberOfIncludedSegments:    2 + len(edi858.Header) + len(edi858.ServiceItems),
+		TransactionSetControlNumber: "0001",
+	}
+
+	edi858.GE = edisegment.GE{
+		NumberOfTransactionSetsIncluded: 1,
+		GroupControlNumber:              100001251,
+	}
+
+	edi858.IEA = edisegment.IEA{
+		NumberOfIncludedFunctionalGroups: 1,
+		InterchangeControlNumber:         100001272,
+	}
 
 	return edi858, nil
 }

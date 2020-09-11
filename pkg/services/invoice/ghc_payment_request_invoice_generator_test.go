@@ -153,6 +153,32 @@ func (suite *GHCInvoiceSuite) TestGenerateGHCInvoiceStartEndSegments() {
 		suite.Equal("004010", result.GS.Version)
 	})
 
+	suite.T().Run("adds st start segment", func(t *testing.T) {
+		paymentServiceItem := testdatagen.MakeMultiplePaymentServiceItemParams(
+			suite.DB(),
+			models.ReServiceCodeDLH,
+			basicPaymentServiceItemParams,
+		)
+
+		result, err := generator.Generate(paymentServiceItem.PaymentRequest, false)
+		suite.FatalNoError(err)
+		suite.Equal("858", result.ST.TransactionSetIdentifierCode)
+		suite.Equal("0001", result.ST.TransactionSetControlNumber)
+	})
+
+	suite.T().Run("adds se end segment", func(t *testing.T) {
+		paymentServiceItem := testdatagen.MakeMultiplePaymentServiceItemParams(
+			suite.DB(),
+			models.ReServiceCodeDLH,
+			basicPaymentServiceItemParams,
+		)
+
+		result, err := generator.Generate(paymentServiceItem.PaymentRequest, false)
+		suite.FatalNoError(err)
+		suite.Equal(18, result.SE.NumberOfIncludedSegments)
+		suite.Equal("0001", result.SE.TransactionSetControlNumber)
+	})
+
 	suite.T().Run("adds ge end segment", func(t *testing.T) {
 		paymentServiceItem := testdatagen.MakeMultiplePaymentServiceItemParams(
 			suite.DB(),

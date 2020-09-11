@@ -34,6 +34,7 @@ func (invoice Invoice858C) Segments() [][]string {
 	records := [][]string{
 		invoice.ISA.StringArray(),
 		invoice.GS.StringArray(),
+		invoice.ST.StringArray(),
 	}
 
 	for _, line := range invoice.Header {
@@ -42,6 +43,7 @@ func (invoice Invoice858C) Segments() [][]string {
 	for _, line := range invoice.ServiceItems {
 		records = append(records, line.StringArray())
 	}
+	records = append(records, invoice.SE.StringArray())
 	records = append(records, invoice.GE.StringArray())
 	records = append(records, invoice.IEA.StringArray())
 	return records
