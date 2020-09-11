@@ -61,7 +61,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceFuelSurcharge() {
 }
 
 func (suite *GHCRateEngineServiceSuite) setupFuelSurchargeServiceItem() models.PaymentServiceItem {
-	model := testdatagen.MakeMultiplePaymentServiceItemParams(
+	model := testdatagen.MakePaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeFSC,
 		[]testdatagen.CreatePaymentServiceItemParams{

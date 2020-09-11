@@ -41,8 +41,8 @@ func MakePaymentServiceItemParam(db *pop.Connection, assertions Assertions) mode
 	return paymentServiceItemParam
 }
 
-// MakeMultiplePaymentServiceItemParams creates more than one payment service item param at a time
-func MakeMultiplePaymentServiceItemParams(db *pop.Connection, serviceCode models.ReServiceCode, paramsToCreate []CreatePaymentServiceItemParams) models.PaymentServiceItem {
+// MakePaymentServiceItemWithParams creates more than one payment service item param at a time
+func MakePaymentServiceItemWithParams(db *pop.Connection, serviceCode models.ReServiceCode, paramsToCreate []CreatePaymentServiceItemParams) models.PaymentServiceItem {
 	var params models.PaymentServiceItemParams
 
 	paymentServiceItem := MakePaymentServiceItem(db, Assertions{

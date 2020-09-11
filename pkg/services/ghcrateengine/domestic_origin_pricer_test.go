@@ -18,7 +18,7 @@ const (
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOriginWithServiceItemParamsBadData() {
 	suite.setUpDomesticOriginData()
-	paymentServiceItem := testdatagen.MakeMultiplePaymentServiceItemParams(
+	paymentServiceItem := testdatagen.MakePaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeDOP,
 		[]testdatagen.CreatePaymentServiceItemParams{
@@ -185,7 +185,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 }
 
 func (suite *GHCRateEngineServiceSuite) setupDomesticOriginServiceItems() models.PaymentServiceItem {
-	return testdatagen.MakeMultiplePaymentServiceItemParams(
+	return testdatagen.MakePaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeDOP,
 		[]testdatagen.CreatePaymentServiceItemParams{

@@ -19,7 +19,7 @@ const (
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaulWithServiceItemParamsBadData() {
 	suite.setUpDomesticShorthaulData()
-	paymentServiceItem := testdatagen.MakeMultiplePaymentServiceItemParams(
+	paymentServiceItem := testdatagen.MakePaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeDSH,
 		[]testdatagen.CreatePaymentServiceItemParams{
@@ -207,7 +207,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 }
 
 func (suite *GHCRateEngineServiceSuite) setupDomesticShorthaulServiceItems() models.PaymentServiceItem {
-	return testdatagen.MakeMultiplePaymentServiceItemParams(
+	return testdatagen.MakePaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeDSH,
 		[]testdatagen.CreatePaymentServiceItemParams{

@@ -18,7 +18,7 @@ const (
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticUnpackWithServiceItemParamsBadData() {
 	suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDUPK)
-	paymentServiceItem := testdatagen.MakeMultiplePaymentServiceItemParams(
+	paymentServiceItem := testdatagen.MakePaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeDUPK,
 		[]testdatagen.CreatePaymentServiceItemParams{
@@ -185,7 +185,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticUnpack() {
 }
 
 func (suite *GHCRateEngineServiceSuite) setupDomesticUnpackServiceItems() models.PaymentServiceItem {
-	return testdatagen.MakeMultiplePaymentServiceItemParams(
+	return testdatagen.MakePaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeDUPK,
 		[]testdatagen.CreatePaymentServiceItemParams{

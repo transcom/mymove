@@ -58,7 +58,7 @@ func (suite *GHCInvoiceSuite) AllGenerateEdiTest() {
 			Value:   "2424",
 		},
 	}
-	paymentServiceItem := testdatagen.MakeMultiplePaymentServiceItemParams(
+	paymentServiceItem := testdatagen.MakePaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeDLH,
 		basicPaymentServiceItemParams,
