@@ -61,43 +61,44 @@ func (suite *GHCRateEngineServiceSuite) TestPriceFuelSurcharge() {
 }
 
 func (suite *GHCRateEngineServiceSuite) setupFuelSurchargeServiceItem() models.PaymentServiceItem {
-	model := suite.setupPaymentServiceItemWithParams(
+	model := testdatagen.MakeMultiplePaymentServiceItemParams(
+		suite.DB(),
 		models.ReServiceCodeFSC,
-		[]createParams{
+		[]testdatagen.CreatePaymentServiceItemParams{
 			{
-				models.ServiceItemParamNameContractCode,
-				models.ServiceItemParamTypeString,
-				testdatagen.DefaultContractCode,
+				Key:     models.ServiceItemParamNameContractCode,
+				KeyType: models.ServiceItemParamTypeString,
+				Value:   testdatagen.DefaultContractCode,
 			},
 			{
-				models.ServiceItemParamNameActualPickupDate,
-				models.ServiceItemParamTypeTimestamp,
-				fscActualPickupDate.Format(TimestampParamFormat),
+				Key:     models.ServiceItemParamNameActualPickupDate,
+				KeyType: models.ServiceItemParamTypeTimestamp,
+				Value:   fscActualPickupDate.Format(TimestampParamFormat),
 			},
 			{
-				models.ServiceItemParamNameDistanceZip3,
-				models.ServiceItemParamTypeInteger,
-				fmt.Sprintf("%d", int(fscTestDistance)),
+				Key:     models.ServiceItemParamNameDistanceZip3,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   fmt.Sprintf("%d", int(fscTestDistance)),
 			},
 			{
-				models.ServiceItemParamNameDistanceZip5,
-				models.ServiceItemParamTypeInteger,
-				fmt.Sprintf("%d", 1234), // bogus number, won't be used
+				Key:     models.ServiceItemParamNameDistanceZip5,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   fmt.Sprintf("%d", 1234), // bogus number, won't be used
 			},
 			{
-				models.ServiceItemParamNameWeightBilledActual,
-				models.ServiceItemParamTypeInteger,
-				fmt.Sprintf("%d", int(fscTestWeight)),
+				Key:     models.ServiceItemParamNameWeightBilledActual,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   fmt.Sprintf("%d", int(fscTestWeight)),
 			},
 			{
-				models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier,
-				models.ServiceItemParamTypeDecimal,
-				fmt.Sprintf("%.7f", fscWeightDistanceMultiplier), // we need precision 7 to handle values like 0.0006255
+				Key:     models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier,
+				KeyType: models.ServiceItemParamTypeDecimal,
+				Value:   fmt.Sprintf("%.7f", fscWeightDistanceMultiplier), // we need precision 7 to handle values like 0.0006255
 			},
 			{
-				models.ServiceItemParamNameEIAFuelPrice,
-				models.ServiceItemParamTypeInteger,
-				fmt.Sprintf("%d", int(fscFuelPrice)),
+				Key:     models.ServiceItemParamNameEIAFuelPrice,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   fmt.Sprintf("%d", int(fscFuelPrice)),
 			},
 		},
 	)
