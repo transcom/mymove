@@ -2,6 +2,7 @@ package invoice
 
 import (
 	"fmt"
+	"log"
 	"testing"
 	"time"
 
@@ -19,6 +20,13 @@ import (
 type GHCInvoiceSuite struct {
 	testingsuite.PopTestSuite
 	logger Logger
+}
+
+func (suite *GHCInvoiceSuite) SetupTest() {
+	errTruncateAll := suite.DB().TruncateAll()
+	if errTruncateAll != nil {
+		log.Panicf("failed to truncate database: %#v", errTruncateAll)
+	}
 }
 
 func TestGHCInvoiceSuite(t *testing.T) {
