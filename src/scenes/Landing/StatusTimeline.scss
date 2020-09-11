@@ -1,3 +1,11 @@
+@import '../../shared/styles/basics';
+@import '../../shared/styles/mixins';
+@import '../../shared/styles/colors';
+
+.status_block.status_current .status_name {
+  @include u-text('bold');
+}
+
 .shipment_box_contents .status_timeline {
   display: flex;
   flex-direction: row;
@@ -5,6 +13,7 @@
   margin-top: 2rem;
   margin-bottom: 2rem;
   text-align: center;
+  @include u-font-size('body', '3xs');
 }
 
 .shipment_box_contents .status_block {
@@ -20,15 +29,12 @@
   display: block;
   width: 20px;
   height: 20px;
-  background: #d6d7d9;
+  background: white;
+  border: 3px solid $base-lighter;
   border-radius: 50%;
   -moz-border-radius: 50%;
   -webkit-border-radius: 50%;
   z-index: 10;
-}
-
-.status_block.status_current .status_name {
-  font-weight: bold;
 }
 
 .status_block.packed .status_dates,
@@ -41,13 +47,24 @@
   content: ' *';
 }
 
+.status_block {
+  color: $base;
+}
+
+.status_block.status_completed,
+.status_block.status_current {
+  color: black;
+}
+
 .status_block.status_completed .status_dot {
   background: #102e51;
+  border: none;
   box-shadow: 0px 0px 0px 2px #102e51;
 }
 
 .status_block.status_current .status_dot {
   background: #102e51;
+  border: none;
   box-shadow: 0px 0px 0px 4px #0270bc;
 }
 
@@ -77,9 +94,10 @@
 }
 
 .shipment_box_contents .status_name {
-  margin: 1rem 0 0.2rem 0;
+  margin: 1rem 0 0 0;
   max-width: 100px;
   text-align: center;
+  line-height: 1.25;
 }
 
 .status_timeline .legend {
@@ -88,4 +106,10 @@
   position: absolute;
   bottom: 2rem;
   left: 1rem;
+}
+
+@include at-media(tablet) {
+  .shipment_box_contents .status_timeline {
+    @include u-font-size('body', '2xs');
+  }
 }
