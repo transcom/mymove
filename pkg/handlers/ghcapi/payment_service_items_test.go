@@ -134,12 +134,7 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 	suite.T().Run("Successful patch - Approval of Prime available paymentServiceItem", func(t *testing.T) {
 		availableMTO := testdatagen.MakeAvailableMove(suite.DB())
 		availablePaymentServiceItem := testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-				Move: availableMTO,
-			}),
-			MTOServiceItem: testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-				Move: availableMTO,
-			}),
+			Move: availableMTO,
 		})
 		requestUser := testdatagen.MakeDefaultUser(suite.DB())
 
