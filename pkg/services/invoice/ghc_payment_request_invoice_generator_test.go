@@ -22,7 +22,6 @@ type GHCInvoiceSuite struct {
 }
 
 func TestGHCInvoiceSuite(t *testing.T) {
-
 	ts := &GHCInvoiceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("ghcinvoice")),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
@@ -34,7 +33,7 @@ func TestGHCInvoiceSuite(t *testing.T) {
 const testDateFormat = "20060102"
 const testTimeFormat = "1504"
 
-func (suite *GHCInvoiceSuite) TestGenerateGHCInvoiceIncompleteLoad() {
+func (suite *GHCInvoiceSuite) AllGenerateEdiTest() {
 	currentTime := time.Now()
 	generator := GHCPaymentRequestInvoiceGenerator{DB: suite.DB()}
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
@@ -59,14 +58,15 @@ func (suite *GHCInvoiceSuite) TestGenerateGHCInvoiceIncompleteLoad() {
 			Value:   "2424",
 		},
 	}
+	paymentServiceItem := testdatagen.MakeMultiplePaymentServiceItemParams(
+		suite.DB(),
+		models.ReServiceCodeDLH,
+		basicPaymentServiceItemParams,
+	)
+	serviceMember := paymentServiceItem.PaymentRequest.MoveTaskOrder.Orders.ServiceMember
 
-	suite.T().Run("doesn't fail if paymentRequest relationships are not loaded", func(t *testing.T) {
-		paymentServiceItem := testdatagen.MakeMultiplePaymentServiceItemParams(
-			suite.DB(),
-			models.ReServiceCodeDLH,
-			basicPaymentServiceItemParams,
-		)
-
+	// Test incomplete load
+	suite.T().Run("Doesn't fail if paymentRequest relationships are not loaded", func(t *testing.T) {
 		paymentServiceItem.PaymentRequest.MoveTaskOrder.Orders.ServiceMember = models.ServiceMember{}
 		_, err := generator.Generate(paymentServiceItem.PaymentRequest, false)
 		suite.NoError(err)
@@ -79,43 +79,13 @@ func (suite *GHCInvoiceSuite) TestGenerateGHCInvoiceIncompleteLoad() {
 		_, err = generator.Generate(paymentServiceItem.PaymentRequest, false)
 		suite.NoError(err)
 	})
-}
 
-func (suite *GHCInvoiceSuite) TestGenerateGHCInvoiceStartEndSegments() {
-	currentTime := time.Now()
-	generator := GHCPaymentRequestInvoiceGenerator{DB: suite.DB()}
-	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
-		{
-			Key:     models.ServiceItemParamNameContractCode,
-			KeyType: models.ServiceItemParamTypeString,
-			Value:   testdatagen.DefaultContractCode,
-		},
-		{
-			Key:     models.ServiceItemParamNameRequestedPickupDate,
-			KeyType: models.ServiceItemParamTypeDate,
-			Value:   currentTime.Format(dateFormat),
-		},
-		{
-			Key:     models.ServiceItemParamNameWeightBilledActual,
-			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   "4242",
-		},
-		{
-			Key:     models.ServiceItemParamNameDistanceZip3,
-			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   "2424",
-		},
-	}
+	result, err := generator.Generate(paymentServiceItem.PaymentRequest, false)
+	suite.FatalNoError(err)
 
+	//Test Invoice Start and End Segments
 	suite.T().Run("adds isa start segment", func(t *testing.T) {
-		paymentServiceItem := testdatagen.MakeMultiplePaymentServiceItemParams(
-			suite.DB(),
-			models.ReServiceCodeDLH,
-			basicPaymentServiceItemParams,
-		)
 
-		result, err := generator.Generate(paymentServiceItem.PaymentRequest, false)
-		suite.FatalNoError(err)
 		suite.Equal("00", result.ISA.AuthorizationInformationQualifier)
 		suite.Equal("0084182369", result.ISA.AuthorizationInformation)
 		suite.Equal("00", result.ISA.SecurityInformationQualifier)
@@ -135,14 +105,6 @@ func (suite *GHCInvoiceSuite) TestGenerateGHCInvoiceStartEndSegments() {
 	})
 
 	suite.T().Run("adds gs start segment", func(t *testing.T) {
-		paymentServiceItem := testdatagen.MakeMultiplePaymentServiceItemParams(
-			suite.DB(),
-			models.ReServiceCodeDLH,
-			basicPaymentServiceItemParams,
-		)
-
-		result, err := generator.Generate(paymentServiceItem.PaymentRequest, false)
-		suite.FatalNoError(err)
 		suite.Equal("SI", result.GS.FunctionalIdentifierCode)
 		suite.Equal("MYMOVE", result.GS.ApplicationSendersCode)
 		suite.Equal("8004171844", result.GS.ApplicationReceiversCode)
@@ -154,92 +116,26 @@ func (suite *GHCInvoiceSuite) TestGenerateGHCInvoiceStartEndSegments() {
 	})
 
 	suite.T().Run("adds st start segment", func(t *testing.T) {
-		paymentServiceItem := testdatagen.MakeMultiplePaymentServiceItemParams(
-			suite.DB(),
-			models.ReServiceCodeDLH,
-			basicPaymentServiceItemParams,
-		)
-
-		result, err := generator.Generate(paymentServiceItem.PaymentRequest, false)
-		suite.FatalNoError(err)
 		suite.Equal("858", result.ST.TransactionSetIdentifierCode)
 		suite.Equal("0001", result.ST.TransactionSetControlNumber)
 	})
 
 	suite.T().Run("adds se end segment", func(t *testing.T) {
-		paymentServiceItem := testdatagen.MakeMultiplePaymentServiceItemParams(
-			suite.DB(),
-			models.ReServiceCodeDLH,
-			basicPaymentServiceItemParams,
-		)
-
-		result, err := generator.Generate(paymentServiceItem.PaymentRequest, false)
-		suite.FatalNoError(err)
 		suite.Equal(18, result.SE.NumberOfIncludedSegments)
 		suite.Equal("0001", result.SE.TransactionSetControlNumber)
 	})
 
 	suite.T().Run("adds ge end segment", func(t *testing.T) {
-		paymentServiceItem := testdatagen.MakeMultiplePaymentServiceItemParams(
-			suite.DB(),
-			models.ReServiceCodeDLH,
-			basicPaymentServiceItemParams,
-		)
-
-		result, err := generator.Generate(paymentServiceItem.PaymentRequest, false)
-		suite.FatalNoError(err)
 		suite.Equal(1, result.GE.NumberOfTransactionSetsIncluded)
 		suite.Equal(int64(100001251), result.GE.GroupControlNumber)
 	})
 
 	suite.T().Run("adds iea end segment", func(t *testing.T) {
-		paymentServiceItem := testdatagen.MakeMultiplePaymentServiceItemParams(
-			suite.DB(),
-			models.ReServiceCodeDLH,
-			basicPaymentServiceItemParams,
-		)
-
-		result, err := generator.Generate(paymentServiceItem.PaymentRequest, false)
-		suite.FatalNoError(err)
 		suite.Equal(1, result.IEA.NumberOfIncludedFunctionalGroups)
 		suite.Equal(int64(100001272), result.IEA.InterchangeControlNumber)
 	})
-}
 
-func (suite *GHCInvoiceSuite) TestGenerateGHCInvoiceHeader() {
-	currentTime := time.Now()
-	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
-		{
-			Key:     models.ServiceItemParamNameContractCode,
-			KeyType: models.ServiceItemParamTypeString,
-			Value:   testdatagen.DefaultContractCode,
-		},
-		{
-			Key:     models.ServiceItemParamNameRequestedPickupDate,
-			KeyType: models.ServiceItemParamTypeDate,
-			Value:   currentTime.Format(dateFormat),
-		},
-		{
-			Key:     models.ServiceItemParamNameWeightBilledActual,
-			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   "4242",
-		},
-		{
-			Key:     models.ServiceItemParamNameDistanceZip3,
-			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   "2424",
-		},
-	}
-	generator := GHCPaymentRequestInvoiceGenerator{DB: suite.DB()}
-	paymentServiceItem := testdatagen.MakeMultiplePaymentServiceItemParams(
-		suite.DB(),
-		models.ReServiceCodeDLH,
-		basicPaymentServiceItemParams,
-	)
-
-	result, err := generator.Generate(paymentServiceItem.PaymentRequest, false)
-	suite.FatalNoError(err)
-
+	// Test Header Generation
 	suite.T().Run("adds bx header segment", func(t *testing.T) {
 		suite.IsType(&edisegment.BX{}, result.Header[0])
 		bx := result.Header[0].(*edisegment.BX)
@@ -256,7 +152,6 @@ func (suite *GHCInvoiceSuite) TestGenerateGHCInvoiceHeader() {
 		suite.NoError(err)
 	})
 
-	serviceMember := paymentServiceItem.PaymentRequest.MoveTaskOrder.Orders.ServiceMember
 	testData := []struct {
 		TestName      string
 		Qualifier     string
@@ -334,44 +229,9 @@ func (suite *GHCInvoiceSuite) TestGenerateGHCInvoiceHeader() {
 		suite.Equal(address.PostalCode, n4.PostalCode)
 		suite.Equal(*address.Country, n4.CountryCode)
 	})
-}
 
-func (suite *GHCInvoiceSuite) TestGenerateGHCInvoiceBody() {
-	currentTime := time.Now()
-	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
-		{
-			Key:     models.ServiceItemParamNameContractCode,
-			KeyType: models.ServiceItemParamTypeString,
-			Value:   testdatagen.DefaultContractCode,
-		},
-		{
-			Key:     models.ServiceItemParamNameRequestedPickupDate,
-			KeyType: models.ServiceItemParamTypeDate,
-			Value:   currentTime.Format(dateFormat),
-		},
-		{
-			Key:     models.ServiceItemParamNameWeightBilledActual,
-			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   "4242",
-		},
-		{
-			Key:     models.ServiceItemParamNameDistanceZip3,
-			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   "2424",
-		},
-	}
-	generator := GHCPaymentRequestInvoiceGenerator{DB: suite.DB()}
-
+	// Test Generate Invoice Body
 	suite.T().Run("adds l0 service item segment", func(t *testing.T) {
-		paymentServiceItem := testdatagen.MakeMultiplePaymentServiceItemParams(
-			suite.DB(),
-			models.ReServiceCodeDLH,
-			basicPaymentServiceItemParams,
-		)
-
-		result, err := generator.Generate(paymentServiceItem.PaymentRequest, false)
-		suite.FatalNoError(err)
-
 		lastIdx := len(result.ServiceItems) - 1
 		suite.IsType(&edisegment.L0{}, result.ServiceItems[lastIdx])
 		l0 := result.ServiceItems[lastIdx].(*edisegment.L0)
