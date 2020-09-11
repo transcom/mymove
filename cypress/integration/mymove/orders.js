@@ -4,6 +4,7 @@ describe('orders entry', function () {
   });
 
   it('will accept orders information', function () {
+    // needs@orde.rs
     cy.apiSignInAsPpmUser('feac0e92-66ec-4cab-ad29-538129bf918e');
     cy.contains('New move (from Yuma AFB)');
     cy.contains('No details');

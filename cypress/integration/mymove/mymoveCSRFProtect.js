@@ -22,6 +22,7 @@ describe('testing CSRF protection for dev login', function () {
   };
 
   it('tests dev login with both unmasked and masked token', function () {
+    // sm_no_move_type@example.com
     cy.apiSignInAsPpmUser(userId);
     cy.contains('Move to be scheduled');
     cy.contains('Next Step: Finish setting up your move');
@@ -92,6 +93,7 @@ describe('testing CSRF protection updating user profile', function () {
   });
 
   beforeEach(() => {
+    // sm_no_move_type@example.com
     const userId = '9ceb8321-6a82-4f6d-8bb3-a1d85922a202';
     cy.apiSignInAsPpmUser(userId);
   });
