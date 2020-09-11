@@ -77,7 +77,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				StreetAddress3: pickupAddress.StreetAddress3,
 			},
 			PointOfContact:      "John Doe",
-			RequestedPickupDate: strfmt.Date(*mtoShipment.RequestedPickupDate),
+			RequestedPickupDate: handlers.FmtDatePtr(mtoShipment.RequestedPickupDate),
 			ShipmentType:        primemessages.MTOShipmentTypeHHG,
 		},
 	}

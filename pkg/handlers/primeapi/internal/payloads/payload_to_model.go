@@ -3,6 +3,7 @@ package payloads
 import (
 	"time"
 
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate"
 
 	"github.com/gofrs/uuid"
@@ -90,12 +91,14 @@ func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateMTOShipment) *m
 		return nil
 	}
 
-	requestedPickupDate := time.Time(mtoShipment.RequestedPickupDate)
 	model := &models.MTOShipment{
-		MoveTaskOrderID:     uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String()),
-		ShipmentType:        models.MTOShipmentType(mtoShipment.ShipmentType),
-		RequestedPickupDate: &requestedPickupDate,
-		CustomerRemarks:     mtoShipment.CustomerRemarks,
+		MoveTaskOrderID: uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String()),
+		ShipmentType:    models.MTOShipmentType(mtoShipment.ShipmentType),
+		CustomerRemarks: mtoShipment.CustomerRemarks,
+	}
+
+	if mtoShipment.RequestedPickupDate != nil {
+		model.RequestedPickupDate = swag.Time(time.Time(*mtoShipment.RequestedPickupDate))
 	}
 
 	if mtoShipment.PickupAddress != nil {
