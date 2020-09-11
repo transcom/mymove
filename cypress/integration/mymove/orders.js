@@ -29,7 +29,7 @@ describe('orders entry', function () {
     cy.get('.usa-error-message').contains(
       'You entered the same duty station for your origin and destination. Please change one of them.',
     );
-    cy.get('button.next').should('be.disabled');
+    cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
 
     cy.selectDutyStation('NAS Fort Worth JRB', 'new_duty_station');
 

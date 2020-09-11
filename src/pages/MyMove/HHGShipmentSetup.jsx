@@ -19,7 +19,7 @@ class HHGShipmentSetup extends Component {
 
   render() {
     const { pageList, pageKey, match, history, mtoShipment } = this.props;
-    const isEditShipmentPage = match.path === '/moves/:moveId/edit-shipment';
+    const isEditShipmentPage = match.path === '/moves/:moveId/mto-shipments/:mtoShipmentId/edit-shipment';
     const isHHGFormPage = match.path === '/moves/:moveId/hhg-start';
     return (
       <div>
@@ -50,8 +50,8 @@ const mapDispatchToProps = {
 };
 
 HHGShipmentSetup.propTypes = {
-  pageList: arrayOf(string).isRequired,
-  pageKey: string.isRequired,
+  pageList: arrayOf(string),
+  pageKey: string,
   match: shape({
     isExact: bool.isRequired,
     params: shape({
@@ -105,6 +105,8 @@ HHGShipmentSetup.defaultProps = {
       street_address_1: '',
     },
   },
+  pageList: [],
+  pageKey: '',
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(HHGShipmentSetup);

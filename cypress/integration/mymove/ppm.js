@@ -122,7 +122,7 @@ function SMSubmitsMove() {
 
   cy.get('input[name="signature"]').type('Jane Doe');
 
-  cy.nextPage();
+  cy.completeFlow();
 
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/$/);
@@ -188,7 +188,7 @@ function SMCompletesMove() {
 
   cy.get('input[name="signature"]').type('Jane Doe');
 
-  cy.nextPage();
+  cy.completeFlow();
 
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/$/);

@@ -32,7 +32,7 @@ function serviceMemberChoosesConusOrOconus() {
     expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/conus-status/);
   });
   cy.get('[data-testid="radio"] label').contains('CONUS');
-  cy.get('button.next').click();
+  cy.get('button[data-testid="wizardNextButton"]').click();
 }
 
 function serviceMemberProfile(reloadAfterEveryPage) {
@@ -40,7 +40,7 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   // does not have welcome message throughout setup
   cy.get('span').contains('Welcome,').should('not.exist');
 
-  cy.get('button.next').should('be.disabled');
+  cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
   cy.get('select[name="affiliation"]').select('Army');
   cy.get('input[name="edipi"]').type('1234567890');
   cy.get('input[name="social_security_number').type('123456789');
@@ -51,7 +51,7 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   });
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   //name
-  cy.get('button.next').should('be.disabled');
+  cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
   cy.get('input[name="first_name"]').type('Jane');
   cy.get('input[name="last_name"]').type('Doe');
   cy.nextPage();
@@ -61,7 +61,7 @@ function serviceMemberProfile(reloadAfterEveryPage) {
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   //contact info
-  cy.get('button.next').should('be.disabled');
+  cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
   cy.get('input[name="telephone"]').type('6784567890');
   cy.get('[type="checkbox"]').not('[disabled]').check({ force: true }).should('be.checked');
   cy.nextPage();
@@ -71,7 +71,7 @@ function serviceMemberProfile(reloadAfterEveryPage) {
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   //duty station
-  cy.get('button.next').should('be.disabled');
+  cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
   cy.selectDutyStation('Fort Carson', 'current_station');
 
   cy.nextPage();
@@ -81,13 +81,13 @@ function serviceMemberProfile(reloadAfterEveryPage) {
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   //residential-address
-  cy.get('button.next').should('be.disabled');
+  cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
   cy.get('input[name="street_address_1"]').type('123 main');
   cy.get('input[name="city"]').type('Anytown');
   cy.get('select[name="state"]').select('CO');
   cy.get('input[name="postal_code"]').clear().type('00001').blur();
   cy.get('#postal_code-error').should('exist');
-  cy.get('button.next').should('be.disabled');
+  cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
   cy.get('input[name="postal_code"]').clear().type('80913');
   cy.get('#postal_code-error').should('not.exist');
   cy.nextPage();
@@ -97,7 +97,7 @@ function serviceMemberProfile(reloadAfterEveryPage) {
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   // backup address
-  cy.get('button.next').should('be.disabled');
+  cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
   cy.get('input[name="street_address_1"]').type('567 Another St');
   cy.get('input[name="city"]').type('Anytown');
   cy.get('select[name="state"]').select('CO');
