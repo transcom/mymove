@@ -123,14 +123,24 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	}
 	edi858.Header = append(edi858.Header, serviceMemberSegments...)
 
-	// TODO: Determine correct values to fill in the l7 segment
-	// l7 := edisegment.L7{
-	// 	LadingLineItemNumber:    812,
-	// 	TariffNumber:    "T",
-	// 	TariffItemNumber:      "",
-	// 	TariffDistance: ,
-	// }
-	// edi858.Header = append(edi858.Header, &l7)
+	// Add requested pickup date
+	var requestedPickupDateParam models.PaymentServiceItemParam
+	err = g.DB.Q().
+		Join("service_item_param_keys sipk", "payment_service_item_params.service_item_param_key_id = sipk.id").
+		Join("payment_service_items psi", "payment_service_item_params.payment_service_item_id = psi.id").
+		Join("payment_requests pr", "psi.payment_request_id = pr.id").
+		Where("pr.id = ?", paymentRequest.ID).
+		Where("sipk.key = ?", models.ServiceItemParamNameRequestedPickupDate).
+		First(&requestedPickupDateParam)
+	if err != nil {
+		return ediinvoice.Invoice858C{}, err
+	}
+
+	requestedPickupDateSegment := edisegment.G62{
+		DateQualifier: 86,
+		Date:          requestedPickupDateParam.Value,
+	}
+	edi858.Header = append(edi858.Header, &requestedPickupDateSegment)
 
 	// Add origin and destination details to header
 	originDestinationSegments, err := g.createOriginAndDestinationSegments(paymentRequest)
