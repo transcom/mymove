@@ -18,28 +18,29 @@ const (
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticPackWithServiceItemParamsBadData() {
 	suite.setUpDomesticPackAndUnpackData(models.ReServiceCodeDPK)
-	paymentServiceItem := suite.setupPaymentServiceItemWithParams(
+	paymentServiceItem := testdatagen.MakeMultiplePaymentServiceItemParams(
+		suite.DB(),
 		models.ReServiceCodeDPK,
-		[]createParams{
+		[]testdatagen.CreatePaymentServiceItemParams{
 			{
-				models.ServiceItemParamNameContractCode,
-				models.ServiceItemParamTypeString,
-				testdatagen.DefaultContractCode,
+				Key:     models.ServiceItemParamNameContractCode,
+				KeyType: models.ServiceItemParamTypeString,
+				Value:   testdatagen.DefaultContractCode,
 			},
 			{
-				models.ServiceItemParamNameRequestedPickupDate,
-				models.ServiceItemParamTypeDate,
-				time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC).Format(DateParamFormat),
+				Key:     models.ServiceItemParamNameRequestedPickupDate,
+				KeyType: models.ServiceItemParamTypeDate,
+				Value:   time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC).Format(DateParamFormat),
 			},
 			{
-				models.ServiceItemParamNameWeightBilledActual,
-				models.ServiceItemParamTypeInteger,
-				"0",
+				Key:     models.ServiceItemParamNameWeightBilledActual,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   "0",
 			},
 			{
-				models.ServiceItemParamNameServicesScheduleOrigin,
-				models.ServiceItemParamTypeInteger,
-				strconv.Itoa(servicesScheduleOrigin),
+				Key:     models.ServiceItemParamNameServicesScheduleOrigin,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   strconv.Itoa(servicesScheduleOrigin),
 			},
 		},
 	)
@@ -184,28 +185,29 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticPack() {
 }
 
 func (suite *GHCRateEngineServiceSuite) setupDomesticPackServiceItems() models.PaymentServiceItem {
-	return suite.setupPaymentServiceItemWithParams(
+	return testdatagen.MakeMultiplePaymentServiceItemParams(
+		suite.DB(),
 		models.ReServiceCodeDPK,
-		[]createParams{
+		[]testdatagen.CreatePaymentServiceItemParams{
 			{
-				models.ServiceItemParamNameContractCode,
-				models.ServiceItemParamTypeString,
-				testdatagen.DefaultContractCode,
+				Key:     models.ServiceItemParamNameContractCode,
+				KeyType: models.ServiceItemParamTypeString,
+				Value:   testdatagen.DefaultContractCode,
 			},
 			{
-				models.ServiceItemParamNameRequestedPickupDate,
-				models.ServiceItemParamTypeDate,
-				time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC).Format(DateParamFormat),
+				Key:     models.ServiceItemParamNameRequestedPickupDate,
+				KeyType: models.ServiceItemParamTypeDate,
+				Value:   time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC).Format(DateParamFormat),
 			},
 			{
-				models.ServiceItemParamNameWeightBilledActual,
-				models.ServiceItemParamTypeInteger,
-				strconv.Itoa(weightBilledActual),
+				Key:     models.ServiceItemParamNameWeightBilledActual,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   strconv.Itoa(weightBilledActual),
 			},
 			{
-				models.ServiceItemParamNameServicesScheduleOrigin,
-				models.ServiceItemParamTypeInteger,
-				strconv.Itoa(servicesScheduleOrigin),
+				Key:     models.ServiceItemParamNameServicesScheduleOrigin,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   strconv.Itoa(servicesScheduleOrigin),
 			},
 		},
 	)

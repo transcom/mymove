@@ -19,33 +19,34 @@ const (
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaulWithServiceItemParamsBadData() {
 	suite.setUpDomesticShorthaulData()
-	paymentServiceItem := suite.setupPaymentServiceItemWithParams(
+	paymentServiceItem := testdatagen.MakeMultiplePaymentServiceItemParams(
+		suite.DB(),
 		models.ReServiceCodeDSH,
-		[]createParams{
+		[]testdatagen.CreatePaymentServiceItemParams{
 			{
-				models.ServiceItemParamNameContractCode,
-				models.ServiceItemParamTypeString,
-				testdatagen.DefaultContractCode,
+				Key:     models.ServiceItemParamNameContractCode,
+				KeyType: models.ServiceItemParamTypeString,
+				Value:   testdatagen.DefaultContractCode,
 			},
 			{
-				models.ServiceItemParamNameRequestedPickupDate,
-				models.ServiceItemParamTypeDate,
-				time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC).Format(DateParamFormat),
+				Key:     models.ServiceItemParamNameRequestedPickupDate,
+				KeyType: models.ServiceItemParamTypeDate,
+				Value:   time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC).Format(DateParamFormat),
 			},
 			{
-				models.ServiceItemParamNameDistanceZip5,
-				models.ServiceItemParamTypeInteger,
-				strconv.Itoa(dshTestMileage),
+				Key:     models.ServiceItemParamNameDistanceZip5,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   strconv.Itoa(dshTestMileage),
 			},
 			{
-				models.ServiceItemParamNameWeightBilledActual,
-				models.ServiceItemParamTypeInteger,
-				"0",
+				Key:     models.ServiceItemParamNameWeightBilledActual,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   "0",
 			},
 			{
-				models.ServiceItemParamNameServiceAreaOrigin,
-				models.ServiceItemParamTypeString,
-				dshTestServiceArea,
+				Key:     models.ServiceItemParamNameServiceAreaOrigin,
+				KeyType: models.ServiceItemParamTypeString,
+				Value:   dshTestServiceArea,
 			},
 		},
 	)
@@ -206,33 +207,34 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 }
 
 func (suite *GHCRateEngineServiceSuite) setupDomesticShorthaulServiceItems() models.PaymentServiceItem {
-	return suite.setupPaymentServiceItemWithParams(
+	return testdatagen.MakeMultiplePaymentServiceItemParams(
+		suite.DB(),
 		models.ReServiceCodeDSH,
-		[]createParams{
+		[]testdatagen.CreatePaymentServiceItemParams{
 			{
-				models.ServiceItemParamNameContractCode,
-				models.ServiceItemParamTypeString,
-				testdatagen.DefaultContractCode,
+				Key:     models.ServiceItemParamNameContractCode,
+				KeyType: models.ServiceItemParamTypeString,
+				Value:   testdatagen.DefaultContractCode,
 			},
 			{
-				models.ServiceItemParamNameRequestedPickupDate,
-				models.ServiceItemParamTypeDate,
-				time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC).Format(DateParamFormat),
+				Key:     models.ServiceItemParamNameRequestedPickupDate,
+				KeyType: models.ServiceItemParamTypeDate,
+				Value:   time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC).Format(DateParamFormat),
 			},
 			{
-				models.ServiceItemParamNameDistanceZip5,
-				models.ServiceItemParamTypeInteger,
-				strconv.Itoa(dshTestMileage),
+				Key:     models.ServiceItemParamNameDistanceZip5,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   strconv.Itoa(dshTestMileage),
 			},
 			{
-				models.ServiceItemParamNameWeightBilledActual,
-				models.ServiceItemParamTypeInteger,
-				strconv.Itoa(dshTestWeight),
+				Key:     models.ServiceItemParamNameWeightBilledActual,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   strconv.Itoa(dshTestWeight),
 			},
 			{
-				models.ServiceItemParamNameServiceAreaOrigin,
-				models.ServiceItemParamTypeString,
-				dshTestServiceArea,
+				Key:     models.ServiceItemParamNameServiceAreaOrigin,
+				KeyType: models.ServiceItemParamTypeString,
+				Value:   dshTestServiceArea,
 			},
 		},
 	)

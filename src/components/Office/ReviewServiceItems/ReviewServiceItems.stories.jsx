@@ -18,6 +18,9 @@ export default {
       <div style={{ margin: '10px', height: '80vh', display: 'flex', flexDirection: 'column' }}>{storyFn()}</div>
     ),
   ],
+  parameters: {
+    loki: { skip: true },
+  },
 };
 
 const pendingPaymentRequest = { status: PAYMENT_REQUEST_STATUS.PENDING };

@@ -18,28 +18,29 @@ const (
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOriginWithServiceItemParamsBadData() {
 	suite.setUpDomesticOriginData()
-	paymentServiceItem := suite.setupPaymentServiceItemWithParams(
+	paymentServiceItem := testdatagen.MakeMultiplePaymentServiceItemParams(
+		suite.DB(),
 		models.ReServiceCodeDOP,
-		[]createParams{
+		[]testdatagen.CreatePaymentServiceItemParams{
 			{
-				models.ServiceItemParamNameContractCode,
-				models.ServiceItemParamTypeString,
-				testdatagen.DefaultContractCode,
+				Key:     models.ServiceItemParamNameContractCode,
+				KeyType: models.ServiceItemParamTypeString,
+				Value:   testdatagen.DefaultContractCode,
 			},
 			{
-				models.ServiceItemParamNameRequestedPickupDate,
-				models.ServiceItemParamTypeDate,
-				time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC).Format(DateParamFormat),
+				Key:     models.ServiceItemParamNameRequestedPickupDate,
+				KeyType: models.ServiceItemParamTypeDate,
+				Value:   time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC).Format(DateParamFormat),
 			},
 			{
-				models.ServiceItemParamNameWeightBilledActual,
-				models.ServiceItemParamTypeInteger,
-				"0",
+				Key:     models.ServiceItemParamNameWeightBilledActual,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   "0",
 			},
 			{
-				models.ServiceItemParamNameServiceAreaOrigin,
-				models.ServiceItemParamTypeString,
-				dopTestServiceArea,
+				Key:     models.ServiceItemParamNameServiceAreaOrigin,
+				KeyType: models.ServiceItemParamTypeString,
+				Value:   dopTestServiceArea,
 			},
 		},
 	)
@@ -184,28 +185,29 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 }
 
 func (suite *GHCRateEngineServiceSuite) setupDomesticOriginServiceItems() models.PaymentServiceItem {
-	return suite.setupPaymentServiceItemWithParams(
+	return testdatagen.MakeMultiplePaymentServiceItemParams(
+		suite.DB(),
 		models.ReServiceCodeDOP,
-		[]createParams{
+		[]testdatagen.CreatePaymentServiceItemParams{
 			{
-				models.ServiceItemParamNameContractCode,
-				models.ServiceItemParamTypeString,
-				testdatagen.DefaultContractCode,
+				Key:     models.ServiceItemParamNameContractCode,
+				KeyType: models.ServiceItemParamTypeString,
+				Value:   testdatagen.DefaultContractCode,
 			},
 			{
-				models.ServiceItemParamNameRequestedPickupDate,
-				models.ServiceItemParamTypeDate,
-				time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC).Format(DateParamFormat),
+				Key:     models.ServiceItemParamNameRequestedPickupDate,
+				KeyType: models.ServiceItemParamTypeDate,
+				Value:   time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC).Format(DateParamFormat),
 			},
 			{
-				models.ServiceItemParamNameWeightBilledActual,
-				models.ServiceItemParamTypeInteger,
-				strconv.Itoa(dshTestWeight),
+				Key:     models.ServiceItemParamNameWeightBilledActual,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   strconv.Itoa(dshTestWeight),
 			},
 			{
-				models.ServiceItemParamNameServiceAreaOrigin,
-				models.ServiceItemParamTypeString,
-				dopTestServiceArea,
+				Key:     models.ServiceItemParamNameServiceAreaOrigin,
+				KeyType: models.ServiceItemParamTypeString,
+				Value:   dopTestServiceArea,
 			},
 		},
 	)

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 import styles from './ReviewSection.module.scss';
 
-const ReviewSection = ({ fieldData, title, editLink, useH4 }) => {
+const ReviewSection = ({ fieldData, title, editLink, useH4, datatestid }) => {
   const reviewSectionInputs = (fields) => {
     return fields.map((field) => (
       <tr key={field.label}>
@@ -24,7 +24,7 @@ const ReviewSection = ({ fieldData, title, editLink, useH4 }) => {
             <h3>
               {title}
               <span className={styles['edit-section-link']}>
-                <Link to={editLink} data-testid="edit-shipment" className="usa-link">
+                <Link data-testid={datatestid} to={editLink} className="usa-link">
                   Edit
                 </Link>
               </span>
@@ -33,7 +33,7 @@ const ReviewSection = ({ fieldData, title, editLink, useH4 }) => {
             <h4>
               {title}
               <span className={styles['edit-section-link']}>
-                <Link to={editLink} data-testid="edit-shipment" className="usa-link">
+                <Link data-testid={datatestid} to={editLink} className="usa-link">
                   Edit
                 </Link>
               </span>
@@ -56,6 +56,7 @@ ReviewSection.defaultProps = {
   title: '',
   editLink: '',
   useH4: false,
+  datatestid: '',
 };
 
 ReviewSection.propTypes = {
@@ -68,6 +69,7 @@ ReviewSection.propTypes = {
   ).isRequired,
   title: PropTypes.string,
   editLink: PropTypes.string,
+  datatestid: PropTypes.string,
   useH4: PropTypes.bool,
 };
 

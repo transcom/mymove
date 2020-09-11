@@ -56,6 +56,10 @@ type MovePayload struct {
 	// status
 	Status MoveStatus `json:"status,omitempty"`
 
+	// submitted at
+	// Format: date-time
+	SubmittedAt *strfmt.DateTime `json:"submitted_at,omitempty"`
+
 	// updated at
 	// Required: true
 	// Format: date-time
@@ -99,6 +103,10 @@ func (m *MovePayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSubmittedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -233,6 +241,19 @@ func (m *MovePayload) validateStatus(formats strfmt.Registry) error {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
 		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MovePayload) validateSubmittedAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SubmittedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("submitted_at", "body", "date-time", m.SubmittedAt.String(), formats); err != nil {
 		return err
 	}
 
