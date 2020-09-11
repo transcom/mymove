@@ -16,6 +16,8 @@ import { loadEntitlementsFromState } from 'shared/entitlements';
 import Alert from 'shared/Alert';
 import { titleCase } from 'shared/constants.js';
 import { selectedMoveType as selectMoveType } from 'scenes/Moves/ducks';
+import ProfileTable from 'components/Customer/Review/ProfileTable/index.jsx';
+import OrdersTable from 'components/Customer/Review/OrdersTable/index.jsx';
 
 import { checkEntitlement } from './ducks';
 import ServiceMemberSummary from './ServiceMemberSummary';
@@ -26,72 +28,6 @@ import './Review.css';
 import { selectActivePPMForMove } from '../../shared/Entities/modules/ppms';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { selectMTOShipmentsByMoveId } from 'shared/Entities/modules/mtoShipments';
-
-/*
- const OrdersContainer = ({children}) => (<div className="table-container">{children}</div>)
-
- <OrdersContainer>
-   <THeader>
-     Profile
-     <Link>Edit</Link>
-   </THeader>
-   <TContents>
-     <tRow>
-       <tHeader>Orders type</tHeader>
-       <tData>Permanent Change of Station</tData>
-     </tRow>
-   </TContents>
- </OrdersContainer>;
-
-        <OrdersContainer>
-          <THeader>
-            Profile
-            <Link>Edit</Link>
-          </THeader>
-          <TContents>
-            <tRow>
-              <tHeader>Orders type</tHeader>
-              <tData>Permanent Change of Station</tData>
-            </tRow>
-          </TContents>
-        </OrdersContainer>
-
-        <div className="table-container">
-          <div className="header-container">
-            <h3>Orders</h3>
-            <button>Edit</button>
-          </div>
-          <table className="table-contents">
-            <tr>
-              <td>Orders type</td>
-              <td>Permanent Change of Station</td>
-            </tr>
-            <tr>
-              <td>Orders date</td>
-              <td>09/01/2020</td>
-            </tr>
-            <tr>
-              <td>Report by date</td>
-              <td>09/30/2020</td>
-            </tr>
-            <tr>
-              <td>New duty station</td>
-              <td>Fort Jackson</td>
-            </tr>
-            <td>
-              <tr>
-                <td>Dependents</td>
-                <td>No</td>
-              </tr>
-              <tr>
-                <td>Orders</td>
-                <td>0</td>
-              </tr>
-            </td>
-          </table>
-        </div>
-
-*/
 
 export class Summary extends Component {
   componentDidMount() {
@@ -166,8 +102,9 @@ export class Summary extends Component {
               Your weight entitlement is now {entitlement.sum.toLocaleString()} lbs.
             </Alert>
           )}
-
-        {showProfileAndOrders && (
+        <ProfileTable serviceMember={serviceMember} />
+        <OrdersTable orders={currentOrders} />
+        {/* {showProfileAndOrders && (
           <ServiceMemberSummary
             orders={currentOrders}
             uploads={uploads}
@@ -179,14 +116,11 @@ export class Summary extends Component {
             moveIsApproved={moveIsApproved}
             editOrdersPath={editOrdersPath}
           />
-        )}
-
+        )} */}
         {showMoveSetup && <h3>Move setup</h3>}
-
         {showPPMShipmentSummary && (
           <PPMShipmentSummary ppm={currentPPM} movePath={rootReviewAddressWithMoveId} orders={currentOrders} />
         )}
-
         {showHHGShipmentSummary &&
           mtoShipments.map((shipment, index) => {
             return (
@@ -199,7 +133,6 @@ export class Summary extends Component {
               />
             );
           })}
-
         {hasPPMorHHG && (
           <div className="grid-col-row margin-top-5">
             <span className="float-right">Optional</span>
@@ -210,7 +143,6 @@ export class Summary extends Component {
             </Button>
           </div>
         )}
-
         {moveIsApproved && (
           <div className="approved-edit-warning">
             *To change these fields, contact your local PPPO office at {get(currentStation, 'name')}{' '}
