@@ -34,6 +34,53 @@ func TestGHCInvoiceSuite(t *testing.T) {
 const testDateFormat = "20060102"
 const testTimeFormat = "1504"
 
+func (suite *GHCInvoiceSuite) TestGenerateGHCInvoiceIncompleteLoad() {
+	currentTime := time.Now()
+	generator := GHCPaymentRequestInvoiceGenerator{DB: suite.DB()}
+	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   testdatagen.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameRequestedPickupDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format(dateFormat),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightBilledActual,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "4242",
+		},
+		{
+			Key:     models.ServiceItemParamNameDistanceZip3,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "2424",
+		},
+	}
+
+	suite.T().Run("doesn't fail if paymentRequest relationships are not loaded", func(t *testing.T) {
+		paymentServiceItem := testdatagen.MakeMultiplePaymentServiceItemParams(
+			suite.DB(),
+			models.ReServiceCodeDLH,
+			basicPaymentServiceItemParams,
+		)
+
+		paymentServiceItem.PaymentRequest.MoveTaskOrder.Orders.ServiceMember = models.ServiceMember{}
+		_, err := generator.Generate(paymentServiceItem.PaymentRequest, false)
+		suite.NoError(err)
+
+		paymentServiceItem.PaymentRequest.MoveTaskOrder.Orders = models.Order{}
+		_, err = generator.Generate(paymentServiceItem.PaymentRequest, false)
+		suite.NoError(err)
+
+		paymentServiceItem.PaymentRequest.MoveTaskOrder = models.Move{}
+		_, err = generator.Generate(paymentServiceItem.PaymentRequest, false)
+		suite.NoError(err)
+	})
+}
+
 func (suite *GHCInvoiceSuite) TestGenerateGHCInvoiceStartEndSegments() {
 	currentTime := time.Now()
 	generator := GHCPaymentRequestInvoiceGenerator{DB: suite.DB()}
@@ -215,12 +262,14 @@ func (suite *GHCInvoiceSuite) TestGenerateGHCInvoiceHeader() {
 	suite.T().Run("adds orders destination address", func(t *testing.T) {
 		// name
 		expectedDutyStation := paymentServiceItem.PaymentRequest.MoveTaskOrder.Orders.NewDutyStation
+		transportationOffice, err := models.FetchDutyStationTransportationOffice(suite.DB(), expectedDutyStation.ID)
+		suite.FatalNoError(err)
 		suite.IsType(&edisegment.N1{}, result.Header[7])
 		n1 := result.Header[7].(*edisegment.N1)
 		suite.Equal("ST", n1.EntityIdentifierCode)
 		suite.Equal(expectedDutyStation.Name, n1.Name)
 		suite.Equal("10", n1.IdentificationCodeQualifier)
-		suite.Equal(expectedDutyStation.TransportationOffice.Gbloc, n1.IdentificationCode)
+		suite.Equal(transportationOffice.Gbloc, n1.IdentificationCode)
 		// street address
 		address := expectedDutyStation.Address
 		suite.IsType(&edisegment.N3{}, result.Header[8])

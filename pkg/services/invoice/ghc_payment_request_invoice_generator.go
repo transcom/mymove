@@ -24,8 +24,37 @@ const timeFormat = "1504"
 
 // Generate method takes a payment request and returns an Invoice858C
 func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.PaymentRequest, sendProductionInvoice bool) (ediinvoice.Invoice858C, error) {
-	// TODO: probably need to check if the MTO is loaded on the paymentRequest that is passed in, not sure what is more in line with go standards to error out if it's not there or look it up.
 	// TODO: seems ReferenceID is a *string but cannot be saved as nil, do we need to validate it's not nil here
+	var moveTaskOrder models.Move
+	if paymentRequest.MoveTaskOrder.ID == uuid.Nil {
+		// load mto
+		err := g.DB.Q().
+			Where("id = ?", paymentRequest.MoveTaskOrderID).
+			First(&moveTaskOrder)
+		if err != nil {
+			return ediinvoice.Invoice858C{}, fmt.Errorf("cannot load MTO %s for PaymentRequest %s: %w", paymentRequest.MoveTaskOrderID, paymentRequest.ID, err)
+		}
+	} else {
+		moveTaskOrder = paymentRequest.MoveTaskOrder
+	}
+
+	// check or load orders
+	if moveTaskOrder.Orders.ID == uuid.Nil {
+		err := g.DB.
+			Load(&moveTaskOrder, "Orders")
+		if err != nil {
+			return ediinvoice.Invoice858C{}, fmt.Errorf("cannot load Orders %s for PaymentRequest %s: %w", moveTaskOrder.OrdersID, paymentRequest.ID, err)
+		}
+	}
+
+	// check or load service member
+	if moveTaskOrder.Orders.ServiceMember.ID == uuid.Nil {
+		err := g.DB.
+			Load(&moveTaskOrder.Orders, "ServiceMember")
+		if err != nil {
+			return ediinvoice.Invoice858C{}, fmt.Errorf("cannot load ServiceMember %s for PaymentRequest %s: %w", moveTaskOrder.Orders.ServiceMemberID, paymentRequest.ID, err)
+		}
+	}
 
 	currentTime := time.Now()
 
@@ -84,7 +113,7 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		TransactionSetPurposeCode:    "00",
 		TransactionMethodTypeCode:    "J",
 		ShipmentMethodOfPayment:      "PP",
-		ShipmentIdentificationNumber: *paymentRequest.MoveTaskOrder.ReferenceID,
+		ShipmentIdentificationNumber: *moveTaskOrder.ReferenceID,
 		StandardCarrierAlphaCode:     "TRUS",
 		ShipmentQualifier:            "4",
 	}
@@ -117,7 +146,7 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	edi858.Header = append(edi858.Header, &contractCodeSegment)
 
 	// Add service member details to header
-	serviceMemberSegments, err := g.createServiceMemberDetailSegments(paymentRequest)
+	serviceMemberSegments, err := g.createServiceMemberDetailSegments(paymentRequest.ID, moveTaskOrder.Orders.ServiceMember)
 	if err != nil {
 		return ediinvoice.Invoice858C{}, err
 	}
@@ -143,7 +172,7 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	edi858.Header = append(edi858.Header, &requestedPickupDateSegment)
 
 	// Add origin and destination details to header
-	originDestinationSegments, err := g.createOriginAndDestinationSegments(paymentRequest)
+	originDestinationSegments, err := g.createOriginAndDestinationSegments(paymentRequest.ID, moveTaskOrder.Orders)
 	if err != nil {
 		return ediinvoice.Invoice858C{}, err
 	}
@@ -167,13 +196,8 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	return edi858, nil
 }
 
-func (g GHCPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(paymentRequest models.PaymentRequest) ([]edisegment.Segment, error) {
+func (g GHCPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(paymentRequestID uuid.UUID, serviceMember models.ServiceMember) ([]edisegment.Segment, error) {
 	serviceMemberDetails := []edisegment.Segment{}
-
-	serviceMember := paymentRequest.MoveTaskOrder.Orders.ServiceMember
-	if serviceMember.ID == uuid.Nil {
-		return []edisegment.Segment{}, fmt.Errorf("no ServiceMember found for Payment Request ID: %s", paymentRequest.ID)
-	}
 
 	// name
 	serviceMemberName := edisegment.N9{
@@ -185,7 +209,7 @@ func (g GHCPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 	// rank
 	rank := serviceMember.Rank
 	if rank == nil {
-		return []edisegment.Segment{}, fmt.Errorf("no rank found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequest.ID)
+		return []edisegment.Segment{}, fmt.Errorf("no rank found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID)
 	}
 	serviceMemberRank := edisegment.N9{
 		ReferenceIdentificationQualifier: "ML",
@@ -196,7 +220,7 @@ func (g GHCPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 	// branch
 	branch := serviceMember.Affiliation
 	if branch == nil {
-		return []edisegment.Segment{}, fmt.Errorf("no branch found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequest.ID)
+		return []edisegment.Segment{}, fmt.Errorf("no branch found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID)
 	}
 	serviceMemberBranch := edisegment.N9{
 		ReferenceIdentificationQualifier: "3L",
@@ -207,40 +231,55 @@ func (g GHCPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 	return serviceMemberDetails, nil
 }
 
-func (g GHCPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(paymentRequest models.PaymentRequest) ([]edisegment.Segment, error) {
+func (g GHCPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(paymentRequestID uuid.UUID, orders models.Order) ([]edisegment.Segment, error) {
 	originAndDestinationSegments := []edisegment.Segment{}
 
-	order := paymentRequest.MoveTaskOrder.Orders
+	var err error
+	var destinationDutyStation models.DutyStation
+	if orders.NewDutyStation.ID == uuid.Nil {
+		destinationDutyStation, err = models.FetchDutyStation(g.DB, orders.NewDutyStationID)
+		if err != nil {
+			return []edisegment.Segment{}, fmt.Errorf("cannot load NewDutyStation %s for PaymentRequest %s: %w", orders.NewDutyStationID, paymentRequestID, err)
+		}
+	} else {
+		destinationDutyStation = orders.NewDutyStation
+	}
 
-	if order.ID == uuid.Nil {
-		return []edisegment.Segment{}, fmt.Errorf("no order found for Payment Request ID: %s", paymentRequest.ID)
+	destTransportationOffice, err := models.FetchDutyStationTransportationOffice(g.DB, destinationDutyStation.ID)
+	if err != nil {
+		return []edisegment.Segment{}, fmt.Errorf("cannot load TransportationOffice for DutyStation %s for PaymentRequest %s: %w", orders.NewDutyStationID, paymentRequestID, err)
 	}
 
 	// destination name
-	destinationStationName := order.NewDutyStation.Name
+	destinationStationName := orders.NewDutyStation.Name
 	destinationName := edisegment.N1{
 		EntityIdentifierCode:        "ST",
 		Name:                        destinationStationName,
 		IdentificationCodeQualifier: "10",
-		IdentificationCode:          order.NewDutyStation.TransportationOffice.Gbloc,
+		IdentificationCode:          destTransportationOffice.Gbloc,
 	}
 	originAndDestinationSegments = append(originAndDestinationSegments, &destinationName)
 
-	//// destination address
-	destinationAddress := order.NewDutyStation.Address
-
-	destinationStreetAddress := edisegment.N3{
-		AddressInformation1: destinationAddress.StreetAddress1,
-		AddressInformation2: *destinationAddress.StreetAddress2,
+	// destination address
+	var destinationStreetAddress edisegment.N3
+	if destinationDutyStation.Address.StreetAddress2 == nil {
+		destinationStreetAddress = edisegment.N3{
+			AddressInformation1: destinationDutyStation.Address.StreetAddress1,
+		}
+	} else {
+		destinationStreetAddress = edisegment.N3{
+			AddressInformation1: destinationDutyStation.Address.StreetAddress1,
+			AddressInformation2: *destinationDutyStation.Address.StreetAddress2,
+		}
 	}
 	originAndDestinationSegments = append(originAndDestinationSegments, &destinationStreetAddress)
 
 	// destination city/state/postal
 	destinationPostalDetails := edisegment.N4{
-		CityName:            destinationAddress.City,
-		StateOrProvinceCode: destinationAddress.State,
-		PostalCode:          destinationAddress.PostalCode,
-		CountryCode:         string(*destinationAddress.Country),
+		CityName:            destinationDutyStation.Address.City,
+		StateOrProvinceCode: destinationDutyStation.Address.State,
+		PostalCode:          destinationDutyStation.Address.PostalCode,
+		CountryCode:         string(*destinationDutyStation.Address.Country),
 	}
 	originAndDestinationSegments = append(originAndDestinationSegments, &destinationPostalDetails)
 
@@ -248,30 +287,49 @@ func (g GHCPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 
 	// ========  ORIGIN ========= //
 	// origin station name
-	originStationName := order.OriginDutyStation.Name
+	var originDutyStation models.DutyStation
+	if orders.OriginDutyStationID != nil {
+		originDutyStation, err = models.FetchDutyStation(g.DB, *orders.OriginDutyStationID)
+		if err != nil {
+			return []edisegment.Segment{}, fmt.Errorf("cannot load OriginDutyStation %s for PaymentRequest %s: %w", orders.OriginDutyStationID, paymentRequestID, err)
+		}
+	} else {
+		originDutyStation = *orders.OriginDutyStation
+	}
+
+	originTransportationOffice, err := models.FetchDutyStationTransportationOffice(g.DB, originDutyStation.ID)
+	if err != nil {
+		return []edisegment.Segment{}, fmt.Errorf("cannot load TransportationOffice for DutyStation %s for PaymentRequest %s: %w", orders.OriginDutyStationID, paymentRequestID, err)
+	}
+
 	originName := edisegment.N1{
 		EntityIdentifierCode:        "SF",
-		Name:                        originStationName,
+		Name:                        originDutyStation.Name,
 		IdentificationCodeQualifier: "10",
-		IdentificationCode:          order.OriginDutyStation.TransportationOffice.Gbloc,
+		IdentificationCode:          originTransportationOffice.Gbloc,
 	}
 	originAndDestinationSegments = append(originAndDestinationSegments, &originName)
 
 	// origin address
-	originAddress := order.OriginDutyStation.Address
-
-	originStreetAddress := edisegment.N3{
-		AddressInformation1: originAddress.StreetAddress1,
-		AddressInformation2: *originAddress.StreetAddress2,
+	var originStreetAddress edisegment.N3
+	if originDutyStation.Address.StreetAddress2 == nil {
+		originStreetAddress = edisegment.N3{
+			AddressInformation1: originDutyStation.Address.StreetAddress1,
+		}
+	} else {
+		originStreetAddress = edisegment.N3{
+			AddressInformation1: originDutyStation.Address.StreetAddress1,
+			AddressInformation2: *originDutyStation.Address.StreetAddress2,
+		}
 	}
 	originAndDestinationSegments = append(originAndDestinationSegments, &originStreetAddress)
 
 	// origin city/state/postal
 	originPostalDetails := edisegment.N4{
-		CityName:            originAddress.City,
-		StateOrProvinceCode: originAddress.State,
-		PostalCode:          originAddress.PostalCode,
-		CountryCode:         string(*originAddress.Country),
+		CityName:            originDutyStation.Address.City,
+		StateOrProvinceCode: originDutyStation.Address.State,
+		PostalCode:          originDutyStation.Address.PostalCode,
+		CountryCode:         string(*originDutyStation.Address.Country),
 	}
 	originAndDestinationSegments = append(originAndDestinationSegments, &originPostalDetails)
 
