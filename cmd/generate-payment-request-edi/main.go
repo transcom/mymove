@@ -66,7 +66,7 @@ func main() {
 
 	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
 	if err != nil {
-		log.Fatalf("Failed to initialize Zap logging due to %v", err)
+		log.Fatalf("failed to initialize Zap logging due to %v", err)
 	}
 	zap.ReplaceGlobals(logger)
 
@@ -96,7 +96,7 @@ func main() {
 	generator := invoice.GHCPaymentRequestInvoiceGenerator{DB: dbConnection}
 	edi858c, err := generator.Generate(paymentRequest, false)
 	if err != nil {
-		fmt.Println(err)
+		logger.Fatal(err.Error())
 	}
 
 	result, err := edi858c.EDIString()
