@@ -113,14 +113,20 @@ export const useOrdersDocumentQueries = (moveOrderId) => {
   const documentId = orders?.uploaded_order_id;
 
   // Get a document
-  const { data: { documents } = {}, ...ordersDocumentsQuery } = useQuery([ORDERS_DOCUMENTS, documentId], getDocument, {
-    enabled: !!documentId,
-  });
+  // TODO - "upload" instead of "uploads" is because of the schema.js entity name. Change to "uploads"
+  const { data: { documents, upload } = {}, ...ordersDocumentsQuery } = useQuery(
+    [ORDERS_DOCUMENTS, documentId],
+    getDocument,
+    {
+      enabled: !!documentId,
+    },
+  );
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([moveOrderQuery, ordersDocumentsQuery]);
 
   return {
     documents,
+    upload,
     isLoading,
     isError,
     isSuccess,

@@ -12,16 +12,12 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 const MoveOrders = ({ match }) => {
   const { moveOrderId } = match.params;
 
-  const { documents, isLoading, isError } = useOrdersDocumentQueries(moveOrderId);
+  const { upload, isLoading, isError } = useOrdersDocumentQueries(moveOrderId);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  let documentsForViewer;
-  if (documents) {
-    // eslint-disable-next-line prefer-destructuring
-    documentsForViewer = Object.values(documents.undefined);
-  }
+  const documentsForViewer = Object.values(upload);
 
   return (
     <div className={styles.MoveOrders}>
