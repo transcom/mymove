@@ -23,6 +23,18 @@ const DocumentViewer = ({ files }) => {
   const [menuIsOpen, setMenuOpen] = useState(false);
 
   const selectedFile = files[parseInt(selectedFileIndex, 10)];
+  if (selectedFile.contentType === 'application/pdf') {
+    selectedFile.contentType = 'pdf';
+  }
+  if (selectedFile.contentType === 'image/png') {
+    selectedFile.contentType = 'png';
+  }
+  if (selectedFile.contentType === 'image/jpeg') {
+    selectedFile.contentType = 'jpg';
+  }
+  if (selectedFile.contentType === 'image/gif') {
+    selectedFile.contentType = 'gif';
+  }
 
   const openMenu = () => {
     setMenuOpen(true);
@@ -53,7 +65,7 @@ const DocumentViewer = ({ files }) => {
           <ExternalLink />
         </Button>
       </div>
-      <Content fileType={selectedFile.fileType} filePath={selectedFile.filePath} />
+      <Content fileType={selectedFile.contentType} filePath={selectedFile.url} />
       {menuIsOpen && <div className={styles.overlay} />}
       <Menu
         isOpen={menuIsOpen}
