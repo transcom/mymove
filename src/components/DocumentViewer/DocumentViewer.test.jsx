@@ -12,35 +12,37 @@ import samplePNG from './sample2.png';
 import sampleGIF from './sample3.gif';
 
 const mockFile = {
-  fileType: 'pdf',
-  filePath: samplePDF,
+  contentType: 'pdf',
+  url: samplePDF,
 };
 
 const mockFiles = [
   {
     filename: 'Test File.pdf',
-    fileType: 'pdf',
-    filePath: samplePDF,
+    contentType: 'application/pdf',
+    url: samplePDF,
   },
   {
     filename: 'Test File 2.jpg',
-    fileType: 'jpg',
-    filePath: sampleJPG,
+    contentType: 'image/jpeg',
+    url: sampleJPG,
   },
   {
     filename: 'Test File 3.png',
-    fileType: 'png',
-    filePath: samplePNG,
+    contentType: 'image/png',
+    url: samplePNG,
   },
   {
     filename: 'Test File 4.gif',
-    fileType: 'gif',
-    filePath: sampleGIF,
+    contentType: 'image/gif',
+    url: sampleGIF,
   },
 ];
 
 describe('DocViewerContent', () => {
-  const component = shallow(<DocViewerContent {...mockFile} />);
+  const component = shallow(
+    <DocViewerContent filename={mockFile.filename} fileType={mockFile.contentType} filePath={mockFile.url} />,
+  );
 
   it('renders without crashing', () => {
     expect(component.find('[data-testid="DocViewerContent"]').length).toBe(1);
@@ -49,8 +51,8 @@ describe('DocViewerContent', () => {
   it('renders the FileViewer with the file props', () => {
     const fileViewer = component.find('FileViewer');
     expect(fileViewer.exists()).toBe(true);
-    expect(fileViewer.prop('fileType')).toBe(mockFile.fileType);
-    expect(fileViewer.prop('filePath')).toBe(mockFile.filePath);
+    expect(fileViewer.prop('fileType')).toBe('pdf');
+    expect(fileViewer.prop('filePath')).toBe(mockFile.url);
   });
 });
 
@@ -114,7 +116,7 @@ describe('DocumentViewer component', () => {
   it('initial state is closed menu and first file selected', () => {
     expect(menu.prop('isOpen')).toBe(false);
     expect(menu.prop('selectedFileIndex')).toBe(0);
-    expect(content.prop('filePath')).toBe(mockFiles[0].filePath);
+    expect(content.prop('filePath')).toBe(mockFiles[0].url);
   });
 
   it('renders DocViewerContent and DocViewerMenu with the correct props', () => {
@@ -147,7 +149,8 @@ describe('DocumentViewer component', () => {
     component.update();
     expect(component.find('DocViewerMenu').prop('isOpen')).toBe(false);
     expect(component.find('DocViewerMenu').prop('selectedFileIndex')).toBe(1);
-    expect(component.find('DocViewerContent').prop('filePath')).toBe(mockFiles[1].filePath);
+    expect(component.find('DocViewerContent').prop('filePath')).toBe(mockFiles[1].url);
+    expect(component.find('DocViewerContent').prop('fileType')).toBe('jpg');
     expect(component.find('.unsupported-message').exists()).toBe(false);
 
     act(() => {
@@ -157,7 +160,8 @@ describe('DocumentViewer component', () => {
     component.update();
     expect(component.find('DocViewerMenu').prop('isOpen')).toBe(false);
     expect(component.find('DocViewerMenu').prop('selectedFileIndex')).toBe(2);
-    expect(component.find('DocViewerContent').prop('filePath')).toBe(mockFiles[2].filePath);
+    expect(component.find('DocViewerContent').prop('filePath')).toBe(mockFiles[2].url);
+    expect(component.find('DocViewerContent').prop('fileType')).toBe('png');
     expect(component.find('.unsupported-message').exists()).toBe(false);
 
     act(() => {
@@ -167,13 +171,14 @@ describe('DocumentViewer component', () => {
     component.update();
     expect(component.find('DocViewerMenu').prop('isOpen')).toBe(false);
     expect(component.find('DocViewerMenu').prop('selectedFileIndex')).toBe(3);
-    expect(component.find('DocViewerContent').prop('filePath')).toBe(mockFiles[3].filePath);
+    expect(component.find('DocViewerContent').prop('filePath')).toBe(mockFiles[3].url);
+    expect(component.find('DocViewerContent').prop('fileType')).toBe('gif');
     expect(component.find('.unsupported-message').exists()).toBe(false);
   });
 
   it('shows error if file type is unsupported', () => {
     const wrapper = mount(
-      <DocumentViewer files={[{ filename: 'archive.zip', fileType: 'zip', filePath: '/path/to/archive.zip' }]} />,
+      <DocumentViewer files={[{ filename: 'archive.zip', contentType: 'zip', url: '/path/to/archive.zip' }]} />,
     );
     expect(wrapper.find('.unsupported-message').text()).toEqual('.zip is not supported.');
   });

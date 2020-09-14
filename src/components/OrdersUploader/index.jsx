@@ -7,7 +7,7 @@ import { FilePond, registerPlugin } from 'react-filepond';
 import { FileStatus } from 'filepond';
 import PropTypes from 'prop-types';
 import isMobile from 'is-mobile';
-import { get, concat, reject, every, includes } from 'lodash';
+import { get, reject } from 'lodash';
 import 'filepond/dist/filepond.min.css';
 import FilepondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size';
@@ -81,7 +81,7 @@ export class OrdersUploader extends Component {
       .then((item) => {
         const response = get(item, 'response.body', {});
         load(response.id);
-        const newFiles = concat(self.state.files, response);
+        const newFiles = self.state.files.concat(response);
         self.setState({
           files: newFiles,
         });
@@ -121,9 +121,7 @@ export class OrdersUploader extends Component {
     }
     // Returns a boolean: is FilePond done with all uploading?
     const existingFiles = this.pond._pond.getFiles();
-    const isIdle = every(existingFiles, (f) => {
-      return includes(idleStatuses, f.status);
-    });
+    const isIdle = existingFiles.every((f) => idleStatuses.indexOf(f.status) > -1);
     // eslint-disable-next-line consistent-return
     return isIdle;
   }

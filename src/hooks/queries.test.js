@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react-hooks';
 
-import { usePaymentRequestQueries, useMoveTaskOrderQueries } from './queries';
+import { usePaymentRequestQueries, useMoveTaskOrderQueries, useOrdersDocumentQueries } from './queries';
 
 jest.mock('services/ghcApi', () => ({
   getPaymentRequest: (key, id) =>
@@ -34,11 +34,12 @@ jest.mock('services/ghcApi', () => ({
         },
       },
     }),
-  getMoveOrder: () =>
+  getMoveOrder: (key, id) =>
     Promise.resolve({
       moveOrders: {
-        1: {
-          id: '1',
+        [id]: {
+          id,
+          uploaded_order_id: '2',
         },
       },
     }),
@@ -48,6 +49,18 @@ jest.mock('services/ghcApi', () => ({
         1: {
           id: '1',
         },
+      },
+    }),
+  getDocument: () =>
+    Promise.resolve({
+      documents: {
+        2: {
+          id: '2',
+          uploads: ['z'],
+        },
+      },
+      upload: {
+        id: 'z',
       },
     }),
 }));
@@ -105,8 +118,8 @@ describe('usePaymentRequestQueries', () => {
 
 describe('useMoveTaskOrderQueries', () => {
   it('loads data', async () => {
-    const testId = 'a1b2';
-    const { result, waitForNextUpdate } = renderHook(() => useMoveTaskOrderQueries(testId));
+    const testMoveOrderId = 'a1b2';
+    const { result, waitForNextUpdate } = renderHook(() => useMoveTaskOrderQueries(testMoveOrderId));
 
     expect(result.current).toEqual({
       moveOrders: undefined,
@@ -122,8 +135,9 @@ describe('useMoveTaskOrderQueries', () => {
 
     expect(result.current).toEqual({
       moveOrders: {
-        1: {
-          id: '1',
+        a1b2: {
+          id: 'a1b2',
+          uploaded_order_id: '2',
         },
       },
       moveTaskOrders: {
@@ -146,6 +160,38 @@ describe('useMoveTaskOrderQueries', () => {
         b: {
           reServiceName: 'Test Service Item 2',
         },
+      },
+      isLoading: false,
+      isError: false,
+      isSuccess: true,
+    });
+  });
+});
+
+describe('useOrdersDocumentQueries', () => {
+  it('loads data', async () => {
+    const testMoveOrderId = 'a1b2';
+    const { result, waitForNextUpdate } = renderHook(() => useOrdersDocumentQueries(testMoveOrderId));
+
+    expect(result.current).toEqual({
+      documents: undefined,
+      upload: undefined,
+      isLoading: true,
+      isError: false,
+      isSuccess: false,
+    });
+
+    await waitForNextUpdate();
+
+    expect(result.current).toEqual({
+      documents: {
+        2: {
+          id: '2',
+          uploads: ['z'],
+        },
+      },
+      upload: {
+        id: 'z',
       },
       isLoading: false,
       isError: false,

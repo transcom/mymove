@@ -224,7 +224,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *supportmessages.MTOShipment {
 	}
 
 	if mtoShipment.RequestedPickupDate != nil {
-		payload.RequestedPickupDate = *handlers.FmtDatePtr(mtoShipment.RequestedPickupDate)
+		payload.RequestedPickupDate = strfmt.Date(*mtoShipment.RequestedPickupDate)
 	}
 
 	if mtoShipment.ApprovedDate != nil {

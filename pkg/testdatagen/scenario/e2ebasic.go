@@ -876,6 +876,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			ServiceMemberID: customer.ID,
 			ServiceMember:   customer,
 		},
+		UserUploader: userUploader,
 	})
 	mto := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
@@ -896,6 +897,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			ServiceMemberID: customer2.ID,
 			ServiceMember:   customer2,
 		},
+		UserUploader: userUploader,
 	})
 
 	testdatagen.MakeMove(db, testdatagen.Assertions{
@@ -916,6 +918,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			ServiceMemberID: customer3.ID,
 			ServiceMember:   customer3,
 		},
+		UserUploader: userUploader,
 	})
 
 	testdatagen.MakeMove(db, testdatagen.Assertions{
@@ -936,6 +939,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			ServiceMemberID: customer4.ID,
 			ServiceMember:   customer4,
 		},
+		UserUploader: userUploader,
 	})
 
 	testdatagen.MakeMove(db, testdatagen.Assertions{
@@ -956,6 +960,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			ServiceMemberID: customer5.ID,
 			ServiceMember:   customer5,
 		},
+		UserUploader: userUploader,
 	})
 
 	testdatagen.MakeMove(db, testdatagen.Assertions{
@@ -1267,6 +1272,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			ServiceMemberID: customer7.ID,
 			ServiceMember:   customer7,
 		},
+		UserUploader: userUploader,
 	})
 
 	mto7 := testdatagen.MakeMove(db, testdatagen.Assertions{
@@ -1499,6 +1505,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			ServiceMemberID: customer6.ID,
 			ServiceMember:   customer6,
 		},
+		UserUploader: userUploader,
 	})
 	mto2 := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
@@ -1587,6 +1594,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			ID:                 uuid.FromStringOrNil("9c7b255c-2981-4bf8-839f-61c7458e2b4d"),
 			AvailableToPrimeAt: swag.Time(time.Now()),
 		},
+		UserUploader: userUploader,
 	})
 
 	estimated := unit.Pound(1400)
