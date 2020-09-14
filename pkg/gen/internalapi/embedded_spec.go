@@ -4715,6 +4715,11 @@ func init() {
         "status": {
           "$ref": "#/definitions/MoveStatus"
         },
+        "submitted_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "updated_at": {
           "type": "string",
           "format": "date-time"
@@ -4973,10 +4978,6 @@ func init() {
         },
         "orders_type_detail": {
           "$ref": "#/definitions/OrdersTypeDetail"
-        },
-        "origin_duty_station": {
-          "x-nullable": true,
-          "$ref": "#/definitions/DutyStationPayload"
         },
         "report_by_date": {
           "description": "Report By Date",
@@ -11262,6 +11263,11 @@ func init() {
         "status": {
           "$ref": "#/definitions/MoveStatus"
         },
+        "submitted_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "updated_at": {
           "type": "string",
           "format": "date-time"
@@ -11520,10 +11526,6 @@ func init() {
         },
         "orders_type_detail": {
           "$ref": "#/definitions/OrdersTypeDetail"
-        },
-        "origin_duty_station": {
-          "x-nullable": true,
-          "$ref": "#/definitions/DutyStationPayload"
         },
         "report_by_date": {
           "description": "Report By Date",

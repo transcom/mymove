@@ -710,6 +710,10 @@ definitions:
       updated_at:
         type: string
         format: date-time
+      submitted_at:
+        type: string
+        format: date-time
+        x-nullable: true
       personally_procured_moves:
         $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
       mto_shipments:
@@ -2117,9 +2121,6 @@ definitions:
       spouse_has_pro_gear:
         type: boolean
         title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
-      origin_duty_station:
-        $ref: '#/definitions/DutyStationPayload'
-        x-nullable: true
       new_duty_station:
         $ref: '#/definitions/DutyStationPayload'
       uploaded_orders:

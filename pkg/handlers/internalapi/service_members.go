@@ -59,7 +59,7 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 		BackupContacts:          contactPayloads,
 		HasSocialSecurityNumber: handlers.FmtBool(serviceMember.SocialSecurityNumberID != nil),
 		IsProfileComplete:       handlers.FmtBool(serviceMember.IsProfileComplete()),
-		CurrentStation:          payloadForDutyStationModel(&serviceMember.DutyStation),
+		CurrentStation:          payloadForDutyStationModel(serviceMember.DutyStation),
 		RequiresAccessCode:      requiresAccessCode,
 		WeightAllotment:         weightAllotment,
 	}

@@ -34,11 +34,3 @@ export async function makeInternalRequest(operationPath, params = {}, options = 
   const client = await getInternalClient();
   return makeSwaggerRequest(client, operationPath, params, options);
 }
-
-export async function getMoveOrder(key, ordersId) {
-  return makeInternalRequest('orders.showOrders', { ordersId });
-}
-
-export async function updateOrders({ ordersId, body }) {
-  return makeInternalRequest('orders.updateOrders', { ordersId, updateOrders: body });
-}
