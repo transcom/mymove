@@ -4,7 +4,8 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/transcom/mymove/pkg/handlers/primeapi/internal/payloads"
+	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
+
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/gofrs/uuid"
