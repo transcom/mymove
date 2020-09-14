@@ -2,12 +2,17 @@
 /* eslint-disable no-console */
 /* eslint-disable camelcase */
 import React, { Component } from 'react';
-import { func, arrayOf, shape, string, node } from 'prop-types';
+import { func, arrayOf, bool, shape, string, node } from 'prop-types';
 import moment from 'moment';
 import { connect } from 'react-redux';
+import { isEmpty } from 'lodash';
 
 import styles from './Home.module.scss';
 
+import Alert from 'shared/Alert';
+import PpmAlert from 'scenes/Landing/PpmAlert';
+import SignIn from 'shared/User/SignIn';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Helper from 'components/Customer/Home/Helper';
 import Step from 'components/Customer/Home/Step';
 import DocsUploaded from 'components/Customer/Home/DocsUploaded';
@@ -166,8 +171,45 @@ class Home extends Component {
     history.push(path);
   };
 
+  renderAlert = (loggedInUserError, createdServiceMemberError, moveSubmitSuccess, ppm) => {
+    return (
+      <div>
+        {moveSubmitSuccess && !ppm && (
+          <Alert type="success" heading="Success">
+            You&apos;ve submitted your move
+          </Alert>
+        )}
+        {ppm && moveSubmitSuccess && <PpmAlert heading="Congrats - your move is submitted!" />}
+        {loggedInUserError && (
+          <Alert type="error" heading="An error occurred">
+            There was an error loading your user information.
+          </Alert>
+        )}
+        {createdServiceMemberError && (
+          <Alert type="error" heading="An error occurred">
+            There was an error creating your profile information.
+          </Alert>
+        )}
+      </div>
+    );
+  };
+
   render() {
-    const { move, serviceMember, uploadedOrderDocuments, shipments } = this.props;
+    const {
+      isLoggedIn,
+      loggedInUserIsLoading,
+      loggedInUserSuccess,
+      loggedInUserError,
+      isProfileComplete,
+      createdServiceMemberError,
+      moveSubmitSuccess,
+      serviceMember,
+      move,
+      uploadedOrderDocuments,
+      shipments,
+      ppm,
+      location,
+    } = this.props;
     const ordersPath = '/orders/';
     const shipmentSelectionPath = `/moves/${move.id}/select-type`;
     const confirmationPath = `/moves/${move.id}/review`;
@@ -176,89 +218,99 @@ class Home extends Component {
 
     return (
       <div className={`usa-prose grid-container ${styles['grid-container']}`}>
-        <header data-testid="customer-header" className={styles['customer-header']}>
-          <h2>
-            {serviceMember?.first_name} {serviceMember?.last_name}
-          </h2>
-          {this.renderCustomerHeader()}
-        </header>
-        <Helper title={this.getHelperHeaderText}>{this.renderHelperDescription()}</Helper>
-        <Step
-          complete={serviceMember.is_profile_complete}
-          completedHeaderText="Profile complete"
-          editBtnLabel="Edit"
-          headerText="Profile complete"
-          step="1"
-          onEditBtnClick={() => this.handleNewPathClick(profileEditPath)}
-        >
-          <Description>Make sure to keep your personal information up to date during your move</Description>
-        </Step>
-
-        <Step
-          complete={this.hasOrders}
-          completedHeaderText="Orders uploaded"
-          editBtnLabel={this.hasOrders ? 'Edit' : ''}
-          onEditBtnClick={() => this.handleNewPathClick(ordersEditPath)}
-          headerText="Upload orders"
-          actionBtnLabel={!this.hasOrders ? 'Add orders' : ''}
-          onActionBtnClick={() => this.handleNewPathClick(ordersPath)}
-          step="2"
-        >
-          {this.hasOrders ? (
-            <DocsUploaded files={uploadedOrderDocuments} />
-          ) : (
-            <Description>Upload photos of each page, or upload a PDF.</Description>
-          )}
-        </Step>
-
-        <Step
-          actionBtnLabel={this.hasShipment ? 'Add another shipment' : 'Plan your shipments'}
-          actionBtnDisabled={!this.hasOrders}
-          onActionBtnClick={() => this.handleNewPathClick(shipmentSelectionPath)}
-          complete={this.hasShipment}
-          completedHeaderText="Shipments"
-          headerText="Shipment selection"
-          secondaryBtn={this.hasShipment}
-          secondaryClassName="margin-top-2"
-          step="3"
-        >
-          {this.hasShipment ? (
-            <ShipmentList shipments={shipments} onShipmentClick={this.handleShipmentClick} />
-          ) : (
-            <Description>
-              Tell us where you&apos;re going and when you want to get there. We&apos;ll help you set up shipments to
-              make it work.
-            </Description>
-          )}
-        </Step>
-
-        <Step
-          complete={this.hasSubmittedMove}
-          actionBtnDisabled={!this.hasShipment}
-          actionBtnLabel={!this.hasSubmittedMove ? 'Review and submit' : ''}
-          containerClassName="margin-bottom-8"
-          headerText="Confirm move request"
-          completedHeaderText="Move request confirmed"
-          onActionBtnClick={() => this.handleNewPathClick(confirmationPath)}
-          step="4"
-        >
-          <p className={styles.description}>
-            {this.hasSubmittedMove
-              ? 'Move submitted.'
-              : 'Review your move details and sign the legal paperwork, then send the info on to your move counselor.'}
-          </p>
-          {this.hasSubmittedMove && (
-            <Description>
-              Review your move details and sign the legal paperwork, then send the info on to your move counselor
-            </Description>
-          )}
-        </Step>
-        <Contact
-          header="Contacts"
-          dutyStationName="Seymour Johnson AFB"
-          officeType="Origin Transportation Office"
-          telephone="(919) 722-5458"
-        />
+        {loggedInUserIsLoading && <LoadingPlaceholder />}
+        {!isLoggedIn && !loggedInUserIsLoading && <SignIn location={location} />}
+        {isLoggedIn && !isEmpty(serviceMember) && isProfileComplete && (
+          <>
+            <header data-testid="customer-header" className={styles['customer-header']}>
+              <h2>
+                {serviceMember?.first_name} {serviceMember?.last_name}
+              </h2>
+              {this.renderCustomerHeader()}
+            </header>
+            {loggedInUserSuccess && (
+              <>
+                {this.renderAlert(loggedInUserError, createdServiceMemberError, moveSubmitSuccess, ppm)}
+                <Helper title={this.getHelperHeaderText}>{this.renderHelperDescription()}</Helper>
+                <Step
+                  complete={serviceMember.is_profile_complete}
+                  completedHeaderText="Profile complete"
+                  editBtnLabel="Edit"
+                  headerText="Profile complete"
+                  step="1"
+                  onEditBtnClick={() => this.handleNewPathClick(profileEditPath)}
+                >
+                  <Description>Make sure to keep your personal information up to date during your move</Description>
+                </Step>
+                <Step
+                  complete={this.hasOrders}
+                  completedHeaderText="Orders uploaded"
+                  editBtnLabel={this.hasOrders ? 'Edit' : ''}
+                  onEditBtnClick={() => this.handleNewPathClick(ordersEditPath)}
+                  headerText="Upload orders"
+                  actionBtnLabel={!this.hasOrders ? 'Add orders' : ''}
+                  onActionBtnClick={() => this.handleNewPathClick(ordersPath)}
+                  step="2"
+                >
+                  {this.hasOrders ? (
+                    <DocsUploaded files={uploadedOrderDocuments} />
+                  ) : (
+                    <Description>Upload photos of each page, or upload a PDF.</Description>
+                  )}
+                </Step>
+                <Step
+                  actionBtnLabel={this.hasShipment ? 'Add another shipment' : 'Plan your shipments'}
+                  actionBtnDisabled={!this.hasOrders}
+                  onActionBtnClick={() => this.handleNewPathClick(shipmentSelectionPath)}
+                  complete={this.hasShipment}
+                  completedHeaderText="Shipments"
+                  headerText="Shipment selection"
+                  secondaryBtn={this.hasShipment}
+                  secondaryClassName="margin-top-2"
+                  step="3"
+                >
+                  {this.hasShipment ? (
+                    <ShipmentList shipments={shipments} onShipmentClick={this.handleShipmentClick} />
+                  ) : (
+                    <Description>
+                      Tell us where you&apos;re going and when you want to get there. We&apos;ll help you set up
+                      shipments to make it work.
+                    </Description>
+                  )}
+                </Step>
+                <Step
+                  complete={this.hasSubmittedMove}
+                  actionBtnDisabled={!this.hasShipment}
+                  actionBtnLabel={!this.hasSubmittedMove ? 'Review and submit' : ''}
+                  containerClassName="margin-bottom-8"
+                  headerText="Confirm move request"
+                  completedHeaderText="Move request confirmed"
+                  onActionBtnClick={() => this.handleNewPathClick(confirmationPath)}
+                  step="4"
+                >
+                  <p className={styles.description}>
+                    {this.hasSubmittedMove
+                      ? 'Move submitted.'
+                      : 'Review your move details and sign the legal paperwork, then send the info on to your move counselor.'}
+                  </p>
+                  {this.hasSubmittedMove && (
+                    <Description>
+                      Review your move details and sign the legal paperwork, then send the info on to your move
+                      counselor
+                    </Description>
+                  )}
+                </Step>
+                <Contact
+                  header="Contacts"
+                  dutyStationName="Seymour Johnson AFB"
+                  officeType="Origin Transportation Office"
+                  telephone="(919) 722-5458"
+                />
+                )
+              </>
+            )}
+          </>
+        )}
       </div>
     );
   }
@@ -285,6 +337,15 @@ Home.propTypes = {
   ).isRequired,
   history: shape({}).isRequired,
   move: shape({}).isRequired,
+  isLoggedIn: bool.isRequired,
+  loggedInUserIsLoading: bool.isRequired,
+  loggedInUserSuccess: bool.isRequired,
+  loggedInUserError: bool.isRequired,
+  isProfileComplete: bool.isRequired,
+  createdServiceMemberError: bool.isRequired,
+  moveSubmitSuccess: bool.isRequired,
+  ppm: shape({}).isRequired,
+  location: string.isRequired,
 };
 
 const mapStateToProps = (state) => {
