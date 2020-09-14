@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/label-has-associated-control */
-/* eslint-disable react/jsx-wrap-multilines */
 import React from 'react';
 import * as PropTypes from 'prop-types';
 import { Checkbox } from '@trussworks/react-uswds';
@@ -17,54 +15,37 @@ import { ReactComponent as CheckmarkIcon } from 'shared/icon/checkbox--unchecked
 
 const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSubmitted }) => {
   return (
-    <div className={styles['shipment-display']} data-testid="shipment-display">
-      <ShipmentContainer className={styles['shipment-display__container']} shipmentType={shipmentType}>
-        <table className="table--small" data-testid="shipment-display-table">
-          <thead>
-            <tr>
-              <th className={styles['shipment-display__header-checkbox']}>
-                {isSubmitted && (
-                  <Checkbox
-                    id={`shipment-display-checkbox-${shipmentId}`}
-                    data-testid="shipment-display-checkbox"
-                    onChange={onChange}
-                    name="shipments"
-                    label=""
-                    value={shipmentId}
-                  />
-                )}
-                {!isSubmitted && <CheckmarkIcon />}
-              </th>
-              <th>
-                <h3 className={styles['shipment-display__heading']}>{displayInfo.heading}</h3>
-              </th>
-              <th> </th>
-              <th className={styles['shipment-display__header-chevron-down']}>
-                <ChevronDown />
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td />
-              <td className={styles['shipment-display__label']}>Requested move date</td>
-              <td>{formatDate(displayInfo.requestedMoveDate, 'DD MMM YYYY')}</td>
-              <td />
-            </tr>
-            <tr>
-              <td />
-              <td className={styles['shipment-display__label']}>Current address</td>
-              <td>{formatAddress(displayInfo.currentAddress)}</td>
-              <td />
-            </tr>
-            <tr>
-              <td />
-              <td className={styles['shipment-display__label']}>Destination address</td>
-              <td data-testid="shipmentDestinationAddress">{formatAddress(displayInfo.destinationAddress)}</td>
-              <td />
-            </tr>
-          </tbody>
-        </table>
+    <div className={styles.ShipmentCard} data-testid="shipment-display">
+      <ShipmentContainer className={styles.container} shipmentType={shipmentType}>
+        <div className={styles.heading}>
+          {isSubmitted && (
+            <Checkbox
+              id={`shipment-display-checkbox-${shipmentId}`}
+              data-testid="shipment-display-checkbox"
+              onChange={onChange}
+              name="shipments"
+              label=""
+              value={shipmentId}
+            />
+          )}
+          {!isSubmitted && <CheckmarkIcon />}
+          <h3>{displayInfo.heading}</h3>
+          <ChevronDown />
+        </div>
+        <dl>
+          <div className={styles.row}>
+            <dt>Requested move date</dt>
+            <dd>{formatDate(displayInfo.requestedMoveDate, 'DD MMM YYYY')}</dd>
+          </div>
+          <div className={styles.row}>
+            <dt>Current address</dt>
+            <dd>{formatAddress(displayInfo.currentAddress)}</dd>
+          </div>
+          <div className={styles.row}>
+            <dt className={styles.label}>Destination address</dt>
+            <dd data-testid="shipmentDestinationAddress">{formatAddress(displayInfo.destinationAddress)}</dd>
+          </div>
+        </dl>
       </ShipmentContainer>
     </div>
   );

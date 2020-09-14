@@ -88,9 +88,9 @@ const RequestedShipments = ({
   const dutyStationPostal = { postal_code: ordersInfo.newDutyStation?.address?.postal_code };
 
   return (
-    <div className={`${styles['requested-shipments']} container`} data-testid="requested-shipments">
+    <div className={styles.RequestedShipments} data-testid="requested-shipments">
       {shipmentsStatus === 'SUBMITTED' && (
-        <div>
+        <>
           <div id="approvalConfirmationModal" style={{ display: isModalVisible ? 'block' : 'none' }}>
             <ShipmentApprovalPreview
               mtoShipments={filteredShipments}
@@ -104,10 +104,10 @@ const RequestedShipments = ({
               shipmentManagementFee={formik.values.shipmentManagementFee}
             />
           </div>
-          <h4>Requested shipments</h4>
+
           <form onSubmit={formik.handleSubmit}>
-            {/* eslint-disable-next-line no-underscore-dangle */}
-            <div className={styles.__content}>
+            <h4>Requested shipments</h4>
+            <div className={styles.shipmentCards}>
               {mtoShipments &&
                 mtoShipments.map((shipment) => (
                   <ShipmentDisplay
@@ -127,8 +127,8 @@ const RequestedShipments = ({
                 ))}
             </div>
 
-            <div>
-              <h3>Add service items to this move</h3>
+            <div className={styles.serviceItems}>
+              <h4>Add service items to this move</h4>
               <Fieldset legend="MTO service items" legendSrOnly id="input-type-fieldset">
                 <Checkbox
                   id="shipmentManagementFee"
@@ -145,7 +145,7 @@ const RequestedShipments = ({
               </Fieldset>
               <Button
                 id="shipmentApproveButton"
-                className={`${styles['usa-button--small']} usa-button--icon`}
+                className={styles.approveButton}
                 onClick={handleReviewClick}
                 type="button"
                 disabled={!isButtonEnabled}
@@ -154,13 +154,13 @@ const RequestedShipments = ({
               </Button>
             </div>
           </form>
-        </div>
+        </>
       )}
+
       {shipmentsStatus === 'APPROVED' && (
-        <div className={styles.approvedShipments}>
+        <>
           <h4>Approved Shipments</h4>
-          {/* eslint-disable-next-line no-underscore-dangle */}
-          <div className={styles.__content}>
+          <div className={styles.shipmentCards}>
             {mtoShipments &&
               mtoShipments.map((shipment) => (
                 <ShipmentDisplay
@@ -177,13 +177,13 @@ const RequestedShipments = ({
                 />
               ))}
           </div>
-        </div>
+        </>
       )}
+
       {shipmentsStatus === 'APPROVED' && (
         <div className={styles.serviceItems}>
-          <div className="stackedtable-header">
-            <h4>Service Items</h4>
-          </div>
+          <h4>Service Items</h4>
+
           <table className="table--stacked">
             <colgroup>
               <col style={{ width: '75%' }} />
