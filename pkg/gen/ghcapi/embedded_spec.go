@@ -219,6 +219,12 @@ func init() {
             "schema": {
               "$ref": "#/definitions/UpdateMoveOrderPayload"
             }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -2471,7 +2477,8 @@ func init() {
         },
         "has_dependents": {
           "type": "boolean",
-          "title": "Are dependents included in your orders?"
+          "title": "Are dependents included in your orders?",
+          "example": false
         },
         "id": {
           "type": "string",
@@ -2516,7 +2523,8 @@ func init() {
         },
         "spouse_has_pro_gear": {
           "type": "boolean",
-          "title": "Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?"
+          "title": "Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?",
+          "example": false
         },
         "tac": {
           "type": "string",
@@ -3016,22 +3024,20 @@ func init() {
     "UpdateMoveOrderPayload": {
       "type": "object",
       "required": [
-        "serviceMemberId",
         "issueDate",
         "reportByDate",
         "ordersType",
-        "hasDependents",
-        "spouseHasProGear",
+        "ordersTypeDetail",
         "newDutyStationId",
-        "originDutyStationId"
+        "originDutyStationId",
+        "ordersNumber",
+        "tac",
+        "sac",
+        "departmentIndicator"
       ],
       "properties": {
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
-        },
-        "hasDependents": {
-          "type": "boolean",
-          "title": "Are dependents included in your orders?"
         },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
@@ -3074,15 +3080,6 @@ func init() {
           "title": "SAC",
           "x-nullable": true,
           "example": "N002214CSW32Y9"
-        },
-        "serviceMemberId": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "spouseHasProGear": {
-          "type": "boolean",
-          "title": "Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?"
         },
         "tac": {
           "type": "string",
@@ -3480,6 +3477,12 @@ func init() {
             "schema": {
               "$ref": "#/definitions/UpdateMoveOrderPayload"
             }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -6008,7 +6011,8 @@ func init() {
         },
         "has_dependents": {
           "type": "boolean",
-          "title": "Are dependents included in your orders?"
+          "title": "Are dependents included in your orders?",
+          "example": false
         },
         "id": {
           "type": "string",
@@ -6053,7 +6057,8 @@ func init() {
         },
         "spouse_has_pro_gear": {
           "type": "boolean",
-          "title": "Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?"
+          "title": "Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?",
+          "example": false
         },
         "tac": {
           "type": "string",
@@ -6553,22 +6558,20 @@ func init() {
     "UpdateMoveOrderPayload": {
       "type": "object",
       "required": [
-        "serviceMemberId",
         "issueDate",
         "reportByDate",
         "ordersType",
-        "hasDependents",
-        "spouseHasProGear",
+        "ordersTypeDetail",
         "newDutyStationId",
-        "originDutyStationId"
+        "originDutyStationId",
+        "ordersNumber",
+        "tac",
+        "sac",
+        "departmentIndicator"
       ],
       "properties": {
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
-        },
-        "hasDependents": {
-          "type": "boolean",
-          "title": "Are dependents included in your orders?"
         },
         "issueDate": {
           "description": "The date and time that these orders were cut.",
@@ -6611,15 +6614,6 @@ func init() {
           "title": "SAC",
           "x-nullable": true,
           "example": "N002214CSW32Y9"
-        },
-        "serviceMemberId": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "spouseHasProGear": {
-          "type": "boolean",
-          "title": "Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?"
         },
         "tac": {
           "type": "string",

@@ -19,7 +19,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import OrdersDetailForm from 'components/Office/OrdersDetailForm';
 import { MatchShape, HistoryShape } from 'types/router';
 import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
-import { dropdownInputOptions } from 'shared/formatters';
+import { dropdownInputOptions, formatSwaggerDate } from 'shared/formatters';
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orders';
 import { MOVE_ORDERS } from 'constants/queryKeys';
@@ -43,20 +43,19 @@ const validationSchema = Yup.object({
 
 const MoveOrders = ({ history, match }) => {
   const { moveOrderId } = match.params;
-  const { orders = {}, isLoading, isError } = useMoveOrderQueries(moveOrderId);
+  const { moveOrders = {}, isLoading, isError } = useMoveOrderQueries(moveOrderId);
 
-  const moveOrders = Object.values(orders)?.[0];
-
+  const moveOrder = Object.values(moveOrders)?.[0];
   const handleClose = () => {
     history.push(`/moves/${moveOrderId}/details`);
   };
 
   const [mutateOrders] = useMutation(updateMoveOrder, {
     onSuccess: (data, variables) => {
-      const updatedOrder = data.moveOrders[variables.moveOrderId];
-      queryCache.setQueryData([MOVE_ORDERS, variables.moveOrderId], {
-        orders: {
-          [`${variables.moveOrderId}`]: updatedOrder,
+      const updatedOrder = data.moveOrders[variables.moveOrderID];
+      queryCache.setQueryData([MOVE_ORDERS, variables.moveOrderID], {
+        moveOrders: {
+          [`${variables.moveOrderID}`]: updatedOrder,
         },
       });
       queryCache.invalidateQueries(MOVE_ORDERS);
@@ -71,28 +70,28 @@ const MoveOrders = ({ history, match }) => {
   });
 
   const onSubmit = (values) => {
+    const { originDutyStation, newDutyStation, ...fields } = values;
     const body = {
-      ...values,
+      ...fields,
       originDutyStationId: values.originDutyStation.id,
       newDutyStationId: values.newDutyStation.id,
+      issueDate: formatSwaggerDate(values.issueDate),
+      reportByDate: formatSwaggerDate(values.reportByDate),
     };
-    mutateOrders({ moveOrderID: moveOrderId, body });
+    mutateOrders({ moveOrderID: moveOrderId, ifMatchETag: moveOrder.eTag, body });
   };
 
   const initialValues = {
-    originDutyStation: moveOrders?.origin_duty_station,
-    newDutyStation: moveOrders?.new_duty_station,
-    issueDate: moveOrders?.issue_date,
-    reportByDate: moveOrders?.report_by_date,
-    departmentIndicator: moveOrders?.department_indicator,
-    ordersNumber: moveOrders?.orders_number,
-    ordersType: moveOrders?.orders_type,
-    ordersTypeDetail: moveOrders?.orders_type_detail,
-    tac: moveOrders?.tac,
-    sac: moveOrders?.sac,
-    hasDependents: moveOrders?.has_dependents,
-    spouseHasProGear: moveOrders?.spouse_has_pro_gear,
-    serviceMemberId: moveOrders?.service_member_id,
+    originDutyStation: moveOrder?.originDutyStation,
+    newDutyStation: moveOrder?.destinationDutyStation,
+    issueDate: moveOrder?.date_issued,
+    reportByDate: moveOrder?.report_by_date,
+    departmentIndicator: moveOrder?.department_indicator,
+    ordersNumber: moveOrder?.order_number,
+    ordersType: moveOrder?.order_type,
+    ordersTypeDetail: moveOrder?.order_type_detail,
+    tac: moveOrder?.tac,
+    sac: moveOrder?.sac,
   };
 
   const testFiles = [

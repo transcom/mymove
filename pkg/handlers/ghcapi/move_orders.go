@@ -2,17 +2,15 @@ package ghcapi
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/storage"
 
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -101,119 +99,62 @@ func (h ListMoveTaskOrdersHandler) Handle(params moveorderop.ListMoveTaskOrdersP
 // UpdateMoveOrderHandler updates an order via PATCH /move-orders/{moveOrderId}
 type UpdateMoveOrderHandler struct {
 	handlers.HandlerContext
-	services.MoveOrderFetcher
+	moveOrderUpdater services.MoveOrderUpdater
 }
 
 // Handle ... updates an order from a request payload
 func (h UpdateMoveOrderHandler) Handle(params moveorderop.UpdateMoveOrderParams) middleware.Responder {
 
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	orderID, err := uuid.FromString(params.MoveOrderID.String())
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
-	order, err := models.FetchOrderForUser(h.DB(), session, orderID)
+
+	newOrder, err := MoveOrder(*params.Body)
 	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+	newOrder.ID = orderID
+
+	updatedOrder, err := h.moveOrderUpdater.UpdateMoveOrder(orderID, params.IfMatch, newOrder)
+	if err != nil {
+		fmt.Println(err)
 		return handlers.ResponseForError(logger, err)
 	}
 
-	payload := params.Body
-	originStationID, err := uuid.FromString(payload.OriginDutyStationID.String())
-	if err != nil {
-		return handlers.ResponseForError(logger, err)
-	}
-	originDutyStation, err := models.FetchDutyStation(h.DB(), originStationID)
-	if err != nil {
-		return handlers.ResponseForError(logger, err)
-	}
+	moveOrderPayload := payloads.MoveOrder(updatedOrder)
 
-	newStationID, err := uuid.FromString(payload.NewDutyStationID.String())
-	if err != nil {
-		return handlers.ResponseForError(logger, err)
-	}
-	newDutyStation, err := models.FetchDutyStation(h.DB(), newStationID)
-	if err != nil {
-		return handlers.ResponseForError(logger, err)
-	}
+	return moveorderop.NewUpdateMoveOrderOK().WithPayload(moveOrderPayload)
+}
+
+// MoveOrder transforms UpdateMoveOrderPayload to Order model
+func MoveOrder(payload ghcmessages.UpdateMoveOrderPayload) (models.Order, error) {
 
 	ordersTypeDetail := internalmessages.OrdersTypeDetail(payload.OrdersTypeDetail)
-
-	order.OrdersNumber = payload.OrdersNumber
-	order.IssueDate = time.Time(*payload.IssueDate)
-	order.ReportByDate = time.Time(*payload.ReportByDate)
-	order.OrdersType = internalmessages.OrdersType(payload.OrdersType)
-	order.OrdersTypeDetail = &ordersTypeDetail
-	order.HasDependents = *payload.HasDependents
-	order.SpouseHasProGear = *payload.SpouseHasProGear
-	order.OriginDutyStationID = &originDutyStation.ID
-	order.OriginDutyStation = &originDutyStation
-	order.NewDutyStationID = newDutyStation.ID
-	order.NewDutyStation = newDutyStation
-	order.TAC = payload.Tac
-	order.SAC = payload.Sac
-	order.DepartmentIndicator = handlers.FmtString(string(payload.DepartmentIndicator))
-
-	verrs, err := models.SaveOrder(h.DB(), &order)
-	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(logger, verrs, err)
+	var originDutyStationID uuid.UUID
+	if payload.OriginDutyStationID != nil {
+		originDutyStationID = uuid.FromStringOrNil(payload.OriginDutyStationID.String())
 	}
 
-	orderPayload, err := payloadForOrdersModel(h.FileStorer(), order)
+	newDutyStationID, err := uuid.FromString(payload.NewDutyStationID.String())
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
-	}
-	return moveorderop.NewUpdateMoveOrderOK().WithPayload(orderPayload)
-}
-
-func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*ghcmessages.MoveOrder, error) {
-	payload := &ghcmessages.MoveOrder{
-		ID:                     *handlers.FmtUUID(order.ID),
-		DateIssued:             *handlers.FmtDate(order.IssueDate),
-		ReportByDate:           *handlers.FmtDate(order.ReportByDate),
-		OrderType:              ghcmessages.OrdersType(order.OrdersType),
-		OrderTypeDetail:        ghcmessages.OrdersTypeDetail(*order.OrdersTypeDetail),
-		OriginDutyStation:      payloadForDutyStationModel(order.OriginDutyStation),
-		DestinationDutyStation: payloadForDutyStationModel(&order.NewDutyStation),
-		HasDependents:          *handlers.FmtBool(order.HasDependents),
-		SpouseHasProGear:       *handlers.FmtBool(order.SpouseHasProGear),
-		OrderNumber:            order.OrdersNumber,
-		Tac:                    order.TAC,
-		Sac:                    order.SAC,
-		DepartmentIndicator:    ghcmessages.DeptIndicator(*order.DepartmentIndicator),
+		return models.Order{}, err
 	}
 
-	return payload, nil
-}
+	departmentIndicator := string(payload.DepartmentIndicator)
 
-func payloadForDutyStationModel(station *models.DutyStation) *ghcmessages.DutyStation {
-	// If the station ID has no UUID then it isn't real data
-	// Unlike other payloads the
-	if station == nil || station.ID == uuid.Nil {
-		return nil
-	}
-	payload := ghcmessages.DutyStation{
-		ID:        *handlers.FmtUUID(station.ID),
-		Name:      station.Name,
-		AddressID: *handlers.FmtUUID(station.AddressID),
-		Address:   payloadForAddressModel(&station.Address),
-	}
-
-	return &payload
-}
-
-func payloadForAddressModel(a *models.Address) *ghcmessages.Address {
-	if a == nil {
-		return nil
-	}
-	return &ghcmessages.Address{
-		ID:             strfmt.UUID(a.ID.String()),
-		StreetAddress1: swag.String(a.StreetAddress1),
-		StreetAddress2: a.StreetAddress2,
-		StreetAddress3: a.StreetAddress3,
-		City:           swag.String(a.City),
-		State:          swag.String(a.State),
-		PostalCode:     swag.String(a.PostalCode),
-		Country:        a.Country,
-	}
+	return models.Order{
+		IssueDate:           time.Time(*payload.IssueDate),
+		ReportByDate:        time.Time(*payload.ReportByDate),
+		OrdersType:          internalmessages.OrdersType(payload.OrdersType),
+		OrdersTypeDetail:    &ordersTypeDetail,
+		NewDutyStationID:    newDutyStationID,
+		OrdersNumber:        payload.OrdersNumber,
+		TAC:                 payload.Tac,
+		SAC:                 payload.Sac,
+		DepartmentIndicator: &departmentIndicator,
+		OriginDutyStationID: &originDutyStationID,
+	}, nil
 }

@@ -152,6 +152,10 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/UpdateMoveOrderPayload'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
       responses:
         200:
           description: updated instance of orders
@@ -1534,9 +1538,11 @@ definitions:
         x-nullable: true
       has_dependents:
         type: boolean
+        example: false
         title: Are dependents included in your orders?
       spouse_has_pro_gear:
         type: boolean
+        example: false
         title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
       eTag:
         type: string
@@ -1544,10 +1550,6 @@ definitions:
   UpdateMoveOrderPayload:
     type: object
     properties:
-      serviceMemberId:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       issueDate:
         type: string
         description: The date and time that these orders were cut.
@@ -1564,12 +1566,6 @@ definitions:
         $ref: '#/definitions/OrdersType'
       ordersTypeDetail:
         $ref: '#/definitions/OrdersTypeDetail'
-      hasDependents:
-        type: boolean
-        title: Are dependents included in your orders?
-      spouseHasProGear:
-        type: boolean
-        title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
       originDutyStationId:
         type: string
         format: uuid
@@ -1596,14 +1592,16 @@ definitions:
       departmentIndicator:
         $ref: '#/definitions/DeptIndicator'
     required:
-      - serviceMemberId
       - issueDate
       - reportByDate
       - ordersType
-      - hasDependents
-      - spouseHasProGear
+      - ordersTypeDetail
       - newDutyStationId
       - originDutyStationId
+      - ordersNumber
+      - tac
+      - sac
+      - departmentIndicator
   MoveTaskOrder:
     properties:
       id:

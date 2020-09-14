@@ -110,7 +110,7 @@ export async function patchPaymentServiceItemStatus({
   );
 }
 
-export async function updateMoveOrder({ moveOrderID, body }) {
+export async function updateMoveOrder({ moveOrderID, ifMatchETag, body }) {
   const operationPath = 'moveOrder.updateMoveOrder';
-  return makeGHCRequest(operationPath, { moveOrderID, body });
+  return makeGHCRequest(operationPath, { moveOrderID, 'If-Match': ifMatchETag, body });
 }

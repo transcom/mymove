@@ -1,12 +1,14 @@
 import React from 'react';
-import { action } from '@storybook/addon-actions';
-import { storiesOf } from '@storybook/react';
+import { withKnobs } from '@storybook/addon-knobs';
+import * as Yup from 'yup';
+import { Formik } from 'formik';
 
 import OrdersDetailForm from 'components/Office/OrdersDetailForm';
+import { dropdownInputOptions } from 'shared/formatters';
+import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orders';
+import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 
-const createKeyValueObj = (key, value) => ({ key, value });
-
-const currentDutyStation = {
+const originDutyStation = {
   address: {
     city: 'Dover AFB',
     id: '9f8b0fad-afe1-4a44-bb28-296a335c1141',
@@ -37,46 +39,44 @@ const newDutyStation = {
   updated_at: '2018-10-04T22:54:46.589Z',
 };
 
-const deptIndicatorOptions = [
-  createKeyValueObj('NAVY_AND_MARINES', '17 Navy and Marine Corps'),
-  createKeyValueObj('ARMY', '21 Army'),
-  createKeyValueObj('AIR_FORCE', '57 Air Force'),
-  createKeyValueObj('COAST_GUARD', '70 Coast Guard'),
-];
+const deptIndicatorOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
+const ordersTypeOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
+const ordersTypeDetailOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
 
-const ordersTypeOptions = [createKeyValueObj('PERMANENT_CHANGE_OF_STATION', 'Permanent Change Of Station')];
+export default {
+  title: 'TOO/TIO Components|OrdersDetailForm',
+  component: OrdersDetailForm,
+  decorators: [
+    withKnobs,
+    (Story) => (
+      <div style={{ padding: `20px`, background: `#f0f0f0` }}>
+        <Story />
+      </div>
+    ),
+  ],
+};
 
-const ordersTypeDetailOptions = [
-  createKeyValueObj('HHG_PERMITTED', 'Shipment of HHG Permitted'),
-  createKeyValueObj('PCS_TDY', 'PCS with TDY Enroute'),
-  createKeyValueObj('HHG_RESTRICTED_PROHIBITED', 'Shipment of HHG Restricted or Prohibited'),
-  createKeyValueObj('HHG_RESTRICTED_AREA', 'HHG Restricted Area-HHG Prohibited'),
-  createKeyValueObj('INSTRUCTION_20_WEEKS', 'Course of Instruction 20 Weeks or More'),
-  createKeyValueObj('HHG_PROHIBITED_20_WEEKS', 'Shipment of HHG Prohibited but Authorized within 20 weeks'),
-  createKeyValueObj('DELAYED_APPROVAL', 'Delayed Approval 20 Weeks or More'),
-];
-
-storiesOf('TOO/TIO Components|OrdersDetailForm', module)
-  .add('with empty values', () => (
-    <div style={{ padding: `20px`, background: `#f0f0f0` }}>
+export const WithEmptyValues = () => (
+  <Formik>
+    <form>
       <OrdersDetailForm
-        initialValues={{}}
         deptIndicatorOptions={deptIndicatorOptions}
         ordersTypeOptions={ordersTypeOptions}
         ordersTypeDetailOptions={ordersTypeDetailOptions}
-        onSubmit={action('Orders Detail Submit')}
-        onReset={action('Orders Detail Cancel')}
       />
-    </div>
-  ))
-  .add('with initial values', () => (
-    <div style={{ padding: `20px`, background: `#f0f0f0` }}>
-      <OrdersDetailForm
+    </form>
+  </Formik>
+);
+
+export const WithInitialValues = () => {
+  return (
+    <>
+      <Formik
         initialValues={{
-          currentDutyStation,
+          originDutyStation,
           newDutyStation,
-          dateIssued: '08 Mar 2020',
-          reportByDate: '01 Apr 2020',
+          issueDate: '2020-03-08',
+          reportByDate: '2020-04-01',
           departmentIndicator: 'NAVY_AND_MARINES',
           ordersNumber: '999999999',
           ordersType: 'PERMANENT_CHANGE_OF_STATION',
@@ -84,11 +84,27 @@ storiesOf('TOO/TIO Components|OrdersDetailForm', module)
           tac: 'Tac',
           sac: 'Sac',
         }}
-        deptIndicatorOptions={deptIndicatorOptions}
-        ordersTypeOptions={ordersTypeOptions}
-        ordersTypeDetailOptions={ordersTypeDetailOptions}
-        onSubmit={action('Orders Detail Submit')}
-        onReset={action('Orders Detail Cancel')}
-      />
-    </div>
-  ));
+        validationSchema={Yup.object({
+          originDutyStation: Yup.object().defined('Required'),
+          newDutyStation: Yup.object().required('Required'),
+          issueDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY').required('Required'),
+          reportByDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY').required('Required'),
+          departmentIndicator: Yup.string().required('Required'),
+          ordersNumber: Yup.string().required('Required'),
+          ordersType: Yup.string().required('Required'),
+          ordersTypeDetail: Yup.string().required('Required'),
+          tac: Yup.string().required('Required'),
+          sac: Yup.string().required('Required'),
+        })}
+      >
+        <form>
+          <OrdersDetailForm
+            deptIndicatorOptions={deptIndicatorOptions}
+            ordersTypeOptions={ordersTypeOptions}
+            ordersTypeDetailOptions={ordersTypeDetailOptions}
+          />
+        </form>
+      </Formik>
+    </>
+  );
+};

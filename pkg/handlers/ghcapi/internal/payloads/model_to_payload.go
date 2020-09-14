@@ -106,6 +106,8 @@ func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
 		DepartmentIndicator:    deptIndicator,
 		Tac:                    handlers.FmtStringPtr(moveOrder.TAC),
 		Sac:                    handlers.FmtStringPtr(moveOrder.SAC),
+		HasDependents:          moveOrder.HasDependents,
+		SpouseHasProGear:       moveOrder.SpouseHasProGear,
 	}
 
 	if moveOrder.Grade != nil {

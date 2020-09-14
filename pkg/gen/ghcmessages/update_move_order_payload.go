@@ -18,11 +18,8 @@ import (
 type UpdateMoveOrderPayload struct {
 
 	// department indicator
-	DepartmentIndicator DeptIndicator `json:"departmentIndicator,omitempty"`
-
-	// Are dependents included in your orders?
 	// Required: true
-	HasDependents *bool `json:"hasDependents"`
+	DepartmentIndicator DeptIndicator `json:"departmentIndicator"`
 
 	// Orders date
 	//
@@ -37,14 +34,16 @@ type UpdateMoveOrderPayload struct {
 	NewDutyStationID *strfmt.UUID `json:"newDutyStationId"`
 
 	// Orders Number
-	OrdersNumber *string `json:"ordersNumber,omitempty"`
+	// Required: true
+	OrdersNumber *string `json:"ordersNumber"`
 
 	// orders type
 	// Required: true
 	OrdersType OrdersType `json:"ordersType"`
 
 	// orders type detail
-	OrdersTypeDetail OrdersTypeDetail `json:"ordersTypeDetail,omitempty"`
+	// Required: true
+	OrdersTypeDetail OrdersTypeDetail `json:"ordersTypeDetail"`
 
 	// origin duty station Id
 	// Required: true
@@ -59,19 +58,12 @@ type UpdateMoveOrderPayload struct {
 	ReportByDate *strfmt.Date `json:"reportByDate"`
 
 	// SAC
-	Sac *string `json:"sac,omitempty"`
-
-	// service member Id
 	// Required: true
-	// Format: uuid
-	ServiceMemberID *strfmt.UUID `json:"serviceMemberId"`
-
-	// Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
-	// Required: true
-	SpouseHasProGear *bool `json:"spouseHasProGear"`
+	Sac *string `json:"sac"`
 
 	// TAC
-	Tac *string `json:"tac,omitempty"`
+	// Required: true
+	Tac *string `json:"tac"`
 }
 
 // Validate validates this update move order payload
@@ -82,15 +74,15 @@ func (m *UpdateMoveOrderPayload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateHasDependents(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateIssueDate(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.validateNewDutyStationID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOrdersNumber(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -110,11 +102,11 @@ func (m *UpdateMoveOrderPayload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateServiceMemberID(formats); err != nil {
+	if err := m.validateSac(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateSpouseHasProGear(formats); err != nil {
+	if err := m.validateTac(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -126,23 +118,10 @@ func (m *UpdateMoveOrderPayload) Validate(formats strfmt.Registry) error {
 
 func (m *UpdateMoveOrderPayload) validateDepartmentIndicator(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.DepartmentIndicator) { // not required
-		return nil
-	}
-
 	if err := m.DepartmentIndicator.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("departmentIndicator")
 		}
-		return err
-	}
-
-	return nil
-}
-
-func (m *UpdateMoveOrderPayload) validateHasDependents(formats strfmt.Registry) error {
-
-	if err := validate.Required("hasDependents", "body", m.HasDependents); err != nil {
 		return err
 	}
 
@@ -175,6 +154,15 @@ func (m *UpdateMoveOrderPayload) validateNewDutyStationID(formats strfmt.Registr
 	return nil
 }
 
+func (m *UpdateMoveOrderPayload) validateOrdersNumber(formats strfmt.Registry) error {
+
+	if err := validate.Required("ordersNumber", "body", m.OrdersNumber); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *UpdateMoveOrderPayload) validateOrdersType(formats strfmt.Registry) error {
 
 	if err := m.OrdersType.Validate(formats); err != nil {
@@ -188,10 +176,6 @@ func (m *UpdateMoveOrderPayload) validateOrdersType(formats strfmt.Registry) err
 }
 
 func (m *UpdateMoveOrderPayload) validateOrdersTypeDetail(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.OrdersTypeDetail) { // not required
-		return nil
-	}
 
 	if err := m.OrdersTypeDetail.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
@@ -229,22 +213,18 @@ func (m *UpdateMoveOrderPayload) validateReportByDate(formats strfmt.Registry) e
 	return nil
 }
 
-func (m *UpdateMoveOrderPayload) validateServiceMemberID(formats strfmt.Registry) error {
+func (m *UpdateMoveOrderPayload) validateSac(formats strfmt.Registry) error {
 
-	if err := validate.Required("serviceMemberId", "body", m.ServiceMemberID); err != nil {
-		return err
-	}
-
-	if err := validate.FormatOf("serviceMemberId", "body", "uuid", m.ServiceMemberID.String(), formats); err != nil {
+	if err := validate.Required("sac", "body", m.Sac); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (m *UpdateMoveOrderPayload) validateSpouseHasProGear(formats strfmt.Registry) error {
+func (m *UpdateMoveOrderPayload) validateTac(formats strfmt.Registry) error {
 
-	if err := validate.Required("spouseHasProGear", "body", m.SpouseHasProGear); err != nil {
+	if err := validate.Required("tac", "body", m.Tac); err != nil {
 		return err
 	}
 

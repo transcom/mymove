@@ -8,16 +8,8 @@ import {
   getMoveOrder,
   getMoveTaskOrderList,
 } from 'services/ghcApi';
-import { getMoveOrder as getInternalMoveOrder } from 'services/internalApi';
 import { getQueriesStatus } from 'utils/api';
-import {
-  PAYMENT_REQUESTS,
-  MTO_SHIPMENTS,
-  MTO_SERVICE_ITEMS,
-  MOVE_ORDERS,
-  MOVE_TASK_ORDERS,
-  ORDERS,
-} from 'constants/queryKeys';
+import { PAYMENT_REQUESTS, MTO_SHIPMENTS, MTO_SERVICE_ITEMS, MOVE_ORDERS, MOVE_TASK_ORDERS } from 'constants/queryKeys';
 
 export const usePaymentRequestQueries = (paymentRequestId) => {
   // get payment request by ID
@@ -106,12 +98,12 @@ export const useMoveTaskOrderQueries = (moveOrderId) => {
 
 export const useMoveOrderQueries = (moveOrderId) => {
   // get move orders
-  const { data: { orders } = {}, ...moveOrderQuery } = useQuery([ORDERS, moveOrderId], getInternalMoveOrder);
+  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, moveOrderId], getMoveOrder);
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([moveOrderQuery]);
 
   return {
-    orders,
+    moveOrders,
     isLoading,
     isError,
     isSuccess,
