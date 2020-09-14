@@ -122,53 +122,54 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulData() {
 }
 
 func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulServiceItem() models.PaymentServiceItem {
-	return suite.setupPaymentServiceItemWithParams(
+	return testdatagen.MakePaymentServiceItemWithParams(
+		suite.DB(),
 		models.ReServiceCodeDLH,
-		[]createParams{
+		[]testdatagen.CreatePaymentServiceItemParams{
 			{
-				models.ServiceItemParamNameContractCode,
-				models.ServiceItemParamTypeString,
-				testdatagen.DefaultContractCode,
+				Key:     models.ServiceItemParamNameContractCode,
+				KeyType: models.ServiceItemParamTypeString,
+				Value:   testdatagen.DefaultContractCode,
 			},
 			{
-				models.ServiceItemParamNameRequestedPickupDate,
-				models.ServiceItemParamTypeTimestamp,
-				dlhRequestedPickupDate.Format(TimestampParamFormat),
+				Key:     models.ServiceItemParamNameRequestedPickupDate,
+				KeyType: models.ServiceItemParamTypeTimestamp,
+				Value:   dlhRequestedPickupDate.Format(TimestampParamFormat),
 			},
 			{
-				models.ServiceItemParamNameDistanceZip3,
-				models.ServiceItemParamTypeInteger,
-				fmt.Sprintf("%d", int(dlhTestDistance)),
+				Key:     models.ServiceItemParamNameDistanceZip3,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   fmt.Sprintf("%d", int(dlhTestDistance)),
 			},
 			{
-				models.ServiceItemParamNameZipPickupAddress,
-				models.ServiceItemParamTypeString,
-				"90210",
+				Key:     models.ServiceItemParamNameZipPickupAddress,
+				KeyType: models.ServiceItemParamTypeString,
+				Value:   "90210",
 			},
 			{
-				models.ServiceItemParamNameZipDestAddress,
-				models.ServiceItemParamTypeString,
-				"94535",
+				Key:     models.ServiceItemParamNameZipDestAddress,
+				KeyType: models.ServiceItemParamTypeString,
+				Value:   "94535",
 			},
 			{
-				models.ServiceItemParamNameWeightBilledActual,
-				models.ServiceItemParamTypeInteger,
-				fmt.Sprintf("%d", int(dlhTestWeight)),
+				Key:     models.ServiceItemParamNameWeightBilledActual,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   fmt.Sprintf("%d", int(dlhTestWeight)),
 			},
 			{
-				models.ServiceItemParamNameWeightActual,
-				models.ServiceItemParamTypeInteger,
-				"1400",
+				Key:     models.ServiceItemParamNameWeightActual,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   "1400",
 			},
 			{
-				models.ServiceItemParamNameWeightEstimated,
-				models.ServiceItemParamTypeInteger,
-				"1400",
+				Key:     models.ServiceItemParamNameWeightEstimated,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   "1400",
 			},
 			{
-				models.ServiceItemParamNameServiceAreaOrigin,
-				models.ServiceItemParamTypeString,
-				dlhTestServiceArea,
+				Key:     models.ServiceItemParamNameServiceAreaOrigin,
+				KeyType: models.ServiceItemParamTypeString,
+				Value:   dlhTestServiceArea,
 			},
 		},
 	)

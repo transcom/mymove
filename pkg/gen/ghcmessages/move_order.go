@@ -83,6 +83,10 @@ type MoveOrder struct {
 
 	// TAC
 	Tac *string `json:"tac,omitempty"`
+
+	// uploaded order id
+	// Format: uuid
+	UploadedOrderID strfmt.UUID `json:"uploaded_order_id,omitempty"`
 }
 
 // Validate validates this move order
@@ -130,6 +134,10 @@ func (m *MoveOrder) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReportByDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateUploadedOrderID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -300,6 +308,19 @@ func (m *MoveOrder) validateReportByDate(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("report_by_date", "body", "date", m.ReportByDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveOrder) validateUploadedOrderID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.UploadedOrderID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("uploaded_order_id", "body", "uuid", m.UploadedOrderID.String(), formats); err != nil {
 		return err
 	}
 

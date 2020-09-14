@@ -85,12 +85,13 @@
   "name": "client",
   "private": true,
   "scripts": {
+    "analyze": "source-map-explorer 'build/static/js/*.js'",
     "build": "rescripts build",
     "eject": "rescripts eject",
     "start": "rescripts start",
     "test": "rescripts test --env=jsdom",
     "test:debug": "rescripts --inspect-brk test --runInBand --env=jsdom",
-    "test:coverage": "rescripts test --coverage --env=jsdom",
+    "test:coverage": "rescripts test --coverage --env=jsdom --watchAll=false --coverageDirectory=coverage",
     "test:e2e": "cypress open --config baseUrl=http://milmovelocal:3000 --env testClientPort=3000",
     "test:e2e-clean": "make db_dev_e2e_populate; yarn test:e2e",
     "test:e2e-debug": "DEBUG=cypress:server:util:process_profiler cypress open --config baseUrl=http://milmovelocal:3000 --env testClientPort=3000",
@@ -127,12 +128,15 @@
     "eslint-plugin-no-only-tests": "^2.4.0",
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-security": "^1.4.0",
+    "eslint-plugin-you-dont-need-lodash-underscore": "^6.10.0",
+    "lodash-webpack-plugin": "^0.11.5",
     "loki": "^0.24.0",
     "markdown-spellcheck": "^1.3.1",
     "mime-types": "^2.1.27",
     "mockdate": "^3.0.2",
     "prettier": "=2.0.5",
     "react-test-renderer": "^16.13.1",
+    "source-map-explorer": "^2.4.2",
     "storybook-addons-abstract": "^5.0.6",
     "terser-webpack-plugin": "^4.1.0"
   },
@@ -154,6 +158,21 @@
       "chrome.iphone7": {
         "target": "chrome.app",
         "preset": "iPhone 7"
+      }
+    }
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.{js,jsx,ts,tsx}",
+      "!src/**/*.stories.{jsx,tsx}",
+      "!<rootDir>/node_modules/"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 40,
+        "functions": 35,
+        "lines": 40,
+        "statements": 40
       }
     }
   }

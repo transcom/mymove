@@ -777,7 +777,7 @@ jobs:
       - restore_cache:
           keys:
             - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
-      - run: make client_test
+      - run: make client_test_coverage
       - announce_failure
 
   # `build_tools` builds the mymove-specific CLI tools in `mymove/cmd`

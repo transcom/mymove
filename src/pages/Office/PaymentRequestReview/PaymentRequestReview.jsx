@@ -97,8 +97,8 @@ export const PaymentRequestReview = ({ history, match }) => {
   const testFiles = [
     {
       filename: 'Test File.pdf',
-      fileType: 'pdf',
-      filePath: samplePDF,
+      contentType: 'pdf',
+      url: samplePDF,
     },
   ];
 

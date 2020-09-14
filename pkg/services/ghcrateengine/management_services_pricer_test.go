@@ -44,18 +44,19 @@ func (suite *GHCRateEngineServiceSuite) TestPriceManagementServices() {
 }
 
 func (suite *GHCRateEngineServiceSuite) setupManagementServicesItem() models.PaymentServiceItem {
-	return suite.setupPaymentServiceItemWithParams(
+	return testdatagen.MakePaymentServiceItemWithParams(
+		suite.DB(),
 		models.ReServiceCodeMS,
-		[]createParams{
+		[]testdatagen.CreatePaymentServiceItemParams{
 			{
-				models.ServiceItemParamNameContractCode,
-				models.ServiceItemParamTypeString,
-				testdatagen.DefaultContractCode,
+				Key:     models.ServiceItemParamNameContractCode,
+				KeyType: models.ServiceItemParamTypeString,
+				Value:   testdatagen.DefaultContractCode,
 			},
 			{
-				models.ServiceItemParamNameMTOAvailableToPrimeAt,
-				models.ServiceItemParamTypeTimestamp,
-				msAvailableToPrimeAt.Format(TimestampParamFormat),
+				Key:     models.ServiceItemParamNameMTOAvailableToPrimeAt,
+				KeyType: models.ServiceItemParamTypeTimestamp,
+				Value:   msAvailableToPrimeAt.Format(TimestampParamFormat),
 			},
 		},
 	)

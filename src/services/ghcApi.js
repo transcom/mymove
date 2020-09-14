@@ -59,6 +59,9 @@ export async function getMTOServiceItems(key, moveTaskOrderID) {
   return makeGHCRequest('mtoServiceItem.listMTOServiceItems', { moveTaskOrderID }, { schemaKey: 'mtoServiceItems' });
 }
 
+export async function getDocument(key, documentId) {
+  return makeGHCRequest('ghcDocuments.getDocument', { documentId }, { schemaKey: 'document' });
+}
 export async function getCustomer(key, customerID) {
   return makeGHCRequest('customer.getCustomer', { customerID });
 }

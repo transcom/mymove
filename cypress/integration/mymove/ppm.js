@@ -6,35 +6,35 @@ describe('the PPM flow', function () {
   it('can submit a PPM move', () => {
     // profile@comple.te
     const userId = '13f3949d-0d53-4be4-b1b1-ae4314793f34';
-    cy.apiSignInAsUser(userId);
+    cy.apiSignInAsPpmUser(userId);
     SMSubmitsMove();
   });
 
   it('can complete the PPM flow with a move date that we currently do not have rates for', () => {
     // profile@complete.draft
     const userId = '3b9360a3-3304-4c60-90f4-83d687884070';
-    cy.apiSignInAsUser(userId);
+    cy.apiSignInAsPpmUser(userId);
     SMCompletesMove();
   });
 
   it('doesn’t allow a user to enter the same origin and destination zip', () => {
     // profile@co.mple.te
     const userId = '99360a51-8cfa-4e25-ae57-24e66077305f';
-    cy.apiSignInAsUser(userId);
+    cy.apiSignInAsPpmUser(userId);
     SMInputsSamePostalCodes();
   });
 
   it('doesn’t allow SM to progress if don’t have rate data for zips"', () => {
     // profile@co.mple.te
     const userId = '99360a51-8cfa-4e25-ae57-24e66077305f';
-    cy.apiSignInAsUser(userId);
+    cy.apiSignInAsPpmUser(userId);
     SMInputsInvalidPostalCodes();
   });
 
   it('when editing PPM only move, sees only details relevant to PPM only move', () => {
     // ppm@incomple.te
     const userId = 'e10d5964-c070-49cb-9bd1-eaf9f7348eb6';
-    cy.apiSignInAsUser(userId);
+    cy.apiSignInAsPpmUser(userId);
     SMSeesMoveDetails();
   });
 
@@ -49,7 +49,7 @@ describe('the PPM flow', function () {
     cy.route('POST', '**/moves/**/moving_expense_documents').as('postMovingExpense');
     cy.route('POST', '**/internal/personally_procured_move/**/request_payment').as('requestPayment');
     cy.route('POST', '**/moves/**/signed_certifications').as('signedCertifications');
-    cy.apiSignInAsUser(userId);
+    cy.apiSignInAsPpmUser(userId);
     SMContinueRequestPayment();
   });
 });
@@ -125,7 +125,7 @@ function SMSubmitsMove() {
   cy.completeFlow();
 
   cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/$/);
+    expect(loc.pathname).to.match(/^\/ppm$/);
   });
 
   cy.get('.usa-alert--success').within(() => {
@@ -191,7 +191,7 @@ function SMCompletesMove() {
   cy.completeFlow();
 
   cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/$/);
+    expect(loc.pathname).to.match(/^\/ppm$/);
   });
 
   cy.get('.usa-alert--success').within(() => {
@@ -271,7 +271,7 @@ function SMContinueRequestPayment() {
   cy.get('button').contains('OK').click();
 
   cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/$/);
+    expect(loc.pathname).to.match(/^\/ppm$/);
   });
 
   cy.get('a').contains('Continue Requesting Payment').click();

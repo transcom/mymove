@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/transcom/mymove/pkg/services/event"
+
 	"github.com/go-openapi/swag"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -45,7 +47,8 @@ func (h UpdatePaymentServiceItemStatusHandler) Handle(params paymentServiceItemO
 
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error finding payment service item for status update with ID: %s", params.PaymentServiceItemID), zap.Error(err))
-		return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusNotFound()
+		payload := payloadForClientError("Unknown UUID(s)", "Unknown UUID(s) used to update a payment service item ", h.GetTraceID())
+		return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusNotFound().WithPayload(payload)
 	}
 	// Create a model object to use for the update and set the status
 	newStatus := models.PaymentServiceItemStatus(params.Body.Status)
@@ -78,7 +81,7 @@ func (h UpdatePaymentServiceItemStatusHandler) Handle(params paymentServiceItemO
 	// Using a switch to match error causes to appropriate return type in gen code
 	if err != nil {
 		switch err.(type) {
-		case services.PreconditionFailedError:
+		case query.StaleIdentifierError:
 			return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		case services.NotFoundError:
 			payload := payloadForClientError("Unknown UUID(s)", "Unknown UUID(s) used to update a payment service item ", h.GetTraceID())
@@ -88,6 +91,20 @@ func (h UpdatePaymentServiceItemStatusHandler) Handle(params paymentServiceItemO
 	if verrs != nil {
 		return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusInternalServerError().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(verrs.String())})
 	}
+
+	_, err = event.TriggerEvent(event.Event{
+		EventKey:        event.PaymentRequestUpdateEventKey,
+		MtoID:           paymentServiceItem.PaymentRequest.MoveTaskOrderID,
+		UpdatedObjectID: paymentServiceItem.PaymentRequestID,
+		Request:         params.HTTPRequest,
+		EndpointKey:     event.GhcUpdatePaymentServiceItemStatusEndpointKey,
+		DBConnection:    h.DB(),
+		HandlerContext:  h,
+	})
+	if err != nil {
+		logger.Error("ghcapi.UpdatePaymentServiceItemStatusHandler could not generate the event")
+	}
+
 	// Make the payload and return it with a 200
 	payload := modelToPayload.PaymentServiceItem(&paymentServiceItem)
 	return paymentServiceItemOp.NewUpdatePaymentServiceItemStatusOK().WithPayload(payload)

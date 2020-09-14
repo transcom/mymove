@@ -631,6 +631,32 @@ MB-2346
 asdf
 goenv
 gvm
+lodash
+natively
+transpiled
+polyfilled
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
  - ./docs/backend/route-planner.md
  - docs/adr/0050-doc-viewer-fork.md
+MB-2346
+ - docs/adr/0057-lodash.md
+isEmpty
+concat
+mapValues
+findLast
+isNull
+toUpper
+forEach
+findKey
+memoize
+cloneDeep
+debounce
+snakeCase
+startCase
+isFinite
+uniqueId
+startsWith
+uniq
+isNil
+isInteger
+sortBy

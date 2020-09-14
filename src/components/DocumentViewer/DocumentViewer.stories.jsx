@@ -15,36 +15,36 @@ export default {
 const testPDFFiles = [
   {
     filename: 'Test File.pdf',
-    fileType: 'pdf',
-    filePath: pdf,
+    contentType: 'pdf',
+    url: pdf,
   },
   {
     filename: 'Test File 2.pdf',
-    fileType: 'pdf',
-    filePath: pdf2,
+    contentType: 'pdf',
+    url: pdf2,
   },
   {
     filename: 'Test File 3.pdf',
-    fileType: 'pdf',
-    filePath: pdf3,
+    contentType: 'pdf',
+    url: pdf3,
   },
 ];
 
 const testImageFiles = [
   {
     filename: 'PCS Orders TACOMA.jpg',
-    fileType: 'jpg',
-    filePath: jpg,
+    contentType: 'jpg',
+    url: jpg,
   },
   {
     filename: 'PCS Orders TACOMA Page 2.png',
-    fileType: 'png',
-    filePath: png,
+    contentType: 'png',
+    url: png,
   },
   {
     filename: 'PCS Orders TACOMA Page 3.gif',
-    fileType: 'gif',
-    filePath: gif,
+    contentType: 'gif',
+    url: gif,
   },
 ];
 

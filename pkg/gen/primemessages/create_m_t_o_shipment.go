@@ -47,9 +47,10 @@ type CreateMTOShipment struct {
 	// Email or id of a contact person for this update
 	PointOfContact string `json:"pointOfContact,omitempty"`
 
-	// requested pickup date
+	// The date the customer requested that this shipment be picked up.
+	// Required: true
 	// Format: date
-	RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
+	RequestedPickupDate *strfmt.Date `json:"requestedPickupDate"`
 
 	// shipment type
 	// Required: true
@@ -83,7 +84,7 @@ func (m *CreateMTOShipment) UnmarshalJSON(raw []byte) error {
 
 		PointOfContact string `json:"pointOfContact,omitempty"`
 
-		RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
+		RequestedPickupDate *strfmt.Date `json:"requestedPickupDate"`
 
 		ShipmentType MTOShipmentType `json:"shipmentType"`
 	}
@@ -155,7 +156,7 @@ func (m CreateMTOShipment) MarshalJSON() ([]byte, error) {
 
 		PointOfContact string `json:"pointOfContact,omitempty"`
 
-		RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
+		RequestedPickupDate *strfmt.Date `json:"requestedPickupDate"`
 
 		ShipmentType MTOShipmentType `json:"shipmentType"`
 	}{
@@ -319,8 +320,8 @@ func (m *CreateMTOShipment) validatePickupAddress(formats strfmt.Registry) error
 
 func (m *CreateMTOShipment) validateRequestedPickupDate(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.RequestedPickupDate) { // not required
-		return nil
+	if err := validate.Required("requestedPickupDate", "body", m.RequestedPickupDate); err != nil {
+		return err
 	}
 
 	if err := validate.FormatOf("requestedPickupDate", "body", "date", m.RequestedPickupDate.String(), formats); err != nil {
