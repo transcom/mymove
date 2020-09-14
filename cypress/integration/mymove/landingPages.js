@@ -11,7 +11,7 @@ describe('testing landing pages', function () {
   it('tests pre-move type', function () {
     // sm_no_move_type@example.com
     const userId = '9ceb8321-6a82-4f6d-8bb3-a1d85922a202';
-    cy.apiSignInAsUser(userId);
+    cy.apiSignInAsPpmUser(userId);
     cy.contains('Next Step: Finish setting up your move');
   });
 
@@ -19,7 +19,7 @@ describe('testing landing pages', function () {
   it('tests submitted PPM', function () {
     // ppm@incomple.te
     const userId = 'e10d5964-c070-49cb-9bd1-eaf9f7348eb6';
-    cy.apiSignInAsUser(userId);
+    cy.apiSignInAsPpmUser(userId);
     cy.contains('Handle your own move (PPM)');
     cy.contains('Next Step: Wait for approval');
     cy.should('not.contain', 'Add PPM (DITY) Move');
@@ -29,7 +29,7 @@ describe('testing landing pages', function () {
   it('tests approved PPM', function () {
     // ppm@approv.ed
     const userId = '70665111-7bbb-4876-a53d-18bb125c943e';
-    cy.apiSignInAsUser(userId);
+    cy.apiSignInAsPpmUser(userId);
     cy.contains('Handle your own move (PPM)');
     cy.contains('Next Step: Request payment');
   });
@@ -38,8 +38,8 @@ describe('testing landing pages', function () {
   it('tests PPM that has requested payment', function () {
     // ppmpayment@request.ed
     const userId = 'beccca28-6e15-40cc-8692-261cae0d4b14';
-    cy.apiSignInAsUser(userId);
-    cy.setFeatureFlag('ppmPaymentRequest=false', '/');
+    cy.apiSignInAsPpmUser(userId);
+    cy.setFeatureFlag('ppmPaymentRequest=false', '/ppm');
     cy.contains('Handle your own move (PPM)');
     cy.contains('Edit Payment Request');
     cy.contains('Estimated');
@@ -53,7 +53,7 @@ describe('testing landing pages', function () {
   it('tests canceled PPM', function () {
     // ppm-canceled@example.com
     const userId = '20102768-4d45-449c-a585-81bc386204b1';
-    cy.apiSignInAsUser(userId);
+    cy.apiSignInAsPpmUser(userId);
     cy.contains('New move');
     cy.contains('Start here');
   });
