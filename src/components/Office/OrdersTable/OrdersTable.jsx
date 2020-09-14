@@ -1,5 +1,4 @@
 import React from 'react';
-import { Button } from '@trussworks/react-uswds';
 import { Link } from 'react-router-dom';
 
 import styles from './OrdersTable.module.scss';
@@ -16,9 +15,9 @@ function OrdersTable({ ordersInfo }) {
           <h4>Orders</h4>
         </div>
         <div>
-          <Button secondary>
-            <Link to="orders">View & edit orders</Link>
-          </Button>
+          <Link className="usa-button usa-button--secondary" to="orders">
+            View & edit orders
+          </Link>
         </div>
       </div>
       <table className="table--stacked">

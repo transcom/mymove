@@ -12,15 +12,15 @@
       color: $base-darkest;
     }
 
-    button {
+    a.usa-button--secondary {
       @include u-margin-right(0);
-      @include u-margin-y(0);
 
-      a:visited {
-        color: unset;
+      &:visited {
+        color: $primary;
       }
 
-      a:hover {
+      &:hover {
+        color: #1a4480;
         text-decoration: none;
       }
     }

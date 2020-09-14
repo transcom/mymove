@@ -137,7 +137,7 @@ const MoveOrders = ({ history, match }) => {
                   </Button>
                   <h2 className={styles.header}>View Orders</h2>
                   <div>
-                    <Button className={styles.viewAllowances} unstyled>
+                    <Button type="button" className={styles.viewAllowances} unstyled>
                       View Allowances
                     </Button>
                   </div>
@@ -154,7 +154,7 @@ const MoveOrders = ({ history, match }) => {
                     <Button primary type="submit" disabled={formik.isSubmitting}>
                       Save
                     </Button>
-                    <Button secondary onClick={handleClose}>
+                    <Button type="button" secondary onClick={handleClose}>
                       Cancel
                     </Button>
                   </div>
