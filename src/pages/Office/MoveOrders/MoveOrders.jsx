@@ -9,10 +9,6 @@ import { queryCache, useMutation } from 'react-query';
 import styles from './MoveOrders.module.scss';
 
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
-import samplePDF from 'components/DocumentViewer/sample.pdf';
-import samplePDF2 from 'components/DocumentViewer/sample2.pdf';
-import samplePDF3 from 'components/DocumentViewer/sample3.pdf';
-import { useMoveOrderQueries } from 'hooks/queries';
 import { updateMoveOrder } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -23,6 +19,7 @@ import { dropdownInputOptions, formatSwaggerDate } from 'shared/formatters';
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orders';
 import { MOVE_ORDERS } from 'constants/queryKeys';
+import { useOrdersDocumentQueries } from 'hooks/queries';
 
 const deptIndicatorDropdownOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
 const ordersTypeDropdownOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
@@ -43,9 +40,9 @@ const validationSchema = Yup.object({
 
 const MoveOrders = ({ history, match }) => {
   const { moveOrderId } = match.params;
-  const { moveOrders = {}, isLoading, isError } = useMoveOrderQueries(moveOrderId);
 
-  const moveOrder = Object.values(moveOrders)?.[0];
+  const { moveOrders, upload, isLoading, isError } = useOrdersDocumentQueries(moveOrderId);
+
   const handleClose = () => {
     history.push(`/moves/${moveOrderId}/details`);
   };
@@ -68,6 +65,11 @@ const MoveOrders = ({ history, match }) => {
       console.log(errorMsg);
     },
   });
+
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong />;
+
+  const moveOrder = Object.values(moveOrders)?.[0];
 
   const onSubmit = (values) => {
     const { originDutyStation, newDutyStation, ...fields } = values;
@@ -94,32 +96,15 @@ const MoveOrders = ({ history, match }) => {
     sac: moveOrder?.sac,
   };
 
-  const testFiles = [
-    {
-      filename: 'Test File.pdf',
-      fileType: 'pdf',
-      filePath: samplePDF,
-    },
-    {
-      filename: 'Test File 2.pdf',
-      fileType: 'pdf',
-      filePath: samplePDF2,
-    },
-    {
-      filename: 'Test File 3.pdf',
-      fileType: 'pdf',
-      filePath: samplePDF3,
-    },
-  ];
-
-  if (isLoading) return <LoadingPlaceholder />;
-  if (isError) return <SomethingWentWrong />;
+  const documentsForViewer = Object.values(upload);
 
   return (
     <div className={styles.MoveOrders}>
-      <div className={styles.embed}>
-        <DocumentViewer files={testFiles} />
-      </div>
+      {documentsForViewer && (
+        <div className={styles.embed}>
+          <DocumentViewer files={documentsForViewer} />
+        </div>
+      )}
       <div className={styles.sidebar}>
         <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
           {(formik) => (

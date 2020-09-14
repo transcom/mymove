@@ -2,6 +2,8 @@ import { swaggerRequest } from 'shared/Swagger/request';
 import { getGHCClient, getClient } from 'shared/Swagger/api';
 import { selectMoveTaskOrders } from 'shared/Entities/modules/moveTaskOrders';
 import { filter } from 'lodash';
+import { denormalize } from 'normalizr';
+import { mtoShipments } from '../schema';
 
 const mtoShipmentsSchemaKey = 'mtoShipments';
 const getMTOShipmentsOperation = 'mtoShipment.listMTOShipments';
@@ -77,4 +79,10 @@ export function selectMTOShipmentForMTO(state, moveTaskOrderId) {
     (mtoShipment) => mtoShipment.moveTaskOrderID === moveTaskOrderId,
   );
   return mtoShipment || {};
+}
+
+export function selectMTOShipmentById(state, id) {
+  const emptyShipment = {};
+  if (!id) return emptyShipment;
+  return denormalize([id], mtoShipments, state.entities)[0] || emptyShipment;
 }

@@ -20,6 +20,7 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ghc_documents"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
@@ -61,6 +62,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		CustomerGetCustomerHandler: customer.GetCustomerHandlerFunc(func(params customer.GetCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation CustomerGetCustomer has not yet been implemented")
+		}),
+		GhcDocumentsGetDocumentHandler: ghc_documents.GetDocumentHandlerFunc(func(params ghc_documents.GetDocumentParams) middleware.Responder {
+			return middleware.NotImplemented("operation GhcDocumentsGetDocument has not yet been implemented")
 		}),
 		MoveTaskOrderGetEntitlementsHandler: move_task_order.GetEntitlementsHandlerFunc(func(params move_task_order.GetEntitlementsParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderGetEntitlements has not yet been implemented")
@@ -113,9 +117,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MoveTaskOrderUpdateMoveTaskOrderStatusHandler: move_task_order.UpdateMoveTaskOrderStatusHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderUpdateMoveTaskOrderStatus has not yet been implemented")
 		}),
-		PaymentRequestsUpdatePaymentRequestHandler: payment_requests.UpdatePaymentRequestHandlerFunc(func(params payment_requests.UpdatePaymentRequestParams) middleware.Responder {
-			return middleware.NotImplemented("operation PaymentRequestsUpdatePaymentRequest has not yet been implemented")
-		}),
 		PaymentRequestsUpdatePaymentRequestStatusHandler: payment_requests.UpdatePaymentRequestStatusHandlerFunc(func(params payment_requests.UpdatePaymentRequestStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation PaymentRequestsUpdatePaymentRequestStatus has not yet been implemented")
 		}),
@@ -163,6 +164,8 @@ type MymoveAPI struct {
 	MtoAgentFetchMTOAgentListHandler mto_agent.FetchMTOAgentListHandler
 	// CustomerGetCustomerHandler sets the operation handler for the get customer operation
 	CustomerGetCustomerHandler customer.GetCustomerHandler
+	// GhcDocumentsGetDocumentHandler sets the operation handler for the get document operation
+	GhcDocumentsGetDocumentHandler ghc_documents.GetDocumentHandler
 	// MoveTaskOrderGetEntitlementsHandler sets the operation handler for the get entitlements operation
 	MoveTaskOrderGetEntitlementsHandler move_task_order.GetEntitlementsHandler
 	// MtoServiceItemGetMTOServiceItemHandler sets the operation handler for the get m t o service item operation
@@ -197,8 +200,6 @@ type MymoveAPI struct {
 	MoveTaskOrderUpdateMoveTaskOrderHandler move_task_order.UpdateMoveTaskOrderHandler
 	// MoveTaskOrderUpdateMoveTaskOrderStatusHandler sets the operation handler for the update move task order status operation
 	MoveTaskOrderUpdateMoveTaskOrderStatusHandler move_task_order.UpdateMoveTaskOrderStatusHandler
-	// PaymentRequestsUpdatePaymentRequestHandler sets the operation handler for the update payment request operation
-	PaymentRequestsUpdatePaymentRequestHandler payment_requests.UpdatePaymentRequestHandler
 	// PaymentRequestsUpdatePaymentRequestStatusHandler sets the operation handler for the update payment request status operation
 	PaymentRequestsUpdatePaymentRequestStatusHandler payment_requests.UpdatePaymentRequestStatusHandler
 	// PaymentServiceItemUpdatePaymentServiceItemStatusHandler sets the operation handler for the update payment service item status operation
@@ -286,6 +287,10 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "customer.GetCustomerHandler")
 	}
 
+	if o.GhcDocumentsGetDocumentHandler == nil {
+		unregistered = append(unregistered, "ghc_documents.GetDocumentHandler")
+	}
+
 	if o.MoveTaskOrderGetEntitlementsHandler == nil {
 		unregistered = append(unregistered, "move_task_order.GetEntitlementsHandler")
 	}
@@ -352,10 +357,6 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.MoveTaskOrderUpdateMoveTaskOrderStatusHandler == nil {
 		unregistered = append(unregistered, "move_task_order.UpdateMoveTaskOrderStatusHandler")
-	}
-
-	if o.PaymentRequestsUpdatePaymentRequestHandler == nil {
-		unregistered = append(unregistered, "payment_requests.UpdatePaymentRequestHandler")
 	}
 
 	if o.PaymentRequestsUpdatePaymentRequestStatusHandler == nil {
@@ -492,6 +493,11 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/documents/{documentId}"] = ghc_documents.NewGetDocument(o.context, o.GhcDocumentsGetDocumentHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}/entitlements"] = move_task_order.NewGetEntitlements(o.context, o.MoveTaskOrderGetEntitlementsHandler)
 
 	if o.handlers["GET"] == nil {
@@ -573,11 +579,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/status"] = move_task_order.NewUpdateMoveTaskOrderStatus(o.context, o.MoveTaskOrderUpdateMoveTaskOrderStatusHandler)
-
-	if o.handlers["PATCH"] == nil {
-		o.handlers["PATCH"] = make(map[string]http.Handler)
-	}
-	o.handlers["PATCH"]["/payment-requests/{paymentRequestID}"] = payment_requests.NewUpdatePaymentRequest(o.context, o.PaymentRequestsUpdatePaymentRequestHandler)
 
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)

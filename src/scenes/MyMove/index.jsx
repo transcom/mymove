@@ -112,6 +112,7 @@ export class AppWrapper extends Component {
               {!this.state.hasError && !props.swaggerError && (
                 <Switch>
                   <Route exact path="/" component={Landing} />
+                  <Route exact path="/ppm" component={Landing} />
                   <Route exact path="/sm_style_guide" component={StyleGuide} />
                   <Route path="/privacy-and-security-policy" component={PrivacyPolicyStatement} />
                   <Route path="/accessibility" component={AccessibilityStatement} />
@@ -119,7 +120,11 @@ export class AppWrapper extends Component {
                   {props.context.flags.hhgFlow && <ValidatedPrivateRoute exact path="/home-2" component={Home} />}
                   <ValidatedPrivateRoute exact path="/moves/:moveId/edit" component={Edit} />
                   <ValidatedPrivateRoute exact path="/moves/review/edit-profile" component={EditProfile} />
-                  <ValidatedPrivateRoute exact path="/moves/:moveId/edit-shipment" component={HHGShipmentSetup} />
+                  <ValidatedPrivateRoute
+                    exact
+                    path="/moves/:moveId/mto-shipments/:mtoShipmentId/edit-shipment"
+                    component={HHGShipmentSetup}
+                  />
                   <ValidatedPrivateRoute exact path="/moves/review/edit-backup-contact" component={EditBackupContact} />
                   <ValidatedPrivateRoute exact path="/moves/review/edit-contact-info" component={EditContactInfo} />
                   <ValidatedPrivateRoute path="/moves/:moveId/review/edit-orders" component={EditOrders} />

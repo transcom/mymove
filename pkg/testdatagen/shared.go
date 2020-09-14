@@ -66,6 +66,8 @@ type Assertions struct {
 	Reimbursement                            models.Reimbursement
 	ReService                                models.ReService
 	ReZip3                                   models.ReZip3
+	SecondaryPickupAddress                   models.Address
+	SecondaryDeliveryAddress                 models.Address
 	ServiceItemParamKey                      models.ServiceItemParamKey
 	ServiceParam                             models.ServiceParam
 	SignedCertification                      models.SignedCertification

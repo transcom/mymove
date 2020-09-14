@@ -15,7 +15,7 @@ class PPMPaymentRequestActionBtns extends Component {
     const { history, hasConfirmation } = this.props;
 
     if (!hasConfirmation) {
-      return history.push('/');
+      return history.push('/ppm');
     }
 
     this.setState({ displayConfirmation: true });
@@ -26,7 +26,7 @@ class PPMPaymentRequestActionBtns extends Component {
   };
 
   confirmFinishLater = () => {
-    this.props.history.push('/');
+    this.props.history.push('/ppm');
   };
 
   render() {

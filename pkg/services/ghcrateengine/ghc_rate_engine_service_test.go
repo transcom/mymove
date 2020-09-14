@@ -30,46 +30,6 @@ func TestGHCRateEngineServiceSuite(t *testing.T) {
 	ts.PopTestSuite.TearDown()
 }
 
-type createParams struct {
-	key     models.ServiceItemParamName
-	keyType models.ServiceItemParamType
-	value   string
-}
-
-func (suite *GHCRateEngineServiceSuite) setupPaymentServiceItemWithParams(serviceCode models.ReServiceCode, paramsToCreate []createParams) models.PaymentServiceItem {
-	var params models.PaymentServiceItemParams
-
-	paymentServiceItem := testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: serviceCode,
-		},
-	})
-
-	for _, param := range paramsToCreate {
-		serviceItemParamKey := testdatagen.MakeServiceItemParamKey(suite.DB(),
-			testdatagen.Assertions{
-				ServiceItemParamKey: models.ServiceItemParamKey{
-					Key:  param.key,
-					Type: param.keyType,
-				},
-			})
-
-		serviceItemParam := testdatagen.MakePaymentServiceItemParam(suite.DB(),
-			testdatagen.Assertions{
-				PaymentServiceItem:  paymentServiceItem,
-				ServiceItemParamKey: serviceItemParamKey,
-				PaymentServiceItemParam: models.PaymentServiceItemParam{
-					Value: param.value,
-				},
-			})
-		params = append(params, serviceItemParam)
-	}
-
-	paymentServiceItem.PaymentServiceItemParams = params
-
-	return paymentServiceItem
-}
-
 func (suite *GHCRateEngineServiceSuite) setupTaskOrderFeeData(code models.ReServiceCode, priceCents unit.Cents) {
 	contractYear := testdatagen.MakeDefaultReContractYear(suite.DB())
 

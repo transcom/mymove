@@ -39,6 +39,7 @@ func (s *L0) StringArray() []string {
 		s.BilledRatedAsQualifier,
 		weight,
 		s.WeightQualifier,
+		// TODO: will need to fill in the blank fields for crating
 		"",
 		"",
 		"",

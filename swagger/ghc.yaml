@@ -1026,55 +1026,6 @@ paths:
       description: Fetches an instance of a payment request by id
       operationId: getPaymentRequest
       summary: Fetches a payment request by id
-    patch:
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/UpdatePaymentRequestPayload'
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-      responses:
-        '200':
-          description: updated payment request
-          schema:
-            $ref: '#/definitions/PaymentRequest'
-        '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
-        '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
-        '412':
-          description: Precondition failed
-          schema:
-            $ref: '#/responses/PreconditionFailed'
-        '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
-      tags:
-        - paymentRequests
-      description: Updates a payment request by id
-      operationId: updatePaymentRequest
-      summary: Updates a payment request by id
   '/payment-requests/{paymentRequestID}/status':
     patch:
       consumes:
@@ -1136,6 +1087,53 @@ paths:
       description: Updates status of a payment request by id
       operationId: updatePaymentRequestStatus
       summary: Updates status of a payment request by id
+  /documents/{documentId}:
+    get:
+      summary: Returns a document
+      description: Returns a document and its uploads
+      operationId: getDocument
+      tags:
+        - ghcDocuments
+      parameters:
+        - in: path
+          name: documentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the document to return
+      responses:
+        200:
+          description: the requested document
+          schema:
+            $ref: '#/definitions/DocumentPayload'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '412':
+          description: Precondition Failed
+          schema:
+            $ref: '#/responses/PreconditionFailed'
+        '422':
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
 definitions:
   ClientError:
     type: object
@@ -1515,6 +1513,10 @@ definitions:
       originDutyStation:
         $ref: '#/definitions/DutyStation'
       moveTaskOrderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      uploaded_order_id:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
@@ -2291,6 +2293,25 @@ definitions:
       eTag:
         type: string
     type: object
+  DocumentPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member_id:
+        type: string
+        format: uuid
+        title: The service member this document belongs to
+      uploads:
+        type: array
+        items:
+          $ref: '#/definitions/Upload'
+    required:
+      - id
+      - service_member_id
+      - uploads
   Upload:
     properties:
       bytes:
@@ -2304,7 +2325,6 @@ definitions:
         type: string
       filename:
         example: filename.pdf
-        format: binary
         type: string
       id:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -2317,6 +2337,12 @@ definitions:
         example: 'https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538'
         format: uri
         type: string
+      status:
+        type: string
+        enum:
+          - INFECTED
+          - CLEAN
+          - PROCESSING
     required:
       - id
       - url
