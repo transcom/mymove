@@ -979,55 +979,6 @@ paths:
       description: Fetches an instance of a payment request by id
       operationId: getPaymentRequest
       summary: Fetches a payment request by id
-    patch:
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/UpdatePaymentRequestPayload'
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-      responses:
-        '200':
-          description: updated payment request
-          schema:
-            $ref: '#/definitions/PaymentRequest'
-        '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
-        '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
-        '412':
-          description: Precondition failed
-          schema:
-            $ref: '#/responses/PreconditionFailed'
-        '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
-      tags:
-        - paymentRequests
-      description: Updates a payment request by id
-      operationId: updatePaymentRequest
-      summary: Updates a payment request by id
   '/payment-requests/{paymentRequestID}/status':
     patch:
       consumes:
