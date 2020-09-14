@@ -136,7 +136,7 @@ const pages = {
     render: (key, pages) => ({ match }) => <BackupContact pages={pages} pageKey={key} match={match} />,
     description: 'Backup contacts',
   },
-  '/home-2': {
+  '/': {
     isInFlow: (props) => myFirstRodeo(props) && inGhcFlow(props),
     isComplete: always,
     render: (key, pages) => ({ history }) => {

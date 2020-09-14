@@ -117,7 +117,7 @@ export class AppWrapper extends Component {
                   <Route path="/privacy-and-security-policy" component={PrivacyPolicyStatement} />
                   <Route path="/accessibility" component={AccessibilityStatement} />
                   {getWorkflowRoutes(props)}
-                  {props.context.flags.hhgFlow && <ValidatedPrivateRoute exact path="/home-2" component={Home} />}
+                  {props.context.flags.hhgFlow && <ValidatedPrivateRoute exact path="/" component={Home} />}
                   <ValidatedPrivateRoute exact path="/moves/:moveId/edit" component={Edit} />
                   <ValidatedPrivateRoute exact path="/moves/review/edit-profile" component={EditProfile} />
                   <ValidatedPrivateRoute
