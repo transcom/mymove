@@ -1,9 +1,8 @@
 import React from 'react';
 
-import { TextInput, DropdownInput, DatePickerInput, DutyStationInput } from '../form/fields';
-
+import { TextInput, DropdownInput, DatePickerInput, DutyStationInput } from 'components/form/fields';
 import { DropdownArrayOf } from 'types/form';
-import styles from 'components/Office/OrdersDetailForm.module.scss';
+import styles from 'components/Office/OrdersDetailForm/OrdersDetailForm.module.scss';
 
 const OrdersDetailForm = ({ deptIndicatorOptions, ordersTypeOptions, ordersTypeDetailOptions }) => {
   return (

@@ -16,7 +16,7 @@ import { useMoveOrderQueries } from 'hooks/queries';
 import { updateMoveOrder } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import OrdersDetailForm from 'components/Office/OrdersDetailForm';
+import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
 import { MatchShape, HistoryShape } from 'types/router';
 import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
 import { dropdownInputOptions, formatSwaggerDate } from 'shared/formatters';

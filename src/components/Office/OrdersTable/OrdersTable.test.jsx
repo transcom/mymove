@@ -1,7 +1,9 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
 
 import OrdersTable from './OrdersTable';
+
+import { MockProviders } from 'testUtils';
 
 const ordersInfo = {
   currentDutyStation: { name: 'JBSA Lackland' },
@@ -31,7 +33,7 @@ describe('Orders Table', () => {
     expect(wrapper.find({ 'data-testid': 'newDutyStation' }).text()).toMatch('JB Lewis-McChord');
     expect(wrapper.find({ 'data-testid': 'issuedDate' }).text()).toMatch('08 Mar 2020');
     expect(wrapper.find({ 'data-testid': 'reportByDate' }).text()).toMatch('01 Apr 2020');
-    expect(wrapper.find({ 'data-testid': 'departmentIndicator' }).text()).toMatch('17 (Navy and Marine Corps)');
+    expect(wrapper.find({ 'data-testid': 'departmentIndicator' }).text()).toMatch('17 Navy and Marine Corps');
     expect(wrapper.find({ 'data-testid': 'ordersNumber' }).text()).toMatch('999999999');
     expect(wrapper.find({ 'data-testid': 'ordersType' }).text()).toMatch('Permanent Change Of Station');
     expect(wrapper.find({ 'data-testid': 'ordersTypeDetail' }).text()).toMatch('Shipment of HHG Permitted');
@@ -51,5 +53,15 @@ describe('Orders Table', () => {
     expect(wrapper.find({ 'data-testid': 'ordersTypeDetail' }).text()).toMatch('');
     expect(wrapper.find({ 'data-testid': 'tacMDC' }).text()).toMatch('');
     expect(wrapper.find({ 'data-testid': 'sacSDN' }).text()).toMatch('');
+  });
+
+  it('should link to the edit orders page with order id param', () => {
+    const wrapper = mount(
+      <MockProviders initialEntries={[`/moves/1000/details`]}>
+        <OrdersTable ordersInfo={ordersInfoOptional} />
+      </MockProviders>,
+    );
+    expect(wrapper.find({ 'data-testid': 'button' }).text()).toMatch('View & edit orders');
+    expect(wrapper.find('a').prop('href')).toMatch('/moves/1000/orders');
   });
 });

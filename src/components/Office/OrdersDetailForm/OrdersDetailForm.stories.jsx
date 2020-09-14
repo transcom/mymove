@@ -3,7 +3,7 @@ import { withKnobs } from '@storybook/addon-knobs';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
 
-import OrdersDetailForm from 'components/Office/OrdersDetailForm';
+import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
 import { dropdownInputOptions } from 'shared/formatters';
 import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orders';
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
