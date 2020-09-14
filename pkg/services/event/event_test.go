@@ -55,7 +55,7 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 	handler := handlers.NewHandlerContext(suite.DB(), logger)
 
 	// Test successful event passing with Support API
-	suite.T().Run("trigger event passing with support api endpoint", func(t *testing.T) {
+	suite.T().Run("Success with support api endpoint", func(t *testing.T) {
 		count, _ := suite.DB().Count(&models.WebhookNotification{})
 
 		_, err := TriggerEvent(Event{
@@ -74,7 +74,7 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 	})
 
 	// Test successful event passing with GHC API
-	suite.T().Run("trigger event passing with ghc api endpoint", func(t *testing.T) {
+	suite.T().Run("Success with ghc api endpoint", func(t *testing.T) {
 		count, _ := suite.DB().Count(&models.WebhookNotification{})
 
 		_, err := TriggerEvent(Event{
@@ -94,7 +94,7 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 
 	// This test verifies that if the object updated is not on an MTO that
 	// is available to prime, no notification is created.
-	suite.T().Run("trigger event no notification - unavailable mto", func(t *testing.T) {
+	suite.T().Run("Fail with no notification - unavailable mto", func(t *testing.T) {
 		count, _ := suite.DB().Count(&models.WebhookNotification{})
 
 		unavailablePRID := unavailablePaymentRequest.ID
@@ -116,7 +116,7 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 
 	})
 
-	suite.T().Run("trigger event error - bad event key", func(t *testing.T) {
+	suite.T().Run("Fail with bad event key", func(t *testing.T) {
 		// Pass a bad event key
 		_, err := TriggerEvent(Event{
 			EventKey:        "BadEventKey",
@@ -130,7 +130,7 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 		// Check that at least one error was returned
 		suite.NotNil(err)
 	})
-	suite.T().Run("trigger event error - bad endpoint key", func(t *testing.T) {
+	suite.T().Run("Fail with bad endpoint key", func(t *testing.T) {
 		count, _ := suite.DB().Count(&models.WebhookNotification{})
 
 		// Pass a bad endpoint key
@@ -150,7 +150,7 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 		suite.Equal(count, newCount)
 
 	})
-	suite.T().Run("trigger event error - bad object ID", func(t *testing.T) {
+	suite.T().Run("Fail with bad object ID", func(t *testing.T) {
 		count, _ := suite.DB().Count(&models.WebhookNotification{})
 
 		// Pass a bad payment request ID
@@ -170,6 +170,45 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 		// Check that no notification was created
 		newCount, _ := suite.DB().Count(&models.WebhookNotification{})
 		suite.Equal(count, newCount)
+
+	})
+}
+
+func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
+
+	now := time.Now()
+	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			AvailableToPrimeAt: &now,
+		},
+	})
+
+	mtoShipmentID := mtoShipment.ID
+	mtoID := mtoShipment.MoveTaskOrderID
+
+	dummyRequest := http.Request{
+		URL: &url.URL{
+			Path: "",
+		},
+	}
+	logger, _ := zap.NewDevelopment()
+	handler := handlers.NewHandlerContext(suite.DB(), logger)
+
+	// Test successful event passing with Support API
+	suite.T().Run("Success with GHC MTOShipment endpoint", func(t *testing.T) {
+
+		_, err := TriggerEvent(Event{
+			EventKey:        MTOShipmentUpdateEventKey,
+			MtoID:           mtoID,
+			UpdatedObjectID: mtoShipmentID,
+			Request:         &dummyRequest,
+			EndpointKey:     GhcPatchMTOShipmentStatusEndpointKey,
+			HandlerContext:  handler,
+			DBConnection:    suite.DB(),
+		})
+		// TODO: Once proper payload is generated this should not return error
+		suite.Error(err)
+		// TODO: Add sandy's webhook notification check
 
 	})
 }

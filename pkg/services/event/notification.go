@@ -1,9 +1,12 @@
 package event
 
 import (
+	"fmt"
+
 	"go.uber.org/zap"
 
 	"github.com/go-openapi/swag"
+	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -73,8 +76,58 @@ func checkAvailabilityToPrime(event *Event) (bool, error) {
 
 }
 
-// paymentRequestEventHandler handles all events pertaining to paymentRequests
-func paymentRequestEventHandler(event *Event) (bool, error) {
+// assembleMTOShipmentPayload assembles the MTOShipment Payload and returns the JSON in bytes
+func assembleMTOShipmentPayload(db *pop.Connection, updatedObjectID uuid.UUID) ([]byte, error) {
+	model := models.MTOShipment{}
+
+	// Important to be specific about which addl associations to load to reduce DB hits
+	err := db.Eager("PickupAddress", "DestinationAddress",
+		"SecondaryPickupAddress", "SecondaryDeliveryAddress",
+		"MTOAgents").Find(&model, updatedObjectID.String())
+
+	if err != nil {
+		notFoundError := services.NewNotFoundError(updatedObjectID, "looking for MTOShipment")
+		notFoundError.Wrap(err)
+		return nil, notFoundError
+	}
+
+	// TODO: This should convert the model to payload and then return the bytes
+	return model.ID.Bytes(), nil
+
+}
+
+// assemblePaymentRequestPayload assembles the payload and returns the JSON in bytes
+func assemblePaymentRequestPayload(db *pop.Connection, updatedObjectID uuid.UUID) ([]byte, error) {
+	// ASSEMBLE PAYLOAD
+	model := models.PaymentRequest{}
+
+	// Important to be specific about which addl associations to load to reduce DB hits
+	err := db.Eager("PaymentServiceItems", "PaymentServiceItems.PaymentServiceItemParams").Find(&model, updatedObjectID.String())
+	if err != nil {
+		notFoundError := services.NewNotFoundError(updatedObjectID, "looking for PaymentRequest")
+		notFoundError.Wrap(err)
+		return nil, notFoundError
+	}
+	payload := PaymentRequestModelToPayload(&model)
+	payloadArray, err := payload.MarshalBinary()
+	if err != nil {
+		unknownErr := services.NewEventError("Unknown error creating payload", err)
+		return nil, unknownErr
+	}
+	return payloadArray, nil
+
+}
+
+// objectEventHandler is the default handler. It checks the source of the event and
+// whether the event is available to Prime. If it determines this is a notification that we should
+// send prime, it calls the appropriate function to assemble the json payload
+// and stores the notification in the db.
+// Returns bool indicating whether notification was stored, and error if there was one
+// encountered.
+func objectEventHandler(event *Event, modelBeingUpdated interface{}) (bool, error) {
+
+	db := event.DBConnection
+
 	// CHECK SOURCE
 	// Continue only if source of event is not Prime
 	if isSourcePrime(event) {
@@ -87,22 +140,21 @@ func paymentRequestEventHandler(event *Event) (bool, error) {
 		return false, err
 	}
 
-	// ASSEMBLE PAYLOAD
-	var db = event.DBConnection
-	model := models.PaymentRequest{}
+	// Based on the type of the event, call the appropriate handler to assemble the json payload
+	var payloadArray []byte
+	var err error
 
-	// Important to be specific about which addl associations to load to reduce DB hits
-	err := db.Eager("PaymentServiceItems", "PaymentServiceItems.PaymentServiceItemParams").Find(&model, event.UpdatedObjectID.String())
-	if err != nil {
-		notFoundError := services.NewNotFoundError(event.UpdatedObjectID, "looking for PaymentRequest")
-		notFoundError.Wrap(err)
-		return false, notFoundError
+	switch modelBeingUpdated.(type) {
+	case models.PaymentRequest:
+		payloadArray, err = assemblePaymentRequestPayload(db, event.UpdatedObjectID)
+	case models.MTOShipment:
+		payloadArray, err = assembleMTOShipmentPayload(db, event.UpdatedObjectID)
+	default:
+		event.logger.Error("event.NotificationEventHandler: Unknown logical object being updated.")
+		err = services.NewEventError(fmt.Sprintf("No notification handler for event %s", event.EventKey), nil)
 	}
-	payload := PaymentRequestModelToPayload(&model)
-	payloadArray, err := payload.MarshalBinary()
 	if err != nil {
-		unknownErr := services.NewEventError("Unknown error creating payload", err)
-		return false, unknownErr
+		return false, err
 	}
 
 	// STORE NOTIFICATION IN DB
@@ -126,14 +178,8 @@ func NotificationEventHandler(event *Event) error {
 		return err
 	}
 
-	// Based on the model type, call the appropriate handler
-	var stored bool
-	switch modelBeingUpdated.(type) {
-	case models.PaymentRequest:
-		stored, err = paymentRequestEventHandler(event)
-	default:
-		event.logger.Error("event.NotificationEventHandler: Unknown logical object being updated.")
-	}
+	// Call the default handler
+	stored, err := objectEventHandler(event, modelBeingUpdated)
 
 	// Log what happened.
 	if err != nil {

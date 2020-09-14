@@ -45,9 +45,17 @@ const PaymentRequestCreateEventKey KeyType = "PaymentRequest.Create"
 // PaymentRequestUpdateEventKey is a key containing PaymentRequest.Update
 const PaymentRequestUpdateEventKey KeyType = "PaymentRequest.Update"
 
+// MTOShipmentCreateEventKey is a key containing MTOShipment.Create
+const MTOShipmentCreateEventKey KeyType = "MTOShipment.Create"
+
+// MTOShipmentUpdateEventKey is a key containing MTOShipment.Update
+const MTOShipmentUpdateEventKey KeyType = "MTOShipment.Update"
+
 var eventModels map[KeyType]eventModel = map[KeyType]eventModel{
 	PaymentRequestCreateEventKey: {PaymentRequestCreateEventKey, models.PaymentRequest{}},
 	PaymentRequestUpdateEventKey: {PaymentRequestUpdateEventKey, models.PaymentRequest{}},
+	MTOShipmentCreateEventKey:    {MTOShipmentCreateEventKey, models.MTOShipment{}},
+	MTOShipmentUpdateEventKey:    {MTOShipmentUpdateEventKey, models.MTOShipment{}},
 }
 
 // IsCreateEvent returns true if this event is a create event
