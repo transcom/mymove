@@ -4,6 +4,8 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/gofrs/uuid"
+
 	moveorder "github.com/transcom/mymove/pkg/services/move_order"
 
 	"github.com/go-openapi/strfmt"
@@ -109,4 +111,125 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerIntegration() {
 	suite.Equal(body.DepartmentIndicator, moveOrdersPayload.DepartmentIndicator)
 	suite.Equal(body.Tac, moveOrdersPayload.Tac)
 	suite.Equal(body.Sac, moveOrdersPayload.Sac)
+}
+
+func (suite *HandlerSuite) TestUpdateMoveOrderHandlerNotFound() {
+	request := httptest.NewRequest("PATCH", "/move-orders/{moveOrderID}", nil)
+
+	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
+	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
+
+	params := moveorderop.UpdateMoveOrderParams{
+		HTTPRequest: request,
+		MoveOrderID: "8d013ebb-9561-467b-ae6d-853d2bceadde",
+		IfMatch:     "",
+		Body: &ghcmessages.UpdateMoveOrderPayload{
+			IssueDate:           handlers.FmtDatePtr(&issueDate),
+			ReportByDate:        handlers.FmtDatePtr(&reportByDate),
+			OrdersType:          "RETIREMENT",
+			OrdersTypeDetail:    "INSTRUCTION_20_WEEKS",
+			DepartmentIndicator: "COAST_GUARD",
+			OrdersNumber:        handlers.FmtString("ORDER100"),
+			NewDutyStationID:    handlers.FmtUUID(uuid.Nil),
+			OriginDutyStationID: handlers.FmtUUID(uuid.Nil),
+			Tac:                 handlers.FmtString("012345678"),
+			Sac:                 handlers.FmtString("987654321"),
+		},
+	}
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	queryBuilder := query.NewQueryBuilder(context.DB())
+	handler := UpdateMoveOrderHandler{
+		context,
+		moveorder.NewMoveOrderUpdater(suite.DB(), queryBuilder),
+	}
+
+	response := handler.Handle(params)
+
+	suite.Assertions.IsType(&moveorderop.UpdateMoveOrderNotFound{}, response)
+}
+
+func (suite *HandlerSuite) TestUpdateMoveOrderHandlerPreconditionsFailed() {
+	moveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
+	moveOrder := moveTaskOrder.Orders
+	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+
+	request := httptest.NewRequest("PATCH", "/move-orders/{moveOrderID}", nil)
+
+	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
+	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
+
+	body := &ghcmessages.UpdateMoveOrderPayload{
+		IssueDate:           handlers.FmtDatePtr(&issueDate),
+		ReportByDate:        handlers.FmtDatePtr(&reportByDate),
+		OrdersType:          "RETIREMENT",
+		OrdersTypeDetail:    "INSTRUCTION_20_WEEKS",
+		DepartmentIndicator: "COAST_GUARD",
+		OrdersNumber:        handlers.FmtString("ORDER100"),
+		NewDutyStationID:    handlers.FmtUUID(destinationDutyStation.ID),
+		OriginDutyStationID: handlers.FmtUUID(originDutyStation.ID),
+		Tac:                 handlers.FmtString("012345678"),
+		Sac:                 handlers.FmtString("987654321"),
+	}
+
+	params := moveorderop.UpdateMoveOrderParams{
+		HTTPRequest: request,
+		MoveOrderID: strfmt.UUID(moveOrder.ID.String()),
+		IfMatch:     etag.GenerateEtag(moveOrder.UpdatedAt.Add(time.Second * 30)),
+		Body:        body,
+	}
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	queryBuilder := query.NewQueryBuilder(context.DB())
+	handler := UpdateMoveOrderHandler{
+		context,
+		moveorder.NewMoveOrderUpdater(suite.DB(), queryBuilder),
+	}
+
+	response := handler.Handle(params)
+
+	suite.Assertions.IsType(&moveorderop.UpdateMoveOrderPreconditionFailed{}, response)
+}
+
+func (suite *HandlerSuite) TestUpdateMoveOrderHandlerBadRequest() {
+	moveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
+	moveOrder := moveTaskOrder.Orders
+	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+
+	request := httptest.NewRequest("PATCH", "/move-orders/{moveOrderID}", nil)
+
+	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
+	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
+
+	body := &ghcmessages.UpdateMoveOrderPayload{
+		IssueDate:           handlers.FmtDatePtr(&issueDate),
+		ReportByDate:        handlers.FmtDatePtr(&reportByDate),
+		OrdersType:          "RETIREMENT",
+		OrdersTypeDetail:    "INSTRUCTION_20_WEEKS",
+		DepartmentIndicator: "COAST_GUARD",
+		OrdersNumber:        handlers.FmtString("ORDER100"),
+		NewDutyStationID:    handlers.FmtUUID(uuid.Nil), // An unknown duty station will result in a invalid input error
+		OriginDutyStationID: handlers.FmtUUID(originDutyStation.ID),
+		Tac:                 handlers.FmtString("012345678"),
+		Sac:                 handlers.FmtString("987654321"),
+	}
+
+	params := moveorderop.UpdateMoveOrderParams{
+		HTTPRequest: request,
+		MoveOrderID: strfmt.UUID(moveOrder.ID.String()),
+		IfMatch:     etag.GenerateEtag(moveOrder.UpdatedAt.Add(time.Second * 30)),
+		Body:        body,
+	}
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	queryBuilder := query.NewQueryBuilder(context.DB())
+	handler := UpdateMoveOrderHandler{
+		context,
+		moveorder.NewMoveOrderUpdater(suite.DB(), queryBuilder),
+	}
+
+	response := handler.Handle(params)
+
+	suite.Assertions.IsType(&moveorderop.UpdateMoveOrderBadRequest{}, response)
 }

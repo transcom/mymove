@@ -2,7 +2,6 @@ package ghcapi
 
 import (
 	"database/sql"
-	"fmt"
 	"time"
 
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -109,19 +108,30 @@ func (h UpdateMoveOrderHandler) Handle(params moveorderop.UpdateMoveOrderParams)
 
 	orderID, err := uuid.FromString(params.MoveOrderID.String())
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		logger.Error("unable to parse move order id param to uuid", zap.Error(err))
+		return moveorderop.NewUpdateMoveOrderBadRequest()
 	}
 
 	newOrder, err := MoveOrder(*params.Body)
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		logger.Error("error converting payload to move order model", zap.Error(err))
+		return moveorderop.NewUpdateMoveOrderBadRequest()
 	}
 	newOrder.ID = orderID
 
 	updatedOrder, err := h.moveOrderUpdater.UpdateMoveOrder(orderID, params.IfMatch, newOrder)
 	if err != nil {
-		fmt.Println(err)
-		return handlers.ResponseForError(logger, err)
+		logger.Error("error updating move order", zap.Error(err))
+		switch err.(type) {
+		case services.NotFoundError:
+			return moveorderop.NewUpdateMoveOrderNotFound()
+		case services.InvalidInputError:
+			return moveorderop.NewUpdateMoveOrderBadRequest()
+		case services.PreconditionFailedError:
+			return moveorderop.NewUpdateMoveOrderPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		default:
+			return moveorderop.NewUpdateMoveOrderInternalServerError()
+		}
 	}
 
 	moveOrderPayload := payloads.MoveOrder(updatedOrder)
@@ -133,6 +143,7 @@ func (h UpdateMoveOrderHandler) Handle(params moveorderop.UpdateMoveOrderParams)
 func MoveOrder(payload ghcmessages.UpdateMoveOrderPayload) (models.Order, error) {
 
 	ordersTypeDetail := internalmessages.OrdersTypeDetail(payload.OrdersTypeDetail)
+
 	var originDutyStationID uuid.UUID
 	if payload.OriginDutyStationID != nil {
 		originDutyStationID = uuid.FromStringOrNil(payload.OriginDutyStationID.String())

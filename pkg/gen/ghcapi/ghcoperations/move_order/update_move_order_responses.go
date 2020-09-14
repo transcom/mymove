@@ -60,11 +60,16 @@ func (o *UpdateMoveOrderOK) WriteResponse(rw http.ResponseWriter, producer runti
 // UpdateMoveOrderBadRequestCode is the HTTP code returned for type UpdateMoveOrderBadRequest
 const UpdateMoveOrderBadRequestCode int = 400
 
-/*UpdateMoveOrderBadRequest invalid request
+/*UpdateMoveOrderBadRequest The request payload is invalid
 
 swagger:response updateMoveOrderBadRequest
 */
 type UpdateMoveOrderBadRequest struct {
+
+	/*
+	  In: Body
+	*/
+	Payload interface{} `json:"body,omitempty"`
 }
 
 // NewUpdateMoveOrderBadRequest creates UpdateMoveOrderBadRequest with default headers values
@@ -73,22 +78,40 @@ func NewUpdateMoveOrderBadRequest() *UpdateMoveOrderBadRequest {
 	return &UpdateMoveOrderBadRequest{}
 }
 
+// WithPayload adds the payload to the update move order bad request response
+func (o *UpdateMoveOrderBadRequest) WithPayload(payload interface{}) *UpdateMoveOrderBadRequest {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update move order bad request response
+func (o *UpdateMoveOrderBadRequest) SetPayload(payload interface{}) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *UpdateMoveOrderBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(400)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
 }
 
 // UpdateMoveOrderUnauthorizedCode is the HTTP code returned for type UpdateMoveOrderUnauthorized
 const UpdateMoveOrderUnauthorizedCode int = 401
 
-/*UpdateMoveOrderUnauthorized request requires user authentication
+/*UpdateMoveOrderUnauthorized The request was unauthenticated
 
 swagger:response updateMoveOrderUnauthorized
 */
 type UpdateMoveOrderUnauthorized struct {
+
+	/*
+	  In: Body
+	*/
+	Payload interface{} `json:"body,omitempty"`
 }
 
 // NewUpdateMoveOrderUnauthorized creates UpdateMoveOrderUnauthorized with default headers values
@@ -97,22 +120,40 @@ func NewUpdateMoveOrderUnauthorized() *UpdateMoveOrderUnauthorized {
 	return &UpdateMoveOrderUnauthorized{}
 }
 
+// WithPayload adds the payload to the update move order unauthorized response
+func (o *UpdateMoveOrderUnauthorized) WithPayload(payload interface{}) *UpdateMoveOrderUnauthorized {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update move order unauthorized response
+func (o *UpdateMoveOrderUnauthorized) SetPayload(payload interface{}) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *UpdateMoveOrderUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(401)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
 }
 
 // UpdateMoveOrderForbiddenCode is the HTTP code returned for type UpdateMoveOrderForbidden
 const UpdateMoveOrderForbiddenCode int = 403
 
-/*UpdateMoveOrderForbidden user is not authorized
+/*UpdateMoveOrderForbidden The request was unauthorized
 
 swagger:response updateMoveOrderForbidden
 */
 type UpdateMoveOrderForbidden struct {
+
+	/*
+	  In: Body
+	*/
+	Payload interface{} `json:"body,omitempty"`
 }
 
 // NewUpdateMoveOrderForbidden creates UpdateMoveOrderForbidden with default headers values
@@ -121,22 +162,40 @@ func NewUpdateMoveOrderForbidden() *UpdateMoveOrderForbidden {
 	return &UpdateMoveOrderForbidden{}
 }
 
+// WithPayload adds the payload to the update move order forbidden response
+func (o *UpdateMoveOrderForbidden) WithPayload(payload interface{}) *UpdateMoveOrderForbidden {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update move order forbidden response
+func (o *UpdateMoveOrderForbidden) SetPayload(payload interface{}) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *UpdateMoveOrderForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(403)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
 }
 
 // UpdateMoveOrderNotFoundCode is the HTTP code returned for type UpdateMoveOrderNotFound
 const UpdateMoveOrderNotFoundCode int = 404
 
-/*UpdateMoveOrderNotFound orders not found
+/*UpdateMoveOrderNotFound The requested resource wasn't found
 
 swagger:response updateMoveOrderNotFound
 */
 type UpdateMoveOrderNotFound struct {
+
+	/*
+	  In: Body
+	*/
+	Payload interface{} `json:"body,omitempty"`
 }
 
 // NewUpdateMoveOrderNotFound creates UpdateMoveOrderNotFound with default headers values
@@ -145,12 +204,67 @@ func NewUpdateMoveOrderNotFound() *UpdateMoveOrderNotFound {
 	return &UpdateMoveOrderNotFound{}
 }
 
+// WithPayload adds the payload to the update move order not found response
+func (o *UpdateMoveOrderNotFound) WithPayload(payload interface{}) *UpdateMoveOrderNotFound {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update move order not found response
+func (o *UpdateMoveOrderNotFound) SetPayload(payload interface{}) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *UpdateMoveOrderNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(404)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
+}
+
+// UpdateMoveOrderPreconditionFailedCode is the HTTP code returned for type UpdateMoveOrderPreconditionFailed
+const UpdateMoveOrderPreconditionFailedCode int = 412
+
+/*UpdateMoveOrderPreconditionFailed Precondition failed
+
+swagger:response updateMoveOrderPreconditionFailed
+*/
+type UpdateMoveOrderPreconditionFailed struct {
+
+	/*
+	  In: Body
+	*/
+	Payload interface{} `json:"body,omitempty"`
+}
+
+// NewUpdateMoveOrderPreconditionFailed creates UpdateMoveOrderPreconditionFailed with default headers values
+func NewUpdateMoveOrderPreconditionFailed() *UpdateMoveOrderPreconditionFailed {
+
+	return &UpdateMoveOrderPreconditionFailed{}
+}
+
+// WithPayload adds the payload to the update move order precondition failed response
+func (o *UpdateMoveOrderPreconditionFailed) WithPayload(payload interface{}) *UpdateMoveOrderPreconditionFailed {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update move order precondition failed response
+func (o *UpdateMoveOrderPreconditionFailed) SetPayload(payload interface{}) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *UpdateMoveOrderPreconditionFailed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(412)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
 }
 
 // UpdateMoveOrderInternalServerErrorCode is the HTTP code returned for type UpdateMoveOrderInternalServerError

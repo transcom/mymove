@@ -157,19 +157,31 @@ paths:
           type: string
           required: true
       responses:
-        200:
+        '200':
           description: updated instance of orders
           schema:
             $ref: '#/definitions/MoveOrder'
-        400:
-          description: invalid request
-        401:
-          description: request requires user authentication
-        403:
-          description: user is not authorized
-        404:
-          description: orders not found
-        500:
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was unauthenticated
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was unauthorized
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '412':
+          description: Precondition failed
+          schema:
+            $ref: '#/responses/PreconditionFailed'
+        '500':
           description: internal server error
     get:
       produces:
