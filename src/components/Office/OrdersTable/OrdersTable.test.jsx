@@ -61,7 +61,7 @@ describe('Orders Table', () => {
         <OrdersTable ordersInfo={ordersInfoOptional} />
       </MockProviders>,
     );
-    expect(wrapper.find({ 'data-testid': 'button' }).text()).toMatch('View & edit orders');
+    expect(wrapper.find('Link').text()).toMatch('View & edit orders');
     expect(wrapper.find('a').prop('href')).toMatch('/moves/1000/orders');
   });
 });
