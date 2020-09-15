@@ -56,7 +56,7 @@ export default {
   ],
 };
 
-export const WithEmptyValues = () => (
+export const EmptyValues = () => (
   <Formik>
     <form>
       <OrdersDetailForm
@@ -68,7 +68,7 @@ export const WithEmptyValues = () => (
   </Formik>
 );
 
-export const WithInitialValues = () => {
+export const InitialValues = () => {
   return (
     <>
       <Formik
