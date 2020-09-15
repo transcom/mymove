@@ -44,6 +44,7 @@ export const MoveOrderShape = PropTypes.shape({
 });
 
 export const OrdersInfoShape = PropTypes.shape({
+  id: PropTypes.string,
   currentDutyStation: OriginDutyStationShape,
   newDutyStation: DestinationDutyStationShape,
   issuedDate: PropTypes.string,

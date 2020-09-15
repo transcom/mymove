@@ -112,3 +112,8 @@ export async function patchPaymentServiceItemStatus({
     { label: operationPath, schemaKey: 'paymentServiceItem' },
   );
 }
+
+export async function updateMoveOrder({ moveOrderID, ifMatchETag, body }) {
+  const operationPath = 'moveOrder.updateMoveOrder';
+  return makeGHCRequest(operationPath, { moveOrderID, 'If-Match': ifMatchETag, body });
+}
