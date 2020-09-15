@@ -26,4 +26,16 @@ func (suite *SegmentSuite) TestValidateL3() {
 		suite.ValidateError(err, "WeightQualifier", "required_with")
 		suite.ValidateErrorLen(err, 1)
 	})
+
+	suite.T().Run("validate failure 2", func(t *testing.T) {
+		l3 := L3{
+			Weight:          300.0,
+			WeightQualifier: "INVALID",
+			PriceCents:      100,
+		}
+
+		err := suite.validator.Struct(l3)
+		suite.ValidateError(err, "WeightQualifier", "eq")
+		suite.ValidateErrorLen(err, 1)
+	})
 }

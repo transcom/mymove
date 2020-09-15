@@ -8,7 +8,7 @@ import (
 // L3 represents the L3 EDI segment
 type L3 struct {
 	Weight          float64 `validate:"required_with=WeightQualifier"`
-	WeightQualifier string  `validate:"required_with=Weight"`
+	WeightQualifier string  `validate:"required_with=Weight omitempty,eq=B"`
 	PriceCents      int
 }
 
