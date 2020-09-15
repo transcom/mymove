@@ -364,10 +364,32 @@ func (g GHCPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(serviceI
 	return paymentServiceItemParam, nil
 }
 
+func (g GHCPaymentRequestInvoiceGenerator) getDefaultPaymentParamsForServiceItem(serviceItem models.PaymentServiceItem) (weightFloat float64, distanceFloat float64, err error) {
+	// TODO: update to have a case statement as different service items may or may not have weight
+	// and the distance key can differ (zip3 v zip5, and distances for SIT)
+	weight, err := g.fetchPaymentServiceItemParam(serviceItem.ID, models.ServiceItemParamNameWeightBilledActual)
+	if err != nil {
+		return 0, 0, err
+	}
+	weightFloat2, err := strconv.ParseFloat(weight.Value, 64)
+	if err != nil {
+		return 0, 0, fmt.Errorf("Could not parse weight for PaymentServiceItem %s: %w", serviceItem.ID, err)
+	}
+	distance, err := g.fetchPaymentServiceItemParam(serviceItem.ID, models.ServiceItemParamNameDistanceZip3)
+	if err != nil {
+		return 0, 0, err
+	}
+	distanceFloat2, err := strconv.ParseFloat(distance.Value, 64)
+	if err != nil {
+		return 0, 0, fmt.Errorf("Could not parse Distance Zip3 for PaymentServiceItem %s: %w", serviceItem.ID, err)
+	}
+	return weightFloat2, distanceFloat2, nil
+}
+
 func (g GHCPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(paymentServiceItems models.PaymentServiceItems) ([]edisegment.Segment, error) {
 	//Initialize empty collection of segments
 	var segments []edisegment.Segment
-
+	var weightFloat, distanceFloat float64
 	// Iterate over payment service items
 	for idx, serviceItem := range paymentServiceItems {
 		hierarchicalIDNumber := idx + 1
@@ -387,25 +409,14 @@ func (g GHCPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 		// TODO: add another n9 for SIT
 		// TODO: add a L5 segment/definition
 
-		// abstract out to create default case
-		var weight models.PaymentServiceItemParam
-		// TODO: update to have a case statement as different service items may or may not have weight
-		// and the distance key can differ (zip3 v zip5, and distances for SIT)
-		weight, err := g.fetchPaymentServiceItemParam(serviceItem.ID, models.ServiceItemParamNameWeightBilledActual)
-		if err != nil {
-			return nil, err
-		}
-		weightFloat, err := strconv.ParseFloat(weight.Value, 64)
-		if err != nil {
-			return nil, fmt.Errorf("Could not parse weight for PaymentServiceItem %s: %w", serviceItem.ID, err)
-		}
-		distance, err := g.fetchPaymentServiceItemParam(serviceItem.ID, models.ServiceItemParamNameDistanceZip3)
-		if err != nil {
-			return nil, err
-		}
-		distanceFloat, err := strconv.ParseFloat(distance.Value, 64)
-		if err != nil {
-			return nil, fmt.Errorf("Could not parse Distance Zip3 for PaymentServiceItem %s: %w", serviceItem.ID, err)
+		switch serviceItem.MTOServiceItem.ReService {
+		default:
+			var err error
+			weightFloat, distanceFloat, err = g.getDefaultPaymentParamsForServiceItem(serviceItem)
+			if err != nil {
+				return segments, fmt.Errorf("Could not parse weight for PaymentServiceItem %w", err)
+			}
+
 		}
 
 		l0Segment := edisegment.L0{
