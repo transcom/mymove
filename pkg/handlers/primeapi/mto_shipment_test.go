@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
+
 	"github.com/transcom/mymove/pkg/services"
 
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -28,7 +30,6 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/handlers/primeapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"

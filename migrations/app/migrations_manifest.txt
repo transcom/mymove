@@ -553,3 +553,4 @@
 20200908162414_roci_db_comments.up.sql
 20200910033042_add-move-submitted-at.up.sql
 20200911161101_add_fake_contractors_prod.up.sql
+20200914173006_hide_move_on_prod_gov_cloud.up.sql

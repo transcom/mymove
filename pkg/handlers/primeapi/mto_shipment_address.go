@@ -5,9 +5,10 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
+
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/handlers/primeapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/services"
 )
 
