@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 
-import RequestedShipments from 'components/Office/RequestedShipments';
+import RequestedShipments from './RequestedShipments';
 
 const shipments = [
   {

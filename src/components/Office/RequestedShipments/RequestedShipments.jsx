@@ -3,17 +3,17 @@ import { useFormik } from 'formik';
 import * as PropTypes from 'prop-types';
 import { Button, Checkbox, Fieldset } from '@trussworks/react-uswds';
 
+import ShipmentApprovalPreview from '../ShipmentApprovalPreview';
+
+import styles from './RequestedShipments.module.scss';
+
 import {
   MTOAgentShape,
   MTOShipmentShape,
   MoveTaskOrderShape,
   MTOServiceItemShape,
   OrdersInfoShape,
-} from '../../types/moveOrder';
-
-import ShipmentApprovalPreview from './ShipmentApprovalPreview';
-import styles from './requestedShipments.module.scss';
-
+} from 'types/moveOrder';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { ReactComponent as FormCheckmarkIcon } from 'shared/icon/form-checkmark.svg';
 import { ReactComponent as XHeavyIcon } from 'shared/icon/x-heavy.svg';
