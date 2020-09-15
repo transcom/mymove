@@ -37,9 +37,15 @@
     @include u-margin-x(-2);
 
     > * {
-      @include u-flex(1);
+      flex-grow: 0;
+      flex-shrink: 1;
+      flex-basis: calc(50% - 2em);
       @include u-margin-x(2);
       @include u-margin-bottom(4);
+
+      &:only-child {
+        flex-grow: 1;
+      }
     }
   }
 }
