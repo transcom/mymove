@@ -96,6 +96,25 @@ func assembleMTOShipmentPayload(db *pop.Connection, updatedObjectID uuid.UUID) (
 
 }
 
+// assembleMTOServiceItemPayload assembles the MTOServiceItem Payload and returns the JSON in bytes
+func assembleMTOServiceItemPayload(db *pop.Connection, updatedObjectID uuid.UUID) ([]byte, error) {
+	model := models.MTOServiceItem{}
+
+	// Important to be specific about which addl associations to load to reduce DB hits
+	err := db.Find(&model, updatedObjectID.String())
+
+	if err != nil {
+		notFoundError := services.NewNotFoundError(updatedObjectID, "looking for MTOServiceItem")
+		notFoundError.Wrap(err)
+		return nil, notFoundError
+	}
+
+	// TODO: This should convert the model to payload and then return the bytes
+	// Payload should contain customer contacts and dimensions as well
+	return model.ID.Bytes(), nil
+
+}
+
 // assemblePaymentRequestPayload assembles the payload and returns the JSON in bytes
 func assemblePaymentRequestPayload(db *pop.Connection, updatedObjectID uuid.UUID) ([]byte, error) {
 	// ASSEMBLE PAYLOAD
@@ -149,6 +168,8 @@ func objectEventHandler(event *Event, modelBeingUpdated interface{}) (bool, erro
 		payloadArray, err = assemblePaymentRequestPayload(db, event.UpdatedObjectID)
 	case models.MTOShipment:
 		payloadArray, err = assembleMTOShipmentPayload(db, event.UpdatedObjectID)
+	case models.MTOServiceItem:
+		payloadArray, err = assembleMTOServiceItemPayload(db, event.UpdatedObjectID)
 	default:
 		event.logger.Error("event.NotificationEventHandler: Unknown logical object being updated.")
 		err = services.NewEventError(fmt.Sprintf("No notification handler for event %s", event.EventKey), nil)

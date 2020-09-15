@@ -51,6 +51,12 @@ const MTOShipmentCreateEventKey KeyType = "MTOShipment.Create"
 // MTOShipmentUpdateEventKey is a key containing MTOShipment.Update
 const MTOShipmentUpdateEventKey KeyType = "MTOShipment.Update"
 
+// MTOServiceItemCreateEventKey is a key containing MTOServiceItem.Create
+const MTOServiceItemCreateEventKey KeyType = "MTOServiceItem.Create"
+
+// MTOServiceItemUpdateEventKey is a key containing MTOServiceItem.Update
+const MTOServiceItemUpdateEventKey KeyType = "MTOServiceItem.Update"
+
 var eventModels map[KeyType]eventModel = map[KeyType]eventModel{
 	PaymentRequestCreateEventKey: {PaymentRequestCreateEventKey, models.PaymentRequest{}},
 	PaymentRequestUpdateEventKey: {PaymentRequestUpdateEventKey, models.PaymentRequest{}},
