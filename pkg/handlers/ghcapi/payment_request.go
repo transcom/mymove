@@ -44,7 +44,11 @@ func (h ListPaymentRequestsHandler) Handle(params paymentrequestop.ListPaymentRe
 
 	paymentRequestsList := make(ghcmessages.PaymentRequests, len(*paymentRequests))
 	for i, paymentRequest := range *paymentRequests {
-		paymentRequestsList[i] = payloads.PaymentRequest(&paymentRequest)
+		pr, err := payloads.PaymentRequest(&paymentRequest, h.FileStorer())
+		if err != nil {
+			return paymentrequestop.NewListPaymentRequestsInternalServerError()
+		}
+		paymentRequestsList[i] = pr
 	}
 
 	return paymentrequestop.NewListPaymentRequestsOK().WithPayload(paymentRequestsList)
@@ -80,7 +84,11 @@ func (h GetPaymentRequestHandler) Handle(params paymentrequestop.GetPaymentReque
 		return paymentrequestop.NewGetPaymentRequestNotFound()
 	}
 
-	returnPayload := payloads.PaymentRequest(&paymentRequest)
+	returnPayload, err := payloads.PaymentRequest(&paymentRequest, h.FileStorer())
+	if err != nil {
+		return paymentrequestop.NewGetPaymentRequestInternalServerError()
+	}
+
 	response := paymentrequestop.NewGetPaymentRequestOK().WithPayload(returnPayload)
 
 	return response
@@ -210,6 +218,10 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 		logger.Error("ghcapi.UpdatePaymentRequestStatusHandler could not generate the event")
 	}
 
-	returnPayload := payloads.PaymentRequest(updatedPaymentRequest)
+	returnPayload, err := payloads.PaymentRequest(updatedPaymentRequest, h.FileStorer())
+	if err != nil {
+		return paymentrequestop.NewGetPaymentRequestInternalServerError()
+	}
+
 	return paymentrequestop.NewUpdatePaymentRequestStatusOK().WithPayload(returnPayload)
 }

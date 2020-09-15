@@ -8,6 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/storage"
 )
 
 // Move payload
@@ -266,7 +267,30 @@ func MTOAgents(mtoAgents *models.MTOAgents) *ghcmessages.MTOAgents {
 }
 
 // PaymentRequest payload
-func PaymentRequest(pr *models.PaymentRequest) *ghcmessages.PaymentRequest {
+func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcmessages.PaymentRequest, error) {
+	var proofOfService models.ProofOfServiceDoc
+	var primeUploads []*ghcmessages.Upload
+	if pr.ProofOfServiceDocs != nil && len(pr.ProofOfServiceDocs) > 0 {
+		proofOfService = pr.ProofOfServiceDocs[0]
+		uploads := make([]*ghcmessages.Upload, len(proofOfService.PrimeUploads))
+
+		for i, primeUpload := range proofOfService.PrimeUploads {
+			url, err := storer.PresignedURL(primeUpload.Upload.StorageKey, primeUpload.Upload.ContentType)
+			if err != nil {
+				return nil, err
+			}
+
+			uploadPayload := Upload(storer, primeUpload.Upload, url)
+			uploads[i] = uploadPayload
+		}
+		primeUploads = uploads
+	}
+
+	documentPackage := ghcmessages.ProofOfServicePackage{
+		ID:      *handlers.FmtUUID(proofOfService.ID),
+		Uploads: primeUploads,
+	}
+
 	return &ghcmessages.PaymentRequest{
 		ID:                   *handlers.FmtUUID(pr.ID),
 		IsFinal:              &pr.IsFinal,
@@ -277,7 +301,8 @@ func PaymentRequest(pr *models.PaymentRequest) *ghcmessages.PaymentRequest {
 		ETag:                 etag.GenerateEtag(pr.UpdatedAt),
 		ServiceItems:         *PaymentServiceItems(&pr.PaymentServiceItems),
 		ReviewedAt:           handlers.FmtDateTimePtr(pr.ReviewedAt),
-	}
+		DocumentPackage:      &documentPackage,
+	}, nil
 }
 
 // PaymentServiceItem payload
@@ -375,4 +400,24 @@ func MTOServiceItemCustomerContacts(c models.MTOServiceItemCustomerContacts) ghc
 		payload[i] = MTOServiceItemCustomerContact(&item)
 	}
 	return payload
+}
+
+// Upload payload
+func Upload(storer storage.FileStorer, upload models.Upload, url string) *ghcmessages.Upload {
+	uploadPayload := &ghcmessages.Upload{
+		ID:          handlers.FmtUUID(upload.ID),
+		Filename:    swag.String(upload.Filename),
+		ContentType: swag.String(upload.ContentType),
+		URL:         handlers.FmtURI(url),
+		Bytes:       &upload.Bytes,
+		CreatedAt:   handlers.FmtDateTime(upload.CreatedAt),
+		UpdatedAt:   handlers.FmtDateTime(upload.UpdatedAt),
+	}
+	tags, err := storer.Tags(upload.StorageKey)
+	if err != nil || len(tags) == 0 {
+		uploadPayload.Status = "PROCESSING"
+	} else {
+		uploadPayload.Status = tags["av-status"]
+	}
+	return uploadPayload
 }
