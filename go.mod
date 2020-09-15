@@ -30,7 +30,7 @@ require (
 	github.com/go-playground/locales v0.13.0
 	github.com/go-playground/universal-translator v0.17.0
 	github.com/gobuffalo/envy v1.9.0
-	github.com/gobuffalo/fizz v1.11.0
+	github.com/gobuffalo/fizz v1.13.0
 	github.com/gobuffalo/flect v0.2.2
 	github.com/gobuffalo/genny v0.6.0 // indirect
 	github.com/gobuffalo/nulls v0.4.0 // indirect
