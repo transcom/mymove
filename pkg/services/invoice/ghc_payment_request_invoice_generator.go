@@ -364,7 +364,7 @@ func (g GHCPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(serviceI
 	return paymentServiceItemParam, nil
 }
 
-func (g GHCPaymentRequestInvoiceGenerator) getPaymentParamsForDefaultServiceItems(serviceItem models.PaymentServiceItem) (paramWeightFloat float64, paramDistanceFloat float64, err error) {
+func (g GHCPaymentRequestInvoiceGenerator) getPaymentParamsForDefaultServiceItems(serviceItem models.PaymentServiceItem) (float64, float64, error) {
 	// TODO: update to have a case statement as different service items may or may not have weight
 	// and the distance key can differ (zip3 v zip5, and distances for SIT)
 	weight, err := g.fetchPaymentServiceItemParam(serviceItem.ID, models.ServiceItemParamNameWeightBilledActual)
