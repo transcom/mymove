@@ -19,6 +19,10 @@ import DocsUploaded from 'components/Customer/Home/DocsUploaded';
 import ShipmentList from 'components/Customer/Home/ShipmentList';
 import Contact from 'components/Customer/Home/Contact';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
+import {
+  createServiceMember as createServiceMemberAction,
+  isProfileComplete as isProfileCompleteCheck,
+} from 'scenes/ServiceMembers/ducks';
 import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
 import { selectUploadedOrders, selectActiveOrLatestOrdersFromEntities } from 'shared/Entities/modules/orders';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
@@ -26,6 +30,14 @@ import {
   selectMTOShipmentsByMoveId,
   loadMTOShipments as loadMTOShipmentsAction,
 } from 'shared/Entities/modules/mtoShipments';
+import { loadPPMs as loadPpmsAction } from 'shared/Entities/modules/ppms';
+import {
+  selectCurrentUser,
+  selectGetCurrentUserIsError,
+  selectGetCurrentUserIsLoading,
+  selectGetCurrentUserIsSuccess,
+} from 'shared/Data/users';
+import { getPPM } from 'scenes/Moves/Ppm/ducks';
 
 const Description = ({ children }) => <p className={styles.description}>{children}</p>;
 
@@ -39,6 +51,34 @@ class Home extends Component {
     showLoggedInUser();
     if (move.id) {
       loadMTOShipments(move.id);
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    const {
+      serviceMember,
+      createdServiceMemberIsLoading,
+      createdServiceMemberError,
+      loggedInUserSuccess,
+      createServiceMember,
+      isProfileComplete,
+      move,
+      loadMTOShipments,
+      loadPpms,
+    } = this.props;
+    if (loggedInUserSuccess) {
+      if (!createdServiceMemberIsLoading && isEmpty(serviceMember) && !createdServiceMemberError) {
+        // Once the logged in user loads, if the service member doesn't
+        // exist we need to dispatch creating one, once.
+        createServiceMember({});
+      } else if (!isEmpty(serviceMember) && !isProfileComplete) {
+        // If the service member exists, but is not complete, redirect to next incomplete page.
+        this.resumeMove();
+      }
+    }
+    if (prevProps.move && prevProps.move.id !== move.id) {
+      loadMTOShipments(move.id);
+      loadPpms(move.id);
     }
   }
 
@@ -77,6 +117,11 @@ class Home extends Component {
 
     return '';
   }
+
+  resumeMove = () => {
+    console.log('looking for next incomplete page');
+    // this.props.push(this.getNextIncompletePage());
+  };
 
   renderHelperListItems = (helperList) => {
     return helperList.map((listItemText) => (
@@ -319,8 +364,8 @@ class Home extends Component {
 Home.propTypes = {
   orders: shape({}).isRequired,
   serviceMember: shape({
-    first_name: string.isRequired,
-    last_name: string.isRequired,
+    first_name: string,
+    last_name: string,
   }).isRequired,
   showLoggedInUser: func.isRequired,
   loadMTOShipments: func.isRequired,
@@ -342,19 +387,40 @@ Home.propTypes = {
   loggedInUserSuccess: bool.isRequired,
   loggedInUserError: bool.isRequired,
   isProfileComplete: bool.isRequired,
-  createdServiceMemberError: bool.isRequired,
+  createdServiceMemberIsLoading: bool,
+  createdServiceMemberSuccess: bool,
+  createdServiceMemberError: string,
   moveSubmitSuccess: bool.isRequired,
   ppm: shape({}).isRequired,
-  location: string.isRequired,
+  location: shape({}).isRequired,
+  createServiceMember: func.isRequired,
+  loadPpms: func.isRequired,
+};
+
+Home.defaultProps = {
+  createdServiceMemberIsLoading: false,
+  createdServiceMemberSuccess: false,
+  createdServiceMemberError: '',
 };
 
 const mapStateToProps = (state) => {
+  const user = selectCurrentUser(state);
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const move = selectActiveOrLatestMove(state);
   return {
+    isLoggedIn: user.isLoggedIn,
+    loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
+    loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
+    loggedInUserError: selectGetCurrentUserIsError(state),
+    createdServiceMemberIsLoading: state.serviceMember.isLoading,
+    createdServiceMemberSuccess: state.serviceMember.hasSubmitSuccess,
+    createdServiceMemberError: state.serviceMember.error,
+    isProfileComplete: isProfileCompleteCheck(state),
+    moveSubmitSuccess: state.signedCertification.moveSubmitSuccess,
     orders: selectActiveOrLatestOrdersFromEntities(state),
     uploadedOrderDocuments: selectUploadedOrders(state),
     serviceMember,
+    ppm: getPPM(state),
     // TODO: change when we support PPM shipments as well
     shipments: selectMTOShipmentsByMoveId(state, move.id),
     // TODO: change when we support multiple moves
@@ -372,6 +438,8 @@ const mergeProps = (stateProps, dispatchProps, ownProps) => ({
 const mapDispatchToProps = {
   showLoggedInUser: showLoggedInUserAction,
   loadMTOShipments: loadMTOShipmentsAction,
+  createServiceMember: createServiceMemberAction,
+  loadPpms: loadPpmsAction,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(Home);
