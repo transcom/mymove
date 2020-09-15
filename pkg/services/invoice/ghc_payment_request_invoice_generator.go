@@ -416,19 +416,20 @@ func (g GHCPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				return segments, fmt.Errorf("Could not parse weight or distance for PaymentServiceItem %w", err)
 			}
 
+			l0Segment := edisegment.L0{
+				LadingLineItemNumber:   hierarchicalIDNumber,
+				BilledRatedAsQuantity:  distanceFloat,
+				BilledRatedAsQualifier: "DM",
+				Weight:                 weightFloat,
+				WeightQualifier:        "B",
+				WeightUnitCode:         "L",
+			}
+
+			// TODO: add a L5 segment/definition
+			segments = append(segments, &hlSegment, &n9Segment, &l0Segment)
+
 		}
 
-		l0Segment := edisegment.L0{
-			LadingLineItemNumber:   hierarchicalIDNumber,
-			BilledRatedAsQuantity:  distanceFloat,
-			BilledRatedAsQualifier: "DM",
-			Weight:                 weightFloat,
-			WeightQualifier:        "B",
-			WeightUnitCode:         "L",
-		}
-
-		// TODO: add a L5 segment/definition
-		segments = append(segments, &hlSegment, &n9Segment, &l0Segment)
 	}
 
 	return segments, nil
