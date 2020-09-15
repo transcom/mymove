@@ -137,7 +137,7 @@ export class MoveSummaryComponent extends React.Component {
           </div>
         </div>
         <div className="grid-row grid-gap">
-          <div className="tablet:grid-col-9 grid-col-12">
+          <div className="grid-col-12">
             <PPMComponent
               className="status-component"
               ppm={ppm}
