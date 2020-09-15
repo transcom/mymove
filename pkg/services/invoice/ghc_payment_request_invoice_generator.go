@@ -387,6 +387,7 @@ func (g GHCPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 		// TODO: add another n9 for SIT
 		// TODO: add a L5 segment/definition
 
+		// abstract out to create default case
 		var weight models.PaymentServiceItemParam
 		// TODO: update to have a case statement as different service items may or may not have weight
 		// and the distance key can differ (zip3 v zip5, and distances for SIT)
