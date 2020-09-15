@@ -151,7 +151,7 @@ const pages = {
     isComplete: always,
     render: (key, pages) => ({ match }) => <ProfileReview pages={pages} pageKey={key} match={match} />,
   },
-  '/orders/': {
+  '/orders': {
     isInFlow: always,
     isComplete: ({ sm, orders }) =>
       every([
