@@ -2,10 +2,10 @@
 /* eslint-disable no-console */
 /* eslint-disable camelcase */
 import React, { Component } from 'react';
-import PropTypes, { func, arrayOf, bool, shape, string, node } from 'prop-types';
+import { func, arrayOf, bool, shape, string, node } from 'prop-types';
 import moment from 'moment';
 import { connect } from 'react-redux';
-import { isEmpty } from 'lodash';
+import { get, isEmpty } from 'lodash';
 
 import styles from './Home.module.scss';
 
@@ -31,6 +31,7 @@ import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 import {
   selectMTOShipmentsByMoveId,
   loadMTOShipments as loadMTOShipmentsAction,
+  selectMTOShipmentForMTO,
 } from 'shared/Entities/modules/mtoShipments';
 import { loadPPMs as loadPpmsAction } from 'shared/Entities/modules/ppms';
 import {
@@ -103,6 +104,11 @@ class Home extends Component {
     return !!Object.keys(orders).length && !!uploadedOrderDocuments.length;
   }
 
+  get hasOrdersNoUpload() {
+    const { orders, uploadedOrderDocuments } = this.props;
+    return !!Object.keys(orders).length && !uploadedOrderDocuments.length;
+  }
+
   get hasShipment() {
     const { shipments } = this.props;
     // TODO: check for PPM when PPM is integrated
@@ -145,11 +151,11 @@ class Home extends Component {
       lastMoveIsCanceled,
       serviceMember,
       orders,
-      // uploads,
+      uploadedOrderDocuments,
       move,
       ppm,
-      // mtoShipment,
-      // backupContacts,
+      mtoShipment,
+      backupContacts,
       context,
     } = this.props;
     return getNextIncompletePageInternal({
@@ -157,11 +163,11 @@ class Home extends Component {
       lastMoveIsCanceled,
       serviceMember,
       orders,
-      // uploads,
+      uploads: uploadedOrderDocuments,
       move,
       ppm,
-      // mtoShipment,
-      // backupContacts,
+      mtoShipment,
+      backupContacts,
       context,
     });
   };
@@ -298,12 +304,11 @@ class Home extends Component {
       ppm,
       location,
     } = this.props;
-    const ordersPath = '/orders/';
-    const shipmentSelectionPath = `/moves/${move.id}/select-type`;
+    const ordersPath = this.hasOrdersNoUpload ? '/orders/upload' : '/orders';
+    const shipmentSelectionPath = this.hasShipment ? `/moves/${move.id}/select-type` : `/moves/${move.id}/moving-info`;
     const confirmationPath = `/moves/${move.id}/review`;
     const profileEditPath = '/moves/review/edit-profile';
     const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
-
     return (
       <div className={`usa-prose grid-container ${styles['grid-container']}`}>
         {loggedInUserIsLoading && <LoadingPlaceholder />}
@@ -440,15 +445,14 @@ Home.propTypes = {
   loadPpms: func.isRequired,
   selectedMoveType: string,
   lastMoveIsCanceled: bool,
-  // backupContacts: shape({}),
-  // mtoShipment: ?
-  // uploads: ?
-  context: PropTypes.shape({
-    flags: PropTypes.shape({
-      hhgFlow: PropTypes.bool,
-      ghcFlow: PropTypes.bool,
+  backupContacts: arrayOf(shape({})),
+  context: shape({
+    flags: shape({
+      hhgFlow: bool,
+      ghcFlow: bool,
     }),
   }),
+  mtoShipment: shape({}).isRequired,
 };
 
 Home.defaultProps = {
@@ -457,6 +461,7 @@ Home.defaultProps = {
   createdServiceMemberError: '',
   selectedMoveType: '',
   lastMoveIsCanceled: false,
+  backupContacts: [],
   context: {
     flags: {
       hhgFlow: false,
@@ -487,6 +492,7 @@ const mapStateToProps = (state) => {
     shipments: selectMTOShipmentsByMoveId(state, move.id),
     // TODO: change when we support multiple moves
     move,
+    mtoShipment: selectMTOShipmentForMTO(state, get(move, 'id', '')),
   };
 };
 

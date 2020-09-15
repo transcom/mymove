@@ -64,6 +64,7 @@ const PageNotInFlow = ({ location }) => (
 // );
 
 const always = () => true;
+const never = () => false;
 // Todo: update this when moves can be completed
 const myFirstRodeo = (props) => !props.lastMoveIsCanceled;
 const notMyFirstRodeo = (props) => props.lastMoveIsCanceled;
@@ -137,8 +138,10 @@ const pages = {
     description: 'Backup contacts',
   },
   '/': {
-    isInFlow: (props) => myFirstRodeo(props) && inGhcFlow(props),
-    isComplete: always,
+    isInFlow: (props) => {
+      return myFirstRodeo(props) && inGhcFlow(props);
+    },
+    isComplete: never,
     render: (key, pages) => ({ history }) => {
       return <Home history={history} />;
     },
