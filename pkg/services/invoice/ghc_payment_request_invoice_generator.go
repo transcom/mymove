@@ -364,7 +364,7 @@ func (g GHCPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(serviceI
 	return paymentServiceItemParam, nil
 }
 
-func (g GHCPaymentRequestInvoiceGenerator) getDefaultPaymentParamsForServiceItem(serviceItem models.PaymentServiceItem) (weightFloat float64, distanceFloat float64, err error) {
+func (g GHCPaymentRequestInvoiceGenerator) getPaymentParamsForDefaultServiceItems(serviceItem models.PaymentServiceItem) (weightFloat float64, distanceFloat float64, err error) {
 	// TODO: update to have a case statement as different service items may or may not have weight
 	// and the distance key can differ (zip3 v zip5, and distances for SIT)
 	weight, err := g.fetchPaymentServiceItemParam(serviceItem.ID, models.ServiceItemParamNameWeightBilledActual)
@@ -405,16 +405,15 @@ func (g GHCPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 			// https://dp3.atlassian.net/browse/MB-3718
 			ReferenceIdentification: serviceItem.ID.String(),
 		}
-
 		// TODO: add another n9 for SIT
-		// TODO: add a L5 segment/definition
 
+		// Determine the correct params to use based off of the particular service item
 		switch serviceItem.MTOServiceItem.ReService {
 		default:
 			var err error
-			weightFloat, distanceFloat, err = g.getDefaultPaymentParamsForServiceItem(serviceItem)
+			weightFloat, distanceFloat, err = g.getPaymentParamsForDefaultServiceItems(serviceItem)
 			if err != nil {
-				return segments, fmt.Errorf("Could not parse weight for PaymentServiceItem %w", err)
+				return segments, fmt.Errorf("Could not parse weight or distance for PaymentServiceItem %w", err)
 			}
 
 		}
@@ -428,6 +427,7 @@ func (g GHCPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 			WeightUnitCode:         "L",
 		}
 
+		// TODO: add a L5 segment/definition
 		segments = append(segments, &hlSegment, &n9Segment, &l0Segment)
 	}
 
