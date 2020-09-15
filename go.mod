@@ -20,13 +20,13 @@ require (
 	github.com/getlantern/deepcopy v0.0.0-20160317154340-7f45deb8130a
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
 	github.com/go-ini/ini v1.49.0 // indirect
-	github.com/go-openapi/errors v0.19.4
+	github.com/go-openapi/errors v0.19.7
 	github.com/go-openapi/loads v0.19.5
-	github.com/go-openapi/runtime v0.19.15
+	github.com/go-openapi/runtime v0.19.16
 	github.com/go-openapi/spec v0.19.9
 	github.com/go-openapi/strfmt v0.19.5
 	github.com/go-openapi/swag v0.19.9
-	github.com/go-openapi/validate v0.19.8
+	github.com/go-openapi/validate v0.19.11
 	github.com/go-playground/locales v0.13.0
 	github.com/go-playground/universal-translator v0.17.0
 	github.com/gobuffalo/envy v1.9.0
@@ -70,7 +70,7 @@ require (
 	go.uber.org/zap v1.15.0
 	goji.io v2.0.2+incompatible
 	golang.org/x/crypto v0.0.0-20200604202706-70a84ac30bf9
-	golang.org/x/net v0.0.0-20200226121028-0de0cce0169b
+	golang.org/x/net v0.0.0-20200602114024-627f9648deb9
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 	golang.org/x/text v0.3.3
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
