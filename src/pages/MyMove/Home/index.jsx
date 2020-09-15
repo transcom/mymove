@@ -2,13 +2,15 @@
 /* eslint-disable no-console */
 /* eslint-disable camelcase */
 import React, { Component } from 'react';
-import { func, arrayOf, bool, shape, string, node } from 'prop-types';
+import PropTypes, { func, arrayOf, bool, shape, string, node } from 'prop-types';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import { isEmpty } from 'lodash';
 
 import styles from './Home.module.scss';
 
+import { withContext } from 'shared/AppContext';
+import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
 import Alert from 'shared/Alert';
 import PpmAlert from 'scenes/Landing/PpmAlert';
 import SignIn from 'shared/User/SignIn';
@@ -56,6 +58,7 @@ class Home extends Component {
 
   componentDidUpdate(prevProps) {
     const {
+      showLoggedInUser,
       serviceMember,
       createdServiceMemberIsLoading,
       createdServiceMemberError,
@@ -66,16 +69,29 @@ class Home extends Component {
       loadMTOShipments,
       loadPpms,
     } = this.props;
-    if (loggedInUserSuccess) {
+    if (!prevProps.loggedInUserSuccess && loggedInUserSuccess) {
       if (!createdServiceMemberIsLoading && isEmpty(serviceMember) && !createdServiceMemberError) {
         // Once the logged in user loads, if the service member doesn't
         // exist we need to dispatch creating one, once.
-        createServiceMember({});
+        createServiceMember({}).then(() => {
+          // re-fetch user data to populate serviceMember
+          showLoggedInUser();
+        });
       } else if (!isEmpty(serviceMember) && !isProfileComplete) {
         // If the service member exists, but is not complete, redirect to next incomplete page.
         this.resumeMove();
       }
     }
+
+    if (isEmpty(prevProps.serviceMember) && !isEmpty(serviceMember) && !isProfileComplete) {
+      this.resumeMove();
+    }
+
+    if (!isEmpty(prevProps.serviceMember) && prevProps.serviceMember !== serviceMember && !isProfileComplete) {
+      // if service member existed but was updated, redirect ot next incomplete page.
+      this.resumeMove();
+    }
+
     if (prevProps.move && prevProps.move.id !== move.id) {
       loadMTOShipments(move.id);
       loadPpms(move.id);
@@ -119,8 +135,35 @@ class Home extends Component {
   }
 
   resumeMove = () => {
-    console.log('looking for next incomplete page');
-    // this.props.push(this.getNextIncompletePage());
+    const { history } = this.props;
+    history.push(this.getNextIncompletePage());
+  };
+
+  getNextIncompletePage = () => {
+    const {
+      selectedMoveType,
+      lastMoveIsCanceled,
+      serviceMember,
+      orders,
+      // uploads,
+      move,
+      ppm,
+      // mtoShipment,
+      // backupContacts,
+      context,
+    } = this.props;
+    return getNextIncompletePageInternal({
+      selectedMoveType,
+      lastMoveIsCanceled,
+      serviceMember,
+      orders,
+      // uploads,
+      move,
+      ppm,
+      // mtoShipment,
+      // backupContacts,
+      context,
+    });
   };
 
   renderHelperListItems = (helperList) => {
@@ -395,12 +438,31 @@ Home.propTypes = {
   location: shape({}).isRequired,
   createServiceMember: func.isRequired,
   loadPpms: func.isRequired,
+  selectedMoveType: string,
+  lastMoveIsCanceled: bool,
+  // backupContacts: shape({}),
+  // mtoShipment: ?
+  // uploads: ?
+  context: PropTypes.shape({
+    flags: PropTypes.shape({
+      hhgFlow: PropTypes.bool,
+      ghcFlow: PropTypes.bool,
+    }),
+  }),
 };
 
 Home.defaultProps = {
   createdServiceMemberIsLoading: false,
   createdServiceMemberSuccess: false,
   createdServiceMemberError: '',
+  selectedMoveType: '',
+  lastMoveIsCanceled: false,
+  context: {
+    flags: {
+      hhgFlow: false,
+      ghcFlow: false,
+    },
+  },
 };
 
 const mapStateToProps = (state) => {
@@ -442,4 +504,4 @@ const mapDispatchToProps = {
   loadPpms: loadPpmsAction,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(Home);
+export default withContext(connect(mapStateToProps, mapDispatchToProps, mergeProps)(Home));
