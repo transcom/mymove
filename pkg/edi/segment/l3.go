@@ -8,8 +8,8 @@ import (
 // L3 represents the L3 EDI segment
 type L3 struct {
 	Weight          float64 `validate:"required_with=WeightQualifier"`
-	WeightQualifier string  `validate:"required_with=Weight omitempty,eq=B"`
-	PriceCents      int
+	WeightQualifier string  `validate:"required_with=Weight,omitempty,eq=B"`
+	PriceCents      int64   `validate:"min=-999999999999,max=999999999999"` // Supports negative values for FSC price
 }
 
 // StringArray converts L3 to an array of strings
@@ -26,7 +26,7 @@ func (s *L3) StringArray() []string {
 		"L3",
 		weight,
 		s.WeightQualifier,
-		strconv.Itoa(s.PriceCents),
+		strconv.FormatInt(s.PriceCents, 10),
 	}
 }
 
@@ -43,7 +43,7 @@ func (s *L3) Parse(parts []string) error {
 		return err
 	}
 	s.WeightQualifier = parts[1]
-	s.PriceCents, err = strconv.Atoi(parts[2])
+	s.PriceCents, err = strconv.ParseInt(parts[2], 10, 64)
 	if err != nil {
 		return err
 	}
