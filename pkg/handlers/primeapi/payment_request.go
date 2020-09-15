@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
+
 	"github.com/gobuffalo/validate"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -13,7 +15,6 @@ import (
 	paymentrequestop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_requests"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/handlers/primeapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )

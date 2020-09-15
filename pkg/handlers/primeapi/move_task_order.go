@@ -1,6 +1,7 @@
 package primeapi
 
 import (
+	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -9,7 +10,6 @@ import (
 
 	movetaskorderops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/handlers/primeapi/internal/payloads"
 )
 
 // FetchMTOUpdatesHandler lists move task orders with the option to filter since a particular date
