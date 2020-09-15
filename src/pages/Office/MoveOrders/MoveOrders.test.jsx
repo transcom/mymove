@@ -41,7 +41,7 @@ const mockDestinationDutyStation = {
 };
 
 jest.mock('hooks/queries', () => ({
-  useMoveOrderQueries: () => {
+  useOrdersDocumentQueries: () => {
     return {
       moveOrders: {
         1: {
@@ -76,6 +76,15 @@ jest.mock('hooks/queries', () => ({
           tac: 'F8E1',
           sac: 'E2P3',
         },
+      },
+      documents: {
+        2: {
+          id: '2',
+          uploads: ['z'],
+        },
+      },
+      upload: {
+        id: 'z',
       },
     };
   },
