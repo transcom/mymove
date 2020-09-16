@@ -34,7 +34,7 @@
   .shipmentCards {
     display: flex;
     flex-wrap: wrap;
-    width: 100%; // required to wrap in IE11
+    width: calc(100% + 2em); // required to wrap in IE11
     @include u-margin-x(-2);
 
     > * {
