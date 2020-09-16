@@ -136,7 +136,7 @@ function customerFillsOutOrdersInformation() {
   cy.get('h1').contains('Figure out your shipments');
   cy.nextPage();
 
-  cy.visit('/home-2');
+  cy.visit('/');
   cy.get('[data-testid="doc-list-container"]').contains('top-secret.png');
   cy.go('back');
 }
