@@ -6,7 +6,7 @@ import moment from 'moment';
 import configureStore from 'redux-mock-store';
 import { shallow } from 'enzyme';
 
-import { Landing } from '.';
+import { PpmLanding } from '.';
 import { MoveSummary } from './MoveSummary';
 import PpmAlert from './PpmAlert';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
@@ -28,7 +28,7 @@ describe('HomePage tests', () => {
   describe('when not loggedIn', () => {
     it('renders without crashing', () => {
       const div = document.createElement('div');
-      wrapper = shallow(<Landing isLoggedIn={false} {...minProps} />, div);
+      wrapper = shallow(<PpmLanding isLoggedIn={false} {...minProps} />, div);
       expect(wrapper.find('.grid-container').length).toEqual(1);
     });
   });
@@ -36,7 +36,7 @@ describe('HomePage tests', () => {
     let service_member = { id: 'foo' };
     it('renders without crashing', () => {
       const div = document.createElement('div');
-      wrapper = shallow(<Landing isLoggedIn={true} {...minProps} />, div);
+      wrapper = shallow(<PpmLanding isLoggedIn={true} {...minProps} />, div);
       expect(wrapper.find('.grid-container').length).toEqual(1);
     });
     describe('When the user has never logged in before', () => {
@@ -45,7 +45,7 @@ describe('HomePage tests', () => {
         store = mockStore({});
         const wrapper = shallow(
           <Provider store={store}>
-            <Landing
+            <PpmLanding
               isLoggedIn={true}
               serviceMember={service_member}
               createdServiceMemberIsLoading={false}
@@ -57,7 +57,7 @@ describe('HomePage tests', () => {
             />
           </Provider>,
         );
-        const landing = wrapper.find(Landing).dive();
+        const landing = wrapper.find(PpmLanding).dive();
         const resumeMoveFn = jest.spyOn(landing.instance(), 'resumeMove');
         landing.setProps({ createdServiceMemberIsLoading: true });
         expect(resumeMoveFn).toHaveBeenCalledTimes(1);
@@ -67,7 +67,7 @@ describe('HomePage tests', () => {
       it('MoveSummary does not render', () => {
         const div = document.createElement('div');
         wrapper = shallow(
-          <Landing
+          <PpmLanding
             serviceMember={service_member}
             isLoggedIn={true}
             loggedInUserSuccess={true}
@@ -99,7 +99,7 @@ describe('HomePage tests', () => {
         it('renders the ppm only alert', () => {
           const moveObj = { selected_move_type: SHIPMENT_OPTIONS.PPM, status: 'SUBMITTED', moveSubmitSuccess: true };
           wrapper = shallow(
-            <Landing
+            <PpmLanding
               move={moveObj}
               moveSubmitSuccess={moveObj.moveSubmitSuccess}
               serviceMember={service_member}

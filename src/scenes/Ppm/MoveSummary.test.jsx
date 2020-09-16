@@ -2,9 +2,9 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import { MoveSummaryComponent as MoveSummary } from './MoveSummary';
 import moment from 'moment';
-import CanceledMoveSummary from 'scenes/Landing/MoveSummary/CanceledMoveSummary';
-import DraftMoveSummary from 'scenes/Landing/MoveSummary/DraftMoveSummary';
-import SubmittedPpmMoveSummary from 'scenes/Landing/MoveSummary/SubmittedPpmMoveSummary';
+import CanceledMoveSummary from 'scenes/Ppm/MoveSummary/CanceledMoveSummary';
+import DraftMoveSummary from 'scenes/Ppm/MoveSummary/DraftMoveSummary';
+import SubmittedPpmMoveSummary from 'scenes/Ppm/MoveSummary/SubmittedPpmMoveSummary';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 describe('MoveSummary', () => {
