@@ -120,6 +120,16 @@ class Home extends Component {
     return !!Object.keys(move).length && move.status !== 'DRAFT';
   }
 
+  get shipmentActionBtnLabel() {
+    if (this.hasSubmittedMove) {
+      return '';
+    }
+    if (this.hasShipment) {
+      return 'Plan your shipments';
+    }
+    return 'Add another shipment';
+  }
+
   get getHelperHeaderText() {
     if (!this.hasOrders) {
       return 'Next step: Add your orders';
@@ -352,7 +362,7 @@ class Home extends Component {
                   )}
                 </Step>
                 <Step
-                  actionBtnLabel={this.hasShipment ? 'Add another shipment' : 'Plan your shipments'}
+                  actionBtnLabel={this.shipmentActionBtnLabel}
                   actionBtnDisabled={!this.hasOrders}
                   onActionBtnClick={() => this.handleNewPathClick(shipmentSelectionPath)}
                   complete={this.hasShipment}
