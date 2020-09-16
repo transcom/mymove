@@ -2808,8 +2808,7 @@ func init() {
         "$ref": "#/definitions/PaymentServiceItem"
       }
     },
-    "ProofOfServiceDocs": {
-      "type": "object",
+    "ProofOfServiceDoc": {
       "properties": {
         "uploads": {
           "type": "array",
@@ -2817,6 +2816,12 @@ func init() {
             "$ref": "#/definitions/Upload"
           }
         }
+      }
+    },
+    "ProofOfServiceDocs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ProofOfServiceDoc"
       }
     },
     "ProofOfServicePackage": {
@@ -6256,8 +6261,7 @@ func init() {
         "$ref": "#/definitions/PaymentServiceItem"
       }
     },
-    "ProofOfServiceDocs": {
-      "type": "object",
+    "ProofOfServiceDoc": {
       "properties": {
         "uploads": {
           "type": "array",
@@ -6265,6 +6269,12 @@ func init() {
             "$ref": "#/definitions/Upload"
           }
         }
+      }
+    },
+    "ProofOfServiceDocs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ProofOfServiceDoc"
       }
     },
     "ProofOfServicePackage": {

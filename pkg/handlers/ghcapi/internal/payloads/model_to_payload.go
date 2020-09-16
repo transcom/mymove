@@ -268,26 +268,15 @@ func MTOAgents(mtoAgents *models.MTOAgents) *ghcmessages.MTOAgents {
 
 // PaymentRequest payload
 func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcmessages.PaymentRequest, error) {
-	var proofOfService models.ProofOfServiceDoc
-	var primeUploads []*ghcmessages.Upload
+	serviceDocs := make(ghcmessages.ProofOfServiceDocs, len(pr.ProofOfServiceDocs))
 	if pr.ProofOfServiceDocs != nil && len(pr.ProofOfServiceDocs) > 0 {
-		proofOfService = pr.ProofOfServiceDocs[0]
-		uploads := make([]*ghcmessages.Upload, len(proofOfService.PrimeUploads))
-
-		for i, primeUpload := range proofOfService.PrimeUploads {
-			url, err := storer.PresignedURL(primeUpload.Upload.StorageKey, primeUpload.Upload.ContentType)
+		for i, proofOfService := range pr.ProofOfServiceDocs {
+			payload, err := ProofOfServiceDoc(proofOfService, storer)
 			if err != nil {
 				return nil, err
 			}
-
-			uploadPayload := Upload(storer, primeUpload.Upload, url)
-			uploads[i] = uploadPayload
+			serviceDocs[i] = payload
 		}
-		primeUploads = uploads
-	}
-
-	posDocs := ghcmessages.ProofOfServiceDocs{
-		Uploads: primeUploads,
 	}
 
 	return &ghcmessages.PaymentRequest{
@@ -300,7 +289,7 @@ func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcm
 		ETag:                 etag.GenerateEtag(pr.UpdatedAt),
 		ServiceItems:         *PaymentServiceItems(&pr.PaymentServiceItems),
 		ReviewedAt:           handlers.FmtDateTimePtr(pr.ReviewedAt),
-		ProofOfServiceDocs:   &posDocs,
+		ProofOfServiceDocs:   serviceDocs,
 	}, nil
 }
 
@@ -419,4 +408,23 @@ func Upload(storer storage.FileStorer, upload models.Upload, url string) *ghcmes
 		uploadPayload.Status = tags["av-status"]
 	}
 	return uploadPayload
+}
+
+// ProofOfServiceDoc payload from model
+func ProofOfServiceDoc(proofOfService models.ProofOfServiceDoc, storer storage.FileStorer) (*ghcmessages.ProofOfServiceDoc, error) {
+
+	uploads := make([]*ghcmessages.Upload, len(proofOfService.PrimeUploads))
+	if proofOfService.PrimeUploads != nil && len(proofOfService.PrimeUploads) > 0 {
+		for i, primeUpload := range proofOfService.PrimeUploads {
+			url, err := storer.PresignedURL(primeUpload.Upload.StorageKey, primeUpload.Upload.ContentType)
+			if err != nil {
+				return nil, err
+			}
+			uploads[i] = Upload(storer, primeUpload.Upload, url)
+		}
+	}
+
+	return &ghcmessages.ProofOfServiceDoc{
+		Uploads: uploads,
+	}, nil
 }

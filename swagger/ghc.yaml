@@ -1887,12 +1887,15 @@ definitions:
         type: array
     type: object
   ProofOfServiceDocs:
+    items:
+      $ref: '#/definitions/ProofOfServiceDoc'
+    type: array
+  ProofOfServiceDoc:
     properties:
       uploads:
         items:
           $ref: '#/definitions/Upload'
         type: array
-    type: object
   MTOShipment:
     properties:
       moveTaskOrderID:

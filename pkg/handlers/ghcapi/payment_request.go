@@ -84,6 +84,7 @@ func (h GetPaymentRequestHandler) Handle(params paymentrequestop.GetPaymentReque
 		return paymentrequestop.NewGetPaymentRequestNotFound()
 	}
 
+	logger.Info(fmt.Sprintf("\nLength of docs %d\n", len(paymentRequest.ProofOfServiceDocs)))
 	returnPayload, err := payloads.PaymentRequest(&paymentRequest, h.FileStorer())
 	if err != nil {
 		return paymentrequestop.NewGetPaymentRequestInternalServerError()

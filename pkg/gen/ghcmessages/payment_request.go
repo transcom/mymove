@@ -37,7 +37,7 @@ type PaymentRequest struct {
 	PaymentRequestNumber string `json:"paymentRequestNumber,omitempty"`
 
 	// proof of service docs
-	ProofOfServiceDocs *ProofOfServiceDocs `json:"proofOfServiceDocs,omitempty"`
+	ProofOfServiceDocs ProofOfServiceDocs `json:"proofOfServiceDocs,omitempty"`
 
 	// rejection reason
 	RejectionReason *string `json:"rejectionReason,omitempty"`
@@ -119,13 +119,11 @@ func (m *PaymentRequest) validateProofOfServiceDocs(formats strfmt.Registry) err
 		return nil
 	}
 
-	if m.ProofOfServiceDocs != nil {
-		if err := m.ProofOfServiceDocs.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("proofOfServiceDocs")
-			}
-			return err
+	if err := m.ProofOfServiceDocs.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("proofOfServiceDocs")
 		}
+		return err
 	}
 
 	return nil
