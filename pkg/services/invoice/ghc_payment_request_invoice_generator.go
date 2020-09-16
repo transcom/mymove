@@ -375,7 +375,7 @@ func (g GHCPaymentRequestInvoiceGenerator) getPaymentParamsForDefaultServiceItem
 	if err != nil {
 		return 0, 0, fmt.Errorf("Could not parse weight for PaymentServiceItem %s: %w", serviceItem.ID, err)
 	}
-	distance, err := g.fetchPaymentServiceItemParam(serviceItem.ID, models.ServiceItemParamNameDistanceZip3)
+	distance, err := g.fetchPaymentServiceItemParam(serviceItem.ID, models.ServiceItemParamNameDistanceZip5)
 	if err != nil {
 		return 0, 0, err
 	}
@@ -408,7 +408,36 @@ func (g GHCPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 		// TODO: add another n9 for SIT
 
 		// Determine the correct params to use based off of the particular service item
-		switch serviceItem.MTOServiceItem.ReService {
+		switch serviceItem.MTOServiceItem.ReService.Code {
+		case models.ReServiceCodeDLH:
+			var err error
+			weightFloat, distanceFloat, err = g.getPaymentParamsForDefaultServiceItems(serviceItem)
+			if err != nil {
+				return segments, fmt.Errorf("Could not parse weight or distance for PaymentServiceItem %w", err)
+			}
+
+			l5Segment := edisegment.L5{
+				LadingLineItemNumber:   hierarchicalIDNumber,
+				LadingDescription:      "DLH - Domestic Line Haul",
+				CommodityCode:          "TBD",
+				CommodityCodeQualifier: "D",
+			}
+
+			l0Segment := edisegment.L0{
+				LadingLineItemNumber:   hierarchicalIDNumber,
+				BilledRatedAsQuantity:  distanceFloat,
+				BilledRatedAsQualifier: "DM",
+				Weight:                 weightFloat,
+				WeightQualifier:        "B",
+				WeightUnitCode:         "L",
+			}
+			l3Segment := edisegment.L3{
+				Weight:          weightFloat,
+				WeightQualifier: "B",
+				PriceCents:      serviceItem.PriceCents.Int64(),
+			}
+
+			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment, &l3Segment)
 		default:
 			var err error
 			weightFloat, distanceFloat, err = g.getPaymentParamsForDefaultServiceItems(serviceItem)
@@ -425,7 +454,6 @@ func (g GHCPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				WeightUnitCode:         "L",
 			}
 
-			// TODO: add a L5 segment/definition
 			segments = append(segments, &hlSegment, &n9Segment, &l0Segment)
 
 		}
