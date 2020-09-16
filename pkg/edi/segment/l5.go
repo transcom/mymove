@@ -8,7 +8,7 @@ import (
 // L5 represents the L5 EDI segment
 type L5 struct {
 	LadingLineItemNumber   int    `validate:"eq=1"`
-	LadingDescription      string `validate:"eq=DLH"`
+	LadingDescription      string `validate:"eq=DLH - Domestic Line Haul"`
 	CommodityCode          string `validate:"required_with=CommodityCodeQualifier,omitempty,gt=0,lt=11"`
 	CommodityCodeQualifier string `validate:"required_with=CommodityCode,omitempty,eq=D"`
 }
@@ -31,7 +31,7 @@ func (s *L5) StringArray() []string {
 // Parse parses an X12 string that's split into an array into the L5 struct
 func (s *L5) Parse(parts []string) error {
 	numElements := len(parts)
-	if numElements != 4 && numElements != 6 {
+	if numElements != 2 && numElements != 4 && numElements != 6 {
 		return fmt.Errorf("L5: Wrong number of elements, expected 4 or 6, got %d", numElements)
 	}
 

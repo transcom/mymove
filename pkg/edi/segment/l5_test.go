@@ -7,7 +7,7 @@ import (
 func (suite *SegmentSuite) TestValidateL5() {
 	validL5 := L5{
 		LadingLineItemNumber:   1,
-		LadingDescription:      "DLH",
+		LadingDescription:      "DLH - Domestic Line Haul",
 		CommodityCode:          "CCode",
 		CommodityCodeQualifier: "D",
 	}
@@ -31,7 +31,7 @@ func (suite *SegmentSuite) TestValidateL5() {
 	suite.T().Run("validate failure of missing CommodityCodeQualifier", func(t *testing.T) {
 		l5 := L5{
 			LadingLineItemNumber: 1,
-			LadingDescription:    "DLH",
+			LadingDescription:    "DLH - Domestic Line Haul",
 			CommodityCode:        "CCode",
 		}
 
@@ -43,7 +43,7 @@ func (suite *SegmentSuite) TestValidateL5() {
 	suite.T().Run("validate failure of missing CommodityCode ", func(t *testing.T) {
 		l5 := L5{
 			LadingLineItemNumber:   1,
-			LadingDescription:      "DLH",
+			LadingDescription:      "DLH - Domestic Line Haul",
 			CommodityCodeQualifier: "D",
 		}
 
