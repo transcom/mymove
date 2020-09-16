@@ -3,6 +3,8 @@ import { withKnobs, text, object } from '@storybook/addon-knobs';
 
 import OrdersTable from './OrdersTable';
 
+import { MockProviders } from 'testUtils';
+
 export default {
   title: 'TOO/TIO Components|OrdersTable',
   component: OrdersTable,
@@ -10,7 +12,9 @@ export default {
     withKnobs,
     (Story) => (
       <div style={{ 'max-width': '800px' }}>
-        <Story />
+        <MockProviders initialEntries={[`/moves/1000/details`]}>
+          <Story />
+        </MockProviders>
       </div>
     ),
   ],

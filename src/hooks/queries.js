@@ -104,6 +104,20 @@ export const useMoveTaskOrderQueries = (moveOrderId) => {
   };
 };
 
+export const useMoveOrderQueries = (moveOrderId) => {
+  // get move orders
+  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, moveOrderId], getMoveOrder);
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([moveOrderQuery]);
+
+  return {
+    moveOrders,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
 export const useOrdersDocumentQueries = (moveOrderId) => {
   // Get the orders info so we can get the uploaded_orders_id (which is a document id)
   const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, moveOrderId], getMoveOrder);
@@ -125,6 +139,7 @@ export const useOrdersDocumentQueries = (moveOrderId) => {
   const { isLoading, isError, isSuccess } = getQueriesStatus([moveOrderQuery, ordersDocumentsQuery]);
 
   return {
+    moveOrders,
     documents,
     upload,
     isLoading,
