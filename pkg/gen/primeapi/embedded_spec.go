@@ -427,7 +427,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/agents/{agentID}": {
       "put": {
-        "description": "### Functionality\nThis endpoint is used to **update** the agents for an MTO Shipment.\n\n### Errors:\nThe agent must be associated with the MTO shipment passed in the url.\n\nThe shipment should be associated with an MTO that is available to the Prime.\nIf the caller requests an update to an agent, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.\n",
+        "description": "### Functionality\nThis endpoint is used to **update** the agents for an MTO Shipment.\n\n### Errors:\nThe agent must be associated with the MTO shipment passed in the url.\n\nThe shipment should be associated with an MTO that is available to the Prime.\nIf the caller requests an update to an agent, and the shipment is not on an available MTO, the caller will receive a **NotFound** response.\n",
         "consumes": [
           "application/json"
         ],
@@ -2651,7 +2651,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/agents/{agentID}": {
       "put": {
-        "description": "### Functionality\nThis endpoint is used to **update** the agents for an MTO Shipment.\n\n### Errors:\nThe agent must be associated with the MTO shipment passed in the url.\n\nThe shipment should be associated with an MTO that is available to the Prime.\nIf the caller requests an update to an agent, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.\n",
+        "description": "### Functionality\nThis endpoint is used to **update** the agents for an MTO Shipment.\n\n### Errors:\nThe agent must be associated with the MTO shipment passed in the url.\n\nThe shipment should be associated with an MTO that is available to the Prime.\nIf the caller requests an update to an agent, and the shipment is not on an available MTO, the caller will receive a **NotFound** response.\n",
         "consumes": [
           "application/json"
         ],
