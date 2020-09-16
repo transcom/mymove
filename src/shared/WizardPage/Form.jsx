@@ -27,6 +27,7 @@ export class WizardFormPage extends Component {
 
   static defaultProps = {
     readyToSubmit: true,
+    hideCancelBtn: false,
   };
 
   componentDidUpdate(prevProps) {
@@ -98,6 +99,7 @@ export class WizardFormPage extends Component {
       valid,
       dirty,
       readyToSubmit,
+      hideCancelBtn,
     } = this.props;
     const canMoveForward = valid && readyToSubmit;
     const canMoveBackward = (valid || !dirty) && !isFirstPage(pageList, pageKey);
@@ -139,7 +141,7 @@ export class WizardFormPage extends Component {
               )}
             </div>
             <div className="grid-col-2 margin-top-6 tablet:margin-top-3">
-              {!isMobile && (
+              {!isMobile && !hideCancelBtn && (
                 <button
                   className="usa-button usa-button--unstyled padding-left-0"
                   onClick={this.cancelFlow}

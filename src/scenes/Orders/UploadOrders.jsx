@@ -64,13 +64,14 @@ export class UploadOrders extends Component {
     const isDirty = Boolean(this.state.newUploads.length);
     return (
       <WizardPage
-        handleSubmit={no_op}
-        pageList={pages}
-        pageKey={pageKey}
-        pageIsValid={isValid}
+        additionalParams={additionalParams}
         dirty={isDirty}
         error={error}
-        additionalParams={additionalParams}
+        handleSubmit={no_op}
+        hideCancelBtn
+        pageIsValid={isValid}
+        pageKey={pageKey}
+        pageList={pages}
       >
         <div>
           <h1 className="sm-heading">Upload your orders</h1>
