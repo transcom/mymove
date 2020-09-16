@@ -17,9 +17,6 @@ import (
 // swagger:model PaymentRequest
 type PaymentRequest struct {
 
-	// document packages
-	DocumentPackages ProofOfServicePackages `json:"documentPackages,omitempty"`
-
 	// e tag
 	ETag string `json:"eTag,omitempty"`
 
@@ -39,6 +36,9 @@ type PaymentRequest struct {
 	// Read Only: true
 	PaymentRequestNumber string `json:"paymentRequestNumber,omitempty"`
 
+	// proof of service docs
+	ProofOfServiceDocs *ProofOfServiceDocs `json:"proofOfServiceDocs,omitempty"`
+
 	// rejection reason
 	RejectionReason *string `json:"rejectionReason,omitempty"`
 
@@ -57,15 +57,15 @@ type PaymentRequest struct {
 func (m *PaymentRequest) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateDocumentPackages(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.validateMoveTaskOrderID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateProofOfServiceDocs(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -84,22 +84,6 @@ func (m *PaymentRequest) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *PaymentRequest) validateDocumentPackages(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.DocumentPackages) { // not required
-		return nil
-	}
-
-	if err := m.DocumentPackages.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("documentPackages")
-		}
-		return err
-	}
-
 	return nil
 }
 
@@ -124,6 +108,24 @@ func (m *PaymentRequest) validateMoveTaskOrderID(formats strfmt.Registry) error 
 
 	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *PaymentRequest) validateProofOfServiceDocs(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ProofOfServiceDocs) { // not required
+		return nil
+	}
+
+	if m.ProofOfServiceDocs != nil {
+		if err := m.ProofOfServiceDocs.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("proofOfServiceDocs")
+			}
+			return err
+		}
 	}
 
 	return nil

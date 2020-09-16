@@ -1607,8 +1607,8 @@ definitions:
     type: object
   PaymentRequest:
     properties:
-      documentPackages:
-        $ref: '#/definitions/ProofOfServicePackages'
+      proofOfServiceDocs:
+        $ref: '#/definitions/ProofOfServiceDocs'
       id:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -1875,16 +1875,19 @@ definitions:
       - PAID
     title: Payment Request Status
     type: string
-  ProofOfServicePackages:
-    items:
-      $ref: '#/definitions/ProofOfServicePackage'
-    type: array
   ProofOfServicePackage:
     properties:
       id:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+      uploads:
+        items:
+          $ref: '#/definitions/Upload'
+        type: array
+    type: object
+  ProofOfServiceDocs:
+    properties:
       uploads:
         items:
           $ref: '#/definitions/Upload'

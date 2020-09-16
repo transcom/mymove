@@ -2647,9 +2647,6 @@ func init() {
     "PaymentRequest": {
       "type": "object",
       "properties": {
-        "documentPackages": {
-          "$ref": "#/definitions/ProofOfServicePackages"
-        },
         "eTag": {
           "type": "string"
         },
@@ -2672,6 +2669,9 @@ func init() {
           "type": "string",
           "readOnly": true,
           "example": "1234-5678-1"
+        },
+        "proofOfServiceDocs": {
+          "$ref": "#/definitions/ProofOfServiceDocs"
         },
         "rejectionReason": {
           "type": "string",
@@ -2808,6 +2808,17 @@ func init() {
         "$ref": "#/definitions/PaymentServiceItem"
       }
     },
+    "ProofOfServiceDocs": {
+      "type": "object",
+      "properties": {
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Upload"
+          }
+        }
+      }
+    },
     "ProofOfServicePackage": {
       "type": "object",
       "properties": {
@@ -2822,12 +2833,6 @@ func init() {
             "$ref": "#/definitions/Upload"
           }
         }
-      }
-    },
-    "ProofOfServicePackages": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/ProofOfServicePackage"
       }
     },
     "ReServiceCode": {
@@ -6090,9 +6095,6 @@ func init() {
     "PaymentRequest": {
       "type": "object",
       "properties": {
-        "documentPackages": {
-          "$ref": "#/definitions/ProofOfServicePackages"
-        },
         "eTag": {
           "type": "string"
         },
@@ -6115,6 +6117,9 @@ func init() {
           "type": "string",
           "readOnly": true,
           "example": "1234-5678-1"
+        },
+        "proofOfServiceDocs": {
+          "$ref": "#/definitions/ProofOfServiceDocs"
         },
         "rejectionReason": {
           "type": "string",
@@ -6251,6 +6256,17 @@ func init() {
         "$ref": "#/definitions/PaymentServiceItem"
       }
     },
+    "ProofOfServiceDocs": {
+      "type": "object",
+      "properties": {
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Upload"
+          }
+        }
+      }
+    },
     "ProofOfServicePackage": {
       "type": "object",
       "properties": {
@@ -6265,12 +6281,6 @@ func init() {
             "$ref": "#/definitions/Upload"
           }
         }
-      }
-    },
-    "ProofOfServicePackages": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/ProofOfServicePackage"
       }
     },
     "ReServiceCode": {
