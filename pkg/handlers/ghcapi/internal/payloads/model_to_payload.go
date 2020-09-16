@@ -286,9 +286,11 @@ func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcm
 		primeUploads = uploads
 	}
 
-	documentPackage := ghcmessages.ProofOfServicePackage{
-		ID:      *handlers.FmtUUID(proofOfService.ID),
-		Uploads: primeUploads,
+	documentPackages := ghcmessages.ProofOfServicePackages{
+		&ghcmessages.ProofOfServicePackage{
+			ID:      *handlers.FmtUUID(proofOfService.ID),
+			Uploads: primeUploads,
+		},
 	}
 
 	return &ghcmessages.PaymentRequest{
@@ -301,7 +303,7 @@ func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcm
 		ETag:                 etag.GenerateEtag(pr.UpdatedAt),
 		ServiceItems:         *PaymentServiceItems(&pr.PaymentServiceItems),
 		ReviewedAt:           handlers.FmtDateTimePtr(pr.ReviewedAt),
-		DocumentPackage:      &documentPackage,
+		DocumentPackages:     documentPackages,
 	}, nil
 }
 

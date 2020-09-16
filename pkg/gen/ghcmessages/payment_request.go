@@ -17,8 +17,8 @@ import (
 // swagger:model PaymentRequest
 type PaymentRequest struct {
 
-	// document package
-	DocumentPackage *ProofOfServicePackage `json:"documentPackage,omitempty"`
+	// document packages
+	DocumentPackages ProofOfServicePackages `json:"documentPackages,omitempty"`
 
 	// e tag
 	ETag string `json:"eTag,omitempty"`
@@ -57,7 +57,7 @@ type PaymentRequest struct {
 func (m *PaymentRequest) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateDocumentPackage(formats); err != nil {
+	if err := m.validateDocumentPackages(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -87,19 +87,17 @@ func (m *PaymentRequest) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *PaymentRequest) validateDocumentPackage(formats strfmt.Registry) error {
+func (m *PaymentRequest) validateDocumentPackages(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.DocumentPackage) { // not required
+	if swag.IsZero(m.DocumentPackages) { // not required
 		return nil
 	}
 
-	if m.DocumentPackage != nil {
-		if err := m.DocumentPackage.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("documentPackage")
-			}
-			return err
+	if err := m.DocumentPackages.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("documentPackages")
 		}
+		return err
 	}
 
 	return nil
