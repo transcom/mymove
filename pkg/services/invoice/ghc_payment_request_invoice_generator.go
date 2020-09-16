@@ -375,7 +375,7 @@ func (g GHCPaymentRequestInvoiceGenerator) getPaymentParamsForDefaultServiceItem
 	if err != nil {
 		return 0, 0, fmt.Errorf("Could not parse weight for PaymentServiceItem %s: %w", serviceItem.ID, err)
 	}
-	distance, err := g.fetchPaymentServiceItemParam(serviceItem.ID, models.ServiceItemParamNameDistanceZip5)
+	distance, err := g.fetchPaymentServiceItemParam(serviceItem.ID, models.ServiceItemParamNameDistanceZip3)
 	if err != nil {
 		return 0, 0, err
 	}
