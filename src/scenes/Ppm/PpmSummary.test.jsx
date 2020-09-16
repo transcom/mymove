@@ -1,13 +1,13 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import { MoveSummaryComponent as MoveSummary } from './MoveSummary';
+import { PpmSummaryComponent } from './PpmSummary';
 import moment from 'moment';
 import CanceledMoveSummary from 'scenes/Ppm/MoveSummary/CanceledMoveSummary';
 import DraftMoveSummary from 'scenes/Ppm/MoveSummary/DraftMoveSummary';
 import SubmittedPpmMoveSummary from 'scenes/Ppm/MoveSummary/SubmittedPpmMoveSummary';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
-describe('MoveSummary', () => {
+describe('PpmSummaryComponent', () => {
   const editMoveFn = jest.fn();
   const resumeMoveFn = jest.fn();
   const entitlementObj = { sum: '10000' };
@@ -17,7 +17,7 @@ describe('MoveSummary', () => {
   const getPpmWeightEstimate = jest.fn();
   const getShallowRender = (entitlementObj, serviceMember, ordersObj, moveObj, ppmObj, editMoveFn, resumeMoveFn) => {
     return shallow(
-      <MoveSummary
+      <PpmSummaryComponent
         entitlement={entitlementObj}
         profile={serviceMember}
         orders={ordersObj}

@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import { withLastLocation } from 'react-router-last-location';
 import { withContext } from 'shared/AppContext';
 
-import { MoveSummary } from './MoveSummary';
+import { PpmSummary } from './PpmSummary';
 import PpmAlert from './PpmAlert';
 import { selectedMoveType, lastMoveIsCanceled, updateMove } from 'scenes/Moves/ducks';
 import { createServiceMember, isProfileComplete } from 'scenes/ServiceMembers/ducks';
@@ -94,7 +94,6 @@ export class PpmLanding extends Component {
       uploads,
       move,
       ppm,
-      mtoShipment,
       backupContacts,
       context,
     } = this.props;
@@ -106,7 +105,6 @@ export class PpmLanding extends Component {
       uploads,
       move,
       ppm,
-      mtoShipment,
       backupContacts,
       context,
     });
@@ -154,7 +152,7 @@ export class PpmLanding extends Component {
             </div>
 
             {isLoggedIn && !isEmpty(serviceMember) && isProfileComplete && (
-              <MoveSummary
+              <PpmSummary
                 entitlement={entitlement}
                 profile={serviceMember}
                 orders={orders}

@@ -7,7 +7,7 @@ import configureStore from 'redux-mock-store';
 import { shallow } from 'enzyme';
 
 import { PpmLanding } from '.';
-import { MoveSummary } from './MoveSummary';
+import { PpmSummary } from './PpmSummary';
 import PpmAlert from './PpmAlert';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
@@ -64,7 +64,7 @@ describe('HomePage tests', () => {
       });
     });
     describe('When the user profile has started but is not complete', () => {
-      it('MoveSummary does not render', () => {
+      it('Ppmummary does not render', () => {
         const div = document.createElement('div');
         wrapper = shallow(
           <PpmLanding
@@ -77,7 +77,7 @@ describe('HomePage tests', () => {
           div,
         );
         expect(wrapper.find('.grid-container').length).toEqual(1);
-        expect(wrapper.find(MoveSummary).length).toEqual(0);
+        expect(wrapper.find(PpmSummary).length).toEqual(0);
       });
     });
 

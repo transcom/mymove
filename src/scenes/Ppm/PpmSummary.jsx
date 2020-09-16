@@ -15,7 +15,7 @@ import DraftMoveSummary from 'scenes/Ppm/MoveSummary/DraftMoveSummary';
 import PaymentRequestedSummary from 'scenes/Ppm/MoveSummary/PaymentRequestedSummary';
 import SubmittedPpmMoveSummary from 'scenes/Ppm/MoveSummary/SubmittedPpmMoveSummary';
 
-import './MoveSummary.css';
+import './PpmSummary.css';
 
 const MoveInfoHeader = (props) => {
   const { orders, profile, move, entitlement, requestPaymentSuccess } = props;
@@ -51,7 +51,7 @@ const getPPMStatus = (moveStatus, ppm) => {
   return moveStatus === 'APPROVED' && (ppmStatus === 'SUBMITTED' || ppmStatus === 'DRAFT') ? 'SUBMITTED' : moveStatus;
 };
 
-export class MoveSummaryComponent extends React.Component {
+export class PpmSummaryComponent extends React.Component {
   constructor(props) {
     super(props);
 
@@ -191,4 +191,4 @@ const mapDispatchToProps = {
   getMoveDocumentsForMove,
   getPpmWeightEstimate,
 };
-export const MoveSummary = connect(mapStateToProps, mapDispatchToProps)(MoveSummaryComponent);
+export const PpmSummary = connect(mapStateToProps, mapDispatchToProps)(PpmSummaryComponent);

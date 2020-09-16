@@ -17,7 +17,7 @@ import Alert from 'shared/Alert';
 import InfectedUpload from 'shared/Uploader/InfectedUpload';
 import ProcessingUpload from 'shared/Uploader/ProcessingUpload';
 import StyleGuide from 'scenes/StyleGuide';
-import Landing from 'scenes/Ppm';
+import PpmLanding from 'scenes/Ppm';
 import Edit from 'scenes/Review/Edit';
 import EditProfile from 'scenes/Review/EditProfile';
 import EditBackupContact from 'scenes/Review/EditBackupContact';
@@ -112,7 +112,7 @@ export class AppWrapper extends Component {
               {!this.state.hasError && !props.swaggerError && (
                 <Switch>
                   <Route exact path="/" component={Home} />
-                  <Route exact path="/ppm" component={Landing} />
+                  <Route exact path="/ppm" component={PpmLanding} />
                   <Route exact path="/sm_style_guide" component={StyleGuide} />
                   <Route path="/privacy-and-security-policy" component={PrivacyPolicyStatement} />
                   <Route path="/accessibility" component={AccessibilityStatement} />
