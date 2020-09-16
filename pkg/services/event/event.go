@@ -62,6 +62,8 @@ var eventModels map[KeyType]eventModel = map[KeyType]eventModel{
 	PaymentRequestUpdateEventKey: {PaymentRequestUpdateEventKey, models.PaymentRequest{}},
 	MTOShipmentCreateEventKey:    {MTOShipmentCreateEventKey, models.MTOShipment{}},
 	MTOShipmentUpdateEventKey:    {MTOShipmentUpdateEventKey, models.MTOShipment{}},
+	MTOServiceItemCreateEventKey: {MTOServiceItemCreateEventKey, models.MTOServiceItem{}},
+	MTOServiceItemUpdateEventKey: {MTOServiceItemUpdateEventKey, models.MTOServiceItem{}},
 }
 
 // IsCreateEvent returns true if this event is a create event
