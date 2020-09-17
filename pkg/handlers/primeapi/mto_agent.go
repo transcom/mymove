@@ -16,7 +16,6 @@ type UpdateMTOAgentHandler struct {
 
 // Handle updates an address on a shipment
 func (h UpdateMTOAgentHandler) Handle(params mtoshipmentops.UpdateMTOAgentParams) middleware.Responder {
-	msg := handlers.NotImplementedErrMessage
 	return mtoshipmentops.NewUpdateMTOAgentNotImplemented().WithPayload(
-		payloads.InternalServerError(&msg, h.GetTraceID()))
+		payloads.NotImplementedError(nil, h.GetTraceID()))
 }
