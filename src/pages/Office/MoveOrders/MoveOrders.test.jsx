@@ -80,11 +80,23 @@ jest.mock('hooks/queries', () => ({
       documents: {
         2: {
           id: '2',
-          uploads: ['z'],
+          uploads: [
+            {
+              id: 'z',
+              filename: 'test.pdf',
+              contentType: 'application/pdf',
+              url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
+            },
+          ],
         },
       },
       upload: {
-        id: 'z',
+        z: {
+          id: 'z',
+          filename: 'test.pdf',
+          contentType: 'application/pdf',
+          url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
+        },
       },
     };
   },

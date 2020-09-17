@@ -31,26 +31,26 @@ const DocumentViewer = ({ files }) => {
     );
   }
 
+  let fileType = selectedFile.contentType;
   switch (selectedFile.contentType) {
     case 'application/pdf': {
-      selectedFile.contentType = 'pdf';
+      fileType = 'pdf';
       break;
     }
     case 'image/png': {
-      selectedFile.contentType = 'png';
+      fileType = 'png';
       break;
     }
     case 'image/jpeg': {
-      selectedFile.contentType = 'jpg';
+      fileType = 'jpg';
       break;
     }
     case 'image/gif': {
-      selectedFile.contentType = 'gif';
+      fileType = 'gif';
       break;
     }
+    // eslint-disable-next-line no-empty
     default: {
-      // eslint-disable-next-line no-console
-      console.error(`error unknown selected file mime type: ${selectFile.contentType}`);
     }
   }
 
@@ -83,7 +83,7 @@ const DocumentViewer = ({ files }) => {
           <ExternalLink />
         </Button>
       </div>
-      <Content fileType={selectedFile.contentType} filePath={selectedFile.url} />
+      <Content fileType={fileType} filePath={selectedFile.url} />
       {menuIsOpen && <div className={styles.overlay} />}
       <Menu
         isOpen={menuIsOpen}
