@@ -502,6 +502,9 @@ func init() {
           },
           "500": {
             "$ref": "#/responses/ServerError"
+          },
+          "501": {
+            "$ref": "#/responses/NotImplemented"
           }
         }
       }
@@ -2104,6 +2107,12 @@ func init() {
         "$ref": "#/definitions/ClientError"
       }
     },
+    "NotImplemented": {
+      "description": "The requested feature is still in development.",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
     "PermissionDenied": {
       "description": "The request was denied.",
       "schema": {
@@ -2747,6 +2756,12 @@ func init() {
           },
           "500": {
             "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "501": {
+            "description": "The requested feature is still in development.",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -4380,6 +4395,12 @@ func init() {
       "description": "The requested resource wasn't found.",
       "schema": {
         "$ref": "#/definitions/ClientError"
+      }
+    },
+    "NotImplemented": {
+      "description": "The requested feature is still in development.",
+      "schema": {
+        "$ref": "#/definitions/Error"
       }
     },
     "PermissionDenied": {
