@@ -7,7 +7,6 @@ import styles from './PaymentRequestReview.module.scss';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { MatchShape, HistoryShape } from 'types/router';
-import samplePDF from 'components/DocumentViewer/sample.pdf';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import ReviewServiceItems from 'components/Office/ReviewServiceItems/ReviewServiceItems';
 import { PAYMENT_REQUEST_STATUS } from 'shared/constants';
@@ -61,6 +60,9 @@ export const PaymentRequestReview = ({ history, match }) => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
+  const uploads = paymentRequest.proofOfServiceDocs
+    ? paymentRequest.proofOfServiceDocs.flatMap((docs) => docs.uploads.flatMap((primeUploads) => primeUploads))
+    : [];
   const paymentServiceItemsArr = Object.values(paymentServiceItems);
   const mtoServiceItemsArr = Object.values(mtoServiceItems);
   const mtoShipmentsArr = Object.values(mtoShipments);
@@ -94,14 +96,6 @@ export const PaymentRequestReview = ({ history, match }) => {
     history.push(`/moves/${moveOrderId}/payment-requests/`);
   };
 
-  const testFiles = [
-    {
-      filename: 'Test File.pdf',
-      contentType: 'pdf',
-      url: samplePDF,
-    },
-  ];
-
   const serviceItemCards = paymentServiceItemsArr.map((item) => {
     const mtoServiceItem = mtoServiceItemsArr.find((s) => s.id === item.mtoServiceItemID);
     const itemShipment = mtoServiceItem && mtoShipmentsArr.find((s) => s.id === mtoServiceItem.mtoShipmentID);
@@ -121,7 +115,7 @@ export const PaymentRequestReview = ({ history, match }) => {
   return (
     <div data-testid="PaymentRequestReview" className={styles.PaymentRequestReview}>
       <div className={styles.embed}>
-        <DocumentViewer files={testFiles} />
+        <DocumentViewer files={uploads} />
       </div>
       <div className={styles.sidebar}>
         <ReviewServiceItems

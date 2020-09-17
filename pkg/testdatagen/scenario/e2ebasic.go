@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/swag"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models/roles"
 
@@ -34,7 +35,7 @@ var nextValidMoveDatePlusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate
 var nextValidMoveDateMinusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -10), cal)
 
 // Run does that data load thing
-func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, logger Logger, storer *storage.Filesystem) {
+func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger, storer *storage.Filesystem) {
 	/*
 	 * Basic user with office access
 	 */
@@ -1010,6 +1011,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		PaymentRequest: paymentRequest,
 	})
 
+	primeContractor := uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6")
 	testdatagen.MakePrimeUpload(db, testdatagen.Assertions{
 		PrimeUpload: models.PrimeUpload{
 			ID:                  uuid.FromStringOrNil("18413213-0aaf-4eb1-8d7f-1b557a4e425b"),
@@ -1020,7 +1022,26 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			},
 			ContractorID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"),
 		},
+		PrimeUploader: primeUploader,
 	})
+
+	posImage := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
+		PaymentRequest: paymentRequest,
+	})
+
+	// Creates custom test.jpg prime upload
+	file := testdatagen.Fixture("test.jpg")
+	_, verrs, err := primeUploader.CreatePrimeUploadForDocument(&posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	if verrs.HasAny() || err != nil {
+		logger.Error("errors encountered saving test.jpg prime upload", zap.Error(err))
+	}
+
+	// Creates custom test.png prime upload
+	file = testdatagen.Fixture("test.png")
+	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(&posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	if verrs.HasAny() || err != nil {
+		logger.Error("errors encountered saving test.png prime upload", zap.Error(err))
+	}
 
 	msCost := unit.Cents(10000)
 	serviceItemMS := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
