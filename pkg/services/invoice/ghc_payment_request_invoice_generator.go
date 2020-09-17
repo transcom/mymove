@@ -132,7 +132,7 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		Where("sipk.key = ?", models.ServiceItemParamNameContractCode).
 		First(&contractCodeServiceItemParam)
 	if err != nil {
-		return ediinvoice.Invoice858C{}, err
+		return ediinvoice.Invoice858C{}, fmt.Errorf("Couldn't find contract code: %s", err)
 	}
 
 	contractCodeSegment := edisegment.N9{
@@ -144,7 +144,7 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	// Add service member details to header
 	serviceMemberSegments, err := g.createServiceMemberDetailSegments(paymentRequest.ID, moveTaskOrder.Orders.ServiceMember)
 	if err != nil {
-		return ediinvoice.Invoice858C{}, err
+		return ediinvoice.Invoice858C{}, fmt.Errorf("Could not create service")
 	}
 	edi858.Header = append(edi858.Header, serviceMemberSegments...)
 
@@ -158,7 +158,7 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		Where("sipk.key = ?", models.ServiceItemParamNameRequestedPickupDate).
 		First(&requestedPickupDateParam)
 	if err != nil {
-		return ediinvoice.Invoice858C{}, err
+		return ediinvoice.Invoice858C{}, fmt.Errorf("Couldn't find requested pickup date: %s", err)
 	}
 
 	requestedPickupDateSegment := edisegment.G62{
@@ -409,6 +409,16 @@ func (g GHCPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 
 		// Determine the correct params to use based off of the particular service item
 		switch serviceItem.MTOServiceItem.ReService.Code {
+		case models.ReServiceCodeCS, models.ReServiceCodeMS:
+			l0Segment := edisegment.L0{
+				LadingLineItemNumber: hierarchicalIDNumber,
+			}
+
+			l3Segment := edisegment.L3{
+				PriceCents: serviceItem.PriceCents.Int64(),
+			}
+
+			segments = append(segments, &hlSegment, &n9Segment, &l0Segment, &l3Segment)
 		case models.ReServiceCodeDLH:
 			var err error
 			weightFloat, distanceFloat, err = g.getPaymentParamsForDefaultServiceItems(serviceItem)
