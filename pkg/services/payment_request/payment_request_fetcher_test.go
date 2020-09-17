@@ -1,61 +1,34 @@
 package paymentrequest
 
 import (
-	"errors"
-	"reflect"
 	"testing"
+
+	"github.com/transcom/mymove/pkg/testdatagen"
 
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/query"
 )
-
-type testPaymentRequestQueryBuilder struct {
-	fakeFetchOne func(model interface{}) error
-}
-
-func (t *testPaymentRequestQueryBuilder) FetchOne(model interface{}, filters []services.QueryFilter) error {
-	m := t.fakeFetchOne(model)
-	return m
-}
 
 func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
 	suite.T().Run("If a payment request is fetched, it should be returned", func(t *testing.T) {
-		id, err := uuid.NewV4()
-		suite.NoError(err)
-		fakeFetchOne := func(model interface{}) error {
-			reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(id))
-			return nil
-		}
 
-		builder := &testPaymentRequestQueryBuilder{
-			fakeFetchOne: fakeFetchOne,
-		}
+		fetcher := NewPaymentRequestFetcher(suite.DB())
 
-		fetcher := NewPaymentRequestFetcher(builder)
-		filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
-
-		adminUser, err := fetcher.FetchPaymentRequest(filters)
+		pr := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{})
+		paymentRequest, err := fetcher.FetchPaymentRequest(pr.ID)
 
 		suite.NoError(err)
-		suite.Equal(id, adminUser.ID)
+		suite.Equal(pr.ID, paymentRequest.ID)
 	})
 
 	suite.T().Run("if there is an error, we get it with zero payment request", func(t *testing.T) {
-		fakeFetchOne := func(model interface{}) error {
-			return errors.New("Fetch error")
-		}
-		builder := &testPaymentRequestQueryBuilder{
-			fakeFetchOne: fakeFetchOne,
-		}
-		fetcher := NewPaymentRequestFetcher(builder)
+		fetcher := NewPaymentRequestFetcher(suite.DB())
 
-		paymentRequest, err := fetcher.FetchPaymentRequest([]services.QueryFilter{})
+		paymentRequest, err := fetcher.FetchPaymentRequest(uuid.Nil)
 
 		suite.Error(err)
-		suite.Equal(err.Error(), "Fetch error")
+		suite.Equal(err.Error(), "sql: no rows in result set")
 		suite.Equal(models.PaymentRequest{}, paymentRequest)
 	})
 }
