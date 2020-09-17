@@ -238,16 +238,32 @@ func (suite *GHCInvoiceSuite) AllGenerateEdiTest() {
 		suite.Equal(*address.Country, n4.CountryCode)
 	})
 
-	// Test Generate Invoice Body
+	// Test Generate Invoice Body for Domestic Linehaul
+	suite.T().Run("adds l5 service item segment", func(t *testing.T) {
+		suite.IsType(&edisegment.L5{}, result.ServiceItems[2])
+		l5 := result.ServiceItems[2].(*edisegment.L5)
+		suite.Equal(1, l5.LadingLineItemNumber)
+		suite.Equal("DLH - Domestic Line Haul", l5.LadingDescription)
+		suite.Equal("TBD", l5.CommodityCode)
+		suite.Equal("B", l5.CommodityCodeQualifier)
+	})
+
 	suite.T().Run("adds l0 service item segment", func(t *testing.T) {
-		lastIdx := len(result.ServiceItems) - 1
-		suite.IsType(&edisegment.L0{}, result.ServiceItems[lastIdx])
-		l0 := result.ServiceItems[lastIdx].(*edisegment.L0)
+		suite.IsType(&edisegment.L0{}, result.ServiceItems[3])
+		l0 := result.ServiceItems[3].(*edisegment.L0)
 		suite.Equal(1, l0.LadingLineItemNumber)
 		suite.Equal(float64(2424), l0.BilledRatedAsQuantity)
 		suite.Equal("DM", l0.BilledRatedAsQualifier)
 		suite.Equal(float64(4242), l0.Weight)
 		suite.Equal("B", l0.WeightQualifier)
 		suite.Equal("L", l0.WeightUnitCode)
+	})
+
+	suite.T().Run("adds l3 service item segment", func(t *testing.T) {
+		suite.IsType(&edisegment.L3{}, result.ServiceItems[4])
+		l3 := result.ServiceItems[4].(*edisegment.L3)
+		suite.Equal(float64(4242), l3.Weight)
+		suite.Equal("B", l3.WeightQualifier)
+		suite.Equal(paymentServiceItem.PriceCents.Int64(), l3.PriceCents)
 	})
 }
