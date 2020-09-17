@@ -60,15 +60,15 @@ Since Happo offers a 30 day free trial, the above _should be able to_ be complet
 
 - **Do we have budget for this? Estimate # of runs, expected cost.**
   - Budget is TBD. If we determine no budget, we can investigate whether MilMove qualifies for Happo's free open source plan (this would require test reports be public to anyone with the link, though). Budget should be weighed against the current amount of time Loki is requiring from both engineers and CircleCI, which is not insubstantial. Running the tests in CircleCI is one of our longest-running jobs, and debugging or even approving intended changes requires additional engineering time.
-- Does it actually help us ensure that we are maintaining IE compatibility?
+- **Does it actually help us ensure that we are maintaining IE compatibility?**
   - Loki does no testing in IE, and Happo does, so: yes.
-- Are we losing anything that Loki is providing?
+- **Are we losing anything that Loki is providing?**
   - No.
-- Estimated time cost to implement (very rough estimate fine, determined by reading Happo “getting started” docs, etc.)
+- **Estimated time cost to implement (very rough estimate fine, determined by reading Happo “getting started” docs, etc.)**
   - 1 day of engineering time to implement the strategy outlined above.
-- Does this feasibly integrate with our CI pipeline?
+- **Does this feasibly integrate with our CI pipeline?**
   - [Yes](https://docs.happo.io/docs/continuous-integration#happo-ci-circleci)
-- Does this feasibly run in a local dev environment? Is this extra development/infra effort?
+- **Does this feasibly run in a local dev environment? Is this extra development/infra effort?**
   - Happo tests can be triggered from local dev environments, but the report and screenshots will be generated in Happo's cloud environment. If we don't want to use the on-premise version, no extra dev/infra effort is required.
 
 ## Pros and Cons of the Alternatives
