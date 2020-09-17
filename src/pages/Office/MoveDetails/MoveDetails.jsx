@@ -174,9 +174,7 @@ export class MoveDetails extends Component {
       phone: `+1 ${customer.phone}`,
       email: customer.email,
       currentAddress: customer.current_address,
-      backupContactName: '',
-      backupContactPhone: '',
-      backupContactEmail: '',
+      backupContact: customer.backup_contact,
     };
 
     return (
