@@ -75,6 +75,50 @@ func (a *Client) CreateMTOShipment(params *CreateMTOShipmentParams) (*CreateMTOS
 }
 
 /*
+UpdateMTOAgent updates m t o agent
+
+### Functionality
+This endpoint is used to **update** the agents for an MTO Shipment.
+
+### Errors:
+The agent must be associated with the MTO shipment passed in the url.
+
+The shipment should be associated with an MTO that is available to the Prime.
+If the caller requests an update to an agent, and the shipment is not on an available MTO, the caller will receive a **NotFound** response.
+
+*/
+func (a *Client) UpdateMTOAgent(params *UpdateMTOAgentParams) (*UpdateMTOAgentOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewUpdateMTOAgentParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "updateMTOAgent",
+		Method:             "PUT",
+		PathPattern:        "/mto-shipments/{mtoShipmentID}/agents/{agentID}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &UpdateMTOAgentReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*UpdateMTOAgentOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for updateMTOAgent: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
 UpdateMTOShipment updates m t o shipment
 
 Updates an existing shipment for a Move Task Order (MTO). Only the following fields can be updated using this endpoint:

@@ -12,9 +12,17 @@
       color: $base-darkest;
     }
 
-    button {
+    a.usa-button--secondary {
       @include u-margin-right(0);
-      @include u-margin-y(0);
+
+      &:visited {
+        color: $primary;
+      }
+
+      &:hover {
+        color: #1a4480;
+        text-decoration: none;
+      }
     }
   }
 
