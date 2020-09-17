@@ -34,21 +34,25 @@
   .shipmentCards {
     display: flex;
     flex-wrap: wrap;
-    width: calc(100% + 2em); // required to wrap in IE11
-    @include u-margin-x(-2);
+    width: 100%; // required to wrap in IE11
 
     > * {
       flex-grow: 1;
       flex-shrink: 1;
+      width: 100%;
+      @include u-margin-bottom(4);
 
       @include at-media('tablet-lg') {
         &:not(:only-child) {
-          width: calc(50% - 2em);
+          width: calc(50% - 1em);
           flex-grow: 0;
+
+          &:nth-child(even) {
+            @include u-margin-left(4);
+          }
         }
       }
 
-      @include u-margin-x(2);
       @include u-margin-bottom(4);
     }
   }
