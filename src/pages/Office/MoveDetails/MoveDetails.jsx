@@ -30,7 +30,7 @@ import {
 import { loadOrders } from 'shared/Entities/modules/orders';
 import LeftNav from 'components/LeftNav';
 import CustomerInfoTable from 'components/Office/CustomerInfoTable';
-import RequestedShipments from 'components/Office/RequestedShipments';
+import RequestedShipments from 'components/Office/RequestedShipments/RequestedShipments';
 import AllowancesTable from 'components/Office/AllowancesTable';
 import OrdersTable from 'components/Office/OrdersTable/OrdersTable';
 import {
