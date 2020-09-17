@@ -18,22 +18,40 @@ import { ReactComponent as DocMenu } from 'shared/icon/doc-menu.svg';
  */
 
 const DocumentViewer = ({ files }) => {
-  // TODO - show msg if there are no files
   const [selectedFileIndex, selectFile] = useState(0);
   const [menuIsOpen, setMenuOpen] = useState(false);
 
   const selectedFile = files[parseInt(selectedFileIndex, 10)];
-  if (selectedFile.contentType === 'application/pdf') {
-    selectedFile.contentType = 'pdf';
+
+  if (!selectedFile) {
+    return (
+      <>
+        <h2>File Not Found</h2>
+      </>
+    );
   }
-  if (selectedFile.contentType === 'image/png') {
-    selectedFile.contentType = 'png';
-  }
-  if (selectedFile.contentType === 'image/jpeg') {
-    selectedFile.contentType = 'jpg';
-  }
-  if (selectedFile.contentType === 'image/gif') {
-    selectedFile.contentType = 'gif';
+
+  switch (selectedFile.contentType) {
+    case 'application/pdf': {
+      selectedFile.contentType = 'pdf';
+      break;
+    }
+    case 'image/png': {
+      selectedFile.contentType = 'png';
+      break;
+    }
+    case 'image/jpeg': {
+      selectedFile.contentType = 'jpg';
+      break;
+    }
+    case 'image/gif': {
+      selectedFile.contentType = 'gif';
+      break;
+    }
+    default: {
+      // eslint-disable-next-line no-console
+      console.error(`error unknown selected file mime type: ${selectFile.contentType}`);
+    }
   }
 
   const openMenu = () => {
