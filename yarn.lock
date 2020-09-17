@@ -14552,10 +14552,10 @@ react-query-devtools@^2.4.7:
   dependencies:
     match-sorter "^4.1.0"
 
-react-query@^2.18.0:
-  version "2.18.0"
-  resolved "https://registry.yarnpkg.com/react-query/-/react-query-2.18.0.tgz#f8ca6a401c6520c746945fa96e43dd72aeb38d65"
-  integrity sha512-QFT2i4P2xWQoNJ9pxOi4kyqt/EYsfc4oS7EP8CWtOjOkfVOKd/mcwA51CbdsN80LOdklvXqCV+h+smrkZ8lYEg==
+react-query@^2.21.0:
+  version "2.21.0"
+  resolved "https://registry.yarnpkg.com/react-query/-/react-query-2.21.0.tgz#cb8e4b59c06a35455c98b0d8bd4109e7d5424a38"
+  integrity sha512-zGYj08Jycgpiwcwx62diIiMP8TW2ll3LLSOvBsUtsLuapxqTZDBF0U3tVR17eD88TQJesyE/xIq6nC91qW2Igg==
   dependencies:
     "@babel/runtime" "^7.5.5"
 
