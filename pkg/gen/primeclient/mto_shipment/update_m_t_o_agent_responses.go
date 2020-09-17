@@ -78,6 +78,12 @@ func (o *UpdateMTOAgentReader) ReadResponse(response runtime.ClientResponse, con
 			return nil, err
 		}
 		return nil, result
+	case 501:
+		result := NewUpdateMTOAgentNotImplemented()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 
 	default:
 		return nil, runtime.NewAPIError("unknown error", response, response.Code())
@@ -370,6 +376,39 @@ func (o *UpdateMTOAgentInternalServerError) GetPayload() *primemessages.Error {
 }
 
 func (o *UpdateMTOAgentInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(primemessages.Error)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewUpdateMTOAgentNotImplemented creates a UpdateMTOAgentNotImplemented with default headers values
+func NewUpdateMTOAgentNotImplemented() *UpdateMTOAgentNotImplemented {
+	return &UpdateMTOAgentNotImplemented{}
+}
+
+/*UpdateMTOAgentNotImplemented handles this case with default header values.
+
+The requested feature is still in development.
+*/
+type UpdateMTOAgentNotImplemented struct {
+	Payload *primemessages.Error
+}
+
+func (o *UpdateMTOAgentNotImplemented) Error() string {
+	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/agents/{agentID}][%d] updateMTOAgentNotImplemented  %+v", 501, o.Payload)
+}
+
+func (o *UpdateMTOAgentNotImplemented) GetPayload() *primemessages.Error {
+	return o.Payload
+}
+
+func (o *UpdateMTOAgentNotImplemented) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(primemessages.Error)
 
