@@ -487,6 +487,20 @@ func InternalServerError(detail *string, traceID uuid.UUID) *primemessages.Error
 	return &payload
 }
 
+// NotImplementedError describes errors for endpoints and functions that haven't been fully developed yet.
+// If detail is nil, string defaults to "This feature is in development"
+func NotImplementedError(detail *string, traceID uuid.UUID) *primemessages.Error {
+	payload := primemessages.Error{
+		Title:    handlers.FmtString(handlers.NotImplementedErrMessage),
+		Detail:   handlers.FmtString(handlers.NotImplementedErrDetail),
+		Instance: strfmt.UUID(traceID.String()),
+	}
+	if detail != nil {
+		payload.Detail = detail
+	}
+	return &payload
+}
+
 // ValidationError describes validation errors from the model or properties
 func ValidationError(detail string, instance uuid.UUID, validationErrors *validate.Errors) *primemessages.ValidationError {
 	payload := &primemessages.ValidationError{

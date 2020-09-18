@@ -40,7 +40,7 @@ Therefore a complete address should be sent in the request.
 This endpoint **cannot create** an address.
 To create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.
 
-### Errors:
+### Errors
 The address must be associated with the mtoShipment passed in the url.
 In other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress on the mtoShipment provided.
 If it is not, caller will receive a **Conflict** Error.

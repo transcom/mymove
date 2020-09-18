@@ -1850,6 +1850,27 @@ func init() {
         }
       }
     },
+    "BackupContact": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
+        "name": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        }
+      }
+    },
     "ClientError": {
       "type": "object",
       "required": [
@@ -1876,6 +1897,10 @@ func init() {
         "agency": {
           "type": "string",
           "title": "Agency customer is affilated with"
+        },
+        "backup_contact": {
+          "x-nullable": true,
+          "$ref": "#/definitions/BackupContact"
         },
         "current_address": {
           "x-nullable": true,
@@ -2728,9 +2753,6 @@ func init() {
     "PaymentRequest": {
       "type": "object",
       "properties": {
-        "documentPackage": {
-          "$ref": "#/definitions/ProofOfServicePackage"
-        },
         "eTag": {
           "type": "string"
         },
@@ -2753,6 +2775,9 @@ func init() {
           "type": "string",
           "readOnly": true,
           "example": "1234-5678-1"
+        },
+        "proofOfServiceDocs": {
+          "$ref": "#/definitions/ProofOfServiceDocs"
         },
         "rejectionReason": {
           "type": "string",
@@ -2887,6 +2912,22 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/PaymentServiceItem"
+      }
+    },
+    "ProofOfServiceDoc": {
+      "properties": {
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Upload"
+          }
+        }
+      }
+    },
+    "ProofOfServiceDocs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ProofOfServiceDoc"
       }
     },
     "ProofOfServicePackage": {
@@ -5451,6 +5492,27 @@ func init() {
         }
       }
     },
+    "BackupContact": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
+        "name": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        }
+      }
+    },
     "ClientError": {
       "type": "object",
       "required": [
@@ -5477,6 +5539,10 @@ func init() {
         "agency": {
           "type": "string",
           "title": "Agency customer is affilated with"
+        },
+        "backup_contact": {
+          "x-nullable": true,
+          "$ref": "#/definitions/BackupContact"
         },
         "current_address": {
           "x-nullable": true,
@@ -6329,9 +6395,6 @@ func init() {
     "PaymentRequest": {
       "type": "object",
       "properties": {
-        "documentPackage": {
-          "$ref": "#/definitions/ProofOfServicePackage"
-        },
         "eTag": {
           "type": "string"
         },
@@ -6354,6 +6417,9 @@ func init() {
           "type": "string",
           "readOnly": true,
           "example": "1234-5678-1"
+        },
+        "proofOfServiceDocs": {
+          "$ref": "#/definitions/ProofOfServiceDocs"
         },
         "rejectionReason": {
           "type": "string",
@@ -6488,6 +6554,22 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/PaymentServiceItem"
+      }
+    },
+    "ProofOfServiceDoc": {
+      "properties": {
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Upload"
+          }
+        }
+      }
+    },
+    "ProofOfServiceDocs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ProofOfServiceDoc"
       }
     },
     "ProofOfServicePackage": {

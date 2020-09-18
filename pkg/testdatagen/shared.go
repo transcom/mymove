@@ -149,7 +149,8 @@ func makeRandomString(n int) string {
 	return string(b)
 }
 
-func fixture(name string) afero.File {
+// Fixture opens a file from the testdata dir
+func Fixture(name string) afero.File {
 	fixtureDir := "testdata"
 	cwd, err := os.Getwd()
 	if err != nil {
