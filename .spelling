@@ -662,3 +662,6 @@ uniq
 isNil
 isInteger
 sortBy
+ - docs/adr/0058-replace-loki-with-happo.md
+SauceLabs
+Screener.io

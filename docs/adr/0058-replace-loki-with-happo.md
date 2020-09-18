@@ -21,6 +21,7 @@ MilMove currently uses a tool called Loki for performing visual regression tests
 - Continue using Loki (do nothing)
 - Switch to Happo
 - Switch to Chromatic
+- Use SauceLabs visual testing
 - Stop visual regression testing
 
 ## Decision Outcome
@@ -89,6 +90,14 @@ Since Happo offers a 30 day free trial, the above _should be able to_ be complet
 - `-` Chromatic only tests Storybook components, so testing application screens is not an option
 - `-` Chromatic costs money (pricing tiers are $149 / $349 / \$649 / month)
 - `-` Testing on IE11 is only available in the Pro plan (most expensive)
+
+### Use SauceLabs visual testing
+
+- `+` We already have a SauceLabs account that we use for manual cross-browser testing, and consolidating services is good
+- `+` SauceLabs has recently acquired [Screener.io](https://screener.io/) (another automated visual testing service) and is adding a [visual testing product](https://saucelabs.com/platform/visual-testing) to its services
+- `-` As far as I can tell, the offering is not yet ready and there is no way right now to sign up as a new customer as of this writing
+- `-` SauceLabs also offers automated E2E testing, but we are not using it (using Cypress instead)
+- Ultimately I think down the road we will want to make some decisions around what services we use for what tests, and consolidate technologies where possible, but this is not that moment. This ADR may be re-assessed once SauceLabs launches their visual testing service and we decide to re-evaluate.
 
 ### Stop visual regression testing
 
