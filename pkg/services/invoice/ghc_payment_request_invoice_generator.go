@@ -144,7 +144,7 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	// Add service member details to header
 	serviceMemberSegments, err := g.createServiceMemberDetailSegments(paymentRequest.ID, moveTaskOrder.Orders.ServiceMember)
 	if err != nil {
-		return ediinvoice.Invoice858C{}, fmt.Errorf("Could not create service")
+		return ediinvoice.Invoice858C{}, fmt.Errorf("Could not create service: %s", err)
 	}
 	edi858.Header = append(edi858.Header, serviceMemberSegments...)
 
@@ -420,27 +420,6 @@ func (g GHCPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 
 			segments = append(segments, &hlSegment, &n9Segment, &l0Segment, &l3Segment)
 
-		case models.ReServiceCodeFSC:
-			var err error
-			weightFloat, distanceFloat, err = g.getPaymentParamsForDefaultServiceItems(serviceItem)
-			if err != nil {
-				return segments, fmt.Errorf("Could not parse weight or distance for PaymentServiceItem %w", err)
-			}
-			l0Segment := edisegment.L0{
-				LadingLineItemNumber:   hierarchicalIDNumber,
-				BilledRatedAsQuantity:  distanceFloat,
-				BilledRatedAsQualifier: "DM",
-				Weight:                 weightFloat,
-				WeightQualifier:        "B",
-				WeightUnitCode:         "L",
-			}
-			l3Segment := edisegment.L3{
-				Weight:          weightFloat,
-				WeightQualifier: "B",
-				PriceCents:      serviceItem.PriceCents.Int64(),
-			}
-			segments = append(segments, &hlSegment, &n9Segment, &l0Segment, &l3Segment)
-
 		case models.ReServiceCodeDLH:
 			var err error
 			weightFloat, distanceFloat, err = g.getPaymentParamsForDefaultServiceItems(serviceItem)
@@ -487,8 +466,13 @@ func (g GHCPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				WeightUnitCode:         "L",
 			}
 
-			segments = append(segments, &hlSegment, &n9Segment, &l0Segment)
+			l3Segment := edisegment.L3{
+				Weight:          weightFloat,
+				WeightQualifier: "B",
+				PriceCents:      serviceItem.PriceCents.Int64(),
+			}
 
+			segments = append(segments, &hlSegment, &n9Segment, &l0Segment, &l3Segment)
 		}
 
 	}
