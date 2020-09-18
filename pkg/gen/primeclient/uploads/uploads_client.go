@@ -29,7 +29,13 @@ type Client struct {
 /*
 CreateUpload creates upload
 
-Uploads represent a single digital file, such as a JPEG, PNG, or PDF.
+### Functionality
+This endpoint **uploads** a Proof of Service document for a PaymentRequest.
+
+The PaymentRequest should already exist.
+
+PaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.
+
 */
 func (a *Client) CreateUpload(params *CreateUploadParams) (*CreateUploadCreated, error) {
 	// TODO: Validate the params before sending

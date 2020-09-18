@@ -78,9 +78,12 @@ func (a *Client) CreateMoveTaskOrder(params *CreateMoveTaskOrderParams) (*Create
 /*
 GetMoveTaskOrder gets move task order
 
-Gets an individual move task order by ID. <br />
-<br />
-This is a support endpoint and will not be available in production.
+### Functionality
+This endpoint gets an individual MoveTaskOrder by ID.
+
+It will provide nested information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.
+
+This is a support endpoint and is not available in production.
 
 */
 func (a *Client) GetMoveTaskOrder(params *GetMoveTaskOrderParams) (*GetMoveTaskOrderOK, error) {
@@ -117,7 +120,10 @@ func (a *Client) GetMoveTaskOrder(params *GetMoveTaskOrderParams) (*GetMoveTaskO
 /*
 ListMTOs lists m t os
 
-Gets all move task orders. Provides all move task orders regardless of whether or not they have been made available to prime.
+### Functionality
+This endpoint lists all MoveTaskOrders regardless of whether or not they have been made available to Prime.
+
+It will provide nested information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.
 
 */
 func (a *Client) ListMTOs(params *ListMTOsParams) (*ListMTOsOK, error) {

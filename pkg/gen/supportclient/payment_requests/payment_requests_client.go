@@ -29,7 +29,11 @@ type Client struct {
 /*
 ListMTOPaymentRequests lists m t o payment requests
 
-Gets all payment requests for a given move task order
+### Functionality
+
+This endpoint lists all PaymentRequests associated with a given MoveTaskOrder.
+
+This is a support endpoint and is not available in production.
 
 */
 func (a *Client) ListMTOPaymentRequests(params *ListMTOPaymentRequestsParams) (*ListMTOPaymentRequestsOK, error) {
@@ -67,9 +71,10 @@ func (a *Client) ListMTOPaymentRequests(params *ListMTOPaymentRequestsParams) (*
 UpdatePaymentRequestStatus updates payment request status
 
 Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, or PAID.
-A status of REVIEWED can optionally have a `rejectionReason`. <br />
-<br />
-This is a support endpoint and will not be available in production.
+
+A status of REVIEWED can optionally have a `rejectionReason`.
+
+This is a support endpoint and is not available in production.
 
 */
 func (a *Client) UpdatePaymentRequestStatus(params *UpdatePaymentRequestStatusParams) (*UpdatePaymentRequestStatusOK, error) {

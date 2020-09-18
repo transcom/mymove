@@ -66,7 +66,11 @@ func (a *Client) FetchMTOUpdates(params *FetchMTOUpdatesParams) (*FetchMTOUpdate
 /*
 UpdateMTOPostCounselingInformation updates m t o post counseling information
 
-Updates move task order after the counseling stage. Allows update of fields ppmType and ppmEstimatedWeight.
+### Functionality
+This endpoint **updates** the MoveTaskOrder after the Prime has completed Counseling.
+
+PPM related information is updated here. Most other fields will be found on the specific MTOShipment and updated using [updateMTOShipment](#operation/updateMTOShipment).
+
 */
 func (a *Client) UpdateMTOPostCounselingInformation(params *UpdateMTOPostCounselingInformationParams) (*UpdateMTOPostCounselingInformationOK, error) {
 	// TODO: Validate the params before sending
