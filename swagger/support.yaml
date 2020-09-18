@@ -468,34 +468,6 @@ paths:
         '500':
           description: Server error
 definitions:
-  ClientError:
-    type: object
-    properties:
-      title:
-        type: string
-      detail:
-        type: string
-      instance:
-        type: string
-        format: uuid
-    required:
-      - title
-      - detail
-      - instance
-  ValidationError:
-    allOf:
-      - $ref: '#/definitions/ClientError'
-      - type: object
-    properties:
-      invalidFields:
-        type: object
-        additionalProperties:
-          description: List of errors for the field
-          type: array
-          items:
-            type: string
-    required:
-      - invalidFields
   Address:
     type: object
     properties:
@@ -648,6 +620,20 @@ definitions:
       - city
       - state
       - postalCode
+  ClientError:
+    type: object
+    properties:
+      title:
+        type: string
+      detail:
+        type: string
+      instance:
+        type: string
+        format: uuid
+    required:
+      - title
+      - detail
+      - instance
   Customer:
     type: object
     properties:
@@ -867,6 +853,23 @@ definitions:
       - reportByDate
       - issueDate
       - status
+  MoveOrders:
+    items:
+      $ref: '#/definitions/MoveOrder'
+    type: array
+  MoveStatus:
+    type: string
+    description: Current status of this MoveTaskOrder
+    enum:
+      - DRAFT
+      - SUBMITTED
+      - APPROVED
+      - CANCELED
+    x-display-value:
+      DRAFT: Draft
+      SUBMITTED: Submitted
+      APPROVED: Approved
+      CANCELED: Canceled
   MoveTaskOrder:
     type: object
     required:
@@ -955,32 +958,10 @@ definitions:
         description: Unique 6-character code the customer can use to refer to their move
         type: string
         example: ABC123
-  MoveOrders:
-    items:
-      $ref: '#/definitions/MoveOrder'
-    type: array
-  MoveStatus:
-    type: string
-    description: Current status of this MoveTaskOrder
-    enum:
-      - DRAFT
-      - SUBMITTED
-      - APPROVED
-      - CANCELED
-    x-display-value:
-      DRAFT: Draft
-      SUBMITTED: Submitted
-      APPROVED: Approved
-      CANCELED: Canceled
   MoveTaskOrders:
     items:
       $ref: '#/definitions/MoveTaskOrder'
     type: array
-  MTOAgents:
-    items:
-      $ref: '#/definitions/MTOAgent'
-    type: array
-    maxItems: 2
   MTOAgent:
     properties:
       id:
@@ -1025,6 +1006,141 @@ definitions:
         type: string
         readOnly: true
     type: object
+  MTOAgents:
+    items:
+      $ref: '#/definitions/MTOAgent'
+    type: array
+    maxItems: 2
+  MTOServiceItem:
+    description: MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.
+    type: object
+    discriminator: modelType
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      moveTaskOrderID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      mtoShipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      reServiceName:
+        type: string
+      status:
+        $ref: '#/definitions/MTOServiceItemStatus'
+      description:
+        type: string
+      feeType:
+        enum:
+          - COUNSELING
+          - CRATING
+          - TRUCKING
+          - SHUTTLE
+        type: string
+      quantity:
+        type: integer
+      rate:
+        type: integer
+      rejectionReason:
+        example: item was too heavy
+        type: string
+        x-nullable: true
+      modelType: # Base type and sub-types of MTOServiceItem
+        $ref: '#/definitions/MTOServiceItemModelType'
+      eTag:
+        type: string
+        readOnly: true
+    required:
+      - modelType
+      - moveTaskOrderID
+  MTOServiceItemModelType:
+    description: >
+      Describes all model sub-types for a MTOServiceItem model.
+      Prime can only request the following service codes for which they will use the corresponding modelType
+        * DOFSIT - MTOServiceItemDOFSIT
+        * DOSHUT, DDSHUT - MTOServiceItemShuttle
+        * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating
+    type: string
+    enum:
+      - MTOServiceItemBasic
+      - MTOServiceItemDOFSIT
+      - MTOServiceItemShuttle
+      - MTOServiceItemDomesticCrating
+  MTOServiceItemStatus:
+    description: Describes all statuses for a MTOServiceItem.
+    type: string
+    enum:
+      - SUBMITTED
+      - APPROVED
+      - REJECTED
+  MTOShipment:
+    properties:
+      moveTaskOrderID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      createdAt:
+        format: date-time
+        type: string
+        readOnly: true
+      updatedAt:
+        format: date-time
+        type: string
+        readOnly: true
+      scheduledPickupDate:
+        format: date
+        type: string
+      requestedPickupDate:
+        format: date
+        type: string
+      approvedDate:
+        format: date
+        type: string
+      primeActualWeight:
+        type: integer
+        example: 4500
+      pickupAddress:
+        $ref: '#/definitions/Address'
+      destinationAddress:
+        $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        $ref: '#/definitions/Address'
+      secondaryDeliveryAddress:
+        $ref: '#/definitions/Address'
+      customerRemarks:
+        type: string
+        example: handle with care
+        x-nullable: true
+      shipmentType:
+        enum:
+          - HHG
+          - INTERNATIONAL_HHG
+          - INTERNATIONAL_UB
+      status:
+        type: string
+        enum:
+          - APPROVED
+          - SUBMITTED
+          - REJECTED
+      rejectionReason:
+        type: string
+        example: MTO Shipment not good enough
+        x-nullable: true
+      eTag:
+        type: string
+        readOnly: true
+  MTOShipments:
+    items:
+      $ref: '#/definitions/MTOShipment'
+    type: array
   OrdersStatus:
     type: string
     title: Move status
@@ -1107,162 +1223,6 @@ definitions:
           $ref: '#/definitions/Upload'
         type: array
     type: object
-  MTOShipment:
-    properties:
-      moveTaskOrderID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      createdAt:
-        format: date-time
-        type: string
-        readOnly: true
-      updatedAt:
-        format: date-time
-        type: string
-        readOnly: true
-      scheduledPickupDate:
-        format: date
-        type: string
-      requestedPickupDate:
-        format: date
-        type: string
-      approvedDate:
-        format: date
-        type: string
-      primeActualWeight:
-        type: integer
-        example: 4500
-      pickupAddress:
-        $ref: '#/definitions/Address'
-      destinationAddress:
-        $ref: '#/definitions/Address'
-      secondaryPickupAddress:
-        $ref: '#/definitions/Address'
-      secondaryDeliveryAddress:
-        $ref: '#/definitions/Address'
-      customerRemarks:
-        type: string
-        example: handle with care
-        x-nullable: true
-      shipmentType:
-        enum:
-          - HHG
-          - INTERNATIONAL_HHG
-          - INTERNATIONAL_UB
-      status:
-        type: string
-        enum:
-          - APPROVED
-          - SUBMITTED
-          - REJECTED
-      rejectionReason:
-        type: string
-        example: MTO Shipment not good enough
-        x-nullable: true
-      eTag:
-        type: string
-        readOnly: true
-  MTOShipments:
-    items:
-      $ref: '#/definitions/MTOShipment'
-    type: array
-  UpdateMTOShipmentStatus:
-    properties:
-      status:
-        type: string
-        enum:
-          - REJECTED
-          - APPROVED
-          - SUBMITTED
-      rejectionReason:
-        type: string
-        example: MTO Shipment not good enough
-        x-nullable: true
-  MTOServiceItem:
-    description: MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.
-    type: object
-    discriminator: modelType
-    properties:
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      moveTaskOrderID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      mtoShipmentID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      reServiceName:
-        type: string
-      status:
-        $ref: '#/definitions/MTOServiceItemStatus'
-      description:
-        type: string
-      feeType:
-        enum:
-          - COUNSELING
-          - CRATING
-          - TRUCKING
-          - SHUTTLE
-        type: string
-      quantity:
-        type: integer
-      rate:
-        type: integer
-      rejectionReason:
-        example: item was too heavy
-        type: string
-        x-nullable: true
-      modelType: # Base type and sub-types of MTOServiceItem
-        $ref: '#/definitions/MTOServiceItemModelType'
-      eTag:
-        type: string
-        readOnly: true
-    required:
-      - modelType
-      - moveTaskOrderID
-  MTOServiceItemStatus:
-    description: Describes all statuses for a MTOServiceItem.
-    type: string
-    enum:
-      - SUBMITTED
-      - APPROVED
-      - REJECTED
-  MTOServiceItemModelType:
-    description: >
-      Describes all model sub-types for a MTOServiceItem model.
-      Prime can only request the following service codes for which they will use the corresponding modelType
-        * DOFSIT - MTOServiceItemDOFSIT
-        * DOSHUT, DDSHUT - MTOServiceItemShuttle
-        * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating
-    type: string
-    enum:
-      - MTOServiceItemBasic
-      - MTOServiceItemDOFSIT
-      - MTOServiceItemShuttle
-      - MTOServiceItemDomesticCrating
-  UpdatePaymentRequest:
-    properties:
-      proofOfServicePackage:
-        $ref: '#/definitions/ProofOfServicePackage'
-      serviceItemIDs:
-        items:
-          example: c56a4180-65aa-42ec-a945-5fd21dec0538
-          format: uuid
-          type: string
-        type: array
-      eTag:
-        type: string
-        readOnly: true
-    type: object
   UpdateMTOServiceItemStatus:
     properties:
       moveTaskOrderID:
@@ -1319,6 +1279,32 @@ definitions:
     required:
       - status
     type: object
+  UpdateMTOShipmentStatus:
+    properties:
+      status:
+        type: string
+        enum:
+          - REJECTED
+          - APPROVED
+          - SUBMITTED
+      rejectionReason:
+        type: string
+        example: MTO Shipment not good enough
+        x-nullable: true
+  UpdatePaymentRequest:
+    properties:
+      proofOfServicePackage:
+        $ref: '#/definitions/ProofOfServicePackage'
+      serviceItemIDs:
+        items:
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+          format: uuid
+          type: string
+        type: array
+      eTag:
+        type: string
+        readOnly: true
+    type: object
   UpdatePaymentRequestStatus:
     properties:
       rejectionReason:
@@ -1373,6 +1359,20 @@ definitions:
       - bytes
       - createdAt
       - updatedAt
+  ValidationError:
+    allOf:
+      - $ref: '#/definitions/ClientError'
+      - type: object
+    properties:
+      invalidFields:
+        type: object
+        additionalProperties:
+          description: List of errors for the field
+          type: array
+          items:
+            type: string
+    required:
+      - invalidFields
 responses:
   InvalidRequest:
     description: The request payload is invalid.
