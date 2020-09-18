@@ -2,7 +2,7 @@
 /* eslint-disable no-console */
 /* eslint-disable camelcase */
 import React, { Component } from 'react';
-import { func, arrayOf, bool, shape, string, node } from 'prop-types';
+import { func, arrayOf, bool, shape, string, node, oneOfType } from 'prop-types';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import { get, isEmpty } from 'lodash';
@@ -455,7 +455,7 @@ Home.propTypes = {
   loadPpms: func.isRequired,
   selectedMoveType: string,
   lastMoveIsCanceled: bool,
-  backupContacts: arrayOf(shape({})),
+  backupContacts: arrayOf(oneOfType([string, shape({})])),
   context: shape({
     flags: shape({
       hhgFlow: bool,
