@@ -38,7 +38,11 @@ func NewUpdateMTOPostCounselingInformation(ctx *middleware.Context, handler Upda
 
 updateMTOPostCounselingInformation
 
-Updates move task order after the counseling stage. Allows update of fields ppmType and ppmEstimatedWeight.
+### Functionality
+This endpoint **updates** the MoveTaskOrder after the Prime has completed Counseling.
+
+PPM related information is updated here. Most other fields will be found on the specific MTOShipment and updated using [updateMTOShipment](#operation/updateMTOShipment).
+
 
 */
 type UpdateMTOPostCounselingInformation struct {

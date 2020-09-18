@@ -15,6 +15,12 @@ info:
 basePath: /prime/v1
 schemes:
   - http
+tags:
+  - name: moveTaskOrder
+  - name: mtoShipment
+  - name: paymentRequests
+  - name: uploads
+  - name: mtoServiceItem
 paths:
   /move-task-orders:
     get:
@@ -57,7 +63,12 @@ paths:
         type: string
     patch:
       summary: updateMTOPostCounselingInformation
-      description: Updates move task order after the counseling stage. Allows update of fields ppmType and ppmEstimatedWeight.
+      description: |
+        ### Functionality
+        This endpoint **updates** the MoveTaskOrder after the Prime has completed Counseling.
+
+        PPM related information is updated here. Most other fields will be found on the specific MTOShipment and updated using [updateMTOShipment](#operation/updateMTOShipment).
+
       operationId: updateMTOPostCounselingInformation
       consumes:
         - application/json
@@ -227,7 +238,7 @@ paths:
         This endpoint **cannot create** an address.
         To create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.
 
-        ### Errors:
+        ### Errors
         The address must be associated with the mtoShipment passed in the url.
         In other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress on the mtoShipment provided.
         If it is not, caller will receive a **Conflict** Error.
@@ -374,7 +385,6 @@ paths:
         - in: body
           name: body
           schema:
-            description: This may be a MTOServiceItemBasic, MTOServiceItemDOFSIT or etc.
             $ref: '#/definitions/MTOServiceItem'
       responses:
         '200':
@@ -441,7 +451,14 @@ paths:
   /payment-requests/{paymentRequestID}/uploads:
     post:
       summary: createUpload
-      description: Uploads represent a single digital file, such as a JPEG, PNG, or PDF.
+      description: |
+        ### Functionality
+        This endpoint **uploads** a Proof of Service document for a PaymentRequest.
+
+        The PaymentRequest should already exist.
+
+        PaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.
+
       operationId: createUpload
       tags:
         - uploads
@@ -1196,7 +1213,7 @@ definitions:
           pickupPostalCode:
             type: string
             format: zip
-            example: 90210
+            example: "90210"
             pattern: '^(\d{5}([\-]\d{4})?)$'
         required:
           - reServiceCode
@@ -1316,7 +1333,7 @@ definitions:
       status:
         $ref: '#/definitions/PaymentRequestStatus'
       paymentRequestNumber:
-        example: 1234-5678-1
+        example: "1234-5678-1"
         readOnly: true
         type: string
       proofOfServiceDocs:
@@ -1399,7 +1416,7 @@ definitions:
       key:
         $ref: '#/definitions/ServiceItemParamName'
       value:
-        example: 3025
+        example: "3025"
         type: string
       type:
         $ref: '#/definitions/ServiceItemParamType'
