@@ -51,6 +51,7 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 	if customer == nil {
 		return nil
 	}
+
 	payload := ghcmessages.Customer{
 		Agency:         swag.StringValue((*string)(customer.Affiliation)),
 		CurrentAddress: Address(customer.ResidentialAddress),
@@ -62,6 +63,7 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 		Phone:          customer.Telephone,
 		UserID:         strfmt.UUID(customer.UserID.String()),
 		ETag:           etag.GenerateEtag(customer.UpdatedAt),
+		BackupContact:  BackupContact(customer.BackupContacts),
 	}
 	return &payload
 }
@@ -189,6 +191,28 @@ func Address(address *models.Address) *ghcmessages.Address {
 		PostalCode:     &address.PostalCode,
 		Country:        address.Country,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
+	}
+}
+
+// BackupContact payload
+func BackupContact(contacts models.BackupContacts) *ghcmessages.BackupContact {
+	var name, email, phone string
+
+	if len(contacts) != 0 {
+		contact := contacts[0]
+		name = contact.Name
+		email = contact.Email
+		phone = ""
+		contactPhone := contact.Phone
+		if contactPhone != nil {
+			phone = *contactPhone
+		}
+	}
+
+	return &ghcmessages.BackupContact{
+		Name:  &name,
+		Email: &email,
+		Phone: &phone,
 	}
 }
 

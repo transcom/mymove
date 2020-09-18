@@ -14,9 +14,11 @@ const info = {
     state: 'TX',
     postal_code: '78234',
   },
-  backupContactName: 'Quinn Ocampo',
-  backupContactPhone: '+1 999-999-9999',
-  backupContactEmail: 'quinnocampo@myemail.com',
+  backupContact: {
+    name: 'Quinn Ocampo',
+    email: 'quinnocampo@myemail.com',
+    phone: '999-999-9999',
+  },
 };
 
 export default {

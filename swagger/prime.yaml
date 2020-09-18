@@ -354,6 +354,8 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+        '501':
+          $ref: '#/responses/NotImplemented'
   '/mto-service-items':
     post:
       summary: createMTOServiceItem
@@ -1631,6 +1633,10 @@ responses:
       $ref: '#/definitions/ClientError'
   ServerError:
     description: A server error occurred.
+    schema:
+      $ref: '#/definitions/Error'
+  NotImplemented:
+    description: The requested feature is still in development.
     schema:
       $ref: '#/definitions/Error'
   PreconditionFailed:
