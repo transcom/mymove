@@ -17,9 +17,9 @@ func MakeMTOAgent(db *pop.Connection, assertions Assertions) models.MTOAgent {
 		mtoShipmentID = mtoShipment.ID
 	}
 
-	firstName := "Agent First Name"
-	lastName := "Agent Last Name"
-	email := "agent.email@ghc.gov"
+	firstName := "Jason"
+	lastName := "Ash"
+	email := "jason.ash@gmail.com"
 	phone := "2025559301"
 
 	mtoAgentType := models.MTOAgentReleasing
