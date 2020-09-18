@@ -8,6 +8,7 @@ import Menu from './Menu/Menu';
 
 import { ReactComponent as ExternalLink } from 'shared/icon/external-link.svg';
 import { ReactComponent as DocMenu } from 'shared/icon/doc-menu.svg';
+import { filenameFromPath } from 'shared/formatters';
 
 /**
  * TODO
@@ -76,7 +77,7 @@ const DocumentViewer = ({ files }) => {
           <DocMenu />
         </Button>
 
-        <p>{selectedFile.filename}</p>
+        <p>{filenameFromPath(selectedFile.filename)}</p>
         {/* TODO */}
         <Button type="button" unstyled onClick={openInNewWindow}>
           <span>Open in a new window</span>
