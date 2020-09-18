@@ -182,4 +182,9 @@ describe('DocumentViewer component', () => {
     );
     expect(wrapper.find('.unsupported-message').text()).toEqual('.zip is not supported.');
   });
+
+  it('displays file not found for empty files array', () => {
+    const wrapper = mount(<DocumentViewer />);
+    expect(wrapper.find('h2').text()).toEqual('File Not Found');
+  });
 });

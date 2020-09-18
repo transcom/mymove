@@ -8,6 +8,7 @@ import { FilesShape } from '../types';
 import styles from './Menu.module.scss';
 
 import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
+import { filenameFromPath } from 'shared/formatters';
 
 const DocViewerMenu = ({ isOpen, files, handleClose, selectedFileIndex, handleSelectFile }) => (
   <div data-testid="DocViewerMenu" className={classnames(styles.docViewerMenu, { [styles.collapsed]: !isOpen })}>
@@ -28,7 +29,7 @@ const DocViewerMenu = ({ isOpen, files, handleClose, selectedFileIndex, handleSe
           // eslint-disable-next-line react/no-array-index-key
           <li key={`menu_file_${i}`}>
             <Button unstyled className={itemClasses} type="button" onClick={() => handleSelectFile(i)}>
-              <p>{file.filename}</p>
+              <p>{filenameFromPath(file.filename)}</p>
             </Button>
           </li>
         );

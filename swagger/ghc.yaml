@@ -1736,8 +1736,8 @@ definitions:
     type: object
   PaymentRequest:
     properties:
-      documentPackage:
-        $ref: '#/definitions/ProofOfServicePackage'
+      proofOfServiceDocs:
+        $ref: '#/definitions/ProofOfServiceDocs'
       id:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -2015,6 +2015,16 @@ definitions:
           $ref: '#/definitions/Upload'
         type: array
     type: object
+  ProofOfServiceDocs:
+    items:
+      $ref: '#/definitions/ProofOfServiceDoc'
+    type: array
+  ProofOfServiceDoc:
+    properties:
+      uploads:
+        items:
+          $ref: '#/definitions/Upload'
+        type: array
   MTOShipment:
     properties:
       moveTaskOrderID:

@@ -8,6 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/storage"
 )
 
 // Move payload
@@ -290,7 +291,18 @@ func MTOAgents(mtoAgents *models.MTOAgents) *ghcmessages.MTOAgents {
 }
 
 // PaymentRequest payload
-func PaymentRequest(pr *models.PaymentRequest) *ghcmessages.PaymentRequest {
+func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcmessages.PaymentRequest, error) {
+	serviceDocs := make(ghcmessages.ProofOfServiceDocs, len(pr.ProofOfServiceDocs))
+	if pr.ProofOfServiceDocs != nil && len(pr.ProofOfServiceDocs) > 0 {
+		for i, proofOfService := range pr.ProofOfServiceDocs {
+			payload, err := ProofOfServiceDoc(proofOfService, storer)
+			if err != nil {
+				return nil, err
+			}
+			serviceDocs[i] = payload
+		}
+	}
+
 	return &ghcmessages.PaymentRequest{
 		ID:                   *handlers.FmtUUID(pr.ID),
 		IsFinal:              &pr.IsFinal,
@@ -301,7 +313,8 @@ func PaymentRequest(pr *models.PaymentRequest) *ghcmessages.PaymentRequest {
 		ETag:                 etag.GenerateEtag(pr.UpdatedAt),
 		ServiceItems:         *PaymentServiceItems(&pr.PaymentServiceItems),
 		ReviewedAt:           handlers.FmtDateTimePtr(pr.ReviewedAt),
-	}
+		ProofOfServiceDocs:   serviceDocs,
+	}, nil
 }
 
 // PaymentServiceItem payload
@@ -399,4 +412,43 @@ func MTOServiceItemCustomerContacts(c models.MTOServiceItemCustomerContacts) ghc
 		payload[i] = MTOServiceItemCustomerContact(&item)
 	}
 	return payload
+}
+
+// Upload payload
+func Upload(storer storage.FileStorer, upload models.Upload, url string) *ghcmessages.Upload {
+	uploadPayload := &ghcmessages.Upload{
+		ID:          handlers.FmtUUID(upload.ID),
+		Filename:    swag.String(upload.Filename),
+		ContentType: swag.String(upload.ContentType),
+		URL:         handlers.FmtURI(url),
+		Bytes:       &upload.Bytes,
+		CreatedAt:   handlers.FmtDateTime(upload.CreatedAt),
+		UpdatedAt:   handlers.FmtDateTime(upload.UpdatedAt),
+	}
+	tags, err := storer.Tags(upload.StorageKey)
+	if err != nil || len(tags) == 0 {
+		uploadPayload.Status = "PROCESSING"
+	} else {
+		uploadPayload.Status = tags["av-status"]
+	}
+	return uploadPayload
+}
+
+// ProofOfServiceDoc payload from model
+func ProofOfServiceDoc(proofOfService models.ProofOfServiceDoc, storer storage.FileStorer) (*ghcmessages.ProofOfServiceDoc, error) {
+
+	uploads := make([]*ghcmessages.Upload, len(proofOfService.PrimeUploads))
+	if proofOfService.PrimeUploads != nil && len(proofOfService.PrimeUploads) > 0 {
+		for i, primeUpload := range proofOfService.PrimeUploads {
+			url, err := storer.PresignedURL(primeUpload.Upload.StorageKey, primeUpload.Upload.ContentType)
+			if err != nil {
+				return nil, err
+			}
+			uploads[i] = Upload(storer, primeUpload.Upload, url)
+		}
+	}
+
+	return &ghcmessages.ProofOfServiceDoc{
+		Uploads: uploads,
+	}, nil
 }

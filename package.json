@@ -30,6 +30,7 @@
     "node-sass": "^4.14.1",
     "normalizr": "^3.6.0",
     "numeral": "^2.0.6",
+    "path": "^0.12.7",
     "path-to-regexp": "^6.1.0",
     "prop-types": "^15.7.2",
     "query-string": "6",
@@ -79,8 +80,7 @@
   "resolutions": {
     "bl": "^4.0.3",
     "kind-of": "^6.0.2",
-    "serialize-javascript": "^3.1.0",
-    "bl": "^4.0.3"
+    "serialize-javascript": "^3.1.0"
   },
   "name": "client",
   "private": true,

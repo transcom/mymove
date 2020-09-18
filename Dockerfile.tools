@@ -9,6 +9,8 @@ COPY config/tls/devlocal-mtls.key /bin/config/tls/devlocal-mtls.key
 
 # Specify testdata needed for integration tests
 COPY pkg/testdatagen/testdata/test.pdf /bin/pkg/testdatagen/testdata/test.pdf
+COPY pkg/testdatagen/testdata/test.jpg /bin/pkg/testdatagen/testdata/test.jpg
+COPY pkg/testdatagen/testdata/test.png /bin/pkg/testdatagen/testdata/test.png
 COPY pkg/testdatagen/testdata/update_mto_shipment.json /bin/pkg/testdatagen/testdata/update_mto_shipment.json
 
 # Install tools needed in container

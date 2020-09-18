@@ -2753,9 +2753,6 @@ func init() {
     "PaymentRequest": {
       "type": "object",
       "properties": {
-        "documentPackage": {
-          "$ref": "#/definitions/ProofOfServicePackage"
-        },
         "eTag": {
           "type": "string"
         },
@@ -2778,6 +2775,9 @@ func init() {
           "type": "string",
           "readOnly": true,
           "example": "1234-5678-1"
+        },
+        "proofOfServiceDocs": {
+          "$ref": "#/definitions/ProofOfServiceDocs"
         },
         "rejectionReason": {
           "type": "string",
@@ -2912,6 +2912,22 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/PaymentServiceItem"
+      }
+    },
+    "ProofOfServiceDoc": {
+      "properties": {
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Upload"
+          }
+        }
+      }
+    },
+    "ProofOfServiceDocs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ProofOfServiceDoc"
       }
     },
     "ProofOfServicePackage": {
@@ -6379,9 +6395,6 @@ func init() {
     "PaymentRequest": {
       "type": "object",
       "properties": {
-        "documentPackage": {
-          "$ref": "#/definitions/ProofOfServicePackage"
-        },
         "eTag": {
           "type": "string"
         },
@@ -6404,6 +6417,9 @@ func init() {
           "type": "string",
           "readOnly": true,
           "example": "1234-5678-1"
+        },
+        "proofOfServiceDocs": {
+          "$ref": "#/definitions/ProofOfServiceDocs"
         },
         "rejectionReason": {
           "type": "string",
@@ -6538,6 +6554,22 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/PaymentServiceItem"
+      }
+    },
+    "ProofOfServiceDoc": {
+      "properties": {
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Upload"
+          }
+        }
+      }
+    },
+    "ProofOfServiceDocs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ProofOfServiceDoc"
       }
     },
     "ProofOfServicePackage": {
