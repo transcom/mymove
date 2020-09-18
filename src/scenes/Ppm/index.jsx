@@ -78,14 +78,15 @@ export class PpmLanding extends Component {
   };
 
   resumeMove = () => {
-    this.props.push(this.getNextIncompletePage());
+    const excludeHomePage = true;
+    this.props.push(this.getNextIncompletePage(excludeHomePage));
   };
 
   reviewProfile = () => {
     this.props.push('profile-review');
   };
 
-  getNextIncompletePage = () => {
+  getNextIncompletePage = (excludeHomePage) => {
     const {
       selectedMoveType,
       lastMoveIsCanceled,
@@ -107,6 +108,7 @@ export class PpmLanding extends Component {
       ppm,
       backupContacts,
       context,
+      excludeHomePage,
     });
   };
   render() {

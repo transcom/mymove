@@ -256,7 +256,9 @@ export const getNextIncompletePage = ({
   mtoShipment = {},
   backupContacts = [],
   context = {},
+  excludeHomePage = false,
 }) => {
+  excludeHomePage && delete pages['/'];
   const rawPath = findKey(
     pages,
     (p) =>
