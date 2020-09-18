@@ -16,13 +16,22 @@ info:
 basePath: /support/v1
 schemes:
   - http
+tags:
+  - name: moveTaskOrder
+  - name: paymentRequests
+  - name: mtoServiceItem
+  - name: mtoShipment
+  - name: webhook
 paths:
   '/move-task-orders':
     get:
       summary: listMTOs
-      description: >
-        Gets all move task orders.
-        Provides all move task orders regardless of whether or not they have been made available to prime.
+      description: |
+        ### Functionality
+        This endpoint lists all MoveTaskOrders regardless of whether or not they have been made available to Prime.
+
+        It will provide nested information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.
+
       operationId: listMTOs
       tags:
         - moveTaskOrder
@@ -105,9 +114,12 @@ paths:
     get:
       summary: getMoveTaskOrder
       description: |
-        Gets an individual move task order by ID. <br />
-        <br />
-        This is a support endpoint and will not be available in production.
+        ### Functionality
+        This endpoint gets an individual MoveTaskOrder by ID.
+
+        It will provide nested information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.
+
+        This is a support endpoint and is not available in production.
       operationId: getMoveTaskOrder
       tags:
         - moveTaskOrder
@@ -179,8 +191,13 @@ paths:
   /move-task-orders/{moveTaskOrderID}/payment-requests:
     get:
       summary: listMTOPaymentRequests
-      description: >
-        Gets all payment requests for a given move task order
+      description: |
+        ### Functionality
+
+        This endpoint lists all PaymentRequests associated with a given MoveTaskOrder.
+
+        This is a support endpoint and is not available in production.
+
       operationId: listMTOPaymentRequests
       tags:
         - paymentRequests
@@ -220,9 +237,10 @@ paths:
       summary: updatePaymentRequestStatus
       description: |
         Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, or PAID.
-        A status of REVIEWED can optionally have a `rejectionReason`. <br />
-        <br />
-        This is a support endpoint and will not be available in production.
+
+        A status of REVIEWED can optionally have a `rejectionReason`.
+
+        This is a support endpoint and is not available in production.
       operationId: updatePaymentRequestStatus
       tags:
         - paymentRequests
@@ -653,7 +671,6 @@ definitions:
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         x-nullable: true
       currentAddress:
-        x-nullable: true
         $ref: '#/definitions/Address'
       id:
         type: string
@@ -816,7 +833,6 @@ definitions:
         description: Date that the service member must report to the new DutyStation by.
         type: string
         format: date
-        example: '2020-01-01'
       status:
         $ref: '#/definitions/OrdersStatus'
       uploadedOrders:
@@ -835,7 +851,6 @@ definitions:
         description: The date the orders were issued.
         type: string
         format: date
-        example: '2020-01-01'
       eTag:
         description: |
           Uniquely identifies the state of the MoveOrder object (but not the nested objects)
@@ -875,7 +890,6 @@ definitions:
         description: ID of the MoveOrder object
       moveOrder:
         $ref: '#/definitions/MoveOrder'
-        description: MoveOrder associated with this MoveTaskOrder.
       referenceId:
         example: 1001-3456
         type: string
@@ -937,7 +951,6 @@ definitions:
         readOnly: true
       status:
         $ref: '#/definitions/MoveStatus'
-        description: move status
       locator:
         description: Unique 6-character code the customer can use to refer to their move
         type: string
@@ -948,7 +961,7 @@ definitions:
     type: array
   MoveStatus:
     type: string
-    title: Move status
+    description: Current status of this MoveTaskOrder
     enum:
       - DRAFT
       - SUBMITTED
@@ -1125,16 +1138,12 @@ definitions:
         type: integer
         example: 4500
       pickupAddress:
-        x-nullabe: true
         $ref: '#/definitions/Address'
       destinationAddress:
-        x-nullabe: true
         $ref: '#/definitions/Address'
       secondaryPickupAddress:
-        x-nullabe: true
         $ref: '#/definitions/Address'
       secondaryDeliveryAddress:
-        x-nullabe: true
         $ref: '#/definitions/Address'
       customerRemarks:
         type: string

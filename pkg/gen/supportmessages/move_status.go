@@ -14,7 +14,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MoveStatus Move status
+// MoveStatus Current status of this MoveTaskOrder
 // swagger:model MoveStatus
 type MoveStatus string
 
