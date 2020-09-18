@@ -1354,6 +1354,25 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		Move: mto7,
 	})
 
+	// for soft deleted proof of service docs
+	proofOfService = testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
+		PaymentRequest: paymentRequest7,
+	})
+
+	deletedAt := time.Now()
+	testdatagen.MakePrimeUpload(db, testdatagen.Assertions{
+		PrimeUpload: models.PrimeUpload{
+			ID:                  uuid.FromStringOrNil("18413213-0aaf-4eb1-8d7f-1b557a4e425b"),
+			ProofOfServiceDoc:   proofOfService,
+			ProofOfServiceDocID: proofOfService.ID,
+			Contractor: models.Contractor{
+				ID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"), // Prime
+			},
+			ContractorID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"),
+			DeletedAt:    &deletedAt,
+		},
+	})
+
 	serviceItemMS7 := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			ID:     uuid.FromStringOrNil("923acbd4-5e65-4d62-aecc-19edf785df69"),
