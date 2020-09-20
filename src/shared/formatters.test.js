@@ -108,3 +108,17 @@ describe('toDollarString', () => {
     expect(formatters.toDollarString(1234.12)).toEqual('$1,234.12');
   });
 });
+
+describe('filenameFromPath', () => {
+  it('returns last portion of path with default delimiter', () => {
+    expect(formatters.filenameFromPath('/home/user/folder/.hidden/My Long Filename.sql')).toEqual(
+      'My Long Filename.sql',
+    );
+  });
+
+  it('returns original filename if no path is included', () => {
+    expect(formatters.filenameFromPath('Just-A-gnarly_filemame(0) DRAFT.v2.docx')).toEqual(
+      'Just-A-gnarly_filemame(0) DRAFT.v2.docx',
+    );
+  });
+});

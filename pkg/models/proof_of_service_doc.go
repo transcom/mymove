@@ -18,7 +18,7 @@ type ProofOfServiceDoc struct {
 
 	//Associations
 	PaymentRequest PaymentRequest `belongs_to:"payment_request"`
-	PrimeUploads   PrimeUploads   `has_many:"prime_uploads" order_by:"created_at asc"`
+	PrimeUploads   PrimeUploads   `has_many:"prime_uploads" fk_id:"proof_of_service_docs_id" order_by:"created_at asc"`
 }
 
 // ProofOfServiceDocs is not required by pop and may be deleted

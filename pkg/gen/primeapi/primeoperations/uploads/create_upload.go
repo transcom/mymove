@@ -33,7 +33,13 @@ func NewCreateUpload(ctx *middleware.Context, handler CreateUploadHandler) *Crea
 
 createUpload
 
-Uploads represent a single digital file, such as a JPEG, PNG, or PDF.
+### Functionality
+This endpoint **uploads** a Proof of Service document for a PaymentRequest.
+
+The PaymentRequest should already exist.
+
+PaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.
+
 
 */
 type CreateUpload struct {

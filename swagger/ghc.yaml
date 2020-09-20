@@ -1311,6 +1311,22 @@ definitions:
       - city
       - state
       - postal_code
+  BackupContact:
+    type: object
+    properties:
+      name:
+        type: string
+        x-nullable: true
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        x-nullable: true
+      phone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
   Customer:
     type: object
     properties:
@@ -1336,6 +1352,9 @@ definitions:
       current_address:
         x-nullable: true
         $ref: '#/definitions/Address'
+      backup_contact:
+        x-nullable: true
+        $ref: '#/definitions/BackupContact'
       id:
         type: string
         format: uuid
@@ -1717,8 +1736,8 @@ definitions:
     type: object
   PaymentRequest:
     properties:
-      documentPackage:
-        $ref: '#/definitions/ProofOfServicePackage'
+      proofOfServiceDocs:
+        $ref: '#/definitions/ProofOfServiceDocs'
       id:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -1996,6 +2015,16 @@ definitions:
           $ref: '#/definitions/Upload'
         type: array
     type: object
+  ProofOfServiceDocs:
+    items:
+      $ref: '#/definitions/ProofOfServiceDoc'
+    type: array
+  ProofOfServiceDoc:
+    properties:
+      uploads:
+        items:
+          $ref: '#/definitions/Upload'
+        type: array
   MTOShipment:
     properties:
       moveTaskOrderID:

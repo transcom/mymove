@@ -59,7 +59,7 @@ type MoveTaskOrder struct {
 	// Unique 6-character code the customer can use to refer to their move
 	Locator string `json:"locator,omitempty"`
 
-	// MoveOrder associated with this MoveTaskOrder.
+	// move order
 	// Required: true
 	MoveOrder *MoveOrder `json:"moveOrder"`
 
@@ -89,7 +89,7 @@ type MoveTaskOrder struct {
 	//
 	ReferenceID string `json:"referenceId,omitempty"`
 
-	// move status
+	// status
 	Status MoveStatus `json:"status,omitempty"`
 
 	// Date on which this MoveTaskOrder was last updated.

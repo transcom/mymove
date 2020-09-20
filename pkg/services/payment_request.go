@@ -23,7 +23,7 @@ type PaymentRequestListFetcher interface {
 // PaymentRequestFetcher is the exported interface for fetching a payment request
 //go:generate mockery -name PaymentRequestFetcher
 type PaymentRequestFetcher interface {
-	FetchPaymentRequest(filters []QueryFilter) (models.PaymentRequest, error)
+	FetchPaymentRequest(paymentRequestID uuid.UUID) (models.PaymentRequest, error)
 }
 
 // PaymentRequestStatusUpdater is the exported interface for updating the status of a payment request

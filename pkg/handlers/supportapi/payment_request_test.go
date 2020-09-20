@@ -44,7 +44,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		handler := UpdatePaymentRequestStatusHandler{
 			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
-			PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(queryBuilder),
+			PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(suite.DB()),
 		}
 
 		response := handler.Handle(params)
@@ -77,7 +77,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		handler := UpdatePaymentRequestStatusHandler{
 			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
-			PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(queryBuilder),
+			PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(suite.DB()),
 		}
 		traceID, err := uuid.NewV4()
 		suite.FatalNoError(err, "Error creating a new trace ID.")

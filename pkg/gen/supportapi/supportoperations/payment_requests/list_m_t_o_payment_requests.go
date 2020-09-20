@@ -33,7 +33,11 @@ func NewListMTOPaymentRequests(ctx *middleware.Context, handler ListMTOPaymentRe
 
 listMTOPaymentRequests
 
-Gets all payment requests for a given move task order
+### Functionality
+
+This endpoint lists all PaymentRequests associated with a given MoveTaskOrder.
+
+This is a support endpoint and is not available in production.
 
 
 */

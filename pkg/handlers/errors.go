@@ -59,6 +59,9 @@ const InternalServerErrDetail string = "An internal server error has occurred"
 // NotImplementedErrMessage indicates an endpoint has not been implemented
 const NotImplementedErrMessage string = "Not Implemented"
 
+// NotImplementedErrDetail indicates an endpoint has not been implemented
+const NotImplementedErrDetail string = "This feature is in development"
+
 // UnsupportedMediaTypeErrMessage indicates the server does not accept the media type sent
 const UnsupportedMediaTypeErrMessage string = "Unsupported Media Type"
 

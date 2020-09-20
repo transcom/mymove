@@ -83,7 +83,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/post-counseling-info": {
       "patch": {
-        "description": "Updates move task order after the counseling stage. Allows update of fields ppmType and ppmEstimatedWeight.",
+        "description": "### Functionality\nThis endpoint **updates** the MoveTaskOrder after the Prime has completed Counseling.\n\nPPM related information is updated here. Most other fields will be found on the specific MTOShipment and updated using [updateMTOShipment](#operation/updateMTOShipment).\n",
         "consumes": [
           "application/json"
         ],
@@ -190,7 +190,6 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "description": "This may be a MTOServiceItemBasic, MTOServiceItemDOFSIT or etc.",
               "$ref": "#/definitions/MTOServiceItem"
             }
           }
@@ -346,7 +345,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/addresses/{addressID}": {
       "put": {
-        "description": "### Functionality\nThis endpoint is used to **update** the addresses on an MTO Shipment. The address details completely replace the original, except for the UUID.\nTherefore a complete address should be sent in the request.\n\nThis endpoint **cannot create** an address.\nTo create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.\n\n### Errors:\nThe address must be associated with the mtoShipment passed in the url.\nIn other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress on the mtoShipment provided.\nIf it is not, caller will receive a **Conflict** Error.\n\nThe mtoShipment should be associated with an MTO that is available to prime.\nIf the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.\n",
+        "description": "### Functionality\nThis endpoint is used to **update** the addresses on an MTO Shipment. The address details completely replace the original, except for the UUID.\nTherefore a complete address should be sent in the request.\n\nThis endpoint **cannot create** an address.\nTo create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.\n\n### Errors\nThe address must be associated with the mtoShipment passed in the url.\nIn other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress on the mtoShipment provided.\nIf it is not, caller will receive a **Conflict** Error.\n\nThe mtoShipment should be associated with an MTO that is available to prime.\nIf the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.\n",
         "consumes": [
           "application/json"
         ],
@@ -502,6 +501,9 @@ func init() {
           },
           "500": {
             "$ref": "#/responses/ServerError"
+          },
+          "501": {
+            "$ref": "#/responses/NotImplemented"
           }
         }
       }
@@ -565,7 +567,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/uploads": {
       "post": {
-        "description": "Uploads represent a single digital file, such as a JPEG, PNG, or PDF.",
+        "description": "### Functionality\nThis endpoint **uploads** a Proof of Service document for a PaymentRequest.\n\nThe PaymentRequest should already exist.\n\nPaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.\n",
         "consumes": [
           "multipart/form-data"
         ],
@@ -1254,7 +1256,7 @@ func init() {
               "type": "string",
               "format": "zip",
               "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
-              "example": 90210
+              "example": "90210"
             },
             "reServiceCode": {
               "description": "Service code allowed for this model type.",
@@ -1810,7 +1812,7 @@ func init() {
         },
         "value": {
           "type": "string",
-          "example": 3025
+          "example": "3025"
         }
       }
     },
@@ -2104,6 +2106,12 @@ func init() {
         "$ref": "#/definitions/ClientError"
       }
     },
+    "NotImplemented": {
+      "description": "The requested feature is still in development.",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
     "PermissionDenied": {
       "description": "The request was denied.",
       "schema": {
@@ -2128,7 +2136,24 @@ func init() {
         "$ref": "#/definitions/ValidationError"
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "moveTaskOrder"
+    },
+    {
+      "name": "mtoShipment"
+    },
+    {
+      "name": "paymentRequests"
+    },
+    {
+      "name": "uploads"
+    },
+    {
+      "name": "mtoServiceItem"
+    }
+  ]
 }`))
 	FlatSwaggerJSON = json.RawMessage([]byte(`{
   "schemes": [
@@ -2211,7 +2236,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/post-counseling-info": {
       "patch": {
-        "description": "Updates move task order after the counseling stage. Allows update of fields ppmType and ppmEstimatedWeight.",
+        "description": "### Functionality\nThis endpoint **updates** the MoveTaskOrder after the Prime has completed Counseling.\n\nPPM related information is updated here. Most other fields will be found on the specific MTOShipment and updated using [updateMTOShipment](#operation/updateMTOShipment).\n",
         "consumes": [
           "application/json"
         ],
@@ -2336,7 +2361,6 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "description": "This may be a MTOServiceItemBasic, MTOServiceItemDOFSIT or etc.",
               "$ref": "#/definitions/MTOServiceItem"
             }
           }
@@ -2546,7 +2570,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/addresses/{addressID}": {
       "put": {
-        "description": "### Functionality\nThis endpoint is used to **update** the addresses on an MTO Shipment. The address details completely replace the original, except for the UUID.\nTherefore a complete address should be sent in the request.\n\nThis endpoint **cannot create** an address.\nTo create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.\n\n### Errors:\nThe address must be associated with the mtoShipment passed in the url.\nIn other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress on the mtoShipment provided.\nIf it is not, caller will receive a **Conflict** Error.\n\nThe mtoShipment should be associated with an MTO that is available to prime.\nIf the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.\n",
+        "description": "### Functionality\nThis endpoint is used to **update** the addresses on an MTO Shipment. The address details completely replace the original, except for the UUID.\nTherefore a complete address should be sent in the request.\n\nThis endpoint **cannot create** an address.\nTo create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.\n\n### Errors\nThe address must be associated with the mtoShipment passed in the url.\nIn other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress on the mtoShipment provided.\nIf it is not, caller will receive a **Conflict** Error.\n\nThe mtoShipment should be associated with an MTO that is available to prime.\nIf the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.\n",
         "consumes": [
           "application/json"
         ],
@@ -2750,6 +2774,12 @@ func init() {
             "schema": {
               "$ref": "#/definitions/Error"
             }
+          },
+          "501": {
+            "description": "The requested feature is still in development.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           }
         }
       }
@@ -2825,7 +2855,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/uploads": {
       "post": {
-        "description": "Uploads represent a single digital file, such as a JPEG, PNG, or PDF.",
+        "description": "### Functionality\nThis endpoint **uploads** a Proof of Service document for a PaymentRequest.\n\nThe PaymentRequest should already exist.\n\nPaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.\n",
         "consumes": [
           "multipart/form-data"
         ],
@@ -3532,7 +3562,7 @@ func init() {
               "type": "string",
               "format": "zip",
               "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
-              "example": 90210
+              "example": "90210"
             },
             "reServiceCode": {
               "description": "Service code allowed for this model type.",
@@ -4088,7 +4118,7 @@ func init() {
         },
         "value": {
           "type": "string",
-          "example": 3025
+          "example": "3025"
         }
       }
     },
@@ -4382,6 +4412,12 @@ func init() {
         "$ref": "#/definitions/ClientError"
       }
     },
+    "NotImplemented": {
+      "description": "The requested feature is still in development.",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
     "PermissionDenied": {
       "description": "The request was denied.",
       "schema": {
@@ -4406,6 +4442,23 @@ func init() {
         "$ref": "#/definitions/ValidationError"
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "moveTaskOrder"
+    },
+    {
+      "name": "mtoShipment"
+    },
+    {
+      "name": "paymentRequests"
+    },
+    {
+      "name": "uploads"
+    },
+    {
+      "name": "mtoServiceItem"
+    }
+  ]
 }`))
 }

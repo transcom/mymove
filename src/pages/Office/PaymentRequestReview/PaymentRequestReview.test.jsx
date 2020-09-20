@@ -4,6 +4,36 @@ import { mount } from 'enzyme';
 
 import { PaymentRequestReview } from './PaymentRequestReview';
 
+const mockPDFUpload = {
+  contentType: 'application/pdf',
+  createdAt: '2020-09-17T16:00:48.099137Z',
+  filename: 'test.pdf',
+  id: '10',
+  status: 'PROCESSING',
+  updatedAt: '2020-09-17T16:00:48.099142Z',
+  url: '/storage/prime/99/uploads/10?contentType=application%2Fpdf',
+};
+
+const mockJPGUpload = {
+  contentType: 'image/jpg',
+  createdAt: '2020-09-17T16:00:48.099137Z',
+  filename: 'test.jpg',
+  id: '11',
+  status: 'PROCESSING',
+  updatedAt: '11',
+  url: '/storage/prime/99/uploads/10?contentType=image%2Fjpeg',
+};
+
+const mockPNGUpload = {
+  contentType: 'image/png',
+  createdAt: '2020-09-17T16:00:48.099137Z',
+  filename: 'test.png',
+  id: '11',
+  status: 'PROCESSING',
+  updatedAt: '11',
+  url: '/storage/prime/99/uploads/10?contentType=image%2Fpng',
+};
+
 jest.mock('hooks/queries', () => ({
   usePaymentRequestQueries: () => {
     const testPaymentRequestId = 'test-payment-id-123';
@@ -11,6 +41,14 @@ jest.mock('hooks/queries', () => ({
       paymentRequest: {
         id: testPaymentRequestId,
         moveTaskOrderID: '123',
+        proofOfServiceDocs: [
+          {
+            uploads: [mockPDFUpload],
+          },
+          {
+            uploads: [mockJPGUpload, mockPNGUpload],
+          },
+        ],
       },
       paymentRequests: {
         [testPaymentRequestId]: {
@@ -100,7 +138,9 @@ describe('PaymentRequestReview', () => {
     });
 
     it('renders the DocumentViewer', () => {
-      expect(wrapper.find('DocumentViewer').exists()).toBe(true);
+      const documentViewer = wrapper.find('DocumentViewer');
+      expect(documentViewer.exists()).toBe(true);
+      expect(documentViewer.prop('files')).toEqual([mockPDFUpload, mockJPGUpload, mockPNGUpload]);
     });
 
     it('renders the ReviewServiceItems sidebar', () => {

@@ -408,3 +408,47 @@ func (o *UpdateMTOAgentInternalServerError) WriteResponse(rw http.ResponseWriter
 		}
 	}
 }
+
+// UpdateMTOAgentNotImplementedCode is the HTTP code returned for type UpdateMTOAgentNotImplemented
+const UpdateMTOAgentNotImplementedCode int = 501
+
+/*UpdateMTOAgentNotImplemented The requested feature is still in development.
+
+swagger:response updateMTOAgentNotImplemented
+*/
+type UpdateMTOAgentNotImplemented struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *primemessages.Error `json:"body,omitempty"`
+}
+
+// NewUpdateMTOAgentNotImplemented creates UpdateMTOAgentNotImplemented with default headers values
+func NewUpdateMTOAgentNotImplemented() *UpdateMTOAgentNotImplemented {
+
+	return &UpdateMTOAgentNotImplemented{}
+}
+
+// WithPayload adds the payload to the update m t o agent not implemented response
+func (o *UpdateMTOAgentNotImplemented) WithPayload(payload *primemessages.Error) *UpdateMTOAgentNotImplemented {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update m t o agent not implemented response
+func (o *UpdateMTOAgentNotImplemented) SetPayload(payload *primemessages.Error) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *UpdateMTOAgentNotImplemented) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(501)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
