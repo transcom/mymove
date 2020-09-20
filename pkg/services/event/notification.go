@@ -1,6 +1,7 @@
 package event
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"go.uber.org/zap"
@@ -9,6 +10,7 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -99,9 +101,8 @@ func assembleMTOShipmentPayload(db *pop.Connection, updatedObjectID uuid.UUID) (
 // assembleMTOServiceItemPayload assembles the MTOServiceItem Payload and returns the JSON in bytes
 func assembleMTOServiceItemPayload(db *pop.Connection, updatedObjectID uuid.UUID) ([]byte, error) {
 	model := models.MTOServiceItem{}
-
 	// Important to be specific about which addl associations to load to reduce DB hits
-	err := db.Find(&model, updatedObjectID.String())
+	err := db.Eager("ReService", "Dimensions", "CustomerContacts").Find(&model, updatedObjectID)
 
 	if err != nil {
 		notFoundError := services.NewNotFoundError(updatedObjectID, "looking for MTOServiceItem")
@@ -109,9 +110,14 @@ func assembleMTOServiceItemPayload(db *pop.Connection, updatedObjectID uuid.UUID
 		return nil, notFoundError
 	}
 
-	// TODO: This should convert the model to payload and then return the bytes
-	// Payload should contain customer contacts and dimensions as well
-	return model.ID.Bytes(), nil
+	payload := payloads.MTOServiceItem(&model)
+	payloadArray, err := json.Marshal(payload)
+	if err != nil {
+		unknownErr := services.NewEventError("Unknown error creating payload", err)
+		return nil, unknownErr
+	}
+
+	return payloadArray, nil
 
 }
 
@@ -144,7 +150,6 @@ func assemblePaymentRequestPayload(db *pop.Connection, updatedObjectID uuid.UUID
 // Returns bool indicating whether notification was stored, and error if there was one
 // encountered.
 func objectEventHandler(event *Event, modelBeingUpdated interface{}) (bool, error) {
-
 	db := event.DBConnection
 
 	// CHECK SOURCE
@@ -191,9 +196,9 @@ func objectEventHandler(event *Event, modelBeingUpdated interface{}) (bool, erro
 // NotificationEventHandler receives notifications from the events package
 // For alerting ALL errors should be logged here.
 func NotificationEventHandler(event *Event) error {
-
 	//Get the model type of the updated logical object
 	modelBeingUpdated, err := GetModelFromEvent(event.EventKey)
+
 	if err != nil {
 		event.logger.Error("event.NotificationEventHandler: EventKey does not exist.")
 		return err
