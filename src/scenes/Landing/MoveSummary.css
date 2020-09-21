@@ -107,9 +107,24 @@ a {
 }
 
 .ppm-panel .shipment_type {
-  background-color: #E1F2F8;
+  background-color: #e1f2f8;
 }
 
 .ppm-panel .shipment_box_contents {
-  background-color: #F5FBFD;
+  background-color: #f5fbfd;
+}
+
+.st-wrapper {
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  .st-wrapper {
+    width: 100vw;
+    max-width: 100vw;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
 }
