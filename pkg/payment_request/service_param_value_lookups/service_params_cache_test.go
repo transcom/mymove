@@ -4,7 +4,6 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/gobuffalo/pop"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -24,13 +23,10 @@ const (
 
 var csAvailableToPrimeAt = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
 
- */
-
+*/
 
 func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 	// Create some records we'll need to link to
-
-	pop.Debug = true
 
 	moveTaskOrder := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
 
@@ -49,27 +45,26 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 
 	reService1 := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
-			Code:      "DLH",
+			Code: "DLH",
 		},
 	})
 
 	reService2 := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
-			Code:      "DOP",
+			Code: "DOP",
 		},
 	})
 
 	mtoServiceItem1 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: moveTaskOrder,
-		ReService: reService1,
-		MTOShipment: mtoShipment1,
+		ReService:     reService1,
+		MTOShipment:   mtoShipment1,
 	})
 	mtoServiceItem2 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: moveTaskOrder,
-		ReService: reService2,
-		MTOShipment: mtoShipment1,
+		ReService:     reService2,
+		MTOShipment:   mtoShipment1,
 	})
-
 
 	mtoShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: moveTaskOrder})
@@ -131,24 +126,23 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 		},
 	})
 
-
 	paramCache := ServiceParamsCache{}
 	paramCache.Initialize(suite.DB())
 
 	paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem1.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, &paramCache)
 
-	suite.T().Run("Shipment 1 " + serviceItemParamKey1.Key.String(), func(t *testing.T) {
-		distanceStr, err := paramLookup.ServiceParamValue(serviceItemParamKey1.Key.String())
+	suite.T().Run("Shipment 1 "+serviceItemParamKey1.Key.String(), func(t *testing.T) {
+		estimatedWeightStr, err := paramLookup.ServiceParamValue(serviceItemParamKey1.Key.String())
 		suite.FatalNoError(err)
-		expected := strconv.Itoa(defaultDistance)
-		suite.Equal(expected, distanceStr)
+		expected := strconv.Itoa(estimatedWeight.Int())
+		suite.Equal(expected, estimatedWeightStr)
 	})
 
-	suite.T().Run("Shipment 1 " + serviceItemParamKey2.Key.String(), func(t *testing.T) {
-		distanceStr, err := paramLookup.ServiceParamValue(serviceItemParamKey2.Key.String())
+	suite.T().Run("Shipment 1 "+serviceItemParamKey2.Key.String(), func(t *testing.T) {
+		expectedRequestedPickupDate := mtoShipment1.RequestedPickupDate.String()[:10]
+		requestedPickupDateStr, err := paramLookup.ServiceParamValue(serviceItemParamKey2.Key.String())
 		suite.FatalNoError(err)
-		expected := strconv.Itoa(defaultDistance)
-		suite.Equal(expected, distanceStr)
+		suite.Equal(expectedRequestedPickupDate, requestedPickupDateStr)
 	})
 
 }
@@ -293,4 +287,4 @@ func (suite *ServiceParamValueLookupsSuite) setupPaymentServiceItemWithParams(se
 	return paymentServiceItem
 }
 
- */
+*/

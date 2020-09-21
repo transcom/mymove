@@ -95,10 +95,10 @@ func (spc *ServiceParamsCache) setNeedsParamKeyMap(code models.ReServiceCode) er
 		SELECT key FROM service_item_param_keys
 		LEFT JOIN service_params sp on service_item_param_keys.id = sp.service_item_param_key_id
 		LEFT JOIN re_services rs on sp.service_id = rs.id
-		WHERE rs.code = $1'
+		WHERE rs.code = $1
     `
 		codeStr := string(code)
-		err := spc.db.RawQuery(query, codeStr).All(paramKeys)
+		err := spc.db.RawQuery(query, codeStr).All(&paramKeys)
 		if err != nil {
 			return err
 		}
