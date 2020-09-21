@@ -407,7 +407,7 @@ func (g GHCPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 		}
 		// TODO: add another n9 for SIT
 
-		// Determine the correct params to use based off of the particular service item
+		// Determine the correct params to use based off of the particular ReService code
 		serviceCode := serviceItem.MTOServiceItem.ReService.Code
 		switch serviceCode {
 		case models.ReServiceCodeCS, models.ReServiceCodeMS:
