@@ -112,4 +112,7 @@
   .shipment_box_contents .status_timeline {
     @include u-font-size('body', '2xs');
   }
+  .shipment_box_contents {
+    padding: 0;
+  }
 }

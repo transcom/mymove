@@ -122,9 +122,14 @@ a {
   .st-wrapper {
     width: 100vw;
     max-width: 100vw;
-    margin-left: 0;
+    min-width: 320px;
+    margin-left: -1.06667rem;
     margin-right: 0;
-    padding-left: 0;
-    padding-right: 0;
+  }
+  .shipment_box_contents {
+    padding: 0;
+  }
+  .shipment_type {
+    font-size: 1em;
   }
 }
