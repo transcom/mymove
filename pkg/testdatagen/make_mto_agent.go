@@ -10,7 +10,7 @@ import (
 // MakeMTOAgent creates a single MTOAgent and associated MTOShipment
 func MakeMTOAgent(db *pop.Connection, assertions Assertions) models.MTOAgent {
 	var mtoShipmentID uuid.UUID
-	mtoShipment := assertions.MTOAgent.MTOShipment
+	mtoShipment := assertions.MTOShipment
 
 	if isZeroUUID(assertions.MTOAgent.MTOShipmentID) {
 		mtoShipment = MakeMTOShipment(db, assertions)
@@ -22,11 +22,6 @@ func MakeMTOAgent(db *pop.Connection, assertions Assertions) models.MTOAgent {
 	email := "jason.ash@gmail.com"
 	phone := "2025559301"
 
-	mtoAgentType := models.MTOAgentReleasing
-	if string(assertions.MTOAgent.MTOAgentType) != "" {
-		mtoAgentType = assertions.MTOAgent.MTOAgentType
-	}
-
 	MTOAgent := models.MTOAgent{
 		MTOShipment:   mtoShipment,
 		MTOShipmentID: mtoShipmentID,
@@ -34,7 +29,7 @@ func MakeMTOAgent(db *pop.Connection, assertions Assertions) models.MTOAgent {
 		LastName:      &lastName,
 		Email:         &email,
 		Phone:         &phone,
-		MTOAgentType:  mtoAgentType,
+		MTOAgentType:  models.MTOAgentReleasing,
 	}
 
 	mergeModels(&MTOAgent, assertions.MTOAgent)
