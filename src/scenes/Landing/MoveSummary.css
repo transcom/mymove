@@ -118,6 +118,10 @@ a {
   width: 100%;
 }
 
+button.usa-button--secondary {
+  margin-left: 0;
+}
+
 @media (max-width: 600px) {
   .st-wrapper {
     width: 100vw;
@@ -134,8 +138,5 @@ a {
   }
   a.usa-button {
     margin-left: 16px;
-  }
-  button.usa-button--secondary {
-    margin-left: 0;
   }
 }
