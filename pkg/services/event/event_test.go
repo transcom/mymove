@@ -235,6 +235,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemEventTrigger() {
 
 	// Test successful event passing with Support API
 	suite.T().Run("Success with GHC ServiceItem endpoint", func(t *testing.T) {
+		count, _ := suite.DB().Count(&models.WebhookNotification{})
 
 		_, err := TriggerEvent(Event{
 			EventKey:        MTOServiceItemCreateEventKey,
@@ -245,9 +246,10 @@ func (suite *EventServiceSuite) Test_MTOServiceItemEventTrigger() {
 			HandlerContext:  handler,
 			DBConnection:    suite.DB(),
 		})
-		// TODO: Once proper payload is generated this should not return error
-		suite.Error(err)
-		// TODO: Add sandy's webhook notification check
+
+		suite.Nil(err)
+		newCount, _ := suite.DB().Count(&models.WebhookNotification{})
+		suite.Equal(count+1, newCount)
 
 	})
 }

@@ -136,8 +136,8 @@ export class PpmSummaryComponent extends React.Component {
             )}
           </div>
         </div>
-        <div className="grid-row grid-gap">
-          <div className="tablet:grid-col-9 grid-col-12">
+        <div className="grid-row">
+          <div className="st-wrapper tablet:grid-col-9 grid-col-12">
             <PPMComponent
               className="status-component"
               ppm={ppm}
@@ -154,7 +154,7 @@ export class PpmSummaryComponent extends React.Component {
             />
           </div>
 
-          <div className="sidebar tablet:grid-col-3 grid-col-12">
+          <div className="sidebar tablet:grid-col-3 grid-col-12 tablet:padding-left-3">
             <div>
               <button
                 className="usa-button usa-button--secondary"
