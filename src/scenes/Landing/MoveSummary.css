@@ -132,4 +132,10 @@ a {
   .shipment_type {
     font-size: 1em;
   }
+  a.usa-button {
+    margin-left: 16px;
+  }
+  button.usa-button--secondary {
+    margin-left: 0;
+  }
 }

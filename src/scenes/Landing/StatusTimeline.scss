@@ -100,6 +100,10 @@
   line-height: 1.25;
 }
 
+.shipment_box_contents {
+  padding: 0;
+}
+
 .status_timeline .legend {
   font-style: italic;
   color: #999;
@@ -108,11 +112,13 @@
   left: 1rem;
 }
 
+a.usa-button {
+  margin-left: 16px;
+  max-width: 90%;
+}
+
 @include at-media(tablet) {
   .shipment_box_contents .status_timeline {
     @include u-font-size('body', '2xs');
-  }
-  .shipment_box_contents {
-    padding: 0;
   }
 }
