@@ -83,7 +83,7 @@ commands:
           name: 'Setting up AWS environment variables for exp env'
           command: |
             echo "export AWS_DEFAULT_REGION=$EXP_REGION" >> $BASH_ENV
-            echo "export DB_REGION=$EXP_REGION >> $$BASH_ENV"
+            echo "export DB_REGION=$EXP_REGION" >> $BASH_ENV
             echo "export AWS_ACCOUNT_ID=$EXP_ACCOUNT_ID" >> $BASH_ENV
             echo "export AWS_ACCESS_KEY_ID=$EXP_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$EXP_SECRET_ACCESS_KEY" >> $BASH_ENV
@@ -94,7 +94,7 @@ commands:
           name: 'Setting up AWS environment variables for stg env'
           command: |
             echo "export AWS_DEFAULT_REGION=$STG_REGION" >> $BASH_ENV
-            echo "export DB_REGION=$STG_REGION >> $$BASH_ENV"
+            echo "export DB_REGION=$STG_REGION" >> $BASH_ENV
             echo "export AWS_ACCOUNT_ID=$STG_ACCOUNT_ID" >> $BASH_ENV
             echo "export AWS_ACCESS_KEY_ID=$STG_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$STG_SECRET_ACCESS_KEY" >> $BASH_ENV
@@ -105,7 +105,7 @@ commands:
           name: 'Setting up AWS environment variables for prd env'
           command: |
             echo "export AWS_DEFAULT_REGION=$PRD_REGION" >> $BASH_ENV
-            echo "export DB_REGION=$PRD_REGION >> $$BASH_ENV"
+            echo "export DB_REGION=$PRD_REGION" >> $BASH_ENV
             echo "export AWS_ACCOUNT_ID=$PRD_ACCOUNT_ID" >> $BASH_ENV
             echo "export AWS_ACCESS_KEY_ID=$PRD_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$PRD_SECRET_ACCESS_KEY" >> $BASH_ENV
@@ -113,7 +113,7 @@ commands:
   aws_vars_transcom_com_dev:
     steps:
       - run:
-          name: 'Setting up AWS environment variables for prd env'
+          name: 'Setting up AWS environment variables for com dev env'
           command: |
             echo "export AWS_DEFAULT_REGION=$COM_REGION" >> $BASH_ENV
             echo "export AWS_ACCOUNT_ID=$DEV_ACCOUNT_ID" >> $BASH_ENV
