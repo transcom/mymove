@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 
 import { AddressShape } from './address';
+import { BackupContactShape } from './backupContact';
 
 import dimensionTypes from 'constants/dimensionTypes';
 import customerContactTypes from 'constants/customerContactTypes';
@@ -44,6 +45,7 @@ export const MoveOrderShape = PropTypes.shape({
 });
 
 export const OrdersInfoShape = PropTypes.shape({
+  id: PropTypes.string,
   currentDutyStation: OriginDutyStationShape,
   newDutyStation: DestinationDutyStationShape,
   issuedDate: PropTypes.string,
@@ -64,6 +66,7 @@ export const CustomerShape = PropTypes.shape({
   phone: PropTypes.string,
   email: PropTypes.string,
   current_address: AddressShape,
+  backup_contact: BackupContactShape,
 });
 
 export const MTOShipmentShape = PropTypes.shape({

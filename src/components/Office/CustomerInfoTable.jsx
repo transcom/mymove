@@ -2,6 +2,8 @@ import React from 'react';
 import * as PropTypes from 'prop-types';
 import { get } from 'lodash';
 
+import { BackupContactShape } from 'types/backupContact';
+
 const CustomerInfoTable = ({ customerInfo }) => {
   return (
     <div>
@@ -55,19 +57,21 @@ const CustomerInfoTable = ({ customerInfo }) => {
             <th scope="row" className="text-bold">
               Backup contact name
             </th>
-            <td data-testid="backupContactName">{customerInfo.backupContactName}</td>
-          </tr>
-          <tr>
-            <th scope="row" className="text-bold">
-              Backup contact phone
-            </th>
-            <td data-testid="backupContactPhone">{customerInfo.backupContactPhone}</td>
+            <td data-testid="backupContactName">{customerInfo.backupContact?.name}</td>
           </tr>
           <tr>
             <th scope="row" className="text-bold">
               Backup contact email
             </th>
-            <td data-testid="backupContactEmail">{customerInfo.backupContactEmail}</td>
+            <td data-testid="backupContactEmail">{customerInfo.backupContact?.email}</td>
+          </tr>
+          <tr>
+            <th scope="row" className="text-bold">
+              Backup contact phone
+            </th>
+            <td data-testid="backupContactPhone">
+              {customerInfo.backupContact?.phone ? `+1 ${customerInfo.backupContact.phone}` : ''}
+            </td>
           </tr>
         </tbody>
       </table>
@@ -87,9 +91,7 @@ CustomerInfoTable.propTypes = {
       state: PropTypes.string,
       postal_code: PropTypes.string,
     }),
-    backupContactName: PropTypes.string,
-    backupContactPhone: PropTypes.string,
-    backupContactEmail: PropTypes.string,
+    backupContact: BackupContactShape,
   }).isRequired,
 };
 

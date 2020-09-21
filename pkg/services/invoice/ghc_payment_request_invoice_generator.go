@@ -132,7 +132,7 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		Where("sipk.key = ?", models.ServiceItemParamNameContractCode).
 		First(&contractCodeServiceItemParam)
 	if err != nil {
-		return ediinvoice.Invoice858C{}, err
+		return ediinvoice.Invoice858C{}, fmt.Errorf("Couldn't find contract code: %s", err)
 	}
 
 	contractCodeSegment := edisegment.N9{
@@ -144,7 +144,7 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	// Add service member details to header
 	serviceMemberSegments, err := g.createServiceMemberDetailSegments(paymentRequest.ID, moveTaskOrder.Orders.ServiceMember)
 	if err != nil {
-		return ediinvoice.Invoice858C{}, err
+		return ediinvoice.Invoice858C{}, fmt.Errorf("Could not create service: %s", err)
 	}
 	edi858.Header = append(edi858.Header, serviceMemberSegments...)
 
@@ -158,7 +158,7 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		Where("sipk.key = ?", models.ServiceItemParamNameRequestedPickupDate).
 		First(&requestedPickupDateParam)
 	if err != nil {
-		return ediinvoice.Invoice858C{}, err
+		return ediinvoice.Invoice858C{}, fmt.Errorf("Couldn't find requested pickup date: %s", err)
 	}
 
 	requestedPickupDateSegment := edisegment.G62{
@@ -364,10 +364,32 @@ func (g GHCPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(serviceI
 	return paymentServiceItemParam, nil
 }
 
+func (g GHCPaymentRequestInvoiceGenerator) getPaymentParamsForDefaultServiceItems(serviceItem models.PaymentServiceItem) (float64, float64, error) {
+	// TODO: update to have a case statement as different service items may or may not have weight
+	// and the distance key can differ (zip3 v zip5, and distances for SIT)
+	weight, err := g.fetchPaymentServiceItemParam(serviceItem.ID, models.ServiceItemParamNameWeightBilledActual)
+	if err != nil {
+		return 0, 0, err
+	}
+	weightFloat, err := strconv.ParseFloat(weight.Value, 64)
+	if err != nil {
+		return 0, 0, fmt.Errorf("Could not parse weight for PaymentServiceItem %s: %w", serviceItem.ID, err)
+	}
+	distance, err := g.fetchPaymentServiceItemParam(serviceItem.ID, models.ServiceItemParamNameDistanceZip3)
+	if err != nil {
+		return 0, 0, err
+	}
+	distanceFloat, err := strconv.ParseFloat(distance.Value, 64)
+	if err != nil {
+		return 0, 0, fmt.Errorf("Could not parse Distance Zip3 for PaymentServiceItem %s: %w", serviceItem.ID, err)
+	}
+	return weightFloat, distanceFloat, nil
+}
+
 func (g GHCPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(paymentServiceItems models.PaymentServiceItems) ([]edisegment.Segment, error) {
 	//Initialize empty collection of segments
 	var segments []edisegment.Segment
-
+	var weightFloat, distanceFloat float64
 	// Iterate over payment service items
 	for idx, serviceItem := range paymentServiceItems {
 		hierarchicalIDNumber := idx + 1
@@ -383,40 +405,76 @@ func (g GHCPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 			// https://dp3.atlassian.net/browse/MB-3718
 			ReferenceIdentification: serviceItem.ID.String(),
 		}
-
 		// TODO: add another n9 for SIT
-		// TODO: add a L5 segment/definition
 
-		var weight models.PaymentServiceItemParam
-		// TODO: update to have a case statement as different service items may or may not have weight
-		// and the distance key can differ (zip3 v zip5, and distances for SIT)
-		weight, err := g.fetchPaymentServiceItemParam(serviceItem.ID, models.ServiceItemParamNameWeightBilledActual)
-		if err != nil {
-			return nil, err
-		}
-		weightFloat, err := strconv.ParseFloat(weight.Value, 64)
-		if err != nil {
-			return nil, fmt.Errorf("Could not parse weight for PaymentServiceItem %s: %w", serviceItem.ID, err)
-		}
-		distance, err := g.fetchPaymentServiceItemParam(serviceItem.ID, models.ServiceItemParamNameDistanceZip3)
-		if err != nil {
-			return nil, err
-		}
-		distanceFloat, err := strconv.ParseFloat(distance.Value, 64)
-		if err != nil {
-			return nil, fmt.Errorf("Could not parse Distance Zip3 for PaymentServiceItem %s: %w", serviceItem.ID, err)
+		// Determine the correct params to use based off of the particular service item
+		switch serviceItem.MTOServiceItem.ReService.Code {
+		case models.ReServiceCodeCS, models.ReServiceCodeMS:
+			l0Segment := edisegment.L0{
+				LadingLineItemNumber: hierarchicalIDNumber,
+			}
+
+			l3Segment := edisegment.L3{
+				PriceCents: serviceItem.PriceCents.Int64(),
+			}
+
+			segments = append(segments, &hlSegment, &n9Segment, &l0Segment, &l3Segment)
+
+		case models.ReServiceCodeDLH:
+			var err error
+			weightFloat, distanceFloat, err = g.getPaymentParamsForDefaultServiceItems(serviceItem)
+			if err != nil {
+				return segments, fmt.Errorf("Could not parse weight or distance for PaymentServiceItem %w", err)
+			}
+
+			l5Segment := edisegment.L5{
+				LadingLineItemNumber:   hierarchicalIDNumber,
+				LadingDescription:      "DLH - Domestic Line Haul",
+				CommodityCode:          "TBD",
+				CommodityCodeQualifier: "D",
+			}
+
+			l0Segment := edisegment.L0{
+				LadingLineItemNumber:   hierarchicalIDNumber,
+				BilledRatedAsQuantity:  distanceFloat,
+				BilledRatedAsQualifier: "DM",
+				Weight:                 weightFloat,
+				WeightQualifier:        "B",
+				WeightUnitCode:         "L",
+			}
+			l3Segment := edisegment.L3{
+				Weight:          weightFloat,
+				WeightQualifier: "B",
+				PriceCents:      serviceItem.PriceCents.Int64(),
+			}
+
+			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment, &l3Segment)
+
+		default:
+			var err error
+			weightFloat, distanceFloat, err = g.getPaymentParamsForDefaultServiceItems(serviceItem)
+			if err != nil {
+				return segments, fmt.Errorf("Could not parse weight or distance for PaymentServiceItem %w", err)
+			}
+
+			l0Segment := edisegment.L0{
+				LadingLineItemNumber:   hierarchicalIDNumber,
+				BilledRatedAsQuantity:  distanceFloat,
+				BilledRatedAsQualifier: "DM",
+				Weight:                 weightFloat,
+				WeightQualifier:        "B",
+				WeightUnitCode:         "L",
+			}
+
+			l3Segment := edisegment.L3{
+				Weight:          weightFloat,
+				WeightQualifier: "B",
+				PriceCents:      serviceItem.PriceCents.Int64(),
+			}
+
+			segments = append(segments, &hlSegment, &n9Segment, &l0Segment, &l3Segment)
 		}
 
-		l0Segment := edisegment.L0{
-			LadingLineItemNumber:   hierarchicalIDNumber,
-			BilledRatedAsQuantity:  distanceFloat,
-			BilledRatedAsQualifier: "DM",
-			Weight:                 weightFloat,
-			WeightQualifier:        "B",
-			WeightUnitCode:         "L",
-		}
-
-		segments = append(segments, &hlSegment, &n9Segment, &l0Segment)
 	}
 
 	return segments, nil

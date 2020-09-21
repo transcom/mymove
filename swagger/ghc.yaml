@@ -136,6 +136,53 @@ paths:
         required: true
         type: string
         format: uuid
+    patch:
+      summary: Updates a move order
+      description: All fields sent in this request will be set on the move order referenced
+      operationId: updateMoveOrder
+      tags:
+        - moveOrder
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateMoveOrderPayload'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: updated instance of orders
+          schema:
+            $ref: '#/definitions/MoveOrder'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was unauthenticated
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was unauthorized
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '412':
+          description: Precondition failed
+          schema:
+            $ref: '#/responses/PreconditionFailed'
+        '500':
+          description: internal server error
     get:
       produces:
         - application/json
@@ -1264,6 +1311,22 @@ definitions:
       - city
       - state
       - postal_code
+  BackupContact:
+    type: object
+    properties:
+      name:
+        type: string
+        x-nullable: true
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        x-nullable: true
+      phone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
   Customer:
     type: object
     properties:
@@ -1289,6 +1352,9 @@ definitions:
       current_address:
         x-nullable: true
         $ref: '#/definitions/Address'
+      backup_contact:
+        x-nullable: true
+        $ref: '#/definitions/BackupContact'
       id:
         type: string
         format: uuid
@@ -1503,9 +1569,72 @@ definitions:
         title: SAC
         example: 'N002214CSW32Y9'
         x-nullable: true
+      has_dependents:
+        type: boolean
+        example: false
+        title: Are dependents included in your orders?
+      spouse_has_pro_gear:
+        type: boolean
+        example: false
+        title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
       eTag:
         type: string
     type: object
+  UpdateMoveOrderPayload:
+    type: object
+    properties:
+      issueDate:
+        type: string
+        description: The date and time that these orders were cut.
+        format: date
+        example: '2018-04-26'
+        title: Orders date
+      reportByDate:
+        type: string
+        description: Report By Date
+        format: date
+        example: '2018-04-26'
+        title: Report-by date
+      ordersType:
+        $ref: '#/definitions/OrdersType'
+      ordersTypeDetail:
+        $ref: '#/definitions/OrdersTypeDetail'
+      originDutyStationId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      newDutyStationId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      ordersNumber:
+        type: string
+        title: Orders Number
+        x-nullable: true
+        example: '030-00362'
+      tac:
+        type: string
+        title: TAC
+        example: 'F8J1'
+        x-nullable: true
+      sac:
+        type: string
+        title: SAC
+        example: 'N002214CSW32Y9'
+        x-nullable: true
+      departmentIndicator:
+        $ref: '#/definitions/DeptIndicator'
+    required:
+      - issueDate
+      - reportByDate
+      - ordersType
+      - ordersTypeDetail
+      - newDutyStationId
+      - originDutyStationId
+      - ordersNumber
+      - tac
+      - sac
+      - departmentIndicator
   MoveTaskOrder:
     properties:
       id:
@@ -1607,8 +1736,8 @@ definitions:
     type: object
   PaymentRequest:
     properties:
-      documentPackage:
-        $ref: '#/definitions/ProofOfServicePackage'
+      proofOfServiceDocs:
+        $ref: '#/definitions/ProofOfServiceDocs'
       id:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -1886,6 +2015,16 @@ definitions:
           $ref: '#/definitions/Upload'
         type: array
     type: object
+  ProofOfServiceDocs:
+    items:
+      $ref: '#/definitions/ProofOfServiceDoc'
+    type: array
+  ProofOfServiceDoc:
+    properties:
+      uploads:
+        items:
+          $ref: '#/definitions/Upload'
+        type: array
   MTOShipment:
     properties:
       moveTaskOrderID:

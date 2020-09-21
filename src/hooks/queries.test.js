@@ -174,6 +174,12 @@ describe('useOrdersDocumentQueries', () => {
     const { result, waitForNextUpdate } = renderHook(() => useOrdersDocumentQueries(testMoveOrderId));
 
     expect(result.current).toEqual({
+      moveOrders: {
+        a1b2: {
+          id: 'a1b2',
+          uploaded_order_id: '2',
+        },
+      },
       documents: undefined,
       upload: undefined,
       isLoading: true,
@@ -184,6 +190,12 @@ describe('useOrdersDocumentQueries', () => {
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
+      moveOrders: {
+        a1b2: {
+          id: 'a1b2',
+          uploaded_order_id: '2',
+        },
+      },
       documents: {
         2: {
           id: '2',

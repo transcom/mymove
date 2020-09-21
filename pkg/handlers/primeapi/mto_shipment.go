@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
+
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 
 	"github.com/go-openapi/strfmt"
@@ -19,7 +21,6 @@ import (
 
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/handlers/primeapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/services"
 )
 

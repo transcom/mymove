@@ -14,9 +14,11 @@ const info = {
     state: 'TX',
     postal_code: '78234',
   },
-  backupContactName: 'Quinn Ocampo',
-  backupContactPhone: '+1 999-999-9999',
-  backupContactEmail: 'quinnocampo@myemail.com',
+  backupContact: {
+    name: 'Quinn Ocampo',
+    email: 'quinnocampo@myemail.com',
+    phone: '+1 999-999-9999',
+  },
 };
 
 describe('Customer Info Table', () => {
@@ -29,8 +31,8 @@ describe('Customer Info Table', () => {
     expect(wrapper.find({ 'data-testid': 'currentAddress' }).text()).toMatch(
       `${info.currentAddress.street_address_1}, ${info.currentAddress.city}, ${info.currentAddress.state} ${info.currentAddress.postal_code}`,
     );
-    expect(wrapper.find({ 'data-testid': 'backupContactName' }).text()).toMatch(info.backupContactName);
-    expect(wrapper.find({ 'data-testid': 'backupContactPhone' }).text()).toMatch(info.backupContactPhone);
-    expect(wrapper.find({ 'data-testid': 'backupContactEmail' }).text()).toMatch(info.backupContactEmail);
+    expect(wrapper.find({ 'data-testid': 'backupContactName' }).text()).toMatch(info.backupContact.name);
+    expect(wrapper.find({ 'data-testid': 'backupContactPhone' }).text()).toMatch(info.backupContact.phone);
+    expect(wrapper.find({ 'data-testid': 'backupContactEmail' }).text()).toMatch(info.backupContact.email);
   });
 });

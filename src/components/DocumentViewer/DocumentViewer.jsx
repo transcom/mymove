@@ -8,6 +8,7 @@ import Menu from './Menu/Menu';
 
 import { ReactComponent as ExternalLink } from 'shared/icon/external-link.svg';
 import { ReactComponent as DocMenu } from 'shared/icon/doc-menu.svg';
+import { filenameFromPath } from 'shared/formatters';
 
 /**
  * TODO
@@ -18,22 +19,40 @@ import { ReactComponent as DocMenu } from 'shared/icon/doc-menu.svg';
  */
 
 const DocumentViewer = ({ files }) => {
-  // TODO - show msg if there are no files
   const [selectedFileIndex, selectFile] = useState(0);
   const [menuIsOpen, setMenuOpen] = useState(false);
 
   const selectedFile = files[parseInt(selectedFileIndex, 10)];
-  if (selectedFile.contentType === 'application/pdf') {
-    selectedFile.contentType = 'pdf';
+
+  if (!selectedFile) {
+    return (
+      <>
+        <h2>File Not Found</h2>
+      </>
+    );
   }
-  if (selectedFile.contentType === 'image/png') {
-    selectedFile.contentType = 'png';
-  }
-  if (selectedFile.contentType === 'image/jpeg') {
-    selectedFile.contentType = 'jpg';
-  }
-  if (selectedFile.contentType === 'image/gif') {
-    selectedFile.contentType = 'gif';
+
+  let fileType = selectedFile.contentType;
+  switch (selectedFile.contentType) {
+    case 'application/pdf': {
+      fileType = 'pdf';
+      break;
+    }
+    case 'image/png': {
+      fileType = 'png';
+      break;
+    }
+    case 'image/jpeg': {
+      fileType = 'jpg';
+      break;
+    }
+    case 'image/gif': {
+      fileType = 'gif';
+      break;
+    }
+    // eslint-disable-next-line no-empty
+    default: {
+    }
   }
 
   const openMenu = () => {
@@ -58,14 +77,14 @@ const DocumentViewer = ({ files }) => {
           <DocMenu />
         </Button>
 
-        <p>{selectedFile.filename}</p>
+        <p>{filenameFromPath(selectedFile.filename)}</p>
         {/* TODO */}
         <Button type="button" unstyled onClick={openInNewWindow}>
           <span>Open in a new window</span>
           <ExternalLink />
         </Button>
       </div>
-      <Content fileType={selectedFile.contentType} filePath={selectedFile.url} />
+      <Content fileType={fileType} filePath={selectedFile.url} />
       {menuIsOpen && <div className={styles.overlay} />}
       <Menu
         isOpen={menuIsOpen}

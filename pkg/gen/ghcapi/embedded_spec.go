@@ -268,6 +268,77 @@ func init() {
           }
         }
       },
+      "patch": {
+        "description": "All fields sent in this request will be set on the move order referenced",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveOrder"
+        ],
+        "summary": "Updates a move order",
+        "operationId": "updateMoveOrder",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateMoveOrderPayload"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated instance of orders",
+            "schema": {
+              "$ref": "#/definitions/MoveOrder"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was unauthenticated",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was unauthorized",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/responses/PreconditionFailed"
+            }
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      },
       "parameters": [
         {
           "type": "string",
@@ -1779,6 +1850,27 @@ func init() {
         }
       }
     },
+    "BackupContact": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
+        "name": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        }
+      }
+    },
     "ClientError": {
       "type": "object",
       "required": [
@@ -1805,6 +1897,10 @@ func init() {
         "agency": {
           "type": "string",
           "title": "Agency customer is affilated with"
+        },
+        "backup_contact": {
+          "x-nullable": true,
+          "$ref": "#/definitions/BackupContact"
         },
         "current_address": {
           "x-nullable": true,
@@ -2444,6 +2540,11 @@ func init() {
           "type": "string",
           "example": "E_1"
         },
+        "has_dependents": {
+          "type": "boolean",
+          "title": "Are dependents included in your orders?",
+          "example": false
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -2484,6 +2585,11 @@ func init() {
           "title": "SAC",
           "x-nullable": true,
           "example": "N002214CSW32Y9"
+        },
+        "spouse_has_pro_gear": {
+          "type": "boolean",
+          "title": "Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?",
+          "example": false
         },
         "tac": {
           "type": "string",
@@ -2647,9 +2753,6 @@ func init() {
     "PaymentRequest": {
       "type": "object",
       "properties": {
-        "documentPackage": {
-          "$ref": "#/definitions/ProofOfServicePackage"
-        },
         "eTag": {
           "type": "string"
         },
@@ -2672,6 +2775,9 @@ func init() {
           "type": "string",
           "readOnly": true,
           "example": "1234-5678-1"
+        },
+        "proofOfServiceDocs": {
+          "$ref": "#/definitions/ProofOfServiceDocs"
         },
         "rejectionReason": {
           "type": "string",
@@ -2806,6 +2912,22 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/PaymentServiceItem"
+      }
+    },
+    "ProofOfServiceDoc": {
+      "properties": {
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Upload"
+          }
+        }
+      }
+    },
+    "ProofOfServiceDocs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ProofOfServiceDoc"
       }
     },
     "ProofOfServicePackage": {
@@ -2984,6 +3106,74 @@ func init() {
         "TIMESTAMP",
         "PaymentServiceItemUUID"
       ]
+    },
+    "UpdateMoveOrderPayload": {
+      "type": "object",
+      "required": [
+        "issueDate",
+        "reportByDate",
+        "ordersType",
+        "ordersTypeDetail",
+        "newDutyStationId",
+        "originDutyStationId",
+        "ordersNumber",
+        "tac",
+        "sac",
+        "departmentIndicator"
+      ],
+      "properties": {
+        "departmentIndicator": {
+          "$ref": "#/definitions/DeptIndicator"
+        },
+        "issueDate": {
+          "description": "The date and time that these orders were cut.",
+          "type": "string",
+          "format": "date",
+          "title": "Orders date",
+          "example": "2018-04-26"
+        },
+        "newDutyStationId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ordersNumber": {
+          "type": "string",
+          "title": "Orders Number",
+          "x-nullable": true,
+          "example": "030-00362"
+        },
+        "ordersType": {
+          "$ref": "#/definitions/OrdersType"
+        },
+        "ordersTypeDetail": {
+          "$ref": "#/definitions/OrdersTypeDetail"
+        },
+        "originDutyStationId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "reportByDate": {
+          "description": "Report By Date",
+          "type": "string",
+          "format": "date",
+          "title": "Report-by date",
+          "example": "2018-04-26"
+        },
+        "sac": {
+          "type": "string",
+          "title": "SAC",
+          "x-nullable": true,
+          "example": "N002214CSW32Y9"
+        },
+        "tac": {
+          "type": "string",
+          "title": "TAC",
+          "x-nullable": true,
+          "example": "F8J1"
+        }
+      }
     },
     "UpdatePaymentRequestPayload": {
       "type": "object",
@@ -3444,6 +3634,92 @@ func init() {
                 "$ref": "#/definitions/Error"
               }
             }
+          }
+        }
+      },
+      "patch": {
+        "description": "All fields sent in this request will be set on the move order referenced",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveOrder"
+        ],
+        "summary": "Updates a move order",
+        "operationId": "updateMoveOrder",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateMoveOrderPayload"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated instance of orders",
+            "schema": {
+              "$ref": "#/definitions/MoveOrder"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was unauthenticated",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was unauthorized",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "description": "Precondition failed",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "internal server error"
           }
         }
       },
@@ -5216,6 +5492,27 @@ func init() {
         }
       }
     },
+    "BackupContact": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
+        "name": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        }
+      }
+    },
     "ClientError": {
       "type": "object",
       "required": [
@@ -5242,6 +5539,10 @@ func init() {
         "agency": {
           "type": "string",
           "title": "Agency customer is affilated with"
+        },
+        "backup_contact": {
+          "x-nullable": true,
+          "$ref": "#/definitions/BackupContact"
         },
         "current_address": {
           "x-nullable": true,
@@ -5881,6 +6182,11 @@ func init() {
           "type": "string",
           "example": "E_1"
         },
+        "has_dependents": {
+          "type": "boolean",
+          "title": "Are dependents included in your orders?",
+          "example": false
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -5921,6 +6227,11 @@ func init() {
           "title": "SAC",
           "x-nullable": true,
           "example": "N002214CSW32Y9"
+        },
+        "spouse_has_pro_gear": {
+          "type": "boolean",
+          "title": "Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?",
+          "example": false
         },
         "tac": {
           "type": "string",
@@ -6084,9 +6395,6 @@ func init() {
     "PaymentRequest": {
       "type": "object",
       "properties": {
-        "documentPackage": {
-          "$ref": "#/definitions/ProofOfServicePackage"
-        },
         "eTag": {
           "type": "string"
         },
@@ -6109,6 +6417,9 @@ func init() {
           "type": "string",
           "readOnly": true,
           "example": "1234-5678-1"
+        },
+        "proofOfServiceDocs": {
+          "$ref": "#/definitions/ProofOfServiceDocs"
         },
         "rejectionReason": {
           "type": "string",
@@ -6243,6 +6554,22 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/PaymentServiceItem"
+      }
+    },
+    "ProofOfServiceDoc": {
+      "properties": {
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Upload"
+          }
+        }
+      }
+    },
+    "ProofOfServiceDocs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ProofOfServiceDoc"
       }
     },
     "ProofOfServicePackage": {
@@ -6421,6 +6748,74 @@ func init() {
         "TIMESTAMP",
         "PaymentServiceItemUUID"
       ]
+    },
+    "UpdateMoveOrderPayload": {
+      "type": "object",
+      "required": [
+        "issueDate",
+        "reportByDate",
+        "ordersType",
+        "ordersTypeDetail",
+        "newDutyStationId",
+        "originDutyStationId",
+        "ordersNumber",
+        "tac",
+        "sac",
+        "departmentIndicator"
+      ],
+      "properties": {
+        "departmentIndicator": {
+          "$ref": "#/definitions/DeptIndicator"
+        },
+        "issueDate": {
+          "description": "The date and time that these orders were cut.",
+          "type": "string",
+          "format": "date",
+          "title": "Orders date",
+          "example": "2018-04-26"
+        },
+        "newDutyStationId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ordersNumber": {
+          "type": "string",
+          "title": "Orders Number",
+          "x-nullable": true,
+          "example": "030-00362"
+        },
+        "ordersType": {
+          "$ref": "#/definitions/OrdersType"
+        },
+        "ordersTypeDetail": {
+          "$ref": "#/definitions/OrdersTypeDetail"
+        },
+        "originDutyStationId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "reportByDate": {
+          "description": "Report By Date",
+          "type": "string",
+          "format": "date",
+          "title": "Report-by date",
+          "example": "2018-04-26"
+        },
+        "sac": {
+          "type": "string",
+          "title": "SAC",
+          "x-nullable": true,
+          "example": "N002214CSW32Y9"
+        },
+        "tac": {
+          "type": "string",
+          "title": "TAC",
+          "x-nullable": true,
+          "example": "F8J1"
+        }
+      }
     },
     "UpdatePaymentRequestPayload": {
       "type": "object",

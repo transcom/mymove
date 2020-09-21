@@ -50,6 +50,9 @@ type MoveOrder struct {
 	// grade
 	Grade string `json:"grade,omitempty"`
 
+	// Are dependents included in your orders?
+	HasDependents bool `json:"has_dependents,omitempty"`
+
 	// id
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
@@ -80,6 +83,9 @@ type MoveOrder struct {
 
 	// SAC
 	Sac *string `json:"sac,omitempty"`
+
+	// Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
+	SpouseHasProGear bool `json:"spouse_has_pro_gear,omitempty"`
 
 	// TAC
 	Tac *string `json:"tac,omitempty"`

@@ -63,9 +63,9 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 	}
 
 	orderTypeDetail := assertions.Order.OrdersTypeDetail
-	tbdString := internalmessages.OrdersTypeDetail("TBD")
+	hhgPermittedString := internalmessages.OrdersTypeDetail("HHG_PERMITTED")
 	if orderTypeDetail == nil || *orderTypeDetail == "" {
-		orderTypeDetail = &tbdString
+		orderTypeDetail = &hhgPermittedString
 	}
 
 	order := models.Order{
