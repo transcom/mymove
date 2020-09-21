@@ -12,7 +12,7 @@ import styles from './Home.module.scss';
 import { withContext } from 'shared/AppContext';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
 import Alert from 'shared/Alert';
-import PpmAlert from 'scenes/Ppm/PpmAlert';
+import PpmAlert from 'scenes/PpmLanding/PpmAlert';
 import SignIn from 'shared/User/SignIn';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Helper from 'components/Customer/Home/Helper';

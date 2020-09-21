@@ -17,7 +17,7 @@ import Alert from 'shared/Alert';
 import InfectedUpload from 'shared/Uploader/InfectedUpload';
 import ProcessingUpload from 'shared/Uploader/ProcessingUpload';
 import StyleGuide from 'scenes/StyleGuide';
-import PpmLanding from 'scenes/Ppm';
+import PpmLanding from 'scenes/PpmLanding';
 import Edit from 'scenes/Review/Edit';
 import EditProfile from 'scenes/Review/EditProfile';
 import EditBackupContact from 'scenes/Review/EditBackupContact';
