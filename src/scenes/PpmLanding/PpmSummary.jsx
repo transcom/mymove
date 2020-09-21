@@ -9,11 +9,11 @@ import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { calcNetWeight } from 'scenes/Moves/Ppm/utility';
 import { getPpmWeightEstimate } from 'shared/Entities/modules/ppms';
 
-import ApprovedMoveSummary from 'scenes/Ppm/MoveSummary/ApprovedMoveSummary';
-import CanceledMoveSummary from 'scenes/Ppm/MoveSummary/CanceledMoveSummary';
-import DraftMoveSummary from 'scenes/Ppm/MoveSummary/DraftMoveSummary';
-import PaymentRequestedSummary from 'scenes/Ppm/MoveSummary/PaymentRequestedSummary';
-import SubmittedPpmMoveSummary from 'scenes/Ppm/MoveSummary/SubmittedPpmMoveSummary';
+import ApprovedMoveSummary from 'scenes/PpmLanding/MoveSummary/ApprovedMoveSummary';
+import CanceledMoveSummary from 'scenes/PpmLanding/MoveSummary/CanceledMoveSummary';
+import DraftMoveSummary from 'scenes/PpmLanding/MoveSummary/DraftMoveSummary';
+import PaymentRequestedSummary from 'scenes/PpmLanding/MoveSummary/PaymentRequestedSummary';
+import SubmittedPpmMoveSummary from 'scenes/PpmLanding/MoveSummary/SubmittedPpmMoveSummary';
 
 import './PpmSummary.css';
 

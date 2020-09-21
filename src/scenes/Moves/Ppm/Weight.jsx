@@ -25,7 +25,7 @@ import RangeSlider from 'shared/RangeSlider';
 import { hasShortHaulError } from 'shared/incentive';
 import carGray from 'shared/icon/car-gray.svg';
 import trailerGray from 'shared/icon/trailer-gray.svg';
-import truckGray from 'shared/icon/truck-gray.svg';
+import truckGray from 'scenes/PpmLanding/MoveSummary/node_modules/shared/icon/truck-gray.svg';
 
 const WeightWizardForm = reduxifyWizardForm('weight-wizard-form');
 

@@ -2,7 +2,7 @@ import React from 'react';
 import moment from 'moment';
 import { withKnobs, boolean, text, date } from '@storybook/addon-knobs';
 
-import { StatusTimeline } from '../scenes/Ppm/StatusTimeline';
+import { StatusTimeline } from '../scenes/PpmLanding/StatusTimeline';
 
 const StatusTimelineCodes = {
   Submitted: 'SUBMITTED',
