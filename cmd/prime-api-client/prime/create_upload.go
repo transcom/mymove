@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/transcom/mymove/cmd/prime-api-client/utils"
-	"github.com/transcom/mymove/pkg/gen/primeclient/uploads"
+	paymentrequestclient "github.com/transcom/mymove/pkg/gen/primeclient/payment_request"
 )
 
 // InitCreatePaymentRequestUploadFlags initializes flags.
@@ -86,13 +86,13 @@ func CreatePaymentRequestUpload(cmd *cobra.Command, args []string) error {
 		logger.Fatal(fileErr)
 	}
 
-	params := uploads.CreateUploadParams{
+	params := paymentrequestclient.CreateUploadParams{
 		File:             file,
 		PaymentRequestID: paymentRequestID,
 	}
 	params.SetTimeout(time.Second * 30)
 
-	resp, errCreatePaymentRequestUpload := primeGateway.Uploads.CreateUpload(&params)
+	resp, errCreatePaymentRequestUpload := primeGateway.PaymentRequest.CreateUpload(&params)
 	if errCreatePaymentRequestUpload != nil {
 		// If the response cannot be parsed as JSON you may see an error like
 		// is not supported by the TextConsumer, can be resolved by supporting TextUnmarshaler interface

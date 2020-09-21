@@ -518,7 +518,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests"
+          "paymentRequest"
         ],
         "summary": "createPaymentRequest",
         "operationId": "createPaymentRequest",
@@ -575,7 +575,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "uploads"
+          "paymentRequest"
         ],
         "summary": "createUpload",
         "operationId": "createUpload",
@@ -2130,10 +2130,7 @@ func init() {
       "name": "mtoShipment"
     },
     {
-      "name": "paymentRequests"
-    },
-    {
-      "name": "uploads"
+      "name": "paymentRequest"
     },
     {
       "name": "mtoServiceItem"
@@ -2779,7 +2776,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests"
+          "paymentRequest"
         ],
         "summary": "createPaymentRequest",
         "operationId": "createPaymentRequest",
@@ -2848,7 +2845,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "uploads"
+          "paymentRequest"
         ],
         "summary": "createUpload",
         "operationId": "createUpload",
@@ -4421,10 +4418,7 @@ func init() {
       "name": "mtoShipment"
     },
     {
-      "name": "paymentRequests"
-    },
-    {
-      "name": "uploads"
+      "name": "paymentRequest"
     },
     {
       "name": "mtoServiceItem"
