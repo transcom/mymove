@@ -613,7 +613,6 @@ jobs:
   acceptance_tests:
     executor: mymove_medium
     steps:
-      - aws_vars_legacy
       - checkout
       - restore_cache:
           keys:
@@ -643,6 +642,7 @@ jobs:
             MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
             NO_TLS_ENABLED: true
             PWD: /home/circleci/transcom/mymove
+      - aws_vars_exp
       - run:
           name: Run exp acceptance tests
           command: make acceptance_test
@@ -657,6 +657,7 @@ jobs:
             NO_TLS_ENABLED: true
             PWD: /home/circleci/transcom/mymove
             TEST_ACC_ENV: exp
+      - aws_vars_stg
       - run:
           name: Run stg acceptance tests
           command: make acceptance_test
