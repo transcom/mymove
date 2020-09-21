@@ -11,6 +11,22 @@ const defaultProps = {
   serviceMember: {
     current_station: {},
   },
+  showLoggedInUser: jest.fn(),
+  createServiceMember: jest.fn(),
+  loadPpms: jest.fn(),
+  mtoShipment: {},
+  isLoggedIn: true,
+  loggedInUserIsLoading: false,
+  loggedInUserSuccess: true,
+  loggedInUserError: false,
+  isProfileComplete: true,
+  moveSubmitSuccess: false,
+  ppm: {},
+  loadMTOShipments: jest.fn(),
+  orders: {},
+  history: {},
+  location: {},
+  move: {},
 };
 
 function mountHome(props = defaultProps) {
