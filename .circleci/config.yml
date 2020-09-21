@@ -72,6 +72,7 @@ commands:
           name: 'Setting up AWS environment variables for legacy env'
           command: |
             echo "export AWS_DEFAULT_REGION=$LEGACY_REGION" >> $BASH_ENV
+            echo "export AWS_DB_REGION=$LEGACY_REGION" >> $BASH_ENV
             echo "export AWS_ACCOUNT_ID=$LEGACY_ACCOUNT_ID" >> $BASH_ENV
             echo "export AWS_ACCESS_KEY_ID=$LEGACY_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$LEGACY_SECRET_ACCESS_KEY" >> $BASH_ENV
@@ -82,6 +83,7 @@ commands:
           name: 'Setting up AWS environment variables for exp env'
           command: |
             echo "export AWS_DEFAULT_REGION=$EXP_REGION" >> $BASH_ENV
+            echo "export DB_REGION=$EXP_REGION >> $$BASH_ENV"
             echo "export AWS_ACCOUNT_ID=$EXP_ACCOUNT_ID" >> $BASH_ENV
             echo "export AWS_ACCESS_KEY_ID=$EXP_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$EXP_SECRET_ACCESS_KEY" >> $BASH_ENV
@@ -92,6 +94,7 @@ commands:
           name: 'Setting up AWS environment variables for stg env'
           command: |
             echo "export AWS_DEFAULT_REGION=$STG_REGION" >> $BASH_ENV
+            echo "export DB_REGION=$STG_REGION >> $$BASH_ENV"
             echo "export AWS_ACCOUNT_ID=$STG_ACCOUNT_ID" >> $BASH_ENV
             echo "export AWS_ACCESS_KEY_ID=$STG_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$STG_SECRET_ACCESS_KEY" >> $BASH_ENV
@@ -102,6 +105,7 @@ commands:
           name: 'Setting up AWS environment variables for prd env'
           command: |
             echo "export AWS_DEFAULT_REGION=$PRD_REGION" >> $BASH_ENV
+            echo "export DB_REGION=$PRD_REGION >> $$BASH_ENV"
             echo "export AWS_ACCOUNT_ID=$PRD_ACCOUNT_ID" >> $BASH_ENV
             echo "export AWS_ACCESS_KEY_ID=$PRD_ACCESS_KEY_ID" >> $BASH_ENV
             echo "export AWS_SECRET_ACCESS_KEY=$PRD_SECRET_ACCESS_KEY" >> $BASH_ENV
@@ -648,7 +652,6 @@ jobs:
           command: make acceptance_test
           environment:
             CHAMBER_RETRIES: 20
-            DB_REGION: us-west-2
             DB_RETRY_INTERVAL: 5s
             DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
             DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
@@ -663,7 +666,6 @@ jobs:
           command: make acceptance_test
           environment:
             CHAMBER_RETRIES: 20
-            DB_REGION: us-west-2
             DB_RETRY_INTERVAL: 5s
             DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
             DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
