@@ -25,11 +25,18 @@ const DocViewerMenu = ({ isOpen, files, handleClose, selectedFileIndex, handleSe
         const itemClasses = classnames(styles.menuItemBtn, {
           [styles.active]: i === selectedFileIndex,
         });
+        const filename = filenameFromPath(file.filename);
         return (
           // eslint-disable-next-line react/no-array-index-key
           <li key={`menu_file_${i}`}>
-            <Button unstyled className={itemClasses} type="button" onClick={() => handleSelectFile(i)}>
-              <p>{filenameFromPath(file.filename)}</p>
+            <Button
+              data-message={filename}
+              unstyled
+              className={itemClasses}
+              type="button"
+              onClick={() => handleSelectFile(i)}
+            >
+              <p title={filename}>{filename}</p>
             </Button>
           </li>
         );
