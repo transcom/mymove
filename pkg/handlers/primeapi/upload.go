@@ -24,8 +24,8 @@ func payloadForPaymentRequestUploadModel(u models.Upload) *primemessages.Upload 
 		Bytes:       &u.Bytes,
 		ContentType: &u.ContentType,
 		Filename:    &u.Filename,
-		CreatedAt:   (*strfmt.DateTime)(&u.CreatedAt),
-		UpdatedAt:   (*strfmt.DateTime)(&u.UpdatedAt),
+		CreatedAt:   (strfmt.DateTime)(u.CreatedAt),
+		UpdatedAt:   (strfmt.DateTime)(u.UpdatedAt),
 	}
 }
 

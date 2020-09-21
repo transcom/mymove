@@ -2012,23 +2012,6 @@ func init() {
         "PaymentServiceItemUUID"
       ]
     },
-    "UpdatePaymentRequestStatus": {
-      "type": "object",
-      "properties": {
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "rejectionReason": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "documentation was incomplete"
-        },
-        "status": {
-          "$ref": "#/definitions/PaymentRequestStatus"
-        }
-      }
-    },
     "Upload": {
       "type": "object",
       "required": [
@@ -2049,7 +2032,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "filename": {
           "type": "string",
@@ -2057,7 +2041,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -4318,23 +4303,6 @@ func init() {
         "PaymentServiceItemUUID"
       ]
     },
-    "UpdatePaymentRequestStatus": {
-      "type": "object",
-      "properties": {
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "rejectionReason": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "documentation was incomplete"
-        },
-        "status": {
-          "$ref": "#/definitions/PaymentRequestStatus"
-        }
-      }
-    },
     "Upload": {
       "type": "object",
       "required": [
@@ -4355,7 +4323,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "filename": {
           "type": "string",
@@ -4363,7 +4332,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
