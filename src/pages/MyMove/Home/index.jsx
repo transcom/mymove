@@ -391,15 +391,12 @@ class Home extends Component {
                   onActionBtnClick={() => this.handleNewPathClick(confirmationPath)}
                   step="4"
                 >
-                  <p className={styles.description}>
-                    {this.hasSubmittedMove
-                      ? 'Move submitted.'
-                      : 'Review your move details and sign the legal paperwork, then send the info on to your move counselor.'}
-                  </p>
-                  {this.hasSubmittedMove && (
+                  {this.hasSubmittedMove ? (
+                    <Description>Move submitted.</Description>
+                  ) : (
                     <Description>
                       Review your move details and sign the legal paperwork, then send the info on to your move
-                      counselor
+                      counselor.
                     </Description>
                   )}
                 </Step>
