@@ -7,8 +7,8 @@ import (
 
 // L5 represents the L5 EDI segment
 type L5 struct {
-	LadingLineItemNumber   int `validate:"min=1,max=999"`
-	LadingDescription      string
+	LadingLineItemNumber   int    `validate:"min=1,max=999"`
+	LadingDescription      string `validate:"required"`
 	CommodityCode          string `validate:"required_with=CommodityCodeQualifier,omitempty,gt=0,lt=11"`
 	CommodityCodeQualifier string `validate:"required_with=CommodityCode,omitempty,eq=D"`
 }
