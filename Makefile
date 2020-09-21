@@ -866,16 +866,6 @@ run_gov_staging_migrations: bin/milmove db_deployed_migrations_reset ## Run GovC
 	DB_DEBUG=0 \
 	aws-vault exec transcom-gov-milmove-stg -- bin/milmove migrate
 
-.PHONY: run_com_staging_migrations
-run_com_staging_migrations: bin/milmove db_deployed_migrations_reset ## Run Commercial Staging migrations against Deployed Migrations DB
-	@echo "Migrating the staging-migrations database with staging migrations..."
-	MIGRATION_PATH="s3://transcom-ppp-app-staging-us-west-2/secure-migrations;file://migrations/$(APPLICATION)/schema" \
-	DB_HOST=localhost \
-	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
-	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
-	DB_DEBUG=0 \
-	bin/milmove migrate
-
 .PHONY: run_experimental_migrations
 run_experimental_migrations: run_gov_experimental_migrations
 

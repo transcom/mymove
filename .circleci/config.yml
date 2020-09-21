@@ -644,7 +644,7 @@ jobs:
             NO_TLS_ENABLED: true
             PWD: /home/circleci/transcom/mymove
       - run:
-          name: Run Experimental acceptance tests
+          name: Run exp acceptance tests
           command: make acceptance_test
           environment:
             CHAMBER_RETRIES: 20
@@ -653,12 +653,12 @@ jobs:
             DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
             DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
             ENV: test
-            ENVIRONMENT: experimental
+            ENVIRONMENT: exp
             NO_TLS_ENABLED: true
             PWD: /home/circleci/transcom/mymove
-            TEST_ACC_ENV: experimental
+            TEST_ACC_ENV: exp
       - run:
-          name: Run Staging acceptance tests
+          name: Run stg acceptance tests
           command: make acceptance_test
           environment:
             CHAMBER_RETRIES: 20
@@ -667,10 +667,10 @@ jobs:
             DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
             DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
             ENV: test
-            ENVIRONMENT: staging
+            ENVIRONMENT: stg
             NO_TLS_ENABLED: true
             PWD: /home/circleci/transcom/mymove
-            TEST_ACC_ENV: staging
+            TEST_ACC_ENV: stg
       - run: echo "Prod acceptance tests are prohibited in CircleCI"
       - announce_failure
 
