@@ -246,7 +246,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests"
+          "paymentRequest"
         ],
         "summary": "listMTOPaymentRequests",
         "operationId": "listMTOPaymentRequests",
@@ -370,7 +370,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests"
+          "paymentRequest"
         ],
         "summary": "updatePaymentRequestStatus",
         "operationId": "updatePaymentRequestStatus",
@@ -1762,7 +1762,7 @@ func init() {
       "name": "moveTaskOrder"
     },
     {
-      "name": "paymentRequests"
+      "name": "paymentRequest"
     },
     {
       "name": "mtoServiceItem"
@@ -2073,7 +2073,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests"
+          "paymentRequest"
         ],
         "summary": "listMTOPaymentRequests",
         "operationId": "listMTOPaymentRequests",
@@ -2236,7 +2236,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests"
+          "paymentRequest"
         ],
         "summary": "updatePaymentRequestStatus",
         "operationId": "updatePaymentRequestStatus",
@@ -3673,7 +3673,7 @@ func init() {
       "name": "moveTaskOrder"
     },
     {
-      "name": "paymentRequests"
+      "name": "paymentRequest"
     },
     {
       "name": "mtoServiceItem"

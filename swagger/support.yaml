@@ -18,7 +18,7 @@ schemes:
   - http
 tags:
   - name: moveTaskOrder
-  - name: paymentRequests
+  - name: paymentRequest
   - name: mtoServiceItem
   - name: mtoShipment
   - name: webhook
@@ -200,7 +200,7 @@ paths:
 
       operationId: listMTOPaymentRequests
       tags:
-        - paymentRequests
+        - paymentRequest
       produces:
         - application/json
       parameters:
@@ -243,7 +243,7 @@ paths:
         This is a support endpoint and is not available in production.
       operationId: updatePaymentRequestStatus
       tags:
-        - paymentRequests
+        - paymentRequest
       consumes:
         - application/json
       produces:
