@@ -69,10 +69,10 @@ type MoveTaskOrder struct {
 
 	mtoServiceItemsField []MTOServiceItem
 
-	// array of MTOShipments associated with the MoveTaskOrder.
+	// mto shipments
 	MtoShipments MTOShipments `json:"mtoShipments,omitempty"`
 
-	// Array of PaymentRequests associated with this MoveTaskOrder.
+	// payment requests
 	PaymentRequests PaymentRequests `json:"paymentRequests,omitempty"`
 
 	// If the move is a PPM, this is the estimated weight in lbs.
