@@ -3,7 +3,7 @@ import React, { PureComponent } from 'react';
 import { filter, findLast } from 'lodash';
 
 import { displayDateRange } from 'shared/formatters';
-import './StatusTimeline.css';
+import './StatusTimeline.scss';
 
 function getCurrentStatus(statuses) {
   return findLast(statuses, function (status) {
