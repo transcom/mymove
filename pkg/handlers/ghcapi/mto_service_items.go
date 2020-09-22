@@ -104,6 +104,7 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemop.CreateMTOSer
 
 		return mtoserviceitemop.NewCreateMTOServiceItemInternalServerError()
 	}
+
 	_, err = event.TriggerEvent(event.Event{
 		EventKey:        event.MTOServiceItemCreateEventKey,
 		MtoID:           (*createdServiceItems)[0].MoveTaskOrderID,
@@ -114,7 +115,7 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemop.CreateMTOSer
 		HandlerContext:  h,
 	})
 	if err != nil {
-		logger.Error("primeapi.CreateMTOServiceItemHandler could not generate the event")
+		logger.Error("ghcapi.CreateMTOServiceItemHandler could not generate the event")
 	}
 	serviceItemsPayload := payloads.MTOServiceItemModels(*createdServiceItems)
 	return mtoserviceitemop.NewCreateMTOServiceItemCreated().WithPayload(serviceItemsPayload[0])
