@@ -43,7 +43,7 @@ const testTimeFormat = "1504"
 
 func (suite *GHCInvoiceSuite) AllGenerateEdiTest() {
 	currentTime := time.Now()
-	generator := GHCPaymentRequestInvoiceGenerator{DB: suite.DB()}
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB())
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 		{
 			Key:     models.ServiceItemParamNameContractCode,

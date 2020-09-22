@@ -15,7 +15,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/event"
-	"github.com/transcom/mymove/pkg/services/invoice"
 )
 
 // UpdatePaymentRequestStatusHandler updates payment requests status
@@ -172,6 +171,7 @@ func (h ListMTOPaymentRequestsHandler) Handle(params paymentrequestop.ListMTOPay
 type GetPaymentRequestEDIHandler struct {
 	handlers.HandlerContext
 	services.PaymentRequestFetcher
+	services.GHCPaymentRequestInvoiceGenerator
 }
 
 // Handle getting the EDI for a given payment request
@@ -194,8 +194,7 @@ func (h GetPaymentRequestEDIHandler) Handle(params paymentrequestop.GetPaymentRe
 	var payload supportmessages.PaymentRequestEDI
 	payload.ID = *handlers.FmtUUID(paymentRequestID)
 
-	generator := invoice.GHCPaymentRequestInvoiceGenerator{DB: h.DB()}
-	edi858c, err := generator.Generate(paymentRequest, false)
+	edi858c, err := h.GHCPaymentRequestInvoiceGenerator.Generate(paymentRequest, false)
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error generating EDI segments for payment request ID: %s: %s", paymentRequestID, err))
 		return paymentrequestop.NewGetPaymentRequestEDIInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
