@@ -21,6 +21,8 @@ import {
   selectMTOShipmentsByMoveId,
   loadMTOShipments as loadMTOShipmentsAction,
 } from 'shared/Entities/modules/mtoShipments';
+import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const Description = ({ children }) => <p className={styles.description}>{children}</p>;
 
@@ -43,9 +45,9 @@ class Home extends Component {
   }
 
   get hasShipment() {
-    const { shipments } = this.props;
+    const { mtoShipments, currentPPM } = this.props;
     // TODO: check for PPM when PPM is integrated
-    return this.hasOrders && !!shipments.length;
+    return (this.hasOrders && !!mtoShipments.length) || Object.keys(currentPPM).length;
   }
 
   get hasSubmittedMove() {
@@ -167,12 +169,16 @@ class Home extends Component {
   };
 
   render() {
-    const { move, serviceMember, uploadedOrderDocuments, shipments } = this.props;
+    const { move, serviceMember, uploadedOrderDocuments, mtoShipments, currentPPM } = this.props;
     const ordersPath = '/orders/';
     const shipmentSelectionPath = `/moves/${move.id}/select-type`;
     const confirmationPath = `/moves/${move.id}/review`;
     const profileEditPath = '/moves/review/edit-profile';
     const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
+    if (Object.keys(currentPPM).length) {
+      currentPPM.shipmentType = SHIPMENT_OPTIONS.PPM;
+      mtoShipments.push(currentPPM);
+    }
 
     return (
       <div className={`usa-prose grid-container ${styles['grid-container']}`}>
@@ -223,7 +229,7 @@ class Home extends Component {
           step="3"
         >
           {this.hasShipment ? (
-            <ShipmentList shipments={shipments} onShipmentClick={this.handleShipmentClick} />
+            <ShipmentList shipments={mtoShipments} onShipmentClick={this.handleShipmentClick} />
           ) : (
             <Description>
               Tell us where you&apos;re going and when you want to get there. We&apos;ll help you set up shipments to
@@ -272,12 +278,16 @@ Home.propTypes = {
   }).isRequired,
   showLoggedInUser: func.isRequired,
   loadMTOShipments: func.isRequired,
-  shipments: arrayOf(
+  mtoShipments: arrayOf(
     shape({
       id: string,
       shipmentType: string,
     }),
   ).isRequired,
+  currentPPM: shape({
+    id: string,
+    shipmentType: string,
+  }).isRequired,
   uploadedOrderDocuments: arrayOf(
     shape({
       filename: string.isRequired,
@@ -290,12 +300,14 @@ Home.propTypes = {
 const mapStateToProps = (state) => {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const move = selectActiveOrLatestMove(state);
+
   return {
+    currentPPM: selectActivePPMForMove(state, move.id),
     orders: selectActiveOrLatestOrdersFromEntities(state),
     uploadedOrderDocuments: selectUploadedOrders(state),
     serviceMember,
     // TODO: change when we support PPM shipments as well
-    shipments: selectMTOShipmentsByMoveId(state, move.id),
+    mtoShipments: selectMTOShipmentsByMoveId(state, move.id),
     // TODO: change when we support multiple moves
     move,
   };
