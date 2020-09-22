@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/strfmt"
 
-	uploadop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/uploads"
+	uploadop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_request"
 	"github.com/transcom/mymove/pkg/handlers"
 
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
