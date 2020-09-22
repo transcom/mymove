@@ -18,7 +18,7 @@ describe('office user finds the move', () => {
 
   it('Service Member starts a new move after previous move is canceled.', () => {
     cy.prepareCustomerApp();
-    cy.apiSignInAsUser('e10d5964-c070-49cb-9bd1-eaf9f7348eb7');
+    cy.apiSignInAsPpmUser('e10d5964-c070-49cb-9bd1-eaf9f7348eb7');
 
     // Landing page contains move canceled alert message
     cy.contains('Your move was canceled');

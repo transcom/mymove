@@ -902,7 +902,7 @@ jobs:
           name: make storybook_tests
           command: make storybook_tests
           environment:
-            CHROME_CONCURRENCY: 3
+            CHROME_CONCURRENCY: 2
       - run: make storybook_build
       - persist_to_workspace:
           root: /home/circleci/transcom/mymove/
