@@ -147,6 +147,7 @@
     "not op_mini all"
   ],
   "loki": {
+    "diffingEngine": "gm",
     "configurations": {
       "chrome.laptop": {
         "target": "chrome.app",

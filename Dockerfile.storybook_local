@@ -2,6 +2,10 @@ FROM milmove/circleci-docker:milmove-app-browsers-1e5a1038cb264651fbd844b8248940
 
 EXPOSE 6006
 
+USER root
+RUN apt-get -y update && apt-get -y install --no-install-recommends graphicsmagick && rm -rf /var/lib/apt/lists/*
+USER circleci
+
 COPY --chown=circleci:circleci scripts/start-storybook-tests /home/circleci/project/scripts/
 
 COPY --chown=circleci:circleci [ \
