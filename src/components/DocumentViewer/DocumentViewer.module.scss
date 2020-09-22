@@ -21,6 +21,9 @@
       @include u-text('bold');
       color: $base-darkest;
       flex-grow: 1;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
     }
 
     button svg:not(:only-child) {
