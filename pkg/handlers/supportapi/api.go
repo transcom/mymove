@@ -71,5 +71,11 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	supportAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{context, mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder)}
 	supportAPI.WebhookPostWebhookNotifyHandler = PostWebhookNotifyHandler{context}
+
+	supportAPI.PaymentRequestsGetPaymentRequestEDIHandler = GetPaymentRequestEDIHandler{
+		HandlerContext:        context,
+		PaymentRequestFetcher: paymentrequest.NewPaymentRequestFetcher(context.DB()),
+	}
+
 	return supportAPI.Serve(nil)
 }

@@ -360,6 +360,52 @@ func init() {
         }
       ]
     },
+    "/payment-requests/{paymentRequestID}/edi": {
+      "get": {
+        "description": "Returns the EDI corresponding to the payment request identified by the given payment request number.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentRequests"
+        ],
+        "summary": "getPaymentRequestEDI",
+        "operationId": "getPaymentRequestEDI",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved payment requests associated with a given move task order",
+            "schema": {
+              "$ref": "#/definitions/PaymentRequestEDI"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the payment request for which EDI should be generated.",
+          "name": "paymentRequestID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/payment-requests/{paymentRequestID}/status": {
       "patch": {
         "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, or PAID.\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
@@ -1499,6 +1545,21 @@ func init() {
         }
       }
     },
+    "PaymentRequestEDI": {
+      "type": "object",
+      "properties": {
+        "EDI": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
     "PaymentRequestStatus": {
       "type": "string",
       "title": "Payment Request Status",
@@ -2247,6 +2308,67 @@ func init() {
           "format": "uuid",
           "description": "UUID of the shipment being updated.",
           "name": "mtoShipmentID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/payment-requests/{paymentRequestID}/edi": {
+      "get": {
+        "description": "Returns the EDI corresponding to the payment request identified by the given payment request number.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentRequests"
+        ],
+        "summary": "getPaymentRequestEDI",
+        "operationId": "getPaymentRequestEDI",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved payment requests associated with a given move task order",
+            "schema": {
+              "$ref": "#/definitions/PaymentRequestEDI"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the payment request for which EDI should be generated.",
+          "name": "paymentRequestID",
           "in": "path",
           "required": true
         }
@@ -3433,6 +3555,21 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"
+        }
+      }
+    },
+    "PaymentRequestEDI": {
+      "type": "object",
+      "properties": {
+        "EDI": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },

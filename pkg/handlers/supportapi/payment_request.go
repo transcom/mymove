@@ -9,11 +9,13 @@ import (
 	"go.uber.org/zap"
 
 	paymentrequestop "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/payment_requests"
+	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/supportapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/event"
+	"github.com/transcom/mymove/pkg/services/invoice"
 )
 
 // UpdatePaymentRequestStatusHandler updates payment requests status
@@ -164,4 +166,46 @@ func (h ListMTOPaymentRequestsHandler) Handle(params paymentrequestop.ListMTOPay
 	payload := payloads.PaymentRequests(&paymentRequests)
 
 	return paymentrequestop.NewListMTOPaymentRequestsOK().WithPayload(*payload)
+}
+
+// GetPaymentRequestEDIHandler returns the EDI for a given payment request
+type GetPaymentRequestEDIHandler struct {
+	handlers.HandlerContext
+	services.PaymentRequestFetcher
+}
+
+// Handle getting the EDI for a given payment request
+func (h GetPaymentRequestEDIHandler) Handle(params paymentrequestop.GetPaymentRequestEDIParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	paymentRequestID, err := uuid.FromString(params.PaymentRequestID.String())
+	if err != nil {
+		logger.Error(fmt.Sprintf("Error parsing payment request id: %s", params.PaymentRequestID.String()), zap.Error(err))
+		return paymentrequestop.NewGetPaymentRequestEDIInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
+	}
+
+	paymentRequest, err := h.PaymentRequestFetcher.FetchPaymentRequest(paymentRequestID)
+	if err != nil {
+		msg := fmt.Sprintf("Error finding Payment Request for EDI generation with ID: %s", params.PaymentRequestID.String())
+		logger.Error(msg, zap.Error(err))
+		return paymentrequestop.NewGetPaymentRequestEDINotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, msg, h.GetTraceID()))
+	}
+
+	var payload supportmessages.PaymentRequestEDI
+	payload.ID = *handlers.FmtUUID(paymentRequestID)
+
+	generator := invoice.GHCPaymentRequestInvoiceGenerator{DB: h.DB()}
+	edi858c, err := generator.Generate(paymentRequest, false)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Error generating EDI segments for payment request ID: %s: %s", paymentRequestID, err))
+		return paymentrequestop.NewGetPaymentRequestEDIInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
+	}
+
+	payload.EDI, err = edi858c.EDIString()
+	if err != nil {
+		logger.Error(fmt.Sprintf("Error generating EDI string for payment request ID: %s: %s", paymentRequestID, err))
+		return paymentrequestop.NewGetPaymentRequestEDIInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
+	}
+
+	return paymentrequestop.NewGetPaymentRequestEDIOK().WithPayload(&payload)
 }
