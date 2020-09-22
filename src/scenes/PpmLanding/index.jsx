@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import { withLastLocation } from 'react-router-last-location';
 import { withContext } from 'shared/AppContext';
 
-import { MoveSummary } from './MoveSummary';
+import { PpmSummary } from './PpmSummary';
 import PpmAlert from './PpmAlert';
 import { selectedMoveType, lastMoveIsCanceled, updateMove } from 'scenes/Moves/ducks';
 import { createServiceMember, isProfileComplete } from 'scenes/ServiceMembers/ducks';
@@ -30,7 +30,7 @@ import { selectActiveOrLatestOrders, selectUploadsForActiveOrders } from 'shared
 import { loadMTOShipments, selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 
-export class Landing extends Component {
+export class PpmLanding extends Component {
   componentDidMount() {
     // Load user into entities
     const { isLoggedIn, showLoggedInUser } = this.props;
@@ -78,14 +78,15 @@ export class Landing extends Component {
   };
 
   resumeMove = () => {
-    this.props.push(this.getNextIncompletePage());
+    const excludeHomePage = true;
+    this.props.push(this.getNextIncompletePage(excludeHomePage));
   };
 
   reviewProfile = () => {
     this.props.push('profile-review');
   };
 
-  getNextIncompletePage = () => {
+  getNextIncompletePage = (excludeHomePage) => {
     const {
       selectedMoveType,
       lastMoveIsCanceled,
@@ -94,7 +95,6 @@ export class Landing extends Component {
       uploads,
       move,
       ppm,
-      mtoShipment,
       backupContacts,
       context,
     } = this.props;
@@ -106,9 +106,9 @@ export class Landing extends Component {
       uploads,
       move,
       ppm,
-      mtoShipment,
       backupContacts,
       context,
+      excludeHomePage,
     });
   };
   render() {
@@ -154,7 +154,7 @@ export class Landing extends Component {
             </div>
 
             {isLoggedIn && !isEmpty(serviceMember) && isProfileComplete && (
-              <MoveSummary
+              <PpmSummary
                 entitlement={entitlement}
                 profile={serviceMember}
                 orders={orders}
@@ -174,7 +174,7 @@ export class Landing extends Component {
   }
 }
 
-Landing.propTypes = {
+PpmLanding.propTypes = {
   context: PropTypes.shape({
     flags: PropTypes.shape({
       hhgFlow: PropTypes.bool,
@@ -183,7 +183,7 @@ Landing.propTypes = {
   }).isRequired,
 };
 
-Landing.defaultProps = {
+PpmLanding.defaultProps = {
   context: {
     flags: {
       hhgFlow: false,
@@ -231,4 +231,4 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default withContext(withLastLocation(connect(mapStateToProps, mapDispatchToProps)(Landing)));
+export default withContext(withLastLocation(connect(mapStateToProps, mapDispatchToProps)(PpmLanding)));

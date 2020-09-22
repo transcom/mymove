@@ -2,10 +2,10 @@ import React from 'react';
 import { ppmInfoPacket } from 'shared/constants';
 import Alert from 'shared/Alert';
 import moment from 'moment';
-import ppmCar from 'scenes/Landing/images/ppm-car.svg';
-import PPMStatusTimeline from 'scenes/Landing/PPMStatusTimeline';
-import FindWeightScales from 'scenes/Landing/MoveSummary/FindWeightScales';
-import PpmMoveDetails from 'scenes/Landing/MoveSummary/SubmittedPpmMoveDetails';
+import ppmCar from 'scenes/PpmLanding/images/ppm-car.svg';
+import PPMStatusTimeline from 'scenes/PpmLanding/PPMStatusTimeline';
+import FindWeightScales from 'scenes/PpmLanding/MoveSummary/FindWeightScales';
+import PpmMoveDetails from 'scenes/PpmLanding/MoveSummary/SubmittedPpmMoveDetails';
 
 const PaymentRequestedSummary = (props) => {
   const { ppm, requestPaymentSuccess } = props;

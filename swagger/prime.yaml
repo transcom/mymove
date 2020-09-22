@@ -18,8 +18,7 @@ schemes:
 tags:
   - name: moveTaskOrder
   - name: mtoShipment
-  - name: paymentRequests
-  - name: uploads
+  - name: paymentRequest
   - name: mtoServiceItem
 paths:
   /move-task-orders:
@@ -96,8 +95,8 @@ paths:
                 description: The estimated weight determined post counseling.
                 type: integer
               pointOfContact:
-                description: Email or id of a contact person for this update.
                 type: string
+                description: Email or id of a contact person for this update.
         - in: header
           name: If-Match
           type: string
@@ -419,7 +418,7 @@ paths:
         a final payment request can be marked using boolean `isFinal`.
       operationId: createPaymentRequest
       tags:
-        - paymentRequests
+        - paymentRequest
       consumes:
         - application/json
       produces:
@@ -463,7 +462,7 @@ paths:
 
       operationId: createUpload
       tags:
-        - uploads
+        - paymentRequest
       consumes:
         - multipart/form-data
       produces:
@@ -1038,7 +1037,6 @@ definitions:
             $ref: '#/definitions/ReServiceCode'
         required:
           - reServiceCode
-
   MTOServiceItemDDFSIT:
     description: Describes a domestic destination 1st day SIT service item subtype of a MTOServiceItem.
     allOf:
@@ -1582,18 +1580,6 @@ definitions:
       - DECIMAL
       - TIMESTAMP
       - PaymentServiceItemUUID
-  UpdatePaymentRequestStatus:
-    properties:
-      rejectionReason:
-        example: documentation was incomplete
-        type: string
-        x-nullable: true
-      status:
-        $ref: '#/definitions/PaymentRequestStatus'
-      eTag:
-        type: string
-        readOnly: true
-    type: object
   Upload:
     type: object
     properties:
@@ -1609,9 +1595,11 @@ definitions:
       createdAt:
         format: date-time
         type: string
+        readOnly: true
       updatedAt:
         format: date-time
         type: string
+        readOnly: true
     required:
       - filename
       - contentType

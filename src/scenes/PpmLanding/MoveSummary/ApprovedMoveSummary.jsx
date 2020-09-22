@@ -1,9 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import ppmCar from 'scenes/Landing/images/ppm-car.svg';
-import PPMStatusTimeline from 'scenes/Landing/PPMStatusTimeline';
-import PpmMoveDetails from 'scenes/Landing/MoveSummary/PpmMoveDetails';
+import ppmCar from 'scenes/PpmLanding/images/ppm-car.svg';
+import PPMStatusTimeline from 'scenes/PpmLanding/PPMStatusTimeline';
+import PpmMoveDetails from 'scenes/PpmLanding/MoveSummary/PpmMoveDetails';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import { get } from 'lodash';
 
