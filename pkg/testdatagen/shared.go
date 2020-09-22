@@ -40,7 +40,6 @@ type Assertions struct {
 	Invoice                                  models.Invoice
 	Move                                     models.Move
 	MoveDocument                             models.MoveDocument
-	MoveTaskOrder                            models.MoveTaskOrder
 	MovingExpenseDocument                    models.MovingExpenseDocument
 	MTOAgent                                 models.MTOAgent
 	MTOServiceItem                           models.MTOServiceItem
@@ -67,6 +66,8 @@ type Assertions struct {
 	Reimbursement                            models.Reimbursement
 	ReService                                models.ReService
 	ReZip3                                   models.ReZip3
+	SecondaryPickupAddress                   models.Address
+	SecondaryDeliveryAddress                 models.Address
 	ServiceItemParamKey                      models.ServiceItemParamKey
 	ServiceParam                             models.ServiceParam
 	SignedCertification                      models.SignedCertification
@@ -77,7 +78,6 @@ type Assertions struct {
 	Tariff400ngZip3                          models.Tariff400ngZip3
 	TrafficDistributionList                  models.TrafficDistributionList
 	TransportationOffice                     models.TransportationOffice
-	TransportationOrderingOfficer            models.TransportationOrderingOfficer
 	TransportationServiceProvider            models.TransportationServiceProvider
 	TransportationServiceProviderPerformance models.TransportationServiceProviderPerformance
 	Upload                                   models.Upload
@@ -86,6 +86,7 @@ type Assertions struct {
 	UserUpload                               models.UserUpload
 	UserUploader                             *uploader.UserUploader
 	User                                     models.User
+	WebhookNotification                      models.WebhookNotification
 	WebhookSubscription                      models.WebhookSubscription
 }
 
@@ -148,7 +149,8 @@ func makeRandomString(n int) string {
 	return string(b)
 }
 
-func fixture(name string) afero.File {
+// Fixture opens a file from the testdata dir
+func Fixture(name string) afero.File {
 	fixtureDir := "testdata"
 	cwd, err := os.Getwd()
 	if err != nil {

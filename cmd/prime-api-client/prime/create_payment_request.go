@@ -13,8 +13,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/transcom/mymove/cmd/prime-api-client/utils"
-
-	"github.com/transcom/mymove/pkg/gen/primeclient/payment_requests"
+	paymentrequestclient "github.com/transcom/mymove/pkg/gen/primeclient/payment_request"
 )
 
 // InitCreatePaymentRequestFlags initializes flags.
@@ -59,7 +58,7 @@ func CreatePaymentRequest(cmd *cobra.Command, args []string) error {
 
 	// Decode json from file that was passed in
 	filename := v.GetString(utils.FilenameFlag)
-	var paymentRequestParams payment_requests.CreatePaymentRequestParams
+	paymentRequestParams := paymentrequestclient.CreatePaymentRequestParams{}
 	err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &paymentRequestParams)
 	if err != nil {
 		logger.Fatal(err)
@@ -77,7 +76,7 @@ func CreatePaymentRequest(cmd *cobra.Command, args []string) error {
 		defer cacStore.Close()
 	}
 
-	resp, err := primeGateway.PaymentRequests.CreatePaymentRequest(&paymentRequestParams)
+	resp, err := primeGateway.PaymentRequest.CreatePaymentRequest(&paymentRequestParams)
 	if err != nil {
 		return utils.HandleGatewayError(err, logger)
 	}

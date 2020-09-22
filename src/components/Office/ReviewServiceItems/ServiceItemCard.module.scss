@@ -71,14 +71,51 @@
   }
 
   .statusOption + .statusOption {
-    margin-top: 14px;
+    @include u-margin-top(1);
   }
 
   .clearStatus {
     padding: 0;
+    @include u-padding-top(2);
+    @include u-text('light');
   }
 
   .statusOption + .clearStatus {
-    @include u-margin-top(2);
+    margin-top: 3px;
+  }
+
+  .completeContainer {
+    @include u-margin(0);
+    @include u-margin-top(4);
+    @include u-padding(2);
+    background-color: $bg-gray;
+    color: $base-darkest;
+    border: 1px solid $base-lighter;
+    @include u-radius('05');
+
+    svg {
+      @include u-margin-right(1);
+      height: 16px;
+      width: 16px;
+    }
+
+    .statusHeading {
+      @include u-font-weight(bold);
+      @include u-display(flex);
+      align-items: center;
+    }
+
+    .statusApproved svg {
+      fill: $success;
+    }
+
+    .statusRejected svg {
+      fill: $error;
+    }
+
+    .rejectionReason {
+      @include u-font-size('base', 2);
+      @include u-margin-bottom(0);
+    }
   }
 }

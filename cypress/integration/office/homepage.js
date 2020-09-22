@@ -1,66 +1,85 @@
-/* global cy */
-import { officeAppName, officeBaseURL } from '../../support/constants';
+import { officeBaseURL } from '../../support/constants';
 
 describe('Office Home Page', function () {
-  beforeEach(() => {
-    cy.setupBaseUrl(officeAppName);
+  before(() => {
+    cy.prepareOfficeApp();
   });
+
   it('successfully loads when not logged in', function () {
     cy.logout();
-    officeUserIsOnSignInPage();
+    cy.contains('office.move.mil');
+    cy.contains('Sign In');
   });
+
   it('open accepted shipments queue and see moves', function () {
-    cy.signInAsNewOfficeUser();
-    officeAllMoves();
+    cy.signInAsNewPPMOfficeUser();
+    cy.patientVisit('/queues/all');
+    cy.location().should((loc) => {
+      expect(loc.pathname).to.match(/^\/queues\/all/);
+    });
+    cy.get('[data-testid=locator]').contains('NOSHOW').should('not.exist');
   });
+
   it('office user can use a single click to view move info', function () {
     cy.waitForReactTableLoad();
-
     cy.get('[data-testid=queueTableRow]:first').click();
     cy.url().should('include', '/moves/');
   });
 });
 
 describe('Office authorization', () => {
-  describe('for a TOO user', () => {
-    it('redirects TOO to TOO homepage', () => {
-      cy.signInAsNewTOOUser();
-    });
+  before(() => {
+    cy.prepareOfficeApp();
   });
 
-  describe('for a TIO user', () => {
-    it('redirects TIO to TIO homepage', () => {
-      cy.signInAsNewTIOUser();
-    });
+  beforeEach(() => {
+    cy.clearAllCookies();
   });
 
-  describe('for a PPM user', () => {
-    it('redirects PPM office user to old office queue', () => {
-      cy.signInAsNewOfficeUser();
-    });
+  it('redirects TOO to TOO homepage', () => {
+    cy.signInAsNewTOOUser();
+    cy.contains('All Customer Moves');
+    cy.url().should('eq', officeBaseURL + '/');
+  });
+
+  it('redirects TIO to TIO homepage', () => {
+    cy.signInAsNewTIOUser();
+    cy.contains('Payment Requests');
+    cy.url().should('eq', officeBaseURL + '/');
+  });
+
+  it('redirects PPM office user to old office queue', () => {
+    cy.signInAsNewPPMOfficeUser();
+    cy.contains('New moves');
+    cy.url().should('eq', officeBaseURL + '/');
   });
 
   describe('multiple role selection', () => {
-    it('displays the first role home page by default', () => {
-      cy.signInAsMultiRoleUser();
-      cy.contains('All Customer Moves'); // TOO home
+    beforeEach(() => {
+      cy.removeFetch();
+      cy.server();
+      cy.route('GET', '/ghc/v1/swagger.yaml').as('getGHCClient');
+      cy.route('GET', '/ghc/v1/move-orders').as('getMoveOrders');
+      cy.route('GET', '/ghc/v1/payment-requests').as('getPaymentRequests');
     });
 
-    it('displays a link to change role', () => {
+    it('can switch between TOO & TIO roles', () => {
+      cy.signInAsMultiRoleOfficeUser();
+      cy.wait(['@getGHCClient', '@getMoveOrders']);
+      cy.contains('All Customer Moves'); // TOO home
+
       cy.contains('Change user role').click();
       cy.url().should('contain', '/select-application');
-    });
 
-    it('can change role to TIO', () => {
       cy.contains('Select transportation_invoicing_officer').click();
       cy.url().should('eq', officeBaseURL + '/');
+      cy.wait('@getPaymentRequests');
       cy.contains('Payment Requests');
-    });
 
-    it('can change role back to TOO', () => {
       cy.contains('Change user role').click();
       cy.url().should('contain', '/select-application');
       cy.contains('Select transportation_ordering_officer').click();
+      cy.wait('@getMoveOrders');
       cy.url().should('eq', officeBaseURL + '/');
       cy.contains('All Customer Moves');
     });
@@ -68,10 +87,13 @@ describe('Office authorization', () => {
 });
 
 describe('Queue staleness indicator', () => {
+  before(() => {
+    cy.prepareOfficeApp();
+  });
+
   it('displays the correct time ago text', () => {
     cy.clock();
-    cy.setupBaseUrl(officeAppName);
-    cy.signInAsNewOfficeUser();
+    cy.signInAsNewPPMOfficeUser();
     cy.patientVisit('/queues/all');
 
     cy.get('[data-testid=staleness-indicator]').should('have.text', 'Last updated a few seconds ago');
@@ -81,17 +103,3 @@ describe('Queue staleness indicator', () => {
     cy.get('[data-testid=staleness-indicator]').should('have.text', 'Last updated 2 mins ago');
   });
 });
-
-function officeUserIsOnSignInPage() {
-  cy.contains('office.move.mil');
-  cy.contains('Sign In');
-}
-
-function officeAllMoves() {
-  cy.patientVisit('/queues/all');
-  cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/queues\/all/);
-  });
-
-  cy.get('[data-testid=locator]').contains('NOSHOW').should('not.exist');
-}

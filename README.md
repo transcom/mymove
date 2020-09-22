@@ -23,9 +23,6 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
 <!-- toc -->
 
 * [Overview](#overview)
-  * [The TLS apps](#the-tls-apps)
-  * [The Mutual TLS apps](#the-mutual-tls-apps)
-  * [Historical note](#historical-note)
 * [Supported Browsers](#supported-browsers)
 * [Login.gov](#logingov)
 * [Application Setup](#application-setup)
@@ -58,6 +55,7 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
   * [Test Data Generator](#test-data-generator)
   * [API / Swagger](#api--swagger)
   * [Testing](#testing)
+    * [Troubleshooting tips -- integration / e2e tests](#troubleshooting-tips----integration--e2e-tests)
   * [Logging](#logging)
     * [Log files](#log-files)
   * [Database](#database)
@@ -84,43 +82,7 @@ Regenerate with "pre-commit run -a markdown-toc"
 
 ## Overview
 
-MilMove is a system to help service members (and other authorized personnel) move their gear and possessions from one place to another.
-
-### The TLS apps
-
-There are three React apps that compose the front end of the system:
-
-my.move.mil (my.staging.move.mil): For the people moving.
-
-office.move.mil (office.staging.move.mil): For move managers (see [historical note](#historical-note)) to review/approve/reject moves and payments.
-
-admin.move.mil (admin.staging.move.mil): For administrators to create new office.move.mil users and grant permissions for various office roles.
-
-These React apps are backed by a Postgres database, which we interact with using a back-end written in Go, with an ORM called Pop.
-
-We use Swagger to tie the front and back ends together. The Swagger code is found in `*.yaml` files and describes the endpoints and payloads of the API.
-
-Go boilerplate code is generated from the Swagger files using a library called `go-swagger`. That code is automatically updated when a Swagger file is changed. These generated files are in `/pkg/gen`.
-
-Swagger has interactive documentation for users of the API, which allows us to test endpoints from within [the doc itself](#setup-milmovelocal-client).
-
-Swagger also has a JS client that generates a set of API functions that are hooked into the React apps giving them easier access to the data.
-
-### The Mutual TLS apps
-
-In addition to the front end interfaces, MilMove comprises a set of APIs that work over Mutual TLS:
-
-`Contractors`: The API the GHC contractor will use to communicate with the system. When the contractor needs information about a move (e.g., when is it scheduled?) or needs to update information about a move (e.g., what was the total weight of items moved?), it will use the `Contractors` API. As of this writing, this API is described in `prime.yaml`, but expect that name to change.
-
-`Orders`: People moving receive orders to move, which include information about the destination as well as authorizations for various kinds of storage, conveyance, per diem allowances, and many more details. Currently Orders information is entered into the system manually by office personnel from a PDF. However, the Orders API is receiving that data directly from the services and eventually that data will be used as the source of truth. That process is called "Orders Ingestion". The process of getting that data into the system for use with moves is called "Orders Integration".
-
-`GEX`: Global Exchange. GEX enables the exchange of transaction data between the DoD and private entities. We use it during the invoicing phase of the move.
-
-`DPS`: This is also the name of the system MilMove is replacing, but in terms of APIs, DPS acts as an authenticator that will route a user to DPS or MilMove, as appropriate.
-
-### Historical note
-
-> The history of the project is detailed in the MilMove onboarding document, but one thing for application engineers to keep in mind is that as of this writing, in early 2020, there are two different supported approaches to moves, with one being phased out, but still present in parts of the code. The old model of moves included PPM (Personally Procured Moves--do it yourself and get reimbursed) and HHG (HouseHold Goods moves--the government hires a moving company for you). In that rubric, there was no explicit role system for office app users. We are now phasing out HHG moves in favor of GHC (Global Household goods Contract) moves, in which a single company will handle all subcontracting for moves and explicit roles, like Transportation Ordering Officer (TOO) and Transportation Invoicing Officer (TIO), are defined and assigned.
+Please check the [Milmove Project Wiki](https://github.com/transcom/mymove/wiki) for details on the project itself.
 
 ## Supported Browsers
 
@@ -426,9 +388,24 @@ There are a few handy targets in the Makefile to help you run tests:
 
 * `make client_test`: Run front-end testing suites.
 * `make server_test`: Run back-end testing suites. [Additional info for running go tests](https://github.com/transcom/mymove/wiki/run-go-tests)
-* `make e2e_test`: Run e2e testing suite. Note: this will not necessarily reflect the same results as in the CI environment, run with caution.
+* `make e2e_test`: Run e2e testing suite.
+  * Note: this will not necessarily reflect the same results as in the CI environment, run with caution. One of the reasons for this is it's pulling actual cypress latest, which as of this writing is `5.0.0`. Another reason is your `.envrc` is going to populate your dev environment with a bunch of values that `make e2e_test_docker` won't have.
+  * Note also: this runs with a full clean/rebuild, so it is not great for fast iteration. Use `yarn test:e2e` when working with individual tests
+* `yarn test:e2e`: Open the cypress test runner against your already running servers and inspect/run individual e2e tests. (Should better reflect CI environment than above, but not as well as below.)
+  * Note: You must already have the servers running for this to work! This may not reflect the same results as CI for the same reason as the above re: `.envrc` values. However, it is __significantly__ faster because you can run individual tests and not have to deal with the clean/rebuild.
+* `yarn test:e2e-clean`: Resets your dev DB to a clean state before opening the Cypress test runner.
 * `make e2e_test_docker`: Run e2e testing suite in the same docker container as is run in CircleCI.
+  * Note: this also runs with a full clean/rebuild, so it is not great for fast iteration. Use `yarn test:e2e` when working with individual tests.
 * `make test`: Run e2e, client- and server-side testing suites.
+
+#### Troubleshooting tips -- integration / e2e tests
+
+When running locally, you may find that retries or successive runs have unexpected failures. Some of the integration tests are written with the assumption that they will only be run against a clean DB. If you're working with one of these and don't have time to fix them to properly set up and clean up their state, you can use this command to reset your local dev db before opening the test runner. Note that if you choose not to fix the offending test(s), you'll have to repeatedly close the test runner to re-clean the the DB. You won't be able to take advantage of Cypress's hot reloading!
+
+If you suspect memory issues, you can further inspect this with the commands:
+
+* `yarn test:e2e-debug`, which runs `yarn test:e2e` with DEBUG stats
+* `yarn test:e2e-debug-clean`, which runs `yarn test:e2e-clean` with DEBUG stats
 
 ### Logging
 

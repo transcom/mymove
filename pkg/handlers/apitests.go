@@ -7,6 +7,8 @@ import (
 	"path"
 	"runtime/debug"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
@@ -57,6 +59,13 @@ func (suite *BaseHandlerTestSuite) CloseFile(file *runtime.File) {
 // TestNotificationSender returns the notification sender to use in the suite
 func (suite *BaseHandlerTestSuite) TestNotificationSender() notifications.NotificationSender {
 	return suite.notificationSender
+}
+
+// HasWebhookNotification checks that there's a record on the WebhookNotifications table for the object and trace IDs
+func (suite *BaseHandlerTestSuite) HasWebhookNotification(objectID uuid.UUID, traceID uuid.UUID) {
+	notification := &models.WebhookNotification{}
+	err := suite.DB().Where("object_id = $1 AND trace_id = $2", objectID.String(), traceID.String()).First(notification)
+	suite.NoError(err)
 }
 
 // IsNotErrResponse enforces handler does not return an error response

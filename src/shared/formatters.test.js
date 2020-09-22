@@ -51,14 +51,24 @@ describe('formatters', () => {
   describe('formatDate', () => {
     it('should be formatted as expected', () => {
       const inputFormat = 'MMM-DD-YY';
-      const formattedDate = formatters.formatDate('Nov-11-19', inputFormat, 'en', true);
+      const formattedDate = formatters.formatDate('Nov-11-19', inputFormat, 'DD-MMM-YY', 'en', true);
       expect(formattedDate).toBe('11-Nov-19');
     });
 
     it('should be invalid with unexpected input and strict mode on', () => {
       const inputFormat = 'MMM-DD-YY';
-      const formattedDate = formatters.formatDate('Nov-11-1999', inputFormat, 'en', true);
+      const formattedDate = formatters.formatDate('Nov-11-1999', inputFormat, 'DD-MMM-YY', 'en', true);
       expect(formattedDate).toBe('Invalid date');
+    });
+
+    it('should default to DD-MMM-YY ouptut format', () => {
+      expect(formatters.formatDate('Nov-11-99')).toBe('11-Nov-99');
+    });
+  });
+
+  describe('formatDateFromIso', () => {
+    it('should be formatted as expected', () => {
+      expect(formatters.formatDateFromIso('2020-08-11T21:00:59.126987Z', 'DD MMM YYYY')).toBe('11 Aug 2020');
     });
   });
 
@@ -96,5 +106,19 @@ describe('formatToOrdinal', () => {
 describe('toDollarString', () => {
   it('returns string representation of a dollar', () => {
     expect(formatters.toDollarString(1234.12)).toEqual('$1,234.12');
+  });
+});
+
+describe('filenameFromPath', () => {
+  it('returns last portion of path with default delimiter', () => {
+    expect(formatters.filenameFromPath('/home/user/folder/.hidden/My Long Filename.sql')).toEqual(
+      'My Long Filename.sql',
+    );
+  });
+
+  it('returns original filename if no path is included', () => {
+    expect(formatters.filenameFromPath('Just-A-gnarly_filemame(0) DRAFT.v2.docx')).toEqual(
+      'Just-A-gnarly_filemame(0) DRAFT.v2.docx',
+    );
   });
 });

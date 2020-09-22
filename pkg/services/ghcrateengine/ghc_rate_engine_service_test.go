@@ -30,46 +30,6 @@ func TestGHCRateEngineServiceSuite(t *testing.T) {
 	ts.PopTestSuite.TearDown()
 }
 
-type createParams struct {
-	key     models.ServiceItemParamName
-	keyType models.ServiceItemParamType
-	value   string
-}
-
-func (suite *GHCRateEngineServiceSuite) setupPaymentServiceItemWithParams(serviceCode models.ReServiceCode, paramsToCreate []createParams) models.PaymentServiceItem {
-	var params models.PaymentServiceItemParams
-
-	paymentServiceItem := testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: serviceCode,
-		},
-	})
-
-	for _, param := range paramsToCreate {
-		serviceItemParamKey := testdatagen.MakeServiceItemParamKey(suite.DB(),
-			testdatagen.Assertions{
-				ServiceItemParamKey: models.ServiceItemParamKey{
-					Key:  param.key,
-					Type: param.keyType,
-				},
-			})
-
-		serviceItemParam := testdatagen.MakePaymentServiceItemParam(suite.DB(),
-			testdatagen.Assertions{
-				PaymentServiceItem:  paymentServiceItem,
-				ServiceItemParamKey: serviceItemParamKey,
-				PaymentServiceItemParam: models.PaymentServiceItemParam{
-					Value: param.value,
-				},
-			})
-		params = append(params, serviceItemParam)
-	}
-
-	paymentServiceItem.PaymentServiceItemParams = params
-
-	return paymentServiceItem
-}
-
 func (suite *GHCRateEngineServiceSuite) setupTaskOrderFeeData(code models.ReServiceCode, priceCents unit.Cents) {
 	contractYear := testdatagen.MakeDefaultReContractYear(suite.DB())
 
@@ -86,4 +46,37 @@ func (suite *GHCRateEngineServiceSuite) setupTaskOrderFeeData(code models.ReServ
 		PriceCents:     priceCents,
 	}
 	suite.MustSave(&taskOrderFee)
+}
+
+func (suite *GHCRateEngineServiceSuite) setUpDomesticPackAndUnpackData(code models.ReServiceCode) {
+	contractYear := testdatagen.MakeReContractYear(suite.DB(),
+		testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Escalation:           1.0197,
+				EscalationCompounded: 1.0407,
+			},
+		})
+
+	domesticPackUnpackService := testdatagen.MakeReService(suite.DB(),
+		testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: code,
+			},
+		})
+
+	domesticPackUnpackPrice := models.ReDomesticOtherPrice{
+		ContractID:   contractYear.Contract.ID,
+		Schedule:     1,
+		IsPeakPeriod: true,
+		ServiceID:    domesticPackUnpackService.ID,
+	}
+
+	domesticPackUnpackPeakPrice := domesticPackUnpackPrice
+	domesticPackUnpackPeakPrice.PriceCents = 146
+	suite.MustSave(&domesticPackUnpackPeakPrice)
+
+	domesticPackUnpackNonpeakPrice := domesticPackUnpackPrice
+	domesticPackUnpackNonpeakPrice.IsPeakPeriod = false
+	domesticPackUnpackNonpeakPrice.PriceCents = 127
+	suite.MustSave(&domesticPackUnpackNonpeakPrice)
 }

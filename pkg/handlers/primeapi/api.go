@@ -49,7 +49,7 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 		mtoshipment.NewMTOShipmentUpdater(context.DB(), builder, fetcher, context.Planner()),
 	}
 
-	primeAPI.PaymentRequestsCreatePaymentRequestHandler = CreatePaymentRequestHandler{
+	primeAPI.PaymentRequestCreatePaymentRequestHandler = CreatePaymentRequestHandler{
 		context,
 		paymentrequest.NewPaymentRequestCreator(
 			context.DB(),
@@ -58,7 +58,7 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 		),
 	}
 
-	primeAPI.UploadsCreateUploadHandler = CreateUploadHandler{
+	primeAPI.PaymentRequestCreateUploadHandler = CreateUploadHandler{
 		context,
 		// To be fixed under this story: https://github.com/transcom/mymove/pull/3775/files#r397219200
 		// unable to get logger to pass in for instantiation
@@ -76,6 +76,16 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 		context,
 		mtoshipment.NewMTOShipmentCreator(context.DB(), builder, fetcher),
 		movetaskorder.NewMoveTaskOrderChecker(context.DB()),
+	}
+
+	primeAPI.MtoShipmentUpdateMTOShipmentAddressHandler = UpdateMTOShipmentAddressHandler{
+		context,
+		mtoshipment.NewMTOShipmentAddressUpdater(context.DB()),
+	}
+
+	primeAPI.MtoShipmentUpdateMTOAgentHandler = UpdateMTOAgentHandler{
+		context,
+		// TODO add updater
 	}
 
 	return primeAPI.Serve(nil)

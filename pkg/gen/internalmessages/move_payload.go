@@ -34,6 +34,9 @@ type MovePayload struct {
 	// Required: true
 	Locator *string `json:"locator"`
 
+	// mto shipments
+	MtoShipments MTOShipments `json:"mto_shipments,omitempty"`
+
 	// orders id
 	// Required: true
 	// Format: uuid
@@ -52,6 +55,10 @@ type MovePayload struct {
 
 	// status
 	Status MoveStatus `json:"status,omitempty"`
+
+	// submitted at
+	// Format: date-time
+	SubmittedAt *strfmt.DateTime `json:"submitted_at,omitempty"`
 
 	// updated at
 	// Required: true
@@ -75,6 +82,10 @@ func (m *MovePayload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateMtoShipments(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateOrdersID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -92,6 +103,10 @@ func (m *MovePayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSubmittedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -134,6 +149,22 @@ func (m *MovePayload) validateID(formats strfmt.Registry) error {
 func (m *MovePayload) validateLocator(formats strfmt.Registry) error {
 
 	if err := validate.Required("locator", "body", m.Locator); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MovePayload) validateMtoShipments(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.MtoShipments) { // not required
+		return nil
+	}
+
+	if err := m.MtoShipments.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("mto_shipments")
+		}
 		return err
 	}
 
@@ -210,6 +241,19 @@ func (m *MovePayload) validateStatus(formats strfmt.Registry) error {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
 		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MovePayload) validateSubmittedAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SubmittedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("submitted_at", "body", "date-time", m.SubmittedAt.String(), formats); err != nil {
 		return err
 	}
 

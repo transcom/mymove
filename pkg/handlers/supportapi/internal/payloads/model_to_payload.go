@@ -13,7 +13,7 @@ import (
 )
 
 // MoveTaskOrders payload
-func MoveTaskOrders(moveTaskOrders *models.MoveTaskOrders) []*supportmessages.MoveTaskOrder {
+func MoveTaskOrders(moveTaskOrders *models.Moves) []*supportmessages.MoveTaskOrder {
 	payload := make(supportmessages.MoveTaskOrders, len(*moveTaskOrders))
 
 	for i, m := range *moveTaskOrders {
@@ -23,7 +23,7 @@ func MoveTaskOrders(moveTaskOrders *models.MoveTaskOrders) []*supportmessages.Mo
 }
 
 // MoveTaskOrder payload
-func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *supportmessages.MoveTaskOrder {
+func MoveTaskOrder(moveTaskOrder *models.Move) *supportmessages.MoveTaskOrder {
 	if moveTaskOrder == nil {
 		return nil
 	}
@@ -32,13 +32,15 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *supportmessages.MoveTas
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.DateTime(moveTaskOrder.CreatedAt),
 		AvailableToPrimeAt: handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
-		IsCanceled:         &moveTaskOrder.IsCanceled,
-		MoveOrder:          MoveOrder(&moveTaskOrder.MoveOrder),
-		ReferenceID:        moveTaskOrder.ReferenceID,
+		IsCanceled:         moveTaskOrder.IsCanceled(),
+		MoveOrder:          MoveOrder(&moveTaskOrder.Orders),
+		ReferenceID:        *moveTaskOrder.ReferenceID,
 		ContractorID:       strfmt.UUID(moveTaskOrder.ContractorID.String()),
 		MtoShipments:       *mtoShipments,
 		UpdatedAt:          strfmt.DateTime(moveTaskOrder.UpdatedAt),
 		ETag:               etag.GenerateEtag(moveTaskOrder.UpdatedAt),
+		Status:             (supportmessages.MoveStatus)(moveTaskOrder.Status),
+		Locator:            moveTaskOrder.Locator,
 	}
 
 	if moveTaskOrder.PPMEstimatedWeight != nil {
@@ -222,7 +224,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *supportmessages.MTOShipment {
 	}
 
 	if mtoShipment.RequestedPickupDate != nil {
-		payload.RequestedPickupDate = *handlers.FmtDatePtr(mtoShipment.RequestedPickupDate)
+		payload.RequestedPickupDate = strfmt.Date(*mtoShipment.RequestedPickupDate)
 	}
 
 	if mtoShipment.ApprovedDate != nil {
@@ -241,7 +243,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) *supportmessages.Upda
 		MoveTaskOrderID: strfmt.UUID(mtoServiceItem.MoveTaskOrderID.String()),
 		MtoShipmentID:   strfmt.UUID(mtoServiceItem.MTOShipmentID.String()),
 		Status:          supportmessages.MTOServiceItemStatus(mtoServiceItem.Status),
-		RejectionReason: mtoServiceItem.Reason,
+		RejectionReason: mtoServiceItem.RejectionReason,
 	}
 
 	return payload

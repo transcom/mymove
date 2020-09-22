@@ -8,22 +8,52 @@ import Menu from './Menu/Menu';
 
 import { ReactComponent as ExternalLink } from 'shared/icon/external-link.svg';
 import { ReactComponent as DocMenu } from 'shared/icon/doc-menu.svg';
+import { filenameFromPath } from 'shared/formatters';
 
 /**
  * TODO
  * - implement open in a new window
  * - implement next/previous pages instead of scroll through pages
  * - implement rotate left/right
- * - support images in addition to PDFs
  * - handle fetch doc errors
  */
 
 const DocumentViewer = ({ files }) => {
-  // TODO - show msg if there are no files
   const [selectedFileIndex, selectFile] = useState(0);
   const [menuIsOpen, setMenuOpen] = useState(false);
 
   const selectedFile = files[parseInt(selectedFileIndex, 10)];
+
+  if (!selectedFile) {
+    return (
+      <>
+        <h2>File Not Found</h2>
+      </>
+    );
+  }
+
+  let fileType = selectedFile.contentType;
+  switch (selectedFile.contentType) {
+    case 'application/pdf': {
+      fileType = 'pdf';
+      break;
+    }
+    case 'image/png': {
+      fileType = 'png';
+      break;
+    }
+    case 'image/jpeg': {
+      fileType = 'jpg';
+      break;
+    }
+    case 'image/gif': {
+      fileType = 'gif';
+      break;
+    }
+    // eslint-disable-next-line no-empty
+    default: {
+    }
+  }
 
   const openMenu = () => {
     setMenuOpen(true);
@@ -47,14 +77,14 @@ const DocumentViewer = ({ files }) => {
           <DocMenu />
         </Button>
 
-        <p>{selectedFile.filename}</p>
+        <p>{filenameFromPath(selectedFile.filename)}</p>
         {/* TODO */}
         <Button type="button" unstyled onClick={openInNewWindow}>
           <span>Open in a new window</span>
           <ExternalLink />
         </Button>
       </div>
-      <Content fileType={selectedFile.fileType} filePath={selectedFile.filePath} />
+      <Content fileType={fileType} filePath={selectedFile.url} />
       {menuIsOpen && <div className={styles.overlay} />}
       <Menu
         isOpen={menuIsOpen}

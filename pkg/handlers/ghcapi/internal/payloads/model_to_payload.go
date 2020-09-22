@@ -8,6 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/storage"
 )
 
 // Move payload
@@ -28,7 +29,7 @@ func Move(move *models.Move) *ghcmessages.Move {
 }
 
 // MoveTaskOrder payload
-func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *ghcmessages.MoveTaskOrder {
+func MoveTaskOrder(moveTaskOrder *models.Move) *ghcmessages.MoveTaskOrder {
 	if moveTaskOrder == nil {
 		return nil
 	}
@@ -37,9 +38,9 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *ghcmessages.MoveTaskOrd
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.DateTime(moveTaskOrder.CreatedAt),
 		AvailableToPrimeAt: handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
-		IsCanceled:         &moveTaskOrder.IsCanceled,
-		MoveOrderID:        strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
-		ReferenceID:        moveTaskOrder.ReferenceID,
+		IsCanceled:         moveTaskOrder.IsCanceled(),
+		MoveOrderID:        strfmt.UUID(moveTaskOrder.OrdersID.String()),
+		ReferenceID:        *moveTaskOrder.ReferenceID,
 		UpdatedAt:          strfmt.DateTime(moveTaskOrder.UpdatedAt),
 		ETag:               etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 	}
@@ -51,6 +52,7 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 	if customer == nil {
 		return nil
 	}
+
 	payload := ghcmessages.Customer{
 		Agency:         swag.StringValue((*string)(customer.Affiliation)),
 		CurrentAddress: Address(customer.ResidentialAddress),
@@ -62,6 +64,7 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 		Phone:          customer.Telephone,
 		UserID:         strfmt.UUID(customer.UserID.String()),
 		ETag:           etag.GenerateEtag(customer.UpdatedAt),
+		BackupContact:  BackupContact(customer.BackupContacts),
 	}
 	return &payload
 }
@@ -78,11 +81,21 @@ func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
 	}
 	entitlements := Entitlement(moveOrder.Entitlement)
 
+	var deptIndicator ghcmessages.DeptIndicator
+	if moveOrder.DepartmentIndicator != nil {
+		deptIndicator = ghcmessages.DeptIndicator(*moveOrder.DepartmentIndicator)
+	}
+
+	var orderTypeDetail ghcmessages.OrdersTypeDetail
+	if moveOrder.OrdersTypeDetail != nil {
+		orderTypeDetail = ghcmessages.OrdersTypeDetail(*moveOrder.OrdersTypeDetail)
+	}
+
 	payload := ghcmessages.MoveOrder{
 		DestinationDutyStation: destinationDutyStation,
 		Entitlement:            entitlements,
 		OrderNumber:            moveOrder.OrdersNumber,
-		OrderTypeDetail:        (*string)(moveOrder.OrdersTypeDetail),
+		OrderTypeDetail:        orderTypeDetail,
 		ID:                     strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:      originDutyStation,
 		ETag:                   etag.GenerateEtag(moveOrder.UpdatedAt),
@@ -92,7 +105,11 @@ func MoveOrder(moveOrder *models.Order) *ghcmessages.MoveOrder {
 		LastName:               swag.StringValue(moveOrder.ServiceMember.LastName),
 		ReportByDate:           strfmt.Date(moveOrder.ReportByDate),
 		DateIssued:             strfmt.Date(moveOrder.IssueDate),
-		OrderType:              swag.StringValue((*string)(&moveOrder.OrdersType)),
+		OrderType:              ghcmessages.OrdersType(moveOrder.OrdersType),
+		DepartmentIndicator:    deptIndicator,
+		Tac:                    handlers.FmtStringPtr(moveOrder.TAC),
+		Sac:                    handlers.FmtStringPtr(moveOrder.SAC),
+		UploadedOrderID:        strfmt.UUID(moveOrder.UploadedOrdersID.String()),
 	}
 
 	if moveOrder.Grade != nil {
@@ -178,6 +195,28 @@ func Address(address *models.Address) *ghcmessages.Address {
 	}
 }
 
+// BackupContact payload
+func BackupContact(contacts models.BackupContacts) *ghcmessages.BackupContact {
+	var name, email, phone string
+
+	if len(contacts) != 0 {
+		contact := contacts[0]
+		name = contact.Name
+		email = contact.Email
+		phone = ""
+		contactPhone := contact.Phone
+		if contactPhone != nil {
+			phone = *contactPhone
+		}
+	}
+
+	return &ghcmessages.BackupContact{
+		Name:  &name,
+		Email: &email,
+		Phone: &phone,
+	}
+}
+
 // MTOShipment payload
 func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 	strfmt.MarshalFormat = strfmt.RFC3339Micro
@@ -193,6 +232,8 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
 		SecondaryPickupAddress:   Address(mtoShipment.SecondaryPickupAddress),
 		DestinationAddress:       Address(mtoShipment.DestinationAddress),
+		PrimeEstimatedWeight:     handlers.FmtPoundPtr(mtoShipment.PrimeEstimatedWeight),
+		PrimeActualWeight:        handlers.FmtPoundPtr(mtoShipment.PrimeActualWeight),
 		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
 		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
@@ -250,7 +291,18 @@ func MTOAgents(mtoAgents *models.MTOAgents) *ghcmessages.MTOAgents {
 }
 
 // PaymentRequest payload
-func PaymentRequest(pr *models.PaymentRequest) *ghcmessages.PaymentRequest {
+func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcmessages.PaymentRequest, error) {
+	serviceDocs := make(ghcmessages.ProofOfServiceDocs, len(pr.ProofOfServiceDocs))
+	if pr.ProofOfServiceDocs != nil && len(pr.ProofOfServiceDocs) > 0 {
+		for i, proofOfService := range pr.ProofOfServiceDocs {
+			payload, err := ProofOfServiceDoc(proofOfService, storer)
+			if err != nil {
+				return nil, err
+			}
+			serviceDocs[i] = payload
+		}
+	}
+
 	return &ghcmessages.PaymentRequest{
 		ID:                   *handlers.FmtUUID(pr.ID),
 		IsFinal:              &pr.IsFinal,
@@ -260,7 +312,9 @@ func PaymentRequest(pr *models.PaymentRequest) *ghcmessages.PaymentRequest {
 		Status:               ghcmessages.PaymentRequestStatus(pr.Status),
 		ETag:                 etag.GenerateEtag(pr.UpdatedAt),
 		ServiceItems:         *PaymentServiceItems(&pr.PaymentServiceItems),
-	}
+		ReviewedAt:           handlers.FmtDateTimePtr(pr.ReviewedAt),
+		ProofOfServiceDocs:   serviceDocs,
+	}, nil
 }
 
 // PaymentServiceItem payload
@@ -283,4 +337,118 @@ func PaymentServiceItems(paymentServiceItems *models.PaymentServiceItems) *ghcme
 		payload[i] = PaymentServiceItem(&m)
 	}
 	return &payload
+}
+
+// MTOServiceItemModel payload
+func MTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOServiceItem {
+	if s == nil {
+		return nil
+	}
+
+	return &ghcmessages.MTOServiceItem{
+		ID:               handlers.FmtUUID(s.ID),
+		MoveTaskOrderID:  handlers.FmtUUID(s.MoveTaskOrderID),
+		MtoShipmentID:    handlers.FmtUUIDPtr(s.MTOShipmentID),
+		ReServiceID:      handlers.FmtUUID(s.ReServiceID),
+		ReServiceCode:    handlers.FmtString(string(s.ReService.Code)),
+		ReServiceName:    handlers.FmtStringPtr(&s.ReService.Name),
+		Reason:           handlers.FmtStringPtr(s.Reason),
+		RejectionReason:  handlers.FmtStringPtr(s.RejectionReason),
+		PickupPostalCode: handlers.FmtStringPtr(s.PickupPostalCode),
+		Status:           ghcmessages.MTOServiceItemStatus(s.Status),
+		Description:      handlers.FmtStringPtr(s.Description),
+		Dimensions:       MTOServiceItemDimensions(s.Dimensions),
+		CustomerContacts: MTOServiceItemCustomerContacts(s.CustomerContacts),
+		CreatedAt:        strfmt.DateTime(s.CreatedAt),
+		ApprovedAt:       handlers.FmtDateTimePtr(s.ApprovedAt),
+		RejectedAt:       handlers.FmtDateTimePtr(s.RejectedAt),
+		ETag:             etag.GenerateEtag(s.UpdatedAt),
+	}
+}
+
+// MTOServiceItemModels payload
+func MTOServiceItemModels(s models.MTOServiceItems) ghcmessages.MTOServiceItems {
+	serviceItems := ghcmessages.MTOServiceItems{}
+	for _, item := range s {
+		serviceItems = append(serviceItems, MTOServiceItemModel(&item))
+	}
+
+	return serviceItems
+}
+
+// MTOServiceItemDimension payload
+func MTOServiceItemDimension(d *models.MTOServiceItemDimension) *ghcmessages.MTOServiceItemDimension {
+	return &ghcmessages.MTOServiceItemDimension{
+		ID:     *handlers.FmtUUID(d.ID),
+		Type:   ghcmessages.DimensionType(d.Type),
+		Length: *d.Length.Int32Ptr(),
+		Height: *d.Height.Int32Ptr(),
+		Width:  *d.Width.Int32Ptr(),
+	}
+}
+
+// MTOServiceItemDimensions payload
+func MTOServiceItemDimensions(d models.MTOServiceItemDimensions) ghcmessages.MTOServiceItemDimensions {
+	payload := make(ghcmessages.MTOServiceItemDimensions, len(d))
+	for i, item := range d {
+		payload[i] = MTOServiceItemDimension(&item)
+	}
+	return payload
+}
+
+// MTOServiceItemCustomerContact payload
+func MTOServiceItemCustomerContact(c *models.MTOServiceItemCustomerContact) *ghcmessages.MTOServiceItemCustomerContact {
+	return &ghcmessages.MTOServiceItemCustomerContact{
+		Type:                       ghcmessages.CustomerContactType(c.Type),
+		TimeMilitary:               c.TimeMilitary,
+		FirstAvailableDeliveryDate: *handlers.FmtDate(c.FirstAvailableDeliveryDate),
+	}
+}
+
+// MTOServiceItemCustomerContacts payload
+func MTOServiceItemCustomerContacts(c models.MTOServiceItemCustomerContacts) ghcmessages.MTOServiceItemCustomerContacts {
+	payload := make(ghcmessages.MTOServiceItemCustomerContacts, len(c))
+	for i, item := range c {
+		payload[i] = MTOServiceItemCustomerContact(&item)
+	}
+	return payload
+}
+
+// Upload payload
+func Upload(storer storage.FileStorer, upload models.Upload, url string) *ghcmessages.Upload {
+	uploadPayload := &ghcmessages.Upload{
+		ID:          handlers.FmtUUID(upload.ID),
+		Filename:    swag.String(upload.Filename),
+		ContentType: swag.String(upload.ContentType),
+		URL:         handlers.FmtURI(url),
+		Bytes:       &upload.Bytes,
+		CreatedAt:   handlers.FmtDateTime(upload.CreatedAt),
+		UpdatedAt:   handlers.FmtDateTime(upload.UpdatedAt),
+	}
+	tags, err := storer.Tags(upload.StorageKey)
+	if err != nil || len(tags) == 0 {
+		uploadPayload.Status = "PROCESSING"
+	} else {
+		uploadPayload.Status = tags["av-status"]
+	}
+	return uploadPayload
+}
+
+// ProofOfServiceDoc payload from model
+func ProofOfServiceDoc(proofOfService models.ProofOfServiceDoc, storer storage.FileStorer) (*ghcmessages.ProofOfServiceDoc, error) {
+
+	uploads := make([]*ghcmessages.Upload, len(proofOfService.PrimeUploads))
+	if proofOfService.PrimeUploads != nil && len(proofOfService.PrimeUploads) > 0 {
+		for i, primeUpload := range proofOfService.PrimeUploads {
+			url, err := storer.PresignedURL(primeUpload.Upload.StorageKey, primeUpload.Upload.ContentType)
+			if err != nil {
+				return nil, err
+			}
+			uploads[i] = Upload(storer, primeUpload.Upload, url)
+		}
+	}
+
+	return &ghcmessages.ProofOfServiceDoc{
+		Uploads: uploads,
+	}, nil
 }

@@ -41,6 +41,8 @@ const (
 type MTOShipmentStatus string
 
 const (
+	// MTOShipmentStatusDraft is the draft status type for MTO Shipments
+	MTOShipmentStatusDraft MTOShipmentStatus = "DRAFT"
 	// MTOShipmentStatusSubmitted is the submitted status type for MTO Shipments
 	MTOShipmentStatusSubmitted MTOShipmentStatus = "SUBMITTED"
 	// MTOShipmentStatusApproved is the approved status type for MTO Shipments
@@ -52,8 +54,8 @@ const (
 // MTOShipment is an object representing data for a move task order shipment
 type MTOShipment struct {
 	ID                               uuid.UUID         `db:"id"`
-	MoveTaskOrder                    MoveTaskOrder     `belongs_to:"move_task_orders"`
-	MoveTaskOrderID                  uuid.UUID         `db:"move_task_order_id"`
+	MoveTaskOrder                    Move              `belongs_to:"moves"`
+	MoveTaskOrderID                  uuid.UUID         `db:"move_id"`
 	ScheduledPickupDate              *time.Time        `db:"scheduled_pickup_date"`
 	RequestedPickupDate              *time.Time        `db:"requested_pickup_date"`
 	RequestedDeliveryDate            *time.Time        `db:"requested_delivery_date"`
@@ -78,6 +80,7 @@ type MTOShipment struct {
 	ShipmentType                     MTOShipmentType   `db:"shipment_type"`
 	Status                           MTOShipmentStatus `db:"status"`
 	RejectionReason                  *string           `db:"rejection_reason"`
+	Distance                         *unit.Miles       `db:"distance"`
 	CreatedAt                        time.Time         `db:"created_at"`
 	UpdatedAt                        time.Time         `db:"updated_at"`
 }
@@ -92,6 +95,7 @@ func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		string(MTOShipmentStatusApproved),
 		string(MTOShipmentStatusRejected),
 		string(MTOShipmentStatusSubmitted),
+		string(MTOShipmentStatusDraft),
 	}})
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.MoveTaskOrderID, Name: "MoveTaskOrderID"})
 	if m.PrimeEstimatedWeight != nil {

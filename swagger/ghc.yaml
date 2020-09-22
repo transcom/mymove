@@ -53,11 +53,6 @@ paths:
         - customer
       description: Returns a given customer
       operationId: getCustomer
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       summary: Returns a given customer
   '/move/{locator}':
     parameters:
@@ -98,11 +93,6 @@ paths:
       description: Returns a given move
       summary: Returns a given move
       operationId: getMove
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
   /move-orders:
     get:
       produces:
@@ -136,11 +126,6 @@ paths:
       tags:
         - moveOrder
       description: Gets all move orders
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       operationId: listMoveOrders
       summary: Gets all move orders
   '/move-orders/{moveOrderID}':
@@ -151,6 +136,53 @@ paths:
         required: true
         type: string
         format: uuid
+    patch:
+      summary: Updates a move order
+      description: All fields sent in this request will be set on the move order referenced
+      operationId: updateMoveOrder
+      tags:
+        - moveOrder
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateMoveOrderPayload'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+      responses:
+        '200':
+          description: updated instance of orders
+          schema:
+            $ref: '#/definitions/MoveOrder'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was unauthenticated
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was unauthorized
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '412':
+          description: Precondition failed
+          schema:
+            $ref: '#/responses/PreconditionFailed'
+        '500':
+          description: internal server error
     get:
       produces:
         - application/json
@@ -267,11 +299,6 @@ paths:
         - moveTaskOrder
       description: Deletes a move order by ID
       operationId: deleteMoveTaskOrder
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       summary: Deletes a move order by ID
     get:
       produces:
@@ -306,11 +333,6 @@ paths:
         - moveTaskOrder
       description: Gets a move order
       operationId: getMoveTaskOrder
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       summary: Gets a move order by ID
     patch:
       consumes:
@@ -360,11 +382,6 @@ paths:
         - moveTaskOrder
       description: Updates a move order by ID
       operationId: updateMoveTaskOrder
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       summary: Updates a move order by ID
   '/move_task_orders/{moveTaskOrderID}/mto_service_items':
     parameters:
@@ -398,11 +415,6 @@ paths:
       tags:
         - mtoServiceItem
       description: Gets all line items for a move orders
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       operationId: listMTOServiceItems
       summary: Gets all line items for a move order
     post:
@@ -453,11 +465,6 @@ paths:
       tags:
         - mtoServiceItem
       description: Creates a service item for a move order by id
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       operationId: createMTOServiceItem
       summary: Creates a service item for a move order by id
   '/move_task_orders/{moveTaskOrderID}/mto_shipments':
@@ -474,7 +481,7 @@ paths:
       parameters: []
       responses:
         '200':
-          description: Successfully retrieved all line items for a move task order
+          description: Successfully retrieved all mto shipments for a move task order
           schema:
             $ref: '#/definitions/MTOShipments'
         '404':
@@ -492,11 +499,6 @@ paths:
       tags:
         - mtoShipment
       description: Gets all shipments for a move task order
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       operationId: listMTOShipments
       summary: Gets all shipments for a move task order
   '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/status':
@@ -556,10 +558,6 @@ paths:
       tags:
         - mtoShipment
       description: Updates a shipment's status
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
       operationId: patchMTOShipmentStatus
       summary: Updates a shipment's status
   '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/mto-agents':
@@ -600,11 +598,6 @@ paths:
       tags:
         - mtoAgent
       description: Fetches a list of agents associated with a move task order.
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       operationId: fetchMTOAgentList
       summary: Fetch move task order agents.
   '/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}':
@@ -651,11 +644,6 @@ paths:
       tags:
         - mtoServiceItem
       description: Deletes a line item by ID for a move order by ID
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       operationId: deleteMTOServiceItem
       summary: Deletes a line item by ID for a move order by ID
     get:
@@ -690,11 +678,6 @@ paths:
       tags:
         - mtoServiceItem
       description: Gets a line item by ID for a move order by ID
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       operationId: getMTOServiceItem
       summary: Gets a line item by ID for a move order by ID
     patch:
@@ -744,11 +727,6 @@ paths:
       tags:
         - mtoServiceItem
       description: Updates a service item by ID for a move order by ID
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       operationId: updateMTOServiceItem
       summary: Updates a service item by ID for a move order by ID
   '/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}/status':
@@ -773,7 +751,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/MTOServiceItem'
+            $ref: '#/definitions/PatchMTOServiceItemStatusPayload'
         - in: header
           name: If-Match
           type: string
@@ -805,6 +783,10 @@ paths:
           description: Precondition Failed
           schema:
             $ref: '#/responses/PreconditionFailed'
+        '422':
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
         '500':
           description: A server error occurred
           schema:
@@ -812,11 +794,6 @@ paths:
       tags:
         - mtoServiceItem
       description: Changes the status of a line item for a move order by ID
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       operationId: updateMTOServiceItemStatus
       summary: Change the status of a line item for a move order by ID
   '/move-task-orders/{moveTaskOrderID}/status':
@@ -873,11 +850,6 @@ paths:
         - moveTaskOrder
       description: Changes move task order status to make it available to prime
       operationId: updateMoveTaskOrderStatus
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       summary: Change the status of a move task order to make it available to prime
   '/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status':
     parameters:
@@ -940,8 +912,6 @@ paths:
       tags:
         - paymentServiceItem
       description: Changes the status of a line item for a move order by ID
-      x-swagger-roles:
-        - transportation_invoicing_officer
       operationId: updatePaymentServiceItemStatus
       summary: Change the status of a payment service item for a move order by ID
   '/move-task-orders/{moveTaskOrderID}/entitlements':
@@ -1055,66 +1025,7 @@ paths:
         - gov
       description: Fetches an instance of a payment request by id
       operationId: getPaymentRequest
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       summary: Fetches a payment request by id
-    patch:
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/UpdatePaymentRequestPayload'
-        - in: header
-          name: If-Match
-          type: string
-          required: true
-      responses:
-        '200':
-          description: updated payment request
-          schema:
-            $ref: '#/definitions/PaymentRequest'
-        '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
-        '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
-        '412':
-          description: Precondition failed
-          schema:
-            $ref: '#/responses/PreconditionFailed'
-        '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
-      tags:
-        - paymentRequests
-      description: Updates a payment request by id
-      operationId: updatePaymentRequest
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
-      summary: Updates a payment request by id
   '/payment-requests/{paymentRequestID}/status':
     patch:
       consumes:
@@ -1175,12 +1086,54 @@ paths:
         - gov
       description: Updates status of a payment request by id
       operationId: updatePaymentRequestStatus
-      x-swagger-roles:
-        - transportation_invoicing_officer
-        - transportation_ordering_officer
-        - contracting_officer
-        - ppm_office_users
       summary: Updates status of a payment request by id
+  /documents/{documentId}:
+    get:
+      summary: Returns a document
+      description: Returns a document and its uploads
+      operationId: getDocument
+      tags:
+        - ghcDocuments
+      parameters:
+        - in: path
+          name: documentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the document to return
+      responses:
+        200:
+          description: the requested document
+          schema:
+            $ref: '#/definitions/DocumentPayload'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '412':
+          description: Precondition Failed
+          schema:
+            $ref: '#/responses/PreconditionFailed'
+        '422':
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
 definitions:
   ClientError:
     type: object
@@ -1358,6 +1311,22 @@ definitions:
       - city
       - state
       - postal_code
+  BackupContact:
+    type: object
+    properties:
+      name:
+        type: string
+        x-nullable: true
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        x-nullable: true
+      phone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
   Customer:
     type: object
     properties:
@@ -1383,6 +1352,9 @@ definitions:
       current_address:
         x-nullable: true
         $ref: '#/definitions/Address'
+      backup_contact:
+        x-nullable: true
+        $ref: '#/definitions/BackupContact'
       id:
         type: string
         format: uuid
@@ -1483,6 +1455,49 @@ definitions:
       updated_at:
         type: string
         format: date-time
+  DeptIndicator:
+    type: string
+    title: Dept. indicator
+    enum:
+      - NAVY_AND_MARINES
+      - ARMY
+      - AIR_FORCE
+      - COAST_GUARD
+    x-display-value:
+      NAVY_AND_MARINES: 17 Navy and Marine Corps
+      ARMY: 21 Army
+      AIR_FORCE: 57 Air Force
+      COAST_GUARD: 70 Coast Guard
+  OrdersType:
+    type: string
+    title: Orders type
+    enum:
+      - PERMANENT_CHANGE_OF_STATION
+      - RETIREMENT
+      - SEPARATION
+    x-display-value:
+      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
+      RETIREMENT: Retirement
+      SEPARATION: Separation
+  OrdersTypeDetail:
+    type: string
+    title: Orders type detail
+    enum:
+      - HHG_PERMITTED
+      - PCS_TDY
+      - HHG_RESTRICTED_PROHIBITED
+      - HHG_RESTRICTED_AREA
+      - INSTRUCTION_20_WEEKS
+      - HHG_PROHIBITED_20_WEEKS
+      - DELAYED_APPROVAL
+    x-display-value:
+      HHG_PERMITTED: Shipment of HHG Permitted
+      PCS_TDY: PCS with TDY Enroute
+      HHG_RESTRICTED_PROHIBITED: Shipment of HHG Restricted or Prohibited
+      HHG_RESTRICTED_AREA: HHG Restricted Area-HHG Prohibited
+      INSTRUCTION_20_WEEKS: Course of Instruction 20 Weeks or More
+      HHG_PROHIBITED_20_WEEKS: Shipment of HHG Prohibited but Authorized within 20 weeks
+      DELAYED_APPROVAL: Delayed Approval 20 Weeks or More
   MoveOrder:
     properties:
       id:
@@ -1520,18 +1535,18 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+      uploaded_order_id:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
       order_number:
         type: string
         x-nullable: true
         example: '030-00362'
       order_type:
-        example: GHC
-        type: string
+        $ref: '#/definitions/OrdersType'
       order_type_detail:
-        type: string
-        enum:
-          - GHC
-          - NTS
+        $ref: '#/definitions/OrdersTypeDetail'
         x-nullable: true
       date_issued:
         type: string
@@ -1541,9 +1556,85 @@ definitions:
         type: string
         format: date
         example: '2020-01-01'
+      department_indicator:
+        $ref: '#/definitions/DeptIndicator'
+        x-nullable: true
+      tac:
+        type: string
+        title: TAC
+        example: 'F8J1'
+        x-nullable: true
+      sac:
+        type: string
+        title: SAC
+        example: 'N002214CSW32Y9'
+        x-nullable: true
+      has_dependents:
+        type: boolean
+        example: false
+        title: Are dependents included in your orders?
+      spouse_has_pro_gear:
+        type: boolean
+        example: false
+        title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
       eTag:
         type: string
     type: object
+  UpdateMoveOrderPayload:
+    type: object
+    properties:
+      issueDate:
+        type: string
+        description: The date and time that these orders were cut.
+        format: date
+        example: '2018-04-26'
+        title: Orders date
+      reportByDate:
+        type: string
+        description: Report By Date
+        format: date
+        example: '2018-04-26'
+        title: Report-by date
+      ordersType:
+        $ref: '#/definitions/OrdersType'
+      ordersTypeDetail:
+        $ref: '#/definitions/OrdersTypeDetail'
+      originDutyStationId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      newDutyStationId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      ordersNumber:
+        type: string
+        title: Orders Number
+        x-nullable: true
+        example: '030-00362'
+      tac:
+        type: string
+        title: TAC
+        example: 'F8J1'
+        x-nullable: true
+      sac:
+        type: string
+        title: SAC
+        example: 'N002214CSW32Y9'
+        x-nullable: true
+      departmentIndicator:
+        $ref: '#/definitions/DeptIndicator'
+    required:
+      - issueDate
+      - reportByDate
+      - ordersType
+      - ordersTypeDetail
+      - newDutyStationId
+      - originDutyStationId
+      - ordersNumber
+      - tac
+      - sac
+      - departmentIndicator
   MoveTaskOrder:
     properties:
       id:
@@ -1645,8 +1736,8 @@ definitions:
     type: object
   PaymentRequest:
     properties:
-      documentPackage:
-        $ref: '#/definitions/ProofOfServicePackage'
+      proofOfServiceDocs:
+        $ref: '#/definitions/ProofOfServiceDocs'
       id:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -1673,6 +1764,10 @@ definitions:
         type: string
       eTag:
         type: string
+      reviewedAt:
+        format: date-time
+        type: string
+        x-nullable: true
     type: object
   PaymentRequests:
     items:
@@ -1834,6 +1929,7 @@ definitions:
   ServiceItemParamName:
     type: string
     enum:
+      - ActualPickupDate
       - CanStandAlone
       - ContractCode
       - CubicFeetBilled
@@ -1843,6 +1939,7 @@ definitions:
       - DistanceZip5SITDest
       - DistanceZip5SITOrigin
       - EIAFuelPrice
+      - FSCWeightBasedDistanceMultiplier
       - MarketDest
       - MarketOrigin
       - MTOAvailableToPrimeAt
@@ -1918,6 +2015,16 @@ definitions:
           $ref: '#/definitions/Upload'
         type: array
     type: object
+  ProofOfServiceDocs:
+    items:
+      $ref: '#/definitions/ProofOfServiceDoc'
+    type: array
+  ProofOfServiceDoc:
+    properties:
+      uploads:
+        items:
+          $ref: '#/definitions/Upload'
+        type: array
   MTOShipment:
     properties:
       moveTaskOrderID:
@@ -1934,6 +2041,14 @@ definitions:
       updatedAt:
         format: date-time
         type: string
+      primeEstimatedWeight:
+        x-nullable: true
+        example: 2000
+        type: integer
+      primeActualWeight:
+        x-nullable: true
+        example: 2000
+        type: integer
       scheduledPickupDate:
         format: date
         type: string
@@ -1944,16 +2059,16 @@ definitions:
         format: date
         type: string
       pickupAddress:
-        x-nullabe: true
+        x-nullable: true
         $ref: '#/definitions/Address'
       destinationAddress:
-        x-nullabe: true
+        x-nullable: true
         $ref: '#/definitions/Address'
       secondaryPickupAddress:
-        x-nullabe: true
+        x-nullable: true
         $ref: '#/definitions/Address'
       secondaryDeliveryAddress:
-        x-nullabe: true
+        x-nullable: true
         $ref: '#/definitions/Address'
       customerRemarks:
         type: string
@@ -1992,6 +2107,20 @@ definitions:
         type: string
         example: MTO Shipment not good enough
         x-nullable: true
+  PatchMTOServiceItemStatusPayload:
+    properties:
+      status:
+        description: Describes all statuses for a MTOServiceItem
+        type: string
+        enum:
+          - SUBMITTED
+          - APPROVED
+          - REJECTED
+      rejectionReason:
+        description: Reason the service item was rejected
+        type: string
+        example: Insufficent details provided
+        x-nullable: true
   MTOServiceItemStatus:
     description: Describes all statuses for a MTOServiceItem
     type: string
@@ -2017,19 +2146,23 @@ definitions:
         type: string
       reServiceName:
         type: string
-      approvedAt:
-        format: date
-        type: string
       createdAt:
         format: date-time
         type: string
+      customerContacts:
+        $ref: '#/definitions/MTOServiceItemCustomerContacts'
       deletedAt:
         format: date
         type: string
       description:
         type: string
+      dimensions:
+        $ref: '#/definitions/MTOServiceItemDimensions'
       reason:
         type: string
+      rejectionReason:
+        type: string
+        x-nullable: true
       pickupPostalCode:
         type: string
       feeType:
@@ -2047,9 +2180,6 @@ definitions:
         type: integer
       rate:
         type: integer
-      rejectedAt:
-        format: date
-        type: string
       status:
         $ref: '#/definitions/MTOServiceItemStatus'
       submittedAt:
@@ -2061,6 +2191,14 @@ definitions:
       updatedAt:
         format: date-time
         type: string
+      approvedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      rejectedAt:
+        format: date-time
+        type: string
+        x-nullable: true
       eTag:
         type: string
     required:
@@ -2072,6 +2210,7 @@ definitions:
       - mtoShipmentID
       - reason
       - pickupPostalCode
+      - description
     type: object
   MTOServiceItems:
     type: array
@@ -2086,6 +2225,70 @@ definitions:
           - REJECTED
         type: string
     type: object
+  DimensionType:
+    description: Describes a dimension type for a MTOServiceItemDimension.
+    type: string
+    enum:
+      - ITEM
+      - CRATE
+  MTOServiceItemDimension:
+    description: Describes a dimension object for the MTOServiceItem.
+    type: object
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      type:
+        $ref: '#/definitions/DimensionType'
+      length:
+        description: Length in thousandth inches. 1000 thou = 1 inch.
+        example: 1000
+        type: integer
+        format: int32
+      width:
+        description: Width in thousandth inches. 1000 thou = 1 inch.
+        example: 1000
+        type: integer
+        format: int32
+      height:
+        description: Height in thousandth inches. 1000 thou = 1 inch.
+        example: 1000
+        type: integer
+        format: int32
+  MTOServiceItemDimensions:
+    type: array
+    items:
+      $ref: '#/definitions/MTOServiceItemDimension'
+  CustomerContactType:
+    description: Describes a customer contact type for a MTOServiceItem of type domestic destination SIT.
+    type: string
+    enum:
+      - FIRST
+      - SECOND
+  MTOServiceItemCustomerContact:
+    description: Customer contact information for a destination SIT service item
+    type: object
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      type:
+        $ref: '#/definitions/CustomerContactType'
+      timeMilitary:
+        type: string
+        example: 0400Z
+        description: Time of delivery corresponding to `firstAvailableDeliveryDate`.
+      firstAvailableDeliveryDate:
+        format: date
+        type: string
+        example: '2020-12-31'
+        description: First available date that Prime can deliver SIT service item.
+  MTOServiceItemCustomerContacts:
+    type: array
+    items:
+      $ref: '#/definitions/MTOServiceItemCustomerContact'
   MTOApprovalServiceItemCodes:
     type: array
     items:
@@ -2119,6 +2322,25 @@ definitions:
       eTag:
         type: string
     type: object
+  DocumentPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member_id:
+        type: string
+        format: uuid
+        title: The service member this document belongs to
+      uploads:
+        type: array
+        items:
+          $ref: '#/definitions/Upload'
+    required:
+      - id
+      - service_member_id
+      - uploads
   Upload:
     properties:
       bytes:
@@ -2132,7 +2354,6 @@ definitions:
         type: string
       filename:
         example: filename.pdf
-        format: binary
         type: string
       id:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -2145,6 +2366,12 @@ definitions:
         example: 'https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538'
         format: uri
         type: string
+      status:
+        type: string
+        enum:
+          - INFECTED
+          - CLEAN
+          - PROCESSING
     required:
       - id
       - url

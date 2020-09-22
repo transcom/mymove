@@ -1,0 +1,35 @@
+@import 'shared/styles/colors';
+@import 'shared/styles/_basics';
+
+.shipment-list-item-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 5px;
+  border: 1px solid $base-lighter;
+  padding-left: 6px;
+  padding-right: 13px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  @include u-margin-bottom(1);
+
+  &:last-child {
+    margin-bottom: 0px;
+  }
+}
+
+.edit {
+  fill: $primary;
+}
+
+.shipment-list-item-PPM {
+  border-left: 5px solid $accent-ppm;
+}
+
+.shipment-list-item-HHG {
+  border-left: 5px solid $accent-hhg;
+}
+
+.shipment-list-item-NTS {
+  border-left: 5px solid $accent-nts;
+}

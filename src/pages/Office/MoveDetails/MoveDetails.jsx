@@ -5,7 +5,7 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 
-import styles from './MoveDetails.module.scss';
+import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
 import { getMTOAgentList, selectMTOAgents } from 'shared/Entities/modules/mtoAgents';
 import {
@@ -30,9 +30,9 @@ import {
 import { loadOrders } from 'shared/Entities/modules/orders';
 import LeftNav from 'components/LeftNav';
 import CustomerInfoTable from 'components/Office/CustomerInfoTable';
-import RequestedShipments from 'components/Office/RequestedShipments';
+import RequestedShipments from 'components/Office/RequestedShipments/RequestedShipments';
 import AllowancesTable from 'components/Office/AllowancesTable';
-import OrdersTable from 'components/Office/OrdersTable';
+import OrdersTable from 'components/Office/OrdersTable/OrdersTable';
 import {
   MoveOrderShape,
   EntitlementShape,
@@ -103,7 +103,7 @@ export class MoveDetails extends Component {
 
     sections.forEach((section) => {
       const sectionEl = document.querySelector(`#${section}`);
-      if (sectionEl.offsetTop <= distanceFromTop && sectionEl.offsetTop + sectionEl.offsetHeight > distanceFromTop) {
+      if (sectionEl?.offsetTop <= distanceFromTop && sectionEl?.offsetTop + sectionEl?.offsetHeight > distanceFromTop) {
         newActiveSection = section;
       }
     });
@@ -147,8 +147,8 @@ export class MoveDetails extends Component {
     const { activeSection, sections } = this.state;
 
     const ordersInfo = {
-      newDutyStation: moveOrder.destinationDutyStation?.name,
-      currentDutyStation: moveOrder.originDutyStation?.name,
+      newDutyStation: moveOrder.destinationDutyStation,
+      currentDutyStation: moveOrder.originDutyStation,
       issuedDate: moveOrder.date_issued,
       reportByDate: moveOrder.report_by_date,
       departmentIndicator: moveOrder.department_indicator,
@@ -156,7 +156,7 @@ export class MoveDetails extends Component {
       ordersType: moveOrder.order_type,
       ordersTypeDetail: moveOrder.order_type_detail,
       tacMDC: moveOrder.tac,
-      sacSDN: moveOrder.sacSDN,
+      sacSDN: moveOrder.sac,
     };
     const allowancesInfo = {
       branch: customer.agency,
@@ -174,13 +174,11 @@ export class MoveDetails extends Component {
       phone: `+1 ${customer.phone}`,
       email: customer.email,
       currentAddress: customer.current_address,
-      backupContactName: '',
-      backupContactPhone: '',
-      backupContactEmail: '',
+      backupContact: customer.backup_contact,
     };
 
     return (
-      <div className={styles.MoveDetails}>
+      <div className={styles.tabContent}>
         <div className={styles.container}>
           <LeftNav className={styles.sidebar}>
             {sections.map((s) => {
@@ -200,6 +198,7 @@ export class MoveDetails extends Component {
               <div className={styles.section} id="requested-shipments">
                 <RequestedShipments
                   mtoShipments={submittedShipments}
+                  ordersInfo={ordersInfo}
                   allowancesInfo={allowancesInfo}
                   customerInfo={customerInfo}
                   mtoAgents={mtoAgents}
@@ -214,11 +213,13 @@ export class MoveDetails extends Component {
               <div className={styles.section} id="approved-shipments">
                 <RequestedShipments
                   mtoShipments={approvedShipments}
+                  ordersInfo={ordersInfo}
                   allowancesInfo={allowancesInfo}
                   customerInfo={customerInfo}
                   mtoAgents={mtoAgents}
                   mtoServiceItems={mtoServiceItems}
                   shipmentsStatus="APPROVED"
+                  moveTaskOrder={moveTaskOrder}
                 />
               </div>
             )}

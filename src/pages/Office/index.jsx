@@ -41,9 +41,8 @@ const TXOMoveInfo = lazy(() => import('pages/Office/TXOMoveInfo/TXOMoveInfo'));
 // TOO pages (TODO move into src/pages)
 const TOO = lazy(() => import('scenes/Office/TOO/too'));
 const CustomerDetails = lazy(() => import('scenes/Office/TOO/customerDetails'));
-const TOOVerificationInProgress = lazy(() => import('scenes/Office/TOO/tooVerificationInProgress'));
-// TIO pages (TODO move into src/pages)
-const PaymentRequestIndex = lazy(() => import('scenes/Office/TIO/paymentRequestIndex'));
+// TIO pages
+const PaymentRequestIndex = lazy(() => import('pages/Office/PaymentRequestIndex/PaymentRequestIndex'));
 
 export class OfficeApp extends Component {
   constructor(props) {
@@ -83,7 +82,7 @@ export class OfficeApp extends Component {
       location: { pathname },
     } = this.props;
 
-    const selectedRole = userIsLoggedIn && (activeRole || userRoles[0]?.roleType);
+    const selectedRole = userIsLoggedIn && activeRole;
 
     // TODO - test login page?
 
@@ -170,9 +169,6 @@ export class OfficeApp extends Component {
 
                 {/* PPM & TXO conflicting routes - select based on user role */}
                 {selectedRole === roleTypes.PPM ? ppmRoutes : txoRoutes}
-
-                {/* TODO - audit functionality of this route */}
-                <Route path="/verification-in-progress" component={TOOVerificationInProgress} />
 
                 {/* TEMP FOR DEV ONLY */}
                 <PrivateRoute

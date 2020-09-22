@@ -13,27 +13,12 @@ func MakeWebhookSubscription(db *pop.Connection, assertions Assertions) models.W
 		subscriber = MakeContractor(db, assertions)
 	}
 
-	status := assertions.WebhookSubscription.Status
-	if status == "" {
-		status = models.WebhookSubscriptionStatusActive
-	}
-
-	callbackURL := assertions.WebhookSubscription.CallbackURL
-	if callbackURL == "" {
-		callbackURL = DefaultWebhookSubscriptionCallbackURL
-	}
-
-	eventKey := assertions.WebhookSubscription.EventKey
-	if eventKey == "" {
-		eventKey = "PaymentRequest.Update"
-	}
-
 	webhookSubscription := models.WebhookSubscription{
 		Subscriber:   subscriber,
 		SubscriberID: subscriber.ID,
-		Status:       status,
-		EventKey:     eventKey,
-		CallbackURL:  callbackURL,
+		Status:       models.WebhookSubscriptionStatusActive,
+		EventKey:     "PaymentRequest.Update",
+		CallbackURL:  "/my/callback/url",
 	}
 
 	mergeModels(&webhookSubscription, assertions.WebhookSubscription)
@@ -41,4 +26,9 @@ func MakeWebhookSubscription(db *pop.Connection, assertions Assertions) models.W
 	mustCreate(db, &webhookSubscription)
 
 	return webhookSubscription
+}
+
+// MakeDefaultWebhookSubscription makes a WebhookSubscription with default values
+func MakeDefaultWebhookSubscription(db *pop.Connection) models.WebhookSubscription {
+	return MakeWebhookSubscription(db, Assertions{})
 }

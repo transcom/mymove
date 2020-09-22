@@ -4,6 +4,8 @@ import (
 	"errors"
 	"net/http/httptest"
 
+	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
+
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
@@ -25,16 +27,15 @@ import (
 
 	mtoserviceitemops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/handlers/primeapi/internal/payloads"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
-	mto := MakeAvailableMoveTaskOrder(suite.DB())
+	mto := testdatagen.MakeAvailableMove(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: mto,
+		Move: mto,
 	})
 	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
@@ -73,7 +74,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
 
 		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
-		suite.NotZero(okResponse.Payload.ID())
+		suite.NotZero(okResponse.Payload[0].ID())
 	})
 
 	suite.T().Run("POST failure - 500", func(t *testing.T) {
@@ -151,7 +152,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	})
 
 	suite.T().Run("POST failure - 404 - MTO is not available to Prime", func(t *testing.T) {
-		mtoNotAvailable := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+		mtoNotAvailable := testdatagen.MakeDefaultMove(suite.DB())
 
 		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
 		handler := CreateMTOServiceItemHandler{
@@ -176,9 +177,9 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	})
 
 	suite.T().Run("POST failure - 404 - Integration - ShipmentID not linked by MoveTaskOrderID", func(t *testing.T) {
-		mto2 := MakeAvailableMoveTaskOrder(suite.DB())
+		mto2 := testdatagen.MakeAvailableMove(suite.DB())
 		mtoShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MoveTaskOrder: mto2,
+			Move: mto2,
 		})
 		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
 		handler := CreateMTOServiceItemHandler{
@@ -250,9 +251,9 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 }
 
 func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
-	mto := MakeAvailableMoveTaskOrder(suite.DB())
+	mto := testdatagen.MakeAvailableMove(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: mto,
+		Move: mto,
 	})
 	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
@@ -314,7 +315,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
 
 		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
-		suite.NotZero(okResponse.Payload.ID())
+		suite.NotZero(okResponse.Payload[0].ID())
 	})
 
 	suite.T().Run("Successful POST - Integration Test - Domestic Uncrating", func(t *testing.T) {
@@ -335,7 +336,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
 
 		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
-		suite.NotZero(okResponse.Payload.ID())
+		suite.NotZero(okResponse.Payload[0].ID())
 	})
 
 	suite.T().Run("Successful POST - Integration Test - Domestic Crating Standalone", func(t *testing.T) {
@@ -356,7 +357,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
 
 		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
-		suite.NotZero(okResponse.Payload.ID())
+		suite.NotZero(okResponse.Payload[0].ID())
 	})
 
 	suite.T().Run("POST failure - 422", func(t *testing.T) {
@@ -386,9 +387,9 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 }
 
 func (suite *HandlerSuite) TestCreateMTOServiceItemDDFSITHandler() {
-	mto := MakeAvailableMoveTaskOrder(suite.DB())
+	mto := testdatagen.MakeAvailableMove(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: mto,
+		Move: mto,
 	})
 	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
@@ -437,6 +438,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDDFSITHandler() {
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
 
 		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
-		suite.NotZero(okResponse.Payload.ID())
+		suite.NotZero(okResponse.Payload[0].ID())
 	})
 }

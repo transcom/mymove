@@ -148,6 +148,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		UsersIsLoggedInUserHandler: users.IsLoggedInUserHandlerFunc(func(params users.IsLoggedInUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation UsersIsLoggedInUser has not yet been implemented")
 		}),
+		MtoShipmentListMTOShipmentsHandler: mto_shipment.ListMTOShipmentsHandlerFunc(func(params mto_shipment.ListMTOShipmentsParams) middleware.Responder {
+			return middleware.NotImplemented("operation MtoShipmentListMTOShipments has not yet been implemented")
+		}),
 		MovesPatchMoveHandler: moves.PatchMoveHandlerFunc(func(params moves.PatchMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation MovesPatchMove has not yet been implemented")
 		}),
@@ -225,6 +228,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		PpmSubmitPersonallyProcuredMoveHandler: ppm.SubmitPersonallyProcuredMoveHandlerFunc(func(params ppm.SubmitPersonallyProcuredMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation PpmSubmitPersonallyProcuredMove has not yet been implemented")
+		}),
+		MtoShipmentUpdateMTOShipmentHandler: mto_shipment.UpdateMTOShipmentHandlerFunc(func(params mto_shipment.UpdateMTOShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation MtoShipmentUpdateMTOShipment has not yet been implemented")
 		}),
 		MoveDocsUpdateMoveDocumentHandler: move_docs.UpdateMoveDocumentHandlerFunc(func(params move_docs.UpdateMoveDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveDocsUpdateMoveDocument has not yet been implemented")
@@ -341,6 +347,8 @@ type MymoveAPI struct {
 	CertificationIndexSignedCertificationHandler certification.IndexSignedCertificationHandler
 	// UsersIsLoggedInUserHandler sets the operation handler for the is logged in user operation
 	UsersIsLoggedInUserHandler users.IsLoggedInUserHandler
+	// MtoShipmentListMTOShipmentsHandler sets the operation handler for the list m t o shipments operation
+	MtoShipmentListMTOShipmentsHandler mto_shipment.ListMTOShipmentsHandler
 	// MovesPatchMoveHandler sets the operation handler for the patch move operation
 	MovesPatchMoveHandler moves.PatchMoveHandler
 	// PpmPatchPersonallyProcuredMoveHandler sets the operation handler for the patch personally procured move operation
@@ -393,6 +401,8 @@ type MymoveAPI struct {
 	MovesSubmitMoveForApprovalHandler moves.SubmitMoveForApprovalHandler
 	// PpmSubmitPersonallyProcuredMoveHandler sets the operation handler for the submit personally procured move operation
 	PpmSubmitPersonallyProcuredMoveHandler ppm.SubmitPersonallyProcuredMoveHandler
+	// MtoShipmentUpdateMTOShipmentHandler sets the operation handler for the update m t o shipment operation
+	MtoShipmentUpdateMTOShipmentHandler mto_shipment.UpdateMTOShipmentHandler
 	// MoveDocsUpdateMoveDocumentHandler sets the operation handler for the update move document operation
 	MoveDocsUpdateMoveDocumentHandler move_docs.UpdateMoveDocumentHandler
 	// OrdersUpdateOrdersHandler sets the operation handler for the update orders operation
@@ -592,6 +602,10 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "users.IsLoggedInUserHandler")
 	}
 
+	if o.MtoShipmentListMTOShipmentsHandler == nil {
+		unregistered = append(unregistered, "mto_shipment.ListMTOShipmentsHandler")
+	}
+
 	if o.MovesPatchMoveHandler == nil {
 		unregistered = append(unregistered, "moves.PatchMoveHandler")
 	}
@@ -694,6 +708,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.PpmSubmitPersonallyProcuredMoveHandler == nil {
 		unregistered = append(unregistered, "ppm.SubmitPersonallyProcuredMoveHandler")
+	}
+
+	if o.MtoShipmentUpdateMTOShipmentHandler == nil {
+		unregistered = append(unregistered, "mto_shipment.UpdateMTOShipmentHandler")
 	}
 
 	if o.MoveDocsUpdateMoveDocumentHandler == nil {
@@ -870,7 +888,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/mto-shipments"] = mto_shipment.NewCreateMTOShipment(o.context, o.MtoShipmentCreateMTOShipmentHandler)
+	o.handlers["POST"]["/mto_shipments"] = mto_shipment.NewCreateMTOShipment(o.context, o.MtoShipmentCreateMTOShipmentHandler)
 
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
@@ -971,6 +989,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/users/is_logged_in"] = users.NewIsLoggedInUser(o.context, o.UsersIsLoggedInUserHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/moves/{moveTaskOrderID}/mto_shipments"] = mto_shipment.NewListMTOShipments(o.context, o.MtoShipmentListMTOShipmentsHandler)
 
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
@@ -1101,6 +1124,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/personally_procured_move/{personallyProcuredMoveId}/submit"] = ppm.NewSubmitPersonallyProcuredMove(o.context, o.PpmSubmitPersonallyProcuredMoveHandler)
+
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/mto-shipments/{mtoShipmentId}"] = mto_shipment.NewUpdateMTOShipment(o.context, o.MtoShipmentUpdateMTOShipmentHandler)
 
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)

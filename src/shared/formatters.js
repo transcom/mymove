@@ -1,8 +1,11 @@
 import { isFinite } from 'lodash';
 import moment from 'moment';
 import numeral from 'numeral';
+import path from 'path';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
+import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orders';
 
 /**
  * Formats number into a dollar string. Eg. $1,234.12
@@ -181,10 +184,14 @@ export const displayDateRange = (dates, formatType = 'long') => {
 // Office Formatters
 
 // Format a date and ignore any time values, e.g. 03-Jan-18
-export function formatDate(date, inputFormat, locale = 'en', isStrict = false) {
+export function formatDate(date, inputFormat, outputFormat = 'DD-MMM-YY', locale = 'en', isStrict = false) {
   if (date) {
-    return moment(date, inputFormat, locale, isStrict).format('DD-MMM-YY');
+    return moment(date, inputFormat, locale, isStrict).format(outputFormat);
   }
+}
+
+export function formatDateFromIso(date, outputFormat) {
+  return formatDate(date, 'YYYY-MM-DDTHH:mm:ss.SSSZ', outputFormat);
 }
 
 export function formatDate4DigitYear(date) {
@@ -288,16 +295,22 @@ export const mtoShipmentTypeToFriendlyDisplay = (shipmentType) => {
   }
 };
 
-// Concat service member's full name for display
-export function getFullSMName(serviceMember) {
-  if (!serviceMember) return;
-  return `${serviceMember.first_name} ${serviceMember.middle_name || ''} ${serviceMember.last_name} ${
-    serviceMember.suffix || ''
-  }`;
-}
+export const departmentIndicatorReadable = (departmentIndicator) => {
+  return DEPARTMENT_INDICATOR_OPTIONS[`${departmentIndicator}`] || departmentIndicator;
+};
 
-// Concat agent's full name for display
-export function getFullAgentName(agent) {
-  if (!agent) return;
-  return `${agent.firstName} ${agent.lastName}`;
-}
+export const ordersTypeReadable = (ordersType) => {
+  return ORDERS_TYPE_OPTIONS[`${ordersType}`] || ordersType;
+};
+
+export const ordersTypeDetailReadable = (ordersTypeDetail) => {
+  return ORDERS_TYPE_DETAILS_OPTIONS[`${ordersTypeDetail}`] || ordersTypeDetail;
+};
+
+export const dropdownInputOptions = (options) => {
+  return Object.entries(options).map(([key, value]) => ({ key: key, value: value }));
+};
+
+export const filenameFromPath = (filePath) => {
+  return path.basename(filePath);
+};

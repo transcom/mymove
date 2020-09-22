@@ -41,23 +41,30 @@ export class SignedCertification extends Component {
 
   submitCertificate = () => {
     const signatureTime = moment().format();
-    const { currentPpm, moveId } = this.props;
+    const { currentPpm, moveId, values, selectedMoveType } = this.props;
     const certificate = {
       certification_text: this.getCertificationText(currentPpm.has_sit, currentPpm.has_requested_advance),
       date: signatureTime,
-      signature: 'CHECKBOX',
+      signature: values.signature,
       personally_procured_move_id: currentPpm.id,
-      certification_type: 'PPM_PAYMENT',
+      certification_type: selectedMoveType,
     };
     return this.props.createSignedCertification(moveId, certificate);
   };
 
   handleSubmit = () => {
     const pendingValues = this.props.values;
-    const { latestSignedCertification } = this.props;
+    const { latestSignedCertification, currentPpm } = this.props;
+    const landingPath = () => {
+      // TODO: change when supporting a combo ppm ?
+      if (Object.keys(currentPpm).length) {
+        return '/ppm';
+      }
+      return '/';
+    };
     const submitDate = moment().format();
     if (latestSignedCertification) {
-      return this.props.push('/');
+      return this.props.push(landingPath());
     }
 
     if (pendingValues) {
@@ -66,7 +73,7 @@ export class SignedCertification extends Component {
         .then(() => {
           this.props.showSubmitSuccessBanner();
           setTimeout(() => this.props.removeSubmitSuccessBanner(), 10000);
-          this.props.push('/');
+          this.props.push(landingPath());
         })
         .catch(() => this.setState({ hasMoveSubmitError: true }));
     }
@@ -169,6 +176,7 @@ function mapStateToProps(state, ownProps) {
     tempPpmId: get(state.ppm, 'currentPpm.id', null),
     has_sit: get(state.ppm, 'currentPpm.has_sit', false),
     has_advance: get(state.ppm, 'currentPpm.has_requested_advance', false),
+    selectedMoveType: ownProps.selectedMoveType,
   };
 }
 

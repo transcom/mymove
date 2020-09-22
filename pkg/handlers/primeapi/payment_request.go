@@ -4,16 +4,17 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
+
 	"github.com/gobuffalo/validate"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	paymentrequestop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_requests"
+	paymentrequestop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_request"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/handlers/primeapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -47,7 +48,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		// create a custom verrs for returning a 422
 		verrs :=
 			&validate.Errors{Errors: map[string][]string{
-				"move_task_order_id": {"id cannot be converted to UUID"},
+				"move_id": {"id cannot be converted to UUID"},
 			},
 			}
 		errPayload := payloads.ValidationError(err.Error(), h.GetTraceID(), verrs)

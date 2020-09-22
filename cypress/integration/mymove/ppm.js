@@ -1,58 +1,56 @@
-/* global cy */
-
-import { milmoveAppName } from '../../support/constants';
-
-describe('completing the ppm flow', function () {
-  describe('progresses thru forms', () => {
-    //profile@comple.te
-    it('submit a PPM move', () => {
-      cy.signInAsUserPostRequest(milmoveAppName, '13f3949d-0d53-4be4-b1b1-ae4314793f34');
-      SMSubmitsMove();
-    });
+describe('the PPM flow', function () {
+  before(() => {
+    cy.prepareCustomerApp();
   });
 
-  describe('completing the ppm flow with a move date that we currently do not have rates for', () => {
-    it('complete a PPM move', () => {
-      //profile@complete.draft
-      cy.signInAsUserPostRequest(milmoveAppName, '3b9360a3-3304-4c60-90f4-83d687884070');
-      SMCompletesMove();
-    });
+  it('can submit a PPM move', () => {
+    // profile@comple.te
+    const userId = '13f3949d-0d53-4be4-b1b1-ae4314793f34';
+    cy.apiSignInAsPpmUser(userId);
+    SMSubmitsMove();
   });
 
-  describe('check invalid ppm inputs', () => {
-    it('doesnt allow same origin and destination zip', () => {
-      cy.signInAsUserPostRequest(milmoveAppName, '99360a51-8cfa-4e25-ae57-24e66077305f');
-      SMInputsSamePostalCodes();
-    });
-    it('doesnt allow SM to progress if dont have rate data for zips"', () => {
-      cy.signInAsUserPostRequest(milmoveAppName, '99360a51-8cfa-4e25-ae57-24e66077305f');
-      SMInputsInvalidPostalCodes();
-    });
+  it('can complete the PPM flow with a move date that we currently do not have rates for', () => {
+    // profile@complete.draft
+    const userId = '3b9360a3-3304-4c60-90f4-83d687884070';
+    cy.apiSignInAsPpmUser(userId);
+    SMCompletesMove();
   });
 
-  describe('editing ppm only move', () => {
-    it('sees only details relevant to PPM only move', () => {
-      cy.signInAsUserPostRequest(milmoveAppName, 'e10d5964-c070-49cb-9bd1-eaf9f7348eb6');
-      SMSeesMoveDetails();
-    });
+  it('doesn’t allow a user to enter the same origin and destination zip', () => {
+    // profile@co.mple.te
+    const userId = '99360a51-8cfa-4e25-ae57-24e66077305f';
+    cy.apiSignInAsPpmUser(userId);
+    SMInputsSamePostalCodes();
   });
 
-  describe('allows a SM to continue requesting a payment', () => {
-    const smId = '4ebc03b7-c801-4c0d-806c-a95aed242102';
-    beforeEach(() => {
-      cy.removeFetch();
-      cy.server();
-      cy.route('POST', '**/internal/uploads').as('postUploadDocument');
-      cy.route('POST', '**/moves/**/weight_ticket').as('postWeightTicket');
-      cy.route('POST', '**/moves/**/moving_expense_documents').as('postMovingExpense');
-      cy.route('POST', '**/internal/personally_procured_move/**/request_payment').as('requestPayment');
-      cy.route('POST', '**/moves/**/signed_certifications').as('signedCertifications');
-      cy.signInAsUserPostRequest(milmoveAppName, smId);
-    });
+  it('doesn’t allow SM to progress if don’t have rate data for zips"', () => {
+    // profile@co.mple.te
+    const userId = '99360a51-8cfa-4e25-ae57-24e66077305f';
+    cy.apiSignInAsPpmUser(userId);
+    SMInputsInvalidPostalCodes();
+  });
 
-    it('service should be able to continue requesting payment', () => {
-      SMContinueRequestPayment();
-    });
+  it('when editing PPM only move, sees only details relevant to PPM only move', () => {
+    // ppm@incomple.te
+    const userId = 'e10d5964-c070-49cb-9bd1-eaf9f7348eb6';
+    cy.apiSignInAsPpmUser(userId);
+    SMSeesMoveDetails();
+  });
+
+  it('service member should be able to continue requesting payment', () => {
+    // ppm@continue.requestingpayment
+    const userId = '4ebc03b7-c801-4c0d-806c-a95aed242102';
+
+    cy.removeFetch();
+    cy.server();
+    cy.route('POST', '**/internal/uploads').as('postUploadDocument');
+    cy.route('POST', '**/moves/**/weight_ticket').as('postWeightTicket');
+    cy.route('POST', '**/moves/**/moving_expense_documents').as('postMovingExpense');
+    cy.route('POST', '**/internal/personally_procured_move/**/request_payment').as('requestPayment');
+    cy.route('POST', '**/moves/**/signed_certifications').as('signedCertifications');
+    cy.apiSignInAsPpmUser(userId);
+    SMContinueRequestPayment();
   });
 });
 
@@ -124,10 +122,10 @@ function SMSubmitsMove() {
 
   cy.get('input[name="signature"]').type('Jane Doe');
 
-  cy.nextPage();
+  cy.completeFlow();
 
   cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/$/);
+    expect(loc.pathname).to.match(/^\/ppm$/);
   });
 
   cy.get('.usa-alert--success').within(() => {
@@ -190,10 +188,10 @@ function SMCompletesMove() {
 
   cy.get('input[name="signature"]').type('Jane Doe');
 
-  cy.nextPage();
+  cy.completeFlow();
 
   cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/$/);
+    expect(loc.pathname).to.match(/^\/ppm$/);
   });
 
   cy.get('.usa-alert--success').within(() => {
@@ -273,7 +271,7 @@ function SMContinueRequestPayment() {
   cy.get('button').contains('OK').click();
 
   cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/$/);
+    expect(loc.pathname).to.match(/^\/ppm$/);
   });
 
   cy.get('a').contains('Continue Requesting Payment').click();

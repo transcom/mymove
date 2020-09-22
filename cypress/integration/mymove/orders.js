@@ -1,17 +1,18 @@
-/* global cy*/
-
-import { milmoveAppName } from '../../support/constants';
-
 describe('orders entry', function () {
+  before(() => {
+    cy.prepareCustomerApp();
+  });
+
   it('will accept orders information', function () {
-    cy.signInAsUserPostRequest(milmoveAppName, 'feac0e92-66ec-4cab-ad29-538129bf918e');
+    // needs@orde.rs
+    cy.apiSignInAsPpmUser('feac0e92-66ec-4cab-ad29-538129bf918e');
     cy.contains('New move (from Yuma AFB)');
     cy.contains('No details');
     cy.contains('No documents');
     cy.contains('Continue Move Setup').click();
 
     cy.location().should((loc) => {
-      expect(loc.pathname).to.eq('/orders/');
+      expect(loc.pathname).to.eq('/orders');
     });
 
     cy.get('select[name="orders_type"]').select('Separation');
@@ -29,7 +30,7 @@ describe('orders entry', function () {
     cy.get('.usa-error-message').contains(
       'You entered the same duty station for your origin and destination. Please change one of them.',
     );
-    cy.get('button.next').should('be.disabled');
+    cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
 
     cy.selectDutyStation('NAS Fort Worth JRB', 'new_duty_station');
 
@@ -39,7 +40,7 @@ describe('orders entry', function () {
       expect(loc.pathname).to.eq('/orders/upload');
     });
 
-    cy.setFeatureFlag('ppmPaymentRequest=false', '/');
+    cy.setFeatureFlag('ppmPaymentRequest=false', '/ppm');
     cy.contains('NAS Fort Worth JRB (from Yuma AFB)');
     cy.get('[data-testid="move-header-weight-estimate"]').contains('5,000 lbs');
     cy.contains('Continue Move Setup').click();

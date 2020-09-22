@@ -112,6 +112,29 @@ func main() {
 	prime.InitUpdateMTOShipmentFlags(updateMTOShipmentCommand.Flags())
 	root.AddCommand(updateMTOShipmentCommand)
 
+	updateMTOShipmentAddressCommand := &cobra.Command{
+		Use:   "update-mto-shipment-address",
+		Short: "Update MTO shipment address",
+		Long: `
+  This command updates an address associated with an MTO shipment.
+  It requires the caller to pass in a file using the --filename arg.
+  The file should contain path parameters, headers and a body for the payload.
+
+  Endpoint path: /mto-shipments/{mtoShipmentID}/addresses/{addressID}
+  The file should contain json as follows:
+  	{
+	  "mtoShipmentID": <uuid string>,
+	  "addressID": <uuid string>,
+      "ifMatch": <eTag>,
+      "body": <MTOShipmentAddress>
+  	}
+  Please see API documentation for full details on the endpoint definition.`,
+		RunE:         prime.UpdateMTOShipmentAddress,
+		SilenceUsage: true,
+	}
+	prime.InitUpdateMTOShipmentAddressFlags(updateMTOShipmentAddressCommand.Flags())
+	root.AddCommand(updateMTOShipmentAddressCommand)
+
 	updatePostCounselingInfo := &cobra.Command{
 		Use:          "update-mto-post-counseling-information",
 		Short:        "update post counseling info",

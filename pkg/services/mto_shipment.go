@@ -24,3 +24,8 @@ type MTOShipmentStatusUpdater interface {
 type MTOShipmentCreator interface {
 	CreateMTOShipment(MTOShipment *models.MTOShipment, MTOServiceItems models.MTOServiceItems) (*models.MTOShipment, error)
 }
+
+// MTOShipmentAddressUpdater is the exported interface for updating an address on an MTO Shipment
+type MTOShipmentAddressUpdater interface {
+	UpdateMTOShipmentAddress(newAddress *models.Address, mtoShipmentID uuid.UUID, eTag string, mustBeAvailableToPrime bool) (*models.Address, error)
+}

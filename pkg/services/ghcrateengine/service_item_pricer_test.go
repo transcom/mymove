@@ -65,6 +65,8 @@ func (suite *GHCRateEngineServiceSuite) TestGetPricer() {
 		{models.ReServiceCodeDSH, &domesticShorthaulPricer{}},
 		{models.ReServiceCodeDOP, &domesticOriginPricer{}},
 		{models.ReServiceCodeDDP, &domesticDestinationPricer{}},
+		{models.ReServiceCodeDPK, &domesticPackPricer{}},
+		{models.ReServiceCodeDUPK, &domesticUnpackPricer{}},
 	}
 
 	for _, testCase := range testCases {
@@ -101,18 +103,19 @@ func (suite *GHCRateEngineServiceSuite) setupPriceServiceItemData() {
 }
 
 func (suite *GHCRateEngineServiceSuite) setupPriceServiceItem() models.PaymentServiceItem {
-	return suite.setupPaymentServiceItemWithParams(
+	return testdatagen.MakePaymentServiceItemWithParams(
+		suite.DB(),
 		models.ReServiceCodeMS,
-		[]createParams{
+		[]testdatagen.CreatePaymentServiceItemParams{
 			{
-				models.ServiceItemParamNameContractCode,
-				models.ServiceItemParamTypeString,
-				testdatagen.DefaultContractCode,
+				Key:     models.ServiceItemParamNameContractCode,
+				KeyType: models.ServiceItemParamTypeString,
+				Value:   testdatagen.DefaultContractCode,
 			},
 			{
-				models.ServiceItemParamNameMTOAvailableToPrimeAt,
-				models.ServiceItemParamTypeTimestamp,
-				msAvailableToPrimeAt.Format(TimestampParamFormat),
+				Key:     models.ServiceItemParamNameMTOAvailableToPrimeAt,
+				KeyType: models.ServiceItemParamTypeTimestamp,
+				Value:   msAvailableToPrimeAt.Format(TimestampParamFormat),
 			},
 		},
 	)

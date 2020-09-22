@@ -1,13 +1,10 @@
 package internalapi
 
 import (
-	"database/sql"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -53,7 +50,6 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 	}
 	// Load Servicemember and first level associations
 	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, session.ServiceMemberID)
-	var mto models.MoveTaskOrder
 
 	if err != nil {
 		logger.Error("Error retrieving service_member", zap.Error(err))
@@ -90,15 +86,6 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		if orderErr != nil {
 			return handlers.ResponseForError(logger, orderErr)
 		}
-		filters := []services.QueryFilter{
-			query.NewQueryFilter("move_order_id", "=", orders.ID),
-		}
-		mtoErr := h.builder.FetchOne(&mto, filters)
-
-		// Some moves grandfathered into the customer move order system do not have an MTO associated with it
-		if mtoErr != nil && mtoErr != sql.ErrNoRows {
-			return handlers.ResponseForError(logger, orderErr)
-		}
 
 		serviceMember.Orders[0] = orders
 
@@ -131,7 +118,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 	}
 	userPayload := internalmessages.LoggedInUserPayload{
 		ID:            handlers.FmtUUID(session.UserID),
-		ServiceMember: payloadForServiceMemberModel(h.FileStorer(), serviceMember, requiresAccessCode, mto.ID),
+		ServiceMember: payloadForServiceMemberModel(h.FileStorer(), serviceMember, requiresAccessCode),
 		FirstName:     session.FirstName,
 		Email:         session.Email,
 	}

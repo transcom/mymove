@@ -1,13 +1,21 @@
 import PropTypes from 'prop-types';
 
 import { AddressShape } from './address';
+import { BackupContactShape } from './backupContact';
+
+import dimensionTypes from 'constants/dimensionTypes';
+import customerContactTypes from 'constants/customerContactTypes';
 
 export const DestinationDutyStationShape = PropTypes.shape({
   name: PropTypes.string,
+  address: PropTypes.AddressShape,
 });
 
 export const OriginDutyStationShape = PropTypes.shape({
+  id: PropTypes.string,
   name: PropTypes.string,
+  address_id: PropTypes.string,
+  address: PropTypes.AddressShape,
 });
 
 export const EntitlementShape = PropTypes.shape({
@@ -25,15 +33,29 @@ export const EntitlementShape = PropTypes.shape({
 export const MoveOrderShape = PropTypes.shape({
   date_issued: PropTypes.string,
   report_by_date: PropTypes.string,
-  department_indicator: PropTypes.string, // TODO - is this in the API response?
+  department_indicator: PropTypes.string,
   order_number: PropTypes.string,
   order_type: PropTypes.string,
   order_type_detail: PropTypes.string,
   tac: PropTypes.string,
-  sacSDN: PropTypes.string,
+  sac: PropTypes.string,
   destinationDutyStation: DestinationDutyStationShape,
   originDutyStation: OriginDutyStationShape,
   entitlement: EntitlementShape,
+});
+
+export const OrdersInfoShape = PropTypes.shape({
+  id: PropTypes.string,
+  currentDutyStation: OriginDutyStationShape,
+  newDutyStation: DestinationDutyStationShape,
+  issuedDate: PropTypes.string,
+  reportByDate: PropTypes.string,
+  departmentIndicator: PropTypes.string,
+  ordersNumber: PropTypes.string,
+  ordersType: PropTypes.string,
+  ordersTypeDetail: PropTypes.string,
+  tacMDC: PropTypes.string,
+  sacSDN: PropTypes.string,
 });
 
 export const CustomerShape = PropTypes.shape({
@@ -44,6 +66,7 @@ export const CustomerShape = PropTypes.shape({
   phone: PropTypes.string,
   email: PropTypes.string,
   current_address: AddressShape,
+  backup_contact: BackupContactShape,
 });
 
 export const MTOShipmentShape = PropTypes.shape({
@@ -76,10 +99,25 @@ export const MoveTaskOrderShape = PropTypes.shape({
   updatedAt: PropTypes.string,
 });
 
+export const MTOServiceItemDimensionShape = PropTypes.shape({
+  type: PropTypes.oneOf(Object.values(dimensionTypes)),
+  length: PropTypes.number,
+  height: PropTypes.number,
+  width: PropTypes.number,
+});
+
+export const MTOServiceItemCustomerContactShape = PropTypes.shape({
+  type: PropTypes.oneOf(Object.values(customerContactTypes)),
+  timeMilitary: PropTypes.string,
+  firstAvailableDeliveryDate: PropTypes.string,
+});
+
 export const MTOServiceItemShape = PropTypes.shape({
   approvedAt: PropTypes.string,
   createdAt: PropTypes.string,
+  customerContacts: PropTypes.arrayOf(MTOServiceItemCustomerContactShape),
   deletedAt: PropTypes.string,
+  dimensions: PropTypes.arrayOf(MTOServiceItemDimensionShape),
   id: PropTypes.string,
   moveTaskOrderID: PropTypes.string,
   mtoShipmentID: PropTypes.string,
@@ -108,5 +146,6 @@ export const PaymentRequestShape = PropTypes.shape({
   paymentRequestNumber: PropTypes.string,
   status: PropTypes.string,
   eTag: PropTypes.string,
-  serviceItems: PropTypes.arrayOf(PaymentServiceItemShape),
+  serviceItems: PropTypes.arrayOf(PropTypes.string),
+  reviewedAt: PropTypes.string,
 });

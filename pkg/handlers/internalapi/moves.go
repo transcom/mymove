@@ -6,10 +6,6 @@ import (
 	"io/ioutil"
 	"time"
 
-	"github.com/transcom/mymove/pkg/services/converthelper"
-
-	"github.com/transcom/mymove/pkg/cli"
-
 	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/rateengine"
@@ -22,6 +18,7 @@ import (
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/storage"
@@ -38,22 +35,35 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 		ppmPayloads = append(ppmPayloads, payload)
 	}
 
+	var hhgPayloads internalmessages.MTOShipments
+	for _, hhg := range move.MTOShipments {
+		payload := payloads.MTOShipment(&hhg)
+		hhgPayloads = append(hhgPayloads, payload)
+	}
+
 	var SelectedMoveType internalmessages.SelectedMoveType
 	if move.SelectedMoveType != nil {
 		SelectedMoveType = internalmessages.SelectedMoveType(*move.SelectedMoveType)
 	}
+	var SubmittedAt time.Time
+	if move.SubmittedAt != nil {
+		SubmittedAt = *move.SubmittedAt
+	}
 
 	movePayload := &internalmessages.MovePayload{
 		CreatedAt:               handlers.FmtDateTime(move.CreatedAt),
+		SubmittedAt:             handlers.FmtDateTime(SubmittedAt),
 		SelectedMoveType:        &SelectedMoveType,
 		Locator:                 swag.String(move.Locator),
 		ID:                      handlers.FmtUUID(move.ID),
 		UpdatedAt:               handlers.FmtDateTime(move.UpdatedAt),
 		PersonallyProcuredMoves: ppmPayloads,
+		MtoShipments:            hhgPayloads,
 		OrdersID:                handlers.FmtUUID(order.ID),
 		ServiceMemberID:         *handlers.FmtUUID(order.ServiceMemberID),
 		Status:                  internalmessages.MoveStatus(move.Status),
 	}
+
 	return movePayload, nil
 }
 
@@ -169,17 +179,6 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	if err != nil {
 		logger.Error("problem sending email to user", zap.Error(err))
 		return handlers.ResponseForError(logger, err)
-	}
-
-	if h.HandlerContext.GetFeatureFlag(cli.FeatureFlagConvertPPMsToGHC) {
-		if moID, convertErr := converthelper.ConvertFromPPMToGHC(h.DB(), move.ID); convertErr != nil {
-			logger.Error("PPM->GHC conversion error", zap.Error(convertErr))
-			// don't return an error here because we don't want this to break the endpoint
-		} else {
-			logger.Info("PPM->GHC conversion successful. New MoveOrder, MoveTaskOrder, and shipments created.", zap.String("move_order_id", moID.String()))
-		}
-	} else {
-		logger.Info("PPM->GHC conversion skipped (env var not set)")
 	}
 
 	movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)

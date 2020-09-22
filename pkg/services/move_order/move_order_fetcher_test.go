@@ -1,12 +1,13 @@
 package moveorder
 
 import (
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *MoveOrderServiceSuite) TestMoveOrderFetcher() {
-	expectedMoveTaskOrder := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
-	expectedMoveOrder := expectedMoveTaskOrder.MoveOrder
+	expectedMoveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
+	expectedMoveOrder := expectedMoveTaskOrder.Orders
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
 
 	moveOrder, err := moveOrderFetcher.FetchMoveOrder(expectedMoveOrder.ID)
@@ -44,7 +45,7 @@ func (suite *MoveOrderServiceSuite) TestMoveOrderFetcherWithEmptyFields() {
 	expectedOrder.OriginDutyStationID = nil
 	suite.MustSave(&expectedOrder)
 
-	testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
+	testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Order: expectedOrder,
 	})
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
@@ -56,9 +57,22 @@ func (suite *MoveOrderServiceSuite) TestMoveOrderFetcherWithEmptyFields() {
 	suite.Nil(moveOrder.Grade)
 }
 
-func (suite *MoveOrderServiceSuite) TestListMoveOrder() {
-	expectedMoveTaskOrder := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
-	expectedMoveOrder := expectedMoveTaskOrder.MoveOrder
+func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
+	// Create a Move without a shipment to test that only Orders with shipments
+	// are displayed to the TOO
+	testdatagen.MakeDefaultMove(suite.DB())
+
+	expectedMoveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
+	// Only orders with shipments are returned, so we need to add a shipment
+	// to the move we just created
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: expectedMoveTaskOrder,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+	})
+
+	expectedMoveOrder := expectedMoveTaskOrder.Orders
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
 	moveOrders, err := moveOrderFetcher.ListMoveOrders()
 	suite.FatalNoError(err)
@@ -80,7 +94,7 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrder() {
 	suite.Equal(expectedMoveOrder.OriginDutyStation.Address.StreetAddress1, moveOrder.OriginDutyStation.Address.StreetAddress1)
 }
 
-func (suite *MoveOrderServiceSuite) TestListMoveOrderWithEmptyFields() {
+func (suite *MoveOrderServiceSuite) TestListMoveOrdersWithEmptyFields() {
 	expectedOrder := testdatagen.MakeDefaultOrder(suite.DB())
 
 	expectedOrder.Entitlement = nil
@@ -90,8 +104,24 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrderWithEmptyFields() {
 	expectedOrder.OriginDutyStationID = nil
 	suite.MustSave(&expectedOrder)
 
-	testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
+	moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Order: expectedOrder,
+	})
+	// Only orders with shipments are returned, so we need to add a shipment
+	// to the move we just created
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: moveTaskOrder,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+	})
+	// Add a second shipment to make sure we only return 1 order even if its
+	// move has more than one shipment
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: moveTaskOrder,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
 	})
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
 	moveOrders, err := moveOrderFetcher.ListMoveOrders()

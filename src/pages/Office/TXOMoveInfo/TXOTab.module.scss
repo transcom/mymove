@@ -1,0 +1,73 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+
+.tabContent {
+  background: $bg-gray;
+  scroll-behavior: smooth;
+  flex-grow: 1;
+
+  .gridContainer {
+    .shipmentCard {
+      @include u-padding-left(4);
+    }
+  }
+}
+
+.container {
+  display: flex;
+  position: relative;
+  max-width: calc(230px + 40px + 1024px); // sidebar + 5units margin + desktop container
+  margin-left: auto;
+  margin-right: auto;
+
+  .gridContainer {
+    flex-grow: 1;
+  }
+}
+
+.pageHeader {
+  display: flex;
+  align-items: center;
+
+  h1 {
+    flex-grow: 1;
+  }
+
+  h6 {
+    margin: 0;
+    line-height: 1.25;
+  }
+
+  h6 + h6 {
+    @include u-margin-top(1);
+  }
+
+  .pageHeaderDetails {
+    color: $base;
+    text-align: right;
+  }
+}
+
+.sidebar {
+  position: sticky;
+  align-self: flex-start;
+  margin-top: 26px;
+  top: 26px;
+}
+
+.section {
+  background: $bg-white;
+  border-radius: 3px;
+  border: 1px solid #dfe1e2;
+}
+
+.section + .section,
+.shipmentCard + .shipmentCard {
+  @include u-margin-top(4);
+}
+
+.section:last-child,
+.shipmentCard:last-child {
+  margin-bottom: 135px;
+}

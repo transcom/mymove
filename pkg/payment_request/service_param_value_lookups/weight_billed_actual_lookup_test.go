@@ -1,42 +1,12 @@
 package serviceparamvaluelookups
 
 import (
-	"errors"
 	"fmt"
 	"testing"
 
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
-
-func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithWeight(estimatedWeight unit.Pound, actualWeight unit.Pound, code models.ReServiceCode, shipmentType models.MTOShipmentType) (models.MTOServiceItem, models.PaymentRequest, *ServiceItemParamKeyData) {
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
-		testdatagen.Assertions{
-			ReService: models.ReService{
-				Code: code,
-				Name: string(code),
-			},
-			MTOShipment: models.MTOShipment{
-				PrimeEstimatedWeight: &estimatedWeight,
-				PrimeActualWeight:    &actualWeight,
-				ShipmentType:         shipmentType,
-			},
-		})
-
-	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
-		testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
-			},
-		})
-	paramLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
-
-	return mtoServiceItem, paymentRequest, paramLookup
-}
 
 func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 	key := models.ServiceItemParamNameWeightBilledActual.String()
@@ -145,10 +115,13 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 
 	suite.T().Run("nil PrimeActualWeight", func(t *testing.T) {
 		// Set the actual weight to nil
-		mtoServiceItem, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
+		mtoServiceItem, paymentRequest, _ := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 		mtoShipment := mtoServiceItem.MTOShipment
 		mtoShipment.PrimeActualWeight = nil
 		suite.MustSave(&mtoShipment)
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		suite.FatalNoError(err)
 
 		valueStr, err := paramLookup.ServiceParamValue(key)
 		suite.Error(err)
@@ -159,42 +132,17 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledActualLookup() {
 
 	suite.T().Run("nil PrimeEstimatedWeight", func(t *testing.T) {
 		// Set the estimated weight to nil
-		mtoServiceItem, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(450), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
+		mtoServiceItem, paymentRequest, _ := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(450), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
 		mtoShipment := mtoServiceItem.MTOShipment
 		mtoShipment.PrimeEstimatedWeight = nil
 		suite.MustSave(&mtoShipment)
 
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		suite.FatalNoError(err)
+
 		valueStr, err := paramLookup.ServiceParamValue(key)
 		suite.Error(err)
 		expected := fmt.Sprintf("could not find estimated weight for MTOShipmentID [%s]", mtoShipment.ID)
-		suite.Contains(err.Error(), expected)
-		suite.Equal("", valueStr)
-	})
-
-	suite.T().Run("nil MTOShipmentID", func(t *testing.T) {
-		// Set the MTOShipmentID to nil
-		mtoServiceItem, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(450), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
-		mtoServiceItem.MTOShipmentID = nil
-		suite.MustSave(&mtoServiceItem)
-
-		valueStr, err := paramLookup.ServiceParamValue(key)
-		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, errors.Unwrap(err))
-		expected := fmt.Sprintf("looking for MTOShipmentID")
-		suite.Contains(err.Error(), expected)
-		suite.Equal("", valueStr)
-	})
-
-	suite.T().Run("bogus MTOServiceItemID", func(t *testing.T) {
-		// Pass in a non-existent MTOServiceItemID
-		_, paymentRequest, _ := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(450), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
-		invalidMTOServiceItemID := uuid.Must(uuid.NewV4())
-		badParamLookup := ServiceParamLookupInitialize(suite.DB(), suite.planner, invalidMTOServiceItemID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
-
-		valueStr, err := badParamLookup.ServiceParamValue(key)
-		suite.Error(err)
-		suite.IsType(services.NotFoundError{}, errors.Unwrap(err))
-		expected := fmt.Sprintf("looking for MTOServiceItemID")
 		suite.Contains(err.Error(), expected)
 		suite.Equal("", valueStr)
 	})

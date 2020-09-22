@@ -1,0 +1,48 @@
+.review-section {
+  padding: 0rem 0 1rem 0rem;
+}
+
+.review-section .notice {
+  color: gray;
+}
+
+.review-section table {
+  border: 0px;
+  text-align: left;
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.review-section .heading {
+  font-weight: bold;
+  border: 0px;
+  text-align: left;
+  padding: 0;
+  margin-bottom: 0.5rem;
+}
+
+.review-section tr {
+  border: 0px;
+  text-align: left;
+}
+
+.review-section td {
+  border: 0px;
+  text-align: left;
+  vertical-align: top;
+  padding: 0.2rem 0rem 0.2rem 0rem;
+  width: 60%;
+}
+
+.review-section td:first-child {
+  color: grey;
+  border: 0px;
+  width: 40%;
+  padding-right: 1em;
+}
+
+.edit-section-link a {
+  margin-left: 20px;
+  font-weight: normal;
+}

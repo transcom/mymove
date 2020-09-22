@@ -38,7 +38,7 @@ func init() {
   "paths": {
     "/move-task-orders": {
       "get": {
-        "description": "Gets all move task orders. Provides all move task orders regardless of whether or not they have been made available to prime.\n",
+        "description": "### Functionality\nThis endpoint lists all MoveTaskOrders regardless of whether or not they have been made available to Prime.\n\nIt will provide nested information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.\n",
         "produces": [
           "application/json"
         ],
@@ -133,7 +133,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {
-        "description": "Gets an individual move task order by ID. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
+        "description": "### Functionality\nThis endpoint gets an individual MoveTaskOrder by ID.\n\nIt will provide nested information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.\n\nThis is a support endpoint and is not available in production.\n",
         "produces": [
           "application/json"
         ],
@@ -241,7 +241,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/payment-requests": {
       "get": {
-        "description": "Gets all payment requests for a given move task order\n",
+        "description": "### Functionality\n\nThis endpoint lists all PaymentRequests associated with a given MoveTaskOrder.\n\nThis is a support endpoint and is not available in production.\n",
         "produces": [
           "application/json"
         ],
@@ -362,7 +362,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/status": {
       "patch": {
-        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, or PAID.\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
+        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, or PAID.\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -522,21 +522,36 @@ func init() {
         "operationId": "postWebhookNotify",
         "parameters": [
           {
-            "description": "The message sent by webhook-client.",
-            "name": "message",
+            "description": "The notification sent by webhook-client.",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
               "type": "object",
-              "required": [
-                "message"
-              ],
               "properties": {
-                "message": {
-                  "description": "Message sent",
+                "eventName": {
+                  "description": "Name of event triggered",
                   "type": "string",
-                  "x-nullable": false,
-                  "example": "Hello world."
+                  "example": "paymentRequest.updated"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+                },
+                "object": {
+                  "type": "string",
+                  "format": "object"
+                },
+                "objectType": {
+                  "description": "The type of object that's being updated",
+                  "type": "string",
+                  "example": "paymentRequest"
+                },
+                "triggeredAt": {
+                  "description": "Time representing when the event was triggered",
+                  "type": "string",
+                  "format": "date-time"
                 }
               }
             }
@@ -544,14 +559,33 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Created",
+            "description": "Sent",
             "schema": {
               "type": "object",
               "properties": {
-                "message": {
-                  "description": "Message sent",
+                "eventName": {
+                  "description": "Name of event triggered",
                   "type": "string",
-                  "example": "Hello world."
+                  "example": "paymentRequest.updated"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+                },
+                "object": {
+                  "type": "string",
+                  "format": "object"
+                },
+                "objectType": {
+                  "description": "The type of object that's being updated",
+                  "type": "string",
+                  "example": "paymentRequest"
+                },
+                "triggeredAt": {
+                  "description": "Time representing when the event was triggered",
+                  "type": "string",
+                  "format": "date-time"
                 }
               }
             }
@@ -770,7 +804,6 @@ func init() {
           "title": "Agency customer is affilated with"
         },
         "currentAddress": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "dodID": {
@@ -1106,7 +1139,6 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "x-nullabe": true,
           "$ref": "#/definitions/Address"
         },
         "eTag": {
@@ -1124,7 +1156,6 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "pickupAddress": {
-          "x-nullabe": true,
           "$ref": "#/definitions/Address"
         },
         "primeActualWeight": {
@@ -1145,11 +1176,9 @@ func init() {
           "format": "date"
         },
         "secondaryDeliveryAddress": {
-          "x-nullabe": true,
           "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
-          "x-nullabe": true,
           "$ref": "#/definitions/Address"
         },
         "shipmentType": {
@@ -1226,8 +1255,7 @@ func init() {
         "issueDate": {
           "description": "The date the orders were issued.",
           "type": "string",
-          "format": "date",
-          "example": "2020-01-01"
+          "format": "date"
         },
         "orderNumber": {
           "description": "ID of the military orders associated with this move.",
@@ -1255,8 +1283,7 @@ func init() {
         "reportByDate": {
           "description": "Date that the service member must report to the new DutyStation by.",
           "type": "string",
-          "format": "date",
-          "example": "2020-01-01"
+          "format": "date"
         },
         "status": {
           "$ref": "#/definitions/OrdersStatus"
@@ -1276,6 +1303,22 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MoveOrder"
+      }
+    },
+    "MoveStatus": {
+      "description": "Current status of this MoveTaskOrder",
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED",
+        "APPROVED",
+        "CANCELED"
+      ],
+      "x-display-value": {
+        "APPROVED": "Approved",
+        "CANCELED": "Canceled",
+        "DRAFT": "Draft",
+        "SUBMITTED": "Submitted"
       }
     },
     "MoveTaskOrder": {
@@ -1319,8 +1362,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "locator": {
+          "description": "Unique 6-character code the customer can use to refer to their move",
+          "type": "string",
+          "example": "ABC123"
+        },
         "moveOrder": {
-          "description": "MoveOrder associated with this MoveTaskOrder.",
           "$ref": "#/definitions/MoveOrder"
         },
         "moveOrderID": {
@@ -1360,6 +1407,9 @@ func init() {
           "description": "Unique ID associated with this MoveOrder.\n\nNo two MoveTaskOrders may have the same ID.\nAttempting to create a MoveTaskOrder may fail if this referenceId has been used already.\n",
           "type": "string",
           "example": "1001-3456"
+        },
+        "status": {
+          "$ref": "#/definitions/MoveStatus"
         },
         "updatedAt": {
           "description": "Date on which this MoveTaskOrder was last updated.",
@@ -1732,7 +1782,24 @@ func init() {
         "$ref": "#/definitions/ValidationError"
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "moveTaskOrder"
+    },
+    {
+      "name": "paymentRequests"
+    },
+    {
+      "name": "mtoServiceItem"
+    },
+    {
+      "name": "mtoShipment"
+    },
+    {
+      "name": "webhook"
+    }
+  ]
 }`))
 	FlatSwaggerJSON = json.RawMessage([]byte(`{
   "schemes": [
@@ -1755,7 +1822,7 @@ func init() {
   "paths": {
     "/move-task-orders": {
       "get": {
-        "description": "Gets all move task orders. Provides all move task orders regardless of whether or not they have been made available to prime.\n",
+        "description": "### Functionality\nThis endpoint lists all MoveTaskOrders regardless of whether or not they have been made available to Prime.\n\nIt will provide nested information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.\n",
         "produces": [
           "application/json"
         ],
@@ -1883,7 +1950,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {
-        "description": "Gets an individual move task order by ID. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
+        "description": "### Functionality\nThis endpoint gets an individual MoveTaskOrder by ID.\n\nIt will provide nested information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.\n\nThis is a support endpoint and is not available in production.\n",
         "produces": [
           "application/json"
         ],
@@ -2027,7 +2094,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/payment-requests": {
       "get": {
-        "description": "Gets all payment requests for a given move task order\n",
+        "description": "### Functionality\n\nThis endpoint lists all PaymentRequests associated with a given MoveTaskOrder.\n\nThis is a support endpoint and is not available in production.\n",
         "produces": [
           "application/json"
         ],
@@ -2187,7 +2254,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/status": {
       "patch": {
-        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, or PAID.\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `. \u003cbr /\u003e\n\u003cbr /\u003e\nThis is a support endpoint and will not be available in production.\n",
+        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, or PAID.\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -2392,21 +2459,36 @@ func init() {
         "operationId": "postWebhookNotify",
         "parameters": [
           {
-            "description": "The message sent by webhook-client.",
-            "name": "message",
+            "description": "The notification sent by webhook-client.",
+            "name": "body",
             "in": "body",
             "required": true,
             "schema": {
               "type": "object",
-              "required": [
-                "message"
-              ],
               "properties": {
-                "message": {
-                  "description": "Message sent",
+                "eventName": {
+                  "description": "Name of event triggered",
                   "type": "string",
-                  "x-nullable": false,
-                  "example": "Hello world."
+                  "example": "paymentRequest.updated"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+                },
+                "object": {
+                  "type": "string",
+                  "format": "object"
+                },
+                "objectType": {
+                  "description": "The type of object that's being updated",
+                  "type": "string",
+                  "example": "paymentRequest"
+                },
+                "triggeredAt": {
+                  "description": "Time representing when the event was triggered",
+                  "type": "string",
+                  "format": "date-time"
                 }
               }
             }
@@ -2414,14 +2496,33 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Created",
+            "description": "Sent",
             "schema": {
               "type": "object",
               "properties": {
-                "message": {
-                  "description": "Message sent",
+                "eventName": {
+                  "description": "Name of event triggered",
                   "type": "string",
-                  "example": "Hello world."
+                  "example": "paymentRequest.updated"
+                },
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+                },
+                "object": {
+                  "type": "string",
+                  "format": "object"
+                },
+                "objectType": {
+                  "description": "The type of object that's being updated",
+                  "type": "string",
+                  "example": "paymentRequest"
+                },
+                "triggeredAt": {
+                  "description": "Time representing when the event was triggered",
+                  "type": "string",
+                  "format": "date-time"
                 }
               }
             }
@@ -2640,7 +2741,6 @@ func init() {
           "title": "Agency customer is affilated with"
         },
         "currentAddress": {
-          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "dodID": {
@@ -2976,7 +3076,6 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "x-nullabe": true,
           "$ref": "#/definitions/Address"
         },
         "eTag": {
@@ -2994,7 +3093,6 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "pickupAddress": {
-          "x-nullabe": true,
           "$ref": "#/definitions/Address"
         },
         "primeActualWeight": {
@@ -3015,11 +3113,9 @@ func init() {
           "format": "date"
         },
         "secondaryDeliveryAddress": {
-          "x-nullabe": true,
           "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
-          "x-nullabe": true,
           "$ref": "#/definitions/Address"
         },
         "shipmentType": {
@@ -3096,8 +3192,7 @@ func init() {
         "issueDate": {
           "description": "The date the orders were issued.",
           "type": "string",
-          "format": "date",
-          "example": "2020-01-01"
+          "format": "date"
         },
         "orderNumber": {
           "description": "ID of the military orders associated with this move.",
@@ -3125,8 +3220,7 @@ func init() {
         "reportByDate": {
           "description": "Date that the service member must report to the new DutyStation by.",
           "type": "string",
-          "format": "date",
-          "example": "2020-01-01"
+          "format": "date"
         },
         "status": {
           "$ref": "#/definitions/OrdersStatus"
@@ -3146,6 +3240,22 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MoveOrder"
+      }
+    },
+    "MoveStatus": {
+      "description": "Current status of this MoveTaskOrder",
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED",
+        "APPROVED",
+        "CANCELED"
+      ],
+      "x-display-value": {
+        "APPROVED": "Approved",
+        "CANCELED": "Canceled",
+        "DRAFT": "Draft",
+        "SUBMITTED": "Submitted"
       }
     },
     "MoveTaskOrder": {
@@ -3189,8 +3299,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "locator": {
+          "description": "Unique 6-character code the customer can use to refer to their move",
+          "type": "string",
+          "example": "ABC123"
+        },
         "moveOrder": {
-          "description": "MoveOrder associated with this MoveTaskOrder.",
           "$ref": "#/definitions/MoveOrder"
         },
         "moveOrderID": {
@@ -3230,6 +3344,9 @@ func init() {
           "description": "Unique ID associated with this MoveOrder.\n\nNo two MoveTaskOrders may have the same ID.\nAttempting to create a MoveTaskOrder may fail if this referenceId has been used already.\n",
           "type": "string",
           "example": "1001-3456"
+        },
+        "status": {
+          "$ref": "#/definitions/MoveStatus"
         },
         "updatedAt": {
           "description": "Date on which this MoveTaskOrder was last updated.",
@@ -3602,6 +3719,23 @@ func init() {
         "$ref": "#/definitions/ValidationError"
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "moveTaskOrder"
+    },
+    {
+      "name": "paymentRequests"
+    },
+    {
+      "name": "mtoServiceItem"
+    },
+    {
+      "name": "mtoShipment"
+    },
+    {
+      "name": "webhook"
+    }
+  ]
 }`))
 }

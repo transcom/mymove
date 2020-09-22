@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
+
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
@@ -17,7 +21,6 @@ import (
 
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/handlers/primeapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -33,6 +36,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	payload := params.Body
+
 	if payload == nil {
 		logger.Error("Invalid mto shipment: params Body is nil")
 		return mtoshipmentops.NewCreateMTOShipmentBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
@@ -55,6 +59,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	}
 
 	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
+	mtoShipment.Status = models.MTOShipmentStatusSubmitted
 	mtoServiceItemsList, verrs := payloads.MTOServiceItemModelListFromCreate(payload)
 
 	if verrs != nil && verrs.HasAny() {
@@ -93,7 +98,6 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
 		}
 	}
-
 	returnPayload := payloads.MTOShipment(mtoShipment)
 	return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload)
 }
@@ -214,9 +218,25 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 			return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(errPayload)
 		}
 
+		var dbShipment models.MTOShipment
+		err := h.DB().Eager("PickupAddress", "DestinationAddress").Find(&dbShipment, params.MtoShipmentID)
+		if err != nil {
+			return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+		}
+
+		mtoShipment, validationErrs := h.checkPrimeValidationsOnModel(mtoShipment, &dbShipment)
+		if validationErrs != nil && validationErrs.HasAny() {
+			logger.Error("primeapi.UpdateMTOShipmentHandler error - extra fields in request", zap.Error(validationErrs))
+
+			errPayload := payloads.ValidationError("Invalid data found in input",
+				h.GetTraceID(), validationErrs)
+
+			return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(errPayload)
+		}
+
 		eTag := params.IfMatch
 		logger.Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
-		mtoShipment, err := h.mtoShipmentUpdater.UpdateMTOShipment(mtoShipment, eTag)
+		mtoShipment, err = h.mtoShipmentUpdater.UpdateMTOShipment(mtoShipment, eTag)
 		if err != nil {
 			logger.Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
 			switch e := err.(type) {
@@ -235,4 +255,79 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 		return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(mtoShipmentPayload)
 	}
 	return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+}
+
+func (h UpdateMTOShipmentHandler) checkPrimeValidationsOnModel(mtoShipment *models.MTOShipment, dbShipment *models.MTOShipment) (*models.MTOShipment, *validate.Errors) {
+	verrs := validate.NewErrors()
+	if mtoShipment.RequestedPickupDate != nil {
+		requestedPickupDate := mtoShipment.RequestedPickupDate
+		// Prime cannot edit the customer's requestedPickupDate
+		// if requestedPickupDate isn't valid then return InvalidInputError
+		if !requestedPickupDate.Equal(*dbShipment.RequestedPickupDate) {
+			verrs.Add("requestedPickupDate", "must match what customer has requested")
+		}
+		mtoShipment.RequestedPickupDate = requestedPickupDate
+	}
+
+	if mtoShipment.PrimeEstimatedWeight != nil {
+		if dbShipment.PrimeEstimatedWeight != nil {
+			verrs.Add("primeEstimatedWeight", "cannot be updated after initial estimation")
+		}
+		scheduledPickupDate := dbShipment.ScheduledPickupDate
+		if mtoShipment.ScheduledPickupDate != nil {
+			scheduledPickupDate = mtoShipment.ScheduledPickupDate
+		}
+		now := time.Now()
+		if dbShipment.ApprovedDate != nil {
+			err := validatePrimeEstimatedWeightRecordedDate(now, *scheduledPickupDate, *dbShipment.ApprovedDate)
+			if err != nil {
+				verrs.Add("primeEstimatedWeight", "the time period for updating the estimated weight for a shipment has expired, please contact the TOO directly to request updates to this shipment’s estimated weight")
+				verrs.Add("primeEstimatedWeight", err.Error())
+			}
+		}
+		mtoShipment.PrimeEstimatedWeightRecordedDate = &now
+	}
+	pickupAddress := dbShipment.PickupAddress
+	if mtoShipment.PickupAddress != nil {
+		pickupAddress = mtoShipment.PickupAddress
+	}
+	destinationAddress := dbShipment.DestinationAddress
+	if mtoShipment.DestinationAddress != nil {
+		destinationAddress = mtoShipment.DestinationAddress
+	}
+	// Updated based on existing fields that may have been updated:
+	if mtoShipment.ScheduledPickupDate != nil && mtoShipment.PrimeEstimatedWeight != nil && pickupAddress != nil && destinationAddress != nil {
+
+		requiredDeliveryDate, err := mtoshipment.CalculateRequiredDeliveryDate(h.Planner(), h.DB(), *pickupAddress,
+			*destinationAddress, *mtoShipment.ScheduledPickupDate, mtoShipment.PrimeEstimatedWeight.Int())
+		if err != nil {
+			verrs.Add("requiredDeliveryDate", err.Error())
+		}
+		mtoShipment.RequiredDeliveryDate = requiredDeliveryDate
+	}
+
+	if len(mtoShipment.MTOAgents) > 0 {
+		if len(dbShipment.MTOAgents) < len(mtoShipment.MTOAgents) {
+			verrs.Add("agents", "cannot add MTO agents to a shipment")
+		}
+	}
+	return mtoShipment, verrs
+}
+
+func validatePrimeEstimatedWeightRecordedDate(estimatedWeightRecordedDate time.Time, scheduledPickupDate time.Time, approvedDate time.Time) error {
+	approvedDaysFromScheduled := scheduledPickupDate.Sub(approvedDate).Hours() / 24
+	daysFromScheduled := scheduledPickupDate.Sub(estimatedWeightRecordedDate).Hours() / 24
+	if approvedDaysFromScheduled >= 10 && daysFromScheduled >= 10 {
+		return nil
+	}
+
+	if (approvedDaysFromScheduled >= 3 && approvedDaysFromScheduled <= 9) && daysFromScheduled >= 3 {
+		return nil
+	}
+
+	if approvedDaysFromScheduled < 3 && daysFromScheduled >= 1 {
+		return nil
+	}
+
+	return services.InvalidInputError{}
 }

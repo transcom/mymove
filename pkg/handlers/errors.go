@@ -59,6 +59,9 @@ const InternalServerErrDetail string = "An internal server error has occurred"
 // NotImplementedErrMessage indicates an endpoint has not been implemented
 const NotImplementedErrMessage string = "Not Implemented"
 
+// NotImplementedErrDetail indicates an endpoint has not been implemented
+const NotImplementedErrDetail string = "This feature is in development"
+
 // UnsupportedMediaTypeErrMessage indicates the server does not accept the media type sent
 const UnsupportedMediaTypeErrMessage string = "Unsupported Media Type"
 
@@ -208,7 +211,7 @@ func responseForBaseError(logger Logger, err error) middleware.Responder {
 // ResponseForVErrors checks for validation errors
 func ResponseForVErrors(logger Logger, verrs *validate.Errors, err error) middleware.Responder {
 	skipLogger := logger.WithOptions(zap.AddCallerSkip(1))
-	if verrs.HasAny() {
+	if verrs != nil && verrs.HasAny() {
 		skipLogger.Error("Encountered validation error", zap.Any("Validation errors", verrs.String()))
 		return NewValidationErrorsResponse(verrs)
 	}

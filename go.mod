@@ -7,8 +7,8 @@ require (
 	github.com/99designs/aws-vault v4.5.1+incompatible
 	github.com/99designs/keyring v1.1.5
 	github.com/alexedwards/scs/redisstore v0.0.0-20200225172727-3308e1066830
-	github.com/alexedwards/scs/v2 v2.3.1
-	github.com/aws/aws-sdk-go v1.33.7
+	github.com/alexedwards/scs/v2 v2.4.0
+	github.com/aws/aws-sdk-go v1.34.15
 	github.com/cockroachdb/cockroach-go v0.0.0-20200411195601-6f5842749cfc // indirect
 	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
@@ -17,33 +17,33 @@ require (
 	github.com/dustin/go-humanize v1.0.0
 	github.com/facebookgo/clock v0.0.0-20150410010913-600d898af40a
 	github.com/felixge/httpsnoop v1.0.1
+	github.com/getlantern/deepcopy v0.0.0-20160317154340-7f45deb8130a
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
 	github.com/go-ini/ini v1.49.0 // indirect
 	github.com/go-openapi/errors v0.19.4
 	github.com/go-openapi/loads v0.19.5
 	github.com/go-openapi/runtime v0.19.15
-	github.com/go-openapi/spec v0.19.8
+	github.com/go-openapi/spec v0.19.9
 	github.com/go-openapi/strfmt v0.19.5
 	github.com/go-openapi/swag v0.19.9
 	github.com/go-openapi/validate v0.19.8
 	github.com/go-playground/locales v0.13.0
 	github.com/go-playground/universal-translator v0.17.0
 	github.com/gobuffalo/envy v1.9.0
-	github.com/gobuffalo/fizz v1.11.0
-	github.com/gobuffalo/flect v0.2.1
+	github.com/gobuffalo/fizz v1.13.0
+	github.com/gobuffalo/flect v0.2.2
 	github.com/gobuffalo/genny v0.6.0 // indirect
 	github.com/gobuffalo/nulls v0.4.0 // indirect
 	github.com/gobuffalo/packr v1.30.1
 	github.com/gobuffalo/pop v4.13.1+incompatible
-	github.com/gobuffalo/uuid v2.0.5+incompatible
 	github.com/gobuffalo/validate v2.0.4+incompatible
 	github.com/gocarina/gocsv v0.0.0-20190927101021-3ecffd272576
-	github.com/gofrs/flock v0.7.1
+	github.com/gofrs/flock v0.7.3
 	github.com/gofrs/uuid v3.3.0+incompatible
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/google/go-github/v31 v31.0.0
 	github.com/gorilla/csrf v1.7.0
-	github.com/imdario/mergo v0.3.9
+	github.com/imdario/mergo v0.3.10
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/jstemmer/go-junit-report v0.9.1
@@ -60,8 +60,8 @@ require (
 	github.com/spf13/afero v1.3.2
 	github.com/spf13/cobra v0.0.7
 	github.com/spf13/pflag v1.0.5
-	github.com/spf13/viper v1.7.0
-	github.com/stretchr/objx v0.2.0
+	github.com/spf13/viper v1.7.1
+	github.com/stretchr/objx v0.3.0
 	github.com/stretchr/testify v1.6.1
 	github.com/tcnksm/go-input v0.0.0-20180404061846-548a7d7a8ee8
 	github.com/tealeg/xlsx v1.0.5

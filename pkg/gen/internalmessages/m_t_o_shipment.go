@@ -32,6 +32,9 @@ type MTOShipment struct {
 	// destination address
 	DestinationAddress *Address `json:"destinationAddress,omitempty"`
 
+	// e tag
+	ETag string `json:"eTag,omitempty"`
+
 	// id
 	// Read Only: true
 	// Format: uuid
@@ -63,6 +66,9 @@ type MTOShipment struct {
 
 	// shipment type
 	ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
+
+	// status
+	Status MTOShipmentStatus `json:"status,omitempty"`
 
 	// updated at
 	// Read Only: true
@@ -115,6 +121,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateShipmentType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -290,6 +300,22 @@ func (m *MTOShipment) validateShipmentType(formats strfmt.Registry) error {
 	if err := m.ShipmentType.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("shipmentType")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status) { // not required
+		return nil
+	}
+
+	if err := m.Status.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
 		}
 		return err
 	}

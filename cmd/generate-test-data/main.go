@@ -167,8 +167,11 @@ func main() {
 		if uploaderErr != nil {
 			logger.Fatal("could not instantiate user uploader", zap.Error(err))
 		}
-
-		tdgs.E2eBasicScenario.Run(dbConnection, userUploader, logger, storer)
+		primeUploader, uploaderErr := uploader.NewPrimeUploader(dbConnection, logger, storer, 25*uploader.MB)
+		if uploaderErr != nil {
+			logger.Fatal("could not instantiate prime uploader", zap.Error(err))
+		}
+		tdgs.E2eBasicScenario.Run(dbConnection, userUploader, primeUploader, logger, storer)
 		logger.Info("Success! Created e2e test data.")
 	} else {
 		flag.PrintDefaults()
