@@ -221,76 +221,76 @@ bin/rds-ca-us-gov-west-1-2017-root.pem:
 
 ### MilMove Targets
 
-bin/big-cat:
+bin/big-cat: cmd/big-cat
 	go build -ldflags "$(LDFLAGS)" -o bin/big-cat ./cmd/big-cat
 
-bin/compare-secure-migrations:
+bin/compare-secure-migrations: cmd/compare-secure-migrations
 	go build -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare-secure-migrations
 
-bin/model-vet:
+bin/model-vet: cmd/model-vet
 	go build -ldflags "$(LDFLAGS)" -o bin/model-vet ./cmd/model-vet
 
-bin/generate-deploy-notes:
+bin/generate-deploy-notes: cmd/generate-deploy-notes
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-deploy-notes ./cmd/generate-deploy-notes
 
-bin/ecs-deploy:
+bin/ecs-deploy: cmd/ecs-deploy
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-deploy ./cmd/ecs-deploy
 
-bin/ecs-service-logs:
+bin/ecs-service-logs: cmd/ecs-service-logs
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
 
-bin/find-guardduty-user:
+bin/find-guardduty-user: cmd/find-guardduty-user
 	go build -ldflags "$(LDFLAGS)" -o bin/find-guardduty-user ./cmd/find-guardduty-user
 
-bin/generate-access-codes:
+bin/generate-access-codes: cmd/generate_access_codes
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-access-codes ./cmd/generate_access_codes
 
-bin/generate-shipment-summary:
+bin/generate-shipment-summary: cmd/generate_shipment_summary
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate_shipment_summary
 
-bin/generate-test-data:
+bin/generate-test-data: cmd/generate-test-data
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate-test-data
 
-bin/ghc-pricing-parser:
+bin/ghc-pricing-parser: cmd/ghc-pricing-parser
 	go build -ldflags "$(LDFLAGS)" -o bin/ghc-pricing-parser ./cmd/ghc-pricing-parser
 
-bin/ghc-transit-time-parser:
+bin/ghc-transit-time-parser: cmd/ghc-transit-time-parser
 	go build -ldflags "$(LDFLAGS)" -o bin/ghc-transit-time-parser ./cmd/ghc-transit-time-parser
 
-bin/health-checker:
+bin/health-checker: cmd/health-checker
 	go build -ldflags "$(LDFLAGS)" -o bin/health-checker ./cmd/health-checker
 
-bin/iws:
+bin/iws: cmd/iws
 	go build -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/iws/iws.go
 
-bin/milmove:
+bin/milmove: cmd/milmove
 	go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
-bin/milmove-tasks:
+bin/milmove-tasks: cmd/milmove-tasks
 	go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove-tasks ./cmd/milmove-tasks
 
-bin/prime-api-client:
+bin/prime-api-client: cmd/prime-api-client
 	go build -ldflags "$(LDFLAGS)" -o bin/prime-api-client ./cmd/prime-api-client
 
-bin/webhook-client:
+bin/webhook-client: cmd/webhook-client
 	go build -ldflags "$(LDFLAGS)" -o bin/webhook-client ./cmd/webhook-client
 
-bin/query-cloudwatch-logs:
+bin/query-cloudwatch-logs: cmd/query-cloudwatch-logs
 	go build -ldflags "$(LDFLAGS)" -o bin/query-cloudwatch-logs ./cmd/query-cloudwatch-logs
 
-bin/query-lb-logs:
+bin/query-lb-logs: cmd/query-lb-logs
 	go build -ldflags "$(LDFLAGS)" -o bin/query-lb-logs ./cmd/query-lb-logs
 
-bin/read-alb-logs:
+bin/read-alb-logs: cmd/read-alb-logs
 	go build -ldflags "$(LDFLAGS)" -o bin/read-alb-logs ./cmd/read-alb-logs
 
-bin/report-ecs:
+bin/report-ecs: cmd/report-ecs
 	go build -ldflags "$(LDFLAGS)" -o bin/report-ecs ./cmd/report-ecs
 
-bin/send-to-gex: pkg/gen/
+bin/send-to-gex: pkg/gen/ cmd/send_to_gex
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
 
-bin/tls-checker:
+bin/tls-checker: cmd/tls-checker
 	go build -ldflags "$(LDFLAGS)" -o bin/tls-checker ./cmd/tls-checker
 
 pkg/assets/assets.go:
