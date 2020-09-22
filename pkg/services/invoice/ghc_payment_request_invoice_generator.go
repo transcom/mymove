@@ -415,12 +415,12 @@ func (g GHCPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 			}
 
 			l3Segment := edisegment.L3{
-				PriceCents: serviceItem.PriceCents.Int64(),
+				PriceCents: int64(*serviceItem.PriceCents),
 			}
 
 			segments = append(segments, &hlSegment, &n9Segment, &l0Segment, &l3Segment)
 
-		case models.ReServiceCodeDLH:
+		default:
 			var err error
 			weightFloat, distanceFloat, err = g.getPaymentParamsForDefaultServiceItems(serviceItem)
 			if err != nil {
@@ -442,37 +442,14 @@ func (g GHCPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				WeightQualifier:        "B",
 				WeightUnitCode:         "L",
 			}
+
 			l3Segment := edisegment.L3{
 				Weight:          weightFloat,
 				WeightQualifier: "B",
-				PriceCents:      serviceItem.PriceCents.Int64(),
+				PriceCents:      int64(*serviceItem.PriceCents),
 			}
 
 			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment, &l3Segment)
-
-		default:
-			var err error
-			weightFloat, distanceFloat, err = g.getPaymentParamsForDefaultServiceItems(serviceItem)
-			if err != nil {
-				return segments, fmt.Errorf("Could not parse weight or distance for PaymentServiceItem %w", err)
-			}
-
-			l0Segment := edisegment.L0{
-				LadingLineItemNumber:   hierarchicalIDNumber,
-				BilledRatedAsQuantity:  distanceFloat,
-				BilledRatedAsQualifier: "DM",
-				Weight:                 weightFloat,
-				WeightQualifier:        "B",
-				WeightUnitCode:         "L",
-			}
-
-			l3Segment := edisegment.L3{
-				Weight:          weightFloat,
-				WeightQualifier: "B",
-				PriceCents:      serviceItem.PriceCents.Int64(),
-			}
-
-			segments = append(segments, &hlSegment, &n9Segment, &l0Segment, &l3Segment)
 		}
 
 	}
