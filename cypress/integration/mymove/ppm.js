@@ -191,7 +191,7 @@ function SMCompletesMove() {
   cy.completeFlow();
 
   cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/ppm$/);
+    expect(loc.pathname).to.match(/^\/$/);
   });
 
   cy.get('.usa-alert--success').within(() => {
