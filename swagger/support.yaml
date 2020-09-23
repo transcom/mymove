@@ -18,7 +18,7 @@ schemes:
   - http
 tags:
   - name: moveTaskOrder
-  - name: paymentRequests
+  - name: paymentRequest
   - name: mtoServiceItem
   - name: mtoShipment
   - name: webhook
@@ -200,7 +200,7 @@ paths:
 
       operationId: listMTOPaymentRequests
       tags:
-        - paymentRequests
+        - paymentRequest
       produces:
         - application/json
       parameters:
@@ -243,7 +243,7 @@ paths:
         This is a support endpoint and is not available in production.
       operationId: updatePaymentRequestStatus
       tags:
-        - paymentRequests
+        - paymentRequest
       consumes:
         - application/json
       produces:
@@ -853,10 +853,6 @@ definitions:
       - reportByDate
       - issueDate
       - status
-  MoveOrders:
-    items:
-      $ref: '#/definitions/MoveOrder'
-    type: array
   MoveStatus:
     type: string
     description: Current status of this MoveTaskOrder
@@ -926,14 +922,12 @@ definitions:
         description: Date on which this MoveTaskOrder was last updated.
       paymentRequests:
         $ref: '#/definitions/PaymentRequests'
-        description: Array of PaymentRequests associated with this MoveTaskOrder.
       mtoServiceItems:
         description: Array of MTOServiceItems associated with this MoveTaskOrder.
         type: array
         items:
           $ref: '#/definitions/MTOServiceItem'
       mtoShipments:
-        description: array of MTOShipments associated with the MoveTaskOrder.
         $ref: '#/definitions/MTOShipments'
       ppmType:
         description: If the move is a PPM, indicates whether it is full or partial.
@@ -1291,20 +1285,6 @@ definitions:
         type: string
         example: MTO Shipment not good enough
         x-nullable: true
-  UpdatePaymentRequest:
-    properties:
-      proofOfServicePackage:
-        $ref: '#/definitions/ProofOfServicePackage'
-      serviceItemIDs:
-        items:
-          example: c56a4180-65aa-42ec-a945-5fd21dec0538
-          format: uuid
-          type: string
-        type: array
-      eTag:
-        type: string
-        readOnly: true
-    type: object
   UpdatePaymentRequestStatus:
     properties:
       rejectionReason:
@@ -1348,9 +1328,11 @@ definitions:
       createdAt:
         type: string
         format: date-time
+        readOnly: true
       updatedAt:
         type: string
         format: date-time
+        readOnly: true
     required:
       - id
       - url

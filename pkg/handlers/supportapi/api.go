@@ -52,13 +52,13 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 		internalmovetaskorder.NewInternalMoveTaskOrderCreator(context.DB()),
 	}
 
-	supportAPI.PaymentRequestsUpdatePaymentRequestStatusHandler = UpdatePaymentRequestStatusHandler{
+	supportAPI.PaymentRequestUpdatePaymentRequestStatusHandler = UpdatePaymentRequestStatusHandler{
 		HandlerContext:              context,
 		PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
 		PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(context.DB()),
 	}
 
-	supportAPI.PaymentRequestsListMTOPaymentRequestsHandler = ListMTOPaymentRequestsHandler{
+	supportAPI.PaymentRequestListMTOPaymentRequestsHandler = ListMTOPaymentRequestsHandler{
 		context,
 	}
 
