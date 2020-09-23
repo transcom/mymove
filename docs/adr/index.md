@@ -62,6 +62,7 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0055](0055-consolidate-moves-and-mtos.md) - Consolidate moves and move task orders into one database table
 - [ADR-0056](0056-use-asdf-to-manage-golang-versions-in-development.md) - Use ASDF To Manage Golang Versions In Development
 - [ADR-0057](0057-lodash.md) - Deprecate use of lodash over time
+- [ADR-0058](0058-replace-loki-with-happo.md) - Use Happo for visual regression testing
 
 <!-- adrlogstop -->
 
