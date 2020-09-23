@@ -13,7 +13,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/transcom/mymove/cmd/prime-api-client/utils"
-	"github.com/transcom/mymove/pkg/gen/supportclient/payment_requests"
+	"github.com/transcom/mymove/pkg/gen/supportclient/payment_request"
 )
 
 // InitGetPaymentRequestEDIFlags declares which flags are enabled
@@ -57,7 +57,7 @@ func GetPaymentRequestEDI(cmd *cobra.Command, args []string) error {
 
 	// Decode json from file that was passed in
 	filename := v.GetString(utils.FilenameFlag)
-	var getPaymentRequestEDIParams payment_requests.GetPaymentRequestEDIParams
+	var getPaymentRequestEDIParams payment_request.GetPaymentRequestEDIParams
 	err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &getPaymentRequestEDIParams)
 	if err != nil {
 		logger.Fatal(err)
@@ -76,7 +76,7 @@ func GetPaymentRequestEDI(cmd *cobra.Command, args []string) error {
 	}
 	getPaymentRequestEDIParams.SetTimeout(time.Second * 30)
 
-	resp, err := supportGateway.PaymentRequests.GetPaymentRequestEDI(&getPaymentRequestEDIParams)
+	resp, err := supportGateway.PaymentRequest.GetPaymentRequestEDI(&getPaymentRequestEDIParams)
 	if err != nil {
 		return utils.HandleGatewayError(err, logger)
 	}

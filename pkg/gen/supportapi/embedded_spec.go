@@ -246,7 +246,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests"
+          "paymentRequest"
         ],
         "summary": "listMTOPaymentRequests",
         "operationId": "listMTOPaymentRequests",
@@ -367,7 +367,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests"
+          "paymentRequest"
         ],
         "summary": "getPaymentRequestEDI",
         "operationId": "getPaymentRequestEDI",
@@ -416,7 +416,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests"
+          "paymentRequest"
         ],
         "summary": "updatePaymentRequestStatus",
         "operationId": "updatePaymentRequestStatus",
@@ -1345,12 +1345,6 @@ func init() {
         }
       }
     },
-    "MoveOrders": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MoveOrder"
-      }
-    },
     "MoveStatus": {
       "description": "Current status of this MoveTaskOrder",
       "type": "string",
@@ -1430,11 +1424,9 @@ func init() {
           }
         },
         "mtoShipments": {
-          "description": "array of MTOShipments associated with the MoveTaskOrder.",
           "$ref": "#/definitions/MTOShipments"
         },
         "paymentRequests": {
-          "description": "Array of PaymentRequests associated with this MoveTaskOrder.",
           "$ref": "#/definitions/PaymentRequests"
         },
         "ppmEstimatedWeight": {
@@ -1683,26 +1675,6 @@ func init() {
         }
       }
     },
-    "UpdatePaymentRequest": {
-      "type": "object",
-      "properties": {
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "proofOfServicePackage": {
-          "$ref": "#/definitions/ProofOfServicePackage"
-        },
-        "serviceItemIDs": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uuid",
-            "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-          }
-        }
-      }
-    },
     "UpdatePaymentRequestStatus": {
       "type": "object",
       "properties": {
@@ -1744,7 +1716,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "filename": {
           "type": "string",
@@ -1765,7 +1738,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "url": {
           "type": "string",
@@ -1849,7 +1823,7 @@ func init() {
       "name": "moveTaskOrder"
     },
     {
-      "name": "paymentRequests"
+      "name": "paymentRequest"
     },
     {
       "name": "mtoServiceItem"
@@ -2160,7 +2134,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests"
+          "paymentRequest"
         ],
         "summary": "listMTOPaymentRequests",
         "operationId": "listMTOPaymentRequests",
@@ -2320,7 +2294,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests"
+          "paymentRequest"
         ],
         "summary": "getPaymentRequestEDI",
         "operationId": "getPaymentRequestEDI",
@@ -2384,7 +2358,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests"
+          "paymentRequest"
         ],
         "summary": "updatePaymentRequestStatus",
         "operationId": "updatePaymentRequestStatus",
@@ -3358,12 +3332,6 @@ func init() {
         }
       }
     },
-    "MoveOrders": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MoveOrder"
-      }
-    },
     "MoveStatus": {
       "description": "Current status of this MoveTaskOrder",
       "type": "string",
@@ -3443,11 +3411,9 @@ func init() {
           }
         },
         "mtoShipments": {
-          "description": "array of MTOShipments associated with the MoveTaskOrder.",
           "$ref": "#/definitions/MTOShipments"
         },
         "paymentRequests": {
-          "description": "Array of PaymentRequests associated with this MoveTaskOrder.",
           "$ref": "#/definitions/PaymentRequests"
         },
         "ppmEstimatedWeight": {
@@ -3696,26 +3662,6 @@ func init() {
         }
       }
     },
-    "UpdatePaymentRequest": {
-      "type": "object",
-      "properties": {
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "proofOfServicePackage": {
-          "$ref": "#/definitions/ProofOfServicePackage"
-        },
-        "serviceItemIDs": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uuid",
-            "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-          }
-        }
-      }
-    },
     "UpdatePaymentRequestStatus": {
       "type": "object",
       "properties": {
@@ -3757,7 +3703,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "filename": {
           "type": "string",
@@ -3778,7 +3725,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "url": {
           "type": "string",
@@ -3862,7 +3810,7 @@ func init() {
       "name": "moveTaskOrder"
     },
     {
-      "name": "paymentRequests"
+      "name": "paymentRequest"
     },
     {
       "name": "mtoServiceItem"

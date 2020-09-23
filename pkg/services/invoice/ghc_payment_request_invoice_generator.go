@@ -382,7 +382,11 @@ func (g ghcPaymentRequestInvoiceGenerator) getPaymentParamsForDefaultServiceItem
 	if err != nil {
 		return 0, 0, fmt.Errorf("Could not parse weight for PaymentServiceItem %s: %w", serviceItem.ID, err)
 	}
-	distance, err := g.fetchPaymentServiceItemParam(serviceItem.ID, models.ServiceItemParamNameDistanceZip3)
+	distanceModel := models.ServiceItemParamNameDistanceZip3
+	if serviceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDSH {
+		distanceModel = models.ServiceItemParamNameDistanceZip5
+	}
+	distance, err := g.fetchPaymentServiceItemParam(serviceItem.ID, distanceModel)
 	if err != nil {
 		return 0, 0, err
 	}

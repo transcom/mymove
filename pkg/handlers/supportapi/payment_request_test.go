@@ -23,7 +23,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/stretchr/testify/mock"
 
-	paymentrequestop "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/payment_requests"
+	paymentrequestop "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/payment_request"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
