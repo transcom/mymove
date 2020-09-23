@@ -22,7 +22,10 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 				},
 			})
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		paramCache := ServiceParamsCache{}
+		paramCache.Initialize(suite.DB())
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, &paramCache)
 		suite.FatalNoError(err)
 
 		distanceStr, err := paramLookup.ServiceParamValue(key)
@@ -34,5 +37,9 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 		suite.DB().Find(&mtoShipment, mtoServiceItem.MTOShipmentID)
 
 		suite.Equal(unit.Miles(defaultZip3Distance), *mtoShipment.Distance)
+
+		// Verify value from paramCache
+		paramCacheValue := paramCache.ParamValue(*mtoServiceItem.MTOShipmentID, key)
+		suite.Equal(expected, *paramCacheValue)
 	})
 }

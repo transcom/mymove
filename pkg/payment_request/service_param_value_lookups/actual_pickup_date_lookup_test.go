@@ -30,14 +30,22 @@ func (suite *ServiceParamValueLookupsSuite) TestActualPickupDateLookup() {
 			Move: mtoServiceItem.MoveTaskOrder,
 		})
 
-	paramLookup, _ := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+	paramCache := ServiceParamsCache{}
+	paramCache.Initialize(suite.DB())
+	paramLookupWithCache, _ := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, &paramCache)
 
 	suite.T().Run("golden path", func(t *testing.T) {
-		valueStr, err := paramLookup.ServiceParamValue(key)
+		valueStr, err := paramLookupWithCache.ServiceParamValue(key)
 		suite.FatalNoError(err)
 		expected := actualPickupDate.Format(ghcrateengine.DateParamFormat)
 		suite.Equal(expected, valueStr)
+
+		// Verify value from paramCache
+		paramCacheValue := paramCache.ParamValue(*mtoServiceItem.MTOShipmentID, key)
+		suite.Equal(expected, *paramCacheValue)
 	})
+
+	paramLookup, _ := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 
 	suite.T().Run("nil actual pickup date", func(t *testing.T) {
 		// Set the actual pickup date to nil
