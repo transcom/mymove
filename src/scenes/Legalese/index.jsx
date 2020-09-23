@@ -54,12 +54,8 @@ export class SignedCertification extends Component {
 
   handleSubmit = () => {
     const pendingValues = this.props.values;
-    const { latestSignedCertification, currentPpm } = this.props;
+    const { latestSignedCertification } = this.props;
     const landingPath = () => {
-      // TODO: change when supporting a combo ppm ?
-      if (Object.keys(currentPpm).length) {
-        return '/ppm';
-      }
       return '/';
     };
     const submitDate = moment().format();
