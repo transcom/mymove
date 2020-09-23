@@ -153,14 +153,21 @@ class Home extends Component {
     );
   };
 
-  handleShipmentClick = (shipmentId, shipmentNumber) => {
+  handleShipmentClick = (shipmentId, shipmentNumber, shipmentType) => {
     const { move, history } = this.props;
     let queryString = '';
     if (shipmentNumber) {
       queryString = `?shipmentNumber=${shipmentNumber}`;
     }
 
-    history.push(`/moves/${move.id}/mto-shipments/${shipmentId}/edit-shipment${queryString}`);
+    let destLink = '';
+    if (shipmentType === 'PPM') {
+      destLink = `/moves/${move.id}/review/edit-date-and-location`;
+    } else if (shipmentType === 'HHG') {
+      destLink = `/moves/${move.id}/mto-shipments/${shipmentId}/edit-shipment${queryString}`;
+    }
+
+    history.push(destLink);
   };
 
   handleNewPathClick = (path) => {

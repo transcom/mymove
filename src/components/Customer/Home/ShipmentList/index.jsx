@@ -18,7 +18,7 @@ const ShipmentListItem = ({ shipment, onShipmentClick, shipmentNumber }) => {
     <div
       className={`${styles['shipment-list-item-container']} ${shipmentClassName}`}
       data-testid="shipment-list-item-container"
-      onClick={() => onShipmentClick(shipment, shipmentNumber)}
+      onClick={() => onShipmentClick(shipment, shipmentNumber, shipment.shipmentType)}
       onKeyDown={(event) => handleEnterOrSpace(event)}
       role="button"
       tabIndex="0"
@@ -44,7 +44,7 @@ const ShipmentList = ({ shipments, onShipmentClick }) => (
       <ShipmentListItem
         key={shipment.id}
         shipmentNumber={index + 1}
-        onShipmentClick={() => onShipmentClick(shipment.id, index + 1)}
+        onShipmentClick={() => onShipmentClick(shipment.id, index + 1, shipment.shipmentType)}
         shipment={shipment}
       />
     ))}
