@@ -8,15 +8,15 @@ import reviewStyles from '../Review.module.scss';
 const OrdersTable = ({ orderType, issueDate, reportByDate, newDutyStationName, hasDependents, uploads }) => (
   <div className={reviewStyles['review-container']}>
     <div className={reviewStyles['review-header']}>
-      <h3>Orders</h3>
+      <h2>Orders</h2>
       <Button unstyled className={reviewStyles['edit-btn']}>
         Edit
       </Button>
     </div>
     <table className={`table--stacked ${reviewStyles['review-table']}`}>
       <colgroup>
-        <col style={{ width: '40%' }} />
-        <col style={{ width: '60%' }} />
+        <col />
+        <col />
       </colgroup>
       <tbody>
         <tr>

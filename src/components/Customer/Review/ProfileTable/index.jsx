@@ -27,7 +27,7 @@ const ProfileTable = ({
   return (
     <div className={containerClassNames}>
       <div className={reviewStyles['review-header']}>
-        <h3>Profile</h3>
+        <h2>Profile</h2>
         <Button unstyled className={reviewStyles['edit-btn']}>
           Edit
         </Button>
