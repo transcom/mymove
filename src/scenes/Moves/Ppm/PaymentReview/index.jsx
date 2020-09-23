@@ -103,7 +103,6 @@ class PaymentReview extends Component {
     this.setState({ moveSubmissionError: false }, () =>
       Promise.all([this.submitCertificate(), this.props.submitExpenseDocs()])
         .then(() => {
-          // TODO: path may change to home after ppm integration with new home page
           this.props.history.push('/');
         })
         .catch(() => {
