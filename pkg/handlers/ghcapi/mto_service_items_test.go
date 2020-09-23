@@ -431,4 +431,44 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		suite.Equal(rejectionReason, *okResponse.Payload.RejectionReason)
 	})
 
+	suite.T().Run("Successful status update of MTO service item and event trigger", func(t *testing.T) {
+		queryBuilder := query.NewQueryBuilder(suite.DB())
+		availableMove := testdatagen.MakeAvailableMove(suite.DB())
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			Move: availableMove,
+		})
+		requestUser := testdatagen.MakeDefaultUser(suite.DB())
+		availableMoveID := availableMove.ID
+		mtoServiceItemID := mtoServiceItem.ID
+
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_service_items/%s/status", availableMoveID, mtoServiceItemID), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
+		params := mtoserviceitemop.UpdateMTOServiceItemStatusParams{
+			HTTPRequest:      req,
+			IfMatch:          etag.GenerateEtag(mtoServiceItem.UpdatedAt),
+			Body:             &ghcmessages.PatchMTOServiceItemStatusPayload{Status: "APPROVED"},
+			MoveTaskOrderID:  availableMoveID.String(),
+			MtoServiceItemID: mtoServiceItemID.String(),
+		}
+
+		fetcher := fetch.NewFetcher(queryBuilder)
+		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder)
+
+		handler := UpdateMTOServiceItemStatusHandler{
+			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			MTOServiceItemUpdater: mtoServiceItemStatusUpdater,
+			Fetcher:               fetcher,
+		}
+
+		traceID, err := uuid.NewV4()
+		suite.FatalNoError(err, "Error creating a new trace ID.")
+		handler.SetTraceID(traceID)
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusOK{}, response)
+		okResponse := response.(*mtoserviceitemop.UpdateMTOServiceItemStatusOK)
+		suite.Equal(ghcmessages.MTOServiceItemstatusStatusAPPROVED, string(okResponse.Payload.Status))
+		suite.HasWebhookNotification(mtoServiceItemID, traceID)
+	})
 }
