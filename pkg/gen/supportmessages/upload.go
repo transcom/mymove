@@ -29,8 +29,9 @@ type Upload struct {
 
 	// created at
 	// Required: true
+	// Read Only: true
 	// Format: date-time
-	CreatedAt *strfmt.DateTime `json:"createdAt"`
+	CreatedAt strfmt.DateTime `json:"createdAt"`
 
 	// filename
 	// Required: true
@@ -47,8 +48,9 @@ type Upload struct {
 
 	// updated at
 	// Required: true
+	// Read Only: true
 	// Format: date-time
-	UpdatedAt *strfmt.DateTime `json:"updatedAt"`
+	UpdatedAt strfmt.DateTime `json:"updatedAt"`
 
 	// url
 	// Required: true
@@ -118,7 +120,7 @@ func (m *Upload) validateContentType(formats strfmt.Registry) error {
 
 func (m *Upload) validateCreatedAt(formats strfmt.Registry) error {
 
-	if err := validate.Required("createdAt", "body", m.CreatedAt); err != nil {
+	if err := validate.Required("createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
 		return err
 	}
 
@@ -199,7 +201,7 @@ func (m *Upload) validateStatus(formats strfmt.Registry) error {
 
 func (m *Upload) validateUpdatedAt(formats strfmt.Registry) error {
 
-	if err := validate.Required("updatedAt", "body", m.UpdatedAt); err != nil {
+	if err := validate.Required("updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
 		return err
 	}
 
