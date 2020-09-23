@@ -28,8 +28,9 @@ export class SelectMoveType extends Component {
     return updateMove(match.params.moveId, moveType);
   };
 
+  // TODO: Shipment eyebrow
   render() {
-    const { pageKey, pageList, match, push } = this.props;
+    const { pageKey, pageList, match, push, isPpmSelectable, isHhgSelectable } = this.props;
     const { moveType } = this.state;
     return (
       <WizardPage
@@ -50,7 +51,8 @@ export class SelectMoveType extends Component {
                 value={SHIPMENT_OPTIONS.PPM}
                 name="moveType"
                 onChange={(e) => this.setMoveType(e)}
-                checked={moveType === SHIPMENT_OPTIONS.PPM}
+                checked={moveType === SHIPMENT_OPTIONS.PPM && isPpmSelectable}
+                disabled={!isPpmSelectable}
               />
               <ul>
                 <li>This is a PPM - “personally procured move”</li>
@@ -64,7 +66,8 @@ export class SelectMoveType extends Component {
                 value={SHIPMENT_OPTIONS.HHG}
                 onChange={(e) => this.setMoveType(e)}
                 name="moveType"
-                checked={moveType === SHIPMENT_OPTIONS.HHG}
+                checked={moveType === SHIPMENT_OPTIONS.HHG && isHhgSelectable}
+                disabled={!isHhgSelectable}
               />
               <ul>
                 <li>This is an HHG shipment — “household goods”</li>
@@ -94,13 +97,19 @@ SelectMoveType.propTypes = {
   push: func.isRequired,
   updateMove: func.isRequired,
   selectedMoveType: string.isRequired,
+  isPpmSelectable: bool.isRequired,
+  isHhgSelectable: bool.isRequired,
 };
 
 function mapStateToProps(state) {
   const move = selectActiveOrLatestMove(state);
+  const doesMoveAlreadyHavePpm = !!move.personally_procured_moves.length;
   const props = {
     move: selectActiveOrLatestMove(state),
     selectedMoveType: get(move, 'selected_move_type'),
+    // TODO: support PPM after initial move submission
+    isPpmSelectable: move.status === 'DRAFT' && !doesMoveAlreadyHavePpm,
+    isHhgSelectable: move.status === 'DRAFT',
   };
   return props;
 }
