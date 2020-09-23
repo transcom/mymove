@@ -1,96 +1,116 @@
 /* eslint-ignore */
 import React from 'react';
-import { shape, string } from 'prop-types';
-import { Link } from 'react-router-dom';
+import classnames from 'classnames';
+import { string } from 'prop-types';
+import { Button } from '@trussworks/react-uswds';
 
 import TableDivider from '../TableDivider';
 import reviewStyles from '../Review.module.scss';
 
-const ProfileTable = ({ serviceMember }) => (
-  <div className="review-container">
-    <div className="stackedtable-header">
-      <h3>Profile</h3>
-      <Link>Edit</Link>
+const ProfileTable = ({
+  firstName,
+  lastName,
+  affiliation,
+  rank,
+  edipi,
+  currentDutyStationName,
+  telephone,
+  email,
+  streetAddress1,
+  streetAddress2,
+  city,
+  state,
+  postalCode,
+}) => {
+  const containerClassNames = classnames(reviewStyles['review-container'], reviewStyles['profile-container']);
+  const tableClassNames = classnames('table--stacked', reviewStyles['review-table']);
+  return (
+    <div className={containerClassNames}>
+      <div className={reviewStyles['review-header']}>
+        <h3>Profile</h3>
+        <Button unstyled className={reviewStyles['edit-btn']}>
+          Edit
+        </Button>
+      </div>
+      <table className={tableClassNames}>
+        <colgroup>
+          <col style={{ width: '40%' }} />
+          <col style={{ width: '60%' }} />
+        </colgroup>
+        <tbody>
+          <tr>
+            <th scope="row">Name</th>
+            <td>
+              {firstName} {lastName}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Branch</th>
+            <td>{affiliation}</td>
+          </tr>
+          <tr>
+            <th scope="row">Rank</th>
+            <td>{rank}</td>
+          </tr>
+          <tr>
+            <th scope="row">DOD ID#</th>
+            <td>{edipi}</td>
+          </tr>
+          <tr>
+            <th className={reviewStyles['table-divider-top']} scope="row" style={{ borderBottom: 'none' }}>
+              Current duty station
+            </th>
+            <td className={reviewStyles['table-divider-top']} style={{ borderBottom: 'none' }}>
+              {currentDutyStationName}
+            </td>
+          </tr>
+          <TableDivider />
+          <tr>
+            <th scope="row" style={{ borderTop: 'none' }}>
+              Contact info
+            </th>
+            <td style={{ borderTop: 'none' }} />
+          </tr>
+          <tr>
+            <th scope="row">Best contact phone</th>
+            <td>{telephone}</td>
+          </tr>
+          <tr>
+            <th scope="row">Personal email</th>
+            <td>{email}</td>
+          </tr>
+          <tr>
+            <th scope="row">Current mailing address</th>
+            <td>
+              {streetAddress1} {streetAddress2}
+              <br />
+              {city}, {state} {postalCode}
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <table className={`table--stacked ${reviewStyles['review-table']}`}>
-      <colgroup>
-        <col style={{ width: '40%' }} />
-        <col style={{ width: '60%' }} />
-      </colgroup>
-      <tbody>
-        <tr>
-          <th scope="row">Name</th>
-          <td>
-            {serviceMember.first_name} {serviceMember.last_name}
-          </td>
-        </tr>
-        <tr>
-          <th scope="row">Branch</th>
-          <td>{serviceMember.affiliation}</td>
-        </tr>
-        <tr>
-          <th scope="row">Rank</th>
-          <td>{serviceMember.rank}</td>
-        </tr>
-        <tr>
-          <th scope="row">DOD ID#</th>
-          <td>{serviceMember.edipi}</td>
-        </tr>
-        <tr>
-          <th scope="row" style={{ borderBottom: 'none' }}>
-            Current duty station
-          </th>
-          <td style={{ borderBottom: 'none' }}>{serviceMember.current_station.name}</td>
-        </tr>
-        <TableDivider className="" />
-        <tr>
-          <th scope="row" style={{ borderTop: 'none' }}>
-            Contact info
-          </th>
-          <td style={{ borderTop: 'none' }} />
-        </tr>
-        <tr>
-          <th scope="row">Best contact phone</th>
-          <td>{serviceMember.telephone}</td>
-        </tr>
-        <tr>
-          <th scope="row">Personal email</th>
-          <td>{serviceMember.telephone}</td>
-        </tr>
-        <tr>
-          <th scope="row">Current mailing address</th>
-          <td>
-            {serviceMember.residential_address.street_address_1} {serviceMember.residential_address.street_address_2}
-            <br />
-            {serviceMember.residential_address.city}, {serviceMember.residential_address.state}{' '}
-            {serviceMember.residential_address.postal_code}
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-);
+  );
+};
 
 ProfileTable.propTypes = {
-  serviceMember: shape({
-    first_name: string.isRequired,
-    last_name: string.isRequired,
-    affiliation: string.isRequired,
-    rank: string.isRequired,
-    edipi: string.isRequired,
-    current_station: shape({
-      name: string.isRequired,
-    }).isRequired,
-    telephone: string.isRequired,
-    personal_email: string.isRequired,
-    residential_address: shape({
-      street_address_1: string.isRequired,
-      street_address_2: string.isRequired,
-      city: string.isRequired,
-      state: string.isRequired,
-      postal_code: string.isRequired,
-    }).isRequired,
-  }).isRequired,
+  firstName: string.isRequired,
+  lastName: string.isRequired,
+  affiliation: string.isRequired,
+  rank: string.isRequired,
+  edipi: string.isRequired,
+  currentDutyStationName: string.isRequired,
+  telephone: string.isRequired,
+  email: string.isRequired,
+  streetAddress1: string.isRequired,
+  streetAddress2: string,
+  city: string.isRequired,
+  state: string.isRequired,
+  postalCode: string.isRequired,
+};
+
+ProfileTable.defaultProps = {
+  streetAddress2: '',
 };
 
 export default ProfileTable;

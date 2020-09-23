@@ -16,8 +16,6 @@ import { loadEntitlementsFromState } from 'shared/entitlements';
 import Alert from 'shared/Alert';
 import { titleCase } from 'shared/constants.js';
 import { selectedMoveType as selectMoveType } from 'scenes/Moves/ducks';
-import ProfileTable from 'components/Customer/Review/ProfileTable/index.jsx';
-import OrdersTable from 'components/Customer/Review/OrdersTable/index.jsx';
 
 import { checkEntitlement } from './ducks';
 import ServiceMemberSummary from './ServiceMemberSummary';
@@ -102,9 +100,7 @@ export class Summary extends Component {
               Your weight entitlement is now {entitlement.sum.toLocaleString()} lbs.
             </Alert>
           )}
-        <ProfileTable serviceMember={serviceMember} />
-        <OrdersTable orders={currentOrders} />
-        {/* {showProfileAndOrders && (
+        {showProfileAndOrders && (
           <ServiceMemberSummary
             orders={currentOrders}
             uploads={uploads}
@@ -116,7 +112,7 @@ export class Summary extends Component {
             moveIsApproved={moveIsApproved}
             editOrdersPath={editOrdersPath}
           />
-        )} */}
+        )}
         {showMoveSetup && <h3>Move setup</h3>}
         {showPPMShipmentSummary && (
           <PPMShipmentSummary ppm={currentPPM} movePath={rootReviewAddressWithMoveId} orders={currentOrders} />

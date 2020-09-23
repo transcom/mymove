@@ -1,15 +1,17 @@
 /* eslint-ignore */
 import React from 'react';
-import { shape, string } from 'prop-types';
-import { Link } from 'react-router-dom';
+import { string, arrayOf, bool, shape } from 'prop-types';
+import { Button } from '@trussworks/react-uswds';
 
 import reviewStyles from '../Review.module.scss';
 
-const OrdersTable = ({ orders }) => (
-  <div className="review-container">
-    <div className="stackedtable-header">
+const OrdersTable = ({ orderType, issueDate, reportByDate, newDutyStationName, hasDependents, uploads }) => (
+  <div className={reviewStyles['review-container']}>
+    <div className={reviewStyles['review-header']}>
       <h3>Orders</h3>
-      <Link>Edit</Link>
+      <Button unstyled className={reviewStyles['edit-btn']}>
+        Edit
+      </Button>
     </div>
     <table className={`table--stacked ${reviewStyles['review-table']}`}>
       <colgroup>
@@ -19,28 +21,28 @@ const OrdersTable = ({ orders }) => (
       <tbody>
         <tr>
           <th scope="row">Orders type</th>
-          <td style={{ wordBreak: 'break-word' }}>{orders.orders_type}</td>
+          <td style={{ wordBreak: 'break-word' }}>{orderType}</td>
         </tr>
         <tr>
           <th scope="row">Orders date</th>
-          <td>{orders.issue_date}</td>
+          <td>{issueDate}</td>
         </tr>
         <tr>
           <th scope="row">Report by date</th>
-          <td>{orders.report_by_date}</td>
+          <td>{reportByDate}</td>
         </tr>
         <tr>
           <th scope="row">New duty station</th>
-          <td>{orders.new_duty_station.name}</td>
+          <td>{newDutyStationName}</td>
         </tr>
         <tr>
           <th scope="row">Dependents</th>
-          <td>{orders.has_dependents ? 'Yes' : 'No'}</td>
+          <td>{hasDependents ? 'Yes' : 'No'}</td>
         </tr>
         <tr>
           <th scope="row">Orders</th>
           <td>
-            {orders.uploaded_orders.uploads.length} file{orders.uploaded_orders.uploads.length > 1 ? 's' : ''}
+            {uploads.length} file{uploads.length > 1 ? 's' : ''}
           </td>
         </tr>
       </tbody>
@@ -49,7 +51,12 @@ const OrdersTable = ({ orders }) => (
 );
 
 OrdersTable.propTypes = {
-  orders: shape({}).isRequired,
+  orderType: string.isRequired,
+  issueDate: string.isRequired,
+  reportByDate: string.isRequired,
+  newDutyStationName: string.isRequired,
+  hasDependents: bool.isRequired,
+  uploads: arrayOf(shape({})).isRequired,
 };
 
 export default OrdersTable;

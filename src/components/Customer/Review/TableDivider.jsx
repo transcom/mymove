@@ -1,13 +1,11 @@
 import React from 'react';
 import { string } from 'prop-types';
 
+import styles from './Review.module.scss';
+
 const TableDivider = ({ className }) => (
   <tr>
-    <td
-      className={className}
-      colSpan="100%"
-      style={{ paddingTop: 0, paddingBottom: 0, borderTop: 'none', borderBottom: '1px solid black' }}
-    />
+    <td className={`${styles['table-divider']} ${className}`} colSpan="100%" />
   </tr>
 );
 
