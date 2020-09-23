@@ -42,7 +42,7 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 		})
 
 	suite.T().Run("lookup GHC diesel fuel price successfully", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 		valueStr, err := paramLookup.ServiceParamValue(key)
 		suite.FatalNoError(err)
@@ -59,7 +59,7 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 				},
 			})
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 		_, err = paramLookup.ServiceParamValue(key)
 		suite.Error(err)

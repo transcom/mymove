@@ -4,13 +4,10 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/transcom/mymove/pkg/models"
-
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
-
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
@@ -68,7 +65,7 @@ func ServiceParamLookupInitialize(
 		if mtoServiceItem.MTOShipmentID == nil {
 			return nil, services.NewNotFoundError(uuid.Nil, "looking for MTOShipmentID")
 		}
-		err := db.Eager("PickupAddress", "DestinationAddress").Find(&mtoShipment, mtoServiceItem.MTOShipmentID)
+		err = db.Eager("PickupAddress", "DestinationAddress").Find(&mtoShipment, mtoServiceItem.MTOShipmentID)
 		if err != nil {
 			switch err {
 			case sql.ErrNoRows:
@@ -266,13 +263,11 @@ func ServiceParamLookupInitialize(
 		}
 	}
 
-
 	if mtoServiceItem.ReService.Code != models.ReServiceCodeDPK {
 		s.lookups[models.ServiceItemParamNameServicesScheduleDest.String()] = ServicesScheduleLookup{
 			Address: destinationAddress,
 		}
 	}
-
 
 	return &s, nil
 }

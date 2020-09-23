@@ -30,7 +30,7 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOAvailableToPrimeLookup() {
 			Move: mtoServiceItem.MoveTaskOrder,
 		})
 
-	paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+	paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 	suite.FatalNoError(err)
 
 	suite.T().Run("golden path", func(t *testing.T) {
@@ -61,7 +61,7 @@ func (suite *ServiceParamValueLookupsSuite) TestMTOAvailableToPrimeLookup() {
 	suite.T().Run("bogus MoveTaskOrderID", func(t *testing.T) {
 		// Pass in a non-existent MoveTaskOrderID
 		invalidMoveTaskOrderID := uuid.Must(uuid.NewV4())
-		badParamLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, invalidMoveTaskOrderID)
+		badParamLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, invalidMoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
 		valueStr, err := badParamLookup.ServiceParamValue(key)
