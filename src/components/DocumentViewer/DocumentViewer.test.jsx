@@ -95,7 +95,7 @@ describe('DocViewerMenu', () => {
 
     it('renders the list of files', () => {
       mockFiles.forEach((file) => {
-        expect(component.contains(<p title={file.filename}>{file.filename}</p>)).toBe(true);
+        expect(component.contains(<p>{file.filename}</p>)).toBe(true);
       });
     });
 
