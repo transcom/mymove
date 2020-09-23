@@ -14,7 +14,7 @@ import (
 
 	"github.com/transcom/mymove/cmd/prime-api-client/utils"
 
-	paymentRequest "github.com/transcom/mymove/pkg/gen/supportclient/payment_requests"
+	paymentrequestclient "github.com/transcom/mymove/pkg/gen/supportclient/payment_request"
 )
 
 // InitUpdatePaymentRequestStatusFlags declares which flags are enabled
@@ -58,7 +58,7 @@ func UpdatePaymentRequestStatus(cmd *cobra.Command, args []string) error {
 
 	// Decode json from file that was passed in
 	filename := v.GetString(utils.FilenameFlag)
-	var paymentReqParams paymentRequest.UpdatePaymentRequestStatusParams
+	var paymentReqParams paymentrequestclient.UpdatePaymentRequestStatusParams
 	err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &paymentReqParams)
 	if err != nil {
 		logger.Fatal(err)
@@ -76,7 +76,7 @@ func UpdatePaymentRequestStatus(cmd *cobra.Command, args []string) error {
 	}
 
 	// Make the API Call
-	resp, err := supportGateway.PaymentRequests.UpdatePaymentRequestStatus(&paymentReqParams)
+	resp, err := supportGateway.PaymentRequest.UpdatePaymentRequestStatus(&paymentReqParams)
 	if err != nil {
 		return utils.HandleGatewayError(err, logger)
 	}

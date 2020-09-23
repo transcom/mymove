@@ -14,7 +14,7 @@ import (
 
 	"github.com/transcom/mymove/cmd/prime-api-client/utils"
 
-	paymentRequest "github.com/transcom/mymove/pkg/gen/supportclient/payment_requests"
+	paymentrequestclient "github.com/transcom/mymove/pkg/gen/supportclient/payment_request"
 )
 
 // InitListMTOPaymentRequestsFlags declares which flags are enabled
@@ -58,7 +58,7 @@ func ListMTOPaymentRequests(cmd *cobra.Command, args []string) error {
 
 	// Decode json from file that was passed in
 	filename := v.GetString(utils.FilenameFlag)
-	var paymentReqParams paymentRequest.ListMTOPaymentRequestsParams
+	var paymentReqParams paymentrequestclient.ListMTOPaymentRequestsParams
 	err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &paymentReqParams)
 	if err != nil {
 		logger.Fatal(err)
@@ -76,7 +76,7 @@ func ListMTOPaymentRequests(cmd *cobra.Command, args []string) error {
 	}
 
 	// Make the API Call
-	resp, err := supportGateway.PaymentRequests.ListMTOPaymentRequests(&paymentReqParams)
+	resp, err := supportGateway.PaymentRequest.ListMTOPaymentRequests(&paymentReqParams)
 	if err != nil {
 		return utils.HandleGatewayError(err, logger)
 	}
