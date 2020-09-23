@@ -632,7 +632,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 
-	testdatagen.MakePPM(db, testdatagen.Assertions{
+	ppm := testdatagen.MakePPM(db, testdatagen.Assertions{
 		ServiceMember: move.Orders.ServiceMember,
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			OriginalMoveDate: &nextValidMoveDate,
@@ -642,6 +642,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		UserUploader: userUploader,
 	})
 
+	move.PersonallyProcuredMoves = models.PersonallyProcuredMoves{ppm}
 	move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &move)
 
