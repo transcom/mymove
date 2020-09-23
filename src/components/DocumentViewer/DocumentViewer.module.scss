@@ -26,6 +26,10 @@
       white-space: nowrap;
     }
 
+    button {
+      flex-shrink: 0;
+    }
+
     button svg:not(:only-child) {
       @include u-margin-left(1);
     }
