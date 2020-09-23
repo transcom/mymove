@@ -66,6 +66,11 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			KeyType: models.ServiceItemParamTypeInteger,
 			Value:   "2424",
 		},
+		{
+			Key:     models.ServiceItemParamNameDistanceZip5,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "24245",
+		},
 	}
 
 	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
@@ -104,8 +109,14 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		paymentRequest,
 		basicPaymentServiceItemParams,
 	)
+	dsh := testdatagen.MakePaymentServiceItemWithParamsAndPaymentRequest(
+		suite.DB(),
+		models.ReServiceCodeDSH,
+		paymentRequest,
+		basicPaymentServiceItemParams,
+	)
 
-	paymentServiceItems = append(paymentServiceItems, dlh, fsc, ms, cs)
+	paymentServiceItems = append(paymentServiceItems, dlh, fsc, ms, cs, dsh)
 
 	serviceMember := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
@@ -158,7 +169,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	suite.T().Run("adds se end segment", func(t *testing.T) {
 		// Will need to be updated as more service items are supported
-		suite.Equal(35, result.SE.NumberOfIncludedSegments)
+		suite.Equal(40, result.SE.NumberOfIncludedSegments)
 		suite.Equal("0001", result.SE.TransactionSetControlNumber)
 	})
 
@@ -323,7 +334,11 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 				suite.IsType(&edisegment.L0{}, result.ServiceItems[segmentOffset+3])
 				l0 := result.ServiceItems[segmentOffset+3].(*edisegment.L0)
 				suite.Equal(hierarchicalNumberInt, l0.LadingLineItemNumber)
-				suite.Equal(float64(2424), l0.BilledRatedAsQuantity)
+				if serviceCode == models.ReServiceCodeDSH {
+					suite.Equal(float64(24245), l0.BilledRatedAsQuantity)
+				} else {
+					suite.Equal(float64(2424), l0.BilledRatedAsQuantity)
+				}
 				suite.Equal("DM", l0.BilledRatedAsQualifier)
 				suite.Equal(float64(4242), l0.Weight)
 				suite.Equal("B", l0.WeightQualifier)
