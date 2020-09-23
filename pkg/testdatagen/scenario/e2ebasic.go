@@ -670,7 +670,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			PersonalEmail: models.StringPointer(email),
 		},
 	})
-	// currently don't have "combo move" selection option, so testing ppm office when type is HHG
+
 	selectedMoveType = models.SelectedMoveTypeHHG
 	move = testdatagen.MakeMove(db, testdatagen.Assertions{
 		Order: models.Order{
