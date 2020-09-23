@@ -11,9 +11,14 @@ const ShipmentCard = ({ shipmentType }) => {
   return (
     <div className={styles.ShipmentCard} data-testid="shipment-display">
       <ShipmentContainer className={styles.container} shipmentType={shipmentType}>
-        <div className={styles.heading}>
-          <h3>dsadsadsa</h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div>
+            <h4 style={{ margin: 0 }}>dsadsadsa</h4>
+            <p style={{ color: '#92979b', margin: 0 }}>#ABC123K-001</p>
+          </div>
+          <a href="#">Edit</a>
         </div>
+
         <dl>
           <div className={styles.row}>
             <dt>Requested move date</dt>
