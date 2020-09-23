@@ -65,6 +65,8 @@ committing.
 | `pre-commit-go-mod` | modify `go.mod` and `go.sum` to match whats in the project |
 | `pre-commit-go-vet` | analyze code with `go vet` |
 | `pre-commit-swagger-validate` | Pre-commit hook to run `swagger validate` that is different based on environment |
+| `lint-yaml-with-spectral` | Pre-commit hook to run `spectral` linter that lints external APIs |
+
 
 ## CircleCI Scripts
 

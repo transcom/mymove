@@ -2,8 +2,6 @@ extends: spectral:oas
 rules:
   # Host is required
   oas2-api-host: off
-  # Seems to be false triggered by the modelType definitions
-  # oas2-unused-definition: off
 
 # ENDPOINT PROPERTIES
   endpoint-requires-description:
@@ -57,7 +55,8 @@ rules:
             - application/json
 
   produces-allowed-types:
-    message: "{{error}}"
+    #message: "{{error}}"
+    description: Allowable types for produces are [application/json]
     given: $.paths[*][?( @property !== 'parameters' )].produces.*
     then:
       - function: enumeration
@@ -67,14 +66,15 @@ rules:
 
   endpoint-requires-consumes:
     description: Endpoints that [POST,PUT,PATCH] methods must include consumes property
-    message: "{{error}}"
+    #message: "{{error}}"
     given: $.paths.*[?( @property === 'post' || @property === 'patch' || @property === 'put')]
     then:
       - field: "consumes"
         function: truthy
 
   consumes-allowed-types:
-    message: "{{error}}"
+    description: Allowable types for consumes are [application/json, multipart/form-data]
+    #message: "{{error}}"
     given: $.paths.*[?( @property === 'post' || @property === 'patch' || @property === 'put')].consumes.*
     then:
       - function: enumeration
@@ -85,7 +85,7 @@ rules:
 
 # BODY PROPERTIES
   body-properties-case:
-    description: "Body properties MUST be camelCase"
+    description: Body properties MUST be camelCase
     severity: error
     given: $..properties.*~
     then:
@@ -95,8 +95,7 @@ rules:
 
   created-at-read-only:
     description: Property createdAt MUST be readOnly
-    message: "{{error}}"
-
+    #message: "{{error}}"
     severity: error
     given: $..properties.createdAt
     then:
@@ -105,7 +104,7 @@ rules:
 
   updated-at-read-only:
     description: Property updatedAt MUST be readOnly
-    message: "{{error}}"
+    #message: "{{error}}"
     severity: error
     given: $..properties.updatedAt
     then:
@@ -114,7 +113,7 @@ rules:
 
   etag-read-only:
     description: Property eTag MUST be readOnly
-    message: "{{error}}"
+    #message: "{{error}}"
     severity: error
     given: $..properties.eTag
     then:
@@ -123,7 +122,7 @@ rules:
 
   date-no-example:
     description: Property of type date should not give example, due to ReDoc quirk
-    message: "{{error}}"
+    #message: "{{error}}"
     severity: error
     given: $..properties[?(@.format == "date")]
     then:
@@ -133,7 +132,7 @@ rules:
 # DEFINITIONS
   definitions-sort:
     description: Definitions MUST be sorted alphabetically
-    message: "{{error}}"
+    #message: "{{error}}"
     severity: error
     given: $.definitions
     then:
@@ -141,7 +140,7 @@ rules:
 
   definitions-no-payload:
     description: Definition names MUST not end in Payload
-    message: "{{error}}"
+    #message: "{{error}}"
     severity: error
     given: $.definitions.~
     then:
