@@ -121,13 +121,14 @@ class Home extends Component {
   }
 
   get shipmentActionBtnLabel() {
+    // TODO: support PPM after initial move submission
     if (this.hasSubmittedMove) {
       return '';
     }
     if (this.hasShipment) {
-      return 'Plan your shipments';
+      return 'Add another shipment';
     }
-    return 'Add another shipment';
+    return 'Plan your shipments';
   }
 
   get getHelperHeaderText() {
@@ -362,7 +363,7 @@ class Home extends Component {
                   )}
                 </Step>
                 <Step
-                  actionBtnLabel={this.hasShipment ? 'Add another shipment' : 'Plan your shipments'}
+                  actionBtnLabel={this.shipmentActionBtnLabel}
                   actionBtnDisabled={!this.hasOrders || this.hasSubmittedMove}
                   onActionBtnClick={() => this.handleNewPathClick(shipmentSelectionPath)}
                   complete={this.hasShipment}
