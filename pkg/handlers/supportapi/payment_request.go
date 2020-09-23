@@ -8,7 +8,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	paymentrequestop "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/payment_requests"
+	paymentrequestop "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/payment_request"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/supportapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"

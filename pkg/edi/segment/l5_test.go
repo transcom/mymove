@@ -20,11 +20,10 @@ func (suite *SegmentSuite) TestValidateL5() {
 	suite.T().Run("validate failure of lading description", func(t *testing.T) {
 		l5 := L5{
 			LadingLineItemNumber: 1,
-			LadingDescription:    "DOP",
 		}
 
 		err := suite.validator.Struct(l5)
-		suite.ValidateError(err, "LadingDescription", "eq")
+		suite.ValidateError(err, "LadingDescription", "required")
 		suite.ValidateErrorLen(err, 1)
 	})
 
