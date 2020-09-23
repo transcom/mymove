@@ -1,0 +1,32 @@
+#! /usr/bin/env bash
+
+#
+# Find scripts missing int he readme
+#
+
+set -eu -o pipefail
+
+
+spectral  -F error -r swagger/.spectral.yml lint swagger/prime.yaml swagger/support.yaml 2> /dev/null
+exit $?
+# if [ $? -eq 0 ]
+# then
+#   exit 0
+# else
+#   exit 1
+# fi
+
+# DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# readonly DIR
+
+# missing=false
+# for script in "${DIR}"/*; do
+#   name=$(basename "${script}")
+#   if grep -Fq "${name}" "${DIR}/README.md" ; then
+#     echo >> /dev/null
+#   elif [[ ${name} != "README.md" ]]; then
+#     echo "Missing from scripts/README.md: ${name}"
+#     missing=true
+#   fi
+# done
+
