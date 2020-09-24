@@ -41,7 +41,6 @@ import {
   selectGetCurrentUserIsLoading,
   selectGetCurrentUserIsSuccess,
 } from 'shared/Data/users';
-import { getPPM } from 'scenes/Moves/Ppm/ducks';
 
 const Description = ({ children }) => <p className={styles.description}>{children}</p>;
 
@@ -90,7 +89,7 @@ class Home extends Component {
     }
 
     if (!isEmpty(prevProps.serviceMember) && prevProps.serviceMember !== serviceMember && !isProfileComplete) {
-      // if service member existed but was updated, redirect ot next incomplete page.
+      // if service member existed but was updated, redirect to next incomplete page.
       this.resumeMove();
     }
 
@@ -111,9 +110,9 @@ class Home extends Component {
   }
 
   get hasShipment() {
-    const { shipments, currentPPM } = this.props;
+    const { shipments, currentPpm } = this.props;
     // TODO: check for PPM when PPM is integrated
-    return (this.hasOrders && !!shipments.length) || Object.keys(currentPPM).length;
+    return (this.hasOrders && !!shipments.length) || Object.keys(currentPpm).length;
   }
 
   get hasSubmittedMove() {
@@ -164,7 +163,7 @@ class Home extends Component {
       orders,
       uploadedOrderDocuments,
       move,
-      ppm,
+      currentPpm,
       mtoShipment,
       backupContacts,
       context,
@@ -176,7 +175,7 @@ class Home extends Component {
       orders,
       uploads: uploadedOrderDocuments,
       move,
-      ppm,
+      currentPpm,
       mtoShipment,
       backupContacts,
       context,
@@ -283,15 +282,15 @@ class Home extends Component {
     history.push(path);
   };
 
-  renderAlert = (loggedInUserError, createdServiceMemberError, moveSubmitSuccess, ppm) => {
+  renderAlert = (loggedInUserError, createdServiceMemberError, moveSubmitSuccess, currentPpm) => {
     return (
       <div>
-        {moveSubmitSuccess && !ppm && (
+        {moveSubmitSuccess && !currentPpm && (
           <Alert type="success" heading="Success">
             You&apos;ve submitted your move
           </Alert>
         )}
-        {ppm && moveSubmitSuccess && <PpmAlert heading="Congrats - your move is submitted!" />}
+        {currentPpm && moveSubmitSuccess && <PpmAlert heading="Congrats - your move is submitted!" />}
         {loggedInUserError && (
           <Alert type="error" heading="An error occurred">
             There was an error loading your user information.
@@ -319,8 +318,7 @@ class Home extends Component {
       move,
       uploadedOrderDocuments,
       shipments,
-      ppm,
-      currentPPM,
+      currentPpm,
       location,
     } = this.props;
     const ordersPath = this.hasOrdersNoUpload ? '/orders/upload' : '/orders';
@@ -328,9 +326,9 @@ class Home extends Component {
     const confirmationPath = `/moves/${move.id}/review`;
     const profileEditPath = '/moves/review/edit-profile';
     const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
-    if (Object.keys(currentPPM).length) {
-      currentPPM.shipmentType = SHIPMENT_OPTIONS.PPM;
-      shipments.push(currentPPM);
+    if (Object.keys(currentPpm).length) {
+      currentPpm.shipmentType = SHIPMENT_OPTIONS.PPM;
+      shipments.push(currentPpm);
     }
     return (
       <div className={`usa-prose grid-container ${styles['grid-container']}`}>
@@ -346,7 +344,7 @@ class Home extends Component {
             </header>
             {loggedInUserSuccess && (
               <>
-                {this.renderAlert(loggedInUserError, createdServiceMemberError, moveSubmitSuccess, ppm)}
+                {this.renderAlert(loggedInUserError, createdServiceMemberError, moveSubmitSuccess, currentPpm)}
                 <Helper title={this.getHelperHeaderText}>{this.renderHelperDescription()}</Helper>
                 <Step
                   complete={serviceMember.is_profile_complete}
@@ -443,7 +441,7 @@ Home.propTypes = {
       shipmentType: string,
     }),
   ).isRequired,
-  currentPPM: shape({
+  currentPpm: shape({
     id: string,
     shipmentType: string,
   }).isRequired,
@@ -463,7 +461,6 @@ Home.propTypes = {
   createdServiceMemberSuccess: bool,
   createdServiceMemberError: string,
   moveSubmitSuccess: bool.isRequired,
-  ppm: shape({}).isRequired,
   location: shape({}).isRequired,
   createServiceMember: func.isRequired,
   loadPpms: func.isRequired,
@@ -500,7 +497,7 @@ const mapStateToProps = (state) => {
   const move = selectActiveOrLatestMove(state);
 
   return {
-    currentPPM: selectActivePPMForMove(state, move.id),
+    currentPpm: selectActivePPMForMove(state, move.id),
     isLoggedIn: user.isLoggedIn,
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
     loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
@@ -514,7 +511,6 @@ const mapStateToProps = (state) => {
     uploadedOrderDocuments: selectUploadedOrders(state),
     serviceMember,
     backupContacts: serviceMember.backup_contacts || state.serviceMember.currentBackupContacts || [],
-    ppm: getPPM(state),
     // TODO: change when we support PPM shipments as well
     shipments: selectMTOShipmentsByMoveId(state, move.id),
     // TODO: change when we support multiple moves
