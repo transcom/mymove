@@ -41,7 +41,7 @@ import { approvePPM, loadPPMs, selectActivePPMForMove, selectReimbursement } fro
 import { loadBackupContacts, loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { loadOrders, loadOrdersLabel, selectOrders } from 'shared/Entities/modules/orders';
 import { openLinkInNewWindow } from 'shared/utils';
-import { defaultRelativeWindowSize, SHIPMENT_OPTIONS } from 'shared/constants';
+import { defaultRelativeWindowSize } from 'shared/constants';
 
 import { roleTypes } from 'constants/userRoles';
 
@@ -211,7 +211,6 @@ class MoveInfo extends Component {
 
   render() {
     const { move, moveId, moveDocuments, moveStatus, orders, ppm, serviceMember, upload } = this.props;
-    const isPPM = move.selected_move_type === SHIPMENT_OPTIONS.PPM;
     const showDocumentViewer = this.props.context.flags.documentViewer;
     const moveInfoComboButton = this.props.context.flags.moveInfoComboButton;
     const ordersComplete = Boolean(
@@ -221,7 +220,7 @@ class MoveInfo extends Component {
     const ppmApproved = includes(['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
     const moveApproved = moveStatus === 'APPROVED';
 
-    const moveDate = isPPM ? ppm.original_move_date : null;
+    const moveDate = ppm.original_move_date;
 
     const uploadDocumentUrl = `/moves/${moveId}/documents/new`;
     const ordersUrl = `/moves/${move.id}/orders`;
@@ -286,14 +285,12 @@ class MoveInfo extends Component {
                   {capitalize(this.props.moveStatus)}
                 </span>
               </NavTab>
-              {isPPM && (
-                <NavTab to="/ppm">
-                  <span className="title" data-testid="ppm-tab">
-                    PPM
-                  </span>
-                  {this.renderPPMTabStatus()}
-                </NavTab>
-              )}
+              <NavTab to="/ppm">
+                <span className="title" data-testid="ppm-tab">
+                  PPM
+                </span>
+                {this.renderPPMTabStatus()}
+              </NavTab>
             </RoutedTabs>
 
             <div className="tab-content">
@@ -348,13 +345,11 @@ class MoveInfo extends Component {
                           disabled={moveApproved || !ordersComplete}
                           onClick={this.approveBasics}
                         />
-                        {isPPM && (
-                          <DropDownItem
-                            disabled={ppmApproved || !moveApproved || !ordersComplete}
-                            onClick={this.approvePPM}
-                            value="Approve PPM"
-                          />
-                        )}
+                        <DropDownItem
+                          disabled={ppmApproved || !moveApproved || !ordersComplete}
+                          onClick={this.approvePPM}
+                          value="Approve PPM"
+                        />
                       </DropDown>
                     </ComboButton>
                   )}
