@@ -477,7 +477,12 @@ paths:
         type: string
     get:
       summary: getPaymentRequestEDI
-      description: Returns the EDI corresponding to the payment request identified by the given payment request number.
+      description: |
+        Returns the EDI (Electronic Data Interchange) message for the payment request identified
+        by the given payment request ID. Note that the EDI returned in the JSON payload will have \n where there
+        would normally be line breaks (due to JSON not allowing line breaks in a string).
+
+        This is a support endpoint and will not be available in production.
       operationId: getPaymentRequestEDI
       tags:
         - paymentRequest
@@ -1228,6 +1233,17 @@ definitions:
     items:
       $ref: '#/definitions/PaymentRequest'
     type: array
+  PaymentRequestEDI:
+    properties:
+      id:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+        readOnly: true
+      edi:
+        type: string
+        readOnly: true
+    type: object
   PaymentRequestStatus:
     enum:
       - PENDING
@@ -1237,17 +1253,6 @@ definitions:
       - PAID
     title: Payment Request Status
     type: string
-  PaymentRequestEDI:
-    properties:
-      id:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-        readOnly: true
-      EDI:
-        type: string
-        readOnly: true
-    type: object
   ProofOfServicePackage:
     properties:
       id:

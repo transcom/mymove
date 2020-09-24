@@ -299,7 +299,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 		suite.Equal(ediPayload.ID, strfmtPaymentRequestID)
 
 		// Check to make sure EDI is there and starts with expected segment.
-		edi := ediPayload.EDI
+		edi := ediPayload.Edi
 		if suite.NotEmpty(edi) {
 			suite.Regexp("^ISA*", edi)
 		}

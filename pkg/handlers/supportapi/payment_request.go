@@ -200,7 +200,7 @@ func (h GetPaymentRequestEDIHandler) Handle(params paymentrequestop.GetPaymentRe
 		return paymentrequestop.NewGetPaymentRequestEDIInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
 	}
 
-	payload.EDI, err = edi858c.EDIString()
+	payload.Edi, err = edi858c.EDIString()
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error generating EDI string for payment request ID: %s: %s", paymentRequestID, err))
 		return paymentrequestop.NewGetPaymentRequestEDIInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))

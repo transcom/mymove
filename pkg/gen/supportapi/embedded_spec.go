@@ -362,7 +362,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/edi": {
       "get": {
-        "description": "Returns the EDI corresponding to the payment request identified by the given payment request number.",
+        "description": "Returns the EDI (Electronic Data Interchange) message for the payment request identified\nby the given payment request ID. Note that the EDI returned in the JSON payload will have \\n where there\nwould normally be line breaks (due to JSON not allowing line breaks in a string).\n\nThis is a support endpoint and will not be available in production.\n",
         "produces": [
           "application/json"
         ],
@@ -1540,7 +1540,7 @@ func init() {
     "PaymentRequestEDI": {
       "type": "object",
       "properties": {
-        "EDI": {
+        "edi": {
           "type": "string",
           "readOnly": true
         },
@@ -2289,7 +2289,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/edi": {
       "get": {
-        "description": "Returns the EDI corresponding to the payment request identified by the given payment request number.",
+        "description": "Returns the EDI (Electronic Data Interchange) message for the payment request identified\nby the given payment request ID. Note that the EDI returned in the JSON payload will have \\n where there\nwould normally be line breaks (due to JSON not allowing line breaks in a string).\n\nThis is a support endpoint and will not be available in production.\n",
         "produces": [
           "application/json"
         ],
@@ -3527,7 +3527,7 @@ func init() {
     "PaymentRequestEDI": {
       "type": "object",
       "properties": {
-        "EDI": {
+        "edi": {
           "type": "string",
           "readOnly": true
         },

@@ -29,7 +29,12 @@ type Client struct {
 /*
 GetPaymentRequestEDI gets payment request e d i
 
-Returns the EDI corresponding to the payment request identified by the given payment request number.
+Returns the EDI (Electronic Data Interchange) message for the payment request identified
+by the given payment request ID. Note that the EDI returned in the JSON payload will have \n where there
+would normally be line breaks (due to JSON not allowing line breaks in a string).
+
+This is a support endpoint and will not be available in production.
+
 */
 func (a *Client) GetPaymentRequestEDI(params *GetPaymentRequestEDIParams) (*GetPaymentRequestEDIOK, error) {
 	// TODO: Validate the params before sending

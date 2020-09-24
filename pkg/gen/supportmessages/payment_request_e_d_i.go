@@ -17,9 +17,9 @@ import (
 // swagger:model PaymentRequestEDI
 type PaymentRequestEDI struct {
 
-	// e d i
+	// edi
 	// Read Only: true
-	EDI string `json:"EDI,omitempty"`
+	Edi string `json:"edi,omitempty"`
 
 	// id
 	// Read Only: true
