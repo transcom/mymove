@@ -11,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 )
 
 // mtoAgentUpdater handles the db connection
@@ -35,8 +36,17 @@ func (f *mtoAgentUpdater) UpdateMTOAgent(mtoAgent *models.MTOAgent, eTag string,
 		return nil, services.NewNotFoundError(mtoAgent.ID, "while looking for MTOAgent")
 	}
 
-	newAgent := models.MTOAgent{}
-	// TODO validation etc
+	checker := movetaskorder.NewMoveTaskOrderChecker(f.db)
+	agentData := updateMTOAgentData{
+		updatedAgent:        *mtoAgent,
+		oldAgent:            oldAgent,
+		availabilityChecker: checker,
+	}
+
+	newAgent, err := validateMTOAgent(&agentData, validatorKey)
+	if err != nil {
+		return nil, err
+	}
 
 	// Check the If-Match header against existing eTag before updating
 	encodedUpdatedAt := etag.GenerateEtag(oldAgent.UpdatedAt)
@@ -64,7 +74,87 @@ func (f *mtoAgentUpdater) UpdateMTOAgent(mtoAgent *models.MTOAgent, eTag string,
 	return &updatedAgent, nil
 }
 
-// TODO validation
+func validateMTOAgent(agentData *updateMTOAgentData, validatorKey string) (*models.MTOAgent, error) {
+	var newAgent models.MTOAgent
+
+	if validatorKey == "" {
+		validatorKey = UpdateMTOAgentBaseValidator
+	}
+	validator, ok := validators[validatorKey]
+	if !ok {
+		err := fmt.Errorf("validator key %s was not found in update MTO Agent validators", validatorKey)
+		return nil, err
+	}
+	err := validator.validate(agentData)
+	if err != nil {
+		return nil, err
+	}
+	err = agentData.setNewMTOAgent(&newAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	return &newAgent, nil
+}
+
+// UpdateMTOAgentBaseValidator is the key for generic validation on the MTO Agent
+const UpdateMTOAgentBaseValidator string = "UpdateMTOAgentBaseValidator"
+
+// UpdateMTOAgentPrimeValidator is the key for validating the MTO Agent for the Prime contractor
+const UpdateMTOAgentPrimeValidator string = "UpdateMTOAgentPrimeValidator"
+
+var validators = map[string]updateMTOAgentValidator{
+	UpdateMTOAgentBaseValidator:  new(baseUpdateMTOAgentValidator),
+	UpdateMTOAgentPrimeValidator: new(primeUpdateMTOAgentValidator),
+}
+
+type updateMTOAgentValidator interface {
+	validate(agentData *updateMTOAgentData) error
+}
+
+// baseUpdateMTOAgentValidator is the type for validation that should happen no matter who uses this service object
+type baseUpdateMTOAgentValidator struct{}
+
+func (v *baseUpdateMTOAgentValidator) validate(agentData *updateMTOAgentData) error {
+	err := agentData.checkShipmentID()
+	if err != nil {
+		return err
+	}
+
+	err = agentData.getVerrs()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// primeUpdateMTOAgentValidator is the type for validation that is just for updates from the Prime contractor
+type primeUpdateMTOAgentValidator struct{}
+
+func (v *primeUpdateMTOAgentValidator) validate(agentData *updateMTOAgentData) error {
+	err := agentData.checkShipmentID()
+	if err != nil {
+		return err
+	}
+
+	err = agentData.checkPrimeAvailability()
+	if err != nil {
+		return err
+	}
+
+	err = agentData.checkContactInfo()
+	if err != nil {
+		return err
+	}
+
+	err = agentData.getVerrs()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 // updateMTOAgentData represents the data needed to validate the update on the MTOAgent
 type updateMTOAgentData struct {
