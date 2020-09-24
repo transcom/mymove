@@ -43,7 +43,7 @@ func (f *mtoAgentUpdater) UpdateMTOAgent(mtoAgent *models.MTOAgent, eTag string,
 		availabilityChecker: checker,
 	}
 
-	newAgent, err := validateMTOAgent(&agentData, validatorKey)
+	newAgent, err := validateUpdateMTOAgent(&agentData, validatorKey)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (f *mtoAgentUpdater) UpdateMTOAgent(mtoAgent *models.MTOAgent, eTag string,
 	return &updatedAgent, nil
 }
 
-func validateMTOAgent(agentData *updateMTOAgentData, validatorKey string) (*models.MTOAgent, error) {
+func validateUpdateMTOAgent(agentData *updateMTOAgentData, validatorKey string) (*models.MTOAgent, error) {
 	var newAgent models.MTOAgent
 
 	if validatorKey == "" {
