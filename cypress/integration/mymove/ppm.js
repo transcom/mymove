@@ -162,7 +162,6 @@ function SMCompletesMove() {
   cy.get('.wizard-header').should('not.exist');
   cy.get('#incentive-estimation-slider').click();
 
-  cy.get('[data-testid="incentive-range-text"]').contains('Not ready yet');
   cy.get('[data-icon="question-circle"]').click();
   cy.get('[data-testid="tooltip"]').contains(
     'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
@@ -207,13 +206,13 @@ function SMCompletesMove() {
     'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
   );
 
-  cy.get('[data-testid="edit-move"]').contains('Edit Move').click();
+  // cy.get('[data-testid="edit-move"]').contains('Edit Move').click();
 
-  cy.get('td').contains('Not ready yet');
-  cy.get('[data-icon="question-circle"]').click();
-  cy.get('[data-testid="tooltip"]').contains(
-    'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
-  );
+  // cy.get('td').contains('Not ready yet');
+  // cy.get('[data-icon="question-circle"]').click();
+  // cy.get('[data-testid="tooltip"]').contains(
+  //   'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
+  // );
 }
 
 function SMInputsSamePostalCodes() {
