@@ -1,7 +1,8 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import Orders from '../Orders/Orders';
+// eslint-disable-next-line import/no-named-as-default
+import Orders from './Orders';
 
 import { MockProviders } from 'testUtils';
 
@@ -20,4 +21,5 @@ describe('Orders page', () => {
     </MockProviders>,
   );
   expect(wrapper.length).toEqual(1);
+  expect(wrapper.find('[data-testid="wizardCancelButton"]').length).toBe(0);
 });
