@@ -41,6 +41,7 @@ func (f *mtoAgentUpdater) UpdateMTOAgent(mtoAgent *models.MTOAgent, eTag string,
 		updatedAgent:        *mtoAgent,
 		oldAgent:            oldAgent,
 		availabilityChecker: checker,
+		verrs:               validate.NewErrors(),
 	}
 
 	newAgent, err := validateUpdateMTOAgent(&agentData, validatorKey)
