@@ -579,6 +579,128 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 
 	/*
+	 * A service member with orders and a submitted move with a ppm and hhg
+	 */
+	email = "combo@ppm.hhg"
+	uuidStr = "6016e423-f8d5-44ca-98a8-af03c8445c94"
+
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	smIDCombo := "f6bd793f-7042-4523-aa30-34946e7339c9"
+	smWithCombo := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil(smIDCombo),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Submitted"),
+			LastName:      models.StringPointer("Ppmhhg"),
+			Edipi:         models.StringPointer("6833908165"),
+			PersonalEmail: models.StringPointer(email),
+		},
+	})
+	// currently don't have "combo move" selection option, so testing ppm office when type is HHG
+	selectedMoveType := models.SelectedMoveTypeHHG
+	move := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID: uuid.FromStringOrNil(smIDCombo),
+			ServiceMember:   smWithCombo,
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("7024c8c5-52ca-4639-bf69-dd8238308c98"),
+			Locator:          "COMBOS",
+			SelectedMoveType: &selectedMoveType,
+		},
+	})
+
+	estimatedHHGWeight := unit.Pound(1400)
+	actualHHGWeight := unit.Pound(2000)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID:                   uuid.FromStringOrNil("8689afc7-84d6-4c60-a739-8cf96ede2606"),
+			PrimeEstimatedWeight: &estimatedHHGWeight,
+			PrimeActualWeight:    &actualHHGWeight,
+			ShipmentType:         models.MTOShipmentTypeHHG,
+			ApprovedDate:         swag.Time(time.Now()),
+			Status:               models.MTOShipmentStatusSubmitted,
+			MoveTaskOrder:        move,
+			MoveTaskOrderID:      move.ID,
+		},
+	})
+
+	ppm := testdatagen.MakePPM(db, testdatagen.Assertions{
+		ServiceMember: move.Orders.ServiceMember,
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			OriginalMoveDate: &nextValidMoveDate,
+			Move:             move,
+			MoveID:           move.ID,
+		},
+		UserUploader: userUploader,
+	})
+
+	move.PersonallyProcuredMoves = models.PersonallyProcuredMoves{ppm}
+	move.Submit(time.Now())
+	models.SaveMoveDependencies(db, &move)
+
+	/*
+	 * A service member with an hhg only, unsubmitted move
+	 */
+	email = "hhg@only.unsubmitted"
+	uuidStr = "f08146cf-4d6b-43d5-9ca5-c8d239d37b3e"
+
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	smWithHHGID := "1d06ab96-cb72-4013-b159-321d6d29c6eb"
+	smWithHHG := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil(smWithHHGID),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Unsubmitted"),
+			LastName:      models.StringPointer("Hhg"),
+			Edipi:         models.StringPointer("5833908165"),
+			PersonalEmail: models.StringPointer(email),
+		},
+	})
+
+	selectedMoveType = models.SelectedMoveTypeHHG
+	move = testdatagen.MakeMove(db, testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID: uuid.FromStringOrNil(smWithHHGID),
+			ServiceMember:   smWithHHG,
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("3a8c9f4f-7344-4f18-9ab5-0de3ef57b901"),
+			Locator:          "ONEHHG",
+			SelectedMoveType: &selectedMoveType,
+		},
+	})
+
+	estimatedHHGWeight = unit.Pound(1400)
+	actualHHGWeight = unit.Pound(2000)
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID:                   uuid.FromStringOrNil("b67157bd-d2eb-47e2-94b6-3bc90f6fb8fe"),
+			PrimeEstimatedWeight: &estimatedHHGWeight,
+			PrimeActualWeight:    &actualHHGWeight,
+			ShipmentType:         models.MTOShipmentTypeHHG,
+			ApprovedDate:         swag.Time(time.Now()),
+			Status:               models.MTOShipmentStatusSubmitted,
+			MoveTaskOrder:        move,
+			MoveTaskOrderID:      move.ID,
+		},
+	})
+
+	/*
 	* Creates two valid, unclaimed access codes
 	 */
 	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
