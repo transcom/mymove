@@ -316,9 +316,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 
 		response := handler.Handle(params)
 
-		suite.IsType(paymentrequestop.NewGetPaymentRequestEDIInternalServerError(), response)
-		errResponse := response.(*paymentrequestop.GetPaymentRequestEDIInternalServerError)
-		suite.Contains(*errResponse.Payload.Detail, "incorrect UUID length")
+		suite.IsType(paymentrequestop.NewGetPaymentRequestEDINotFound(), response)
 	})
 
 	suite.T().Run("failure due to payment request ID not found", func(t *testing.T) {

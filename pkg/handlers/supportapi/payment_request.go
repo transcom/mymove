@@ -178,12 +178,7 @@ type GetPaymentRequestEDIHandler struct {
 func (h GetPaymentRequestEDIHandler) Handle(params paymentrequestop.GetPaymentRequestEDIParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	paymentRequestID, err := uuid.FromString(params.PaymentRequestID.String())
-	if err != nil {
-		logger.Error(fmt.Sprintf("Error parsing payment request id: %s", params.PaymentRequestID.String()), zap.Error(err))
-		return paymentrequestop.NewGetPaymentRequestEDIInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
-	}
-
+	paymentRequestID := uuid.FromStringOrNil(params.PaymentRequestID.String())
 	paymentRequest, err := h.PaymentRequestFetcher.FetchPaymentRequest(paymentRequestID)
 	if err != nil {
 		msg := fmt.Sprintf("Error finding Payment Request for EDI generation with ID: %s", params.PaymentRequestID.String())
