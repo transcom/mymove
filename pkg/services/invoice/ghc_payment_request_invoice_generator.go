@@ -174,6 +174,13 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	}
 	edi858.Header = append(edi858.Header, originDestinationSegments...)
 
+	// Add LOA segments to header
+	loaSegments, err := g.createLoaSegments(moveTaskOrder.Orders)
+	if err != nil {
+		return ediinvoice.Invoice858C{}, err
+	}
+	edi858.Header = append(edi858.Header, loaSegments...)
+
 	var paymentServiceItems models.PaymentServiceItems
 	err = g.DB.Q().
 		Eager("MTOServiceItem.ReService").
@@ -348,6 +355,24 @@ func (g GHCPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	// TODO: Create PER segment and implement Origin POC Phone
 
 	return originAndDestinationSegments, nil
+}
+
+func (g GHCPaymentRequestInvoiceGenerator) createLoaSegments(orders models.Order) ([]edisegment.Segment, error) {
+	segments := []edisegment.Segment{}
+	fa1 := edisegment.FA1{
+		AgencyQualifierCode: "DF",
+	}
+
+	segments = append(segments, &fa1)
+
+	fa2 := edisegment.FA2{
+		BreakdownStructureDetailCode: "TA",
+		FinancialInformationCode:     *orders.TAC,
+	}
+
+	segments = append(segments, &fa2)
+
+	return segments, nil
 }
 
 func (g GHCPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(serviceItemID uuid.UUID, key models.ServiceItemParamName) (models.PaymentServiceItemParam, error) {
