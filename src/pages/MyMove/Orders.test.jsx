@@ -1,7 +1,8 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import Orders from '../Orders/Orders';
+// eslint-disable-next-line import/no-named-as-default
+import Orders from './Orders';
 
 import { MockProviders } from 'testUtils';
 
