@@ -11,7 +11,7 @@ import (
 )
 
 func (suite *ServiceParamValueLookupsSuite) TestRequestedPickupDateLookup() {
-	key := models.ServiceItemParamNameRequestedPickupDate.String()
+	key := models.ServiceItemParamNameRequestedPickupDate
 
 	requestedPickupDate := time.Date(testdatagen.TestYear, time.May, 18, 0, 0, 0, 0, time.UTC)
 	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),

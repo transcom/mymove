@@ -357,7 +357,7 @@ func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection
 func (p *paymentRequestCreator) createServiceItemParamFromLookup(tx *pop.Connection, paramLookup *serviceparamlookups.ServiceItemParamKeyData, serviceParam models.ServiceParam, paymentServiceItem models.PaymentServiceItem) (*models.PaymentServiceItemParam, error) {
 	// key not found in map
 	// Did not find service item param needed for pricing, add it to the list
-	value, err := paramLookup.ServiceParamValue(serviceParam.ServiceItemParamKey.Key.String())
+	value, err := paramLookup.ServiceParamValue(serviceParam.ServiceItemParamKey.Key)
 	if err != nil {
 		errMessage := "Failed to lookup ServiceParamValue for param key <" + serviceParam.ServiceItemParamKey.Key + "> "
 		return nil, fmt.Errorf("%s err: %w", errMessage, err)

@@ -10,7 +10,7 @@ import (
 )
 
 func (suite *ServiceParamValueLookupsSuite) TestDistanceZip5Lookup() {
-	key := models.ServiceItemParamNameDistanceZip5.String()
+	key := models.ServiceItemParamNameDistanceZip5
 
 	suite.T().Run("golden path", func(t *testing.T) {
 		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())

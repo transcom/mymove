@@ -12,7 +12,7 @@ import (
 )
 
 func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
-	key := models.ServiceItemParamNameContractCode.String()
+	key := models.ServiceItemParamNameContractCode
 
 	suite.T().Run("golden path", func(t *testing.T) {
 		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
@@ -62,7 +62,7 @@ func (suite *ServiceParamValueLookupsSuite) TestContractCodeLookup() {
 		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem1.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), &paramCache)
 		suite.FatalNoError(err)
 
-		valueStr, err := paramLookup.ServiceParamValue(serviceItemParamKey1.Key.String())
+		valueStr, err := paramLookup.ServiceParamValue(serviceItemParamKey1.Key)
 		suite.FatalNoError(err)
 		suite.Equal(ghcrateengine.DefaultContractCode, valueStr)
 

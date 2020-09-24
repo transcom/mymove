@@ -31,7 +31,7 @@ type ParamKeyValue struct {
 }
 
 // ParamKeyValueCacheMap maps service param key string to the param cached value
-type ParamKeyValueCacheMap map[string]ParamKeyValue
+type ParamKeyValueCacheMap map[models.ServiceItemParamName]ParamKeyValue
 
 //MTOShipmentParamKeyMap maps an MTOShipmentID to a map of param caches for that shipment
 type MTOShipmentParamKeyMap map[uuid.UUID]ParamKeyValueCacheMap
@@ -62,7 +62,7 @@ func (spc *ServiceParamsCache) Initialize(db *pop.Connection) {
 	spc.paramsCache = MTOShipmentParamKeyMap{}
 }
 
-func (spc *ServiceParamsCache) addParamValue(mtoShipmentID uuid.UUID, paramKey string, value string) {
+func (spc *ServiceParamsCache) addParamValue(mtoShipmentID uuid.UUID, paramKey models.ServiceItemParamName, value string) {
 	if paramValueCacheMap, ok := spc.paramsCache[mtoShipmentID]; ok {
 		paramValueCacheMap[paramKey] = ParamKeyValue{
 			value: &value,
@@ -76,7 +76,7 @@ func (spc *ServiceParamsCache) addParamValue(mtoShipmentID uuid.UUID, paramKey s
 }
 
 // ParamValue returns the caches param value for the given MTOShipmentID
-func (spc *ServiceParamsCache) ParamValue(mtoShipmentID uuid.UUID, paramKey string) *string {
+func (spc *ServiceParamsCache) ParamValue(mtoShipmentID uuid.UUID, paramKey models.ServiceItemParamName) *string {
 	if paramValueCacheMap, ok := spc.paramsCache[mtoShipmentID]; ok {
 		if keyValue, paramOK := paramValueCacheMap[paramKey]; paramOK {
 			return keyValue.value

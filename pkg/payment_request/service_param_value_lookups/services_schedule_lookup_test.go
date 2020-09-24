@@ -11,8 +11,8 @@ import (
 )
 
 func (suite *ServiceParamValueLookupsSuite) TestServicesScheduleOrigin() {
-	originKey := models.ServiceItemParamNameServicesScheduleOrigin.String()
-	destKey := models.ServiceItemParamNameServicesScheduleDest.String()
+	originKey := models.ServiceItemParamNameServicesScheduleOrigin
+	destKey := models.ServiceItemParamNameServicesScheduleDest
 
 	originAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 		Address: models.Address{

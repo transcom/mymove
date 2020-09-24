@@ -8,8 +8,8 @@ import (
 )
 
 func (suite *ServiceParamValueLookupsSuite) TestServiceAreaLookup() {
-	originKey := models.ServiceItemParamNameServiceAreaOrigin.String()
-	destKey := models.ServiceItemParamNameServiceAreaDest.String()
+	originKey := models.ServiceItemParamNameServiceAreaOrigin
+	destKey := models.ServiceItemParamNameServiceAreaDest
 
 	originAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 		Address: models.Address{

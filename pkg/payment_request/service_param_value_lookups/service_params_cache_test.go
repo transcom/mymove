@@ -164,7 +164,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 	// Estimated Weight
 	suite.T().Run("Shipment 1 "+serviceItemParamKey1.Key.String(), func(t *testing.T) {
 		var estimatedWeightStr string
-		estimatedWeightStr, err = paramLookupService1.ServiceParamValue(serviceItemParamKey1.Key.String())
+		estimatedWeightStr, err = paramLookupService1.ServiceParamValue(serviceItemParamKey1.Key)
 		suite.FatalNoError(err)
 		expected := strconv.Itoa(estimatedWeight.Int())
 		suite.Equal(expected, estimatedWeightStr)
@@ -174,7 +174,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 	suite.T().Run("Shipment 1 "+serviceItemParamKey2.Key.String(), func(t *testing.T) {
 		expectedRequestedPickupDate := mtoShipment1.RequestedPickupDate.String()[:10]
 		var requestedPickupDateStr string
-		requestedPickupDateStr, err = paramLookupService1.ServiceParamValue(serviceItemParamKey2.Key.String())
+		requestedPickupDateStr, err = paramLookupService1.ServiceParamValue(serviceItemParamKey2.Key)
 		suite.FatalNoError(err)
 		suite.Equal(expectedRequestedPickupDate, requestedPickupDateStr)
 	})
@@ -186,7 +186,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 		mtoShipment1.PrimeEstimatedWeight = &changeExpectedEstimatedWeight
 		suite.MustSave(&mtoShipment1)
 		var estimatedWeightStr string
-		estimatedWeightStr, err = paramLookupService1.ServiceParamValue(serviceItemParamKey1.Key.String())
+		estimatedWeightStr, err = paramLookupService1.ServiceParamValue(serviceItemParamKey1.Key)
 		suite.FatalNoError(err)
 
 		// EstimatedWeight hasn't changed from the cache
@@ -203,7 +203,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 		suite.MustSave(&mtoShipment1)
 
 		var requestedPickupDateStr string
-		requestedPickupDateStr, err = paramLookupService1.ServiceParamValue(serviceItemParamKey2.Key.String())
+		requestedPickupDateStr, err = paramLookupService1.ServiceParamValue(serviceItemParamKey2.Key)
 		suite.FatalNoError(err)
 		suite.Equal(expectedRequestedPickupDate, requestedPickupDateStr)
 		// mtoShipment1 was changed to the new date
@@ -218,7 +218,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 	// Estimated Weight
 	suite.T().Run("Shipment 2 "+serviceItemParamKey1.Key.String(), func(t *testing.T) {
 		var estimatedWeightStr string
-		estimatedWeightStr, err = paramLookupService2.ServiceParamValue(serviceItemParamKey1.Key.String())
+		estimatedWeightStr, err = paramLookupService2.ServiceParamValue(serviceItemParamKey1.Key)
 		suite.FatalNoError(err)
 		expected := strconv.Itoa(estimatedWeight.Int())
 		suite.Equal(expected, estimatedWeightStr)
@@ -228,7 +228,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 	suite.T().Run("Shipment 2 "+serviceItemParamKey2.Key.String(), func(t *testing.T) {
 		expectedRequestedPickupDate := mtoShipment2.RequestedPickupDate.String()[:10]
 		var requestedPickupDateStr string
-		requestedPickupDateStr, err = paramLookupService2.ServiceParamValue(serviceItemParamKey2.Key.String())
+		requestedPickupDateStr, err = paramLookupService2.ServiceParamValue(serviceItemParamKey2.Key)
 		suite.FatalNoError(err)
 		suite.Equal(expectedRequestedPickupDate, requestedPickupDateStr)
 	})
@@ -249,7 +249,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 		suite.MustSave(&move)
 		expectedAvailToPrimeDate := move.AvailableToPrimeAt.String()[:10]
 		var availToPrimeDateStr string
-		availToPrimeDateStr, err = paramLookupService3.ServiceParamValue(serviceItemParamKey3.Key.String())
+		availToPrimeDateStr, err = paramLookupService3.ServiceParamValue(serviceItemParamKey3.Key)
 		suite.FatalNoError(err)
 		suite.Equal(expectedAvailToPrimeDate, availToPrimeDateStr[:10])
 	})

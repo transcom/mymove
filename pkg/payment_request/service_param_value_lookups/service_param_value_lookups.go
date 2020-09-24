@@ -17,7 +17,7 @@ import (
 type ServiceItemParamKeyData struct {
 	db               *pop.Connection
 	planner          route.Planner
-	lookups          map[string]ServiceItemParamKeyLookup
+	lookups          map[models.ServiceItemParamName]ServiceItemParamKeyLookup
 	MTOServiceItemID uuid.UUID
 	MTOServiceItem   models.MTOServiceItem
 	PaymentRequestID uuid.UUID
@@ -93,7 +93,7 @@ func ServiceParamLookupInitialize(
 	s := ServiceItemParamKeyData{
 		db:               db,
 		planner:          planner,
-		lookups:          make(map[string]ServiceItemParamKeyLookup),
+		lookups:          make(map[models.ServiceItemParamName]ServiceItemParamKeyLookup),
 		MTOServiceItemID: mtoServiceItemID,
 		MTOServiceItem:   mtoServiceItem,
 		PaymentRequestID: paymentRequestID,
@@ -117,174 +117,203 @@ func ServiceParamLookupInitialize(
 		s.lookups[key] = NotImplementedLookup{}
 	}
 
+	var paramKey models.ServiceItemParamName
+
 	// ReService code for current MTO Service Item
 	serviceItemCode := mtoServiceItem.ReService.Code
 
-	s.lookups[models.ServiceItemParamNameActualPickupDate.String()] = ActualPickupDateLookup{
+	paramKey = models.ServiceItemParamNameActualPickupDate
+	err = s.setLookup(serviceItemCode, paramKey, ActualPickupDateLookup{
 		MTOShipment: mtoShipment,
+	})
+	if err != nil {
+		return nil, err
 	}
 
-	paramKey := models.ServiceItemParamNameRequestedPickupDate
-	useKey, err := s.ServiceItemNeedsParamKey(serviceItemCode, paramKey)
-	if useKey && err == nil {
-		s.lookups[paramKey.String()] = RequestedPickupDateLookup{
-			MTOShipment: mtoShipment,
-		}
-	} else if err != nil {
-		// TODO fmt and return error
-		// return fmt.Errorf("error with ParamKey: %s using ServiceItemNeedsParamKey(): %w", paramKey, err)
-	}
-
-	paramKey = models.ServiceItemParamNameDistanceZip5
-	useKey, err = s.ServiceItemNeedsParamKey(serviceItemCode, paramKey)
-	if useKey && err == nil {
-
-	} else if err != nil {
-		// TODO fmt and return error
-		// return fmt.Errorf("error with ParamKey: %s using ServiceItemNeedsParamKey(): %w", paramKey, err)
-	}
-
-	paramKey = models.ServiceItemParamNameDistanceZip3
-	useKey, err = s.ServiceItemNeedsParamKey(serviceItemCode, paramKey)
-	if useKey && err == nil {
-
-	} else if err != nil {
-		// TODO fmt and return error
-		// return fmt.Errorf("error with ParamKey: %s using ServiceItemNeedsParamKey(): %w", paramKey, err)
+	paramKey = models.ServiceItemParamNameRequestedPickupDate
+	err = s.setLookup(serviceItemCode, paramKey, RequestedPickupDateLookup{
+		MTOShipment: mtoShipment,
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	if mtoServiceItem.ReService.Code != models.ReServiceCodeDPK && mtoServiceItem.ReService.Code != models.ReServiceCodeDUPK {
-		s.lookups[models.ServiceItemParamNameDistanceZip5.String()] = DistanceZip5Lookup{
+		paramKey = models.ServiceItemParamNameDistanceZip5
+		err = s.setLookup(serviceItemCode, paramKey, DistanceZip5Lookup{
 			PickupAddress:      pickupAddress,
 			DestinationAddress: destinationAddress,
+		})
+		if err != nil {
+			return nil, err
 		}
-		s.lookups[models.ServiceItemParamNameDistanceZip3.String()] = DistanceZip3Lookup{
+		paramKey = models.ServiceItemParamNameDistanceZip3
+		err = s.setLookup(serviceItemCode, paramKey, DistanceZip3Lookup{
 			PickupAddress:      pickupAddress,
 			DestinationAddress: destinationAddress,
+		})
+		if err != nil {
+			return nil, err
 		}
 	}
 
-	s.lookups[models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier.String()] = FSCWeightBasedDistanceMultiplierLookup{
-
+	paramKey = models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier
+	err = s.setLookup(serviceItemCode, paramKey, FSCWeightBasedDistanceMultiplierLookup{
 		MTOShipment: mtoShipment,
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	paramKey = models.ServiceItemParamNameWeightBilledActual
-	useKey, err = s.ServiceItemNeedsParamKey(serviceItemCode, paramKey)
-	if useKey && err == nil {
-		s.lookups[paramKey.String()] = WeightBilledActualLookup{
-			MTOShipment: mtoShipment,
-		}
+	err = s.setLookup(serviceItemCode, paramKey, WeightBilledActualLookup{
+		MTOShipment: mtoShipment,
+	})
+	if err != nil {
+		return nil, err
 	}
 
-	useKey, err = s.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNameWeightEstimated)
-	if useKey && err == nil {
-		s.lookups[models.ServiceItemParamNameWeightEstimated.String()] = WeightEstimatedLookup{
-			MTOShipment: mtoShipment,
-		}
+	paramKey = models.ServiceItemParamNameWeightEstimated
+	err = s.setLookup(serviceItemCode, paramKey, WeightEstimatedLookup{
+		MTOShipment: mtoShipment,
+	})
+	if err != nil {
+		return nil, err
 	}
 
-	useKey, err = s.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNameWeightActual)
-	if useKey && err == nil {
-		s.lookups[models.ServiceItemParamNameWeightActual.String()] = WeightActualLookup{
-			MTOShipment: mtoShipment,
-		}
-	}
-
-	useKey, err = s.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNameZipPickupAddress)
-	if useKey && err == nil {
-		if mtoServiceItem.ReService.Code != models.ReServiceCodeDUPK {
-			s.lookups[models.ServiceItemParamNameZipPickupAddress.String()] = ZipAddressLookup{
-				Address: pickupAddress,
-			}
-		}
-	}
-
-	useKey, err = s.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNameZipDestAddress)
-	if useKey && err == nil {
-		if mtoServiceItem.ReService.Code != models.ReServiceCodeDPK {
-			s.lookups[models.ServiceItemParamNameZipDestAddress.String()] = ZipAddressLookup{
-				Address: destinationAddress,
-			}
-		}
-	}
-
-	useKey, err = s.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNameMTOAvailableToPrimeAt)
-	if useKey && err == nil {
-		s.lookups[models.ServiceItemParamNameMTOAvailableToPrimeAt.String()] = MTOAvailableToPrimeAtLookup{}
-	}
-
-	useKey, err = s.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNameServiceAreaOrigin)
-	if useKey && err == nil {
-		if mtoServiceItem.ReService.Code != models.ReServiceCodeDUPK {
-			s.lookups[models.ServiceItemParamNameServiceAreaOrigin.String()] = ServiceAreaLookup{
-				Address: pickupAddress,
-			}
-		}
-	}
-
-	useKey, err = s.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNameServiceAreaDest)
-	if useKey && err == nil {
-		if mtoServiceItem.ReService.Code != models.ReServiceCodeDPK {
-			s.lookups[models.ServiceItemParamNameServiceAreaDest.String()] = ServiceAreaLookup{
-				Address: destinationAddress,
-			}
-		}
-	}
-
-	useKey, err = s.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNameContractCode)
-	if useKey && err == nil {
-		s.lookups[models.ServiceItemParamNameContractCode.String()] = ContractCodeLookup{}
-	}
-
-	useKey, err = s.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNamePSILinehaulDom)
-	if useKey && err == nil {
-		s.lookups[models.ServiceItemParamNamePSILinehaulDom.String()] = PSILinehaulDomLookup{
-			MTOShipment: mtoShipment,
-		}
-	}
-
-	useKey, err = s.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNamePSILinehaulDomPrice)
-	if useKey && err == nil {
-		s.lookups[models.ServiceItemParamNamePSILinehaulDomPrice.String()] = PSILinehaulDomPriceLookup{
-			MTOShipment: mtoShipment,
-		}
-	}
-	useKey, err = s.ServiceItemNeedsParamKey(serviceItemCode, models.ServiceItemParamNameEIAFuelPrice)
-	if useKey && err == nil {
-		s.lookups[models.ServiceItemParamNameEIAFuelPrice.String()] = EIAFuelPriceLookup{
-			MTOShipment: mtoShipment,
-		}
+	paramKey = models.ServiceItemParamNameWeightActual
+	err = s.setLookup(serviceItemCode, paramKey, WeightActualLookup{
+		MTOShipment: mtoShipment,
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	if mtoServiceItem.ReService.Code != models.ReServiceCodeDUPK {
-		s.lookups[models.ServiceItemParamNameServicesScheduleOrigin.String()] = ServicesScheduleLookup{
+		paramKey = models.ServiceItemParamNameZipPickupAddress
+		err = s.setLookup(serviceItemCode, paramKey, ZipAddressLookup{
 			Address: pickupAddress,
+		})
+		if err != nil {
+			return nil, err
 		}
 	}
 
 	if mtoServiceItem.ReService.Code != models.ReServiceCodeDPK {
-		s.lookups[models.ServiceItemParamNameServicesScheduleDest.String()] = ServicesScheduleLookup{
+		paramKey = models.ServiceItemParamNameZipDestAddress
+		err = s.setLookup(serviceItemCode, paramKey, ZipAddressLookup{
 			Address: destinationAddress,
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	paramKey = models.ServiceItemParamNameMTOAvailableToPrimeAt
+	err = s.setLookup(serviceItemCode, paramKey, MTOAvailableToPrimeAtLookup{})
+	if err != nil {
+		return nil, err
+	}
+
+	if mtoServiceItem.ReService.Code != models.ReServiceCodeDUPK {
+		paramKey = models.ServiceItemParamNameServiceAreaOrigin
+		err = s.setLookup(serviceItemCode, paramKey, ServiceAreaLookup{
+			Address: pickupAddress,
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	paramKey = models.ServiceItemParamNameServiceAreaDest
+	err = s.setLookup(serviceItemCode, paramKey, ServiceAreaLookup{
+		Address: destinationAddress,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	paramKey = models.ServiceItemParamNameContractCode
+	err = s.setLookup(serviceItemCode, paramKey, ContractCodeLookup{})
+	if err != nil {
+		return nil, err
+	}
+
+	paramKey = models.ServiceItemParamNamePSILinehaulDom
+	err = s.setLookup(serviceItemCode, paramKey, PSILinehaulDomLookup{
+		MTOShipment: mtoShipment,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	paramKey = models.ServiceItemParamNamePSILinehaulDomPrice
+	err = s.setLookup(serviceItemCode, paramKey, PSILinehaulDomPriceLookup{
+		MTOShipment: mtoShipment,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	paramKey = models.ServiceItemParamNameEIAFuelPrice
+	err = s.setLookup(serviceItemCode, paramKey, EIAFuelPriceLookup{
+		MTOShipment: mtoShipment,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if mtoServiceItem.ReService.Code != models.ReServiceCodeDUPK {
+		paramKey = models.ServiceItemParamNameServicesScheduleOrigin
+		err = s.setLookup(serviceItemCode, paramKey, ServicesScheduleLookup{
+			Address: pickupAddress,
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if mtoServiceItem.ReService.Code != models.ReServiceCodeDPK {
+		paramKey = models.ServiceItemParamNameServicesScheduleDest
+		err = s.setLookup(serviceItemCode, paramKey, ServicesScheduleLookup{
+			Address: destinationAddress,
+		})
+		if err != nil {
+			return nil, err
 		}
 	}
 
 	return &s, nil
 }
 
-// ServiceItemNeedsParamKey wrapper for using paramCache.ServiceItemNeedsParamKey, if s.paramCache is nil
-// we are not using the ParamCache and all lookups be initialized and all will run their own
+func (s *ServiceItemParamKeyData) setLookup(serviceItemCode models.ReServiceCode, paramKey models.ServiceItemParamName, lookup ServiceItemParamKeyLookup) error {
+	useKey, err := s.serviceItemNeedsParamKey(serviceItemCode, paramKey)
+	if useKey && err == nil {
+		s.lookups[paramKey] = lookup
+	} else if err != nil {
+		return err
+	}
+	return nil
+}
+
+// serviceItemNeedsParamKey wrapper for using paramCache.ServiceItemNeedsParamKey, if s.paramCache is nil
+// we are not using the ParamCache and all lookups will be initialized and all param lookups will run their own
 // database queries
-func (s *ServiceItemParamKeyData) ServiceItemNeedsParamKey(serviceItemCode models.ReServiceCode, paramKey models.ServiceItemParamName) (bool, error) {
+
+func (s *ServiceItemParamKeyData) serviceItemNeedsParamKey(serviceItemCode models.ReServiceCode, paramKey models.ServiceItemParamName) (bool, error) {
 	if s.paramCache == nil {
 		return true, nil
 	}
 
-	return s.paramCache.ServiceItemNeedsParamKey(serviceItemCode, paramKey)
+	useKey, err := s.paramCache.ServiceItemNeedsParamKey(serviceItemCode, paramKey)
+	if err != nil {
+		return false, fmt.Errorf("error with ParamKey: %s using ServiceItemNeedsParamKey() for ServiceItemCode %s: %w", paramKey, serviceItemCode, err)
+	}
+	return useKey, nil
 }
 
 // ServiceParamValue returns a service parameter value from a key
-func (s *ServiceItemParamKeyData) ServiceParamValue(key string) (string, error) {
+func (s *ServiceItemParamKeyData) ServiceParamValue(key models.ServiceItemParamName) (string, error) {
 
 	// Check cache for lookup value
 	if s.paramCache != nil && s.mtoShipmentID != nil {

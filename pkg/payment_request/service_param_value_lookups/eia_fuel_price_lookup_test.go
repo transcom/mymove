@@ -10,7 +10,7 @@ import (
 )
 
 func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
-	key := models.ServiceItemParamNameEIAFuelPrice.String()
+	key := models.ServiceItemParamNameEIAFuelPrice
 	actualPickupDate := time.Date(2020, time.July, 15, 0, 0, 0, 0, time.UTC)
 
 	var firstGHCDieselFuelPrice models.GHCDieselFuelPrice
@@ -91,12 +91,12 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItemFSC.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, &paramCache)
 		suite.FatalNoError(err)
-		valueStr, err := paramLookup.ServiceParamValue(serviceItemParamKey1.Key.String())
+		valueStr, err := paramLookup.ServiceParamValue(serviceItemParamKey1.Key)
 		suite.FatalNoError(err)
 		suite.Equal("243799", valueStr)
 
 		// Verify value from paramCache
-		paramCacheValue := paramCache.ParamValue(*mtoServiceItemFSC.MTOShipmentID, serviceItemParamKey1.Key.String())
+		paramCacheValue := paramCache.ParamValue(*mtoServiceItemFSC.MTOShipmentID, serviceItemParamKey1.Key)
 		suite.Equal("243799", *paramCacheValue)
 	})
 

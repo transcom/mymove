@@ -8,8 +8,8 @@ import (
 )
 
 func (suite *ServiceParamValueLookupsSuite) TestZipAddressLookup() {
-	pickupKey := models.ServiceItemParamNameZipPickupAddress.String()
-	destKey := models.ServiceItemParamNameZipDestAddress.String()
+	pickupKey := models.ServiceItemParamNameZipPickupAddress
+	destKey := models.ServiceItemParamNameZipDestAddress
 
 	mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 

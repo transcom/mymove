@@ -15,7 +15,7 @@ import (
 )
 
 func (suite *ServiceParamValueLookupsSuite) TestActualPickupDateLookup() {
-	key := models.ServiceItemParamNameActualPickupDate.String()
+	key := models.ServiceItemParamNameActualPickupDate
 
 	actualPickupDate := time.Date(testdatagen.TestYear, time.May, 18, 0, 0, 0, 0, time.UTC)
 	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
@@ -30,22 +30,65 @@ func (suite *ServiceParamValueLookupsSuite) TestActualPickupDateLookup() {
 			Move: mtoServiceItem.MoveTaskOrder,
 		})
 
-	paramCache := ServiceParamsCache{}
-	paramCache.Initialize(suite.DB())
-	paramLookupWithCache, _ := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, &paramCache)
+	suite.T().Run("golden path with param cache", func(t *testing.T) {
+		// FSC
+		reServiceFSC := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: "FSC",
+			},
+		})
 
-	suite.T().Run("golden path", func(t *testing.T) {
-		valueStr, err := paramLookupWithCache.ServiceParamValue(key)
+		// FSC
+		mtoServiceItemFSC := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			ReService: reServiceFSC,
+			MTOShipment: models.MTOShipment{
+				ActualPickupDate: &actualPickupDate,
+			},
+		})
+		mtoServiceItemFSC.MoveTaskOrderID = paymentRequest.MoveTaskOrderID
+		mtoServiceItemFSC.MoveTaskOrder = paymentRequest.MoveTaskOrder
+		suite.MustSave(&mtoServiceItemFSC)
+
+		// ServiceItemParamNameActualPickupDate
+		serviceItemParamKey1 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+			ServiceItemParamKey: models.ServiceItemParamKey{
+				Key:         models.ServiceItemParamNameActualPickupDate,
+				Description: "actual pickup date",
+				Type:        models.ServiceItemParamTypeDate,
+				Origin:      models.ServiceItemParamOriginPrime,
+			},
+		})
+
+		_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+			ServiceParam: models.ServiceParam{
+				ServiceID:             mtoServiceItemFSC.ReServiceID,
+				ServiceItemParamKeyID: serviceItemParamKey1.ID,
+				ServiceItemParamKey:   serviceItemParamKey1,
+			},
+		})
+
+		paramCache := ServiceParamsCache{}
+		paramCache.Initialize(suite.DB())
+		paramLookupWithCache, _ := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItemFSC.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, &paramCache)
+
+		valueStr, err := paramLookupWithCache.ServiceParamValue(serviceItemParamKey1.Key)
 		suite.FatalNoError(err)
 		expected := actualPickupDate.Format(ghcrateengine.DateParamFormat)
 		suite.Equal(expected, valueStr)
 
 		// Verify value from paramCache
-		paramCacheValue := paramCache.ParamValue(*mtoServiceItem.MTOShipmentID, key)
+		paramCacheValue := paramCache.ParamValue(*mtoServiceItemFSC.MTOShipmentID, key)
 		suite.Equal(expected, *paramCacheValue)
 	})
 
 	paramLookup, _ := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+
+	suite.T().Run("golden path", func(t *testing.T) {
+		valueStr, err := paramLookup.ServiceParamValue(key)
+		suite.FatalNoError(err)
+		expected := actualPickupDate.Format(ghcrateengine.DateParamFormat)
+		suite.Equal(expected, valueStr)
+	})
 
 	suite.T().Run("nil actual pickup date", func(t *testing.T) {
 		// Set the actual pickup date to nil
