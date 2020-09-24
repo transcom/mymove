@@ -169,7 +169,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	suite.T().Run("adds se end segment", func(t *testing.T) {
 		// Will need to be updated as more service items are supported
-		suite.Equal(40, result.SE.NumberOfIncludedSegments)
+		suite.Equal(42, result.SE.NumberOfIncludedSegments)
 		suite.Equal("0001", result.SE.TransactionSetControlNumber)
 	})
 
@@ -276,6 +276,15 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal(address.State, n4.StateOrProvinceCode)
 		suite.Equal(address.PostalCode, n4.PostalCode)
 		suite.Equal(*address.Country, n4.CountryCode)
+	})
+
+	suite.T().Run("adds lines of accounting to header", func(t *testing.T) {
+		suite.IsType(&edisegment.FA1{}, result.Header[13])
+		fa1 := result.Header[13].(*edisegment.FA1)
+		suite.Equal("DF", fa1.AgencyQualifierCode)
+		fa2 := result.Header[14].(*edisegment.FA2)
+		suite.Equal("TA", fa2.BreakdownStructureDetailCode)
+		suite.Equal(*paymentRequest.MoveTaskOrder.Orders.TAC, fa2.FinancialInformationCode)
 	})
 
 	var numOfSegments = 5
