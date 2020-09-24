@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/transcom/mymove/pkg/services/event"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
