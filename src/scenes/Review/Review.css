@@ -1,3 +1,8 @@
+.header-container {
+  display: flex;
+  justify-content: space-between;
+}
+
 .edit-title {
   margin-top: 1.5rem;
 }

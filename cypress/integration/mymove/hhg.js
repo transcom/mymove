@@ -136,12 +136,14 @@ function customerFillsOutOrdersInformation() {
   cy.get('h1').contains('Figure out your shipments');
   cy.nextPage();
 
-  cy.visit('/home-2');
+  cy.visit('/');
   cy.get('[data-testid="doc-list-container"]').contains('top-secret.png');
-  cy.go('back');
+  cy.get('button').contains('Plan your shipments').click();
 }
 
 function customerChoosesAnHHGMove() {
+  cy.get('h1').contains('Figure out your shipments');
+  cy.nextPage();
   cy.get('h1').contains('How do you want to move your belongings?');
 
   cy.get('input[type="radio"]').last().check({ force: true });

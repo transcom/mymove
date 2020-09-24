@@ -37,7 +37,7 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/:serviceMemberId/residence-address',
           '/service-member/:serviceMemberId/backup-mailing-address',
           '/service-member/:serviceMemberId/backup-contacts',
-          '/orders/',
+          '/orders',
           '/orders/upload',
           '/moves/:moveId/select-type',
           '/moves/:moveId/ppm-start',
@@ -53,7 +53,7 @@ describe('when getting the routes for the current workflow', () => {
       it('getPagesInFlow returns profile review, the order and move pages', () => {
         expect(pages).toEqual([
           '/profile-review',
-          '/orders/',
+          '/orders',
           '/orders/upload',
           '/moves/:moveId/select-type',
           '/moves/:moveId/ppm-start',
@@ -80,7 +80,7 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/:serviceMemberId/residence-address',
           '/service-member/:serviceMemberId/backup-mailing-address',
           '/service-member/:serviceMemberId/backup-contacts',
-          '/orders/',
+          '/orders',
           '/orders/upload',
           '/moves/:moveId/select-type',
           '/moves/:moveId/review',
@@ -105,8 +105,8 @@ describe('when getting the routes for the current workflow', () => {
             '/service-member/:serviceMemberId/residence-address',
             '/service-member/:serviceMemberId/backup-mailing-address',
             '/service-member/:serviceMemberId/backup-contacts',
-            '/home-2',
-            '/orders/',
+            '/',
+            '/orders',
             '/orders/upload',
             '/moves/:moveId/moving-info',
             '/moves/:moveId/select-type',
@@ -132,7 +132,7 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/:serviceMemberId/residence-address',
           '/service-member/:serviceMemberId/backup-mailing-address',
           '/service-member/:serviceMemberId/backup-contacts',
-          '/orders/',
+          '/orders',
           '/orders/upload',
           '/moves/:moveId/select-type',
           '/moves/:moveId/ppm-start',
@@ -157,7 +157,7 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/:serviceMemberId/residence-address',
           '/service-member/:serviceMemberId/backup-mailing-address',
           '/service-member/:serviceMemberId/backup-contacts',
-          '/orders/',
+          '/orders',
           '/orders/upload',
           '/moves/:moveId/select-type',
           '/moves/:moveId/hhg-start',
@@ -379,7 +379,7 @@ describe('when getting the next incomplete page', () => {
           backupContacts,
           context: ppmContext,
         });
-        expect(result).toEqual('/orders/');
+        expect(result).toEqual('/orders');
       });
     });
   });
@@ -392,7 +392,7 @@ describe('when getting the next incomplete page', () => {
         },
         context: ppmContext,
       });
-      expect(result).toEqual('/orders/');
+      expect(result).toEqual('/orders');
     });
     describe('when orders info is complete', () => {
       it('returns the next page', () => {

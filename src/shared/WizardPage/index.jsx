@@ -52,7 +52,17 @@ export class WizardPage extends Component {
 
   render() {
     const isMobile = this.props.windowWidth < mobileSize;
-    const { handleSubmit, pageKey, pageList, children, error, pageIsValid, dirty, canMoveNext } = this.props;
+    const {
+      handleSubmit,
+      pageKey,
+      pageList,
+      children,
+      error,
+      pageIsValid,
+      dirty,
+      canMoveNext,
+      hideCancelBtn,
+    } = this.props;
     const canMoveForward = pageIsValid && canMoveNext;
     const canMoveBackward = (pageIsValid || !dirty) && !isFirstPage(pageList, pageKey);
     return (
@@ -102,7 +112,7 @@ export class WizardPage extends Component {
                 Complete
               </button>
             )}
-            {!isMobile && (
+            {!isMobile && !hideCancelBtn && (
               <button
                 type="button"
                 className="usa-button usa-button--unstyled padding-left-0"
@@ -138,6 +148,7 @@ WizardPage.defaultProps = {
   pageIsValid: true,
   canMoveNext: true,
   dirty: true,
+  hideCancelBtn: false,
 };
 
 function mapDispatchToProps(dispatch) {

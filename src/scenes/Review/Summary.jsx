@@ -1,3 +1,4 @@
+/* eslint-ignore */
 import React, { Component, Fragment } from 'react';
 import { get } from 'lodash';
 import { connect } from 'react-redux';
@@ -99,7 +100,6 @@ export class Summary extends Component {
               Your weight entitlement is now {entitlement.sum.toLocaleString()} lbs.
             </Alert>
           )}
-
         {showProfileAndOrders && (
           <ServiceMemberSummary
             orders={currentOrders}
@@ -113,13 +113,10 @@ export class Summary extends Component {
             editOrdersPath={editOrdersPath}
           />
         )}
-
         {showMoveSetup && <h3>Move setup</h3>}
-
         {showPPMShipmentSummary && (
           <PPMShipmentSummary ppm={currentPPM} movePath={rootReviewAddressWithMoveId} orders={currentOrders} />
         )}
-
         {showHHGShipmentSummary &&
           mtoShipments.map((shipment, index) => {
             return (
@@ -132,7 +129,6 @@ export class Summary extends Component {
               />
             );
           })}
-
         {hasPPMorHHG && (
           <div className="grid-col-row margin-top-5">
             <span className="float-right">Optional</span>
@@ -143,7 +139,6 @@ export class Summary extends Component {
             </Button>
           </div>
         )}
-
         {moveIsApproved && (
           <div className="approved-edit-warning">
             *To change these fields, contact your local PPPO office at {get(currentStation, 'name')}{' '}

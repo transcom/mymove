@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/transcom/mymove/pkg/services/event"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
@@ -175,6 +177,21 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 			logger.Error(fmt.Sprintf("Error saving payment request status for ID: %s: %s", mtoServiceItemID, err))
 			return mtoserviceitemop.NewUpdateMTOServiceItemStatusInternalServerError()
 		}
+	}
+
+	// trigger webhook event for Prime
+	_, err = event.TriggerEvent(event.Event{
+		EventKey:        event.MTOServiceItemUpdateEventKey,
+		MtoID:           existingMTOServiceItem.MoveTaskOrder.ID,
+		UpdatedObjectID: existingMTOServiceItem.ID,
+		Request:         params.HTTPRequest,
+		EndpointKey:     event.GhcUpdateMTOServiceItemStatusEndpointKey,
+		DBConnection:    h.DB(),
+		HandlerContext:  h,
+	})
+
+	if err != nil {
+		logger.Error("ghcapi.UpdateMTOServiceItemStatusHandler could not generate the event")
 	}
 
 	payload := payloads.MTOServiceItemModel(updatedMTOServiceItem)

@@ -14,10 +14,7 @@ import BackupMailingAddress from 'scenes/ServiceMembers/BackupMailingAddress';
 import BackupContact from 'scenes/ServiceMembers/BackupContact';
 import ProfileReview from 'scenes/Review/ProfileReview';
 
-import Orders from 'scenes/Orders/Orders';
 import DutyStation from 'scenes/ServiceMembers/DutyStation';
-
-import UploadOrders from 'scenes/Orders/UploadOrders';
 
 import Home from 'pages/MyMove/Home';
 import SelectMoveType from 'pages/MyMove/SelectMoveType';
@@ -30,6 +27,8 @@ import Review from 'scenes/Review/Review';
 import Agreement from 'scenes/Legalese';
 
 import HHGShipmentSetup from 'pages/MyMove/HHGShipmentSetup';
+import Orders from 'pages/MyMove/Orders';
+import UploadOrders from 'pages/MyMove/UploadOrders';
 
 const PageNotInFlow = ({ location }) => (
   <div className="usa-grid">
@@ -64,6 +63,7 @@ const PageNotInFlow = ({ location }) => (
 // );
 
 const always = () => true;
+const never = () => false;
 // Todo: update this when moves can be completed
 const myFirstRodeo = (props) => !props.lastMoveIsCanceled;
 const notMyFirstRodeo = (props) => props.lastMoveIsCanceled;
@@ -136,9 +136,11 @@ const pages = {
     render: (key, pages) => ({ match }) => <BackupContact pages={pages} pageKey={key} match={match} />,
     description: 'Backup contacts',
   },
-  '/home-2': {
-    isInFlow: (props) => myFirstRodeo(props) && inGhcFlow(props),
-    isComplete: always,
+  '/': {
+    isInFlow: (props) => {
+      return myFirstRodeo(props) && inGhcFlow(props);
+    },
+    isComplete: never,
     render: (key, pages) => ({ history }) => {
       return <Home history={history} />;
     },
@@ -148,7 +150,7 @@ const pages = {
     isComplete: always,
     render: (key, pages) => ({ match }) => <ProfileReview pages={pages} pageKey={key} match={match} />,
   },
-  '/orders/': {
+  '/orders': {
     isInFlow: always,
     isComplete: ({ sm, orders }) =>
       every([
@@ -253,7 +255,9 @@ export const getNextIncompletePage = ({
   mtoShipment = {},
   backupContacts = [],
   context = {},
+  excludeHomePage = false,
 }) => {
+  excludeHomePage && delete pages['/'];
   const rawPath = findKey(
     pages,
     (p) =>

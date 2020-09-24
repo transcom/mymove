@@ -70,6 +70,8 @@ const DocumentViewer = ({ files }) => {
     // TODO - do we need to stream the file or can we just open the URL?
   };
 
+  const selectedFilename = filenameFromPath(selectedFile.filename);
+
   return (
     <div className={styles.DocumentViewer}>
       <div className={styles.titleBar}>
@@ -77,7 +79,7 @@ const DocumentViewer = ({ files }) => {
           <DocMenu />
         </Button>
 
-        <p>{filenameFromPath(selectedFile.filename)}</p>
+        <p title={selectedFilename}>{selectedFilename}</p>
         {/* TODO */}
         <Button type="button" unstyled onClick={openInNewWindow}>
           <span>Open in a new window</span>
