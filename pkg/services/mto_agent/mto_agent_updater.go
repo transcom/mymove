@@ -218,7 +218,7 @@ func (v *updateMTOAgentData) checkContactInfo() error {
 // Should only be called after the other check methods have been called.
 func (v *updateMTOAgentData) getVerrs() error {
 	if v.verrs.HasAny() {
-		return services.NewInvalidInputError(v.updatedAgent.ID, nil, v.verrs, "Invalid input found while updating the agent.")
+		return services.NewInvalidInputError(v.updatedAgent.ID, nil, v.verrs, "Invalid input found while validating the agent.")
 	}
 
 	return nil
