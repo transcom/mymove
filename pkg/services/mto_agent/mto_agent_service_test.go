@@ -15,7 +15,7 @@ type MTOAgentServiceSuite struct {
 func (suite *MTOAgentServiceSuite) SetupTest() {
 	suite.DB().TruncateAll()
 }
-func TestMTOShipmentServiceSuite(t *testing.T) {
+func TestMTOAgentServiceSuite(t *testing.T) {
 	ts := &MTOAgentServiceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 	}
