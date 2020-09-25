@@ -2,8 +2,11 @@ package primeapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/models"
 
 	mtoagent "github.com/transcom/mymove/pkg/services/mto_agent"
 
@@ -32,8 +35,11 @@ func (h UpdateMTOAgentHandler) Handle(params mtoshipmentops.UpdateMTOAgentParams
 
 	// Get the new agent model
 	mtoAgent := payloads.MTOAgentModel(payload)
-	mtoAgent.ID = agentID // TODO set IDs method w/ error
-	mtoAgent.MTOShipmentID = mtoShipmentID
+	setIDErr := setUpdateMTOAgentIDs(mtoAgent, agentID, mtoShipmentID)
+	if setIDErr != nil {
+		return mtoshipmentops.NewUpdateMTOAgentUnprocessableEntity().WithPayload(
+			payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), setIDErr.ValidationErrors))
+	}
 
 	// Call the service object
 	updatedAgent, err := h.MTOAgentUpdater.UpdateMTOAgent(mtoAgent, eTag, mtoagent.UpdateMTOAgentPrimeValidator)
@@ -77,4 +83,29 @@ func (h UpdateMTOAgentHandler) Handle(params mtoshipmentops.UpdateMTOAgentParams
 	// If no error, create a successful payload to return
 	mtoAgentPayload := payloads.MTOAgent(updatedAgent)
 	return mtoshipmentops.NewUpdateMTOAgentOK().WithPayload(mtoAgentPayload)
+}
+
+// setUpdateMTOAgentIDs sets the ID values from the path on the MTOAgent model
+// and also checks that no conflicting values are present
+func setUpdateMTOAgentIDs(agent *models.MTOAgent, agentID uuid.UUID, mtoShipmentID uuid.UUID) *services.InvalidInputError {
+	verrs := validate.NewErrors()
+
+	if agent.ID != agentID && agent.ID != uuid.Nil {
+		verrs.Add("id", "must match the agentID in the path or be omitted from the request")
+	}
+
+	if agent.MTOShipmentID != mtoShipmentID && agent.MTOShipmentID != uuid.Nil {
+		verrs.Add("mtoShipmentID", "must match the mtoShipmentID in the path or be omitted from the request")
+	}
+
+	if verrs.HasAny() {
+		err := services.NewInvalidInputError(agentID, nil, verrs, "Invalid input found in the request.")
+		return &err
+	}
+
+	// Set the values on the model if everything was well:
+	agent.ID = agentID
+	agent.MTOShipmentID = mtoShipmentID
+
+	return nil
 }
