@@ -30,7 +30,7 @@ type MTOAgent struct {
 	ETag string `json:"eTag,omitempty"`
 
 	// email
-	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+	// Pattern: ^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})?$
 	Email *string `json:"email,omitempty"`
 
 	// first name
@@ -50,7 +50,7 @@ type MTOAgent struct {
 	MtoShipmentID strfmt.UUID `json:"mtoShipmentID,omitempty"`
 
 	// phone
-	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+	// Pattern: ^([2-9]\d{2}-\d{3}-\d{4})?$
 	Phone *string `json:"phone,omitempty"`
 
 	// updated at
@@ -132,7 +132,7 @@ func (m *MTOAgent) validateEmail(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.Pattern("email", "body", string(*m.Email), `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
+	if err := validate.Pattern("email", "body", string(*m.Email), `^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})?$`); err != nil {
 		return err
 	}
 
@@ -171,7 +171,7 @@ func (m *MTOAgent) validatePhone(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.Pattern("phone", "body", string(*m.Phone), `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
+	if err := validate.Pattern("phone", "body", string(*m.Phone), `^([2-9]\d{2}-\d{3}-\d{4})?$`); err != nil {
 		return err
 	}
 
