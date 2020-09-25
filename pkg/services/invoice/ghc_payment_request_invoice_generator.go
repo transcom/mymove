@@ -459,7 +459,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 			}
 
 			l3Segment := edisegment.L3{
-				PriceCents: serviceItem.PriceCents.Int64(),
+				PriceCents: int64(*serviceItem.PriceCents),
 			}
 
 			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment, &l3Segment)
@@ -486,14 +486,14 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				WeightQualifier:        "B",
 				WeightUnitCode:         "L",
 			}
+
 			l3Segment := edisegment.L3{
 				Weight:          weightFloat,
 				WeightQualifier: "B",
-				PriceCents:      serviceItem.PriceCents.Int64(),
+				PriceCents:      int64(*serviceItem.PriceCents),
 			}
 
 			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment, &l3Segment)
-
 		}
 	}
 
