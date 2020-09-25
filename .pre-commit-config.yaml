@@ -125,7 +125,7 @@ repos:
   -   repo: local
       hooks:
       - id: spectral
-        name: External yaml is clean
+        name: Spectral yaml linter
         entry: scripts/lint-yaml-with-spectral
         language: script
         files: swagger/(support|prime).yaml
