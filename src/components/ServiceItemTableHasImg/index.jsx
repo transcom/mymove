@@ -49,6 +49,7 @@ const ServiceItemTableHasImg = ({
               <Button
                 type="button"
                 className="usa-button--icon usa-button--small acceptButton"
+                data-testid="acceptButton"
                 onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.APPROVED)}
               >
                 <span className="icon">
