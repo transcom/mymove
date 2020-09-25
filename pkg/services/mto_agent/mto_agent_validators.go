@@ -107,7 +107,7 @@ func (v *updateMTOAgentData) checkContactInfo() error {
 	}
 
 	// Check that we have something in the FirstName field:
-	if *firstName == "" || firstName == nil {
+	if firstName == nil || *firstName == "" {
 		v.verrs.Add("firstName", "cannot be blank")
 	}
 
@@ -122,7 +122,7 @@ func (v *updateMTOAgentData) checkContactInfo() error {
 	}
 
 	// Check that we have one method of contacting the agent:
-	if (*email == "" || email == nil) && (*phone == "" || phone == nil) {
+	if (email == nil || *email == "") && (phone == nil || *phone == "") {
 		v.verrs.Add("contactInfo", "agent must have at least one contact method provided")
 	}
 
@@ -152,15 +152,31 @@ func (v *updateMTOAgentData) setNewMTOAgent(newAgent *models.MTOAgent) error {
 	}
 	if v.updatedAgent.FirstName != nil {
 		newAgent.FirstName = v.updatedAgent.FirstName
+
+		if *v.updatedAgent.FirstName == "" {
+			newAgent.FirstName = nil
+		}
 	}
 	if v.updatedAgent.LastName != nil {
 		newAgent.LastName = v.updatedAgent.LastName
+
+		if *v.updatedAgent.LastName == "" {
+			newAgent.LastName = nil
+		}
 	}
 	if v.updatedAgent.Email != nil {
 		newAgent.Email = v.updatedAgent.Email
+
+		if *v.updatedAgent.Email == "" {
+			newAgent.Email = nil
+		}
 	}
 	if v.updatedAgent.Phone != nil {
 		newAgent.Phone = v.updatedAgent.Phone
+
+		if *v.updatedAgent.Phone == "" {
+			newAgent.Phone = nil
+		}
 	}
 
 	return nil
