@@ -128,6 +128,25 @@ func (suite *HandlerSuite) TestUpdateMTOAgentHandler() {
 
 	// Test not Prime-available (not found response)
 	suite.T().Run("404 - Not available response", func(t *testing.T) {
+		unavailableAgent := testdatagen.MakeDefaultMTOAgent(suite.DB()) // default is not available to Prime
 
+		payload := payloads.MTOAgent(&unavailableAgent)
+		params := mtoshipmentops.UpdateMTOAgentParams{
+			HTTPRequest:   req,
+			AgentID:       *handlers.FmtUUID(unavailableAgent.ID),
+			MtoShipmentID: *handlers.FmtUUID(unavailableAgent.MTOShipmentID),
+			Body:          payload,
+			IfMatch:       etag.GenerateEtag(unavailableAgent.UpdatedAt),
+		}
+		// Run swagger validations
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		// Run handler and check response
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOAgentNotFound{}, response)
+
+		// Check error message for the unavailable ID
+		agentNotFound := response.(*mtoshipmentops.UpdateMTOAgentNotFound)
+		suite.Contains(*agentNotFound.Payload.Detail, unavailableAgent.ID.String())
 	})
 }
