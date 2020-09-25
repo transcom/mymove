@@ -2,6 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import classnames from 'classnames';
+import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
+import { formatDateFromIso } from 'shared/formatters';
 
 import { ReactComponent as Check } from '../../shared/icon/check.svg';
 import { ReactComponent as Ex } from '../../shared/icon/ex.svg';
@@ -9,9 +11,6 @@ import { SERVICE_ITEM_STATUS } from '../../shared/constants';
 import { MTOServiceItemCustomerContactShape, MTOServiceItemDimensionShape } from '../../types/moveOrder';
 
 import styles from './index.module.scss';
-
-import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
-import { formatDateFromIso } from 'shared/formatters';
 
 const ServiceItemTableHasImg = ({
   serviceItems,
@@ -60,7 +59,7 @@ const ServiceItemTableHasImg = ({
               <Button
                 type="button"
                 secondary
-                className="usa-button--small usa-button--icon"
+                className="usa-button--small usa-button--icon margin-left-1"
                 data-testid="rejectButton"
                 onClick={() => handleShowRejectionDialog(id)}
               >
@@ -76,7 +75,7 @@ const ServiceItemTableHasImg = ({
               <Button
                 type="button"
                 data-testid="rejectTextButton"
-                className="text-blue usa-button--unstyled margin-x-1"
+                className="text-blue usa-button--unstyled margin-left-1"
                 onClick={() => handleShowRejectionDialog(id)}
               >
                 <span className="icon">
@@ -91,7 +90,7 @@ const ServiceItemTableHasImg = ({
               <Button
                 type="button"
                 data-testid="approveTextButton"
-                className="text-blue usa-button--unstyled margin-x-1"
+                className="text-blue usa-button--unstyled"
                 onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.APPROVED)}
               >
                 <span className="icon">
