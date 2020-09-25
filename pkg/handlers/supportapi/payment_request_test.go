@@ -5,11 +5,16 @@ import (
 	"fmt"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/gofrs/uuid"
 
+	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/invoice"
 	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 
@@ -228,5 +233,128 @@ func (suite *HandlerSuite) TestListMTOPaymentRequestHandler() {
 
 		suite.IsType(paymentrequestop.NewListMTOPaymentRequestsOK(), response)
 		suite.Equal(len(paymentRequestsPayload), 0)
+	})
+}
+
+func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
+	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   testdatagen.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameRequestedPickupDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   time.Now().Format("20060102"),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightBilledActual,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "4242",
+		},
+		{
+			Key:     models.ServiceItemParamNameDistanceZip3,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "2424",
+		},
+	}
+	paymentServiceItem := testdatagen.MakePaymentServiceItemWithParams(
+		suite.DB(),
+		models.ReServiceCodeDLH,
+		basicPaymentServiceItemParams,
+	)
+
+	// Add a price to the service item.
+	priceCents := unit.Cents(250000)
+	paymentServiceItem.PriceCents = &priceCents
+	suite.MustSave(&paymentServiceItem)
+
+	paymentRequestID := paymentServiceItem.PaymentRequestID
+	strfmtPaymentRequestID := strfmt.UUID(paymentRequestID.String())
+
+	handler := GetPaymentRequestEDIHandler{
+		HandlerContext:                    handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+		PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(suite.DB()),
+		GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB()),
+	}
+
+	urlFormat := "/payment-requests/%s/edi"
+
+	suite.T().Run("successful get of EDI for payment request", func(t *testing.T) {
+		req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, paymentRequestID), nil)
+
+		params := paymentrequestop.GetPaymentRequestEDIParams{
+			HTTPRequest:      req,
+			PaymentRequestID: strfmtPaymentRequestID,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(paymentrequestop.NewGetPaymentRequestEDIOK(), response)
+
+		ediResponse := response.(*paymentrequestop.GetPaymentRequestEDIOK)
+		ediPayload := ediResponse.Payload
+
+		suite.Equal(ediPayload.ID, strfmtPaymentRequestID)
+
+		// Check to make sure EDI is there and starts with expected segment.
+		edi := ediPayload.Edi
+		if suite.NotEmpty(edi) {
+			suite.Regexp("^ISA*", edi)
+		}
+	})
+
+	suite.T().Run("failure due to incorrectly formatted payment request ID", func(t *testing.T) {
+		invalidID := "12345"
+		req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, invalidID), nil)
+
+		params := paymentrequestop.GetPaymentRequestEDIParams{
+			HTTPRequest:      req,
+			PaymentRequestID: strfmt.UUID(invalidID),
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(paymentrequestop.NewGetPaymentRequestEDINotFound(), response)
+	})
+
+	suite.T().Run("failure due to payment request ID not found", func(t *testing.T) {
+		notFoundID := uuid.Must(uuid.NewV4())
+		req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, notFoundID), nil)
+
+		params := paymentrequestop.GetPaymentRequestEDIParams{
+			HTTPRequest:      req,
+			PaymentRequestID: strfmt.UUID(notFoundID.String()),
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(paymentrequestop.NewGetPaymentRequestEDINotFound(), response)
+	})
+
+	suite.T().Run("failure when generating EDI", func(t *testing.T) {
+		req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, paymentRequestID), nil)
+
+		params := paymentrequestop.GetPaymentRequestEDIParams{
+			HTTPRequest:      req,
+			PaymentRequestID: strfmtPaymentRequestID,
+		}
+
+		mockGenerator := &mocks.GHCPaymentRequestInvoiceGenerator{}
+		errStr := "some error"
+		mockGenerator.On("Generate", mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, errors.New(errStr)).Once()
+
+		mockGeneratorHandler := GetPaymentRequestEDIHandler{
+			HandlerContext:                    handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(suite.DB()),
+			GHCPaymentRequestInvoiceGenerator: mockGenerator,
+		}
+
+		response := mockGeneratorHandler.Handle(params)
+
+		suite.IsType(paymentrequestop.NewGetPaymentRequestEDIInternalServerError(), response)
+		errResponse := response.(*paymentrequestop.GetPaymentRequestEDIInternalServerError)
+		suite.Contains(*errResponse.Payload.Detail, errStr)
 	})
 }

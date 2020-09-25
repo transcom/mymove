@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/transcom/mymove/pkg/services/event"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
@@ -19,6 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/audit"
+	"github.com/transcom/mymove/pkg/services/event"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -106,6 +105,18 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemop.CreateMTOSer
 		return mtoserviceitemop.NewCreateMTOServiceItemInternalServerError()
 	}
 
+	_, err = event.TriggerEvent(event.Event{
+		EventKey:        event.MTOServiceItemCreateEventKey,
+		MtoID:           (*createdServiceItems)[0].MoveTaskOrderID,
+		UpdatedObjectID: (*createdServiceItems)[0].ID,
+		Request:         params.HTTPRequest,
+		EndpointKey:     event.GhcCreateMTOServiceItemEndpointKey,
+		DBConnection:    h.DB(),
+		HandlerContext:  h,
+	})
+	if err != nil {
+		logger.Error("ghcapi.CreateMTOServiceItemHandler could not generate the event")
+	}
 	serviceItemsPayload := payloads.MTOServiceItemModels(*createdServiceItems)
 	return mtoserviceitemop.NewCreateMTOServiceItemCreated().WithPayload(serviceItemsPayload[0])
 }

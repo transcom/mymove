@@ -64,7 +64,40 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		}
 
 		response := handler.Handle(params)
+
 		suite.IsType(&mtoserviceitemop.CreateMTOServiceItemCreated{}, response)
+
+	})
+
+	suite.T().Run("Successful create, available to prime", func(t *testing.T) {
+		now := time.Now()
+		var serviceItems models.MTOServiceItems
+
+		serviceItemPrime := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				AvailableToPrimeAt: &now,
+			},
+		})
+
+		serviceItems = append(serviceItems, serviceItemPrime)
+
+		serviceItemCreator.On("CreateMTOServiceItem",
+			mock.Anything,
+		).Return(&serviceItems, nil, nil).Once()
+
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			serviceItemCreator,
+		}
+		traceID, err := uuid.NewV4()
+		suite.FatalNoError(err, "Error creating a new trace ID.")
+		handler.SetTraceID(traceID)
+
+		response := handler.Handle(params)
+
+		suite.IsType(&mtoserviceitemop.CreateMTOServiceItemCreated{}, response)
+		suite.HasWebhookNotification(serviceItems[0].ID, traceID)
+
 	})
 
 	suite.T().Run("Failed create: InternalServiceError", func(t *testing.T) {
