@@ -5,6 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 
@@ -96,7 +98,33 @@ func (suite *HandlerSuite) TestUpdateMTOAgentHandler() {
 
 	// Test invalid IDs in the body vs. path values
 	suite.T().Run("422 - Unprocessable response for bad ID values", func(t *testing.T) {
+		fakeUUID := uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
 
+		badAgent := newAgent
+		badAgent.ID = fakeUUID
+		badAgent.MTOShipmentID = fakeUUID
+
+		payload := payloads.MTOAgent(&badAgent)
+		params := mtoshipmentops.UpdateMTOAgentParams{
+			HTTPRequest:   req,
+			AgentID:       *handlers.FmtUUID(agent.ID),
+			MtoShipmentID: *handlers.FmtUUID(agent.MTOShipmentID),
+			Body:          payload,
+			IfMatch:       updatedETag,
+		}
+		// Run swagger validations
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		// Run handler and check response
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOAgentUnprocessableEntity{}, response)
+
+		// Check error message for the invalid fields
+		agentUnprocessable := response.(*mtoshipmentops.UpdateMTOAgentUnprocessableEntity)
+		_, okID := agentUnprocessable.Payload.InvalidFields["id"]
+		_, okMTOShipmentID := agentUnprocessable.Payload.InvalidFields["mtoShipmentID"]
+		suite.True(okID)
+		suite.True(okMTOShipmentID)
 	})
 
 	// Test invalid input
