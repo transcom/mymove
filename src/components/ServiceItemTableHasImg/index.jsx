@@ -76,7 +76,7 @@ const ServiceItemTableHasImg = ({
               <Button
                 type="button"
                 data-testid="rejectTextButton"
-                className="text-blue usa-button--unstyled"
+                className="text-blue usa-button--unstyled margin-x-1"
                 onClick={() => handleShowRejectionDialog(id)}
               >
                 <span className="icon">
@@ -91,7 +91,7 @@ const ServiceItemTableHasImg = ({
               <Button
                 type="button"
                 data-testid="approveTextButton"
-                className="text-blue usa-button--unstyled"
+                className="text-blue usa-button--unstyled margin-x-1"
                 onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.APPROVED)}
               >
                 <span className="icon">
