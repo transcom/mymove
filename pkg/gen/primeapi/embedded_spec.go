@@ -490,9 +490,6 @@ func init() {
           "404": {
             "$ref": "#/responses/NotFound"
           },
-          "409": {
-            "$ref": "#/responses/Conflict"
-          },
           "412": {
             "$ref": "#/responses/PreconditionFailed"
           },
@@ -501,9 +498,6 @@ func init() {
           },
           "500": {
             "$ref": "#/responses/ServerError"
-          },
-          "501": {
-            "$ref": "#/responses/NotImplemented"
           }
         }
       }
@@ -2733,12 +2727,6 @@ func init() {
               "$ref": "#/definitions/ClientError"
             }
           },
-          "409": {
-            "description": "The request could not be processed because of conflict in the current state of the resource.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
           "412": {
             "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
             "schema": {
@@ -2753,12 +2741,6 @@ func init() {
           },
           "500": {
             "description": "A server error occurred.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "501": {
-            "description": "The requested feature is still in development.",
             "schema": {
               "$ref": "#/definitions/Error"
             }

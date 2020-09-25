@@ -5,14 +5,14 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	mtoagent "github.com/transcom/mymove/pkg/services/mto_agent"
-
 	"github.com/go-openapi/strfmt"
 
 	"github.com/transcom/mymove/pkg/etag"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
-	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
+	mtoagent "github.com/transcom/mymove/pkg/services/mto_agent"
+
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -26,6 +26,18 @@ func (suite *HandlerSuite) TestUpdateMTOAgentHandler() {
 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 		mtoagent.NewMTOAgentUpdater(suite.DB()),
 	}
+
+	// Test a successful request + update
+
+	// Test invalid IDs in the body vs. path values
+
+	// Test stale eTag
+
+	// Test not found response
+
+	// Test not Prime-available (not found response)
+
+	// Test invalid input
 
 	suite.T().Run("NotImplemented response", func(t *testing.T) {
 		payload := payloads.MTOAgent(&agent)
@@ -42,6 +54,6 @@ func (suite *HandlerSuite) TestUpdateMTOAgentHandler() {
 
 		// Run handler and check response
 		response := handler.Handle(params)
-		suite.IsType(&mtoshipmentops.UpdateMTOAgentNotImplemented{}, response)
+		suite.NotNil(response)
 	})
 }

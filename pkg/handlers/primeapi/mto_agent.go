@@ -61,10 +61,6 @@ func (h UpdateMTOAgentHandler) Handle(params mtoshipmentops.UpdateMTOAgentParams
 		case services.InvalidInputError:
 			return mtoshipmentops.NewUpdateMTOAgentUnprocessableEntity().WithPayload(
 				payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
-		// ConflictError -> Conflict Error Response
-		case services.ConflictError:
-			return mtoshipmentops.NewUpdateMTOAgentConflict().WithPayload(
-				payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID()))
 		// QueryError -> Internal Server Error
 		case services.QueryError:
 			if e.Unwrap() != nil {
