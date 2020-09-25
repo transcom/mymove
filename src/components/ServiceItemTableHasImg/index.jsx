@@ -2,8 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import classnames from 'classnames';
-import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
-import { formatDateFromIso } from 'shared/formatters';
 
 import { ReactComponent as Check } from '../../shared/icon/check.svg';
 import { ReactComponent as Ex } from '../../shared/icon/ex.svg';
@@ -11,6 +9,9 @@ import { SERVICE_ITEM_STATUS } from '../../shared/constants';
 import { MTOServiceItemCustomerContactShape, MTOServiceItemDimensionShape } from '../../types/moveOrder';
 
 import styles from './index.module.scss';
+
+import { formatDateFromIso } from 'shared/formatters';
+import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
 
 const ServiceItemTableHasImg = ({
   serviceItems,
