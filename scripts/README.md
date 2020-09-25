@@ -64,8 +64,8 @@ committing.
 | `pre-commit-go-lint` | modify go files with linting rules |
 | `pre-commit-go-mod` | modify `go.mod` and `go.sum` to match whats in the project |
 | `pre-commit-go-vet` | analyze code with `go vet` |
-| `pre-commit-swagger-validate` | Pre-commit hook to run `swagger validate` that is different based on environment |
-| `lint-yaml-with-spectral` | Pre-commit hook to run `spectral` linter that lints external APIs |
+| `pre-commit-swagger-validate` | run environment-specific `swagger validate`  |
+| `lint-yaml-with-spectral` | run `spectral` linter on external APIs |
 
 
 ## CircleCI Scripts
