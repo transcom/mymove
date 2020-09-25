@@ -27,7 +27,7 @@ func (suite *HandlerSuite) TestUpdateMTOAgentHandler() {
 	firstName := "Test"
 	lastName := "Testerson"
 	email := "test.testerson@example.com"
-	phone := "555-456-7890"
+	phone := "456-555-7890"
 
 	newAgent := models.MTOAgent{
 		FirstName: &firstName,

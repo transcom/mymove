@@ -98,7 +98,7 @@ func (suite *MTOAgentServiceSuite) TestUpdateMTOAgentData() {
 		firstName := "Test"
 		lastName := ""
 		email := ""
-		phone := "555-123-4567"
+		phone := "234-555-4567"
 
 		successAgent.FirstName = &firstName
 		successAgent.LastName = &lastName
