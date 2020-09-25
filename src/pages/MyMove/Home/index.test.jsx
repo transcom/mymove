@@ -57,6 +57,7 @@ describe('Home component', () => {
       props = { ...defaultProps, ...props };
       const wrapper = mountHome(props);
       expect(wrapper.find('ShipmentListItem').length).toBe(3);
+      // TODO: check the order by created at through shipment type
     });
   });
 });

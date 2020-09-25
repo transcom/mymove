@@ -110,9 +110,9 @@ class Home extends Component {
   }
 
   get hasShipment() {
-    const { shipments, currentPpm } = this.props;
+    const { mtoShipments, currentPpm } = this.props;
     // TODO: check for PPM when PPM is integrated
-    return (this.hasOrders && !!shipments.length) || Object.keys(currentPpm).length;
+    return (this.hasOrders && !!mtoShipments.length) || Object.keys(currentPpm).length;
   }
 
   get hasSubmittedMove() {
@@ -305,6 +305,22 @@ class Home extends Component {
     );
   };
 
+  sortAllShipments = (mtoShipments, currentPpm) => {
+    const allShipments = JSON.parse(JSON.stringify(mtoShipments));
+    if (Object.keys(currentPpm).length) {
+      const ppm = JSON.parse(JSON.stringify(currentPpm));
+      ppm.shipmentType = SHIPMENT_OPTIONS.PPM;
+      // workaround for differing cases between mtoShipments and ppms (bigger change needed on yaml)
+      ppm.createdAt = ppm.created_at;
+      delete ppm.created_at;
+
+      allShipments.push(ppm);
+    }
+    allShipments.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
+
+    return allShipments;
+  };
+
   render() {
     const {
       isLoggedIn,
@@ -317,7 +333,7 @@ class Home extends Component {
       serviceMember,
       move,
       uploadedOrderDocuments,
-      shipments,
+      mtoShipments,
       currentPpm,
       location,
     } = this.props;
@@ -326,10 +342,7 @@ class Home extends Component {
     const confirmationPath = `/moves/${move.id}/review`;
     const profileEditPath = '/moves/review/edit-profile';
     const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
-    if (Object.keys(currentPpm).length) {
-      currentPpm.shipmentType = SHIPMENT_OPTIONS.PPM;
-      shipments.push(currentPpm);
-    }
+    const allSortedShipments = this.sortAllShipments(mtoShipments, currentPpm);
     return (
       <div className={`usa-prose grid-container ${styles['grid-container']}`}>
         {loggedInUserIsLoading && <LoadingPlaceholder />}
@@ -384,7 +397,7 @@ class Home extends Component {
                   step="3"
                 >
                   {this.hasShipment ? (
-                    <ShipmentList shipments={shipments} onShipmentClick={this.handleShipmentClick} />
+                    <ShipmentList shipments={allSortedShipments} onShipmentClick={this.handleShipmentClick} />
                   ) : (
                     <Description>
                       Tell us where you&apos;re going and when you want to get there. We&apos;ll help you set up
@@ -435,7 +448,7 @@ Home.propTypes = {
   }).isRequired,
   showLoggedInUser: func.isRequired,
   loadMTOShipments: func.isRequired,
-  shipments: arrayOf(
+  mtoShipments: arrayOf(
     shape({
       id: string,
       shipmentType: string,
@@ -512,7 +525,7 @@ const mapStateToProps = (state) => {
     serviceMember,
     backupContacts: serviceMember.backup_contacts || state.serviceMember.currentBackupContacts || [],
     // TODO: change when we support PPM shipments as well
-    shipments: selectMTOShipmentsByMoveId(state, move.id),
+    mtoShipments: selectMTOShipmentsByMoveId(state, move.id),
     // TODO: change when we support multiple moves
     move,
     mtoShipment: selectMTOShipmentForMTO(state, get(move, 'id', '')),
