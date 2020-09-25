@@ -5,6 +5,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
+
 	"github.com/go-openapi/strfmt"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -13,47 +16,88 @@ import (
 	mtoagent "github.com/transcom/mymove/pkg/services/mto_agent"
 
 	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *HandlerSuite) TestUpdateMTOAgentHandler() {
-	agent := models.MTOAgent{
-		MTOAgentType: models.MTOAgentReleasing,
+	// Set up db objects
+	agent := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
+		Move: testdatagen.MakeAvailableMove(suite.DB()),
+	})
+
+	firstName := "Test"
+	lastName := "Testerson"
+	email := "test.testerson@example.com"
+	phone := "555-456-7890"
+
+	newAgent := models.MTOAgent{
+		ID:            agent.ID,
+		MTOShipmentID: agent.MTOShipmentID,
+		FirstName:     &firstName,
+		LastName:      &lastName,
+		Email:         &email,
+		Phone:         &phone,
 	}
 
-	// Create handler
+	// Create handler and request
 	handler := UpdateMTOAgentHandler{
 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 		mtoagent.NewMTOAgentUpdater(suite.DB()),
 	}
+	req := httptest.NewRequest("PUT", fmt.Sprintf("/mto-shipments/%s/agents/%s", agent.MTOShipmentID.String(), agent.ID.String()), nil)
+
+	eTag := etag.GenerateEtag(agent.UpdatedAt)
+	//var updatedETag string
 
 	// Test a successful request + update
-
-	// Test invalid IDs in the body vs. path values
-
-	// Test stale eTag
-
-	// Test not found response
-
-	// Test not Prime-available (not found response)
-
-	// Test invalid input
-
-	suite.T().Run("NotImplemented response", func(t *testing.T) {
-		payload := payloads.MTOAgent(&agent)
-		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto-shipments/%s/agents/%s", agent.MTOShipmentID.String(), agent.ID.String()), nil)
+	suite.T().Run("200 - OK response", func(t *testing.T) {
+		payload := payloads.MTOAgent(&newAgent)
 		params := mtoshipmentops.UpdateMTOAgentParams{
 			HTTPRequest:   req,
 			AgentID:       *handlers.FmtUUID(agent.ID),
 			MtoShipmentID: *handlers.FmtUUID(agent.MTOShipmentID),
 			Body:          payload,
-			IfMatch:       etag.GenerateEtag(agent.UpdatedAt),
+			IfMatch:       eTag,
 		}
 		// Run swagger validations
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
 		// Run handler and check response
 		response := handler.Handle(params)
-		suite.NotNil(response)
+		suite.IsType(&mtoshipmentops.UpdateMTOAgentOK{}, response)
+
+		// Check values
+		agentOK := response.(*mtoshipmentops.UpdateMTOAgentOK)
+		suite.Equal(agentOK.Payload.ID, agent.ID)
+		suite.Equal(agentOK.Payload.MtoShipmentID, agent.MTOShipmentID)
+		suite.Equal(agentOK.Payload.FirstName, newAgent.FirstName)
+		suite.Equal(agentOK.Payload.LastName, newAgent.LastName)
+		suite.Equal(agentOK.Payload.Email, newAgent.Email)
+		suite.Equal(agentOK.Payload.Phone, newAgent.Phone)
+		//updatedETag = agentOK.Payload.ETag
+	})
+
+	// Test stale eTag
+	suite.T().Run("412 - Precondition failed response", func(t *testing.T) {
+
+	})
+
+	// Test invalid IDs in the body vs. path values
+	suite.T().Run("422 - Unprocessable response for bad ID values", func(t *testing.T) {
+
+	})
+
+	// Test invalid input
+	suite.T().Run("422 - Unprocessable response for invalid input", func(t *testing.T) {
+
+	})
+
+	// Test not found response
+	suite.T().Run("404 - Not found response", func(t *testing.T) {
+
+	})
+
+	// Test not Prime-available (not found response)
+	suite.T().Run("404 - Not available response", func(t *testing.T) {
+
 	})
 }

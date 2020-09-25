@@ -1060,6 +1060,10 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
         "email": {
           "type": "string",
           "format": "x-email",
@@ -3334,6 +3338,10 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "type": "string",
           "readOnly": true
         },
         "email": {

@@ -977,6 +977,9 @@ definitions:
         x-nullable: true
       agentType:
         $ref: '#/definitions/MTOAgentType'
+      eTag:
+        type: string
+        readOnly: true
     type: object
   MTOAgents:
     items:
