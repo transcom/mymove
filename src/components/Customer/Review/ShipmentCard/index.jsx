@@ -32,7 +32,16 @@ const ShipmentCard = ({ shipmentType }) => {
             <dt>Storage (SIT)</dt>
             <dd>Yes, 14 days</dd>
           </div>
+          <div className={styles.row}>
+            <dt>Destination ZIP</dt>
+            <dd>78111</dd>
+          </div>
         </dl>
+        <hr className={styles.divider} />
+        <div className={styles['subsection-header']}>
+          <strong>PPM shipment weight</strong>
+          <a href="#">Edit</a>
+        </div>
       </ShipmentContainer>
     </div>
   );

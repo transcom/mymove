@@ -82,6 +82,23 @@
     width: 75%;
   }
 
+  // to-do, fix style of divider
+  .divider {
+    border-color: base-light;
+    @include u-margin-top('105');
+    @include u-margin-left('05');
+  }
+
+  .subsection-header {
+    strong {
+      @include u-text('bold');
+      @include u-text('base-darker');
+    }
+    display: flex;
+    justify-content: space-between;
+    @include u-padding-x('105');
+  }
+
   .row {
     display: table-row;
     @include u-font('body', 'xs');
