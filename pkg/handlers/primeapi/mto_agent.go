@@ -3,6 +3,8 @@ package primeapi
 import (
 	"github.com/go-openapi/runtime/middleware"
 
+	"github.com/transcom/mymove/pkg/services"
+
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
@@ -11,7 +13,7 @@ import (
 // UpdateMTOAgentHandler is the handler to update an address
 type UpdateMTOAgentHandler struct {
 	handlers.HandlerContext
-	//MTOAgentUpdater services.MTOAgentUpdater TODO
+	MTOAgentUpdater services.MTOAgentUpdater
 }
 
 // Handle updates an address on a shipment

@@ -5,6 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	mtoagent "github.com/transcom/mymove/pkg/services/mto_agent"
+
 	"github.com/go-openapi/strfmt"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -22,7 +24,7 @@ func (suite *HandlerSuite) TestUpdateMTOAgentHandler() {
 	// Create handler
 	handler := UpdateMTOAgentHandler{
 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-		//mtoshipment.NewMTOAgentUpdater(suite.DB()), TODO
+		mtoagent.NewMTOAgentUpdater(suite.DB()),
 	}
 
 	suite.T().Run("NotImplemented response", func(t *testing.T) {
