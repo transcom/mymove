@@ -129,7 +129,33 @@ func (suite *HandlerSuite) TestUpdateMTOAgentHandler() {
 
 	// Test invalid input
 	suite.T().Run("422 - Unprocessable response for invalid input", func(t *testing.T) {
+		empty := ""
 
+		payload := payloads.MTOAgent(&newAgent)
+		payload.FirstName = &empty
+		payload.Email = &empty
+		payload.Phone = &empty
+
+		params := mtoshipmentops.UpdateMTOAgentParams{
+			HTTPRequest:   req,
+			AgentID:       *handlers.FmtUUID(agent.ID),
+			MtoShipmentID: *handlers.FmtUUID(agent.MTOShipmentID),
+			Body:          payload,
+			IfMatch:       updatedETag,
+		}
+		// Run swagger validations
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		// Run handler and check response
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOAgentUnprocessableEntity{}, response)
+
+		// Check error message for the invalid fields
+		agentUnprocessable := response.(*mtoshipmentops.UpdateMTOAgentUnprocessableEntity)
+		_, okFirstName := agentUnprocessable.Payload.InvalidFields["firstName"]
+		//_, okContactInfo := agentUnprocessable.Payload.InvalidFields["contactInfo"]
+		suite.True(okFirstName)
+		//suite.True(okContactInfo)
 	})
 
 	// Test not found response
