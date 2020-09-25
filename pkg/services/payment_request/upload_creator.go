@@ -16,6 +16,11 @@ import (
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
+const (
+	// VersionTimeFormat is the Go time format for creating a version number.
+	VersionTimeFormat string = "20060102150405"
+)
+
 type paymentRequestUploadCreator struct {
 	db            *pop.Connection
 	logger        Logger
@@ -35,7 +40,7 @@ func (p *paymentRequestUploadCreator) assembleUploadFilePathName(paymentRequestI
 		return "", services.NewNotFoundError(paymentRequestID, "")
 	}
 
-	filename := "timestamp-" + time.Now().String()
+	filename := "timestamp-" + time.Now().Format(VersionTimeFormat)
 	uploadFilePath := fmt.Sprintf("/app/payment-request-uploads/mto-%s/payment-request-%s", paymentRequest.MoveTaskOrderID, paymentRequest.ID)
 	uploadFileName := path.Join(uploadFilePath, filename)
 
