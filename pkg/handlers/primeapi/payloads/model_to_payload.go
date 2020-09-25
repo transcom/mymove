@@ -201,6 +201,7 @@ func MTOAgent(mtoAgent *models.MTOAgent) *primemessages.MTOAgent {
 		MtoShipmentID: strfmt.UUID(mtoAgent.MTOShipmentID.String()),
 		CreatedAt:     strfmt.DateTime(mtoAgent.CreatedAt),
 		UpdatedAt:     strfmt.DateTime(mtoAgent.UpdatedAt),
+		ETag:          etag.GenerateEtag(mtoAgent.UpdatedAt),
 	}
 }
 
