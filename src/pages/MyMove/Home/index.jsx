@@ -34,7 +34,7 @@ import {
   selectMTOShipmentForMTO,
 } from 'shared/Entities/modules/mtoShipments';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { loadPPMs as loadPpmsAction, selectActivePPMForMove } from 'shared/Entities/modules/ppms';
+import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import {
   selectCurrentUser,
   selectGetCurrentUserIsError,
@@ -68,7 +68,6 @@ class Home extends Component {
       isProfileComplete,
       move,
       loadMTOShipments,
-      loadPpms,
     } = this.props;
     if (!prevProps.loggedInUserSuccess && loggedInUserSuccess) {
       if (!createdServiceMemberIsLoading && isEmpty(serviceMember) && !createdServiceMemberError) {
@@ -95,7 +94,6 @@ class Home extends Component {
 
     if (prevProps.move && prevProps.move.id !== move.id) {
       loadMTOShipments(move.id);
-      loadPpms(move.id);
     }
   }
 
@@ -476,7 +474,6 @@ Home.propTypes = {
   moveSubmitSuccess: bool.isRequired,
   location: shape({}).isRequired,
   createServiceMember: func.isRequired,
-  loadPpms: func.isRequired,
   selectedMoveType: string,
   lastMoveIsCanceled: bool,
   backupContacts: arrayOf(oneOfType([string, shape({})])),
@@ -543,7 +540,6 @@ const mapDispatchToProps = {
   showLoggedInUser: showLoggedInUserAction,
   loadMTOShipments: loadMTOShipmentsAction,
   createServiceMember: createServiceMemberAction,
-  loadPpms: loadPpmsAction,
 };
 
 export default withContext(connect(mapStateToProps, mapDispatchToProps, mergeProps)(Home));
