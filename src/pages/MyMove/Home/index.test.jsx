@@ -14,7 +14,7 @@ const defaultProps = {
   },
   showLoggedInUser: jest.fn(),
   createServiceMember: jest.fn(),
-  shipments: [],
+  mtoShipments: [],
   mtoShipment: {},
   isLoggedIn: true,
   loggedInUserIsLoading: false,
@@ -48,7 +48,7 @@ describe('Home component', () => {
     it('contains ppm and hhg cards if those shipments exist', () => {
       let props = {
         currentPpm: { id: '12345', createdAt: moment() },
-        shipments: [
+        mtoShipments: [
           { id: '4321', createdAt: moment().add(1, 'days'), shipmentType: 'HHG' },
           { id: '4322', createdAt: moment().subtract(1, 'days'), shipmentType: 'HHG' },
         ],
@@ -57,7 +57,9 @@ describe('Home component', () => {
       props = { ...defaultProps, ...props };
       const wrapper = mountHome(props);
       expect(wrapper.find('ShipmentListItem').length).toBe(3);
-      // TODO: check the order by created at through shipment type
+      expect(wrapper.find('ShipmentListItem').at(0).text()).toContain('HHG 1');
+      expect(wrapper.find('ShipmentListItem').at(1).text()).toContain('PPM');
+      expect(wrapper.find('ShipmentListItem').at(2).text()).toContain('HHG 2');
     });
   });
 });
