@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { get, isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
@@ -68,10 +69,11 @@ export class Orders extends Component {
         additionalParams={{ serviceMemberId }}
         className={formName}
         handleSubmit={this.handleSubmit}
+        hideCancelBtn
         initialValues={initialValues}
-        readyToSubmit={!newDutyStationErrorMsg}
         pageKey={pageKey}
         pageList={pages}
+        readyToSubmit={!newDutyStationErrorMsg}
         serverError={error}
       >
         <h1 className="sm-heading">Tell us about your move orders</h1>
