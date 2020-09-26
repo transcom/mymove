@@ -1,0 +1,124 @@
+#! /usr/bin/env bash
+
+#
+# script to help with prime demo script
+#
+# usage
+# ./scripts/prime-api-demo moveTaskOrderID [hostname]
+# ./scripts/prime-api-demo 9c7b255c-2981-4bf8-839f-61c7458e2b4d
+# ./scripts/prime-api-demo 9c7b255c-2981-4bf8-839f-61c7458e2b4d api.stg.move.mil
+
+set -eu -o pipefail
+
+readonly mtoid=$1
+readonly environment=${2:-local}
+primeapiopts="--insecure"
+
+printf "Running against "
+if [[ $environment == "local" ]]; then
+  echo "local server"
+else
+  echo "remote ${environment}"
+  primeapiopts="--cac --hostname ${environment} --port 443"
+fi
+
+read -p "Ready to continue? hit enter" -n 1 -r
+echo "We've been notified of a new move task order id ${mtoid}"
+bin/prime-api-client ${primeapiopts} fetch-mto-updates | jq 'map(select(.id == "'"${mtoid}"'")) | .[0]' > tmp/prime_api_demo_mto.json
+echo "MoveTaskOrderID: ${mtoid}"
+
+jq . tmp/prime_api_demo_mto.json
+
+echo "MTOShipmentIDs: $(jq '.mtoShipments | map(.id) | join(", ")' tmp/prime_api_demo_mto.json)"
+
+shipmentID=$(jq '.mtoShipments | .[0] | .id' tmp/prime_api_demo_mto.json)
+shipmentEtag=$(jq '.mtoShipments | .[0] | .eTag' tmp/prime_api_demo_mto.json)
+echo "Using MTOShipmentID: ${shipmentID}"
+echo "           and eTag: ${shipmentEtag}"
+
+read -p "It's time to update the scheduled pickup date please provide one (yyyy-mm-dd): " -r scheduledPickupDate
+read -p "Provide an actual pickup date (yyyy-mm-dd): " -r actualPickupDate
+
+cat > tmp/pad_update_dates.json <<- EOM
+{
+  "mtoShipmentID": ${shipmentID},
+  "ifMatch": ${shipmentEtag},
+  "body": {
+    "scheduledPickupDate": "${scheduledPickupDate}",
+    "actualPickupDate": "${actualPickupDate}"
+  }
+}
+EOM
+
+echo "Thanks, we will be sending this payload to milmove now"
+jq . tmp/pad_update_dates.json
+
+read -p "Ready to continue? hit enter" -n 1 -r
+bin/prime-api-client ${primeapiopts} update-mto-shipment --filename ./tmp/pad_update_dates.json > tmp/pad_update_response.json
+
+shipmentEtag=$(jq '.eTag' tmp/pad_update_response.json)
+echo "Updated Shipment eTag: ${shipmentEtag}"
+
+read -p "Provide the estimated weight: " -r estimatedWeight
+read -p "Provide the actual weight: " -r actualWeight
+
+cat > tmp/pad_update_weights.json <<- EOM
+{
+  "mtoShipmentID": ${shipmentID},
+  "ifMatch": ${shipmentEtag},
+  "body": {
+    "primeEstimatedWeight": ${estimatedWeight},
+    "primeActualWeight": ${actualWeight}
+  }
+}
+EOM
+
+echo "Sending the following update payload"
+jq . tmp/pad_update_weights.json
+
+read -p "Ready to continue? hit enter" -n 1 -r
+bin/prime-api-client ${primeapiopts} update-mto-shipment --filename ./tmp/pad_update_weights.json > tmp/pad_update_response.json
+
+shipmentEtag=$(jq '.eTag' tmp/pad_update_response.json)
+echo "Updated Shipment eTag: ${shipmentEtag}"
+
+jq '.mtoServiceItems | map(select((.mtoShipmentID == '"${shipmentID}"') and (.reServiceCode == "FSC" or .reServiceCode == "DLH")  or .reServiceCode == "MS" or .reServiceCode == "CS"))  | { body: { isFinal: false, moveTaskOrderID: "'"${mtoid}"'", serviceItems: map({ id: .id }) } }' tmp/prime_api_demo_mto.json > tmp/pad_create_payment_request.json
+
+echo "Sending the following create payment request payload"
+jq . tmp/pad_create_payment_request.json
+
+read -p "Ready to continue? hit enter" -n 1 -r
+bin/prime-api-client ${primeapiopts} create-payment-request --filename ./tmp/pad_create_payment_request.json > tmp/pad_create_payment_request_response.json
+
+echo "result"
+jq . tmp/pad_create_payment_request_response.json
+
+prID=$(jq .id tmp/pad_create_payment_request_response.json | tr -d '"')
+prNumber=$(jq .paymentRequestNumber tmp/pad_create_payment_request_response.json)
+
+echo "Payment Request ID: ${prID}"
+echo "Payment Request Number: ${prNumber}"
+
+echo "Add proof of service docs"
+read -p "Ready to continue? hit enter" -n 1 -r
+bin/prime-api-client ${primeapiopts} create-upload --paymentRequestID "${prID}" --filename ./tmp/uploads/orders.png
+bin/prime-api-client ${primeapiopts} create-upload --paymentRequestID "${prID}" --filename ./tmp/uploads/orders.jpg
+bin/prime-api-client ${primeapiopts} create-upload --paymentRequestID "${prID}" --filename ./tmp/uploads/orders.pdf
+
+
+cat > ./tmp/pad_get_payment_request_edi.json <<-EOM
+{
+  "paymentRequestID": "${prID}"
+}
+EOM
+
+echo "Sending the following to generate an EDI"
+jq . tmp/pad_create_payment_request.json
+
+read -p "Ready to continue? hit enter" -n 1 -r
+
+echo "Generating EDI for this payment request ${prNumber}"
+bin/prime-api-client ${primeapiopts} support-get-payment-request-edi --filename ./tmp/pad_get_payment_request_edi.json > tmp/pad_edi_response.json
+
+echo "----"
+jq -r .edi tmp/pad_edi_response.json
