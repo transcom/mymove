@@ -109,6 +109,7 @@
     "@rescripts/cli": "^0.0.14",
     "@rescripts/rescript-env": "^0.0.12",
     "@rescripts/utilities": "^0.0.7",
+    "@stoplight/spectral": "^5.5.0",
     "@storybook/addon-actions": "^5.3.19",
     "@storybook/addon-info": "^5.3.19",
     "@storybook/addon-knobs": "^5.3.19",
