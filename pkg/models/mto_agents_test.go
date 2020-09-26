@@ -35,8 +35,8 @@ func (suite *ModelSuite) Test_MTOAgentTestdataGen() {
 	MTOAgent := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{})
 	suite.Equal(MTOAgent.FirstName, swag.String("Jason"))
 	suite.Equal(MTOAgent.LastName, swag.String("Ash"))
-	suite.Equal(MTOAgent.Email, swag.String("jason.ash@gmail.com"))
-	suite.Equal(MTOAgent.Phone, swag.String("2025559301"))
+	suite.Equal(MTOAgent.Email, swag.String("jason.ash@example.com"))
+	suite.Equal(MTOAgent.Phone, swag.String("202-555-9301"))
 	suite.Equal(MTOAgent.MTOAgentType, models.MTOAgentReleasing)
 	// test with assertions
 	someFirstName := "Some other agent name"
