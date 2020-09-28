@@ -48,7 +48,7 @@ const PPMShipmentCard = ({
             <dd>{destinationZIP}</dd>
           </div>
         </dl>
-        <div className={styles['subsection-header']}>
+        <div className={styles.subsectionHeader}>
           <strong>PPM shipment weight</strong>
           <Button className={styles.editBtn} unstyled>
             Edit
