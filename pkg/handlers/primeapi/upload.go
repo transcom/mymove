@@ -74,7 +74,6 @@ func (h CreateUploadHandler) Handle(params paymentrequestop.CreateUploadParams) 
 
 	uploadCreator := paymentrequest.NewPaymentRequestUploadCreator(h.DB(), logger, h.FileStorer())
 	createdUpload, err := uploadCreator.CreateUpload(file.Data, paymentRequestID, contractorID, file.Header.Filename)
-	//createdUpload, err := uploadCreator.CreateUpload(params.File, paymentRequestID, contractorID)
 	if err != nil {
 		logger.Error("primeapi.CreateUploadHandler error", zap.Error(err))
 		switch e := err.(type) {
