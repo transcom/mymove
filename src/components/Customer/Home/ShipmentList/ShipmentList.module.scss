@@ -13,6 +13,14 @@
   padding-bottom: 12px;
   @include u-margin-bottom(1);
 
+  strong {
+    @include u-padding-right(1);
+  }
+
+  span {
+    @include u-padding-x(1);
+  }
+
   &:last-child {
     margin-bottom: 0px;
   }
