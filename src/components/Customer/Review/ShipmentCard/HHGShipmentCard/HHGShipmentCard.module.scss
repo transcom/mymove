@@ -1,6 +1,5 @@
 @import 'shared/styles/_basics';
 @import 'shared/styles/_mixins';
-@import 'shared/styles/colors';
 
 .remarksCell {
   @include u-font('body', 'xs');
