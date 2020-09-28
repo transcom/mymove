@@ -66,9 +66,9 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 
 	// Test successful update
 	suite.T().Run("Success", func(t *testing.T) {
-		firstName := "Test"
-		lastName := "Tester"
-		email := "special.test@example.com"
+		firstName := "Carol"
+		lastName := "Romilly"
+		email := "carol.romilly@example.com"
 
 		newAgent.FirstName = &firstName
 		newAgent.LastName = &lastName
@@ -150,7 +150,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 		suite.FatalNoError(err, "error while copying Prime-available agent models")
 
 		// Ensure we have the minimum required contact info
-		firstName := "Test"
+		firstName := "Carol"
 		email := "test@example.com"
 		newAgentPrime.FirstName = &firstName
 		newAgentPrime.Email = &email

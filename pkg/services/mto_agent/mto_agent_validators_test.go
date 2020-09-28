@@ -95,10 +95,10 @@ func (suite *MTOAgentServiceSuite) TestUpdateMTOAgentData() {
 
 	// Test successful check for contact info
 	suite.T().Run("checkContactInfo - success", func(t *testing.T) {
-		firstName := "Test"
+		firstName := "Carol"
 		lastName := ""
 		email := ""
-		phone := "555-123-4567"
+		phone := "234-555-4567"
 
 		successAgent.FirstName = &firstName
 		successAgent.LastName = &lastName
