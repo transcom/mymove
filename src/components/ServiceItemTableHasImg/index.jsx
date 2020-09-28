@@ -10,8 +10,8 @@ import { MTOServiceItemCustomerContactShape, MTOServiceItemDimensionShape } from
 
 import styles from './index.module.scss';
 
-import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
 import { formatDateFromIso } from 'shared/formatters';
+import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
 
 const ServiceItemTableHasImg = ({
   serviceItems,
@@ -60,7 +60,7 @@ const ServiceItemTableHasImg = ({
               <Button
                 type="button"
                 secondary
-                className="usa-button--small usa-button--icon rejectButton"
+                className="usa-button--small usa-button--icon margin-left-1 rejectButton"
                 data-testid="rejectButton"
                 onClick={() => handleShowRejectionDialog(id)}
               >
@@ -76,7 +76,7 @@ const ServiceItemTableHasImg = ({
               <Button
                 type="button"
                 data-testid="rejectTextButton"
-                className="text-blue usa-button--unstyled"
+                className="text-blue usa-button--unstyled margin-left-1"
                 onClick={() => handleShowRejectionDialog(id)}
               >
                 <span className="icon">
