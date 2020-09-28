@@ -27,7 +27,7 @@ const HHGShipmentCard = ({
         <div className={styles.ShipmentCardHeader}>
           <div>
             <h4>HHG {shipmentNumber}</h4>
-            <p>{shipmentId}</p>
+            <p>{shipmentId.substring(0, 10)}</p>
           </div>
           <Button className={styles.editBtn} unstyled>
             Edit
