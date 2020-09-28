@@ -153,9 +153,9 @@ func (suite *HandlerSuite) TestUpdateMTOAgentHandler() {
 		// Check error message for the invalid fields
 		agentUnprocessable := response.(*mtoshipmentops.UpdateMTOAgentUnprocessableEntity)
 		_, okFirstName := agentUnprocessable.Payload.InvalidFields["firstName"]
-		//_, okContactInfo := agentUnprocessable.Payload.InvalidFields["contactInfo"]
+		_, okContactInfo := agentUnprocessable.Payload.InvalidFields["contactInfo"]
 		suite.True(okFirstName)
-		//suite.True(okContactInfo)
+		suite.True(okContactInfo)
 	})
 
 	// Test not found response
