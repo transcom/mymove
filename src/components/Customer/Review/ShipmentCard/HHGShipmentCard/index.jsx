@@ -2,6 +2,7 @@ import React from 'react';
 import { string, shape, number } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
+import { AddressShape } from '../../../../../types/address';
 import styles from '../ShipmentCard.module.scss';
 
 import hhgShipmentCardStyles from './HHGShipmentCard.module.scss';
@@ -108,13 +109,7 @@ HHGShipmentCard.propTypes = {
   shipmentNumber: number.isRequired,
   shipmentId: string.isRequired,
   requestedPickupDate: string.isRequired,
-  pickupLocation: shape({
-    street_address_1: string.isRequired,
-    street_address_2: string,
-    city: string.isRequired,
-    state: string.isRequired,
-    postal_code: string.isRequired,
-  }).isRequired,
+  pickupLocation: AddressShape.isRequired,
   releasingAgent: shape({
     name: string,
     telephone: string,
