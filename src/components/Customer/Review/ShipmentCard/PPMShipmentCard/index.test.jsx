@@ -12,7 +12,7 @@ const defaultProps = {
   expectedDepartureDate: new Date('01/01/2020').toISOString(),
   shipmentId: '#ABC123K-001',
   sitDays: '24',
-  startingZIP: '00000',
+  originZIP: '00000',
 };
 
 function mountPPMShipmentCard(props = defaultProps) {
@@ -31,7 +31,7 @@ describe('PPMShipmentCard component', () => {
     ];
     const tableData = [
       formatCustomerDate(defaultProps.expectedDepartureDate),
-      defaultProps.startingZIP,
+      defaultProps.originZIP,
       `Yes, ${defaultProps.sitDays} days`,
       defaultProps.destinationZIP,
       `${defaultProps.estimatedWeight} lbs`,

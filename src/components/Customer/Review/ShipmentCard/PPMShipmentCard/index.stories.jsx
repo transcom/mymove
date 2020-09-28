@@ -9,7 +9,7 @@ const defaultProps = {
   expectedDepartureDate: new Date('01/01/2020').toISOString(),
   shipmentId: '#ABC123K-001',
   sitDays: '24',
-  startingZIP: '00000',
+  originZIP: '00000',
 };
 
 export default {

@@ -15,7 +15,7 @@ const PPMShipmentCard = ({
   expectedDepartureDate,
   shipmentId,
   sitDays,
-  startingZIP,
+  originZIP,
 }) => {
   return (
     <div className={styles.ShipmentCard} data-testid="shipment-display">
@@ -37,7 +37,7 @@ const PPMShipmentCard = ({
           </div>
           <div className={styles.row}>
             <dt>Starting ZIP</dt>
-            <dd>{startingZIP}</dd>
+            <dd>{originZIP}</dd>
           </div>
           <div className={styles.row}>
             <dt>Storage (SIT)</dt>
@@ -76,7 +76,7 @@ PPMShipmentCard.propTypes = {
   expectedDepartureDate: string.isRequired,
   shipmentId: string.isRequired,
   sitDays: string,
-  startingZIP: string.isRequired,
+  originZIP: string.isRequired,
 };
 
 PPMShipmentCard.defaultProps = {
