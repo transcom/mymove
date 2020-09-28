@@ -26,3 +26,11 @@ describe('Allowances Table', () => {
     expect(wrapper.find({ 'data-testid': 'dependents' }).text()).toMatch('Authorized');
   });
 });
+
+describe('Allowances Table when SIT is 0', () => {
+  it('displays an empty string for the SIT allowance', () => {
+    info.storageInTransit = 0;
+    const wrapper = shallow(<AllowancesTable info={info} />);
+    expect(wrapper.find({ 'data-testid': 'storageInTransit' }).text()).toEqual('');
+  });
+});

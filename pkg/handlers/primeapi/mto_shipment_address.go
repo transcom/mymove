@@ -48,7 +48,7 @@ func (h UpdateMTOShipmentAddressHandler) Handle(params mtoshipmentops.UpdateMTOS
 			return mtoshipmentops.NewUpdateMTOShipmentAddressNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
 		// InvalidInputError -> Unprocessable Entity Response
 		case services.InvalidInputError:
-			return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(
+			return mtoshipmentops.NewUpdateMTOShipmentAddressUnprocessableEntity().WithPayload(
 				payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
 		// ConflictError -> ConflictError Response
 		case services.ConflictError:

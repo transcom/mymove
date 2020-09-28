@@ -1229,10 +1229,6 @@ definitions:
         type: string
         readOnly: true
     type: object
-  PaymentRequests:
-    items:
-      $ref: '#/definitions/PaymentRequest'
-    type: array
   PaymentRequestEDI:
     properties:
       id:
@@ -1244,6 +1240,10 @@ definitions:
         type: string
         readOnly: true
     type: object
+  PaymentRequests:
+    items:
+      $ref: '#/definitions/PaymentRequest'
+    type: array
   PaymentRequestStatus:
     enum:
       - PENDING
