@@ -78,9 +78,11 @@ func (a *Client) CreateMTOShipment(params *CreateMTOShipmentParams) (*CreateMTOS
 UpdateMTOAgent updates m t o agent
 
 ### Functionality
-This endpoint is used to **update** the agents for an MTO Shipment.
+This endpoint is used to **update** the agents for an MTO Shipment. Only the fields being modified need to be sent in the request body.
 
 ### Errors:
+The agent must always have a name and at least one method of contact (either `email` or `phone`).
+
 The agent must be associated with the MTO shipment passed in the url.
 
 The shipment should be associated with an MTO that is available to the Prime.
