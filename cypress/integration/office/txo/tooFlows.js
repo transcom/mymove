@@ -93,7 +93,7 @@ describe('TOO user', () => {
 
     cy.contains('Requested service items (6 items)');
     cy.contains('Rejected service items').should('not.exist');
-    cy.contains('Approved serivce items').should('not.exist');
+    cy.contains('Approved service items').should('not.exist');
 
     cy.get('[data-testid="modal"]').should('not.be.visible');
 
