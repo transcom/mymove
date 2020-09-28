@@ -66,16 +66,6 @@ executors:
         command: '-c fsync=off -c full_page_writes=off -c max_connections=200'
 
 commands:
-  aws_vars_legacy:
-    steps:
-      - run:
-          name: 'Setting up AWS environment variables for legacy env'
-          command: |
-            echo "export AWS_DEFAULT_REGION=$LEGACY_REGION" >> $BASH_ENV
-            echo "export AWS_ACCOUNT_ID=$LEGACY_ACCOUNT_ID" >> $BASH_ENV
-            echo "export AWS_ACCESS_KEY_ID=$LEGACY_ACCESS_KEY_ID" >> $BASH_ENV
-            echo "export AWS_SECRET_ACCESS_KEY=$LEGACY_SECRET_ACCESS_KEY" >> $BASH_ENV
-            source $BASH_ENV
   aws_vars_exp:
     steps:
       - run:
@@ -613,7 +603,6 @@ jobs:
   acceptance_tests:
     executor: mymove_medium
     steps:
-      - aws_vars_legacy
       - checkout
       - restore_cache:
           keys:
@@ -679,7 +668,6 @@ jobs:
     parallelism: 5
     executor: mymove_large
     steps:
-      - aws_vars_legacy
       - checkout
       - setup_remote_docker:
           docker_layer_caching: false
@@ -719,7 +707,6 @@ jobs:
   integration_tests_mtls:
     executor: mymove_medium_plus
     steps:
-      - aws_vars_legacy
       - checkout
       - setup_remote_docker:
           docker_layer_caching: false
@@ -829,20 +816,6 @@ jobs:
           working_dir: ~/transcom/mymove
       - announce_failure
 
-  # `push_app_legacy` pushes the app container to the legacy container repository
-  push_app_legacy:
-    executor: mymove_small
-    steps:
-      - setup_remote_docker:
-          docker_layer_caching: false
-      - aws_vars_legacy
-      - push_image:
-          ecr_env: legacy
-          image_name: ppp
-          tag: web-dev
-          repo: app
-      - announce_failure
-
   # `push_app_exp` pushes the app container to the milmove-exp container repository
   push_app_exp:
     executor: mymove_small
@@ -936,20 +909,6 @@ jobs:
           working_dir: ~/transcom/mymove
       - announce_failure
 
-  # `push_migrations_legacy` pushes the migrations container to the legacy container repository
-  push_migrations_legacy:
-    executor: mymove_small
-    steps:
-      - setup_remote_docker:
-          docker_layer_caching: false
-      - aws_vars_legacy
-      - push_image:
-          ecr_env: legacy
-          image_name: ppp-migrations
-          tag: dev
-          repo: app-migrations
-      - announce_failure
-
   # `push_migrations_exp` pushes the migrations container to the milmove-exp container repository
   push_migrations_exp:
     executor: mymove_small
@@ -1014,20 +973,6 @@ jobs:
           working_dir: ~/transcom/mymove
       - announce_failure
 
-  # `push_tasks_legacy` pushes the tasks containers to the legacy container repository
-  push_tasks_legacy:
-    executor: mymove_small
-    steps:
-      - setup_remote_docker:
-          docker_layer_caching: false
-      - aws_vars_legacy
-      - push_image:
-          ecr_env: legacy
-          image_name: tasks
-          tag: dev
-          repo: app-tasks
-      - announce_failure
-
   # `push_tasks_exp` pushes the tasks containers to the milmove-exp container repository
   push_tasks_exp:
     executor: mymove_small
@@ -1069,50 +1014,6 @@ jobs:
           tag: dev
           repo: app-tasks
       - announce_failure
-
-  # `deploy_experimental_migrations` deploys migrations to the experimental environment
-  deploy_experimental_migrations:
-    executor: mymove_small
-    environment:
-      - APP_ENVIRONMENT: 'experimental'
-    steps:
-      - aws_vars_legacy
-      - deploy_migrations_steps:
-          ecr_env: legacy
-
-  # `deploy_experimental_tasks` deploys scheduled tasks to the experimental environment
-  deploy_experimental_tasks:
-    executor: mymove_small
-    environment:
-      - APP_ENVIRONMENT: 'experimental'
-    steps:
-      - aws_vars_legacy
-      - deploy_tasks_steps:
-          ecr_env: legacy
-
-  # `deploy_experimental_app` updates the server-TLS app service in the experimental environment
-  deploy_experimental_app:
-    executor: mymove_small
-    environment:
-      - APP_ENVIRONMENT: 'experimental'
-    steps:
-      - aws_vars_legacy
-      - deploy_app_steps:
-          compare_host: '' # leave blank since we want experimental to be able to roll back
-          health_check_hosts: my.experimental.move.mil,office.experimental.move.mil,admin.experimental.move.mil
-          ecr_env: legacy
-
-  # `deploy_experimental_app_client_tls` updates the mutual-TLS service in the experimental environment
-  deploy_experimental_app_client_tls:
-    executor: mymove_small
-    environment:
-      - APP_ENVIRONMENT: 'experimental'
-    steps:
-      - aws_vars_legacy
-      - deploy_app_client_tls_steps:
-          compare_host: '' # leave blank since we want experimental to be able to roll back
-          health_check_hosts: gex.experimental.move.mil,orders.experimental.move.mil
-          ecr_env: legacy
 
   # `deploy_exp_migrations` deploys migrations to the exp environment
   deploy_exp_migrations:
@@ -1295,9 +1196,7 @@ workflows:
             - pre_deps_yarn
             - pre_deps_cypress
             - check_generated_code
-            - push_app_legacy
             - push_app_stg
-            - push_migrations_legacy
             - push_migrations_stg
             - acceptance_tests
           # if testing on experimental, you can disable these tests by using the commented block below.
@@ -1309,9 +1208,7 @@ workflows:
           requires:
             - pre_deps_golang
             - check_generated_code
-            - push_app_legacy
             - push_app_stg
-            - push_migrations_legacy
             - push_migrations_stg
             - acceptance_tests
           # if testing on experimental, you can disable these tests by using the commented block below.
@@ -1342,10 +1239,6 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests # don't bother building and pushing the application if it won't even start properly
 
-      - push_app_legacy:
-          requires:
-            - build_app
-
       - build_tools:
           requires:
             - anti_virus
@@ -1356,52 +1249,9 @@ workflows:
             - anti_virus
             - pre_deps_golang
 
-      - push_migrations_legacy:
-          requires:
-            - build_migrations
-
       - build_tasks:
           requires:
             - build_tools
-
-      - push_tasks_legacy:
-          requires:
-            - build_tasks
-
-      - deploy_experimental_migrations:
-          requires:
-            - pre_test
-            - client_test
-            - server_test
-            - acceptance_tests
-            - push_app_legacy
-            - build_tools
-            - push_tasks_legacy
-            - push_migrations_legacy
-          filters:
-            branches:
-              only: placeholder_branch_name
-
-      - deploy_experimental_tasks:
-          requires:
-            - deploy_experimental_migrations
-          filters:
-            branches:
-              only: placeholder_branch_name
-
-      - deploy_experimental_app:
-          requires:
-            - deploy_experimental_migrations
-          filters:
-            branches:
-              only: placeholder_branch_name
-
-      - deploy_experimental_app_client_tls:
-          requires:
-            - deploy_experimental_migrations
-          filters:
-            branches:
-              only: placeholder_branch_name
 
       - push_app_exp:
           requires:
