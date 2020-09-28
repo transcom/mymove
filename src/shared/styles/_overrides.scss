@@ -11,7 +11,7 @@
   align-items: center;
   justify-content: center;
   height: 42px;
-  @include u-margin('1');
+  @include u-margin-y('1');
   .icon svg path,
   .icon svg polygon {
     fill: white;
