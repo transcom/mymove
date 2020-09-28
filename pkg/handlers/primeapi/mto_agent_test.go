@@ -26,9 +26,9 @@ func (suite *HandlerSuite) TestUpdateMTOAgentHandler() {
 		Move: testdatagen.MakeAvailableMove(suite.DB()),
 	})
 
-	firstName := "Test"
-	lastName := "Testerson"
-	email := "test.testerson@example.com"
+	firstName := "Carol"
+	lastName := "Romilly"
+	email := "carol.romilly@example.com"
 	phone := "456-555-7890"
 
 	newAgent := models.MTOAgent{
