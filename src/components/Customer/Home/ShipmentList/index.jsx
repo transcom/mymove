@@ -28,7 +28,8 @@ const ShipmentListItem = ({ shipment, onShipmentClick, shipmentNumber, showNumbe
         {shipment.shipmentType}
         {showNumber && ` ${shipmentNumber}`}
       </strong>{' '}
-      <span className={styles['shipment-code']}>{shipment.id}</span> <EditIcon className={styles.edit} />
+      <span className={styles['shipment-code']}>{shipment.id.substring(0, 10)}</span>{' '}
+      <EditIcon className={styles.edit} />
     </div>
   );
 };

@@ -109,7 +109,6 @@ class Home extends Component {
 
   get hasShipment() {
     const { mtoShipments, currentPpm } = this.props;
-    // TODO: check for PPM when PPM is integrated
     return (this.hasOrders && !!mtoShipments.length) || Object.keys(currentPpm).length;
   }
 
