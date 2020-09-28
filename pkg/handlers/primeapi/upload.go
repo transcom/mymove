@@ -1,6 +1,7 @@
 package primeapi
 
 import (
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 
@@ -65,8 +66,15 @@ func (h CreateUploadHandler) Handle(params paymentrequestop.CreateUploadParams) 
 			"The payment request ID must be a valid UUID.", h.GetTraceID(), nil))
 	}
 
+	file, ok := params.File.(*runtime.File)
+	if !ok {
+		logger.Error("This should always be a runtime.File, something has changed in go-swagger.")
+		return paymentrequestop.NewCreateUploadInternalServerError()
+	}
+
 	uploadCreator := paymentrequest.NewPaymentRequestUploadCreator(h.DB(), logger, h.FileStorer())
-	createdUpload, err := uploadCreator.CreateUpload(params.File, paymentRequestID, contractorID)
+	createdUpload, err := uploadCreator.CreateUpload(file.Data, paymentRequestID, contractorID, file.Header.Filename)
+	//createdUpload, err := uploadCreator.CreateUpload(params.File, paymentRequestID, contractorID)
 	if err != nil {
 		logger.Error("primeapi.CreateUploadHandler error", zap.Error(err))
 		switch e := err.(type) {
