@@ -48,7 +48,7 @@ const ServiceItemTableHasImg = ({
             <div className={styles.statusAction}>
               <Button
                 type="button"
-                className="usa-button--icon usa-button--small"
+                className="usa-button--icon usa-button--small acceptButton"
                 data-testid="acceptButton"
                 onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.APPROVED)}
               >
@@ -60,7 +60,7 @@ const ServiceItemTableHasImg = ({
               <Button
                 type="button"
                 secondary
-                className="usa-button--small usa-button--icon"
+                className="usa-button--small usa-button--icon rejectButton"
                 data-testid="rejectButton"
                 onClick={() => handleShowRejectionDialog(id)}
               >
