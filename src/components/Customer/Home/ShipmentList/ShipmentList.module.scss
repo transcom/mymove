@@ -15,10 +15,7 @@
 
   strong {
     @include u-padding-right(1);
-  }
-
-  span {
-    @include u-padding-x(1);
+    white-space: nowrap;
   }
 
   &:last-child {
@@ -34,6 +31,7 @@
   font-size: 13px;
   font-weight: normal;
   word-wrap: anywhere;
+  @include u-padding-x(1);
 }
 
 .shipment-list-item-PPM {
