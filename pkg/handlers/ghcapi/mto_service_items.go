@@ -17,6 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/audit"
+	"github.com/transcom/mymove/pkg/services/event"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -104,6 +105,18 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemop.CreateMTOSer
 		return mtoserviceitemop.NewCreateMTOServiceItemInternalServerError()
 	}
 
+	_, err = event.TriggerEvent(event.Event{
+		EventKey:        event.MTOServiceItemCreateEventKey,
+		MtoID:           (*createdServiceItems)[0].MoveTaskOrderID,
+		UpdatedObjectID: (*createdServiceItems)[0].ID,
+		Request:         params.HTTPRequest,
+		EndpointKey:     event.GhcCreateMTOServiceItemEndpointKey,
+		DBConnection:    h.DB(),
+		HandlerContext:  h,
+	})
+	if err != nil {
+		logger.Error("ghcapi.CreateMTOServiceItemHandler could not generate the event")
+	}
 	serviceItemsPayload := payloads.MTOServiceItemModels(*createdServiceItems)
 	return mtoserviceitemop.NewCreateMTOServiceItemCreated().WithPayload(serviceItemsPayload[0])
 }
@@ -162,6 +175,21 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 			logger.Error(fmt.Sprintf("Error saving payment request status for ID: %s: %s", mtoServiceItemID, err))
 			return mtoserviceitemop.NewUpdateMTOServiceItemStatusInternalServerError()
 		}
+	}
+
+	// trigger webhook event for Prime
+	_, err = event.TriggerEvent(event.Event{
+		EventKey:        event.MTOServiceItemUpdateEventKey,
+		MtoID:           existingMTOServiceItem.MoveTaskOrder.ID,
+		UpdatedObjectID: existingMTOServiceItem.ID,
+		Request:         params.HTTPRequest,
+		EndpointKey:     event.GhcUpdateMTOServiceItemStatusEndpointKey,
+		DBConnection:    h.DB(),
+		HandlerContext:  h,
+	})
+
+	if err != nil {
+		logger.Error("ghcapi.UpdateMTOServiceItemStatusHandler could not generate the event")
 	}
 
 	payload := payloads.MTOServiceItemModel(updatedMTOServiceItem)

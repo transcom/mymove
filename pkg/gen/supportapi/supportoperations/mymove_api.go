@@ -22,7 +22,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_shipment"
-	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/payment_requests"
+	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/payment_request"
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/webhook"
 )
 
@@ -49,8 +49,11 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MoveTaskOrderGetMoveTaskOrderHandler: move_task_order.GetMoveTaskOrderHandlerFunc(func(params move_task_order.GetMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderGetMoveTaskOrder has not yet been implemented")
 		}),
-		PaymentRequestsListMTOPaymentRequestsHandler: payment_requests.ListMTOPaymentRequestsHandlerFunc(func(params payment_requests.ListMTOPaymentRequestsParams) middleware.Responder {
-			return middleware.NotImplemented("operation PaymentRequestsListMTOPaymentRequests has not yet been implemented")
+		PaymentRequestGetPaymentRequestEDIHandler: payment_request.GetPaymentRequestEDIHandlerFunc(func(params payment_request.GetPaymentRequestEDIParams) middleware.Responder {
+			return middleware.NotImplemented("operation PaymentRequestGetPaymentRequestEDI has not yet been implemented")
+		}),
+		PaymentRequestListMTOPaymentRequestsHandler: payment_request.ListMTOPaymentRequestsHandlerFunc(func(params payment_request.ListMTOPaymentRequestsParams) middleware.Responder {
+			return middleware.NotImplemented("operation PaymentRequestListMTOPaymentRequests has not yet been implemented")
 		}),
 		MoveTaskOrderListMTOsHandler: move_task_order.ListMTOsHandlerFunc(func(params move_task_order.ListMTOsParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderListMTOs has not yet been implemented")
@@ -67,8 +70,8 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MtoShipmentUpdateMTOShipmentStatusHandler: mto_shipment.UpdateMTOShipmentStatusHandlerFunc(func(params mto_shipment.UpdateMTOShipmentStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation MtoShipmentUpdateMTOShipmentStatus has not yet been implemented")
 		}),
-		PaymentRequestsUpdatePaymentRequestStatusHandler: payment_requests.UpdatePaymentRequestStatusHandlerFunc(func(params payment_requests.UpdatePaymentRequestStatusParams) middleware.Responder {
-			return middleware.NotImplemented("operation PaymentRequestsUpdatePaymentRequestStatus has not yet been implemented")
+		PaymentRequestUpdatePaymentRequestStatusHandler: payment_request.UpdatePaymentRequestStatusHandlerFunc(func(params payment_request.UpdatePaymentRequestStatusParams) middleware.Responder {
+			return middleware.NotImplemented("operation PaymentRequestUpdatePaymentRequestStatus has not yet been implemented")
 		}),
 	}
 }
@@ -110,8 +113,10 @@ type MymoveAPI struct {
 	MoveTaskOrderCreateMoveTaskOrderHandler move_task_order.CreateMoveTaskOrderHandler
 	// MoveTaskOrderGetMoveTaskOrderHandler sets the operation handler for the get move task order operation
 	MoveTaskOrderGetMoveTaskOrderHandler move_task_order.GetMoveTaskOrderHandler
-	// PaymentRequestsListMTOPaymentRequestsHandler sets the operation handler for the list m t o payment requests operation
-	PaymentRequestsListMTOPaymentRequestsHandler payment_requests.ListMTOPaymentRequestsHandler
+	// PaymentRequestGetPaymentRequestEDIHandler sets the operation handler for the get payment request e d i operation
+	PaymentRequestGetPaymentRequestEDIHandler payment_request.GetPaymentRequestEDIHandler
+	// PaymentRequestListMTOPaymentRequestsHandler sets the operation handler for the list m t o payment requests operation
+	PaymentRequestListMTOPaymentRequestsHandler payment_request.ListMTOPaymentRequestsHandler
 	// MoveTaskOrderListMTOsHandler sets the operation handler for the list m t os operation
 	MoveTaskOrderListMTOsHandler move_task_order.ListMTOsHandler
 	// MoveTaskOrderMakeMoveTaskOrderAvailableHandler sets the operation handler for the make move task order available operation
@@ -122,8 +127,8 @@ type MymoveAPI struct {
 	MtoServiceItemUpdateMTOServiceItemStatusHandler mto_service_item.UpdateMTOServiceItemStatusHandler
 	// MtoShipmentUpdateMTOShipmentStatusHandler sets the operation handler for the update m t o shipment status operation
 	MtoShipmentUpdateMTOShipmentStatusHandler mto_shipment.UpdateMTOShipmentStatusHandler
-	// PaymentRequestsUpdatePaymentRequestStatusHandler sets the operation handler for the update payment request status operation
-	PaymentRequestsUpdatePaymentRequestStatusHandler payment_requests.UpdatePaymentRequestStatusHandler
+	// PaymentRequestUpdatePaymentRequestStatusHandler sets the operation handler for the update payment request status operation
+	PaymentRequestUpdatePaymentRequestStatusHandler payment_request.UpdatePaymentRequestStatusHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -195,8 +200,12 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "move_task_order.GetMoveTaskOrderHandler")
 	}
 
-	if o.PaymentRequestsListMTOPaymentRequestsHandler == nil {
-		unregistered = append(unregistered, "payment_requests.ListMTOPaymentRequestsHandler")
+	if o.PaymentRequestGetPaymentRequestEDIHandler == nil {
+		unregistered = append(unregistered, "payment_request.GetPaymentRequestEDIHandler")
+	}
+
+	if o.PaymentRequestListMTOPaymentRequestsHandler == nil {
+		unregistered = append(unregistered, "payment_request.ListMTOPaymentRequestsHandler")
 	}
 
 	if o.MoveTaskOrderListMTOsHandler == nil {
@@ -219,8 +228,8 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "mto_shipment.UpdateMTOShipmentStatusHandler")
 	}
 
-	if o.PaymentRequestsUpdatePaymentRequestStatusHandler == nil {
-		unregistered = append(unregistered, "payment_requests.UpdatePaymentRequestStatusHandler")
+	if o.PaymentRequestUpdatePaymentRequestStatusHandler == nil {
+		unregistered = append(unregistered, "payment_request.UpdatePaymentRequestStatusHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -334,7 +343,12 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}/payment-requests"] = payment_requests.NewListMTOPaymentRequests(o.context, o.PaymentRequestsListMTOPaymentRequestsHandler)
+	o.handlers["GET"]["/payment-requests/{paymentRequestID}/edi"] = payment_request.NewGetPaymentRequestEDI(o.context, o.PaymentRequestGetPaymentRequestEDIHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}/payment-requests"] = payment_request.NewListMTOPaymentRequests(o.context, o.PaymentRequestListMTOPaymentRequestsHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -364,7 +378,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["PATCH"]["/payment-requests/{paymentRequestID}/status"] = payment_requests.NewUpdatePaymentRequestStatus(o.context, o.PaymentRequestsUpdatePaymentRequestStatusHandler)
+	o.handlers["PATCH"]["/payment-requests/{paymentRequestID}/status"] = payment_request.NewUpdatePaymentRequestStatus(o.context, o.PaymentRequestUpdatePaymentRequestStatusHandler)
 
 }
 

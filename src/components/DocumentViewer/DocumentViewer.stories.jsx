@@ -14,7 +14,8 @@ export default {
 
 const testPDFFiles = [
   {
-    filename: 'Test File.pdf',
+    filename:
+      'Test File - - A very long document title that overflow with ellipsis and shows a title when hovering; A very long document title that overflow with ellipsis and shows a title when hovering; A very long document title that overflow with ellipsis and shows a title when hovering; A very long document title that overflow with ellipsis and shows a title when hovering.pdf',
     contentType: 'pdf',
     url: pdf,
   },
@@ -32,7 +33,7 @@ const testPDFFiles = [
 
 const testImageFiles = [
   {
-    filename: 'PCS Orders TACOMA.jpg',
+    filename: 'PCS Orders TACOMA Page 1',
     contentType: 'jpg',
     url: jpg,
   },

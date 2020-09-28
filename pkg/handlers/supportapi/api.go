@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/transcom/mymove/pkg/services/invoice"
 	internalmovetaskorder "github.com/transcom/mymove/pkg/services/support/move_task_order"
 
 	"github.com/go-openapi/loads"
@@ -52,13 +53,13 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 		internalmovetaskorder.NewInternalMoveTaskOrderCreator(context.DB()),
 	}
 
-	supportAPI.PaymentRequestsUpdatePaymentRequestStatusHandler = UpdatePaymentRequestStatusHandler{
+	supportAPI.PaymentRequestUpdatePaymentRequestStatusHandler = UpdatePaymentRequestStatusHandler{
 		HandlerContext:              context,
 		PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
 		PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(context.DB()),
 	}
 
-	supportAPI.PaymentRequestsListMTOPaymentRequestsHandler = ListMTOPaymentRequestsHandler{
+	supportAPI.PaymentRequestListMTOPaymentRequestsHandler = ListMTOPaymentRequestsHandler{
 		context,
 	}
 
@@ -71,5 +72,12 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	supportAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{context, mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder)}
 	supportAPI.WebhookPostWebhookNotifyHandler = PostWebhookNotifyHandler{context}
+
+	supportAPI.PaymentRequestGetPaymentRequestEDIHandler = GetPaymentRequestEDIHandler{
+		HandlerContext:                    context,
+		PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(context.DB()),
+		GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(context.DB()),
+	}
+
 	return supportAPI.Serve(nil)
 }

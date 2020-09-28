@@ -14,10 +14,7 @@ import BackupMailingAddress from 'scenes/ServiceMembers/BackupMailingAddress';
 import BackupContact from 'scenes/ServiceMembers/BackupContact';
 import ProfileReview from 'scenes/Review/ProfileReview';
 
-import Orders from 'scenes/Orders/Orders';
 import DutyStation from 'scenes/ServiceMembers/DutyStation';
-
-import UploadOrders from 'scenes/Orders/UploadOrders';
 
 import Home from 'pages/MyMove/Home';
 import SelectMoveType from 'pages/MyMove/SelectMoveType';
@@ -30,6 +27,8 @@ import Review from 'scenes/Review/Review';
 import Agreement from 'scenes/Legalese';
 
 import HHGShipmentSetup from 'pages/MyMove/HHGShipmentSetup';
+import Orders from 'pages/MyMove/Orders';
+import UploadOrders from 'pages/MyMove/UploadOrders';
 
 const PageNotInFlow = ({ location }) => (
   <div className="usa-grid">

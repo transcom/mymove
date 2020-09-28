@@ -635,6 +635,8 @@ lodash
 natively
 transpiled
 polyfilled
+Happo
+happo.io
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
  - ./docs/backend/route-planner.md
  - docs/adr/0050-doc-viewer-fork.md
@@ -660,3 +662,6 @@ uniq
 isNil
 isInteger
 sortBy
+ - docs/adr/0058-replace-loki-with-happo.md
+SauceLabs
+Screener.io

@@ -21,6 +21,7 @@ const match = {
 };
 
 const push = jest.fn();
+let wrapper;
 
 describe('Loads MoveInfo', () => {
   it('renders without crashing', () => {
@@ -40,9 +41,25 @@ describe('Loads MoveInfo', () => {
       div,
     );
   });
+  it('shows the Basic and PPM tabs', () => {
+    wrapper = mount(
+      <Provider store={store}>
+        <Router push={push}>
+          <MoveInfo
+            loadDependenciesHasError={loadDependenciesHasError}
+            loadDependenciesHasSuccess={loadDependenciesHasSuccess}
+            location={location}
+            match={match}
+            loadMoveDependencies={dummyFunc}
+          />
+        </Router>
+      </Provider>,
+    );
+    expect(wrapper.find('[data-testid="basics-tab"]'));
+    expect(wrapper.find('[data-testid="ppm-tab"]'));
+  });
 });
 
-let wrapper;
 describe('ShipmentInfo tests', () => {
   describe('Shows correct queue to return to', () => {
     it('when a referrer is set in history', () => {

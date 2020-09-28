@@ -246,7 +246,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests"
+          "paymentRequest"
         ],
         "summary": "listMTOPaymentRequests",
         "operationId": "listMTOPaymentRequests",
@@ -360,6 +360,52 @@ func init() {
         }
       ]
     },
+    "/payment-requests/{paymentRequestID}/edi": {
+      "get": {
+        "description": "Returns the EDI (Electronic Data Interchange) message for the payment request identified\nby the given payment request ID. Note that the EDI returned in the JSON payload will have \\n where there\nwould normally be line breaks (due to JSON not allowing line breaks in a string).\n\nThis is a support endpoint and will not be available in production.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentRequest"
+        ],
+        "summary": "getPaymentRequestEDI",
+        "operationId": "getPaymentRequestEDI",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved payment requests associated with a given move task order",
+            "schema": {
+              "$ref": "#/definitions/PaymentRequestEDI"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the payment request for which EDI should be generated.",
+          "name": "paymentRequestID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/payment-requests/{paymentRequestID}/status": {
       "patch": {
         "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, or PAID.\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
@@ -370,7 +416,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests"
+          "paymentRequest"
         ],
         "summary": "updatePaymentRequestStatus",
         "operationId": "updatePaymentRequestStatus",
@@ -1299,12 +1345,6 @@ func init() {
         }
       }
     },
-    "MoveOrders": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MoveOrder"
-      }
-    },
     "MoveStatus": {
       "description": "Current status of this MoveTaskOrder",
       "type": "string",
@@ -1384,11 +1424,9 @@ func init() {
           }
         },
         "mtoShipments": {
-          "description": "array of MTOShipments associated with the MoveTaskOrder.",
           "$ref": "#/definitions/MTOShipments"
         },
         "paymentRequests": {
-          "description": "Array of PaymentRequests associated with this MoveTaskOrder.",
           "$ref": "#/definitions/PaymentRequests"
         },
         "ppmEstimatedWeight": {
@@ -1496,6 +1534,21 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"
+        }
+      }
+    },
+    "PaymentRequestEDI": {
+      "type": "object",
+      "properties": {
+        "edi": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
@@ -1622,26 +1675,6 @@ func init() {
         }
       }
     },
-    "UpdatePaymentRequest": {
-      "type": "object",
-      "properties": {
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "proofOfServicePackage": {
-          "$ref": "#/definitions/ProofOfServicePackage"
-        },
-        "serviceItemIDs": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uuid",
-            "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-          }
-        }
-      }
-    },
     "UpdatePaymentRequestStatus": {
       "type": "object",
       "properties": {
@@ -1683,7 +1716,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "filename": {
           "type": "string",
@@ -1704,7 +1738,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "url": {
           "type": "string",
@@ -1788,7 +1823,7 @@ func init() {
       "name": "moveTaskOrder"
     },
     {
-      "name": "paymentRequests"
+      "name": "paymentRequest"
     },
     {
       "name": "mtoServiceItem"
@@ -2099,7 +2134,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests"
+          "paymentRequest"
         ],
         "summary": "listMTOPaymentRequests",
         "operationId": "listMTOPaymentRequests",
@@ -2252,6 +2287,67 @@ func init() {
         }
       ]
     },
+    "/payment-requests/{paymentRequestID}/edi": {
+      "get": {
+        "description": "Returns the EDI (Electronic Data Interchange) message for the payment request identified\nby the given payment request ID. Note that the EDI returned in the JSON payload will have \\n where there\nwould normally be line breaks (due to JSON not allowing line breaks in a string).\n\nThis is a support endpoint and will not be available in production.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentRequest"
+        ],
+        "summary": "getPaymentRequestEDI",
+        "operationId": "getPaymentRequestEDI",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved payment requests associated with a given move task order",
+            "schema": {
+              "$ref": "#/definitions/PaymentRequestEDI"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the payment request for which EDI should be generated.",
+          "name": "paymentRequestID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/payment-requests/{paymentRequestID}/status": {
       "patch": {
         "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, or PAID.\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
@@ -2262,7 +2358,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests"
+          "paymentRequest"
         ],
         "summary": "updatePaymentRequestStatus",
         "operationId": "updatePaymentRequestStatus",
@@ -3236,12 +3332,6 @@ func init() {
         }
       }
     },
-    "MoveOrders": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MoveOrder"
-      }
-    },
     "MoveStatus": {
       "description": "Current status of this MoveTaskOrder",
       "type": "string",
@@ -3321,11 +3411,9 @@ func init() {
           }
         },
         "mtoShipments": {
-          "description": "array of MTOShipments associated with the MoveTaskOrder.",
           "$ref": "#/definitions/MTOShipments"
         },
         "paymentRequests": {
-          "description": "Array of PaymentRequests associated with this MoveTaskOrder.",
           "$ref": "#/definitions/PaymentRequests"
         },
         "ppmEstimatedWeight": {
@@ -3433,6 +3521,21 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"
+        }
+      }
+    },
+    "PaymentRequestEDI": {
+      "type": "object",
+      "properties": {
+        "edi": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
@@ -3559,26 +3662,6 @@ func init() {
         }
       }
     },
-    "UpdatePaymentRequest": {
-      "type": "object",
-      "properties": {
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "proofOfServicePackage": {
-          "$ref": "#/definitions/ProofOfServicePackage"
-        },
-        "serviceItemIDs": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uuid",
-            "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-          }
-        }
-      }
-    },
     "UpdatePaymentRequestStatus": {
       "type": "object",
       "properties": {
@@ -3620,7 +3703,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "filename": {
           "type": "string",
@@ -3641,7 +3725,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "url": {
           "type": "string",
@@ -3725,7 +3810,7 @@ func init() {
       "name": "moveTaskOrder"
     },
     {
-      "name": "paymentRequests"
+      "name": "paymentRequest"
     },
     {
       "name": "mtoServiceItem"
