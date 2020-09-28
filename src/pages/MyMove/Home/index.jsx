@@ -343,8 +343,8 @@ class Home extends Component {
     return (
       <div className={`usa-prose grid-container ${styles['grid-container']}`}>
         {loggedInUserIsLoading && <LoadingPlaceholder />}
-        <PPMShipmentCard />
         <HHGShipmentCard />
+        <PPMShipmentCard />
         {!isLoggedIn && !loggedInUserIsLoading && <SignIn location={location} />}
         {isLoggedIn && !isEmpty(serviceMember) && isProfileComplete && (
           <>

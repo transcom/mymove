@@ -2,21 +2,6 @@
 @import 'shared/styles/_mixins';
 @import 'shared/styles/colors';
 
-.shipmentContainer {
-  @include u-padding-top(0);
-  @include u-padding-x(2);
-  @include u-padding-bottom(3);
-  @include u-bg('white');
-
-  :global .table--data-point-group {
-    @include u-margin-bottom(3);
-  }
-
-  :global .shipment-heading {
-    @include u-margin-bottom(3);
-  }
-}
-
 .ShipmentCard {
   @include u-margin-top(3);
   .ShipmentCardHeader {
@@ -47,6 +32,8 @@
   .shipmentCardSubsection {
     @include u-margin-y(0);
     @include u-padding-x('05');
+    display: table;
+    width: 100%;
 
     &:first-child {
       div:first-child {
@@ -92,14 +79,14 @@
     @include u-padding-x('105');
 
     .editBtn {
+      @include u-font('body', 'xs');
       display: inline-flex;
       align-items: flex-start;
       min-width: auto;
       padding: 0;
       width: 40px;
       height: 42px;
-      @include u-font('body', 'xs');
-      @include u-line-height('body', 2);
+      line-height: 1.6;
     }
   }
 
@@ -122,13 +109,4 @@
       }
     }
   }
-}
-
-.remarksCell {
-  @include u-font('body', 'xs');
-  width: 100%;
-  @include u-padding-x(1);
-  @include u-padding-y(1.5);
-  @include u-margin-x(0);
-  @include u-margin-y(0);
 }

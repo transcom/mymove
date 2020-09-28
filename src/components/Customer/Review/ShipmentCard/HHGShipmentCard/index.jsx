@@ -2,9 +2,11 @@ import React from 'react';
 import * as PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
-import ShipmentContainer from '../../../../Office/ShipmentContainer';
 import styles from '../ShipmentCard.module.scss';
 
+import hhgShipmentCardStyles from './HHGShipmentCard.module.scss';
+
+import ShipmentContainer from 'components/Office/ShipmentContainer';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const HHGShipmentCard = ({ shipmentType }) => {
@@ -63,14 +65,14 @@ const HHGShipmentCard = ({ shipmentType }) => {
             <dt>Remarks</dt>
             <dd />
           </div>
-          <p className={styles.remarksCell}>
-            This is 500 characters of customer remarks right here. Lorem ipsum dolor sit amet, consectetur adipiscing
-            elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
-            nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-            cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-          </p>
         </dl>
+        <p className={hhgShipmentCardStyles.remarksCell}>
+          This is 500 characters of customer remarks right here. Lorem ipsum dolor sit amet, consectetur adipiscing
+          elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
+          exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit
+          in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+          proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+        </p>
       </ShipmentContainer>
     </div>
   );

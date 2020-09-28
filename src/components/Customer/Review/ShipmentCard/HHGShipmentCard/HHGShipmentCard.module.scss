@@ -1,0 +1,10 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+
+.remarksCell {
+  @include u-font('body', 'xs');
+  @include u-padding-x(1.5);
+  @include u-margin-x(0);
+  @include u-margin-y(0);
+}
