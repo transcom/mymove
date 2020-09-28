@@ -14,7 +14,7 @@ readonly mtoid=$1
 readonly environment=${2:-local}
 primeapiopts="--insecure"
 
-printf "Running against "
+printf "\nRunning against "
 if [[ $environment == "local" ]]; then
   echo "local server"
 else
@@ -22,22 +22,42 @@ else
   primeapiopts="--cac --hostname ${environment} --port 443"
 fi
 
-read -p "Ready to continue? hit enter" -n 1 -r
-echo "We've been notified of a new move task order id ${mtoid}"
-bin/prime-api-client ${primeapiopts} fetch-mto-updates | jq 'map(select(.id == "'"${mtoid}"'")) | .[0]' > tmp/prime_api_demo_mto.json
-echo "MoveTaskOrderID: ${mtoid}"
+echo
+
+read -p "Ready to continue? Hit enter..." -n 1 -r
+
+printf "\n==========\n\n"
+
+echo "The prime is notified of a new move task order ID: ${mtoid}"
+printf "\nThe prime will now fetch the new MTO.\n\n"
+
+read -p "Ready to continue? Hit enter..." -n 1 -r
+
+printf "\n==========\n\n"
+
+bin/prime-api-client "${primeapiopts}" fetch-mto-updates | jq 'map(select(.id == "'"${mtoid}"'")) | .[0]' > tmp/prime_api_demo_mto.json
 
 jq . tmp/prime_api_demo_mto.json
 
-echo "MTOShipmentIDs: $(jq '.mtoShipments | map(.id) | join(", ")' tmp/prime_api_demo_mto.json)"
+printf "\n-----\n\n"
+
+echo "MTO Shipment IDs:"
+jq -r '.mtoShipments | map(.id)' tmp/prime_api_demo_mto.json
 
 shipmentID=$(jq '.mtoShipments | .[0] | .id' tmp/prime_api_demo_mto.json)
 shipmentEtag=$(jq '.mtoShipments | .[0] | .eTag' tmp/prime_api_demo_mto.json)
-echo "Using MTOShipmentID: ${shipmentID}"
-echo "           and eTag: ${shipmentEtag}"
+echo
+echo "Using:"
+echo "MTO Shipment ID: ${shipmentID}"
+echo "eTag: ${shipmentEtag}"
 
-read -p "It's time to update the scheduled pickup date please provide one (yyyy-mm-dd): " -r scheduledPickupDate
+printf "\n==========\n\n"
+
+printf "It's time for the prime to update dates:\n\n"
+read -p "Provide a scheduled pickup date (yyyy-mm-dd): " -r scheduledPickupDate
 read -p "Provide an actual pickup date (yyyy-mm-dd): " -r actualPickupDate
+
+echo
 
 cat > tmp/pad_update_dates.json <<- EOM
 {
@@ -50,17 +70,32 @@ cat > tmp/pad_update_dates.json <<- EOM
 }
 EOM
 
-echo "Thanks, we will be sending this payload to milmove now"
+printf "We will be sending this payload to milmove:\n\n"
 jq . tmp/pad_update_dates.json
 
-read -p "Ready to continue? hit enter" -n 1 -r
-bin/prime-api-client ${primeapiopts} update-mto-shipment --filename ./tmp/pad_update_dates.json > tmp/pad_update_response.json
+echo
 
-shipmentEtag=$(jq '.eTag' tmp/pad_update_response.json)
+read -p "Ready to continue? Hit enter..." -n 1 -r
+
+printf "\n==========\n\n"
+
+bin/prime-api-client "${primeapiopts}" update-mto-shipment --filename ./tmp/pad_update_dates.json > tmp/pad_update_response_dates.json
+
+jq . tmp/pad_update_response_dates.json
+
+printf "\n-----\n\n"
+
+shipmentEtag=$(jq '.eTag' tmp/pad_update_response_dates.json)
 echo "Updated Shipment eTag: ${shipmentEtag}"
+
+printf "\n==========\n\n"
+
+printf "The prime will also update weights:\n\n"
 
 read -p "Provide the estimated weight: " -r estimatedWeight
 read -p "Provide the actual weight: " -r actualWeight
+
+echo
 
 cat > tmp/pad_update_weights.json <<- EOM
 {
@@ -73,38 +108,81 @@ cat > tmp/pad_update_weights.json <<- EOM
 }
 EOM
 
-echo "Sending the following update payload"
+printf "Sending the following update payload:\n\n"
+
 jq . tmp/pad_update_weights.json
 
-read -p "Ready to continue? hit enter" -n 1 -r
-bin/prime-api-client ${primeapiopts} update-mto-shipment --filename ./tmp/pad_update_weights.json > tmp/pad_update_response.json
+echo
 
-shipmentEtag=$(jq '.eTag' tmp/pad_update_response.json)
+read -p "Ready to continue? Hit enter..." -n 1 -r
+
+printf "\n==========\n\n"
+
+bin/prime-api-client "${primeapiopts}" update-mto-shipment --filename ./tmp/pad_update_weights.json > tmp/pad_update_response_weights.json
+
+jq . tmp/pad_update_response_weights.json
+
+printf "\n-----\n\n"
+
+shipmentEtag=$(jq '.eTag' tmp/pad_update_response_weights.json)
 echo "Updated Shipment eTag: ${shipmentEtag}"
+
+printf "\n==========\n\n"
 
 jq '.mtoServiceItems | map(select((.mtoShipmentID == '"${shipmentID}"') and (.reServiceCode == "FSC" or .reServiceCode == "DLH")  or .reServiceCode == "MS" or .reServiceCode == "CS"))  | { body: { isFinal: false, moveTaskOrderID: "'"${mtoid}"'", serviceItems: map({ id: .id }) } }' tmp/prime_api_demo_mto.json > tmp/pad_create_payment_request.json
 
-echo "Sending the following create payment request payload"
+printf "Sending the following create payment request payload for DLH, FSC, MS, and CS:\n\n"
 jq . tmp/pad_create_payment_request.json
 
-read -p "Ready to continue? hit enter" -n 1 -r
-bin/prime-api-client ${primeapiopts} create-payment-request --filename ./tmp/pad_create_payment_request.json > tmp/pad_create_payment_request_response.json
+echo
 
-echo "result"
+read -p "Ready to continue? Hit enter..." -n 1 -r
+
+printf "\n==========\n\n"
+
+bin/prime-api-client "${primeapiopts}" create-payment-request --filename ./tmp/pad_create_payment_request.json > tmp/pad_create_payment_request_response.json
+
 jq . tmp/pad_create_payment_request_response.json
+
+printf "\n-----\n\n"
 
 prID=$(jq .id tmp/pad_create_payment_request_response.json | tr -d '"')
 prNumber=$(jq .paymentRequestNumber tmp/pad_create_payment_request_response.json)
 
-echo "Payment Request ID: ${prID}"
+echo "Payment Request ID: \"${prID}\""
 echo "Payment Request Number: ${prNumber}"
 
-echo "Add proof of service docs"
-read -p "Ready to continue? hit enter" -n 1 -r
-bin/prime-api-client ${primeapiopts} create-upload --paymentRequestID "${prID}" --filename ./tmp/uploads/orders.png
-bin/prime-api-client ${primeapiopts} create-upload --paymentRequestID "${prID}" --filename ./tmp/uploads/orders.jpg
-bin/prime-api-client ${primeapiopts} create-upload --paymentRequestID "${prID}" --filename ./tmp/uploads/orders.pdf
+printf "\n==========\n\n"
 
+printf "Now add the proof of service docs in three formats: PNG, JPG, and PDF\n\n"
+
+read -p "Ready to continue? Hit enter..." -n 1 -r
+
+printf "\n==========\n\n"
+
+bin/prime-api-client "${primeapiopts}" create-upload --paymentRequestID "${prID}" --filename ./tmp/uploads/proof_of_service.png > tmp/pad_create_upload_response_png.json
+
+jq . tmp/pad_create_upload_response_png.json
+
+echo
+
+bin/prime-api-client "${primeapiopts}" create-upload --paymentRequestID "${prID}" --filename ./tmp/uploads/proof_of_service.jpg > tmp/pad_create_upload_response_jpg.json
+
+jq . tmp/pad_create_upload_response_jpg.json
+
+echo
+
+bin/prime-api-client "${primeapiopts}" create-upload --paymentRequestID "${prID}" --filename ./tmp/uploads/proof_of_service.pdf > tmp/pad_create_upload_response_pdf.json
+
+jq . tmp/pad_create_upload_response_pdf.json
+
+printf "\n==========\n\n"
+
+printf "Now we wait for the payment request to be approved.\n\n"
+
+read -p "Ready to continue? Hit enter..." -n 1 -r
+
+printf "\n==========\n\n"
 
 cat > ./tmp/pad_get_payment_request_edi.json <<-EOM
 {
@@ -112,13 +190,19 @@ cat > ./tmp/pad_get_payment_request_edi.json <<-EOM
 }
 EOM
 
-echo "Sending the following to generate an EDI"
-jq . tmp/pad_create_payment_request.json
+printf "Sending the following to generate an EDI:\n\n"
+jq . tmp/pad_get_payment_request_edi.json
 
-read -p "Ready to continue? hit enter" -n 1 -r
+echo
 
-echo "Generating EDI for this payment request ${prNumber}"
-bin/prime-api-client ${primeapiopts} support-get-payment-request-edi --filename ./tmp/pad_get_payment_request_edi.json > tmp/pad_edi_response.json
+read -p "Ready to continue? Hit enter..." -n 1 -r
 
-echo "----"
+printf "\n==========\n\n"
+
+echo "EDI for payment request number: ${prNumber}:"
+
+printf "\n-----\n\n"
+
+bin/prime-api-client "${primeapiopts}" support-get-payment-request-edi --filename ./tmp/pad_get_payment_request_edi.json > tmp/pad_edi_response.json
+
 jq -r .edi tmp/pad_edi_response.json
