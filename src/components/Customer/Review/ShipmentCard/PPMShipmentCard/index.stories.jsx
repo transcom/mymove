@@ -6,7 +6,7 @@ import PPMShipmentCard from '.';
 const defaultProps = {
   destinationZIP: '11111',
   estimatedWeight: '5,000',
-  expectedDepartureDate: new Date().toISOString(),
+  expectedDepartureDate: new Date('01/01/2020').toISOString(),
   shipmentId: '#ABC123K-001',
   sitDays: '24',
   startingZIP: '00000',

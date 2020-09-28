@@ -6,7 +6,7 @@ import HHGShipmentCard from '.';
 const defaultProps = {
   shipmentNumber: 1,
   shipmentId: '#ABC123K-001',
-  requestedPickupDate: new Date().toISOString(),
+  requestedPickupDate: new Date('01/01/2020').toISOString(),
   pickupLocation: {
     street_address_1: '17 8th St',
     city: 'New York',
@@ -18,7 +18,7 @@ const defaultProps = {
     telephone: '(555) 555-5555',
     email: 'jo.xi@email.com',
   },
-  requestedDeliveryDate: new Date().toISOString(),
+  requestedDeliveryDate: new Date('03/01/2020').toISOString(),
   destinationZIP: '73523',
   receivingAgent: {
     name: 'Dorothy Lagomarsino',

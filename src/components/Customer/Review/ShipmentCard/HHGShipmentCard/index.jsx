@@ -42,7 +42,7 @@ const HHGShipmentCard = ({
           <div className={styles.row}>
             <dt>Pickup location</dt>
             <dd>
-              {pickupLocation.street_address_1} {pickupLocation.street_address_1}
+              {pickupLocation.street_address_1} {pickupLocation.street_address_2}
               <br />
               {pickupLocation.city}, {pickupLocation.state} {pickupLocation.postal_code}
             </dd>
@@ -91,12 +91,14 @@ const HHGShipmentCard = ({
               </dd>
             </div>
           )}
-          <div className={styles.row}>
-            <dt>Remarks</dt>
-            <dd />
-          </div>
+          {remarks && (
+            <div className={styles.row}>
+              <dt>Remarks</dt>
+              <dd />
+            </div>
+          )}
         </dl>
-        <p className={hhgShipmentCardStyles.remarksCell}>{remarks}</p>
+        {remarks && <p className={hhgShipmentCardStyles.remarksCell}>{remarks}</p>}
       </ShipmentContainer>
     </div>
   );
@@ -129,8 +131,8 @@ HHGShipmentCard.propTypes = {
 };
 
 HHGShipmentCard.defaultProps = {
-  releasingAgent: {},
-  receivingAgent: {},
+  releasingAgent: null,
+  receivingAgent: null,
   remarks: '',
 };
 
