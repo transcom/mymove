@@ -54,17 +54,11 @@ export class SignedCertification extends Component {
 
   handleSubmit = () => {
     const pendingValues = this.props.values;
-    const { latestSignedCertification, currentPpm } = this.props;
-    const landingPath = () => {
-      // TODO: change when supporting a combo ppm ?
-      if (Object.keys(currentPpm).length) {
-        return '/ppm';
-      }
-      return '/';
-    };
+    const { latestSignedCertification } = this.props;
+    const landingPath = '/';
     const submitDate = moment().format();
     if (latestSignedCertification) {
-      return this.props.push(landingPath());
+      return this.props.push(landingPath);
     }
 
     if (pendingValues) {
@@ -73,7 +67,7 @@ export class SignedCertification extends Component {
         .then(() => {
           this.props.showSubmitSuccessBanner();
           setTimeout(() => this.props.removeSubmitSuccessBanner(), 10000);
-          this.props.push(landingPath());
+          this.props.push(landingPath);
         })
         .catch(() => this.setState({ hasMoveSubmitError: true }));
     }

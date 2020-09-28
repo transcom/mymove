@@ -327,6 +327,27 @@ func main() {
 	support.InitUpdateMTOShipmentStatusFlags(updateMTOShipmentStatusCommand.Flags())
 	root.AddCommand(updateMTOShipmentStatusCommand)
 
+	getPaymentRequestEDI := &cobra.Command{
+		Use:   "support-get-payment-request-edi",
+		Short: "Get the EDI for a payment request",
+		Long: `
+  This command generates and returns the EDI for a given payment request.
+  This is a support endpoint and is not available in production.
+  It requires the caller to pass in a file using the --filename arg.
+  The file should contain path parameters.
+
+  Endpoint path: /payment-requests/{paymentRequestID}/edi
+  The file should contain json as follows:
+  	{
+  	"paymentRequestID": <uuid string>
+  	}
+  Please see API documentation for full details on the endpoint definition.`,
+		RunE:         support.GetPaymentRequestEDI,
+		SilenceUsage: true,
+	}
+	support.InitGetPaymentRequestEDIFlags(getPaymentRequestEDI.Flags())
+	root.AddCommand(getPaymentRequestEDI)
+
 	completionCommand := &cobra.Command{
 		Use:   "completion",
 		Short: "Generates bash completion scripts",

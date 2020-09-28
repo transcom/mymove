@@ -2,21 +2,11 @@ package edisegment
 
 import (
 	"fmt"
-
-	"github.com/transcom/mymove/pkg/models"
 )
-
-// AffiliationToAgency is a map from our affiliation to the FA1 segment's AgencyQualifierCode field
-var AffiliationToAgency = map[models.ServiceMemberAffiliation]string{
-	models.AffiliationARMY:     "DZ",
-	models.AffiliationNAVY:     "DN",
-	models.AffiliationMARINES:  "DX",
-	models.AffiliationAIRFORCE: "DY",
-}
 
 // FA1 represents the FA1 EDI segment
 type FA1 struct {
-	AgencyQualifierCode string `validate:"oneof=DN DX DY DZ"`
+	AgencyQualifierCode string `validate:"eq=DF"`
 }
 
 // StringArray converts FA1 to an array of strings

@@ -35,5 +35,5 @@ type PaymentRequestStatusUpdater interface {
 // PaymentRequestUploadCreator is the exported interface for creating a payment request upload
 //go:generate mockery -name PaymentRequestUploadCreator
 type PaymentRequestUploadCreator interface {
-	CreateUpload(file io.ReadCloser, paymentRequestID uuid.UUID, userID uuid.UUID) (*models.Upload, error)
+	CreateUpload(file io.ReadCloser, paymentRequestID uuid.UUID, userID uuid.UUID, filename string) (*models.Upload, error)
 }

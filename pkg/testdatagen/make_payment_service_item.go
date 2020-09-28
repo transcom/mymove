@@ -6,6 +6,7 @@ import (
 	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // MakePaymentServiceItem creates a single PaymentServiceItem and associated relationships
@@ -20,11 +21,13 @@ func MakePaymentServiceItem(db *pop.Connection, assertions Assertions) models.Pa
 		mtoServiceItem = MakeMTOServiceItem(db, assertions)
 	}
 
+	var cents = unit.Cents(888)
 	paymentServiceItem := models.PaymentServiceItem{
 		PaymentRequest:   paymentRequest,
 		PaymentRequestID: paymentRequest.ID,
 		MTOServiceItem:   mtoServiceItem,
 		MTOServiceItemID: mtoServiceItem.ID,
+		PriceCents:       &cents,
 		Status:           models.PaymentServiceItemStatusRequested,
 		RequestedAt:      time.Now(),
 	}
