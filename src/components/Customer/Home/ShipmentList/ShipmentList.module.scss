@@ -14,8 +14,8 @@
   @include u-margin-bottom(1);
 
   strong {
-    @include u-padding-right(1);
     white-space: nowrap;
+    @include u-minw(8);
   }
 
   &:last-child {
@@ -27,11 +27,10 @@
   fill: $primary;
 }
 
-.shipment-code{
+.shipment-code {
   font-size: 13px;
   font-weight: normal;
   word-wrap: anywhere;
-  @include u-padding-x(1);
 }
 
 .shipment-list-item-PPM {
