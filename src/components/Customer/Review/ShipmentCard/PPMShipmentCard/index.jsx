@@ -1,20 +1,29 @@
 import React from 'react';
-import * as PropTypes from 'prop-types';
+import { string } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
 import ShipmentContainer from '../../../../Office/ShipmentContainer';
 import styles from '../ShipmentCard.module.scss';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { formatCustomerDate } from 'shared/formatters';
 
-const PPMShipmentCard = ({ shipmentType }) => {
+const PPMShipmentCard = ({
+  destinationZIP,
+  estimatedIncentive,
+  estimatedWeight,
+  expectedDepartureDate,
+  shipmentId,
+  sitDays,
+  startingZIP,
+}) => {
   return (
     <div className={styles.ShipmentCard} data-testid="shipment-display">
-      <ShipmentContainer className={styles.container} shipmentType={shipmentType}>
+      <ShipmentContainer className={styles.container} shipmentType={SHIPMENT_OPTIONS.PPM}>
         <div className={styles.ShipmentCardHeader}>
           <div>
-            <h4>Shipment 1: PPM</h4>
-            <p>#ABC123K-001</p>
+            <h4>PPM</h4>
+            <p>{shipmentId}</p>
           </div>
           <Button className={styles.editBtn} unstyled>
             Edit
@@ -24,19 +33,19 @@ const PPMShipmentCard = ({ shipmentType }) => {
         <dl className={styles.shipmentCardSubsection}>
           <div className={styles.row}>
             <dt>Expected departure</dt>
-            <dd>26 Mar 2020</dd>
+            <dd>{formatCustomerDate(expectedDepartureDate)}</dd>
           </div>
           <div className={styles.row}>
             <dt>Starting ZIP</dt>
-            <dd>78234</dd>
+            <dd>{startingZIP}</dd>
           </div>
           <div className={styles.row}>
             <dt>Storage (SIT)</dt>
-            <dd>Yes, 14 days</dd>
+            <dd>{Number(sitDays) ? `Yes, ${sitDays} days` : 'No'}</dd>
           </div>
           <div className={styles.row}>
             <dt>Destination ZIP</dt>
-            <dd>78111</dd>
+            <dd>{destinationZIP}</dd>
           </div>
         </dl>
         <div className={styles['subsection-header']}>
@@ -48,11 +57,11 @@ const PPMShipmentCard = ({ shipmentType }) => {
         <dl className={styles.shipmentCardSubsection}>
           <div className={styles.row}>
             <dt>Estimated weight</dt>
-            <dd>5,600 lbs</dd>
+            <dd>{estimatedWeight} lbs</dd>
           </div>
           <div className={styles.row}>
             <dt>Estimated incentive</dt>
-            <dd>Rate info unavailable</dd>
+            <dd>{estimatedIncentive || 'Rate info unavailable'}</dd>
           </div>
         </dl>
       </ShipmentContainer>
@@ -61,17 +70,18 @@ const PPMShipmentCard = ({ shipmentType }) => {
 };
 
 PPMShipmentCard.propTypes = {
-  shipmentType: PropTypes.oneOf([
-    SHIPMENT_OPTIONS.PPM,
-    SHIPMENT_OPTIONS.HHG,
-    SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC,
-    SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
-    SHIPMENT_OPTIONS.NTS,
-  ]),
+  destinationZIP: string.isRequired,
+  estimatedIncentive: string,
+  estimatedWeight: string.isRequired,
+  expectedDepartureDate: string.isRequired,
+  shipmentId: string.isRequired,
+  sitDays: string,
+  startingZIP: string.isRequired,
 };
 
 PPMShipmentCard.defaultProps = {
-  shipmentType: SHIPMENT_OPTIONS.PPM,
+  sitDays: 0,
+  estimatedIncentive: null,
 };
 
 export default PPMShipmentCard;

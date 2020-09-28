@@ -126,6 +126,10 @@ export function formatDateSM(date) {
   }
 }
 
+export function formatCustomerDate(date) {
+  return moment(date).format('DD MMM YYYY');
+}
+
 // Format a date into the format required for submission as a date property in
 // Swagger.
 export function formatSwaggerDate(date) {
