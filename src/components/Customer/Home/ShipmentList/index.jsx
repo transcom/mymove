@@ -28,7 +28,7 @@ const ShipmentListItem = ({ shipment, onShipmentClick, shipmentNumber, showNumbe
         {shipment.shipmentType}
         {showNumber && ` ${shipmentNumber}`}
       </strong>{' '}
-      {/* use substring  of the UUID until actual shipment code is available */}
+      {/* use substring of the UUID until actual shipment code is available */}
       <span className={styles['shipment-code']}>{shipment.id.substring(0, 10)}</span>{' '}
       <EditIcon className={styles.edit} />
     </div>
@@ -49,14 +49,13 @@ ShipmentListItem.defaultProps = {
 const ShipmentList = ({ shipments, onShipmentClick }) => {
   const shipmentNumbersByType = {};
   const shipmentCountByType = {};
-  shipments.map((shipment) => {
+  shipments.forEach((shipment) => {
     const { shipmentType } = shipment;
     if (shipmentCountByType[shipmentType]) {
       shipmentCountByType[shipmentType] += 1;
     } else {
       shipmentCountByType[shipmentType] = 1;
     }
-    return shipmentCountByType;
   });
 
   return (
