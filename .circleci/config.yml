@@ -926,8 +926,6 @@ jobs:
       - run:
           name: Happo tests
           command: yarn happo-ci
-          environment:
-            HAPPO_IS_ASYNC: true
       - persist_to_workspace:
           root: /home/circleci/transcom/mymove/
           paths:
