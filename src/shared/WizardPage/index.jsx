@@ -62,6 +62,8 @@ export class WizardPage extends Component {
       dirty,
       canMoveNext,
       hideCancelBtn,
+      hideBackBtn,
+      showFinishLaterBtn,
     } = this.props;
     const canMoveForward = pageIsValid && canMoveNext;
     const canMoveBackward = (pageIsValid || !dirty) && !isFirstPage(pageList, pageKey);
@@ -79,7 +81,7 @@ export class WizardPage extends Component {
         {children}
         <div className="grid-row" style={{ marginTop: '0.5rem' }}>
           <div className="grid-col-10 text-right margin-top-6 margin-left-neg-1 tablet:margin-top-3 display-flex">
-            {!isFirstPage(pageList, pageKey) && (
+            {!isFirstPage(pageList, pageKey) && !hideBackBtn && (
               <button
                 type="button"
                 className="usa-button usa-button--secondary"
@@ -123,6 +125,17 @@ export class WizardPage extends Component {
                 Cancel
               </button>
             )}
+            {showFinishLaterBtn && (
+              <button
+                type="button"
+                className="usa-button usa-button--unstyled"
+                onClick={this.cancelFlow}
+                disabled={false}
+                data-testid="wizardFinishLaterButton"
+              >
+                Finish Later
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -149,6 +162,8 @@ WizardPage.defaultProps = {
   canMoveNext: true,
   dirty: true,
   hideCancelBtn: false,
+  hideBackBtn: false,
+  showFinishLaterBtn: false,
 };
 
 function mapDispatchToProps(dispatch) {
