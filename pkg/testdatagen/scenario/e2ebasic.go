@@ -1107,6 +1107,18 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		Move: mto,
 	})
 
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID:                   uuid.FromStringOrNil("475579d5-aaa4-4755-8c43-c333333ff3b3"),
+			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:    &actualWeight,
+			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
+			ApprovedDate:         swag.Time(time.Now()),
+			Status:               models.MTOShipmentStatusSubmitted,
+		},
+		Move: mto,
+	})
+
 	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
 		MTOAgent: models.MTOAgent{
 			ID:            uuid.FromStringOrNil("d73cc488-d5a1-4c9c-bea3-8b02d9bd0dea"),
