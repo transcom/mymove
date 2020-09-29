@@ -155,39 +155,6 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	}
 	edi858.Header = append(edi858.Header, serviceMemberSegments...)
 
-	// Add requested pickup date
-	var requestedPickupDateParam models.PaymentServiceItemParam
-	err = g.db.Q().
-		Join("service_item_param_keys sipk", "payment_service_item_params.service_item_param_key_id = sipk.id").
-		Join("payment_service_items psi", "payment_service_item_params.payment_service_item_id = psi.id").
-		Join("payment_requests pr", "psi.payment_request_id = pr.id").
-		Where("pr.id = ?", paymentRequest.ID).
-		Where("sipk.key = ?", models.ServiceItemParamNameRequestedPickupDate).
-		First(&requestedPickupDateParam)
-	if err != nil {
-		return ediinvoice.Invoice858C{}, fmt.Errorf("Couldn't find requested pickup date: %s", err)
-	}
-
-	requestedPickupDateSegment := edisegment.G62{
-		DateQualifier: 86,
-		Date:          requestedPickupDateParam.Value,
-	}
-	edi858.Header = append(edi858.Header, &requestedPickupDateSegment)
-
-	// Add origin and destination details to header
-	originDestinationSegments, err := g.createOriginAndDestinationSegments(paymentRequest.ID, moveTaskOrder.Orders)
-	if err != nil {
-		return ediinvoice.Invoice858C{}, err
-	}
-	edi858.Header = append(edi858.Header, originDestinationSegments...)
-
-	// Add LOA segments to header
-	loaSegments, err := g.createLoaSegments(moveTaskOrder.Orders)
-	if err != nil {
-		return ediinvoice.Invoice858C{}, err
-	}
-	edi858.Header = append(edi858.Header, loaSegments...)
-
 	var paymentServiceItems models.PaymentServiceItems
 	err = g.db.Q().
 		Eager("MTOServiceItem.ReService").
@@ -196,6 +163,42 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	if err != nil {
 		return ediinvoice.Invoice858C{}, fmt.Errorf("Could not find payment service items: %w", err)
 	}
+
+	if msAndCsOnly(paymentServiceItems) {
+		// Add requested pickup date
+		var requestedPickupDateParam models.PaymentServiceItemParam
+		err = g.db.Q().
+			Join("service_item_param_keys sipk", "payment_service_item_params.service_item_param_key_id = sipk.id").
+			Join("payment_service_items psi", "payment_service_item_params.payment_service_item_id = psi.id").
+			Join("payment_requests pr", "psi.payment_request_id = pr.id").
+			Where("pr.id = ?", paymentRequest.ID).
+			Where("sipk.key = ?", models.ServiceItemParamNameRequestedPickupDate).
+			First(&requestedPickupDateParam)
+		if err != nil {
+			return ediinvoice.Invoice858C{}, fmt.Errorf("Couldn't find requested pickup date: %s", err)
+		}
+
+		requestedPickupDateSegment := edisegment.G62{
+			DateQualifier: 86,
+			Date:          requestedPickupDateParam.Value,
+		}
+		edi858.Header = append(edi858.Header, &requestedPickupDateSegment)
+
+		// Add origin and destination details to header
+		var originDestinationSegments []edisegment.Segment
+		originDestinationSegments, err = g.createOriginAndDestinationSegments(paymentRequest.ID, moveTaskOrder.Orders)
+		if err != nil {
+			return ediinvoice.Invoice858C{}, err
+		}
+		edi858.Header = append(edi858.Header, originDestinationSegments...)
+	}
+
+	// Add LOA segments to header
+	loaSegments, err := g.createLoaSegments(moveTaskOrder.Orders)
+	if err != nil {
+		return ediinvoice.Invoice858C{}, err
+	}
+	edi858.Header = append(edi858.Header, loaSegments...)
 
 	paymentServiceItemSegments, err := g.generatePaymentServiceItemSegments(paymentServiceItems)
 	if err != nil {
@@ -498,4 +501,16 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 	}
 
 	return segments, nil
+}
+
+func msAndCsOnly(paymentServiceItems models.PaymentServiceItems) bool {
+	var codesWithoutMsOrCs []string
+	for _, psi := range paymentServiceItems {
+		code := string(psi.MTOServiceItem.ReService.Code)
+		if code != "MS" && code != "CS" {
+			codesWithoutMsOrCs = append(codesWithoutMsOrCs, code)
+		}
+	}
+
+	return len(codesWithoutMsOrCs) > 0
 }
