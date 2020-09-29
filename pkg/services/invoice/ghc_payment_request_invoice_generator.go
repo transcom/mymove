@@ -165,24 +165,12 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	}
 
 	if msAndCsOnly(paymentServiceItems) {
-		// Add requested pickup date
-		var requestedPickupDateParam models.PaymentServiceItemParam
-		err = g.db.Q().
-			Join("service_item_param_keys sipk", "payment_service_item_params.service_item_param_key_id = sipk.id").
-			Join("payment_service_items psi", "payment_service_item_params.payment_service_item_id = psi.id").
-			Join("payment_requests pr", "psi.payment_request_id = pr.id").
-			Where("pr.id = ?", paymentRequest.ID).
-			Where("sipk.key = ?", models.ServiceItemParamNameRequestedPickupDate).
-			First(&requestedPickupDateParam)
+		var g62Segments []edisegment.Segment
+		g62Segments, err = g.createG62Segments(paymentRequest.ID, moveTaskOrder.Orders)
 		if err != nil {
-			return ediinvoice.Invoice858C{}, fmt.Errorf("Couldn't find requested pickup date: %s", err)
+			return ediinvoice.Invoice858C{}, err
 		}
-
-		requestedPickupDateSegment := edisegment.G62{
-			DateQualifier: 86,
-			Date:          requestedPickupDateParam.Value,
-		}
-		edi858.Header = append(edi858.Header, &requestedPickupDateSegment)
+		edi858.Header = append(edi858.Header, g62Segments...)
 
 		// Add origin and destination details to header
 		var originDestinationSegments []edisegment.Segment
@@ -258,6 +246,33 @@ func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 	serviceMemberDetails = append(serviceMemberDetails, &serviceMemberBranch)
 
 	return serviceMemberDetails, nil
+}
+
+func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(paymentRequestID uuid.UUID, orders models.Order) ([]edisegment.Segment, error) {
+	g62Segments := []edisegment.Segment{}
+
+	// Add requested pickup date
+	var requestedPickupDateParam models.PaymentServiceItemParam
+	err := g.db.Q().
+		Join("service_item_param_keys sipk", "payment_service_item_params.service_item_param_key_id = sipk.id").
+		Join("payment_service_items psi", "payment_service_item_params.payment_service_item_id = psi.id").
+		Join("payment_requests pr", "psi.payment_request_id = pr.id").
+		Where("pr.id = ?", paymentRequestID).
+		Where("sipk.key = ?", models.ServiceItemParamNameRequestedPickupDate).
+		First(&requestedPickupDateParam)
+
+	if err != nil {
+		return nil, fmt.Errorf("Couldn't find requested pickup date: %s", err)
+	}
+
+	requestedPickupDateSegment := edisegment.G62{
+		DateQualifier: 86,
+		Date:          requestedPickupDateParam.Value,
+	}
+
+	g62Segments = append(g62Segments, &requestedPickupDateSegment)
+
+	return g62Segments, nil
 }
 
 func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(paymentRequestID uuid.UUID, orders models.Order) ([]edisegment.Segment, error) {
