@@ -12,14 +12,14 @@ set -eu -o pipefail
 
 readonly mtoid=$1
 readonly environment=${2:-local}
-primeapiopts="--insecure"
+primeapiopts=(--insecure)
 
 printf "\nRunning against "
 if [[ $environment == "local" ]]; then
   echo "local server"
 else
   echo "remote ${environment}"
-  primeapiopts="--cac --hostname ${environment} --port 443"
+  primeapiopts=(--cac --hostname "${environment}" --port 443)
 fi
 
 echo
@@ -35,7 +35,7 @@ read -p "Ready to continue? Hit enter..." -n 1 -r
 
 printf "\n==========\n\n"
 
-bin/prime-api-client ${primeapiopts} fetch-mto-updates | jq 'map(select(.id == "'"${mtoid}"'")) | .[0]' > tmp/prime_api_demo_mto.json
+bin/prime-api-client "${primeapiopts[@]}" fetch-mto-updates | jq 'map(select(.id == "'"${mtoid}"'")) | .[0]' > tmp/prime_api_demo_mto.json
 
 jq . tmp/prime_api_demo_mto.json
 
@@ -79,7 +79,7 @@ read -p "Ready to continue? Hit enter..." -n 1 -r
 
 printf "\n==========\n\n"
 
-bin/prime-api-client ${primeapiopts} update-mto-shipment --filename ./tmp/pad_update_dates.json > tmp/pad_update_response_dates.json
+bin/prime-api-client "${primeapiopts[@]}" update-mto-shipment --filename ./tmp/pad_update_dates.json > tmp/pad_update_response_dates.json
 
 jq . tmp/pad_update_response_dates.json
 
@@ -118,7 +118,7 @@ read -p "Ready to continue? Hit enter..." -n 1 -r
 
 printf "\n==========\n\n"
 
-bin/prime-api-client ${primeapiopts} update-mto-shipment --filename ./tmp/pad_update_weights.json > tmp/pad_update_response_weights.json
+bin/prime-api-client "${primeapiopts[@]}" update-mto-shipment --filename ./tmp/pad_update_weights.json > tmp/pad_update_response_weights.json
 
 jq . tmp/pad_update_response_weights.json
 
@@ -140,7 +140,7 @@ read -p "Ready to continue? Hit enter..." -n 1 -r
 
 printf "\n==========\n\n"
 
-bin/prime-api-client ${primeapiopts} create-payment-request --filename ./tmp/pad_create_payment_request.json > tmp/pad_create_payment_request_response.json
+bin/prime-api-client "${primeapiopts[@]}" create-payment-request --filename ./tmp/pad_create_payment_request.json > tmp/pad_create_payment_request_response.json
 
 jq . tmp/pad_create_payment_request_response.json
 
@@ -160,19 +160,19 @@ read -p "Ready to continue? Hit enter..." -n 1 -r
 
 printf "\n==========\n\n"
 
-bin/prime-api-client ${primeapiopts} create-upload --paymentRequestID "${prID}" --filename ./tmp/uploads/proof_of_service.png > tmp/pad_create_upload_response_png.json
+bin/prime-api-client "${primeapiopts[@]}" create-upload --paymentRequestID "${prID}" --filename ./tmp/uploads/proof_of_service.png > tmp/pad_create_upload_response_png.json
 
 jq . tmp/pad_create_upload_response_png.json
 
 echo
 
-bin/prime-api-client ${primeapiopts} create-upload --paymentRequestID "${prID}" --filename ./tmp/uploads/proof_of_service.jpg > tmp/pad_create_upload_response_jpg.json
+bin/prime-api-client "${primeapiopts[@]}" create-upload --paymentRequestID "${prID}" --filename ./tmp/uploads/proof_of_service.jpg > tmp/pad_create_upload_response_jpg.json
 
 jq . tmp/pad_create_upload_response_jpg.json
 
 echo
 
-bin/prime-api-client ${primeapiopts} create-upload --paymentRequestID "${prID}" --filename ./tmp/uploads/proof_of_service.pdf > tmp/pad_create_upload_response_pdf.json
+bin/prime-api-client "${primeapiopts[@]}" create-upload --paymentRequestID "${prID}" --filename ./tmp/uploads/proof_of_service.pdf > tmp/pad_create_upload_response_pdf.json
 
 jq . tmp/pad_create_upload_response_pdf.json
 
@@ -203,6 +203,6 @@ echo "EDI for payment request number: ${prNumber}:"
 
 printf "\n-----\n\n"
 
-bin/prime-api-client ${primeapiopts} support-get-payment-request-edi --filename ./tmp/pad_get_payment_request_edi.json > tmp/pad_edi_response.json
+bin/prime-api-client "${primeapiopts[@]}" support-get-payment-request-edi --filename ./tmp/pad_get_payment_request_edi.json > tmp/pad_edi_response.json
 
 jq -r .edi tmp/pad_edi_response.json
