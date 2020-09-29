@@ -41,7 +41,7 @@ func (p *paymentRequestUploadCreator) assembleUploadFilePathName(paymentRequestI
 	}
 
 	newfilename := time.Now().Format(VersionTimeFormat) + "-" + filename
-	uploadFilePath := fmt.Sprintf("/app/payment-request-uploads/mto-%s/payment-request-%s", paymentRequest.MoveTaskOrderID, paymentRequest.ID)
+	uploadFilePath := fmt.Sprintf("/payment-request-uploads/mto-%s/payment-request-%s", paymentRequest.MoveTaskOrderID, paymentRequest.ID)
 	uploadFileName := path.Join(uploadFilePath, newfilename)
 
 	return uploadFileName, err
