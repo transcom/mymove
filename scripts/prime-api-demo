@@ -32,6 +32,13 @@ if [[ "${#proofs[@]}" -eq 0 ]]; then
   proofs=(./tmp/uploads/proof_of_service.png ./tmp/uploads/proof_of_service.jpg ./tmp/uploads/proof_of_service.pdf)
 fi
 
+if bin/prime-api-client "${primeapiopts[@]}" fetch-mto-updates > tmp/pad_all_mtos.json; then
+  echo "server is running"
+else
+  echo "server is not running"
+  exit 1
+fi
+
 echo
 
 read -p "Ready to continue? Hit enter..." -n 1 -r
@@ -45,17 +52,17 @@ read -p "Ready to continue? Hit enter..." -n 1 -r
 
 printf "\n==========\n\n"
 
-bin/prime-api-client "${primeapiopts[@]}" fetch-mto-updates | jq 'map(select(.id == "'"${mtoid}"'")) | .[0]' > tmp/prime_api_demo_mto.json
+jq 'map(select(.id == "'"${mtoid}"'")) | .[0]' tmp/pad_all_mtos.json > tmp/pad_demo_mto.json
 
-jq . tmp/prime_api_demo_mto.json
+jq . tmp/pad_demo_mto.json
 
 printf "\n-----\n\n"
 
 echo "MTO Shipment IDs:"
-jq -r '.mtoShipments | map(.id)' tmp/prime_api_demo_mto.json
+jq -r '.mtoShipments | map(.id)' tmp/pad_demo_mto.json
 
-shipmentID=$(jq '.mtoShipments | .[0] | .id' tmp/prime_api_demo_mto.json)
-shipmentEtag=$(jq '.mtoShipments | .[0] | .eTag' tmp/prime_api_demo_mto.json)
+shipmentID=$(jq '.mtoShipments | .[0] | .id' tmp/pad_demo_mto.json)
+shipmentEtag=$(jq '.mtoShipments | .[0] | .eTag' tmp/pad_demo_mto.json)
 echo
 echo "Using:"
 echo "MTO Shipment ID: ${shipmentID}"
@@ -139,7 +146,7 @@ echo "Updated Shipment eTag: ${shipmentEtag}"
 
 printf "\n==========\n\n"
 
-jq '.mtoServiceItems | map(select((.mtoShipmentID == '"${shipmentID}"') and (.reServiceCode == "FSC" or .reServiceCode == "DLH")  or .reServiceCode == "MS" or .reServiceCode == "CS"))  | { body: { isFinal: false, moveTaskOrderID: "'"${mtoid}"'", serviceItems: map({ id: .id }) } }' tmp/prime_api_demo_mto.json > tmp/pad_create_payment_request.json
+jq '.mtoServiceItems | map(select((.mtoShipmentID == '"${shipmentID}"') and (.reServiceCode == "FSC" or .reServiceCode == "DLH")  or .reServiceCode == "MS" or .reServiceCode == "CS"))  | { body: { isFinal: false, moveTaskOrderID: "'"${mtoid}"'", serviceItems: map({ id: .id }) } }' tmp/pad_demo_mto.json > tmp/pad_create_payment_request.json
 
 printf "Sending the following create payment request payload for DLH, FSC, MS, and CS:\n\n"
 jq . tmp/pad_create_payment_request.json
