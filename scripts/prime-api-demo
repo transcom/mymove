@@ -7,12 +7,17 @@
 # ./scripts/prime-api-demo moveTaskOrderID [hostname]
 # ./scripts/prime-api-demo 9c7b255c-2981-4bf8-839f-61c7458e2b4d
 # ./scripts/prime-api-demo 9c7b255c-2981-4bf8-839f-61c7458e2b4d api.stg.move.mil
+# ./scripts/prime-api-demo 9c7b255c-2981-4bf8-839f-61c7458e2b4d api.stg.move.mil path/to/proof.pdf path/to/proof.jpg ...
+# ./scripts/prime-api-demo 9c7b255c-2981-4bf8-839f-61c7458e2b4d local path/to/proof.pdf path/to/proof.jpg ...
 
 set -eu -o pipefail
 
 readonly mtoid=$1
 readonly environment=${2:-local}
+shift # to remove mtoid from $@
+shift # to remove envinronment from $@
 primeapiopts=(--insecure)
+proofs=("$@")
 
 printf "\nRunning against "
 if [[ $environment == "local" ]]; then
@@ -20,6 +25,11 @@ if [[ $environment == "local" ]]; then
 else
   echo "remote ${environment}"
   primeapiopts=(--cac --hostname "${environment}" --port 443)
+fi
+
+# if no proofs are passed in set some defaults
+if [[ "${#proofs[@]}" -eq 0 ]]; then
+  proofs=(./tmp/uploads/proof_of_service.png ./tmp/uploads/proof_of_service.jpg ./tmp/uploads/proof_of_service.pdf)
 fi
 
 echo
@@ -160,21 +170,16 @@ read -p "Ready to continue? Hit enter..." -n 1 -r
 
 printf "\n==========\n\n"
 
-bin/prime-api-client "${primeapiopts[@]}" create-upload --paymentRequestID "${prID}" --filename ./tmp/uploads/proof_of_service.png > tmp/pad_create_upload_response_png.json
+for proofOfService in "${proofs[@]}"
+do
+  echo upload "$proofOfService"
+  proofBase=$(basename "${proofOfService}")
+  bin/prime-api-client "${primeapiopts[@]}" create-upload --paymentRequestID "${prID}" --filename "${proofOfService}" > tmp/pad_create_upload_response_"${proofBase}".json
 
-jq . tmp/pad_create_upload_response_png.json
+  jq . tmp/pad_create_upload_response_"${proofBase}".json
 
-echo
-
-bin/prime-api-client "${primeapiopts[@]}" create-upload --paymentRequestID "${prID}" --filename ./tmp/uploads/proof_of_service.jpg > tmp/pad_create_upload_response_jpg.json
-
-jq . tmp/pad_create_upload_response_jpg.json
-
-echo
-
-bin/prime-api-client "${primeapiopts[@]}" create-upload --paymentRequestID "${prID}" --filename ./tmp/uploads/proof_of_service.pdf > tmp/pad_create_upload_response_pdf.json
-
-jq . tmp/pad_create_upload_response_pdf.json
+  echo
+done
 
 printf "\n==========\n\n"
 
