@@ -2071,6 +2071,7 @@ func init() {
         },
         "storageInTransit": {
           "type": "integer",
+          "x-nullable": true,
           "example": 90
         },
         "totalDependents": {
@@ -5713,6 +5714,7 @@ func init() {
         },
         "storageInTransit": {
           "type": "integer",
+          "x-nullable": true,
           "example": 90
         },
         "totalDependents": {

@@ -54,12 +54,6 @@ func (o *UpdateMTOAgentReader) ReadResponse(response runtime.ClientResponse, con
 			return nil, err
 		}
 		return nil, result
-	case 409:
-		result := NewUpdateMTOAgentConflict()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
 	case 412:
 		result := NewUpdateMTOAgentPreconditionFailed()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -74,12 +68,6 @@ func (o *UpdateMTOAgentReader) ReadResponse(response runtime.ClientResponse, con
 		return nil, result
 	case 500:
 		result := NewUpdateMTOAgentInternalServerError()
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		return nil, result
-	case 501:
-		result := NewUpdateMTOAgentNotImplemented()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -255,39 +243,6 @@ func (o *UpdateMTOAgentNotFound) readResponse(response runtime.ClientResponse, c
 	return nil
 }
 
-// NewUpdateMTOAgentConflict creates a UpdateMTOAgentConflict with default headers values
-func NewUpdateMTOAgentConflict() *UpdateMTOAgentConflict {
-	return &UpdateMTOAgentConflict{}
-}
-
-/*UpdateMTOAgentConflict handles this case with default header values.
-
-The request could not be processed because of conflict in the current state of the resource.
-*/
-type UpdateMTOAgentConflict struct {
-	Payload *primemessages.ClientError
-}
-
-func (o *UpdateMTOAgentConflict) Error() string {
-	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/agents/{agentID}][%d] updateMTOAgentConflict  %+v", 409, o.Payload)
-}
-
-func (o *UpdateMTOAgentConflict) GetPayload() *primemessages.ClientError {
-	return o.Payload
-}
-
-func (o *UpdateMTOAgentConflict) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(primemessages.ClientError)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
 // NewUpdateMTOAgentPreconditionFailed creates a UpdateMTOAgentPreconditionFailed with default headers values
 func NewUpdateMTOAgentPreconditionFailed() *UpdateMTOAgentPreconditionFailed {
 	return &UpdateMTOAgentPreconditionFailed{}
@@ -376,39 +331,6 @@ func (o *UpdateMTOAgentInternalServerError) GetPayload() *primemessages.Error {
 }
 
 func (o *UpdateMTOAgentInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(primemessages.Error)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-// NewUpdateMTOAgentNotImplemented creates a UpdateMTOAgentNotImplemented with default headers values
-func NewUpdateMTOAgentNotImplemented() *UpdateMTOAgentNotImplemented {
-	return &UpdateMTOAgentNotImplemented{}
-}
-
-/*UpdateMTOAgentNotImplemented handles this case with default header values.
-
-The requested feature is still in development.
-*/
-type UpdateMTOAgentNotImplemented struct {
-	Payload *primemessages.Error
-}
-
-func (o *UpdateMTOAgentNotImplemented) Error() string {
-	return fmt.Sprintf("[PUT /mto-shipments/{mtoShipmentID}/agents/{agentID}][%d] updateMTOAgentNotImplemented  %+v", 501, o.Payload)
-}
-
-func (o *UpdateMTOAgentNotImplemented) GetPayload() *primemessages.Error {
-	return o.Payload
-}
-
-func (o *UpdateMTOAgentNotImplemented) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(primemessages.Error)
 

@@ -16,6 +16,11 @@ import (
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
+const (
+	// VersionTimeFormat is the Go time format for creating a version number.
+	VersionTimeFormat string = "20060102150405"
+)
+
 type paymentRequestUploadCreator struct {
 	db            *pop.Connection
 	logger        Logger
@@ -28,21 +33,21 @@ func NewPaymentRequestUploadCreator(db *pop.Connection, logger Logger, fileStore
 	return &paymentRequestUploadCreator{db, logger, fileStorer, uploader.MaxFileSizeLimit}
 }
 
-func (p *paymentRequestUploadCreator) assembleUploadFilePathName(paymentRequestID uuid.UUID) (string, error) {
+func (p *paymentRequestUploadCreator) assembleUploadFilePathName(paymentRequestID uuid.UUID, filename string) (string, error) {
 	var paymentRequest models.PaymentRequest
 	err := p.db.Where("id=$1", paymentRequestID).First(&paymentRequest)
 	if err != nil {
 		return "", services.NewNotFoundError(paymentRequestID, "")
 	}
 
-	filename := "timestamp-" + time.Now().String()
+	newfilename := time.Now().Format(VersionTimeFormat) + "-" + filename
 	uploadFilePath := fmt.Sprintf("/app/payment-request-uploads/mto-%s/payment-request-%s", paymentRequest.MoveTaskOrderID, paymentRequest.ID)
-	uploadFileName := path.Join(uploadFilePath, filename)
+	uploadFileName := path.Join(uploadFilePath, newfilename)
 
 	return uploadFileName, err
 }
 
-func (p *paymentRequestUploadCreator) CreateUpload(file io.ReadCloser, paymentRequestID uuid.UUID, contractorID uuid.UUID) (*models.Upload, error) {
+func (p *paymentRequestUploadCreator) CreateUpload(file io.ReadCloser, paymentRequestID uuid.UUID, contractorID uuid.UUID, uploadFilename string) (*models.Upload, error) {
 	var upload *models.Upload
 	transactionError := p.db.Transaction(func(tx *pop.Connection) error {
 		newUploader, err := uploader.NewPrimeUploader(tx, p.logger, p.fileStorer, p.fileSizeLimit)
@@ -53,7 +58,7 @@ func (p *paymentRequestUploadCreator) CreateUpload(file io.ReadCloser, paymentRe
 			return err
 		}
 
-		fileName, err := p.assembleUploadFilePathName(paymentRequestID)
+		fileName, err := p.assembleUploadFilePathName(paymentRequestID, uploadFilename)
 		if err != nil {
 			return err
 		}

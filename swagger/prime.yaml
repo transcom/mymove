@@ -303,9 +303,11 @@ paths:
       summary: updateMTOAgent
       description: |
         ### Functionality
-        This endpoint is used to **update** the agents for an MTO Shipment.
+        This endpoint is used to **update** the agents for an MTO Shipment. Only the fields being modified need to be sent in the request body.
 
         ### Errors:
+        The agent must always have a name and at least one method of contact (either `email` or `phone`).
+
         The agent must be associated with the MTO shipment passed in the url.
 
         The shipment should be associated with an MTO that is available to the Prime.
@@ -356,16 +358,12 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
-        '409':
-          $ref: '#/responses/Conflict'
         '412':
           $ref: '#/responses/PreconditionFailed'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-        '501':
-          $ref: '#/responses/NotImplemented'
   '/mto-service-items':
     post:
       summary: createMTOServiceItem
@@ -970,15 +968,18 @@ definitions:
       email:
         type: string
         format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        pattern: '^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})?$'
         x-nullable: true
       phone:
         type: string
         format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        pattern: '^([2-9]\d{2}-\d{3}-\d{4})?$'
         x-nullable: true
       agentType:
         $ref: '#/definitions/MTOAgentType'
+      eTag:
+        type: string
+        readOnly: true
     type: object
   MTOAgents:
     items:

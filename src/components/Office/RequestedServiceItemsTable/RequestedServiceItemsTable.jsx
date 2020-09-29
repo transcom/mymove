@@ -27,10 +27,12 @@ const RequestedServiceItemsTable = ({
     }
   };
 
+  const statusTitleText = chooseTitleText(statusForTableType);
+
   return (
-    <div className={styles.RequestedServiceItemsTable}>
+    <div className={styles.RequestedServiceItemsTable} data-testid={`${statusTitleText}ServiceItemsTable`}>
       <h4>
-        {chooseTitleText(statusForTableType)} service items&nbsp;
+        {statusTitleText} service items&nbsp;
         <span>
           ({serviceItems.length} {serviceItems.length === 1 ? 'item' : 'items'})
         </span>
