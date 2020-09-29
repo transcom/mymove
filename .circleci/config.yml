@@ -604,6 +604,7 @@ jobs:
     parallelism: 5
     executor: mymove_large
     steps:
+      - aws_vars_stg
       - checkout
       - setup_remote_docker:
           docker_layer_caching: false
@@ -643,6 +644,7 @@ jobs:
   integration_tests_mtls:
     executor: mymove_medium_plus
     steps:
+      - aws_vars_stg
       - checkout
       - setup_remote_docker:
           docker_layer_caching: false
