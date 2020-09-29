@@ -1020,7 +1020,7 @@ storybook_build: ## Build static storybook site
 
 .PHONY: storybook_tests
 storybook_tests: ## Run the Loki storybook tests to ensure no breaking changes
-	scripts/run-storybook-tests
+	yarn happo-ci
 
 .PHONY: loki_approve_changes
 loki_approve_changes: ## Approves differences in Loki test results
