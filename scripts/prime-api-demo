@@ -20,7 +20,7 @@ primeapiopts=(--insecure)
 proofs=("$@")
 
 printf "\nRunning against "
-if [[ $environment == "local" ]]; then
+if [ "$environment" == "local" ]; then
   echo "local server"
 else
   echo "remote ${environment}"
@@ -28,7 +28,7 @@ else
 fi
 
 # if no proofs are passed in set some defaults
-if [[ "${#proofs[@]}" -eq 0 ]]; then
+if [ "${#proofs[@]}" -eq 0 ]; then
   proofs=(./tmp/uploads/proof_of_service.png ./tmp/uploads/proof_of_service.jpg ./tmp/uploads/proof_of_service.pdf)
 fi
 
@@ -109,12 +109,41 @@ printf "\n==========\n\n"
 
 printf "The prime will also update weights:\n\n"
 
-read -p "Provide the estimated weight: " -r estimatedWeight
-read -p "Provide the actual weight: " -r actualWeight
+if jq -e '.primeEstimatedWeight' tmp/pad_update_response_dates.json > tmp/pad_estimated_weight; then
+  # estimated weight is set already
+  echo "Prime Estimated Weight Set Already: $(cat tmp/pad_estimated_weight)"
+  read -p "Provide the actual weight: " -r actualWeight
 
-echo
+  echo
 
-cat > tmp/pad_update_weights.json <<- EOM
+  cat > tmp/pad_update_weights.json <<- EOM
+{
+  "mtoShipmentID": ${shipmentID},
+  "ifMatch": ${shipmentEtag},
+  "body": {
+    "primeActualWeight": ${actualWeight}
+  }
+}
+EOM
+
+  printf "Sending the following update payload:\n\n"
+
+  jq . tmp/pad_update_weights.json
+
+  echo
+
+  read -p "Ready to continue? Hit enter..." -n 1 -r
+
+  printf "\n==========\n\n"
+
+  bin/prime-api-client "${primeapiopts[@]}" update-mto-shipment --filename ./tmp/pad_update_weights.json > tmp/pad_update_response_weights.json
+else # estimated weight not set
+  read -p "Provide the estimated weight: " -r estimatedWeight
+  read -p "Provide the actual weight: " -r actualWeight
+
+  echo
+
+  cat > tmp/pad_update_weights.json <<- EOM
 {
   "mtoShipmentID": ${shipmentID},
   "ifMatch": ${shipmentEtag},
@@ -125,17 +154,18 @@ cat > tmp/pad_update_weights.json <<- EOM
 }
 EOM
 
-printf "Sending the following update payload:\n\n"
+  printf "Sending the following update payload:\n\n"
 
-jq . tmp/pad_update_weights.json
+  jq . tmp/pad_update_weights.json
 
-echo
+  echo
 
-read -p "Ready to continue? Hit enter..." -n 1 -r
+  read -p "Ready to continue? Hit enter..." -n 1 -r
 
-printf "\n==========\n\n"
+  printf "\n==========\n\n"
 
-bin/prime-api-client "${primeapiopts[@]}" update-mto-shipment --filename ./tmp/pad_update_weights.json > tmp/pad_update_response_weights.json
+  bin/prime-api-client "${primeapiopts[@]}" update-mto-shipment --filename ./tmp/pad_update_weights.json > tmp/pad_update_response_weights.json
+fi
 
 jq . tmp/pad_update_response_weights.json
 
@@ -146,7 +176,7 @@ echo "Updated Shipment eTag: ${shipmentEtag}"
 
 printf "\n==========\n\n"
 
-jq '.mtoServiceItems | map(select((.mtoShipmentID == '"${shipmentID}"') and (.reServiceCode == "FSC" or .reServiceCode == "DLH")  or .reServiceCode == "MS" or .reServiceCode == "CS"))  | { body: { isFinal: false, moveTaskOrderID: "'"${mtoid}"'", serviceItems: map({ id: .id }) } }' tmp/pad_demo_mto.json > tmp/pad_create_payment_request.json
+jq '.mtoServiceItems | map(select((.mtoShipmentID == '"${shipmentID}"') and (.reServiceCode == "FSC" or .reServiceCode == "DLH") or .reServiceCode == "MS" or .reServiceCode == "CS"))  | { body: { isFinal: false, moveTaskOrderID: "'"${mtoid}"'", serviceItems: map({ id: .id }) } }' tmp/pad_demo_mto.json > tmp/pad_create_payment_request.json
 
 printf "Sending the following create payment request payload for DLH, FSC, MS, and CS:\n\n"
 jq . tmp/pad_create_payment_request.json
