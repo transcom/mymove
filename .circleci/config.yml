@@ -909,6 +909,8 @@ jobs:
     executor: mymove_medium_plus
     steps:
       - checkout
+      - setup_remote_docker:
+          docker_layer_caching: false
       - restore_cache:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
@@ -918,10 +920,27 @@ jobs:
       - run:
           name: make storybook_tests
           command: make storybook_tests
+          environment:
+            CHROME_CONCURRENCY: 2
+      - run: make storybook_build
+      - run:
+          name: Happo tests
+          command: yarn happo-ci
+          environment:
+            HAPPO_IS_ASYNC: true
       - persist_to_workspace:
           root: /home/circleci/transcom/mymove/
           paths:
             - storybook-static
+      - store_artifacts:
+          path: .loki/current
+          destination: current
+      - store_artifacts:
+          path: .loki/difference
+          destination: difference
+      - store_artifacts:
+          path: .loki/reference
+          destination: reference
       - announce_failure
 
   # `build_migrations` builds the migrations container
