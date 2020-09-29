@@ -2,11 +2,13 @@ import React from 'react';
 import { string, func, bool } from 'prop-types';
 import { Radio } from '@trussworks/react-uswds';
 
+import styles from './SelectableCard.module.scss';
+
 const SelectableCard = ({ id, label, name, value, cardText, onChange, checked }) => {
   return (
-    <div>
+    <div className={styles.cardContainer}>
       <Radio id={id} label={label} value={value} name={name} onChange={onChange} checked={checked} />
-      <div>{cardText}</div>
+      <div className={styles.cardText}>{cardText}</div>
     </div>
   );
 };
