@@ -20,8 +20,7 @@ describe('HHG Setup flow', function () {
     customerFillsOutOrdersInformation();
     customerChoosesAnHHGMove();
     customerSetsUpAnHHGMove();
-    customerAddsAnotherShipment();
-    customerReviewsMoveDetails();
+    customerReviewsMoveDetailsAndEditsHHG();
     customerSubmitsMove();
   });
 });
@@ -233,12 +232,7 @@ function customerSetsUpAnHHGMove() {
   cy.nextPage();
 }
 
-function customerAddsAnotherShipment() {
-  cy.get('button[data-testid="wizardBackButton"]').should('be.enabled').click();
-  customerSetsUpAnHHGMove();
-}
-
-function customerReviewsMoveDetails() {
+function customerReviewsMoveDetailsAndEditsHHG() {
   cy.get('[data-testid="review-move-header"]').contains('Review your details');
 
   cy.get('[data-testid="hhg-summary"]').find('h4').contains('Shipment 1: HHG').find('a').contains('Edit').click();
