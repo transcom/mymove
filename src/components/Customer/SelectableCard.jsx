@@ -4,10 +4,18 @@ import { Radio } from '@trussworks/react-uswds';
 
 import styles from './SelectableCard.module.scss';
 
-const SelectableCard = ({ id, label, name, value, cardText, onChange, checked }) => {
+const SelectableCard = ({ id, label, name, value, cardText, onChange, disabled, checked }) => {
   return (
     <div className={styles.cardContainer}>
-      <Radio id={id} label={label} value={value} name={name} onChange={onChange} checked={checked} />
+      <Radio
+        id={id}
+        label={label}
+        value={value}
+        name={name}
+        onChange={onChange}
+        checked={checked}
+        disabled={disabled}
+      />
       <div className={styles.cardText}>{cardText}</div>
     </div>
   );
@@ -21,11 +29,13 @@ SelectableCard.propTypes = {
   cardText: string,
   onChange: func.isRequired,
   checked: bool,
+  disabled: bool,
 };
 
 SelectableCard.defaultProps = {
   cardText: '',
   checked: false,
+  disabled: false,
 };
 
 export default SelectableCard;

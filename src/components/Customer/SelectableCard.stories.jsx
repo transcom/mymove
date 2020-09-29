@@ -16,12 +16,38 @@ const defaultProps = {
   checked: false,
 };
 
+const selectedProps = {
+  checked: true,
+};
+
+const disabledProps = {
+  disabled: true,
+};
+
 export default {
   title: 'Customer Components | SelectableCard',
 };
 
-export const Basic = () => (
+export const Unselected = () => (
   <div>
     <SelectableCard {...defaultProps} />
   </div>
 );
+
+export const Selected = () => {
+  const props = { ...defaultProps, ...selectedProps };
+  return (
+    <div>
+      <SelectableCard {...props} />
+    </div>
+  );
+};
+
+export const Disabled = () => {
+  const props = { ...defaultProps, ...disabledProps };
+  return (
+    <div>
+      <SelectableCard {...props} />
+    </div>
+  );
+};
