@@ -54,17 +54,17 @@ type UpdateMoveTaskOrderStatusHandlerFunc struct {
 func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.UpdateMoveTaskOrderStatusParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	eTag := params.IfMatch
-	var serviceItemCodes []models.ReServiceCode
 
+	// TODO: Better to refactor to pass a bool for service item codes CS and MS since there are only two.
+	// get rid of duplicates if any
+	serviceItemCodes := make(map[models.ReServiceCode]bool)
 	for _, serviceItemCode := range params.ServiceItemCodes {
 		switch models.ReServiceCode(serviceItemCode) {
 		case models.ReServiceCodeCS:
-			serviceItemCodes = append(serviceItemCodes, models.ReServiceCodeCS)
+			serviceItemCodes[models.ReServiceCodeCS] = true
 		case models.ReServiceCodeMS:
-			serviceItemCodes = append(serviceItemCodes, models.ReServiceCodeMS)
-
+			serviceItemCodes[models.ReServiceCodeMS] = true
 		}
-
 	}
 
 	// TODO how are we going to handle auth in new api? Do we need some sort of placeholder to remind us to
