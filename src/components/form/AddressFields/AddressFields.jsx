@@ -17,7 +17,7 @@ export const AddressFields = ({ legend, className, values, name, renderExistingA
       <Field
         as={TextInput}
         labelClassName={`${styles['small-bold']}`}
-        label="Street address 1"
+        label="Street address 1 THIS IS NEW"
         id={`mailingAddress1_${addressFieldsUUID}`}
         data-testid="mailingAddress1"
         name={`${name}.street_address_1`}
