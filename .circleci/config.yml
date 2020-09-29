@@ -1157,58 +1157,6 @@ jobs:
           health_check_hosts: gex.exp.move.mil,orders.exp.move.mil
           ecr_env: exp
 
-  check_circle_against_staging_sha:
-    executor: mymove_small
-    steps:
-      - checkout
-      - run:
-          name: Halt workflow to prevent old master deploying to staging
-          command: scripts/compare-deployed-commit my.staging.move.mil $CIRCLE_SHA1
-
-  # `deploy_staging_migrations` deploys migrations to the staging environment
-  deploy_staging_migrations:
-    executor: mymove_small
-    environment:
-      - APP_ENVIRONMENT: 'staging'
-    steps:
-      - aws_vars_legacy
-      - deploy_migrations_steps:
-          ecr_env: legacy
-
-  # `deploy_staging_tasks` deploys scheduled tasks to the staging environment
-  deploy_staging_tasks:
-    executor: mymove_small
-    environment:
-      - APP_ENVIRONMENT: 'staging'
-    steps:
-      - aws_vars_legacy
-      - deploy_tasks_steps:
-          ecr_env: legacy
-
-  # `deploy_staging_app` updates the server-TLS app service in staging environment
-  deploy_staging_app:
-    executor: mymove_small
-    environment:
-      - APP_ENVIRONMENT: 'staging'
-    steps:
-      - aws_vars_legacy
-      - deploy_app_steps:
-          compare_host: my.staging.move.mil
-          health_check_hosts: my.staging.move.mil,office.staging.move.mil,admin.staging.move.mil
-          ecr_env: legacy
-
-  # `deploy_staging_app_client_tls` updates the mutual-TLS service in the staging environment
-  deploy_staging_app_client_tls:
-    executor: mymove_small
-    environment:
-      - APP_ENVIRONMENT: 'staging'
-    steps:
-      - aws_vars_legacy
-      - deploy_app_client_tls_steps:
-          compare_host: gex.staging.move.mil
-          health_check_hosts: gex.staging.move.mil,orders.staging.move.mil
-          ecr_env: legacy
-
   check_circle_against_stg_sha:
     executor: mymove_small
     steps:
@@ -1510,50 +1458,6 @@ workflows:
           filters:
             branches:
               only: placeholder_branch_name
-
-      - check_circle_against_staging_sha:
-          requires:
-            - pre_test
-            - client_test
-            - server_test
-            - push_app_legacy
-            - build_tools
-            - push_migrations_legacy
-            - push_tasks_legacy
-            - acceptance_tests
-            - integration_tests
-            - integration_tests_mtls
-          filters:
-            branches:
-              only: master
-
-      - deploy_staging_migrations:
-          requires:
-            - check_circle_against_staging_sha
-          filters:
-            branches:
-              only: master
-
-      - deploy_staging_tasks:
-          requires:
-            - deploy_staging_migrations
-          filters:
-            branches:
-              only: master
-
-      - deploy_staging_app:
-          requires:
-            - deploy_staging_migrations
-          filters:
-            branches:
-              only: master
-
-      - deploy_staging_app_client_tls:
-          requires:
-            - deploy_staging_migrations
-          filters:
-            branches:
-              only: master
 
       - push_app_stg:
           requires:

@@ -9,26 +9,33 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	edisegment "github.com/transcom/mymove/pkg/edi/segment"
 )
 
-// GHCPaymentRequestInvoiceGenerator is a service object to turn payment requests into 858s
-type GHCPaymentRequestInvoiceGenerator struct {
-	DB *pop.Connection
+type ghcPaymentRequestInvoiceGenerator struct {
+	db *pop.Connection
+}
+
+// NewGHCPaymentRequestInvoiceGenerator returns an implementation of the GHCPaymentRequestInvoiceGenerator interface
+func NewGHCPaymentRequestInvoiceGenerator(db *pop.Connection) services.GHCPaymentRequestInvoiceGenerator {
+	return &ghcPaymentRequestInvoiceGenerator{
+		db: db,
+	}
 }
 
 const dateFormat = "20060102"
 const timeFormat = "1504"
 
 // Generate method takes a payment request and returns an Invoice858C
-func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.PaymentRequest, sendProductionInvoice bool) (ediinvoice.Invoice858C, error) {
+func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.PaymentRequest, sendProductionInvoice bool) (ediinvoice.Invoice858C, error) {
 	// TODO: seems ReferenceID is a *string but cannot be saved as nil, do we need to validate it's not nil here
 	var moveTaskOrder models.Move
 	if paymentRequest.MoveTaskOrder.ID == uuid.Nil {
 		// load mto
-		err := g.DB.Q().
+		err := g.db.Q().
 			Where("id = ?", paymentRequest.MoveTaskOrderID).
 			First(&moveTaskOrder)
 		if err != nil {
@@ -40,7 +47,7 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 
 	// check or load orders
 	if moveTaskOrder.Orders.ID == uuid.Nil {
-		err := g.DB.
+		err := g.db.
 			Load(&moveTaskOrder, "Orders")
 		if err != nil {
 			return ediinvoice.Invoice858C{}, fmt.Errorf("cannot load Orders %s for PaymentRequest %s: %w", moveTaskOrder.OrdersID, paymentRequest.ID, err)
@@ -49,7 +56,7 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 
 	// check or load service member
 	if moveTaskOrder.Orders.ServiceMember.ID == uuid.Nil {
-		err := g.DB.
+		err := g.db.
 			Load(&moveTaskOrder.Orders, "ServiceMember")
 		if err != nil {
 			return ediinvoice.Invoice858C{}, fmt.Errorf("cannot load ServiceMember %s for PaymentRequest %s: %w", moveTaskOrder.Orders.ServiceMemberID, paymentRequest.ID, err)
@@ -124,7 +131,7 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 
 	// contract code to header
 	var contractCodeServiceItemParam models.PaymentServiceItemParam
-	err := g.DB.Q().
+	err := g.db.Q().
 		Join("service_item_param_keys sipk", "payment_service_item_params.service_item_param_key_id = sipk.id").
 		Join("payment_service_items psi", "payment_service_item_params.payment_service_item_id = psi.id").
 		Join("payment_requests pr", "psi.payment_request_id = pr.id").
@@ -150,7 +157,7 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 
 	// Add requested pickup date
 	var requestedPickupDateParam models.PaymentServiceItemParam
-	err = g.DB.Q().
+	err = g.db.Q().
 		Join("service_item_param_keys sipk", "payment_service_item_params.service_item_param_key_id = sipk.id").
 		Join("payment_service_items psi", "payment_service_item_params.payment_service_item_id = psi.id").
 		Join("payment_requests pr", "psi.payment_request_id = pr.id").
@@ -182,7 +189,7 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	edi858.Header = append(edi858.Header, loaSegments...)
 
 	var paymentServiceItems models.PaymentServiceItems
-	err = g.DB.Q().
+	err = g.db.Q().
 		Eager("MTOServiceItem.ReService").
 		Where("payment_request_id = ?", paymentRequest.ID).
 		All(&paymentServiceItems)
@@ -215,7 +222,7 @@ func (g GHCPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	return edi858, nil
 }
 
-func (g GHCPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(paymentRequestID uuid.UUID, serviceMember models.ServiceMember) ([]edisegment.Segment, error) {
+func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(paymentRequestID uuid.UUID, serviceMember models.ServiceMember) ([]edisegment.Segment, error) {
 	serviceMemberDetails := []edisegment.Segment{}
 
 	// name
@@ -250,13 +257,13 @@ func (g GHCPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 	return serviceMemberDetails, nil
 }
 
-func (g GHCPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(paymentRequestID uuid.UUID, orders models.Order) ([]edisegment.Segment, error) {
+func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(paymentRequestID uuid.UUID, orders models.Order) ([]edisegment.Segment, error) {
 	originAndDestinationSegments := []edisegment.Segment{}
 
 	var err error
 	var destinationDutyStation models.DutyStation
 	if orders.NewDutyStation.ID == uuid.Nil {
-		destinationDutyStation, err = models.FetchDutyStation(g.DB, orders.NewDutyStationID)
+		destinationDutyStation, err = models.FetchDutyStation(g.db, orders.NewDutyStationID)
 		if err != nil {
 			return []edisegment.Segment{}, fmt.Errorf("cannot load NewDutyStation %s for PaymentRequest %s: %w", orders.NewDutyStationID, paymentRequestID, err)
 		}
@@ -264,7 +271,7 @@ func (g GHCPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 		destinationDutyStation = orders.NewDutyStation
 	}
 
-	destTransportationOffice, err := models.FetchDutyStationTransportationOffice(g.DB, destinationDutyStation.ID)
+	destTransportationOffice, err := models.FetchDutyStationTransportationOffice(g.db, destinationDutyStation.ID)
 	if err != nil {
 		return []edisegment.Segment{}, fmt.Errorf("cannot load TransportationOffice for DutyStation %s for PaymentRequest %s: %w", orders.NewDutyStationID, paymentRequestID, err)
 	}
@@ -308,7 +315,7 @@ func (g GHCPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	// origin station name
 	var originDutyStation models.DutyStation
 	if orders.OriginDutyStationID != nil {
-		originDutyStation, err = models.FetchDutyStation(g.DB, *orders.OriginDutyStationID)
+		originDutyStation, err = models.FetchDutyStation(g.db, *orders.OriginDutyStationID)
 		if err != nil {
 			return []edisegment.Segment{}, fmt.Errorf("cannot load OriginDutyStation %s for PaymentRequest %s: %w", orders.OriginDutyStationID, paymentRequestID, err)
 		}
@@ -316,7 +323,7 @@ func (g GHCPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 		originDutyStation = *orders.OriginDutyStation
 	}
 
-	originTransportationOffice, err := models.FetchDutyStationTransportationOffice(g.DB, originDutyStation.ID)
+	originTransportationOffice, err := models.FetchDutyStationTransportationOffice(g.db, originDutyStation.ID)
 	if err != nil {
 		return []edisegment.Segment{}, fmt.Errorf("cannot load TransportationOffice for DutyStation %s for PaymentRequest %s: %w", orders.OriginDutyStationID, paymentRequestID, err)
 	}
@@ -357,7 +364,7 @@ func (g GHCPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	return originAndDestinationSegments, nil
 }
 
-func (g GHCPaymentRequestInvoiceGenerator) createLoaSegments(orders models.Order) ([]edisegment.Segment, error) {
+func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(orders models.Order) ([]edisegment.Segment, error) {
 	segments := []edisegment.Segment{}
 	fa1 := edisegment.FA1{
 		AgencyQualifierCode: "DF",
@@ -375,10 +382,10 @@ func (g GHCPaymentRequestInvoiceGenerator) createLoaSegments(orders models.Order
 	return segments, nil
 }
 
-func (g GHCPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(serviceItemID uuid.UUID, key models.ServiceItemParamName) (models.PaymentServiceItemParam, error) {
+func (g ghcPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(serviceItemID uuid.UUID, key models.ServiceItemParamName) (models.PaymentServiceItemParam, error) {
 	var paymentServiceItemParam models.PaymentServiceItemParam
 
-	err := g.DB.Q().
+	err := g.db.Q().
 		Join("service_item_param_keys sk", "payment_service_item_params.service_item_param_key_id = sk.id").
 		Where("payment_service_item_id = ?", serviceItemID).
 		Where("sk.key = ?", key).
@@ -389,7 +396,7 @@ func (g GHCPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(serviceI
 	return paymentServiceItemParam, nil
 }
 
-func (g GHCPaymentRequestInvoiceGenerator) getPaymentParamsForDefaultServiceItems(serviceItem models.PaymentServiceItem) (float64, float64, error) {
+func (g ghcPaymentRequestInvoiceGenerator) getPaymentParamsForDefaultServiceItems(serviceItem models.PaymentServiceItem) (float64, float64, error) {
 	// TODO: update to have a case statement as different service items may or may not have weight
 	// and the distance key can differ (zip3 v zip5, and distances for SIT)
 	weight, err := g.fetchPaymentServiceItemParam(serviceItem.ID, models.ServiceItemParamNameWeightBilledActual)
@@ -415,7 +422,7 @@ func (g GHCPaymentRequestInvoiceGenerator) getPaymentParamsForDefaultServiceItem
 	return weightFloat, distanceFloat, nil
 }
 
-func (g GHCPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(paymentServiceItems models.PaymentServiceItems) ([]edisegment.Segment, error) {
+func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(paymentServiceItems models.PaymentServiceItems) ([]edisegment.Segment, error) {
 	//Initialize empty collection of segments
 	var segments []edisegment.Segment
 	var weightFloat, distanceFloat float64
@@ -452,7 +459,7 @@ func (g GHCPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 			}
 
 			l3Segment := edisegment.L3{
-				PriceCents: serviceItem.PriceCents.Int64(),
+				PriceCents: int64(*serviceItem.PriceCents),
 			}
 
 			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment, &l3Segment)
@@ -479,14 +486,14 @@ func (g GHCPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				WeightQualifier:        "B",
 				WeightUnitCode:         "L",
 			}
+
 			l3Segment := edisegment.L3{
 				Weight:          weightFloat,
 				WeightQualifier: "B",
-				PriceCents:      serviceItem.PriceCents.Int64(),
+				PriceCents:      int64(*serviceItem.PriceCents),
 			}
 
 			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment, &l3Segment)
-
 		}
 	}
 

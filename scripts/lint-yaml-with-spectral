@@ -1,0 +1,22 @@
+#! /usr/bin/env bash
+
+#
+# Run spectral linter on external APIs
+#
+
+set -eu -o pipefail
+
+# Check that the files exist
+for YAML in "$@"
+do
+  if [ ! -f "$YAML" ]
+  then
+    echo "File not found: $YAML"
+    exit 1
+  fi
+done
+
+# Lint them with spectral
+yarn spectral  -F error -r swagger/.spectral.yml lint "$@"
+exit $?
+

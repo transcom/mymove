@@ -1419,6 +1419,7 @@ definitions:
       storageInTransit:
         example: 90
         type: integer
+        x-nullable: true
       totalWeight:
         example: 500
         type: integer
