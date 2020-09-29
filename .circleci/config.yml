@@ -593,8 +593,8 @@ jobs:
       # this is so we can avoid go mod downloading and resulting in an error on a false positive
       - run: scripts/pre-commit-go-mod || exit 0
       - run:
-          name: Run pre-commit tests without golangci-lint
-          command: SKIP=golangci-lint pre-commit run --all-files
+          name: Run pre-commit tests without golangci-lint, eslint, or prettier
+          command: SKIP=golangci-lint,eslint,prettier pre-commit run --all-files
       # The output of golangci-lint is an artifact towards STIG compliance
       - run:
           name: Run pre-commit tests with golangci-lint only
@@ -604,6 +604,12 @@ jobs:
             source $BASH_ENV
             mkdir -p tmp/test-results/pretest
             pre-commit run -v --all-files golangci-lint | tee tmp/test-results/pretest/golangci-lint.out
+      - run:
+          name: Run prettier checks
+          command: yarn prettier-ci
+      - run:
+          name: Run eslint checks
+          command: yarn lint
       # adding danger checks here as they are similar to our pre-commit hooks
       - run:
           name: Run DangerJS checks
