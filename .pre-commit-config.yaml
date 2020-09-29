@@ -65,7 +65,8 @@ repos:
             cypress/|
             .storybook/|
             wallaby.js|
-            config-overrides.js
+            config-overrides.js|
+            .happo.js
           )
 
   - repo: local
@@ -122,8 +123,8 @@ repos:
         language: script
         pass_filenames: false
 
-  -   repo: local
-      hooks:
+  - repo: local
+    hooks:
       - id: spectral
         name: Spectral yaml linter
         entry: scripts/lint-yaml-with-spectral
