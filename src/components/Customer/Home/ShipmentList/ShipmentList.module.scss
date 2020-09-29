@@ -13,6 +13,11 @@
   padding-bottom: 12px;
   @include u-margin-bottom(1);
 
+  strong {
+    white-space: nowrap;
+    @include u-minw(8);
+  }
+
   &:last-child {
     margin-bottom: 0px;
   }
@@ -20,6 +25,12 @@
 
 .edit {
   fill: $primary;
+}
+
+.shipment-code {
+  font-size: 13px;
+  font-weight: normal;
+  word-wrap: anywhere;
 }
 
 .shipment-list-item-PPM {
