@@ -365,6 +365,44 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	}
 }
 
+func (suite *GHCInvoiceSuite) TestOnlyMsandCsGenerateEdi() {
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB())
+	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   testdatagen.DefaultContractCode,
+		},
+	}
+
+	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			ID:              uuid.FromStringOrNil("d66d9f35-218c-8b85-b9d1-631449b9d984"),
+			MoveTaskOrder:   mto,
+			IsFinal:         false,
+			Status:          models.PaymentRequestStatusPending,
+			RejectionReason: nil,
+		},
+	})
+
+	testdatagen.MakePaymentServiceItemWithParamsAndPaymentRequest(
+		suite.DB(),
+		models.ReServiceCodeMS,
+		paymentRequest,
+		basicPaymentServiceItemParams,
+	)
+	testdatagen.MakePaymentServiceItemWithParamsAndPaymentRequest(
+		suite.DB(),
+		models.ReServiceCodeCS,
+		paymentRequest,
+		basicPaymentServiceItemParams,
+	)
+
+	_, err := generator.Generate(paymentRequest, false)
+	suite.NoError(err)
+}
+
 // func helperLoadExpectedEDI(suite *GHCInvoiceSuite, name string) string {
 // 	path := filepath.Join("testdata", name) // relative path
 // 	bytes, err := ioutil.ReadFile(path)
