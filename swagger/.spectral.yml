@@ -1,0 +1,156 @@
+extends: spectral:oas
+rules:
+  # Host is required
+  oas2-api-host: off
+
+# ENDPOINT PROPERTIES
+  endpoint-requires-description:
+    description: Endpoint MUST include description
+    severity: error
+    given: $.paths[*][?( @property !== 'parameters' )]
+    then:
+      - field: "description"
+        function: truthy
+
+  endpoint-description-length:
+    description: The endpoint description should be at least 128 characters.
+    severity: warn
+    given: $.paths[*][*].description
+    then:
+      function: length
+      functionOptions:
+        min: 128
+
+  endpoint-operation-id-case:
+    description: Path operationId MUST be camelCase
+    severity: error
+    given: "$..operationId"
+    then:
+      function: pattern
+      functionOptions:
+        match: '^[a-z]+[a-zA-Z0-9]*$'
+
+  endpoint-path-case:
+    description: Paths MUST be kebab-case and {params} in path MUST be camelCase
+    severity: error
+    given: $..paths[*]~
+    then:
+      function: pattern
+      functionOptions:
+        match: '^/(/|[a-z]+(\-[a-z]+)*|{[a-z0-9]+[a-zA-Z0-9]*})*$'
+
+
+# PRODUCES AND CONSUMES
+  endpoint-requires-produces:
+    description: Endpoints MUST include produces property
+    given: $.paths[*][?( @property !== 'parameters' )]
+    then:
+      - field: "produces"
+        function: truthy
+
+      - field: "produces.*"
+        function: enumeration
+        functionOptions:
+          values:
+            - application/json
+
+  produces-allowed-types:
+    #message: "{{error}}"
+    description: Allowable types for produces are [application/json]
+    given: $.paths[*][?( @property !== 'parameters' )].produces.*
+    then:
+      - function: enumeration
+        functionOptions:
+          values:
+            - application/json
+
+  endpoint-requires-consumes:
+    description: Endpoints that [POST,PUT,PATCH] methods must include consumes property
+    #message: "{{error}}"
+    given: $.paths.*[?( @property === 'post' || @property === 'patch' || @property === 'put')]
+    then:
+      - field: "consumes"
+        function: truthy
+
+  consumes-allowed-types:
+    description: Allowable types for consumes are [application/json, multipart/form-data]
+    #message: "{{error}}"
+    given: $.paths.*[?( @property === 'post' || @property === 'patch' || @property === 'put')].consumes.*
+    then:
+      - function: enumeration
+        functionOptions:
+          values:
+            - application/json
+            - multipart/form-data
+
+# BODY PROPERTIES
+  body-properties-case:
+    description: Body properties MUST be camelCase
+    severity: error
+    given: $..properties.*~
+    then:
+      function: pattern
+      functionOptions:
+        match: '^[a-z]+[a-zA-Z0-9]*$'
+
+  created-at-read-only:
+    description: Property createdAt MUST be readOnly
+    #message: "{{error}}"
+    severity: error
+    given: $..properties.createdAt
+    then:
+      - field: "readOnly"
+        function: truthy
+
+  updated-at-read-only:
+    description: Property updatedAt MUST be readOnly
+    #message: "{{error}}"
+    severity: error
+    given: $..properties.updatedAt
+    then:
+      - field: "readOnly"
+        function: truthy
+
+  etag-read-only:
+    description: Property eTag MUST be readOnly
+    #message: "{{error}}"
+    severity: error
+    given: $..properties.eTag
+    then:
+      - field: "readOnly"
+        function: truthy
+
+  date-no-example:
+    description: Property of type date should not give example, due to ReDoc quirk
+    #message: "{{error}}"
+    severity: error
+    given: $..properties[?(@.format == "date")]
+    then:
+      - field: example
+        function: falsy
+
+# DEFINITIONS
+  definitions-sort:
+    description: Definitions MUST be sorted alphabetically
+    #message: "{{error}}"
+    severity: error
+    given: $.definitions
+    then:
+      function: alphabetical
+
+  definitions-no-payload:
+    description: Definition names MUST not end in Payload
+    #message: "{{error}}"
+    severity: error
+    given: $.definitions.~
+    then:
+      function: pattern
+      functionOptions:
+        notMatch: '^.*[Pp]ayload$'
+
+# camelCase inside curly braces
+        # match: '^{[a-z]+[a-zA-Z]*}$'
+# kebab-case with
+        # match: '^[a-z]+(\-[a-z]+)*$'
+# this or that
+        # match: '^(/|abc|def)*$'
