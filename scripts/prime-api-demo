@@ -14,10 +14,16 @@ set -eu -o pipefail
 
 readonly mtoid=$1
 readonly environment=${2:-local}
-shift # to remove mtoid from $@
-shift # to remove envinronment from $@
 primeapiopts=(--insecure)
-proofs=("$@")
+# check to see if proofs are passed in
+if [ "${#@}" -gt 2 ]; then
+  shift # to remove mtoid from $@
+  shift # to remove envinronment from $@
+  proofs=("$@")
+else
+  # if no proofs are passed in set some defaults
+  proofs=(./tmp/uploads/proof_of_service.png ./tmp/uploads/proof_of_service.jpg ./tmp/uploads/proof_of_service.pdf)
+fi
 
 printf "\nRunning against "
 if [ "$environment" == "local" ]; then
@@ -25,11 +31,6 @@ if [ "$environment" == "local" ]; then
 else
   echo "remote ${environment}"
   primeapiopts=(--cac --hostname "${environment}" --port 443)
-fi
-
-# if no proofs are passed in set some defaults
-if [ "${#proofs[@]}" -eq 0 ]; then
-  proofs=(./tmp/uploads/proof_of_service.png ./tmp/uploads/proof_of_service.jpg ./tmp/uploads/proof_of_service.pdf)
 fi
 
 if bin/prime-api-client "${primeapiopts[@]}" fetch-mto-updates > tmp/pad_all_mtos.json; then
