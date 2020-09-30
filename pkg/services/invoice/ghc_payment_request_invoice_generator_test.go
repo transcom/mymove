@@ -124,11 +124,37 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		},
 	})
 
+	// Check that nil pointers don't cause runtime panic error
+	nilMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	nilMove.Orders.TAC = nil
+	nilMove.Orders.NewDutyStation.Address.Country = nil
+	nilMove.Orders.OriginDutyStation.Address.Country = nil
+
+	nilPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			ID:              uuid.FromStringOrNil("d66d9f35-218d-8b85-b9d1-631449b9d984"),
+			MoveTaskOrder:   nilMove,
+			IsFinal:         false,
+			Status:          models.PaymentRequestStatusPending,
+			RejectionReason: nil,
+		},
+	})
+	nilPriceDLH := testdatagen.MakePaymentServiceItemWithParamsAndPaymentRequest(
+		suite.DB(),
+		models.ReServiceCodeDLH,
+		nilPaymentRequest,
+		basicPaymentServiceItemParams,
+	)
+	nilPriceDLH.PriceCents = nil
+	suite.T().Run("nil pointers do not cause panic", func(t *testing.T) {
+		// Nil country in Destination Duty Station Address
+		_, err := generator.Generate(nilPaymentRequest, false)
+		suite.NoError(err)
+	})
+
+	// Proceed with full EDI Generation tests
 	result, err := generator.Generate(paymentRequest, false)
 	suite.NoError(err)
-	// actualEDIString, _ := result.EDIString()
-	// suite.Equal(dlh.PaymentServiceItemParams[0].ServiceItemParamKey, "")
-	// suite.Equal(actualEDIString, "")
 
 	// Test Invoice Start and End Segments
 	suite.T().Run("adds isa start segment", func(t *testing.T) {
@@ -364,10 +390,3 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		}
 	}
 }
-
-// func helperLoadExpectedEDI(suite *GHCInvoiceSuite, name string) string {
-// 	path := filepath.Join("testdata", name) // relative path
-// 	bytes, err := ioutil.ReadFile(path)
-// 	suite.NoError(err, "error loading expected EDI fixture")
-// 	return string(bytes)
-// }
