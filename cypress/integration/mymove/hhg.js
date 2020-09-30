@@ -233,11 +233,6 @@ function customerSetsUpAnHHGMove() {
   cy.nextPage();
 }
 
-function customerAddsAnotherShipment() {
-  cy.get('button[data-testid="wizardBackButton"]').should('be.enabled').click();
-  customerSetsUpAnHHGMove();
-}
-
 function customerReviewsMoveDetails() {
   cy.get('[data-testid="review-move-header"]').contains('Review your details');
 
