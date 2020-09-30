@@ -55,16 +55,13 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	eTag := params.IfMatch
 
-	// TODO: Better to refactor to pass a bool for service item codes CS and MS since there are only two.
-	// get rid of duplicates if any
+	// include mto level service items to create if requested
 	serviceItemCodes := make(map[models.ReServiceCode]bool)
-	for _, serviceItemCode := range params.ServiceItemCodes {
-		switch models.ReServiceCode(serviceItemCode) {
-		case models.ReServiceCodeCS:
-			serviceItemCodes[models.ReServiceCodeCS] = true
-		case models.ReServiceCodeMS:
-			serviceItemCodes[models.ReServiceCodeMS] = true
-		}
+	if params.ServiceItemCodes.ServiceCodeCS {
+		serviceItemCodes[models.ReServiceCodeCS] = true
+	}
+	if params.ServiceItemCodes.ServiceCodeMS {
+		serviceItemCodes[models.ReServiceCodeMS] = true
 	}
 
 	// TODO how are we going to handle auth in new api? Do we need some sort of placeholder to remind us to
