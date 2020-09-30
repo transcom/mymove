@@ -79,65 +79,65 @@ export class WizardPage extends Component {
           </div>
         )}
         {children}
-        <div className="grid-row" style={{ marginTop: '0.5rem' }}>
-          <div className="grid-col-10 text-right margin-top-6 margin-left-neg-1 tablet:margin-top-3 display-flex">
-            {!isFirstPage(pageList, pageKey) && !hideBackBtn && (
-              <button
-                type="button"
-                className="usa-button usa-button--secondary"
-                onClick={this.previousPage}
-                disabled={!canMoveBackward}
-                data-testid="wizardBackButton"
-              >
-                Back
-              </button>
-            )}
-            {!isLastPage(pageList, pageKey) && (
-              <button
-                type="button"
-                className="usa-button"
-                onClick={this.nextPage}
-                disabled={!canMoveForward}
-                data-testid="wizardNextButton"
-              >
-                Next
-              </button>
-            )}
-            {isLastPage(pageList, pageKey) && (
-              <button
-                type="button"
-                className="usa-button"
-                onClick={handleSubmit}
-                disabled={!canMoveForward}
-                data-testid="wizardCompleteButton"
-              >
-                Complete
-              </button>
-            )}
-            {!isMobile && !hideCancelBtn && (
-              <button
-                type="button"
-                className="usa-button usa-button--unstyled padding-left-0"
-                onClick={this.cancelFlow}
-                disabled={false}
-                data-testid="wizardCancelButton"
-              >
-                Cancel
-              </button>
-            )}
-            {showFinishLaterBtn && (
-              <button
-                type="button"
-                className="usa-button usa-button--unstyled"
-                onClick={this.cancelFlow}
-                disabled={false}
-                data-testid="wizardFinishLaterButton"
-              >
-                Finish Later
-              </button>
-            )}
-          </div>
+        <div className="grid-row" style={{ marginTop: '2rem' }}>
+          {/* <div className="grid-col-10 text-right margin-top-6 margin-left-neg-1 tablet:margin-top-3 display-flex"> */}
+          {!isFirstPage(pageList, pageKey) && !hideBackBtn && (
+            <button
+              type="button"
+              className="usa-button usa-button--secondary"
+              onClick={this.previousPage}
+              disabled={!canMoveBackward}
+              data-testid="wizardBackButton"
+            >
+              Back
+            </button>
+          )}
+          {!isLastPage(pageList, pageKey) && (
+            <button
+              type="button"
+              className="usa-button"
+              onClick={this.nextPage}
+              disabled={!canMoveForward}
+              data-testid="wizardNextButton"
+            >
+              Next
+            </button>
+          )}
+          {isLastPage(pageList, pageKey) && (
+            <button
+              type="button"
+              className="usa-button"
+              onClick={handleSubmit}
+              disabled={!canMoveForward}
+              data-testid="wizardCompleteButton"
+            >
+              Complete
+            </button>
+          )}
+          {!isMobile && !hideCancelBtn && (
+            <button
+              type="button"
+              className="usa-button usa-button--unstyled padding-left-0"
+              onClick={this.cancelFlow}
+              disabled={false}
+              data-testid="wizardCancelButton"
+            >
+              Cancel
+            </button>
+          )}
+          {showFinishLaterBtn && (
+            <button
+              type="button"
+              className="usa-button usa-button--unstyled"
+              onClick={this.cancelFlow}
+              disabled={false}
+              data-testid="wizardFinishLaterButton"
+            >
+              Finish later
+            </button>
+          )}
         </div>
+        {/* </div> */}
       </div>
     );
   }
