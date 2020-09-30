@@ -1089,50 +1089,6 @@ jobs:
           repo: app-tasks
       - announce_failure
 
-  # `deploy_experimental_migrations` deploys migrations to the experimental environment
-  deploy_experimental_migrations:
-    executor: mymove_small
-    environment:
-      - APP_ENVIRONMENT: 'experimental'
-    steps:
-      - aws_vars_legacy
-      - deploy_migrations_steps:
-          ecr_env: legacy
-
-  # `deploy_experimental_tasks` deploys scheduled tasks to the experimental environment
-  deploy_experimental_tasks:
-    executor: mymove_small
-    environment:
-      - APP_ENVIRONMENT: 'experimental'
-    steps:
-      - aws_vars_legacy
-      - deploy_tasks_steps:
-          ecr_env: legacy
-
-  # `deploy_experimental_app` updates the server-TLS app service in the experimental environment
-  deploy_experimental_app:
-    executor: mymove_small
-    environment:
-      - APP_ENVIRONMENT: 'experimental'
-    steps:
-      - aws_vars_legacy
-      - deploy_app_steps:
-          compare_host: '' # leave blank since we want experimental to be able to roll back
-          health_check_hosts: my.experimental.move.mil,office.experimental.move.mil,admin.experimental.move.mil
-          ecr_env: legacy
-
-  # `deploy_experimental_app_client_tls` updates the mutual-TLS service in the experimental environment
-  deploy_experimental_app_client_tls:
-    executor: mymove_small
-    environment:
-      - APP_ENVIRONMENT: 'experimental'
-    steps:
-      - aws_vars_legacy
-      - deploy_app_client_tls_steps:
-          compare_host: '' # leave blank since we want experimental to be able to roll back
-          health_check_hosts: gex.experimental.move.mil,orders.experimental.move.mil
-          ecr_env: legacy
-
   # `deploy_exp_migrations` deploys migrations to the exp environment
   deploy_exp_migrations:
     executor: mymove_small
@@ -1386,41 +1342,6 @@ workflows:
       - push_tasks_legacy:
           requires:
             - build_tasks
-
-      - deploy_experimental_migrations:
-          requires:
-            - pre_test
-            - client_test
-            - server_test
-            - acceptance_tests
-            - push_app_legacy
-            - build_tools
-            - push_tasks_legacy
-            - push_migrations_legacy
-          filters:
-            branches:
-              only: placeholder_branch_name
-
-      - deploy_experimental_tasks:
-          requires:
-            - deploy_experimental_migrations
-          filters:
-            branches:
-              only: placeholder_branch_name
-
-      - deploy_experimental_app:
-          requires:
-            - deploy_experimental_migrations
-          filters:
-            branches:
-              only: placeholder_branch_name
-
-      - deploy_experimental_app_client_tls:
-          requires:
-            - deploy_experimental_migrations
-          filters:
-            branches:
-              only: placeholder_branch_name
 
       - push_app_exp:
           requires:
