@@ -604,7 +604,7 @@ jobs:
     parallelism: 5
     executor: mymove_large
     steps:
-      - aws_vars_stg
+      - aws_vars_exp
       - checkout
       - setup_remote_docker:
           docker_layer_caching: false
@@ -644,7 +644,7 @@ jobs:
   integration_tests_mtls:
     executor: mymove_medium_plus
     steps:
-      - aws_vars_stg
+      - aws_vars_exp
       - checkout
       - setup_remote_docker:
           docker_layer_caching: false
@@ -1130,8 +1130,8 @@ workflows:
             - pre_deps_yarn
             - pre_deps_cypress
             - check_generated_code
-            - push_app_stg
-            - push_migrations_stg
+            - push_app_exp
+            - push_migrations_exp
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
@@ -1141,8 +1141,8 @@ workflows:
           requires:
             - pre_deps_golang
             - check_generated_code
-            - push_app_stg
-            - push_migrations_stg
+            - push_app_exp
+            - push_migrations_exp
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
