@@ -164,22 +164,22 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		return ediinvoice.Invoice858C{}, fmt.Errorf("Could not find payment service items: %w", err)
 	}
 
-	if msAndCsOnly(paymentServiceItems) {
+	if !msOrCsOnly(paymentServiceItems) {
 		var g62Segments []edisegment.Segment
 		g62Segments, err = g.createG62Segments(paymentRequest.ID, moveTaskOrder.Orders)
 		if err != nil {
 			return ediinvoice.Invoice858C{}, err
 		}
 		edi858.Header = append(edi858.Header, g62Segments...)
-
-		// Add origin and destination details to header
-		var originDestinationSegments []edisegment.Segment
-		originDestinationSegments, err = g.createOriginAndDestinationSegments(paymentRequest.ID, moveTaskOrder.Orders)
-		if err != nil {
-			return ediinvoice.Invoice858C{}, err
-		}
-		edi858.Header = append(edi858.Header, originDestinationSegments...)
 	}
+
+	// Add origin and destination details to header
+	var originDestinationSegments []edisegment.Segment
+	originDestinationSegments, err = g.createOriginAndDestinationSegments(paymentRequest.ID, moveTaskOrder.Orders)
+	if err != nil {
+		return ediinvoice.Invoice858C{}, err
+	}
+	edi858.Header = append(edi858.Header, originDestinationSegments...)
 
 	// Add LOA segments to header
 	loaSegments, err := g.createLoaSegments(moveTaskOrder.Orders)
@@ -518,14 +518,13 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 	return segments, nil
 }
 
-func msAndCsOnly(paymentServiceItems models.PaymentServiceItems) bool {
-	var codesWithoutMsOrCs []string
+func msOrCsOnly(paymentServiceItems models.PaymentServiceItems) bool {
 	for _, psi := range paymentServiceItems {
-		code := string(psi.MTOServiceItem.ReService.Code)
-		if code != "MS" && code != "CS" {
-			codesWithoutMsOrCs = append(codesWithoutMsOrCs, code)
+		code := psi.MTOServiceItem.ReService.Code
+		if code != models.ReServiceCodeMS && code != models.ReServiceCodeCS {
+			return false
 		}
 	}
 
-	return len(codesWithoutMsOrCs) > 0
+	return true
 }
