@@ -80,6 +80,7 @@
   "resolutions": {
     "bl": "^4.0.3",
     "kind-of": "^6.0.2",
+    "selfsigned": "^1.10.8",
     "serialize-javascript": "^3.1.0"
   },
   "name": "client",
