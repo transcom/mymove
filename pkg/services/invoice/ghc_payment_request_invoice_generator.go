@@ -341,6 +341,9 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 			return []edisegment.Segment{}, fmt.Errorf("cannot load OriginDutyStation %s for PaymentRequest %s: %w", orders.OriginDutyStationID, paymentRequestID, err)
 		}
 	} else {
+		if orders.OriginDutyStation == nil {
+			return []edisegment.Segment{}, fmt.Errorf("Invalid Order, must have OriginDutyStation")
+		}
 		originDutyStation = *orders.OriginDutyStation
 	}
 
