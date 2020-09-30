@@ -1163,23 +1163,14 @@ workflows:
       - push_app_exp:
           requires:
             - build_app
-          filters:
-            branches:
-              only: placeholder_branch_name
 
       - push_migrations_exp:
           requires:
             - build_migrations
-          filters:
-            branches:
-              only: placeholder_branch_name
 
       - push_tasks_exp:
           requires:
             - build_tasks
-          filters:
-            branches:
-              only: placeholder_branch_name
 
       - deploy_exp_migrations:
           requires:
@@ -1190,37 +1181,21 @@ workflows:
             - build_tools
             - push_tasks_exp
             - push_migrations_exp
-          filters:
-            branches:
-              only: placeholder_branch_name
 
       - deploy_exp_tasks:
           requires:
             - deploy_exp_migrations
-          filters:
-            branches:
-              only: placeholder_branch_name
 
       - deploy_exp_app:
           requires:
             - deploy_exp_migrations
-          filters:
-            branches:
-              only: placeholder_branch_name
 
       - deploy_exp_app_client_tls:
           requires:
             - deploy_exp_migrations
-          filters:
-            branches:
-              only: placeholder_branch_name
 
       - integration_tests:
           requires:
-            - pre_deps_golang
-            - pre_deps_yarn
-            - pre_deps_cypress
-            - check_generated_code
             - push_app_exp
             - push_migrations_exp
           # if testing on experimental, you can disable these tests by using the commented block below.
@@ -1230,8 +1205,6 @@ workflows:
 
       - integration_tests_mtls:
           requires:
-            - pre_deps_golang
-            - check_generated_code
             - push_app_exp
             - push_migrations_exp
           # if testing on experimental, you can disable these tests by using the commented block below.
