@@ -287,34 +287,22 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	originAndDestinationSegments = append(originAndDestinationSegments, &destinationName)
 
 	// destination address
-	var destinationStreetAddress edisegment.N3
-	if destinationDutyStation.Address.StreetAddress2 == nil {
-		destinationStreetAddress = edisegment.N3{
-			AddressInformation1: destinationDutyStation.Address.StreetAddress1,
-		}
-	} else {
-		destinationStreetAddress = edisegment.N3{
-			AddressInformation1: destinationDutyStation.Address.StreetAddress1,
-			AddressInformation2: *destinationDutyStation.Address.StreetAddress2,
-		}
+	destinationStreetAddress := edisegment.N3{
+		AddressInformation1: destinationDutyStation.Address.StreetAddress1,
+	}
+	if destinationDutyStation.Address.StreetAddress2 != nil {
+		destinationStreetAddress.AddressInformation2 = *destinationDutyStation.Address.StreetAddress2
 	}
 	originAndDestinationSegments = append(originAndDestinationSegments, &destinationStreetAddress)
 
 	// destination city/state/postal
-	var destinationPostalDetails edisegment.N4
-	if destinationDutyStation.Address.Country == nil {
-		destinationPostalDetails = edisegment.N4{
-			CityName:            destinationDutyStation.Address.City,
-			StateOrProvinceCode: destinationDutyStation.Address.State,
-			PostalCode:          destinationDutyStation.Address.PostalCode,
-		}
-	} else {
-		destinationPostalDetails = edisegment.N4{
-			CityName:            destinationDutyStation.Address.City,
-			StateOrProvinceCode: destinationDutyStation.Address.State,
-			PostalCode:          destinationDutyStation.Address.PostalCode,
-			CountryCode:         string(*destinationDutyStation.Address.Country),
-		}
+	destinationPostalDetails := edisegment.N4{
+		CityName:            destinationDutyStation.Address.City,
+		StateOrProvinceCode: destinationDutyStation.Address.State,
+		PostalCode:          destinationDutyStation.Address.PostalCode,
+	}
+	if destinationDutyStation.Address.Country != nil {
+		destinationPostalDetails.CountryCode = string(*destinationDutyStation.Address.Country)
 	}
 
 	originAndDestinationSegments = append(originAndDestinationSegments, &destinationPostalDetails)
@@ -347,34 +335,22 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	originAndDestinationSegments = append(originAndDestinationSegments, &originName)
 
 	// origin address
-	var originStreetAddress edisegment.N3
-	if originDutyStation.Address.StreetAddress2 == nil {
-		originStreetAddress = edisegment.N3{
-			AddressInformation1: originDutyStation.Address.StreetAddress1,
-		}
-	} else {
-		originStreetAddress = edisegment.N3{
-			AddressInformation1: originDutyStation.Address.StreetAddress1,
-			AddressInformation2: *originDutyStation.Address.StreetAddress2,
-		}
+	originStreetAddress := edisegment.N3{
+		AddressInformation1: originDutyStation.Address.StreetAddress1,
+	}
+	if originDutyStation.Address.StreetAddress2 != nil {
+		originStreetAddress.AddressInformation2 = *originDutyStation.Address.StreetAddress2
 	}
 	originAndDestinationSegments = append(originAndDestinationSegments, &originStreetAddress)
 
 	// origin city/state/postal
-	var originPostalDetails edisegment.N4
-	if originDutyStation.Address.Country == nil {
-		originPostalDetails = edisegment.N4{
-			CityName:            originDutyStation.Address.City,
-			StateOrProvinceCode: originDutyStation.Address.State,
-			PostalCode:          originDutyStation.Address.PostalCode,
-		}
-	} else {
-		originPostalDetails = edisegment.N4{
-			CityName:            originDutyStation.Address.City,
-			StateOrProvinceCode: originDutyStation.Address.State,
-			PostalCode:          originDutyStation.Address.PostalCode,
-			CountryCode:         string(*originDutyStation.Address.Country),
-		}
+	originPostalDetails := edisegment.N4{
+		CityName:            originDutyStation.Address.City,
+		StateOrProvinceCode: originDutyStation.Address.State,
+		PostalCode:          originDutyStation.Address.PostalCode,
+	}
+	if originDutyStation.Address.Country != nil {
+		originPostalDetails.CountryCode = string(*originDutyStation.Address.Country)
 	}
 
 	originAndDestinationSegments = append(originAndDestinationSegments, &originPostalDetails)
