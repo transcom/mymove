@@ -363,7 +363,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	}
 }
 
-func (suite *GHCInvoiceSuite) bTestNilValues() {
+func (suite *GHCInvoiceSuite) TestNilValues() {
 	currentTime := time.Now()
 	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 		{
@@ -393,18 +393,6 @@ func (suite *GHCInvoiceSuite) bTestNilValues() {
 	nilMove.Orders.TAC = nil
 	nilMove.Orders.NewDutyStation.Address.Country = nil
 	nilMove.Orders.OriginDutyStation.Address.Country = nil
-	// referenceID, _ := models.GenerateReferenceID(suite.DB())
-	// nilMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-	// 	Order: models.Order{
-	// 		ServiceMemberID: serviceMember.ID,
-	// 		ServiceMember:   serviceMember,
-	// 		TAC:             nil,
-	// 	},
-	// 	Move: models.Move{
-	// 		ID: uuid.FromStringOrNil("7024c4e3-52ca-4639-bf69-dd8238308c98"),
-	// 	},
-	// })
-
 	nilMove.ReferenceID = nil
 
 	nilPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
