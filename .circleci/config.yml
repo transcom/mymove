@@ -66,6 +66,16 @@ executors:
         command: '-c fsync=off -c full_page_writes=off -c max_connections=200'
 
 commands:
+  aws_vars_legacy:
+    steps:
+      - run:
+          name: 'Setting up AWS environment variables for legacy env'
+          command: |
+            echo "export AWS_DEFAULT_REGION=$LEGACY_REGION" >> $BASH_ENV
+            echo "export AWS_ACCOUNT_ID=$LEGACY_ACCOUNT_ID" >> $BASH_ENV
+            echo "export AWS_ACCESS_KEY_ID=$LEGACY_ACCESS_KEY_ID" >> $BASH_ENV
+            echo "export AWS_SECRET_ACCESS_KEY=$LEGACY_SECRET_ACCESS_KEY" >> $BASH_ENV
+            source $BASH_ENV
   aws_vars_exp:
     steps:
       - run:
@@ -618,12 +628,77 @@ jobs:
           destination: test-results
       - announce_failure
 
+  # `acceptance_tests` runs acceptance tests for the webserver against the local, experimental, and staging environments.
+  acceptance_tests:
+    executor: mymove_medium
+    steps:
+      - aws_vars_legacy
+      - checkout
+      - restore_cache:
+          keys:
+            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
+      - run:
+          name: Run Local acceptance tests
+          command: |
+            echo 'export MOVE_MIL_DOD_CA_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem)' >> $BASH_ENV
+            echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-https.pem)' >> $BASH_ENV
+            echo 'export MOVE_MIL_DOD_TLS_KEY=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-https.key)' >> $BASH_ENV
+            echo 'export CLIENT_AUTH_SECRET_KEY=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-client_auth_secret.key)' >> $BASH_ENV
+            echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
+            echo 'export LOGIN_GOV_HOSTNAME=$E2E_LOGIN_GOV_HOSTNAME' >> $BASH_ENV
+            echo 'export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID' >> $BASH_ENV
+            echo 'export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE' >> $BASH_ENV
+            source $BASH_ENV
+            make acceptance_test
+          environment:
+            CHAMBER_RETRIES: 20
+            DB_REGION: us-west-2
+            DB_RETRY_INTERVAL: 5s
+            DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
+            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+            ENV: test
+            ENVIRONMENT: test
+            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
+            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
+            NO_TLS_ENABLED: true
+            PWD: /home/circleci/transcom/mymove
+      - run:
+          name: Run Experimental acceptance tests
+          command: make acceptance_test
+          environment:
+            CHAMBER_RETRIES: 20
+            DB_REGION: us-west-2
+            DB_RETRY_INTERVAL: 5s
+            DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
+            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+            ENV: test
+            ENVIRONMENT: experimental
+            NO_TLS_ENABLED: true
+            PWD: /home/circleci/transcom/mymove
+            TEST_ACC_ENV: experimental
+      - run:
+          name: Run Staging acceptance tests
+          command: make acceptance_test
+          environment:
+            CHAMBER_RETRIES: 20
+            DB_REGION: us-west-2
+            DB_RETRY_INTERVAL: 5s
+            DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
+            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
+            ENV: test
+            ENVIRONMENT: staging
+            NO_TLS_ENABLED: true
+            PWD: /home/circleci/transcom/mymove
+            TEST_ACC_ENV: staging
+      - run: echo "Prod acceptance tests are prohibited in CircleCI"
+      - announce_failure
+
   # `integration_tests` runs integration tests using Cypress.  https://www.cypress.io/
   integration_tests:
     parallelism: 5
     executor: mymove_large
     steps:
-      - aws_vars_exp
+      - aws_vars_legacy
       - checkout
       - setup_remote_docker:
           docker_layer_caching: false
@@ -663,7 +738,7 @@ jobs:
   integration_tests_mtls:
     executor: mymove_medium_plus
     steps:
-      - aws_vars_exp
+      - aws_vars_legacy
       - checkout
       - setup_remote_docker:
           docker_layer_caching: false
@@ -773,6 +848,20 @@ jobs:
           working_dir: ~/transcom/mymove
       - announce_failure
 
+  # `push_app_legacy` pushes the app container to the legacy container repository
+  push_app_legacy:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_legacy
+      - push_image:
+          ecr_env: legacy
+          image_name: ppp
+          tag: web-dev
+          repo: app
+      - announce_failure
+
   # `push_app_exp` pushes the app container to the milmove-exp container repository
   push_app_exp:
     executor: mymove_small
@@ -866,6 +955,20 @@ jobs:
           working_dir: ~/transcom/mymove
       - announce_failure
 
+  # `push_migrations_legacy` pushes the migrations container to the legacy container repository
+  push_migrations_legacy:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_legacy
+      - push_image:
+          ecr_env: legacy
+          image_name: ppp-migrations
+          tag: dev
+          repo: app-migrations
+      - announce_failure
+
   # `push_migrations_exp` pushes the migrations container to the milmove-exp container repository
   push_migrations_exp:
     executor: mymove_small
@@ -928,6 +1031,20 @@ jobs:
           image_name: tasks
           tag: dev
           working_dir: ~/transcom/mymove
+      - announce_failure
+
+  # `push_tasks_legacy` pushes the tasks containers to the legacy container repository
+  push_tasks_legacy:
+    executor: mymove_small
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - aws_vars_legacy
+      - push_image:
+          ecr_env: legacy
+          image_name: tasks
+          tag: dev
+          repo: app-tasks
       - announce_failure
 
   # `push_tasks_exp` pushes the tasks containers to the milmove-exp container repository
@@ -1141,7 +1258,41 @@ workflows:
             - pre_deps_golang
             - pre_deps_yarn
 
+      - acceptance_tests:
+          requires:
+            - pre_deps_golang
+
       - pre_deps_cypress
+
+      - integration_tests:
+          requires:
+            - pre_deps_golang
+            - pre_deps_yarn
+            - pre_deps_cypress
+            - check_generated_code
+            - push_app_legacy
+            - push_app_stg
+            - push_migrations_legacy
+            - push_migrations_stg
+            - acceptance_tests
+          # if testing on experimental, you can disable these tests by using the commented block below.
+          filters:
+            branches:
+              ignore: placeholder_branch_name
+
+      - integration_tests_mtls:
+          requires:
+            - pre_deps_golang
+            - check_generated_code
+            - push_app_legacy
+            - push_app_stg
+            - push_migrations_legacy
+            - push_migrations_stg
+            - acceptance_tests
+          # if testing on experimental, you can disable these tests by using the commented block below.
+          filters:
+            branches:
+              ignore: placeholder_branch_name
 
       - client_test:
           requires:
@@ -1163,7 +1314,12 @@ workflows:
           requires:
             - anti_virus
             - pre_deps_golang
-            - pre_deps_yarn # don't bother building and pushing the application if it won't even start properly
+            - pre_deps_yarn
+            - acceptance_tests # don't bother building and pushing the application if it won't even start properly
+
+      - push_app_legacy:
+          requires:
+            - build_app
 
       - build_tools:
           requires:
@@ -1175,61 +1331,73 @@ workflows:
             - anti_virus
             - pre_deps_golang
 
+      - push_migrations_legacy:
+          requires:
+            - build_migrations
+
       - build_tasks:
           requires:
             - build_tools
 
+      - push_tasks_legacy:
+          requires:
+            - build_tasks
+
       - push_app_exp:
           requires:
             - build_app
+          filters:
+            branches:
+              only: placeholder_branch_name
 
       - push_migrations_exp:
           requires:
             - build_migrations
+          filters:
+            branches:
+              only: placeholder_branch_name
 
       - push_tasks_exp:
           requires:
             - build_tasks
+          filters:
+            branches:
+              only: placeholder_branch_name
 
       - deploy_exp_migrations:
           requires:
             - pre_test
             - client_test
             - server_test
+            - acceptance_tests
             - push_app_exp
             - build_tools
             - push_tasks_exp
             - push_migrations_exp
+          filters:
+            branches:
+              only: placeholder_branch_name
 
       - deploy_exp_tasks:
           requires:
             - deploy_exp_migrations
+          filters:
+            branches:
+              only: placeholder_branch_name
 
       - deploy_exp_app:
           requires:
             - deploy_exp_migrations
+          filters:
+            branches:
+              only: placeholder_branch_name
 
       - deploy_exp_app_client_tls:
           requires:
             - deploy_exp_migrations
-
-      - integration_tests:
-          requires:
-            - push_app_exp
-            - push_migrations_exp
-          # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
-
-      - integration_tests_mtls:
-          requires:
-            - push_app_exp
-            - push_migrations_exp
-          # if testing on experimental, you can disable these tests by using the commented block below.
-          filters:
-            branches:
-              ignore: placeholder_branch_name
+              only: placeholder_branch_name
 
       - push_app_stg:
           requires:
@@ -1261,6 +1429,7 @@ workflows:
             - build_tools
             - push_migrations_stg
             - push_tasks_stg
+            - acceptance_tests
             - integration_tests
             - integration_tests_mtls
           filters:
