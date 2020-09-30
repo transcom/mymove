@@ -154,7 +154,7 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		PrivatelyOwnedVehicle: entitlement.PrivatelyOwnedVehicle,
 		ProGearWeight:         proGearWeight,
 		ProGearWeightSpouse:   proGearWeightSpouse,
-		StorageInTransit:      sit,
+		StorageInTransit:      &sit,
 		TotalDependents:       totalDependents,
 		TotalWeight:           totalWeight,
 		ETag:                  etag.GenerateEtag(entitlement.UpdatedAt),

@@ -570,12 +570,21 @@ jobs:
       - restore_cache:
           keys:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
+      - run:
+          name: Output processes and resource usage every 5 seconds while job is running
+          command: |
+            while true; do
+              sleep 5
+              ps auxwwf
+              echo "======"
+            done
+          background: true
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       # this is so we can avoid go mod downloading and resulting in an error on a false positive
       - run: scripts/pre-commit-go-mod || exit 0
       - run:
-          name: Run pre-commit tests without golangci-lint
-          command: SKIP=golangci-lint pre-commit run --all-files
+          name: Run pre-commit tests without golangci-lint, eslint, or prettier
+          command: SKIP=golangci-lint,eslint,prettier pre-commit run --all-files
       # The output of golangci-lint is an artifact towards STIG compliance
       - run:
           name: Run pre-commit tests with golangci-lint only
@@ -585,11 +594,21 @@ jobs:
             source $BASH_ENV
             mkdir -p tmp/test-results/pretest
             pre-commit run -v --all-files golangci-lint | tee tmp/test-results/pretest/golangci-lint.out
+      - run:
+          name: Run prettier checks
+          command: yarn prettier-ci
+      - run:
+          name: Run eslint checks
+          command: yarn lint
       # adding danger checks here as they are similar to our pre-commit hooks
       - run:
           name: Run DangerJS checks
           command: yarn danger ci --failOnErrors
       # `pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}` is used to cache pre-commit plugins.
+      - run:
+          name: Output maximum memory usage in Bytes
+          command: cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes
+          when: always
       - save_cache:
           key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
           paths:
