@@ -3,18 +3,37 @@
 #
 # script to help with prime demo script
 #
-# usage
-# ./scripts/prime-api-demo moveTaskOrderID [hostname]
-# ./scripts/prime-api-demo 9c7b255c-2981-4bf8-839f-61c7458e2b4d
-# ./scripts/prime-api-demo 9c7b255c-2981-4bf8-839f-61c7458e2b4d api.stg.move.mil
-# ./scripts/prime-api-demo 9c7b255c-2981-4bf8-839f-61c7458e2b4d api.stg.move.mil path/to/proof.pdf path/to/proof.jpg ...
-# ./scripts/prime-api-demo 9c7b255c-2981-4bf8-839f-61c7458e2b4d local path/to/proof.pdf path/to/proof.jpg ...
 
 set -eu -o pipefail
 
+function usage() {
+  echo "Usage: $0 <moveTaskOrderID> [[hostname] path/to/proof.pdf]"
+  echo
+  echo "If omitted, the optional parameters are set as follows:"
+  echo "  hostname = local"
+  echo "  proofs of service = (./tmp/uploads/proof_of_service.png ./tmp/uploads/proof_of_service.jpg ./tmp/uploads/proof_of_service.pdf)"
+  echo "  # you can specify as many proofs as you want"
+  echo
+  echo "EXAMPLES:"
+  echo "$0 --help # prints this help"
+  echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d"
+  echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d local path/to/proof.pdf path/to/proof.jpg"
+  echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d api.staging"
+  echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d api.staging path/to/proof.pdf path/to/proof.jpg"
+}
+
+if [ "${#@}" -eq 0 ]; then
+  usage
+  exit 1
+elif [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+  usage
+  exit 0
+fi
+
+primeapiopts=(--insecure)
 readonly mtoid=$1
 readonly environment=${2:-local}
-primeapiopts=(--insecure)
+
 # check to see if proofs are passed in
 if [ "${#@}" -gt 2 ]; then
   shift # to remove mtoid from $@
