@@ -923,6 +923,9 @@ jobs:
           environment:
             CHROME_CONCURRENCY: 2
       - run: make storybook_build
+      - run:
+          name: Happo tests
+          command: yarn happo-ci
       - persist_to_workspace:
           root: /home/circleci/transcom/mymove/
           paths:
