@@ -93,9 +93,36 @@ func assembleMTOShipmentPayload(db *pop.Connection, updatedObjectID uuid.UUID) (
 		return nil, notFoundError
 	}
 
-	// TODO: This should convert the model to payload and then return the bytes
-	return model.ID.Bytes(), nil
+	payload := payloads.MTOShipment(&model)
+	payloadArray, err := json.Marshal(payload)
+	if err != nil {
+		unknownErr := services.NewEventError("Unknown error creating MTOShipment payload.", err)
+		return nil, unknownErr
+	}
+	return payloadArray, nil
 
+}
+
+// assembleMTOPayload assembles the MoveTaskOrder Payload and returns the JSON in bytes
+func assembleMTOPayload(db *pop.Connection, updatedObjectID uuid.UUID) ([]byte, error) {
+	model := models.Move{}
+	// If using eager, important to be specific about which addl associations to load to reduce DB hits
+	err := db.Find(&model, updatedObjectID)
+
+	if err != nil {
+		notFoundError := services.NewNotFoundError(updatedObjectID, "looking for MoveTaskOrder")
+		notFoundError.Wrap(err)
+		return nil, notFoundError
+	}
+
+	payload := MoveTaskOrderModelToPayload(&model)
+	payloadArray, err := json.Marshal(payload)
+	if err != nil {
+		unknownErr := services.NewEventError("Unknown error creating MoveTaskOrder payload", err)
+		return nil, unknownErr
+	}
+
+	return payloadArray, nil
 }
 
 // assembleMTOServiceItemPayload assembles the MTOServiceItem Payload and returns the JSON in bytes
@@ -113,7 +140,7 @@ func assembleMTOServiceItemPayload(db *pop.Connection, updatedObjectID uuid.UUID
 	payload := payloads.MTOServiceItem(&model)
 	payloadArray, err := json.Marshal(payload)
 	if err != nil {
-		unknownErr := services.NewEventError("Unknown error creating payload", err)
+		unknownErr := services.NewEventError("Unknown error creating MTOServiceItem payload", err)
 		return nil, unknownErr
 	}
 
@@ -205,6 +232,8 @@ func objectEventHandler(event *Event, modelBeingUpdated interface{}) (bool, erro
 		payloadArray, err = assembleMTOShipmentPayload(db, event.UpdatedObjectID)
 	case models.MTOServiceItem:
 		payloadArray, err = assembleMTOServiceItemPayload(db, event.UpdatedObjectID)
+	case models.Move:
+		payloadArray, err = assembleMTOPayload(db, event.UpdatedObjectID)
 	case models.Order:
 		payloadArray, err = assembleMoveOrderPayload(db, event.UpdatedObjectID)
 	default:
