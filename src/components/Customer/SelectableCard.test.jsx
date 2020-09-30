@@ -1,11 +1,8 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { mount } from 'enzyme';
-import { Provider } from 'react-redux';
 
 import SelectableCard from './SelectableCard';
-
-import { store } from 'shared/store';
 
 const defaultProps = {
   id: '123',
@@ -16,11 +13,7 @@ const defaultProps = {
   onChange: jest.fn(),
 };
 function mountSelectableCard(props = defaultProps) {
-  return mount(
-    <Provider store={store}>
-      <SelectableCard {...props} />
-    </Provider>,
-  );
+  return mount(<SelectableCard {...props} />);
 }
 describe('SelectableCard component', () => {
   it('renders without crashing', () => {
