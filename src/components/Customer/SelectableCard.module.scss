@@ -15,7 +15,7 @@
 
 .selected {
   @include u-shadow(2);
-  background-color: #ecf1f7;
+  background-color: $info-light;
 }
 
 .cardContainer + .cardContainer {
