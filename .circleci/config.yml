@@ -906,7 +906,7 @@ jobs:
 
   # `storybook_tests` builds the storybook application container and pushes to the container repository
   storybook_tests:
-    executor: mymove_small
+    executor: mymove_medium
     steps:
       - checkout
       - restore_cache:
