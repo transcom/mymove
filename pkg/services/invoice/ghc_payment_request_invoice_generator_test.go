@@ -129,6 +129,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	nilMove.Orders.TAC = nil
 	nilMove.Orders.NewDutyStation.Address.Country = nil
 	nilMove.Orders.OriginDutyStation.Address.Country = nil
+	nilMove.ReferenceID = nil
 
 	nilPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{

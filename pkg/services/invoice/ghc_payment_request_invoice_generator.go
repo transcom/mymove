@@ -112,6 +112,10 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		TransactionSetControlNumber:  "0001",
 	}
 
+	if moveTaskOrder.ReferenceID == nil {
+		return edi858, fmt.Errorf("Invalid move taskorder. Must have a ReferenceID value")
+	}
+
 	bx := edisegment.BX{
 		TransactionSetPurposeCode:    "00",
 		TransactionMethodTypeCode:    "J",
@@ -312,6 +316,9 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	// ========  ORIGIN ========= //
 	// origin station name
 	var originDutyStation models.DutyStation
+	if orders.OriginDutyStation == nil {
+		return []edisegment.Segment{}, fmt.Errorf("invalid order, must have origin duty station")
+	}
 	if orders.OriginDutyStationID != nil {
 		originDutyStation, err = models.FetchDutyStation(g.db, *orders.OriginDutyStationID)
 		if err != nil {
