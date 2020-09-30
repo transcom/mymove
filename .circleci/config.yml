@@ -1124,30 +1124,6 @@ workflows:
 
       - pre_deps_cypress
 
-      - integration_tests:
-          requires:
-            - pre_deps_golang
-            - pre_deps_yarn
-            - pre_deps_cypress
-            - check_generated_code
-            - push_app_exp
-            - push_migrations_exp
-          # if testing on experimental, you can disable these tests by using the commented block below.
-          filters:
-            branches:
-              ignore: placeholder_branch_name
-
-      - integration_tests_mtls:
-          requires:
-            - pre_deps_golang
-            - check_generated_code
-            - push_app_exp
-            - push_migrations_exp
-          # if testing on experimental, you can disable these tests by using the commented block below.
-          filters:
-            branches:
-              ignore: placeholder_branch_name
-
       - client_test:
           requires:
             - pre_deps_yarn
@@ -1238,6 +1214,30 @@ workflows:
           filters:
             branches:
               only: placeholder_branch_name
+
+      - integration_tests:
+          requires:
+            - pre_deps_golang
+            - pre_deps_yarn
+            - pre_deps_cypress
+            - check_generated_code
+            - push_app_exp
+            - push_migrations_exp
+          # if testing on experimental, you can disable these tests by using the commented block below.
+          filters:
+            branches:
+              ignore: placeholder_branch_name
+
+      - integration_tests_mtls:
+          requires:
+            - pre_deps_golang
+            - check_generated_code
+            - push_app_exp
+            - push_migrations_exp
+          # if testing on experimental, you can disable these tests by using the commented block below.
+          filters:
+            branches:
+              ignore: placeholder_branch_name
 
       - push_app_stg:
           requires:
