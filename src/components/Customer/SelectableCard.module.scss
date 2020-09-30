@@ -7,10 +7,18 @@
   @include u-padding-right(2);
   @include u-padding-bottom(3);
   @include u-padding-left(2);
-  border-radius: 0.26667rem;
-  margin: 1.6rem;
+  border-radius: 2px;
   background-color: $bg-white;
   border:  2px solid $base-lighter;
+}
+
+.selected {
+  @include u-shadow(2);
+  background-color: #ecf1f7;
+}
+
+.cardContainer + .cardContainer {
+  @include u-margin-top('105');
 }
 
 .cardText {

@@ -1,12 +1,13 @@
 import React from 'react';
 import { string, func, bool } from 'prop-types';
 import { Radio } from '@trussworks/react-uswds';
+import classnames from 'classnames';
 
 import styles from './SelectableCard.module.scss';
 
 const SelectableCard = ({ id, label, name, value, cardText, onChange, disabled, checked }) => {
   return (
-    <div className={styles.cardContainer}>
+    <div className={classnames(styles.cardContainer, { [styles.selected]: checked })}>
       <Radio
         id={id}
         label={label}
