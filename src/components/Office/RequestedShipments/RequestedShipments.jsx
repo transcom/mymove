@@ -45,12 +45,12 @@ const RequestedShipments = ({
       shipments: [],
     },
     onSubmit: (values, { setSubmitting }) => {
-      const mtoApprovalServiceItemCodes = [];
+      const mtoApprovalServiceItemCodes = {};
       if (values.shipmentManagementFee) {
-        mtoApprovalServiceItemCodes.push('MS');
+        mtoApprovalServiceItemCodes.serviceCodeMS = true;
       }
       if (values.counselingFee) {
-        mtoApprovalServiceItemCodes.push('CS');
+        mtoApprovalServiceItemCodes.serviceCodeCS = true;
       }
       Promise.all([
         Promise.all(
