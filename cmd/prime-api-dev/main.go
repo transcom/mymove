@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+
 	"github.com/transcom/mymove/cmd/prime-api-dev/scripts"
 
 	"github.com/transcom/mymove/cmd/prime-api-client/utils"

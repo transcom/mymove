@@ -135,3 +135,45 @@ func GetCACStore(v *viper.Viper) (*pksigner.Store, error) {
 	}
 	return store, nil
 }
+
+// CACStoreLogin login to existing CAC store
+// Call 'defer store.Close()' after retrieving the store
+func CACStoreLogin(v *viper.Viper, store *pksigner.Store) (*pksigner.Store, error) {
+
+	if store == nil {
+		return nil, errors.New("Do not have an existing CAC store. Use GetCACStore()")
+	}
+
+	inputUI := &input.UI{
+		Writer: os.Stderr,
+		Reader: os.Stdin,
+	}
+
+	pin, errUIAsk := inputUI.Ask("CAC PIN", &input.Options{
+		Default:     "",
+		HideOrder:   true,
+		HideDefault: true,
+		Required:    true,
+		Loop:        true,
+		Mask:        true,
+		ValidateFunc: func(input string) error {
+			matched, matchErr := regexp.Match("^\\d+$", []byte(input))
+			if matchErr != nil {
+				return matchErr
+			}
+			if !matched {
+				return errors.New("Invalid PIN format")
+			}
+			return nil
+		},
+	})
+	if errUIAsk != nil {
+		return nil, errUIAsk
+	}
+
+	errLogin := store.Login(pin)
+	if errLogin != nil {
+		return nil, errLogin
+	}
+	return store, nil
+}

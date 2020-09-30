@@ -4,72 +4,87 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"github.com/transcom/mymove/cmd/prime-api-client/utils"
-	"github.com/transcom/mymove/pkg/gen/primemessages"
+	"pault.ag/go/pksigner"
 
+	"github.com/transcom/mymove/cmd/prime-api-client/utils"
+	primeClient "github.com/transcom/mymove/pkg/gen/primeclient"
 	mto "github.com/transcom/mymove/pkg/gen/primeclient/move_task_order"
+	mtoShipment "github.com/transcom/mymove/pkg/gen/primeclient/mto_shipment"
+	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
 type MenuType string
+
 func (m MenuType) String() string {
 	return string(m)
 }
+
 const (
-	MenuMain MenuType = "MAIN"
-	SelectMTOMenu MenuType = "SELECT_MTO"
-	UpdateMTOMenu MenuType = "UPDATE_MTO"
-	UpdateShipmentMenu MenuType = "UPDATE_SHIPMENT"
-	SelectServiceItems MenuType = "SELECT_SERVICE_ITEMS"
+	MenuMain                 MenuType = "MAIN"
+	MTOMenu                  MenuType = "MTO_MENU"
+	UpdateMTOMenu            MenuType = "UPDATE_MTO"
+	UpdateShipmentMenu       MenuType = "UPDATE_SHIPMENT"
+	CreatePaymentRequestMenu MenuType = "CREATE_PR"
+	SelectServiceItems       MenuType = "SELECT_SERVICE_ITEMS"
+)
+const (
+	layoutISO = "2006-01-02"
+	layoutUS  = "January 2, 2006"
 )
 
+/*
 menus := []MenuType {
 	MenuMain,
 }
 
+*/
+
 // ReferenceID string
 
 type mtoDisplay struct {
-	mtoID string
+	mtoID       string
 	description string
 }
 
 type serviceItemDisplay struct {
+	mtoShipmentID string
 	serviceItemID string
-	description string
-
+	description   string
 }
 
 type paymentRequestDisplay struct {
 	paymentRequestID string
-	description string
+	description      string
 }
 
 type mtoShipmentDisplay struct {
 	mtoShipmentID string
-	description string
+	description   string
+	etag          string
 }
 
-
-type PaymentRequestsData struct {
-	mtos primemessages.MoveTaskOrders
-	mtoDisplayList []mtoDisplay
-	currentMTO primemessages.MoveTaskOrder
-	mtoShipmentDisplayList []mtoShipmentDisplay
-	serviceItemDisplayList map[string][]serviceItemDisplay // map of MTO Shipment IDs to a list of service items
+type paymentRequestsData struct {
+	mtos                      primemessages.MoveTaskOrders
+	mtoDisplayList            []mtoDisplay
+	currentMTO                primemessages.MoveTaskOrder
+	mtoShipmentDisplayList    []mtoShipmentDisplay
+	serviceItemDisplayList    []serviceItemDisplay
 	paymentRequestDisplayList []paymentRequestDisplay
-	v *viper.Viper
-	logger *log.Logger
+	v                         *viper.Viper
+	logger                    *log.Logger
+	store                     *pksigner.Store
 }
-
 
 // InitPaymentRequestsFlags declares which flags are enabled
 func InitPaymentRequestsFlags(flag *pflag.FlagSet) {
@@ -104,25 +119,685 @@ func PaymentRequests(cmd *cobra.Command, args []string) error {
 		logger.Fatal(err)
 	}
 
-	displayMainMenu(logger)
+	pr := paymentRequestsData{
+		logger: logger,
+		v:      v,
+	}
 
+	nextMenu := MenuMain
+	exitApp := false
+
+	for ok := true; ok; ok = !exitApp {
+		switch nextMenu {
+		case MenuMain:
+			exitApp, nextMenu, err = pr.displayMainMenu()
+		case MTOMenu:
+			exitApp, nextMenu, err = pr.displayMTOMenu()
+		case UpdateMTOMenu:
+			exitApp, nextMenu, err = pr.displayUpdateMTOMenu()
+		case UpdateShipmentMenu:
+			exitApp, nextMenu, err = pr.displayUpdateShipmentMenu()
+		}
+
+	}
+
+	pr.cleanup()
+	cleanup()
 
 	return nil
 }
 
-func displayMTOS() {
+func cleanup() {
 
 }
 
-func selectMTOMenu(logger *log.Logger) {
+func (pr *paymentRequestsData) cleanup() {
+	// Defer closing the store until after the API call has completed
+	if pr.store != nil {
+		pr.store.Close()
+	}
+}
+
+func (pr *paymentRequestsData) printMTO(mto *primemessages.MoveTaskOrder) bool {
+
+	if mto == nil {
+		return false
+	}
+
+	if mto.AvailableToPrimeAt != nil && mto.MoveOrder != nil && mto.MoveOrder.DestinationDutyStation != nil &&
+		mto.MoveOrder.DestinationDutyStation.Address != nil && mto.MoveOrder.DestinationDutyStation.Address.City != nil &&
+		mto.MoveOrder.Customer != nil {
+		return true
+	}
+
+	return false
+}
+
+func (pr *paymentRequestsData) displaySelectedMTO() {
+
+	mto := pr.currentMTO
+	pr.mtoShipmentDisplayList = []mtoShipmentDisplay{}
+	pr.serviceItemDisplayList = []serviceItemDisplay{}
+
+	fmt.Printf("\n\n============ DISPLAY SELECTED MTO ============ \n\n")
+
+	if mto.AvailableToPrimeAt != nil {
+		fmt.Printf("AvailableToPrime: %s\n", mto.AvailableToPrimeAt.String())
+	}
+
+	if mto.IsCanceled != nil {
+		fmt.Printf("Is Canceled: %s\n", strconv.FormatBool(*mto.IsCanceled))
+	}
+
+	fmt.Printf("%s, %s\n", mto.MoveOrder.Customer.LastName, mto.MoveOrder.Customer.FirstName)
+
+	fmt.Printf("Dest. Duty Station: %s, %s, %s\n", *mto.MoveOrder.DestinationDutyStation.Address.City,
+		*mto.MoveOrder.DestinationDutyStation.Address.State, *mto.MoveOrder.DestinationDutyStation.Address.PostalCode)
+
+	// Display shipments
+	for _, s := range mto.MtoShipments {
+		var sstrs []string
+		sstrs = append(sstrs, fmt.Sprintf("TOO approval date: %s\n", s.ApprovedDate.String()))
+		if s.PickupAddress == nil {
+			sstrs = append(sstrs, fmt.Sprint("Pickup address: <missing>\n"))
+		} else {
+			sstrs = append(sstrs, fmt.Sprintf("Pickup address: %s, %s, %s\n", *s.PickupAddress.City,
+				*s.PickupAddress.State, *s.PickupAddress.PostalCode))
+		}
+
+		if s.DestinationAddress == nil {
+			sstrs = append(sstrs, fmt.Sprint("Dest. address: <missing>\n"))
+		} else {
+			sstrs = append(sstrs, fmt.Sprintf("Dest. address: %s, %s, %s\n", *s.DestinationAddress.City,
+				*s.DestinationAddress.State, *s.DestinationAddress.PostalCode))
+		}
+
+		sstrs = append(sstrs, fmt.Sprintf("Estimated weight: %d\n", s.PrimeEstimatedWeight))
+		sstrs = append(sstrs, fmt.Sprintf("Actual weight: %d\n", s.PrimeActualWeight))
+
+		sstrs = append(sstrs, fmt.Sprintf("Requested pickup date: %s\n", s.RequestedPickupDate.String()))
+		sstrs = append(sstrs, fmt.Sprintf("Scheduled pickup date: %s\n", s.ScheduledPickupDate.String()))
+		sstrs = append(sstrs, fmt.Sprintf("Actual pickup date: %s\n", s.ActualPickupDate.String()))
+
+		shipmentDisplay := mtoShipmentDisplay{
+			mtoShipmentID: s.ID.String(),
+			description:   strings.Join(sstrs, ""),
+			etag:          s.ETag,
+		}
+		pr.mtoShipmentDisplayList = append(pr.mtoShipmentDisplayList, shipmentDisplay)
+
+	}
+
+	for _, service := range mto.MtoServiceItems() {
+		var strs []string
+
+		strs = append(strs, fmt.Sprintf("%s status: %s\n", service.ReServiceName(), service.Status()))
+
+		serviceItem := serviceItemDisplay{
+			serviceItemID: service.ID().String(),
+			description:   strings.Join(strs, ""),
+			mtoShipmentID: service.MtoShipmentID().String(),
+		}
+
+		pr.serviceItemDisplayList = append(pr.serviceItemDisplayList, serviceItem)
+	}
+
+	for i, shipment := range pr.mtoShipmentDisplayList {
+		fmt.Printf("\n%d: ============== Shipment %d =============\n", i, i)
+		fmt.Printf("%s\n", shipment.description)
+		fmt.Print("\nService Items:\n")
+		for ii, service := range pr.serviceItemDisplayList {
+			if service.mtoShipmentID == shipment.mtoShipmentID {
+				fmt.Printf("%d: %s\n", ii, service.description)
+			}
+		}
+	}
+
+	/*
+			AvailableToPrime:
+			isCanceled:
+			Branch:
+		 	Lasttname, Firstname
+			Dest Duty Station:
+
+			#: ============== Shipment 1 =============
+			Shipment 1:
+			TOO approval date:
+
+			pickup address: city, state, zip
+			Destination address: city, State, Zip
+
+			estimated Weight <missing>
+			actual weight <missing>
+		    request pickup date <missing>
+		    scheduled pickup date <missing>
+		    actual pickup date <mission>
+			first Availabe shipment date
+
+		    Service Items:
+			#: code, description, status
+
+			#: ============== Payment Request Number =============
+		    code, description, price, status
+	*/
 
 }
 
-func displayMainMenu(logger *log.Logger) (bool, MenuType, error) {
+func (pr *paymentRequestsData) displayMTOS() {
+	/*
+		mtos primemessages.MoveTaskOrders
+		mtoDisplayList []mtoDisplay
+	*/
+	// clear the list in case the MTOs fetch has been updates
+	pr.mtoDisplayList = []mtoDisplay{}
+
+	header := "#|\tAvail. to Prime|\tDest. City|\tCust. Name\n"
+
+	// fill in new list of mtos
+	for _, mto := range pr.mtos {
+
+		if pr.printMTO(mto) == true {
+
+			description := fmt.Sprintf("%s|\t%s|\t%s,%s\n", mto.AvailableToPrimeAt.String(),
+				*mto.MoveOrder.DestinationDutyStation.Address.City,
+				mto.MoveOrder.Customer.LastName, mto.MoveOrder.Customer.FirstName)
+			info := mtoDisplay{
+				mtoID:       mto.ID.String(),
+				description: description,
+			}
+			pr.mtoDisplayList = append(pr.mtoDisplayList, info)
+		}
+	}
+
+	// TODO
+	// add a line for shipment: code, code, code, code under MTO to know which MTOs have service items already
+	// maybe something line "existing payment reuest: #"
+
+	// display to screen
+
+	fmt.Printf("\n\n -------------- Returning MTOs -------------- \n\n")
+	fmt.Printf(header)
+	for i, description := range pr.mtoDisplayList {
+		fmt.Printf("%d: %s\n", i, description.description)
+	}
+}
+
+func (pr *paymentRequestsData) displayShipment(index int) error {
+	if index < len(pr.mtoShipmentDisplayList) {
+		shipment := pr.mtoShipmentDisplayList[index]
+		fmt.Println(shipment.description)
+
+		fmt.Printf("\n\nService Items:\n")
+		for ii, service := range pr.serviceItemDisplayList {
+			if service.mtoShipmentID == shipment.mtoShipmentID {
+				fmt.Printf("%d: %s\n", ii, service.description)
+			}
+		}
+	} else {
+		return fmt.Errorf("bad shipment index %d", index)
+	}
+
+	return nil
+}
+
+func getIntInput() (int, error) {
+	reader := bufio.NewReader(os.Stdin)
+	text, _ := reader.ReadString('\n')
+	text = strings.TrimSpace(text)
+	selection, err := strconv.Atoi(text)
+	return selection, err
+}
+
+func getStringInput() (string, error) {
+	reader := bufio.NewReader(os.Stdin)
+	text, _ := reader.ReadString('\n')
+	text = strings.TrimSpace(text)
+	return text, nil
+}
+
+func getStrFmtDateInput() (strfmt.Date, error) {
+	var dateString string
+	var err error
+	dateString, err = getStringInput()
+	var t time.Time
+	t, err = time.Parse(layoutISO, dateString)
+	return strfmt.Date(t), err
+}
+
+func (pr *paymentRequestsData) fetchMTOUpdates() error {
+
+	fmt.Println("Fetching MTO updates... ")
+	err := pr.fetchMTOs()
+	if err != nil {
+		fmt.Print("Error fetching updates, MTOs might be out of date, retry fetching or restart application.")
+		return err
+	}
+
+	// if Current Selection is valid, update it with MTO updates
+	for _, mto := range pr.mtos {
+		if mto != nil {
+			if mto.ID == pr.currentMTO.ID {
+				pr.currentMTO = *mto
+				fmt.Println("Current MTO was updated.")
+			}
+		}
+	}
+
+	return nil
+}
+
+func (pr *paymentRequestsData) updateShipmentsJsonToFile(f *os.File, shipmentUpdates map[string]string, shipmentIndex int) error {
+	var strs []string
+
+	strs = append(strs, fmt.Sprint("{\n"))
+	strs = append(strs, fmt.Sprintf("\"mtoShipmentID\": \"%s\",\n", pr.mtoShipmentDisplayList[shipmentIndex].mtoShipmentID))
+	strs = append(strs, fmt.Sprintf("\"ifMatch\": \"%s\",\n", pr.mtoShipmentDisplayList[shipmentIndex].etag))
+	strs = append(strs, fmt.Sprint("\"body\": {\n"))
+	last := len(shipmentUpdates)
+	counter := 0
+	for key, value := range shipmentUpdates {
+
+		counter++
+		if counter == last {
+			strs = append(strs, fmt.Sprintf("\"%s\": \"%s\"\n", key, value))
+		} else {
+			strs = append(strs, fmt.Sprintf("\"%s\": \"%s\",\n", key, value))
+		}
+
+	}
+	strs = append(strs, fmt.Sprint("}\n"))
+	strs = append(strs, fmt.Sprint("}\n"))
+
+	text := []byte(strings.Join(strs, ""))
+
+	if _, err := f.Write(text); err != nil {
+		log.Fatal("Failed to write to temporary file", err)
+	}
+
+	return nil
+}
+
+func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, MenuType, error) {
+	exitApp := false
+	//var err error
+	currentMenu := UpdateShipmentMenu
+
+	// Select Shipment
+	fmt.Println("Select shipment to update")
+
+	reader := bufio.NewReader(os.Stdin)
+	text, _ := reader.ReadString('\n')
+	text = strings.TrimSpace(text)
+	shipmentIndex, err := strconv.Atoi(text)
+	if err != nil {
+		return exitApp, currentMenu, fmt.Errorf("error with selecting shipment: %w", err)
+	}
+
+	// Display Shipment
+	fmt.Printf("\n\n================ Updating Shipment ===============\n")
+	err = pr.displayShipment(shipmentIndex)
+	if err != nil {
+		fmt.Print("Could not display selected MTO shipment")
+		fmt.Printf("error when selection shipment with index %d: %s", shipmentIndex, err.Error())
+		return exitApp, MTOMenu, nil
+	}
+
+	// fields to update
+	const (
+		actualPickupDate = iota
+		requestedPickupDate
+		scheduledPickupDate
+		primeEstimatedWeight
+		primeActualWeight
+		sendShipmentUpdate
+		cancelUpdateShipment
+	)
+
+	fields := []struct {
+		field       int
+		description string
+		json        string
+	}{
+		{
+			field:       actualPickupDate,
+			description: "Actual Pickup Date",
+			json:        "actualPickupDate",
+		},
+		{
+			field:       requestedPickupDate,
+			description: "Requested Pickup Date",
+			json:        "requestedPickupDate",
+		},
+		{
+			field:       scheduledPickupDate,
+			description: "Scheduled Pickup Date",
+			json:        "scheduledPickupDate",
+		},
+		{
+			field:       primeEstimatedWeight,
+			description: "Prime Estimated Weight",
+			json:        "primeEstimatedWeight",
+		},
+		{
+			field:       primeActualWeight,
+			description: "Prime Actual Weight",
+			json:        "primeActualWeight",
+		},
+		{
+			field:       sendShipmentUpdate,
+			description: "Send shipment updates",
+		},
+		{
+			field:       cancelUpdateShipment,
+			description: "Cancel updating shipment",
+		},
+	}
+
+	menuTitle("UPDATE SHIPMENT")
+	shipment := primemessages.MTOShipment{}
+	shipmentUpdates := make(map[string]string)
+	update := true
+	for ok := true; ok; ok = update {
+		for i, field := range fields {
+			fmt.Printf("%d: %s\n", i, field.description)
+		}
+		fmt.Print("Enter field to update: ")
+		var selection int
+		selection, err = getIntInput()
+		selectedField := fields[selection]
+		switch selectedField.field {
+		case actualPickupDate:
+			fmt.Printf("Updating %s\nEnter date as format YYYY-MM-DD: ", selectedField.description)
+			var strFmtDate strfmt.Date
+			strFmtDate, err = getStrFmtDateInput()
+			shipment.ActualPickupDate = strFmtDate
+			shipmentUpdates[selectedField.json] = strFmtDate.String()
+		case requestedPickupDate:
+			fmt.Printf("Updating %s\nEnter date as format YYYY-MM-DD: ", selectedField.description)
+			var strFmtDate strfmt.Date
+			strFmtDate, err = getStrFmtDateInput()
+			shipment.RequestedPickupDate = strFmtDate
+			shipmentUpdates[selectedField.json] = strFmtDate.String()
+		case scheduledPickupDate:
+			fmt.Printf("Updating %s\nEnter date as format YYYY-MM-DD: ", selectedField.description)
+			var strFmtDate strfmt.Date
+			strFmtDate, err = getStrFmtDateInput()
+			shipment.ScheduledPickupDate = strFmtDate
+			shipmentUpdates[selectedField.json] = strFmtDate.String()
+		case primeEstimatedWeight:
+			fmt.Printf("Updating %s\nEnter weight: ", selectedField.description)
+			var weight int
+			weight, err = getIntInput()
+			shipment.PrimeEstimatedWeight = int64(weight)
+			shipmentUpdates[selectedField.json] = strconv.Itoa(weight)
+		case primeActualWeight:
+			fmt.Printf("Updating %s\nEnter weight: ", selectedField.description)
+			var weight int
+			weight, err = getIntInput()
+			shipment.PrimeActualWeight = int64(weight)
+			shipmentUpdates[selectedField.json] = strconv.Itoa(weight)
+		case sendShipmentUpdate:
+			payload := mtoShipment.UpdateMTOShipmentParams{}
+			payload.Body = &shipment
+			payload.IfMatch = pr.mtoShipmentDisplayList[shipmentIndex].etag
+			payload.MtoShipmentID = strfmt.UUID(pr.mtoShipmentDisplayList[shipmentIndex].mtoShipmentID)
+			// err = pr.updateMTOShipment(payload)
+
+			tmpFile, err := ioutil.TempFile(os.TempDir(), "prefix-")
+			if err != nil {
+				log.Fatal("Cannot create temporary file", err)
+			}
+
+			/*
+				// Remember to clean up the file afterwards
+				defer os.Remove(tmpFile.Name())
+
+			*/
+
+			fmt.Println("Created File: " + tmpFile.Name())
+
+			/*
+				{
+				  "mtoShipmentID": "5834016b-bc7b-421f-b87d-313acdddcc77",
+				  "ifMatch": "MjAyMC0wOS0wM1QyMTo1Nzo0NC43NjQ0ODFa",
+				  "body": {
+				    "primeEstimatedWeight": 1000,
+				    "primeActualWeight": 3000
+				  }
+				}
+			*/
+
+			err = pr.updateShipmentsJsonToFile(tmpFile, shipmentUpdates, shipmentIndex)
+			if err != nil {
+
+			}
+
+			err = pr.updateMTOShipment2(tmpFile.Name())
+
+			/*
+				// Close the file
+				if err := tmpFile.Close(); err != nil {
+					log.Fatal(err)
+				}
+			*/
+			if err != nil {
+				fmt.Println("Shipment update failed :( ")
+				fmt.Printf("error message: %s\n", err.Error())
+			} else {
+				fmt.Println("Shipment update was successful!")
+				//jsonStr := json.Marshal(shipmentUpdates, )
+
+				pr.fetchMTOUpdates()
+			}
+		case cancelUpdateShipment:
+			update = false
+		}
+	}
+
+	return exitApp, MTOMenu, nil
+}
+
+func (pr *paymentRequestsData) createPaymentRequest() error {
+
+	return nil
+}
+
+func (pr *paymentRequestsData) displayUpdateShipmentMenuXX() (bool, MenuType, error) {
+
+	// Update MTO Shipment
+	//      take you to the Update MTO shipment menu
+	//
+
+	const (
+		UpdateShipment = iota
+		CreatePaymentRequest
+		ViewPaymentRequest
+		FetchMTO
+		PreviousMenu
+		ExitApp
+	)
+	exitApp := false
+	var err error
+	var selection int
+	currentMenu := MTOMenu
+
+	display := map[int]struct {
+		option      int
+		description string
+		nextMenu    MenuType
+	}{
+		UpdateShipment: {
+			option:      UpdateShipment,
+			description: "Update Shipment",
+			nextMenu:    UpdateShipmentMenu,
+		},
+		PreviousMenu: {
+			option:      PreviousMenu,
+			description: "Go to previous menu",
+			nextMenu:    MenuMain,
+		},
+		ExitApp: {
+			option:      ExitApp,
+			description: "Exit",
+			nextMenu:    currentMenu,
+		},
+	}
+
+	// Display MTO Details for selected MTO
+	pr.displaySelectedMTO()
+
+	menuTitle("UPDATE SHIPMENT")
+	// Display menu options
+	for _, option := range display {
+		fmt.Printf("%d: %s\n", option.option, option.description)
+	}
+
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("\nSelect menu option: ")
+	text, _ := reader.ReadString('\n')
+	text = strings.TrimSpace(text)
+	selection, err = strconv.Atoi(text)
+	if err != nil {
+		fmt.Printf("Error with selection <%s>, try again\n", err.Error())
+		return exitApp, currentMenu, nil
+	}
+
+	switch selection {
+	case UpdateShipment:
+		//pr.updateShipment()
+		return exitApp, display[selection].nextMenu, nil
+
+	case PreviousMenu:
+		return exitApp, display[selection].nextMenu, nil
+	case ExitApp:
+		exitApp = true
+		return exitApp, display[selection].nextMenu, nil
+	}
+
+	return exitApp, currentMenu, nil
+}
+
+func (pr *paymentRequestsData) displayUpdateMTOMenu() (bool, MenuType, error) {
+
+	fmt.Printf("\n UPDATE MTO not implemented \n")
+
+	return false, MTOMenu, nil
+}
+
+func (pr *paymentRequestsData) displayMTOMenu() (bool, MenuType, error) {
+
+	// See MTO details, see shipment fields and see service items
+	//		fields we care about for pricing: available to prime, request pickup date, scheduled pickup date,
+	//      estimated weight, actual weight
+	//
+	// Update MTO
+	// 		take you to the Update MTO menu
+	//
+	// Update MTO Shipment
+	//      take you to the Update MTO shipment menu
+	//
+	// Send payment request
+	//      select which service items to use
+	//
+	// View payment request
+	//
+
+	const (
+		UpdateMTO = iota
+		UpdateShipment
+		CreatePaymentRequest
+		ViewPaymentRequest
+		FetchMTO
+		PreviousMenu
+		ExitApp
+	)
+	exitApp := false
+	var err error
+	var selection int
+	currentMenu := MTOMenu
+
+	display := map[int]struct {
+		option      int
+		description string
+		nextMenu    MenuType
+	}{
+		UpdateMTO: {
+			option:      UpdateMTO,
+			description: "Update Current MTO",
+			nextMenu:    UpdateMTOMenu,
+		},
+		UpdateShipment: {
+			option:      UpdateShipment,
+			description: "Update Shipment",
+			nextMenu:    UpdateShipmentMenu,
+		},
+		CreatePaymentRequest: {
+			option:      CreatePaymentRequest,
+			description: "Create Payment Request",
+			nextMenu:    CreatePaymentRequestMenu,
+		},
+		PreviousMenu: {
+			option:      PreviousMenu,
+			description: "Go to previous menu",
+			nextMenu:    MenuMain,
+		},
+		ExitApp: {
+			option:      ExitApp,
+			description: "Exit",
+			nextMenu:    currentMenu,
+		},
+	}
+
+	// Display MTO Details for selected MTO
+	pr.displaySelectedMTO()
+
+	menuTitle("MTO MENU")
+	// Display menu options
+	for _, option := range display {
+		fmt.Printf("%d: %s\n", option.option, option.description)
+	}
+
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("\nSelect menu option: ")
+	text, _ := reader.ReadString('\n')
+	text = strings.TrimSpace(text)
+	selection, err = strconv.Atoi(text)
+	if err != nil {
+		fmt.Printf("Error with selection <%s>, try again\n", err.Error())
+		return exitApp, currentMenu, nil
+	}
+
+	switch selection {
+	case UpdateMTO:
+		return exitApp, display[selection].nextMenu, nil
+	case UpdateShipment:
+		return exitApp, display[selection].nextMenu, nil
+	case CreatePaymentRequest:
+		pr.createPaymentRequest()
+		return exitApp, display[selection].nextMenu, nil
+	case PreviousMenu:
+		return exitApp, display[selection].nextMenu, nil
+	case ExitApp:
+		exitApp = true
+		return exitApp, display[selection].nextMenu, nil
+	}
+
+	return exitApp, currentMenu, nil
+}
+
+func menuTitle(name string) {
+	fmt.Printf("\n\n")
+	fmt.Println("################################################")
+	fmt.Printf("                %s\n", name)
+	fmt.Print("################################################\n\n")
+}
+
+func (pr *paymentRequestsData) displayMainMenu() (bool, MenuType, error) {
 	const (
 		FetchDisplay = iota
 		Display
 		SelectMTO
+		PreviousMenu
 		ExitApp
 	)
 	exitApp := false
@@ -130,83 +805,238 @@ func displayMainMenu(logger *log.Logger) (bool, MenuType, error) {
 	var selection int
 	currentMenu := MenuMain
 
-	display := []struct{
-		option int
+	display := map[int]struct {
+		option      int
 		description string
-		nextMenu MenuType
-	} {
-		{
+		nextMenu    MenuType
+	}{
+		FetchDisplay: {
 			option:      FetchDisplay,
 			description: "Fetch and display MTOs",
-			nextMenu: currentMenu,
+			nextMenu:    currentMenu,
 		},
-		{
+		Display: {
 			option:      Display,
 			description: "Display MTOs",
-			nextMenu: currentMenu,
+			nextMenu:    currentMenu,
 		},
-		{
+		SelectMTO: {
 			option:      SelectMTO,
 			description: "Select MTO",
-			nextMenu: SelectMTOMenu,
+			nextMenu:    MTOMenu,
 		},
-		{
+
+		ExitApp: {
 			option:      ExitApp,
 			description: "Exit",
-			nextMenu: currentMenu,
+			nextMenu:    currentMenu,
 		},
 	}
 	reader := bufio.NewReader(os.Stdin)
-	fmt.Print("\nPress <0> to display Payment Request: ")
+	//fmt.Print("\nPress <0> to display Payment Request: ")
+
+	menuTitle("MAIN MENU")
 
 	for _, option := range display {
 		fmt.Printf("%d: %s\n", option.option, option.description)
 	}
+	fmt.Print("Enter selection: ")
 	text, _ := reader.ReadString('\n')
 	text = strings.TrimSpace(text)
 	selection, err = strconv.Atoi(text)
+	if err != nil {
+		fmt.Printf("Error with selection <%s>, try again\n", err.Error())
+		return exitApp, currentMenu, nil
+	}
 
 	switch selection {
 	case FetchDisplay:
-		mtos, err := fetchMTOs(logger)
-		displayMTOS()
-		return exitApp, display[selection-1].nextMenu, nil
+		err = pr.fetchMTOs()
+		pr.displayMTOS()
+		return exitApp, display[selection].nextMenu, nil
 	case Display:
-		displayMTOS()
-		return exitApp, display[selection-1].nextMenu, nil
+		pr.displayMTOS()
+		return exitApp, display[selection].nextMenu, nil
+	case SelectMTO:
+		err = pr.selectMTO()
+		if err != nil {
+			fmt.Printf("Error selecting MTO index<%d>, try again %s\n", selection, err.Error())
+			return exitApp, currentMenu, nil
+		}
+		return exitApp, display[selection].nextMenu, nil
+
+	case ExitApp:
+		exitApp = true
+		return exitApp, display[selection].nextMenu, nil
+
 	}
 
 	return exitApp, currentMenu, nil
 }
+func (pr *paymentRequestsData) selectMTO() error {
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("\nEnter MTO index to select and use: ")
+	text, _ := reader.ReadString('\n')
+	text = strings.TrimSpace(text)
+	selection, err := strconv.Atoi(text)
 
-func fetchMTOs(logger *log.Logger, v *viper.Viper) (primemessages.MoveTaskOrders, error) {
-	var mtos primemessages.MoveTaskOrders
+	if err != nil {
+		return err
+	}
 
+	mtoID := pr.mtoDisplayList[selection].mtoID
+	for _, mto := range pr.mtos {
+		if mto != nil {
+			if mtoID == mto.ID.String() {
+				pr.currentMTO = *mto
+				return nil
+			}
+		}
+	}
+	return nil
+}
 
+// updateMTOShipment creates a gateway and sends the request to the endpoint
+func (pr *paymentRequestsData) updateMTOShipment(shipmentPayload mtoShipment.UpdateMTOShipmentParams) error {
 
-	primeGateway, cacStore, errCreateClient := utils.CreatePrimeClient(v)
+	// Show what we are sending
+	showJsonPayload, errJSONMarshall := json.Marshal(shipmentPayload)
+	if errJSONMarshall != nil {
+		pr.logger.Fatal(errJSONMarshall)
+	}
+	fmt.Printf("Sending payload for shipment updates...\n")
+	fmt.Println(string(showJsonPayload))
+
+	shipmentPayload.SetTimeout(time.Second * 30)
+
+	// Create the client and open the cacStore
+	primeGateway, _, errCreateClient := pr.getPrimeClient()
 	if errCreateClient != nil {
-		return mtos, errCreateClient
+		return errCreateClient
+	}
+
+	// Make the API Call
+	resp, err := primeGateway.MtoShipment.UpdateMTOShipment(&shipmentPayload)
+	if err != nil {
+		return utils.HandleGatewayError(err, pr.logger)
+	}
+
+	payload := resp.GetPayload()
+	if payload != nil {
+
+	} else {
+		pr.logger.Fatal(resp.Error())
+	}
+
+	// Defer closing the store until after the API call has completed
+	/*
+		if cacStore != nil {
+			defer cacStore.Close()
+		}
+
+	*/
+
+	return nil
+}
+
+// updateMTOShipment creates a gateway and sends the request to the endpoint
+func (pr *paymentRequestsData) updateMTOShipment2(filename string) error {
+
+	/*
+		// Show what we are sending
+		showJsonPayload, errJSONMarshall := json.Marshal(shipmentPayload)
+		if errJSONMarshall != nil {
+			pr.logger.Fatal(errJSONMarshall)
+		}
+		fmt.Printf("Sending payload for shipment updates...\n")
+		fmt.Println(string(showJsonPayload))
+
+	*/
+
+	// Decode json from file that was passed into MTOShipment
+	var shipmentPayload mtoShipment.UpdateMTOShipmentParams
+	err := utils.DecodeJSONFileToPayload(filename, false, &shipmentPayload)
+	if err != nil {
+		pr.logger.Fatal(err)
+	}
+
+	shipmentPayload.SetTimeout(time.Second * 30)
+
+	// Create the client and open the cacStore
+	primeGateway, _, errCreateClient := pr.getPrimeClient()
+	if errCreateClient != nil {
+		return errCreateClient
+	}
+
+	// Make the API Call
+	resp, err := primeGateway.MtoShipment.UpdateMTOShipment(&shipmentPayload)
+	if err != nil {
+		return utils.HandleGatewayError(err, pr.logger)
+	}
+
+	payload := resp.GetPayload()
+	if payload != nil {
+		payload, errJSONMarshall := json.MarshalIndent(payload, "", "    ")
+		if errJSONMarshall != nil {
+			pr.logger.Fatal(errJSONMarshall)
+		}
+		fmt.Println(string(payload))
+	} else {
+		pr.logger.Fatal(resp.Error())
+	}
+
+	// Defer closing the store until after the API call has completed
+	/*
+		if cacStore != nil {
+			defer cacStore.Close()
+		}
+
+	*/
+
+	return nil
+}
+
+func (pr *paymentRequestsData) getPrimeClient() (*primeClient.Mymove, *pksigner.Store, error) {
+	if pr.store == nil {
+		primeGateway, cacStore, errCreateClient := utils.CreatePrimeClient(pr.v)
+		pr.store = cacStore
+		return primeGateway, cacStore, errCreateClient
+	} else {
+		primeGateway, cacStore, errCreateClient := utils.CreatePrimeClientWithCACStoreParam(pr.v, pr.store)
+		pr.store = cacStore
+		return primeGateway, cacStore, errCreateClient
+	}
+}
+
+func (pr *paymentRequestsData) fetchMTOs() error {
+	pr.mtos = primemessages.MoveTaskOrders{}
+
+	primeGateway, _, errCreateClient := pr.getPrimeClient()
+	if errCreateClient != nil {
+		return errCreateClient
 	}
 
 	var params mto.FetchMTOUpdatesParams
 	params.SetTimeout(time.Second * 30)
 	resp, err := primeGateway.MoveTaskOrder.FetchMTOUpdates(&params)
 	if err != nil {
-		return mtos, utils.HandleGatewayError(err, logger)
+		return utils.HandleGatewayError(err, pr.logger)
 	}
 
 	// primemessages.MoveTaskOrders
 	payload := resp.GetPayload()
 	if payload != nil {
-		return payload, nil //payload = mtos
+		pr.mtos = payload
+		return nil
 	} else {
-		logger.Fatal(resp.Error())
+		pr.logger.Fatal(resp.Error())
 	}
 
 	// Defer closing the store until after the API call has completed
-	if cacStore != nil {
-		defer cacStore.Close()
-	}
-	return mtos, nil
+	/*
+		if cacStore != nil {
+			defer cacStore.Close()
+		}
+	*/
+	return nil
 }
