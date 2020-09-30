@@ -20,7 +20,6 @@ describe('HHG Setup flow', function () {
     customerFillsOutOrdersInformation();
     customerChoosesAnHHGMove();
     customerSetsUpAnHHGMove();
-    customerAddsAnotherShipment();
     customerReviewsMoveDetails();
     customerSubmitsMove();
   });
