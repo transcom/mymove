@@ -45,6 +45,13 @@ const RequestedShipments = ({
       shipments: [],
     },
     onSubmit: (values, { setSubmitting }) => {
+      const requests = [
+        Promise.all(
+          filteredShipments.map((shipment) =>
+            approveMTOShipment(moveTaskOrder.id, shipment.id, 'APPROVED', shipment.eTag),
+          ),
+        ),
+      ];
       const mtoApprovalServiceItemCodes = {};
       if (values.shipmentManagementFee) {
         mtoApprovalServiceItemCodes.serviceCodeMS = true;
@@ -52,17 +59,16 @@ const RequestedShipments = ({
       if (values.counselingFee) {
         mtoApprovalServiceItemCodes.serviceCodeCS = true;
       }
-      Promise.all([
-        Promise.all(
-          filteredShipments.map((shipment) =>
-            approveMTOShipment(moveTaskOrder.id, shipment.id, 'APPROVED', shipment.eTag),
-          ),
-        ),
-        approveMTO(moveTaskOrder.id, moveTaskOrder.eTag, mtoApprovalServiceItemCodes),
-      ])
+
+      // if mto is not yet approved, add request to approve it
+      if (!moveTaskOrder.availableToPrimeAt) {
+        requests.push(approveMTO(moveTaskOrder.id, moveTaskOrder.eTag, mtoApprovalServiceItemCodes));
+      }
+
+      Promise.all(requests)
         .then((results) => {
           if (
-            results[1].response.status === 200 &&
+            results[1]?.response?.status === 200 ||
             results[0].every((shipmentResult) => shipmentResult.response.status === 200)
           ) {
             // TODO: We will need to change this so that it goes to the MoveTaskOrder view when we're implementing the success UI element in a later story.
@@ -81,8 +87,12 @@ const RequestedShipments = ({
     setIsModalVisible(true);
   };
 
+  // if showing service items, enable button when shipment and service item are selected
+  // if not showing service items, enable button if a shipment is selected
   const isButtonEnabled =
-    formik.values.shipments.length > 0 && (formik.values.counselingFee || formik.values.shipmentManagementFee);
+    mtoServiceItems.length > 0
+      ? formik.values.shipments.length > 0
+      : formik.values.shipments.length > 0 && (formik.values.counselingFee || formik.values.shipmentManagementFee);
 
   // eslint-disable-next-line camelcase
   const dutyStationPostal = { postal_code: ordersInfo.newDutyStation?.address?.postal_code };
