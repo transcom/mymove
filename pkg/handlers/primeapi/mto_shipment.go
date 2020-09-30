@@ -2,6 +2,7 @@ package primeapi
 
 import (
 	"fmt"
+	"github.com/transcom/mymove/pkg/etag"
 	"time"
 
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
@@ -235,6 +236,10 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 		}
 
 		eTag := params.IfMatch
+
+		encodedUpdatedAt := etag.GenerateEtag(dbShipment.UpdatedAt)
+		fmt.Println("ETAG should be ", encodedUpdatedAt)
+
 		logger.Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
 		mtoShipment, err = h.mtoShipmentUpdater.UpdateMTOShipment(mtoShipment, eTag)
 		if err != nil {
