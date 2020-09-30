@@ -1,6 +1,7 @@
 package event
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/url"
 	"testing"
@@ -30,6 +31,12 @@ func TestEventServiceSuite(t *testing.T) {
 	}
 	suite.Run(t, ts)
 	ts.PopTestSuite.TearDown()
+}
+
+func (suite *EventServiceSuite) getNotification(mtoID uuid.UUID, traceID uuid.UUID) (*models.WebhookNotification, error) {
+	var notification = new(models.WebhookNotification)
+	err := suite.DB().Where("object_id = $1 AND trace_id = $2", mtoID.String(), traceID.String()).First(notification)
+	return notification, err
 }
 
 func (suite *EventServiceSuite) Test_EventTrigger() {
@@ -170,6 +177,57 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 		// Check that no notification was created
 		newCount, _ := suite.DB().Count(&models.WebhookNotification{})
 		suite.Equal(count, newCount)
+
+	})
+}
+
+func (suite *EventServiceSuite) Test_MTOEventTrigger() {
+
+	now := time.Now()
+	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			AvailableToPrimeAt: &now,
+		},
+	})
+	mtoID := mto.ID
+
+	dummyRequest := http.Request{
+		URL: &url.URL{
+			Path: "",
+		},
+	}
+	logger, _ := zap.NewDevelopment()
+	handler := handlers.NewHandlerContext(suite.DB(), logger)
+	traceID, _ := uuid.NewV4()
+	handler.SetTraceID(traceID)
+
+	// Test successful event
+	suite.T().Run("Success with GHC MoveTaskOrder endpoint", func(t *testing.T) {
+
+		_, err := TriggerEvent(Event{
+			EventKey:        MoveTaskOrderCreateEventKey,
+			MtoID:           mtoID,
+			UpdatedObjectID: mtoID,
+			Request:         &dummyRequest,
+			EndpointKey:     GhcUpdateMoveTaskOrderEndpointKey,
+			HandlerContext:  handler,
+			DBConnection:    suite.DB(),
+		})
+		suite.Nil(err)
+
+		// Get the notification
+		notification, err := suite.getNotification(mtoID, traceID)
+		suite.NoError(err)
+		suite.Equal(&mtoID, notification.ObjectID)
+
+		// Reinflate the json from the notification payload
+		suite.NotEmpty(notification.Payload)
+		var mtoInPayload MoveTaskOrder
+		json.Unmarshal([]byte(*notification.Payload), &mtoInPayload)
+
+		// Check some params
+		suite.Equal(mto.PPMType, &mtoInPayload.PpmType)
+		suite.Equal(handlers.FmtDateTimePtr(mto.AvailableToPrimeAt).String(), mtoInPayload.AvailableToPrimeAt.String())
 
 	})
 }
