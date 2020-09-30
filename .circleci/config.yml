@@ -918,14 +918,14 @@ jobs:
           keys:
             - v3-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run:
+          name: Happo tests
+          command: yarn happo-ci
+      - run:
           name: make storybook_tests
           command: make storybook_tests
           environment:
             CHROME_CONCURRENCY: 2
       - run: make storybook_build
-      - run:
-          name: Happo tests
-          command: yarn happo-ci
       - persist_to_workspace:
           root: /home/circleci/transcom/mymove/
           paths:
