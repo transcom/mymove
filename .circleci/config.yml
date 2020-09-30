@@ -719,11 +719,24 @@ jobs:
             - v1-cache-cypress-node-modules-{{ checksum "cypress/yarn.lock" }}
       - attach_workspace:
           at: /home/circleci/transcom/mymove/bin
+      - run:
+          name: Output processes and resource usage every 5 seconds while job is running
+          command: |
+            while true; do
+              sleep 5
+              ps auxwwf
+              echo "======"
+            done
+          background: true
       - run: rm -f pkg/assets/assets.go && make pkg/assets/assets.go
       - run: make server_generate
       - run: rm -f bin/generate-test-data && make bin/generate-test-data
       - run: rm -f bin/prime-api-client && make bin/prime-api-client
       - e2e_tests
+      - run:
+          name: Output maximum memory usage in Bytes
+          command: cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes
+          when: always
       - store_artifacts:
           path: cypress/videos
           destination: videos
@@ -916,8 +929,21 @@ jobs:
           keys:
             - v3-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run:
+          name: Output processes and resource usage every 5 seconds while job is running
+          command: |
+            while true; do
+              sleep 5
+              ps auxwwf
+              echo "======"
+            done
+          background: true
+      - run:
           name: Happo tests
           command: yarn happo-ci
+      - run:
+          name: Output maximum memory usage in Bytes
+          command: cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes
+          when: always
       - persist_to_workspace:
           root: /home/circleci/transcom/mymove/
           paths:
