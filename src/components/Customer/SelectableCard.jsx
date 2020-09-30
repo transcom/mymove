@@ -1,5 +1,5 @@
 import React from 'react';
-import { string, func, bool } from 'prop-types';
+import { string, func, bool, node } from 'prop-types';
 import { Radio } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
@@ -27,7 +27,7 @@ SelectableCard.propTypes = {
   label: string.isRequired,
   name: string.isRequired,
   value: string.isRequired,
-  cardText: string,
+  cardText: node,
   onChange: func.isRequired,
   checked: bool,
   disabled: bool,
