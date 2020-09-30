@@ -2156,17 +2156,18 @@ func init() {
         "$ref": "#/definitions/MTOAgent"
       }
     },
-    "MTOApprovalServiceItemCode": {
-      "type": "string",
-      "enum": [
-        "MS",
-        "CS"
-      ]
-    },
     "MTOApprovalServiceItemCodes": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MTOApprovalServiceItemCode"
+      "description": "MTO level service items to create when updating MTO status.",
+      "type": "object",
+      "properties": {
+        "serviceCodeCS": {
+          "type": "boolean",
+          "example": true
+        },
+        "serviceCodeMS": {
+          "type": "boolean",
+          "example": true
+        }
       }
     },
     "MTOServiceItem": {
@@ -5799,17 +5800,18 @@ func init() {
         "$ref": "#/definitions/MTOAgent"
       }
     },
-    "MTOApprovalServiceItemCode": {
-      "type": "string",
-      "enum": [
-        "MS",
-        "CS"
-      ]
-    },
     "MTOApprovalServiceItemCodes": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/MTOApprovalServiceItemCode"
+      "description": "MTO level service items to create when updating MTO status.",
+      "type": "object",
+      "properties": {
+        "serviceCodeCS": {
+          "type": "boolean",
+          "example": true
+        },
+        "serviceCodeMS": {
+          "type": "boolean",
+          "example": true
+        }
       }
     },
     "MTOServiceItem": {

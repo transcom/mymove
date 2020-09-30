@@ -2291,14 +2291,15 @@ definitions:
     items:
       $ref: '#/definitions/MTOServiceItemCustomerContact'
   MTOApprovalServiceItemCodes:
-    type: array
-    items:
-      $ref: '#/definitions/MTOApprovalServiceItemCode'
-  MTOApprovalServiceItemCode:
-    enum:
-      - MS
-      - CS
-    type: string
+    description: MTO level service items to create when updating MTO status.
+    properties:
+      serviceCodeCS:
+        example: true
+        type: boolean
+      serviceCodeMS:
+        example: true
+        type: boolean
+    type: object
   UpdatePaymentRequestPayload:
     properties:
       proofOfServicePackage:
