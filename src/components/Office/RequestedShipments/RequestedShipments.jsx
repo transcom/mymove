@@ -128,21 +128,25 @@ const RequestedShipments = ({
             </div>
 
             <div className={styles.serviceItems}>
-              <h4>Add service items to this move</h4>
-              <Fieldset legend="MTO service items" legendSrOnly id="input-type-fieldset">
-                <Checkbox
-                  id="shipmentManagementFee"
-                  label="Shipment management fee"
-                  name="shipmentManagementFee"
-                  onChange={formik.handleChange}
-                />
-                <Checkbox
-                  id="counselingFee"
-                  label="Counseling fee"
-                  name="counselingFee"
-                  onChange={formik.handleChange}
-                />
-              </Fieldset>
+              {mtoServiceItems?.length <= 0 && (
+                <>
+                  <h4>Add service items to this move</h4>
+                  <Fieldset legend="MTO service items" legendSrOnly id="input-type-fieldset">
+                    <Checkbox
+                      id="shipmentManagementFee"
+                      label="Shipment management fee"
+                      name="shipmentManagementFee"
+                      onChange={formik.handleChange}
+                    />
+                    <Checkbox
+                      id="counselingFee"
+                      label="Counseling fee"
+                      name="counselingFee"
+                      onChange={formik.handleChange}
+                    />
+                  </Fieldset>
+                </>
+              )}
               <Button
                 id="shipmentApproveButton"
                 className={styles.approveButton}
