@@ -1,5 +1,6 @@
 @import 'shared/styles/_basics';
 @import 'shared/styles/_mixins';
+@import 'shared/styles/_variables';
 @import 'shared/styles/colors';
 
 .ShipmentCard {
@@ -9,6 +10,10 @@
     justify-content: space-between;
     @include u-margin-top('205');
     @include u-padding-x('105');
+    @include u-padding-bottom('105');
+    @include u-border-bottom('1px');
+    @include u-border-bottom('base-lighter');
+
     h4 {
       margin: 0;
       @include u-margin-bottom('05');
@@ -107,6 +112,22 @@
         @include u-border-bottom('1px');
         @include u-border-bottom('base-lighter');
       }
+    }
+  }
+}
+
+@media (min-width: $tablet) {
+  .ShipmentCard {
+    .shipmentCardSubsection {
+      @include u-padding-x(3);
+    }
+
+    .ShipmentCardHeader {
+      @include u-padding-x(3);
+    }
+
+    .subsectionHeader {
+      @include u-padding-x(3);
     }
   }
 }
