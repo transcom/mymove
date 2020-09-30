@@ -173,3 +173,18 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 	})
 
 }
+
+func (suite *EventServiceSuite) TestAssembleMoveOrderPayload() {
+	moveOrder := testdatagen.MakeDefaultOrder(suite.DB())
+
+	suite.T().Run("Success with default MoveOrder", func(t *testing.T) {
+		payload, err := assembleMoveOrderPayload(suite.DB(), moveOrder.ID)
+
+		data := &primemessages.MoveOrder{}
+		unmarshalErr := data.UnmarshalBinary(payload)
+
+		suite.Nil(err)
+		suite.Nil(unmarshalErr)
+		suite.Equal(moveOrder.ID.String(), data.ID.String())
+	})
+}
