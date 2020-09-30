@@ -1,6 +1,7 @@
 package event
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/url"
 	"testing"
@@ -10,6 +11,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -30,6 +32,12 @@ func TestEventServiceSuite(t *testing.T) {
 	}
 	suite.Run(t, ts)
 	ts.PopTestSuite.TearDown()
+}
+
+func (suite *EventServiceSuite) getNotification(mtoID uuid.UUID, traceID uuid.UUID) (*models.WebhookNotification, error) {
+	var notification = new(models.WebhookNotification)
+	err := suite.DB().Where("object_id = $1 AND trace_id = $2", mtoID.String(), traceID.String()).First(notification)
+	return notification, err
 }
 
 func (suite *EventServiceSuite) Test_EventTrigger() {
@@ -193,6 +201,8 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 	}
 	logger, _ := zap.NewDevelopment()
 	handler := handlers.NewHandlerContext(suite.DB(), logger)
+	traceID, _ := uuid.NewV4()
+	handler.SetTraceID(traceID)
 
 	// Test successful event passing with Support API
 	suite.T().Run("Success with GHC MTOShipment endpoint", func(t *testing.T) {
@@ -206,9 +216,21 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 			HandlerContext:  handler,
 			DBConnection:    suite.DB(),
 		})
-		// TODO: Once proper payload is generated this should not return error
-		suite.Error(err)
-		// TODO: Add sandy's webhook notification check
+		suite.Nil(err)
+
+		// Get the notification
+		notification, err := suite.getNotification(mtoShipmentID, traceID)
+		suite.NoError(err)
+		suite.Equal(&mtoShipmentID, notification.ObjectID)
+
+		// Reinflate the json from the notification payload
+		suite.NotEmpty(notification.Payload)
+		var mtoShipmentInPayload primemessages.MTOShipment
+		json.Unmarshal([]byte(*notification.Payload), &mtoShipmentInPayload)
+
+		// Check some params
+		suite.EqualValues(mtoShipment.ShipmentType, mtoShipmentInPayload.ShipmentType)
+		suite.EqualValues(handlers.FmtDatePtr(mtoShipment.RequestedPickupDate).String(), mtoShipmentInPayload.RequestedPickupDate.String())
 
 	})
 }
