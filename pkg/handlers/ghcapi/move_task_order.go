@@ -57,11 +57,13 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 
 	// include mto level service items to create if requested
 	serviceItemCodes := make(map[models.ReServiceCode]bool)
-	if params.ServiceItemCodes.ServiceCodeCS {
-		serviceItemCodes[models.ReServiceCodeCS] = true
-	}
-	if params.ServiceItemCodes.ServiceCodeMS {
-		serviceItemCodes[models.ReServiceCodeMS] = true
+	if params.ServiceItemCodes != nil {
+		if params.ServiceItemCodes.ServiceCodeCS {
+			serviceItemCodes[models.ReServiceCodeCS] = true
+		}
+		if params.ServiceItemCodes.ServiceCodeMS {
+			serviceItemCodes[models.ReServiceCodeMS] = true
+		}
 	}
 
 	// TODO how are we going to handle auth in new api? Do we need some sort of placeholder to remind us to

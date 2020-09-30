@@ -86,16 +86,14 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 	})
 
 	serviceItemCodes := ghcmessages.MTOApprovalServiceItemCodes{
-		"CS",
-		"CS",
-		"MS",
-		"MS",
+		ServiceCodeMS: true,
+		ServiceCodeCS: true,
 	}
 	params := move_task_order.UpdateMoveTaskOrderStatusParams{
 		HTTPRequest:      request,
 		MoveTaskOrderID:  moveTaskOrder.ID.String(),
 		IfMatch:          etag.GenerateEtag(moveTaskOrder.UpdatedAt),
-		ServiceItemCodes: serviceItemCodes,
+		ServiceItemCodes: &serviceItemCodes,
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	queryBuilder := query.NewQueryBuilder(suite.DB())
