@@ -17,7 +17,7 @@ services:
   milmove_migrate:
     depends_on:
       - database
-    image: 015932076428.dkr.ecr.us-gov-west-1.amazonaws.com/app-migrations:git-branch-placeholder_branch_name
+    image: 923914045601.dkr.ecr.us-west-2.amazonaws.com/app-migrations:git-branch-placeholder_branch_name
     links:
       - database
     environment:
@@ -42,7 +42,7 @@ services:
       - database
       - milmove_migrate
       - redis
-    image: 015932076428.dkr.ecr.us-gov-west-1.amazonaws.com/app:git-branch-placeholder_branch_name
+    image: 923914045601.dkr.ecr.us-west-2.amazonaws.com/app:git-branch-placeholder_branch_name
     links:
       - database
     ports:
@@ -56,7 +56,7 @@ services:
       - DB_NAME=dev_db
       - DB_PASSWORD=mysecretpassword
       - DB_PORT=5432
-      - DB_REGION=us-gov-west-1
+      - DB_REGION=us-west-2
       - DB_RETRY_INTERVAL=5s
       - DB_SSL_MODE=disable
       - DB_USER=postgres
