@@ -41,7 +41,7 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadSuccess() {
 		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, fakeS3)
 		upload, err := uploadCreator.CreateUpload(testFile, paymentRequest.ID, contractor.ID, "unit-test-file.pdf")
 
-		expectedFilename := fmt.Sprintf("/app/payment-request-uploads/mto-%s/payment-request-%s", moveTaskOrderID, paymentRequest.ID)
+		expectedFilename := fmt.Sprintf("/payment-request-uploads/mto-%s/payment-request-%s", moveTaskOrderID, paymentRequest.ID)
 		suite.NoError(err)
 		suite.Contains(upload.Filename, expectedFilename)
 		suite.Equal(int64(10596), upload.Bytes)
