@@ -147,7 +147,15 @@ func assemblePaymentRequestPayload(db *pop.Connection, updatedObjectID uuid.UUID
 func assembleMoveOrderPayload(db *pop.Connection, updatedObjectID uuid.UUID) ([]byte, error) {
 	model := models.Order{}
 	// Important to be specific about which addl associations to load to reduce DB hits
-	err := db.Eager("Moves").Find(&model, updatedObjectID)
+	err := db.Eager(
+		"ServiceMember", "Entitlement", "OriginDutyStation", "NewDutyStation.Address").Find(&model, updatedObjectID)
+
+	// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
+	// cannot eager load the address as "OriginDutyStation.Address" because
+	// OriginDutyStation is a pointer.
+	if model.OriginDutyStation != nil {
+		err = db.Load(model.OriginDutyStation, "Address")
+	}
 
 	if err != nil {
 		notFoundError := services.NewNotFoundError(updatedObjectID, "looking for MoveOrder")
