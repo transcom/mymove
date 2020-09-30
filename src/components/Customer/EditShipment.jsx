@@ -5,14 +5,6 @@ import { connect } from 'react-redux';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
 import { Radio, Label, Textarea, Button } from '@trussworks/react-uswds';
-
-import { Form } from '../form/Form';
-import { DatePickerInput } from '../form/fields';
-import { AddressFields } from '../form/AddressFields/AddressFields';
-import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
-
-import styles from './EditShipment.module.scss';
-
 import {
   selectMTOShipmentById,
   updateMTOShipment as updateMTOShipmentAction,
@@ -26,6 +18,13 @@ import { validateDate } from 'utils/formikValidators';
 import Hint from 'shared/Hint';
 import Fieldset from 'shared/Fieldset';
 import Divider from 'shared/Divider';
+
+import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
+import { AddressFields } from '../form/AddressFields/AddressFields';
+import { DatePickerInput } from '../form/fields';
+import { Form } from '../form/Form';
+
+import styles from './EditShipment.module.scss';
 
 const PickupAddressSchema = Yup.object().shape({
   street_address_1: Yup.string().required('Required'),
@@ -283,9 +282,9 @@ class EditShipment extends Component {
     return (
       <div className="grid-container">
         <div className={`margin-top-2 ${styles['hhg-label']}`}>{`HHG ${!!shipmentNumber && shipmentNumber}`}</div>
-        <h2 className="margin-top-1" style={{ fontSize: 28 }}>
+        <h1 className="margin-top-1" style={{ fontSize: 28 }}>
           When and where can the movers pick up and deliver this shipment?
-        </h2>
+        </h1>
         <Formik
           initialValues={initialValues}
           enableReinitialize
