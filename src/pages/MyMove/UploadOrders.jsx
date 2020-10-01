@@ -69,7 +69,6 @@ export class UploadOrders extends Component {
         dirty={isDirty}
         error={error}
         handleSubmit={no_op}
-        hideCancelBtn
         pageIsValid={isValid}
         pageKey={pageKey}
         pageList={pages}

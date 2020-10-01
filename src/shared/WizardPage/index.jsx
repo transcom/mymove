@@ -8,7 +8,6 @@ import { push } from 'connected-react-router';
 import Alert from 'shared/Alert'; // eslint-disable-line
 import generatePath from './generatePath';
 import './index.css';
-import { mobileSize } from 'shared/constants';
 import scrollToTop from 'shared/scrollToTop';
 
 import { getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage, beforeTransition } from './utils';
@@ -18,7 +17,7 @@ export class WizardPage extends Component {
     super(props);
     this.nextPage = this.nextPage.bind(this);
     this.previousPage = this.previousPage.bind(this);
-    this.cancelFlow = this.cancelFlow.bind(this);
+    this.goHome = this.goHome.bind(this);
     this.beforeTransition = beforeTransition.bind(this);
   }
   componentDidUpdate() {
@@ -27,7 +26,7 @@ export class WizardPage extends Component {
   componentDidMount() {
     scrollToTop();
   }
-  cancelFlow() {
+  goHome() {
     this.props.push(`/`);
   }
 
@@ -51,18 +50,7 @@ export class WizardPage extends Component {
   }
 
   render() {
-    const isMobile = this.props.windowWidth < mobileSize;
-    const {
-      handleSubmit,
-      pageKey,
-      pageList,
-      children,
-      error,
-      pageIsValid,
-      dirty,
-      canMoveNext,
-      hideCancelBtn,
-    } = this.props;
+    const { handleSubmit, pageKey, pageList, children, error, pageIsValid, dirty, canMoveNext } = this.props;
     const canMoveForward = pageIsValid && canMoveNext;
     const canMoveBackward = (pageIsValid || !dirty) && !isFirstPage(pageList, pageKey);
     return (
@@ -112,17 +100,6 @@ export class WizardPage extends Component {
                 Complete
               </button>
             )}
-            {!isMobile && !hideCancelBtn && (
-              <button
-                type="button"
-                className="usa-button usa-button--unstyled padding-left-0"
-                onClick={this.cancelFlow}
-                disabled={false}
-                data-testid="wizardCancelButton"
-              >
-                Cancel
-              </button>
-            )}
           </div>
         </div>
       </div>
@@ -148,7 +125,6 @@ WizardPage.defaultProps = {
   pageIsValid: true,
   canMoveNext: true,
   dirty: true,
-  hideCancelBtn: false,
 };
 
 function mapDispatchToProps(dispatch) {

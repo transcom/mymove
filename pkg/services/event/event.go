@@ -39,11 +39,14 @@ type Event struct {
 	logger          handlers.Logger         // The logger
 }
 
-// PaymentRequestCreateEventKey is a key containing PaymentRequest.Create
-const PaymentRequestCreateEventKey KeyType = "PaymentRequest.Create"
+// MoveOrderUpdateEventKey is a key containing MoveOrder.Update
+const MoveOrderUpdateEventKey KeyType = "MoveOrder.Update"
 
-// PaymentRequestUpdateEventKey is a key containing PaymentRequest.Update
-const PaymentRequestUpdateEventKey KeyType = "PaymentRequest.Update"
+// MoveTaskOrderCreateEventKey is a key containing MoveTaskOrder.Create
+const MoveTaskOrderCreateEventKey KeyType = "MoveTaskOrder.Create"
+
+// MoveTaskOrderUpdateEventKey is a key containing MoveTaskOrder.Update
+const MoveTaskOrderUpdateEventKey KeyType = "MoveTaskOrder.Update"
 
 // MTOShipmentCreateEventKey is a key containing MTOShipment.Create
 const MTOShipmentCreateEventKey KeyType = "MTOShipment.Create"
@@ -57,13 +60,22 @@ const MTOServiceItemCreateEventKey KeyType = "MTOServiceItem.Create"
 // MTOServiceItemUpdateEventKey is a key containing MTOServiceItem.Update
 const MTOServiceItemUpdateEventKey KeyType = "MTOServiceItem.Update"
 
+// PaymentRequestCreateEventKey is a key containing PaymentRequest.Create
+const PaymentRequestCreateEventKey KeyType = "PaymentRequest.Create"
+
+// PaymentRequestUpdateEventKey is a key containing PaymentRequest.Update
+const PaymentRequestUpdateEventKey KeyType = "PaymentRequest.Update"
+
 var eventModels map[KeyType]eventModel = map[KeyType]eventModel{
-	PaymentRequestCreateEventKey: {PaymentRequestCreateEventKey, models.PaymentRequest{}},
-	PaymentRequestUpdateEventKey: {PaymentRequestUpdateEventKey, models.PaymentRequest{}},
+	MoveOrderUpdateEventKey:      {MoveOrderUpdateEventKey, models.Order{}},
+	MoveTaskOrderCreateEventKey:  {MoveTaskOrderCreateEventKey, models.Move{}},
+	MoveTaskOrderUpdateEventKey:  {MoveTaskOrderUpdateEventKey, models.Move{}},
 	MTOShipmentCreateEventKey:    {MTOShipmentCreateEventKey, models.MTOShipment{}},
 	MTOShipmentUpdateEventKey:    {MTOShipmentUpdateEventKey, models.MTOShipment{}},
 	MTOServiceItemCreateEventKey: {MTOServiceItemCreateEventKey, models.MTOServiceItem{}},
 	MTOServiceItemUpdateEventKey: {MTOServiceItemUpdateEventKey, models.MTOServiceItem{}},
+	PaymentRequestCreateEventKey: {PaymentRequestCreateEventKey, models.PaymentRequest{}},
+	PaymentRequestUpdateEventKey: {PaymentRequestUpdateEventKey, models.PaymentRequest{}},
 }
 
 // IsCreateEvent returns true if this event is a create event
