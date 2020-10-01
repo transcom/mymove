@@ -31,10 +31,10 @@ const defaultProps = {
   move: {},
 };
 
-function mountHome(props = defaultProps) {
+function mountHome(props = {}) {
   return mount(
     <Provider store={store}>
-      <Home {...props} />
+      <Home {...defaultProps} {...props} />
     </Provider>,
   );
 }
@@ -48,7 +48,7 @@ describe('Home component', () => {
 
   describe('contents of Step 3', () => {
     it('contains ppm and hhg cards if those shipments exist', () => {
-      let props = {
+      const props = {
         currentPpm: { id: '12345', createdAt: moment() },
         mtoShipments: [
           { id: '4321', createdAt: moment().add(1, 'days'), shipmentType: 'HHG' },
@@ -56,7 +56,6 @@ describe('Home component', () => {
         ],
       };
 
-      props = { ...defaultProps, ...props };
       const wrapper = mountHome(props);
       expect(wrapper.find('ShipmentListItem').length).toBe(3);
       expect(wrapper.find('ShipmentListItem').at(0).text()).toContain('HHG 1');
@@ -75,10 +74,10 @@ describe('Home component', () => {
 
   describe('if the user has orders but not shipments', () => {
     const wrapper = mountHome({
-      ...defaultProps,
       orders: { testOrder: 'test', new_duty_station: { name: 'Test Duty Station' } },
       uploadedOrderDocuments: [{ filename: 'testOrder1.pdf' }],
     });
+
     it('renders the NeedsShipment helper', () => {
       expect(wrapper.find('HelperNeedsShipment').exists()).toBe(true);
     });
@@ -86,7 +85,6 @@ describe('Home component', () => {
 
   describe('if the user has orders and shipments but has not submitted their move', () => {
     const wrapper = mountHome({
-      ...defaultProps,
       orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
       uploadedOrderDocuments: [{ filename: 'testOrder1.pdf' }],
       mtoShipments: [{ id: 'test123', shipmentType: 'HHG' }],
@@ -99,7 +97,6 @@ describe('Home component', () => {
 
   describe('if the user has orders and a currentPpm but has not submitted their move', () => {
     const wrapper = mountHome({
-      ...defaultProps,
       orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
       uploadedOrderDocuments: [{ filename: 'testOrder1.pdf' }],
       currentPpm: { id: 'testPpm123' },
@@ -113,7 +110,6 @@ describe('Home component', () => {
   describe('if the user has submitted their move', () => {
     describe('for PPM moves', () => {
       const wrapper = mountHome({
-        ...defaultProps,
         orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
         uploadedOrderDocuments: [{ filename: 'testOrder1.pdf' }],
         mtoShipments: [{ id: 'test123', shipmentType: 'PPM' }],
@@ -127,7 +123,6 @@ describe('Home component', () => {
 
     describe('for HHG moves', () => {
       const wrapper = mountHome({
-        ...defaultProps,
         orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
         uploadedOrderDocuments: [{ filename: 'testOrder1.pdf' }],
         mtoShipments: [{ id: 'test123', shipmentType: 'HHG' }],
@@ -141,7 +136,6 @@ describe('Home component', () => {
 
     describe('for NTS moves', () => {
       const wrapper = mountHome({
-        ...defaultProps,
         orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
         uploadedOrderDocuments: [{ filename: 'testOrder1.pdf' }],
         mtoShipments: [{ id: 'test123', shipmentType: 'NTS' }],
@@ -155,7 +149,6 @@ describe('Home component', () => {
 
     describe('for HHG/PPM combo moves', () => {
       const wrapper = mountHome({
-        ...defaultProps,
         orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
         uploadedOrderDocuments: [{ filename: 'testOrder1.pdf' }],
         mtoShipments: [
