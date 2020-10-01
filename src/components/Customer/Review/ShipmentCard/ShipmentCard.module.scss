@@ -37,8 +37,6 @@
   .shipmentCardSubsection {
     @include u-margin-y(0);
     @include u-padding-x('05');
-    display: table;
-    width: 100%;
 
     &:first-child {
       div:first-child {
