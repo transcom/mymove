@@ -14,9 +14,10 @@
     @include u-border-bottom('1px');
     @include u-border-bottom('base-lighter');
 
-    h4 {
-      margin: 0;
+    h3 {
+      @include u-text('normal');
       @include u-margin-bottom('05');
+      margin: 0;
     }
     p {
       color: #92979b;

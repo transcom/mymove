@@ -22,7 +22,7 @@ const PPMShipmentCard = ({
       <ShipmentContainer className={styles.container} shipmentType={SHIPMENT_OPTIONS.PPM}>
         <div className={styles.ShipmentCardHeader}>
           <div>
-            <h4>PPM</h4>
+            <h3>PPM</h3>
             <p>{shipmentId.substring(0, 10)}</p>
           </div>
           <Button className={styles.editBtn} onClick={() => {}} unstyled>
