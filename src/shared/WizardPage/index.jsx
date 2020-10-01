@@ -50,7 +50,17 @@ export class WizardPage extends Component {
   }
 
   render() {
-    const { handleSubmit, pageKey, pageList, children, error, pageIsValid, dirty, canMoveNext } = this.props;
+    const {
+      handleSubmit,
+      pageKey,
+      pageList,
+      children,
+      error,
+      pageIsValid,
+      dirty,
+      canMoveNext,
+      footerText,
+    } = this.props;
     const canMoveForward = pageIsValid && canMoveNext;
     const canMoveBackward = (pageIsValid || !dirty) && !isFirstPage(pageList, pageKey);
     return (
@@ -65,42 +75,41 @@ export class WizardPage extends Component {
           </div>
         )}
         {children}
-        <div className="grid-row" style={{ marginTop: '0.5rem' }}>
-          <div className="grid-col-10 text-right margin-top-6 margin-left-neg-1 tablet:margin-top-3 display-flex">
-            {!isFirstPage(pageList, pageKey) && (
-              <button
-                type="button"
-                className="usa-button usa-button--secondary"
-                onClick={this.previousPage}
-                disabled={!canMoveBackward}
-                data-testid="wizardBackButton"
-              >
-                Back
-              </button>
-            )}
-            {!isLastPage(pageList, pageKey) && (
-              <button
-                type="button"
-                className="usa-button"
-                onClick={this.nextPage}
-                disabled={!canMoveForward}
-                data-testid="wizardNextButton"
-              >
-                Next
-              </button>
-            )}
-            {isLastPage(pageList, pageKey) && (
-              <button
-                type="button"
-                className="usa-button"
-                onClick={handleSubmit}
-                disabled={!canMoveForward}
-                data-testid="wizardCompleteButton"
-              >
-                Complete
-              </button>
-            )}
-          </div>
+        <div className="grid-row" style={{ marginTop: '2rem' }}>
+          <div>{footerText ? footerText : ''}</div>
+          {!isFirstPage(pageList, pageKey) && (
+            <button
+              type="button"
+              className="usa-button usa-button--secondary"
+              onClick={this.previousPage}
+              disabled={!canMoveBackward}
+              data-testid="wizardBackButton"
+            >
+              Back
+            </button>
+          )}
+          {!isLastPage(pageList, pageKey) && (
+            <button
+              type="button"
+              className="usa-button"
+              onClick={this.nextPage}
+              disabled={!canMoveForward}
+              data-testid="wizardNextButton"
+            >
+              Next
+            </button>
+          )}
+          {isLastPage(pageList, pageKey) && (
+            <button
+              type="button"
+              className="usa-button"
+              onClick={handleSubmit}
+              disabled={!canMoveForward}
+              data-testid="wizardCompleteButton"
+            >
+              Complete
+            </button>
+          )}
         </div>
       </div>
     );
@@ -119,12 +128,14 @@ WizardPage.propTypes = {
   match: PropTypes.object, //from withRouter
   additionalParams: PropTypes.object,
   windowWidth: PropTypes.number,
+  footerText: PropTypes.node,
 };
 
 WizardPage.defaultProps = {
   pageIsValid: true,
   canMoveNext: true,
   dirty: true,
+  footerText: '',
 };
 
 function mapDispatchToProps(dispatch) {

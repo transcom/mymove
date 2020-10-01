@@ -3,12 +3,14 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes, { string, bool, func } from 'prop-types';
 import { get } from 'lodash';
-import { Radio } from '@trussworks/react-uswds';
+
+import styles from './SelectMoveType.module.scss';
 
 import { updateMove as updateMoveAction } from 'scenes/Moves/ducks';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 import { WizardPage } from 'shared/WizardPage';
+import SelectableCard from 'components/Customer/SelectableCard';
 
 export class SelectMoveType extends Component {
   constructor(props) {
@@ -31,6 +33,16 @@ export class SelectMoveType extends Component {
   render() {
     const { pageKey, pageList, match, push } = this.props;
     const { moveType } = this.state;
+    const ppmCardTextFirstTime =
+      'You pack and move your things, or make other arrangements, The government pays you for the weight you move.  This is a a Personally Procured Move (PPM), sometimes called a DITY.';
+    const hhgCardText =
+      'Your things are packed and moved by professionals, paid for by the government. This is a Household Goods move (HHG).';
+    const footerText = (
+      <div className={styles.footer}>
+        It&apos;s OK if you&apos;re not sure about your choices. Your move counselor will go over all your options and
+        can help make changes if necessary.
+      </div>
+    );
     return (
       <WizardPage
         pageKey={pageKey}
@@ -39,39 +51,30 @@ export class SelectMoveType extends Component {
         dirty
         handleSubmit={this.handleSubmit}
         push={push}
+        footerText={footerText}
       >
         <div className="usa-grid">
           <div className="grid-row">
             <div className="grid-col">
               <h1 className="sm-heading">How do you want to move your belongings?</h1>
-              <Radio
-                id={SHIPMENT_OPTIONS.PPM}
-                label="I’ll move things myself"
+              <SelectableCard
+                label="Do it yourself"
+                onChange={(e) => this.setMoveType(e)}
                 value={SHIPMENT_OPTIONS.PPM}
                 name="moveType"
-                onChange={(e) => this.setMoveType(e)}
+                id={SHIPMENT_OPTIONS.PPM}
+                cardText={ppmCardTextFirstTime}
                 checked={moveType === SHIPMENT_OPTIONS.PPM}
               />
-              <ul>
-                <li>This is a PPM - “personally procured move”</li>
-                <li>You arrange to move some or all of your belongings</li>
-                <li>The government pays you an incentive based on weight</li>
-                <li>DIY or hire your own movers</li>
-              </ul>
-              <Radio
-                id={SHIPMENT_OPTIONS.HHG}
-                label="The government packs for me and moves me"
-                value={SHIPMENT_OPTIONS.HHG}
+              <SelectableCard
+                label="Professional movers"
                 onChange={(e) => this.setMoveType(e)}
+                value={SHIPMENT_OPTIONS.HHG}
                 name="moveType"
+                id={SHIPMENT_OPTIONS.HHG}
+                cardText={hhgCardText}
                 checked={moveType === SHIPMENT_OPTIONS.HHG}
               />
-              <ul>
-                <li>This is an HHG shipment — “household goods”</li>
-                <li>The most popular kind of shipment</li>
-                <li>Professional movers take care of the whole shipment</li>
-                <li>They pack and move it for you</li>
-              </ul>
             </div>
           </div>
         </div>
