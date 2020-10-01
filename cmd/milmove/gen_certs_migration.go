@@ -140,9 +140,9 @@ func CheckCertsMigration(v *viper.Viper) error {
 	}
 
 	if v.GetBool(UpdateFlag) {
-		cert_id := v.GetString(ClientCertIDFlag)
+		certID := v.GetString(ClientCertIDFlag)
 		// MYTODO add better pattern match
-		if len(cert_id) == 0 {
+		if len(certID) == 0 {
 			return fmt.Errorf("%s required for generating UPDATE migration", ClientCertIDFlag)
 		}
 	}
