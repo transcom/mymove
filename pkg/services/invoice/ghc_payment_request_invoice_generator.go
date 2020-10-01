@@ -112,6 +112,10 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		TransactionSetControlNumber:  "0001",
 	}
 
+	if moveTaskOrder.ReferenceID == nil {
+		return ediinvoice.Invoice858C{}, fmt.Errorf("Invalid move taskorder. Must have a ReferenceID value")
+	}
+
 	bx := edisegment.BX{
 		TransactionSetPurposeCode:    "00",
 		TransactionMethodTypeCode:    "J",
@@ -305,16 +309,11 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	originAndDestinationSegments = append(originAndDestinationSegments, &destinationName)
 
 	// destination address
-	var destinationStreetAddress edisegment.N3
-	if destinationDutyStation.Address.StreetAddress2 == nil {
-		destinationStreetAddress = edisegment.N3{
-			AddressInformation1: destinationDutyStation.Address.StreetAddress1,
-		}
-	} else {
-		destinationStreetAddress = edisegment.N3{
-			AddressInformation1: destinationDutyStation.Address.StreetAddress1,
-			AddressInformation2: *destinationDutyStation.Address.StreetAddress2,
-		}
+	destinationStreetAddress := edisegment.N3{
+		AddressInformation1: destinationDutyStation.Address.StreetAddress1,
+	}
+	if destinationDutyStation.Address.StreetAddress2 != nil {
+		destinationStreetAddress.AddressInformation2 = *destinationDutyStation.Address.StreetAddress2
 	}
 	originAndDestinationSegments = append(originAndDestinationSegments, &destinationStreetAddress)
 
@@ -323,8 +322,11 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 		CityName:            destinationDutyStation.Address.City,
 		StateOrProvinceCode: destinationDutyStation.Address.State,
 		PostalCode:          destinationDutyStation.Address.PostalCode,
-		CountryCode:         string(*destinationDutyStation.Address.Country),
 	}
+	if destinationDutyStation.Address.Country != nil {
+		destinationPostalDetails.CountryCode = string(*destinationDutyStation.Address.Country)
+	}
+
 	originAndDestinationSegments = append(originAndDestinationSegments, &destinationPostalDetails)
 
 	// TODO: Create PER segment and implement Destination POC Phone
@@ -332,12 +334,16 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	// ========  ORIGIN ========= //
 	// origin station name
 	var originDutyStation models.DutyStation
+
 	if orders.OriginDutyStationID != nil {
 		originDutyStation, err = models.FetchDutyStation(g.db, *orders.OriginDutyStationID)
 		if err != nil {
 			return []edisegment.Segment{}, fmt.Errorf("cannot load OriginDutyStation %s for PaymentRequest %s: %w", orders.OriginDutyStationID, paymentRequestID, err)
 		}
 	} else {
+		if orders.OriginDutyStation == nil {
+			return []edisegment.Segment{}, fmt.Errorf("Invalid Order, must have OriginDutyStation")
+		}
 		originDutyStation = *orders.OriginDutyStation
 	}
 
@@ -355,16 +361,11 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	originAndDestinationSegments = append(originAndDestinationSegments, &originName)
 
 	// origin address
-	var originStreetAddress edisegment.N3
-	if originDutyStation.Address.StreetAddress2 == nil {
-		originStreetAddress = edisegment.N3{
-			AddressInformation1: originDutyStation.Address.StreetAddress1,
-		}
-	} else {
-		originStreetAddress = edisegment.N3{
-			AddressInformation1: originDutyStation.Address.StreetAddress1,
-			AddressInformation2: *originDutyStation.Address.StreetAddress2,
-		}
+	originStreetAddress := edisegment.N3{
+		AddressInformation1: originDutyStation.Address.StreetAddress1,
+	}
+	if originDutyStation.Address.StreetAddress2 != nil {
+		originStreetAddress.AddressInformation2 = *originDutyStation.Address.StreetAddress2
 	}
 	originAndDestinationSegments = append(originAndDestinationSegments, &originStreetAddress)
 
@@ -373,8 +374,11 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 		CityName:            originDutyStation.Address.City,
 		StateOrProvinceCode: originDutyStation.Address.State,
 		PostalCode:          originDutyStation.Address.PostalCode,
-		CountryCode:         string(*originDutyStation.Address.Country),
 	}
+	if originDutyStation.Address.Country != nil {
+		originPostalDetails.CountryCode = string(*originDutyStation.Address.Country)
+	}
+
 	originAndDestinationSegments = append(originAndDestinationSegments, &originPostalDetails)
 
 	// TODO: Create PER segment and implement Origin POC Phone
@@ -384,6 +388,9 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 
 func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(orders models.Order) ([]edisegment.Segment, error) {
 	segments := []edisegment.Segment{}
+	if orders.TAC == nil {
+		return segments, fmt.Errorf("Invalid order. Must have a TAC value")
+	}
 	fa1 := edisegment.FA1{
 		AgencyQualifierCode: "DF",
 	}
@@ -455,6 +462,9 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 	var weightFloat, distanceFloat float64
 	// Iterate over payment service items
 	for idx, serviceItem := range paymentServiceItems {
+		if serviceItem.PriceCents == nil {
+			return segments, fmt.Errorf("Invalid service item. Must have a PriceCents value")
+		}
 		hierarchicalIDNumber := idx + 1
 		// Build and put together the segments
 		hlSegment := edisegment.HL{
