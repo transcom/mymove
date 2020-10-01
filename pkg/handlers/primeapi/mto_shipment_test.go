@@ -951,4 +951,116 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
 		suite.NotNil(responsePayload.RequiredDeliveryDate)
 	})
+
+	suite.T().Run("Successful case for valid and complete payload including approved date and re services", func(t *testing.T) {
+
+		//reServiceDesSIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+		//	ReService: models.ReService{
+		//		Code: models.ReServiceCodeDDFSIT,
+		//		Name: "Dom. Destination 1st Day SIT",
+		//	},
+		//})
+		//
+		//mtoServiceItem1 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		//	MTOServiceItem: models.MTOServiceItem{
+		//		MoveTaskOrderID: move.ID,
+		//	},
+		//	Move: move,
+		//	ReService: reServiceDesSIT,
+		//})
+		//
+		//reServiceOrigSIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+		//	ReService: models.ReService{
+		//		Code: models.ReServiceCodeDOFSIT,
+		//		Name: "Dom. Origin 1st Day SIT",
+		//	},
+		//})
+		//
+		//mtoServiceItem2 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		//	MTOServiceItem: models.MTOServiceItem{
+		//		MoveTaskOrderID: move.ID,
+		//	},
+		//	Move: move,
+		//	ReService: reServiceOrigSIT,
+		//})
+		//
+		//serviceItemsList := make(models.MTOServiceItems, 2)
+		//serviceItemsList = append(serviceItemsList, mtoServiceItem1, mtoServiceItem2)
+		//
+		//oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		//	Move: move,
+		//	MTOServiceItem: models.MTOServiceItem{
+		//		MoveTaskOrderID: move.ID,
+		//		ReServiceID: reServiceOrigSIT.ID,
+		//	},
+		//})
+
+		reServiceID, _ := uuid.NewV4()
+		serviceItemID, _ := uuid.NewV4()
+		mtoShipmentID, _ := uuid.NewV4()
+
+		reService := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				ID:   reServiceID,
+				Code: models.ReServiceCodeDDFSIT,
+			},
+		})
+		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{ID: mtoShipmentID},
+		})
+
+		serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			MTOServiceItem: models.MTOServiceItem{
+				ID: serviceItemID, MoveTaskOrderID: move.ID, ReServiceID: reService.ID, MTOShipmentID: &mtoShipment.ID,
+			},
+		})
+
+		fmt.Printf("old shipment code = %v", serviceItem.ReService.Code)
+		serviceItems := models.MTOServiceItems{serviceItem}
+
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+
+		payload := primemessages.MTOShipment{
+			ID:                   strfmt.UUID(oldShipment.ID.String()),
+			PrimeEstimatedWeight: int64(primeEstimatedWeight),
+		}
+
+		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+
+		params := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
+			Body:          &payload,
+			IfMatch:       eTag,
+		}
+
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+		handler := UpdateMTOShipmentHandler{
+			context,
+			updater,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+
+		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
+		responsePayload := okResponse.Payload
+		suite.Equal(len(serviceItems), len(responsePayload.MtoServiceItems()))
+
+		var serviceItemDDFSIT *primemessages.MTOServiceItemDDFSIT
+		var serviceItemDDFSITCode string
+
+
+		fmt.Println("Service items length = ", len(responsePayload.MtoServiceItems()))
+		for _, item := range responsePayload.MtoServiceItems() {
+			if item.ModelType() == primemessages.MTOServiceItemModelTypeMTOServiceItemDDFSIT {
+				serviceItemDDFSIT = item.(*primemessages.MTOServiceItemDDFSIT)
+				serviceItemDDFSITCode = *serviceItemDDFSIT.ReServiceCode
+				break
+			}
+
+		}
+		suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
+		suite.Equal(reService.Code, serviceItemDDFSITCode)
+	})
 }

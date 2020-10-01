@@ -216,19 +216,17 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, 
 		}
 	}
 
-	fmt.Println("models is here ")
 	var updatedShipment models.MTOShipment
 	err = f.FetchRecord(&updatedShipment, queryFilters)
 	if err != nil {
 		return &models.MTOShipment{}, err
 	}
 
-	fmt.Println("query is here")
 	err = f.db.Eager("MTOServiceItems.ReService").Find(&updatedShipment, mtoShipment.ID.String())
 	if err != nil {
 		return &models.MTOShipment{}, err
 	}
-
+	fmt.Println("in service object here = ", updatedShipment.MTOServiceItems)
 	return &updatedShipment, nil
 }
 
