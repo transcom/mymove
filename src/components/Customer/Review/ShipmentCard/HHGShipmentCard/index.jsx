@@ -93,13 +93,12 @@ const HHGShipmentCard = ({
             </div>
           )}
           {remarks && (
-            <div className={styles.row}>
+            <div className={`${styles.row} ${hhgShipmentCardStyles.remarksRow}`}>
               <dt>Remarks</dt>
-              <dd />
+              <dd className={hhgShipmentCardStyles.remarksCell}>{remarks}</dd>
             </div>
           )}
         </dl>
-        {remarks && <p className={hhgShipmentCardStyles.remarksCell}>{remarks}</p>}
       </ShipmentContainer>
     </div>
   );

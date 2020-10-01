@@ -49,7 +49,7 @@ const PPMShipmentCard = ({
           </div>
         </dl>
         <div className={styles.subsectionHeader}>
-          <strong>PPM shipment weight</strong>
+          <h4>PPM shipment weight</h4>
           <Button className={styles.editBtn} unstyled>
             Edit
           </Button>
