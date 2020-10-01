@@ -38,11 +38,6 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 		NewQueryFilter: query.NewQueryFilter,
 	}
 
-	ghcAPI.MtoServiceItemCreateMTOServiceItemHandler = CreateMTOServiceItemHandler{
-		context,
-		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder),
-	}
-
 	ghcAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{
 		HandlerContext:        context,
 		MTOServiceItemUpdater: mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder),

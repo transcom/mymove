@@ -182,6 +182,57 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 	})
 }
 
+func (suite *EventServiceSuite) Test_MTOEventTrigger() {
+
+	now := time.Now()
+	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			AvailableToPrimeAt: &now,
+		},
+	})
+	mtoID := mto.ID
+
+	dummyRequest := http.Request{
+		URL: &url.URL{
+			Path: "",
+		},
+	}
+	logger, _ := zap.NewDevelopment()
+	handler := handlers.NewHandlerContext(suite.DB(), logger)
+	traceID, _ := uuid.NewV4()
+	handler.SetTraceID(traceID)
+
+	// Test successful event
+	suite.T().Run("Success with GHC MoveTaskOrder endpoint", func(t *testing.T) {
+
+		_, err := TriggerEvent(Event{
+			EventKey:        MoveTaskOrderCreateEventKey,
+			MtoID:           mtoID,
+			UpdatedObjectID: mtoID,
+			Request:         &dummyRequest,
+			EndpointKey:     GhcUpdateMoveTaskOrderEndpointKey,
+			HandlerContext:  handler,
+			DBConnection:    suite.DB(),
+		})
+		suite.Nil(err)
+
+		// Get the notification
+		notification, err := suite.getNotification(mtoID, traceID)
+		suite.NoError(err)
+		suite.Equal(&mtoID, notification.ObjectID)
+
+		// Reinflate the json from the notification payload
+		suite.NotEmpty(notification.Payload)
+		var mtoInPayload MoveTaskOrder
+		json.Unmarshal([]byte(*notification.Payload), &mtoInPayload)
+
+		// Check some params
+		suite.Equal(mto.PPMType, &mtoInPayload.PpmType)
+		suite.Equal(handlers.FmtDateTimePtr(mto.AvailableToPrimeAt).String(), mtoInPayload.AvailableToPrimeAt.String())
+
+	})
+}
+
 func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 
 	now := time.Now()
@@ -273,5 +324,48 @@ func (suite *EventServiceSuite) Test_MTOServiceItemEventTrigger() {
 		newCount, _ := suite.DB().Count(&models.WebhookNotification{})
 		suite.Equal(count+1, newCount)
 
+	})
+}
+
+func (suite *EventServiceSuite) TestMoveOrderEventTrigger() {
+	move := testdatagen.MakeAvailableMove(suite.DB())
+	dummyRequest := http.Request{
+		URL: &url.URL{
+			Path: "",
+		},
+	}
+	logger, _ := zap.NewDevelopment()
+	handler := handlers.NewHandlerContext(suite.DB(), logger)
+	traceID, _ := uuid.NewV4()
+	handler.SetTraceID(traceID)
+
+	// Test successful event passing with Support API
+	suite.T().Run("Success with GHC ServiceItem endpoint", func(t *testing.T) {
+		_, err := TriggerEvent(Event{
+			EventKey:        MoveOrderUpdateEventKey,
+			MtoID:           move.ID,
+			UpdatedObjectID: move.OrdersID,
+			Request:         &dummyRequest,
+			EndpointKey:     InternalUpdateOrdersEndpointKey,
+			HandlerContext:  handler,
+			DBConnection:    suite.DB(),
+		})
+		suite.Nil(err)
+
+		// Get the notification
+		notification, err := suite.getNotification(move.OrdersID, traceID)
+		suite.NoError(err)
+		suite.Equal(&move.OrdersID, notification.ObjectID)
+
+		// Reinflate the json from the notification payload
+		suite.NotEmpty(notification.Payload)
+		var moveOrderPayload primemessages.MoveOrder
+		err = json.Unmarshal([]byte(*notification.Payload), &moveOrderPayload)
+		suite.FatalNoError(err)
+
+		// Check some params
+		suite.Equal(move.Orders.ServiceMember.ID.String(), moveOrderPayload.Customer.ID.String())
+		suite.Equal(move.Orders.Entitlement.ID.String(), moveOrderPayload.Entitlement.ID.String())
+		suite.Equal(move.Orders.OriginDutyStation.ID.String(), moveOrderPayload.OriginDutyStation.ID.String())
 	})
 }
