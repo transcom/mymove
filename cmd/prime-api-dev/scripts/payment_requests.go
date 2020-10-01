@@ -21,6 +21,7 @@ import (
 	primeClient "github.com/transcom/mymove/pkg/gen/primeclient"
 	mto "github.com/transcom/mymove/pkg/gen/primeclient/move_task_order"
 	mtoShipment "github.com/transcom/mymove/pkg/gen/primeclient/mto_shipment"
+	paymentrequestclient "github.com/transcom/mymove/pkg/gen/primeclient/payment_request"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
@@ -86,6 +87,11 @@ type paymentRequestsData struct {
 	store                     *pksigner.Store
 }
 
+type updateInfo struct {
+	value string
+	isString bool
+}
+
 // InitPaymentRequestsFlags declares which flags are enabled
 func InitPaymentRequestsFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = false
@@ -137,7 +143,10 @@ func PaymentRequests(cmd *cobra.Command, args []string) error {
 			exitApp, nextMenu, err = pr.displayUpdateMTOMenu()
 		case UpdateShipmentMenu:
 			exitApp, nextMenu, err = pr.displayUpdateShipmentMenu()
+		case CreatePaymentRequestMenu:
+			exitApp, nextMenu, err = pr.displayCreatePaymentRequestMenu()
 		}
+
 
 	}
 
@@ -194,7 +203,9 @@ func (pr *paymentRequestsData) displaySelectedMTO() {
 	fmt.Printf("Dest. Duty Station: %s, %s, %s\n", *mto.MoveOrder.DestinationDutyStation.Address.City,
 		*mto.MoveOrder.DestinationDutyStation.Address.State, *mto.MoveOrder.DestinationDutyStation.Address.PostalCode)
 
-	// Display shipments
+
+
+	// Build shipment display descriptions
 	for _, s := range mto.MtoShipments {
 		var sstrs []string
 		sstrs = append(sstrs, fmt.Sprintf("TOO approval date: %s\n", s.ApprovedDate.String()))
@@ -242,9 +253,19 @@ func (pr *paymentRequestsData) displaySelectedMTO() {
 		pr.serviceItemDisplayList = append(pr.serviceItemDisplayList, serviceItem)
 	}
 
+	// MTO level service items
+	fmt.Print("\nService Items:\n")
+	for ii, service := range pr.serviceItemDisplayList {
+		if service.mtoShipmentID == "" {
+			fmt.Printf("%d: %s\n", ii, service.description)
+		}
+	}
+
 	for i, shipment := range pr.mtoShipmentDisplayList {
 		fmt.Printf("\n%d: ============== Shipment %d =============\n", i, i)
 		fmt.Printf("%s\n", shipment.description)
+
+		// Shipment level service items
 		fmt.Print("\nService Items:\n")
 		for ii, service := range pr.serviceItemDisplayList {
 			if service.mtoShipmentID == shipment.mtoShipmentID {
@@ -259,6 +280,9 @@ func (pr *paymentRequestsData) displaySelectedMTO() {
 			Branch:
 		 	Lasttname, Firstname
 			Dest Duty Station:
+
+	        Service Items:
+			#: code, description, status
 
 			#: ============== Shipment 1 =============
 			Shipment 1:
@@ -386,26 +410,53 @@ func (pr *paymentRequestsData) fetchMTOUpdates() error {
 	return nil
 }
 
-func (pr *paymentRequestsData) updateShipmentsJsonToFile(f *os.File, shipmentUpdates map[string]string, shipmentIndex int) error {
+func (pr *paymentRequestsData) updateShipmentsJsonToFile(f *os.File, shipmentUpdates map[string]updateInfo, shipmentIndex int) error {
 	var strs []string
 
+	/***************************************************
+	{
+		"mtoShipmentID": "5834016b-bc7b-421f-b87d-313acdddcc77",
+		"ifMatch": "MjAyMC0wOS0wM1QyMTo1Nzo0NC43NjQ0ODFa",
+		"body": {
+		    "primeEstimatedWeight": 1000,
+			"primeActualWeight": 3000
+	    }
+	}
+	***************************************************/
+
+	// {
 	strs = append(strs, fmt.Sprint("{\n"))
+	//		"mtoShipment": "ca9aeb58-e5a9-44b0-abe8-81d233dbdebf",
 	strs = append(strs, fmt.Sprintf("\"mtoShipmentID\": \"%s\",\n", pr.mtoShipmentDisplayList[shipmentIndex].mtoShipmentID))
+	//		"ifMatch": "MjAyMC0wOS0yOFQxNTo1OTozOC4zOTA0MjFa",
 	strs = append(strs, fmt.Sprintf("\"ifMatch\": \"%s\",\n", pr.mtoShipmentDisplayList[shipmentIndex].etag))
+	// 		"body": {
 	strs = append(strs, fmt.Sprint("\"body\": {\n"))
 	last := len(shipmentUpdates)
 	counter := 0
 	for key, value := range shipmentUpdates {
-
 		counter++
-		if counter == last {
-			strs = append(strs, fmt.Sprintf("\"%s\": \"%s\"\n", key, value))
+		var fieldUpdate string
+		//		"<field>": "<value>"
+		if value.isString == true {
+			fieldUpdate = fmt.Sprintf("\"%s\": \"%s\"", key, value.value)
 		} else {
-			strs = append(strs, fmt.Sprintf("\"%s\": \"%s\",\n", key, value))
+			fieldUpdate = fmt.Sprintf("\"%s\": %s", key, value.value)
 		}
 
+		if counter == last {
+			// do not add ","
+			fieldUpdate += "\n"
+		} else {
+			// need to add ","
+			fieldUpdate += ",\n"
+		}
+		strs = append(strs, fieldUpdate)
 	}
+
+	// 		}  # close body{
 	strs = append(strs, fmt.Sprint("}\n"))
+	// }  # close json
 	strs = append(strs, fmt.Sprint("}\n"))
 
 	text := []byte(strings.Join(strs, ""))
@@ -495,13 +546,16 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, MenuType, erro
 
 	menuTitle("UPDATE SHIPMENT")
 	shipment := primemessages.MTOShipment{}
-	shipmentUpdates := make(map[string]string)
+
+	// print out update field options for selection
+	for i, field := range fields {
+		fmt.Printf("%d: %s\n", i, field.description)
+	}
+
+	shipmentUpdates := make(map[string]updateInfo)
 	update := true
 	for ok := true; ok; ok = update {
-		for i, field := range fields {
-			fmt.Printf("%d: %s\n", i, field.description)
-		}
-		fmt.Print("Enter field to update: ")
+		fmt.Printf("\nSelect field to update: ")
 		var selection int
 		selection, err = getIntInput()
 		selectedField := fields[selection]
@@ -511,31 +565,51 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, MenuType, erro
 			var strFmtDate strfmt.Date
 			strFmtDate, err = getStrFmtDateInput()
 			shipment.ActualPickupDate = strFmtDate
-			shipmentUpdates[selectedField.json] = strFmtDate.String()
+			fieldValue := updateInfo {
+				value : strFmtDate.String(),
+				isString: true,
+			}
+			shipmentUpdates[selectedField.json] = fieldValue
 		case requestedPickupDate:
 			fmt.Printf("Updating %s\nEnter date as format YYYY-MM-DD: ", selectedField.description)
 			var strFmtDate strfmt.Date
 			strFmtDate, err = getStrFmtDateInput()
 			shipment.RequestedPickupDate = strFmtDate
-			shipmentUpdates[selectedField.json] = strFmtDate.String()
+			fieldValue := updateInfo {
+				value : strFmtDate.String(),
+				isString: true,
+			}
+			shipmentUpdates[selectedField.json] = fieldValue
 		case scheduledPickupDate:
 			fmt.Printf("Updating %s\nEnter date as format YYYY-MM-DD: ", selectedField.description)
 			var strFmtDate strfmt.Date
 			strFmtDate, err = getStrFmtDateInput()
 			shipment.ScheduledPickupDate = strFmtDate
-			shipmentUpdates[selectedField.json] = strFmtDate.String()
+			fieldValue := updateInfo {
+				value : strFmtDate.String(),
+				isString: true,
+			}
+			shipmentUpdates[selectedField.json] = fieldValue
 		case primeEstimatedWeight:
 			fmt.Printf("Updating %s\nEnter weight: ", selectedField.description)
 			var weight int
 			weight, err = getIntInput()
 			shipment.PrimeEstimatedWeight = int64(weight)
-			shipmentUpdates[selectedField.json] = strconv.Itoa(weight)
+			fieldValue := updateInfo {
+				value : strconv.Itoa(weight),
+				isString: false,
+			}
+			shipmentUpdates[selectedField.json] = fieldValue
 		case primeActualWeight:
 			fmt.Printf("Updating %s\nEnter weight: ", selectedField.description)
 			var weight int
 			weight, err = getIntInput()
 			shipment.PrimeActualWeight = int64(weight)
-			shipmentUpdates[selectedField.json] = strconv.Itoa(weight)
+			fieldValue := updateInfo {
+				value : strconv.Itoa(weight),
+				isString: false,
+			}
+			shipmentUpdates[selectedField.json] = fieldValue
 		case sendShipmentUpdate:
 			payload := mtoShipment.UpdateMTOShipmentParams{}
 			payload.Body = &shipment
@@ -543,7 +617,7 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, MenuType, erro
 			payload.MtoShipmentID = strfmt.UUID(pr.mtoShipmentDisplayList[shipmentIndex].mtoShipmentID)
 			// err = pr.updateMTOShipment(payload)
 
-			tmpFile, err := ioutil.TempFile(os.TempDir(), "prefix-")
+			tmpFile, err := ioutil.TempFile(os.TempDir(), "update-shipment-")
 			if err != nil {
 				log.Fatal("Cannot create temporary file", err)
 			}
@@ -584,10 +658,27 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, MenuType, erro
 				fmt.Println("Shipment update failed :( ")
 				fmt.Printf("error message: %s\n", err.Error())
 			} else {
-				fmt.Println("Shipment update was successful!")
-				//jsonStr := json.Marshal(shipmentUpdates, )
+				fmt.Printf("\nShipment update was successfully sent for processing (see reesponse for update success/fail)...\n")
 
 				pr.fetchMTOUpdates()
+
+				// re-display update shipment menu and the current shipment that was updated
+
+				// Display Shipment
+				fmt.Printf("\n\n================ Updating Shipment ===============\n")
+				err = pr.displayShipment(shipmentIndex)
+				if err != nil {
+					fmt.Print("Could not display selected MTO shipment")
+					fmt.Printf("error when selection shipment with index %d: %s", shipmentIndex, err.Error())
+					return exitApp, MTOMenu, nil
+				}
+
+				menuTitle("UPDATE SHIPMENT")
+
+				// print out update field options for selection
+				for i, field := range fields {
+					fmt.Printf("%d: %s\n", i, field.description)
+				}
 			}
 		case cancelUpdateShipment:
 			update = false
@@ -597,84 +688,246 @@ func (pr *paymentRequestsData) displayUpdateShipmentMenu() (bool, MenuType, erro
 	return exitApp, MTOMenu, nil
 }
 
-func (pr *paymentRequestsData) createPaymentRequest() error {
+
+func (pr *paymentRequestsData) paymentRequestJsonToFile(f *os.File, serviceItems map[string]updateInfo) error {
+	var strs []string
+
+	/***************************************************
+	{
+	  "body": {
+	    "isFinal": false,
+	    "moveTaskOrderID": "49abcdbf-d4ed-4c9c-9ce1-677ee7653f77",
+	    "serviceItems": [
+	      {
+	        "id": "22e1bf91-47db-45df-bade-f52d7252ed3e"
+	      },
+	      {
+	        "id": "2c4fb2a4-a5c3-4438-92ba-64e8ba1502e4"
+	      }
+	    ]
+	  }
+	}
+	***************************************************/
+
+	// {
+	strs = append(strs, fmt.Sprint("{\n"))
+	// 		"body": {
+	strs = append(strs, fmt.Sprint("\"body\": {\n"))
+	//		    "isFinal": false,
+	strs = append(strs, fmt.Sprintf("\"isFinal\": %s,\n", serviceItems["isFinal"].value))
+	//		    "moveTaskOrderID": "49abcdbf-d4ed-4c9c-9ce1-677ee7653f77",
+	strs = append(strs, fmt.Sprintf("\"moveTaskOrderID\": \"%s\",\n", pr.currentMTO.ID.String() ))
+
+	//"serviceItems": [
+	strs = append(strs, fmt.Sprint("\"serviceItems\": [\n"))
+	last := len(serviceItems)
+	counter := 0
+	for key, value := range serviceItems {
+		counter++
+		if key == "isFinal" {
+			continue
+		}
+		var serviceItemStr string
+		//{
+		//		    "id": "ca9aeb58-e5a9-44b0-abe8-81d233dbdebf"
+		//},
+		serviceItemStr = fmt.Sprintf("{\n\"id\": \"%s\"\n}", value.value)
+
+		if counter == last {
+			// do not add ","
+			serviceItemStr += "\n"
+		} else {
+			// need to add ","
+			serviceItemStr += ",\n"
+		}
+		strs = append(strs, serviceItemStr)
+	}
+
+	//          ]  # close "serviceItems": [
+	strs = append(strs, fmt.Sprint("]\n"))
+	// 		}  # close body{
+	strs = append(strs, fmt.Sprint("}\n"))
+	// }  # close json
+	strs = append(strs, fmt.Sprint("}\n"))
+
+	text := []byte(strings.Join(strs, ""))
+
+	if _, err := f.Write(text); err != nil {
+		log.Fatal("Failed to write to temporary file", err)
+	}
 
 	return nil
 }
 
-func (pr *paymentRequestsData) displayUpdateShipmentMenuXX() (bool, MenuType, error) {
+func (pr *paymentRequestsData) displayCreatePaymentRequestMenu() (bool, MenuType, error) {
 
-	// Update MTO Shipment
-	//      take you to the Update MTO shipment menu
-	//
-
-	const (
-		UpdateShipment = iota
-		CreatePaymentRequest
-		ViewPaymentRequest
-		FetchMTO
-		PreviousMenu
-		ExitApp
-	)
 	exitApp := false
-	var err error
-	var selection int
-	currentMenu := MTOMenu
+	//var err error
+	//currentMenu := CreatePaymentRequestMenu
 
-	display := map[int]struct {
-		option      int
-		description string
-		nextMenu    MenuType
-	}{
-		UpdateShipment: {
-			option:      UpdateShipment,
-			description: "Update Shipment",
-			nextMenu:    UpdateShipmentMenu,
-		},
-		PreviousMenu: {
-			option:      PreviousMenu,
-			description: "Go to previous menu",
-			nextMenu:    MenuMain,
-		},
-		ExitApp: {
-			option:      ExitApp,
-			description: "Exit",
-			nextMenu:    currentMenu,
-		},
-	}
 
-	// Display MTO Details for selected MTO
+	// Display MTO currently selected
 	pr.displaySelectedMTO()
 
-	menuTitle("UPDATE SHIPMENT")
-	// Display menu options
-	for _, option := range display {
-		fmt.Printf("%d: %s\n", option.option, option.description)
+	// fields to update
+	const (
+		addServiceItem = iota
+		updateIsFinal
+		sendPaymentRequest
+		cancelPaymentRequest
+	)
+
+	options := []struct {
+		option       int
+		description string
+	}{
+		{
+			option:       addServiceItem,
+			description: "Select service item index to add",
+		},
+		{
+			option:       updateIsFinal,
+			description: "Update isFinal flag (default is false)",
+		},
+		{
+			option:       sendPaymentRequest,
+			description: "Send Payment Request",
+		},
+		{
+			option:       cancelPaymentRequest,
+			description: "Cancel and return to previous menu",
+		},
 	}
 
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Print("\nSelect menu option: ")
-	text, _ := reader.ReadString('\n')
-	text = strings.TrimSpace(text)
-	selection, err = strconv.Atoi(text)
-	if err != nil {
-		fmt.Printf("Error with selection <%s>, try again\n", err.Error())
-		return exitApp, currentMenu, nil
+	menuTitle("CREATE PAYMENT REQUEST")
+
+	// print out update field options for selection
+	for i, option := range options {
+		fmt.Printf("%d: %s\n", i, option.description)
 	}
 
-	switch selection {
-	case UpdateShipment:
-		//pr.updateShipment()
-		return exitApp, display[selection].nextMenu, nil
+	serviceItems := make(map[string]updateInfo)
+	serviceItems["isFinal"] = updateInfo{
+		value:    "false",
+		isString: false,
+	}
+	var err error
+	update := true
+	for ok := true; ok; ok = update {
+		fmt.Printf("\nSelect menu option: ")
+		var selection int
+		selection, err = getIntInput()
+		if err != nil {
+			fmt.Printf("\nBad option input with error: %s\n",err.Error())
+		}
+		selectedOption := options[selection]
+		switch selectedOption.option {
+		case addServiceItem:
+			fmt.Print("Select service index to add to payment request: ")
+			var index int
+			index, err = getIntInput()
+			if err != nil {
+				fmt.Printf("\nBad index input with error: %s\n",err.Error())
+			} else {
+				if index < len(pr.serviceItemDisplayList) {
+					serviceItem := pr.serviceItemDisplayList[index]
+					fieldValue := updateInfo{
+						value:    serviceItem.serviceItemID,
+						isString: true,
+					}
+					serviceItems[serviceItem.serviceItemID] = fieldValue
+				} else {
+					fmt.Printf("\nEntered bad service item index <%d> try again.\n", index)
+				}
+			}
+		case updateIsFinal:
+			fmt.Print("Updating isFinal flag\nEnter \"0\" for false and \"1\" for true: ")
+			var isFinal int
+			isFinal, err = getIntInput()
+			if err != nil {
+				fmt.Printf("\nBad 0 or 1 input with error: %s\n",err.Error())
+			} else {
+				if isFinal == 0 {
+					fieldValue := updateInfo{
+						value:    "false",
+						isString: true,
+					}
+					serviceItems["isFinal"] = fieldValue
+				} else if isFinal == 1 {
+					fieldValue := updateInfo{
+						value:    "true",
+						isString: true,
+					}
+					serviceItems["isFinal"] = fieldValue
+				} else {
+					fmt.Printf("\nDid not enter valid \"0\" or \"1\" for isFinal flag: %d.\n", isFinal)
+				}
+			}
+		case sendPaymentRequest:
 
-	case PreviousMenu:
-		return exitApp, display[selection].nextMenu, nil
-	case ExitApp:
-		exitApp = true
-		return exitApp, display[selection].nextMenu, nil
+			tmpFile, err := ioutil.TempFile(os.TempDir(), "payment-request-")
+			if err != nil {
+				log.Fatal("Cannot create temporary file", err)
+			}
+
+			/*
+				// Remember to clean up the file afterwards
+				defer os.Remove(tmpFile.Name())
+
+			*/
+
+			fmt.Println("Created File: " + tmpFile.Name())
+
+			/*
+				{
+				  "mtoShipmentID": "5834016b-bc7b-421f-b87d-313acdddcc77",
+				  "ifMatch": "MjAyMC0wOS0wM1QyMTo1Nzo0NC43NjQ0ODFa",
+				  "body": {
+				    "primeEstimatedWeight": 1000,
+				    "primeActualWeight": 3000
+				  }
+				}
+			*/
+
+			err = pr.paymentRequestJsonToFile(tmpFile, serviceItems)
+			if err != nil {
+
+			}
+
+			err = pr.creatPaymentRequest(tmpFile.Name())
+
+			/*
+				// Close the file
+				if err := tmpFile.Close(); err != nil {
+					log.Fatal(err)
+				}
+			*/
+			if err != nil {
+				fmt.Println("Create payment request failed :( ")
+				fmt.Printf("error message: %s\n", err.Error())
+			} else {
+				fmt.Printf("\nCreate payment request was successfully sent for processing (see reesponse for update success/fail)...\n")
+
+				pr.fetchMTOUpdates()
+
+				// re-display updated MTO
+
+				// Display MTO currently selected
+				pr.displaySelectedMTO()
+
+				menuTitle("CREATE PAYMENT REQUEST")
+
+				// print out update field options for selection
+				for i, option := range options {
+					fmt.Printf("%d: %s\n", i, option.description)
+				}
+			}
+		case cancelPaymentRequest:
+			update = false
+		}
 	}
 
-	return exitApp, currentMenu, nil
+	return exitApp, MTOMenu, nil
 }
 
 func (pr *paymentRequestsData) displayUpdateMTOMenu() (bool, MenuType, error) {
@@ -773,7 +1026,7 @@ func (pr *paymentRequestsData) displayMTOMenu() (bool, MenuType, error) {
 	case UpdateShipment:
 		return exitApp, display[selection].nextMenu, nil
 	case CreatePaymentRequest:
-		pr.createPaymentRequest()
+		pr.displayCreatePaymentRequestMenu()
 		return exitApp, display[selection].nextMenu, nil
 	case PreviousMenu:
 		return exitApp, display[selection].nextMenu, nil
@@ -970,6 +1223,63 @@ func (pr *paymentRequestsData) updateMTOShipment2(filename string) error {
 
 	// Make the API Call
 	resp, err := primeGateway.MtoShipment.UpdateMTOShipment(&shipmentPayload)
+	if err != nil {
+		return utils.HandleGatewayError(err, pr.logger)
+	}
+
+	payload := resp.GetPayload()
+	if payload != nil {
+		payload, errJSONMarshall := json.MarshalIndent(payload, "", "    ")
+		if errJSONMarshall != nil {
+			pr.logger.Fatal(errJSONMarshall)
+		}
+		fmt.Println(string(payload))
+	} else {
+		pr.logger.Fatal(resp.Error())
+	}
+
+	// Defer closing the store until after the API call has completed
+	/*
+		if cacStore != nil {
+			defer cacStore.Close()
+		}
+
+	*/
+
+	return nil
+}
+
+// updateMTOShipment creates a gateway and sends the request to the endpoint
+func (pr *paymentRequestsData) creatPaymentRequest(filename string) error {
+
+	/*
+		// Show what we are sending
+		showJsonPayload, errJSONMarshall := json.Marshal(shipmentPayload)
+		if errJSONMarshall != nil {
+			pr.logger.Fatal(errJSONMarshall)
+		}
+		fmt.Printf("Sending payload for shipment updates...\n")
+		fmt.Println(string(showJsonPayload))
+
+	*/
+
+	// Decode json from file that was passed into MTOShipment
+	paymentRequestParams := paymentrequestclient.CreatePaymentRequestParams{}
+	err := utils.DecodeJSONFileToPayload(filename, false, &paymentRequestParams)
+	if err != nil {
+		pr.logger.Fatal(err)
+	}
+
+	paymentRequestParams.SetTimeout(time.Second * 30)
+
+	// Create the client and open the cacStore
+	primeGateway, _, errCreateClient := pr.getPrimeClient()
+	if errCreateClient != nil {
+		return errCreateClient
+	}
+
+	// Make the API Call
+	resp, err := primeGateway.PaymentRequest.CreatePaymentRequest(&paymentRequestParams)
 	if err != nil {
 		return utils.HandleGatewayError(err, pr.logger)
 	}
