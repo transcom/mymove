@@ -44,18 +44,18 @@ export class SelectMoveType extends Component {
       </div>
     );
     return (
-      <WizardPage
-        pageKey={pageKey}
-        match={match}
-        pageList={pageList}
-        dirty
-        handleSubmit={this.handleSubmit}
-        push={push}
-        footerText={footerText}
-      >
-        <div className="usa-grid">
-          <div className="grid-row">
-            <div className="grid-col">
+      <div className={`grid-container ${styles.cardsContainer}`}>
+        <div className="grid-row">
+          <div className="grid-col-8">
+            <WizardPage
+              pageKey={pageKey}
+              match={match}
+              pageList={pageList}
+              dirty
+              handleSubmit={this.handleSubmit}
+              push={push}
+              footerText={footerText}
+            >
               <h1 className="sm-heading">How do you want to move your belongings?</h1>
               <SelectableCard
                 label="Do it yourself"
@@ -75,10 +75,10 @@ export class SelectMoveType extends Component {
                 cardText={hhgCardText}
                 checked={moveType === SHIPMENT_OPTIONS.HHG}
               />
-            </div>
+            </WizardPage>
           </div>
         </div>
-      </WizardPage>
+      </div>
     );
   }
 }
