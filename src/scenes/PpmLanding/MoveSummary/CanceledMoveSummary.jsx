@@ -8,7 +8,7 @@ const CanceledMoveSummary = (props) => {
   const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
   return (
     <div>
-      <h2>New move</h2>
+      <h1>New move</h1>
       <br />
       <div>
         <div className="shipment_box">
