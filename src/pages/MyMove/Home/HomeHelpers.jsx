@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from '@trussworks/react-uswds';
 
 import Helper from 'components/Customer/Home/Helper';
 
@@ -36,6 +37,25 @@ export const HelperSubmittedMove = () => (
     <ul>
       <li>Create a custom checklist at Plan My Move</li>
       <li>Learn more about your new duty station</li>
+    </ul>
+  </Helper>
+);
+
+export const HelperTrackHHGMove = () => (
+  <Helper title="What’s next?">
+    <ul>
+      <li>
+        Create a custom checklist at{' '}
+        <Link variant="external" href="https://planmymove.militaryonesource.mil/">
+          Plan My Move
+        </Link>
+      </li>
+      <li>
+        <Link variant="external" href="https://installations.militaryonesource.mil/">
+          Learn more
+        </Link>{' '}
+        about your new duty station
+      </li>
     </ul>
   </Helper>
 );
