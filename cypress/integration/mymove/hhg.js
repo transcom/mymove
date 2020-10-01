@@ -270,7 +270,7 @@ function customerReviewsMoveDetails() {
 }
 
 function customerSubmitsMove() {
-  cy.get('h2').contains('Now for the official part...');
+  cy.get('h1').contains('Now for the official part...');
   cy.get('input[name="signature"]').type('Signature');
   cy.get('button').contains('Complete').click();
   cy.get('.usa-alert--success').within(() => {
