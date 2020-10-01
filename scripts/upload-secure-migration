@@ -9,8 +9,8 @@ set -eu -o pipefail
 readonly aws_command="aws"
 # Environments to upload production migrations to
 # shellcheck disable=SC2206
-readonly environments=(${ENVIRONMENTS:-experimental staging prod})
-readonly valid_envs=("experimental" "staging" "prod")
+readonly environments=(${ENVIRONMENTS:-exp stg prd})
+readonly valid_envs=("exp" "stg" "prd")
 readonly aws_gov_bucket_prefix="transcom-gov-milmove-"
 readonly aws_gov_bucket_suffix="-app-us-gov-west-1"
 readonly aws_gov_id_account="transcom-gov-id"
@@ -78,23 +78,20 @@ fi
 
 # Test AWS command and freshen AWS session token
 for environment in "${environments[@]}"; do
-  if [[ $environment == "experimental" ]]; then
-    exp_govenv="exp"
-    readonly aws_gov_exp_account="${aws_gov_bucket_prefix}${exp_govenv}"
+  if [[ $environment == "exp" ]]; then
+    readonly aws_gov_exp_account="${aws_gov_bucket_prefix}${environment}"
     readonly aws_gov_exp_bucket_name="${aws_gov_exp_account}${aws_gov_bucket_suffix}"
-    DISABLE_AWS_VAULT_WRAPPER=1 AWS_PROFILE=${aws_gov_id_account} AWS_REGION=${aws_gov_region} aws-vault exec ${aws_gov_exp_account} -- ${aws_command} s3 ls ${aws_gov_exp_bucket_name} > /dev/null
+    DISABLE_AWS_VAULT_WRAPPER=1 AWS_PROFILE=${aws_gov_id_account} AWS_REGION=${aws_gov_region} aws-vault exec "${aws_gov_exp_account}" -- ${aws_command} s3 ls "${aws_gov_exp_bucket_name}" > /dev/null
     echo "confirmed: you have access to ${aws_gov_exp_bucket_name} bucket via account ${aws_gov_id_account}"
-  elif [[ $environment == "staging" ]]; then
-    stg_govenv="stg"
-    readonly aws_gov_stg_account="${aws_gov_bucket_prefix}${stg_govenv}"
+  elif [[ $environment == "stg" ]]; then
+    readonly aws_gov_stg_account="${aws_gov_bucket_prefix}${environment}"
     readonly aws_gov_stg_bucket_name="${aws_gov_stg_account}${aws_gov_bucket_suffix}"
-    DISABLE_AWS_VAULT_WRAPPER=1 AWS_PROFILE=${aws_gov_id_account} AWS_REGION=${aws_gov_region} aws-vault exec ${aws_gov_stg_account} -- ${aws_command} s3 ls ${aws_gov_stg_bucket_name} > /dev/null
+    DISABLE_AWS_VAULT_WRAPPER=1 AWS_PROFILE=${aws_gov_id_account} AWS_REGION=${aws_gov_region} aws-vault exec "${aws_gov_stg_account}" -- ${aws_command} s3 ls "${aws_gov_stg_bucket_name}" > /dev/null
     echo "confirmed: you have access to ${aws_gov_stg_bucket_name} bucket via account ${aws_gov_id_account}"
-  elif [[ $environment == "prod" ]]; then
-    prd_govenv="prd"
-    readonly aws_gov_prd_account="${aws_gov_bucket_prefix}${prd_govenv}"
+  elif [[ $environment == "prd" ]]; then
+    readonly aws_gov_prd_account="${aws_gov_bucket_prefix}${environment}"
     readonly aws_gov_prd_bucket_name="${aws_gov_prd_account}${aws_gov_bucket_suffix}"
-    DISABLE_AWS_VAULT_WRAPPER=1 AWS_PROFILE=${aws_gov_id_account} AWS_REGION=${aws_gov_region} aws-vault exec ${aws_gov_prd_account} -- ${aws_command} s3 ls ${aws_gov_prd_bucket_name} > /dev/null
+    DISABLE_AWS_VAULT_WRAPPER=1 AWS_PROFILE=${aws_gov_id_account} AWS_REGION=${aws_gov_region} aws-vault exec "${aws_gov_prd_account}" -- ${aws_command} s3 ls "${aws_gov_prd_bucket_name}" > /dev/null
     echo "confirmed: you have access to ${aws_gov_prd_bucket_name} bucket via account ${aws_gov_id_account}"
   fi
 done
@@ -121,32 +118,32 @@ echo
 # Upload secure migration
 #
 
-proceed "Are you ready to upload your new migration? This will upload to all GovCloud environments (exp, stg, prd)."
+proceed "Are you ready to upload your new migration? This will upload to all GovCloud environments (${environments[*]})."
 
 for environment in "${environments[@]}"; do
   echo "Uploading to: $environment"
   sleep 1
-  if [[ $environment == "experimental" ]]; then
+  if [[ $environment == "exp" ]]; then
     DISABLE_AWS_VAULT_WRAPPER=1 \
       AWS_PROFILE=${aws_gov_id_account} \
       AWS_REGION=${aws_gov_region} \
-      aws-vault exec ${aws_gov_exp_account} -- ${aws_command} s3 cp --sse AES256 \
+      aws-vault exec "${aws_gov_exp_account}" -- ${aws_command} s3 cp --sse AES256 \
       "$production_migration_file" \
       "s3://${aws_gov_exp_bucket_name}/${aws_path_prefix}/"
     echo "confirmed: you ran a secure migration to ${aws_gov_exp_bucket_name} via ${aws_gov_id_account}"
-  elif [[ $environment == "staging" ]]; then
+  elif [[ $environment == "stg" ]]; then
     DISABLE_AWS_VAULT_WRAPPER=1 \
        AWS_PROFILE=${aws_gov_id_account} \
        AWS_REGION=${aws_gov_region} \
-       aws-vault exec ${aws_gov_stg_account} -- ${aws_command} s3 cp --sse AES256 \
+       aws-vault exec "${aws_gov_stg_account}" -- ${aws_command} s3 cp --sse AES256 \
        "$production_migration_file" \
        "s3://${aws_gov_stg_bucket_name}/${aws_path_prefix}/"
     echo "confirmed: you ran a secure migration to ${aws_gov_stg_bucket_name} via ${aws_gov_id_account}"
-  elif [[ $environment == "prod" ]]; then
+  elif [[ $environment == "prd" ]]; then
     DISABLE_AWS_VAULT_WRAPPER=1 \
        AWS_PROFILE=${aws_gov_id_account} \
        AWS_REGION=${aws_gov_region} \
-       aws-vault exec ${aws_gov_prd_account} -- ${aws_command} s3 cp --sse AES256 \
+       aws-vault exec "${aws_gov_prd_account}" -- ${aws_command} s3 cp --sse AES256 \
        "$production_migration_file" \
        "s3://${aws_gov_prd_bucket_name}/${aws_path_prefix}/"
     echo "confirmed: you ran a secure migration to ${aws_gov_prd_bucket_name} via ${aws_gov_id_account}"
