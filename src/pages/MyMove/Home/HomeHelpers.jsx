@@ -66,6 +66,9 @@ export const HelperSubmittedNoPPM = () => (
         </Link>{' '}
         about your new duty station
       </li>
+      <li>If details about your move change, talk to your move counselor or with your movers</li>
+      <li>Your movers will help you estimate the weight of your things</li>
+      <li>They’ll also finalize moving dates</li>
     </ul>
   </Helper>
 );
