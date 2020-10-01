@@ -93,8 +93,13 @@ func assembleMTOShipmentPayload(db *pop.Connection, updatedObjectID uuid.UUID) (
 		return nil, notFoundError
 	}
 
-	// TODO: This should convert the model to payload and then return the bytes
-	return model.ID.Bytes(), nil
+	payload := payloads.MTOShipment(&model)
+	payloadArray, err := json.Marshal(payload)
+	if err != nil {
+		unknownErr := services.NewEventError("Unknown error creating MTOShipment payload.", err)
+		return nil, unknownErr
+	}
+	return payloadArray, nil
 
 }
 
