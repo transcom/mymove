@@ -46,12 +46,22 @@ export const HelperTrackHHGMove = () => (
     <ul>
       <li>
         Create a custom checklist at{' '}
-        <Link variant="external" href="https://planmymove.militaryonesource.mil/">
+        <Link
+          variant="external"
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://planmymove.militaryonesource.mil/"
+        >
           Plan My Move
         </Link>
       </li>
       <li>
-        <Link variant="external" href="https://installations.militaryonesource.mil/">
+        <Link
+          variant="external"
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://installations.militaryonesource.mil/"
+        >
           Learn more
         </Link>{' '}
         about your new duty station

@@ -111,16 +111,63 @@ describe('Home component', () => {
   });
 
   describe('if the user has submitted their move', () => {
-    const wrapper = mountHome({
-      ...defaultProps,
-      orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
-      uploadedOrderDocuments: [{ filename: 'testOrder1.pdf' }],
-      mtoShipments: [{ id: 'test123', shipmentType: 'HHG' }],
-      move: { status: 'SUBMITTED' },
+    describe('for PPM moves', () => {
+      const wrapper = mountHome({
+        ...defaultProps,
+        orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
+        uploadedOrderDocuments: [{ filename: 'testOrder1.pdf' }],
+        mtoShipments: [{ id: 'test123', shipmentType: 'PPM' }],
+        move: { status: 'SUBMITTED' },
+      });
+
+      it('renders the SubmittedMove helper', () => {
+        expect(wrapper.find('HelperSubmittedMove').exists()).toBe(true);
+      });
     });
 
-    it('renders the SubmittedMove helper', () => {
-      expect(wrapper.find('HelperSubmittedMove').exists()).toBe(true);
+    describe('for HHG moves', () => {
+      const wrapper = mountHome({
+        ...defaultProps,
+        orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
+        uploadedOrderDocuments: [{ filename: 'testOrder1.pdf' }],
+        mtoShipments: [{ id: 'test123', shipmentType: 'HHG' }],
+        move: { status: 'SUBMITTED' },
+      });
+
+      it('renders the TrackHHGMove helper', () => {
+        expect(wrapper.find('HelperTrackHHGMove').exists()).toBe(true);
+      });
+    });
+
+    describe('for NTS moves', () => {
+      const wrapper = mountHome({
+        ...defaultProps,
+        orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
+        uploadedOrderDocuments: [{ filename: 'testOrder1.pdf' }],
+        mtoShipments: [{ id: 'test123', shipmentType: 'NTS' }],
+        move: { status: 'SUBMITTED' },
+      });
+
+      it('renders the TrackHHGMove helper', () => {
+        expect(wrapper.find('HelperTrackHHGMove').exists()).toBe(true);
+      });
+    });
+
+    describe('for HHG/PPM combo moves', () => {
+      const wrapper = mountHome({
+        ...defaultProps,
+        orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
+        uploadedOrderDocuments: [{ filename: 'testOrder1.pdf' }],
+        mtoShipments: [
+          { id: 'test123', shipmentType: 'HHG' },
+          { id: 'test123', shipmentType: 'PPM' },
+        ],
+        move: { status: 'SUBMITTED' },
+      });
+
+      it('renders the SubmittedMove helper', () => {
+        expect(wrapper.find('HelperSubmittedMove').exists()).toBe(true);
+      });
     });
   });
 });

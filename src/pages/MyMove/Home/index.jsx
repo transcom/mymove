@@ -6,7 +6,13 @@ import { connect } from 'react-redux';
 import { get, isEmpty } from 'lodash';
 
 import styles from './Home.module.scss';
-import { HelperNeedsOrders, HelperNeedsShipment, HelperNeedsSubmitMove, HelperSubmittedMove } from './HomeHelpers';
+import {
+  HelperNeedsOrders,
+  HelperNeedsShipment,
+  HelperNeedsSubmitMove,
+  HelperSubmittedMove,
+  HelperTrackHHGMove,
+} from './HomeHelpers';
 
 import { withContext } from 'shared/AppContext';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
@@ -115,6 +121,21 @@ class Home extends Component {
     return !!Object.keys(move).length && move.status !== 'DRAFT';
   }
 
+  get hasHHGShipment() {
+    const { mtoShipments } = this.props;
+    return mtoShipments.some((s) => s.shipmentType === SHIPMENT_OPTIONS.HHG);
+  }
+
+  get hasNTSShipment() {
+    const { mtoShipments } = this.props;
+    return mtoShipments.some((s) => s.shipmentType === SHIPMENT_OPTIONS.NTS);
+  }
+
+  get hasPPMShipment() {
+    const { mtoShipments } = this.props;
+    return mtoShipments.some((s) => s.shipmentType === SHIPMENT_OPTIONS.PPM);
+  }
+
   get shipmentActionBtnLabel() {
     if (this.hasSubmittedMove) {
       return '';
@@ -161,7 +182,10 @@ class Home extends Component {
     if (!this.hasOrders) return <HelperNeedsOrders />;
     if (!this.hasShipment) return <HelperNeedsShipment />;
     if (this.hasShipment && !this.hasSubmittedMove) return <HelperNeedsSubmitMove />;
-    if (this.hasSubmittedMove) return <HelperSubmittedMove />;
+    if (this.hasSubmittedMove) {
+      if ((this.hasHHGShipment || this.hasNTSShipment) && !this.hasPPMShipment) return <HelperTrackHHGMove />;
+      return <HelperSubmittedMove />;
+    }
     return null;
   };
 
