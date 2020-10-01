@@ -1,7 +1,7 @@
 @import 'shared/styles/colors';
 @import 'shared/styles/_basics';
 
-.helper-container {
+.Helper {
   border: 1px solid $base-lighter;
   border-radius: 5px;
   background-color: $bg-blue-warm-10;
@@ -29,7 +29,7 @@
   }
 }
 
-.helper-header {
+.header {
   @include u-margin-bottom(1);
   margin-top: 0px;
   font-weight: normal;
