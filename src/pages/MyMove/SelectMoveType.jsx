@@ -44,40 +44,36 @@ export class SelectMoveType extends Component {
       </div>
     );
     return (
-      <div className={`grid-container ${styles.cardsContainer}`}>
-        <div className="grid-row">
-          <div className="grid-col-8">
-            <WizardPage
-              pageKey={pageKey}
-              match={match}
-              pageList={pageList}
-              dirty
-              handleSubmit={this.handleSubmit}
-              push={push}
-              footerText={footerText}
-            >
-              <h1 className="sm-heading">How do you want to move your belongings?</h1>
-              <SelectableCard
-                label="Do it yourself"
-                onChange={(e) => this.setMoveType(e)}
-                value={SHIPMENT_OPTIONS.PPM}
-                name="moveType"
-                id={SHIPMENT_OPTIONS.PPM}
-                cardText={ppmCardTextFirstTime}
-                checked={moveType === SHIPMENT_OPTIONS.PPM}
-              />
-              <SelectableCard
-                label="Professional movers"
-                onChange={(e) => this.setMoveType(e)}
-                value={SHIPMENT_OPTIONS.HHG}
-                name="moveType"
-                id={SHIPMENT_OPTIONS.HHG}
-                cardText={hhgCardText}
-                checked={moveType === SHIPMENT_OPTIONS.HHG}
-              />
-            </WizardPage>
-          </div>
-        </div>
+      <div className={styles.cardsContainer}>
+        <WizardPage
+          pageKey={pageKey}
+          match={match}
+          pageList={pageList}
+          dirty
+          handleSubmit={this.handleSubmit}
+          push={push}
+          footerText={footerText}
+        >
+          <h1 className="sm-heading">How do you want to move your belongings?</h1>
+          <SelectableCard
+            label="Do it yourself"
+            onChange={(e) => this.setMoveType(e)}
+            value={SHIPMENT_OPTIONS.PPM}
+            name="moveType"
+            id={SHIPMENT_OPTIONS.PPM}
+            cardText={ppmCardTextFirstTime}
+            checked={moveType === SHIPMENT_OPTIONS.PPM}
+          />
+          <SelectableCard
+            label="Professional movers"
+            onChange={(e) => this.setMoveType(e)}
+            value={SHIPMENT_OPTIONS.HHG}
+            name="moveType"
+            id={SHIPMENT_OPTIONS.HHG}
+            cardText={hhgCardText}
+            checked={moveType === SHIPMENT_OPTIONS.HHG}
+          />
+        </WizardPage>
       </div>
     );
   }
