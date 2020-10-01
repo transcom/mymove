@@ -315,14 +315,6 @@ function serviceMemberCanFinishWeightTicketLater(vehicleType) {
 
   cy.get('button').contains('Finish Later').click();
 
-  cy.get('button').contains('Cancel').click();
-
-  cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-weight-ticket/);
-  });
-
-  cy.get('button').contains('Finish Later').click();
-
   cy.get('button').contains('OK').click();
 
   cy.location().should((loc) => {

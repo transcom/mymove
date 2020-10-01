@@ -69,7 +69,6 @@ export class Orders extends Component {
         additionalParams={{ serviceMemberId }}
         className={formName}
         handleSubmit={this.handleSubmit}
-        hideCancelBtn
         initialValues={initialValues}
         pageKey={pageKey}
         pageList={pages}
