@@ -226,7 +226,7 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(mtoShipment *models.MTOShipment, 
 	if err != nil {
 		return &models.MTOShipment{}, err
 	}
-	fmt.Println("in service object here = ", updatedShipment.MTOServiceItems)
+
 	return &updatedShipment, nil
 }
 

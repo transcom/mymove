@@ -1,7 +1,6 @@
 package payloads
 
 import (
-	"fmt"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate"
@@ -443,7 +442,6 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			Reason:        mtoServiceItem.Reason,
 		}
 	default:
-		fmt.Println("This is what we WANT actually")
 		// otherwise, basic service item
 		payload = &primemessages.MTOServiceItemBasic{
 			ReServiceCode: primemessages.ReServiceCode(mtoServiceItem.ReService.Code),
