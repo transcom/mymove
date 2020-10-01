@@ -18,7 +18,7 @@ export class WizardPage extends Component {
     super(props);
     this.nextPage = this.nextPage.bind(this);
     this.previousPage = this.previousPage.bind(this);
-    this.cancelFlow = this.cancelFlow.bind(this);
+    this.goHome = this.goHome.bind(this);
     this.beforeTransition = beforeTransition.bind(this);
   }
   componentDidUpdate() {
@@ -27,7 +27,7 @@ export class WizardPage extends Component {
   componentDidMount() {
     scrollToTop();
   }
-  cancelFlow() {
+  goHome() {
     this.props.push(`/`);
   }
 
@@ -118,7 +118,7 @@ export class WizardPage extends Component {
             <button
               type="button"
               className="usa-button usa-button--unstyled padding-left-0"
-              onClick={this.cancelFlow}
+              onClick={this.goHome}
               disabled={false}
               data-testid="wizardCancelButton"
             >
@@ -129,7 +129,7 @@ export class WizardPage extends Component {
             <button
               type="button"
               className="usa-button usa-button--unstyled"
-              onClick={this.cancelFlow}
+              onClick={this.goHome}
               disabled={false}
               data-testid="wizardFinishLaterButton"
             >
