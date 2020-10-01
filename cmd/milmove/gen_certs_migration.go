@@ -101,7 +101,7 @@ type CertsTemplate struct {
 
 // InitCertsMigrationFlags initializes certs migration command line flags
 func InitCertsMigrationFlags(flag *pflag.FlagSet) {
-	flag.StringP(FingerprintFlag, "f", "", "Certificate finnngerprint in SHA 256 form")
+	flag.StringP(FingerprintFlag, "f", "", "Certificate fingerprint in SHA 256 form")
 	flag.StringP(SubjectFlag, "s", "", "Certificate subject")
 	flag.Bool(UpdateFlag, false, "Create an update migration")
 	flag.String(ClientCertIDFlag, "", "Previous ID of client cert entry")
