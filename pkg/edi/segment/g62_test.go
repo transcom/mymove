@@ -12,7 +12,7 @@ func (suite *SegmentSuite) TestValidateG62() {
 		Time:          "1617",
 	}
 	validG62RequestedPickupDateTime := G62{
-		DateQualifier: 68,
+		DateQualifier: 10,
 		Date:          "20200909",
 		TimeQualifier: 5,
 		Time:          "1617",
