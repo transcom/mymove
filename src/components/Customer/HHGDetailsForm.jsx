@@ -5,6 +5,14 @@ import { connect } from 'react-redux';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
 import { Fieldset, Radio, Label } from '@trussworks/react-uswds';
+
+import { DatePickerInput, TextInput } from '../form/fields';
+import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
+import { AddressFields } from '../form/AddressFields/AddressFields';
+import { Form } from '../form/Form';
+
+import styles from './HHGDetailsForm.module.scss';
+
 import {
   selectMTOShipmentForMTO,
   createMTOShipment as createMTOShipmentAction,
@@ -18,13 +26,6 @@ import { MTOAgentType, SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatSwaggerDate } from 'shared/formatters';
 import Checkbox from 'shared/Checkbox';
 import { validateDate } from 'utils/formikValidators';
-
-import { DatePickerInput, TextInput } from '../form/fields';
-import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
-import { AddressFields } from '../form/AddressFields/AddressFields';
-import { Form } from '../form/Form';
-
-import styles from './HHGDetailsForm.module.scss';
 
 const PickupAddressSchema = Yup.object().shape({
   street_address_1: Yup.string().required('Required'),
