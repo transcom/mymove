@@ -4,7 +4,7 @@ import { mount } from 'enzyme';
 
 import HHGShipmentCard from '.';
 
-import { formatCustomerDate } from 'shared/formatters';
+import { formatCustomerDate } from 'shared/utils';
 
 const defaultProps = {
   shipmentNumber: 1,
