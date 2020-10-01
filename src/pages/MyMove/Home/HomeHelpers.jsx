@@ -41,7 +41,7 @@ export const HelperSubmittedMove = () => (
   </Helper>
 );
 
-export const HelperTrackHHGMove = () => (
+export const HelperSubmittedNoPPM = () => (
   <Helper title="What’s next?">
     <ul>
       <li>

@@ -11,7 +11,7 @@ import {
   HelperNeedsShipment,
   HelperNeedsSubmitMove,
   HelperSubmittedMove,
-  HelperTrackHHGMove,
+  HelperSubmittedNoPPM,
 } from './HomeHelpers';
 
 import { withContext } from 'shared/AppContext';
@@ -183,7 +183,7 @@ class Home extends Component {
     if (!this.hasShipment) return <HelperNeedsShipment />;
     if (this.hasShipment && !this.hasSubmittedMove) return <HelperNeedsSubmitMove />;
     if (this.hasSubmittedMove) {
-      if ((this.hasHHGShipment || this.hasNTSShipment) && !this.hasPPMShipment) return <HelperTrackHHGMove />;
+      if (!this.hasPPMShipment) return <HelperSubmittedNoPPM />;
       return <HelperSubmittedMove />;
     }
     return null;

@@ -134,8 +134,8 @@ describe('Home component', () => {
         move: { status: 'SUBMITTED' },
       });
 
-      it('renders the TrackHHGMove helper', () => {
-        expect(wrapper.find('HelperTrackHHGMove').exists()).toBe(true);
+      it('renders the SubmittedNoPPM helper', () => {
+        expect(wrapper.find('HelperSubmittedNoPPM').exists()).toBe(true);
       });
     });
 
@@ -148,8 +148,8 @@ describe('Home component', () => {
         move: { status: 'SUBMITTED' },
       });
 
-      it('renders the TrackHHGMove helper', () => {
-        expect(wrapper.find('HelperTrackHHGMove').exists()).toBe(true);
+      it('renders the SubmittedNoPPM helper', () => {
+        expect(wrapper.find('HelperSubmittedNoPPM').exists()).toBe(true);
       });
     });
 
