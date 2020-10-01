@@ -71,6 +71,7 @@
     "regenerator-runtime": "^0.13.7",
     "reselect": "^4.0.0",
     "selenium-webdriver": "^3.6.0",
+    "selfsigned": "1.10.8",
     "swagger-client": "^3.10.12",
     "swagger-ui-dist": "^3.32.5",
     "uswds": "2.8.0",
