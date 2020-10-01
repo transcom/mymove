@@ -257,7 +257,7 @@ func (pr *paymentRequestsData) displaySelectedMTO() {
 	fmt.Print("\nService Items:\n")
 	for ii, service := range pr.serviceItemDisplayList {
 		if service.mtoShipmentID == "" {
-			fmt.Printf("%d: %s\n", ii, service.description)
+			fmt.Printf("%d: %s", ii, service.description)
 		}
 	}
 
@@ -269,7 +269,7 @@ func (pr *paymentRequestsData) displaySelectedMTO() {
 		fmt.Print("\nService Items:\n")
 		for ii, service := range pr.serviceItemDisplayList {
 			if service.mtoShipmentID == shipment.mtoShipmentID {
-				fmt.Printf("%d: %s\n", ii, service.description)
+				fmt.Printf("%d: %s", ii, service.description)
 			}
 		}
 	}
