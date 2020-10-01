@@ -9,7 +9,7 @@ import hhgShipmentCardStyles from './HHGShipmentCard.module.scss';
 
 import ShipmentContainer from 'components/Office/ShipmentContainer';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { formatCustomerDate } from 'shared/formatters';
+import { formatCustomerDate } from 'shared/utils';
 
 const HHGShipmentCard = ({
   shipmentNumber,
@@ -30,7 +30,7 @@ const HHGShipmentCard = ({
             <h4>HHG {shipmentNumber}</h4>
             <p>{shipmentId.substring(0, 10)}</p>
           </div>
-          <Button className={styles.editBtn} unstyled>
+          <Button className={styles.editBtn} onClick={() => {}} unstyled>
             Edit
           </Button>
         </div>

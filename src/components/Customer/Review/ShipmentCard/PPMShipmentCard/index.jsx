@@ -6,7 +6,7 @@ import ShipmentContainer from '../../../../Office/ShipmentContainer';
 import styles from '../ShipmentCard.module.scss';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { formatCustomerDate } from 'shared/formatters';
+import { formatCustomerDate } from 'shared/utils';
 
 const PPMShipmentCard = ({
   destinationZIP,
@@ -25,7 +25,7 @@ const PPMShipmentCard = ({
             <h4>PPM</h4>
             <p>{shipmentId.substring(0, 10)}</p>
           </div>
-          <Button className={styles.editBtn} unstyled>
+          <Button className={styles.editBtn} onClick={() => {}} unstyled>
             Edit
           </Button>
         </div>
@@ -50,7 +50,7 @@ const PPMShipmentCard = ({
         </dl>
         <div className={styles.subsectionHeader}>
           <h4>PPM shipment weight</h4>
-          <Button className={styles.editBtn} unstyled>
+          <Button className={styles.editBtn} onClick={() => {}} unstyled>
             Edit
           </Button>
         </div>
