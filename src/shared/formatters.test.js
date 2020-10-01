@@ -64,10 +64,6 @@ describe('formatters', () => {
     it('should default to DD-MMM-YY ouptut format', () => {
       expect(formatters.formatDate('Nov-11-99')).toBe('11-Nov-99');
     });
-
-    it('should format customer date to DD MMM YYYY', () => {
-      expect(formatters.formatCustomerDate('Sep-27-20')).toBe('27 Sep 2020');
-    });
   });
 
   describe('formatDateFromIso', () => {
