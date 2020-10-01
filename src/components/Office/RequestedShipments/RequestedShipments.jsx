@@ -144,7 +144,7 @@ const RequestedShipments = ({
                 />
               </Fieldset>
               <Button
-                id="shipmentApproveButton"
+                data-testid="shipmentApproveButton"
                 className={styles.approveButton}
                 onClick={handleReviewClick}
                 type="button"
