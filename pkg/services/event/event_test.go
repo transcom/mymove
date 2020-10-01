@@ -1,6 +1,7 @@
 package event
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/url"
 	"testing"
@@ -10,6 +11,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -30,6 +32,12 @@ func TestEventServiceSuite(t *testing.T) {
 	}
 	suite.Run(t, ts)
 	ts.PopTestSuite.TearDown()
+}
+
+func (suite *EventServiceSuite) getNotification(mtoID uuid.UUID, traceID uuid.UUID) (*models.WebhookNotification, error) {
+	var notification = new(models.WebhookNotification)
+	err := suite.DB().Where("object_id = $1 AND trace_id = $2", mtoID.String(), traceID.String()).First(notification)
+	return notification, err
 }
 
 func (suite *EventServiceSuite) Test_EventTrigger() {
@@ -174,6 +182,57 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 	})
 }
 
+func (suite *EventServiceSuite) Test_MTOEventTrigger() {
+
+	now := time.Now()
+	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			AvailableToPrimeAt: &now,
+		},
+	})
+	mtoID := mto.ID
+
+	dummyRequest := http.Request{
+		URL: &url.URL{
+			Path: "",
+		},
+	}
+	logger, _ := zap.NewDevelopment()
+	handler := handlers.NewHandlerContext(suite.DB(), logger)
+	traceID, _ := uuid.NewV4()
+	handler.SetTraceID(traceID)
+
+	// Test successful event
+	suite.T().Run("Success with GHC MoveTaskOrder endpoint", func(t *testing.T) {
+
+		_, err := TriggerEvent(Event{
+			EventKey:        MoveTaskOrderCreateEventKey,
+			MtoID:           mtoID,
+			UpdatedObjectID: mtoID,
+			Request:         &dummyRequest,
+			EndpointKey:     GhcUpdateMoveTaskOrderEndpointKey,
+			HandlerContext:  handler,
+			DBConnection:    suite.DB(),
+		})
+		suite.Nil(err)
+
+		// Get the notification
+		notification, err := suite.getNotification(mtoID, traceID)
+		suite.NoError(err)
+		suite.Equal(&mtoID, notification.ObjectID)
+
+		// Reinflate the json from the notification payload
+		suite.NotEmpty(notification.Payload)
+		var mtoInPayload MoveTaskOrder
+		json.Unmarshal([]byte(*notification.Payload), &mtoInPayload)
+
+		// Check some params
+		suite.Equal(mto.PPMType, &mtoInPayload.PpmType)
+		suite.Equal(handlers.FmtDateTimePtr(mto.AvailableToPrimeAt).String(), mtoInPayload.AvailableToPrimeAt.String())
+
+	})
+}
+
 func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 
 	now := time.Now()
@@ -193,6 +252,8 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 	}
 	logger, _ := zap.NewDevelopment()
 	handler := handlers.NewHandlerContext(suite.DB(), logger)
+	traceID, _ := uuid.NewV4()
+	handler.SetTraceID(traceID)
 
 	// Test successful event passing with Support API
 	suite.T().Run("Success with GHC MTOShipment endpoint", func(t *testing.T) {
@@ -206,9 +267,21 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 			HandlerContext:  handler,
 			DBConnection:    suite.DB(),
 		})
-		// TODO: Once proper payload is generated this should not return error
-		suite.Error(err)
-		// TODO: Add sandy's webhook notification check
+		suite.Nil(err)
+
+		// Get the notification
+		notification, err := suite.getNotification(mtoShipmentID, traceID)
+		suite.NoError(err)
+		suite.Equal(&mtoShipmentID, notification.ObjectID)
+
+		// Reinflate the json from the notification payload
+		suite.NotEmpty(notification.Payload)
+		var mtoShipmentInPayload primemessages.MTOShipment
+		json.Unmarshal([]byte(*notification.Payload), &mtoShipmentInPayload)
+
+		// Check some params
+		suite.EqualValues(mtoShipment.ShipmentType, mtoShipmentInPayload.ShipmentType)
+		suite.EqualValues(handlers.FmtDatePtr(mtoShipment.RequestedPickupDate).String(), mtoShipmentInPayload.RequestedPickupDate.String())
 
 	})
 }
@@ -251,5 +324,48 @@ func (suite *EventServiceSuite) Test_MTOServiceItemEventTrigger() {
 		newCount, _ := suite.DB().Count(&models.WebhookNotification{})
 		suite.Equal(count+1, newCount)
 
+	})
+}
+
+func (suite *EventServiceSuite) TestMoveOrderEventTrigger() {
+	move := testdatagen.MakeAvailableMove(suite.DB())
+	dummyRequest := http.Request{
+		URL: &url.URL{
+			Path: "",
+		},
+	}
+	logger, _ := zap.NewDevelopment()
+	handler := handlers.NewHandlerContext(suite.DB(), logger)
+	traceID, _ := uuid.NewV4()
+	handler.SetTraceID(traceID)
+
+	// Test successful event passing with Support API
+	suite.T().Run("Success with GHC ServiceItem endpoint", func(t *testing.T) {
+		_, err := TriggerEvent(Event{
+			EventKey:        MoveOrderUpdateEventKey,
+			MtoID:           move.ID,
+			UpdatedObjectID: move.OrdersID,
+			Request:         &dummyRequest,
+			EndpointKey:     InternalUpdateOrdersEndpointKey,
+			HandlerContext:  handler,
+			DBConnection:    suite.DB(),
+		})
+		suite.Nil(err)
+
+		// Get the notification
+		notification, err := suite.getNotification(move.OrdersID, traceID)
+		suite.NoError(err)
+		suite.Equal(&move.OrdersID, notification.ObjectID)
+
+		// Reinflate the json from the notification payload
+		suite.NotEmpty(notification.Payload)
+		var moveOrderPayload primemessages.MoveOrder
+		err = json.Unmarshal([]byte(*notification.Payload), &moveOrderPayload)
+		suite.FatalNoError(err)
+
+		// Check some params
+		suite.Equal(move.Orders.ServiceMember.ID.String(), moveOrderPayload.Customer.ID.String())
+		suite.Equal(move.Orders.Entitlement.ID.String(), moveOrderPayload.Entitlement.ID.String())
+		suite.Equal(move.Orders.OriginDutyStation.ID.String(), moveOrderPayload.OriginDutyStation.ID.String())
 	})
 }

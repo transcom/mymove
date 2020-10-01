@@ -115,8 +115,32 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		paymentRequest,
 		basicPaymentServiceItemParams,
 	)
+	dop := testdatagen.MakePaymentServiceItemWithParamsAndPaymentRequest(
+		suite.DB(),
+		models.ReServiceCodeDOP,
+		paymentRequest,
+		basicPaymentServiceItemParams,
+	)
+	ddp := testdatagen.MakePaymentServiceItemWithParamsAndPaymentRequest(
+		suite.DB(),
+		models.ReServiceCodeDDP,
+		paymentRequest,
+		basicPaymentServiceItemParams,
+	)
+	dpk := testdatagen.MakePaymentServiceItemWithParamsAndPaymentRequest(
+		suite.DB(),
+		models.ReServiceCodeDPK,
+		paymentRequest,
+		basicPaymentServiceItemParams,
+	)
+	dupk := testdatagen.MakePaymentServiceItemWithParamsAndPaymentRequest(
+		suite.DB(),
+		models.ReServiceCodeDUPK,
+		paymentRequest,
+		basicPaymentServiceItemParams,
+	)
 
-	paymentServiceItems = append(paymentServiceItems, dlh, fsc, ms, cs, dsh)
+	paymentServiceItems = append(paymentServiceItems, dlh, fsc, ms, cs, dsh, dop, ddp, dpk, dupk)
 
 	serviceMember := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
@@ -124,11 +148,9 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		},
 	})
 
+	// Proceed with full EDI Generation tests
 	result, err := generator.Generate(paymentRequest, false)
 	suite.NoError(err)
-	// actualEDIString, _ := result.EDIString()
-	// suite.Equal(dlh.PaymentServiceItemParams[0].ServiceItemParamKey, "")
-	// suite.Equal(actualEDIString, "")
 
 	// Test Invoice Start and End Segments
 	suite.T().Run("adds isa start segment", func(t *testing.T) {
@@ -169,7 +191,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	suite.T().Run("adds se end segment", func(t *testing.T) {
 		// Will need to be updated as more service items are supported
-		suite.Equal(42, result.SE.NumberOfIncludedSegments)
+		suite.Equal(62, result.SE.NumberOfIncludedSegments)
 		suite.Equal("0001", result.SE.TransactionSetControlNumber)
 	})
 
@@ -329,6 +351,33 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 				l3 := result.ServiceItems[segmentOffset+4].(*edisegment.L3)
 				suite.Equal(paymentServiceItem.PriceCents.Int64(), l3.PriceCents)
 			})
+		case models.ReServiceCodeDOP, models.ReServiceCodeDUPK,
+			models.ReServiceCodeDPK, models.ReServiceCodeDDP:
+			suite.T().Run("adds l5 service item segment", func(t *testing.T) {
+				suite.IsType(&edisegment.L5{}, result.ServiceItems[segmentOffset+2])
+				l5 := result.ServiceItems[segmentOffset+2].(*edisegment.L5)
+				suite.Equal(hierarchicalNumberInt, l5.LadingLineItemNumber)
+				suite.Equal(string(serviceCode), l5.LadingDescription)
+				suite.Equal("TBD", l5.CommodityCode)
+				suite.Equal("D", l5.CommodityCodeQualifier)
+			})
+
+			suite.T().Run("adds l0 service item segment", func(t *testing.T) {
+				suite.IsType(&edisegment.L0{}, result.ServiceItems[segmentOffset+3])
+				l0 := result.ServiceItems[segmentOffset+3].(*edisegment.L0)
+				suite.Equal(hierarchicalNumberInt, l0.LadingLineItemNumber)
+				suite.Equal(float64(4242), l0.Weight)
+				suite.Equal("B", l0.WeightQualifier)
+				suite.Equal("L", l0.WeightUnitCode)
+			})
+
+			suite.T().Run("adds l3 service item segment", func(t *testing.T) {
+				suite.IsType(&edisegment.L3{}, result.ServiceItems[segmentOffset+4])
+				l3 := result.ServiceItems[segmentOffset+4].(*edisegment.L3)
+				suite.Equal(float64(4242), l3.Weight)
+				suite.Equal("B", l3.WeightQualifier)
+				suite.Equal(paymentServiceItem.PriceCents.Int64(), l3.PriceCents)
+			})
 		default:
 			suite.T().Run("adds l5 service item segment", func(t *testing.T) {
 				suite.IsType(&edisegment.L5{}, result.ServiceItems[segmentOffset+2])
@@ -365,9 +414,94 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	}
 }
 
-// func helperLoadExpectedEDI(suite *GHCInvoiceSuite, name string) string {
-// 	path := filepath.Join("testdata", name) // relative path
-// 	bytes, err := ioutil.ReadFile(path)
-// 	suite.NoError(err, "error loading expected EDI fixture")
-// 	return string(bytes)
-// }
+func (suite *GHCInvoiceSuite) TestOnlyMsandCsGenerateEdi() {
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB())
+	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   testdatagen.DefaultContractCode,
+		},
+	}
+	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			ID:              uuid.FromStringOrNil("d66d9f35-218c-8b85-b9d1-631449b9d984"),
+			MoveTaskOrder:   mto,
+			IsFinal:         false,
+			Status:          models.PaymentRequestStatusPending,
+			RejectionReason: nil,
+		},
+	})
+
+	testdatagen.MakePaymentServiceItemWithParamsAndPaymentRequest(
+		suite.DB(),
+		models.ReServiceCodeMS,
+		paymentRequest,
+		basicPaymentServiceItemParams,
+	)
+	testdatagen.MakePaymentServiceItemWithParamsAndPaymentRequest(
+		suite.DB(),
+		models.ReServiceCodeCS,
+		paymentRequest,
+		basicPaymentServiceItemParams,
+	)
+
+	_, err := generator.Generate(paymentRequest, false)
+	suite.NoError(err)
+}
+
+func (suite *GHCInvoiceSuite) TestNilValues() {
+	currentTime := time.Now()
+	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   testdatagen.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameRequestedPickupDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format(dateFormat),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightBilledActual,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "4242",
+		},
+		{
+			Key:     models.ServiceItemParamNameDistanceZip3,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "2424",
+		},
+	}
+
+	generator := NewGHCPaymentRequestInvoiceGenerator(suite.DB())
+	nilMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+	nilMove.Orders.TAC = nil
+	nilMove.Orders.NewDutyStation.Address.Country = nil
+	nilMove.Orders.OriginDutyStation.Address.Country = nil
+	nilMove.ReferenceID = nil
+
+	nilPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			ID:              uuid.FromStringOrNil("d66d9f35-819e-8b85-b9d1-631449b9d984"),
+			MoveTaskOrder:   nilMove,
+			IsFinal:         false,
+			Status:          models.PaymentRequestStatusPending,
+			RejectionReason: nil,
+		},
+	})
+	nilPriceDLH := testdatagen.MakePaymentServiceItemWithParamsAndPaymentRequest(
+		suite.DB(),
+		models.ReServiceCodeDLH,
+		nilPaymentRequest,
+		basicPaymentServiceItemParams,
+	)
+	nilPriceDLH.PriceCents = nil
+	suite.T().Run("nil pointers do not cause panic", func(t *testing.T) {
+		// Nil country in Destination Duty Station Address
+		_, err := generator.Generate(nilPaymentRequest, false)
+		suite.NoError(err)
+	})
+}

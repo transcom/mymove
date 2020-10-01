@@ -1028,7 +1028,7 @@ definitions:
     required:
       - modelType
       - moveTaskOrderID
-  MTOServiceItemBasic:
+  MTOServiceItemBasic: # spectral oas2-unused-definition is OK here due to polymorphism
     description: Describes a basic service item subtype of a MTOServiceItem.
     allOf:
       - $ref: '#/definitions/MTOServiceItem'
@@ -1038,7 +1038,7 @@ definitions:
             $ref: '#/definitions/ReServiceCode'
         required:
           - reServiceCode
-  MTOServiceItemDDFSIT:
+  MTOServiceItemDDFSIT: # spectral oas2-unused-definition is OK here due to polymorphism
     description: Describes a domestic destination 1st day SIT service item subtype of a MTOServiceItem.
     allOf:
       - $ref: '#/definitions/MTOServiceItem'
@@ -1104,7 +1104,7 @@ definitions:
       - length
       - width
       - height
-  MTOServiceItemDOFSIT:
+  MTOServiceItemDOFSIT: # spectral oas2-unused-definition is OK here due to polymorphism
     description: Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem.
     allOf:
       - $ref: '#/definitions/MTOServiceItem'
@@ -1128,7 +1128,7 @@ definitions:
           - reServiceCode
           - reason
           - pickupPostalCode
-  MTOServiceItemDomesticCrating:
+  MTOServiceItemDomesticCrating: # spectral oas2-unused-definition is OK here due to polymorphism
     description: Describes a domestic crating/uncrating service item subtype of a MTOServiceItem.
     allOf:
       - $ref: '#/definitions/MTOServiceItem'
@@ -1168,7 +1168,7 @@ definitions:
       - MTOServiceItemDDFSIT
       - MTOServiceItemShuttle
       - MTOServiceItemDomesticCrating
-  MTOServiceItemShuttle:
+  MTOServiceItemShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
     description: Describes a shuttle service item.
     allOf:
       - $ref: '#/definitions/MTOServiceItem'
