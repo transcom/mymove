@@ -29,12 +29,6 @@ function proceed() {
   fi
 }
 
-function run() {
-  command=( "$@" )
-  echo "...executing: ${command[*]}"
-  ${command[*]} &> /dev/null || (echo "Failed!!" && exit 1)
-}
-
 #
 # Pre-flight checks
 #
