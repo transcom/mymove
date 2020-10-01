@@ -115,8 +115,32 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		paymentRequest,
 		basicPaymentServiceItemParams,
 	)
+	dop := testdatagen.MakePaymentServiceItemWithParamsAndPaymentRequest(
+		suite.DB(),
+		models.ReServiceCodeDOP,
+		paymentRequest,
+		basicPaymentServiceItemParams,
+	)
+	ddp := testdatagen.MakePaymentServiceItemWithParamsAndPaymentRequest(
+		suite.DB(),
+		models.ReServiceCodeDDP,
+		paymentRequest,
+		basicPaymentServiceItemParams,
+	)
+	dpk := testdatagen.MakePaymentServiceItemWithParamsAndPaymentRequest(
+		suite.DB(),
+		models.ReServiceCodeDPK,
+		paymentRequest,
+		basicPaymentServiceItemParams,
+	)
+	dupk := testdatagen.MakePaymentServiceItemWithParamsAndPaymentRequest(
+		suite.DB(),
+		models.ReServiceCodeDUPK,
+		paymentRequest,
+		basicPaymentServiceItemParams,
+	)
 
-	paymentServiceItems = append(paymentServiceItems, dlh, fsc, ms, cs, dsh)
+	paymentServiceItems = append(paymentServiceItems, dlh, fsc, ms, cs, dsh, dop, ddp, dpk, dupk)
 
 	serviceMember := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
@@ -167,7 +191,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	suite.T().Run("adds se end segment", func(t *testing.T) {
 		// Will need to be updated as more service items are supported
-		suite.Equal(42, result.SE.NumberOfIncludedSegments)
+		suite.Equal(62, result.SE.NumberOfIncludedSegments)
 		suite.Equal("0001", result.SE.TransactionSetControlNumber)
 	})
 
@@ -325,6 +349,33 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			suite.T().Run("adds l3 service item segment", func(t *testing.T) {
 				suite.IsType(&edisegment.L3{}, result.ServiceItems[segmentOffset+4])
 				l3 := result.ServiceItems[segmentOffset+4].(*edisegment.L3)
+				suite.Equal(paymentServiceItem.PriceCents.Int64(), l3.PriceCents)
+			})
+		case models.ReServiceCodeDOP, models.ReServiceCodeDUPK,
+			models.ReServiceCodeDPK, models.ReServiceCodeDDP:
+			suite.T().Run("adds l5 service item segment", func(t *testing.T) {
+				suite.IsType(&edisegment.L5{}, result.ServiceItems[segmentOffset+2])
+				l5 := result.ServiceItems[segmentOffset+2].(*edisegment.L5)
+				suite.Equal(hierarchicalNumberInt, l5.LadingLineItemNumber)
+				suite.Equal(string(serviceCode), l5.LadingDescription)
+				suite.Equal("TBD", l5.CommodityCode)
+				suite.Equal("D", l5.CommodityCodeQualifier)
+			})
+
+			suite.T().Run("adds l0 service item segment", func(t *testing.T) {
+				suite.IsType(&edisegment.L0{}, result.ServiceItems[segmentOffset+3])
+				l0 := result.ServiceItems[segmentOffset+3].(*edisegment.L0)
+				suite.Equal(hierarchicalNumberInt, l0.LadingLineItemNumber)
+				suite.Equal(float64(4242), l0.Weight)
+				suite.Equal("B", l0.WeightQualifier)
+				suite.Equal("L", l0.WeightUnitCode)
+			})
+
+			suite.T().Run("adds l3 service item segment", func(t *testing.T) {
+				suite.IsType(&edisegment.L3{}, result.ServiceItems[segmentOffset+4])
+				l3 := result.ServiceItems[segmentOffset+4].(*edisegment.L3)
+				suite.Equal(float64(4242), l3.Weight)
+				suite.Equal("B", l3.WeightQualifier)
 				suite.Equal(paymentServiceItem.PriceCents.Int64(), l3.PriceCents)
 			})
 		default:
