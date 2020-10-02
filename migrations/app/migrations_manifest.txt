@@ -556,4 +556,5 @@
 20200914173006_hide_move_on_prod_gov_cloud.up.sql
 20200923204433_donald_cac.up.sql
 20200924184242_import_bvs_rates_oct_2020.up.sql
+20200925155922_deep_cac.up.sql
 20200929210500_remove_rdhariwal_cac.up.sql
