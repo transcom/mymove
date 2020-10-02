@@ -146,19 +146,29 @@ func PaymentRequests(cmd *cobra.Command, args []string) error {
 		switch nextMenu {
 		case MenuMain:
 			exitApp, nextMenu, err = pr.displayMainMenu()
-			fmt.Printf("error returned from Main Menu display: %s\n", err.Error())
+			if err != nil {
+				fmt.Printf("error returned from Main Menu display: %s\n", err.Error())
+			}
 		case MTOMenu:
 			exitApp, nextMenu, err = pr.displayMTOMenu()
-			fmt.Printf("error returned from MTO Menu display: %s\n", err.Error())
+			if err != nil {
+				fmt.Printf("error returned from MTO Menu display: %s\n", err.Error())
+			}
 		case UpdateMTOMenu:
 			exitApp, nextMenu, err = pr.displayUpdateMTOMenu()
-			fmt.Printf("error returned from Update MTO Menu display: %s\n", err.Error())
+			if err != nil {
+				fmt.Printf("error returned from Update MTO Menu display: %s\n", err.Error())
+			}
 		case UpdateShipmentMenu:
 			exitApp, nextMenu, err = pr.displayUpdateShipmentMenu()
-			fmt.Printf("error returned from Update Shipment Menu display: %s\n", err.Error())
+			if err != nil {
+				fmt.Printf("error returned from Update Shipment Menu display: %s\n", err.Error())
+			}
 		case CreatePaymentRequestMenu:
 			exitApp, nextMenu, err = pr.displayCreatePaymentRequestMenu()
-			fmt.Printf("error returned from Create Payment Request Menu display: %s\n", err.Error())
+			if err != nil {
+				fmt.Printf("error returned from Create Payment Request Menu display: %s\n", err.Error())
+			}
 		}
 
 	}
