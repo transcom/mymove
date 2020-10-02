@@ -120,9 +120,13 @@ class Home extends Component {
     return !!Object.keys(move).length && move.status !== 'DRAFT';
   }
 
+  get doesPpmAlreadyExist() {
+    const { move } = this.props;
+    return !!move.personally_procured_moves?.length;
+  }
+
   get shipmentActionBtnLabel() {
-    // TODO: support PPM after initial move submission
-    if (this.hasSubmittedMove) {
+    if (this.hasSubmittedMove && this.doesPpmAlreadyExist) {
       return '';
     }
     if (this.hasShipment) {
