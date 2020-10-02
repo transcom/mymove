@@ -1,0 +1,33 @@
+@import '../../shared/styles/basics';
+@import '../../shared/styles/mixins';
+@import '../../shared/styles/colors';
+@import '../../shared/styles/_variables';
+
+.cardContainer {
+  @include u-padding-top(2);
+  @include u-padding-right(2);
+  @include u-padding-bottom(3);
+  @include u-padding-left(2);
+  border-radius: 2px;
+  background-color: $bg-white;
+  border:  2px solid $base-lighter;
+}
+
+.selected {
+  @include u-shadow(2);
+  background-color: $info-light;
+}
+
+.cardContainer + .cardContainer {
+  @include u-margin-top('105');
+}
+
+.cardText {
+  font-weight: normal;
+  color: $base;
+  font-size: 13px;
+  line-height: 1.25;
+  @media (min-width: $tablet) {
+    padding-left: 2rem;
+  }
+}

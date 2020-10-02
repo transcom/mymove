@@ -8,7 +8,6 @@ import { push } from 'connected-react-router';
 import Alert from 'shared/Alert'; // eslint-disable-line
 import generatePath from './generatePath';
 import './index.css';
-import { mobileSize } from 'shared/constants';
 import scrollToTop from 'shared/scrollToTop';
 
 import { getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage, beforeTransition } from './utils';
@@ -51,7 +50,6 @@ export class WizardPage extends Component {
   }
 
   render() {
-    const isMobile = this.props.windowWidth < mobileSize;
     const {
       handleSubmit,
       pageKey,
@@ -61,7 +59,6 @@ export class WizardPage extends Component {
       pageIsValid,
       dirty,
       canMoveNext,
-      hideCancelBtn,
       hideBackBtn,
       showFinishLaterBtn,
     } = this.props;
@@ -80,7 +77,6 @@ export class WizardPage extends Component {
         )}
         {children}
         <div className="grid-row" style={{ marginTop: '2rem' }}>
-          {/* <div className="grid-col-10 text-right margin-top-6 margin-left-neg-1 tablet:margin-top-3 display-flex"> */}
           {!isFirstPage(pageList, pageKey) && !hideBackBtn && (
             <button
               type="button"
@@ -114,17 +110,6 @@ export class WizardPage extends Component {
               Complete
             </button>
           )}
-          {!isMobile && !hideCancelBtn && (
-            <button
-              type="button"
-              className="usa-button usa-button--unstyled padding-left-0 margin-right-0"
-              onClick={this.goHome}
-              disabled={false}
-              data-testid="wizardCancelButton"
-            >
-              Cancel
-            </button>
-          )}
           {showFinishLaterBtn && (
             <button
               type="button"
@@ -137,7 +122,6 @@ export class WizardPage extends Component {
             </button>
           )}
         </div>
-        {/* </div> */}
       </div>
     );
   }
@@ -161,7 +145,6 @@ WizardPage.defaultProps = {
   pageIsValid: true,
   canMoveNext: true,
   dirty: true,
-  hideCancelBtn: false,
   hideBackBtn: false,
   showFinishLaterBtn: false,
 };
