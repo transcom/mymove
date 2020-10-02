@@ -426,7 +426,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/agents/{agentID}": {
       "put": {
-        "description": "### Functionality\nThis endpoint is used to **update** the agents for an MTO Shipment.\n\n### Errors:\nThe agent must be associated with the MTO shipment passed in the url.\n\nThe shipment should be associated with an MTO that is available to the Prime.\nIf the caller requests an update to an agent, and the shipment is not on an available MTO, the caller will receive a **NotFound** response.\n",
+        "description": "### Functionality\nThis endpoint is used to **update** the agents for an MTO Shipment. Only the fields being modified need to be sent in the request body.\n\n### Errors:\nThe agent must always have a name and at least one method of contact (either ` + "`" + `email` + "`" + ` or ` + "`" + `phone` + "`" + `).\n\nThe agent must be associated with the MTO shipment passed in the url.\n\nThe shipment should be associated with an MTO that is available to the Prime.\nIf the caller requests an update to an agent, and the shipment is not on an available MTO, the caller will receive a **NotFound** response.\n",
         "consumes": [
           "application/json"
         ],
@@ -490,9 +490,6 @@ func init() {
           "404": {
             "$ref": "#/responses/NotFound"
           },
-          "409": {
-            "$ref": "#/responses/Conflict"
-          },
           "412": {
             "$ref": "#/responses/PreconditionFailed"
           },
@@ -501,9 +498,6 @@ func init() {
           },
           "500": {
             "$ref": "#/responses/ServerError"
-          },
-          "501": {
-            "$ref": "#/responses/NotImplemented"
           }
         }
       }
@@ -1066,10 +1060,14 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
         "email": {
           "type": "string",
           "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "pattern": "^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})?$",
           "x-nullable": true
         },
         "firstName": {
@@ -1095,7 +1093,7 @@ func init() {
         "phone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^([2-9]\\d{2}-\\d{3}-\\d{4})?$",
           "x-nullable": true
         },
         "updatedAt": {
@@ -2657,7 +2655,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/agents/{agentID}": {
       "put": {
-        "description": "### Functionality\nThis endpoint is used to **update** the agents for an MTO Shipment.\n\n### Errors:\nThe agent must be associated with the MTO shipment passed in the url.\n\nThe shipment should be associated with an MTO that is available to the Prime.\nIf the caller requests an update to an agent, and the shipment is not on an available MTO, the caller will receive a **NotFound** response.\n",
+        "description": "### Functionality\nThis endpoint is used to **update** the agents for an MTO Shipment. Only the fields being modified need to be sent in the request body.\n\n### Errors:\nThe agent must always have a name and at least one method of contact (either ` + "`" + `email` + "`" + ` or ` + "`" + `phone` + "`" + `).\n\nThe agent must be associated with the MTO shipment passed in the url.\n\nThe shipment should be associated with an MTO that is available to the Prime.\nIf the caller requests an update to an agent, and the shipment is not on an available MTO, the caller will receive a **NotFound** response.\n",
         "consumes": [
           "application/json"
         ],
@@ -2733,12 +2731,6 @@ func init() {
               "$ref": "#/definitions/ClientError"
             }
           },
-          "409": {
-            "description": "The request could not be processed because of conflict in the current state of the resource.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
           "412": {
             "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
             "schema": {
@@ -2753,12 +2745,6 @@ func init() {
           },
           "500": {
             "description": "A server error occurred.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "501": {
-            "description": "The requested feature is still in development.",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -3354,10 +3340,14 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
         "email": {
           "type": "string",
           "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "pattern": "^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})?$",
           "x-nullable": true
         },
         "firstName": {
@@ -3383,7 +3373,7 @@ func init() {
         "phone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^([2-9]\\d{2}-\\d{3}-\\d{4})?$",
           "x-nullable": true
         },
         "updatedAt": {

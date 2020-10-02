@@ -33,14 +33,14 @@ import {
   loadMTOShipments as loadMTOShipmentsAction,
   selectMTOShipmentForMTO,
 } from 'shared/Entities/modules/mtoShipments';
-import { loadPPMs as loadPpmsAction } from 'shared/Entities/modules/ppms';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import {
   selectCurrentUser,
   selectGetCurrentUserIsError,
   selectGetCurrentUserIsLoading,
   selectGetCurrentUserIsSuccess,
 } from 'shared/Data/users';
-import { getPPM } from 'scenes/Moves/Ppm/ducks';
 
 const Description = ({ children }) => <p className={styles.description}>{children}</p>;
 
@@ -68,7 +68,6 @@ class Home extends Component {
       isProfileComplete,
       move,
       loadMTOShipments,
-      loadPpms,
     } = this.props;
     if (!prevProps.loggedInUserSuccess && loggedInUserSuccess) {
       if (!createdServiceMemberIsLoading && isEmpty(serviceMember) && !createdServiceMemberError) {
@@ -89,13 +88,12 @@ class Home extends Component {
     }
 
     if (!isEmpty(prevProps.serviceMember) && prevProps.serviceMember !== serviceMember && !isProfileComplete) {
-      // if service member existed but was updated, redirect ot next incomplete page.
+      // if service member existed but was updated, redirect to next incomplete page.
       this.resumeMove();
     }
 
     if (prevProps.move && prevProps.move.id !== move.id) {
       loadMTOShipments(move.id);
-      loadPpms(move.id);
     }
   }
 
@@ -110,9 +108,8 @@ class Home extends Component {
   }
 
   get hasShipment() {
-    const { shipments } = this.props;
-    // TODO: check for PPM when PPM is integrated
-    return this.hasOrders && !!shipments.length;
+    const { mtoShipments, currentPpm } = this.props;
+    return (this.hasOrders && !!mtoShipments.length) || Object.keys(currentPpm).length;
   }
 
   get hasSubmittedMove() {
@@ -168,7 +165,7 @@ class Home extends Component {
       orders,
       uploadedOrderDocuments,
       move,
-      ppm,
+      currentPpm,
       mtoShipment,
       backupContacts,
       context,
@@ -180,7 +177,7 @@ class Home extends Component {
       orders,
       uploads: uploadedOrderDocuments,
       move,
-      ppm,
+      currentPpm,
       mtoShipment,
       backupContacts,
       context,
@@ -265,14 +262,21 @@ class Home extends Component {
     );
   };
 
-  handleShipmentClick = (shipmentId, shipmentNumber) => {
+  handleShipmentClick = (shipmentId, shipmentNumber, shipmentType) => {
     const { move, history } = this.props;
     let queryString = '';
     if (shipmentNumber) {
       queryString = `?shipmentNumber=${shipmentNumber}`;
     }
 
-    history.push(`/moves/${move.id}/mto-shipments/${shipmentId}/edit-shipment${queryString}`);
+    let destLink = '';
+    if (shipmentType === 'PPM') {
+      destLink = `/moves/${move.id}/review/edit-date-and-location`;
+    } else if (shipmentType === 'HHG') {
+      destLink = `/moves/${move.id}/mto-shipments/${shipmentId}/edit-shipment${queryString}`;
+    }
+
+    history.push(destLink);
   };
 
   handleNewPathClick = (path) => {
@@ -280,15 +284,15 @@ class Home extends Component {
     history.push(path);
   };
 
-  renderAlert = (loggedInUserError, createdServiceMemberError, moveSubmitSuccess, ppm) => {
+  renderAlert = (loggedInUserError, createdServiceMemberError, moveSubmitSuccess, currentPpm) => {
     return (
       <div>
-        {moveSubmitSuccess && !ppm && (
+        {moveSubmitSuccess && !currentPpm && (
           <Alert type="success" heading="Success">
             You&apos;ve submitted your move
           </Alert>
         )}
-        {ppm && moveSubmitSuccess && <PpmAlert heading="Congrats - your move is submitted!" />}
+        {currentPpm && moveSubmitSuccess && <PpmAlert heading="Congrats - your move is submitted!" />}
         {loggedInUserError && (
           <Alert type="error" heading="An error occurred">
             There was an error loading your user information.
@@ -303,6 +307,22 @@ class Home extends Component {
     );
   };
 
+  sortAllShipments = (mtoShipments, currentPpm) => {
+    const allShipments = JSON.parse(JSON.stringify(mtoShipments));
+    if (Object.keys(currentPpm).length) {
+      const ppm = JSON.parse(JSON.stringify(currentPpm));
+      ppm.shipmentType = SHIPMENT_OPTIONS.PPM;
+      // workaround for differing cases between mtoShipments and ppms (bigger change needed on yaml)
+      ppm.createdAt = ppm.created_at;
+      delete ppm.created_at;
+
+      allShipments.push(ppm);
+    }
+    allShipments.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
+
+    return allShipments;
+  };
+
   render() {
     const {
       isLoggedIn,
@@ -315,8 +335,8 @@ class Home extends Component {
       serviceMember,
       move,
       uploadedOrderDocuments,
-      shipments,
-      ppm,
+      mtoShipments,
+      currentPpm,
       location,
     } = this.props;
     const ordersPath = this.hasOrdersNoUpload ? '/orders/upload' : '/orders';
@@ -324,6 +344,7 @@ class Home extends Component {
     const confirmationPath = `/moves/${move.id}/review`;
     const profileEditPath = '/moves/review/edit-profile';
     const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
+    const allSortedShipments = this.sortAllShipments(mtoShipments, currentPpm);
     return (
       <div className={`usa-prose grid-container ${styles['grid-container']}`}>
         {loggedInUserIsLoading && <LoadingPlaceholder />}
@@ -338,7 +359,7 @@ class Home extends Component {
             </header>
             {loggedInUserSuccess && (
               <>
-                {this.renderAlert(loggedInUserError, createdServiceMemberError, moveSubmitSuccess, ppm)}
+                {this.renderAlert(loggedInUserError, createdServiceMemberError, moveSubmitSuccess, currentPpm)}
                 <Helper title={this.getHelperHeaderText}>{this.renderHelperDescription()}</Helper>
                 <Step
                   complete={serviceMember.is_profile_complete}
@@ -378,7 +399,7 @@ class Home extends Component {
                   step="3"
                 >
                   {this.hasShipment ? (
-                    <ShipmentList shipments={shipments} onShipmentClick={this.handleShipmentClick} />
+                    <ShipmentList shipments={allSortedShipments} onShipmentClick={this.handleShipmentClick} />
                   ) : (
                     <Description>
                       Tell us where you&apos;re going and when you want to get there. We&apos;ll help you set up
@@ -429,12 +450,16 @@ Home.propTypes = {
   }).isRequired,
   showLoggedInUser: func.isRequired,
   loadMTOShipments: func.isRequired,
-  shipments: arrayOf(
+  mtoShipments: arrayOf(
     shape({
       id: string,
       shipmentType: string,
     }),
   ).isRequired,
+  currentPpm: shape({
+    id: string,
+    shipmentType: string,
+  }).isRequired,
   uploadedOrderDocuments: arrayOf(
     shape({
       filename: string.isRequired,
@@ -451,10 +476,8 @@ Home.propTypes = {
   createdServiceMemberSuccess: bool,
   createdServiceMemberError: string,
   moveSubmitSuccess: bool.isRequired,
-  ppm: shape({}).isRequired,
   location: shape({}).isRequired,
   createServiceMember: func.isRequired,
-  loadPpms: func.isRequired,
   selectedMoveType: string,
   lastMoveIsCanceled: bool,
   backupContacts: arrayOf(oneOfType([string, shape({})])),
@@ -486,7 +509,9 @@ const mapStateToProps = (state) => {
   const user = selectCurrentUser(state);
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const move = selectActiveOrLatestMove(state);
+
   return {
+    currentPpm: selectActivePPMForMove(state, move.id),
     isLoggedIn: user.isLoggedIn,
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
     loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
@@ -500,9 +525,8 @@ const mapStateToProps = (state) => {
     uploadedOrderDocuments: selectUploadedOrders(state),
     serviceMember,
     backupContacts: serviceMember.backup_contacts || state.serviceMember.currentBackupContacts || [],
-    ppm: getPPM(state),
     // TODO: change when we support PPM shipments as well
-    shipments: selectMTOShipmentsByMoveId(state, move.id),
+    mtoShipments: selectMTOShipmentsByMoveId(state, move.id),
     // TODO: change when we support multiple moves
     move,
     mtoShipment: selectMTOShipmentForMTO(state, get(move, 'id', '')),
@@ -520,7 +544,6 @@ const mapDispatchToProps = {
   showLoggedInUser: showLoggedInUserAction,
   loadMTOShipments: loadMTOShipmentsAction,
   createServiceMember: createServiceMemberAction,
-  loadPpms: loadPpmsAction,
 };
 
 export default withContext(connect(mapStateToProps, mapDispatchToProps, mergeProps)(Home));

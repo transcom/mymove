@@ -6,7 +6,7 @@ import (
 
 func (suite *SegmentSuite) TestValidateFA1() {
 	validFA1 := FA1{
-		AgencyQualifierCode: "DZ",
+		AgencyQualifierCode: "DF",
 	}
 
 	suite.T().Run("validate success", func(t *testing.T) {
@@ -20,7 +20,7 @@ func (suite *SegmentSuite) TestValidateFA1() {
 		}
 
 		err := suite.validator.Struct(fa1)
-		suite.ValidateError(err, "AgencyQualifierCode", "oneof")
+		suite.ValidateError(err, "AgencyQualifierCode", "eq")
 		suite.ValidateErrorLen(err, 1)
 	})
 }

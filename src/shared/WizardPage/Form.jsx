@@ -10,7 +10,6 @@ import generatePath from './generatePath';
 import './index.css';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
 import { reduxForm } from 'redux-form';
-import { mobileSize } from 'shared/constants';
 import scrollToTop from 'shared/scrollToTop';
 
 import { getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage, beforeTransition } from './utils';
@@ -20,7 +19,6 @@ export class WizardFormPage extends Component {
     super(props);
     this.nextPage = this.nextPage.bind(this);
     this.previousPage = this.previousPage.bind(this);
-    this.cancelFlow = this.cancelFlow.bind(this);
     this.beforeTransition = beforeTransition.bind(this);
     this.submit = this.submit.bind(this);
   }
@@ -57,9 +55,6 @@ export class WizardFormPage extends Component {
     push(generatePath(path, combinedParams));
   }
 
-  cancelFlow() {
-    this.props.push(`/`);
-  }
   nextPage() {
     if (this.props.reduxFormSubmit) {
       return this.props.reduxFormSubmit().then(() => this.beforeTransition(getNextPagePath, false));
@@ -83,7 +78,6 @@ export class WizardFormPage extends Component {
   }
 
   render() {
-    const isMobile = this.props.windowWidth < mobileSize;
     // when reduxFormSubmit is supplied it's expected that the form will use redux-form's handlesubmit prop
     // and accompanying submit validation https://redux-form.com/8.2.0/examples/submitvalidation/
     // while forms that provide their own handlesubmit prop are expected to not be using redux-form's submit validation
@@ -138,17 +132,7 @@ export class WizardFormPage extends Component {
                 </button>
               )}
             </div>
-            <div className="grid-col-2 margin-top-6 tablet:margin-top-3">
-              {!isMobile && (
-                <button
-                  className="usa-button usa-button--unstyled padding-left-0"
-                  onClick={this.cancelFlow}
-                  data-testid="wizardCancelButton"
-                >
-                  Cancel
-                </button>
-              )}
-            </div>
+
             {isLastPage(pageList, pageKey) && (
               <button
                 className="usa-button"

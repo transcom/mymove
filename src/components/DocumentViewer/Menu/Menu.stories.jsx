@@ -27,6 +27,11 @@ const testFiles = [
     fileType: 'pdf',
     filePath: '',
   },
+  {
+    filename: 'Test File 3 - A really long title that overflows with ellipsis.pdf',
+    fileType: 'pdf',
+    filePath: '',
+  },
 ];
 
 export const Menu = () => <DocViewerMenu isOpen files={testFiles} />;

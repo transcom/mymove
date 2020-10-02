@@ -8,25 +8,36 @@ import { EditButton } from '../components/form';
 // Buttons
 const ButtonGroup = ({ className, disabled }) => (
   <div className={className} style={{ padding: '20px', display: 'flex', flexWrap: 'wrap' }}>
-    <Button disabled={disabled} onClick={action('Button clicked')}>
+    <Button className="margin-left-1" disabled={disabled} onClick={action('Button clicked')}>
       <span>Button</span>
     </Button>
-    <EditButton disabled={disabled} onClick={action('Edit Button clicked')} />
-    <Button disabled={disabled} secondary onClick={action('clicked')}>
+    <EditButton className="margin-left-1" disabled={disabled} onClick={action('Edit Button clicked')} />
+    <Button className="margin-left-1" disabled={disabled} secondary onClick={action('clicked')}>
       <span>Button</span>
     </Button>
-    <Button disabled={disabled} className="usa-button--small" onClick={action('clicked')}>
+    <Button disabled={disabled} className="usa-button--small margin-left-1" onClick={action('clicked')}>
       <span>Button</span>
     </Button>
-    <EditButton disabled={disabled} small onClick={action('Small Edit Button clicked')} />
-    <Button disabled={disabled} secondary className="usa-button--small" onClick={action('clicked')}>
+    <EditButton className="margin-left-1" disabled={disabled} small onClick={action('Small Edit Button clicked')} />
+    <Button disabled={disabled} secondary className="usa-button--small margin-left-1" onClick={action('clicked')}>
       <span>Button</span>
     </Button>
-    <EditButton disabled={disabled} secondary small onClick={action('Secondary Small Edit Button clicked')} />
-    <Button disabled={disabled} className="usa-button--unstyled" onClick={action('clicked')}>
+    <EditButton
+      className="margin-left-1"
+      disabled={disabled}
+      secondary
+      small
+      onClick={action('Secondary Small Edit Button clicked')}
+    />
+    <Button disabled={disabled} className="usa-button--unstyled margin-left-1" onClick={action('clicked')}>
       <span>Button</span>
     </Button>
-    <EditButton disabled={disabled} unstyled onClick={action('Unstyled Edit Button clicked')} />
+    <EditButton
+      className="margin-left-1"
+      disabled={disabled}
+      unstyled
+      onClick={action('Unstyled Edit Button clicked')}
+    />
   </div>
 );
 

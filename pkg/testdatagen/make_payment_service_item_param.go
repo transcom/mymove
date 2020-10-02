@@ -41,33 +41,33 @@ func MakePaymentServiceItemParam(db *pop.Connection, assertions Assertions) mode
 	return paymentServiceItemParam
 }
 
+// MakeDefaultPaymentServiceItemParam makes a PaymentServiceItemParam with default values
+func MakeDefaultPaymentServiceItemParam(db *pop.Connection) models.PaymentServiceItemParam {
+	return MakePaymentServiceItemParam(db, Assertions{})
+}
+
 // MakePaymentServiceItemWithParams creates more than one payment service item param at a time
-func MakePaymentServiceItemWithParams(db *pop.Connection, serviceCode models.ReServiceCode, paramsToCreate []CreatePaymentServiceItemParams) models.PaymentServiceItem {
+func MakePaymentServiceItemWithParams(db *pop.Connection, serviceCode models.ReServiceCode, paramsToCreate []CreatePaymentServiceItemParams, assertions Assertions) models.PaymentServiceItem {
 	var params models.PaymentServiceItemParams
 
-	paymentServiceItem := MakePaymentServiceItem(db, Assertions{
-		ReService: models.ReService{
-			Code: serviceCode,
-		},
-	})
+	assertions.ReService = models.ReService{
+		Code: serviceCode,
+	}
+	paymentServiceItem := MakePaymentServiceItem(db, assertions)
 
 	for _, param := range paramsToCreate {
-		serviceItemParamKey := FetchOrMakeServiceItemParamKey(db,
-			Assertions{
-				ServiceItemParamKey: models.ServiceItemParamKey{
-					Key:  param.Key,
-					Type: param.KeyType,
-				},
-			})
+		assertions.ServiceItemParamKey = models.ServiceItemParamKey{
+			Key:  param.Key,
+			Type: param.KeyType,
+		}
+		serviceItemParamKey := FetchOrMakeServiceItemParamKey(db, assertions)
 
-		serviceItemParam := MakePaymentServiceItemParam(db,
-			Assertions{
-				PaymentServiceItem:  paymentServiceItem,
-				ServiceItemParamKey: serviceItemParamKey,
-				PaymentServiceItemParam: models.PaymentServiceItemParam{
-					Value: param.Value,
-				},
-			})
+		assertions.PaymentServiceItem = paymentServiceItem
+		assertions.ServiceItemParamKey = serviceItemParamKey
+		assertions.PaymentServiceItemParam = models.PaymentServiceItemParam{
+			Value: param.Value,
+		}
+		serviceItemParam := MakePaymentServiceItemParam(db, assertions)
 		params = append(params, serviceItemParam)
 	}
 
@@ -76,7 +76,7 @@ func MakePaymentServiceItemWithParams(db *pop.Connection, serviceCode models.ReS
 	return paymentServiceItem
 }
 
-// MakeDefaultPaymentServiceItemParam makes a PaymentServiceItemParam with default values
-func MakeDefaultPaymentServiceItemParam(db *pop.Connection) models.PaymentServiceItemParam {
-	return MakePaymentServiceItemParam(db, Assertions{})
+// MakeDefaultPaymentServiceItemWithParams creates more than one payment service item param at a time with default values
+func MakeDefaultPaymentServiceItemWithParams(db *pop.Connection, serviceCode models.ReServiceCode, paramsToCreate []CreatePaymentServiceItemParams) models.PaymentServiceItem {
+	return MakePaymentServiceItemWithParams(db, serviceCode, paramsToCreate, Assertions{})
 }
