@@ -1,5 +1,4 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 
 import RequestedShipments from './RequestedShipments';
 
@@ -286,62 +285,63 @@ const serviceItems = [
   },
 ];
 
-storiesOf('TOO/TIO Components|RequestedShipments', module)
-  .add('with one shipment', () => {
-    return (
-      <div style={{ padding: '20px' }}>
-        <RequestedShipments
-          mtoShipments={[shipments[0]]}
-          ordersInfo={ordersInfo}
-          allowancesInfo={allowancesInfo}
-          customerInfo={customerInfo}
-          mtoAgents={agents}
-          shipmentsStatus="SUBMITTED"
-        />
-      </div>
-    );
-  })
-  .add('with multiple shipments', () => {
-    return (
-      <div style={{ position: 'relative', padding: '20px' }}>
-        <RequestedShipments
-          mtoShipments={shipments}
-          ordersInfo={ordersInfo}
-          allowancesInfo={allowancesInfo}
-          customerInfo={customerInfo}
-          mtoAgents={agents}
-          shipmentsStatus="SUBMITTED"
-        />
-      </div>
-    );
-  })
-  .add('with one approved shipment', () => {
-    return (
-      <div style={{ position: 'relative', padding: '20px' }}>
-        <RequestedShipments
-          mtoShipments={[shipments[0]]}
-          ordersInfo={ordersInfo}
-          allowancesInfo={allowancesInfo}
-          customerInfo={customerInfo}
-          mtoAgents={agents}
-          shipmentsStatus="APPROVED"
-          mtoServiceItems={serviceItems}
-        />
-      </div>
-    );
-  })
-  .add('with multiple approved shipments', () => {
-    return (
-      <div style={{ position: 'relative', padding: '20px' }}>
-        <RequestedShipments
-          mtoShipments={shipments}
-          ordersInfo={ordersInfo}
-          allowancesInfo={allowancesInfo}
-          customerInfo={customerInfo}
-          mtoAgents={agents}
-          shipmentsStatus="APPROVED"
-          mtoServiceItems={serviceItems}
-        />
-      </div>
-    );
-  });
+export default {
+  title: 'TOO/TIO Components|RequestedShipments',
+  parameters: {
+    loki: { skip: true },
+  },
+};
+
+export const withOneShipment = () => (
+  <div style={{ padding: '20px' }}>
+    <RequestedShipments
+      mtoShipments={[shipments[0]]}
+      ordersInfo={ordersInfo}
+      allowancesInfo={allowancesInfo}
+      customerInfo={customerInfo}
+      mtoAgents={agents}
+      shipmentsStatus="SUBMITTED"
+    />
+  </div>
+);
+
+export const withMultipleShipments = () => (
+  <div style={{ position: 'relative', padding: '20px' }}>
+    <RequestedShipments
+      mtoShipments={shipments}
+      ordersInfo={ordersInfo}
+      allowancesInfo={allowancesInfo}
+      customerInfo={customerInfo}
+      mtoAgents={agents}
+      shipmentsStatus="SUBMITTED"
+    />
+  </div>
+);
+
+export const withOneApprovedShipment = () => (
+  <div style={{ position: 'relative', padding: '20px' }}>
+    <RequestedShipments
+      mtoShipments={[shipments[0]]}
+      ordersInfo={ordersInfo}
+      allowancesInfo={allowancesInfo}
+      customerInfo={customerInfo}
+      mtoAgents={agents}
+      shipmentsStatus="APPROVED"
+      mtoServiceItems={serviceItems}
+    />
+  </div>
+);
+
+export const withMultipleApprovedShipments = () => (
+  <div style={{ position: 'relative', padding: '20px' }}>
+    <RequestedShipments
+      mtoShipments={shipments}
+      ordersInfo={ordersInfo}
+      allowancesInfo={allowancesInfo}
+      customerInfo={customerInfo}
+      mtoAgents={agents}
+      shipmentsStatus="APPROVED"
+      mtoServiceItems={serviceItems}
+    />
+  </div>
+);

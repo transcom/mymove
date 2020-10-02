@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -172,4 +174,30 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 		suite.Equal(*mtoServiceItemDOSHUT.Reason, *data.Reason)
 	})
 
+}
+
+func (suite *EventServiceSuite) TestAssembleMoveOrderPayload() {
+	moveOrder := testdatagen.MakeDefaultOrder(suite.DB())
+
+	suite.T().Run("Success with default MoveOrder", func(t *testing.T) {
+		payload, err := assembleMoveOrderPayload(suite.DB(), moveOrder.ID)
+
+		data := &primemessages.MoveOrder{}
+		unmarshalErr := data.UnmarshalBinary(payload)
+
+		suite.Nil(err)
+		suite.Nil(unmarshalErr)
+		suite.Equal(moveOrder.ID.String(), data.ID.String())
+		suite.NotNil(moveOrder.ServiceMember)
+		suite.NotNil(moveOrder.Entitlement)
+		suite.NotNil(moveOrder.OriginDutyStation)
+		suite.NotEqual(moveOrder.ServiceMember.ID, uuid.Nil)
+		suite.NotEqual(moveOrder.Entitlement.ID, uuid.Nil)
+		suite.NotEqual(moveOrder.OriginDutyStation.ID, uuid.Nil)
+
+		if moveOrder.OriginDutyStation != nil {
+			suite.NotNil(moveOrder.OriginDutyStation.Address)
+			suite.NotEqual(moveOrder.OriginDutyStation.Address.ID, uuid.Nil)
+		}
+	})
 }

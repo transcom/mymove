@@ -64,7 +64,9 @@ committing.
 | `pre-commit-go-lint` | modify go files with linting rules |
 | `pre-commit-go-mod` | modify `go.mod` and `go.sum` to match whats in the project |
 | `pre-commit-go-vet` | analyze code with `go vet` |
-| `pre-commit-swagger-validate` | Pre-commit hook to run `swagger validate` that is different based on environment |
+| `pre-commit-swagger-validate` | run environment-specific `swagger validate`  |
+| `lint-yaml-with-spectral` | run `spectral` linter on external APIs |
+
 
 ## CircleCI Scripts
 
@@ -100,7 +102,8 @@ application testing
 | `go-find-pattern` |  searches over all our go source code files for a regex pattern |
 | `merge-pr` |  A script to automate the landing of your GitHub pull requests. |
 | `make-test` | A script to test common developer make targets. |
-| `prime-api` | A script to connect to endpoints on the PRIME API. |
+| `prime-api` | A script to connect to endpoints on the Prime API. |
+| `prime-api-demo` | A script to demo the Prime API. |
 | `update-docker-compose` | Update branch name before running docker-compose |
 
 ### Building

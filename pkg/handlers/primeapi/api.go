@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	mtoagent "github.com/transcom/mymove/pkg/services/mto_agent"
+
 	"github.com/go-openapi/loads"
 
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
@@ -85,7 +87,7 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	primeAPI.MtoShipmentUpdateMTOAgentHandler = UpdateMTOAgentHandler{
 		context,
-		// TODO add updater
+		mtoagent.NewMTOAgentUpdater(context.DB()),
 	}
 
 	return primeAPI.Serve(nil)
