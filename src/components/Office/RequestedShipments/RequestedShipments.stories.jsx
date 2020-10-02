@@ -287,9 +287,6 @@ const serviceItems = [
 
 export default {
   title: 'TOO/TIO Components|RequestedShipments',
-  parameters: {
-    loki: { skip: true },
-  },
 };
 
 export const withOneShipment = () => (
