@@ -2,7 +2,7 @@
 
 //using the uswds typeset mixin which does (font family, size tolken, line height tolken)
 
-h1 {
+h1, .usa-prose > h1 {
   @include typeset('body', 11, 2);
   @include u-text('normal');
   @include at-media('tablet') {
