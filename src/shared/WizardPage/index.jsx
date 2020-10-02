@@ -91,7 +91,7 @@ export class WizardPage extends Component {
           {!isLastPage(pageList, pageKey) && (
             <button
               type="button"
-              className="usa-button margin-right-0"
+              className="usa-button margin-right-0 next"
               onClick={this.nextPage}
               disabled={!canMoveForward}
               data-testid="wizardNextButton"

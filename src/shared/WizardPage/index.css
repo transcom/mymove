@@ -35,4 +35,7 @@
   .usa-button.usa-button--unstyled.finish-later {
     margin-top: 0px;
   }
+  .usa-button.next {
+    margin-left: 12px;
+  }
 }
