@@ -13,9 +13,7 @@ storiesOf('TOO/TIO Components|ShipmentHeading', module)
         originCity: text('ShipmentInfo.originCity', 'San Antonio'),
         originState: text('ShipmentInfo.originState', 'TX'),
         originPostalCode: text('ShipmentInfo.originPostalCode', '98421'),
-        destinationCity: text('ShipmentInfo.destinationCity', 'Tacoma'),
-        destinationState: text('ShipmentInfo.destinationState', 'WA'),
-        destinationPostalCode: text('ShipmentInfo.destinationPostalCode', '98421'),
+        destinationAddress: text('ShipmentInfo.destinationAddress', 'Tacoma, WA 98421'),
         scheduledPickupDate: text('ShipmentInfo.scheduledPickupDate', '27 Mar 2020'),
       }}
     />
