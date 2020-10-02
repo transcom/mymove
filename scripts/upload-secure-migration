@@ -112,7 +112,7 @@ echo
 # Upload secure migration
 #
 
-proceed "Are you ready to upload your new migration? This will upload to all GovCloud environments (${environments[*]})."
+proceed "Are you ready to upload your new migration? This will upload to the following GovCloud environments: ${environments[*]}."
 
 for environment in "${environments[@]}"; do
   echo "Uploading to: $environment"
