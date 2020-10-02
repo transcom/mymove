@@ -68,6 +68,14 @@ func (suite *BaseHandlerTestSuite) HasWebhookNotification(objectID uuid.UUID, tr
 	suite.NoError(err)
 }
 
+// HasNoWebhookNotification checks that there's no record on the WebhookNotifications table for the object and trace IDs
+func (suite *BaseHandlerTestSuite) HasNoWebhookNotification(objectID uuid.UUID, traceID uuid.UUID) {
+	notification := &models.WebhookNotification{}
+	numRows, err := suite.DB().Where("object_id = $1 AND trace_id = $2", objectID.String(), traceID.String()).Count(notification)
+	suite.NoError(err)
+	suite.Equal(numRows, 0)
+}
+
 // IsNotErrResponse enforces handler does not return an error response
 func (suite *BaseHandlerTestSuite) IsNotErrResponse(response middleware.Responder) {
 	r, ok := response.(*ErrResponse)
