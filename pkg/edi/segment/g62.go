@@ -9,7 +9,7 @@ import (
 // Requested Pickup Date 68, Requested Pickup Time 5
 // Actual Pickup Date 86, Actual Pickup Time 8
 type G62 struct {
-	DateQualifier int    `validate:"oneof=68 86"`
+	DateQualifier int    `validate:"oneof=10 76 86"`
 	Date          string `validate:"timeformat=20060102"`
 	TimeQualifier int    `validate:"oneof=5 8"`
 	Time          string `validate:"timeformat=1504"`
