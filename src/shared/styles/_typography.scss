@@ -48,7 +48,9 @@ small,
 }
 a,
 .usa-prose > a {
-  @include u-text('no-underline') &: hover, &.hover {
+  @include u-text('no-underline');
+  &:hover,
+  &.hover {
     @include u-text('underline');
   }
   &:visited,
