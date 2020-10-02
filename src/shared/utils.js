@@ -161,3 +161,16 @@ export function dateSort(field, direction) {
 export function formatCustomerDate(date) {
   return moment(date).format('DD MMM YYYY');
 }
+
+// Format orders type (ex: PERMANENT_CHANGE_OF_STATION => Permanent change of station)
+export function formatOrderType(orderType) {
+  return orderType
+    .split('_')
+    .map((str, i) => {
+      if (i === 0) {
+        return str[0] + str.slice(1).toLowerCase();
+      }
+      return str.toLowerCase();
+    })
+    .join(' ');
+}

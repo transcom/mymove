@@ -1,15 +1,24 @@
 /* eslint-ignore */
 import React from 'react';
-import { string, arrayOf, bool, shape } from 'prop-types';
+import { string, arrayOf, bool, shape, func } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
 import reviewStyles from '../Review.module.scss';
 
-const OrdersTable = ({ orderType, issueDate, reportByDate, newDutyStationName, hasDependents, uploads }) => (
+const OrdersTable = ({
+  editPath,
+  hasDependents,
+  issueDate,
+  newDutyStationName,
+  onEditClick,
+  orderType,
+  reportByDate,
+  uploads,
+}) => (
   <div className={reviewStyles['review-container']}>
     <div className={reviewStyles['review-header']}>
       <h2>Orders</h2>
-      <Button unstyled className={reviewStyles['edit-btn']}>
+      <Button unstyled className={reviewStyles['edit-btn']} onClick={() => onEditClick(editPath)}>
         Edit
       </Button>
     </div>
@@ -51,11 +60,13 @@ const OrdersTable = ({ orderType, issueDate, reportByDate, newDutyStationName, h
 );
 
 OrdersTable.propTypes = {
-  orderType: string.isRequired,
-  issueDate: string.isRequired,
-  reportByDate: string.isRequired,
-  newDutyStationName: string.isRequired,
+  editPath: string.isRequired,
   hasDependents: bool.isRequired,
+  issueDate: string.isRequired,
+  newDutyStationName: string.isRequired,
+  onEditClick: func.isRequired,
+  orderType: string.isRequired,
+  reportByDate: string.isRequired,
   uploads: arrayOf(shape({})).isRequired,
 };
 

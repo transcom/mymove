@@ -4,6 +4,7 @@ import { get } from 'lodash';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import moment from 'moment';
 import { Button } from '@trussworks/react-uswds';
 
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
@@ -13,14 +14,17 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 import { moveIsApproved, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
+import { formatOrderType } from 'shared/utils';
 import Alert from 'shared/Alert';
 import { titleCase } from 'shared/constants.js';
 import { selectedMoveType as selectMoveType } from 'scenes/Moves/ducks';
 
 import { checkEntitlement } from './ducks';
-import ServiceMemberSummary from './ServiceMemberSummary';
 import PPMShipmentSummary from './PPMShipmentSummary';
-import HHGShipmentSummary from 'pages/MyMove/HHGShipmentSummary';
+import ProfileTable from 'components/Customer/Review/ProfileTable';
+import OrdersTable from 'components/Customer/Review/OrdersTable';
+import PPMShipmentCard from 'components/Customer/Review/ShipmentCard/PPMShipmentCard';
+import HHGShipmentCard from 'components/Customer/Review/ShipmentCard/HHGShipmentCard';
 
 import './Review.css';
 import { selectActivePPMForMove } from '../../shared/Entities/modules/ppms';
@@ -42,28 +46,87 @@ export class Summary extends Component {
     }
   }
 
+  handleEditClick = (path) => {
+    const { history } = this.props;
+    history.push(path);
+  };
+
+  get getSortedShipments() {
+    const { currentPPM, mtoShipments } = this.props;
+    const sortedShipments = [...mtoShipments];
+    if (Object.keys(currentPPM).length) {
+      const ppm = { ...currentPPM };
+      ppm.shipmentType = SHIPMENT_OPTIONS.PPM;
+      // workaround for differing cases between mtoShipments and ppms (bigger change needed on yaml)
+      ppm.createdAt = ppm.created_at;
+      delete ppm.created_at;
+
+      sortedShipments.push(ppm);
+    }
+
+    return sortedShipments.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
+  }
+
+  renderShipments = () => {
+    const { currentOrders, match } = this.props;
+    let hhgShipmentNumber = 1;
+    return this.getSortedShipments.map((shipment) => {
+      let receivingAgent;
+      let releasingAgent;
+      if (shipment.shipmentType === SHIPMENT_OPTIONS.PPM) {
+        return (
+          <PPMShipmentCard
+            destinationZIP={shipment.destination_postal_code}
+            editPath={`/moves/${match.params.moveId}/review/edit-date-and-location`}
+            estimatedWeight="5,000"
+            expectedDepartureDate={shipment.original_move_date}
+            onEditClick={this.handleEditClick}
+            originZIP={shipment.pickup_postal_code}
+            shipmentId={shipment.id}
+            sitDays={shipment.has_sit ? shipment.days_in_storage : ''}
+          />
+        );
+      }
+
+      if (shipment.agents) {
+        receivingAgent = shipment.agents.find((agent) => (agent.agentType = 'RECEIVING_AGENT'));
+        releasingAgent = shipment.agents.find((agent) => (agent.agentType = 'RELEASING_AGENT'));
+      }
+
+      return (
+        <HHGShipmentCard
+          destinationZIP={currentOrders.new_duty_station.address.postal_code}
+          destinationLocation={shipment?.destinationAddress}
+          pickupLocation={shipment.pickupAddress}
+          receivingAgent={receivingAgent}
+          releasingAgent={releasingAgent}
+          remarks={shipment.remarks}
+          requestedDeliveryDate={shipment.requestedDeliveryDate}
+          requestedPickupDate={shipment.requestedPickupDate}
+          shipmentId={shipment.id}
+          shipmentNumber={hhgShipmentNumber++}
+        />
+      );
+    });
+  };
+
   render() {
     const {
       currentMove,
       currentPPM,
       mtoShipments,
-      currentBackupContacts,
       currentOrders,
-      schemaRank,
-      schemaAffiliation,
-      schemaOrdersType,
       moveIsApproved,
       serviceMember,
       entitlement,
       match,
       history,
-      uploads,
     } = this.props;
-
+    console.log('hey', this.getSortedShipments);
     const currentStation = get(serviceMember, 'current_station');
     const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
 
-    const rootAddressWithMoveId = `/moves/${this.props.match.params.moveId}`;
+    const rootAddressWithMoveId = `/moves/${match.params.moveId}`;
     const rootReviewAddressWithMoveId = rootAddressWithMoveId + `/review`;
 
     // isReviewPage being false is the same thing as being in the /edit route
@@ -71,16 +134,12 @@ export class Summary extends Component {
     const editSuccessBlurb = this.props.reviewState.editSuccess ? 'Your changes have been saved. ' : '';
     const editOrdersPath = rootReviewAddressWithMoveId + '/edit-orders';
 
-    const showPPMShipmentSummary =
-      (isReviewPage && Object.keys(currentPPM).length) ||
-      (!isReviewPage && Object.keys(currentPPM).length && currentPPM.status !== 'DRAFT');
+    const showPPMShipmentSummary = !isReviewPage && Object.keys(currentPPM).length && currentPPM.status !== 'DRAFT';
     const showHHGShipmentSummary = isReviewPage && !!mtoShipments.length;
     const hasPPMorHHG = (isReviewPage && Object.keys(currentPPM).length) || !!mtoShipments.length;
 
-    const showProfileAndOrders = isReviewPage || !isReviewPage;
     const showMoveSetup = showPPMShipmentSummary || showHHGShipmentSummary;
     const shipmentSelectionPath = `/moves/${currentMove.id}/select-type`;
-
     return (
       <Fragment>
         {get(this.props.reviewState.error, 'statusCode', false) === 409 && (
@@ -100,35 +159,39 @@ export class Summary extends Component {
               Your weight entitlement is now {entitlement.sum.toLocaleString()} lbs.
             </Alert>
           )}
-        {showProfileAndOrders && (
-          <ServiceMemberSummary
-            orders={currentOrders}
-            uploads={uploads}
-            backupContacts={currentBackupContacts}
-            serviceMember={serviceMember}
-            schemaRank={schemaRank}
-            schemaAffiliation={schemaAffiliation}
-            schemaOrdersType={schemaOrdersType}
-            moveIsApproved={moveIsApproved}
-            editOrdersPath={editOrdersPath}
-          />
-        )}
+        <ProfileTable
+          affiliation={serviceMember.affiliation}
+          city={serviceMember.residential_address.city}
+          currentDutyStationName={serviceMember.current_station.name}
+          edipi={serviceMember.edipi}
+          email={serviceMember.personal_email}
+          firstName={serviceMember.first_name}
+          onEditClick={this.handleEditClick}
+          lastName={serviceMember.last_name}
+          postalCode={serviceMember.postal_code}
+          rank={serviceMember.rank}
+          state={serviceMember.residential_address.state}
+          streetAddress1={serviceMember.residential_address.street_address_1}
+          streetAddress2={serviceMember.residential_address.street_address_2}
+          telephone={serviceMember.telephone}
+        />
+
+        <OrdersTable
+          editPath={editOrdersPath}
+          hasDependents={currentOrders.has_dependents}
+          issueDate={currentOrders.issue_date}
+          newDutyStationName={currentOrders.new_duty_station.name}
+          onEditClick={this.handleEditClick}
+          orderType={formatOrderType(currentOrders.orders_type)}
+          reportByDate={currentOrders.report_by_date}
+          uploads={currentOrders.uploaded_orders.uploads}
+        />
+
         {showMoveSetup && <h3>Move setup</h3>}
+        {isReviewPage && this.renderShipments()}
         {showPPMShipmentSummary && (
           <PPMShipmentSummary ppm={currentPPM} movePath={rootReviewAddressWithMoveId} orders={currentOrders} />
         )}
-        {showHHGShipmentSummary &&
-          mtoShipments.map((shipment, index) => {
-            return (
-              <HHGShipmentSummary
-                key={shipment.id}
-                mtoShipment={shipment}
-                shipmentNumber={index + 1}
-                movePath={rootAddressWithMoveId}
-                newDutyStationPostalCode={currentOrders.new_duty_station.address.postal_code}
-              />
-            );
-          })}
         {hasPPMorHHG && (
           <div className="grid-col-row margin-top-5">
             <span className="float-right">Optional</span>

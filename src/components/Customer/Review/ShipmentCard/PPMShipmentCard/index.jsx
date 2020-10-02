@@ -1,5 +1,5 @@
 import React from 'react';
-import { string } from 'prop-types';
+import { func, string } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
 import ShipmentContainer from '../../../../Office/ShipmentContainer';
@@ -10,9 +10,11 @@ import { formatCustomerDate } from 'shared/utils';
 
 const PPMShipmentCard = ({
   destinationZIP,
+  editPath,
   estimatedIncentive,
   estimatedWeight,
   expectedDepartureDate,
+  onEditClick,
   shipmentId,
   sitDays,
   originZIP,
@@ -25,7 +27,7 @@ const PPMShipmentCard = ({
             <h3>PPM</h3>
             <p>{shipmentId.substring(0, 10)}</p>
           </div>
-          <Button className={styles.editBtn} onClick={() => {}} unstyled>
+          <Button className={styles.editBtn} onClick={() => onEditClick(editPath)} unstyled>
             Edit
           </Button>
         </div>
@@ -71,9 +73,11 @@ const PPMShipmentCard = ({
 
 PPMShipmentCard.propTypes = {
   destinationZIP: string.isRequired,
+  editPath: string.isRequired,
   estimatedIncentive: string,
   estimatedWeight: string.isRequired,
   expectedDepartureDate: string.isRequired,
+  onEditClick: func.isRequired,
   shipmentId: string.isRequired,
   sitDays: string,
   originZIP: string.isRequired,

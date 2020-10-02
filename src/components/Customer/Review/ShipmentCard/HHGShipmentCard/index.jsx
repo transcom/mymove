@@ -12,6 +12,7 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatCustomerDate } from 'shared/utils';
 
 const HHGShipmentCard = ({
+  destinationLocation,
   shipmentNumber,
   shipmentId,
   requestedPickupDate,
@@ -52,14 +53,14 @@ const HHGShipmentCard = ({
             <div className={styles.row}>
               <dt>Releasing agent</dt>
               <dd>
-                {releasingAgent.name && (
+                {(releasingAgent.firstName || releasingAgent.lastName) && (
                   <>
-                    {releasingAgent.name} <br />
+                    {releasingAgent.firstName} {releasingAgent.lastName} <br />
                   </>
                 )}
-                {releasingAgent.telephone && (
+                {releasingAgent.phone && (
                   <>
-                    {releasingAgent.telephone} <br />
+                    {releasingAgent.phone} <br />
                   </>
                 )}
                 {releasingAgent.email}
@@ -72,20 +73,30 @@ const HHGShipmentCard = ({
           </div>
           <div className={styles.row}>
             <dt>Destination</dt>
-            <dd>{destinationZIP}</dd>
+            <dd>
+              {destinationLocation ? (
+                <>
+                  {destinationLocation.street_address_1} {destinationLocation.street_address_2}
+                  <br />
+                  {destinationLocation.city}, {destinationLocation.state} {destinationLocation.postal_code}
+                </>
+              ) : (
+                destinationZIP
+              )}
+            </dd>
           </div>
           {receivingAgent && (
             <div className={styles.row}>
               <dt>Receiving agent</dt>
               <dd>
-                {receivingAgent.name && (
+                {(receivingAgent.firstName || receivingAgent.lastName) && (
                   <>
-                    {receivingAgent.name} <br />
+                    {receivingAgent.firstName} {receivingAgent.lastName} <br />
                   </>
                 )}
-                {receivingAgent.telephone && (
+                {receivingAgent.phone && (
                   <>
-                    {receivingAgent.telephone} <br />
+                    {receivingAgent.phone} <br />
                   </>
                 )}
                 {receivingAgent.email}
@@ -109,22 +120,26 @@ HHGShipmentCard.propTypes = {
   shipmentId: string.isRequired,
   requestedPickupDate: string.isRequired,
   pickupLocation: AddressShape.isRequired,
+  destinationLocation: AddressShape,
   releasingAgent: shape({
-    name: string,
-    telephone: string,
+    firstName: string,
+    lastName: string,
+    phone: string,
     email: string,
   }),
   requestedDeliveryDate: string.isRequired,
   destinationZIP: string.isRequired,
   receivingAgent: shape({
-    name: string,
-    telephone: string,
+    firstName: string,
+    lastName: string,
+    phone: string,
     email: string,
   }),
   remarks: string,
 };
 
 HHGShipmentCard.defaultProps = {
+  destinationLocation: null,
   releasingAgent: null,
   receivingAgent: null,
   remarks: '',
