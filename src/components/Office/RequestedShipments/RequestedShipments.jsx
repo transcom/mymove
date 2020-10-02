@@ -16,8 +16,7 @@ import {
 } from 'types/moveOrder';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { ReactComponent as FormCheckmarkIcon } from 'shared/icon/form-checkmark.svg';
-import { ReactComponent as XHeavyIcon } from 'shared/icon/x-heavy.svg';
-import { formatDate } from 'shared/dates';
+import { formatDateFromIso } from 'shared/formatters';
 
 const RequestedShipments = ({
   mtoShipments,
@@ -209,18 +208,12 @@ const RequestedShipments = ({
                   .filter((serviceItem) => serviceItem.reServiceCode === 'MS' || serviceItem.reServiceCode === 'CS')
                   .map((serviceItem) => (
                     <tr key={serviceItem.id}>
-                      <td>{serviceItem.reServiceName}</td>
-                      <td>
+                      <td data-testid="basicServiceItemName">{serviceItem.reServiceName}</td>
+                      <td data-testid="basicServiceItemDate">
                         {serviceItem.status === 'APPROVED' && (
                           <span>
                             <FormCheckmarkIcon className={styles.serviceItemApproval} />{' '}
-                            {formatDate(serviceItem.approvedAt, 'DD MMM YYYY')}
-                          </span>
-                        )}
-                        {serviceItem.status === 'REJECTED' && (
-                          <span>
-                            <XHeavyIcon className={styles.serviceItemRejection} />{' '}
-                            {formatDate(serviceItem.rejectedAt, 'DD MMM YYYY')}
+                            {formatDateFromIso(serviceItem.approvedAt, 'DD MMM YYYY')}
                           </span>
                         )}
                       </td>

@@ -53,6 +53,7 @@ func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eT
 				MTOShipmentID:   nil,
 				ReService:       models.ReService{Code: models.ReServiceCodeMS},
 				Status:          models.MTOServiceItemStatusApproved,
+				ApprovedAt:      &now,
 			})
 		}
 		if includeServiceCodeCS {
@@ -62,6 +63,7 @@ func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eT
 				MTOShipmentID:   nil,
 				ReService:       models.ReService{Code: models.ReServiceCodeCS},
 				Status:          models.MTOServiceItemStatusApproved,
+				ApprovedAt:      &now,
 			})
 		}
 

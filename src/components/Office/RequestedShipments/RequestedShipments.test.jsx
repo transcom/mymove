@@ -204,6 +204,42 @@ const moveTaskOrder = {
   id: '6e8c5ca4-774c-4170-934a-59d22259e480',
 };
 
+const serviceItems = [
+  {
+    approvedAt: '2020-10-02T19:20:08.481139Z',
+    createdAt: '2020-10-01T19:20:08.481139Z',
+    id: '12345',
+    moveTaskOrderID: '6e8c5ca4-774c-4170-934a-59d22259e480',
+    mtoShipmentID: null,
+    reServiceCode: 'MS',
+    reServiceID: '6789',
+    reServiceName: 'Shipment Mgmt. Services',
+    status: 'APPROVED',
+  },
+  {
+    approvedAt: '2020-10-02T19:20:08.481139Z',
+    createdAt: '2020-10-01T19:20:08.481139Z',
+    id: '45678',
+    moveTaskOrderID: '6e8c5ca4-774c-4170-934a-59d22259e480',
+    mtoShipmentID: null,
+    reServiceCode: 'CS',
+    reServiceID: '6790',
+    reServiceName: 'Counseling Services',
+    status: 'APPROVED',
+  },
+  {
+    approvedAt: '2020-10-02T19:20:08.481139Z',
+    createdAt: '2020-10-01T19:20:08.481139Z',
+    id: '9012',
+    moveTaskOrderID: '6e8c5ca4-774c-4170-934a-59d22259e480',
+    mtoShipmentID: 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
+    reServiceCode: 'DLH',
+    reServiceID: '6791',
+    reServiceRName: 'Dom. Linehaul',
+    status: 'SUBMITTED',
+  },
+];
+
 const approveMTO = jest.fn().mockResolvedValue({ response: { status: 200 } });
 
 const requestedShipmentsComponent = (
@@ -349,5 +385,31 @@ describe('RequestedShipments', () => {
         serviceCodeMS: true,
       },
     ]);
+  });
+
+  it('displays approved basic service items for approved shipments', () => {
+    const wrapper = mount(
+      <RequestedShipments
+        ordersInfo={ordersInfo}
+        allowancesInfo={allowancesInfo}
+        mtoAgents={agents}
+        customerInfo={customerInfo}
+        mtoShipments={shipments}
+        approveMTO={approveMTO}
+        shipmentsStatus="APPROVED"
+        mtoServiceItems={serviceItems}
+      />,
+    );
+    const approvedServiceItemNames = wrapper.find('[data-testid="basicServiceItemName"]');
+    const approvedServiceItemDates = wrapper.find('[data-testid="basicServiceItemDate"]');
+
+    expect(approvedServiceItemNames.length).toBe(2);
+    expect(approvedServiceItemDates.length).toBe(2);
+
+    expect(approvedServiceItemNames.at(0).text()).toBe('Shipment Mgmt. Services');
+    expect(approvedServiceItemDates.at(0).text()).toBe('form-checkmark.svg 02 Oct 2020');
+
+    expect(approvedServiceItemNames.at(1).text()).toBe('Counseling Services');
+    expect(approvedServiceItemDates.at(1).text()).toBe('form-checkmark.svg 02 Oct 2020');
   });
 });
