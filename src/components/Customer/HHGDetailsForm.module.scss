@@ -9,6 +9,7 @@
     @include u-margin-x(auto);
     max-width: 64rem;
     @include u-padding-x(2);
+    @include u-text('normal');
   }
 
   :global {
