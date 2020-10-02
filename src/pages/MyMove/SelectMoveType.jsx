@@ -33,10 +33,14 @@ export class SelectMoveType extends Component {
   render() {
     const { pageKey, pageList, match, push } = this.props;
     const { moveType } = this.state;
-    const ppmCardTextFirstTime =
+    const hasPpm = true; // temp until data is fetched
+    const hasSubmittedMove = true; // temp until data is fetched
+    const ppmCardText =
       'You pack and move your things, or make other arrangements, The government pays you for the weight you move.  This is a a Personally Procured Move (PPM), sometimes called a DITY.';
     const hhgCardText =
       'Your things are packed and moved by professionals, paid for by the government. This is a Household Goods move (HHG).';
+    const hhgCardTextPostSubmit = 'Talk with your movers directly if you want to add or change shipments.';
+    const ppmCardTextAlreadyChosen = `You’ve already requested a PPM shipment. If you have more things to move yourself but that you can’t add to that shipment, contact the PPPO at your origin duty station.`;
     const footerText = (
       <div className={styles.footer}>
         It&apos;s OK if you&apos;re not sure about your choices. Your move counselor will go over all your options and
@@ -44,9 +48,10 @@ export class SelectMoveType extends Component {
       </div>
     );
     return (
-      <div className={`grid-container ${styles.cardsContainer}`}>
+      <div className={`grid-container ${styles.gridContainer} ${styles.cardsContainer}`}>
         <div className="grid-row">
-          <div className="tablet:grid-col">
+          <div className="tablet:grid-col-2 desktop:grid-col-2" />
+          <div className="tablet:grid-col-8 desktop:grid-col-8">
             <WizardPage
               pageKey={pageKey}
               match={match}
@@ -58,12 +63,12 @@ export class SelectMoveType extends Component {
             >
               <h1 className="sm-heading">How do you want to move your belongings?</h1>
               <SelectableCard
-                label="Do it yourself"
+                label={hasPpm ? 'Do it yourself (already chosen)' : 'Do it yourself'}
                 onChange={(e) => this.setMoveType(e)}
                 value={SHIPMENT_OPTIONS.PPM}
                 name="moveType"
                 id={SHIPMENT_OPTIONS.PPM}
-                cardText={ppmCardTextFirstTime}
+                cardText={hasPpm ? ppmCardTextAlreadyChosen : ppmCardText}
                 checked={moveType === SHIPMENT_OPTIONS.PPM}
               />
               <SelectableCard
@@ -72,11 +77,12 @@ export class SelectMoveType extends Component {
                 value={SHIPMENT_OPTIONS.HHG}
                 name="moveType"
                 id={SHIPMENT_OPTIONS.HHG}
-                cardText={hhgCardText}
+                cardText={hasSubmittedMove ? hhgCardTextPostSubmit : hhgCardText}
                 checked={moveType === SHIPMENT_OPTIONS.HHG}
               />
             </WizardPage>
           </div>
+          <div className="tablet:grid-col-2" />
         </div>
       </div>
     );

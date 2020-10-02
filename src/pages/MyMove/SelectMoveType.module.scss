@@ -11,6 +11,7 @@
   @include u-padding-bottom(3);
 }
 
-.cardsContainer {
+.gridContainer.cardsContainer {
   max-width: 800px;
+  padding: 0;
 }

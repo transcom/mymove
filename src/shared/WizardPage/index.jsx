@@ -59,9 +59,9 @@ export class WizardPage extends Component {
       pageIsValid,
       dirty,
       canMoveNext,
-      footerText,
       hideBackBtn,
       showFinishLaterBtn,
+      footerText,
     } = this.props;
     const canMoveForward = pageIsValid && canMoveNext;
     const canMoveBackward = (pageIsValid || !dirty) && !isFirstPage(pageList, pageKey);
