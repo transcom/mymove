@@ -113,7 +113,7 @@ export class WizardFormPage extends Component {
             <div className="display-flex">
               {!hideBackBtn && (
                 <button
-                  className="usa-button usa-button--secondary"
+                  className="usa-button usa-button--secondary margin-right-0"
                   onClick={hasReduxFormSubmitHandler ? handleSubmit(this.previousPage) : this.previousPage}
                   disabled={!canMoveBackward}
                   data-testid="wizardBackButton"
@@ -123,7 +123,7 @@ export class WizardFormPage extends Component {
               )}
               {!isLastPage(pageList, pageKey) && (
                 <button
-                  className="usa-button"
+                  className="usa-button margin-right-0"
                   onClick={hasReduxFormSubmitHandler ? handleSubmit(this.nextPage) : this.nextPage}
                   disabled={!canMoveForward}
                   data-testid="wizardNextButton"
@@ -135,7 +135,7 @@ export class WizardFormPage extends Component {
 
             {isLastPage(pageList, pageKey) && (
               <button
-                className="usa-button"
+                className="usa-button margin-right-0"
                 onClick={hasReduxFormSubmitHandler ? handleSubmit(this.submit) : this.submit}
                 disabled={!canMoveForward}
                 data-testid="wizardCompleteButton"

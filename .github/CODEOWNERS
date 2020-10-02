@@ -20,6 +20,3 @@
 *.stories.jsx @transcom/truss-design @suzubara
 *.css @transcom/truss-design @suzubara
 *.scss @transcom/truss-design @suzubara
-
-# The reference, ie approved, images for Loki tests of Storybook Stories are stored in this directory and should be reviewed by desgin
-/.loki/reference/ @transcom/truss-design

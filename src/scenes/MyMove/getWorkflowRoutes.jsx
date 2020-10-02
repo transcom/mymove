@@ -175,7 +175,7 @@ const pages = {
     isComplete: always,
     render: (key, pages) => () => {
       return (
-        <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
+        <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key} hideBackBtn showFinishLaterBtn>
           <MovingInfo />
         </WizardPage>
       );

@@ -60,6 +60,8 @@ export class WizardPage extends Component {
       dirty,
       canMoveNext,
       footerText,
+      hideBackBtn,
+      showFinishLaterBtn,
     } = this.props;
     const canMoveForward = pageIsValid && canMoveNext;
     const canMoveBackward = (pageIsValid || !dirty) && !isFirstPage(pageList, pageKey);
@@ -77,10 +79,10 @@ export class WizardPage extends Component {
         {children}
         <div className="grid-row" style={{ marginTop: '2rem' }}>
           <div>{footerText ? footerText : ''}</div>
-          {!isFirstPage(pageList, pageKey) && (
+          {!isFirstPage(pageList, pageKey) && !hideBackBtn && (
             <button
               type="button"
-              className="usa-button usa-button--secondary"
+              className="usa-button usa-button--secondary margin-right-0"
               onClick={this.previousPage}
               disabled={!canMoveBackward}
               data-testid="wizardBackButton"
@@ -91,7 +93,7 @@ export class WizardPage extends Component {
           {!isLastPage(pageList, pageKey) && (
             <button
               type="button"
-              className="usa-button"
+              className="usa-button margin-right-0 next"
               onClick={this.nextPage}
               disabled={!canMoveForward}
               data-testid="wizardNextButton"
@@ -102,12 +104,23 @@ export class WizardPage extends Component {
           {isLastPage(pageList, pageKey) && (
             <button
               type="button"
-              className="usa-button"
+              className="usa-button margin-right-0"
               onClick={handleSubmit}
               disabled={!canMoveForward}
               data-testid="wizardCompleteButton"
             >
               Complete
+            </button>
+          )}
+          {showFinishLaterBtn && (
+            <button
+              type="button"
+              className="usa-button usa-button--unstyled finish-later margin-right-0"
+              onClick={this.goHome}
+              disabled={false}
+              data-testid="wizardFinishLaterButton"
+            >
+              Finish later
             </button>
           )}
         </div>
@@ -135,6 +148,8 @@ WizardPage.defaultProps = {
   pageIsValid: true,
   canMoveNext: true,
   dirty: true,
+  hideBackBtn: false,
+  showFinishLaterBtn: false,
   footerText: '',
 };
 

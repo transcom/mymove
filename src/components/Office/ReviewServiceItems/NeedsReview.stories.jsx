@@ -6,11 +6,6 @@ import NeedsReviewComponent from './NeedsReview';
 export default {
   title: 'TOO/TIO Components|ReviewServiceItems/ReviewDetails',
   component: NeedsReviewComponent,
-  parameters: {
-    loki: {
-      skip: true,
-    },
-  },
 };
 
 export const NeedsReview = () => <NeedsReviewComponent numberOfItems={1} onClick={action('Finish button clicked!')} />;
