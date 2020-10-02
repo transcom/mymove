@@ -1,7 +1,6 @@
 package movetaskorder
 
 import (
-	"sort"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -30,18 +29,51 @@ func NewMoveTaskOrderUpdater(db *pop.Connection, builder UpdateMoveTaskOrderQuer
 
 //MakeAvailableToPrime updates the status of a MoveTaskOrder for a given UUID to make it available to prime
 func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eTag string,
-	mtoApprovalServiceItems *map[models.ReServiceCode]bool) (*models.Move, error) {
+	includeServiceCodeMS bool, includeServiceCodeCS bool) (*models.Move, error) {
+	var err error
+	var verrs *validate.Errors
+
 	mto, err := o.FetchMoveTaskOrder(moveTaskOrderID)
 	if err != nil {
 		return &models.Move{}, err
 	}
 
 	if mto.AvailableToPrimeAt == nil {
+		// update field for mto
 		now := time.Now()
 		mto.AvailableToPrimeAt = &now
+
+		// When provided, this will auto create and approve MTO level service items. This is going to typically happen
+		// from the ghc api via the office app. The handler in question is this one: UpdateMoveTaskOrderStatusHandlerFunc
+		// in ghcapi/move_task_order.go
+		if includeServiceCodeMS {
+			// create if doesn't exist
+			_, verrs, err = o.serviceItemCreator.CreateMTOServiceItem(&models.MTOServiceItem{
+				MoveTaskOrderID: moveTaskOrderID,
+				MTOShipmentID:   nil,
+				ReService:       models.ReService{Code: models.ReServiceCodeMS},
+				Status:          models.MTOServiceItemStatusApproved,
+			})
+		}
+		if includeServiceCodeCS {
+			// create if doesn't exist
+			_, verrs, err = o.serviceItemCreator.CreateMTOServiceItem(&models.MTOServiceItem{
+				MoveTaskOrderID: moveTaskOrderID,
+				MTOShipmentID:   nil,
+				ReService:       models.ReService{Code: models.ReServiceCodeCS},
+				Status:          models.MTOServiceItemStatusApproved,
+			})
+		}
+
+		if err != nil {
+			return &models.Move{}, err
+		}
+		if verrs != nil {
+			return &models.Move{}, verrs
+		}
 	}
 
-	verrs, err := o.builder.UpdateOne(mto, &eTag)
+	verrs, err = o.builder.UpdateOne(mto, &eTag)
 	if verrs != nil && verrs.HasAny() {
 		return &models.Move{}, services.InvalidInputError{}
 	}
@@ -51,50 +83,6 @@ func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eT
 			return nil, services.NewPreconditionFailedError(mto.ID, err)
 		default:
 			return &models.Move{}, err
-		}
-	}
-
-	// sort by service code first, asc
-	sort.Slice(mto.MTOServiceItems, func(i int, j int) bool {
-		return mto.MTOServiceItems[i].ReService.Code < mto.MTOServiceItems[j].ReService.Code
-	})
-	serviceItemExists := func(code models.ReServiceCode) bool {
-		index := sort.Search(len(mto.MTOServiceItems), func(i int) bool {
-			return mto.MTOServiceItems[i].ReService.Code == code
-		})
-
-		if index < len(mto.MTOServiceItems) && mto.MTOServiceItems[index].ReService.Code == code {
-			// x is present at data[i]
-			return true
-		}
-
-		// x is not present in data, but index is the index where it would be inserted.
-		return false
-	}
-
-	// When provided, this will auto create and approve MTO level service items. This is going to typically happen
-	// from the ghc api via the office app. The handler in question is this one: UpdateMoveTaskOrderStatusHandlerFunc
-	// in ghcapi/move_task_order.go
-	if mtoApprovalServiceItems != nil {
-		for serviceItemCode := range *mtoApprovalServiceItems {
-			if serviceItemExists(serviceItemCode) {
-				// skip creating
-				break
-			}
-
-			// create if doesn't exist
-			_, verrs, err := o.serviceItemCreator.CreateMTOServiceItem(&models.MTOServiceItem{
-				MoveTaskOrderID: moveTaskOrderID,
-				MTOShipmentID:   nil,
-				ReService:       models.ReService{Code: serviceItemCode},
-				Status:          models.MTOServiceItemStatusApproved,
-			})
-			if err != nil {
-				return &models.Move{}, err
-			}
-			if verrs != nil {
-				return &models.Move{}, verrs
-			}
 		}
 	}
 

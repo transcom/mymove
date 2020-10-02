@@ -26,7 +26,7 @@ type MoveTaskOrderFetcher interface {
 //MoveTaskOrderUpdater is the service object interface for updating fields of a MoveTaskOrder
 //go:generate mockery -name MoveTaskOrderUpdater
 type MoveTaskOrderUpdater interface {
-	MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eTag string, mtoApprovalServiceItems *map[models.ReServiceCode]bool) (*models.Move, error)
+	MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eTag string, includeServiceCodeMS bool, includeServiceCodeCS bool) (*models.Move, error)
 	UpdatePostCounselingInfo(moveTaskOrderID uuid.UUID, body movetaskorderops.UpdateMTOPostCounselingInformationBody, eTag string) (*models.Move, error)
 }
 
