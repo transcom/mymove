@@ -50,7 +50,18 @@ export class WizardPage extends Component {
   }
 
   render() {
-    const { handleSubmit, pageKey, pageList, children, error, pageIsValid, dirty, canMoveNext } = this.props;
+    const {
+      handleSubmit,
+      pageKey,
+      pageList,
+      children,
+      error,
+      pageIsValid,
+      dirty,
+      canMoveNext,
+      hideBackBtn,
+      showFinishLaterBtn,
+    } = this.props;
     const canMoveForward = pageIsValid && canMoveNext;
     const canMoveBackward = (pageIsValid || !dirty) && !isFirstPage(pageList, pageKey);
     return (
@@ -65,42 +76,51 @@ export class WizardPage extends Component {
           </div>
         )}
         {children}
-        <div className="grid-row" style={{ marginTop: '0.5rem' }}>
-          <div className="grid-col-10 text-right margin-top-6 margin-left-neg-1 tablet:margin-top-3 display-flex">
-            {!isFirstPage(pageList, pageKey) && (
-              <button
-                type="button"
-                className="usa-button usa-button--secondary"
-                onClick={this.previousPage}
-                disabled={!canMoveBackward}
-                data-testid="wizardBackButton"
-              >
-                Back
-              </button>
-            )}
-            {!isLastPage(pageList, pageKey) && (
-              <button
-                type="button"
-                className="usa-button"
-                onClick={this.nextPage}
-                disabled={!canMoveForward}
-                data-testid="wizardNextButton"
-              >
-                Next
-              </button>
-            )}
-            {isLastPage(pageList, pageKey) && (
-              <button
-                type="button"
-                className="usa-button"
-                onClick={handleSubmit}
-                disabled={!canMoveForward}
-                data-testid="wizardCompleteButton"
-              >
-                Complete
-              </button>
-            )}
-          </div>
+        <div className="grid-row" style={{ marginTop: '2rem' }}>
+          {!isFirstPage(pageList, pageKey) && !hideBackBtn && (
+            <button
+              type="button"
+              className="usa-button usa-button--secondary margin-right-0"
+              onClick={this.previousPage}
+              disabled={!canMoveBackward}
+              data-testid="wizardBackButton"
+            >
+              Back
+            </button>
+          )}
+          {!isLastPage(pageList, pageKey) && (
+            <button
+              type="button"
+              className="usa-button margin-right-0"
+              onClick={this.nextPage}
+              disabled={!canMoveForward}
+              data-testid="wizardNextButton"
+            >
+              Next
+            </button>
+          )}
+          {isLastPage(pageList, pageKey) && (
+            <button
+              type="button"
+              className="usa-button margin-right-0"
+              onClick={handleSubmit}
+              disabled={!canMoveForward}
+              data-testid="wizardCompleteButton"
+            >
+              Complete
+            </button>
+          )}
+          {showFinishLaterBtn && (
+            <button
+              type="button"
+              className="usa-button usa-button--unstyled finish-later margin-right-0"
+              onClick={this.goHome}
+              disabled={false}
+              data-testid="wizardFinishLaterButton"
+            >
+              Finish later
+            </button>
+          )}
         </div>
       </div>
     );
@@ -125,6 +145,8 @@ WizardPage.defaultProps = {
   pageIsValid: true,
   canMoveNext: true,
   dirty: true,
+  hideBackBtn: false,
+  showFinishLaterBtn: false,
 };
 
 function mapDispatchToProps(dispatch) {
