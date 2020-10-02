@@ -14,6 +14,14 @@ describe('given a WizardPage', () => {
     pageKey: '1',
   };
 
+  const middleFlowProps = {
+    handleSubmit: jest.fn(),
+    pageList: ['1', '2', '3'],
+    pageKey: '2',
+    push: { mockPush },
+    match: {},
+  };
+
   describe('Component renders', () => {
     expect(shallow(<WizardPage {...minProps} />).length).toEqual(1);
   });
@@ -361,6 +369,18 @@ describe('given a WizardPage', () => {
       wrapper = shallow(<WizardPage {...minProps} canMoveNext={false} />);
       const nextButton = wrapper.find('[data-testid="wizardNextButton"]');
       expect(nextButton.prop('disabled')).toEqual(true);
+    });
+  });
+  describe('when optional buttons are toggled prop', () => {
+    describe('when hideBackBtn is true on middle page', () => {
+      wrapper = shallow(<WizardPage {...middleFlowProps} hideBackBtn />);
+      const backButton = wrapper.find('[data-testid="wizardBackButton"]');
+      expect(backButton.exists()).toBe(false);
+    });
+    describe('when showFinishLaterBtn is true', () => {
+      wrapper = shallow(<WizardPage {...middleFlowProps} showFinishLaterBtn />);
+      const finishLaterBtn = wrapper.find('[data-testid="wizardFinishLaterButton"]');
+      expect(finishLaterBtn.prop('disabled')).toEqual(false);
     });
   });
 });
