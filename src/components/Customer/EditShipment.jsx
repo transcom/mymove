@@ -5,6 +5,14 @@ import { connect } from 'react-redux';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
 import { Radio, Label, Textarea, Button } from '@trussworks/react-uswds';
+
+import { Form } from '../form/Form';
+import { DatePickerInput } from '../form/fields';
+import { AddressFields } from '../form/AddressFields/AddressFields';
+import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
+
+import styles from './EditShipment.module.scss';
+
 import {
   selectMTOShipmentById,
   updateMTOShipment as updateMTOShipmentAction,
@@ -18,13 +26,6 @@ import { validateDate } from 'utils/formikValidators';
 import Hint from 'shared/Hint';
 import Fieldset from 'shared/Fieldset';
 import Divider from 'shared/Divider';
-
-import { Form } from '../form/Form';
-import { DatePickerInput } from '../form/fields';
-import { AddressFields } from '../form/AddressFields/AddressFields';
-import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
-
-import styles from './EditShipment.module.scss';
 
 const PickupAddressSchema = Yup.object().shape({
   street_address_1: Yup.string().required('Required'),
