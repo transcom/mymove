@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import PropTypes, { string, bool, func } from 'prop-types';
+import { string, bool, func, arrayOf, shape } from 'prop-types';
 import { get } from 'lodash';
 
 import styles from './SelectMoveType.module.scss';
@@ -11,6 +11,7 @@ import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 import { WizardPage } from 'shared/WizardPage';
 import SelectableCard from 'components/Customer/SelectableCard';
+import { selectMTOShipmentsByMoveId } from 'shared/Entities/modules/mtoShipments';
 
 export class SelectMoveType extends Component {
   constructor(props) {
@@ -31,10 +32,12 @@ export class SelectMoveType extends Component {
   };
 
   render() {
-    const { pageKey, pageList, match, push, move } = this.props;
+    const { pageKey, pageList, match, push, move, mtoShipments } = this.props;
     const { moveType } = this.state;
-    const hasPpm = !!move?.personally_procured_moves.length; // eslint-disable-line camelcase
+    const hasPpm = !!move?.personally_procured_moves?.length; // eslint-disable-line camelcase
     const hasSubmittedMove = move?.status !== MOVE_STATUSES.DRAFT;
+    const hasShipments = !!mtoShipments.length;
+    const hasAnyShipments = hasPpm || hasShipments;
     const ppmCardText =
       'You pack and move your things, or make other arrangements, The government pays you for the weight you move.  This is a a Personally Procured Move (PPM), sometimes called a DITY.';
     const hhgCardText =
@@ -61,7 +64,11 @@ export class SelectMoveType extends Component {
               push={push}
               footerText={footerText}
             >
-              <h1 className="sm-heading">How do you want to move your belongings?</h1>
+              <h1 className="sm-heading">
+                {hasAnyShipments
+                  ? 'How do you want this group of things moved?'
+                  : 'How do you want to move your belongings?'}
+              </h1>
               <SelectableCard
                 label={hasPpm ? 'Do it yourself (already chosen)' : 'Do it yourself'}
                 onChange={(e) => this.setMoveType(e)}
@@ -91,10 +98,10 @@ export class SelectMoveType extends Component {
 
 SelectMoveType.propTypes = {
   pageKey: string.isRequired,
-  pageList: PropTypes.arrayOf(string).isRequired,
-  match: PropTypes.shape({
+  pageList: arrayOf(string).isRequired,
+  match: shape({
     isExact: bool.isRequired,
-    params: PropTypes.shape({
+    params: shape({
       moveId: string.isRequired,
     }),
     path: string.isRequired,
@@ -103,7 +110,8 @@ SelectMoveType.propTypes = {
   push: func.isRequired,
   updateMove: func.isRequired,
   selectedMoveType: string.isRequired,
-  move: PropTypes.shape({}).isRequired,
+  move: shape({}).isRequired,
+  mtoShipments: shape({}).isRequired,
 };
 
 function mapStateToProps(state) {
@@ -111,6 +119,7 @@ function mapStateToProps(state) {
   const props = {
     move: selectActiveOrLatestMove(state),
     selectedMoveType: get(move, 'selected_move_type'),
+    mtoShipments: selectMTOShipmentsByMoveId(state, move.id),
   };
   return props;
 }
