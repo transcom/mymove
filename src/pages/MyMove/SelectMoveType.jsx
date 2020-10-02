@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import PropTypes, { string, bool, func } from 'prop-types';
+import PropTypes, { string, bool, func, number } from 'prop-types';
 import { get } from 'lodash';
 import { Radio } from '@trussworks/react-uswds';
 
@@ -9,6 +9,7 @@ import { updateMove as updateMoveAction } from 'scenes/Moves/ducks';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 import { WizardPage } from 'shared/WizardPage';
+import { selectMTOShipmentsByMoveId } from 'shared/Entities/modules/mtoShipments';
 
 export class SelectMoveType extends Component {
   constructor(props) {
@@ -28,9 +29,10 @@ export class SelectMoveType extends Component {
     return updateMove(match.params.moveId, moveType);
   };
 
-  // TODO: Shipment eyebrow
+  // TODO: Shipment eyebrow: fix refresh state loss
+  // TODO: question PR reviewers on checked behavior
   render() {
-    const { pageKey, pageList, match, push, isPpmSelectable, isHhgSelectable } = this.props;
+    const { pageKey, pageList, match, push, isPpmSelectable, isHhgSelectable, shipmentNumber } = this.props;
     const { moveType } = this.state;
     return (
       <WizardPage
@@ -44,6 +46,7 @@ export class SelectMoveType extends Component {
         <div className="usa-grid">
           <div className="grid-row">
             <div className="grid-col">
+              <h6 className="sm-heading">Shipment {shipmentNumber}</h6>
               <h1 className="sm-heading">How do you want to move your belongings?</h1>
               <Radio
                 id={SHIPMENT_OPTIONS.PPM}
@@ -99,17 +102,21 @@ SelectMoveType.propTypes = {
   selectedMoveType: string.isRequired,
   isPpmSelectable: bool.isRequired,
   isHhgSelectable: bool.isRequired,
+  shipmentNumber: number.isRequired,
 };
 
 function mapStateToProps(state) {
   const move = selectActiveOrLatestMove(state);
-  const doesMoveAlreadyHavePpm = !!move.personally_procured_moves.length;
+  const doesMoveAlreadyHavePpm = !!move.personally_procured_moves?.length;
+  const ppmCount = doesMoveAlreadyHavePpm ? 1 : 0;
+  const hhgCount = selectMTOShipmentsByMoveId(state, move.id)?.length || 0;
   const props = {
     move: selectActiveOrLatestMove(state),
     selectedMoveType: get(move, 'selected_move_type'),
     // TODO: support PPM after initial move submission
     isPpmSelectable: move.status === 'DRAFT' && !doesMoveAlreadyHavePpm,
     isHhgSelectable: move.status === 'DRAFT',
+    shipmentNumber: 1 + ppmCount + hhgCount,
   };
   return props;
 }
