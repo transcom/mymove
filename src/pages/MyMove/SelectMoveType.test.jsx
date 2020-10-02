@@ -13,6 +13,8 @@ describe('SelectMoveType', () => {
     updateMove: () => {},
     push: () => {},
     selectedMoveType: SHIPMENT_OPTIONS.PPM,
+    move: {},
+    mtoShipments: {},
   };
   it('should render radio buttons with PPM selected', () => {
     // eslint-disable-next-line react/jsx-props-no-spreading
