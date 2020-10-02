@@ -17,6 +17,7 @@
     "filepond-plugin-image-preview": "https://github.com/transcom/filepond-plugin-image-preview",
     "filepond-polyfill": "^1.0.2",
     "formik": "^2.1.5",
+    "happo": "^5.0.0",
     "history": "^4.10.1",
     "http-proxy-middleware": "^1.0.5",
     "is-mobile": "2.2.2",
