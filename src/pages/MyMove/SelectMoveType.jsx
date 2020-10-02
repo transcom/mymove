@@ -57,12 +57,22 @@ export class SelectMoveType extends Component {
                 checked={moveType === SHIPMENT_OPTIONS.PPM && isPpmSelectable}
                 disabled={!isPpmSelectable}
               />
-              <ul>
-                <li>This is a PPM - “personally procured move”</li>
-                <li>You arrange to move some or all of your belongings</li>
-                <li>The government pays you an incentive based on weight</li>
-                <li>DIY or hire your own movers</li>
-              </ul>
+              {isPpmSelectable && (
+                <ul>
+                  <li>This is a PPM - “personally procured move”</li>
+                  <li>You arrange to move some or all of your belongings</li>
+                  <li>The government pays you an incentive based on weight</li>
+                  <li>DIY or hire your own movers</li>
+                </ul>
+              )}
+              {!isPpmSelectable && (
+                <ul>
+                  <li>
+                    You’ve already requested a PPM shipment. If you have more things to move yourself but that you can’t
+                    add to that shipment, contact the PPPO at your origin duty station.
+                  </li>
+                </ul>
+              )}
               <Radio
                 id={SHIPMENT_OPTIONS.HHG}
                 label="The government packs for me and moves me"
@@ -72,12 +82,19 @@ export class SelectMoveType extends Component {
                 checked={moveType === SHIPMENT_OPTIONS.HHG && isHhgSelectable}
                 disabled={!isHhgSelectable}
               />
-              <ul>
-                <li>This is an HHG shipment — “household goods”</li>
-                <li>The most popular kind of shipment</li>
-                <li>Professional movers take care of the whole shipment</li>
-                <li>They pack and move it for you</li>
-              </ul>
+              {isHhgSelectable && (
+                <ul>
+                  <li>This is an HHG shipment — “household goods”</li>
+                  <li>The most popular kind of shipment</li>
+                  <li>Professional movers take care of the whole shipment</li>
+                  <li>They pack and move it for you</li>
+                </ul>
+              )}
+              {!isHhgSelectable && (
+                <ul>
+                  <li>Talk with your movers directly if you want to add or change shipments.</li>
+                </ul>
+              )}
             </div>
           </div>
         </div>
@@ -113,8 +130,7 @@ function mapStateToProps(state) {
   const props = {
     move: selectActiveOrLatestMove(state),
     selectedMoveType: get(move, 'selected_move_type'),
-    // TODO: support PPM after initial move submission
-    isPpmSelectable: move.status === 'DRAFT' && !doesMoveAlreadyHavePpm,
+    isPpmSelectable: !doesMoveAlreadyHavePpm,
     isHhgSelectable: move.status === 'DRAFT',
     shipmentNumber: 1 + ppmCount + hhgCount,
   };
