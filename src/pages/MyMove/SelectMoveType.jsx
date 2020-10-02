@@ -7,7 +7,7 @@ import { get } from 'lodash';
 import styles from './SelectMoveType.module.scss';
 
 import { updateMove as updateMoveAction } from 'scenes/Moves/ducks';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 import { WizardPage } from 'shared/WizardPage';
 import SelectableCard from 'components/Customer/SelectableCard';
@@ -31,10 +31,10 @@ export class SelectMoveType extends Component {
   };
 
   render() {
-    const { pageKey, pageList, match, push } = this.props;
+    const { pageKey, pageList, match, push, move } = this.props;
     const { moveType } = this.state;
-    const hasPpm = false; // temp until data is fetched
-    const hasSubmittedMove = false; // temp until data is fetched
+    const hasPpm = !!move?.personally_procured_moves.length; // eslint-disable-line camelcase
+    const hasSubmittedMove = move?.status !== MOVE_STATUSES.DRAFT;
     const ppmCardText =
       'You pack and move your things, or make other arrangements, The government pays you for the weight you move.  This is a a Personally Procured Move (PPM), sometimes called a DITY.';
     const hhgCardText =
@@ -90,7 +90,7 @@ export class SelectMoveType extends Component {
 }
 
 SelectMoveType.propTypes = {
-  pageKey: PropTypes.string.isRequired,
+  pageKey: string.isRequired,
   pageList: PropTypes.arrayOf(string).isRequired,
   match: PropTypes.shape({
     isExact: bool.isRequired,
@@ -103,6 +103,7 @@ SelectMoveType.propTypes = {
   push: func.isRequired,
   updateMove: func.isRequired,
   selectedMoveType: string.isRequired,
+  move: PropTypes.shape({}).isRequired,
 };
 
 function mapStateToProps(state) {
