@@ -389,7 +389,7 @@ class Home extends Component {
                 </Step>
                 <Step
                   actionBtnLabel={this.shipmentActionBtnLabel}
-                  actionBtnDisabled={!this.hasOrders || this.hasSubmittedMove}
+                  actionBtnDisabled={!this.hasOrders || (this.hasSubmittedMove && this.doesPpmAlreadyExist)}
                   onActionBtnClick={() => this.handleNewPathClick(shipmentSelectionPath)}
                   complete={this.hasShipment}
                   completedHeaderText="Shipments"
