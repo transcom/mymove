@@ -1,6 +1,7 @@
 import React from 'react';
 import { action } from '@storybook/addon-actions';
 import { Button } from '@trussworks/react-uswds';
+import { isHappoRun } from 'happo-plugin-storybook/register';
 
 import QueueTable from '../components/QueueTable';
 import ServiceItemTable from '../components/ServiceItemTable';
@@ -326,7 +327,7 @@ export const ServiceItemTables = () => (
             description: "Here's the description",
             itemDimensions: { length: 8400, width: 2600, height: 4200 },
             crateDimensions: { length: 110000, width: 36000, height: 54000 },
-            imgURL: 'https://live.staticflickr.com/4735/24289917967_27840ed1af_b.jpg',
+            imgURL: isHappoRun ? null : 'https://live.staticflickr.com/4735/24289917967_27840ed1af_b.jpg',
           },
         },
       ]}

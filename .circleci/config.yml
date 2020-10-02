@@ -719,11 +719,24 @@ jobs:
             - v1-cache-cypress-node-modules-{{ checksum "cypress/yarn.lock" }}
       - attach_workspace:
           at: /home/circleci/transcom/mymove/bin
+      - run:
+          name: Output processes and resource usage every 5 seconds while job is running
+          command: |
+            while true; do
+              sleep 5
+              ps auxwwf
+              echo "======"
+            done
+          background: true
       - run: rm -f pkg/assets/assets.go && make pkg/assets/assets.go
       - run: make server_generate
       - run: rm -f bin/generate-test-data && make bin/generate-test-data
       - run: rm -f bin/prime-api-client && make bin/prime-api-client
       - e2e_tests
+      - run:
+          name: Output maximum memory usage in Bytes
+          command: cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes
+          when: always
       - store_artifacts:
           path: cypress/videos
           destination: videos
@@ -906,11 +919,9 @@ jobs:
 
   # `storybook_tests` builds the storybook application container and pushes to the container repository
   storybook_tests:
-    executor: mymove_medium_plus
+    executor: mymove_medium
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: false
       - restore_cache:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
@@ -918,27 +929,25 @@ jobs:
           keys:
             - v3-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run:
-          name: make storybook_tests
-          command: make storybook_tests
-          environment:
-            CHROME_CONCURRENCY: 2
-      - run: make storybook_build
+          name: Output processes and resource usage every 5 seconds while job is running
+          command: |
+            while true; do
+              sleep 5
+              ps auxwwf
+              echo "======"
+            done
+          background: true
       - run:
           name: Happo tests
           command: yarn happo-ci
+      - run:
+          name: Output maximum memory usage in Bytes
+          command: cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes
+          when: always
       - persist_to_workspace:
           root: /home/circleci/transcom/mymove/
           paths:
             - storybook-static
-      - store_artifacts:
-          path: .loki/current
-          destination: current
-      - store_artifacts:
-          path: .loki/difference
-          destination: difference
-      - store_artifacts:
-          path: .loki/reference
-          destination: reference
       - announce_failure
 
   # `build_migrations` builds the migrations container

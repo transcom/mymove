@@ -102,7 +102,8 @@ application testing
 | `go-find-pattern` |  searches over all our go source code files for a regex pattern |
 | `merge-pr` |  A script to automate the landing of your GitHub pull requests. |
 | `make-test` | A script to test common developer make targets. |
-| `prime-api` | A script to connect to endpoints on the PRIME API. |
+| `prime-api` | A script to connect to endpoints on the Prime API. |
+| `prime-api-demo` | A script to demo the Prime API. |
 | `update-docker-compose` | Update branch name before running docker-compose |
 
 ### Building
