@@ -52,13 +52,10 @@ const RequestedShipments = ({
           ),
         ),
       ];
-      const mtoApprovalServiceItemCodes = {};
-      if (values.shipmentManagementFee) {
-        mtoApprovalServiceItemCodes.serviceCodeMS = true;
-      }
-      if (values.counselingFee) {
-        mtoApprovalServiceItemCodes.serviceCodeCS = true;
-      }
+      const mtoApprovalServiceItemCodes = {
+        serviceCodeMS: values.shipmentManagementFee,
+        serviceCodeCS: values.counselingFee,
+      };
 
       // if mto is not yet approved, add request to approve it
       if (!moveTaskOrder.availableToPrimeAt) {
@@ -67,12 +64,11 @@ const RequestedShipments = ({
 
       Promise.all(requests)
         .then((results) => {
-          if (
-            results[1]?.response?.status === 200 ||
-            results[0].every((shipmentResult) => shipmentResult.response.status === 200)
-          ) {
-            // TODO: We will need to change this so that it goes to the MoveTaskOrder view when we're implementing the success UI element in a later story.
-            window.location.reload();
+          if (results[0].every((shipmentResult) => shipmentResult.response.status === 200)) {
+            if (results[1]?.response?.status === 200) {
+              // TODO: We will need to change this so that it goes to the MoveTaskOrder view when we're implementing the success UI element in a later story.
+              window.location.reload();
+            }
           }
         })
         .catch(() => {
@@ -89,10 +85,9 @@ const RequestedShipments = ({
 
   // if showing service items, enable button when shipment and service item are selected
   // if not showing service items, enable button if a shipment is selected
-  const isButtonEnabled =
-    mtoServiceItems.length > 0
-      ? formik.values.shipments.length > 0
-      : formik.values.shipments.length > 0 && (formik.values.counselingFee || formik.values.shipmentManagementFee);
+  const isButtonEnabled = moveTaskOrder.availableToPrimeAt
+    ? formik.values.shipments.length > 0
+    : formik.values.shipments.length > 0 && (formik.values.counselingFee || formik.values.shipmentManagementFee);
 
   // eslint-disable-next-line camelcase
   const dutyStationPostal = { postal_code: ordersInfo.newDutyStation?.address?.postal_code };
@@ -138,7 +133,7 @@ const RequestedShipments = ({
             </div>
 
             <div className={styles.serviceItems}>
-              {mtoServiceItems?.length <= 0 && (
+              {!moveTaskOrder.availableToPrimeAt && (
                 <>
                   <h4>Add service items to this move</h4>
                   <Fieldset legend="MTO service items" legendSrOnly id="input-type-fieldset">
