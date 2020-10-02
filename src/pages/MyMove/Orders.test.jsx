@@ -21,5 +21,4 @@ describe('Orders page', () => {
     </MockProviders>,
   );
   expect(wrapper.length).toEqual(1);
-  expect(wrapper.find('[data-testid="wizardCancelButton"]').length).toBe(0);
 });

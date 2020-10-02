@@ -10,8 +10,8 @@ import thunk from 'redux-thunk';
 import UploadOrders from './UploadOrders';
 
 const defaultProps = {
-  pages: [],
-  pageKey: '',
+  pages: ['1', '2', '3'],
+  pageKey: '2',
   fetchLatestOrders: () => {},
 };
 
@@ -35,8 +35,8 @@ function mountUploadOrders(props = defaultProps) {
 }
 
 describe('UploadOrders component', () => {
-  it('renders component with no cancel button', () => {
+  it('renders component with next button', () => {
     const wrapper = mountUploadOrders();
-    expect(wrapper.find('[data-testid="wizardCancelButton"]').length).toBe(0);
+    expect(wrapper.find('[data-testid="wizardNextButton"]').length).toBe(1);
   });
 });

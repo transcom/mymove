@@ -20,7 +20,7 @@ describe('HHG Setup flow', function () {
     customerFillsOutOrdersInformation();
     customerChoosesAnHHGMove();
     customerSetsUpAnHHGMove();
-    customerReviewsMoveDetails();
+    customerReviewsMoveDetailsAndEditsHHG();
     customerSubmitsMove();
   });
 });
@@ -232,7 +232,7 @@ function customerSetsUpAnHHGMove() {
   cy.nextPage();
 }
 
-function customerReviewsMoveDetails() {
+function customerReviewsMoveDetailsAndEditsHHG() {
   cy.get('[data-testid="review-move-header"]').contains('Review your details');
 
   cy.get('[data-testid="hhg-summary"]').find('h4').contains('Shipment 1: HHG').find('a').contains('Edit').click();
@@ -259,6 +259,11 @@ function customerReviewsMoveDetails() {
 
   cy.get('[data-testid="hhg-summary"]').find('table').contains('some edited customer remark');
   cy.get('[data-testid="hhg-summary"]').find('table').contains('JohnJohnson Lee');
+
+  // Check that finish later button takes them to home page
+  cy.get('button').contains('Finish later').click();
+  cy.get('h3').contains('Time to submit your move');
+  cy.get('button').contains('Review and submit').click();
 
   cy.nextPage();
 }
