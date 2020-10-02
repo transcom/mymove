@@ -6,11 +6,6 @@ import RejectRequestComponent from './RejectRequest';
 export default {
   title: 'TOO/TIO Components|ReviewServiceItems/ReviewDetails',
   component: RejectRequestComponent,
-  parameters: {
-    loki: {
-      skip: true,
-    },
-  },
 };
 
 export const RejectRequest = () => (

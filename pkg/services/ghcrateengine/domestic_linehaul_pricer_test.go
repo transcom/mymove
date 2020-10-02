@@ -122,7 +122,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulData() {
 }
 
 func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulServiceItem() models.PaymentServiceItem {
-	return testdatagen.MakePaymentServiceItemWithParams(
+	return testdatagen.MakeDefaultPaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeDLH,
 		[]testdatagen.CreatePaymentServiceItemParams{

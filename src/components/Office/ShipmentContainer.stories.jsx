@@ -25,9 +25,12 @@ export const HHG = () => (
         originCity: text('ShipmentInfo.originCity', 'San Antonio'),
         originState: text('ShipmentInfo.originState', 'TX'),
         originPostalCode: text('ShipmentInfo.originPostalCode', '98421'),
-        destinationCity: text('ShipmentInfo.destinationCity', 'Tacoma'),
-        destinationState: text('ShipmentInfo.destinationState', 'WA'),
-        destinationPostalCode: text('ShipmentInfo.destinationPostalCode', '98421'),
+        destinationAddress: object('MTOShipment.destinationAddress', {
+          street_address_1: '123 Any Street',
+          city: 'Tacoma',
+          state: 'WA',
+          postal_code: '98421',
+        }),
         scheduledPickupDate: text('ShipmentInfo.destinationPostalCode', '27 Mar 2020'),
       }}
     />
@@ -42,9 +45,12 @@ export const MTOAccessorial = () => (
         originCity: text('ShipmentInfo.originCity', 'San Antonio'),
         originState: text('ShipmentInfo.originState', 'TX'),
         originPostalCode: text('ShipmentInfo.originPostalCode', '98421'),
-        destinationCity: text('ShipmentInfo.destinationCity', 'Tacoma'),
-        destinationState: text('ShipmentInfo.destinationState', 'WA'),
-        destinationPostalCode: text('ShipmentInfo.destinationPostalCode', '98421'),
+        destinationAddress: object('MTOShipment.destinationAddress', {
+          street_address_1: '123 Any Street',
+          city: 'Tacoma',
+          state: 'WA',
+          postal_code: '98421',
+        }),
         scheduledPickupDate: text('ShipmentInfo.destinationPostalCode', '27 Mar 2020'),
       }}
     />

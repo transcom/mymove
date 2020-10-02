@@ -259,7 +259,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 			Value:   "2424",
 		},
 	}
-	paymentServiceItem := testdatagen.MakePaymentServiceItemWithParams(
+	paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeDLH,
 		basicPaymentServiceItemParams,
