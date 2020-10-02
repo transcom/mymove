@@ -354,7 +354,7 @@ func (pr *paymentRequestsData) displayShipment(index int) error {
 		fmt.Printf("\n\nService Items:\n")
 		for ii, service := range pr.serviceItemDisplayList {
 			if service.mtoShipmentID == shipment.mtoShipmentID {
-				fmt.Printf("%d: %s\n", ii, service.description)
+				fmt.Printf("%d: %s", ii, service.description)
 			}
 		}
 	} else {
@@ -1171,6 +1171,7 @@ func (pr *paymentRequestsData) updateMTOShipment(shipmentPayload mtoShipment.Upd
 	// Make the API Call
 	resp, err := primeGateway.MtoShipment.UpdateMTOShipment(&shipmentPayload)
 	if err != nil {
+		fmt.Printf("\n\nprimeGateway.MtoShipment.UpdateMTOShipment() failed with: [%s]\n\n", err.Error())
 		return utils.HandleGatewayError(err, pr.logger)
 	}
 
@@ -1224,6 +1225,7 @@ func (pr *paymentRequestsData) updateMTOShipment2(filename string) error {
 	// Make the API Call
 	resp, err := primeGateway.MtoShipment.UpdateMTOShipment(&shipmentPayload)
 	if err != nil {
+		fmt.Printf("\n\nprimeGateway.MtoShipment.UpdateMTOShipment() failed with: [%s]\n\n", err.Error())
 		return utils.HandleGatewayError(err, pr.logger)
 	}
 
@@ -1281,6 +1283,7 @@ func (pr *paymentRequestsData) creatPaymentRequest(filename string) error {
 	// Make the API Call
 	resp, err := primeGateway.PaymentRequest.CreatePaymentRequest(&paymentRequestParams)
 	if err != nil {
+		fmt.Printf("\n\nprimeGateway.PaymentRequest.CreatePaymentRequest() failed with: [%s]\n\n", err.Error())
 		return utils.HandleGatewayError(err, pr.logger)
 	}
 
@@ -1307,6 +1310,11 @@ func (pr *paymentRequestsData) creatPaymentRequest(filename string) error {
 }
 
 func (pr *paymentRequestsData) getPrimeClient() (*primeClient.Mymove, *pksigner.Store, error) {
+	// TODO When making a call and you already have the CAC store, if you get back CKR_USER_NOT_LOGGED_IN then
+	// log in again
+	// TODO added additional error logging to see where error is happening
+	// TODO another error if already initialize is 2020/09/29 23:00:56 pkcs11: 0x191: CKR_CRYPTOKI_ALREADY_INITIALIZED
+	// created new function CreatePrimeClientWithCACStoreParam to avoid this.
 	if pr.store == nil {
 		primeGateway, cacStore, errCreateClient := utils.CreatePrimeClient(pr.v)
 		pr.store = cacStore
@@ -1330,6 +1338,7 @@ func (pr *paymentRequestsData) fetchMTOs() error {
 	params.SetTimeout(time.Second * 30)
 	resp, err := primeGateway.MoveTaskOrder.FetchMTOUpdates(&params)
 	if err != nil {
+		fmt.Printf("\n\nprimeGateway.MoveTaskOrder.FetchMTOUpdates() failed with: [%s]\n\n", err.Error())
 		return utils.HandleGatewayError(err, pr.logger)
 	}
 

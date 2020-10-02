@@ -37,6 +37,7 @@ func CreatePrimeClientWithCACStoreParam(v *viper.Viper, store *pksigner.Store) (
 		*/
 		cert, errTLSCert := store.TLSCertificate()
 		if errTLSCert != nil {
+			fmt.Printf("\n\nstore.TLSCertificate() failed with: [%s]\n\n", errTLSCert.Error())
 			log.Fatal(errTLSCert)
 		}
 
