@@ -4,15 +4,17 @@
 # https://github.com/transcom/mymove#secure-migrations
 #
 
-set -eux -o pipefail
+set -eu -o pipefail
 
 readonly aws_command="aws"
 # Environments to download production migrations from
 # shellcheck disable=SC2206
 readonly environments=(${ENVIRONMENTS:-exp stg prd})
+readonly valid_envs=("exp" "stg" "prd")
 readonly aws_gov_prefix="transcom-gov-milmove-"
 readonly aws_gov_region="us-gov-west-1"
 readonly aws_gov_bucket_suffix="-app-${aws_gov_region}"
+# The Gov ID account is the aws profile used to access other accounts
 readonly aws_gov_id_account="transcom-gov-id"
 readonly aws_path_prefix="secure-migrations"
 
@@ -31,6 +33,13 @@ function proceed() {
 #
 # Pre-flight checks
 #
+
+for environment in "${environments[@]}"; do
+  if [[ ! ${valid_envs[*]} =~ $environment ]]; then
+    echo "error: you submitted environment $environment. You may only pass in a subset of the following: ${valid_envs[*]}."
+    exit 1
+  fi
+done
 
 if [[ -z "${1:-}" ]]; then
   echo "$usage"
