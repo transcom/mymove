@@ -22,6 +22,10 @@
     @include u-border-top('1px');
     @include u-border-top('base-lighter');
 
+    table {
+      @include u-width(full)
+    }
+
     :global(.usa-fieldset) {
       @include u-padding-x(2);
     }
