@@ -48,9 +48,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		BearerAuthenticator: security.BearerAuth,
 		JSONConsumer:        runtime.JSONConsumer(),
 		JSONProducer:        runtime.JSONProducer(),
-		MtoServiceItemCreateMTOServiceItemHandler: mto_service_item.CreateMTOServiceItemHandlerFunc(func(params mto_service_item.CreateMTOServiceItemParams) middleware.Responder {
-			return middleware.NotImplemented("operation MtoServiceItemCreateMTOServiceItem has not yet been implemented")
-		}),
 		MtoServiceItemDeleteMTOServiceItemHandler: mto_service_item.DeleteMTOServiceItemHandlerFunc(func(params mto_service_item.DeleteMTOServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation MtoServiceItemDeleteMTOServiceItem has not yet been implemented")
 		}),
@@ -154,8 +151,6 @@ type MymoveAPI struct {
 	// JSONProducer registers a producer for a "application/json" mime type
 	JSONProducer runtime.Producer
 
-	// MtoServiceItemCreateMTOServiceItemHandler sets the operation handler for the create m t o service item operation
-	MtoServiceItemCreateMTOServiceItemHandler mto_service_item.CreateMTOServiceItemHandler
 	// MtoServiceItemDeleteMTOServiceItemHandler sets the operation handler for the delete m t o service item operation
 	MtoServiceItemDeleteMTOServiceItemHandler mto_service_item.DeleteMTOServiceItemHandler
 	// MoveTaskOrderDeleteMoveTaskOrderHandler sets the operation handler for the delete move task order operation
@@ -265,10 +260,6 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.JSONProducer == nil {
 		unregistered = append(unregistered, "JSONProducer")
-	}
-
-	if o.MtoServiceItemCreateMTOServiceItemHandler == nil {
-		unregistered = append(unregistered, "mto_service_item.CreateMTOServiceItemHandler")
 	}
 
 	if o.MtoServiceItemDeleteMTOServiceItemHandler == nil {
@@ -464,11 +455,6 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers == nil {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
-
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/move_task_orders/{moveTaskOrderID}/mto_service_items"] = mto_service_item.NewCreateMTOServiceItem(o.context, o.MtoServiceItemCreateMTOServiceItemHandler)
 
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)

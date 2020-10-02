@@ -44,7 +44,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceManagementServices() {
 }
 
 func (suite *GHCRateEngineServiceSuite) setupManagementServicesItem() models.PaymentServiceItem {
-	return testdatagen.MakePaymentServiceItemWithParams(
+	return testdatagen.MakeDefaultPaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeMS,
 		[]testdatagen.CreatePaymentServiceItemParams{

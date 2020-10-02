@@ -55,10 +55,6 @@ export const PDFViewer = () => (
   </div>
 );
 
-PDFViewer.story = {
-  parameters: { loki: { skip: true } },
-};
-
 export const ImageViewer = () => (
   <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
     <DocumentViewer files={testImageFiles} />

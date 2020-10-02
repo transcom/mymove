@@ -917,7 +917,7 @@ jobs:
           repo: app
       - announce_failure
 
-  # `storybook_tests` builds the storybook application container and pushes to the container repository
+  # `storybook_tests` triggers visual regression tests in Happo and builds static storybook assets for deploy
   storybook_tests:
     executor: mymove_medium
     steps:

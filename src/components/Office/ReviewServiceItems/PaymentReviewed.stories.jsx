@@ -5,11 +5,6 @@ import PaymentReviewed from './PaymentReviewed';
 export default {
   title: 'TOO/TIO Components|ReviewServiceItems/ReviewDetails',
   component: PaymentReviewed,
-  parameters: {
-    loki: {
-      skip: true,
-    },
-  },
 };
 
 export const PaymentAuthorized = () => (

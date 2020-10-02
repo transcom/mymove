@@ -103,7 +103,7 @@ func (suite *GHCRateEngineServiceSuite) setupPriceServiceItemData() {
 }
 
 func (suite *GHCRateEngineServiceSuite) setupPriceServiceItem() models.PaymentServiceItem {
-	return testdatagen.MakePaymentServiceItemWithParams(
+	return testdatagen.MakeDefaultPaymentServiceItemWithParams(
 		suite.DB(),
 		models.ReServiceCodeMS,
 		[]testdatagen.CreatePaymentServiceItemParams{
