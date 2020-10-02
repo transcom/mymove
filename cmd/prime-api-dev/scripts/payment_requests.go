@@ -721,11 +721,14 @@ func (pr *paymentRequestsData) paymentRequestJsonToFile(f *os.File, serviceItems
 	//"serviceItems": [
 	strs = append(strs, fmt.Sprint("\"serviceItems\": [\n"))
 	last := len(serviceItems)
+	last -= 1 // need to account for skipping over 'isFinal' key
 	counter := 0
 	for key, value := range serviceItems {
-		counter++
+
 		if key == "isFinal" {
 			continue
+		} else {
+			counter++
 		}
 		var serviceItemStr string
 		//{
