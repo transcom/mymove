@@ -52,7 +52,7 @@ class PPMPaymentRequestIntro extends Component {
         )}
         <div className="grid-row">
           <div className="grid-col-12">
-            <h3 className="title">Request PPM Payment</h3>
+            <h1 className="title">Request PPM Payment</h1>
             <p>Gather these documents:</p>
             <ul>
               <li>
