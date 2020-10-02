@@ -33,8 +33,8 @@ export class SelectMoveType extends Component {
   render() {
     const { pageKey, pageList, match, push } = this.props;
     const { moveType } = this.state;
-    const hasPpm = true; // temp until data is fetched
-    const hasSubmittedMove = true; // temp until data is fetched
+    const hasPpm = false; // temp until data is fetched
+    const hasSubmittedMove = false; // temp until data is fetched
     const ppmCardText =
       'You pack and move your things, or make other arrangements, The government pays you for the weight you move.  This is a a Personally Procured Move (PPM), sometimes called a DITY.';
     const hhgCardText =

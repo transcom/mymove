@@ -20,7 +20,7 @@ describe('SelectMoveType', () => {
     expect(wrapper.find(Radio).length).toBe(2);
 
     // PPM button should be checked on page load
-    expect(wrapper.find(Radio).at(0).text()).toContain('I’ll move things myself');
+    expect(wrapper.find(Radio).at(0).text()).toContain('Do it yourself');
     expect(wrapper.find(Radio).at(0).find('.usa-radio__input').html()).toContain('checked');
   });
   it('should render radio buttons with HHG selected', () => {
@@ -29,7 +29,7 @@ describe('SelectMoveType', () => {
     const wrapper = mount(<SelectMoveType {...defaultProps} />);
     expect(wrapper.find(Radio).length).toBe(2);
 
-    expect(wrapper.find(Radio).at(1).text()).toContain('The government packs for me and moves me');
+    expect(wrapper.find(Radio).at(1).text()).toContain('Professional movers');
     // HHG button should be checked on page load
     expect(wrapper.find(Radio).at(1).find('.usa-radio__input').html()).toContain('checked');
   });
