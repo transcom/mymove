@@ -23,6 +23,10 @@ const (
 	FingerprintFlag string = "fingerprint"
 	// SubjectFlag is the Certificate Subject flag
 	SubjectFlag string = "subject"
+	// UpdateFlag is the flag to enable Update mode
+	UpdateFlag string = "update"
+	// ClientCertIDFlag is the ID flag for Client Cert
+	ClientCertIDFlag string = "certid"
 
 	// template for adding client certificates
 	createCertsMigration string = `
@@ -71,6 +75,21 @@ VALUES (
 	true,
 	true);
 `
+	// template for updating client certificates
+	updateCertsMigration string = `
+-- This migration allows a CAC cert to have read/write access to all orders and the prime API.
+-- The Orders API and the Prime API use client certificate authentication. Only certificates
+-- signed by a trusted CA (such as DISA) are allowed which includes CACs.
+-- Using a person's CAC as the certificate is a convenient way to permit a
+-- single trusted individual to interact with the Orders API and the Prime API. Eventually
+-- this CAC certificate should be removed.
+-- Updating sha256 for new cac
+UPDATE client_certs
+SET sha256_digest = '{{.Fingerprint}}',
+	subject = '{{.Subject}}',
+	updated_at = NOW()
+WHERE id = '{{.ID}}';
+`
 )
 
 // CertsTemplate is a struct that stores the context from which to generate the migration
@@ -84,6 +103,9 @@ type CertsTemplate struct {
 func InitCertsMigrationFlags(flag *pflag.FlagSet) {
 	flag.StringP(FingerprintFlag, "f", "", "Certificate fingerprint in SHA 256 form")
 	flag.StringP(SubjectFlag, "s", "", "Certificate subject")
+	flag.Bool(UpdateFlag, false, "Create an update migration")
+	flag.String(ClientCertIDFlag, "", "Previous ID of client cert entry")
+
 }
 
 // CheckCertsMigration validates command line flags
@@ -115,6 +137,14 @@ func CheckCertsMigration(v *viper.Viper) error {
 		if len(subject) == 0 {
 			return errors.Errorf("%s is missing", SubjectFlag)
 		}
+	}
+
+	if v.GetBool(UpdateFlag) {
+		certID := v.GetString(ClientCertIDFlag)
+		if len(certID) == 0 {
+			return fmt.Errorf("%s required for generating UPDATE migration", ClientCertIDFlag)
+		}
+		uuid.Must(uuid.FromString(certID))
 	}
 
 	return nil
@@ -191,13 +221,23 @@ func genCertsMigration(cmd *cobra.Command, args []string) error {
 	}
 
 	certsTemplate := CertsTemplate{
-		ID:          uuid.Must(uuid.NewV4()).String(),
 		Fingerprint: fingerprint,
 		Subject:     subject,
 	}
 
+	var t1 *template.Template
+	updateMode := v.GetBool(UpdateFlag)
+
+	if updateMode == true {
+		certsTemplate.ID = v.GetString(ClientCertIDFlag)
+		t1 = template.Must(template.New("certs_migration").Parse(updateCertsMigration))
+	} else {
+		certsTemplate.ID = uuid.Must(uuid.NewV4()).String()
+		t1 = template.Must(template.New("certs_migration").Parse(createCertsMigration))
+	}
+
 	secureMigrationName := fmt.Sprintf("%s_%s.up.sql", migrationVersion, migrationName)
-	t1 := template.Must(template.New("certs_migration").Parse(createCertsMigration))
+
 	err = createMigration(tempMigrationPath, secureMigrationName, t1, certsTemplate)
 	if err != nil {
 		return err
