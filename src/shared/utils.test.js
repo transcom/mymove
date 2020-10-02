@@ -94,7 +94,7 @@ describe('utils', () => {
   });
   describe('format order type for customer app', () => {
     it('should format order type to be human readable', () => {
-      expect(utils.formatOrderType('PERMANENT_CHANGE_OF_STATION').toBe('Permanent change of station'));
+      expect(utils.formatOrderType('PERMANENT_CHANGE_OF_STATION')).toBe('Permanent change of station');
     });
   });
 });

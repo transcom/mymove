@@ -8,8 +8,10 @@ const defaultProps = {
   serviceMember: {
     id: '666',
     current_station: {},
+    residential_address: {},
   },
   currentOrders: {
+    orders_type: 'PERMANENT_CHANGE_OF_STATION',
     has_dependents: false,
     issue_date: '2020-08-11',
     moves: ['123'],
@@ -22,6 +24,9 @@ const defaultProps = {
     service_member_id: '666',
     spouse_has_pro_gear: false,
     status: 'DRAFT',
+    uploaded_orders: {
+      uploads: [],
+    },
   },
   match: { path: '', url: '/moves/123/review', params: { moveId: '123' } },
   currentMove: {
