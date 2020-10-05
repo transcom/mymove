@@ -43,7 +43,7 @@ const PPMShipmentCard = ({
           </div>
           <div className={styles.row}>
             <dt>Storage (SIT)</dt>
-            <dd>{Number(sitDays) ? `Yes, ${sitDays} days` : 'No'}</dd>
+            <dd data-testid="sit-display">{Number(sitDays) ? `Yes, ${sitDays} days` : 'No'}</dd>
           </div>
           <div className={styles.row}>
             <dt>Destination ZIP</dt>

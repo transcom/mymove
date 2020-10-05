@@ -186,7 +186,7 @@ export class Summary extends Component {
           uploads={currentOrders.uploaded_orders.uploads}
         />
 
-        {showMoveSetup && <h3>Move setup</h3>}
+        {showMoveSetup && <h2>Move setup</h2>}
         {isReviewPage && this.renderShipments()}
         {showPPMShipmentSummary && (
           <PPMShipmentSummary ppm={currentPPM} movePath={rootReviewAddressWithMoveId} orders={currentOrders} />

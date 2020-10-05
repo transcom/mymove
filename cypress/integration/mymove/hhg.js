@@ -235,7 +235,9 @@ function customerSetsUpAnHHGMove() {
 function customerReviewsMoveDetailsAndEditsHHG() {
   cy.get('[data-testid="review-move-header"]').contains('Review your details');
 
-  cy.get('[data-testid="hhg-summary"]').find('h4').contains('Shipment 1: HHG').find('a').contains('Edit').click();
+  cy.get('[data-testid="ShipmentContainer"]').contains('HHG 1');
+
+  cy.get('[data-testid="edit-profile-table"]').contains('Edit').click();
 
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/mto-shipments\/[^/]+\/edit-shipment/);

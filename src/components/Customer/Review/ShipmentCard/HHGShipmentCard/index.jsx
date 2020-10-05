@@ -26,7 +26,7 @@ const HHGShipmentCard = ({
   shipmentNumber,
 }) => {
   return (
-    <div className={styles.ShipmentCard} data-testid="shipment-display">
+    <div className={styles.ShipmentCard} data-testid="hhg-summary">
       <ShipmentContainer className={styles.container} shipmentType={SHIPMENT_OPTIONS.HHG}>
         <div className={styles.ShipmentCardHeader}>
           <div>

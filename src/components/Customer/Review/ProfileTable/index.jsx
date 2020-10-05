@@ -30,7 +30,12 @@ const ProfileTable = ({
     <div className={containerClassNames}>
       <div className={reviewStyles['review-header']}>
         <h2>Profile</h2>
-        <Button unstyled className={reviewStyles['edit-btn']} onClick={() => onEditClick(editProfilePath)}>
+        <Button
+          unstyled
+          className={reviewStyles['edit-btn']}
+          data-testid="edit-profile-table"
+          onClick={() => onEditClick(editProfilePath)}
+        >
           Edit
         </Button>
       </div>
