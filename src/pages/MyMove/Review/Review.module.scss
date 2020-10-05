@@ -1,5 +1,9 @@
 @import 'shared/styles/_basics';
 
+.reviewMoveContainer {
+  margin-top: -20px;
+}
+
 .reviewMoveHeaderContainer {
   @include u-margin-top(4);
 

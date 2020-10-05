@@ -4,7 +4,7 @@ import { mount } from 'enzyme';
 
 import PPMShipmentCard from '.';
 
-import { formatCustomerDate } from 'shared/utils';
+import { formatCustomerDate } from 'utils/formatters';
 
 const defaultProps = {
   editPath: '',

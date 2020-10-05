@@ -6,7 +6,7 @@ import ShipmentContainer from '../../../../Office/ShipmentContainer';
 import styles from '../ShipmentCard.module.scss';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { formatCustomerDate } from 'shared/utils';
+import { formatCustomerDate } from 'utils/formatters';
 
 const PPMShipmentCard = ({
   destinationZIP,

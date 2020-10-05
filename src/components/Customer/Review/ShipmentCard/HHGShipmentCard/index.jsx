@@ -9,7 +9,7 @@ import hhgShipmentCardStyles from './HHGShipmentCard.module.scss';
 
 import ShipmentContainer from 'components/Office/ShipmentContainer';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { formatCustomerDate } from 'shared/utils';
+import { formatCustomerDate } from 'utils/formatters';
 
 const HHGShipmentCard = ({
   destinationLocation,
