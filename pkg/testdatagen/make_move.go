@@ -46,16 +46,15 @@ func MakeMove(db *pop.Connection, assertions Assertions) models.Move {
 	}
 
 	move := models.Move{
-		AvailableToPrimeAt: assertions.Move.AvailableToPrimeAt,
-		Orders:             orders,
-		OrdersID:           orders.ID,
-		SelectedMoveType:   selectedMoveType,
-		PPMType:            ppmType,
-		Status:             models.MoveStatusDRAFT,
-		Locator:            models.GenerateLocator(),
-		Show:               setShow(assertions.Move.Show),
-		ContractorID:       &contractorID,
-		ReferenceID:        &referenceID,
+		Orders:           orders,
+		OrdersID:         orders.ID,
+		SelectedMoveType: selectedMoveType,
+		PPMType:          ppmType,
+		Status:           models.MoveStatusDRAFT,
+		Locator:          models.GenerateLocator(),
+		Show:             setShow(assertions.Move.Show),
+		ContractorID:     &contractorID,
+		ReferenceID:      &referenceID,
 	}
 
 	// Overwrite values with those from assertions

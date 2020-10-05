@@ -632,6 +632,19 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID:                   uuid.FromStringOrNil("8689afc7-84d6-4c60-a739-333333333333"),
+			PrimeEstimatedWeight: &estimatedHHGWeight,
+			PrimeActualWeight:    &actualHHGWeight,
+			ShipmentType:         models.MTOShipmentTypeHHG,
+			ApprovedDate:         swag.Time(time.Now()),
+			Status:               models.MTOShipmentStatusSubmitted,
+			MoveTaskOrder:        move,
+			MoveTaskOrderID:      move.ID,
+		},
+	})
+
 	ppm := testdatagen.MakePPM(db, testdatagen.Assertions{
 		ServiceMember: move.Orders.ServiceMember,
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
@@ -1003,9 +1016,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 	mto := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
-			ID:                 uuid.FromStringOrNil("5d4b25bb-eb04-4c03-9a81-ee0398cb779e"),
-			OrdersID:           orders.ID,
-			AvailableToPrimeAt: swag.Time(time.Now()),
+			ID:       uuid.FromStringOrNil("5d4b25bb-eb04-4c03-9a81-ee0398cb779e"),
+			OrdersID: orders.ID,
 		},
 	})
 
@@ -1739,6 +1751,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 
 	mtoShipment2 := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		Move: mto2,
+	})
+
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		Move: mto2,
 	})
 

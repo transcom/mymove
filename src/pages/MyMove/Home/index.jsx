@@ -432,7 +432,6 @@ class Home extends Component {
                   officeType="Origin Transportation Office"
                   telephone="(919) 722-5458"
                 />
-                )
               </>
             )}
           </>
