@@ -53,6 +53,50 @@ export class SelectMoveType extends Component {
       'Your things are packed and moved by professionals, paid for by the government. This is a Household Goods move (HHG).';
     const hhgCardTextPostSubmit = 'Talk with your movers directly if you want to add or change shipments.';
     const ppmCardTextAlreadyChosen = `You’ve already requested a PPM shipment. If you have more things to move yourself but that you can’t add to that shipment, contact the PPPO at your origin duty station.`;
+    const selectPpmHasNoPpm = (
+      <SelectableCard
+        label="Do it yourself"
+        onChange={(e) => this.setMoveType(e)}
+        value={SHIPMENT_OPTIONS.PPM}
+        name="moveType"
+        id={SHIPMENT_OPTIONS.PPM}
+        cardText={ppmCardText}
+        checked={moveType === SHIPMENT_OPTIONS.PPM}
+      />
+    );
+    const selectPpmHasPpm = (
+      <SelectableCard
+        label="Do it yourself (already chosen)"
+        onChange={(e) => this.setMoveType(e)}
+        value={SHIPMENT_OPTIONS.PPM}
+        name="moveType"
+        id={SHIPMENT_OPTIONS.PPM}
+        cardText={ppmCardTextAlreadyChosen}
+        checked={moveType === SHIPMENT_OPTIONS.PPM}
+      />
+    );
+    const selectHhgDefault = (
+      <SelectableCard
+        label="Professional movers"
+        onChange={(e) => this.setMoveType(e)}
+        value={SHIPMENT_OPTIONS.HHG}
+        name="moveType"
+        id={SHIPMENT_OPTIONS.HHG}
+        cardText={hhgCardText}
+        checked={moveType === SHIPMENT_OPTIONS.HHG}
+      />
+    );
+    const selectHhgSubmittedMove = (
+      <SelectableCard
+        label="Professional movers"
+        onChange={(e) => this.setMoveType(e)}
+        value={SHIPMENT_OPTIONS.HHG}
+        name="moveType"
+        id={SHIPMENT_OPTIONS.HHG}
+        cardText={hhgCardTextPostSubmit}
+        checked={moveType === SHIPMENT_OPTIONS.HHG}
+      />
+    );
     const footerText = (
       <div className={styles.footer}>
         It&apos;s OK if you&apos;re not sure about your choices. Your move counselor will go over all your options and
@@ -78,24 +122,8 @@ export class SelectMoveType extends Component {
                   ? 'How do you want this group of things moved?'
                   : 'How do you want to move your belongings?'}
               </h1>
-              <SelectableCard
-                label={hasPpm ? 'Do it yourself (already chosen)' : 'Do it yourself'}
-                onChange={(e) => this.setMoveType(e)}
-                value={SHIPMENT_OPTIONS.PPM}
-                name="moveType"
-                id={SHIPMENT_OPTIONS.PPM}
-                cardText={hasPpm ? ppmCardTextAlreadyChosen : ppmCardText}
-                checked={moveType === SHIPMENT_OPTIONS.PPM}
-              />
-              <SelectableCard
-                label="Professional movers"
-                onChange={(e) => this.setMoveType(e)}
-                value={SHIPMENT_OPTIONS.HHG}
-                name="moveType"
-                id={SHIPMENT_OPTIONS.HHG}
-                cardText={hasSubmittedMove ? hhgCardTextPostSubmit : hhgCardText}
-                checked={moveType === SHIPMENT_OPTIONS.HHG}
-              />
+              {hasPpm ? selectPpmHasPpm : selectPpmHasNoPpm}
+              {hasSubmittedMove ? selectHhgSubmittedMove : selectHhgDefault}
             </WizardPage>
           </div>
           <div className="tablet:grid-col-2" />
