@@ -20,7 +20,7 @@ import {
   selectedMoveType as selectMoveType,
 } from 'scenes/Moves/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { formatOrderType } from 'shared/utils';
+import { formatOrderType } from 'utils/formatters';
 import Alert from 'shared/Alert';
 import ProfileTable from 'components/Customer/Review/ProfileTable';
 import OrdersTable from 'components/Customer/Review/OrdersTable';
