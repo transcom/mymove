@@ -13,6 +13,9 @@ describe('SelectMoveType', () => {
     updateMove: () => {},
     push: () => {},
     selectedMoveType: SHIPMENT_OPTIONS.PPM,
+    isPpmSelectable: true,
+    isHhgSelectable: true,
+    shipmentNumber: 4,
   };
   it('should render radio buttons with PPM selected', () => {
     // eslint-disable-next-line react/jsx-props-no-spreading
