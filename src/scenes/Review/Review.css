@@ -110,3 +110,7 @@
 .hhg-shipment-summary .not-implemented {
   display: none;
 }
+
+.review-move-container {
+  margin-top: -20px;
+}
