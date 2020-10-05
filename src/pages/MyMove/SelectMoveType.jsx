@@ -11,7 +11,10 @@ import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 import { WizardPage } from 'shared/WizardPage';
 import SelectableCard from 'components/Customer/SelectableCard';
-import { selectMTOShipmentsByMoveId } from 'shared/Entities/modules/mtoShipments';
+import {
+  selectMTOShipmentsByMoveId,
+  loadMTOShipments as loadMTOShipmentsAction,
+} from 'shared/Entities/modules/mtoShipments';
 
 export class SelectMoveType extends Component {
   constructor(props) {
@@ -19,6 +22,11 @@ export class SelectMoveType extends Component {
     this.state = {
       moveType: props.selectedMoveType,
     };
+  }
+
+  componentDidMount() {
+    const { loadMTOShipments, move } = this.props;
+    loadMTOShipments(move.id);
   }
 
   setMoveType = (e) => {
@@ -112,6 +120,7 @@ SelectMoveType.propTypes = {
   selectedMoveType: string.isRequired,
   move: shape({}).isRequired,
   mtoShipments: shape({}).isRequired,
+  loadMTOShipments: func.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -125,7 +134,7 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ updateMove: updateMoveAction }, dispatch);
+  return bindActionCreators({ updateMove: updateMoveAction, loadMTOShipments: loadMTOShipmentsAction }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SelectMoveType);
