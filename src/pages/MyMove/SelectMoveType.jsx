@@ -41,6 +41,37 @@ export class SelectMoveType extends Component {
   render() {
     const { pageKey, pageList, match, push, isPpmSelectable, isHhgSelectable, shipmentNumber } = this.props;
     const { moveType } = this.state;
+    const ppmSelectableContent = (
+      <ul>
+        <li>This is a PPM - “personally procured move”</li>
+        <li>You arrange to move some or all of your belongings</li>
+        <li>The government pays you an incentive based on weight</li>
+        <li>DIY or hire your own movers</li>
+      </ul>
+    );
+    const ppmUnselectableContent = (
+      <ul>
+        <li>
+          You’ve already requested a PPM shipment. If you have more things to move yourself but that you can’t add to
+          that shipment, contact the PPPO at your origin duty station.
+        </li>
+      </ul>
+    );
+
+    const hhgSelectableContent = (
+      <ul>
+        <li>This is an HHG shipment — “household goods”</li>
+        <li>The most popular kind of shipment</li>
+        <li>Professional movers take care of the whole shipment</li>
+        <li>They pack and move it for you</li>
+      </ul>
+    );
+    const hhgUnselectableContent = (
+      <ul>
+        <li>Talk with your movers directly if you want to add or change shipments.</li>
+      </ul>
+    );
+
     return (
       <WizardPage
         pageKey={pageKey}
@@ -64,22 +95,7 @@ export class SelectMoveType extends Component {
                 checked={moveType === SHIPMENT_OPTIONS.PPM && isPpmSelectable}
                 disabled={!isPpmSelectable}
               />
-              {isPpmSelectable && (
-                <ul>
-                  <li>This is a PPM - “personally procured move”</li>
-                  <li>You arrange to move some or all of your belongings</li>
-                  <li>The government pays you an incentive based on weight</li>
-                  <li>DIY or hire your own movers</li>
-                </ul>
-              )}
-              {!isPpmSelectable && (
-                <ul>
-                  <li>
-                    You’ve already requested a PPM shipment. If you have more things to move yourself but that you can’t
-                    add to that shipment, contact the PPPO at your origin duty station.
-                  </li>
-                </ul>
-              )}
+              {isPpmSelectable ? ppmSelectableContent : ppmUnselectableContent}
               <Radio
                 id={SHIPMENT_OPTIONS.HHG}
                 label="The government packs for me and moves me"
@@ -89,19 +105,7 @@ export class SelectMoveType extends Component {
                 checked={moveType === SHIPMENT_OPTIONS.HHG && isHhgSelectable}
                 disabled={!isHhgSelectable}
               />
-              {isHhgSelectable && (
-                <ul>
-                  <li>This is an HHG shipment — “household goods”</li>
-                  <li>The most popular kind of shipment</li>
-                  <li>Professional movers take care of the whole shipment</li>
-                  <li>They pack and move it for you</li>
-                </ul>
-              )}
-              {!isHhgSelectable && (
-                <ul>
-                  <li>Talk with your movers directly if you want to add or change shipments.</li>
-                </ul>
-              )}
+              {isHhgSelectable ? hhgSelectableContent : hhgUnselectableContent}
             </div>
           </div>
         </div>
