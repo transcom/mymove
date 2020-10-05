@@ -134,7 +134,7 @@ export class Summary extends Component {
             <span className="float-right">Optional</span>
             <h3>Add another shipment</h3>
             <p>Will you move any belongings to or from another location?</p>
-            <Button className="usa-button--secondary" onClick={() => history.push(shipmentSelectionPath)}>
+            <Button data-testid="addAnotherShipmentBtn" secondary onClick={() => history.push(shipmentSelectionPath)}>
               Add another shipment
             </Button>
           </div>

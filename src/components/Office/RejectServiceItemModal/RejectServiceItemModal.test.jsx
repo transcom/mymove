@@ -33,7 +33,7 @@ describe('RejectServiceItemModal', () => {
       <RejectServiceItemModal serviceItem={submittedServiceItem} onSubmit={jest.fn()} onClose={onClose} />,
     );
 
-    wrapper.find('[data-testid="closeRejectServiceItem"] button').simulate('click');
+    wrapper.find('button[data-testid="closeRejectServiceItem"]').simulate('click');
 
     expect(onClose.mock.calls.length).toBe(1);
   });
@@ -44,7 +44,7 @@ describe('RejectServiceItemModal', () => {
       <RejectServiceItemModal serviceItem={submittedServiceItem} onSubmit={jest.fn()} onClose={onClose} />,
     );
 
-    wrapper.find('[data-testid="backButton"]').simulate('click');
+    wrapper.find('button[data-testid="backButton"]').simulate('click');
 
     expect(onClose.mock.calls.length).toBe(1);
   });
@@ -74,7 +74,7 @@ describe('RejectServiceItemModal', () => {
       <RejectServiceItemModal serviceItem={submittedServiceItem} onSubmit={jest.fn()} onClose={jest.fn()} />,
     );
 
-    expect(wrapper.find('[data-testid="submitButton"]').prop('disabled')).toBe(true);
+    expect(wrapper.find('button[data-testid="submitButton"]').prop('disabled')).toBe(true);
   });
 
   it('shows validation error on text input blur event', async () => {
@@ -88,7 +88,7 @@ describe('RejectServiceItemModal', () => {
 
     wrapper.update();
     expect(wrapper.find('[data-testid="errorMessage"]').text()).toEqual('Required');
-    expect(wrapper.find('[data-testid="submitButton"]').prop('disabled')).toBe(true);
+    expect(wrapper.find('button[data-testid="submitButton"]').prop('disabled')).toBe(true);
   });
 
   it('enables the submit button when a rejection reason is entered', async () => {
@@ -104,7 +104,7 @@ describe('RejectServiceItemModal', () => {
 
     wrapper.update();
     expect(wrapper.find('[data-testid="errorMessage"]').exists()).toBe(false);
-    expect(wrapper.find('[data-testid="submitButton"]').prop('disabled')).toBe(false);
+    expect(wrapper.find('button[data-testid="submitButton"]').prop('disabled')).toBe(false);
   });
 
   // onSubmit is not getting called
