@@ -7,6 +7,8 @@ import PPMShipmentCard from '.';
 import { formatCustomerDate } from 'shared/utils';
 
 const defaultProps = {
+  editPath: '',
+  onEditClick: () => {},
   destinationZIP: '11111',
   estimatedWeight: '5,000',
   expectedDepartureDate: new Date('01/01/2020').toISOString(),

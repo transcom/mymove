@@ -124,7 +124,6 @@ export class Summary extends Component {
       match,
       history,
     } = this.props;
-    console.log('hey', this.getSortedShipments);
     const currentStation = get(serviceMember, 'current_station');
     const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
 

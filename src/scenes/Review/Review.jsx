@@ -17,7 +17,7 @@ class Review extends Component {
     const { pages, pageKey } = this.props;
 
     return (
-      <div className="grid-container review-move-container">
+      <div className="review-move-container">
         <WizardPage
           handleSubmit={no_op}
           pageList={pages}
