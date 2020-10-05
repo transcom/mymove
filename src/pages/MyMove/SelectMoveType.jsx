@@ -37,7 +37,6 @@ export class SelectMoveType extends Component {
     return updateMove(match.params.moveId, moveType);
   };
 
-  // TODO: question PR reviewers on checked behavior
   render() {
     const { pageKey, pageList, match, push, isPpmSelectable, isHhgSelectable, shipmentNumber } = this.props;
     const { moveType } = this.state;
