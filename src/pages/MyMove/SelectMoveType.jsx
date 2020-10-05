@@ -15,6 +15,7 @@ import {
   selectMTOShipmentsByMoveId,
   loadMTOShipments as loadMTOShipmentsAction,
 } from 'shared/Entities/modules/mtoShipments';
+import { MoveTaskOrderShape, MTOShipmentShape } from 'types/moveOrder';
 
 export class SelectMoveType extends Component {
   constructor(props) {
@@ -118,8 +119,8 @@ SelectMoveType.propTypes = {
   push: func.isRequired,
   updateMove: func.isRequired,
   selectedMoveType: string.isRequired,
-  move: shape({}).isRequired,
-  mtoShipments: shape({}).isRequired,
+  move: MoveTaskOrderShape.isRequired,
+  mtoShipments: MTOShipmentShape.isRequired,
   loadMTOShipments: func.isRequired,
 };
 
