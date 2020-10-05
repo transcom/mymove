@@ -83,6 +83,6 @@ describe('Summary page', () => {
   });
   it('add shipment button exists', () => {
     const btn = wrapper.find('.usa-button--secondary');
-    expect(btn.text()).toBe('<u />');
+    expect(btn.props().children).toBe('Add another shipment');
   });
 });
