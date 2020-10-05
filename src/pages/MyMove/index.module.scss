@@ -1,7 +1,7 @@
-@import 'shared/styles/_basics';
-@import 'shared/styles/_mixins';
-@import 'shared/styles/colors';
-@import 'shared/styles/_variables';
+@import '../../shared/styles/basics';
+@import '../../shared/styles/mixins';
+@import '../../shared/styles/colors';
+@import '../../shared/styles/variables';
 
 .gridContainer.wizardContainer {
   max-width: 800px;
