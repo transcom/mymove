@@ -37,7 +37,7 @@ const ShipmentApprovalPreview = ({
     <div>
       <Overlay />
       <ModalContainer>
-        <Modal className={classNames(styles.approvalPreviewModal, 'padding-4 overflow-y-auto maxh-viewport')}>
+        <Modal className={classNames('modal', styles.approvalPreviewModal)}>
           <div className={classNames(styles.containerTop)}>
             <div>
               <button
