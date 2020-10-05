@@ -17,7 +17,7 @@ class Review extends Component {
     const { pages, pageKey } = this.props;
 
     return (
-      <div className="review-move-container">
+      <div className="grid-container review-move-container">
         <WizardPage
           handleSubmit={no_op}
           pageList={pages}
@@ -27,14 +27,14 @@ class Review extends Component {
           hideBackBtn
           showFinishLaterBtn
         >
-          <div className="grid-row">
-            <div className={`${styles.reviewMoveHeaderContainer} grid-col-12`}>
-              <h2 data-testid="review-move-header">Review your details</h2>
-              <p>
-                You’re almost done setting up your move. Double&#8209;check that your information is accurate, then move
-                on to the final step.
-              </p>
-            </div>
+          <div className={`${styles.reviewMoveHeaderContainer} grid-row`}>
+            <h2 className="tablet:grid-col-10" data-testid="review-move-header">
+              Review your details
+            </h2>
+            <p className="tablet:grid-col-9">
+              You’re almost done setting up your move. Double&#8209;check that your information is accurate, then move
+              on to the final step.
+            </p>
           </div>
           <Summary />
         </WizardPage>
