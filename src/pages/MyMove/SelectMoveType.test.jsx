@@ -36,4 +36,43 @@ describe('SelectMoveType', () => {
     // HHG button should be checked on page load
     expect(wrapper.find(Radio).at(1).find('.usa-radio__input').html()).toContain('checked');
   });
+  it('should disable PPM form option if PPM is already submitted', () => {
+    const ppmAlreadySubmittedProps = {
+      pageList: ['page1', 'anotherPage/:foo/:bar'],
+      pageKey: 'page1',
+      match: { isExact: false, path: '', url: '' },
+      updateMove: () => {},
+      push: () => {},
+      move: { id: 'mockId', status: 'DRAFT' },
+      isHhgSelectable: true,
+      isPpmSelectable: false,
+      shipmentNumber: 4,
+    };
+
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    const wrapper = mount(<SelectMoveType {...ppmAlreadySubmittedProps} />);
+
+    // PPM button should be disabled on page load and should contained updated text
+    expect(wrapper.find(Radio).at(0).text()).toContain('contact the PPPO at your origin duty station');
+    expect(wrapper.find(Radio).at(0).find('.usa-radio__input').html()).toContain('disabled');
+  });
+  it('should disable HHG form option if move is already submitted', () => {
+    const moveAlreadySubmittedProps = {
+      pageList: ['page1', 'anotherPage/:foo/:bar'],
+      pageKey: 'page1',
+      match: { isExact: false, path: '', url: '' },
+      updateMove: () => {},
+      push: () => {},
+      move: { id: 'mockId', status: 'SUBMITTED' },
+      isPpmSelectable: true,
+      shipmentNumber: 4,
+    };
+
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    const wrapper = mount(<SelectMoveType {...moveAlreadySubmittedProps} />);
+
+    // HHG button should be disabled on page load and should contained updated text
+    expect(wrapper.find(Radio).at(1).text()).toContain('Talk with your movers directly');
+    expect(wrapper.find(Radio).at(1).find('.usa-radio__input').html()).toContain('disabled');
+  });
 });
