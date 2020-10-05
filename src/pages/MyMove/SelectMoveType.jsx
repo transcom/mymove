@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import PropTypes, { string, bool, func, number } from 'prop-types';
+import PropTypes, { string, bool, func, number, array } from 'prop-types';
 import { get } from 'lodash';
 import { Radio } from '@trussworks/react-uswds';
 
@@ -131,6 +131,7 @@ SelectMoveType.propTypes = {
   move: PropTypes.shape({
     id: string.isRequired,
     status: string.isRequired,
+    personally_procured_moves: array,
   }).isRequired,
   selectedMoveType: string.isRequired,
   isPpmSelectable: bool.isRequired,
@@ -140,13 +141,13 @@ SelectMoveType.propTypes = {
 
 function mapStateToProps(state) {
   const move = selectActiveOrLatestMove(state);
-  const doesMoveAlreadyHavePpm = !!move.personally_procured_moves?.length;
-  const ppmCount = doesMoveAlreadyHavePpm ? 1 : 0;
+  const hasPpm = !!move.personally_procured_moves?.length;
+  const ppmCount = hasPpm ? 1 : 0;
   const hhgCount = selectMTOShipmentsByMoveId(state, move.id)?.length || 0;
   const props = {
     move: selectActiveOrLatestMove(state),
     selectedMoveType: get(move, 'selected_move_type'),
-    isPpmSelectable: !doesMoveAlreadyHavePpm,
+    isPpmSelectable: !hasPpm,
     isHhgSelectable: move.status === 'DRAFT',
     shipmentNumber: 1 + ppmCount + hhgCount,
   };

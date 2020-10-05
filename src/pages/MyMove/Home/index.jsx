@@ -107,7 +107,7 @@ class Home extends Component {
     return !!Object.keys(orders).length && !uploadedOrderDocuments.length;
   }
 
-  get hasShipment() {
+  get hasMtoShipments() {
     const { mtoShipments, currentPpm } = this.props;
     return (this.hasOrders && !!mtoShipments.length) || Object.keys(currentPpm).length;
   }
@@ -117,16 +117,16 @@ class Home extends Component {
     return !!Object.keys(move).length && move.status !== 'DRAFT';
   }
 
-  get doesPpmAlreadyExist() {
+  get hasPpm() {
     const { move } = this.props;
     return !!move.personally_procured_moves?.length;
   }
 
   get shipmentActionBtnLabel() {
-    if (this.hasSubmittedMove && this.doesPpmAlreadyExist) {
+    if (this.hasSubmittedMove && this.hasPpm) {
       return '';
     }
-    if (this.hasShipment) {
+    if (this.hasMtoShipments || this.hasPpm) {
       return 'Add another shipment';
     }
     return 'Plan your shipments';
@@ -137,11 +137,11 @@ class Home extends Component {
       return 'Next step: Add your orders';
     }
 
-    if (!this.hasShipment) {
+    if (!this.hasMtoShipments) {
       return 'Gather this info, then plan your shipments';
     }
 
-    if (this.hasShipment && !this.hasSubmittedMove) {
+    if (this.hasMtoShipments && !this.hasSubmittedMove) {
       return 'Time to submit your move';
     }
 
@@ -204,7 +204,7 @@ class Home extends Component {
       );
     }
 
-    if (!this.hasShipment) {
+    if (!this.hasMtoShipments) {
       return (
         <ul>
           {this.renderHelperListItems([
@@ -216,7 +216,7 @@ class Home extends Component {
       );
     }
 
-    if (this.hasShipment && !this.hasSubmittedMove) {
+    if (this.hasMtoShipments && !this.hasSubmittedMove) {
       return (
         <ul>
           {this.renderHelperListItems([
@@ -340,7 +340,9 @@ class Home extends Component {
       location,
     } = this.props;
     const ordersPath = this.hasOrdersNoUpload ? '/orders/upload' : '/orders';
-    const shipmentSelectionPath = this.hasShipment ? `/moves/${move.id}/select-type` : `/moves/${move.id}/moving-info`;
+    const shipmentSelectionPath = this.hasMtoShipments
+      ? `/moves/${move.id}/select-type`
+      : `/moves/${move.id}/moving-info`;
     const confirmationPath = `/moves/${move.id}/review`;
     const profileEditPath = '/moves/review/edit-profile';
     const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
@@ -391,14 +393,14 @@ class Home extends Component {
                   actionBtnLabel={this.shipmentActionBtnLabel}
                   actionBtnDisabled={!this.hasOrders || (this.hasSubmittedMove && this.doesPpmAlreadyExist)}
                   onActionBtnClick={() => this.handleNewPathClick(shipmentSelectionPath)}
-                  complete={this.hasShipment}
+                  complete={this.hasMtoShipments}
                   completedHeaderText="Shipments"
                   headerText="Shipment selection"
-                  secondaryBtn={this.hasShipment}
+                  secondaryBtn={this.hasMtoShipments}
                   secondaryClassName="margin-top-2"
                   step="3"
                 >
-                  {this.hasShipment ? (
+                  {this.hasMtoShipments ? (
                     <ShipmentList shipments={allSortedShipments} onShipmentClick={this.handleShipmentClick} />
                   ) : (
                     <Description>
@@ -409,7 +411,7 @@ class Home extends Component {
                 </Step>
                 <Step
                   complete={this.hasSubmittedMove}
-                  actionBtnDisabled={!this.hasShipment}
+                  actionBtnDisabled={!this.hasMtoShipments}
                   actionBtnLabel={!this.hasSubmittedMove ? 'Review and submit' : ''}
                   containerClassName="margin-bottom-8"
                   headerText="Confirm move request"
