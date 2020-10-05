@@ -1,0 +1,17 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+@import 'shared/styles/_variables';
+
+.gridContainer.wizardContainer {
+  max-width: 800px;
+  padding: 0;
+}
+
+.gridContainer h1 {
+  @include u-padding-top(4);
+  @include u-padding-bottom(4);
+  @media (min-width: $tablet) {
+    @include u-padding-top(5);
+  }
+}

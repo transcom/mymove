@@ -6,6 +6,7 @@ import { get } from 'lodash';
 
 import styles from './SelectMoveType.module.scss';
 
+import wizardStyles from 'shared/WizardPage/index.module.scss';
 import { updateMove as updateMoveAction } from 'scenes/Moves/ducks';
 import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
@@ -104,7 +105,7 @@ export class SelectMoveType extends Component {
       </div>
     );
     return (
-      <div className={`grid-container ${styles.gridContainer} ${styles.cardsContainer}`}>
+      <div className={`grid-container ${wizardStyles.gridContainer} ${wizardStyles.wizardContainer}`}>
         <div className="grid-row">
           <div className="tablet:grid-col-2 desktop:grid-col-2" />
           <div className="tablet:grid-col-8 desktop:grid-col-8">
