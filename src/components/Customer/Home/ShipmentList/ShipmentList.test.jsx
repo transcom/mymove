@@ -15,9 +15,9 @@ function mountShipmentList(props = defaultProps) {
 describe('ShipmentList component', () => {
   it('renders ShipmentList with shipments', () => {
     const shipments = [
-      { id: '#ID-1', shipmentType: 'PPM' },
-      { id: '#ID-2', shipmentType: 'HHG' },
-      { id: '#ID-3', shipmentType: 'NTS' },
+      { id: 'ID-1', shipmentType: 'PPM' },
+      { id: 'ID-2', shipmentType: 'HHG' },
+      { id: 'ID-3', shipmentType: 'NTS' },
     ];
     const onShipmentClick = () => {};
     const props = {
