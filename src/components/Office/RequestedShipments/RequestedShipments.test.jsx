@@ -267,7 +267,7 @@ describe('RequestedShipments', () => {
 
   it('renders the button', () => {
     const wrapper = mount(requestedShipmentsComponent);
-    const approveButton = wrapper.find('#shipmentApproveButton');
+    const approveButton = wrapper.find('button[data-testid="shipmentApproveButton"]');
     expect(approveButton.exists()).toBe(true);
     expect(approveButton.text()).toContain('Approve selected shipments');
     expect(approveButton.html()).toContain('disabled=""');

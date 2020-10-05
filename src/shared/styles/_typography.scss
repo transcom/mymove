@@ -36,7 +36,8 @@ h5,
 h6,
 .usa-prose > h6 {
   @include typeset('body', 2, 3);
-  @include u-text('uppercase') @include u-text('normal');
+  @include u-text('uppercase');
+  @include u-text('normal');
 }
 p,
 .usa-prose > p {
@@ -46,17 +47,23 @@ small,
 .usa-prose > small {
   @include typeset('body', 2, 2);
 }
+
 a,
-.usa-prose > a {
-  @include u-text('no-underline');
+.usa-link,
+.usa-prose > a,
+.usa-prose .usa-link {
+  @include u-text('no-underline', $theme-link-color);
+
   &:hover,
   &.hover {
-    @include u-text('underline');
+    @include u-text('underline', $theme-link-hover-color);
   }
+
   &:visited,
   &.visited {
-    @include u-text('violet-warm-60');
+    @include u-text($theme-link-visited-color);
   }
+
   &:disabled,
   &.disabled {
     @include u-text('gray-40');
@@ -64,6 +71,7 @@ a,
       @include u-text('no-underline');
     }
   }
+
   &:focus,
   &.focus {
     @include u-outline('05', 'blue-40v');
