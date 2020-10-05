@@ -283,9 +283,7 @@ class EditShipment extends Component {
     return (
       <div className="grid-container">
         <div className={`margin-top-2 ${styles['hhg-label']}`}>{`HHG ${!!shipmentNumber && shipmentNumber}`}</div>
-        <h2 className="margin-top-1" style={{ fontSize: 28 }}>
-          When and where can the movers pick up and deliver this shipment?
-        </h2>
+        <h1 className="margin-top-1">When and where can the movers pick up and deliver this shipment?</h1>
         <Formik
           initialValues={initialValues}
           enableReinitialize

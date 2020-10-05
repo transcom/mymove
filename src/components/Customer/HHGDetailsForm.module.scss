@@ -5,12 +5,10 @@
 @import '../../shared/styles/colors';
 
 .HHGDetailsForm {
-  h3 {
-    margin-left: auto;
-    margin-right: auto;
+  h1 {
+    @include u-margin-x(auto);
     max-width: 64rem;
-    padding-left: 1rem;
-    padding-right: 1rem;
+    @include u-padding-x(2);
   }
 
   :global {

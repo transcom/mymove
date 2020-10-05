@@ -11,7 +11,7 @@ function TrailerCriteria(props) {
           {'<'} Back
         </a>
       </div>
-      <h3 className="title">Trailer Criteria</h3>
+      <h1 className="title">Trailer Criteria</h1>
       <section>
         <p>
           During your move, if you used a trailer owned by you or your spouse, you can claim its weight{' '}

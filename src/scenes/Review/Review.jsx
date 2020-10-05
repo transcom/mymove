@@ -29,7 +29,7 @@ class Review extends Component {
         >
           <div className="grid-row">
             <div className="grid-col-12 edit-title">
-              <h2 data-testid="review-move-header">Review your details</h2>
+              <h1 data-testid="review-move-header">Review your details</h1>
               <p>
                 You’re almost done setting up your move. Double-check that your information is accurate, then move on to
                 the final step.
