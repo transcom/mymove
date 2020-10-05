@@ -9,7 +9,10 @@ import { updateMove as updateMoveAction } from 'scenes/Moves/ducks';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 import { WizardPage } from 'shared/WizardPage';
-import { selectMTOShipmentsByMoveId } from 'shared/Entities/modules/mtoShipments';
+import {
+  loadMTOShipments as loadMTOShipmentsAction,
+  selectMTOShipmentsByMoveId,
+} from 'shared/Entities/modules/mtoShipments';
 
 export class SelectMoveType extends Component {
   constructor(props) {
@@ -17,6 +20,11 @@ export class SelectMoveType extends Component {
     this.state = {
       moveType: props.selectedMoveType,
     };
+  }
+
+  componentDidMount() {
+    const { loadMTOShipments, move } = this.props;
+    loadMTOShipments(move.id);
   }
 
   setMoveType = (e) => {
@@ -29,7 +37,6 @@ export class SelectMoveType extends Component {
     return updateMove(match.params.moveId, moveType);
   };
 
-  // TODO: Shipment eyebrow: fix refresh state loss
   // TODO: question PR reviewers on checked behavior
   render() {
     const { pageKey, pageList, match, push, isPpmSelectable, isHhgSelectable, shipmentNumber } = this.props;
@@ -116,6 +123,11 @@ SelectMoveType.propTypes = {
   }).isRequired,
   push: func.isRequired,
   updateMove: func.isRequired,
+  loadMTOShipments: func.isRequired,
+  move: PropTypes.shape({
+    id: string.isRequired,
+    status: string.isRequired,
+  }).isRequired,
   selectedMoveType: string.isRequired,
   isPpmSelectable: bool.isRequired,
   isHhgSelectable: bool.isRequired,
@@ -138,7 +150,7 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ updateMove: updateMoveAction }, dispatch);
+  return bindActionCreators({ updateMove: updateMoveAction, loadMTOShipments: loadMTOShipmentsAction }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SelectMoveType);
