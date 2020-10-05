@@ -6,10 +6,10 @@ import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
 import { Fieldset, Radio, Label } from '@trussworks/react-uswds';
 
-import { Form } from '../form/Form';
-import { AddressFields } from '../form/AddressFields/AddressFields';
-import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
 import { DatePickerInput, TextInput } from '../form/fields';
+import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
+import { AddressFields } from '../form/AddressFields/AddressFields';
+import { Form } from '../form/Form';
 
 import styles from './HHGDetailsForm.module.scss';
 
@@ -236,7 +236,7 @@ class HHGDetailsForm extends Component {
             push={push}
             handleSubmit={() => this.submitMTOShipment(values, dirty)}
           >
-            <h3>Now lets arrange details for the professional movers</h3>
+            <h1>Now lets arrange details for the professional movers</h1>
             <Form className={styles.HHGDetailsForm}>
               <Fieldset legend="Pickup date" className={fieldsetClasses}>
                 <Field

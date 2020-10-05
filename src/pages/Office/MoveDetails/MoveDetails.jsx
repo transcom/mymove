@@ -202,6 +202,7 @@ export class MoveDetails extends Component {
                   allowancesInfo={allowancesInfo}
                   customerInfo={customerInfo}
                   mtoAgents={mtoAgents}
+                  mtoServiceItems={mtoServiceItems}
                   shipmentsStatus="SUBMITTED"
                   approveMTO={updateMoveTaskOrderStatus}
                   approveMTOShipment={patchMTOShipmentStatus}

@@ -16,8 +16,7 @@ import {
 } from 'types/moveOrder';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { ReactComponent as FormCheckmarkIcon } from 'shared/icon/form-checkmark.svg';
-import { ReactComponent as XHeavyIcon } from 'shared/icon/x-heavy.svg';
-import { formatDate } from 'shared/dates';
+import { formatDateFromIso } from 'shared/formatters';
 
 const RequestedShipments = ({
   mtoShipments,
@@ -45,28 +44,30 @@ const RequestedShipments = ({
       shipments: [],
     },
     onSubmit: (values, { setSubmitting }) => {
-      const mtoApprovalServiceItemCodes = [];
-      if (values.shipmentManagementFee) {
-        mtoApprovalServiceItemCodes.push('MS');
-      }
-      if (values.counselingFee) {
-        mtoApprovalServiceItemCodes.push('CS');
-      }
-      Promise.all([
+      const requests = [
         Promise.all(
           filteredShipments.map((shipment) =>
             approveMTOShipment(moveTaskOrder.id, shipment.id, 'APPROVED', shipment.eTag),
           ),
         ),
-        approveMTO(moveTaskOrder.id, moveTaskOrder.eTag, mtoApprovalServiceItemCodes),
-      ])
+      ];
+      const mtoApprovalServiceItemCodes = {
+        serviceCodeMS: values.shipmentManagementFee,
+        serviceCodeCS: values.counselingFee,
+      };
+
+      // if mto is not yet approved, add request to approve it
+      if (!moveTaskOrder.availableToPrimeAt) {
+        requests.push(approveMTO(moveTaskOrder.id, moveTaskOrder.eTag, mtoApprovalServiceItemCodes));
+      }
+
+      Promise.all(requests)
         .then((results) => {
-          if (
-            results[1].response.status === 200 &&
-            results[0].every((shipmentResult) => shipmentResult.response.status === 200)
-          ) {
-            // TODO: We will need to change this so that it goes to the MoveTaskOrder view when we're implementing the success UI element in a later story.
-            window.location.reload();
+          if (results[0].every((shipmentResult) => shipmentResult.response.status === 200)) {
+            if (results[1]?.response?.status === 200) {
+              // TODO: We will need to change this so that it goes to the MoveTaskOrder view when we're implementing the success UI element in a later story.
+              window.location.reload();
+            }
           }
         })
         .catch(() => {
@@ -81,8 +82,11 @@ const RequestedShipments = ({
     setIsModalVisible(true);
   };
 
-  const isButtonEnabled =
-    formik.values.shipments.length > 0 && (formik.values.counselingFee || formik.values.shipmentManagementFee);
+  // if showing service items, enable button when shipment and service item are selected
+  // if not showing service items, enable button if a shipment is selected
+  const isButtonEnabled = moveTaskOrder.availableToPrimeAt
+    ? formik.values.shipments.length > 0
+    : formik.values.shipments.length > 0 && (formik.values.counselingFee || formik.values.shipmentManagementFee);
 
   // eslint-disable-next-line camelcase
   const dutyStationPostal = { postal_code: ordersInfo.newDutyStation?.address?.postal_code };
@@ -128,23 +132,27 @@ const RequestedShipments = ({
             </div>
 
             <div className={styles.serviceItems}>
-              <h4>Add service items to this move</h4>
-              <Fieldset legend="MTO service items" legendSrOnly id="input-type-fieldset">
-                <Checkbox
-                  id="shipmentManagementFee"
-                  label="Shipment management fee"
-                  name="shipmentManagementFee"
-                  onChange={formik.handleChange}
-                />
-                <Checkbox
-                  id="counselingFee"
-                  label="Counseling fee"
-                  name="counselingFee"
-                  onChange={formik.handleChange}
-                />
-              </Fieldset>
+              {!moveTaskOrder.availableToPrimeAt && (
+                <>
+                  <h4>Add service items to this move</h4>
+                  <Fieldset legend="MTO service items" legendSrOnly id="input-type-fieldset">
+                    <Checkbox
+                      id="shipmentManagementFee"
+                      label="Shipment management fee"
+                      name="shipmentManagementFee"
+                      onChange={formik.handleChange}
+                    />
+                    <Checkbox
+                      id="counselingFee"
+                      label="Counseling fee"
+                      name="counselingFee"
+                      onChange={formik.handleChange}
+                    />
+                  </Fieldset>
+                </>
+              )}
               <Button
-                id="shipmentApproveButton"
+                data-testid="shipmentApproveButton"
                 className={styles.approveButton}
                 onClick={handleReviewClick}
                 type="button"
@@ -195,18 +203,12 @@ const RequestedShipments = ({
                   .filter((serviceItem) => serviceItem.reServiceCode === 'MS' || serviceItem.reServiceCode === 'CS')
                   .map((serviceItem) => (
                     <tr key={serviceItem.id}>
-                      <td>{serviceItem.reServiceName}</td>
-                      <td>
+                      <td data-testid="basicServiceItemName">{serviceItem.reServiceName}</td>
+                      <td data-testid="basicServiceItemDate">
                         {serviceItem.status === 'APPROVED' && (
                           <span>
                             <FormCheckmarkIcon className={styles.serviceItemApproval} />{' '}
-                            {formatDate(serviceItem.approvedAt, 'DD MMM YYYY')}
-                          </span>
-                        )}
-                        {serviceItem.status === 'REJECTED' && (
-                          <span>
-                            <XHeavyIcon className={styles.serviceItemRejection} />{' '}
-                            {formatDate(serviceItem.rejectedAt, 'DD MMM YYYY')}
+                            {formatDateFromIso(serviceItem.approvedAt, 'DD MMM YYYY')}
                           </span>
                         )}
                       </td>

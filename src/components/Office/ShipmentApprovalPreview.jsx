@@ -37,7 +37,7 @@ const ShipmentApprovalPreview = ({
     <div>
       <Overlay />
       <ModalContainer>
-        <Modal className={classNames(styles.approvalPreviewModal, 'padding-4 overflow-y-auto maxh-viewport')}>
+        <Modal className={classNames('modal', styles.approvalPreviewModal)}>
           <div className={classNames(styles.containerTop)}>
             <div>
               <button
@@ -134,21 +134,25 @@ const ShipmentApprovalPreview = ({
           </div>
           <div className={classNames(styles.previewContainer, 'container')}>
             <h2>Basic move details</h2>
-            <h4 className={classNames(styles.tableH4)}>Approved service items for this move</h4>
-            <table className="table--stacked">
-              <tbody>
-                {shipmentManagementFee && (
-                  <tr>
-                    <td>Shipment management fee</td>
-                  </tr>
-                )}
-                {counselingFee && (
-                  <tr>
-                    <td>Counseling fee</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+            {(shipmentManagementFee || counselingFee) && (
+              <>
+                <h4 className={classNames(styles.tableH4)}>Approved service items for this move</h4>
+                <table className="table--stacked">
+                  <tbody>
+                    {shipmentManagementFee && (
+                      <tr>
+                        <td>Shipment management fee</td>
+                      </tr>
+                    )}
+                    {counselingFee && (
+                      <tr>
+                        <td>Counseling fee</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </>
+            )}
             <AllowancesTable info={allowancesInfo} />
             <CustomerInfoTable customerInfo={customerInfo} />
           </div>
