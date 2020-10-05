@@ -99,7 +99,7 @@ export class SignedCertification extends Component {
             >
               <div className="usa-width-one-whole">
                 <div>
-                  <h2>Now for the official part...</h2>
+                  <h1>Now for the official part...</h1>
                   <span className="box_top">
                     <p className="instructions">
                       Before officially booking your move, please carefully read and then sign the following.
