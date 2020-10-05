@@ -7,6 +7,7 @@ import styles from '../ShipmentCard.module.scss';
 
 import hhgShipmentCardStyles from './HHGShipmentCard.module.scss';
 
+import { formatCustomerDestination } from 'utils/shipmentDisplay';
 import ShipmentContainer from 'components/Office/ShipmentContainer';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatCustomerDate } from 'utils/formatters';
@@ -75,17 +76,7 @@ const HHGShipmentCard = ({
           </div>
           <div className={styles.row}>
             <dt>Destination</dt>
-            <dd>
-              {destinationLocation ? (
-                <>
-                  {destinationLocation.street_address_1} {destinationLocation.street_address_2}
-                  <br />
-                  {destinationLocation.city}, {destinationLocation.state} {destinationLocation.postal_code}
-                </>
-              ) : (
-                destinationZIP
-              )}
-            </dd>
+            <dd>{formatCustomerDestination(destinationLocation, destinationZIP)}</dd>
           </div>
           {receivingAgent && (
             <div className={styles.row}>

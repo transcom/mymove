@@ -1,6 +1,6 @@
 import { mount } from 'enzyme';
 
-import formatAddress from './shipmentDisplay';
+import { formatAddress, formatCustomerDestination } from './shipmentDisplay';
 
 describe('shipmentDisplay utils', () => {
   describe('formatAddress', () => {
@@ -38,6 +38,13 @@ describe('shipmentDisplay utils', () => {
       it('omits city and state', () => {
         expect(component.text()).toEqual('34747');
       });
+    });
+  });
+  describe('formatDestination', () => {
+    it('shows entire address', () => {});
+
+    it('shows postalCode if address is not provided', () => {
+      expect(formatCustomerDestination(null, '11111')).toBe('11111');
     });
   });
 });

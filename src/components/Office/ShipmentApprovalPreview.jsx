@@ -5,7 +5,7 @@ import classNames from 'classnames';
 
 import { mtoShipmentTypeToFriendlyDisplay } from '../../shared/formatters';
 import { MTOAgentShape, MTOShipmentShape, OrdersInfoShape } from '../../types/moveOrder';
-import formatAddress from '../../utils/shipmentDisplay';
+import { formatAddress } from '../../utils/shipmentDisplay';
 
 import styles from './shipmentApprovalPreview.module.scss';
 import AllowancesTable from './AllowancesTable';
