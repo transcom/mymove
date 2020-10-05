@@ -68,7 +68,7 @@ export class Summary extends Component {
   }
 
   renderShipments = () => {
-    const { currentOrders, match } = this.props;
+    const { currentOrders, currentMove, match } = this.props;
     let hhgShipmentNumber = 1;
     return this.getSortedShipments.map((shipment) => {
       let receivingAgent;
@@ -97,6 +97,8 @@ export class Summary extends Component {
         <HHGShipmentCard
           destinationZIP={currentOrders.new_duty_station.address.postal_code}
           destinationLocation={shipment?.destinationAddress}
+          editPath={`/moves/${currentMove.id}/mto-shipments/${shipment.id}/edit-shipment?shipmentNumber=${hhgShipmentNumber}`}
+          onEditClick={this.handleEditClick}
           pickupLocation={shipment.pickupAddress}
           receivingAgent={receivingAgent}
           releasingAgent={releasingAgent}

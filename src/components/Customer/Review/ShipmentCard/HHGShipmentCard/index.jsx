@@ -1,5 +1,5 @@
 import React from 'react';
-import { string, shape, number } from 'prop-types';
+import { string, shape, number, func } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
 import { AddressShape } from '../../../../../types/address';
@@ -13,15 +13,17 @@ import { formatCustomerDate } from 'shared/utils';
 
 const HHGShipmentCard = ({
   destinationLocation,
-  shipmentNumber,
-  shipmentId,
-  requestedPickupDate,
-  pickupLocation,
-  releasingAgent,
-  requestedDeliveryDate,
   destinationZIP,
+  editPath,
+  onEditClick,
+  pickupLocation,
   receivingAgent,
+  releasingAgent,
   remarks,
+  requestedDeliveryDate,
+  requestedPickupDate,
+  shipmentId,
+  shipmentNumber,
 }) => {
   return (
     <div className={styles.ShipmentCard} data-testid="shipment-display">
@@ -31,7 +33,7 @@ const HHGShipmentCard = ({
             <h3>HHG {shipmentNumber}</h3>
             <p>{shipmentId.substring(0, 10)}</p>
           </div>
-          <Button className={styles.editBtn} onClick={() => {}} unstyled>
+          <Button className={styles.editBtn} onClick={() => onEditClick(editPath)} unstyled>
             Edit
           </Button>
         </div>
@@ -116,6 +118,7 @@ const HHGShipmentCard = ({
 };
 
 HHGShipmentCard.propTypes = {
+  editPath: string.isRequired,
   shipmentNumber: number.isRequired,
   shipmentId: string.isRequired,
   requestedPickupDate: string.isRequired,
@@ -129,6 +132,7 @@ HHGShipmentCard.propTypes = {
   }),
   requestedDeliveryDate: string.isRequired,
   destinationZIP: string.isRequired,
+  onEditClick: func.isRequired,
   receivingAgent: shape({
     firstName: string,
     lastName: string,
