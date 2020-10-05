@@ -32,7 +32,7 @@ import Review from 'pages/MyMove/Review';
 
 const PageNotInFlow = ({ location }) => (
   <div className="usa-grid">
-    <h3>Missing Context</h3>
+    <h1>Missing Context</h1>
     You are trying to load a page that the system does not have context for. Please go to the home page and try again.
   </div>
 );

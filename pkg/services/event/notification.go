@@ -275,7 +275,8 @@ func NotificationEventHandler(event *Event) error {
 	} else if !stored {
 		event.logger.Info("event.NotificationEventHandler: No notification needed to be created.")
 	} else {
-		event.logger.Info("event.NotificationEventHandler: Notification created and stored.")
+		msg := fmt.Sprintf("event.NotificationEventHandler: Notification stored for %s event triggered by %s endpoint.", event.EventKey, event.EndpointKey)
+		event.logger.Info(msg)
 	}
 
 	return nil
