@@ -23,12 +23,12 @@ import MovingInfo from 'pages/MyMove/MovingInfo';
 
 import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
-import Review from 'scenes/Review/Review';
 import Agreement from 'scenes/Legalese';
 
 import HHGShipmentSetup from 'pages/MyMove/HHGShipmentSetup';
 import Orders from 'pages/MyMove/Orders';
 import UploadOrders from 'pages/MyMove/UploadOrders';
+import Review from 'pages/MyMove/Review';
 
 const PageNotInFlow = ({ location }) => (
   <div className="usa-grid">

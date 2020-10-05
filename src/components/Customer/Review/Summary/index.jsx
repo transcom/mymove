@@ -1,55 +1,50 @@
-/* eslint-ignore */
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { get } from 'lodash';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import PropTypes from 'prop-types';
+import { arrayOf, func, shape, bool, string } from 'prop-types';
 import moment from 'moment';
 import { Button } from '@trussworks/react-uswds';
 
+import { checkEntitlement } from 'scenes/Review/ducks';
+// eslint-disable-next-line import/no-named-as-default
+import PPMShipmentSummary from 'scenes/Review/PPMShipmentSummary';
+import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import { loadMove, selectMove } from 'shared/Entities/modules/moves';
 import { selectActiveOrLatestOrdersFromEntities, selectUploadsForActiveOrders } from 'shared/Entities/modules/orders';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
-
-import { moveIsApproved, lastMoveIsCanceled } from 'scenes/Moves/ducks';
+import { SHIPMENT_OPTIONS, titleCase } from 'shared/constants';
+import {
+  moveIsApproved as selectMoveIsApproved,
+  lastMoveIsCanceled,
+  selectedMoveType as selectMoveType,
+} from 'scenes/Moves/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatOrderType } from 'shared/utils';
 import Alert from 'shared/Alert';
-import { titleCase } from 'shared/constants.js';
-import { selectedMoveType as selectMoveType } from 'scenes/Moves/ducks';
-
-import { checkEntitlement } from './ducks';
-import PPMShipmentSummary from './PPMShipmentSummary';
 import ProfileTable from 'components/Customer/Review/ProfileTable';
 import OrdersTable from 'components/Customer/Review/OrdersTable';
 import PPMShipmentCard from 'components/Customer/Review/ShipmentCard/PPMShipmentCard';
 import HHGShipmentCard from 'components/Customer/Review/ShipmentCard/HHGShipmentCard';
-
-import './Review.css';
-import { selectActivePPMForMove } from '../../shared/Entities/modules/ppms';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { selectMTOShipmentsByMoveId } from 'shared/Entities/modules/mtoShipments';
 
 export class Summary extends Component {
   componentDidMount() {
-    if (this.props.onDidMount) {
-      this.props.onDidMount(this.props.serviceMember.id);
-    }
-  }
-  componentDidUpdate(prevProps) {
-    const { selectedMoveType } = this.props;
-    const hhgMove = !Object.keys(prevProps.currentPPM).length && !Object.keys(this.props.currentPPM).length;
-    // Only check entitlement for PPMs, not HHGs
-    if (prevProps.currentPPM !== this.props.currentPPM && !hhgMove && selectedMoveType === SHIPMENT_OPTIONS.PPM) {
-      this.props.onCheckEntitlement(this.props.match.params.moveId);
+    const { onDidMount, serviceMember } = this.props;
+    if (onDidMount) {
+      onDidMount(serviceMember.id);
     }
   }
 
-  handleEditClick = (path) => {
-    const { history } = this.props;
-    history.push(path);
-  };
+  componentDidUpdate(prevProps) {
+    const { currentPPM, selectedMoveType, onCheckEntitlement, match } = this.props;
+    const hhgMove = !Object.keys(prevProps.currentPPM).length && !Object.keys(currentPPM).length;
+    // Only check entitlement for PPMs, not HHGs
+    if (prevProps.currentPPM !== currentPPM && !hhgMove && selectedMoveType === SHIPMENT_OPTIONS.PPM) {
+      onCheckEntitlement(match.params.moveId);
+    }
+  }
 
   get getSortedShipments() {
     const { currentPPM, mtoShipments } = this.props;
@@ -67,9 +62,14 @@ export class Summary extends Component {
     return sortedShipments.sort((a, b) => moment(a.createdAt) - moment(b.createdAt));
   }
 
+  handleEditClick = (path) => {
+    const { history } = this.props;
+    history.push(path);
+  };
+
   renderShipments = () => {
     const { currentOrders, currentMove, match } = this.props;
-    let hhgShipmentNumber = 1;
+    let hhgShipmentNumber = 0;
     return this.getSortedShipments.map((shipment) => {
       let receivingAgent;
       let releasingAgent;
@@ -89,10 +89,11 @@ export class Summary extends Component {
       }
 
       if (shipment.agents) {
-        receivingAgent = shipment.agents.find((agent) => (agent.agentType = 'RECEIVING_AGENT'));
-        releasingAgent = shipment.agents.find((agent) => (agent.agentType = 'RELEASING_AGENT'));
+        receivingAgent = shipment.agents.find((agent) => agent.agentType === 'RECEIVING_AGENT');
+        releasingAgent = shipment.agents.find((agent) => agent.agentType === 'RELEASING_AGENT');
       }
 
+      hhgShipmentNumber += 1;
       return (
         <HHGShipmentCard
           destinationZIP={currentOrders.new_duty_station.address.postal_code}
@@ -106,7 +107,7 @@ export class Summary extends Component {
           requestedDeliveryDate={shipment.requestedDeliveryDate}
           requestedPickupDate={shipment.requestedPickupDate}
           shipmentId={shipment.id}
-          shipmentNumber={hhgShipmentNumber++}
+          shipmentNumber={hhgShipmentNumber}
         />
       );
     });
@@ -115,25 +116,26 @@ export class Summary extends Component {
   render() {
     const {
       currentMove,
-      currentPPM,
-      mtoShipments,
       currentOrders,
-      moveIsApproved,
-      serviceMember,
+      currentPPM,
       entitlement,
-      match,
       history,
+      match,
+      moveIsApproved,
+      mtoShipments,
+      serviceMember,
+      reviewState,
     } = this.props;
     const currentStation = get(serviceMember, 'current_station');
     const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
 
     const rootAddressWithMoveId = `/moves/${match.params.moveId}`;
-    const rootReviewAddressWithMoveId = rootAddressWithMoveId + `/review`;
+    const rootReviewAddressWithMoveId = `${rootAddressWithMoveId}/review`;
 
     // isReviewPage being false is the same thing as being in the /edit route
     const isReviewPage = rootReviewAddressWithMoveId === match.url;
-    const editSuccessBlurb = this.props.reviewState.editSuccess ? 'Your changes have been saved. ' : '';
-    const editOrdersPath = rootReviewAddressWithMoveId + '/edit-orders';
+    const editSuccessBlurb = reviewState.editSuccess ? 'Your changes have been saved. ' : '';
+    const editOrdersPath = `${rootReviewAddressWithMoveId}/edit-orders`;
 
     const showPPMShipmentSummary = !isReviewPage && Object.keys(currentPPM).length && currentPPM.status !== 'DRAFT';
     const showHHGShipmentSummary = isReviewPage && !!mtoShipments.length;
@@ -142,24 +144,20 @@ export class Summary extends Component {
     const showMoveSetup = showPPMShipmentSummary || showHHGShipmentSummary;
     const shipmentSelectionPath = `/moves/${currentMove.id}/select-type`;
     return (
-      <Fragment>
-        {get(this.props.reviewState.error, 'statusCode', false) === 409 && (
-          <Alert type="warning" heading={editSuccessBlurb + 'Your estimated weight is above your entitlement.'}>
-            {titleCase(this.props.reviewState.error.response.body.message)}.
+      <>
+        {get(reviewState.error, 'statusCode', false) === 409 && (
+          <Alert type="warning" heading={`${editSuccessBlurb}Your estimated weight is above your entitlement.`}>
+            {titleCase(reviewState.error.response.body.message)}.
           </Alert>
         )}
-        {this.props.reviewState.editSuccess &&
-          !this.props.reviewState.entitlementChange &&
-          get(this.props.reviewState.error, 'statusCode', false) === false && (
-            <Alert type="success" heading={editSuccessBlurb} />
-          )}
-        {currentMove &&
-          this.props.reviewState.entitlementChange &&
-          get(this.props.reviewState.error, 'statusCode', false) === false && (
-            <Alert type="info" heading={editSuccessBlurb + 'Note that the entitlement has also changed.'}>
-              Your weight entitlement is now {entitlement.sum.toLocaleString()} lbs.
-            </Alert>
-          )}
+        {reviewState.editSuccess &&
+          !reviewState.entitlementChange &&
+          get(reviewState.error, 'statusCode', false) === false && <Alert type="success" heading={editSuccessBlurb} />}
+        {currentMove && reviewState.entitlementChange && get(reviewState.error, 'statusCode', false) === false && (
+          <Alert type="info" heading={`${editSuccessBlurb}Note that the entitlement has also changed.`}>
+            Your weight entitlement is now {entitlement.sum.toLocaleString()} lbs.
+          </Alert>
+        )}
         <ProfileTable
           affiliation={serviceMember.affiliation}
           city={serviceMember.residential_address.city}
@@ -209,23 +207,33 @@ export class Summary extends Component {
             {stationPhone ? ` at ${stationPhone}` : ''}.
           </div>
         )}
-      </Fragment>
+      </>
     );
   }
 }
 
 Summary.propTypes = {
-  currentBackupContacts: PropTypes.array,
-  getCurrentMove: PropTypes.func,
-  currentOrders: PropTypes.object,
-  currentPPM: PropTypes.object,
-  schemaRank: PropTypes.object,
-  schemaOrdersType: PropTypes.object,
-  moveIsApproved: PropTypes.bool,
-  lastMoveIsCanceled: PropTypes.bool,
-  error: PropTypes.object,
-  selectedMoveType: PropTypes.string.isRequired,
-  showLoggedInUser: PropTypes.func.isRequired,
+  currentMove: shape({ id: string.isRequired }).isRequired,
+  currentOrders: shape({}).isRequired,
+  currentPPM: shape({}).isRequired,
+  history: shape({ push: func.isRequired }).isRequired,
+  match: shape({ params: shape({ moveId: string.isRequired }) }).isRequired,
+  moveIsApproved: bool.isRequired,
+  mtoShipments: arrayOf(shape({})).isRequired,
+  onCheckEntitlement: func.isRequired,
+  onDidMount: func.isRequired,
+  selectedMoveType: string.isRequired,
+  serviceMember: shape({ id: string.isRequired }).isRequired,
+  entitlement: shape({}).isRequired,
+  reviewState: shape({
+    editSuccess: bool,
+    entitlementChange: bool,
+    error: bool.isRequired,
+  }),
+};
+
+Summary.defaultProps = {
+  reviewState: {},
 };
 
 function mapStateToProps(state, ownProps) {
@@ -237,14 +245,13 @@ function mapStateToProps(state, ownProps) {
     mtoShipments: selectMTOShipmentsByMoveId(state, moveID),
     serviceMember: state.serviceMember.currentServiceMember,
     currentMove: selectMove(state, moveID),
-    currentBackupContacts: state.serviceMember.currentBackupContacts,
-    currentOrders: currentOrders,
+    currentOrders,
     uploads: selectUploadsForActiveOrders(state),
     selectedMoveType: selectMoveType(state),
     schemaRank: getInternalSwaggerDefinition(state, 'ServiceMemberRank'),
     schemaOrdersType: getInternalSwaggerDefinition(state, 'OrdersType'),
     schemaAffiliation: getInternalSwaggerDefinition(state, 'Affiliation'),
-    moveIsApproved: moveIsApproved(state),
+    moveIsApproved: selectMoveIsApproved(state),
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     reviewState: state.review,
     entitlement: loadEntitlementsFromState(state),
@@ -252,7 +259,7 @@ function mapStateToProps(state, ownProps) {
 }
 function mapDispatchToProps(dispatch, ownProps) {
   return {
-    onDidMount: function () {
+    onDidMount() {
       const moveID = ownProps.match.params.moveId;
       dispatch(loadMove(moveID, 'Summary.getMove'));
       dispatch(showLoggedInUserAction());

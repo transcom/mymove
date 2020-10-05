@@ -2,7 +2,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import { Summary } from './Summary';
+import { Summary } from '.';
 
 const defaultProps = {
   serviceMember: {
@@ -82,7 +82,7 @@ describe('Summary page', () => {
     expect(wrapper.containsMatchingElement(<h3>Add another shipment</h3>)).toBe(true);
   });
   it('add shipment button exists', () => {
-    let btn = wrapper.find('.usa-button--secondary');
+    const btn = wrapper.find('.usa-button--secondary');
     expect(btn.text()).toBe('<u />');
   });
 });
