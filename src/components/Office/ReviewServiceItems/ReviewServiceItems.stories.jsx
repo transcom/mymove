@@ -18,9 +18,6 @@ export default {
       <div style={{ margin: '10px', height: '80vh', display: 'flex', flexDirection: 'column' }}>{storyFn()}</div>
     ),
   ],
-  parameters: {
-    loki: { skip: true },
-  },
 };
 
 const pendingPaymentRequest = { status: PAYMENT_REQUEST_STATUS.PENDING };
@@ -217,14 +214,6 @@ export const WithNeedsReview = () => (
   />
 );
 
-WithNeedsReview.story = {
-  parameters: {
-    loki: {
-      skip: true,
-    },
-  },
-};
-
 export const WithRejectRequest = () => (
   <ReviewServiceItems
     disableScrollIntoView
@@ -244,14 +233,6 @@ export const WithRejectRequest = () => (
   />
 );
 
-WithRejectRequest.story = {
-  parameters: {
-    loki: {
-      skip: true,
-    },
-  },
-};
-
 export const WithAuthorizePayment = () => (
   <ReviewServiceItems
     disableScrollIntoView
@@ -270,14 +251,6 @@ export const WithAuthorizePayment = () => (
     patchPaymentServiceItem={action('patchPaymentServiceItem')}
   />
 );
-
-WithAuthorizePayment.story = {
-  parameters: {
-    loki: {
-      skip: true,
-    },
-  },
-};
 
 export const WithPaymentReviewedApproved = () => (
   <ReviewServiceItems

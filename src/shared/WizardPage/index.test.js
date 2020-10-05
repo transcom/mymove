@@ -14,6 +14,14 @@ describe('given a WizardPage', () => {
     pageKey: '1',
   };
 
+  const middleFlowProps = {
+    handleSubmit: jest.fn(),
+    pageList: ['1', '2', '3'],
+    pageKey: '2',
+    push: { mockPush },
+    match: {},
+  };
+
   describe('Component renders', () => {
     expect(shallow(<WizardPage {...minProps} />).length).toEqual(1);
   });
@@ -32,11 +40,9 @@ describe('given a WizardPage', () => {
             );
           });
 
-          it('it renders buttons for cancel and next', () => {
+          it('it renders buttons for next', () => {
             const nextButton = wrapper.find('[data-testid="wizardNextButton"]');
             expect(nextButton.text()).toBe('Next');
-            const cancelButton = wrapper.find('[data-testid="wizardCancelButton"]');
-            expect(cancelButton.text()).toBe('Cancel');
           });
 
           it('does not render a back button', () => {
@@ -61,9 +67,7 @@ describe('given a WizardPage', () => {
             );
           });
 
-          it('it renders buttons for cancel, back, and complete', () => {
-            const cancelButton = wrapper.find('[data-testid="wizardCancelButton"]');
-            expect(cancelButton.text()).toBe('Cancel');
+          it('it renders buttons for back and complete', () => {
             const backButton = wrapper.find('[data-testid="wizardBackButton"]');
             expect(backButton.text()).toBe('Back');
             const completeButton = wrapper.find('[data-testid="wizardCompleteButton"]');
@@ -124,11 +128,9 @@ describe('given a WizardPage', () => {
           expect(childContainer.first().text()).toBe('<Alert />');
         });
 
-        it('it renders button for cancel, back, next', () => {
+        it('it renders button for back, next', () => {
           const nextButton = wrapper.find('[data-testid="wizardNextButton"]');
           expect(nextButton.text()).toBe('Next');
-          const cancelButton = wrapper.find('[data-testid="wizardCancelButton"]');
-          expect(cancelButton.text()).toBe('Cancel');
           const backButton = wrapper.find('[data-testid="wizardBackButton"]');
           expect(backButton.text()).toBe('Back');
         });
@@ -136,11 +138,6 @@ describe('given a WizardPage', () => {
         it('does not render a complete button', () => {
           const completeButton = wrapper.find('[data-testid="wizardCompleteButton"]');
           expect(completeButton.exists()).toBe(false);
-        });
-
-        it('the cancel button is enabled', () => {
-          const cancelButton = wrapper.find('[data-testid="wizardCancelButton"]');
-          expect(cancelButton.prop('disabled')).toBe(false);
         });
 
         it('the back button is enabled', () => {
@@ -182,10 +179,6 @@ describe('given a WizardPage', () => {
           expect(submit.mock.calls.length).toBe(0);
         });
       });
-      it('the cancel button is enabled', () => {
-        const cancelButton = wrapper.find('[data-testid="wizardCancelButton"]');
-        expect(cancelButton.prop('disabled')).toBe(false);
-      });
       it('the next button is enabled', () => {
         const nextButton = wrapper.find('[data-testid="wizardNextButton"]');
         expect(nextButton.prop('disabled')).toBeFalsy();
@@ -217,16 +210,9 @@ describe('given a WizardPage', () => {
       it('it starts on the first page', () => {
         expect(wrapper.children().first().text()).toBe('This is page 1');
       });
-      it('it renders button for cancel and next', () => {
+      it('it renders button for next', () => {
         const nextButton = wrapper.find('[data-testid="wizardNextButton"]');
         expect(nextButton.text()).toBe('Next');
-        const cancelButton = wrapper.find('[data-testid="wizardCancelButton"]');
-        expect(cancelButton.text()).toBe('Cancel');
-      });
-
-      it('the cancel button is enabled', () => {
-        const cancelButton = wrapper.find('[data-testid="wizardCancelButton"]');
-        expect(cancelButton.prop('disabled')).toBe(false);
       });
       it('the next button is enabled', () => {
         const nextButton = wrapper.find('[data-testid="wizardNextButton"]');
@@ -257,11 +243,9 @@ describe('given a WizardPage', () => {
       it('it shows its child', () => {
         expect(wrapper.children().first().text()).toBe('This is page 2');
       });
-      it('it renders button for cancel, back, next', () => {
+      it('it renders button for back, next', () => {
         const nextButton = wrapper.find('[data-testid="wizardNextButton"]');
         expect(nextButton.text()).toBe('Next');
-        const cancelButton = wrapper.find('[data-testid="wizardCancelButton"]');
-        expect(cancelButton.text()).toBe('Cancel');
         const backButton = wrapper.find('[data-testid="wizardBackButton"]');
         expect(backButton.text()).toBe('Back');
       });
@@ -279,10 +263,6 @@ describe('given a WizardPage', () => {
           expect(mockPush.mock.calls.length).toBe(1);
           expect(mockPush.mock.calls[0][0]).toBe('1');
         });
-      });
-      it('the cancel button is enabled', () => {
-        const cancelButton = wrapper.find('[data-testid="wizardCancelButton"]');
-        expect(cancelButton.prop('disabled')).toBe(false);
       });
       it('the next button is enabled', () => {
         const nextButton = wrapper.find('[data-testid="wizardNextButton"]');
@@ -316,11 +296,9 @@ describe('given a WizardPage', () => {
       it('it shows its child', () => {
         expect(wrapper.children().first().text()).toBe('This is page 3');
       });
-      it('it renders button for cancel, back, and complete', () => {
+      it('it renders button for back and complete', () => {
         const completeButton = wrapper.find('[data-testid="wizardCompleteButton"]');
         expect(completeButton.text()).toBe('Complete');
-        const cancelButton = wrapper.find('[data-testid="wizardCancelButton"]');
-        expect(cancelButton.text()).toBe('Cancel');
         const backButton = wrapper.find('[data-testid="wizardBackButton"]');
         expect(backButton.text()).toBe('Back');
       });
@@ -338,10 +316,6 @@ describe('given a WizardPage', () => {
           expect(mockPush.mock.calls.length).toBe(1);
           expect(mockPush.mock.calls[0][0]).toBe('2');
         });
-      });
-      it('the cancel button is enabled', () => {
-        const cancelButton = wrapper.find('[data-testid="wizardCancelButton"]');
-        expect(cancelButton.prop('disabled')).toBe(false);
       });
       it('the Complete button is enabled', () => {
         const completeButton = wrapper.find('[data-testid="wizardCompleteButton"]');
@@ -395,6 +369,18 @@ describe('given a WizardPage', () => {
       wrapper = shallow(<WizardPage {...minProps} canMoveNext={false} />);
       const nextButton = wrapper.find('[data-testid="wizardNextButton"]');
       expect(nextButton.prop('disabled')).toEqual(true);
+    });
+  });
+  describe('when optional buttons are toggled prop', () => {
+    describe('when hideBackBtn is true on middle page', () => {
+      wrapper = shallow(<WizardPage {...middleFlowProps} hideBackBtn />);
+      const backButton = wrapper.find('[data-testid="wizardBackButton"]');
+      expect(backButton.exists()).toBe(false);
+    });
+    describe('when showFinishLaterBtn is true', () => {
+      wrapper = shallow(<WizardPage {...middleFlowProps} showFinishLaterBtn />);
+      const finishLaterBtn = wrapper.find('[data-testid="wizardFinishLaterButton"]');
+      expect(finishLaterBtn.prop('disabled')).toEqual(false);
     });
   });
 });

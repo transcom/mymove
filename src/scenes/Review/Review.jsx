@@ -24,6 +24,8 @@ class Review extends Component {
           pageKey={pageKey}
           pageIsValid={true}
           canMoveNext={this.props.canMoveNext}
+          hideBackBtn
+          showFinishLaterBtn
         >
           <div className="grid-row">
             <div className="grid-col-12 edit-title">

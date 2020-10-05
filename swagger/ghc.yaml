@@ -417,56 +417,6 @@ paths:
       description: Gets all line items for a move orders
       operationId: listMTOServiceItems
       summary: Gets all line items for a move order
-    post:
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - description: ID of move order to use
-          in: path
-          name: moveTaskOrderID
-          required: true
-          format: uuid
-          type: string
-        - description: ID of the rate engine services
-          in: body
-          name: createMTOServiceItemBody
-          required: true
-          schema:
-            type: object
-            required:
-              - reServiceID
-              - mtoShipmentID
-            properties:
-              reServiceID:
-                format: uuid
-                type: string
-              mtoShipmentID:
-                format: uuid
-                type: string
-      responses:
-        '201':
-          description: Successfully created service item for move task order
-          schema:
-            $ref: '#/definitions/MTOServiceItem'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/definitions/ClientError'
-        '422':
-          description: Validation error
-          schema:
-            $ref: '#/definitions/ValidationError'
-        '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
-      tags:
-        - mtoServiceItem
-      description: Creates a service item for a move order by id
-      operationId: createMTOServiceItem
-      summary: Creates a service item for a move order by id
   '/move_task_orders/{moveTaskOrderID}/mto_shipments':
     parameters:
       - description: ID of move task order for mto shipment to use
@@ -2291,14 +2241,15 @@ definitions:
     items:
       $ref: '#/definitions/MTOServiceItemCustomerContact'
   MTOApprovalServiceItemCodes:
-    type: array
-    items:
-      $ref: '#/definitions/MTOApprovalServiceItemCode'
-  MTOApprovalServiceItemCode:
-    enum:
-      - MS
-      - CS
-    type: string
+    description: MTO level service items to create when updating MTO status.
+    properties:
+      serviceCodeCS:
+        example: true
+        type: boolean
+      serviceCodeMS:
+        example: true
+        type: boolean
+    type: object
   UpdatePaymentRequestPayload:
     properties:
       proofOfServicePackage:

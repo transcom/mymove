@@ -170,7 +170,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 
 	if !msOrCsOnly(paymentServiceItems) {
 		var g62Segments []edisegment.Segment
-		g62Segments, err = g.createG62Segments(paymentRequest.ID, moveTaskOrder.Orders)
+		g62Segments, err = g.createG62Segments(paymentRequest.ID)
 		if err != nil {
 			return ediinvoice.Invoice858C{}, err
 		}
@@ -252,29 +252,55 @@ func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 	return serviceMemberDetails, nil
 }
 
-func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(paymentRequestID uuid.UUID, orders models.Order) ([]edisegment.Segment, error) {
-	g62Segments := []edisegment.Segment{}
+func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(paymentRequestID uuid.UUID) ([]edisegment.Segment, error) {
+	var g62Segments []edisegment.Segment
 
-	// Add requested pickup date
-	var requestedPickupDateParam models.PaymentServiceItemParam
+	// Get all the shipments associated with this payment request's service items, ordered by shipment creation date.
+	var shipments models.MTOShipments
 	err := g.db.Q().
-		Join("service_item_param_keys sipk", "payment_service_item_params.service_item_param_key_id = sipk.id").
-		Join("payment_service_items psi", "payment_service_item_params.payment_service_item_id = psi.id").
-		Join("payment_requests pr", "psi.payment_request_id = pr.id").
-		Where("pr.id = ?", paymentRequestID).
-		Where("sipk.key = ?", models.ServiceItemParamNameRequestedPickupDate).
-		First(&requestedPickupDateParam)
-
+		Join("mto_service_items msi", "mto_shipments.id = msi.mto_shipment_id").
+		Join("payment_service_items psi", "msi.id = psi.mto_service_item_id").
+		Where("psi.payment_request_id = ?", paymentRequestID).
+		Order("msi.created_at").
+		All(&shipments)
 	if err != nil {
-		return nil, fmt.Errorf("Couldn't find requested pickup date: %s", err)
+		return nil, fmt.Errorf("error querying for shipments to use in G62 segments in PaymentRequest %s: %w", paymentRequestID, err)
 	}
 
-	requestedPickupDateSegment := edisegment.G62{
-		DateQualifier: 86,
-		Date:          requestedPickupDateParam.Value,
+	// If no shipments, then just return because we will not have access to the dates.
+	if len(shipments) == 0 {
+		return g62Segments, nil
 	}
 
-	g62Segments = append(g62Segments, &requestedPickupDateSegment)
+	// Use the first (earliest) shipment.
+	shipment := shipments[0]
+
+	// Insert request pickup date, if available.
+	if shipment.RequestedPickupDate != nil {
+		requestedPickupDateSegment := edisegment.G62{
+			DateQualifier: 10,
+			Date:          shipment.RequestedPickupDate.Format(dateFormat),
+		}
+		g62Segments = append(g62Segments, &requestedPickupDateSegment)
+	}
+
+	// Insert expected pickup date, if available.
+	if shipment.ScheduledPickupDate != nil {
+		scheduledPickupDateSegment := edisegment.G62{
+			DateQualifier: 76,
+			Date:          shipment.ScheduledPickupDate.Format(dateFormat),
+		}
+		g62Segments = append(g62Segments, &scheduledPickupDateSegment)
+	}
+
+	// Insert expected pickup date, if available.
+	if shipment.ActualPickupDate != nil {
+		actualPickupDateSegment := edisegment.G62{
+			DateQualifier: 86,
+			Date:          shipment.ActualPickupDate.Format(dateFormat),
+		}
+		g62Segments = append(g62Segments, &actualPickupDateSegment)
+	}
 
 	return g62Segments, nil
 }
@@ -421,14 +447,23 @@ func (g ghcPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(serviceI
 	return paymentServiceItemParam, nil
 }
 
-func (g ghcPaymentRequestInvoiceGenerator) getPaymentParamsForDefaultServiceItems(serviceItem models.PaymentServiceItem) (float64, float64, error) {
-	// TODO: update to have a case statement as different service items may or may not have weight
-	// and the distance key can differ (zip3 v zip5, and distances for SIT)
+func (g ghcPaymentRequestInvoiceGenerator) getWeightParams(serviceItem models.PaymentServiceItem) (float64, error) {
 	weight, err := g.fetchPaymentServiceItemParam(serviceItem.ID, models.ServiceItemParamNameWeightBilledActual)
 	if err != nil {
-		return 0, 0, err
+		return 0, err
 	}
 	weightFloat, err := strconv.ParseFloat(weight.Value, 64)
+	if err != nil {
+		return 0, fmt.Errorf("Could not parse weight for PaymentServiceItem %s: %w", serviceItem.ID, err)
+	}
+
+	return weightFloat, nil
+}
+
+func (g ghcPaymentRequestInvoiceGenerator) getWeightAndDistanceParams(serviceItem models.PaymentServiceItem) (float64, float64, error) {
+	// TODO: update to have a case statement as different service items may or may not have weight
+	// and the distance key can differ (zip3 v zip5, and distances for SIT)
+	weightFloat, err := g.getWeightParams(serviceItem)
 	if err != nil {
 		return 0, 0, fmt.Errorf("Could not parse weight for PaymentServiceItem %s: %w", serviceItem.ID, err)
 	}
@@ -491,10 +526,40 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 			}
 
 			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment, &l3Segment)
+		// pack and unpack, dom dest and dom origin have weight no distance
+		case models.ReServiceCodeDOP, models.ReServiceCodeDUPK,
+			models.ReServiceCodeDPK, models.ReServiceCodeDDP:
+			var err error
+			weightFloat, err = g.getWeightParams(serviceItem)
+			if err != nil {
+				return segments, fmt.Errorf("Could not parse weight or distance for PaymentServiceItem %w", err)
+			}
+
+			l5Segment := edisegment.L5{
+				LadingLineItemNumber:   hierarchicalIDNumber,
+				LadingDescription:      string(serviceCode),
+				CommodityCode:          "TBD",
+				CommodityCodeQualifier: "D",
+			}
+
+			l0Segment := edisegment.L0{
+				LadingLineItemNumber: hierarchicalIDNumber,
+				Weight:               weightFloat,
+				WeightQualifier:      "B",
+				WeightUnitCode:       "L",
+			}
+
+			l3Segment := edisegment.L3{
+				Weight:          weightFloat,
+				WeightQualifier: "B",
+				PriceCents:      int64(*serviceItem.PriceCents),
+			}
+
+			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment, &l3Segment)
 
 		default:
 			var err error
-			weightFloat, distanceFloat, err = g.getPaymentParamsForDefaultServiceItems(serviceItem)
+			weightFloat, distanceFloat, err = g.getWeightAndDistanceParams(serviceItem)
 			if err != nil {
 				return segments, fmt.Errorf("Could not parse weight or distance for PaymentServiceItem %w", err)
 			}

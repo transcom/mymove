@@ -6,34 +6,41 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"strconv"
-
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/go-openapi/errors"
+	"github.com/go-openapi/swag"
 )
 
-// MTOApprovalServiceItemCodes m t o approval service item codes
+// MTOApprovalServiceItemCodes MTO level service items to create when updating MTO status.
 // swagger:model MTOApprovalServiceItemCodes
-type MTOApprovalServiceItemCodes []MTOApprovalServiceItemCode
+type MTOApprovalServiceItemCodes struct {
+
+	// service code c s
+	ServiceCodeCS bool `json:"serviceCodeCS,omitempty"`
+
+	// service code m s
+	ServiceCodeMS bool `json:"serviceCodeMS,omitempty"`
+}
 
 // Validate validates this m t o approval service item codes
-func (m MTOApprovalServiceItemCodes) Validate(formats strfmt.Registry) error {
-	var res []error
+func (m *MTOApprovalServiceItemCodes) Validate(formats strfmt.Registry) error {
+	return nil
+}
 
-	for i := 0; i < len(m); i++ {
-
-		if err := m[i].Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName(strconv.Itoa(i))
-			}
-			return err
-		}
-
+// MarshalBinary interface implementation
+func (m *MTOApprovalServiceItemCodes) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
 	}
+	return swag.WriteJSON(m)
+}
 
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
+// UnmarshalBinary interface implementation
+func (m *MTOApprovalServiceItemCodes) UnmarshalBinary(b []byte) error {
+	var res MTOApprovalServiceItemCodes
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
 	}
+	*m = res
 	return nil
 }

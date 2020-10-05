@@ -170,6 +170,36 @@ func assemblePaymentRequestPayload(db *pop.Connection, updatedObjectID uuid.UUID
 
 }
 
+// assembleMoveOrderPayload assembles the MoveOrder Payload and returns the JSON in bytes
+func assembleMoveOrderPayload(db *pop.Connection, updatedObjectID uuid.UUID) ([]byte, error) {
+	model := models.Order{}
+	// Important to be specific about which addl associations to load to reduce DB hits
+	err := db.Eager(
+		"ServiceMember", "Entitlement", "OriginDutyStation", "NewDutyStation.Address").Find(&model, updatedObjectID)
+
+	// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
+	// cannot eager load the address as "OriginDutyStation.Address" because
+	// OriginDutyStation is a pointer.
+	if model.OriginDutyStation != nil {
+		err = db.Load(model.OriginDutyStation, "Address")
+	}
+
+	if err != nil {
+		notFoundError := services.NewNotFoundError(updatedObjectID, "looking for MoveOrder")
+		notFoundError.Wrap(err)
+		return nil, notFoundError
+	}
+
+	payload := payloads.MoveOrder(&model)
+	payloadArray, err := json.Marshal(payload)
+	if err != nil {
+		unknownErr := services.NewEventError("Unknown error creating payload", err)
+		return nil, unknownErr
+	}
+
+	return payloadArray, nil
+}
+
 // objectEventHandler is the default handler. It checks the source of the event and
 // whether the event is available to Prime. If it determines this is a notification that we should
 // send prime, it calls the appropriate function to assemble the json payload
@@ -204,6 +234,8 @@ func objectEventHandler(event *Event, modelBeingUpdated interface{}) (bool, erro
 		payloadArray, err = assembleMTOServiceItemPayload(db, event.UpdatedObjectID)
 	case models.Move:
 		payloadArray, err = assembleMTOPayload(db, event.UpdatedObjectID)
+	case models.Order:
+		payloadArray, err = assembleMoveOrderPayload(db, event.UpdatedObjectID)
 	default:
 		event.logger.Error("event.NotificationEventHandler: Unknown logical object being updated.")
 		err = services.NewEventError(fmt.Sprintf("No notification handler for event %s", event.EventKey), nil)

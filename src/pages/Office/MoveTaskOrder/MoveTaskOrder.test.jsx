@@ -50,6 +50,7 @@ jest.mock('hooks/queries', () => ({
             state: 'NJ',
             postal_code: '08401',
           },
+          status: 'APPROVED',
         },
       },
       mtoServiceItems: {
