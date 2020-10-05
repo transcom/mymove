@@ -29,7 +29,7 @@ const ShipmentListItem = ({ shipment, onShipmentClick, shipmentNumber, showNumbe
         {showNumber && ` ${shipmentNumber}`}
       </strong>{' '}
       {/* use substring of the UUID until actual shipment code is available */}
-      <span className={styles['shipment-code']}>{shipment.id.substring(0, 10)}</span>{' '}
+      <span className={styles['shipment-code']}>#{shipment.id.substring(0, 8).toUpperCase()}</span>{' '}
       <EditIcon className={styles.edit} />
     </div>
   );

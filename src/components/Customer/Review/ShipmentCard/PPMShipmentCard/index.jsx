@@ -25,7 +25,7 @@ const PPMShipmentCard = ({
         <div className={styles.ShipmentCardHeader}>
           <div>
             <h3>PPM</h3>
-            <p>{shipmentId.substring(0, 10)}</p>
+            <p>#{shipmentId.substring(0, 8).toUpperCase()}</p>
           </div>
           <Button className={styles.editBtn} onClick={() => onEditClick(editPath)} unstyled>
             Edit
