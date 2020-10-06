@@ -107,7 +107,7 @@ class Home extends Component {
     return !!Object.keys(orders).length && !uploadedOrderDocuments.length;
   }
 
-  get hasMtoShipments() {
+  get hasAnyShipments() {
     const { mtoShipments, currentPpm } = this.props;
     return (this.hasOrders && !!mtoShipments.length) || Object.keys(currentPpm).length;
   }
@@ -126,7 +126,7 @@ class Home extends Component {
     if (this.hasSubmittedMove && this.hasPpm) {
       return '';
     }
-    if (this.hasMtoShipments || this.hasPpm) {
+    if (this.hasAnyShipments) {
       return 'Add another shipment';
     }
     return 'Plan your shipments';
@@ -137,11 +137,11 @@ class Home extends Component {
       return 'Next step: Add your orders';
     }
 
-    if (!this.hasMtoShipments) {
+    if (!this.hasAnyShipments) {
       return 'Gather this info, then plan your shipments';
     }
 
-    if (this.hasMtoShipments && !this.hasSubmittedMove) {
+    if (this.hasAnyShipments && !this.hasSubmittedMove) {
       return 'Time to submit your move';
     }
 
@@ -204,7 +204,7 @@ class Home extends Component {
       );
     }
 
-    if (!this.hasMtoShipments) {
+    if (!this.hasAnyShipments) {
       return (
         <ul>
           {this.renderHelperListItems([
@@ -216,7 +216,7 @@ class Home extends Component {
       );
     }
 
-    if (this.hasMtoShipments && !this.hasSubmittedMove) {
+    if (this.hasAnyShipments && !this.hasSubmittedMove) {
       return (
         <ul>
           {this.renderHelperListItems([
@@ -340,7 +340,7 @@ class Home extends Component {
       location,
     } = this.props;
     const ordersPath = this.hasOrdersNoUpload ? '/orders/upload' : '/orders';
-    const shipmentSelectionPath = this.hasMtoShipments
+    const shipmentSelectionPath = this.hasAnyShipments
       ? `/moves/${move.id}/select-type`
       : `/moves/${move.id}/moving-info`;
     const confirmationPath = `/moves/${move.id}/review`;
@@ -393,14 +393,14 @@ class Home extends Component {
                   actionBtnLabel={this.shipmentActionBtnLabel}
                   actionBtnDisabled={!this.hasOrders || (this.hasSubmittedMove && this.doesPpmAlreadyExist)}
                   onActionBtnClick={() => this.handleNewPathClick(shipmentSelectionPath)}
-                  complete={this.hasMtoShipments}
+                  complete={this.hasAnyShipments}
                   completedHeaderText="Shipments"
                   headerText="Shipment selection"
-                  secondaryBtn={this.hasMtoShipments}
+                  secondaryBtn={this.hasAnyShipments}
                   secondaryClassName="margin-top-2"
                   step="3"
                 >
-                  {this.hasMtoShipments ? (
+                  {this.hasAnyShipments ? (
                     <ShipmentList shipments={allSortedShipments} onShipmentClick={this.handleShipmentClick} />
                   ) : (
                     <Description>
@@ -411,7 +411,7 @@ class Home extends Component {
                 </Step>
                 <Step
                   complete={this.hasSubmittedMove}
-                  actionBtnDisabled={!this.hasMtoShipments}
+                  actionBtnDisabled={!this.hasAnyShipments}
                   actionBtnLabel={!this.hasSubmittedMove ? 'Review and submit' : ''}
                   containerClassName="margin-bottom-8"
                   headerText="Confirm move request"
