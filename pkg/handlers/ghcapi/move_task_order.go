@@ -68,7 +68,7 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 		serviceItemCodes.ServiceCodeMS, serviceItemCodes.ServiceCodeCS)
 
 	if err != nil {
-		logger.Error("ghcapi.MoveTaskOrderHandler error", zap.Error(err))
+		logger.Error("ghcapi.UpdateMoveTaskOrderStatusHandlerFunc error", zap.Error(err))
 		switch err.(type) {
 		case services.NotFoundError:
 			return movetaskorderops.NewUpdateMoveTaskOrderStatusNotFound()
