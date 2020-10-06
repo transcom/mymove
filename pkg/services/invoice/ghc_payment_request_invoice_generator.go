@@ -39,7 +39,10 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 			Where("id = ?", paymentRequest.MoveTaskOrderID).
 			First(&moveTaskOrder)
 		if err != nil {
-			return ediinvoice.Invoice858C{}, fmt.Errorf("cannot load MTO %s for PaymentRequest %s: %w", paymentRequest.MoveTaskOrderID, paymentRequest.ID, err)
+			if err.Error() == "sql: no rows in result set" {
+				return ediinvoice.Invoice858C{}, services.NewNotFoundError(paymentRequest.MoveTaskOrder.ID, "for MoveTaskOrder")
+			}
+			return ediinvoice.Invoice858C{}, services.NewQueryError("MoveTaskOrder", err, "Unexpected error")
 		}
 	} else {
 		moveTaskOrder = paymentRequest.MoveTaskOrder
@@ -50,7 +53,10 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		err := g.db.
 			Load(&moveTaskOrder, "Orders")
 		if err != nil {
-			return ediinvoice.Invoice858C{}, fmt.Errorf("cannot load Orders %s for PaymentRequest %s: %w", moveTaskOrder.OrdersID, paymentRequest.ID, err)
+			if err.Error() == "sql: no rows in result set" {
+				return ediinvoice.Invoice858C{}, services.NewNotFoundError(moveTaskOrder.Orders.ID, "for Orders")
+			}
+			return ediinvoice.Invoice858C{}, services.NewQueryError("Orders", err, "Unexpected error")
 		}
 	}
 
@@ -58,8 +64,12 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	if moveTaskOrder.Orders.ServiceMember.ID == uuid.Nil {
 		err := g.db.
 			Load(&moveTaskOrder.Orders, "ServiceMember")
+
 		if err != nil {
-			return ediinvoice.Invoice858C{}, fmt.Errorf("cannot load ServiceMember %s for PaymentRequest %s: %w", moveTaskOrder.Orders.ServiceMemberID, paymentRequest.ID, err)
+			if err.Error() == "sql: no rows in result set" {
+				return ediinvoice.Invoice858C{}, services.NewNotFoundError(moveTaskOrder.Orders.ServiceMemberID, "for ServiceMember")
+			}
+			return ediinvoice.Invoice858C{}, services.NewQueryError("ServiceMember", err, fmt.Sprintf("cannot load ServiceMember %s for PaymentRequest %s: %s", moveTaskOrder.Orders.ServiceMemberID, paymentRequest.ID, err))
 		}
 	}
 
@@ -143,7 +153,10 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		Where("sipk.key = ?", models.ServiceItemParamNameContractCode).
 		First(&contractCodeServiceItemParam)
 	if err != nil {
-		return ediinvoice.Invoice858C{}, fmt.Errorf("Couldn't find contract code: %s", err)
+		if err.Error() == "sql: no rows in result set" {
+			return ediinvoice.Invoice858C{}, services.NewNotFoundError(contractCodeServiceItemParam.ID, "for ContractCode")
+		}
+		return ediinvoice.Invoice858C{}, services.NewQueryError("ContractCode", err, fmt.Sprintf("Couldn't find contract code: %s", err))
 	}
 
 	contractCodeSegment := edisegment.N9{
@@ -165,7 +178,10 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		Where("payment_request_id = ?", paymentRequest.ID).
 		All(&paymentServiceItems)
 	if err != nil {
-		return ediinvoice.Invoice858C{}, fmt.Errorf("Could not find payment service items: %w", err)
+		if err.Error() == "sql: no rows in result set" {
+			return ediinvoice.Invoice858C{}, services.NewNotFoundError(paymentRequest.ID, "for paayment service items in PaymentRequest")
+		}
+		return ediinvoice.Invoice858C{}, services.NewQueryError("PaymentServiceItems", err, fmt.Sprintf("Could not find payment service items: %s", err))
 	}
 
 	if !msOrCsOnly(paymentServiceItems) {
@@ -264,7 +280,10 @@ func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(paymentRequestID uu
 		Order("msi.created_at").
 		All(&shipments)
 	if err != nil {
-		return nil, fmt.Errorf("error querying for shipments to use in G62 segments in PaymentRequest %s: %w", paymentRequestID, err)
+		if err.Error() == "sql: no rows in result set" {
+			return nil, services.NewNotFoundError(paymentRequestID, "for mto shipments associated with PaymentRequest")
+		}
+		return nil, services.NewQueryError("MTOShipments", err, fmt.Sprintf("error querying for shipments to use in G62 segments in PaymentRequest %s: %s", paymentRequestID, err))
 	}
 
 	// If no shipments, then just return because we will not have access to the dates.
@@ -443,6 +462,12 @@ func (g ghcPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(serviceI
 		First(&paymentServiceItemParam)
 	if err != nil {
 		return models.PaymentServiceItemParam{}, fmt.Errorf("Could not lookup PaymentServiceItemParam key (%s) payment service item id (%s): %w", key, serviceItemID, err)
+	}
+	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			return models.PaymentServiceItemParam{}, services.NewNotFoundError(serviceItemID, "for paymentServiceItemParam")
+		}
+		return models.PaymentServiceItemParam{}, services.NewQueryError("paymentServiceItemParam", err, fmt.Sprintf("Could not lookup PaymentServiceItemParam key (%s) payment service item id (%s): %s", key, serviceItemID, err))
 	}
 	return paymentServiceItemParam, nil
 }
