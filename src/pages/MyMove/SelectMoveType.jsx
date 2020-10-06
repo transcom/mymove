@@ -144,7 +144,7 @@ function mapStateToProps(state) {
   const ppmCount = hasPpm ? 1 : 0;
   const hhgCount = selectMTOShipmentsByMoveId(state, move.id)?.length || 0;
   const props = {
-    move: selectActiveOrLatestMove(state),
+    move,
     selectedMoveType: get(move, 'selected_move_type'),
     isPpmSelectable: !hasPpm,
     isHhgSelectable: move.status === 'DRAFT',
@@ -158,3 +158,4 @@ function mapDispatchToProps(dispatch) {
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SelectMoveType);
+export { mapStateToProps as _mapStateToProps };
