@@ -34,7 +34,12 @@ const HHGShipmentCard = ({
             <h3>HHG {shipmentNumber}</h3>
             <p>#{shipmentId.substring(0, 8).toUpperCase()}</p>
           </div>
-          <Button className={styles.editBtn} onClick={() => onEditClick(editPath)} unstyled>
+          <Button
+            className={styles.editBtn}
+            data-testid="edit-shipment-btn"
+            onClick={() => onEditClick(editPath)}
+            unstyled
+          >
             Edit
           </Button>
         </div>

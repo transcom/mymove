@@ -27,7 +27,12 @@ const PPMShipmentCard = ({
             <h3>PPM</h3>
             <p>#{shipmentId.substring(0, 8).toUpperCase()}</p>
           </div>
-          <Button className={styles.editBtn} onClick={() => onEditClick(editPath)} unstyled>
+          <Button
+            className={styles.editBtn}
+            data-testid="edit-ppm-dates"
+            onClick={() => onEditClick(editPath)}
+            unstyled
+          >
             Edit
           </Button>
         </div>

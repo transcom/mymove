@@ -172,7 +172,7 @@ function SMCompletesMove() {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
   });
   cy.get('.wizard-header').should('not.exist');
-  cy.get('td').contains('Rate info unavailable');
+  cy.get('dd').contains('Rate info unavailable');
   cy.get('[data-icon="question-circle"]').click();
   cy.get('[data-testid="tooltip"]').contains(
     'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',

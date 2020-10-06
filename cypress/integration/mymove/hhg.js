@@ -237,7 +237,7 @@ function customerReviewsMoveDetailsAndEditsHHG() {
 
   cy.get('[data-testid="ShipmentContainer"]').contains('HHG 1');
 
-  cy.get('[data-testid="edit-profile-table"]').contains('Edit').click();
+  cy.get('[data-testid="edit-shipment-btn"]').contains('Edit').click();
 
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/mto-shipments\/[^/]+\/edit-shipment/);
