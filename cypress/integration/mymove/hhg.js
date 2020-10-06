@@ -259,8 +259,8 @@ function customerReviewsMoveDetailsAndEditsHHG() {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
   });
 
-  cy.get('[data-testid="hhg-summary"]').find('table').contains('some edited customer remark');
-  cy.get('[data-testid="hhg-summary"]').find('table').contains('JohnJohnson Lee');
+  cy.get('[data-testid="hhg-summary"]').find('dl').contains('some edited customer remark');
+  cy.get('[data-testid="hhg-summary"]').find('dl').contains('JohnJohnson Lee');
 
   // Check that finish later button takes them to home page
   cy.get('button').contains('Finish later').click();

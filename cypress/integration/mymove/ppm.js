@@ -111,8 +111,6 @@ function SMSubmitsMove() {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
   });
 
-  cy.get('[data-testid="sit-display"]').contains('35 days').contains('$745.88');
-
   cy.nextPage();
 
   cy.location().should((loc) => {
@@ -173,10 +171,6 @@ function SMCompletesMove() {
   });
   cy.get('.wizard-header').should('not.exist');
   cy.get('dd').contains('Rate info unavailable');
-  cy.get('[data-icon="question-circle"]').click();
-  cy.get('[data-testid="tooltip"]').contains(
-    'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
-  );
 
   cy.nextPage();
 
