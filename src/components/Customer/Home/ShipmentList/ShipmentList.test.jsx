@@ -7,6 +7,7 @@ import ShipmentList from '.';
 const defaultProps = {
   shipments: [],
   onShipmentClick: () => {},
+  moveSubmitted: false,
 };
 
 function mountShipmentList(props = defaultProps) {
@@ -23,6 +24,7 @@ describe('ShipmentList component', () => {
     const props = {
       shipments,
       onShipmentClick,
+      moveSubmitted: false,
     };
     const wrapper = mountShipmentList(props);
     expect(wrapper.find('ShipmentListItem').length).toBe(3);
@@ -47,6 +49,7 @@ describe('ShipmentList component', () => {
     const props = {
       shipments,
       onShipmentClick,
+      moveSubmitted: false,
     };
     const wrapper = mountShipmentList(props);
     expect(onShipmentClick.mock.calls.length).toBe(0);

@@ -207,7 +207,9 @@ class Home extends Component {
     );
   };
 
-  handleShipmentClick = (shipmentId, shipmentNumber, shipmentType) => {
+  handleShipmentClick = (shipmentId, shipmentNumber, shipmentType, canEdit) => {
+    if (!canEdit) return;
+
     const { move, history } = this.props;
     let queryString = '';
     if (shipmentNumber) {
@@ -346,7 +348,11 @@ class Home extends Component {
                   step="3"
                 >
                   {this.hasAnyShipments ? (
-                    <ShipmentList shipments={allSortedShipments} onShipmentClick={this.handleShipmentClick} />
+                    <ShipmentList
+                      shipments={allSortedShipments}
+                      onShipmentClick={this.handleShipmentClick}
+                      moveSubmitted={this.hasSubmittedMove}
+                    />
                   ) : (
                     <Description>
                       Tell us where you&apos;re going and when you want to get there. We&apos;ll help you set up
