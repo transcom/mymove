@@ -6,10 +6,10 @@ import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
 import { Fieldset, Radio, Label } from '@trussworks/react-uswds';
 
-import { DatePickerInput, TextInput } from '../form/fields';
-import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
-import { AddressFields } from '../form/AddressFields/AddressFields';
-import { Form } from '../form/Form';
+import { DatePickerInput, TextInput } from '../../form/fields';
+import { ContactInfoFields } from '../../form/ContactInfoFields/ContactInfoFields';
+import { AddressFields } from '../../form/AddressFields/AddressFields';
+import { Form } from '../../form/Form';
 
 import styles from './HHGDetailsForm.module.scss';
 

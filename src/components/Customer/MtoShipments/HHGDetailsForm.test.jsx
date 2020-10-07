@@ -4,7 +4,7 @@ import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 
-import { history, store } from '../../shared/store';
+import { history, store } from '../../../shared/store';
 
 import HHGDetailsForm, { HHGDetailsFormComponent } from './HHGDetailsForm';
 

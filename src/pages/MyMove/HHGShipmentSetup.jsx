@@ -8,7 +8,7 @@ import {
   loadMTOShipments as loadMTOShipmentsAction,
   selectMTOShipmentForMTO,
 } from 'shared/Entities/modules/mtoShipments';
-import HHGDetailsForm from 'components/Customer/HHGDetailsForm';
+import HHGDetailsForm from 'components/Customer/MtoShipments/HHGDetailsForm';
 import '../../ghc_index.scss';
 
 class HHGShipmentSetup extends Component {
