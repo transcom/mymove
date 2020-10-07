@@ -12,7 +12,7 @@ const ShipmentListItem = ({ shipment, onShipmentClick, shipmentNumber, canEdit, 
     const key = event.which || event.keyCode; // Use either which or keyCode, depending on browser support
     // enter or space
     if (key === 13 || key === 32) {
-      onShipmentClick(shipment, shipmentNumber, shipment.shipmentType);
+      onShipmentClick();
     }
   }
   const shipmentClassName = styles[`shipment-list-item-${shipment.shipmentType}`];
@@ -22,7 +22,7 @@ const ShipmentListItem = ({ shipment, onShipmentClick, shipmentNumber, canEdit, 
       data-testid="shipment-list-item-container"
       onClick={() => {
         if (!canEdit) return;
-        onShipmentClick(shipment, shipmentNumber, shipment.shipmentType);
+        onShipmentClick();
       }}
       onKeyDown={(event) => handleEnterOrSpace(event)}
       role="button"
@@ -80,7 +80,7 @@ const ShipmentList = ({ shipments, onShipmentClick, moveSubmitted }) => {
             shipmentNumber={shipmentNumber}
             showNumber={shipmentCountByType[shipmentType] > 1}
             canEdit={canEdit}
-            onShipmentClick={() => onShipmentClick(shipment.id, shipmentNumber, shipmentType, canEdit)}
+            onShipmentClick={() => onShipmentClick(shipment.id, shipmentNumber, shipmentType)}
             shipment={shipment}
           />
         );
