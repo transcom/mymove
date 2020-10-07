@@ -75,7 +75,10 @@ export class Summary extends Component {
       (isReviewPage && Object.keys(currentPPM).length) ||
       (!isReviewPage && Object.keys(currentPPM).length && currentPPM.status !== 'DRAFT');
     const showHHGShipmentSummary = isReviewPage && !!mtoShipments.length;
-    const hasPPMorHHG = (isReviewPage && Object.keys(currentPPM).length) || !!mtoShipments.length;
+    const hasPPM = isReviewPage && Object.keys(currentPPM).length;
+    const hasAnyShipments = hasPPM || !!mtoShipments.length;
+    const canAddAnotherShipment =
+      (currentMove.status === 'DRAFT' && hasAnyShipments) || (currentMove.status === 'SUBMITTED' && !hasPPM);
 
     const showProfileAndOrders = isReviewPage || !isReviewPage;
     const showMoveSetup = showPPMShipmentSummary || showHHGShipmentSummary;
@@ -129,7 +132,7 @@ export class Summary extends Component {
               />
             );
           })}
-        {hasPPMorHHG && (
+        {canAddAnotherShipment && (
           <div className="grid-col-row margin-top-5">
             <span className="float-right">Optional</span>
             <h3>Add another shipment</h3>
