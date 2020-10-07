@@ -10,15 +10,16 @@ import { formatCustomerDate } from 'utils/formatters';
 
 const PPMShipmentCard = ({
   destinationZIP,
-  editPath,
   estimatedIncentive,
   estimatedWeight,
   expectedDepartureDate,
+  moveId,
   onEditClick,
   shipmentId,
   sitDays,
   originZIP,
 }) => {
+  const editPath = `/moves/${moveId}/review/edit-date-and-location`;
   return (
     <div className={styles.ShipmentCard} data-testid="shipment-display">
       <ShipmentContainer className={styles.container} shipmentType={SHIPMENT_OPTIONS.PPM}>
@@ -78,10 +79,10 @@ const PPMShipmentCard = ({
 
 PPMShipmentCard.propTypes = {
   destinationZIP: string.isRequired,
-  editPath: string.isRequired,
   estimatedIncentive: string,
   estimatedWeight: string.isRequired,
   expectedDepartureDate: string.isRequired,
+  moveId: string.isRequired,
   onEditClick: func.isRequired,
   shipmentId: string.isRequired,
   sitDays: string,

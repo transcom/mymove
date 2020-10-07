@@ -68,7 +68,8 @@ export class Summary extends Component {
   };
 
   renderShipments = () => {
-    const { currentOrders, currentMove, match } = this.props;
+    const { currentOrders, match } = this.props;
+    const { moveId } = match.params;
     let hhgShipmentNumber = 0;
     return this.getSortedShipments.map((shipment) => {
       let receivingAgent;
@@ -76,8 +77,9 @@ export class Summary extends Component {
       if (shipment.shipmentType === SHIPMENT_OPTIONS.PPM) {
         return (
           <PPMShipmentCard
+            key={shipment.id}
             destinationZIP={shipment.destination_postal_code}
-            editPath={`/moves/${match.params.moveId}/review/edit-date-and-location`}
+            moveId={moveId}
             estimatedWeight="5,000"
             expectedDepartureDate={shipment.original_move_date}
             onEditClick={this.handleEditClick}
@@ -96,9 +98,10 @@ export class Summary extends Component {
       hhgShipmentNumber += 1;
       return (
         <HHGShipmentCard
+          key={shipment.id}
           destinationZIP={currentOrders.new_duty_station.address.postal_code}
           destinationLocation={shipment?.destinationAddress}
-          editPath={`/moves/${currentMove.id}/mto-shipments/${shipment.id}/edit-shipment?shipmentNumber=${hhgShipmentNumber}`}
+          moveId={moveId}
           onEditClick={this.handleEditClick}
           pickupLocation={shipment.pickupAddress}
           receivingAgent={receivingAgent}
@@ -167,7 +170,7 @@ export class Summary extends Component {
           firstName={serviceMember.first_name}
           onEditClick={this.handleEditClick}
           lastName={serviceMember.last_name}
-          postalCode={serviceMember.postal_code}
+          postalCode={serviceMember.residential_address.postal_code}
           rank={serviceMember.rank}
           state={serviceMember.residential_address.state}
           streetAddress1={serviceMember.residential_address.street_address_1}
@@ -228,7 +231,7 @@ Summary.propTypes = {
   reviewState: shape({
     editSuccess: bool,
     entitlementChange: bool,
-    error: bool.isRequired,
+    error: bool,
   }),
 };
 

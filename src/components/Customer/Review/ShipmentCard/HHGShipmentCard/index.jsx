@@ -15,7 +15,7 @@ import { formatCustomerDate } from 'utils/formatters';
 const HHGShipmentCard = ({
   destinationLocation,
   destinationZIP,
-  editPath,
+  moveId,
   onEditClick,
   pickupLocation,
   receivingAgent,
@@ -26,6 +26,7 @@ const HHGShipmentCard = ({
   shipmentId,
   shipmentNumber,
 }) => {
+  const editPath = `/moves/${moveId}/mto-shipments/${shipmentId}/edit-shipment?shipmentNumber=${shipmentNumber}`;
   return (
     <div className={styles.ShipmentCard} data-testid="hhg-summary">
       <ShipmentContainer className={styles.container} shipmentType={SHIPMENT_OPTIONS.HHG}>
@@ -114,7 +115,7 @@ const HHGShipmentCard = ({
 };
 
 HHGShipmentCard.propTypes = {
-  editPath: string.isRequired,
+  moveId: string.isRequired,
   shipmentNumber: number.isRequired,
   shipmentId: string.isRequired,
   requestedPickupDate: string.isRequired,
