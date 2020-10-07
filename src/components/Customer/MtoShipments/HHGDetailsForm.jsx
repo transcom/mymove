@@ -22,46 +22,18 @@ import { selectActiveOrLatestOrdersFromEntities } from 'shared/Entities/modules/
 import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { WizardPage } from 'shared/WizardPage';
-import { MTOAgentType, SHIPMENT_OPTIONS } from 'shared/constants';
-import { formatSwaggerDate } from 'shared/formatters';
-import Checkbox from 'shared/Checkbox';
-import { validateDate } from 'utils/formikValidators';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { RequiredPlaceSchema, OptionalPlaceSchema } from './formTypes';
+import { formatMtoShipment } from './utils';
+import { PickupDetails } from './PickupDetails';
+import { DeliveryDetails } from './DeliveryDetails';
 
-const PickupAddressSchema = Yup.object().shape({
-  street_address_1: Yup.string().required('Required'),
-  street_address_2: Yup.string(),
-  city: Yup.string().required('Required'),
-  state: Yup.string().length(2, 'Must use state abbreviation').required('Required'),
-  postal_code: Yup.string()
-    // eslint-disable-next-line security/detect-unsafe-regex
-    .matches(/^(\d{5}([-]\d{4})?)$/, 'Must be valid zip code')
-    .required('Required'),
-});
-
-const DeliveryAddressSchema = Yup.object().shape({
-  street_address_1: Yup.string(),
-  street_address_2: Yup.string(),
-  city: Yup.string(),
-  state: Yup.string().length(2, 'Must use state abbreviation'),
-  postal_code: Yup.string()
-    // eslint-disable-next-line security/detect-unsafe-regex
-    .matches(/^(\d{5}([-]\d{4})?)$/, 'Must be valid zip code'),
-});
-
-const AgentSchema = Yup.object().shape({
-  firstName: Yup.string(),
-  lastName: Yup.string(),
-  phone: Yup.string().matches(/^[2-9]\d{2}\d{3}\d{4}$/, 'Must be valid phone number'),
-  email: Yup.string().email('Must be valid email'),
-});
 const HHGDetailsFormSchema = Yup.object().shape({
-  // requiredPickupDate, requiredDeliveryDate are also required, but using field level validation
-  pickupAddress: PickupAddressSchema,
-  destinationAddress: DeliveryAddressSchema,
-  releasingAgent: AgentSchema,
-  receivingAgent: AgentSchema,
+  pickup: RequiredPlaceSchema,
+  delivery: OptionalPlaceSchema,
   customerRemarks: Yup.string(),
 });
+
 class HHGDetailsForm extends Component {
   constructor(props) {
     super(props);
