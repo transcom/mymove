@@ -22,6 +22,7 @@ describe('React table', () => {
 
     // checking data
     expect(wrapper.find('th[data-testid="col1"]').text()).toBe('Column 1 header');
-    expect(wrapper.find('td[data-testid="col1"]').text()).toBe('Column 1 value');
+    // data-testid has a format of ${columnKey}-${rowIndex}
+    expect(wrapper.find('td[data-testid="col1-0"]').text()).toBe('Column 1 value');
   });
 });
