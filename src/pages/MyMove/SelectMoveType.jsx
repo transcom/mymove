@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { string, bool, func, arrayOf, shape } from 'prop-types';
+import { string, bool, func, arrayOf, shape, number } from 'prop-types';
 import { get } from 'lodash';
 
 import styles from './SelectMoveType.module.scss';
@@ -42,7 +42,17 @@ export class SelectMoveType extends Component {
   };
 
   render() {
-    const { pageKey, pageList, match, push, move, mtoShipments } = this.props;
+    const {
+      pageKey,
+      pageList,
+      match,
+      push,
+      move,
+      mtoShipments,
+      isPpmSelectable,
+      isHhgSelectable,
+      shipmentNumber,
+    } = this.props;
     const { moveType } = this.state;
     const hasPpm = !!move?.personally_procured_moves?.length; // eslint-disable-line camelcase
     const hasSubmittedMove = move?.status !== MOVE_STATUSES.DRAFT;
@@ -65,7 +75,8 @@ export class SelectMoveType extends Component {
         value={SHIPMENT_OPTIONS.PPM}
         id={SHIPMENT_OPTIONS.PPM}
         cardText={ppmCardText}
-        checked={moveType === SHIPMENT_OPTIONS.PPM}
+        checked={moveType === SHIPMENT_OPTIONS.PPM && isPpmSelectable}
+        disabled={!isPpmSelectable}
       />
     );
     const selectPpmHasPpm = (
@@ -75,7 +86,8 @@ export class SelectMoveType extends Component {
         value={SHIPMENT_OPTIONS.PPM}
         id={SHIPMENT_OPTIONS.PPM}
         cardText={ppmCardTextAlreadyChosen}
-        checked={moveType === SHIPMENT_OPTIONS.PPM}
+        checked={moveType === SHIPMENT_OPTIONS.PPM && isPpmSelectable}
+        disabled={!isPpmSelectable}
       />
     );
     const selectHhgDefault = (
@@ -85,7 +97,8 @@ export class SelectMoveType extends Component {
         value={SHIPMENT_OPTIONS.HHG}
         id={SHIPMENT_OPTIONS.HHG}
         cardText={hhgCardText}
-        checked={moveType === SHIPMENT_OPTIONS.HHG}
+        checked={moveType === SHIPMENT_OPTIONS.HHG && isHhgSelectable}
+        disabled={!isHhgSelectable}
       />
     );
     const selectHhgSubmittedMove = (
@@ -95,7 +108,8 @@ export class SelectMoveType extends Component {
         value={SHIPMENT_OPTIONS.HHG}
         id={SHIPMENT_OPTIONS.HHG}
         cardText={hhgCardTextPostSubmit}
-        checked={moveType === SHIPMENT_OPTIONS.HHG}
+        checked={moveType === SHIPMENT_OPTIONS.HHG && isHhgSelectable}
+        disabled={!isHhgSelectable}
       />
     );
     const footerText = (
@@ -118,6 +132,7 @@ export class SelectMoveType extends Component {
               push={push}
               footerText={footerText}
             >
+              <h6 className="sm-heading">Shipment {shipmentNumber}</h6>
               <h1 className="sm-heading">
                 {hasAnyShipments
                   ? 'How do you want this group of things moved?'
@@ -147,18 +162,27 @@ SelectMoveType.propTypes = {
   }).isRequired,
   push: func.isRequired,
   updateMove: func.isRequired,
+  loadMTOShipments: func.isRequired,
   selectedMoveType: string.isRequired,
   move: MoveTaskOrderShape.isRequired,
   mtoShipments: MTOShipmentShape.isRequired,
-  loadMTOShipments: func.isRequired,
+  isPpmSelectable: bool.isRequired,
+  isHhgSelectable: bool.isRequired,
+  shipmentNumber: number.isRequired,
 };
 
 function mapStateToProps(state) {
   const move = selectActiveOrLatestMove(state);
+  const hasPpm = !!move.personally_procured_moves?.length;
+  const ppmCount = hasPpm ? 1 : 0;
+  const hhgCount = selectMTOShipmentsByMoveId(state, move.id)?.length || 0;
   const props = {
-    move: selectActiveOrLatestMove(state),
+    move,
     selectedMoveType: get(move, 'selected_move_type'),
     mtoShipments: selectMTOShipmentsByMoveId(state, move.id),
+    isPpmSelectable: !hasPpm,
+    isHhgSelectable: move.status === 'DRAFT',
+    shipmentNumber: 1 + ppmCount + hhgCount,
   };
   return props;
 }
@@ -168,3 +192,4 @@ function mapDispatchToProps(dispatch) {
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SelectMoveType);
+export { mapStateToProps as _mapStateToProps };
