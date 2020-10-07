@@ -303,11 +303,11 @@ class EditShipment extends Component {
                   value={values.requestedPickupDate}
                   validate={validateDate}
                 />
+                <Hint className="margin-top-1" id="pickupDateHint">
+                  Movers will contact you to schedule the actual pickup date. That date should fall within 7 days of
+                  your requested date. Tip: Avoid scheduling multiple shipments on the same day.
+                </Hint>
               </Fieldset>
-              <Hint className="margin-top-1" id="pickupDateHint">
-                Movers will contact you to schedule the actual pickup date. That date should fall within 7 days of your
-                requested date. Tip: Avoid scheduling multiple shipments on the same day.{' '}
-              </Hint>
               <Divider className="margin-top-4 margin-bottom-4" />
               <AddressFields
                 className="margin-bottom-3"
