@@ -355,7 +355,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			suite.IsType(&edisegment.N9{}, result.ServiceItems[segmentOffset+1])
 			n9 := result.ServiceItems[segmentOffset+1].(*edisegment.N9)
 			suite.Equal("PO", n9.ReferenceIdentificationQualifier)
-			suite.Equal(paymentServiceItem.ID.String(), n9.ReferenceIdentification)
+			suite.Equal(paymentServiceItem.ReferenceID, n9.ReferenceIdentification)
 		})
 		serviceCode := paymentServiceItem.MTOServiceItem.ReService.Code
 		switch serviceCode {
