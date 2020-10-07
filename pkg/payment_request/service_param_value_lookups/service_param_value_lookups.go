@@ -54,42 +54,6 @@ func ServiceParamLookupInitialize(
 		}
 	}
 
-	var mtoShipment models.MTOShipment
-	var pickupAddress models.Address
-	var destinationAddress models.Address
-	switch mtoServiceItem.ReService.Code {
-	case models.ReServiceCodeCS, models.ReServiceCodeMS:
-		// Do nothing, these service items don't use the MTOShipment
-	default:
-		// Make sure there's an MTOShipment since that's nullable
-		if mtoServiceItem.MTOShipmentID == nil {
-			return nil, services.NewNotFoundError(uuid.Nil, "looking for MTOShipmentID")
-		}
-		err = db.Eager("PickupAddress", "DestinationAddress").Find(&mtoShipment, mtoServiceItem.MTOShipmentID)
-		if err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				return nil, services.NewNotFoundError(mtoServiceItemID, "looking for MTOServiceItemID")
-			default:
-				return nil, err
-			}
-		}
-
-		if mtoServiceItem.ReService.Code != models.ReServiceCodeDUPK {
-			if mtoShipment.PickupAddressID == nil {
-				return nil, services.NewNotFoundError(uuid.Nil, "looking for PickupAddressID")
-			}
-			pickupAddress = *mtoShipment.PickupAddress
-		}
-
-		if mtoServiceItem.ReService.Code != models.ReServiceCodeDPK {
-			if mtoShipment.DestinationAddressID == nil {
-				return nil, services.NewNotFoundError(uuid.Nil, "looking for DestinationAddressID")
-			}
-			destinationAddress = *mtoShipment.DestinationAddress
-		}
-	}
-
 	s := ServiceItemParamKeyData{
 		db:               db,
 		planner:          planner,
@@ -113,9 +77,66 @@ func ServiceParamLookupInitialize(
 		ContractCode: ghcrateengine.DefaultContractCode,
 	}
 
+	//
+	// Query and save ServiceItemParamNameZipPickupAddress & ServiceItemParamNameZipDestAddress upfront
+	//
+
+	var mtoShipment models.MTOShipment
+	var pickupAddress models.Address
+	var destinationAddress models.Address
+	var useShipmentPickupAddress bool
+	var useShipmentDestAddress bool
+
+	useShipmentPickupAddress, err = s.serviceItemNeedsParamKey(mtoServiceItem.ReService.Code, models.ServiceItemParamNameZipPickupAddress)
+	if err != nil {
+		return nil, err
+	}
+	useShipmentDestAddress, err = s.serviceItemNeedsParamKey(mtoServiceItem.ReService.Code, models.ServiceItemParamNameZipDestAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	if useShipmentPickupAddress == true || useShipmentDestAddress == true {
+		// Make sure there's an MTOShipment since that's nullable
+		if mtoServiceItem.MTOShipmentID == nil {
+			return nil, services.NewNotFoundError(uuid.Nil, "looking for MTOShipmentID")
+		}
+		err = db.Eager("PickupAddress", "DestinationAddress").Find(&mtoShipment, mtoServiceItem.MTOShipmentID)
+		if err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				return nil, services.NewNotFoundError(mtoServiceItemID, "looking for MTOServiceItemID")
+			default:
+				return nil, err
+			}
+		}
+	}
+
+	if useShipmentPickupAddress == true {
+		if mtoShipment.PickupAddressID == nil {
+			return nil, services.NewNotFoundError(uuid.Nil, "looking for PickupAddressID")
+		}
+		pickupAddress = *mtoShipment.PickupAddress
+	}
+
+	if useShipmentDestAddress == true {
+		if mtoShipment.DestinationAddressID == nil {
+			return nil, services.NewNotFoundError(uuid.Nil, "looking for DestinationAddressID")
+		}
+		destinationAddress = *mtoShipment.DestinationAddress
+	}
+
+	//
+	// Set all lookup functions to "NOT IMPLEMENTED"
+	//
+
 	for _, key := range models.ValidServiceItemParamNames {
 		s.lookups[key] = NotImplementedLookup{}
 	}
+
+	//
+	// Begin setting lookup functions if they are needed for the given ReServiceCode
+	//
 
 	var paramKey models.ServiceItemParamName
 
@@ -138,23 +159,21 @@ func ServiceParamLookupInitialize(
 		return nil, err
 	}
 
-	if mtoServiceItem.ReService.Code != models.ReServiceCodeDPK && mtoServiceItem.ReService.Code != models.ReServiceCodeDUPK {
-		paramKey = models.ServiceItemParamNameDistanceZip5
-		err = s.setLookup(serviceItemCode, paramKey, DistanceZip5Lookup{
-			PickupAddress:      pickupAddress,
-			DestinationAddress: destinationAddress,
-		})
-		if err != nil {
-			return nil, err
-		}
-		paramKey = models.ServiceItemParamNameDistanceZip3
-		err = s.setLookup(serviceItemCode, paramKey, DistanceZip3Lookup{
-			PickupAddress:      pickupAddress,
-			DestinationAddress: destinationAddress,
-		})
-		if err != nil {
-			return nil, err
-		}
+	paramKey = models.ServiceItemParamNameDistanceZip5
+	err = s.setLookup(serviceItemCode, paramKey, DistanceZip5Lookup{
+		PickupAddress:      pickupAddress,
+		DestinationAddress: destinationAddress,
+	})
+	if err != nil {
+		return nil, err
+	}
+	paramKey = models.ServiceItemParamNameDistanceZip3
+	err = s.setLookup(serviceItemCode, paramKey, DistanceZip3Lookup{
+		PickupAddress:      pickupAddress,
+		DestinationAddress: destinationAddress,
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	paramKey = models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier
@@ -189,24 +208,20 @@ func ServiceParamLookupInitialize(
 		return nil, err
 	}
 
-	if mtoServiceItem.ReService.Code != models.ReServiceCodeDUPK {
-		paramKey = models.ServiceItemParamNameZipPickupAddress
-		err = s.setLookup(serviceItemCode, paramKey, ZipAddressLookup{
-			Address: pickupAddress,
-		})
-		if err != nil {
-			return nil, err
-		}
+	paramKey = models.ServiceItemParamNameZipPickupAddress
+	err = s.setLookup(serviceItemCode, paramKey, ZipAddressLookup{
+		Address: pickupAddress,
+	})
+	if err != nil {
+		return nil, err
 	}
 
-	if mtoServiceItem.ReService.Code != models.ReServiceCodeDPK {
-		paramKey = models.ServiceItemParamNameZipDestAddress
-		err = s.setLookup(serviceItemCode, paramKey, ZipAddressLookup{
-			Address: destinationAddress,
-		})
-		if err != nil {
-			return nil, err
-		}
+	paramKey = models.ServiceItemParamNameZipDestAddress
+	err = s.setLookup(serviceItemCode, paramKey, ZipAddressLookup{
+		Address: destinationAddress,
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	paramKey = models.ServiceItemParamNameMTOAvailableToPrimeAt
@@ -215,14 +230,12 @@ func ServiceParamLookupInitialize(
 		return nil, err
 	}
 
-	if mtoServiceItem.ReService.Code != models.ReServiceCodeDUPK {
-		paramKey = models.ServiceItemParamNameServiceAreaOrigin
-		err = s.setLookup(serviceItemCode, paramKey, ServiceAreaLookup{
-			Address: pickupAddress,
-		})
-		if err != nil {
-			return nil, err
-		}
+	paramKey = models.ServiceItemParamNameServiceAreaOrigin
+	err = s.setLookup(serviceItemCode, paramKey, ServiceAreaLookup{
+		Address: pickupAddress,
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	paramKey = models.ServiceItemParamNameServiceAreaDest
@@ -263,24 +276,20 @@ func ServiceParamLookupInitialize(
 		return nil, err
 	}
 
-	if mtoServiceItem.ReService.Code != models.ReServiceCodeDUPK {
-		paramKey = models.ServiceItemParamNameServicesScheduleOrigin
-		err = s.setLookup(serviceItemCode, paramKey, ServicesScheduleLookup{
-			Address: pickupAddress,
-		})
-		if err != nil {
-			return nil, err
-		}
+	paramKey = models.ServiceItemParamNameServicesScheduleOrigin
+	err = s.setLookup(serviceItemCode, paramKey, ServicesScheduleLookup{
+		Address: pickupAddress,
+	})
+	if err != nil {
+		return nil, err
 	}
 
-	if mtoServiceItem.ReService.Code != models.ReServiceCodeDPK {
-		paramKey = models.ServiceItemParamNameServicesScheduleDest
-		err = s.setLookup(serviceItemCode, paramKey, ServicesScheduleLookup{
-			Address: destinationAddress,
-		})
-		if err != nil {
-			return nil, err
-		}
+	paramKey = models.ServiceItemParamNameServicesScheduleDest
+	err = s.setLookup(serviceItemCode, paramKey, ServicesScheduleLookup{
+		Address: destinationAddress,
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	return &s, nil

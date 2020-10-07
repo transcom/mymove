@@ -32,15 +32,10 @@ func (suite *ServiceParamValueLookupsSuite) TestActualPickupDateLookup() {
 
 	suite.T().Run("golden path with param cache", func(t *testing.T) {
 		// FSC
-		reServiceFSC := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+		mtoServiceItemFSC := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: "FSC",
 			},
-		})
-
-		// FSC
-		mtoServiceItemFSC := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-			ReService: reServiceFSC,
 			MTOShipment: models.MTOShipment{
 				ActualPickupDate: &actualPickupDate,
 			},
