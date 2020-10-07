@@ -348,11 +348,16 @@ class Home extends Component {
                   step="3"
                 >
                   {this.hasAnyShipments ? (
-                    <ShipmentList
-                      shipments={allSortedShipments}
-                      onShipmentClick={this.handleShipmentClick}
-                      moveSubmitted={this.hasSubmittedMove}
-                    />
+                    <div>
+                      {this.hasSubmittedMove && !this.doesPpmAlreadyExist && (
+                        <p className={styles.descriptionExtra}>If you need to add shipments, let your movers know.</p>
+                      )}
+                      <ShipmentList
+                        shipments={allSortedShipments}
+                        onShipmentClick={this.handleShipmentClick}
+                        moveSubmitted={this.hasSubmittedMove}
+                      />
+                    </div>
                   ) : (
                     <Description>
                       Tell us where you&apos;re going and when you want to get there. We&apos;ll help you set up
