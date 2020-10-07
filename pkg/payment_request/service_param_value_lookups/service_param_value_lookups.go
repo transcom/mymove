@@ -78,25 +78,24 @@ func ServiceParamLookupInitialize(
 	}
 
 	//
-	// Query and save ServiceItemParamNameZipPickupAddress & ServiceItemParamNameZipDestAddress upfront
+	// Query and save PickupAddress & DestinationAddress upfront
+	// s.serviceItemNeedsParamKey() could be used to check if the PickupAddress or DestinationAddress
+	// can be used but it depends on the paramCache being set (not nil). It is possible to set the
+	// paramCache to nil, especially during unit test, so not using that function for this part.
 	//
 
 	var mtoShipment models.MTOShipment
 	var pickupAddress models.Address
 	var destinationAddress models.Address
-	var useShipmentPickupAddress bool
-	var useShipmentDestAddress bool
+	/*
+		var useShipmentPickupAddress bool
+		var useShipmentDestAddress bool
+	*/
 
-	useShipmentPickupAddress, err = s.serviceItemNeedsParamKey(mtoServiceItem.ReService.Code, models.ServiceItemParamNameZipPickupAddress)
-	if err != nil {
-		return nil, err
-	}
-	useShipmentDestAddress, err = s.serviceItemNeedsParamKey(mtoServiceItem.ReService.Code, models.ServiceItemParamNameZipDestAddress)
-	if err != nil {
-		return nil, err
-	}
-
-	if useShipmentPickupAddress == true || useShipmentDestAddress == true {
+	switch mtoServiceItem.ReService.Code {
+	case models.ReServiceCodeCS, models.ReServiceCodeMS:
+		// Do nothing, these service items don't use the MTOShipment
+	default:
 		// Make sure there's an MTOShipment since that's nullable
 		if mtoServiceItem.MTOShipmentID == nil {
 			return nil, services.NewNotFoundError(uuid.Nil, "looking for MTOShipmentID")
@@ -110,20 +109,20 @@ func ServiceParamLookupInitialize(
 				return nil, err
 			}
 		}
-	}
 
-	if useShipmentPickupAddress == true {
-		if mtoShipment.PickupAddressID == nil {
-			return nil, services.NewNotFoundError(uuid.Nil, "looking for PickupAddressID")
+		if mtoServiceItem.ReService.Code != models.ReServiceCodeDUPK {
+			if mtoShipment.PickupAddressID == nil {
+				return nil, services.NewNotFoundError(uuid.Nil, "looking for PickupAddressID")
+			}
+			pickupAddress = *mtoShipment.PickupAddress
 		}
-		pickupAddress = *mtoShipment.PickupAddress
-	}
 
-	if useShipmentDestAddress == true {
-		if mtoShipment.DestinationAddressID == nil {
-			return nil, services.NewNotFoundError(uuid.Nil, "looking for DestinationAddressID")
+		if mtoServiceItem.ReService.Code != models.ReServiceCodeDPK {
+			if mtoShipment.DestinationAddressID == nil {
+				return nil, services.NewNotFoundError(uuid.Nil, "looking for DestinationAddressID")
+			}
+			destinationAddress = *mtoShipment.DestinationAddress
 		}
-		destinationAddress = *mtoShipment.DestinationAddress
 	}
 
 	//
@@ -308,9 +307,57 @@ func (s *ServiceItemParamKeyData) setLookup(serviceItemCode models.ReServiceCode
 // serviceItemNeedsParamKey wrapper for using paramCache.ServiceItemNeedsParamKey, if s.paramCache is nil
 // we are not using the ParamCache and all lookups will be initialized and all param lookups will run their own
 // database queries
-
 func (s *ServiceItemParamKeyData) serviceItemNeedsParamKey(serviceItemCode models.ReServiceCode, paramKey models.ServiceItemParamName) (bool, error) {
 	if s.paramCache == nil {
+
+		/*
+				If we are presetting any lookups to maximize use vs having many queries or to make the lookup functions
+			    more DRY. Then the values that have been identified as needing presets need to be checked here
+			   	if the paramCache is nil.
+
+			   	These are the fields which are preset and should be called out if it is needed by each service item. The default is
+				to return true if the paramCache is nil. These checks will return false if the field is not used by service item:
+					- Address
+					- PickupAddress
+					- DestinationAddress
+		*/
+		switch paramKey {
+		case models.ServiceItemParamNameDistanceZip5, models.ServiceItemParamNameDistanceZip3:
+			switch serviceItemCode {
+			case models.ReServiceCodeDPK, models.ReServiceCodeDUPK:
+				return false, nil
+			}
+		case models.ServiceItemParamNameZipPickupAddress:
+			switch serviceItemCode {
+			case models.ReServiceCodeDUPK:
+				return false, nil
+			}
+		case models.ServiceItemParamNameZipDestAddress:
+			switch serviceItemCode {
+			case models.ReServiceCodeDPK:
+				return false, nil
+			}
+		case models.ServiceItemParamNameServiceAreaOrigin:
+			switch serviceItemCode {
+			case models.ReServiceCodeDUPK:
+				return false, nil
+			}
+		case models.ServiceItemParamNameServiceAreaDest:
+			switch serviceItemCode {
+			case models.ReServiceCodeDPK:
+				return false, nil
+			}
+		case models.ServiceItemParamNameServicesScheduleOrigin:
+			switch serviceItemCode {
+			case models.ReServiceCodeDUPK:
+				return false, nil
+			}
+		case models.ServiceItemParamNameServicesScheduleDest:
+			switch serviceItemCode {
+			case models.ReServiceCodeDPK:
+				return false, nil
+			}
+		}
 		return true, nil
 	}
 
