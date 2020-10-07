@@ -123,7 +123,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	}
 
 	if moveTaskOrder.ReferenceID == nil {
-		return ediinvoice.Invoice858C{}, fmt.Errorf("Invalid move taskorder. Must have a ReferenceID value")
+		return ediinvoice.Invoice858C{}, services.NewBadDataError("Invalid move taskorder. Must have a ReferenceID value")
 	}
 
 	bx := edisegment.BX{
@@ -168,7 +168,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	// Add service member details to header
 	serviceMemberSegments, err := g.createServiceMemberDetailSegments(paymentRequest.ID, moveTaskOrder.Orders.ServiceMember)
 	if err != nil {
-		return ediinvoice.Invoice858C{}, fmt.Errorf("Could not create service: %s", err)
+		return ediinvoice.Invoice858C{}, services.NewInvalidInputError(paymentRequest.ID, err, nil, "unable to service member segments")
 	}
 	edi858.Header = append(edi858.Header, serviceMemberSegments...)
 
@@ -188,7 +188,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		var g62Segments []edisegment.Segment
 		g62Segments, err = g.createG62Segments(paymentRequest.ID)
 		if err != nil {
-			return ediinvoice.Invoice858C{}, err
+			return ediinvoice.Invoice858C{}, services.NewInvalidInputError(paymentRequest.ID, err, nil, "unable to create G62 segments")
 		}
 		edi858.Header = append(edi858.Header, g62Segments...)
 	}
@@ -197,7 +197,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	var originDestinationSegments []edisegment.Segment
 	originDestinationSegments, err = g.createOriginAndDestinationSegments(paymentRequest.ID, moveTaskOrder.Orders)
 	if err != nil {
-		return ediinvoice.Invoice858C{}, err
+		return ediinvoice.Invoice858C{}, services.NewInvalidInputError(paymentRequest.ID, err, nil, "unable to create origin and destination segments")
 	}
 	edi858.Header = append(edi858.Header, originDestinationSegments...)
 
@@ -210,7 +210,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 
 	paymentServiceItemSegments, err := g.generatePaymentServiceItemSegments(paymentServiceItems)
 	if err != nil {
-		return ediinvoice.Invoice858C{}, fmt.Errorf("Could not generate payment service item segments: %w", err)
+		return ediinvoice.Invoice858C{}, services.NewInvalidInputError(paymentRequest.ID, err, nil, "unable to generate payment service item segments")
 	}
 	edi858.ServiceItems = append(edi858.ServiceItems, paymentServiceItemSegments...)
 
@@ -246,7 +246,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 	// rank
 	rank := serviceMember.Rank
 	if rank == nil {
-		return []edisegment.Segment{}, fmt.Errorf("no rank found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID)
+		return []edisegment.Segment{}, services.NewBadDataError(fmt.Sprintf("no rank found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID))
 	}
 	serviceMemberRank := edisegment.N9{
 		ReferenceIdentificationQualifier: "ML",
@@ -257,7 +257,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 	// branch
 	branch := serviceMember.Affiliation
 	if branch == nil {
-		return []edisegment.Segment{}, fmt.Errorf("no branch found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID)
+		return []edisegment.Segment{}, services.NewBadDataError(fmt.Sprintf("no branch found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID))
 	}
 	serviceMemberBranch := edisegment.N9{
 		ReferenceIdentificationQualifier: "3L",
@@ -332,7 +332,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	if orders.NewDutyStation.ID == uuid.Nil {
 		destinationDutyStation, err = models.FetchDutyStation(g.db, orders.NewDutyStationID)
 		if err != nil {
-			return []edisegment.Segment{}, fmt.Errorf("cannot load NewDutyStation %s for PaymentRequest %s: %w", orders.NewDutyStationID, paymentRequestID, err)
+			return []edisegment.Segment{}, services.NewInvalidInputError(orders.NewDutyStationID, err, nil, "unable to find new duty station")
 		}
 	} else {
 		destinationDutyStation = orders.NewDutyStation
@@ -340,7 +340,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 
 	destTransportationOffice, err := models.FetchDutyStationTransportationOffice(g.db, destinationDutyStation.ID)
 	if err != nil {
-		return []edisegment.Segment{}, fmt.Errorf("cannot load TransportationOffice for DutyStation %s for PaymentRequest %s: %w", orders.NewDutyStationID, paymentRequestID, err)
+		return []edisegment.Segment{}, services.NewInvalidInputError(destinationDutyStation.ID, err, nil, "unable to find destination duty station")
 	}
 
 	// destination name
@@ -383,18 +383,18 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	if orders.OriginDutyStationID != nil {
 		originDutyStation, err = models.FetchDutyStation(g.db, *orders.OriginDutyStationID)
 		if err != nil {
-			return []edisegment.Segment{}, fmt.Errorf("cannot load OriginDutyStation %s for PaymentRequest %s: %w", orders.OriginDutyStationID, paymentRequestID, err)
+			return []edisegment.Segment{}, services.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
 		}
 	} else {
 		if orders.OriginDutyStation == nil {
-			return []edisegment.Segment{}, fmt.Errorf("Invalid Order, must have OriginDutyStation")
+			return []edisegment.Segment{}, services.NewBadDataError("Invalid Order, must have OriginDutyStation")
 		}
 		originDutyStation = *orders.OriginDutyStation
 	}
 
 	originTransportationOffice, err := models.FetchDutyStationTransportationOffice(g.db, originDutyStation.ID)
 	if err != nil {
-		return []edisegment.Segment{}, fmt.Errorf("cannot load TransportationOffice for DutyStation %s for PaymentRequest %s: %w", orders.OriginDutyStationID, paymentRequestID, err)
+		return []edisegment.Segment{}, services.NewInvalidInputError(originDutyStation.ID, err, nil, "unable to find transportation office of origin duty station")
 	}
 
 	originName := edisegment.N1{
@@ -434,7 +434,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(orders models.Order) ([]edisegment.Segment, error) {
 	segments := []edisegment.Segment{}
 	if orders.TAC == nil {
-		return segments, fmt.Errorf("Invalid order. Must have a TAC value")
+		return segments, services.NewBadDataError("Invalid order. Must have a TAC value")
 	}
 	fa1 := edisegment.FA1{
 		AgencyQualifierCode: "DF",
@@ -461,9 +461,6 @@ func (g ghcPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(serviceI
 		Where("sk.key = ?", key).
 		First(&paymentServiceItemParam)
 	if err != nil {
-		return models.PaymentServiceItemParam{}, fmt.Errorf("Could not lookup PaymentServiceItemParam key (%s) payment service item id (%s): %w", key, serviceItemID, err)
-	}
-	if err != nil {
 		if err.Error() == "sql: no rows in result set" {
 			return models.PaymentServiceItemParam{}, services.NewNotFoundError(serviceItemID, "for paymentServiceItemParam")
 		}
@@ -475,7 +472,7 @@ func (g ghcPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(serviceI
 func (g ghcPaymentRequestInvoiceGenerator) getWeightParams(serviceItem models.PaymentServiceItem) (float64, error) {
 	weight, err := g.fetchPaymentServiceItemParam(serviceItem.ID, models.ServiceItemParamNameWeightBilledActual)
 	if err != nil {
-		return 0, err
+		return 0, services.NewInvalidInputError(serviceItem.ID, err, nil, "unable to find payment service item param")
 	}
 	weightFloat, err := strconv.ParseFloat(weight.Value, 64)
 	if err != nil {
@@ -490,7 +487,7 @@ func (g ghcPaymentRequestInvoiceGenerator) getWeightAndDistanceParams(serviceIte
 	// and the distance key can differ (zip3 v zip5, and distances for SIT)
 	weightFloat, err := g.getWeightParams(serviceItem)
 	if err != nil {
-		return 0, 0, fmt.Errorf("Could not parse weight for PaymentServiceItem %s: %w", serviceItem.ID, err)
+		return 0, 0, services.NewInvalidInputError(serviceItem.ID, err, nil, "unable to weight param for service item")
 	}
 	distanceModel := models.ServiceItemParamNameDistanceZip3
 	if serviceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDSH {
@@ -498,7 +495,7 @@ func (g ghcPaymentRequestInvoiceGenerator) getWeightAndDistanceParams(serviceIte
 	}
 	distance, err := g.fetchPaymentServiceItemParam(serviceItem.ID, distanceModel)
 	if err != nil {
-		return 0, 0, err
+		return 0, 0, services.NewInvalidInputError(serviceItem.ID, err, nil, "unable to find service item params")
 	}
 	distanceFloat, err := strconv.ParseFloat(distance.Value, 64)
 	if err != nil {
@@ -514,7 +511,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 	// Iterate over payment service items
 	for idx, serviceItem := range paymentServiceItems {
 		if serviceItem.PriceCents == nil {
-			return segments, fmt.Errorf("Invalid service item. Must have a PriceCents value")
+			return segments, services.NewBadDataError("Invalid service item. Must have a PriceCents value")
 		}
 		hierarchicalIDNumber := idx + 1
 		// Build and put together the segments
@@ -557,7 +554,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 			var err error
 			weightFloat, err = g.getWeightParams(serviceItem)
 			if err != nil {
-				return segments, fmt.Errorf("Could not parse weight or distance for PaymentServiceItem %w", err)
+				return segments, services.NewInvalidInputError(serviceItem.ID, err, nil, "unable to find weight params for service item")
 			}
 
 			l5Segment := edisegment.L5{
@@ -586,7 +583,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 			var err error
 			weightFloat, distanceFloat, err = g.getWeightAndDistanceParams(serviceItem)
 			if err != nil {
-				return segments, fmt.Errorf("Could not parse weight or distance for PaymentServiceItem %w", err)
+				return segments, services.NewInvalidInputError(serviceItem.ID, err, nil, "unable to find weight or distance params for service item")
 			}
 
 			l5Segment := edisegment.L5{
