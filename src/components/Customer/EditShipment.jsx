@@ -293,22 +293,23 @@ class EditShipment extends Component {
         >
           {({ values, isValid, dirty, isSubmitting, handleChange }) => (
             <Form>
-              <Fieldset legend="Pickup date" className="margin-top-4">
-                <Field
-                  as={DatePickerInput}
-                  name="requestedPickupDate"
-                  label="Requested pickup date"
-                  labelClassName={`margin-top-2 ${styles['small-bold']}`}
-                  id="requestedPickupDate"
-                  value={values.requestedPickupDate}
-                  validate={validateDate}
-                />
-                <Hint className="margin-top-1" id="pickupDateHint">
-                  Movers will contact you to schedule the actual pickup date. That date should fall within 7 days of
-                  your requested date. Tip: Avoid scheduling multiple shipments on the same day.
-                </Hint>
-              </Fieldset>
-              <Divider className="margin-top-4 margin-bottom-4" />
+              <div className="container">
+                <Fieldset legend="Pickup date" className="margin-top-4">
+                  <Field
+                    as={DatePickerInput}
+                    name="requestedPickupDate"
+                    label="Requested pickup date"
+                    labelClassName={`margin-top-2 ${styles['small-bold']}`}
+                    id="requestedPickupDate"
+                    value={values.requestedPickupDate}
+                    validate={validateDate}
+                  />
+                  <Hint className="margin-top-1" id="pickupDateHint">
+                    Movers will contact you to schedule the actual pickup date. That date should fall within 7 days of
+                    your requested date. Tip: Avoid scheduling multiple shipments on the same day.{' '}
+                  </Hint>
+                </Fieldset>
+              </div>
               <AddressFields
                 className="margin-bottom-3"
                 name="pickupAddress"
