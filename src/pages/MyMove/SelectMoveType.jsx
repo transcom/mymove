@@ -54,12 +54,15 @@ export class SelectMoveType extends Component {
       'Your things are packed and moved by professionals, paid for by the government. This is a Household Goods move (HHG).';
     const hhgCardTextPostSubmit = 'Talk with your movers directly if you want to add or change shipments.';
     const ppmCardTextAlreadyChosen = `You’ve already requested a PPM shipment. If you have more things to move yourself but that you can’t add to that shipment, contact the PPPO at your origin duty station.`;
+    const selectableCardDefaultProps = {
+      onChange: (e) => this.setMoveType(e),
+      name: 'moveType',
+    };
     const selectPpmHasNoPpm = (
       <SelectableCard
+        {...selectableCardDefaultProps} // eslint-disable-line
         label="Do it yourself"
-        onChange={(e) => this.setMoveType(e)}
         value={SHIPMENT_OPTIONS.PPM}
-        name="moveType"
         id={SHIPMENT_OPTIONS.PPM}
         cardText={ppmCardText}
         checked={moveType === SHIPMENT_OPTIONS.PPM}
@@ -67,10 +70,9 @@ export class SelectMoveType extends Component {
     );
     const selectPpmHasPpm = (
       <SelectableCard
+        {...selectableCardDefaultProps} // eslint-disable-line
         label="Do it yourself (already chosen)"
-        onChange={(e) => this.setMoveType(e)}
         value={SHIPMENT_OPTIONS.PPM}
-        name="moveType"
         id={SHIPMENT_OPTIONS.PPM}
         cardText={ppmCardTextAlreadyChosen}
         checked={moveType === SHIPMENT_OPTIONS.PPM}
@@ -78,10 +80,9 @@ export class SelectMoveType extends Component {
     );
     const selectHhgDefault = (
       <SelectableCard
+        {...selectableCardDefaultProps} // eslint-disable-line
         label="Professional movers"
-        onChange={(e) => this.setMoveType(e)}
         value={SHIPMENT_OPTIONS.HHG}
-        name="moveType"
         id={SHIPMENT_OPTIONS.HHG}
         cardText={hhgCardText}
         checked={moveType === SHIPMENT_OPTIONS.HHG}
@@ -89,10 +90,9 @@ export class SelectMoveType extends Component {
     );
     const selectHhgSubmittedMove = (
       <SelectableCard
+        {...selectableCardDefaultProps} // eslint-disable-line
         label="Professional movers"
-        onChange={(e) => this.setMoveType(e)}
         value={SHIPMENT_OPTIONS.HHG}
-        name="moveType"
         id={SHIPMENT_OPTIONS.HHG}
         cardText={hhgCardTextPostSubmit}
         checked={moveType === SHIPMENT_OPTIONS.HHG}
@@ -100,8 +100,8 @@ export class SelectMoveType extends Component {
     );
     const footerText = (
       <div className={styles.footer}>
-        It&apos;s OK if you&apos;re not sure about your choices. Your move counselor will go over all your options and
-        can help make changes if necessary.
+        It’s OK if you’re not sure about your choices. Your move counselor will go over all your options and can help
+        make changes if necessary.
       </div>
     );
     return (
