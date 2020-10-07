@@ -7,3 +7,5 @@ TRUNCATE TABLE payment_requests CASCADE;
 -- Add the new reference ID and make sure it has a unique index.
 ALTER TABLE payment_service_items
     ADD COLUMN reference_id VARCHAR(255) NOT NULL UNIQUE;
+
+COMMENT ON COLUMN payment_service_items.reference_id IS 'Shorter ID (used by EDI) to uniquely identify this payment service item. Format is the MTO reference ID, followed by a dash, followed by enough of the payment service item ID (without dashes) to make it unique.';
