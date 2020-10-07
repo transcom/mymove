@@ -61,6 +61,7 @@ has psql "brew install postgresql"
 has nodenv "brew install nodenv"
 has_path ".nodenv/shims" "nodenv init"
 has node "nodenv local 12.16.3"
+has golangci-lint "brew install golangci/tap/golangci-lint"
 
 # not on CircleCI
 if [[ -z ${CIRCLECI-} ]]; then
