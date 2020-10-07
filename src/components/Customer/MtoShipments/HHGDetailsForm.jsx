@@ -115,74 +115,22 @@ class HHGDetailsForm extends Component {
   };
 
   submitMTOShipment = ({
-    requestedPickupDate,
-    requestedDeliveryDate,
-    pickupAddress,
-    destinationAddress,
-    receivingAgent,
-    releasingAgent,
+    pickup,
+    delivery,
     customerRemarks,
   }) => {
     const { createMTOShipment, match } = this.props;
     const { hasDeliveryAddress } = this.state;
     const { moveId } = match.params;
-    const pendingMtoShipment = {
-      moveTaskOrderID: moveId,
-      shipmentType: SHIPMENT_OPTIONS.HHG,
-      requestedPickupDate: formatSwaggerDate(requestedPickupDate),
-      requestedDeliveryDate: formatSwaggerDate(requestedDeliveryDate),
+    
+    const pendingMtoShipment = formatMtoShipment({
+      moveId,
+      pickup,
       customerRemarks,
-      pickupAddress: {
-        street_address_1: pickupAddress.street_address_1,
-        street_address_2: pickupAddress.street_address_2,
-        city: pickupAddress.city,
-        state: pickupAddress.state.toUpperCase(),
-        postal_code: pickupAddress.postal_code,
-        country: pickupAddress.country,
-      },
-      agents: [],
-    };
+      shipmentType: SHIPMENT_OPTIONS.HHG,
+      delivery: hasDeliveryAddress ? delivery : undefined,
+    });
 
-    if (hasDeliveryAddress) {
-      pendingMtoShipment.destinationAddress = {
-        street_address_1: destinationAddress.street_address_1,
-        street_address_2: destinationAddress.street_address_2,
-        city: destinationAddress.city,
-        state: destinationAddress.state.toUpperCase(),
-        postal_code: destinationAddress.postal_code,
-        country: destinationAddress.country,
-      };
-    }
-
-    function formatAgent(agent) {
-      const agentCopy = { ...agent };
-      Object.keys(agentCopy).forEach((key) => {
-        /* eslint-disable security/detect-object-injection */
-        if (agentCopy[key] === '') {
-          delete agentCopy[key];
-        } else if (key === 'phone') {
-          const phoneNum = agentCopy[key];
-          // will be in format xxx-xxx-xxxx
-          agentCopy[key] = `${phoneNum.slice(0, 3)}-${phoneNum.slice(3, 6)}-${phoneNum.slice(6, 10)}`;
-        }
-        /* eslint-enable security/detect-object-injection */
-      });
-      return agentCopy;
-    }
-
-    if (releasingAgent) {
-      const formattedAgent = formatAgent(releasingAgent);
-      if (!isEmpty(formattedAgent)) {
-        pendingMtoShipment.agents.push({ ...formattedAgent, agentType: MTOAgentType.RELEASING });
-      }
-    }
-
-    if (receivingAgent) {
-      const formattedAgent = formatAgent(receivingAgent);
-      if (!isEmpty(formattedAgent)) {
-        pendingMtoShipment.agents.push({ ...formattedAgent, agentType: MTOAgentType.RECEIVING });
-      }
-    }
     createMTOShipment(pendingMtoShipment);
   };
 
