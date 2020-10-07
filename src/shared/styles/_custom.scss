@@ -1,6 +1,7 @@
 //Custom Components (not in USWDS)
 @import 'shared/styles/colors.scss';
 @import 'shared/styles/_mixins.scss';
+@import 'shared/styles/_variables.scss';
 
 html {
   scroll-behavior: smooth;
@@ -53,6 +54,27 @@ html {
     }
   }
 }
+
+.container-co {
+  @media (min-width: $tablet) {
+    @include u-bg('white');
+    @include u-radius('05');
+    @include u-border('base-lighter');
+    @include u-border('1px');
+    @include u-padding(5);
+
+    fieldset {
+      @include u-padding-top(0);
+      @include u-margin-top(0);
+    }
+  }
+}
+
+.wrapper-co .usa-form {
+  width: 100vw;
+  max-width: 715px;
+}
+
 
 //for displaying the containers in Storybook
 #containers {

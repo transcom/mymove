@@ -1,5 +1,8 @@
 @import 'shared/styles/_variables';
 @import 'shared/styles/colors';
+@import 'shared/styles/_mixins.scss';
+@import '../../shared/styles/basics';
+
 
 @media (max-width: $mobile) {
   .hhg-label {
