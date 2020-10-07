@@ -293,6 +293,9 @@ bin/send-to-gex: pkg/gen/ cmd/send_to_gex
 bin/tls-checker: cmd/tls-checker
 	go build -ldflags "$(LDFLAGS)" -o bin/tls-checker ./cmd/tls-checker
 
+bin/generate-payment-request-edi: cmd/generate-payment-request-edi
+	go build -ldflags "$(LDFLAGS)" -o bin/generate-payment-request-edi ./cmd/generate-payment-request-edi
+
 pkg/assets/assets.go:
 	scripts/gen-assets
 
