@@ -1,5 +1,3 @@
-/* eslint-disable react/no-unused-prop-types */
-/* eslint-disable no-console */
 /* eslint-disable camelcase */
 import React, { Component } from 'react';
 import { func, arrayOf, bool, shape, string, node, oneOfType } from 'prop-types';
@@ -8,6 +6,13 @@ import { connect } from 'react-redux';
 import { get, isEmpty } from 'lodash';
 
 import styles from './Home.module.scss';
+import {
+  HelperNeedsOrders,
+  HelperNeedsShipment,
+  HelperNeedsSubmitMove,
+  HelperSubmittedMove,
+  HelperSubmittedNoPPM,
+} from './HomeHelpers';
 
 import { withContext } from 'shared/AppContext';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
@@ -15,7 +20,6 @@ import Alert from 'shared/Alert';
 import PpmAlert from 'scenes/PpmLanding/PpmAlert';
 import SignIn from 'shared/User/SignIn';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import Helper from 'components/Customer/Home/Helper';
 import Step from 'components/Customer/Home/Step';
 import DocsUploaded from 'components/Customer/Home/DocsUploaded';
 import ShipmentList from 'components/Customer/Home/ShipmentList';
@@ -109,7 +113,7 @@ class Home extends Component {
 
   get hasAnyShipments() {
     const { mtoShipments, currentPpm } = this.props;
-    return (this.hasOrders && !!mtoShipments.length) || Object.keys(currentPpm).length;
+    return (this.hasOrders && !!mtoShipments.length) || !!Object.keys(currentPpm).length;
   }
 
   get hasSubmittedMove() {
@@ -122,6 +126,21 @@ class Home extends Component {
     return !!move.personally_procured_moves?.length;
   }
 
+  get hasHHGShipment() {
+    const { mtoShipments } = this.props;
+    return mtoShipments.some((s) => s.shipmentType === SHIPMENT_OPTIONS.HHG);
+  }
+
+  get hasNTSShipment() {
+    const { mtoShipments } = this.props;
+    return mtoShipments.some((s) => s.shipmentType === SHIPMENT_OPTIONS.NTS);
+  }
+
+  get hasPPMShipment() {
+    const { mtoShipments } = this.props;
+    return mtoShipments.some((s) => s.shipmentType === SHIPMENT_OPTIONS.PPM);
+  }
+
   get shipmentActionBtnLabel() {
     if (this.hasSubmittedMove && this.hasPpm) {
       return '';
@@ -130,26 +149,6 @@ class Home extends Component {
       return 'Add another shipment';
     }
     return 'Plan your shipments';
-  }
-
-  get getHelperHeaderText() {
-    if (!this.hasOrders) {
-      return 'Next step: Add your orders';
-    }
-
-    if (!this.hasAnyShipments) {
-      return 'Gather this info, then plan your shipments';
-    }
-
-    if (this.hasAnyShipments && !this.hasSubmittedMove) {
-      return 'Time to submit your move';
-    }
-
-    if (this.hasSubmittedMove) {
-      return 'Track your HHG move here';
-    }
-
-    return '';
   }
 
   resumeMove = () => {
@@ -184,61 +183,14 @@ class Home extends Component {
     });
   };
 
-  renderHelperListItems = (helperList) => {
-    return helperList.map((listItemText) => (
-      <li key={listItemText}>
-        <span>{listItemText}</span>
-      </li>
-    ));
-  };
-
-  renderHelperDescription = () => {
-    if (!this.hasOrders) {
-      return (
-        <ul>
-          {this.renderHelperListItems([
-            'If you have a hard copy, you can take photos of each page',
-            'If you have a PDF, you can upload that',
-          ])}
-        </ul>
-      );
-    }
-
-    if (!this.hasAnyShipments) {
-      return (
-        <ul>
-          {this.renderHelperListItems([
-            'Preferred moving details',
-            'Destination address (your new place, your duty station ZIP, or somewhere else)',
-            'Names and contact info for anyone you authorize to act on your behalf',
-          ])}
-        </ul>
-      );
-    }
-
-    if (this.hasAnyShipments && !this.hasSubmittedMove) {
-      return (
-        <ul>
-          {this.renderHelperListItems([
-            "Double check the info you've entered",
-            'Sign the legal agreement',
-            "You'll hear from a move counselor or your transportation office within a few days",
-          ])}
-        </ul>
-      );
-    }
-
+  renderHelper = () => {
+    if (!this.hasOrders) return <HelperNeedsOrders />;
+    if (!this.hasShipment) return <HelperNeedsShipment />;
+    if (this.hasShipment && !this.hasSubmittedMove) return <HelperNeedsSubmitMove />;
     if (this.hasSubmittedMove) {
-      return (
-        <ul>
-          {this.renderHelperListItems([
-            'Create a custom checklist at Plan My Move',
-            'Learn more about your new duty station',
-          ])}
-        </ul>
-      );
+      if (!this.hasPPMShipment) return <HelperSubmittedNoPPM />;
+      return <HelperSubmittedMove />;
     }
-
     return null;
   };
 
@@ -362,7 +314,7 @@ class Home extends Component {
             {loggedInUserSuccess && (
               <>
                 {this.renderAlert(loggedInUserError, createdServiceMemberError, moveSubmitSuccess, currentPpm)}
-                <Helper title={this.getHelperHeaderText}>{this.renderHelperDescription()}</Helper>
+                {this.renderHelper()}
                 <Step
                   complete={serviceMember.is_profile_complete}
                   completedHeaderText="Profile complete"
@@ -474,7 +426,6 @@ Home.propTypes = {
   loggedInUserError: bool.isRequired,
   isProfileComplete: bool.isRequired,
   createdServiceMemberIsLoading: bool,
-  createdServiceMemberSuccess: bool,
   createdServiceMemberError: string,
   moveSubmitSuccess: bool.isRequired,
   location: shape({}).isRequired,
@@ -493,7 +444,6 @@ Home.propTypes = {
 
 Home.defaultProps = {
   createdServiceMemberIsLoading: false,
-  createdServiceMemberSuccess: false,
   createdServiceMemberError: '',
   selectedMoveType: '',
   lastMoveIsCanceled: false,

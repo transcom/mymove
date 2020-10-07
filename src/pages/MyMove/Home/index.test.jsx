@@ -11,6 +11,7 @@ import { store } from 'shared/store';
 const defaultProps = {
   serviceMember: {
     current_station: {},
+    weight_allotment: {},
   },
   showLoggedInUser: jest.fn(),
   createServiceMember: jest.fn(),
@@ -30,10 +31,10 @@ const defaultProps = {
   move: {},
 };
 
-function mountHome(props = defaultProps) {
+function mountHome(props = {}) {
   return mount(
     <Provider store={store}>
-      <Home {...props} />
+      <Home {...defaultProps} {...props} />
     </Provider>,
   );
 }
@@ -44,9 +45,10 @@ describe('Home component', () => {
     expect(wrapper.find('Helper').length).toBe(1);
     expect(wrapper.find('Contact').length).toBe(1);
   });
+
   describe('contents of Step 3', () => {
     it('contains ppm and hhg cards if those shipments exist', () => {
-      let props = {
+      const props = {
         currentPpm: { id: '12345', createdAt: moment() },
         mtoShipments: [
           { id: '4321', createdAt: moment().add(1, 'days'), shipmentType: 'HHG' },
@@ -54,12 +56,111 @@ describe('Home component', () => {
         ],
       };
 
-      props = { ...defaultProps, ...props };
       const wrapper = mountHome(props);
       expect(wrapper.find('ShipmentListItem').length).toBe(3);
       expect(wrapper.find('ShipmentListItem').at(0).text()).toContain('HHG 1');
       expect(wrapper.find('ShipmentListItem').at(1).text()).toContain('PPM');
       expect(wrapper.find('ShipmentListItem').at(2).text()).toContain('HHG 2');
+    });
+  });
+
+  describe('if the user does not have orders', () => {
+    const wrapper = mountHome();
+
+    it('renders the NeedsOrders helper', () => {
+      expect(wrapper.find('HelperNeedsOrders').exists()).toBe(true);
+    });
+  });
+
+  describe('if the user has orders but not shipments', () => {
+    const wrapper = mountHome({
+      orders: { testOrder: 'test', new_duty_station: { name: 'Test Duty Station' } },
+      uploadedOrderDocuments: [{ filename: 'testOrder1.pdf' }],
+    });
+
+    it('renders the NeedsShipment helper', () => {
+      expect(wrapper.find('HelperNeedsShipment').exists()).toBe(true);
+    });
+  });
+
+  describe('if the user has orders and shipments but has not submitted their move', () => {
+    const wrapper = mountHome({
+      orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
+      uploadedOrderDocuments: [{ filename: 'testOrder1.pdf' }],
+      mtoShipments: [{ id: 'test123', shipmentType: 'HHG' }],
+    });
+
+    it('renders the NeedsSubmitMove helper', () => {
+      expect(wrapper.find('HelperNeedsSubmitMove').exists()).toBe(true);
+    });
+  });
+
+  describe('if the user has orders and a currentPpm but has not submitted their move', () => {
+    const wrapper = mountHome({
+      orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
+      uploadedOrderDocuments: [{ filename: 'testOrder1.pdf' }],
+      currentPpm: { id: 'testPpm123' },
+    });
+
+    it('renders the NeedsSubmitMove helper', () => {
+      expect(wrapper.find('HelperNeedsSubmitMove').exists()).toBe(true);
+    });
+  });
+
+  describe('if the user has submitted their move', () => {
+    describe('for PPM moves', () => {
+      const wrapper = mountHome({
+        orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
+        uploadedOrderDocuments: [{ filename: 'testOrder1.pdf' }],
+        mtoShipments: [{ id: 'test123', shipmentType: 'PPM' }],
+        move: { status: 'SUBMITTED' },
+      });
+
+      it('renders the SubmittedMove helper', () => {
+        expect(wrapper.find('HelperSubmittedMove').exists()).toBe(true);
+      });
+    });
+
+    describe('for HHG moves', () => {
+      const wrapper = mountHome({
+        orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
+        uploadedOrderDocuments: [{ filename: 'testOrder1.pdf' }],
+        mtoShipments: [{ id: 'test123', shipmentType: 'HHG' }],
+        move: { status: 'SUBMITTED' },
+      });
+
+      it('renders the SubmittedNoPPM helper', () => {
+        expect(wrapper.find('HelperSubmittedNoPPM').exists()).toBe(true);
+      });
+    });
+
+    describe('for NTS moves', () => {
+      const wrapper = mountHome({
+        orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
+        uploadedOrderDocuments: [{ filename: 'testOrder1.pdf' }],
+        mtoShipments: [{ id: 'test123', shipmentType: 'NTS' }],
+        move: { status: 'SUBMITTED' },
+      });
+
+      it('renders the SubmittedNoPPM helper', () => {
+        expect(wrapper.find('HelperSubmittedNoPPM').exists()).toBe(true);
+      });
+    });
+
+    describe('for HHG/PPM combo moves', () => {
+      const wrapper = mountHome({
+        orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
+        uploadedOrderDocuments: [{ filename: 'testOrder1.pdf' }],
+        mtoShipments: [
+          { id: 'test123', shipmentType: 'HHG' },
+          { id: 'test123', shipmentType: 'PPM' },
+        ],
+        move: { status: 'SUBMITTED' },
+      });
+
+      it('renders the SubmittedMove helper', () => {
+        expect(wrapper.find('HelperSubmittedMove').exists()).toBe(true);
+      });
     });
   });
 });
