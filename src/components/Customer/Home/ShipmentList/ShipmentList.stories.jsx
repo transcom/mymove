@@ -13,9 +13,9 @@ export const Basic = () => (
     <h3>Multiple shipments</h3>
     <ShipmentList
       shipments={[
-        { id: '#0001', shipmentType: SHIPMENT_OPTIONS.HHG },
-        { id: '#0002', shipmentType: SHIPMENT_OPTIONS.NTS },
-        { id: '#0003', shipmentType: SHIPMENT_OPTIONS.PPM },
+        { id: '0001', shipmentType: SHIPMENT_OPTIONS.HHG },
+        { id: '0002', shipmentType: SHIPMENT_OPTIONS.NTS },
+        { id: '0003', shipmentType: SHIPMENT_OPTIONS.PPM },
       ]}
       onShipmentClick={() => {}}
     />
