@@ -207,9 +207,7 @@ class Home extends Component {
     );
   };
 
-  handleShipmentClick = (shipmentId, shipmentNumber, shipmentType, canEdit) => {
-    if (!canEdit) return;
-
+  handleShipmentClick = (shipmentId, shipmentNumber, shipmentType) => {
     const { move, history } = this.props;
     let queryString = '';
     if (shipmentNumber) {
