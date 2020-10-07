@@ -87,10 +87,6 @@ func ServiceParamLookupInitialize(
 	var mtoShipment models.MTOShipment
 	var pickupAddress models.Address
 	var destinationAddress models.Address
-	/*
-		var useShipmentPickupAddress bool
-		var useShipmentDestAddress bool
-	*/
 
 	switch mtoServiceItem.ReService.Code {
 	case models.ReServiceCodeCS, models.ReServiceCodeMS:
