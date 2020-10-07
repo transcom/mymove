@@ -11,7 +11,7 @@
     "connected-react-router": "^6.8.0",
     "core-js": "^3.6.5",
     "filepond": "^4.19.2",
-    "filepond-plugin-file-validate-size": "^2.2.1",
+    "filepond-plugin-file-validate-size": "^2.2.2",
     "filepond-plugin-file-validate-type": "^1.2.5",
     "filepond-plugin-image-exif-orientation": "^1.0.9",
     "filepond-plugin-image-preview": "https://github.com/transcom/filepond-plugin-image-preview",
