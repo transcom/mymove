@@ -1,7 +1,7 @@
 import React from 'react';
 import { withKnobs } from '@storybook/addon-knobs';
 
-import { createStringHeader } from './utils';
+import { createHeader } from './utils';
 import Table from './Table';
 
 export default {
@@ -53,15 +53,15 @@ const data = [
 ];
 
 const columns = [
-  createStringHeader('Customer name', 'col1'),
-  createStringHeader('DoD ID', 'col2'),
-  createStringHeader('Status', 'col3'),
-  createStringHeader('Move ID', 'col4'),
-  createStringHeader('Branch', 'col5'),
-  createStringHeader('# of shipments', 'col6'),
-  createStringHeader('Destination duty station', 'col7'),
-  createStringHeader('Origin GBLOC', 'col8'),
-  createStringHeader('Last modified by', 'col9'),
+  createHeader('Customer name', 'col1'),
+  createHeader('DoD ID', 'col2'),
+  createHeader('Status', 'col3'),
+  createHeader('Move ID', 'col4'),
+  createHeader('Branch', 'col5'),
+  createHeader('# of shipments', 'col6'),
+  createHeader('Destination duty station', 'col7'),
+  createHeader('Origin GBLOC', 'col8'),
+  createHeader('Last modified by', 'col9'),
 ];
 
-export const Default = () => <Table data={data} columns={columns} />;
+export const TXOTable = () => <Table data={data} columns={columns} />;
