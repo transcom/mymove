@@ -103,7 +103,7 @@ export class Summary extends Component {
           pickupLocation={shipment.pickupAddress}
           receivingAgent={receivingAgent}
           releasingAgent={releasingAgent}
-          remarks={shipment.remarks}
+          remarks={shipment.customerRemarks}
           requestedDeliveryDate={shipment.requestedDeliveryDate}
           requestedPickupDate={shipment.requestedPickupDate}
           shipmentId={shipment.id}
