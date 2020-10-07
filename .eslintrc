@@ -53,6 +53,17 @@
         "paths": ["src"],
         "extensions": [".js", ".jsx", ".ts", ".tsx"]
       }
-    }
+    },
+    "linkComponents": [
+      // Components used as alternatives to <a> for linking, eg. <Link to={ url } />
+      {
+        "name": "Link",
+        "linkAttribute": "href"
+      },
+      {
+        "name": "Link",
+        "linkAttribute": "to"
+      }
+    ]
   }
 }

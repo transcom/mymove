@@ -3,14 +3,13 @@ package primeapi
 import (
 	"fmt"
 	"net/http/httptest"
-	"os"
 	"testing"
 
 	"github.com/gofrs/uuid"
 
 	"github.com/go-openapi/strfmt"
 
-	uploadop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/uploads"
+	uploadop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_request"
 	"github.com/transcom/mymove/pkg/handlers"
 
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
@@ -36,9 +35,7 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 			context,
 		}
 
-		file, err := os.Open("../../testdatagen/testdata/test.pdf")
-		defer file.Close()
-		suite.NoError(err)
+		file := suite.Fixture("test.pdf")
 
 		params := uploadop.CreateUploadParams{
 			HTTPRequest:      req,
@@ -56,9 +53,8 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 		handler := CreateUploadHandler{
 			context,
 		}
-		file, err := os.Open("../../testdatagen/testdata/test.pdf")
-		defer file.Close()
-		suite.NoError(err)
+
+		file := suite.Fixture("test.pdf")
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests/%s/uploads", paymentRequest.ID), nil)
 		req = suite.AuthenticateUserRequest(req, primeUser)
@@ -78,9 +74,8 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 		handler := CreateUploadHandler{
 			context,
 		}
-		file, err := os.Open("../../testdatagen/testdata/test.pdf")
-		defer file.Close()
-		suite.NoError(err)
+
+		file := suite.Fixture("test.pdf")
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests/%s/uploads", paymentRequest.ID), nil)
 		req = suite.AuthenticateUserRequest(req, primeUser)

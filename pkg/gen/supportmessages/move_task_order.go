@@ -59,7 +59,7 @@ type MoveTaskOrder struct {
 	// Unique 6-character code the customer can use to refer to their move
 	Locator string `json:"locator,omitempty"`
 
-	// MoveOrder associated with this MoveTaskOrder.
+	// move order
 	// Required: true
 	MoveOrder *MoveOrder `json:"moveOrder"`
 
@@ -69,10 +69,10 @@ type MoveTaskOrder struct {
 
 	mtoServiceItemsField []MTOServiceItem
 
-	// array of MTOShipments associated with the MoveTaskOrder.
+	// mto shipments
 	MtoShipments MTOShipments `json:"mtoShipments,omitempty"`
 
-	// Array of PaymentRequests associated with this MoveTaskOrder.
+	// payment requests
 	PaymentRequests PaymentRequests `json:"paymentRequests,omitempty"`
 
 	// If the move is a PPM, this is the estimated weight in lbs.
@@ -89,7 +89,7 @@ type MoveTaskOrder struct {
 	//
 	ReferenceID string `json:"referenceId,omitempty"`
 
-	// move status
+	// status
 	Status MoveStatus `json:"status,omitempty"`
 
 	// Date on which this MoveTaskOrder was last updated.

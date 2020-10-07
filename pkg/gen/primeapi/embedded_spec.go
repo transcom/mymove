@@ -83,7 +83,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/post-counseling-info": {
       "patch": {
-        "description": "Updates move task order after the counseling stage. Allows update of fields ppmType and ppmEstimatedWeight.",
+        "description": "### Functionality\nThis endpoint **updates** the MoveTaskOrder after the Prime has completed Counseling.\n\nPPM related information is updated here. Most other fields will be found on the specific MTOShipment and updated using [updateMTOShipment](#operation/updateMTOShipment).\n",
         "consumes": [
           "application/json"
         ],
@@ -190,7 +190,6 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "description": "This may be a MTOServiceItemBasic, MTOServiceItemDOFSIT or etc.",
               "$ref": "#/definitions/MTOServiceItem"
             }
           }
@@ -346,7 +345,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/addresses/{addressID}": {
       "put": {
-        "description": "### Functionality\nThis endpoint is used to **update** the addresses on an MTO Shipment. The address details completely replace the original, except for the UUID.\nTherefore a complete address should be sent in the request.\n\nThis endpoint **cannot create** an address.\nTo create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.\n\n### Errors:\nThe address must be associated with the mtoShipment passed in the url.\nIn other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress on the mtoShipment provided.\nIf it is not, caller will receive a **Conflict** Error.\n\nThe mtoShipment should be associated with an MTO that is available to prime.\nIf the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.\n",
+        "description": "### Functionality\nThis endpoint is used to **update** the addresses on an MTO Shipment. The address details completely replace the original, except for the UUID.\nTherefore a complete address should be sent in the request.\n\nThis endpoint **cannot create** an address.\nTo create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.\n\n### Errors\nThe address must be associated with the mtoShipment passed in the url.\nIn other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress on the mtoShipment provided.\nIf it is not, caller will receive a **Conflict** Error.\n\nThe mtoShipment should be associated with an MTO that is available to prime.\nIf the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.\n",
         "consumes": [
           "application/json"
         ],
@@ -425,6 +424,84 @@ func init() {
         }
       }
     },
+    "/mto-shipments/{mtoShipmentID}/agents/{agentID}": {
+      "put": {
+        "description": "### Functionality\nThis endpoint is used to **update** the agents for an MTO Shipment. Only the fields being modified need to be sent in the request body.\n\n### Errors:\nThe agent must always have a name and at least one method of contact (either ` + "`" + `email` + "`" + ` or ` + "`" + `phone` + "`" + `).\n\nThe agent must be associated with the MTO shipment passed in the url.\n\nThe shipment should be associated with an MTO that is available to the Prime.\nIf the caller requests an update to an agent, and the shipment is not on an available MTO, the caller will receive a **NotFound** response.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "updateMTOAgent",
+        "operationId": "updateMTOAgent",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the shipment associated with the agent",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the agent being updated",
+            "name": "agentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MTOAgent"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the agent.",
+            "schema": {
+              "$ref": "#/definitions/MTOAgent"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/payment-requests": {
       "post": {
         "description": "Creates a new instance of a paymentRequest.\nA newly created payment request is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n",
@@ -435,7 +512,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests"
+          "paymentRequest"
         ],
         "summary": "createPaymentRequest",
         "operationId": "createPaymentRequest",
@@ -484,7 +561,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/uploads": {
       "post": {
-        "description": "Uploads represent a single digital file, such as a JPEG, PNG, or PDF.",
+        "description": "### Functionality\nThis endpoint **uploads** a Proof of Service document for a PaymentRequest.\n\nThe PaymentRequest should already exist.\n\nPaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.\n",
         "consumes": [
           "multipart/form-data"
         ],
@@ -492,7 +569,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "uploads"
+          "paymentRequest"
         ],
         "summary": "createUpload",
         "operationId": "createUpload",
@@ -983,10 +1060,14 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
         "email": {
           "type": "string",
           "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "pattern": "^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})?$",
           "x-nullable": true
         },
         "firstName": {
@@ -1012,7 +1093,7 @@ func init() {
         "phone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^([2-9]\\d{2}-\\d{3}-\\d{4})?$",
           "x-nullable": true
         },
         "updatedAt": {
@@ -1173,7 +1254,7 @@ func init() {
               "type": "string",
               "format": "zip",
               "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
-              "example": 90210
+              "example": "90210"
             },
             "reServiceCode": {
               "description": "Service code allowed for this model type.",
@@ -1729,7 +1810,7 @@ func init() {
         },
         "value": {
           "type": "string",
-          "example": 3025
+          "example": "3025"
         }
       }
     },
@@ -1929,23 +2010,6 @@ func init() {
         "PaymentServiceItemUUID"
       ]
     },
-    "UpdatePaymentRequestStatus": {
-      "type": "object",
-      "properties": {
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "rejectionReason": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "documentation was incomplete"
-        },
-        "status": {
-          "$ref": "#/definitions/PaymentRequestStatus"
-        }
-      }
-    },
     "Upload": {
       "type": "object",
       "required": [
@@ -1966,7 +2030,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "filename": {
           "type": "string",
@@ -1974,7 +2039,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -2023,6 +2089,12 @@ func init() {
         "$ref": "#/definitions/ClientError"
       }
     },
+    "NotImplemented": {
+      "description": "The requested feature is still in development.",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
     "PermissionDenied": {
       "description": "The request was denied.",
       "schema": {
@@ -2047,7 +2119,21 @@ func init() {
         "$ref": "#/definitions/ValidationError"
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "moveTaskOrder"
+    },
+    {
+      "name": "mtoShipment"
+    },
+    {
+      "name": "paymentRequest"
+    },
+    {
+      "name": "mtoServiceItem"
+    }
+  ]
 }`))
 	FlatSwaggerJSON = json.RawMessage([]byte(`{
   "schemes": [
@@ -2130,7 +2216,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/post-counseling-info": {
       "patch": {
-        "description": "Updates move task order after the counseling stage. Allows update of fields ppmType and ppmEstimatedWeight.",
+        "description": "### Functionality\nThis endpoint **updates** the MoveTaskOrder after the Prime has completed Counseling.\n\nPPM related information is updated here. Most other fields will be found on the specific MTOShipment and updated using [updateMTOShipment](#operation/updateMTOShipment).\n",
         "consumes": [
           "application/json"
         ],
@@ -2255,7 +2341,6 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "description": "This may be a MTOServiceItemBasic, MTOServiceItemDOFSIT or etc.",
               "$ref": "#/definitions/MTOServiceItem"
             }
           }
@@ -2465,7 +2550,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/addresses/{addressID}": {
       "put": {
-        "description": "### Functionality\nThis endpoint is used to **update** the addresses on an MTO Shipment. The address details completely replace the original, except for the UUID.\nTherefore a complete address should be sent in the request.\n\nThis endpoint **cannot create** an address.\nTo create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.\n\n### Errors:\nThe address must be associated with the mtoShipment passed in the url.\nIn other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress on the mtoShipment provided.\nIf it is not, caller will receive a **Conflict** Error.\n\nThe mtoShipment should be associated with an MTO that is available to prime.\nIf the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.\n",
+        "description": "### Functionality\nThis endpoint is used to **update** the addresses on an MTO Shipment. The address details completely replace the original, except for the UUID.\nTherefore a complete address should be sent in the request.\n\nThis endpoint **cannot create** an address.\nTo create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.\n\n### Errors\nThe address must be associated with the mtoShipment passed in the url.\nIn other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress on the mtoShipment provided.\nIf it is not, caller will receive a **Conflict** Error.\n\nThe mtoShipment should be associated with an MTO that is available to prime.\nIf the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.\n",
         "consumes": [
           "application/json"
         ],
@@ -2568,6 +2653,105 @@ func init() {
         }
       }
     },
+    "/mto-shipments/{mtoShipmentID}/agents/{agentID}": {
+      "put": {
+        "description": "### Functionality\nThis endpoint is used to **update** the agents for an MTO Shipment. Only the fields being modified need to be sent in the request body.\n\n### Errors:\nThe agent must always have a name and at least one method of contact (either ` + "`" + `email` + "`" + ` or ` + "`" + `phone` + "`" + `).\n\nThe agent must be associated with the MTO shipment passed in the url.\n\nThe shipment should be associated with an MTO that is available to the Prime.\nIf the caller requests an update to an agent, and the shipment is not on an available MTO, the caller will receive a **NotFound** response.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "updateMTOAgent",
+        "operationId": "updateMTOAgent",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the shipment associated with the agent",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the agent being updated",
+            "name": "agentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MTOAgent"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the agent.",
+            "schema": {
+              "$ref": "#/definitions/MTOAgent"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/payment-requests": {
       "post": {
         "description": "Creates a new instance of a paymentRequest.\nA newly created payment request is assigned the status ` + "`" + `PENDING` + "`" + `.\nA move task order can have multiple payment requests, and\na final payment request can be marked using boolean ` + "`" + `isFinal` + "`" + `.\n",
@@ -2578,7 +2762,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests"
+          "paymentRequest"
         ],
         "summary": "createPaymentRequest",
         "operationId": "createPaymentRequest",
@@ -2639,7 +2823,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/uploads": {
       "post": {
-        "description": "Uploads represent a single digital file, such as a JPEG, PNG, or PDF.",
+        "description": "### Functionality\nThis endpoint **uploads** a Proof of Service document for a PaymentRequest.\n\nThe PaymentRequest should already exist.\n\nPaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.\n",
         "consumes": [
           "multipart/form-data"
         ],
@@ -2647,7 +2831,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "uploads"
+          "paymentRequest"
         ],
         "summary": "createUpload",
         "operationId": "createUpload",
@@ -3156,10 +3340,14 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
         "email": {
           "type": "string",
           "format": "x-email",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "pattern": "^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})?$",
           "x-nullable": true
         },
         "firstName": {
@@ -3185,7 +3373,7 @@ func init() {
         "phone": {
           "type": "string",
           "format": "telephone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^([2-9]\\d{2}-\\d{3}-\\d{4})?$",
           "x-nullable": true
         },
         "updatedAt": {
@@ -3346,7 +3534,7 @@ func init() {
               "type": "string",
               "format": "zip",
               "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
-              "example": 90210
+              "example": "90210"
             },
             "reServiceCode": {
               "description": "Service code allowed for this model type.",
@@ -3902,7 +4090,7 @@ func init() {
         },
         "value": {
           "type": "string",
-          "example": 3025
+          "example": "3025"
         }
       }
     },
@@ -4102,23 +4290,6 @@ func init() {
         "PaymentServiceItemUUID"
       ]
     },
-    "UpdatePaymentRequestStatus": {
-      "type": "object",
-      "properties": {
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "rejectionReason": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "documentation was incomplete"
-        },
-        "status": {
-          "$ref": "#/definitions/PaymentRequestStatus"
-        }
-      }
-    },
     "Upload": {
       "type": "object",
       "required": [
@@ -4139,7 +4310,8 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         },
         "filename": {
           "type": "string",
@@ -4147,7 +4319,8 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -4196,6 +4369,12 @@ func init() {
         "$ref": "#/definitions/ClientError"
       }
     },
+    "NotImplemented": {
+      "description": "The requested feature is still in development.",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
     "PermissionDenied": {
       "description": "The request was denied.",
       "schema": {
@@ -4220,6 +4399,20 @@ func init() {
         "$ref": "#/definitions/ValidationError"
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "moveTaskOrder"
+    },
+    {
+      "name": "mtoShipment"
+    },
+    {
+      "name": "paymentRequest"
+    },
+    {
+      "name": "mtoServiceItem"
+    }
+  ]
 }`))
 }

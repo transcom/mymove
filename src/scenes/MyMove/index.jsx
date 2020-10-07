@@ -17,7 +17,7 @@ import Alert from 'shared/Alert';
 import InfectedUpload from 'shared/Uploader/InfectedUpload';
 import ProcessingUpload from 'shared/Uploader/ProcessingUpload';
 import StyleGuide from 'scenes/StyleGuide';
-import Landing from 'scenes/Landing';
+import PpmLanding from 'scenes/PpmLanding';
 import Edit from 'scenes/Review/Edit';
 import EditProfile from 'scenes/Review/EditProfile';
 import EditBackupContact from 'scenes/Review/EditBackupContact';
@@ -75,7 +75,7 @@ export class AppWrapper extends Component {
   noMatch = () => (
     <div className="usa-grid">
       <div className="grid-container usa-prose">
-        <h2>Page not found</h2>
+        <h1>Page not found</h1>
         <p>Looks like you've followed a broken link or entered a URL that doesn't exist on this site.</p>
         <button className="usa-button" onClick={this.props.goBack}>
           Go Back
@@ -111,13 +111,13 @@ export class AppWrapper extends Component {
               {this.state.hasError && <SomethingWentWrong />}
               {!this.state.hasError && !props.swaggerError && (
                 <Switch>
-                  <Route exact path="/" component={Landing} />
-                  <Route exact path="/ppm" component={Landing} />
+                  <Route exact path="/" component={Home} />
+                  <Route exact path="/ppm" component={PpmLanding} />
                   <Route exact path="/sm_style_guide" component={StyleGuide} />
                   <Route path="/privacy-and-security-policy" component={PrivacyPolicyStatement} />
                   <Route path="/accessibility" component={AccessibilityStatement} />
                   {getWorkflowRoutes(props)}
-                  {props.context.flags.hhgFlow && <ValidatedPrivateRoute exact path="/home-2" component={Home} />}
+                  {props.context.flags.hhgFlow && <ValidatedPrivateRoute exact path="/" component={Home} />}
                   <ValidatedPrivateRoute exact path="/moves/:moveId/edit" component={Edit} />
                   <ValidatedPrivateRoute exact path="/moves/review/edit-profile" component={EditProfile} />
                   <ValidatedPrivateRoute

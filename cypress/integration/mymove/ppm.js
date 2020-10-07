@@ -125,7 +125,7 @@ function SMSubmitsMove() {
   cy.completeFlow();
 
   cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/ppm$/);
+    expect(loc.pathname).to.match(/^\/$/);
   });
 
   cy.get('.usa-alert--success').within(() => {
@@ -162,7 +162,6 @@ function SMCompletesMove() {
   cy.get('.wizard-header').should('not.exist');
   cy.get('#incentive-estimation-slider').click();
 
-  cy.get('[data-testid="incentive-range-text"]').contains('Not ready yet');
   cy.get('[data-icon="question-circle"]').click();
   cy.get('[data-testid="tooltip"]').contains(
     'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
@@ -191,7 +190,7 @@ function SMCompletesMove() {
   cy.completeFlow();
 
   cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/ppm$/);
+    expect(loc.pathname).to.match(/^\/$/);
   });
 
   cy.get('.usa-alert--success').within(() => {
@@ -200,19 +199,20 @@ function SMCompletesMove() {
     cy.get('a').contains('PPM info sheet').should('have.attr', 'href').and('include', '/downloads/ppm_info_sheet.pdf');
   });
 
+  cy.visit('/ppm');
   cy.contains('Payment: Not ready yet');
   cy.get('[data-icon="question-circle"]').click();
   cy.get('[data-testid="tooltip"]').contains(
     'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
   );
 
-  cy.get('[data-testid="edit-move"]').contains('Edit Move').click();
+  // cy.get('[data-testid="edit-move"]').contains('Edit Move').click();
 
-  cy.get('td').contains('Not ready yet');
-  cy.get('[data-icon="question-circle"]').click();
-  cy.get('[data-testid="tooltip"]').contains(
-    'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
-  );
+  // cy.get('td').contains('Not ready yet');
+  // cy.get('[data-icon="question-circle"]').click();
+  // cy.get('[data-testid="tooltip"]').contains(
+  //   'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
+  // );
 }
 
 function SMInputsSamePostalCodes() {

@@ -44,6 +44,7 @@
   list-style-type: none;
   @include u-padding(0);
   @include u-margin(0);
+  overflow-x: auto;
 }
 
 .menuItemBtn {
@@ -59,6 +60,9 @@
     word-wrap: break-word;
     @include u-margin-y(0);
     @include u-line-height('body', 2);
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
   }
 
   &:hover {

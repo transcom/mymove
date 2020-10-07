@@ -30,7 +30,7 @@ import {
 import { loadOrders } from 'shared/Entities/modules/orders';
 import LeftNav from 'components/LeftNav';
 import CustomerInfoTable from 'components/Office/CustomerInfoTable';
-import RequestedShipments from 'components/Office/RequestedShipments';
+import RequestedShipments from 'components/Office/RequestedShipments/RequestedShipments';
 import AllowancesTable from 'components/Office/AllowancesTable';
 import OrdersTable from 'components/Office/OrdersTable/OrdersTable';
 import {
@@ -174,9 +174,7 @@ export class MoveDetails extends Component {
       phone: `+1 ${customer.phone}`,
       email: customer.email,
       currentAddress: customer.current_address,
-      backupContactName: '',
-      backupContactPhone: '',
-      backupContactEmail: '',
+      backupContact: customer.backup_contact,
     };
 
     return (
@@ -204,6 +202,7 @@ export class MoveDetails extends Component {
                   allowancesInfo={allowancesInfo}
                   customerInfo={customerInfo}
                   mtoAgents={mtoAgents}
+                  mtoServiceItems={mtoServiceItems}
                   shipmentsStatus="SUBMITTED"
                   approveMTO={updateMoveTaskOrderStatus}
                   approveMTOShipment={patchMTOShipmentStatus}

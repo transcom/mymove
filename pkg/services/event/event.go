@@ -39,6 +39,27 @@ type Event struct {
 	logger          handlers.Logger         // The logger
 }
 
+// MoveOrderUpdateEventKey is a key containing MoveOrder.Update
+const MoveOrderUpdateEventKey KeyType = "MoveOrder.Update"
+
+// MoveTaskOrderCreateEventKey is a key containing MoveTaskOrder.Create
+const MoveTaskOrderCreateEventKey KeyType = "MoveTaskOrder.Create"
+
+// MoveTaskOrderUpdateEventKey is a key containing MoveTaskOrder.Update
+const MoveTaskOrderUpdateEventKey KeyType = "MoveTaskOrder.Update"
+
+// MTOShipmentCreateEventKey is a key containing MTOShipment.Create
+const MTOShipmentCreateEventKey KeyType = "MTOShipment.Create"
+
+// MTOShipmentUpdateEventKey is a key containing MTOShipment.Update
+const MTOShipmentUpdateEventKey KeyType = "MTOShipment.Update"
+
+// MTOServiceItemCreateEventKey is a key containing MTOServiceItem.Create
+const MTOServiceItemCreateEventKey KeyType = "MTOServiceItem.Create"
+
+// MTOServiceItemUpdateEventKey is a key containing MTOServiceItem.Update
+const MTOServiceItemUpdateEventKey KeyType = "MTOServiceItem.Update"
+
 // PaymentRequestCreateEventKey is a key containing PaymentRequest.Create
 const PaymentRequestCreateEventKey KeyType = "PaymentRequest.Create"
 
@@ -46,6 +67,13 @@ const PaymentRequestCreateEventKey KeyType = "PaymentRequest.Create"
 const PaymentRequestUpdateEventKey KeyType = "PaymentRequest.Update"
 
 var eventModels map[KeyType]eventModel = map[KeyType]eventModel{
+	MoveOrderUpdateEventKey:      {MoveOrderUpdateEventKey, models.Order{}},
+	MoveTaskOrderCreateEventKey:  {MoveTaskOrderCreateEventKey, models.Move{}},
+	MoveTaskOrderUpdateEventKey:  {MoveTaskOrderUpdateEventKey, models.Move{}},
+	MTOShipmentCreateEventKey:    {MTOShipmentCreateEventKey, models.MTOShipment{}},
+	MTOShipmentUpdateEventKey:    {MTOShipmentUpdateEventKey, models.MTOShipment{}},
+	MTOServiceItemCreateEventKey: {MTOServiceItemCreateEventKey, models.MTOServiceItem{}},
+	MTOServiceItemUpdateEventKey: {MTOServiceItemUpdateEventKey, models.MTOServiceItem{}},
 	PaymentRequestCreateEventKey: {PaymentRequestCreateEventKey, models.PaymentRequest{}},
 	PaymentRequestUpdateEventKey: {PaymentRequestUpdateEventKey, models.PaymentRequest{}},
 }

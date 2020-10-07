@@ -102,7 +102,7 @@ export const MoveTaskOrder = ({ match }) => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const serviceItems = mtoServiceItemsArr.map((item) => {
+  const serviceItems = mtoServiceItemsArr?.map((item) => {
     const newItem = { ...item };
     newItem.code = item.reServiceCode;
     newItem.serviceItem = item.reServiceName;
@@ -125,6 +125,17 @@ export const MoveTaskOrder = ({ match }) => {
     setIsModalVisible(true);
   };
 
+  const approved = (shipment) => shipment.status === 'APPROVED';
+  const mtoShipmentsArr = Object.values(mtoShipments);
+
+  if (!mtoShipmentsArr.some(approved)) {
+    return (
+      <div>
+        <p>This Move does not have any approved shipments yet.</p>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.tabContent}>
       <GridContainer className={styles.gridContainer} data-testid="too-shipment-container">
@@ -143,7 +154,10 @@ export const MoveTaskOrder = ({ match }) => {
           </div>
         </div>
 
-        {Object.values(mtoShipments).map((mtoShipment) => {
+        {mtoShipmentsArr.map((mtoShipment) => {
+          if (mtoShipment.status !== 'APPROVED') {
+            return false;
+          }
           const serviceItemsForShipment = serviceItems.filter((item) => item.mtoShipmentID === mtoShipment.id);
           const requestedServiceItems = serviceItemsForShipment.filter(
             (item) => item.status === SERVICE_ITEM_STATUS.SUBMITTED,
@@ -154,6 +168,9 @@ export const MoveTaskOrder = ({ match }) => {
           const rejectedServiceItems = serviceItemsForShipment.filter(
             (item) => item.status === SERVICE_ITEM_STATUS.REJECTED,
           );
+          // eslint-disable-next-line camelcase
+          const dutyStationPostal = { postal_code: moveOrder.destinationDutyStation.address.postal_code };
+
           return (
             <ShipmentContainer
               key={mtoShipment.id}
@@ -167,9 +184,7 @@ export const MoveTaskOrder = ({ match }) => {
                   originCity: get(mtoShipment.pickupAddress, 'city'),
                   originState: get(mtoShipment.pickupAddress, 'state'),
                   originPostalCode: get(mtoShipment.pickupAddress, 'postal_code'),
-                  destinationCity: get(mtoShipment.destinationAddress, 'city'),
-                  destinationState: get(mtoShipment.destinationAddress, 'state'),
-                  destinationPostalCode: get(mtoShipment.destinationAddress, 'postal_code'),
+                  destinationAddress: mtoShipment.destinationAddress || dutyStationPostal,
                   scheduledPickupDate: formatShipmentDate(mtoShipment.scheduledPickupDate),
                 }}
               />
@@ -179,7 +194,7 @@ export const MoveTaskOrder = ({ match }) => {
               />
               <ShipmentAddresses
                 pickupAddress={mtoShipment?.pickupAddress}
-                destinationAddress={mtoShipment?.destinationAddress}
+                destinationAddress={mtoShipment?.destinationAddress || dutyStationPostal}
                 originDutyStation={moveOrder?.originDutyStation?.address}
                 destinationDutyStation={moveOrder?.destinationDutyStation?.address}
               />

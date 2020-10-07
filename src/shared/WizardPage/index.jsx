@@ -8,7 +8,6 @@ import { push } from 'connected-react-router';
 import Alert from 'shared/Alert'; // eslint-disable-line
 import generatePath from './generatePath';
 import './index.css';
-import { mobileSize } from 'shared/constants';
 import scrollToTop from 'shared/scrollToTop';
 
 import { getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage, beforeTransition } from './utils';
@@ -18,7 +17,7 @@ export class WizardPage extends Component {
     super(props);
     this.nextPage = this.nextPage.bind(this);
     this.previousPage = this.previousPage.bind(this);
-    this.cancelFlow = this.cancelFlow.bind(this);
+    this.goHome = this.goHome.bind(this);
     this.beforeTransition = beforeTransition.bind(this);
   }
   componentDidUpdate() {
@@ -27,7 +26,7 @@ export class WizardPage extends Component {
   componentDidMount() {
     scrollToTop();
   }
-  cancelFlow() {
+  goHome() {
     this.props.push(`/`);
   }
 
@@ -51,8 +50,18 @@ export class WizardPage extends Component {
   }
 
   render() {
-    const isMobile = this.props.windowWidth < mobileSize;
-    const { handleSubmit, pageKey, pageList, children, error, pageIsValid, dirty, canMoveNext } = this.props;
+    const {
+      handleSubmit,
+      pageKey,
+      pageList,
+      children,
+      error,
+      pageIsValid,
+      dirty,
+      canMoveNext,
+      hideBackBtn,
+      showFinishLaterBtn,
+    } = this.props;
     const canMoveForward = pageIsValid && canMoveNext;
     const canMoveBackward = (pageIsValid || !dirty) && !isFirstPage(pageList, pageKey);
     return (
@@ -67,53 +76,51 @@ export class WizardPage extends Component {
           </div>
         )}
         {children}
-        <div className="grid-row" style={{ marginTop: '0.5rem' }}>
-          <div className="grid-col-10 text-right margin-top-6 margin-left-neg-1 tablet:margin-top-3 display-flex">
-            {!isFirstPage(pageList, pageKey) && (
-              <button
-                type="button"
-                className="usa-button usa-button--secondary"
-                onClick={this.previousPage}
-                disabled={!canMoveBackward}
-                data-testid="wizardBackButton"
-              >
-                Back
-              </button>
-            )}
-            {!isLastPage(pageList, pageKey) && (
-              <button
-                type="button"
-                className="usa-button"
-                onClick={this.nextPage}
-                disabled={!canMoveForward}
-                data-testid="wizardNextButton"
-              >
-                Next
-              </button>
-            )}
-            {isLastPage(pageList, pageKey) && (
-              <button
-                type="button"
-                className="usa-button"
-                onClick={handleSubmit}
-                disabled={!canMoveForward}
-                data-testid="wizardCompleteButton"
-              >
-                Complete
-              </button>
-            )}
-            {!isMobile && (
-              <button
-                type="button"
-                className="usa-button usa-button--unstyled padding-left-0"
-                onClick={this.cancelFlow}
-                disabled={false}
-                data-testid="wizardCancelButton"
-              >
-                Cancel
-              </button>
-            )}
-          </div>
+        <div className="grid-row" style={{ marginTop: '2rem' }}>
+          {!isFirstPage(pageList, pageKey) && !hideBackBtn && (
+            <button
+              type="button"
+              className="usa-button usa-button--secondary margin-right-0"
+              onClick={this.previousPage}
+              disabled={!canMoveBackward}
+              data-testid="wizardBackButton"
+            >
+              Back
+            </button>
+          )}
+          {!isLastPage(pageList, pageKey) && (
+            <button
+              type="button"
+              className="usa-button margin-right-0 next"
+              onClick={this.nextPage}
+              disabled={!canMoveForward}
+              data-testid="wizardNextButton"
+            >
+              Next
+            </button>
+          )}
+          {isLastPage(pageList, pageKey) && (
+            <button
+              type="button"
+              className="usa-button margin-right-0"
+              onClick={handleSubmit}
+              disabled={!canMoveForward}
+              data-testid="wizardCompleteButton"
+            >
+              Complete
+            </button>
+          )}
+          {showFinishLaterBtn && (
+            <button
+              type="button"
+              className="usa-button usa-button--unstyled finish-later margin-right-0"
+              onClick={this.goHome}
+              disabled={false}
+              data-testid="wizardFinishLaterButton"
+            >
+              Finish later
+            </button>
+          )}
         </div>
       </div>
     );
@@ -138,6 +145,8 @@ WizardPage.defaultProps = {
   pageIsValid: true,
   canMoveNext: true,
   dirty: true,
+  hideBackBtn: false,
+  showFinishLaterBtn: false,
 };
 
 function mapDispatchToProps(dispatch) {

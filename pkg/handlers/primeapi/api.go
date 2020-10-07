@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	mtoagent "github.com/transcom/mymove/pkg/services/mto_agent"
+
 	"github.com/go-openapi/loads"
 
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
@@ -49,7 +51,7 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 		mtoshipment.NewMTOShipmentUpdater(context.DB(), builder, fetcher, context.Planner()),
 	}
 
-	primeAPI.PaymentRequestsCreatePaymentRequestHandler = CreatePaymentRequestHandler{
+	primeAPI.PaymentRequestCreatePaymentRequestHandler = CreatePaymentRequestHandler{
 		context,
 		paymentrequest.NewPaymentRequestCreator(
 			context.DB(),
@@ -58,7 +60,7 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 		),
 	}
 
-	primeAPI.UploadsCreateUploadHandler = CreateUploadHandler{
+	primeAPI.PaymentRequestCreateUploadHandler = CreateUploadHandler{
 		context,
 		// To be fixed under this story: https://github.com/transcom/mymove/pull/3775/files#r397219200
 		// unable to get logger to pass in for instantiation
@@ -81,6 +83,11 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 	primeAPI.MtoShipmentUpdateMTOShipmentAddressHandler = UpdateMTOShipmentAddressHandler{
 		context,
 		mtoshipment.NewMTOShipmentAddressUpdater(context.DB()),
+	}
+
+	primeAPI.MtoShipmentUpdateMTOAgentHandler = UpdateMTOAgentHandler{
+		context,
+		mtoagent.NewMTOAgentUpdater(context.DB()),
 	}
 
 	return primeAPI.Serve(nil)

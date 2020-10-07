@@ -20,6 +20,9 @@ type Customer struct {
 	// Agency customer is affilated with
 	Agency string `json:"agency,omitempty"`
 
+	// backup contact
+	BackupContact *BackupContact `json:"backup_contact,omitempty"`
+
 	// current address
 	CurrentAddress *Address `json:"current_address,omitempty"`
 
@@ -56,6 +59,10 @@ type Customer struct {
 func (m *Customer) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateBackupContact(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateCurrentAddress(formats); err != nil {
 		res = append(res, err)
 	}
@@ -79,6 +86,24 @@ func (m *Customer) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *Customer) validateBackupContact(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.BackupContact) { // not required
+		return nil
+	}
+
+	if m.BackupContact != nil {
+		if err := m.BackupContact.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("backup_contact")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 

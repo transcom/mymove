@@ -580,12 +580,21 @@ jobs:
       - restore_cache:
           keys:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
+      - run:
+          name: Output processes and resource usage every 5 seconds while job is running
+          command: |
+            while true; do
+              sleep 5
+              ps auxwwf
+              echo "======"
+            done
+          background: true
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       # this is so we can avoid go mod downloading and resulting in an error on a false positive
       - run: scripts/pre-commit-go-mod || exit 0
       - run:
-          name: Run pre-commit tests without golangci-lint
-          command: SKIP=golangci-lint pre-commit run --all-files
+          name: Run pre-commit tests without golangci-lint, eslint, or prettier
+          command: SKIP=golangci-lint,eslint,prettier pre-commit run --all-files
       # The output of golangci-lint is an artifact towards STIG compliance
       - run:
           name: Run pre-commit tests with golangci-lint only
@@ -595,11 +604,21 @@ jobs:
             source $BASH_ENV
             mkdir -p tmp/test-results/pretest
             pre-commit run -v --all-files golangci-lint | tee tmp/test-results/pretest/golangci-lint.out
+      - run:
+          name: Run prettier checks
+          command: yarn prettier-ci
+      - run:
+          name: Run eslint checks
+          command: yarn lint
       # adding danger checks here as they are similar to our pre-commit hooks
       - run:
           name: Run DangerJS checks
           command: yarn danger ci --failOnErrors
       # `pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}` is used to cache pre-commit plugins.
+      - run:
+          name: Output maximum memory usage in Bytes
+          command: cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes
+          when: always
       - save_cache:
           key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
           paths:
@@ -700,11 +719,24 @@ jobs:
             - v1-cache-cypress-node-modules-{{ checksum "cypress/yarn.lock" }}
       - attach_workspace:
           at: /home/circleci/transcom/mymove/bin
+      - run:
+          name: Output processes and resource usage every 5 seconds while job is running
+          command: |
+            while true; do
+              sleep 5
+              ps auxwwf
+              echo "======"
+            done
+          background: true
       - run: rm -f pkg/assets/assets.go && make pkg/assets/assets.go
       - run: make server_generate
       - run: rm -f bin/generate-test-data && make bin/generate-test-data
       - run: rm -f bin/prime-api-client && make bin/prime-api-client
       - e2e_tests
+      - run:
+          name: Output maximum memory usage in Bytes
+          command: cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes
+          when: always
       - store_artifacts:
           path: cypress/videos
           destination: videos
@@ -885,13 +917,11 @@ jobs:
           repo: app
       - announce_failure
 
-  # `storybook_tests` builds the storybook application container and pushes to the container repository
+  # `storybook_tests` triggers visual regression tests in Happo and builds static storybook assets for deploy
   storybook_tests:
-    executor: mymove_medium_plus
+    executor: mymove_medium
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: false
       - restore_cache:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
@@ -899,24 +929,25 @@ jobs:
           keys:
             - v3-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run:
-          name: make storybook_tests
-          command: make storybook_tests
-          environment:
-            CHROME_CONCURRENCY: 3
-      - run: make storybook_build
+          name: Output processes and resource usage every 5 seconds while job is running
+          command: |
+            while true; do
+              sleep 5
+              ps auxwwf
+              echo "======"
+            done
+          background: true
+      - run:
+          name: Happo tests
+          command: yarn happo-ci
+      - run:
+          name: Output maximum memory usage in Bytes
+          command: cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes
+          when: always
       - persist_to_workspace:
           root: /home/circleci/transcom/mymove/
           paths:
             - storybook-static
-      - store_artifacts:
-          path: .loki/current
-          destination: current
-      - store_artifacts:
-          path: .loki/difference
-          destination: difference
-      - store_artifacts:
-          path: .loki/reference
-          destination: reference
       - announce_failure
 
   # `build_migrations` builds the migrations container
@@ -1070,50 +1101,6 @@ jobs:
           repo: app-tasks
       - announce_failure
 
-  # `deploy_experimental_migrations` deploys migrations to the experimental environment
-  deploy_experimental_migrations:
-    executor: mymove_small
-    environment:
-      - APP_ENVIRONMENT: 'experimental'
-    steps:
-      - aws_vars_legacy
-      - deploy_migrations_steps:
-          ecr_env: legacy
-
-  # `deploy_experimental_tasks` deploys scheduled tasks to the experimental environment
-  deploy_experimental_tasks:
-    executor: mymove_small
-    environment:
-      - APP_ENVIRONMENT: 'experimental'
-    steps:
-      - aws_vars_legacy
-      - deploy_tasks_steps:
-          ecr_env: legacy
-
-  # `deploy_experimental_app` updates the server-TLS app service in the experimental environment
-  deploy_experimental_app:
-    executor: mymove_small
-    environment:
-      - APP_ENVIRONMENT: 'experimental'
-    steps:
-      - aws_vars_legacy
-      - deploy_app_steps:
-          compare_host: '' # leave blank since we want experimental to be able to roll back
-          health_check_hosts: my.experimental.move.mil,office.experimental.move.mil,admin.experimental.move.mil
-          ecr_env: legacy
-
-  # `deploy_experimental_app_client_tls` updates the mutual-TLS service in the experimental environment
-  deploy_experimental_app_client_tls:
-    executor: mymove_small
-    environment:
-      - APP_ENVIRONMENT: 'experimental'
-    steps:
-      - aws_vars_legacy
-      - deploy_app_client_tls_steps:
-          compare_host: '' # leave blank since we want experimental to be able to roll back
-          health_check_hosts: gex.experimental.move.mil,dps.experimental.move.mil,orders.experimental.move.mil
-          ecr_env: legacy
-
   # `deploy_exp_migrations` deploys migrations to the exp environment
   deploy_exp_migrations:
     executor: mymove_small
@@ -1154,60 +1141,8 @@ jobs:
       - aws_vars_exp
       - deploy_app_client_tls_steps:
           compare_host: '' # leave blank since we want exp to be able to roll back
-          health_check_hosts: gex.exp.move.mil,dps.exp.move.mil,orders.exp.move.mil
+          health_check_hosts: gex.exp.move.mil,orders.exp.move.mil
           ecr_env: exp
-
-  check_circle_against_staging_sha:
-    executor: mymove_small
-    steps:
-      - checkout
-      - run:
-          name: Halt workflow to prevent old master deploying to staging
-          command: scripts/compare-deployed-commit my.staging.move.mil $CIRCLE_SHA1
-
-  # `deploy_staging_migrations` deploys migrations to the staging environment
-  deploy_staging_migrations:
-    executor: mymove_small
-    environment:
-      - APP_ENVIRONMENT: 'staging'
-    steps:
-      - aws_vars_legacy
-      - deploy_migrations_steps:
-          ecr_env: legacy
-
-  # `deploy_staging_tasks` deploys scheduled tasks to the staging environment
-  deploy_staging_tasks:
-    executor: mymove_small
-    environment:
-      - APP_ENVIRONMENT: 'staging'
-    steps:
-      - aws_vars_legacy
-      - deploy_tasks_steps:
-          ecr_env: legacy
-
-  # `deploy_staging_app` updates the server-TLS app service in staging environment
-  deploy_staging_app:
-    executor: mymove_small
-    environment:
-      - APP_ENVIRONMENT: 'staging'
-    steps:
-      - aws_vars_legacy
-      - deploy_app_steps:
-          compare_host: my.staging.move.mil
-          health_check_hosts: my.staging.move.mil,office.staging.move.mil,admin.staging.move.mil
-          ecr_env: legacy
-
-  # `deploy_staging_app_client_tls` updates the mutual-TLS service in the staging environment
-  deploy_staging_app_client_tls:
-    executor: mymove_small
-    environment:
-      - APP_ENVIRONMENT: 'staging'
-    steps:
-      - aws_vars_legacy
-      - deploy_app_client_tls_steps:
-          compare_host: gex.staging.move.mil
-          health_check_hosts: gex.staging.move.mil,dps.staging.move.mil,orders.staging.move.mil
-          ecr_env: legacy
 
   check_circle_against_stg_sha:
     executor: mymove_small
@@ -1258,7 +1193,7 @@ jobs:
       - aws_vars_stg
       - deploy_app_client_tls_steps:
           compare_host: gex.stg.move.mil
-          health_check_hosts: gex.stg.move.mil,dps.stg.move.mil,orders.stg.move.mil
+          health_check_hosts: gex.stg.move.mil,orders.stg.move.mil
           ecr_env: stg
 
   deploy_storybook_dp3:
@@ -1309,7 +1244,7 @@ jobs:
       - aws_vars_prd
       - deploy_app_client_tls_steps:
           compare_host: gex.move.mil
-          health_check_hosts: gex.move.mil,dps.move.mil,orders.move.mil
+          health_check_hosts: gex.move.mil,orders.move.mil
           ecr_env: prd
 
 workflows:
@@ -1420,41 +1355,6 @@ workflows:
           requires:
             - build_tasks
 
-      - deploy_experimental_migrations:
-          requires:
-            - pre_test
-            - client_test
-            - server_test
-            - acceptance_tests
-            - push_app_legacy
-            - build_tools
-            - push_tasks_legacy
-            - push_migrations_legacy
-          filters:
-            branches:
-              only: placeholder_branch_name
-
-      - deploy_experimental_tasks:
-          requires:
-            - deploy_experimental_migrations
-          filters:
-            branches:
-              only: placeholder_branch_name
-
-      - deploy_experimental_app:
-          requires:
-            - deploy_experimental_migrations
-          filters:
-            branches:
-              only: placeholder_branch_name
-
-      - deploy_experimental_app_client_tls:
-          requires:
-            - deploy_experimental_migrations
-          filters:
-            branches:
-              only: placeholder_branch_name
-
       - push_app_exp:
           requires:
             - build_app
@@ -1510,50 +1410,6 @@ workflows:
           filters:
             branches:
               only: placeholder_branch_name
-
-      - check_circle_against_staging_sha:
-          requires:
-            - pre_test
-            - client_test
-            - server_test
-            - push_app_legacy
-            - build_tools
-            - push_migrations_legacy
-            - push_tasks_legacy
-            - acceptance_tests
-            - integration_tests
-            - integration_tests_mtls
-          filters:
-            branches:
-              only: master
-
-      - deploy_staging_migrations:
-          requires:
-            - check_circle_against_staging_sha
-          filters:
-            branches:
-              only: master
-
-      - deploy_staging_tasks:
-          requires:
-            - deploy_staging_migrations
-          filters:
-            branches:
-              only: master
-
-      - deploy_staging_app:
-          requires:
-            - deploy_staging_migrations
-          filters:
-            branches:
-              only: master
-
-      - deploy_staging_app_client_tls:
-          requires:
-            - deploy_staging_migrations
-          filters:
-            branches:
-              only: master
 
       - push_app_stg:
           requires:

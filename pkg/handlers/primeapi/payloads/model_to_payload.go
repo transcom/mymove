@@ -201,6 +201,7 @@ func MTOAgent(mtoAgent *models.MTOAgent) *primemessages.MTOAgent {
 		MtoShipmentID: strfmt.UUID(mtoAgent.MTOShipmentID.String()),
 		CreatedAt:     strfmt.DateTime(mtoAgent.CreatedAt),
 		UpdatedAt:     strfmt.DateTime(mtoAgent.UpdatedAt),
+		ETag:          etag.GenerateEtag(mtoAgent.UpdatedAt),
 	}
 }
 
@@ -394,7 +395,6 @@ func MTOShipments(mtoShipments *models.MTOShipments) *primemessages.MTOShipments
 // MTOServiceItem payload
 func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServiceItem {
 	var payload primemessages.MTOServiceItem
-
 	// here we determine which payload model to use based on the re service code
 	switch mtoServiceItem.ReService.Code {
 	case models.ReServiceCodeDOFSIT:
@@ -479,6 +479,20 @@ func InternalServerError(detail *string, traceID uuid.UUID) *primemessages.Error
 	payload := primemessages.Error{
 		Title:    handlers.FmtString(handlers.InternalServerErrMessage),
 		Detail:   handlers.FmtString(handlers.InternalServerErrDetail),
+		Instance: strfmt.UUID(traceID.String()),
+	}
+	if detail != nil {
+		payload.Detail = detail
+	}
+	return &payload
+}
+
+// NotImplementedError describes errors for endpoints and functions that haven't been fully developed yet.
+// If detail is nil, string defaults to "This feature is in development"
+func NotImplementedError(detail *string, traceID uuid.UUID) *primemessages.Error {
+	payload := primemessages.Error{
+		Title:    handlers.FmtString(handlers.NotImplementedErrMessage),
+		Detail:   handlers.FmtString(handlers.NotImplementedErrDetail),
 		Instance: strfmt.UUID(traceID.String()),
 	}
 	if detail != nil {

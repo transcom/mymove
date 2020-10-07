@@ -14,7 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_shipment"
-	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/payment_requests"
+	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/payment_request"
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/webhook"
 )
 
@@ -48,9 +48,14 @@ func configureAPI(api *supportoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation move_task_order.GetMoveTaskOrder has not yet been implemented")
 		})
 	}
-	if api.PaymentRequestsListMTOPaymentRequestsHandler == nil {
-		api.PaymentRequestsListMTOPaymentRequestsHandler = payment_requests.ListMTOPaymentRequestsHandlerFunc(func(params payment_requests.ListMTOPaymentRequestsParams) middleware.Responder {
-			return middleware.NotImplemented("operation payment_requests.ListMTOPaymentRequests has not yet been implemented")
+	if api.PaymentRequestGetPaymentRequestEDIHandler == nil {
+		api.PaymentRequestGetPaymentRequestEDIHandler = payment_request.GetPaymentRequestEDIHandlerFunc(func(params payment_request.GetPaymentRequestEDIParams) middleware.Responder {
+			return middleware.NotImplemented("operation payment_request.GetPaymentRequestEDI has not yet been implemented")
+		})
+	}
+	if api.PaymentRequestListMTOPaymentRequestsHandler == nil {
+		api.PaymentRequestListMTOPaymentRequestsHandler = payment_request.ListMTOPaymentRequestsHandlerFunc(func(params payment_request.ListMTOPaymentRequestsParams) middleware.Responder {
+			return middleware.NotImplemented("operation payment_request.ListMTOPaymentRequests has not yet been implemented")
 		})
 	}
 	if api.MoveTaskOrderListMTOsHandler == nil {
@@ -78,9 +83,9 @@ func configureAPI(api *supportoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation mto_shipment.UpdateMTOShipmentStatus has not yet been implemented")
 		})
 	}
-	if api.PaymentRequestsUpdatePaymentRequestStatusHandler == nil {
-		api.PaymentRequestsUpdatePaymentRequestStatusHandler = payment_requests.UpdatePaymentRequestStatusHandlerFunc(func(params payment_requests.UpdatePaymentRequestStatusParams) middleware.Responder {
-			return middleware.NotImplemented("operation payment_requests.UpdatePaymentRequestStatus has not yet been implemented")
+	if api.PaymentRequestUpdatePaymentRequestStatusHandler == nil {
+		api.PaymentRequestUpdatePaymentRequestStatusHandler = payment_request.UpdatePaymentRequestStatusHandlerFunc(func(params payment_request.UpdatePaymentRequestStatusParams) middleware.Responder {
+			return middleware.NotImplemented("operation payment_request.UpdatePaymentRequestStatus has not yet been implemented")
 		})
 	}
 

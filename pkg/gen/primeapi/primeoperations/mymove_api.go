@@ -22,8 +22,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
-	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_requests"
-	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/uploads"
+	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_request"
 )
 
 // NewMymoveAPI creates a new Mymove instance
@@ -50,14 +49,17 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MtoShipmentCreateMTOShipmentHandler: mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation MtoShipmentCreateMTOShipment has not yet been implemented")
 		}),
-		PaymentRequestsCreatePaymentRequestHandler: payment_requests.CreatePaymentRequestHandlerFunc(func(params payment_requests.CreatePaymentRequestParams) middleware.Responder {
-			return middleware.NotImplemented("operation PaymentRequestsCreatePaymentRequest has not yet been implemented")
+		PaymentRequestCreatePaymentRequestHandler: payment_request.CreatePaymentRequestHandlerFunc(func(params payment_request.CreatePaymentRequestParams) middleware.Responder {
+			return middleware.NotImplemented("operation PaymentRequestCreatePaymentRequest has not yet been implemented")
 		}),
-		UploadsCreateUploadHandler: uploads.CreateUploadHandlerFunc(func(params uploads.CreateUploadParams) middleware.Responder {
-			return middleware.NotImplemented("operation UploadsCreateUpload has not yet been implemented")
+		PaymentRequestCreateUploadHandler: payment_request.CreateUploadHandlerFunc(func(params payment_request.CreateUploadParams) middleware.Responder {
+			return middleware.NotImplemented("operation PaymentRequestCreateUpload has not yet been implemented")
 		}),
 		MoveTaskOrderFetchMTOUpdatesHandler: move_task_order.FetchMTOUpdatesHandlerFunc(func(params move_task_order.FetchMTOUpdatesParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderFetchMTOUpdates has not yet been implemented")
+		}),
+		MtoShipmentUpdateMTOAgentHandler: mto_shipment.UpdateMTOAgentHandlerFunc(func(params mto_shipment.UpdateMTOAgentParams) middleware.Responder {
+			return middleware.NotImplemented("operation MtoShipmentUpdateMTOAgent has not yet been implemented")
 		}),
 		MoveTaskOrderUpdateMTOPostCounselingInformationHandler: move_task_order.UpdateMTOPostCounselingInformationHandlerFunc(func(params move_task_order.UpdateMTOPostCounselingInformationParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderUpdateMTOPostCounselingInformation has not yet been implemented")
@@ -108,12 +110,14 @@ type MymoveAPI struct {
 	MtoServiceItemCreateMTOServiceItemHandler mto_service_item.CreateMTOServiceItemHandler
 	// MtoShipmentCreateMTOShipmentHandler sets the operation handler for the create m t o shipment operation
 	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
-	// PaymentRequestsCreatePaymentRequestHandler sets the operation handler for the create payment request operation
-	PaymentRequestsCreatePaymentRequestHandler payment_requests.CreatePaymentRequestHandler
-	// UploadsCreateUploadHandler sets the operation handler for the create upload operation
-	UploadsCreateUploadHandler uploads.CreateUploadHandler
+	// PaymentRequestCreatePaymentRequestHandler sets the operation handler for the create payment request operation
+	PaymentRequestCreatePaymentRequestHandler payment_request.CreatePaymentRequestHandler
+	// PaymentRequestCreateUploadHandler sets the operation handler for the create upload operation
+	PaymentRequestCreateUploadHandler payment_request.CreateUploadHandler
 	// MoveTaskOrderFetchMTOUpdatesHandler sets the operation handler for the fetch m t o updates operation
 	MoveTaskOrderFetchMTOUpdatesHandler move_task_order.FetchMTOUpdatesHandler
+	// MtoShipmentUpdateMTOAgentHandler sets the operation handler for the update m t o agent operation
+	MtoShipmentUpdateMTOAgentHandler mto_shipment.UpdateMTOAgentHandler
 	// MoveTaskOrderUpdateMTOPostCounselingInformationHandler sets the operation handler for the update m t o post counseling information operation
 	MoveTaskOrderUpdateMTOPostCounselingInformationHandler move_task_order.UpdateMTOPostCounselingInformationHandler
 	// MtoShipmentUpdateMTOShipmentHandler sets the operation handler for the update m t o shipment operation
@@ -195,16 +199,20 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "mto_shipment.CreateMTOShipmentHandler")
 	}
 
-	if o.PaymentRequestsCreatePaymentRequestHandler == nil {
-		unregistered = append(unregistered, "payment_requests.CreatePaymentRequestHandler")
+	if o.PaymentRequestCreatePaymentRequestHandler == nil {
+		unregistered = append(unregistered, "payment_request.CreatePaymentRequestHandler")
 	}
 
-	if o.UploadsCreateUploadHandler == nil {
-		unregistered = append(unregistered, "uploads.CreateUploadHandler")
+	if o.PaymentRequestCreateUploadHandler == nil {
+		unregistered = append(unregistered, "payment_request.CreateUploadHandler")
 	}
 
 	if o.MoveTaskOrderFetchMTOUpdatesHandler == nil {
 		unregistered = append(unregistered, "move_task_order.FetchMTOUpdatesHandler")
+	}
+
+	if o.MtoShipmentUpdateMTOAgentHandler == nil {
+		unregistered = append(unregistered, "mto_shipment.UpdateMTOAgentHandler")
 	}
 
 	if o.MoveTaskOrderUpdateMTOPostCounselingInformationHandler == nil {
@@ -333,17 +341,22 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/payment-requests"] = payment_requests.NewCreatePaymentRequest(o.context, o.PaymentRequestsCreatePaymentRequestHandler)
+	o.handlers["POST"]["/payment-requests"] = payment_request.NewCreatePaymentRequest(o.context, o.PaymentRequestCreatePaymentRequestHandler)
 
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/payment-requests/{paymentRequestID}/uploads"] = uploads.NewCreateUpload(o.context, o.UploadsCreateUploadHandler)
+	o.handlers["POST"]["/payment-requests/{paymentRequestID}/uploads"] = payment_request.NewCreateUpload(o.context, o.PaymentRequestCreateUploadHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/move-task-orders"] = move_task_order.NewFetchMTOUpdates(o.context, o.MoveTaskOrderFetchMTOUpdatesHandler)
+
+	if o.handlers["PUT"] == nil {
+		o.handlers["PUT"] = make(map[string]http.Handler)
+	}
+	o.handlers["PUT"]["/mto-shipments/{mtoShipmentID}/agents/{agentID}"] = mto_shipment.NewUpdateMTOAgent(o.context, o.MtoShipmentUpdateMTOAgentHandler)
 
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)

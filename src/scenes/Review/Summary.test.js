@@ -77,7 +77,7 @@ describe('Summary page', () => {
     expect(wrapper.containsMatchingElement(<h3>Add another shipment</h3>)).toBe(true);
   });
   it('add shipment button exists', () => {
-    let btn = wrapper.find('.usa-button--secondary');
-    expect(btn.text()).toBe('<u />');
+    const btn = wrapper.find('[data-testid="addAnotherShipmentBtn"]');
+    expect(btn.exists()).toBe(true);
   });
 });

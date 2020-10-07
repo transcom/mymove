@@ -20,8 +20,7 @@ describe('HHG Setup flow', function () {
     customerFillsOutOrdersInformation();
     customerChoosesAnHHGMove();
     customerSetsUpAnHHGMove();
-    customerAddsAnotherShipment();
-    customerReviewsMoveDetails();
+    customerReviewsMoveDetailsAndEditsHHG();
     customerSubmitsMove();
   });
 });
@@ -136,12 +135,14 @@ function customerFillsOutOrdersInformation() {
   cy.get('h1').contains('Figure out your shipments');
   cy.nextPage();
 
-  cy.visit('/home-2');
+  cy.visit('/');
   cy.get('[data-testid="doc-list-container"]').contains('top-secret.png');
-  cy.go('back');
+  cy.get('button').contains('Plan your shipments').click();
 }
 
 function customerChoosesAnHHGMove() {
+  cy.get('h1').contains('Figure out your shipments');
+  cy.nextPage();
   cy.get('h1').contains('How do you want to move your belongings?');
 
   cy.get('input[type="radio"]').last().check({ force: true });
@@ -231,12 +232,7 @@ function customerSetsUpAnHHGMove() {
   cy.nextPage();
 }
 
-function customerAddsAnotherShipment() {
-  cy.get('button[data-testid="wizardBackButton"]').should('be.enabled').click();
-  customerSetsUpAnHHGMove();
-}
-
-function customerReviewsMoveDetails() {
+function customerReviewsMoveDetailsAndEditsHHG() {
   cy.get('[data-testid="review-move-header"]').contains('Review your details');
 
   cy.get('[data-testid="hhg-summary"]').find('h4').contains('Shipment 1: HHG').find('a').contains('Edit').click();
@@ -264,11 +260,16 @@ function customerReviewsMoveDetails() {
   cy.get('[data-testid="hhg-summary"]').find('table').contains('some edited customer remark');
   cy.get('[data-testid="hhg-summary"]').find('table').contains('JohnJohnson Lee');
 
+  // Check that finish later button takes them to home page
+  cy.get('button').contains('Finish later').click();
+  cy.get('h3').contains('Time to submit your move');
+  cy.get('button').contains('Review and submit').click();
+
   cy.nextPage();
 }
 
 function customerSubmitsMove() {
-  cy.get('h2').contains('Now for the official part...');
+  cy.get('h1').contains('Now for the official part...');
   cy.get('input[name="signature"]').type('Signature');
   cy.get('button').contains('Complete').click();
   cy.get('.usa-alert--success').within(() => {

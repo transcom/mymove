@@ -21,8 +21,10 @@ const match = {
 };
 
 const push = jest.fn();
+let wrapper;
 
 describe('Loads MoveInfo', () => {
+  // TODO: fix this tests- currently only rendering the Loader
   it('renders without crashing', () => {
     const div = document.createElement('div');
     ReactDOM.render(
@@ -34,15 +36,34 @@ describe('Loads MoveInfo', () => {
             location={location}
             match={match}
             loadMoveDependencies={dummyFunc}
+            history={{ location: {} }}
           />
         </Router>
       </Provider>,
       div,
     );
   });
+  it.skip('shows the Basic and PPM tabs', () => {
+    // TODO: apply loadDependenciesHasError and loadDependenciesHasSuccess values through store (currently renders Loader only)
+    wrapper = mount(
+      <Provider store={store}>
+        <Router push={push}>
+          <MoveInfo
+            loadDependenciesHasError={false}
+            loadDependenciesHasSuccess={true}
+            location={location}
+            match={match}
+            loadMoveDependencies={dummyFunc}
+            history={{ location: {} }}
+          />
+        </Router>
+      </Provider>,
+    );
+    expect(wrapper.find('[data-testid="basics-tab"]').length).toBe(1);
+    expect(wrapper.find('[data-testid="ppm-tab"]').length).toBe(1);
+  });
 });
 
-let wrapper;
 describe('ShipmentInfo tests', () => {
   describe('Shows correct queue to return to', () => {
     it('when a referrer is set in history', () => {

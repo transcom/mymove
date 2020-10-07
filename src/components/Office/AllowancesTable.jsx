@@ -68,7 +68,7 @@ const AllowancesTable = ({ info }) => {
             <th scope="row" className="text-bold">
               Storage in transit
             </th>
-            <td data-testid="storageInTransit">{`${info.storageInTransit} days`}</td>
+            <td data-testid="storageInTransit">{info.storageInTransit ? `${info.storageInTransit} days` : ''}</td>
           </tr>
           <tr>
             <th scope="row" className="text-bold">

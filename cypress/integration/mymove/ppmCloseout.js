@@ -18,7 +18,7 @@ describe('allows a SM to request a payment', function () {
   const moveID = 'f9f10492-587e-43b3-af2a-9f67d2ac8757';
 
   it('service member goes through entire request payment flow', () => {
-    cy.apiSignInAsUser('8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e');
+    cy.apiSignInAsPpmUser('8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e');
     serviceMemberStartsPPMPaymentRequest();
     serviceMemberSubmitsWeightTicket('CAR', true);
     serviceMemberChecksNumberOfWeightTickets('2nd');
@@ -32,7 +32,7 @@ describe('allows a SM to request a payment', function () {
   });
 
   it('service member reads introduction to ppm payment and goes back to homepage', () => {
-    cy.apiSignInAsUser('745e0eba-4028-4c78-a262-818b00802748');
+    cy.apiSignInAsPpmUser('745e0eba-4028-4c78-a262-818b00802748');
     serviceMemberStartsPPMPaymentRequest();
   });
 
@@ -98,7 +98,7 @@ describe('allows a SM to request a payment', function () {
   });
 
   it('service member with old weight tickets can see and delete them', () => {
-    cy.apiSignInAsUser('beccca28-6e15-40cc-8692-261cae0d4b14');
+    cy.apiSignInAsPpmUser('beccca28-6e15-40cc-8692-261cae0d4b14');
     cy.get('[data-testid="edit-payment-request"]').contains('Edit Payment Request').should('exist').click();
     cy.get('.ticket-item').first().should('not.contain', 'set');
     cy.get('[data-testid="delete-ticket"]').first().click();
@@ -312,14 +312,6 @@ function serviceMemberCanFinishWeightTicketLater(vehicleType) {
   cy.wait('@postUploadDocument');
   cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 2);
   cy.get('input[name="weight_ticket_date"]').type('6/2/2018{enter}').blur();
-
-  cy.get('button').contains('Finish Later').click();
-
-  cy.get('button').contains('Cancel').click();
-
-  cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-weight-ticket/);
-  });
 
   cy.get('button').contains('Finish Later').click();
 

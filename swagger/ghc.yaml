@@ -417,56 +417,6 @@ paths:
       description: Gets all line items for a move orders
       operationId: listMTOServiceItems
       summary: Gets all line items for a move order
-    post:
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - description: ID of move order to use
-          in: path
-          name: moveTaskOrderID
-          required: true
-          format: uuid
-          type: string
-        - description: ID of the rate engine services
-          in: body
-          name: createMTOServiceItemBody
-          required: true
-          schema:
-            type: object
-            required:
-              - reServiceID
-              - mtoShipmentID
-            properties:
-              reServiceID:
-                format: uuid
-                type: string
-              mtoShipmentID:
-                format: uuid
-                type: string
-      responses:
-        '201':
-          description: Successfully created service item for move task order
-          schema:
-            $ref: '#/definitions/MTOServiceItem'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/definitions/ClientError'
-        '422':
-          description: Validation error
-          schema:
-            $ref: '#/definitions/ValidationError'
-        '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
-      tags:
-        - mtoServiceItem
-      description: Creates a service item for a move order by id
-      operationId: createMTOServiceItem
-      summary: Creates a service item for a move order by id
   '/move_task_orders/{moveTaskOrderID}/mto_shipments':
     parameters:
       - description: ID of move task order for mto shipment to use
@@ -1311,6 +1261,22 @@ definitions:
       - city
       - state
       - postal_code
+  BackupContact:
+    type: object
+    properties:
+      name:
+        type: string
+        x-nullable: true
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        x-nullable: true
+      phone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
   Customer:
     type: object
     properties:
@@ -1336,6 +1302,9 @@ definitions:
       current_address:
         x-nullable: true
         $ref: '#/definitions/Address'
+      backup_contact:
+        x-nullable: true
+        $ref: '#/definitions/BackupContact'
       id:
         type: string
         format: uuid
@@ -1400,6 +1369,7 @@ definitions:
       storageInTransit:
         example: 90
         type: integer
+        x-nullable: true
       totalWeight:
         example: 500
         type: integer
@@ -1717,8 +1687,8 @@ definitions:
     type: object
   PaymentRequest:
     properties:
-      documentPackage:
-        $ref: '#/definitions/ProofOfServicePackage'
+      proofOfServiceDocs:
+        $ref: '#/definitions/ProofOfServiceDocs'
       id:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -1996,6 +1966,16 @@ definitions:
           $ref: '#/definitions/Upload'
         type: array
     type: object
+  ProofOfServiceDocs:
+    items:
+      $ref: '#/definitions/ProofOfServiceDoc'
+    type: array
+  ProofOfServiceDoc:
+    properties:
+      uploads:
+        items:
+          $ref: '#/definitions/Upload'
+        type: array
   MTOShipment:
     properties:
       moveTaskOrderID:
@@ -2261,14 +2241,15 @@ definitions:
     items:
       $ref: '#/definitions/MTOServiceItemCustomerContact'
   MTOApprovalServiceItemCodes:
-    type: array
-    items:
-      $ref: '#/definitions/MTOApprovalServiceItemCode'
-  MTOApprovalServiceItemCode:
-    enum:
-      - MS
-      - CS
-    type: string
+    description: MTO level service items to create when updating MTO status.
+    properties:
+      serviceCodeCS:
+        example: true
+        type: boolean
+      serviceCodeMS:
+        example: true
+        type: boolean
+    type: object
   UpdatePaymentRequestPayload:
     properties:
       proofOfServicePackage:

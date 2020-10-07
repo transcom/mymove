@@ -1,6 +1,7 @@
 import { isFinite } from 'lodash';
 import moment from 'moment';
 import numeral from 'numeral';
+import path from 'path';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
@@ -308,4 +309,8 @@ export const ordersTypeDetailReadable = (ordersTypeDetail) => {
 
 export const dropdownInputOptions = (options) => {
   return Object.entries(options).map(([key, value]) => ({ key: key, value: value }));
+};
+
+export const filenameFromPath = (filePath) => {
+  return path.basename(filePath);
 };

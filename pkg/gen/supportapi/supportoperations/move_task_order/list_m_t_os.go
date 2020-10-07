@@ -33,7 +33,10 @@ func NewListMTOs(ctx *middleware.Context, handler ListMTOsHandler) *ListMTOs {
 
 listMTOs
 
-Gets all move task orders. Provides all move task orders regardless of whether or not they have been made available to prime.
+### Functionality
+This endpoint lists all MoveTaskOrders regardless of whether or not they have been made available to Prime.
+
+It will provide nested information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.
 
 
 */

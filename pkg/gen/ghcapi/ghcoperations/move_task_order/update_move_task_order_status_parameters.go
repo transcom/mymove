@@ -49,7 +49,7 @@ type UpdateMoveTaskOrderStatusParams struct {
 	  Required: true
 	  In: body
 	*/
-	ServiceItemCodes ghcmessages.MTOApprovalServiceItemCodes
+	ServiceItemCodes *ghcmessages.MTOApprovalServiceItemCodes
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -86,7 +86,7 @@ func (o *UpdateMoveTaskOrderStatusParams) BindRequest(r *http.Request, route *mi
 			}
 
 			if len(res) == 0 {
-				o.ServiceItemCodes = body
+				o.ServiceItemCodes = &body
 			}
 		}
 	} else {

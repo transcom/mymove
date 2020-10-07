@@ -12,6 +12,11 @@ describe('office user finds the move', function () {
   it('office user views moves in queue new moves', function () {
     officeUserViewsMoves();
   });
+
+  it('office user views ppm of move with combo hhg/ppm', function () {
+    officeUserViewsPpmOfComboMove('COMBOS');
+  });
+
   it('office user verifies the orders tab', function () {
     officeUserVerifiesOrders('VGHEIS');
   });
@@ -99,6 +104,27 @@ function officeUserViewsMoves() {
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
+}
+
+function officeUserViewsPpmOfComboMove(moveLocator) {
+  // Open new moves queue
+  cy.location('pathname').should('eq', '/');
+
+  // Find move and open it
+  cy.selectQueueItemMoveLocator(moveLocator);
+
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
+  });
+
+  // Click on PPM tab
+  cy.get('[data-testid="ppm-tab"]').click();
+
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/ppm/);
+  });
+
+  cy.patientVisit('/');
 }
 
 function officeUserVerifiesOrders(moveLocator) {
