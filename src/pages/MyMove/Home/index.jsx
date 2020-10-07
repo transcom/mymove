@@ -121,11 +121,6 @@ class Home extends Component {
     return !!Object.keys(move).length && move.status !== 'DRAFT';
   }
 
-  get hasPpm() {
-    const { move } = this.props;
-    return !!move.personally_procured_moves?.length;
-  }
-
   get hasHHGShipment() {
     const { mtoShipments } = this.props;
     return mtoShipments.some((s) => s.shipmentType === SHIPMENT_OPTIONS.HHG);
@@ -137,12 +132,12 @@ class Home extends Component {
   }
 
   get hasPPMShipment() {
-    const { mtoShipments } = this.props;
-    return mtoShipments.some((s) => s.shipmentType === SHIPMENT_OPTIONS.PPM);
+    const { currentPpm } = this.props;
+    return !!Object.keys(currentPpm).length;
   }
 
   get shipmentActionBtnLabel() {
-    if (this.hasSubmittedMove && this.hasPpm) {
+    if (this.hasSubmittedMove && this.hasPPMShipment) {
       return '';
     }
     if (this.hasAnyShipments) {
@@ -185,13 +180,11 @@ class Home extends Component {
 
   renderHelper = () => {
     if (!this.hasOrders) return <HelperNeedsOrders />;
-    if (!this.hasShipment) return <HelperNeedsShipment />;
-    if (this.hasShipment && !this.hasSubmittedMove) return <HelperNeedsSubmitMove />;
-    if (this.hasSubmittedMove) {
-      if (!this.hasPPMShipment) return <HelperSubmittedNoPPM />;
-      return <HelperSubmittedMove />;
-    }
-    return null;
+    if (!this.hasAnyShipments) return <HelperNeedsShipment />;
+    if (!this.hasSubmittedMove) return <HelperNeedsSubmitMove />;
+    // TODO: support PPM shipments; see MB-4267
+    if (this.hasPPMShipment) return <HelperSubmittedMove />;
+    return <HelperSubmittedNoPPM />;
   };
 
   renderCustomerHeader = () => {
