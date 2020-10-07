@@ -6,6 +6,8 @@ import { arrayOf, func, shape, bool, string } from 'prop-types';
 import moment from 'moment';
 import { Button } from '@trussworks/react-uswds';
 
+import styles from './Summary.module.scss';
+
 import { checkEntitlement } from 'scenes/Review/ducks';
 // eslint-disable-next-line import/no-named-as-default
 import PPMShipmentSummary from 'scenes/Review/PPMShipmentSummary';
@@ -189,7 +191,7 @@ export class Summary extends Component {
           uploads={currentOrders.uploaded_orders.uploads}
         />
 
-        {showMoveSetup && <h2>Move setup</h2>}
+        {showMoveSetup && <h2 className={styles.moveSetup}>Move setup</h2>}
         {isReviewPage && this.renderShipments()}
         {showPPMShipmentSummary && (
           <PPMShipmentSummary ppm={currentPPM} movePath={rootReviewAddressWithMoveId} orders={currentOrders} />
