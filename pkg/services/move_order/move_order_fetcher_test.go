@@ -71,10 +71,11 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 			Status: models.MTOShipmentStatusSubmitted,
 		},
 	})
+	officeUserID := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{}).ID
 
 	expectedMoveOrder := expectedMoveTaskOrder.Orders
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
-	moveOrders, err := moveOrderFetcher.ListMoveOrders()
+	moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUserID)
 	suite.FatalNoError(err)
 	suite.Len(moveOrders, 1)
 
@@ -123,8 +124,10 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrdersWithEmptyFields() {
 			Status: models.MTOShipmentStatusSubmitted,
 		},
 	})
+	officeUserID := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{}).ID
+
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
-	moveOrders, err := moveOrderFetcher.ListMoveOrders()
+	moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUserID)
 	moveOrder := moveOrders[0]
 
 	suite.FatalNoError(err)

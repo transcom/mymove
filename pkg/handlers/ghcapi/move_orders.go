@@ -50,8 +50,10 @@ type ListMoveOrdersHandler struct {
 
 // Handle getting the all move orders
 func (h ListMoveOrdersHandler) Handle(params moveorderop.ListMoveOrdersParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-	moveOrders, err := h.ListMoveOrders()
+	// get the session from http request
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	moveOrders, err := h.ListMoveOrders(session.OfficeUserID)
 	if err != nil {
 		logger.Error("fetching all move orders", zap.Error(err))
 		switch err {
