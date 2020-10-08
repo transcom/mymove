@@ -10,7 +10,7 @@ const defaultProps = {
   editPath: '',
   onEditClick: () => {},
   shipmentNumber: 1,
-  shipmentId: '#ABC123K-001',
+  shipmentId: '#ABC123K',
   requestedPickupDate: new Date('01/01/2020').toISOString(),
   pickupLocation: {
     street_address_1: '17 8th St',

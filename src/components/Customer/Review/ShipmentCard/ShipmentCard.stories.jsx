@@ -6,7 +6,7 @@ import PPMShipmentCard from './PPMShipmentCard';
 
 const hhgDefaultProps = {
   shipmentNumber: 1,
-  shipmentId: 'ABC123K-001',
+  shipmentId: 'ABC123K',
   requestedPickupDate: new Date('01/01/2020').toISOString(),
   pickupLocation: {
     street_address_1: '17 8th St',
@@ -36,7 +36,7 @@ const ppmDefaultProps = {
   destinationZIP: '11111',
   estimatedWeight: '5,000',
   expectedDepartureDate: new Date('01/01/2020').toISOString(),
-  shipmentId: 'ABC123K-001',
+  shipmentId: 'ABC123K',
   sitDays: '24',
   originZIP: '00000',
 };
