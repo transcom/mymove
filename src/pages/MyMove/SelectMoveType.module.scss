@@ -15,12 +15,20 @@ h1.selectTypeHeader.header {
   margin-top: 0;
   @include u-padding-top(1);
   @include u-padding-bottom(4);
-
+  & + * {
+    margin-top: 0;
+  }
 }
 
 h6.eyebrow {
   @include u-padding-top(4);
   @media (min-width: $tablet) {
     @include u-padding-top(5);
+  }
+}
+
+.gridContainer {
+  :global(.grid-row){
+    @include u-padding-top(3);
   }
 }

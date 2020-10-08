@@ -119,7 +119,7 @@ export class SelectMoveType extends Component {
       </div>
     );
     return (
-      <div className={`grid-container ${wizardStyles.gridContainer} ${wizardStyles.wizardContainer}`}>
+      <div className={`grid-container ${wizardStyles.gridContainer} ${styles.gridContainer}`}>
         <div className="grid-row">
           <div className="tablet:grid-col-2 desktop:grid-col-2" />
           <div className="tablet:grid-col-8 desktop:grid-col-8">
