@@ -437,8 +437,15 @@ func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(orders models.Order
 	if orders.TAC == nil {
 		return segments, services.NewBadDataError("Invalid order. Must have a TAC value")
 	}
+	affiliation := models.ServiceMemberAffiliation(*orders.DepartmentIndicator)
+	agencyQualifierCode, found := edisegment.AffiliationToAgency[affiliation]
+
+	if !found {
+		agencyQualifierCode = "DF"
+	}
+
 	fa1 := edisegment.FA1{
-		AgencyQualifierCode: "DF",
+		AgencyQualifierCode: agencyQualifierCode,
 	}
 
 	segments = append(segments, &fa1)
