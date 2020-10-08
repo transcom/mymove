@@ -3,10 +3,6 @@
 @import 'shared/styles/_variables';
 @import 'shared/styles/colors';
 
-.todo {
-  background-color: yellow;
-}
-
 .ShipmentCard {
   @include u-margin-top(3);
   .ShipmentCardHeader {

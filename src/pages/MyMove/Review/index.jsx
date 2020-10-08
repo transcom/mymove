@@ -7,10 +7,8 @@ import styles from './Review.module.scss';
 import { hasShortHaulError } from 'shared/incentive';
 import { no_op as noOp } from 'shared/utils';
 import scrollToTop from 'shared/scrollToTop';
-/* eslint-disable import/no-named-as-default */
-import WizardPage from 'shared/WizardPage';
-import Summary from 'components/Customer/Review/Summary';
-/* eslint-enable import/no-named-as-default */
+import ConnectedWizardPage from 'shared/WizardPage';
+import ConnectedSummary from 'components/Customer/Review/Summary';
 import 'scenes/Review/Review.css';
 
 class Review extends Component {
@@ -23,7 +21,13 @@ class Review extends Component {
 
     return (
       <div className={styles.reviewMoveContainer}>
-        <WizardPage handleSubmit={noOp} pageList={pages} pageKey={pageKey} pageIsValid canMoveNext={canMoveNext}>
+        <ConnectedWizardPage
+          handleSubmit={noOp}
+          pageList={pages}
+          pageKey={pageKey}
+          pageIsValid
+          canMoveNext={canMoveNext}
+        >
           <div className={`${styles.reviewMoveHeaderContainer} grid-row`}>
             <h2 className="tablet:grid-col-10" data-testid="review-move-header">
               Review your details
@@ -33,8 +37,8 @@ class Review extends Component {
               on to the final step.
             </p>
           </div>
-          <Summary />
-        </WizardPage>
+          <ConnectedSummary />
+        </ConnectedWizardPage>
       </div>
     );
   }

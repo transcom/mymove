@@ -4,6 +4,5 @@
 
 .moveSetup {
   // using important to override rule that has more specificity on h2
-  margin: 0 !important;
   @include u-margin-bottom(1 !important);
 }

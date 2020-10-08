@@ -131,16 +131,16 @@ export class Summary extends Component {
       serviceMember,
       reviewState,
     } = this.props;
+    const { moveId } = match.params;
     const currentStation = get(serviceMember, 'current_station');
     const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
 
-    const rootAddressWithMoveId = `/moves/${match.params.moveId}`;
+    const rootAddressWithMoveId = `/moves/${moveId}`;
     const rootReviewAddressWithMoveId = `${rootAddressWithMoveId}/review`;
 
     // isReviewPage being false is the same thing as being in the /edit route
     const isReviewPage = rootReviewAddressWithMoveId === match.url;
     const editSuccessBlurb = reviewState.editSuccess ? 'Your changes have been saved. ' : '';
-    const editOrdersPath = `${rootReviewAddressWithMoveId}/edit-orders`;
 
     const showPPMShipmentSummary = !isReviewPage && Object.keys(currentPPM).length && currentPPM.status !== 'DRAFT';
     const showHHGShipmentSummary = isReviewPage && !!mtoShipments.length;
@@ -181,9 +181,9 @@ export class Summary extends Component {
         />
 
         <OrdersTable
-          editPath={editOrdersPath}
           hasDependents={currentOrders.has_dependents}
           issueDate={currentOrders.issue_date}
+          moveId={moveId}
           newDutyStationName={currentOrders.new_duty_station.name}
           onEditClick={this.handleEditClick}
           orderType={formatOrderType(currentOrders.orders_type)}

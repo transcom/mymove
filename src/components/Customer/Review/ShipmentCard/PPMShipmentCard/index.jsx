@@ -56,18 +56,18 @@ const PPMShipmentCard = ({
             <dd>{destinationZIP}</dd>
           </div>
         </dl>
-        <div className={`${styles.subsectionHeader} ${styles.todo}`}>
+        <div className={`${styles.subsectionHeader} todo`}>
           <h4>PPM shipment weight</h4>
           <Button className={styles.editBtn} onClick={() => {}} unstyled>
             Edit
           </Button>
         </div>
         <dl className={styles.shipmentCardSubsection}>
-          <div className={`${styles.row} ${styles.todo}`}>
+          <div className={`${styles.row} todo`}>
             <dt>Estimated weight</dt>
             <dd>{estimatedWeight} lbs</dd>
           </div>
-          <div className={`${styles.row} ${styles.todo}`}>
+          <div className={`${styles.row} todo`}>
             <dt>Estimated incentive</dt>
             <dd>{estimatedIncentive || 'Rate info unavailable'}</dd>
           </div>
