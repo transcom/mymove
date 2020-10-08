@@ -28,7 +28,6 @@ func NewGHCPaymentRequestInvoiceGenerator(db *pop.Connection) services.GHCPaymen
 
 const dateFormat = "20060102"
 const timeFormat = "1504"
-const recordNotFoundErrorString = "sql: no rows in result set"
 
 // Generate method takes a payment request and returns an Invoice858C
 func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.PaymentRequest, sendProductionInvoice bool) (ediinvoice.Invoice858C, error) {
@@ -40,7 +39,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 			Where("id = ?", paymentRequest.MoveTaskOrderID).
 			First(&moveTaskOrder)
 		if err != nil {
-			if err.Error() == recordNotFoundErrorString {
+			if err.Error() == models.RecordNotFoundErrorString {
 				return ediinvoice.Invoice858C{}, services.NewNotFoundError(paymentRequest.MoveTaskOrder.ID, "for MoveTaskOrder")
 			}
 			return ediinvoice.Invoice858C{}, services.NewQueryError("MoveTaskOrder", err, "Unexpected error")
@@ -54,7 +53,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		err := g.db.
 			Load(&moveTaskOrder, "Orders")
 		if err != nil {
-			if err.Error() == recordNotFoundErrorString {
+			if err.Error() == models.RecordNotFoundErrorString {
 				return ediinvoice.Invoice858C{}, services.NewNotFoundError(moveTaskOrder.Orders.ID, "for Orders")
 			}
 			return ediinvoice.Invoice858C{}, services.NewQueryError("Orders", err, "Unexpected error")
@@ -67,7 +66,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 			Load(&moveTaskOrder.Orders, "ServiceMember")
 
 		if err != nil {
-			if err.Error() == recordNotFoundErrorString {
+			if err.Error() == models.RecordNotFoundErrorString {
 				return ediinvoice.Invoice858C{}, services.NewNotFoundError(moveTaskOrder.Orders.ServiceMemberID, "for ServiceMember")
 			}
 			return ediinvoice.Invoice858C{}, services.NewQueryError("ServiceMember", err, fmt.Sprintf("cannot load ServiceMember %s for PaymentRequest %s: %s", moveTaskOrder.Orders.ServiceMemberID, paymentRequest.ID, err))
@@ -154,7 +153,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		Where("sipk.key = ?", models.ServiceItemParamNameContractCode).
 		First(&contractCodeServiceItemParam)
 	if err != nil {
-		if err.Error() == recordNotFoundErrorString {
+		if err.Error() == models.RecordNotFoundErrorString {
 			return ediinvoice.Invoice858C{}, services.NewNotFoundError(contractCodeServiceItemParam.ID, "for ContractCode")
 		}
 		return ediinvoice.Invoice858C{}, services.NewQueryError("ContractCode", err, fmt.Sprintf("Couldn't find contract code: %s", err))
@@ -179,7 +178,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		Where("payment_request_id = ?", paymentRequest.ID).
 		All(&paymentServiceItems)
 	if err != nil {
-		if err.Error() == recordNotFoundErrorString {
+		if err.Error() == models.RecordNotFoundErrorString {
 			return ediinvoice.Invoice858C{}, services.NewNotFoundError(paymentRequest.ID, "for paayment service items in PaymentRequest")
 		}
 		return ediinvoice.Invoice858C{}, services.NewQueryError("PaymentServiceItems", err, fmt.Sprintf("Could not find payment service items: %s", err))
@@ -281,7 +280,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(paymentRequestID uu
 		Order("msi.created_at").
 		All(&shipments)
 	if err != nil {
-		if err.Error() == recordNotFoundErrorString {
+		if err.Error() == models.RecordNotFoundErrorString {
 			return nil, services.NewNotFoundError(paymentRequestID, "for mto shipments associated with PaymentRequest")
 		}
 		return nil, services.NewQueryError("MTOShipments", err, fmt.Sprintf("error querying for shipments to use in G62 segments in PaymentRequest %s: %s", paymentRequestID, err))
@@ -469,7 +468,7 @@ func (g ghcPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(serviceI
 		Where("sk.key = ?", key).
 		First(&paymentServiceItemParam)
 	if err != nil {
-		if err.Error() == recordNotFoundErrorString {
+		if err.Error() == models.RecordNotFoundErrorString {
 			return models.PaymentServiceItemParam{}, services.NewNotFoundError(serviceItemID, "for paymentServiceItemParam")
 		}
 		return models.PaymentServiceItemParam{}, services.NewQueryError("paymentServiceItemParam", err, fmt.Sprintf("Could not lookup PaymentServiceItemParam key (%s) payment service item id (%s): %s", key, serviceItemID, err))
