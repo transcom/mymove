@@ -53,7 +53,9 @@ func (h ListMoveOrdersHandler) Handle(params moveorderop.ListMoveOrdersParams) m
 	// get the session from http request
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
-	moveOrders, err := h.ListMoveOrders(session.OfficeUserID)
+	// list move orders and pass in office user ID as argument to filter list
+	moveOrders, err := h.MoveOrderFetcher.ListMoveOrders(session.OfficeUserID)
+	//lets see if ListMoveOrders can pass in a id or gbloc
 	if err != nil {
 		logger.Error("fetching all move orders", zap.Error(err))
 		switch err {
@@ -63,6 +65,7 @@ func (h ListMoveOrdersHandler) Handle(params moveorderop.ListMoveOrdersParams) m
 			return moveorderop.NewListMoveOrdersInternalServerError()
 		}
 	}
+
 	moveOrdersPayload := make(ghcmessages.MoveOrders, len(moveOrders))
 	for i, moveOrder := range moveOrders {
 		moveOrdersPayload[i] = payloads.MoveOrder(&moveOrder)

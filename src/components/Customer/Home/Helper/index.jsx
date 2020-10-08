@@ -1,25 +1,25 @@
 import React from 'react';
-import { string, object, node } from 'prop-types';
+import PropTypes from 'prop-types';
+import classnames from 'classnames';
 
 import styles from './Helper.module.scss';
 
-const Helper = ({ containerStyles, children, title }) => (
-  <div className={styles['helper-container']} style={containerStyles}>
-    <h3 className={styles['helper-header']}>{title}</h3>
+const Helper = ({ children, title, className }) => (
+  <div className={classnames(styles.Helper, className)}>
+    <h3 className={styles.header}>{title}</h3>
     {children}
   </div>
 );
 
 Helper.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
-  containerStyles: object,
-  title: string.isRequired,
-  children: node,
+  title: PropTypes.string.isRequired,
+  children: PropTypes.node,
+  className: PropTypes.string,
 };
 
 Helper.defaultProps = {
-  containerStyles: {},
   children: null,
+  className: '',
 };
 
 export default Helper;

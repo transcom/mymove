@@ -18,7 +18,6 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID) ([]models.Order
 	// Now that we've joined orders and move_orders, we only want to return orders that
 	// have an associated move.
 	var moveOrders []models.Order
-
 	var transportationOffice models.TransportationOffice
 	// select the GBLOC associated with the transportation office of the session's current office user
 	err := f.db.Q().
