@@ -8,7 +8,7 @@ import (
 )
 
 func (suite *ServiceParamValueLookupsSuite) TestFSCWeightBasedDistanceMultiplierLookup() {
-	key := models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier.String()
+	key := models.ServiceItemParamNameFSCWeightBasedDistanceMultiplier
 
 	suite.T().Run("correct weight based distance multiplier is returned for billed actual weight less than 5,000 pounds", func(t *testing.T) {
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(3000), unit.Pound(3000), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)

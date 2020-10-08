@@ -10,7 +10,7 @@ import (
 )
 
 func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
-	key := models.ServiceItemParamNameDistanceZip3.String()
+	key := models.ServiceItemParamNameDistanceZip3
 
 	suite.T().Run("Calculate zip3 distance", func(t *testing.T) {
 		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
@@ -22,7 +22,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 				},
 			})
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
 		distanceStr, err := paramLookup.ServiceParamValue(key)
@@ -34,5 +34,74 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZip3Lookup() {
 		suite.DB().Find(&mtoShipment, mtoServiceItem.MTOShipmentID)
 
 		suite.Equal(unit.Miles(defaultZip3Distance), *mtoShipment.Distance)
+	})
+
+	suite.T().Run("Calculate zip3 distance with param cache", func(t *testing.T) {
+		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(),
+			testdatagen.Assertions{
+				PaymentRequest: models.PaymentRequest{
+					MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
+				},
+			})
+
+		// DLH
+		reServiceDLH := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: "DLH",
+			},
+		})
+
+		estimatedWeight := unit.Pound(2048)
+
+		// DLH
+		mtoServiceItemDLH := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			ReService: reServiceDLH,
+			MTOShipment: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedWeight,
+			},
+		})
+		mtoServiceItemDLH.MoveTaskOrderID = paymentRequest.MoveTaskOrderID
+		mtoServiceItemDLH.MoveTaskOrder = paymentRequest.MoveTaskOrder
+		suite.MustSave(&mtoServiceItemDLH)
+
+		// ServiceItemParamNameActualPickupDate
+		serviceItemParamKey1 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
+			ServiceItemParamKey: models.ServiceItemParamKey{
+				Key:         models.ServiceItemParamNameDistanceZip3,
+				Description: "zip 3 distance",
+				Type:        models.ServiceItemParamTypeInteger,
+				Origin:      models.ServiceItemParamOriginSystem,
+			},
+		})
+
+		_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+			ServiceParam: models.ServiceParam{
+				ServiceID:             mtoServiceItemDLH.ReServiceID,
+				ServiceItemParamKeyID: serviceItemParamKey1.ID,
+				ServiceItemParamKey:   serviceItemParamKey1,
+			},
+		})
+
+		paramCache := ServiceParamsCache{}
+		paramCache.Initialize(suite.DB())
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItemDLH.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, &paramCache)
+		suite.FatalNoError(err)
+
+		distanceStr, err := paramLookup.ServiceParamValue(key)
+		suite.FatalNoError(err)
+		expected := strconv.Itoa(defaultZip3Distance)
+		suite.Equal(expected, distanceStr)
+
+		var mtoShipment models.MTOShipment
+		suite.DB().Find(&mtoShipment, mtoServiceItemDLH.MTOShipmentID)
+
+		suite.Equal(unit.Miles(defaultZip3Distance), *mtoShipment.Distance)
+
+		// Verify value from paramCache
+		paramCacheValue := paramCache.ParamValue(*mtoServiceItemDLH.MTOShipmentID, key)
+		suite.Equal(expected, *paramCacheValue)
 	})
 }
