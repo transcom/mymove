@@ -1,6 +1,6 @@
 import { takeLatest, put, call } from 'redux-saga/effects';
 
-import { watchInitializeOnboarding, initializeOnboarding } from './onboarding';
+import { watchInitializeOnboarding, fetchCustomerData, initializeOnboarding } from './onboarding';
 
 import { INIT_ONBOARDING, initOnboardingFailed, initOnboardingComplete } from 'store/onboarding/actions';
 import { getLoggedInUser, getMTOShipmentsForMove } from 'services/internalApi';
@@ -18,26 +18,9 @@ describe('watchInitializeOnboarding', () => {
   });
 });
 
-describe('initializeOnboarding', () => {
-  describe('if the user is not logged in', () => {
-    const generator = initializeOnboarding();
-
-    it('makes an API call to request the logged in user', () => {
-      expect(generator.next().value).toEqual(call(getLoggedInUser));
-    });
-
-    it('puts action initOnboardingFailed with the error', () => {
-      const error = new Error('User not logged in');
-      expect(generator.throw(error).value).toEqual(put(initOnboardingFailed(error)));
-    });
-
-    it('is done', () => {
-      expect(generator.next().done).toEqual(true);
-    });
-  });
-
+describe('fetchCustomerData', () => {
   describe('if the user doesn’t have a move', () => {
-    const generator = initializeOnboarding();
+    const generator = fetchCustomerData();
 
     const mockResponseData = {
       user: {
@@ -56,17 +39,13 @@ describe('initializeOnboarding', () => {
       expect(generator.next(mockResponseData).value).toEqual(put(addEntities(mockResponseData)));
     });
 
-    it('puts action initOnboardingComplete', () => {
-      expect(generator.next().value).toEqual(put(initOnboardingComplete()));
-    });
-
     it('is done', () => {
       expect(generator.next().done).toEqual(true);
     });
   });
 
   describe('if the user has a move', () => {
-    const generator = initializeOnboarding();
+    const generator = fetchCustomerData();
 
     const mockResponseData = {
       user: {
@@ -104,6 +83,37 @@ describe('initializeOnboarding', () => {
 
     it('stores the MTO shipment data in entities', () => {
       expect(generator.next(mockMTOResponseData).value).toEqual(put(addEntities(mockMTOResponseData)));
+    });
+
+    it('is done', () => {
+      expect(generator.next().done).toEqual(true);
+    });
+  });
+});
+
+describe('initializeOnboarding', () => {
+  describe('if the user is not logged in', () => {
+    const generator = initializeOnboarding();
+
+    it('calls the fetchCustomerData saga', () => {
+      expect(generator.next().value).toEqual(call(fetchCustomerData));
+    });
+
+    it('puts action initOnboardingFailed with the error', () => {
+      const error = new Error('User not logged in');
+      expect(generator.throw(error).value).toEqual(put(initOnboardingFailed(error)));
+    });
+
+    it('is done', () => {
+      expect(generator.next().done).toEqual(true);
+    });
+  });
+
+  describe('if the user is logged in', () => {
+    const generator = initializeOnboarding();
+
+    it('calls the fetchCustomerData saga', () => {
+      expect(generator.next().value).toEqual(call(fetchCustomerData));
     });
 
     it('puts action initOnboardingComplete', () => {
