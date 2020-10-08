@@ -1,9 +1,8 @@
 package ghcapi
 
 import (
-	"fmt"
-
 	"github.com/go-openapi/runtime/middleware"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -30,7 +29,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 
 	orders, err := h.MoveOrderFetcher.ListMoveOrders(session.OfficeUserID)
 	if err != nil {
-		fmt.Println("Error getting list move orders")
+		logger.Error("error fetching list of move orders for office user", zap.Error(err))
 		return queues.NewGetMovesQueueInternalServerError()
 	}
 
