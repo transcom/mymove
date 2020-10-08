@@ -32,3 +32,12 @@ export async function getMTOShipmentsForMove(moveTaskOrderID, normalize = true) 
     { normalize, label: 'mtoShipment.listMTOShipments', schemaKey: 'mtoShipments' },
   );
 }
+
+/** BELOW API CALLS ARE STILL USING DUCKS, NOT NORMALIZED BY DEFAULT */
+export async function createServiceMember(serviceMember = {}) {
+  return makeInternalRequest(
+    'service_members.createServiceMember',
+    { createServiceMemberPayload: serviceMember },
+    { normalize: false },
+  );
+}

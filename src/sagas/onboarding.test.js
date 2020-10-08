@@ -4,6 +4,7 @@ import {
   watchInitializeOnboarding,
   watchFetchCustomerData,
   fetchCustomerData,
+  createServiceMember,
   initializeOnboarding,
 } from './onboarding';
 
@@ -13,8 +14,13 @@ import {
   initOnboardingFailed,
   initOnboardingComplete,
 } from 'store/onboarding/actions';
-import { getLoggedInUser, getMTOShipmentsForMove } from 'services/internalApi';
+import {
+  getLoggedInUser,
+  createServiceMember as createServiceMemberApi,
+  getMTOShipmentsForMove,
+} from 'services/internalApi';
 import { addEntities } from 'shared/Entities/actions';
+import { CREATE_SERVICE_MEMBER } from 'scenes/ServiceMembers/ducks';
 
 describe('watchInitializeOnboarding', () => {
   const generator = watchInitializeOnboarding();
@@ -55,6 +61,10 @@ describe('fetchCustomerData', () => {
 
     it('stores the user data in entities', () => {
       expect(generator.next(mockResponseData).value).toEqual(put(addEntities(mockResponseData)));
+    });
+
+    it('yields the user data to the caller', () => {
+      expect(generator.next().value).toEqual(mockResponseData);
     });
 
     it('is done', () => {
@@ -103,6 +113,10 @@ describe('fetchCustomerData', () => {
       expect(generator.next(mockMTOResponseData).value).toEqual(put(addEntities(mockMTOResponseData)));
     });
 
+    it('yields the user data to the caller', () => {
+      expect(generator.next().value).toEqual(mockResponseData);
+    });
+
     it('is done', () => {
       expect(generator.next().done).toEqual(true);
     });
@@ -127,11 +141,24 @@ describe('initializeOnboarding', () => {
     });
   });
 
-  describe('if the user is logged in', () => {
+  describe('if the user is logged in and does not have a serviceMember', () => {
     const generator = initializeOnboarding();
+
+    const mockResponseData = {
+      user: {
+        testUserId: {
+          id: 'testUserId',
+          email: 'testuser@example.com',
+        },
+      },
+    };
 
     it('calls the fetchCustomerData saga', () => {
       expect(generator.next().value).toEqual(call(fetchCustomerData));
+    });
+
+    it('calls the createServiceMember saga', () => {
+      expect(generator.next(mockResponseData).value).toEqual(call(createServiceMember));
     });
 
     it('puts action initOnboardingComplete', () => {
@@ -140,6 +167,107 @@ describe('initializeOnboarding', () => {
 
     it('starts the watchFetchCustomerData saga', () => {
       expect(generator.next().value).toEqual(call(watchFetchCustomerData));
+    });
+
+    it('is done', () => {
+      expect(generator.next().done).toEqual(true);
+    });
+  });
+
+  describe('if the user is logged in and has a serviceMember', () => {
+    const generator = initializeOnboarding();
+
+    const mockResponseData = {
+      user: {
+        testUserId: {
+          id: 'testUserId',
+          email: 'testuser@example.com',
+          service_member: 'testServiceMemberId',
+        },
+      },
+      serviceMembers: {
+        testServiceMemberId: {
+          id: 'testServiceMemberId',
+        },
+      },
+    };
+
+    it('calls the fetchCustomerData saga', () => {
+      expect(generator.next().value).toEqual(call(fetchCustomerData));
+    });
+
+    it('puts action initOnboardingComplete', () => {
+      expect(generator.next(mockResponseData).value).toEqual(put(initOnboardingComplete()));
+    });
+
+    it('starts the watchFetchCustomerData saga', () => {
+      expect(generator.next().value).toEqual(call(watchFetchCustomerData));
+    });
+
+    it('is done', () => {
+      expect(generator.next().done).toEqual(true);
+    });
+  });
+});
+
+describe('createServiceMember saga', () => {
+  describe('successful', () => {
+    const generator = createServiceMember();
+    const mockServiceMember = {
+      id: 'testServiceMemberId',
+      user_id: 'testUserId',
+      is_profile_complete: false,
+    };
+
+    it('puts the CREATE_SERVICE_MEMBER.start action', () => {
+      expect(generator.next().value).toEqual(
+        put({
+          type: CREATE_SERVICE_MEMBER.start,
+        }),
+      );
+    });
+
+    it('makes API call to createServiceMember', () => {
+      expect(generator.next().value).toEqual(call(createServiceMemberApi));
+    });
+
+    it('puts the CREATE_SERVICE_MEMBER.success action', () => {
+      expect(generator.next(mockServiceMember).value).toEqual(
+        put({
+          type: CREATE_SERVICE_MEMBER.success,
+          payload: mockServiceMember,
+        }),
+      );
+    });
+
+    it('refetches user data', () => {
+      expect(generator.next().value).toEqual(call(fetchCustomerData));
+    });
+  });
+
+  describe('failure', () => {
+    const generator = createServiceMember();
+
+    it('puts the CREATE_SERVICE_MEMBER.start action', () => {
+      expect(generator.next().value).toEqual(
+        put({
+          type: CREATE_SERVICE_MEMBER.start,
+        }),
+      );
+    });
+
+    it('makes API call to createServiceMember', () => {
+      expect(generator.next().value).toEqual(call(createServiceMemberApi));
+    });
+
+    it('puts the CREATE_SERVICE_MEMBER.failure action', () => {
+      const error = new Error('Service member already exists');
+      expect(generator.throw(error).value).toEqual(
+        put({
+          type: CREATE_SERVICE_MEMBER.failure,
+          error,
+        }),
+      );
     });
 
     it('is done', () => {
