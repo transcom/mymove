@@ -1,8 +1,18 @@
 import { takeLatest, put, call } from 'redux-saga/effects';
 
-import { watchInitializeOnboarding, fetchCustomerData, initializeOnboarding } from './onboarding';
+import {
+  watchInitializeOnboarding,
+  watchFetchCustomerData,
+  fetchCustomerData,
+  initializeOnboarding,
+} from './onboarding';
 
-import { INIT_ONBOARDING, initOnboardingFailed, initOnboardingComplete } from 'store/onboarding/actions';
+import {
+  INIT_ONBOARDING,
+  FETCH_CUSTOMER_DATA,
+  initOnboardingFailed,
+  initOnboardingComplete,
+} from 'store/onboarding/actions';
 import { getLoggedInUser, getMTOShipmentsForMove } from 'services/internalApi';
 import { addEntities } from 'shared/Entities/actions';
 
@@ -15,6 +25,14 @@ describe('watchInitializeOnboarding', () => {
 
   it('is done', () => {
     expect(generator.next().done).toEqual(true);
+  });
+});
+
+describe('watchFetchCustomerData', () => {
+  const generator = watchFetchCustomerData();
+
+  it('takes a FETCH_CUSTOMER_DATA action and calls fetchCustomerData', () => {
+    expect(generator.next().value).toEqual(takeLatest(FETCH_CUSTOMER_DATA, fetchCustomerData));
   });
 });
 
@@ -118,6 +136,10 @@ describe('initializeOnboarding', () => {
 
     it('puts action initOnboardingComplete', () => {
       expect(generator.next().value).toEqual(put(initOnboardingComplete()));
+    });
+
+    it('starts the watchFetchCustomerData saga', () => {
+      expect(generator.next().value).toEqual(call(watchFetchCustomerData));
     });
 
     it('is done', () => {

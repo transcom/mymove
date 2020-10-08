@@ -1,6 +1,11 @@
 import { takeLatest, put, call } from 'redux-saga/effects';
 
-import { INIT_ONBOARDING, initOnboardingFailed, initOnboardingComplete } from 'store/onboarding/actions';
+import {
+  INIT_ONBOARDING,
+  FETCH_CUSTOMER_DATA,
+  initOnboardingFailed,
+  initOnboardingComplete,
+} from 'store/onboarding/actions';
 import { getLoggedInUser, getMTOShipmentsForMove } from 'services/internalApi';
 import { addEntities } from 'shared/Entities/actions';
 
@@ -19,11 +24,16 @@ export function* fetchCustomerData() {
   }
 }
 
+export function* watchFetchCustomerData() {
+  yield takeLatest(FETCH_CUSTOMER_DATA, fetchCustomerData);
+}
+
 export function* initializeOnboarding() {
   try {
     yield call(fetchCustomerData);
     // TODO - create service member if doesn't exist
     yield put(initOnboardingComplete());
+    yield call(watchFetchCustomerData);
   } catch (error) {
     yield put(initOnboardingFailed(error));
   }
