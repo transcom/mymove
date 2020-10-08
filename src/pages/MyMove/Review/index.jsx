@@ -1,12 +1,15 @@
-import { no_op } from 'shared/utils';
-import WizardPage from 'shared/WizardPage';
 import React, { Component } from 'react';
-import Summary from './Summary';
+import { arrayOf, bool, string } from 'prop-types';
 import { connect } from 'react-redux';
-import scrollToTop from 'shared/scrollToTop';
-import { hasShortHaulError } from 'shared/incentive';
+
 import styles from './Review.module.scss';
-import './Review.css';
+
+import { hasShortHaulError } from 'shared/incentive';
+import { no_op as noOp } from 'shared/utils';
+import scrollToTop from 'shared/scrollToTop';
+import ConnectedWizardPage from 'shared/WizardPage';
+import ConnectedSummary from 'components/Customer/Review/Summary';
+import 'scenes/Review/Review.css';
 
 class Review extends Component {
   componentDidMount() {
@@ -14,18 +17,16 @@ class Review extends Component {
   }
 
   render() {
-    const { pages, pageKey } = this.props;
+    const { pages, pageKey, canMoveNext } = this.props;
 
     return (
-      <div className="review-move-container">
-        <WizardPage
-          handleSubmit={no_op}
+      <div className={styles.reviewMoveContainer}>
+        <ConnectedWizardPage
+          handleSubmit={noOp}
           pageList={pages}
           pageKey={pageKey}
-          pageIsValid={true}
-          canMoveNext={this.props.canMoveNext}
-          hideBackBtn
-          showFinishLaterBtn
+          pageIsValid
+          canMoveNext={canMoveNext}
         >
           <div className={`${styles.reviewMoveHeaderContainer} grid-row`}>
             <h2 className="tablet:grid-col-10" data-testid="review-move-header">
@@ -36,12 +37,18 @@ class Review extends Component {
               on to the final step.
             </p>
           </div>
-          <Summary />
-        </WizardPage>
+          <ConnectedSummary />
+        </ConnectedWizardPage>
       </div>
     );
   }
 }
+
+Review.propTypes = {
+  canMoveNext: bool.isRequired,
+  pageKey: string.isRequired,
+  pages: arrayOf(string).isRequired,
+};
 
 const mapStateToProps = (state, ownProps) => {
   const ppmEstimate = {
