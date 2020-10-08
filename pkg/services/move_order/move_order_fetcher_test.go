@@ -1,6 +1,8 @@
 package moveorder
 
 import (
+	"testing"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -63,7 +65,6 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 	testdatagen.MakeDefaultMove(suite.DB())
 
 	expectedMoveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
-	secondMoveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
 
 	// Only orders with shipments are returned, so we need to add a shipment
 	// to the move we just created
@@ -74,9 +75,6 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 		},
 	})
 	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
-	secondMoveTaskOrder.Orders.OriginDutyStation.TransportationOffice.Gbloc = "AGFM"
-	moveGbloc := expectedMoveTaskOrder.Orders.OriginDutyStation.TransportationOffice.Gbloc
-	userGbloc := officeUser.TransportationOffice.Gbloc
 
 	expectedMoveOrder := expectedMoveTaskOrder.Orders
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
@@ -99,7 +97,17 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 	suite.NotNil(moveOrder.OriginDutyStation)
 	suite.Equal(expectedMoveOrder.OriginDutyStation.AddressID, moveOrder.OriginDutyStation.AddressID)
 	suite.Equal(expectedMoveOrder.OriginDutyStation.Address.StreetAddress1, moveOrder.OriginDutyStation.Address.StreetAddress1)
-	suite.Equal(moveGbloc, userGbloc)
+
+	suite.T().Run("filtering by GBLOC", func(t *testing.T) {
+		secondMoveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
+		secondMoveTaskOrder.Orders.OriginDutyStation.TransportationOffice.Gbloc = "AGFM"
+
+		moveGbloc := expectedMoveTaskOrder.Orders.OriginDutyStation.TransportationOffice.Gbloc
+		userGbloc := officeUser.TransportationOffice.Gbloc
+
+		suite.Len(moveOrders, 1)
+		suite.Equal(moveGbloc, userGbloc)
+	})
 }
 
 func (suite *MoveOrderServiceSuite) TestListMoveOrdersWithEmptyFields() {
