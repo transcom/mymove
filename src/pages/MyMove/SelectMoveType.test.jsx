@@ -15,7 +15,7 @@ describe('SelectMoveType', () => {
     loadMTOShipments: jest.fn(),
     move: { id: 'mockId', status: 'DRAFT' },
     selectedMoveType: SHIPMENT_OPTIONS.PPM,
-    mtoShipments: {},
+    mtoShipments: [],
     isPpmSelectable: true,
     isHhgSelectable: true,
     shipmentNumber: 4,
@@ -46,27 +46,6 @@ describe('SelectMoveType', () => {
     expect(wrapper.find(Radio).at(1).find('.usa-radio__input').html()).toContain('checked');
   });
 
-  it('should disable PPM form option if PPM is already submitted', () => {
-    // eslint-disable-next-line react/jsx-props-no-spreading
-    const wrapper = mount(<SelectMoveType {...defaultProps} isPpmSelectable={false} />);
-
-    // PPM button should be disabled on page load and should contained updated text
-    const actualComponentText = wrapper.text();
-    expect(wrapper.find(Radio).at(0).find('.usa-radio__input').html()).toContain('disabled');
-    expect(actualComponentText).toContain('contact the PPPO at your origin duty station');
-    expect(actualComponentText).not.toContain('You arrange to move some or all of your belongings');
-  });
-
-  it('should disable HHG form option if move is already submitted', () => {
-    // eslint-disable-next-line react/jsx-props-no-spreading
-    const wrapper = mount(<SelectMoveType {...defaultProps} isHhgSelectable={false} />);
-
-    // HHG button should be disabled on page load and should contained updated text
-    const actualComponentText = wrapper.text();
-    expect(wrapper.find(Radio).at(1).find('.usa-radio__input').html()).toContain('disabled');
-    expect(actualComponentText).toContain('Talk with your movers directly');
-    expect(actualComponentText).not.toContain('Professional movers take care of the whole shipment');
-  });
   describe('when no PPMs or shipments have been created', () => {
     it('should render the correct text', () => {
       const wrapper = getWrapper();
@@ -76,9 +55,10 @@ describe('SelectMoveType', () => {
       );
     });
   });
+
   describe('when a PPM has already been created', () => {
     const props = {
-      move: { personally_procured_moves: [{ id: 1 }] },
+      move: { personally_procured_moves: [{ id: '1' }] },
     };
     it('should render the correct text', () => {
       const wrapper = getWrapper(props);
@@ -87,17 +67,28 @@ describe('SelectMoveType', () => {
       expect(wrapper.find('[data-testid="selectableCardText"]').at(0).text()).toContain(
         'You’ve already requested a PPM shipment. If you have more things to move yourself but that you can’t add to that shipment, contact the PPPO at your origin duty station.',
       );
+      expect(wrapper.find('[data-testid="selectableCardText"]').at(0).text()).not.toContain(
+        'You arrange to move some or all of your belongings',
+      );
+    });
+    it('should disable PPM form option if PPM is already submitted', () => {
+      props.isPpmSelectable = false;
+      const wrapper = getWrapper(props);
+      // PPM button should be disabled on page load and should contained updated text
+      expect(wrapper.find(Radio).at(0).find('.usa-radio__input').html()).toContain('disabled');
     });
   });
+
   describe('when an HHG has already been created', () => {
     const props = {
-      mtoShipments: [{ id: 2 }],
+      mtoShipments: [{ id: '2' }],
     };
     it('should render the correct text', () => {
       const wrapper = getWrapper(props);
       expect(wrapper.find('h1').text()).toContain('How do you want this group of things moved?');
     });
   });
+
   describe('when a move has already been submitted', () => {
     const props = {
       move: { status: MOVE_STATUSES.SUBMITTED },
@@ -107,6 +98,15 @@ describe('SelectMoveType', () => {
       expect(wrapper.find('[data-testid="selectableCardText"]').at(1).text()).toContain(
         'Talk with your movers directly if you want to add or change shipments.',
       );
+      expect(wrapper.find('[data-testid="selectableCardText"]').at(1).text()).not.toContain(
+        'Professional movers take care of the whole shipment',
+      );
+    });
+    it('should disable HHG form option', () => {
+      props.isHhgSelectable = false;
+      const wrapper = getWrapper(props);
+      // HHG button should be disabled on page load
+      expect(wrapper.find(Radio).at(1).find('.usa-radio__input').html()).toContain('disabled');
     });
   });
 });

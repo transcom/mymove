@@ -165,7 +165,7 @@ SelectMoveType.propTypes = {
   loadMTOShipments: func.isRequired,
   selectedMoveType: string.isRequired,
   move: MoveTaskOrderShape.isRequired,
-  mtoShipments: MTOShipmentShape.isRequired,
+  mtoShipments: arrayOf(MTOShipmentShape).isRequired,
   isPpmSelectable: bool.isRequired,
   isHhgSelectable: bool.isRequired,
   shipmentNumber: number.isRequired,
