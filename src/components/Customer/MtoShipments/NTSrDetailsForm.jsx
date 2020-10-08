@@ -10,6 +10,10 @@ import { TextInput } from '../../form/fields';
 import { Form } from '../../form/Form';
 
 import styles from './HHGDetailsForm.module.scss';
+import { RequiredPlaceSchema } from './formTypes';
+import { simpleAddressShape, fullAddressShape, agentShape } from './propShapes';
+import { formatMtoShipment } from './utils';
+import { DeliveryDetails } from './DeliveryDetails';
 
 import {
   selectMTOShipmentForMTO,
@@ -20,9 +24,6 @@ import { selectActiveOrLatestOrdersFromEntities } from 'shared/Entities/modules/
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { WizardPage } from 'shared/WizardPage';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { RequiredPlaceSchema } from './formTypes';
-import { formatMtoShipment } from './utils';
-import { DeliveryDetails } from './DeliveryDetails';
 
 const NTSrDetailsFormSchema = Yup.object().shape({
   delivery: RequiredPlaceSchema,
@@ -35,7 +36,6 @@ class NTSrDetailsForm extends Component {
     const hasDeliveryAddress = get(props.mtoShipment, 'destinationAddress', false);
     this.state = {
       hasDeliveryAddress,
-      useCurrentResidence: false,
       initialValues: {},
     };
   }
@@ -47,6 +47,7 @@ class NTSrDetailsForm extends Component {
 
   submitMTOShipment = ({ delivery, customerRemarks }) => {
     const { createMTOShipment, match } = this.props;
+    const { hasDeliveryAddress } = this.state;
     const { moveId } = match.params;
 
     const pendingMtoShipment = formatMtoShipment({
@@ -125,32 +126,15 @@ NTSrDetailsForm.propTypes = {
     path: string.isRequired,
     url: string.isRequired,
   }).isRequired,
-  newDutyStationAddress: shape({
-    city: string,
-    state: string,
-    postal_code: string,
-  }),
+  newDutyStationAddress: simpleAddressShape,
   createMTOShipment: func.isRequired,
   showLoggedInUser: func.isRequired,
   push: func.isRequired,
   mtoShipment: shape({
-    agents: arrayOf(
-      shape({
-        firstName: string,
-        lastName: string,
-        phone: string,
-        email: string,
-        agentType: string,
-      }),
-    ),
+    agents: arrayOf(agentShape),
     customerRemarks: string,
     requestedDeliveryDate: string,
-    destinationAddress: shape({
-      city: string,
-      postal_code: string,
-      state: string,
-      street_address_1: string,
-    }),
+    destinationAddress: fullAddressShape,
   }),
 };
 

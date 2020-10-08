@@ -1,10 +1,14 @@
 import React from 'react';
 import { Field } from 'formik';
 import { Fieldset } from '@trussworks/react-uswds';
+import { string, bool, shape, func } from 'prop-types';
 
 import { DatePickerInput } from '../../form/fields';
 import { ContactInfoFields } from '../../form/ContactInfoFields/ContactInfoFields';
 import { AddressFields } from '../../form/AddressFields/AddressFields';
+
+import { fullAddressShape, agentShape } from './propShapes';
+
 import Checkbox from 'shared/Checkbox';
 import { validateDate } from 'utils/formikValidators';
 
@@ -51,6 +55,24 @@ export const PickupDetails = ({ fieldsetClasses, values, useCurrentResidence, on
       />
     </div>
   );
-}
+};
+
+PickupDetails.propTypes = {
+  fieldsetClasses: string,
+  useCurrentResidence: bool,
+  onCurrentResidenceChange: func,
+  values: shape({
+    address: fullAddressShape,
+    agent: agentShape,
+    requestedDate: string,
+  }),
+};
+
+PickupDetails.defaultProps = {
+  fieldsetClasses: '',
+  useCurrentResidence: false,
+  onCurrentResidenceChange: () => {},
+  values: {},
+};
 
 export default PickupDetails;

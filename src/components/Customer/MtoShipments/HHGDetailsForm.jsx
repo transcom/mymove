@@ -10,6 +10,11 @@ import { TextInput } from '../../form/fields';
 import { Form } from '../../form/Form';
 
 import styles from './HHGDetailsForm.module.scss';
+import { RequiredPlaceSchema, OptionalPlaceSchema } from './formTypes';
+import { simpleAddressShape, fullAddressShape, agentShape } from './propShapes';
+import { formatMtoShipment } from './utils';
+import { PickupDetails } from './PickupDetails';
+import { DeliveryDetails } from './DeliveryDetails';
 
 import {
   selectMTOShipmentForMTO,
@@ -21,10 +26,6 @@ import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/ser
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { WizardPage } from 'shared/WizardPage';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { RequiredPlaceSchema, OptionalPlaceSchema } from './formTypes';
-import { formatMtoShipment } from './utils';
-import { PickupDetails } from './PickupDetails';
-import { DeliveryDetails } from './DeliveryDetails';
 
 const HHGDetailsFormSchema = Yup.object().shape({
   pickup: RequiredPlaceSchema,
@@ -48,15 +49,11 @@ class HHGDetailsForm extends Component {
     showLoggedInUser();
   }
 
-  submitMTOShipment = ({
-    pickup,
-    delivery,
-    customerRemarks,
-  }) => {
+  submitMTOShipment = ({ pickup, delivery, customerRemarks }) => {
     const { createMTOShipment, match } = this.props;
     const { hasDeliveryAddress } = this.state;
     const { moveId } = match.params;
-    
+
     const pendingMtoShipment = formatMtoShipment({
       moveId,
       pickup,
@@ -67,13 +64,13 @@ class HHGDetailsForm extends Component {
 
     createMTOShipment(pendingMtoShipment);
   };
-  
+
   handleChangeHasDeliveryAddress = () => {
     this.setState((prevState) => {
       return { hasDeliveryAddress: !prevState.hasDeliveryAddress };
     });
   };
-  
+
   // Use current residence
   handleUseCurrentResidenceChange = (currentValues) => {
     const { initialValues } = this.state;
@@ -157,17 +154,17 @@ class HHGDetailsForm extends Component {
             <h1>Now lets arrange details for the professional movers</h1>
             <Form className={styles.HHGDetailsForm}>
               <PickupDetails
-                fieldsetClasses={ fieldsetClasses }
-                useCurrentResidence={ useCurrentResidence }
-                onCurrentResidenceChange={ this.handleUseCurrentResidenceChange }
-                values={ values.pickup }
+                fieldsetClasses={fieldsetClasses}
+                useCurrentResidence={useCurrentResidence}
+                onCurrentResidenceChange={this.handleUseCurrentResidenceChange}
+                values={values.pickup}
               />
               <DeliveryDetails
-                fieldsetClasses={ fieldsetClasses }
-                newDutyStationAddress= { newDutyStationAddress }
-                hasDeliveryAddress={ hasDeliveryAddress }
-                onHasAddressChange={ this.handleChangeHasDeliveryAddress }
-                values={ values.delivery }
+                fieldsetClasses={fieldsetClasses}
+                newDutyStationAddress={newDutyStationAddress}
+                hasDeliveryAddress={hasDeliveryAddress}
+                onHasAddressChange={this.handleChangeHasDeliveryAddress}
+                values={values.delivery}
               />
               <Fieldset legend="Remarks" className={fieldsetClasses}>
                 <TextInput
@@ -189,12 +186,7 @@ class HHGDetailsForm extends Component {
 }
 
 HHGDetailsForm.propTypes = {
-  currentResidence: shape({
-    street_address_1: string,
-    street_address_2: string,
-    state: string,
-    postal_code: string,
-  }).isRequired,
+  currentResidence: fullAddressShape.isRequired,
   pageKey: string.isRequired,
   pageList: arrayOf(string).isRequired,
   match: shape({
@@ -205,39 +197,17 @@ HHGDetailsForm.propTypes = {
     path: string.isRequired,
     url: string.isRequired,
   }).isRequired,
-  newDutyStationAddress: shape({
-    city: string,
-    state: string,
-    postal_code: string,
-  }),
+  newDutyStationAddress: simpleAddressShape,
   createMTOShipment: func.isRequired,
   showLoggedInUser: func.isRequired,
   push: func.isRequired,
   mtoShipment: shape({
-    agents: arrayOf(
-      shape({
-        firstName: string,
-        lastName: string,
-        phone: string,
-        email: string,
-        agentType: string,
-      }),
-    ),
+    agents: arrayOf(agentShape),
     customerRemarks: string,
     requestedPickupDate: string,
     requestedDeliveryDate: string,
-    pickupAddress: shape({
-      city: string,
-      postal_code: string,
-      state: string,
-      street_address_1: string,
-    }),
-    destinationAddress: shape({
-      city: string,
-      postal_code: string,
-      state: string,
-      street_address_1: string,
-    }),
+    pickupAddress: fullAddressShape,
+    destinationAddress: fullAddressShape,
   }),
 };
 

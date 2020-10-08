@@ -7,7 +7,7 @@ export const AgentSchema = Yup.object().shape({
   email: Yup.string().email('Must be valid email'),
 });
 
-const RequiredAddressSchema = Yup.object().shape({
+export const RequiredAddressSchema = Yup.object().shape({
   street_address_1: Yup.string().required('Required'),
   street_address_2: Yup.string(),
   city: Yup.string().required('Required'),
@@ -18,7 +18,7 @@ const RequiredAddressSchema = Yup.object().shape({
     .required('Required'),
 });
 
-const OptionalAddressSchema = Yup.object().shape({
+export const OptionalAddressSchema = Yup.object().shape({
   street_address_1: Yup.string(),
   street_address_2: Yup.string(),
   city: Yup.string(),
@@ -28,13 +28,12 @@ const OptionalAddressSchema = Yup.object().shape({
     .matches(/^(\d{5}([-]\d{4})?)$/, 'Must be valid zip code'),
 });
 
-// note: requestedDate is also required but is validated at field level
-const RequiredPlaceSchema = Yup.object().shape({
+export const RequiredPlaceSchema = Yup.object().shape({
   address: RequiredAddressSchema,
   agent: AgentSchema,
 });
 
-const OptionalPlaceSchema = Yup.object().shape({
+export const OptionalPlaceSchema = Yup.object().shape({
   address: OptionalAddressSchema,
   agent: AgentSchema,
 });

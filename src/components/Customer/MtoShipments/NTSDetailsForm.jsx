@@ -10,6 +10,10 @@ import { TextInput } from '../../form/fields';
 import { Form } from '../../form/Form';
 
 import styles from './HHGDetailsForm.module.scss';
+import { RequiredPlaceSchema } from './formTypes';
+import { fullAddressShape, agentShape } from './propShapes';
+import { formatMtoShipment } from './utils';
+import { PickupDetails } from './PickupDetails';
 
 import {
   selectMTOShipmentForMTO,
@@ -20,9 +24,6 @@ import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/ser
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { WizardPage } from 'shared/WizardPage';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { RequiredPlaceSchema } from './formTypes';
-import { PickupDetails } from './PickupDetails';
-import { formatMtoShipment } from './utils';
 
 const NTSDetailsFormSchema = Yup.object().shape({
   pickup: RequiredPlaceSchema,
@@ -172,12 +173,7 @@ class NTSDetailsForm extends Component {
 }
 
 NTSDetailsForm.propTypes = {
-  currentResidence: shape({
-    street_address_1: string,
-    street_address_2: string,
-    state: string,
-    postal_code: string,
-  }).isRequired,
+  currentResidence: fullAddressShape.isRequired,
   pageKey: string.isRequired,
   pageList: arrayOf(string).isRequired,
   match: shape({
@@ -192,23 +188,10 @@ NTSDetailsForm.propTypes = {
   showLoggedInUser: func.isRequired,
   push: func.isRequired,
   mtoShipment: shape({
-    agents: arrayOf(
-      shape({
-        firstName: string,
-        lastName: string,
-        phone: string,
-        email: string,
-        agentType: string,
-      }),
-    ),
+    agents: arrayOf(agentShape),
     customerRemarks: string,
     requestedPickupDate: string,
-    pickupAddress: shape({
-      city: string,
-      postal_code: string,
-      state: string,
-      street_address_1: string,
-    }),
+    pickupAddress: fullAddressShape,
   }),
 };
 

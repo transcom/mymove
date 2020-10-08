@@ -1,11 +1,22 @@
 import React from 'react';
 import { Fieldset, Radio, Label } from '@trussworks/react-uswds';
+import { string, bool, shape, func } from 'prop-types';
+
 import { DatePickerInput } from '../../form/fields';
 import { ContactInfoFields } from '../../form/ContactInfoFields/ContactInfoFields';
 import { AddressFields } from '../../form/AddressFields/AddressFields';
+
+import { simpleAddressShape, fullAddressShape, agentShape } from './propShapes';
+
 import { validateDate } from 'utils/formikValidators';
 
-export const DeliveryDetails = ({ fieldsetClasses, values, hasDeliveryAddress, onHasAddressChange, newDutyStationAddress }) => {
+export const DeliveryDetails = ({
+  fieldsetClasses,
+  values,
+  hasDeliveryAddress,
+  onHasAddressChange,
+  newDutyStationAddress,
+}) => {
   return (
     <div>
       <Fieldset legend="Delivery date" className={fieldsetClasses}>
@@ -47,8 +58,7 @@ export const DeliveryDetails = ({ fieldsetClasses, values, hasDeliveryAddress, o
                 We can use the zip of your new duty station.
                 <br />
                 <strong>
-                  {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
-                  {newDutyStationAddress.postal_code}{' '}
+                  {newDutyStationAddress.city}, {newDutyStationAddress.state} {newDutyStationAddress.postal_code}{' '}
                 </strong>
               </p>
             </div>
@@ -65,6 +75,25 @@ export const DeliveryDetails = ({ fieldsetClasses, values, hasDeliveryAddress, o
       />
     </div>
   );
-}
+};
+
+DeliveryDetails.propTypes = {
+  fieldsetClasses: string,
+  hasDeliveryAddress: bool,
+  onHasAddressChange: func,
+  newDutyStationAddress: simpleAddressShape.isRequired,
+  values: shape({
+    address: fullAddressShape,
+    agent: agentShape,
+    requestedDate: string,
+  }),
+};
+
+DeliveryDetails.defaultProps = {
+  fieldsetClasses: '',
+  hasDeliveryAddress: false,
+  onHasAddressChange: () => {},
+  values: {},
+};
 
 export default DeliveryDetails;
