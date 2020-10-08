@@ -28,6 +28,7 @@ func NewGHCPaymentRequestInvoiceGenerator(db *pop.Connection) services.GHCPaymen
 
 const dateFormat = "20060102"
 const timeFormat = "1504"
+const recordNotFoundErrorString = "sql: no rows in result set"
 
 // Generate method takes a payment request and returns an Invoice858C
 func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.PaymentRequest, sendProductionInvoice bool) (ediinvoice.Invoice858C, error) {
@@ -39,7 +40,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 			Where("id = ?", paymentRequest.MoveTaskOrderID).
 			First(&moveTaskOrder)
 		if err != nil {
-			if err.Error() == "sql: no rows in result set" {
+			if err.Error() == recordNotFoundErrorString {
 				return ediinvoice.Invoice858C{}, services.NewNotFoundError(paymentRequest.MoveTaskOrder.ID, "for MoveTaskOrder")
 			}
 			return ediinvoice.Invoice858C{}, services.NewQueryError("MoveTaskOrder", err, "Unexpected error")
@@ -53,7 +54,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		err := g.db.
 			Load(&moveTaskOrder, "Orders")
 		if err != nil {
-			if err.Error() == "sql: no rows in result set" {
+			if err.Error() == recordNotFoundErrorString {
 				return ediinvoice.Invoice858C{}, services.NewNotFoundError(moveTaskOrder.Orders.ID, "for Orders")
 			}
 			return ediinvoice.Invoice858C{}, services.NewQueryError("Orders", err, "Unexpected error")
@@ -66,7 +67,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 			Load(&moveTaskOrder.Orders, "ServiceMember")
 
 		if err != nil {
-			if err.Error() == "sql: no rows in result set" {
+			if err.Error() == recordNotFoundErrorString {
 				return ediinvoice.Invoice858C{}, services.NewNotFoundError(moveTaskOrder.Orders.ServiceMemberID, "for ServiceMember")
 			}
 			return ediinvoice.Invoice858C{}, services.NewQueryError("ServiceMember", err, fmt.Sprintf("cannot load ServiceMember %s for PaymentRequest %s: %s", moveTaskOrder.Orders.ServiceMemberID, paymentRequest.ID, err))
@@ -153,7 +154,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		Where("sipk.key = ?", models.ServiceItemParamNameContractCode).
 		First(&contractCodeServiceItemParam)
 	if err != nil {
-		if err.Error() == "sql: no rows in result set" {
+		if err.Error() == recordNotFoundErrorString {
 			return ediinvoice.Invoice858C{}, services.NewNotFoundError(contractCodeServiceItemParam.ID, "for ContractCode")
 		}
 		return ediinvoice.Invoice858C{}, services.NewQueryError("ContractCode", err, fmt.Sprintf("Couldn't find contract code: %s", err))
@@ -168,7 +169,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	// Add service member details to header
 	serviceMemberSegments, err := g.createServiceMemberDetailSegments(paymentRequest.ID, moveTaskOrder.Orders.ServiceMember)
 	if err != nil {
-		return ediinvoice.Invoice858C{}, services.NewInvalidInputError(paymentRequest.ID, err, nil, "unable to service member segments")
+		return ediinvoice.Invoice858C{}, err
 	}
 	edi858.Header = append(edi858.Header, serviceMemberSegments...)
 
@@ -178,7 +179,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		Where("payment_request_id = ?", paymentRequest.ID).
 		All(&paymentServiceItems)
 	if err != nil {
-		if err.Error() == "sql: no rows in result set" {
+		if err.Error() == recordNotFoundErrorString {
 			return ediinvoice.Invoice858C{}, services.NewNotFoundError(paymentRequest.ID, "for paayment service items in PaymentRequest")
 		}
 		return ediinvoice.Invoice858C{}, services.NewQueryError("PaymentServiceItems", err, fmt.Sprintf("Could not find payment service items: %s", err))
@@ -188,7 +189,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		var g62Segments []edisegment.Segment
 		g62Segments, err = g.createG62Segments(paymentRequest.ID)
 		if err != nil {
-			return ediinvoice.Invoice858C{}, services.NewInvalidInputError(paymentRequest.ID, err, nil, "unable to create G62 segments")
+			return ediinvoice.Invoice858C{}, err
 		}
 		edi858.Header = append(edi858.Header, g62Segments...)
 	}
@@ -197,7 +198,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	var originDestinationSegments []edisegment.Segment
 	originDestinationSegments, err = g.createOriginAndDestinationSegments(paymentRequest.ID, moveTaskOrder.Orders)
 	if err != nil {
-		return ediinvoice.Invoice858C{}, services.NewInvalidInputError(paymentRequest.ID, err, nil, "unable to create origin and destination segments")
+		return ediinvoice.Invoice858C{}, err
 	}
 	edi858.Header = append(edi858.Header, originDestinationSegments...)
 
@@ -210,7 +211,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 
 	paymentServiceItemSegments, err := g.generatePaymentServiceItemSegments(paymentServiceItems)
 	if err != nil {
-		return ediinvoice.Invoice858C{}, services.NewInvalidInputError(paymentRequest.ID, err, nil, "unable to generate payment service item segments")
+		return ediinvoice.Invoice858C{}, err
 	}
 	edi858.ServiceItems = append(edi858.ServiceItems, paymentServiceItemSegments...)
 
@@ -280,7 +281,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(paymentRequestID uu
 		Order("msi.created_at").
 		All(&shipments)
 	if err != nil {
-		if err.Error() == "sql: no rows in result set" {
+		if err.Error() == recordNotFoundErrorString {
 			return nil, services.NewNotFoundError(paymentRequestID, "for mto shipments associated with PaymentRequest")
 		}
 		return nil, services.NewQueryError("MTOShipments", err, fmt.Sprintf("error querying for shipments to use in G62 segments in PaymentRequest %s: %s", paymentRequestID, err))
@@ -461,7 +462,7 @@ func (g ghcPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(serviceI
 		Where("sk.key = ?", key).
 		First(&paymentServiceItemParam)
 	if err != nil {
-		if err.Error() == "sql: no rows in result set" {
+		if err.Error() == recordNotFoundErrorString {
 			return models.PaymentServiceItemParam{}, services.NewNotFoundError(serviceItemID, "for paymentServiceItemParam")
 		}
 		return models.PaymentServiceItemParam{}, services.NewQueryError("paymentServiceItemParam", err, fmt.Sprintf("Could not lookup PaymentServiceItemParam key (%s) payment service item id (%s): %s", key, serviceItemID, err))
@@ -472,7 +473,7 @@ func (g ghcPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(serviceI
 func (g ghcPaymentRequestInvoiceGenerator) getWeightParams(serviceItem models.PaymentServiceItem) (float64, error) {
 	weight, err := g.fetchPaymentServiceItemParam(serviceItem.ID, models.ServiceItemParamNameWeightBilledActual)
 	if err != nil {
-		return 0, services.NewInvalidInputError(serviceItem.ID, err, nil, "unable to find payment service item param")
+		return 0, err
 	}
 	weightFloat, err := strconv.ParseFloat(weight.Value, 64)
 	if err != nil {
@@ -487,7 +488,7 @@ func (g ghcPaymentRequestInvoiceGenerator) getWeightAndDistanceParams(serviceIte
 	// and the distance key can differ (zip3 v zip5, and distances for SIT)
 	weightFloat, err := g.getWeightParams(serviceItem)
 	if err != nil {
-		return 0, 0, services.NewInvalidInputError(serviceItem.ID, err, nil, "unable to weight param for service item")
+		return 0, 0, err
 	}
 	distanceModel := models.ServiceItemParamNameDistanceZip3
 	if serviceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDSH {
@@ -495,7 +496,7 @@ func (g ghcPaymentRequestInvoiceGenerator) getWeightAndDistanceParams(serviceIte
 	}
 	distance, err := g.fetchPaymentServiceItemParam(serviceItem.ID, distanceModel)
 	if err != nil {
-		return 0, 0, services.NewInvalidInputError(serviceItem.ID, err, nil, "unable to find service item params")
+		return 0, 0, err
 	}
 	distanceFloat, err := strconv.ParseFloat(distance.Value, 64)
 	if err != nil {
@@ -554,7 +555,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 			var err error
 			weightFloat, err = g.getWeightParams(serviceItem)
 			if err != nil {
-				return segments, services.NewInvalidInputError(serviceItem.ID, err, nil, "unable to find weight params for service item")
+				return segments, err
 			}
 
 			l5Segment := edisegment.L5{
@@ -583,7 +584,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 			var err error
 			weightFloat, distanceFloat, err = g.getWeightAndDistanceParams(serviceItem)
 			if err != nil {
-				return segments, services.NewInvalidInputError(serviceItem.ID, err, nil, "unable to find weight or distance params for service item")
+				return segments, err
 			}
 
 			l5Segment := edisegment.L5{
