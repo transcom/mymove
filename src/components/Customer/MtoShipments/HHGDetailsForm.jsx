@@ -1,14 +1,12 @@
 import React, { Component } from 'react';
 import { arrayOf, string, bool, shape, func } from 'prop-types';
-import { get, isEmpty } from 'lodash';
+import { get } from 'lodash';
 import { connect } from 'react-redux';
-import { Formik, Field } from 'formik';
+import { Formik } from 'formik';
 import * as Yup from 'yup';
-import { Fieldset, Radio, Label } from '@trussworks/react-uswds';
+import { Fieldset } from '@trussworks/react-uswds';
 
-import { DatePickerInput, TextInput } from '../../form/fields';
-import { ContactInfoFields } from '../../form/ContactInfoFields/ContactInfoFields';
-import { AddressFields } from '../../form/AddressFields/AddressFields';
+import { TextInput } from '../../form/fields';
 import { Form } from '../../form/Form';
 
 import styles from './HHGDetailsForm.module.scss';
@@ -50,6 +48,32 @@ class HHGDetailsForm extends Component {
     showLoggedInUser();
   }
 
+  submitMTOShipment = ({
+    pickup,
+    delivery,
+    customerRemarks,
+  }) => {
+    const { createMTOShipment, match } = this.props;
+    const { hasDeliveryAddress } = this.state;
+    const { moveId } = match.params;
+    
+    const pendingMtoShipment = formatMtoShipment({
+      moveId,
+      pickup,
+      customerRemarks,
+      shipmentType: SHIPMENT_OPTIONS.HHG,
+      delivery: hasDeliveryAddress ? delivery : undefined,
+    });
+
+    createMTOShipment(pendingMtoShipment);
+  };
+  
+  handleChangeHasDeliveryAddress = () => {
+    this.setState((prevState) => {
+      return { hasDeliveryAddress: !prevState.hasDeliveryAddress };
+    });
+  };
+  
   // Use current residence
   handleUseCurrentResidenceChange = (currentValues) => {
     const { initialValues } = this.state;
@@ -108,32 +132,6 @@ class HHGDetailsForm extends Component {
     );
   };
 
-  handleChangeHasDeliveryAddress = () => {
-    this.setState((prevState) => {
-      return { hasDeliveryAddress: !prevState.hasDeliveryAddress };
-    });
-  };
-
-  submitMTOShipment = ({
-    pickup,
-    delivery,
-    customerRemarks,
-  }) => {
-    const { createMTOShipment, match } = this.props;
-    const { hasDeliveryAddress } = this.state;
-    const { moveId } = match.params;
-    
-    const pendingMtoShipment = formatMtoShipment({
-      moveId,
-      pickup,
-      customerRemarks,
-      shipmentType: SHIPMENT_OPTIONS.HHG,
-      delivery: hasDeliveryAddress ? delivery : undefined,
-    });
-
-    createMTOShipment(pendingMtoShipment);
-  };
-
   render() {
     // TODO: replace minimal styling with actual styling during UI phase
     const { pageKey, pageList, match, push, newDutyStationAddress } = this.props;
@@ -158,99 +156,18 @@ class HHGDetailsForm extends Component {
           >
             <h1>Now lets arrange details for the professional movers</h1>
             <Form className={styles.HHGDetailsForm}>
-              <Fieldset legend="Pickup date" className={fieldsetClasses}>
-                <Field
-                  as={DatePickerInput}
-                  name="requestedPickupDate"
-                  label="Requested pickup date"
-                  id="requestedPickupDate"
-                  value={values.requestedPickupDate}
-                  validate={validateDate}
-                />
-                <span className="usa-hint" id="pickupDateHint">
-                  Your movers will confirm this date or one shortly before or after.
-                </span>
-              </Fieldset>
-
-              <AddressFields
-                name="pickupAddress"
-                legend="Pickup location"
-                className={fieldsetClasses}
-                renderExistingAddressCheckbox={() => (
-                  <div className="margin-y-2">
-                    <Checkbox
-                      data-testid="useCurrentResidence"
-                      label="Use my current residence address"
-                      name="useCurrentResidence"
-                      checked={useCurrentResidence}
-                      onChange={() => this.handleUseCurrentResidenceChange(values)}
-                    />
-                  </div>
-                )}
-                values={values.pickupAddress}
+              <PickupDetails
+                fieldsetClasses={ fieldsetClasses }
+                useCurrentResidence={ useCurrentResidence }
+                onCurrentResidenceChange={ this.handleUseCurrentResidenceChange }
+                values={ values.pickup }
               />
-              <ContactInfoFields
-                name="releasingAgent"
-                legend="Releasing agent"
-                className={fieldsetClasses}
-                subtitle="Who can allow the movers to take your stuff if you're not there?"
-                subtitleClassName="margin-y-2"
-                values={values.releasingAgent}
-              />
-              <Fieldset legend="Delivery date" className={fieldsetClasses}>
-                <DatePickerInput
-                  name="requestedDeliveryDate"
-                  label="Requested delivery date"
-                  id="requestedDeliveryDate"
-                  value={values.requestedDeliveryDate}
-                  validate={validateDate}
-                />
-                <small className="usa-hint" id="deliveryDateHint">
-                  Your movers will confirm this date or one shortly before or after.
-                </small>
-              </Fieldset>
-              <Fieldset legend="Delivery location" className={fieldsetClasses}>
-                <Label>Do you know your delivery address?</Label>
-                <div className="display-flex margin-top-1">
-                  <Radio
-                    id="has-delivery-address"
-                    label="Yes"
-                    name="hasDeliveryAddress"
-                    onChange={this.handleChangeHasDeliveryAddress}
-                    checked={hasDeliveryAddress}
-                  />
-                  <Radio
-                    id="no-delivery-address"
-                    label="No"
-                    name="hasDeliveryAddress"
-                    checked={!hasDeliveryAddress}
-                    onChange={this.handleChangeHasDeliveryAddress}
-                  />
-                </div>
-                {hasDeliveryAddress ? (
-                  <AddressFields name="destinationAddress" values={values.destinationAddress} />
-                ) : (
-                  <>
-                    <div>
-                      <p className={fieldsetClasses}>
-                        We can use the zip of your new duty station.
-                        <br />
-                        <strong>
-                          {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
-                          {newDutyStationAddress.postal_code}{' '}
-                        </strong>
-                      </p>
-                    </div>
-                  </>
-                )}
-              </Fieldset>
-              <ContactInfoFields
-                name="receivingAgent"
-                legend="Receiving agent"
-                className={fieldsetClasses}
-                subtitle="Who can take delivery for you if the movers arrive and you're not there?"
-                subtitleClassName="margin-y-2"
-                values={values.receivingAgent}
+              <DeliveryDetails
+                fieldsetClasses={ fieldsetClasses }
+                newDutyStationAddress= { newDutyStationAddress }
+                hasDeliveryAddress={ hasDeliveryAddress }
+                onHasAddressChange={ this.handleChangeHasDeliveryAddress }
+                values={ values.delivery }
               />
               <Fieldset legend="Remarks" className={fieldsetClasses}>
                 <TextInput
