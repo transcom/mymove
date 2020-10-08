@@ -2,6 +2,7 @@ package moveorder
 
 import (
 	"database/sql"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 
@@ -19,13 +20,13 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID) ([]models.Order
 	var moveOrders []models.Order
 	var transportationOffice models.TransportationOffice
 	// select the GBLOC associated with the transportation office of the session's current office user
-	err := f.db.Q().
+	f.db.Q().
 		Join("office_users", "transportation_offices.id = office_users.transportation_office_id").
 		Where("office_users.id = ?", officeUserID).First(&transportationOffice)
 
 	gbloc := transportationOffice.Gbloc
 
-	err = f.db.Q().Eager(
+	err := f.db.Q().Eager(
 		"ServiceMember",
 		"NewDutyStation.Address",
 		"OriginDutyStation",

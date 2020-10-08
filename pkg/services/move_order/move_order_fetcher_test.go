@@ -63,6 +63,8 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 	testdatagen.MakeDefaultMove(suite.DB())
 
 	expectedMoveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
+	secondMoveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
+
 	// Only orders with shipments are returned, so we need to add a shipment
 	// to the move we just created
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -71,10 +73,15 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 			Status: models.MTOShipmentStatusSubmitted,
 		},
 	})
-	officeUserId := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{}).ID
+	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
+	secondMoveTaskOrder.Orders.OriginDutyStation.TransportationOffice.Gbloc = "AGFM"
+	moveGbloc := expectedMoveTaskOrder.Orders.OriginDutyStation.TransportationOffice.Gbloc
+	userGbloc := officeUser.TransportationOffice.Gbloc
+
 	expectedMoveOrder := expectedMoveTaskOrder.Orders
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
-	moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUserId)
+	moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUser.ID)
+
 	suite.FatalNoError(err)
 	suite.Len(moveOrders, 1)
 
@@ -92,6 +99,7 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 	suite.NotNil(moveOrder.OriginDutyStation)
 	suite.Equal(expectedMoveOrder.OriginDutyStation.AddressID, moveOrder.OriginDutyStation.AddressID)
 	suite.Equal(expectedMoveOrder.OriginDutyStation.Address.StreetAddress1, moveOrder.OriginDutyStation.Address.StreetAddress1)
+	suite.Equal(moveGbloc, userGbloc)
 }
 
 func (suite *MoveOrderServiceSuite) TestListMoveOrdersWithEmptyFields() {
@@ -124,13 +132,11 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrdersWithEmptyFields() {
 		},
 	})
 
-	officeUserID := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{}).ID
+	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
-	moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUserID)
-	moveOrder := moveOrders[0]
+	moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUser.ID)
 
 	suite.FatalNoError(err)
-	suite.Nil(moveOrder.Entitlement)
-	suite.Nil(moveOrder.OriginDutyStation)
-	suite.Nil(moveOrder.Grade)
+	suite.Nil(moveOrders)
+
 }
