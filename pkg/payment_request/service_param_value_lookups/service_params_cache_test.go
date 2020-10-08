@@ -10,22 +10,6 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-/*
-
-type createParams struct {
-	key     models.ServiceItemParamName
-	keyType models.ServiceItemParamType
-	value   string
-}
-
-const (
-	csPriceCents = unit.Cents(8327)
-)
-
-var csAvailableToPrimeAt = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
-
-*/
-
 func (suite *ServiceParamValueLookupsSuite) TestServiceParamCache() {
 	// Create some records we'll need to link to
 
