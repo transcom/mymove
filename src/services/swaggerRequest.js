@@ -75,7 +75,7 @@ export function normalizeResponse(data, schemaKey) {
   return normalize(data, responseSchema).entities;
 }
 
-export async function makeSwaggerRequest(client, operationPath, params = {}, options = {}, normalizeData = true) {
+export async function makeSwaggerRequest(client, operationPath, params = {}, options = { normalize: true }) {
   const operation = get(client, `apis.${operationPath}`);
   if (!operation) {
     throw new Error(`Operation '${operationPath}' does not exist!`);
@@ -93,6 +93,7 @@ export async function makeSwaggerRequest(client, operationPath, params = {}, opt
 
   return request
     .then((response) => {
+      const normalizeData = options.normalize !== undefined ? options.normalize : true;
       // Normalize the data (defaults to true)
       if (normalizeData) {
         /* TODO - deprecrate the below & require an explicit schemaKey parameter */

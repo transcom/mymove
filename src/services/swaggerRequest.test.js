@@ -149,8 +149,7 @@ describe('makeSwaggerRequest', () => {
       mockClient,
       'shipments.getShipment',
       { shipmentID: 'abcd-1234' },
-      {},
-      false,
+      { normalize: false },
     );
 
     expect(request).toEqual(mockResponse.body);

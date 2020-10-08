@@ -1,0 +1,117 @@
+import { takeLatest, put, call } from 'redux-saga/effects';
+
+import { watchInitializeOnboarding, initializeOnboarding } from './onboarding';
+
+import { INIT_ONBOARDING, initOnboardingFailed, initOnboardingComplete } from 'store/onboarding/actions';
+import { getLoggedInUser, getMTOShipmentsForMove } from 'services/internalApi';
+import { addEntities } from 'shared/Entities/actions';
+
+describe('watchInitializeOnboarding', () => {
+  const generator = watchInitializeOnboarding();
+
+  it('takes the latest INIT_ONBOARDING action and calls initializeOnboarding', () => {
+    expect(generator.next().value).toEqual(takeLatest(INIT_ONBOARDING, initializeOnboarding));
+  });
+
+  it('is done', () => {
+    expect(generator.next().done).toEqual(true);
+  });
+});
+
+describe('initializeOnboarding', () => {
+  describe('if the user is not logged in', () => {
+    const generator = initializeOnboarding();
+
+    it('makes an API call to request the logged in user', () => {
+      expect(generator.next().value).toEqual(call(getLoggedInUser));
+    });
+
+    it('puts action initOnboardingFailed with the error', () => {
+      const error = new Error('User not logged in');
+      expect(generator.throw(error).value).toEqual(put(initOnboardingFailed(error)));
+    });
+
+    it('is done', () => {
+      expect(generator.next().done).toEqual(true);
+    });
+  });
+
+  describe('if the user doesn’t have a move', () => {
+    const generator = initializeOnboarding();
+
+    const mockResponseData = {
+      user: {
+        testUserId: {
+          id: 'testUserId',
+          email: 'testuser@example.com',
+        },
+      },
+    };
+
+    it('makes an API call to request the logged in user', () => {
+      expect(generator.next().value).toEqual(call(getLoggedInUser));
+    });
+
+    it('stores the user data in entities', () => {
+      expect(generator.next(mockResponseData).value).toEqual(put(addEntities(mockResponseData)));
+    });
+
+    it('puts action initOnboardingComplete', () => {
+      expect(generator.next().value).toEqual(put(initOnboardingComplete()));
+    });
+
+    it('is done', () => {
+      expect(generator.next().done).toEqual(true);
+    });
+  });
+
+  describe('if the user has a move', () => {
+    const generator = initializeOnboarding();
+
+    const mockResponseData = {
+      user: {
+        testUserId: {
+          id: 'testUserId',
+          email: 'testuser@example.com',
+        },
+      },
+      moves: {
+        testMoveId: {
+          id: 'testMoveId',
+        },
+      },
+    };
+
+    const mockMTOResponseData = {
+      mtoShipments: {
+        testMTOShipmentId: {
+          id: 'testMTOShipmentId',
+        },
+      },
+    };
+
+    it('makes an API call to request the logged in user', () => {
+      expect(generator.next().value).toEqual(call(getLoggedInUser));
+    });
+
+    it('stores the user data in entities', () => {
+      expect(generator.next(mockResponseData).value).toEqual(put(addEntities(mockResponseData)));
+    });
+
+    it('makes an API call to request the MTO shipments', () => {
+      expect(generator.next().value).toEqual(call(getMTOShipmentsForMove, 'testMoveId'));
+    });
+
+    it('stores the MTO shipment data in entities', () => {
+      expect(generator.next(mockMTOResponseData).value).toEqual(put(addEntities(mockMTOResponseData)));
+    });
+
+    it('puts action initOnboardingComplete', () => {
+      expect(generator.next().value).toEqual(put(initOnboardingComplete()));
+    });
+
+    it('is done', () => {
+      expect(generator.next().done).toEqual(true);
+    });
+  });
+});

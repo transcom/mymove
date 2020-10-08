@@ -53,15 +53,17 @@ import HHGShipmentSetup from 'pages/MyMove/HHGShipmentSetup';
 import Home from '../../pages/MyMove/Home';
 
 import { loadUser as loadUserAction } from 'store/auth/actions';
+import { initOnboarding as initOnboardingAction } from 'store/onboarding/actions';
 
 export class AppWrapper extends Component {
   state = { hasError: false };
 
   componentDidMount() {
-    const { loadUser, loadInternalSchema } = this.props;
+    const { loadUser, loadInternalSchema, initOnboarding } = this.props;
 
     loadInternalSchema();
     loadUser();
+    initOnboarding();
   }
 
   componentDidCatch(error, info) {
@@ -173,6 +175,7 @@ export class AppWrapper extends Component {
 AppWrapper.propTypes = {
   loadInternalSchema: PropTypes.func,
   loadUser: PropTypes.func,
+  initOnboarding: PropTypes.func,
   conusStatus: PropTypes.string.isRequired,
   context: PropTypes.shape({
     flags: PropTypes.shape({
@@ -185,6 +188,7 @@ AppWrapper.propTypes = {
 AppWrapper.defaultProps = {
   loadInternalSchema: no_op,
   loadUser: no_op,
+  initOnboarding: no_op,
   conusStatus: CONUS_STATUS.CONUS,
   context: {
     flags: {
@@ -215,6 +219,7 @@ const mapDispatchToProps = (dispatch) =>
       push,
       loadInternalSchema,
       loadUser: loadUserAction,
+      initOnboarding: initOnboardingAction,
     },
     dispatch,
   );
