@@ -43,7 +43,7 @@ type Entitlements struct {
 	ProGearWeightSpouse int64 `json:"proGearWeightSpouse,omitempty"`
 
 	// storage in transit
-	StorageInTransit int64 `json:"storageInTransit,omitempty"`
+	StorageInTransit *int64 `json:"storageInTransit,omitempty"`
 
 	// total dependents
 	TotalDependents int64 `json:"totalDependents,omitempty"`

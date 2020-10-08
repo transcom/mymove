@@ -17,7 +17,7 @@ function WeightTicketExamples(props) {
           {'<'} Back
         </a>
       </div>
-      <h3 className="title">Example weight ticket scenarios</h3>
+      <h1 className="title">Example weight ticket scenarios</h1>
       <section>
         <div className="subheader">
           You need two weight tickets for each trip you took: one with the vehicle empty, one with it full.

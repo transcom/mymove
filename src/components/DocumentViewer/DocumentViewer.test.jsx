@@ -81,7 +81,7 @@ describe('DocViewerMenu', () => {
   describe('close button', () => {
     const component = mount(<DocViewerMenu files={mockFiles} {...mockProps} />);
     it('implements the close handler', () => {
-      component.find('[data-testid="closeMenu"]').simulate('click');
+      component.find('button[data-testid="closeMenu"]').simulate('click');
       expect(mockProps.handleClose).toHaveBeenCalled();
     });
   });
@@ -127,7 +127,7 @@ describe('DocumentViewer component', () => {
 
   it('handles the open menu button', () => {
     act(() => {
-      component.find('[data-testid="openMenu"]').prop('onClick')();
+      component.find('button[data-testid="openMenu"]').prop('onClick')();
     });
     component.update();
     expect(component.find('DocViewerMenu').prop('isOpen')).toBe(true);
@@ -135,7 +135,7 @@ describe('DocumentViewer component', () => {
 
   it('handles the close menu button', () => {
     act(() => {
-      component.find('[data-testid="closeMenu"]').prop('onClick')();
+      component.find('button[data-testid="closeMenu"]').prop('onClick')();
     });
     component.update();
     expect(component.find('DocViewerMenu').prop('isOpen')).toBe(false);
@@ -143,7 +143,7 @@ describe('DocumentViewer component', () => {
 
   it('handles selecting a different file', () => {
     act(() => {
-      component.find('[data-testid="openMenu"]').prop('onClick')();
+      component.find('button[data-testid="openMenu"]').prop('onClick')();
       menu.find('li button').at(1).simulate('click');
     });
     component.update();
@@ -154,7 +154,7 @@ describe('DocumentViewer component', () => {
     expect(component.find('.unsupported-message').exists()).toBe(false);
 
     act(() => {
-      component.find('[data-testid="openMenu"]').prop('onClick')();
+      component.find('button[data-testid="openMenu"]').prop('onClick')();
       menu.find('li button').at(2).simulate('click');
     });
     component.update();
@@ -165,7 +165,7 @@ describe('DocumentViewer component', () => {
     expect(component.find('.unsupported-message').exists()).toBe(false);
 
     act(() => {
-      component.find('[data-testid="openMenu"]').prop('onClick')();
+      component.find('button[data-testid="openMenu"]').prop('onClick')();
       menu.find('li button').at(3).simulate('click');
     });
     component.update();

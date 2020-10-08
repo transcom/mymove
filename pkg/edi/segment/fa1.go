@@ -8,15 +8,16 @@ import (
 
 // AffiliationToAgency is a map from our affiliation to the FA1 segment's AgencyQualifierCode field
 var AffiliationToAgency = map[models.ServiceMemberAffiliation]string{
-	models.AffiliationARMY:     "DZ",
-	models.AffiliationNAVY:     "DN",
-	models.AffiliationMARINES:  "DX",
-	models.AffiliationAIRFORCE: "DY",
+	models.AffiliationARMY:       "DZ",
+	models.AffiliationNAVY:       "DN",
+	models.AffiliationMARINES:    "DX",
+	models.AffiliationAIRFORCE:   "DY",
+	models.AffiliationCOASTGUARD: "HS",
 }
 
 // FA1 represents the FA1 EDI segment
 type FA1 struct {
-	AgencyQualifierCode string `validate:"oneof=DN DX DY DZ"`
+	AgencyQualifierCode string `validate:"oneof=DN DX DY DZ DF HS"`
 }
 
 // StringArray converts FA1 to an array of strings

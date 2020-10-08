@@ -14,7 +14,7 @@ function CustomerAgreementLegalese(props) {
               {'<'} Back
             </a>
           </div>
-          <h2>Customer Agreement</h2>
+          <h1>Customer Agreement</h1>
           <p style={{ marginBottom: '20px' }}>
             Before submitting your payment request, please carefully read the following:
           </p>

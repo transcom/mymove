@@ -293,6 +293,9 @@ bin/send-to-gex: pkg/gen/ cmd/send_to_gex
 bin/tls-checker: cmd/tls-checker
 	go build -ldflags "$(LDFLAGS)" -o bin/tls-checker ./cmd/tls-checker
 
+bin/generate-payment-request-edi: cmd/generate-payment-request-edi
+	go build -ldflags "$(LDFLAGS)" -o bin/generate-payment-request-edi ./cmd/generate-payment-request-edi
+
 pkg/assets/assets.go:
 	scripts/gen-assets
 
@@ -1009,22 +1012,9 @@ spellcheck: ## Run interactive spellchecker
 storybook: ## Start the storybook server
 	yarn run storybook
 
-.PHONY: storybook_docker
-storybook_docker: ## Start the storybook server in a docker container
-	docker-compose -f docker-compose.storybook.yml -f docker-compose.storybook_local.yml build --pull storybook
-	docker-compose -f docker-compose.storybook.yml -f docker-compose.storybook_local.yml up storybook
-
 .PHONY: storybook_build
 storybook_build: ## Build static storybook site
 	yarn run build-storybook
-
-.PHONY: storybook_tests
-storybook_tests: ## Run the Loki storybook tests to ensure no breaking changes
-	scripts/run-storybook-tests
-
-.PHONY: loki_approve_changes
-loki_approve_changes: ## Approves differences in Loki test results
-	yarn run loki approve
 
 .PHONY: schemaspy
 schemaspy: db_test_reset db_test_migrate ## Generates database documentation using schemaspy

@@ -122,7 +122,7 @@ describe('ReviewServiceItems component', () => {
   });
 
   it('attaches the close listener', () => {
-    expect(mountedComponent.find('[data-testid="closeSidebar"]').prop('onClick')).toBe(handleClose);
+    expect(mountedComponent.find('button[data-testid="closeSidebar"]').prop('onClick')).toBe(handleClose);
   });
 
   it('displays the total count', () => {
@@ -130,11 +130,11 @@ describe('ReviewServiceItems component', () => {
   });
 
   it('disables previous button at beginning', () => {
-    expect(mountedComponent.find('[data-testid="prevServiceItem"]').prop('disabled')).toBe(true);
+    expect(mountedComponent.find('button[data-testid="prevServiceItem"]').prop('disabled')).toBe(true);
   });
 
   it('enables next button at beginning', () => {
-    expect(mountedComponent.find('[data-testid="nextServiceItem"]').prop('disabled')).toBe(false);
+    expect(mountedComponent.find('button[data-testid="nextServiceItem"]').prop('disabled')).toBe(false);
   });
 
   it('displays the total approved amount', () => {
@@ -198,8 +198,8 @@ describe('ReviewServiceItems component', () => {
         {...requiredProps}
       />,
     );
-    const nextButton = componentWithInitialValues.find('[data-testid="nextServiceItem"]');
-    const prevButton = componentWithInitialValues.find('[data-testid="prevServiceItem"]');
+    const nextButton = componentWithInitialValues.find('button[data-testid="nextServiceItem"]');
+    const prevButton = componentWithInitialValues.find('button[data-testid="prevServiceItem"]');
 
     it('renders the service item cards ordered by timestamp ascending', () => {
       compareItem(componentWithInitialValues, serviceItemCards[3]);
@@ -267,7 +267,7 @@ describe('ReviewServiceItems component', () => {
     });
 
     it('can reject an item', async () => {
-      const nextButton = mountedComponent.find('[data-testid="nextServiceItem"]');
+      const nextButton = mountedComponent.find('button[data-testid="nextServiceItem"]');
 
       nextButton.simulate('click');
       mountedComponent.update();
@@ -279,7 +279,7 @@ describe('ReviewServiceItems component', () => {
         rejectInput.simulate('change');
       });
       mountedComponent.update();
-      const saveButton = mountedComponent.find('[data-testid="rejectionSaveButton"]');
+      const saveButton = mountedComponent.find('button[data-testid="rejectionSaveButton"]');
       expect(saveButton.length).toBe(1);
       await act(async () => {
         saveButton.simulate('click');
@@ -305,7 +305,7 @@ describe('ReviewServiceItems component', () => {
     });
 
     it('can clear the selections for an item', async () => {
-      const clearSelectionButton = mountedComponent.find('[data-testid="clearStatusButton"]');
+      const clearSelectionButton = mountedComponent.find('button[data-testid="clearStatusButton"]');
       expect(clearSelectionButton.length).toBe(1);
       const rejectReasonInput = mountedComponent.find(`textarea[name="rejectionReason"]`);
       expect(rejectReasonInput.length).toBe(1);
@@ -423,7 +423,7 @@ describe('ReviewServiceItems component', () => {
       );
 
       it('lands on the Complete Review step after reviewing all items', () => {
-        const nextButton = componentWithInitialValues.find('[data-testid="nextServiceItem"]');
+        const nextButton = componentWithInitialValues.find('button[data-testid="nextServiceItem"]');
 
         nextButton.simulate('click');
         mountedComponent.update();
@@ -444,7 +444,7 @@ describe('ReviewServiceItems component', () => {
       });
 
       it('can click on Authorize Payment', async () => {
-        const authorizeBtn = componentWithInitialValues.find('[data-testid="authorizePaymentBtn"]');
+        const authorizeBtn = componentWithInitialValues.find('button[data-testid="authorizePaymentBtn"]');
         expect(authorizeBtn.exists()).toBe(true);
 
         await act(async () => {
@@ -477,7 +477,7 @@ describe('ReviewServiceItems component', () => {
       );
 
       it('lands on the Complete Review step after reviewing one item', () => {
-        const nextButton = componentWithInitialValues.find('[data-testid="nextServiceItem"]');
+        const nextButton = componentWithInitialValues.find('button[data-testid="nextServiceItem"]');
 
         nextButton.simulate('click');
         mountedComponent.update();
@@ -539,7 +539,7 @@ describe('ReviewServiceItems component', () => {
       );
 
       it('lands on the Complete Review step after reviewing all items', () => {
-        const nextButton = componentWithInitialValues.find('[data-testid="nextServiceItem"]');
+        const nextButton = componentWithInitialValues.find('button[data-testid="nextServiceItem"]');
 
         nextButton.simulate('click');
         mountedComponent.update();
@@ -568,7 +568,7 @@ describe('ReviewServiceItems component', () => {
       });
 
       it('can click on Finish review button', async () => {
-        const finishReviewBtn = componentWithInitialValues.find('[data-testid="finishReviewBtn"]');
+        const finishReviewBtn = componentWithInitialValues.find('button[data-testid="finishReviewBtn"]');
         expect(finishReviewBtn.exists()).toBe(true);
 
         await act(async () => {
@@ -620,7 +620,7 @@ describe('ReviewServiceItems component', () => {
       );
 
       it('lands on the Complete Review step after reviewing all items', () => {
-        const nextButton = componentWithInitialValues.find('[data-testid="nextServiceItem"]');
+        const nextButton = componentWithInitialValues.find('button[data-testid="nextServiceItem"]');
 
         nextButton.simulate('click');
         mountedComponent.update();
@@ -645,7 +645,7 @@ describe('ReviewServiceItems component', () => {
       });
 
       it('can click on Reject request button', async () => {
-        const rejectRequestBtn = componentWithInitialValues.find('[data-testid="rejectRequestBtn"]');
+        const rejectRequestBtn = componentWithInitialValues.find('button[data-testid="rejectRequestBtn"]');
         expect(rejectRequestBtn.exists()).toBe(true);
 
         await act(async () => {
@@ -669,7 +669,7 @@ describe('ReviewServiceItems component', () => {
       );
 
       it('lands on the Complete Review step after reviewing all items', () => {
-        const nextButton = componentWithMockError.find('[data-testid="nextServiceItem"]');
+        const nextButton = componentWithMockError.find('button[data-testid="nextServiceItem"]');
 
         nextButton.simulate('click');
         componentWithMockError.update();
@@ -746,7 +746,7 @@ describe('ReviewServiceItems component', () => {
       });
 
       it('disables the form elements', () => {
-        const backButton = reviewedComponent.find('[data-testid="prevServiceItem"]');
+        const backButton = reviewedComponent.find('button[data-testid="prevServiceItem"]');
 
         backButton.simulate('click');
         reviewedComponent.update();
@@ -812,7 +812,7 @@ describe('ReviewServiceItems component', () => {
       });
 
       it('displays service item status summary', () => {
-        const backButton = reviewedComponent.find('[data-testid="prevServiceItem"]');
+        const backButton = reviewedComponent.find('button[data-testid="prevServiceItem"]');
 
         backButton.simulate('click');
         reviewedComponent.update();

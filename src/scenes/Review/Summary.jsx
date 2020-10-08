@@ -1,3 +1,4 @@
+/* eslint-ignore */
 import React, { Component, Fragment } from 'react';
 import { get } from 'lodash';
 import { connect } from 'react-redux';
@@ -74,7 +75,10 @@ export class Summary extends Component {
       (isReviewPage && Object.keys(currentPPM).length) ||
       (!isReviewPage && Object.keys(currentPPM).length && currentPPM.status !== 'DRAFT');
     const showHHGShipmentSummary = isReviewPage && !!mtoShipments.length;
-    const hasPPMorHHG = (isReviewPage && Object.keys(currentPPM).length) || !!mtoShipments.length;
+    const hasPPM = isReviewPage && Object.keys(currentPPM).length;
+    const hasAnyShipments = hasPPM || !!mtoShipments.length;
+    const canAddAnotherShipment =
+      (currentMove.status === 'DRAFT' && hasAnyShipments) || (currentMove.status === 'SUBMITTED' && !hasPPM);
 
     const showProfileAndOrders = isReviewPage || !isReviewPage;
     const showMoveSetup = showPPMShipmentSummary || showHHGShipmentSummary;
@@ -99,7 +103,6 @@ export class Summary extends Component {
               Your weight entitlement is now {entitlement.sum.toLocaleString()} lbs.
             </Alert>
           )}
-
         {showProfileAndOrders && (
           <ServiceMemberSummary
             orders={currentOrders}
@@ -113,13 +116,10 @@ export class Summary extends Component {
             editOrdersPath={editOrdersPath}
           />
         )}
-
         {showMoveSetup && <h3>Move setup</h3>}
-
         {showPPMShipmentSummary && (
           <PPMShipmentSummary ppm={currentPPM} movePath={rootReviewAddressWithMoveId} orders={currentOrders} />
         )}
-
         {showHHGShipmentSummary &&
           mtoShipments.map((shipment, index) => {
             return (
@@ -132,18 +132,20 @@ export class Summary extends Component {
               />
             );
           })}
-
-        {hasPPMorHHG && (
-          <div className="grid-col-row margin-top-5">
-            <span className="float-right">Optional</span>
-            <h3>Add another shipment</h3>
-            <p>Will you move any belongings to or from another location?</p>
-            <Button className="usa-button--secondary" onClick={() => history.push(shipmentSelectionPath)}>
-              Add another shipment
-            </Button>
-          </div>
-        )}
-
+        <div className="grid-col-row margin-top-5">
+          <span className="float-right">Optional</span>
+          <h3>Add another shipment</h3>
+          {canAddAnotherShipment ? (
+            <div>
+              <p>Will you move any belongings to or from another location?</p>
+              <Button data-testid="addAnotherShipmentBtn" secondary onClick={() => history.push(shipmentSelectionPath)}>
+                Add another shipment
+              </Button>
+            </div>
+          ) : (
+            <p>If you need to add shipments, let your movers know.</p>
+          )}
+        </div>
         {moveIsApproved && (
           <div className="approved-edit-warning">
             *To change these fields, contact your local PPPO office at {get(currentStation, 'name')}{' '}

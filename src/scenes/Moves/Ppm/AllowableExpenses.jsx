@@ -17,7 +17,7 @@ function AllowableExpenses(props) {
               {'<'} Back
             </a>
           </div>
-          <h3 className="title">Storage & Moving Expenses</h3>
+          <h1 className="title">Storage & Moving Expenses</h1>
           <p>
             <strong>Storage expenses</strong> are a special expense that is <strong>reimbursable</strong> for up to 90
             days. You can be directly repaid for those expenses.

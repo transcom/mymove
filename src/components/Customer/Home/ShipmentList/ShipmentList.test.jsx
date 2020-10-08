@@ -4,51 +4,35 @@ import { mount } from 'enzyme';
 
 import ShipmentList from '.';
 
+const shipments = [
+  { id: '#ID-1', shipmentType: 'PPM' },
+  { id: '#ID-2', shipmentType: 'HHG' },
+  { id: '#ID-3', shipmentType: 'NTS' },
+];
+const onShipmentClick = jest.fn();
 const defaultProps = {
-  shipments: [],
-  onShipmentClick: () => {},
+  shipments,
+  onShipmentClick,
+  moveSubmitted: false,
 };
 
-function mountShipmentList(props = defaultProps) {
-  return mount(<ShipmentList {...props} />);
-}
 describe('ShipmentList component', () => {
   it('renders ShipmentList with shipments', () => {
-    const shipments = [
-      { id: '#ID-1', shipmentType: 'PPM' },
-      { id: '#ID-2', shipmentType: 'HHG' },
-      { id: '#ID-3', shipmentType: 'NTS' },
-    ];
-    const onShipmentClick = () => {};
-    const props = {
-      shipments,
-      onShipmentClick,
-    };
-    const wrapper = mountShipmentList(props);
+    const wrapper = mount(<ShipmentList {...defaultProps} />);
     expect(wrapper.find('ShipmentListItem').length).toBe(3);
     expect(wrapper.find('.shipment-list-item-PPM').length).toBe(1);
-    expect(wrapper.find('.shipment-list-item-PPM strong').text()).toBe('PPM 1');
+    expect(wrapper.find('.shipment-list-item-PPM strong').text()).toBe('PPM');
     expect(wrapper.find('.shipment-list-item-PPM span').text()).toBe('#ID-1');
     expect(wrapper.find('.shipment-list-item-HHG').length).toBe(1);
-    expect(wrapper.find('.shipment-list-item-HHG strong').text()).toBe('HHG 2');
+    expect(wrapper.find('.shipment-list-item-HHG strong').text()).toBe('HHG');
     expect(wrapper.find('.shipment-list-item-HHG span').text()).toBe('#ID-2');
     expect(wrapper.find('.shipment-list-item-NTS').length).toBe(1);
-    expect(wrapper.find('.shipment-list-item-NTS strong').text()).toBe('NTS 3');
+    expect(wrapper.find('.shipment-list-item-NTS strong').text()).toBe('NTS');
     expect(wrapper.find('.shipment-list-item-NTS span').text()).toBe('#ID-3');
   });
 
   it('ShipmentList calls onShipmentClick when clicked', () => {
-    const shipments = [
-      { id: '#ID-1', shipmentType: 'PPM' },
-      { id: '#ID-2', shipmentType: 'HHG' },
-      { id: '#ID-3', shipmentType: 'NTS' },
-    ];
-    const onShipmentClick = jest.fn();
-    const props = {
-      shipments,
-      onShipmentClick,
-    };
-    const wrapper = mountShipmentList(props);
+    const wrapper = mount(<ShipmentList {...defaultProps} />);
     expect(onShipmentClick.mock.calls.length).toBe(0);
     wrapper.find('ShipmentListItem').at(0).simulate('click');
     expect(onShipmentClick.mock.calls.length).toBe(1);

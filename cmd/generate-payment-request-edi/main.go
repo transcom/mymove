@@ -93,7 +93,7 @@ func main() {
 		logger.Fatal(err.Error())
 	}
 
-	generator := invoice.GHCPaymentRequestInvoiceGenerator{DB: dbConnection}
+	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(dbConnection)
 	edi858c, err := generator.Generate(paymentRequest, false)
 	if err != nil {
 		logger.Fatal(err.Error())

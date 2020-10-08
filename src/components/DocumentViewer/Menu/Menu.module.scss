@@ -60,6 +60,9 @@
     word-wrap: break-word;
     @include u-margin-y(0);
     @include u-line-height('body', 2);
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
   }
 
   &:hover {

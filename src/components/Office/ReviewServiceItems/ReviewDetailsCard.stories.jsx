@@ -8,11 +8,6 @@ import AuthorizePayment from './AuthorizePayment';
 export default {
   title: 'TOO/TIO Components|ReviewServiceItems/ReviewDetails',
   component: ReviewDetailsCard,
-  parameters: {
-    loki: {
-      skip: true,
-    },
-  },
 };
 
 export const ReviewDetailsWithNoValues = () => <ReviewDetailsCard />;

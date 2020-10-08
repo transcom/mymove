@@ -201,6 +201,7 @@ func MTOAgent(mtoAgent *models.MTOAgent) *primemessages.MTOAgent {
 		MtoShipmentID: strfmt.UUID(mtoAgent.MTOShipmentID.String()),
 		CreatedAt:     strfmt.DateTime(mtoAgent.CreatedAt),
 		UpdatedAt:     strfmt.DateTime(mtoAgent.UpdatedAt),
+		ETag:          etag.GenerateEtag(mtoAgent.UpdatedAt),
 	}
 }
 
@@ -394,7 +395,6 @@ func MTOShipments(mtoShipments *models.MTOShipments) *primemessages.MTOShipments
 // MTOServiceItem payload
 func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServiceItem {
 	var payload primemessages.MTOServiceItem
-
 	// here we determine which payload model to use based on the re service code
 	switch mtoServiceItem.ReService.Code {
 	case models.ReServiceCodeDOFSIT:

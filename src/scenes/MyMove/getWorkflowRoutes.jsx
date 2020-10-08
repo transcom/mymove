@@ -14,10 +14,7 @@ import BackupMailingAddress from 'scenes/ServiceMembers/BackupMailingAddress';
 import BackupContact from 'scenes/ServiceMembers/BackupContact';
 import ProfileReview from 'scenes/Review/ProfileReview';
 
-import Orders from 'scenes/Orders/Orders';
 import DutyStation from 'scenes/ServiceMembers/DutyStation';
-
-import UploadOrders from 'scenes/Orders/UploadOrders';
 
 import Home from 'pages/MyMove/Home';
 import SelectMoveType from 'pages/MyMove/SelectMoveType';
@@ -30,10 +27,12 @@ import Review from 'scenes/Review/Review';
 import Agreement from 'scenes/Legalese';
 
 import HHGShipmentSetup from 'pages/MyMove/HHGShipmentSetup';
+import Orders from 'pages/MyMove/Orders';
+import UploadOrders from 'pages/MyMove/UploadOrders';
 
 const PageNotInFlow = ({ location }) => (
   <div className="usa-grid">
-    <h3>Missing Context</h3>
+    <h1>Missing Context</h1>
     You are trying to load a page that the system does not have context for. Please go to the home page and try again.
   </div>
 );
@@ -176,7 +175,7 @@ const pages = {
     isComplete: always,
     render: (key, pages) => () => {
       return (
-        <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
+        <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key} hideBackBtn showFinishLaterBtn>
           <MovingInfo />
         </WizardPage>
       );

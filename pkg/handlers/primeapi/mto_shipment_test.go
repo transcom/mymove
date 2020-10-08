@@ -951,4 +951,83 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
 		suite.NotNil(responsePayload.RequiredDeliveryDate)
 	})
+
+	suite.T().Run("Successful case for valid and complete payload including approved date and re service code", func(t *testing.T) {
+		reServiceID, _ := uuid.NewV4()
+		mto := testdatagen.MakeAvailableMove(suite.DB())
+
+		reService := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				ID:   reServiceID,
+				Code: models.ReServiceCodeDDFSIT,
+			},
+		})
+
+		now := time.Now()
+		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: mto,
+			MTOShipment: models.MTOShipment{
+				MoveTaskOrderID: mto.ID,
+				Status:          "APPROVED",
+				ApprovedDate:    &now,
+			},
+		})
+
+		mtoServiceItem1 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			Move:        mto,
+			MTOShipment: oldShipment,
+			ReService:   reService,
+			MTOServiceItem: models.MTOServiceItem{
+				MoveTaskOrderID: mto.ID,
+				ReServiceID:     reService.ID,
+				MTOShipmentID:   &oldShipment.ID,
+			},
+		})
+		serviceItems := models.MTOServiceItems{mtoServiceItem1}
+		oldShipment.MTOServiceItems = serviceItems
+
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+
+		payload := primemessages.MTOShipment{
+			ID:             strfmt.UUID(oldShipment.ID.String()),
+			PointOfContact: "John McRand",
+		}
+
+		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto_shipments/%s", oldShipment.ID.String()), nil)
+
+		params := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(oldShipment.ID),
+			Body:          &payload,
+			IfMatch:       eTag,
+		}
+
+		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB(), builder, fetcher, planner)
+		handler := UpdateMTOShipmentHandler{
+			context,
+			updater,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+
+		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
+		responsePayload := okResponse.Payload
+
+		suite.Equal(1, len(responsePayload.MtoServiceItems()))
+		var serviceItemDDFSIT *primemessages.MTOServiceItemDDFSIT
+		var serviceItemDDFSITCode string
+
+		for _, item := range responsePayload.MtoServiceItems() {
+			if item.ModelType() == primemessages.MTOServiceItemModelTypeMTOServiceItemDDFSIT {
+				serviceItemDDFSIT = item.(*primemessages.MTOServiceItemDDFSIT)
+				serviceItemDDFSITCode = *serviceItemDDFSIT.ReServiceCode
+				break
+			}
+
+		}
+		suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
+		suite.Equal(string(reService.Code), serviceItemDDFSITCode)
+		suite.Equal(oldShipment.ApprovedDate, &now)
+	})
 }

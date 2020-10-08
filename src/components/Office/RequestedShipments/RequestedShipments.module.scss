@@ -18,9 +18,13 @@
   }
 
   .serviceItems {
-    @include u-padding-top(4);
+    @include u-padding-top(2);
     @include u-border-top('1px');
     @include u-border-top('base-lighter');
+
+    table {
+      @include u-width(full)
+    }
 
     :global(.usa-fieldset) {
       @include u-padding-x(2);
