@@ -39,4 +39,4 @@ const OptionalPlaceSchema = Yup.object().shape({
   agent: AgentSchema,
 });
 
-export default { AgentSchema, RequiredAddressSchema, OptionalAddressSchema, RequiredPlaceSchema, OptionalPlaceSchema }
+export default { AgentSchema, RequiredAddressSchema, OptionalAddressSchema, RequiredPlaceSchema, OptionalPlaceSchema };
