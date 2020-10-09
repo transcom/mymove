@@ -507,9 +507,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 
 		n9Segment := edisegment.N9{
 			ReferenceIdentificationQualifier: "PO",
-			// pending creation of shorter identifier for payment service item
-			// https://dp3.atlassian.net/browse/MB-3718
-			ReferenceIdentification: serviceItem.ID.String(),
+			ReferenceIdentification:          serviceItem.ReferenceID,
 		}
 		// TODO: add another n9 for SIT
 
