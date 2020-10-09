@@ -28,7 +28,7 @@ h1.selectTypeHeader.header {
   h2 + p,
   h3 + p {
     @include u-margin-top('05');
-    @include u-margin-bottom(1);
+    @include u-margin-bottom(3);
     color: $base-darkest;
   }
 }

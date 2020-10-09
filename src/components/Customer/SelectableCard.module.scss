@@ -21,6 +21,10 @@
   background-color: $info-light;
 }
 
+p + .cardContainer {
+  margin-top: 0px;
+}
+
 .cardContainer + .cardContainer {
   @include u-margin-top('105');
 }
