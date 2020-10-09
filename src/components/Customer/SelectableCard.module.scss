@@ -10,7 +10,7 @@
   @include u-padding-left(2);
   border-radius: 2px;
   background-color: $bg-white;
-  border:  2px solid $base-lighter;
+  border: 2px solid $base-lighter;
   :global(.usa-radio__label) {
     font-weight: bold;
   }

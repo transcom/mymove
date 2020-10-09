@@ -141,6 +141,8 @@ export class SelectMoveType extends Component {
                   ? 'How do you want this group of things moved?'
                   : 'How do you want to move your belongings?'}
               </h1>
+              <h2>Choose 1 shipment at a time.</h2>
+              <p>You can add more later</p>
               {hasPpm ? selectPpmHasPpm : selectPpmHasNoPpm}
               {hasSubmittedMove ? selectHhgSubmittedMove : selectHhgDefault}
               <h3>Long-term storage</h3>
