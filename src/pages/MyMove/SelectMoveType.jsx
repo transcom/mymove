@@ -132,7 +132,7 @@ export class SelectMoveType extends Component {
               push={push}
               footerText={footerText}
             >
-              <h6 className={`sm-heading ${styles.eyebrow}`}>Shipment {shipmentNumber}</h6>
+              <h6 className="sm-heading">Shipment {shipmentNumber}</h6>
               <h1 className={`sm-heading ${styles.selectTypeHeader} ${styles.header}`}>
                 {hasAnyShipments
                   ? 'How do you want this group of things moved?'

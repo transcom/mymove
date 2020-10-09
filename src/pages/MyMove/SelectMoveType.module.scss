@@ -20,13 +20,6 @@ h1.selectTypeHeader.header {
   }
 }
 
-h6.eyebrow {
-  @include u-padding-top(4);
-  @media (min-width: $tablet) {
-    @include u-padding-top(5);
-  }
-}
-
 .gridContainer {
   :global(.grid-row){
     @include u-padding-top(3);
