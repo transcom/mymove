@@ -72,6 +72,7 @@ type Assertions struct {
 	ServiceParam                             models.ServiceParam
 	SignedCertification                      models.SignedCertification
 	ServiceMember                            models.ServiceMember
+	Stub                                     bool
 	Tariff400ngServiceArea                   models.Tariff400ngServiceArea
 	Tariff400ngItem                          models.Tariff400ngItem
 	Tariff400ngItemRate                      models.Tariff400ngItemRate

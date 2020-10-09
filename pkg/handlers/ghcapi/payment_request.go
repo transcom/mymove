@@ -1,6 +1,7 @@
 package ghcapi
 
 import (
+	"database/sql"
 	"fmt"
 	"reflect"
 	"time"
@@ -20,6 +21,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -31,13 +33,25 @@ type ListPaymentRequestsHandler struct {
 
 // Handle lists payment requests
 func (h ListPaymentRequestsHandler) Handle(params paymentrequestop.ListPaymentRequestsParams) middleware.Responder {
-	// TODO: add authorizations
-	logger := h.LoggerFromRequest(params.HTTPRequest)
+	request := params.HTTPRequest
+	session, logger := h.SessionAndLoggerFromRequest(request)
+	var officeUserID uuid.UUID
+	officeUserAuthorized := session.Roles.HasRole(roles.RoleTypeTIO)
+	if !officeUserAuthorized {
+		return paymentrequestop.NewListPaymentRequestsForbidden()
+	}
 
-	paymentRequests, err := h.FetchPaymentRequestList()
+	officeUserID = session.OfficeUserID
+
+	paymentRequests, err := h.FetchPaymentRequestList(officeUserID)
 	if err != nil {
-		logger.Error("Error listing payment requests err", zap.Error(err))
-		return paymentrequestop.NewListPaymentRequestsInternalServerError()
+		logger.Error("listing payment requests for", zap.String("office user ID", officeUserID.String()), zap.Error(err))
+		switch err {
+		case sql.ErrNoRows:
+			return paymentrequestop.NewListPaymentRequestsNotFound()
+		default:
+			return paymentrequestop.NewListPaymentRequestsInternalServerError()
+		}
 	}
 
 	paymentRequestsList := make(ghcmessages.PaymentRequests, len(*paymentRequests))
