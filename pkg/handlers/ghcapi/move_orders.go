@@ -55,7 +55,6 @@ func (h ListMoveOrdersHandler) Handle(params moveorderop.ListMoveOrdersParams) m
 
 	// list move orders and pass in office user ID as argument to filter list
 	moveOrders, err := h.MoveOrderFetcher.ListMoveOrders(session.OfficeUserID)
-	//lets see if ListMoveOrders can pass in a id or gbloc
 	if err != nil {
 		logger.Error("fetching all move orders", zap.Error(err))
 		switch err {
