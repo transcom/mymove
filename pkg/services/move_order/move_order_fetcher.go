@@ -20,13 +20,17 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID) ([]models.Order
 	var moveOrders []models.Order
 	var transportationOffice models.TransportationOffice
 	// select the GBLOC associated with the transportation office of the session's current office user
-	f.db.Q().
+	err := f.db.Q().
 		Join("office_users", "transportation_offices.id = office_users.transportation_office_id").
 		Where("office_users.id = ?", officeUserID).First(&transportationOffice)
 
+	if err != nil {
+		return []models.Order{}, err
+	}
+
 	gbloc := transportationOffice.Gbloc
 
-	err := f.db.Q().Eager(
+	err = f.db.Q().Eager(
 		"ServiceMember",
 		"NewDutyStation.Address",
 		"OriginDutyStation",
