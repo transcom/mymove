@@ -27,6 +27,10 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID) ([]models.Order
 		return []models.Order{}, err
 	}
 
+	if err != nil {
+		return []models.Order{}, err
+	}
+
 	gbloc := transportationOffice.Gbloc
 
 	err = f.db.Q().Eager(
