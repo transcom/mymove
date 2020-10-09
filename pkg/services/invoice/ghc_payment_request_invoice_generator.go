@@ -417,8 +417,15 @@ func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(orders models.Order
 	if orders.TAC == nil {
 		return segments, fmt.Errorf("Invalid order. Must have a TAC value")
 	}
+	affiliation := models.ServiceMemberAffiliation(*orders.DepartmentIndicator)
+	agencyQualifierCode, found := edisegment.AffiliationToAgency[affiliation]
+
+	if !found {
+		agencyQualifierCode = "DF"
+	}
+
 	fa1 := edisegment.FA1{
-		AgencyQualifierCode: "DF",
+		AgencyQualifierCode: agencyQualifierCode,
 	}
 
 	segments = append(segments, &fa1)
@@ -500,9 +507,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 
 		n9Segment := edisegment.N9{
 			ReferenceIdentificationQualifier: "PO",
-			// pending creation of shorter identifier for payment service item
-			// https://dp3.atlassian.net/browse/MB-3718
-			ReferenceIdentification: serviceItem.ID.String(),
+			ReferenceIdentification:          serviceItem.ReferenceID,
 		}
 		// TODO: add another n9 for SIT
 

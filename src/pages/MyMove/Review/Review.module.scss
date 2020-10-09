@@ -1,0 +1,20 @@
+@import 'shared/styles/_basics';
+
+.reviewMoveContainer {
+  margin-top: -20px;
+}
+
+.reviewMoveHeaderContainer {
+  @include u-margin-top(4);
+
+  h2 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: normal;
+    @include u-margin-bottom(1);
+  }
+
+  p {
+    margin: 0;
+  }
+}

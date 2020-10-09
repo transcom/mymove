@@ -20,7 +20,7 @@ func (suite *SegmentSuite) TestValidateFA1() {
 		}
 
 		err := suite.validator.Struct(fa1)
-		suite.ValidateError(err, "AgencyQualifierCode", "eq")
+		suite.ValidateError(err, "AgencyQualifierCode", "oneof")
 		suite.ValidateErrorLen(err, 1)
 	})
 }

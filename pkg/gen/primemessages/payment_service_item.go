@@ -40,6 +40,10 @@ type PaymentServiceItem struct {
 	// Price of the service item in cents
 	PriceCents *int64 `json:"priceCents,omitempty"`
 
+	// reference ID
+	// Read Only: true
+	ReferenceID string `json:"referenceID,omitempty"`
+
 	// rejection reason
 	RejectionReason *string `json:"rejectionReason,omitempty"`
 
