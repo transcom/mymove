@@ -1,3 +1,6 @@
+import { isEmpty } from 'lodash';
+
+import { MTOAgentType } from 'shared/constants';
 import { formatSwaggerDate } from 'shared/formatters';
 
 function formatAgent(agent) {
@@ -17,24 +20,19 @@ function formatAgent(agent) {
 }
 
 function formatAddress(address) {
-  return {
-    street_address_1: address.street_address_1,
-    street_address_2: address.street_address_2,
-    city: address.city,
-    state: address.state.toUpperCase(),
-    postal_code: address.postal_code,
-    country: address.country,
-  }
+  const formattedAddress = address;
+  formattedAddress.state = formattedAddress.state.toUpperCase();
+  return formattedAddress;
 }
 
 export function formatMtoShipment({ moveId, shipmentType, pickup, delivery, customerRemarks }) {
   const formattedMtoShipment = {
     moveTaskOrderID: moveId,
-    shipmentType: shipmentType,
+    shipmentType,
     customerRemarks,
     agents: [],
   };
-  
+
   if (pickup) {
     formattedMtoShipment.requestedPickupDate = formatSwaggerDate(pickup.requestedDate);
     formattedMtoShipment.pickupAddress = formatAddress(pickup.address);
@@ -46,10 +44,10 @@ export function formatMtoShipment({ moveId, shipmentType, pickup, delivery, cust
       }
     }
   }
-  
+
   if (delivery) {
     formattedMtoShipment.requestedDeliveryDate = formatSwaggerDate(delivery.requestedDate);
-    formattedMtoShipment.destinationAddress = formatAddress(delivery.address);   
+    formattedMtoShipment.destinationAddress = formatAddress(delivery.address);
 
     if (delivery.agent) {
       const formattedAgent = formatAgent(delivery.agent);
@@ -58,6 +56,8 @@ export function formatMtoShipment({ moveId, shipmentType, pickup, delivery, cust
       }
     }
   }
-   
+
   return formattedMtoShipment;
 }
+
+export default formatMtoShipment;
