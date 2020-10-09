@@ -99,10 +99,15 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 	queryBuilder := query.NewQueryBuilder(suite.DB())
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
 
-	// make the request
+	// setup the handler
 	handler := UpdateMoveTaskOrderStatusHandlerFunc{context,
 		movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator),
 	}
+	traceID, err := uuid.NewV4()
+	suite.FatalNoError(err, "Error creating a new trace ID.")
+	handler.SetTraceID(traceID)
+
+	// make the request
 	response := handler.Handle(params)
 
 	suite.IsNotErrResponse(response)
@@ -112,6 +117,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 	suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusOK{}, response)
 	suite.Equal(moveTaskOrdersPayload.ID, strfmt.UUID(moveTaskOrder.ID.String()))
 	suite.NotNil(moveTaskOrdersPayload.AvailableToPrimeAt)
+	suite.HasWebhookNotification(moveTaskOrder.ID, traceID) // this action always creates a notification for the Prime
 
 	// also check MTO level service items are properly created
 	var serviceItems models.MTOServiceItems
