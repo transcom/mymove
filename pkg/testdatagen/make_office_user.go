@@ -21,10 +21,6 @@ func MakeOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser
 		user = MakeUser(db, assertions)
 	}
 
-	if assertions.User.CurrentAdminSessionID == "" {
-		assertions.User.CurrentAdminSessionID = "admin-session"
-	}
-
 	if assertions.User.LoginGovEmail != "" {
 		email = assertions.User.LoginGovEmail
 	}
