@@ -1,5 +1,5 @@
 import React from 'react';
-import { string, shape, number } from 'prop-types';
+import { string, shape, number, func } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
 import { AddressShape } from '../../../../../types/address';
@@ -7,30 +7,40 @@ import styles from '../ShipmentCard.module.scss';
 
 import hhgShipmentCardStyles from './HHGShipmentCard.module.scss';
 
+import { formatCustomerDestination } from 'utils/shipmentDisplay';
 import ShipmentContainer from 'components/Office/ShipmentContainer';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { formatCustomerDate } from 'shared/utils';
+import { formatCustomerDate } from 'utils/formatters';
 
 const HHGShipmentCard = ({
-  shipmentNumber,
-  shipmentId,
-  requestedPickupDate,
-  pickupLocation,
-  releasingAgent,
-  requestedDeliveryDate,
+  destinationLocation,
   destinationZIP,
+  moveId,
+  onEditClick,
+  pickupLocation,
   receivingAgent,
+  releasingAgent,
   remarks,
+  requestedDeliveryDate,
+  requestedPickupDate,
+  shipmentId,
+  shipmentNumber,
 }) => {
+  const editPath = `/moves/${moveId}/mto-shipments/${shipmentId}/edit-shipment?shipmentNumber=${shipmentNumber}`;
   return (
-    <div className={styles.ShipmentCard} data-testid="shipment-display">
+    <div className={styles.ShipmentCard} data-testid="hhg-summary">
       <ShipmentContainer className={styles.container} shipmentType={SHIPMENT_OPTIONS.HHG}>
         <div className={styles.ShipmentCardHeader}>
           <div>
             <h3>HHG {shipmentNumber}</h3>
-            <p>{shipmentId.substring(0, 10)}</p>
+            <p>#{shipmentId.substring(0, 8).toUpperCase()}</p>
           </div>
-          <Button className={styles.editBtn} onClick={() => {}} unstyled>
+          <Button
+            className={styles.editBtn}
+            data-testid="edit-shipment-btn"
+            onClick={() => onEditClick(editPath)}
+            unstyled
+          >
             Edit
           </Button>
         </div>
@@ -52,14 +62,14 @@ const HHGShipmentCard = ({
             <div className={styles.row}>
               <dt>Releasing agent</dt>
               <dd>
-                {releasingAgent.name && (
+                {(releasingAgent.firstName || releasingAgent.lastName) && (
                   <>
-                    {releasingAgent.name} <br />
+                    {releasingAgent.firstName} {releasingAgent.lastName} <br />
                   </>
                 )}
-                {releasingAgent.telephone && (
+                {releasingAgent.phone && (
                   <>
-                    {releasingAgent.telephone} <br />
+                    {releasingAgent.phone} <br />
                   </>
                 )}
                 {releasingAgent.email}
@@ -72,20 +82,20 @@ const HHGShipmentCard = ({
           </div>
           <div className={styles.row}>
             <dt>Destination</dt>
-            <dd>{destinationZIP}</dd>
+            <dd>{formatCustomerDestination(destinationLocation, destinationZIP)}</dd>
           </div>
           {receivingAgent && (
             <div className={styles.row}>
               <dt>Receiving agent</dt>
               <dd>
-                {receivingAgent.name && (
+                {(receivingAgent.firstName || receivingAgent.lastName) && (
                   <>
-                    {receivingAgent.name} <br />
+                    {receivingAgent.firstName} {receivingAgent.lastName} <br />
                   </>
                 )}
-                {receivingAgent.telephone && (
+                {receivingAgent.phone && (
                   <>
-                    {receivingAgent.telephone} <br />
+                    {receivingAgent.phone} <br />
                   </>
                 )}
                 {receivingAgent.email}
@@ -105,26 +115,32 @@ const HHGShipmentCard = ({
 };
 
 HHGShipmentCard.propTypes = {
+  moveId: string.isRequired,
   shipmentNumber: number.isRequired,
   shipmentId: string.isRequired,
   requestedPickupDate: string.isRequired,
   pickupLocation: AddressShape.isRequired,
+  destinationLocation: AddressShape,
   releasingAgent: shape({
-    name: string,
-    telephone: string,
+    firstName: string,
+    lastName: string,
+    phone: string,
     email: string,
   }),
   requestedDeliveryDate: string.isRequired,
   destinationZIP: string.isRequired,
+  onEditClick: func.isRequired,
   receivingAgent: shape({
-    name: string,
-    telephone: string,
+    firstName: string,
+    lastName: string,
+    phone: string,
     email: string,
   }),
   remarks: string,
 };
 
 HHGShipmentCard.defaultProps = {
+  destinationLocation: null,
   releasingAgent: null,
   receivingAgent: null,
   remarks: '',
