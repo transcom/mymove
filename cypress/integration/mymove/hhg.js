@@ -145,7 +145,7 @@ function customerChoosesAnHHGMove() {
   cy.nextPage();
   cy.get('h1').contains('How do you want to move your belongings?');
 
-  cy.get('input[type="radio"]').last().check({ force: true });
+  cy.get('input[type="radio"]').eq(1).check({ force: true });
   cy.nextPage();
 }
 
