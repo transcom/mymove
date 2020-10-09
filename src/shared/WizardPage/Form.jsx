@@ -107,7 +107,11 @@ export class WizardFormPage extends Component {
             </div>
           </div>
         )}
-        <form className={className}>{children}</form>
+        <div className="grid-row">
+          <div className="grid-col">
+            <form className={className}>{children}</form>
+          </div>
+        </div>
         <div className="grid-row" style={{ marginTop: '0.5rem' }}>
           <div className="grid-col-12 text-right margin-top-6 margin-left-neg-1 tablet:margin-top-3">
             <div className="display-flex">

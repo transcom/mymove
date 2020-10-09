@@ -57,20 +57,16 @@ export class ContactInfo extends Component {
         serverError={error}
         initialValues={initialValues}
       >
-        <div className="grid-row">
-          <div className="grid-col-12">
-            <h1 className="sm-heading">Your contact info</h1>
-            <SwaggerField fieldName="telephone" swagger={schema} required />
-            <SwaggerField fieldName="secondary_telephone" swagger={schema} />
-            <SwaggerField fieldName="personal_email" swagger={schema} required />
+        <h1 className="sm-heading">Your contact info</h1>
+        <SwaggerField fieldName="telephone" swagger={schema} required />
+        <SwaggerField fieldName="secondary_telephone" swagger={schema} />
+        <SwaggerField fieldName="personal_email" swagger={schema} required />
 
-            <fieldset className="usa-fieldset" key="contact_preferences">
-              <p htmlFor="contact_preferences">Preferred contact method(s) during your move:</p>
-              <SwaggerField fieldName="phone_is_preferred" swagger={schema} />
-              <SwaggerField fieldName="email_is_preferred" swagger={schema} />
-            </fieldset>
-          </div>
-        </div>
+        <fieldset className="usa-fieldset" key="contact_preferences">
+          <p htmlFor="contact_preferences">Preferred contact method(s) during your move:</p>
+          <SwaggerField fieldName="phone_is_preferred" swagger={schema} />
+          <SwaggerField fieldName="email_is_preferred" swagger={schema} />
+        </fieldset>
       </ContactWizardForm>
     );
   }

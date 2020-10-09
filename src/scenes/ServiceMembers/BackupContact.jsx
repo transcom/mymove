@@ -108,22 +108,18 @@ class ContactForm extends Component {
     const fields = schema.properties || {};
 
     return (
-      <div className="grid-row">
-        <div className="grid-col-12">
-          <form>
-            <h1 className="sm-heading">Backup contact</h1>
-            <p>If we can't reach you, who can we contact (such as spouse or parent)?</p>
-            <p>Any person you assign as a backup contact must be 18 years of age or older.</p>
+      <form>
+        <h1 className="sm-heading">Backup contact</h1>
+        <p>If we can't reach you, who can we contact (such as spouse or parent)?</p>
+        <p>Any person you assign as a backup contact must be 18 years of age or older.</p>
 
-            {renderField('name', fields, '')}
-            {renderField('email', fields, '')}
-            {renderField('telephone', fields, '')}
+        {renderField('name', fields, '')}
+        {renderField('email', fields, '')}
+        {renderField('telephone', fields, '')}
 
-            {/* TODO: Uncomment line below after backup contact auth is implemented.  */}
-            {/* <Field name="permission" component={permissionsField} /> */}
-          </form>
-        </div>
-      </div>
+        {/* TODO: Uncomment line below after backup contact auth is implemented.  */}
+        {/* <Field name="permission" component={permissionsField} /> */}
+      </form>
     );
   }
 }
