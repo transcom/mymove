@@ -146,7 +146,7 @@
     "mockdate": "^3.0.2",
     "prettier": "=2.0.5",
     "react-test-renderer": "^16.13.1",
-    "source-map-explorer": "^2.4.2",
+    "source-map-explorer": "^2.5.0",
     "storybook-addons-abstract": "^5.0.6",
     "terser-webpack-plugin": "^4.2.3"
   },
