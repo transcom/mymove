@@ -267,6 +267,7 @@ func PaymentServiceItem(paymentServiceItem *models.PaymentServiceItem) *primemes
 		MtoServiceItemID:         strfmt.UUID(paymentServiceItem.MTOServiceItemID.String()),
 		Status:                   primemessages.PaymentServiceItemStatus(paymentServiceItem.Status),
 		RejectionReason:          paymentServiceItem.RejectionReason,
+		ReferenceID:              paymentServiceItem.ReferenceID,
 		PaymentServiceItemParams: *paymentServiceItemParams,
 		ETag:                     etag.GenerateEtag(paymentServiceItem.UpdatedAt),
 	}

@@ -326,6 +326,7 @@ func PaymentServiceItem(ps *models.PaymentServiceItem) *ghcmessages.PaymentServi
 		PriceCents:       handlers.FmtCost(ps.PriceCents),
 		RejectionReason:  ps.RejectionReason,
 		Status:           ghcmessages.PaymentServiceItemStatus(ps.Status),
+		ReferenceID:      ps.ReferenceID,
 		ETag:             etag.GenerateEtag(ps.UpdatedAt),
 	}
 }
