@@ -61,6 +61,7 @@ export class WizardPage extends Component {
       canMoveNext,
       hideBackBtn,
       showFinishLaterBtn,
+      footerText,
     } = this.props;
     const canMoveForward = pageIsValid && canMoveNext;
     const canMoveBackward = (pageIsValid || !dirty) && !isFirstPage(pageList, pageKey);
@@ -76,7 +77,8 @@ export class WizardPage extends Component {
           </div>
         )}
         {children}
-        <div className="grid-row" style={{ marginTop: '2rem' }}>
+        <div className="grid-row" style={{ marginTop: '24px' }}>
+          {footerText && <div>{footerText}</div>}
           {!isFirstPage(pageList, pageKey) && !hideBackBtn && (
             <button
               type="button"
@@ -139,6 +141,7 @@ WizardPage.propTypes = {
   match: PropTypes.object, //from withRouter
   additionalParams: PropTypes.object,
   windowWidth: PropTypes.number,
+  footerText: PropTypes.node,
 };
 
 WizardPage.defaultProps = {
@@ -147,6 +150,7 @@ WizardPage.defaultProps = {
   dirty: true,
   hideBackBtn: false,
   showFinishLaterBtn: false,
+  footerText: '',
 };
 
 function mapDispatchToProps(dispatch) {

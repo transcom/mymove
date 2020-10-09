@@ -11,7 +11,7 @@ import (
 )
 
 func (suite *ServiceParamValueLookupsSuite) TestRequestedPickupDateLookup() {
-	key := models.ServiceItemParamNameRequestedPickupDate.String()
+	key := models.ServiceItemParamNameRequestedPickupDate
 
 	requestedPickupDate := time.Date(testdatagen.TestYear, time.May, 18, 0, 0, 0, 0, time.UTC)
 	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(),
@@ -27,7 +27,7 @@ func (suite *ServiceParamValueLookupsSuite) TestRequestedPickupDateLookup() {
 		})
 
 	suite.T().Run("golden path", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
 		valueStr, err := paramLookup.ServiceParamValue(key)
@@ -43,7 +43,7 @@ func (suite *ServiceParamValueLookupsSuite) TestRequestedPickupDateLookup() {
 		mtoShipment.RequestedPickupDate = nil
 		suite.MustSave(&mtoShipment)
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
 		valueStr, err := paramLookup.ServiceParamValue(key)

@@ -37,4 +37,8 @@
 .description {
   margin: 0px;
   font-size: 15px;
+
+  .descriptionExtra {
+    @include u-padding-bottom(3);
+  }
 }

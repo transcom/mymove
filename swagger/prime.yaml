@@ -1378,6 +1378,10 @@ definitions:
         example: documentation was incomplete
         type: string
         x-nullable: true
+      referenceID:
+        example: 1234-5678-c56a4180
+        readOnly: true
+        format: string
       paymentServiceItemParams:
         $ref: '#/definitions/PaymentServiceItemParams'
       eTag:

@@ -2784,6 +2784,11 @@ func init() {
           "title": "Price of the service item in cents",
           "x-nullable": true
         },
+        "referenceID": {
+          "format": "string",
+          "readOnly": true,
+          "example": "1234-5678-c56a4180"
+        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -6360,6 +6365,11 @@ func init() {
           "format": "cents",
           "title": "Price of the service item in cents",
           "x-nullable": true
+        },
+        "referenceID": {
+          "format": "string",
+          "readOnly": true,
+          "example": "1234-5678-c56a4180"
         },
         "rejectionReason": {
           "type": "string",

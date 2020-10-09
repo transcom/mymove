@@ -36,7 +36,7 @@ img._fix-ie-11-height {
   max-height: 80px; /* After using auto in .site__content.flex, the transcom logo in IE11 on win8 was not constrained vertically. */
 }
 
-.Todo-phase2 {
+.todo {
   background-color: yellow;
 }
 

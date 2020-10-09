@@ -331,7 +331,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	suite.T().Run("adds lines of accounting to header", func(t *testing.T) {
 		suite.IsType(&edisegment.FA1{}, result.Header[15])
 		fa1 := result.Header[15].(*edisegment.FA1)
-		suite.Equal("DF", fa1.AgencyQualifierCode)
+		suite.Equal("DY", fa1.AgencyQualifierCode) // Default Order from testdatagen is AIR_FORCE
 		suite.IsType(&edisegment.FA2{}, result.Header[16])
 		fa2 := result.Header[16].(*edisegment.FA2)
 		suite.Equal("TA", fa2.BreakdownStructureDetailCode)
@@ -355,7 +355,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			suite.IsType(&edisegment.N9{}, result.ServiceItems[segmentOffset+1])
 			n9 := result.ServiceItems[segmentOffset+1].(*edisegment.N9)
 			suite.Equal("PO", n9.ReferenceIdentificationQualifier)
-			suite.Equal(paymentServiceItem.ID.String(), n9.ReferenceIdentification)
+			suite.Equal(paymentServiceItem.ReferenceID, n9.ReferenceIdentification)
 		})
 		serviceCode := paymentServiceItem.MTOServiceItem.ReService.Code
 		switch serviceCode {

@@ -1,6 +1,6 @@
 import { mount } from 'enzyme';
 
-import formatAddress from './shipmentDisplay';
+import { formatAddress, formatCustomerDestination } from './shipmentDisplay';
 
 describe('shipmentDisplay utils', () => {
   describe('formatAddress', () => {
@@ -38,6 +38,27 @@ describe('shipmentDisplay utils', () => {
       it('omits city and state', () => {
         expect(component.text()).toEqual('34747');
       });
+    });
+  });
+  describe('formatDestination', () => {
+    it('shows entire address', () => {
+      const destinationLocation = {
+        street_address_1: '123 Any Street',
+        street_address_2: 'Apt 4',
+        city: 'Los Angeles',
+        state: 'CA',
+        postal_code: '111111',
+      };
+      const wrapper = mount(formatCustomerDestination(destinationLocation));
+      expect(wrapper.at(0).text()).toEqual(destinationLocation.street_address_1);
+      expect(wrapper.at(2).text()).toEqual(destinationLocation.street_address_2);
+      expect(wrapper.at(4).text()).toEqual(destinationLocation.city);
+      expect(wrapper.at(6).text()).toEqual(destinationLocation.state);
+      expect(wrapper.at(8).text()).toEqual(destinationLocation.postal_code);
+    });
+
+    it('shows postalCode if address is not provided', () => {
+      expect(formatCustomerDestination(null, '11111')).toBe('11111');
     });
   });
 });

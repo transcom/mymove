@@ -9,7 +9,7 @@ import (
 )
 
 func (suite *ModelSuite) TestServiceItemParamKeyValidation() {
-	validServiceItemParamNames := strings.Join(models.ValidServiceItemParamNames, ", ")
+	validServiceItemParamNames := strings.Join(models.ValidServiceItemParamNameStrings, ", ")
 	validServiceItemParamTypes := strings.Join(models.ValidServiceItemParamTypes, ", ")
 	validServiceItemParamOrigins := strings.Join(models.ValidServiceItemParamOrigins, ", ")
 

@@ -9,6 +9,7 @@ import (
 
 // MakeUser creates a single User.
 func MakeUser(db *pop.Connection, assertions Assertions) models.User {
+
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "first.last@login.gov.test",
