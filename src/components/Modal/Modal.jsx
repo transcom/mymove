@@ -20,3 +20,15 @@ Modal.defaultProps = {
 };
 
 export default Modal;
+
+export const ModalTitle = ({ children }) => <div className={styles.ModalTitle}>{children}</div>;
+
+ModalTitle.propTypes = {
+  children: PropTypes.node.isRequired,
+};
+
+export const ModalActions = ({ children }) => <div className={styles.ModalActions}>{children}</div>;
+
+ModalActions.propTypes = {
+  children: PropTypes.node.isRequired,
+};

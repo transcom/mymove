@@ -4,7 +4,7 @@ import * as Yup from 'yup';
 import { action } from '@storybook/addon-actions';
 import { Button } from '@trussworks/react-uswds';
 
-import Modal from './Modal';
+import Modal, { ModalTitle, ModalActions } from './Modal';
 
 import { Form } from 'components/form';
 import { TextInput } from 'components/form/fields';
@@ -19,7 +19,10 @@ export default {
 };
 
 export const withContent = () => (
-  <Modal title={<h4>Are you sure you want to reject this request?</h4>}>
+  <Modal>
+    <ModalTitle>
+      <h4>Are you sure you want to reject this request?</h4>
+    </ModalTitle>
     <Formik
       initialValues={{ rejectionReason: '' }}
       validationSchema={Yup.object({
@@ -30,24 +33,27 @@ export const withContent = () => (
     >
       <Form>
         <TextInput name="rejectionReason" label="Reason for rejection" type="text" />
-        <div className="display-flex">
+        <ModalActions>
           <Button type="submit">Confirm</Button>
           <Button secondary type="reset">
             Cancel
           </Button>
-        </div>
+        </ModalActions>
       </Form>
     </Formik>
   </Modal>
 );
 
 export const empty = () => (
-  <Modal title={<h4>Modal title</h4>}>
-    <div className="display-flex">
+  <Modal>
+    <ModalTitle>
+      <h4>Modal title</h4>
+    </ModalTitle>
+    <ModalActions>
       <Button type="button">Submit</Button>
       <Button secondary type="button">
         Back
       </Button>
-    </div>
+    </ModalActions>
   </Modal>
 );
