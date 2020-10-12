@@ -2,15 +2,14 @@ import React from 'react';
 import { Fieldset, Radio, Label } from '@trussworks/react-uswds';
 import { string, bool, shape, func } from 'prop-types';
 
-import { DatePickerInput } from '../../form/fields';
-import { ContactInfoFields } from '../../form/ContactInfoFields/ContactInfoFields';
-import { AddressFields } from '../../form/AddressFields/AddressFields';
-
 import { simpleAddressShape, fullAddressShape, agentShape } from './propShapes';
 
+import { DatePickerInput } from 'components/form/fields';
+import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
+import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { validateDate } from 'utils/formikValidators';
 
-export const DeliveryDetails = ({
+export const DeliveryFields = ({
   fieldsetClasses,
   values,
   hasDeliveryAddress,
@@ -77,7 +76,7 @@ export const DeliveryDetails = ({
   );
 };
 
-DeliveryDetails.propTypes = {
+DeliveryFields.propTypes = {
   fieldsetClasses: string,
   hasDeliveryAddress: bool,
   onHasAddressChange: func,
@@ -89,11 +88,11 @@ DeliveryDetails.propTypes = {
   }),
 };
 
-DeliveryDetails.defaultProps = {
+DeliveryFields.defaultProps = {
   fieldsetClasses: '',
   hasDeliveryAddress: false,
   onHasAddressChange: () => {},
   values: {},
 };
 
-export default DeliveryDetails;
+export default DeliveryFields;

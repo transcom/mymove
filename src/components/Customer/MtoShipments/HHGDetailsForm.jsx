@@ -6,16 +6,15 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { Fieldset } from '@trussworks/react-uswds';
 
-import { TextInput } from '../../form/fields';
-import { Form } from '../../form/Form';
-
 import styles from './HHGDetailsForm.module.scss';
-import { RequiredPlaceSchema, OptionalPlaceSchema } from './formTypes';
+import { RequiredPlaceSchema, OptionalPlaceSchema } from './validationSchemas';
 import { simpleAddressShape, fullAddressShape, agentShape } from './propShapes';
 import { formatMtoShipment } from './utils';
-import { PickupDetails } from './PickupDetails';
-import { DeliveryDetails } from './DeliveryDetails';
+import { PickupFields } from './PickupFields';
+import { DeliveryFields } from './DeliveryFields';
 
+import { TextInput } from 'components/form/fields';
+import { Form } from 'components/form/Form';
 import {
   selectMTOShipmentForMTO,
   createMTOShipment as createMTOShipmentAction,
@@ -153,13 +152,13 @@ class HHGDetailsForm extends Component {
           >
             <h1>Now lets arrange details for the professional movers</h1>
             <Form className={styles.HHGDetailsForm}>
-              <PickupDetails
+              <PickupFields
                 fieldsetClasses={fieldsetClasses}
                 useCurrentResidence={useCurrentResidence}
                 onCurrentResidenceChange={this.handleUseCurrentResidenceChange}
                 values={values.pickup}
               />
-              <DeliveryDetails
+              <DeliveryFields
                 fieldsetClasses={fieldsetClasses}
                 newDutyStationAddress={newDutyStationAddress}
                 hasDeliveryAddress={hasDeliveryAddress}
