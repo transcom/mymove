@@ -56,7 +56,7 @@ Table.propTypes = {
   columns: PropTypes.arrayOf(
     PropTypes.shape({
       Header: PropTypes.string,
-      accessor: PropTypes.string,
+      accessor: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
     }),
   ),
   hiddenColumns: PropTypes.arrayOf(PropTypes.string),
