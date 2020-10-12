@@ -5,9 +5,6 @@ import styles from './SectionWrapper.module.scss';
 
 const cx = classNames.bind(styles);
 
-const SectionWrapper = () => (
-  <div className={cx('container-co')}>
-  </div>
-);
+const SectionWrapper = ({ children }) => <div className={cx('container-co')}>{children}</div>;
 
-export default SectionWrapper;
+export { SectionWrapper as SectionWrapperComponent };

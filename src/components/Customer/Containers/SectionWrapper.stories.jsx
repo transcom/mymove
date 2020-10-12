@@ -7,4 +7,7 @@ export default {
   title: 'Customer Components | Section Wrapper',
 };
 
-export const SectionWrapper = () => <SectionWrapper />;
+export const Component = () => 
+<SectionWrapper>
+  <h2>test</h2>
+</SectionWrapper>;
