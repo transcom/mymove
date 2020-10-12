@@ -1,4 +1,4 @@
-import { fileUploadTimeout } from '../utils../../support/constants';
+import { fileUploadTimeout } from '../../../support/constants';
 
 export function customerFillsInProfileInformation(reloadAfterEveryPage) {
   // dod info
