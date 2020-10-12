@@ -5700,13 +5700,15 @@ func init() {
         "PPM",
         "UB",
         "POV",
-        "NTS",
+        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS_DOMESTIC",
         "HHG_PPM"
       ],
       "x-display-value": {
         "HHG": "Household Goods Move",
+        "HHG_INTO_NTS_DOMESTIC": "Non-Temporary Storage",
+        "HHG_OUTOF_NTS_DOMESTIC": "Non-Temporary Storage Release",
         "HHG_PPM": "Both HHG and PPM",
-        "NTS": "Non-Temporary Storage",
         "POV": "Privately-Owned Vehicle",
         "PPM": "Personal Procured Move",
         "UB": "Unaccompanied Baggage"
@@ -12252,13 +12254,15 @@ func init() {
         "PPM",
         "UB",
         "POV",
-        "NTS",
+        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS_DOMESTIC",
         "HHG_PPM"
       ],
       "x-display-value": {
         "HHG": "Household Goods Move",
+        "HHG_INTO_NTS_DOMESTIC": "Non-Temporary Storage",
+        "HHG_OUTOF_NTS_DOMESTIC": "Non-Temporary Storage Release",
         "HHG_PPM": "Both HHG and PPM",
-        "NTS": "Non-Temporary Storage",
         "POV": "Privately-Owned Vehicle",
         "PPM": "Personal Procured Move",
         "UB": "Unaccompanied Baggage"

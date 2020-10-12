@@ -52,7 +52,9 @@ const (
 	// MoveStatusPOV captures enum value "POV" for Privately-Owned Vehicle
 	SelectedMoveTypePOV SelectedMoveType = "POV"
 	// MoveStatusNTS captures enum value "NTS" for Non-Temporary Storage
-	SelectedMoveTypeNTS SelectedMoveType = "NTS"
+	SelectedMoveTypeNTS SelectedMoveType = NTSRaw
+	// MoveStatusNTS captures enum value "NTS" for Non-Temporary Storage Release
+	SelectedMoveTypeNTSR SelectedMoveType = NTSrRaw
 	// MoveStatusHHGPPM captures enum value "HHG_PPM" for combination move HHG + PPM
 	SelectedMoveTypeHHGPPM SelectedMoveType = "HHG_PPM"
 )
