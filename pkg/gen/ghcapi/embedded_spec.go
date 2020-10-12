@@ -1609,6 +1609,39 @@ func init() {
           }
         }
       }
+    },
+    "/queues/moves": {
+      "get": {
+        "description": "An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all customer moves by GBLOC origin",
+        "operationId": "getMovesQueue",
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/QueueMovesResult"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -2022,6 +2055,33 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "GBLOC": {
+      "type": "string",
+      "enum": [
+        "AGFM",
+        "APAT",
+        "BGAC",
+        "BGNC",
+        "BKAS",
+        "CFMQ",
+        "CLPK",
+        "CNNQ",
+        "DMAT",
+        "GSAT",
+        "HAFC",
+        "HBAT",
+        "JEAT",
+        "JENQ",
+        "KKFA",
+        "LHNQ",
+        "LKNQ",
+        "MAPK",
+        "MAPS",
+        "MBFL",
+        "MLNQ",
+        "XXXX"
+      ]
     },
     "MTOAgent": {
       "type": "object",
@@ -2880,6 +2940,63 @@ func init() {
         }
       }
     },
+    "QueueMove": {
+      "type": "object",
+      "properties": {
+        "customer": {
+          "$ref": "#/definitions/Customer"
+        },
+        "departmentIndicator": {
+          "$ref": "#/definitions/DeptIndicator"
+        },
+        "destinationDutyStation": {
+          "$ref": "#/definitions/DutyStation"
+        },
+        "locator": {
+          "type": "string"
+        },
+        "originGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "shipmentsCount": {
+          "type": "integer"
+        },
+        "status": {
+          "$ref": "#/definitions/QueueMoveStatus"
+        }
+      }
+    },
+    "QueueMoveStatus": {
+      "type": "string",
+      "enum": [
+        "NEW",
+        "APPROVED",
+        "APPROVALS_REQUESTED"
+      ]
+    },
+    "QueueMoves": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/QueueMove"
+      }
+    },
+    "QueueMovesResult": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer"
+        },
+        "perPage": {
+          "type": "integer"
+        },
+        "results": {
+          "$ref": "#/definitions/QueueMoves"
+        },
+        "totalCount": {
+          "type": "integer"
+        }
+      }
+    },
     "ReServiceCode": {
       "description": "This is the full list of service items that can be found on a shipment. Not all service items\nmay be requested by the Prime, but may be returned in a response.\n\nDocumentation of all the service items will be provided.\n",
       "type": "string",
@@ -3255,7 +3372,12 @@ func init() {
         "$ref": "#/definitions/Error"
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "queues"
+    }
+  ]
 }`))
 	FlatSwaggerJSON = json.RawMessage([]byte(`{
   "schemes": [
@@ -5182,6 +5304,45 @@ func init() {
           }
         }
       }
+    },
+    "/queues/moves": {
+      "get": {
+        "description": "An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all customer moves by GBLOC origin",
+        "operationId": "getMovesQueue",
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/QueueMovesResult"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -5595,6 +5756,33 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "GBLOC": {
+      "type": "string",
+      "enum": [
+        "AGFM",
+        "APAT",
+        "BGAC",
+        "BGNC",
+        "BKAS",
+        "CFMQ",
+        "CLPK",
+        "CNNQ",
+        "DMAT",
+        "GSAT",
+        "HAFC",
+        "HBAT",
+        "JEAT",
+        "JENQ",
+        "KKFA",
+        "LHNQ",
+        "LKNQ",
+        "MAPK",
+        "MAPS",
+        "MBFL",
+        "MLNQ",
+        "XXXX"
+      ]
     },
     "MTOAgent": {
       "type": "object",
@@ -6453,6 +6641,63 @@ func init() {
         }
       }
     },
+    "QueueMove": {
+      "type": "object",
+      "properties": {
+        "customer": {
+          "$ref": "#/definitions/Customer"
+        },
+        "departmentIndicator": {
+          "$ref": "#/definitions/DeptIndicator"
+        },
+        "destinationDutyStation": {
+          "$ref": "#/definitions/DutyStation"
+        },
+        "locator": {
+          "type": "string"
+        },
+        "originGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "shipmentsCount": {
+          "type": "integer"
+        },
+        "status": {
+          "$ref": "#/definitions/QueueMoveStatus"
+        }
+      }
+    },
+    "QueueMoveStatus": {
+      "type": "string",
+      "enum": [
+        "NEW",
+        "APPROVED",
+        "APPROVALS_REQUESTED"
+      ]
+    },
+    "QueueMoves": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/QueueMove"
+      }
+    },
+    "QueueMovesResult": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer"
+        },
+        "perPage": {
+          "type": "integer"
+        },
+        "results": {
+          "$ref": "#/definitions/QueueMoves"
+        },
+        "totalCount": {
+          "type": "integer"
+        }
+      }
+    },
     "ReServiceCode": {
       "description": "This is the full list of service items that can be found on a shipment. Not all service items\nmay be requested by the Prime, but may be returned in a response.\n\nDocumentation of all the service items will be provided.\n",
       "type": "string",
@@ -6828,6 +7073,11 @@ func init() {
         "$ref": "#/definitions/Error"
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "queues"
+    }
+  ]
 }`))
 }
