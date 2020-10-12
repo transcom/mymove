@@ -49,6 +49,10 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	}
 
 	// check or load orders
+	if moveTaskOrder.ReferenceID == nil {
+		return ediinvoice.Invoice858C{}, services.NewBadDataError("Invalid move taskorder. Must have a ReferenceID value")
+	}
+
 	if moveTaskOrder.Orders.ID == uuid.Nil {
 		err := g.db.
 			Load(&moveTaskOrder, "Orders")
@@ -120,10 +124,6 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	edi858.ST = edisegment.ST{
 		TransactionSetIdentifierCode: "858",
 		TransactionSetControlNumber:  "0001",
-	}
-
-	if moveTaskOrder.ReferenceID == nil {
-		return ediinvoice.Invoice858C{}, services.NewBadDataError("Invalid move taskorder. Must have a ReferenceID value")
 	}
 
 	bx := edisegment.BX{
