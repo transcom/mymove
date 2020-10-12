@@ -52,7 +52,7 @@ const MoveQueue = ({ history }) => {
 
   return (
     <GridContainer containerSize="widescreen" className={styles.MoveQueue}>
-      <h1>All moves</h1>
+      <h1>{`All moves (${totalCount})`}</h1>
       <div className={styles.tableContainer}>
         <Table columns={columns} data={queueMoves} hiddenColumns={['id']} handleClick={handleClick} />
       </div>

@@ -5,5 +5,11 @@
 .MoveQueue {
   .tableContainer {
     @include u-margin-top(1);
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
   }
 }
