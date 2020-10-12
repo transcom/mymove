@@ -60,7 +60,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListFailure() {
 		_, err := paymentRequestListFetcher.FetchPaymentRequestList(nonexistentOfficeUserID)
 
 		suite.Error(err)
-		suite.Contains("error fetching transportationOffice for officeUserID", err.Error())
-		suite.Contains(nonexistentOfficeUserID.String(), err.Error())
+		suite.Contains(err.Error(), "error fetching transportationOffice for officeUserID")
+		suite.Contains(err.Error(), nonexistentOfficeUserID.String())
 	})
 }

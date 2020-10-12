@@ -1,7 +1,6 @@
 package ghcapi
 
 import (
-	"database/sql"
 	"fmt"
 	"reflect"
 	"time"
@@ -35,23 +34,17 @@ type ListPaymentRequestsHandler struct {
 func (h ListPaymentRequestsHandler) Handle(params paymentrequestop.ListPaymentRequestsParams) middleware.Responder {
 	request := params.HTTPRequest
 	session, logger := h.SessionAndLoggerFromRequest(request)
-	var officeUserID uuid.UUID
 	officeUserAuthorized := session.Roles.HasRole(roles.RoleTypeTIO)
 	if !officeUserAuthorized {
 		return paymentrequestop.NewListPaymentRequestsForbidden()
 	}
 
-	officeUserID = session.OfficeUserID
+	officeUserID := session.OfficeUserID
 
 	paymentRequests, err := h.FetchPaymentRequestList(officeUserID)
 	if err != nil {
-		logger.Error("listing payment requests for", zap.String("office user ID", officeUserID.String()), zap.Error(err))
-		switch err {
-		case sql.ErrNoRows:
-			return paymentrequestop.NewListPaymentRequestsNotFound()
-		default:
-			return paymentrequestop.NewListPaymentRequestsInternalServerError()
-		}
+		logger.Error("listing payment requests", zap.String("office_user_id", officeUserID.String()), zap.Error(err))
+		return paymentrequestop.NewListPaymentRequestsInternalServerError()
 	}
 
 	paymentRequestsList := make(ghcmessages.PaymentRequests, len(*paymentRequests))
