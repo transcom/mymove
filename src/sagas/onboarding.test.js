@@ -1,4 +1,4 @@
-import { takeLatest, put, call } from 'redux-saga/effects';
+import { takeLatest, put, call, all } from 'redux-saga/effects';
 
 import {
   watchInitializeOnboarding,
@@ -6,6 +6,8 @@ import {
   fetchCustomerData,
   createServiceMember,
   initializeOnboarding,
+  watchUpdateServiceMember,
+  updateServiceMember,
 } from './onboarding';
 
 import {
@@ -21,6 +23,8 @@ import {
 } from 'services/internalApi';
 import { addEntities } from 'shared/Entities/actions';
 import { CREATE_SERVICE_MEMBER } from 'scenes/ServiceMembers/ducks';
+import sampleLoggedInUserPayload from 'shared/User/sampleLoggedInUserPayload';
+import { normalizeResponse } from 'services/swaggerRequest';
 
 describe('watchInitializeOnboarding', () => {
   const generator = watchInitializeOnboarding();
@@ -165,8 +169,8 @@ describe('initializeOnboarding', () => {
       expect(generator.next().value).toEqual(put(initOnboardingComplete()));
     });
 
-    it('starts the watchFetchCustomerData saga', () => {
-      expect(generator.next().value).toEqual(call(watchFetchCustomerData));
+    it('starts the watch saga', () => {
+      expect(generator.next().value).toEqual(all([call(watchFetchCustomerData), call(watchUpdateServiceMember)]));
     });
 
     it('is done', () => {
@@ -200,8 +204,8 @@ describe('initializeOnboarding', () => {
       expect(generator.next(mockResponseData).value).toEqual(put(initOnboardingComplete()));
     });
 
-    it('starts the watchFetchCustomerData saga', () => {
-      expect(generator.next().value).toEqual(call(watchFetchCustomerData));
+    it('starts the watch saga', () => {
+      expect(generator.next().value).toEqual(all([call(watchFetchCustomerData), call(watchUpdateServiceMember)]));
     });
 
     it('is done', () => {
@@ -273,5 +277,27 @@ describe('createServiceMember saga', () => {
     it('is done', () => {
       expect(generator.next().done).toEqual(true);
     });
+  });
+});
+
+describe('watchUpdateServiceMember', () => {
+  const generator = watchUpdateServiceMember();
+
+  it('takes a UPDATE_SERVICE_MEMBER_SUCCESS action and calls updateServiceMember', () => {
+    expect(generator.next().value).toEqual(takeLatest('UPDATE_SERVICE_MEMBER_SUCCESS', updateServiceMember));
+  });
+});
+
+describe('updateServiceMember', () => {
+  const action = {
+    type: 'UPDATE_SERVICE_MEMBER_SUCCESS',
+    payload: sampleLoggedInUserPayload.payload.service_member,
+  };
+
+  const generator = updateServiceMember(action);
+
+  it('normalizes the data and puts it in entities', () => {
+    const normalizedData = normalizeResponse(action.payload, 'serviceMember');
+    expect(generator.next().value).toEqual(put(addEntities(normalizedData)));
   });
 });
