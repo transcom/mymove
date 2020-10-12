@@ -10,6 +10,7 @@ import { Form } from '../form/Form';
 import { DatePickerInput } from '../form/fields';
 import { AddressFields } from '../form/AddressFields/AddressFields';
 import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
+import { SectionWrapper } from 'Containers/SectionWrapper';
 
 import styles from './EditShipment.module.scss';
 
@@ -293,7 +294,7 @@ class EditShipment extends Component {
           {({ values, isValid, dirty, isSubmitting, handleChange }) => (
             <div className="wrapper-co">
               <Form>
-                <div className="container-co">
+                <SectionWrapper>
                   <Fieldset legend="Pickup date" className="margin-top-4">
                     <Field
                       as={DatePickerInput}
@@ -309,8 +310,8 @@ class EditShipment extends Component {
                       your requested date. Tip: Avoid scheduling multiple shipments on the same day.{' '}
                     </Hint>
                   </Fieldset>
-                </div>
-                <div className="container-co">
+                </SectionWrapper>
+                <SectionWrapper>
                   <AddressFields
                     className="margin-bottom-3"
                     name="pickupAddress"
@@ -329,8 +330,8 @@ class EditShipment extends Component {
                     values={values.pickupAddress}
                   />
                   <Hint>If you have more things at another pickup location, you can schedule for them later.</Hint>
-                </div>
-                <div className="container-co">
+                </SectionWrapper>
+                <SectionWrapper>
                   <ContactInfoFields
                     className="margin-bottom-5"
                     name="releasingAgent"
@@ -340,8 +341,8 @@ class EditShipment extends Component {
                     subtitleClassName="margin-top-3"
                     values={values.releasingAgent}
                   />
-                </div>
-                <div className="container-co">
+                </SectionWrapper>
+                <SectionWrapper>
                   <Fieldset legend="Delivery date">
                     <DatePickerInput
                       name="requestedDeliveryDate"
@@ -356,8 +357,8 @@ class EditShipment extends Component {
                       will contact you close to the date you select to coordinate delivery
                     </Hint>
                   </Fieldset>
-                </div>
-                <div className="container-co">
+                </SectionWrapper>
+                <SectionWrapper>
                   <Fieldset legend="Delivery location">
                     <Label className="margin-top-3 margin-bottom-1">Do you know your delivery address?</Label>
                     <div className="display-flex margin-top-1">
@@ -381,8 +382,8 @@ class EditShipment extends Component {
                       <AddressFields name="destinationAddress" values={values.destinationAddress} />
                     )}
                   </Fieldset>
-                </div>
-                <div className="container-co">
+                </SectionWrapper>
+                <SectionWrapper>
                   <ContactInfoFields
                     name="receivingAgent"
                     legend="Receiving agent"
@@ -391,8 +392,8 @@ class EditShipment extends Component {
                     subtitle="Who can take delivery for you if the movers arrive and you're not there?"
                     values={values.receivingAgent}
                   />
-                </div>
-                <div className="container-co">
+                </SectionWrapper>
+                <SectionWrapper>
                   <Fieldset hintText="Optional" legend="Remarks">
                     <div className={`${styles['small-bold']} margin-top-3 margin-bottom-1`}>
                       Is there anything special about this shipment that the movers should know?
@@ -418,7 +419,7 @@ class EditShipment extends Component {
                       onChange={handleChange}
                     />
                   </Fieldset>
-                </div>
+                </SectionWrapper>
                 <Hint className="margin-bottom-2">
                   You can change details for your HHG shipment when you talk to your move counselor or the person
                   who&apos;s your point of contact with the movers. You can also edit in MilMove up to 24 hours before
