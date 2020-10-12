@@ -52,7 +52,7 @@ let EditProfileForm = (props) => {
               Profile
             </h1>
             <hr />
-            <h3 className="sm-heading">Edit Profile:</h3>
+            <h3>Edit Profile:</h3>
             <SwaggerField fieldName="first_name" swagger={schema} required />
             <SwaggerField fieldName="middle_name" swagger={schema} />
             <SwaggerField fieldName="last_name" swagger={schema} required />

@@ -33,10 +33,9 @@
   display: none;
 }
 
-.edit-weight-container h4.sm-heading {
+.edit-weight-container h4 {
   margin-bottom: 0;
 }
-
 
 .examples-table {
   margin-top: 3rem;

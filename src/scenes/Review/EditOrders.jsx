@@ -71,7 +71,7 @@ let EditOrdersForm = (props) => {
               Orders
             </h1>
             <hr />
-            <h3 className="sm-heading">Edit Orders:</h3>
+            <h3>Edit Orders:</h3>
             <SwaggerField
               fieldName="orders_type"
               swagger={showAllOrdersTypes ? schema : modifiedSchemaForOrdersTypesFlag}

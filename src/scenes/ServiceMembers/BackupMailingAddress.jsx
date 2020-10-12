@@ -33,15 +33,11 @@ export class BackupMailingAddress extends Component {
         initialValues={initialValues}
         additionalParams={{ serviceMemberId }}
       >
-        <div className="grid-row">
-          <div className="grid-col-12">
-            <h1 className="sm-heading">Backup mailing address</h1>
-            <p>
-              Where should we send mail if we can’t reach you at your primary address? You might use a parent's or
-              friend’s address, or a post office box.
-            </p>
-          </div>
-        </div>
+        <h1>Backup mailing address</h1>
+        <p>
+          Where should we send mail if we can’t reach you at your primary address? You might use a parent's or friend’s
+          address, or a post office box.
+        </p>
         <AddressForm schema={this.props.schema} />
       </BackupMailingWizardForm>
     );

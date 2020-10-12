@@ -36,15 +36,11 @@ export class Name extends Component {
         initialValues={initialValues}
         additionalParams={{ serviceMemberId }}
       >
-        <div className="grid-row">
-          <div className="grid-col-12">
-            <h1 className="sm-heading">Name</h1>
-            <SwaggerField fieldName="first_name" swagger={this.props.schema} required />
-            <SwaggerField fieldName="middle_name" swagger={this.props.schema} />
-            <SwaggerField fieldName="last_name" swagger={this.props.schema} required />
-            <SwaggerField fieldName="suffix" swagger={this.props.schema} />
-          </div>
-        </div>
+        <h1>Name</h1>
+        <SwaggerField fieldName="first_name" swagger={this.props.schema} required />
+        <SwaggerField fieldName="middle_name" swagger={this.props.schema} />
+        <SwaggerField fieldName="last_name" swagger={this.props.schema} required />
+        <SwaggerField fieldName="suffix" swagger={this.props.schema} />
       </NameWizardForm>
     );
   }
