@@ -1,0 +1,43 @@
+@import 'shared/styles/colors';
+@import 'shared/styles/_basics';
+
+.Modal {
+  @include u-bg('white');
+  @include u-padding-x(4);
+  @include u-padding-y(3);
+  @include u-radius('05');
+  @include u-border('base-light');
+  @include u-border('1px');
+  @include u-shadow(2);
+
+  // needed until ReactUSWDS modal allows for more styling
+  > div {
+    padding: 0 !important;
+
+    &:last-child {
+      display: none;
+    }
+  }
+
+  > * + div {
+    border: 0px !important;
+    @include u-margin-top(3);
+  }
+
+  h4 {
+    @include u-margin-top(0);
+    @include u-margin-bottom(3);
+  }
+
+  button {
+    @include u-margin(0);
+
+    + button {
+      @include u-margin-left(2);
+    }
+  }
+
+  :global(.usa-form) {
+    max-width: 100%;
+  }
+}
