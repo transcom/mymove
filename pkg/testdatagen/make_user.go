@@ -9,17 +9,11 @@ import (
 
 // MakeUser creates a single User.
 func MakeUser(db *pop.Connection, assertions Assertions) models.User {
-	milSessionID := "mil-session"
-	adminSessionID := "admin-session"
-	officeSessionID := "office-session"
 
 	user := models.User{
-		LoginGovUUID:           uuid.Must(uuid.NewV4()),
-		LoginGovEmail:          "first.last@login.gov.test",
-		Active:                 true,
-		CurrentMilSessionID:    milSessionID,
-		CurrentAdminSessionID:  adminSessionID,
-		CurrentOfficeSessionID: officeSessionID,
+		LoginGovUUID:  uuid.Must(uuid.NewV4()),
+		LoginGovEmail: "first.last@login.gov.test",
+		Active:        true,
 	}
 
 	// Overwrite values with those from assertions

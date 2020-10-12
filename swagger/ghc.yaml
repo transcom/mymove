@@ -11,6 +11,8 @@ info:
 basePath: /ghc/v1
 schemes:
   - http
+tags:
+  - name: queues
 paths:
   '/customer/{customerID}':
     parameters:
