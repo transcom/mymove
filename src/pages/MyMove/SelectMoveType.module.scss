@@ -21,7 +21,14 @@ h1.selectTypeHeader.header {
 }
 
 .gridContainer {
-  :global(.grid-row){
+  :global(.grid-row) {
     @include u-padding-top(3);
+  }
+
+  h2 + p,
+  h3 + p {
+    @include u-margin-top('05');
+    @include u-margin-bottom(3);
+    color: $base-darkest;
   }
 }

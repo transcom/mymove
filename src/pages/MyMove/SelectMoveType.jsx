@@ -62,12 +62,22 @@ export class SelectMoveType extends Component {
       'You pack and move your things, or make other arrangements, The government pays you for the weight you move.  This is a a Personally Procured Move (PPM), sometimes called a DITY.';
     const hhgCardText =
       'Your things are packed and moved by professionals, paid for by the government. This is a Household Goods move (HHG).';
+    const ntsCardText = `Movers pack and ship things to a storage facility, where they stay until a future move. Your orders might not authorize long-term storage — your counselor can verify. This is an NTS (non-temporary storage) shipment.`;
+    const ntsrCardText =
+      'Movers pick up things you put into NTS during an earlier move and ship them to your new destination. This is an NTS-R (non-temporary storage release) shipment.';
+    const hasNTSCardText =
+      "You've already requested a long-term storage shipment for this move. Talk to your movers to change or add to your request.";
+    const hasNTSRCardText =
+      "You've already asked to have things taken out of storage for this move. Talk to your movers to change or add to your request.";
     const hhgCardTextPostSubmit = 'Talk with your movers directly if you want to add or change shipments.';
     const ppmCardTextAlreadyChosen = `You’ve already requested a PPM shipment. If you have more things to move yourself but that you can’t add to that shipment, contact the PPPO at your origin duty station.`;
     const selectableCardDefaultProps = {
       onChange: (e) => this.setMoveType(e),
       name: 'moveType',
     };
+    // TODO: Make dynamic when we have ability to submit nts/ntsr
+    const hasNTS = false;
+    const hasNTSR = false;
     const selectPpmHasNoPpm = (
       <SelectableCard
         {...selectableCardDefaultProps} // eslint-disable-line
@@ -138,8 +148,30 @@ export class SelectMoveType extends Component {
                   ? 'How do you want this group of things moved?'
                   : 'How do you want to move your belongings?'}
               </h1>
+              <h2>Choose 1 shipment at a time.</h2>
+              <p>You can add more later</p>
               {hasPpm ? selectPpmHasPpm : selectPpmHasNoPpm}
               {hasSubmittedMove ? selectHhgSubmittedMove : selectHhgDefault}
+              <h3>Long-term storage</h3>
+              <p>These shipments do count against your weight allowance for this move.</p>
+              <SelectableCard
+                {...selectableCardDefaultProps} // eslint-disable-line
+                label="Put things into long-term storage"
+                value={SHIPMENT_OPTIONS.NTS}
+                id={SHIPMENT_OPTIONS.NTS}
+                cardText={hasNTS ? ntsCardText : hasNTSCardText}
+                checked={moveType === SHIPMENT_OPTIONS.NTS && isHhgSelectable}
+                disabled={hasNTS}
+              />
+              <SelectableCard
+                {...selectableCardDefaultProps} // eslint-disable-line
+                label="Get things out of long-term storage"
+                value={SHIPMENT_OPTIONS.NTS}
+                id={SHIPMENT_OPTIONS.NTS}
+                cardText={hasNTSR ? ntsrCardText : hasNTSRCardText}
+                checked={moveType === SHIPMENT_OPTIONS.NTS && isHhgSelectable}
+                disabled={hasNTSR}
+              />
             </WizardPage>
           </div>
           <div className="tablet:grid-col-2" />

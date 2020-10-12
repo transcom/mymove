@@ -28,7 +28,7 @@ describe('SelectMoveType', () => {
   it('should render radio buttons with PPM selected', () => {
     // eslint-disable-next-line react/jsx-props-no-spreading
     const wrapper = getWrapper();
-    expect(wrapper.find(Radio).length).toBe(2);
+    expect(wrapper.find(Radio).length).toBe(4);
 
     // PPM button should be checked on page load
     expect(wrapper.find(Radio).at(0).text()).toContain('Do it yourself');
@@ -39,7 +39,7 @@ describe('SelectMoveType', () => {
     const props = { selectedMoveType: SHIPMENT_OPTIONS.HHG };
     // eslint-disable-next-line react/jsx-props-no-spreading
     const wrapper = getWrapper(props);
-    expect(wrapper.find(Radio).length).toBe(2);
+    expect(wrapper.find(Radio).length).toBe(4);
 
     expect(wrapper.find(Radio).at(1).text()).toContain('Professional movers');
     // HHG button should be checked on page load
