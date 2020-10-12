@@ -12,7 +12,7 @@ export const DEPARTMENT_INDICATOR_OPTIONS = {
   NAVY_AND_MARINES: '17 Navy and Marine Corps',
 };
 
-export const DEPARTMENT_INDICATOR_HUMANIZED = {
+export const DEPARTMENT_INDICATOR_LABELS = {
   AIR_FORCE: 'Air Force',
   ARMY: 'Army',
   COAST_GUARD: 'Coast Guard',

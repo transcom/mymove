@@ -10,7 +10,7 @@ import { createHeader } from 'components/Table/utils';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useMovesQueueQueries } from 'hooks/queries';
-import { departmentIndicatorHumanized } from 'shared/formatters';
+import { departmentIndicatorLabel } from 'shared/formatters';
 
 const columns = [
   createHeader('ID', 'id'),
@@ -27,7 +27,7 @@ const columns = [
   createHeader(
     'Branch',
     (row) => {
-      return departmentIndicatorHumanized(row.departmentIndicator);
+      return departmentIndicatorLabel(row.departmentIndicator);
     },
     { id: 'branch' },
   ),
