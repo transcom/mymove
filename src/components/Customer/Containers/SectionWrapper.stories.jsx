@@ -9,5 +9,5 @@ export default {
 
 export const Component = () => 
 <SectionWrapper>
-  <h2>test</h2>
+  <h2>Section Content</h2>
 </SectionWrapper>;

@@ -4,7 +4,7 @@
 @import '../../../shared/styles/basics';
 
 
-.container-co {
+.sectionWrapper {
   @media (min-width: $tablet) {
     @include u-bg('white');
     @include u-radius('05');
