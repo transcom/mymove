@@ -45,7 +45,7 @@ export class ResidentialAddress extends Component {
         initialValues={initialValues}
         additionalParams={{ serviceMemberId }}
       >
-        <h1 className="sm-heading">Current residence</h1>
+        <h1>Current residence</h1>
         <AddressForm schema={this.props.schema} />
       </ResidentalWizardForm>
     );

@@ -74,7 +74,7 @@ export class DutyStation extends Component {
         initialValues={initialValues}
         serverError={error}
       >
-        <h1 className="sm-heading">Current duty station</h1>
+        <h1>Current duty station</h1>
         <Field
           name="current_station"
           title="What is your current duty station?"

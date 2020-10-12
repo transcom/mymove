@@ -109,7 +109,7 @@ class ContactForm extends Component {
 
     return (
       <form>
-        <h1 className="sm-heading">Backup contact</h1>
+        <h1>Backup contact</h1>
         <p>If we can't reach you, who can we contact (such as spouse or parent)?</p>
         <p>Any person you assign as a backup contact must be 18 years of age or older.</p>
 

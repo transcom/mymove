@@ -33,7 +33,7 @@ export class BackupMailingAddress extends Component {
         initialValues={initialValues}
         additionalParams={{ serviceMemberId }}
       >
-        <h1 className="sm-heading">Backup mailing address</h1>
+        <h1>Backup mailing address</h1>
         <p>
           Where should we send mail if we can’t reach you at your primary address? You might use a parent's or friend’s
           address, or a post office box.

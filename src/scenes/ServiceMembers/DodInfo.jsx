@@ -125,7 +125,7 @@ export class DodInfo extends Component {
         initialValues={initialValues}
         ssnOnServer={ssnOnServer}
       >
-        <h1 className="sm-heading">Create your profile</h1>
+        <h1>Create your profile</h1>
         <p>Before we can schedule your move, we need to know a little more about you.</p>
         <SwaggerField fieldName="affiliation" swagger={schema} required />
         <SwaggerField fieldName="edipi" swagger={schema} required />

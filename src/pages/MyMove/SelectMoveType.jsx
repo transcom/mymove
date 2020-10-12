@@ -40,7 +40,7 @@ export class SelectMoveType extends Component {
         handleSubmit={this.handleSubmit}
         push={push}
       >
-        <h1 className="sm-heading">How do you want to move your belongings?</h1>
+        <h1>How do you want to move your belongings?</h1>
         <Radio
           id={SHIPMENT_OPTIONS.PPM}
           label="I’ll move things myself"

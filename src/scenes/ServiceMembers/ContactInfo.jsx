@@ -57,7 +57,7 @@ export class ContactInfo extends Component {
         serverError={error}
         initialValues={initialValues}
       >
-        <h1 className="sm-heading">Your contact info</h1>
+        <h1>Your contact info</h1>
         <SwaggerField fieldName="telephone" swagger={schema} required />
         <SwaggerField fieldName="secondary_telephone" swagger={schema} />
         <SwaggerField fieldName="personal_email" swagger={schema} required />

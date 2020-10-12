@@ -103,12 +103,12 @@ let EditWeightForm = (props) => {
               Profile
             </h1>
             <hr />
-            <h3 className="sm-heading">Edit PPM Weight:</h3>
+            <h3>Edit PPM Weight:</h3>
             <p>Changes could impact your move, including the estimated PPM incentive.</p>
             <EntitlementBar entitlement={entitlement} />
             <div className="edit-weight-container">
               <div className="usa-width-one-half">
-                <h4 className="sm-heading">Move estimate</h4>
+                <h4>Move estimate</h4>
                 <div>
                   <SwaggerField
                     className={fullFieldClass}
@@ -161,7 +161,7 @@ let EditWeightForm = (props) => {
               </div>
 
               <div className="usa-width-one-half">
-                <h4 className="sm-heading">Examples</h4>
+                <h4>Examples</h4>
                 <table className="examples-table">
                   <thead>
                     <tr>
