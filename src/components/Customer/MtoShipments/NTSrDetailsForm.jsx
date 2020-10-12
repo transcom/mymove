@@ -53,7 +53,7 @@ class NTSrDetailsForm extends Component {
     const pendingMtoShipment = formatMtoShipment({
       moveId,
       customerRemarks,
-      shipmentType: SHIPMENT_OPTIONS.NTSr, // TODO: implement shipment options ntsr
+      shipmentType: SHIPMENT_OPTIONS.NTSR,
       delivery: hasDeliveryAddress ? delivery : undefined,
     });
 

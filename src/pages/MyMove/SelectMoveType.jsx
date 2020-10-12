@@ -155,7 +155,7 @@ export class SelectMoveType extends Component {
                 value={SHIPMENT_OPTIONS.NTS}
                 id={SHIPMENT_OPTIONS.NTS}
                 cardText={hasNTSR ? ntsrCardText : hasNTSRCardText}
-                checked={moveType === SHIPMENT_OPTIONS.NTS && isHhgSelectable}
+                checked={moveType === SHIPMENT_OPTIONS.NTSR && isHhgSelectable}
                 disabled={hasNTSR}
               />
             </WizardPage>
