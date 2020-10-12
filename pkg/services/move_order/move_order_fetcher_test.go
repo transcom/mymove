@@ -75,7 +75,7 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 		},
 	})
 
-	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{User: models.User{CurrentAdminSessionID: "admin-session"}})
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	expectedMoveOrder := expectedMoveTaskOrder.Orders
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
