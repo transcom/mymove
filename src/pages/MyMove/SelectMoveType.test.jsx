@@ -18,6 +18,8 @@ describe('SelectMoveType', () => {
     mtoShipments: [],
     isPpmSelectable: true,
     isHhgSelectable: true,
+    isNtsSelectable: true,
+    isNtsrSelectable: true,
     shipmentNumber: 4,
   };
 

@@ -186,7 +186,7 @@ class HHGDetailsForm extends Component {
 }
 
 HHGDetailsForm.propTypes = {
-  wizardPageShape,
+  ...wizardPageShape,
   createMTOShipment: func.isRequired,
   showLoggedInUser: func.isRequired,
   currentResidence: AddressShape.isRequired,

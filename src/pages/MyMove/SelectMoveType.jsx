@@ -42,7 +42,17 @@ export class SelectMoveType extends Component {
   };
 
   render() {
-    const { pageKey, pageList, match, push, isPpmSelectable, isHhgSelectable, shipmentNumber } = this.props;
+    const {
+      pageKey,
+      pageList,
+      match,
+      push,
+      isPpmSelectable,
+      isHhgSelectable,
+      isNtsSelectable,
+      isNtsrSelectable,
+      shipmentNumber,
+    } = this.props;
     const { moveType } = this.state;
     const ppmCardText =
       'You pack and move your things, or make other arrangements, The government pays you for the weight you move.  This is a a Personally Procured Move (PPM), sometimes called a DITY.';
@@ -51,9 +61,9 @@ export class SelectMoveType extends Component {
     const ntsCardText = `Movers pack and ship things to a storage facility, where they stay until a future move. Your orders might not authorize long-term storage — your counselor can verify. This is an NTS (non-temporary storage) shipment.`;
     const ntsrCardText =
       'Movers pick up things you put into NTS during an earlier move and ship them to your new destination. This is an NTS-R (non-temporary storage release) shipment.';
-    const hasNTSCardText =
+    const ntsDisabledText =
       "You've already requested a long-term storage shipment for this move. Talk to your movers to change or add to your request.";
-    const hasNTSRCardText =
+    const ntsrDisabledText =
       "You've already asked to have things taken out of storage for this move. Talk to your movers to change or add to your request.";
     const hhgCardTextPostSubmit = 'Talk with your movers directly if you want to add or change shipments.';
     const ppmCardTextAlreadyChosen = `You’ve already requested a PPM shipment. If you have more things to move yourself but that you can’t add to that shipment, contact the PPPO at your origin duty station.`;
@@ -61,9 +71,6 @@ export class SelectMoveType extends Component {
       onChange: (e) => this.setMoveType(e),
       name: 'moveType',
     };
-    // TODO: Make dynamic when we have ability to submit nts/ntsr
-    const hasNTS = false;
-    const hasNTSR = false;
     const ppmEnabledCard = (
       <SelectableCard
         {...selectableCardDefaultProps} // eslint-disable-line
@@ -145,18 +152,18 @@ export class SelectMoveType extends Component {
                 label="Put things into long-term storage"
                 value={SHIPMENT_OPTIONS.NTS}
                 id={SHIPMENT_OPTIONS.NTS}
-                cardText={hasNTS ? ntsCardText : hasNTSCardText}
-                checked={moveType === SHIPMENT_OPTIONS.NTS && isHhgSelectable}
-                disabled={hasNTS}
+                cardText={isNtsSelectable ? ntsCardText : ntsDisabledText}
+                checked={moveType === SHIPMENT_OPTIONS.NTS && isNtsSelectable}
+                disabled={!isNtsSelectable}
               />
               <SelectableCard
                 {...selectableCardDefaultProps} // eslint-disable-line
                 label="Get things out of long-term storage"
-                value={SHIPMENT_OPTIONS.NTS}
-                id={SHIPMENT_OPTIONS.NTS}
-                cardText={hasNTSR ? ntsrCardText : hasNTSRCardText}
-                checked={moveType === SHIPMENT_OPTIONS.NTSR && isHhgSelectable}
-                disabled={hasNTSR}
+                value={SHIPMENT_OPTIONS.NTSR}
+                id={SHIPMENT_OPTIONS.NTSR}
+                cardText={isNtsSelectable ? ntsrCardText : ntsrDisabledText}
+                checked={moveType === SHIPMENT_OPTIONS.NTSR && isNtsrSelectable}
+                disabled={!isNtsrSelectable}
               />
             </WizardPage>
           </div>
@@ -185,20 +192,28 @@ SelectMoveType.propTypes = {
   move: MoveTaskOrderShape.isRequired,
   isPpmSelectable: bool.isRequired,
   isHhgSelectable: bool.isRequired,
+  isNtsSelectable: bool.isRequired,
+  isNtsrSelectable: bool.isRequired,
   shipmentNumber: number.isRequired,
 };
 
 function mapStateToProps(state) {
   const move = selectActiveOrLatestMove(state);
   const hasPpm = !!move.personally_procured_moves?.length;
+  // TODO: Make dynamic when we have ability to submit nts/ntsr
+  const hasNTS = false;
+  const hasNTSR = false;
   const ppmCount = hasPpm ? 1 : 0;
-  const hhgCount = selectMTOShipmentsByMoveId(state, move.id)?.length || 0;
+  const mtosCount = selectMTOShipmentsByMoveId(state, move.id)?.length || 0;
+  const isMoveDraft = move.status === MOVE_STATUSES.DRAFT;
   const props = {
     move,
     selectedMoveType: get(move, 'selected_move_type'),
     isPpmSelectable: !hasPpm,
-    isHhgSelectable: move.status === MOVE_STATUSES.DRAFT,
-    shipmentNumber: 1 + ppmCount + hhgCount,
+    isHhgSelectable: isMoveDraft,
+    isNtsSelectable: isMoveDraft && !hasNTS,
+    isNtsrSelectable: isMoveDraft && !hasNTSR,
+    shipmentNumber: 1 + ppmCount + mtosCount,
   };
   return props;
 }

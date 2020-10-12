@@ -116,7 +116,7 @@ class NTSrDetailsForm extends Component {
 }
 
 NTSrDetailsForm.propTypes = {
-  wizardPageShape,
+  ...wizardPageShape,
   createMTOShipment: func.isRequired,
   showLoggedInUser: func.isRequired,
   newDutyStationAddress: SimpleAddressShape,

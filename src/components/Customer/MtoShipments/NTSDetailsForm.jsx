@@ -173,7 +173,7 @@ class NTSDetailsForm extends Component {
 }
 
 NTSDetailsForm.propTypes = {
-  wizardPageShape,
+  ...wizardPageShape,
   createMTOShipment: func.isRequired,
   showLoggedInUser: func.isRequired,
   currentResidence: AddressShape.isRequired,

@@ -2,16 +2,17 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { arrayOf, string, shape, bool, func } from 'prop-types';
 
+import '../../ghc_index.scss';
+import HHGShipmentSetup from './HHGShipmentSetup';
 
+import NTSDetailsForm from 'components/Customer/MtoShipments/NTSDetailsForm';
+import NTSrDetailsForm from 'components/Customer/MtoShipments/NTSrDetailsForm';
+import { HhgShipmentShape } from 'components/Customer/MtoShipments/propShapes';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 import {
   loadMTOShipments as loadMTOShipmentsAction,
   selectMTOShipmentForMTO,
 } from 'shared/Entities/modules/mtoShipments';
-import EditShipment from 'components/Customer/EditShipment';
-import HHGDetailsForm from 'components/Customer/MtoShipments/HHGDetailsForm';
-import NTSDetailsForm from 'components/Customer/MtoShipments/NTSDetailsForm';
-import NTSrDetailsForm from 'components/Customer/MtoShipments/NTSrDetailsForm';
-import '../../ghc_index.scss';
 
 class CreateOrEditMtoShipment extends Component {
   componentDidMount() {
@@ -20,27 +21,37 @@ class CreateOrEditMtoShipment extends Component {
   }
 
   render() {
-    const { pageList, pageKey, match, history, mtoShipment } = this.props;
-    const isEditShipmentPage = match.path === '/moves/:moveId/mto-shipments/:mtoShipmentId/edit-shipment';
-    const isHHGFormPage = match.path === '/moves/:moveId/hhg-start';
+    const { match, pageList, pageKey, history, mtoShipment, loadMTOShipments } = this.props;
     return (
       <div>
-        {isHHGFormPage && (
-          <HHGDetailsForm
-            pageList={pageList}
-            pageKey={pageKey}
+        {mtoShipment.ShipmentType === SHIPMENT_OPTIONS.HHG && (
+          <HHGShipmentSetup
             match={match}
-            push={history.push}
+            pageKey={pageKey}
+            pageList={pageList}
+            history={history}
+            loadMTOShipments={loadMTOShipments}
             mtoShipment={mtoShipment}
           />
         )}
         {mtoShipment.ShipmentType === SHIPMENT_OPTIONS.NTS && (
-          <NTSDetailsForm />
+          <NTSDetailsForm
+            match={match}
+            pageKey={pageKey}
+            pageList={pageList}
+            history={history}
+            mtoShipment={mtoShipment}
+          />
         )}
         {mtoShipment.ShipmentType === SHIPMENT_OPTIONS.NTSR && (
-          <NTSrDetailsForm />
+          <NTSrDetailsForm
+            match={match}
+            pageKey={pageKey}
+            pageList={pageList}
+            history={history}
+            mtoShipment={mtoShipment}
+          />
         )}
-        {isEditShipmentPage && <EditShipment mtoShipment={mtoShipment} match={match} history={history} />}
       </div>
     );
   }
@@ -73,7 +84,9 @@ CreateOrEditMtoShipment.propTypes = {
     push: func.isRequired,
   }).isRequired,
   loadMTOShipments: func.isRequired,
-  mtoShipment: ,
+  // technically this should be a [Generic]MtoShipmentShape
+  // using hhg because it has all the props
+  mtoShipment: HhgShipmentShape,
 };
 
 CreateOrEditMtoShipment.defaultProps = {

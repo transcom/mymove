@@ -2,14 +2,15 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { arrayOf, string, shape, bool, func } from 'prop-types';
 
-import EditShipment from '../../components/Customer/EditShipment';
+import '../../ghc_index.scss';
 
+import EditShipment from 'components/Customer/EditShipment';
 import {
   loadMTOShipments as loadMTOShipmentsAction,
   selectMTOShipmentForMTO,
 } from 'shared/Entities/modules/mtoShipments';
 import HHGDetailsForm from 'components/Customer/MtoShipments/HHGDetailsForm';
-import '../../ghc_index.scss';
+import { HhgShipmentShape } from 'components/Customer/MtoShipments/propShapes';
 
 class HHGShipmentSetup extends Component {
   componentDidMount() {
@@ -65,32 +66,7 @@ HHGShipmentSetup.propTypes = {
     push: func.isRequired,
   }).isRequired,
   loadMTOShipments: func.isRequired,
-  mtoShipment: shape({
-    agents: arrayOf(
-      shape({
-        firstName: string,
-        lastName: string,
-        phone: string,
-        email: string,
-        agentType: string,
-      }),
-    ),
-    customerRemarks: string,
-    requestedPickupDate: string,
-    requestedDeliveryDate: string,
-    pickupAddress: shape({
-      city: string,
-      postal_code: string,
-      state: string,
-      street_address_1: string,
-    }),
-    destinationAddress: shape({
-      city: string,
-      postal_code: string,
-      state: string,
-      street_address_1: string,
-    }),
-  }),
+  mtoShipment: HhgShipmentShape,
 };
 
 HHGShipmentSetup.defaultProps = {
