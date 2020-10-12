@@ -65,12 +65,19 @@ export class SelectMoveType extends Component {
     const ntsCardText = `Movers pack and ship things to a storage facility, where they stay until a future move. Your orders might not authorize long-term storage — your counselor can verify. This is an NTS (non-temporary storage) shipment.`;
     const ntsrCardText =
       'Movers pick up things you put into NTS during an earlier move and ship them to your new destination. This is an NTS-R (non-temporary storage release) shipment.';
+    const hasNTSCardText =
+      "You've already requested a long-term storage shipment for this move. Talk to your movers to change or add to your request.";
+    const hasNTSRCardText =
+      "You've already asked to have things taken out of storage for this move. Talk to your movers to change or add to your request.";
     const hhgCardTextPostSubmit = 'Talk with your movers directly if you want to add or change shipments.';
     const ppmCardTextAlreadyChosen = `You’ve already requested a PPM shipment. If you have more things to move yourself but that you can’t add to that shipment, contact the PPPO at your origin duty station.`;
     const selectableCardDefaultProps = {
       onChange: (e) => this.setMoveType(e),
       name: 'moveType',
     };
+    // TODO: Make dynamic when we have ability to submit nts/ntsr
+    const hasNTS = false;
+    const hasNTSR = false;
     const selectPpmHasNoPpm = (
       <SelectableCard
         {...selectableCardDefaultProps} // eslint-disable-line
@@ -152,18 +159,18 @@ export class SelectMoveType extends Component {
                 label="Put things into long-term storage"
                 value={SHIPMENT_OPTIONS.NTS}
                 id={SHIPMENT_OPTIONS.NTS}
-                cardText={ntsCardText}
+                cardText={hasNTS ? ntsCardText : hasNTSCardText}
                 checked={moveType === SHIPMENT_OPTIONS.NTS && isHhgSelectable}
-                disabled={!isHhgSelectable}
+                disabled={hasNTS}
               />
               <SelectableCard
                 {...selectableCardDefaultProps} // eslint-disable-line
                 label="Get things out of long-term storage"
                 value={SHIPMENT_OPTIONS.NTS}
                 id={SHIPMENT_OPTIONS.NTS}
-                cardText={ntsrCardText}
+                cardText={hasNTSR ? ntsrCardText : hasNTSRCardText}
                 checked={moveType === SHIPMENT_OPTIONS.NTS && isHhgSelectable}
-                disabled={!isHhgSelectable}
+                disabled={hasNTSR}
               />
             </WizardPage>
           </div>
