@@ -36,7 +36,10 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 	queueMoves := payloads.QueueMoves(orders)
 
 	result := &ghcmessages.QueueMovesResult{
-		Results: *queueMoves,
+		Page:       0,
+		PerPage:    0,
+		TotalCount: int64(len(*queueMoves)),
+		QueueMoves: *queueMoves,
 	}
 
 	return queues.NewGetMovesQueueOK().WithPayload(result)

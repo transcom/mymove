@@ -174,3 +174,9 @@ export const paymentRequests = new schema.Array(paymentRequest);
 // MTO Agents
 export const mtoAgent = new schema.Entity('mtoAgents');
 export const mtoAgents = new schema.Array(mtoAgent);
+
+// Queues
+export const queueMove = new schema.Entity('queueMoves');
+export const queueMoves = new schema.Array(queueMove);
+
+export const queueMovesResult = new schema.Entity('queueMovesResult');

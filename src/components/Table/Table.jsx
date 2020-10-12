@@ -4,12 +4,13 @@ import PropTypes from 'prop-types';
 
 import styles from './Table.module.scss';
 
-const Table = ({ data, columns }) => {
+const Table = ({ data, columns, hiddenColumns, handleClick }) => {
   const tableData = React.useMemo(() => data, [data]);
   const tableColumns = React.useMemo(() => columns, [columns]);
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable({
     columns: tableColumns,
     data: tableData,
+    initialState: { hiddenColumns },
   });
 
   return (
@@ -31,7 +32,7 @@ const Table = ({ data, columns }) => {
           {rows.map((row) => {
             prepareRow(row);
             return (
-              <tr {...row.getRowProps()}>
+              <tr onClick={() => handleClick(row.values)} {...row.getRowProps()}>
                 {row.cells.map((cell) => {
                   return (
                     <td data-testid={`${cell.column.id}-${cell.row.id}`} {...cell.getCellProps()}>
@@ -58,11 +59,15 @@ Table.propTypes = {
       accessor: PropTypes.string,
     }),
   ),
+  hiddenColumns: PropTypes.arrayOf(PropTypes.string),
+  handleClick: PropTypes.func,
 };
 
 Table.defaultProps = {
   data: [],
   columns: [],
+  hiddenColumns: [],
+  handleClick: undefined,
 };
 
 export default Table;

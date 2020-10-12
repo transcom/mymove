@@ -4,7 +4,7 @@ import numeral from 'numeral';
 import path from 'path';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
+import { DEPARTMENT_INDICATOR_OPTIONS, DEPARTMENT_INDICATOR_HUMANIZED } from 'constants/departmentIndicators';
 import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orders';
 
 /**
@@ -297,6 +297,10 @@ export const mtoShipmentTypeToFriendlyDisplay = (shipmentType) => {
 
 export const departmentIndicatorReadable = (departmentIndicator) => {
   return DEPARTMENT_INDICATOR_OPTIONS[`${departmentIndicator}`] || departmentIndicator;
+};
+
+export const departmentIndicatorHumanized = (departmentIndicator) => {
+  return DEPARTMENT_INDICATOR_HUMANIZED[`${departmentIndicator}`] || departmentIndicator;
 };
 
 export const ordersTypeReadable = (ordersType) => {

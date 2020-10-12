@@ -2367,6 +2367,9 @@ definitions:
   QueueMove:
     type: object
     properties:
+      id:
+        type: string
+        format: uuid
       customer:
         $ref: '#/definitions/Customer'
       status:
@@ -2390,7 +2393,7 @@ definitions:
         type: integer
       totalCount:
         type: integer
-      results:
+      queueMoves:
         $ref: '#/definitions/QueueMoves'
   QueueMoveStatus:
     type: string
