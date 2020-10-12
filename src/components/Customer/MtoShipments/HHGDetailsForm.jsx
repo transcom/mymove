@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { arrayOf, string, bool, shape, func } from 'prop-types';
+import { func } from 'prop-types';
 import { get } from 'lodash';
 import { connect } from 'react-redux';
 import { Formik } from 'formik';
@@ -8,7 +8,7 @@ import { Fieldset } from '@trussworks/react-uswds';
 
 import styles from './HHGDetailsForm.module.scss';
 import { RequiredPlaceSchema, OptionalPlaceSchema } from './validationSchemas';
-import { simpleAddressShape, fullAddressShape, agentShape } from './propShapes';
+import { HhgShipmentShape, wizardPageShape } from './propShapes';
 import { formatMtoShipment } from './utils';
 import { PickupFields } from './PickupFields';
 import { DeliveryFields } from './DeliveryFields';
@@ -25,6 +25,7 @@ import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/ser
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { WizardPage } from 'shared/WizardPage';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { AddressShape, SimpleAddressShape } from 'types/address';
 
 const HHGDetailsFormSchema = Yup.object().shape({
   pickup: RequiredPlaceSchema,
@@ -185,29 +186,12 @@ class HHGDetailsForm extends Component {
 }
 
 HHGDetailsForm.propTypes = {
-  currentResidence: fullAddressShape.isRequired,
-  pageKey: string.isRequired,
-  pageList: arrayOf(string).isRequired,
-  match: shape({
-    isExact: bool.isRequired,
-    params: shape({
-      moveId: string.isRequired,
-    }),
-    path: string.isRequired,
-    url: string.isRequired,
-  }).isRequired,
-  newDutyStationAddress: simpleAddressShape,
+  wizardPageShape,
   createMTOShipment: func.isRequired,
   showLoggedInUser: func.isRequired,
-  push: func.isRequired,
-  mtoShipment: shape({
-    agents: arrayOf(agentShape),
-    customerRemarks: string,
-    requestedPickupDate: string,
-    requestedDeliveryDate: string,
-    pickupAddress: fullAddressShape,
-    destinationAddress: fullAddressShape,
-  }),
+  currentResidence: AddressShape.isRequired,
+  newDutyStationAddress: SimpleAddressShape,
+  mtoShipment: HhgShipmentShape,
 };
 
 HHGDetailsForm.defaultProps = {

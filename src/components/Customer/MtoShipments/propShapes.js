@@ -1,18 +1,8 @@
-import { string, shape } from 'prop-types';
+import { arrayOf, bool, func, string, shape } from 'prop-types';
 
-export const simpleAddressShape = shape({
-  city: string,
-  state: string,
-  postal_code: string,
-});
+import { AddressShape } from 'types/address';
 
-export const fullAddressShape = shape({
-  ...simpleAddressShape,
-  street_address_1: string,
-  street_address_2: string,
-});
-
-export const agentShape = shape({
+export const MtoAgentShape = shape({
   firstName: string,
   lastName: string,
   phone: string,
@@ -20,4 +10,50 @@ export const agentShape = shape({
   agentType: string,
 });
 
-export default { simpleAddressShape, fullAddressShape, agentShape };
+const mtoBaseShipmentShape = shape({
+  agents: arrayOf(MtoAgentShape),
+  customerRemarks: string,
+  shipmentType: string,
+});
+
+export const HhgShipmentShape = shape({
+  mtoBaseShipmentShape,
+  requestedPickupDate: string,
+  pickupAddress: AddressShape,
+  requestedDeliveryDate: string,
+  destinationAddress: AddressShape,
+});
+
+export const NtsShipmentShape = shape({
+  mtoBaseShipmentShape,
+  requestedPickupDate: string,
+  pickupAddress: AddressShape,
+});
+
+export const NtsrShipmentShape = shape({
+  mtoBaseShipmentShape,
+  requestedDeliveryDate: string,
+  destinationAddress: AddressShape,
+});
+
+export const wizardPageShape = shape({
+  push: func.isRequired,
+  pageKey: string.isRequired,
+  pageList: arrayOf(string).isRequired,
+  match: shape({
+    isExact: bool.isRequired,
+    params: shape({
+      moveId: string.isRequired,
+    }),
+    path: string.isRequired,
+    url: string.isRequired,
+  }).isRequired,
+});
+
+export default {
+  wizardPageShape,
+  MtoAgentShape,
+  HhgShipmentShape,
+  NtsShipmentShape,
+  NtsrShipmentShape,
+};

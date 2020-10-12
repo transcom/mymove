@@ -2,11 +2,12 @@ import React from 'react';
 import { Fieldset, Radio, Label } from '@trussworks/react-uswds';
 import { string, bool, shape, func } from 'prop-types';
 
-import { simpleAddressShape, fullAddressShape, agentShape } from './propShapes';
+import { MtoAgentShape } from './propShapes';
 
 import { DatePickerInput } from 'components/form/fields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
+import { AddressShape, SimpleAddressShape } from 'types/address';
 import { validateDate } from 'utils/formikValidators';
 
 export const DeliveryFields = ({
@@ -80,10 +81,10 @@ DeliveryFields.propTypes = {
   fieldsetClasses: string,
   hasDeliveryAddress: bool,
   onHasAddressChange: func,
-  newDutyStationAddress: simpleAddressShape.isRequired,
+  newDutyStationAddress: SimpleAddressShape.isRequired,
   values: shape({
-    address: fullAddressShape,
-    agent: agentShape,
+    address: AddressShape,
+    agent: MtoAgentShape,
     requestedDate: string,
   }),
 };
