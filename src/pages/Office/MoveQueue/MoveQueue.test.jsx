@@ -78,7 +78,6 @@ describe('MoveQueue', () => {
     expect(firstMove.find({ 'data-testid': 'shipmentsCount-0' }).text()).toBe('2');
     expect(firstMove.find({ 'data-testid': 'destinationDutyStation.name-0' }).text()).toBe('Area 51');
     expect(firstMove.find({ 'data-testid': 'originGBLOC-0' }).text()).toBe('EEEE');
-    expect(firstMove.find({ 'data-testid': 'Last modified by-0' }).text()).toBe('');
 
     const secondMove = moves.at(1);
     expect(secondMove.find({ 'data-testid': 'name-1' }).text()).toBe('test another last, test another first');
@@ -89,6 +88,5 @@ describe('MoveQueue', () => {
     expect(secondMove.find({ 'data-testid': 'shipmentsCount-1' }).text()).toBe('1');
     expect(secondMove.find({ 'data-testid': 'destinationDutyStation.name-1' }).text()).toBe('Los Alamos');
     expect(secondMove.find({ 'data-testid': 'originGBLOC-1' }).text()).toBe('EEEE');
-    expect(secondMove.find({ 'data-testid': 'Last modified by-1' }).text()).toBe('');
   });
 });

@@ -34,7 +34,6 @@ const columns = [
   createHeader('# of shipments', 'shipmentsCount'),
   createHeader('Destination duty station', 'destinationDutyStation.name'),
   createHeader('Origin GBLOC', 'originGBLOC'),
-  createHeader('Last modified by', ''),
 ];
 
 const MoveQueue = ({ history }) => {
