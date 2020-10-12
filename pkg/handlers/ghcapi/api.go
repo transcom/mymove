@@ -20,6 +20,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 )
 
 // NewGhcAPIHandler returns a handler for the GHC API
@@ -114,6 +115,12 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 	}
 
 	ghcAPI.GhcDocumentsGetDocumentHandler = GetDocumentHandler{context}
+
+	ghcAPI.QueuesGetMovesQueueHandler = GetMovesQueueHandler{
+		context,
+		officeuser.NewOfficeUserFetcher(queryBuilder),
+		moveorder.NewMoveOrderFetcher(context.DB()),
+	}
 
 	return ghcAPI
 }

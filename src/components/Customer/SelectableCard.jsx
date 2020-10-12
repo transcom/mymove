@@ -17,7 +17,9 @@ const SelectableCard = ({ id, label, name, value, cardText, onChange, disabled, 
         checked={checked}
         disabled={disabled}
       />
-      <div className={styles.cardText}>{cardText}</div>
+      <div data-testid="selectableCardText" className={styles.cardText}>
+        {cardText}
+      </div>
     </div>
   );
 };
