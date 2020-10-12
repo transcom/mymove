@@ -4,3 +4,4 @@ export const MTO_SERVICE_ITEMS = 'mtoServiceItems';
 export const MOVE_TASK_ORDERS = 'moveTaskOrders';
 export const MOVE_ORDERS = 'moveOrders';
 export const ORDERS_DOCUMENTS = 'documents';
+export const MOVES_QUEUE = 'movesQueue';

@@ -2952,6 +2952,10 @@ func init() {
         "destinationDutyStation": {
           "$ref": "#/definitions/DutyStation"
         },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
         "locator": {
           "type": "string"
         },
@@ -2989,7 +2993,7 @@ func init() {
         "perPage": {
           "type": "integer"
         },
-        "results": {
+        "queueMoves": {
           "$ref": "#/definitions/QueueMoves"
         },
         "totalCount": {
@@ -6653,6 +6657,10 @@ func init() {
         "destinationDutyStation": {
           "$ref": "#/definitions/DutyStation"
         },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
         "locator": {
           "type": "string"
         },
@@ -6690,7 +6698,7 @@ func init() {
         "perPage": {
           "type": "integer"
         },
-        "results": {
+        "queueMoves": {
           "$ref": "#/definitions/QueueMoves"
         },
         "totalCount": {
