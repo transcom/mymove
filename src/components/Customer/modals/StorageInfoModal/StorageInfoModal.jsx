@@ -1,9 +1,10 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
 import Modal, { ModalTitle, ModalActions } from 'components/Modal/Modal';
 
-const StorageInfoModal = () => (
+const StorageInfoModal = ({ closeModal }) => (
   <Modal>
     <ModalTitle>
       <h3>Long-term storage info</h3>
@@ -42,11 +43,19 @@ const StorageInfoModal = () => (
     </ul>
     <p>This is known as an NTS-R — a “non-temporary storage release.”</p>
     <ModalActions>
-      <Button secondary type="button">
+      <Button secondary type="button" onClick={closeModal}>
         Got it
       </Button>
     </ModalActions>
   </Modal>
 );
+
+StorageInfoModal.propTypes = {
+  closeModal: PropTypes.func,
+};
+
+StorageInfoModal.defaultProps = {
+  closeModal: () => {},
+};
 
 export default StorageInfoModal;

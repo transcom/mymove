@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { string, bool, func, arrayOf, shape, number } from 'prop-types';
 import { get } from 'lodash';
+import { connectModal, Button } from '@trussworks/react-uswds';
 
 import styles from './SelectMoveType.module.scss';
 
@@ -17,12 +18,16 @@ import {
   loadMTOShipments as loadMTOShipmentsAction,
 } from 'shared/Entities/modules/mtoShipments';
 import { MoveTaskOrderShape, MTOShipmentShape } from 'types/moveOrder';
+import StorageInfoModal from 'components/Customer/modals/StorageInfoModal/StorageInfoModal';
+
+const ConnectedStorageInfoModal = connectModal(StorageInfoModal);
 
 export class SelectMoveType extends Component {
   constructor(props) {
     super(props);
     this.state = {
       moveType: props.selectedMoveType,
+      showStorageInfoModal: false,
     };
   }
 
@@ -33,6 +38,12 @@ export class SelectMoveType extends Component {
 
   setMoveType = (e) => {
     this.setState({ moveType: e.target.value });
+  };
+
+  toggleStorageModal = () => {
+    this.setState((state) => ({
+      showStorageInfoModal: !state.showStorageInfoModal,
+    }));
   };
 
   handleSubmit = () => {
@@ -53,7 +64,7 @@ export class SelectMoveType extends Component {
       isHhgSelectable,
       shipmentNumber,
     } = this.props;
-    const { moveType } = this.state;
+    const { moveType, showStorageInfoModal } = this.state;
     const hasPpm = !!move?.personally_procured_moves?.length; // eslint-disable-line camelcase
     const hasSubmittedMove = move?.status !== MOVE_STATUSES.DRAFT;
     const hasShipments = !!mtoShipments.length;
@@ -133,6 +144,7 @@ export class SelectMoveType extends Component {
         <div className="grid-row">
           <div className="tablet:grid-col-2 desktop:grid-col-2" />
           <div className="tablet:grid-col-8 desktop:grid-col-8">
+            <Button onClick={this.toggleStorageModal}>Modal</Button>
             <WizardPage
               pageKey={pageKey}
               match={match}
@@ -176,6 +188,8 @@ export class SelectMoveType extends Component {
           </div>
           <div className="tablet:grid-col-2" />
         </div>
+
+        <ConnectedStorageInfoModal isOpen={showStorageInfoModal} closeModal={this.toggleStorageModal} />
       </div>
     );
   }
