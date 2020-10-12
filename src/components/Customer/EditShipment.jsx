@@ -10,8 +10,8 @@ import { Form } from '../form/Form';
 import { DatePickerInput } from '../form/fields';
 import { AddressFields } from '../form/AddressFields/AddressFields';
 import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
-import { SectionWrapper } from 'Containers/SectionWrapper';
 
+import { SectionWrapper } from './Containers/SectionWrapper';
 import styles from './EditShipment.module.scss';
 
 import {
