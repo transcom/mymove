@@ -1,4 +1,4 @@
-import { takeLatest, put, call } from 'redux-saga/effects';
+import { takeLatest, put, call, all } from 'redux-saga/effects';
 
 import {
   INIT_ONBOARDING,
@@ -13,6 +13,7 @@ import {
 } from 'services/internalApi';
 import { addEntities } from 'shared/Entities/actions';
 import { CREATE_SERVICE_MEMBER } from 'scenes/ServiceMembers/ducks';
+import { normalizeResponse } from 'services/swaggerRequest';
 
 export function* fetchCustomerData() {
   // First load the user & store in entities
@@ -36,6 +37,16 @@ export function* watchFetchCustomerData() {
   yield takeLatest(FETCH_CUSTOMER_DATA, fetchCustomerData);
 }
 
+export function* updateServiceMember(action) {
+  const { payload } = action;
+  const normalizedData = normalizeResponse(payload, 'serviceMember');
+  yield put(addEntities(normalizedData));
+}
+
+export function* watchUpdateServiceMember() {
+  yield takeLatest('UPDATE_SERVICE_MEMBER_SUCCESS', updateServiceMember);
+}
+
 export function* createServiceMember() {
   try {
     yield put({ type: CREATE_SERVICE_MEMBER.start });
@@ -54,7 +65,7 @@ export function* initializeOnboarding() {
       yield call(createServiceMember);
     }
     yield put(initOnboardingComplete());
-    yield call(watchFetchCustomerData);
+    yield all([call(watchFetchCustomerData), call(watchUpdateServiceMember)]);
   } catch (error) {
     yield put(initOnboardingFailed(error));
   }
