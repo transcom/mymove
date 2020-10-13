@@ -1,0 +1,25 @@
+#! /usr/bin/env bash
+
+set -eu -o pipefail
+
+if [[ $# -ne 1 ]]; then
+  echo "Usage: ${0##*/} <transportation office name>"
+  exit 1
+fi
+
+name=$1
+
+printf "These are the names of duty stations with the same GBLOC as %s: \\n\\n" "$name"
+
+# The -t option prints just the names as opposed to the default formatting that
+# includes the column name underlined
+psql -t postgres://postgres:mysecretpassword@localhost:5432/dev_db << EOF
+SELECT duty_stations.name FROM duty_stations
+  JOIN transportation_offices
+  ON duty_stations.transportation_office_id = transportation_offices.id
+  WHERE transportation_offices.gbloc IN (
+    SELECT gbloc FROM transportation_offices
+    WHERE transportation_offices.name = '$name'
+  )
+EOF
+
