@@ -4,9 +4,12 @@ import React from 'react';
 import { NTSDetailsFormComponent as NTSDetailsForm } from './NTSDetailsForm';
 
 const defaultProps = {
-  pageList: ['page1', 'anotherPage/:foo/:bar'],
-  pageKey: 'page1',
-  match: { isExact: false, path: '', url: '', params: { moveId: '123' } },
+  wizardPage: {
+    pageList: ['page1', 'anotherPage/:foo/:bar'],
+    pageKey: 'page1',
+    match: { isExact: false, path: '', url: '', params: { moveId: '123' } },
+    history: { push: () => {}, goBack: () => {} },
+  },
   showLoggedInUser: () => {},
   newDutyStationAddress: {
     city: 'Fort Benning',

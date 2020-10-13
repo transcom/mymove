@@ -216,11 +216,14 @@ const pages = {
     },
     render: (key, pages, description, props) => ({ match, history }) => (
       <CreateOrEditMtoShipment
-        pageList={pages}
-        pageKey={key}
-        match={match}
-        history={history}
+        wizardPage={{
+          pageList: pages,
+          pageKey: key,
+          match,
+          history,
+        }}
         selectedMoveType={props.selectedMoveType}
+        mtoShipment={props.mtoShipment}
       />
     ),
   },
@@ -229,11 +232,14 @@ const pages = {
     isComplete: ({ sm, orders, move, ppm }) => false,
     render: (key, pages, description, props) => ({ match, history }) => (
       <CreateOrEditMtoShipment
-        pageList={pages}
-        pageKey={key}
-        match={match}
-        history={history}
+        wizardPage={{
+          pageList: pages,
+          pageKey: key,
+          match,
+          history,
+        }}
         selectedMoveType={props.selectedMoveType}
+        mtoShipment={props.mtoShipment}
       />
     ),
   },
@@ -242,11 +248,14 @@ const pages = {
     isComplete: ({ sm, orders, move, ppm }) => false,
     render: (key, pages, description, props) => ({ match, history }) => (
       <CreateOrEditMtoShipment
-        pageList={pages}
-        pageKey={key}
-        match={match}
-        history={history}
+        wizardPage={{
+          pageList: pages,
+          pageKey: key,
+          match,
+          history,
+        }}
         selectedMoveType={props.selectedMoveType}
+        mtoShipment={props.mtoShipment}
       />
     ),
   },

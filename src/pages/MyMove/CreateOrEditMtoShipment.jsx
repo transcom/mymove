@@ -49,7 +49,7 @@ class CreateOrEditMtoShipment extends Component {
 
 function mapStateToProps(state, ownProps) {
   const props = {
-    mtoShipment: selectMTOShipmentForMTO(state, ownProps.match.params.moveId),
+    mtoShipment: selectMTOShipmentForMTO(state, ownProps.wizardPage.match.params.moveId),
   };
   return props;
 }

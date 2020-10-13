@@ -84,12 +84,14 @@ class HHGDetailsForm extends Component {
             initialValues: {
               ...initialValues,
               ...currentValues,
-              pickupAddress: {
-                street_address_1: currentResidence.street_address_1,
-                street_address_2: currentResidence.street_address_2,
-                city: currentResidence.city,
-                state: currentResidence.state,
-                postal_code: currentResidence.postal_code,
+              pickup: {
+                address: {
+                  street_address_1: currentResidence.street_address_1,
+                  street_address_2: currentResidence.street_address_2,
+                  city: currentResidence.city,
+                  state: currentResidence.state,
+                  postal_code: currentResidence.postal_code,
+                },
               },
             },
           });
@@ -100,12 +102,14 @@ class HHGDetailsForm extends Component {
               initialValues: {
                 ...initialValues,
                 ...currentValues,
-                pickupAddress: {
-                  street_address_1: mtoShipment.pickupAddress.street_address_1,
-                  street_address_2: mtoShipment.pickupAddress.street_address_2,
-                  city: mtoShipment.pickupAddress.city,
-                  state: mtoShipment.pickupAddress.state,
-                  postal_code: mtoShipment.pickupAddress.postal_code,
+                pickup: {
+                  address: {
+                    street_address_1: mtoShipment.pickupAddress.street_address_1,
+                    street_address_2: mtoShipment.pickupAddress.street_address_2,
+                    city: mtoShipment.pickupAddress.city,
+                    state: mtoShipment.pickupAddress.state,
+                    postal_code: mtoShipment.pickupAddress.postal_code,
+                  },
                 },
               },
             });
@@ -114,12 +118,14 @@ class HHGDetailsForm extends Component {
               initialValues: {
                 ...initialValues,
                 ...currentValues,
-                pickupAddress: {
-                  street_address_1: '',
-                  street_address_2: '',
-                  city: '',
-                  state: '',
-                  postal_code: '',
+                pickup: {
+                  address: {
+                    street_address_1: '',
+                    street_address_2: '',
+                    city: '',
+                    state: '',
+                    postal_code: '',
+                  },
                 },
               },
             });
@@ -131,7 +137,7 @@ class HHGDetailsForm extends Component {
 
   render() {
     // TODO: replace minimal styling with actual styling during UI phase
-    const { wizardPage, newDutyStationAddress } = this.props;
+    const { wizardPage, currentResidence, newDutyStationAddress } = this.props;
     const { pageKey, pageList, match, history } = wizardPage;
     const { hasDeliveryAddress, useCurrentResidence, initialValues } = this.state;
     const fieldsetClasses = 'margin-top-2';
@@ -156,6 +162,7 @@ class HHGDetailsForm extends Component {
             <Form className={styles.HHGDetailsForm}>
               <PickupFields
                 fieldsetClasses={fieldsetClasses}
+                currentResidence={currentResidence}
                 useCurrentResidence={useCurrentResidence}
                 onCurrentResidenceChange={this.handleUseCurrentResidenceChange}
                 values={values.pickup}

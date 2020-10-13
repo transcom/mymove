@@ -8,6 +8,7 @@ const defaultProps = {
     pageList: ['page1', 'anotherPage/:foo/:bar'],
     pageKey: 'page1',
     match: { isExact: false, path: '', url: '', params: { moveId: '123' } },
+    history: { push: () => {}, goBack: () => {} },
   },
   showLoggedInUser: () => {},
   newDutyStationAddress: {
