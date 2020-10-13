@@ -14,6 +14,13 @@ type OfficeUserFetcher interface {
 	FetchOfficeUser(filters []QueryFilter) (models.OfficeUser, error)
 }
 
+// OfficeUserGblocFetcher is the exported interface for fetching the GBLOC of the
+// currently signed in office user
+//go:generate mockery -name OfficeUserGblocFetcher
+type OfficeUserGblocFetcher interface {
+	FetchGblocForOfficeUser(id uuid.UUID) (string, error)
+}
+
 // OfficeUserCreator is the exported interface for creating an office user
 //go:generate mockery -name OfficeUserCreator
 type OfficeUserCreator interface {
