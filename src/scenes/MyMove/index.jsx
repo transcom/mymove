@@ -164,6 +164,7 @@ export class AppWrapper extends Component {
             </Tag>
             <Footer />
           </div>
+          <div id="modal-root"></div>
         </LastLocationProvider>
       </ConnectedRouter>
     );

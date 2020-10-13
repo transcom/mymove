@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
-import Modal, { ModalTitle, ModalActions } from 'components/Modal/Modal';
+import Modal, { ModalTitle, ModalActions, connectModal } from 'components/Modal/Modal';
 
 const StorageInfoModal = ({ closeModal }) => (
   <Modal>
@@ -58,4 +58,4 @@ StorageInfoModal.defaultProps = {
   closeModal: () => {},
 };
 
-export default StorageInfoModal;
+export default connectModal(StorageInfoModal);

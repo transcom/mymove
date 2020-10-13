@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { string, bool, func, arrayOf, shape, number } from 'prop-types';
 import { get } from 'lodash';
-import { connectModal, Button } from '@trussworks/react-uswds';
+import { Button } from '@trussworks/react-uswds';
 
 import styles from './SelectMoveType.module.scss';
 
@@ -19,8 +19,6 @@ import {
 } from 'shared/Entities/modules/mtoShipments';
 import { MoveTaskOrderShape, MTOShipmentShape } from 'types/moveOrder';
 import StorageInfoModal from 'components/Customer/modals/StorageInfoModal/StorageInfoModal';
-
-const ConnectedStorageInfoModal = connectModal(StorageInfoModal);
 
 export class SelectMoveType extends Component {
   constructor(props) {
@@ -189,7 +187,7 @@ export class SelectMoveType extends Component {
           <div className="tablet:grid-col-2" />
         </div>
 
-        <ConnectedStorageInfoModal isOpen={showStorageInfoModal} closeModal={this.toggleStorageModal} />
+        <StorageInfoModal isOpen={showStorageInfoModal} closeModal={this.toggleStorageModal} />
       </div>
     );
   }
