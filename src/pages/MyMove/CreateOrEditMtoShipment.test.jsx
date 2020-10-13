@@ -4,53 +4,90 @@ import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 
-import CreateOrEditMtoShipment, { CreateOrEditMtoShipmentComponent } from './CreateOrEditMtoShipment';
+import CreateOrEditMtoShipment from './CreateOrEditMtoShipment';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { history, store } from 'shared/store';
 
-const defaultProps = {
-  wizardPage: {
+function mockWizardPage(path = '') {
+  return {
+    match: {
+      path,
+      isExact: false,
+      url: '',
+      params: { moveId: 'move123' },
+    },
     pageList: ['page1', 'anotherPage/:foo/:bar'],
     pageKey: 'page1',
-    match: { isExact: false, path: '', url: '', params: { moveId: '' } },
     history: {
       goBack: jest.fn(),
       push: jest.fn(),
     },
-  },
+  };
+}
+
+const defaultProps = {
+  wizardPage: mockWizardPage(),
   showLoggedInUser: jest.fn(),
   createMTOShipment: jest.fn(),
   updateMTOShipment: jest.fn(),
   loadMTOShipments: jest.fn(),
+  mtoShipment: {},
 };
+
+function mountCreateOrEditMtoShipment(props) {
+  return mount(
+    <Provider store={store}>
+      <ConnectedRouter history={history}>
+        <CreateOrEditMtoShipment {...defaultProps} {...props} />
+      </ConnectedRouter>
+    </Provider>,
+  );
+}
 
 describe('CreateOrEditMtoShipment component', () => {
   describe('when shipmentType is HHG', () => {
-    const props = { selectedMoveType: SHIPMENT_OPTIONS.HHG };
-
-    it('can render the HHGDetailsForm component', () => {
-      return new Error('not implemented');
+    it('renders only the HHGDetailsForm component', () => {
+      const wrapper = mountCreateOrEditMtoShipment({
+        selectedMoveType: SHIPMENT_OPTIONS.HHG,
+        wizardPage: mockWizardPage('/moves/:moveId/hhg-start'),
+      });
+      expect(wrapper.find('HHGDetailsForm').length).toBe(1);
+      expect(wrapper.find('EditShipment').length).toBe(0);
     });
 
-    it('can render the HHGDetailsForm component', () => {
-      return new Error('not implemented');
-    });
-
-    it('can render the EditShipment component', () => {
-      return new Error('not implemented');
+    it('or renders only the the EditShipment component', () => {
+      const wrapper = mountCreateOrEditMtoShipment({
+        selectedMoveType: SHIPMENT_OPTIONS.HHG,
+      });
+      expect(wrapper.find('EditShipment').length).toBe(1);
+      expect(wrapper.find('HHGDetailsForm').length).toBe(0);
+      expect(wrapper.find('NTSDetailsForm').length).toBe(0);
+      expect(wrapper.find('NTSrDetailsForm').length).toBe(0);
     });
   });
 
   describe('when shipmentType is NTS', () => {
-    it('can render the NTSDetailsForm component', () => {
-      return new Error('not implemented');
+    it('renders only the NTSDetailsForm component', () => {
+      const wrapper = mountCreateOrEditMtoShipment({
+        selectedMoveType: SHIPMENT_OPTIONS.NTS,
+      });
+      expect(wrapper.find('NTSDetailsForm').length).toBe(1);
+      expect(wrapper.find('NTSrDetailsForm').length).toBe(0);
+      expect(wrapper.find('HHGDetailsForm').length).toBe(0);
+      expect(wrapper.find('EditShipment').length).toBe(0);
     });
   });
 
   describe('when shipmentType is NTSr', () => {
-    it('can render the NTSrDetailsForm component', () => {
-      return new Error('not implemented');
+    it('renders only the NTSDetailsForm component', () => {
+      const wrapper = mountCreateOrEditMtoShipment({
+        selectedMoveType: SHIPMENT_OPTIONS.NTSR,
+      });
+      expect(wrapper.find('NTSrDetailsForm').length).toBe(1);
+      expect(wrapper.find('NTSDetailsForm').length).toBe(0);
+      expect(wrapper.find('HHGDetailsForm').length).toBe(0);
+      expect(wrapper.find('EditShipment').length).toBe(0);
     });
   });
 });

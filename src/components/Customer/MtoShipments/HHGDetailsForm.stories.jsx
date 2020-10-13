@@ -28,7 +28,6 @@ const defaultProps = {
   },
   useCurrentResidence: false,
   mtoShipment: {
-    moveTaskOrderId: 'move123',
     destinationAddress: undefined,
   },
 };
@@ -48,7 +47,3 @@ function renderStory(props) {
 }
 
 export const DefaultInitialState = () => renderStory();
-
-export const HasDeliveryAddress = () => renderStory({ hasDeliveryAddress: true });
-
-export const UseCurrentResidence = () => renderStory({ useCurrentResidence: true });
