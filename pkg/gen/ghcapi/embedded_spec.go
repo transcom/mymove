@@ -1448,6 +1448,12 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
           "500": {
             "description": "A server error occurred",
             "schema": {
@@ -5112,6 +5118,15 @@ func init() {
             "description": "The request was denied",
             "schema": {
               "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
             }
           },
           "500": {
