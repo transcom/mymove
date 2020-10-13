@@ -6,7 +6,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { Fieldset } from '@trussworks/react-uswds';
 
-import styles from './HHGDetailsForm.module.scss';
+import styles from './MtoShipmentFormStyles.module.scss';
 import { RequiredPlaceSchema } from './validationSchemas';
 import { NtsrShipmentShape, WizardPageShape } from './propShapes';
 import { formatMtoShipment } from './utils';
@@ -89,7 +89,7 @@ class NTSrDetailsForm extends Component {
             handleSubmit={() => this.submitMTOShipment(values, dirty)}
           >
             <h1>Now lets arrange details for the professional movers</h1>
-            <Form className={styles.NTSrDetailsForm}>
+            <Form className={styles.HHGDetailsForm}>
               <DeliveryFields
                 fieldsetClasses={fieldsetClasses}
                 newDutyStationAddress={newDutyStationAddress}

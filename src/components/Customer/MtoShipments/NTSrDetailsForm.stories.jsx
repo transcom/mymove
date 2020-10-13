@@ -16,10 +16,13 @@ const defaultProps = {
     state: 'GA',
     postal_code: '31905',
   },
+  mtoShipment: {
+    destinationAddress: undefined,
+  },
 };
 
 export default {
   title: 'Customer Components | NTSrDetailsForm',
 };
 
-export const Basic = () => <NTSrDetailsForm {...defaultProps} />;
+export const DefaultInitialState = () => <NTSrDetailsForm {...defaultProps} />;

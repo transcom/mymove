@@ -6,7 +6,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { Fieldset } from '@trussworks/react-uswds';
 
-import styles from './HHGDetailsForm.module.scss';
+import styles from './MtoShipmentFormStyles.module.scss';
 import { RequiredPlaceSchema } from './validationSchemas';
 import { NtsShipmentShape, WizardPageShape } from './propShapes';
 import { formatMtoShipment } from './utils';
@@ -153,7 +153,7 @@ class NTSDetailsForm extends Component {
             handleSubmit={() => this.submitMTOShipment(values, dirty)}
           >
             <h1>Now lets arrange details for the professional movers</h1>
-            <Form className={styles.NTSDetailsForm}>
+            <Form className={styles.HHGDetailsForm}>
               <PickupFields
                 fieldsetClasses={fieldsetClasses}
                 useCurrentResidence={useCurrentResidence}
