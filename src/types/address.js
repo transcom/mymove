@@ -8,7 +8,9 @@ export const SimpleAddressShape = shape({
 });
 
 export const AddressShape = shape({
-  ...SimpleAddressShape,
+  city: string,
+  state: string,
+  postal_code: string,
   street_address_1: string,
   street_address_2: string,
   street_address_3: string,

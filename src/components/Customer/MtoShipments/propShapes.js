@@ -10,14 +10,10 @@ export const MtoAgentShape = shape({
   agentType: string,
 });
 
-const mtoBaseShipmentShape = shape({
+export const HhgShipmentShape = shape({
   agents: arrayOf(MtoAgentShape),
   customerRemarks: string,
   shipmentType: string,
-});
-
-export const HhgShipmentShape = shape({
-  ...mtoBaseShipmentShape,
   requestedPickupDate: string,
   pickupAddress: AddressShape,
   requestedDeliveryDate: string,
@@ -25,18 +21,22 @@ export const HhgShipmentShape = shape({
 });
 
 export const NtsShipmentShape = shape({
-  ...mtoBaseShipmentShape,
+  agents: arrayOf(MtoAgentShape),
+  customerRemarks: string,
+  shipmentType: string,
   requestedPickupDate: string,
   pickupAddress: AddressShape,
 });
 
 export const NtsrShipmentShape = shape({
-  ...mtoBaseShipmentShape,
+  agents: arrayOf(MtoAgentShape),
+  customerRemarks: string,
+  shipmentType: string,
   requestedDeliveryDate: string,
   destinationAddress: AddressShape,
 });
 
-export const wizardPageShape = shape({
+export const WizardPageShape = shape({
   pageList: arrayOf(string).isRequired,
   pageKey: string.isRequired,
   match: shape({
@@ -54,7 +54,7 @@ export const wizardPageShape = shape({
 });
 
 export default {
-  wizardPageShape,
+  WizardPageShape,
   MtoAgentShape,
   HhgShipmentShape,
   NtsShipmentShape,

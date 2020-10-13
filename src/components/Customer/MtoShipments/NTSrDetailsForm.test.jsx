@@ -4,7 +4,7 @@ import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 
-import HHGDetailsForm, { HHGDetailsFormComponent } from './HHGDetailsForm';
+import NTSrDetailsForm, { NTSrDetailsFormComponent } from './NTSrDetailsForm';
 
 import { history, store } from 'shared/store';
 
@@ -26,35 +26,33 @@ const defaultProps = {
     state: 'GA',
     postal_code: '31905',
   },
-  currentResidence: {
-    city: 'Fort Benning',
-    state: 'GA',
-    postal_code: '31905',
-    street_address_1: '123 Main',
+  mtoShipment: {
+    id: '',
+    customerRemarks: '',
+    requestedDeliveryDate: '',
+    destinationAddress: {
+      city: '',
+      postal_code: '',
+      state: '',
+      street_address_1: '',
+    },
   },
 };
-function mountHHGDetailsForm(props = defaultProps) {
+
+function mountNTSrDetailsForm(props = defaultProps) {
   return mount(
     <Provider store={store}>
       <ConnectedRouter history={history}>
-        <HHGDetailsForm {...props} />
+        <NTSrDetailsForm {...props} />
       </ConnectedRouter>
     </Provider>,
   );
 }
-describe('HHGDetailsForm component', () => {
+describe('NTSrDetailsForm component', () => {
   it('renders expected form components', () => {
-    const wrapper = mountHHGDetailsForm();
-    expect(wrapper.find('HHGDetailsForm').length).toBe(1);
-    expect(wrapper.find('DatePickerInput').length).toBe(2);
-    expect(wrapper.find('AddressFields').length).toBe(1);
-    expect(wrapper.find('ContactInfoFields').length).toBe(2);
+    const wrapper = mountNTSrDetailsForm();
+    expect(wrapper.find('NTSrDetailsForm').length).toBe(1);
+    expect(wrapper.find('DeliveryFields').length).toBe(1);
     expect(wrapper.find('input[name="customerRemarks"]').length).toBe(1);
-  });
-
-  it('renders second address field when has delivery address', () => {
-    const wrapper = mount(<HHGDetailsFormComponent {...defaultProps} />);
-    wrapper.setState({ hasDeliveryAddress: true });
-    expect(wrapper.find('AddressFields').length).toBe(2);
   });
 });

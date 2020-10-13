@@ -4,7 +4,7 @@ import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 
-import HHGDetailsForm, { HHGDetailsFormComponent } from './HHGDetailsForm';
+import NTSDetailsForm, { NTSDetailsFormComponent } from './NTSDetailsForm';
 
 import { history, store } from 'shared/store';
 
@@ -21,11 +21,6 @@ const defaultProps = {
   showLoggedInUser: jest.fn(),
   createMTOShipment: jest.fn(),
   updateMTOShipment: jest.fn(),
-  newDutyStationAddress: {
-    city: 'Fort Benning',
-    state: 'GA',
-    postal_code: '31905',
-  },
   currentResidence: {
     city: 'Fort Benning',
     state: 'GA',
@@ -33,28 +28,20 @@ const defaultProps = {
     street_address_1: '123 Main',
   },
 };
-function mountHHGDetailsForm(props = defaultProps) {
+function mountNTSDetailsForm(props = defaultProps) {
   return mount(
     <Provider store={store}>
       <ConnectedRouter history={history}>
-        <HHGDetailsForm {...props} />
+        <NTSDetailsForm {...props} />
       </ConnectedRouter>
     </Provider>,
   );
 }
-describe('HHGDetailsForm component', () => {
-  it('renders expected form components', () => {
-    const wrapper = mountHHGDetailsForm();
-    expect(wrapper.find('HHGDetailsForm').length).toBe(1);
-    expect(wrapper.find('DatePickerInput').length).toBe(2);
-    expect(wrapper.find('AddressFields').length).toBe(1);
-    expect(wrapper.find('ContactInfoFields').length).toBe(2);
+describe('NTSDetailsForm component', () => {
+  it('renders expected components', () => {
+    const wrapper = mountNTSDetailsForm();
+    expect(wrapper.find('NTSDetailsForm').length).toBe(1);
+    expect(wrapper.find('PickupFields').length).toBe(1);
     expect(wrapper.find('input[name="customerRemarks"]').length).toBe(1);
-  });
-
-  it('renders second address field when has delivery address', () => {
-    const wrapper = mount(<HHGDetailsFormComponent {...defaultProps} />);
-    wrapper.setState({ hasDeliveryAddress: true });
-    expect(wrapper.find('AddressFields').length).toBe(2);
   });
 });

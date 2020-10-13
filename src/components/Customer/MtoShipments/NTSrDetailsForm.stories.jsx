@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 
-import { HHGDetailsFormComponent as HHGDetailsForm } from './HHGDetailsForm';
+import { NTSrDetailsFormComponent as NTSrDetailsForm } from './NTSrDetailsForm';
 
 const defaultProps = {
   wizardPage: {
@@ -15,16 +15,10 @@ const defaultProps = {
     state: 'GA',
     postal_code: '31905',
   },
-  currentResidence: {
-    city: 'Fort Benning',
-    state: 'GA',
-    postal_code: '31905',
-    street_address_1: '123 Main',
-  },
 };
 
 export default {
-  title: 'Customer Components | HHGDetailsForm',
+  title: 'Customer Components | NTSrDetailsForm',
 };
 
-export const Basic = () => <HHGDetailsForm {...defaultProps} />;
+export const Basic = () => <NTSrDetailsForm {...defaultProps} />;

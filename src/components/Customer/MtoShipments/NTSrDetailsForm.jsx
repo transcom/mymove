@@ -8,7 +8,7 @@ import { Fieldset } from '@trussworks/react-uswds';
 
 import styles from './HHGDetailsForm.module.scss';
 import { RequiredPlaceSchema } from './validationSchemas';
-import { NtsrShipmentShape, wizardPageShape } from './propShapes';
+import { NtsrShipmentShape, WizardPageShape } from './propShapes';
 import { formatMtoShipment } from './utils';
 import { DeliveryFields } from './DeliveryFields';
 
@@ -46,9 +46,9 @@ class NTSrDetailsForm extends Component {
   }
 
   submitMTOShipment = ({ delivery, customerRemarks }) => {
-    const { createMTOShipment, match } = this.props;
+    const { createMTOShipment, wizardPage } = this.props;
     const { hasDeliveryAddress } = this.state;
-    const { moveId } = match.params;
+    const { moveId } = wizardPage.match.params;
 
     const pendingMtoShipment = formatMtoShipment({
       moveId,
@@ -67,7 +67,8 @@ class NTSrDetailsForm extends Component {
   };
 
   render() {
-    const { pageKey, pageList, match, history, newDutyStationAddress } = this.props;
+    const { wizardPage, newDutyStationAddress } = this.props;
+    const { pageKey, pageList, match, history } = wizardPage;
     const { hasDeliveryAddress, initialValues } = this.state;
     const fieldsetClasses = 'margin-top-2';
     return (
@@ -116,7 +117,7 @@ class NTSrDetailsForm extends Component {
 }
 
 NTSrDetailsForm.propTypes = {
-  ...wizardPageShape,
+  wizardPage: WizardPageShape,
   createMTOShipment: func.isRequired,
   showLoggedInUser: func.isRequired,
   newDutyStationAddress: SimpleAddressShape,
@@ -124,6 +125,11 @@ NTSrDetailsForm.propTypes = {
 };
 
 NTSrDetailsForm.defaultProps = {
+  wizardPage: {
+    pageList: [],
+    pageKey: '',
+    match: { isExact: false, params: { moveID: '' } },
+  },
   newDutyStationAddress: {
     city: '',
     state: '',
@@ -146,7 +152,7 @@ const mapStateToProps = (state, ownProps) => {
   const orders = selectActiveOrLatestOrdersFromEntities(state);
 
   const props = {
-    mtoShipment: selectMTOShipmentForMTO(state, ownProps.match.params.moveId),
+    mtoShipment: selectMTOShipmentForMTO(state, ownProps.wizardPage.match.params.moveId),
     newDutyStationAddress: get(orders, 'new_duty_station.address', {}),
   };
   return props;

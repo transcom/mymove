@@ -8,7 +8,7 @@ import { Fieldset } from '@trussworks/react-uswds';
 
 import styles from './HHGDetailsForm.module.scss';
 import { RequiredPlaceSchema } from './validationSchemas';
-import { NtsShipmentShape, wizardPageShape } from './propShapes';
+import { NtsShipmentShape, WizardPageShape } from './propShapes';
 import { formatMtoShipment } from './utils';
 import { PickupFields } from './PickupFields';
 
@@ -47,8 +47,8 @@ class NTSDetailsForm extends Component {
   }
 
   submitMTOShipment = ({ pickup, customerRemarks }) => {
-    const { createMTOShipment, match } = this.props;
-    const { moveId } = match.params;
+    const { createMTOShipment, wizardPage } = this.props;
+    const { moveId } = wizardPage.match.params;
 
     const pendingMtoShipment = formatMtoShipment({
       moveId,
@@ -69,7 +69,7 @@ class NTSDetailsForm extends Component {
   // Use current residence
   handleUseCurrentResidenceChange = (currentValues) => {
     const { initialValues } = this.state;
-    const { currentResidence, match, mtoShipment } = this.props;
+    const { currentResidence, wizardPage, mtoShipment } = this.props;
     this.setState(
       (state) => ({ useCurrentResidence: !state.useCurrentResidence }),
       () => {
@@ -90,7 +90,7 @@ class NTSDetailsForm extends Component {
           });
         } else {
           // eslint-disable-next-line no-lonely-if
-          if (match.params.moveId === initialValues.moveTaskOrderID) {
+          if (wizardPage.match.params.moveId === initialValues.moveTaskOrderID) {
             this.setState({
               initialValues: {
                 ...initialValues,
@@ -125,7 +125,8 @@ class NTSDetailsForm extends Component {
   };
 
   render() {
-    const { pageKey, pageList, match, history } = this.props;
+    const { wizardPage } = this.props;
+    const { pageKey, pageList, match, history } = wizardPage;
     const { useCurrentResidence, initialValues } = this.state;
     const fieldsetClasses = 'margin-top-2';
     return (
@@ -173,7 +174,7 @@ class NTSDetailsForm extends Component {
 }
 
 NTSDetailsForm.propTypes = {
-  ...wizardPageShape,
+  wizardPage: WizardPageShape,
   createMTOShipment: func.isRequired,
   showLoggedInUser: func.isRequired,
   currentResidence: AddressShape.isRequired,
@@ -181,6 +182,11 @@ NTSDetailsForm.propTypes = {
 };
 
 NTSDetailsForm.defaultProps = {
+  wizardPage: {
+    pageList: [],
+    pageKey: '',
+    match: { isExact: false, params: { moveID: '' } },
+  },
   mtoShipment: {
     id: '',
     customerRemarks: '',
@@ -190,7 +196,7 @@ NTSDetailsForm.defaultProps = {
 
 const mapStateToProps = (state, ownProps) => {
   const props = {
-    mtoShipment: selectMTOShipmentForMTO(state, ownProps.match.params.moveId),
+    mtoShipment: selectMTOShipmentForMTO(state, ownProps.wizardPage.match.params.moveId),
     currentResidence: get(selectServiceMemberFromLoggedInUser(state), 'residential_address', {}),
   };
   return props;

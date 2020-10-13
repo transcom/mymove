@@ -1,14 +1,12 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 
-import { HHGDetailsFormComponent as HHGDetailsForm } from './HHGDetailsForm';
+import { NTSDetailsFormComponent as NTSDetailsForm } from './NTSDetailsForm';
 
 const defaultProps = {
-  wizardPage: {
-    pageList: ['page1', 'anotherPage/:foo/:bar'],
-    pageKey: 'page1',
-    match: { isExact: false, path: '', url: '', params: { moveId: '123' } },
-  },
+  pageList: ['page1', 'anotherPage/:foo/:bar'],
+  pageKey: 'page1',
+  match: { isExact: false, path: '', url: '', params: { moveId: '123' } },
   showLoggedInUser: () => {},
   newDutyStationAddress: {
     city: 'Fort Benning',
@@ -24,7 +22,7 @@ const defaultProps = {
 };
 
 export default {
-  title: 'Customer Components | HHGDetailsForm',
+  title: 'Customer Components | NTSDetailsForm',
 };
 
-export const Basic = () => <HHGDetailsForm {...defaultProps} />;
+export const Basic = () => <NTSDetailsForm {...defaultProps} />;

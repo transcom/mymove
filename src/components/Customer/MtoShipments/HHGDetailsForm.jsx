@@ -8,7 +8,7 @@ import { Fieldset } from '@trussworks/react-uswds';
 
 import styles from './HHGDetailsForm.module.scss';
 import { RequiredPlaceSchema, OptionalPlaceSchema } from './validationSchemas';
-import { HhgShipmentShape, wizardPageShape } from './propShapes';
+import { HhgShipmentShape, WizardPageShape } from './propShapes';
 import { formatMtoShipment } from './utils';
 import { PickupFields } from './PickupFields';
 import { DeliveryFields } from './DeliveryFields';
@@ -50,9 +50,9 @@ class HHGDetailsForm extends Component {
   }
 
   submitMTOShipment = ({ pickup, delivery, customerRemarks }) => {
-    const { createMTOShipment, match } = this.props;
+    const { createMTOShipment, wizardPage } = this.props;
     const { hasDeliveryAddress } = this.state;
-    const { moveId } = match.params;
+    const { moveId } = wizardPage.match.params;
 
     const pendingMtoShipment = formatMtoShipment({
       moveId,
@@ -74,7 +74,7 @@ class HHGDetailsForm extends Component {
   // Use current residence
   handleUseCurrentResidenceChange = (currentValues) => {
     const { initialValues } = this.state;
-    const { currentResidence, match, mtoShipment } = this.props;
+    const { currentResidence, wizardPage, mtoShipment } = this.props;
     this.setState(
       (state) => ({ useCurrentResidence: !state.useCurrentResidence }),
       () => {
@@ -95,7 +95,7 @@ class HHGDetailsForm extends Component {
           });
         } else {
           // eslint-disable-next-line no-lonely-if
-          if (match.params.moveId === initialValues.moveTaskOrderID) {
+          if (wizardPage.match.params.moveId === initialValues.moveTaskOrderID) {
             this.setState({
               initialValues: {
                 ...initialValues,
@@ -131,7 +131,8 @@ class HHGDetailsForm extends Component {
 
   render() {
     // TODO: replace minimal styling with actual styling during UI phase
-    const { pageKey, pageList, match, history, newDutyStationAddress } = this.props;
+    const { wizardPage, newDutyStationAddress } = this.props;
+    const { pageKey, pageList, match, history } = wizardPage;
     const { hasDeliveryAddress, useCurrentResidence, initialValues } = this.state;
     const fieldsetClasses = 'margin-top-2';
     return (
@@ -186,7 +187,7 @@ class HHGDetailsForm extends Component {
 }
 
 HHGDetailsForm.propTypes = {
-  ...wizardPageShape,
+  wizardPage: WizardPageShape,
   createMTOShipment: func.isRequired,
   showLoggedInUser: func.isRequired,
   currentResidence: AddressShape.isRequired,
@@ -195,6 +196,11 @@ HHGDetailsForm.propTypes = {
 };
 
 HHGDetailsForm.defaultProps = {
+  wizardPage: {
+    pageList: [],
+    pageKey: '',
+    match: { isExact: false, params: { moveID: '' } },
+  },
   newDutyStationAddress: {
     city: '',
     state: '',
@@ -218,7 +224,7 @@ const mapStateToProps = (state, ownProps) => {
   const orders = selectActiveOrLatestOrdersFromEntities(state);
 
   const props = {
-    mtoShipment: selectMTOShipmentForMTO(state, ownProps.match.params.moveId),
+    mtoShipment: selectMTOShipmentForMTO(state, ownProps.wizardPage.match.params.moveId),
     currentResidence: get(selectServiceMemberFromLoggedInUser(state), 'residential_address', {}),
     newDutyStationAddress: get(orders, 'new_duty_station.address', {}),
   };
