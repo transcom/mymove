@@ -10,7 +10,7 @@ import styles from './MtoShipmentFormStyles.module.scss';
 import { RequiredPlaceSchema } from './validationSchemas';
 import { NtsrShipmentShape, WizardPageShape } from './propShapes';
 import { formatMtoShipment } from './utils';
-import { DeliveryFields } from './DeliveryFields';
+import { DeliveryFields } from './FormGroups/DeliveryFields';
 
 import { TextInput } from 'components/form/fields';
 import { Form } from 'components/form/Form';

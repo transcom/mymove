@@ -10,7 +10,7 @@ import styles from './MtoShipmentFormStyles.module.scss';
 import { RequiredPlaceSchema } from './validationSchemas';
 import { NtsShipmentShape, WizardPageShape } from './propShapes';
 import { formatMtoShipment } from './utils';
-import { PickupFields } from './PickupFields';
+import { PickupFields } from './FormGroups/PickupFields';
 
 import { TextInput } from 'components/form/fields';
 import { Form } from 'components/form/Form';

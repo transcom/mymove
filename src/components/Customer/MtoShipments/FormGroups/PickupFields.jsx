@@ -3,7 +3,7 @@ import { Field } from 'formik';
 import { Fieldset } from '@trussworks/react-uswds';
 import { string, bool, shape, func } from 'prop-types';
 
-import { MtoAgentShape } from './propShapes';
+import { MtoAgentShape } from '../propShapes';
 
 import { DatePickerInput } from 'components/form/fields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
