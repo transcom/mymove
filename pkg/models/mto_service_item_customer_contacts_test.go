@@ -31,7 +31,7 @@ func (suite *ModelSuite) TestMTOServiceItemCustomerContactValidation() {
 			FirstAvailableDeliveryDate: time.Time{},
 		}
 		expErrors := map[string][]string{
-			"m_t_os_ervice_item_id":         {"MTOServiceItemID can not be blank."},
+			"mtoservice_item_id":            {"MTOServiceItemID can not be blank."},
 			"type":                          {"Type is not in the list [FIRST, SECOND]."},
 			"time_military":                 {"TimeMilitary can not be blank."},
 			"first_available_delivery_date": {"FirstAvailableDeliveryDate can not be blank."},

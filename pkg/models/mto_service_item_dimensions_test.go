@@ -32,11 +32,11 @@ func (suite *ModelSuite) TestMTOServiceItemDimensionValidation() {
 			Width:            -1,
 		}
 		expErrors := map[string][]string{
-			"m_t_os_ervice_item_id": {"MTOServiceItemID can not be blank."},
-			"type":                  {"Type is not in the list [ITEM, CRATE]."},
-			"height":                {"-1 is not greater than -1."},
-			"length":                {"-1 is not greater than -1."},
-			"width":                 {"-1 is not greater than -1."},
+			"mtoservice_item_id": {"MTOServiceItemID can not be blank."},
+			"type":               {"Type is not in the list [ITEM, CRATE]."},
+			"height":             {"-1 is not greater than -1."},
+			"length":             {"-1 is not greater than -1."},
+			"width":              {"-1 is not greater than -1."},
 		}
 		suite.verifyValidationErrors(&validMTOServiceItemDimension, expErrors)
 	})

@@ -32,10 +32,10 @@ func (suite *ModelSuite) TestBasicFuelEIADieselPriceInstantiation() {
 		"Empty Fields": {
 			fuelEIADP: models.FuelEIADieselPrice{},
 			expectedErrs: map[string][]string{
-				"pub_date":                          {"PubDate can not be blank."},
-				"rate_start_date":                   {"RateStartDate can not be blank."},
-				"rate_end_date":                     {"RateEndDate can not be blank."},
-				"e_i_a_price_per_gallon_millicents": {"0 is not greater than 0."},
+				"pub_date":                        {"PubDate can not be blank."},
+				"rate_start_date":                 {"RateStartDate can not be blank."},
+				"rate_end_date":                   {"RateEndDate can not be blank."},
+				"eia_price_per_gallon_millicents": {"0 is not greater than 0."},
 			},
 		},
 
