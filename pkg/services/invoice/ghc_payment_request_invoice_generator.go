@@ -31,7 +31,6 @@ const timeFormat = "1504"
 
 // Generate method takes a payment request and returns an Invoice858C
 func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.PaymentRequest, sendProductionInvoice bool) (ediinvoice.Invoice858C, error) {
-	// TODO: seems ReferenceID is a *string but cannot be saved as nil, do we need to validate it's not nil here
 	var moveTaskOrder models.Move
 	if paymentRequest.MoveTaskOrder.ID == uuid.Nil {
 		// load mto
@@ -49,6 +48,10 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	}
 
 	// check or load orders
+	if moveTaskOrder.ReferenceID == nil {
+		return ediinvoice.Invoice858C{}, services.NewBadDataError("Invalid move taskorder. Must have a ReferenceID value")
+	}
+
 	if moveTaskOrder.Orders.ID == uuid.Nil {
 		err := g.db.
 			Load(&moveTaskOrder, "Orders")
@@ -120,10 +123,6 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	edi858.ST = edisegment.ST{
 		TransactionSetIdentifierCode: "858",
 		TransactionSetControlNumber:  "0001",
-	}
-
-	if moveTaskOrder.ReferenceID == nil {
-		return ediinvoice.Invoice858C{}, services.NewBadDataError("Invalid move taskorder. Must have a ReferenceID value")
 	}
 
 	bx := edisegment.BX{

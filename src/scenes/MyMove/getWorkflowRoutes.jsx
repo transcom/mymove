@@ -26,6 +26,7 @@ import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import Agreement from 'scenes/Legalese';
 
 import HHGShipmentSetup from 'pages/MyMove/HHGShipmentSetup';
+import NTSSetup from 'pages/MyMove/NTSSetup';
 import Orders from 'pages/MyMove/Orders';
 import UploadOrders from 'pages/MyMove/UploadOrders';
 import Review from 'pages/MyMove/Review';
@@ -219,6 +220,11 @@ const pages = {
     render: (key, pages, description, props) => ({ match, history }) => (
       <HHGShipmentSetup pageList={pages} pageKey={key} match={match} history={history} />
     ),
+  },
+  '/moves/:moveId/nts-start': {
+    isInFlow: (state) => inHhgFlow && state.selectedMoveType === SHIPMENT_OPTIONS.NTS,
+    isComplete: ({ sm, orders, move, ppm }) => false,
+    render: (key, pages, description, props) => ({ match, history }) => <NTSSetup />,
   },
   '/moves/:moveId/review': {
     isInFlow: always,

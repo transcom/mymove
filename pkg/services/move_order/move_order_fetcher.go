@@ -23,6 +23,9 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID) ([]models.Order
 	err := f.db.Q().
 		Join("office_users", "transportation_offices.id = office_users.transportation_office_id").
 		Where("office_users.id = ?", officeUserID).First(&transportationOffice)
+	if err != nil {
+		return []models.Order{}, err
+	}
 
 	if err != nil {
 		return []models.Order{}, err
@@ -35,11 +38,13 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID) ([]models.Order
 		"NewDutyStation.Address",
 		"OriginDutyStation",
 		"Entitlement",
+		"Moves.MTOShipments",
 	).InnerJoin("moves", "orders.id = moves.orders_id").
 		InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
 		InnerJoin("duty_stations", "orders.origin_duty_station_id = duty_stations.id").
 		InnerJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id").
 		Where("transportation_offices.gbloc = ?", gbloc).
+		GroupBy("orders.id").
 		All(&moveOrders)
 
 	if err != nil {
@@ -56,7 +61,7 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID) ([]models.Order
 		// cannot eager load the address as "OriginDutyStation.Address" because
 		// OriginDutyStation is a pointer.
 		if moveOrders[i].OriginDutyStation != nil {
-			f.db.Load(moveOrders[i].OriginDutyStation, "Address")
+			f.db.Load(moveOrders[i].OriginDutyStation, "Address", "TransportationOffice")
 		}
 	}
 

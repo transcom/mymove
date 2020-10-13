@@ -117,3 +117,8 @@ export async function updateMoveOrder({ moveOrderID, ifMatchETag, body }) {
   const operationPath = 'moveOrder.updateMoveOrder';
   return makeGHCRequest(operationPath, { moveOrderID, 'If-Match': ifMatchETag, body });
 }
+
+export async function getMovesQueue() {
+  const operationPath = 'queues.getMovesQueue';
+  return makeGHCRequest(operationPath, {}, { schemaKey: 'queueMovesResult' });
+}

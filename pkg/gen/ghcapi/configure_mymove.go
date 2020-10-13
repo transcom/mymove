@@ -21,6 +21,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_service_item"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
 )
 
 //go:generate swagger generate server --target ../../gen --name Mymove --spec ../../../swagger/ghc.yaml --api-package ghcoperations --model-package ghcmessages --server-package ghcapi --exclude-main
@@ -91,6 +92,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.MoveTaskOrderGetMoveTaskOrderHandler == nil {
 		api.MoveTaskOrderGetMoveTaskOrderHandler = move_task_order.GetMoveTaskOrderHandlerFunc(func(params move_task_order.GetMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.GetMoveTaskOrder has not yet been implemented")
+		})
+	}
+	if api.QueuesGetMovesQueueHandler == nil {
+		api.QueuesGetMovesQueueHandler = queues.GetMovesQueueHandlerFunc(func(params queues.GetMovesQueueParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.GetMovesQueue has not yet been implemented")
 		})
 	}
 	if api.PaymentRequestsGetPaymentRequestHandler == nil {
