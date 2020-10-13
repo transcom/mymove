@@ -79,12 +79,14 @@ class NTSDetailsForm extends Component {
             initialValues: {
               ...initialValues,
               ...currentValues,
-              pickupAddress: {
-                street_address_1: currentResidence.street_address_1,
-                street_address_2: currentResidence.street_address_2,
-                city: currentResidence.city,
-                state: currentResidence.state,
-                postal_code: currentResidence.postal_code,
+              pickup: {
+                address: {
+                  street_address_1: currentResidence.street_address_1,
+                  street_address_2: currentResidence.street_address_2,
+                  city: currentResidence.city,
+                  state: currentResidence.state,
+                  postal_code: currentResidence.postal_code,
+                },
               },
             },
           });
@@ -95,12 +97,14 @@ class NTSDetailsForm extends Component {
               initialValues: {
                 ...initialValues,
                 ...currentValues,
-                pickupAddress: {
-                  street_address_1: mtoShipment.pickupAddress.street_address_1,
-                  street_address_2: mtoShipment.pickupAddress.street_address_2,
-                  city: mtoShipment.pickupAddress.city,
-                  state: mtoShipment.pickupAddress.state,
-                  postal_code: mtoShipment.pickupAddress.postal_code,
+                pickup: {
+                  address: {
+                    street_address_1: mtoShipment.pickupAddress.street_address_1,
+                    street_address_2: mtoShipment.pickupAddress.street_address_2,
+                    city: mtoShipment.pickupAddress.city,
+                    state: mtoShipment.pickupAddress.state,
+                    postal_code: mtoShipment.pickupAddress.postal_code,
+                  },
                 },
               },
             });
@@ -109,12 +113,14 @@ class NTSDetailsForm extends Component {
               initialValues: {
                 ...initialValues,
                 ...currentValues,
-                pickupAddress: {
-                  street_address_1: '',
-                  street_address_2: '',
-                  city: '',
-                  state: '',
-                  postal_code: '',
+                pickup: {
+                  address: {
+                    street_address_1: '',
+                    street_address_2: '',
+                    city: '',
+                    state: '',
+                    postal_code: '',
+                  },
                 },
               },
             });
