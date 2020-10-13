@@ -8,7 +8,6 @@ import { Fieldset } from '@trussworks/react-uswds';
 
 import styles from './MtoShipmentFormStyles.module.scss';
 import { RequiredPlaceSchema, OptionalPlaceSchema } from './validationSchemas';
-import { HhgShipmentShape, WizardPageShape } from './propShapes';
 import { PickupFields } from './FormGroups/PickupFields';
 import { DeliveryFields } from './FormGroups/DeliveryFields';
 
@@ -25,6 +24,7 @@ import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modu
 import { WizardPage } from 'shared/WizardPage';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape, SimpleAddressShape } from 'types/address';
+import { HhgShipmentShape, WizardPageShape } from 'types/customerShapes';
 import { formatMtoShipment } from 'utils/formatMtoShipment';
 
 const HHGDetailsFormSchema = Yup.object().shape({

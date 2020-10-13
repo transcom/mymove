@@ -3,13 +3,12 @@ import { Field } from 'formik';
 import { Fieldset } from '@trussworks/react-uswds';
 import { string, bool, shape, func } from 'prop-types';
 
-import { MtoAgentShape } from '../propShapes';
-
 import { DatePickerInput } from 'components/form/fields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import Checkbox from 'shared/Checkbox';
 import { AddressShape } from 'types/address';
+import { MtoAgentShape } from 'types/customerShapes';
 import { validateDate } from 'utils/formikValidators';
 
 export const PickupFields = ({ fieldsetClasses, values, useCurrentResidence, onCurrentResidenceChange }) => {

@@ -9,12 +9,12 @@ import EditShipment from 'components/Customer/EditShipment';
 import HHGDetailsForm from 'components/Customer/MtoShipments/HHGDetailsForm';
 import NTSDetailsForm from 'components/Customer/MtoShipments/NTSDetailsForm';
 import NTSrDetailsForm from 'components/Customer/MtoShipments/NTSrDetailsForm';
-import { HhgShipmentShape, WizardPageShape } from 'components/Customer/MtoShipments/propShapes';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import {
   loadMTOShipments as loadMTOShipmentsAction,
   selectMTOShipmentForMTO,
 } from 'shared/Entities/modules/mtoShipments';
+import { HhgShipmentShape, WizardPageShape } from 'types/customerShapes';
 
 class CreateOrEditMtoShipment extends Component {
   componentDidMount() {

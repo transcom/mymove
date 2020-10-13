@@ -2,12 +2,11 @@ import React from 'react';
 import { Fieldset, Radio, Label } from '@trussworks/react-uswds';
 import { string, bool, shape, func } from 'prop-types';
 
-import { MtoAgentShape } from '../propShapes';
-
 import { DatePickerInput } from 'components/form/fields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { AddressShape, SimpleAddressShape } from 'types/address';
+import { MtoAgentShape } from 'types/customerShapes';
 import { validateDate } from 'utils/formikValidators';
 
 export const DeliveryFields = ({
