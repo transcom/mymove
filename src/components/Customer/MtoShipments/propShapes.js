@@ -37,9 +37,8 @@ export const NtsrShipmentShape = shape({
 });
 
 export const wizardPageShape = shape({
-  push: func.isRequired,
-  pageKey: string.isRequired,
   pageList: arrayOf(string).isRequired,
+  pageKey: string.isRequired,
   match: shape({
     isExact: bool.isRequired,
     params: shape({
@@ -47,6 +46,10 @@ export const wizardPageShape = shape({
     }),
     path: string.isRequired,
     url: string.isRequired,
+  }).isRequired,
+  history: shape({
+    goBack: func.isRequired,
+    push: func.isRequired,
   }).isRequired,
 });
 

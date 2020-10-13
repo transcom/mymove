@@ -125,7 +125,7 @@ class NTSDetailsForm extends Component {
   };
 
   render() {
-    const { pageKey, pageList, match, push } = this.props;
+    const { pageKey, pageList, match, history } = this.props;
     const { useCurrentResidence, initialValues } = this.state;
     const fieldsetClasses = 'margin-top-2';
     return (
@@ -142,7 +142,7 @@ class NTSDetailsForm extends Component {
             match={match}
             pageKey={pageKey}
             pageList={pageList}
-            push={push}
+            push={history.push}
             handleSubmit={() => this.submitMTOShipment(values, dirty)}
           >
             <h1>Now lets arrange details for the professional movers</h1>

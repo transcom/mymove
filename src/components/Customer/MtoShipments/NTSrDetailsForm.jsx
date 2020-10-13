@@ -67,7 +67,7 @@ class NTSrDetailsForm extends Component {
   };
 
   render() {
-    const { pageKey, pageList, match, push, newDutyStationAddress } = this.props;
+    const { pageKey, pageList, match, history, newDutyStationAddress } = this.props;
     const { hasDeliveryAddress, initialValues } = this.state;
     const fieldsetClasses = 'margin-top-2';
     return (
@@ -84,7 +84,7 @@ class NTSrDetailsForm extends Component {
             match={match}
             pageKey={pageKey}
             pageList={pageList}
-            push={push}
+            push={history.push}
             handleSubmit={() => this.submitMTOShipment(values, dirty)}
           >
             <h1>Now lets arrange details for the professional movers</h1>

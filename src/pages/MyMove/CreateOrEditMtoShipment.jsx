@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { arrayOf, string, shape, bool, func } from 'prop-types';
+import { string, func } from 'prop-types';
 
 import '../../ghc_index.scss';
 
@@ -8,7 +8,7 @@ import EditShipment from 'components/Customer/EditShipment';
 import HHGDetailsForm from 'components/Customer/MtoShipments/HHGDetailsForm';
 import NTSDetailsForm from 'components/Customer/MtoShipments/NTSDetailsForm';
 import NTSrDetailsForm from 'components/Customer/MtoShipments/NTSrDetailsForm';
-import { HhgShipmentShape } from 'components/Customer/MtoShipments/propShapes';
+import { HhgShipmentShape, wizardPageShape } from 'components/Customer/MtoShipments/propShapes';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import {
   loadMTOShipments as loadMTOShipmentsAction,
@@ -23,7 +23,7 @@ class CreateOrEditMtoShipment extends Component {
 
   // TODO: (in trailing PR) refactor edit component out of existence :)
   render() {
-    const { match, pageList, pageKey, history, mtoShipment, loadMTOShipments, selectedMoveType } = this.props;
+    const { match, pageList, pageKey, history, mtoShipment, selectedMoveType } = this.props;
     const isHHGFormPage = match.path === '/moves/:moveId/hhg-start';
 
     return (
@@ -37,7 +37,6 @@ class CreateOrEditMtoShipment extends Component {
                 match={match}
                 push={history.push}
                 mtoShipment={mtoShipment}
-                loadMTOShipments={loadMTOShipments}
               />
             )}
             {!isHHGFormPage && <EditShipment mtoShipment={mtoShipment} match={match} history={history} />}
@@ -50,7 +49,6 @@ class CreateOrEditMtoShipment extends Component {
             pageList={pageList}
             push={history.push}
             mtoShipment={mtoShipment}
-            loadMTOShipments={loadMTOShipments}
           />
         )}
         {selectedMoveType === SHIPMENT_OPTIONS.NTSR && (
@@ -60,7 +58,6 @@ class CreateOrEditMtoShipment extends Component {
             pageList={pageList}
             push={history.push}
             mtoShipment={mtoShipment}
-            loadMTOShipments={loadMTOShipments}
           />
         )}
       </div>
@@ -80,20 +77,7 @@ const mapDispatchToProps = {
 };
 
 CreateOrEditMtoShipment.propTypes = {
-  pageList: arrayOf(string),
-  pageKey: string,
-  match: shape({
-    isExact: bool.isRequired,
-    params: shape({
-      moveId: string.isRequired,
-    }),
-    path: string.isRequired,
-    url: string.isRequired,
-  }).isRequired,
-  history: shape({
-    goBack: func.isRequired,
-    push: func.isRequired,
-  }).isRequired,
+  ...wizardPageShape,
   loadMTOShipments: func.isRequired,
   selectedMoveType: string.isRequired,
   // technically this should be a [Generic]MtoShipmentShape
@@ -113,8 +97,6 @@ CreateOrEditMtoShipment.defaultProps = {
       street_address_1: '',
     },
   },
-  pageList: [],
-  pageKey: '',
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(CreateOrEditMtoShipment);

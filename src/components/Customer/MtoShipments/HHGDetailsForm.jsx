@@ -131,7 +131,7 @@ class HHGDetailsForm extends Component {
 
   render() {
     // TODO: replace minimal styling with actual styling during UI phase
-    const { pageKey, pageList, match, push, newDutyStationAddress } = this.props;
+    const { pageKey, pageList, match, history, newDutyStationAddress } = this.props;
     const { hasDeliveryAddress, useCurrentResidence, initialValues } = this.state;
     const fieldsetClasses = 'margin-top-2';
     return (
@@ -148,7 +148,7 @@ class HHGDetailsForm extends Component {
             match={match}
             pageKey={pageKey}
             pageList={pageList}
-            push={push}
+            push={history.push}
             handleSubmit={() => this.submitMTOShipment(values, dirty)}
           >
             <h1>Now lets arrange details for the professional movers</h1>

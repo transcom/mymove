@@ -49,8 +49,8 @@ import CustomerAgreementLegalese from 'scenes/Moves/Ppm/CustomerAgreementLegales
 import { withContext } from 'shared/AppContext';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 import { CONUS_STATUS } from 'shared/constants';
-import HHGShipmentSetup from 'pages/MyMove/HHGShipmentSetup';
-import Home from '../../pages/MyMove/Home';
+import CreateOrEditMtoShipment from 'pages/MyMove/CreateOrEditMtoShipment';
+import Home from 'pages/MyMove/Home';
 
 import { loadUser as loadUserAction } from 'store/auth/actions';
 
@@ -123,7 +123,7 @@ export class AppWrapper extends Component {
                   <ValidatedPrivateRoute
                     exact
                     path="/moves/:moveId/mto-shipments/:mtoShipmentId/edit-shipment"
-                    component={HHGShipmentSetup}
+                    component={CreateOrEditMtoShipment}
                   />
                   <ValidatedPrivateRoute exact path="/moves/review/edit-backup-contact" component={EditBackupContact} />
                   <ValidatedPrivateRoute exact path="/moves/review/edit-contact-info" component={EditContactInfo} />
