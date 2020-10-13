@@ -36,25 +36,25 @@ func (suite *HandlerSuite) TestListMoveOrdersHandler() {
 		moveOrderID3,
 	}
 
-	var moveOrders models.Orders
+	var moveOrders []models.Order
 
 	for _, id := range IDs {
-		moveOrder := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				ID:        id,
-				CreatedAt: time.Now(),
-				UpdatedAt: time.Now(),
-			}},
-		)
+		moveOrder := models.Order{
+			ID:        id,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		}
 		moveOrders = append(moveOrders, moveOrder)
 	}
 
 	fmt.Printf("%+v", moveOrders)
 	suite.T().Run("When office user is TOO and fetch is successful", func(t *testing.T) {
 		moveOrderFetcher := &mocks.MoveOrderFetcher{}
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{
+			Stub: true,
+		})
 
-		moveOrderFetcher.On("ListMoveOrders", officeUser.ID).Return(&moveOrders, nil).Once()
+		moveOrderFetcher.On("ListMoveOrders", officeUser.ID).Return(moveOrders, nil).Once()
 
 		req := httptest.NewRequest("GET", fmt.Sprintf("/move_orders"), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -74,8 +74,32 @@ func (suite *HandlerSuite) TestListMoveOrdersHandler() {
 		okResponse := response.(*moveorderop.ListMoveOrdersOK)
 		suite.Equal(len(IDs), len(okResponse.Payload))
 		suite.Equal(moveOrderID1.String(), okResponse.Payload[0].ID.String())
+		suite.Equal(moveOrderID2.String(), okResponse.Payload[1].ID.String())
+		suite.Equal(moveOrderID3.String(), okResponse.Payload[2].ID.String())
 	})
 
+	suite.T().Run("When office user is not TOO, response should be 403", func(t *testing.T) {
+		moveOrderFetcher := &mocks.MoveOrderFetcher{}
+		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
+			Stub: true,
+		})
+		moveOrderFetcher.On("ListMoveOrders", officeUser.ID).Return(moveOrders, nil).Once()
+
+		req := httptest.NewRequest("GET", fmt.Sprintf("/move_orders"), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		params := moveorderop.ListMoveOrdersParams{
+			HTTPRequest: req,
+		}
+
+		handler := ListMoveOrdersHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			moveOrderFetcher,
+		}
+		response := handler.Handle(params)
+
+		suite.IsType(&moveorderop.ListMoveOrdersForbidden{}, response)
+	})
 }
 
 func (suite *HandlerSuite) TestGetMoveOrderHandlerIntegration() {

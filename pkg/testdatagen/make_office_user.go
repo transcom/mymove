@@ -108,3 +108,25 @@ func MakeTIOOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeU
 
 	return officeUser
 }
+
+// MakeTOOOfficeUser makes an OfficeUser with the TOO role
+func MakeTOOOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser {
+	tooRole := roles.Role{
+		ID:       uuid.Must(uuid.NewV4()),
+		RoleType: roles.RoleTypeTOO,
+		RoleName: "Transportation Ordering Officer",
+	}
+
+	tooUser := models.User{
+		Roles: []roles.Role{tooRole},
+	}
+
+	officeUser := MakeOfficeUser(db, Assertions{
+		OfficeUser: models.OfficeUser{
+			User: tooUser,
+		},
+		Stub: assertions.Stub,
+	})
+
+	return officeUser
+}
