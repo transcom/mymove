@@ -46,10 +46,10 @@ describe('HHGDetailsForm component', () => {
   it('renders expected form components', () => {
     const wrapper = mountHHGDetailsForm();
     expect(wrapper.find('HHGDetailsForm').length).toBe(1);
-    expect(wrapper.find('DatePickerInput').length).toBe(2);
-    expect(wrapper.find('AddressFields').length).toBe(1);
-    expect(wrapper.find('ContactInfoFields').length).toBe(2);
+    expect(wrapper.find('PickupFields').length).toBe(1);
+    expect(wrapper.find('DeliveryFields').length).toBe(1);
     expect(wrapper.find('input[name="customerRemarks"]').length).toBe(1);
+    expect(wrapper.find('AddressFields').length).toBe(1);
   });
 
   it('renders second address field when has delivery address', () => {

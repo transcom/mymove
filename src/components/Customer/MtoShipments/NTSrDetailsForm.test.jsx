@@ -4,7 +4,7 @@ import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 
-import NTSrDetailsForm, { NTSrDetailsFormComponent } from './NTSrDetailsForm';
+import NTSrDetailsForm from './NTSrDetailsForm';
 
 import { history, store } from 'shared/store';
 
