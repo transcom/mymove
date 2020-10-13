@@ -3,6 +3,8 @@ package ghcapi
 import (
 	"net/http/httptest"
 
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
+
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -24,6 +26,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 	hhgMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusSUBMITTED,
 		},
 	})
 
@@ -95,6 +98,42 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 	suite.Equal(order.NewDutyStation.ID.String(), result.DestinationDutyStation.ID.String())
 	suite.Equal(hhgMove.Locator, result.Locator)
 	suite.Equal(int64(1), result.ShipmentsCount)
+	suite.Equal(ghcmessages.QueueMoveStatus("New move"), result.Status)
+
+	// let's test for the Move approved status
+	hhgMove.Status = models.MoveStatusAPPROVED
+	_, _ = suite.DB().ValidateAndSave(&hhgMove)
+
+	response = handler.Handle(params)
+	suite.IsNotErrResponse(response)
+
+	suite.Assertions.IsType(&queues.GetMovesQueueOK{}, response)
+	payload = response.(*queues.GetMovesQueueOK).Payload
+
+	order = hhgMove.Orders
+	result = payload.Results[0]
+
+	suite.Equal(ghcmessages.QueueMoveStatus("Move approved"), result.Status)
+
+	// Now let's test Approvals requested
+	testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusSubmitted,
+		},
+		Move: hhgMove,
+	})
+
+	response = handler.Handle(params)
+	suite.IsNotErrResponse(response)
+
+	suite.Assertions.IsType(&queues.GetMovesQueueOK{}, response)
+	payload = response.(*queues.GetMovesQueueOK).Payload
+
+	order = hhgMove.Orders
+	result = payload.Results[1]
+
+	suite.Equal(ghcmessages.QueueMoveStatus("Approvals requested"), result.Status)
+
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedRole() {

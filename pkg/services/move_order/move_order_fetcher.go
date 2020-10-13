@@ -39,6 +39,7 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID) ([]models.Order
 		"OriginDutyStation",
 		"Entitlement",
 		"Moves.MTOShipments",
+		"Moves.MTOServiceItems",
 	).InnerJoin("moves", "orders.id = moves.orders_id").
 		InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
 		InnerJoin("duty_stations", "orders.origin_duty_station_id = duty_stations.id").
