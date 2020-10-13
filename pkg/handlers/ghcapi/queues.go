@@ -44,3 +44,37 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 
 	return queues.NewGetMovesQueueOK().WithPayload(result)
 }
+
+// GetPaymentRequestsQueueHandler returns the payment requests for the TIO queue user via GET /queues/payment-requests
+type GetPaymentRequestsQueueHandler struct {
+	handlers.HandlerContext
+	services.OfficeUserFetcher
+	services.PaymentRequestListFetcher
+}
+
+// Handle returns the paginated list of payment requests for the TIO user
+func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQueueParams) middleware.Responder {
+	request := params.HTTPRequest
+	session, logger := h.SessionAndLoggerFromRequest(request)
+	officeUserAuthorized := session.Roles.HasRole(roles.RoleTypeTIO)
+	if !officeUserAuthorized {
+		return queues.NewGetPaymentRequestsQueueForbidden()
+	}
+
+	officeUserID := session.OfficeUserID
+
+	paymentRequests, err := h.FetchPaymentRequestList(officeUserID)
+	if err != nil {
+		logger.Error("listing payment requests", zap.String("office_user_id", officeUserID.String()), zap.Error(err))
+		return queues.NewGetPaymentRequestsQueueInternalServerError()
+	}
+
+	queuePaymentRequests := payloads.QueuePaymentRequests(paymentRequests)
+
+	result := &ghcmessages.QueuePaymentRequestsResult{
+		TotalCount:           int64(len(*queuePaymentRequests)),
+		QueuePaymentRequests: *queuePaymentRequests,
+	}
+
+	return queues.NewGetPaymentRequestsQueueOK().WithPayload(result)
+}
