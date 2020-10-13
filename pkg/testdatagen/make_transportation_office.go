@@ -29,7 +29,9 @@ func MakeTransportationOffice(db *pop.Connection, assertions Assertions) models.
 
 	mergeModels(&office, assertions.TransportationOffice)
 
-	mustCreate(db, &office)
+	if assertions.Stub != true {
+		mustCreate(db, &office)
+	}
 
 	var phoneLines []models.OfficePhoneLine
 	phoneLine := models.OfficePhoneLine{
@@ -40,7 +42,9 @@ func MakeTransportationOffice(db *pop.Connection, assertions Assertions) models.
 		Type:                   "voice",
 	}
 	phoneLines = append(phoneLines, phoneLine)
-	mustCreate(db, &phoneLine)
+	if assertions.Stub != true {
+		mustCreate(db, &phoneLine)
+	}
 
 	office.PhoneLines = phoneLines
 

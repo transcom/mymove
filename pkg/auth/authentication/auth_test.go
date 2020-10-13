@@ -867,7 +867,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminNotFound() {
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
 	// user is in admin_users but has not logged into the app before
-	adminUser := testdatagen.MakeAdminUser(suite.DB(), testdatagen.Assertions{
+	adminUser := testdatagen.MakeAdminUserWithNoUser(suite.DB(), testdatagen.Assertions{
 		AdminUser: models.AdminUser{
 			Active: true,
 		},

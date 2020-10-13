@@ -469,6 +469,7 @@ func QueueMoves(moveOrders []models.Order) *ghcmessages.QueueMoves {
 		}
 
 		queueMoveOrders[i] = &ghcmessages.QueueMove{
+			ID:       *handlers.FmtUUID(order.ID),
 			Customer: Customer(&customer),
 			// TODO Add status calculation logic here or at service/query level
 			Status:                 ghcmessages.QueueMoveStatus("NEW"),

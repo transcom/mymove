@@ -22,8 +22,8 @@ type QueueMovesResult struct {
 	// per page
 	PerPage int64 `json:"perPage,omitempty"`
 
-	// results
-	Results QueueMoves `json:"results,omitempty"`
+	// queue moves
+	QueueMoves QueueMoves `json:"queueMoves,omitempty"`
 
 	// total count
 	TotalCount int64 `json:"totalCount,omitempty"`
@@ -33,7 +33,7 @@ type QueueMovesResult struct {
 func (m *QueueMovesResult) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateResults(formats); err != nil {
+	if err := m.validateQueueMoves(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -43,15 +43,15 @@ func (m *QueueMovesResult) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *QueueMovesResult) validateResults(formats strfmt.Registry) error {
+func (m *QueueMovesResult) validateQueueMoves(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.Results) { // not required
+	if swag.IsZero(m.QueueMoves) { // not required
 		return nil
 	}
 
-	if err := m.Results.Validate(formats); err != nil {
+	if err := m.QueueMoves.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("results")
+			return ve.ValidateName("queueMoves")
 		}
 		return err
 	}

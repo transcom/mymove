@@ -925,6 +925,10 @@ paths:
           description: The request was denied
           schema:
             $ref: '#/definitions/Error'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
         '500':
           description: A server error occurred
           schema:
@@ -2369,6 +2373,9 @@ definitions:
   QueueMove:
     type: object
     properties:
+      id:
+        type: string
+        format: uuid
       customer:
         $ref: '#/definitions/Customer'
       status:
@@ -2392,7 +2399,7 @@ definitions:
         type: integer
       totalCount:
         type: integer
-      results:
+      queueMoves:
         $ref: '#/definitions/QueueMoves'
   QueueMoveStatus:
     type: string

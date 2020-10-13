@@ -25,4 +25,16 @@ describe('React table', () => {
     // data-testid has a format of ${columnKey}-${rowIndex}
     expect(wrapper.find('td[data-testid="col1-0"]').text()).toBe('Column 1 value');
   });
+
+  it('attaches the click listener', () => {
+    const data = [{ col1: 'Column 1 value' }];
+    const cols = [createHeader('Column 1 header', 'col1')];
+    const handleClick = jest.fn();
+
+    const wrapper = mount(<Table data={data} columns={cols} handleClick={handleClick} />);
+
+    wrapper.find('tbody tr').simulate('click');
+
+    expect(handleClick).toHaveBeenCalledWith({ col1: 'Column 1 value' });
+  });
 });
