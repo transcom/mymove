@@ -13,11 +13,21 @@ const Modal = ({ className, ...props }) => {
 
   useEffect(() => {
     const appContainer = document.getElementById(APP_ROOT_ID);
-    if (appContainer) appContainer.classList.add(styles.AppLocked);
+    if (appContainer) {
+      const scrollYPos = document.documentElement.scrollTop;
+      appContainer.classList.add(styles.AppLocked);
+      appContainer.style.transform = `translateY(-${scrollYPos}px)`;
 
-    return () => {
-      if (appContainer) appContainer.classList.remove(styles.AppLocked);
-    };
+      return () => {
+        if (appContainer) {
+          appContainer.classList.remove(styles.AppLocked);
+          appContainer.style.transform = '';
+          document.documentElement.scrollTo(0, scrollYPos);
+        }
+      };
+    }
+
+    return () => {};
   });
 
   return <USWDSModal className={classes} {...props} />;
