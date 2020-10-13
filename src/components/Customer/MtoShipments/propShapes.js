@@ -17,7 +17,7 @@ const mtoBaseShipmentShape = shape({
 });
 
 export const HhgShipmentShape = shape({
-  mtoBaseShipmentShape,
+  ...mtoBaseShipmentShape,
   requestedPickupDate: string,
   pickupAddress: AddressShape,
   requestedDeliveryDate: string,
@@ -25,13 +25,13 @@ export const HhgShipmentShape = shape({
 });
 
 export const NtsShipmentShape = shape({
-  mtoBaseShipmentShape,
+  ...mtoBaseShipmentShape,
   requestedPickupDate: string,
   pickupAddress: AddressShape,
 });
 
 export const NtsrShipmentShape = shape({
-  mtoBaseShipmentShape,
+  ...mtoBaseShipmentShape,
   requestedDeliveryDate: string,
   destinationAddress: AddressShape,
 });
