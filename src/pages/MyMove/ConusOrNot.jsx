@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Radio } from '@trussworks/react-uswds';
 import { func, PropTypes } from 'prop-types';
 
+import SelectableCard from 'components/Customer/SelectableCard';
 import { setConusStatus, selectedConusStatus } from 'scenes/Moves/ducks';
 import { CONUS_STATUS } from 'shared/constants';
 
@@ -10,6 +11,9 @@ import { CONUS_STATUS } from 'shared/constants';
 export class ConusOrNot extends Component {
   render() {
     const { setLocation, conusStatus } = this.props;
+    const selectableCardDefaultProps = {
+      name: 'OCONUS',
+    };
 
     return (
       <div className="grid-row">
@@ -37,6 +41,18 @@ export class ConusOrNot extends Component {
           <span className="usa-hint" id="conusStatus">
             Starts or ends in Alaska, Hawaii, or International locations
           </span>
+          <div>
+            <SelectableCard
+              {...selectableCardDefaultProps} // eslint-disable-line
+              label="CONUS"
+            />
+          </div>
+          <div>
+            <SelectableCard
+              {...selectableCardDefaultProps} // eslint-disable-line
+              label="OCONUS"
+            />
+          </div>
           {conusStatus === CONUS_STATUS.OCONUS && (
             <div>
               MilMove does not support OCONUS moves yet. Contact your current transportation office to set up your move.
