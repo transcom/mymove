@@ -113,6 +113,7 @@ export class Summary extends Component {
           requestedPickupDate={shipment.requestedPickupDate}
           shipmentId={shipment.id}
           shipmentNumber={hhgShipmentNumber}
+          shipmentType={shipment.shipmentType}
         />
       );
     });

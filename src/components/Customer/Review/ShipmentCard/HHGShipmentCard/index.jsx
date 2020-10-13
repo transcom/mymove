@@ -25,11 +25,12 @@ const HHGShipmentCard = ({
   requestedPickupDate,
   shipmentId,
   shipmentNumber,
+  shipmentType,
 }) => {
   const editPath = `/moves/${moveId}/mto-shipments/${shipmentId}/edit-shipment?shipmentNumber=${shipmentNumber}`;
   return (
     <div className={styles.ShipmentCard} data-testid="hhg-summary">
-      <ShipmentContainer className={styles.container} shipmentType={SHIPMENT_OPTIONS.HHG}>
+      <ShipmentContainer className={styles.container} shipmentType={shipmentType}>
         <div className={styles.ShipmentCardHeader}>
           <div>
             <h3>HHG {shipmentNumber}</h3>
@@ -80,10 +81,12 @@ const HHGShipmentCard = ({
             <dt>Requested delivery date</dt>
             <dd>{formatCustomerDate(requestedDeliveryDate)}</dd>
           </div>
-          <div className={styles.row}>
-            <dt>Destination</dt>
-            <dd>{formatCustomerDestination(destinationLocation, destinationZIP)}</dd>
-          </div>
+          {shipmentType !== SHIPMENT_OPTIONS.NTS && (
+            <div className={styles.row}>
+              <dt>Destination</dt>
+              <dd>{formatCustomerDestination(destinationLocation, destinationZIP)}</dd>
+            </div>
+          )}
           {receivingAgent && (
             <div className={styles.row}>
               <dt>Receiving agent</dt>
@@ -117,6 +120,7 @@ const HHGShipmentCard = ({
 HHGShipmentCard.propTypes = {
   moveId: string.isRequired,
   shipmentNumber: number.isRequired,
+  shipmentType: string.isRequired,
   shipmentId: string.isRequired,
   requestedPickupDate: string.isRequired,
   pickupLocation: AddressShape.isRequired,

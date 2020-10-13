@@ -4,6 +4,7 @@ import { selectMoveTaskOrders } from 'shared/Entities/modules/moveTaskOrders';
 import { filter } from 'lodash';
 import { denormalize } from 'normalizr';
 import { mtoShipments } from '../schema';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const mtoShipmentsSchemaKey = 'mtoShipments';
 const getMTOShipmentsOperation = 'mtoShipment.listMTOShipments';
@@ -71,7 +72,15 @@ export function selectMTOShipments(state, moveOrderId) {
 }
 
 export function selectMTOShipmentsByMoveId(state, moveId) {
-  return filter(state.entities.mtoShipments, (mtoShipment) => mtoShipment.moveTaskOrderID === moveId);
+  const mtoShipments = filter(state.entities.mtoShipments, (mtoShipment) => mtoShipment.moveTaskOrderID === moveId);
+  // Workaround for inconsistency in shipment type between DB and display type
+  // eslint-disable-next-line no-restricted-syntax
+  for (const shipment of mtoShipments) {
+    if (shipment.shipmentType === SHIPMENT_OPTIONS.HHG_INTO_NTS_DOMESTIC) {
+      shipment.shipmentType = SHIPMENT_OPTIONS.NTS;
+    }
+  }
+  return mtoShipments;
 }
 
 export function selectMTOShipmentForMTO(state, moveTaskOrderId) {
