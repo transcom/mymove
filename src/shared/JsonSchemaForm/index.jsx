@@ -169,7 +169,7 @@ export const JsonSchemaFormBody = (props) => {
 
   return (
     <Fragment>
-      <h1 className="sm-heading">{title}</h1>
+      <h1>{title}</h1>
       {description && <p>{description}</p>}
       {renderSchema(schema, uiSchema)}
       {todos && (

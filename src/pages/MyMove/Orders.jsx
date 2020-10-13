@@ -75,7 +75,7 @@ export class Orders extends Component {
         readyToSubmit={!newDutyStationErrorMsg}
         serverError={error}
       >
-        <h1 className="sm-heading">Tell us about your move orders</h1>
+        <h1>Tell us about your move orders</h1>
         <SwaggerField
           fieldName="orders_type"
           swagger={showAllOrdersTypes ? this.props.schema : modifiedSchemaForOrdersTypesFlag}

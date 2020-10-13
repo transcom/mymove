@@ -42,7 +42,7 @@ export class DPSAuthCookie extends Component {
   render() {
     return (
       <div className="usa-grid">
-        <h1 className="sm-heading">Set DPS Auth Cookie</h1>
+        <h1>Set DPS Auth Cookie</h1>
         <form onSubmit={this.props.handleSubmit(this.sendRequest)}>
           <SwaggerField fieldName="cookie_name" swagger={this.props.schema} />
           <SwaggerField fieldName="dps_redirect_url" swagger={this.props.schema} />
