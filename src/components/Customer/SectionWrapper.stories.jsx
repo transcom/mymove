@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 
-import { SectionWrapperComponent as SectionWrapper } from './SectionWrapper';
+import { SectionWrapper } from 'components/Customer/SectionWrapper';
 
 export default {
   title: 'Customer Components | Section Wrapper',

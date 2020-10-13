@@ -11,9 +11,9 @@ import { DatePickerInput } from '../form/fields';
 import { AddressFields } from '../form/AddressFields/AddressFields';
 import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
 
-import { SectionWrapper } from './Containers/SectionWrapper';
 import styles from './EditShipment.module.scss';
 
+import { SectionWrapper } from 'components/Customer/SectionWrapper';
 import {
   selectMTOShipmentById,
   updateMTOShipment as updateMTOShipmentAction,

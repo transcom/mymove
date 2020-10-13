@@ -16,5 +16,4 @@ SectionWrapper.defaultProps = {
   children: ' ',
 };
 
-export { SectionWrapper as SectionWrapperComponent };
-export default SectionWrapper;
+export { SectionWrapper };
