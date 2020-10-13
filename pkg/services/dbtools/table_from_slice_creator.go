@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/flect/name"
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"

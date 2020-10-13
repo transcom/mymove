@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/alexedwards/scs/v2"
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"

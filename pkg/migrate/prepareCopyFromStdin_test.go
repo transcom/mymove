@@ -1,7 +1,7 @@
 package migrate
 
 import (
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 )
 
 func (suite *MigrateSuite) TestPrepareCopyFromStdinWithSchema() {

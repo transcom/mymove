@@ -10,11 +10,7 @@ import (
 	// Install for hot reloading server
 	_ "github.com/codegangsta/gin"
 	// Install for managing the database
-	_ "github.com/gobuffalo/pop/soda"
-
-	// Packr isn't actually a tool dependency, but it's an indirect dependency that `go vet` and `go mod tidy` disagreed about.
-	// Adding it here is a way to ensure that it isn't tidied up from go.mod
-	_ "github.com/gobuffalo/packr"
+	_ "github.com/gobuffalo/pop/v5/soda"
 
 	// Install for autogenerating mocks
 	_ "github.com/vektra/mockery/cmd/mockery"

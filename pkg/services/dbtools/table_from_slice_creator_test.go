@@ -3,7 +3,7 @@ package dbtools
 import (
 	"testing"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 )
 
 type TestStruct struct {

@@ -15,7 +15,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 
 	nflect "github.com/gobuffalo/flect/name"
 	"github.com/spf13/pflag"

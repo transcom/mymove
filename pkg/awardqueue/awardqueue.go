@@ -11,7 +11,7 @@ import (
 	"context"
 	"math"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"

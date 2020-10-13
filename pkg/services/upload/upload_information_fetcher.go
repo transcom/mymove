@@ -3,7 +3,7 @@ package upload
 import (
 	"database/sql"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/services"

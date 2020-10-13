@@ -14,7 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/unit"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"go.uber.org/zap"
 )
 

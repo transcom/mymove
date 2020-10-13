@@ -13,7 +13,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/services"
 
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
 

@@ -6,7 +6,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"

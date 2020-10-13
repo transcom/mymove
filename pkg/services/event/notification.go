@@ -7,7 +7,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"

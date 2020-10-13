@@ -2,7 +2,7 @@ package services
 
 import (
 	"github.com/alexedwards/scs/v2"
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/adminmessages"

@@ -12,7 +12,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/services"
 
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 

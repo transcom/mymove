@@ -6,7 +6,7 @@ import (
 	mock "github.com/stretchr/testify/mock"
 	models "github.com/transcom/mymove/pkg/models"
 
-	pop "github.com/gobuffalo/pop"
+	pop "github.com/gobuffalo/pop/v5"
 
 	services "github.com/transcom/mymove/pkg/services"
 

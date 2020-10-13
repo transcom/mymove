@@ -8,7 +8,7 @@ import (
 	"net/url"
 	text "text/template"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
