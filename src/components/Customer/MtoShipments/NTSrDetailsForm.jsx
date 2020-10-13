@@ -9,7 +9,6 @@ import { Fieldset } from '@trussworks/react-uswds';
 import styles from './MtoShipmentFormStyles.module.scss';
 import { RequiredPlaceSchema } from './validationSchemas';
 import { NtsrShipmentShape, WizardPageShape } from './propShapes';
-import { formatMtoShipment } from './utils';
 import { DeliveryFields } from './FormGroups/DeliveryFields';
 
 import { TextInput } from 'components/form/fields';
@@ -24,6 +23,7 @@ import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modu
 import { WizardPage } from 'shared/WizardPage';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { SimpleAddressShape } from 'types/address';
+import { formatMtoShipment } from 'utils/formatMtoShipment';
 
 const NTSrDetailsFormSchema = Yup.object().shape({
   delivery: RequiredPlaceSchema,

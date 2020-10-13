@@ -25,6 +25,10 @@ function formatAddress(address) {
   return formattedAddress;
 }
 
+/**
+ * formatMtoShipment converts mtoShipment data from the template format to the format API calls expect
+ * @param {*} param -  unnamed object representing various mtoShipment data parts
+ */
 export function formatMtoShipment({ moveId, shipmentType, pickup, delivery, customerRemarks }) {
   const formattedMtoShipment = {
     moveTaskOrderID: moveId,
