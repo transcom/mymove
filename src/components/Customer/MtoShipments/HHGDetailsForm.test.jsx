@@ -43,7 +43,7 @@ function mountHHGDetailsForm(props = defaultProps) {
   );
 }
 describe('HHGDetailsForm component', () => {
-  it('renders expected form components', () => {
+  it('renders expected child components', () => {
     const wrapper = mountHHGDetailsForm();
     expect(wrapper.find('HHGDetailsForm').length).toBe(1);
     expect(wrapper.find('PickupFields').length).toBe(1);

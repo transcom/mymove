@@ -38,10 +38,15 @@ function mountNTSDetailsForm(props = defaultProps) {
   );
 }
 describe('NTSDetailsForm component', () => {
-  it('renders expected components', () => {
+  it('renders expected child components', () => {
     const wrapper = mountNTSDetailsForm();
+
+    // should contain
     expect(wrapper.find('NTSDetailsForm').length).toBe(1);
     expect(wrapper.find('PickupFields').length).toBe(1);
     expect(wrapper.find('input[name="customerRemarks"]').length).toBe(1);
+
+    // should not contain
+    expect(wrapper.find('DeliveryFields').length).toBe(0);
   });
 });

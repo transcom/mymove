@@ -49,10 +49,15 @@ function mountNTSrDetailsForm(props = defaultProps) {
   );
 }
 describe('NTSrDetailsForm component', () => {
-  it('renders expected form components', () => {
+  it('renders expected child components', () => {
     const wrapper = mountNTSrDetailsForm();
+
+    // should contain
     expect(wrapper.find('NTSrDetailsForm').length).toBe(1);
     expect(wrapper.find('DeliveryFields').length).toBe(1);
     expect(wrapper.find('input[name="customerRemarks"]').length).toBe(1);
+
+    // should not contain
+    expect(wrapper.find('PickupFields').length).toBe(0);
   });
 });
