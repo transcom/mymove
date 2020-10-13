@@ -5,10 +5,19 @@
   @include u-bg('white');
   @include u-padding-y(3);
   @include u-padding-x(4);
+  @include u-margin-y(2);
+  @include u-margin-x(1);
   @include u-radius('05');
   @include u-border('base-light');
   @include u-border('1px');
   @include u-shadow(2);
+  min-width: 0;
+
+  @include at-media('tablet') {
+    @include u-margin-y(6);
+    @include u-margin-x('auto');
+    min-width: 400px;
+  }
 
   // needed until ReactUSWDS modal allows for more styling
   > div {
@@ -84,5 +93,21 @@
         @include u-margin-left(2);
       }
     }
+  }
+}
+
+.AppLocked {
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+:global(#modal-root) {
+  div:last-child {
+    // ReactUSDWS ModalContainer overrides
+    position: relative;
+    height: auto;
   }
 }
