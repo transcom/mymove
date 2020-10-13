@@ -27,6 +27,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		})
 	}
 
+	// Make destination address if it was not provided
 	destinationAddress := assertions.DestinationAddress
 	if isZeroUUID(destinationAddress.ID) {
 		destinationAddress = MakeAddress2(db, Assertions{
@@ -34,6 +35,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		})
 	}
 
+	// Make secondary pickup address if it was not provided
 	secondaryPickupAddress := assertions.SecondaryPickupAddress
 	if isZeroUUID(secondaryPickupAddress.ID) {
 		secondaryPickupAddress = MakeAddress(db, Assertions{
@@ -41,6 +43,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		})
 	}
 
+	// Make secondary delivery address if it was not provided
 	secondaryDeliveryAddress := assertions.SecondaryDeliveryAddress
 	if isZeroUUID(secondaryDeliveryAddress.ID) {
 		secondaryDeliveryAddress = MakeAddress(db, Assertions{
