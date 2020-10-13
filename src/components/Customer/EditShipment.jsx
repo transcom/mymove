@@ -13,7 +13,7 @@ import { ContactInfoFields } from '../form/ContactInfoFields/ContactInfoFields';
 
 import styles from './EditShipment.module.scss';
 
-import { SectionWrapper } from 'components/Customer/SectionWrapper';
+import SectionWrapper from 'components/Customer/SectionWrapper';
 import {
   selectMTOShipmentById,
   updateMTOShipment as updateMTOShipmentAction,
