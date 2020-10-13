@@ -215,18 +215,40 @@ const pages = {
       );
     },
     render: (key, pages, description, props) => ({ match, history }) => (
-      <CreateOrEditMtoShipment pageList={pages} pageKey={key} match={match} history={history} />
+      <CreateOrEditMtoShipment
+        pageList={pages}
+        pageKey={key}
+        match={match}
+        history={history}
+        selectedMoveType={props.selectedMoveType}
+      />
     ),
   },
   '/moves/:moveId/nts-start': {
     isInFlow: (state) => inHhgFlow && state.selectedMoveType === SHIPMENT_OPTIONS.NTS,
     isComplete: ({ sm, orders, move, ppm }) => false,
-    render: (key, pages, description, props) => ({ match, history }) => <CreateOrEditMtoShipment />,
+    render: (key, pages, description, props) => ({ match, history }) => (
+      <CreateOrEditMtoShipment
+        pageList={pages}
+        pageKey={key}
+        match={match}
+        history={history}
+        selectedMoveType={props.selectedMoveType}
+      />
+    ),
   },
   '/moves/:moveId/ntsr-start': {
     isInFlow: (state) => inHhgFlow && state.selectedMoveType === SHIPMENT_OPTIONS.NTSR,
     isComplete: ({ sm, orders, move, ppm }) => false,
-    render: (key, pages, description, props) => ({ match, history }) => <CreateOrEditMtoShipment />,
+    render: (key, pages, description, props) => ({ match, history }) => (
+      <CreateOrEditMtoShipment
+        pageList={pages}
+        pageKey={key}
+        match={match}
+        history={history}
+        selectedMoveType={props.selectedMoveType}
+      />
+    ),
   },
   '/moves/:moveId/review': {
     isInFlow: always,
