@@ -373,7 +373,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	originAndDestinationSegments = append(originAndDestinationSegments, &destinationPostalDetails)
 
 	// Destination PER
-	destinationStationPhoneLines := destinationDutyStation.TransportationOffice.PhoneLines
+	destinationStationPhoneLines := destTransportationOffice.PhoneLines
 	var destPhoneLines []string
 	for _, phoneLine := range destinationStationPhoneLines {
 		if phoneLine.Type == "voice" {
@@ -441,7 +441,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	originAndDestinationSegments = append(originAndDestinationSegments, &originPostalDetails)
 
 	// Origin Station Phone
-	originStationPhoneLines := originDutyStation.TransportationOffice.PhoneLines
+	originStationPhoneLines := originTransportationOffice.PhoneLines
 	var originPhoneLines []string
 	for _, phoneLine := range originStationPhoneLines {
 		if phoneLine.Type == "voice" {
