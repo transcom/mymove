@@ -20,8 +20,8 @@ export default {
 
 export const withContent = () => (
   <Modal>
+    <ModalClose handleClick={action('Close modal')} />
     <ModalTitle>
-      <ModalClose handleClick={action('Close modal')} />
       <h4>Are you sure you want to reject this request?</h4>
     </ModalTitle>
     <Formik
@@ -47,10 +47,39 @@ export const withContent = () => (
 
 export const empty = () => (
   <Modal>
+    <ModalClose handleClick={action('Close modal')} />
     <ModalTitle>
-      <ModalClose handleClick={action('Close modal')} />
       <h4>Modal title</h4>
     </ModalTitle>
+    <ModalActions>
+      <Button type="button">Submit</Button>
+      <Button secondary type="button">
+        Back
+      </Button>
+    </ModalActions>
+  </Modal>
+);
+
+export const contentNoTitle = () => (
+  <Modal>
+    <ModalClose handleClick={action('Close modal')} />
+    <h4>
+      <strong>Long-term storage (NTS)</strong>
+    </h4>
+    <p>
+      Put some or all of your things into storage as part of one move, and get it out of storage on a future move. Your
+      move counselor can verify whether or not you qualify to put things into long-term storage on this move.
+    </p>
+    <ul>
+      <li>The weight of this shipment counts against your weight allowance</li>
+      <li>Useful when you can’t take all your things to your new location</li>
+      <li>Common in OCONUS moves, but may not be available in CONUS</li>
+      <li>Stored in a government-approved facility, typically near your starting location</li>
+    </ul>
+    <p>
+      NTS (short for “non-temp storage”) lasts 6 months or longer. Do not count on easy access to things in storage. You
+      can retrieve them during a future move.
+    </p>
     <ModalActions>
       <Button type="button">Submit</Button>
       <Button secondary type="button">

@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { string, bool, func, arrayOf, shape, number } from 'prop-types';
 import { get } from 'lodash';
-import { Button } from '@trussworks/react-uswds';
 
 import styles from './SelectMoveType.module.scss';
 
@@ -143,7 +142,6 @@ export class SelectMoveType extends Component {
         <div className="grid-row">
           <div className="tablet:grid-col-2 desktop:grid-col-2" />
           <div className="tablet:grid-col-8 desktop:grid-col-8">
-            <Button onClick={this.toggleStorageModal}>Modal</Button>
             <WizardPage
               pageKey={pageKey}
               match={match}
@@ -173,6 +171,7 @@ export class SelectMoveType extends Component {
                 cardText={hasNTS ? ntsCardText : hasNTSCardText}
                 checked={moveType === SHIPMENT_OPTIONS.NTS && isHhgSelectable}
                 disabled={hasNTS}
+                onHelpClick={this.toggleStorageModal}
               />
               <SelectableCard
                 {...selectableCardDefaultProps}
@@ -182,6 +181,7 @@ export class SelectMoveType extends Component {
                 cardText={hasNTSR ? ntsrCardText : hasNTSRCardText}
                 checked={moveType === SHIPMENT_OPTIONS.NTS && isHhgSelectable}
                 disabled={hasNTSR}
+                onHelpClick={this.toggleStorageModal}
               />
             </WizardPage>
           </div>

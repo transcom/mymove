@@ -6,8 +6,8 @@ import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'compo
 
 export const StorageInfoModal = ({ closeModal }) => (
   <Modal>
+    <ModalClose handleClick={closeModal} />
     <ModalTitle>
-      <ModalClose handleClick={closeModal} />
       <h3>Long-term storage info</h3>
     </ModalTitle>
     <h4>

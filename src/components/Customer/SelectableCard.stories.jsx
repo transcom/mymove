@@ -30,7 +30,7 @@ export default {
   component: SelectableCard,
   decorators: [
     (Story) => (
-      <div style={{ margin: '3em' }}>
+      <div style={{ marginTop: '3em' }}>
         <Story />
       </div>
     ),
