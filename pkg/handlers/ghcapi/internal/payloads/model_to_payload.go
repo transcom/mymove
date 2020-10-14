@@ -468,10 +468,10 @@ func QueueMoves(moveOrders []models.Order) *ghcmessages.QueueMoves {
 			}
 		}
 
-		var queuedMTOShipments []models.MTOShipment
+		var validMTOShipments []models.MTOShipment
 		for _, shipment := range hhgMove.MTOShipments {
 			if shipment.Status == models.MTOShipmentStatusSubmitted || shipment.Status == models.MTOShipmentStatusApproved {
-				queuedMTOShipments = append(queuedMTOShipments, shipment)
+				validMTOShipments = append(validMTOShipments, shipment)
 			}
 		}
 
@@ -487,7 +487,7 @@ func QueueMoves(moveOrders []models.Order) *ghcmessages.QueueMoves {
 			Status:                 ghcmessages.QueueMoveStatus("NEW"),
 			Locator:                hhgMove.Locator,
 			DepartmentIndicator:    ghcmessages.DeptIndicator(deptIndicator),
-			ShipmentsCount:         int64(len(queuedMTOShipments)),
+			ShipmentsCount:         int64(len(validMTOShipments)),
 			DestinationDutyStation: DutyStation(&order.NewDutyStation),
 			OriginGBLOC:            ghcmessages.GBLOC(order.OriginDutyStation.TransportationOffice.Gbloc),
 		}
