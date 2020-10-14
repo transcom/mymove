@@ -15,7 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/logging"
 )
 
-// Call this from command line with go run ./cmd/send-to-syncada/ --file-path
+// Call this from command line with go run ./cmd/send-to-syncada/ --file-path <filePath>
 
 func checkConfig(v *viper.Viper, logger logger) error {
 
