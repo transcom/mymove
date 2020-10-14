@@ -45,6 +45,7 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID) ([]models.Order
 		InnerJoin("duty_stations", "orders.origin_duty_station_id = duty_stations.id").
 		InnerJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id").
 		Where("transportation_offices.gbloc = ?", gbloc).
+		// TODO: Let's include the status in filters that are passed in here once we build that feature for the TXO queue (instead of it being hardcoded like it is below right now).
 		Where("moves.status IN ('SUBMITTED', 'APPROVED')").
 		GroupBy("orders.id").
 		All(&moveOrders)
