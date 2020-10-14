@@ -382,5 +382,5 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerEmptyResults() {
 	payload := response.(*queues.GetPaymentRequestsQueueOK).Payload
 
 	suite.Len(payload.QueuePaymentRequests, 0)
-	suite.Equal(0, payload.TotalCount)
+	suite.Equal(int64(0), payload.TotalCount)
 }
