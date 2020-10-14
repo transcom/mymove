@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -18,7 +19,7 @@ import {
   loadMTOShipments as loadMTOShipmentsAction,
 } from 'shared/Entities/modules/mtoShipments';
 import { MoveTaskOrderShape, MTOShipmentShape } from 'types/moveOrder';
-import StorageInfoModal from 'components/Customer/modals/StorageInfoModal/StorageInfoModal';
+import ConnectedStorageInfoModal from 'components/Customer/modals/StorageInfoModal/StorageInfoModal';
 
 export class SelectMoveType extends Component {
   constructor(props) {
@@ -89,7 +90,7 @@ export class SelectMoveType extends Component {
     const hasNTSR = false;
     const selectPpmHasNoPpm = (
       <SelectableCard
-        {...selectableCardDefaultProps} // eslint-disable-line
+        {...selectableCardDefaultProps}
         label="Do it yourself"
         value={SHIPMENT_OPTIONS.PPM}
         id={SHIPMENT_OPTIONS.PPM}
@@ -100,7 +101,7 @@ export class SelectMoveType extends Component {
     );
     const selectPpmHasPpm = (
       <SelectableCard
-        {...selectableCardDefaultProps} // eslint-disable-line
+        {...selectableCardDefaultProps}
         label="Do it yourself (already chosen)"
         value={SHIPMENT_OPTIONS.PPM}
         id={SHIPMENT_OPTIONS.PPM}
@@ -111,7 +112,7 @@ export class SelectMoveType extends Component {
     );
     const selectHhgDefault = (
       <SelectableCard
-        {...selectableCardDefaultProps} // eslint-disable-line
+        {...selectableCardDefaultProps}
         label="Professional movers"
         value={SHIPMENT_OPTIONS.HHG}
         id={SHIPMENT_OPTIONS.HHG}
@@ -122,7 +123,7 @@ export class SelectMoveType extends Component {
     );
     const selectHhgSubmittedMove = (
       <SelectableCard
-        {...selectableCardDefaultProps} // eslint-disable-line
+        {...selectableCardDefaultProps}
         label="Professional movers"
         value={SHIPMENT_OPTIONS.HHG}
         id={SHIPMENT_OPTIONS.HHG}
@@ -165,7 +166,7 @@ export class SelectMoveType extends Component {
               <h3>Long-term storage</h3>
               <p>These shipments do count against your weight allowance for this move.</p>
               <SelectableCard
-                {...selectableCardDefaultProps} // eslint-disable-line
+                {...selectableCardDefaultProps}
                 label="Put things into long-term storage"
                 value={SHIPMENT_OPTIONS.NTS}
                 id={SHIPMENT_OPTIONS.NTS}
@@ -174,7 +175,7 @@ export class SelectMoveType extends Component {
                 disabled={hasNTS}
               />
               <SelectableCard
-                {...selectableCardDefaultProps} // eslint-disable-line
+                {...selectableCardDefaultProps}
                 label="Get things out of long-term storage"
                 value={SHIPMENT_OPTIONS.NTS}
                 id={SHIPMENT_OPTIONS.NTS}
@@ -187,7 +188,7 @@ export class SelectMoveType extends Component {
           <div className="tablet:grid-col-2" />
         </div>
 
-        <StorageInfoModal isOpen={showStorageInfoModal} closeModal={this.toggleStorageModal} />
+        <ConnectedStorageInfoModal isOpen={showStorageInfoModal} closeModal={this.toggleStorageModal} />
       </div>
     );
   }

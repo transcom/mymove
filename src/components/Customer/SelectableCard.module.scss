@@ -11,9 +11,16 @@
   border-radius: 2px;
   background-color: $bg-white;
   border: 2px solid $base-lighter;
+  display: flex;
+  align-items: flex-start;
+
   :global(.usa-radio__label) {
     font-weight: bold;
   }
+}
+
+.cardContent {
+  flex-grow: 1;
 }
 
 .selected {
@@ -36,5 +43,26 @@ p + .cardContainer {
   line-height: 1.25;
   @media (min-width: $tablet) {
     padding-left: 2rem;
+  }
+}
+
+.helpButton {
+  margin: -14px;
+  padding: 14px; // Required to get to 44px for touch area
+  min-width: 0;
+  width: auto;
+
+  // TODO - needed until we remove some duplicate USWDS CSS in this project
+  &:global(.usa-button) {
+    margin: -14px;
+    padding: 14px; // Required to get to 44px for touch area
+    min-width: 0;
+  }
+
+  svg {
+    // TODO - temp until we can make icon code more consistent
+    width: 16px !important;
+    height: 16px;
+    fill: $primary;
   }
 }
