@@ -1,7 +1,9 @@
 package ghcapi
 
 import (
+	"fmt"
 	"net/http/httptest"
+	"testing"
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -95,6 +97,19 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 	suite.Equal(order.NewDutyStation.ID.String(), result.DestinationDutyStation.ID.String())
 	suite.Equal(hhgMove.Locator, result.Locator)
 	suite.Equal(int64(1), result.ShipmentsCount)
+
+	suite.T().Run("only counts MTOShipments with Submitted or Approved Status", func(t *testing.T) {
+		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: hhgMove,
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusRejected,
+			},
+		})
+		result := payload.QueueMoves[0]
+
+		fmt.Printf("payload: %v", payload.QueueMoves)
+		suite.Equal(result.ShipmentsCount, int64(1))
+	})
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedRole() {
