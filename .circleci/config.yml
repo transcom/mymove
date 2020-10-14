@@ -341,7 +341,6 @@ commands:
           environment:
             APPLICATION: '<< parameters.application >>'
             GOFLAGS: '-p=4'
-            GODEBUG: 'x509ignoreCN=0'
       - run:
           name: make db_test_reset for <<parameters.application>>
           command: make db_test_reset
