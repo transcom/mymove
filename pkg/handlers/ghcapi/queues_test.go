@@ -89,9 +89,9 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 	payload := response.(*queues.GetMovesQueueOK).Payload
 
 	order := hhgMove.Orders
-	result := payload.Results[0]
+	result := payload.QueueMoves[0]
 
-	suite.Len(payload.Results, 1)
+	suite.Len(payload.QueueMoves, 1)
 	suite.Equal(order.ServiceMember.ID.String(), result.Customer.ID.String())
 	suite.Equal(*order.DepartmentIndicator, string(result.DepartmentIndicator))
 	suite.Equal(order.OriginDutyStation.TransportationOffice.Gbloc, string(result.OriginGBLOC))
@@ -111,7 +111,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 	payload = response.(*queues.GetMovesQueueOK).Payload
 
 	order = hhgMove.Orders
-	result = payload.Results[0]
+	result = payload.QueueMoves[0]
 
 	suite.Equal(ghcmessages.QueueMoveStatus("Move approved"), result.Status)
 
@@ -130,7 +130,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 	payload = response.(*queues.GetMovesQueueOK).Payload
 
 	order = hhgMove.Orders
-	result = payload.Results[1]
+	result = payload.QueueMoves[0]
 
 	suite.Equal(ghcmessages.QueueMoveStatus("Approvals requested"), result.Status)
 
@@ -242,5 +242,5 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
 	suite.Assertions.IsType(&queues.GetMovesQueueOK{}, response)
 	payload := response.(*queues.GetMovesQueueOK).Payload
 
-	suite.Len(payload.Results, 0)
+	suite.Len(payload.QueueMoves, 0)
 }

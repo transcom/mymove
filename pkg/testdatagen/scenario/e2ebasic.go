@@ -1,6 +1,7 @@
 package scenario
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -42,7 +43,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	ppmOfficeRole := roles.Role{}
 	err := db.Where("role_type = $1", roles.RoleTypePPMOfficeUsers).First(&ppmOfficeRole)
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(fmt.Errorf("Failed to find RoleTypePPMOfficeUsers in the DB: %w", err))
 	}
 
 	email := "officeuser1@example.com"
@@ -545,6 +546,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("173da49c-fcec-4d01-a622-3651e81c654e"),
 			Locator: "BLABLA",
+			Status:  models.MoveStatusSUBMITTED,
 		},
 		UserUploader: userUploader,
 	})
@@ -695,6 +697,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			ID:               uuid.FromStringOrNil("3a8c9f4f-7344-4f18-9ab5-0de3ef57b901"),
 			Locator:          "ONEHHG",
 			SelectedMoveType: &selectedMoveType,
+			Status:           models.MoveStatusSUBMITTED,
 		},
 	})
 
@@ -1642,7 +1645,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	smRole := roles.Role{}
 	err = db.Where("role_type = $1", roles.RoleTypeCustomer).First(&smRole)
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(fmt.Errorf("Failed to find RoleTypeCustomer in the DB: %w", err))
 	}
 	email = "role_tester@service.mil"
 	uuidStr = "3b9360a3-3304-4c60-90f4-83d687884079"
@@ -1659,7 +1662,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	tooRole := roles.Role{}
 	err = db.Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(fmt.Errorf("Failed to find RoleTypeTOO in the DB: %w", err))
 	}
 
 	email = "too_role@office.mil"
@@ -1685,7 +1688,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	tioRole := roles.Role{}
 	err = db.Where("role_type = $1", roles.RoleTypeTIO).First(&tioRole)
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(fmt.Errorf("Failed to find RoleTypeTIO in the DB: %w", err))
 	}
 
 	email = "tio_role@office.mil"

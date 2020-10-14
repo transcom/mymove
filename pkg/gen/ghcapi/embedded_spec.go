@@ -1448,6 +1448,12 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
           "500": {
             "description": "A server error occurred",
             "schema": {
@@ -2952,6 +2958,10 @@ func init() {
         "destinationDutyStation": {
           "$ref": "#/definitions/DutyStation"
         },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
         "locator": {
           "type": "string"
         },
@@ -2989,7 +2999,7 @@ func init() {
         "perPage": {
           "type": "integer"
         },
-        "results": {
+        "queueMoves": {
           "$ref": "#/definitions/QueueMoves"
         },
         "totalCount": {
@@ -5110,6 +5120,15 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
           "500": {
             "description": "A server error occurred",
             "schema": {
@@ -6653,6 +6672,10 @@ func init() {
         "destinationDutyStation": {
           "$ref": "#/definitions/DutyStation"
         },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
         "locator": {
           "type": "string"
         },
@@ -6690,7 +6713,7 @@ func init() {
         "perPage": {
           "type": "integer"
         },
-        "results": {
+        "queueMoves": {
           "$ref": "#/definitions/QueueMoves"
         },
         "totalCount": {

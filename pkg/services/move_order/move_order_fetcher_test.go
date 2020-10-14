@@ -1,7 +1,6 @@
 package moveorder
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -65,7 +64,7 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 	// are displayed to the TOO
 	testdatagen.MakeDefaultMove(suite.DB())
 
-	expectedMoveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
+	expectedMoveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusSUBMITTED}})
 
 	// Only orders with shipments are returned, so we need to add a shipment
 	// to the move we just created
@@ -75,7 +74,8 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 			Status: models.MTOShipmentStatusSubmitted,
 		},
 	})
-	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
+
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	expectedMoveOrder := expectedMoveTaskOrder.Orders
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
@@ -114,22 +114,21 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 			OriginDutyStation: originDutyStation,
 		})
 
-		secondMoveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		secondMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 			Order: order,
 		})
 
 		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: secondMoveTaskOrder,
+			Move: secondMove,
 			MTOShipment: models.MTOShipment{
 				Status: models.MTOShipmentStatusSubmitted,
 			},
 		})
 
 		moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUser.ID)
-		moveOrder := moveOrders[0]
-		fmt.Println("GBLOC: ", moveOrder.OriginDutyStation.TransportationOffice)
+
 		suite.FatalNoError(err)
-		suite.Len(moveOrders, 1)
+		suite.Equal(1, len(moveOrders))
 	})
 }
 

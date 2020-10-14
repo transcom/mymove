@@ -45,6 +45,8 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID) ([]models.Order
 		InnerJoin("duty_stations", "orders.origin_duty_station_id = duty_stations.id").
 		InnerJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id").
 		Where("transportation_offices.gbloc = ?", gbloc).
+		Where("moves.status IN ('SUBMITTED', 'APPROVED')").
+		GroupBy("orders.id").
 		All(&moveOrders)
 
 	if err != nil {

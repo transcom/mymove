@@ -470,6 +470,7 @@ func QueueMoves(moveOrders []models.Order) *ghcmessages.QueueMoves {
 		queueMoveOrders[i] = &ghcmessages.QueueMove{
 			Customer:               Customer(&customer),
 			Status:                 ghcmessages.QueueMoveStatus(queueMoveStatus(hhgMove)),
+			ID:                     *handlers.FmtUUID(order.ID),
 			Locator:                hhgMove.Locator,
 			DepartmentIndicator:    ghcmessages.DeptIndicator(*order.DepartmentIndicator),
 			ShipmentsCount:         int64(len(hhgMove.MTOShipments)),

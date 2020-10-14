@@ -31,7 +31,6 @@ const timeFormat = "1504"
 
 // Generate method takes a payment request and returns an Invoice858C
 func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.PaymentRequest, sendProductionInvoice bool) (ediinvoice.Invoice858C, error) {
-	// TODO: seems ReferenceID is a *string but cannot be saved as nil, do we need to validate it's not nil here
 	var moveTaskOrder models.Move
 	if paymentRequest.MoveTaskOrder.ID == uuid.Nil {
 		// load mto
