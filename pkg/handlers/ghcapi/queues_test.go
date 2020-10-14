@@ -1,6 +1,7 @@
 package ghcapi
 
 import (
+	"errors"
 	"fmt"
 	"net/http/httptest"
 	"time"
@@ -9,6 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	moveorder "github.com/transcom/mymove/pkg/services/move_order"
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
@@ -297,6 +299,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	paymentRequest := *payload.QueuePaymentRequests[0]
 
 	suite.Equal(actualPaymentRequest.ID.String(), paymentRequest.ID.String())
+	suite.Equal(actualPaymentRequest.MoveTaskOrderID.String(), paymentRequest.MoveID.String())
 	suite.Equal(hhgMove.Orders.ServiceMemberID.String(), paymentRequest.Customer.ID.String())
 	suite.Equal(actualPaymentRequest.Status.String(), string(paymentRequest.Status))
 
@@ -308,4 +311,76 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	suite.Equal(hhgMove.Locator, paymentRequest.Locator)
 
 	suite.Equal(*hhgMove.Orders.DepartmentIndicator, string(paymentRequest.DepartmentIndicator))
+}
+
+func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerUnauthorizedRole() {
+	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+
+	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
+	request = suite.AuthenticateOfficeRequest(request, officeUser)
+	params := queues.GetPaymentRequestsQueueParams{
+		HTTPRequest: request,
+	}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	handler := GetPaymentRequestsQueueHandler{
+		context,
+		officeuser.NewOfficeUserFetcher(query.NewQueryBuilder(context.DB())),
+		paymentrequest.NewPaymentRequestListFetcher(suite.DB()),
+	}
+
+	response := handler.Handle(params)
+
+	suite.Assertions.IsType(&queues.GetPaymentRequestsQueueForbidden{}, response)
+}
+
+func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerServerError() {
+	officeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+
+	paymentRequestListFetcher := mocks.PaymentRequestListFetcher{}
+
+	paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID).Return(nil, errors.New("database query error"))
+
+	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
+	request = suite.AuthenticateOfficeRequest(request, officeUser)
+	params := queues.GetPaymentRequestsQueueParams{
+		HTTPRequest: request,
+	}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	handler := GetPaymentRequestsQueueHandler{
+		context,
+		officeuser.NewOfficeUserFetcher(query.NewQueryBuilder(context.DB())),
+		&paymentRequestListFetcher,
+	}
+
+	response := handler.Handle(params)
+
+	suite.Assertions.IsType(&queues.GetPaymentRequestsQueueInternalServerError{}, response)
+}
+
+func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerEmptyResults() {
+	officeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+
+	paymentRequestListFetcher := mocks.PaymentRequestListFetcher{}
+
+	paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID).Return([]models.PaymentRequest{}, nil)
+
+	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
+	request = suite.AuthenticateOfficeRequest(request, officeUser)
+	params := queues.GetPaymentRequestsQueueParams{
+		HTTPRequest: request,
+	}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	handler := GetPaymentRequestsQueueHandler{
+		context,
+		officeuser.NewOfficeUserFetcher(query.NewQueryBuilder(context.DB())),
+		&paymentRequestListFetcher,
+	}
+
+	response := handler.Handle(params)
+
+	suite.Assertions.IsType(&queues.GetPaymentRequestsQueueOK{}, response)
+	payload := response.(*queues.GetPaymentRequestsQueueOK).Payload
+
+	suite.Len(payload.QueuePaymentRequests, 0)
+	suite.Equal(0, payload.TotalCount)
 }

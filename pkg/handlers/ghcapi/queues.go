@@ -54,18 +54,16 @@ type GetPaymentRequestsQueueHandler struct {
 
 // Handle returns the paginated list of payment requests for the TIO user
 func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQueueParams) middleware.Responder {
-	request := params.HTTPRequest
-	session, logger := h.SessionAndLoggerFromRequest(request)
-	officeUserAuthorized := session.Roles.HasRole(roles.RoleTypeTIO)
-	if !officeUserAuthorized {
+
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	if !session.Roles.HasRole(roles.RoleTypeTIO) {
 		return queues.NewGetPaymentRequestsQueueForbidden()
 	}
 
-	officeUserID := session.OfficeUserID
-
-	paymentRequests, err := h.FetchPaymentRequestList(officeUserID)
+	paymentRequests, err := h.FetchPaymentRequestList(session.OfficeUserID)
 	if err != nil {
-		logger.Error("listing payment requests", zap.String("office_user_id", officeUserID.String()), zap.Error(err))
+		logger.Error("payment requests queue", zap.String("office_user_id", session.OfficeUserID.String()), zap.Error(err))
 		return queues.NewGetPaymentRequestsQueueInternalServerError()
 	}
 

@@ -33,6 +33,10 @@ type QueuePaymentRequest struct {
 	// locator
 	Locator string `json:"locator,omitempty"`
 
+	// move ID
+	// Format: uuid
+	MoveID strfmt.UUID `json:"moveID,omitempty"`
+
 	// origin g b l o c
 	OriginGBLOC GBLOC `json:"originGBLOC,omitempty"`
 
@@ -57,6 +61,10 @@ func (m *QueuePaymentRequest) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMoveID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -119,6 +127,19 @@ func (m *QueuePaymentRequest) validateID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *QueuePaymentRequest) validateMoveID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.MoveID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("moveID", "body", "uuid", m.MoveID.String(), formats); err != nil {
 		return err
 	}
 

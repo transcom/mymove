@@ -2436,6 +2436,9 @@ definitions:
       id:
         type: string
         format: uuid
+      moveID:
+        type: string
+        format: uuid
       customer:
         $ref: '#/definitions/Customer'
       status:

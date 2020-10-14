@@ -28,8 +28,6 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 
 	paymentRequests := models.PaymentRequests{}
 	err := f.db.Q().Eager(
-		"MoveTaskOrder",
-		"MoveTaskOrder.Orders",
 		"MoveTaskOrder.Orders.OriginDutyStation",
 		"MoveTaskOrder.Orders.ServiceMember",
 	).
@@ -49,7 +47,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 		// cannot eager load the address as "OriginDutyStation.Address" because
 		// OriginDutyStation is a pointer.
 		if originDutyStation := paymentRequests[i].MoveTaskOrder.Orders.OriginDutyStation; originDutyStation != nil {
-			f.db.Load(originDutyStation, "Address", "TransportationOffice")
+			f.db.Load(originDutyStation, "TransportationOffice")
 		}
 	}
 

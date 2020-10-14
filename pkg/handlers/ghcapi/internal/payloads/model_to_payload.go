@@ -495,6 +495,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 
 		queuePaymentRequests[i] = &ghcmessages.QueuePaymentRequest{
 			ID:          *handlers.FmtUUID(paymentRequest.ID),
+			MoveID:      *handlers.FmtUUID(moveTaskOrder.ID),
 			Customer:    Customer(&orders.ServiceMember),
 			Status:      ghcmessages.PaymentRequestStatus(paymentRequest.Status),
 			Age:         float32(time.Since(paymentRequest.CreatedAt).Hours() / 24.0),

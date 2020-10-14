@@ -3061,6 +3061,10 @@ func init() {
         "locator": {
           "type": "string"
         },
+        "moveID": {
+          "type": "string",
+          "format": "uuid"
+        },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
         },
@@ -6869,6 +6873,10 @@ func init() {
         },
         "locator": {
           "type": "string"
+        },
+        "moveID": {
+          "type": "string",
+          "format": "uuid"
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
