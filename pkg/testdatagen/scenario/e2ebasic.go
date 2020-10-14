@@ -697,7 +697,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			ID:               uuid.FromStringOrNil("3a8c9f4f-7344-4f18-9ab5-0de3ef57b901"),
 			Locator:          "ONEHHG",
 			SelectedMoveType: &selectedMoveType,
-			Status:           models.MoveStatusSUBMITTED,
 		},
 	})
 
