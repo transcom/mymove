@@ -33,7 +33,9 @@ const HHGShipmentCard = ({
       <ShipmentContainer className={styles.container} shipmentType={shipmentType}>
         <div className={styles.ShipmentCardHeader}>
           <div>
-            <h3>HHG {shipmentNumber}</h3>
+            <h3>
+              {shipmentType} {shipmentNumber}
+            </h3>
             <p>#{shipmentId.substring(0, 8).toUpperCase()}</p>
           </div>
           <Button
@@ -77,17 +79,19 @@ const HHGShipmentCard = ({
               </dd>
             </div>
           )}
-          <div className={styles.row}>
-            <dt>Requested delivery date</dt>
-            <dd>{formatCustomerDate(requestedDeliveryDate)}</dd>
-          </div>
+          {shipmentType !== SHIPMENT_OPTIONS.NTS && (
+            <div className={styles.row}>
+              <dt>Requested delivery date</dt>
+              <dd>{formatCustomerDate(requestedDeliveryDate)}</dd>
+            </div>
+          )}
           {shipmentType !== SHIPMENT_OPTIONS.NTS && (
             <div className={styles.row}>
               <dt>Destination</dt>
               <dd>{formatCustomerDestination(destinationLocation, destinationZIP)}</dd>
             </div>
           )}
-          {receivingAgent && (
+          {shipmentType !== SHIPMENT_OPTIONS.NTS && receivingAgent && (
             <div className={styles.row}>
               <dt>Receiving agent</dt>
               <dd>
