@@ -64,7 +64,7 @@ func quit(logger *log.Logger, flag *pflag.FlagSet, err error) {
 	os.Exit(1)
 }
 
-// Call this from command line with go run cmd/send_to_gex/main.go --edi <filepath>
+// Call this from command line with go run cmd/send-to-gex/main.go --edi <filepath>
 func main() {
 	// Create the logger
 	// Remove the prefix and any datetime data
