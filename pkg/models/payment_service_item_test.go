@@ -32,10 +32,10 @@ func (suite *ModelSuite) TestPaymentServiceItemValidation() {
 		invalidPaymentServiceItem := models.PaymentServiceItem{}
 
 		expErrors := map[string][]string{
-			"payment_request_id":    {"PaymentRequestID can not be blank."},
-			"m_t_os_ervice_item_id": {"MTOServiceItemID can not be blank."},
-			"status":                {"Status is not in the list [REQUESTED, APPROVED, DENIED, SENT_TO_GEX, PAID]."},
-			"requested_at":          {"RequestedAt can not be blank."},
+			"payment_request_id": {"PaymentRequestID can not be blank."},
+			"mtoservice_item_id": {"MTOServiceItemID can not be blank."},
+			"status":             {"Status is not in the list [REQUESTED, APPROVED, DENIED, SENT_TO_GEX, PAID]."},
+			"requested_at":       {"RequestedAt can not be blank."},
 		}
 
 		suite.verifyValidationErrors(&invalidPaymentServiceItem, expErrors)
