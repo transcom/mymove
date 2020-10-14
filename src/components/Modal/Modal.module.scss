@@ -73,11 +73,40 @@
   }
 
   .ModalTitle {
-    > * {
+    display: flex;
+    flex-direction: row-reverse;
+
+    > *:not(.ModalClose) {
       @include u-margin(0);
+      flex-grow: 1;
     }
+
+    .ModalClose {
+      flex-grow: 0;
+    }
+
     & + * {
       @include u-margin-top(3);
+    }
+  }
+
+  .ModalClose {
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+    width: auto;
+
+    // TODO - needed until we remove some duplicate USWDS CSS in this project
+    &:global(.usa-button) {
+      margin: 0;
+      padding: 0;
+      min-width: 0;
+    }
+
+    svg {
+      width: 16px;
+      height: 16px;
+      fill: $base;
     }
   }
 

@@ -4,7 +4,7 @@ import * as Yup from 'yup';
 import { action } from '@storybook/addon-actions';
 import { Button } from '@trussworks/react-uswds';
 
-import Modal, { ModalTitle, ModalActions } from './Modal';
+import Modal, { ModalTitle, ModalClose, ModalActions } from './Modal';
 
 import { Form } from 'components/form';
 import { TextInput } from 'components/form/fields';
@@ -21,6 +21,7 @@ export default {
 export const withContent = () => (
   <Modal>
     <ModalTitle>
+      <ModalClose handleClick={action('Close modal')} />
       <h4>Are you sure you want to reject this request?</h4>
     </ModalTitle>
     <Formik
@@ -47,6 +48,7 @@ export const withContent = () => (
 export const empty = () => (
   <Modal>
     <ModalTitle>
+      <ModalClose handleClick={action('Close modal')} />
       <h4>Modal title</h4>
     </ModalTitle>
     <ModalActions>

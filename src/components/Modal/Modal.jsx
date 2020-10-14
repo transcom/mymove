@@ -3,9 +3,11 @@ import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { Modal as USWDSModal, connectModal as connectUSWDSModal } from '@trussworks/react-uswds';
+import { Modal as USWDSModal, connectModal as connectUSWDSModal, Button } from '@trussworks/react-uswds';
 
 import styles from './Modal.module.scss';
+
+import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
 
 const Modal = ({ className, ...props }) => {
   const classes = classnames(styles.Modal, className);
@@ -47,6 +49,27 @@ export const ModalTitle = ({ children }) => <div className={styles.ModalTitle}>{
 
 ModalTitle.propTypes = {
   children: PropTypes.node.isRequired,
+};
+
+export const ModalClose = ({ handleClick, className, ...buttonProps }) => (
+  <Button
+    type="button"
+    onClick={handleClick}
+    unstyled
+    className={classnames(styles.ModalClose, className)}
+    {...buttonProps}
+  >
+    <XLightIcon />
+  </Button>
+);
+
+ModalClose.propTypes = {
+  handleClick: PropTypes.func.isRequired,
+  className: PropTypes.string,
+};
+
+ModalClose.defaultProps = {
+  className: '',
 };
 
 export const ModalActions = ({ children }) => <div className={styles.ModalActions}>{children}</div>;

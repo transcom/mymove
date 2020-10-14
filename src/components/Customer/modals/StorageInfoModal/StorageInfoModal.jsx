@@ -2,11 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
-import Modal, { ModalTitle, ModalActions, connectModal } from 'components/Modal/Modal';
+import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
 
 export const StorageInfoModal = ({ closeModal }) => (
   <Modal>
     <ModalTitle>
+      <ModalClose handleClick={closeModal} />
       <h3>Long-term storage info</h3>
     </ModalTitle>
     <h4>
