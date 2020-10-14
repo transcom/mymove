@@ -467,12 +467,16 @@ func QueueMoves(moveOrders []models.Order) *ghcmessages.QueueMoves {
 				break
 			}
 		}
+		deptIndicator := ""
+		if order.DepartmentIndicator != nil {
+			deptIndicator = *order.DepartmentIndicator
+		}
 		queueMoveOrders[i] = &ghcmessages.QueueMove{
 			Customer:               Customer(&customer),
 			Status:                 ghcmessages.QueueMoveStatus(queueMoveStatus(hhgMove)),
 			ID:                     *handlers.FmtUUID(order.ID),
 			Locator:                hhgMove.Locator,
-			DepartmentIndicator:    ghcmessages.DeptIndicator(*order.DepartmentIndicator),
+			DepartmentIndicator:    ghcmessages.DeptIndicator(deptIndicator),
 			ShipmentsCount:         int64(len(hhgMove.MTOShipments)),
 			DestinationDutyStation: DutyStation(&order.NewDutyStation),
 			OriginGBLOC:            ghcmessages.GBLOC(order.OriginDutyStation.TransportationOffice.Gbloc),
