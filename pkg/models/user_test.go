@@ -1,7 +1,11 @@
 package models_test
 
 import (
+	"errors"
 	"testing"
+
+	"github.com/jackc/pgconn"
+	"github.com/jackc/pgerrcode"
 
 	"github.com/transcom/mymove/pkg/models/roles"
 
@@ -49,8 +53,6 @@ func (suite *ModelSuite) TestUserCreationWithoutValues() {
 }
 
 func (suite *ModelSuite) TestUserCreationDuplicateUUID() {
-	t := suite.T()
-
 	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
 	userEmail := "sally@government.gov"
 
@@ -67,9 +69,9 @@ func (suite *ModelSuite) TestUserCreationDuplicateUUID() {
 	suite.DB().Create(&newUser)
 	err := suite.DB().Create(&sameUser)
 
-	if err.Error() != `pq: duplicate key value violates unique constraint "constraint_name"` {
-		t.Fatal("Db should have errored on unique constraint for UUID")
-	}
+	var pgErr *pgconn.PgError
+	suite.True(errors.As(err, &pgErr))
+	suite.True(pgErr.Code == pgerrcode.UniqueViolation && pgErr.ConstraintName == "constraint_name", "Db should have errored on unique constraint for UUID")
 }
 
 func (suite *ModelSuite) TestCreateUser() {

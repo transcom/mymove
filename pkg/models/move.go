@@ -4,7 +4,6 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"math/rand"
-	"strings"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -12,6 +11,8 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+	"github.com/jackc/pgconn"
+	"github.com/jackc/pgerrcode"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -529,7 +530,8 @@ func createNewMove(db *pop.Connection,
 			return nil, verrs, nil
 		}
 		if err != nil {
-			if strings.HasPrefix(errors.Cause(err).Error(), uniqueConstraintViolationErrorPrefix) {
+			var pgErr *pgconn.PgError
+			if errors.As(err, &pgErr) && pgErr.Code == pgerrcode.UniqueViolation && pgErr.ConstraintName == "moves_locator_idx" {
 				// If we have a collision, try again for maxLocatorAttempts
 				continue
 			}

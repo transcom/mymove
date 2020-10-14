@@ -2,6 +2,10 @@ package models_test
 
 import (
 	"context"
+	"errors"
+
+	"github.com/jackc/pgconn"
+	"github.com/jackc/pgerrcode"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
@@ -113,8 +117,10 @@ func (suite *ModelSuite) TestFetchUserUploadWithNoUpload() {
 	}
 
 	_, err := suite.DB().ValidateAndSave(&uploadUser)
-	suite.Equal("pq: insert or update on table \"user_uploads\" violates foreign key constraint \"user_uploads_uploads_id_fkey\"", err.Error(), "expected userupload error")
 
+	var pgErr *pgconn.PgError
+	suite.True(errors.As(err, &pgErr))
+	suite.True(pgErr.Code == pgerrcode.ForeignKeyViolation && pgErr.TableName == "user_uploads" && pgErr.ConstraintName == "user_uploads_uploads_id_fkey", "expected userupload error")
 }
 
 func (suite *ModelSuite) TestFetchUserUpload() {

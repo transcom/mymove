@@ -1,11 +1,14 @@
 package models_test
 
 import (
+	"errors"
 	"testing"
 	"time"
 
 	"github.com/facebookgo/clock"
 	"github.com/gofrs/uuid"
+	"github.com/jackc/pgconn"
+	"github.com/jackc/pgerrcode"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -120,11 +123,13 @@ func (suite *ModelSuite) TestFuelEIADieselPriceOverlappingDatesConstraint() {
 		}
 
 		verrs, err = suite.DB().ValidateAndCreate(&newFuelPrice)
-		suite.EqualError(err, "pq: conflicting key value violates exclusion constraint \"no_overlapping_rates\"")
+
+		var pgErr *pgconn.PgError
+		suite.True(errors.As(err, &pgErr))
+		suite.True(pgErr.Code == pgerrcode.ExclusionViolation && pgErr.ConstraintName == "no_overlapping_rates")
+
 		suite.Empty(verrs.Error())
-
 	})
-
 }
 
 // Create multiple records covering a range of dates

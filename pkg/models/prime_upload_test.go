@@ -2,6 +2,10 @@ package models_test
 
 import (
 	"context"
+	"errors"
+
+	"github.com/jackc/pgconn"
+	"github.com/jackc/pgerrcode"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -116,8 +120,9 @@ func (suite *ModelSuite) TestFetchPrimeUploadWithNoUpload() {
 	}
 
 	_, err := suite.DB().ValidateAndSave(&primeUpload)
-	suite.Equal("pq: insert or update on table \"prime_uploads\" violates foreign key constraint \"prime_uploads_uploads_id_fkey\"", err.Error(), "expected primeupload error")
-
+	var pgErr *pgconn.PgError
+	suite.True(errors.As(err, &pgErr))
+	suite.True(pgErr.Code == pgerrcode.ForeignKeyViolation && pgErr.TableName == "prime_uploads" && pgErr.ConstraintName == "prime_uploads_uploads_id_fkey", "expected primeupload error")
 }
 
 func (suite *ModelSuite) TestFetchPrimeUpload() {
