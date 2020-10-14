@@ -31,14 +31,14 @@ func (suite *ModelSuite) Test_Tariff400ngServiceAreaValidation() {
 	suite.T().Run("test invalid Tariff400ngServiceArea", func(t *testing.T) {
 		invalidTariff400ngServiceArea := Tariff400ngServiceArea{}
 		expErrors := map[string][]string{
-			"name":                  {"Name can not be blank."},
-			"service_area":          {"ServiceArea can not be blank.", "ServiceArea does not match the expected format."},
-			"services_schedule":     {"ServicesSchedule can not be blank."},
-			"effective_date_lower":  {"EffectiveDateLower can not be blank."},
-			"effective_date_upper":  {"EffectiveDateUpper can not be blank."},
-			"s_i_t185_a_rate_cents": {"SIT185ARateCents can not be blank."},
-			"s_i_t185_b_rate_cents": {"SIT185BRateCents can not be blank."},
-			"s_i_t_p_d_schedule":    {"SITPDSchedule can not be blank."},
+			"name":                 {"Name can not be blank."},
+			"service_area":         {"ServiceArea can not be blank.", "ServiceArea does not match the expected format."},
+			"services_schedule":    {"ServicesSchedule can not be blank."},
+			"effective_date_lower": {"EffectiveDateLower can not be blank."},
+			"effective_date_upper": {"EffectiveDateUpper can not be blank."},
+			"sit185_arate_cents":   {"SIT185ARateCents can not be blank."},
+			"sit185_brate_cents":   {"SIT185BRateCents can not be blank."},
+			"sitpdschedule":        {"SITPDSchedule can not be blank."},
 		}
 		suite.verifyValidationErrors(&invalidTariff400ngServiceArea, expErrors)
 	})
