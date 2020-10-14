@@ -362,7 +362,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerEmptyResults() {
 
 	paymentRequestListFetcher := mocks.PaymentRequestListFetcher{}
 
-	paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID).Return([]models.PaymentRequest{}, nil)
+	paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID).Return(&models.PaymentRequests{}, nil)
 
 	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
