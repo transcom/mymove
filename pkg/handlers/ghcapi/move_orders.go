@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/transcom/mymove/pkg/models/roles"
+
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -52,6 +54,11 @@ type ListMoveOrdersHandler struct {
 func (h ListMoveOrdersHandler) Handle(params moveorderop.ListMoveOrdersParams) middleware.Responder {
 	// get the session from http request
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	officeUserAuthorized := session.Roles.HasRole(roles.RoleTypeTOO)
+	if !officeUserAuthorized {
+		return moveorderop.NewListMoveOrdersForbidden()
+	}
 
 	// list move orders and pass in office user ID as argument to filter list
 	moveOrders, err := h.MoveOrderFetcher.ListMoveOrders(session.OfficeUserID)
