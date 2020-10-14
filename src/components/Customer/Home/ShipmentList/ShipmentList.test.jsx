@@ -5,9 +5,9 @@ import { mount } from 'enzyme';
 import ShipmentList from '.';
 
 const shipments = [
-  { id: '#ID-1', shipmentType: 'PPM' },
-  { id: '#ID-2', shipmentType: 'HHG' },
-  { id: '#ID-3', shipmentType: 'NTS' },
+  { id: 'ID-1', shipmentType: 'PPM' },
+  { id: 'ID-2', shipmentType: 'HHG' },
+  { id: 'ID-3', shipmentType: 'NTS' },
 ];
 const onShipmentClick = jest.fn();
 const defaultProps = {

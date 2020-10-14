@@ -8,6 +8,7 @@ import {
   getMoveOrder,
   getMoveTaskOrderList,
   getDocument,
+  getMovesQueue,
 } from 'services/ghcApi';
 import { getQueriesStatus } from 'utils/api';
 import {
@@ -17,6 +18,7 @@ import {
   MOVE_ORDERS,
   MOVE_TASK_ORDERS,
   ORDERS_DOCUMENTS,
+  MOVES_QUEUE,
 } from 'constants/queryKeys';
 
 export const usePaymentRequestQueries = (paymentRequestId) => {
@@ -142,6 +144,20 @@ export const useOrdersDocumentQueries = (moveOrderId) => {
     moveOrders,
     documents,
     upload,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+// TODO skip normalizing of schema response and cleanup
+export const useMovesQueueQueries = () => {
+  const { data: { queueMovesResult } = {}, ...movesQueueQuery } = useQuery([MOVES_QUEUE], getMovesQueue);
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([movesQueueQuery]);
+
+  return {
+    queueMovesResult,
     isLoading,
     isError,
     isSuccess,

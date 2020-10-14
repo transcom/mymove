@@ -37,13 +37,13 @@ func (_m *MoveOrderFetcher) FetchMoveOrder(moveTaskOrderID uuid.UUID) (*models.O
 	return r0, r1
 }
 
-// ListMoveOrders provides a mock function with given fields:
-func (_m *MoveOrderFetcher) ListMoveOrders() ([]models.Order, error) {
-	ret := _m.Called()
+// ListMoveOrders provides a mock function with given fields: officeUserID
+func (_m *MoveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID) ([]models.Order, error) {
+	ret := _m.Called(officeUserID)
 
 	var r0 []models.Order
-	if rf, ok := ret.Get(0).(func() []models.Order); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(uuid.UUID) []models.Order); ok {
+		r0 = rf(officeUserID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]models.Order)
@@ -51,8 +51,8 @@ func (_m *MoveOrderFetcher) ListMoveOrders() ([]models.Order, error) {
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(uuid.UUID) error); ok {
+		r1 = rf(officeUserID)
 	} else {
 		r1 = ret.Error(1)
 	}
