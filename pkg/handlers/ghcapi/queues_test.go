@@ -97,7 +97,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 	suite.Equal(hhgMove.Locator, result.Locator)
 	suite.Equal(int64(1), result.ShipmentsCount)
 
-	suite.T().Run("Only counts MTO Shipments with Submitted & Approved Status", func( t *testing.T) {
+	suite.T().Run("Only counts MTO Shipments with Submitted & Approved Status", func(t *testing.T) {
 		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: hhgMove,
 			MTOShipment: models.MTOShipment{

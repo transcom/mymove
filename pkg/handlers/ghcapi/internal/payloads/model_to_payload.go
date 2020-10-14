@@ -468,21 +468,18 @@ func QueueMoves(moveOrders []models.Order) *ghcmessages.QueueMoves {
 			}
 		}
 
-		var queuedMTOShipments []models.MTOShipment
-		for _, shipment := range hhgMove.MTOShipments {
-			if shipment.Status == models.MTOShipmentStatusSubmitted || shipment.Status == models.MTOShipmentStatusApproved {
-				queuedMTOShipments = append(queuedMTOShipments, shipment)
-			}
+		deptIndicator := ""
+		if order.DepartmentIndicator != nil {
+			deptIndicator = *order.DepartmentIndicator
 		}
-
 		queueMoveOrders[i] = &ghcmessages.QueueMove{
 			ID:       *handlers.FmtUUID(order.ID),
 			Customer: Customer(&customer),
 			// TODO Add status calculation logic here or at service/query level
 			Status:                 ghcmessages.QueueMoveStatus("NEW"),
 			Locator:                hhgMove.Locator,
-			DepartmentIndicator:    ghcmessages.DeptIndicator(*order.DepartmentIndicator),
-	 		ShipmentsCount:         int64(len(queuedMTOShipments)),
+			DepartmentIndicator:    ghcmessages.DeptIndicator(deptIndicator),
+			ShipmentsCount:         int64(len(hhgMove.MTOShipments)),
 			DestinationDutyStation: DutyStation(&order.NewDutyStation),
 			OriginGBLOC:            ghcmessages.GBLOC(order.OriginDutyStation.TransportationOffice.Gbloc),
 		}
