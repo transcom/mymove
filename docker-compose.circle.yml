@@ -21,7 +21,7 @@ services:
     depends_on:
       - database
       - redis
-    image: milmove/circleci-docker:milmove-app-1e5a1038cb264651fbd844b82489401a476e9f7e
+    image: milmove/circleci-docker:milmove-app-6fc6df164790ca7c9261696f113e403d711e4af0
     deploy:
       resources:
         limits:
