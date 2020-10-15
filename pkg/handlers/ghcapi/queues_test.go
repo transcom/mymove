@@ -106,6 +106,90 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 	suite.Equal(order.NewDutyStation.ID.String(), result.DestinationDutyStation.ID.String())
 	suite.Equal(hhgMove.Locator, result.Locator)
 	suite.Equal(int64(1), result.ShipmentsCount)
+
+}
+
+func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
+		RoleType: roles.RoleTypeTOO,
+	})
+
+	hhgMoveType := models.SelectedMoveTypeHHG
+	// Default Origin Duty Station GBLOC is LKNQ
+	hhgMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusSUBMITTED,
+		},
+	})
+
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: hhgMove,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+	})
+
+	// Create a shipment on hhgMove that has Rejected status
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: hhgMove,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusRejected,
+		},
+	})
+
+	// Create an order with an origin duty station outside of office user GBLOC
+	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
+		TransportationOffice: models.TransportationOffice{
+			Name:  "Fort Punxsutawney",
+			Gbloc: "AGFM",
+		},
+	})
+
+	dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			TransportationOffice:   transportationOffice,
+			TransportationOfficeID: &transportationOffice.ID,
+		},
+	})
+
+	excludedOrder := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+		OriginDutyStation: dutyStation,
+	})
+
+	excludedMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+		},
+		Order: excludedOrder,
+	})
+
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: excludedMove,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+	})
+
+	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
+	request = suite.AuthenticateOfficeRequest(request, officeUser)
+	params := queues.GetMovesQueueParams{
+		HTTPRequest: request,
+	}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	handler := GetMovesQueueHandler{
+		context,
+		officeuser.NewOfficeUserFetcher(query.NewQueryBuilder(context.DB())),
+		moveorder.NewMoveOrderFetcher(suite.DB()),
+	}
+
+	response := handler.Handle(params)
+	suite.IsNotErrResponse(response)
+
+	payload := response.(*queues.GetMovesQueueOK).Payload
+	result := payload.QueueMoves[0]
+
 	suite.Equal(ghcmessages.QueueMoveStatus("New move"), result.Status)
 
 	// let's test for the Move approved status
@@ -118,7 +202,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 	suite.Assertions.IsType(&queues.GetMovesQueueOK{}, response)
 	payload = response.(*queues.GetMovesQueueOK).Payload
 
-	order = hhgMove.Orders
 	result = payload.QueueMoves[0]
 
 	suite.Equal(ghcmessages.QueueMoveStatus("Move approved"), result.Status)
@@ -137,7 +220,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 	suite.Assertions.IsType(&queues.GetMovesQueueOK{}, response)
 	payload = response.(*queues.GetMovesQueueOK).Payload
 
-	order = hhgMove.Orders
 	result = payload.QueueMoves[0]
 
 	suite.Equal(ghcmessages.QueueMoveStatus("Approvals requested"), result.Status)
