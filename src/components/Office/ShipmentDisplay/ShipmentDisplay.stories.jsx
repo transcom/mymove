@@ -2,6 +2,7 @@ import React from 'react';
 import { withKnobs, object } from '@storybook/addon-knobs';
 
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 export default {
   title: 'TOO/TIO Components|Shipment Display',
@@ -65,7 +66,7 @@ export const HHGShipment = () => (
 
 export const NTSShipment = () => (
   <div style={{ padding: '20px' }}>
-    <ShipmentDisplay displayInfo={object('displayInfo', ntsInfo)} shipmentType="NTS" isSubmitted />
+    <ShipmentDisplay displayInfo={object('displayInfo', ntsInfo)} shipmentType={SHIPMENT_OPTIONS.NTS} isSubmitted />
   </div>
 );
 
