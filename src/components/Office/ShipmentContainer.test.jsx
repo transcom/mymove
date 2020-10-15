@@ -4,6 +4,8 @@ import { shallow } from 'enzyme';
 import ShipmentHeading from './ShipmentHeading';
 import ShipmentContainer from './ShipmentContainer';
 
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+
 const headingInfo = {
   shipmentType: 'Household Goods',
   originCity: 'San Antonio',
@@ -34,21 +36,21 @@ describe('Shipment Container', () => {
   });
   it('renders a container with className container--accent--hhg', () => {
     let wrapper = shallow(
-      <ShipmentContainer shipmentType="HHG">
+      <ShipmentContainer shipmentType={SHIPMENT_OPTIONS.HHG}>
         <ShipmentHeading shipmentInfo={headingInfo} />
       </ShipmentContainer>,
     );
     expect(wrapper.find('.container--accent--hhg').length).toBe(1);
 
     wrapper = shallow(
-      <ShipmentContainer shipmentType="HHG_SHORTHAUL_DOMESTIC">
+      <ShipmentContainer shipmentType={SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC}>
         <ShipmentHeading shipmentInfo={headingInfo} />
       </ShipmentContainer>,
     );
     expect(wrapper.find('.container--accent--hhg').length).toBe(1);
 
     wrapper = shallow(
-      <ShipmentContainer shipmentType="HHG_LONGHAUL_DOMESTIC">
+      <ShipmentContainer shipmentType={SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC}>
         <ShipmentHeading shipmentInfo={headingInfo} />
       </ShipmentContainer>,
     );
@@ -56,7 +58,7 @@ describe('Shipment Container', () => {
   });
   it('renders a container with className container--accent--nts', () => {
     const wrapper = shallow(
-      <ShipmentContainer shipmentType="NTS">
+      <ShipmentContainer shipmentType={SHIPMENT_OPTIONS.NTS}>
         <ShipmentHeading shipmentInfo={headingInfo} />
       </ShipmentContainer>,
     );
