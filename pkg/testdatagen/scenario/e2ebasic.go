@@ -1028,13 +1028,15 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
+	mtoSelectedMoveType := models.SelectedMoveTypeHHG
 	mto := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
-			Locator:  "TEST12",
-			ID:       uuid.FromStringOrNil("5d4b25bb-eb04-4c03-9a81-ee0398cb779e"),
-			Status:   models.MoveStatusSUBMITTED,
-			OrdersID: orders.ID,
-			Orders:   orders,
+			Locator:          "TEST12",
+			ID:               uuid.FromStringOrNil("5d4b25bb-eb04-4c03-9a81-ee0398cb779e"),
+			Status:           models.MoveStatusSUBMITTED,
+			OrdersID:         orders.ID,
+			Orders:           orders,
+			SelectedMoveType: &mtoSelectedMoveType,
 		},
 	})
 
