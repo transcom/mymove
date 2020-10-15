@@ -25,4 +25,4 @@ export default {
   title: 'Customer Components | NTSrDetailsForm',
 };
 
-export const DefaultInitialState = () => <NTSrDetailsForm {...defaultProps} />;
+export const Basic = () => <NTSrDetailsForm {...defaultProps} />;

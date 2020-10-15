@@ -46,4 +46,4 @@ function renderStory(props) {
   );
 }
 
-export const DefaultInitialState = () => renderStory();
+export const Basic = () => renderStory();

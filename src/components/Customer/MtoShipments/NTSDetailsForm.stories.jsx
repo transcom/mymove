@@ -28,4 +28,4 @@ export default {
   title: 'Customer Components | NTSDetailsForm',
 };
 
-export const DefaultInitialState = () => <NTSDetailsForm {...defaultProps} />;
+export const Basic = () => <NTSDetailsForm {...defaultProps} />;
