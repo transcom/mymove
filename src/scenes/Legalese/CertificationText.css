@@ -9,6 +9,7 @@
 
   max-height: 300px;
   overflow-y: auto;
+  background: white;
 }
 
 div.certification_text_box h1 {
