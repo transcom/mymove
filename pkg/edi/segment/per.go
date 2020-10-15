@@ -6,10 +6,10 @@ import (
 
 // PER represents the PER EDI segment
 type PER struct {
-	ContactFunctionCode          string `validate:"required"`
-	Name                         string `validate:"min=0,max=20,omitempty"`
+	ContactFunctionCode          string `validate:"required,oneof=CN,IC,EM"`
+	Name                         string `validate:"min=1,max=60,omitempty"`
 	CommunicationNumberQualifier string `validate:"omitempty,eq=TE"`
-	CommunicationNumber          string `validate:"omitempty,min=0,max=20"`
+	CommunicationNumber          string `validate:"omitempty,min=1,max=80"`
 }
 
 // StringArray converts PER to an array of strings
