@@ -39,30 +39,14 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 		},
 	})
 
-	// Create an order with an origin duty station outside of office user GBLOC
-	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
-		TransportationOffice: models.TransportationOffice{
-			Name:  "Fort Punxsutawney",
-			Gbloc: "AGFM",
-		},
-	})
-
-	dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-		DutyStation: models.DutyStation{
-			TransportationOffice:   transportationOffice,
-			TransportationOfficeID: &transportationOffice.ID,
-		},
-	})
-
-	excludedOrder := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-		OriginDutyStation: dutyStation,
-	})
-
+	// Create a move with an origin duty station outside of office user GBLOC
 	excludedMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
 		},
-		Order: excludedOrder,
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "AGFM",
+		},
 	})
 
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -157,30 +141,14 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
 	})
 
 	// Create an order with an origin duty station outside of office user GBLOC
-	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
-		TransportationOffice: models.TransportationOffice{
-			Name:  "Fort Punxsutawney",
-			Gbloc: "AGFM",
-		},
-	})
-
-	dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-		DutyStation: models.DutyStation{
-			TransportationOffice:   transportationOffice,
-			TransportationOfficeID: &transportationOffice.ID,
-		},
-	})
-
-	excludedOrder := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-		OriginDutyStation: dutyStation,
-	})
-
 	hhgMoveType := models.SelectedMoveTypeHHG
 	excludedMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
 		},
-		Order: excludedOrder,
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "AGFM",
+		},
 	})
 
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -240,40 +208,20 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	})
 
 	// Create an order with an origin duty station outside of office user GBLOC
-	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
+	excludedPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		TransportationOffice: models.TransportationOffice{
-			Name:  "Fort Punxsutawney",
 			Gbloc: "AGFM",
 		},
-	})
-
-	dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-		DutyStation: models.DutyStation{
-			TransportationOffice:   transportationOffice,
-			TransportationOfficeID: &transportationOffice.ID,
-		},
-	})
-
-	excludedOrder := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-		OriginDutyStation: dutyStation,
-	})
-
-	excludedMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
 		},
-		Order: excludedOrder,
 	})
 
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: excludedMove,
+		Move: excludedPaymentRequest.MoveTaskOrder,
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusSubmitted,
 		},
-	})
-
-	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		Move: excludedMove,
 	})
 
 	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
