@@ -37,6 +37,14 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 		},
 	})
 
+	// Create a shipment on hhgMove that has Rejected status
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: hhgMove,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusRejected,
+		},
+	})
+
 	// Create an order with an origin duty station outside of office user GBLOC
 	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
 		TransportationOffice: models.TransportationOffice{
