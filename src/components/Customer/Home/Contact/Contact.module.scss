@@ -8,6 +8,7 @@
   @include u-padding-left(2);
   @include u-padding-right(2);
   @include u-padding-bottom(3);
+  @include u-bg('white');
 
   h6 {
     margin-top: 0px;
