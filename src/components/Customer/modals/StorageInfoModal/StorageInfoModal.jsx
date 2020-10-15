@@ -59,4 +59,6 @@ StorageInfoModal.defaultProps = {
   closeModal: () => {},
 };
 
+StorageInfoModal.displayName = 'StorageInfoModal';
+
 export default connectModal(StorageInfoModal);

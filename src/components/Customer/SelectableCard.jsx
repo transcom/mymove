@@ -21,7 +21,7 @@ const SelectableCard = ({ id, label, name, value, cardText, onChange, disabled, 
           disabled={disabled}
         />
         {onHelpClick && (
-          <Button type="button" onClick={onHelpClick} unstyled className={styles.helpButton}>
+          <Button data-testid="helpButton" type="button" onClick={onHelpClick} unstyled className={styles.helpButton}>
             <FontAwesomeIcon icon={faQuestionCircle} />
           </Button>
         )}

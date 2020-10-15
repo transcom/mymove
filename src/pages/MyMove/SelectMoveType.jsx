@@ -173,11 +173,12 @@ export class SelectMoveType extends Component {
                 disabled={hasNTS}
                 onHelpClick={this.toggleStorageModal}
               />
+              {/* TODO - update when NTSR option is added to API */}
               <SelectableCard
                 {...selectableCardDefaultProps}
                 label="Get things out of long-term storage"
                 value={SHIPMENT_OPTIONS.NTS}
-                id={SHIPMENT_OPTIONS.NTS}
+                id="NTSR"
                 cardText={hasNTSR ? ntsrCardText : hasNTSRCardText}
                 checked={moveType === SHIPMENT_OPTIONS.NTS && isHhgSelectable}
                 disabled={hasNTSR}

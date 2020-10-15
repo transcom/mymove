@@ -34,6 +34,8 @@ const Modal = ({ className, ...props }) => {
   return <USWDSModal className={classes} {...props} />;
 };
 
+Modal.displayName = 'MilMoveModal';
+
 Modal.propTypes = {
   className: PropTypes.string,
 };
@@ -56,6 +58,7 @@ export const ModalClose = ({ handleClick, className, ...buttonProps }) => (
     onClick={handleClick}
     unstyled
     className={classnames(styles.ModalClose, className)}
+    data-testid="modalCloseButton"
     {...buttonProps}
   >
     <XLightIcon />
@@ -78,17 +81,25 @@ ModalActions.propTypes = {
 };
 
 export const connectModal = (Component) => {
-  return (props) => {
+  function getDisplayName(WrappedComponent) {
+    return WrappedComponent.displayName || WrappedComponent.name || 'Component';
+  }
+
+  const ConnectedModal = (props) => {
     // connectUSWDSModal handles isOpen prop & renders with container & overlay
-    const ConnectedModal = connectUSWDSModal(Component);
+    const ConnectedUSWDSModal = connectUSWDSModal(Component);
 
     // Render into portal element if it exists
     const MODAL_ROOT_ID = 'modal-root';
     const modalContainer = document.getElementById(MODAL_ROOT_ID);
     if (modalContainer) {
-      return ReactDOM.createPortal(<ConnectedModal {...props} />, modalContainer);
+      return ReactDOM.createPortal(<ConnectedUSWDSModal {...props} />, modalContainer);
     }
 
-    return <ConnectedModal {...props} />;
+    return <ConnectedUSWDSModal {...props} />;
   };
+
+  ConnectedModal.displayName = `Connected${getDisplayName(Component)}`;
+
+  return ConnectedModal;
 };
