@@ -21,6 +21,7 @@ import { checkEntitlement } from './ducks';
 import ServiceMemberSummary from './ServiceMemberSummary';
 import PPMShipmentSummary from './PPMShipmentSummary';
 import HHGShipmentSummary from 'pages/MyMove/HHGShipmentSummary';
+import SectionWrapper from 'components/Customer/SectionWrapper';
 
 import './Review.css';
 import { selectActivePPMForMove } from '../../shared/Entities/modules/ppms';
@@ -113,10 +114,12 @@ export class Summary extends Component {
             editOrdersPath={editOrdersPath}
           />
         )}
-        {showMoveSetup && <h3>Move setup</h3>}
-        {showPPMShipmentSummary && (
-          <PPMShipmentSummary ppm={currentPPM} movePath={rootReviewAddressWithMoveId} orders={currentOrders} />
-        )}
+        <SectionWrapper>
+          {showMoveSetup && <h3>Move setup</h3>}
+          {showPPMShipmentSummary && (
+            <PPMShipmentSummary ppm={currentPPM} movePath={rootReviewAddressWithMoveId} orders={currentOrders} />
+          )}
+        </SectionWrapper>
         {showHHGShipmentSummary &&
           mtoShipments.map((shipment, index) => {
             return (
@@ -131,12 +134,14 @@ export class Summary extends Component {
           })}
         {hasPPMorHHG && (
           <div className="grid-col-row margin-top-5">
-            <span className="float-right">Optional</span>
-            <h3>Add another shipment</h3>
-            <p>Will you move any belongings to or from another location?</p>
-            <Button data-testid="addAnotherShipmentBtn" secondary onClick={() => history.push(shipmentSelectionPath)}>
-              Add another shipment
-            </Button>
+            <SectionWrapper>
+              <span className="float-right">Optional</span>
+              <h3>Add another shipment</h3>
+              <p>Will you move any belongings to or from another location?</p>
+              <Button data-testid="addAnotherShipmentBtn" secondary onClick={() => history.push(shipmentSelectionPath)}>
+                Add another shipment
+              </Button>
+            </SectionWrapper>
           </div>
         )}
         {moveIsApproved && (
