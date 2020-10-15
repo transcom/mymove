@@ -28,6 +28,8 @@ const HHGShipmentCard = ({
   shipmentType,
 }) => {
   const editPath = `/moves/${moveId}/mto-shipments/${shipmentId}/edit-shipment?shipmentNumber=${shipmentNumber}`;
+  const isNTS = shipmentType ? shipmentType === SHIPMENT_OPTIONS.NTS : false;
+  const isNTSR = shipmentType ? shipmentType === SHIPMENT_OPTIONS.NTSR : false;
   return (
     <div className={styles.ShipmentCard} data-testid="hhg-summary">
       <ShipmentContainer className={styles.container} shipmentType={shipmentType}>
@@ -43,25 +45,30 @@ const HHGShipmentCard = ({
             data-testid="edit-shipment-btn"
             onClick={() => onEditClick(editPath)}
             unstyled
+            disabled={isNTS || isNTSR}
           >
             Edit
           </Button>
         </div>
 
         <dl className={styles.shipmentCardSubsection}>
-          <div className={styles.row}>
-            <dt>Requested pickup date</dt>
-            <dd>{formatCustomerDate(requestedPickupDate)}</dd>
-          </div>
-          <div className={styles.row}>
-            <dt>Pickup location</dt>
-            <dd>
-              {pickupLocation.street_address_1} {pickupLocation.street_address_2}
-              <br />
-              {pickupLocation.city}, {pickupLocation.state} {pickupLocation.postal_code}
-            </dd>
-          </div>
-          {releasingAgent && (
+          {isNTS && (
+            <div className={styles.row}>
+              <dt>Requested pickup date</dt>
+              <dd>{formatCustomerDate(requestedPickupDate)}</dd>
+            </div>
+          )}
+          {isNTS && (
+            <div className={styles.row}>
+              <dt>Pickup location</dt>
+              <dd>
+                {pickupLocation.street_address_1} {pickupLocation.street_address_2}
+                <br />
+                {pickupLocation.city}, {pickupLocation.state} {pickupLocation.postal_code}
+              </dd>
+            </div>
+          )}
+          {isNTS && releasingAgent && (
             <div className={styles.row}>
               <dt>Releasing agent</dt>
               <dd>
@@ -79,19 +86,19 @@ const HHGShipmentCard = ({
               </dd>
             </div>
           )}
-          {shipmentType !== SHIPMENT_OPTIONS.NTS && (
+          {isNTSR && (
             <div className={styles.row}>
               <dt>Requested delivery date</dt>
               <dd>{formatCustomerDate(requestedDeliveryDate)}</dd>
             </div>
           )}
-          {shipmentType !== SHIPMENT_OPTIONS.NTS && (
+          {isNTSR && (
             <div className={styles.row}>
               <dt>Destination</dt>
               <dd>{formatCustomerDestination(destinationLocation, destinationZIP)}</dd>
             </div>
           )}
-          {shipmentType !== SHIPMENT_OPTIONS.NTS && receivingAgent && (
+          {isNTSR && receivingAgent && (
             <div className={styles.row}>
               <dt>Receiving agent</dt>
               <dd>
@@ -126,8 +133,8 @@ HHGShipmentCard.propTypes = {
   shipmentNumber: number.isRequired,
   shipmentType: string.isRequired,
   shipmentId: string.isRequired,
-  requestedPickupDate: string.isRequired,
-  pickupLocation: AddressShape.isRequired,
+  requestedPickupDate: string,
+  pickupLocation: AddressShape,
   destinationLocation: AddressShape,
   releasingAgent: shape({
     firstName: string,
@@ -135,7 +142,7 @@ HHGShipmentCard.propTypes = {
     phone: string,
     email: string,
   }),
-  requestedDeliveryDate: string.isRequired,
+  requestedDeliveryDate: string,
   destinationZIP: string.isRequired,
   onEditClick: func.isRequired,
   receivingAgent: shape({
@@ -152,6 +159,9 @@ HHGShipmentCard.defaultProps = {
   releasingAgent: null,
   receivingAgent: null,
   remarks: '',
+  requestedDeliveryDate: '',
+  requestedPickupDate: '',
+  pickupLocation: {},
 };
 
 export default HHGShipmentCard;

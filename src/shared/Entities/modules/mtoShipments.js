@@ -79,6 +79,9 @@ export function selectMTOShipmentsByMoveId(state, moveId) {
     if (shipment.shipmentType === SHIPMENT_OPTIONS.HHG_INTO_NTS_DOMESTIC) {
       shipment.shipmentType = SHIPMENT_OPTIONS.NTS;
     }
+    if (shipment.shipmentType === SHIPMENT_OPTIONS.HHG_OUTOF_NTS_DOMESTIC) {
+      shipment.shipmentType = SHIPMENT_OPTIONS.NTSR;
+    }
   }
   return mtoShipments;
 }

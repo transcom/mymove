@@ -2616,10 +2616,12 @@ definitions:
         format: date
         type: string
         readOnly: true
+        x-nullable: true
       requestedDeliveryDate:
         format: date
         type: string
         readOnly: true
+        x-nullable: true
       agents:
         $ref: '#/definitions/MTOAgents'
       customerRemarks:

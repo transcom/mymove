@@ -4336,11 +4336,13 @@ func init() {
         "requestedDeliveryDate": {
           "type": "string",
           "format": "date",
+          "x-nullable": true,
           "readOnly": true
         },
         "requestedPickupDate": {
           "type": "string",
           "format": "date",
+          "x-nullable": true,
           "readOnly": true
         },
         "secondaryDeliveryAddress": {
@@ -10882,11 +10884,13 @@ func init() {
         "requestedDeliveryDate": {
           "type": "string",
           "format": "date",
+          "x-nullable": true,
           "readOnly": true
         },
         "requestedPickupDate": {
           "type": "string",
           "format": "date",
+          "x-nullable": true,
           "readOnly": true
         },
         "secondaryDeliveryAddress": {

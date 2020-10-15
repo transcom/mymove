@@ -16,7 +16,7 @@ const ShipmentContainer = ({ className, children, shipmentType }) => {
         shipmentType === SHIPMENT_OPTIONS.HHG ||
         shipmentType === SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC ||
         shipmentType === SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
-      'container--accent--nts': shipmentType === SHIPMENT_OPTIONS.NTS,
+      'container--accent--nts': shipmentType === SHIPMENT_OPTIONS.NTS || SHIPMENT_OPTIONS.NTSR,
       'container--accent--ppm': shipmentType === SHIPMENT_OPTIONS.PPM,
     },
     className,
