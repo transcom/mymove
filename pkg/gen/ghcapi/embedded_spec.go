@@ -2981,7 +2981,10 @@ func init() {
       "enum": [
         "NEW",
         "APPROVED",
-        "APPROVALS_REQUESTED"
+        "APPROVALS_REQUESTED",
+        "New move",
+        "Move approved",
+        "Approvals requested"
       ]
     },
     "QueueMoves": {
@@ -6695,7 +6698,10 @@ func init() {
       "enum": [
         "NEW",
         "APPROVED",
-        "APPROVALS_REQUESTED"
+        "APPROVALS_REQUESTED",
+        "New move",
+        "Move approved",
+        "Approvals requested"
       ]
     },
     "QueueMoves": {

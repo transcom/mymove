@@ -28,6 +28,15 @@ const (
 
 	// QueueMoveStatusAPPROVALSREQUESTED captures enum value "APPROVALS_REQUESTED"
 	QueueMoveStatusAPPROVALSREQUESTED QueueMoveStatus = "APPROVALS_REQUESTED"
+
+	// QueueMoveStatusNewMove captures enum value "New move"
+	QueueMoveStatusNewMove QueueMoveStatus = "New move"
+
+	// QueueMoveStatusMoveApproved captures enum value "Move approved"
+	QueueMoveStatusMoveApproved QueueMoveStatus = "Move approved"
+
+	// QueueMoveStatusApprovalsRequested captures enum value "Approvals requested"
+	QueueMoveStatusApprovalsRequested QueueMoveStatus = "Approvals requested"
 )
 
 // for schema
@@ -35,7 +44,7 @@ var queueMoveStatusEnum []interface{}
 
 func init() {
 	var res []QueueMoveStatus
-	if err := json.Unmarshal([]byte(`["NEW","APPROVED","APPROVALS_REQUESTED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["NEW","APPROVED","APPROVALS_REQUESTED","New move","Move approved","Approvals requested"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

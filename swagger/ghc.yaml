@@ -2407,6 +2407,9 @@ definitions:
       - NEW
       - APPROVED
       - APPROVALS_REQUESTED
+      - New move
+      - Move approved
+      - Approvals requested
   GBLOC:
     type: string
     enum:
