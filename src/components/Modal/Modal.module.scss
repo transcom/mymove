@@ -16,7 +16,6 @@
 
   @include at-media('tablet') {
     @include u-margin-y(6);
-    @include u-margin-x('auto');
     min-width: 400px;
   }
 

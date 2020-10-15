@@ -18,12 +18,12 @@ const Modal = ({ className, ...props }) => {
     if (appContainer) {
       const scrollYPos = document.documentElement.scrollTop;
       appContainer.classList.add(styles.AppLocked);
-      document.documentElement.scrollTo(0, 0);
+      window.scrollTo(0, 0);
 
       return () => {
         if (appContainer) {
           appContainer.classList.remove(styles.AppLocked);
-          document.documentElement.scrollTo(0, scrollYPos);
+          window.scrollTo(0, scrollYPos);
         }
       };
     }
