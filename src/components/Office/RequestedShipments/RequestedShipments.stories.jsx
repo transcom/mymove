@@ -2,6 +2,8 @@ import React from 'react';
 
 import RequestedShipments from './RequestedShipments';
 
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+
 const shipments = [
   {
     approvedDate: '0001-01-01',
@@ -57,7 +59,7 @@ const shipments = [
       street_address_2: 'P.O. Box 12345',
       street_address_3: 'c/o Some Person',
     },
-    shipmentType: 'HHG',
+    shipmentType: SHIPMENT_OPTIONS.HHG,
     status: 'SUBMITTED',
     updatedAt: '2020-06-10T15:58:02.404031Z',
   },
@@ -115,7 +117,7 @@ const shipments = [
       street_address_2: 'P.O. Box 12345',
       street_address_3: 'c/o Some Person',
     },
-    shipmentType: 'HHG',
+    shipmentType: SHIPMENT_OPTIONS.HHG,
     status: 'SUBMITTED',
     updatedAt: '2020-06-10T15:58:02.404031Z',
   },
@@ -173,7 +175,7 @@ const shipments = [
       street_address_2: 'P.O. Box 12345',
       street_address_3: 'c/o Some Person',
     },
-    shipmentType: 'NTS',
+    shipmentType: SHIPMENT_OPTIONS.NTS,
     status: 'SUBMITTED',
     updatedAt: '2020-06-10T15:58:02.431995Z',
   },
