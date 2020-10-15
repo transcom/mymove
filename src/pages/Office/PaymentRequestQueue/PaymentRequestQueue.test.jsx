@@ -13,7 +13,7 @@ describe('PaymentRequestQueue', () => {
   );
 
   it('should render the h1', () => {
-    expect(wrapper.find('h1').text()).toBe('Payment Requests (0)');
+    expect(wrapper.find('h1').text()).toBe('Payment requests (0)');
   });
 
   it('should render the table', () => {
