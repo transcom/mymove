@@ -28,9 +28,9 @@ func (suite *SegmentSuite) TestValidatePER() {
 
 	suite.T().Run("validate failure 1", func(t *testing.T) {
 		per := PER{
-			Name:                         "Cross Dock Testing With Too Long a Name",
+			Name:                         "Cross Dock Testing With Too Long a Name Cross Dock Testing With Too Long a Name",
 			CommunicationNumberQualifier: "BX",
-			CommunicationNumber:          "111111111111111111111111111111111111111115551234567",
+			CommunicationNumber:          "111111111111111111111111111111111111111115551234567111111111111111111111111111111111111111115551234567",
 		}
 
 		err := suite.validator.Struct(per)
