@@ -3,6 +3,7 @@ import PropTypes, { string, number } from 'prop-types';
 import { get, isEmpty } from 'lodash';
 
 import ReviewSection from '../../components/Customer/ReviewSection';
+import SectionWrapper from '../../components/Customer/SectionWrapper';
 
 import Address from 'scenes/Review/Address';
 import { formatDateSM } from 'shared/formatters';
@@ -43,12 +44,14 @@ export default function HHGShipmentSummary(props) {
   // add shipment locator as shipment subheading when it exists
   return (
     <div data-testid="hhg-summary" className="review-content">
-      <ReviewSection
-        fieldData={hhgShipmentData}
-        title={`Shipment ${shipmentNumber}: HHG`}
-        editLink={editShipmentPath}
-        useH4
-      />
+      <SectionWrapper>
+        <ReviewSection
+          fieldData={hhgShipmentData}
+          title={`Shipment ${shipmentNumber}: HHG`}
+          editLink={editShipmentPath}
+          useH4
+        />
+      </SectionWrapper>
     </div>
   );
 }
