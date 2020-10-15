@@ -326,6 +326,7 @@ func PaymentServiceItem(ps *models.PaymentServiceItem) *ghcmessages.PaymentServi
 		PriceCents:       handlers.FmtCost(ps.PriceCents),
 		RejectionReason:  ps.RejectionReason,
 		Status:           ghcmessages.PaymentServiceItemStatus(ps.Status),
+		ReferenceID:      ps.ReferenceID,
 		ETag:             etag.GenerateEtag(ps.UpdatedAt),
 	}
 }
@@ -451,4 +452,37 @@ func ProofOfServiceDoc(proofOfService models.ProofOfServiceDoc, storer storage.F
 	return &ghcmessages.ProofOfServiceDoc{
 		Uploads: uploads,
 	}, nil
+}
+
+// QueueMoves payload
+func QueueMoves(moveOrders []models.Order) *ghcmessages.QueueMoves {
+	queueMoveOrders := make(ghcmessages.QueueMoves, len(moveOrders))
+	for i, order := range moveOrders {
+		customer := order.ServiceMember
+		// Finds the first move that is an HHG and use that locator.  Should we include combo HHG_PPM or others?
+		var hhgMove models.Move
+		for _, move := range order.Moves {
+			if *move.SelectedMoveType == models.SelectedMoveTypeHHG {
+				hhgMove = move
+				break
+			}
+		}
+
+		deptIndicator := ""
+		if order.DepartmentIndicator != nil {
+			deptIndicator = *order.DepartmentIndicator
+		}
+		queueMoveOrders[i] = &ghcmessages.QueueMove{
+			ID:       *handlers.FmtUUID(order.ID),
+			Customer: Customer(&customer),
+			// TODO Add status calculation logic here or at service/query level
+			Status:                 ghcmessages.QueueMoveStatus("NEW"),
+			Locator:                hhgMove.Locator,
+			DepartmentIndicator:    ghcmessages.DeptIndicator(deptIndicator),
+			ShipmentsCount:         int64(len(hhgMove.MTOShipments)),
+			DestinationDutyStation: DutyStation(&order.NewDutyStation),
+			OriginGBLOC:            ghcmessages.GBLOC(order.OriginDutyStation.TransportationOffice.Gbloc),
+		}
+	}
+	return &queueMoveOrders
 }

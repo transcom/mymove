@@ -19,6 +19,10 @@ type PaymentRequestServiceSuite struct {
 	fs     *afero.Afero
 }
 
+func (suite *PaymentRequestServiceSuite) SetupTest() {
+	suite.DB().TruncateAll()
+}
+
 func TestPaymentRequestServiceSuite(t *testing.T) {
 	var f = afero.NewMemMapFs()
 	file := &afero.Afero{Fs: f}

@@ -112,7 +112,7 @@ class Home extends Component {
     return !!Object.keys(orders).length && !uploadedOrderDocuments.length;
   }
 
-  get hasShipment() {
+  get hasAnyShipments() {
     const { mtoShipments, currentPpm } = this.props;
     return (this.hasOrders && !!mtoShipments.length) || !!Object.keys(currentPpm).length;
   }
@@ -133,18 +133,18 @@ class Home extends Component {
   }
 
   get hasPPMShipment() {
-    const { mtoShipments } = this.props;
-    return mtoShipments.some((s) => s.shipmentType === SHIPMENT_OPTIONS.PPM);
+    const { currentPpm } = this.props;
+    return !!Object.keys(currentPpm).length;
   }
 
   get shipmentActionBtnLabel() {
-    if (this.hasSubmittedMove) {
+    if (this.hasSubmittedMove && this.hasPPMShipment) {
       return '';
     }
-    if (this.hasShipment) {
-      return 'Plan your shipments';
+    if (this.hasAnyShipments) {
+      return 'Add another shipment';
     }
-    return 'Add another shipment';
+    return 'Plan your shipments';
   }
 
   resumeMove = () => {
@@ -181,13 +181,11 @@ class Home extends Component {
 
   renderHelper = () => {
     if (!this.hasOrders) return <HelperNeedsOrders />;
-    if (!this.hasShipment) return <HelperNeedsShipment />;
-    if (this.hasShipment && !this.hasSubmittedMove) return <HelperNeedsSubmitMove />;
-    if (this.hasSubmittedMove) {
-      if (!this.hasPPMShipment) return <HelperSubmittedNoPPM />;
-      return <HelperSubmittedMove />;
-    }
-    return null;
+    if (!this.hasAnyShipments) return <HelperNeedsShipment />;
+    if (!this.hasSubmittedMove) return <HelperNeedsSubmitMove />;
+    // TODO: support PPM shipments; see MB-4267
+    if (this.hasPPMShipment) return <HelperSubmittedMove />;
+    return <HelperSubmittedNoPPM />;
   };
 
   renderCustomerHeader = () => {
@@ -288,7 +286,9 @@ class Home extends Component {
       location,
     } = this.props;
     const ordersPath = this.hasOrdersNoUpload ? '/orders/upload' : '/orders';
-    const shipmentSelectionPath = this.hasShipment ? `/moves/${move.id}/select-type` : `/moves/${move.id}/moving-info`;
+    const shipmentSelectionPath = this.hasAnyShipments
+      ? `/moves/${move.id}/select-type`
+      : `/moves/${move.id}/moving-info`;
     const confirmationPath = `/moves/${move.id}/review`;
     const profileEditPath = '/moves/review/edit-profile';
     const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
@@ -337,18 +337,27 @@ class Home extends Component {
                     )}
                   </Step>
                   <Step
-                    actionBtnLabel={this.hasShipment ? 'Add another shipment' : 'Plan your shipments'}
-                    actionBtnDisabled={!this.hasOrders || this.hasSubmittedMove}
+                    actionBtnLabel={this.shipmentActionBtnLabel}
+                    actionBtnDisabled={!this.hasOrders || (this.hasSubmittedMove && this.doesPpmAlreadyExist)}
                     onActionBtnClick={() => this.handleNewPathClick(shipmentSelectionPath)}
-                    complete={this.hasShipment}
+                    complete={this.hasAnyShipments}
                     completedHeaderText="Shipments"
                     headerText="Shipment selection"
-                    secondaryBtn={this.hasShipment}
+                    secondaryBtn={this.hasAnyShipments}
                     secondaryClassName="margin-top-2"
                     step="3"
                   >
-                    {this.hasShipment ? (
-                      <ShipmentList shipments={allSortedShipments} onShipmentClick={this.handleShipmentClick} />
+                    {this.hasAnyShipments ? (
+                      <div>
+                        {this.hasSubmittedMove && !this.doesPpmAlreadyExist && (
+                          <p className={styles.descriptionExtra}>If you need to add shipments, let your movers know.</p>
+                        )}
+                        <ShipmentList
+                          shipments={allSortedShipments}
+                          onShipmentClick={this.handleShipmentClick}
+                          moveSubmitted={this.hasSubmittedMove}
+                        />
+                      </div>
                     ) : (
                       <Description>
                         Tell us where you&apos;re going and when you want to get there. We&apos;ll help you set up
@@ -358,7 +367,7 @@ class Home extends Component {
                   </Step>
                   <Step
                     complete={this.hasSubmittedMove}
-                    actionBtnDisabled={!this.hasShipment}
+                    actionBtnDisabled={!this.hasAnyShipments}
                     actionBtnLabel={!this.hasSubmittedMove ? 'Review and submit' : ''}
                     containerClassName="margin-bottom-8"
                     headerText="Confirm move request"

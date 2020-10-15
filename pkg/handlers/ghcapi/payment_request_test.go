@@ -49,11 +49,15 @@ func (suite *HandlerSuite) TestListPaymentRequestsHandler() {
 		paymentRequests = append(paymentRequests, paymentRequest)
 	}
 
-	suite.T().Run("successful fetch of payment requests", func(t *testing.T) {
+	suite.T().Run("When office user is TIO and fetch is successful", func(t *testing.T) {
 		paymentRequestListFetcher := &mocks.PaymentRequestListFetcher{}
-		paymentRequestListFetcher.On("FetchPaymentRequestList").Return(&paymentRequests, nil).Once()
+		officeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{
+			Stub: true,
+		})
+		paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID).Return(&paymentRequests, nil).Once()
 
 		req := httptest.NewRequest("GET", fmt.Sprintf("/payment_requests"), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 		params := paymentrequestop.ListPaymentRequestsParams{
 			HTTPRequest: req,
@@ -71,11 +75,39 @@ func (suite *HandlerSuite) TestListPaymentRequestsHandler() {
 		suite.Equal(paymentRequestID1.String(), okResponse.Payload[0].ID.String())
 	})
 
-	suite.T().Run("failed fetch of payment requests", func(t *testing.T) {
+	suite.T().Run("When office user is not TIO, response should be 403", func(t *testing.T) {
 		paymentRequestListFetcher := &mocks.PaymentRequestListFetcher{}
-		paymentRequestListFetcher.On("FetchPaymentRequestList").Return(nil, errors.New("test failed to create with err returned")).Once()
+		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
+			Stub: true,
+		})
+		paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID).Return(&paymentRequests, nil).Once()
 
 		req := httptest.NewRequest("GET", fmt.Sprintf("/payment_requests"), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		params := paymentrequestop.ListPaymentRequestsParams{
+			HTTPRequest: req,
+		}
+
+		handler := ListPaymentRequestsHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			paymentRequestListFetcher,
+		}
+		response := handler.Handle(params)
+
+		suite.IsType(&paymentrequestop.ListPaymentRequestsForbidden{}, response)
+	})
+
+	suite.T().Run("failed fetch of payment requests", func(t *testing.T) {
+		paymentRequestListFetcher := &mocks.PaymentRequestListFetcher{}
+		officeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{
+			Stub: true,
+		})
+		paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID).Return(nil, errors.New("test failed to create with err returned")).Once()
+
+		req := httptest.NewRequest("GET", fmt.Sprintf("/payment_requests"), nil)
+
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 		params := paymentrequestop.ListPaymentRequestsParams{
 			HTTPRequest: req,

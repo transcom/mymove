@@ -4,11 +4,13 @@ import { mount } from 'enzyme';
 
 import HHGShipmentCard from '.';
 
-import { formatCustomerDate } from 'shared/utils';
+import { formatCustomerDate } from 'utils/formatters';
 
 const defaultProps = {
+  editPath: '',
+  onEditClick: () => {},
   shipmentNumber: 1,
-  shipmentId: '#ABC123K-001',
+  shipmentId: '#ABC123K',
   requestedPickupDate: new Date('01/01/2020').toISOString(),
   pickupLocation: {
     street_address_1: '17 8th St',
@@ -17,15 +19,17 @@ const defaultProps = {
     postal_code: '11111',
   },
   releasingAgent: {
-    name: 'Jo Xi',
-    telephone: '(555) 555-5555',
+    firstName: 'Jo',
+    lastName: 'Xi',
+    phone: '(555) 555-5555',
     email: 'jo.xi@email.com',
   },
   requestedDeliveryDate: new Date('03/01/2020').toISOString(),
   destinationZIP: '73523',
   receivingAgent: {
-    name: 'Dorothy Lagomarsino',
-    telephone: '(999) 999-9999',
+    firstName: 'Dorothy',
+    lastName: 'Lagomarsino',
+    phone: '(999) 999-9999',
     email: 'dorothy.lagomarsino@email.com',
   },
   remarks:
@@ -48,15 +52,25 @@ describe('HHGShipmentCard component', () => {
       'Remarks',
     ];
     const { street_address_1: streetAddress1, city, state, postal_code: postalCode } = defaultProps.pickupLocation;
-    const { name: releasingName, telephone: releasingTelephone, email: releasingEmail } = defaultProps.releasingAgent;
-    const { name: receivingName, telephone: receivingTelephone, email: receivingEmail } = defaultProps.receivingAgent;
+    const {
+      firstName: releasingFirstName,
+      lastName: releasingLastName,
+      phone: releasingTelephone,
+      email: releasingEmail,
+    } = defaultProps.releasingAgent;
+    const {
+      firstName: receivingFirstName,
+      lastName: receivingLastName,
+      phone: receivingTelephone,
+      email: receivingEmail,
+    } = defaultProps.receivingAgent;
     const tableData = [
       formatCustomerDate(defaultProps.requestedPickupDate),
       `${streetAddress1} ${city}, ${state} ${postalCode}`,
-      `${releasingName} ${releasingTelephone} ${releasingEmail}`,
+      `${releasingFirstName} ${releasingLastName} ${releasingTelephone} ${releasingEmail}`,
       formatCustomerDate(defaultProps.requestedDeliveryDate),
       defaultProps.destinationZIP,
-      `${receivingName} ${receivingTelephone} ${receivingEmail}`,
+      `${receivingFirstName} ${receivingLastName} ${receivingTelephone} ${receivingEmail}`,
     ];
 
     tableHeaders.forEach((label, index) => expect(wrapper.find('dt').at(index).text()).toBe(label));

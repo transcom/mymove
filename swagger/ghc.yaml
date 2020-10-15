@@ -11,6 +11,8 @@ info:
 basePath: /ghc/v1
 schemes:
   - http
+tags:
+  - name: queues
 paths:
   '/customer/{customerID}':
     parameters:
@@ -923,6 +925,10 @@ paths:
           description: The request was denied
           schema:
             $ref: '#/definitions/Error'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
         '500':
           description: A server error occurred
           schema:
@@ -1080,6 +1086,29 @@ paths:
           description: Validation error
           schema:
             $ref: '#/definitions/ValidationError'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+  /queues/moves:
+    get:
+      produces:
+        - application/json
+      summary: Gets queued list of all customer moves by GBLOC origin
+      description: >
+        An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.
+      operationId: getMovesQueue
+      tags:
+        - queues
+      responses:
+        '200':
+          description: Successfully returned all moves matching the criteria
+          schema:
+            $ref: '#/definitions/QueueMovesResult'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
         '500':
           description: A server error occurred
           schema:
@@ -1757,6 +1786,10 @@ definitions:
         example: documentation was incomplete
         type: string
         x-nullable: true
+      referenceID:
+        example: 1234-5678-c56a4180
+        readOnly: true
+        format: string
       paymentServiceItemParams:
         $ref: '#/definitions/PaymentServiceItemParams'
       eTag:
@@ -2333,6 +2366,72 @@ definitions:
       - createdAt
       - updatedAt
     type: object
+  QueueMoves:
+    type: array
+    items:
+      $ref: '#/definitions/QueueMove'
+  QueueMove:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      customer:
+        $ref: '#/definitions/Customer'
+      status:
+        $ref: '#/definitions/QueueMoveStatus'
+      locator:
+        type: string
+      departmentIndicator:
+        $ref: '#/definitions/DeptIndicator'
+      shipmentsCount:
+        type: integer
+      destinationDutyStation:
+        $ref: '#/definitions/DutyStation'
+      originGBLOC:
+        $ref: '#/definitions/GBLOC'
+  QueueMovesResult:
+    type: object
+    properties:
+      page:
+        type: integer
+      perPage:
+        type: integer
+      totalCount:
+        type: integer
+      queueMoves:
+        $ref: '#/definitions/QueueMoves'
+  QueueMoveStatus:
+    type: string
+    enum:
+      - NEW
+      - APPROVED
+      - APPROVALS_REQUESTED
+  GBLOC:
+    type: string
+    enum:
+      - AGFM
+      - APAT
+      - BGAC
+      - BGNC
+      - BKAS
+      - CFMQ
+      - CLPK
+      - CNNQ
+      - DMAT
+      - GSAT
+      - HAFC
+      - HBAT
+      - JEAT
+      - JENQ
+      - KKFA
+      - LHNQ
+      - LKNQ
+      - MAPK
+      - MAPS
+      - MBFL
+      - MLNQ
+      - XXXX
 responses:
   InvalidRequest:
     description: The request payload is invalid

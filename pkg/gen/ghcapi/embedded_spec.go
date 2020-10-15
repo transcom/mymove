@@ -1448,6 +1448,12 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
           "500": {
             "description": "A server error occurred",
             "schema": {
@@ -1599,6 +1605,39 @@ func init() {
             "description": "Validation error",
             "schema": {
               "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      }
+    },
+    "/queues/moves": {
+      "get": {
+        "description": "An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all customer moves by GBLOC origin",
+        "operationId": "getMovesQueue",
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/QueueMovesResult"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
             }
           },
           "500": {
@@ -2022,6 +2061,33 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "GBLOC": {
+      "type": "string",
+      "enum": [
+        "AGFM",
+        "APAT",
+        "BGAC",
+        "BGNC",
+        "BKAS",
+        "CFMQ",
+        "CLPK",
+        "CNNQ",
+        "DMAT",
+        "GSAT",
+        "HAFC",
+        "HBAT",
+        "JEAT",
+        "JENQ",
+        "KKFA",
+        "LHNQ",
+        "LKNQ",
+        "MAPK",
+        "MAPS",
+        "MBFL",
+        "MLNQ",
+        "XXXX"
+      ]
     },
     "MTOAgent": {
       "type": "object",
@@ -2778,6 +2844,11 @@ func init() {
           "title": "Price of the service item in cents",
           "x-nullable": true
         },
+        "referenceID": {
+          "format": "string",
+          "readOnly": true,
+          "example": "1234-5678-c56a4180"
+        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -2872,6 +2943,67 @@ func init() {
           "items": {
             "$ref": "#/definitions/Upload"
           }
+        }
+      }
+    },
+    "QueueMove": {
+      "type": "object",
+      "properties": {
+        "customer": {
+          "$ref": "#/definitions/Customer"
+        },
+        "departmentIndicator": {
+          "$ref": "#/definitions/DeptIndicator"
+        },
+        "destinationDutyStation": {
+          "$ref": "#/definitions/DutyStation"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "locator": {
+          "type": "string"
+        },
+        "originGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "shipmentsCount": {
+          "type": "integer"
+        },
+        "status": {
+          "$ref": "#/definitions/QueueMoveStatus"
+        }
+      }
+    },
+    "QueueMoveStatus": {
+      "type": "string",
+      "enum": [
+        "NEW",
+        "APPROVED",
+        "APPROVALS_REQUESTED"
+      ]
+    },
+    "QueueMoves": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/QueueMove"
+      }
+    },
+    "QueueMovesResult": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer"
+        },
+        "perPage": {
+          "type": "integer"
+        },
+        "queueMoves": {
+          "$ref": "#/definitions/QueueMoves"
+        },
+        "totalCount": {
+          "type": "integer"
         }
       }
     },
@@ -3250,7 +3382,12 @@ func init() {
         "$ref": "#/definitions/Error"
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "queues"
+    }
+  ]
 }`))
 	FlatSwaggerJSON = json.RawMessage([]byte(`{
   "schemes": [
@@ -4983,6 +5120,15 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
           "500": {
             "description": "A server error occurred",
             "schema": {
@@ -5164,6 +5310,45 @@ func init() {
             "description": "Validation error",
             "schema": {
               "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queues/moves": {
+      "get": {
+        "description": "An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all customer moves by GBLOC origin",
+        "operationId": "getMovesQueue",
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/QueueMovesResult"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
             }
           },
           "500": {
@@ -5590,6 +5775,33 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "GBLOC": {
+      "type": "string",
+      "enum": [
+        "AGFM",
+        "APAT",
+        "BGAC",
+        "BGNC",
+        "BKAS",
+        "CFMQ",
+        "CLPK",
+        "CNNQ",
+        "DMAT",
+        "GSAT",
+        "HAFC",
+        "HBAT",
+        "JEAT",
+        "JENQ",
+        "KKFA",
+        "LHNQ",
+        "LKNQ",
+        "MAPK",
+        "MAPS",
+        "MBFL",
+        "MLNQ",
+        "XXXX"
+      ]
     },
     "MTOAgent": {
       "type": "object",
@@ -6346,6 +6558,11 @@ func init() {
           "title": "Price of the service item in cents",
           "x-nullable": true
         },
+        "referenceID": {
+          "format": "string",
+          "readOnly": true,
+          "example": "1234-5678-c56a4180"
+        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -6440,6 +6657,67 @@ func init() {
           "items": {
             "$ref": "#/definitions/Upload"
           }
+        }
+      }
+    },
+    "QueueMove": {
+      "type": "object",
+      "properties": {
+        "customer": {
+          "$ref": "#/definitions/Customer"
+        },
+        "departmentIndicator": {
+          "$ref": "#/definitions/DeptIndicator"
+        },
+        "destinationDutyStation": {
+          "$ref": "#/definitions/DutyStation"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "locator": {
+          "type": "string"
+        },
+        "originGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "shipmentsCount": {
+          "type": "integer"
+        },
+        "status": {
+          "$ref": "#/definitions/QueueMoveStatus"
+        }
+      }
+    },
+    "QueueMoveStatus": {
+      "type": "string",
+      "enum": [
+        "NEW",
+        "APPROVED",
+        "APPROVALS_REQUESTED"
+      ]
+    },
+    "QueueMoves": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/QueueMove"
+      }
+    },
+    "QueueMovesResult": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer"
+        },
+        "perPage": {
+          "type": "integer"
+        },
+        "queueMoves": {
+          "$ref": "#/definitions/QueueMoves"
+        },
+        "totalCount": {
+          "type": "integer"
         }
       }
     },
@@ -6818,6 +7096,11 @@ func init() {
         "$ref": "#/definitions/Error"
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "queues"
+    }
+  ]
 }`))
 }

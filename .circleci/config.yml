@@ -13,7 +13,8 @@ version: '2.1'
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-1e5a1038cb264651fbd844b82489401a476e9f7e
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-6fc6df164790ca7c9261696f113e403d711e4af0
+
   postgres: &postgres postgres:12.2
 
 executors:
@@ -383,6 +384,7 @@ commands:
             DB_PORT: 5432
             DB_NAME: test_db
             DB_NAME_TEST: test_db
+            GODEBUG: 'x509ignoreCN=0'
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test

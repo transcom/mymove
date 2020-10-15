@@ -5,7 +5,7 @@ import Summary from './Summary';
 import { connect } from 'react-redux';
 import scrollToTop from 'shared/scrollToTop';
 import { hasShortHaulError } from 'shared/incentive';
-
+import styles from './Review.module.scss';
 import './Review.css';
 
 class Review extends Component {
@@ -17,7 +17,7 @@ class Review extends Component {
     const { pages, pageKey } = this.props;
 
     return (
-      <div>
+      <div className="review-move-container">
         <WizardPage
           handleSubmit={no_op}
           pageList={pages}
@@ -27,11 +27,15 @@ class Review extends Component {
           hideBackBtn
           showFinishLaterBtn
         >
-          <h1 data-testid="review-move-header">Review your details</h1>
-          <p>
-            You’re almost done setting up your move. Double-check that your information is accurate, then move on to the
-            final step.
-          </p>
+          <div className={`${styles.reviewMoveHeaderContainer} grid-row`}>
+            <h1 className="tablet:grid-col-10" data-testid="review-move-header">
+              Review your details
+            </h1>
+            <p className="tablet:grid-col-9">
+              You’re almost done setting up your move. Double&#8209;check that your information is accurate, then move
+              on to the final step.
+            </p>
+          </div>
           <Summary />
         </WizardPage>
       </div>

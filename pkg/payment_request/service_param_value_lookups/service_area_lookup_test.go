@@ -8,8 +8,8 @@ import (
 )
 
 func (suite *ServiceParamValueLookupsSuite) TestServiceAreaLookup() {
-	originKey := models.ServiceItemParamNameServiceAreaOrigin.String()
-	destKey := models.ServiceItemParamNameServiceAreaDest.String()
+	originKey := models.ServiceItemParamNameServiceAreaOrigin
+	destKey := models.ServiceItemParamNameServiceAreaDest
 
 	originAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 		Address: models.Address{
@@ -66,7 +66,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceAreaLookup() {
 	})
 
 	suite.T().Run("origin golden path", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
 		valueStr, err := paramLookup.ServiceParamValue(originKey)
@@ -75,7 +75,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceAreaLookup() {
 	})
 
 	suite.T().Run("destination golden path", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
 		valueStr, err := paramLookup.ServiceParamValue(destKey)
