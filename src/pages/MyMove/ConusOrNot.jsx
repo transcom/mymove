@@ -11,10 +11,15 @@ export class ConusOrNot extends Component {
   render() {
     const { setLocation, conusStatus } = this.props;
     const selectableCardDefaultProps = {};
-    const oconusCardText = `Starts or ends in Alaska, Hawaii, or International locations`;
-    /* 'Starts or ends in Alaska, Hawaii, or International locations'
-        BOLD 'MilMove does not support OCONUS moves yet.' BOLD
-        'Contact your current transportation office to set up your move.'; */
+    const oconusCardText = (
+      <>
+        <p>Starts or ends in Alaska, Hawaii, or International locations</p>
+        <p>
+          <strong>MilMove does not support OCONUS moves yet.</strong> Contact your current transportation office to set
+          up your move.
+        </p>
+      </>
+    );
 
     return (
       <div className="grid-row">
