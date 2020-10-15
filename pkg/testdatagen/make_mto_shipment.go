@@ -12,11 +12,21 @@ import (
 
 // MakeMTOShipment creates a single MTOShipment and associated set relationships
 func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipment {
-
+	shipmentType := models.MTOShipmentTypeHHG
+	shipmentStatus := models.MTOShipmentStatusDraft
+	mtoShipment := assertions.MTOShipment
 	// Make move if it was not provided
 	moveTaskOrder := assertions.Move
 	if isZeroUUID(moveTaskOrder.ID) {
 		moveTaskOrder = MakeMove(db, assertions)
+	}
+
+	if mtoShipment.ShipmentType != "" {
+		shipmentType = mtoShipment.ShipmentType
+	}
+
+	if mtoShipment.Status != "" {
+		shipmentStatus = mtoShipment.Status
 	}
 
 	// Make pickup address if it was not provided
@@ -72,8 +82,8 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		PrimeActualWeight:        &actualWeight,
 		SecondaryPickupAddress:   &secondaryPickupAddress,
 		SecondaryDeliveryAddress: &secondaryDeliveryAddress,
-		ShipmentType:             models.MTOShipmentTypeHHG,
-		Status:                   "DRAFT",
+		ShipmentType:             shipmentType,
+		Status:                   shipmentStatus,
 		RejectionReason:          swag.String("Not enough information"),
 	}
 
