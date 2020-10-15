@@ -20,7 +20,7 @@ const columns = [
 const PaymentRequestQueue = () => {
   return (
     <GridContainer containerSize="widescreen" className={styles.PaymentRequestQueue}>
-      <h1>Payment Requests (0)</h1>
+      <h1>Payment requests (0)</h1>
       <div className={styles.tableContainer}>
         <Table columns={columns} />
       </div>
