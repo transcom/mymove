@@ -221,152 +221,154 @@ class HHGDetailsForm extends Component {
     const { hasDeliveryAddress, useCurrentResidence, initialValues } = this.state;
     const fieldsetClasses = 'margin-top-2';
     return (
-      <Formik
-        initialValues={initialValues}
-        enableReinitialize
-        validateOnBlur
-        validateOnChange
-        validationSchema={HHGDetailsFormSchema}
-      >
-        {({ values, dirty, isValid }) => (
-          <WizardPage
-            canMoveNext={dirty && isValid}
-            match={match}
-            pageKey={pageKey}
-            pageList={pageList}
-            push={push}
-            handleSubmit={() => this.submitMTOShipment(values, dirty)}
-          >
-            <h1>Now lets arrange details for the professional movers</h1>
-            <Form className={styles.HHGDetailsForm}>
-              <SectionWrapper>
-                <Fieldset legend="Pickup date" className={fieldsetClasses}>
-                  <Field
-                    as={DatePickerInput}
-                    name="requestedPickupDate"
-                    label="Requested pickup date"
-                    id="requestedPickupDate"
-                    value={values.requestedPickupDate}
-                    validate={validateDate}
-                  />
-                  <span className="usa-hint" id="pickupDateHint">
-                    Your movers will confirm this date or one shortly before or after.
-                  </span>
-                </Fieldset>
-              </SectionWrapper>
+      <div className="wrapper-co">
+        <Formik
+          initialValues={initialValues}
+          enableReinitialize
+          validateOnBlur
+          validateOnChange
+          validationSchema={HHGDetailsFormSchema}
+        >
+          {({ values, dirty, isValid }) => (
+            <WizardPage
+              canMoveNext={dirty && isValid}
+              match={match}
+              pageKey={pageKey}
+              pageList={pageList}
+              push={push}
+              handleSubmit={() => this.submitMTOShipment(values, dirty)}
+            >
+              <h1>Now lets arrange details for the professional movers</h1>
+              <Form className={styles.HHGDetailsForm}>
+                <SectionWrapper>
+                  <Fieldset legend="Pickup date" className={fieldsetClasses}>
+                    <Field
+                      as={DatePickerInput}
+                      name="requestedPickupDate"
+                      label="Requested pickup date"
+                      id="requestedPickupDate"
+                      value={values.requestedPickupDate}
+                      validate={validateDate}
+                    />
+                    <span className="usa-hint" id="pickupDateHint">
+                      Your movers will confirm this date or one shortly before or after.
+                    </span>
+                  </Fieldset>
+                </SectionWrapper>
 
-              <SectionWrapper>
-                <AddressFields
-                  name="pickupAddress"
-                  legend="Pickup location"
-                  className={fieldsetClasses}
-                  renderExistingAddressCheckbox={() => (
-                    <div className="margin-y-2">
-                      <Checkbox
-                        data-testid="useCurrentResidence"
-                        label="Use my current residence address"
-                        name="useCurrentResidence"
-                        checked={useCurrentResidence}
-                        onChange={() => this.handleUseCurrentResidenceChange(values)}
+                <SectionWrapper>
+                  <AddressFields
+                    name="pickupAddress"
+                    legend="Pickup location"
+                    className={fieldsetClasses}
+                    renderExistingAddressCheckbox={() => (
+                      <div className="margin-y-2">
+                        <Checkbox
+                          data-testid="useCurrentResidence"
+                          label="Use my current residence address"
+                          name="useCurrentResidence"
+                          checked={useCurrentResidence}
+                          onChange={() => this.handleUseCurrentResidenceChange(values)}
+                        />
+                      </div>
+                    )}
+                    values={values.pickupAddress}
+                  />
+                </SectionWrapper>
+
+                <SectionWrapper>
+                  <ContactInfoFields
+                    name="releasingAgent"
+                    legend="Releasing agent"
+                    className={fieldsetClasses}
+                    subtitle="Who can allow the movers to take your stuff if you're not there?"
+                    subtitleClassName="margin-y-2"
+                    values={values.releasingAgent}
+                  />
+                </SectionWrapper>
+
+                <SectionWrapper>
+                  <Fieldset legend="Delivery date" className={fieldsetClasses}>
+                    <DatePickerInput
+                      name="requestedDeliveryDate"
+                      label="Requested delivery date"
+                      id="requestedDeliveryDate"
+                      value={values.requestedDeliveryDate}
+                      validate={validateDate}
+                    />
+                    <small className="usa-hint" id="deliveryDateHint">
+                      Your movers will confirm this date or one shortly before or after.
+                    </small>
+                  </Fieldset>
+                </SectionWrapper>
+
+                <SectionWrapper>
+                  <Fieldset legend="Delivery location" className={fieldsetClasses}>
+                    <Label>Do you know your delivery address?</Label>
+                    <div className="display-flex margin-top-1">
+                      <Radio
+                        id="has-delivery-address"
+                        label="Yes"
+                        name="hasDeliveryAddress"
+                        onChange={this.handleChangeHasDeliveryAddress}
+                        checked={hasDeliveryAddress}
+                      />
+                      <Radio
+                        id="no-delivery-address"
+                        label="No"
+                        name="hasDeliveryAddress"
+                        checked={!hasDeliveryAddress}
+                        onChange={this.handleChangeHasDeliveryAddress}
                       />
                     </div>
-                  )}
-                  values={values.pickupAddress}
-                />
-              </SectionWrapper>
+                    {hasDeliveryAddress ? (
+                      <AddressFields name="destinationAddress" values={values.destinationAddress} />
+                    ) : (
+                      <>
+                        <div>
+                          <p className={fieldsetClasses}>
+                            We can use the zip of your new duty station.
+                            <br />
+                            <strong>
+                              {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
+                              {newDutyStationAddress.postal_code}{' '}
+                            </strong>
+                          </p>
+                        </div>
+                      </>
+                    )}
+                  </Fieldset>
+                </SectionWrapper>
 
-              <SectionWrapper>
-                <ContactInfoFields
-                  name="releasingAgent"
-                  legend="Releasing agent"
-                  className={fieldsetClasses}
-                  subtitle="Who can allow the movers to take your stuff if you're not there?"
-                  subtitleClassName="margin-y-2"
-                  values={values.releasingAgent}
-                />
-              </SectionWrapper>
-
-              <SectionWrapper>
-                <Fieldset legend="Delivery date" className={fieldsetClasses}>
-                  <DatePickerInput
-                    name="requestedDeliveryDate"
-                    label="Requested delivery date"
-                    id="requestedDeliveryDate"
-                    value={values.requestedDeliveryDate}
-                    validate={validateDate}
+                <SectionWrapper>
+                  <ContactInfoFields
+                    name="receivingAgent"
+                    legend="Receiving agent"
+                    className={fieldsetClasses}
+                    subtitle="Who can take delivery for you if the movers arrive and you're not there?"
+                    subtitleClassName="margin-y-2"
+                    values={values.receivingAgent}
                   />
-                  <small className="usa-hint" id="deliveryDateHint">
-                    Your movers will confirm this date or one shortly before or after.
-                  </small>
-                </Fieldset>
-              </SectionWrapper>
+                </SectionWrapper>
 
-              <SectionWrapper>
-                <Fieldset legend="Delivery location" className={fieldsetClasses}>
-                  <Label>Do you know your delivery address?</Label>
-                  <div className="display-flex margin-top-1">
-                    <Radio
-                      id="has-delivery-address"
-                      label="Yes"
-                      name="hasDeliveryAddress"
-                      onChange={this.handleChangeHasDeliveryAddress}
-                      checked={hasDeliveryAddress}
+                <SectionWrapper>
+                  <Fieldset legend="Remarks" className={fieldsetClasses}>
+                    <TextInput
+                      label="Anything else you would like us to know?"
+                      labelHint="(optional)"
+                      data-testid="remarks"
+                      name="customerRemarks"
+                      id="customerRemarks"
+                      maxLength={1500}
+                      value={values.customerRemarks}
                     />
-                    <Radio
-                      id="no-delivery-address"
-                      label="No"
-                      name="hasDeliveryAddress"
-                      checked={!hasDeliveryAddress}
-                      onChange={this.handleChangeHasDeliveryAddress}
-                    />
-                  </div>
-                  {hasDeliveryAddress ? (
-                    <AddressFields name="destinationAddress" values={values.destinationAddress} />
-                  ) : (
-                    <>
-                      <div>
-                        <p className={fieldsetClasses}>
-                          We can use the zip of your new duty station.
-                          <br />
-                          <strong>
-                            {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
-                            {newDutyStationAddress.postal_code}{' '}
-                          </strong>
-                        </p>
-                      </div>
-                    </>
-                  )}
-                </Fieldset>
-              </SectionWrapper>
-
-              <SectionWrapper>
-                <ContactInfoFields
-                  name="receivingAgent"
-                  legend="Receiving agent"
-                  className={fieldsetClasses}
-                  subtitle="Who can take delivery for you if the movers arrive and you're not there?"
-                  subtitleClassName="margin-y-2"
-                  values={values.receivingAgent}
-                />
-              </SectionWrapper>
-
-              <SectionWrapper>
-                <Fieldset legend="Remarks" className={fieldsetClasses}>
-                  <TextInput
-                    label="Anything else you would like us to know?"
-                    labelHint="(optional)"
-                    data-testid="remarks"
-                    name="customerRemarks"
-                    id="customerRemarks"
-                    maxLength={1500}
-                    value={values.customerRemarks}
-                  />
-                </Fieldset>
-              </SectionWrapper>
-            </Form>
-          </WizardPage>
-        )}
-      </Formik>
+                  </Fieldset>
+                </SectionWrapper>
+              </Form>
+            </WizardPage>
+          )}
+        </Formik>
+      </div>
     );
   }
 }
