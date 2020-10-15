@@ -23,10 +23,6 @@ func MakeOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser
 		user = MakeUser(db, assertions)
 	}
 
-	if assertions.User.CurrentAdminSessionID == "" {
-		assertions.User.CurrentAdminSessionID = "admin-session"
-	}
-
 	if assertions.User.LoginGovEmail != "" {
 		email = assertions.User.LoginGovEmail
 	}
@@ -106,6 +102,28 @@ func MakeTIOOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeU
 	officeUser := MakeOfficeUser(db, Assertions{
 		OfficeUser: models.OfficeUser{
 			User: tioUser,
+		},
+		Stub: assertions.Stub,
+	})
+
+	return officeUser
+}
+
+// MakeTOOOfficeUser makes an OfficeUser with the TOO role
+func MakeTOOOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser {
+	tooRole := roles.Role{
+		ID:       uuid.Must(uuid.NewV4()),
+		RoleType: roles.RoleTypeTOO,
+		RoleName: "Transportation Ordering Officer",
+	}
+
+	tooUser := models.User{
+		Roles: []roles.Role{tooRole},
+	}
+
+	officeUser := MakeOfficeUser(db, Assertions{
+		OfficeUser: models.OfficeUser{
+			User: tooUser,
 		},
 		Stub: assertions.Stub,
 	})
