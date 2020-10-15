@@ -10,7 +10,7 @@ import styles from './SelectableCard.module.scss';
 const SelectableCard = ({ id, label, name, value, cardText, onChange, disabled, checked, onHelpClick }) => {
   return (
     <div className={classnames(styles.cardContainer, { [styles.selected]: checked })}>
-      <div className={styles.cardContent}>
+      <div className={styles.cardTitle}>
         <Radio
           id={id}
           label={label}
@@ -20,15 +20,15 @@ const SelectableCard = ({ id, label, name, value, cardText, onChange, disabled, 
           checked={checked}
           disabled={disabled}
         />
-        <div data-testid="selectableCardText" className={styles.cardText}>
-          {cardText}
-        </div>
+        {onHelpClick && (
+          <Button type="button" onClick={onHelpClick} unstyled className={styles.helpButton}>
+            <FontAwesomeIcon icon={faQuestionCircle} />
+          </Button>
+        )}
       </div>
-      {onHelpClick && (
-        <Button type="button" onClick={onHelpClick} unstyled className={styles.helpButton}>
-          <FontAwesomeIcon icon={faQuestionCircle} />
-        </Button>
-      )}
+      <div data-testid="selectableCardText" className={styles.cardText}>
+        {cardText}
+      </div>
     </div>
   );
 };

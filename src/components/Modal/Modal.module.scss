@@ -36,10 +36,17 @@
   }
 
   h4 {
+    font-size: 15px;
+    line-height: 1.4;
+
     @include u-margin-y(0);
 
+    @include at-media(tablet) {
+      @include typeset('body', 6, 2);
+    }
+
     + p {
-      @include u-margin-top(1);
+      @include u-margin-top(2);
     }
   }
 
@@ -56,17 +63,20 @@
   }
 
   ul {
-    list-style-position: inside;
-    @include u-padding(0);
+    @include u-padding-left(2);
+  }
+
+  li + li {
+    @include u-margin-top(0.5);
   }
 
   p + p {
-    @include u-margin-top(1);
+    @include u-margin-top(2);
   }
 
   p + ul,
   ul + p {
-    @include u-margin-top(3);
+    @include u-margin-top(2);
   }
 
   :global(.usa-form) {
