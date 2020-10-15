@@ -6,7 +6,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { Fieldset } from '@trussworks/react-uswds';
 
-import styles from './MtoShipmentFormStyles.module.scss';
+import styles from './module.scss';
 import { RequiredPlaceSchema, OptionalPlaceSchema } from './validationSchemas';
 import { PickupFields } from './FormGroups/PickupFields';
 import { DeliveryFields } from './FormGroups/DeliveryFields';
