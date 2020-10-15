@@ -20,15 +20,6 @@ type QueueMoveStatus string
 
 const (
 
-	// QueueMoveStatusNEW captures enum value "NEW"
-	QueueMoveStatusNEW QueueMoveStatus = "NEW"
-
-	// QueueMoveStatusAPPROVED captures enum value "APPROVED"
-	QueueMoveStatusAPPROVED QueueMoveStatus = "APPROVED"
-
-	// QueueMoveStatusAPPROVALSREQUESTED captures enum value "APPROVALS_REQUESTED"
-	QueueMoveStatusAPPROVALSREQUESTED QueueMoveStatus = "APPROVALS_REQUESTED"
-
 	// QueueMoveStatusNewMove captures enum value "New move"
 	QueueMoveStatusNewMove QueueMoveStatus = "New move"
 
@@ -44,7 +35,7 @@ var queueMoveStatusEnum []interface{}
 
 func init() {
 	var res []QueueMoveStatus
-	if err := json.Unmarshal([]byte(`["NEW","APPROVED","APPROVALS_REQUESTED","New move","Move approved","Approvals requested"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["New move","Move approved","Approvals requested"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
