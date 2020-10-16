@@ -63,7 +63,7 @@ const PaymentRequestQueue = ({ history }) => {
 
   return (
     <GridContainer containerSize="widescreen" className={styles.PaymentRequestQueue}>
-      <h1>Payment requests (0)</h1>
+      <h1>{`Payment requests (${totalCount})`}</h1>
       <div className={styles.tableContainer}>
         <Table columns={columns} data={queuePaymentRequests} hiddenColumns={['id']} handleClick={handleClick} />
       </div>
