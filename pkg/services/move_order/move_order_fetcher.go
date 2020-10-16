@@ -23,9 +23,6 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID) ([]models.Order
 	err := f.db.Q().
 		Join("office_users", "transportation_offices.id = office_users.transportation_office_id").
 		Where("office_users.id = ?", officeUserID).First(&transportationOffice)
-	if err != nil {
-		return []models.Order{}, err
-	}
 
 	if err != nil {
 		return []models.Order{}, err
