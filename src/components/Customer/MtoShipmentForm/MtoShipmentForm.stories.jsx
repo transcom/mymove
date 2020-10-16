@@ -3,8 +3,9 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 
-import { HHGDetailsFormComponent as HHGDetailsForm } from './HHGDetailsForm';
+import { MtoShipmentFormComponent as MtoShipmentForm } from './MtoShipmentForm';
 
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { history, store } from 'shared/store';
 
 const defaultProps = {
@@ -33,17 +34,19 @@ const defaultProps = {
 };
 
 export default {
-  title: 'Customer Components | HHGDetailsForm',
+  title: 'Customer Components | MtoShipmentForm',
 };
 
 function renderStory(props) {
   return (
     <Provider store={store}>
       <ConnectedRouter history={history}>
-        <HHGDetailsForm {...defaultProps} {...props} />
+        <MtoShipmentForm {...defaultProps} {...props} />
       </ConnectedRouter>
     </Provider>
   );
 }
 
-export const Basic = () => renderStory();
+export const HHGShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.HHG });
+export const NTSReleaseShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.NTSR });
+export const NTSShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.NTS });

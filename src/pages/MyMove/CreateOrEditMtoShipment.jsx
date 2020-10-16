@@ -5,10 +5,8 @@ import { string, func } from 'prop-types';
 
 import '../../ghc_index.scss';
 
+import MtoShipmentForm from 'components/Customer/MtoShipmentForm/MtoShipmentForm';
 import EditShipment from 'components/Customer/EditShipment';
-import HHGDetailsForm from 'components/Customer/MtoShipments/HHGDetailsForm';
-import NTSDetailsForm from 'components/Customer/MtoShipments/NTSDetailsForm';
-import NTSrDetailsForm from 'components/Customer/MtoShipments/NTSrDetailsForm';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import {
   loadMTOShipments as loadMTOShipmentsAction,
@@ -30,17 +28,10 @@ class CreateOrEditMtoShipment extends Component {
 
     return (
       <div>
-        {selectedMoveType === SHIPMENT_OPTIONS.HHG && (
-          <div>
-            {isHHGFormPage && <HHGDetailsForm wizardPage={wizardPage} mtoShipment={mtoShipment} />}
-            {!isHHGFormPage && <EditShipment mtoShipment={mtoShipment} match={match} history={history} />}
-          </div>
-        )}
-        {selectedMoveType === SHIPMENT_OPTIONS.NTS && (
-          <NTSDetailsForm wizardPage={wizardPage} mtoShipment={mtoShipment} />
-        )}
-        {selectedMoveType === SHIPMENT_OPTIONS.NTSR && (
-          <NTSrDetailsForm wizardPage={wizardPage} mtoShipment={mtoShipment} />
+        {selectedMoveType === SHIPMENT_OPTIONS.HHG && !isHHGFormPage ? (
+          <EditShipment mtoShipment={mtoShipment} match={match} history={history} />
+        ) : (
+          <MtoShipmentForm wizardPage={wizardPage} mtoShipment={mtoShipment} selectedMoveType={selectedMoveType} />
         )}
       </div>
     );

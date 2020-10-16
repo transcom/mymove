@@ -47,12 +47,12 @@ function mountCreateOrEditMtoShipment(props) {
 
 describe('CreateOrEditMtoShipment component', () => {
   describe('when shipmentType is HHG', () => {
-    it('renders only the HHGDetailsForm component', () => {
+    it('renders only the MtoShipmentForm component', () => {
       const wrapper = mountCreateOrEditMtoShipment({
         selectedMoveType: SHIPMENT_OPTIONS.HHG,
         wizardPage: mockWizardPage('/moves/:moveId/hhg-start'),
       });
-      expect(wrapper.find('HHGDetailsForm').length).toBe(1);
+      expect(wrapper.find('MtoShipmentForm').length).toBe(1);
       expect(wrapper.find('EditShipment').length).toBe(0);
     });
 
@@ -61,20 +61,16 @@ describe('CreateOrEditMtoShipment component', () => {
         selectedMoveType: SHIPMENT_OPTIONS.HHG,
       });
       expect(wrapper.find('EditShipment').length).toBe(1);
-      expect(wrapper.find('HHGDetailsForm').length).toBe(0);
-      expect(wrapper.find('NTSDetailsForm').length).toBe(0);
-      expect(wrapper.find('NTSrDetailsForm').length).toBe(0);
+      expect(wrapper.find('MtoShipmentForm').length).toBe(0);
     });
   });
 
   describe('when shipmentType is NTS', () => {
-    it('renders only the NTSDetailsForm component', () => {
+    it('renders only the MtoShipmentForm component', () => {
       const wrapper = mountCreateOrEditMtoShipment({
         selectedMoveType: SHIPMENT_OPTIONS.NTS,
       });
-      expect(wrapper.find('NTSDetailsForm').length).toBe(1);
-      expect(wrapper.find('NTSrDetailsForm').length).toBe(0);
-      expect(wrapper.find('HHGDetailsForm').length).toBe(0);
+      expect(wrapper.find('MtoShipmentForm').length).toBe(1);
       expect(wrapper.find('EditShipment').length).toBe(0);
     });
   });
@@ -84,9 +80,7 @@ describe('CreateOrEditMtoShipment component', () => {
       const wrapper = mountCreateOrEditMtoShipment({
         selectedMoveType: SHIPMENT_OPTIONS.NTSR,
       });
-      expect(wrapper.find('NTSrDetailsForm').length).toBe(1);
-      expect(wrapper.find('NTSDetailsForm').length).toBe(0);
-      expect(wrapper.find('HHGDetailsForm').length).toBe(0);
+      expect(wrapper.find('MtoShipmentForm').length).toBe(1);
       expect(wrapper.find('EditShipment').length).toBe(0);
     });
   });
