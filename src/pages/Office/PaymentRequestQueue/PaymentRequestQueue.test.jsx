@@ -54,11 +54,11 @@ describe('PaymentRequestQueue', () => {
     </MockProviders>,
   );
 
-  it('should render the h1', () => {
+  it('renders the h1', () => {
     expect(wrapper.find('h1').text()).toBe('Payment requests (0)');
   });
 
-  it('should render the table with data', () => {
+  it('renders the table with data', () => {
     expect(wrapper.find('Table').exists()).toBe(true);
     expect(wrapper.find('tbody tr').length).toBe(1);
   });
