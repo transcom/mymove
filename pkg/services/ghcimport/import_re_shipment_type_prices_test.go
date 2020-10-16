@@ -1,7 +1,11 @@
 package ghcimport
 
 import (
+	"errors"
 	"testing"
+
+	"github.com/jackc/pgconn"
+	"github.com/jackc/pgerrcode"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -29,7 +33,9 @@ func (suite *GHCRateEngineImportSuite) Test_importREShipmentTypePrices() {
 	suite.T().Run("run a second time; should fail immediately due to constraint violation", func(t *testing.T) {
 		err := gre.importREShipmentTypePrices(suite.DB())
 		if suite.Error(err) {
-			suite.Contains(err.Error(), "re_shipment_type_prices_unique_key")
+			var pgErr *pgconn.PgError
+			suite.True(errors.As(err, &pgErr))
+			suite.True(pgErr.Code == pgerrcode.UniqueViolation && pgErr.ConstraintName == "re_shipment_type_prices_unique_key")
 		}
 
 		// Check to see if anything else changed

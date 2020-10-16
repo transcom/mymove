@@ -1,7 +1,11 @@
 package ghcimport
 
 import (
+	"errors"
 	"testing"
+
+	"github.com/jackc/pgconn"
+	"github.com/jackc/pgerrcode"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
@@ -34,7 +38,9 @@ func (suite *GHCRateEngineImportSuite) Test_importRETaskOrderFees() {
 	suite.T().Run("run a second time; should fail immediately due to constraint violation", func(t *testing.T) {
 		err := gre.importRETaskOrderFees(suite.DB())
 		if suite.Error(err) {
-			suite.Contains(err.Error(), "duplicate key value violates unique constraint")
+			var pgErr *pgconn.PgError
+			suite.True(errors.As(err, &pgErr))
+			suite.True(pgErr.Code == pgerrcode.UniqueViolation && pgErr.ConstraintName == "re_task_order_fees_unique_key")
 		}
 
 		// Check to see if anything else changed
