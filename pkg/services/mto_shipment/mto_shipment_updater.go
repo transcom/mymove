@@ -526,9 +526,11 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 	if shipment.Status == models.MTOShipmentStatusApproved {
 		// If we're approving a shipment, we also need the move the shipment is in to change statuses
 		moveToUpdate := shipment.MoveTaskOrder
-		err = moveToUpdate.Approve()
-		if err != nil {
-			return &models.MTOShipment{}, err
+		if moveToUpdate.Status == models.MoveStatusSUBMITTED {
+			err = moveToUpdate.Approve()
+			if err != nil {
+				return &models.MTOShipment{}, err
+			}
 		}
 
 		verrs, err := o.builder.UpdateOne(&moveToUpdate, nil)
