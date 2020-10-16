@@ -318,3 +318,14 @@ export const dropdownInputOptions = (options) => {
 export const filenameFromPath = (filePath) => {
   return path.basename(filePath);
 };
+
+// Formats the numeric age input to a human readable string. Eg. 1.5 = 1 day, 2.5 = 2 days
+export const formatAgeToDays = (age) => {
+  if (age < 1) {
+    return 'Less than 1 day';
+  }
+  if (age > 1 && age < 2) {
+    return '1 day';
+  }
+  return `${Math.floor(age)} days`;
+};

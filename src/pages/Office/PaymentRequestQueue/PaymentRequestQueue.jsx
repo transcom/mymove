@@ -10,18 +10,42 @@ import { createHeader } from 'components/Table/utils';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { HistoryShape } from 'types/router';
+import { departmentIndicatorLabel, formatDateFromIso, formatAgeToDays } from 'shared/formatters';
 
 const columns = [
   createHeader('ID', 'id'),
-  createHeader('Customer name', ''),
+  createHeader(
+    'Customer name',
+    (row) => {
+      return `${row.customer.last_name}, ${row.customer.first_name}`;
+    },
+    { id: 'name' },
+  ),
   createHeader('DoD ID', 'customer.dodID'),
   createHeader('Status', 'status'),
-  createHeader('Age', 'age'),
-  createHeader('Submitted', 'submittedAt'),
+  createHeader(
+    'Age',
+    (row) => {
+      return formatAgeToDays(row.age);
+    },
+    'age',
+  ),
   createHeader('Move ID', 'locator'),
-  createHeader('Branch', 'departmentIndicator'),
-  createHeader('Destination duty station', 'destinationDutyStation.name'),
+  createHeader(
+    'Branch',
+    (row) => {
+      return departmentIndicatorLabel(row.departmentIndicator);
+    },
+    { id: 'branch' },
+  ),
   createHeader('Origin GBLOC', 'originGBLOC'),
+  createHeader(
+    'Submitted',
+    (row) => {
+      return formatDateFromIso(row.submittedAt, 'DD MMM YYYY');
+    },
+    'submittedAt',
+  ),
 ];
 
 const PaymentRequestQueue = ({ history }) => {
