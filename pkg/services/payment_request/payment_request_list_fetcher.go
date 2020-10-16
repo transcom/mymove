@@ -27,7 +27,10 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 	}
 
 	paymentRequests := models.PaymentRequests{}
-	err := f.db.Q().
+	err := f.db.Q().Eager(
+		"MoveTaskOrder.Orders.OriginDutyStation",
+		"MoveTaskOrder.Orders.ServiceMember",
+	).
 		InnerJoin("moves", "payment_requests.move_id = moves.id").
 		InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("duty_stations", "duty_stations.id = orders.origin_duty_station_id").
@@ -37,6 +40,15 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 
 	if err != nil {
 		return &models.PaymentRequests{}, err
+	}
+
+	for i := range paymentRequests {
+		// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
+		// cannot eager load the address as "OriginDutyStation.Address" because
+		// OriginDutyStation is a pointer.
+		if originDutyStation := paymentRequests[i].MoveTaskOrder.Orders.OriginDutyStation; originDutyStation != nil {
+			f.db.Load(originDutyStation, "TransportationOffice")
+		}
 	}
 
 	return &paymentRequests, nil
