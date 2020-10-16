@@ -1,6 +1,8 @@
 package payloads
 
 import (
+	"time"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
@@ -468,17 +470,56 @@ func QueueMoves(moveOrders []models.Order) *ghcmessages.QueueMoves {
 			}
 		}
 
+		var validMTOShipments []models.MTOShipment
+		for _, shipment := range hhgMove.MTOShipments {
+			if shipment.Status == models.MTOShipmentStatusSubmitted || shipment.Status == models.MTOShipmentStatusApproved {
+				validMTOShipments = append(validMTOShipments, shipment)
+			}
+		}
+
+		deptIndicator := ""
+		if order.DepartmentIndicator != nil {
+			deptIndicator = *order.DepartmentIndicator
+		}
+
 		queueMoveOrders[i] = &ghcmessages.QueueMove{
 			ID:       *handlers.FmtUUID(order.ID),
 			Customer: Customer(&customer),
 			// TODO Add status calculation logic here or at service/query level
 			Status:                 ghcmessages.QueueMoveStatus("NEW"),
 			Locator:                hhgMove.Locator,
-			DepartmentIndicator:    ghcmessages.DeptIndicator(*order.DepartmentIndicator),
-			ShipmentsCount:         int64(len(hhgMove.MTOShipments)),
+			DepartmentIndicator:    ghcmessages.DeptIndicator(deptIndicator),
+			ShipmentsCount:         int64(len(validMTOShipments)),
 			DestinationDutyStation: DutyStation(&order.NewDutyStation),
 			OriginGBLOC:            ghcmessages.GBLOC(order.OriginDutyStation.TransportationOffice.Gbloc),
 		}
 	}
 	return &queueMoveOrders
+}
+
+// QueuePaymentRequests payload
+func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.QueuePaymentRequests {
+	queuePaymentRequests := make(ghcmessages.QueuePaymentRequests, len(*paymentRequests))
+
+	for i, paymentRequest := range *paymentRequests {
+		moveTaskOrder := paymentRequest.MoveTaskOrder
+		orders := moveTaskOrder.Orders
+
+		queuePaymentRequests[i] = &ghcmessages.QueuePaymentRequest{
+			ID:          *handlers.FmtUUID(paymentRequest.ID),
+			MoveID:      *handlers.FmtUUID(moveTaskOrder.ID),
+			Customer:    Customer(&orders.ServiceMember),
+			Status:      ghcmessages.PaymentRequestStatus(paymentRequest.Status),
+			Age:         float32(time.Since(paymentRequest.CreatedAt).Hours() / 24.0),
+			SubmittedAt: *handlers.FmtDateTime(paymentRequest.CreatedAt), // RequestedAt does not seem to be populated
+			Locator:     moveTaskOrder.Locator,
+			OriginGBLOC: ghcmessages.GBLOC(orders.OriginDutyStation.TransportationOffice.Gbloc),
+		}
+
+		if deptIndicator := orders.DepartmentIndicator; deptIndicator != nil {
+			queuePaymentRequests[i].DepartmentIndicator = ghcmessages.DeptIndicator(*deptIndicator)
+		}
+	}
+
+	return &queuePaymentRequests
 }

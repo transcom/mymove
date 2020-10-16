@@ -9,11 +9,11 @@ import createSagaMiddleware from 'redux-saga';
 
 import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProduction';
 
-import { isDevelopment, isAdminSite } from 'shared/constants';
+import { isDevelopment, isAdminSite, isMilmoveSite } from 'shared/constants';
 import logger from './reduxLogger';
 import * as schema from 'shared/Entities/schema';
 
-import rootSaga from 'sagas/index';
+import rootSaga, { rootCustomerSaga } from 'sagas/index';
 
 export const history = createBrowserHistory();
 
@@ -47,7 +47,11 @@ export const configureStore = (history, initialState = {}) => {
   const store = createStore(persistedReducer, initialState, composeEnhancers(applyMiddleware(...middlewares)));
   const persistor = persistStore(store);
 
-  sagaMiddleware.run(rootSaga);
+  if (isMilmoveSite) {
+    sagaMiddleware.run(rootCustomerSaga);
+  } else {
+    sagaMiddleware.run(rootSaga);
+  }
 
   return { store, persistor };
 };
