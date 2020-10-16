@@ -77,7 +77,7 @@ func (suite *InvoiceServiceSuite) helperFetchInvoice(invoiceID uuid.UUID) (*mode
 	err := suite.DB().Eager().Find(&invoice, invoiceID)
 	if err != nil {
 		fmt.Print(err.Error())
-		if errors.Cause(err).Error() == "sql: no rows in result set" {
+		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 			return nil, errors.New("Record not found")
 		}
 		// Otherwise, it's an unexpected err so we return that.

@@ -162,7 +162,7 @@ func GatherNextEligibleTSPPerformances(tx *pop.Connection, tdlID uuid.UUID, book
 	for _, qualityBand := range qualityBands {
 		tspPerformance, err := NextTSPPerformanceInQualityBand(tx, tdlID, qualityBand, bookDate, requestedPickupDate)
 		if err != nil {
-			if err.Error() == "sql: no rows in result set" {
+			if err.Error() == RecordNotFoundErrorString {
 				// Some quality bands might not have TSPs, and that's OK. We
 				// just need to make sure SOME quality bands have TSPs.
 				qualityBandsWithoutTSPs++

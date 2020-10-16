@@ -24,6 +24,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 type logger interface {
@@ -155,7 +156,7 @@ func auditModel(db *pop.Connection, model Model) (bool, error) {
 		var column Column
 		query := db.RawQuery(sql, model.dbName, field.dbName)
 		if findErr := query.First(&column); findErr != nil {
-			if findErr.Error() == "sql: no rows in result set" {
+			if findErr.Error() == models.RecordNotFoundErrorString {
 				continue
 			} else {
 				return false, findErr

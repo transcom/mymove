@@ -53,5 +53,5 @@ func (suite *AccessCodeServiceSuite) TestClaimAccessCode_InvalidAccessCode() {
 	claimAccessCode := NewAccessCodeClaimer(suite.DB())
 	_, _, err := claimAccessCode.ClaimAccessCode(code, serviceMember.ID)
 
-	suite.Equal(err.Error(), "Unable to find access code: sql: no rows in result set")
+	suite.Equal(err.Error(), "Unable to find access code: "+models.RecordNotFoundErrorString)
 }
