@@ -12,6 +12,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { HistoryShape } from 'types/router';
 
 const columns = [
+  createHeader('ID', 'id'),
   createHeader('Customer name', ''),
   createHeader('DoD ID', 'customer.dodID'),
   createHeader('Status', 'status'),
