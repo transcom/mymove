@@ -28,7 +28,7 @@ func MakeReContractYear(db *pop.Connection, assertions Assertions) models.ReCont
 	// Overwrite values with those from assertions
 	mergeModels(&reContractYear, assertions.ReContractYear)
 
-	mustCreate(db, &reContractYear)
+	mustCreate(db, &reContractYear, assertions.Stub)
 
 	return reContractYear
 }

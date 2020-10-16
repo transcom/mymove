@@ -32,7 +32,7 @@ func MakeWeightTicketSetDocument(db *pop.Connection, assertions Assertions) mode
 	// Overwrite values with those from assertions
 	mergeModels(&weightTicketSetDocument, assertions.WeightTicketSetDocument)
 
-	mustCreate(db, &weightTicketSetDocument)
+	mustCreate(db, &weightTicketSetDocument, assertions.Stub)
 
 	return weightTicketSetDocument
 }

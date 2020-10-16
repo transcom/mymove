@@ -19,7 +19,7 @@ func MakeElectronicOrder(db *pop.Connection, assertions Assertions) models.Elect
 	}
 
 	mergeModels(&order, assertions.ElectronicOrder)
-	mustCreate(db, &order)
+	mustCreate(db, &order, assertions.Stub)
 
 	rev := models.ElectronicOrdersRevision{
 		ElectronicOrderID: order.ID,
@@ -39,7 +39,7 @@ func MakeElectronicOrder(db *pop.Connection, assertions Assertions) models.Elect
 	}
 
 	mergeModels(&rev, assertions.ElectronicOrdersRevision)
-	mustCreate(db, &rev)
+	mustCreate(db, &rev, assertions.Stub)
 
 	return order
 }

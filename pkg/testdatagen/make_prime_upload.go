@@ -62,7 +62,7 @@ func MakePrimeUpload(db *pop.Connection, assertions Assertions) models.PrimeUplo
 
 		mergeModels(primeUpload, assertions.PrimeUpload)
 
-		mustCreate(db, primeUpload)
+		mustCreate(db, primeUpload, assertions.Stub)
 	}
 
 	return *primeUpload

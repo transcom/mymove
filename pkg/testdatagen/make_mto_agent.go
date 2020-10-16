@@ -34,7 +34,7 @@ func MakeMTOAgent(db *pop.Connection, assertions Assertions) models.MTOAgent {
 
 	mergeModels(&MTOAgent, assertions.MTOAgent)
 
-	mustCreate(db, &MTOAgent)
+	mustCreate(db, &MTOAgent, assertions.Stub)
 
 	return MTOAgent
 }

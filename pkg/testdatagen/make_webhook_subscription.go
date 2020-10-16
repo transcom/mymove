@@ -23,7 +23,7 @@ func MakeWebhookSubscription(db *pop.Connection, assertions Assertions) models.W
 
 	mergeModels(&webhookSubscription, assertions.WebhookSubscription)
 
-	mustCreate(db, &webhookSubscription)
+	mustCreate(db, &webhookSubscription, assertions.Stub)
 
 	return webhookSubscription
 }

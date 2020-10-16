@@ -99,7 +99,11 @@ func poundPointer(p unit.Pound) *unit.Pound {
 	return &p
 }
 
-func mustCreate(db *pop.Connection, model interface{}) {
+func mustCreate(db *pop.Connection, model interface{}, stub bool) {
+	if stub {
+		return
+	}
+
 	verrs, err := db.ValidateAndCreate(model)
 	if err != nil {
 		log.Panic(fmt.Errorf("Errors encountered saving %#v: %v", model, err))

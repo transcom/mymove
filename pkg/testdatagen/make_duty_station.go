@@ -42,7 +42,7 @@ func MakeDutyStation(db *pop.Connection, assertions Assertions) models.DutyStati
 	}
 	mergeModels(&station, assertions.DutyStation)
 
-	mustCreate(db, &station)
+	mustCreate(db, &station, assertions.Stub)
 
 	return station
 }

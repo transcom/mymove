@@ -51,7 +51,7 @@ func MakeMoveDocument(db *pop.Connection, assertions Assertions) models.MoveDocu
 	// Overwrite values with those from assertions
 	mergeModels(&moveDocument, assertions.MoveDocument)
 
-	mustCreate(db, &moveDocument)
+	mustCreate(db, &moveDocument, assertions.Stub)
 
 	return moveDocument
 }

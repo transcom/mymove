@@ -64,7 +64,7 @@ func MakeServiceMember(db *pop.Connection, assertions Assertions) models.Service
 	// Overwrite values with those from assertions
 	mergeModels(&serviceMember, assertions.ServiceMember)
 
-	mustCreate(db, &serviceMember)
+	mustCreate(db, &serviceMember, assertions.Stub)
 
 	return serviceMember
 }

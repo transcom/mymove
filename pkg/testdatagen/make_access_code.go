@@ -18,7 +18,7 @@ func MakeAccessCode(db *pop.Connection, assertions Assertions) models.AccessCode
 
 	mergeModels(&accessCode, assertions.AccessCode)
 
-	mustCreate(db, &accessCode)
+	mustCreate(db, &accessCode, assertions.Stub)
 
 	return accessCode
 }

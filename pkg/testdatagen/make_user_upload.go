@@ -54,7 +54,7 @@ func MakeUserUpload(db *pop.Connection, assertions Assertions) models.UserUpload
 
 		mergeModels(userUpload, assertions.UserUpload)
 
-		mustCreate(db, userUpload)
+		mustCreate(db, userUpload, assertions.Stub)
 	}
 
 	return *userUpload

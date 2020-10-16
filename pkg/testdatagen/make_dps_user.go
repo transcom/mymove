@@ -20,6 +20,6 @@ func MakeDpsUser(db *pop.Connection, assertions Assertions) models.DpsUser {
 		Active:        true,
 	}
 
-	mustCreate(db, &user)
+	mustCreate(db, &user, assertions.Stub)
 	return user
 }

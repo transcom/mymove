@@ -36,7 +36,7 @@ func MakePaymentServiceItemParam(db *pop.Connection, assertions Assertions) mode
 	// Overwrite values with those from assertions
 	mergeModels(&paymentServiceItemParam, assertions.PaymentServiceItemParam)
 
-	mustCreate(db, &paymentServiceItemParam)
+	mustCreate(db, &paymentServiceItemParam, assertions.Stub)
 
 	return paymentServiceItemParam
 }

@@ -49,7 +49,7 @@ func makeServiceItem(db *pop.Connection, assertions Assertions, isBasicServiceIt
 	// Overwrite values with those from assertions
 	mergeModels(&MTOServiceItem, assertions.MTOServiceItem)
 
-	mustCreate(db, &MTOServiceItem)
+	mustCreate(db, &MTOServiceItem, assertions.Stub)
 
 	return MTOServiceItem
 }

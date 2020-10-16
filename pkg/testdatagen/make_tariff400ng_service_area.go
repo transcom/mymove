@@ -24,7 +24,7 @@ func MakeTariff400ngServiceArea(db *pop.Connection, assertions Assertions) model
 
 	mergeModels(&serviceArea, assertions.Tariff400ngServiceArea)
 
-	mustCreate(db, &serviceArea)
+	mustCreate(db, &serviceArea, assertions.Stub)
 
 	return serviceArea
 }

@@ -39,7 +39,7 @@ func MakePaymentRequest(db *pop.Connection, assertions Assertions) models.Paymen
 	// Overwrite values with those from assertions
 	mergeModels(&paymentRequest, assertions.PaymentRequest)
 
-	mustCreate(db, &paymentRequest)
+	mustCreate(db, &paymentRequest, assertions.Stub)
 
 	return paymentRequest
 }

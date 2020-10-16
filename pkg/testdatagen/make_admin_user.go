@@ -36,7 +36,7 @@ func MakeAdminUser(db *pop.Connection, assertions Assertions) models.AdminUser {
 
 	mergeModels(&adminUser, assertions.AdminUser)
 
-	mustCreate(db, &adminUser)
+	mustCreate(db, &adminUser, assertions.Stub)
 
 	return adminUser
 }
@@ -59,7 +59,7 @@ func MakeAdminUserWithNoUser(db *pop.Connection, assertions Assertions) models.A
 
 	mergeModels(&adminUser, assertions.AdminUser)
 
-	mustCreate(db, &adminUser)
+	mustCreate(db, &adminUser, assertions.Stub)
 
 	return adminUser
 }
