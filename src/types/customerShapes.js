@@ -1,6 +1,13 @@
-import { arrayOf, bool, func, string, shape } from 'prop-types';
+import { arrayOf, bool, func, string, shape, object } from 'prop-types';
 
 import { AddressShape } from 'types/address';
+
+export const MtoDisplayOptionsShape = shape({
+  schema: object.isRequired,
+  showPickupFields: bool.isRequired,
+  showDeliveryFields: bool.isRequired,
+  displayName: string.isRequired,
+});
 
 export const MtoAgentShape = shape({
   firstName: string,
@@ -55,6 +62,7 @@ export const WizardPageShape = shape({
 
 export default {
   WizardPageShape,
+  MtoDisplayOptionsShape,
   MtoAgentShape,
   HhgShipmentShape,
   NtsShipmentShape,

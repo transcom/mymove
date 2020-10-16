@@ -52,18 +52,21 @@ function getShipmentOptions(shipmentType) {
         schema: hhgShipmentSchema,
         showPickupFields: true,
         showDeliveryFields: true,
+        displayName: 'HHG',
       };
     case SHIPMENT_OPTIONS.NTS:
       return {
         schema: ntsShipmentSchema,
         showPickupFields: true,
         showDeliveryFields: false,
+        displayName: 'NTS',
       };
     case SHIPMENT_OPTIONS.NTSR:
       return {
         schema: ntsReleaseShipmentSchema,
         showPickupFields: false,
         showDeliveryFields: true,
+        displayName: 'NTS-R',
       };
     default:
       throw new Error('unrecognized shipment type');
@@ -91,8 +94,22 @@ class MtoShipmentForm extends Component {
   }
 
   componentDidMount() {
-    const { showLoggedInUser } = this.props;
+    const { showLoggedInUser, isEditPage } = this.props;
     showLoggedInUser();
+
+    // If refreshing edit page, need to handle mtoShipment populating from a promise
+    if (isEditPage && mtoShipment.id) {
+      this.setInitialState(mtoShipment);
+    }
+  }
+  
+  componentDidUpdate(prevProps) {
+    const { mtoShipment, isEditPage } = this.props;
+
+    // If refreshing edit page, need to handle mtoShipment populating from a promise
+    if (isEditPage && mtoShipment.id && prevProps.mtoShipment.id !== mtoShipment.id) {
+      this.setInitialEditState(mtoShipment);
+    }
   }
 
   // Use current residence
@@ -166,9 +183,9 @@ class MtoShipmentForm extends Component {
   };
 
   submitMTOShipment = ({ pickup, delivery, customerRemarks }) => {
-    const { createMTOShipment, wizardPage, selectedMoveType } = this.props;
+    const { createMTOShipment, updateMTOShipment, wizardPage, selectedMoveType } = this.props;
     const { moveId } = wizardPage.match.params;
-
+    
     const pendingMtoShipment = formatMtoShipment({
       shipmentType: selectedMoveType,
       moveId,
@@ -177,154 +194,112 @@ class MtoShipmentForm extends Component {
       delivery,
     });
 
-    createMTOShipment(pendingMtoShipment);
+    if (isEditPage) {
+      updateMTOShipment(mtoShipment.id, pendingMtoShipment, mtoShipment.eTag).then(() => {
+        wizardPage.history.goBack();
+      });
+    } else {
+      createMTOShipment(pendingMtoShipment);
+    }
+  };
+  
+  // TODO: finish updating to match new initialState structure
+  setInitialEditState = (mtoShipment) => {
+    function cleanAgentPhone(agent) {
+      const agentCopy = { ...agent };
+      Object.keys(agentCopy).forEach((key) => {
+        /* eslint-disable security/detect-object-injection */
+        if (key === 'phone') {
+          const phoneNum = agentCopy[key];
+          // will be in format xxxxxxxxxx
+          agentCopy[key] = phoneNum.split('-').join('');
+        }
+      });
+      return agentCopy;
+    }
+    // for existing mtoShipment, reshape agents from array of objects to key/object for proper handling
+    const { agents } = mtoShipment;
+    const formattedMTOShipment = { ...mtoShipment };
+    if (agents) {
+      const receivingAgent = agents.find((agent) => agent.agentType === 'RECEIVING_AGENT');
+      const releasingAgent = agents.find((agent) => agent.agentType === 'RELEASING_AGENT');
+
+      // Remove dashes from agent phones for expected form phone format
+      if (receivingAgent) {
+        const formattedAgent = cleanAgentPhone(receivingAgent);
+        if (Object.keys(formattedAgent).length) {
+          formattedMTOShipment.delivery.agent = { ...formattedAgent };
+        }
+      }
+      if (releasingAgent) {
+        const formattedAgent = cleanAgentPhone(releasingAgent);
+        if (Object.keys(formattedAgent).length) {
+          formattedMTOShipment.pickup.agent = { ...formattedAgent };
+        }
+      }
+    }
+    const hasDeliveryAddress = get(mtoShipment, 'destinationAddress', false);
+    this.setState({ initialValues: formattedMTOShipment, hasDeliveryAddress });
+  };
+  
+  getShipmentNumber = () => {
+    const { search } = window.location;
+    const params = new URLSearchParams(search);
+    const shipmentNumber = params.get('shipmentNumber');
+    return shipmentNumber;
   };
 
   render() {
     // TODO: replace minimal styling with actual styling during UI phase
-    const { wizardPage, newDutyStationAddress, selectedMoveType } = this.props;
+    const { wizardPage, newDutyStationAddress, displayOptions } = this.props;
     const { pageKey, pageList, match, history } = wizardPage;
     const { hasDeliveryAddress, useCurrentResidence, initialValues } = this.state;
     const fieldsetClasses = 'margin-top-2';
-    const options = getShipmentOptions(selectedMoveType);
+    
+    const editForm = (
+      <div className="grid-container">
+        <Formik
+          initialValues={initialValues}
+          enableReinitialize
+          validateOnBlur
+          validateOnChange
+          validationSchema={displayOptions.schema}
+        >
+          {({ values, dirty, isValid,  isSubmitting, handleChange }) => (
+            <MtoShipmentInnerForm
+              {...this.props}
+            />
+          )}
+        </Formik>
+      </div>);
+    
+    const createForm = (
+      <div className="grid-container">
+        <Formik
+          initialValues={initialValues}
+          enableReinitialize
+          validateOnBlur
+          validateOnChange
+          validationSchema={displayOptions.schema}
+        >
+          {({ values, dirty, isValid }) => (
+            <WizardPage
+              canMoveNext={dirty && isValid}
+              match={match}
+              pageKey={pageKey}
+              pageList={pageList}
+              push={history.push}
+              handleSubmit={() => this.submitMTOShipment(values, dirty)}
+            >
+              <MtoShipmentInnerForm
+              {...this.props}
+            />
+            </WizardPage>
+          )}
+        </Formik>
+      </div>);
 
-    return (
-      <Formik
-        initialValues={initialValues}
-        enableReinitialize
-        validateOnBlur
-        validateOnChange
-        validationSchema={options.schema}
-      >
-        {({ values, dirty, isValid }) => (
-          <WizardPage
-            canMoveNext={dirty && isValid}
-            match={match}
-            pageKey={pageKey}
-            pageList={pageList}
-            push={history.push}
-            handleSubmit={() => this.submitMTOShipment(values, dirty)}
-          >
-            <h1>Now lets arrange details for the professional movers</h1>
-            <Form className={styles.HHGDetailsForm}>
-              {options.showPickupFields && (
-                <div>
-                  <Fieldset legend="Pickup date" className={fieldsetClasses}>
-                    <Field
-                      as={DatePickerInput}
-                      name="pickup.requestedDate"
-                      label="Requested pickup date"
-                      id="requestedPickupDate"
-                      value={values.pickup.requestedDate}
-                      validate={validateDate}
-                    />
-                    <span className="usa-hint" id="pickupDateHint">
-                      Your movers will confirm this date or one shortly before or after.
-                    </span>
-                  </Fieldset>
-
-                  <AddressFields
-                    name="pickup.address"
-                    legend="Pickup location"
-                    className={fieldsetClasses}
-                    renderExistingAddressCheckbox={() => (
-                      <div className="margin-y-2">
-                        <Checkbox
-                          data-testid="useCurrentResidence"
-                          label="Use my current residence address"
-                          name="useCurrentResidence"
-                          checked={useCurrentResidence}
-                          onChange={() => this.handleUseCurrentResidenceChange(values)}
-                        />
-                      </div>
-                    )}
-                    values={values.pickup.address}
-                  />
-                  <ContactInfoFields
-                    name="pickup.agent"
-                    legend="Releasing agent"
-                    className={fieldsetClasses}
-                    subtitle="Who can allow the movers to take your stuff if you're not there?"
-                    subtitleClassName="margin-y-2"
-                    values={values.pickup.agent}
-                  />
-                </div>
-              )}
-              {options.showDeliveryFields && (
-                <div>
-                  <Fieldset legend="Delivery date" className={fieldsetClasses}>
-                    <DatePickerInput
-                      name="delivery.requestedDate"
-                      label="Requested delivery date"
-                      id="requestedDeliveryDate"
-                      value={values.delivery.requestedDate}
-                      validate={validateDate}
-                    />
-                    <small className="usa-hint" id="deliveryDateHint">
-                      Your movers will confirm this date or one shortly before or after.
-                    </small>
-                  </Fieldset>
-                  <Fieldset legend="Delivery location" className={fieldsetClasses}>
-                    <Label>Do you know your delivery address?</Label>
-                    <div className="display-flex margin-top-1">
-                      <Radio
-                        id="has-delivery-address"
-                        label="Yes"
-                        name="hasDeliveryAddress"
-                        onChange={this.handleChangeHasDeliveryAddress}
-                        checked={hasDeliveryAddress}
-                      />
-                      <Radio
-                        id="no-delivery-address"
-                        label="No"
-                        name="hasDeliveryAddress"
-                        checked={!hasDeliveryAddress}
-                        onChange={this.handleChangeHasDeliveryAddress}
-                      />
-                    </div>
-                    {hasDeliveryAddress ? (
-                      <AddressFields name="destinationAddress" values={values.delivery.address} />
-                    ) : (
-                      <>
-                        <div>
-                          <p className={fieldsetClasses}>
-                            We can use the zip of your new duty station.
-                            <br />
-                            <strong>
-                              {newDutyStationAddress.city}, {newDutyStationAddress.state}{' '}
-                              {newDutyStationAddress.postal_code}{' '}
-                            </strong>
-                          </p>
-                        </div>
-                      </>
-                    )}
-                  </Fieldset>
-                  <ContactInfoFields
-                    name="delivery.agent"
-                    legend="Receiving agent"
-                    className={fieldsetClasses}
-                    subtitle="Who can take delivery for you if the movers arrive and you're not there?"
-                    subtitleClassName="margin-y-2"
-                    values={values.delivery.agent}
-                  />
-                </div>
-              )}
-              <Fieldset legend="Remarks" className={fieldsetClasses}>
-                <TextInput
-                  label="Anything else you would like us to know?"
-                  labelHint="(optional)"
-                  data-testid="remarks"
-                  name="customerRemarks"
-                  id="customerRemarks"
-                  maxLength={1500}
-                  value={values.customerRemarks}
-                />
-              </Fieldset>
-            </Form>
-          </WizardPage>
-        )}
-      </Formik>
-    );
+    return isEditPage ? editForm : createForm;
   }
 }
 
@@ -332,6 +307,7 @@ MtoShipmentForm.propTypes = {
   wizardPage: WizardPageShape,
   createMTOShipment: func.isRequired,
   showLoggedInUser: func.isRequired,
+  isEditPage: bool.isRequired,
   currentResidence: AddressShape.isRequired,
   newDutyStationAddress: SimpleAddressShape,
   selectedMoveType: string.isRequired,
@@ -370,7 +346,9 @@ const mapStateToProps = (state, ownProps) => {
     mtoShipment: selectMTOShipmentForMTO(state, ownProps.wizardPage.match.params.moveId),
     currentResidence: get(selectServiceMemberFromLoggedInUser(state), 'residential_address', {}),
     newDutyStationAddress: get(orders, 'new_duty_station.address', {}),
+    displayOptions: getShipmentOptions(ownProps.selectedMoveType),
   };
+  
   return props;
 };
 
