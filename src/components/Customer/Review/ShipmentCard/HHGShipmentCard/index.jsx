@@ -30,6 +30,7 @@ const HHGShipmentCard = ({
   const editPath = `/moves/${moveId}/mto-shipments/${shipmentId}/edit-shipment?shipmentNumber=${shipmentNumber}`;
   const isNTS = shipmentType ? shipmentType === SHIPMENT_OPTIONS.NTS : false;
   const isNTSR = shipmentType ? shipmentType === SHIPMENT_OPTIONS.NTSR : false;
+  const isHHG = shipmentType ? shipmentType === SHIPMENT_OPTIONS.HHG : false;
   return (
     <div className={styles.ShipmentCard} data-testid="hhg-summary">
       <ShipmentContainer className={styles.container} shipmentType={shipmentType}>
@@ -52,13 +53,13 @@ const HHGShipmentCard = ({
         </div>
 
         <dl className={styles.shipmentCardSubsection}>
-          {isNTS && (
+          {isHHG && isNTS && (
             <div className={styles.row}>
               <dt>Requested pickup date</dt>
               <dd>{formatCustomerDate(requestedPickupDate)}</dd>
             </div>
           )}
-          {isNTS && (
+          {isHHG && isNTS && (
             <div className={styles.row}>
               <dt>Pickup location</dt>
               <dd>
@@ -68,7 +69,7 @@ const HHGShipmentCard = ({
               </dd>
             </div>
           )}
-          {isNTS && releasingAgent && (
+          {isHHG && isNTS && releasingAgent && (
             <div className={styles.row}>
               <dt>Releasing agent</dt>
               <dd>
@@ -86,19 +87,19 @@ const HHGShipmentCard = ({
               </dd>
             </div>
           )}
-          {isNTSR && (
+          {isHHG && isNTSR && (
             <div className={styles.row}>
               <dt>Requested delivery date</dt>
               <dd>{formatCustomerDate(requestedDeliveryDate)}</dd>
             </div>
           )}
-          {isNTSR && (
+          {isHHG && isNTSR && (
             <div className={styles.row}>
               <dt>Destination</dt>
               <dd>{formatCustomerDestination(destinationLocation, destinationZIP)}</dd>
             </div>
           )}
-          {isNTSR && receivingAgent && (
+          {isHHG && isNTSR && receivingAgent && (
             <div className={styles.row}>
               <dt>Receiving agent</dt>
               <dd>
