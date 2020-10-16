@@ -76,16 +76,9 @@ export class WizardPage extends Component {
             </div>
           </div>
         )}
-<<<<<<< HEAD
-        <div className="grid-row">
-          <div className="grid-col">{children}</div>
-        </div>
-        <div className="grid-row" style={{ marginTop: '2rem' }}>
-=======
         {children}
         <div className="grid-row" style={{ marginTop: '24px' }}>
           {footerText && <div>{footerText}</div>}
->>>>>>> master
           {!isFirstPage(pageList, pageKey) && !hideBackBtn && (
             <button
               type="button"
