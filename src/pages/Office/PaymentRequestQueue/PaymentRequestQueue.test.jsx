@@ -5,10 +5,52 @@ import PaymentRequestQueue from './PaymentRequestQueue';
 
 import { MockProviders } from 'testUtils';
 
+jest.mock('hooks/queries', () => ({
+  usePaymentRequestQueueQueries: () => {
+    return {
+      queuePaymentRequestsResult: {
+        undefined: {
+          queuePaymentRequests: [
+            {
+              age: 0.8477863,
+              customer: {
+                agency: 'ARMY',
+                dodID: '3305957632',
+                eTag: 'MjAyMC0xMC0xNVQyMzo0ODozNC41ODQxOTZa',
+                email: 'leo_spaceman_sm@example.com',
+                first_name: 'Leo',
+                id: '6ac40a00-e762-4f5f-b08d-3ea72a8e4b63',
+                last_name: 'Spacemen',
+                phone: '555-555-5555',
+                userID: 'c4d59e2b-bff0-4fce-a31f-26a19b1ad34a',
+              },
+              departmentIndicator: 'AIR_FORCE',
+              id: 'a2c34dba-015f-4f96-a38b-0c0b9272e208',
+              locator: 'R993T7',
+              moveID: '5d4b25bb-eb04-4c03-9a81-ee0398cb779e',
+              originGBLOC: 'LKNQ',
+              status: 'PENDING',
+              submittedAt: '2020-10-15T23:48:35.420Z',
+            },
+          ],
+        },
+      },
+      isLoading: false,
+      isError: false,
+      isSuccess: true,
+    };
+  },
+}));
+
 describe('PaymentRequestQueue', () => {
+  const requiredProps = {
+    history: { push: jest.fn() },
+  };
+
   const wrapper = mount(
     <MockProviders initialEntries={['invoicing/queue']}>
-      <PaymentRequestQueue />
+      {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+      <PaymentRequestQueue {...requiredProps} />
     </MockProviders>,
   );
 
@@ -16,7 +58,8 @@ describe('PaymentRequestQueue', () => {
     expect(wrapper.find('h1').text()).toBe('Payment requests (0)');
   });
 
-  it('should render the table', () => {
+  it('should render the table with data', () => {
     expect(wrapper.find('Table').exists()).toBe(true);
+    expect(wrapper.find('tbody tr').length).toBe(1);
   });
 });
