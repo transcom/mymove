@@ -1,12 +1,14 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import { every, some, get, findKey, pick } from 'lodash';
+
 import ValidatedPrivateRoute from 'shared/User/ValidatedPrivateRoute';
 import WizardPage from 'shared/WizardPage';
 import generatePath from 'shared/WizardPage/generatePath';
 import { no_op } from 'shared/utils';
 import { NULL_UUID, SHIPMENT_OPTIONS, CONUS_STATUS } from 'shared/constants';
-import DodInfo from 'scenes/ServiceMembers/DodInfo';
+
+import DodInfo from 'pages/MyMove/Onboarding/DodInfo';
 import SMName from 'scenes/ServiceMembers/Name';
 import ContactInfo from 'scenes/ServiceMembers/ContactInfo';
 import ResidentialAddress from 'scenes/ServiceMembers/ResidentialAddress';

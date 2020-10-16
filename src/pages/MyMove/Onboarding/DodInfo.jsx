@@ -1,80 +1,23 @@
-import { get, pick } from 'lodash';
-import PropTypes from 'prop-types';
+/* eslint-disable react/forbid-prop-types */
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { get, pick } from 'lodash';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { getFormValues } from 'redux-form';
-import { Field } from 'redux-form';
-import { normalizeSSN } from 'shared/JsonSchemaForm/reduxFieldNormalizer';
-import classNames from 'classnames';
+import { getFormValues, Field } from 'redux-form';
 
-import { updateServiceMember } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import { normalizeSSN } from 'shared/JsonSchemaForm/reduxFieldNormalizer';
+import SSNField from 'components/form/fields/SSNInput';
 
 const subsetOfFields = ['affiliation', 'edipi', 'social_security_number', 'rank'];
 
-class SSNField extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      focused: false,
-    };
-
-    this.localOnBlur = this.localOnBlur.bind(this);
-    this.localOnFocus = this.localOnFocus.bind(this);
-  }
-
-  localOnBlur(value, something) {
-    this.setState({ focused: false });
-    this.props.input.onBlur(value);
-  }
-
-  localOnFocus(value, something) {
-    this.setState({ focused: true });
-    this.props.input.onFocus(value);
-  }
-
-  render() {
-    const {
-      input: { value, name },
-      meta: { touched, error },
-      ssnOnServer,
-    } = this.props;
-
-    let displayedValue = value;
-    if (!this.state.focused && (value !== '' || ssnOnServer)) {
-      displayedValue = '•••-••-••••';
-    }
-    const displayError = touched && error;
-
-    // This is copied from JsonSchemaField to match the styling
-    return (
-      <div className={classNames('usa-form-group', { 'usa-form-group--error': displayError })}>
-        <label className={classNames('usa-label', { 'usa-label--error': displayError })} htmlFor={name}>
-          Social Security number
-        </label>
-        {touched && error && (
-          <span className="usa-error-message" id={name + '-error'} role="alert">
-            {error}
-          </span>
-        )}
-        <input
-          {...this.props.input}
-          className="usa-input"
-          onFocus={this.localOnFocus}
-          onBlur={this.localOnBlur}
-          value={displayedValue}
-        />
-      </div>
-    );
-  }
-}
+const updateServiceMemberAction = () => {};
 
 const validateDodForm = (values, form) => {
   // Everything is taken care of except for SSN
-  let errors = {};
+  const errors = {};
   const ssn = values.social_security_number;
   const hasSSN = form.ssnOnServer;
 
@@ -86,12 +29,10 @@ const validateDodForm = (values, form) => {
     if (ssnPresent && !validSSN) {
       errors.social_security_number = 'SSN must have 9 digits';
     }
-  } else {
-    if (!ssnPresent) {
-      errors.social_security_number = 'Required';
-    } else if (!validSSN) {
-      errors.social_security_number = 'SSN must have 9 digits';
-    }
+  } else if (!ssnPresent) {
+    errors.social_security_number = 'Required';
+  } else if (!validSSN) {
+    errors.social_security_number = 'SSN must have 9 digits';
   }
 
   return errors;
@@ -102,11 +43,14 @@ const DodWizardForm = reduxifyWizardForm(formName, validateDodForm);
 
 export class DodInfo extends Component {
   handleSubmit = () => {
-    const pendingValues = this.props.values;
+    const { values, updateServiceMember } = this.props;
+    const pendingValues = values;
     if (pendingValues) {
       const patch = pick(pendingValues, subsetOfFields);
-      return this.props.updateServiceMember(patch);
+      return updateServiceMember(patch);
     }
+
+    return null;
   };
 
   render() {
@@ -144,15 +88,25 @@ export class DodInfo extends Component {
     );
   }
 }
+
 DodInfo.propTypes = {
+  pageKey: PropTypes.string.isRequired,
   schema: PropTypes.object.isRequired,
   updateServiceMember: PropTypes.func.isRequired,
   currentServiceMember: PropTypes.object,
   error: PropTypes.object,
+  values: PropTypes.object,
+  pages: PropTypes.arrayOf(PropTypes.string).isRequired,
+};
+
+DodInfo.defaultProps = {
+  currentServiceMember: null,
+  error: null,
+  values: null,
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ updateServiceMember }, dispatch);
+  return bindActionCreators({ updateServiceMember: updateServiceMemberAction }, dispatch);
 }
 function mapStateToProps(state) {
   const props = {
