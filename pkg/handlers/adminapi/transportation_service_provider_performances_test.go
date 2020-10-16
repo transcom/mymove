@@ -30,7 +30,7 @@ func (suite *HandlerSuite) TestIndexTSPPsHandler() {
 	}
 	testdatagen.MakeTSPPerformance(suite.DB(), assertions)
 
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req := httptest.NewRequest("GET", "/transportation_service_provider_performances", nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -128,7 +128,7 @@ func (suite *HandlerSuite) TestGetTSPPHandler() {
 	}
 	testdatagen.MakeTSPPerformance(suite.DB(), assertions)
 
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req := httptest.NewRequest("GET", "/transportation_service_provider_performances/"+uuidString, nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 

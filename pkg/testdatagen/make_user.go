@@ -19,7 +19,7 @@ func MakeUser(db *pop.Connection, assertions Assertions) models.User {
 	// Overwrite values with those from assertions
 	mergeModels(&user, assertions.User)
 
-	if assertions.Stub != true {
+	if !assertions.Stub {
 		mustCreate(db, &user)
 	}
 	return user
@@ -28,4 +28,9 @@ func MakeUser(db *pop.Connection, assertions Assertions) models.User {
 // MakeDefaultUser makes a user with default values
 func MakeDefaultUser(db *pop.Connection) models.User {
 	return MakeUser(db, Assertions{})
+}
+
+// MakeStubbedUser returns a user without hitting the DB
+func MakeStubbedUser(db *pop.Connection) models.User {
+	return MakeUser(db, Assertions{Stub: true})
 }

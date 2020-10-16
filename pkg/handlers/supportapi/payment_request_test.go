@@ -105,7 +105,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
 
-		requestUser := testdatagen.MakeDefaultUser(suite.DB())
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -137,7 +137,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
 
-		requestUser := testdatagen.MakeDefaultUser(suite.DB())
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -166,7 +166,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
 
-		requestUser := testdatagen.MakeDefaultUser(suite.DB())
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 

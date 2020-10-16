@@ -68,7 +68,7 @@ func (suite *HandlerSuite) TestGetUploadHandler() {
 	uploadInstance := testdatagen.MakeUserUpload(suite.DB(), testdatagen.Assertions{UserUpload: uploadUserAssertions})
 	suite.MustSave(&uploadInstance)
 
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req := httptest.NewRequest("GET", fmt.Sprintf("/uploads/%s", uploadID.String()), nil)
 	req = suite.AuthenticateAdminRequest(req, requestUser)
 

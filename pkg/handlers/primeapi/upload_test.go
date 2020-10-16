@@ -17,7 +17,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreateUploadHandler() {
-	primeUser := testdatagen.MakeDefaultUser(suite.DB())
+	primeUser := testdatagen.MakeStubbedUser(suite.DB())
 
 	paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 

@@ -29,7 +29,7 @@ func (suite *HandlerSuite) TestIndexOfficesHandler() {
 	}
 	testdatagen.MakeTransportationOffice(suite.DB(), assertions)
 
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req := httptest.NewRequest("GET", "/offices", nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 

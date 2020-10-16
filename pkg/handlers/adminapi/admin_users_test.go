@@ -36,7 +36,7 @@ func (suite *HandlerSuite) TestIndexAdminUsersHandler() {
 	testdatagen.MakeAdminUser(suite.DB(), assertions)
 	testdatagen.MakeDefaultAdminUser(suite.DB())
 
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req := httptest.NewRequest("GET", "/admin_users", nil)
 	req = suite.AuthenticateAdminRequest(req, requestUser)
 
@@ -138,7 +138,7 @@ func (suite *HandlerSuite) TestGetAdminUserHandler() {
 	}
 	testdatagen.MakeAdminUser(suite.DB(), assertions)
 
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req := httptest.NewRequest("GET", fmt.Sprintf("/admin_users/%s", id), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -229,7 +229,7 @@ func (suite *HandlerSuite) TestCreateAdminUserHandler() {
 	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
 
 	req := httptest.NewRequest("POST", "/admin_users", nil)
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
 	params := adminuserop.CreateAdminUserParams{
@@ -284,7 +284,7 @@ func (suite *HandlerSuite) TestUpdateAdminUserHandler() {
 
 	endpoint := fmt.Sprintf("/admin_users/%s", adminUserID)
 	req := httptest.NewRequest("PUT", endpoint, nil)
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
 	params := adminuserop.UpdateAdminUserParams{

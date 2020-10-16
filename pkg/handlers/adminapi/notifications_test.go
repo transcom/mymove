@@ -30,7 +30,7 @@ func (suite *HandlerSuite) TestIndexNotificationsHandler() {
 	testdatagen.MakeNotification(suite.DB(), assertions)
 	testdatagen.MakeDefaultNotification(suite.DB())
 
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req := httptest.NewRequest("GET", "/notifications", nil)
 	req = suite.AuthenticateAdminRequest(req, requestUser)
 

@@ -31,7 +31,7 @@ func (suite *NotificationSuite) TestMoveSubmitted() {
 }
 
 func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRender() {
-	approver := testdatagen.MakeDefaultUser(suite.DB())
+	approver := testdatagen.MakeStubbedUser(suite.DB())
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	notification := NewMoveSubmitted(suite.DB(), suite.logger, &auth.Session{
 		UserID:          approver.ID,
@@ -76,7 +76,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRender() {
 
 func (suite *NotificationSuite) TestMoveSubmittedTextTemplateRender() {
 
-	approver := testdatagen.MakeDefaultUser(suite.DB())
+	approver := testdatagen.MakeStubbedUser(suite.DB())
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	notification := NewMoveSubmitted(suite.DB(), suite.logger, &auth.Session{
 		UserID:          approver.ID,

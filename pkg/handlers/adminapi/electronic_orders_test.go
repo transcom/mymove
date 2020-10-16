@@ -17,7 +17,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestGetElectronicOrdersTotalsHandler() {
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req := httptest.NewRequest("GET", "/electronic_orders/totals", nil)
 	req = suite.AuthenticateAdminRequest(req, requestUser)
 

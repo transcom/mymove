@@ -39,7 +39,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{ID: mtoShipmentID},
 	})
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			ID: serviceItemID, MoveTaskOrderID: mto.ID, ReServiceID: reService.ID, MTOShipmentID: &mtoShipment.ID,
@@ -128,7 +128,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 
 	req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_service_items/%s/status",
 		moveTaskOrderID, serviceItemID), nil)
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
 	params := mtoserviceitemop.UpdateMTOServiceItemStatusParams{
@@ -254,7 +254,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		queryBuilder := query.NewQueryBuilder(suite.DB())
 		mto := testdatagen.MakeDefaultMove(suite.DB())
 		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
-		requestUser := testdatagen.MakeDefaultUser(suite.DB())
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_service_items/%s/status",
 			moveTaskOrderID, serviceItemID), nil)
@@ -290,7 +290,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		queryBuilder := query.NewQueryBuilder(suite.DB())
 		mto := testdatagen.MakeDefaultMove(suite.DB())
 		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
-		requestUser := testdatagen.MakeDefaultUser(suite.DB())
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_service_items/%s/status",
 			moveTaskOrderID, serviceItemID), nil)
@@ -328,7 +328,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			Move: availableMove,
 		})
-		requestUser := testdatagen.MakeDefaultUser(suite.DB())
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 		availableMoveID := availableMove.ID
 		mtoServiceItemID := mtoServiceItem.ID
 

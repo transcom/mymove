@@ -34,7 +34,7 @@ func (suite *HandlerSuite) TestShowAddressHandler() {
 	}
 	suite.MustSave(&address)
 
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
 	fakeUUID, _ := uuid.FromString("not-valid-uuid")
 
