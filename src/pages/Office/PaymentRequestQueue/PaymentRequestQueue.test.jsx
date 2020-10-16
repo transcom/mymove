@@ -33,6 +33,7 @@ jest.mock('hooks/queries', () => ({
               submittedAt: '2020-10-15T23:48:35.420Z',
             },
           ],
+          totalCount: 1,
         },
       },
       isLoading: false,
@@ -55,7 +56,7 @@ describe('PaymentRequestQueue', () => {
   );
 
   it('renders the h1', () => {
-    expect(wrapper.find('h1').text()).toBe('Payment requests (0)');
+    expect(wrapper.find('h1').text()).toBe('Payment requests (1)');
   });
 
   it('renders the table with data', () => {
