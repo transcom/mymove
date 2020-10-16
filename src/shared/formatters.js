@@ -6,6 +6,7 @@ import path from 'path';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { DEPARTMENT_INDICATOR_OPTIONS, DEPARTMENT_INDICATOR_LABELS } from 'constants/departmentIndicators';
 import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orders';
+import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
 
 /**
  * Formats number into a dollar string. Eg. $1,234.12
@@ -309,6 +310,10 @@ export const ordersTypeReadable = (ordersType) => {
 
 export const ordersTypeDetailReadable = (ordersTypeDetail) => {
   return ORDERS_TYPE_DETAILS_OPTIONS[`${ordersTypeDetail}`] || ordersTypeDetail;
+};
+
+export const paymentRequestStatusReadable = (paymentRequestStatus) => {
+  return PAYMENT_REQUEST_STATUS_LABELS[`${paymentRequestStatus}`] || paymentRequestStatus;
 };
 
 export const dropdownInputOptions = (options) => {

@@ -1,6 +1,8 @@
 import * as formatters from './formatters';
 import moment from 'moment';
 
+import PAYMENT_REQUEST_STATUS, { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
+
 describe('formatters', () => {
   describe('formatWeight', () => {
     describe('when formatting a integer weight', () => {
@@ -134,5 +136,37 @@ describe('formatAgeToDays', () => {
 
   it('returns expected string greater than 1 day', () => {
     expect(formatters.formatAgeToDays(2.99)).toEqual('2 days');
+  });
+});
+
+describe('paymentRequestStatusReadable', () => {
+  it('returns expected string for PENDING', () => {
+    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.PENDING)).toEqual(
+      PAYMENT_REQUEST_STATUS_LABELS.PENDING,
+    );
+  });
+
+  it('returns expected string for REVIEWED', () => {
+    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.REVIEWED)).toEqual(
+      PAYMENT_REQUEST_STATUS_LABELS.REVIEWED,
+    );
+  });
+
+  it('returns expected string for SENT_TO_GEX', () => {
+    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.SENT_TO_GEX)).toEqual(
+      PAYMENT_REQUEST_STATUS_LABELS.SENT_TO_GEX,
+    );
+  });
+
+  it('returns expected string for RECEIVED_BY_GEX', () => {
+    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.RECEIVED_BY_GEX)).toEqual(
+      PAYMENT_REQUEST_STATUS_LABELS.RECEIVED_BY_GEX,
+    );
+  });
+
+  it('returns expected string for PAID', () => {
+    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.PAID)).toEqual(
+      PAYMENT_REQUEST_STATUS_LABELS.PAID,
+    );
   });
 });

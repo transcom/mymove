@@ -10,7 +10,12 @@ import { createHeader } from 'components/Table/utils';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { HistoryShape } from 'types/router';
-import { departmentIndicatorLabel, formatDateFromIso, formatAgeToDays } from 'shared/formatters';
+import {
+  departmentIndicatorLabel,
+  formatDateFromIso,
+  formatAgeToDays,
+  paymentRequestStatusReadable,
+} from 'shared/formatters';
 
 const columns = [
   createHeader('ID', 'id'),
@@ -22,7 +27,13 @@ const columns = [
     { id: 'name' },
   ),
   createHeader('DoD ID', 'customer.dodID'),
-  createHeader('Status', 'status'),
+  createHeader(
+    'Status',
+    (row) => {
+      return paymentRequestStatusReadable(row.status);
+    },
+    'status',
+  ),
   createHeader(
     'Age',
     (row) => {
