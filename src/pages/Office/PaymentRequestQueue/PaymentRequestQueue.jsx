@@ -1,10 +1,15 @@
 import React from 'react';
 import { GridContainer } from '@trussworks/react-uswds';
+import { withRouter } from 'react-router-dom';
 
 import styles from './PaymentRequestQueue.module.scss';
 
+import { usePaymentRequestQueueQueries } from 'hooks/queries';
 import Table from 'components/Table/Table';
 import { createHeader } from 'components/Table/utils';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { HistoryShape } from 'types/router';
 
 const columns = [
   createHeader('Customer name', ''),
@@ -17,15 +22,31 @@ const columns = [
   createHeader('Origin GBLOC', 'originGBLOC'),
 ];
 
-const PaymentRequestQueue = () => {
+const PaymentRequestQueue = ({ history }) => {
+  const { queuePaymentRequestsResult, isLoading, isError } = usePaymentRequestQueueQueries();
+
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong />;
+
+  // eslint-disable-next-line no-unused-vars
+  const { page, perPage, totalCount, queuePaymentRequests } = queuePaymentRequestsResult[`${undefined}`];
+
+  const handleClick = (values) => {
+    history.push(`/moves/${values.id}/details`);
+  };
+
   return (
     <GridContainer containerSize="widescreen" className={styles.PaymentRequestQueue}>
       <h1>Payment requests (0)</h1>
       <div className={styles.tableContainer}>
-        <Table columns={columns} />
+        <Table columns={columns} data={queuePaymentRequests} hiddenColumns={['id']} handleClick={handleClick} />
       </div>
     </GridContainer>
   );
 };
 
-export default PaymentRequestQueue;
+PaymentRequestQueue.propTypes = {
+  history: HistoryShape.isRequired,
+};
+
+export default withRouter(PaymentRequestQueue);
