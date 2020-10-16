@@ -40,4 +40,16 @@ func (suite *SegmentSuite) TestValidatePER() {
 		suite.ValidateError(err, "CommunicationNumber", "max")
 		suite.ValidateErrorLen(err, 4)
 	})
+
+	suite.T().Run("validate segment is parsed correctly", func(t *testing.T) {
+		values := []string{"IC", "Cross Dock", "TE", "5551234567"}
+		per := PER{
+			ContactFunctionCode:          "IC",
+			Name:                         "Cross Dock",
+			CommunicationNumberQualifier: "TE",
+			CommunicationNumber:          "5551234567",
+		}
+		err := (*PER).Parse(&per, values)
+		suite.NoError(err)
+	})
 }
