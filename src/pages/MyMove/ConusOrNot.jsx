@@ -58,7 +58,7 @@ ConusOrNot.propTypes = {
 };
 
 ConusOrNot.defaultProps = {
-  conusStatus: CONUS_STATUS.CONUS,
+  conusStatus: '',
 };
 
 const mapStateToProps = (state) => {
