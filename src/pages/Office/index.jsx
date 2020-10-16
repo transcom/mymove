@@ -44,6 +44,7 @@ const MoveQueue = lazy(() => import('pages/Office/MoveQueue/MoveQueue'));
 const CustomerDetails = lazy(() => import('scenes/Office/TOO/customerDetails'));
 // TIO pages
 const PaymentRequestIndex = lazy(() => import('pages/Office/PaymentRequestIndex/PaymentRequestIndex'));
+const PaymentRequestQueue = lazy(() => import('pages/Office/PaymentRequestQueue/PaymentRequestQueue'));
 
 export class OfficeApp extends Component {
   constructor(props) {
@@ -166,7 +167,7 @@ export class OfficeApp extends Component {
 
                 {/* TXO */}
                 <PrivateRoute path="/moves/queue" exact component={MoveQueue} requiredRoles={[roleTypes.TOO]} />
-                <PrivateRoute path="/invoicing/queue" component={PaymentRequestIndex} requiredRoles={[roleTypes.TIO]} />
+                <PrivateRoute path="/invoicing/queue" component={PaymentRequestQueue} requiredRoles={[roleTypes.TIO]} />
 
                 {/* PPM & TXO conflicting routes - select based on user role */}
                 {selectedRole === roleTypes.PPM ? ppmRoutes : txoRoutes}
