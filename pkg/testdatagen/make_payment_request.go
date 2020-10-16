@@ -27,6 +27,7 @@ func MakePaymentRequest(db *pop.Connection, assertions Assertions) models.Paymen
 	}
 
 	paymentRequest := models.PaymentRequest{
+		CreatedAt:            assertions.PaymentRequest.CreatedAt,
 		MoveTaskOrder:        moveTaskOrder,
 		MoveTaskOrderID:      moveTaskOrder.ID,
 		IsFinal:              false,
