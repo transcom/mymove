@@ -80,7 +80,7 @@ func (suite *HandlerSuite) TestListPaymentRequestsHandler() {
 		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
 			Stub: true,
 		})
-		paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID).Return(&paymentRequests, nil).Once()
+		paymentRequestListFetcher.AssertNumberOfCalls(t, "FetchPaymentRequestList", 0)
 
 		req := httptest.NewRequest("GET", fmt.Sprintf("/payment_requests"), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
