@@ -32,7 +32,7 @@ const PaymentRequestQueue = ({ history }) => {
   const { page, perPage, totalCount, queuePaymentRequests } = queuePaymentRequestsResult[`${undefined}`];
 
   const handleClick = (values) => {
-    history.push(`/moves/${values.id}/details`);
+    history.push(`/moves/MOVE_CODE/payment-requests/${values.id}`);
   };
 
   return (
