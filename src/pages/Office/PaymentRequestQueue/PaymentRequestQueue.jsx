@@ -16,7 +16,8 @@ const columns = [
   createHeader('Customer name', ''),
   createHeader('DoD ID', 'customer.dodID'),
   createHeader('Status', 'status'),
-  createHeader('Age', 'age'), // Submitted At doesn't have a header but comes after the age column
+  createHeader('Age', 'age'),
+  createHeader('Submitted', 'submittedAt'),
   createHeader('Move ID', 'locator'),
   createHeader('Branch', 'departmentIndicator'),
   createHeader('Destination duty station', 'destinationDutyStation.name'),
