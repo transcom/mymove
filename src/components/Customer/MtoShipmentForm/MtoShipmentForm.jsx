@@ -167,16 +167,14 @@ class MtoShipmentForm extends Component {
 
   submitMTOShipment = ({ pickup, delivery, customerRemarks }) => {
     const { createMTOShipment, wizardPage, selectedMoveType } = this.props;
-    const { hasDeliveryAddress } = this.state;
     const { moveId } = wizardPage.match.params;
 
-    const options = getShipmentOptions(selectedMoveType);
     const pendingMtoShipment = formatMtoShipment({
+      shipmentType: selectedMoveType,
       moveId,
       customerRemarks,
-      shipmentType: selectedMoveType,
-      pickup: options.showPickupFields ? pickup : undefined,
-      delivery: options.showDeliveryFields && hasDeliveryAddress ? delivery : undefined,
+      pickup,
+      delivery,
     });
 
     createMTOShipment(pendingMtoShipment);
@@ -214,7 +212,7 @@ class MtoShipmentForm extends Component {
                   <Fieldset legend="Pickup date" className={fieldsetClasses}>
                     <Field
                       as={DatePickerInput}
-                      name="requestedPickupDate"
+                      name="pickup.requestedDate"
                       label="Requested pickup date"
                       id="requestedPickupDate"
                       value={values.pickup.requestedDate}
@@ -226,7 +224,7 @@ class MtoShipmentForm extends Component {
                   </Fieldset>
 
                   <AddressFields
-                    name="pickupAddress"
+                    name="pickup.address"
                     legend="Pickup location"
                     className={fieldsetClasses}
                     renderExistingAddressCheckbox={() => (
@@ -243,7 +241,7 @@ class MtoShipmentForm extends Component {
                     values={values.pickup.address}
                   />
                   <ContactInfoFields
-                    name="releasingAgent"
+                    name="pickup.agent"
                     legend="Releasing agent"
                     className={fieldsetClasses}
                     subtitle="Who can allow the movers to take your stuff if you're not there?"
@@ -256,7 +254,7 @@ class MtoShipmentForm extends Component {
                 <div>
                   <Fieldset legend="Delivery date" className={fieldsetClasses}>
                     <DatePickerInput
-                      name="requestedDeliveryDate"
+                      name="delivery.requestedDate"
                       label="Requested delivery date"
                       id="requestedDeliveryDate"
                       value={values.delivery.requestedDate}
@@ -302,7 +300,7 @@ class MtoShipmentForm extends Component {
                     )}
                   </Fieldset>
                   <ContactInfoFields
-                    name="receivingAgent"
+                    name="delivery.agent"
                     legend="Receiving agent"
                     className={fieldsetClasses}
                     subtitle="Who can take delivery for you if the movers arrive and you're not there?"

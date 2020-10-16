@@ -3735,7 +3735,6 @@ func init() {
       "type": "object",
       "required": [
         "moveTaskOrderID",
-        "pickupAddress",
         "shipmentType"
       ],
       "properties": {
@@ -10281,7 +10280,6 @@ func init() {
       "type": "object",
       "required": [
         "moveTaskOrderID",
-        "pickupAddress",
         "shipmentType"
       ],
       "properties": {

@@ -21,8 +21,13 @@ function formatAgent(agent) {
 
 function formatAddress(address) {
   const formattedAddress = address;
-  formattedAddress.state = formattedAddress.state.toUpperCase();
-  return formattedAddress;
+
+  if (formattedAddress.state) {
+    formattedAddress.state = formattedAddress.state?.toUpperCase();
+    return formattedAddress;
+  }
+
+  return undefined;
 }
 
 /**
@@ -37,7 +42,7 @@ export function formatMtoShipment({ moveId, shipmentType, pickup, delivery, cust
     agents: [],
   };
 
-  if (pickup) {
+  if (pickup?.requestedDate) {
     formattedMtoShipment.requestedPickupDate = formatSwaggerDate(pickup.requestedDate);
     formattedMtoShipment.pickupAddress = formatAddress(pickup.address);
 
@@ -49,9 +54,12 @@ export function formatMtoShipment({ moveId, shipmentType, pickup, delivery, cust
     }
   }
 
-  if (delivery) {
+  if (delivery?.requestedDate) {
     formattedMtoShipment.requestedDeliveryDate = formatSwaggerDate(delivery.requestedDate);
-    formattedMtoShipment.destinationAddress = formatAddress(delivery.address);
+
+    if (delivery.address) {
+      formattedMtoShipment.destinationAddress = formatAddress(delivery.address);
+    }
 
     if (delivery.agent) {
       const formattedAgent = formatAgent(delivery.agent);
@@ -59,6 +67,10 @@ export function formatMtoShipment({ moveId, shipmentType, pickup, delivery, cust
         formattedMtoShipment.agents.push({ ...formattedAgent, agentType: MTOAgentType.RECEIVING });
       }
     }
+  }
+
+  if (!formatMtoShipment.agents?.length) {
+    formatMtoShipment.agents = undefined;
   }
 
   return formattedMtoShipment;
