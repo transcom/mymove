@@ -129,46 +129,6 @@ export class SelectMoveType extends Component {
       </div>
     );
     return (
-<<<<<<< HEAD
-      <WizardPage
-        pageKey={pageKey}
-        match={match}
-        pageList={pageList}
-        dirty
-        handleSubmit={this.handleSubmit}
-        push={push}
-      >
-        <h1>How do you want to move your belongings?</h1>
-        <Radio
-          id={SHIPMENT_OPTIONS.PPM}
-          label="I’ll move things myself"
-          value={SHIPMENT_OPTIONS.PPM}
-          name="moveType"
-          onChange={(e) => this.setMoveType(e)}
-          checked={moveType === SHIPMENT_OPTIONS.PPM}
-        />
-        <ul>
-          <li>This is a PPM - “personally procured move”</li>
-          <li>You arrange to move some or all of your belongings</li>
-          <li>The government pays you an incentive based on weight</li>
-          <li>DIY or hire your own movers</li>
-        </ul>
-        <Radio
-          id={SHIPMENT_OPTIONS.HHG}
-          label="The government packs for me and moves me"
-          value={SHIPMENT_OPTIONS.HHG}
-          onChange={(e) => this.setMoveType(e)}
-          name="moveType"
-          checked={moveType === SHIPMENT_OPTIONS.HHG}
-        />
-        <ul>
-          <li>This is an HHG shipment — “household goods”</li>
-          <li>The most popular kind of shipment</li>
-          <li>Professional movers take care of the whole shipment</li>
-          <li>They pack and move it for you</li>
-        </ul>
-      </WizardPage>
-=======
       <div className={`grid-container ${wizardStyles.gridContainer} ${styles.gridContainer}`}>
         <div className="grid-row">
           <div className="tablet:grid-col-2 desktop:grid-col-2" />
@@ -217,7 +177,6 @@ export class SelectMoveType extends Component {
           <div className="tablet:grid-col-2" />
         </div>
       </div>
->>>>>>> master
     );
   }
 }
