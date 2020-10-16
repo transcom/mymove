@@ -53,70 +53,76 @@ const HHGShipmentCard = ({
         </div>
 
         <dl className={styles.shipmentCardSubsection}>
-          {isHHG && isNTS && (
-            <div className={styles.row}>
-              <dt>Requested pickup date</dt>
-              <dd>{formatCustomerDate(requestedPickupDate)}</dd>
-            </div>
-          )}
-          {isHHG && isNTS && (
-            <div className={styles.row}>
-              <dt>Pickup location</dt>
-              <dd>
-                {pickupLocation.street_address_1} {pickupLocation.street_address_2}
-                <br />
-                {pickupLocation.city}, {pickupLocation.state} {pickupLocation.postal_code}
-              </dd>
-            </div>
-          )}
-          {isHHG && isNTS && releasingAgent && (
-            <div className={styles.row}>
-              <dt>Releasing agent</dt>
-              <dd>
-                {(releasingAgent.firstName || releasingAgent.lastName) && (
-                  <>
-                    {releasingAgent.firstName} {releasingAgent.lastName} <br />
-                  </>
-                )}
-                {releasingAgent.phone && (
-                  <>
-                    {releasingAgent.phone} <br />
-                  </>
-                )}
-                {releasingAgent.email}
-              </dd>
-            </div>
-          )}
-          {isHHG && isNTSR && (
-            <div className={styles.row}>
-              <dt>Requested delivery date</dt>
-              <dd>{formatCustomerDate(requestedDeliveryDate)}</dd>
-            </div>
-          )}
-          {isHHG && isNTSR && (
-            <div className={styles.row}>
-              <dt>Destination</dt>
-              <dd>{formatCustomerDestination(destinationLocation, destinationZIP)}</dd>
-            </div>
-          )}
-          {isHHG && isNTSR && receivingAgent && (
-            <div className={styles.row}>
-              <dt>Receiving agent</dt>
-              <dd>
-                {(receivingAgent.firstName || receivingAgent.lastName) && (
-                  <>
-                    {receivingAgent.firstName} {receivingAgent.lastName} <br />
-                  </>
-                )}
-                {receivingAgent.phone && (
-                  <>
-                    {receivingAgent.phone} <br />
-                  </>
-                )}
-                {receivingAgent.email}
-              </dd>
-            </div>
-          )}
+          {isHHG ||
+            (isNTS && (
+              <div className={styles.row}>
+                <dt>Requested pickup date</dt>
+                <dd>{formatCustomerDate(requestedPickupDate)}</dd>
+              </div>
+            ))}
+          {isHHG ||
+            (isNTS && (
+              <div className={styles.row}>
+                <dt>Pickup location</dt>
+                <dd>
+                  {pickupLocation.street_address_1} {pickupLocation.street_address_2}
+                  <br />
+                  {pickupLocation.city}, {pickupLocation.state} {pickupLocation.postal_code}
+                </dd>
+              </div>
+            ))}
+          {isHHG ||
+            (isNTS && releasingAgent && (
+              <div className={styles.row}>
+                <dt>Releasing agent</dt>
+                <dd>
+                  {(releasingAgent.firstName || releasingAgent.lastName) && (
+                    <>
+                      {releasingAgent.firstName} {releasingAgent.lastName} <br />
+                    </>
+                  )}
+                  {releasingAgent.phone && (
+                    <>
+                      {releasingAgent.phone} <br />
+                    </>
+                  )}
+                  {releasingAgent.email}
+                </dd>
+              </div>
+            ))}
+          {isHHG ||
+            (isNTSR && (
+              <div className={styles.row}>
+                <dt>Requested delivery date</dt>
+                <dd>{formatCustomerDate(requestedDeliveryDate)}</dd>
+              </div>
+            ))}
+          {isHHG ||
+            (isNTSR && (
+              <div className={styles.row}>
+                <dt>Destination</dt>
+                <dd>{formatCustomerDestination(destinationLocation, destinationZIP)}</dd>
+              </div>
+            ))}
+          {isHHG ||
+            (isNTSR && receivingAgent && (
+              <div className={styles.row}>
+                <dt>Receiving agent</dt>
+                <dd>
+                  {(receivingAgent.firstName || receivingAgent.lastName) && (
+                    <>
+                      {receivingAgent.firstName} {receivingAgent.lastName} <br />
+                    </>
+                  )}
+                  {receivingAgent.phone && (
+                    <>
+                      {receivingAgent.phone} <br />
+                    </>
+                  )}
+                  {receivingAgent.email}
+                </dd>
+              </div>
+            ))}
           {remarks && (
             <div className={`${styles.row} ${hhgShipmentCardStyles.remarksRow}`}>
               <dt>Remarks</dt>
