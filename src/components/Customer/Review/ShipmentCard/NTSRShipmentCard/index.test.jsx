@@ -23,7 +23,7 @@ const defaultProps = {
 function mountNTSRShipmentCard(props = defaultProps) {
   return mount(<NTSRShipmentCard {...props} />);
 }
-describe('HHGShipmentCard component', () => {
+describe('NTSRShipmentCard component', () => {
   it('renders component with all fields', () => {
     const wrapper = mountNTSRShipmentCard();
     const tableHeaders = ['Requested delivery date', 'Destination', 'Receiving agent', 'Remarks'];

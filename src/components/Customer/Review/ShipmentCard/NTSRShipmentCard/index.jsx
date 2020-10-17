@@ -9,7 +9,7 @@ import { formatCustomerDestination, getShipmentTypeLabel } from 'utils/shipmentD
 import ShipmentContainer from 'components/Office/ShipmentContainer';
 import { formatCustomerDate } from 'utils/formatters';
 
-const NTSShipmentCard = ({
+const NTSRShipmentCard = ({
   destinationLocation,
   destinationZIP,
   receivingAgent,
@@ -19,7 +19,7 @@ const NTSShipmentCard = ({
   shipmentType,
 }) => {
   return (
-    <div className={styles.ShipmentCard} data-testid="hhg-summary">
+    <div className={styles.ShipmentCard} data-testid="ntsr-summary">
       <ShipmentContainer className={styles.container} shipmentType={shipmentType}>
         <div className={styles.ShipmentCardHeader}>
           <div>
@@ -37,13 +37,12 @@ const NTSShipmentCard = ({
             <dd>{formatCustomerDate(requestedDeliveryDate)}</dd>
           </div>
 
-          {destinationLocation ||
-            (destinationZIP && (
-              <div className={styles.row}>
-                <dt>Destination</dt>
-                <dd>{formatCustomerDestination(destinationLocation, destinationZIP)}</dd>
-              </div>
-            ))}
+          {destinationLocation || destinationZIP ? (
+            <div className={styles.row}>
+              <dt>Destination</dt>
+              <dd>{formatCustomerDestination(destinationLocation, destinationZIP)}</dd>
+            </div>
+          ) : undefined}
 
           {receivingAgent && (
             <div className={styles.row}>
@@ -75,7 +74,7 @@ const NTSShipmentCard = ({
   );
 };
 
-NTSShipmentCard.propTypes = {
+NTSRShipmentCard.propTypes = {
   shipmentType: string.isRequired,
   shipmentId: string.isRequired,
   destinationLocation: AddressShape,
@@ -90,10 +89,10 @@ NTSShipmentCard.propTypes = {
   remarks: string,
 };
 
-NTSShipmentCard.defaultProps = {
+NTSRShipmentCard.defaultProps = {
   destinationLocation: null,
   receivingAgent: null,
   remarks: '',
 };
 
-export default NTSShipmentCard;
+export default NTSRShipmentCard;
