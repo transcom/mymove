@@ -1,9 +1,12 @@
 /* eslint-disable security/detect-object-injection */
 import React from 'react';
 import { string, arrayOf, shape, func, number, bool } from 'prop-types';
+import classnames from 'classnames';
 
 import styles from './ShipmentList.module.scss';
 
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 import { ReactComponent as EditIcon } from 'shared/icon/edit.svg';
 
 const ShipmentListItem = ({ shipment, onShipmentClick, shipmentNumber, canEdit, showNumber }) => {
@@ -15,7 +18,14 @@ const ShipmentListItem = ({ shipment, onShipmentClick, shipmentNumber, canEdit, 
       onShipmentClick();
     }
   }
-  const shipmentClassName = styles[`shipment-list-item-${shipment.shipmentType}`];
+
+  const shipmentClassName = classnames({
+    [styles[`shipment-list-item-NTS-R`]]: shipment.shipmentType === SHIPMENT_OPTIONS.NTSR,
+    [styles[`shipment-list-item-NTS`]]: shipment.shipmentType === SHIPMENT_OPTIONS.NTS,
+    [styles[`shipment-list-item-HHG`]]: shipment.shipmentType === SHIPMENT_OPTIONS.HHG,
+    [styles[`shipment-list-item-PPM`]]: shipment.shipmentType === SHIPMENT_OPTIONS.PPM,
+  });
+
   return (
     <div
       className={`${styles['shipment-list-item-container']} ${shipmentClassName}`}
@@ -29,7 +39,7 @@ const ShipmentListItem = ({ shipment, onShipmentClick, shipmentNumber, canEdit, 
       tabIndex="0"
     >
       <strong>
-        {shipment.shipmentType}
+        {getShipmentTypeLabel(shipment.shipmentType)}
         {showNumber && ` ${shipmentNumber}`}
       </strong>{' '}
       {/* use substring of the UUID until actual shipment code is available */}

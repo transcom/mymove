@@ -1,6 +1,8 @@
 /* eslint-disable camelcase */
 import React from 'react';
 
+import { shipmentOptionLabels } from 'shared/constants';
+
 export function formatAddress(address) {
   const { street_address_1, city, state, postal_code } = address;
   return (
@@ -22,3 +24,5 @@ export function formatCustomerDestination(destinationLocation, destinationZIP) {
     destinationZIP
   );
 }
+
+export const getShipmentTypeLabel = (shipmentType) => shipmentOptionLabels.find((l) => l.key === shipmentType)?.label;

@@ -1,46 +1,31 @@
 import React from 'react';
-import { string, shape, number, func } from 'prop-types';
+import { string, shape } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
 import { AddressShape } from '../../../../../types/address';
 import styles from '../ShipmentCard.module.scss';
 
-import { formatCustomerDestination, getShipmentTypeLabel } from 'utils/shipmentDisplay';
+import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 import ShipmentContainer from 'components/Office/ShipmentContainer';
 import { formatCustomerDate } from 'utils/formatters';
 
-const HHGShipmentCard = ({
-  destinationLocation,
-  destinationZIP,
-  moveId,
-  onEditClick,
+const NTSShipmentCard = ({
   pickupLocation,
-  receivingAgent,
   releasingAgent,
   remarks,
-  requestedDeliveryDate,
   requestedPickupDate,
   shipmentId,
-  shipmentNumber,
   shipmentType,
 }) => {
-  const editPath = `/moves/${moveId}/mto-shipments/${shipmentId}/edit-shipment?shipmentNumber=${shipmentNumber}`;
   return (
-    <div className={styles.ShipmentCard} data-testid="hhg-summary">
+    <div className={styles.ShipmentCard} data-testid="nts-summary">
       <ShipmentContainer className={styles.container} shipmentType={shipmentType}>
         <div className={styles.ShipmentCardHeader}>
           <div>
-            <h3>
-              {getShipmentTypeLabel(shipmentType)} {shipmentNumber}
-            </h3>
+            <h3>{getShipmentTypeLabel(shipmentType)}</h3>
             <p>#{shipmentId.substring(0, 8).toUpperCase()}</p>
           </div>
-          <Button
-            className={styles.editBtn}
-            data-testid="edit-shipment-btn"
-            onClick={() => onEditClick(editPath)}
-            unstyled
-          >
+          <Button className={styles.editBtn} data-testid="edit-shipment-btn" unstyled disabled>
             Edit
           </Button>
         </div>
@@ -78,33 +63,6 @@ const HHGShipmentCard = ({
               </dd>
             </div>
           )}
-          <div className={styles.row}>
-            <dt>Requested delivery date</dt>
-            <dd>{formatCustomerDate(requestedDeliveryDate)}</dd>
-          </div>
-          <div className={styles.row}>
-            <dt>Destination</dt>
-            <dd>{formatCustomerDestination(destinationLocation, destinationZIP)}</dd>
-          </div>
-
-          {receivingAgent && (
-            <div className={styles.row}>
-              <dt>Receiving agent</dt>
-              <dd>
-                {(receivingAgent.firstName || receivingAgent.lastName) && (
-                  <>
-                    {receivingAgent.firstName} {receivingAgent.lastName} <br />
-                  </>
-                )}
-                {receivingAgent.phone && (
-                  <>
-                    {receivingAgent.phone} <br />
-                  </>
-                )}
-                {receivingAgent.email}
-              </dd>
-            </div>
-          )}
           {remarks && (
             <div className={`${styles.row} ${styles.remarksRow}`}>
               <dt>Remarks</dt>
@@ -117,24 +75,12 @@ const HHGShipmentCard = ({
   );
 };
 
-HHGShipmentCard.propTypes = {
-  moveId: string.isRequired,
-  shipmentNumber: number.isRequired,
+NTSShipmentCard.propTypes = {
   shipmentType: string.isRequired,
   shipmentId: string.isRequired,
   requestedPickupDate: string.isRequired,
   pickupLocation: AddressShape.isRequired,
-  destinationLocation: AddressShape,
   releasingAgent: shape({
-    firstName: string,
-    lastName: string,
-    phone: string,
-    email: string,
-  }),
-  requestedDeliveryDate: string.isRequired,
-  destinationZIP: string.isRequired,
-  onEditClick: func.isRequired,
-  receivingAgent: shape({
     firstName: string,
     lastName: string,
     phone: string,
@@ -143,11 +89,9 @@ HHGShipmentCard.propTypes = {
   remarks: string,
 };
 
-HHGShipmentCard.defaultProps = {
-  destinationLocation: null,
+NTSShipmentCard.defaultProps = {
   releasingAgent: null,
-  receivingAgent: null,
   remarks: '',
 };
 
-export default HHGShipmentCard;
+export default NTSShipmentCard;
