@@ -19,7 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/logging"
 )
 
-// Call this from command line with go run ./cmd/send-to-syncada-via-sftp/ --local-file-path <localFilePath>
+// Call this from command line with go run ./cmd/send-to-syncada-via-sftp/ --local-file-path <localFilePath> --destination-file-name <destinationFileName>
 
 func checkConfig(v *viper.Viper, logger logger) error {
 
@@ -45,6 +45,7 @@ func initFlags(flag *pflag.FlagSet) {
 	cli.InitSyncadaFlags(flag)
 
 	flag.String("local-file-path", "", "The path where the file to be sent is located")
+	flag.String("destination-file-name", "", "The name of the file to be stored in Syncada")
 
 	// Don't sort flags
 	flag.SortFlags = false
@@ -115,7 +116,7 @@ func main() {
 	}
 
 	userID := v.GetString(cli.SyncadaSFTPUserIDFlag)
-	password := v.GetString(cli.SyncadaSFTPPasswordFlag)
+	password := v.GetString(cli.SyncadaSFTPPsswrdFlag)
 	remote := v.GetString(cli.SyncadaSFTPIPAddressFlag)
 	port := v.GetString(cli.SyncadaSFTPPortFlag)
 	syncadaInboundDirectory := v.GetString(cli.SyncadaSFTPInboundDirectoryFlag)
@@ -147,14 +148,14 @@ func main() {
 	defer client.Close()
 
 	// open local file
-	localFilePath := v.GetString("local-file-path")
-	localFile, err := os.Open(localFilePath)
+	localFile, err := os.Open(filepath.Clean(v.GetString("local-file-path")))
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// create destination file
-	destinationFilePath := fmt.Sprintf("/%s/%s/sample_edi.txt", userID, syncadaInboundDirectory)
+	destinationFileName := v.GetString(("destination-file-name"))
+	destinationFilePath := fmt.Sprintf("/%s/%s/%s", userID, syncadaInboundDirectory, destinationFileName)
 	destinationFile, err := client.Create(destinationFilePath)
 	if err != nil {
 		log.Fatal(err)
