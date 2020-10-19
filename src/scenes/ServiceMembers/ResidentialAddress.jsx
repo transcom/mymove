@@ -9,6 +9,8 @@ import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { ValidateZipRateData } from 'shared/api';
 import AddressForm from 'shared/AddressForm';
 
+import SectionWrapper from 'components/Customer/SectionWrapper';
+
 const UnsupportedZipCodeErrorMsg =
   'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.';
 
@@ -46,7 +48,11 @@ export class ResidentialAddress extends Component {
         additionalParams={{ serviceMemberId }}
       >
         <h1>Current residence</h1>
-        <AddressForm schema={this.props.schema} />
+        <SectionWrapper>
+          <div className="tablet:margin-top-neg-3">
+            <AddressForm schema={this.props.schema} />
+          </div>
+        </SectionWrapper>
       </ResidentalWizardForm>
     );
   }
