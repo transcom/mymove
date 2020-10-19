@@ -29,9 +29,9 @@ class Review extends Component {
           canMoveNext={canMoveNext}
         >
           <div className={`${styles.reviewMoveHeaderContainer} grid-row`}>
-            <h2 className="tablet:grid-col-10" data-testid="review-move-header">
+            <h1 className="tablet:grid-col-10" data-testid="review-move-header">
               Review your details
-            </h2>
+            </h1>
             <p className="tablet:grid-col-9">
               You’re almost done setting up your move. Double&#8209;check that your information is accurate, then move
               on to the final step.
