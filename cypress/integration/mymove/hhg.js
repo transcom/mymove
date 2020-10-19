@@ -37,9 +37,9 @@ function customerChoosesAnHHGMove() {
 function customerSetsUpAnHHGMove() {
   cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
 
-  cy.get('input[name="requestedPickupDate"]').focus().blur();
+  cy.get('input[name="pickup.requestedDate"]').focus().blur();
   cy.get('[class="usa-error-message"]').contains('Required');
-  cy.get('input[name="requestedPickupDate"]').type('08/02/2020').blur();
+  cy.get('input[name="pickup.requestedDate"]').type('08/02/2020').blur();
   cy.get('[class="usa-error-message"]').should('not.exist');
 
   cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
@@ -91,7 +91,7 @@ function customerSetsUpAnHHGMove() {
   cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
 
   // requested delivery date
-  cy.get('input[name="requestedDeliveryDate"]').first().type('09/20/2020').blur();
+  cy.get('input[name="delivery.requestedDate"]').first().type('09/20/2020').blur();
 
   // checks has delivery address (default does not have delivery address)
   cy.get('input[type="radio"]').first().check({ force: true });
