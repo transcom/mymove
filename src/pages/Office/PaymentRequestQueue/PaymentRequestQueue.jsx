@@ -41,6 +41,13 @@ const columns = [
     },
     'age',
   ),
+  createHeader(
+    'Submitted',
+    (row) => {
+      return formatDateFromIso(row.submittedAt, 'DD MMM YYYY');
+    },
+    'submittedAt',
+  ),
   createHeader('Move ID', 'locator'),
   createHeader(
     'Branch',
@@ -50,13 +57,6 @@ const columns = [
     { id: 'branch' },
   ),
   createHeader('Origin GBLOC', 'originGBLOC'),
-  createHeader(
-    'Submitted',
-    (row) => {
-      return formatDateFromIso(row.submittedAt, 'DD MMM YYYY');
-    },
-    'submittedAt',
-  ),
 ];
 
 const PaymentRequestQueue = ({ history }) => {
