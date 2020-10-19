@@ -1,11 +1,13 @@
 import React from 'react';
 import { string, shape, number } from 'prop-types';
+import { Button } from '@trussworks/react-uswds';
 
 import { AddressShape } from '../../../../../types/address';
 import styles from '../ShipmentCard.module.scss';
 import PickupDisplay from '../PickupDisplay';
 
 import ShipmentContainer from 'components/Office/ShipmentContainer';
+import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 
 const NTSShipmentCard = ({
   pickupLocation,
@@ -19,6 +21,21 @@ const NTSShipmentCard = ({
   return (
     <div className={styles.ShipmentCard} data-testid="nts-summary">
       <ShipmentContainer className={styles.container} shipmentType={shipmentType}>
+        <div className={styles.ShipmentCardHeader}>
+          <div>
+            <h3>{getShipmentTypeLabel(shipmentType)}</h3>
+            <p>#{shipmentId.substring(0, 8).toUpperCase()}</p>
+          </div>
+          <Button
+            className={styles.editBtn}
+            data-testid="edit-shipment-btn"
+            // onClick={() => onEditClick(editPath)}
+            unstyled
+            disabled
+          >
+            Edit
+          </Button>
+        </div>
         <PickupDisplay
           shipmentId={shipmentId}
           shipmentType={shipmentType}
@@ -26,8 +43,6 @@ const NTSShipmentCard = ({
           requestedPickupDate={requestedPickupDate}
           pickupLocation={pickupLocation}
           releasingAgent={releasingAgent}
-          onEditClick={() => {}}
-          ableToEdit={false}
         />
         {remarks && (
           <div className={`${styles.row} ${styles.remarksRow}`}>

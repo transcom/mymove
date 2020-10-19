@@ -1,13 +1,14 @@
 import React from 'react';
 import { string, shape, number, func } from 'prop-types';
+import { Button } from '@trussworks/react-uswds';
 
 import { AddressShape } from '../../../../../types/address';
 import styles from '../ShipmentCard.module.scss';
 import PickupDisplay from '../PickupDisplay';
+import DeliveryDisplay from '../DeliveryDisplay';
 
-import { formatCustomerDestination } from 'utils/shipmentDisplay';
+import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 import ShipmentContainer from 'components/Office/ShipmentContainer';
-import { formatCustomerDate } from 'utils/formatters';
 
 const HHGShipmentCard = ({
   destinationLocation,
@@ -28,45 +29,37 @@ const HHGShipmentCard = ({
   return (
     <div className={styles.ShipmentCard} data-testid="hhg-summary">
       <ShipmentContainer className={styles.container} shipmentType={shipmentType}>
+        <div className={styles.ShipmentCardHeader}>
+          <div>
+            <h3>
+              {getShipmentTypeLabel(shipmentType)} {shipmentNumber}
+            </h3>
+            <p>#{shipmentId.substring(0, 8).toUpperCase()}</p>
+          </div>
+          <Button
+            className={styles.editBtn}
+            data-testid="edit-shipment-btn"
+            onClick={() => onEditClick(editPath)}
+            unstyled
+          >
+            Edit
+          </Button>
+        </div>
         <PickupDisplay
           shipmentId={shipmentId}
           shipmentType={shipmentType}
-          shipmentNumber={shipmentNumber}
           requestedPickupDate={requestedPickupDate}
           pickupLocation={pickupLocation}
           releasingAgent={releasingAgent}
-          onEditClick={onEditClick}
-          editPath={editPath}
-          ableToEdit
         />
-
-        <div className={styles.row}>
-          <dt>Requested delivery date</dt>
-          <dd>{formatCustomerDate(requestedDeliveryDate)}</dd>
-        </div>
-        <div className={styles.row}>
-          <dt>Destination</dt>
-          <dd>{formatCustomerDestination(destinationLocation, destinationZIP)}</dd>
-        </div>
-
-        {receivingAgent && (
-          <div className={styles.row}>
-            <dt>Receiving agent</dt>
-            <dd>
-              {(receivingAgent.firstName || receivingAgent.lastName) && (
-                <>
-                  {receivingAgent.firstName} {receivingAgent.lastName} <br />
-                </>
-              )}
-              {receivingAgent.phone && (
-                <>
-                  {receivingAgent.phone} <br />
-                </>
-              )}
-              {receivingAgent.email}
-            </dd>
-          </div>
-        )}
+        <DeliveryDisplay
+          shipmentId={shipmentId}
+          shipmentType={shipmentType}
+          requestedDeliveryDate={requestedDeliveryDate}
+          destinationLocation={destinationLocation}
+          destinationZIP={destinationZIP}
+          receivingAgent={receivingAgent}
+        />
         {remarks && (
           <div className={`${styles.row} ${styles.remarksRow}`}>
             <dt>Remarks</dt>

@@ -104,7 +104,7 @@ export class Summary extends Component {
             moveId={moveId}
             onEditClick={this.handleEditClick}
             pickupLocation={shipment.pickupAddress}
-            receivingAgent={receivingAgent}
+            releasingAgent={releasingAgent}
             remarks={shipment.customerRemarks}
             requestedPickupDate={shipment.requestedPickupDate}
             shipmentId={shipment.id}
@@ -118,6 +118,7 @@ export class Summary extends Component {
             key={shipment.id}
             destinationZIP={currentOrders.new_duty_station.address.postal_code}
             destinationLocation={shipment?.destinationAddress}
+            receivingAgent={receivingAgent}
             remarks={shipment.customerRemarks}
             requestedDeliveryDate={shipment.requestedDeliveryDate}
             shipmentId={shipment.id}

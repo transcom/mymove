@@ -4,10 +4,10 @@ import { Button } from '@trussworks/react-uswds';
 
 import { AddressShape } from '../../../../../types/address';
 import styles from '../ShipmentCard.module.scss';
+import DeliveryDisplay from '../DeliveryDisplay';
 
-import { formatCustomerDestination, getShipmentTypeLabel } from 'utils/shipmentDisplay';
+import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 import ShipmentContainer from 'components/Office/ShipmentContainer';
-import { formatCustomerDate } from 'utils/formatters';
 
 const NTSRShipmentCard = ({
   destinationLocation,
@@ -31,44 +31,20 @@ const NTSRShipmentCard = ({
           </Button>
         </div>
 
-        <dl className={styles.shipmentCardSubsection}>
-          <div className={styles.row}>
-            <dt>Requested delivery date</dt>
-            <dd>{formatCustomerDate(requestedDeliveryDate)}</dd>
+        <DeliveryDisplay
+          shipmentId={shipmentId}
+          shipmentType={shipmentType}
+          requestedDeliveryDate={requestedDeliveryDate}
+          destinationLocation={destinationLocation}
+          destinationZIP={destinationZIP}
+          receivingAgent={receivingAgent}
+        />
+        {remarks && (
+          <div className={`${styles.row} ${styles.remarksRow}`}>
+            <dt>Remarks</dt>
+            <dd className={styles.remarksCell}>{remarks}</dd>
           </div>
-
-          {destinationLocation || destinationZIP ? (
-            <div className={styles.row}>
-              <dt>Destination</dt>
-              <dd>{formatCustomerDestination(destinationLocation, destinationZIP)}</dd>
-            </div>
-          ) : undefined}
-
-          {receivingAgent && (
-            <div className={styles.row}>
-              <dt>Receiving agent</dt>
-              <dd>
-                {(receivingAgent.firstName || receivingAgent.lastName) && (
-                  <>
-                    {receivingAgent.firstName} {receivingAgent.lastName} <br />
-                  </>
-                )}
-                {receivingAgent.phone && (
-                  <>
-                    {receivingAgent.phone} <br />
-                  </>
-                )}
-                {receivingAgent.email}
-              </dd>
-            </div>
-          )}
-          {remarks && (
-            <div className={`${styles.row} ${styles.remarksRow}`}>
-              <dt>Remarks</dt>
-              <dd className={styles.remarksCell}>{remarks}</dd>
-            </div>
-          )}
-        </dl>
+        )}
       </ShipmentContainer>
     </div>
   );
