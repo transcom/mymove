@@ -48,7 +48,6 @@ import PaymentReview from 'scenes/Moves/Ppm/PaymentReview/index';
 import CustomerAgreementLegalese from 'scenes/Moves/Ppm/CustomerAgreementLegalese';
 import { withContext } from 'shared/AppContext';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
-import { CONUS_STATUS } from 'shared/constants';
 import HHGShipmentSetup from 'pages/MyMove/HHGShipmentSetup';
 import Home from '../../pages/MyMove/Home';
 
@@ -190,7 +189,7 @@ AppWrapper.defaultProps = {
   loadInternalSchema: no_op,
   loadUser: no_op,
   initOnboarding: no_op,
-  conusStatus: CONUS_STATUS.CONUS,
+  conusStatus: '',
   context: {
     flags: {
       hhgFlow: false,
