@@ -78,13 +78,37 @@ class MtoShipmentForm extends Component {
       hasDeliveryAddress,
       useCurrentResidence: false,
       initialValues: {
+        hasDeliveryAddress,
+        useCurrentResidence: false,
         pickup: {
-          address: {},
-          agent: {},
+          address: {
+            street_address_1: '',
+            street_address_2: '',
+            city: '',
+            state: '',
+            postal_code: '',
+          },
+          agent: {
+            firstName: '',
+            lastName: '',
+            email: '',
+            phone: '',
+          },
         },
         delivery: {
-          address: {},
-          agent: {},
+          address: {
+            street_address_1: '',
+            street_address_2: '',
+            city: '',
+            state: '',
+            postal_code: '',
+          },
+          agent: {
+            firstName: '',
+            lastName: '',
+            email: '',
+            phone: '',
+          },
         },
       },
     };
@@ -102,67 +126,44 @@ class MtoShipmentForm extends Component {
     this.setState(
       (state) => ({ useCurrentResidence: !state.useCurrentResidence }),
       () => {
-        // eslint-disable-next-line react/destructuring-assignment
-        if (this.state.useCurrentResidence) {
-          this.setState({
-            initialValues: {
-              ...initialValues,
-              ...currentValues,
-              pickup: {
-                address: {
-                  street_address_1: currentResidence.street_address_1,
-                  street_address_2: currentResidence.street_address_2,
-                  city: currentResidence.city,
-                  state: currentResidence.state,
-                  postal_code: currentResidence.postal_code,
-                },
-              },
-            },
-          });
+        const { pickup } = currentValues;
+        const { useCurrentResidence } = this.state;
+        if (useCurrentResidence) {
+          pickup.address = {
+            street_address_1: currentResidence.street_address_1,
+            street_address_2: currentResidence.street_address_2,
+            city: currentResidence.city,
+            state: currentResidence.state,
+            postal_code: currentResidence.postal_code,
+          };
+        } else if (wizardPage.match.params.moveId === initialValues.moveTaskOrderID) {
+          pickup.address = {
+            street_address_1: mtoShipment.pickupAddress.street_address_1,
+            street_address_2: mtoShipment.pickupAddress.street_address_2,
+            city: mtoShipment.pickupAddress.city,
+            state: mtoShipment.pickupAddress.state,
+            postal_code: mtoShipment.pickupAddress.postal_code,
+          };
         } else {
-          // eslint-disable-next-line no-lonely-if
-          if (wizardPage.match.params.moveId === initialValues.moveTaskOrderID) {
-            this.setState({
-              initialValues: {
-                ...initialValues,
-                ...currentValues,
-                pickup: {
-                  address: {
-                    street_address_1: mtoShipment.pickupAddress.street_address_1,
-                    street_address_2: mtoShipment.pickupAddress.street_address_2,
-                    city: mtoShipment.pickupAddress.city,
-                    state: mtoShipment.pickupAddress.state,
-                    postal_code: mtoShipment.pickupAddress.postal_code,
-                  },
-                },
-              },
-            });
-          } else {
-            this.setState({
-              initialValues: {
-                ...initialValues,
-                ...currentValues,
-                pickup: {
-                  address: {
-                    street_address_1: '',
-                    street_address_2: '',
-                    city: '',
-                    state: '',
-                    postal_code: '',
-                  },
-                },
-              },
-            });
-          }
+          pickup.address = {
+            street_address_1: '',
+            street_address_2: '',
+            city: '',
+            state: '',
+            postal_code: '',
+          };
         }
+
+        // eslint-disable-next-line react/destructuring-assignment
+        this.setState({
+          initialValues: {
+            ...initialValues,
+            ...currentValues,
+            pickup,
+          },
+        });
       },
     );
-  };
-
-  handleChangeHasDeliveryAddress = () => {
-    this.setState((prevState) => {
-      return { hasDeliveryAddress: !prevState.hasDeliveryAddress };
-    });
   };
 
   submitMTOShipment = ({ pickup, delivery, customerRemarks }) => {
@@ -271,18 +272,16 @@ class MtoShipmentForm extends Component {
                         id="has-delivery-address"
                         label="Yes"
                         name="hasDeliveryAddress"
-                        onChange={this.handleChangeHasDeliveryAddress}
-                        checked={hasDeliveryAddress}
+                        checked={values.hasDeliveryAddress}
                       />
                       <Radio
                         id="no-delivery-address"
                         label="No"
                         name="hasDeliveryAddress"
                         checked={!hasDeliveryAddress}
-                        onChange={this.handleChangeHasDeliveryAddress}
                       />
                     </div>
-                    {hasDeliveryAddress ? (
+                    {values.hasDeliveryAddress ? (
                       <AddressFields name="destinationAddress" values={values.delivery.address} />
                     ) : (
                       <>
