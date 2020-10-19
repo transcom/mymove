@@ -64,7 +64,7 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 	// are displayed to the TOO
 	testdatagen.MakeDefaultMove(suite.DB())
 
-	expectedMoveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
+	expectedMoveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusSUBMITTED}})
 
 	// Only orders with shipments are returned, so we need to add a shipment
 	// to the move we just created
