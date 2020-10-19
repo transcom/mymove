@@ -5,7 +5,9 @@ import (
 	"testing"
 
 	"github.com/gofrs/uuid"
+	"github.com/jackc/pgerrcode"
 
+	"github.com/transcom/mymove/pkg/db/dberr"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -38,7 +40,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceAreaPrices() 
 	suite.T().Run("run a second time; should fail immediately due to constraint violation", func(t *testing.T) {
 		err := gre.importREDomesticServiceAreaPrices(suite.DB())
 		if suite.Error(err) {
-			suite.Contains(err.Error(), "duplicate key value violates unique constraint")
+			suite.True(dberr.IsDBErrorForConstraint(err, pgerrcode.UniqueViolation, "re_domestic_service_area_prices_unique_key"))
 		}
 
 		// Check to see if anything else changed
@@ -64,7 +66,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceAreaPricesFai
 
 		err = gre.importREDomesticServiceAreaPrices(suite.DB())
 		if suite.Error(err) {
-			suite.Equal("error looking up StageDomesticServiceAreaPrice data: unable to fetch records: pq: relation \"stage_domestic_service_area_prices\" does not exist", err.Error())
+			suite.True(dberr.IsDBError(err, pgerrcode.UndefinedTable))
 		}
 
 		renameQuery = fmt.Sprintf("ALTER TABLE missing_stage_domestic_service_area_prices RENAME TO stage_domestic_service_area_prices")

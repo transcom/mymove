@@ -45,7 +45,7 @@ func FetchAddressByID(dbConnection *pop.Connection, id *uuid.UUID) *Address {
 	var response *Address
 	if err := dbConnection.Find(&address, id); err != nil {
 		response = nil
-		if err.Error() != "sql: no rows in result set" {
+		if err.Error() != RecordNotFoundErrorString {
 			// This is an unknown error from the db
 			zap.L().Error("DB Insertion error", zap.Error(err))
 		}

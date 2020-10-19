@@ -56,7 +56,7 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(newAddress *models.A
 	// Find the shipment, return error if not found
 	err := f.db.Find(&mtoShipment, mtoShipmentID)
 	if err != nil {
-		if errors.Cause(err).Error() == "sql: no rows in result set" {
+		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 			return nil, services.NewNotFoundError(mtoShipmentID, "looking for mtoShipment")
 		}
 	}
@@ -73,7 +73,7 @@ func (f mtoShipmentAddressUpdater) UpdateMTOShipmentAddress(newAddress *models.A
 	// Find the address, return error if not found
 	err = f.db.Find(&oldAddress, newAddress.ID)
 	if err != nil {
-		if errors.Cause(err).Error() == "sql: no rows in result set" {
+		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 			return nil, services.NewNotFoundError(newAddress.ID, "looking for address")
 		}
 	}
