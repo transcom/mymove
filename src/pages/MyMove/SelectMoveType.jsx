@@ -6,7 +6,6 @@ import { get } from 'lodash';
 
 import styles from './SelectMoveType.module.scss';
 
-import wizardStyles from 'pages/MyMove/index.module.scss';
 import { updateMove as updateMoveAction } from 'scenes/Moves/ducks';
 import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
@@ -123,60 +122,50 @@ export class SelectMoveType extends Component {
       />
     );
     const footerText = (
-      <div className={styles.footer}>
+      <div className={`${styles.footer} grid-col-12`}>
         It’s OK if you’re not sure about your choices. Your move counselor will go over all your options and can help
         make changes if necessary.
       </div>
     );
     return (
-      <div className={`grid-container ${wizardStyles.gridContainer} ${styles.gridContainer}`}>
-        <div className="grid-row">
-          <div className="tablet:grid-col-2 desktop:grid-col-2" />
-          <div className="tablet:grid-col-8 desktop:grid-col-8">
-            <WizardPage
-              pageKey={pageKey}
-              match={match}
-              pageList={pageList}
-              dirty
-              handleSubmit={this.handleSubmit}
-              push={push}
-              footerText={footerText}
-            >
-              <h6 className="sm-heading">Shipment {shipmentNumber}</h6>
-              <h1 className={`sm-heading ${styles.selectTypeHeader} ${styles.header}`}>
-                {hasAnyShipments
-                  ? 'How do you want this group of things moved?'
-                  : 'How do you want to move your belongings?'}
-              </h1>
-              <h2>Choose 1 shipment at a time.</h2>
-              <p>You can add more later</p>
-              {hasPpm ? selectPpmHasPpm : selectPpmHasNoPpm}
-              {hasSubmittedMove ? selectHhgSubmittedMove : selectHhgDefault}
-              <h3>Long-term storage</h3>
-              <p>These shipments do count against your weight allowance for this move.</p>
-              <SelectableCard
-                {...selectableCardDefaultProps} // eslint-disable-line
-                label="Put things into long-term storage"
-                value={SHIPMENT_OPTIONS.NTS}
-                id={SHIPMENT_OPTIONS.NTS}
-                cardText={hasNTS ? ntsCardText : hasNTSCardText}
-                checked={moveType === SHIPMENT_OPTIONS.NTS && isHhgSelectable}
-                disabled={hasNTS}
-              />
-              <SelectableCard
-                {...selectableCardDefaultProps} // eslint-disable-line
-                label="Get things out of long-term storage"
-                value={SHIPMENT_OPTIONS.NTS}
-                id={SHIPMENT_OPTIONS.NTS}
-                cardText={hasNTSR ? ntsrCardText : hasNTSRCardText}
-                checked={moveType === SHIPMENT_OPTIONS.NTS && isHhgSelectable}
-                disabled={hasNTSR}
-              />
-            </WizardPage>
-          </div>
-          <div className="tablet:grid-col-2" />
-        </div>
-      </div>
+      <WizardPage
+        pageKey={pageKey}
+        match={match}
+        pageList={pageList}
+        dirty
+        handleSubmit={this.handleSubmit}
+        push={push}
+        footerText={footerText}
+      >
+        <h6>Shipment {shipmentNumber}</h6>
+        <h1 className={`${styles.selectTypeHeader} ${styles.header}`}>
+          {hasAnyShipments ? 'How do you want this group of things moved?' : 'How do you want to move your belongings?'}
+        </h1>
+        <h2>Choose 1 shipment at a time.</h2>
+        <p>You can add more later</p>
+        {hasPpm ? selectPpmHasPpm : selectPpmHasNoPpm}
+        {hasSubmittedMove ? selectHhgSubmittedMove : selectHhgDefault}
+        <h3>Long-term storage</h3>
+        <p>These shipments do count against your weight allowance for this move.</p>
+        <SelectableCard
+          {...selectableCardDefaultProps} // eslint-disable-line
+          label="Put things into long-term storage"
+          value={SHIPMENT_OPTIONS.NTS}
+          id={SHIPMENT_OPTIONS.NTS}
+          cardText={hasNTS ? ntsCardText : hasNTSCardText}
+          checked={moveType === SHIPMENT_OPTIONS.NTS && isHhgSelectable}
+          disabled={hasNTS}
+        />
+        <SelectableCard
+          {...selectableCardDefaultProps} // eslint-disable-line
+          label="Get things out of long-term storage"
+          value={SHIPMENT_OPTIONS.NTS}
+          id={SHIPMENT_OPTIONS.NTS}
+          cardText={hasNTSR ? ntsrCardText : hasNTSRCardText}
+          checked={moveType === SHIPMENT_OPTIONS.NTS && isHhgSelectable}
+          disabled={hasNTSR}
+        />
+      </WizardPage>
     );
   }
 }
