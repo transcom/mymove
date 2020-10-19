@@ -1,13 +1,11 @@
 import React from 'react';
-import { string, shape } from 'prop-types';
-import { Button } from '@trussworks/react-uswds';
+import { string, shape, number } from 'prop-types';
 
 import { AddressShape } from '../../../../../types/address';
 import styles from '../ShipmentCard.module.scss';
+import PickupDisplay from '../PickupDisplay';
 
-import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 import ShipmentContainer from 'components/Office/ShipmentContainer';
-import { formatCustomerDate } from 'utils/formatters';
 
 const NTSShipmentCard = ({
   pickupLocation,
@@ -16,60 +14,27 @@ const NTSShipmentCard = ({
   requestedPickupDate,
   shipmentId,
   shipmentType,
+  shipmentNumber,
 }) => {
   return (
     <div className={styles.ShipmentCard} data-testid="nts-summary">
       <ShipmentContainer className={styles.container} shipmentType={shipmentType}>
-        <div className={styles.ShipmentCardHeader}>
-          <div>
-            <h3>{getShipmentTypeLabel(shipmentType)}</h3>
-            <p>#{shipmentId.substring(0, 8).toUpperCase()}</p>
+        <PickupDisplay
+          shipmentId={shipmentId}
+          shipmentType={shipmentType}
+          shipmentNumber={shipmentNumber}
+          requestedPickupDate={requestedPickupDate}
+          pickupLocation={pickupLocation}
+          releasingAgent={releasingAgent}
+          onEditClick={() => {}}
+          ableToEdit={false}
+        />
+        {remarks && (
+          <div className={`${styles.row} ${styles.remarksRow}`}>
+            <dt>Remarks</dt>
+            <dd className={styles.remarksCell}>{remarks}</dd>
           </div>
-          <Button className={styles.editBtn} data-testid="edit-shipment-btn" unstyled disabled>
-            Edit
-          </Button>
-        </div>
-
-        <dl className={styles.shipmentCardSubsection}>
-          <div className={styles.row}>
-            <dt>Requested pickup date</dt>
-            <dd>{formatCustomerDate(requestedPickupDate)}</dd>
-          </div>
-          {pickupLocation && (
-            <div className={styles.row}>
-              <dt>Pickup location</dt>
-              <dd>
-                {pickupLocation.street_address_1} {pickupLocation.street_address_2}
-                <br />
-                {pickupLocation.city}, {pickupLocation.state} {pickupLocation.postal_code}
-              </dd>
-            </div>
-          )}
-          {releasingAgent && (
-            <div className={styles.row}>
-              <dt>Releasing agent</dt>
-              <dd>
-                {(releasingAgent.firstName || releasingAgent.lastName) && (
-                  <>
-                    {releasingAgent.firstName} {releasingAgent.lastName} <br />
-                  </>
-                )}
-                {releasingAgent.phone && (
-                  <>
-                    {releasingAgent.phone} <br />
-                  </>
-                )}
-                {releasingAgent.email}
-              </dd>
-            </div>
-          )}
-          {remarks && (
-            <div className={`${styles.row} ${styles.remarksRow}`}>
-              <dt>Remarks</dt>
-              <dd className={styles.remarksCell}>{remarks}</dd>
-            </div>
-          )}
-        </dl>
+        )}
       </ShipmentContainer>
     </div>
   );
@@ -87,11 +52,13 @@ NTSShipmentCard.propTypes = {
     email: string,
   }),
   remarks: string,
+  shipmentNumber: number,
 };
 
 NTSShipmentCard.defaultProps = {
   releasingAgent: null,
   remarks: '',
+  shipmentNumber: 0,
 };
 
 export default NTSShipmentCard;
