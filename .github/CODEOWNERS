@@ -7,7 +7,7 @@
 # Add language specific code owners if it becomes relevant
 
 # ADRs are architectural decisions records that should all be approved by all teams
-/docs/adr/* @tinyels @Ryan-Koch @esacteksab @jacquelineIO @LeDeep @lynzt
+/docs/adr/* @transcom/truss-sr-eng
 
 # Docs about the database should be reviewed by people working on our database guidelines
 /docs/database/* @transcom/truss-db

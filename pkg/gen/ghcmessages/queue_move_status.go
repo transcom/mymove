@@ -20,14 +20,14 @@ type QueueMoveStatus string
 
 const (
 
-	// QueueMoveStatusNEW captures enum value "NEW"
-	QueueMoveStatusNEW QueueMoveStatus = "NEW"
+	// QueueMoveStatusNewMove captures enum value "New move"
+	QueueMoveStatusNewMove QueueMoveStatus = "New move"
 
-	// QueueMoveStatusAPPROVED captures enum value "APPROVED"
-	QueueMoveStatusAPPROVED QueueMoveStatus = "APPROVED"
+	// QueueMoveStatusMoveApproved captures enum value "Move approved"
+	QueueMoveStatusMoveApproved QueueMoveStatus = "Move approved"
 
-	// QueueMoveStatusAPPROVALSREQUESTED captures enum value "APPROVALS_REQUESTED"
-	QueueMoveStatusAPPROVALSREQUESTED QueueMoveStatus = "APPROVALS_REQUESTED"
+	// QueueMoveStatusApprovalsRequested captures enum value "Approvals requested"
+	QueueMoveStatusApprovalsRequested QueueMoveStatus = "Approvals requested"
 )
 
 // for schema
@@ -35,7 +35,7 @@ var queueMoveStatusEnum []interface{}
 
 func init() {
 	var res []QueueMoveStatus
-	if err := json.Unmarshal([]byte(`["NEW","APPROVED","APPROVALS_REQUESTED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["New move","Move approved","Approvals requested"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

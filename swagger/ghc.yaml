@@ -1113,6 +1113,29 @@ paths:
           description: A server error occurred
           schema:
             $ref: '#/responses/ServerError'
+  /queues/payment-requests:
+    get:
+      produces:
+        - application/json
+      summary: Gets queued list of all payment requests by GBLOC origin
+      description: >
+        An office TIO user will be assigned a transportation office that will determine which payment requests are displayed in their queue based on the origin duty station.
+      operationId: getPaymentRequestsQueue
+      tags:
+        - queues
+      responses:
+        '200':
+          description: Successfully returned all moves matching the criteria
+          schema:
+            $ref: '#/definitions/QueuePaymentRequestsResult'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
 definitions:
   ClientError:
     type: object
@@ -2404,9 +2427,50 @@ definitions:
   QueueMoveStatus:
     type: string
     enum:
-      - NEW
-      - APPROVED
-      - APPROVALS_REQUESTED
+      - New move
+      - Move approved
+      - Approvals requested
+  QueuePaymentRequest:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      moveID:
+        type: string
+        format: uuid
+      customer:
+        $ref: '#/definitions/Customer'
+      status:
+        $ref: '#/definitions/PaymentRequestStatus'
+      age:
+        type: number
+        format: float
+        description: Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.
+      submittedAt:
+        type: string
+        format: date-time
+      locator:
+        type: string
+      departmentIndicator:
+        $ref: '#/definitions/DeptIndicator'
+      originGBLOC:
+        $ref: '#/definitions/GBLOC'
+  QueuePaymentRequests:
+    type: array
+    items:
+      $ref: '#/definitions/QueuePaymentRequest'
+  QueuePaymentRequestsResult:
+    type: object
+    properties:
+      page:
+        type: integer
+      perPage:
+        type: integer
+      totalCount:
+        type: integer
+      queuePaymentRequests:
+        $ref: '#/definitions/QueuePaymentRequests'
   GBLOC:
     type: string
     enum:

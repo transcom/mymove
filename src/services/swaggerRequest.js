@@ -1,8 +1,23 @@
 /* eslint-disable import/prefer-default-export */
 import { get } from 'lodash';
 import { normalize } from 'normalizr';
+import * as Cookies from 'js-cookie';
 
 import * as schema from 'shared/Entities/schema';
+
+// setting up the same config from Swagger/api.js
+export const requestInterceptor = (req) => {
+  if (!req.loadSpec) {
+    const token = Cookies.get('masked_gorilla_csrf');
+    if (token) {
+      req.headers['X-CSRF-Token'] = token;
+    } else {
+      // eslint-disable-next-line no-console
+      console.warn('Unable to retrieve CSRF Token from cookie');
+    }
+  }
+  return req;
+};
 
 /**
  * This is a new Swagger request function that does not rely on Redux
@@ -50,7 +65,17 @@ function successfulReturnType(routeDefinition, status) {
   return toCamelCase(schemaKey);
 }
 
-export async function makeSwaggerRequest(client, operationPath, params = {}, options = {}) {
+export function normalizeResponse(data, schemaKey) {
+  const responseSchema = schema[`${schemaKey}`];
+
+  if (!responseSchema) {
+    throw new Error(`Could not find a schema for ${schemaKey}`);
+  }
+
+  return normalize(data, responseSchema).entities;
+}
+
+export async function makeSwaggerRequest(client, operationPath, params = {}, options = { normalize: true }) {
   const operation = get(client, `apis.${operationPath}`);
   if (!operation) {
     throw new Error(`Operation '${operationPath}' does not exist!`);
@@ -68,31 +93,34 @@ export async function makeSwaggerRequest(client, operationPath, params = {}, opt
 
   return request
     .then((response) => {
-      const routeDefinition = findMatchingRoute(client.spec.paths, operationPath);
-      if (!routeDefinition) {
-        throw new Error(`Could not find routeDefinition for ${operationPath}`);
+      const normalizeData = options.normalize !== undefined ? options.normalize : true;
+      // Normalize the data (defaults to true)
+      if (normalizeData) {
+        /* TODO - deprecrate the below & require an explicit schemaKey parameter */
+        const routeDefinition = findMatchingRoute(client.spec.paths, operationPath);
+        if (!routeDefinition) {
+          throw new Error(`Could not find routeDefinition for ${operationPath}`);
+        }
+
+        let schemaKey = options.schemaKey || successfulReturnType(routeDefinition, response.status);
+        if (!schemaKey) {
+          throw new Error(`Could not find schemaKey for ${operationPath} status ${response.status}`);
+        }
+
+        if (schemaKey.indexOf('Payload') !== -1) {
+          const newSchemaKey = schemaKey.replace('Payload', '');
+          // eslint-disable-next-line no-console
+          console.warn(
+            `Using 'Payload' as a response type prefix is deprecated. Please rename ${schemaKey} to ${newSchemaKey}`,
+          );
+          schemaKey = newSchemaKey;
+        }
+
+        return normalizeResponse(response.body, schemaKey);
       }
 
-      let schemaKey = options.schemaKey || successfulReturnType(routeDefinition, response.status);
-      if (!schemaKey) {
-        throw new Error(`Could not find schemaKey for ${operationPath} status ${response.status}`);
-      }
-
-      if (schemaKey.indexOf('Payload') !== -1) {
-        const newSchemaKey = schemaKey.replace('Payload', '');
-        // eslint-disable-next-line no-console
-        console.warn(
-          `Using 'Payload' as a response type prefix is deprecated. Please rename ${schemaKey} to ${newSchemaKey}`,
-        );
-        schemaKey = newSchemaKey;
-      }
-
-      const payloadSchema = schema[`${schemaKey}`];
-      if (!payloadSchema) {
-        throw new Error(`Could not find a schema for ${schemaKey}`);
-      }
-
-      return normalize(response.body, payloadSchema).entities;
+      // Otherwise, return raw response body
+      return response.body;
     })
     .catch((response) => {
       // eslint-disable-next-line no-console
