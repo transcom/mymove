@@ -3,13 +3,14 @@ package dberr
 import (
 	"errors"
 
-	"github.com/jackc/pgconn"
+	"github.com/lib/pq"
 )
 
 // IsDBError returns true if the given error is a DB error with the given code.
 func IsDBError(err error, errCode string) bool {
-	var pgErr *pgconn.PgError
-	if errors.As(err, &pgErr) && pgErr.Code == errCode {
+	var pgErr *pq.Error
+	errors.As(err, &pgErr)
+	if errors.As(err, &pgErr) && string(pgErr.Code) == errCode {
 		return true
 	}
 
@@ -18,8 +19,8 @@ func IsDBError(err error, errCode string) bool {
 
 // IsDBErrorForConstraint returns true if the given error is a DB error with the given code and constraint name.
 func IsDBErrorForConstraint(err error, errCode string, constraintName string) bool {
-	var pgErr *pgconn.PgError
-	if errors.As(err, &pgErr) && pgErr.Code == errCode && pgErr.ConstraintName == constraintName {
+	var pgErr *pq.Error
+	if errors.As(err, &pgErr) && string(pgErr.Code) == errCode && pgErr.Constraint == constraintName {
 		return true
 	}
 

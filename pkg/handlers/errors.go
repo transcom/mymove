@@ -10,7 +10,7 @@ import (
 	openapierrors "github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/jackc/pgconn"
+	"github.com/lib/pq"
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/pkg/errors"
@@ -162,7 +162,7 @@ func ResponseForError(logger Logger, err error) middleware.Responder {
 		default:
 			return newErrResponse(http.StatusInternalServerError, err)
 		}
-	case *pgconn.PgError:
+	case *pq.Error:
 		skipLogger.Info(SQLErrMessage, zap.Error(e))
 		return newErrResponse(http.StatusInternalServerError, errors.New(SQLErrMessage))
 	default:
