@@ -1,7 +1,7 @@
 import * as formatters from './formatters';
 import moment from 'moment';
 
-import PAYMENT_REQUEST_STATUS, { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
+import PAYMENT_REQUEST_STATUS from 'constants/paymentRequestStatus';
 
 describe('formatters', () => {
   describe('formatWeight', () => {
@@ -141,32 +141,22 @@ describe('formatAgeToDays', () => {
 
 describe('paymentRequestStatusReadable', () => {
   it('returns expected string for PENDING', () => {
-    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.PENDING)).toEqual(
-      PAYMENT_REQUEST_STATUS_LABELS.PENDING,
-    );
+    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.PENDING)).toEqual('Payment requested');
   });
 
   it('returns expected string for REVIEWED', () => {
-    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.REVIEWED)).toEqual(
-      PAYMENT_REQUEST_STATUS_LABELS.REVIEWED,
-    );
+    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.REVIEWED)).toEqual('Reviewed');
   });
 
   it('returns expected string for SENT_TO_GEX', () => {
-    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.SENT_TO_GEX)).toEqual(
-      PAYMENT_REQUEST_STATUS_LABELS.SENT_TO_GEX,
-    );
+    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.SENT_TO_GEX)).toEqual('Reviewed');
   });
 
   it('returns expected string for RECEIVED_BY_GEX', () => {
-    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.RECEIVED_BY_GEX)).toEqual(
-      PAYMENT_REQUEST_STATUS_LABELS.RECEIVED_BY_GEX,
-    );
+    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.RECEIVED_BY_GEX)).toEqual('Reviewed');
   });
 
   it('returns expected string for PAID', () => {
-    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.PAID)).toEqual(
-      PAYMENT_REQUEST_STATUS_LABELS.PAID,
-    );
+    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.PAID)).toEqual('Paid');
   });
 });

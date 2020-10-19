@@ -9,7 +9,7 @@ export default {
 export const PAYMENT_REQUEST_STATUS_LABELS = {
   PENDING: 'Payment requested',
   REVIEWED: 'Reviewed',
-  SENT_TO_GEX: 'Sent to gex',
-  RECEIVED_BY_GEX: 'Received by gex',
+  SENT_TO_GEX: 'Reviewed',
+  RECEIVED_BY_GEX: 'Reviewed',
   PAID: 'Paid',
 };
