@@ -10,7 +10,6 @@ import { CONUS_STATUS } from 'shared/constants';
 export class ConusOrNot extends Component {
   render() {
     const { setLocation, conusStatus } = this.props;
-    const selectableCardDefaultProps = {};
     const oconusCardText = (
       <>
         <p>Starts or ends in Alaska, Hawaii, or International locations</p>
@@ -26,8 +25,7 @@ export class ConusOrNot extends Component {
         <div className="grid-col">
           <h1 className="sm-heading">Where are you moving?</h1>
           <SelectableCard
-            {...selectableCardDefaultProps} // eslint-disable-line
-            id={CONUS_STATUS.CONUS}
+            id={`input_${CONUS_STATUS.CONUS}`}
             label="CONUS"
             value={CONUS_STATUS.CONUS}
             onChange={(e) => setLocation(e.target.value)}
@@ -36,8 +34,7 @@ export class ConusOrNot extends Component {
             cardText="Starts and ends in the continental US"
           />
           <SelectableCard
-            {...selectableCardDefaultProps} // eslint-disable-line
-            id={CONUS_STATUS.OCONUS}
+            id={`input_${CONUS_STATUS.OCONUS}`}
             label="OCONUS"
             value={CONUS_STATUS.OCONUS}
             onChange={(e) => setLocation(e.target.value)}
