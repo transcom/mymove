@@ -7,8 +7,6 @@ import { Button } from '@trussworks/react-uswds';
 import TableDivider from '../TableDivider';
 import reviewStyles from '../Review.module.scss';
 
-import SectionWrapper from 'components/Customer/SectionWrapper';
-
 const ProfileTable = ({
   affiliation,
   city,
@@ -29,7 +27,6 @@ const ProfileTable = ({
   const tableClassNames = classnames('table--stacked', reviewStyles['review-table']);
   const editProfilePath = '/moves/review/edit-profile';
   return (
-    <SectionWrapper>
       <div className={containerClassNames}>
         <div className={reviewStyles['review-header']}>
           <h2>Profile</h2>
@@ -100,7 +97,6 @@ const ProfileTable = ({
           </tbody>
         </table>
       </div>
-    </SectionWrapper>
   );
 };
 

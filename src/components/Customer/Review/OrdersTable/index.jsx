@@ -5,8 +5,6 @@ import { Button } from '@trussworks/react-uswds';
 
 import reviewStyles from '../Review.module.scss';
 
-import SectionWrapper from 'components/Customer/SectionWrapper';
-
 const OrdersTable = ({
   hasDependents,
   issueDate,
@@ -19,7 +17,6 @@ const OrdersTable = ({
 }) => {
   const editPath = `/moves/${moveId}/review/edit-orders`;
   return (
-    <SectionWrapper>
       <div className={reviewStyles['review-container']}>
         <div className={reviewStyles['review-header']}>
           <h2>Orders</h2>
@@ -62,7 +59,6 @@ const OrdersTable = ({
           </tbody>
         </table>
       </div>
-    </SectionWrapper>
   );
 };
 
