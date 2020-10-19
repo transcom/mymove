@@ -194,27 +194,29 @@ export class Summary extends Component {
             uploads={currentOrders.uploaded_orders.uploads}
           />
         </SectionWrapper>
-        {showMoveSetup && <h2 className={styles.moveSetup}>Move setup</h2>}
-        {isReviewPage && this.renderShipments()}
-        {showPPMShipmentSummary && (
-          <PPMShipmentSummary ppm={currentPPM} movePath={rootReviewAddressWithMoveId} orders={currentOrders} />
-        )}
-        {hasPPMorHHG && (
-          <div className="grid-col-row margin-top-5">
-            <span className="float-right">Optional</span>
-            <h3>Add another shipment</h3>
-            <p>Will you move any belongings to or from another location?</p>
-            <Button className="usa-button--secondary" onClick={() => history.push(shipmentSelectionPath)}>
-              Add another shipment
-            </Button>
-          </div>
-        )}
-        {moveIsApproved && (
-          <div className="approved-edit-warning">
-            *To change these fields, contact your local PPPO office at {get(currentStation, 'name')}{' '}
-            {stationPhone ? ` at ${stationPhone}` : ''}.
-          </div>
-        )}
+        <SectionWrapper>
+          {showMoveSetup && <h2 className={styles.moveSetup}>Move setup</h2>}
+          {isReviewPage && this.renderShipments()}
+          {showPPMShipmentSummary && (
+            <PPMShipmentSummary ppm={currentPPM} movePath={rootReviewAddressWithMoveId} orders={currentOrders} />
+          )}
+          {hasPPMorHHG && (
+            <div className="grid-col-row margin-top-5">
+              <span className="float-right">Optional</span>
+              <h3>Add another shipment</h3>
+              <p>Will you move any belongings to or from another location?</p>
+              <Button className="usa-button--secondary" onClick={() => history.push(shipmentSelectionPath)}>
+                Add another shipment
+              </Button>
+            </div>
+          )}
+          {moveIsApproved && (
+            <div className="approved-edit-warning">
+              *To change these fields, contact your local PPPO office at {get(currentStation, 'name')}{' '}
+              {stationPhone ? ` at ${stationPhone}` : ''}.
+            </div>
+          )}
+        </SectionWrapper>
       </>
     );
   }
