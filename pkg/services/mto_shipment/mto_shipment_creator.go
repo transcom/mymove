@@ -69,6 +69,13 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 		return nil, services.NewNotFoundError(moveID, "for move")
 	}
 
+	for _, existingShipment := range move.MTOShipments {
+		if shipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom &&
+			(existingShipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom && existingShipment.Status == models.MTOShipmentStatusSubmitted) {
+			return nil, services.NewInvalidInputError(existingShipment.ID, nil, nil, "Cannot create another NTS Shipment")
+		}
+	}
+
 	if serviceItems != nil {
 		serviceItemsList := make(models.MTOServiceItems, 0, len(serviceItems))
 
