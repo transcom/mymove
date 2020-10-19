@@ -22,7 +22,7 @@ import {
 import { selectActiveOrLatestOrdersFromEntities } from 'shared/Entities/modules/orders';
 import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
-import { WizardPage } from 'shared/WizardPage';
+import { WizardPage } from 'shared/WizardPage/index';
 import { MTOAgentType, SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatSwaggerDate } from 'shared/formatters';
 import Checkbox from 'shared/Checkbox';
