@@ -168,15 +168,12 @@ export const useMovesQueueQueries = () => {
 
 // TODO skip normalizing of schema response and cleanup
 export const usePaymentRequestQueueQueries = () => {
-  const { data: { queuePaymentRequestsResult } = {}, ...paymentRequestsQueueQuery } = useQuery(
-    [PAYMENT_REQUESTS_QUEUE],
-    getPaymentRequestsQueue,
-  );
+  const { data = {}, ...paymentRequestsQueueQuery } = useQuery([PAYMENT_REQUESTS_QUEUE], getPaymentRequestsQueue);
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([paymentRequestsQueueQuery]);
 
   return {
-    queuePaymentRequestsResult,
+    queuePaymentRequestsResult: data,
     isLoading,
     isError,
     isSuccess,

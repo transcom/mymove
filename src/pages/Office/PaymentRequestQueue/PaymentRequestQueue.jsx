@@ -66,7 +66,7 @@ const PaymentRequestQueue = ({ history }) => {
   if (isError) return <SomethingWentWrong />;
 
   // eslint-disable-next-line no-unused-vars
-  const { page, perPage, totalCount, queuePaymentRequests } = queuePaymentRequestsResult[`${undefined}`];
+  const { page, perPage, totalCount, queuePaymentRequests } = queuePaymentRequestsResult;
 
   const handleClick = (values) => {
     history.push(`/moves/MOVE_CODE/payment-requests/${values.id}`);

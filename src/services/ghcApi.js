@@ -110,5 +110,5 @@ export async function getMovesQueue() {
 
 export async function getPaymentRequestsQueue() {
   const operationPath = 'queues.getPaymentRequestsQueue';
-  return makeGHCRequest(operationPath, {}, { schemaKey: 'queuePaymentRequestsResult' });
+  return makeGHCRequest(operationPath, {}, { schemaKey: 'queuePaymentRequestsResult', normalize: false });
 }
