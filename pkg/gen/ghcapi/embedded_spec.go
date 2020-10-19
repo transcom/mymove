@@ -3012,9 +3012,9 @@ func init() {
     "QueueMoveStatus": {
       "type": "string",
       "enum": [
-        "NEW",
-        "APPROVED",
-        "APPROVALS_REQUESTED"
+        "New move",
+        "Move approved",
+        "Approvals requested"
       ]
     },
     "QueueMoves": {
@@ -6825,9 +6825,9 @@ func init() {
     "QueueMoveStatus": {
       "type": "string",
       "enum": [
-        "NEW",
-        "APPROVED",
-        "APPROVALS_REQUESTED"
+        "New move",
+        "Move approved",
+        "Approvals requested"
       ]
     },
     "QueueMoves": {

@@ -483,10 +483,9 @@ func QueueMoves(moveOrders []models.Order) *ghcmessages.QueueMoves {
 		}
 
 		queueMoveOrders[i] = &ghcmessages.QueueMove{
-			ID:       *handlers.FmtUUID(order.ID),
-			Customer: Customer(&customer),
-			// TODO Add status calculation logic here or at service/query level
-			Status:                 ghcmessages.QueueMoveStatus("NEW"),
+			Customer:               Customer(&customer),
+			Status:                 ghcmessages.QueueMoveStatus(queueMoveStatus(hhgMove)),
+			ID:                     *handlers.FmtUUID(order.ID),
 			Locator:                hhgMove.Locator,
 			DepartmentIndicator:    ghcmessages.DeptIndicator(deptIndicator),
 			ShipmentsCount:         int64(len(validMTOShipments)),
@@ -495,6 +494,34 @@ func QueueMoves(moveOrders []models.Order) *ghcmessages.QueueMoves {
 		}
 	}
 	return &queueMoveOrders
+}
+
+// This is a helper function to calculate the inferred status needed for the QueueMove payload.
+func queueMoveStatus(move models.Move) string {
+	// If the move is in the submitted status then we'll translate that to New move
+	if move.Status == models.MoveStatusSUBMITTED {
+		return "New move"
+	}
+
+	// For moves that are in an approved status there are two potential translation paths:
+	// either move approved or approvals requested. A move is move approved if the move is in an APPROVED
+	// status and there are no mtoServiceItems that are in a submitted status. A move is in the
+	// approvals requested status when the move is in an APPROVED status and there are mtoServiceItems in
+	// a submitted status. This is all detailed in: https://dp3.atlassian.net/browse/MB-4158
+	if move.Status == models.MoveStatusAPPROVED {
+		// Let's check to see if there are any MTOServiceItems for this move that need review (SUBMITTED status)
+		for _, mtoSI := range move.MTOServiceItems {
+			// If we find one, we'll immediately return this status as there's no need to continue iterating through.
+			if mtoSI.Status == "SUBMITTED" {
+				return "Approvals requested"
+			}
+		}
+		// If we iterate through the MTOServiceItems and don't find a submitted status item, we return move approved.
+		return "Move approved"
+	}
+	// If we have a status not covered here let's pass it through. This is unlikely to happen, but we should be able to
+	// see it if it does.
+	return string(move.Status)
 }
 
 // QueuePaymentRequests payload
