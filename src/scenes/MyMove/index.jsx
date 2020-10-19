@@ -93,7 +93,7 @@ export class AppWrapper extends Component {
     return (
       <ConnectedRouter history={history}>
         <LastLocationProvider>
-          <div className="my-move site">
+          <div className="my-move site" id="app-root">
             <Header />
             <Tag role="main" className="site__content my-move-container">
               <div className="usa-grid">
@@ -166,6 +166,7 @@ export class AppWrapper extends Component {
             </Tag>
             <Footer />
           </div>
+          <div id="modal-root"></div>
         </LastLocationProvider>
       </ConnectedRouter>
     );
