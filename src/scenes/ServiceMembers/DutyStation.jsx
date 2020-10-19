@@ -11,6 +11,7 @@ import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { selectActiveOrLatestOrders } from 'shared/Entities/modules/orders';
 
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
+import SectionWrapper from 'components/Customer/SectionWrapper';
 
 import './DutyStation.css';
 
@@ -75,12 +76,15 @@ export class DutyStation extends Component {
         serverError={error}
       >
         <h1>Current duty station</h1>
-        <Field
-          name="current_station"
-          title="What is your current duty station?"
-          component={DutyStationSearchBox}
-          errorMsg={newDutyStationErrorMsg}
-        />
+        <SectionWrapper>
+          <div className="tablet:margin-top-neg-3"></div>
+          <Field
+            name="current_station"
+            title="What is your current duty station?"
+            component={DutyStationSearchBox}
+            errorMsg={newDutyStationErrorMsg}
+          />
+        </SectionWrapper>
       </DutyStationWizardForm>
     );
   }
