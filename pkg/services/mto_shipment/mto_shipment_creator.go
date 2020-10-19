@@ -70,8 +70,12 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 	}
 
 	for _, existingShipment := range move.MTOShipments {
-		if shipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom &&
-			(existingShipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom && existingShipment.Status == models.MTOShipmentStatusSubmitted) {
+		hasNTSShipment := shipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom &&
+			(existingShipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom && existingShipment.Status == models.MTOShipmentStatusSubmitted)
+
+		hasNTSRShipment := shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && (existingShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && existingShipment.Status == models.MTOShipmentStatusSubmitted)
+
+		if hasNTSShipment || hasNTSRShipment {
 			return nil, services.NewInvalidInputError(existingShipment.ID, nil, nil, "Cannot create another NTS Shipment")
 		}
 	}
