@@ -121,7 +121,7 @@ export function serviceMemberReducer(state = initialState, action) {
   switch (action.type) {
     case GET_LOGGED_IN_USER.success:
       return Object.assign({}, state, {
-        currentServiceMember: reshape(action.payload.service_member),
+        currentServiceMember: reshape(action.payload.service_member) || state.currentServiceMember,
         currentBackupContacts: get(action, 'payload.service_member.backup_contacts', []),
         hasLoadError: false,
         hasLoadSuccess: true,

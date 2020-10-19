@@ -1,4 +1,4 @@
-import { makeSwaggerRequest } from './swaggerRequest';
+import { makeSwaggerRequest, normalizeResponse } from './swaggerRequest';
 
 function mockGetClient(operationMock) {
   return Promise.resolve({
@@ -46,6 +46,26 @@ function mockGetClient(operationMock) {
     },
   });
 }
+
+describe('normalizeResponse', () => {
+  it('normalizes data with a valid schemaKey', () => {
+    const rawData = {
+      id: 'abcd-1234',
+      type: 'test shipment',
+    };
+
+    const expectedData = {
+      shipments: {
+        'abcd-1234': {
+          id: 'abcd-1234',
+          type: 'test shipment',
+        },
+      },
+    };
+
+    expect(normalizeResponse(rawData, 'shipment')).toEqual(expectedData);
+  });
+});
 
 describe('makeSwaggerRequest', () => {
   it('makes a successful request', async () => {
@@ -111,5 +131,27 @@ describe('makeSwaggerRequest', () => {
     await makeSwaggerRequest(mockClient, 'unknown', { shipmentID: 'abcd-1234' }).catch((error) => {
       expect(error).toEqual(new Error(`Operation 'unknown' does not exist!`));
     });
+  });
+
+  it('returns the raw response body if normalize is false', async () => {
+    const mockResponse = {
+      ok: true,
+      status: 200,
+      body: {
+        id: 'abcd-1234',
+        type: 'test shipment',
+      },
+    };
+
+    const opMock = jest.fn(() => Promise.resolve(mockResponse));
+    const mockClient = await mockGetClient(opMock);
+    const request = await makeSwaggerRequest(
+      mockClient,
+      'shipments.getShipment',
+      { shipmentID: 'abcd-1234' },
+      { normalize: false },
+    );
+
+    expect(request).toEqual(mockResponse.body);
   });
 });

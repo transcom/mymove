@@ -23,9 +23,6 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID) ([]models.Order
 	err := f.db.Q().
 		Join("office_users", "transportation_offices.id = office_users.transportation_office_id").
 		Where("office_users.id = ?", officeUserID).First(&transportationOffice)
-	if err != nil {
-		return []models.Order{}, err
-	}
 
 	if err != nil {
 		return []models.Order{}, err
@@ -39,11 +36,14 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID) ([]models.Order
 		"OriginDutyStation",
 		"Entitlement",
 		"Moves.MTOShipments",
+		"Moves.MTOServiceItems",
 	).InnerJoin("moves", "orders.id = moves.orders_id").
 		InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
 		InnerJoin("duty_stations", "orders.origin_duty_station_id = duty_stations.id").
 		InnerJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id").
 		Where("transportation_offices.gbloc = ?", gbloc).
+		// TODO: Let's include the status in filters that are passed into this service once we build that feature for the TXO queue (instead of it being hardcoded like it is below right now).
+		Where("moves.status NOT IN ('DRAFT', 'CANCELLED')").
 		GroupBy("orders.id").
 		All(&moveOrders)
 

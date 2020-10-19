@@ -287,8 +287,11 @@ bin/read-alb-logs: cmd/read-alb-logs
 bin/report-ecs: cmd/report-ecs
 	go build -ldflags "$(LDFLAGS)" -o bin/report-ecs ./cmd/report-ecs
 
-bin/send-to-gex: pkg/gen/ cmd/send_to_gex
-	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
+bin/send-to-gex: pkg/gen/ cmd/send-to-gex
+	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send-to-gex
+
+bin/send-to-syncada-via-sftp: pkg/gen/ cmd/send-to-syncada-via-sftp
+	go build -ldflags "$(LDFLAGS)" -o bin/send-to-syncada-via-sftp ./cmd/send-to-syncada-via-sftp
 
 bin/tls-checker: cmd/tls-checker
 	go build -ldflags "$(LDFLAGS)" -o bin/tls-checker ./cmd/tls-checker
