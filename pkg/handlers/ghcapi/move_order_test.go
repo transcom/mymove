@@ -83,7 +83,7 @@ func (suite *HandlerSuite) TestListMoveOrdersHandler() {
 		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
 			Stub: true,
 		})
-		moveOrderFetcher.On("ListMoveOrders", officeUser.ID).Return(moveOrders, nil).Once()
+		moveOrderFetcher.AssertNumberOfCalls(t, "ListMoveOrders", 0)
 
 		req := httptest.NewRequest("GET", fmt.Sprintf("/move_orders"), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
