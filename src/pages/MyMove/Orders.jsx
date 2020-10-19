@@ -22,6 +22,8 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 import { createModifiedSchemaForOrdersTypesFlag } from 'shared/featureFlags';
 
+import SectionWrapper from 'components/Customer/SectionWrapper';
+
 const validateOrdersForm = validateAdditionalFields(['new_duty_station']);
 
 const formName = 'orders_info';
@@ -76,23 +78,27 @@ export class Orders extends Component {
         serverError={error}
       >
         <h1>Tell us about your move orders</h1>
-        <SwaggerField
-          fieldName="orders_type"
-          swagger={showAllOrdersTypes ? this.props.schema : modifiedSchemaForOrdersTypesFlag}
-          required
-        />
-        <SwaggerField fieldName="issue_date" swagger={this.props.schema} required />
-        <div style={{ marginTop: '0.25rem' }}>
-          <span className="usa-hint">Date your orders were issued.</span>
+        <SectionWrapper>
+          <div className="tablet:margin-top-neg-3">
+            <SwaggerField
+              fieldName="orders_type"
+              swagger={showAllOrdersTypes ? this.props.schema : modifiedSchemaForOrdersTypesFlag}
+              required
+            />
+            <SwaggerField fieldName="issue_date" swagger={this.props.schema} required />
+            <div style={{ marginTop: '0.25rem' }}>
+              <span className="usa-hint">Date your orders were issued.</span>
+            </div>
+            <SwaggerField fieldName="report_by_date" swagger={this.props.schema} required />
+            <SwaggerField fieldName="has_dependents" swagger={this.props.schema} component={YesNoBoolean} />
+            <Field
+              name="new_duty_station"
+              component={DutyStationSearchBox}
+              errorMsg={newDutyStationErrorMsg}
+              title="New duty station"
+            />
         </div>
-        <SwaggerField fieldName="report_by_date" swagger={this.props.schema} required />
-        <SwaggerField fieldName="has_dependents" swagger={this.props.schema} component={YesNoBoolean} />
-        <Field
-          name="new_duty_station"
-          component={DutyStationSearchBox}
-          errorMsg={newDutyStationErrorMsg}
-          title="New duty station"
-        />
+        </SectionWrapper>
       </OrdersWizardForm>
     );
   }
