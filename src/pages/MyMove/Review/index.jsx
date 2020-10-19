@@ -7,7 +7,7 @@ import styles from './Review.module.scss';
 import { hasShortHaulError } from 'shared/incentive';
 import { no_op as noOp } from 'shared/utils';
 import scrollToTop from 'shared/scrollToTop';
-import ConnectedWizardPage from 'shared/WizardPage';
+import ConnectedWizardPage from 'shared/WizardPage/index';
 import ConnectedSummary from 'components/Customer/Review/Summary';
 import 'scenes/Review/Review.css';
 
