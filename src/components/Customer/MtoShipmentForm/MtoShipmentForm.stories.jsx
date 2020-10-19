@@ -47,6 +47,9 @@ function renderStory(props) {
   );
 }
 
-export const HHGShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.HHG });
-export const NTSReleaseShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.NTSR });
-export const NTSShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.NTS });
+export const CreateHHGShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.HHG });
+export const CreateNTSReleaseShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.NTSR });
+export const CreateNTSShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.NTS });
+export const EditHHGShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.HHG, isEditPage: true });
+export const EditNTSReleaseShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.NTSR, isEditPage: true });
+export const EditNTSShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.NTS, isEditPage: true });

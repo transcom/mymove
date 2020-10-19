@@ -22,7 +22,7 @@ class CreateOrEditMtoShipment extends Component {
 
   // TODO: (in trailing PR) refactor edit component out of existence :)
   render() {
-    const { wizardPage, mtoShipment, selectedMoveType } = this.props;
+    const { wizardPage, mtoShipment, selectedMoveType, isCreatePage } = this.props;
     const { match, history } = wizardPage;
     const isHHGFormPage = match.path === '/moves/:moveId/hhg-start';
 
@@ -31,7 +31,12 @@ class CreateOrEditMtoShipment extends Component {
         {selectedMoveType === SHIPMENT_OPTIONS.HHG && !isHHGFormPage ? (
           <EditShipment mtoShipment={mtoShipment} match={match} history={history} />
         ) : (
-          <MtoShipmentForm wizardPage={wizardPage} mtoShipment={mtoShipment} selectedMoveType={selectedMoveType} />
+          <MtoShipmentForm
+            wizardPage={wizardPage}
+            mtoShipment={mtoShipment}
+            selectedMoveType={selectedMoveType}
+            isCreatePage={isCreatePage}
+          />
         )}
       </div>
     );

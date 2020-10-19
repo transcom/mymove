@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { string, func } from 'prop-types';
+import { bool, string, func } from 'prop-types';
 import { get } from 'lodash';
 import { connect } from 'react-redux';
 import { Formik, Field } from 'formik';
@@ -7,6 +7,7 @@ import * as Yup from 'yup';
 import { Fieldset, Radio, Label } from '@trussworks/react-uswds';
 
 import styles from './MtoShipmentForm.module.scss';
+import { MtoShipmentInnerForm } from './MtoShipmentInnerForm';
 import { RequiredPlaceSchema, OptionalPlaceSchema } from './validationSchemas';
 
 import { DatePickerInput, TextInput } from 'components/form/fields';
@@ -25,7 +26,7 @@ import { WizardPage } from 'shared/WizardPage';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import Checkbox from 'shared/Checkbox';
 import { AddressShape, SimpleAddressShape } from 'types/address';
-import { HhgShipmentShape, WizardPageShape } from 'types/customerShapes';
+import { HhgShipmentShape, MtoDisplayOptionsShape, WizardPageShape } from 'types/customerShapes';
 import { formatMtoShipment } from 'utils/formatMtoShipment';
 import { validateDate } from 'utils/formikValidators';
 
@@ -80,6 +81,7 @@ class MtoShipmentForm extends Component {
     this.state = {
       hasDeliveryAddress,
       useCurrentResidence: false,
+      displayOptions: getShipmentOptions(props.selectedMoveType),
       initialValues: {
         pickup: {
           address: {},
@@ -102,12 +104,12 @@ class MtoShipmentForm extends Component {
       this.setInitialState(mtoShipment);
     }
   }
-  
+
   componentDidUpdate(prevProps) {
-    const { mtoShipment, isEditPage } = this.props;
+    const { mtoShipment, isCreatePage } = this.props;
 
     // If refreshing edit page, need to handle mtoShipment populating from a promise
-    if (isEditPage && mtoShipment.id && prevProps.mtoShipment.id !== mtoShipment.id) {
+    if (isCreatePage && mtoShipment.id && prevProps.mtoShipment.id !== mtoShipment.id) {
       this.setInitialEditState(mtoShipment);
     }
   }
@@ -183,9 +185,9 @@ class MtoShipmentForm extends Component {
   };
 
   submitMTOShipment = ({ pickup, delivery, customerRemarks }) => {
-    const { createMTOShipment, updateMTOShipment, wizardPage, selectedMoveType } = this.props;
+    const { createMTOShipment, updateMTOShipment, wizardPage, selectedMoveType, isCreatePage } = this.props;
     const { moveId } = wizardPage.match.params;
-    
+
     const pendingMtoShipment = formatMtoShipment({
       shipmentType: selectedMoveType,
       moveId,
@@ -194,15 +196,15 @@ class MtoShipmentForm extends Component {
       delivery,
     });
 
-    if (isEditPage) {
+    if (isCreatePage) {
+      createMTOShipment(pendingMtoShipment);
+    } else {
       updateMTOShipment(mtoShipment.id, pendingMtoShipment, mtoShipment.eTag).then(() => {
         wizardPage.history.goBack();
       });
-    } else {
-      createMTOShipment(pendingMtoShipment);
     }
   };
-  
+
   // TODO: finish updating to match new initialState structure
   setInitialEditState = (mtoShipment) => {
     function cleanAgentPhone(agent) {
@@ -241,7 +243,7 @@ class MtoShipmentForm extends Component {
     const hasDeliveryAddress = get(mtoShipment, 'destinationAddress', false);
     this.setState({ initialValues: formattedMTOShipment, hasDeliveryAddress });
   };
-  
+
   getShipmentNumber = () => {
     const { search } = window.location;
     const params = new URLSearchParams(search);
@@ -251,11 +253,11 @@ class MtoShipmentForm extends Component {
 
   render() {
     // TODO: replace minimal styling with actual styling during UI phase
-    const { wizardPage, newDutyStationAddress, displayOptions } = this.props;
+    const { wizardPage, newDutyStationAddress, isCreatePage } = this.props;
     const { pageKey, pageList, match, history } = wizardPage;
-    const { hasDeliveryAddress, useCurrentResidence, initialValues } = this.state;
+    const { hasDeliveryAddress, useCurrentResidence, displayOptions, initialValues } = this.state;
     const fieldsetClasses = 'margin-top-2';
-    
+
     const editForm = (
       <div className="grid-container">
         <Formik
@@ -265,14 +267,17 @@ class MtoShipmentForm extends Component {
           validateOnChange
           validationSchema={displayOptions.schema}
         >
-          {({ values, dirty, isValid,  isSubmitting, handleChange }) => (
+          {({ values, dirty, isValid, isSubmitting, handleChange }) => (
             <MtoShipmentInnerForm
               {...this.props}
+              values={values}
+              onHasDeliveryAddressChange={this.handleChangeHasDeliveryAddress}
             />
           )}
         </Formik>
-      </div>);
-    
+      </div>
+    );
+
     const createForm = (
       <div className="grid-container">
         <Formik
@@ -292,14 +297,17 @@ class MtoShipmentForm extends Component {
               handleSubmit={() => this.submitMTOShipment(values, dirty)}
             >
               <MtoShipmentInnerForm
-              {...this.props}
-            />
+                {...this.props}
+                values={values}
+                onHasDeliveryAddressChange={this.handleChangeHasDeliveryAddress}
+              />
             </WizardPage>
           )}
         </Formik>
-      </div>);
+      </div>
+    );
 
-    return isEditPage ? editForm : createForm;
+    return isCreatePage ? createForm : editForm;
   }
 }
 
@@ -307,14 +315,16 @@ MtoShipmentForm.propTypes = {
   wizardPage: WizardPageShape,
   createMTOShipment: func.isRequired,
   showLoggedInUser: func.isRequired,
-  isEditPage: bool.isRequired,
+  isCreatePage: bool,
   currentResidence: AddressShape.isRequired,
   newDutyStationAddress: SimpleAddressShape,
   selectedMoveType: string.isRequired,
+  displayOptions: MtoDisplayOptionsShape.isRequired,
   mtoShipment: HhgShipmentShape,
 };
 
 MtoShipmentForm.defaultProps = {
+  isCreatePage: false,
   wizardPage: {
     pageList: [],
     pageKey: '',
@@ -346,9 +356,8 @@ const mapStateToProps = (state, ownProps) => {
     mtoShipment: selectMTOShipmentForMTO(state, ownProps.wizardPage.match.params.moveId),
     currentResidence: get(selectServiceMemberFromLoggedInUser(state), 'residential_address', {}),
     newDutyStationAddress: get(orders, 'new_duty_station.address', {}),
-    displayOptions: getShipmentOptions(ownProps.selectedMoveType),
   };
-  
+
   return props;
 };
 

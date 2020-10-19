@@ -224,12 +224,17 @@ const pages = {
         }}
         selectedMoveType={props.selectedMoveType}
         mtoShipment={props.mtoShipment}
+        isCreate={true}
       />
     ),
   },
   '/moves/:moveId/nts-start': {
     isInFlow: (state) => inHhgFlow && state.selectedMoveType === SHIPMENT_OPTIONS.NTS,
-    isComplete: ({ sm, orders, move, ppm }) => false,
+    isComplete: ({ sm, orders, move, ppm, mtoShipment }) => {
+      return (
+        mtoShipment && every([mtoShipment.requestedPickupDate, mtoShipment.pickupAddress, mtoShipment.shipmentType])
+      );
+    },
     render: (key, pages, description, props) => ({ match, history }) => (
       <CreateOrEditMtoShipment
         wizardPage={{
@@ -240,12 +245,15 @@ const pages = {
         }}
         selectedMoveType={props.selectedMoveType}
         mtoShipment={props.mtoShipment}
+        isCreate={true}
       />
     ),
   },
   '/moves/:moveId/ntsr-start': {
     isInFlow: (state) => inHhgFlow && state.selectedMoveType === SHIPMENT_OPTIONS.NTSR,
-    isComplete: ({ sm, orders, move, ppm }) => false,
+    isComplete: ({ sm, orders, move, ppm, mtoShipment }) => {
+      return mtoShipment && every([mtoShipment.requestedDeliveryDate, mtoShipment.shipmentType]);
+    },
     render: (key, pages, description, props) => ({ match, history }) => (
       <CreateOrEditMtoShipment
         wizardPage={{
@@ -256,6 +264,7 @@ const pages = {
         }}
         selectedMoveType={props.selectedMoveType}
         mtoShipment={props.mtoShipment}
+        isCreate={true}
       />
     ),
   },
