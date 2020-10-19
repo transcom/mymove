@@ -1,15 +1,14 @@
 package models_test
 
 import (
-	"errors"
 	"testing"
 	"time"
 
 	"github.com/facebookgo/clock"
 	"github.com/gofrs/uuid"
-	"github.com/jackc/pgconn"
 	"github.com/jackc/pgerrcode"
 
+	"github.com/transcom/mymove/pkg/db/dberr"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -124,10 +123,7 @@ func (suite *ModelSuite) TestFuelEIADieselPriceOverlappingDatesConstraint() {
 
 		verrs, err = suite.DB().ValidateAndCreate(&newFuelPrice)
 
-		var pgErr *pgconn.PgError
-		suite.True(errors.As(err, &pgErr))
-		suite.True(pgErr.Code == pgerrcode.ExclusionViolation && pgErr.ConstraintName == "no_overlapping_rates")
-
+		suite.True(dberr.IsDBErrorForConstraint(err, pgerrcode.ExclusionViolation, "no_overlapping_rates"))
 		suite.Empty(verrs.Error())
 	})
 }

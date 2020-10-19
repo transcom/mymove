@@ -72,7 +72,7 @@ func (suite *DBToolsServiceSuite) TestCreateTableFromSlice() {
 	suite.T().Run("errors out when table exists", func(t *testing.T) {
 		err := tableFromSliceCreator.CreateTableFromSlice(validSlice)
 		suite.Error(err)
-		// TODO: Fix this DB error string literal comparison when we fix the COPY-related tests.
+		// TODO: Fix this DB error string literal comparison when we move the COPY-related functionality to jackc/pgx.
 		if err != nil {
 			suite.Equal("Error creating table: 'test_structs': pq: relation \"test_structs\" already exists", err.Error())
 		}

@@ -1,14 +1,13 @@
 package ghcimport
 
 import (
-	"errors"
 	"fmt"
 	"testing"
 
 	"github.com/gofrs/uuid"
-	"github.com/jackc/pgconn"
 	"github.com/jackc/pgerrcode"
 
+	"github.com/transcom/mymove/pkg/db/dberr"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -37,9 +36,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticOtherPrices() {
 	suite.T().Run("run a second time; should fail immediately due to constraint violation", func(t *testing.T) {
 		err := gre.importREDomesticOtherPrices(suite.DB())
 		if suite.Error(err) {
-			var pgErr *pgconn.PgError
-			suite.True(errors.As(err, &pgErr))
-			suite.True(pgErr.Code == pgerrcode.UniqueViolation && pgErr.ConstraintName == "re_domestic_other_prices_unique_key")
+			suite.True(dberr.IsDBErrorForConstraint(err, pgerrcode.UniqueViolation, "re_domestic_other_prices_unique_key"))
 		}
 
 		// Check to see if anything else changed
@@ -68,9 +65,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticOtherPricesFailures(
 
 		err = gre.importREDomesticOtherPrices(suite.DB())
 		if suite.Error(err) {
-			var pgErr *pgconn.PgError
-			suite.True(errors.As(err, &pgErr))
-			suite.True(pgErr.Code == pgerrcode.UndefinedTable)
+			suite.True(dberr.IsDBError(err, pgerrcode.UndefinedTable))
 		}
 
 		renameQuery = fmt.Sprintf("ALTER TABLE missing_stage_domestic_other_sit_prices RENAME TO stage_domestic_other_sit_prices")
@@ -86,9 +81,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticOtherPricesFailures(
 
 		err = gre.importREDomesticOtherPrices(suite.DB())
 		if suite.Error(err) {
-			var pgErr *pgconn.PgError
-			suite.True(errors.As(err, &pgErr))
-			suite.True(pgErr.Code == pgerrcode.UndefinedTable)
+			suite.True(dberr.IsDBError(err, pgerrcode.UndefinedTable))
 		}
 	})
 }

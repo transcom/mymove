@@ -1,12 +1,11 @@
 package models_test
 
 import (
-	"errors"
 	"testing"
 
-	"github.com/jackc/pgconn"
 	"github.com/jackc/pgerrcode"
 
+	"github.com/transcom/mymove/pkg/db/dberr"
 	"github.com/transcom/mymove/pkg/models/roles"
 
 	"github.com/gofrs/uuid"
@@ -69,9 +68,7 @@ func (suite *ModelSuite) TestUserCreationDuplicateUUID() {
 	suite.DB().Create(&newUser)
 	err := suite.DB().Create(&sameUser)
 
-	var pgErr *pgconn.PgError
-	suite.True(errors.As(err, &pgErr))
-	suite.True(pgErr.Code == pgerrcode.UniqueViolation && pgErr.ConstraintName == "constraint_name", "Db should have errored on unique constraint for UUID")
+	suite.True(dberr.IsDBErrorForConstraint(err, pgerrcode.UniqueViolation, "constraint_name"), "Db should have errored on unique constraint for UUID")
 }
 
 func (suite *ModelSuite) TestCreateUser() {

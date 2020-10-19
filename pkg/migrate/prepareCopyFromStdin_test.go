@@ -31,7 +31,7 @@ func (suite *MigrateSuite) TestPrepareCopyFromStdinWithBadSchema() {
 		return err
 	})
 	suite.NotNil(err)
-	// TODO: Fix this DB error string literal comparison when we fix the COPY-related tests.
+	// TODO: Fix this DB error string literal comparison when we move the COPY-related functionality to jackc/pgx.
 	suite.Equal("error preparing copy from stdin statement: pq: relation \"public.bad.transportation_service_provider_performances\" does not exist", err.Error())
 }
 
@@ -62,6 +62,6 @@ func (suite *MigrateSuite) TestPrepareCopyFromStdinWithoutSchemaFail() {
 		return err
 	})
 	suite.NotNil(err)
-	// TODO: Fix this DB error string literal comparison when we fix the COPY-related tests.
+	// TODO: Fix this DB error string literal comparison when we move the COPY-related functionality to jackc/pgx.
 	suite.Equal("error preparing copy from stdin statement: pq: relation \"bad_transportation_service_provider_performances\" does not exist", err.Error())
 }
