@@ -1,22 +1,31 @@
 import React from 'react';
 import { string, func, bool, node } from 'prop-types';
-import { Radio } from '@trussworks/react-uswds';
+import { Radio, Button } from '@trussworks/react-uswds';
 import classnames from 'classnames';
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faQuestionCircle from '@fortawesome/fontawesome-free-regular/faQuestionCircle';
 
 import styles from './SelectableCard.module.scss';
 
-const SelectableCard = ({ id, label, name, value, cardText, onChange, disabled, checked }) => {
+const SelectableCard = ({ id, label, name, value, cardText, onChange, disabled, checked, onHelpClick }) => {
   return (
     <div className={classnames(styles.cardContainer, { [styles.selected]: checked })}>
-      <Radio
-        id={id}
-        label={label}
-        value={value}
-        name={name}
-        onChange={onChange}
-        checked={checked}
-        disabled={disabled}
-      />
+      <div className={styles.cardTitle}>
+        <Radio
+          id={id}
+          label={label}
+          value={value}
+          name={name}
+          onChange={onChange}
+          checked={checked}
+          disabled={disabled}
+        />
+        {onHelpClick && (
+          <Button data-testid="helpButton" type="button" onClick={onHelpClick} unstyled className={styles.helpButton}>
+            <FontAwesomeIcon icon={faQuestionCircle} />
+          </Button>
+        )}
+      </div>
       <div data-testid="selectableCardText" className={styles.cardText}>
         {cardText}
       </div>
@@ -33,12 +42,14 @@ SelectableCard.propTypes = {
   onChange: func.isRequired,
   checked: bool,
   disabled: bool,
+  onHelpClick: func,
 };
 
 SelectableCard.defaultProps = {
   cardText: '',
   checked: false,
   disabled: false,
+  onHelpClick: null,
 };
 
 export default SelectableCard;
