@@ -7,6 +7,8 @@ import { Button } from '@trussworks/react-uswds';
 import TableDivider from '../TableDivider';
 import reviewStyles from '../Review.module.scss';
 
+import SectionWrapper from 'components/Customer/SectionWrapper';
+
 const ProfileTable = ({
   affiliation,
   city,
@@ -27,76 +29,78 @@ const ProfileTable = ({
   const tableClassNames = classnames('table--stacked', reviewStyles['review-table']);
   const editProfilePath = '/moves/review/edit-profile';
   return (
-    <div className={containerClassNames}>
-      <div className={reviewStyles['review-header']}>
-        <h2>Profile</h2>
-        <Button
-          unstyled
-          className={reviewStyles['edit-btn']}
-          data-testid="edit-profile-table"
-          onClick={() => onEditClick(editProfilePath)}
-        >
-          Edit
-        </Button>
+    <SectionWrapper>
+      <div className={containerClassNames}>
+        <div className={reviewStyles['review-header']}>
+          <h2>Profile</h2>
+          <Button
+            unstyled
+            className={reviewStyles['edit-btn']}
+            data-testid="edit-profile-table"
+            onClick={() => onEditClick(editProfilePath)}
+          >
+            Edit
+          </Button>
+        </div>
+        <table className={tableClassNames}>
+          <colgroup>
+            <col />
+            <col />
+          </colgroup>
+          <tbody>
+            <tr>
+              <th scope="row">Name</th>
+              <td>
+                {firstName} {lastName}
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Branch</th>
+              <td>{affiliation}</td>
+            </tr>
+            <tr>
+              <th scope="row">Rank</th>
+              <td>{rank}</td>
+            </tr>
+            <tr>
+              <th scope="row">DOD ID#</th>
+              <td>{edipi}</td>
+            </tr>
+            <tr>
+              <th className={reviewStyles['table-divider-top']} scope="row" style={{ borderBottom: 'none' }}>
+                Current duty station
+              </th>
+              <td className={reviewStyles['table-divider-top']} style={{ borderBottom: 'none' }}>
+                {currentDutyStationName}
+              </td>
+            </tr>
+            <TableDivider />
+            <tr>
+              <th scope="row" style={{ borderTop: 'none' }}>
+                Contact info
+              </th>
+              <td style={{ borderTop: 'none' }} />
+            </tr>
+            <tr>
+              <th scope="row">Best contact phone</th>
+              <td>{telephone}</td>
+            </tr>
+            <tr>
+              <th scope="row">Personal email</th>
+              <td>{email}</td>
+            </tr>
+            <tr>
+              <th scope="row">Current mailing address</th>
+              <td>
+                {streetAddress1} {streetAddress2}
+                <br />
+                {city}, {state} {postalCode}
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <table className={tableClassNames}>
-        <colgroup>
-          <col />
-          <col />
-        </colgroup>
-        <tbody>
-          <tr>
-            <th scope="row">Name</th>
-            <td>
-              {firstName} {lastName}
-            </td>
-          </tr>
-          <tr>
-            <th scope="row">Branch</th>
-            <td>{affiliation}</td>
-          </tr>
-          <tr>
-            <th scope="row">Rank</th>
-            <td>{rank}</td>
-          </tr>
-          <tr>
-            <th scope="row">DOD ID#</th>
-            <td>{edipi}</td>
-          </tr>
-          <tr>
-            <th className={reviewStyles['table-divider-top']} scope="row" style={{ borderBottom: 'none' }}>
-              Current duty station
-            </th>
-            <td className={reviewStyles['table-divider-top']} style={{ borderBottom: 'none' }}>
-              {currentDutyStationName}
-            </td>
-          </tr>
-          <TableDivider />
-          <tr>
-            <th scope="row" style={{ borderTop: 'none' }}>
-              Contact info
-            </th>
-            <td style={{ borderTop: 'none' }} />
-          </tr>
-          <tr>
-            <th scope="row">Best contact phone</th>
-            <td>{telephone}</td>
-          </tr>
-          <tr>
-            <th scope="row">Personal email</th>
-            <td>{email}</td>
-          </tr>
-          <tr>
-            <th scope="row">Current mailing address</th>
-            <td>
-              {streetAddress1} {streetAddress2}
-              <br />
-              {city}, {state} {postalCode}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    </SectionWrapper>
   );
 };
 

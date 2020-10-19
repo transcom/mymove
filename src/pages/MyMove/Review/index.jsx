@@ -28,7 +28,7 @@ class Review extends Component {
           pageIsValid
           canMoveNext={canMoveNext}
         >
-          <div className={`${styles.reviewMoveHeaderContainer} grid-row`}>
+          <div className={`${styles.reviewMoveHeaderContainer} grid-row margin-bottom-3`}>
             <h1 className="tablet:grid-col-10" data-testid="review-move-header">
               Review your details
             </h1>

@@ -17,7 +17,6 @@
 }
 
 .review-container {
-  @include u-margin-bottom(5);
 
   col:first-of-type {
     width: 40%;
@@ -50,6 +49,7 @@
   border: 1px solid $base-lighter;
   border-spacing: 0;
   width: 100%;
+  @include u-bg('white');
   @include u-padding-left('05');
   @include u-padding-right('05');
 
@@ -64,10 +64,10 @@
       border-top: none;
     }
   }
-}
 
-.profile-container {
-  @include u-margin-top(4);
+  @media (min-width: $tablet) {
+    border-color: white;
+  }
 }
 
 .table-divider-top {
