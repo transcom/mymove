@@ -1027,10 +1027,13 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
+	selectedMoveTypeForMTO := models.SelectedMoveTypeHHGPPM
 	mto := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
-			ID:       uuid.FromStringOrNil("5d4b25bb-eb04-4c03-9a81-ee0398cb779e"),
-			OrdersID: orders.ID,
+			ID:               uuid.FromStringOrNil("5d4b25bb-eb04-4c03-9a81-ee0398cb779e"),
+			OrdersID:         orders.ID,
+			SelectedMoveType: &selectedMoveTypeForMTO,
+			Status:           models.MoveStatusSUBMITTED,
 		},
 	})
 
@@ -1152,6 +1155,46 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			Status:        models.PaymentRequestStatusPending,
 		},
 		Move: mto,
+	})
+
+	dcrtCost := unit.Cents(99999)
+	mtoServiceItemDCRT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("998caacf-ab9e-496e-8cf2-360723eb3e2d"),
+		},
+		Move:        mto,
+		MTOShipment: MTOShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Domestic crating
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &dcrtCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: mtoServiceItemDCRT,
+	})
+
+	ducrtCost := unit.Cents(99999)
+	mtoServiceItemDUCRT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("eeb82080-0a83-46b8-938c-63c7b73a7e45"),
+		},
+		Move:        mto,
+		MTOShipment: MTOShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("fc14935b-ebd3-4df3-940b-f30e71b6a56c"), // DUCRT - Domestic uncrating
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &ducrtCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: mtoServiceItemDUCRT,
 	})
 
 	proofOfService := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{
