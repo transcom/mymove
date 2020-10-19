@@ -43,6 +43,7 @@ export function* updateServiceMember(action) {
   yield put(addEntities(normalizedData));
 }
 
+// legacy action
 export function* watchUpdateServiceMember() {
   yield takeLatest('UPDATE_SERVICE_MEMBER_SUCCESS', updateServiceMember);
 }

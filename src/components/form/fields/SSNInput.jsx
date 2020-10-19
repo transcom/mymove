@@ -28,11 +28,12 @@ class SSNField extends Component {
 
   render() {
     const {
-      input: { value, name },
+      input,
       meta: { touched, error },
       ssnOnServer,
     } = this.props;
 
+    const { name, value } = input;
     const { focused } = this.state;
 
     let displayedValue = value;
@@ -55,7 +56,8 @@ class SSNField extends Component {
         <input
           id="ssnInput"
           type="text"
-          name={name}
+          // eslint-disable-next-line react/jsx-props-no-spreading
+          {...input}
           className="usa-input"
           onFocus={this.localOnFocus}
           onBlur={this.localOnBlur}
@@ -75,7 +77,7 @@ SSNField.propTypes = {
   }).isRequired,
   meta: PropTypes.shape({
     touched: PropTypes.bool,
-    error: PropTypes.bool,
+    error: PropTypes.string,
   }).isRequired,
   ssnOnServer: PropTypes.bool.isRequired,
 };
