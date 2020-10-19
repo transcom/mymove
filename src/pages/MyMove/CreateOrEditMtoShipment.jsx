@@ -8,16 +8,14 @@ import '../../ghc_index.scss';
 import MtoShipmentForm from 'components/Customer/MtoShipmentForm/MtoShipmentForm';
 import EditShipment from 'components/Customer/EditShipment';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import {
-  loadMTOShipments as loadMTOShipmentsAction,
-  selectMTOShipmentForMTO,
-} from 'shared/Entities/modules/mtoShipments';
+import { selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
+import { fetchCustomerData as fetchCustomerDataAction } from 'store/onboarding/actions';
 import { HhgShipmentShape, WizardPageShape } from 'types/customerShapes';
 
 class CreateOrEditMtoShipment extends Component {
   componentDidMount() {
-    const { wizardPage, loadMTOShipments } = this.props;
-    loadMTOShipments(wizardPage.match.params.moveId);
+    const { fetchCustomerData } = this.props;
+    fetchCustomerData();
   }
 
   // TODO: (in trailing PR) refactor edit component out of existence :)
@@ -46,12 +44,12 @@ function mapStateToProps(state, ownProps) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ loadMTOShipments: loadMTOShipmentsAction }, dispatch);
+  return bindActionCreators({ fetchCustomerData: fetchCustomerDataAction }, dispatch);
 }
 
 CreateOrEditMtoShipment.propTypes = {
   wizardPage: WizardPageShape,
-  loadMTOShipments: func.isRequired,
+  fetchCustomerData: func.isRequired,
   selectedMoveType: string.isRequired,
   // technically this should be a [Generic]MtoShipmentShape
   // using hhg because it has all the props

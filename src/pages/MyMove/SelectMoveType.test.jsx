@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { mount } from 'enzyme';
 import { Radio } from '@trussworks/react-uswds';
@@ -24,11 +25,10 @@ describe('SelectMoveType', () => {
   };
 
   const getWrapper = (props = {}) => {
-    return mount(<SelectMoveType {...defaultProps} {...props} />); // eslint-disable-line react/jsx-props-no-spreading
+    return mount(<SelectMoveType {...defaultProps} {...props} />);
   };
 
   it('should render radio buttons with PPM selected', () => {
-    // eslint-disable-next-line react/jsx-props-no-spreading
     const wrapper = getWrapper();
     expect(wrapper.find(Radio).length).toBe(4);
 
@@ -39,13 +39,40 @@ describe('SelectMoveType', () => {
 
   it('should render radio buttons with HHG selected', () => {
     const props = { selectedMoveType: SHIPMENT_OPTIONS.HHG };
-    // eslint-disable-next-line react/jsx-props-no-spreading
     const wrapper = getWrapper(props);
     expect(wrapper.find(Radio).length).toBe(4);
 
     expect(wrapper.find(Radio).at(1).text()).toContain('Professional movers');
     // HHG button should be checked on page load
     expect(wrapper.find(Radio).at(1).find('.usa-radio__input').html()).toContain('checked');
+  });
+
+  describe('modals', () => {
+    const wrapper = getWrapper();
+    const storageInfoModal = wrapper.find('ConnectedStorageInfoModal');
+
+    it('renders the storage info modal', () => {
+      expect(storageInfoModal.exists()).toBe(true);
+    });
+
+    it('the storage info modal is closed by default', () => {
+      expect(wrapper.state('showStorageInfoModal')).toEqual(false);
+      expect(storageInfoModal.prop('isOpen')).toEqual(false);
+    });
+
+    it('can click the help button in the NTS card', () => {
+      const ntsCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.NTS}"]`);
+      expect(ntsCard.length).toBe(1);
+      ntsCard.find('button[data-testid="helpButton"]').simulate('click');
+      expect(wrapper.state('showStorageInfoModal')).toEqual(true);
+      expect(wrapper.state('showStorageInfoModal')).toEqual(true);
+    });
+
+    it('can close the storage info modal after opening', () => {
+      wrapper.find('button[data-testid="modalCloseButton"]').simulate('click');
+      expect(wrapper.state('showStorageInfoModal')).toEqual(false);
+      expect(storageInfoModal.prop('isOpen')).toEqual(false);
+    });
   });
 
   describe('when no PPMs or shipments have been created', () => {
