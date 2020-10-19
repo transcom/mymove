@@ -166,7 +166,6 @@ export const useMovesQueueQueries = () => {
   };
 };
 
-// TODO skip normalizing of schema response and cleanup
 export const usePaymentRequestQueueQueries = () => {
   const { data = {}, ...paymentRequestsQueueQuery } = useQuery([PAYMENT_REQUESTS_QUEUE], getPaymentRequestsQueue);
 
