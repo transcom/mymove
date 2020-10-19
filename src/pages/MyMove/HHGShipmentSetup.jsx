@@ -4,17 +4,15 @@ import { arrayOf, string, shape, bool, func } from 'prop-types';
 
 import EditShipment from '../../components/Customer/EditShipment';
 
-import {
-  loadMTOShipments as loadMTOShipmentsAction,
-  selectMTOShipmentForMTO,
-} from 'shared/Entities/modules/mtoShipments';
+import { selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
+import { fetchCustomerData as fetchCustomerDataAction } from 'store/onboarding/actions';
 import HHGDetailsForm from 'components/Customer/HHGDetailsForm';
 import '../../ghc_index.scss';
 
 class HHGShipmentSetup extends Component {
   componentDidMount() {
-    const { match, loadMTOShipments } = this.props;
-    loadMTOShipments(match.params.moveId);
+    const { fetchCustomerData } = this.props;
+    fetchCustomerData();
   }
 
   render() {
@@ -46,7 +44,7 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 const mapDispatchToProps = {
-  loadMTOShipments: loadMTOShipmentsAction,
+  fetchCustomerData: fetchCustomerDataAction,
 };
 
 HHGShipmentSetup.propTypes = {
@@ -64,7 +62,7 @@ HHGShipmentSetup.propTypes = {
     goBack: func.isRequired,
     push: func.isRequired,
   }).isRequired,
-  loadMTOShipments: func.isRequired,
+  fetchCustomerData: func.isRequired,
   mtoShipment: shape({
     agents: arrayOf(
       shape({

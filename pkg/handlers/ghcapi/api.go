@@ -122,5 +122,11 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 		moveorder.NewMoveOrderFetcher(context.DB()),
 	}
 
+	ghcAPI.QueuesGetPaymentRequestsQueueHandler = GetPaymentRequestsQueueHandler{
+		context,
+		officeuser.NewOfficeUserFetcher(queryBuilder),
+		paymentrequest.NewPaymentRequestListFetcher(context.DB()),
+	}
+
 	return ghcAPI
 }

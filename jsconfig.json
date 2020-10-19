@@ -2,5 +2,6 @@
   "compilerOptions": {
     "baseUrl": "./src/",
     "jsx": "react"
-  }
+  },
+  "exclude": ["node_modules", "build", "storybook-static"]
 }
