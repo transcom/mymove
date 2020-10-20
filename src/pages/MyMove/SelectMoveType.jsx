@@ -137,46 +137,6 @@ export class SelectMoveType extends Component {
       </div>
     );
     return (
-<<<<<<< HEAD
-      <WizardPage
-        pageKey={pageKey}
-        match={match}
-        pageList={pageList}
-        dirty
-        handleSubmit={this.handleSubmit}
-        push={push}
-        footerText={footerText}
-      >
-        <h6>Shipment {shipmentNumber}</h6>
-        <h1 className={`${styles.selectTypeHeader} ${styles.header}`}>
-          {hasAnyShipments ? 'How do you want this group of things moved?' : 'How do you want to move your belongings?'}
-        </h1>
-        <h2>Choose 1 shipment at a time.</h2>
-        <p>You can add more later</p>
-        {hasPpm ? selectPpmHasPpm : selectPpmHasNoPpm}
-        {hasSubmittedMove ? selectHhgSubmittedMove : selectHhgDefault}
-        <h3>Long-term storage</h3>
-        <p>These shipments do count against your weight allowance for this move.</p>
-        <SelectableCard
-          {...selectableCardDefaultProps} // eslint-disable-line
-          label="Put things into long-term storage"
-          value={SHIPMENT_OPTIONS.NTS}
-          id={SHIPMENT_OPTIONS.NTS}
-          cardText={hasNTS ? ntsCardText : hasNTSCardText}
-          checked={moveType === SHIPMENT_OPTIONS.NTS && isHhgSelectable}
-          disabled={hasNTS}
-        />
-        <SelectableCard
-          {...selectableCardDefaultProps} // eslint-disable-line
-          label="Get things out of long-term storage"
-          value={SHIPMENT_OPTIONS.NTS}
-          id={SHIPMENT_OPTIONS.NTS}
-          cardText={hasNTSR ? ntsrCardText : hasNTSRCardText}
-          checked={moveType === SHIPMENT_OPTIONS.NTS && isHhgSelectable}
-          disabled={hasNTSR}
-        />
-      </WizardPage>
-=======
       <div className={`grid-container ${wizardStyles.gridContainer} ${styles.gridContainer}`}>
         <div className="grid-row">
           <div className="tablet:grid-col-2 desktop:grid-col-2" />
@@ -230,7 +190,6 @@ export class SelectMoveType extends Component {
 
         <ConnectedStorageInfoModal isOpen={showStorageInfoModal} closeModal={this.toggleStorageModal} />
       </div>
->>>>>>> master
     );
   }
 }
