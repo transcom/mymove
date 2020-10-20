@@ -122,6 +122,39 @@ describe('SelectMoveType', () => {
     });
   });
 
+  describe('when an NTS has already been created', () => {
+    const props = {
+      mtoShipments: [{ id: '3', shipmentType: SHIPMENT_OPTIONS.NTS }],
+      move: { status: MOVE_STATUSES.DRAFT },
+    };
+    const wrapper = getWrapper(props);
+
+    it('NTS card should render the correct text', () => {
+      expect(wrapper.find('[data-testid="selectableCardText"]').at(2).text()).toContain(
+        'You‘ve already requested a long-term storage shipment for this move. Talk to your movers to change or add to your request.',
+      );
+    });
+    it('NTS card should be disabled', () => {
+      expect(wrapper.find(Radio).at(2).find('.usa-radio__input').prop('disabled')).toBe(true);
+    });
+  });
+
+  describe('when an NTSr has already been created', () => {
+    const props = {
+      mtoShipments: [{ id: '4', shipmentType: SHIPMENT_OPTIONS.NTSR }],
+      move: { status: MOVE_STATUSES.DRAFT },
+    };
+    const wrapper = getWrapper(props);
+    it('NTS card should render the correct text', () => {
+      expect(wrapper.find('[data-testid="selectableCardText"]').at(3).text()).toContain(
+        'You‘ve already asked to have things taken out of storage for this move. Talk to your movers to change or add to your request.',
+      );
+    });
+    it('NTSr card should be disabled', () => {
+      expect(wrapper.find(Radio).at(3).find('.usa-radio__input').prop('disabled')).toBe(true);
+    });
+  });
+
   describe('when a move has already been submitted', () => {
     const props = {
       isHhgSelectable: false,

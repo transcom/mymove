@@ -71,9 +71,9 @@ export class SelectMoveType extends Component {
     const ntsrCardText =
       'Movers pick up things you put into NTS during an earlier move and ship them to your new destination. This is an NTS-R (non-temporary storage release) shipment.';
     const ntsDisabledText =
-      "You've already requested a long-term storage shipment for this move. Talk to your movers to change or add to your request.";
+      'You‘ve already requested a long-term storage shipment for this move. Talk to your movers to change or add to your request.';
     const ntsrDisabledText =
-      "You've already asked to have things taken out of storage for this move. Talk to your movers to change or add to your request.";
+      'You‘ve already asked to have things taken out of storage for this move. Talk to your movers to change or add to your request.';
     const hhgCardTextPostSubmit = 'Talk with your movers directly if you want to add or change shipments.';
     const ppmCardTextAlreadyChosen = `You’ve already requested a PPM shipment. If you have more things to move yourself but that you can’t add to that shipment, contact the PPPO at your origin duty station.`;
     const selectableCardDefaultProps = {
