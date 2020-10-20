@@ -147,7 +147,7 @@
     "mime-types": "^2.1.27",
     "mockdate": "^3.0.2",
     "prettier": "=2.1.2",
-    "react-test-renderer": "^16.13.1",
+    "react-test-renderer": "^16.14.0",
     "source-map-explorer": "^2.5.0",
     "storybook-addons-abstract": "^5.0.6",
     "terser-webpack-plugin": "^4.2.3"
