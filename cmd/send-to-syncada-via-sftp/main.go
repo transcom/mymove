@@ -92,7 +92,8 @@ func main() {
 		Auth: []ssh.AuthMethod{
 			ssh.Password(password),
 		},
-		// HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		/* #nosec */
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 		// HostKeyCallback: ssh.FixedHostKey(hostKey),
 	}
 
