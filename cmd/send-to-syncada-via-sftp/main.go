@@ -97,7 +97,7 @@ func main() {
 	}
 
 	// connect
-	connection, err := ssh.Dial("tcp", remote+port, config)
+	connection, err := ssh.Dial("tcp", remote+":"+port, config)
 	if err != nil {
 		log.Fatal(err)
 	}
