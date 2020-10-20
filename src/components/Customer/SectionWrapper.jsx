@@ -4,9 +4,8 @@ import PropTypes from 'prop-types';
 
 import styles from './SectionWrapper.module.scss';
 
-const cx = classNames.bind(styles);
 
-const SectionWrapper = ({ children }) => <div className={cx('sectionWrapper')}>{children}</div>;
+const SectionWrapper = ({ children }) => <div className={styles.sectionWrapper}>{children}</div>;
 
 SectionWrapper.propTypes = {
   children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.element), PropTypes.element.isRequired]),
