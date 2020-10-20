@@ -5,8 +5,20 @@ export function customerFillsInProfileInformation(reloadAfterEveryPage) {
   // does not have welcome message throughout setup
   cy.wait('@createServiceMember');
   cy.get('span').contains('Welcome,').should('not.exist');
-  cy.nextPage();
 
+  // CONUS OR OCONUS
+  cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/conus-status/);
+  });
+  cy.get('[data-testid="radio"] label').contains('CONUS').click();
+  cy.nextPage();
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/create/);
+  });
+
+  // DOD INFO
+  if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
   cy.get('select[name="affiliation"]').select('Army');
   cy.get('input[name="edipi"]').type('1234567890');
@@ -17,6 +29,7 @@ export function customerFillsInProfileInformation(reloadAfterEveryPage) {
     expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/name/);
   });
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
+
   // name
   cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
   cy.get('input[name="first_name"]').type('Jane');
