@@ -5,7 +5,7 @@ import classnames from 'classnames';
 
 import styles from './ShipmentList.module.scss';
 
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, MOVE_TYPES } from 'shared/constants';
 import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 import { ReactComponent as EditIcon } from 'shared/icon/edit.svg';
 
@@ -23,7 +23,7 @@ const ShipmentListItem = ({ shipment, onShipmentClick, shipmentNumber, canEdit, 
     [styles[`shipment-list-item-NTS-R`]]: shipment.shipmentType === SHIPMENT_OPTIONS.NTSR,
     [styles[`shipment-list-item-NTS`]]: shipment.shipmentType === SHIPMENT_OPTIONS.NTS,
     [styles[`shipment-list-item-HHG`]]: shipment.shipmentType === SHIPMENT_OPTIONS.HHG,
-    [styles[`shipment-list-item-PPM`]]: shipment.shipmentType === SHIPMENT_OPTIONS.PPM,
+    [styles[`shipment-list-item-PPM`]]: shipment.shipmentType === MOVE_TYPES.PPM,
   });
 
   return (

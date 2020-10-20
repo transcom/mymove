@@ -5,6 +5,7 @@ import ReviewServiceItems from './ReviewServiceItems';
 
 import {
   SHIPMENT_OPTIONS,
+  MOVE_TYPES,
   SERVICE_ITEM_STATUS,
   PAYMENT_SERVICE_ITEM_STATUS,
   PAYMENT_REQUEST_STATUS,
@@ -90,7 +91,7 @@ export const NonTemporaryStorage = () => (
       {
         id: '1',
         shipmentId: '10',
-        shipmentType: SHIPMENT_OPTIONS.NTS,
+        shipmentType: MOVE_TYPES.NTS,
         serviceItemName: 'Domestic linehaul',
         amount: 6423.51,
         createdAt: '2020-01-01T00:08:00.999Z',
@@ -123,7 +124,7 @@ export const MultipleShipmentsGroups = () => (
       {
         id: '4',
         shipmentId: '30',
-        shipmentType: SHIPMENT_OPTIONS.NTS,
+        shipmentType: MOVE_TYPES.NTS,
         serviceItemName: 'Domestic linehaul',
         amount: 6423.51,
         createdAt: '2020-01-01T00:07:30.999Z',
@@ -131,7 +132,7 @@ export const MultipleShipmentsGroups = () => (
       {
         id: '5',
         shipmentId: '30',
-        shipmentType: SHIPMENT_OPTIONS.NTS,
+        shipmentType: MOVE_TYPES.NTS,
         serviceItemName: 'Fuel Surcharge',
         amount: 100000000000000,
         createdAt: '2020-01-01T00:07:00.999Z',
@@ -174,7 +175,7 @@ export const WithStatusAndReason = () => (
       {
         id: '4',
         shipmentId: '30',
-        shipmentType: SHIPMENT_OPTIONS.NTS,
+        shipmentType: MOVE_TYPES.NTS,
         serviceItemName: 'Domestic linehaul',
         amount: 6423.51,
         status: SERVICE_ITEM_STATUS.APPROVED,
@@ -183,7 +184,7 @@ export const WithStatusAndReason = () => (
       {
         id: '5',
         shipmentId: '30',
-        shipmentType: SHIPMENT_OPTIONS.NTS,
+        shipmentType: MOVE_TYPES.NTS,
         serviceItemName: 'Fuel Surcharge',
         amount: 100000000000000,
         createdAt: '2020-01-01T00:07:00.999Z',

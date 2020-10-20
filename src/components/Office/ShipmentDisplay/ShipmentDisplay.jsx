@@ -9,7 +9,7 @@ import styles from './ShipmentDisplay.module.scss';
 
 import { ReactComponent as ChevronDown } from 'shared/icon/chevron-down.svg';
 import { formatAddress } from 'utils/shipmentDisplay';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, MOVE_TYPES } from 'shared/constants';
 import { formatDate } from 'shared/dates';
 import { ReactComponent as CheckmarkIcon } from 'shared/icon/checkbox--unchecked.svg';
 
@@ -59,7 +59,7 @@ ShipmentDisplay.propTypes = {
     SHIPMENT_OPTIONS.HHG,
     SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC,
     SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
-    SHIPMENT_OPTIONS.NTS,
+    MOVE_TYPES.NTS,
   ]),
   displayInfo: PropTypes.shape({
     heading: PropTypes.string.isRequired,

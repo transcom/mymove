@@ -3,7 +3,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { Radio } from '@trussworks/react-uswds';
 
-import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
+import { SHIPMENT_OPTIONS, MOVE_TYPES, MOVE_STATUSES } from 'shared/constants';
 import { SelectMoveType } from 'pages/MyMove/SelectMoveType';
 
 describe('SelectMoveType', () => {
@@ -15,7 +15,7 @@ describe('SelectMoveType', () => {
     push: jest.fn(),
     loadMTOShipments: jest.fn(),
     move: { id: 'mockId', status: 'DRAFT' },
-    selectedMoveType: SHIPMENT_OPTIONS.PPM,
+    selectedMoveType: MOVE_TYPES.PPM,
     mtoShipments: [],
     isPpmSelectable: true,
     isHhgSelectable: true,

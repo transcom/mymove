@@ -9,7 +9,7 @@ import { shallow } from 'enzyme';
 import { PpmLanding } from '.';
 import { PpmSummary } from './PpmSummary';
 import PpmAlert from './PpmAlert';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { MOVE_TYPES } from 'shared/constants';
 
 describe('HomePage tests', () => {
   let wrapper;
@@ -97,7 +97,7 @@ describe('HomePage tests', () => {
 
       describe('When a ppm only move is submitted', () => {
         it('renders the ppm only alert', () => {
-          const moveObj = { selected_move_type: SHIPMENT_OPTIONS.PPM, status: 'SUBMITTED', moveSubmitSuccess: true };
+          const moveObj = { selected_move_type: MOVE_TYPES.PPM, status: 'SUBMITTED', moveSubmitSuccess: true };
           wrapper = shallow(
             <PpmLanding
               move={moveObj}

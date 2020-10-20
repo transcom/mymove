@@ -1,19 +1,19 @@
 import { CREATE_OR_UPDATE_MOVE, GET_MOVE, SUBMIT_FOR_APPROVAL, moveReducer, setConusStatus } from './ducks';
 import loggedInUserPayload, { emptyPayload } from 'shared/User/sampleLoggedInUserPayload';
-import { SHIPMENT_OPTIONS, CONUS_STATUS } from 'shared/constants';
+import { MOVE_TYPES, CONUS_STATUS } from 'shared/constants';
 
 const expectedMove = {
   id: '593cc830-1a3e-44b3-ba5a-8809f02dfa7d',
   locator: 'WUMGLQ',
   orders_id: '51953e97-25a7-430c-ba6d-3bd980a38b71',
-  selected_move_type: SHIPMENT_OPTIONS.PPM,
+  selected_move_type: MOVE_TYPES.PPM,
   status: 'DRAFT',
 };
 const latestMove = {
   id: '593cc830-1a3e-44b3-ba5a-8809f02d000',
   locator: 'BLABLA',
   orders_id: '51953e97-25a7-430c-ba6d-3bd980a38b00',
-  selected_move_type: SHIPMENT_OPTIONS.PPM,
+  selected_move_type: MOVE_TYPES.PPM,
   status: 'CANCELED',
 };
 const movePayload = {
@@ -36,7 +36,7 @@ const movePayload = {
       weight_estimate: 9000,
     },
   ],
-  selected_move_type: SHIPMENT_OPTIONS.PPM,
+  selected_move_type: MOVE_TYPES.PPM,
   status: 'DRAFT',
 };
 describe('move Reducer', () => {

@@ -6,7 +6,7 @@ import { shallow, mount } from 'enzyme';
 import ReviewServiceItems from './ReviewServiceItems';
 
 import { toDollarString } from 'shared/formatters';
-import { SHIPMENT_OPTIONS, PAYMENT_SERVICE_ITEM_STATUS, PAYMENT_REQUEST_STATUS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, MOVE_TYPES, PAYMENT_SERVICE_ITEM_STATUS, PAYMENT_REQUEST_STATUS } from 'shared/constants';
 
 const pendingPaymentRequest = {
   status: PAYMENT_REQUEST_STATUS.PENDING,
@@ -38,7 +38,7 @@ const serviceItemCards = [
   },
   {
     id: '3',
-    shipmentType: SHIPMENT_OPTIONS.NTS,
+    shipmentType: MOVE_TYPES.NTS,
     shipmentId: '20',
     serviceItemName: 'Domestic linehaul',
     amount: 0.1,
@@ -174,7 +174,7 @@ describe('ReviewServiceItems component', () => {
       },
       {
         id: '3',
-        shipmentType: SHIPMENT_OPTIONS.NTS,
+        shipmentType: MOVE_TYPES.NTS,
         shipmentId: '20',
         serviceItemName: 'Domestic linehaul',
         amount: 0.1,
@@ -351,7 +351,7 @@ describe('ReviewServiceItems component', () => {
       },
       {
         id: '3',
-        shipmentType: SHIPMENT_OPTIONS.NTS,
+        shipmentType: MOVE_TYPES.NTS,
         shipmentId: '20',
         serviceItemName: 'Domestic linehaul',
         amount: 0.1,

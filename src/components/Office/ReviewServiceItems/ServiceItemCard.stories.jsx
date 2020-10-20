@@ -2,7 +2,7 @@ import React from 'react';
 
 import ServiceItemCard from './ServiceItemCard';
 
-import { SHIPMENT_OPTIONS, PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, MOVE_TYPES, PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 
 export default {
   title: 'TOO/TIO Components|ReviewServiceItems/ServiceItemCards',
@@ -16,7 +16,7 @@ export const HHG = () => (
 );
 
 export const NTS = () => (
-  <ServiceItemCard shipmentType={SHIPMENT_OPTIONS.NTS} serviceItemName="Counseling services" amount={999.99} />
+  <ServiceItemCard shipmentType={MOVE_TYPES.NTS} serviceItemName="Counseling services" amount={999.99} />
 );
 
 export const HHGLonghaulDomestic = () => (

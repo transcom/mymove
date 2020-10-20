@@ -15,7 +15,7 @@ import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import { loadMove, selectMove } from 'shared/Entities/modules/moves';
 import { selectActiveOrLatestOrdersFromEntities, selectUploadsForActiveOrders } from 'shared/Entities/modules/orders';
-import { SHIPMENT_OPTIONS, titleCase } from 'shared/constants';
+import { SHIPMENT_OPTIONS, MOVE_TYPES, titleCase } from 'shared/constants';
 import {
   moveIsApproved as selectMoveIsApproved,
   lastMoveIsCanceled,
@@ -45,7 +45,7 @@ export class Summary extends Component {
     const { currentPPM, selectedMoveType, onCheckEntitlement, match } = this.props;
     const hhgMove = !Object.keys(prevProps.currentPPM).length && !Object.keys(currentPPM).length;
     // Only check entitlement for PPMs, not HHGs
-    if (prevProps.currentPPM !== currentPPM && !hhgMove && selectedMoveType === SHIPMENT_OPTIONS.PPM) {
+    if (prevProps.currentPPM !== currentPPM && !hhgMove && selectedMoveType === MOVE_TYPES.PPM) {
       onCheckEntitlement(match.params.moveId);
     }
   }
@@ -55,7 +55,7 @@ export class Summary extends Component {
     const sortedShipments = [...mtoShipments];
     if (Object.keys(currentPPM).length) {
       const ppm = { ...currentPPM };
-      ppm.shipmentType = SHIPMENT_OPTIONS.PPM;
+      ppm.shipmentType = MOVE_TYPES.PPM;
       // workaround for differing cases between mtoShipments and ppms (bigger change needed on yaml)
       ppm.createdAt = ppm.created_at;
       delete ppm.created_at;
@@ -78,7 +78,7 @@ export class Summary extends Component {
     return this.getSortedShipments.map((shipment) => {
       let receivingAgent;
       let releasingAgent;
-      if (shipment.shipmentType === SHIPMENT_OPTIONS.PPM) {
+      if (shipment.shipmentType === MOVE_TYPES.PPM) {
         return (
           <PPMShipmentCard
             key={shipment.id}

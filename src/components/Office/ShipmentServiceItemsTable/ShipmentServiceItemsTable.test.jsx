@@ -1,7 +1,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import { SHIPMENT_OPTIONS } from '../../../shared/constants';
+import { MOVE_TYPES, SHIPMENT_OPTIONS } from '../../../shared/constants';
 
 import ShipmentServiceItemsTable from './ShipmentServiceItemsTable';
 
@@ -21,7 +21,7 @@ describe('Shipment Service Items Table', () => {
   });
 
   it('renders the nts shipment type with correct items', () => {
-    const wrapper = shallow(<ShipmentServiceItemsTable shipmentType={SHIPMENT_OPTIONS.NTS} />);
+    const wrapper = shallow(<ShipmentServiceItemsTable shipmentType={MOVE_TYPES.NTS} />);
     expect(wrapper.find('table.serviceItemsTable').exists()).toBe(true);
     expect(wrapper.find('h4').text()).toEqual('Service items for this shipment 5 items');
     expect(wrapper.find('th').text()).toEqual('Service item');
