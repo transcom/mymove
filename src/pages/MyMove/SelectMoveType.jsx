@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -16,12 +17,14 @@ import {
   loadMTOShipments as loadMTOShipmentsAction,
 } from 'shared/Entities/modules/mtoShipments';
 import { MoveTaskOrderShape, MTOShipmentShape } from 'types/moveOrder';
+import ConnectedStorageInfoModal from 'components/Customer/modals/StorageInfoModal/StorageInfoModal';
 
 export class SelectMoveType extends Component {
   constructor(props) {
     super(props);
     this.state = {
       moveType: props.selectedMoveType,
+      showStorageInfoModal: false,
     };
   }
 
@@ -32,6 +35,12 @@ export class SelectMoveType extends Component {
 
   setMoveType = (e) => {
     this.setState({ moveType: e.target.value });
+  };
+
+  toggleStorageModal = () => {
+    this.setState((state) => ({
+      showStorageInfoModal: !state.showStorageInfoModal,
+    }));
   };
 
   handleSubmit = () => {
@@ -52,7 +61,7 @@ export class SelectMoveType extends Component {
       isHhgSelectable,
       shipmentNumber,
     } = this.props;
-    const { moveType } = this.state;
+    const { moveType, showStorageInfoModal } = this.state;
     const hasPpm = !!move?.personally_procured_moves?.length; // eslint-disable-line camelcase
     const hasSubmittedMove = move?.status !== MOVE_STATUSES.DRAFT;
     const hasShipments = !!mtoShipments.length;
@@ -79,7 +88,7 @@ export class SelectMoveType extends Component {
     const hasNTSR = false;
     const selectPpmHasNoPpm = (
       <SelectableCard
-        {...selectableCardDefaultProps} // eslint-disable-line
+        {...selectableCardDefaultProps}
         label="Do it yourself"
         value={SHIPMENT_OPTIONS.PPM}
         id={SHIPMENT_OPTIONS.PPM}
@@ -90,7 +99,7 @@ export class SelectMoveType extends Component {
     );
     const selectPpmHasPpm = (
       <SelectableCard
-        {...selectableCardDefaultProps} // eslint-disable-line
+        {...selectableCardDefaultProps}
         label="Do it yourself (already chosen)"
         value={SHIPMENT_OPTIONS.PPM}
         id={SHIPMENT_OPTIONS.PPM}
@@ -101,7 +110,7 @@ export class SelectMoveType extends Component {
     );
     const selectHhgDefault = (
       <SelectableCard
-        {...selectableCardDefaultProps} // eslint-disable-line
+        {...selectableCardDefaultProps}
         label="Professional movers"
         value={SHIPMENT_OPTIONS.HHG}
         id={SHIPMENT_OPTIONS.HHG}
@@ -112,7 +121,7 @@ export class SelectMoveType extends Component {
     );
     const selectHhgSubmittedMove = (
       <SelectableCard
-        {...selectableCardDefaultProps} // eslint-disable-line
+        {...selectableCardDefaultProps}
         label="Professional movers"
         value={SHIPMENT_OPTIONS.HHG}
         id={SHIPMENT_OPTIONS.HHG}
@@ -128,6 +137,7 @@ export class SelectMoveType extends Component {
       </div>
     );
     return (
+<<<<<<< HEAD
       <WizardPage
         pageKey={pageKey}
         match={match}
@@ -166,6 +176,61 @@ export class SelectMoveType extends Component {
           disabled={hasNTSR}
         />
       </WizardPage>
+=======
+      <div className={`grid-container ${wizardStyles.gridContainer} ${styles.gridContainer}`}>
+        <div className="grid-row">
+          <div className="tablet:grid-col-2 desktop:grid-col-2" />
+          <div className="tablet:grid-col-8 desktop:grid-col-8">
+            <WizardPage
+              pageKey={pageKey}
+              match={match}
+              pageList={pageList}
+              dirty
+              handleSubmit={this.handleSubmit}
+              push={push}
+              footerText={footerText}
+            >
+              <h6 className="sm-heading">Shipment {shipmentNumber}</h6>
+              <h1 className={`sm-heading ${styles.selectTypeHeader} ${styles.header}`}>
+                {hasAnyShipments
+                  ? 'How do you want this group of things moved?'
+                  : 'How do you want to move your belongings?'}
+              </h1>
+              <h2>Choose 1 shipment at a time.</h2>
+              <p>You can add more later</p>
+              {hasPpm ? selectPpmHasPpm : selectPpmHasNoPpm}
+              {hasSubmittedMove ? selectHhgSubmittedMove : selectHhgDefault}
+              <h3>Long-term storage</h3>
+              <p>These shipments do count against your weight allowance for this move.</p>
+              <SelectableCard
+                {...selectableCardDefaultProps}
+                label="Put things into long-term storage"
+                value={SHIPMENT_OPTIONS.NTS}
+                id={SHIPMENT_OPTIONS.NTS}
+                cardText={hasNTS ? ntsCardText : hasNTSCardText}
+                checked={moveType === SHIPMENT_OPTIONS.NTS && isHhgSelectable}
+                disabled={hasNTS}
+                onHelpClick={this.toggleStorageModal}
+              />
+              {/* TODO - update when NTSR option is added to API */}
+              <SelectableCard
+                {...selectableCardDefaultProps}
+                label="Get things out of long-term storage"
+                value={SHIPMENT_OPTIONS.NTS}
+                id="NTSR"
+                cardText={hasNTSR ? ntsrCardText : hasNTSRCardText}
+                checked={moveType === SHIPMENT_OPTIONS.NTS && isHhgSelectable}
+                disabled={hasNTSR}
+                onHelpClick={this.toggleStorageModal}
+              />
+            </WizardPage>
+          </div>
+          <div className="tablet:grid-col-2" />
+        </div>
+
+        <ConnectedStorageInfoModal isOpen={showStorageInfoModal} closeModal={this.toggleStorageModal} />
+      </div>
+>>>>>>> master
     );
   }
 }
