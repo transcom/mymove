@@ -130,10 +130,7 @@ func NewPopTestSuite(packageName PackageName) PopTestSuite {
 	if dbPasswordErr != nil {
 		log.Panic(dbPasswordErr)
 	}
-	dbSSLMode, dbSSLModeErr := envy.MustGet("DB_SSL_MODE")
-	if dbSSLModeErr != nil {
-		log.Panic(dbSSLModeErr)
-	}
+	dbSSLMode := envy.Get("DB_SSL_MODE", "disable")
 
 	dbOptions := map[string]string{
 		"sslmode": dbSSLMode,
