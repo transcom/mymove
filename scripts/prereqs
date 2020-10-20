@@ -5,6 +5,7 @@ set -eu -o pipefail
 RED='\033[0;31m'
 YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
+GOVERSION='1.15.2'
 
 prereqs_found=true
 
@@ -52,8 +53,8 @@ has chamber "brew install chamber"
 has docker "Get Docker CE for Mac from https://download.docker.com/mac/stable/Docker.dmg"
 has jq "brew install jq"
 has asdf "brew install asdf; # then add 'source /usr/local/opt/asdf/asdf.sh' to your shell rc file"
-has_path ".asdf/shims" "asdf plugin add golang; asdf install; asdf global golang 1.14.7"
-has go "asdf plugin add golang; asdf install; asdf global golang 1.14.7"
+has_path ".asdf/shims" "asdf plugin add golang; asdf install; asdf global golang ${GOVERSION}"
+has go "asdf plugin add golang; asdf install; asdf global golang ${GOVERSION}"
 has yarn "brew install yarn"
 has pre-commit "brew install pre-commit"
 has shellcheck "brew install shellcheck"
