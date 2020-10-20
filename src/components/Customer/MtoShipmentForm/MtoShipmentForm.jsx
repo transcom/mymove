@@ -73,13 +73,12 @@ function getShipmentOptions(shipmentType) {
 class MtoShipmentForm extends Component {
   constructor(props) {
     super(props);
-    const hasDeliveryAddress = get(props.mtoShipment, 'destinationAddress', false);
     this.state = {
-      hasDeliveryAddress,
+      hasDeliveryAddress: get(props.mtoShipment, 'destinationAddress', false),
       useCurrentResidence: false,
       initialValues: {
-        hasDeliveryAddress,
         useCurrentResidence: false,
+        customerRemarks: '',
         pickup: {
           address: {
             street_address_1: '',
@@ -118,6 +117,12 @@ class MtoShipmentForm extends Component {
     const { showLoggedInUser } = this.props;
     showLoggedInUser();
   }
+
+  handleChangeHasDeliveryAddress = () => {
+    this.setState((prevState) => {
+      return { hasDeliveryAddress: !prevState.hasDeliveryAddress };
+    });
+  };
 
   // Use current residence
   handleUseCurrentResidenceChange = (currentValues) => {
@@ -185,7 +190,7 @@ class MtoShipmentForm extends Component {
     // TODO: replace minimal styling with actual styling during UI phase
     const { wizardPage, newDutyStationAddress, selectedMoveType } = this.props;
     const { pageKey, pageList, match, history } = wizardPage;
-    const { hasDeliveryAddress, useCurrentResidence, initialValues } = this.state;
+    const { useCurrentResidence, hasDeliveryAddress, initialValues } = this.state;
     const fieldsetClasses = 'margin-top-2';
     const options = getShipmentOptions(selectedMoveType);
 
@@ -272,16 +277,18 @@ class MtoShipmentForm extends Component {
                         id="has-delivery-address"
                         label="Yes"
                         name="hasDeliveryAddress"
-                        checked={values.hasDeliveryAddress}
+                        onChange={this.handleChangeHasDeliveryAddress}
+                        checked={hasDeliveryAddress}
                       />
                       <Radio
                         id="no-delivery-address"
                         label="No"
                         name="hasDeliveryAddress"
+                        onChange={this.handleChangeHasDeliveryAddress}
                         checked={!hasDeliveryAddress}
                       />
                     </div>
-                    {values.hasDeliveryAddress ? (
+                    {hasDeliveryAddress ? (
                       <AddressFields name="destinationAddress" values={values.delivery.address} />
                     ) : (
                       <>

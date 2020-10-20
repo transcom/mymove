@@ -6,13 +6,16 @@ import { formatSwaggerDate } from 'shared/formatters';
 function formatAgent(agent) {
   const agentCopy = { ...agent };
   Object.keys(agentCopy).forEach((key) => {
-    if (agentCopy[`${key}`] === '') {
-      delete agentCopy[`${key}`];
-    } else if (`${key}` === 'phone') {
-      const phoneNum = agentCopy[`${key}`];
+    const sanitizedKey = `${key}`;
+    /* eslint-disable security/detect-object-injection */
+    if (agentCopy[sanitizedKey] === '') {
+      delete agentCopy[sanitizedKey];
+    } else if (sanitizedKey === 'phone') {
+      const phoneNum = agentCopy[sanitizedKey];
       // will be in format xxx-xxx-xxxx
-      agentCopy[`${key}`] = `${phoneNum.slice(0, 3)}-${phoneNum.slice(3, 6)}-${phoneNum.slice(6, 10)}`;
+      agentCopy[sanitizedKey] = `${phoneNum.slice(0, 3)}-${phoneNum.slice(3, 6)}-${phoneNum.slice(6, 10)}`;
     }
+    /* eslint-enable security/detect-object-injection */
   });
   return agentCopy;
 }
