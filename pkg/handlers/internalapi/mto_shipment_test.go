@@ -503,7 +503,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 	})
 
 	shipments := models.MTOShipments{mtoShipment, mtoShipment2}
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/mto_shipments", mto.ID.String()), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)

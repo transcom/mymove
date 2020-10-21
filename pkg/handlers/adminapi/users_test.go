@@ -45,7 +45,7 @@ func (suite *HandlerSuite) TestGetUserHandler() {
 	userIDString := user.ID.String()
 	userID := user.ID
 
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req := httptest.NewRequest("GET", fmt.Sprintf("/users/%s", userID), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -141,7 +141,7 @@ func (suite *HandlerSuite) TestRevokeUserSessionHandler() {
 
 	endpoint := fmt.Sprintf("/users/%s", userID)
 	req := httptest.NewRequest("PUT", endpoint, nil)
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
 	revokeMilSession := true

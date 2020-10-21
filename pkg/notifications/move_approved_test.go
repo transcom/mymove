@@ -12,7 +12,7 @@ import (
 func (suite *NotificationSuite) TestMoveApproved() {
 	ctx := context.Background()
 
-	approver := testdatagen.MakeDefaultUser(suite.DB())
+	approver := testdatagen.MakeStubbedUser(suite.DB())
 	move := testdatagen.MakeDefaultMove(suite.DB())
 
 	notification := NewMoveApproved(suite.DB(), suite.logger, &auth.Session{
@@ -35,7 +35,7 @@ func (suite *NotificationSuite) TestMoveApproved() {
 }
 
 func (suite *NotificationSuite) TestMoveApprovedHTMLTemplateRender() {
-	approver := testdatagen.MakeDefaultUser(suite.DB())
+	approver := testdatagen.MakeStubbedUser(suite.DB())
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	notification := NewMoveApproved(suite.DB(), suite.logger, &auth.Session{
 		UserID:          approver.ID,
@@ -82,7 +82,7 @@ func (suite *NotificationSuite) TestMoveApprovedHTMLTemplateRender() {
 
 func (suite *NotificationSuite) TestMoveApprovedTextTemplateRender() {
 
-	approver := testdatagen.MakeDefaultUser(suite.DB())
+	approver := testdatagen.MakeStubbedUser(suite.DB())
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	notification := NewMoveApproved(suite.DB(), suite.logger, &auth.Session{
 		UserID:          approver.ID,
