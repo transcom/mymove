@@ -8955,10 +8955,10 @@ handle-thing@^2.0.0:
   resolved "https://registry.yarnpkg.com/handle-thing/-/handle-thing-2.0.1.tgz#857f79ce359580c340d43081cc648970d0bb234e"
   integrity sha512-9Qn4yBxelxoh2Ow62nP+Ka/kMnOXRi8BXnRaUwezLNhqelnN49xKz4F/dPP8OYLxLxq6JDtZb2i9XznUQbNPTg==
 
-happo-plugin-storybook@^2.5.3:
-  version "2.5.3"
-  resolved "https://registry.yarnpkg.com/happo-plugin-storybook/-/happo-plugin-storybook-2.5.3.tgz#bd8b88003b7c56f64506eb04abe909d506c1ce6f"
-  integrity sha512-IeqPN9ZZuiW+GRZ0Ri/yEccaSYRxwwxzQ6IUAgECoHjvB//O4TPmmKU75hIlBtZ6xpqm3zvcp+NDJzq833j0Yg==
+happo-plugin-storybook@^2.5.3, happo-plugin-storybook@^2.6.0:
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/happo-plugin-storybook/-/happo-plugin-storybook-2.6.0.tgz#b85953cce8d83cad0b43eb5ecf3ee5d43bfe0d4e"
+  integrity sha512-pvoKdr6AriFAhdw9dYB2DN89wqpwuwBFYx1ajhyfAyY4ipfe6mfvPt1lnvtqcL5zsM041+E+O13XSU4ZfvRSiA==
   dependencies:
     "@babel/runtime" ">=7.0.0"
     archiver "^3.0.0"
