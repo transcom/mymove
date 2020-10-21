@@ -75,7 +75,7 @@
     "selenium-webdriver": "^3.6.0",
     "swagger-client": "^3.11.1",
     "swagger-ui-dist": "^3.35.2",
-    "uswds": "2.8.0",
+    "uswds": "2.9.0",
     "uuid": "^8.3.0",
     "yup": "^0.29.1"
   },
