@@ -1,5 +1,5 @@
 import React from 'react';
-import { string, shape } from 'prop-types';
+import { string, shape, func } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
 import { AddressShape } from '../../../../../types/address';
@@ -15,9 +15,12 @@ const NTSRShipmentCard = ({
   receivingAgent,
   remarks,
   requestedDeliveryDate,
+  moveId,
+  onEditClick,
   shipmentId,
   shipmentType,
 }) => {
+  const editPath = `/moves/${moveId}/mto-shipments/${shipmentId}/edit-shipment`;
   return (
     <div className={styles.ShipmentCard} data-testid="ntsr-summary">
       <ShipmentContainer className={styles.container} shipmentType={shipmentType}>
@@ -26,7 +29,12 @@ const NTSRShipmentCard = ({
             <h3>{getShipmentTypeLabel(shipmentType)}</h3>
             <p>#{shipmentId.substring(0, 8).toUpperCase()}</p>
           </div>
-          <Button className={styles.editBtn} data-testid="edit-shipment-btn" unstyled disabled>
+          <Button
+            className={styles.editBtn}
+            data-testid="edit-shipment-btn"
+            onClick={() => onEditClick(editPath)}
+            unstyled
+          >
             Edit
           </Button>
         </div>
@@ -52,6 +60,8 @@ const NTSRShipmentCard = ({
 };
 
 NTSRShipmentCard.propTypes = {
+  moveId: string.isRequired,
+  onEditClick: func.isRequired,
   shipmentType: string.isRequired,
   shipmentId: string.isRequired,
   destinationLocation: AddressShape,

@@ -116,6 +116,8 @@ export class Summary extends Component {
         return (
           <NTSRShipmentCard
             key={shipment.id}
+            moveId={moveId}
+            onEditClick={this.handleEditClick}
             destinationZIP={currentOrders.new_duty_station.address.postal_code}
             destinationLocation={shipment?.destinationAddress}
             receivingAgent={receivingAgent}
