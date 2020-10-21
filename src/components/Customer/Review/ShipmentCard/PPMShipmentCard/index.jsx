@@ -5,7 +5,7 @@ import { Button } from '@trussworks/react-uswds';
 import ShipmentContainer from '../../../../Office/ShipmentContainer';
 import styles from '../ShipmentCard.module.scss';
 
-import { MOVE_TYPES } from 'shared/constants';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatCustomerDate } from 'utils/formatters';
 
 const PPMShipmentCard = ({
@@ -22,7 +22,7 @@ const PPMShipmentCard = ({
   const editPath = `/moves/${moveId}/review/edit-date-and-location`;
   return (
     <div className={styles.ShipmentCard} data-testid="shipment-display">
-      <ShipmentContainer className={styles.container} shipmentType={MOVE_TYPES.PPM}>
+      <ShipmentContainer className={styles.container} shipmentType={SHIPMENT_OPTIONS.PPM}>
         <div className={styles.ShipmentCardHeader}>
           <div>
             <h3>PPM</h3>

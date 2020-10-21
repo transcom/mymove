@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { SHIPMENT_OPTIONS, MOVE_TYPES } from '../../../shared/constants';
+import { SHIPMENT_OPTIONS } from '../../../shared/constants';
 
 import ShipmentServiceItemsTable from './ShipmentServiceItemsTable';
 
@@ -11,4 +11,4 @@ export default {
 
 export const HHGServiceItems = () => <ShipmentServiceItemsTable shipmentType={SHIPMENT_OPTIONS.HHG} />;
 
-export const NTSServiceItems = () => <ShipmentServiceItemsTable shipmentType={MOVE_TYPES.NTS} />;
+export const NTSServiceItems = () => <ShipmentServiceItemsTable shipmentType={SHIPMENT_OPTIONS.NTS} />;

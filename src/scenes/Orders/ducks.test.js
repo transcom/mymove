@@ -1,6 +1,6 @@
 import { GET_ORDERS, SHOW_CURRENT_ORDERS, ordersReducer } from './ducks';
 import loggedInUserPayload, { emptyPayload } from 'shared/User/sampleLoggedInUserPayload';
-import { MOVE_TYPES } from 'shared/constants';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const expectedOrders = {
   id: '51953e97-25a7-430c-ba6d-3bd980a38b71',
@@ -79,7 +79,7 @@ const ordersPayload = Object.freeze({
           weight_estimate: 9000,
         },
       ],
-      selected_move_type: MOVE_TYPES.PPM,
+      selected_move_type: SHIPMENT_OPTIONS.PPM,
       status: 'DRAFT',
     },
   ],

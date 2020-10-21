@@ -29,7 +29,7 @@ import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/ser
 import { selectUploadedOrders, selectActiveOrLatestOrdersFromEntities } from 'shared/Entities/modules/orders';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 import { selectMTOShipmentsByMoveId, selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
-import { SHIPMENT_OPTIONS, MOVE_TYPES } from 'shared/constants';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import {
   selectCurrentUser,
@@ -91,7 +91,7 @@ class Home extends Component {
 
   get hasNTSShipment() {
     const { mtoShipments } = this.props;
-    return mtoShipments.some((s) => s.shipmentType === MOVE_TYPES.NTS);
+    return mtoShipments.some((s) => s.shipmentType === SHIPMENT_OPTIONS.NTS);
   }
 
   get hasPPMShipment() {
@@ -219,7 +219,7 @@ class Home extends Component {
     const allShipments = JSON.parse(JSON.stringify(mtoShipments));
     if (Object.keys(currentPpm).length) {
       const ppm = JSON.parse(JSON.stringify(currentPpm));
-      ppm.shipmentType = MOVE_TYPES.PPM;
+      ppm.shipmentType = SHIPMENT_OPTIONS.PPM;
       // workaround for differing cases between mtoShipments and ppms (bigger change needed on yaml)
       ppm.createdAt = ppm.created_at;
       delete ppm.created_at;

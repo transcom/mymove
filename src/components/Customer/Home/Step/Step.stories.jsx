@@ -7,7 +7,7 @@ import ShipmentList from '../ShipmentList/index';
 
 import Step from '.';
 
-import { SHIPMENT_OPTIONS, MOVE_TYPES } from 'shared/constants';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 export const ProfileComplete = () => (
   <div className="grid-container">
@@ -96,7 +96,7 @@ export const Shipments = () => (
         shipments={[
           { id: '0001', shipmentType: SHIPMENT_OPTIONS.HHG },
           { id: '0002', shipmentType: SHIPMENT_OPTIONS.NTS },
-          { id: '0003', shipmentType: MOVE_TYPES.PPM },
+          { id: '0003', shipmentType: SHIPMENT_OPTIONS.PPM },
         ]}
         onShipmentClick={() => {}}
       />

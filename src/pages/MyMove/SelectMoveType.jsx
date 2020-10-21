@@ -9,7 +9,7 @@ import styles from './SelectMoveType.module.scss';
 
 import wizardStyles from 'pages/MyMove/index.module.scss';
 import { updateMove as updateMoveAction } from 'scenes/Moves/ducks';
-import { SHIPMENT_OPTIONS, MOVE_TYPES, MOVE_STATUSES } from 'shared/constants';
+import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 import { WizardPage } from 'shared/WizardPage';
 import SelectableCard from 'components/Customer/SelectableCard';
@@ -91,10 +91,10 @@ export class SelectMoveType extends Component {
       <SelectableCard
         {...selectableCardDefaultProps}
         label="Do it yourself"
-        value={MOVE_TYPES.PPM}
-        id={MOVE_TYPES.PPM}
+        value={SHIPMENT_OPTIONS.PPM}
+        id={SHIPMENT_OPTIONS.PPM}
         cardText={ppmCardText}
-        checked={moveType === MOVE_TYPES.PPM && isPpmSelectable}
+        checked={moveType === SHIPMENT_OPTIONS.PPM && isPpmSelectable}
         disabled={!isPpmSelectable}
       />
     );
@@ -102,10 +102,10 @@ export class SelectMoveType extends Component {
       <SelectableCard
         {...selectableCardDefaultProps}
         label="Do it yourself (already chosen)"
-        value={MOVE_TYPES.PPM}
-        id={MOVE_TYPES.PPM}
+        value={SHIPMENT_OPTIONS.PPM}
+        id={SHIPMENT_OPTIONS.PPM}
         cardText={ppmCardTextAlreadyChosen}
-        checked={moveType === MOVE_TYPES.PPM && isPpmSelectable}
+        checked={moveType === SHIPMENT_OPTIONS.PPM && isPpmSelectable}
         disabled={!isPpmSelectable}
       />
     );
@@ -166,10 +166,10 @@ export class SelectMoveType extends Component {
               <SelectableCard
                 {...selectableCardDefaultProps}
                 label="Put things into long-term storage"
-                value={MOVE_TYPES.NTS}
-                id={MOVE_TYPES.NTS}
+                value={SHIPMENT_OPTIONS.NTS}
+                id={SHIPMENT_OPTIONS.NTS}
                 cardText={hasNTS ? ntsCardText : hasNTSCardText}
-                checked={moveType === MOVE_TYPES.NTS && isHhgSelectable}
+                checked={moveType === SHIPMENT_OPTIONS.NTS && isHhgSelectable}
                 disabled={hasNTS}
                 onHelpClick={this.toggleStorageModal}
               />
@@ -177,10 +177,10 @@ export class SelectMoveType extends Component {
               <SelectableCard
                 {...selectableCardDefaultProps}
                 label="Get things out of long-term storage"
-                value={MOVE_TYPES.NTS}
+                value={SHIPMENT_OPTIONS.NTS}
                 id="NTSR"
                 cardText={hasNTSR ? ntsrCardText : hasNTSRCardText}
-                checked={moveType === MOVE_TYPES.NTS && isHhgSelectable}
+                checked={moveType === SHIPMENT_OPTIONS.NTS && isHhgSelectable}
                 disabled={hasNTSR}
                 onHelpClick={this.toggleStorageModal}
               />

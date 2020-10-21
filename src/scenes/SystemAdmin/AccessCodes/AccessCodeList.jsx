@@ -2,7 +2,7 @@ import React from 'react';
 import { Datagrid, Filter, List, SelectInput, TextField, TextInput } from 'react-admin';
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 import styles from 'scenes/SystemAdmin/Home.module.scss';
-import { MOVE_TYPES } from 'shared/constants';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const defaultSort = { field: 'code', order: 'DESC' };
 
@@ -16,7 +16,7 @@ const AccessCodeFilter = (props) => (
       alwaysOn
       resettable
     />
-    <SelectInput source="moveType" choices={[{ id: MOVE_TYPES.PPM, name: MOVE_TYPES.PPM }]} />
+    <SelectInput source="moveType" choices={[{ id: SHIPMENT_OPTIONS.PPM, name: SHIPMENT_OPTIONS.PPM }]} />
   </Filter>
 );
 

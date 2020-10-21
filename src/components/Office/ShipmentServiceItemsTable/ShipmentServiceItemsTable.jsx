@@ -4,7 +4,7 @@ import propTypes from 'prop-types';
 
 import styles from './ShipmentServiceItemsTable.module.scss';
 
-import { SHIPMENT_OPTIONS, MOVE_TYPES } from 'shared/constants';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const serviceItems = {
   domestic_linehaul: 'Domestic linehaul',
@@ -34,7 +34,7 @@ const shipmentTypes = {
 };
 
 const ShipmentServiceItemsTable = ({ shipmentType, className }) => {
-  const shipmentServiceType = shipmentType === MOVE_TYPES.NTS ? 'nts' : 'hhg';
+  const shipmentServiceType = shipmentType === SHIPMENT_OPTIONS.NTS ? 'nts' : 'hhg';
   const shipmentServiceItems = shipmentTypes[`${shipmentServiceType}`];
 
   return (

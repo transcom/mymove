@@ -5,7 +5,7 @@ import moment from 'moment';
 import CanceledMoveSummary from 'scenes/PpmLanding/MoveSummary/CanceledMoveSummary';
 import DraftMoveSummary from 'scenes/PpmLanding/MoveSummary/DraftMoveSummary';
 import SubmittedPpmMoveSummary from 'scenes/PpmLanding/MoveSummary/SubmittedPpmMoveSummary';
-import { MOVE_TYPES } from 'shared/constants';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 describe('PpmSummaryComponent', () => {
   const editMoveFn = jest.fn();
@@ -34,7 +34,7 @@ describe('PpmSummaryComponent', () => {
 
   describe('when a ppm move is in a draft state', () => {
     it('renders resume setup content', () => {
-      const moveObj = { selected_move_type: MOVE_TYPES.PPM, status: 'DRAFT' };
+      const moveObj = { selected_move_type: SHIPMENT_OPTIONS.PPM, status: 'DRAFT' };
       const futureFortNight = moment().add(14, 'day');
       const ppmObj = {
         original_move_date: futureFortNight,
@@ -60,7 +60,7 @@ describe('PpmSummaryComponent', () => {
   // PPM
   describe('when a ppm move is in canceled state', () => {
     it('renders cancel content', () => {
-      const moveObj = { selected_move_type: MOVE_TYPES.PPM, status: 'CANCELED' };
+      const moveObj = { selected_move_type: SHIPMENT_OPTIONS.PPM, status: 'CANCELED' };
       const futureFortNight = moment().add(14, 'day');
       const ppmObj = {
         original_move_date: futureFortNight,
@@ -83,7 +83,7 @@ describe('PpmSummaryComponent', () => {
   });
   describe('when a move with a ppm is in submitted state', () => {
     it('renders submitted content', () => {
-      const moveObj = { selected_move_type: MOVE_TYPES.PPM, status: 'SUBMITTED' };
+      const moveObj = { selected_move_type: SHIPMENT_OPTIONS.PPM, status: 'SUBMITTED' };
       const futureFortNight = moment().add(14, 'day');
       const ppmObj = {
         original_move_date: futureFortNight,
@@ -108,7 +108,7 @@ describe('PpmSummaryComponent', () => {
 
   describe('when a move is in approved state but ppm is submitted state', () => {
     it('renders submitted rather than approved content', () => {
-      const moveObj = { selected_move_type: MOVE_TYPES.PPM, status: 'APPROVED' };
+      const moveObj = { selected_move_type: SHIPMENT_OPTIONS.PPM, status: 'APPROVED' };
       const futureFortNight = moment().add(14, 'day');
       const ppmObj = {
         original_move_date: futureFortNight,

@@ -57,12 +57,9 @@ export const CONUS_STATUS = {
   OCONUS: 'OCONUS',
 };
 
-export const MOVE_TYPES = {
-  NTS: 'NTS',
-  PPM: 'PPM',
-};
 export const SHIPMENT_OPTIONS = {
   HHG: 'HHG',
+  PPM: 'PPM',
   HHG_SHORTHAUL_DOMESTIC: 'HHG_SHORTHAUL_DOMESTIC',
   HHG_LONGHAUL_DOMESTIC: 'HHG_LONGHAUL_DOMESTIC',
   NTS: 'HHG_INTO_NTS_DOMESTIC',
@@ -70,12 +67,11 @@ export const SHIPMENT_OPTIONS = {
 };
 
 export const shipmentOptionLabels = [
-  { key: SHIPMENT_OPTIONS.HHG, label: 'HHG' },
-  { key: MOVE_TYPES.PPM, label: 'PPM' },
-  { key: SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC, label: 'HHG_SHORTHAUL_DOMESTIC' },
-  { key: SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC, label: 'HHG_LONGHAUL_DOMESTIC' },
-  { key: SHIPMENT_OPTIONS.NTS, label: 'NTS' },
   { key: SHIPMENT_OPTIONS.NTSR, label: 'NTS-R' },
+  { key: SHIPMENT_OPTIONS.NTS, label: 'NTS' },
+  { key: SHIPMENT_OPTIONS.HHG, label: 'HHG' },
+  { key: SHIPMENT_OPTIONS.PPM, label: 'PPM' },
+  { key: SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC, label: 'HHG_SHORTHAUL_DOMESTIC' },
 ];
 
 export const SERVICE_ITEM_STATUS = {

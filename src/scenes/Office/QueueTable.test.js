@@ -10,7 +10,7 @@ import ReactTable from 'react-table-6';
 import store from 'shared/store';
 import { mount } from 'enzyme/build';
 import { setIsLoggedInType } from 'shared/Data/users';
-import { MOVE_TYPES } from 'shared/constants';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const push = jest.fn();
 
@@ -27,7 +27,7 @@ describe('Shipments column', () => {
 
     setTimeout(() => {
       const move = getMove(wrapper);
-      expect(move.shipments).toEqual(MOVE_TYPES.PPM);
+      expect(move.shipments).toEqual(SHIPMENT_OPTIONS.PPM);
 
       done();
     });

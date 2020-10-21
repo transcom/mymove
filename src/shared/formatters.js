@@ -3,7 +3,7 @@ import moment from 'moment';
 import numeral from 'numeral';
 import path from 'path';
 
-import { SHIPMENT_OPTIONS, MOVE_TYPES } from 'shared/constants';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { DEPARTMENT_INDICATOR_OPTIONS, DEPARTMENT_INDICATOR_LABELS } from 'constants/departmentIndicators';
 import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orders';
 
@@ -284,7 +284,7 @@ export const mtoShipmentTypeToFriendlyDisplay = (shipmentType) => {
   switch (shipmentType) {
     case SHIPMENT_OPTIONS.HHG:
       return 'Household goods';
-    case MOVE_TYPES.NTS:
+    case SHIPMENT_OPTIONS.NTS:
       return 'NTS release';
     case SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC:
       return 'Household goods longhaul domestic';

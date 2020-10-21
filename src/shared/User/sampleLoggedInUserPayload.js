@@ -1,4 +1,4 @@
-import { MOVE_TYPES } from 'shared/constants';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 export const emptyPayload = {
   type: 'GET_LOGGED_IN_USER_SUCCESS',
@@ -82,7 +82,7 @@ export default {
                   weight_estimate: 9000,
                 },
               ],
-              selected_move_type: MOVE_TYPES.PPM,
+              selected_move_type: SHIPMENT_OPTIONS.PPM,
               status: 'CANCELED',
             },
           ],
@@ -159,7 +159,7 @@ export default {
                   weight_estimate: 9000,
                 },
               ],
-              selected_move_type: MOVE_TYPES.PPM,
+              selected_move_type: SHIPMENT_OPTIONS.PPM,
               status: 'DRAFT',
             },
           ],
