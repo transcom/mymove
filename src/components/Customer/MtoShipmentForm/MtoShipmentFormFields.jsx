@@ -126,7 +126,7 @@ const MtoShipmentFormFields = ({
                 />
               </div>
               {hasDeliveryAddress ? (
-                <AddressFields name="destinationAddress" values={values.delivery.address} />
+                <AddressFields name="delivery.address" values={values.delivery.address} />
               ) : (
                 <>
                   <div>
