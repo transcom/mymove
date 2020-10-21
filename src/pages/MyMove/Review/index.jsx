@@ -27,6 +27,8 @@ class Review extends Component {
           pageKey={pageKey}
           pageIsValid
           canMoveNext={canMoveNext}
+          hideBackBtn
+          showFinishLaterBtn
         >
           <div className={`${styles.reviewMoveHeaderContainer} grid-row margin-bottom-3`}>
             <h1 className="tablet:grid-col-10" data-testid="review-move-header">

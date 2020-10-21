@@ -147,6 +147,10 @@ function customerReviewsMoveDetailsAndEditsHHG() {
   cy.get('[data-testid="hhg-summary"]').find('dl').contains('some edited customer remark');
   cy.get('[data-testid="hhg-summary"]').find('dl').contains('JohnJohnson Lee');
 
+  cy.get('button').contains('Finish later').click();
+  cy.get('h3').contains('Time to submit your move');
+  cy.get('button').contains('Review and submit').click();
+
   cy.nextPage();
 }
 
