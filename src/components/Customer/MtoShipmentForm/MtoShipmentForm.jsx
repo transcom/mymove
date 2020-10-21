@@ -288,7 +288,7 @@ class MtoShipmentForm extends Component {
                       />
                     </div>
                     {hasDeliveryAddress ? (
-                      <AddressFields name="destinationAddress" values={values.delivery.address} />
+                      <AddressFields name="delivery.address" values={values.delivery.address} />
                     ) : (
                       <>
                         <div>
