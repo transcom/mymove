@@ -14,11 +14,13 @@ describe('SelectMoveType', () => {
     updateMove: jest.fn(),
     push: jest.fn(),
     loadMTOShipments: jest.fn(),
-    move: { id: 'mockId', status: 'DRAFT' },
+    move: { id: 'mockId', status: MOVE_STATUSES.DRAFT },
     selectedMoveType: SHIPMENT_OPTIONS.PPM,
     mtoShipments: [],
     isPpmSelectable: true,
     isHhgSelectable: true,
+    isNtsSelectable: true,
+    isNtsrSelectable: true,
     shipmentNumber: 4,
   };
 
@@ -59,7 +61,7 @@ describe('SelectMoveType', () => {
     });
 
     it('can click the help button in the NTS card', () => {
-      const ntsCard = wrapper.find('SelectableCard[id="NTS"]');
+      const ntsCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.NTS}"]`);
       expect(ntsCard.length).toBe(1);
       ntsCard.find('button[data-testid="helpButton"]').simulate('click');
       expect(wrapper.state('showStorageInfoModal')).toEqual(true);
@@ -74,8 +76,12 @@ describe('SelectMoveType', () => {
   });
 
   describe('when no PPMs or shipments have been created', () => {
+    const props = {
+      isPpmSelectable: true,
+      shipmentNumber: 1,
+    };
     it('should render the correct text', () => {
-      const wrapper = getWrapper();
+      const wrapper = getWrapper(props);
       expect(wrapper.find('h1').text()).toContain('How do you want to move your belongings?');
       expect(wrapper.find('[data-testid="selectableCardText"]').at(0).text()).toContain(
         'You pack and move your things, or make other arrangements, The government pays you for the weight you move.  This is a a Personally Procured Move (PPM), sometimes called a DITY.',
@@ -85,7 +91,7 @@ describe('SelectMoveType', () => {
 
   describe('when a PPM has already been created', () => {
     const props = {
-      move: { personally_procured_moves: [{ id: '1' }] },
+      isPpmSelectable: false,
     };
     it('should render the correct text', () => {
       const wrapper = getWrapper(props);
@@ -99,16 +105,16 @@ describe('SelectMoveType', () => {
       );
     });
     it('should disable PPM form option if PPM is already submitted', () => {
-      props.isPpmSelectable = false;
       const wrapper = getWrapper(props);
-      // PPM button should be disabled on page load and should contained updated text
+      // PPM button should be disabled on page load
       expect(wrapper.find(Radio).at(0).find('.usa-radio__input').html()).toContain('disabled');
     });
   });
 
-  describe('when an HHG has already been created', () => {
+  describe('when some shipments already exist', () => {
     const props = {
-      mtoShipments: [{ id: '2' }],
+      isHhgSelectable: true,
+      shipmentNumber: 2,
     };
     it('should render the correct text', () => {
       const wrapper = getWrapper(props);
@@ -118,7 +124,7 @@ describe('SelectMoveType', () => {
 
   describe('when a move has already been submitted', () => {
     const props = {
-      move: { status: MOVE_STATUSES.SUBMITTED },
+      isHhgSelectable: false,
     };
     it('should render the correct text', () => {
       const wrapper = getWrapper(props);
@@ -130,7 +136,6 @@ describe('SelectMoveType', () => {
       );
     });
     it('should disable HHG form option', () => {
-      props.isHhgSelectable = false;
       const wrapper = getWrapper(props);
       // HHG button should be disabled on page load
       expect(wrapper.find(Radio).at(1).find('.usa-radio__input').html()).toContain('disabled');
