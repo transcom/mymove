@@ -162,6 +162,27 @@ describe('SelectMoveType', () => {
       expect(wrapper.find(Radio).at(3).find('.usa-radio__input').prop('disabled')).toBe(true);
     });
   });
+  describe('when an unsubmitted move has both an NTS and an NTSr', () => {
+    const props = {
+      mtoShipments: [
+        { id: '4', shipmentType: SHIPMENT_OPTIONS.NTS },
+        { id: '5', shipmentType: SHIPMENT_OPTIONS.NTSR },
+      ],
+      move: { status: MOVE_STATUSES.DRAFT },
+      isNtsrSelectable: false,
+      isNtsSelectable: false,
+    };
+    const wrapper = getWrapper(props);
+    it('should render the correct text', () => {
+      expect(wrapper.find('[data-testid="long-term-storage-heading"] + p').text()).toEqual(
+        'Talk to your movers about long-term storage if you need to add it to this move or change a request you made earlier.',
+      );
+    });
+    it('should not show radio cards for NTS or NTSr', () => {
+      expect(wrapper.find(Radio).at(2).exists()).toEqual(false);
+      expect(wrapper.find(Radio).at(3).exists()).toEqual(false);
+    });
+  });
 
   describe('when a move has already been submitted', () => {
     const props = {
@@ -187,8 +208,8 @@ describe('SelectMoveType', () => {
       expect(wrapper.find(Radio).at(1).find('.usa-radio__input').html()).toContain('disabled');
     });
     it('should not show radio cards for NTS or NTSr', () => {
-      expect(wrapper.find(Radio).at(2)).toEqual({});
-      expect(wrapper.find(Radio).at(3)).toEqual({});
+      expect(wrapper.find(Radio).at(2).exists()).toEqual(false);
+      expect(wrapper.find(Radio).at(3).exists()).toEqual(false);
     });
   });
 });
