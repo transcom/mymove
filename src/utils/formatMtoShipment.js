@@ -1,7 +1,7 @@
 import { isEmpty } from 'lodash';
 
 import { MTOAgentType } from 'shared/constants';
-import { formatSwaggerDate } from 'shared/formatters';
+import { formatSwaggerDate, parseSwaggerDate } from 'shared/formatters';
 
 // TODO: clean up data handling / formats
 
@@ -116,7 +116,7 @@ export function formatMtoShipmentForDisplay({
   }
 
   if (requestedPickupDate) {
-    displayValues.pickup.requestedDate = requestedPickupDate;
+    displayValues.pickup.requestedDate = parseSwaggerDate(requestedPickupDate);
   }
 
   if (destinationAddress) {
@@ -125,7 +125,7 @@ export function formatMtoShipmentForDisplay({
   }
 
   if (requestedDeliveryDate) {
-    displayValues.delivery.requestedDate = requestedDeliveryDate;
+    displayValues.delivery.requestedDate = parseSwaggerDate(requestedDeliveryDate);
   }
 
   return displayValues;
@@ -143,7 +143,7 @@ export function formatMtoShipmentForAPI({ moveId, shipmentType, pickup, delivery
     agents: [],
   };
 
-  if (pickup?.requestedDate) {
+  if (pickup?.requestedDate && pickup.requestedDate !== '') {
     formattedMtoShipment.requestedPickupDate = formatSwaggerDate(pickup.requestedDate);
     formattedMtoShipment.pickupAddress = formatAddressForAPI(pickup.address);
 
@@ -155,7 +155,7 @@ export function formatMtoShipmentForAPI({ moveId, shipmentType, pickup, delivery
     }
   }
 
-  if (delivery?.requestedDate) {
+  if (delivery?.requestedDate && delivery.requestedDate !== '') {
     formattedMtoShipment.requestedDeliveryDate = formatSwaggerDate(delivery.requestedDate);
 
     if (delivery.address) {

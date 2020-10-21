@@ -9,7 +9,7 @@ import { getShipmentOptions } from './getShipmentOptions';
 import MtoShipmentFormFields from './MtoShipmentFormFields';
 
 import {
-  selectMTOShipmentForMTO,
+  selectMTOShipmentById,
   createMTOShipment as createMTOShipmentAction,
   updateMTOShipment as updateMTOShipmentAction,
 } from 'shared/Entities/modules/mtoShipments';
@@ -280,7 +280,7 @@ const mapStateToProps = (state, ownProps) => {
   const orders = selectActiveOrLatestOrdersFromEntities(state);
 
   const props = {
-    mtoShipment: selectMTOShipmentForMTO(state, ownProps.match.params.moveId),
+    mtoShipment: selectMTOShipmentById(state, ownProps.match.params.mtoShipmentId),
     currentResidence: get(selectServiceMemberFromLoggedInUser(state), 'residential_address', {}),
     newDutyStationAddress: get(orders, 'new_duty_station.address', {}),
   };
