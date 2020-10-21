@@ -25,7 +25,7 @@ import { WizardPage } from 'shared/WizardPage';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import Checkbox from 'shared/Checkbox';
 import { AddressShape, SimpleAddressShape } from 'types/address';
-import { HhgShipmentShape, WizardPageShape } from 'types/customerShapes';
+import { HhgShipmentShape, MatchShape, HistoryShape, PageKeyShape, PageListShape } from 'types/customerShapes';
 import { formatMtoShipment } from 'utils/formatMtoShipment';
 import { validateDate } from 'utils/formikValidators';
 
@@ -127,7 +127,7 @@ class MtoShipmentForm extends Component {
   // Use current residence
   handleUseCurrentResidenceChange = (currentValues) => {
     const { initialValues } = this.state;
-    const { currentResidence, wizardPage, mtoShipment } = this.props;
+    const { currentResidence, match, mtoShipment } = this.props;
     this.setState(
       (state) => ({ useCurrentResidence: !state.useCurrentResidence }),
       () => {
@@ -141,7 +141,7 @@ class MtoShipmentForm extends Component {
             state: currentResidence.state,
             postal_code: currentResidence.postal_code,
           };
-        } else if (wizardPage.match.params.moveId === initialValues.moveTaskOrderID) {
+        } else if (match.params.moveId === initialValues.moveTaskOrderID) {
           pickup.address = {
             street_address_1: mtoShipment.pickupAddress.street_address_1,
             street_address_2: mtoShipment.pickupAddress.street_address_2,
@@ -172,8 +172,8 @@ class MtoShipmentForm extends Component {
   };
 
   submitMTOShipment = ({ pickup, delivery, customerRemarks }) => {
-    const { createMTOShipment, wizardPage, selectedMoveType } = this.props;
-    const { moveId } = wizardPage.match.params;
+    const { createMTOShipment, match, selectedMoveType } = this.props;
+    const { moveId } = match.params;
 
     const pendingMtoShipment = formatMtoShipment({
       shipmentType: selectedMoveType,
@@ -188,8 +188,7 @@ class MtoShipmentForm extends Component {
 
   render() {
     // TODO: replace minimal styling with actual styling during UI phase
-    const { wizardPage, newDutyStationAddress, selectedMoveType } = this.props;
-    const { pageKey, pageList, match, history } = wizardPage;
+    const { pageKey, pageList, match, history, newDutyStationAddress, selectedMoveType } = this.props;
     const { useCurrentResidence, hasDeliveryAddress, initialValues } = this.state;
     const fieldsetClasses = 'margin-top-2';
     const options = getShipmentOptions(selectedMoveType);
@@ -335,7 +334,10 @@ class MtoShipmentForm extends Component {
 }
 
 MtoShipmentForm.propTypes = {
-  wizardPage: WizardPageShape,
+  match: MatchShape,
+  history: HistoryShape,
+  pageList: PageListShape,
+  pageKey: PageKeyShape,
   createMTOShipment: func.isRequired,
   showLoggedInUser: func.isRequired,
   currentResidence: AddressShape.isRequired,
@@ -345,11 +347,10 @@ MtoShipmentForm.propTypes = {
 };
 
 MtoShipmentForm.defaultProps = {
-  wizardPage: {
-    pageList: [],
-    pageKey: '',
-    match: { isExact: false, params: { moveID: '' } },
-  },
+  pageList: [],
+  pageKey: '',
+  match: { isExact: false, params: { moveID: '' } },
+  history: { goBack: () => {}, push: () => {} },
   newDutyStationAddress: {
     city: '',
     state: '',
@@ -373,7 +374,7 @@ const mapStateToProps = (state, ownProps) => {
   const orders = selectActiveOrLatestOrdersFromEntities(state);
 
   const props = {
-    mtoShipment: selectMTOShipmentForMTO(state, ownProps.wizardPage.match.params.moveId),
+    mtoShipment: selectMTOShipmentForMTO(state, ownProps.match.params.moveId),
     currentResidence: get(selectServiceMemberFromLoggedInUser(state), 'residential_address', {}),
     newDutyStationAddress: get(orders, 'new_duty_station.address', {}),
   };

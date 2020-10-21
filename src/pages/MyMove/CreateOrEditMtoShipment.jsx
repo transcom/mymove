@@ -20,13 +20,19 @@ class CreateOrEditMtoShipment extends Component {
   // TODO: (in trailing PR) refactor edit component out of existence :)
   render() {
     const { match, history, pageList, pageKey, mtoShipment, selectedMoveType } = this.props;
-    const wizardPage = { match, history, pageList, pageKey };
     const isCreatePage = match && match.path ? match.path.includes('start') : false;
 
     return (
       <div>
         {isCreatePage ? (
-          <MtoShipmentForm wizardPage={wizardPage} mtoShipment={mtoShipment} selectedMoveType={selectedMoveType} />
+          <MtoShipmentForm
+            match={match}
+            history={history}
+            pageList={pageList}
+            pageKey={pageKey}
+            mtoShipment={mtoShipment}
+            selectedMoveType={selectedMoveType}
+          />
         ) : (
           <EditShipment mtoShipment={mtoShipment} match={match} history={history} />
         )}
