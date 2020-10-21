@@ -8,13 +8,13 @@ package ghcmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
 // QueueMoveStatus queue move status
+//
 // swagger:model QueueMoveStatus
 type QueueMoveStatus string
 
@@ -44,7 +44,7 @@ func init() {
 }
 
 func (m QueueMoveStatus) validateQueueMoveStatusEnum(path, location string, value QueueMoveStatus) error {
-	if err := validate.Enum(path, location, value, queueMoveStatusEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, queueMoveStatusEnum, true); err != nil {
 		return err
 	}
 	return nil

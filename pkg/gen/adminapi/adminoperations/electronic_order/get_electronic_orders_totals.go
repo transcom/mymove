@@ -8,7 +8,7 @@ package electronic_order
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // GetElectronicOrdersTotalsHandlerFunc turns a function with the right signature into a get electronic orders totals handler

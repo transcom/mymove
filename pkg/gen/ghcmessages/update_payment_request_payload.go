@@ -8,14 +8,14 @@ package ghcmessages
 import (
 	"strconv"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // UpdatePaymentRequestPayload update payment request payload
+//
 // swagger:model UpdatePaymentRequestPayload
 type UpdatePaymentRequestPayload struct {
 

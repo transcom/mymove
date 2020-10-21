@@ -8,7 +8,7 @@ package notification
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // IndexNotificationsHandlerFunc turns a function with the right signature into a index notifications handler

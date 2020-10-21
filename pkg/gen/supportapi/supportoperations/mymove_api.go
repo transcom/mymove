@@ -10,13 +10,13 @@ import (
 	"net/http"
 	"strings"
 
-	errors "github.com/go-openapi/errors"
-	loads "github.com/go-openapi/loads"
-	runtime "github.com/go-openapi/runtime"
-	middleware "github.com/go-openapi/runtime/middleware"
-	security "github.com/go-openapi/runtime/security"
-	spec "github.com/go-openapi/spec"
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/errors"
+	"github.com/go-openapi/loads"
+	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/security"
+	"github.com/go-openapi/spec"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/move_task_order"
@@ -35,43 +35,47 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		defaultProduces:     "application/json",
 		customConsumers:     make(map[string]runtime.Consumer),
 		customProducers:     make(map[string]runtime.Producer),
+		PreServerShutdown:   func() {},
 		ServerShutdown:      func() {},
 		spec:                spec,
 		ServeError:          errors.ServeError,
 		BasicAuthenticator:  security.BasicAuth,
 		APIKeyAuthenticator: security.APIKeyAuth,
 		BearerAuthenticator: security.BearerAuth,
-		JSONConsumer:        runtime.JSONConsumer(),
-		JSONProducer:        runtime.JSONProducer(),
+
+		JSONConsumer: runtime.JSONConsumer(),
+
+		JSONProducer: runtime.JSONProducer(),
+
 		MoveTaskOrderCreateMoveTaskOrderHandler: move_task_order.CreateMoveTaskOrderHandlerFunc(func(params move_task_order.CreateMoveTaskOrderParams) middleware.Responder {
-			return middleware.NotImplemented("operation MoveTaskOrderCreateMoveTaskOrder has not yet been implemented")
+			return middleware.NotImplemented("operation move_task_order.CreateMoveTaskOrder has not yet been implemented")
 		}),
 		MoveTaskOrderGetMoveTaskOrderHandler: move_task_order.GetMoveTaskOrderHandlerFunc(func(params move_task_order.GetMoveTaskOrderParams) middleware.Responder {
-			return middleware.NotImplemented("operation MoveTaskOrderGetMoveTaskOrder has not yet been implemented")
+			return middleware.NotImplemented("operation move_task_order.GetMoveTaskOrder has not yet been implemented")
 		}),
 		PaymentRequestGetPaymentRequestEDIHandler: payment_request.GetPaymentRequestEDIHandlerFunc(func(params payment_request.GetPaymentRequestEDIParams) middleware.Responder {
-			return middleware.NotImplemented("operation PaymentRequestGetPaymentRequestEDI has not yet been implemented")
+			return middleware.NotImplemented("operation payment_request.GetPaymentRequestEDI has not yet been implemented")
 		}),
 		PaymentRequestListMTOPaymentRequestsHandler: payment_request.ListMTOPaymentRequestsHandlerFunc(func(params payment_request.ListMTOPaymentRequestsParams) middleware.Responder {
-			return middleware.NotImplemented("operation PaymentRequestListMTOPaymentRequests has not yet been implemented")
+			return middleware.NotImplemented("operation payment_request.ListMTOPaymentRequests has not yet been implemented")
 		}),
 		MoveTaskOrderListMTOsHandler: move_task_order.ListMTOsHandlerFunc(func(params move_task_order.ListMTOsParams) middleware.Responder {
-			return middleware.NotImplemented("operation MoveTaskOrderListMTOs has not yet been implemented")
+			return middleware.NotImplemented("operation move_task_order.ListMTOs has not yet been implemented")
 		}),
 		MoveTaskOrderMakeMoveTaskOrderAvailableHandler: move_task_order.MakeMoveTaskOrderAvailableHandlerFunc(func(params move_task_order.MakeMoveTaskOrderAvailableParams) middleware.Responder {
-			return middleware.NotImplemented("operation MoveTaskOrderMakeMoveTaskOrderAvailable has not yet been implemented")
+			return middleware.NotImplemented("operation move_task_order.MakeMoveTaskOrderAvailable has not yet been implemented")
 		}),
 		WebhookPostWebhookNotifyHandler: webhook.PostWebhookNotifyHandlerFunc(func(params webhook.PostWebhookNotifyParams) middleware.Responder {
-			return middleware.NotImplemented("operation WebhookPostWebhookNotify has not yet been implemented")
+			return middleware.NotImplemented("operation webhook.PostWebhookNotify has not yet been implemented")
 		}),
 		MtoServiceItemUpdateMTOServiceItemStatusHandler: mto_service_item.UpdateMTOServiceItemStatusHandlerFunc(func(params mto_service_item.UpdateMTOServiceItemStatusParams) middleware.Responder {
-			return middleware.NotImplemented("operation MtoServiceItemUpdateMTOServiceItemStatus has not yet been implemented")
+			return middleware.NotImplemented("operation mto_service_item.UpdateMTOServiceItemStatus has not yet been implemented")
 		}),
 		MtoShipmentUpdateMTOShipmentStatusHandler: mto_shipment.UpdateMTOShipmentStatusHandlerFunc(func(params mto_shipment.UpdateMTOShipmentStatusParams) middleware.Responder {
-			return middleware.NotImplemented("operation MtoShipmentUpdateMTOShipmentStatus has not yet been implemented")
+			return middleware.NotImplemented("operation mto_shipment.UpdateMTOShipmentStatus has not yet been implemented")
 		}),
 		PaymentRequestUpdatePaymentRequestStatusHandler: payment_request.UpdatePaymentRequestStatusHandlerFunc(func(params payment_request.UpdatePaymentRequestStatusParams) middleware.Responder {
-			return middleware.NotImplemented("operation PaymentRequestUpdatePaymentRequestStatus has not yet been implemented")
+			return middleware.NotImplemented("operation payment_request.UpdatePaymentRequestStatus has not yet been implemented")
 		}),
 	}
 }
@@ -103,10 +107,12 @@ type MymoveAPI struct {
 	// It has a default implementation in the security package, however you can replace it for your particular usage.
 	BearerAuthenticator func(string, security.ScopedTokenAuthentication) runtime.Authenticator
 
-	// JSONConsumer registers a consumer for a "application/json" mime type
+	// JSONConsumer registers a consumer for the following mime types:
+	//   - application/json
 	JSONConsumer runtime.Consumer
 
-	// JSONProducer registers a producer for a "application/json" mime type
+	// JSONProducer registers a producer for the following mime types:
+	//   - application/json
 	JSONProducer runtime.Producer
 
 	// MoveTaskOrderCreateMoveTaskOrderHandler sets the operation handler for the create move task order operation
@@ -129,10 +135,13 @@ type MymoveAPI struct {
 	MtoShipmentUpdateMTOShipmentStatusHandler mto_shipment.UpdateMTOShipmentStatusHandler
 	// PaymentRequestUpdatePaymentRequestStatusHandler sets the operation handler for the update payment request status operation
 	PaymentRequestUpdatePaymentRequestStatusHandler payment_request.UpdatePaymentRequestStatusHandler
-
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
 	ServeError func(http.ResponseWriter, *http.Request, error)
+
+	// PreServerShutdown is called before the HTTP(S) server is shutdown
+	// This allows for custom functions to get executed before the HTTP(S) server stops accepting traffic
+	PreServerShutdown func()
 
 	// ServerShutdown is called when the HTTP(S) server is shut down and done
 	// handling all active connections and does not accept connections any more
@@ -195,39 +204,30 @@ func (o *MymoveAPI) Validate() error {
 	if o.MoveTaskOrderCreateMoveTaskOrderHandler == nil {
 		unregistered = append(unregistered, "move_task_order.CreateMoveTaskOrderHandler")
 	}
-
 	if o.MoveTaskOrderGetMoveTaskOrderHandler == nil {
 		unregistered = append(unregistered, "move_task_order.GetMoveTaskOrderHandler")
 	}
-
 	if o.PaymentRequestGetPaymentRequestEDIHandler == nil {
 		unregistered = append(unregistered, "payment_request.GetPaymentRequestEDIHandler")
 	}
-
 	if o.PaymentRequestListMTOPaymentRequestsHandler == nil {
 		unregistered = append(unregistered, "payment_request.ListMTOPaymentRequestsHandler")
 	}
-
 	if o.MoveTaskOrderListMTOsHandler == nil {
 		unregistered = append(unregistered, "move_task_order.ListMTOsHandler")
 	}
-
 	if o.MoveTaskOrderMakeMoveTaskOrderAvailableHandler == nil {
 		unregistered = append(unregistered, "move_task_order.MakeMoveTaskOrderAvailableHandler")
 	}
-
 	if o.WebhookPostWebhookNotifyHandler == nil {
 		unregistered = append(unregistered, "webhook.PostWebhookNotifyHandler")
 	}
-
 	if o.MtoServiceItemUpdateMTOServiceItemStatusHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.UpdateMTOServiceItemStatusHandler")
 	}
-
 	if o.MtoShipmentUpdateMTOShipmentStatusHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.UpdateMTOShipmentStatusHandler")
 	}
-
 	if o.PaymentRequestUpdatePaymentRequestStatusHandler == nil {
 		unregistered = append(unregistered, "payment_request.UpdatePaymentRequestStatusHandler")
 	}
@@ -246,28 +246,22 @@ func (o *MymoveAPI) ServeErrorFor(operationID string) func(http.ResponseWriter, 
 
 // AuthenticatorsFor gets the authenticators for the specified security schemes
 func (o *MymoveAPI) AuthenticatorsFor(schemes map[string]spec.SecurityScheme) map[string]runtime.Authenticator {
-
 	return nil
-
 }
 
 // Authorizer returns the registered authorizer
 func (o *MymoveAPI) Authorizer() runtime.Authorizer {
-
 	return nil
-
 }
 
-// ConsumersFor gets the consumers for the specified media types
+// ConsumersFor gets the consumers for the specified media types.
+// MIME type parameters are ignored here.
 func (o *MymoveAPI) ConsumersFor(mediaTypes []string) map[string]runtime.Consumer {
-
-	result := make(map[string]runtime.Consumer)
+	result := make(map[string]runtime.Consumer, len(mediaTypes))
 	for _, mt := range mediaTypes {
 		switch mt {
-
 		case "application/json":
 			result["application/json"] = o.JSONConsumer
-
 		}
 
 		if c, ok := o.customConsumers[mt]; ok {
@@ -275,19 +269,16 @@ func (o *MymoveAPI) ConsumersFor(mediaTypes []string) map[string]runtime.Consume
 		}
 	}
 	return result
-
 }
 
-// ProducersFor gets the producers for the specified media types
+// ProducersFor gets the producers for the specified media types.
+// MIME type parameters are ignored here.
 func (o *MymoveAPI) ProducersFor(mediaTypes []string) map[string]runtime.Producer {
-
-	result := make(map[string]runtime.Producer)
+	result := make(map[string]runtime.Producer, len(mediaTypes))
 	for _, mt := range mediaTypes {
 		switch mt {
-
 		case "application/json":
 			result["application/json"] = o.JSONProducer
-
 		}
 
 		if p, ok := o.customProducers[mt]; ok {
@@ -295,7 +286,6 @@ func (o *MymoveAPI) ProducersFor(mediaTypes []string) map[string]runtime.Produce
 		}
 	}
 	return result
-
 }
 
 // HandlerFor gets a http.Handler for the provided operation method and path
@@ -325,7 +315,6 @@ func (o *MymoveAPI) Context() *middleware.Context {
 
 func (o *MymoveAPI) initHandlerCache() {
 	o.Context() // don't care about the result, just that the initialization happened
-
 	if o.handlers == nil {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
@@ -334,52 +323,42 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/move-task-orders"] = move_task_order.NewCreateMoveTaskOrder(o.context, o.MoveTaskOrderCreateMoveTaskOrderHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}"] = move_task_order.NewGetMoveTaskOrder(o.context, o.MoveTaskOrderGetMoveTaskOrderHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/payment-requests/{paymentRequestID}/edi"] = payment_request.NewGetPaymentRequestEDI(o.context, o.PaymentRequestGetPaymentRequestEDIHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}/payment-requests"] = payment_request.NewListMTOPaymentRequests(o.context, o.PaymentRequestListMTOPaymentRequestsHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/move-task-orders"] = move_task_order.NewListMTOs(o.context, o.MoveTaskOrderListMTOsHandler)
-
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/available-to-prime"] = move_task_order.NewMakeMoveTaskOrderAvailable(o.context, o.MoveTaskOrderMakeMoveTaskOrderAvailableHandler)
-
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/webhook-notify"] = webhook.NewPostWebhookNotify(o.context, o.WebhookPostWebhookNotifyHandler)
-
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/service-items/{mtoServiceItemID}/status"] = mto_service_item.NewUpdateMTOServiceItemStatus(o.context, o.MtoServiceItemUpdateMTOServiceItemStatusHandler)
-
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/mto-shipments/{mtoShipmentID}/status"] = mto_shipment.NewUpdateMTOShipmentStatus(o.context, o.MtoShipmentUpdateMTOShipmentStatusHandler)
-
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/payment-requests/{paymentRequestID}/status"] = payment_request.NewUpdatePaymentRequestStatus(o.context, o.PaymentRequestUpdatePaymentRequestStatusHandler)
-
 }
 
 // Serve creates a http handler to serve the API over HTTP
@@ -408,4 +387,16 @@ func (o *MymoveAPI) RegisterConsumer(mediaType string, consumer runtime.Consumer
 // RegisterProducer allows you to add (or override) a producer for a media type.
 func (o *MymoveAPI) RegisterProducer(mediaType string, producer runtime.Producer) {
 	o.customProducers[mediaType] = producer
+}
+
+// AddMiddlewareFor adds a http middleware to existing handler
+func (o *MymoveAPI) AddMiddlewareFor(method, path string, builder middleware.Builder) {
+	um := strings.ToUpper(method)
+	if path == "/" {
+		path = ""
+	}
+	o.Init()
+	if h, ok := o.handlers[um][path]; ok {
+		o.handlers[method][path] = builder(h)
+	}
 }

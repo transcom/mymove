@@ -8,7 +8,7 @@ package dps_auth
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // GetCookieURLHandlerFunc turns a function with the right signature into a get cookie URL handler

@@ -8,7 +8,7 @@ package ppm
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // SubmitPersonallyProcuredMoveHandlerFunc turns a function with the right signature into a submit personally procured move handler

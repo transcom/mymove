@@ -12,11 +12,10 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	ordersmessages "github.com/transcom/mymove/pkg/gen/ordersmessages"
+	"github.com/transcom/mymove/pkg/gen/ordersmessages"
 )
 
 // NewPostRevisionParams creates a new PostRevisionParams object
@@ -90,7 +89,7 @@ func (o *PostRevisionParams) BindRequest(r *http.Request, route *middleware.Matc
 		var body ordersmessages.Revision
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
-				res = append(res, errors.Required("revision", "body"))
+				res = append(res, errors.Required("revision", "body", ""))
 			} else {
 				res = append(res, errors.NewParseError("revision", "body", "", err))
 			}
@@ -105,7 +104,7 @@ func (o *PostRevisionParams) BindRequest(r *http.Request, route *middleware.Matc
 			}
 		}
 	} else {
-		res = append(res, errors.Required("revision", "body"))
+		res = append(res, errors.Required("revision", "body", ""))
 	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
@@ -116,7 +115,7 @@ func (o *PostRevisionParams) BindRequest(r *http.Request, route *middleware.Matc
 // bindIssuer binds and validates parameter Issuer from query.
 func (o *PostRevisionParams) bindIssuer(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
-		return errors.Required("issuer", "query")
+		return errors.Required("issuer", "query", rawData)
 	}
 	var raw string
 	if len(rawData) > 0 {
@@ -141,7 +140,7 @@ func (o *PostRevisionParams) bindIssuer(rawData []string, hasKey bool, formats s
 // validateIssuer carries on validations for parameter Issuer
 func (o *PostRevisionParams) validateIssuer(formats strfmt.Registry) error {
 
-	if err := validate.Enum("issuer", "query", o.Issuer, []interface{}{"army", "navy", "air-force", "marine-corps", "coast-guard"}); err != nil {
+	if err := validate.EnumCase("issuer", "query", o.Issuer, []interface{}{"army", "navy", "air-force", "marine-corps", "coast-guard"}, true); err != nil {
 		return err
 	}
 
@@ -151,7 +150,7 @@ func (o *PostRevisionParams) validateIssuer(formats strfmt.Registry) error {
 // bindMemberID binds and validates parameter MemberID from query.
 func (o *PostRevisionParams) bindMemberID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
-		return errors.Required("memberId", "query")
+		return errors.Required("memberId", "query", rawData)
 	}
 	var raw string
 	if len(rawData) > 0 {
@@ -186,7 +185,7 @@ func (o *PostRevisionParams) validateMemberID(formats strfmt.Registry) error {
 // bindOrdersNum binds and validates parameter OrdersNum from query.
 func (o *PostRevisionParams) bindOrdersNum(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
-		return errors.Required("ordersNum", "query")
+		return errors.Required("ordersNum", "query", rawData)
 	}
 	var raw string
 	if len(rawData) > 0 {

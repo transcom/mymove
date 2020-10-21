@@ -12,7 +12,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 
-	primemessages "github.com/transcom/mymove/pkg/gen/primemessages"
+	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
 // NewCreatePaymentRequestParams creates a new CreatePaymentRequestParams object

@@ -8,7 +8,7 @@ package move_docs
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // DeleteMoveDocumentHandlerFunc turns a function with the right signature into a delete move document handler

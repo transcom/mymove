@@ -8,13 +8,13 @@ package internalmessages
 import (
 	"strconv"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
 
 // IndexServiceMemberBackupContactsPayload index service member backup contacts payload
+//
 // swagger:model IndexServiceMemberBackupContactsPayload
 type IndexServiceMemberBackupContactsPayload []*ServiceMemberBackupContactPayload
 

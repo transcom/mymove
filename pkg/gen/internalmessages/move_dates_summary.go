@@ -8,14 +8,14 @@ package internalmessages
 import (
 	"strconv"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // MoveDatesSummary move dates summary
+//
 // swagger:model MoveDatesSummary
 type MoveDatesSummary struct {
 

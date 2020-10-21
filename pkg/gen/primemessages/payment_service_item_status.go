@@ -8,13 +8,13 @@ package primemessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
 // PaymentServiceItemStatus Payment Service Item Status
+//
 // swagger:model PaymentServiceItemStatus
 type PaymentServiceItemStatus string
 
@@ -50,7 +50,7 @@ func init() {
 }
 
 func (m PaymentServiceItemStatus) validatePaymentServiceItemStatusEnum(path, location string, value PaymentServiceItemStatus) error {
-	if err := validate.Enum(path, location, value, paymentServiceItemStatusEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, paymentServiceItemStatusEnum, true); err != nil {
 		return err
 	}
 	return nil

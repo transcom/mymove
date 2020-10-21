@@ -8,7 +8,7 @@ package uploads
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // DeleteUploadHandlerFunc turns a function with the right signature into a delete upload handler

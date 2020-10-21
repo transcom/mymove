@@ -9,12 +9,11 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new mto service item API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -26,10 +25,17 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
-/*
-UpdateMTOServiceItemStatus updates m t o service item status
+// ClientService is the interface for Client methods
+type ClientService interface {
+	UpdateMTOServiceItemStatus(params *UpdateMTOServiceItemStatusParams) (*UpdateMTOServiceItemStatusOK, error)
 
-Updates the status of a service item for a move order to APPROVED or REJECTED. <br />
+	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+  UpdateMTOServiceItemStatus updates m t o service item status
+
+  Updates the status of a service item for a move order to APPROVED or REJECTED. <br />
 <br />
 This is a support endpoint and will not be available in production.
 

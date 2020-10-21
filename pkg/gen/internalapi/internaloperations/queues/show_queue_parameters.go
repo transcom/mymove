@@ -10,9 +10,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // NewShowQueueParams creates a new ShowQueueParams object
@@ -80,7 +79,7 @@ func (o *ShowQueueParams) bindQueueType(rawData []string, hasKey bool, formats s
 // validateQueueType carries on validations for parameter QueueType
 func (o *ShowQueueParams) validateQueueType(formats strfmt.Registry) error {
 
-	if err := validate.Enum("queueType", "path", o.QueueType, []interface{}{"new", "ppm_payment_requested", "all", "ppm_approved", "ppm_completed"}); err != nil {
+	if err := validate.EnumCase("queueType", "path", o.QueueType, []interface{}{"new", "ppm_payment_requested", "all", "ppm_approved", "ppm_completed"}, true); err != nil {
 		return err
 	}
 
