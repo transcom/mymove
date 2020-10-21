@@ -15,29 +15,12 @@ import {
 } from 'shared/Entities/modules/mtoShipments';
 import { selectActiveOrLatestOrdersFromEntities } from 'shared/Entities/modules/orders';
 import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
-import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { WizardPage } from 'shared/WizardPage';
 import { AddressShape, SimpleAddressShape } from 'types/address';
 import { HhgShipmentShape, MatchShape, HistoryShape, PageKeyShape, PageListShape } from 'types/customerShapes';
 import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
 
 class MtoShipmentForm extends Component {
-  componentDidMount() {
-    const { showLoggedInUser } = this.props;
-    showLoggedInUser();
-    // TODO - move this to the parent component instead
-
-    // TODO: confirm this block should exist
-    // If refreshing edit page, need to handle mtoShipment populating from a promise
-    /*
-    if (!isCreatePage && mtoShipment.id) {
-      this.setState({
-        initialValues,
-        hasDeliveryAddress: initialValues.hasDeliveryAddress,
-      });
-    } */
-  }
-
   submitMTOShipment = ({ shipmentType, pickup, delivery, customerRemarks }) => {
     const {
       createMTOShipment,
@@ -199,7 +182,6 @@ MtoShipmentForm.propTypes = {
   pageKey: PageKeyShape,
   createMTOShipment: func.isRequired,
   updateMTOShipment: func.isRequired,
-  showLoggedInUser: func.isRequired,
   isCreatePage: bool,
   currentResidence: AddressShape.isRequired,
   newDutyStationAddress: SimpleAddressShape,
@@ -253,7 +235,6 @@ const mapStateToProps = (state, ownProps) => {
 const mapDispatchToProps = {
   createMTOShipment: createMTOShipmentAction,
   updateMTOShipment: updateMTOShipmentAction,
-  showLoggedInUser: showLoggedInUserAction,
 };
 
 export { MtoShipmentForm as MtoShipmentFormComponent };

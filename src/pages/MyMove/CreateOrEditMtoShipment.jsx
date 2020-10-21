@@ -9,6 +9,7 @@ import MtoShipmentForm from 'components/Customer/MtoShipmentForm/MtoShipmentForm
 import { selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
 import { fetchCustomerData as fetchCustomerDataAction } from 'store/onboarding/actions';
 import { HhgShipmentShape, HistoryShape, MatchShape, PageKeyShape, PageListShape } from 'types/customerShapes';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
 class CreateOrEditMtoShipment extends Component {
   componentDidMount() {
@@ -21,17 +22,22 @@ class CreateOrEditMtoShipment extends Component {
     const { match, history, pageList, pageKey, mtoShipment, selectedMoveType } = this.props;
     const isCreatePage = match && match.path ? match.path.includes('start') : false;
 
-    return (
-      <MtoShipmentForm
-        match={match}
-        history={history}
-        pageList={pageList}
-        pageKey={pageKey}
-        mtoShipment={mtoShipment}
-        selectedMoveType={selectedMoveType}
-        isCreatePage={isCreatePage}
-      />
-    );
+    // wait until MTO shipment has loaded to render form
+    if (isCreatePage || mtoShipment?.id) {
+      return (
+        <MtoShipmentForm
+          match={match}
+          history={history}
+          pageList={pageList}
+          pageKey={pageKey}
+          mtoShipment={mtoShipment}
+          selectedMoveType={selectedMoveType}
+          isCreatePage={isCreatePage}
+        />
+      );
+    }
+
+    return <LoadingPlaceholder />;
   }
 }
 

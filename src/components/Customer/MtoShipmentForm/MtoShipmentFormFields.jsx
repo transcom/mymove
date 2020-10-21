@@ -1,7 +1,7 @@
 import React from 'react';
 import { bool, shape, string, func } from 'prop-types';
 import { Field } from 'formik';
-import { Button, /* Fieldset, */ Label, Radio } from '@trussworks/react-uswds';
+import { Button, /* Fieldset, */ Label, Radio, Checkbox } from '@trussworks/react-uswds';
 
 import styles from './MtoShipmentForm.module.scss';
 
@@ -9,7 +9,6 @@ import { DatePickerInput, TextInput } from 'components/form/fields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { Form } from 'components/form/Form';
-import Checkbox from 'shared/Checkbox';
 import Divider from 'shared/Divider';
 import Fieldset from 'shared/Fieldset';
 import Hint from 'shared/Hint';
@@ -44,7 +43,6 @@ const MtoShipmentFormFields = ({
 
   return (
     <>
-      <p>{JSON.stringify(values)}</p>
       <div className={`margin-top-2 ${styles['hhg-label']}`}>{`${displayOptions.displayName} ${shipmentNumber}`}</div>
       <h1 className="margin-top-1">
         {isHHG && hhgFormHeader}
@@ -84,6 +82,7 @@ const MtoShipmentFormFields = ({
                     label="Use my current residence address"
                     name="useCurrentResidence"
                     onChange={onUseCurrentResidenceChange}
+                    id="useCurrentResidenceCheckbox"
                   />
                 </div>
               )}
