@@ -124,12 +124,12 @@ func MTOShipmentModel(mtoShipment *internalmessages.MTOShipment) *models.MTOShip
 		ShipmentType: models.MTOShipmentType(mtoShipment.ShipmentType),
 	}
 
-	requestedPickupDate := time.Time(mtoShipment.RequestedPickupDate)
+	requestedPickupDate := time.Time(*mtoShipment.RequestedPickupDate)
 	if !requestedPickupDate.IsZero() {
 		model.RequestedPickupDate = &requestedPickupDate
 	}
 
-	requestedDeliveryDate := time.Time(mtoShipment.RequestedDeliveryDate)
+	requestedDeliveryDate := time.Time(*mtoShipment.RequestedDeliveryDate)
 	if !requestedDeliveryDate.IsZero() {
 		model.RequestedDeliveryDate = &requestedDeliveryDate
 	}

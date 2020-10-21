@@ -28,6 +28,8 @@ import ProfileTable from 'components/Customer/Review/ProfileTable';
 import OrdersTable from 'components/Customer/Review/OrdersTable';
 import PPMShipmentCard from 'components/Customer/Review/ShipmentCard/PPMShipmentCard';
 import HHGShipmentCard from 'components/Customer/Review/ShipmentCard/HHGShipmentCard';
+import NTSShipmentCard from 'components/Customer/Review/ShipmentCard/NTSShipmentCard';
+import NTSRShipmentCard from 'components/Customer/Review/ShipmentCard/NTSRShipmentCard';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { selectMTOShipmentsByMoveId } from 'shared/Entities/modules/mtoShipments';
 
@@ -91,12 +93,39 @@ export class Summary extends Component {
           />
         );
       }
-
       if (shipment.agents) {
         receivingAgent = shipment.agents.find((agent) => agent.agentType === 'RECEIVING_AGENT');
         releasingAgent = shipment.agents.find((agent) => agent.agentType === 'RELEASING_AGENT');
       }
-
+      if (shipment.shipmentType === SHIPMENT_OPTIONS.NTS) {
+        return (
+          <NTSShipmentCard
+            key={shipment.id}
+            moveId={moveId}
+            onEditClick={this.handleEditClick}
+            pickupLocation={shipment.pickupAddress}
+            releasingAgent={releasingAgent}
+            remarks={shipment.customerRemarks}
+            requestedPickupDate={shipment.requestedPickupDate}
+            shipmentId={shipment.id}
+            shipmentType={shipment.shipmentType}
+          />
+        );
+      }
+      if (shipment.shipmentType === SHIPMENT_OPTIONS.NTSR) {
+        return (
+          <NTSRShipmentCard
+            key={shipment.id}
+            destinationZIP={currentOrders.new_duty_station.address.postal_code}
+            destinationLocation={shipment?.destinationAddress}
+            receivingAgent={receivingAgent}
+            remarks={shipment.customerRemarks}
+            requestedDeliveryDate={shipment.requestedDeliveryDate}
+            shipmentId={shipment.id}
+            shipmentType={shipment.shipmentType}
+          />
+        );
+      }
       hhgShipmentNumber += 1;
       return (
         <HHGShipmentCard
@@ -113,6 +142,7 @@ export class Summary extends Component {
           requestedPickupDate={shipment.requestedPickupDate}
           shipmentId={shipment.id}
           shipmentNumber={hhgShipmentNumber}
+          shipmentType={shipment.shipmentType}
         />
       );
     });
