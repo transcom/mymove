@@ -115,6 +115,10 @@
       @include u-border-bottom('1px');
       @include u-border-bottom('base-lighter');
     }
+
+    .noborder {
+      @include u-border(0);
+    }
   }
   .remarksRow {
     .remarksCell {
