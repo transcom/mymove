@@ -61,7 +61,6 @@ export class SelectMoveType extends Component {
       isNtsSelectable,
       isNtsrSelectable,
       shipmentNumber,
-      move,
     } = this.props;
     const { moveType, showStorageInfoModal } = this.state;
     const ppmCardText =
@@ -158,7 +157,7 @@ export class SelectMoveType extends Component {
               {isPpmSelectable ? ppmEnabledCard : ppmDisabledCard}
               {isHhgSelectable ? hhgEnabledCard : hhgDisabledCard}
               <h3 data-testid="long-term-storage-heading">Long-term storage</h3>
-              {(!isNtsSelectable && !isNtsrSelectable) || move.status !== MOVE_STATUSES.DRAFT ? (
+              {!isNtsSelectable && !isNtsrSelectable ? (
                 <p>{noLongTermStorageCardsText}</p>
               ) : (
                 <>
@@ -222,7 +221,6 @@ SelectMoveType.propTypes = {
 function mapStateToProps(state) {
   const move = selectActiveOrLatestMove(state);
   const hasPpm = !!move.personally_procured_moves?.length;
-  // TODO: Make dynamic when we have ability to submit nts/ntsr
   const mtoShipments = selectMTOShipmentsByMoveId(state, move.id);
   const hasNTS = mtoShipments.some((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.NTS);
   const hasNTSR = mtoShipments.some((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.NTSR);
