@@ -190,6 +190,8 @@ describe('SelectMoveType', () => {
       move: {
         status: MOVE_STATUSES.SUBMITTED,
       },
+      isNtsSelectable: false,
+      isNtsrSelectable: false,
     };
     const wrapper = getWrapper(props);
     it('should render the correct text', () => {
