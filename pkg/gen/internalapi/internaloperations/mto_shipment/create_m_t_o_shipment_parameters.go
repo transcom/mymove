@@ -12,7 +12,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 
-	internalmessages "github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // NewCreateMTOShipmentParams creates a new CreateMTOShipmentParams object

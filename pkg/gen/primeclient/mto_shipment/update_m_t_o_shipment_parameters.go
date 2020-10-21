@@ -13,10 +13,9 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
+	"github.com/go-openapi/strfmt"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	primemessages "github.com/transcom/mymove/pkg/gen/primemessages"
+	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
 // NewUpdateMTOShipmentParams creates a new UpdateMTOShipmentParams object

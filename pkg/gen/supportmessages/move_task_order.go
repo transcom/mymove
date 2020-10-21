@@ -11,15 +11,15 @@ import (
 	"io"
 	"strconv"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // MoveTaskOrder move task order
+//
 // swagger:model MoveTaskOrder
 type MoveTaskOrder struct {
 
@@ -289,8 +289,7 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 		Status: m.Status,
 
 		UpdatedAt: m.UpdatedAt,
-	},
-	)
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -299,8 +298,7 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 	}{
 
 		MtoServiceItems: m.mtoServiceItemsField,
-	},
-	)
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -524,7 +522,7 @@ const (
 
 // prop value enum
 func (m *MoveTaskOrder) validatePpmTypeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, moveTaskOrderTypePpmTypePropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, moveTaskOrderTypePpmTypePropEnum, true); err != nil {
 		return err
 	}
 	return nil

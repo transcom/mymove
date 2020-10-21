@@ -8,13 +8,13 @@ package internalmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
 // MoveDocumentType Document type
+//
 // swagger:model MoveDocumentType
 type MoveDocumentType string
 
@@ -53,7 +53,7 @@ func init() {
 }
 
 func (m MoveDocumentType) validateMoveDocumentTypeEnum(path, location string, value MoveDocumentType) error {
-	if err := validate.Enum(path, location, value, moveDocumentTypeEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, moveDocumentTypeEnum, true); err != nil {
 		return err
 	}
 	return nil

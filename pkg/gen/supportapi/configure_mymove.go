@@ -6,9 +6,9 @@ import (
 	"crypto/tls"
 	"net/http"
 
-	errors "github.com/go-openapi/errors"
-	runtime "github.com/go-openapi/runtime"
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/errors"
+	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/runtime/middleware"
 
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations"
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/move_task_order"
@@ -88,6 +88,8 @@ func configureAPI(api *supportoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation payment_request.UpdatePaymentRequestStatus has not yet been implemented")
 		})
 	}
+
+	api.PreServerShutdown = func() {}
 
 	api.ServerShutdown = func() {}
 

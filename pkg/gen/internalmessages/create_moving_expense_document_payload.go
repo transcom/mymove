@@ -9,14 +9,14 @@ import (
 	"encoding/json"
 	"strconv"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // CreateMovingExpenseDocumentPayload create moving expense document payload
+//
 // swagger:model CreateMovingExpenseDocumentPayload
 type CreateMovingExpenseDocumentPayload struct {
 
@@ -159,7 +159,7 @@ const (
 
 // prop value enum
 func (m *CreateMovingExpenseDocumentPayload) validatePaymentMethodEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, createMovingExpenseDocumentPayloadTypePaymentMethodPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, createMovingExpenseDocumentPayloadTypePaymentMethodPropEnum, true); err != nil {
 		return err
 	}
 	return nil

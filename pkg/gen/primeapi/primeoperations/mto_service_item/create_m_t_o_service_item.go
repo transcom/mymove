@@ -8,7 +8,7 @@ package mto_service_item
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // CreateMTOServiceItemHandlerFunc turns a function with the right signature into a create m t o service item handler

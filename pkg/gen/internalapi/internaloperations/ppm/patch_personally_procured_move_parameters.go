@@ -12,11 +12,10 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	internalmessages "github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // NewPatchPersonallyProcuredMoveParams creates a new PatchPersonallyProcuredMoveParams object
@@ -71,7 +70,7 @@ func (o *PatchPersonallyProcuredMoveParams) BindRequest(r *http.Request, route *
 		var body internalmessages.PatchPersonallyProcuredMovePayload
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
-				res = append(res, errors.Required("patchPersonallyProcuredMovePayload", "body"))
+				res = append(res, errors.Required("patchPersonallyProcuredMovePayload", "body", ""))
 			} else {
 				res = append(res, errors.NewParseError("patchPersonallyProcuredMovePayload", "body", "", err))
 			}
@@ -86,7 +85,7 @@ func (o *PatchPersonallyProcuredMoveParams) BindRequest(r *http.Request, route *
 			}
 		}
 	} else {
-		res = append(res, errors.Required("patchPersonallyProcuredMovePayload", "body"))
+		res = append(res, errors.Required("patchPersonallyProcuredMovePayload", "body", ""))
 	}
 	rPersonallyProcuredMoveID, rhkPersonallyProcuredMoveID, _ := route.Params.GetOK("personallyProcuredMoveId")
 	if err := o.bindPersonallyProcuredMoveID(rPersonallyProcuredMoveID, rhkPersonallyProcuredMoveID, route.Formats); err != nil {

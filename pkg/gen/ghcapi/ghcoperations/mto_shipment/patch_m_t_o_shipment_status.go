@@ -8,7 +8,7 @@ package mto_shipment
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // PatchMTOShipmentStatusHandlerFunc turns a function with the right signature into a patch m t o shipment status handler

@@ -9,12 +9,11 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new mto shipment API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -26,10 +25,17 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
-/*
-UpdateMTOShipmentStatus updates m t o shipment status
+// ClientService is the interface for Client methods
+type ClientService interface {
+	UpdateMTOShipmentStatus(params *UpdateMTOShipmentStatusParams) (*UpdateMTOShipmentStatusOK, error)
 
-Updates a shipment's status to APPROVED or REJECTED for the purpose of testing the Prime API. If APPROVED, `rejectionReason` should be blank and any value passed through the body will be ignored. If REJECTED, a value in `rejectionReason` is required. <br /> <br /> This is a support endpoint and will not be available in production.
+	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+  UpdateMTOShipmentStatus updates m t o shipment status
+
+  Updates a shipment's status to APPROVED or REJECTED for the purpose of testing the Prime API. If APPROVED, `rejectionReason` should be blank and any value passed through the body will be ignored. If REJECTED, a value in `rejectionReason` is required. <br /> <br /> This is a support endpoint and will not be available in production.
 
 */
 func (a *Client) UpdateMTOShipmentStatus(params *UpdateMTOShipmentStatusParams) (*UpdateMTOShipmentStatusOK, error) {

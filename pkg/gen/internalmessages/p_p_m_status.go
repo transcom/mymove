@@ -8,13 +8,13 @@ package internalmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
 // PPMStatus PPM status
+//
 // swagger:model PPMStatus
 type PPMStatus string
 
@@ -53,7 +53,7 @@ func init() {
 }
 
 func (m PPMStatus) validatePPMStatusEnum(path, location string, value PPMStatus) error {
-	if err := validate.Enum(path, location, value, pPMStatusEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, pPMStatusEnum, true); err != nil {
 		return err
 	}
 	return nil

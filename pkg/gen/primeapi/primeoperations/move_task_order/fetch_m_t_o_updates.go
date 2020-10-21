@@ -8,7 +8,7 @@ package move_task_order
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // FetchMTOUpdatesHandlerFunc turns a function with the right signature into a fetch m t o updates handler

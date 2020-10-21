@@ -13,7 +13,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 
-	internalmessages "github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // NewCreateDocumentParams creates a new CreateDocumentParams object
@@ -53,7 +53,7 @@ func (o *CreateDocumentParams) BindRequest(r *http.Request, route *middleware.Ma
 		var body internalmessages.PostDocumentPayload
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
-				res = append(res, errors.Required("documentPayload", "body"))
+				res = append(res, errors.Required("documentPayload", "body", ""))
 			} else {
 				res = append(res, errors.NewParseError("documentPayload", "body", "", err))
 			}
@@ -68,7 +68,7 @@ func (o *CreateDocumentParams) BindRequest(r *http.Request, route *middleware.Ma
 			}
 		}
 	} else {
-		res = append(res, errors.Required("documentPayload", "body"))
+		res = append(res, errors.Required("documentPayload", "body", ""))
 	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)

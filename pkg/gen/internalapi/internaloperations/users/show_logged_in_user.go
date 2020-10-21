@@ -8,7 +8,7 @@ package users
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // ShowLoggedInUserHandlerFunc turns a function with the right signature into a show logged in user handler

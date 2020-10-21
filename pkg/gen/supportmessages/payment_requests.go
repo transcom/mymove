@@ -8,13 +8,13 @@ package supportmessages
 import (
 	"strconv"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
 
 // PaymentRequests payment requests
+//
 // swagger:model PaymentRequests
 type PaymentRequests []*PaymentRequest
 

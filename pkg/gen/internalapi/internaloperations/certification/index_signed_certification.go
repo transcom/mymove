@@ -8,7 +8,7 @@ package certification
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // IndexSignedCertificationHandlerFunc turns a function with the right signature into a index signed certification handler
