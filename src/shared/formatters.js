@@ -6,6 +6,7 @@ import path from 'path';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { DEPARTMENT_INDICATOR_OPTIONS, DEPARTMENT_INDICATOR_LABELS } from 'constants/departmentIndicators';
 import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orders';
+import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
 
 /**
  * Formats number into a dollar string. Eg. $1,234.12
@@ -311,10 +312,25 @@ export const ordersTypeDetailReadable = (ordersTypeDetail) => {
   return ORDERS_TYPE_DETAILS_OPTIONS[`${ordersTypeDetail}`] || ordersTypeDetail;
 };
 
+export const paymentRequestStatusReadable = (paymentRequestStatus) => {
+  return PAYMENT_REQUEST_STATUS_LABELS[`${paymentRequestStatus}`] || paymentRequestStatus;
+};
+
 export const dropdownInputOptions = (options) => {
   return Object.entries(options).map(([key, value]) => ({ key: key, value: value }));
 };
 
 export const filenameFromPath = (filePath) => {
   return path.basename(filePath);
+};
+
+// Formats the numeric age input to a human readable string. Eg. 1.5 = 1 day, 2.5 = 2 days
+export const formatAgeToDays = (age) => {
+  if (age < 1) {
+    return 'Less than 1 day';
+  }
+  if (age > 1 && age < 2) {
+    return '1 day';
+  }
+  return `${Math.floor(age)} days`;
 };
