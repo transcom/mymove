@@ -9,12 +9,10 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { history, store } from 'shared/store';
 
 const defaultProps = {
-  wizardPage: {
-    pageList: ['page1', 'anotherPage/:foo/:bar'],
-    pageKey: 'page1',
-    match: { isExact: false, path: '', url: '', params: { moveId: 'move123' } },
-    history: { push: () => {}, goBack: () => {} },
-  },
+  pageList: ['page1', 'anotherPage/:foo/:bar'],
+  pageKey: 'page1',
+  match: { isExact: false, path: '', url: '', params: { moveId: 'move123' } },
+  history: { push: () => {}, goBack: () => {} },
   showLoggedInUser: () => {},
   newDutyStationAddress: {
     city: 'Fort Benning',
