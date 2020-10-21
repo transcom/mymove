@@ -16,7 +16,13 @@ import './index.css';
 import { createSignedCertification } from 'shared/Entities/modules/signed_certifications';
 import { selectActivePPMForMove, loadPPMs } from 'shared/Entities/modules/ppms';
 import { submitMoveForApproval } from 'shared/Entities/modules/moves';
-import { ppmStandardLiability, storageLiability, ppmAdvance, additionalInformation } from './legaleseText';
+import {
+  completeCertificationText,
+  ppmStandardLiability,
+  storageLiability,
+  ppmAdvance,
+  additionalInformation,
+} from './legaleseText';
 import { showSubmitSuccessBanner, removeSubmitSuccessBanner } from './ducks';
 
 const formName = 'signature-form';
@@ -85,6 +91,15 @@ export class SignedCertification extends Component {
       signature: get(latestSignedCertification, 'signature', null),
     };
     const certificationText = this.getCertificationText(currentPpm.has_sit, currentPpm.has_requested_advance);
+    const instructionsText = (
+      <>
+        <p>
+          Please read this agreement, type your name in the <strong>Signature</strong> field to sign it, then tap the{' '}
+          <strong>Complete</strong> button.
+        </p>
+        <p>This agreement covers the shipment of your personal property.</p>
+      </>
+    );
     return (
       <div>
         <div className="legalese">
@@ -101,21 +116,19 @@ export class SignedCertification extends Component {
                 <div>
                   <h1>Now for the official part...</h1>
                   <span className="box_top">
-                    <p className="instructions">
-                      Before officially booking your move, please carefully read and then sign the following.
-                    </p>
+                    <p className="instructions">{instructionsText}</p>
                     <a className="usa-link pdf" onClick={this.print}>
                       Print
                     </a>
                   </span>
 
-                  <CertificationText certificationText={certificationText} />
+                  <CertificationText certificationText={completeCertificationText} />
 
                   <div className="signature-box">
                     <h3>SIGNATURE</h3>
                     <p>
-                      In consideration of said household goods or mobile homes being shipped at Government expense,{' '}
-                      <strong>I hereby agree to the certifications stated above.</strong>
+                      In consideration of said household goods or mobile homes being shipped at Government expense, I
+                      hereby agree to the certifications stated above.
                     </p>
                     <div className="signature-fields">
                       <SwaggerField
