@@ -18,19 +18,21 @@ linters:
     - structcheck
     - typecheck
     - varcheck
-  disable:
     - errcheck #requires patching code
     - staticcheck # 30+files need to be patched
-    - gosimple #deprecated https://github.com/golangci/golangci-lint/issues/357
-    - unused #deprecated https://github.com/dominikh/go-tools/tree/master/cmd/unused
+    - gosimple
+    - unused
+  disable:
+    # - gosimple #deprecated https://github.com/golangci/golangci-lint/issues/357
+    # - unused #deprecated https://github.com/dominikh/go-tools/tree/master/cmd/unused
   fast: false
 
 issues:
   exclude-rules:
     # skip analyzing dutystationsloader until repeated tags from embedded types are fixed https://github.com/golang/go/issues/30846
-    - path: internal/pkg/dutystationsloader/duty_stations_loader.go
-      linters:
-        - govet
+    # - path: internal/pkg/dutystationsloader/duty_stations_loader.go
+    # linters:
+    # - govet
 
   # Disable defaults for the exclude patterns and instead list them all out
   # TODO: Slowly remove these where they make sense and fix code
@@ -38,7 +40,7 @@ issues:
   exclude:
     # gosec: Duplicated errcheck checks
     # TODO: Remove this when errcheck is enabled above - duplication is ok
-    - G104
+    # - G104
   fix: true
 
 run:
@@ -48,8 +50,8 @@ run:
   issues-exit-code: 1
   tests: true
   skip-dirs:
-    - pkg/assets
-    - pkg/gen
-    - mocks
+    # - pkg/assets
+    # - pkg/gen
+    # - mocks
   skip-dirs-use-default: true
   modules-download-mode: readonly
