@@ -8,7 +8,7 @@ import { hasShortHaulError } from 'shared/incentive';
 import { no_op as noOp } from 'shared/utils';
 import scrollToTop from 'shared/scrollToTop';
 import ConnectedWizardPage from 'shared/WizardPage/index';
-import ConnectedSummary from 'components/Customer/Review/Summary';
+import ConnectedSummary from 'components/Customer/Review/Summary/index';
 import 'scenes/Review/Review.css';
 
 class Review extends Component {

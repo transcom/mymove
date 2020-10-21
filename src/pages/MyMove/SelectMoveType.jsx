@@ -7,6 +7,7 @@ import { get } from 'lodash';
 
 import styles from './SelectMoveType.module.scss';
 
+import wizardStyles from 'pages/MyMove/index.module.scss';
 import { updateMove as updateMoveAction } from 'scenes/Moves/ducks';
 import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
