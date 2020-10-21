@@ -6,57 +6,52 @@ import { string, func } from 'prop-types';
 import '../../ghc_index.scss';
 
 import MtoShipmentForm from 'components/Customer/MtoShipmentForm/MtoShipmentForm';
-import EditShipment from 'components/Customer/EditShipment';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
-import {
-  loadMTOShipments as loadMTOShipmentsAction,
-  selectMTOShipmentForMTO,
-} from 'shared/Entities/modules/mtoShipments';
-import { HhgShipmentShape, WizardPageShape } from 'types/customerShapes';
+import { selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
+import { fetchCustomerData as fetchCustomerDataAction } from 'store/onboarding/actions';
+import { HhgShipmentShape, HistoryShape, MatchShape, PageKeyShape, PageListShape } from 'types/customerShapes';
 
 class CreateOrEditMtoShipment extends Component {
   componentDidMount() {
-    const { wizardPage, loadMTOShipments } = this.props;
-    loadMTOShipments(wizardPage.match.params.moveId);
+    const { fetchCustomerData } = this.props;
+    fetchCustomerData();
   }
 
   // TODO: (in trailing PR) refactor edit component out of existence :)
   render() {
-    const { wizardPage, mtoShipment, selectedMoveType, isCreatePage } = this.props;
-    const { match, history } = wizardPage;
-    const isHHGFormPage = match.path === '/moves/:moveId/hhg-start';
+    const { match, history, pageList, pageKey, mtoShipment, selectedMoveType } = this.props;
+    const isCreatePage = match && match.path ? match.path.includes('start') : false;
 
     return (
-      <div>
-        {selectedMoveType === SHIPMENT_OPTIONS.HHG && !isHHGFormPage ? (
-          <EditShipment mtoShipment={mtoShipment} match={match} history={history} />
-        ) : (
-          <MtoShipmentForm
-            wizardPage={wizardPage}
-            mtoShipment={mtoShipment}
-            selectedMoveType={selectedMoveType}
-            isCreatePage={isCreatePage}
-          />
-        )}
-      </div>
+      <MtoShipmentForm
+        match={match}
+        history={history}
+        pageList={pageList}
+        pageKey={pageKey}
+        mtoShipment={mtoShipment}
+        selectedMoveType={selectedMoveType}
+        isCreatePage={isCreatePage}
+      />
     );
   }
 }
 
 function mapStateToProps(state, ownProps) {
   const props = {
-    mtoShipment: selectMTOShipmentForMTO(state, ownProps.wizardPage.match.params.moveId),
+    mtoShipment: selectMTOShipmentForMTO(state, ownProps.match?.params.moveId),
   };
   return props;
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ loadMTOShipments: loadMTOShipmentsAction }, dispatch);
+  return bindActionCreators({ fetchCustomerData: fetchCustomerDataAction }, dispatch);
 }
 
 CreateOrEditMtoShipment.propTypes = {
-  wizardPage: WizardPageShape,
-  loadMTOShipments: func.isRequired,
+  match: MatchShape,
+  history: HistoryShape,
+  pageList: PageListShape,
+  pageKey: PageKeyShape,
+  fetchCustomerData: func.isRequired,
   selectedMoveType: string.isRequired,
   // technically this should be a [Generic]MtoShipmentShape
   // using hhg because it has all the props
@@ -64,11 +59,10 @@ CreateOrEditMtoShipment.propTypes = {
 };
 
 CreateOrEditMtoShipment.defaultProps = {
-  wizardPage: {
-    pageList: [],
-    pageKey: '',
-    match: { isExact: false, params: { moveID: '' } },
-  },
+  pageList: [],
+  pageKey: '',
+  match: { isExact: false, params: { moveID: '' } },
+  history: { goBack: () => {}, push: () => {} },
   mtoShipment: {
     customerRemarks: '',
     requestedPickupDate: '',

@@ -9,12 +9,10 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { history, store } from 'shared/store';
 
 const defaultProps = {
-  wizardPage: {
-    pageList: ['page1', 'anotherPage/:foo/:bar'],
-    pageKey: 'page1',
-    match: { isExact: false, path: '', url: '', params: { moveId: 'move123' } },
-    history: { push: () => {}, goBack: () => {} },
-  },
+  pageList: ['page1', 'anotherPage/:foo/:bar'],
+  pageKey: 'page1',
+  match: { isExact: false, path: '', url: '', params: { moveId: 'move123' } },
+  history: { push: () => {}, goBack: () => {} },
   showLoggedInUser: () => {},
   newDutyStationAddress: {
     city: 'Fort Benning',
@@ -31,6 +29,7 @@ const defaultProps = {
   mtoShipment: {
     destinationAddress: undefined,
   },
+  isCreatePage: true,
 };
 
 export default {
@@ -47,9 +46,13 @@ function renderStory(props) {
   );
 }
 
-export const CreateHHGShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.HHG });
-export const CreateNTSReleaseShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.NTSR });
-export const CreateNTSShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.NTS });
-export const EditHHGShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.HHG, isEditPage: true });
-export const EditNTSReleaseShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.NTSR, isEditPage: true });
-export const EditNTSShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.NTS, isEditPage: true });
+// create shipment stories (form should not prefill customer data)
+export const HHGShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.HHG });
+export const NTSReleaseShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.NTSR });
+export const NTSShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.NTS });
+
+// edit shipment stories (form should prefill)
+export const EditHHGShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.HHG, isCreatePage: false });
+export const EditNTSReleaseShipment = () =>
+  renderStory({ selectedMoveType: SHIPMENT_OPTIONS.NTSR, isCreatePage: false });
+export const EditNTSShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.NTS, isCreatePage: false });

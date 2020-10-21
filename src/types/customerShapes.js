@@ -55,26 +55,38 @@ export const NtsrShipmentShape = shape({
   destinationAddress: AddressShape,
 });
 
+export const MatchShape = shape({
+  isExact: bool.isRequired,
+  params: shape({
+    moveId: string.isRequired,
+  }),
+  path: string.isRequired,
+  url: string.isRequired,
+});
+
+export const HistoryShape = shape({
+  goBack: func.isRequired,
+  push: func.isRequired,
+});
+
+export const PageListShape = arrayOf(string);
+
+export const PageKeyShape = string;
+
 export const WizardPageShape = shape({
-  pageList: arrayOf(string).isRequired,
-  pageKey: string.isRequired,
-  match: shape({
-    isExact: bool.isRequired,
-    params: shape({
-      moveId: string.isRequired,
-    }),
-    path: string.isRequired,
-    url: string.isRequired,
-  }).isRequired,
-  history: shape({
-    goBack: func.isRequired,
-    push: func.isRequired,
-  }).isRequired,
+  pageList: PageListShape.isRequired,
+  pageKey: PageKeyShape.isRequired,
+  match: MatchShape.isRequired,
+  history: HistoryShape.isRequired,
 });
 
 export default {
-  MtoShipmentFormValuesShape,
+  MatchShape,
+  HistoryShape,
+  PageListShape,
+  PageKeyShape,
   WizardPageShape,
+  MtoShipmentFormValuesShape,
   MtoDisplayOptionsShape,
   MtoAgentShape,
   HhgShipmentShape,

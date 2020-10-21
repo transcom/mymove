@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import React, { Component } from 'react';
-import { func, arrayOf, bool, shape, string, node, oneOfType } from 'prop-types';
+import { arrayOf, bool, shape, string, node, oneOfType } from 'prop-types';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import { get, isEmpty } from 'lodash';
@@ -24,19 +24,11 @@ import Step from 'components/Customer/Home/Step';
 import DocsUploaded from 'components/Customer/Home/DocsUploaded';
 import ShipmentList from 'components/Customer/Home/ShipmentList';
 import Contact from 'components/Customer/Home/Contact';
-import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
-import {
-  createServiceMember as createServiceMemberAction,
-  isProfileComplete as isProfileCompleteCheck,
-} from 'scenes/ServiceMembers/ducks';
+import { isProfileComplete as isProfileCompleteCheck } from 'scenes/ServiceMembers/ducks';
 import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
 import { selectUploadedOrders, selectActiveOrLatestOrdersFromEntities } from 'shared/Entities/modules/orders';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
-import {
-  selectMTOShipmentsByMoveId,
-  loadMTOShipments as loadMTOShipmentsAction,
-  selectMTOShipmentForMTO,
-} from 'shared/Entities/modules/mtoShipments';
+import { selectMTOShipmentsByMoveId, selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import {
@@ -53,35 +45,10 @@ Description.propTypes = {
 };
 
 class Home extends Component {
-  componentDidMount() {
-    const { showLoggedInUser, move, loadMTOShipments } = this.props;
-    showLoggedInUser();
-    if (move.id) {
-      loadMTOShipments(move.id);
-    }
-  }
-
   componentDidUpdate(prevProps) {
-    const {
-      showLoggedInUser,
-      serviceMember,
-      createdServiceMemberIsLoading,
-      createdServiceMemberError,
-      loggedInUserSuccess,
-      createServiceMember,
-      isProfileComplete,
-      move,
-      loadMTOShipments,
-    } = this.props;
+    const { serviceMember, loggedInUserSuccess, isProfileComplete } = this.props;
     if (!prevProps.loggedInUserSuccess && loggedInUserSuccess) {
-      if (!createdServiceMemberIsLoading && isEmpty(serviceMember) && !createdServiceMemberError) {
-        // Once the logged in user loads, if the service member doesn't
-        // exist we need to dispatch creating one, once.
-        createServiceMember({}).then(() => {
-          // re-fetch user data to populate serviceMember
-          showLoggedInUser();
-        });
-      } else if (!isEmpty(serviceMember) && !isProfileComplete) {
+      if (!isEmpty(serviceMember) && !isProfileComplete) {
         // If the service member exists, but is not complete, redirect to next incomplete page.
         this.resumeMove();
       }
@@ -94,10 +61,6 @@ class Home extends Component {
     if (!isEmpty(prevProps.serviceMember) && prevProps.serviceMember !== serviceMember && !isProfileComplete) {
       // if service member existed but was updated, redirect to next incomplete page.
       this.resumeMove();
-    }
-
-    if (prevProps.move && prevProps.move.id !== move.id) {
-      loadMTOShipments(move.id);
     }
   }
 
@@ -403,8 +366,6 @@ Home.propTypes = {
     first_name: string,
     last_name: string,
   }).isRequired,
-  showLoggedInUser: func.isRequired,
-  loadMTOShipments: func.isRequired,
   mtoShipments: arrayOf(
     shape({
       id: string,
@@ -427,11 +388,9 @@ Home.propTypes = {
   loggedInUserSuccess: bool.isRequired,
   loggedInUserError: bool.isRequired,
   isProfileComplete: bool.isRequired,
-  createdServiceMemberIsLoading: bool,
   createdServiceMemberError: string,
   moveSubmitSuccess: bool.isRequired,
   location: shape({}).isRequired,
-  createServiceMember: func.isRequired,
   selectedMoveType: string,
   lastMoveIsCanceled: bool,
   backupContacts: arrayOf(oneOfType([string, shape({})])),
@@ -445,7 +404,6 @@ Home.propTypes = {
 };
 
 Home.defaultProps = {
-  createdServiceMemberIsLoading: false,
   createdServiceMemberError: '',
   selectedMoveType: '',
   lastMoveIsCanceled: false,
@@ -469,8 +427,6 @@ const mapStateToProps = (state) => {
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
     loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
     loggedInUserError: selectGetCurrentUserIsError(state),
-    createdServiceMemberIsLoading: state.serviceMember.isLoading,
-    createdServiceMemberSuccess: state.serviceMember.hasSubmitSuccess,
     createdServiceMemberError: state.serviceMember.error,
     isProfileComplete: isProfileCompleteCheck(state),
     moveSubmitSuccess: state.signedCertification.moveSubmitSuccess,
@@ -493,10 +449,4 @@ const mergeProps = (stateProps, dispatchProps, ownProps) => ({
   ...ownProps,
 });
 
-const mapDispatchToProps = {
-  showLoggedInUser: showLoggedInUserAction,
-  loadMTOShipments: loadMTOShipmentsAction,
-  createServiceMember: createServiceMemberAction,
-};
-
-export default withContext(connect(mapStateToProps, mapDispatchToProps, mergeProps)(Home));
+export default withContext(connect(mapStateToProps, mergeProps)(Home));

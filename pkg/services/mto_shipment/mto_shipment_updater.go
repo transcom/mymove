@@ -524,6 +524,31 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 	}
 
 	if shipment.Status == models.MTOShipmentStatusApproved {
+		// If we're approving a shipment, we also need the move the shipment is in to change statuses
+		moveToUpdate := shipment.MoveTaskOrder
+		if moveToUpdate.Status == models.MoveStatusSUBMITTED {
+			err = moveToUpdate.Approve()
+			if err != nil {
+				return &models.MTOShipment{}, err
+			}
+		}
+
+		verrs, err := o.builder.UpdateOne(&moveToUpdate, nil)
+
+		if verrs != nil && verrs.HasAny() {
+			invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue with validating the updates")
+			return &models.MTOShipment{}, invalidInputError
+		}
+
+		if err != nil {
+			switch err.(type) {
+			case query.StaleIdentifierError:
+				return nil, services.NewPreconditionFailedError(shipment.ID, err)
+			default:
+				return nil, err
+			}
+		}
+
 		// We will detect the type of shipment we're working with and then call a helper with the correct
 		// default service items that we want created as a side effect.
 		// More info in MB-1140: https://dp3.atlassian.net/browse/MB-1140

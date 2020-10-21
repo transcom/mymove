@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -17,12 +18,14 @@ import {
   loadMTOShipments as loadMTOShipmentsAction,
 } from 'shared/Entities/modules/mtoShipments';
 import { MoveTaskOrderShape } from 'types/moveOrder';
+import ConnectedStorageInfoModal from 'components/Customer/modals/StorageInfoModal/StorageInfoModal';
 
 export class SelectMoveType extends Component {
   constructor(props) {
     super(props);
     this.state = {
       moveType: props.selectedMoveType,
+      showStorageInfoModal: false,
     };
   }
 
@@ -33,6 +36,12 @@ export class SelectMoveType extends Component {
 
   setMoveType = (e) => {
     this.setState({ moveType: e.target.value });
+  };
+
+  toggleStorageModal = () => {
+    this.setState((state) => ({
+      showStorageInfoModal: !state.showStorageInfoModal,
+    }));
   };
 
   handleSubmit = () => {
@@ -53,7 +62,7 @@ export class SelectMoveType extends Component {
       isNtsrSelectable,
       shipmentNumber,
     } = this.props;
-    const { moveType } = this.state;
+    const { moveType, showStorageInfoModal } = this.state;
     const ppmCardText =
       'You pack and move your things, or make other arrangements, The government pays you for the weight you move.  This is a a Personally Procured Move (PPM), sometimes called a DITY.';
     const hhgCardText =
@@ -73,7 +82,7 @@ export class SelectMoveType extends Component {
     };
     const ppmEnabledCard = (
       <SelectableCard
-        {...selectableCardDefaultProps} // eslint-disable-line
+        {...selectableCardDefaultProps}
         label="Do it yourself"
         value={SHIPMENT_OPTIONS.PPM}
         id={SHIPMENT_OPTIONS.PPM}
@@ -84,7 +93,7 @@ export class SelectMoveType extends Component {
     );
     const ppmDisabledCard = (
       <SelectableCard
-        {...selectableCardDefaultProps} // eslint-disable-line
+        {...selectableCardDefaultProps}
         label="Do it yourself (already chosen)"
         value={SHIPMENT_OPTIONS.PPM}
         id={SHIPMENT_OPTIONS.PPM}
@@ -95,7 +104,7 @@ export class SelectMoveType extends Component {
     );
     const hhgEnabledCard = (
       <SelectableCard
-        {...selectableCardDefaultProps} // eslint-disable-line
+        {...selectableCardDefaultProps}
         label="Professional movers"
         value={SHIPMENT_OPTIONS.HHG}
         id={SHIPMENT_OPTIONS.HHG}
@@ -106,7 +115,7 @@ export class SelectMoveType extends Component {
     );
     const hhgDisabledCard = (
       <SelectableCard
-        {...selectableCardDefaultProps} // eslint-disable-line
+        {...selectableCardDefaultProps}
         label="Professional movers"
         value={SHIPMENT_OPTIONS.HHG}
         id={SHIPMENT_OPTIONS.HHG}
@@ -148,27 +157,31 @@ export class SelectMoveType extends Component {
               <h3>Long-term storage</h3>
               <p>These shipments do count against your weight allowance for this move.</p>
               <SelectableCard
-                {...selectableCardDefaultProps} // eslint-disable-line
+                {...selectableCardDefaultProps}
                 label="Put things into long-term storage"
                 value={SHIPMENT_OPTIONS.NTS}
                 id={SHIPMENT_OPTIONS.NTS}
                 cardText={isNtsSelectable ? ntsCardText : ntsDisabledText}
                 checked={moveType === SHIPMENT_OPTIONS.NTS && isNtsSelectable}
                 disabled={!isNtsSelectable}
+                onHelpClick={this.toggleStorageModal}
               />
               <SelectableCard
-                {...selectableCardDefaultProps} // eslint-disable-line
+                {...selectableCardDefaultProps}
                 label="Get things out of long-term storage"
                 value={SHIPMENT_OPTIONS.NTSR}
                 id={SHIPMENT_OPTIONS.NTSR}
                 cardText={isNtsSelectable ? ntsrCardText : ntsrDisabledText}
                 checked={moveType === SHIPMENT_OPTIONS.NTSR && isNtsrSelectable}
                 disabled={!isNtsrSelectable}
+                onHelpClick={this.toggleStorageModal}
               />
             </WizardPage>
           </div>
           <div className="tablet:grid-col-2" />
         </div>
+
+        <ConnectedStorageInfoModal isOpen={showStorageInfoModal} closeModal={this.toggleStorageModal} />
       </div>
     );
   }

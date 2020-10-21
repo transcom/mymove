@@ -6,13 +6,14 @@ import { formatSwaggerDate } from 'shared/formatters';
 function formatAgent(agent) {
   const agentCopy = { ...agent };
   Object.keys(agentCopy).forEach((key) => {
+    const sanitizedKey = `${key}`;
     /* eslint-disable security/detect-object-injection */
-    if (agentCopy[key] === '') {
-      delete agentCopy[key];
-    } else if (key === 'phone') {
-      const phoneNum = agentCopy[key];
+    if (agentCopy[sanitizedKey] === '') {
+      delete agentCopy[sanitizedKey];
+    } else if (sanitizedKey === 'phone') {
+      const phoneNum = agentCopy[sanitizedKey];
       // will be in format xxx-xxx-xxxx
-      agentCopy[key] = `${phoneNum.slice(0, 3)}-${phoneNum.slice(3, 6)}-${phoneNum.slice(6, 10)}`;
+      agentCopy[sanitizedKey] = `${phoneNum.slice(0, 3)}-${phoneNum.slice(3, 6)}-${phoneNum.slice(6, 10)}`;
     }
     /* eslint-enable security/detect-object-injection */
   });
@@ -69,8 +70,8 @@ export function formatMtoShipment({ moveId, shipmentType, pickup, delivery, cust
     }
   }
 
-  if (!formatMtoShipment.agents?.length) {
-    formatMtoShipment.agents = undefined;
+  if (!formattedMtoShipment.agents?.length) {
+    formattedMtoShipment.agents = undefined;
   }
 
   return formattedMtoShipment;

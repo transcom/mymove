@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
+import { action } from '@storybook/addon-actions';
 
 import SelectableCard from './SelectableCard';
 
@@ -26,6 +27,14 @@ const disabledProps = {
 
 export default {
   title: 'Customer Components | SelectableCard',
+  component: SelectableCard,
+  decorators: [
+    (Story) => (
+      <div style={{ marginTop: '3em' }}>
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 export const Unselected = () => (
@@ -51,3 +60,9 @@ export const Disabled = () => {
     </div>
   );
 };
+
+export const WithHelpButton = () => (
+  <div>
+    <SelectableCard {...defaultProps} onHelpClick={action('Open help')} />
+  </div>
+);

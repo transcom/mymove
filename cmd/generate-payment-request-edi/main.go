@@ -16,7 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/invoice"
 )
 
-// Call this from command line with go run ./cmd/generate-payment-request-edi/ --payment-request-number
+// Call this from command line with go run ./cmd/generate-payment-request-edi/ --payment-request-number <paymentRequestNumber>
 // Must use a payment request that is submitted, but not yet approved for payment (that does not already have a submitted invoice)
 
 func checkConfig(v *viper.Viper, logger logger) error {

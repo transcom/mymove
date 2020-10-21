@@ -546,6 +546,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("173da49c-fcec-4d01-a622-3651e81c654e"),
 			Locator: "BLABLA",
+			Status:  models.MoveStatusSUBMITTED,
 		},
 		UserUploader: userUploader,
 	})
@@ -641,6 +642,18 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			ShipmentType:         models.MTOShipmentTypeHHG,
 			ApprovedDate:         swag.Time(time.Now()),
 			Status:               models.MTOShipmentStatusSubmitted,
+			MoveTaskOrder:        move,
+			MoveTaskOrderID:      move.ID,
+		},
+	})
+
+	testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			PrimeEstimatedWeight: &estimatedHHGWeight,
+			PrimeActualWeight:    &actualHHGWeight,
+			ShipmentType:         models.MTOShipmentTypeHHG,
+			ApprovedDate:         swag.Time(time.Now()),
+			Status:               models.MTOShipmentStatusRejected,
 			MoveTaskOrder:        move,
 			MoveTaskOrderID:      move.ID,
 		},
@@ -1002,6 +1015,36 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		UserUploader: userUploader,
 	})
 
+	email = "profile2@complete.draft"
+	uuidStr = "3b9360a3-3304-4c60-90f4-83d687884077"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("0ec71d80-ac21-45a7-88ed-2ae8de3961ff"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Move"),
+			LastName:      models.StringPointer("Draft"),
+			Edipi:         models.StringPointer("8893308163"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			HasDependents:    true,
+			SpouseHasProGear: true,
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("a5d9c7b2-0fe8-4b80-b7c5-3323a066e98a"),
+			Locator: "TEST13",
+		},
+		UserUploader: userUploader,
+	})
+
 	customer := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID: uuid.FromStringOrNil("6ac40a00-e762-4f5f-b08d-3ea72a8e4b63"),
@@ -1015,10 +1058,15 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		UserUploader: userUploader,
 	})
+	mtoSelectedMoveType := models.SelectedMoveTypeHHG
 	mto := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Move: models.Move{
-			ID:       uuid.FromStringOrNil("5d4b25bb-eb04-4c03-9a81-ee0398cb779e"),
-			OrdersID: orders.ID,
+			Locator:          "TEST12",
+			ID:               uuid.FromStringOrNil("5d4b25bb-eb04-4c03-9a81-ee0398cb779e"),
+			Status:           models.MoveStatusSUBMITTED,
+			OrdersID:         orders.ID,
+			Orders:           orders,
+			SelectedMoveType: &mtoSelectedMoveType,
 		},
 	})
 
@@ -1140,6 +1188,46 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			Status:        models.PaymentRequestStatusPending,
 		},
 		Move: mto,
+	})
+
+	dcrtCost := unit.Cents(99999)
+	mtoServiceItemDCRT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("998caacf-ab9e-496e-8cf2-360723eb3e2d"),
+		},
+		Move:        mto,
+		MTOShipment: MTOShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Domestic crating
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &dcrtCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: mtoServiceItemDCRT,
+	})
+
+	ducrtCost := unit.Cents(99999)
+	mtoServiceItemDUCRT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("eeb82080-0a83-46b8-938c-63c7b73a7e45"),
+		},
+		Move:        mto,
+		MTOShipment: MTOShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("fc14935b-ebd3-4df3-940b-f30e71b6a56c"), // DUCRT - Domestic uncrating
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &ducrtCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: mtoServiceItemDUCRT,
 	})
 
 	proofOfService := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{

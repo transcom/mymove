@@ -7,6 +7,7 @@ describe('formatMtoShipment', () => {
     const params = {
       moveId: 'move123',
       shipmentType: SHIPMENT_OPTIONS.HHG,
+      customerRemarks: 'some mock remarks',
       pickup: {
         requestedDate: 'Jan 7, 2026',
         address: {
@@ -47,12 +48,14 @@ describe('formatMtoShipment', () => {
     expect(actual.requestedDeliveryDate).toBe('2026-01-27');
     expect(actual.agents[1].phone).toBe('222-555-0101');
     expect(actual.agents[1].agentType).toBe('RECEIVING_AGENT');
+    expect(actual.customerRemarks).toBe('some mock remarks');
   });
 
   it('can format an NTSr shipment', () => {
     const params = {
       moveId: 'move123',
       shipmentType: SHIPMENT_OPTIONS.NTSR,
+      customerRemarks: 'some mock remarks',
       pickup: {
         requestedDate: 'Jan 27, 2026',
         address: {
@@ -75,12 +78,14 @@ describe('formatMtoShipment', () => {
     expect(actual.agents.length).toBe(1);
     expect(actual.agents[0].phone).toBe('222-555-1234');
     expect(actual.agents[0].agentType).toBe('RELEASING_AGENT');
+    expect(actual.customerRemarks).toBe('some mock remarks');
   });
 
   it('can format an NTS shipment', () => {
     const params = {
       moveId: 'move123',
       shipmentType: SHIPMENT_OPTIONS.NTS,
+      customerRemarks: 'some mock remarks',
       delivery: {
         requestedDate: 'Jan 27, 2026',
         address: {
@@ -103,5 +108,6 @@ describe('formatMtoShipment', () => {
     expect(actual.agents.length).toBe(1);
     expect(actual.agents[0].phone).toBe('222-555-1234');
     expect(actual.agents[0].agentType).toBe('RECEIVING_AGENT');
+    expect(actual.customerRemarks).toBe('some mock remarks');
   });
 });
