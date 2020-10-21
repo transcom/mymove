@@ -27,7 +27,7 @@ func MakeOrganization(db *pop.Connection, assertions Assertions) models.Organiza
 
 	mergeModels(&organization, assertions.Organization)
 
-	mustCreate(db, &organization)
+	mustCreate(db, &organization, assertions.Stub)
 
 	return organization
 }

@@ -1,58 +1,36 @@
 import React from 'react';
-import { string, shape, number, func } from 'prop-types';
+import { string, shape } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
 import { AddressShape } from '../../../../../types/address';
 import styles from '../ShipmentCard.module.scss';
-import PickupDisplay from '../PickupDisplay';
 import DeliveryDisplay from '../DeliveryDisplay';
 
 import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 import ShipmentContainer from 'components/Office/ShipmentContainer';
 
-const HHGShipmentCard = ({
+const NTSRShipmentCard = ({
   destinationLocation,
   destinationZIP,
-  moveId,
-  onEditClick,
-  pickupLocation,
   receivingAgent,
-  releasingAgent,
   remarks,
   requestedDeliveryDate,
-  requestedPickupDate,
   shipmentId,
-  shipmentNumber,
   shipmentType,
 }) => {
-  const editPath = `/moves/${moveId}/mto-shipments/${shipmentId}/edit-shipment?shipmentNumber=${shipmentNumber}`;
   return (
-    <div className={styles.ShipmentCard} data-testid="hhg-summary">
+    <div className={styles.ShipmentCard} data-testid="ntsr-summary">
       <ShipmentContainer className={styles.container} shipmentType={shipmentType}>
         <div className={styles.ShipmentCardHeader}>
           <div>
-            <h3>
-              {getShipmentTypeLabel(shipmentType)} {shipmentNumber}
-            </h3>
+            <h3>{getShipmentTypeLabel(shipmentType)}</h3>
             <p>#{shipmentId.substring(0, 8).toUpperCase()}</p>
           </div>
-          <Button
-            className={styles.editBtn}
-            data-testid="edit-shipment-btn"
-            onClick={() => onEditClick(editPath)}
-            unstyled
-          >
+          <Button className={styles.editBtn} data-testid="edit-shipment-btn" unstyled disabled>
             Edit
           </Button>
         </div>
         <dl className={styles.shipmentCardSubsection}>
-          <PickupDisplay
-            shipmentId={shipmentId}
-            shipmentType={shipmentType}
-            requestedPickupDate={requestedPickupDate}
-            pickupLocation={pickupLocation}
-            releasingAgent={releasingAgent}
-          />
           <DeliveryDisplay
             shipmentId={shipmentId}
             shipmentType={shipmentType}
@@ -73,23 +51,12 @@ const HHGShipmentCard = ({
   );
 };
 
-HHGShipmentCard.propTypes = {
-  moveId: string.isRequired,
-  shipmentNumber: number.isRequired,
+NTSRShipmentCard.propTypes = {
   shipmentType: string.isRequired,
   shipmentId: string.isRequired,
-  requestedPickupDate: string.isRequired,
-  pickupLocation: AddressShape.isRequired,
   destinationLocation: AddressShape,
-  releasingAgent: shape({
-    firstName: string,
-    lastName: string,
-    phone: string,
-    email: string,
-  }),
   requestedDeliveryDate: string.isRequired,
   destinationZIP: string.isRequired,
-  onEditClick: func.isRequired,
   receivingAgent: shape({
     firstName: string,
     lastName: string,
@@ -99,11 +66,10 @@ HHGShipmentCard.propTypes = {
   remarks: string,
 };
 
-HHGShipmentCard.defaultProps = {
+NTSRShipmentCard.defaultProps = {
   destinationLocation: null,
-  releasingAgent: null,
   receivingAgent: null,
   remarks: '',
 };
 
-export default HHGShipmentCard;
+export default NTSRShipmentCard;

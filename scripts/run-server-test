@@ -28,11 +28,14 @@ fi
 
 verbose_flag=""
 parallel=8
+failfast_flag="-failfast"
 if [ -n "${CIRCLECI+x}" ]; then
 	# Limit the maximum number of tests to run in parallel for CircleCI due to memory constraints.
   parallel=4
 	# Add verbose (-v) so go-junit-report can parse it for CircleCI results
   verbose_flag="-v"
+  # Don't fail fast in Circle CI so we can see all the tests that failed
+  failfast_flag=""
 fi
 
 # Try to compile tests, but don't run them.
@@ -83,4 +86,4 @@ if [[ "${JUNIT:-}" == "1" ]]; then
 fi
 
 # shellcheck disable=SC2086
-DB_NAME="${DB_NAME_TEST}" DB_PORT="${DB_PORT_TEST}" go test -parallel "${parallel}" -count 1 ${verbose_flag} ${coverage_flag} ${short_flag} ${package_list} | tee "${test_output_file}"
+DB_NAME="${DB_NAME_TEST}" DB_PORT="${DB_PORT_TEST}" go test ${failfast_flag} -vet=off -parallel "${parallel}" -count 1 ${verbose_flag} ${coverage_flag} ${short_flag} ${package_list} | tee "${test_output_file}"
