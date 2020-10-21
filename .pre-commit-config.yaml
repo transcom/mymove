@@ -1,3 +1,7 @@
+default_language_version:
+  # this should match the version in .node-version at the root of this project
+  node: 12.16.3
+
 repos:
   - repo: local
     hooks:
@@ -39,7 +43,6 @@ repos:
     hooks:
       - id: markdownlint
         entry: markdownlint --ignore .github/*.md
-        language_version: 12.16.3
 
   - repo: git://github.com/detailyang/pre-commit-shell
     rev: 1.0.5
@@ -52,7 +55,6 @@ repos:
         name: prettier
         entry: node_modules/.bin/prettier --write
         language: node
-        language_version: 12.16.3
         files: \.(js|jsx)$
 
   - repo: local
@@ -61,7 +63,6 @@ repos:
         name: eslint
         entry: node_modules/.bin/eslint --ext .js,.jsx --max-warnings=0
         language: node
-        language_version: 12.16.3
         files: \.(js|jsx)$
         exclude: >
           (?x)^(
@@ -95,12 +96,9 @@ repos:
     hooks:
       - id: gen-docs
         args: ['docs/adr']
-        language_version: 12.16.3
       - id: circleci-validate
       - id: markdown-toc
-        language_version: 12.16.3
       - id: mdspell
-        language_version: 12.16.3
         exclude: >
           (?x)^(
             node_modules/|
@@ -112,7 +110,6 @@ repos:
     rev: v0.1.0
     hooks:
       - id: dockerfilelint
-        language_version: 12.16.3
 
   - repo: local
     hooks:
