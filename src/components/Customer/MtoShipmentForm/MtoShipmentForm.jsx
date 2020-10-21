@@ -2,18 +2,11 @@ import React, { Component } from 'react';
 import { bool, string, func } from 'prop-types';
 import { get } from 'lodash';
 import { connect } from 'react-redux';
-import { Formik, Field } from 'formik';
-import * as Yup from 'yup';
-import { Fieldset, Radio, Label } from '@trussworks/react-uswds';
+import { Formik } from 'formik';
 
-import styles from './MtoShipmentForm.module.scss';
-import { MtoShipmentInnerForm } from './MtoShipmentInnerForm';
-import { RequiredPlaceSchema, OptionalPlaceSchema } from './validationSchemas';
+import { getShipmentOptions } from './getShipmentOptions';
+import { MtoShipmentFormFields } from './MtoShipmentFormFields';
 
-import { DatePickerInput, TextInput } from 'components/form/fields';
-import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
-import { AddressFields } from 'components/form/AddressFields/AddressFields';
-import { Form } from 'components/form/Form';
 import {
   selectMTOShipmentForMTO,
   createMTOShipment as createMTOShipmentAction,
@@ -23,56 +16,9 @@ import { selectActiveOrLatestOrdersFromEntities } from 'shared/Entities/modules/
 import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { WizardPage } from 'shared/WizardPage';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
-import Checkbox from 'shared/Checkbox';
 import { AddressShape, SimpleAddressShape } from 'types/address';
 import { HhgShipmentShape, MtoDisplayOptionsShape, WizardPageShape } from 'types/customerShapes';
 import { formatMtoShipment } from 'utils/formatMtoShipment';
-import { validateDate } from 'utils/formikValidators';
-
-const hhgShipmentSchema = Yup.object().shape({
-  pickup: RequiredPlaceSchema,
-  delivery: OptionalPlaceSchema,
-  customerRemarks: Yup.string(),
-});
-
-const ntsShipmentSchema = Yup.object().shape({
-  pickup: RequiredPlaceSchema,
-  customerRemarks: Yup.string(),
-});
-
-const ntsReleaseShipmentSchema = Yup.object().shape({
-  delivery: OptionalPlaceSchema,
-  customerRemarks: Yup.string(),
-});
-
-function getShipmentOptions(shipmentType) {
-  switch (shipmentType) {
-    case SHIPMENT_OPTIONS.HHG:
-      return {
-        schema: hhgShipmentSchema,
-        showPickupFields: true,
-        showDeliveryFields: true,
-        displayName: 'HHG',
-      };
-    case SHIPMENT_OPTIONS.NTS:
-      return {
-        schema: ntsShipmentSchema,
-        showPickupFields: true,
-        showDeliveryFields: false,
-        displayName: 'NTS',
-      };
-    case SHIPMENT_OPTIONS.NTSR:
-      return {
-        schema: ntsReleaseShipmentSchema,
-        showPickupFields: false,
-        showDeliveryFields: true,
-        displayName: 'NTS-R',
-      };
-    default:
-      throw new Error('unrecognized shipment type');
-  }
-}
 
 class MtoShipmentForm extends Component {
   constructor(props) {
@@ -81,7 +27,7 @@ class MtoShipmentForm extends Component {
     this.state = {
       hasDeliveryAddress,
       useCurrentResidence: false,
-      displayOptions: getShipmentOptions(props.selectedMoveType),
+      displayOptions: getShipmentOptions(props.selectedMoveType || props.mtoShipment.shipmentType),
       initialValues: {
         pickup: {
           address: {},
@@ -96,11 +42,11 @@ class MtoShipmentForm extends Component {
   }
 
   componentDidMount() {
-    const { showLoggedInUser, isEditPage } = this.props;
+    const { showLoggedInUser, isCreatePage, mtoShipment } = this.props;
     showLoggedInUser();
 
     // If refreshing edit page, need to handle mtoShipment populating from a promise
-    if (isEditPage && mtoShipment.id) {
+    if (!isCreatePage && mtoShipment.id) {
       this.setInitialState(mtoShipment);
     }
   }
@@ -109,7 +55,7 @@ class MtoShipmentForm extends Component {
     const { mtoShipment, isCreatePage } = this.props;
 
     // If refreshing edit page, need to handle mtoShipment populating from a promise
-    if (isCreatePage && mtoShipment.id && prevProps.mtoShipment.id !== mtoShipment.id) {
+    if (!isCreatePage && mtoShipment.id && prevProps.mtoShipment.id !== mtoShipment.id) {
       this.setInitialEditState(mtoShipment);
     }
   }
@@ -185,7 +131,14 @@ class MtoShipmentForm extends Component {
   };
 
   submitMTOShipment = ({ pickup, delivery, customerRemarks }) => {
-    const { createMTOShipment, updateMTOShipment, wizardPage, selectedMoveType, isCreatePage } = this.props;
+    const {
+      createMTOShipment,
+      updateMTOShipment,
+      wizardPage,
+      selectedMoveType,
+      isCreatePage,
+      mtoShipment,
+    } = this.props;
     const { moveId } = wizardPage.match.params;
 
     const pendingMtoShipment = formatMtoShipment({
@@ -253,10 +206,9 @@ class MtoShipmentForm extends Component {
 
   render() {
     // TODO: replace minimal styling with actual styling during UI phase
-    const { wizardPage, newDutyStationAddress, isCreatePage } = this.props;
+    const { wizardPage, isCreatePage } = this.props;
     const { pageKey, pageList, match, history } = wizardPage;
-    const { hasDeliveryAddress, useCurrentResidence, displayOptions, initialValues } = this.state;
-    const fieldsetClasses = 'margin-top-2';
+    const { displayOptions, initialValues } = this.state;
 
     const editForm = (
       <div className="grid-container">
@@ -267,11 +219,16 @@ class MtoShipmentForm extends Component {
           validateOnChange
           validationSchema={displayOptions.schema}
         >
-          {({ values, dirty, isValid, isSubmitting, handleChange }) => (
-            <MtoShipmentInnerForm
+          {({ values, dirty, isValid, isSubmitting }) => (
+            <MtoShipmentFormFields
               {...this.props}
               values={values}
               onHasDeliveryAddressChange={this.handleChangeHasDeliveryAddress}
+              onUseCurrentResidenceChange={this.handleUseCurrentResidenceChange}
+              submitHandler={this.submitMTOShipment}
+              dirty={dirty}
+              isValid={isValid}
+              isSubmitting={isSubmitting}
             />
           )}
         </Formik>
@@ -296,10 +253,12 @@ class MtoShipmentForm extends Component {
               push={history.push}
               handleSubmit={() => this.submitMTOShipment(values, dirty)}
             >
-              <MtoShipmentInnerForm
+              <MtoShipmentFormFields
                 {...this.props}
                 values={values}
                 onHasDeliveryAddressChange={this.handleChangeHasDeliveryAddress}
+                onUseCurrentResidenceChange={this.handleUseCurrentResidenceChange}
+                submitHandler={this.submitMTOShipment}
               />
             </WizardPage>
           )}
@@ -314,6 +273,7 @@ class MtoShipmentForm extends Component {
 MtoShipmentForm.propTypes = {
   wizardPage: WizardPageShape,
   createMTOShipment: func.isRequired,
+  updateMTOShipment: func.isRequired,
   showLoggedInUser: func.isRequired,
   isCreatePage: bool,
   currentResidence: AddressShape.isRequired,
@@ -329,6 +289,7 @@ MtoShipmentForm.defaultProps = {
     pageList: [],
     pageKey: '',
     match: { isExact: false, params: { moveID: '' } },
+    history: { goBack: () => {}, push: () => {} },
   },
   newDutyStationAddress: {
     city: '',
