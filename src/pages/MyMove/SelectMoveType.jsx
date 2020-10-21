@@ -61,6 +61,7 @@ export class SelectMoveType extends Component {
       isNtsSelectable,
       isNtsrSelectable,
       shipmentNumber,
+      move,
     } = this.props;
     const { moveType, showStorageInfoModal } = this.state;
     const ppmCardText =
@@ -76,6 +77,8 @@ export class SelectMoveType extends Component {
       'You‘ve already asked to have things taken out of storage for this move. Talk to your movers to change or add to your request.';
     const hhgCardTextPostSubmit = 'Talk with your movers directly if you want to add or change shipments.';
     const ppmCardTextAlreadyChosen = `You’ve already requested a PPM shipment. If you have more things to move yourself but that you can’t add to that shipment, contact the PPPO at your origin duty station.`;
+    const noLongTermStorageCardsText =
+      'Talk to your movers about long-term storage if you need to add it to this move or change a request you made earlier.';
     const selectableCardDefaultProps = {
       onChange: (e) => this.setMoveType(e),
       name: 'moveType',
@@ -154,29 +157,34 @@ export class SelectMoveType extends Component {
               <p>You can add more later</p>
               {isPpmSelectable ? ppmEnabledCard : ppmDisabledCard}
               {isHhgSelectable ? hhgEnabledCard : hhgDisabledCard}
-              <h3>Long-term storage</h3>
-              <p>These shipments do count against your weight allowance for this move.</p>
-              <SelectableCard
-                {...selectableCardDefaultProps}
-                label="Put things into long-term storage"
-                value={SHIPMENT_OPTIONS.NTS}
-                id={SHIPMENT_OPTIONS.NTS}
-                cardText={isNtsSelectable ? ntsCardText : ntsDisabledText}
-                checked={moveType === SHIPMENT_OPTIONS.NTS && isNtsSelectable}
-                disabled={!isNtsSelectable}
-                onHelpClick={this.toggleStorageModal}
-              />
-              {/* TODO - update when NTSR option is added to API */}
-              <SelectableCard
-                {...selectableCardDefaultProps}
-                label="Get things out of long-term storage"
-                value={SHIPMENT_OPTIONS.NTSR}
-                id={SHIPMENT_OPTIONS.NTSR}
-                cardText={isNtsSelectable ? ntsrCardText : ntsrDisabledText}
-                checked={moveType === SHIPMENT_OPTIONS.NTSR && isNtsrSelectable}
-                disabled={!isNtsrSelectable}
-                onHelpClick={this.toggleStorageModal}
-              />
+              <h3 data-testid="long-term-storage-heading">Long-term storage</h3>
+              {(!isNtsSelectable && !isNtsrSelectable) || move.status !== MOVE_STATUSES.DRAFT ? (
+                <p>{noLongTermStorageCardsText}</p>
+              ) : (
+                <>
+                  <p>These shipments do count against your weight allowance for this move.</p>
+                  <SelectableCard
+                    {...selectableCardDefaultProps}
+                    label="Put things into long-term storage"
+                    value={SHIPMENT_OPTIONS.NTS}
+                    id={SHIPMENT_OPTIONS.NTS}
+                    cardText={isNtsSelectable ? ntsCardText : ntsDisabledText}
+                    checked={moveType === SHIPMENT_OPTIONS.NTS && isNtsSelectable}
+                    disabled={!isNtsSelectable}
+                    onHelpClick={this.toggleStorageModal}
+                  />
+                  <SelectableCard
+                    {...selectableCardDefaultProps}
+                    label="Get things out of long-term storage"
+                    value={SHIPMENT_OPTIONS.NTSR}
+                    id={SHIPMENT_OPTIONS.NTSR}
+                    cardText={isNtsrSelectable ? ntsrCardText : ntsrDisabledText}
+                    checked={moveType === SHIPMENT_OPTIONS.NTSR && isNtsrSelectable}
+                    disabled={!isNtsrSelectable}
+                    onHelpClick={this.toggleStorageModal}
+                  />
+                </>
+              )}
             </WizardPage>
           </div>
           <div className="tablet:grid-col-2" />
@@ -215,10 +223,11 @@ function mapStateToProps(state) {
   const move = selectActiveOrLatestMove(state);
   const hasPpm = !!move.personally_procured_moves?.length;
   // TODO: Make dynamic when we have ability to submit nts/ntsr
-  const hasNTS = false;
-  const hasNTSR = false;
+  const mtoShipments = selectMTOShipmentsByMoveId(state, move.id);
+  const hasNTS = mtoShipments.some((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.NTS);
+  const hasNTSR = mtoShipments.some((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.NTSR);
   const ppmCount = hasPpm ? 1 : 0;
-  const mtosCount = selectMTOShipmentsByMoveId(state, move.id)?.length || 0;
+  const mtosCount = mtoShipments?.length || 0;
   const isMoveDraft = move.status === MOVE_STATUSES.DRAFT;
   const props = {
     move,

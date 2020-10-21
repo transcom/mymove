@@ -126,12 +126,16 @@ describe('SelectMoveType', () => {
     const props = {
       mtoShipments: [{ id: '3', shipmentType: SHIPMENT_OPTIONS.NTS }],
       move: { status: MOVE_STATUSES.DRAFT },
+      isNtsSelectable: false,
     };
     const wrapper = getWrapper(props);
 
     it('NTS card should render the correct text', () => {
       expect(wrapper.find('[data-testid="selectableCardText"]').at(2).text()).toContain(
         'You‘ve already requested a long-term storage shipment for this move. Talk to your movers to change or add to your request.',
+      );
+      expect(wrapper.find('[data-testid="long-term-storage-heading"] + p').text()).toEqual(
+        'These shipments do count against your weight allowance for this move.',
       );
     });
     it('NTS card should be disabled', () => {
@@ -143,11 +147,15 @@ describe('SelectMoveType', () => {
     const props = {
       mtoShipments: [{ id: '4', shipmentType: SHIPMENT_OPTIONS.NTSR }],
       move: { status: MOVE_STATUSES.DRAFT },
+      isNtsrSelectable: false,
     };
     const wrapper = getWrapper(props);
-    it('NTS card should render the correct text', () => {
+    it('NTSr card should render the correct text', () => {
       expect(wrapper.find('[data-testid="selectableCardText"]').at(3).text()).toContain(
         'You‘ve already asked to have things taken out of storage for this move. Talk to your movers to change or add to your request.',
+      );
+      expect(wrapper.find('[data-testid="long-term-storage-heading"] + p').text()).toEqual(
+        'These shipments do count against your weight allowance for this move.',
       );
     });
     it('NTSr card should be disabled', () => {
@@ -158,20 +166,29 @@ describe('SelectMoveType', () => {
   describe('when a move has already been submitted', () => {
     const props = {
       isHhgSelectable: false,
+      move: {
+        status: MOVE_STATUSES.SUBMITTED,
+      },
     };
+    const wrapper = getWrapper(props);
     it('should render the correct text', () => {
-      const wrapper = getWrapper(props);
       expect(wrapper.find('[data-testid="selectableCardText"]').at(1).text()).toContain(
         'Talk with your movers directly if you want to add or change shipments.',
       );
       expect(wrapper.find('[data-testid="selectableCardText"]').at(1).text()).not.toContain(
         'Professional movers take care of the whole shipment',
       );
+      expect(wrapper.find('[data-testid="long-term-storage-heading"] + p').text()).toEqual(
+        'Talk to your movers about long-term storage if you need to add it to this move or change a request you made earlier.',
+      );
     });
     it('should disable HHG form option', () => {
-      const wrapper = getWrapper(props);
       // HHG button should be disabled on page load
       expect(wrapper.find(Radio).at(1).find('.usa-radio__input').html()).toContain('disabled');
+    });
+    it('should not show radio cards for NTS or NTSr', () => {
+      expect(wrapper.find(Radio).at(2)).toEqual({});
+      expect(wrapper.find(Radio).at(3)).toEqual({});
     });
   });
 });
