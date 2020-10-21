@@ -1,9 +1,7 @@
 import React from 'react';
-import classNames from 'classnames/bind';
 import PropTypes from 'prop-types';
 
 import styles from './SectionWrapper.module.scss';
-
 
 const SectionWrapper = ({ children }) => <div className={styles.sectionWrapper}>{children}</div>;
 
