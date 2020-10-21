@@ -95,7 +95,7 @@ In particular, we want to consider a couple of use cases, viz:
 
 ## Decision Outcome
 
-### Chosen Alternative: *Use `PATCH` with partial JSON objects (falling back to `POST`) to allow updates and `action` URLS for more complex operations *
+### Chosen Alternative: *Use `PATCH` with partial JSON objects (falling back to `POST`) to allow updates and `action` URLS for more complex operations*
 
 * Justification: While using `PATCH` with partial objects (application/json) is frowned upon by some
  [commentators](http://williamdurand.fr/2014/02/14/please-do-not-patch-like-an-idiot/), it is common practice,
