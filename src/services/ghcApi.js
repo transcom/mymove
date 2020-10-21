@@ -107,3 +107,8 @@ export async function getMovesQueue() {
   const operationPath = 'queues.getMovesQueue';
   return makeGHCRequest(operationPath, {}, { schemaKey: 'queueMovesResult' });
 }
+
+export async function getPaymentRequestsQueue() {
+  const operationPath = 'queues.getPaymentRequestsQueue';
+  return makeGHCRequest(operationPath, {}, { schemaKey: 'queuePaymentRequestsResult', normalize: false });
+}

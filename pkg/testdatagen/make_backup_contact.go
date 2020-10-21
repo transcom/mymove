@@ -26,7 +26,7 @@ func MakeBackupContact(db *pop.Connection, assertions Assertions) models.BackupC
 
 	mergeModels(&backupContact, assertions.BackupContact)
 
-	mustCreate(db, &backupContact)
+	mustCreate(db, &backupContact, assertions.Stub)
 
 	return backupContact
 }

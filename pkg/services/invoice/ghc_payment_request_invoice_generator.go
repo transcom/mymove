@@ -370,10 +370,25 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	if destinationDutyStation.Address.Country != nil {
 		destinationPostalDetails.CountryCode = string(*destinationDutyStation.Address.Country)
 	}
-
 	originAndDestinationSegments = append(originAndDestinationSegments, &destinationPostalDetails)
 
-	// TODO: Create PER segment and implement Destination POC Phone
+	// Destination PER
+	destinationStationPhoneLines := destTransportationOffice.PhoneLines
+	var destPhoneLines []string
+	for _, phoneLine := range destinationStationPhoneLines {
+		if phoneLine.Type == "voice" {
+			destPhoneLines = append(destPhoneLines, phoneLine.Number)
+		}
+	}
+
+	if len(destPhoneLines) > 0 {
+		destinationPhone := edisegment.PER{
+			ContactFunctionCode:          "CN",
+			CommunicationNumberQualifier: "TE",
+			CommunicationNumber:          destPhoneLines[0],
+		}
+		originAndDestinationSegments = append(originAndDestinationSegments, &destinationPhone)
+	}
 
 	// ========  ORIGIN ========= //
 	// origin station name
@@ -425,7 +440,23 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 
 	originAndDestinationSegments = append(originAndDestinationSegments, &originPostalDetails)
 
-	// TODO: Create PER segment and implement Origin POC Phone
+	// Origin Station Phone
+	originStationPhoneLines := originTransportationOffice.PhoneLines
+	var originPhoneLines []string
+	for _, phoneLine := range originStationPhoneLines {
+		if phoneLine.Type == "voice" {
+			originPhoneLines = append(originPhoneLines, phoneLine.Number)
+		}
+	}
+
+	if len(originPhoneLines) > 0 {
+		originPhone := edisegment.PER{
+			ContactFunctionCode:          "CN",
+			CommunicationNumberQualifier: "TE",
+			CommunicationNumber:          originPhoneLines[0],
+		}
+		originAndDestinationSegments = append(originAndDestinationSegments, &originPhone)
+	}
 
 	return originAndDestinationSegments, nil
 }

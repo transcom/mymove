@@ -80,7 +80,7 @@ func (suite *HandlerSuite) TestListPaymentRequestsHandler() {
 		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
 			Stub: true,
 		})
-		paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID).Return(&paymentRequests, nil).Once()
+		paymentRequestListFetcher.AssertNumberOfCalls(t, "FetchPaymentRequestList", 0)
 
 		req := httptest.NewRequest("GET", fmt.Sprintf("/payment_requests"), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -139,7 +139,7 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
 
-		requestUser := testdatagen.MakeDefaultUser(suite.DB())
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 		req := httptest.NewRequest("GET", fmt.Sprintf("/payment_request"), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -197,7 +197,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
 
-		requestUser := testdatagen.MakeDefaultUser(suite.DB())
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -232,7 +232,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(availablePaymentRequest, nil).Once()
 
-		requestUser := testdatagen.MakeDefaultUser(suite.DB())
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", availablePaymentRequestID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -264,7 +264,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
 
-		requestUser := testdatagen.MakeDefaultUser(suite.DB())
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -293,7 +293,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
 
-		requestUser := testdatagen.MakeDefaultUser(suite.DB())
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -322,7 +322,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
 
-		requestUser := testdatagen.MakeDefaultUser(suite.DB())
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -351,7 +351,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
 
-		requestUser := testdatagen.MakeDefaultUser(suite.DB())
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 

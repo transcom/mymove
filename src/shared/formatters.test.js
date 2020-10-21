@@ -1,6 +1,8 @@
 import * as formatters from './formatters';
 import moment from 'moment';
 
+import PAYMENT_REQUEST_STATUS from 'constants/paymentRequestStatus';
+
 describe('formatters', () => {
   describe('formatWeight', () => {
     describe('when formatting a integer weight', () => {
@@ -120,5 +122,41 @@ describe('filenameFromPath', () => {
     expect(formatters.filenameFromPath('Just-A-gnarly_filemame(0) DRAFT.v2.docx')).toEqual(
       'Just-A-gnarly_filemame(0) DRAFT.v2.docx',
     );
+  });
+});
+
+describe('formatAgeToDays', () => {
+  it('returns expected string less than 1 day', () => {
+    expect(formatters.formatAgeToDays(0.99)).toEqual('Less than 1 day');
+  });
+
+  it('returns expected string for 1 day', () => {
+    expect(formatters.formatAgeToDays(1.5)).toEqual('1 day');
+  });
+
+  it('returns expected string greater than 1 day', () => {
+    expect(formatters.formatAgeToDays(2.99)).toEqual('2 days');
+  });
+});
+
+describe('paymentRequestStatusReadable', () => {
+  it('returns expected string for PENDING', () => {
+    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.PENDING)).toEqual('Payment requested');
+  });
+
+  it('returns expected string for REVIEWED', () => {
+    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.REVIEWED)).toEqual('Reviewed');
+  });
+
+  it('returns expected string for SENT_TO_GEX', () => {
+    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.SENT_TO_GEX)).toEqual('Reviewed');
+  });
+
+  it('returns expected string for RECEIVED_BY_GEX', () => {
+    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.RECEIVED_BY_GEX)).toEqual('Reviewed');
+  });
+
+  it('returns expected string for PAID', () => {
+    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.PAID)).toEqual('Paid');
   });
 });

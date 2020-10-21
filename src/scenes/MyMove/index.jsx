@@ -48,9 +48,8 @@ import PaymentReview from 'scenes/Moves/Ppm/PaymentReview/index';
 import CustomerAgreementLegalese from 'scenes/Moves/Ppm/CustomerAgreementLegalese';
 import { withContext } from 'shared/AppContext';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
-import { CONUS_STATUS } from 'shared/constants';
-import HHGShipmentSetup from 'pages/MyMove/HHGShipmentSetup';
-import Home from '../../pages/MyMove/Home';
+import CreateOrEditMtoShipment from 'pages/MyMove/CreateOrEditMtoShipment';
+import Home from 'pages/MyMove/Home';
 
 import { loadUser as loadUserAction } from 'store/auth/actions';
 import { initOnboarding as initOnboardingAction } from 'store/onboarding/actions';
@@ -93,7 +92,7 @@ export class AppWrapper extends Component {
     return (
       <ConnectedRouter history={history}>
         <LastLocationProvider>
-          <div className="my-move site">
+          <div className="my-move site" id="app-root">
             <Header />
             <Tag role="main" className="site__content my-move-container">
               <div className="usa-grid">
@@ -125,7 +124,7 @@ export class AppWrapper extends Component {
                   <ValidatedPrivateRoute
                     exact
                     path="/moves/:moveId/mto-shipments/:mtoShipmentId/edit-shipment"
-                    component={HHGShipmentSetup}
+                    component={CreateOrEditMtoShipment}
                   />
                   <ValidatedPrivateRoute exact path="/moves/review/edit-backup-contact" component={EditBackupContact} />
                   <ValidatedPrivateRoute exact path="/moves/review/edit-contact-info" component={EditContactInfo} />
@@ -166,6 +165,7 @@ export class AppWrapper extends Component {
             </Tag>
             <Footer />
           </div>
+          <div id="modal-root"></div>
         </LastLocationProvider>
       </ConnectedRouter>
     );
@@ -189,7 +189,7 @@ AppWrapper.defaultProps = {
   loadInternalSchema: no_op,
   loadUser: no_op,
   initOnboarding: no_op,
-  conusStatus: CONUS_STATUS.CONUS,
+  conusStatus: '',
   context: {
     flags: {
       hhgFlow: false,

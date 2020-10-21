@@ -12,11 +12,21 @@ import (
 
 // MakeMTOShipment creates a single MTOShipment and associated set relationships
 func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipment {
-
+	shipmentType := models.MTOShipmentTypeHHG
+	shipmentStatus := models.MTOShipmentStatusDraft
+	mtoShipment := assertions.MTOShipment
 	// Make move if it was not provided
 	moveTaskOrder := assertions.Move
 	if isZeroUUID(moveTaskOrder.ID) {
 		moveTaskOrder = MakeMove(db, assertions)
+	}
+
+	if mtoShipment.ShipmentType != "" {
+		shipmentType = mtoShipment.ShipmentType
+	}
+
+	if mtoShipment.Status != "" {
+		shipmentStatus = mtoShipment.Status
 	}
 
 	// Make pickup address if it was not provided
@@ -27,6 +37,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		})
 	}
 
+	// Make destination address if it was not provided
 	destinationAddress := assertions.DestinationAddress
 	if isZeroUUID(destinationAddress.ID) {
 		destinationAddress = MakeAddress2(db, Assertions{
@@ -34,6 +45,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		})
 	}
 
+	// Make secondary pickup address if it was not provided
 	secondaryPickupAddress := assertions.SecondaryPickupAddress
 	if isZeroUUID(secondaryPickupAddress.ID) {
 		secondaryPickupAddress = MakeAddress(db, Assertions{
@@ -41,6 +53,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		})
 	}
 
+	// Make secondary delivery address if it was not provided
 	secondaryDeliveryAddress := assertions.SecondaryDeliveryAddress
 	if isZeroUUID(secondaryDeliveryAddress.ID) {
 		secondaryDeliveryAddress = MakeAddress(db, Assertions{
@@ -72,8 +85,8 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		PrimeActualWeight:        &actualWeight,
 		SecondaryPickupAddress:   &secondaryPickupAddress,
 		SecondaryDeliveryAddress: &secondaryDeliveryAddress,
-		ShipmentType:             models.MTOShipmentTypeHHG,
-		Status:                   "DRAFT",
+		ShipmentType:             shipmentType,
+		Status:                   shipmentStatus,
 		RejectionReason:          swag.String("Not enough information"),
 	}
 
@@ -90,7 +103,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	// Overwrite values with those from assertions
 	mergeModels(&MTOShipment, assertions.MTOShipment)
 
-	mustCreate(db, &MTOShipment)
+	mustCreate(db, &MTOShipment, assertions.Stub)
 
 	return MTOShipment
 }
@@ -127,7 +140,7 @@ func MakeMTOShipmentMinimal(db *pop.Connection, assertions Assertions) models.MT
 	// Overwrite values with those from assertions
 	mergeModels(&MTOShipment, assertions.MTOShipment)
 
-	mustCreate(db, &MTOShipment)
+	mustCreate(db, &MTOShipment, assertions.Stub)
 
 	return MTOShipment
 }

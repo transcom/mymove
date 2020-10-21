@@ -27,7 +27,7 @@ func MakeMovingExpenseDocument(db *pop.Connection, assertions Assertions) models
 	// Overwrite values with those from assertions
 	mergeModels(&movingExpenseDocument, assertions.MovingExpenseDocument)
 
-	mustCreate(db, &movingExpenseDocument)
+	mustCreate(db, &movingExpenseDocument, assertions.Stub)
 
 	return movingExpenseDocument
 }

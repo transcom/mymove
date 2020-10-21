@@ -28,7 +28,7 @@ func MakeNotification(db *pop.Connection, assertions Assertions) models.Notifica
 
 	mergeModels(&notification, assertions.Notification)
 
-	mustCreate(db, &notification)
+	mustCreate(db, &notification, assertions.Stub)
 
 	return notification
 }
