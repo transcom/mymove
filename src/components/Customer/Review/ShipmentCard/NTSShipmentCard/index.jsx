@@ -41,7 +41,7 @@ const NTSShipmentCard = ({
           />
           {remarks && (
             <div className={`${styles.row} ${styles.remarksRow}`}>
-              <dt className={styles.remarksCell}>Remarks</dt>
+              <dt>Remarks</dt>
               <dd className={styles.remarksCell}>{remarks}</dd>
             </div>
           )}

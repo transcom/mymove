@@ -3,12 +3,6 @@
 @import 'shared/styles/_variables';
 @import 'shared/styles/colors';
 
-.remarksRow {
-  .remarksCell {
-    @include u-font('body', 'xs');
-  }
-}
-
 @media (max-width: $tablet) {
   .remarksRow {
     flex-direction: column;
@@ -54,10 +48,14 @@
     @include u-margin-y(0);
     @include u-padding-x('05');
 
-    dt,
-    dd {
-      @include u-border-top('1px');
-      @include u-border-top('base-lighter');
+    &:first-child {
+      div:first-child {
+        dt,
+        dd {
+          @include u-border-top('1px');
+          @include u-border-top('base-lighter');
+        }
+      }
     }
   }
 
@@ -113,14 +111,18 @@
     dd {
       @include u-padding-x(1);
       @include u-padding-y(1.5);
-    }
 
-    &:not(:last-child) {
-      dt,
-      dd {
-        @include u-border-bottom('1px');
-        @include u-border-bottom('base-lighter');
-      }
+      @include u-border-bottom('1px');
+      @include u-border-bottom('base-lighter');
+    }
+  }
+  .remarksRow {
+    .remarksCell {
+      @include u-font('body', 'xs');
+    }
+    dt,
+    dd {
+      @include u-border-bottom(0);
     }
   }
 }
