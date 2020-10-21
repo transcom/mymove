@@ -63,7 +63,7 @@ func MakeNTSShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	// Overwrite values with those from assertions
 	mergeModels(&MTOShipment, assertions.MTOShipment)
 
-	mustCreate(db, &MTOShipment)
+	mustCreate(db, &MTOShipment, assertions.Stub)
 
 	return MTOShipment
 }
@@ -116,7 +116,7 @@ func MakeNTSRShipment(db *pop.Connection, assertions Assertions) models.MTOShipm
 	// Overwrite values with those from assertions
 	mergeModels(&MTOShipment, assertions.MTOShipment)
 
-	mustCreate(db, &MTOShipment)
+	mustCreate(db, &MTOShipment, assertions.Stub)
 
 	return MTOShipment
 }
