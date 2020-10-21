@@ -20,6 +20,7 @@ func NewGHCJobRunner(db *pop.Connection) services.GHCJobRunner {
 	}
 }
 
+// ApprovedPaymentRequestFetcher method returns all payment requests that are in a reviewed status
 func (g ghcPaymentRequestJobRunner) ApprovedPaymentRequestFetcher() (models.PaymentRequests, error) {
 	var reviewedPaymentRequests models.PaymentRequests
 	err := g.db.Q().
