@@ -54,14 +54,10 @@
     @include u-margin-y(0);
     @include u-padding-x('05');
 
-    &:first-child {
-      div:first-child {
-        dt,
-        dd {
-          @include u-border-top('1px');
-          @include u-border-top('base-lighter');
-        }
-      }
+    dt,
+    dd {
+      @include u-border-top('1px');
+      @include u-border-top('base-lighter');
     }
   }
 

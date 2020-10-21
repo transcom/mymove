@@ -26,30 +26,26 @@ const NTSShipmentCard = ({
             <h3>{getShipmentTypeLabel(shipmentType)}</h3>
             <p>#{shipmentId.substring(0, 8).toUpperCase()}</p>
           </div>
-          <Button
-            className={styles.editBtn}
-            data-testid="edit-shipment-btn"
-            // onClick={() => onEditClick(editPath)}
-            unstyled
-            disabled
-          >
+          <Button className={styles.editBtn} data-testid="edit-shipment-btn" unstyled disabled>
             Edit
           </Button>
         </div>
-        <PickupDisplay
-          shipmentId={shipmentId}
-          shipmentType={shipmentType}
-          shipmentNumber={shipmentNumber}
-          requestedPickupDate={requestedPickupDate}
-          pickupLocation={pickupLocation}
-          releasingAgent={releasingAgent}
-        />
-        {remarks && (
-          <div className={`${styles.row} ${styles.remarksRow}`}>
-            <dt>Remarks</dt>
-            <dd className={styles.remarksCell}>{remarks}</dd>
-          </div>
-        )}
+        <dl className={styles.shipmentCardSubsection}>
+          <PickupDisplay
+            shipmentId={shipmentId}
+            shipmentType={shipmentType}
+            shipmentNumber={shipmentNumber}
+            requestedPickupDate={requestedPickupDate}
+            pickupLocation={pickupLocation}
+            releasingAgent={releasingAgent}
+          />
+          {remarks && (
+            <div className={`${styles.row} ${styles.remarksRow}`}>
+              <dt className={styles.remarksCell}>Remarks</dt>
+              <dd className={styles.remarksCell}>{remarks}</dd>
+            </div>
+          )}
+        </dl>
       </ShipmentContainer>
     </div>
   );

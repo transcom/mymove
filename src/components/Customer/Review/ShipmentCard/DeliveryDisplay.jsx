@@ -11,35 +11,33 @@ import { formatCustomerDestination } from 'utils/shipmentDisplay';
 const DeliveryDisplay = ({ destinationLocation, destinationZIP, receivingAgent, requestedDeliveryDate }) => {
   return (
     <div>
-      <dl className={styles.shipmentCardSubsection}>
-        <div className={styles.row}>
-          <dt>Requested delivery date</dt>
-          <dd>{formatCustomerDate(requestedDeliveryDate)}</dd>
-        </div>
-        <div className={styles.row}>
-          <dt>Destination</dt>
-          <dd>{formatCustomerDestination(destinationLocation, destinationZIP)}</dd>
-        </div>
+      <div className={styles.row}>
+        <dt>Requested delivery date</dt>
+        <dd>{formatCustomerDate(requestedDeliveryDate)}</dd>
+      </div>
+      <div className={styles.row}>
+        <dt>Destination</dt>
+        <dd>{formatCustomerDestination(destinationLocation, destinationZIP)}</dd>
+      </div>
 
-        {receivingAgent && (
-          <div className={styles.row}>
-            <dt>Receiving agent</dt>
-            <dd>
-              {(receivingAgent.firstName || receivingAgent.lastName) && (
-                <>
-                  {receivingAgent.firstName} {receivingAgent.lastName} <br />
-                </>
-              )}
-              {receivingAgent.phone && (
-                <>
-                  {receivingAgent.phone} <br />
-                </>
-              )}
-              {receivingAgent.email}
-            </dd>
-          </div>
-        )}
-      </dl>
+      {receivingAgent && (
+        <div className={styles.row}>
+          <dt>Receiving agent</dt>
+          <dd>
+            {(receivingAgent.firstName || receivingAgent.lastName) && (
+              <>
+                {receivingAgent.firstName} {receivingAgent.lastName} <br />
+              </>
+            )}
+            {receivingAgent.phone && (
+              <>
+                {receivingAgent.phone} <br />
+              </>
+            )}
+            {receivingAgent.email}
+          </dd>
+        </div>
+      )}
     </div>
   );
 };

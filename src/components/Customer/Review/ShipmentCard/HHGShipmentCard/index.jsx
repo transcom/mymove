@@ -45,27 +45,29 @@ const HHGShipmentCard = ({
             Edit
           </Button>
         </div>
-        <PickupDisplay
-          shipmentId={shipmentId}
-          shipmentType={shipmentType}
-          requestedPickupDate={requestedPickupDate}
-          pickupLocation={pickupLocation}
-          releasingAgent={releasingAgent}
-        />
-        <DeliveryDisplay
-          shipmentId={shipmentId}
-          shipmentType={shipmentType}
-          requestedDeliveryDate={requestedDeliveryDate}
-          destinationLocation={destinationLocation}
-          destinationZIP={destinationZIP}
-          receivingAgent={receivingAgent}
-        />
-        {remarks && (
-          <div className={`${styles.row} ${styles.remarksRow}`}>
-            <dt>Remarks</dt>
-            <dd className={styles.remarksCell}>{remarks}</dd>
-          </div>
-        )}
+        <dl className={styles.shipmentCardSubsection}>
+          <PickupDisplay
+            shipmentId={shipmentId}
+            shipmentType={shipmentType}
+            requestedPickupDate={requestedPickupDate}
+            pickupLocation={pickupLocation}
+            releasingAgent={releasingAgent}
+          />
+          <DeliveryDisplay
+            shipmentId={shipmentId}
+            shipmentType={shipmentType}
+            requestedDeliveryDate={requestedDeliveryDate}
+            destinationLocation={destinationLocation}
+            destinationZIP={destinationZIP}
+            receivingAgent={receivingAgent}
+          />
+          {remarks && (
+            <div className={`${styles.row} ${styles.remarksRow}`}>
+              <dt>Remarks</dt>
+              <dd className={styles.remarksCell}>{remarks}</dd>
+            </div>
+          )}
+        </dl>
       </ShipmentContainer>
     </div>
   );
