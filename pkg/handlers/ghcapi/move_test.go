@@ -19,7 +19,7 @@ import (
 func (suite *HandlerSuite) TestGetMoveHandler() {
 	move := testdatagen.MakeDefaultMove(suite.DB())
 
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req := httptest.NewRequest("GET", fmt.Sprintf("/move/#{move.locator}"), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 	params := moveops.GetMoveParams{

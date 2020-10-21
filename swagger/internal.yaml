@@ -750,7 +750,8 @@ definitions:
       - PPM
       - UB
       - POV
-      - NTS
+      - HHG_INTO_NTS_DOMESTIC
+      - HHG_OUTOF_NTS_DOMESTIC
       - HHG_PPM
     x-nullable: true
     x-display-value:
@@ -758,7 +759,8 @@ definitions:
       PPM: Personal Procured Move
       UB: Unaccompanied Baggage
       POV: Privately-Owned Vehicle
-      NTS: Non-Temporary Storage
+      HHG_INTO_NTS_DOMESTIC: Non-Temporary Storage
+      HHG_OUTOF_NTS_DOMESTIC: Non-Temporary Storage Release
       HHG_PPM: Both HHG and PPM
   IndexMovesPayload:
     type: array
@@ -2680,7 +2682,6 @@ definitions:
         $ref: '#/definitions/MTOAgents'
     required:
       - moveTaskOrderID
-      - pickupAddress
       - shipmentType
   UpdateShipment:
     type: object

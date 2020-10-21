@@ -14,7 +14,7 @@ import (
 
 func (suite *HandlerSuite) TestValidatePostalCodeWithRateDataHandler_Valid() {
 	// create user
-	user := testdatagen.MakeDefaultUser(suite.DB())
+	user := testdatagen.MakeStubbedUser(suite.DB())
 
 	postalCode := "30813"
 	postalCodeTypeString := "Destination"
@@ -52,7 +52,7 @@ func (suite *HandlerSuite) TestValidatePostalCodeWithRateDataHandler_Valid() {
 
 func (suite *HandlerSuite) TestValidatePostalCodeWithRateDataHandler_Invalid() {
 	// create user
-	user := testdatagen.MakeDefaultUser(suite.DB())
+	user := testdatagen.MakeStubbedUser(suite.DB())
 
 	postalCode := "00000"
 	postalCodeTypeString := "Destination"

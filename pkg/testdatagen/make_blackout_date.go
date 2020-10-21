@@ -47,7 +47,7 @@ func MakeBlackoutDate(db *pop.Connection, assertions Assertions) models.Blackout
 
 	mergeModels(&blackoutDate, assertions.BlackoutDate)
 
-	mustCreate(db, &blackoutDate)
+	mustCreate(db, &blackoutDate, assertions.Stub)
 
 	return blackoutDate
 }

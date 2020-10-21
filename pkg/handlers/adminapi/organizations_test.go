@@ -30,7 +30,7 @@ func (suite *HandlerSuite) TestIndexOrganizationsHandler() {
 	}
 	testdatagen.MakeOrganization(suite.DB(), assertions)
 
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req := httptest.NewRequest("GET", "/organizations", nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 

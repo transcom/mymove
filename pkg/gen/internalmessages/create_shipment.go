@@ -32,8 +32,7 @@ type CreateShipment struct {
 	MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
 
 	// pickup address
-	// Required: true
-	PickupAddress *Address `json:"pickupAddress"`
+	PickupAddress *Address `json:"pickupAddress,omitempty"`
 
 	// requested delivery date
 	// Format: date
@@ -135,8 +134,8 @@ func (m *CreateShipment) validateMoveTaskOrderID(formats strfmt.Registry) error 
 
 func (m *CreateShipment) validatePickupAddress(formats strfmt.Registry) error {
 
-	if err := validate.Required("pickupAddress", "body", m.PickupAddress); err != nil {
-		return err
+	if swag.IsZero(m.PickupAddress) { // not required
+		return nil
 	}
 
 	if m.PickupAddress != nil {
