@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { Component } from 'react';
 import { bool, string, func } from 'prop-types';
 import { get } from 'lodash';
@@ -5,7 +6,7 @@ import { connect } from 'react-redux';
 import { Formik } from 'formik';
 
 import { getShipmentOptions } from './getShipmentOptions';
-import { MtoShipmentFormFields } from './MtoShipmentFormFields';
+import MtoShipmentFormFields from './MtoShipmentFormFields';
 
 import {
   selectMTOShipmentForMTO,
@@ -224,10 +225,7 @@ class MtoShipmentForm extends Component {
 
   render() {
     // TODO: replace minimal styling with actual styling during UI phase
-    const { pageKey, pageList, match, history, newDutyStationAddress, selectedMoveType, isCreatePage } = this.props;
-    const { useCurrentResidence, hasDeliveryAddress, initialValues } = this.state;
-    const displayOptions = getShipmentOptions(selectedMoveType);
-    const commonFormProps = {
+    const {
       pageKey,
       pageList,
       match,
@@ -235,6 +233,20 @@ class MtoShipmentForm extends Component {
       newDutyStationAddress,
       selectedMoveType,
       isCreatePage,
+      mtoShipment,
+    } = this.props;
+    const { useCurrentResidence, hasDeliveryAddress, initialValues } = this.state;
+    const displayOptions = getShipmentOptions(selectedMoveType || mtoShipment.shipmentType);
+    const commonFormProps = {
+      pageKey,
+      pageList,
+      match,
+      history,
+      newDutyStationAddress,
+      displayOptions,
+      isCreatePage,
+      useCurrentResidence,
+      hasDeliveryAddress,
     };
 
     const editForm = (
