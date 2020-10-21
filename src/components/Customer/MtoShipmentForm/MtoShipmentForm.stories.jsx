@@ -32,6 +32,26 @@ const defaultProps = {
   isCreatePage: true,
 };
 
+const mockMtoShipment = {
+  id: 'mock id',
+  moveTaskOrderId: 'mock move id',
+  customerRemarks: 'mock remarks',
+  requestedPickupDate: '1 Mar 2020',
+  requestedDeliveryDate: '30 Mar 2020',
+  pickupAddress: {
+    street_address_1: '812 S 129th St',
+    city: 'San Antonio',
+    state: 'TX',
+    postal_code: '78234',
+  },
+  destinationAddress: {
+    street_address_1: '441 SW Rio de la Plata Drive',
+    city: 'Tacoma',
+    state: 'WA',
+    postal_code: '98421',
+  },
+};
+
 export default {
   title: 'Customer Components | MtoShipmentForm',
 };
@@ -52,7 +72,21 @@ export const NTSReleaseShipment = () => renderStory({ selectedMoveType: SHIPMENT
 export const NTSShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.NTS });
 
 // edit shipment stories (form should prefill)
-export const EditHHGShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.HHG, isCreatePage: false });
+export const EditHHGShipment = () =>
+  renderStory({
+    selectedMoveType: SHIPMENT_OPTIONS.HHG,
+    isCreatePage: false,
+    mtoShipment: mockMtoShipment,
+  });
 export const EditNTSReleaseShipment = () =>
-  renderStory({ selectedMoveType: SHIPMENT_OPTIONS.NTSR, isCreatePage: false });
-export const EditNTSShipment = () => renderStory({ selectedMoveType: SHIPMENT_OPTIONS.NTS, isCreatePage: false });
+  renderStory({
+    selectedMoveType: SHIPMENT_OPTIONS.NTSR,
+    isCreatePage: false,
+    mtoShipment: mockMtoShipment,
+  });
+export const EditNTSShipment = () =>
+  renderStory({
+    selectedMoveType: SHIPMENT_OPTIONS.NTS,
+    isCreatePage: false,
+    mtoShipment: mockMtoShipment,
+  });

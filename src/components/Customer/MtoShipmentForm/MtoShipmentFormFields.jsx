@@ -17,7 +17,7 @@ import { SimpleAddressShape } from 'types/address';
 import { MtoDisplayOptionsShape, MtoShipmentFormValuesShape } from 'types/customerShapes';
 import { validateDate } from 'utils/formikValidators';
 
-const MtoShipmentFormFields = (
+const MtoShipmentFormFields = ({
   // formik data
   values,
   history,
@@ -33,8 +33,8 @@ const MtoShipmentFormFields = (
   onUseCurrentResidenceChange,
   submitHandler,
   newDutyStationAddress,
-  isCreateForm,
-) => {
+  isCreatePage,
+}) => {
   return (
     <>
       <div className={`margin-top-2 ${styles['hhg-label']}`}>{`${displayOptions.displayName} ${shipmentNumber}`}</div>
@@ -183,7 +183,7 @@ const MtoShipmentFormFields = (
           your point of contact with the movers. You can also edit in MilMove up to 24 hours before your final pickup
           date.
         </Hint>
-        {!isCreateForm && (
+        {!isCreatePage && (
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <Button
               disabled={isSubmitting || (!isValid && !dirty) || (isValid && !dirty)}
@@ -214,7 +214,7 @@ MtoShipmentFormFields.propTypes = {
   dirty: bool,
 
   // customer data for pre-fill (& submit)
-  isCreateForm: bool.isRequired,
+  isCreatePage: bool,
   newDutyStationAddress: SimpleAddressShape.isRequired,
   onHasDeliveryAddressChange: func.isRequired,
   onUseCurrentResidenceChange: func.isRequired,
@@ -236,6 +236,7 @@ MtoShipmentFormFields.defaultProps = {
 
   // shipment-related data
   shipmentNumber: '',
+  isCreatePage: false,
 };
 
 export default MtoShipmentFormFields;

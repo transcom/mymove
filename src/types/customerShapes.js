@@ -29,7 +29,7 @@ export const MtoShipmentFormValuesShape = shape({
   customerRemarks: string,
 });
 
-export const HhgShipmentShape = shape({
+export const MtoShipmentShape = shape({
   agents: arrayOf(MtoAgentShape),
   customerRemarks: string,
   shipmentType: string,
@@ -38,6 +38,8 @@ export const HhgShipmentShape = shape({
   requestedDeliveryDate: string,
   destinationAddress: AddressShape,
 });
+
+export const HhgShipmentShape = MtoShipmentShape;
 
 export const NtsShipmentShape = shape({
   agents: arrayOf(MtoAgentShape),
@@ -89,6 +91,7 @@ export default {
   MtoShipmentFormValuesShape,
   MtoDisplayOptionsShape,
   MtoAgentShape,
+  MtoShipmentShape,
   HhgShipmentShape,
   NtsShipmentShape,
   NtsrShipmentShape,

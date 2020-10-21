@@ -51,20 +51,17 @@ function mountCreateOrEditMtoShipment(props) {
 describe('CreateOrEditMtoShipment component', () => {
   describe('when shipmentType is HHG', () => {
     it('renders only the MtoShipmentForm component', () => {
-      const wrapper = mountCreateOrEditMtoShipment({
+      const createWrapper = mountCreateOrEditMtoShipment({
         selectedMoveType: SHIPMENT_OPTIONS.HHG,
         match: getMockMatchProp('/moves/:moveId/hhg-start'),
       });
-      expect(wrapper.find('MtoShipmentForm').length).toBe(1);
-      expect(wrapper.find('EditShipment').length).toBe(0);
-    });
+      expect(createWrapper.find('MtoShipmentForm').length).toBe(1);
 
-    it('or renders only the the EditShipment component', () => {
-      const wrapper = mountCreateOrEditMtoShipment({
+      const editWrapper = mountCreateOrEditMtoShipment({
         selectedMoveType: SHIPMENT_OPTIONS.HHG,
+        match: getMockMatchProp('/moves/:moveId/mto-shipments/:mtoShipmentId/edit'),
       });
-      expect(wrapper.find('EditShipment').length).toBe(1);
-      expect(wrapper.find('MtoShipmentForm').length).toBe(0);
+      expect(editWrapper.find('MtoShipmentForm').length).toBe(1);
     });
   });
 

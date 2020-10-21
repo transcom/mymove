@@ -18,84 +18,32 @@ import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/ser
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
 import { WizardPage } from 'shared/WizardPage';
 import { AddressShape, SimpleAddressShape } from 'types/address';
-import {
-  HhgShipmentShape,
-  MtoDisplayOptionsShape,
-  MatchShape,
-  HistoryShape,
-  PageKeyShape,
-  PageListShape,
-} from 'types/customerShapes';
-import { formatMtoShipment } from 'utils/formatMtoShipment';
-
-/**
- * cleanAgentPhone removes dashes from agent phones for expected form phone format
- * (handling diff between expected FE and BE phone format)
- * @param {*} agent
- */
-function cleanAgentPhone(agent) {
-  const agentCopy = { ...agent };
-  Object.keys(agentCopy).forEach((key) => {
-    /* eslint-disable security/detect-object-injection */
-    if (key === 'phone') {
-      const phoneNum = agentCopy[key];
-      // will be in format xxxxxxxxxx
-      agentCopy[key] = phoneNum.split('-').join('');
-    }
-  });
-  return agentCopy;
-}
+import { HhgShipmentShape, MatchShape, HistoryShape, PageKeyShape, PageListShape } from 'types/customerShapes';
+import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
 
 class MtoShipmentForm extends Component {
   constructor(props) {
     super(props);
+    const initialValues = formatMtoShipmentForDisplay(props.isCreatePage ? {} : props.mtoShipment);
     this.state = {
-      hasDeliveryAddress: get(props.mtoShipment, 'destinationAddress', false),
+      initialValues,
+      hasDeliveryAddress: initialValues.hasDeliveryAddress,
       useCurrentResidence: false,
-      initialValues: {
-        customerRemarks: '',
-        pickup: {
-          address: {
-            street_address_1: '',
-            street_address_2: '',
-            city: '',
-            state: '',
-            postal_code: '',
-          },
-          agent: {
-            firstName: '',
-            lastName: '',
-            email: '',
-            phone: '',
-          },
-        },
-        delivery: {
-          address: {
-            street_address_1: '',
-            street_address_2: '',
-            city: '',
-            state: '',
-            postal_code: '',
-          },
-          agent: {
-            firstName: '',
-            lastName: '',
-            email: '',
-            phone: '',
-          },
-        },
-      },
     };
   }
 
   componentDidMount() {
-    const { showLoggedInUser, isCreatePage, mtoShipment } = this.props;
+    const { showLoggedInUser, mtoShipment, isCreatePage } = this.props;
     showLoggedInUser();
 
     // TODO: confirm this block should exist
     // If refreshing edit page, need to handle mtoShipment populating from a promise
     if (!isCreatePage && mtoShipment.id) {
-      this.setInitialState(mtoShipment);
+      const initialValues = formatMtoShipmentForDisplay(mtoShipment);
+      this.setState({
+        initialValues,
+        hasDeliveryAddress: initialValues.hasDeliveryAddress,
+      });
     }
   }
 
@@ -104,7 +52,12 @@ class MtoShipmentForm extends Component {
 
     // If refreshing edit page, need to handle mtoShipment populating from a promise
     if (!isCreatePage && mtoShipment.id && prevProps.mtoShipment.id !== mtoShipment.id) {
-      this.setInitialEditState(mtoShipment);
+      const initialValues = formatMtoShipmentForDisplay(mtoShipment);
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({
+        initialValues,
+        hasDeliveryAddress: initialValues.hasDeliveryAddress,
+      });
     }
   }
 
@@ -161,7 +114,7 @@ class MtoShipmentForm extends Component {
     );
   };
 
-  submitMTOShipment = ({ pickup, delivery, customerRemarks }) => {
+  submitMTOShipment = ({ shipmentType, pickup, delivery, customerRemarks }) => {
     const {
       createMTOShipment,
       updateMTOShipment,
@@ -173,8 +126,8 @@ class MtoShipmentForm extends Component {
     } = this.props;
     const { moveId } = match.params;
 
-    const pendingMtoShipment = formatMtoShipment({
-      shipmentType: selectedMoveType,
+    const pendingMtoShipment = formatMtoShipmentForAPI({
+      shipmentType: shipmentType || selectedMoveType,
       moveId,
       customerRemarks,
       pickup,
@@ -188,32 +141,6 @@ class MtoShipmentForm extends Component {
         history.goBack();
       });
     }
-  };
-
-  // TODO: finish updating to match new initialState structure
-  setInitialEditState = (mtoShipment) => {
-    // for existing mtoShipment, reshape agents from array of objects to key/object for proper handling
-    const { agents } = mtoShipment;
-    const formattedMTOShipment = { ...mtoShipment };
-    if (agents) {
-      const receivingAgent = agents.find((agent) => agent.agentType === 'RECEIVING_AGENT');
-      const releasingAgent = agents.find((agent) => agent.agentType === 'RELEASING_AGENT');
-
-      if (receivingAgent) {
-        const formattedAgent = cleanAgentPhone(receivingAgent);
-        if (Object.keys(formattedAgent).length) {
-          formattedMTOShipment.delivery.agent = { ...formattedAgent };
-        }
-      }
-      if (releasingAgent) {
-        const formattedAgent = cleanAgentPhone(releasingAgent);
-        if (Object.keys(formattedAgent).length) {
-          formattedMTOShipment.pickup.agent = { ...formattedAgent };
-        }
-      }
-    }
-    const hasDeliveryAddress = get(mtoShipment, 'destinationAddress', false);
-    this.setState({ initialValues: formattedMTOShipment, hasDeliveryAddress });
   };
 
   getShipmentNumber = () => {
@@ -238,13 +165,13 @@ class MtoShipmentForm extends Component {
     const { useCurrentResidence, hasDeliveryAddress, initialValues } = this.state;
     const displayOptions = getShipmentOptions(selectedMoveType || mtoShipment.shipmentType);
     const commonFormProps = {
+      isCreatePage,
       pageKey,
       pageList,
       match,
       history,
       newDutyStationAddress,
       displayOptions,
-      isCreatePage,
       useCurrentResidence,
       hasDeliveryAddress,
     };
@@ -321,7 +248,6 @@ MtoShipmentForm.propTypes = {
   currentResidence: AddressShape.isRequired,
   newDutyStationAddress: SimpleAddressShape,
   selectedMoveType: string.isRequired,
-  displayOptions: MtoDisplayOptionsShape.isRequired,
   mtoShipment: HhgShipmentShape,
 };
 
