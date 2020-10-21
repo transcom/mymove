@@ -69,6 +69,7 @@ describe('CreateOrEditMtoShipment component', () => {
     it('renders only the MtoShipmentForm component', () => {
       const wrapper = mountCreateOrEditMtoShipment({
         selectedMoveType: SHIPMENT_OPTIONS.NTS,
+        wizardPage: mockWizardPage('/moves/:moveId/nts-start'),
       });
       expect(wrapper.find('MtoShipmentForm').length).toBe(1);
       expect(wrapper.find('EditShipment').length).toBe(0);
@@ -79,6 +80,7 @@ describe('CreateOrEditMtoShipment component', () => {
     it('renders only the NTSDetailsForm component', () => {
       const wrapper = mountCreateOrEditMtoShipment({
         selectedMoveType: SHIPMENT_OPTIONS.NTSR,
+        wizardPage: mockWizardPage('/moves/:moveId/ntsr-start'),
       });
       expect(wrapper.find('MtoShipmentForm').length).toBe(1);
       expect(wrapper.find('EditShipment').length).toBe(0);

@@ -70,8 +70,8 @@ export function formatMtoShipment({ moveId, shipmentType, pickup, delivery, cust
     }
   }
 
-  if (!formatMtoShipment.agents?.length) {
-    formatMtoShipment.agents = undefined;
+  if (!formattedMtoShipment.agents?.length) {
+    formattedMtoShipment.agents = undefined;
   }
 
   return formattedMtoShipment;

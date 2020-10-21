@@ -128,9 +128,9 @@ function customerReviewsMoveDetailsAndEditsHHG() {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/mto-shipments\/[^/]+\/edit-shipment/);
   });
 
-  // Ensure remarks is displayed in form
   cy.get(`[data-testid="firstName"]`).last().type('Johnson');
 
+  // Ensure remarks is displayed in form
   cy.get(`[data-testid="remarks"]`).contains('some customer remark');
 
   // Edit remarks and agent info
