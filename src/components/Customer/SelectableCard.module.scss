@@ -15,6 +15,9 @@
   :global(.usa-radio__label) {
     font-weight: bold;
   }
+  :global(.usa-radio__input:disabled + .usa-radio__label) {
+    color: $base-darkest;
+  }
 }
 
 .cardTitle {
