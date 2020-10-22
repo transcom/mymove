@@ -169,7 +169,7 @@ const MtoShipmentFormFields = ({
           </>
         )}
         {isNTS && (
-          <>
+          <div data-testid="nts-what-to-expect">
             <Divider className="margin-top-4 margin-bottom-4" />
             <Fieldset legend="What you can expect">
               <p>
@@ -181,7 +181,7 @@ const MtoShipmentFormFields = ({
                 future move.
               </p>
             </Fieldset>
-          </>
+          </div>
         )}
         <Divider className="margin-top-4 margin-bottom-4" />
         <Fieldset hintText="Optional" legend="Remarks">

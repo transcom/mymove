@@ -60,13 +60,18 @@ const mountMtoShipmentForm = (props) => mount(<MtoShipmentForm {...defaultProps}
 
 describe('MtoShipmentForm component', () => {
   describe('creating a new HHG shipment', () => {
+    const createHhgWrapper = mountMtoShipmentForm({ selectedMoveType: SHIPMENT_OPTIONS.HHG });
+
     it('renders expected child components', () => {
-      const wrapper = mountMtoShipmentForm({ selectedMoveType: SHIPMENT_OPTIONS.HHG });
-      expect(wrapper.find('MtoShipmentForm').length).toBe(1);
-      expect(wrapper.find('DatePickerInput').length).toBe(2);
-      expect(wrapper.find('AddressFields').length).toBe(1);
-      expect(wrapper.find('ContactInfoFields').length).toBe(2);
-      expect(wrapper.find('input[name="customerRemarks"]').length).toBe(1);
+      expect(createHhgWrapper.find('MtoShipmentForm').length).toBe(1);
+      expect(createHhgWrapper.find('DatePickerInput').length).toBe(2);
+      expect(createHhgWrapper.find('AddressFields').length).toBe(1);
+      expect(createHhgWrapper.find('ContactInfoFields').length).toBe(2);
+      expect(createHhgWrapper.find('input[name="customerRemarks"]').length).toBe(1);
+    });
+
+    it('does not render special NTS What to expect section', () => {
+      expect(createHhgWrapper.find('div[data-testid="nts-what-to-expect"]').length).toBe(0);
     });
 
     // TODO - Formik & Enzyme don't play well together :( - https://github.com/formium/formik/issues/937
@@ -107,24 +112,34 @@ describe('MtoShipmentForm component', () => {
   });
 
   describe('creating a new NTS shipment', () => {
+    const createNtsWrapper = mountMtoShipmentForm({ selectedMoveType: SHIPMENT_OPTIONS.NTS });
+
     it('renders expected child components', () => {
-      const wrapper = mountMtoShipmentForm({ selectedMoveType: SHIPMENT_OPTIONS.NTS });
-      expect(wrapper.find('MtoShipmentForm').length).toBe(1);
-      expect(wrapper.find('DatePickerInput').length).toBe(1);
-      expect(wrapper.find('AddressFields').length).toBe(1);
-      expect(wrapper.find('ContactInfoFields').length).toBe(1);
-      expect(wrapper.find('input[name="customerRemarks"]').length).toBe(1);
+      expect(createNtsWrapper.find('MtoShipmentForm').length).toBe(1);
+      expect(createNtsWrapper.find('DatePickerInput').length).toBe(1);
+      expect(createNtsWrapper.find('AddressFields').length).toBe(1);
+      expect(createNtsWrapper.find('ContactInfoFields').length).toBe(1);
+      expect(createNtsWrapper.find('input[name="customerRemarks"]').length).toBe(1);
+    });
+
+    it('renders special NTS What to expect section', () => {
+      expect(createNtsWrapper.find('div[data-testid="nts-what-to-expect"]').length).toBe(1);
     });
   });
 
   describe('creating a new NTS-R shipment', () => {
+    const createNtsrWrapper = mountMtoShipmentForm({ selectedMoveType: SHIPMENT_OPTIONS.NTSR });
+
     it('renders expected child components', () => {
-      const wrapper = mountMtoShipmentForm({ selectedMoveType: SHIPMENT_OPTIONS.NTSR });
-      expect(wrapper.find('MtoShipmentForm').length).toBe(1);
-      expect(wrapper.find('DatePickerInput').length).toBe(1);
-      expect(wrapper.find('AddressFields').length).toBe(0);
-      expect(wrapper.find('ContactInfoFields').length).toBe(1);
-      expect(wrapper.find('input[name="customerRemarks"]').length).toBe(1);
+      expect(createNtsrWrapper.find('MtoShipmentForm').length).toBe(1);
+      expect(createNtsrWrapper.find('DatePickerInput').length).toBe(1);
+      expect(createNtsrWrapper.find('AddressFields').length).toBe(0);
+      expect(createNtsrWrapper.find('ContactInfoFields').length).toBe(1);
+      expect(createNtsrWrapper.find('input[name="customerRemarks"]').length).toBe(1);
+    });
+
+    it('does not render special NTS What to expect section', () => {
+      expect(createNtsrWrapper.find('div[data-testid="nts-what-to-expect"]').length).toBe(0);
     });
   });
 });
