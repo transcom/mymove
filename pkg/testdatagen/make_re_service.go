@@ -19,7 +19,7 @@ func MakeReService(db *pop.Connection, assertions Assertions) models.ReService {
 	// Overwrite values with those from assertions
 	mergeModels(&reService, assertions.ReService)
 
-	mustCreate(db, &reService)
+	mustCreate(db, &reService, assertions.Stub)
 
 	return reService
 }

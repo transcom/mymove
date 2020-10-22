@@ -28,7 +28,7 @@ func MakeMTOServiceItemDimension(db *pop.Connection, assertions Assertions) mode
 	// Overwrite values with those from assertions
 	mergeModels(&MTOServiceItemDimension, assertions.MTOServiceItemDimension)
 
-	mustCreate(db, &MTOServiceItemDimension)
+	mustCreate(db, &MTOServiceItemDimension, assertions.Stub)
 
 	return MTOServiceItemDimension
 }

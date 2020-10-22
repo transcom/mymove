@@ -63,7 +63,7 @@ func MakeUpload(db *pop.Connection, assertions Assertions) models.Upload {
 
 		mergeModels(upload, assertions.Upload)
 
-		mustCreate(db, upload)
+		mustCreate(db, upload, assertions.Stub)
 	}
 
 	return *upload

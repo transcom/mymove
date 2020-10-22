@@ -28,7 +28,7 @@ func MakeDistanceCalculation(db *pop.Connection, assertions Assertions) models.D
 
 	mergeModels(&distanceCalculation, assertions.DistanceCalculation)
 
-	mustCreate(db, &distanceCalculation)
+	mustCreate(db, &distanceCalculation, assertions.Stub)
 
 	return distanceCalculation
 }

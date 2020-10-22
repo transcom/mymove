@@ -45,9 +45,7 @@ func MakeOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser
 
 	mergeModels(&officeUser, assertions.OfficeUser)
 
-	if assertions.Stub != true {
-		mustCreate(db, &officeUser)
-	}
+	mustCreate(db, &officeUser, assertions.Stub)
 
 	return officeUser
 }
@@ -77,7 +75,7 @@ func MakeOfficeUserWithNoUser(db *pop.Connection, assertions Assertions) models.
 
 	mergeModels(&officeUser, assertions.OfficeUser)
 
-	mustCreate(db, &officeUser)
+	mustCreate(db, &officeUser, assertions.Stub)
 
 	return officeUser
 }

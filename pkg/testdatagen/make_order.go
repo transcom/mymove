@@ -95,7 +95,7 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 	// Overwrite values with those from assertions
 	mergeModels(&order, assertions.Order)
 
-	mustCreate(db, &order)
+	mustCreate(db, &order, assertions.Stub)
 
 	return order
 }

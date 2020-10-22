@@ -55,7 +55,7 @@ require (
 	github.com/namsral/flag v1.7.4-pre
 	github.com/pdfcpu/pdfcpu v0.2.5
 	github.com/pkg/errors v0.9.1
-	github.com/pkg/sftp v1.10.1
+	github.com/pkg/sftp v1.12.0
 	github.com/rickar/cal v1.0.5
 	github.com/spf13/afero v1.4.1
 	github.com/spf13/cobra v0.0.7
@@ -69,7 +69,7 @@ require (
 	go.mozilla.org/pkcs7 v0.0.0-20181213175627-3cffc6fbfe83
 	go.uber.org/zap v1.15.0
 	goji.io v2.0.2+incompatible
-	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
+	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
 	golang.org/x/net v0.0.0-20200930145003-4acb6c075d10
 	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
 	golang.org/x/text v0.3.3

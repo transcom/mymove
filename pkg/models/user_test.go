@@ -176,7 +176,7 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 func (suite *ModelSuite) TestFetchAppUserIdentities() {
 
 	suite.T().Run("default user no profile", func(t *testing.T) {
-		testdatagen.MakeDefaultUser(suite.DB())
+		testdatagen.MakeStubbedUser(suite.DB())
 		identities, err := FetchAppUserIdentities(suite.DB(), auth.MilApp, 5)
 		suite.NoError(err)
 		suite.Empty(identities)

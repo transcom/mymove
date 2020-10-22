@@ -31,7 +31,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 	moveTaskOrderID, _ := uuid.FromString("96e21765-3e29-4acf-89a2-1317a9f7f0da")
 	paymentRequestID, _ := uuid.FromString("70c0c9c1-cf3f-4195-b15c-d185dc5cd0bf")
 
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
 	suite.T().Run("successful create payment request", func(t *testing.T) {
 		returnedPaymentRequest := models.PaymentRequest{

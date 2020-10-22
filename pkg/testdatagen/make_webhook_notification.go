@@ -28,7 +28,7 @@ func MakeWebhookNotification(db *pop.Connection, assertions Assertions) models.W
 	// Overwrite the defaults with values provided
 	mergeModels(&notification, assertions.WebhookNotification)
 
-	mustCreate(db, &notification)
+	mustCreate(db, &notification, assertions.Stub)
 
 	return notification
 }

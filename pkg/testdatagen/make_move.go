@@ -60,7 +60,7 @@ func MakeMove(db *pop.Connection, assertions Assertions) models.Move {
 	// Overwrite values with those from assertions
 	mergeModels(&move, assertions.Move)
 
-	mustCreate(db, &move)
+	mustCreate(db, &move, assertions.Stub)
 
 	return move
 }
@@ -100,7 +100,7 @@ func MakeMoveWithoutMoveType(db *pop.Connection, assertions Assertions) models.M
 	// Overwrite values with those from assertions
 	mergeModels(&move, assertions.Move)
 
-	mustCreate(db, &move)
+	mustCreate(db, &move, assertions.Stub)
 
 	return move
 }

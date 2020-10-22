@@ -21,7 +21,7 @@ func MakeServiceItemParamKey(db *pop.Connection, assertions Assertions) models.S
 	// Overwrite values with those from assertions
 	mergeModels(&serviceItemParamKey, assertions.ServiceItemParamKey)
 
-	mustCreate(db, &serviceItemParamKey)
+	mustCreate(db, &serviceItemParamKey, assertions.Stub)
 
 	return serviceItemParamKey
 }

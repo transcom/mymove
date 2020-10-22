@@ -123,9 +123,8 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 				return fmt.Errorf("failed to create pickup address %#v %e", verrs, err)
 			}
 			shipment.PickupAddressID = &shipment.PickupAddress.ID
-		} else {
-			// Swagger should pick this up before it ever gets here
-			return services.NewInvalidInputError(uuid.Nil, nil, nil, "PickupAddress is required to create MTO shipment")
+		} else if shipment.ShipmentType == models.MTOShipmentTypeHHG {
+			return services.NewInvalidInputError(uuid.Nil, nil, nil, "PickupAddress is required to create an HHG type MTO shipment")
 		}
 
 		if shipment.DestinationAddress != nil {

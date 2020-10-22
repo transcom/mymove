@@ -107,7 +107,7 @@ func MakeFuelEIADieselPrices(db *pop.Connection, assertions Assertions) {
 			nextPubDate = nextPubDate.AddDate(0, 0, 28)
 			nextStartDate = nextEndDate.AddDate(0, 0, 1)
 			nextEndDate = nextStartDate.AddDate(0, 1, -1)
-			mustCreate(db, &fuelPrice)
+			mustCreate(db, &fuelPrice, assertions.Stub)
 
 			recordCount++
 		}
@@ -180,7 +180,7 @@ func MakeFuelEIADieselPriceForDate(db *pop.Connection, shipmentDate time.Time, a
 	// Overwrite values with those from assertions
 	mergeModels(&fuelPrice, assertions.FuelEIADieselPrice)
 
-	mustCreate(db, &fuelPrice)
+	mustCreate(db, &fuelPrice, assertions.Stub)
 
 	return fuelPrice
 }

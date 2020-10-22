@@ -26,7 +26,7 @@ func NewGHCPaymentRequestInvoiceGenerator(db *pop.Connection) services.GHCPaymen
 	}
 }
 
-const dateFormat = "20060102"
+const dateFormat = "060102"
 const timeFormat = "1504"
 
 // Generate method takes a payment request and returns an Invoice858C
@@ -94,11 +94,11 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		AuthorizationInformationQualifier: "00", // No authorization information
 		AuthorizationInformation:          "0084182369",
 		SecurityInformationQualifier:      "00", // No security information
-		SecurityInformation:               "_   _",
+		SecurityInformation:               "0000000000",
 		InterchangeSenderIDQualifier:      "ZZ",
-		InterchangeSenderID:               "GOVDPIBS",
+		InterchangeSenderID:               fmt.Sprintf("%-15s", "MYMOVE"),
 		InterchangeReceiverIDQualifier:    "12",
-		InterchangeReceiverID:             "8004171844",
+		InterchangeReceiverID:             fmt.Sprintf("%-15s", "8004171844"),
 		InterchangeDate:                   currentTime.Format(dateFormat),
 		InterchangeTime:                   currentTime.Format(timeFormat),
 		InterchangeControlStandards:       "U",

@@ -16,7 +16,7 @@ func MakeReContract(db *pop.Connection, assertions Assertions) models.ReContract
 	// Overwrite values with those from assertions
 	mergeModels(&reContract, assertions.ReContract)
 
-	mustCreate(db, &reContract)
+	mustCreate(db, &reContract, assertions.Stub)
 
 	return reContract
 }
