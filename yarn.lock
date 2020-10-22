@@ -8955,10 +8955,10 @@ handle-thing@^2.0.0:
   resolved "https://registry.yarnpkg.com/handle-thing/-/handle-thing-2.0.1.tgz#857f79ce359580c340d43081cc648970d0bb234e"
   integrity sha512-9Qn4yBxelxoh2Ow62nP+Ka/kMnOXRi8BXnRaUwezLNhqelnN49xKz4F/dPP8OYLxLxq6JDtZb2i9XznUQbNPTg==
 
-happo-plugin-storybook@^2.5.3:
-  version "2.5.3"
-  resolved "https://registry.yarnpkg.com/happo-plugin-storybook/-/happo-plugin-storybook-2.5.3.tgz#bd8b88003b7c56f64506eb04abe909d506c1ce6f"
-  integrity sha512-IeqPN9ZZuiW+GRZ0Ri/yEccaSYRxwwxzQ6IUAgECoHjvB//O4TPmmKU75hIlBtZ6xpqm3zvcp+NDJzq833j0Yg==
+happo-plugin-storybook@^2.5.3, happo-plugin-storybook@^2.6.0:
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/happo-plugin-storybook/-/happo-plugin-storybook-2.6.0.tgz#b85953cce8d83cad0b43eb5ecf3ee5d43bfe0d4e"
+  integrity sha512-pvoKdr6AriFAhdw9dYB2DN89wqpwuwBFYx1ajhyfAyY4ipfe6mfvPt1lnvtqcL5zsM041+E+O13XSU4ZfvRSiA==
   dependencies:
     "@babel/runtime" ">=7.0.0"
     archiver "^3.0.0"
@@ -12567,10 +12567,10 @@ normalize-url@^3.0.0:
   resolved "https://registry.yarnpkg.com/normalize-url/-/normalize-url-3.3.0.tgz#b2e1c4dc4f7c6d57743df733a4f5978d18650559"
   integrity sha512-U+JJi7duF1o+u2pynbp2zXDW2/PADgC30f0GsHZtRh+HOcXHnw137TrNlyxxRvWW5fjKd3bcLHPxofWuCjaeZg==
 
-normalizr@^3.6.0:
-  version "3.6.0"
-  resolved "https://registry.yarnpkg.com/normalizr/-/normalizr-3.6.0.tgz#b8bbc4546ffe43c1c2200503041642915fcd3e1c"
-  integrity sha512-25cd8DiDu+pL46KIaxtVVvvEPjGacJgv0yUg950evr62dQ/ks2JO1kf7+Vi5/rMFjaSTSTls7aCnmRlUSljtiA==
+normalizr@^3.6.1:
+  version "3.6.1"
+  resolved "https://registry.yarnpkg.com/normalizr/-/normalizr-3.6.1.tgz#d367ab840e031ff382141b8d81ce279292ff69fe"
+  integrity sha512-8iEmqXmPtll8PwbEFrbPoDxVw7MKnNvt3PZzR2Xvq9nggEEOgBlNICPXYzyZ4w4AkHUzCU998mdatER3n2VaMA==
 
 npm-run-path@^2.0.0:
   version "2.0.2"
@@ -14441,9 +14441,9 @@ qs@~6.5.2:
   integrity sha512-N5ZAX4/LxJmF+7wN74pUD6qAh9/wnvdQcjq9TZjevvXzSUo7bfmw91saqMjzGS2xq91/odN2dW/WOl7qQHNDGA==
 
 query-string@6, query-string@^6.1.0, query-string@^6.8.2:
-  version "6.13.5"
-  resolved "https://registry.yarnpkg.com/query-string/-/query-string-6.13.5.tgz#99e95e2fb7021db90a6f373f990c0c814b3812d8"
-  integrity sha512-svk3xg9qHR39P3JlHuD7g3nRnyay5mHbrPctEBDUxUkHRifPHXJDhBUycdCC0NBjXoDf44Gb+IsOZL1Uwn8M/Q==
+  version "6.13.6"
+  resolved "https://registry.yarnpkg.com/query-string/-/query-string-6.13.6.tgz#e5ac7c74f2a5da43fbca0b883b4f0bafba439966"
+  integrity sha512-/WWZ7d9na6s2wMEGdVCVgKWE9Rt7nYyNIf7k8xmHXcesPMlEzicWo3lbYwHyA4wBktI2KrXxxZeACLbE84hvSQ==
   dependencies:
     decode-uri-component "^0.2.0"
     split-on-first "^1.0.0"

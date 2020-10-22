@@ -39,7 +39,7 @@ func TestGHCInvoiceSuite(t *testing.T) {
 	ts.PopTestSuite.TearDown()
 }
 
-const testDateFormat = "20060102"
+const testDateFormat = "060102"
 const testTimeFormat = "1504"
 
 func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
@@ -176,11 +176,11 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal("00", result.ISA.AuthorizationInformationQualifier)
 		suite.Equal("0084182369", result.ISA.AuthorizationInformation)
 		suite.Equal("00", result.ISA.SecurityInformationQualifier)
-		suite.Equal("_   _", result.ISA.SecurityInformation)
+		suite.Equal("0000000000", result.ISA.SecurityInformation)
 		suite.Equal("ZZ", result.ISA.InterchangeSenderIDQualifier)
-		suite.Equal("GOVDPIBS", result.ISA.InterchangeSenderID)
+		suite.Equal("MYMOVE         ", result.ISA.InterchangeSenderID)
 		suite.Equal("12", result.ISA.InterchangeReceiverIDQualifier)
-		suite.Equal("8004171844", result.ISA.InterchangeReceiverID)
+		suite.Equal("8004171844     ", result.ISA.InterchangeReceiverID)
 		suite.Equal(currentTime.Format(testDateFormat), result.ISA.InterchangeDate)
 		suite.Equal(currentTime.Format(testTimeFormat), result.ISA.InterchangeTime)
 		suite.Equal("U", result.ISA.InterchangeControlStandards)
