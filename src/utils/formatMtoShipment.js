@@ -41,11 +41,13 @@ function formatAddressForAPI(address) {
 
   if (formattedAddress.state) {
     formattedAddress.state = formattedAddress.state?.toUpperCase();
+    delete formattedAddress.id;
     return formattedAddress;
   }
 
   return undefined;
 }
+
 const emptyAgentShape = {
   firstName: '',
   lastName: '',

@@ -43,7 +43,9 @@ const MtoShipmentFormFields = ({
 
   return (
     <>
-      <div className={`margin-top-2 ${styles['hhg-label']}`}>{`${displayOptions.displayName} ${shipmentNumber}`}</div>
+      {shipmentNumber && (
+        <div className={`margin-top-2 ${styles['hhg-label']}`}>{`${displayOptions.displayName} ${shipmentNumber}`}</div>
+      )}
       <h1 className="margin-top-1">
         {isHHG && hhgFormHeader}
         {isNTS && ntsFormHeader}

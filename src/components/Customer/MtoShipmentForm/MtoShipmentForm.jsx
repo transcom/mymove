@@ -51,7 +51,7 @@ class MtoShipmentForm extends Component {
   };
 
   getShipmentNumber = () => {
-    // TODO - fix
+    // TODO - this is not supported by IE11, shipment number should be calculable from Redux anyways
     const { search } = window.location;
     const params = new URLSearchParams(search);
     const shipmentNumber = params.get('shipmentNumber');
@@ -85,6 +85,7 @@ class MtoShipmentForm extends Component {
       newDutyStationAddress,
       displayOptions,
       serviceMember,
+      shipmentNumber: displayOptions.displayName === 'HHG' ? this.getShipmentNumber() : null,
     };
 
     return (
