@@ -14,15 +14,9 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { formatSwaggerDate } from 'shared/formatters';
 import './index.css';
 import { createSignedCertification } from 'shared/Entities/modules/signed_certifications';
-import { selectActivePPMForMove, loadPPMs } from 'shared/Entities/modules/ppms';
+import { loadPPMs } from 'shared/Entities/modules/ppms';
 import { submitMoveForApproval } from 'shared/Entities/modules/moves';
-import {
-  completeCertificationText,
-  ppmStandardLiability,
-  storageLiability,
-  ppmAdvance,
-  additionalInformation,
-} from './legaleseText';
+import { completeCertificationText } from './legaleseText';
 import { showSubmitSuccessBanner, removeSubmitSuccessBanner } from './ducks';
 
 const formName = 'signature-form';
@@ -37,19 +31,11 @@ export class SignedCertification extends Component {
     this.props.loadPPMs(this.props.moveId);
   }
 
-  getCertificationText(hasSit, hasRequestedAdvance) {
-    const txt = [ppmStandardLiability];
-    if (hasSit) txt.push(storageLiability);
-    if (hasRequestedAdvance) txt.push(ppmAdvance);
-    txt.push(additionalInformation);
-    return txt.join('');
-  }
-
   submitCertificate = () => {
     const signatureTime = moment().format();
     const { currentPpm, moveId, values, selectedMoveType } = this.props;
     const certificate = {
-      certification_text: this.getCertificationText(currentPpm.has_sit, currentPpm.has_requested_advance),
+      certification_text: completeCertificationText,
       date: signatureTime,
       signature: values.signature,
       personally_procured_move_id: currentPpm.id,
@@ -84,13 +70,13 @@ export class SignedCertification extends Component {
   }
 
   render() {
-    const { hasSubmitError, pages, pageKey, latestSignedCertification, currentPpm } = this.props;
+    const { hasSubmitError, pages, pageKey, latestSignedCertification } = this.props;
     const today = formatSwaggerDate(new Date());
     const initialValues = {
       date: get(latestSignedCertification, 'date', today),
       signature: get(latestSignedCertification, 'signature', null),
     };
-    const certificationText = this.getCertificationText(currentPpm.has_sit, currentPpm.has_requested_advance);
+    const certificationText = completeCertificationText;
     const instructionsText = (
       <>
         <p>
@@ -179,10 +165,10 @@ function mapStateToProps(state, ownProps) {
     hasLoggedInUser: selectGetCurrentUserIsSuccess(state),
     values: getFormValues(formName)(state),
     ...state.signedCertification,
-    currentPpm: selectActivePPMForMove(state, moveId),
-    tempPpmId: get(state.ppm, 'currentPpm.id', null),
-    has_sit: get(state.ppm, 'currentPpm.has_sit', false),
-    has_advance: get(state.ppm, 'currentPpm.has_requested_advance', false),
+    // currentPpm: selectActivePPMForMove(state, moveId),
+    // tempPpmId: get(state.ppm, 'currentPpm.id', null),
+    // has_sit: get(state.ppm, 'currentPpm.has_sit', false),
+    // has_advance: get(state.ppm, 'currentPpm.has_requested_advance', false),
     selectedMoveType: ownProps.selectedMoveType,
   };
 }
