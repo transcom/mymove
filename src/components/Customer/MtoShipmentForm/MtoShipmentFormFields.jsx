@@ -167,10 +167,10 @@ const MtoShipmentFormFields = ({
             />
           </>
         )}
-        <Divider className="margin-top-4 margin-bottom-4" />
-        <Fieldset legend="What you can expect">
-          {isNTS && (
-            <>
+        {isNTS && (
+          <>
+            <Divider className="margin-top-4 margin-bottom-4" />
+            <Fieldset legend="What you can expect">
               <p>
                 The moving company will find a storage facility approved by the government, and will move your
                 belongings there.
@@ -179,9 +179,9 @@ const MtoShipmentFormFields = ({
                 You&rsquo;ll need to schedule an NTS release shipment to get your items back, most likely as part of a
                 future move.
               </p>
-            </>
-          )}
-        </Fieldset>
+            </Fieldset>
+          </>
+        )}
         <Divider className="margin-top-4 margin-bottom-4" />
         <Fieldset hintText="Optional" legend="Remarks">
           <div className={`${styles['small-bold']} margin-top-3 margin-bottom-1`}>
