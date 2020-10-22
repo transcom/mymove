@@ -23,6 +23,12 @@ h1.selectTypeHeader.header {
 .gridContainer {
   :global(.grid-row) {
     @include u-padding-top(3);
+    .pSmall {
+      font-weight: normal;
+      color: $base;
+      font-size: 13px;
+      line-height: 1.25;
+    }
   }
 
   h2 + p,

@@ -161,7 +161,7 @@ export class SelectMoveType extends Component {
               {isHhgSelectable ? hhgEnabledCard : hhgDisabledCard}
               <h3 data-testid="long-term-storage-heading">Long-term storage</h3>
               {!isNtsSelectable && !isNtsrSelectable ? (
-                <p>{noLongTermStorageCardsText}</p>
+                <p className={styles.pSmall}>{noLongTermStorageCardsText}</p>
               ) : (
                 <>
                   <p>These shipments do count against your weight allowance for this move.</p>
