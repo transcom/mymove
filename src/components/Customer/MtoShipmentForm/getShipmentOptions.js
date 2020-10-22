@@ -44,7 +44,9 @@ export function getShipmentOptions(shipmentType) {
         displayName: 'NTS-R',
       };
     default:
-      throw new Error('unrecognized shipment type');
+      return {
+        displayName: '',
+      }; // shipmentType can be undefined on reload
   }
 }
 

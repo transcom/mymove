@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { Component } from 'react';
-import { bool, string, func } from 'prop-types';
+import { bool, string, func, shape } from 'prop-types';
 import { get } from 'lodash';
 import { connect } from 'react-redux';
 import { Formik } from 'formik';
@@ -161,6 +161,7 @@ class MtoShipmentForm extends Component {
       selectedMoveType,
       isCreatePage,
       mtoShipment,
+      serviceMember,
     } = this.props;
     const { useCurrentResidence, hasDeliveryAddress, initialValues } = this.state;
     const displayOptions = getShipmentOptions(selectedMoveType || mtoShipment.shipmentType);
@@ -174,6 +175,7 @@ class MtoShipmentForm extends Component {
       displayOptions,
       useCurrentResidence,
       hasDeliveryAddress,
+      serviceMember,
     };
 
     const editForm = (
@@ -249,6 +251,11 @@ MtoShipmentForm.propTypes = {
   newDutyStationAddress: SimpleAddressShape,
   selectedMoveType: string.isRequired,
   mtoShipment: HhgShipmentShape,
+  serviceMember: shape({
+    weight_allotment: shape({
+      total_weight_self: string,
+    }),
+  }).isRequired,
 };
 
 MtoShipmentForm.defaultProps = {
@@ -278,8 +285,10 @@ MtoShipmentForm.defaultProps = {
 
 const mapStateToProps = (state, ownProps) => {
   const orders = selectActiveOrLatestOrdersFromEntities(state);
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
 
   const props = {
+    serviceMember,
     mtoShipment: selectMTOShipmentById(state, ownProps.match.params.mtoShipmentId),
     currentResidence: get(selectServiceMemberFromLoggedInUser(state), 'residential_address', {}),
     newDutyStationAddress: get(orders, 'new_duty_station.address', {}),

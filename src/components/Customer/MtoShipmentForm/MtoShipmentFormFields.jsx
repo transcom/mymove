@@ -17,6 +17,10 @@ import { SimpleAddressShape } from 'types/address';
 import { MtoDisplayOptionsShape, MtoShipmentFormValuesShape } from 'types/customerShapes';
 import { validateDate } from 'utils/formikValidators';
 
+const hhgFormHeader = 'When and where can the movers pick up and deliver this shipment?';
+const ntsFormHeader = 'Where and when should the movers pick up your things going into storage?';
+const ntsrFormHeader = 'Where and when should the movers release your things from storage?';
+
 const MtoShipmentFormFields = ({
   // formik data
   values,
@@ -34,11 +38,24 @@ const MtoShipmentFormFields = ({
   submitHandler,
   newDutyStationAddress,
   isCreatePage,
+  serviceMember,
 }) => {
+  const isHHG = displayOptions.displayName === 'HHG';
+  const isNTS = displayOptions.displayName === 'NTS';
+  const isNTSR = displayOptions.displayName === 'NTS-R';
+
   return (
     <>
       <div className={`margin-top-2 ${styles['hhg-label']}`}>{`${displayOptions.displayName} ${shipmentNumber}`}</div>
-      <h1 className="margin-top-1">When and where can the movers pick up and deliver this shipment?</h1>
+      <h1 className="margin-top-1">
+        {isHHG && hhgFormHeader}
+        {isNTS && ntsFormHeader}
+        {isNTSR && ntsrFormHeader}
+      </h1>
+      <p>
+        Remember: You can move {serviceMember.weight_allotment.total_weight_self} lbs total. You&rsquo;ll be billed for
+        any excess weight you move.
+      </p>
       <Form className={styles.HHGDetailsForm}>
         {displayOptions.showPickupFields && (
           <div>
@@ -55,7 +72,7 @@ const MtoShipmentFormFields = ({
             </Fieldset>
             <Hint className="margin-top-1" id="pickupDateHint">
               Movers will contact you to schedule the actual pickup date. That date should fall within 7 days of your
-              requested date. Tip: Avoid scheduling multiple shipments on the same day.{' '}
+              requested date. Tip: Avoid scheduling multiple shipments on the same day.
             </Hint>
             <Divider className="margin-top-4 margin-bottom-4" />
             <AddressFields
@@ -101,8 +118,8 @@ const MtoShipmentFormFields = ({
                 validate={validateDate}
               />
               <Hint className="margin-top-1">
-                Shipments can take several weeks to arrive, depending on how far they&apos;re going. Your movers will
-                contact you close to the date you select to coordinate delivery
+                Shipments can take several weeks to arrive, depending on how far they&rsquo;re going. Your movers will
+                contact you close to the date you select to coordinate delivery.
               </Hint>
             </Fieldset>
             <Divider className="margin-top-4 margin-bottom-4" />
@@ -129,15 +146,13 @@ const MtoShipmentFormFields = ({
                 <AddressFields name="delivery.address" values={values.delivery.address} />
               ) : (
                 <>
-                  <div>
-                    <p className="margin-top-2">
-                      We can use the zip of your new duty station.
-                      <br />
-                      <strong>
-                        {newDutyStationAddress.city}, {newDutyStationAddress.state} {newDutyStationAddress.postal_code}{' '}
-                      </strong>
-                    </p>
-                  </div>
+                  <p className="margin-top-2">
+                    We can use the zip of your new duty station.
+                    <br />
+                    <strong>
+                      {newDutyStationAddress.city}, {newDutyStationAddress.state} {newDutyStationAddress.postal_code}{' '}
+                    </strong>
+                  </p>
                 </>
               )}
             </Fieldset>
@@ -152,6 +167,21 @@ const MtoShipmentFormFields = ({
             />
           </>
         )}
+        <Divider className="margin-top-4 margin-bottom-4" />
+        <Fieldset legend="What you can expect">
+          {isNTS && (
+            <>
+              <p>
+                The moving company will find a storage facility approved by the government, and will move your
+                belongings there.
+              </p>
+              <p>
+                You&rsquo;ll need to schedule an NTS release shipment to get your items back, most likely as part of a
+                future move.
+              </p>
+            </>
+          )}
+        </Fieldset>
         <Divider className="margin-top-4 margin-bottom-4" />
         <Fieldset hintText="Optional" legend="Remarks">
           <div className={`${styles['small-bold']} margin-top-3 margin-bottom-1`}>
@@ -171,17 +201,17 @@ const MtoShipmentFormFields = ({
             data-testid="remarks"
             name="customerRemarks"
             className={`${styles.remarks}`}
-            placeholder="500 characters"
+            placeholder="You don&rsquo;t need to list all belongings here. Your mover will get those details later."
             id="customerRemarks"
-            maxLength={500}
+            maxLength={250}
             value={values.customerRemarks}
           />
+          <Hint className="margin-bottom-2">250 characters</Hint>
         </Fieldset>
         <Divider className="margin-top-6 margin-bottom-3" />
         <Hint className="margin-bottom-2">
-          You can change details for your HHG shipment when you talk to your move counselor or the person who&apos;s
-          your point of contact with the movers. You can also edit in MilMove up to 24 hours before your final pickup
-          date.
+          You can change details for your shipment when you talk to your move counselor or the person who&rsquo;s your
+          point of contact with the movers. You can also edit in MilMove up to 24 hours before your final pickup date.
         </Hint>
         {!isCreatePage && (
           <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -219,6 +249,11 @@ MtoShipmentFormFields.propTypes = {
   onHasDeliveryAddressChange: func.isRequired,
   onUseCurrentResidenceChange: func.isRequired,
   submitHandler: func.isRequired,
+  serviceMember: shape({
+    weight_allotment: shape({
+      total_weight_self: string,
+    }),
+  }).isRequired,
 
   // shipment-related data
   displayOptions: MtoDisplayOptionsShape.isRequired,
