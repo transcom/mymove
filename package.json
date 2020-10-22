@@ -29,7 +29,7 @@
     "marked": "^1.2.0",
     "moment": "^2.29.1",
     "node-sass": "^4.14.1",
-    "normalizr": "^3.6.0",
+    "normalizr": "^3.6.1",
     "numeral": "^2.0.6",
     "path": "^0.12.7",
     "path-to-regexp": "^6.2.0",
