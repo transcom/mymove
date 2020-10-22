@@ -1,12 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { Component } from 'react';
-<<<<<<< HEAD
 import { bool, string, func, shape } from 'prop-types';
-import { get } from 'lodash';
-import { connect } from 'react-redux';
-=======
-import { bool, string, func } from 'prop-types';
->>>>>>> Remove Redux from MTOShipmentForm
 import { Formik } from 'formik';
 
 import { getShipmentOptions } from './getShipmentOptions';
