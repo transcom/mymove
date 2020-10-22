@@ -64,4 +64,12 @@ describe('Shipment Container', () => {
     );
     expect(wrapper.find('.container--accent--nts').length).toBe(1);
   });
+  it('renders a container with className container--accent--ntsr', () => {
+    const wrapper = shallow(
+      <ShipmentContainer shipmentType="HHG_OUTOF_NTS_DOMESTIC">
+        <ShipmentHeading shipmentInfo={headingInfo} />
+      </ShipmentContainer>,
+    );
+    expect(wrapper.find('.container--accent--ntsr').length).toBe(1);
+  });
 });

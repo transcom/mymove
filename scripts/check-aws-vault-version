@@ -5,9 +5,11 @@ set -eu -o pipefail
 YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
 
-VERSION="v5.4"
+VERSION="v6.2"
 
-VAULT_VERSION=$(type -p aws-vault && aws-vault --version)
+# first part gets path of aws-vault
+# second part gets version, which is returned on stderr thus rerouted to stdout
+VAULT_VERSION="$(type -p aws-vault) $(aws-vault --version 2>&1)"
 
 # Knocks off everything after the last decimal
 SHORT_VERSION=${VAULT_VERSION%.*}

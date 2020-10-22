@@ -51,12 +51,12 @@ type MTOShipment struct {
 	// requested delivery date
 	// Read Only: true
 	// Format: date
-	RequestedDeliveryDate strfmt.Date `json:"requestedDeliveryDate,omitempty"`
+	RequestedDeliveryDate *strfmt.Date `json:"requestedDeliveryDate,omitempty"`
 
 	// requested pickup date
 	// Read Only: true
 	// Format: date
-	RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
+	RequestedPickupDate *strfmt.Date `json:"requestedPickupDate,omitempty"`
 
 	// secondary delivery address
 	SecondaryDeliveryAddress *Address `json:"secondaryDeliveryAddress,omitempty"`

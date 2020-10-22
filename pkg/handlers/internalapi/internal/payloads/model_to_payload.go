@@ -79,11 +79,11 @@ func MTOShipment(mtoShipment *models.MTOShipment) *internalmessages.MTOShipment 
 	}
 
 	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
-		payload.RequestedPickupDate = strfmt.Date(*mtoShipment.RequestedPickupDate)
+		payload.RequestedPickupDate = handlers.FmtDatePtr(mtoShipment.RequestedPickupDate)
 	}
 
 	if mtoShipment.RequestedDeliveryDate != nil && !mtoShipment.RequestedDeliveryDate.IsZero() {
-		payload.RequestedDeliveryDate = strfmt.Date(*mtoShipment.RequestedDeliveryDate)
+		payload.RequestedDeliveryDate = handlers.FmtDatePtr(mtoShipment.RequestedDeliveryDate)
 	}
 
 	return payload
