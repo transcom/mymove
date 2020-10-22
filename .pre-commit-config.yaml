@@ -17,18 +17,18 @@ repos:
       - id: check-json
       - id: check-merge-conflict
       - id: check-yaml
-        exclude: config/database.yml # database.yml is not a valid yaml file, it contains go templating
+        # exclude: config/database.yml # database.yml is not a valid yaml file, it contains go templating
       - id: detect-private-key
-        exclude: >
-          (?x)^(
-            config/tls/devlocal-.+\.key$|
-            pkg/server/testdata/localhost.key$|
-            pkg/server/testdata/localhost-invalid.key$|
-            pkg/server/testdata/officelocal.key$|
-            pkg/auth/authentication/auth_test.go$|
-            pkg/cli/auth.go$|
-            .envrc.local.template|
-          )$
+        # exclude: >
+        # (?x)^(
+        # config/tls/devlocal-.+\.key$|
+        # pkg/server/testdata/localhost.key$|
+        # pkg/server/testdata/localhost-invalid.key$|
+        # pkg/server/testdata/officelocal.key$|
+        # pkg/auth/authentication/auth_test.go$|
+        # pkg/cli/auth.go$|
+        # .envrc.local.template|
+        # )$
       - id: trailing-whitespace
         exclude: public/swagger-ui/*
 
