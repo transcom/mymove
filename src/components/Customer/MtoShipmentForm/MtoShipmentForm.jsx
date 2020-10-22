@@ -1,20 +1,17 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { Component } from 'react';
+<<<<<<< HEAD
 import { bool, string, func, shape } from 'prop-types';
 import { get } from 'lodash';
 import { connect } from 'react-redux';
+=======
+import { bool, string, func } from 'prop-types';
+>>>>>>> Remove Redux from MTOShipmentForm
 import { Formik } from 'formik';
 
 import { getShipmentOptions } from './getShipmentOptions';
 import MtoShipmentFormFields from './MtoShipmentFormFields';
 
-import {
-  selectMTOShipmentById,
-  createMTOShipment as createMTOShipmentAction,
-  updateMTOShipment as updateMTOShipmentAction,
-} from 'shared/Entities/modules/mtoShipments';
-import { selectActiveOrLatestOrdersFromEntities } from 'shared/Entities/modules/orders';
-import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
 import { WizardPage } from 'shared/WizardPage';
 import { AddressShape, SimpleAddressShape } from 'types/address';
 import { HhgShipmentShape, MatchShape, HistoryShape, PageKeyShape, PageListShape } from 'types/customerShapes';
@@ -220,23 +217,4 @@ MtoShipmentForm.defaultProps = {
   },
 };
 
-const mapStateToProps = (state, ownProps) => {
-  const orders = selectActiveOrLatestOrdersFromEntities(state);
-  const serviceMember = selectServiceMemberFromLoggedInUser(state);
-
-  const props = {
-    serviceMember,
-    mtoShipment: selectMTOShipmentById(state, ownProps.match.params.mtoShipmentId),
-    currentResidence: get(selectServiceMemberFromLoggedInUser(state), 'residential_address', {}),
-    newDutyStationAddress: get(orders, 'new_duty_station.address', {}),
-  };
-  return props;
-};
-
-const mapDispatchToProps = {
-  createMTOShipment: createMTOShipmentAction,
-  updateMTOShipment: updateMTOShipmentAction,
-};
-
-export { MtoShipmentForm as MtoShipmentFormComponent };
-export default connect(mapStateToProps, mapDispatchToProps)(MtoShipmentForm);
+export default MtoShipmentForm;

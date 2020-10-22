@@ -4,7 +4,7 @@ import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 
-import MtoShipmentForm, { MtoShipmentFormComponent } from './MtoShipmentForm';
+import MtoShipmentForm from './MtoShipmentForm';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { history, store } from 'shared/store';
@@ -75,7 +75,7 @@ describe('MtoShipmentForm component', () => {
     });
 
     it('renders second address field when has delivery address', () => {
-      const wrapper = mount(<MtoShipmentFormComponent {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
+      const wrapper = mount(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.HHG} />);
       wrapper.setState({ hasDeliveryAddress: true });
       expect(wrapper.find('AddressFields').length).toBe(2);
     });
@@ -116,7 +116,7 @@ describe('MtoShipmentForm component', () => {
     });
 
     it('renders an address field when has delivery address', () => {
-      const wrapper = mount(<MtoShipmentFormComponent {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />);
+      const wrapper = mount(<MtoShipmentForm {...defaultProps} selectedMoveType={SHIPMENT_OPTIONS.NTSR} />);
       wrapper.setState({ hasDeliveryAddress: true });
       expect(wrapper.find('AddressFields').length).toBe(1);
     });
