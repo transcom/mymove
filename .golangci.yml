@@ -41,7 +41,7 @@ issues:
     # gosec: Duplicated errcheck checks
     # TODO: Remove this when errcheck is enabled above - duplication is ok
     # - G104
-  fix: true
+  fix: false
 
 run:
   # timeout for analysis, e.g. 30s, 5m, default is 1m
