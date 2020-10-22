@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTable } from 'react-table';
+import { useTable } from 'react-table/index';
 import PropTypes from 'prop-types';
 
 import styles from './Table.module.scss';
