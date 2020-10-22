@@ -257,14 +257,16 @@ class Home extends Component {
     const allSortedShipments = this.sortAllShipments(mtoShipments, currentPpm);
     return (
       <div>
-        <header data-testid="customer-header" className={styles['customer-header']}>
-          <div className={`usa-prose grid-container ${styles['grid-container']}`}>
-            <h2>
-              {serviceMember?.first_name} {serviceMember?.last_name}
-            </h2>
-            {this.renderCustomerHeader()}
-          </div>
-        </header>
+        {isLoggedIn && (
+          <header data-testid="customer-header" className={styles['customer-header']}>
+            <div className={`usa-prose grid-container ${styles['grid-container']}`}>
+              <h2>
+                {serviceMember?.first_name} {serviceMember?.last_name}
+              </h2>
+              {this.renderCustomerHeader()}
+            </div>
+          </header>
+        )}
         <div className={`usa-prose grid-container ${styles['grid-container']}`}>
           {loggedInUserIsLoading && <LoadingPlaceholder />}
           {!isLoggedIn && !loggedInUserIsLoading && <SignIn location={location} />}
