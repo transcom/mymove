@@ -23,7 +23,7 @@ const (
 	// AWSS3KeyNamespaceFlag is the AWS S3 Key Namespace Flag
 	AWSS3KeyNamespaceFlag string = "aws-s3-key-namespace"
 	// AWSCfDomain is domain assets use
-	AWSCfDomain string = "aws-cf-domain" // #nosec so gosec doesn't claim its a hard coded cred
+	AWSCfDomain string = "aws-cf-domain" //  so gosec doesn't claim its a hard coded cred
 	// CFPrivateKeyFlag is cloudfront private key flag
 	CFPrivateKeyFlag string = "cloud-front-private-key"
 	// CFKeyIDFlag is cloudfront key id flag

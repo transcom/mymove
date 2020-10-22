@@ -1,7 +1,7 @@
 package main
 
 import (
-	"crypto/md5" // #nosec
+	"crypto/md5" //
 	"encoding/hex"
 	"fmt"
 	"io/ioutil"
@@ -52,7 +52,7 @@ func initFlags(flag *pflag.FlagSet) {
 func hashObjectMd5(buff *aws.WriteAtBuffer) string {
 
 	// Sum the bytes in the buffer
-	// #nosec
+	//
 	hashInBytes := md5.Sum(buff.Bytes())
 
 	// Convert the bytes to a string

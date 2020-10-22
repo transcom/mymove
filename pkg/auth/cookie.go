@@ -37,7 +37,7 @@ func (e *errInvalidHostname) Error() string {
 }
 
 // GorillaCSRFToken is the name of the base CSRF token
-const GorillaCSRFToken = "_gorilla_csrf" // #nosec G101
+const GorillaCSRFToken = "_gorilla_csrf" //  G101
 
 // MaskedGorillaCSRFToken is the masked CSRF token used to send back in the 'X-CSRF-Token' request header
 const MaskedGorillaCSRFToken = "masked_gorilla_csrf"

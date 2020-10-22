@@ -61,7 +61,7 @@ func (suite *MigrateSuite) TestCopyStdinPattern() {
 	for _, test := range tests {
 		suite.T().Run(test.name, func(t *testing.T) {
 			// This is sql formatting only for testing
-			stmtString := fmt.Sprintf("COPY %s (%s) FROM stdin;", test.tableName, test.listOfColumns) // #nosec G201
+			stmtString := fmt.Sprintf("COPY %s (%s) FROM stdin;", test.tableName, test.listOfColumns) //  G201
 			match := copyStdinPattern.FindStringSubmatch(stmtString)
 
 			if !test.shouldMatch {

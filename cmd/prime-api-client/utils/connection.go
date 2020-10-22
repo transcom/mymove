@@ -44,7 +44,7 @@ func CreatePrimeClientWithCACStoreParam(v *viper.Viper, store *pksigner.Store) (
 		// must explicitly state what signature algorithms we allow as of Go 1.14 to disable RSA-PSS signatures
 		cert.SupportedSignatureAlgorithms = []tls.SignatureScheme{tls.PKCS1WithSHA256}
 
-		// #nosec b/c gosec triggers on InsecureSkipVerify
+		//  b/c gosec triggers on InsecureSkipVerify
 		tlsConfig := &tls.Config{
 			Certificates:       []tls.Certificate{*cert},
 			InsecureSkipVerify: insecure,
@@ -109,7 +109,7 @@ func CreatePrimeClient(v *viper.Viper) (*primeClient.Mymove, *pksigner.Store, er
 		// must explicitly state what signature algorithms we allow as of Go 1.14 to disable RSA-PSS signatures
 		cert.SupportedSignatureAlgorithms = []tls.SignatureScheme{tls.PKCS1WithSHA256}
 
-		// #nosec b/c gosec triggers on InsecureSkipVerify
+		//  b/c gosec triggers on InsecureSkipVerify
 		tlsConfig := &tls.Config{
 			Certificates:       []tls.Certificate{*cert},
 			InsecureSkipVerify: insecure,
@@ -174,7 +174,7 @@ func CreateSupportClient(v *viper.Viper) (*supportClient.Mymove, *pksigner.Store
 		// must explicitly state what signature algorithms we allow as of Go 1.14 to disable RSA-PSS signatures
 		cert.SupportedSignatureAlgorithms = []tls.SignatureScheme{tls.PKCS1WithSHA256}
 
-		// #nosec b/c gosec triggers on InsecureSkipVerify
+		//  b/c gosec triggers on InsecureSkipVerify
 		tlsConfig := &tls.Config{
 			Certificates:       []tls.Certificate{*cert},
 			InsecureSkipVerify: insecure,

@@ -49,7 +49,7 @@ func InitDoDCertificates(v *viper.Viper, logger Logger) ([]tls.Certificate, *x50
 	logger.Info("DOD keypair", zap.Any("certificates", len(keyPair.Certificate)))
 
 	pathToPackage := v.GetString(cli.DoDCAPackageFlag)
-	pkcs7Package, err := ioutil.ReadFile(pathToPackage) // #nosec
+	pkcs7Package, err := ioutil.ReadFile(pathToPackage) //
 	if err != nil {
 		return make([]tls.Certificate, 0), nil, errors.Wrap(err, fmt.Sprintf("%s is invalid", cli.DoDCAPackageFlag))
 	}

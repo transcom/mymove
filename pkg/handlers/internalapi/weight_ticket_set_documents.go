@@ -90,7 +90,7 @@ func (h CreateWeightTicketSetDocumentHandler) Handle(params movedocop.CreateWeig
 
 	ctx := params.HTTPRequest.Context()
 
-	// #nosec UUID is pattern matched by swagger and will be ok
+	//  UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user

@@ -46,7 +46,7 @@ func (wr *WebhookRuntime) SetupClient(cert *tls.Certificate) (*WebhookRuntime, e
 
 	// Set up the httpClient with tls certificate
 
-	// #nosec b/c gosec triggers on InsecureSkipVerify
+	//  b/c gosec triggers on InsecureSkipVerify
 	tlsConfig := tls.Config{
 		Certificates:       []tls.Certificate{*cert},
 		InsecureSkipVerify: wr.Insecure,

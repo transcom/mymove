@@ -729,7 +729,7 @@ func fetchToken(logger Logger, code string, clientID string, loginGovProvider Lo
 		return nil, err
 	}
 
-	/* #nosec G107 */
+	/*  G107 */
 	response, err := http.PostForm(tokenURL, params)
 	if err != nil {
 		logger.Error("Post to Login.gov token endpoint", zap.Error(err))

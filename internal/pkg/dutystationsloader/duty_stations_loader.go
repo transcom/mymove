@@ -265,7 +265,7 @@ func (b *MigrationBuilder) createInsertQuery(m interface{}, model pop.TableNameA
 	}
 
 	// Values here should only come from trusted spreadsheets, and migration should be inspected after before being run
-	// #nosec G201
+	//  G201
 	return fmt.Sprintf("INSERT into %v (%v) VALUES (%v);\n", model.TableName(), strings.Join(cols, ", "), strings.Join(vals, ", "))
 }
 

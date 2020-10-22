@@ -172,7 +172,7 @@ func createTLSConfig(clientKey []byte, clientCert []byte, ca []byte, insecureSki
 		return nil, err
 	}
 
-	// #nosec b/c gosec triggers on InsecureSkipVerify
+	//  b/c gosec triggers on InsecureSkipVerify
 	tlsConfig := &tls.Config{
 		Certificates:       []tls.Certificate{keyPair},
 		InsecureSkipVerify: insecureSkipVerify,
@@ -244,19 +244,19 @@ func createHTTPClient(v *viper.Viper, logger *zap.Logger) (*http.Client, error) 
 
 		if len(clientKeyFile) > 0 && len(clientCertFile) > 0 {
 
-			clientKey, clientKeyErr := ioutil.ReadFile(clientKeyFile) // #nosec b/c we need to read a file from a user-defined path
+			clientKey, clientKeyErr := ioutil.ReadFile(clientKeyFile) //  b/c we need to read a file from a user-defined path
 			if clientKeyErr != nil {
 				return nil, errors.Wrap(clientKeyErr, "error reading client key file at "+clientKeyFile)
 			}
 
-			clientCert, clientCertErr := ioutil.ReadFile(clientCertFile) // #nosec b/c we need to read a file from a user-defined path
+			clientCert, clientCertErr := ioutil.ReadFile(clientCertFile) //  b/c we need to read a file from a user-defined path
 			if clientCertErr != nil {
 				return nil, errors.Wrap(clientCertErr, "error reading client cert file at "+clientKeyFile)
 			}
 
 			caBytes := make([]byte, 0)
 			if caFile := v.GetString("ca-file"); len(caFile) > 0 {
-				content, err := ioutil.ReadFile(caFile) // #nosec b/c we need to read a file from a user-defined path
+				content, err := ioutil.ReadFile(caFile) //  b/c we need to read a file from a user-defined path
 				if err != nil {
 					return nil, errors.Wrap(err, "error reading ca file at "+caFile)
 				}

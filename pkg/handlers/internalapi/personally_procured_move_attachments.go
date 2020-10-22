@@ -21,7 +21,7 @@ type CreatePersonallyProcuredMoveAttachmentsHandler struct {
 func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.CreatePPMAttachmentsParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
-	// #nosec UUID is pattern matched by swagger and will be ok
+	//  UUID is pattern matched by swagger and will be ok
 	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
 	logger.Info("got ppm id: ", zap.Any("id", ppmID))
 

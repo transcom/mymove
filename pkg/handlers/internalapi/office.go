@@ -25,7 +25,7 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 	if !session.IsOfficeUser() {
 		return officeop.NewApproveMoveForbidden()
 	}
-	// #nosec UUID is pattern matched by swagger and will be ok
+	//  UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
 	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
@@ -75,7 +75,7 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 		return officeop.NewCancelMoveForbidden()
 	}
 
-	// #nosec UUID is pattern matched by swagger and will be ok
+	//  UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	move, err := models.FetchMove(h.DB(), session, moveID)
@@ -127,7 +127,7 @@ func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.R
 		return officeop.NewApprovePPMForbidden()
 	}
 
-	// #nosec UUID is pattern matched by swagger and will be ok
+	//  UUID is pattern matched by swagger and will be ok
 	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
 
 	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
@@ -179,7 +179,7 @@ func (h ApproveReimbursementHandler) Handle(params officeop.ApproveReimbursement
 		return officeop.NewApproveReimbursementForbidden()
 	}
 
-	// #nosec UUID is pattern matched by swagger and will be ok
+	//  UUID is pattern matched by swagger and will be ok
 	reimbursementID, _ := uuid.FromString(params.ReimbursementID.String())
 
 	reimbursement, err := models.FetchReimbursement(h.DB(), session, reimbursementID)

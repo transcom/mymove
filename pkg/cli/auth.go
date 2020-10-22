@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	// ClientAuthSecretKeyFlag is the Client Auth Secret Key Flag #nosec G101
+	// ClientAuthSecretKeyFlag is the Client Auth Secret Key Flag  G101
 	ClientAuthSecretKeyFlag string = "client-auth-secret-key"
 
 	// LoginGovCallbackProtocolFlag is the Login.gov Callback Protocol Flag

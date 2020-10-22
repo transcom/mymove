@@ -76,7 +76,7 @@ type ShowMoveHandler struct {
 func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
-	/* #nosec UUID is pattern matched by swagger which checks the format */
+	/*  UUID is pattern matched by swagger which checks the format */
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
@@ -105,7 +105,7 @@ type PatchMoveHandler struct {
 // Handle ... patches a Move from a request payload
 func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	/* #nosec UUID is pattern matched by swagger which checks the format */
+	/*  UUID is pattern matched by swagger which checks the format */
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
@@ -151,7 +151,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
-	/* #nosec UUID is pattern matched by swagger which checks the format */
+	/*  UUID is pattern matched by swagger which checks the format */
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	move, err := models.FetchMove(h.DB(), session, moveID)

@@ -11,7 +11,7 @@ import (
 const (
 	// GEXBasicAuthUsernameFlag is the GEX Basic Auth Username Flag
 	GEXBasicAuthUsernameFlag string = "gex-basic-auth-username"
-	// GEXBasicAuthPasswordFlag is the GEX Basic Auth Password Flag #nosec G101
+	// GEXBasicAuthPasswordFlag is the GEX Basic Auth Password Flag  G101
 	GEXBasicAuthPasswordFlag string = "gex-basic-auth-password"
 	// GEXSendProdInvoiceFlag is the GEX Send Prod Invoice Flag
 	GEXSendProdInvoiceFlag string = "gex-send-prod-invoice"

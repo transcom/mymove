@@ -209,7 +209,7 @@ func (suite *BaseHandlerTestSuite) Fixture(name string) *runtime.File {
 
 	fixturePath := path.Join(cwd, "..", "..", fixtureDir, name)
 
-	// #nosec never comes from user input
+	//  never comes from user input
 	file, err := os.Open(fixturePath)
 	if err != nil {
 		suite.logger.Fatal("Error opening fixture file", zap.Error(err))

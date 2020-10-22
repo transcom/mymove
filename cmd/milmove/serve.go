@@ -299,7 +299,7 @@ func fileHandler(entrypoint string) http.HandlerFunc {
 func indexHandler(buildDir string, logger logger) http.HandlerFunc {
 
 	indexPath := path.Join(buildDir, "index.html")
-	// #nosec - indexPath does not come from user input
+	//  - indexPath does not come from user input
 	indexHTML, err := ioutil.ReadFile(indexPath)
 	if err != nil {
 		logger.Fatal("could not read index.html template: run make client_build", zap.Error(err))
@@ -961,7 +961,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		if stringSliceContains([]string{cli.EnvironmentTest, cli.EnvironmentDevelopment}, v.GetString(cli.EnvironmentFlag)) {
 			logger.Info("Adding devlocal CA to root CAs")
 			devlocalCAPath := v.GetString(cli.DevlocalCAFlag)
-			devlocalCa, readFileErr := ioutil.ReadFile(devlocalCAPath) // #nosec
+			devlocalCa, readFileErr := ioutil.ReadFile(devlocalCAPath) //
 			if readFileErr != nil {
 				logger.Error(fmt.Sprintf("Unable to read devlocal CA from path %s", devlocalCAPath), zap.Error(readFileErr))
 			} else {

@@ -92,7 +92,7 @@ func main() {
 
 	ediFile := v.GetString("edi")
 
-	file, err := os.Open(ediFile) // #nosec
+	file, err := os.Open(ediFile) //
 	if err != nil {
 		log.Fatal(err)
 	}

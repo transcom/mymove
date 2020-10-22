@@ -151,7 +151,7 @@ type ShowOrdersHandler struct {
 // Handle retrieves orders in the system belonging to the logged in user given order ID
 func (h ShowOrdersHandler) Handle(params ordersop.ShowOrdersParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	// #nosec swagger verifies uuid format
+	//  swagger verifies uuid format
 	orderID, _ := uuid.FromString(params.OrdersID.String())
 	order, err := models.FetchOrderForUser(h.DB(), session, orderID)
 	if err != nil {

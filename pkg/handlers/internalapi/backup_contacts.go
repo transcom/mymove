@@ -36,7 +36,7 @@ func (h CreateBackupContactHandler) Handle(params backupop.CreateServiceMemberBa
 
 	// User should always be populated by middleware
 	session, logger := h.SessionAndLoggerFromContext(ctx)
-	/* #nosec UUID is pattern matched by swagger which checks the format */
+	/*  UUID is pattern matched by swagger which checks the format */
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
 	if err != nil {
@@ -67,7 +67,7 @@ func (h IndexBackupContactsHandler) Handle(params backupop.IndexServiceMemberBac
 
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
-	/* #nosec UUID is pattern matched by swagger which checks the format */
+	/*  UUID is pattern matched by swagger which checks the format */
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
 	if err != nil {
@@ -94,7 +94,7 @@ type ShowBackupContactHandler struct {
 func (h ShowBackupContactHandler) Handle(params backupop.ShowServiceMemberBackupContactParams) middleware.Responder {
 	// User should always be populated by middleware
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	/* #nosec UUID is pattern matched by swagger which checks the format */
+	/*  UUID is pattern matched by swagger which checks the format */
 	contactID, _ := uuid.FromString(params.BackupContactID.String())
 	contact, err := models.FetchBackupContact(h.DB(), session, contactID)
 	if err != nil {
@@ -114,7 +114,7 @@ type UpdateBackupContactHandler struct {
 func (h UpdateBackupContactHandler) Handle(params backupop.UpdateServiceMemberBackupContactParams) middleware.Responder {
 	// User should always be populated by middleware
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	/* #nosec UUID is pattern matched by swagger which checks the format */
+	/*  UUID is pattern matched by swagger which checks the format */
 	contactID, _ := uuid.FromString(params.BackupContactID.String())
 	contact, err := models.FetchBackupContact(h.DB(), session, contactID)
 	if err != nil {

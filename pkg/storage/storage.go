@@ -2,7 +2,7 @@ package storage
 
 import (
 	/*
-		#nosec - we use md5 because it's required by the S3 API for
+		 - we use md5 because it's required by the S3 API for
 		validating data integrity.
 		https://aws.amazon.com/premiumsupport/knowledge-center/data-integrity-s3/
 	*/
@@ -42,7 +42,7 @@ type FileStorer interface {
 // beginning after reading its content.
 func ComputeChecksum(data io.ReadSeeker) (string, error) {
 	/*
-		#nosec - we use md5 because it's required by the S3 API for
+		 - we use md5 because it's required by the S3 API for
 		validating data integrity.
 		https://aws.amazon.com/premiumsupport/knowledge-center/data-integrity-s3/
 	*/
