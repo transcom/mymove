@@ -7072,11 +7072,6 @@ elegant-spinner@^1.0.1:
   resolved "https://registry.yarnpkg.com/elegant-spinner/-/elegant-spinner-1.0.1.tgz#db043521c95d7e303fd8f345bedc3349cfb0729e"
   integrity sha1-2wQ1IcldfjA/2PNFvtwzSc+wcp4=
 
-elem-dataset@^1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/elem-dataset/-/elem-dataset-1.1.1.tgz#18f07fa7fc71ebd49b0f9f63819cb03c8276577a"
-  integrity sha1-GPB/p/xx69SbD59jgZywPIJ2V3o=
-
 elem-dataset@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/elem-dataset/-/elem-dataset-2.0.0.tgz#4ed8b2b0217898bdf78c1a01b4eb722a1c89e799"
@@ -17925,21 +17920,7 @@ use@^3.1.0:
   resolved "https://registry.yarnpkg.com/use/-/use-3.1.1.tgz#d50c8cac79a19fbc20f2911f56eb973f4e10070f"
   integrity sha512-cwESVXlO3url9YWlFW/TA9cshCEhtu7IKJ/p5soJ/gGpj7vbvFrAY/eIioQ6Dw23KjZhYgiIo8HOs1nQ2vr/oQ==
 
-uswds@2.8.0:
-  version "2.8.0"
-  resolved "https://registry.yarnpkg.com/uswds/-/uswds-2.8.0.tgz#635e829555a359562f28ab51e1b6c983f149f739"
-  integrity sha512-LI7ZNbh823ehtThvebwQ5eHNKGY791vcT5d3T9gJ+RY511HgstWLRSEEso7YO/ifjoV/FwuTAtDwQqt7zsXRvA==
-  dependencies:
-    classlist-polyfill "^1.0.3"
-    del "^5.1.0"
-    domready "^1.0.8"
-    elem-dataset "^1.1.1"
-    lodash.debounce "^4.0.7"
-    object-assign "^4.1.1"
-    receptor "^1.0.0"
-    resolve-id-refs "^0.1.0"
-
-uswds@^2.7.0:
+uswds@2.9.0, uswds@^2.7.0:
   version "2.9.0"
   resolved "https://registry.yarnpkg.com/uswds/-/uswds-2.9.0.tgz#002089d74582960099b0ee836f89f043cdf6d0bc"
   integrity sha512-5IMVgMCUUlgWVFrB7Wf1qTvv5L3oDDlSsAgvJ02+/sV2uh4JzO9YPm3493RTaMuHTc+feRCuYyEIloXsEQY0Pg==
