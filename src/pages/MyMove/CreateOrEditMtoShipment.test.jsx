@@ -43,7 +43,7 @@ const defaultProps = {
 
 const mockMtoShipment = {
   id: 'mock id',
-  moveTaskOrderId: 'mock move id',
+  moveTaskOrderId: 'move123',
   customerRemarks: 'mock remarks',
   requestedPickupDate: '1 Mar 2020',
   requestedDeliveryDate: '30 Mar 2020',
@@ -65,28 +65,32 @@ const mountCreateOrEditMtoShipment = (props) => mount(<CreateOrEditMtoShipment {
 
 describe('CreateOrEditMtoShipment component', () => {
   it('fetches customer data on mount', () => {
-    mount(<CreateOrEditMtoShipment {...defaultProps} />);
+    mountCreateOrEditMtoShipment({
+      selectedMoveType: SHIPMENT_OPTIONS.NTSR,
+    });
     expect(defaultProps.fetchCustomerData).toHaveBeenCalled();
   });
 
-  describe('when starting a new HHG', () => {
+  describe('when creating a new shipment', () => {
     it('renders the MtoShipmentForm component right away', () => {
       const createWrapper = mountCreateOrEditMtoShipment({
         selectedMoveType: SHIPMENT_OPTIONS.HHG,
-        match: getMockMatchProp('/moves/:moveId/hhg-start'),
+        isCreate: true,
       });
       expect(createWrapper.find('MtoShipmentForm').length).toBe(1);
+      expect(createWrapper.find('LoadingPlaceholder').exists()).toBe(false);
     });
   });
 
-  describe('when editing an existing HHG', () => {
+  describe('when editing an existing shipment', () => {
     const editWrapper = mountCreateOrEditMtoShipment({
-      selectedMoveType: SHIPMENT_OPTIONS.HHG,
+      selectedMoveType: SHIPMENT_OPTIONS.NTS,
       match: getMockMatchProp('/moves/:moveId/mto-shipments/:mtoShipmentId/edit'),
     });
 
     it('renders the loader right away', () => {
       expect(editWrapper.find('LoadingPlaceholder').exists()).toBe(true);
+      expect(editWrapper.find('MtoShipmentForm').length).toBe(0);
     });
 
     it('renders the MtoShipmentForm after an MTO shipment has loaded', () => {
@@ -94,29 +98,8 @@ describe('CreateOrEditMtoShipment component', () => {
         mtoShipment: mockMtoShipment,
       });
       editWrapper.update();
+      expect(editWrapper.find('LoadingPlaceholder').exists()).toBe(false);
       expect(editWrapper.find('MtoShipmentForm').length).toBe(1);
-    });
-  });
-
-  describe('when shipmentType is NTS', () => {
-    it('renders only the MtoShipmentForm component', () => {
-      const wrapper = mountCreateOrEditMtoShipment({
-        selectedMoveType: SHIPMENT_OPTIONS.NTS,
-        match: getMockMatchProp('/moves/:moveId/nts-start'),
-      });
-      expect(wrapper.find('MtoShipmentForm').length).toBe(1);
-      expect(wrapper.find('EditShipment').length).toBe(0);
-    });
-  });
-
-  describe('when shipmentType is NTSr', () => {
-    it('renders only the NTSDetailsForm component', () => {
-      const wrapper = mountCreateOrEditMtoShipment({
-        selectedMoveType: SHIPMENT_OPTIONS.NTSR,
-        match: getMockMatchProp('/moves/:moveId/ntsr-start'),
-      });
-      expect(wrapper.find('MtoShipmentForm').length).toBe(1);
-      expect(wrapper.find('EditShipment').length).toBe(0);
     });
   });
 });
