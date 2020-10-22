@@ -14,6 +14,9 @@ import (
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/flock"
+
+	// Anonymously import lib/pq driver so it's available to Pop
+	_ "github.com/lib/pq"
 )
 
 const charset = "abcdefghijklmnopqrstuvwxyz" +
@@ -127,15 +130,22 @@ func NewPopTestSuite(packageName PackageName) PopTestSuite {
 	if dbPasswordErr != nil {
 		log.Panic(dbPasswordErr)
 	}
+	dbSSLMode := envy.Get("DB_SSL_MODE", "disable")
+
+	dbOptions := map[string]string{
+		"sslmode": dbSSLMode,
+	}
 
 	log.Printf("package %s is attempting to connect to database %s", packageName.String(), dbNameTest)
 	primaryConnDetails := pop.ConnectionDetails{
 		Dialect:  dbDialect,
+		Driver:   "postgres",
 		Database: dbNameTest,
 		Host:     dbHost,
 		Port:     dbPortTest,
 		User:     dbUser,
 		Password: dbPassword,
+		Options:  dbOptions,
 	}
 	primaryConn, primaryConnErr := pop.NewConnection(&primaryConnDetails)
 	if primaryConnErr != nil {
@@ -174,11 +184,13 @@ func NewPopTestSuite(packageName PackageName) PopTestSuite {
 
 	packageConnDetails := pop.ConnectionDetails{
 		Dialect:  dbDialect,
+		Driver:   "postgres",
 		Database: dbNamePackage,
 		Host:     dbHost,
 		Port:     dbPortTest,
 		User:     dbUser,
 		Password: dbPassword,
+		Options:  dbOptions,
 	}
 	packageConn, packageConnErr := pop.NewConnection(&packageConnDetails)
 	if packageConnErr != nil {

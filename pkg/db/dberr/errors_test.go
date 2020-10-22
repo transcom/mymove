@@ -4,14 +4,14 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/jackc/pgconn"
 	"github.com/jackc/pgerrcode"
+	"github.com/lib/pq"
 )
 
 func (suite *DBErrSuite) TestIsDBError() {
 	errCode := pgerrcode.InternalError
-	dbErr := pgconn.PgError{
-		Code: errCode,
+	dbErr := pq.Error{
+		Code: pq.ErrorCode(errCode),
 	}
 
 	suite.T().Run("db error and code match", func(t *testing.T) {
@@ -31,9 +31,9 @@ func (suite *DBErrSuite) TestIsDBError() {
 func (suite *DBErrSuite) TestIsDBErrorForConstraint() {
 	errCode := pgerrcode.UniqueViolation
 	constraintName := "some_unique_constraint"
-	dbErr := pgconn.PgError{
-		Code:           errCode,
-		ConstraintName: constraintName,
+	dbErr := pq.Error{
+		Code:       pq.ErrorCode(errCode),
+		Constraint: constraintName,
 	}
 
 	suite.T().Run("db error, code, and constraint match", func(t *testing.T) {
