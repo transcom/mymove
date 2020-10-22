@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { bool, string, func, shape } from 'prop-types';
+import { bool, string, func, shape, number } from 'prop-types';
 import { get } from 'lodash';
 
 import MtoShipmentForm from 'components/Customer/MtoShipmentForm/MtoShipmentForm';
@@ -16,7 +16,7 @@ import { selectActiveOrLatestOrdersFromEntities } from 'shared/Entities/modules/
 import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
 import { AddressShape, SimpleAddressShape } from 'types/address';
 
-class CreateOrEditMtoShipment extends Component {
+export class CreateOrEditMtoShipment extends Component {
   componentDidMount() {
     const { fetchCustomerData } = this.props;
     fetchCustomerData();
@@ -79,7 +79,7 @@ CreateOrEditMtoShipment.propTypes = {
   updateMTOShipment: func.isRequired,
   serviceMember: shape({
     weight_allotment: shape({
-      total_weight_self: string,
+      total_weight_self: number,
     }),
   }).isRequired,
   isCreate: bool,
@@ -129,5 +129,4 @@ const mapDispatchToProps = {
   updateMTOShipment: updateMTOShipmentAction,
 };
 
-export { CreateOrEditMtoShipment as CreateOrEditMtoShipmentComponent };
 export default connect(mapStateToProps, mapDispatchToProps)(CreateOrEditMtoShipment);

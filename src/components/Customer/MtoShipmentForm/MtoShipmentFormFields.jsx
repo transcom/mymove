@@ -1,5 +1,5 @@
 import React from 'react';
-import { bool, shape, string, func } from 'prop-types';
+import { bool, shape, string, func, number } from 'prop-types';
 import { Field } from 'formik';
 import { Button, /* Fieldset, */ Label, Radio, Checkbox } from '@trussworks/react-uswds';
 
@@ -251,7 +251,7 @@ MtoShipmentFormFields.propTypes = {
   submitHandler: func.isRequired,
   serviceMember: shape({
     weight_allotment: shape({
-      total_weight_self: string,
+      total_weight_self: number,
     }),
   }).isRequired,
 
