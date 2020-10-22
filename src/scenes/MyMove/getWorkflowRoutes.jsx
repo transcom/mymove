@@ -22,7 +22,7 @@ import Orders from 'pages/MyMove/Orders';
 import UploadOrders from 'pages/MyMove/UploadOrders';
 import MovingInfo from 'pages/MyMove/MovingInfo';
 import SelectMoveType from 'pages/MyMove/SelectMoveType';
-import CreateOrEditMtoShipment from 'pages/MyMove/CreateOrEditMtoShipment';
+import ConnectedCreateOrEditMtoShipment from 'pages/MyMove/CreateOrEditMtoShipment';
 import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import Review from 'pages/MyMove/Review';
@@ -215,7 +215,7 @@ const pages = {
       );
     },
     render: (key, pages, description, props) => ({ match, history }) => (
-      <CreateOrEditMtoShipment
+      <ConnectedCreateOrEditMtoShipment
         match={match}
         history={history}
         pageList={pages}
@@ -234,7 +234,7 @@ const pages = {
       );
     },
     render: (key, pages, description, props) => ({ match, history }) => (
-      <CreateOrEditMtoShipment
+      <ConnectedCreateOrEditMtoShipment
         match={match}
         history={history}
         pageList={pages}
@@ -251,7 +251,7 @@ const pages = {
       return mtoShipment && every([mtoShipment.requestedDeliveryDate, mtoShipment.shipmentType]);
     },
     render: (key, pages, description, props) => ({ match, history }) => (
-      <CreateOrEditMtoShipment
+      <ConnectedCreateOrEditMtoShipment
         match={match}
         history={history}
         pageList={pages}

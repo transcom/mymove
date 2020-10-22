@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { Component } from 'react';
-import { bool, string, func, shape } from 'prop-types';
+import { bool, string, func, shape, number } from 'prop-types';
 import { Formik } from 'formik';
 
 import { getShipmentOptions } from './getShipmentOptions';
@@ -181,7 +181,7 @@ MtoShipmentForm.propTypes = {
   mtoShipment: HhgShipmentShape,
   serviceMember: shape({
     weight_allotment: shape({
-      total_weight_self: string,
+      total_weight_self: number,
     }),
   }).isRequired,
 };
