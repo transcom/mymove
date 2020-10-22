@@ -607,6 +607,21 @@ jobs:
             mkdir -p tmp/test-results/pretest
             pre-commit run -v --all-files golangci-lint | tee -i tmp/test-results/pretest/golangci-lint.out
       - run:
+          name: Run check-json pre-commit hook
+          command: pre-commit run -v --all-files check-json | tee -i tmp/test-results/pretest/check-json.out
+      - run:
+          name: Run check-yaml pre-commit hook
+          command: pre-commit run -v --all-files check-yaml | tee -i tmp/test-results/pretest/check-yaml.out
+      - run:
+          name: Run detect-private-key pre-commit hook
+          command: pre-commit run -v --all-files detect-private-key | tee -i tmp/test-results/pretest/detect-private-key.out
+      - run:
+          name: Run swagger pre-commit hook
+          command: pre-commit run -v --all-files swagger | tee -i tmp/test-results/pretest/swagger.out
+      - run:
+          name: Run dockerfilelint pre-commit hook
+          command: pre-commit run -v --all-files dockerfilelint | tee -i tmp/test-results/pretest/dockerfilelint.out
+      - run:
           name: Run prettier checks
           command: yarn prettier-ci
       - run:
