@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { string, bool, func, arrayOf, shape, number } from 'prop-types';
+import { string, bool, func, arrayOf, shape } from 'prop-types';
 import { get } from 'lodash';
 
 import styles from './SelectMoveType.module.scss';
@@ -17,7 +17,7 @@ import {
   selectMTOShipmentsByMoveId,
   loadMTOShipments as loadMTOShipmentsAction,
 } from 'shared/Entities/modules/mtoShipments';
-import { MoveTaskOrderShape } from 'types/moveOrder';
+import { MoveTaskOrderShape, MTOShipmentShape } from 'types/moveOrder';
 import ConnectedStorageInfoModal from 'components/Customer/modals/StorageInfoModal/StorageInfoModal';
 
 export class SelectMoveType extends Component {
@@ -51,18 +51,19 @@ export class SelectMoveType extends Component {
   };
 
   render() {
-    const {
-      pageKey,
-      pageList,
-      match,
-      push,
-      isPpmSelectable,
-      isHhgSelectable,
-      isNtsSelectable,
-      isNtsrSelectable,
-      shipmentNumber,
-    } = this.props;
+    const { pageKey, pageList, match, push, move, mtoShipments } = this.props;
     const { moveType, showStorageInfoModal } = this.state;
+    const hasNTS = mtoShipments.some((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.NTS);
+    const hasNTSR = mtoShipments.some((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.NTSR);
+    const isMoveDraft = move.status === MOVE_STATUSES.DRAFT;
+    const hasPpm = !!move.personally_procured_moves?.length;
+    const isPpmSelectable = !hasPpm;
+    const isHhgSelectable = isMoveDraft;
+    const isNtsSelectable = isMoveDraft && !hasNTS;
+    const isNtsrSelectable = isMoveDraft && !hasNTSR;
+    const ppmCount = hasPpm ? 1 : 0;
+    const mtosCount = mtoShipments?.length || 0;
+    const shipmentNumber = 1 + ppmCount + mtosCount;
     const ppmCardText =
       'You pack and move your things, or make other arrangements, The government pays you for the weight you move.  This is a a Personally Procured Move (PPM), sometimes called a DITY.';
     const hhgCardText =
@@ -146,7 +147,9 @@ export class SelectMoveType extends Component {
               push={push}
               footerText={footerText}
             >
-              <h6 className="sm-heading">Shipment {shipmentNumber}</h6>
+              <h6 data-testid="number-eyebrow" className="sm-heading">
+                Shipment {shipmentNumber}
+              </h6>
               <h1 className={`sm-heading ${styles.selectTypeHeader} ${styles.header}`}>
                 {shipmentNumber > 1
                   ? 'How do you want this group of things moved?'
@@ -211,30 +214,17 @@ SelectMoveType.propTypes = {
   loadMTOShipments: func.isRequired,
   selectedMoveType: string.isRequired,
   move: MoveTaskOrderShape.isRequired,
-  isPpmSelectable: bool.isRequired,
-  isHhgSelectable: bool.isRequired,
-  isNtsSelectable: bool.isRequired,
-  isNtsrSelectable: bool.isRequired,
-  shipmentNumber: number.isRequired,
+  mtoShipments: arrayOf(MTOShipmentShape).isRequired,
 };
 
 function mapStateToProps(state) {
   const move = selectActiveOrLatestMove(state);
-  const hasPpm = !!move.personally_procured_moves?.length;
   const mtoShipments = selectMTOShipmentsByMoveId(state, move.id);
-  const hasNTS = mtoShipments.some((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.NTS);
-  const hasNTSR = mtoShipments.some((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.NTSR);
-  const ppmCount = hasPpm ? 1 : 0;
-  const mtosCount = mtoShipments?.length || 0;
-  const isMoveDraft = move.status === MOVE_STATUSES.DRAFT;
+
   const props = {
     move,
     selectedMoveType: get(move, 'selected_move_type'),
-    isPpmSelectable: !hasPpm,
-    isHhgSelectable: isMoveDraft,
-    isNtsSelectable: isMoveDraft && !hasNTS,
-    isNtsrSelectable: isMoveDraft && !hasNTSR,
-    shipmentNumber: 1 + ppmCount + mtosCount,
+    mtoShipments,
   };
   return props;
 }

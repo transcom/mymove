@@ -17,11 +17,6 @@ describe('SelectMoveType', () => {
     move: { id: 'mockId', status: MOVE_STATUSES.DRAFT },
     selectedMoveType: SHIPMENT_OPTIONS.PPM,
     mtoShipments: [],
-    isPpmSelectable: true,
-    isHhgSelectable: true,
-    isNtsSelectable: true,
-    isNtsrSelectable: true,
-    shipmentNumber: 4,
   };
 
   const getWrapper = (props = {}) => {
@@ -76,22 +71,19 @@ describe('SelectMoveType', () => {
   });
 
   describe('when no PPMs or shipments have been created', () => {
-    const props = {
-      isPpmSelectable: true,
-      shipmentNumber: 1,
-    };
     it('should render the correct text', () => {
-      const wrapper = getWrapper(props);
+      const wrapper = getWrapper();
       expect(wrapper.find('h1').text()).toContain('How do you want to move your belongings?');
       expect(wrapper.find('[data-testid="selectableCardText"]').at(0).text()).toContain(
         'You pack and move your things, or make other arrangements, The government pays you for the weight you move.  This is a a Personally Procured Move (PPM), sometimes called a DITY.',
       );
+      expect(wrapper.find('[data-testid="number-eyebrow"]').text()).toContain('Shipment 1');
     });
   });
 
   describe('when a PPM has already been created', () => {
     const props = {
-      isPpmSelectable: false,
+      move: { personally_procured_moves: [{ id: '1' }] },
     };
     it('should render the correct text', () => {
       const wrapper = getWrapper(props);
@@ -103,6 +95,7 @@ describe('SelectMoveType', () => {
       expect(wrapper.find('[data-testid="selectableCardText"]').at(0).text()).not.toContain(
         'You arrange to move some or all of your belongings',
       );
+      expect(wrapper.find('[data-testid="number-eyebrow"]').text()).toContain('Shipment 2');
     });
     it('should disable PPM form option if PPM is already submitted', () => {
       const wrapper = getWrapper(props);
@@ -112,13 +105,37 @@ describe('SelectMoveType', () => {
   });
 
   describe('when some shipments already exist', () => {
-    const props = {
-      isHhgSelectable: true,
-      shipmentNumber: 2,
-    };
     it('should render the correct text', () => {
+      const props = {
+        mtoShipments: [{ selectedMoveType: SHIPMENT_OPTIONS.HHG, id: '2' }],
+      };
       const wrapper = getWrapper(props);
       expect(wrapper.find('h1').text()).toContain('How do you want this group of things moved?');
+    });
+    it('should render the correct value in the eyebrow for shipment number with 1 existing shipment', () => {
+      const props = {
+        mtoShipments: [{ selectedMoveType: SHIPMENT_OPTIONS.HHG, id: '2' }],
+      };
+      const wrapper = getWrapper(props);
+      expect(wrapper.find('[data-testid="number-eyebrow"]').text()).toContain('Shipment 2');
+    });
+    it('should render the correct value in the eyebrow for shipment number with 2 existing shipment', () => {
+      const props = {
+        mtoShipments: [
+          { selectedMoveType: SHIPMENT_OPTIONS.HHG, id: '6' },
+          { selectedMoveType: SHIPMENT_OPTIONS.NTS, id: '9' },
+        ],
+      };
+      const wrapper = getWrapper(props);
+      expect(wrapper.find('[data-testid="number-eyebrow"]').text()).toContain('Shipment 3');
+    });
+    it('should render the correct value in the shipment number with existing HHG and PPM', () => {
+      const props = {
+        move: { personally_procured_moves: [{ id: '1' }] },
+        mtoShipments: [{ selectedMoveType: SHIPMENT_OPTIONS.HHG, id: '2' }],
+      };
+      const wrapper = getWrapper(props);
+      expect(wrapper.find('[data-testid="number-eyebrow"]').text()).toContain('Shipment 3');
     });
   });
 
@@ -126,7 +143,6 @@ describe('SelectMoveType', () => {
     const props = {
       mtoShipments: [{ id: '3', shipmentType: SHIPMENT_OPTIONS.NTS }],
       move: { status: MOVE_STATUSES.DRAFT },
-      isNtsSelectable: false,
     };
     const wrapper = getWrapper(props);
 
@@ -147,7 +163,6 @@ describe('SelectMoveType', () => {
     const props = {
       mtoShipments: [{ id: '4', shipmentType: SHIPMENT_OPTIONS.NTSR }],
       move: { status: MOVE_STATUSES.DRAFT },
-      isNtsrSelectable: false,
     };
     const wrapper = getWrapper(props);
     it('NTSr card should render the correct text', () => {
@@ -169,8 +184,6 @@ describe('SelectMoveType', () => {
         { id: '5', shipmentType: SHIPMENT_OPTIONS.NTSR },
       ],
       move: { status: MOVE_STATUSES.DRAFT },
-      isNtsrSelectable: false,
-      isNtsSelectable: false,
     };
     const wrapper = getWrapper(props);
     it('should render the correct text', () => {
@@ -186,12 +199,9 @@ describe('SelectMoveType', () => {
 
   describe('when a move has already been submitted', () => {
     const props = {
-      isHhgSelectable: false,
       move: {
         status: MOVE_STATUSES.SUBMITTED,
       },
-      isNtsSelectable: false,
-      isNtsrSelectable: false,
     };
     const wrapper = getWrapper(props);
     it('should render the correct text', () => {
@@ -212,6 +222,9 @@ describe('SelectMoveType', () => {
     it('should not show radio cards for NTS or NTSr', () => {
       expect(wrapper.find(Radio).at(2).exists()).toEqual(false);
       expect(wrapper.find(Radio).at(3).exists()).toEqual(false);
+    });
+    it('should have selectable PPM if move does not have a PPM, even if the move is already submitted', () => {
+      expect(wrapper.find(Radio).at(0).prop('disabled')).toEqual(false);
     });
   });
 });
