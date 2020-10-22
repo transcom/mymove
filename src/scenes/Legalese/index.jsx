@@ -14,7 +14,7 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { formatSwaggerDate } from 'shared/formatters';
 import './index.css';
 import { createSignedCertification } from 'shared/Entities/modules/signed_certifications';
-import { loadPPMs } from 'shared/Entities/modules/ppms';
+import { selectActivePPMForMove, loadPPMs } from 'shared/Entities/modules/ppms';
 import { submitMoveForApproval } from 'shared/Entities/modules/moves';
 import { completeCertificationText } from './legaleseText';
 import { showSubmitSuccessBanner, removeSubmitSuccessBanner } from './ducks';
@@ -165,10 +165,10 @@ function mapStateToProps(state, ownProps) {
     hasLoggedInUser: selectGetCurrentUserIsSuccess(state),
     values: getFormValues(formName)(state),
     ...state.signedCertification,
-    // currentPpm: selectActivePPMForMove(state, moveId),
-    // tempPpmId: get(state.ppm, 'currentPpm.id', null),
-    // has_sit: get(state.ppm, 'currentPpm.has_sit', false),
-    // has_advance: get(state.ppm, 'currentPpm.has_requested_advance', false),
+    currentPpm: selectActivePPMForMove(state, moveId),
+    tempPpmId: get(state.ppm, 'currentPpm.id', null),
+    has_sit: get(state.ppm, 'currentPpm.has_sit', false),
+    has_advance: get(state.ppm, 'currentPpm.has_requested_advance', false),
     selectedMoveType: ownProps.selectedMoveType,
   };
 }
