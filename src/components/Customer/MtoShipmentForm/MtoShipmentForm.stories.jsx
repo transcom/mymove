@@ -3,7 +3,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 
-import { MtoShipmentFormComponent as MtoShipmentForm } from './MtoShipmentForm';
+import MtoShipmentForm from './MtoShipmentForm';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { history, store } from 'shared/store';

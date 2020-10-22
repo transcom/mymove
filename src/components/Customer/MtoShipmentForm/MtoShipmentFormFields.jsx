@@ -1,7 +1,7 @@
 import React from 'react';
 import { bool, shape, string, func } from 'prop-types';
 import { Field } from 'formik';
-import { Button, /* Fieldset, */ Label, Radio } from '@trussworks/react-uswds';
+import { Button, /* Fieldset, */ Label, Radio, Checkbox } from '@trussworks/react-uswds';
 
 import styles from './MtoShipmentForm.module.scss';
 
@@ -9,7 +9,6 @@ import { DatePickerInput, TextInput } from 'components/form/fields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { Form } from 'components/form/Form';
-import Checkbox from 'shared/Checkbox';
 import Divider from 'shared/Divider';
 import Fieldset from 'shared/Fieldset';
 import Hint from 'shared/Hint';
@@ -31,9 +30,6 @@ const MtoShipmentFormFields = ({
   // shipment-related data
   displayOptions,
   shipmentNumber,
-  hasDeliveryAddress,
-  onHasDeliveryAddressChange,
-  useCurrentResidence,
   onUseCurrentResidenceChange,
   submitHandler,
   newDutyStationAddress,
@@ -43,10 +39,13 @@ const MtoShipmentFormFields = ({
   const isHHG = displayOptions.displayName === 'HHG';
   const isNTS = displayOptions.displayName === 'NTS';
   const isNTSR = displayOptions.displayName === 'NTS-R';
+  const { hasDeliveryAddress } = values;
 
   return (
     <>
-      <div className={`margin-top-2 ${styles['hhg-label']}`}>{`${displayOptions.displayName} ${shipmentNumber}`}</div>
+      {shipmentNumber && (
+        <div className={`margin-top-2 ${styles['hhg-label']}`}>{`${displayOptions.displayName} ${shipmentNumber}`}</div>
+      )}
       <h1 className="margin-top-1">
         {isHHG && hhgFormHeader}
         {isNTS && ntsFormHeader}
@@ -66,7 +65,6 @@ const MtoShipmentFormFields = ({
                 label="Requested pickup date"
                 labelClassName={`margin-top-2 ${styles['small-bold']}`}
                 id="requestedPickupDate"
-                value={values.pickup.requestedDate}
                 validate={validateDate}
               />
             </Fieldset>
@@ -85,8 +83,8 @@ const MtoShipmentFormFields = ({
                     data-testid="useCurrentResidence"
                     label="Use my current residence address"
                     name="useCurrentResidence"
-                    checked={useCurrentResidence}
-                    onChange={() => onUseCurrentResidenceChange(values)}
+                    onChange={onUseCurrentResidenceChange}
+                    id="useCurrentResidenceCheckbox"
                   />
                 </div>
               )}
@@ -109,12 +107,12 @@ const MtoShipmentFormFields = ({
           <>
             <Divider className="margin-bottom-6" />
             <Fieldset legend="Delivery date">
-              <DatePickerInput
+              <Field
+                as={DatePickerInput}
                 name="delivery.requestedDate"
                 label="Requested delivery date"
                 labelClassName={`${styles['small-bold']}`}
                 id="requestedDeliveryDate"
-                value={values.delivery.requestedDate}
                 validate={validateDate}
               />
               <Hint className="margin-top-1">
@@ -126,23 +124,25 @@ const MtoShipmentFormFields = ({
             <Fieldset legend="Delivery location">
               <Label className="margin-top-3 margin-bottom-1">Do you know your delivery address?</Label>
               <div className="display-flex margin-top-1">
-                <Radio
+                <Field
+                  as={Radio}
                   className="margin-right-3"
                   id="has-delivery-address"
                   label="Yes"
                   name="hasDeliveryAddress"
-                  onChange={onHasDeliveryAddressChange}
-                  checked={hasDeliveryAddress}
+                  value="yes"
+                  checked={hasDeliveryAddress === 'yes'}
                 />
-                <Radio
+                <Field
+                  as={Radio}
                   id="no-delivery-address"
                   label="No"
                   name="hasDeliveryAddress"
-                  checked={!hasDeliveryAddress}
-                  onChange={onHasDeliveryAddressChange}
+                  value="no"
+                  checked={hasDeliveryAddress === 'no'}
                 />
               </div>
-              {hasDeliveryAddress ? (
+              {hasDeliveryAddress === 'yes' ? (
                 <AddressFields name="delivery.address" values={values.delivery.address} />
               ) : (
                 <>
@@ -246,7 +246,6 @@ MtoShipmentFormFields.propTypes = {
   // customer data for pre-fill (& submit)
   isCreatePage: bool,
   newDutyStationAddress: SimpleAddressShape.isRequired,
-  onHasDeliveryAddressChange: func.isRequired,
   onUseCurrentResidenceChange: func.isRequired,
   submitHandler: func.isRequired,
   serviceMember: shape({
@@ -257,8 +256,6 @@ MtoShipmentFormFields.propTypes = {
 
   // shipment-related data
   displayOptions: MtoDisplayOptionsShape.isRequired,
-  hasDeliveryAddress: bool.isRequired,
-  useCurrentResidence: bool.isRequired,
   shipmentNumber: string,
 };
 

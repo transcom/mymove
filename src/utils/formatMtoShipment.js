@@ -41,11 +41,13 @@ function formatAddressForAPI(address) {
 
   if (formattedAddress.state) {
     formattedAddress.state = formattedAddress.state?.toUpperCase();
+    delete formattedAddress.id;
     return formattedAddress;
   }
 
   return undefined;
 }
+
 const emptyAgentShape = {
   firstName: '',
   lastName: '',
@@ -89,8 +91,7 @@ export function formatMtoShipmentForDisplay({
       address: { ...emptyAddressShape },
       agent: { ...emptyAgentShape },
     },
-    hasDeliveryAddress: false,
-    useCurrentResidence: false,
+    hasDeliveryAddress: 'no',
   };
 
   if (agents) {
@@ -121,7 +122,7 @@ export function formatMtoShipmentForDisplay({
 
   if (destinationAddress) {
     displayValues.delivery.address = { ...emptyAddressShape, ...destinationAddress };
-    displayValues.hasDeliveryAddress = true;
+    displayValues.hasDeliveryAddress = 'yes';
   }
 
   if (requestedDeliveryDate) {
