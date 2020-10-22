@@ -148,7 +148,7 @@ describe('SelectMoveType', () => {
 
     it('NTS card should render the correct text', () => {
       expect(wrapper.find('[data-testid="selectableCardText"]').at(2).text()).toContain(
-        'You‘ve already requested a long-term storage shipment for this move. Talk to your movers to change or add to your request.',
+        'You’ve already requested a long-term storage shipment for this move. Talk to your movers to change or add to your request.',
       );
       expect(wrapper.find('[data-testid="long-term-storage-heading"] + p').text()).toEqual(
         'These shipments do count against your weight allowance for this move.',
@@ -167,7 +167,7 @@ describe('SelectMoveType', () => {
     const wrapper = getWrapper(props);
     it('NTSr card should render the correct text', () => {
       expect(wrapper.find('[data-testid="selectableCardText"]').at(3).text()).toContain(
-        'You‘ve already asked to have things taken out of storage for this move. Talk to your movers to change or add to your request.',
+        'You’ve already asked to have things taken out of storage for this move. Talk to your movers to change or add to your request.',
       );
       expect(wrapper.find('[data-testid="long-term-storage-heading"] + p').text()).toEqual(
         'These shipments do count against your weight allowance for this move.',
