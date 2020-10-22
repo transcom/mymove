@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { string, func, shape } from 'prop-types';
+import { bool, string, func, shape } from 'prop-types';
 import { get } from 'lodash';
 
 import MtoShipmentForm from 'components/Customer/MtoShipmentForm/MtoShipmentForm';
@@ -36,11 +36,11 @@ class CreateOrEditMtoShipment extends Component {
       createMTOShipment,
       updateMTOShipment,
       serviceMember,
+      isCreate,
     } = this.props;
-    const isCreatePage = match && match.path ? match.path.includes('start') : false;
 
     // wait until MTO shipment has loaded to render form
-    if (isCreatePage || mtoShipment?.id) {
+    if (isCreate || mtoShipment?.id) {
       return (
         <MtoShipmentForm
           match={match}
@@ -49,7 +49,7 @@ class CreateOrEditMtoShipment extends Component {
           pageKey={pageKey}
           mtoShipment={mtoShipment}
           selectedMoveType={selectedMoveType}
-          isCreatePage={isCreatePage}
+          isCreatePage={isCreate}
           currentResidence={currentResidence}
           newDutyStationAddress={newDutyStationAddress}
           createMTOShipment={createMTOShipment}
@@ -82,6 +82,7 @@ CreateOrEditMtoShipment.propTypes = {
       total_weight_self: string,
     }),
   }).isRequired,
+  isCreate: bool,
 };
 
 CreateOrEditMtoShipment.defaultProps = {
@@ -105,6 +106,7 @@ CreateOrEditMtoShipment.defaultProps = {
     state: '',
     postal_code: '',
   },
+  isCreate: false,
 };
 
 function mapStateToProps(state, ownProps) {
