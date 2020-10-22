@@ -609,18 +609,23 @@ jobs:
       - run:
           name: Run check-json pre-commit hook
           command: pre-commit run -v --all-files check-json | tee -i tmp/test-results/pretest/check-json.out
+          when: always
       - run:
           name: Run check-yaml pre-commit hook
           command: pre-commit run -v --all-files check-yaml | tee -i tmp/test-results/pretest/check-yaml.out
+          when: always
       - run:
           name: Run detect-private-key pre-commit hook
           command: pre-commit run -v --all-files detect-private-key | tee -i tmp/test-results/pretest/detect-private-key.out
+          when: always
       - run:
           name: Run swagger pre-commit hook
           command: pre-commit run -v --all-files swagger | tee -i tmp/test-results/pretest/swagger.out
+          when: always
       - run:
           name: Run dockerfilelint pre-commit hook
           command: pre-commit run -v --all-files dockerfilelint | tee -i tmp/test-results/pretest/dockerfilelint.out
+          when: always
       - run:
           name: Run prettier checks
           command: yarn prettier-ci
