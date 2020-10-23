@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 	"time"
 
+	modelToPayload "github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
+
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
@@ -239,6 +241,120 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 
 	suite.Equal(ghcmessages.QueueMoveStatus("Approvals requested"), result.Status)
 
+}
+
+func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatusesFilter() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
+		RoleType: roles.RoleTypeTOO,
+	})
+
+	hhgMoveType := models.SelectedMoveTypeHHG
+	// Default Origin Duty Station GBLOC is LKNQ
+
+	// New move
+	move1 := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusSUBMITTED,
+		},
+	})
+
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: move1,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+	})
+
+	// Approvals requested
+	move2 := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusAPPROVED,
+		},
+	})
+
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: move2,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+	})
+
+	// Move approved
+	move3 := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusAPPROVED,
+		},
+	})
+
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: move3,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusApproved,
+		},
+	})
+
+	// Create an order with an origin duty station outside of office user GBLOC
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		TransportationOffice: models.TransportationOffice{
+			Name:  "Fort Punxsutawney",
+			Gbloc: "AGFM",
+		},
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+		},
+	})
+
+	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
+	request = suite.AuthenticateOfficeRequest(request, officeUser)
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	handler := GetMovesQueueHandler{
+		context,
+		officeuser.NewOfficeUserFetcher(query.NewQueryBuilder(context.DB())),
+		moveorder.NewMoveOrderFetcher(suite.DB()),
+	}
+
+	suite.Run("loads results with all STATUS selected", func() {
+		params := queues.GetMovesQueueParams{
+			HTTPRequest: request,
+			Status: []string{
+				modelToPayload.QueueMoveStatusNEWMOVE,
+				modelToPayload.QueueMoveStatusAPPROVALSREQUESTED,
+				modelToPayload.QueueMoveStatusMOVEAPPROVED,
+			},
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		payload := response.(*queues.GetMovesQueueOK).Payload
+		suite.EqualValues(payload.TotalCount, 3)
+		suite.Len(payload.QueueMoves, 3)
+	})
+
+	suite.Run("loads results with one STATUS selected", func() {
+		params := queues.GetMovesQueueParams{
+			HTTPRequest: request,
+			Status: []string{
+				modelToPayload.QueueMoveStatusNEWMOVE,
+			},
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		payload := response.(*queues.GetMovesQueueOK).Payload
+		suite.EqualValues(payload.TotalCount, 1)
+		suite.Len(payload.QueueMoves, 1)
+		suite.EqualValues(payload.QueueMoves[0].Status, modelToPayload.QueueMoveStatusNEWMOVE)
+	})
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedRole() {
