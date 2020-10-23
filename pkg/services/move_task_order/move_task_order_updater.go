@@ -43,6 +43,13 @@ func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eT
 		now := time.Now()
 		mto.AvailableToPrimeAt = &now
 
+		if mto.Status == models.MoveStatusSUBMITTED {
+			err = mto.Approve()
+			if err != nil {
+				return &models.Move{}, err
+			}
+		}
+
 		// When provided, this will auto create and approve MTO level service items. This is going to typically happen
 		// from the ghc api via the office app. The handler in question is this one: UpdateMoveTaskOrderStatusHandlerFunc
 		// in ghcapi/move_task_order.go
