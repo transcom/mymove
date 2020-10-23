@@ -16,7 +16,9 @@
       @include u-margin-top(0);
     }
     hr {
-      color: $base-lightest;
+      color: $base-lighter;
+      background-color: $base-lighter;
+      height: 1px;
     }
     h2, h3, h4 {
       &:first-child {
