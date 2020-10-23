@@ -18,6 +18,7 @@ import scrollToTop from 'shared/scrollToTop';
 
 import './Review.css';
 import profileImage from './images/profile.png';
+import SectionWrapper from 'components/Customer/SectionWrapper';
 
 const editProfileFormName = 'edit_profile';
 
@@ -45,44 +46,45 @@ let EditProfileForm = (props) => {
               style={{
                 display: 'inline-block',
                 marginLeft: 10,
-                marginBottom: 0,
+                marginBottom: 16,
                 marginTop: 20,
               }}
             >
               Profile
             </h1>
-            <hr />
-            <h3>Edit Profile:</h3>
-            <SwaggerField fieldName="first_name" swagger={schema} required />
-            <SwaggerField fieldName="middle_name" swagger={schema} />
-            <SwaggerField fieldName="last_name" swagger={schema} required />
-            <SwaggerField fieldName="suffix" swagger={schema} />
-            <hr className="spacer" />
-            {!moveIsApproved && (
-              <Fragment>
-                <SwaggerField fieldName="affiliation" swagger={schema} required />
-                <SwaggerField fieldName="rank" swagger={schema} required />
-                <SwaggerField fieldName="edipi" swagger={schema} required />
-                <Field name="current_station" title="Current duty station" component={DutyStationSearchBox} />
-              </Fragment>
-            )}
-            {moveIsApproved && (
-              <Fragment>
-                <div>
-                  To change the fields below, contact your local PPPO office at {get(currentStation, 'name')}{' '}
-                  {stationPhone ? ` at ${stationPhone}` : ''}.
-                </div>
-                <label>Branch</label>
-                <strong>{schemaAffiliation['x-display-value'][initialValues.affiliation]}</strong>
-                <label>Rank</label>
-                <strong>{schemaRank['x-display-value'][initialValues.rank]}</strong>
-                <label>DoD ID #</label>
-                <strong>{initialValues.edipi}</strong>
+            <SectionWrapper>
+              <h2>Edit Profile:</h2>
+              <SwaggerField fieldName="first_name" swagger={schema} required />
+              <SwaggerField fieldName="middle_name" swagger={schema} />
+              <SwaggerField fieldName="last_name" swagger={schema} required />
+              <SwaggerField fieldName="suffix" swagger={schema} />
+              <hr className="spacer" />
+              {!moveIsApproved && (
+                <Fragment>
+                  <SwaggerField fieldName="affiliation" swagger={schema} required />
+                  <SwaggerField fieldName="rank" swagger={schema} required />
+                  <SwaggerField fieldName="edipi" swagger={schema} required />
+                  <Field name="current_station" title="Current duty station" component={DutyStationSearchBox} />
+                </Fragment>
+              )}
+              {moveIsApproved && (
+                <Fragment>
+                  <div>
+                    To change the fields below, contact your local PPPO office at {get(currentStation, 'name')}{' '}
+                    {stationPhone ? ` at ${stationPhone}` : ''}.
+                  </div>
+                  <label>Branch</label>
+                  <strong>{schemaAffiliation['x-display-value'][initialValues.affiliation]}</strong>
+                  <label>Rank</label>
+                  <strong>{schemaRank['x-display-value'][initialValues.rank]}</strong>
+                  <label>DoD ID #</label>
+                  <strong>{initialValues.edipi}</strong>
 
-                <label>Current Duty Station</label>
-                <strong>{get(initialValues, 'current_station.name')}</strong>
-              </Fragment>
-            )}
+                  <label>Current Duty Station</label>
+                  <strong>{get(initialValues, 'current_station.name')}</strong>
+                </Fragment>
+              )}
+            </SectionWrapper>
             <SaveCancelButtons valid={valid} submitting={submitting} />
           </form>
         </div>
