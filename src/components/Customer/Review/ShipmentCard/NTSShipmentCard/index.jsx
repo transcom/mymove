@@ -31,7 +31,7 @@ const NTSShipmentCard = ({
           </div>
           <Button
             className={styles.editBtn}
-            data-testid="edit-shipment-btn"
+            data-testid="edit-nts-shipment-btn"
             onClick={() => onEditClick(editPath)}
             unstyled
           >

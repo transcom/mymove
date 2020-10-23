@@ -17,6 +17,7 @@ NumberCircle.propTypes = {
 const Step = ({
   actionBtnDisabled,
   actionBtnLabel,
+  actionBtnId,
   children,
   complete,
   completedHeaderText,
@@ -51,6 +52,7 @@ const Step = ({
         <Button
           className={actionBtnClassName}
           disabled={actionBtnDisabled}
+          data-testid={actionBtnId}
           onClick={onActionBtnClick}
           type="button"
           secondary={secondaryBtn}
@@ -64,6 +66,7 @@ const Step = ({
 
 Step.propTypes = {
   actionBtnDisabled: bool,
+  actionBtnId: string,
   actionBtnLabel: string,
   children: node,
   complete: bool,
@@ -80,6 +83,7 @@ Step.propTypes = {
 
 Step.defaultProps = {
   actionBtnDisabled: false,
+  actionBtnId: '',
   actionBtnLabel: '',
   children: null,
   complete: false,

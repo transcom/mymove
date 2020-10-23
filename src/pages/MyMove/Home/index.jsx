@@ -180,8 +180,11 @@ class Home extends Component {
     let destLink = '';
     if (shipmentType === 'PPM') {
       destLink = `/moves/${move.id}/review/edit-date-and-location`;
-    } else {
+    } else if (shipmentType === 'HHG') {
       destLink = `/moves/${move.id}/mto-shipments/${shipmentId}/edit-shipment${queryString}`;
+    } else {
+      // nts/ntsr shipment
+      destLink = `/moves/${move.id}/mto-shipments/${shipmentId}/edit-shipment`;
     }
 
     history.push(destLink);
@@ -329,6 +332,7 @@ class Home extends Component {
                 <Step
                   complete={this.hasSubmittedMove}
                   actionBtnDisabled={!this.hasAnyShipments}
+                  actionBtnId="review-and-submit-btn"
                   actionBtnLabel={!this.hasSubmittedMove ? 'Review and submit' : ''}
                   containerClassName="margin-bottom-8"
                   headerText="Confirm move request"
