@@ -1630,27 +1630,7 @@ func init() {
         "parameters": [
           {
             "type": "string",
-            "name": "filter",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "name": "page",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "name": "perPage",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "name": "sort",
-            "in": "query"
-          },
-          {
-            "type": "boolean",
-            "name": "order",
+            "name": "branch",
             "in": "query"
           }
         ],
@@ -5458,27 +5438,7 @@ func init() {
         "parameters": [
           {
             "type": "string",
-            "name": "filter",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "name": "page",
-            "in": "query"
-          },
-          {
-            "type": "integer",
-            "name": "perPage",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "name": "sort",
-            "in": "query"
-          },
-          {
-            "type": "boolean",
-            "name": "order",
+            "name": "branch",
             "in": "query"
           }
         ],

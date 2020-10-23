@@ -90,6 +90,59 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 
 }
 
+func (suite *HandlerSuite) TestGetMoveQueuesFilter() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
+		RoleType: roles.RoleTypeTOO,
+	})
+
+	hhgMoveType := models.SelectedMoveTypeHHG
+	// Create an order with AIR_FORCE department_indicator (default)
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusSUBMITTED,
+		},
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+	})
+
+	// Create an order with ARMY department_indicator
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+		Order: models.Order{
+			DepartmentIndicator: models.StringPointer("ARMY"),
+		},
+		Move: models.Move{
+			Status: models.MoveStatusSUBMITTED,
+		},
+	})
+
+	request := httptest.NewRequest("GET", "/queues/moves", nil)
+	request = suite.AuthenticateOfficeRequest(request, officeUser)
+	params := queues.GetMovesQueueParams{
+		HTTPRequest: request,
+		Branch:      models.StringPointer("ARMY"),
+	}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	handler := GetMovesQueueHandler{
+		context,
+		officeuser.NewOfficeUserFetcher(query.NewQueryBuilder(context.DB())),
+		moveorder.NewMoveOrderFetcher(suite.DB()),
+	}
+
+	response := handler.Handle(params)
+	suite.IsNotErrResponse(response)
+
+	suite.Assertions.IsType(&queues.GetMovesQueueOK{}, response)
+	payload := response.(*queues.GetMovesQueueOK).Payload
+
+	suite.Equal(1, len(payload.QueueMoves))
+}
+
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{

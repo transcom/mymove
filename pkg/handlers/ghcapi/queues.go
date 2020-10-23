@@ -1,9 +1,6 @@
 package ghcapi
 
 import (
-	"encoding/json"
-	"fmt"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/pop"
 	"go.uber.org/zap"
@@ -23,11 +20,6 @@ type GetMovesQueueHandler struct {
 	services.MoveOrderFetcher
 }
 
-// Filter defines all the possible filter parameters
-type Filter struct {
-	Branch string `json:"branch"`
-}
-
 // FilterOption defines the type for the functional arguments passed to ListMoveOrders
 type FilterOption func(*pop.Query)
 
@@ -39,9 +31,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 		return queues.NewGetMovesQueueForbidden()
 	}
 
-	queryFilters := h.generateQueryFilters(params.Filter, logger)
-
-	branchQuery := branchFilter(queryFilters)
+	branchQuery := branchFilter(params)
 
 	orders, err := h.MoveOrderFetcher.ListMoveOrders(session.OfficeUserID, branchQuery)
 	if err != nil {
@@ -93,28 +83,10 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 	return queues.NewGetPaymentRequestsQueueOK().WithPayload(result)
 }
 
-// generateQueryFilters is helper to convert filter params from a json string
-// of the form `{"status": "Submitted" "branch": "Army"}` to an array of services.QueryFilter
-func (h GetMovesQueueHandler) generateQueryFilters(filters *string, logger handlers.Logger) Filter {
-	f := Filter{}
-	if filters == nil {
-		return f
-	}
-	b := []byte(*filters)
-	err := json.Unmarshal(b, &f)
-	if err != nil {
-		fs := fmt.Sprintf("%v", filters)
-		logger.Warn("unable to decode param", zap.Error(err),
-			zap.String("filters", fs))
-	}
-
-	return f
-}
-
-func branchFilter(filter Filter) FilterOption {
+func branchFilter(params queues.GetMovesQueueParams) FilterOption {
 	return func(query *pop.Query) {
-		if filter.Branch != "" {
-			query = query.Where("orders.department_indicator = ?", filter.Branch)
+		if params.Branch != nil {
+			query = query.Where("orders.department_indicator = ?", *params.Branch)
 		}
 	}
 }
