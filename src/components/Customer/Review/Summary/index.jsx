@@ -15,7 +15,7 @@ import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import { loadMove, selectMove } from 'shared/Entities/modules/moves';
 import { selectActiveOrLatestOrdersFromEntities, selectUploadsForActiveOrders } from 'shared/Entities/modules/orders';
-import { SHIPMENT_OPTIONS, titleCase } from 'shared/constants';
+import { MOVE_STATUSES, SHIPMENT_OPTIONS, titleCase } from 'shared/constants';
 import {
   moveIsApproved as selectMoveIsApproved,
   lastMoveIsCanceled,
@@ -74,7 +74,7 @@ export class Summary extends Component {
   renderShipments = () => {
     const { currentMove, currentOrders, match } = this.props;
     const { moveId } = match.params;
-    const showEditBtn = currentMove.status === 'DRAFT';
+    const showEditBtn = currentMove.status === MOVE_STATUSES.DRAFT;
     let hhgShipmentNumber = 0;
     return this.getSortedShipments.map((shipment) => {
       let receivingAgent;
