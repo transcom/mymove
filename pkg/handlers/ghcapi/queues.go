@@ -102,11 +102,16 @@ func statusFilter(statuses []string, moves *ghcmessages.QueueMoves) *ghcmessages
 
 	ret := make(ghcmessages.QueueMoves, 0)
 	// New move, Approvals requested, and Move approved statuses
+	// convert into a map to make it easier to lookup
+	statusMap := make(map[string]string, 0)
 	for _, status := range statuses {
-		for _, move := range *moves {
-			if status == string(move.Status) {
-				ret = append(ret, move)
-			}
+		statusMap[status] = status
+	}
+
+	// then include only the moves based on status filter
+	for _, move := range *moves {
+		if _, ok := statusMap[string(move.Status)]; ok {
+			ret = append(ret, move)
 		}
 	}
 
