@@ -2,12 +2,14 @@ package ghcapi
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/event"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
@@ -137,6 +139,43 @@ func (h UpdateMoveOrderHandler) Handle(params moveorderop.UpdateMoveOrderParams)
 			return moveorderop.NewUpdateMoveOrderInternalServerError()
 		}
 	}
+	// Get move.orderID:
+	// 	1. We have to get the <this id> that we are looking for
+	fmt.Println("moveOrder.ID", updatedOrder.ID)
+	// Find the record where orderID matches moveOrder.ID
+	// 2.  Search for the record that has orderID == <this id>
+	var moves []models.Move
+	// err := db.Find(&move, id)
+
+	query := h.DB().Where("orders_id = ?", updatedOrder.ID)
+	err = query.All(&moves)
+	if err != nil {
+		fmt.Println("error:", err)
+		// TODO how to handle query errors
+	}
+
+	fmt.Printf("moves %d\n", len(moves))
+	for _, move := range moves {
+		fmt.Println("NO ERROR", move.ID, move.OrdersID)
+		// 3.  Get the ID of the new record
+		// UpdateMoveOrder event Trigger here for EACH MOVE:
+		_, err = event.TriggerEvent(event.Event{
+			EndpointKey: event.GhcUpdateMoveOrderEndpointKey,
+			// Endpoint that is being handled
+			EventKey:        event.MoveOrderUpdateEventKey, // Event that you want to trigger
+			UpdatedObjectID: updatedOrder.ID,               // ID of the updated logical object (look at what the payload returns)
+			MtoID:           move.ID,                       // ID of the associated Move
+			Request:         params.HTTPRequest,            // Pass on the http.Request
+			DBConnection:    h.DB(),                        // Pass on the pop.Connection
+			HandlerContext:  h,                             // Pass on the handlerContext
+		})
+		// If the event trigger fails, just log the error.
+		if err != nil {
+			logger.Error("ghcapi.UpdateMoveOrderHandler could not generate the event")
+		}
+	}
+
+	// move.ID is the one you want to pass over, MTO?
 
 	moveOrderPayload := payloads.MoveOrder(updatedOrder)
 
