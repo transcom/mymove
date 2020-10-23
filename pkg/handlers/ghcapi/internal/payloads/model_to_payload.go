@@ -496,11 +496,17 @@ func QueueMoves(moveOrders []models.Order) *ghcmessages.QueueMoves {
 	return &queueMoveOrders
 }
 
+var (
+	QueueMoveStatusNEWMOVE            string = "New move"
+	QueueMoveStatusAPPROVALSREQUESTED string = "Approvals requested"
+	QueueMoveStatusMOVEAPPROVED       string = "Move approved"
+)
+
 // This is a helper function to calculate the inferred status needed for the QueueMove payload.
 func queueMoveStatus(move models.Move) string {
 	// If the move is in the submitted status then we'll translate that to New move
 	if move.Status == models.MoveStatusSUBMITTED {
-		return "New move"
+		return QueueMoveStatusNEWMOVE
 	}
 
 	// For moves that are in an approved status there are two potential translation paths:
@@ -513,11 +519,11 @@ func queueMoveStatus(move models.Move) string {
 		for _, mtoSI := range move.MTOServiceItems {
 			// If we find one, we'll immediately return this status as there's no need to continue iterating through.
 			if mtoSI.Status == "SUBMITTED" {
-				return "Approvals requested"
+				return QueueMoveStatusAPPROVALSREQUESTED
 			}
 		}
 		// If we iterate through the MTOServiceItems and don't find a submitted status item, we return move approved.
-		return "Move approved"
+		return QueueMoveStatusMOVEAPPROVED
 	}
 	// If we have a status not covered here let's pass it through. This is unlikely to happen, but we should be able to
 	// see it if it does.
