@@ -4,8 +4,8 @@ describe('the PPM flow', function () {
   });
 
   it('can submit a PPM move', () => {
-    // profile@comple.te
-    const userId = '3b9360a3-3304-4c60-90f4-83d687884077';
+    // profileinfo@comple.te
+    const userId = '44d818f9-d0d9-42f1-80f8-53b78ce7a4a4';
     cy.apiSignInAsPpmUser(userId);
     SMSubmitsMove();
   });
