@@ -319,6 +319,52 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 		suite.IsType(paymentrequestop.NewGetPaymentRequestEDINotFound(), response)
 	})
 
+	suite.T().Run("failure due to a validation error", func(t *testing.T) {
+		id := uuid.FromStringOrNil("d66d2f35-218c-4b99-b9d1-631949b9d984")
+		testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+			DutyStation: models.DutyStation{
+				ID: id,
+			},
+		})
+		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+			Order: models.Order{
+				OriginDutyStationID: &id,
+			},
+		})
+
+		// originDutyStation, err := models.FetchDutyStation(suite.DB(), id)
+		// models.FetchDutyStation(suite.DB(), id)
+
+		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+			Order: order,
+		})
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			Move: mto,
+		})
+		req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, paymentRequest.ID), nil)
+
+		params := paymentrequestop.GetPaymentRequestEDIParams{
+			HTTPRequest:      req,
+			PaymentRequestID: strfmt.UUID(paymentRequest.ID.String()),
+		}
+
+		mockGenerator := &mocks.GHCPaymentRequestInvoiceGenerator{}
+		errStr := "some error"
+		mockGenerator.On("Generate", mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, errors.New(errStr)).Once()
+
+		mockGeneratorHandler := GetPaymentRequestEDIHandler{
+			HandlerContext:                    handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(suite.DB()),
+			GHCPaymentRequestInvoiceGenerator: mockGenerator,
+		}
+
+		response := mockGeneratorHandler.Handle(params)
+
+		suite.IsType(paymentrequestop.NewGetPaymentRequestEDIUnprocessableEntity(), response)
+		errResponse := response.(*paymentrequestop.GetPaymentRequestEDIUnprocessableEntity)
+		suite.Contains(*errResponse.Payload.Detail, errStr)
+	})
+
 	suite.T().Run("failure due to payment request ID not found", func(t *testing.T) {
 		notFoundID := uuid.Must(uuid.NewV4())
 		req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, notFoundID), nil)
