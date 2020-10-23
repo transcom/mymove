@@ -43,6 +43,7 @@ class MtoShipmentForm extends Component {
 
   getShipmentNumber = () => {
     // TODO - this is not supported by IE11, shipment number should be calculable from Redux anyways
+    // we should fix this also b/c it doesn't display correctly in storybook
     const { search } = window.location;
     const params = new URLSearchParams(search);
     const shipmentNumber = params.get('shipmentNumber');

@@ -11,7 +11,12 @@ import { history, store } from 'shared/store';
 const defaultProps = {
   pageList: ['page1', 'anotherPage/:foo/:bar'],
   pageKey: 'page1',
-  match: { isExact: false, path: '', url: '', params: { moveId: 'move123' } },
+  match: {
+    isExact: false,
+    path: 'moves/:moveId/mto-shipments/:mtoShipmentId/edit-shipment?shipmentNumber=2',
+    url: '',
+    params: { moveId: 'move123' },
+  },
   history: { push: () => {}, goBack: () => {} },
   showLoggedInUser: () => {},
   newDutyStationAddress: {
@@ -28,6 +33,11 @@ const defaultProps = {
   useCurrentResidence: false,
   mtoShipment: {
     destinationAddress: undefined,
+  },
+  serviceMember: {
+    weight_allotment: {
+      total_weight_self: 5000,
+    },
   },
   isCreatePage: true,
 };
