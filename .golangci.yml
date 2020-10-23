@@ -42,6 +42,8 @@ issues:
     # TODO: Remove this when errcheck is enabled above - duplication is ok
     # - G104
   fix: false
+  max-issues-per-linter: 0
+  max-same-issues: 0
 
 run:
   # timeout for analysis, e.g. 30s, 5m, default is 1m
