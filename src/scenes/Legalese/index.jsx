@@ -103,44 +103,45 @@ export class SignedCertification extends Component {
                 <div>
                   <h1>Now for the official part...</h1>
                   <p className="instructions">{instructionsText}</p>
-                    <SectionWrapper>
-                      <span className="box_top">
-                        <a className="usa-link pdf" onClick={this.print}>
-                          Print
-                        </a>
-                      </span>
+                  <SectionWrapper>
+                    <span className="box_top">
+                      <a className="usa-link pdf" onClick={this.print}>
+                        Print
+                      </a>
+                    </span>
 
-                      <CertificationText certificationText={completeCertificationText} />
+                    <CertificationText certificationText={completeCertificationText} />
 
-                      <div className="signature-box">
-                        <h3>SIGNATURE</h3>
-                        <p>
-                          In consideration of said household goods or mobile homes being shipped at Government expense, I
-                          hereby agree to the certifications stated above.
-                        </p>
-                        <div className="signature-fields">
-                          <SwaggerField
-                            className="signature"
-                            fieldName="signature"
-                            swagger={this.props.schema}
-                            required
-                            disabled={!!initialValues.signature}
-                          />
-                          <SwaggerField
-                            className="signature-date"
-                            fieldName="date"
-                            swagger={this.props.schema}
-                            required
-                            disabled
-                          />
-                        </div>
+                    <div className="signature-box">
+                      <h3>SIGNATURE</h3>
+                      <p>
+                        In consideration of said household goods or mobile homes being shipped at Government expense, I
+                        hereby agree to the certifications stated above.
+                      </p>
+                      <div className="signature-fields">
+                        <SwaggerField
+                          className="signature"
+                          fieldName="signature"
+                          swagger={this.props.schema}
+                          required
+                          disabled={!!initialValues.signature}
+                        />
+                        <SwaggerField
+                          className="signature-date"
+                          fieldName="date"
+                          swagger={this.props.schema}
+                          required
+                          disabled
+                        />
+                      </div>
 
-                        {(hasSubmitError || this.state.hasMoveSubmitError) && (
-                          <Alert type="error" heading="Server Error">
-                            There was a problem saving your signature.
-                          </Alert>
-                        )}
-                    </SectionWrapper>
+                      {(hasSubmitError || this.state.hasMoveSubmitError) && (
+                        <Alert type="error" heading="Server Error">
+                          There was a problem saving your signature.
+                        </Alert>
+                      )}
+                    </div>
+                  </SectionWrapper>
                 </div>
               </div>
             </SignatureWizardForm>
