@@ -77,10 +77,7 @@ function customerVisitsReviewPage() {
 
 function customerCreatesAnNTSShipment() {
   cy.get('[data-testid="shipment-selection-btn"]').contains('Plan your shipments').click();
-  cy.get('[data-testid="shipmentsHeader]').contains('Figure out your shipments');
   cy.nextPage();
-  cy.get('h1').contains('How do you want to move your belongings?');
-
   cy.get('input[type="radio"]').eq(2).check({ force: true });
   cy.nextPage();
   cy.location().should((loc) => {

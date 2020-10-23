@@ -150,7 +150,10 @@ export class SelectMoveType extends Component {
               <h6 data-testid="number-eyebrow" className="sm-heading">
                 Shipment {shipmentNumber}
               </h6>
-              <h1 className={`sm-heading ${styles.selectTypeHeader} ${styles.header}`}>
+              <h1
+                className={`sm-heading ${styles.selectTypeHeader} ${styles.header}`}
+                data-testid="select-move-type-header"
+              >
                 {shipmentNumber > 1
                   ? 'How do you want this group of things moved?'
                   : 'How do you want to move your belongings?'}
