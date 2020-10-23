@@ -4,6 +4,8 @@ import { shallow } from 'enzyme';
 
 import { Summary } from './index';
 
+import { MOVE_STATUSES } from 'shared/constants';
+
 const defaultProps = {
   serviceMember: {
     id: '666',
@@ -23,7 +25,7 @@ const defaultProps = {
     report_by_date: '2020-08-31',
     service_member_id: '666',
     spouse_has_pro_gear: false,
-    status: 'DRAFT',
+    status: MOVE_STATUSES.DRAFT,
     uploaded_orders: {
       uploads: [],
     },
