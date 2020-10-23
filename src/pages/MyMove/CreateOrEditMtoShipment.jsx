@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bool, string, func, shape, number } from 'prop-types';
-import { get } from 'lodash';
 
 import MtoShipmentForm from 'components/Customer/MtoShipmentForm/MtoShipmentForm';
 import {
@@ -110,14 +109,13 @@ CreateOrEditMtoShipment.defaultProps = {
 };
 
 function mapStateToProps(state, ownProps) {
-  const orders = selectActiveOrLatestOrdersFromEntities(state);
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
 
   const props = {
     serviceMember,
     mtoShipment: selectMTOShipmentById(state, ownProps.match.params.mtoShipmentId),
-    currentResidence: get(selectServiceMemberFromLoggedInUser(state), 'residential_address', {}),
-    newDutyStationAddress: get(orders, 'new_duty_station.address', {}),
+    currentResidence: serviceMember?.residential_address || {},
+    newDutyStationAddress: selectActiveOrLatestOrdersFromEntities(state)?.new_duty_station?.address || {},
   };
 
   return props;
