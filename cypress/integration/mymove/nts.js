@@ -1,4 +1,4 @@
-describe('NTS Setup flow', function () {
+describe('Customer NTS(r) Setup flow', function () {
   // profile@comple.te
   const profileCompleteUser = '3b9360a3-3304-4c60-90f4-83d687884077';
   // nts@ntsr.unsubmitted
@@ -8,18 +8,7 @@ describe('NTS Setup flow', function () {
     cy.prepareCustomerApp();
   });
 
-  beforeEach(() => {
-    cy.removeFetch();
-    cy.server();
-    cy.route('POST', '/internal/service_members').as('createServiceMember');
-    cy.route('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
-    cy.route('GET', '/internal/moves/**/mto_shipments').as('getMTOShipments');
-    cy.route('GET', '/internal/users/logged_in').as('getLoggedInUser');
-  });
-
   it('Sets up an NTS shipment', function () {
-    // profile@comple.te
-    const profileCompleteUser = '3b9360a3-3304-4c60-90f4-83d687884077';
     cy.apiSignInAsUser(profileCompleteUser);
     customerCreatesAnNTSShipment();
     customerReviewsNTSMoveDetails();
@@ -38,7 +27,6 @@ describe('NTS Setup flow', function () {
   });
 
   it('Edits an NTSr shipment', function () {
-    const ntsUser = '583cfbe1-cb34-4381-9e1f-54f68200da1b';
     cy.apiSignInAsUser(ntsUser);
     customerVisitsReviewPage();
     customerEditsNTSRShipment();
@@ -47,41 +35,40 @@ describe('NTS Setup flow', function () {
 
 function customerReviewsNTSRMoveDetails() {
   cy.get('[data-testid="review-move-header"]').contains('Review your details');
-  cy.get('[data-testid="ShipmentContainer"]').contains('NTS-R');
 
   // Requested delivery date
-  cy.get('[data-testid="ShipmentContainer"]').contains('02 Jan 2020');
+  cy.get('[data-testid="ntsr-summary"]').last().contains('02 Jan 2020');
 
   // Destination
-  cy.get('[data-testid="ShipmentContainer"]').contains('30813');
+  cy.get('[data-testid="ntsr-summary"]').last().contains('30813');
 
   // Receiving agent
-  cy.get('[data-testid="ShipmentContainer"]').contains('James Bond');
-  cy.get('[data-testid="ShipmentContainer"]').contains('777-777-7777');
-  cy.get('[data-testid="ShipmentContainer"]').contains('007@example.com');
+  cy.get('[data-testid="ntsr-summary"]').last().contains('James Bond');
+  cy.get('[data-testid="ntsr-summary"]').last().contains('777-777-7777');
+  cy.get('[data-testid="ntsr-summary"]').last().contains('007@example.com');
 
   // Remarks
-  cy.get('[data-testid="ShipmentContainer"]').contains('some other customer remark');
+  cy.get('[data-testid="ntsr-summary"]').last().contains('some other customer remark');
 }
 
 function customerReviewsNTSMoveDetails() {
   cy.get('[data-testid="review-move-header"]').contains('Review your details');
-  cy.get('[data-testid="ShipmentContainer"]').contains('NTS');
+  cy.get('[data-testid="nts-summary"]').contains('NTS');
 
   // Requested pickup date
-  cy.get('[data-testid="ShipmentContainer"]').contains('02 Aug 2020');
+  cy.get('[data-testid="nts-summary"]').contains('02 Aug 2020');
 
   // Pickup location
-  cy.get('[data-testid="ShipmentContainer"]').contains('123 Any Street P.O. Box 12345');
-  cy.get('[data-testid="ShipmentContainer"]').contains('Beverly Hills, CA 90210');
+  cy.get('[data-testid="nts-summary"]').contains('123 Any Street P.O. Box 12345');
+  cy.get('[data-testid="nts-summary"]').contains('Beverly Hills, CA 90210');
 
   // Releasing agent
-  cy.get('[data-testid="ShipmentContainer"]').contains('John Lee');
-  cy.get('[data-testid="ShipmentContainer"]').contains('999-999-9999');
-  cy.get('[data-testid="ShipmentContainer"]').contains('john@example.com');
+  cy.get('[data-testid="nts-summary"]').contains('John Lee');
+  cy.get('[data-testid="nts-summary"]').contains('999-999-9999');
+  cy.get('[data-testid="nts-summary"]').contains('john@example.com');
 
   // Remarks
-  cy.get('[data-testid="ShipmentContainer"]').contains('some customer remark');
+  cy.get('[data-testid="nts-summary"]').contains('some customer remark');
 }
 
 function customerEditsNTSRShipment() {
@@ -94,10 +81,10 @@ function customerEditsNTSRShipment() {
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
   });
-  cy.get('[data-testid="ShipmentContainer"]').contains('01 Jan 2022');
-  cy.get('[data-testid="ShipmentContainer"]').contains('123 Maple street');
-  cy.get('[data-testid="ShipmentContainer"]').contains('Ketchum Ash');
-  cy.get('[data-testid="ShipmentContainer"]').contains('Warning: fragile');
+  cy.get('[data-testid="ntsr-summary"]').contains('01 Jan 2022');
+  cy.get('[data-testid="ntsr-summary"]').contains('123 Maple street');
+  cy.get('[data-testid="ntsr-summary"]').contains('Ketchum Ash');
+  cy.get('[data-testid="ntsr-summary"]').contains('Warning: fragile');
 }
 
 function customerEditsNTSShipment() {
@@ -109,9 +96,9 @@ function customerEditsNTSShipment() {
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
   });
-  cy.get('[data-testid="ShipmentContainer"]').contains('25 Dec 2020');
-  cy.get('[data-testid="ShipmentContainer"]').contains('Jason Bourne');
-  cy.get('[data-testid="ShipmentContainer"]').contains('Handle with care');
+  cy.get('[data-testid="nts-summary"]').contains('25 Dec 2020');
+  cy.get('[data-testid="nts-summary"]').contains('Jason Bourne');
+  cy.get('[data-testid="nts-summary"]').contains('Handle with care');
 }
 
 function customerVisitsReviewPage() {
