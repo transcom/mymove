@@ -606,6 +606,7 @@ jobs:
             source $BASH_ENV
             mkdir -p tmp/test-results/pretest
             pre-commit run -v --all-files golangci-lint | tee -i tmp/test-results/pretest/golangci-lint.out
+          when: always
       - run:
           name: Run check-json pre-commit hook
           command: pre-commit run -v --all-files check-json | tee -i tmp/test-results/pretest/check-json.out
