@@ -72,12 +72,14 @@ export class Summary extends Component {
   };
 
   renderShipments = () => {
-    const { currentOrders, match } = this.props;
+    const { currentMove, currentOrders, match } = this.props;
     const { moveId } = match.params;
+    const showEditBtn = currentMove.status === 'DRAFT';
     let hhgShipmentNumber = 0;
     return this.getSortedShipments.map((shipment) => {
       let receivingAgent;
       let releasingAgent;
+
       if (shipment.shipmentType === SHIPMENT_OPTIONS.PPM) {
         return (
           <PPMShipmentCard
@@ -101,6 +103,7 @@ export class Summary extends Component {
         return (
           <NTSShipmentCard
             key={shipment.id}
+            showEditBtn={showEditBtn}
             moveId={moveId}
             onEditClick={this.handleEditClick}
             pickupLocation={shipment.pickupAddress}
@@ -116,10 +119,11 @@ export class Summary extends Component {
         return (
           <NTSRShipmentCard
             key={shipment.id}
+            destinationLocation={shipment?.destinationAddress}
+            destinationZIP={currentOrders.new_duty_station.address.postal_code}
+            showEditBtn={showEditBtn}
             moveId={moveId}
             onEditClick={this.handleEditClick}
-            destinationZIP={currentOrders.new_duty_station.address.postal_code}
-            destinationLocation={shipment?.destinationAddress}
             receivingAgent={receivingAgent}
             remarks={shipment.customerRemarks}
             requestedDeliveryDate={shipment.requestedDeliveryDate}

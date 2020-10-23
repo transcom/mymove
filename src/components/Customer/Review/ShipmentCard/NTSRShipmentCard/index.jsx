@@ -1,5 +1,5 @@
 import React from 'react';
-import { string, shape, func } from 'prop-types';
+import { string, shape, func, bool } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
 import { AddressShape } from '../../../../../types/address';
@@ -19,6 +19,7 @@ const NTSRShipmentCard = ({
   onEditClick,
   shipmentId,
   shipmentType,
+  showEditBtn,
 }) => {
   const editPath = `/moves/${moveId}/mto-shipments/${shipmentId}/edit-shipment`;
   return (
@@ -29,14 +30,16 @@ const NTSRShipmentCard = ({
             <h3>{getShipmentTypeLabel(shipmentType)}</h3>
             <p>#{shipmentId.substring(0, 8).toUpperCase()}</p>
           </div>
-          <Button
-            className={styles.editBtn}
-            data-testid="edit-ntsr-shipment-btn"
-            onClick={() => onEditClick(editPath)}
-            unstyled
-          >
-            Edit
-          </Button>
+          {showEditBtn && (
+            <Button
+              className={styles.editBtn}
+              data-testid="edit-ntsr-shipment-btn"
+              onClick={() => onEditClick(editPath)}
+              unstyled
+            >
+              Edit
+            </Button>
+          )}
         </div>
         <dl className={styles.shipmentCardSubsection}>
           <DeliveryDisplay
@@ -60,13 +63,14 @@ const NTSRShipmentCard = ({
 };
 
 NTSRShipmentCard.propTypes = {
+  destinationLocation: AddressShape,
+  destinationZIP: string.isRequired,
   moveId: string.isRequired,
   onEditClick: func.isRequired,
-  shipmentType: string.isRequired,
-  shipmentId: string.isRequired,
-  destinationLocation: AddressShape,
   requestedDeliveryDate: string.isRequired,
-  destinationZIP: string.isRequired,
+  showEditBtn: bool.isRequired,
+  shipmentId: string.isRequired,
+  shipmentType: string.isRequired,
   receivingAgent: shape({
     firstName: string,
     lastName: string,

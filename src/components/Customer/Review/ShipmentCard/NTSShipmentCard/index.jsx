@@ -1,5 +1,5 @@
 import React from 'react';
-import { string, shape, number, func } from 'prop-types';
+import { string, shape, number, func, bool } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
 import { AddressShape } from '../../../../../types/address';
@@ -19,6 +19,7 @@ const NTSShipmentCard = ({
   shipmentId,
   shipmentType,
   shipmentNumber,
+  showEditBtn,
 }) => {
   const editPath = `/moves/${moveId}/mto-shipments/${shipmentId}/edit-shipment`;
   return (
@@ -29,14 +30,16 @@ const NTSShipmentCard = ({
             <h3>{getShipmentTypeLabel(shipmentType)}</h3>
             <p>#{shipmentId.substring(0, 8).toUpperCase()}</p>
           </div>
-          <Button
-            className={styles.editBtn}
-            data-testid="edit-nts-shipment-btn"
-            onClick={() => onEditClick(editPath)}
-            unstyled
-          >
-            Edit
-          </Button>
+          {showEditBtn && (
+            <Button
+              className={styles.editBtn}
+              data-testid="edit-nts-shipment-btn"
+              onClick={() => onEditClick(editPath)}
+              unstyled
+            >
+              Edit
+            </Button>
+          )}
         </div>
         <dl className={styles.shipmentCardSubsection}>
           <PickupDisplay
@@ -64,6 +67,7 @@ NTSShipmentCard.propTypes = {
   onEditClick: func.isRequired,
   shipmentType: string.isRequired,
   shipmentId: string.isRequired,
+  showEditBtn: bool.isRequired,
   requestedPickupDate: string.isRequired,
   pickupLocation: AddressShape.isRequired,
   releasingAgent: shape({
