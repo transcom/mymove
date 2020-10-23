@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { string, bool, func, arrayOf, shape, number } from 'prop-types';
+import { string, bool, func, arrayOf, shape } from 'prop-types';
 import { get } from 'lodash';
 
 import styles from './SelectMoveType.module.scss';
@@ -17,7 +17,7 @@ import {
   selectMTOShipmentsByMoveId,
   loadMTOShipments as loadMTOShipmentsAction,
 } from 'shared/Entities/modules/mtoShipments';
-import { MoveTaskOrderShape } from 'types/moveOrder';
+import { MoveTaskOrderShape, MTOShipmentShape } from 'types/moveOrder';
 import ConnectedStorageInfoModal from 'components/Customer/modals/StorageInfoModal/StorageInfoModal';
 
 export class SelectMoveType extends Component {
@@ -51,18 +51,19 @@ export class SelectMoveType extends Component {
   };
 
   render() {
-    const {
-      pageKey,
-      pageList,
-      match,
-      push,
-      isPpmSelectable,
-      isHhgSelectable,
-      isNtsSelectable,
-      isNtsrSelectable,
-      shipmentNumber,
-    } = this.props;
+    const { pageKey, pageList, match, push, move, mtoShipments } = this.props;
     const { moveType, showStorageInfoModal } = this.state;
+    const hasNTS = mtoShipments.some((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.NTS);
+    const hasNTSR = mtoShipments.some((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.NTSR);
+    const isMoveDraft = move.status === MOVE_STATUSES.DRAFT;
+    const hasPpm = !!move.personally_procured_moves?.length;
+    const isPpmSelectable = !hasPpm;
+    const isHhgSelectable = isMoveDraft;
+    const isNtsSelectable = isMoveDraft && !hasNTS;
+    const isNtsrSelectable = isMoveDraft && !hasNTSR;
+    const ppmCount = hasPpm ? 1 : 0;
+    const mtosCount = mtoShipments?.length || 0;
+    const shipmentNumber = 1 + ppmCount + mtosCount;
     const ppmCardText =
       'You pack and move your things, or make other arrangements, The government pays you for the weight you move.  This is a a Personally Procured Move (PPM), sometimes called a DITY.';
     const hhgCardText =
@@ -71,11 +72,13 @@ export class SelectMoveType extends Component {
     const ntsrCardText =
       'Movers pick up things you put into NTS during an earlier move and ship them to your new destination. This is an NTS-R (non-temporary storage release) shipment.';
     const ntsDisabledText =
-      "You've already requested a long-term storage shipment for this move. Talk to your movers to change or add to your request.";
+      'You’ve already requested a long-term storage shipment for this move. Talk to your movers to change or add to your request.';
     const ntsrDisabledText =
-      "You've already asked to have things taken out of storage for this move. Talk to your movers to change or add to your request.";
+      'You’ve already asked to have things taken out of storage for this move. Talk to your movers to change or add to your request.';
     const hhgCardTextPostSubmit = 'Talk with your movers directly if you want to add or change shipments.';
     const ppmCardTextAlreadyChosen = `You’ve already requested a PPM shipment. If you have more things to move yourself but that you can’t add to that shipment, contact the PPPO at your origin duty station.`;
+    const noLongTermStorageCardsText =
+      'Talk to your movers about long-term storage if you need to add it to this move or change a request you made earlier.';
     const selectableCardDefaultProps = {
       onChange: (e) => this.setMoveType(e),
       name: 'moveType',
@@ -144,7 +147,9 @@ export class SelectMoveType extends Component {
               push={push}
               footerText={footerText}
             >
-              <h6 className="sm-heading">Shipment {shipmentNumber}</h6>
+              <h6 data-testid="number-eyebrow" className="sm-heading">
+                Shipment {shipmentNumber}
+              </h6>
               <h1 className={`sm-heading ${styles.selectTypeHeader} ${styles.header}`}>
                 {shipmentNumber > 1
                   ? 'How do you want this group of things moved?'
@@ -154,29 +159,34 @@ export class SelectMoveType extends Component {
               <p>You can add more later</p>
               {isPpmSelectable ? ppmEnabledCard : ppmDisabledCard}
               {isHhgSelectable ? hhgEnabledCard : hhgDisabledCard}
-              <h3>Long-term storage</h3>
-              <p>These shipments do count against your weight allowance for this move.</p>
-              <SelectableCard
-                {...selectableCardDefaultProps}
-                label="Put things into long-term storage"
-                value={SHIPMENT_OPTIONS.NTS}
-                id={SHIPMENT_OPTIONS.NTS}
-                cardText={isNtsSelectable ? ntsCardText : ntsDisabledText}
-                checked={moveType === SHIPMENT_OPTIONS.NTS && isNtsSelectable}
-                disabled={!isNtsSelectable}
-                onHelpClick={this.toggleStorageModal}
-              />
-              {/* TODO - update when NTSR option is added to API */}
-              <SelectableCard
-                {...selectableCardDefaultProps}
-                label="Get things out of long-term storage"
-                value={SHIPMENT_OPTIONS.NTSR}
-                id={SHIPMENT_OPTIONS.NTSR}
-                cardText={isNtsSelectable ? ntsrCardText : ntsrDisabledText}
-                checked={moveType === SHIPMENT_OPTIONS.NTSR && isNtsrSelectable}
-                disabled={!isNtsrSelectable}
-                onHelpClick={this.toggleStorageModal}
-              />
+              <h3 data-testid="long-term-storage-heading">Long-term storage</h3>
+              {!isNtsSelectable && !isNtsrSelectable ? (
+                <p className={styles.pSmall}>{noLongTermStorageCardsText}</p>
+              ) : (
+                <>
+                  <p>These shipments do count against your weight allowance for this move.</p>
+                  <SelectableCard
+                    {...selectableCardDefaultProps}
+                    label="Put things into long-term storage"
+                    value={SHIPMENT_OPTIONS.NTS}
+                    id={SHIPMENT_OPTIONS.NTS}
+                    cardText={isNtsSelectable ? ntsCardText : ntsDisabledText}
+                    checked={moveType === SHIPMENT_OPTIONS.NTS && isNtsSelectable}
+                    disabled={!isNtsSelectable}
+                    onHelpClick={this.toggleStorageModal}
+                  />
+                  <SelectableCard
+                    {...selectableCardDefaultProps}
+                    label="Get things out of long-term storage"
+                    value={SHIPMENT_OPTIONS.NTSR}
+                    id={SHIPMENT_OPTIONS.NTSR}
+                    cardText={isNtsrSelectable ? ntsrCardText : ntsrDisabledText}
+                    checked={moveType === SHIPMENT_OPTIONS.NTSR && isNtsrSelectable}
+                    disabled={!isNtsrSelectable}
+                    onHelpClick={this.toggleStorageModal}
+                  />
+                </>
+              )}
             </WizardPage>
           </div>
           <div className="tablet:grid-col-2" />
@@ -204,30 +214,17 @@ SelectMoveType.propTypes = {
   loadMTOShipments: func.isRequired,
   selectedMoveType: string.isRequired,
   move: MoveTaskOrderShape.isRequired,
-  isPpmSelectable: bool.isRequired,
-  isHhgSelectable: bool.isRequired,
-  isNtsSelectable: bool.isRequired,
-  isNtsrSelectable: bool.isRequired,
-  shipmentNumber: number.isRequired,
+  mtoShipments: arrayOf(MTOShipmentShape).isRequired,
 };
 
 function mapStateToProps(state) {
   const move = selectActiveOrLatestMove(state);
-  const hasPpm = !!move.personally_procured_moves?.length;
-  // TODO: Make dynamic when we have ability to submit nts/ntsr
-  const hasNTS = false;
-  const hasNTSR = false;
-  const ppmCount = hasPpm ? 1 : 0;
-  const mtosCount = selectMTOShipmentsByMoveId(state, move.id)?.length || 0;
-  const isMoveDraft = move.status === MOVE_STATUSES.DRAFT;
+  const mtoShipments = selectMTOShipmentsByMoveId(state, move.id);
+
   const props = {
     move,
     selectedMoveType: get(move, 'selected_move_type'),
-    isPpmSelectable: !hasPpm,
-    isHhgSelectable: isMoveDraft,
-    isNtsSelectable: isMoveDraft && !hasNTS,
-    isNtsrSelectable: isMoveDraft && !hasNTSR,
-    shipmentNumber: 1 + ppmCount + mtosCount,
+    mtoShipments,
   };
   return props;
 }
