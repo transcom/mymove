@@ -1,0 +1,18 @@
+@import 'shared/styles/colors';
+@import 'shared/styles/_basics';
+
+.ShipmentTag {
+  background-color: $accent-default;
+  &.HHG {
+    background-color: $accent-hhg;
+  }
+  &.PPM {
+    background-color: $accent-ppm;
+  }
+  &.NTS {
+    background-color: $accent-nts;
+  }
+  &.NTSR {
+    background-color: $accent-ntsr;
+  }
+}

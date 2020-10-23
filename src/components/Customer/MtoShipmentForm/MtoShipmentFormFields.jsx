@@ -15,6 +15,7 @@ import Hint from 'shared/Hint';
 import { SimpleAddressShape } from 'types/address';
 import { MtoDisplayOptionsShape, MtoShipmentFormValuesShape } from 'types/customerShapes';
 import { validateDate } from 'utils/formikValidators';
+import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 
 const hhgFormHeader = 'When and where can the movers pick up and deliver this shipment?';
 const ntsFormHeader = 'Where and when should the movers pick up your things going into storage?';
@@ -28,8 +29,9 @@ const MtoShipmentFormFields = ({
   isValid,
   isSubmitting,
   // shipment-related data
-  displayOptions,
   shipmentNumber,
+  displayOptions,
+  shipmentType,
   onUseCurrentResidenceChange,
   submitHandler,
   newDutyStationAddress,
@@ -43,10 +45,7 @@ const MtoShipmentFormFields = ({
 
   return (
     <>
-      <div className={`margin-top-2 ${styles['hhg-label']}`}>
-        {`${displayOptions.displayName}`}
-        {shipmentNumber && ` ${shipmentNumber}`}
-      </div>
+      <ShipmentTag shipmentType={shipmentType} shipmentNumber={shipmentNumber} />
       <h1 className="margin-top-1">
         {isHHG && hhgFormHeader}
         {isNTS && ntsFormHeader}
@@ -256,6 +255,7 @@ MtoShipmentFormFields.propTypes = {
   }).isRequired,
 
   // shipment-related data
+  shipmentType: string.isRequired,
   displayOptions: MtoDisplayOptionsShape.isRequired,
   shipmentNumber: string,
 };

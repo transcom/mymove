@@ -65,7 +65,8 @@ class MtoShipmentForm extends Component {
       currentResidence,
     } = this.props;
 
-    const displayOptions = getShipmentOptions(selectedMoveType || mtoShipment.shipmentType);
+    const shipmentType = selectedMoveType || mtoShipment.shipmentType;
+    const displayOptions = getShipmentOptions(shipmentType);
     const initialValues = formatMtoShipmentForDisplay(isCreatePage ? {} : mtoShipment);
 
     const commonFormProps = {
@@ -77,93 +78,92 @@ class MtoShipmentForm extends Component {
       newDutyStationAddress,
       displayOptions,
       serviceMember,
+      shipmentType,
       shipmentNumber: displayOptions.displayName === 'HHG' ? this.getShipmentNumber() : null,
     };
 
     return (
-      <div className="grid-container">
-        <Formik
-          initialValues={initialValues}
-          enableReinitialize
-          validateOnBlur
-          validateOnChange
-          validationSchema={displayOptions.schema}
-        >
-          {({ values, dirty, isValid, isSubmitting, setValues }) => {
-            const handleUseCurrentResidenceChange = (e) => {
-              const { checked } = e.target;
-              if (checked) {
-                // use current residence
-                setValues({
-                  ...values,
-                  pickup: {
-                    ...values.pickup,
-                    address: currentResidence,
+      <Formik
+        initialValues={initialValues}
+        enableReinitialize
+        validateOnBlur
+        validateOnChange
+        validationSchema={displayOptions.schema}
+      >
+        {({ values, dirty, isValid, isSubmitting, setValues }) => {
+          const handleUseCurrentResidenceChange = (e) => {
+            const { checked } = e.target;
+            if (checked) {
+              // use current residence
+              setValues({
+                ...values,
+                pickup: {
+                  ...values.pickup,
+                  address: currentResidence,
+                },
+              });
+            } else if (match.params.moveId === mtoShipment?.moveTaskOrderId) {
+              // TODO - what is the purpose of this check?
+              // Revert address
+              setValues({
+                ...values,
+                pickup: {
+                  ...values.pickup,
+                  address: mtoShipment.pickupAddress,
+                },
+              });
+            } else {
+              // Revert address
+              setValues({
+                ...values,
+                pickup: {
+                  ...values.pickup,
+                  address: {
+                    street_address_1: '',
+                    street_address_2: '',
+                    city: '',
+                    state: '',
+                    postal_code: '',
                   },
-                });
-              } else if (match.params.moveId === mtoShipment?.moveTaskOrderId) {
-                // TODO - what is the purpose of this check?
-                // Revert address
-                setValues({
-                  ...values,
-                  pickup: {
-                    ...values.pickup,
-                    address: mtoShipment.pickupAddress,
-                  },
-                });
-              } else {
-                // Revert address
-                setValues({
-                  ...values,
-                  pickup: {
-                    ...values.pickup,
-                    address: {
-                      street_address_1: '',
-                      street_address_2: '',
-                      city: '',
-                      state: '',
-                      postal_code: '',
-                    },
-                  },
-                });
-              }
-            };
-
-            if (isCreatePage) {
-              // return MTO Shipment form in the wizard
-              return (
-                <WizardPage
-                  canMoveNext={dirty && isValid}
-                  match={match}
-                  pageKey={pageKey}
-                  pageList={pageList}
-                  push={history.push}
-                  handleSubmit={() => this.submitMTOShipment(values, dirty)}
-                >
-                  <MtoShipmentFormFields
-                    {...commonFormProps}
-                    values={values}
-                    onUseCurrentResidenceChange={handleUseCurrentResidenceChange}
-                    submitHandler={this.submitMTOShipment}
-                  />
-                </WizardPage>
-              );
+                },
+              });
             }
+          };
 
+          if (isCreatePage) {
+            // return MTO Shipment form in the wizard
             return (
-              <MtoShipmentFormFields
-                {...commonFormProps}
-                values={values}
-                onUseCurrentResidenceChange={handleUseCurrentResidenceChange}
-                submitHandler={this.submitMTOShipment}
-                dirty={dirty}
-                isValid={isValid}
-                isSubmitting={isSubmitting}
-              />
+              <WizardPage
+                canMoveNext={dirty && isValid}
+                match={match}
+                pageKey={pageKey}
+                pageList={pageList}
+                push={history.push}
+                handleSubmit={() => this.submitMTOShipment(values, dirty)}
+              >
+                <MtoShipmentFormFields
+                  {...commonFormProps}
+                  values={values}
+                  onUseCurrentResidenceChange={handleUseCurrentResidenceChange}
+                  submitHandler={this.submitMTOShipment}
+                />
+              </WizardPage>
             );
-          }}
-        </Formik>
-      </div>
+          }
+
+          return (
+            <MtoShipmentFormFields
+              {...commonFormProps}
+              values={values}
+              onUseCurrentResidenceChange={handleUseCurrentResidenceChange}
+              submitHandler={this.submitMTOShipment}
+              dirty={dirty}
+              isValid={isValid}
+              isSubmitting={isSubmitting}
+            />
+          );
+        }}
+      </Formik>
     );
   }
 }
