@@ -2128,38 +2128,4 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
 		},
 	})
-
-	/*
-	 * Service member with orders and a move
-	 */
-	email = "profileinfo@comple.te"
-	uuidStr = "44d818f9-d0d9-42f1-80f8-53b78ce7a4a4"
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovEmail: email,
-			Active:        true,
-		},
-	})
-
-	testdatagen.MakeMove(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil("495a46a3-62c8-47e7-8f0b-55b69c3597e9"),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("ProfileInfo"),
-			LastName:      models.StringPointer("Complete"),
-			Edipi:         models.StringPointer("8893308161"),
-			PersonalEmail: models.StringPointer(email),
-		},
-		Order: models.Order{
-			HasDependents:    true,
-			SpouseHasProGear: true,
-		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("802715b1-6390-4890-b85f-3b430ed72ba3"),
-			Locator: "BLABLA",
-			Status:  models.MoveStatusSUBMITTED,
-		},
-		UserUploader: userUploader,
-	})
 }
