@@ -44,9 +44,7 @@ export function getShipmentOptions(shipmentType) {
         displayName: 'NTS-R',
       };
     default:
-      return {
-        displayName: '',
-      }; // shipmentType can be undefined on reload
+      throw new Error('unrecognized move type');
   }
 }
 

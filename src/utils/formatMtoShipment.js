@@ -76,9 +76,9 @@ export function formatMtoShipmentForDisplay({
   moveTaskOrderID,
 }) {
   const displayValues = {
-    customerRemarks,
     shipmentType,
     moveTaskOrderID,
+    customerRemarks: customerRemarks || '',
     pickup: {
       requestedDate: '',
       address: { ...emptyAddressShape },
