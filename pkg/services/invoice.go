@@ -17,9 +17,3 @@ type GexSender interface {
 type GHCPaymentRequestInvoiceGenerator interface {
 	Generate(paymentRequest models.PaymentRequest, sendProductionInvoice bool) (ediinvoice.Invoice858C, error)
 }
-
-// GHCJobRunner is the exported interface for finding payment request ready to be sent to GEX
-//go:generate mockery -name GHCJobRunner
-type GHCJobRunner interface {
-	ApprovedPaymentRequestFetcher() (models.PaymentRequests, error)
-}

@@ -26,6 +26,12 @@ type PaymentRequestFetcher interface {
 	FetchPaymentRequest(paymentRequestID uuid.UUID) (models.PaymentRequest, error)
 }
 
+// PaymentRequestReviewedFetcher is the exported interface for fetching all payment requests in 'reviewed' status
+//go:generate mockery -name PaymentRequestReviewedFetcher
+type PaymentRequestReviewedFetcher interface {
+	FetchReviewedPaymentRequest() (models.PaymentRequests, error)
+}
+
 // PaymentRequestStatusUpdater is the exported interface for updating the status of a payment request
 //go:generate mockery -name PaymentRequestStatusUpdater
 type PaymentRequestStatusUpdater interface {

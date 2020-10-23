@@ -1,4 +1,4 @@
-package invoice
+package paymentrequest
 
 import (
 	"fmt"
@@ -9,21 +9,19 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-type ghcPaymentRequestJobRunner struct {
+type paymentRequestReviewedFetcher struct {
 	db *pop.Connection
 }
 
-// NewGHCJobRunner returns an implementation of the GHCJobRunner interface
-func NewGHCJobRunner(db *pop.Connection) services.GHCJobRunner {
-	return &ghcPaymentRequestJobRunner{
-		db: db,
-	}
+// NewPaymentRequestReviewedFetcher returns a new payment request fetcher
+func NewPaymentRequestReviewedFetcher(db *pop.Connection) services.PaymentRequestReviewedFetcher {
+	return &paymentRequestReviewedFetcher{db}
 }
 
-// ApprovedPaymentRequestFetcher method returns all payment requests that are in a reviewed status
-func (g ghcPaymentRequestJobRunner) ApprovedPaymentRequestFetcher() (models.PaymentRequests, error) {
+//FetchReviewedPaymentRequest finds all payment request with status 'reviewed'
+func (p *paymentRequestReviewedFetcher) FetchReviewedPaymentRequest() (models.PaymentRequests, error) {
 	var reviewedPaymentRequests models.PaymentRequests
-	err := g.db.Q().
+	err := p.db.Q().
 		Where("status = ?", models.PaymentRequestStatusReviewed).
 		All(&reviewedPaymentRequests)
 	if err != nil {
