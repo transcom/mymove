@@ -25,7 +25,7 @@ describe('A customer following HHG Setup flow', function () {
 
 function customerChoosesAnHHGMove() {
   cy.get('button[data-testid="shipment-selection-btn"]').click();
-  cy.get('h1').contains('Figure out your shipments');
+  cy.get('[data-testid="shipmentsHeader]').contains('Figure out your shipments');
   cy.nextPage();
   cy.get('h2').contains('Choose 1 shipment at a time.');
 

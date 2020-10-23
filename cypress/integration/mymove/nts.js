@@ -77,7 +77,7 @@ function customerVisitsReviewPage() {
 
 function customerCreatesAnNTSShipment() {
   cy.get('[data-testid="shipment-selection-btn"]').contains('Plan your shipments').click();
-  cy.get('h1').contains('Figure out your shipments');
+  cy.get('[data-testid="shipmentsHeader]').contains('Figure out your shipments');
   cy.nextPage();
   cy.get('h1').contains('How do you want to move your belongings?');
 
