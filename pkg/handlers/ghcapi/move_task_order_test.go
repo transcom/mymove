@@ -65,7 +65,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 }
 
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
-	moveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
+	moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusSUBMITTED}})
 
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
@@ -113,6 +113,10 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 	suite.IsNotErrResponse(response)
 	moveTaskOrdersResponse := response.(*movetaskorderops.UpdateMoveTaskOrderStatusOK)
 	moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
+
+	updatedMove := models.Move{}
+	suite.DB().Find(&updatedMove, moveTaskOrdersPayload.ID)
+	suite.Equal(models.MoveStatusAPPROVED, updatedMove.Status)
 
 	suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusOK{}, response)
 	suite.Equal(moveTaskOrdersPayload.ID, strfmt.UUID(moveTaskOrder.ID.String()))
