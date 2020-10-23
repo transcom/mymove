@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Field } from 'formik';
 import { v4 as uuidv4 } from 'uuid';
 
-import styles from 'shared/styles/customer.module.scss';
+import styles from 'pages/MyMove/index.module.scss';
 import Fieldset from 'shared/Fieldset';
 import { TextInput } from 'components/form/fields';
 
