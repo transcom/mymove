@@ -48,7 +48,7 @@ import PaymentReview from 'scenes/Moves/Ppm/PaymentReview/index';
 import CustomerAgreementLegalese from 'scenes/Moves/Ppm/CustomerAgreementLegalese';
 import { withContext } from 'shared/AppContext';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
-import CreateOrEditMtoShipment from 'pages/MyMove/CreateOrEditMtoShipment';
+import ConnectedCreateOrEditMtoShipment from 'pages/MyMove/CreateOrEditMtoShipment';
 import Home from 'pages/MyMove/Home';
 
 import { loadUser as loadUserAction } from 'store/auth/actions';
@@ -124,7 +124,7 @@ export class AppWrapper extends Component {
                   <ValidatedPrivateRoute
                     exact
                     path="/moves/:moveId/mto-shipments/:mtoShipmentId/edit-shipment"
-                    component={CreateOrEditMtoShipment}
+                    component={ConnectedCreateOrEditMtoShipment}
                   />
                   <ValidatedPrivateRoute exact path="/moves/review/edit-backup-contact" component={EditBackupContact} />
                   <ValidatedPrivateRoute exact path="/moves/review/edit-contact-info" component={EditContactInfo} />

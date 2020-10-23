@@ -1,8 +1,8 @@
-import { formatMtoShipment } from './formatMtoShipment';
+import { formatMtoShipmentForAPI } from './formatMtoShipment';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
-describe('formatMtoShipment', () => {
+describe('formatMtoShipmentForAPI', () => {
   it('can format an HHG shipment', () => {
     const params = {
       moveId: 'move123',
@@ -39,7 +39,7 @@ describe('formatMtoShipment', () => {
         },
       },
     };
-    const actual = formatMtoShipment(params);
+    const actual = formatMtoShipmentForAPI(params);
     expect(actual.shipmentType).toBe(SHIPMENT_OPTIONS.HHG);
     expect(actual.agents.length).toBe(2);
     expect(actual.requestedPickupDate).toBe('2026-01-07');
@@ -72,7 +72,7 @@ describe('formatMtoShipment', () => {
         },
       },
     };
-    const actual = formatMtoShipment(params);
+    const actual = formatMtoShipmentForAPI(params);
     expect(actual.shipmentType).toBe(SHIPMENT_OPTIONS.NTSR);
     expect(actual.requestedPickupDate).toBe('2026-01-27');
     expect(actual.agents.length).toBe(1);
@@ -102,7 +102,7 @@ describe('formatMtoShipment', () => {
         },
       },
     };
-    const actual = formatMtoShipment(params);
+    const actual = formatMtoShipmentForAPI(params);
     expect(actual.shipmentType).toBe(SHIPMENT_OPTIONS.NTS);
     expect(actual.requestedDeliveryDate).toBe('2026-01-27');
     expect(actual.agents.length).toBe(1);

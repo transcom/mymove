@@ -180,7 +180,7 @@ class Home extends Component {
     let destLink = '';
     if (shipmentType === 'PPM') {
       destLink = `/moves/${move.id}/review/edit-date-and-location`;
-    } else if (shipmentType === 'HHG') {
+    } else {
       destLink = `/moves/${move.id}/mto-shipments/${shipmentId}/edit-shipment${queryString}`;
     }
 
