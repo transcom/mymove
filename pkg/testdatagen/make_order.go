@@ -48,7 +48,7 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 	TAC := "F8E1"
 	defaultDepartmentIndicator := "AIR_FORCE"
 	departmentIndicator := assertions.Order.DepartmentIndicator
-	if departmentIndicator == nil || *departmentIndicator == "" {
+	if departmentIndicator == nil {
 		departmentIndicator = &defaultDepartmentIndicator
 	}
 	hasDependents := assertions.Order.HasDependents || false

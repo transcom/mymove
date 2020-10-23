@@ -9,17 +9,11 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-type Filter struct {
-	Branch string
-}
-
 type FilterOption func(*pop.Query)
 
-func branchFilter(filter Filter) FilterOption {
+func armyBranchFilter() FilterOption {
 	return func(query *pop.Query) {
-		if filter.Branch != "" {
-			query = query.Where("orders.department_indicator = ?", filter.Branch)
-		}
+		query = query.Where("orders.department_indicator = 'ARMY'")
 	}
 }
 
@@ -127,6 +121,9 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 			TransportationOffice: models.TransportationOffice{
 				Gbloc: "AGFM",
 			},
+			Move: models.Move{
+				Status: models.MoveStatusSUBMITTED,
+			},
 		})
 
 		moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUser.ID)
@@ -144,14 +141,12 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 			Order: models.Order{
 				DepartmentIndicator: &army,
 			},
+			Move: models.Move{
+				Status: models.MoveStatusSUBMITTED,
+			},
 		})
 
-		filter := Filter{
-			Branch: "ARMY",
-		}
-		branchQuery := branchFilter(filter)
-
-		moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, branchQuery)
+		moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, armyBranchFilter())
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moveOrders))
