@@ -21,7 +21,6 @@ export class CreateOrEditMtoShipment extends Component {
     fetchCustomerData();
   }
 
-  // TODO: (in trailing PR) refactor edit component out of existence :)
   render() {
     const {
       match,

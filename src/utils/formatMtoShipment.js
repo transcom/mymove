@@ -3,8 +3,6 @@ import { isEmpty } from 'lodash';
 import { MTOAgentType } from 'shared/constants';
 import { formatSwaggerDate, parseSwaggerDate } from 'shared/formatters';
 
-// TODO: clean up data handling / formats
-
 function formatAgentForDisplay(agent) {
   const agentCopy = { ...agent };
   // handle the diff between expected FE and BE phone format
