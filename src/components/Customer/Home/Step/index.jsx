@@ -83,7 +83,7 @@ Step.propTypes = {
 
 Step.defaultProps = {
   actionBtnDisabled: false,
-  actionBtnId: '',
+  actionBtnId: 'button',
   actionBtnLabel: '',
   children: null,
   complete: false,

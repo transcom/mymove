@@ -79,7 +79,6 @@ describe('Step component', () => {
   });
 
   it('renders Step with a call to action', () => {
-    const actionBtnId = 'button';
     const actionBtnLabel = 'Action btn label';
     const editBtnLabel = 'Edit';
     const headerText = 'This is header text';
@@ -87,7 +86,6 @@ describe('Step component', () => {
     const onEditBtnClick = jest.fn();
     const step = '1';
     const props = {
-      actionBtnId,
       actionBtnLabel,
       editBtnLabel,
       headerText,
@@ -108,7 +106,6 @@ describe('Step component', () => {
   });
 
   it('should not call handlers if disabled', () => {
-    const actionBtnId = 'button';
     const actionBtnLabel = 'Action btn label';
     const editBtnLabel = 'Edit';
     const headerText = 'This is header text';
@@ -117,7 +114,6 @@ describe('Step component', () => {
     const step = '1';
     const props = {
       actionBtnDisabled: true,
-      actionBtnId,
       actionBtnLabel,
       editBtnDisabled: true,
       editBtnLabel,
