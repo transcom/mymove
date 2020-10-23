@@ -190,37 +190,9 @@ func (h GetPaymentRequestEDIHandler) Handle(params paymentrequestop.GetPaymentRe
 	payload.ID = *handlers.FmtUUID(paymentRequestID)
 
 	edi858c, err := h.GHCPaymentRequestInvoiceGenerator.Generate(paymentRequest, false)
-	if err != nil {
-		logger.Error(fmt.Sprintf("Error generating EDI segments for payment request ID: %s: %s", paymentRequestID, err))
-		switch e := err.(type) {
-
-		// NotFoundError -> Not Found response
-		case services.NotFoundError:
-			return paymentrequestop.NewGetPaymentRequestEDINotFound().
-				WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
-
-		// InvalidInputError -> Unprocessable Entity reponse
-		case services.InvalidInputError:
-			return paymentrequestop.NewGetPaymentRequestEDIUnprocessableEntity().
-				WithPayload(payloads.ValidationError(handlers.ValidationErrMessage, h.GetTraceID(), e.ValidationErrors))
-
-		// QueryError -> Internal Server error
-		case services.QueryError:
-			if e.Unwrap() != nil {
-				// If you can unwrap, log the internal error (usually a pq error) for better debugging
-				// Note we do not expose this detail in the payload
-				logger.Error("Error retrieving an EDI for thepayment request", zap.Error(e.Unwrap()))
-			}
-			return paymentrequestop.NewGetPaymentRequestEDIInternalServerError().
-				WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
-		// Unknown -> Internal Server Error
-		default:
-			return paymentrequestop.NewGetPaymentRequestEDIInternalServerError().
-				WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
-		}
+	if err == nil {
+		payload.Edi, err = edi858c.EDIString()
 	}
-
-	payload.Edi, err = edi858c.EDIString()
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error generating EDI string for payment request ID: %s: %s", paymentRequestID, err))
 		switch e := err.(type) {
