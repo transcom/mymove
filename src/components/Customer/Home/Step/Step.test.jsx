@@ -79,19 +79,21 @@ describe('Step component', () => {
   });
 
   it('renders Step with a call to action', () => {
-    const headerText = 'This is header text';
-    const step = '1';
-    const editBtnLabel = 'Edit';
-    const onEditBtnClick = jest.fn();
+    const actionBtnId = 'button';
     const actionBtnLabel = 'Action btn label';
+    const editBtnLabel = 'Edit';
+    const headerText = 'This is header text';
     const onActionBtnClick = jest.fn();
+    const onEditBtnClick = jest.fn();
+    const step = '1';
     const props = {
-      headerText,
-      step,
-      editBtnLabel,
-      onEditBtnClick,
+      actionBtnId,
       actionBtnLabel,
+      editBtnLabel,
+      headerText,
       onActionBtnClick,
+      onEditBtnClick,
+      step,
     };
     const wrapper = mountStep(props);
     // const EditButton = wrapper.find('[data-testid="button"]').at(0);
@@ -106,21 +108,23 @@ describe('Step component', () => {
   });
 
   it('should not call handlers if disabled', () => {
-    const headerText = 'This is header text';
-    const step = '1';
-    const editBtnLabel = 'Edit';
-    const onEditBtnClick = jest.fn();
+    const actionBtnId = 'button';
     const actionBtnLabel = 'Action btn label';
+    const editBtnLabel = 'Edit';
+    const headerText = 'This is header text';
     const onActionBtnClick = jest.fn();
+    const onEditBtnClick = jest.fn();
+    const step = '1';
     const props = {
-      headerText,
-      step,
-      editBtnLabel,
-      onEditBtnClick,
-      editBtnDisabled: true,
-      actionBtnLabel,
-      onActionBtnClick,
       actionBtnDisabled: true,
+      actionBtnId,
+      actionBtnLabel,
+      editBtnDisabled: true,
+      editBtnLabel,
+      headerText,
+      onActionBtnClick,
+      onEditBtnClick,
+      step,
     };
     const wrapper = mountStep(props);
     // const EditButton = wrapper.find('[data-testid="button"]').at(0);
