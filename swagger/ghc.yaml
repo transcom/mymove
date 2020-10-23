@@ -1100,6 +1100,22 @@ paths:
       operationId: getMovesQueue
       tags:
         - queues
+      parameters:
+        - in: query
+          name: filter
+          type: string
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: perPage
+          type: integer
+        - in: query
+          name: sort
+          type: string
+        - in: query
+          name: order
+          type: boolean
       responses:
         '200':
           description: Successfully returned all moves matching the criteria

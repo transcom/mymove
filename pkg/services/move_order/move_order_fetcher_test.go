@@ -3,9 +3,25 @@ package moveorder
 import (
 	"testing"
 
+	"github.com/gobuffalo/pop"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
+
+type Filter struct {
+	Branch string
+}
+
+type FilterOption func(*pop.Query)
+
+func branchFilter(filter Filter) FilterOption {
+	return func(query *pop.Query) {
+		if filter.Branch != "" {
+			query = query.Where("orders.department_indicator = ?", filter.Branch)
+		}
+	}
+}
 
 func (suite *MoveOrderServiceSuite) TestMoveOrderFetcher() {
 	expectedMoveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
@@ -104,28 +120,38 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 	})
 
 	suite.T().Run("returns move orders filtered by GBLOC", func(t *testing.T) {
-		originDutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
 			TransportationOffice: models.TransportationOffice{
 				Gbloc: "AGFM",
 			},
 		})
 
-		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-			OriginDutyStation: originDutyStation,
-		})
+		moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUser.ID)
 
-		secondMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Order: order,
-		})
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moveOrders))
+	})
 
+	suite.T().Run("returns orders filtered by an arbitrary query", func(t *testing.T) {
+		army := "ARMY"
 		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: secondMove,
 			MTOShipment: models.MTOShipment{
 				Status: models.MTOShipmentStatusSubmitted,
 			},
+			Order: models.Order{
+				DepartmentIndicator: &army,
+			},
 		})
 
-		moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUser.ID)
+		filter := Filter{
+			Branch: "ARMY",
+		}
+		branchQuery := branchFilter(filter)
+
+		moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, branchQuery)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moveOrders))

@@ -1,7 +1,11 @@
 package ghcapi
 
 import (
+	"encoding/json"
+	"fmt"
+
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gobuffalo/pop"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
@@ -19,6 +23,14 @@ type GetMovesQueueHandler struct {
 	services.MoveOrderFetcher
 }
 
+// Filter defines all the possible filter parameters
+type Filter struct {
+	Branch string `json:"branch"`
+}
+
+// FilterOption defines the type for the functional arguments passed to ListMoveOrders
+type FilterOption func(*pop.Query)
+
 // Handle returns the paginated list of moves for the TOO user
 func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
@@ -27,7 +39,11 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 		return queues.NewGetMovesQueueForbidden()
 	}
 
-	orders, err := h.MoveOrderFetcher.ListMoveOrders(session.OfficeUserID)
+	queryFilters := h.generateQueryFilters(params.Filter, logger)
+
+	branchQuery := branchFilter(queryFilters)
+
+	orders, err := h.MoveOrderFetcher.ListMoveOrders(session.OfficeUserID, branchQuery)
 	if err != nil {
 		logger.Error("error fetching list of move orders for office user", zap.Error(err))
 		return queues.NewGetMovesQueueInternalServerError()
@@ -75,4 +91,30 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 	}
 
 	return queues.NewGetPaymentRequestsQueueOK().WithPayload(result)
+}
+
+// generateQueryFilters is helper to convert filter params from a json string
+// of the form `{"status": "Submitted" "branch": "Army"}` to an array of services.QueryFilter
+func (h GetMovesQueueHandler) generateQueryFilters(filters *string, logger handlers.Logger) Filter {
+	f := Filter{}
+	if filters == nil {
+		return f
+	}
+	b := []byte(*filters)
+	err := json.Unmarshal(b, &f)
+	if err != nil {
+		fs := fmt.Sprintf("%v", filters)
+		logger.Warn("unable to decode param", zap.Error(err),
+			zap.String("filters", fs))
+	}
+
+	return f
+}
+
+func branchFilter(filter Filter) FilterOption {
+	return func(query *pop.Query) {
+		if filter.Branch != "" {
+			query = query.Where("orders.department_indicator = ?", filter.Branch)
+		}
+	}
 }

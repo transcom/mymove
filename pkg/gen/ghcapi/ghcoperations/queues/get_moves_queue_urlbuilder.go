@@ -9,11 +9,21 @@ import (
 	"errors"
 	"net/url"
 	golangswaggerpaths "path"
+
+	"github.com/go-openapi/swag"
 )
 
 // GetMovesQueueURL generates an URL for the get moves queue operation
 type GetMovesQueueURL struct {
+	Filter  *string
+	Order   *bool
+	Page    *int64
+	PerPage *int64
+	Sort    *string
+
 	_basePath string
+	// avoid unkeyed usage
+	_ struct{}
 }
 
 // WithBasePath sets the base path for this url builder, only required when it's different from the
@@ -42,6 +52,50 @@ func (o *GetMovesQueueURL) Build() (*url.URL, error) {
 		_basePath = "/ghc/v1"
 	}
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
+
+	qs := make(url.Values)
+
+	var filterQ string
+	if o.Filter != nil {
+		filterQ = *o.Filter
+	}
+	if filterQ != "" {
+		qs.Set("filter", filterQ)
+	}
+
+	var orderQ string
+	if o.Order != nil {
+		orderQ = swag.FormatBool(*o.Order)
+	}
+	if orderQ != "" {
+		qs.Set("order", orderQ)
+	}
+
+	var pageQ string
+	if o.Page != nil {
+		pageQ = swag.FormatInt64(*o.Page)
+	}
+	if pageQ != "" {
+		qs.Set("page", pageQ)
+	}
+
+	var perPageQ string
+	if o.PerPage != nil {
+		perPageQ = swag.FormatInt64(*o.PerPage)
+	}
+	if perPageQ != "" {
+		qs.Set("perPage", perPageQ)
+	}
+
+	var sortQ string
+	if o.Sort != nil {
+		sortQ = *o.Sort
+	}
+	if sortQ != "" {
+		qs.Set("sort", sortQ)
+	}
+
+	_result.RawQuery = qs.Encode()
 
 	return &_result, nil
 }
