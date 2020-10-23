@@ -46,8 +46,24 @@ const mockMtoShipment = {
   id: 'mock id',
   moveTaskOrderId: 'mock move id',
   customerRemarks: 'mock remarks',
-  requestedPickupDate: '1 Mar 2020',
-  requestedDeliveryDate: '30 Mar 2020',
+  requestedPickupDate: '2020-03-01',
+  requestedDeliveryDate: '2020-03-30',
+  agents: [
+    {
+      firstName: 'mock receiving',
+      lastName: 'agent',
+      telephone: '2225551234',
+      email: 'mock.delivery.agent@example.com',
+      agentType: 'RECEIVING_AGENT',
+    },
+    {
+      firstName: 'Mock Releasing',
+      lastName: 'Agent Jr, PhD, MD, DDS',
+      telephone: '3335551234',
+      email: 'mock.pickup.agent@example.com',
+      agentType: 'RELEASING_AGENT',
+    },
+  ],
   pickupAddress: {
     street_address_1: '812 S 129th St',
     city: 'San Antonio',
