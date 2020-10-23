@@ -40,6 +40,9 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 	}
 
 	queueMoves := payloads.QueueMoves(orders)
+	// ToDo - May want to move this logic into the pop query later.
+	// filter queueMoves by status
+	queueMoves = statusFilter(params.Status, queueMoves)
 
 	result := &ghcmessages.QueueMovesResult{
 		Page:       0,
@@ -89,4 +92,19 @@ func branchFilter(params queues.GetMovesQueueParams) FilterOption {
 			query = query.Where("orders.department_indicator = ?", *params.Branch)
 		}
 	}
+}
+
+// statusFilter filters the status after the pop query call.
+func statusFilter(statuses []string, moves *ghcmessages.QueueMoves) *ghcmessages.QueueMoves {
+	ret := make(ghcmessages.QueueMoves, 0)
+	// New move, Approvals requested, and Move approved statuses
+	for _, status := range statuses {
+		for _, move := range *moves {
+			if status == string(move.Status) {
+				ret = append(ret, move)
+			}
+		}
+	}
+
+	return &ret
 }
