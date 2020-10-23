@@ -259,107 +259,111 @@ class Home extends Component {
     const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
     const allSortedShipments = this.sortAllShipments(mtoShipments, currentPpm);
     return (
-      <div className={`usa-prose grid-container ${styles['grid-container']}`}>
-        {loggedInUserIsLoading && <LoadingPlaceholder />}
-        {!isLoggedIn && !loggedInUserIsLoading && <SignIn location={location} />}
-        {isLoggedIn && !isEmpty(serviceMember) && isProfileComplete && (
-          <>
-            <header data-testid="customer-header" className={styles['customer-header']}>
+      <div>
+        {isLoggedIn && (
+          <header data-testid="customer-header" className={styles['customer-header']}>
+            <div className={`usa-prose grid-container ${styles['grid-container']}`}>
               <h2>
                 {serviceMember?.first_name} {serviceMember?.last_name}
               </h2>
               {this.renderCustomerHeader()}
-            </header>
-            {loggedInUserSuccess && (
-              <>
-                {this.renderAlert(loggedInUserError, createdServiceMemberError, moveSubmitSuccess, currentPpm)}
-                {this.renderHelper()}
-                <Step
-                  complete={serviceMember.is_profile_complete}
-                  completedHeaderText="Profile complete"
-                  editBtnLabel="Edit"
-                  headerText="Profile complete"
-                  step="1"
-                  onEditBtnClick={() => this.handleNewPathClick(profileEditPath)}
-                >
-                  <Description>Make sure to keep your personal information up to date during your move</Description>
-                </Step>
-                <Step
-                  complete={this.hasOrders}
-                  completedHeaderText="Orders uploaded"
-                  editBtnLabel={this.hasOrders ? 'Edit' : ''}
-                  onEditBtnClick={() => this.handleNewPathClick(ordersEditPath)}
-                  headerText="Upload orders"
-                  actionBtnLabel={!this.hasOrders ? 'Add orders' : ''}
-                  onActionBtnClick={() => this.handleNewPathClick(ordersPath)}
-                  step="2"
-                >
-                  {this.hasOrders ? (
-                    <DocsUploaded files={uploadedOrderDocuments} />
-                  ) : (
-                    <Description>Upload photos of each page, or upload a PDF.</Description>
-                  )}
-                </Step>
-                <Step
-                  actionBtnLabel={this.shipmentActionBtnLabel}
-                  actionBtnDisabled={!this.hasOrders || (this.hasSubmittedMove && this.doesPpmAlreadyExist)}
-                  actionBtnId="shipment-selection-btn"
-                  onActionBtnClick={() => this.handleNewPathClick(shipmentSelectionPath)}
-                  complete={this.hasAnyShipments}
-                  completedHeaderText="Shipments"
-                  headerText="Shipment selection"
-                  secondaryBtn={this.hasAnyShipments}
-                  secondaryClassName="margin-top-2"
-                  step="3"
-                >
-                  {this.hasAnyShipments ? (
-                    <div>
-                      {this.hasSubmittedMove && !this.doesPpmAlreadyExist && (
-                        <p className={styles.descriptionExtra}>If you need to add shipments, let your movers know.</p>
-                      )}
-                      <ShipmentList
-                        shipments={allSortedShipments}
-                        onShipmentClick={this.handleShipmentClick}
-                        moveSubmitted={this.hasSubmittedMove}
-                      />
-                    </div>
-                  ) : (
-                    <Description>
-                      Tell us where you&apos;re going and when you want to get there. We&apos;ll help you set up
-                      shipments to make it work.
-                    </Description>
-                  )}
-                </Step>
-                <Step
-                  complete={this.hasSubmittedMove}
-                  actionBtnDisabled={!this.hasAnyShipments}
-                  actionBtnId="review-and-submit-btn"
-                  actionBtnLabel={!this.hasSubmittedMove ? 'Review and submit' : ''}
-                  containerClassName="margin-bottom-8"
-                  headerText="Confirm move request"
-                  completedHeaderText="Move request confirmed"
-                  onActionBtnClick={() => this.handleNewPathClick(confirmationPath)}
-                  step="4"
-                >
-                  {this.hasSubmittedMove ? (
-                    <Description>Move submitted.</Description>
-                  ) : (
-                    <Description>
-                      Review your move details and sign the legal paperwork, then send the info on to your move
-                      counselor.
-                    </Description>
-                  )}
-                </Step>
-                <Contact
-                  header="Contacts"
-                  dutyStationName="Seymour Johnson AFB"
-                  officeType="Origin Transportation Office"
-                  telephone="(919) 722-5458"
-                />
-              </>
-            )}
-          </>
+            </div>
+          </header>
         )}
+        <div className={`usa-prose grid-container ${styles['grid-container']}`}>
+          {loggedInUserIsLoading && <LoadingPlaceholder />}
+          {!isLoggedIn && !loggedInUserIsLoading && <SignIn location={location} />}
+          {isLoggedIn && !isEmpty(serviceMember) && isProfileComplete && (
+            <>
+              {loggedInUserSuccess && (
+                <>
+                  {this.renderAlert(loggedInUserError, createdServiceMemberError, moveSubmitSuccess, currentPpm)}
+                  {this.renderHelper()}
+                  <Step
+                    complete={serviceMember.is_profile_complete}
+                    completedHeaderText="Profile complete"
+                    editBtnLabel="Edit"
+                    headerText="Profile complete"
+                    step="1"
+                    onEditBtnClick={() => this.handleNewPathClick(profileEditPath)}
+                  >
+                    <Description>Make sure to keep your personal information up to date during your move</Description>
+                  </Step>
+                  <Step
+                    complete={this.hasOrders}
+                    completedHeaderText="Orders uploaded"
+                    editBtnLabel={this.hasOrders ? 'Edit' : ''}
+                    onEditBtnClick={() => this.handleNewPathClick(ordersEditPath)}
+                    headerText="Upload orders"
+                    actionBtnLabel={!this.hasOrders ? 'Add orders' : ''}
+                    onActionBtnClick={() => this.handleNewPathClick(ordersPath)}
+                    step="2"
+                  >
+                    {this.hasOrders ? (
+                      <DocsUploaded files={uploadedOrderDocuments} />
+                    ) : (
+                      <Description>Upload photos of each page, or upload a PDF.</Description>
+                    )}
+                  </Step>
+                  <Step
+                    actionBtnLabel={this.shipmentActionBtnLabel}
+                    actionBtnDisabled={!this.hasOrders || (this.hasSubmittedMove && this.doesPpmAlreadyExist)}
+                    onActionBtnClick={() => this.handleNewPathClick(shipmentSelectionPath)}
+                    complete={this.hasAnyShipments}
+                    completedHeaderText="Shipments"
+                    headerText="Shipment selection"
+                    secondaryBtn={this.hasAnyShipments}
+                    secondaryClassName="margin-top-2"
+                    step="3"
+                  >
+                    {this.hasAnyShipments ? (
+                      <div>
+                        {this.hasSubmittedMove && !this.doesPpmAlreadyExist && (
+                          <p className={styles.descriptionExtra}>If you need to add shipments, let your movers know.</p>
+                        )}
+                        <ShipmentList
+                          shipments={allSortedShipments}
+                          onShipmentClick={this.handleShipmentClick}
+                          moveSubmitted={this.hasSubmittedMove}
+                        />
+                      </div>
+                    ) : (
+                      <Description>
+                        Tell us where you&apos;re going and when you want to get there. We&apos;ll help you set up
+                        shipments to make it work.
+                      </Description>
+                    )}
+                  </Step>
+                  <Step
+                    complete={this.hasSubmittedMove}
+                    actionBtnDisabled={!this.hasAnyShipments}
+                    actionBtnLabel={!this.hasSubmittedMove ? 'Review and submit' : ''}
+                    containerClassName="margin-bottom-8"
+                    headerText="Confirm move request"
+                    completedHeaderText="Move request confirmed"
+                    onActionBtnClick={() => this.handleNewPathClick(confirmationPath)}
+                    step="4"
+                  >
+                    {this.hasSubmittedMove ? (
+                      <Description>Move submitted.</Description>
+                    ) : (
+                      <Description>
+                        Review your move details and sign the legal paperwork, then send the info on to your move
+                        counselor.
+                      </Description>
+                    )}
+                  </Step>
+                  <Contact
+                    header="Contacts"
+                    dutyStationName="Seymour Johnson AFB"
+                    officeType="Origin Transportation Office"
+                    telephone="(919) 722-5458"
+                  />
+                </>
+              )}
+            </>
+          )}
+        </div>
       </div>
     );
   }
