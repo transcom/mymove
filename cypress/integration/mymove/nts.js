@@ -32,7 +32,7 @@ function customerEditsNTSShipmentFromHomePage() {
 
   cy.get('button').contains('Save').click();
   cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\//);
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
   });
 }
 
