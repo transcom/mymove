@@ -96,6 +96,10 @@ func branchFilter(params queues.GetMovesQueueParams) FilterOption {
 
 // statusFilter filters the status after the pop query call.
 func statusFilter(statuses []string, moves *ghcmessages.QueueMoves) *ghcmessages.QueueMoves {
+	if len(statuses) <= 0 {
+		return moves
+	}
+
 	ret := make(ghcmessages.QueueMoves, 0)
 	// New move, Approvals requested, and Move approved statuses
 	for _, status := range statuses {

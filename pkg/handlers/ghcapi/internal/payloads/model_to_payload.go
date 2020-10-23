@@ -497,9 +497,12 @@ func QueueMoves(moveOrders []models.Order) *ghcmessages.QueueMoves {
 }
 
 var (
-	QueueMoveStatusNEWMOVE            string = "New move"
+	// QueueMoveStatusNEWMOVE status New move
+	QueueMoveStatusNEWMOVE string = "New move"
+	// QueueMoveStatusAPPROVALSREQUESTED status Approvals requested
 	QueueMoveStatusAPPROVALSREQUESTED string = "Approvals requested"
-	QueueMoveStatusMOVEAPPROVED       string = "Move approved"
+	// QueueMoveStatusMOVEAPPROVED status Move approved
+	QueueMoveStatusMOVEAPPROVED string = "Move approved"
 )
 
 // This is a helper function to calculate the inferred status needed for the QueueMove payload.
