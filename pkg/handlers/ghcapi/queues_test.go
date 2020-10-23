@@ -244,7 +244,23 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatusesFilter() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	office := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "TEST12",
+		},
+	})
+	dutystation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			TransportationOffice:   office,
+			TransportationOfficeID: &office.ID,
+		},
+	})
+	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			TransportationOffice:   office,
+			TransportationOfficeID: office.ID,
+		},
+	})
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTOO,
 	})
@@ -253,11 +269,18 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatusesFilter() {
 	// Default Origin Duty Station GBLOC is LKNQ
 
 	// New move
+	order1 := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			OriginDutyStation:   &dutystation,
+			OriginDutyStationID: &dutystation.ID,
+		},
+	})
 	move1 := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
 			Status:           models.MoveStatusSUBMITTED,
 		},
+		Order: order1,
 	})
 
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -268,11 +291,18 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatusesFilter() {
 	})
 
 	// Approvals requested
+	order2 := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			OriginDutyStation:   &dutystation,
+			OriginDutyStationID: &dutystation.ID,
+		},
+	})
 	move2 := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
 			Status:           models.MoveStatusAPPROVED,
 		},
+		Order: order2,
 	})
 
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -283,11 +313,18 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatusesFilter() {
 	})
 
 	// Move approved
+	order3 := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			OriginDutyStation:   &dutystation,
+			OriginDutyStationID: &dutystation.ID,
+		},
+	})
 	move3 := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
 			Status:           models.MoveStatusAPPROVED,
 		},
+		Order: order3,
 	})
 
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -335,7 +372,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatusesFilter() {
 		suite.IsNotErrResponse(response)
 
 		payload := response.(*queues.GetMovesQueueOK).Payload
-		suite.EqualValues(payload.TotalCount, 3)
+		suite.EqualValues(3, payload.TotalCount)
 		suite.Len(payload.QueueMoves, 3)
 	})
 
@@ -351,9 +388,9 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatusesFilter() {
 		suite.IsNotErrResponse(response)
 
 		payload := response.(*queues.GetMovesQueueOK).Payload
-		suite.EqualValues(payload.TotalCount, 1)
+		suite.EqualValues(1, payload.TotalCount)
 		suite.Len(payload.QueueMoves, 1)
-		suite.EqualValues(payload.QueueMoves[0].Status, modelToPayload.QueueMoveStatusNEWMOVE)
+		suite.EqualValues(modelToPayload.QueueMoveStatusNEWMOVE, payload.QueueMoves[0].Status)
 	})
 }
 
