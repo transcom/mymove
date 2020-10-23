@@ -20,24 +20,13 @@ const githubChecks = () => {
   }
 };
 
-/**
- * areNewLegacyFilesSharedStyles checks if new legacy files are in the only permitted src/shared/ file folder: src/shared/styles.
- * @param legacyFiles
- */
-const areNewLegacyFilesSharedStyles = (legacyFiles) => {
-  let newLegacyFiles = legacyFiles.getKeyedPaths().created;
-  let newSharedStylesFiles = danger.git.fileMatch('src/shared/styles/*').getKeyedPaths().created;
-
-  return newLegacyFiles.length == newSharedStylesFiles.length;
-}
-
 const fileChecks = () => {
   // load all modified and new files
   const allFiles = danger.git.modified_files.concat(danger.git.created_files);
 
   const legacyFiles = danger.git.fileMatch('src/shared/**/*', 'src/scenes/**/*');
 
-  if (legacyFiles.created && !areNewLegacyFilesSharedStyles(legacyFiles)) {
+  if (legacyFiles.created) {
     fail(`New files have been created under one of the legacy directories
 (src/shared or src/scenes). Please relocate them according to the file structure described [here](https://github.com/transcom/mymove/wiki/frontend#file-layout--naming).
 
