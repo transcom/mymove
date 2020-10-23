@@ -36,6 +36,9 @@ const hhgDefaultProps = {
 };
 
 const ntsDefaultProps = {
+  currentMove: {
+    status: 'DRAFT',
+  },
   shipmentType: 'HHG_INTO_NTS_DOMESTIC',
   shipmentId: 'ABC123K',
   requestedPickupDate: new Date('01/01/2020').toISOString(),
@@ -56,6 +59,9 @@ const ntsDefaultProps = {
 };
 
 const ntsrDefaultProps = {
+  currentMove: {
+    status: 'DRAFT',
+  },
   shipmentNumber: 1,
   shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
   shipmentId: 'ABC123K',
