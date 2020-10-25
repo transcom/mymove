@@ -35,6 +35,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 	}
 
 	moveIDQuery := moveIDFilter(params)
+	dodIDQuery := dodIDFilter(params)
 	firstNameQuery := firstNameFilter(params)
 	lastNameQuery := lastNameFilter(params)
 	dutyStationQuery := destinationDutyStationFilter(params)
@@ -45,6 +46,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 		firstNameQuery,
 		lastNameQuery,
 		dutyStationQuery,
+		dodIDQuery,
 	)
 
 	if err != nil {
@@ -114,13 +116,13 @@ func firstNameFilter(params queues.GetMovesQueueParams) FilterOption {
 	}
 }
 
-//func dodIDFilter(params queues.GetMovesQueueParams) FilterOption {
-//	return func(query *pop.Query) {
-//		if params.DodID != nil {
-//			query = query.Where("service_members.dod_id ILIKE ?", params.DodID)
-//		}
-//	}
-//}
+func dodIDFilter(params queues.GetMovesQueueParams) FilterOption {
+	return func(query *pop.Query) {
+		if params.DodID != nil {
+			query = query.Where("service_members.edipi ILIKE ?", params.DodID)
+		}
+	}
+}
 
 func moveIDFilter(params queues.GetMovesQueueParams) FilterOption {
 	return func(query *pop.Query) {
