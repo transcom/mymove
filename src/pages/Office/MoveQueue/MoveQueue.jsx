@@ -32,7 +32,10 @@ const columns = [
     { id: 'branch' },
   ),
   createHeader('# of shipments', 'shipmentsCount'),
-  createHeader('Destination duty station', 'destinationDutyStation.name'),
+  createHeader('Destination duty station', 'destinationDutyStation.name', {
+    Cell: (row) => <span>{row.value}</span>,
+    filterable: true,
+  }),
   createHeader('Origin GBLOC', 'originGBLOC'),
 ];
 

@@ -13,7 +13,15 @@ import (
 
 // GetMovesQueueURL generates an URL for the get moves queue operation
 type GetMovesQueueURL struct {
+	DestinationDutyStation *string
+	DodID                  *string
+	FirstName              *string
+	LastName               *string
+	MoveID                 *string
+
 	_basePath string
+	// avoid unkeyed usage
+	_ struct{}
 }
 
 // WithBasePath sets the base path for this url builder, only required when it's different from the
@@ -42,6 +50,50 @@ func (o *GetMovesQueueURL) Build() (*url.URL, error) {
 		_basePath = "/ghc/v1"
 	}
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
+
+	qs := make(url.Values)
+
+	var destinationDutyStationQ string
+	if o.DestinationDutyStation != nil {
+		destinationDutyStationQ = *o.DestinationDutyStation
+	}
+	if destinationDutyStationQ != "" {
+		qs.Set("destinationDutyStation", destinationDutyStationQ)
+	}
+
+	var dodIDQ string
+	if o.DodID != nil {
+		dodIDQ = *o.DodID
+	}
+	if dodIDQ != "" {
+		qs.Set("dodID", dodIDQ)
+	}
+
+	var firstNameQ string
+	if o.FirstName != nil {
+		firstNameQ = *o.FirstName
+	}
+	if firstNameQ != "" {
+		qs.Set("firstName", firstNameQ)
+	}
+
+	var lastNameQ string
+	if o.LastName != nil {
+		lastNameQ = *o.LastName
+	}
+	if lastNameQ != "" {
+		qs.Set("lastName", lastNameQ)
+	}
+
+	var moveIDQ string
+	if o.MoveID != nil {
+		moveIDQ = *o.MoveID
+	}
+	if moveIDQ != "" {
+		qs.Set("moveID", moveIDQ)
+	}
+
+	_result.RawQuery = qs.Encode()
 
 	return &_result, nil
 }

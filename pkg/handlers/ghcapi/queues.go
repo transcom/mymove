@@ -1,7 +1,10 @@
 package ghcapi
 
 import (
+	"fmt"
+
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gobuffalo/pop"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
@@ -19,15 +22,31 @@ type GetMovesQueueHandler struct {
 	services.MoveOrderFetcher
 }
 
+// FilterOption allows ListMoveOrders to pass in a number of functions
+type FilterOption func(*pop.Query)
+
 // Handle returns the paginated list of moves for the TOO user
 func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
 	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTOO) {
 		logger.Error("user is not authenticated with TOO office role")
 		return queues.NewGetMovesQueueForbidden()
 	}
 
-	orders, err := h.MoveOrderFetcher.ListMoveOrders(session.OfficeUserID)
+	moveIDQuery := moveIDFilter(params)
+	firstNameQuery := firstNameFilter(params)
+	lastNameQuery := lastNameFilter(params)
+	dutyStationQuery := destinationDutyStationFilter(params)
+
+	orders, err := h.MoveOrderFetcher.ListMoveOrders(
+		session.OfficeUserID,
+		moveIDQuery,
+		firstNameQuery,
+		lastNameQuery,
+		dutyStationQuery,
+	)
+
 	if err != nil {
 		logger.Error("error fetching list of move orders for office user", zap.Error(err))
 		return queues.NewGetMovesQueueInternalServerError()
@@ -75,4 +94,46 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 	}
 
 	return queues.NewGetPaymentRequestsQueueOK().WithPayload(result)
+}
+
+func lastNameFilter(params queues.GetMovesQueueParams) FilterOption {
+	return func(query *pop.Query) {
+		if params.LastName != nil {
+			nameSearch := fmt.Sprintf("%s%%", *params.LastName)
+			query = query.Where("service_members.last_name ILIKE ?", nameSearch)
+		}
+	}
+}
+
+func firstNameFilter(params queues.GetMovesQueueParams) FilterOption {
+	return func(query *pop.Query) {
+		if params.FirstName != nil {
+			nameSearch := fmt.Sprintf("%s%%", *params.FirstName)
+			query = query.Where("service_members.first_name ILIKE ?", nameSearch)
+		}
+	}
+}
+
+//func dodIDFilter(params queues.GetMovesQueueParams) FilterOption {
+//	return func(query *pop.Query) {
+//		if params.DodID != nil {
+//			query = query.Where("service_members.dod_id ILIKE ?", params.DodID)
+//		}
+//	}
+//}
+
+func moveIDFilter(params queues.GetMovesQueueParams) FilterOption {
+	return func(query *pop.Query) {
+		if params.MoveID != nil {
+			query = query.Where("moves.locator ILIKE ?", *params.MoveID)
+		}
+	}
+}
+func destinationDutyStationFilter(params queues.GetMovesQueueParams) FilterOption {
+	return func(query *pop.Query) {
+		if params.DestinationDutyStation != nil {
+			nameSearch := fmt.Sprintf("%s%%", *params.DestinationDutyStation)
+			query = query.Where("destination_duty_station.name ILIKE ?", nameSearch)
+		}
+	}
 }

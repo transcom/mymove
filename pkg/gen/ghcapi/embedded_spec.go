@@ -1627,6 +1627,33 @@ func init() {
         ],
         "summary": "Gets queued list of all customer moves by GBLOC origin",
         "operationId": "getMovesQueue",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "moveID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "lastName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "firstName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "destinationDutyStation",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successfully returned all moves matching the criteria",
@@ -5428,6 +5455,33 @@ func init() {
         ],
         "summary": "Gets queued list of all customer moves by GBLOC origin",
         "operationId": "getMovesQueue",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "moveID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "lastName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "firstName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "destinationDutyStation",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successfully returned all moves matching the criteria",

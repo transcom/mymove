@@ -1100,6 +1100,22 @@ paths:
       operationId: getMovesQueue
       tags:
         - queues
+      parameters:
+        - in: query
+          name: moveID
+          type: string
+        - in: query
+          name: lastName
+          type: string
+        - in: query
+          name: firstName
+          type: string
+        - in: query
+          name: dodID
+          type: string
+        - in: query
+          name: destinationDutyStation
+          type: string
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
