@@ -14,12 +14,9 @@ describe('SelectMoveType', () => {
     updateMove: jest.fn(),
     push: jest.fn(),
     loadMTOShipments: jest.fn(),
-    move: { id: 'mockId', status: 'DRAFT' },
+    move: { id: 'mockId', status: MOVE_STATUSES.DRAFT },
     selectedMoveType: SHIPMENT_OPTIONS.PPM,
     mtoShipments: [],
-    isPpmSelectable: true,
-    isHhgSelectable: true,
-    shipmentNumber: 4,
   };
 
   const getWrapper = (props = {}) => {
@@ -59,7 +56,7 @@ describe('SelectMoveType', () => {
     });
 
     it('can click the help button in the NTS card', () => {
-      const ntsCard = wrapper.find('SelectableCard[id="NTS"]');
+      const ntsCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.NTS}"]`);
       expect(ntsCard.length).toBe(1);
       ntsCard.find('button[data-testid="helpButton"]').simulate('click');
       expect(wrapper.state('showStorageInfoModal')).toEqual(true);
@@ -80,6 +77,7 @@ describe('SelectMoveType', () => {
       expect(wrapper.find('[data-testid="selectableCardText"]').at(0).text()).toContain(
         'You pack and move your things, or make other arrangements, The government pays you for the weight you move.  This is a a Personally Procured Move (PPM), sometimes called a DITY.',
       );
+      expect(wrapper.find('[data-testid="number-eyebrow"]').text()).toContain('Shipment 1');
     });
   });
 
@@ -97,43 +95,136 @@ describe('SelectMoveType', () => {
       expect(wrapper.find('[data-testid="selectableCardText"]').at(0).text()).not.toContain(
         'You arrange to move some or all of your belongings',
       );
+      expect(wrapper.find('[data-testid="number-eyebrow"]').text()).toContain('Shipment 2');
     });
     it('should disable PPM form option if PPM is already submitted', () => {
-      props.isPpmSelectable = false;
       const wrapper = getWrapper(props);
-      // PPM button should be disabled on page load and should contained updated text
+      // PPM button should be disabled on page load
       expect(wrapper.find(Radio).at(0).find('.usa-radio__input').html()).toContain('disabled');
     });
   });
 
-  describe('when an HHG has already been created', () => {
-    const props = {
-      mtoShipments: [{ id: '2' }],
-    };
+  describe('when some shipments already exist', () => {
     it('should render the correct text', () => {
+      const props = {
+        mtoShipments: [{ selectedMoveType: SHIPMENT_OPTIONS.HHG, id: '2' }],
+      };
       const wrapper = getWrapper(props);
       expect(wrapper.find('h1').text()).toContain('How do you want this group of things moved?');
+    });
+    it('should render the correct value in the eyebrow for shipment number with 1 existing shipment', () => {
+      const props = {
+        mtoShipments: [{ selectedMoveType: SHIPMENT_OPTIONS.HHG, id: '2' }],
+      };
+      const wrapper = getWrapper(props);
+      expect(wrapper.find('[data-testid="number-eyebrow"]').text()).toContain('Shipment 2');
+    });
+    it('should render the correct value in the eyebrow for shipment number with 2 existing shipment', () => {
+      const props = {
+        mtoShipments: [
+          { selectedMoveType: SHIPMENT_OPTIONS.HHG, id: '6' },
+          { selectedMoveType: SHIPMENT_OPTIONS.NTS, id: '9' },
+        ],
+      };
+      const wrapper = getWrapper(props);
+      expect(wrapper.find('[data-testid="number-eyebrow"]').text()).toContain('Shipment 3');
+    });
+    it('should render the correct value in the shipment number with existing HHG and PPM', () => {
+      const props = {
+        move: { personally_procured_moves: [{ id: '1' }] },
+        mtoShipments: [{ selectedMoveType: SHIPMENT_OPTIONS.HHG, id: '2' }],
+      };
+      const wrapper = getWrapper(props);
+      expect(wrapper.find('[data-testid="number-eyebrow"]').text()).toContain('Shipment 3');
+    });
+  });
+
+  describe('when an NTS has already been created', () => {
+    const props = {
+      mtoShipments: [{ id: '3', shipmentType: SHIPMENT_OPTIONS.NTS }],
+      move: { status: MOVE_STATUSES.DRAFT },
+    };
+    const wrapper = getWrapper(props);
+
+    it('NTS card should render the correct text', () => {
+      expect(wrapper.find('[data-testid="selectableCardText"]').at(2).text()).toContain(
+        'You’ve already requested a long-term storage shipment for this move. Talk to your movers to change or add to your request.',
+      );
+      expect(wrapper.find('[data-testid="long-term-storage-heading"] + p').text()).toEqual(
+        'These shipments do count against your weight allowance for this move.',
+      );
+    });
+    it('NTS card should be disabled', () => {
+      expect(wrapper.find(Radio).at(2).find('.usa-radio__input').prop('disabled')).toBe(true);
+    });
+  });
+
+  describe('when an NTSr has already been created', () => {
+    const props = {
+      mtoShipments: [{ id: '4', shipmentType: SHIPMENT_OPTIONS.NTSR }],
+      move: { status: MOVE_STATUSES.DRAFT },
+    };
+    const wrapper = getWrapper(props);
+    it('NTSr card should render the correct text', () => {
+      expect(wrapper.find('[data-testid="selectableCardText"]').at(3).text()).toContain(
+        'You’ve already asked to have things taken out of storage for this move. Talk to your movers to change or add to your request.',
+      );
+      expect(wrapper.find('[data-testid="long-term-storage-heading"] + p').text()).toEqual(
+        'These shipments do count against your weight allowance for this move.',
+      );
+    });
+    it('NTSr card should be disabled', () => {
+      expect(wrapper.find(Radio).at(3).find('.usa-radio__input').prop('disabled')).toBe(true);
+    });
+  });
+  describe('when an unsubmitted move has both an NTS and an NTSr', () => {
+    const props = {
+      mtoShipments: [
+        { id: '4', shipmentType: SHIPMENT_OPTIONS.NTS },
+        { id: '5', shipmentType: SHIPMENT_OPTIONS.NTSR },
+      ],
+      move: { status: MOVE_STATUSES.DRAFT },
+    };
+    const wrapper = getWrapper(props);
+    it('should render the correct text', () => {
+      expect(wrapper.find('[data-testid="long-term-storage-heading"] + p').text()).toEqual(
+        'Talk to your movers about long-term storage if you need to add it to this move or change a request you made earlier.',
+      );
+    });
+    it('should not show radio cards for NTS or NTSr', () => {
+      expect(wrapper.find(Radio).at(2).exists()).toEqual(false);
+      expect(wrapper.find(Radio).at(3).exists()).toEqual(false);
     });
   });
 
   describe('when a move has already been submitted', () => {
     const props = {
-      move: { status: MOVE_STATUSES.SUBMITTED },
+      move: {
+        status: MOVE_STATUSES.SUBMITTED,
+      },
     };
+    const wrapper = getWrapper(props);
     it('should render the correct text', () => {
-      const wrapper = getWrapper(props);
       expect(wrapper.find('[data-testid="selectableCardText"]').at(1).text()).toContain(
         'Talk with your movers directly if you want to add or change shipments.',
       );
       expect(wrapper.find('[data-testid="selectableCardText"]').at(1).text()).not.toContain(
         'Professional movers take care of the whole shipment',
       );
+      expect(wrapper.find('[data-testid="long-term-storage-heading"] + p').text()).toEqual(
+        'Talk to your movers about long-term storage if you need to add it to this move or change a request you made earlier.',
+      );
     });
     it('should disable HHG form option', () => {
-      props.isHhgSelectable = false;
-      const wrapper = getWrapper(props);
       // HHG button should be disabled on page load
       expect(wrapper.find(Radio).at(1).find('.usa-radio__input').html()).toContain('disabled');
+    });
+    it('should not show radio cards for NTS or NTSr', () => {
+      expect(wrapper.find(Radio).at(2).exists()).toEqual(false);
+      expect(wrapper.find(Radio).at(3).exists()).toEqual(false);
+    });
+    it('should have selectable PPM if move does not have a PPM, even if the move is already submitted', () => {
+      expect(wrapper.find(Radio).at(0).prop('disabled')).toEqual(false);
     });
   });
 });

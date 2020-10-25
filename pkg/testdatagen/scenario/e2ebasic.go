@@ -728,6 +728,90 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 
 	/*
+	 * A service member with an NTS, NTS-R shipment, & unsubmitted move
+	 */
+	email = "nts@ntsr.unsubmitted"
+	uuidStr = "583cfbe1-cb34-4381-9e1f-54f68200da1b"
+
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	smWithNTSID := "e6e40998-36ff-4d23-93ac-07452edbe806"
+	smWithNTS := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil(smWithNTSID),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Unsubmitted"),
+			LastName:      models.StringPointer("Nts&Nts-r"),
+			Edipi:         models.StringPointer("5833908155"),
+			PersonalEmail: models.StringPointer(email),
+		},
+	})
+
+	selectedMoveType = models.SelectedMoveTypeNTS
+	move = testdatagen.MakeMove(db, testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID: uuid.FromStringOrNil(smWithNTSID),
+			ServiceMember:   smWithNTS,
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("f4503551-b636-41ee-b4bb-b05d55d0e856"),
+			Locator:          "TWONTS",
+			SelectedMoveType: &selectedMoveType,
+		},
+	})
+
+	estimatedNTSWeight := unit.Pound(1400)
+	actualNTSWeight := unit.Pound(2000)
+	ntsShipment := testdatagen.MakeNTSShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID:                   uuid.FromStringOrNil("06578216-3e9d-4c11-80bf-f7acfd4e7a4f"),
+			PrimeEstimatedWeight: &estimatedNTSWeight,
+			PrimeActualWeight:    &actualNTSWeight,
+			ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
+			ApprovedDate:         swag.Time(time.Now()),
+			Status:               models.MTOShipmentStatusSubmitted,
+			MoveTaskOrder:        move,
+			MoveTaskOrderID:      move.ID,
+		},
+	})
+	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			ID:            uuid.FromStringOrNil("1bdbb940-0326-438a-89fb-aa72e46f7c72"),
+			MTOShipment:   ntsShipment,
+			MTOShipmentID: ntsShipment.ID,
+			MTOAgentType:  models.MTOAgentReleasing,
+		},
+	})
+
+	ntsrShipment := testdatagen.MakeNTSRShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID:                   uuid.FromStringOrNil("5afaaa39-ca7d-4403-b33a-262586ad64f6"),
+			PrimeEstimatedWeight: &estimatedNTSWeight,
+			PrimeActualWeight:    &actualNTSWeight,
+			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
+			ApprovedDate:         swag.Time(time.Now()),
+			Status:               models.MTOShipmentStatusSubmitted,
+			MoveTaskOrder:        move,
+			MoveTaskOrderID:      move.ID,
+		},
+	})
+
+	testdatagen.MakeMTOAgent(db, testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			ID:            uuid.FromStringOrNil("eecc3b59-7173-4ddd-b826-6f11f15338d9"),
+			MTOShipment:   ntsrShipment,
+			MTOShipmentID: ntsrShipment.ID,
+			MTOAgentType:  models.MTOAgentReceiving,
+		},
+	})
+
+	/*
 	* Creates two valid, unclaimed access codes
 	 */
 	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
@@ -1188,6 +1272,46 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			Status:        models.PaymentRequestStatusPending,
 		},
 		Move: mto,
+	})
+
+	dcrtCost := unit.Cents(99999)
+	mtoServiceItemDCRT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("998caacf-ab9e-496e-8cf2-360723eb3e2d"),
+		},
+		Move:        mto,
+		MTOShipment: MTOShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Domestic crating
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &dcrtCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: mtoServiceItemDCRT,
+	})
+
+	ducrtCost := unit.Cents(99999)
+	mtoServiceItemDUCRT := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("eeb82080-0a83-46b8-938c-63c7b73a7e45"),
+		},
+		Move:        mto,
+		MTOShipment: MTOShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("fc14935b-ebd3-4df3-940b-f30e71b6a56c"), // DUCRT - Domestic uncrating
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &ducrtCost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: mtoServiceItemDUCRT,
 	})
 
 	proofOfService := testdatagen.MakeProofOfServiceDoc(db, testdatagen.Assertions{

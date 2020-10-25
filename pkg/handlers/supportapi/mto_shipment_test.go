@@ -55,7 +55,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		})
 	}
 
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 
 	req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", mtoShipment.ID.String()), nil)

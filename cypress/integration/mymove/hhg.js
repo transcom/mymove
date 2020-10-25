@@ -1,6 +1,4 @@
-import { customerFillsInProfileInformation, customerFillsOutOrdersInformation } from './utilities/customer';
-
-describe('HHG Setup flow', function () {
+describe('A customer following HHG Setup flow', function () {
   before(() => {
     cy.prepareCustomerApp();
   });
@@ -14,10 +12,10 @@ describe('HHG Setup flow', function () {
     cy.route('GET', '/internal/users/logged_in').as('getLoggedInUser');
   });
 
-  it('Creates a shipment', function () {
-    cy.signInAsNewMilMoveUser();
-    customerFillsInProfileInformation();
-    customerFillsOutOrdersInformation();
+  it('can create an HHG shipment, review and edit details, and submit their move', function () {
+    // profile@comple.te
+    const userId = '3b9360a3-3304-4c60-90f4-83d687884077';
+    cy.apiSignInAsUser(userId);
     customerChoosesAnHHGMove();
     customerSetsUpAnHHGMove();
     customerReviewsMoveDetailsAndEditsHHG();
@@ -26,9 +24,10 @@ describe('HHG Setup flow', function () {
 });
 
 function customerChoosesAnHHGMove() {
+  cy.get('button[data-testid="button"]').first().click();
   cy.get('h1').contains('Figure out your shipments');
   cy.nextPage();
-  cy.get('h1').contains('How do you want to move your belongings?');
+  cy.get('h2').contains('Choose 1 shipment at a time.');
 
   cy.get('input[type="radio"]').eq(1).check({ force: true });
   cy.nextPage();
@@ -37,9 +36,9 @@ function customerChoosesAnHHGMove() {
 function customerSetsUpAnHHGMove() {
   cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
 
-  cy.get('input[name="requestedPickupDate"]').focus().blur();
+  cy.get('input[name="pickup.requestedDate"]').focus().blur();
   cy.get('[class="usa-error-message"]').contains('Required');
-  cy.get('input[name="requestedPickupDate"]').type('08/02/2020').blur();
+  cy.get('input[name="pickup.requestedDate"]').type('08/02/2020').blur();
   cy.get('[class="usa-error-message"]').should('not.exist');
 
   cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
@@ -91,7 +90,7 @@ function customerSetsUpAnHHGMove() {
   cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
 
   // requested delivery date
-  cy.get('input[name="requestedDeliveryDate"]').first().type('09/20/2020').blur();
+  cy.get('input[name="delivery.requestedDate"]').first().type('09/20/2020').blur();
 
   // checks has delivery address (default does not have delivery address)
   cy.get('input[type="radio"]').first().check({ force: true });
@@ -128,10 +127,10 @@ function customerReviewsMoveDetailsAndEditsHHG() {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/mto-shipments\/[^/]+\/edit-shipment/);
   });
 
-  // Ensure remarks is displayed in form
-  cy.get(`[data-testid="firstName"]`).last().type('Johnson');
+  cy.get(`[data-testid="firstName"]`).last().type('Johnson').blur();
 
-  cy.get(`[data-testid="remarks"]`).contains('some customer remark');
+  // Ensure remarks is displayed in form
+  cy.get(`[data-testid="remarks"]`).should('have.value', 'some customer remark');
 
   // Edit remarks and agent info
   cy.get(`[data-testid="remarks"]`).clear().type('some edited customer remark');
@@ -146,6 +145,10 @@ function customerReviewsMoveDetailsAndEditsHHG() {
 
   cy.get('[data-testid="hhg-summary"]').find('dl').contains('some edited customer remark');
   cy.get('[data-testid="hhg-summary"]').find('dl').contains('JohnJohnson Lee');
+
+  cy.get('button').contains('Finish later').click();
+  cy.get('h3').contains('Time to submit your move');
+  cy.get('button').contains('Review and submit').click();
 
   cy.nextPage();
 }

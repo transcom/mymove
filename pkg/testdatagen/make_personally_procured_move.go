@@ -2,6 +2,7 @@ package testdatagen
 
 import (
 	"github.com/gobuffalo/pop"
+	//"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -34,7 +35,7 @@ func MakePPM(db *pop.Connection, assertions Assertions) models.PersonallyProcure
 	// Overwrite values with those from assertions
 	mergeModels(&ppm, assertions.PersonallyProcuredMove)
 
-	mustCreate(db, &ppm)
+	mustCreate(db, &ppm, assertions.Stub)
 
 	// Add the ppm we just created to the move.ppm array
 	ppm.Move.PersonallyProcuredMoves = append(ppm.Move.PersonallyProcuredMoves, ppm)
@@ -45,7 +46,8 @@ func MakePPM(db *pop.Connection, assertions Assertions) models.PersonallyProcure
 // MakeDefaultPPM makes a PPM with default values
 func MakeDefaultPPM(db *pop.Connection) models.PersonallyProcuredMove {
 	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
-	mustCreate(db, &advance)
+	mustSave(db, &advance)
+
 	return MakePPM(db, Assertions{
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			Advance:             &advance,
