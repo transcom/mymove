@@ -36,7 +36,7 @@ class MtoShipmentForm extends Component {
       createMTOShipment(pendingMtoShipment);
     } else {
       updateMTOShipment(mtoShipment.id, pendingMtoShipment, mtoShipment.eTag).then(() => {
-        history.goBack();
+        history.push(`/moves/${moveId}/review`);
       });
     }
   };

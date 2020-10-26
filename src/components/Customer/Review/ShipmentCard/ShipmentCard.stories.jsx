@@ -38,6 +38,7 @@ const hhgDefaultProps = {
 const ntsDefaultProps = {
   shipmentType: 'HHG_INTO_NTS_DOMESTIC',
   shipmentId: 'ABC123K',
+  showEditBtn: true,
   requestedPickupDate: new Date('01/01/2020').toISOString(),
   pickupLocation: {
     street_address_1: '17 8th St',
@@ -59,6 +60,7 @@ const ntsrDefaultProps = {
   shipmentNumber: 1,
   shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
   shipmentId: 'ABC123K',
+  showEditBtn: true,
   requestedDeliveryDate: new Date('03/01/2020').toISOString(),
   receivingAgent: {
     firstName: 'Dorothy',
