@@ -21,7 +21,7 @@ func TestSegmentSuite(t *testing.T) {
 	}
 
 	// Custom validators
-	err := ss.validator.RegisterValidation("timeformat", hasTimeFormat)
+	err := ss.validator.RegisterValidation("timeformat", HasTimeFormat)
 	if err != nil {
 		log.Fatal(err)
 	}
