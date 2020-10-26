@@ -14,7 +14,7 @@ const Table = ({ data, columns, hiddenColumns, handleClick }) => {
   });
 
   return (
-    /* eslint-disable react/jsx-props-no-spreading */
+    /*  react/jsx-props-no-spreading */
     <div data-testid="react-table" className={styles.Table}>
       <table {...getTableProps()}>
         <thead>

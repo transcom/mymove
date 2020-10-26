@@ -1,4 +1,4 @@
-/* eslint-disable react/jsx-props-no-spreading */
+/*  react/jsx-props-no-spreading */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';

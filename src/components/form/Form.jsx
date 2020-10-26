@@ -10,7 +10,7 @@ export const Form = ({ errorCallback, ...props }) => {
       errorCallback(errors, touched);
     }
   });
-  // eslint-disable-next-line react/jsx-props-no-spreading
+  //  react/jsx-props-no-spreading
   return <UswdsForm onSubmit={handleSubmit} onReset={handleReset} {...props} />;
 };
 

@@ -9,7 +9,7 @@ const DataPoint = ({ columnHeaders, dataRow, Icon, custClass }) => (
     <thead className="table--small">
       <tr>
         {columnHeaders.map((header, i) => (
-          // eslint-disable-next-line react/no-array-index-key
+          //  react/no-array-index-key
           <th key={i}>{header}</th>
         ))}
       </tr>
@@ -17,7 +17,7 @@ const DataPoint = ({ columnHeaders, dataRow, Icon, custClass }) => (
     <tbody>
       <tr>
         {dataRow.map((cell, i) => (
-          // eslint-disable-next-line react/no-array-index-key
+          //  react/no-array-index-key
           <td key={i}>
             <div className={classnames({ [`${styles.iconCellContainer}`]: !!Icon && i === 0 })}>
               <span>{cell}</span>

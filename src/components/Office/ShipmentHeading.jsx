@@ -8,10 +8,10 @@ import styles from './shipmentHeading.module.scss';
 
 function formatDestinationAddress(address) {
   if (address.city) {
-    // eslint-disable-next-line camelcase
+    //  camelcase
     return `${address.city}, ${address.state} ${address.postal_code}`;
   }
-  // eslint-disable-next-line camelcase
+  //  camelcase
   return `${address.postal_code}`;
 }
 

@@ -1,5 +1,5 @@
-/* eslint-disable no-only-tests/no-only-tests */
-/* eslint-disable react/jsx-props-no-spreading */
+/*  no-only-tests/no-only-tests */
+/*  react/jsx-props-no-spreading */
 import React from 'react';
 import { shallow, mount } from 'enzyme';
 

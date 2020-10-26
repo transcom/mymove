@@ -75,7 +75,7 @@ describe('MoveTaskOrder', () => {
     history: { push: jest.fn() },
   };
 
-  // eslint-disable-next-line react/jsx-props-no-spreading
+  //  react/jsx-props-no-spreading
   const wrapper = mount(<MoveTaskOrder {...requiredProps} />);
 
   it('should render the h1', () => {

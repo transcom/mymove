@@ -1,4 +1,4 @@
-/* eslint-disable import/prefer-default-export */
+/*  import/prefer-default-export */
 import { get } from 'lodash';
 import { normalize } from 'normalizr';
 import * as Cookies from 'js-cookie';
@@ -12,7 +12,7 @@ export const requestInterceptor = (req) => {
     if (token) {
       req.headers['X-CSRF-Token'] = token;
     } else {
-      // eslint-disable-next-line no-console
+      //  no-console
       console.warn('Unable to retrieve CSRF Token from cookie');
     }
   }
@@ -53,11 +53,11 @@ const toCamelCase = (str) => str[0].toLowerCase() + str.slice(1);
 // This key can be used to determine what key to find the object's
 // definition in within our normalizr schema.
 function successfulReturnType(routeDefinition, status) {
-  // eslint-disable-next-line security/detect-object-injection
+  //  security/detect-object-injection
   const response = routeDefinition.responses[status];
   const schemaKey = response.schema.$$ref.split('/').pop();
   if (!response) {
-    // eslint-disable-next-line no-console
+    //  no-console
     console.error(`No response found for operation ${routeDefinition.operationId} with status ${status}`);
     return null;
   }
@@ -85,7 +85,7 @@ export async function makeSwaggerRequest(client, operationPath, params = {}, opt
   try {
     request = operation(params);
   } catch (e) {
-    // eslint-disable-next-line no-console
+    //  no-console
     console.error(`Operation ${operationPath} failed: ${e}`);
     // TODO - log error?
     return Promise.reject(e);
@@ -109,7 +109,7 @@ export async function makeSwaggerRequest(client, operationPath, params = {}, opt
 
         if (schemaKey.indexOf('Payload') !== -1) {
           const newSchemaKey = schemaKey.replace('Payload', '');
-          // eslint-disable-next-line no-console
+          //  no-console
           console.warn(
             `Using 'Payload' as a response type prefix is deprecated. Please rename ${schemaKey} to ${newSchemaKey}`,
           );
@@ -123,7 +123,7 @@ export async function makeSwaggerRequest(client, operationPath, params = {}, opt
       return response.body;
     })
     .catch((response) => {
-      // eslint-disable-next-line no-console
+      //  no-console
       console.error(`Operation ${operationPath} failed: ${response} (${response.status})`);
       // TODO - log error?
       return Promise.reject(response);

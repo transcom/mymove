@@ -7,7 +7,7 @@ function mergeEntities(entities, newEntities) {
   // shallow clone to mutate
   let result = clone(entities);
   each(newEntities, function (_value, key) {
-    /* eslint-disable security/detect-object-injection */
+    /*  security/detect-object-injection */
     result[key] = {
       ...result[key],
       ...newEntities[key],
@@ -21,7 +21,7 @@ function mergeEntities(entities, newEntities) {
 // deletes all items from entities with matching key, id in deleteEntities
 function deleteEntities(entities, deleteEntities) {
   return mapValues(entities, function (value, key) {
-    // eslint-disable-next-line
+    //
     const idsToDelete = Object.keys(deleteEntities[key] || {});
     return omit(value, idsToDelete);
   });

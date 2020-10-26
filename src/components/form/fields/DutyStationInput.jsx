@@ -7,9 +7,9 @@ import { DutyStationShape } from 'types/dutyStation';
 
 // TODO: refactor component when we can to make it more user friendly with Formik
 export const DutyStationInput = (props) => {
-  // eslint-disable-next-line react/prop-types
+  //  react/prop-types
   const { label, name, displayAddress } = props;
-  // eslint-disable-next-line no-unused-vars
+  //  no-unused-vars
   const [field, meta, helpers] = useField(props);
   return (
     <DutyStationSearchBox
@@ -29,7 +29,7 @@ DutyStationInput.propTypes = {
   // label displayed for input
   label: PropTypes.string.isRequired,
   // duty station value
-  // eslint-disable-next-line react/no-unused-prop-types
+  //  react/no-unused-prop-types
   value: DutyStationShape,
   // name is for the input
   name: PropTypes.string.isRequired,

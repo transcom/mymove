@@ -7,7 +7,7 @@ import { setConusStatus, selectedConusStatus } from 'scenes/Moves/ducks';
 import { CONUS_STATUS } from 'shared/constants';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 
-// eslint-disable-next-line react/prefer-stateless-function
+//  react/prefer-stateless-function
 export class ConusOrNot extends Component {
   render() {
     const { setLocation, conusStatus } = this.props;

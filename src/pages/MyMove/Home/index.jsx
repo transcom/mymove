@@ -1,4 +1,4 @@
-/* eslint-disable camelcase */
+/*  camelcase */
 import React, { Component } from 'react';
 import { arrayOf, bool, shape, string, node, oneOfType } from 'prop-types';
 import moment from 'moment';

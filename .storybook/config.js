@@ -1,4 +1,4 @@
-/* eslint-disable import/no-extraneous-dependencies */
+/*  import/no-extraneous-dependencies */
 import { configure, addDecorator } from '@storybook/react';
 import { withInfo } from '@storybook/addon-info';
 import 'happo-plugin-storybook/register';

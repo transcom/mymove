@@ -7,7 +7,7 @@ function formatAgentForDisplay(agent) {
   const agentCopy = { ...agent };
   // handle the diff between expected FE and BE phone format
   Object.keys(agentCopy).forEach((key) => {
-    /* eslint-disable security/detect-object-injection */
+    /*  security/detect-object-injection */
     if (key === 'phone') {
       const phoneNum = agentCopy[key];
       // will be in format xxxxxxxxxx
@@ -21,7 +21,7 @@ function formatAgentForAPI(agent) {
   const agentCopy = { ...agent };
   Object.keys(agentCopy).forEach((key) => {
     const sanitizedKey = `${key}`;
-    /* eslint-disable security/detect-object-injection */
+    /*  security/detect-object-injection */
     if (agentCopy[sanitizedKey] === '') {
       delete agentCopy[sanitizedKey];
     } else if (sanitizedKey === 'phone') {

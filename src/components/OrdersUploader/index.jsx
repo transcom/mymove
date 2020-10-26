@@ -1,6 +1,6 @@
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable react/destructuring-assignment */
-// eslint-disable-next-line no-unused-vars
+/*  no-underscore-dangle */
+/*  react/destructuring-assignment */
+//  no-unused-vars
 import React, { Component } from 'react';
 import 'filepond-polyfill/dist/filepond-polyfill';
 import { FilePond, registerPlugin } from 'react-filepond';
@@ -97,7 +97,7 @@ export class OrdersUploader extends Component {
       .then((item) => {
         const response = get(item, 'response', {});
         load(response);
-        // eslint-disable-next-line react/no-access-state-in-setstate
+        //  react/no-access-state-in-setstate
         const newFiles = reject(this.state.files, (upload) => upload.id === uploadId);
         this.setState({
           files: newFiles,
@@ -122,7 +122,7 @@ export class OrdersUploader extends Component {
     // Returns a boolean: is FilePond done with all uploading?
     const existingFiles = this.pond._pond.getFiles();
     const isIdle = existingFiles.every((f) => idleStatuses.indexOf(f.status) > -1);
-    // eslint-disable-next-line consistent-return
+    //  consistent-return
     return isIdle;
   }
 
@@ -186,14 +186,14 @@ export class OrdersUploader extends Component {
 }
 
 OrdersUploader.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
+  //  react/forbid-prop-types
   document: PropTypes.object,
   onChange: PropTypes.func,
   createUpload: PropTypes.func.isRequired,
   onRef: PropTypes.func,
   deleteUpload: PropTypes.func,
   onAddFile: PropTypes.func,
-  // eslint-disable-next-line react/forbid-prop-types
+  //  react/forbid-prop-types
   options: PropTypes.object,
 };
 

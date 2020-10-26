@@ -1,4 +1,4 @@
-/* eslint-disable import/no-extraneous-dependencies */
+/*  import/no-extraneous-dependencies */
 // const { appendWebpackPlugin } = require('@rescripts/utilities');
 // const LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
 /* eslint-enable import/no-extraneous-dependencies */

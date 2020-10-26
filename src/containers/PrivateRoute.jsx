@@ -32,7 +32,7 @@ const PrivateRoute = (props) => {
   )
     return <Redirect to="/" />;
 
-  // eslint-disable-next-line react/jsx-props-no-spreading
+  //  react/jsx-props-no-spreading
   return <Route {...routeProps} />;
 };
 

@@ -7,7 +7,7 @@ const cacheLimit = 10000;
 let cacheCount = 0;
 
 const compileGenerator = (pattern) => {
-  /* eslint-disable security/detect-object-injection */
+  /*  security/detect-object-injection */
   const cacheKey = pattern;
   const cache = patternCache[cacheKey] || (patternCache[cacheKey] = {});
 

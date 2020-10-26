@@ -34,7 +34,7 @@ async function asyncValidate(values, dispatch, props, currentFieldName) {
   // If either postal code is blurred, check both of them for errors. We want to
   // catch these before checking on dates via `GetPpmWeightEstimate`.
   if (['destination_postal_code', 'pickup_postal_code'].includes(currentFieldName)) {
-    // eslint-disable-next-line security/detect-object-injection
+    //  security/detect-object-injection
     const zipValue = values[currentFieldName];
     if (zipValue && zipValue.length < 5) {
       return;

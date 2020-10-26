@@ -1,4 +1,4 @@
-// eslint-disable-next-line no-unused-vars
+//  no-unused-vars
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import 'filepond-polyfill/dist/filepond-polyfill.js';

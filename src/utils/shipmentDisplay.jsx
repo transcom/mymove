@@ -1,4 +1,4 @@
-/* eslint-disable camelcase */
+/*  camelcase */
 import React from 'react';
 
 import { shipmentOptionLabels } from 'shared/constants';

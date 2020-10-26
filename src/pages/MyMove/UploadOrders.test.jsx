@@ -1,4 +1,4 @@
-/* eslint-disable react/jsx-props-no-spreading */
+/*  react/jsx-props-no-spreading */
 import React from 'react';
 import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
@@ -6,7 +6,7 @@ import configureStore from 'redux-mock-store';
 import { HashRouter as Router } from 'react-router-dom';
 import thunk from 'redux-thunk';
 
-// eslint-disable-next-line import/no-named-as-default
+//  import/no-named-as-default
 import UploadOrders from './UploadOrders';
 
 const defaultProps = {

@@ -1,4 +1,4 @@
-/* eslint-disable react/jsx-props-no-spreading */
+/*  react/jsx-props-no-spreading */
 import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { shallow, mount } from 'enzyme';

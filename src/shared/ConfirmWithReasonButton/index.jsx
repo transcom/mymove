@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Alert from 'shared/Alert'; // eslint-disable-line
+import Alert from 'shared/Alert'; // -line
 
 export default class ConfirmWithReasonButton extends Component {
   state = { displayState: 'BUTTON', cancelReason: '' };

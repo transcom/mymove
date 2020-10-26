@@ -6,7 +6,7 @@ import scrollToTop from 'shared/scrollToTop';
 
 import { push } from 'connected-react-router';
 import { reduxForm, FormSection } from 'redux-form';
-import Alert from 'shared/Alert'; // eslint-disable-line
+import Alert from 'shared/Alert'; // -line
 import AddressForm from 'shared/AddressForm';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';

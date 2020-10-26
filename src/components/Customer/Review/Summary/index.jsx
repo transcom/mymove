@@ -9,7 +9,7 @@ import { Button } from '@trussworks/react-uswds';
 import styles from './Summary.module.scss';
 
 import { checkEntitlement } from 'scenes/Review/ducks';
-// eslint-disable-next-line import/no-named-as-default
+//  import/no-named-as-default
 import PPMShipmentSummary from 'scenes/Review/PPMShipmentSummary';
 import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';

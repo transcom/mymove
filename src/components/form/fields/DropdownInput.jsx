@@ -17,7 +17,7 @@ export const DropdownInput = (props) => {
         {label}
       </Label>
       <ErrorMessage display={hasError}>{meta.error}</ErrorMessage>
-      {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+      {/*  react/jsx-props-no-spreading */}
       <Dropdown {...field}>
         <option value="">- Select -</option>
         {options &&

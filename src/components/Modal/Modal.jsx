@@ -1,4 +1,4 @@
-/* eslint-disable react/jsx-props-no-spreading */
+/*  react/jsx-props-no-spreading */
 import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';

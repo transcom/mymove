@@ -9,7 +9,7 @@ import { formatDate } from 'shared/dates';
 
 export const DatePickerInput = (props) => {
   const dateFormat = 'DD MMM YYYY';
-  // eslint-disable-next-line react/prop-types
+  //  react/prop-types
   const { label, name, labelClassName } = props;
   const [field, meta, helpers] = useField(props);
   const hasError = meta.touched && !!meta.error;

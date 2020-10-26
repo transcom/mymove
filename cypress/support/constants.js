@@ -18,7 +18,7 @@ export const TIOOfficeUserType = 'TIO office';
 export const dpsUserType = 'dps';
 
 // User Types to Base URLs
-/* eslint-disable security/detect-object-injection */
+/*  security/detect-object-injection */
 export const userTypeToBaseURL = {};
 userTypeToBaseURL[milmoveUserType] = milmoveBaseURL;
 userTypeToBaseURL[PPMOfficeUserType] = officeBaseURL;

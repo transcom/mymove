@@ -6,7 +6,7 @@ import { FormGroup, Label, TextInput as UswdsTextInput } from '@trussworks/react
 import { ErrorMessage } from '../index';
 
 export const TextInput = ({ label, labelClassName, id, name, labelHint, ...props }) => {
-  /* eslint-disable react/jsx-props-no-spreading */
+  /*  react/jsx-props-no-spreading */
   const [, meta] = useField({ id, name, ...props });
   const hasError = meta.touched && !!meta.error;
   return (
@@ -36,7 +36,7 @@ TextInput.defaultProps = {
 export default TextInput;
 
 export const TextInputMinimal = ({ id, name, ...props }) => {
-  /* eslint-disable react/jsx-props-no-spreading */
+  /*  react/jsx-props-no-spreading */
   const [field, meta] = useField({ id, name, ...props });
   const hasError = meta.touched && !!meta.error;
   return (

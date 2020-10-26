@@ -642,7 +642,8 @@ jobs:
           command: yarn prettier-ci
       - run:
           name: Run eslint checks
-          command: yarn lint
+          command: yarn lint | tee tmp/test-results/pretest/eslint.out
+          when: always
       # adding danger checks here as they are similar to our pre-commit hooks
       - run:
           name: Run DangerJS checks

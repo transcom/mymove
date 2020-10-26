@@ -72,7 +72,7 @@ class WeightTicketListItem extends Component {
         {/* size of largest of the images */}
         <div style={{ minWidth: 95 }}>
           {showWeightTicketIcon && (
-            /* eslint-disable security/detect-object-injection */
+            /*  security/detect-object-injection */
             <img
               className="weight-ticket-image"
               src={WEIGHT_TICKET_IMAGES[weight_ticket_set_type]}

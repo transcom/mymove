@@ -131,7 +131,7 @@ class ContactForm extends Component {
 
 const validateContact = (values, form) => {
   let requiredErrors = {};
-  /* eslint-disable security/detect-object-injection */
+  /*  security/detect-object-injection */
   ['name', 'email'].forEach((requiredFieldName) => {
     if (values[requiredFieldName] === undefined || values[requiredFieldName] === '') {
       requiredErrors[requiredFieldName] = 'Required.';
@@ -186,7 +186,7 @@ export class BackupContact extends Component {
     const isValid = this.state.isValid;
     const isDirty = this.state.isDirty;
 
-    // eslint-disable-next-line
+    //
     var [contact1, contact2] = this.props.currentBackupContacts; // contact2 will be used when we implement saving two backup contacts.
 
     // initialValues has to be null until there are values from the action since only the first values are taken

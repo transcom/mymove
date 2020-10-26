@@ -276,7 +276,7 @@ export const addCommasToNumberString = (numOrString, decimalPlaces = 0) => {
 export const formatToOrdinal = (n) => {
   const s = ['th', 'st', 'nd', 'rd'];
   const v = n % 100;
-  // eslint-disable-next-line security/detect-object-injection
+  //  security/detect-object-injection
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
 };
 

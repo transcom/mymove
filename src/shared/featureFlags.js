@@ -54,7 +54,7 @@ export function flagsFromURL(search) {
     if (prefix === 'flag' && name.length > 0) {
       if (validateFlag(name)) {
         // name is validated by the previous line
-        // eslint-disable-next-line security/detect-object-injection
+        //  security/detect-object-injection
         flags[name] = value === 'true';
       }
     }
@@ -102,7 +102,7 @@ function validateFlag(name) {
 export function detectFlags(nodeEnv, host, search) {
   let env = detectEnvironment(nodeEnv, host);
   // env can only be one of the values hard-coded into detectEnvironment()
-  // eslint-disable-next-line security/detect-object-injection
+  //  security/detect-object-injection
   return Object.assign({}, environmentFlags[env], flagsFromURL(search));
 }
 

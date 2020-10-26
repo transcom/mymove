@@ -1,4 +1,4 @@
-/* eslint-disable import/prefer-default-export */
+/*  import/prefer-default-export */
 import { shape, string } from 'prop-types';
 
 export const SimpleAddressShape = shape({

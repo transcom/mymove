@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { ErrorMessage as UswdsErrorMessage } from '@trussworks/react-uswds';
 
 export const ErrorMessage = ({ display, children, ...props }) => {
-  // eslint-disable-next-line react/jsx-props-no-spreading
+  //  react/jsx-props-no-spreading
   return display && children ? <UswdsErrorMessage {...props}>{children}</UswdsErrorMessage> : null;
 };
 

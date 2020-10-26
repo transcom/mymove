@@ -5,7 +5,7 @@
  * @param {object} options is any additional options to include in the header object
  * @returns {{Header: string, accessor: string}}
  */
-// eslint-disable-next-line import/prefer-default-export
+//  import/prefer-default-export
 export const createHeader = (header, accessor, options = {}) => {
   return {
     Header: header,

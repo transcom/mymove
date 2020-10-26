@@ -70,7 +70,7 @@ const colorsHelper = (color) => {
     // The use of colors[color] triggers a security warning from our eslint security plugin.
     // However, since we verify inputs against imported colors and this function is not used where
     // users input color we are diabling the warning.
-    // eslint-disable-next-line security/detect-object-injection
+    //  security/detect-object-injection
     return colors[color];
   }
   return colors.base;

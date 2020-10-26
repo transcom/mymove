@@ -31,7 +31,7 @@ const toCamelCase = (str) => str[0].toLowerCase() + str.slice(1);
 // This key can be used to determine what key to find the object's
 // definition in within our normalizr schema.
 function successfulReturnType(routeDefinition, status) {
-  // eslint-disable-next-line security/detect-object-injection
+  //  security/detect-object-injection
   const response = routeDefinition.responses[status];
   const schemaKey = response.schema['$$ref'].split('/').pop();
   if (!response) {
@@ -126,13 +126,13 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
           schemaKey = newSchemaKey;
         }
 
-        // eslint-disable-next-line security/detect-object-injection
+        //  security/detect-object-injection
         const payloadSchema = schema[schemaKey];
         if (!payloadSchema) {
           throw new Error(`Could not find a schema for ${schemaKey}`);
         }
         if (options.deleteId) {
-          // eslint-disable-next-line security/detect-object-injection
+          //  security/detect-object-injection
           var oldEntity = state.entities[schemaKey][options.deleteId];
           action.entities = normalize([oldEntity], payloadSchema).entities;
         } else {

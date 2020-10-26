@@ -1,6 +1,6 @@
 import * as child from 'child_process';
 
-/* eslint-disable import/no-extraneous-dependencies */
+/*  import/no-extraneous-dependencies */
 import { includes, replace } from 'lodash';
 import { danger, warn, fail } from 'danger';
 import jiraIssue from 'danger-plugin-jira-issue';
@@ -60,7 +60,7 @@ View the [frontend file org ADR](https://github.com/transcom/mymove/blob/master/
   // Request update of yarn.lock if package.json changed but yarn.lock isn't
   const packageChanged = includes(allFiles, 'package.json');
   const lockfileChanged = includes(allFiles, 'yarn.lock');
-  // eslint-disable-next-line no-constant-condition
+  //  no-constant-condition
   if (false && packageChanged && !lockfileChanged) {
     const message = 'Changes were made to package.json, but not to yarn.lock';
     const idea = 'Perhaps you need to run `yarn install`?';

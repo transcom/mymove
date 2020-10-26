@@ -18,7 +18,7 @@ async function asyncValidate(values) {
   const { postal_code } = values;
   const responseBody = await ValidateZipRateData(postal_code, 'origin');
   if (!responseBody.valid) {
-    // eslint-disable-next-line no-throw-literal
+    //  no-throw-literal
     throw { postal_code: UnsupportedZipCodeErrorMsg };
   }
 }

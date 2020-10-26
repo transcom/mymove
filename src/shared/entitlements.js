@@ -6,9 +6,9 @@ export function selectEntitlements(rankEntitlement, hasDependents = false, spous
     return {};
   }
   const totalKey = hasDependents ? 'total_weight_self_plus_dependents' : 'total_weight_self';
-  // eslint-disable-next-line security/detect-object-injection
+  //  security/detect-object-injection
   const entitlement = {
-    // eslint-disable-next-line security/detect-object-injection
+    //  security/detect-object-injection
     weight: rankEntitlement[totalKey],
     pro_gear: rankEntitlement.pro_gear_weight,
     pro_gear_spouse: spouseHasProGear ? rankEntitlement.pro_gear_weight_spouse : 0,

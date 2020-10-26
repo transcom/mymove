@@ -81,7 +81,7 @@ beforeEach(() => {
 });
 
 it('renders without crashing', () => {
-  // eslint-disable-next-line
+  //
   expect(wrapper.exists('form.default')).toBe(true);
 });
 

@@ -17,7 +17,7 @@ export default function logger({ getState }) {
     }
     logEntry.took = timer.now() - logEntry.started;
     logEntry.nextState = getState();
-    console.log(logEntry.action.type, ' will dispatch ', logEntry); // eslint-disable-line
+    console.log(logEntry.action.type, ' will dispatch ', logEntry); // -line
     return returnedValue;
   };
 }

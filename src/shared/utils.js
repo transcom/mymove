@@ -130,7 +130,7 @@ export function detectFirefox() {
 }
 
 export function openLinkInNewWindow(url, windowName, window, relativeSize) {
-  // eslint-disable-next-line security/detect-non-literal-fs-filename
+  //  security/detect-non-literal-fs-filename
   window
     .open(
       url,

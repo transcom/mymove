@@ -82,7 +82,7 @@ export const MoveTaskOrder = ({ match }) => {
     onError: (error) => {
       const errorMsg = error?.response?.body;
       // TODO: Handle error some how
-      // eslint-disable-next-line no-console
+      //  no-console
       console.log(errorMsg);
     },
   });
@@ -168,7 +168,7 @@ export const MoveTaskOrder = ({ match }) => {
           const rejectedServiceItems = serviceItemsForShipment.filter(
             (item) => item.status === SERVICE_ITEM_STATUS.REJECTED,
           );
-          // eslint-disable-next-line camelcase
+          //  camelcase
           const dutyStationPostal = { postal_code: moveOrder.destinationDutyStation.address.postal_code };
 
           return (

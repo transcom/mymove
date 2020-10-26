@@ -42,7 +42,7 @@ const MoveQueue = ({ history }) => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  // eslint-disable-next-line no-unused-vars
+  //  no-unused-vars
   const { page, perPage, totalCount, queueMoves } = queueMovesResult[`${undefined}`];
 
   const handleClick = (values) => {

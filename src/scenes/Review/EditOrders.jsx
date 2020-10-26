@@ -6,7 +6,7 @@ import { get, includes, reject } from 'lodash';
 import { push } from 'connected-react-router';
 import { getFormValues, reduxForm, Field } from 'redux-form';
 
-import Alert from 'shared/Alert'; // eslint-disable-line
+import Alert from 'shared/Alert'; // -line
 import { withContext } from 'shared/AppContext';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';

@@ -1,4 +1,4 @@
-/* eslint-disable react/jsx-props-no-spreading */
+/*  react/jsx-props-no-spreading */
 import React, { Component } from 'react';
 import { bool, string, func, shape, number } from 'prop-types';
 import { Formik } from 'formik';

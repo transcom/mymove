@@ -89,7 +89,7 @@ const RequestedShipments = ({
     ? formik.values.shipments.length > 0
     : formik.values.shipments.length > 0 && (formik.values.counselingFee || formik.values.shipmentManagementFee);
 
-  // eslint-disable-next-line camelcase
+  //  camelcase
   const dutyStationPostal = { postal_code: ordersInfo.newDutyStation?.address?.postal_code };
 
   return (
@@ -126,7 +126,7 @@ const RequestedShipments = ({
                       currentAddress: shipment.pickupAddress,
                       destinationAddress: shipment.destinationAddress || dutyStationPostal,
                     }}
-                    /* eslint-disable-next-line react/jsx-props-no-spreading */
+                    /*  react/jsx-props-no-spreading */
                     {...formik.getFieldProps(`shipments`)}
                   />
                 ))}

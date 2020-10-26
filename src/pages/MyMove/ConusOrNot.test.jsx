@@ -11,7 +11,7 @@ describe('ConusOrNot', () => {
     setLocation: () => {},
   };
   it('should render radio buttons', () => {
-    // eslint-disable-next-line react/jsx-props-no-spreading
+    //  react/jsx-props-no-spreading
     const wrapper = mount(<ConusOrNot {...minProps} />);
     expect(wrapper.find(Radio).length).toBe(2);
 

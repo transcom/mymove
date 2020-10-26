@@ -14,5 +14,5 @@ export const ServiceItemCardShape = PropTypes.shape({
   createdAt: PropTypes.string,
 });
 
-// eslint-disable-next-line import/prefer-default-export
+//  import/prefer-default-export
 export const ServiceItemCardsShape = PropTypes.arrayOf(ServiceItemCardShape);

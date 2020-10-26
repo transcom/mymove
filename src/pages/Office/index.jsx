@@ -1,4 +1,4 @@
-/* eslint-disable react/jsx-props-no-spreading */
+/*  react/jsx-props-no-spreading */
 import React, { Component, lazy, Suspense } from 'react';
 import PropTypes from 'prop-types';
 import { Route, Switch, withRouter, matchPath, Link } from 'react-router-dom';

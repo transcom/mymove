@@ -6,7 +6,7 @@ import { ReactComponent as EditIcon } from '../../shared/icon/edit.svg';
 import { ReactComponent as DocsIcon } from '../../shared/icon/documents.svg';
 
 export const EditButton = ({ label, ...props }) => (
-  /* eslint-disable-next-line react/jsx-props-no-spreading */
+  /*  react/jsx-props-no-spreading */
   <Button icon {...props}>
     <span className="icon">
       <EditIcon />
@@ -24,7 +24,7 @@ EditButton.propTypes = {
 };
 
 export const DocsButton = ({ label, ...props }) => (
-  /* eslint-disable-next-line react/jsx-props-no-spreading */
+  /*  react/jsx-props-no-spreading */
   <Button icon {...props}>
     <span className="icon">
       <DocsIcon />

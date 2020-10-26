@@ -185,7 +185,7 @@ export class MoveDetails extends Component {
               const classes = classnames({ active: s === activeSection });
               return (
                 <a key={`sidenav_${s}`} href={`#${s}`} className={classes}>
-                  {/* eslint-disable-next-line security/detect-object-injection */}
+                  {/*  security/detect-object-injection */}
                   {sectionLabels[s]}
                 </a>
               );

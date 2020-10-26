@@ -170,7 +170,7 @@ const ReviewServiceItems = ({
               <ServiceItemCard
                 key={`serviceItemCard_${curCard.id}`}
                 patchPaymentServiceItem={patchPaymentServiceItem}
-                // eslint-disable-next-line react/jsx-props-no-spreading
+                //  react/jsx-props-no-spreading
                 {...curCard}
                 requestComplete={requestReviewed}
               />
@@ -179,7 +179,7 @@ const ReviewServiceItems = ({
             <ServiceItemCard
               key={`serviceItemCard_${currentCard.id}`}
               patchPaymentServiceItem={patchPaymentServiceItem}
-              // eslint-disable-next-line react/jsx-props-no-spreading
+              //  react/jsx-props-no-spreading
               {...currentCard}
               requestComplete={requestReviewed}
             />

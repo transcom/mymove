@@ -1,4 +1,4 @@
-/* eslint-disable import/prefer-default-export */
+/*  import/prefer-default-export */
 import { useQuery } from 'react-query';
 
 import {
@@ -127,7 +127,7 @@ export const useOrdersDocumentQueries = (moveOrderId) => {
   const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, moveOrderId], getMoveOrder);
 
   const orders = moveOrders && moveOrders[`${moveOrderId}`];
-  // eslint-disable-next-line camelcase
+  //  camelcase
   const documentId = orders?.uploaded_order_id;
 
   // Get a document

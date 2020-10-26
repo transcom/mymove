@@ -17,11 +17,11 @@ const InlineForm = ({ name, label, initialValues, validationSchema, onSubmit, on
   const errorCallback = (formErrors) => {
     setErrors(formErrors);
   };
-  /* eslint-disable security/detect-object-injection */
+  /*  security/detect-object-injection */
   const errorMsg = errors[name];
   const value = initialValues[name];
   /* eslint-enable security/detect-object-injection */
-  /* eslint-disable react/jsx-props-no-spreading */
+  /*  react/jsx-props-no-spreading */
   const content = show ? (
     <Formik
       onSubmit={(p) => {
@@ -70,9 +70,9 @@ InlineForm.propTypes = {
   name: PropTypes.string.isRequired,
   onSubmit: PropTypes.func.isRequired,
   onReset: PropTypes.func.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
+  //  react/forbid-prop-types
   validationSchema: PropTypes.any.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
+  //  react/forbid-prop-types
   initialValues: PropTypes.any.isRequired,
 };
 

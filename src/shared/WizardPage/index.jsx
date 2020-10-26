@@ -1,11 +1,11 @@
-import React, { Component } from 'react'; // eslint-disable-line
+import React, { Component } from 'react'; // -line
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import windowSize from 'react-window-size';
 import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router-dom';
 import { push } from 'connected-react-router';
-import Alert from 'shared/Alert'; // eslint-disable-line
+import Alert from 'shared/Alert'; // -line
 import generatePath from './generatePath';
 import './index.css';
 import scrollToTop from 'shared/scrollToTop';

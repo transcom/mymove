@@ -1,4 +1,4 @@
-/* eslint-disable import/prefer-default-export */
+/*  import/prefer-default-export */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Provider } from 'react-redux';
@@ -20,7 +20,7 @@ export const MockProviders = ({ children, initialState = {}, initialEntries = []
 
 MockProviders.propTypes = {
   children: PropTypes.node.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
+  //  react/forbid-prop-types
   initialState: PropTypes.object,
   initialEntries: PropTypes.arrayOf(PropTypes.string),
 };

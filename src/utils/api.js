@@ -1,4 +1,4 @@
-/* eslint-disable import/prefer-default-export */
+/*  import/prefer-default-export */
 // utility functions related to API interactions
 
 export const getQueriesStatus = (queries) => {

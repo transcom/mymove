@@ -6,7 +6,7 @@ import { get } from 'lodash';
 import { push } from 'connected-react-router';
 import { Field, reduxForm } from 'redux-form';
 
-import Alert from 'shared/Alert'; // eslint-disable-line
+import Alert from 'shared/Alert'; // -line
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 import SaveCancelButtons from './SaveCancelButtons';

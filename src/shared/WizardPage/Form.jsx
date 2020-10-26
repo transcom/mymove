@@ -1,11 +1,11 @@
-import React, { Component } from 'react'; // eslint-disable-line
+import React, { Component } from 'react'; // -line
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import windowSize from 'react-window-size';
 import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router-dom';
 import { push } from 'connected-react-router';
-import Alert from 'shared/Alert'; // eslint-disable-line
+import Alert from 'shared/Alert'; // -line
 import generatePath from './generatePath';
 import './index.css';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
@@ -29,7 +29,7 @@ export class WizardFormPage extends Component {
 
   componentDidUpdate(prevProps) {
     if (this.props.additionalValues) {
-      /* eslint-disable security/detect-object-injection */
+      /*  security/detect-object-injection */
 
       Object.keys(this.props.additionalValues).forEach((key) => {
         if (this.props.additionalValues[key] !== prevProps.additionalValues[key]) {

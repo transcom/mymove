@@ -1,4 +1,4 @@
-/* eslint-disable react/jsx-props-no-spreading */
+/*  react/jsx-props-no-spreading */
 import React from 'react';
 import { withKnobs, text } from '@storybook/addon-knobs';
 

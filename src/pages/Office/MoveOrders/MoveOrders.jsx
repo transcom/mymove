@@ -1,4 +1,4 @@
-/* eslint-disable camelcase */
+/*  camelcase */
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
@@ -61,7 +61,7 @@ const MoveOrders = ({ history, match }) => {
     onError: (error) => {
       const errorMsg = error?.response?.body;
       // TODO: Handle error some how
-      // eslint-disable-next-line no-console
+      //  no-console
       console.log(errorMsg);
     },
   });

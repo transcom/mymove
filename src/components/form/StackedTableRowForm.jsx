@@ -18,12 +18,12 @@ export const StackedTableRowForm = ({ label, name, validationSchema, initialValu
   const errorCallback = (formErrors) => {
     setErrors(formErrors);
   };
-  /* eslint-disable security/detect-object-injection */
+  /*  security/detect-object-injection */
   const errorMsg = errors[name];
   const value = initialValues[name];
   /* eslint-enable security/detect-object-injection */
 
-  /* eslint-disable react/jsx-props-no-spreading */
+  /*  react/jsx-props-no-spreading */
   const content = show ? (
     <Formik
       onSubmit={(p) => {
@@ -73,9 +73,9 @@ StackedTableRowForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   onReset: PropTypes.func,
   // following are passed directly to formik
-  // eslint-disable-next-line react/forbid-prop-types
+  //  react/forbid-prop-types
   validationSchema: PropTypes.object.isRequired,
-  // eslint-disable-next-line react/forbid-prop-types
+  //  react/forbid-prop-types
   initialValues: PropTypes.object.isRequired,
 };
 

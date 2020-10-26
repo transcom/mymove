@@ -280,7 +280,7 @@ const pages = {
 
 export const getPagesInFlow = ({ selectedMoveType, conusStatus, lastMoveIsCanceled, context }) =>
   Object.keys(pages).filter((pageKey) => {
-    // eslint-disable-next-line security/detect-object-injection
+    //  security/detect-object-injection
     const page = pages[pageKey];
     return page.isInFlow({ selectedMoveType, conusStatus, lastMoveIsCanceled, context });
   });
@@ -317,7 +317,7 @@ export const getWorkflowRoutes = (props) => {
   const flowProps = pick(props, ['selectedMoveType', 'conusStatus', 'lastMoveIsCanceled', 'context']);
   const pageList = getPagesInFlow(flowProps);
   return Object.keys(pages).map((key) => {
-    // eslint-disable-next-line security/detect-object-injection
+    //  security/detect-object-injection
     const currPage = pages[key];
     if (currPage.isInFlow(flowProps)) {
       const render = currPage.render(key, pageList, currPage.description, props);

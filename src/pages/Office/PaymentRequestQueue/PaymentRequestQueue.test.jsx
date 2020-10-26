@@ -48,7 +48,7 @@ describe('PaymentRequestQueue', () => {
 
   const wrapper = mount(
     <MockProviders initialEntries={['invoicing/queue']}>
-      {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+      {/*  react/jsx-props-no-spreading */}
       <PaymentRequestQueue {...requiredProps} />
     </MockProviders>,
   );
