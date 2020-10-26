@@ -721,7 +721,6 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 }
 
 func fetchToken(logger Logger, code string, clientID string, loginGovProvider LoginGovProvider) (*openidConnect.Session, error) {
-	tokenURL := loginGovProvider.TokenURL()
 	expiry := auth.GetExpiryTimeFromMinutes(auth.SessionExpiryInMinutes)
 	params, err := loginGovProvider.TokenParams(code, clientID, expiry)
 	if err != nil {
@@ -729,8 +728,7 @@ func fetchToken(logger Logger, code string, clientID string, loginGovProvider Lo
 		return nil, err
 	}
 
-	/* #nosec G107 */
-	response, err := http.PostForm(tokenURL, params)
+	response, err := http.PostForm(loginGovProvider.TokenURL(), params)
 	if err != nil {
 		logger.Error("Post to Login.gov token endpoint", zap.Error(err))
 		return nil, err
