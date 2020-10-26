@@ -64,6 +64,7 @@ export class SelectMoveType extends Component {
     const ppmCount = hasPpm ? 1 : 0;
     const mtosCount = mtoShipments?.length || 0;
     const shipmentNumber = 1 + ppmCount + mtosCount;
+    const hasMove = shipmentNumber > 1;
     const ppmCardText =
       'You pack and move your things, or make other arrangements, The government pays you for the weight you move.  This is a a Personally Procured Move (PPM), sometimes called a DITY.';
     const hhgCardText =
@@ -128,9 +129,13 @@ export class SelectMoveType extends Component {
       />
     );
     const footerText = (
-      <div className={`${styles.footer} grid-col-12`}>
-        It’s OK if you’re not sure about your choices. Your move counselor will go over all your options and can help
-        make changes if necessary.
+      <div>
+        {!hasMove && (
+          <div className={`${styles.footer} grid-col-12`}>
+            It’s OK if you’re not sure about your choices. Your move counselor will go over all your options and can
+            help make changes if necessary.
+          </div>
+        )}
       </div>
     );
     return (
