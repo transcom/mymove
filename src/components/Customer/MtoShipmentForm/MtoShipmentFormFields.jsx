@@ -1,7 +1,7 @@
 import React from 'react';
 import { bool, shape, string, func, number } from 'prop-types';
 import { Field } from 'formik';
-import { Button, Fieldset, Label, Radio, Checkbox, Alert } from '@trussworks/react-uswds';
+import { Button, Fieldset, Radio, Checkbox, Alert, FormGroup } from '@trussworks/react-uswds';
 
 import styles from './MtoShipmentForm.module.scss';
 
@@ -11,7 +11,6 @@ import { DatePickerInput, TextInput } from 'components/form/fields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { Form } from 'components/form/Form';
-// import Fieldset from 'shared/Fieldset';
 import Hint from 'shared/Hint';
 import { SimpleAddressShape } from 'types/address';
 import { MtoDisplayOptionsShape, MtoShipmentFormValuesShape } from 'types/customerShapes';
@@ -93,8 +92,13 @@ const MtoShipmentFormFields = ({
               <ContactInfoFields
                 name="pickup.agent"
                 legend={<>Releasing agent {optionalLabel}</>}
-                subtitle="Who can let the movers pick up your things if you’re not there?"
                 values={values.pickup.agent}
+                render={(fields) => (
+                  <>
+                    <p>Who can let the movers pick up your things if you’re not there?</p>
+                    {fields}
+                  </>
+                )}
               />
             </SectionWrapper>
           </>
@@ -118,26 +122,29 @@ const MtoShipmentFormFields = ({
               </Fieldset>
 
               <Fieldset legend="Delivery location">
-                <Label>Do you know your delivery address yet?</Label>
-                <div>
-                  <Field
-                    as={Radio}
-                    id="has-delivery-address"
-                    label="Yes"
-                    name="hasDeliveryAddress"
-                    value="yes"
-                    checked={hasDeliveryAddress === 'yes'}
-                  />
-                  <Field
-                    as={Radio}
-                    id="no-delivery-address"
-                    label="No"
-                    name="hasDeliveryAddress"
-                    value="no"
-                    checked={hasDeliveryAddress === 'no'}
-                  />
-                </div>
-
+                <FormGroup>
+                  <p>Do you know your delivery address yet?</p>
+                  <div className={styles.radioGroup}>
+                    <Field
+                      as={Radio}
+                      id="has-delivery-address"
+                      label="Yes"
+                      name="hasDeliveryAddress"
+                      value="yes"
+                      title="Yes, I know my delivery address"
+                      checked={hasDeliveryAddress === 'yes'}
+                    />
+                    <Field
+                      as={Radio}
+                      id="no-delivery-address"
+                      label="No"
+                      name="hasDeliveryAddress"
+                      value="no"
+                      title="No, I do not know my delivery address"
+                      checked={hasDeliveryAddress === 'no'}
+                    />
+                  </div>
+                </FormGroup>
                 {hasDeliveryAddress === 'yes' ? (
                   <AddressFields
                     name="delivery.address"
@@ -169,8 +176,13 @@ const MtoShipmentFormFields = ({
               <ContactInfoFields
                 name="delivery.agent"
                 legend={<>Receiving agent {optionalLabel}</>}
-                subtitle="Who can take delivery for you if the movers arrive and you’re not there?"
                 values={values.delivery.agent}
+                render={(fields) => (
+                  <>
+                    <p>Who can take delivery for you if the movers arrive and you’re not there?</p>
+                    {fields}
+                  </>
+                )}
               />
             </SectionWrapper>
           </>

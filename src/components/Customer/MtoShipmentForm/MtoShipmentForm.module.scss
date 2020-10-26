@@ -4,6 +4,8 @@
 @import 'shared/styles/colors';
 
 .MTOShipmentForm {
+  @include u-padding-x(0.5);
+
   h1 {
     @include u-margin-top(1);
     @include u-margin-bottom(2);
@@ -21,12 +23,21 @@
     }
   }
 
-  legend + :global(.usa-form-group) label {
+  legend + :global(.usa-form-group .usa-label) {
     @include u-margin-top('105');
+  }
+
+  legend + :global(.usa-form-group) p {
+    @include u-margin-top(3);
+    @include u-margin-bottom(1);
   }
 
   legend + :global(.usa-checkbox) {
     @include u-margin-top(3);
+  }
+
+  legend + p {
+    @include u-margin-top('205');
   }
 
   :global(.usa-label) {
@@ -50,12 +61,24 @@
   }
 }
 
+.radioGroup {
+  display: flex;
+
+  > * + * {
+    @include u-margin-left(5);
+  }
+}
+
 .HHGDetailsForm {
   max-width: none;
 
   fieldset {
-    @include u-margin-y(4);
     @include u-padding-top(0);
+  }
+
+  fieldset + fieldset,
+  fieldset:first-child {
+    @include u-margin-y(4);
 
     &:not(:last-child) {
       @include u-padding-bottom(4);
