@@ -189,34 +189,15 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
-
-	office := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
-		TransportationOffice: models.TransportationOffice{
-			Gbloc: "TEST12",
-		},
-	})
-
 	dutyStation1 := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
 		DutyStation: models.DutyStation{
-			TransportationOffice:   office,
-			TransportationOfficeID: &office.ID,
-			Name:                   "This Other Station",
+			Name: "This Other Station",
 		},
 	})
 
-	dutyStation2 := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
-		DutyStation: models.DutyStation{
-			TransportationOffice:   office,
-			TransportationOfficeID: &office.ID,
-		},
-	})
+	dutyStation2 := testdatagen.MakeDefaultDutyStation(suite.DB())
 
-	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			TransportationOffice:   office,
-			TransportationOfficeID: office.ID,
-		},
-	})
+	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
 
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTOO,
@@ -290,7 +271,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		},
 	})
 
-	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
+	request := httptest.NewRequest("GET", "/queues/moves", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())

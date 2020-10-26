@@ -102,7 +102,7 @@ func lastNameFilter(params queues.GetMovesQueueParams) FilterOption {
 	return func(query *pop.Query) {
 		if params.LastName != nil {
 			nameSearch := fmt.Sprintf("%s%%", *params.LastName)
-			query = query.Where("service_members.last_name ILIKE ?", nameSearch)
+			query = query.InnerJoin("service_members", "orders.service_member_id = service_members.id").Where("service_members.last_name ILIKE ?", nameSearch)
 		}
 	}
 }
@@ -111,7 +111,7 @@ func firstNameFilter(params queues.GetMovesQueueParams) FilterOption {
 	return func(query *pop.Query) {
 		if params.FirstName != nil {
 			nameSearch := fmt.Sprintf("%s%%", *params.FirstName)
-			query = query.Where("service_members.first_name ILIKE ?", nameSearch)
+			query = query.InnerJoin("service_members", "orders.service_member_id = service_members.id").Where("service_members.first_name ILIKE ?", nameSearch)
 		}
 	}
 }
@@ -119,7 +119,7 @@ func firstNameFilter(params queues.GetMovesQueueParams) FilterOption {
 func dodIDFilter(params queues.GetMovesQueueParams) FilterOption {
 	return func(query *pop.Query) {
 		if params.DodID != nil {
-			query = query.Where("service_members.edipi ILIKE ?", params.DodID)
+			query = query.InnerJoin("service_members", "orders.service_member_id = service_members.id").Where("service_members.edipi ILIKE ?", params.DodID)
 		}
 	}
 }
@@ -135,7 +135,7 @@ func destinationDutyStationFilter(params queues.GetMovesQueueParams) FilterOptio
 	return func(query *pop.Query) {
 		if params.DestinationDutyStation != nil {
 			nameSearch := fmt.Sprintf("%s%%", *params.DestinationDutyStation)
-			query = query.Where("destination_duty_station.name ILIKE ?", nameSearch)
+			query = query.InnerJoin("duty_stations as destination_duty_station", "orders.new_duty_station_id = destination_duty_station.id").Where("destination_duty_station.name ILIKE ?", nameSearch)
 		}
 	}
 }
