@@ -9,6 +9,8 @@ import { updateServiceMember } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import AddressForm from 'shared/AddressForm';
 
+import SectionWrapper from 'components/Customer/SectionWrapper';
+
 const formName = 'service_member_backup_mailing_addresss';
 const BackupMailingWizardForm = reduxifyWizardForm(formName);
 
@@ -33,16 +35,16 @@ export class BackupMailingAddress extends Component {
         initialValues={initialValues}
         additionalParams={{ serviceMemberId }}
       >
-        <div className="grid-row">
-          <div className="grid-col-12">
-            <h1 className="sm-heading">Backup mailing address</h1>
-            <p>
-              Where should we send mail if we can’t reach you at your primary address? You might use a parent's or
-              friend’s address, or a post office box.
-            </p>
+        <h1>Backup mailing address</h1>
+        <p>
+          Where should we send mail if we can’t reach you at your primary address? You might use a parent's or friend’s
+          address, or a post office box.
+        </p>
+        <SectionWrapper>
+          <div className="tablet:margin-top-neg-3">
+            <AddressForm schema={this.props.schema} />
           </div>
-        </div>
-        <AddressForm schema={this.props.schema} />
+        </SectionWrapper>
       </BackupMailingWizardForm>
     );
   }

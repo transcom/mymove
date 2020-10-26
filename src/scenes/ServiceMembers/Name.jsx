@@ -8,6 +8,8 @@ import { updateServiceMember } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
+import SectionWrapper from 'components/Customer/SectionWrapper';
+
 const subsetOfFields = ['first_name', 'middle_name', 'last_name', 'suffix'];
 const formName = 'service_member_name';
 const NameWizardForm = reduxifyWizardForm(formName);
@@ -36,15 +38,15 @@ export class Name extends Component {
         initialValues={initialValues}
         additionalParams={{ serviceMemberId }}
       >
-        <div className="grid-row">
-          <div className="grid-col-12">
-            <h1 className="sm-heading">Name</h1>
+        <h1>Name</h1>
+        <SectionWrapper>
+          <div className="tablet:margin-top-neg-3">
             <SwaggerField fieldName="first_name" swagger={this.props.schema} required />
-            <SwaggerField fieldName="middle_name" swagger={this.props.schema} />
-            <SwaggerField fieldName="last_name" swagger={this.props.schema} required />
-            <SwaggerField fieldName="suffix" swagger={this.props.schema} />
           </div>
-        </div>
+          <SwaggerField fieldName="middle_name" swagger={this.props.schema} />
+          <SwaggerField fieldName="last_name" swagger={this.props.schema} required />
+          <SwaggerField fieldName="suffix" swagger={this.props.schema} />
+        </SectionWrapper>
       </NameWizardForm>
     );
   }

@@ -1,3 +1,5 @@
+@import '../../shared/styles/_variables';
+
 .box_top {
   display: flex;
   justify-content: space-between;
@@ -48,6 +50,13 @@ div.signature {
 div.signature-date {
   flex-grow: 1;
   max-width: 200px;
+}
+
+@media (min-width: $tablet) {
+  .box_top {
+    display: flex;
+    justify-content: right;
+  }
 }
 
 /* This matches the width at which submit buttons go full-width for mobile devices */

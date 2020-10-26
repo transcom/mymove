@@ -4,6 +4,8 @@ import { shallow } from 'enzyme';
 
 import { Summary } from './index';
 
+import { MOVE_STATUSES } from 'shared/constants';
+
 const defaultProps = {
   serviceMember: {
     id: '666',
@@ -23,7 +25,7 @@ const defaultProps = {
     report_by_date: '2020-08-31',
     service_member_id: '666',
     spouse_has_pro_gear: false,
-    status: 'DRAFT',
+    status: MOVE_STATUSES.DRAFT,
     uploaded_orders: {
       uploads: [],
     },
@@ -34,7 +36,7 @@ const defaultProps = {
     locator: 'CXVV3F',
     selected_move_type: 'HHG',
     service_member_id: '666',
-    status: 'DRAFT',
+    status: MOVE_STATUSES.DRAFT,
   },
   selectedMoveType: 'HHG',
   currentPPM: {},
@@ -48,7 +50,7 @@ const defaultProps = {
     requestedDeliveryDate: '2020-08-31',
     requestedPickupDate: '2020-08-31',
     shipmentType: 'HHG',
-    status: 'SUBMITTED',
+    status: MOVE_STATUSES.SUBMITTED,
     updatedAt: '2020-09-02T21:08:38.392Z',
   },
   mtoShipments: [
@@ -62,7 +64,7 @@ const defaultProps = {
       requestedDeliveryDate: '2020-08-31',
       requestedPickupDate: '2020-08-31',
       shipmentType: 'HHG',
-      status: 'SUBMITTED',
+      status: MOVE_STATUSES.SUBMITTED,
       updatedAt: '2020-09-02T21:08:38.392Z',
     },
   ],
