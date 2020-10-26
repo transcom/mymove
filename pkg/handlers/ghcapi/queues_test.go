@@ -139,8 +139,10 @@ func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
 
 	suite.Assertions.IsType(&queues.GetMovesQueueOK{}, response)
 	payload := response.(*queues.GetMovesQueueOK).Payload
+	result := payload.QueueMoves[0]
 
 	suite.Equal(1, len(payload.QueueMoves))
+	suite.Equal("AIR_FORCE", result.Customer.Agency)
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
