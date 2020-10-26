@@ -1,5 +1,5 @@
 import React from 'react';
-import { string, shape, number } from 'prop-types';
+import { string, shape, number, func, bool } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
 import { AddressShape } from '../../../../../types/address';
@@ -10,6 +10,8 @@ import ShipmentContainer from 'components/Office/ShipmentContainer';
 import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 
 const NTSShipmentCard = ({
+  moveId,
+  onEditClick,
   pickupLocation,
   releasingAgent,
   remarks,
@@ -17,7 +19,9 @@ const NTSShipmentCard = ({
   shipmentId,
   shipmentType,
   shipmentNumber,
+  showEditBtn,
 }) => {
+  const editPath = `/moves/${moveId}/mto-shipments/${shipmentId}/edit-shipment`;
   return (
     <div className={styles.ShipmentCard} data-testid="nts-summary">
       <ShipmentContainer className={styles.container} shipmentType={shipmentType}>
@@ -26,9 +30,16 @@ const NTSShipmentCard = ({
             <h3>{getShipmentTypeLabel(shipmentType)}</h3>
             <p>#{shipmentId.substring(0, 8).toUpperCase()}</p>
           </div>
-          <Button className={styles.editBtn} data-testid="edit-shipment-btn" unstyled disabled>
-            Edit
-          </Button>
+          {showEditBtn && (
+            <Button
+              className={styles.editBtn}
+              data-testid="edit-nts-shipment-btn"
+              onClick={() => onEditClick(editPath)}
+              unstyled
+            >
+              Edit
+            </Button>
+          )}
         </div>
         <dl className={styles.shipmentCardSubsection}>
           <PickupDisplay
@@ -52,8 +63,11 @@ const NTSShipmentCard = ({
 };
 
 NTSShipmentCard.propTypes = {
+  moveId: string.isRequired,
+  onEditClick: func.isRequired,
   shipmentType: string.isRequired,
   shipmentId: string.isRequired,
+  showEditBtn: bool.isRequired,
   requestedPickupDate: string.isRequired,
   pickupLocation: AddressShape.isRequired,
   releasingAgent: shape({

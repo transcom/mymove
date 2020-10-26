@@ -180,8 +180,11 @@ class Home extends Component {
     let destLink = '';
     if (shipmentType === 'PPM') {
       destLink = `/moves/${move.id}/review/edit-date-and-location`;
-    } else {
+    } else if (shipmentType === 'HHG') {
       destLink = `/moves/${move.id}/mto-shipments/${shipmentId}/edit-shipment${queryString}`;
+    } else {
+      // nts/ntsr shipment
+      destLink = `/moves/${move.id}/mto-shipments/${shipmentId}/edit-shipment`;
     }
 
     history.push(destLink);
@@ -305,6 +308,7 @@ class Home extends Component {
                   <Step
                     actionBtnLabel={this.shipmentActionBtnLabel}
                     actionBtnDisabled={!this.hasOrders || (this.hasSubmittedMove && this.doesPpmAlreadyExist)}
+                    actionBtnId="shipment-selection-btn"
                     onActionBtnClick={() => this.handleNewPathClick(shipmentSelectionPath)}
                     complete={this.hasAnyShipments}
                     completedHeaderText="Shipments"
@@ -335,6 +339,7 @@ class Home extends Component {
                     complete={this.hasSubmittedMove}
                     actionBtnDisabled={!this.hasAnyShipments}
                     actionBtnLabel={!this.hasSubmittedMove ? 'Review and submit' : ''}
+                    actionBtnId="review-and-submit-btn"
                     containerClassName="margin-bottom-8"
                     headerText="Confirm move request"
                     completedHeaderText="Move request confirmed"

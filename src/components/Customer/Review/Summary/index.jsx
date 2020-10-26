@@ -15,7 +15,7 @@ import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import { loadMove, selectMove } from 'shared/Entities/modules/moves';
 import { selectActiveOrLatestOrdersFromEntities, selectUploadsForActiveOrders } from 'shared/Entities/modules/orders';
-import { SHIPMENT_OPTIONS, titleCase } from 'shared/constants';
+import { MOVE_STATUSES, SHIPMENT_OPTIONS, titleCase } from 'shared/constants';
 import {
   moveIsApproved as selectMoveIsApproved,
   lastMoveIsCanceled,
@@ -72,12 +72,14 @@ export class Summary extends Component {
   };
 
   renderShipments = () => {
-    const { currentOrders, match } = this.props;
+    const { currentMove, currentOrders, match } = this.props;
     const { moveId } = match.params;
+    const showEditBtn = currentMove.status === MOVE_STATUSES.DRAFT;
     let hhgShipmentNumber = 0;
     return this.getSortedShipments.map((shipment) => {
       let receivingAgent;
       let releasingAgent;
+
       if (shipment.shipmentType === SHIPMENT_OPTIONS.PPM) {
         return (
           <PPMShipmentCard
@@ -101,6 +103,7 @@ export class Summary extends Component {
         return (
           <NTSShipmentCard
             key={shipment.id}
+            showEditBtn={showEditBtn}
             moveId={moveId}
             onEditClick={this.handleEditClick}
             pickupLocation={shipment.pickupAddress}
@@ -116,8 +119,11 @@ export class Summary extends Component {
         return (
           <NTSRShipmentCard
             key={shipment.id}
-            destinationZIP={currentOrders.new_duty_station.address.postal_code}
             destinationLocation={shipment?.destinationAddress}
+            destinationZIP={currentOrders.new_duty_station.address.postal_code}
+            showEditBtn={showEditBtn}
+            moveId={moveId}
+            onEditClick={this.handleEditClick}
             receivingAgent={receivingAgent}
             remarks={shipment.customerRemarks}
             requestedDeliveryDate={shipment.requestedDeliveryDate}
