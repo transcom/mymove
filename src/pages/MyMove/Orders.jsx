@@ -97,7 +97,7 @@ export class Orders extends Component {
               errorMsg={newDutyStationErrorMsg}
               title="New duty station"
             />
-        </div>
+          </div>
         </SectionWrapper>
       </OrdersWizardForm>
     );
