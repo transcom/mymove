@@ -41,27 +41,33 @@ export const AddressFields = ({ legend, className, values, name, render }) => {
             type="text"
             value={values.city}
           />
-          <Field
-            as={TextInput}
-            label="State"
-            id={`state_${addressFieldsUUID}`}
-            data-testid="state"
-            name={`${name}.state`}
-            type="text"
-            value={values.state}
-            maxLength={2}
-          />
-          <Field
-            as={TextInput}
-            label="ZIP"
-            id={`zip_${addressFieldsUUID}`}
-            data-testid="zip"
-            inputSize="medium"
-            name={`${name}.postal_code`}
-            type="text"
-            value={values.postal_code}
-            maxLength={10}
-          />
+
+          <div className="grid-row grid-gap">
+            <div className="mobile-lg:grid-col-6">
+              <Field
+                as={TextInput}
+                label="State"
+                id={`state_${addressFieldsUUID}`}
+                data-testid="state"
+                name={`${name}.state`}
+                type="text"
+                value={values.state}
+                maxLength={2}
+              />
+            </div>
+            <div className="mobile-lg:grid-col-6">
+              <Field
+                as={TextInput}
+                label="ZIP"
+                id={`zip_${addressFieldsUUID}`}
+                data-testid="zip"
+                name={`${name}.postal_code`}
+                type="text"
+                value={values.postal_code}
+                maxLength={10}
+              />
+            </div>
+          </div>
         </>,
       )}
     </Fieldset>

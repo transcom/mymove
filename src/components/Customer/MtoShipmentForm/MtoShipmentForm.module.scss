@@ -10,6 +10,15 @@
     @include u-margin-top(1);
     @include u-margin-bottom(2);
   }
+}
+
+.form {
+  max-width: none;
+
+  h2 {
+    @include typeset('body', 11, 2);
+    @include u-margin-y(4);
+  }
 
   legend {
     display: flex;
@@ -18,9 +27,6 @@
     width: 100%;
 
     @include typeset('body', 9, 2);
-    @include at-media('tablet') {
-      @include typeset('body', 11, 2);
-    }
   }
 
   legend + :global(.usa-form-group .usa-label) {
@@ -50,6 +56,7 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
+    max-width: none;
   }
 
   :global(.usa-hint),
@@ -59,6 +66,43 @@
     color: $base;
     font-weight: normal;
   }
+
+  fieldset {
+    @include u-padding-top(0);
+    @include u-margin-bottom(4);
+    @include u-padding-bottom(4);
+    border-bottom: 1px solid $base-lighter;
+
+    @include at-media('tablet') {
+      &:last-child {
+        @include u-padding-bottom(0);
+        @include u-margin-bottom(0);
+        border-bottom: 0;
+      }
+    }
+  }
+
+  fieldset + fieldset {
+    @include u-margin-y(4);
+  }
+
+  fieldset fieldset {
+    @include u-margin(0);
+    @include u-padding(0);
+    @include u-border(0);
+  }
+}
+
+.formSection {
+  @include u-margin-y(4);
+
+  + .formSection {
+    @include u-margin-top(5);
+  }
+
+  &:last-of-type {
+    @include u-margin-bottom(6);
+  }
 }
 
 .radioGroup {
@@ -66,24 +110,6 @@
 
   > * + * {
     @include u-margin-left(5);
-  }
-}
-
-.HHGDetailsForm {
-  max-width: none;
-
-  fieldset {
-    @include u-padding-top(0);
-  }
-
-  fieldset + fieldset,
-  fieldset:first-child {
-    @include u-margin-y(4);
-
-    &:not(:last-child) {
-      @include u-padding-bottom(4);
-      border-bottom: 1px solid $base-light;
-    }
   }
 }
 
@@ -107,5 +133,23 @@
     list-style-position: inside;
     padding: 0;
     margin: 0;
+  }
+}
+
+.formActions {
+  display: flex;
+  @include u-margin-top(1);
+  @include u-margin-bottom(6);
+}
+
+.cancelButton {
+  color: $primary;
+  background-color: transparent;
+  border-color: transparent;
+
+  &:hover {
+    color: $primary-darker;
+    background-color: transparent;
+    border-color: transparent;
   }
 }

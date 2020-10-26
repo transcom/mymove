@@ -48,10 +48,11 @@ const MtoShipmentFormFields = ({
         Remember: You can move {serviceMember.weight_allotment.total_weight_self} lbs total. You&rsquo;ll be billed for
         any excess weight you move.
       </Alert>
-      <Form className={styles.HHGDetailsForm}>
+      <Form className={styles.form}>
         {displayOptions.showPickupFields && (
           <>
-            <SectionWrapper>
+            <SectionWrapper className={styles.formSection}>
+              <h2>Pickup information</h2>
               <Fieldset legend="Pickup date">
                 <Field
                   as={DatePickerInput}
@@ -106,7 +107,8 @@ const MtoShipmentFormFields = ({
 
         {displayOptions.showDeliveryFields && (
           <>
-            <SectionWrapper>
+            <SectionWrapper className={styles.formSection}>
+              <h2>Delivery information</h2>
               <Fieldset legend="Delivery date">
                 <Field
                   as={DatePickerInput}
@@ -190,7 +192,7 @@ const MtoShipmentFormFields = ({
 
         {isNTS && (
           <>
-            <SectionWrapper>
+            <SectionWrapper className={styles.formSection}>
               <Fieldset legend="What you can expect" data-testid="nts-what-to-expect">
                 <p>
                   The moving company will find a storage facility approved by the government, and will move your
@@ -205,7 +207,7 @@ const MtoShipmentFormFields = ({
           </>
         )}
 
-        <SectionWrapper>
+        <SectionWrapper className={styles.formSection}>
           <Fieldset legend={<>Remarks {optionalLabel}</>}>
             <Label for="customerRemarks">
               Is there anything special about this shipment that the movers should know?
@@ -242,15 +244,16 @@ const MtoShipmentFormFields = ({
         </Hint>
 
         {!isCreatePage && (
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div className={styles.formActions}>
             <Button
+              type="submit"
               disabled={isSubmitting || (!isValid && !dirty) || (isValid && !dirty)}
               onClick={() => submitHandler(values)}
             >
-              <span>Save</span>
+              Save
             </Button>
-            <Button className={`${styles['cancel-button']}`} onClick={history.goBack}>
-              <span>Cancel</span>
+            <Button type="button" className={styles.cancelButton} onClick={history.goBack}>
+              Cancel
             </Button>
           </div>
         )}
