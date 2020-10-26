@@ -5,4 +5,4 @@ SET
 WHERE
     selected_move_type = 'NTS';
 
-COMMENT ON COLUMN moves.selected_move_type IS 'The type of Move the customer is choosing. Allowed values are HHG, PPM, UB, POV, HHG_INTO_NTS_DOMESTIC, HHG_OUTOF_NTS_DOMESTIC HHG_PPM (but only HHG and PPM appear to be used currently).';
+COMMENT ON COLUMN moves.selected_move_type IS 'The type of Move the customer is choosing. Allowed values are HHG, PPM, UB, POV, HHG_INTO_NTS_DOMESTIC, HHG_OUTOF_NTS_DOMESTIC HHG_PPM.';
