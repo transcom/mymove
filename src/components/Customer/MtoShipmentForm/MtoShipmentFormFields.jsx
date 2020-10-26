@@ -45,8 +45,8 @@ const MtoShipmentFormFields = ({
       <ShipmentTag shipmentType={shipmentType} shipmentNumber={shipmentNumber} />
       <h1>{shipmentForm.header[`${shipmentType}`]}</h1>
       <Alert type="info" noIcon>
-        Remember: You can move {serviceMember.weight_allotment.total_weight_self} lbs total. You&rsquo;ll be billed for
-        any excess weight you move.
+        Remember: You can move {serviceMember.weight_allotment.total_weight_self} lbs total. You’ll be billed for any
+        excess weight you move.
       </Alert>
       <Form className={styles.form}>
         {displayOptions.showPickupFields && (
@@ -192,8 +192,8 @@ const MtoShipmentFormFields = ({
 
         {isNTS && (
           <>
-            <SectionWrapper className={styles.formSection}>
-              <Fieldset legend="What you can expect" data-testid="nts-what-to-expect">
+            <SectionWrapper className={styles.formSection} data-testid="nts-what-to-expect">
+              <Fieldset legend="What you can expect">
                 <p>
                   The moving company will find a storage facility approved by the government, and will move your
                   belongings there.
