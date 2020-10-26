@@ -236,7 +236,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	})
 
 	suite.T().Run("does not error out creating EDI from Invoice858", func(t *testing.T) {
-		_, err := result.EDIString()
+		_, err := result.EDIString(suite.logger)
 		suite.NoError(err)
 	})
 

@@ -99,7 +99,7 @@ func main() {
 		logger.Fatal(err.Error())
 	}
 
-	result, err := edi858c.EDIString()
+	result, err := edi858c.EDIString(logger)
 	if err != nil {
 		logger.Fatal(err.Error())
 	}
