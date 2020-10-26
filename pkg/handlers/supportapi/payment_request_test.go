@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
