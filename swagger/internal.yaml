@@ -581,6 +581,8 @@ definitions:
         format: date-time
         title: When was the ppm move submitted?
         example: '2019-03-26T13:19:56-04:00'
+      certificate:
+        $ref: '#/definitions/CreateSignedCertificationPayload'
     required:
       - ppm_submit_date
   SubmitPersonallyProcuredMovePayload:

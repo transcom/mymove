@@ -17,6 +17,9 @@ import (
 // swagger:model SubmitMoveForApprovalPayload
 type SubmitMoveForApprovalPayload struct {
 
+	// certificate
+	Certificate *CreateSignedCertificationPayload `json:"certificate,omitempty"`
+
 	// When was the ppm move submitted?
 	// Required: true
 	// Format: date-time
@@ -27,6 +30,10 @@ type SubmitMoveForApprovalPayload struct {
 func (m *SubmitMoveForApprovalPayload) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateCertificate(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validatePpmSubmitDate(formats); err != nil {
 		res = append(res, err)
 	}
@@ -34,6 +41,24 @@ func (m *SubmitMoveForApprovalPayload) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *SubmitMoveForApprovalPayload) validateCertificate(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Certificate) { // not required
+		return nil
+	}
+
+	if m.Certificate != nil {
+		if err := m.Certificate.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("certificate")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 

@@ -6074,6 +6074,9 @@ func init() {
         "ppm_submit_date"
       ],
       "properties": {
+        "certificate": {
+          "$ref": "#/definitions/CreateSignedCertificationPayload"
+        },
         "ppm_submit_date": {
           "type": "string",
           "format": "date-time",
@@ -12629,6 +12632,9 @@ func init() {
         "ppm_submit_date"
       ],
       "properties": {
+        "certificate": {
+          "$ref": "#/definitions/CreateSignedCertificationPayload"
+        },
         "ppm_submit_date": {
           "type": "string",
           "format": "date-time",
