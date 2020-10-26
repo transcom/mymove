@@ -7,66 +7,69 @@ import styles from 'pages/MyMove/index.module.scss';
 import { TextInput } from 'components/form/fields';
 import Fieldset from 'shared/Fieldset';
 
-export const AddressFields = ({ legend, className, values, name, renderExistingAddressCheckbox }) => {
+export const AddressFields = ({ legend, className, values, name, render }) => {
   const addressFieldsUUID = uuidv4();
 
   return (
     <Fieldset legend={legend} className={className}>
-      {renderExistingAddressCheckbox()}
-      <Field
-        as={TextInput}
-        labelClassName={`${styles['small-bold']}`}
-        label="Street address 1"
-        id={`mailingAddress1_${addressFieldsUUID}`}
-        data-testid="mailingAddress1"
-        name={`${name}.street_address_1`}
-        type="text"
-        value={values.street_address_1}
-      />
-      <Field
-        as={TextInput}
-        labelClassName={`${styles['small-bold']}`}
-        label="Street address 2"
-        labelHint=" (optional)"
-        id={`mailingAddress2_${addressFieldsUUID}`}
-        data-testid="mailingAddress2"
-        name={`${name}.street_address_2`}
-        type="text"
-        value={values.street_address_2}
-      />
-      <Field
-        as={TextInput}
-        labelClassName={`${styles['small-bold']}`}
-        label="City"
-        id={`city_${addressFieldsUUID}`}
-        data-testid="city"
-        name={`${name}.city`}
-        type="text"
-        value={values.city}
-      />
-      <Field
-        as={TextInput}
-        labelClassName={`${styles['small-bold']}`}
-        label="State"
-        id={`state_${addressFieldsUUID}`}
-        data-testid="state"
-        name={`${name}.state`}
-        type="text"
-        value={values.state}
-        maxLength={2}
-      />
-      <Field
-        as={TextInput}
-        labelClassName={`${styles['small-bold']}`}
-        label="ZIP"
-        id={`zip_${addressFieldsUUID}`}
-        data-testid="zip"
-        inputSize="medium"
-        name={`${name}.postal_code`}
-        type="text"
-        value={values.postal_code}
-        maxLength={10}
-      />
+      {render(
+        <>
+          <Field
+            as={TextInput}
+            labelClassName={`${styles['small-bold']}`}
+            label="Street address 1"
+            id={`mailingAddress1_${addressFieldsUUID}`}
+            data-testid="mailingAddress1"
+            name={`${name}.street_address_1`}
+            type="text"
+            value={values.street_address_1}
+          />
+          <Field
+            as={TextInput}
+            labelClassName={`${styles['small-bold']}`}
+            label="Street address 2"
+            labelHint=" (optional)"
+            id={`mailingAddress2_${addressFieldsUUID}`}
+            data-testid="mailingAddress2"
+            name={`${name}.street_address_2`}
+            type="text"
+            value={values.street_address_2}
+          />
+          <Field
+            as={TextInput}
+            labelClassName={`${styles['small-bold']}`}
+            label="City"
+            id={`city_${addressFieldsUUID}`}
+            data-testid="city"
+            name={`${name}.city`}
+            type="text"
+            value={values.city}
+          />
+          <Field
+            as={TextInput}
+            labelClassName={`${styles['small-bold']}`}
+            label="State"
+            id={`state_${addressFieldsUUID}`}
+            data-testid="state"
+            name={`${name}.state`}
+            type="text"
+            value={values.state}
+            maxLength={2}
+          />
+          <Field
+            as={TextInput}
+            labelClassName={`${styles['small-bold']}`}
+            label="ZIP"
+            id={`zip_${addressFieldsUUID}`}
+            data-testid="zip"
+            inputSize="medium"
+            name={`${name}.postal_code`}
+            type="text"
+            value={values.postal_code}
+            maxLength={10}
+          />
+        </>,
+      )}
     </Fieldset>
   );
 };
@@ -82,14 +85,14 @@ AddressFields.propTypes = {
     postal_code: PropTypes.string,
   }),
   name: PropTypes.string.isRequired,
-  renderExistingAddressCheckbox: PropTypes.func,
+  render: PropTypes.func,
 };
 
 AddressFields.defaultProps = {
   legend: '',
   className: '',
   values: {},
-  renderExistingAddressCheckbox: () => {},
+  render: () => {},
 };
 
 export default AddressFields;

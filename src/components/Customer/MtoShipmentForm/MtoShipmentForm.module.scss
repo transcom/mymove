@@ -1,9 +1,27 @@
-// HHG details form
-
 @import '../../../shared/styles/basics';
 @import '../../../shared/styles/mixins';
 @import 'shared/styles/_variables';
 @import 'shared/styles/colors';
+
+.MTOShipmentForm {
+  h1 {
+    @include u-margin-top(1);
+    @include u-margin-bottom(2);
+  }
+
+  legend {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.optional {
+  font-size: 13px;
+  line-height: 1.3;
+  color: $base;
+  font-weight: normal;
+}
 
 .HHGDetailsForm {
   h1 {
