@@ -47,16 +47,25 @@ export class SignedCertification extends Component {
 
   handleSubmit = () => {
     const pendingValues = this.props.values;
-    const { latestSignedCertification } = this.props;
+    const { latestSignedCertification, currentPpm, moveId, values, selectedMoveType } = this.props;
     const landingPath = '/';
     const submitDate = moment().format();
+    const certificate = {
+      certification_text: completeCertificationText,
+      date: submitDate,
+      signature: values.signature,
+      personally_procured_move_id: currentPpm.id,
+      certification_type: selectedMoveType,
+    };
+
     if (latestSignedCertification) {
       return this.props.push(landingPath);
     }
 
     if (pendingValues) {
-      const moveId = this.props.match.params.moveId;
-      Promise.all([this.submitCertificate(), this.props.submitMoveForApproval(moveId, submitDate)])
+      this.props
+        .createSignedCertification(moveId, certificate)
+        .then(() => this.props.submitMoveForApproval(moveId, submitDate))
         .then(() => {
           this.props.showSubmitSuccessBanner();
           setTimeout(() => this.props.removeSubmitSuccessBanner(), 10000);
