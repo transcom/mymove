@@ -150,7 +150,7 @@
     "react-test-renderer": "^16.14.0",
     "source-map-explorer": "^2.5.0",
     "storybook-addons-abstract": "^5.0.6",
-    "terser-webpack-plugin": "^4.2.3"
+    "terser-webpack-plugin": "^5.0.1"
   },
   "browserslist": [
     ">0.2%",
