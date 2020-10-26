@@ -211,6 +211,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		ServiceMember: models.ServiceMember{
 			FirstName: models.StringPointer("Zoya"),
 			LastName:  models.StringPointer("Darvish"),
+			Edipi:     models.StringPointer("11111"),
 		},
 	})
 
@@ -219,10 +220,15 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		ServiceMember: models.ServiceMember{
 			FirstName: models.StringPointer("Owen"),
 			LastName:  models.StringPointer("Nance"),
+			Edipi:     models.StringPointer("22222"),
 		},
 	})
 
-	order1 := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+	move1 := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusSUBMITTED,
+		},
 		Order: models.Order{
 			OriginDutyStation:   &dutyStation1,
 			OriginDutyStationID: &dutyStation1.ID,
@@ -232,22 +238,11 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		ServiceMember: serviceMember1,
 	})
 
-	move1 := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+	move2 := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
 			Status:           models.MoveStatusSUBMITTED,
 		},
-		Order: order1,
-	})
-
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: move1,
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
-		},
-	})
-
-	order2 := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
 			OriginDutyStation:   &dutyStation2,
 			OriginDutyStationID: &dutyStation2.ID,
@@ -256,19 +251,19 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		},
 		ServiceMember: serviceMember2,
 	})
-	move2 := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			SelectedMoveType: &hhgMoveType,
-			Status:           models.MoveStatusSUBMITTED,
-		},
-		Order: order2,
+
+	shipment := models.MTOShipment{
+		Status: models.MTOShipmentStatusSubmitted,
+	}
+
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move:        move1,
+		MTOShipment: shipment,
 	})
 
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: move2,
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
-		},
+		Move:        move2,
+		MTOShipment: shipment,
 	})
 
 	request := httptest.NewRequest("GET", "/queues/moves", nil)
@@ -304,22 +299,27 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		suite.IsNotErrResponse(response)
 
 		payload := response.(*queues.GetMovesQueueOK).Payload
+		result := payload.QueueMoves[0]
 
 		suite.Len(payload.QueueMoves, 1)
+		suite.Equal("Zoya", result.Customer.FirstName)
+
 	})
 
 	suite.Run("loads results matching last name search term", func() {
 		params := queues.GetMovesQueueParams{
 			HTTPRequest: request,
-			LastName:    serviceMember1.LastName,
+			LastName:    models.StringPointer("Nan"),
 		}
 
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
 
 		payload := response.(*queues.GetMovesQueueOK).Payload
+		result := payload.QueueMoves[0]
 
 		suite.Len(payload.QueueMoves, 1)
+		suite.Equal("Nance", result.Customer.LastName)
 	})
 
 	suite.Run("loads results matching Dod ID search term", func() {
@@ -332,8 +332,10 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		suite.IsNotErrResponse(response)
 
 		payload := response.(*queues.GetMovesQueueOK).Payload
+		result := payload.QueueMoves[0]
 
 		suite.Len(payload.QueueMoves, 1)
+		suite.Equal("11111", result.Customer.DodID)
 	})
 
 	suite.Run("loads results matching Move ID search term", func() {
@@ -346,8 +348,11 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		suite.IsNotErrResponse(response)
 
 		payload := response.(*queues.GetMovesQueueOK).Payload
+		result := payload.QueueMoves[0]
 
 		suite.Len(payload.QueueMoves, 1)
+		suite.Equal(move1.Locator, result.Locator)
+
 	})
 
 	suite.Run("loads results matching DestinationDutyStation name search term", func() {
@@ -360,8 +365,10 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		suite.IsNotErrResponse(response)
 
 		payload := response.(*queues.GetMovesQueueOK).Payload
-		suite.Len(payload.QueueMoves, 1)
+		result := payload.QueueMoves[0]
 
+		suite.Len(payload.QueueMoves, 1)
+		suite.Equal("This Other Station", result.DestinationDutyStation.Name)
 	})
 }
 
