@@ -5,6 +5,8 @@ import (
 	"github.com/gobuffalo/pop"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/models"
+
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -109,8 +111,10 @@ func statusFilter(statuses []string, moves *ghcmessages.QueueMoves) *ghcmessages
 	}
 
 	// then include only the moves based on status filter
+	// and exclude DRAFT and CANCELLED
 	for _, move := range *moves {
-		if _, ok := statusMap[string(move.Status)]; ok {
+		if _, ok := statusMap[string(move.Status)]; ok && string(move.Status) != string(models.MoveStatusCANCELED) &&
+			string(move.Status) != string(models.MoveStatusDRAFT) {
 			ret = append(ret, move)
 		}
 	}

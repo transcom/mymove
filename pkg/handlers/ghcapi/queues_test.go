@@ -284,6 +284,27 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatusesFilter() {
 		},
 	})
 
+	// Move DRAFT and CANCELLED should not be included
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusDRAFT,
+		},
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+	})
+	// Move approved
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusCANCELED,
+		},
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+	})
+
 	request := httptest.NewRequest("GET", "/queues/moves", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 
