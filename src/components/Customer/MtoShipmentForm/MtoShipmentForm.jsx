@@ -6,7 +6,7 @@ import { Formik } from 'formik';
 import { getShipmentOptions } from './getShipmentOptions';
 import MtoShipmentFormFields from './MtoShipmentFormFields';
 
-import { WizardPage } from 'shared/WizardPage';
+import { WizardPage } from 'shared/WizardPage/index';
 import { AddressShape, SimpleAddressShape } from 'types/address';
 import { HhgShipmentShape, MatchShape, HistoryShape, PageKeyShape, PageListShape } from 'types/customerShapes';
 import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
@@ -36,7 +36,7 @@ class MtoShipmentForm extends Component {
       createMTOShipment(pendingMtoShipment);
     } else {
       updateMTOShipment(mtoShipment.id, pendingMtoShipment, mtoShipment.eTag).then(() => {
-        history.goBack();
+        history.push(`/moves/${moveId}/review`);
       });
     }
   };

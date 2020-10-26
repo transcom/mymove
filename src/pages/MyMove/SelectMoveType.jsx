@@ -128,7 +128,7 @@ export class SelectMoveType extends Component {
       />
     );
     const footerText = (
-      <div className={styles.footer}>
+      <div className={`${styles.footer} grid-col-12`}>
         It’s OK if you’re not sure about your choices. Your move counselor will go over all your options and can help
         make changes if necessary.
       </div>
@@ -150,7 +150,10 @@ export class SelectMoveType extends Component {
               <h6 data-testid="number-eyebrow" className="sm-heading">
                 Shipment {shipmentNumber}
               </h6>
-              <h1 className={`sm-heading ${styles.selectTypeHeader} ${styles.header}`}>
+              <h1
+                className={`sm-heading ${styles.selectTypeHeader} ${styles.header}`}
+                data-testid="select-move-type-header"
+              >
                 {shipmentNumber > 1
                   ? 'How do you want this group of things moved?'
                   : 'How do you want to move your belongings?'}

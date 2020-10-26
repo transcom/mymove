@@ -11,13 +11,13 @@ import { DatePickerInput, TextInput } from 'components/form/fields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { Form } from 'components/form/Form';
-import Divider from 'shared/Divider';
 // import Fieldset from 'shared/Fieldset';
 import Hint from 'shared/Hint';
 import { SimpleAddressShape } from 'types/address';
 import { MtoDisplayOptionsShape, MtoShipmentFormValuesShape } from 'types/customerShapes';
 import { validateDate } from 'utils/formikValidators';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
+import SectionWrapper from 'components/Customer/SectionWrapper';
 
 const MtoShipmentFormFields = ({
   // formik data
@@ -52,161 +52,160 @@ const MtoShipmentFormFields = ({
       <Form className={styles.HHGDetailsForm}>
         {displayOptions.showPickupFields && (
           <>
-            <Fieldset legend="Pickup date">
-              <Field
-                as={DatePickerInput}
-                name="pickup.requestedDate"
-                label="Requested pickup date"
-                id="requestedPickupDate"
-                validate={validateDate}
+            <SectionWrapper>
+              <Fieldset legend="Pickup date">
+                <Field
+                  as={DatePickerInput}
+                  name="pickup.requestedDate"
+                  label="Requested pickup date"
+                  id="requestedPickupDate"
+                  validate={validateDate}
+                />
+                <Hint id="pickupDateHint">
+                  Movers will contact you to schedule the actual pickup date. That date should fall within 7 days of
+                  your requested date. Tip: Avoid scheduling multiple shipments on the same day.
+                </Hint>
+              </Fieldset>
+            </SectionWrapper>
+            <SectionWrapper>
+              <AddressFields
+                name="pickup.address"
+                legend="Pickup location"
+                render={(fields) => (
+                  <>
+                    <Checkbox
+                      data-testid="useCurrentResidence"
+                      label="Use my current residence address"
+                      name="useCurrentResidence"
+                      onChange={onUseCurrentResidenceChange}
+                      id="useCurrentResidenceCheckbox"
+                    />
+                    {fields}
+                    <Hint>If you have more things at another pickup location, you can schedule for them later.</Hint>
+                  </>
+                )}
+                values={values.pickup.address}
               />
-              <Hint id="pickupDateHint">
-                Movers will contact you to schedule the actual pickup date. That date should fall within 7 days of your
-                requested date. Tip: Avoid scheduling multiple shipments on the same day.
-              </Hint>
-            </Fieldset>
-
-            <Divider />
-
-            <AddressFields
-              name="pickup.address"
-              legend="Pickup location"
-              render={(fields) => (
-                <>
-                  <Checkbox
-                    data-testid="useCurrentResidence"
-                    label="Use my current residence address"
-                    name="useCurrentResidence"
-                    onChange={onUseCurrentResidenceChange}
-                    id="useCurrentResidenceCheckbox"
-                  />
-                  {fields}
-                  <Hint>If you have more things at another pickup location, you can schedule for them later.</Hint>
-                </>
-              )}
-              values={values.pickup.address}
-            />
-
-            <Divider />
-
-            <ContactInfoFields
-              name="pickup.agent"
-              legend={<>Releasing agent {optionalLabel}</>}
-              subtitle="Who can allow the movers to take your stuff if you're not there?"
-              values={values.pickup.agent}
-            />
+            </SectionWrapper>
+            <SectionWrapper>
+              <ContactInfoFields
+                name="pickup.agent"
+                legend={<>Releasing agent {optionalLabel}</>}
+                subtitle="Who can allow the movers to take your stuff if you're not there?"
+                values={values.pickup.agent}
+              />
+            </SectionWrapper>
           </>
         )}
 
         {displayOptions.showDeliveryFields && (
           <>
-            <Fieldset legend="Delivery date">
-              <Field
-                as={DatePickerInput}
-                name="delivery.requestedDate"
-                label="Requested delivery date"
-                id="requestedDeliveryDate"
-                validate={validateDate}
+            <SectionWrapper>
+              <Fieldset legend="Delivery date">
+                <Field
+                  as={DatePickerInput}
+                  name="delivery.requestedDate"
+                  label="Requested delivery date"
+                  id="requestedDeliveryDate"
+                  validate={validateDate}
+                />
+                <Hint>
+                  Shipments can take several weeks to arrive, depending on how far they&rsquo;re going. Your movers will
+                  contact you close to the date you select to coordinate delivery.
+                </Hint>
+              </Fieldset>
+            </SectionWrapper>
+            <SectionWrapper>
+              <Fieldset legend="Delivery location">
+                <Label>Do you know your delivery address?</Label>
+                <div>
+                  <Field
+                    as={Radio}
+                    id="has-delivery-address"
+                    label="Yes"
+                    name="hasDeliveryAddress"
+                    value="yes"
+                    checked={hasDeliveryAddress === 'yes'}
+                  />
+                  <Field
+                    as={DatePickerInput}
+                    name="delivery.requestedDate"
+                    label="Requested delivery date"
+                    labelClassName={`${styles['small-bold']}`}
+                    id="requestedDeliveryDate"
+                    validate={validateDate}
+                  />
+                </div>
+
+                {hasDeliveryAddress === 'yes' ? (
+                  <AddressFields name="delivery.address" values={values.delivery.address} />
+                ) : (
+                  <>
+                    <p>
+                      We can use the zip of your new duty station.
+                      <br />
+                      <strong>
+                        {newDutyStationAddress.city}, {newDutyStationAddress.state} {newDutyStationAddress.postal_code}{' '}
+                      </strong>
+                    </p>
+                  </>
+                )}
+              </Fieldset>
+            </SectionWrapper>
+            <SectionWrapper>
+              <ContactInfoFields
+                name="delivery.agent"
+                legend={<>Receiving agent {optionalLabel}</>}
+                subtitle="Who can take delivery for you if the movers arrive and you're not there?"
+                values={values.delivery.agent}
               />
-              <Hint>
-                Shipments can take several weeks to arrive, depending on how far they&rsquo;re going. Your movers will
-                contact you close to the date you select to coordinate delivery.
-              </Hint>
-            </Fieldset>
-
-            <Divider />
-
-            <Fieldset legend="Delivery location">
-              <Label>Do you know your delivery address?</Label>
-              <div>
-                <Field
-                  as={Radio}
-                  id="has-delivery-address"
-                  label="Yes"
-                  name="hasDeliveryAddress"
-                  value="yes"
-                  checked={hasDeliveryAddress === 'yes'}
-                />
-                <Field
-                  as={Radio}
-                  id="no-delivery-address"
-                  label="No"
-                  name="hasDeliveryAddress"
-                  value="no"
-                  checked={hasDeliveryAddress === 'no'}
-                />
-              </div>
-              {hasDeliveryAddress === 'yes' ? (
-                <AddressFields name="delivery.address" values={values.delivery.address} />
-              ) : (
-                <>
-                  <p>
-                    We can use the zip of your new duty station.
-                    <br />
-                    <strong>
-                      {newDutyStationAddress.city}, {newDutyStationAddress.state} {newDutyStationAddress.postal_code}{' '}
-                    </strong>
-                  </p>
-                </>
-              )}
-            </Fieldset>
-
-            <Divider />
-
-            <ContactInfoFields
-              name="delivery.agent"
-              legend={<>Receiving agent {optionalLabel}</>}
-              subtitle="Who can take delivery for you if the movers arrive and you're not there?"
-              values={values.delivery.agent}
-            />
+            </SectionWrapper>
           </>
         )}
 
         {isNTS && (
           <>
-            <Divider />
-
-            <Fieldset legend="What you can expect" data-testid="nts-what-to-expect">
-              <p>
-                The moving company will find a storage facility approved by the government, and will move your
-                belongings there.
-              </p>
-              <p>
-                You’ll need to schedule an NTS release shipment to get your items back, most likely as part of a future
-                move.
-              </p>
-            </Fieldset>
+            <SectionWrapper>
+              <Fieldset legend="What you can expect" data-testid="nts-what-to-expect">
+                <p>
+                  The moving company will find a storage facility approved by the government, and will move your
+                  belongings there.
+                </p>
+                <p>
+                  You’ll need to schedule an NTS release shipment to get your items back, most likely as part of a
+                  future move.
+                </p>
+              </Fieldset>
+            </SectionWrapper>
           </>
         )}
 
-        <Divider />
+        <SectionWrapper>
+          <Fieldset legend={<>Remarks {optionalLabel}</>}>
+            <div>Is there anything special about this shipment that the movers should know?</div>
+            <div className={`${styles['hhg-examples-container']}`}>
+              <strong>Examples</strong>
+              <ul>
+                <li>Things that might need special handling</li>
+                <li>Access info for a location</li>
+                <li>Weapons or alcohol</li>
+              </ul>
+            </div>
 
-        <Fieldset legend={<>Remarks {optionalLabel}</>}>
-          <div>Is there anything special about this shipment that the movers should know?</div>
-          <div className={`${styles['hhg-examples-container']}`}>
-            <strong>Examples</strong>
-            <ul>
-              <li>Things that might need special handling</li>
-              <li>Access info for a location</li>
-              <li>Weapons or alcohol</li>
-            </ul>
-          </div>
-
-          <TextInput
-            label="Anything else you would like us to know?"
-            labelHint="(optional)"
-            data-testid="remarks"
-            name="customerRemarks"
-            className={`${styles.remarks}`}
-            placeholder="You don&rsquo;t need to list all belongings here. Your mover will get those details later."
-            id="customerRemarks"
-            maxLength={250}
-            value={values.customerRemarks}
-          />
-          <Hint>250 characters</Hint>
-        </Fieldset>
-
-        <Divider />
+            <TextInput
+              label="Anything else you would like us to know?"
+              labelHint="(optional)"
+              data-testid="remarks"
+              name="customerRemarks"
+              className={`${styles.remarks}`}
+              placeholder="You don&rsquo;t need to list all belongings here. Your mover will get those details later."
+              id="customerRemarks"
+              maxLength={250}
+              value={values.customerRemarks}
+            />
+            <Hint>250 characters</Hint>
+          </Fieldset>
+        </SectionWrapper>
 
         <Hint>
           You can change details for your shipment when you talk to your move counselor or the person who’s your point
