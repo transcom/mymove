@@ -43,8 +43,7 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, options ...func
 		InnerJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id").
 		Where("transportation_offices.gbloc = ?", gbloc).
 		// TODO: Let's include the status in filters that are passed into this service once we build that feature for the TXO queue (instead of it being hardcoded like it is below right now).
-		Where("moves.status NOT IN ('DRAFT', 'CANCELLED')").
-		GroupBy("orders.id")
+		Where("moves.status NOT IN ('DRAFT', 'CANCELLED')")
 
 	for _, option := range options {
 		if option != nil {
@@ -52,7 +51,7 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, options ...func
 		}
 	}
 
-	err = query.All(&moveOrders)
+	err = query.GroupBy("orders.id").All(&moveOrders)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:

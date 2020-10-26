@@ -90,34 +90,34 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 
 }
 
-func (suite *HandlerSuite) TestGetMoveQueuesFilter() {
+func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTOO,
 	})
 
 	hhgMoveType := models.SelectedMoveTypeHHG
-	// Create an order with AIR_FORCE department_indicator (default)
+	move := models.Move{
+		SelectedMoveType: &hhgMoveType,
+		Status:           models.MoveStatusSUBMITTED,
+	}
+	shipment := models.MTOShipment{
+		Status: models.MTOShipmentStatusSubmitted,
+	}
+
+	// Create an order where the service member has an ARMY affiliation (default)
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			SelectedMoveType: &hhgMoveType,
-			Status:           models.MoveStatusSUBMITTED,
-		},
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
-		},
+		Move:        move,
+		MTOShipment: shipment,
 	})
 
-	// Create an order with ARMY department_indicator
+	// Create an order where the service member has an AIR_FORCE affiliation
+	airForce := models.AffiliationAIRFORCE
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
-		},
-		Order: models.Order{
-			DepartmentIndicator: models.StringPointer("ARMY"),
-		},
-		Move: models.Move{
-			Status: models.MoveStatusSUBMITTED,
+		MTOShipment: shipment,
+		Move:        move,
+		ServiceMember: models.ServiceMember{
+			Affiliation: &airForce,
 		},
 	})
 
@@ -125,7 +125,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesFilter() {
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 	params := queues.GetMovesQueueParams{
 		HTTPRequest: request,
-		Branch:      models.StringPointer("ARMY"),
+		Branch:      models.StringPointer("AIR_FORCE"),
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
