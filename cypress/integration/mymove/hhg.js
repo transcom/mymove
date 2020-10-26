@@ -1,6 +1,4 @@
-import { customerFillsInProfileInformation, customerFillsOutOrdersInformation } from './utilities/customer';
-
-describe('HHG Setup flow', function () {
+describe('A customer following HHG Setup flow', function () {
   before(() => {
     cy.prepareCustomerApp();
   });
@@ -14,10 +12,10 @@ describe('HHG Setup flow', function () {
     cy.route('GET', '/internal/users/logged_in').as('getLoggedInUser');
   });
 
-  it('Creates a shipment', function () {
-    cy.signInAsNewMilMoveUser();
-    customerFillsInProfileInformation();
-    customerFillsOutOrdersInformation();
+  it('can create an HHG shipment, review and edit details, and submit their move', function () {
+    // profile@comple.te
+    const userId = '3b9360a3-3304-4c60-90f4-83d687884077';
+    cy.apiSignInAsUser(userId);
     customerChoosesAnHHGMove();
     customerSetsUpAnHHGMove();
     customerReviewsMoveDetailsAndEditsHHG();
@@ -26,9 +24,9 @@ describe('HHG Setup flow', function () {
 });
 
 function customerChoosesAnHHGMove() {
-  cy.get('h1').contains('Figure out your shipments');
+  cy.get('button[data-testid="shipment-selection-btn"]').click();
   cy.nextPage();
-  cy.get('h1').contains('How do you want to move your belongings?');
+  cy.get('h2').contains('Choose 1 shipment at a time.');
 
   cy.get('input[type="radio"]').eq(1).check({ force: true });
   cy.nextPage();
@@ -128,10 +126,10 @@ function customerReviewsMoveDetailsAndEditsHHG() {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/mto-shipments\/[^/]+\/edit-shipment/);
   });
 
-  cy.get(`[data-testid="firstName"]`).last().type('Johnson');
+  cy.get(`[data-testid="firstName"]`).last().type('Johnson').blur();
 
   // Ensure remarks is displayed in form
-  cy.get(`[data-testid="remarks"]`).contains('some customer remark');
+  cy.get(`[data-testid="remarks"]`).should('have.value', 'some customer remark');
 
   // Edit remarks and agent info
   cy.get(`[data-testid="remarks"]`).clear().type('some edited customer remark');
