@@ -348,7 +348,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatusesFilter() {
 		},
 	})
 
-	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
+	request := httptest.NewRequest("GET", "/queues/moves", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
