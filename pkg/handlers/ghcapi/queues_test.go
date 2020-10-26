@@ -2,7 +2,6 @@ package ghcapi
 
 import (
 	"errors"
-	"math"
 	"net/http/httptest"
 	"time"
 
@@ -354,7 +353,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	suite.Equal(actualPaymentRequest.Status.String(), string(paymentRequest.Status))
 
 	createdAt := actualPaymentRequest.CreatedAt
-	age := int64(math.Ceil(time.Since(createdAt).Hours() / 24.0))
+	age := int64(2)
 
 	suite.Equal(age, paymentRequest.Age)
 	suite.Equal(createdAt.Format("2006-01-02T15:04:05.000Z07:00"), paymentRequest.SubmittedAt.String()) // swagger formats to milliseconds
