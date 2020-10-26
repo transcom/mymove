@@ -294,7 +294,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatusesFilter() {
 			Status: models.MTOShipmentStatusSubmitted,
 		},
 	})
-	// Move approved
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
