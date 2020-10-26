@@ -17,7 +17,7 @@ import moment from 'moment';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import PrivateRoute from 'containers/PrivateRoute';
-import Alert from 'shared/Alert'; // -line
+import Alert from 'shared/Alert'; //
 import ToolTip from 'shared/ToolTip';
 import ComboButton from 'shared/ComboButton';
 import { DropDown, DropDownItem } from 'shared/ComboButton/dropdown';

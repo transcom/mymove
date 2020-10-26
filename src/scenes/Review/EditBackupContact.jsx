@@ -7,7 +7,7 @@ import scrollToTop from 'shared/scrollToTop';
 import { push } from 'connected-react-router';
 import { reduxForm } from 'redux-form';
 
-import Alert from 'shared/Alert'; // -line
+import Alert from 'shared/Alert'; //
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 import { updateBackupContact } from 'scenes/ServiceMembers/ducks';

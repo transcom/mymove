@@ -1,3 +1,3 @@
 # Negative filter for storybook config folder as dot folders are ignored by eslint by default
 # See https://github.com/eslint/eslint/issues/8429#issuecomment-355967308
-!/.storybook
+# !/.storybook

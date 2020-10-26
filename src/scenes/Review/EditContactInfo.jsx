@@ -6,7 +6,7 @@ import scrollToTop from 'shared/scrollToTop';
 
 import { push } from 'connected-react-router';
 import { reduxForm, FormSection } from 'redux-form';
-import Alert from 'shared/Alert'; // -line
+import Alert from 'shared/Alert'; //
 import AddressForm from 'shared/AddressForm';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';

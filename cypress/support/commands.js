@@ -205,7 +205,7 @@ Cypress.Commands.add('completeFlow', () => {
 });
 
 Cypress.Commands.add('nextPageAndCheckLocation', (dataCyValue, pageTitle, locationMatch) => {
-  const locationRegex = new RegExp(locationMatch); // -line security/detect-non-literal-regexp
+  const locationRegex = new RegExp(locationMatch); // security/detect-non-literal-regexp
 
   cy.nextPage();
   cy.get(`[data-testid="${dataCyValue}"]`).contains(pageTitle);

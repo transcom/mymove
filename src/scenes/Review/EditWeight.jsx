@@ -6,7 +6,7 @@ import SaveCancelButtons from './SaveCancelButtons';
 import { push } from 'connected-react-router';
 import { reduxForm } from 'redux-form';
 
-import Alert from 'shared/Alert'; // -line
+import Alert from 'shared/Alert'; //
 import { formatCents } from 'shared/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import {

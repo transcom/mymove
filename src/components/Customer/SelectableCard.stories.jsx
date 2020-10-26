@@ -12,7 +12,7 @@ const defaultProps = {
   cardText:
     "Maroon wherry swing the lead spanker Brethren of the Coast aft heave down shrouds grapple ballast. Crow's nest hardtack yardarm lee driver spirits Admiral of the Black take a caulk crimp chandler. ",
   onChange: () => {
-    console.log('changed!'); // -line no-console
+    console.log('changed!'); // no-console
   },
   checked: false,
 };
