@@ -196,7 +196,15 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		},
 	})
 
-	dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+	dutyStation1 := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			TransportationOffice:   office,
+			TransportationOfficeID: &office.ID,
+			Name:                   "This Other Station",
+		},
+	})
+
+	dutyStation2 := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
 		DutyStation: models.DutyStation{
 			TransportationOffice:   office,
 			TransportationOfficeID: &office.ID,
@@ -209,6 +217,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 			TransportationOfficeID: office.ID,
 		},
 	})
+
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTOO,
 	})
@@ -216,7 +225,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 	hhgMoveType := models.SelectedMoveTypeHHG
 	// Default Origin Duty Station GBLOC is LKNQ
 
-	var serviceMember1 = testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{
+	serviceMember1 := testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{
 		Stub: true,
 		ServiceMember: models.ServiceMember{
 			FirstName: models.StringPointer("Zoya"),
@@ -224,7 +233,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		},
 	})
 
-	var serviceMember2 = testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{
+	serviceMember2 := testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{
 		Stub: true,
 		ServiceMember: models.ServiceMember{
 			FirstName: models.StringPointer("Owen"),
@@ -232,13 +241,16 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		},
 	})
 
-	// New move
 	order1 := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
-			OriginDutyStation:   &dutyStation,
-			OriginDutyStationID: &dutyStation.ID,
+			OriginDutyStation:   &dutyStation1,
+			OriginDutyStationID: &dutyStation1.ID,
+			NewDutyStation:      dutyStation1,
+			NewDutyStationID:    dutyStation1.ID,
 		},
+		ServiceMember: serviceMember1,
 	})
+
 	move1 := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
@@ -247,23 +259,21 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		Order: order1,
 	})
 
-	// Define Service Member Name
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: move1,
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusSubmitted,
 		},
-		ServiceMember: models.ServiceMember{
-			LastName:  serviceMember1.LastName,
-			FirstName: serviceMember1.FirstName,
-		},
 	})
 
 	order2 := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
-			OriginDutyStation:   &dutyStation,
-			OriginDutyStationID: &dutyStation.ID,
+			OriginDutyStation:   &dutyStation2,
+			OriginDutyStationID: &dutyStation2.ID,
+			NewDutyStation:      dutyStation2,
+			NewDutyStationID:    dutyStation2.ID,
 		},
+		ServiceMember: serviceMember2,
 	})
 	move2 := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
@@ -277,11 +287,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		Move: move2,
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusSubmitted,
-		},
-
-		ServiceMember: models.ServiceMember{
-			LastName:  serviceMember2.LastName,
-			FirstName: serviceMember2.FirstName,
 		},
 	})
 
@@ -368,7 +373,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 	suite.Run("loads results matching DestinationDutyStation name search term", func() {
 		params := queues.GetMovesQueueParams{
 			HTTPRequest:            request,
-			DestinationDutyStation: &dutyStation.Name,
+			DestinationDutyStation: &dutyStation1.Name,
 		}
 
 		response := handler.Handle(params)
