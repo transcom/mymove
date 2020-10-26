@@ -13,7 +13,7 @@ printf "These are the names of transportation offices with the same GBLOC as %s:
 
 # The -t option prints just the names as opposed to the default formatting that
 # includes the column name underlined
-psql -t postgres://postgres:mysecretpassword@localhost:5432/dev_db << EOF
+psql -t postgres://"$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME" << EOF
 SELECT name FROM transportation_offices
   WHERE gbloc IN (
     SELECT gbloc FROM transportation_offices
