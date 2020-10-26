@@ -13,53 +13,53 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-  }
-}
+    width: 100%;
 
-.optional {
-  font-size: 13px;
-  line-height: 1.3;
-  color: $base;
-  font-weight: normal;
+    @include typeset('body', 9, 2);
+    @include at-media('tablet') {
+      @include typeset('body', 11, 2);
+    }
+  }
+
+  legend + :global(.usa-form-group) label {
+    @include u-margin-top('105');
+  }
+
+  legend + :global(.usa-checkbox) {
+    @include u-margin-top(3);
+  }
+
+  :global(.usa-label) {
+    color: $base-darker;
+    font-size: 13px;
+    line-height: 16px;
+    font-weight: bold;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  :global(.usa-hint),
+  .optional {
+    font-size: 13px;
+    line-height: 1.3;
+    color: $base;
+    font-weight: normal;
+  }
 }
 
 .HHGDetailsForm {
-  h1 {
-    @include u-margin-x(auto);
-    max-width: 64rem;
-    @include u-padding-x(2);
-  }
+  max-width: none;
 
-  :global {
-    .usa-label:first-of-type {
-      margin-top: 0;
-    }
+  fieldset {
+    @include u-margin-y(4);
+    @include u-padding-top(0);
 
-    .usa-fieldset {
-      p:first-of-type {
-        @include u-margin-top(0);
-      }
-    }
-
-    .usa-form-group {
-      @include u-margin-bottom(1);
-    }
-
-    .display-flex .usa-radio:not(:first-child) {
-      @include u-margin-left('105');
-      @include u-margin-bottom(1);
-    }
-
-    .usa-fieldset {
-      @include u-padding-top(2);
-    }
-
-    .usa-hint {
-      @include u-font-size('body', '3xs');
-      @include u-padding-top(1);
-      label & {
-        @include u-padding-left('05');
-      }
+    &:not(:last-child) {
+      @include u-padding-bottom(4);
+      border-bottom: 1px solid $base-light;
     }
   }
 }

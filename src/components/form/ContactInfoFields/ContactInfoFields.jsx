@@ -2,20 +2,18 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Field } from 'formik';
 import { v4 as uuidv4 } from 'uuid';
+import { Fieldset } from '@trussworks/react-uswds';
 
-import styles from 'pages/MyMove/index.module.scss';
-import Fieldset from 'shared/Fieldset';
 import { TextInput } from 'components/form/fields';
 
-export const ContactInfoFields = ({ legend, className, subtitle, values, name, subtitleClassName, hintText }) => {
+export const ContactInfoFields = ({ legend, className, subtitle, values, name, subtitleClassName }) => {
   const contactInfoFieldsUUID = uuidv4();
 
   return (
-    <Fieldset legend={legend} className={className} hintText={hintText}>
+    <Fieldset legend={legend} className={className}>
       {subtitle && <div className={subtitleClassName}>{subtitle}</div>}
       <Field
         as={TextInput}
-        labelClassName={`${styles['small-bold']}`}
         label="First name"
         id={`firstName_${contactInfoFieldsUUID}`}
         data-testid="firstName"
@@ -26,7 +24,6 @@ export const ContactInfoFields = ({ legend, className, subtitle, values, name, s
       <Field
         as={TextInput}
         label="Last name"
-        labelClassName={`${styles['small-bold']}`}
         id={`lastName_${contactInfoFieldsUUID}`}
         data-testid="lastName"
         name={`${name}.lastName`}
@@ -37,7 +34,6 @@ export const ContactInfoFields = ({ legend, className, subtitle, values, name, s
       <Field
         as={TextInput}
         label="Phone"
-        labelClassName={`${styles['small-bold']}`}
         id={`phone_${contactInfoFieldsUUID}`}
         data-testid="phone"
         name={`${name}.phone`}
@@ -48,7 +44,6 @@ export const ContactInfoFields = ({ legend, className, subtitle, values, name, s
       <Field
         as={TextInput}
         label="Email"
-        labelClassName={`${styles['small-bold']}`}
         id={`email_${contactInfoFieldsUUID}`}
         data-testid="email"
         name={`${name}.email`}
@@ -60,8 +55,7 @@ export const ContactInfoFields = ({ legend, className, subtitle, values, name, s
 };
 
 ContactInfoFields.propTypes = {
-  legend: PropTypes.string,
-  hintText: PropTypes.string,
+  legend: PropTypes.node,
   className: PropTypes.string,
   subtitle: PropTypes.string,
   subtitleClassName: PropTypes.string,
@@ -77,7 +71,6 @@ ContactInfoFields.propTypes = {
 ContactInfoFields.defaultProps = {
   legend: '',
   className: '',
-  hintText: '',
   subtitle: '',
   subtitleClassName: '',
   values: {},

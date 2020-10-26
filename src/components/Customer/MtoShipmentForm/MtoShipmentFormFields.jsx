@@ -62,12 +62,13 @@ const MtoShipmentFormFields = ({
                   validate={validateDate}
                 />
                 <Hint id="pickupDateHint">
-                  Movers will contact you to schedule the actual pickup date. That date should fall within 7 days of
-                  your requested date. Tip: Avoid scheduling multiple shipments on the same day.
+                  <p>
+                    Movers will contact you to schedule the actual pickup date. That date should fall within 7 days of
+                    your requested date. Tip: Avoid scheduling multiple shipments on the same day.
+                  </p>
                 </Hint>
               </Fieldset>
-            </SectionWrapper>
-            <SectionWrapper>
+
               <AddressFields
                 name="pickup.address"
                 legend="Pickup location"
@@ -75,23 +76,24 @@ const MtoShipmentFormFields = ({
                   <>
                     <Checkbox
                       data-testid="useCurrentResidence"
-                      label="Use my current residence address"
+                      label="Use my current address"
                       name="useCurrentResidence"
                       onChange={onUseCurrentResidenceChange}
                       id="useCurrentResidenceCheckbox"
                     />
                     {fields}
-                    <Hint>If you have more things at another pickup location, you can schedule for them later.</Hint>
+                    <Hint>
+                      If you have more things at another pickup location, you can schedule a shipment for them later.
+                    </Hint>
                   </>
                 )}
                 values={values.pickup.address}
               />
-            </SectionWrapper>
-            <SectionWrapper>
+
               <ContactInfoFields
                 name="pickup.agent"
                 legend={<>Releasing agent {optionalLabel}</>}
-                subtitle="Who can allow the movers to take your stuff if you're not there?"
+                subtitle="Who can let the movers pick up your things if you’re not there?"
                 values={values.pickup.agent}
               />
             </SectionWrapper>
@@ -110,14 +112,13 @@ const MtoShipmentFormFields = ({
                   validate={validateDate}
                 />
                 <Hint>
-                  Shipments can take several weeks to arrive, depending on how far they&rsquo;re going. Your movers will
+                  Shipments can take several weeks to arrive, depending on how far they’re going. Your movers will
                   contact you close to the date you select to coordinate delivery.
                 </Hint>
               </Fieldset>
-            </SectionWrapper>
-            <SectionWrapper>
+
               <Fieldset legend="Delivery location">
-                <Label>Do you know your delivery address?</Label>
+                <Label>Do you know your delivery address yet?</Label>
                 <div>
                   <Field
                     as={Radio}
@@ -128,17 +129,29 @@ const MtoShipmentFormFields = ({
                     checked={hasDeliveryAddress === 'yes'}
                   />
                   <Field
-                    as={DatePickerInput}
-                    name="delivery.requestedDate"
-                    label="Requested delivery date"
-                    labelClassName={`${styles['small-bold']}`}
-                    id="requestedDeliveryDate"
-                    validate={validateDate}
+                    as={Radio}
+                    id="no-delivery-address"
+                    label="No"
+                    name="hasDeliveryAddress"
+                    value="no"
+                    checked={hasDeliveryAddress === 'no'}
                   />
                 </div>
 
                 {hasDeliveryAddress === 'yes' ? (
-                  <AddressFields name="delivery.address" values={values.delivery.address} />
+                  <AddressFields
+                    name="delivery.address"
+                    values={values.delivery.address}
+                    render={(fields) => (
+                      <>
+                        {fields}
+                        <Hint>
+                          If you have more things to go to another destination, you can schedule a shipment for them
+                          later.
+                        </Hint>
+                      </>
+                    )}
+                  />
                 ) : (
                   <>
                     <p>
@@ -148,15 +161,15 @@ const MtoShipmentFormFields = ({
                         {newDutyStationAddress.city}, {newDutyStationAddress.state} {newDutyStationAddress.postal_code}{' '}
                       </strong>
                     </p>
+                    <Hint>You can add the specific delivery address later, once you know it.</Hint>
                   </>
                 )}
               </Fieldset>
-            </SectionWrapper>
-            <SectionWrapper>
+
               <ContactInfoFields
                 name="delivery.agent"
                 legend={<>Receiving agent {optionalLabel}</>}
-                subtitle="Who can take delivery for you if the movers arrive and you're not there?"
+                subtitle="Who can take delivery for you if the movers arrive and you’re not there?"
                 values={values.delivery.agent}
               />
             </SectionWrapper>
@@ -182,7 +195,6 @@ const MtoShipmentFormFields = ({
 
         <SectionWrapper>
           <Fieldset legend={<>Remarks {optionalLabel}</>}>
-            <div>Is there anything special about this shipment that the movers should know?</div>
             <div className={`${styles['hhg-examples-container']}`}>
               <strong>Examples</strong>
               <ul>
@@ -193,12 +205,11 @@ const MtoShipmentFormFields = ({
             </div>
 
             <TextInput
-              label="Anything else you would like us to know?"
-              labelHint="(optional)"
+              label="Is there anything special about this shipment that the movers should know?"
               data-testid="remarks"
               name="customerRemarks"
               className={`${styles.remarks}`}
-              placeholder="You don&rsquo;t need to list all belongings here. Your mover will get those details later."
+              placeholder="You don’t need to list all your belongings here. Your mover will get those details later."
               id="customerRemarks"
               maxLength={250}
               value={values.customerRemarks}
@@ -208,8 +219,10 @@ const MtoShipmentFormFields = ({
         </SectionWrapper>
 
         <Hint>
-          You can change details for your shipment when you talk to your move counselor or the person who’s your point
-          of contact with the movers. You can also edit in MilMove up to 24 hours before your final pickup date.
+          <p>
+            You can change details for your shipment when you talk to your move counselor or the person who’s your point
+            of contact with the movers. You can also edit in MilMove up to 24 hours before your final pickup date.
+          </p>
         </Hint>
 
         {!isCreatePage && (

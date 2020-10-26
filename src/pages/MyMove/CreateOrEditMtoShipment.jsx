@@ -40,22 +40,20 @@ export class CreateOrEditMtoShipment extends Component {
     // wait until MTO shipment has loaded to render form
     if (isCreate || mtoShipment?.id) {
       return (
-        <div className="grid-container">
-          <MtoShipmentForm
-            match={match}
-            history={history}
-            pageList={pageList}
-            pageKey={pageKey}
-            mtoShipment={mtoShipment}
-            selectedMoveType={selectedMoveType}
-            isCreatePage={isCreate}
-            currentResidence={currentResidence}
-            newDutyStationAddress={newDutyStationAddress}
-            createMTOShipment={createMTOShipment}
-            updateMTOShipment={updateMTOShipment}
-            serviceMember={serviceMember}
-          />
-        </div>
+        <MtoShipmentForm
+          match={match}
+          history={history}
+          pageList={pageList}
+          pageKey={pageKey}
+          mtoShipment={mtoShipment}
+          selectedMoveType={selectedMoveType}
+          isCreatePage={isCreate}
+          currentResidence={currentResidence}
+          newDutyStationAddress={newDutyStationAddress}
+          createMTOShipment={createMTOShipment}
+          updateMTOShipment={updateMTOShipment}
+          serviceMember={serviceMember}
+        />
       );
     }
 

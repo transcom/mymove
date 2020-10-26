@@ -2,10 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Field } from 'formik';
 import { v4 as uuidv4 } from 'uuid';
+import { Fieldset } from '@trussworks/react-uswds';
 
-import styles from 'pages/MyMove/index.module.scss';
 import { TextInput } from 'components/form/fields';
-import Fieldset from 'shared/Fieldset';
 
 export const AddressFields = ({ legend, className, values, name, render }) => {
   const addressFieldsUUID = uuidv4();
@@ -16,8 +15,7 @@ export const AddressFields = ({ legend, className, values, name, render }) => {
         <>
           <Field
             as={TextInput}
-            labelClassName={`${styles['small-bold']}`}
-            label="Street address 1"
+            label="Address 1"
             id={`mailingAddress1_${addressFieldsUUID}`}
             data-testid="mailingAddress1"
             name={`${name}.street_address_1`}
@@ -26,9 +24,8 @@ export const AddressFields = ({ legend, className, values, name, render }) => {
           />
           <Field
             as={TextInput}
-            labelClassName={`${styles['small-bold']}`}
-            label="Street address 2"
-            labelHint=" (optional)"
+            label="Address 2"
+            labelHint="Optional"
             id={`mailingAddress2_${addressFieldsUUID}`}
             data-testid="mailingAddress2"
             name={`${name}.street_address_2`}
@@ -37,7 +34,6 @@ export const AddressFields = ({ legend, className, values, name, render }) => {
           />
           <Field
             as={TextInput}
-            labelClassName={`${styles['small-bold']}`}
             label="City"
             id={`city_${addressFieldsUUID}`}
             data-testid="city"
@@ -47,7 +43,6 @@ export const AddressFields = ({ legend, className, values, name, render }) => {
           />
           <Field
             as={TextInput}
-            labelClassName={`${styles['small-bold']}`}
             label="State"
             id={`state_${addressFieldsUUID}`}
             data-testid="state"
@@ -58,7 +53,6 @@ export const AddressFields = ({ legend, className, values, name, render }) => {
           />
           <Field
             as={TextInput}
-            labelClassName={`${styles['small-bold']}`}
             label="ZIP"
             id={`zip_${addressFieldsUUID}`}
             data-testid="zip"
@@ -75,7 +69,7 @@ export const AddressFields = ({ legend, className, values, name, render }) => {
 };
 
 AddressFields.propTypes = {
-  legend: PropTypes.string,
+  legend: PropTypes.node,
   className: PropTypes.string,
   values: PropTypes.shape({
     street_address_1: PropTypes.string,
@@ -92,7 +86,7 @@ AddressFields.defaultProps = {
   legend: '',
   className: '',
   values: {},
-  render: () => {},
+  render: (fields) => fields,
 };
 
 export default AddressFields;
