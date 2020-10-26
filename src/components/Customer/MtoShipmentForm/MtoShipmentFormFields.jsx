@@ -1,13 +1,13 @@
 import React from 'react';
 import { bool, shape, string, func, number } from 'prop-types';
 import { Field } from 'formik';
-import { Button, Fieldset, Radio, Checkbox, Alert, FormGroup } from '@trussworks/react-uswds';
+import { Button, Fieldset, Radio, Checkbox, Alert, FormGroup, Label, Textarea } from '@trussworks/react-uswds';
 
 import styles from './MtoShipmentForm.module.scss';
 
 import { shipmentForm } from 'content/shipments';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { DatePickerInput, TextInput } from 'components/form/fields';
+import { DatePickerInput } from 'components/form/fields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { Form } from 'components/form/Form';
@@ -207,8 +207,12 @@ const MtoShipmentFormFields = ({
 
         <SectionWrapper>
           <Fieldset legend={<>Remarks {optionalLabel}</>}>
-            <div className={`${styles['hhg-examples-container']}`}>
-              <strong>Examples</strong>
+            <Label for="customerRemarks">
+              Is there anything special about this shipment that the movers should know?
+            </Label>
+
+            <div className={styles.remarksExamples}>
+              Examples
               <ul>
                 <li>Things that might need special handling</li>
                 <li>Access info for a location</li>
@@ -216,8 +220,8 @@ const MtoShipmentFormFields = ({
               </ul>
             </div>
 
-            <TextInput
-              label="Is there anything special about this shipment that the movers should know?"
+            <Field
+              as={Textarea}
               data-testid="remarks"
               name="customerRemarks"
               className={`${styles.remarks}`}

@@ -152,15 +152,21 @@ class MtoShipmentForm extends Component {
           }
 
           return (
-            <MtoShipmentFormFields
-              {...commonFormProps}
-              values={values}
-              onUseCurrentResidenceChange={handleUseCurrentResidenceChange}
-              submitHandler={this.submitMTOShipment}
-              dirty={dirty}
-              isValid={isValid}
-              isSubmitting={isSubmitting}
-            />
+            <div className="grid-container usa-prose">
+              <div className="grid-row">
+                <div className="grid-col">
+                  <MtoShipmentFormFields
+                    {...commonFormProps}
+                    values={values}
+                    onUseCurrentResidenceChange={handleUseCurrentResidenceChange}
+                    submitHandler={this.submitMTOShipment}
+                    dirty={dirty}
+                    isValid={isValid}
+                    isSubmitting={isSubmitting}
+                  />
+                </div>
+              </div>
+            </div>
           );
         }}
       </Formik>
