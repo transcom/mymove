@@ -1640,11 +1640,6 @@ func init() {
           },
           {
             "type": "string",
-            "name": "firstName",
-            "in": "query"
-          },
-          {
-            "type": "string",
             "name": "dodID",
             "in": "query"
           },
@@ -5464,11 +5459,6 @@ func init() {
           {
             "type": "string",
             "name": "lastName",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "name": "firstName",
             "in": "query"
           },
           {

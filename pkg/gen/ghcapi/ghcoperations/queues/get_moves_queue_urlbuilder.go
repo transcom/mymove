@@ -15,7 +15,6 @@ import (
 type GetMovesQueueURL struct {
 	DestinationDutyStation *string
 	DodID                  *string
-	FirstName              *string
 	LastName               *string
 	MoveID                 *string
 
@@ -67,14 +66,6 @@ func (o *GetMovesQueueURL) Build() (*url.URL, error) {
 	}
 	if dodIDQ != "" {
 		qs.Set("dodID", dodIDQ)
-	}
-
-	var firstNameQ string
-	if o.FirstName != nil {
-		firstNameQ = *o.FirstName
-	}
-	if firstNameQ != "" {
-		qs.Set("firstName", firstNameQ)
 	}
 
 	var lastNameQ string

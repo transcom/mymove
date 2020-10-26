@@ -42,10 +42,6 @@ type GetMovesQueueParams struct {
 	/*
 	  In: query
 	*/
-	FirstName *string
-	/*
-	  In: query
-	*/
 	LastName *string
 	/*
 	  In: query
@@ -71,11 +67,6 @@ func (o *GetMovesQueueParams) BindRequest(r *http.Request, route *middleware.Mat
 
 	qDodID, qhkDodID, _ := qs.GetOK("dodID")
 	if err := o.bindDodID(qDodID, qhkDodID, route.Formats); err != nil {
-		res = append(res, err)
-	}
-
-	qFirstName, qhkFirstName, _ := qs.GetOK("firstName")
-	if err := o.bindFirstName(qFirstName, qhkFirstName, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -127,24 +118,6 @@ func (o *GetMovesQueueParams) bindDodID(rawData []string, hasKey bool, formats s
 	}
 
 	o.DodID = &raw
-
-	return nil
-}
-
-// bindFirstName binds and validates parameter FirstName from query.
-func (o *GetMovesQueueParams) bindFirstName(rawData []string, hasKey bool, formats strfmt.Registry) error {
-	var raw string
-	if len(rawData) > 0 {
-		raw = rawData[len(rawData)-1]
-	}
-
-	// Required: false
-	// AllowEmptyValue: false
-	if raw == "" { // empty values pass all other validations
-		return nil
-	}
-
-	o.FirstName = &raw
 
 	return nil
 }

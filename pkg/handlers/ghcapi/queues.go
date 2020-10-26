@@ -36,14 +36,12 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 
 	moveIDQuery := moveIDFilter(params)
 	dodIDQuery := dodIDFilter(params)
-	firstNameQuery := firstNameFilter(params)
 	lastNameQuery := lastNameFilter(params)
 	dutyStationQuery := destinationDutyStationFilter(params)
 
 	orders, err := h.MoveOrderFetcher.ListMoveOrders(
 		session.OfficeUserID,
 		moveIDQuery,
-		firstNameQuery,
 		lastNameQuery,
 		dutyStationQuery,
 		dodIDQuery,
@@ -103,15 +101,6 @@ func lastNameFilter(params queues.GetMovesQueueParams) FilterOption {
 		if params.LastName != nil {
 			nameSearch := fmt.Sprintf("%s%%", *params.LastName)
 			query = query.InnerJoin("service_members", "orders.service_member_id = service_members.id").Where("service_members.last_name ILIKE ?", nameSearch)
-		}
-	}
-}
-
-func firstNameFilter(params queues.GetMovesQueueParams) FilterOption {
-	return func(query *pop.Query) {
-		if params.FirstName != nil {
-			nameSearch := fmt.Sprintf("%s%%", *params.FirstName)
-			query = query.InnerJoin("service_members", "orders.service_member_id = service_members.id").Where("service_members.first_name ILIKE ?", nameSearch)
 		}
 	}
 }

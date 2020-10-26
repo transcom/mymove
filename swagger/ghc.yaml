@@ -1108,9 +1108,6 @@ paths:
           name: lastName
           type: string
         - in: query
-          name: firstName
-          type: string
-        - in: query
           name: dodID
           type: string
         - in: query

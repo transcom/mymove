@@ -289,23 +289,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		suite.Len(payload.QueueMoves, 2)
 	})
 
-	suite.Run("loads results matching first name search term", func() {
-		params := queues.GetMovesQueueParams{
-			HTTPRequest: request,
-			FirstName:   serviceMember1.FirstName,
-		}
-
-		response := handler.Handle(params)
-		suite.IsNotErrResponse(response)
-
-		payload := response.(*queues.GetMovesQueueOK).Payload
-		result := payload.QueueMoves[0]
-
-		suite.Len(payload.QueueMoves, 1)
-		suite.Equal("Zoya", result.Customer.FirstName)
-
-	})
-
 	suite.Run("loads results matching last name search term", func() {
 		params := queues.GetMovesQueueParams{
 			HTTPRequest: request,
