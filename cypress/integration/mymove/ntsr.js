@@ -1,6 +1,6 @@
 describe('Customer NTSr Setup flow', function () {
-  // profile@comple.te
-  const profileCompleteUser = '3b9360a3-3304-4c60-90f4-83d687884077';
+  // profile@co.mple.te
+  const profileCompleteUser = '99360a51-8cfa-4e25-ae57-24e66077305f';
   // nts@ntsr.unsubmitted
   const ntsUser = '583cfbe1-cb34-4381-9e1f-54f68200da1b';
 
@@ -76,7 +76,7 @@ function customerVisitsReviewPage() {
 }
 
 function customerCreatesAnNTSRShipment() {
-  cy.get('[data-testid="shipment-selection-btn"]').contains('Plan your shipments').click();
+  cy.get('[data-testid="shipment-selection-btn"]').click();
   cy.nextPage();
   cy.get('input[type="radio"]').eq(3).check({ force: true });
   cy.nextPage();
