@@ -43,7 +43,7 @@
     {
       "files": ["*.stories.js", "*.stories.jsx", "setupTests.js"],
       "rules": {
-        "import/no-extraneous-dependencies": "on"
+        "import/no-extraneous-dependencies": "warn"
       }
     }
   ],
