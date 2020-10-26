@@ -309,7 +309,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		suite.IsNotErrResponse(response)
 
 		payload := response.(*queues.GetMovesQueueOK).Payload
-		fmt.Printf("payoad: %v", payload.QueueMoves)
 
 		suite.Len(payload.QueueMoves, 2)
 	})
@@ -380,8 +379,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		suite.IsNotErrResponse(response)
 
 		payload := response.(*queues.GetMovesQueueOK).Payload
-
 		suite.Len(payload.QueueMoves, 1)
+
 	})
 }
 
