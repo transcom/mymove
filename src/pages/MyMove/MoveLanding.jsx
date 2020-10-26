@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 export const MoveLanding = ({ serviceMember }) => {
   return (
     <div className="usa-grid">
-      <h1 className="sm-heading">Home</h1>
+      <h1>Home</h1>
       <h2>Welcome {get(serviceMember, 'first_name', '')}</h2>
     </div>
   );
