@@ -8,7 +8,7 @@ import (
 func (suite *SegmentSuite) TestValidateISA() {
 	validISA := ISA{
 		AuthorizationInformationQualifier: "00",
-		AuthorizationInformation:          "0000000000",
+		AuthorizationInformation:          "0084182369",
 		SecurityInformationQualifier:      "00",
 		SecurityInformation:               "0000000000",
 		InterchangeSenderIDQualifier:      "ZZ",
@@ -64,7 +64,7 @@ func (suite *SegmentSuite) TestValidateISA() {
 		suite.ValidateError(err, "InterchangeControlStandards", "eq")
 		suite.ValidateError(err, "InterchangeControlVersionNumber", "eq")
 		suite.ValidateError(err, "InterchangeControlNumber", "min")
-		suite.ValidateError(err, "AcknowledgementRequested", "eq")
+		suite.ValidateError(err, "AcknowledgementRequested", "oneof")
 		suite.ValidateError(err, "UsageIndicator", "oneof")
 		suite.ValidateError(err, "ComponentElementSeparator", "eq")
 		suite.ValidateErrorLen(err, 16)
