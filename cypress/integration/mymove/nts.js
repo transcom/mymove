@@ -72,7 +72,7 @@ function customerEditsNTSShipment() {
 
 function customerVisitsReviewPage() {
   cy.get('button[data-testid="review-and-submit-btn"]').contains('Review and submit').click();
-  cy.get('h2[data-testid="review-move-header"]').contains('Review your details');
+  cy.get('[data-testid="review-move-header"]').contains('Review your details');
 }
 
 function customerCreatesAnNTSShipment() {
