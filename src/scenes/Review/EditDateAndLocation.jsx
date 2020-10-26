@@ -5,7 +5,7 @@ import { getFormValues } from 'redux-form';
 import SaveCancelButtons from './SaveCancelButtons';
 import React, { Component, Fragment } from 'react';
 import { reduxForm } from 'redux-form';
-import Alert from 'shared/Alert'; // eslint-disable-line
+import Alert from 'shared/Alert';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
