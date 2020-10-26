@@ -188,6 +188,198 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 
 }
 
+func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
+
+	office := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "TEST12",
+		},
+	})
+
+	dutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			TransportationOffice:   office,
+			TransportationOfficeID: &office.ID,
+		},
+	})
+
+	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			TransportationOffice:   office,
+			TransportationOfficeID: office.ID,
+		},
+	})
+	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
+		RoleType: roles.RoleTypeTOO,
+	})
+
+	hhgMoveType := models.SelectedMoveTypeHHG
+	// Default Origin Duty Station GBLOC is LKNQ
+
+	var serviceMember1 = testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{
+		Stub: true,
+		ServiceMember: models.ServiceMember{
+			FirstName: models.StringPointer("Zoya"),
+			LastName:  models.StringPointer("Darvish"),
+		},
+	})
+
+	var serviceMember2 = testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{
+		Stub: true,
+		ServiceMember: models.ServiceMember{
+			FirstName: models.StringPointer("Owen"),
+			LastName:  models.StringPointer("Nance"),
+		},
+	})
+
+	// New move
+	order1 := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			OriginDutyStation:   &dutyStation,
+			OriginDutyStationID: &dutyStation.ID,
+		},
+	})
+	move1 := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusSUBMITTED,
+		},
+		Order: order1,
+	})
+
+	// Define Service Member Name
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: move1,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+		ServiceMember: models.ServiceMember{
+			LastName:  serviceMember1.LastName,
+			FirstName: serviceMember1.FirstName,
+		},
+	})
+
+	order2 := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			OriginDutyStation:   &dutyStation,
+			OriginDutyStationID: &dutyStation.ID,
+		},
+	})
+	move2 := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusSUBMITTED,
+		},
+		Order: order2,
+	})
+
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: move2,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+
+		ServiceMember: models.ServiceMember{
+			LastName:  serviceMember2.LastName,
+			FirstName: serviceMember2.FirstName,
+		},
+	})
+
+	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
+	request = suite.AuthenticateOfficeRequest(request, officeUser)
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	handler := GetMovesQueueHandler{
+		context,
+		officeuser.NewOfficeUserFetcher(query.NewQueryBuilder(context.DB())),
+		moveorder.NewMoveOrderFetcher(suite.DB()),
+	}
+
+	suite.Run("loads unfiltered results", func() {
+		params := queues.GetMovesQueueParams{
+			HTTPRequest: request,
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		payload := response.(*queues.GetMovesQueueOK).Payload
+		fmt.Printf("payoad: %v", payload.QueueMoves)
+
+		suite.Len(payload.QueueMoves, 2)
+	})
+
+	suite.Run("loads results matching first name search term", func() {
+		params := queues.GetMovesQueueParams{
+			HTTPRequest: request,
+			FirstName:   serviceMember1.FirstName,
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		payload := response.(*queues.GetMovesQueueOK).Payload
+
+		suite.Len(payload.QueueMoves, 1)
+	})
+
+	suite.Run("loads results matching last name search term", func() {
+		params := queues.GetMovesQueueParams{
+			HTTPRequest: request,
+			LastName:    serviceMember1.LastName,
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		payload := response.(*queues.GetMovesQueueOK).Payload
+
+		suite.Len(payload.QueueMoves, 1)
+	})
+
+	suite.Run("loads results matching Dod ID search term", func() {
+		params := queues.GetMovesQueueParams{
+			HTTPRequest: request,
+			DodID:       serviceMember1.Edipi,
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		payload := response.(*queues.GetMovesQueueOK).Payload
+
+		suite.Len(payload.QueueMoves, 1)
+	})
+
+	suite.Run("loads results matching Move ID search term", func() {
+		params := queues.GetMovesQueueParams{
+			HTTPRequest: request,
+			MoveID:      &move1.Locator,
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		payload := response.(*queues.GetMovesQueueOK).Payload
+
+		suite.Len(payload.QueueMoves, 1)
+	})
+
+	suite.Run("loads results matching DestinationDutyStation name search term", func() {
+		params := queues.GetMovesQueueParams{
+			HTTPRequest:            request,
+			DestinationDutyStation: &dutyStation.Name,
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		payload := response.(*queues.GetMovesQueueOK).Payload
+
+		suite.Len(payload.QueueMoves, 1)
+	})
+}
+
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedRole() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
