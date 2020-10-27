@@ -131,7 +131,7 @@ export class SelectMoveType extends Component {
     const footerText = (
       <div>
         {!hasMove && (
-          <div className={`${styles.footer} grid-col-12`}>
+          <div data-testid="helper-footer" className={`${styles.footer} grid-col-12`}>
             It’s OK if you’re not sure about your choices. Your move counselor will go over all your options and can
             help make changes if necessary.
           </div>
