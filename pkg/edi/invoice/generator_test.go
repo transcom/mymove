@@ -51,6 +51,10 @@ func TestInvoiceSuite(t *testing.T) {
 
 func (suite *InvoiceSuite) TestEDIString() {
 	suite.T().Run("full EDI string is expected", func(t *testing.T) {
+		date := edisegment.G62{
+			DateQualifier: 10,
+			Date:          "20200909",
+		}
 		invoice := Invoice858C{
 			ISA: edisegment.ISA{
 				AuthorizationInformationQualifier: "00",
@@ -80,6 +84,9 @@ func (suite *InvoiceSuite) TestEDIString() {
 				ResponsibleAgencyCode:    "X",
 				Version:                  "004010",
 			},
+			Header: []edisegment.Segment{
+				&date,
+			},
 			ST: edisegment.ST{
 				TransactionSetIdentifierCode: "858",
 				TransactionSetControlNumber:  "ABCDE",
@@ -103,6 +110,7 @@ func (suite *InvoiceSuite) TestEDIString() {
 		suite.Equal(`ISA*00*0084182369*00*0000000000*ZZ*MYMOVE         *12*8004171844     *060102*1504*U*00401*000009999*0*T*|
 GS*SI*MYMOVE*8004171844*190903*1617*1*X*004010
 ST*858*ABCDE
+G62*10*20200909**
 SE*12345*ABCDE
 GE*1*1234567
 IEA*1*000009999
