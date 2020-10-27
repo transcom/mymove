@@ -101,7 +101,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 func branchFilter(params queues.GetMovesQueueParams) FilterOption {
 	return func(query *pop.Query) {
 		if params.Branch != nil {
-			query = query.InnerJoin("service_members", "service_members.id = orders.service_member_id").Where("service_members.affiliation = ?", *params.Branch)
+			query = query.Where("service_members.affiliation = ?", *params.Branch)
 		}
 	}
 }
