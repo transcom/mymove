@@ -9,11 +9,18 @@ import (
 	"errors"
 	"net/url"
 	golangswaggerpaths "path"
+
+	"github.com/go-openapi/swag"
 )
 
 // GetMovesQueueURL generates an URL for the get moves queue operation
 type GetMovesQueueURL struct {
+	Branch *string
+	Status []string
+
 	_basePath string
+	// avoid unkeyed usage
+	_ struct{}
 }
 
 // WithBasePath sets the base path for this url builder, only required when it's different from the
@@ -42,6 +49,35 @@ func (o *GetMovesQueueURL) Build() (*url.URL, error) {
 		_basePath = "/ghc/v1"
 	}
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
+
+	qs := make(url.Values)
+
+	var branchQ string
+	if o.Branch != nil {
+		branchQ = *o.Branch
+	}
+	if branchQ != "" {
+		qs.Set("branch", branchQ)
+	}
+
+	var statusIR []string
+	for _, statusI := range o.Status {
+		statusIS := statusI
+		if statusIS != "" {
+			statusIR = append(statusIR, statusIS)
+		}
+	}
+
+	status := swag.JoinByFormat(statusIR, "")
+
+	if len(status) > 0 {
+		qsv := status[0]
+		if qsv != "" {
+			qs.Set("status", qsv)
+		}
+	}
+
+	_result.RawQuery = qs.Encode()
 
 	return &_result, nil
 }

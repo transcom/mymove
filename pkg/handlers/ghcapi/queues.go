@@ -2,7 +2,10 @@ package ghcapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gobuffalo/pop"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -19,6 +22,9 @@ type GetMovesQueueHandler struct {
 	services.MoveOrderFetcher
 }
 
+// FilterOption defines the type for the functional arguments passed to ListMoveOrders
+type FilterOption func(*pop.Query)
+
 // Handle returns the paginated list of moves for the TOO user
 func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
@@ -27,13 +33,18 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 		return queues.NewGetMovesQueueForbidden()
 	}
 
-	orders, err := h.MoveOrderFetcher.ListMoveOrders(session.OfficeUserID)
+	branchQuery := branchFilter(params)
+
+	orders, err := h.MoveOrderFetcher.ListMoveOrders(session.OfficeUserID, branchQuery)
 	if err != nil {
 		logger.Error("error fetching list of move orders for office user", zap.Error(err))
 		return queues.NewGetMovesQueueInternalServerError()
 	}
 
 	queueMoves := payloads.QueueMoves(orders)
+	// ToDo - May want to move this logic into the pop query later.
+	// filter queueMoves by status
+	queueMoves = statusFilter(params.Status, queueMoves)
 
 	result := &ghcmessages.QueueMovesResult{
 		Page:       0,
@@ -75,4 +86,38 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 	}
 
 	return queues.NewGetPaymentRequestsQueueOK().WithPayload(result)
+}
+
+func branchFilter(params queues.GetMovesQueueParams) FilterOption {
+	return func(query *pop.Query) {
+		if params.Branch != nil {
+			query = query.InnerJoin("service_members", "service_members.id = orders.service_member_id").Where("service_members.affiliation = ?", *params.Branch)
+		}
+	}
+}
+
+// statusFilter filters the status after the pop query call.
+func statusFilter(statuses []string, moves *ghcmessages.QueueMoves) *ghcmessages.QueueMoves {
+	if len(statuses) <= 0 || moves == nil {
+		return moves
+	}
+
+	ret := make(ghcmessages.QueueMoves, 0)
+	// New move, Approvals requested, and Move approved statuses
+	// convert into a map to make it easier to lookup
+	statusMap := make(map[string]string, 0)
+	for _, status := range statuses {
+		statusMap[status] = status
+	}
+
+	// then include only the moves based on status filter
+	// and exclude DRAFT and CANCELLED
+	for _, move := range *moves {
+		if _, ok := statusMap[string(move.Status)]; ok && string(move.Status) != string(models.MoveStatusCANCELED) &&
+			string(move.Status) != string(models.MoveStatusDRAFT) {
+			ret = append(ret, move)
+		}
+	}
+
+	return &ret
 }
