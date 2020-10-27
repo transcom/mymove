@@ -13,6 +13,7 @@ import (
 
 // GetMovesQueueURL generates an URL for the get moves queue operation
 type GetMovesQueueURL struct {
+	Branch                 *string
 	DestinationDutyStation *string
 	DodID                  *string
 	LastName               *string
@@ -51,6 +52,14 @@ func (o *GetMovesQueueURL) Build() (*url.URL, error) {
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
 
 	qs := make(url.Values)
+
+	var branchQ string
+	if o.Branch != nil {
+		branchQ = *o.Branch
+	}
+	if branchQ != "" {
+		qs.Set("branch", branchQ)
+	}
 
 	var destinationDutyStationQ string
 	if o.DestinationDutyStation != nil {

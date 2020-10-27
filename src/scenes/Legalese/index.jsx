@@ -12,12 +12,13 @@ import CertificationText from './CertificationText';
 import Alert from 'shared/Alert';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { formatSwaggerDate } from 'shared/formatters';
-import './index.css';
+import './index.scss';
 import { createSignedCertification } from 'shared/Entities/modules/signed_certifications';
 import { selectActivePPMForMove, loadPPMs } from 'shared/Entities/modules/ppms';
 import { submitMoveForApproval } from 'shared/Entities/modules/moves';
 import { completeCertificationText } from './legaleseText';
 import { showSubmitSuccessBanner, removeSubmitSuccessBanner } from './ducks';
+import SectionWrapper from 'components/Customer/SectionWrapper';
 
 const formName = 'signature-form';
 const SignatureWizardForm = reduxifyWizardForm(formName);
@@ -101,44 +102,46 @@ export class SignedCertification extends Component {
               <div className="usa-width-one-whole">
                 <div>
                   <h1>Now for the official part...</h1>
-                  <span className="box_top">
-                    <p className="instructions">{instructionsText}</p>
-                    <a className="usa-link pdf" onClick={this.print}>
-                      Print
-                    </a>
-                  </span>
+                  <p className="instructions">{instructionsText}</p>
+                  <SectionWrapper>
+                    <span className="box_top">
+                      <a className="usa-link pdf" onClick={this.print}>
+                        Print
+                      </a>
+                    </span>
 
-                  <CertificationText certificationText={completeCertificationText} />
+                    <CertificationText certificationText={completeCertificationText} />
 
-                  <div className="signature-box">
-                    <h3>SIGNATURE</h3>
-                    <p>
-                      In consideration of said household goods or mobile homes being shipped at Government expense, I
-                      hereby agree to the certifications stated above.
-                    </p>
-                    <div className="signature-fields">
-                      <SwaggerField
-                        className="signature"
-                        fieldName="signature"
-                        swagger={this.props.schema}
-                        required
-                        disabled={!!initialValues.signature}
-                      />
-                      <SwaggerField
-                        className="signature-date"
-                        fieldName="date"
-                        swagger={this.props.schema}
-                        required
-                        disabled
-                      />
+                    <div className="signature-box">
+                      <h3>SIGNATURE</h3>
+                      <p>
+                        In consideration of said household goods or mobile homes being shipped at Government expense, I
+                        hereby agree to the certifications stated above.
+                      </p>
+                      <div className="signature-fields">
+                        <SwaggerField
+                          className="signature"
+                          fieldName="signature"
+                          swagger={this.props.schema}
+                          required
+                          disabled={!!initialValues.signature}
+                        />
+                        <SwaggerField
+                          className="signature-date"
+                          fieldName="date"
+                          swagger={this.props.schema}
+                          required
+                          disabled
+                        />
+                      </div>
+
+                      {(hasSubmitError || this.state.hasMoveSubmitError) && (
+                        <Alert type="error" heading="Server Error">
+                          There was a problem saving your signature.
+                        </Alert>
+                      )}
                     </div>
-                  </div>
-
-                  {(hasSubmitError || this.state.hasMoveSubmitError) && (
-                    <Alert type="error" heading="Server Error">
-                      There was a problem saving your signature.
-                    </Alert>
-                  )}
+                  </SectionWrapper>
                 </div>
               </div>
             </SignatureWizardForm>

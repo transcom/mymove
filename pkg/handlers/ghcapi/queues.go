@@ -22,7 +22,7 @@ type GetMovesQueueHandler struct {
 	services.MoveOrderFetcher
 }
 
-// FilterOption allows ListMoveOrders to pass in a number of functions
+// FilterOption defines the type for the functional arguments passed to ListMoveOrders
 type FilterOption func(*pop.Query)
 
 // Handle returns the paginated list of moves for the TOO user
@@ -34,6 +34,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 		return queues.NewGetMovesQueueForbidden()
 	}
 
+	branchQuery := branchFilter(params)
 	moveIDQuery := moveIDFilter(params)
 	dodIDQuery := dodIDFilter(params)
 	lastNameQuery := lastNameFilter(params)
@@ -41,6 +42,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 
 	orders, err := h.MoveOrderFetcher.ListMoveOrders(
 		session.OfficeUserID,
+		branchQuery,
 		moveIDQuery,
 		lastNameQuery,
 		dutyStationQuery,
@@ -94,6 +96,14 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 	}
 
 	return queues.NewGetPaymentRequestsQueueOK().WithPayload(result)
+}
+
+func branchFilter(params queues.GetMovesQueueParams) FilterOption {
+	return func(query *pop.Query) {
+		if params.Branch != nil {
+			query = query.InnerJoin("service_members", "service_members.id = orders.service_member_id").Where("service_members.affiliation = ?", *params.Branch)
+		}
+	}
 }
 
 func lastNameFilter(params queues.GetMovesQueueParams) FilterOption {

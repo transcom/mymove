@@ -34,6 +34,10 @@ type GetMovesQueueParams struct {
 	/*
 	  In: query
 	*/
+	Branch *string
+	/*
+	  In: query
+	*/
 	DestinationDutyStation *string
 	/*
 	  In: query
@@ -60,6 +64,11 @@ func (o *GetMovesQueueParams) BindRequest(r *http.Request, route *middleware.Mat
 
 	qs := runtime.Values(r.URL.Query())
 
+	qBranch, qhkBranch, _ := qs.GetOK("branch")
+	if err := o.bindBranch(qBranch, qhkBranch, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
 	qDestinationDutyStation, qhkDestinationDutyStation, _ := qs.GetOK("destinationDutyStation")
 	if err := o.bindDestinationDutyStation(qDestinationDutyStation, qhkDestinationDutyStation, route.Formats); err != nil {
 		res = append(res, err)
@@ -83,6 +92,24 @@ func (o *GetMovesQueueParams) BindRequest(r *http.Request, route *middleware.Mat
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// bindBranch binds and validates parameter Branch from query.
+func (o *GetMovesQueueParams) bindBranch(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	o.Branch = &raw
+
 	return nil
 }
 
