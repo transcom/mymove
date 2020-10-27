@@ -26,8 +26,8 @@ func (suite *SegmentSuite) TestValidateGS() {
 			FunctionalIdentifierCode: "XX",        // eq
 			ApplicationSendersCode:   "XXXXXX",    // eq
 			ApplicationReceiversCode: "123456789", // eq
-			Date:                     "20190945",  // timeformat
-			Time:                     "2517",      // timeformat
+			Date:                     "20190945",  // datetime
+			Time:                     "2517",      // datetime
 			GroupControlNumber:       0,           // min
 			ResponsibleAgencyCode:    "Y",         // eq
 			Version:                  "123456",    // eq
@@ -37,8 +37,8 @@ func (suite *SegmentSuite) TestValidateGS() {
 		suite.ValidateError(err, "FunctionalIdentifierCode", "eq")
 		suite.ValidateError(err, "ApplicationSendersCode", "eq")
 		suite.ValidateError(err, "ApplicationReceiversCode", "eq")
-		suite.ValidateError(err, "Date", "timeformat")
-		suite.ValidateError(err, "Time", "timeformat")
+		suite.ValidateError(err, "Date", "datetime")
+		suite.ValidateError(err, "Time", "datetime")
 		suite.ValidateError(err, "GroupControlNumber", "min")
 		suite.ValidateError(err, "ResponsibleAgencyCode", "eq")
 		suite.ValidateError(err, "Version", "eq")

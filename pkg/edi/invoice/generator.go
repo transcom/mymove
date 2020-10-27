@@ -3,10 +3,9 @@ package ediinvoice
 import (
 	"bytes"
 	"fmt"
-	"log"
 
+	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
-	"gopkg.in/go-playground/validator.v9"
 
 	"github.com/transcom/mymove/pkg/edi"
 	edisegment "github.com/transcom/mymove/pkg/edi/segment"
@@ -37,12 +36,6 @@ var validate *validator.Validate
 
 func init() {
 	validate = validator.New()
-
-	// Custom validators
-	err := validate.RegisterValidation("timeformat", edisegment.HasTimeFormat)
-	if err != nil {
-		log.Fatalf("Failed to register timeformat validator: %v", err)
-	}
 }
 
 // Segments returns the invoice as an array of rows (string arrays),

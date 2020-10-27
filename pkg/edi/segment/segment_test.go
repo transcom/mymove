@@ -1,11 +1,10 @@
 package edisegment
 
 import (
-	"log"
 	"testing"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/stretchr/testify/suite"
-	"gopkg.in/go-playground/validator.v9"
 
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
@@ -18,12 +17,6 @@ type SegmentSuite struct {
 func TestSegmentSuite(t *testing.T) {
 	ss := &SegmentSuite{
 		validator: validator.New(),
-	}
-
-	// Custom validators
-	err := ss.validator.RegisterValidation("timeformat", HasTimeFormat)
-	if err != nil {
-		log.Fatal(err)
 	}
 
 	suite.Run(t, ss)

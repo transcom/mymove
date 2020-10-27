@@ -28,16 +28,16 @@ func (suite *SegmentSuite) TestValidateG62() {
 	suite.T().Run("validate failure 1", func(t *testing.T) {
 		g62 := G62{
 			DateQualifier: 42,         // oneof
-			Date:          "20190945", // timeformat
+			Date:          "20190945", // datetime
 			TimeQualifier: 42,         // oneof
-			Time:          "2517",     // timeformat
+			Time:          "2517",     // datetime
 		}
 
 		err := suite.validator.Struct(g62)
 		suite.ValidateError(err, "DateQualifier", "oneof")
-		suite.ValidateError(err, "Date", "timeformat")
+		suite.ValidateError(err, "Date", "datetime")
 		suite.ValidateError(err, "TimeQualifier", "oneof")
-		suite.ValidateError(err, "Time", "timeformat")
+		suite.ValidateError(err, "Time", "datetime")
 		suite.ValidateErrorLen(err, 4)
 	})
 }

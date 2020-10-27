@@ -40,8 +40,8 @@ func (suite *SegmentSuite) TestValidateISA() {
 			InterchangeSenderID:               fmt.Sprintf("%-15s", "ABCDEF"),     // eq
 			InterchangeReceiverIDQualifier:    "15",                               // eq
 			InterchangeReceiverID:             fmt.Sprintf("%-15s", "1234566133"), // eq
-			InterchangeDate:                   "190933",                           // timeformat
-			InterchangeTime:                   "344",                              // timeformat
+			InterchangeDate:                   "190933",                           // datetime
+			InterchangeTime:                   "344",                              // datetime
 			InterchangeControlStandards:       "Q",                                // eq
 			InterchangeControlVersionNumber:   "00403",                            // eq
 			InterchangeControlNumber:          0,                                  // min
@@ -59,8 +59,8 @@ func (suite *SegmentSuite) TestValidateISA() {
 		suite.ValidateError(err, "InterchangeSenderID", "eq")
 		suite.ValidateError(err, "InterchangeReceiverIDQualifier", "eq")
 		suite.ValidateError(err, "InterchangeReceiverID", "eq")
-		suite.ValidateError(err, "InterchangeDate", "timeformat")
-		suite.ValidateError(err, "InterchangeTime", "timeformat")
+		suite.ValidateError(err, "InterchangeDate", "datetime")
+		suite.ValidateError(err, "InterchangeTime", "datetime")
 		suite.ValidateError(err, "InterchangeControlStandards", "eq")
 		suite.ValidateError(err, "InterchangeControlVersionNumber", "eq")
 		suite.ValidateError(err, "InterchangeControlNumber", "min")
