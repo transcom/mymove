@@ -5,6 +5,8 @@ import (
 	"net/http/httptest"
 	"time"
 
+	modelToPayload "github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
+
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
@@ -96,6 +98,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
 	})
 
 	hhgMoveType := models.SelectedMoveTypeHHG
+
 	move := models.Move{
 		SelectedMoveType: &hhgMoveType,
 		Status:           models.MoveStatusSUBMITTED,
@@ -138,6 +141,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
 
 	suite.Assertions.IsType(&queues.GetMovesQueueOK{}, response)
 	payload := response.(*queues.GetMovesQueueOK).Payload
+
 	result := payload.QueueMoves[0]
 
 	suite.Equal(1, len(payload.QueueMoves))
@@ -240,6 +244,149 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 
 	suite.Equal(ghcmessages.QueueMoveStatus("Approvals requested"), result.Status)
 
+}
+
+func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
+		RoleType: roles.RoleTypeTOO,
+	})
+
+	hhgMoveType := models.SelectedMoveTypeHHG
+	submittedMove := models.Move{
+		SelectedMoveType: &hhgMoveType,
+		Status:           models.MoveStatusSUBMITTED,
+	}
+	submittedShipment := models.MTOShipment{
+		Status: models.MTOShipmentStatusSubmitted,
+	}
+	airForce := models.AffiliationAIRFORCE
+
+	// New move with AIR_FORCE service member affiliation to test branch filter
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move:        submittedMove,
+		MTOShipment: submittedShipment,
+		ServiceMember: models.ServiceMember{
+			Affiliation: &airForce,
+		},
+	})
+
+	// Approvals requested
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusAPPROVED,
+		},
+		MTOShipment: submittedShipment,
+	})
+
+	// Move approved
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusApproved,
+		},
+	})
+
+	// Move DRAFT and CANCELLED should not be included
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusDRAFT,
+		},
+		MTOShipment: submittedShipment,
+	})
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusCANCELED,
+		},
+		MTOShipment: submittedShipment,
+	})
+
+	request := httptest.NewRequest("GET", "/queues/moves", nil)
+	request = suite.AuthenticateOfficeRequest(request, officeUser)
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	handler := GetMovesQueueHandler{
+		context,
+		officeuser.NewOfficeUserFetcher(query.NewQueryBuilder(context.DB())),
+		moveorder.NewMoveOrderFetcher(suite.DB()),
+	}
+
+	suite.Run("loads results with all STATUS selected", func() {
+		params := queues.GetMovesQueueParams{
+			HTTPRequest: request,
+			Status: []string{
+				modelToPayload.QueueMoveStatusNEWMOVE,
+				modelToPayload.QueueMoveStatusAPPROVALSREQUESTED,
+				modelToPayload.QueueMoveStatusMOVEAPPROVED,
+			},
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		payload := response.(*queues.GetMovesQueueOK).Payload
+		suite.EqualValues(3, payload.TotalCount)
+		suite.Len(payload.QueueMoves, 3)
+	})
+
+	suite.Run("loads results with one STATUS selected", func() {
+		params := queues.GetMovesQueueParams{
+			HTTPRequest: request,
+			Status: []string{
+				modelToPayload.QueueMoveStatusNEWMOVE,
+			},
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		payload := response.(*queues.GetMovesQueueOK).Payload
+		suite.EqualValues(1, payload.TotalCount)
+		suite.Len(payload.QueueMoves, 1)
+		suite.EqualValues(modelToPayload.QueueMoveStatusNEWMOVE, payload.QueueMoves[0].Status)
+	})
+
+	suite.Run("1 result with status New Move and branch AIR_FORCE", func() {
+		params := queues.GetMovesQueueParams{
+			HTTPRequest: request,
+			Status: []string{
+				modelToPayload.QueueMoveStatusNEWMOVE,
+			},
+			Branch: models.StringPointer("AIR_FORCE"),
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		payload := response.(*queues.GetMovesQueueOK).Payload
+		suite.EqualValues(1, payload.TotalCount)
+		suite.Len(payload.QueueMoves, 1)
+		suite.EqualValues(modelToPayload.QueueMoveStatusNEWMOVE, payload.QueueMoves[0].Status)
+		suite.Equal("AIR_FORCE", payload.QueueMoves[0].Customer.Agency)
+	})
+
+	suite.Run("No results with status New Move and branch ARMY", func() {
+		params := queues.GetMovesQueueParams{
+			HTTPRequest: request,
+			Status: []string{
+				modelToPayload.QueueMoveStatusNEWMOVE,
+			},
+			Branch: models.StringPointer("ARMY"),
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		payload := response.(*queues.GetMovesQueueOK).Payload
+		suite.EqualValues(0, payload.TotalCount)
+		suite.Len(payload.QueueMoves, 0)
+	})
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedRole() {

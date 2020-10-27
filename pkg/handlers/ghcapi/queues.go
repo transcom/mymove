@@ -5,6 +5,8 @@ import (
 	"github.com/gobuffalo/pop"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/models"
+
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -40,6 +42,9 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 	}
 
 	queueMoves := payloads.QueueMoves(orders)
+	// ToDo - May want to move this logic into the pop query later.
+	// filter queueMoves by status
+	queueMoves = statusFilter(params.Status, queueMoves)
 
 	result := &ghcmessages.QueueMovesResult{
 		Page:       0,
@@ -89,4 +94,30 @@ func branchFilter(params queues.GetMovesQueueParams) FilterOption {
 			query = query.InnerJoin("service_members", "service_members.id = orders.service_member_id").Where("service_members.affiliation = ?", *params.Branch)
 		}
 	}
+}
+
+// statusFilter filters the status after the pop query call.
+func statusFilter(statuses []string, moves *ghcmessages.QueueMoves) *ghcmessages.QueueMoves {
+	if len(statuses) <= 0 || moves == nil {
+		return moves
+	}
+
+	ret := make(ghcmessages.QueueMoves, 0)
+	// New move, Approvals requested, and Move approved statuses
+	// convert into a map to make it easier to lookup
+	statusMap := make(map[string]string, 0)
+	for _, status := range statuses {
+		statusMap[status] = status
+	}
+
+	// then include only the moves based on status filter
+	// and exclude DRAFT and CANCELLED
+	for _, move := range *moves {
+		if _, ok := statusMap[string(move.Status)]; ok && string(move.Status) != string(models.MoveStatusCANCELED) &&
+			string(move.Status) != string(models.MoveStatusDRAFT) {
+			ret = append(ret, move)
+		}
+	}
+
+	return &ret
 }
