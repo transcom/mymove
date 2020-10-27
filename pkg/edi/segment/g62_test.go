@@ -17,11 +17,17 @@ func (suite *SegmentSuite) TestValidateG62() {
 		TimeQualifier: 5,
 		Time:          "1617",
 	}
+	validG62ScheduledPickupDate := G62{
+		DateQualifier: 76,
+		Date:          "20200909",
+	}
 
 	suite.T().Run("validate success", func(t *testing.T) {
 		err := suite.validator.Struct(validG62ActualPickupDateTime)
 		suite.NoError(err)
 		err = suite.validator.Struct(validG62RequestedPickupDateTime)
+		suite.NoError(err)
+		err = suite.validator.Struct(validG62ScheduledPickupDate)
 		suite.NoError(err)
 	})
 
