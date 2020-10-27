@@ -140,24 +140,13 @@ func (h UpdateMoveOrderHandler) Handle(params moveorderop.UpdateMoveOrderParams)
 		}
 	}
 	// Get move.orderID:
-	// 	1. We have to get the <this id> that we are looking for
 	fmt.Println("moveOrder.ID", updatedOrder.ID)
 	// Find the record where orderID matches moveOrder.ID
-	// 2.  Search for the record that has orderID == <this id>
-	// var moves []models.Move
 	var move models.Move
-	// err := db.Find(&move, id)
-
 	query := h.DB().Where("orders_id = ?", updatedOrder.ID)
 	err = query.First(&move)
-	if err != nil {
-		fmt.Println("error:", err)
-		// TODO how to handle query errors
-	}
 
-	// fmt.Printf("move %d\n", move)
-	// 3.  Get the ID of the new record
-	// UpdateMoveOrder event Trigger here for the first updated move:
+	// UpdateMoveOrder event Trigger for the first updated move:
 	_, err = event.TriggerEvent(event.Event{
 		EndpointKey: event.GhcUpdateMoveOrderEndpointKey,
 		// Endpoint that is being handled
@@ -172,8 +161,6 @@ func (h UpdateMoveOrderHandler) Handle(params moveorderop.UpdateMoveOrderParams)
 	if err != nil {
 		logger.Error("ghcapi.UpdateMoveOrderHandler could not generate the event")
 	}
-
-	// move.ID is the one you want to pass over, MTO?
 
 	moveOrderPayload := payloads.MoveOrder(updatedOrder)
 
