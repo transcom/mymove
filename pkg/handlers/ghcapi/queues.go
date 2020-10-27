@@ -2,6 +2,7 @@ package ghcapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gobuffalo/pop"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
@@ -19,6 +20,9 @@ type GetMovesQueueHandler struct {
 	services.MoveOrderFetcher
 }
 
+// FilterOption defines the type for the functional arguments passed to ListMoveOrders
+type FilterOption func(*pop.Query)
+
 // Handle returns the paginated list of moves for the TOO user
 func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
@@ -27,7 +31,9 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 		return queues.NewGetMovesQueueForbidden()
 	}
 
-	orders, err := h.MoveOrderFetcher.ListMoveOrders(session.OfficeUserID)
+	branchQuery := branchFilter(params)
+
+	orders, err := h.MoveOrderFetcher.ListMoveOrders(session.OfficeUserID, branchQuery)
 	if err != nil {
 		logger.Error("error fetching list of move orders for office user", zap.Error(err))
 		return queues.NewGetMovesQueueInternalServerError()
@@ -75,4 +81,12 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 	}
 
 	return queues.NewGetPaymentRequestsQueueOK().WithPayload(result)
+}
+
+func branchFilter(params queues.GetMovesQueueParams) FilterOption {
+	return func(query *pop.Query) {
+		if params.Branch != nil {
+			query = query.InnerJoin("service_members", "service_members.id = orders.service_member_id").Where("service_members.affiliation = ?", *params.Branch)
+		}
+	}
 }

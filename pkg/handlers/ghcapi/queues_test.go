@@ -89,6 +89,61 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 
 }
 
+func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
+		RoleType: roles.RoleTypeTOO,
+	})
+
+	hhgMoveType := models.SelectedMoveTypeHHG
+	move := models.Move{
+		SelectedMoveType: &hhgMoveType,
+		Status:           models.MoveStatusSUBMITTED,
+	}
+	shipment := models.MTOShipment{
+		Status: models.MTOShipmentStatusSubmitted,
+	}
+
+	// Create an order where the service member has an ARMY affiliation (default)
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move:        move,
+		MTOShipment: shipment,
+	})
+
+	// Create an order where the service member has an AIR_FORCE affiliation
+	airForce := models.AffiliationAIRFORCE
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		MTOShipment: shipment,
+		Move:        move,
+		ServiceMember: models.ServiceMember{
+			Affiliation: &airForce,
+		},
+	})
+
+	request := httptest.NewRequest("GET", "/queues/moves", nil)
+	request = suite.AuthenticateOfficeRequest(request, officeUser)
+	params := queues.GetMovesQueueParams{
+		HTTPRequest: request,
+		Branch:      models.StringPointer("AIR_FORCE"),
+	}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	handler := GetMovesQueueHandler{
+		context,
+		officeuser.NewOfficeUserFetcher(query.NewQueryBuilder(context.DB())),
+		moveorder.NewMoveOrderFetcher(suite.DB()),
+	}
+
+	response := handler.Handle(params)
+	suite.IsNotErrResponse(response)
+
+	suite.Assertions.IsType(&queues.GetMovesQueueOK{}, response)
+	payload := response.(*queues.GetMovesQueueOK).Payload
+	result := payload.QueueMoves[0]
+
+	suite.Equal(1, len(payload.QueueMoves))
+	suite.Equal("AIR_FORCE", result.Customer.Agency)
+}
+
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{

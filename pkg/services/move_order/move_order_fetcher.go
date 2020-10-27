@@ -14,7 +14,7 @@ type moveOrderFetcher struct {
 	db *pop.Connection
 }
 
-func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID) ([]models.Order, error) {
+func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, options ...func(query *pop.Query)) ([]models.Order, error) {
 	// Now that we've joined orders and move_orders, we only want to return orders that
 	// have an associated move.
 	var moveOrders []models.Order
@@ -30,7 +30,7 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID) ([]models.Order
 
 	gbloc := transportationOffice.Gbloc
 
-	err = f.db.Q().Eager(
+	query := f.db.Q().Eager(
 		"ServiceMember",
 		"NewDutyStation.Address",
 		"OriginDutyStation",
@@ -43,10 +43,15 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID) ([]models.Order
 		InnerJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id").
 		Where("transportation_offices.gbloc = ?", gbloc).
 		// TODO: Let's include the status in filters that are passed into this service once we build that feature for the TXO queue (instead of it being hardcoded like it is below right now).
-		Where("moves.status NOT IN ('DRAFT', 'CANCELLED')").
-		GroupBy("orders.id").
-		All(&moveOrders)
+		Where("moves.status NOT IN ('DRAFT', 'CANCELLED')")
 
+	for _, option := range options {
+		if option != nil {
+			option(query)
+		}
+	}
+
+	err = query.GroupBy("orders.id").All(&moveOrders)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:

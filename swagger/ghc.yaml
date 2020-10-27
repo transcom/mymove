@@ -1100,6 +1100,10 @@ paths:
       operationId: getMovesQueue
       tags:
         - queues
+      parameters:
+        - in: query
+          name: branch
+          type: string
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
