@@ -29,11 +29,21 @@ function AllowableExpenses(props) {
           <p>
             <strong>Moving-related expenses</strong> can be <strong>claimed</strong> in order to reduce the taxable
             amount of your payment. Your{' '}
-            <a href="https://installations.militaryonesource.mil/search" target="_blank" className="usa-link">
+            <a
+              href="https://installations.militaryonesource.mil/search"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="usa-link"
+            >
               local finance office
             </a>{' '}
             or a tax professional can help you identify qualifying expenses. You can also consult{' '}
-            <a href="https://www.irs.gov/publications/p521" target="_blank" className="usa-link">
+            <a
+              href="https://www.irs.gov/publications/p521"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="usa-link"
+            >
               IRS Publication 521
             </a>{' '}
             for authoritative information.
@@ -104,7 +114,12 @@ function AllowableExpenses(props) {
             <p>
               If you are missing a receipt, you can go online and print a new copy of your receipt (if you can).
               Otherwise, write and sign a statement that explains why the receipt is missing. Contact your{' '}
-              <a href="https://installations.militaryonesource.mil/search" target="_blank" className="usa-link">
+              <a
+                href="https://installations.militaryonesource.mil/search"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="usa-link"
+              >
                 local finance office
               </a>{' '}
               for assistance.
