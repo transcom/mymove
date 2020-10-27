@@ -39,11 +39,9 @@ const DocumentViewer = lazy(() => import('scenes/Office/DocumentViewer'));
 // TXO
 const TXOMoveInfo = lazy(() => import('pages/Office/TXOMoveInfo/TXOMoveInfo'));
 // TOO pages (TODO move into src/pages)
-const TOO = lazy(() => import('scenes/Office/TOO/too'));
 const MoveQueue = lazy(() => import('pages/Office/MoveQueue/MoveQueue'));
 const CustomerDetails = lazy(() => import('scenes/Office/TOO/customerDetails'));
 // TIO pages
-const PaymentRequestIndex = lazy(() => import('pages/Office/PaymentRequestIndex/PaymentRequestIndex'));
 const PaymentRequestQueue = lazy(() => import('pages/Office/PaymentRequestQueue/PaymentRequestQueue'));
 
 export class OfficeApp extends Component {
@@ -187,11 +185,11 @@ export class OfficeApp extends Component {
                   render={(routeProps) => {
                     switch (selectedRole) {
                       case roleTypes.PPM:
-                        return <Queues queueType="new" {...routeProps} />;
+                        return <MoveQueue {...routeProps} />;
                       case roleTypes.TIO:
-                        return <PaymentRequestIndex {...routeProps} />;
+                        return <PaymentRequestQueue {...routeProps} />;
                       case roleTypes.TOO:
-                        return <TOO {...routeProps} />;
+                        return <MoveQueue {...routeProps} />;
                       default:
                         // User has unknown role or shouldn't have access
                         return <div />;
