@@ -1116,6 +1116,17 @@ paths:
         - in: query
           name: destinationDutyStation
           type: string
+        - in: query
+          name: status
+          type: array
+          description: Filtering for the status.
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+              - New move
+              - Approvals requested
+              - Move approved
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
