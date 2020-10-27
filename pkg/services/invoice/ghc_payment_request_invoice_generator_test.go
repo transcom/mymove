@@ -374,7 +374,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			suite.IsType(&edisegment.HL{}, result.ServiceItems[segmentOffset])
 			hl := result.ServiceItems[segmentOffset].(*edisegment.HL)
 			suite.Equal(hierarchicalNumber, hl.HierarchicalIDNumber)
-			suite.Equal("|", hl.HierarchicalLevelCode)
+			suite.Equal("I", hl.HierarchicalLevelCode)
 		})
 
 		suite.T().Run("adds n9 service item segment", func(t *testing.T) {

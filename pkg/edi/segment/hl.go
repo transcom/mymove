@@ -8,7 +8,7 @@ import (
 type HL struct {
 	HierarchicalIDNumber       string `validate:"oneof=303 304"`
 	HierarchicalParentIDNumber string `validate:"isdefault"` // not used
-	HierarchicalLevelCode      string `validate:"eq=SS"`
+	HierarchicalLevelCode      string `validate:"oneof=SS I"`
 }
 
 // StringArray converts HL to an array of strings

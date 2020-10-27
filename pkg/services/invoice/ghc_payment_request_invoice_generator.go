@@ -554,7 +554,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 		// Build and put together the segments
 		hlSegment := edisegment.HL{
 			HierarchicalIDNumber:  strconv.Itoa(hierarchicalIDNumber), // may need to change if sending multiple payment request in a single edi
-			HierarchicalLevelCode: "|",
+			HierarchicalLevelCode: "I",
 		}
 
 		n9Segment := edisegment.N9{

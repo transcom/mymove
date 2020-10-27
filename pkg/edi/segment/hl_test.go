@@ -25,7 +25,7 @@ func (suite *SegmentSuite) TestValidateHL() {
 		err := suite.validator.Struct(hl)
 		suite.ValidateError(err, "HierarchicalIDNumber", "oneof")
 		suite.ValidateError(err, "HierarchicalParentIDNumber", "isdefault")
-		suite.ValidateError(err, "HierarchicalLevelCode", "eq")
+		suite.ValidateError(err, "HierarchicalLevelCode", "oneof")
 		suite.ValidateErrorLen(err, 3)
 	})
 }
