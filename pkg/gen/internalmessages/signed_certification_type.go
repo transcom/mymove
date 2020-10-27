@@ -28,6 +28,9 @@ const (
 
 	// SignedCertificationTypeHHG captures enum value "HHG"
 	SignedCertificationTypeHHG SignedCertificationType = "HHG"
+
+	// SignedCertificationTypeSHIPMENT captures enum value "SHIPMENT"
+	SignedCertificationTypeSHIPMENT SignedCertificationType = "SHIPMENT"
 )
 
 // for schema
@@ -35,7 +38,7 @@ var signedCertificationTypeEnum []interface{}
 
 func init() {
 	var res []SignedCertificationType
-	if err := json.Unmarshal([]byte(`["PPM","PPM_PAYMENT","HHG"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PPM","PPM_PAYMENT","HHG","SHIPMENT"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

@@ -6058,7 +6058,8 @@ func init() {
       "enum": [
         "PPM",
         "PPM_PAYMENT",
-        "HHG"
+        "HHG",
+        "SHIPMENT"
       ],
       "x-nullable": true
     },
@@ -12613,7 +12614,8 @@ func init() {
       "enum": [
         "PPM",
         "PPM_PAYMENT",
-        "HHG"
+        "HHG",
+        "SHIPMENT"
       ],
       "x-nullable": true
     },
