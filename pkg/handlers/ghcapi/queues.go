@@ -7,6 +7,8 @@ import (
 	"github.com/gobuffalo/pop"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/models"
+
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -55,6 +57,9 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 	}
 
 	queueMoves := payloads.QueueMoves(orders)
+	// ToDo - May want to move this logic into the pop query later.
+	// filter queueMoves by status
+	queueMoves = statusFilter(params.Status, queueMoves)
 
 	result := &ghcmessages.QueueMovesResult{
 		Page:       0,
@@ -118,7 +123,7 @@ func lastNameFilter(params queues.GetMovesQueueParams) FilterOption {
 func dodIDFilter(params queues.GetMovesQueueParams) FilterOption {
 	return func(query *pop.Query) {
 		if params.DodID != nil {
-			query = query.Where("service_members.edipi ILIKE ?", params.DodID)
+			query = query.Where("service_members.edipi = ?", params.DodID)
 		}
 	}
 }
@@ -126,7 +131,7 @@ func dodIDFilter(params queues.GetMovesQueueParams) FilterOption {
 func moveIDFilter(params queues.GetMovesQueueParams) FilterOption {
 	return func(query *pop.Query) {
 		if params.MoveID != nil {
-			query = query.Where("moves.locator ILIKE ?", *params.MoveID)
+			query = query.Where("moves.locator = ?", *params.MoveID)
 		}
 	}
 }
@@ -137,4 +142,30 @@ func destinationDutyStationFilter(params queues.GetMovesQueueParams) FilterOptio
 			query = query.InnerJoin("duty_stations as destination_duty_station", "orders.new_duty_station_id = destination_duty_station.id").Where("destination_duty_station.name ILIKE ?", nameSearch)
 		}
 	}
+}
+
+// statusFilter filters the status after the pop query call.
+func statusFilter(statuses []string, moves *ghcmessages.QueueMoves) *ghcmessages.QueueMoves {
+	if len(statuses) <= 0 || moves == nil {
+		return moves
+	}
+
+	ret := make(ghcmessages.QueueMoves, 0)
+	// New move, Approvals requested, and Move approved statuses
+	// convert into a map to make it easier to lookup
+	statusMap := make(map[string]string, 0)
+	for _, status := range statuses {
+		statusMap[status] = status
+	}
+
+	// then include only the moves based on status filter
+	// and exclude DRAFT and CANCELLED
+	for _, move := range *moves {
+		if _, ok := statusMap[string(move.Status)]; ok && string(move.Status) != string(models.MoveStatusCANCELED) &&
+			string(move.Status) != string(models.MoveStatusDRAFT) {
+			ret = append(ret, move)
+		}
+	}
+
+	return &ret
 }

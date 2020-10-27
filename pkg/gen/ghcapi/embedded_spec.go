@@ -1652,6 +1652,21 @@ func init() {
             "type": "string",
             "name": "destinationDutyStation",
             "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "New move",
+                "Approvals requested",
+                "Move approved"
+              ],
+              "type": "string"
+            },
+            "description": "Filtering for the status.",
+            "name": "status",
+            "in": "query"
           }
         ],
         "responses": {
@@ -5479,6 +5494,21 @@ func init() {
           {
             "type": "string",
             "name": "destinationDutyStation",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "New move",
+                "Approvals requested",
+                "Move approved"
+              ],
+              "type": "string"
+            },
+            "description": "Filtering for the status.",
+            "name": "status",
             "in": "query"
           }
         ],

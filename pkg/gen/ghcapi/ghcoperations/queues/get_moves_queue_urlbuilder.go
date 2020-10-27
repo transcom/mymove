@@ -9,6 +9,8 @@ import (
 	"errors"
 	"net/url"
 	golangswaggerpaths "path"
+
+	"github.com/go-openapi/swag"
 )
 
 // GetMovesQueueURL generates an URL for the get moves queue operation
@@ -18,6 +20,7 @@ type GetMovesQueueURL struct {
 	DodID                  *string
 	LastName               *string
 	MoveID                 *string
+	Status                 []string
 
 	_basePath string
 	// avoid unkeyed usage
@@ -91,6 +94,23 @@ func (o *GetMovesQueueURL) Build() (*url.URL, error) {
 	}
 	if moveIDQ != "" {
 		qs.Set("moveID", moveIDQ)
+	}
+
+	var statusIR []string
+	for _, statusI := range o.Status {
+		statusIS := statusI
+		if statusIS != "" {
+			statusIR = append(statusIR, statusIS)
+		}
+	}
+
+	status := swag.JoinByFormat(statusIR, "")
+
+	if len(status) > 0 {
+		qsv := status[0]
+		if qsv != "" {
+			qs.Set("status", qsv)
+		}
 	}
 
 	_result.RawQuery = qs.Encode()
