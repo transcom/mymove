@@ -1,13 +1,14 @@
 package edisegment
 
 import (
+	"fmt"
 	"testing"
 )
 
 func (suite *SegmentSuite) TestValidateGS() {
 	validGS := GS{
 		FunctionalIdentifierCode: "SI",
-		ApplicationSendersCode:   "MYMOVE",
+		ApplicationSendersCode:   fmt.Sprintf("%-9s", "MYMOVE"),
 		ApplicationReceiversCode: "8004171844",
 		Date:                     "190903",
 		Time:                     "1617",
@@ -23,14 +24,14 @@ func (suite *SegmentSuite) TestValidateGS() {
 
 	suite.T().Run("validate failure 1", func(t *testing.T) {
 		gs := GS{
-			FunctionalIdentifierCode: "XX",        // eq
-			ApplicationSendersCode:   "XXXXXX",    // eq
-			ApplicationReceiversCode: "123456789", // eq
-			Date:                     "20190945",  // datetime
-			Time:                     "2517",      // datetime
-			GroupControlNumber:       0,           // min
-			ResponsibleAgencyCode:    "Y",         // eq
-			Version:                  "123456",    // eq
+			FunctionalIdentifierCode: "XX",                         // eq
+			ApplicationSendersCode:   fmt.Sprintf("%-9s", "XXXXX"), // eq
+			ApplicationReceiversCode: "123456789",                  // eq
+			Date:                     "20190945",                   // datetime
+			Time:                     "2517",                       // datetime
+			GroupControlNumber:       0,                            // min
+			ResponsibleAgencyCode:    "Y",                          // eq
+			Version:                  "123456",                     // eq
 		}
 
 		err := suite.validator.Struct(gs)

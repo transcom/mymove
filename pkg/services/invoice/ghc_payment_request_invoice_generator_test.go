@@ -193,7 +193,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	suite.T().Run("adds gs start segment", func(t *testing.T) {
 		suite.Equal("SI", result.GS.FunctionalIdentifierCode)
-		suite.Equal("MYMOVE", result.GS.ApplicationSendersCode)
+		suite.Equal("MYMOVE   ", result.GS.ApplicationSendersCode)
 		suite.Equal("8004171844", result.GS.ApplicationReceiversCode)
 		suite.Equal(currentTime.Format(testDateFormat), result.GS.Date)
 		suite.Equal(currentTime.Format(testTimeFormat), result.GS.Time)

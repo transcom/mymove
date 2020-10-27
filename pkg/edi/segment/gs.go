@@ -8,7 +8,7 @@ import (
 // GS represents the GS EDI segment
 type GS struct {
 	FunctionalIdentifierCode string `validate:"eq=SI"`
-	ApplicationSendersCode   string `validate:"eq=MYMOVE"`
+	ApplicationSendersCode   string `validate:"eq=MYMOVE   "`
 	ApplicationReceiversCode string `validate:"eq=8004171844"`
 	Date                     string `validate:"datetime=060102"`
 	Time                     string `validate:"datetime=1504"`

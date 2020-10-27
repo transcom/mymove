@@ -1,6 +1,7 @@
 package ediinvoice
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -55,7 +56,7 @@ func (suite *InvoiceSuite) TestEDIString() {
 		ediString, err := invoice.EDIString(suite.logger)
 		suite.NoError(err)
 		suite.Equal(`ISA*00*0084182369*00*0000000000*ZZ*MYMOVE         *12*8004171844     *060102*1504*U*00401*000009999*0*T*|
-GS*SI*MYMOVE*8004171844*190903*1617*1*X*004010
+GS*SI*MYMOVE   *8004171844*190903*1617*1*X*004010
 ST*858*ABCDE
 G62*10*20200909**
 L3*300.000*B*100
@@ -99,7 +100,7 @@ func MakeValidEdi() Invoice858C {
 			SecurityInformationQualifier:      "00",
 			SecurityInformation:               "0000000000",
 			InterchangeSenderIDQualifier:      "ZZ",
-			InterchangeSenderID:               "MYMOVE         ",
+			InterchangeSenderID:               fmt.Sprintf("%-15s", "MYMOVE"),
 			InterchangeReceiverIDQualifier:    "12",
 			InterchangeReceiverID:             "8004171844     ",
 			InterchangeDate:                   "060102",
@@ -113,7 +114,7 @@ func MakeValidEdi() Invoice858C {
 		},
 		GS: edisegment.GS{
 			FunctionalIdentifierCode: "SI",
-			ApplicationSendersCode:   "MYMOVE",
+			ApplicationSendersCode:   fmt.Sprintf("%-9s", "MYMOVE"),
 			ApplicationReceiversCode: "8004171844",
 			Date:                     "190903",
 			Time:                     "1617",
