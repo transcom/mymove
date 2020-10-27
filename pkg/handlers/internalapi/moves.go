@@ -6,6 +6,11 @@ import (
 	"io/ioutil"
 	"time"
 
+	"github.com/gobuffalo/pop"
+	"github.com/pkg/errors"
+
+	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
+
 	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/rateengine"
@@ -14,6 +19,8 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
+
+	"github.com/gobuffalo/validate"
 
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -166,8 +173,11 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 		return handlers.ResponseForError(logger, err)
 	}
 
+	certificateParams := certop.NewCreateSignedCertificationParams()
+	certificateParams.CreateSignedCertificationPayload = params.SubmitMoveForApprovalPayload.Certificate
+
 	// Transaction to save move and dependencies
-	verrs, err := models.SaveMoveDependencies(h.DB(), move)
+	verrs, err := h.SaveMoveDependencies(h.DB(), move, certificateParams)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
@@ -186,6 +196,58 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 		return handlers.ResponseForError(logger, err)
 	}
 	return moveop.NewSubmitMoveForApprovalOK().WithPayload(movePayload)
+}
+
+// SaveMoveDependencies safely saves a Move status, ppms' advances' statuses, orders statuses,
+// and shipment GBLOCs.
+func (h SubmitMoveHandler) SaveMoveDependencies(db *pop.Connection, move *models.Move, certificateParams certop.CreateSignedCertificationParams) (*validate.Errors, error) {
+	responseVErrors := validate.NewErrors()
+	var responseError error
+
+	db.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("Rollback The transaction")
+
+		handler := CreateSignedCertificationHandler{h.HandlerContext}
+		response := handler.Handle(certificateParams)
+
+		_, ok := response.(*certop.CreateSignedCertificationCreated)
+		if !ok {
+			err := errors.New("Error saving certificate")
+			responseError = fmt.Errorf("error saving move %w", err)
+			return transactionError
+		}
+
+		for _, ppm := range move.PersonallyProcuredMoves {
+			if ppm.Advance != nil {
+				if verrs, err := db.ValidateAndSave(ppm.Advance); verrs.HasAny() || err != nil {
+					responseVErrors.Append(verrs)
+					responseError = errors.Wrap(err, "Error Saving Advance")
+					return transactionError
+				}
+			}
+
+			if verrs, err := db.ValidateAndSave(&ppm); verrs.HasAny() || err != nil {
+				responseVErrors.Append(verrs)
+				responseError = errors.Wrap(err, "Error Saving PPM")
+				return transactionError
+			}
+		}
+
+		if verrs, err := db.ValidateAndSave(&move.Orders); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error Saving Orders")
+			return transactionError
+		}
+
+		if verrs, err := db.ValidateAndSave(move); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error Saving Move")
+			return transactionError
+		}
+		return nil
+	})
+
+	return responseVErrors, responseError
 }
 
 // Handle returns a generated PDF
