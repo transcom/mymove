@@ -45,7 +45,7 @@
     "react-filepond": "^4.0.0",
     "react-form": "^4.0.1",
     "react-highlight-words": "^0.16.0",
-    "react-idle-timer": "^4.3.7",
+    "react-idle-timer": "^4.4.2",
     "react-loadable": "^5.3.1",
     "react-numeric-input": "^2.2.3",
     "react-query": "^2.25.2",
