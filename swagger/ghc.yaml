@@ -2445,7 +2445,7 @@ definitions:
         $ref: '#/definitions/PaymentRequestStatus'
       age:
         type: number
-        format: float
+        format: integer
         description: Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.
       submittedAt:
         type: string

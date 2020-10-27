@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { string, bool, func, arrayOf, shape } from 'prop-types';
-import { get } from 'lodash';
 
 import styles from './SelectMoveType.module.scss';
 
@@ -24,7 +23,6 @@ export class SelectMoveType extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      moveType: props.selectedMoveType,
       showStorageInfoModal: false,
     };
   }
@@ -65,6 +63,7 @@ export class SelectMoveType extends Component {
     const mtosCount = mtoShipments?.length || 0;
     const shipmentNumber = 1 + ppmCount + mtosCount;
     const hasMove = shipmentNumber > 1;
+    const canMoveNext = moveType ? moveType !== '' : false;
     const ppmCardText =
       'You pack and move your things, or make other arrangements, The government pays you for the weight you move.  This is a a Personally Procured Move (PPM), sometimes called a DITY.';
     const hhgCardText =
@@ -151,6 +150,7 @@ export class SelectMoveType extends Component {
               handleSubmit={this.handleSubmit}
               push={push}
               footerText={footerText}
+              canMoveNext={canMoveNext}
             >
               <h6 data-testid="number-eyebrow" className="sm-heading">
                 Shipment {shipmentNumber}
@@ -220,7 +220,6 @@ SelectMoveType.propTypes = {
   push: func.isRequired,
   updateMove: func.isRequired,
   loadMTOShipments: func.isRequired,
-  selectedMoveType: string.isRequired,
   move: MoveTaskOrderShape.isRequired,
   mtoShipments: arrayOf(MTOShipmentShape).isRequired,
 };
@@ -231,7 +230,6 @@ function mapStateToProps(state) {
 
   const props = {
     move,
-    selectedMoveType: get(move, 'selected_move_type'),
     mtoShipments,
   };
   return props;
