@@ -3,10 +3,9 @@ import PropTypes from 'prop-types';
 import { Field } from 'formik';
 import { v4 as uuidv4 } from 'uuid';
 
-import styles from '../../Customer/EditShipment.module.scss';
-
-import Fieldset from 'shared/Fieldset';
+import styles from 'pages/MyMove/index.module.scss';
 import { TextInput } from 'components/form/fields';
+import Fieldset from 'shared/Fieldset';
 
 export const AddressFields = ({ legend, className, values, name, renderExistingAddressCheckbox }) => {
   const addressFieldsUUID = uuidv4();

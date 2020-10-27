@@ -1,6 +1,7 @@
 package payloads
 
 import (
+	"math"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -546,7 +547,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 			MoveID:      *handlers.FmtUUID(moveTaskOrder.ID),
 			Customer:    Customer(&orders.ServiceMember),
 			Status:      ghcmessages.PaymentRequestStatus(paymentRequest.Status),
-			Age:         float32(time.Since(paymentRequest.CreatedAt).Hours() / 24.0),
+			Age:         int64(math.Ceil(time.Since(paymentRequest.CreatedAt).Hours() / 24.0)),
 			SubmittedAt: *handlers.FmtDateTime(paymentRequest.CreatedAt), // RequestedAt does not seem to be populated
 			Locator:     moveTaskOrder.Locator,
 			OriginGBLOC: ghcmessages.GBLOC(orders.OriginDutyStation.TransportationOffice.Gbloc),

@@ -11,6 +11,7 @@ import classNames from 'classnames';
 import { updateServiceMember } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import SectionWrapper from 'components/Customer/SectionWrapper';
 
 const subsetOfFields = ['affiliation', 'edipi', 'social_security_number', 'rank'];
 
@@ -125,21 +126,21 @@ export class DodInfo extends Component {
         initialValues={initialValues}
         ssnOnServer={ssnOnServer}
       >
-        <div className="grid-row">
-          <div className="grid-col-12">
-            <h1 className="sm-heading">Create your profile</h1>
-            <p>Before we can schedule your move, we need to know a little more about you.</p>
+        <h1>Create your profile</h1>
+        <p>Before we can schedule your move, we need to know a little more about you.</p>
+        <SectionWrapper>
+          <div className="tablet:margin-top-neg-3">
             <SwaggerField fieldName="affiliation" swagger={schema} required />
-            <SwaggerField fieldName="edipi" swagger={schema} required />
-            <Field
-              name="social_security_number"
-              component={SSNField}
-              ssnOnServer={ssnOnServer}
-              normalize={normalizeSSN}
-            />
-            <SwaggerField fieldName="rank" swagger={schema} required />
           </div>
-        </div>
+          <SwaggerField fieldName="edipi" swagger={schema} required />
+          <Field
+            name="social_security_number"
+            component={SSNField}
+            ssnOnServer={ssnOnServer}
+            normalize={normalizeSSN}
+          />
+          <SwaggerField fieldName="rank" swagger={schema} required />
+        </SectionWrapper>
       </DodWizardForm>
     );
   }

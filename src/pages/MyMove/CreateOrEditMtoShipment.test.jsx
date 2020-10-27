@@ -1,13 +1,10 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { mount } from 'enzyme';
-import { Provider } from 'react-redux';
-import { ConnectedRouter } from 'connected-react-router';
 
-import CreateOrEditMtoShipment from './CreateOrEditMtoShipment';
+import { CreateOrEditMtoShipment } from './CreateOrEditMtoShipment';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { history, store } from 'shared/store';
 
 function getMockMatchProp(path = '') {
   return {
@@ -31,62 +28,78 @@ const defaultProps = {
     goBack: jest.fn(),
     push: jest.fn(),
   },
-  showLoggedInUser: jest.fn(),
+  fetchCustomerData: jest.fn(),
   createMTOShipment: jest.fn(),
   updateMTOShipment: jest.fn(),
-  loadMTOShipments: jest.fn(),
+  selectedMoveType: '',
   mtoShipment: {},
+  currentResidence: {},
+  serviceMember: {
+    weight_allotment: {
+      total_weight_self: 5000,
+    },
+  },
 };
 
-function mountCreateOrEditMtoShipment(props) {
-  return mount(
-    <Provider store={store}>
-      <ConnectedRouter history={history}>
-        <CreateOrEditMtoShipment {...defaultProps} {...props} />
-      </ConnectedRouter>
-    </Provider>,
-  );
-}
+const mockMtoShipment = {
+  id: 'mock id',
+  moveTaskOrderId: 'move123',
+  customerRemarks: 'mock remarks',
+  requestedPickupDate: '1 Mar 2020',
+  requestedDeliveryDate: '30 Mar 2020',
+  pickupAddress: {
+    street_address_1: '812 S 129th St',
+    city: 'San Antonio',
+    state: 'TX',
+    postal_code: '78234',
+  },
+  destinationAddress: {
+    street_address_1: '441 SW Rio de la Plata Drive',
+    city: 'Tacoma',
+    state: 'WA',
+    postal_code: '98421',
+  },
+};
+
+const mountCreateOrEditMtoShipment = (props) => mount(<CreateOrEditMtoShipment {...defaultProps} {...props} />);
 
 describe('CreateOrEditMtoShipment component', () => {
-  describe('when shipmentType is HHG', () => {
-    it('renders only the MtoShipmentForm component', () => {
-      const wrapper = mountCreateOrEditMtoShipment({
-        selectedMoveType: SHIPMENT_OPTIONS.HHG,
-        match: getMockMatchProp('/moves/:moveId/hhg-start'),
-      });
-      expect(wrapper.find('MtoShipmentForm').length).toBe(1);
-      expect(wrapper.find('EditShipment').length).toBe(0);
+  it('fetches customer data on mount', () => {
+    mountCreateOrEditMtoShipment({
+      selectedMoveType: SHIPMENT_OPTIONS.NTSR,
     });
+    expect(defaultProps.fetchCustomerData).toHaveBeenCalled();
+  });
 
-    it('or renders only the the EditShipment component', () => {
-      const wrapper = mountCreateOrEditMtoShipment({
+  describe('when creating a new shipment', () => {
+    it('renders the MtoShipmentForm component right away', () => {
+      const createWrapper = mountCreateOrEditMtoShipment({
         selectedMoveType: SHIPMENT_OPTIONS.HHG,
+        isCreate: true,
       });
-      expect(wrapper.find('EditShipment').length).toBe(1);
-      expect(wrapper.find('MtoShipmentForm').length).toBe(0);
+      expect(createWrapper.find('MtoShipmentForm').length).toBe(1);
+      expect(createWrapper.find('LoadingPlaceholder').exists()).toBe(false);
     });
   });
 
-  describe('when shipmentType is NTS', () => {
-    it('renders only the MtoShipmentForm component', () => {
-      const wrapper = mountCreateOrEditMtoShipment({
-        selectedMoveType: SHIPMENT_OPTIONS.NTS,
-        match: getMockMatchProp('/moves/:moveId/nts-start'),
-      });
-      expect(wrapper.find('MtoShipmentForm').length).toBe(1);
-      expect(wrapper.find('EditShipment').length).toBe(0);
+  describe('when editing an existing shipment', () => {
+    const editWrapper = mountCreateOrEditMtoShipment({
+      selectedMoveType: SHIPMENT_OPTIONS.NTS,
+      match: getMockMatchProp('/moves/:moveId/mto-shipments/:mtoShipmentId/edit'),
     });
-  });
 
-  describe('when shipmentType is NTSr', () => {
-    it('renders only the NTSDetailsForm component', () => {
-      const wrapper = mountCreateOrEditMtoShipment({
-        selectedMoveType: SHIPMENT_OPTIONS.NTSR,
-        match: getMockMatchProp('/moves/:moveId/ntsr-start'),
+    it('renders the loader right away', () => {
+      expect(editWrapper.find('LoadingPlaceholder').exists()).toBe(true);
+      expect(editWrapper.find('MtoShipmentForm').length).toBe(0);
+    });
+
+    it('renders the MtoShipmentForm after an MTO shipment has loaded', () => {
+      editWrapper.setProps({
+        mtoShipment: mockMtoShipment,
       });
-      expect(wrapper.find('MtoShipmentForm').length).toBe(1);
-      expect(wrapper.find('EditShipment').length).toBe(0);
+      editWrapper.update();
+      expect(editWrapper.find('LoadingPlaceholder').exists()).toBe(false);
+      expect(editWrapper.find('MtoShipmentForm').length).toBe(1);
     });
   });
 });

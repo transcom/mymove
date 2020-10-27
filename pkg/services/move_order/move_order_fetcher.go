@@ -41,8 +41,7 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, options ...func
 		InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
 		InnerJoin("duty_stations", "orders.origin_duty_station_id = duty_stations.id").
 		InnerJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id").
-		Where("transportation_offices.gbloc = ?", gbloc).
-		GroupBy("orders.id")
+		Where("transportation_offices.gbloc = ?", gbloc)
 
 	for _, option := range options {
 		if option != nil {
@@ -50,7 +49,7 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, options ...func
 		}
 	}
 
-	err = query.All(&moveOrders)
+	err = query.GroupBy("orders.id").All(&moveOrders)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:

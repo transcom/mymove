@@ -32,6 +32,7 @@ export const additionalInformation = `_Additional Information:_
 -  I understand that additional information and regulations pertaining to the transportation of my shipment of baggage and household goods within the United States are provided in Chapter 5, JTR.
 `;
 
+// ppmPaymentLegal used in PaymentReview
 export const ppmPaymentLegal = `\
 LEGAL AGREEMENT / PRIVACY ACT
 
@@ -51,3 +52,57 @@ have to remit the difference with the balance of my incentive disbursement and/o
 be necessary. If I receive an advance for my PPM shipment, I agree to furnish weight tickets within 45 days of final \
 delivery to my destination. I understand that failure to furnish weight tickets within this timeframe may lead to the \
 collection of my pay as necessary to cover the cost of the advance.`;
+
+export const completeCertificationText = `
+**Financial Liability**
+
+For a HHG shipment, I am entitled to move a certain amount of HHG by weight, known as authorized HHG shipment weight \
+(allowance or entitlement).  This allowance is based on my rank, my dependents, and the location of my move (within \
+the continental United States, or beyond).  If I move more HHG weight than my maximum weight allowance, I will be \
+subject to excess cost for exceeding my weight allowance or entitlement.
+
+For a PPM shipment, I understand I will be paid 95% of what the government would have paid to move my belongings. My \
+final payment will be calculated using documented weight and distance, up to my maximum weight allowance. I will not \
+be paid for moving any extra weight beyond my weight allowance.
+
+I understand I will pay taxes on monies received for moving this PPM shipment as income, and they will be deducted \
+from my payment. I may submit receipts for approved expenses to reduce the taxable amount.
+
+If the combined weight of all shipments in my move exceeds my weight allowance, I understand I am obligated to pay \
+the cost difference to the government.  To facilitate collection by the government, I consent to collection, as \
+prescribed by law, from my salary the amount of money necessary to cover excess shipment costs.
+
+**Changes or Cancellations**
+
+If my orders are modified or canceled and affect my shipment(s), I will immediately notify my local transportation \
+office and upload the change to my orders in MilMove.  If my move is changed or canceled because my orders change, \
+or because of another directive, I am not responsible for any costs associated with that change.  If I would prefer \
+a different move date, shipment type, or other aspect, and cancel or change the move based on my preference, I am \
+responsible for any expenses that may have been paid or incurred toward that shipment.
+
+**Household Goods Liability**
+
+All property included in all my shipment consists of household goods and personal effects that belonged to me and \
+my dependents on the effective date of change of station orders.  All pro-gear included in my shipments, including, \
+but not limited to, professional books, papers, and equipment, are necessary for me to perform my official duties.  \
+Once my move is approved, I will review and abide by the moving information provided to me through official channels, \
+including MilMove, Move.mil, and communications from the transportation office.  I understand I risk loss, damage, \
+delays, and/or excess costs if I do not follow that information.
+
+**Storage Liability:**
+
+I understand the government will not be responsible for goods remaining in storage after the expiration of the \
+authorized period.
+
+**False Claims**
+
+I understand I may not knowingly submit false, fictitious, or fraudulent claims.  I understand there are severe \
+criminal and civil penalties for knowingly submitting a false, fictitious, or fraudulent claim (U.S. Code, Title 18, \
+Sections 287 and 1001 and Title 31, Section 3729).  For more information, see the Department of Defense Financial \
+Management Regulation [DOD 7000.14-R, Volume 9](https://www.defensetravel.dod.mil/Docs/perdiem/JTR.pdf) (PDF link), Chapter 5, paragraph 050204.
+
+**Additional Information**
+
+I understand additional information and regulations pertaining to the transportation of my personal property \
+shipment(s) are provided in Chapter 5, [Joint Travel Regulations](https://www.defensetravel.dod.mil/Docs/perdiem/JTR.pdf) (PDF link).
+`;

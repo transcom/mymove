@@ -3068,7 +3068,7 @@ func init() {
         "age": {
           "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
           "type": "number",
-          "format": "float"
+          "format": "integer"
         },
         "customer": {
           "$ref": "#/definitions/Customer"
@@ -6903,7 +6903,7 @@ func init() {
         "age": {
           "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
           "type": "number",
-          "format": "float"
+          "format": "integer"
         },
         "customer": {
           "$ref": "#/definitions/Customer"
