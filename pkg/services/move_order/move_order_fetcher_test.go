@@ -3,9 +3,19 @@ package moveorder
 import (
 	"testing"
 
+	"github.com/gobuffalo/pop"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
+
+type FilterOption func(*pop.Query)
+
+func armyBranchFilter() FilterOption {
+	return func(query *pop.Query) {
+		query = query.Where("orders.department_indicator = 'ARMY'")
+	}
+}
 
 func (suite *MoveOrderServiceSuite) TestMoveOrderFetcher() {
 	expectedMoveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
@@ -104,28 +114,39 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 	})
 
 	suite.T().Run("returns move orders filtered by GBLOC", func(t *testing.T) {
-		originDutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
 			TransportationOffice: models.TransportationOffice{
 				Gbloc: "AGFM",
 			},
-		})
-
-		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-			OriginDutyStation: originDutyStation,
-		})
-
-		secondMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Order: order,
-		})
-
-		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: secondMove,
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+			Move: models.Move{
+				Status: models.MoveStatusSUBMITTED,
 			},
 		})
 
 		moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUser.ID)
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moveOrders))
+	})
+
+	suite.T().Run("returns orders filtered by an arbitrary query", func(t *testing.T) {
+		army := "ARMY"
+		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+			Order: models.Order{
+				DepartmentIndicator: &army,
+			},
+			Move: models.Move{
+				Status: models.MoveStatusSUBMITTED,
+			},
+		})
+
+		moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, armyBranchFilter())
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moveOrders))
