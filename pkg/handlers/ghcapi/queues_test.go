@@ -276,7 +276,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		moveorder.NewMoveOrderFetcher(suite.DB()),
 	}
 
-	suite.Run("loads unfiltered results", func() {
+	suite.Run("returns unfiltered results", func() {
 		params := queues.GetMovesQueueParams{
 			HTTPRequest: request,
 		}
@@ -289,7 +289,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		suite.Len(payload.QueueMoves, 2)
 	})
 
-	suite.Run("loads results matching last name search term", func() {
+	suite.Run("returns results matching last name search term", func() {
 		params := queues.GetMovesQueueParams{
 			HTTPRequest: request,
 			LastName:    models.StringPointer("Nan"),
@@ -305,7 +305,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		suite.Equal("Nance", result.Customer.LastName)
 	})
 
-	suite.Run("loads results matching Dod ID search term", func() {
+	suite.Run("returns results matching Dod ID search term", func() {
 		params := queues.GetMovesQueueParams{
 			HTTPRequest: request,
 			DodID:       serviceMember1.Edipi,
@@ -321,7 +321,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		suite.Equal("11111", result.Customer.DodID)
 	})
 
-	suite.Run("loads results matching Move ID search term", func() {
+	suite.Run("returns results matching Move ID search term", func() {
 		params := queues.GetMovesQueueParams{
 			HTTPRequest: request,
 			MoveID:      &move1.Locator,
@@ -338,7 +338,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 
 	})
 
-	suite.Run("loads results matching DestinationDutyStation name search term", func() {
+	suite.Run("returns results matching DestinationDutyStation name search term", func() {
 		params := queues.GetMovesQueueParams{
 			HTTPRequest:            request,
 			DestinationDutyStation: &dutyStation1.Name,
@@ -353,6 +353,24 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		suite.Len(payload.QueueMoves, 1)
 		suite.Equal("This Other Station", result.DestinationDutyStation.Name)
 	})
+
+	suite.Run("returns results with multiple filters applied", func() {
+		params := queues.GetMovesQueueParams{
+			HTTPRequest:            request,
+			LastName:               models.StringPointer("Dar"),
+			DodID:                  serviceMember1.Edipi,
+			MoveID:                 &move1.Locator,
+			DestinationDutyStation: &dutyStation1.Name,
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		payload := response.(*queues.GetMovesQueueOK).Payload
+
+		suite.Len(payload.QueueMoves, 1)
+	})
+
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedRole() {

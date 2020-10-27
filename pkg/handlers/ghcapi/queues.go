@@ -100,7 +100,7 @@ func lastNameFilter(params queues.GetMovesQueueParams) FilterOption {
 	return func(query *pop.Query) {
 		if params.LastName != nil {
 			nameSearch := fmt.Sprintf("%s%%", *params.LastName)
-			query = query.InnerJoin("service_members", "orders.service_member_id = service_members.id").Where("service_members.last_name ILIKE ?", nameSearch)
+			query = query.Where("service_members.last_name ILIKE ?", nameSearch)
 		}
 	}
 }
@@ -108,7 +108,7 @@ func lastNameFilter(params queues.GetMovesQueueParams) FilterOption {
 func dodIDFilter(params queues.GetMovesQueueParams) FilterOption {
 	return func(query *pop.Query) {
 		if params.DodID != nil {
-			query = query.InnerJoin("service_members", "orders.service_member_id = service_members.id").Where("service_members.edipi ILIKE ?", params.DodID)
+			query = query.Where("service_members.edipi ILIKE ?", params.DodID)
 		}
 	}
 }
