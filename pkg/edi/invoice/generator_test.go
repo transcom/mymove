@@ -55,6 +55,11 @@ func (suite *InvoiceSuite) TestEDIString() {
 			DateQualifier: 10,
 			Date:          "20200909",
 		}
+		l3total := edisegment.L3{
+			Weight:          300.0,
+			WeightQualifier: "B",
+			PriceCents:      100,
+		}
 		invoice := Invoice858C{
 			ISA: edisegment.ISA{
 				AuthorizationInformationQualifier: "00",
@@ -87,6 +92,9 @@ func (suite *InvoiceSuite) TestEDIString() {
 			Header: []edisegment.Segment{
 				&date,
 			},
+			ServiceItems: []edisegment.Segment{
+				&l3total,
+			},
 			ST: edisegment.ST{
 				TransactionSetIdentifierCode: "858",
 				TransactionSetControlNumber:  "ABCDE",
@@ -111,6 +119,7 @@ func (suite *InvoiceSuite) TestEDIString() {
 GS*SI*MYMOVE*8004171844*190903*1617*1*X*004010
 ST*858*ABCDE
 G62*10*20200909**
+L3*300.000*B***100
 SE*12345*ABCDE
 GE*1*1234567
 IEA*1*000009999
