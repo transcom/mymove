@@ -18,6 +18,7 @@ import {
 } from 'shared/Entities/modules/mtoShipments';
 import { MoveTaskOrderShape, MTOShipmentShape } from 'types/moveOrder';
 import ConnectedStorageInfoModal from 'components/Customer/modals/StorageInfoModal/StorageInfoModal';
+import ConnectedMoveInfoModal from 'components/Customer/modals/MoveInfoModal/MoveInfoModal';
 
 export class SelectMoveType extends Component {
   constructor(props) {
@@ -194,7 +195,7 @@ export class SelectMoveType extends Component {
           </div>
           <div className="tablet:grid-col-2" />
         </div>
-
+        <ConnectedMoveInfoModal isOpen={!showStorageInfoModal} closeModal={this.toggleStorageModal} />
         <ConnectedStorageInfoModal isOpen={showStorageInfoModal} closeModal={this.toggleStorageModal} />
       </div>
     );
