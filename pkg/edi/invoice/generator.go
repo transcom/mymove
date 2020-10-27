@@ -25,8 +25,8 @@ type Invoice858C struct {
 	ISA          edisegment.ISA
 	GS           edisegment.GS
 	ST           edisegment.ST
-	Header       []edisegment.Segment
-	ServiceItems []edisegment.Segment
+	Header       []edisegment.Segment `validate:"min=1,dive"`
+	ServiceItems []edisegment.Segment `validate:"min=1,dive"`
 	SE           edisegment.SE
 	GE           edisegment.GE
 	IEA          edisegment.IEA

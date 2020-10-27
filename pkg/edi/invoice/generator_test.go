@@ -51,58 +51,15 @@ func TestInvoiceSuite(t *testing.T) {
 
 func (suite *InvoiceSuite) TestEDIString() {
 	suite.T().Run("full EDI string is expected", func(t *testing.T) {
-		invoice := Invoice858C{
-			ISA: edisegment.ISA{
-				AuthorizationInformationQualifier: "00",
-				AuthorizationInformation:          "0084182369",
-				SecurityInformationQualifier:      "00",
-				SecurityInformation:               "0000000000",
-				InterchangeSenderIDQualifier:      "ZZ",
-				InterchangeSenderID:               "MYMOVE         ",
-				InterchangeReceiverIDQualifier:    "12",
-				InterchangeReceiverID:             "8004171844     ",
-				InterchangeDate:                   "060102",
-				InterchangeTime:                   "1504",
-				InterchangeControlStandards:       "U",
-				InterchangeControlVersionNumber:   "00401",
-				InterchangeControlNumber:          9999,
-				AcknowledgementRequested:          0,
-				UsageIndicator:                    "T",
-				ComponentElementSeparator:         "|",
-			},
-			GS: edisegment.GS{
-				FunctionalIdentifierCode: "SI",
-				ApplicationSendersCode:   "MYMOVE",
-				ApplicationReceiversCode: "8004171844",
-				Date:                     "190903",
-				Time:                     "1617",
-				GroupControlNumber:       1,
-				ResponsibleAgencyCode:    "X",
-				Version:                  "004010",
-			},
-			ST: edisegment.ST{
-				TransactionSetIdentifierCode: "858",
-				TransactionSetControlNumber:  "ABCDE",
-			},
-			SE: edisegment.SE{
-				NumberOfIncludedSegments:    12345,
-				TransactionSetControlNumber: "ABCDE",
-			},
-			GE: edisegment.GE{
-				NumberOfTransactionSetsIncluded: 1,
-				GroupControlNumber:              1234567,
-			},
-			IEA: edisegment.IEA{
-				NumberOfIncludedFunctionalGroups: 1,
-				InterchangeControlNumber:         9999,
-			},
-		}
-
+		invoice := MakeValidEdi()
 		ediString, err := invoice.EDIString(suite.logger)
 		suite.NoError(err)
 		suite.Equal(`ISA*00*0084182369*00*0000000000*ZZ*MYMOVE         *12*8004171844     *060102*1504*U*00401*000009999*0*T*|
 GS*SI*MYMOVE*8004171844*190903*1617*1*X*004010
 ST*858*ABCDE
+G62*10*20200909*0*
+L3*300.000*B*100
+N4*San Francisco*CA*94123*United States**
 SE*12345*ABCDE
 GE*1*1234567
 IEA*1*000009999
@@ -112,54 +69,80 @@ IEA*1*000009999
 
 func (suite *InvoiceSuite) TestValidate() {
 	suite.T().Run("everything validates successfully", func(t *testing.T) {
-		invoice := Invoice858C{
-			ISA: edisegment.ISA{
-				AuthorizationInformationQualifier: "00",
-				AuthorizationInformation:          "0084182369",
-				SecurityInformationQualifier:      "00",
-				SecurityInformation:               "0000000000",
-				InterchangeSenderIDQualifier:      "ZZ",
-				InterchangeSenderID:               "MYMOVE         ",
-				InterchangeReceiverIDQualifier:    "12",
-				InterchangeReceiverID:             "8004171844     ",
-				InterchangeDate:                   "060102",
-				InterchangeTime:                   "1504",
-				InterchangeControlStandards:       "U",
-				InterchangeControlVersionNumber:   "00401",
-				InterchangeControlNumber:          9999,
-				AcknowledgementRequested:          0,
-				UsageIndicator:                    "T",
-				ComponentElementSeparator:         "|",
-			},
-			GS: edisegment.GS{
-				FunctionalIdentifierCode: "SI",
-				ApplicationSendersCode:   "MYMOVE",
-				ApplicationReceiversCode: "8004171844",
-				Date:                     "190903",
-				Time:                     "1617",
-				GroupControlNumber:       1,
-				ResponsibleAgencyCode:    "X",
-				Version:                  "004010",
-			},
-			ST: edisegment.ST{
-				TransactionSetIdentifierCode: "858",
-				TransactionSetControlNumber:  "ABCDE",
-			},
-			SE: edisegment.SE{
-				NumberOfIncludedSegments:    12345,
-				TransactionSetControlNumber: "ABCDE",
-			},
-			GE: edisegment.GE{
-				NumberOfTransactionSetsIncluded: 1,
-				GroupControlNumber:              1234567,
-			},
-			IEA: edisegment.IEA{
-				NumberOfIncludedFunctionalGroups: 1,
-				InterchangeControlNumber:         9999,
-			},
-		}
-
+		invoice := MakeValidEdi()
 		err := invoice.Validate()
 		suite.NoError(err, "Failed to get invoice 858C as EDI string")
 	})
+}
+
+func MakeValidEdi() Invoice858C {
+	date := edisegment.G62{
+		DateQualifier: 10,
+		Date:          "20200909",
+	}
+	n4 := edisegment.N4{
+		CityName:            "San Francisco",
+		StateOrProvinceCode: "CA",
+		PostalCode:          "94123",
+		CountryCode:         "United States",
+	}
+	l3total := edisegment.L3{
+		Weight:          300.0,
+		WeightQualifier: "B",
+		PriceCents:      100,
+	}
+
+	return Invoice858C{
+		ISA: edisegment.ISA{
+			AuthorizationInformationQualifier: "00",
+			AuthorizationInformation:          "0084182369",
+			SecurityInformationQualifier:      "00",
+			SecurityInformation:               "0000000000",
+			InterchangeSenderIDQualifier:      "ZZ",
+			InterchangeSenderID:               "MYMOVE         ",
+			InterchangeReceiverIDQualifier:    "12",
+			InterchangeReceiverID:             "8004171844     ",
+			InterchangeDate:                   "060102",
+			InterchangeTime:                   "1504",
+			InterchangeControlStandards:       "U",
+			InterchangeControlVersionNumber:   "00401",
+			InterchangeControlNumber:          9999,
+			AcknowledgementRequested:          0,
+			UsageIndicator:                    "T",
+			ComponentElementSeparator:         "|",
+		},
+		GS: edisegment.GS{
+			FunctionalIdentifierCode: "SI",
+			ApplicationSendersCode:   "MYMOVE",
+			ApplicationReceiversCode: "8004171844",
+			Date:                     "190903",
+			Time:                     "1617",
+			GroupControlNumber:       1,
+			ResponsibleAgencyCode:    "X",
+			Version:                  "004010",
+		},
+		ST: edisegment.ST{
+			TransactionSetIdentifierCode: "858",
+			TransactionSetControlNumber:  "ABCDE",
+		},
+		Header: []edisegment.Segment{
+			&date,
+		},
+		ServiceItems: []edisegment.Segment{
+			&l3total,
+			&n4,
+		},
+		SE: edisegment.SE{
+			NumberOfIncludedSegments:    12345,
+			TransactionSetControlNumber: "ABCDE",
+		},
+		GE: edisegment.GE{
+			NumberOfTransactionSetsIncluded: 1,
+			GroupControlNumber:              1234567,
+		},
+		IEA: edisegment.IEA{
+			NumberOfIncludedFunctionalGroups: 1,
+			InterchangeControlNumber:         9999,
+		},
+	}
 }
