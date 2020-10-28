@@ -38,11 +38,9 @@
       }
     }
 
-    @media (min-width: $tablet) {
     .usa-legend {
       @include u-margin-top(0);
     }
-  }
 
     .usa-hint {
       @include u-font-size('body', '3xs');
