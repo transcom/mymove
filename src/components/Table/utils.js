@@ -14,6 +14,8 @@ export const createHeader = (header, accessor, options = {}) => {
   };
 };
 
+/* Filters */
+
 /**
  * Text filter function that searches with "startsWith".
  * @param rows The rows of data.
