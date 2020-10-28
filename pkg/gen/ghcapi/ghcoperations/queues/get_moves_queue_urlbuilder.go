@@ -15,8 +15,12 @@ import (
 
 // GetMovesQueueURL generates an URL for the get moves queue operation
 type GetMovesQueueURL struct {
-	Branch *string
-	Status []string
+	Branch                 *string
+	DestinationDutyStation *string
+	DodID                  *string
+	LastName               *string
+	MoveID                 *string
+	Status                 []string
 
 	_basePath string
 	// avoid unkeyed usage
@@ -58,6 +62,38 @@ func (o *GetMovesQueueURL) Build() (*url.URL, error) {
 	}
 	if branchQ != "" {
 		qs.Set("branch", branchQ)
+	}
+
+	var destinationDutyStationQ string
+	if o.DestinationDutyStation != nil {
+		destinationDutyStationQ = *o.DestinationDutyStation
+	}
+	if destinationDutyStationQ != "" {
+		qs.Set("destinationDutyStation", destinationDutyStationQ)
+	}
+
+	var dodIDQ string
+	if o.DodID != nil {
+		dodIDQ = *o.DodID
+	}
+	if dodIDQ != "" {
+		qs.Set("dodID", dodIDQ)
+	}
+
+	var lastNameQ string
+	if o.LastName != nil {
+		lastNameQ = *o.LastName
+	}
+	if lastNameQ != "" {
+		qs.Set("lastName", lastNameQ)
+	}
+
+	var moveIDQ string
+	if o.MoveID != nil {
+		moveIDQ = *o.MoveID
+	}
+	if moveIDQ != "" {
+		qs.Set("moveID", moveIDQ)
 	}
 
 	var statusIR []string

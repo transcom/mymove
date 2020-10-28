@@ -1105,6 +1105,18 @@ paths:
           name: branch
           type: string
         - in: query
+          name: moveID
+          type: string
+        - in: query
+          name: lastName
+          type: string
+        - in: query
+          name: dodID
+          type: string
+        - in: query
+          name: destinationDutyStation
+          type: string
+        - in: query
           name: status
           type: array
           description: Filtering for the status.

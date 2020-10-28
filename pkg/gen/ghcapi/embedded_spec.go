@@ -1634,6 +1634,26 @@ func init() {
             "in": "query"
           },
           {
+            "type": "string",
+            "name": "moveID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "lastName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "destinationDutyStation",
+            "in": "query"
+          },
+          {
             "uniqueItems": true,
             "type": "array",
             "items": {
@@ -5454,6 +5474,26 @@ func init() {
           {
             "type": "string",
             "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "moveID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "lastName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "destinationDutyStation",
             "in": "query"
           },
           {

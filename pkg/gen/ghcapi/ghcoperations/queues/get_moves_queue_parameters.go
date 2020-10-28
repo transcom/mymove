@@ -38,6 +38,22 @@ type GetMovesQueueParams struct {
 	  In: query
 	*/
 	Branch *string
+	/*
+	  In: query
+	*/
+	DestinationDutyStation *string
+	/*
+	  In: query
+	*/
+	DodID *string
+	/*
+	  In: query
+	*/
+	LastName *string
+	/*
+	  In: query
+	*/
+	MoveID *string
 	/*Filtering for the status.
 	  Unique: true
 	  In: query
@@ -58,6 +74,26 @@ func (o *GetMovesQueueParams) BindRequest(r *http.Request, route *middleware.Mat
 
 	qBranch, qhkBranch, _ := qs.GetOK("branch")
 	if err := o.bindBranch(qBranch, qhkBranch, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qDestinationDutyStation, qhkDestinationDutyStation, _ := qs.GetOK("destinationDutyStation")
+	if err := o.bindDestinationDutyStation(qDestinationDutyStation, qhkDestinationDutyStation, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qDodID, qhkDodID, _ := qs.GetOK("dodID")
+	if err := o.bindDodID(qDodID, qhkDodID, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qLastName, qhkLastName, _ := qs.GetOK("lastName")
+	if err := o.bindLastName(qLastName, qhkLastName, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qMoveID, qhkMoveID, _ := qs.GetOK("moveID")
+	if err := o.bindMoveID(qMoveID, qhkMoveID, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -86,6 +122,78 @@ func (o *GetMovesQueueParams) bindBranch(rawData []string, hasKey bool, formats 
 	}
 
 	o.Branch = &raw
+
+	return nil
+}
+
+// bindDestinationDutyStation binds and validates parameter DestinationDutyStation from query.
+func (o *GetMovesQueueParams) bindDestinationDutyStation(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	o.DestinationDutyStation = &raw
+
+	return nil
+}
+
+// bindDodID binds and validates parameter DodID from query.
+func (o *GetMovesQueueParams) bindDodID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	o.DodID = &raw
+
+	return nil
+}
+
+// bindLastName binds and validates parameter LastName from query.
+func (o *GetMovesQueueParams) bindLastName(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	o.LastName = &raw
+
+	return nil
+}
+
+// bindMoveID binds and validates parameter MoveID from query.
+func (o *GetMovesQueueParams) bindMoveID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	o.MoveID = &raw
 
 	return nil
 }
