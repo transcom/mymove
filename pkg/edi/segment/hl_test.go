@@ -17,13 +17,13 @@ func (suite *SegmentSuite) TestValidateHL() {
 
 	suite.T().Run("validate failure", func(t *testing.T) {
 		hl := HL{
-			HierarchicalIDNumber:       "300", // oneof
-			HierarchicalParentIDNumber: "1",   // isdefault
-			HierarchicalLevelCode:      "XX",  // eq
+			HierarchicalIDNumber:       "A-123", // alphanum
+			HierarchicalParentIDNumber: "1",     // isdefault
+			HierarchicalLevelCode:      "XX",    // eq
 		}
 
 		err := suite.validator.Struct(hl)
-		suite.ValidateError(err, "HierarchicalIDNumber", "oneof")
+		suite.ValidateError(err, "HierarchicalIDNumber", "alphanum")
 		suite.ValidateError(err, "HierarchicalParentIDNumber", "isdefault")
 		suite.ValidateError(err, "HierarchicalLevelCode", "oneof")
 		suite.ValidateErrorLen(err, 3)
