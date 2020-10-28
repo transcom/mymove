@@ -173,10 +173,9 @@ func createTLSConfig(clientKey []byte, clientCert []byte, ca []byte) (*tls.Confi
 	}
 
 	tlsConfig := &tls.Config{
-		Certificates:       []tls.Certificate{keyPair},
-		InsecureSkipVerify: false,
-		MinVersion:         tls.VersionTLS12,
-		MaxVersion:         tls.VersionTLS13,
+		Certificates: []tls.Certificate{keyPair},
+		MinVersion:   tls.VersionTLS12,
+		MaxVersion:   tls.VersionTLS13,
 	}
 
 	if len(ca) > 0 {
