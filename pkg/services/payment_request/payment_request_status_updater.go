@@ -1,7 +1,7 @@
 package paymentrequest
 
 import (
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -53,7 +53,7 @@ func (p *paymentRequestStatusUpdater) UpdatePaymentRequestStatus(paymentRequest 
 	}
 
 	if err != nil {
-		if errors.Cause(err).Error() == "sql: no rows in result set" {
+		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 			return nil, services.NewNotFoundError(id, "")
 		}
 

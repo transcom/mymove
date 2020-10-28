@@ -9,7 +9,6 @@ require (
 	github.com/alexedwards/scs/redisstore v0.0.0-20200225172727-3308e1066830
 	github.com/alexedwards/scs/v2 v2.4.0
 	github.com/aws/aws-sdk-go v1.35.7
-	github.com/cockroachdb/cockroach-go v0.0.0-20200411195601-6f5842749cfc // indirect
 	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
@@ -32,11 +31,9 @@ require (
 	github.com/gobuffalo/envy v1.9.0
 	github.com/gobuffalo/fizz v1.13.0
 	github.com/gobuffalo/flect v0.2.2
-	github.com/gobuffalo/genny v0.6.0 // indirect
 	github.com/gobuffalo/nulls v0.4.0 // indirect
-	github.com/gobuffalo/packr v1.30.1
-	github.com/gobuffalo/pop v4.13.1+incompatible
-	github.com/gobuffalo/validate v2.0.4+incompatible
+	github.com/gobuffalo/pop/v5 v5.3.1
+	github.com/gobuffalo/validate/v3 v3.3.0
 	github.com/gocarina/gocsv v0.0.0-20190927101021-3ecffd272576
 	github.com/gofrs/flock v0.7.3
 	github.com/gofrs/uuid v3.3.0+incompatible
@@ -44,6 +41,8 @@ require (
 	github.com/google/go-github/v31 v31.0.0
 	github.com/gorilla/csrf v1.7.0
 	github.com/imdario/mergo v0.3.10
+	github.com/jackc/pgconn v1.7.0 // indirect
+	github.com/jackc/pgerrcode v0.0.0-20190803225404-afa3381909a6
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/jstemmer/go-junit-report v0.9.1

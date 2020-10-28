@@ -7,7 +7,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/services/event"
 
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/services/audit"

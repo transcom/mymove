@@ -72,6 +72,7 @@ describe('SelectMoveType', () => {
         'You pack and move your things, or make other arrangements, The government pays you for the weight you move.  This is a a Personally Procured Move (PPM), sometimes called a DITY.',
       );
       expect(wrapper.find('[data-testid="number-eyebrow"]').text()).toContain('Shipment 1');
+      expect(wrapper.find('[data-testid="helper-footer"]').text()).toContain('Your move counselor will go');
     });
   });
 
@@ -90,6 +91,7 @@ describe('SelectMoveType', () => {
         'You arrange to move some or all of your belongings',
       );
       expect(wrapper.find('[data-testid="number-eyebrow"]').text()).toContain('Shipment 2');
+      expect(wrapper.find('[data-testid="helper-footer"]').length).toBe(0);
     });
     it('should disable PPM form option if PPM is already submitted', () => {
       const wrapper = getWrapper(props);

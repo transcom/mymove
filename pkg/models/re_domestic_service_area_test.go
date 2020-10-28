@@ -23,10 +23,10 @@ func (suite *ModelSuite) TestReDomesticServiceAreaValidation() {
 	suite.T().Run("test invalid ReDomesticServiceArea", func(t *testing.T) {
 		emptyReDomesticServiceArea := models.ReDomesticServiceArea{}
 		expErrors := map[string][]string{
-			"contract_id":        {"ContractID can not be blank."},
-			"service_area":       {"ServiceArea can not be blank."},
-			"services_schedule":  {"0 is not greater than 0."},
-			"s_i_t_p_d_schedule": {"0 is not greater than 0."},
+			"contract_id":       {"ContractID can not be blank."},
+			"service_area":      {"ServiceArea can not be blank."},
+			"services_schedule": {"0 is not greater than 0."},
+			"sitpdschedule":     {"0 is not greater than 0."},
 		}
 		suite.verifyValidationErrors(&emptyReDomesticServiceArea, expErrors)
 	})
@@ -39,8 +39,8 @@ func (suite *ModelSuite) TestReDomesticServiceAreaValidation() {
 			SITPDSchedule:    5,
 		}
 		expErrors := map[string][]string{
-			"services_schedule":  {"4 is not less than 4."},
-			"s_i_t_p_d_schedule": {"5 is not less than 4."},
+			"services_schedule": {"4 is not less than 4."},
+			"sitpdschedule":     {"5 is not less than 4."},
 		}
 		suite.verifyValidationErrors(&invalidReDomesticServiceArea, expErrors)
 	})
@@ -53,8 +53,8 @@ func (suite *ModelSuite) TestReDomesticServiceAreaValidation() {
 			SITPDSchedule:    -1,
 		}
 		expErrors := map[string][]string{
-			"services_schedule":  {"-3 is not greater than 0."},
-			"s_i_t_p_d_schedule": {"-1 is not greater than 0."},
+			"services_schedule": {"-3 is not greater than 0."},
+			"sitpdschedule":     {"-1 is not greater than 0."},
 		}
 		suite.verifyValidationErrors(&invalidReDomesticServiceArea, expErrors)
 	})

@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gocarina/gocsv"
 	"github.com/pkg/errors"
 	"github.com/tealeg/xlsx"

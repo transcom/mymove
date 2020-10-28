@@ -13,3 +13,17 @@ export const createHeader = (header, accessor, options = {}) => {
     ...options,
   };
 };
+
+/**
+ * Text filter function that searches with "startsWith".
+ * @param rows The rows of data.
+ * @param id The column ID name.
+ * @param filterValue The filter value.
+ * @returns {*} True, value matches.
+ */
+export const textFilter = (rows, id, filterValue) => {
+  return rows.filter((row) => {
+    const rowValue = row.values[`${id}`];
+    return rowValue !== undefined ? String(rowValue).toLowerCase().startsWith(String(filterValue).toLowerCase()) : true;
+  });
+};
