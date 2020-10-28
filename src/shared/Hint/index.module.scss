@@ -3,11 +3,25 @@
 @import 'shared/styles/_variables';
 @import 'shared/styles/colors';
 
-.hint,
-.hint p {
+.Hint {
   color: $base;
   font-size: 13px;
   line-height: 18px;
   @include u-margin-top('105');
   @include u-margin-bottom(0);
+
+  p {
+    color: $base;
+    font-size: 13px;
+    line-height: 18px;
+    @include u-margin(0);
+  }
+
+  p + p {
+    @include u-margin-top('105');
+  }
+}
+
+:global(.grid-row) + .Hint {
+  @include u-margin-top(3);
 }

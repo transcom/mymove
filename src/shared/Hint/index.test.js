@@ -1,15 +1,13 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
 
 import Hint from '.';
 
-function mountHint(props) {
-  return mount(<Hint {...props} />);
-}
 describe('Hint component', () => {
   it('renders expected component with class', () => {
-    const wrapper = mountHint();
-    expect(wrapper.find('div.hint').length).toBe(1);
+    const wrapper = shallow(<Hint>Test Hint</Hint>);
+    expect(wrapper.find('div.Hint').length).toBe(1);
+    expect(wrapper.text()).toBe('Test Hint');
   });
 });

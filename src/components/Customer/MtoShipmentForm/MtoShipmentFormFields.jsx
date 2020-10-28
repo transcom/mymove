@@ -83,7 +83,9 @@ const MtoShipmentFormFields = ({
                     />
                     {fields}
                     <Hint>
-                      If you have more things at another pickup location, you can schedule a shipment for them later.
+                      <p>
+                        If you have more things at another pickup location, you can schedule a shipment for them later.
+                      </p>
                     </Hint>
                   </>
                 )}
@@ -118,8 +120,10 @@ const MtoShipmentFormFields = ({
                   validate={validateDate}
                 />
                 <Hint>
-                  Shipments can take several weeks to arrive, depending on how far they’re going. Your movers will
-                  contact you close to the date you select to coordinate delivery.
+                  <p>
+                    Shipments can take several weeks to arrive, depending on how far they’re going. Your movers will
+                    contact you close to the date you select to coordinate delivery.
+                  </p>
                 </Hint>
               </Fieldset>
 
@@ -155,8 +159,10 @@ const MtoShipmentFormFields = ({
                       <>
                         {fields}
                         <Hint>
-                          If you have more things to go to another destination, you can schedule a shipment for them
-                          later.
+                          <p>
+                            If you have more things to go to another destination, you can schedule a shipment for them
+                            later.
+                          </p>
                         </Hint>
                       </>
                     )}
@@ -169,8 +175,9 @@ const MtoShipmentFormFields = ({
                       <strong>
                         {newDutyStationAddress.city}, {newDutyStationAddress.state} {newDutyStationAddress.postal_code}{' '}
                       </strong>
+                      <br />
+                      You can add the specific delivery address later, once you know it.
                     </p>
-                    <Hint>You can add the specific delivery address later, once you know it.</Hint>
                   </>
                 )}
               </Fieldset>
@@ -232,7 +239,9 @@ const MtoShipmentFormFields = ({
               maxLength={250}
               value={values.customerRemarks}
             />
-            <Hint>250 characters</Hint>
+            <Hint>
+              <p>250 characters</p>
+            </Hint>
           </Fieldset>
         </SectionWrapper>
 

@@ -30,7 +30,7 @@ Fieldset.propTypes = {
   legendClassName: string,
   legendSrOnly: bool,
   legend: node,
-  hintText: string,
+  hintText: node,
 };
 
 Fieldset.defaultProps = {
@@ -38,7 +38,7 @@ Fieldset.defaultProps = {
   legendClassName: '',
   legendSrOnly: false,
   legend: null,
-  hintText: '',
+  hintText: null,
 };
 
 export default Fieldset;
