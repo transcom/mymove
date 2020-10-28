@@ -1,7 +1,7 @@
 package testdatagen
 
 import (
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -29,7 +29,7 @@ func MakeTransportationOffice(db *pop.Connection, assertions Assertions) models.
 
 	mergeModels(&office, assertions.TransportationOffice)
 
-	mustCreate(db, &office)
+	mustCreate(db, &office, assertions.Stub)
 
 	var phoneLines []models.OfficePhoneLine
 	phoneLine := models.OfficePhoneLine{
@@ -40,7 +40,7 @@ func MakeTransportationOffice(db *pop.Connection, assertions Assertions) models.
 		Type:                   "voice",
 	}
 	phoneLines = append(phoneLines, phoneLine)
-	mustCreate(db, &phoneLine)
+	mustCreate(db, &phoneLine, assertions.Stub)
 
 	office.PhoneLines = phoneLines
 

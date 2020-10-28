@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"log"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -22,7 +22,7 @@ func MakeTariff400ngZip3(db *pop.Connection, assertions Assertions) models.Tarif
 
 	mergeModels(&zip3, assertions.Tariff400ngZip3)
 
-	mustCreate(db, &zip3)
+	mustCreate(db, &zip3, assertions.Stub)
 
 	return zip3
 }

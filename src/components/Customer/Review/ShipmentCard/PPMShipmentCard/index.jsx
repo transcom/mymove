@@ -52,8 +52,8 @@ const PPMShipmentCard = ({
             <dd data-testid="sit-display">{Number(sitDays) ? `Yes, ${sitDays} days` : 'No'}</dd>
           </div>
           <div className={styles.row}>
-            <dt>Destination ZIP</dt>
-            <dd>{destinationZIP}</dd>
+            <dt className={styles.noborder}>Destination ZIP</dt>
+            <dd className={styles.noborder}>{destinationZIP}</dd>
           </div>
         </dl>
         <div className={`${styles.subsectionHeader} todo`}>
@@ -68,8 +68,8 @@ const PPMShipmentCard = ({
             <dd>{estimatedWeight} lbs</dd>
           </div>
           <div className={`${styles.row} todo`}>
-            <dt>Estimated incentive</dt>
-            <dd>{estimatedIncentive || 'Rate info unavailable'}</dd>
+            <dt className={styles.noborder}>Estimated incentive</dt>
+            <dd className={styles.noborder}>{estimatedIncentive || 'Rate info unavailable'}</dd>
           </div>
         </dl>
       </ShipmentContainer>

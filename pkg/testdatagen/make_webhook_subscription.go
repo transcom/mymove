@@ -1,7 +1,7 @@
 package testdatagen
 
 import (
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -23,7 +23,7 @@ func MakeWebhookSubscription(db *pop.Connection, assertions Assertions) models.W
 
 	mergeModels(&webhookSubscription, assertions.WebhookSubscription)
 
-	mustCreate(db, &webhookSubscription)
+	mustCreate(db, &webhookSubscription, assertions.Stub)
 
 	return webhookSubscription
 }

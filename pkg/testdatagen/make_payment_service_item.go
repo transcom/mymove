@@ -3,7 +3,7 @@ package testdatagen
 import (
 	"time"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
@@ -35,7 +35,7 @@ func MakePaymentServiceItem(db *pop.Connection, assertions Assertions) models.Pa
 	// Overwrite values with those from assertions
 	mergeModels(&paymentServiceItem, assertions.PaymentServiceItem)
 
-	mustCreate(db, &paymentServiceItem)
+	mustCreate(db, &paymentServiceItem, assertions.Stub)
 
 	return paymentServiceItem
 }

@@ -1,21 +1,6 @@
 import Swagger from 'swagger-client';
-import * as Cookies from 'js-cookie';
 
-import { makeSwaggerRequest } from './swaggerRequest';
-
-// setting up the same config from Swagger/api.js
-const requestInterceptor = (req) => {
-  if (!req.loadSpec) {
-    const token = Cookies.get('masked_gorilla_csrf');
-    if (token) {
-      req.headers['X-CSRF-Token'] = token;
-    } else {
-      // eslint-disable-next-line no-console
-      console.warn('Unable to retrieve CSRF Token from cookie');
-    }
-  }
-  return req;
-};
+import { makeSwaggerRequest, requestInterceptor } from './swaggerRequest';
 
 let ghcClient = null;
 
@@ -121,4 +106,9 @@ export async function updateMoveOrder({ moveOrderID, ifMatchETag, body }) {
 export async function getMovesQueue() {
   const operationPath = 'queues.getMovesQueue';
   return makeGHCRequest(operationPath, {}, { schemaKey: 'queueMovesResult' });
+}
+
+export async function getPaymentRequestsQueue() {
+  const operationPath = 'queues.getPaymentRequestsQueue';
+  return makeGHCRequest(operationPath, {}, { schemaKey: 'queuePaymentRequestsResult', normalize: false });
 }

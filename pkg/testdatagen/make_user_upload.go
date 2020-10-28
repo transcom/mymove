@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -54,7 +54,7 @@ func MakeUserUpload(db *pop.Connection, assertions Assertions) models.UserUpload
 
 		mergeModels(userUpload, assertions.UserUpload)
 
-		mustCreate(db, userUpload)
+		mustCreate(db, userUpload, assertions.Stub)
 	}
 
 	return *userUpload

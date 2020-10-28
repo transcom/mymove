@@ -57,27 +57,27 @@ jest.mock('hooks/queries', () => ({
         },
       },
       paymentServiceItems: {
-        '1': {
+        1: {
           id: '1',
           mtoServiceItemID: 'a',
           priceCents: 12399,
           createdAt: '2020-01-01T00:09:00.999Z',
           status: 'APPROVED',
         },
-        '2': {
+        2: {
           id: '2',
           mtoServiceItemID: 'b',
           priceCents: 45600,
           createdAt: '2020-01-01T00:09:00.999Z',
         },
-        '3': {
+        3: {
           id: '3',
           mtoServiceItemID: 'c',
           priceCents: 12312,
           createdAt: '2020-01-01T00:09:00.999Z',
           status: 'DENIED',
         },
-        '4': {
+        4: {
           id: '4',
           mtoServiceItemID: 'd',
           priceCents: 99999,

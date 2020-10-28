@@ -1,12 +1,21 @@
 package moveorder
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
+
+type FilterOption func(*pop.Query)
+
+func armyBranchFilter() FilterOption {
+	return func(query *pop.Query) {
+		query = query.Where("orders.department_indicator = 'ARMY'")
+	}
+}
 
 func (suite *MoveOrderServiceSuite) TestMoveOrderFetcher() {
 	expectedMoveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
@@ -65,7 +74,7 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 	// are displayed to the TOO
 	testdatagen.MakeDefaultMove(suite.DB())
 
-	expectedMoveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
+	expectedMoveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusSUBMITTED}})
 
 	// Only orders with shipments are returned, so we need to add a shipment
 	// to the move we just created
@@ -75,7 +84,8 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 			Status: models.MTOShipmentStatusSubmitted,
 		},
 	})
-	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
+
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	expectedMoveOrder := expectedMoveTaskOrder.Orders
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
@@ -104,32 +114,42 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 	})
 
 	suite.T().Run("returns move orders filtered by GBLOC", func(t *testing.T) {
-		originDutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
 			TransportationOffice: models.TransportationOffice{
 				Gbloc: "AGFM",
 			},
-		})
-
-		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-			OriginDutyStation: originDutyStation,
-		})
-
-		secondMoveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Order: order,
-		})
-
-		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: secondMoveTaskOrder,
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
+			Move: models.Move{
+				Status: models.MoveStatusSUBMITTED,
 			},
 		})
 
 		moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUser.ID)
-		moveOrder := moveOrders[0]
-		fmt.Println("GBLOC: ", moveOrder.OriginDutyStation.TransportationOffice)
+
 		suite.FatalNoError(err)
-		suite.Len(moveOrders, 1)
+		suite.Equal(1, len(moveOrders))
+	})
+
+	suite.T().Run("returns orders filtered by an arbitrary query", func(t *testing.T) {
+		army := "ARMY"
+		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+			Order: models.Order{
+				DepartmentIndicator: &army,
+			},
+			Move: models.Move{
+				Status: models.MoveStatusSUBMITTED,
+			},
+		})
+
+		moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, armyBranchFilter())
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moveOrders))
 	})
 }
 

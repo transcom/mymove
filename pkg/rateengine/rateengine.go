@@ -5,7 +5,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 

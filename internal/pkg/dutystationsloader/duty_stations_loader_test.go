@@ -8,7 +8,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/testingsuite"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"

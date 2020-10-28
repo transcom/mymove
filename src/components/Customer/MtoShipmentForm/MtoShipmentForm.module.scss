@@ -1,0 +1,95 @@
+// HHG details form
+
+@import '../../../shared/styles/basics';
+@import '../../../shared/styles/mixins';
+@import 'shared/styles/_variables';
+@import 'shared/styles/colors';
+
+.HHGDetailsForm {
+  h1 {
+    @include u-margin-x(auto);
+    max-width: 64rem;
+    @include u-padding-x(2);
+  }
+
+  :global {
+    .usa-label:first-of-type {
+      margin-top: 0;
+    }
+
+    .usa-fieldset {
+      p:first-of-type {
+        @include u-margin-top(0);
+      }
+    }
+
+    .usa-form-group {
+      @include u-margin-bottom(1);
+    }
+
+    .display-flex .usa-radio:not(:first-child) {
+      @include u-margin-left('105');
+      @include u-margin-bottom(1);
+    }
+
+    .usa-fieldset {
+      @include u-padding-top(2);
+    }
+
+    .usa-hint {
+      @include u-font-size('body', '3xs');
+      @include u-padding-top(1);
+      label & {
+        @include u-padding-left('05');
+      }
+    }
+  }
+}
+
+@media (max-width: $mobile) {
+  .hhg-label {
+    background-color: #aacdec;
+    width: 51px;
+    text-align: center;
+  }
+
+  .remarks {
+    height: 100px;
+    resize: vertical;
+  }
+
+  .cancel-button {
+    background-color: transparent;
+    color: #0050d8;
+    text-decoration: none;
+    margin: 0;
+    padding-bottom: 0;
+    padding-top: 0;
+    height: 42px;
+  }
+
+  .small-bold {
+    font-size: 13px;
+    font-weight: bold;
+  }
+
+  .hhg-examples-container {
+    padding: 15px;
+    border-radius: 4px;
+    border: 1px solid $base-lighter;
+    background-color: $bg-gray;
+    font-size: 13px;
+    & ul {
+      padding: 0;
+      list-style-position: inside;
+      margin: 0;
+    }
+  }
+
+  .legend-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 21px;
+  }
+}

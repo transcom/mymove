@@ -148,6 +148,48 @@ func (o *ListPaymentRequestsForbidden) WriteResponse(rw http.ResponseWriter, pro
 	}
 }
 
+// ListPaymentRequestsNotFoundCode is the HTTP code returned for type ListPaymentRequestsNotFound
+const ListPaymentRequestsNotFoundCode int = 404
+
+/*ListPaymentRequestsNotFound The requested resource wasn't found
+
+swagger:response listPaymentRequestsNotFound
+*/
+type ListPaymentRequestsNotFound struct {
+
+	/*
+	  In: Body
+	*/
+	Payload interface{} `json:"body,omitempty"`
+}
+
+// NewListPaymentRequestsNotFound creates ListPaymentRequestsNotFound with default headers values
+func NewListPaymentRequestsNotFound() *ListPaymentRequestsNotFound {
+
+	return &ListPaymentRequestsNotFound{}
+}
+
+// WithPayload adds the payload to the list payment requests not found response
+func (o *ListPaymentRequestsNotFound) WithPayload(payload interface{}) *ListPaymentRequestsNotFound {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the list payment requests not found response
+func (o *ListPaymentRequestsNotFound) SetPayload(payload interface{}) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *ListPaymentRequestsNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(404)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
+}
+
 // ListPaymentRequestsInternalServerErrorCode is the HTTP code returned for type ListPaymentRequestsInternalServerError
 const ListPaymentRequestsInternalServerErrorCode int = 500
 

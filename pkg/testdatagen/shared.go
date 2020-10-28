@@ -9,7 +9,7 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 	"github.com/imdario/mergo"
 	"github.com/spf13/afero"
@@ -72,6 +72,7 @@ type Assertions struct {
 	ServiceParam                             models.ServiceParam
 	SignedCertification                      models.SignedCertification
 	ServiceMember                            models.ServiceMember
+	Stub                                     bool
 	Tariff400ngServiceArea                   models.Tariff400ngServiceArea
 	Tariff400ngItem                          models.Tariff400ngItem
 	Tariff400ngItemRate                      models.Tariff400ngItemRate
@@ -98,7 +99,11 @@ func poundPointer(p unit.Pound) *unit.Pound {
 	return &p
 }
 
-func mustCreate(db *pop.Connection, model interface{}) {
+func mustCreate(db *pop.Connection, model interface{}, stub bool) {
+	if stub {
+		return
+	}
+
 	verrs, err := db.ValidateAndCreate(model)
 	if err != nil {
 		log.Panic(fmt.Errorf("Errors encountered saving %#v: %v", model, err))

@@ -9,6 +9,7 @@ import { selectCurrentUser } from 'shared/Data/users';
 
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import SectionWrapper from 'components/Customer/SectionWrapper';
 
 const subsetOfFields = [
   'telephone',
@@ -57,20 +58,19 @@ export class ContactInfo extends Component {
         serverError={error}
         initialValues={initialValues}
       >
-        <div className="grid-row">
-          <div className="grid-col-12">
-            <h1 className="sm-heading">Your contact info</h1>
+        <h1>Your contact info</h1>
+        <SectionWrapper>
+          <div className="tablet:margin-top-neg-3">
             <SwaggerField fieldName="telephone" swagger={schema} required />
-            <SwaggerField fieldName="secondary_telephone" swagger={schema} />
-            <SwaggerField fieldName="personal_email" swagger={schema} required />
-
-            <fieldset className="usa-fieldset" key="contact_preferences">
-              <p htmlFor="contact_preferences">Preferred contact method(s) during your move:</p>
-              <SwaggerField fieldName="phone_is_preferred" swagger={schema} />
-              <SwaggerField fieldName="email_is_preferred" swagger={schema} />
-            </fieldset>
           </div>
-        </div>
+          <SwaggerField fieldName="secondary_telephone" swagger={schema} />
+          <SwaggerField fieldName="personal_email" swagger={schema} required />
+          <fieldset className="usa-fieldset" key="contact_preferences">
+            <p htmlFor="contact_preferences">Preferred contact method(s) during your move:</p>
+            <SwaggerField fieldName="phone_is_preferred" swagger={schema} />
+            <SwaggerField fieldName="email_is_preferred" swagger={schema} />
+          </fieldset>
+        </SectionWrapper>
       </ContactWizardForm>
     );
   }

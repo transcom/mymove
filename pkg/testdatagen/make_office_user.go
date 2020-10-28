@@ -3,9 +3,11 @@ package testdatagen
 import (
 	"fmt"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 )
 
 // MakeOfficeUser creates a single office user and associated TransportOffice
@@ -19,10 +21,6 @@ func MakeOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser
 			assertions.User.LoginGovEmail = email
 		}
 		user = MakeUser(db, assertions)
-	}
-
-	if assertions.User.CurrentAdminSessionID == "" {
-		assertions.User.CurrentAdminSessionID = "admin-session"
 	}
 
 	if assertions.User.LoginGovEmail != "" {
@@ -47,7 +45,7 @@ func MakeOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser
 
 	mergeModels(&officeUser, assertions.OfficeUser)
 
-	mustCreate(db, &officeUser)
+	mustCreate(db, &officeUser, assertions.Stub)
 
 	return officeUser
 }
@@ -77,7 +75,7 @@ func MakeOfficeUserWithNoUser(db *pop.Connection, assertions Assertions) models.
 
 	mergeModels(&officeUser, assertions.OfficeUser)
 
-	mustCreate(db, &officeUser)
+	mustCreate(db, &officeUser, assertions.Stub)
 
 	return officeUser
 }
@@ -85,4 +83,48 @@ func MakeOfficeUserWithNoUser(db *pop.Connection, assertions Assertions) models.
 // MakeDefaultOfficeUser makes an OfficeUser with default values
 func MakeDefaultOfficeUser(db *pop.Connection) models.OfficeUser {
 	return MakeOfficeUser(db, Assertions{})
+}
+
+// MakeTIOOfficeUser makes an OfficeUser with the TIO role
+func MakeTIOOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser {
+	tioRole := roles.Role{
+		ID:       uuid.Must(uuid.NewV4()),
+		RoleType: roles.RoleTypeTIO,
+		RoleName: "Transportation Invoicing Officer",
+	}
+
+	tioUser := models.User{
+		Roles: []roles.Role{tioRole},
+	}
+
+	officeUser := MakeOfficeUser(db, Assertions{
+		OfficeUser: models.OfficeUser{
+			User: tioUser,
+		},
+		Stub: assertions.Stub,
+	})
+
+	return officeUser
+}
+
+// MakeTOOOfficeUser makes an OfficeUser with the TOO role
+func MakeTOOOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser {
+	tooRole := roles.Role{
+		ID:       uuid.Must(uuid.NewV4()),
+		RoleType: roles.RoleTypeTOO,
+		RoleName: "Transportation Ordering Officer",
+	}
+
+	tooUser := models.User{
+		Roles: []roles.Role{tooRole},
+	}
+
+	officeUser := MakeOfficeUser(db, Assertions{
+		OfficeUser: models.OfficeUser{
+			User: tooUser,
+		},
+		Stub: assertions.Stub,
+	})
+
+	return officeUser
 }

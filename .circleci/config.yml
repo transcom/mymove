@@ -13,7 +13,8 @@ version: '2.1'
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-1e5a1038cb264651fbd844b82489401a476e9f7e
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-6fc6df164790ca7c9261696f113e403d711e4af0
+
   postgres: &postgres postgres:12.2
 
 executors:
@@ -22,34 +23,59 @@ executors:
     working_directory: /root/project
     docker:
       - image: mk0x/docker-clamav:alpine
+        # Authenticate with Docker Hub to avoid rate limit problems beginning on Nov 1st, 2020.
+        # See https://www.docker.com/blog/scaling-docker-to-serve-millions-more-developers-network-egress/ for details
+        # We'll need this until CircleCI and Docker Hub work out a deal to prevent rate limiting errors from CircleCI
+        # IPs.
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
   # `mymove_small` and `mymove_medium` use the `milmove/milmove-app` docker image with a checkout of the mymove code
   mymove_small:
     resource_class: small
     working_directory: ~/transcom/mymove
     docker:
       - image: *circleci-docker
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
   mymove_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
     docker:
       - image: *circleci-docker
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
   mymove_medium_plus:
     resource_class: medium+
     working_directory: ~/transcom/mymove
     docker:
       - image: *circleci-docker
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
   mymove_large:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
       - image: *circleci-docker
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
   # `mymove_and_postgres_medium` adds a secondary postgres container to be used during testing.
   mymove_and_postgres_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
     docker:
       - image: *circleci-docker
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
       - image: *postgres
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
           - POSTGRES_DB: test_db
@@ -59,7 +85,13 @@ executors:
     working_directory: ~/transcom/mymove
     docker:
       - image: *circleci-docker
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
       - image: *postgres
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
           - POSTGRES_DB: test_db
@@ -383,6 +415,7 @@ commands:
             DB_PORT: 5432
             DB_NAME: test_db
             DB_NAME_TEST: test_db
+            GODEBUG: 'x509ignoreCN=0'
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test

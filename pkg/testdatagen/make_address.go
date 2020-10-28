@@ -2,7 +2,7 @@ package testdatagen
 
 import (
 	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -21,7 +21,7 @@ func MakeAddress(db *pop.Connection, assertions Assertions) models.Address {
 
 	mergeModels(&address, assertions.Address)
 
-	mustCreate(db, &address)
+	mustCreate(db, &address, assertions.Stub)
 
 	return address
 }
@@ -40,7 +40,7 @@ func MakeAddress2(db *pop.Connection, assertions Assertions) models.Address {
 
 	mergeModels(&address, assertions.Address)
 
-	mustCreate(db, &address)
+	mustCreate(db, &address, assertions.Stub)
 
 	return address
 }
@@ -59,7 +59,7 @@ func MakeAddress3(db *pop.Connection, assertions Assertions) models.Address {
 
 	mergeModels(&address, assertions.Address)
 
-	mustCreate(db, &address)
+	mustCreate(db, &address, assertions.Stub)
 
 	return address
 }
@@ -78,7 +78,7 @@ func MakeAddress4(db *pop.Connection, assertions Assertions) models.Address {
 
 	mergeModels(&address, assertions.Address)
 
-	mustCreate(db, &address)
+	mustCreate(db, &address, assertions.Stub)
 
 	return address
 }

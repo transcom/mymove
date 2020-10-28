@@ -563,3 +563,8 @@
 20201006180000_dspencer_cac.up.sql
 20201006232216_gidjin_cac.up.sql
 20201007210622_sandy_cac.up.sql
+20201008171129_ryan_cac.up.sql
+20201012143646_add_index_to_gbloc.up.sql
+20201020164146_gidjin_cac.up.sql
+20201023202845_update_selectedMoveType_NTS.up.sql
+20201027143150_moncef_cac.up.sql

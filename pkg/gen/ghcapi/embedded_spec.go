@@ -1448,6 +1448,12 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
           "500": {
             "description": "A server error occurred",
             "schema": {
@@ -1621,11 +1627,86 @@ func init() {
         ],
         "summary": "Gets queued list of all customer moves by GBLOC origin",
         "operationId": "getMovesQueue",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "moveID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "lastName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "destinationDutyStation",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "New move",
+                "Approvals requested",
+                "Move approved"
+              ],
+              "type": "string"
+            },
+            "description": "Filtering for the status.",
+            "name": "status",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successfully returned all moves matching the criteria",
             "schema": {
               "$ref": "#/definitions/QueueMovesResult"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      }
+    },
+    "/queues/payment-requests": {
+      "get": {
+        "description": "An office TIO user will be assigned a transportation office that will determine which payment requests are displayed in their queue based on the origin duty station.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all payment requests by GBLOC origin",
+        "operationId": "getPaymentRequestsQueue",
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/QueuePaymentRequestsResult"
             }
           },
           "403": {
@@ -2973,9 +3054,9 @@ func init() {
     "QueueMoveStatus": {
       "type": "string",
       "enum": [
-        "NEW",
-        "APPROVED",
-        "APPROVALS_REQUESTED"
+        "New move",
+        "Move approved",
+        "Approvals requested"
       ]
     },
     "QueueMoves": {
@@ -2995,6 +3076,66 @@ func init() {
         },
         "queueMoves": {
           "$ref": "#/definitions/QueueMoves"
+        },
+        "totalCount": {
+          "type": "integer"
+        }
+      }
+    },
+    "QueuePaymentRequest": {
+      "type": "object",
+      "properties": {
+        "age": {
+          "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
+          "type": "number",
+          "format": "integer"
+        },
+        "customer": {
+          "$ref": "#/definitions/Customer"
+        },
+        "departmentIndicator": {
+          "$ref": "#/definitions/DeptIndicator"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "locator": {
+          "type": "string"
+        },
+        "moveID": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "originGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "status": {
+          "$ref": "#/definitions/PaymentRequestStatus"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "QueuePaymentRequests": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/QueuePaymentRequest"
+      }
+    },
+    "QueuePaymentRequestsResult": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer"
+        },
+        "perPage": {
+          "type": "integer"
+        },
+        "queuePaymentRequests": {
+          "$ref": "#/definitions/QueuePaymentRequests"
         },
         "totalCount": {
           "type": "integer"
@@ -5114,6 +5255,15 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
           "500": {
             "description": "A server error occurred",
             "schema": {
@@ -5320,11 +5470,92 @@ func init() {
         ],
         "summary": "Gets queued list of all customer moves by GBLOC origin",
         "operationId": "getMovesQueue",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "moveID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "lastName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "destinationDutyStation",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "New move",
+                "Approvals requested",
+                "Move approved"
+              ],
+              "type": "string"
+            },
+            "description": "Filtering for the status.",
+            "name": "status",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successfully returned all moves matching the criteria",
             "schema": {
               "$ref": "#/definitions/QueueMovesResult"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queues/payment-requests": {
+      "get": {
+        "description": "An office TIO user will be assigned a transportation office that will determine which payment requests are displayed in their queue based on the origin duty station.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all payment requests by GBLOC origin",
+        "operationId": "getPaymentRequestsQueue",
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/QueuePaymentRequestsResult"
             }
           },
           "403": {
@@ -6678,9 +6909,9 @@ func init() {
     "QueueMoveStatus": {
       "type": "string",
       "enum": [
-        "NEW",
-        "APPROVED",
-        "APPROVALS_REQUESTED"
+        "New move",
+        "Move approved",
+        "Approvals requested"
       ]
     },
     "QueueMoves": {
@@ -6700,6 +6931,66 @@ func init() {
         },
         "queueMoves": {
           "$ref": "#/definitions/QueueMoves"
+        },
+        "totalCount": {
+          "type": "integer"
+        }
+      }
+    },
+    "QueuePaymentRequest": {
+      "type": "object",
+      "properties": {
+        "age": {
+          "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
+          "type": "number",
+          "format": "integer"
+        },
+        "customer": {
+          "$ref": "#/definitions/Customer"
+        },
+        "departmentIndicator": {
+          "$ref": "#/definitions/DeptIndicator"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "locator": {
+          "type": "string"
+        },
+        "moveID": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "originGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "status": {
+          "$ref": "#/definitions/PaymentRequestStatus"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "QueuePaymentRequests": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/QueuePaymentRequest"
+      }
+    },
+    "QueuePaymentRequestsResult": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer"
+        },
+        "perPage": {
+          "type": "integer"
+        },
+        "queuePaymentRequests": {
+          "$ref": "#/definitions/QueuePaymentRequests"
         },
         "totalCount": {
           "type": "integer"

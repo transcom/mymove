@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -60,7 +60,7 @@ func MakeMove(db *pop.Connection, assertions Assertions) models.Move {
 	// Overwrite values with those from assertions
 	mergeModels(&move, assertions.Move)
 
-	mustCreate(db, &move)
+	mustCreate(db, &move, assertions.Stub)
 
 	return move
 }
@@ -100,7 +100,7 @@ func MakeMoveWithoutMoveType(db *pop.Connection, assertions Assertions) models.M
 	// Overwrite values with those from assertions
 	mergeModels(&move, assertions.Move)
 
-	mustCreate(db, &move)
+	mustCreate(db, &move, assertions.Stub)
 
 	return move
 }
