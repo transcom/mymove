@@ -60,7 +60,7 @@ const MtoShipmentFormFields = ({
         {displayOptions.showPickupFields && (
           <div>
             <SectionWrapper>
-              <Fieldset legend="Pickup date" className="margin-top-4">
+              <Fieldset legend="Pickup date" className="tablet:margin-top-4">
                 <Field
                   as={DatePickerInput}
                   name="pickup.requestedDate"
