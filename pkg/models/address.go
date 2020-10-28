@@ -143,3 +143,19 @@ func (a *Address) LineFormat() string {
 
 	return strings.Join(parts, ", ")
 }
+
+// CountryCode returns 2-3 character code for country, returns nil if no Country
+// TODO: since we only support CONUS at this time this just returns USA
+func (a *Address) CountryCode() *string {
+	if a.Country != nil && len(*a.Country) > 0 {
+		result := ""
+		switch *a.Country {
+		case "United States":
+			result = "USA"
+		default:
+			result = "USA"
+		}
+		return &result
+	}
+	return nil
+}

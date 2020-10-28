@@ -59,7 +59,7 @@ GS*SI*MYMOVE*8004171844*190903*1617*1*X*004010
 ST*858*ABCDE
 G62*10*20200909*0*
 L3*300.000*B*100
-N4*San Francisco*CA*94123*United States**
+N4*San Francisco*CA*94123*USA**
 SE*12345*ABCDE
 GE*1*1234567
 IEA*1*000009999
@@ -84,7 +84,7 @@ func MakeValidEdi() Invoice858C {
 		CityName:            "San Francisco",
 		StateOrProvinceCode: "CA",
 		PostalCode:          "94123",
-		CountryCode:         "United States",
+		CountryCode:         "USA",
 	}
 	l3total := edisegment.L3{
 		Weight:          300.0,

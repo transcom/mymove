@@ -33,3 +33,42 @@ func (suite *ModelSuite) TestEmptyAddressInstantiation() {
 	}
 	suite.verifyValidationErrors(&newAddress, expErrors)
 }
+
+func (suite *ModelSuite) TestAddressCountryCode() {
+	noCountry := Address{
+		StreetAddress1: "street 1",
+		StreetAddress2: swag.String("street 2"),
+		StreetAddress3: swag.String("street 3"),
+		City:           "city",
+		State:          "state",
+		PostalCode:     "90210",
+	}
+
+	var expected *string
+	suite.Equal(expected, noCountry.CountryCode())
+
+	usaCountry := Address{
+		StreetAddress1: "street 1",
+		StreetAddress2: swag.String("street 2"),
+		StreetAddress3: swag.String("street 3"),
+		City:           "city",
+		State:          "state",
+		PostalCode:     "90210",
+		Country:        swag.String("United States"),
+	}
+
+	suite.Equal("USA", *usaCountry.CountryCode())
+
+	notUsaCountry := Address{
+		StreetAddress1: "street 1",
+		StreetAddress2: swag.String("street 2"),
+		StreetAddress3: swag.String("street 3"),
+		City:           "city",
+		State:          "state",
+		PostalCode:     "90210",
+		Country:        swag.String("Ireland"),
+	}
+
+	suite.Equal("USA", *notUsaCountry.CountryCode())
+
+}

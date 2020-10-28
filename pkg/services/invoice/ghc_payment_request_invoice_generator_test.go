@@ -301,7 +301,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal(address.City, n4.CityName)
 		suite.Equal(address.State, n4.StateOrProvinceCode)
 		suite.Equal(address.PostalCode, n4.PostalCode)
-		suite.Equal(*address.Country, n4.CountryCode)
+		suite.Equal(*address.CountryCode(), n4.CountryCode)
 		// Office Phone
 		destinationStationPhoneLines := expectedDutyStation.TransportationOffice.PhoneLines
 		var destPhoneLines []string
