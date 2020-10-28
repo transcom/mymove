@@ -11,7 +11,7 @@ import { DatePickerInput } from 'components/form/fields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { Form } from 'components/form/Form';
-import Hint from 'shared/Hint';
+import Hint from 'components/Hint/index';
 import { SimpleAddressShape } from 'types/address';
 import { MtoDisplayOptionsShape, MtoShipmentFormValuesShape } from 'types/customerShapes';
 import { validateDate } from 'utils/formikValidators';

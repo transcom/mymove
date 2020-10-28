@@ -4,7 +4,7 @@ import classnames from 'classnames';
 
 import styles from './index.module.scss';
 
-import Hint from 'shared/Hint';
+import Hint from 'src/components/Hint/index';
 
 const Fieldset = ({ children, legend, className, legendSrOnly, legendClassName, hintText }) => {
   const classes = classnames('usa-fieldset', className);

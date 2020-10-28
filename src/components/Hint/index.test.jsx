@@ -2,7 +2,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import Hint from '.';
+import Hint from './index';
 
 describe('Hint component', () => {
   it('renders expected component with class', () => {
