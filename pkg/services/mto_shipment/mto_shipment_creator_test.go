@@ -1,7 +1,9 @@
 package mtoshipment
 
 import (
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/transcom/mymove/pkg/unit"
 
@@ -68,6 +70,20 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 		invalidErr := err.(services.InvalidInputError)
 		suite.NotNil(invalidErr.ValidationErrors)
 		suite.NotEmpty(invalidErr.ValidationErrors)
+	})
+	// Unhappy path
+	suite.T().Run("Requested pickup dates are zero", func(t *testing.T) {
+		// this check verifies that if requestedPuckupDate is Zero it returns an error
+		mtoShipmentFail := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		mtoShipmentFailClear := clearShipmentIDFields(&mtoShipmentFail)
+		mtoShipmentFailClear.RequestedPickupDate = new(time.Time)
+		fmt.Println()
+		// We don't need the shipment because it only returns data that wasn't saved.
+		_, err := creator.CreateMTOShipment(mtoShipmentFailClear, nil)
+
+		suite.Error(err)
+		suite.IsType(services.InvalidInputError{}, err)
+		suite.Contains(err.Error(), "RequestedPickupDate")
 	})
 
 	// Happy path
