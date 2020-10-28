@@ -39,7 +39,7 @@ func TestGHCInvoiceSuite(t *testing.T) {
 	ts.PopTestSuite.TearDown()
 }
 
-const testDateFormat = "060102"
+const testDateFormat = "20060102"
 const testTimeFormat = "1504"
 
 func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {

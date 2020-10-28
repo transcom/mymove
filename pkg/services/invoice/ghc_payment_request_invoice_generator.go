@@ -26,7 +26,7 @@ func NewGHCPaymentRequestInvoiceGenerator(db *pop.Connection) services.GHCPaymen
 	}
 }
 
-const dateFormat = "060102"
+const dateFormat = "20060102"
 const timeFormat = "1504"
 
 // Generate method takes a payment request and returns an Invoice858C
