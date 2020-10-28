@@ -8,44 +8,44 @@ import { MockProviders } from 'testUtils';
 jest.mock('hooks/queries', () => ({
   useMovesQueueQueries: () => {
     return {
+      isLoading: false,
+      isError: false,
       queueMovesResult: {
-        undefined: {
-          totalCount: 2,
-          queueMoves: [
-            {
-              id: 'move1',
-              customer: {
-                first_name: 'test first',
-                last_name: 'test last',
-                dodID: '555555555',
-              },
-              locator: 'AB5P',
-              departmentIndicator: 'ARMY',
-              shipmentsCount: 2,
-              status: 'NEW',
-              destinationDutyStation: {
-                name: 'Area 51',
-              },
-              originGBLOC: 'EEEE',
+        totalCount: 2,
+        queueMoves: [
+          {
+            id: 'move1',
+            customer: {
+              first_name: 'test first',
+              last_name: 'test last',
+              dodID: '555555555',
             },
-            {
-              id: 'move2',
-              customer: {
-                first_name: 'test another first',
-                last_name: 'test another last',
-                dodID: '4444444444',
-              },
-              locator: 'T12A',
-              departmentIndicator: 'NAVY_AND_MARINES',
-              shipmentsCount: 1,
-              status: 'APPROVED',
-              destinationDutyStation: {
-                name: 'Los Alamos',
-              },
-              originGBLOC: 'EEEE',
+            locator: 'AB5P',
+            departmentIndicator: 'ARMY',
+            shipmentsCount: 2,
+            status: 'NEW',
+            destinationDutyStation: {
+              name: 'Area 51',
             },
-          ],
-        },
+            originGBLOC: 'EEEE',
+          },
+          {
+            id: 'move2',
+            customer: {
+              first_name: 'test another first',
+              last_name: 'test another last',
+              dodID: '4444444444',
+            },
+            locator: 'T12A',
+            departmentIndicator: 'NAVY_AND_MARINES',
+            shipmentsCount: 1,
+            status: 'APPROVED',
+            destinationDutyStation: {
+              name: 'Los Alamos',
+            },
+            originGBLOC: 'EEEE',
+          },
+        ],
       },
     };
   },

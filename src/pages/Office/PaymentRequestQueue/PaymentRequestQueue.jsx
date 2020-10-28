@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { GridContainer } from '@trussworks/react-uswds';
 import { withRouter } from 'react-router-dom';
+import { useTable } from 'react-table';
 
 import styles from './PaymentRequestQueue.module.scss';
 
@@ -60,13 +61,23 @@ const columns = [
 ];
 
 const PaymentRequestQueue = ({ history }) => {
-  const { queuePaymentRequestsResult, isLoading, isError } = usePaymentRequestQueueQueries();
+  const {
+    queuePaymentRequestsResult: { totalCount, queuePaymentRequests = [] },
+    isLoading,
+    isError,
+  } = usePaymentRequestQueueQueries();
+
+  // react-table setup below
+  const tableData = useMemo(() => queuePaymentRequests, [queuePaymentRequests]);
+  const tableColumns = useMemo(() => columns, []);
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable({
+    columns: tableColumns,
+    data: tableData,
+    initialState: { hiddenColumns: ['id'] },
+  });
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
-
-  // eslint-disable-next-line no-unused-vars
-  const { page, perPage, totalCount, queuePaymentRequests } = queuePaymentRequestsResult;
 
   const handleClick = (values) => {
     history.push(`/moves/MOVE_CODE/payment-requests/${values.id}`);
@@ -76,7 +87,14 @@ const PaymentRequestQueue = ({ history }) => {
     <GridContainer containerSize="widescreen" className={styles.PaymentRequestQueue}>
       <h1>{`Payment requests (${totalCount})`}</h1>
       <div className={styles.tableContainer}>
-        <Table columns={columns} data={queuePaymentRequests} hiddenColumns={['id']} handleClick={handleClick} />
+        <Table
+          handleClick={handleClick}
+          getTableProps={getTableProps}
+          getTableBodyProps={getTableBodyProps}
+          headerGroups={headerGroups}
+          rows={rows}
+          prepareRow={prepareRow}
+        />
       </div>
     </GridContainer>
   );

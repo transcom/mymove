@@ -1,16 +1,18 @@
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { withRouter } from 'react-router-dom';
 import { GridContainer } from '@trussworks/react-uswds';
+import { useTable, useFilters } from 'react-table';
 
 import styles from './MoveQueue.module.scss';
 
 import { HistoryShape } from 'types/router';
 import Table from 'components/Table/Table';
-import { createHeader } from 'components/Table/utils';
+import { createHeader, textFilter } from 'components/Table/utils';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useMovesQueueQueries } from 'hooks/queries';
 import { departmentIndicatorLabel } from 'shared/formatters';
+import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
 
 const columns = [
   createHeader('ID', 'id'),
@@ -22,7 +24,7 @@ const columns = [
     { id: 'name' },
   ),
   createHeader('DoD ID', 'customer.dodID'),
-  createHeader('Status', 'status'),
+  createHeader('Status', 'status', { isFilterable: true }),
   createHeader('Move ID', 'locator'),
   createHeader(
     'Branch',
@@ -37,13 +39,62 @@ const columns = [
 ];
 
 const MoveQueue = ({ history }) => {
-  const { queueMovesResult, isLoading, isError } = useMovesQueueQueries();
+  const [paramFilters, setParamFilters] = useState([]);
+
+  const {
+    queueMovesResult: { totalCount, queueMoves = [] },
+    isLoading,
+    isError,
+  } = useMovesQueueQueries(paramFilters);
+
+  // react-table setup below
+
+  const filterTypes = useMemo(
+    () => ({
+      // "startWith"
+      text: textFilter,
+    }),
+    [],
+  );
+  const defaultColumn = useMemo(
+    () => ({
+      // Let's set up our default Filter UI
+      Filter: TextBoxFilter,
+    }),
+    [],
+  );
+  const tableData = useMemo(() => queueMoves, [queueMoves]);
+  const tableColumns = useMemo(() => columns, []);
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+    state: { filters },
+  } = useTable(
+    {
+      columns: tableColumns,
+      data: tableData,
+      initialState: { hiddenColumns: ['id'] },
+      defaultColumn, // Be sure to pass the defaultColumn option
+      filterTypes,
+      manualFilters: true,
+    },
+    useFilters,
+  );
+
+  // When these table states change, fetch new data!
+  useEffect(() => {
+    if (!isLoading && !isError) {
+      if (filters.length > 0) {
+        setParamFilters(filters);
+      }
+    }
+  }, [filters, isLoading, isError]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
-
-  // eslint-disable-next-line no-unused-vars
-  const { page, perPage, totalCount, queueMoves } = queueMovesResult[`${undefined}`];
 
   const handleClick = (values) => {
     history.push(`/moves/${values.id}/details`);
@@ -53,7 +104,14 @@ const MoveQueue = ({ history }) => {
     <GridContainer containerSize="widescreen" className={styles.MoveQueue}>
       <h1>{`All moves (${totalCount})`}</h1>
       <div className={styles.tableContainer}>
-        <Table columns={columns} data={queueMoves} hiddenColumns={['id']} handleClick={handleClick} />
+        <Table
+          handleClick={handleClick}
+          getTableProps={getTableProps}
+          getTableBodyProps={getTableBodyProps}
+          headerGroups={headerGroups}
+          rows={rows}
+          prepareRow={prepareRow}
+        />
       </div>
     </GridContainer>
   );
