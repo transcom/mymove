@@ -103,9 +103,13 @@ export async function updateMoveOrder({ moveOrderID, ifMatchETag, body }) {
   return makeGHCRequest(operationPath, { moveOrderID, 'If-Match': ifMatchETag, body });
 }
 
-export async function getMovesQueue() {
+export async function getMovesQueue(key, { filters = [] }) {
   const operationPath = 'queues.getMovesQueue';
-  return makeGHCRequest(operationPath, {}, { schemaKey: 'queueMovesResult' });
+  const paramFilters = {};
+  filters.forEach((filter) => {
+    paramFilters[`${filter.id}`] = filter.value;
+  });
+  return makeGHCRequest(operationPath, { ...paramFilters }, { schemaKey: 'queueMovesResult', normalize: false });
 }
 
 export async function getPaymentRequestsQueue() {

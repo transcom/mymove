@@ -152,14 +152,12 @@ export const useOrdersDocumentQueries = (moveOrderId) => {
   };
 };
 
-// TODO skip normalizing of schema response and cleanup
-export const useMovesQueueQueries = () => {
-  const { data: { queueMovesResult } = {}, ...movesQueueQuery } = useQuery([MOVES_QUEUE], getMovesQueue);
-
+export const useMovesQueueQueries = (filters = []) => {
+  const { data = {}, ...movesQueueQuery } = useQuery([MOVES_QUEUE, { filters }], getMovesQueue);
   const { isLoading, isError, isSuccess } = getQueriesStatus([movesQueueQuery]);
 
   return {
-    queueMovesResult,
+    queueMovesResult: data,
     isLoading,
     isError,
     isSuccess,
