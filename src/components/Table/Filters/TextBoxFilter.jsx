@@ -8,8 +8,8 @@ const TextBoxFilter = ({ column: { filterValue, preFilteredRows, setFilter } }) 
   return (
     <input
       data-testid="TextBoxFilter"
-      value={filterValue || ''}
-      onChange={(e) => {
+      defaultValue={filterValue || ''}
+      onBlur={(e) => {
         setFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
       }}
       placeholder={`Search ${count} records...`}
@@ -21,7 +21,7 @@ const TextBoxFilter = ({ column: { filterValue, preFilteredRows, setFilter } }) 
 TextBoxFilter.propTypes = {
   column: PropTypes.shape({
     filterValue: PropTypes.node,
-    preFilteredRows: PropTypes.node,
+    preFilteredRows: PropTypes.array,
     setFilter: PropTypes.func,
   }).isRequired,
 };
