@@ -58,8 +58,8 @@ func (suite *InvoiceSuite) TestEDIString() {
 		suite.Equal(`ISA*00*0084182369*00*0000000000*ZZ*MYMOVE         *12*8004171844     *060102*1504*U*00401*000009999*0*T*|
 GS*SI*MYMOVE   *8004171844*190903*1617*1*X*004010
 ST*858*ABCDE
-G62*10*20200909**
-L3*300.000*B*100
+G62*10*200909**
+L3*300.000*B***100
 N4*San Francisco*CA*94123*USA**
 SE*12345*ABCDE
 GE*1*1234567
@@ -79,7 +79,7 @@ func (suite *InvoiceSuite) TestValidate() {
 func MakeValidEdi() Invoice858C {
 	date := edisegment.G62{
 		DateQualifier: 10,
-		Date:          "20200909",
+		Date:          "200909",
 	}
 	n4 := edisegment.N4{
 		CityName:            "San Francisco",
