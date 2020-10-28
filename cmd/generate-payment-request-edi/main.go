@@ -104,5 +104,5 @@ func main() {
 		logger.Fatal(err.Error())
 	}
 
-	fmt.Println(result)
+	fmt.Print(result)
 }
