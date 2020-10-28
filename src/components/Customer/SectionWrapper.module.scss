@@ -21,7 +21,7 @@
       height: 1px;
       border: 0;
     }
-    h2, h3, h4 {
+    h2, h3, h4, legend {
       &:first-child {
       @include u-margin-top(0);
       }
