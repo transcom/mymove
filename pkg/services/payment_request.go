@@ -43,3 +43,9 @@ type PaymentRequestStatusUpdater interface {
 type PaymentRequestUploadCreator interface {
 	CreateUpload(file io.ReadCloser, paymentRequestID uuid.UUID, userID uuid.UUID, filename string) (*models.Upload, error)
 }
+
+// PaymentRequestReviewedProcessor is the exported interface for processing reviewed payment requests
+//go:generate mockery -name PaymentRequestReviewedProcessor
+type PaymentRequestReviewedProcessor interface {
+	ProcessReviewedPaymentRequest() error
+}

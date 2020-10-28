@@ -4,5 +4,6 @@ import "github.com/gobuffalo/pop"
 
 // RequestPaymentHelper is a helper to connect to the DB
 type RequestPaymentHelper struct {
-	DB *pop.Connection
+	DB     *pop.Connection
+	Logger Logger
 }
