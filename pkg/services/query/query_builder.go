@@ -10,8 +10,8 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 
 	"github.com/gobuffalo/flect"
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/lib/pq"
 

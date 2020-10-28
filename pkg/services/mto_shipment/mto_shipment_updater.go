@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/getlantern/deepcopy"
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -729,7 +729,7 @@ func (f mtoShipmentUpdater) MTOShipmentsMTOAvailableToPrime(mtoShipmentID uuid.U
 		Where("mto_shipments.id = ?", mtoShipmentID).
 		First(&mto)
 	if err != nil {
-		if err.Error() == "sql: no rows in result set" {
+		if err.Error() == models.RecordNotFoundErrorString {
 			return false, services.NewNotFoundError(mtoShipmentID, "for mtoShipment")
 		}
 		return false, services.NewQueryError("mtoShipments", err, "Unexpected error")
