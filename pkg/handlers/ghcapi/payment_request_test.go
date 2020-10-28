@@ -54,7 +54,7 @@ func (suite *HandlerSuite) TestListPaymentRequestsHandler() {
 		officeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{
 			Stub: true,
 		})
-		paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID).Return(&paymentRequests, nil).Once()
+		paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID, mock.Anything).Return(&paymentRequests, nil).Once()
 
 		req := httptest.NewRequest("GET", fmt.Sprintf("/payment_requests"), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -103,7 +103,7 @@ func (suite *HandlerSuite) TestListPaymentRequestsHandler() {
 		officeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{
 			Stub: true,
 		})
-		paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID).Return(nil, errors.New("test failed to create with err returned")).Once()
+		paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID, mock.Anything).Return(nil, errors.New("test failed to create with err returned")).Once()
 
 		req := httptest.NewRequest("GET", fmt.Sprintf("/payment_requests"), nil)
 
