@@ -1,5 +1,5 @@
-@import '../../../shared/styles/basics';
-@import '../../../shared/styles/mixins';
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
 @import 'shared/styles/_variables';
 @import 'shared/styles/colors';
 
@@ -105,11 +105,22 @@
   }
 }
 
+p + .radioGroup {
+  @include u-margin-top('neg-05');
+}
+
 .radioGroup {
   display: flex;
 
   > * + * {
     @include u-margin-left(5);
+  }
+
+  :global(.usa-radio__label) {
+    // 42px tall touch area
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin-bottom: 0;
   }
 }
 
@@ -137,9 +148,12 @@
 }
 
 .formActions {
-  display: flex;
-  @include u-margin-top(1);
+  @include u-margin-top(3);
   @include u-margin-bottom(6);
+
+  @include at-media('tablet') {
+    display: flex;
+  }
 }
 
 .cancelButton {

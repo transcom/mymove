@@ -52,7 +52,7 @@ const MtoShipmentFormFields = ({
         {displayOptions.showPickupFields && (
           <>
             <SectionWrapper className={styles.formSection}>
-              <h2>Pickup information</h2>
+              {displayOptions.showDeliveryFields && <h2>Pickup information</h2>}
               <Fieldset legend="Pickup date">
                 <Field
                   as={DatePickerInput}
@@ -110,7 +110,7 @@ const MtoShipmentFormFields = ({
         {displayOptions.showDeliveryFields && (
           <>
             <SectionWrapper className={styles.formSection}>
-              <h2>Delivery information</h2>
+              {displayOptions.showPickupFields && <h2>Delivery information</h2>}
               <Fieldset legend="Delivery date">
                 <Field
                   as={DatePickerInput}
