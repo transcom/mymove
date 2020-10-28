@@ -32,7 +32,7 @@ export class UploadsTable extends Component {
     }
     return (
       <>
-        <a href={upload.url} target="_blank" className="usa-link">
+        <a href={upload.url} target="_blank" rel="noopener noreferrer" className="usa-link">
           {upload.filename}
         </a>
       </>

@@ -329,7 +329,7 @@ export const formatAgeToDays = (age) => {
   if (age < 1) {
     return 'Less than 1 day';
   }
-  if (age > 1 && age < 2) {
+  if (age >= 1 && age < 2) {
     return '1 day';
   }
   return `${Math.floor(age)} days`;

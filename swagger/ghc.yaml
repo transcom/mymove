@@ -1100,6 +1100,33 @@ paths:
       operationId: getMovesQueue
       tags:
         - queues
+      parameters:
+        - in: query
+          name: branch
+          type: string
+        - in: query
+          name: moveID
+          type: string
+        - in: query
+          name: lastName
+          type: string
+        - in: query
+          name: dodID
+          type: string
+        - in: query
+          name: destinationDutyStation
+          type: string
+        - in: query
+          name: status
+          type: array
+          description: Filtering for the status.
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+              - New move
+              - Approvals requested
+              - Move approved
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -2445,7 +2472,7 @@ definitions:
         $ref: '#/definitions/PaymentRequestStatus'
       age:
         type: number
-        format: float
+        format: integer
         description: Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.
       submittedAt:
         type: string
