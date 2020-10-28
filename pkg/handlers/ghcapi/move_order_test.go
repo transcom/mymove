@@ -239,7 +239,7 @@ func (suite *HandlerSuite) TestUpdateMoveOrderEventTrigger() {
 	handler.SetTraceID(traceID)        // traceID is inserted into handler
 	response := handler.Handle(params) // This step also saves traceID into DB
 	suite.IsNotErrResponse(response)
-	moveOrderOK := response.(*moveorderop.UpdateMoveOrderOK) // Type assertion: Take the response, change the type to *moveorderop.UpdateMoveOrderOK, and set the variable moveOrderOK to the new type
+	moveOrderOK := response.(*moveorderop.UpdateMoveOrderOK)
 	moveOrdersPayload := moveOrderOK.Payload
 
 	suite.FatalNoError(err, "Error creating a new trace ID.")
@@ -247,7 +247,6 @@ func (suite *HandlerSuite) TestUpdateMoveOrderEventTrigger() {
 	suite.Assertions.IsType(&moveorderop.UpdateMoveOrderOK{}, response)
 	suite.Equal(moveOrdersPayload.ID, strfmt.UUID(moveOrder.ID.String()))
 	suite.HasWebhookNotification(moveOrder.ID, traceID)
-	// suite.HasWebhookNotification(updatedOrder.ID, traceID)
 }
 
 func (suite *HandlerSuite) TestUpdateMoveOrderHandlerNotFound() {
