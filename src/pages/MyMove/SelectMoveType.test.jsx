@@ -15,7 +15,6 @@ describe('SelectMoveType', () => {
     push: jest.fn(),
     loadMTOShipments: jest.fn(),
     move: { id: 'mockId', status: MOVE_STATUSES.DRAFT },
-    selectedMoveType: SHIPMENT_OPTIONS.PPM,
     mtoShipments: [],
   };
 
@@ -23,23 +22,18 @@ describe('SelectMoveType', () => {
     return mount(<SelectMoveType {...defaultProps} {...props} />);
   };
 
-  it('should render radio buttons with PPM selected', () => {
+  it('should render radio buttons with no option selected', () => {
     const wrapper = getWrapper();
     expect(wrapper.find(Radio).length).toBe(4);
 
-    // PPM button should be checked on page load
+    // Ppm and HHG text renders
     expect(wrapper.find(Radio).at(0).text()).toContain('Do it yourself');
-    expect(wrapper.find(Radio).at(0).find('.usa-radio__input').html()).toContain('checked');
-  });
-
-  it('should render radio buttons with HHG selected', () => {
-    const props = { selectedMoveType: SHIPMENT_OPTIONS.HHG };
-    const wrapper = getWrapper(props);
-    expect(wrapper.find(Radio).length).toBe(4);
-
     expect(wrapper.find(Radio).at(1).text()).toContain('Professional movers');
-    // HHG button should be checked on page load
-    expect(wrapper.find(Radio).at(1).find('.usa-radio__input').html()).toContain('checked');
+    // No buttons should not be checked on page load
+    expect(wrapper.find(Radio).at(0).find('.usa-radio__input').prop('checked')).toBe(false);
+    expect(wrapper.find(Radio).at(1).find('.usa-radio__input').prop('checked')).toBe(false);
+    expect(wrapper.find(Radio).at(2).find('.usa-radio__input').prop('checked')).toBe(false);
+    expect(wrapper.find(Radio).at(3).find('.usa-radio__input').prop('checked')).toBe(false);
   });
 
   describe('modals', () => {
@@ -78,6 +72,7 @@ describe('SelectMoveType', () => {
         'You pack and move your things, or make other arrangements, The government pays you for the weight you move.  This is a a Personally Procured Move (PPM), sometimes called a DITY.',
       );
       expect(wrapper.find('[data-testid="number-eyebrow"]').text()).toContain('Shipment 1');
+      expect(wrapper.find('[data-testid="helper-footer"]').text()).toContain('Your move counselor will go');
     });
   });
 
@@ -96,6 +91,7 @@ describe('SelectMoveType', () => {
         'You arrange to move some or all of your belongings',
       );
       expect(wrapper.find('[data-testid="number-eyebrow"]').text()).toContain('Shipment 2');
+      expect(wrapper.find('[data-testid="helper-footer"]').length).toBe(0);
     });
     it('should disable PPM form option if PPM is already submitted', () => {
       const wrapper = getWrapper(props);

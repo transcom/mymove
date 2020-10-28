@@ -19,7 +19,7 @@ import (
 
 	notifications "github.com/transcom/mymove/pkg/notifications"
 
-	pop "github.com/gobuffalo/pop"
+	pop "github.com/gobuffalo/pop/v5"
 
 	route "github.com/transcom/mymove/pkg/route"
 

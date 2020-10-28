@@ -5,7 +5,9 @@ import (
 	"testing"
 
 	"github.com/gofrs/uuid"
+	"github.com/jackc/pgerrcode"
 
+	"github.com/transcom/mymove/pkg/db/dberr"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -34,7 +36,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticOtherPrices() {
 	suite.T().Run("run a second time; should fail immediately due to constraint violation", func(t *testing.T) {
 		err := gre.importREDomesticOtherPrices(suite.DB())
 		if suite.Error(err) {
-			suite.Contains(err.Error(), "duplicate key value violates unique constraint")
+			suite.True(dberr.IsDBErrorForConstraint(err, pgerrcode.UniqueViolation, "re_domestic_other_prices_unique_key"))
 		}
 
 		// Check to see if anything else changed
@@ -63,7 +65,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticOtherPricesFailures(
 
 		err = gre.importREDomesticOtherPrices(suite.DB())
 		if suite.Error(err) {
-			suite.Equal("error looking up StageDomesticOtherSitPrice data: unable to fetch records: pq: relation \"stage_domestic_other_sit_prices\" does not exist", err.Error())
+			suite.True(dberr.IsDBError(err, pgerrcode.UndefinedTable))
 		}
 
 		renameQuery = fmt.Sprintf("ALTER TABLE missing_stage_domestic_other_sit_prices RENAME TO stage_domestic_other_sit_prices")
@@ -79,7 +81,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticOtherPricesFailures(
 
 		err = gre.importREDomesticOtherPrices(suite.DB())
 		if suite.Error(err) {
-			suite.Equal("error looking up StageDomesticOtherPackPrice data: unable to fetch records: pq: relation \"stage_domestic_other_pack_prices\" does not exist", err.Error())
+			suite.True(dberr.IsDBError(err, pgerrcode.UndefinedTable))
 		}
 	})
 }

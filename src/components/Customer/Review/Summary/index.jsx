@@ -28,6 +28,7 @@ import ProfileTable from 'components/Customer/Review/ProfileTable';
 import OrdersTable from 'components/Customer/Review/OrdersTable';
 import PPMShipmentCard from 'components/Customer/Review/ShipmentCard/PPMShipmentCard';
 import HHGShipmentCard from 'components/Customer/Review/ShipmentCard/HHGShipmentCard';
+import SectionWrapper from 'components/Customer/SectionWrapper';
 import NTSShipmentCard from 'components/Customer/Review/ShipmentCard/NTSShipmentCard';
 import NTSRShipmentCard from 'components/Customer/Review/ShipmentCard/NTSRShipmentCard';
 import { showLoggedInUser as showLoggedInUserAction } from 'shared/Entities/modules/user';
@@ -199,55 +200,59 @@ export class Summary extends Component {
             Your weight entitlement is now {entitlement.sum.toLocaleString()} lbs.
           </Alert>
         )}
-        <ProfileTable
-          affiliation={serviceMember.affiliation}
-          city={serviceMember.residential_address.city}
-          currentDutyStationName={serviceMember.current_station.name}
-          edipi={serviceMember.edipi}
-          email={serviceMember.personal_email}
-          firstName={serviceMember.first_name}
-          onEditClick={this.handleEditClick}
-          lastName={serviceMember.last_name}
-          postalCode={serviceMember.residential_address.postal_code}
-          rank={serviceMember.rank}
-          state={serviceMember.residential_address.state}
-          streetAddress1={serviceMember.residential_address.street_address_1}
-          streetAddress2={serviceMember.residential_address.street_address_2}
-          telephone={serviceMember.telephone}
-        />
-
-        <OrdersTable
-          hasDependents={currentOrders.has_dependents}
-          issueDate={currentOrders.issue_date}
-          moveId={moveId}
-          newDutyStationName={currentOrders.new_duty_station.name}
-          onEditClick={this.handleEditClick}
-          orderType={formatOrderType(currentOrders.orders_type)}
-          reportByDate={currentOrders.report_by_date}
-          uploads={currentOrders.uploaded_orders.uploads}
-        />
-
-        {showMoveSetup && <h2 className={styles.moveSetup}>Move setup</h2>}
-        {isReviewPage && this.renderShipments()}
-        {showPPMShipmentSummary && (
-          <PPMShipmentSummary ppm={currentPPM} movePath={rootReviewAddressWithMoveId} orders={currentOrders} />
-        )}
-        {hasPPMorHHG && (
-          <div className="grid-col-row margin-top-5">
-            <span className="float-right">Optional</span>
-            <h3>Add another shipment</h3>
-            <p>Will you move any belongings to or from another location?</p>
-            <Button className="usa-button--secondary" onClick={() => history.push(shipmentSelectionPath)}>
-              Add another shipment
-            </Button>
-          </div>
-        )}
-        {moveIsApproved && (
-          <div className="approved-edit-warning">
-            *To change these fields, contact your local PPPO office at {get(currentStation, 'name')}{' '}
-            {stationPhone ? ` at ${stationPhone}` : ''}.
-          </div>
-        )}
+        <SectionWrapper>
+          <ProfileTable
+            affiliation={serviceMember.affiliation}
+            city={serviceMember.residential_address.city}
+            currentDutyStationName={serviceMember.current_station.name}
+            edipi={serviceMember.edipi}
+            email={serviceMember.personal_email}
+            firstName={serviceMember.first_name}
+            onEditClick={this.handleEditClick}
+            lastName={serviceMember.last_name}
+            postalCode={serviceMember.residential_address.postal_code}
+            rank={serviceMember.rank}
+            state={serviceMember.residential_address.state}
+            streetAddress1={serviceMember.residential_address.street_address_1}
+            streetAddress2={serviceMember.residential_address.street_address_2}
+            telephone={serviceMember.telephone}
+          />
+        </SectionWrapper>
+        <SectionWrapper>
+          <OrdersTable
+            hasDependents={currentOrders.has_dependents}
+            issueDate={currentOrders.issue_date}
+            moveId={moveId}
+            newDutyStationName={currentOrders.new_duty_station.name}
+            onEditClick={this.handleEditClick}
+            orderType={formatOrderType(currentOrders.orders_type)}
+            reportByDate={currentOrders.report_by_date}
+            uploads={currentOrders.uploaded_orders.uploads}
+          />
+        </SectionWrapper>
+        <SectionWrapper>
+          {showMoveSetup && <h2 className={styles.moveSetup}>Move setup</h2>}
+          {isReviewPage && this.renderShipments()}
+          {showPPMShipmentSummary && (
+            <PPMShipmentSummary ppm={currentPPM} movePath={rootReviewAddressWithMoveId} orders={currentOrders} />
+          )}
+          {hasPPMorHHG && (
+            <div className="grid-col-row margin-top-5">
+              <span className="float-right">Optional</span>
+              <h3>Add another shipment</h3>
+              <p>Will you move any belongings to or from another location?</p>
+              <Button className="usa-button--secondary" onClick={() => history.push(shipmentSelectionPath)}>
+                Add another shipment
+              </Button>
+            </div>
+          )}
+          {moveIsApproved && (
+            <div className="approved-edit-warning">
+              *To change these fields, contact your local PPPO office at {get(currentStation, 'name')}{' '}
+              {stationPhone ? ` at ${stationPhone}` : ''}.
+            </div>
+          )}
+        </SectionWrapper>
       </>
     );
   }
