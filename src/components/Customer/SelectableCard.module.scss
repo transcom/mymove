@@ -48,6 +48,7 @@ p + .cardContainer {
   color: $base;
   font-size: 13px;
   line-height: 1.25;
+  @include u-padding-top(1);
   @media (min-width: $tablet) {
     padding-left: 2rem;
   }
