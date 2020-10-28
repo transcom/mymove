@@ -146,12 +146,16 @@ func (h UpdateMoveOrderHandler) Handle(params moveorderop.UpdateMoveOrderParams)
 			return moveorderop.NewUpdateMoveOrderInternalServerError()
 		}
 	}
-	// Get move.orderID:
+
 	fmt.Println("moveOrder.ID", updatedOrder.ID)
 	// Find the record where orderID matches moveOrder.ID
 	var move models.Move
 	query := h.DB().Where("orders_id = ?", updatedOrder.ID)
 	err = query.First(&move)
+
+	if err != nil {
+		logger.Error("ghcapi.UpdateMoveOrderHandler could not find move")
+	}
 
 	// UpdateMoveOrder event Trigger for the first updated move:
 	_, err = event.TriggerEvent(event.Event{
