@@ -1,6 +1,7 @@
 package payloads
 
 import (
+	"math"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -496,11 +497,20 @@ func QueueMoves(moveOrders []models.Order) *ghcmessages.QueueMoves {
 	return &queueMoveOrders
 }
 
+var (
+	// QueueMoveStatusNEWMOVE status New move
+	QueueMoveStatusNEWMOVE string = "New move"
+	// QueueMoveStatusAPPROVALSREQUESTED status Approvals requested
+	QueueMoveStatusAPPROVALSREQUESTED string = "Approvals requested"
+	// QueueMoveStatusMOVEAPPROVED status Move approved
+	QueueMoveStatusMOVEAPPROVED string = "Move approved"
+)
+
 // This is a helper function to calculate the inferred status needed for the QueueMove payload.
 func queueMoveStatus(move models.Move) string {
 	// If the move is in the submitted status then we'll translate that to New move
 	if move.Status == models.MoveStatusSUBMITTED {
-		return "New move"
+		return QueueMoveStatusNEWMOVE
 	}
 
 	// For moves that are in an approved status there are two potential translation paths:
@@ -513,11 +523,11 @@ func queueMoveStatus(move models.Move) string {
 		for _, mtoSI := range move.MTOServiceItems {
 			// If we find one, we'll immediately return this status as there's no need to continue iterating through.
 			if mtoSI.Status == "SUBMITTED" {
-				return "Approvals requested"
+				return QueueMoveStatusAPPROVALSREQUESTED
 			}
 		}
 		// If we iterate through the MTOServiceItems and don't find a submitted status item, we return move approved.
-		return "Move approved"
+		return QueueMoveStatusMOVEAPPROVED
 	}
 	// If we have a status not covered here let's pass it through. This is unlikely to happen, but we should be able to
 	// see it if it does.
@@ -537,7 +547,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 			MoveID:      *handlers.FmtUUID(moveTaskOrder.ID),
 			Customer:    Customer(&orders.ServiceMember),
 			Status:      ghcmessages.PaymentRequestStatus(paymentRequest.Status),
-			Age:         float32(time.Since(paymentRequest.CreatedAt).Hours() / 24.0),
+			Age:         int64(math.Ceil(time.Since(paymentRequest.CreatedAt).Hours() / 24.0)),
 			SubmittedAt: *handlers.FmtDateTime(paymentRequest.CreatedAt), // RequestedAt does not seem to be populated
 			Locator:     moveTaskOrder.Locator,
 			OriginGBLOC: ghcmessages.GBLOC(orders.OriginDutyStation.TransportationOffice.Gbloc),

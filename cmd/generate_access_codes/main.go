@@ -13,7 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
 )

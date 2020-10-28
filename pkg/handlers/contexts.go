@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/alexedwards/scs/v2"
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
