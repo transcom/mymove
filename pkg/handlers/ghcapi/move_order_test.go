@@ -47,7 +47,6 @@ func (suite *HandlerSuite) TestListMoveOrdersHandler() {
 		moveOrders = append(moveOrders, moveOrder)
 	}
 
-	fmt.Printf("%+v", moveOrders)
 	suite.T().Run("When office user is TOO and fetch is successful", func(t *testing.T) {
 		moveOrderFetcher := &mocks.MoveOrderFetcher{}
 		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{

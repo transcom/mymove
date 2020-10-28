@@ -7,13 +7,12 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/lib/pq"
-
 	openapierrors "github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/lib/pq"
 
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 

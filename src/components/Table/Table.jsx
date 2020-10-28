@@ -1,17 +1,40 @@
 import React from 'react';
-import { useTable } from 'react-table';
+import { useTable, useFilters } from 'react-table';
 import PropTypes from 'prop-types';
 
+import { textFilter } from './utils';
+import TextBoxFilter from './Filters/TextBoxFilter';
 import styles from './Table.module.scss';
 
 const Table = ({ data, columns, hiddenColumns, handleClick }) => {
+  const filterTypes = React.useMemo(
+    () => ({
+      // "startWith"
+      text: textFilter,
+    }),
+    [],
+  );
+
+  const defaultColumn = React.useMemo(
+    () => ({
+      // Let's set up our default Filter UI
+      Filter: TextBoxFilter,
+    }),
+    [],
+  );
+
   const tableData = React.useMemo(() => data, [data]);
   const tableColumns = React.useMemo(() => columns, [columns]);
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable({
-    columns: tableColumns,
-    data: tableData,
-    initialState: { hiddenColumns },
-  });
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
+    {
+      columns: tableColumns,
+      data: tableData,
+      initialState: { hiddenColumns },
+      defaultColumn, // Be sure to pass the defaultColumn option
+      filterTypes,
+    },
+    useFilters,
+  );
 
   return (
     /* eslint-disable react/jsx-props-no-spreading */
@@ -23,6 +46,7 @@ const Table = ({ data, columns, hiddenColumns, handleClick }) => {
               {headerGroup.headers.map((column) => (
                 <th data-testid={column.id} {...column.getHeaderProps()}>
                   {column.render('Header')}
+                  <div>{column.canFilter ? column.render('Filter') : null}</div>
                 </th>
               ))}
             </tr>

@@ -13,6 +13,7 @@ import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import OrdersUploader from 'components/OrdersUploader';
 import UploadsTable from 'shared/Uploader/UploadsTable';
+import SectionWrapper from 'components/Customer/SectionWrapper';
 import SaveCancelButtons from './SaveCancelButtons';
 
 import {
@@ -64,38 +65,39 @@ let EditOrdersForm = (props) => {
               style={{
                 display: 'inline-block',
                 marginLeft: 10,
-                marginBottom: 0,
+                marginBottom: 16,
                 marginTop: 20,
               }}
             >
               Orders
             </h1>
-            <hr />
-            <h3 className="sm-heading">Edit Orders:</h3>
-            <SwaggerField
-              fieldName="orders_type"
-              swagger={showAllOrdersTypes ? schema : modifiedSchemaForOrdersTypesFlag}
-              required
-            />
-            <SwaggerField fieldName="issue_date" swagger={schema} required />
-            <SwaggerField fieldName="report_by_date" swagger={schema} required />
-            <SwaggerField fieldName="has_dependents" swagger={schema} component={YesNoBoolean} />
-            <br />
-            <Field name="new_duty_station" component={DutyStationSearchBox} />
-            <p>Uploads:</p>
-            {Boolean(visibleUploads.length) && <UploadsTable uploads={visibleUploads} onDelete={onDelete} />}
-            {Boolean(get(initialValues, 'uploaded_orders')) && (
-              <div>
-                <p>{documentSizeLimitMsg}</p>
-                <OrdersUploader
-                  createUpload={props.createUpload}
-                  deleteUpload={props.deleteUpload}
-                  document={document}
-                  onChange={onUpload}
-                  options={{ labelIdle: uploaderLabelIdle }}
-                />
-              </div>
-            )}
+            <SectionWrapper>
+              <h2>Edit Orders:</h2>
+              <SwaggerField
+                fieldName="orders_type"
+                swagger={showAllOrdersTypes ? schema : modifiedSchemaForOrdersTypesFlag}
+                required
+              />
+              <SwaggerField fieldName="issue_date" swagger={schema} required />
+              <SwaggerField fieldName="report_by_date" swagger={schema} required />
+              <SwaggerField fieldName="has_dependents" swagger={schema} component={YesNoBoolean} />
+              <br />
+              <Field name="new_duty_station" component={DutyStationSearchBox} />
+              <p>Uploads:</p>
+              {Boolean(visibleUploads.length) && <UploadsTable uploads={visibleUploads} onDelete={onDelete} />}
+              {Boolean(get(initialValues, 'uploaded_orders')) && (
+                <div>
+                  <p>{documentSizeLimitMsg}</p>
+                  <OrdersUploader
+                    createUpload={props.createUpload}
+                    deleteUpload={props.deleteUpload}
+                    document={document}
+                    onChange={onUpload}
+                    options={{ labelIdle: uploaderLabelIdle }}
+                  />
+                </div>
+              )}
+            </SectionWrapper>
             <SaveCancelButtons valid={valid} submitting={submitting} />
           </form>
         </div>

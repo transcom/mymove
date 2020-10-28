@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -77,9 +77,13 @@ func MakeDefaultServiceMember(db *pop.Connection) models.ServiceMember {
 // MakeExtendedServiceMember creates a single ServiceMember and associated User, Addresses,
 // and Backup Contact.
 func MakeExtendedServiceMember(db *pop.Connection, assertions Assertions) models.ServiceMember {
+	affiliation := assertions.ServiceMember.Affiliation
+	if affiliation == nil {
+		army := models.AffiliationARMY
+		affiliation = &army
+	}
 	residentialAddress := MakeDefaultAddress(db)
 	backupMailingAddress := MakeDefaultAddress(db)
-	army := models.AffiliationARMY
 	e1 := models.ServiceMemberRankE1
 	station := FetchOrMakeDefaultCurrentDutyStation(db)
 
@@ -87,7 +91,7 @@ func MakeExtendedServiceMember(db *pop.Connection, assertions Assertions) models
 	smDefaults := models.ServiceMember{
 		Edipi:                  swag.String(randomEdipi()),
 		Rank:                   &e1,
-		Affiliation:            &army,
+		Affiliation:            affiliation,
 		ResidentialAddressID:   &residentialAddress.ID,
 		BackupMailingAddressID: &backupMailingAddress.ID,
 		DutyStationID:          &station.ID,

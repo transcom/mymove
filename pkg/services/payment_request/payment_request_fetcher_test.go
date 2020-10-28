@@ -94,7 +94,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
 		paymentRequest, err := fetcher.FetchPaymentRequest(uuid.Nil)
 
 		suite.Error(err)
-		suite.Equal(err.Error(), "sql: no rows in result set")
+		suite.Equal(err.Error(), models.RecordNotFoundErrorString)
 		suite.Equal(models.PaymentRequest{}, paymentRequest)
 	})
 }

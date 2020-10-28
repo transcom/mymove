@@ -5,6 +5,7 @@ import { func, PropTypes } from 'prop-types';
 import SelectableCard from 'components/Customer/SelectableCard';
 import { setConusStatus, selectedConusStatus } from 'scenes/Moves/ducks';
 import { CONUS_STATUS } from 'shared/constants';
+import SectionWrapper from 'components/Customer/SectionWrapper';
 
 // eslint-disable-next-line react/prefer-stateless-function
 export class ConusOrNot extends Component {
@@ -24,25 +25,27 @@ export class ConusOrNot extends Component {
       <div className="grid-row">
         <div className="grid-col">
           <h1 className="sm-heading">Where are you moving?</h1>
-          <SelectableCard
-            id={`input_${CONUS_STATUS.CONUS}`}
-            label="CONUS"
-            value={CONUS_STATUS.CONUS}
-            onChange={(e) => setLocation(e.target.value)}
-            name="conusStatus"
-            checked={conusStatus === CONUS_STATUS.CONUS}
-            cardText="Starts and ends in the continental US"
-          />
-          <SelectableCard
-            id={`input_${CONUS_STATUS.OCONUS}`}
-            label="OCONUS"
-            value={CONUS_STATUS.OCONUS}
-            onChange={(e) => setLocation(e.target.value)}
-            name="conusStatus"
-            checked={conusStatus === CONUS_STATUS.OCONUS}
-            disabled
-            cardText={oconusCardText}
-          />
+          <SectionWrapper>
+            <SelectableCard
+              id={`input_${CONUS_STATUS.CONUS}`}
+              label="CONUS"
+              value={CONUS_STATUS.CONUS}
+              onChange={(e) => setLocation(e.target.value)}
+              name="conusStatus"
+              checked={conusStatus === CONUS_STATUS.CONUS}
+              cardText="Starts and ends in the continental US"
+            />
+            <SelectableCard
+              id={`input_${CONUS_STATUS.OCONUS}`}
+              label="OCONUS"
+              value={CONUS_STATUS.OCONUS}
+              onChange={(e) => setLocation(e.target.value)}
+              name="conusStatus"
+              checked={conusStatus === CONUS_STATUS.OCONUS}
+              disabled
+              cardText={oconusCardText}
+            />
+          </SectionWrapper>
         </div>
       </div>
     );

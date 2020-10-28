@@ -1627,6 +1627,48 @@ func init() {
         ],
         "summary": "Gets queued list of all customer moves by GBLOC origin",
         "operationId": "getMovesQueue",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "moveID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "lastName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "destinationDutyStation",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "New move",
+                "Approvals requested",
+                "Move approved"
+              ],
+              "type": "string"
+            },
+            "description": "Filtering for the status.",
+            "name": "status",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successfully returned all moves matching the criteria",
@@ -3046,7 +3088,7 @@ func init() {
         "age": {
           "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
           "type": "number",
-          "format": "float"
+          "format": "integer"
         },
         "customer": {
           "$ref": "#/definitions/Customer"
@@ -5428,6 +5470,48 @@ func init() {
         ],
         "summary": "Gets queued list of all customer moves by GBLOC origin",
         "operationId": "getMovesQueue",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "moveID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "lastName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "destinationDutyStation",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "New move",
+                "Approvals requested",
+                "Move approved"
+              ],
+              "type": "string"
+            },
+            "description": "Filtering for the status.",
+            "name": "status",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successfully returned all moves matching the criteria",
@@ -6859,7 +6943,7 @@ func init() {
         "age": {
           "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
           "type": "number",
-          "format": "float"
+          "format": "integer"
         },
         "customer": {
           "$ref": "#/definitions/Customer"

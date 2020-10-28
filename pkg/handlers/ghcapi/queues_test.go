@@ -2,9 +2,10 @@ package ghcapi
 
 import (
 	"errors"
-	"fmt"
 	"net/http/httptest"
 	"time"
+
+	modelToPayload "github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 
@@ -88,6 +89,63 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 	suite.Equal(hhgMove.Locator, result.Locator)
 	suite.Equal(int64(1), result.ShipmentsCount)
 
+}
+
+func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
+		RoleType: roles.RoleTypeTOO,
+	})
+
+	hhgMoveType := models.SelectedMoveTypeHHG
+
+	move := models.Move{
+		SelectedMoveType: &hhgMoveType,
+		Status:           models.MoveStatusSUBMITTED,
+	}
+	shipment := models.MTOShipment{
+		Status: models.MTOShipmentStatusSubmitted,
+	}
+
+	// Create an order where the service member has an ARMY affiliation (default)
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move:        move,
+		MTOShipment: shipment,
+	})
+
+	// Create an order where the service member has an AIR_FORCE affiliation
+	airForce := models.AffiliationAIRFORCE
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		MTOShipment: shipment,
+		Move:        move,
+		ServiceMember: models.ServiceMember{
+			Affiliation: &airForce,
+		},
+	})
+
+	request := httptest.NewRequest("GET", "/queues/moves", nil)
+	request = suite.AuthenticateOfficeRequest(request, officeUser)
+	params := queues.GetMovesQueueParams{
+		HTTPRequest: request,
+		Branch:      models.StringPointer("AIR_FORCE"),
+	}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	handler := GetMovesQueueHandler{
+		context,
+		officeuser.NewOfficeUserFetcher(query.NewQueryBuilder(context.DB())),
+		moveorder.NewMoveOrderFetcher(suite.DB()),
+	}
+
+	response := handler.Handle(params)
+	suite.IsNotErrResponse(response)
+
+	suite.Assertions.IsType(&queues.GetMovesQueueOK{}, response)
+	payload := response.(*queues.GetMovesQueueOK).Payload
+
+	result := payload.QueueMoves[0]
+
+	suite.Equal(1, len(payload.QueueMoves))
+	suite.Equal("AIR_FORCE", result.Customer.Agency)
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
@@ -185,6 +243,334 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 	result = payload.QueueMoves[0]
 
 	suite.Equal(ghcmessages.QueueMoveStatus("Approvals requested"), result.Status)
+
+}
+
+func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
+		RoleType: roles.RoleTypeTOO,
+	})
+
+	hhgMoveType := models.SelectedMoveTypeHHG
+	submittedMove := models.Move{
+		SelectedMoveType: &hhgMoveType,
+		Status:           models.MoveStatusSUBMITTED,
+	}
+	submittedShipment := models.MTOShipment{
+		Status: models.MTOShipmentStatusSubmitted,
+	}
+	airForce := models.AffiliationAIRFORCE
+
+	// New move with AIR_FORCE service member affiliation to test branch filter
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move:        submittedMove,
+		MTOShipment: submittedShipment,
+		ServiceMember: models.ServiceMember{
+			Affiliation: &airForce,
+		},
+	})
+
+	// Approvals requested
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusAPPROVED,
+		},
+		MTOShipment: submittedShipment,
+	})
+
+	// Move approved
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusAPPROVED,
+		},
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusApproved,
+		},
+	})
+
+	// Move DRAFT and CANCELLED should not be included
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusDRAFT,
+		},
+		MTOShipment: submittedShipment,
+	})
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusCANCELED,
+		},
+		MTOShipment: submittedShipment,
+	})
+
+	request := httptest.NewRequest("GET", "/queues/moves", nil)
+	request = suite.AuthenticateOfficeRequest(request, officeUser)
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	handler := GetMovesQueueHandler{
+		context,
+		officeuser.NewOfficeUserFetcher(query.NewQueryBuilder(context.DB())),
+		moveorder.NewMoveOrderFetcher(suite.DB()),
+	}
+
+	suite.Run("loads results with all STATUS selected", func() {
+		params := queues.GetMovesQueueParams{
+			HTTPRequest: request,
+			Status: []string{
+				modelToPayload.QueueMoveStatusNEWMOVE,
+				modelToPayload.QueueMoveStatusAPPROVALSREQUESTED,
+				modelToPayload.QueueMoveStatusMOVEAPPROVED,
+			},
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		payload := response.(*queues.GetMovesQueueOK).Payload
+		suite.EqualValues(3, payload.TotalCount)
+		suite.Len(payload.QueueMoves, 3)
+	})
+
+	suite.Run("loads results with one STATUS selected", func() {
+		params := queues.GetMovesQueueParams{
+			HTTPRequest: request,
+			Status: []string{
+				modelToPayload.QueueMoveStatusNEWMOVE,
+			},
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		payload := response.(*queues.GetMovesQueueOK).Payload
+		suite.EqualValues(1, payload.TotalCount)
+		suite.Len(payload.QueueMoves, 1)
+		suite.EqualValues(modelToPayload.QueueMoveStatusNEWMOVE, payload.QueueMoves[0].Status)
+	})
+
+	suite.Run("1 result with status New Move and branch AIR_FORCE", func() {
+		params := queues.GetMovesQueueParams{
+			HTTPRequest: request,
+			Status: []string{
+				modelToPayload.QueueMoveStatusNEWMOVE,
+			},
+			Branch: models.StringPointer("AIR_FORCE"),
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		payload := response.(*queues.GetMovesQueueOK).Payload
+		suite.EqualValues(1, payload.TotalCount)
+		suite.Len(payload.QueueMoves, 1)
+		suite.EqualValues(modelToPayload.QueueMoveStatusNEWMOVE, payload.QueueMoves[0].Status)
+		suite.Equal("AIR_FORCE", payload.QueueMoves[0].Customer.Agency)
+	})
+
+	suite.Run("No results with status New Move and branch ARMY", func() {
+		params := queues.GetMovesQueueParams{
+			HTTPRequest: request,
+			Status: []string{
+				modelToPayload.QueueMoveStatusNEWMOVE,
+			},
+			Branch: models.StringPointer("ARMY"),
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		payload := response.(*queues.GetMovesQueueOK).Payload
+		suite.EqualValues(0, payload.TotalCount)
+		suite.Len(payload.QueueMoves, 0)
+	})
+}
+
+func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
+	dutyStation1 := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			Name: "This Other Station",
+		},
+	})
+
+	dutyStation2 := testdatagen.MakeDefaultDutyStation(suite.DB())
+
+	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{})
+
+	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
+		RoleType: roles.RoleTypeTOO,
+	})
+
+	hhgMoveType := models.SelectedMoveTypeHHG
+	// Default Origin Duty Station GBLOC is LKNQ
+
+	serviceMember1 := testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{
+		Stub: true,
+		ServiceMember: models.ServiceMember{
+			FirstName: models.StringPointer("Zoya"),
+			LastName:  models.StringPointer("Darvish"),
+			Edipi:     models.StringPointer("11111"),
+		},
+	})
+
+	serviceMember2 := testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{
+		Stub: true,
+		ServiceMember: models.ServiceMember{
+			FirstName: models.StringPointer("Owen"),
+			LastName:  models.StringPointer("Nance"),
+			Edipi:     models.StringPointer("22222"),
+		},
+	})
+
+	move1 := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusSUBMITTED,
+		},
+		Order: models.Order{
+			OriginDutyStation:   &dutyStation1,
+			OriginDutyStationID: &dutyStation1.ID,
+			NewDutyStation:      dutyStation1,
+			NewDutyStationID:    dutyStation1.ID,
+		},
+		ServiceMember: serviceMember1,
+	})
+
+	move2 := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusSUBMITTED,
+		},
+		Order: models.Order{
+			OriginDutyStation:   &dutyStation2,
+			OriginDutyStationID: &dutyStation2.ID,
+			NewDutyStation:      dutyStation2,
+			NewDutyStationID:    dutyStation2.ID,
+		},
+		ServiceMember: serviceMember2,
+	})
+
+	shipment := models.MTOShipment{
+		Status: models.MTOShipmentStatusSubmitted,
+	}
+
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move:        move1,
+		MTOShipment: shipment,
+	})
+
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move:        move2,
+		MTOShipment: shipment,
+	})
+
+	request := httptest.NewRequest("GET", "/queues/moves", nil)
+	request = suite.AuthenticateOfficeRequest(request, officeUser)
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	handler := GetMovesQueueHandler{
+		context,
+		officeuser.NewOfficeUserFetcher(query.NewQueryBuilder(context.DB())),
+		moveorder.NewMoveOrderFetcher(suite.DB()),
+	}
+
+	suite.Run("returns unfiltered results", func() {
+		params := queues.GetMovesQueueParams{
+			HTTPRequest: request,
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		payload := response.(*queues.GetMovesQueueOK).Payload
+
+		suite.Len(payload.QueueMoves, 2)
+	})
+
+	suite.Run("returns results matching last name search term", func() {
+		params := queues.GetMovesQueueParams{
+			HTTPRequest: request,
+			LastName:    models.StringPointer("Nan"),
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		payload := response.(*queues.GetMovesQueueOK).Payload
+		result := payload.QueueMoves[0]
+
+		suite.Len(payload.QueueMoves, 1)
+		suite.Equal("Nance", result.Customer.LastName)
+	})
+
+	suite.Run("returns results matching Dod ID search term", func() {
+		params := queues.GetMovesQueueParams{
+			HTTPRequest: request,
+			DodID:       serviceMember1.Edipi,
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		payload := response.(*queues.GetMovesQueueOK).Payload
+		result := payload.QueueMoves[0]
+
+		suite.Len(payload.QueueMoves, 1)
+		suite.Equal("11111", result.Customer.DodID)
+	})
+
+	suite.Run("returns results matching Move ID search term", func() {
+		params := queues.GetMovesQueueParams{
+			HTTPRequest: request,
+			MoveID:      &move1.Locator,
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		payload := response.(*queues.GetMovesQueueOK).Payload
+		result := payload.QueueMoves[0]
+
+		suite.Len(payload.QueueMoves, 1)
+		suite.Equal(move1.Locator, result.Locator)
+
+	})
+
+	suite.Run("returns results matching DestinationDutyStation name search term", func() {
+		params := queues.GetMovesQueueParams{
+			HTTPRequest:            request,
+			DestinationDutyStation: &dutyStation1.Name,
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		payload := response.(*queues.GetMovesQueueOK).Payload
+		result := payload.QueueMoves[0]
+
+		suite.Len(payload.QueueMoves, 1)
+		suite.Equal("This Other Station", result.DestinationDutyStation.Name)
+	})
+
+	suite.Run("returns results with multiple filters applied", func() {
+		params := queues.GetMovesQueueParams{
+			HTTPRequest:            request,
+			LastName:               models.StringPointer("Dar"),
+			DodID:                  serviceMember1.Edipi,
+			MoveID:                 &move1.Locator,
+			DestinationDutyStation: &dutyStation1.Name,
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		payload := response.(*queues.GetMovesQueueOK).Payload
+
+		suite.Len(payload.QueueMoves, 1)
+	})
 
 }
 
@@ -354,9 +740,9 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	suite.Equal(actualPaymentRequest.Status.String(), string(paymentRequest.Status))
 
 	createdAt := actualPaymentRequest.CreatedAt
-	age := time.Since(createdAt).Hours() / 24.0
+	age := int64(2)
 
-	suite.Equal(fmt.Sprintf("%.2f", age), fmt.Sprintf("%.2f", paymentRequest.Age))
+	suite.Equal(age, paymentRequest.Age)
 	suite.Equal(createdAt.Format("2006-01-02T15:04:05.000Z07:00"), paymentRequest.SubmittedAt.String()) // swagger formats to milliseconds
 	suite.Equal(hhgMove.Locator, paymentRequest.Locator)
 

@@ -3,7 +3,7 @@ package dbtools
 import (
 	"testing"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 )
 
 type TestStruct struct {
@@ -72,6 +72,7 @@ func (suite *DBToolsServiceSuite) TestCreateTableFromSlice() {
 	suite.T().Run("errors out when table exists", func(t *testing.T) {
 		err := tableFromSliceCreator.CreateTableFromSlice(validSlice)
 		suite.Error(err)
+		// TODO: Fix this DB error string literal comparison when we move the COPY-related functionality to jackc/pgx.
 		if err != nil {
 			suite.Equal("Error creating table: 'test_structs': pq: relation \"test_structs\" already exists", err.Error())
 		}

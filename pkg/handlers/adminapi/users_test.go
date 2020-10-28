@@ -9,7 +9,7 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/alexedwards/scs/v2/memstore"
 	"github.com/go-openapi/strfmt"
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/stretchr/testify/mock"
 
 	userop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
