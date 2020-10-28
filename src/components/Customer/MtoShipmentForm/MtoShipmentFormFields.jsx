@@ -41,7 +41,7 @@ const MtoShipmentFormFields = ({
   const optionalLabel = <span className={styles.optional}>Optional</span>;
 
   return (
-    <div className={styles.MTOShipmentForm}>
+    <div className={`${styles.MTOShipmentForm} desktop:grid-col-8 desktop:grid-offset-2`}>
       <ShipmentTag shipmentType={shipmentType} shipmentNumber={shipmentNumber} />
       <h1>{shipmentForm.header[`${shipmentType}`]}</h1>
       <Alert type="info" noIcon>

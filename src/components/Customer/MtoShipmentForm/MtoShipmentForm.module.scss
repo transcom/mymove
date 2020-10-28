@@ -6,9 +6,18 @@
 .MTOShipmentForm {
   @include u-padding-x(0.5);
 
+  @include at-media('tablet') {
+    margin-top: 20px; // + global 20px padding = 40px = 5 units
+  }
+
   h1 {
     @include u-margin-top(1);
     @include u-margin-bottom(2);
+
+    @include at-media('tablet') {
+      @include u-margin-top(2);
+      @include u-margin-bottom(3);
+    }
   }
 }
 
@@ -103,6 +112,14 @@
   &:last-of-type {
     @include u-margin-bottom(6);
   }
+
+  @include at-media('tablet') {
+    @include u-margin-y(3);
+
+    + .formSection {
+      @include u-margin-top(3);
+    }
+  }
 }
 
 p + .radioGroup {
@@ -130,7 +147,7 @@ p + .radioGroup {
 }
 
 .remarksExamples {
-  color: $base;
+  color: $base-darker;
   @include u-margin-y('105');
   @include u-padding(2);
   border-radius: 4px;
@@ -140,7 +157,7 @@ p + .radioGroup {
   line-height: 18px;
 
   ul {
-    color: $base;
+    color: $base-darker;
     list-style-position: inside;
     padding: 0;
     margin: 0;
@@ -151,8 +168,24 @@ p + .radioGroup {
   @include u-margin-top(3);
   @include u-margin-bottom(6);
 
+  :global(.usa-button) {
+    @include u-margin(0);
+
+    + :global(.usa-button) {
+      @include u-margin-top('105');
+    }
+  }
+
   @include at-media('tablet') {
     display: flex;
+    @include u-margin-top(2);
+
+    :global(.usa-button) {
+      + :global(.usa-button) {
+        @include u-margin-top(0);
+        @include u-margin-left(5);
+      }
+    }
   }
 }
 
@@ -160,6 +193,7 @@ p + .radioGroup {
   color: $primary;
   background-color: transparent;
   border-color: transparent;
+  @include u-padding-x(0);
 
   &:hover {
     color: $primary-darker;
