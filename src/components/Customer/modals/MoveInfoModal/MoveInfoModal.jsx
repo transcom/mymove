@@ -14,17 +14,13 @@ export const MoveInfoModal = ({ closeModal }) => (
       <strong>HHG: Professional movers pack and ship your things, the government pays</strong>
     </h4>
     <p>The moving company works out details with you, but handles everything.</p>
-    <p>
-      <strong>Pros</strong>
-    </p>
+    <h5>Pros</h5>
     <ul>
       <li>Everything is packed and moved for you</li>
       <li>Expert movers care for your things</li>
       <li>Anything damaged in professional shipments will be replaced</li>
     </ul>
-    <p>
-      <strong>Cons</strong>
-    </p>
+    <h5>Cons</h5>
     <ul>
       <li>Can only move on weekdays</li>
       <li>May have to work around availability of movers</li>
@@ -33,18 +29,14 @@ export const MoveInfoModal = ({ closeModal }) => (
       <strong>PPMs: You get your things packed and moved, the government pays you</strong>
     </h4>
     <p>You pack and move your own things, or arrange for someone else do it for you.</p>
-    <p>
-      <strong>Pros</strong>
-    </p>
+    <h5>Pros</h5>
     <ul>
       <li>Keep your things with you at all times</li>
       <li>Get paid for the weight you move</li>
       <li>Flexible dates, routes, timing</li>
       <li>You can hire movers, equipment, or portable storage</li>
     </ul>
-    <p>
-      <strong>Cons</strong>
-    </p>
+    <h5>Cons</h5>
     <ul>
       <li>You pack and move everything</li>
       <li>You’re responsible if your things get damaged — no compensation</li>
