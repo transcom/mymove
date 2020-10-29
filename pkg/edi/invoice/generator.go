@@ -60,6 +60,10 @@ func (invoice Invoice858C) Segments() [][]string {
 }
 
 func logValidationErrors(logger Logger, err error) {
+	// saftey check err is nil just return
+	if err == nil {
+		return
+	}
 	if _, ok := err.(*validator.InvalidValidationError); ok {
 		logger.Error("InvalidValidationError", zap.Error(err))
 		return
