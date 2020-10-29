@@ -2,7 +2,6 @@ package ghcapi
 
 import (
 	"fmt"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/pop/v5"
 	"go.uber.org/zap"
@@ -158,6 +157,15 @@ func destinationDutyStationFilter(destinationDutyStation *string) FilterOption {
 		}
 	}
 }
+
+func submittedAtFilter(submittedAt *string) FilterOption {
+	return func(query *pop.Query) {
+		if submittedAt != nil {
+			// some datetime conversion to compare YYYY-MM-DD to DateTime
+			query = query.InnerJoin("payment_request.created_at = ?", *submittedAt)
+		}
+	}
+	}
 
 // statusFilter filters the status after the pop query call.
 func moveStatusFilter(statuses []string, moves *ghcmessages.QueueMoves) *ghcmessages.QueueMoves {

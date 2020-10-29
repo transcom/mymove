@@ -1169,6 +1169,9 @@ paths:
         - in: query
           name: status
           type: array
+        - in: query
+          name: submittedAt
+          type: string
           description: Filtering for the status.
           uniqueItems: true
           items:

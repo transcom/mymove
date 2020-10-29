@@ -2,6 +2,8 @@ package ghcapi
 
 import (
 	"errors"
+	"fmt"
+	"github.com/go-openapi/strfmt"
 	"net/http/httptest"
 	"time"
 
@@ -749,6 +751,92 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	suite.Equal(hhgMove.Locator, paymentRequest.Locator)
 
 	suite.Equal(*hhgMove.Orders.DepartmentIndicator, string(paymentRequest.DepartmentIndicator))
+}
+
+func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
+	officeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{})
+
+	hhgMoveType := models.SelectedMoveTypeHHG
+	// Default Origin Duty Station GBLOC is LKNQ
+	move1 := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+		},
+	})
+
+	move2 := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+		},
+	})
+
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: move1,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+	})
+
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: move2,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+	})
+
+
+	outOfRangeDate := strfmt.DateTime(time.Now())
+
+	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		Move: move1,
+		PaymentRequest: models.PaymentRequest{
+			CreatedAt: outOfRangeDate,
+		},
+	})
+
+	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		Move: move2,
+		PaymentRequest: models.PaymentRequest{
+			CreatedAt: time.Now(),
+		},
+	})
+
+	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
+	request = suite.AuthenticateOfficeRequest(request, officeUser)
+	params := queues.GetPaymentRequestsQueueParams{
+		HTTPRequest: request,
+	}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	handler := GetPaymentRequestsQueueHandler{
+		context,
+		officeuser.NewOfficeUserFetcher(query.NewQueryBuilder(context.DB())),
+		paymentrequest.NewPaymentRequestListFetcher(suite.DB()),
+	}
+
+	response := handler.Handle(params)
+	suite.IsNotErrResponse(response)
+
+	suite.Assertions.IsType(&queues.GetPaymentRequestsQueueOK{}, response)
+	payload := response.(*queues.GetPaymentRequestsQueueOK).Payload
+
+	suite.Len(payload.QueuePaymentRequests, 2)
+
+	suite.Run("returns results matching DestinationDutyStation name search term", func() {
+		params := queues.GetPaymentRequestsQueueParams{
+			HTTPRequest:            request,
+			SubmittedAt: time.Now(),
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		payload := response.(*queues.GetPaymentRequestsQueueOK).Payload
+		//result := payload.QueuePaymentRequests[0]
+
+		suite.Len(payload.QueuePaymentRequests, 1)
+	})
+
+
 }
 
 func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerUnauthorizedRole() {
