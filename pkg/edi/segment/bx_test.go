@@ -24,7 +24,7 @@ func (suite *SegmentSuite) TestValidateBX() {
 			TransactionSetPurposeCode:    "01",    // eq
 			TransactionMethodTypeCode:    "K",     // eq
 			ShipmentMethodOfPayment:      "QQ",    // eq
-			ShipmentIdentificationNumber: "",      // alphanum
+			ShipmentIdentificationNumber: "",      // min
 			StandardCarrierAlphaCode:     "TEST2", // alpha
 			WeightUnitCode:               "1",     // isdefault
 			ShipmentQualifier:            "5",     // eq
@@ -43,13 +43,11 @@ func (suite *SegmentSuite) TestValidateBX() {
 
 	suite.T().Run("validate failure 2", func(t *testing.T) {
 		bx := validBX
-		bx.ShipmentIdentificationNumber = "" // min
-		bx.StandardCarrierAlphaCode = "T"    // min
+		bx.StandardCarrierAlphaCode = "T" // min
 
 		err := suite.validator.Struct(bx)
-		suite.ValidateError(err, "ShipmentIdentificationNumber", "min")
 		suite.ValidateError(err, "StandardCarrierAlphaCode", "min")
-		suite.ValidateErrorLen(err, 2)
+		suite.ValidateErrorLen(err, 1)
 	})
 
 	suite.T().Run("validate failure 3", func(t *testing.T) {
