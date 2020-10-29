@@ -367,7 +367,11 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 		PostalCode:          destinationDutyStation.Address.PostalCode,
 	}
 	if destinationDutyStation.Address.Country != nil {
-		destinationPostalDetails.CountryCode = string(*destinationDutyStation.Address.CountryCode())
+		countryCode, ccErr := destinationDutyStation.Address.CountryCode()
+		if ccErr != nil {
+			return []edisegment.Segment{}, ccErr
+		}
+		destinationPostalDetails.CountryCode = string(*countryCode)
 	}
 	originAndDestinationSegments = append(originAndDestinationSegments, &destinationPostalDetails)
 
@@ -434,7 +438,11 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 		PostalCode:          originDutyStation.Address.PostalCode,
 	}
 	if originDutyStation.Address.Country != nil {
-		originPostalDetails.CountryCode = string(*originDutyStation.Address.Country)
+		countryCode, ccErr := originDutyStation.Address.CountryCode()
+		if ccErr != nil {
+			return []edisegment.Segment{}, ccErr
+		}
+		originPostalDetails.CountryCode = string(*countryCode)
 	}
 
 	originAndDestinationSegments = append(originAndDestinationSegments, &originPostalDetails)

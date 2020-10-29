@@ -45,7 +45,9 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 	}
 
 	var expected *string
-	suite.Equal(expected, noCountry.CountryCode())
+	countryCode, err := noCountry.CountryCode()
+	suite.NoError(err)
+	suite.Equal(expected, countryCode)
 
 	usaCountry := Address{
 		StreetAddress1: "street 1",
@@ -56,8 +58,22 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 		PostalCode:     "90210",
 		Country:        swag.String("United States"),
 	}
+	countryCode, err = usaCountry.CountryCode()
+	suite.NoError(err)
+	suite.Equal("USA", *countryCode)
 
-	suite.Equal("USA", *usaCountry.CountryCode())
+	usCountry := Address{
+		StreetAddress1: "street 1",
+		StreetAddress2: swag.String("street 2"),
+		StreetAddress3: swag.String("street 3"),
+		City:           "city",
+		State:          "state",
+		PostalCode:     "90210",
+		Country:        swag.String("US"),
+	}
+	countryCode, err = usCountry.CountryCode()
+	suite.NoError(err)
+	suite.Equal("USA", *countryCode)
 
 	notUsaCountry := Address{
 		StreetAddress1: "street 1",
@@ -69,6 +85,9 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 		Country:        swag.String("Ireland"),
 	}
 
-	suite.Equal("USA", *notUsaCountry.CountryCode())
+	countryCode, err = notUsaCountry.CountryCode()
+	suite.Nil(countryCode)
+	suite.Error(err)
+	suite.Equal("NotImplementedCountryCode: Country 'Ireland'", err.Error())
 
 }

@@ -144,18 +144,27 @@ func (a *Address) LineFormat() string {
 	return strings.Join(parts, ", ")
 }
 
+// NotImplementedCountryCode is the default for unimplemented country code lookup
+type NotImplementedCountryCode struct {
+	message string
+}
+
+func (e NotImplementedCountryCode) Error() string {
+	return fmt.Sprintf("NotImplementedCountryCode: %s", e.message)
+}
+
 // CountryCode returns 2-3 character code for country, returns nil if no Country
-// TODO: since we only support CONUS at this time this just returns USA
-func (a *Address) CountryCode() *string {
+// TODO: since we only support CONUS at this time this just returns USA and otherwise throws a NotImplementedCountryCode
+func (a *Address) CountryCode() (*string, error) {
 	if a.Country != nil && len(*a.Country) > 0 {
 		result := ""
 		switch *a.Country {
-		case "United States":
+		case "United States", "US":
 			result = "USA"
 		default:
-			result = "USA"
+			return nil, NotImplementedCountryCode{message: fmt.Sprintf("Country '%s'", *a.Country)}
 		}
-		return &result
+		return &result, nil
 	}
-	return nil
+	return nil, nil
 }
