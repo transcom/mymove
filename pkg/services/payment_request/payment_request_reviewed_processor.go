@@ -13,21 +13,22 @@ import (
 )
 
 type paymentRequestReviewedProcessor struct {
-	db           *pop.Connection
-	logger       Logger
-	ediGenerator services.GHCPaymentRequestInvoiceGenerator
+	db                            *pop.Connection
+	logger                        Logger
+	reviewedPaymentRequestFetcher services.PaymentRequestReviewedFetcher
+	ediGenerator                  services.GHCPaymentRequestInvoiceGenerator
 }
 
 // NewPaymentRequestReviewedProcessor returns a new payment request reviewed processor
-func NewPaymentRequestReviewedProcessor(db *pop.Connection, logger Logger, generator services.GHCPaymentRequestInvoiceGenerator) services.PaymentRequestReviewedProcessor {
-	return &paymentRequestReviewedProcessor{db, logger, generator}
+func NewPaymentRequestReviewedProcessor(db *pop.Connection, logger Logger, fetcher services.PaymentRequestReviewedFetcher, generator services.GHCPaymentRequestInvoiceGenerator) services.PaymentRequestReviewedProcessor {
+	return &paymentRequestReviewedProcessor{db, logger, fetcher, generator}
 }
 
 func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error {
 
 	// Fetch all payment request that have been reviewed
-	reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(p.db)
-	reviewedPaymentRequests, err := reviewedPaymentRequestFetcher.FetchReviewedPaymentRequest()
+
+	reviewedPaymentRequests, err := p.reviewedPaymentRequestFetcher.FetchReviewedPaymentRequest()
 	if err != nil {
 		return fmt.Errorf("function ProcessReviewedPaymentRequest failed call to FetchReviewedPaymentRequest: %w", err)
 	}

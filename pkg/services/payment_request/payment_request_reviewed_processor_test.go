@@ -158,10 +158,11 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			},
 		})
 
+		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
 		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB())
 
 		// Process Reviewed Payment Requests
-		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(suite.DB(), suite.logger, generator)
+		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(suite.DB(), suite.logger, reviewedPaymentRequestFetcher, generator)
 		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 		suite.NoError(err)
 	})
@@ -170,13 +171,32 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 		suite.createPaymentRequest(4)
 
+		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
+
 		// ediinvoice.Invoice858C, error
 		ediGenerator := &mocks.GHCPaymentRequestInvoiceGenerator{}
 		ediGenerator.
 			On("Generate", mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, errors.New("test error"))
 
 		// Process Reviewed Payment Requests
-		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(suite.DB(), suite.logger, ediGenerator)
+		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(suite.DB(), suite.logger, reviewedPaymentRequestFetcher, ediGenerator)
+		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
+		suite.Contains(err.Error(), "function ProcessReviewedPaymentRequest failed call")
+	})
+
+	suite.T().Run("process reviewed payment request, failed payment request fetcher", func(t *testing.T) {
+
+		suite.createPaymentRequest(4)
+
+		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB())
+
+		// models.PaymentRequests, error
+		reviewedPaymentRequestFetcher := &mocks.PaymentRequestReviewedFetcher{}
+		reviewedPaymentRequestFetcher.
+			On("FetchReviewedPaymentRequest").Return(models.PaymentRequests{}, errors.New("test error"))
+
+		// Process Reviewed Payment Requests
+		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(suite.DB(), suite.logger, reviewedPaymentRequestFetcher, ediGenerator)
 		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 		suite.Contains(err.Error(), "function ProcessReviewedPaymentRequest failed call")
 	})
