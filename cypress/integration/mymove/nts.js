@@ -24,7 +24,24 @@ describe('Customer NTS Setup flow', function () {
     cy.apiSignInAsUser(ntsUser);
     customerEditsNTSShipmentFromHomePage();
   });
+
+  it('Submits an NTS shipment from homepage', function () {
+    cy.apiSignInAsUser(ntsUser);
+    customerVisitsReviewPage();
+    customerSubmitsNTSShipmentMoveFromHomePage();
+  });
 });
+
+function customerSubmitsNTSShipmentMoveFromHomePage() {
+  cy.nextPage();
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/agreement/);
+  });
+  cy.get('.wizard-header').should('not.exist');
+
+  cy.get('input[name="signature"]').type('Jane Doe');
+  cy.completeFlow();
+}
 
 function customerEditsNTSShipmentFromHomePage() {
   cy.get('[data-testid="shipment-list-item-container"]').contains('NTS').click();

@@ -273,7 +273,7 @@ const pages = {
     isInFlow: always,
     isComplete: ({ sm, orders, move, ppm, mtoShipment }) => isCurrentMoveSubmitted(move),
     render: (key, pages, description, props) => ({ match }) => {
-      return <Agreement pages={pages} pageKey={key} match={match} selectedMoveType={props.selectedMoveType} />;
+      return <Agreement pages={pages} pageKey={key} match={match} />;
     },
   },
 };
