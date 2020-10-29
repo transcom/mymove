@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
-	"github.com/gobuffalo/validate/validators"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
+	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
 )
 

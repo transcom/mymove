@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/services/mocks"

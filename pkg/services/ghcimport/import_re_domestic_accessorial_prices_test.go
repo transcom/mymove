@@ -3,6 +3,9 @@ package ghcimport
 import (
 	"testing"
 
+	"github.com/jackc/pgerrcode"
+
+	"github.com/transcom/mymove/pkg/db/dberr"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -30,7 +33,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticAccessorialPrices() 
 	suite.T().Run("run a second time; should fail immediately due to constraint violation", func(t *testing.T) {
 		err := gre.importREDomesticAccessorialPrices(suite.DB())
 		if suite.Error(err) {
-			suite.Contains(err.Error(), "duplicate key value violates unique constraint")
+			suite.True(dberr.IsDBErrorForConstraint(err, pgerrcode.UniqueViolation, "re_domestic_accessorial_prices_unique_key"))
 		}
 
 		// Check to see if anything else changed
