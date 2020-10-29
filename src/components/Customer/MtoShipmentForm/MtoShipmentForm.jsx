@@ -3,9 +3,10 @@ import React, { Component } from 'react';
 import { bool, string, func, shape, number } from 'prop-types';
 import { Formik } from 'formik';
 
-import { getShipmentOptions } from './getShipmentOptions';
+import getShipmentOptions from './getShipmentOptions';
 import MtoShipmentFormFields from './MtoShipmentFormFields';
 
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { WizardPage } from 'shared/WizardPage/index';
 import { AddressShape, SimpleAddressShape } from 'types/address';
 import { HhgShipmentShape, MatchShape, HistoryShape, PageKeyShape, PageListShape } from 'types/customerShapes';
@@ -51,7 +52,6 @@ class MtoShipmentForm extends Component {
   };
 
   render() {
-    // TODO: replace minimal styling with actual styling during UI phase
     const {
       pageKey,
       pageList,
@@ -66,7 +66,7 @@ class MtoShipmentForm extends Component {
     } = this.props;
 
     const shipmentType = selectedMoveType || mtoShipment.shipmentType;
-    const displayOptions = getShipmentOptions(shipmentType);
+    const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(shipmentType);
     const initialValues = formatMtoShipmentForDisplay(isCreatePage ? {} : mtoShipment);
 
     const commonFormProps = {
@@ -76,10 +76,11 @@ class MtoShipmentForm extends Component {
       match,
       history,
       newDutyStationAddress,
-      displayOptions,
       serviceMember,
+      showPickupFields,
+      showDeliveryFields,
       shipmentType,
-      shipmentNumber: displayOptions.displayName === 'HHG' ? this.getShipmentNumber() : null,
+      shipmentNumber: shipmentType === SHIPMENT_OPTIONS.HHG ? this.getShipmentNumber() : null,
     };
 
     return (
@@ -88,7 +89,7 @@ class MtoShipmentForm extends Component {
         enableReinitialize
         validateOnBlur
         validateOnChange
-        validationSchema={displayOptions.schema}
+        validationSchema={schema}
       >
         {({ values, dirty, isValid, isSubmitting, setValues }) => {
           const handleUseCurrentResidenceChange = (e) => {

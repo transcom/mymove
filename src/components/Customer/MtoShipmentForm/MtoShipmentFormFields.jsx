@@ -13,7 +13,7 @@ import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { Form } from 'components/form/Form';
 import Hint from 'components/Hint/index';
 import { SimpleAddressShape } from 'types/address';
-import { MtoDisplayOptionsShape, MtoShipmentFormValuesShape } from 'types/customerShapes';
+import { MtoShipmentFormValuesShape } from 'types/customerShapes';
 import { validateDate } from 'utils/formikValidators';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -27,7 +27,8 @@ const MtoShipmentFormFields = ({
   isSubmitting,
   // shipment-related data
   shipmentNumber,
-  displayOptions,
+  showPickupFields,
+  showDeliveryFields,
   shipmentType,
   onUseCurrentResidenceChange,
   submitHandler,
@@ -49,10 +50,10 @@ const MtoShipmentFormFields = ({
         excess weight you move.
       </Alert>
       <Form className={styles.form}>
-        {displayOptions.showPickupFields && (
+        {showPickupFields && (
           <>
             <SectionWrapper className={styles.formSection}>
-              {displayOptions.showDeliveryFields && <h2>Pickup information</h2>}
+              {showDeliveryFields && <h2>Pickup information</h2>}
               <Fieldset legend="Pickup date">
                 <Field
                   as={DatePickerInput}
@@ -107,10 +108,10 @@ const MtoShipmentFormFields = ({
           </>
         )}
 
-        {displayOptions.showDeliveryFields && (
+        {showDeliveryFields && (
           <>
             <SectionWrapper className={styles.formSection}>
-              {displayOptions.showPickupFields && <h2>Delivery information</h2>}
+              {showPickupFields && <h2>Delivery information</h2>}
               <Fieldset legend="Delivery date">
                 <Field
                   as={DatePickerInput}
@@ -168,17 +169,15 @@ const MtoShipmentFormFields = ({
                     )}
                   />
                 ) : (
-                  <>
-                    <p>
-                      We can use the zip of your new duty station.
-                      <br />
-                      <strong>
-                        {newDutyStationAddress.city}, {newDutyStationAddress.state} {newDutyStationAddress.postal_code}{' '}
-                      </strong>
-                      <br />
-                      You can add the specific delivery address later, once you know it.
-                    </p>
-                  </>
+                  <p>
+                    We can use the zip of your new duty station.
+                    <br />
+                    <strong>
+                      {newDutyStationAddress.city}, {newDutyStationAddress.state} {newDutyStationAddress.postal_code}{' '}
+                    </strong>
+                    <br />
+                    You can add the specific delivery address later, once you know it.
+                  </p>
                 )}
               </Fieldset>
 
@@ -296,7 +295,8 @@ MtoShipmentFormFields.propTypes = {
 
   // shipment-related data
   shipmentType: string.isRequired,
-  displayOptions: MtoDisplayOptionsShape.isRequired,
+  showDeliveryFields: bool,
+  showPickupFields: bool,
   shipmentNumber: string,
 };
 
@@ -310,6 +310,8 @@ MtoShipmentFormFields.defaultProps = {
   // shipment-related data
   shipmentNumber: '',
   isCreatePage: false,
+  showDeliveryFields: true,
+  showPickupFields: true,
 };
 
 export default MtoShipmentFormFields;

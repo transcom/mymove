@@ -5,7 +5,7 @@ import { Tag } from '@trussworks/react-uswds';
 
 import styles from './ShipmentTag.module.scss';
 
-import { shipmentTypes as shipmentTypeLabels } from 'content/shipments';
+import { shipmentTypeLabels } from 'content/shipments';
 import { shipmentTypes } from 'constants/shipments';
 
 const ShipmentTag = ({ shipmentType, shipmentNumber }) => (
