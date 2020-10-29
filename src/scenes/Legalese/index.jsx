@@ -47,7 +47,7 @@ export class SignedCertification extends Component {
 
   handleSubmit = () => {
     const pendingValues = this.props.values;
-    const { latestSignedCertification, currentPpm, moveId, values, selectedMoveType } = this.props;
+    const { currentPpm, moveId, values, selectedMoveType } = this.props;
     const landingPath = '/';
     const submitDate = moment().format();
     const certificate = {
@@ -57,10 +57,6 @@ export class SignedCertification extends Component {
       personally_procured_move_id: currentPpm.id,
       certification_type: selectedMoveType,
     };
-
-    if (latestSignedCertification) {
-      return this.props.push(landingPath);
-    }
 
     if (pendingValues) {
       this.props
@@ -79,11 +75,11 @@ export class SignedCertification extends Component {
   }
 
   render() {
-    const { hasSubmitError, pages, pageKey, latestSignedCertification } = this.props;
+    const { hasSubmitError, pages, pageKey } = this.props;
     const today = formatSwaggerDate(new Date());
     const initialValues = {
-      date: get(latestSignedCertification, 'date', today),
-      signature: get(latestSignedCertification, 'signature', null),
+      date: today,
+      signature: null,
     };
     const certificationText = completeCertificationText;
     const instructionsText = (
@@ -175,7 +171,6 @@ function mapStateToProps(state, ownProps) {
     schema: get(state, 'swaggerInternal.spec.definitions.CreateSignedCertificationPayload', {}),
     hasLoggedInUser: selectGetCurrentUserIsSuccess(state),
     values: getFormValues(formName)(state),
-    ...state.signedCertification,
     currentPpm: selectActivePPMForMove(state, moveId),
     tempPpmId: get(state.ppm, 'currentPpm.id', null),
     has_sit: get(state.ppm, 'currentPpm.has_sit', false),
