@@ -57,7 +57,7 @@
     @include u-margin(0);
   }
   h5 + ul {
-    @include u-margin-top(0);
+    @include u-margin-top(0.5);
   }
 
   p,
