@@ -30,12 +30,14 @@
   }
 
   legend {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
     width: 100%;
-
     @include typeset('body', 9, 2);
+
+    .legendContent {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
   }
 
   legend + :global(.usa-form-group .usa-label) {

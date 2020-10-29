@@ -95,7 +95,7 @@ const MtoShipmentFormFields = ({
 
               <ContactInfoFields
                 name="pickup.agent"
-                legend={<>Releasing agent {optionalLabel}</>}
+                legend={<div className={styles.legendContent}>Releasing agent {optionalLabel}</div>}
                 values={values.pickup.agent}
                 render={(fields) => (
                   <>
@@ -183,7 +183,7 @@ const MtoShipmentFormFields = ({
 
               <ContactInfoFields
                 name="delivery.agent"
-                legend={<>Receiving agent {optionalLabel}</>}
+                legend={<div className={styles.legendContent}>Receiving agent {optionalLabel}</div>}
                 values={values.delivery.agent}
                 render={(fields) => (
                   <>
@@ -214,7 +214,7 @@ const MtoShipmentFormFields = ({
         )}
 
         <SectionWrapper className={styles.formSection}>
-          <Fieldset legend={<>Remarks {optionalLabel}</>}>
+          <Fieldset legend={<div className={styles.legendContent}>Remarks {optionalLabel}</div>}>
             <Label for="customerRemarks">
               Is there anything special about this shipment that the movers should know?
             </Label>
