@@ -7,21 +7,20 @@ import (
 	"github.com/gobuffalo/pop"
 
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
-
 	"github.com/transcom/mymove/pkg/models"
 	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/invoice"
 )
 
 type paymentRequestReviewedProcessor struct {
-	db     *pop.Connection
-	logger Logger
+	db           *pop.Connection
+	logger       Logger
+	ediGenerator services.GHCPaymentRequestInvoiceGenerator
 }
 
 // NewPaymentRequestReviewedProcessor returns a new payment request reviewed processor
-func NewPaymentRequestReviewedProcessor(db *pop.Connection, logger Logger) services.PaymentRequestReviewedProcessor {
-	return &paymentRequestReviewedProcessor{db, logger}
+func NewPaymentRequestReviewedProcessor(db *pop.Connection, logger Logger, generator services.GHCPaymentRequestInvoiceGenerator) services.PaymentRequestReviewedProcessor {
+	return &paymentRequestReviewedProcessor{db, logger, generator}
 }
 
 func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error {
@@ -38,20 +37,17 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error 
 	// records for PRs that failed to send
 	var failed []string
 
-	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(p.db)
-
 	// Send all reviewed payment request to Syncada
 	paymentHelper := paymentrequesthelper.RequestPaymentHelper{DB: p.db, Logger: p.logger}
 	for _, pr := range reviewedPaymentRequests {
 
 		// generate EDI file
 		var edi858c ediinvoice.Invoice858C
-		edi858c, err = generator.Generate(pr, false)
+		edi858c, err = p.ediGenerator.Generate(pr, false)
 		if err != nil {
 			return fmt.Errorf("function ProcessReviewedPaymentRequest failed call to generator.Generate: %w", err)
 
 		}
-
 		var edi858cString string
 		edi858cString, err = edi858c.EDIString()
 		if err != nil {
@@ -72,8 +68,9 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error 
 			failed = append(failed, value)
 		} else {
 			// (ID, status) to be used in update query
-			status := []string{pr.ID.String(), models.PaymentRequestStatusSentToGex.String()}
-			value := "('" + strings.Join(status, "','") + "')"
+			// (('a2c34dba-015f-4f96-a38b-0c0b9272e208')::uuid,'SENT_TO_GEX'::payment_request_status)
+			status := []string{"'" + pr.ID.String() + "'::uuid", "'" + models.PaymentRequestStatusSentToGex.String() + "'::payment_request_status"}
+			value := "(" + strings.Join(status, ",") + ")"
 			sentToGexStatuses = append(sentToGexStatuses, value)
 		}
 	}
