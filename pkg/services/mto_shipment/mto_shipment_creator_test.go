@@ -1,7 +1,6 @@
 package mtoshipment
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -71,19 +70,35 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 		suite.NotNil(invalidErr.ValidationErrors)
 		suite.NotEmpty(invalidErr.ValidationErrors)
 	})
+
 	// Unhappy path
-	suite.T().Run("Requested pickup dates are zero", func(t *testing.T) {
+	suite.T().Run("When required requested pickup dates are zero (required for NTS & HHG shipment types)", func(t *testing.T) {
 		// this check verifies that if requestedPuckupDate is Zero it returns an error
-		mtoShipmentFail := testdatagen.MakeDefaultMTOShipment(suite.DB())
-		mtoShipmentFailClear := clearShipmentIDFields(&mtoShipmentFail)
-		mtoShipmentFailClear.RequestedPickupDate = new(time.Time)
-		fmt.Println()
+		hhgShipmentFail := testdatagen.MakeDefaultMTOShipment(suite.DB()) // default is HHG
+		hhgShipmentFailClear := clearShipmentIDFields(&hhgShipmentFail)
+		hhgShipmentFailClear.RequestedPickupDate = new(time.Time)
+
 		// We don't need the shipment because it only returns data that wasn't saved.
-		_, err := creator.CreateMTOShipment(mtoShipmentFailClear, nil)
+		_, err := creator.CreateMTOShipment(hhgShipmentFailClear, nil)
 
 		suite.Error(err)
 		suite.IsType(services.InvalidInputError{}, err)
 		suite.Contains(err.Error(), "RequestedPickupDate")
+	})
+
+	suite.T().Run("When non-required requested pickup dates are zero (not required for NTSr shipment type)", func(t *testing.T) {
+		ntsrShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+			},
+		})
+		ntsrShipmentNoIDs := clearShipmentIDFields(&ntsrShipment)
+		ntsrShipmentNoIDs.RequestedPickupDate = new(time.Time)
+
+		// We don't need the shipment because it only returns data that wasn't saved.
+		_, err := creator.CreateMTOShipment(ntsrShipmentNoIDs, nil)
+
+		suite.NoError(err)
 	})
 
 	// Happy path
@@ -179,24 +194,24 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 	})
 
 	suite.T().Run("If the move already has a submitted NTSr shipment, it should return a validation error", func(t *testing.T) {
-		ntsShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		ntsrShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
 				Status:       models.MTOShipmentStatusSubmitted,
 			},
 		})
 
-		secondNTSShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		secondNTSrShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
-				MoveTaskOrderID: ntsShipment.MoveTaskOrderID,
+				MoveTaskOrderID: ntsrShipment.MoveTaskOrderID,
 				ShipmentType:    models.MTOShipmentTypeHHGOutOfNTSDom,
 				Status:          models.MTOShipmentStatusDraft,
 			},
 		})
 
 		serviceItemsList := models.MTOServiceItems{}
-		cleanedNTSShipment := clearShipmentIDFields(&secondNTSShipment)
-		createdShipment, err := creator.CreateMTOShipment(cleanedNTSShipment, serviceItemsList)
+		cleanedNTSrShipment := clearShipmentIDFields(&secondNTSrShipment)
+		createdShipment, err := creator.CreateMTOShipment(cleanedNTSrShipment, serviceItemsList)
 
 		suite.Nil(createdShipment)
 		suite.Error(err)
