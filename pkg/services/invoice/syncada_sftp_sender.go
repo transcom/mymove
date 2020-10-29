@@ -3,36 +3,35 @@ package invoice
 import (
 	"fmt"
 	"io"
-	"log"
-	"os"
-	"path/filepath"
 
 	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
+
+	"github.com/transcom/mymove/pkg/services"
 )
 
 // SyncadaSenderSFTPSession contains information to create a new Syncada SFTP session
 type SyncadaSenderSFTPSession struct {
-	port                     string
-	userID                   string
-	remote                   string
-	password                 string
-	destinationFileDirectory string
+	port                    string
+	userID                  string
+	remote                  string
+	password                string
+	syncadaInboundDirectory string
 }
 
 // NewSyncadaSFTPSession creates a new SyncadaSFTPSession service object
-func NewSyncadaSFTPSession(port string, userID string, remote string, password string, destinationFileDirectory string) SyncadaSenderSFTPSession {
-	return SyncadaSenderSFTPSession{
+func NewSyncadaSFTPSession(port string, userID string, remote string, password string, syncadaInboundDirectory string) services.SyncadaSFTPSender {
+	return &SyncadaSenderSFTPSession{
 		port,
 		userID,
 		remote,
 		password,
-		destinationFileDirectory,
+		syncadaInboundDirectory,
 	}
 }
 
-// SendToSyncada converts a speicified file to a string and copies it to Syncada's SFTP server
-func (s *SyncadaSenderSFTPSession) SendToSyncada(localFilePath string, destinationFileName string) (resp string, err error) {
+// SendToSyncadaViaSFTP copies specified local content to Syncada's SFTP server
+func (s *SyncadaSenderSFTPSession) SendToSyncadaViaSFTP(localDataReader io.Reader, syncadaFileName string) (int64, error) {
 	config := &ssh.ClientConfig{
 		User: s.userID,
 		Auth: []ssh.AuthMethod{
@@ -48,35 +47,30 @@ func (s *SyncadaSenderSFTPSession) SendToSyncada(localFilePath string, destinati
 	// connect
 	connection, err := ssh.Dial("tcp", s.remote+":"+s.port, config)
 	if err != nil {
-		log.Fatal(err)
+		return 0, err
 	}
 	defer connection.Close()
 
 	// create new SFTP client
 	client, err := sftp.NewClient(connection)
 	if err != nil {
-		log.Fatal(err)
+		return 0, err
 	}
 	defer client.Close()
 
-	// open local file
-	localFile, err := os.Open(filepath.Clean(localFilePath))
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	// create destination file
-	destinationFilePath := fmt.Sprintf("/%s/%s/%s", s.userID, s.destinationFileDirectory, destinationFileName)
-	destinationFile, err := client.Create(destinationFilePath)
+	syncadaFilePath := fmt.Sprintf("/%s/%s/%s", s.userID, s.syncadaInboundDirectory, syncadaFileName)
+	syncadaFile, err := client.Create(syncadaFilePath)
 	if err != nil {
-		log.Fatal(err)
+		return 0, err
 	}
-	defer destinationFile.Close()
+	defer syncadaFile.Close()
 
 	// copy source file to destination file
-	bytes, err := io.Copy(destinationFile, localFile)
+	bytes, err := io.Copy(syncadaFile, localDataReader)
 	if err != nil {
-		log.Fatal(err)
+		return 0, err
 	}
-	return fmt.Sprintf("%d bytes copied\n", bytes), err
+
+	return bytes, err
 }

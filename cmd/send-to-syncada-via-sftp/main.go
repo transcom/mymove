@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/spf13/pflag"
@@ -15,7 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/invoice"
 )
 
-// Call this from command line with go run ./cmd/send-to-syncada-via-sftp/ --local-file-path <localFilePath> --destination-file-name <destinationFileName>
+// Call this from command line with go run ./cmd/send-to-syncada-via-sftp/ --local-file-path <localFilePath> --syncada-file-name <syncadaFileName>
 
 func checkConfig(v *viper.Viper, logger logger) error {
 
@@ -41,7 +42,7 @@ func initFlags(flag *pflag.FlagSet) {
 	cli.InitSyncadaFlags(flag)
 
 	flag.String("local-file-path", "", "The path where the file to be sent is located")
-	flag.String("destination-file-name", "", "The name of the file to be stored in Syncada")
+	flag.String("syncada-file-name", "", "The name of the file to be stored in Syncada")
 
 	// Don't sort flags
 	flag.SortFlags = false
@@ -80,10 +81,16 @@ func main() {
 
 	syncadaSFTPSession := invoice.NewSyncadaSFTPSession(v.GetString(cli.SyncadaSFTPPortFlag), v.GetString(cli.SyncadaSFTPUserIDFlag), v.GetString(cli.SyncadaSFTPIPAddressFlag), v.GetString(cli.SyncadaSFTPPsswrdFlag), v.GetString(cli.SyncadaSFTPInboundDirectoryFlag))
 
-	transferConfirmation, err := syncadaSFTPSession.SendToSyncada(v.GetString("local-file-path"), v.GetString("destination-file-name"))
+	// open local file
+	localFile, err := os.Open(filepath.Clean(v.GetString("local-file-path")))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("%v", transferConfirmation)
+	bytes, err := syncadaSFTPSession.SendToSyncadaViaSFTP(localFile, v.GetString("syncada-file-name"))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("%d bytes copied to the Syncada SFTP server\n", bytes)
 }
