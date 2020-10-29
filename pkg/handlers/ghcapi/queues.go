@@ -199,14 +199,5 @@ func paymentRequestsStatusFilter(statuses []string, paymentRequests *ghcmessages
 		statusMap[status] = status
 	}
 
-	// then include only the moves based on status filter
-	// and exclude DRAFT and CANCELLED
-	for _, paymentRequest := range *paymentRequests {
-		if _, ok := statusMap[string(paymentRequest.Status)]; ok && string(paymentRequest.Status) != string(models.MoveStatusCANCELED) &&
-			string(paymentRequest.Status) != string(models.MoveStatusDRAFT) {
-			ret = append(ret, paymentRequest)
-		}
-	}
-
 	return &ret
 }
