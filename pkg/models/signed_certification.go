@@ -32,9 +32,7 @@ const (
 )
 
 var signedCertifications = []string{
-	string(SignedCertificationTypePPM),
 	string(SignedCertificationTypePPMPAYMENT),
-	string(SignedCertificationTypeHHG),
 	string(SignedCertificationTypeSHIPMENT),
 }
 

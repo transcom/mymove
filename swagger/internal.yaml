@@ -1609,7 +1609,7 @@ definitions:
         format: uuid
         x-nullable: true
       certification_type:
-        $ref: '#/definitions/SignedCertificationType'
+        $ref: '#/definitions/SignedCertificationTypeCreate'
         x-nullable: true
     required:
       - date
@@ -1622,9 +1622,15 @@ definitions:
   SignedCertificationType:
     type: string
     enum:
-      - PPM
       - PPM_PAYMENT
+      - SHIPMENT
+      - PPM
       - HHG
+    x-nullable: true
+  SignedCertificationTypeCreate:
+    type: string
+    enum:
+      - PPM_PAYMENT
       - SHIPMENT
     x-nullable: true
   DocumentPayload:
