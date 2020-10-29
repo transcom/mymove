@@ -21,11 +21,12 @@ const columns = [
     (row) => {
       return `${row.customer.last_name}, ${row.customer.first_name}`;
     },
-    { id: 'name' },
+    { id: 'lastName' },
+    { isFilterable: true },
   ),
-  createHeader('DoD ID', 'customer.dodID'),
+  createHeader('DoD ID', 'customer.dodID', { id: 'dodID' }, { isFilterable: true }),
   createHeader('Status', 'status', { isFilterable: true }),
-  createHeader('Move ID', 'locator'),
+  createHeader('Move ID', 'locator', { id: 'moveID' }, { isFilterable: true }),
   createHeader(
     'Branch',
     (row) => {
@@ -34,7 +35,12 @@ const columns = [
     { id: 'branch' },
   ),
   createHeader('# of shipments', 'shipmentsCount'),
-  createHeader('Destination duty station', 'destinationDutyStation.name'),
+  createHeader(
+    'Destination duty station',
+    'destinationDutyStation.name',
+    { id: 'destinationDutyStation' },
+    { isFilterable: true },
+  ),
   createHeader('Origin GBLOC', 'originGBLOC'),
 ];
 
