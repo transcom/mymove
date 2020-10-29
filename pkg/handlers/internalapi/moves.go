@@ -209,12 +209,27 @@ func (h SubmitMoveHandler) SaveMoveDependencies(db *pop.Connection, move *models
 
 		handler := CreateSignedCertificationHandler{h.HandlerContext}
 		response := handler.Handle(certificateParams)
-
 		_, ok := response.(*certop.CreateSignedCertificationCreated)
 		if !ok {
-			err := errors.New("Error saving certificate")
-			responseError = fmt.Errorf("error saving move %w", err)
+			responseError = errors.New("error creating signed certification")
 			return transactionError
+			//switch e := response.(type){
+			//case *certop.CreateSignedCertificationForbidden:
+			//	responseError = response.Error()
+			//	return transactionError
+			//case *certop.CreateSignedCertificationUnauthorized:
+			//	responseError = response.Error()
+			//	return transactionError
+			//case *certop.CreateSignedCertificationNotFound:
+			//	responseError = response.Error()
+			//	return transactionError
+			//case *certop.CreateSignedCertificationBadRequest:
+			//	responseVErrors.Append(e)
+			//	return transactionError
+			//default:
+			//	responseError = response.Error()
+			//	return transactionError
+			//}
 		}
 
 		for _, ppm := range move.PersonallyProcuredMoves {
