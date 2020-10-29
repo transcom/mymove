@@ -27,7 +27,6 @@ func NewPaymentRequestReviewedProcessor(db *pop.Connection, logger Logger, fetch
 func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error {
 
 	// Fetch all payment request that have been reviewed
-
 	reviewedPaymentRequests, err := p.reviewedPaymentRequestFetcher.FetchReviewedPaymentRequest()
 	if err != nil {
 		return fmt.Errorf("function ProcessReviewedPaymentRequest failed call to FetchReviewedPaymentRequest: %w", err)
@@ -58,6 +57,7 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error 
 
 		// TODO: USING STUB FUNCTION FOR SEND TO SYNCADA
 
+		// Send EDI string to Syncada
 		// If sent successfully to GEX, update payment request status to SENT_TO_GEX.
 		err = paymentHelper.SendToSyncada(edi858cString)
 		if err != nil {
@@ -69,7 +69,7 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error 
 			failed = append(failed, value)
 		} else {
 			// (ID, status) to be used in update query
-			// (('a2c34dba-015f-4f96-a38b-0c0b9272e208')::uuid,'SENT_TO_GEX'::payment_request_status)
+			// ('a2c34dba-015f-4f96-a38b-0c0b9272e208'::uuid,'SENT_TO_GEX'::payment_request_status)
 			status := []string{"'" + pr.ID.String() + "'::uuid", "'" + models.PaymentRequestStatusSentToGex.String() + "'::payment_request_status"}
 			value := "(" + strings.Join(status, ",") + ")"
 			sentToGexStatuses = append(sentToGexStatuses, value)
