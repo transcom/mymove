@@ -739,7 +739,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	suite.Equal(actualPaymentRequest.ID.String(), paymentRequest.ID.String())
 	suite.Equal(actualPaymentRequest.MoveTaskOrderID.String(), paymentRequest.MoveID.String())
 	suite.Equal(hhgMove.Orders.ServiceMemberID.String(), paymentRequest.Customer.ID.String())
-	suite.Equal(actualPaymentRequest.Status.String(), string(paymentRequest.Status))
+	suite.Equal(string(paymentRequest.Status), "Payment requested")
 
 	createdAt := actualPaymentRequest.CreatedAt
 	age := int64(2)
@@ -781,6 +781,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerServerError() {
 		mock.Anything,
 		mock.Anything,
 		mock.Anything,
+		mock.Anything,
 		mock.Anything).Return(nil, errors.New("database query error"))
 
 	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
@@ -806,6 +807,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerEmptyResults() {
 	paymentRequestListFetcher := mocks.PaymentRequestListFetcher{}
 
 	paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID,
+		mock.Anything,
 		mock.Anything,
 		mock.Anything,
 		mock.Anything,
