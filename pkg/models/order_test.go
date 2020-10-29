@@ -238,7 +238,7 @@ func (suite *ModelSuite) TestCanceledMoveCancelsOrder() {
 	move.Orders = orders
 	suite.MustSave(move)
 
-	err = move.Submit(time.Now())
+	err = move.Submit()
 	suite.NoError(err)
 
 	reason := "Mistaken identity"

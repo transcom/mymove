@@ -10,7 +10,6 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // SubmitMoveForApprovalPayload submit move for approval payload
@@ -19,11 +18,6 @@ type SubmitMoveForApprovalPayload struct {
 
 	// certificate
 	Certificate *CreateSignedCertificationPayload `json:"certificate,omitempty"`
-
-	// When was the ppm move submitted?
-	// Required: true
-	// Format: date-time
-	PpmSubmitDate *strfmt.DateTime `json:"ppm_submit_date"`
 }
 
 // Validate validates this submit move for approval payload
@@ -31,10 +25,6 @@ func (m *SubmitMoveForApprovalPayload) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateCertificate(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validatePpmSubmitDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -57,19 +47,6 @@ func (m *SubmitMoveForApprovalPayload) validateCertificate(formats strfmt.Regist
 			}
 			return err
 		}
-	}
-
-	return nil
-}
-
-func (m *SubmitMoveForApprovalPayload) validatePpmSubmitDate(formats strfmt.Registry) error {
-
-	if err := validate.Required("ppm_submit_date", "body", m.PpmSubmitDate); err != nil {
-		return err
-	}
-
-	if err := validate.FormatOf("ppm_submit_date", "body", "date-time", m.PpmSubmitDate.String(), formats); err != nil {
-		return err
 	}
 
 	return nil

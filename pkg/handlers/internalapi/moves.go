@@ -167,8 +167,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	}
 	logger = logger.With(zap.String("moveLocator", move.Locator))
 
-	submitDate := time.Time(*params.SubmitMoveForApprovalPayload.PpmSubmitDate)
-	err = move.Submit(submitDate)
+	err = move.Submit()
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

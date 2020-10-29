@@ -187,11 +187,8 @@ func (suite *HandlerSuite) TestSubmitPPMMoveForApprovalHandler() {
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
 	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
-	submitDate := strfmt.DateTime(time.Now())
 
-	newSubmitMoveForApprovalPayload := internalmessages.SubmitMoveForApprovalPayload{
-		PpmSubmitDate: &submitDate,
-	}
+	newSubmitMoveForApprovalPayload := internalmessages.SubmitMoveForApprovalPayload{}
 
 	params := moveop.SubmitMoveForApprovalParams{
 		HTTPRequest:                  req,

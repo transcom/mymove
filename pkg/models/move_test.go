@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
@@ -131,7 +130,7 @@ func (suite *ModelSuite) TestMoveCancellationWithReason() {
 	reason := "SM's orders revoked"
 
 	// Check to ensure move shows SUBMITTED before Cancel()
-	err = move.Submit(time.Now())
+	err = move.Submit()
 	suite.NoError(err)
 	suite.Equal(MoveStatusSUBMITTED, move.Status, "expected Submitted")
 
@@ -175,8 +174,7 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 	move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, ppm)
 
 	// Once submitted
-	currentTime := time.Now()
-	err = move.Submit(currentTime)
+	err = move.Submit()
 	suite.MustSave(move)
 	suite.DB().Reload(move)
 	suite.NoError(err)
@@ -215,7 +213,7 @@ func (suite *ModelSuite) TestCancelMoveCancelsOrdersPPM() {
 
 	// Associate PPM with the move it's on.
 	move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, *ppm)
-	err = move.Submit(time.Now())
+	err = move.Submit()
 	suite.NoError(err)
 	suite.Equal(MoveStatusSUBMITTED, move.Status, "expected Submitted")
 

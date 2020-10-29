@@ -64,7 +64,7 @@ export class SignedCertification extends Component {
 
     if (pendingValues) {
       this.props
-        .submitMoveForApproval(moveId, submitDate, certificate)
+        .submitMoveForApproval(moveId, certificate)
         .then(() => {
           this.props.showSubmitSuccessBanner();
           setTimeout(() => this.props.removeSubmitSuccessBanner(), 10000);
