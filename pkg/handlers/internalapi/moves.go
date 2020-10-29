@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"time"
 
+	"github.com/transcom/mymove/pkg/certs"
+
 	"github.com/gobuffalo/pop/v5"
 	"github.com/pkg/errors"
 
@@ -174,9 +176,10 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 
 	certificateParams := certop.NewCreateSignedCertificationParams()
 	certificateParams.CreateSignedCertificationPayload = params.SubmitMoveForApprovalPayload.Certificate
-
+	certificateParams.HTTPRequest = params.HTTPRequest
+	certificateParams.MoveID = params.MoveID
 	// Transaction to save move and dependencies
-	verrs, err := h.SaveMoveDependencies(h.DB(), move, certificateParams)
+	verrs, err := h.SaveMoveDependencies(h.DB(), logger, move, certificateParams, session.UserID)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
@@ -199,36 +202,35 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 
 // SaveMoveDependencies safely saves a Move status, ppms' advances' statuses, orders statuses,
 // and shipment GBLOCs.
-func (h SubmitMoveHandler) SaveMoveDependencies(db *pop.Connection, move *models.Move, certificateParams certop.CreateSignedCertificationParams) (*validate.Errors, error) {
+func (h SubmitMoveHandler) SaveMoveDependencies(db *pop.Connection, logger certs.Logger, move *models.Move, certificateParams certop.CreateSignedCertificationParams, userID uuid.UUID) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
 	db.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
+		// TODO: move CreateSignedCertification behavior into a service
+		ppmID := certificateParams.CreateSignedCertificationPayload.PersonallyProcuredMoveID
+		modelPPMID := uuid.UUID{}
+		if ppmID != nil {
+			modelPPMID = uuid.FromStringOrNil(certificateParams.CreateSignedCertificationPayload.PersonallyProcuredMoveID.String())
+		}
 
-		handler := CreateSignedCertificationHandler{h.HandlerContext}
-		response := handler.Handle(certificateParams)
-		_, ok := response.(*certop.CreateSignedCertificationCreated)
-		if !ok {
-			responseError = errors.New("error creating signed certification")
+		certType := models.SignedCertificationType(*certificateParams.CreateSignedCertificationPayload.CertificationType)
+		newSignedCertification := models.SignedCertification{
+			MoveID:                   uuid.FromStringOrNil(certificateParams.MoveID.String()),
+			PersonallyProcuredMoveID: &modelPPMID,
+			CertificationType:        &certType,
+			SubmittingUserID:         userID,
+			CertificationText:        *certificateParams.CreateSignedCertificationPayload.CertificationText,
+			Signature:                *certificateParams.CreateSignedCertificationPayload.Signature,
+			Date:                     time.Now(),
+		}
+
+		verrs, err := db.ValidateAndCreate(&newSignedCertification)
+		if responseError != nil || responseVErrors.HasAny() {
+			responseError = err
+			responseVErrors.Append(verrs)
 			return transactionError
-			//switch e := response.(type){
-			//case *certop.CreateSignedCertificationForbidden:
-			//	responseError = response.Error()
-			//	return transactionError
-			//case *certop.CreateSignedCertificationUnauthorized:
-			//	responseError = response.Error()
-			//	return transactionError
-			//case *certop.CreateSignedCertificationNotFound:
-			//	responseError = response.Error()
-			//	return transactionError
-			//case *certop.CreateSignedCertificationBadRequest:
-			//	responseVErrors.Append(e)
-			//	return transactionError
-			//default:
-			//	responseError = response.Error()
-			//	return transactionError
-			//}
 		}
 
 		for _, ppm := range move.PersonallyProcuredMoves {
@@ -260,7 +262,13 @@ func (h SubmitMoveHandler) SaveMoveDependencies(db *pop.Connection, move *models
 		}
 		return nil
 	})
-
+	//logger.Info("signedCertification created",
+	//	zap.String("id", signedCertificationPayload.ID.String()),
+	//	zap.String("moveId", signedCertificationPayload.MoveID.String()),
+	//	zap.String("createdAt", signedCertificationPayload.CreatedAt.String()),
+	//	zap.String("certification_type", stringCertType),
+	//	zap.String("certification_text", *signedCertificationPayload.CertificationText),
+	//)
 	return responseVErrors, responseError
 }
 

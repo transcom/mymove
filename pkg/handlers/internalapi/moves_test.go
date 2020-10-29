@@ -187,8 +187,15 @@ func (suite *HandlerSuite) TestSubmitPPMMoveForApprovalHandler() {
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
 	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
-
-	newSubmitMoveForApprovalPayload := internalmessages.SubmitMoveForApprovalPayload{}
+	certType := internalmessages.SignedCertificationTypePPM
+	signingDate := strfmt.DateTime(time.Now())
+	certificate := internalmessages.CreateSignedCertificationPayload{
+		CertificationText: swag.String("This is your legal message"),
+		CertificationType: &certType,
+		Date:              &signingDate,
+		Signature:         swag.String("Jane Doe"),
+	}
+	newSubmitMoveForApprovalPayload := internalmessages.SubmitMoveForApprovalPayload{Certificate: &certificate}
 
 	params := moveop.SubmitMoveForApprovalParams{
 		HTTPRequest:                  req,
