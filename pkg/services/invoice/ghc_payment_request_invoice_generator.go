@@ -111,7 +111,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 
 	edi858.GS = edisegment.GS{
 		FunctionalIdentifierCode: "SI",
-		ApplicationSendersCode:   "MYMOVE",
+		ApplicationSendersCode:   fmt.Sprintf("%-9s", "MYMOVE"),
 		ApplicationReceiversCode: "8004171844",
 		Date:                     currentTime.Format(dateFormat),
 		Time:                     currentTime.Format(timeFormat),
@@ -343,10 +343,9 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	}
 
 	// destination name
-	destinationStationName := orders.NewDutyStation.Name
 	destinationName := edisegment.N1{
 		EntityIdentifierCode:        "ST",
-		Name:                        destinationStationName,
+		Name:                        destinationDutyStation.Name,
 		IdentificationCodeQualifier: "10",
 		IdentificationCode:          destTransportationOffice.Gbloc,
 	}
@@ -368,7 +367,11 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 		PostalCode:          destinationDutyStation.Address.PostalCode,
 	}
 	if destinationDutyStation.Address.Country != nil {
-		destinationPostalDetails.CountryCode = string(*destinationDutyStation.Address.Country)
+		countryCode, ccErr := destinationDutyStation.Address.CountryCode()
+		if ccErr != nil {
+			return []edisegment.Segment{}, ccErr
+		}
+		destinationPostalDetails.CountryCode = string(*countryCode)
 	}
 	originAndDestinationSegments = append(originAndDestinationSegments, &destinationPostalDetails)
 
@@ -435,7 +438,11 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 		PostalCode:          originDutyStation.Address.PostalCode,
 	}
 	if originDutyStation.Address.Country != nil {
-		originPostalDetails.CountryCode = string(*originDutyStation.Address.Country)
+		countryCode, ccErr := originDutyStation.Address.CountryCode()
+		if ccErr != nil {
+			return []edisegment.Segment{}, ccErr
+		}
+		originPostalDetails.CountryCode = string(*countryCode)
 	}
 
 	originAndDestinationSegments = append(originAndDestinationSegments, &originPostalDetails)
@@ -554,7 +561,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 		// Build and put together the segments
 		hlSegment := edisegment.HL{
 			HierarchicalIDNumber:  strconv.Itoa(hierarchicalIDNumber), // may need to change if sending multiple payment request in a single edi
-			HierarchicalLevelCode: "|",
+			HierarchicalLevelCode: "I",
 		}
 
 		n9Segment := edisegment.N9{
