@@ -58,7 +58,7 @@ describe('PaymentRequestQueue', () => {
   });
 
   it('renders the correct column headers', () => {
-    expect(wrapper.find('thead tr').length).toBe(1);
+    expect(wrapper.find('thead tr').length).toBe(2);
 
     expect(wrapper.find('thead tr th').at(0).text()).toBe('Customer name');
     expect(wrapper.find('thead tr th').at(1).text()).toBe('DoD ID');
