@@ -167,57 +167,6 @@ func init() {
         }
       }
     },
-    "/move-orders": {
-      "get": {
-        "description": "Gets all move orders",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moveOrder"
-        ],
-        "summary": "Gets all move orders",
-        "operationId": "listMoveOrders",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved all move orders",
-            "schema": {
-              "$ref": "#/definitions/MoveOrders"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
-          }
-        }
-      }
-    },
     "/move-orders/{moveOrderID}": {
       "get": {
         "description": "Gets a move order",
@@ -1416,52 +1365,6 @@ func init() {
           "required": true
         }
       ]
-    },
-    "/payment-requests": {
-      "get": {
-        "description": "Gets a list of payment requests",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "paymentRequests",
-          "gov"
-        ],
-        "summary": "Gets payment requests",
-        "operationId": "listPaymentRequests",
-        "responses": {
-          "200": {
-            "description": "fetched list of payment requests",
-            "schema": {
-              "$ref": "#/definitions/PaymentRequests"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      }
     },
     "/payment-requests/{paymentRequestID}": {
       "get": {
@@ -3754,72 +3657,6 @@ func init() {
         }
       }
     },
-    "/move-orders": {
-      "get": {
-        "description": "Gets all move orders",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moveOrder"
-        ],
-        "summary": "Gets all move orders",
-        "operationId": "listMoveOrders",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved all move orders",
-            "schema": {
-              "$ref": "#/definitions/MoveOrders"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          }
-        }
-      }
-    },
     "/move-orders/{moveOrderID}": {
       "get": {
         "description": "Gets a move order",
@@ -5270,55 +5107,6 @@ func init() {
           "required": true
         }
       ]
-    },
-    "/payment-requests": {
-      "get": {
-        "description": "Gets a list of payment requests",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "paymentRequests",
-          "gov"
-        ],
-        "summary": "Gets payment requests",
-        "operationId": "listPaymentRequests",
-        "responses": {
-          "200": {
-            "description": "fetched list of payment requests",
-            "schema": {
-              "$ref": "#/definitions/PaymentRequests"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      }
     },
     "/payment-requests/{paymentRequestID}": {
       "get": {
