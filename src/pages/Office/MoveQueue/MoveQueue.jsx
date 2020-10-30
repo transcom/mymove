@@ -79,7 +79,7 @@ const MoveQueue = ({ history }) => {
   const [paramFilters, setParamFilters] = useState([]);
 
   const {
-    queueMovesResult: { totalCount, queueMoves = [] },
+    queueMovesResult: { totalCount = 0, queueMoves = [] },
     isLoading,
     isError,
   } = useMovesQueueQueries(paramFilters);

@@ -100,7 +100,7 @@ const PaymentRequestQueue = ({ history }) => {
   const [paramFilters, setParamFilters] = useState([]);
 
   const {
-    queuePaymentRequestsResult: { totalCount, queuePaymentRequests = [] },
+    queuePaymentRequestsResult: { totalCount = 0, queuePaymentRequests = [] },
     isLoading,
     isError,
   } = usePaymentRequestQueueQueries(paramFilters);
