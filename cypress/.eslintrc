@@ -9,6 +9,7 @@
     "react/jsx-no-target-blank": "error",
     "react/jsx-curly-brace-presence": "error"
   },
+  "noInlineConfig": true,
   "globals": {
     "cy": "readonly",
     "Cypress": "readonly",

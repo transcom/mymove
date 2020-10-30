@@ -39,6 +39,7 @@
     "you-dont-need-lodash-underscore/union": "off",
     "you-dont-need-lodash-underscore/uniqueId": "off"
   },
+  "noInlineConfig": true,
   "overrides": [
     {
       "files": ["*.stories.js", "*.stories.jsx", "setupTests.js"],
