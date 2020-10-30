@@ -104,20 +104,8 @@
   }
 }
 
-<<<<<<< HEAD
-    @media (max-width: $tablet) {
-      .usa-fieldset {
-        @include u-padding-top(2);
-      }
-    }
-
-    .usa-legend {
-      @include u-margin-top(0);
-    }
-=======
 .formSection {
   @include u-margin-y(4);
->>>>>>> 6766b5aa9d8e19494366bcbc5079ccb5c869fec8
 
   + .formSection {
     @include u-margin-top(5);
