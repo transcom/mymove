@@ -40,6 +40,7 @@ func TestGHCInvoiceSuite(t *testing.T) {
 }
 
 const testDateFormat = "20060102"
+const testISADateFormat = "060102"
 const testTimeFormat = "1504"
 
 func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
@@ -54,7 +55,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		{
 			Key:     models.ServiceItemParamNameRequestedPickupDate,
 			KeyType: models.ServiceItemParamTypeDate,
-			Value:   currentTime.Format(dateFormat),
+			Value:   currentTime.Format(testDateFormat),
 		},
 		{
 			Key:     models.ServiceItemParamNameWeightBilledActual,
@@ -181,7 +182,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal("MYMOVE         ", result.ISA.InterchangeSenderID)
 		suite.Equal("12", result.ISA.InterchangeReceiverIDQualifier)
 		suite.Equal("8004171844     ", result.ISA.InterchangeReceiverID)
-		suite.Equal(currentTime.Format(testDateFormat), result.ISA.InterchangeDate)
+		suite.Equal(currentTime.Format(testISADateFormat), result.ISA.InterchangeDate)
 		suite.Equal(currentTime.Format(testTimeFormat), result.ISA.InterchangeTime)
 		suite.Equal("U", result.ISA.InterchangeControlStandards)
 		suite.Equal("00401", result.ISA.InterchangeControlVersionNumber)
@@ -521,7 +522,7 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 		{
 			Key:     models.ServiceItemParamNameRequestedPickupDate,
 			KeyType: models.ServiceItemParamTypeDate,
-			Value:   currentTime.Format(dateFormat),
+			Value:   currentTime.Format(testDateFormat),
 		},
 		{
 			Key:     models.ServiceItemParamNameWeightBilledActual,
