@@ -1085,6 +1085,9 @@ paths:
         - queues
       parameters:
         - in: query
+          name: submittedAt
+          type: string
+        - in: query
           name: branch
           type: string
         - in: query

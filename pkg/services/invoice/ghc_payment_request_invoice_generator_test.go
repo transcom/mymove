@@ -193,10 +193,10 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	suite.T().Run("adds gs start segment", func(t *testing.T) {
 		suite.Equal("SI", result.GS.FunctionalIdentifierCode)
-		suite.Equal("MYMOVE", result.GS.ApplicationSendersCode)
+		suite.Equal("MYMOVE   ", result.GS.ApplicationSendersCode)
 		suite.Equal("8004171844", result.GS.ApplicationReceiversCode)
-		suite.Equal(currentTime.Format(dateFormat), result.GS.Date)
-		suite.Equal(currentTime.Format(timeFormat), result.GS.Time)
+		suite.Equal(currentTime.Format(testDateFormat), result.GS.Date)
+		suite.Equal(currentTime.Format(testTimeFormat), result.GS.Time)
 		suite.Equal(int64(100001251), result.GS.GroupControlNumber)
 		suite.Equal("X", result.GS.ResponsibleAgencyCode)
 		suite.Equal("004010", result.GS.Version)
@@ -236,7 +236,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	})
 
 	suite.T().Run("does not error out creating EDI from Invoice858", func(t *testing.T) {
-		_, err := result.EDIString()
+		_, err := result.EDIString(suite.logger)
 		suite.NoError(err)
 	})
 
@@ -301,7 +301,9 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal(address.City, n4.CityName)
 		suite.Equal(address.State, n4.StateOrProvinceCode)
 		suite.Equal(address.PostalCode, n4.PostalCode)
-		suite.Equal(*address.Country, n4.CountryCode)
+		countryCode, err := address.CountryCode()
+		suite.NoError(err)
+		suite.Equal(*countryCode, n4.CountryCode)
 		// Office Phone
 		destinationStationPhoneLines := expectedDutyStation.TransportationOffice.PhoneLines
 		var destPhoneLines []string
@@ -338,7 +340,9 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal(address.City, n4.CityName)
 		suite.Equal(address.State, n4.StateOrProvinceCode)
 		suite.Equal(address.PostalCode, n4.PostalCode)
-		suite.Equal(*address.Country, n4.CountryCode)
+		countryCode, err := address.CountryCode()
+		suite.NoError(err)
+		suite.Equal(*countryCode, n4.CountryCode)
 		// Office Phone
 		originStationPhoneLines := expectedDutyStation.TransportationOffice.PhoneLines
 		var originPhoneLines []string
@@ -374,7 +378,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			suite.IsType(&edisegment.HL{}, result.ServiceItems[segmentOffset])
 			hl := result.ServiceItems[segmentOffset].(*edisegment.HL)
 			suite.Equal(hierarchicalNumber, hl.HierarchicalIDNumber)
-			suite.Equal("|", hl.HierarchicalLevelCode)
+			suite.Equal("I", hl.HierarchicalLevelCode)
 		})
 
 		suite.T().Run("adds n9 service item segment", func(t *testing.T) {

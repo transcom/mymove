@@ -59,6 +59,10 @@ type GetPaymentRequestsQueueParams struct {
 	  In: query
 	*/
 	Status []string
+	/*
+	  In: query
+	*/
+	SubmittedAt *string
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -99,6 +103,11 @@ func (o *GetPaymentRequestsQueueParams) BindRequest(r *http.Request, route *midd
 
 	qStatus, qhkStatus, _ := qs.GetOK("status")
 	if err := o.bindStatus(qStatus, qhkStatus, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qSubmittedAt, qhkSubmittedAt, _ := qs.GetOK("submittedAt")
+	if err := o.bindSubmittedAt(qSubmittedAt, qhkSubmittedAt, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -240,6 +249,24 @@ func (o *GetPaymentRequestsQueueParams) validateStatus(formats strfmt.Registry) 
 	if err := validate.UniqueItems("status", "query", o.Status); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+// bindSubmittedAt binds and validates parameter SubmittedAt from query.
+func (o *GetPaymentRequestsQueueParams) bindSubmittedAt(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	o.SubmittedAt = &raw
 
 	return nil
 }

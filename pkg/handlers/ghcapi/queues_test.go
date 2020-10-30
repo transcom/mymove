@@ -740,6 +740,63 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	suite.Equal(*hhgMove.Orders.DepartmentIndicator, string(paymentRequest.DepartmentIndicator))
 }
 
+func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
+	officeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{})
+
+	outOfRangeDate, _ := time.Parse("2006-01-02", "2020-10-10")
+
+	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			CreatedAt: outOfRangeDate,
+		},
+	})
+
+	createdAtTime, _ := time.Parse("2006-01-02", "2020-10-29")
+	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			CreatedAt: createdAtTime,
+		},
+	})
+
+	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
+	request = suite.AuthenticateOfficeRequest(request, officeUser)
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	handler := GetPaymentRequestsQueueHandler{
+		context,
+		paymentrequest.NewPaymentRequestListFetcher(suite.DB()),
+	}
+	suite.Run("returns unfiltered results", func() {
+		params := queues.GetPaymentRequestsQueueParams{
+			HTTPRequest: request,
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		suite.Assertions.IsType(&queues.GetPaymentRequestsQueueOK{}, response)
+		payload := response.(*queues.GetPaymentRequestsQueueOK).Payload
+
+		suite.Len(payload.QueuePaymentRequests, 2)
+	})
+
+	suite.Run("returns results matching SubmittedAt date", func() {
+		submittedAtDate := "2020-10-29"
+		params := queues.GetPaymentRequestsQueueParams{
+			HTTPRequest: request,
+			SubmittedAt: &submittedAtDate,
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		payload := response.(*queues.GetPaymentRequestsQueueOK).Payload
+
+		suite.Len(payload.QueuePaymentRequests, 1)
+	})
+
+}
+
 func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerUnauthorizedRole() {
 	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 
@@ -770,6 +827,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerServerError() {
 		mock.Anything,
 		mock.Anything,
 		mock.Anything,
+		mock.Anything,
 		mock.Anything).Return(nil, errors.New("database query error"))
 
 	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
@@ -794,6 +852,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerEmptyResults() {
 	paymentRequestListFetcher := mocks.PaymentRequestListFetcher{}
 
 	paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID,
+		mock.Anything,
 		mock.Anything,
 		mock.Anything,
 		mock.Anything,
