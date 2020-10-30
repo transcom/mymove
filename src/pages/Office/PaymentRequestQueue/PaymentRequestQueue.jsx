@@ -3,8 +3,11 @@ import { GridContainer } from '@trussworks/react-uswds';
 import { withRouter } from 'react-router-dom';
 import { useTable, useFilters } from 'react-table';
 
+import SingleDatePicker from '../../../shared/JsonSchemaForm/SingleDatePicker';
+
 import styles from './PaymentRequestQueue.module.scss';
 
+// import { DatePickerInput } from 'components/form/fields';
 import { usePaymentRequestQueueQueries } from 'hooks/queries';
 import Table from 'components/Table/Table';
 import { createHeader } from 'components/Table/utils';
@@ -64,7 +67,12 @@ const columns = [
     (row) => {
       return formatDateFromIso(row.submittedAt, 'DD MMM YYYY');
     },
-    'submittedAt',
+    {
+      id: 'submittedAt',
+      isFilterable: true,
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      Filter: (props) => <SingleDatePicker {...props} />,
+    },
   ),
   createHeader('Move Code', 'locator', {
     id: 'moveID',
