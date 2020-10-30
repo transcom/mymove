@@ -65,7 +65,18 @@
       border-left: 0;
       border-right: 0;
       background-color: white;
-      color: $base-darkest
+      color: $base-darkest;
+
+      .usa-checkbox label {
+        display: flex;
+        align-items: center;
+        padding-left: 0;
+      }
+
+      .usa-checkbox label:before {
+        flex-grow: 0;
+        flex-shrink: 0;
+      }
     }
 
     .MultiSelectCheckBoxFilter__option:not(:first-child), :global .MultiSelectCheckBoxFilter__option:first-child {
