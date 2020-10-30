@@ -6,7 +6,7 @@ import { Checkbox } from '@trussworks/react-uswds';
 
 import styles from './MultiSelectCheckBoxFilter.module.scss';
 
-import { ReactComponent as ArrowBoth } from 'shared/icon/arrow-both.svg';
+import { ReactComponent as ArrowBoth } from 'icons/arrow-both.svg';
 
 const Option = (props) => {
   const {
