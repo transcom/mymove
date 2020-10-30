@@ -206,29 +206,28 @@ func (h SubmitMoveHandler) SaveMoveDependencies(db *pop.Connection, logger certs
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
+	ppmID := certificateParams.CreateSignedCertificationPayload.PersonallyProcuredMoveID
+	modelPPMID := uuid.UUID{}
+	if ppmID != nil {
+		modelPPMID = uuid.FromStringOrNil(certificateParams.CreateSignedCertificationPayload.PersonallyProcuredMoveID.String())
+	}
+
+	certType := models.SignedCertificationType(*certificateParams.CreateSignedCertificationPayload.CertificationType)
+	newSignedCertification := models.SignedCertification{
+		MoveID:                   uuid.FromStringOrNil(certificateParams.MoveID.String()),
+		PersonallyProcuredMoveID: &modelPPMID,
+		CertificationType:        &certType,
+		SubmittingUserID:         userID,
+		CertificationText:        *certificateParams.CreateSignedCertificationPayload.CertificationText,
+		Signature:                *certificateParams.CreateSignedCertificationPayload.Signature,
+		Date:                     time.Now(),
+	}
 	db.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
-		// TODO: move CreateSignedCertification behavior into a service
-		ppmID := certificateParams.CreateSignedCertificationPayload.PersonallyProcuredMoveID
-		modelPPMID := uuid.UUID{}
-		if ppmID != nil {
-			modelPPMID = uuid.FromStringOrNil(certificateParams.CreateSignedCertificationPayload.PersonallyProcuredMoveID.String())
-		}
-
-		certType := models.SignedCertificationType(*certificateParams.CreateSignedCertificationPayload.CertificationType)
-		newSignedCertification := models.SignedCertification{
-			MoveID:                   uuid.FromStringOrNil(certificateParams.MoveID.String()),
-			PersonallyProcuredMoveID: &modelPPMID,
-			CertificationType:        &certType,
-			SubmittingUserID:         userID,
-			CertificationText:        *certificateParams.CreateSignedCertificationPayload.CertificationText,
-			Signature:                *certificateParams.CreateSignedCertificationPayload.Signature,
-			Date:                     time.Now(),
-		}
-
+		// TODO: move creation of signed certification into a service
 		verrs, err := db.ValidateAndCreate(&newSignedCertification)
 		if responseError != nil || responseVErrors.HasAny() {
-			responseError = err
+			responseError = fmt.Errorf("error saving signed certification: %w", err)
 			responseVErrors.Append(verrs)
 			return transactionError
 		}
@@ -262,13 +261,14 @@ func (h SubmitMoveHandler) SaveMoveDependencies(db *pop.Connection, logger certs
 		}
 		return nil
 	})
-	//logger.Info("signedCertification created",
-	//	zap.String("id", signedCertificationPayload.ID.String()),
-	//	zap.String("moveId", signedCertificationPayload.MoveID.String()),
-	//	zap.String("createdAt", signedCertificationPayload.CreatedAt.String()),
-	//	zap.String("certification_type", stringCertType),
-	//	zap.String("certification_text", *signedCertificationPayload.CertificationText),
-	//)
+
+	logger.Info("signedCertification created",
+		zap.String("id", newSignedCertification.ID.String()),
+		zap.String("moveId", newSignedCertification.MoveID.String()),
+		zap.String("createdAt", newSignedCertification.CreatedAt.String()),
+		zap.String("certification_type", string(*newSignedCertification.CertificationType)),
+		zap.String("certification_text", newSignedCertification.CertificationText),
+	)
 	return responseVErrors, responseError
 }
 
