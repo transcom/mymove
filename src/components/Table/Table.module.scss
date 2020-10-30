@@ -32,5 +32,21 @@
       color: $base-darker;
       @include u-text('bold');
     }
+
+    .tableHeaderFilters {
+      background-color: $base-lighter;
+
+      th {
+        @include u-bg('transparent')
+      }
+
+      &:hover {
+        background-color: $base-lighter;
+
+        th {
+          @include u-bg('transparent')
+        }
+      }
+    }
   }
 }

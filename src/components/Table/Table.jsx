@@ -1,3 +1,4 @@
+/* eslint-disable react/no-array-index-key */
 import React from 'react';
 import PropTypes from 'prop-types';
 
@@ -10,18 +11,23 @@ const Table = ({ handleClick, getTableProps, getTableBodyProps, headerGroups, ro
       <table {...getTableProps()}>
         <thead>
           {headerGroups.map((headerGroup, hgIndex) => (
-            // eslint-disable-next-line react/no-array-index-key
-            <tr key={`headerGroup${hgIndex}`} {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column, headerIndex) => (
-                // eslint-disable-next-line react/no-array-index-key
-                <th key={`header${headerIndex}`} data-testid={column.id} {...column.getHeaderProps()}>
-                  {column.render('Header')}
-                  {/* isFilterable is a custom prop that can be set in the Column object */}
-                  {/* <div>{column.isFilterable ? column.render('Filter') : null}</div> */}
-                  <div>{column.isFilterable ? column.render('Filter') : null}</div>
-                </th>
-              ))}
-            </tr>
+            <>
+              <tr key={`headerGroup${hgIndex}`} {...headerGroup.getHeaderGroupProps()}>
+                {headerGroup.headers.map((column, headerIndex) => (
+                  <th key={`header${headerIndex}`} data-testid={column.id} {...column.getHeaderProps()}>
+                    {column.render('Header')}
+                  </th>
+                ))}
+              </tr>
+              <tr className={styles.tableHeaderFilters} key={`headerGroupFilters${hgIndex}`}>
+                {headerGroup.headers.map((column, headerIndex) => (
+                  <th key={`headerFilter${headerIndex}`} data-testid={column.id}>
+                    {/* isFilterable is a custom prop that can be set in the Column object */}
+                    <div>{column.isFilterable ? column.render('Filter') : null}</div>
+                  </th>
+                ))}
+              </tr>
+            </>
           ))}
         </thead>
         <tbody {...getTableBodyProps()}>
