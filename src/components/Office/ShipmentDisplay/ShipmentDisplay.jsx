@@ -39,7 +39,7 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
           </div>
           <div className={styles.row}>
             <dt>Current address</dt>
-            <dd>{formatAddress(displayInfo.currentAddress)}</dd>
+            <dd>{displayInfo.currentAddress && formatAddress(displayInfo.currentAddress)}</dd>
           </div>
           <div className={styles.row}>
             <dt className={styles.label}>Destination address</dt>
