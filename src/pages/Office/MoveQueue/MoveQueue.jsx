@@ -11,15 +11,25 @@ import { createHeader } from 'components/Table/utils';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useMovesQueueQueries } from 'hooks/queries';
-import { departmentIndicatorLabel } from 'shared/formatters';
+import { serviceMemberAgencyLabel } from 'shared/formatters';
 import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
+import SelectFilter from 'components/Table/Filters/SelectFilter';
 import { MOVE_STATUS_OPTIONS } from 'constants/queues';
 
 const moveStatusOptions = Object.keys(MOVE_STATUS_OPTIONS).map((key) => ({
   value: key,
   label: MOVE_STATUS_OPTIONS[`${key}`],
 }));
+
+const branchFilterOptions = [
+  { value: '', label: 'All' },
+  { value: 'ARMY', label: 'Army' },
+  { value: 'NAVY', label: 'Navy' },
+  { value: 'MARINES', label: 'Marine Corps' },
+  { value: 'AIR_FORCE', label: 'Air Force' },
+  { value: 'COAST_GUARD', label: 'Coast Guard' },
+];
 
 const columns = [
   createHeader('ID', 'id'),
@@ -28,24 +38,41 @@ const columns = [
     (row) => {
       return `${row.customer.last_name}, ${row.customer.first_name}`;
     },
-    { id: 'name' },
+    {
+      id: 'lastName',
+      isFilterable: true,
+    },
   ),
-  createHeader('DoD ID', 'customer.dodID'),
+  createHeader('DoD ID', 'customer.dodID', {
+    id: 'dodID',
+    isFilterable: true,
+  }),
   createHeader('Status', 'status', {
     isFilterable: true,
     // eslint-disable-next-line react/jsx-props-no-spreading
     Filter: (props) => <MultiSelectCheckBoxFilter options={moveStatusOptions} {...props} />,
   }),
-  createHeader('Move ID', 'locator'),
+  createHeader('Move ID', 'locator', {
+    id: 'moveID',
+    isFilterable: true,
+  }),
   createHeader(
     'Branch',
     (row) => {
-      return departmentIndicatorLabel(row.departmentIndicator);
+      return serviceMemberAgencyLabel(row.customer.agency);
     },
-    { id: 'branch' },
+    {
+      id: 'branch',
+      isFilterable: true,
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      Filter: (props) => <SelectFilter options={branchFilterOptions} {...props} />,
+    },
   ),
   createHeader('# of shipments', 'shipmentsCount'),
-  createHeader('Destination duty station', 'destinationDutyStation.name'),
+  createHeader('Destination duty station', 'destinationDutyStation.name', {
+    id: 'destinationDutyStation',
+    isFilterable: true,
+  }),
   createHeader('Origin GBLOC', 'originGBLOC'),
 ];
 
