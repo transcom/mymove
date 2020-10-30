@@ -29,8 +29,8 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		shipmentStatus = mtoShipment.Status
 	}
 
-	shipmentHasPickupDetails := mtoShipment.ShipmentType == models.MTOShipmentTypeHHG || mtoShipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom
-	shipmentHasDeliveryDetails := mtoShipment.ShipmentType == models.MTOShipmentTypeHHG || mtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom
+	shipmentHasPickupDetails := mtoShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom
+	shipmentHasDeliveryDetails := mtoShipment.ShipmentType != models.MTOShipmentTypeHHGIntoNTSDom
 
 	var pickupAddress, secondaryPickupAddress models.Address
 	if shipmentHasPickupDetails {
@@ -86,23 +86,29 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	}
 
 	MTOShipment := models.MTOShipment{
-		MoveTaskOrder:            moveTaskOrder,
-		MoveTaskOrderID:          moveTaskOrder.ID,
-		RequestedPickupDate:      &requestedPickupDate,
-		ScheduledPickupDate:      &scheduledPickupDate,
-		ActualPickupDate:         &actualPickupDate,
-		RequestedDeliveryDate:    &requestedDeliveryDate,
-		CustomerRemarks:          swag.String("Please treat gently"),
-		PickupAddress:            &pickupAddress,
-		PickupAddressID:          &pickupAddress.ID,
-		DestinationAddress:       &destinationAddress,
-		DestinationAddressID:     &destinationAddress.ID,
-		PrimeActualWeight:        &actualWeight,
-		SecondaryPickupAddress:   &secondaryPickupAddress,
-		SecondaryDeliveryAddress: &secondaryDeliveryAddress,
-		ShipmentType:             shipmentType,
-		Status:                   shipmentStatus,
-		RejectionReason:          swag.String("Not enough information"),
+		MoveTaskOrder:         moveTaskOrder,
+		MoveTaskOrderID:       moveTaskOrder.ID,
+		RequestedPickupDate:   &requestedPickupDate,
+		ScheduledPickupDate:   &scheduledPickupDate,
+		ActualPickupDate:      &actualPickupDate,
+		RequestedDeliveryDate: &requestedDeliveryDate,
+		CustomerRemarks:       swag.String("Please treat gently"),
+		PrimeActualWeight:     &actualWeight,
+		ShipmentType:          shipmentType,
+		Status:                shipmentStatus,
+		RejectionReason:       swag.String("Not enough information"),
+	}
+
+	if shipmentHasDeliveryDetails {
+		MTOShipment.DestinationAddress = &destinationAddress
+		MTOShipment.DestinationAddressID = &destinationAddress.ID
+		MTOShipment.SecondaryDeliveryAddress = &secondaryDeliveryAddress
+	}
+
+	if shipmentHasPickupDetails {
+		MTOShipment.PickupAddress = &pickupAddress
+		MTOShipment.PickupAddressID = &pickupAddress.ID
+		MTOShipment.SecondaryPickupAddress = &secondaryPickupAddress
 	}
 
 	if assertions.MTOShipment.Status == models.MTOShipmentStatusApproved {
