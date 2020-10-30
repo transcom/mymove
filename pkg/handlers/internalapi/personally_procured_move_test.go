@@ -881,7 +881,7 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 
 	move := testdatagen.MakeDefaultMove(suite.DB())
 
-	err := move.Submit()
+	err := move.Submit(time.Now())
 	if err != nil {
 		t.Fatal("Should transition.")
 	}

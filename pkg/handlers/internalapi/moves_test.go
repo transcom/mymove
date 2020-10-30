@@ -205,7 +205,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 			MoveID:                       strfmt.UUID(move.ID.String()),
 			SubmitMoveForApprovalPayload: &newSubmitMoveForApprovalPayload,
 		}
-		// And: a move is submitted
+		// When: a move is submitted
 		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 		context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
 		handler := SubmitMoveHandler{context}
@@ -215,7 +215,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		suite.Assertions.IsType(&moveop.SubmitMoveForApprovalOK{}, response)
 		okResponse := response.(*moveop.SubmitMoveForApprovalOK)
 
-		// And: Returned query to have an approved status
+		// And: Returned query to have an submitted status
 		suite.Assertions.Equal(internalmessages.MoveStatusSUBMITTED, okResponse.Payload.Status)
 		// And: Expect move's PPM's advance to have "Requested" status
 		suite.Assertions.Equal(

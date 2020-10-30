@@ -76,7 +76,7 @@ func (suite *PaperworkServiceSuite) GenerateSSWFormPage1Values() models.Shipment
 		ServiceMemberID: serviceMemberID,
 		ApplicationName: auth.MilApp,
 	}
-	ppm.Move.Submit()
+	ppm.Move.Submit(time.Now())
 	ppm.Move.Approve()
 	// This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
 	ppm.Move.PersonallyProcuredMoves[0].Submit(time.Now())
