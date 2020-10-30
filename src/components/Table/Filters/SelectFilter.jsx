@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Dropdown } from '@trussworks/react-uswds';
 
-const SelectFilter = ({ options, column: { filterValue, preFilteredRows, setFilter } }) => {
+const SelectFilter = ({ options, column: { filterValue, setFilter } }) => {
   return (
     <Dropdown
       data-testid="SelectFilter"
@@ -13,7 +13,6 @@ const SelectFilter = ({ options, column: { filterValue, preFilteredRows, setFilt
       }}
       style={{ width: 'auto' }}
     >
-      <option>Search {preFilteredRows.length} records...</option>
       {options.map(({ value, label }) => (
         <option value={value} key={`filterOption_${value}`}>
           {label}

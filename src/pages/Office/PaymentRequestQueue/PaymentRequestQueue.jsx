@@ -36,9 +36,15 @@ const columns = [
     (row) => {
       return `${row.customer.last_name}, ${row.customer.first_name}`;
     },
-    { id: 'name' },
+    {
+      id: 'lastName',
+      isFilterable: true,
+    },
   ),
-  createHeader('DoD ID', 'customer.dodID'),
+  createHeader('DoD ID', 'customer.dodID', {
+    id: 'dodID',
+    isFilterable: true,
+  }),
   createHeader(
     'Status',
     (row) => {
@@ -60,7 +66,10 @@ const columns = [
     },
     'submittedAt',
   ),
-  createHeader('Move ID', 'locator'),
+  createHeader('Move ID', 'locator', {
+    id: 'moveID',
+    isFilterable: true,
+  }),
   createHeader(
     'Branch',
     (row) => {
