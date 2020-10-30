@@ -108,7 +108,15 @@ export async function getMovesQueue(key, { filters = [] }) {
   return makeGHCRequest(operationPath, { ...paramFilters }, { schemaKey: 'queueMovesResult', normalize: false });
 }
 
-export async function getPaymentRequestsQueue() {
+export async function getPaymentRequestsQueue(key, { filters = [] }) {
   const operationPath = 'queues.getPaymentRequestsQueue';
-  return makeGHCRequest(operationPath, {}, { schemaKey: 'queuePaymentRequestsResult', normalize: false });
+  const paramFilters = {};
+  filters.forEach((filter) => {
+    paramFilters[`${filter.id}`] = filter.value;
+  });
+  return makeGHCRequest(
+    operationPath,
+    { ...paramFilters },
+    { schemaKey: 'queuePaymentRequestsResult', normalize: false },
+  );
 }

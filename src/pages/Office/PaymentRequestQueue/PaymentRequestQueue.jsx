@@ -21,7 +21,14 @@ import {
   serviceMemberAgencyLabel,
 } from 'shared/formatters';
 import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
+import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
+import { PAYMENT_REQUEST_STATUS_OPTIONS } from 'constants/queues';
+
+const paymentRequestStatusOptions = Object.keys(PAYMENT_REQUEST_STATUS_OPTIONS).map((key) => ({
+  value: key,
+  label: PAYMENT_REQUEST_STATUS_OPTIONS[`${key}`],
+}));
 
 const branchFilterOptions = [
   { value: '', label: 'All' },
@@ -53,7 +60,12 @@ const columns = [
     (row) => {
       return paymentRequestStatusReadable(row.status);
     },
-    'status',
+    {
+      id: 'status',
+      isFilterable: true,
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      Filter: (props) => <MultiSelectCheckBoxFilter options={paymentRequestStatusOptions} {...props} />,
+    },
   ),
   createHeader(
     'Age',
