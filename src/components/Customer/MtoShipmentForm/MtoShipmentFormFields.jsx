@@ -42,27 +42,6 @@ const MtoShipmentFormFields = ({
   const optionalLabel = <span className={styles.optional}>Optional</span>;
 
   return (
-<<<<<<< HEAD
-    <>
-      <div className={`margin-top-2 ${styles['hhg-label']}`}>
-        {`${displayOptions.displayName}`}
-        {shipmentNumber && ` ${shipmentNumber}`}
-      </div>
-      <h1 className="margin-top-1">
-        {isHHG && hhgFormHeader}
-        {isNTS && ntsFormHeader}
-        {isNTSR && ntsrFormHeader}
-      </h1>
-      <p>
-        Remember: You can move {serviceMember.weight_allotment.total_weight_self} lbs total. You&rsquo;ll be billed for
-        any excess weight you move.
-      </p>
-      <Form className={styles.HHGDetailsForm}>
-        {displayOptions.showPickupFields && (
-          <div>
-            <SectionWrapper>
-              <Fieldset legend="Pickup date" className="tablet:margin-top-4">
-=======
     <div className={`${styles.MTOShipmentForm} desktop:grid-col-8 desktop:grid-offset-2`}>
       <ShipmentTag shipmentType={shipmentType} shipmentNumber={shipmentNumber} />
       <h1>{shipmentForm.header[`${shipmentType}`]}</h1>
@@ -76,7 +55,6 @@ const MtoShipmentFormFields = ({
             <SectionWrapper className={styles.formSection}>
               {showDeliveryFields && <h2>Pickup information</h2>}
               <Fieldset legend="Pickup date">
->>>>>>> 6766b5aa9d8e19494366bcbc5079ccb5c869fec8
                 <Field
                   as={DatePickerInput}
                   name="pickup.requestedDate"
