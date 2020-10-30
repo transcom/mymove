@@ -9,7 +9,7 @@ func (suite *SegmentSuite) TestValidateBX() {
 		TransactionSetPurposeCode:    "00",
 		TransactionMethodTypeCode:    "J",
 		ShipmentMethodOfPayment:      "PP",
-		ShipmentIdentificationNumber: "A12345",
+		ShipmentIdentificationNumber: "1234-1234-5",
 		StandardCarrierAlphaCode:     "TEST",
 		ShipmentQualifier:            "4",
 	}
@@ -21,20 +21,20 @@ func (suite *SegmentSuite) TestValidateBX() {
 
 	suite.T().Run("validate failure 1", func(t *testing.T) {
 		bx := BX{
-			TransactionSetPurposeCode:    "01",      // eq
-			TransactionMethodTypeCode:    "K",       // eq
-			ShipmentMethodOfPayment:      "QQ",      // eq
-			ShipmentIdentificationNumber: "A-12345", // alphanum
-			StandardCarrierAlphaCode:     "TEST2",   // alpha
-			WeightUnitCode:               "1",       // isdefault
-			ShipmentQualifier:            "5",       // eq
+			TransactionSetPurposeCode:    "01",    // eq
+			TransactionMethodTypeCode:    "K",     // eq
+			ShipmentMethodOfPayment:      "QQ",    // eq
+			ShipmentIdentificationNumber: "",      // min
+			StandardCarrierAlphaCode:     "TEST2", // alpha
+			WeightUnitCode:               "1",     // isdefault
+			ShipmentQualifier:            "5",     // eq
 		}
 
 		err := suite.validator.Struct(bx)
 		suite.ValidateError(err, "TransactionSetPurposeCode", "eq")
 		suite.ValidateError(err, "TransactionMethodTypeCode", "eq")
 		suite.ValidateError(err, "ShipmentMethodOfPayment", "eq")
-		suite.ValidateError(err, "ShipmentIdentificationNumber", "alphanum")
+		suite.ValidateError(err, "ShipmentIdentificationNumber", "min")
 		suite.ValidateError(err, "StandardCarrierAlphaCode", "alpha")
 		suite.ValidateError(err, "WeightUnitCode", "isdefault")
 		suite.ValidateError(err, "ShipmentQualifier", "eq")
@@ -43,13 +43,11 @@ func (suite *SegmentSuite) TestValidateBX() {
 
 	suite.T().Run("validate failure 2", func(t *testing.T) {
 		bx := validBX
-		bx.ShipmentIdentificationNumber = "" // alphanum (precedence over min)
-		bx.StandardCarrierAlphaCode = "T"    // min
+		bx.StandardCarrierAlphaCode = "T" // min
 
 		err := suite.validator.Struct(bx)
-		suite.ValidateError(err, "ShipmentIdentificationNumber", "alphanum")
 		suite.ValidateError(err, "StandardCarrierAlphaCode", "min")
-		suite.ValidateErrorLen(err, 2)
+		suite.ValidateErrorLen(err, 1)
 	})
 
 	suite.T().Run("validate failure 3", func(t *testing.T) {

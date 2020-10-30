@@ -1608,6 +1608,11 @@ func init() {
         "parameters": [
           {
             "type": "string",
+            "name": "submittedAt",
+            "in": "query"
+          },
+          {
+            "type": "string",
             "name": "branch",
             "in": "query"
           },
@@ -5382,6 +5387,11 @@ func init() {
         "summary": "Gets queued list of all payment requests by GBLOC origin",
         "operationId": "getPaymentRequestsQueue",
         "parameters": [
+          {
+            "type": "string",
+            "name": "submittedAt",
+            "in": "query"
+          },
           {
             "type": "string",
             "name": "branch",

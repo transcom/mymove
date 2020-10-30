@@ -34,12 +34,12 @@ func (suite *SegmentSuite) TestValidateN1() {
 	suite.T().Run("validate failure 2", func(t *testing.T) {
 		n1 := validN1
 		n1.Name = "1234567890123456789012345678901234567890123456789012345678901" // max
-		n1.IdentificationCodeQualifier = "19"                                     // eq
+		n1.IdentificationCodeQualifier = "19"                                     // oneof
 		n1.IdentificationCode = "1"                                               // min
 
 		err := suite.validator.Struct(n1)
 		suite.ValidateError(err, "Name", "max")
-		suite.ValidateError(err, "IdentificationCodeQualifier", "eq")
+		suite.ValidateError(err, "IdentificationCodeQualifier", "oneof")
 		suite.ValidateError(err, "IdentificationCode", "min")
 		suite.ValidateErrorLen(err, 3)
 	})
