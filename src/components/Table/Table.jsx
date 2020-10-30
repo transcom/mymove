@@ -1,5 +1,5 @@
 /* eslint-disable react/no-array-index-key */
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 
 import styles from './Table.module.scss';
@@ -11,8 +11,8 @@ const Table = ({ handleClick, getTableProps, getTableBodyProps, headerGroups, ro
       <table {...getTableProps()}>
         <thead>
           {headerGroups.map((headerGroup, hgIndex) => (
-            <>
-              <tr key={`headerGroup${hgIndex}`} {...headerGroup.getHeaderGroupProps()}>
+            <Fragment key={`headerGroup${hgIndex}`}>
+              <tr {...headerGroup.getHeaderGroupProps()}>
                 {headerGroup.headers.map((column, headerIndex) => (
                   <th key={`header${headerIndex}`} data-testid={column.id} {...column.getHeaderProps()}>
                     {column.render('Header')}
@@ -27,7 +27,7 @@ const Table = ({ handleClick, getTableProps, getTableBodyProps, headerGroups, ro
                   </th>
                 ))}
               </tr>
-            </>
+            </Fragment>
           ))}
         </thead>
         <tbody {...getTableBodyProps()}>
