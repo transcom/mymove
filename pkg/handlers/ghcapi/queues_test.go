@@ -17,9 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moveorder "github.com/transcom/mymove/pkg/services/move_order"
-	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
-	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -70,7 +68,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
 		context,
-		officeuser.NewOfficeUserFetcher(query.NewQueryBuilder(context.DB())),
 		moveorder.NewMoveOrderFetcher(suite.DB()),
 	}
 
@@ -134,7 +131,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
 		context,
-		officeuser.NewOfficeUserFetcher(query.NewQueryBuilder(context.DB())),
 		moveorder.NewMoveOrderFetcher(suite.DB()),
 	}
 
@@ -202,7 +198,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
 		context,
-		officeuser.NewOfficeUserFetcher(query.NewQueryBuilder(context.DB())),
 		moveorder.NewMoveOrderFetcher(suite.DB()),
 	}
 
@@ -315,7 +310,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
 		context,
-		officeuser.NewOfficeUserFetcher(query.NewQueryBuilder(context.DB())),
 		moveorder.NewMoveOrderFetcher(suite.DB()),
 	}
 
@@ -475,7 +469,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
 		context,
-		officeuser.NewOfficeUserFetcher(query.NewQueryBuilder(context.DB())),
 		moveorder.NewMoveOrderFetcher(suite.DB()),
 	}
 
@@ -590,7 +583,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedRole() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
 		context,
-		officeuser.NewOfficeUserFetcher(query.NewQueryBuilder(context.DB())),
 		moveorder.NewMoveOrderFetcher(suite.DB()),
 	}
 
@@ -614,7 +606,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedUser() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
 		context,
-		officeuser.NewOfficeUserFetcher(query.NewQueryBuilder(context.DB())),
 		moveorder.NewMoveOrderFetcher(suite.DB()),
 	}
 
@@ -656,7 +647,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMovesQueueHandler{
 		context,
-		officeuser.NewOfficeUserFetcher(query.NewQueryBuilder(context.DB())),
 		moveorder.NewMoveOrderFetcher(suite.DB()),
 	}
 
@@ -722,7 +712,6 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetPaymentRequestsQueueHandler{
 		context,
-		officeuser.NewOfficeUserFetcher(query.NewQueryBuilder(context.DB())),
 		paymentrequest.NewPaymentRequestListFetcher(suite.DB()),
 	}
 
@@ -762,7 +751,6 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerUnauthorizedRole() 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetPaymentRequestsQueueHandler{
 		context,
-		officeuser.NewOfficeUserFetcher(query.NewQueryBuilder(context.DB())),
 		paymentrequest.NewPaymentRequestListFetcher(suite.DB()),
 	}
 
@@ -792,7 +780,6 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerServerError() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetPaymentRequestsQueueHandler{
 		context,
-		officeuser.NewOfficeUserFetcher(query.NewQueryBuilder(context.DB())),
 		&paymentRequestListFetcher,
 	}
 
@@ -822,7 +809,6 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerEmptyResults() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetPaymentRequestsQueueHandler{
 		context,
-		officeuser.NewOfficeUserFetcher(query.NewQueryBuilder(context.DB())),
 		&paymentRequestListFetcher,
 	}
 

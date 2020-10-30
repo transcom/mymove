@@ -5,7 +5,7 @@ import styles from './index.module.scss';
 
 const Hint = ({ className, children, ...props }) => (
   // eslint-disable-next-line react/jsx-props-no-spreading
-  <div {...props} className={`${styles.hint} ${className}`}>
+  <div {...props} className={`${styles.Hint} ${className}`}>
     {children}
   </div>
 );

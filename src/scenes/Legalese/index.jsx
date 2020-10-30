@@ -14,6 +14,7 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { formatSwaggerDate } from 'shared/formatters';
 import './index.scss';
 import { createSignedCertification } from 'shared/Entities/modules/signed_certifications';
+import { SIGNED_CERT_OPTIONS } from 'shared/constants';
 import { selectActivePPMForMove, loadPPMs } from 'shared/Entities/modules/ppms';
 import { submitMoveForApproval } from 'shared/Entities/modules/moves';
 import { completeCertificationText } from './legaleseText';
@@ -34,13 +35,13 @@ export class SignedCertification extends Component {
 
   submitCertificate = () => {
     const signatureTime = moment().format();
-    const { currentPpm, moveId, values, selectedMoveType } = this.props;
+    const { currentPpm, moveId, values } = this.props;
     const certificate = {
       certification_text: completeCertificationText,
       date: signatureTime,
       signature: values.signature,
       personally_procured_move_id: currentPpm.id,
-      certification_type: selectedMoveType,
+      certification_type: SIGNED_CERT_OPTIONS.SHIPMENT,
     };
     return this.props.createSignedCertification(moveId, certificate);
   };
@@ -172,7 +173,6 @@ function mapStateToProps(state, ownProps) {
     tempPpmId: get(state.ppm, 'currentPpm.id', null),
     has_sit: get(state.ppm, 'currentPpm.has_sit', false),
     has_advance: get(state.ppm, 'currentPpm.has_requested_advance', false),
-    selectedMoveType: ownProps.selectedMoveType,
   };
 }
 

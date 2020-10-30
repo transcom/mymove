@@ -4,8 +4,6 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/transcom/mymove/pkg/models/roles"
-
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -42,41 +40,6 @@ func (h GetMoveOrdersHandler) Handle(params moveorderop.GetMoveOrderParams) midd
 	}
 	moveOrderPayload := payloads.MoveOrder(moveOrder)
 	return moveorderop.NewGetMoveOrderOK().WithPayload(moveOrderPayload)
-}
-
-// ListMoveOrdersHandler fetches all the move orders
-type ListMoveOrdersHandler struct {
-	handlers.HandlerContext
-	services.MoveOrderFetcher
-}
-
-// Handle getting the all move orders
-func (h ListMoveOrdersHandler) Handle(params moveorderop.ListMoveOrdersParams) middleware.Responder {
-	// get the session from http request
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-
-	officeUserAuthorized := session.Roles.HasRole(roles.RoleTypeTOO)
-	if !officeUserAuthorized {
-		return moveorderop.NewListMoveOrdersForbidden()
-	}
-
-	// list move orders and pass in office user ID as argument to filter list
-	moveOrders, err := h.MoveOrderFetcher.ListMoveOrders(session.OfficeUserID)
-	if err != nil {
-		logger.Error("fetching all move orders", zap.Error(err))
-		switch err {
-		case sql.ErrNoRows:
-			return moveorderop.NewListMoveOrdersNotFound()
-		default:
-			return moveorderop.NewListMoveOrdersInternalServerError()
-		}
-	}
-
-	moveOrdersPayload := make(ghcmessages.MoveOrders, len(moveOrders))
-	for i, moveOrder := range moveOrders {
-		moveOrdersPayload[i] = payloads.MoveOrder(&moveOrder)
-	}
-	return moveorderop.NewListMoveOrdersOK().WithPayload(moveOrdersPayload)
 }
 
 // ListMoveTaskOrdersHandler fetches all the move orders

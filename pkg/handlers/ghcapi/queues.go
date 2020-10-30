@@ -21,7 +21,6 @@ import (
 // GetMovesQueueHandler returns the moves for the TOO queue user via GET /queues/moves
 type GetMovesQueueHandler struct {
 	handlers.HandlerContext
-	services.OfficeUserFetcher
 	services.MoveOrderFetcher
 }
 
@@ -75,7 +74,6 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 // GetPaymentRequestsQueueHandler returns the payment requests for the TIO queue user via GET /queues/payment-requests
 type GetPaymentRequestsQueueHandler struct {
 	handlers.HandlerContext
-	services.OfficeUserFetcher
 	services.PaymentRequestListFetcher
 }
 

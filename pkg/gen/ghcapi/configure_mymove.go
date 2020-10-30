@@ -119,19 +119,9 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation mto_shipment.ListMTOShipments has not yet been implemented")
 		})
 	}
-	if api.MoveOrderListMoveOrdersHandler == nil {
-		api.MoveOrderListMoveOrdersHandler = move_order.ListMoveOrdersHandlerFunc(func(params move_order.ListMoveOrdersParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_order.ListMoveOrders has not yet been implemented")
-		})
-	}
 	if api.MoveOrderListMoveTaskOrdersHandler == nil {
 		api.MoveOrderListMoveTaskOrdersHandler = move_order.ListMoveTaskOrdersHandlerFunc(func(params move_order.ListMoveTaskOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_order.ListMoveTaskOrders has not yet been implemented")
-		})
-	}
-	if api.PaymentRequestsListPaymentRequestsHandler == nil {
-		api.PaymentRequestsListPaymentRequestsHandler = payment_requests.ListPaymentRequestsHandlerFunc(func(params payment_requests.ListPaymentRequestsParams) middleware.Responder {
-			return middleware.NotImplemented("operation payment_requests.ListPaymentRequests has not yet been implemented")
 		})
 	}
 	if api.MtoShipmentPatchMTOShipmentStatusHandler == nil {
