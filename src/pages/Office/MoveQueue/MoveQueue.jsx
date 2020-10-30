@@ -52,7 +52,7 @@ const columns = [
     // eslint-disable-next-line react/jsx-props-no-spreading
     Filter: (props) => <MultiSelectCheckBoxFilter options={moveStatusOptions} {...props} />,
   }),
-  createHeader('Move ID', 'locator', {
+  createHeader('Move Code', 'locator', {
     id: 'moveID',
     isFilterable: true,
   }),

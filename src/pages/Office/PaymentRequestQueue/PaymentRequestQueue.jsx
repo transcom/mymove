@@ -66,7 +66,7 @@ const columns = [
     },
     'submittedAt',
   ),
-  createHeader('Move ID', 'locator', {
+  createHeader('Move Code', 'locator', {
     id: 'moveID',
     isFilterable: true,
   }),
