@@ -162,7 +162,6 @@ func destinationDutyStationFilter(destinationDutyStation *string) FilterOption {
 func submittedAtFilter(submittedAt *string) FilterOption {
 	return func(query *pop.Query) {
 		if submittedAt != nil {
-			// some datetime conversion to compare YYYY-MM-DD to DateTime which may involve translating DateTime to Date
 			query = query.Where("CAST(payment_requests.created_at AS DATE) = ?", *submittedAt)
 		}
 	}
