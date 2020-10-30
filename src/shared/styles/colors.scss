@@ -55,8 +55,9 @@ $color-gray-dark: #767676;
 $color-gray-light: #b2b2b2;
 $color-red: #cd3504;
 $color-blue: #005ea2;
+$color-blue-focus: #2491ff;
 
-// This section is for Storybook purposes only. It exports color variables for use in Webpack. the name in front is going to print as our color name in storybook, and the color variable we refernce will get inserted into the color swatch.
+  // This section is for Storybook purposes only. It exports color variables for use in Webpack. the name in front is going to print as our color name in storybook, and the color variable we refernce will get inserted into the color swatch.
 :export {
   brand: {
     mmblue: $mm-blue;
