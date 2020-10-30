@@ -2,16 +2,16 @@ package ghcapi
 
 import (
 	"fmt"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/pop/v5"
 	"go.uber.org/zap"
-
-	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -91,6 +91,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 	dodIDQuery := dodIDFilter(params.DodID)
 	lastNameQuery := lastNameFilter(params.LastName)
 	dutyStationQuery := destinationDutyStationFilter(params.DestinationDutyStation)
+	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
 
 	paymentRequests, err := h.FetchPaymentRequestList(
 		session.OfficeUserID,
@@ -99,6 +100,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 		lastNameQuery,
 		dutyStationQuery,
 		dodIDQuery,
+		submittedAtQuery,
 	)
 	if err != nil {
 		logger.Error("payment requests queue", zap.String("office_user_id", session.OfficeUserID.String()), zap.Error(err))
@@ -161,11 +163,11 @@ func destinationDutyStationFilter(destinationDutyStation *string) FilterOption {
 func submittedAtFilter(submittedAt *string) FilterOption {
 	return func(query *pop.Query) {
 		if submittedAt != nil {
-			// some datetime conversion to compare YYYY-MM-DD to DateTime
-			query = query.InnerJoin("payment_request.created_at = ?", *submittedAt)
+			// some datetime conversion to compare YYYY-MM-DD to DateTime which may involve translating DateTime to Date
+			query = query.Where("CAST(payment_requests.created_at AS DATE) = ?", *submittedAt)
 		}
 	}
-	}
+}
 
 // statusFilter filters the status after the pop query call.
 func moveStatusFilter(statuses []string, moves *ghcmessages.QueueMoves) *ghcmessages.QueueMoves {

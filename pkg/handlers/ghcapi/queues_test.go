@@ -2,8 +2,6 @@ package ghcapi
 
 import (
 	"errors"
-	"fmt"
-	"github.com/go-openapi/strfmt"
 	"net/http/httptest"
 	"time"
 
@@ -784,8 +782,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 		},
 	})
 
-
-	outOfRangeDate := strfmt.DateTime(time.Now())
+	outOfRangeDate, _ := time.Parse("2006-01-02", "2020-10-10")
 
 	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		Move: move1,
@@ -794,10 +791,11 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 		},
 	})
 
+	createdAtTime, _ := time.Parse("2006-01-02", "2020-10-29")
 	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
 		Move: move2,
 		PaymentRequest: models.PaymentRequest{
-			CreatedAt: time.Now(),
+			CreatedAt: createdAtTime,
 		},
 	})
 
@@ -821,21 +819,21 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 
 	suite.Len(payload.QueuePaymentRequests, 2)
 
+	submittedAtDate := "2020-10-29"
+
 	suite.Run("returns results matching SubmittedAt date", func() {
 		params := queues.GetPaymentRequestsQueueParams{
-			HTTPRequest:            request,
-			SubmittedAt: time.Now(),
+			HTTPRequest: request,
+			SubmittedAt: &submittedAtDate,
 		}
 
 		response := handler.Handle(params)
 		suite.IsNotErrResponse(response)
 
 		payload := response.(*queues.GetPaymentRequestsQueueOK).Payload
-		//result := payload.QueuePaymentRequests[0]
 
 		suite.Len(payload.QueuePaymentRequests, 1)
 	})
-
 
 }
 
