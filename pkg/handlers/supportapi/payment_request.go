@@ -191,7 +191,7 @@ func (h GetPaymentRequestEDIHandler) Handle(params paymentrequestop.GetPaymentRe
 
 	edi858c, err := h.GHCPaymentRequestInvoiceGenerator.Generate(paymentRequest, false)
 	if err == nil {
-		payload.Edi, err = edi858c.EDIString()
+		payload.Edi, err = edi858c.EDIString(logger)
 	}
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error generating EDI string for payment request ID: %s: %s", paymentRequestID, err))

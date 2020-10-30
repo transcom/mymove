@@ -242,7 +242,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
 	}
 
-	if mtoShipment.RequestedPickupDate != nil {
+	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
 		payload.RequestedPickupDate = *handlers.FmtDatePtr(mtoShipment.RequestedPickupDate)
 	}
 
@@ -534,6 +534,32 @@ func queueMoveStatus(move models.Move) string {
 	return string(move.Status)
 }
 
+var (
+	// QueuePaymentRequestPaymentRequested status payment requested
+	QueuePaymentRequestPaymentRequested string = "Payment requested"
+	// QueuePaymentRequestReviewed status Payment request reviewed
+	QueuePaymentRequestReviewed string = "Reviewed"
+	// QueuePaymentRequestPaid status PaymentRequest paid
+	QueuePaymentRequestPaid string = "Paid"
+)
+
+// This is a helper function to calculate the inferred status needed for QueuePaymentRequest payload
+func queuePaymentRequestStatus(paymentRequest models.PaymentRequest) string {
+	// If a payment request is in the PENDING state, let's use the term 'payment requested'
+	if paymentRequest.Status == models.PaymentRequestStatusPending {
+		return QueuePaymentRequestPaymentRequested
+	}
+
+	// If a payment request is either reviewed, sent_to_gex or recieved_by_gex then we'll use 'reviewed'
+	if paymentRequest.Status == models.PaymentRequestStatusSentToGex ||
+		paymentRequest.Status == models.PaymentRequestStatusReceivedByGex ||
+		paymentRequest.Status == models.PaymentRequestStatusReviewed {
+		return QueuePaymentRequestReviewed
+	}
+
+	return QueuePaymentRequestPaid
+}
+
 // QueuePaymentRequests payload
 func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.QueuePaymentRequests {
 	queuePaymentRequests := make(ghcmessages.QueuePaymentRequests, len(*paymentRequests))
@@ -546,7 +572,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 			ID:          *handlers.FmtUUID(paymentRequest.ID),
 			MoveID:      *handlers.FmtUUID(moveTaskOrder.ID),
 			Customer:    Customer(&orders.ServiceMember),
-			Status:      ghcmessages.PaymentRequestStatus(paymentRequest.Status),
+			Status:      ghcmessages.PaymentRequestStatus(queuePaymentRequestStatus(paymentRequest)),
 			Age:         int64(math.Ceil(time.Since(paymentRequest.CreatedAt).Hours() / 24.0)),
 			SubmittedAt: *handlers.FmtDateTime(paymentRequest.CreatedAt), // RequestedAt does not seem to be populated
 			Locator:     moveTaskOrder.Locator,
