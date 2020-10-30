@@ -33,31 +33,21 @@ export class SignedCertification extends Component {
     this.props.loadPPMs(this.props.moveId);
   }
 
-  submitCertificate = () => {
-    const signatureTime = moment().format();
+  handleSubmit = () => {
     const { currentPpm, moveId, values } = this.props;
+    const landingPath = '/';
+    const submitDate = moment().format();
     const certificate = {
       certification_text: completeCertificationText,
-      date: signatureTime,
+      date: submitDate,
       signature: values.signature,
       personally_procured_move_id: currentPpm.id,
       certification_type: SIGNED_CERT_OPTIONS.SHIPMENT,
     };
-    return this.props.createSignedCertification(moveId, certificate);
-  };
 
-  handleSubmit = () => {
-    const pendingValues = this.props.values;
-    const { latestSignedCertification } = this.props;
-    const landingPath = '/';
-    const submitDate = moment().format();
-    if (latestSignedCertification) {
-      return this.props.push(landingPath);
-    }
-
-    if (pendingValues) {
-      const moveId = this.props.match.params.moveId;
-      Promise.all([this.submitCertificate(), this.props.submitMoveForApproval(moveId, submitDate)])
+    if (values) {
+      this.props
+        .submitMoveForApproval(moveId, certificate)
         .then(() => {
           this.props.showSubmitSuccessBanner();
           setTimeout(() => this.props.removeSubmitSuccessBanner(), 10000);
@@ -72,11 +62,11 @@ export class SignedCertification extends Component {
   }
 
   render() {
-    const { hasSubmitError, pages, pageKey, latestSignedCertification } = this.props;
+    const { hasSubmitError, pages, pageKey } = this.props;
     const today = formatSwaggerDate(new Date());
     const initialValues = {
-      date: get(latestSignedCertification, 'date', today),
-      signature: get(latestSignedCertification, 'signature', null),
+      date: today,
+      signature: null,
     };
     const certificationText = completeCertificationText;
     const instructionsText = (
@@ -168,7 +158,6 @@ function mapStateToProps(state, ownProps) {
     schema: get(state, 'swaggerInternal.spec.definitions.CreateSignedCertificationPayload', {}),
     hasLoggedInUser: selectGetCurrentUserIsSuccess(state),
     values: getFormValues(formName)(state),
-    ...state.signedCertification,
     currentPpm: selectActivePPMForMove(state, moveId),
     tempPpmId: get(state.ppm, 'currentPpm.id', null),
     has_sit: get(state.ppm, 'currentPpm.has_sit', false),
