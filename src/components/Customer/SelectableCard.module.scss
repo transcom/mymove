@@ -18,6 +18,9 @@
   :global(.usa-radio__input:disabled + .usa-radio__label) {
     color: $base-darkest;
   }
+  :global(.usa-radio__label) {
+    @include u-margin-top(0);
+  }
 }
 
 .cardTitle {
