@@ -164,8 +164,11 @@ export const useMovesQueueQueries = (filters = []) => {
   };
 };
 
-export const usePaymentRequestQueueQueries = () => {
-  const { data = {}, ...paymentRequestsQueueQuery } = useQuery([PAYMENT_REQUESTS_QUEUE], getPaymentRequestsQueue);
+export const usePaymentRequestQueueQueries = (filters = []) => {
+  const { data = {}, ...paymentRequestsQueueQuery } = useQuery(
+    [PAYMENT_REQUESTS_QUEUE, { filters }],
+    getPaymentRequestsQueue,
+  );
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([paymentRequestsQueueQuery]);
 
