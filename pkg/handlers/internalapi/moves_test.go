@@ -256,7 +256,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		suite.Assertions.IsType(&moveop.SubmitMoveForApprovalOK{}, response)
 		okResponse := response.(*moveop.SubmitMoveForApprovalOK)
 
-		// And: Returned query to have an approved status
+		// And: Returned query to have a submitted status
 		suite.Assertions.Equal(internalmessages.MoveStatusSUBMITTED, okResponse.Payload.Status)
 	})
 

@@ -34,7 +34,6 @@ export class SignedCertification extends Component {
   }
 
   handleSubmit = () => {
-    const pendingValues = this.props.values;
     const { currentPpm, moveId, values } = this.props;
     const landingPath = '/';
     const submitDate = moment().format();
@@ -46,7 +45,7 @@ export class SignedCertification extends Component {
       certification_type: SIGNED_CERT_OPTIONS.SHIPMENT,
     };
 
-    if (pendingValues) {
+    if (values) {
       this.props
         .submitMoveForApproval(moveId, certificate)
         .then(() => {
