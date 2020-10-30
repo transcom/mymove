@@ -179,7 +179,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	certificateParams.HTTPRequest = params.HTTPRequest
 	certificateParams.MoveID = params.MoveID
 	// Transaction to save move and dependencies
-	verrs, err := h.SaveMoveDependencies(h.DB(), logger, move, certificateParams, session.UserID)
+	verrs, err := h.saveMoveDependencies(h.DB(), logger, move, certificateParams, session.UserID)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
@@ -202,7 +202,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 
 // SaveMoveDependencies safely saves a Move status, ppms' advances' statuses, orders statuses, signed certificate,
 // and shipment GBLOCs.
-func (h SubmitMoveHandler) SaveMoveDependencies(db *pop.Connection, logger certs.Logger, move *models.Move, certificateParams certop.CreateSignedCertificationParams, userID uuid.UUID) (*validate.Errors, error) {
+func (h SubmitMoveHandler) saveMoveDependencies(db *pop.Connection, logger certs.Logger, move *models.Move, certificateParams certop.CreateSignedCertificationParams, userID uuid.UUID) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
@@ -222,11 +222,12 @@ func (h SubmitMoveHandler) SaveMoveDependencies(db *pop.Connection, logger certs
 		Signature:                *certificateParams.CreateSignedCertificationPayload.Signature,
 		Date:                     time.Now(),
 	}
+
 	db.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 		// TODO: move creation of signed certification into a service
 		verrs, err := db.ValidateAndCreate(&newSignedCertification)
-		if responseError != nil || responseVErrors.HasAny() {
+		if err != nil || verrs.HasAny() {
 			responseError = fmt.Errorf("error saving signed certification: %w", err)
 			responseVErrors.Append(verrs)
 			return transactionError
