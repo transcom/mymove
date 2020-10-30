@@ -162,7 +162,7 @@ func submittedAtFilter(submittedAt *string) FilterOption {
 	return func(query *pop.Query) {
 		if submittedAt != nil {
 			// some datetime conversion to compare YYYY-MM-DD to DateTime
-			query = query.InnerJoin("payment_request.created_at = ?", *submittedAt)
+			query = query.Where("payment_request.created_at = ?", *submittedAt)
 		}
 	}
 	}
