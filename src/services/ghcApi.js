@@ -20,10 +20,6 @@ export async function makeGHCRequest(operationPath, params = {}, options = {}) {
   return makeSwaggerRequest(client, operationPath, params, options);
 }
 
-export async function getPaymentRequestList() {
-  return makeGHCRequest('paymentRequests.listPaymentRequests');
-}
-
 export async function getPaymentRequest(key, paymentRequestID) {
   return makeGHCRequest('paymentRequests.getPaymentRequest', { paymentRequestID });
 }
