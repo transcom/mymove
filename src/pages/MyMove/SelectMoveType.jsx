@@ -136,6 +136,7 @@ export class SelectMoveType extends Component {
         cardText={hhgCardTextPostSubmit}
         checked={false}
         disabled={!isHhgSelectable}
+        onHelpClick={this.toggleMoveInfoModal}
       />
     );
     const footerText = (

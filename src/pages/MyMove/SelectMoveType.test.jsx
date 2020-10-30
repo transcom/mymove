@@ -41,50 +41,54 @@ describe('SelectMoveType', () => {
     const storageInfoModal = wrapper.find('ConnectedStorageInfoModal');
     const moveInfoModal = wrapper.find('ConnectedMoveInfoModal');
 
-    it('renders the storage info modal', () => {
-      expect(storageInfoModal.exists()).toBe(true);
+    describe('the storage info modal', () => {
+      it('renders', () => {
+        expect(storageInfoModal.exists()).toBe(true);
+      });
+
+      it('is closed by default', () => {
+        expect(wrapper.state('showStorageInfoModal')).toEqual(false);
+        expect(storageInfoModal.prop('isOpen')).toEqual(false);
+      });
+
+      it('can click the help button in the NTS card', () => {
+        const ntsCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.NTS}"]`);
+        expect(ntsCard.length).toBe(1);
+        ntsCard.find('button[data-testid="helpButton"]').simulate('click');
+        expect(wrapper.state('showStorageInfoModal')).toEqual(true);
+        expect(wrapper.state('showStorageInfoModal')).toEqual(true);
+      });
+
+      it('can close the storage info modal after opening', () => {
+        wrapper.find('button[data-testid="modalCloseButton"]').simulate('click');
+        expect(wrapper.state('showStorageInfoModal')).toEqual(false);
+        expect(storageInfoModal.prop('isOpen')).toEqual(false);
+      });
     });
 
-    it('the storage info modal is closed by default', () => {
-      expect(wrapper.state('showStorageInfoModal')).toEqual(false);
-      expect(storageInfoModal.prop('isOpen')).toEqual(false);
-    });
+    describe('the move info modal', () => {
+      it('renders', () => {
+        expect(moveInfoModal.exists()).toBe(true);
+      });
 
-    it('can click the help button in the NTS card', () => {
-      const ntsCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.NTS}"]`);
-      expect(ntsCard.length).toBe(1);
-      ntsCard.find('button[data-testid="helpButton"]').simulate('click');
-      expect(wrapper.state('showStorageInfoModal')).toEqual(true);
-      expect(wrapper.state('showStorageInfoModal')).toEqual(true);
-    });
+      it('is closed by default', () => {
+        expect(wrapper.state('showMoveInfoModal')).toEqual(false);
+        expect(moveInfoModal.prop('isOpen')).toEqual(false);
+      });
 
-    it('can close the storage info modal after opening', () => {
-      wrapper.find('button[data-testid="modalCloseButton"]').simulate('click');
-      expect(wrapper.state('showStorageInfoModal')).toEqual(false);
-      expect(storageInfoModal.prop('isOpen')).toEqual(false);
-    });
+      it('can click the help button in the shipment selection card', () => {
+        const hhgCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.HHG}"]`);
+        expect(hhgCard.length).toBe(1);
+        hhgCard.find('button[data-testid="helpButton"]').simulate('click');
+        expect(wrapper.state('showMoveInfoModal')).toEqual(true);
+        expect(wrapper.state('showMoveInfoModal')).toEqual(true);
+      });
 
-    it('renders the move info modal', () => {
-      expect(moveInfoModal.exists()).toBe(true);
-    });
-
-    it('the move info modal is closed by default', () => {
-      expect(wrapper.state('showMoveInfoModal')).toEqual(false);
-      expect(moveInfoModal.prop('isOpen')).toEqual(false);
-    });
-
-    it('can click the help button in the shipment selection card', () => {
-      const hhgCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.HHG}"]`);
-      expect(hhgCard.length).toBe(1);
-      hhgCard.find('button[data-testid="helpButton"]').simulate('click');
-      expect(wrapper.state('showMoveInfoModal')).toEqual(true);
-      expect(wrapper.state('showMoveInfoModal')).toEqual(true);
-    });
-
-    it('can close the move info modal after opening', () => {
-      wrapper.find('button[data-testid="modalCloseButton"]').simulate('click');
-      expect(wrapper.state('showMoveInfoModal')).toEqual(false);
-      expect(moveInfoModal.prop('isOpen')).toEqual(false);
+      it('can close the move info modal after opening', () => {
+        wrapper.find('button[data-testid="modalCloseButton"]').simulate('click');
+        expect(wrapper.state('showMoveInfoModal')).toEqual(false);
+        expect(moveInfoModal.prop('isOpen')).toEqual(false);
+      });
     });
   });
 

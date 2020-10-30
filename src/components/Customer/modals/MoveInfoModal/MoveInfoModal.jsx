@@ -26,7 +26,7 @@ export const MoveInfoModal = ({ closeModal }) => (
       <li>May have to work around availability of movers</li>
     </ul>
     <h4>
-      <strong>PPMs: You get your things packed and moved, the government pays you</strong>
+      <strong>PPM: You get your things packed and moved, the government pays you</strong>
     </h4>
     <p>You pack and move your own things, or arrange for someone else do it for you.</p>
     <h5>Pros</h5>
