@@ -3,6 +3,7 @@
 @import 'shared/styles/colors';
 
 .Table {
+  min-height: 300px;
   table {
     @include u-font('body', 'xs');
     color: $base-darkest;
