@@ -21,6 +21,7 @@ type GetPaymentRequestsQueueURL struct {
 	LastName               *string
 	MoveID                 *string
 	Status                 []string
+	SubmittedAt            *string
 
 	_basePath string
 	// avoid unkeyed usage
@@ -111,6 +112,14 @@ func (o *GetPaymentRequestsQueueURL) Build() (*url.URL, error) {
 		if qsv != "" {
 			qs.Set("status", qsv)
 		}
+	}
+
+	var submittedAtQ string
+	if o.SubmittedAt != nil {
+		submittedAtQ = *o.SubmittedAt
+	}
+	if submittedAtQ != "" {
+		qs.Set("submittedAt", submittedAtQ)
 	}
 
 	_result.RawQuery = qs.Encode()
