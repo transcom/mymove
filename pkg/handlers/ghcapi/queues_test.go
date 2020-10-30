@@ -5,6 +5,8 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/stretchr/testify/mock"
+
 	modelToPayload "github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -726,7 +728,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	suite.Equal(actualPaymentRequest.ID.String(), paymentRequest.ID.String())
 	suite.Equal(actualPaymentRequest.MoveTaskOrderID.String(), paymentRequest.MoveID.String())
 	suite.Equal(hhgMove.Orders.ServiceMemberID.String(), paymentRequest.Customer.ID.String())
-	suite.Equal(actualPaymentRequest.Status.String(), string(paymentRequest.Status))
+	suite.Equal(string(paymentRequest.Status), "Payment requested")
 
 	createdAt := actualPaymentRequest.CreatedAt
 	age := int64(2)
@@ -762,7 +764,13 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerServerError() {
 
 	paymentRequestListFetcher := mocks.PaymentRequestListFetcher{}
 
-	paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID).Return(nil, errors.New("database query error"))
+	paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID,
+		mock.Anything,
+		mock.Anything,
+		mock.Anything,
+		mock.Anything,
+		mock.Anything,
+		mock.Anything).Return(nil, errors.New("database query error"))
 
 	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -785,7 +793,13 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerEmptyResults() {
 
 	paymentRequestListFetcher := mocks.PaymentRequestListFetcher{}
 
-	paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID).Return(&models.PaymentRequests{}, nil)
+	paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID,
+		mock.Anything,
+		mock.Anything,
+		mock.Anything,
+		mock.Anything,
+		mock.Anything,
+		mock.Anything).Return(&models.PaymentRequests{}, nil)
 
 	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)

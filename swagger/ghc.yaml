@@ -1083,6 +1083,33 @@ paths:
       operationId: getPaymentRequestsQueue
       tags:
         - queues
+      parameters:
+        - in: query
+          name: branch
+          type: string
+        - in: query
+          name: moveID
+          type: string
+        - in: query
+          name: lastName
+          type: string
+        - in: query
+          name: dodID
+          type: string
+        - in: query
+          name: destinationDutyStation
+          type: string
+        - in: query
+          name: status
+          type: array
+          description: Filtering for the status.
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+              - Payment requested
+              - Reviewed
+              - Paid
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
