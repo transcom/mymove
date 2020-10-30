@@ -59,7 +59,7 @@ const columns = (isFilterable = false) => [
   createHeader('Customer name', 'col1', { isFilterable }),
   createHeader('DoD ID', 'col2', { isFilterable }),
   createHeader('Status', 'col3', { isFilterable }),
-  createHeader('Move ID', 'col4', { isFilterable }),
+  createHeader('Move Code', 'col4', { isFilterable }),
   createHeader('Branch', 'col5', { isFilterable }),
   createHeader('# of shipments', 'col6', { isFilterable }),
   createHeader('Destination duty station', 'col7', { isFilterable }),
