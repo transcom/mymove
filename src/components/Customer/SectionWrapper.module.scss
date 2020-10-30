@@ -3,8 +3,8 @@
 @import 'shared/styles/_variables.scss';
 @import 'shared/styles/_basics.scss';
 
+.sectionWrapper {
   @media (min-width: $tablet) {
-  .sectionWrapper {
     @include u-bg('white');
     @include u-radius('05');
     @include u-border('base-lighter');
@@ -26,7 +26,7 @@
     h3,
     h4 {
       &:first-child {
-      @include u-margin-top(0);
+        @include u-margin-top(0);
       }
     }
   }

@@ -1,24 +1,22 @@
 import React from 'react';
 import { bool, shape, string, func, number } from 'prop-types';
 import { Field } from 'formik';
-import { Button, /* Fieldset, */ Label, Radio, Checkbox } from '@trussworks/react-uswds';
+import { Button, Fieldset, Radio, Checkbox, Alert, FormGroup, Label, Textarea } from '@trussworks/react-uswds';
 
 import styles from './MtoShipmentForm.module.scss';
 
-import { DatePickerInput, TextInput } from 'components/form/fields';
+import { shipmentForm } from 'content/shipments';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { DatePickerInput } from 'components/form/fields';
 import { ContactInfoFields } from 'components/form/ContactInfoFields/ContactInfoFields';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { Form } from 'components/form/Form';
-import Fieldset from 'shared/Fieldset';
-import Hint from 'shared/Hint';
+import Hint from 'components/Hint/index';
 import { SimpleAddressShape } from 'types/address';
-import { MtoDisplayOptionsShape, MtoShipmentFormValuesShape } from 'types/customerShapes';
+import { MtoShipmentFormValuesShape } from 'types/customerShapes';
 import { validateDate } from 'utils/formikValidators';
+import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-
-const hhgFormHeader = 'When and where can the movers pick up and deliver this shipment?';
-const ntsFormHeader = 'Where and when should the movers pick up your things going into storage?';
-const ntsrFormHeader = 'Where and when should the movers release your things from storage?';
 
 const MtoShipmentFormFields = ({
   // formik data
@@ -28,20 +26,23 @@ const MtoShipmentFormFields = ({
   isValid,
   isSubmitting,
   // shipment-related data
-  displayOptions,
   shipmentNumber,
+  showPickupFields,
+  showDeliveryFields,
+  shipmentType,
   onUseCurrentResidenceChange,
   submitHandler,
   newDutyStationAddress,
   isCreatePage,
   serviceMember,
 }) => {
-  const isHHG = displayOptions.displayName === 'HHG';
-  const isNTS = displayOptions.displayName === 'NTS';
-  const isNTSR = displayOptions.displayName === 'NTS-R';
+  const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
   const { hasDeliveryAddress } = values;
 
+  const optionalLabel = <span className={styles.optional}>Optional</span>;
+
   return (
+<<<<<<< HEAD
     <>
       <div className={`margin-top-2 ${styles['hhg-label']}`}>
         {`${displayOptions.displayName}`}
@@ -61,182 +62,233 @@ const MtoShipmentFormFields = ({
           <div>
             <SectionWrapper>
               <Fieldset legend="Pickup date" className="tablet:margin-top-4">
+=======
+    <div className={`${styles.MTOShipmentForm} desktop:grid-col-8 desktop:grid-offset-2`}>
+      <ShipmentTag shipmentType={shipmentType} shipmentNumber={shipmentNumber} />
+      <h1>{shipmentForm.header[`${shipmentType}`]}</h1>
+      <Alert type="info" noIcon>
+        Remember: You can move {serviceMember.weight_allotment.total_weight_self} lbs total. You’ll be billed for any
+        excess weight you move.
+      </Alert>
+      <Form className={styles.form}>
+        {showPickupFields && (
+          <>
+            <SectionWrapper className={styles.formSection}>
+              {showDeliveryFields && <h2>Pickup information</h2>}
+              <Fieldset legend="Pickup date">
+>>>>>>> 6766b5aa9d8e19494366bcbc5079ccb5c869fec8
                 <Field
                   as={DatePickerInput}
                   name="pickup.requestedDate"
                   label="Requested pickup date"
-                  labelClassName={`margin-top-2 ${styles['small-bold']}`}
                   id="requestedPickupDate"
                   validate={validateDate}
                 />
+                <Hint id="pickupDateHint">
+                  <p>
+                    Movers will contact you to schedule the actual pickup date. That date should fall within 7 days of
+                    your requested date. Tip: Avoid scheduling multiple shipments on the same day.
+                  </p>
+                </Hint>
               </Fieldset>
-              <Hint className="margin-top-1" id="pickupDateHint">
-                Movers will contact you to schedule the actual pickup date. That date should fall within 7 days of your
-                requested date. Tip: Avoid scheduling multiple shipments on the same day.
-              </Hint>
-            </SectionWrapper>
-            <SectionWrapper>
+
               <AddressFields
-                className="margin-bottom-3"
                 name="pickup.address"
                 legend="Pickup location"
-                renderExistingAddressCheckbox={() => (
-                  <div className="margin-y-2">
+                render={(fields) => (
+                  <>
                     <Checkbox
                       data-testid="useCurrentResidence"
-                      label="Use my current residence address"
+                      label="Use my current address"
                       name="useCurrentResidence"
                       onChange={onUseCurrentResidenceChange}
                       id="useCurrentResidenceCheckbox"
                     />
-                  </div>
+                    {fields}
+                    <Hint>
+                      <p>
+                        If you have more things at another pickup location, you can schedule a shipment for them later.
+                      </p>
+                    </Hint>
+                  </>
                 )}
                 values={values.pickup.address}
               />
-              <Hint>If you have more things at another pickup location, you can schedule for them later.</Hint>
-            </SectionWrapper>
-            <SectionWrapper>
+
               <ContactInfoFields
-                className="margin-bottom-5"
                 name="pickup.agent"
-                legend="Releasing agent"
-                hintText="Optional"
-                subtitle="Who can allow the movers to take your stuff if you're not there?"
-                subtitleClassName="margin-top-3"
+                legend={<div className={styles.legendContent}>Releasing agent {optionalLabel}</div>}
                 values={values.pickup.agent}
+                render={(fields) => (
+                  <>
+                    <p>Who can let the movers pick up your things if you’re not there?</p>
+                    {fields}
+                  </>
+                )}
               />
             </SectionWrapper>
-          </div>
+          </>
         )}
-        {displayOptions.showDeliveryFields && (
-          <div>
-            <SectionWrapper>
+
+        {showDeliveryFields && (
+          <>
+            <SectionWrapper className={styles.formSection}>
+              {showPickupFields && <h2>Delivery information</h2>}
               <Fieldset legend="Delivery date">
                 <Field
                   as={DatePickerInput}
                   name="delivery.requestedDate"
                   label="Requested delivery date"
-                  labelClassName={`${styles['small-bold']}`}
                   id="requestedDeliveryDate"
                   validate={validateDate}
                 />
-                <Hint className="margin-top-1">
-                  Shipments can take several weeks to arrive, depending on how far they&rsquo;re going. Your movers will
-                  contact you close to the date you select to coordinate delivery.
+                <Hint>
+                  <p>
+                    Shipments can take several weeks to arrive, depending on how far they’re going. Your movers will
+                    contact you close to the date you select to coordinate delivery.
+                  </p>
                 </Hint>
               </Fieldset>
-            </SectionWrapper>
-            <SectionWrapper>
+
               <Fieldset legend="Delivery location">
-                <Label className="margin-top-3 margin-bottom-1">Do you know your delivery address?</Label>
-                <div className="display-flex margin-top-1">
-                  <Field
-                    as={Radio}
-                    className="margin-right-3"
-                    id="has-delivery-address"
-                    label="Yes"
-                    name="hasDeliveryAddress"
-                    value="yes"
-                    checked={hasDeliveryAddress === 'yes'}
-                  />
-                  <Field
-                    as={Radio}
-                    id="no-delivery-address"
-                    label="No"
-                    name="hasDeliveryAddress"
-                    value="no"
-                    checked={hasDeliveryAddress === 'no'}
-                  />
-                </div>
+                <FormGroup>
+                  <p>Do you know your delivery address yet?</p>
+                  <div className={styles.radioGroup}>
+                    <Field
+                      as={Radio}
+                      id="has-delivery-address"
+                      label="Yes"
+                      name="hasDeliveryAddress"
+                      value="yes"
+                      title="Yes, I know my delivery address"
+                      checked={hasDeliveryAddress === 'yes'}
+                    />
+                    <Field
+                      as={Radio}
+                      id="no-delivery-address"
+                      label="No"
+                      name="hasDeliveryAddress"
+                      value="no"
+                      title="No, I do not know my delivery address"
+                      checked={hasDeliveryAddress === 'no'}
+                    />
+                  </div>
+                </FormGroup>
                 {hasDeliveryAddress === 'yes' ? (
-                  <AddressFields name="delivery.address" values={values.delivery.address} />
+                  <AddressFields
+                    name="delivery.address"
+                    values={values.delivery.address}
+                    render={(fields) => (
+                      <>
+                        {fields}
+                        <Hint>
+                          <p>
+                            If you have more things to go to another destination, you can schedule a shipment for them
+                            later.
+                          </p>
+                        </Hint>
+                      </>
+                    )}
+                  />
                 ) : (
-                  <>
-                    <p className="margin-top-2">
-                      We can use the zip of your new duty station.
-                      <br />
-                      <strong>
-                        {newDutyStationAddress.city}, {newDutyStationAddress.state} {newDutyStationAddress.postal_code}{' '}
-                      </strong>
-                    </p>
-                  </>
+                  <p>
+                    We can use the zip of your new duty station.
+                    <br />
+                    <strong>
+                      {newDutyStationAddress.city}, {newDutyStationAddress.state} {newDutyStationAddress.postal_code}{' '}
+                    </strong>
+                    <br />
+                    You can add the specific delivery address later, once you know it.
+                  </p>
                 )}
               </Fieldset>
-            </SectionWrapper>
-            <SectionWrapper>
+
               <ContactInfoFields
                 name="delivery.agent"
-                legend="Receiving agent"
-                hintText="Optional"
-                subtitle="Who can take delivery for you if the movers arrive and you're not there?"
-                subtitleClassName="margin-top-3"
+                legend={<div className={styles.legendContent}>Receiving agent {optionalLabel}</div>}
                 values={values.delivery.agent}
+                render={(fields) => (
+                  <>
+                    <p>Who can take delivery for you if the movers arrive and you’re not there?</p>
+                    {fields}
+                  </>
+                )}
               />
             </SectionWrapper>
-          </div>
+          </>
         )}
+
         {isNTS && (
-          <div data-testid="nts-what-to-expect">
-            <SectionWrapper>
+          <>
+            <SectionWrapper className={styles.formSection} data-testid="nts-what-to-expect">
               <Fieldset legend="What you can expect">
                 <p>
                   The moving company will find a storage facility approved by the government, and will move your
                   belongings there.
                 </p>
                 <p>
-                  You&rsquo;ll need to schedule an NTS release shipment to get your items back, most likely as part of a
+                  You’ll need to schedule an NTS release shipment to get your items back, most likely as part of a
                   future move.
                 </p>
               </Fieldset>
             </SectionWrapper>
-          </div>
+          </>
         )}
-        <SectionWrapper>
-          <Fieldset hintText="Optional" legend="Remarks">
-            <div className={`${styles['small-bold']} margin-top-3 margin-bottom-1`}>
+
+        <SectionWrapper className={styles.formSection}>
+          <Fieldset legend={<div className={styles.legendContent}>Remarks {optionalLabel}</div>}>
+            <Label for="customerRemarks">
               Is there anything special about this shipment that the movers should know?
-            </div>
-            <div className={`${styles['hhg-examples-container']}`}>
-              <strong>Examples</strong>
+            </Label>
+
+            <div className={styles.remarksExamples}>
+              Examples
               <ul>
                 <li>Things that might need special handling</li>
                 <li>Access info for a location</li>
                 <li>Weapons or alcohol</li>
               </ul>
             </div>
-            <TextInput
-              label="Anything else you would like us to know?"
-              labelHint="(optional)"
+
+            <Field
+              as={Textarea}
               data-testid="remarks"
               name="customerRemarks"
               className={`${styles.remarks}`}
-              placeholder="You don&rsquo;t need to list all belongings here. Your mover will get those details later."
+              placeholder="You don’t need to list all your belongings here. Your mover will get those details later."
               id="customerRemarks"
               maxLength={250}
               value={values.customerRemarks}
             />
-            <Hint className="margin-bottom-2">250 characters</Hint>
+            <Hint>
+              <p>250 characters</p>
+            </Hint>
           </Fieldset>
         </SectionWrapper>
-        <Hint className="margin-bottom-2">
-          You can change details for your shipment when you talk to your move counselor or the person who&rsquo;s your
-          point of contact with the movers. You can also edit in MilMove up to 24 hours before your final pickup date.
+
+        <Hint>
+          <p>
+            You can change details for your shipment when you talk to your move counselor or the person who’s your point
+            of contact with the movers. You can also edit in MilMove up to 24 hours before your final pickup date.
+          </p>
         </Hint>
+
         {!isCreatePage && (
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div className={styles.formActions}>
             <Button
+              type="submit"
               disabled={isSubmitting || (!isValid && !dirty) || (isValid && !dirty)}
               onClick={() => submitHandler(values)}
             >
-              <span>Save</span>
+              Save
             </Button>
-            <Button className={`${styles['cancel-button']}`} onClick={history.goBack}>
-              <span>Cancel</span>
+            <Button type="button" className={styles.cancelButton} onClick={history.goBack}>
+              Cancel
             </Button>
           </div>
         )}
       </Form>
-    </>
+    </div>
   );
 };
 
@@ -264,7 +316,9 @@ MtoShipmentFormFields.propTypes = {
   }).isRequired,
 
   // shipment-related data
-  displayOptions: MtoDisplayOptionsShape.isRequired,
+  shipmentType: string.isRequired,
+  showDeliveryFields: bool,
+  showPickupFields: bool,
   shipmentNumber: string,
 };
 
@@ -278,6 +332,8 @@ MtoShipmentFormFields.defaultProps = {
   // shipment-related data
   shipmentNumber: '',
   isCreatePage: false,
+  showDeliveryFields: true,
+  showPickupFields: true,
 };
 
 export default MtoShipmentFormFields;

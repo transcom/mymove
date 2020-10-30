@@ -1,0 +1,27 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/_variables';
+@import 'shared/styles/colors';
+
+.Hint {
+  color: $base;
+  font-size: 13px;
+  line-height: 18px;
+  @include u-margin-top('105');
+  @include u-margin-bottom(0);
+
+  p {
+    color: $base;
+    font-size: 13px;
+    line-height: 18px;
+    @include u-margin(0);
+  }
+
+  p + p {
+    @include u-margin-top('105');
+  }
+}
+
+:global(.grid-row) + .Hint {
+  @include u-margin-top(3);
+}

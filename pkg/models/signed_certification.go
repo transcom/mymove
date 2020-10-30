@@ -18,20 +18,22 @@ import (
 type SignedCertificationType string
 
 const (
-	// SignedCertificationTypePPM captures enum value "PPM"
+	// SignedCertificationTypePPM captures enum value "PPM" - deprecated 10/2020
 	SignedCertificationTypePPM SignedCertificationType = "PPM"
 
 	// SignedCertificationTypePPMPAYMENT captures enum value "PPM_PAYMENT"
 	SignedCertificationTypePPMPAYMENT SignedCertificationType = "PPM_PAYMENT"
 
-	// SignedCertificationTypeHHG captures enum value "HHG"
+	// SignedCertificationTypeHHG captures enum value "HHG" - deprecated 10/2020
 	SignedCertificationTypeHHG SignedCertificationType = "HHG"
+
+	// SignedCertificationTypeSHIPMENT captures enum value "SHIPMENT" for all shipment types from 10/2020
+	SignedCertificationTypeSHIPMENT SignedCertificationType = "SHIPMENT"
 )
 
 var signedCertifications = []string{
-	string(SignedCertificationTypePPM),
 	string(SignedCertificationTypePPMPAYMENT),
-	string(SignedCertificationTypeHHG),
+	string(SignedCertificationTypeSHIPMENT),
 }
 
 // SignedCertification represents users acceptance
