@@ -28,7 +28,7 @@ const Table = ({ handleClick, getTableProps, getTableBodyProps, headerGroups, ro
           {rows.map((row) => {
             prepareRow(row);
             return (
-              <tr onClick={() => handleClick(row.values)} {...row.getRowProps()}>
+              <tr data-uuid={row.values.id} onClick={() => handleClick(row.values)} {...row.getRowProps()}>
                 {row.cells.map((cell, index) => {
                   return (
                     // eslint-disable-next-line react/no-array-index-key

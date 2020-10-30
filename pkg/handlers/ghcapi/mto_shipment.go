@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 	"go.uber.org/zap"
 
 	"github.com/gofrs/uuid"

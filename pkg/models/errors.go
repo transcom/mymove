@@ -39,10 +39,3 @@ var ErrInvalidTransition = errors.New("INVALID_TRANSITION")
 // RecordNotFoundErrorString is the error string returned when no matching rows exist in the database
 // This is ugly, but the best we can do with go's Postgresql adapter
 const RecordNotFoundErrorString = "sql: no rows in result set"
-
-// ViolatesForeignKeyConstraint is part of the error string that is returned when postgres could not find any
-// matching IDs for a record creating/updating
-const ViolatesForeignKeyConstraint = "violates foreign key constraint"
-
-// uniqueConstraintViolationErrorPrefix This is the error we get back from dbConnection.Create()
-const uniqueConstraintViolationErrorPrefix = "pq: duplicate key value violates unique constraint"

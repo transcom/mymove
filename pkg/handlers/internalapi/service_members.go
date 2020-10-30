@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/cli"

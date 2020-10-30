@@ -1,7 +1,7 @@
 package sequence
 
 import (
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 )
 
 // Using PostgreSQL Sequences

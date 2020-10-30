@@ -13,8 +13,8 @@ const GhcGetCustomerEndpointKey = "Ghc.GetCustomer"
 // GhcGetMoveEndpointKey is the key for the getMove endpoint in ghc
 const GhcGetMoveEndpointKey = "Ghc.GetMove"
 
-// GhcListMoveOrdersEndpointKey is the key for the listMoveOrders endpoint in ghc
-const GhcListMoveOrdersEndpointKey = "Ghc.ListMoveOrders"
+// GhcGetMovesQueueEndpointKey is the key for the getMovesQueue endpoint in ghc
+const GhcGetMovesQueueEndpointKey = "Ghc.GetMovesQueue"
 
 // GhcGetMoveOrderEndpointKey is the key for the getMoveOrder endpoint in ghc
 const GhcGetMoveOrderEndpointKey = "Ghc.GetMoveOrder"
@@ -61,8 +61,8 @@ const GhcUpdatePaymentServiceItemStatusEndpointKey = "Ghc.UpdatePaymentServiceIt
 // GhcGetEntitlementsEndpointKey is the key for the getEntitlements endpoint in ghc
 const GhcGetEntitlementsEndpointKey = "Ghc.GetEntitlements"
 
-// GhcListPaymentRequestsEndpointKey is the key for the listPaymentRequests endpoint in ghc
-const GhcListPaymentRequestsEndpointKey = "Ghc.ListPaymentRequests"
+// GhcGetPaymentRequestsQueueEndpointKey is the key for the getPaymentRequestsQueue endpoint in ghc
+const GhcGetPaymentRequestsQueueEndpointKey = "Ghc.GetPaymentRequestsQueue"
 
 // GhcGetPaymentRequestEndpointKey is the key for the getPaymentRequest endpoint in ghc
 const GhcGetPaymentRequestEndpointKey = "Ghc.GetPaymentRequest"
@@ -80,9 +80,9 @@ var ghcEndpoints = EndpointMapType{
 		APIName:     GhcAPIName,
 		OperationID: "getMove",
 	},
-	GhcListMoveOrdersEndpointKey: {
+	GhcGetMovesQueueEndpointKey: {
 		APIName:     GhcAPIName,
-		OperationID: "listMoveOrders",
+		OperationID: "getMovesQueue",
 	},
 	GhcGetMoveOrderEndpointKey: {
 		APIName:     GhcAPIName,
@@ -144,9 +144,9 @@ var ghcEndpoints = EndpointMapType{
 		APIName:     GhcAPIName,
 		OperationID: "getEntitlements",
 	},
-	GhcListPaymentRequestsEndpointKey: {
+	GhcGetPaymentRequestsQueueEndpointKey: {
 		APIName:     GhcAPIName,
-		OperationID: "listPaymentRequests",
+		OperationID: "getPaymentRequestsQueue",
 	},
 	GhcGetPaymentRequestEndpointKey: {
 		APIName:     GhcAPIName,

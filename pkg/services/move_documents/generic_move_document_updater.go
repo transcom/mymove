@@ -1,8 +1,8 @@
 package movedocument
 
 import (
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
