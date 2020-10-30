@@ -743,38 +743,9 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 	officeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{})
 
-	hhgMoveType := models.SelectedMoveTypeHHG
-	// Default Origin Duty Station GBLOC is LKNQ
-	move1 := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			SelectedMoveType: &hhgMoveType,
-		},
-	})
-
-	move2 := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			SelectedMoveType: &hhgMoveType,
-		},
-	})
-
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: move1,
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
-		},
-	})
-
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: move2,
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
-		},
-	})
-
 	outOfRangeDate, _ := time.Parse("2006-01-02", "2020-10-10")
 
 	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		Move: move1,
 		PaymentRequest: models.PaymentRequest{
 			CreatedAt: outOfRangeDate,
 		},
@@ -782,7 +753,6 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 
 	createdAtTime, _ := time.Parse("2006-01-02", "2020-10-29")
 	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		Move: move2,
 		PaymentRequest: models.PaymentRequest{
 			CreatedAt: createdAtTime,
 		},
