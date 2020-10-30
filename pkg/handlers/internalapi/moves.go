@@ -180,7 +180,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	certificateParams.HTTPRequest = params.HTTPRequest
 	certificateParams.MoveID = params.MoveID
 	// Transaction to save move and dependencies
-	verrs, err := h.saveMoveDependencies(h.DB(), logger, move, certificateParams, session.UserID, submitDate)
+	verrs, err := h.saveMoveDependencies(h.DB(), logger, move, certificateParams, session.UserID)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
@@ -203,10 +203,11 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 
 // SaveMoveDependencies safely saves a Move status, ppms' advances' statuses, orders statuses, signed certificate,
 // and shipment GBLOCs.
-func (h SubmitMoveHandler) saveMoveDependencies(db *pop.Connection, logger certs.Logger, move *models.Move, certificateParams certop.CreateSignedCertificationParams, userID uuid.UUID, submitDate time.Time) (*validate.Errors, error) {
+func (h SubmitMoveHandler) saveMoveDependencies(db *pop.Connection, logger certs.Logger, move *models.Move, certificateParams certop.CreateSignedCertificationParams, userID uuid.UUID) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
+	date := time.Time(*certificateParams.CreateSignedCertificationPayload.Date)
 	certType := models.SignedCertificationType(*certificateParams.CreateSignedCertificationPayload.CertificationType)
 	newSignedCertification := models.SignedCertification{
 		MoveID:                   uuid.FromStringOrNil(certificateParams.MoveID.String()),
@@ -215,7 +216,7 @@ func (h SubmitMoveHandler) saveMoveDependencies(db *pop.Connection, logger certs
 		SubmittingUserID:         userID,
 		CertificationText:        *certificateParams.CreateSignedCertificationPayload.CertificationText,
 		Signature:                *certificateParams.CreateSignedCertificationPayload.Signature,
-		Date:                     submitDate,
+		Date:                     date,
 	}
 
 	if certificateParams.CreateSignedCertificationPayload.PersonallyProcuredMoveID != nil {
