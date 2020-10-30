@@ -11,7 +11,7 @@ import { createHeader } from 'components/Table/utils';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useMovesQueueQueries } from 'hooks/queries';
-import { departmentIndicatorLabel } from 'shared/formatters';
+import { serviceMemberAgencyLabel } from 'shared/formatters';
 import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
@@ -50,7 +50,7 @@ const columns = [
   createHeader(
     'Branch',
     (row) => {
-      return departmentIndicatorLabel(row.departmentIndicator);
+      return serviceMemberAgencyLabel(row.customer.agency);
     },
     {
       id: 'branch',
