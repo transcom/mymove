@@ -11,6 +11,7 @@ const DateSelectFilter = ({ column: { filterValue, setFilter } }) => {
   return (
     <SingleDatePicker
       value={filterValue || ''}
+      format="DD MMM YYYY"
       data-testid="DateSelectFilter"
       onChange={(e) => {
         setFilter(formatDateForSwagger(e) || undefined); // Set undefined to remove the filter entirely
