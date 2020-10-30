@@ -18,7 +18,7 @@ const Table = ({ handleClick, getTableProps, getTableBodyProps, headerGroups, ro
                   {column.render('Header')}
                   {/* isFilterable is a custom prop that can be set in the Column object */}
                   {/* <div>{column.isFilterable ? column.render('Filter') : null}</div> */}
-                  <div>{column.canFilter ? column.render('Filter') : null}</div>
+                  <div>{column.isFilterable ? column.render('Filter') : null}</div>
                 </th>
               ))}
             </tr>
