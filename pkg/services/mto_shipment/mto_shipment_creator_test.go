@@ -220,10 +220,14 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 
 // Clears all the ID fields that we need to be null for a new shipment to get created:
 func clearShipmentIDFields(shipment *models.MTOShipment) *models.MTOShipment {
-	shipment.PickupAddressID = nil
-	shipment.PickupAddress.ID = uuid.Nil
-	shipment.DestinationAddressID = nil
-	shipment.DestinationAddress.ID = uuid.Nil
+	if shipment.PickupAddress != nil {
+		shipment.PickupAddressID = nil
+		shipment.PickupAddress.ID = uuid.Nil
+	}
+	if shipment.DestinationAddress != nil {
+		shipment.DestinationAddressID = nil
+		shipment.DestinationAddress.ID = uuid.Nil
+	}
 	shipment.SecondaryPickupAddressID = nil
 	shipment.SecondaryPickupAddress = nil
 	shipment.SecondaryDeliveryAddressID = nil
