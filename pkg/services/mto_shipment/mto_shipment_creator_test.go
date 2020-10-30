@@ -73,7 +73,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 
 	// Unhappy path
 	suite.T().Run("When required requested pickup dates are zero (required for NTS & HHG shipment types)", func(t *testing.T) {
-		// this check verifies that if requestedPuckupDate is Zero it returns an error
 		hhgShipmentFail := testdatagen.MakeDefaultMTOShipment(suite.DB()) // default is HHG
 		hhgShipmentFailClear := clearShipmentIDFields(&hhgShipmentFail)
 		hhgShipmentFailClear.RequestedPickupDate = new(time.Time)
