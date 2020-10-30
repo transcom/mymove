@@ -3,8 +3,6 @@ import { GridContainer } from '@trussworks/react-uswds';
 import { withRouter } from 'react-router-dom';
 import { useTable, useFilters } from 'react-table';
 
-import SingleDatePicker from '../../../shared/JsonSchemaForm/SingleDatePicker';
-
 import styles from './PaymentRequestQueue.module.scss';
 
 // import { DatePickerInput } from 'components/form/fields';
@@ -23,6 +21,7 @@ import {
 import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
+import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
 import { PAYMENT_REQUEST_STATUS_OPTIONS } from 'constants/queues';
 
 const paymentRequestStatusOptions = Object.keys(PAYMENT_REQUEST_STATUS_OPTIONS).map((key) => ({
@@ -83,7 +82,7 @@ const columns = [
       id: 'submittedAt',
       isFilterable: true,
       // eslint-disable-next-line react/jsx-props-no-spreading
-      Filter: (props) => <SingleDatePicker {...props} />,
+      Filter: DateSelectFilter,
     },
   ),
   createHeader('Move Code', 'locator', {
@@ -107,7 +106,6 @@ const columns = [
 
 const PaymentRequestQueue = ({ history }) => {
   const [paramFilters, setParamFilters] = useState([]);
-
   const {
     queuePaymentRequestsResult: { totalCount, queuePaymentRequests = [] },
     isLoading,
