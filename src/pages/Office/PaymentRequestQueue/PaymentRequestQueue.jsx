@@ -20,7 +20,7 @@ import {
 import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
-import { PAYMENT_REQUEST_STATUS_OPTIONS } from 'constants/queues';
+import { BRANCH_OPTIONS, PAYMENT_REQUEST_STATUS_OPTIONS } from 'constants/queues';
 
 const paymentRequestStatusOptions = Object.keys(PAYMENT_REQUEST_STATUS_OPTIONS).map((key) => ({
   value: key,
@@ -29,11 +29,10 @@ const paymentRequestStatusOptions = Object.keys(PAYMENT_REQUEST_STATUS_OPTIONS).
 
 const branchFilterOptions = [
   { value: '', label: 'All' },
-  { value: 'ARMY', label: 'Army' },
-  { value: 'NAVY', label: 'Navy' },
-  { value: 'MARINES', label: 'Marine Corps' },
-  { value: 'AIR_FORCE', label: 'Air Force' },
-  { value: 'COAST_GUARD', label: 'Coast Guard' },
+  ...Object.keys(BRANCH_OPTIONS).map((key) => ({
+    value: key,
+    label: BRANCH_OPTIONS[`${key}`],
+  })),
 ];
 
 const columns = [

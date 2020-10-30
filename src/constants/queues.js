@@ -10,3 +10,11 @@ export const PAYMENT_REQUEST_STATUS_OPTIONS = {
   Reviewed: 'Reviewed',
   Paid: 'Paid',
 };
+
+export const BRANCH_OPTIONS = {
+  ARMY: 'Army',
+  NAVY: 'Navy',
+  MARINES: 'Marine Corps',
+  AIR_FORCE: 'Air Force',
+  COAST_GUARD: 'Coast Guard',
+};
