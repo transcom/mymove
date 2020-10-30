@@ -65,7 +65,7 @@ describe('PaymentRequestQueue', () => {
     expect(wrapper.find('thead tr th').at(2).text()).toBe('Status');
     expect(wrapper.find('thead tr th').at(3).text()).toBe('Age');
     expect(wrapper.find('thead tr th').at(4).text()).toBe('Submitted');
-    expect(wrapper.find('thead tr th').at(5).text()).toBe('Move ID');
+    expect(wrapper.find('thead tr th').at(5).text()).toBe('Move Code');
     expect(wrapper.find('thead tr th').at(6).text()).toContain('Branch');
     expect(wrapper.find('thead tr th').at(7).text()).toBe('Origin GBLOC');
   });
