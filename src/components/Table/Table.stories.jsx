@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { withKnobs } from '@storybook/addon-knobs';
+import { useFilters, useTable } from 'react-table';
 
 import { createHeader } from './utils';
 import Table from './Table';
+
+import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
 
 export default {
   title: 'TOO/TIO Components|Table',
@@ -52,16 +55,71 @@ const data = [
   },
 ];
 
-const columns = [
-  createHeader('Customer name', 'col1'),
-  createHeader('DoD ID', 'col2'),
-  createHeader('Status', 'col3'),
-  createHeader('Move ID', 'col4'),
-  createHeader('Branch', 'col5'),
-  createHeader('# of shipments', 'col6'),
-  createHeader('Destination duty station', 'col7'),
-  createHeader('Origin GBLOC', 'col8'),
-  createHeader('Last modified by', 'col9'),
+const columns = (isFilterable = false) => [
+  createHeader('Customer name', 'col1', { isFilterable }),
+  createHeader('DoD ID', 'col2', { isFilterable }),
+  createHeader('Status', 'col3', { isFilterable }),
+  createHeader('Move ID', 'col4', { isFilterable }),
+  createHeader('Branch', 'col5', { isFilterable }),
+  createHeader('# of shipments', 'col6', { isFilterable }),
+  createHeader('Destination duty station', 'col7', { isFilterable }),
+  createHeader('Origin GBLOC', 'col8', { isFilterable }),
+  createHeader('Last modified by', 'col9', { isFilterable }),
 ];
 
-export const TXOTable = () => <Table data={data} columns={columns} />;
+// eslint-disable-next-line react/prop-types
+const CreatedTable = () => {
+  const defaultColumn = useMemo(
+    () => ({
+      // Let's set up our default Filter UI
+      Filter: TextBoxFilter,
+    }),
+    [],
+  );
+
+  const tableData = useMemo(() => data, []);
+  const tableColumns = useMemo(() => columns(), []);
+  const propsWithFilters = useTable(
+    {
+      columns: tableColumns,
+      data: tableData,
+      initialState: { hiddenColumns: ['id'] },
+      manualFilters: true,
+      defaultColumn,
+    },
+    useFilters,
+  );
+
+  // eslint-disable-next-line react/jsx-props-no-spreading
+  return <Table {...propsWithFilters} />;
+};
+
+const CreatedTableWithFilters = () => {
+  const defaultColumn = useMemo(
+    () => ({
+      // Let's set up our default Filter UI
+      Filter: TextBoxFilter,
+    }),
+    [],
+  );
+
+  const tableData = useMemo(() => data, []);
+  const tableColumns = useMemo(() => columns(true), []);
+  const propsWithFilters = useTable(
+    {
+      columns: tableColumns,
+      data: tableData,
+      initialState: { hiddenColumns: ['id'] },
+      manualFilters: true,
+      defaultColumn,
+    },
+    useFilters,
+  );
+
+  // eslint-disable-next-line react/jsx-props-no-spreading
+  return <Table {...propsWithFilters} />;
+};
+
+export const TXOTable = () => <CreatedTable />;
+
+export const TXOTableFilters = () => <CreatedTableWithFilters />;
