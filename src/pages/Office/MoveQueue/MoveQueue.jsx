@@ -7,12 +7,19 @@ import styles from './MoveQueue.module.scss';
 
 import { HistoryShape } from 'types/router';
 import Table from 'components/Table/Table';
-import { createHeader, textFilter } from 'components/Table/utils';
+import { createHeader } from 'components/Table/utils';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useMovesQueueQueries } from 'hooks/queries';
 import { departmentIndicatorLabel } from 'shared/formatters';
 import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
+import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
+import { MOVE_STATUS_OPTIONS } from 'constants/queues';
+
+const moveStatusOptions = Object.keys(MOVE_STATUS_OPTIONS).map((key) => ({
+  value: key,
+  label: MOVE_STATUS_OPTIONS[`${key}`],
+}));
 
 const columns = [
   createHeader('ID', 'id'),
@@ -24,7 +31,11 @@ const columns = [
     { id: 'name' },
   ),
   createHeader('DoD ID', 'customer.dodID'),
-  createHeader('Status', 'status', { isFilterable: true }),
+  createHeader('Status', 'status', {
+    isFilterable: true,
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    Filter: (props) => <MultiSelectCheckBoxFilter options={moveStatusOptions} {...props} />,
+  }),
   createHeader('Move ID', 'locator'),
   createHeader(
     'Branch',
@@ -49,13 +60,6 @@ const MoveQueue = ({ history }) => {
 
   // react-table setup below
 
-  const filterTypes = useMemo(
-    () => ({
-      // "startWith"
-      text: textFilter,
-    }),
-    [],
-  );
   const defaultColumn = useMemo(
     () => ({
       // Let's set up our default Filter UI
@@ -78,7 +82,6 @@ const MoveQueue = ({ history }) => {
       data: tableData,
       initialState: { hiddenColumns: ['id'] },
       defaultColumn, // Be sure to pass the defaultColumn option
-      filterTypes,
       manualFilters: true,
     },
     useFilters,
@@ -87,9 +90,7 @@ const MoveQueue = ({ history }) => {
   // When these table states change, fetch new data!
   useEffect(() => {
     if (!isLoading && !isError) {
-      if (filters.length > 0) {
-        setParamFilters(filters);
-      }
+      setParamFilters(filters);
     }
   }, [filters, isLoading, isError]);
 
