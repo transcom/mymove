@@ -200,7 +200,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	return moveop.NewSubmitMoveForApprovalOK().WithPayload(movePayload)
 }
 
-// SaveMoveDependencies safely saves a Move status, ppms' advances' statuses, orders statuses,
+// SaveMoveDependencies safely saves a Move status, ppms' advances' statuses, orders statuses, signed certificate,
 // and shipment GBLOCs.
 func (h SubmitMoveHandler) SaveMoveDependencies(db *pop.Connection, logger certs.Logger, move *models.Move, certificateParams certop.CreateSignedCertificationParams, userID uuid.UUID) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
