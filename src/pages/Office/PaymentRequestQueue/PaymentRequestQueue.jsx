@@ -126,9 +126,7 @@ const PaymentRequestQueue = ({ history }) => {
   // When these table states change, fetch new data!
   useEffect(() => {
     if (!isLoading && !isError) {
-      if (filters.length > 0) {
-        setParamFilters(filters);
-      }
+      setParamFilters(filters);
     }
   }, [filters, isLoading, isError]);
 
