@@ -242,7 +242,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
 	}
 
-	if mtoShipment.RequestedPickupDate != nil {
+	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
 		payload.RequestedPickupDate = *handlers.FmtDatePtr(mtoShipment.RequestedPickupDate)
 	}
 
