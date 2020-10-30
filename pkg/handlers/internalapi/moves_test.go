@@ -179,7 +179,7 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 
 }
 
-func (suite *HandlerSuite) TestSubmitPPMMoveForApprovalHandler() {
+func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 	// Given: a set of orders, a move, user and servicemember
 	ppm := testdatagen.MakeDefaultPPM(suite.DB())
 	move := ppm.Move
@@ -187,7 +187,7 @@ func (suite *HandlerSuite) TestSubmitPPMMoveForApprovalHandler() {
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
 	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
-	certType := internalmessages.SignedCertificationTypePPM
+	certType := internalmessages.SignedCertificationTypeCreateSHIPMENT
 	signingDate := strfmt.DateTime(time.Now())
 	certificate := internalmessages.CreateSignedCertificationPayload{
 		CertificationText: swag.String("This is your legal message"),

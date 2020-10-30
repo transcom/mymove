@@ -206,21 +206,20 @@ func (h SubmitMoveHandler) saveMoveDependencies(db *pop.Connection, logger certs
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
-	ppmID := certificateParams.CreateSignedCertificationPayload.PersonallyProcuredMoveID
-	modelPPMID := uuid.UUID{}
-	if ppmID != nil {
-		modelPPMID = uuid.FromStringOrNil(certificateParams.CreateSignedCertificationPayload.PersonallyProcuredMoveID.String())
-	}
-
 	certType := models.SignedCertificationType(*certificateParams.CreateSignedCertificationPayload.CertificationType)
 	newSignedCertification := models.SignedCertification{
 		MoveID:                   uuid.FromStringOrNil(certificateParams.MoveID.String()),
-		PersonallyProcuredMoveID: &modelPPMID,
+		PersonallyProcuredMoveID: nil,
 		CertificationType:        &certType,
 		SubmittingUserID:         userID,
 		CertificationText:        *certificateParams.CreateSignedCertificationPayload.CertificationText,
 		Signature:                *certificateParams.CreateSignedCertificationPayload.Signature,
 		Date:                     time.Now(),
+	}
+
+	if certificateParams.CreateSignedCertificationPayload.PersonallyProcuredMoveID != nil {
+		ppmID := uuid.FromStringOrNil(certificateParams.CreateSignedCertificationPayload.PersonallyProcuredMoveID.String())
+		newSignedCertification.PersonallyProcuredMoveID = &ppmID
 	}
 
 	db.Transaction(func(db *pop.Connection) error {

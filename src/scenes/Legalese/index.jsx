@@ -33,22 +33,9 @@ export class SignedCertification extends Component {
     this.props.loadPPMs(this.props.moveId);
   }
 
-  submitCertificate = () => {
-    const signatureTime = moment().format();
-    const { currentPpm, moveId, values } = this.props;
-    const certificate = {
-      certification_text: completeCertificationText,
-      date: signatureTime,
-      signature: values.signature,
-      personally_procured_move_id: currentPpm.id,
-      certification_type: SIGNED_CERT_OPTIONS.SHIPMENT,
-    };
-    return this.props.createSignedCertification(moveId, certificate);
-  };
-
   handleSubmit = () => {
     const pendingValues = this.props.values;
-    const { currentPpm, moveId, values, selectedMoveType } = this.props;
+    const { currentPpm, moveId, values } = this.props;
     const landingPath = '/';
     const submitDate = moment().format();
     const certificate = {
@@ -56,7 +43,7 @@ export class SignedCertification extends Component {
       date: submitDate,
       signature: values.signature,
       personally_procured_move_id: currentPpm.id,
-      certification_type: selectedMoveType,
+      certification_type: SIGNED_CERT_OPTIONS.SHIPMENT,
     };
 
     if (pendingValues) {
