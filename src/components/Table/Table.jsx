@@ -56,7 +56,7 @@ const Table = ({ data, columns, hiddenColumns, handleClick }) => {
           {rows.map((row) => {
             prepareRow(row);
             return (
-              <tr onClick={() => handleClick(row.values)} {...row.getRowProps()}>
+              <tr data-uuid={row.values.id} onClick={() => handleClick(row.values)} {...row.getRowProps()}>
                 {row.cells.map((cell) => {
                   return (
                     <td data-testid={`${cell.column.id}-${cell.row.id}`} {...cell.getCellProps()}>

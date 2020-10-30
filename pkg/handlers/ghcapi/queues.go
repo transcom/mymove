@@ -2,6 +2,7 @@ package ghcapi
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/pop/v5"
@@ -20,7 +21,6 @@ import (
 // GetMovesQueueHandler returns the moves for the TOO queue user via GET /queues/moves
 type GetMovesQueueHandler struct {
 	handlers.HandlerContext
-	services.OfficeUserFetcher
 	services.MoveOrderFetcher
 }
 
@@ -36,11 +36,11 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 		return queues.NewGetMovesQueueForbidden()
 	}
 
-	branchQuery := branchFilter(params)
-	moveIDQuery := moveIDFilter(params)
-	dodIDQuery := dodIDFilter(params)
-	lastNameQuery := lastNameFilter(params)
-	dutyStationQuery := destinationDutyStationFilter(params)
+	branchQuery := branchFilter(params.Branch)
+	moveIDQuery := moveIDFilter(params.MoveID)
+	dodIDQuery := dodIDFilter(params.DodID)
+	lastNameQuery := lastNameFilter(params.LastName)
+	dutyStationQuery := destinationDutyStationFilter(params.DestinationDutyStation)
 
 	orders, err := h.MoveOrderFetcher.ListMoveOrders(
 		session.OfficeUserID,
@@ -59,7 +59,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 	queueMoves := payloads.QueueMoves(orders)
 	// ToDo - May want to move this logic into the pop query later.
 	// filter queueMoves by status
-	queueMoves = statusFilter(params.Status, queueMoves)
+	queueMoves = moveStatusFilter(params.Status, queueMoves)
 
 	result := &ghcmessages.QueueMovesResult{
 		Page:       0,
@@ -74,7 +74,6 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 // GetPaymentRequestsQueueHandler returns the payment requests for the TIO queue user via GET /queues/payment-requests
 type GetPaymentRequestsQueueHandler struct {
 	handlers.HandlerContext
-	services.OfficeUserFetcher
 	services.PaymentRequestListFetcher
 }
 
@@ -87,7 +86,22 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 		return queues.NewGetPaymentRequestsQueueForbidden()
 	}
 
-	paymentRequests, err := h.FetchPaymentRequestList(session.OfficeUserID)
+	branchQuery := branchFilter(params.Branch)
+	moveIDQuery := moveIDFilter(params.MoveID)
+	dodIDQuery := dodIDFilter(params.DodID)
+	lastNameQuery := lastNameFilter(params.LastName)
+	dutyStationQuery := destinationDutyStationFilter(params.DestinationDutyStation)
+	statusQuery := paymentRequestsStatusFilter(params.Status)
+
+	paymentRequests, err := h.FetchPaymentRequestList(
+		session.OfficeUserID,
+		statusQuery,
+		branchQuery,
+		moveIDQuery,
+		lastNameQuery,
+		dutyStationQuery,
+		dodIDQuery,
+	)
 	if err != nil {
 		logger.Error("payment requests queue", zap.String("office_user_id", session.OfficeUserID.String()), zap.Error(err))
 		return queues.NewGetPaymentRequestsQueueInternalServerError()
@@ -103,49 +117,49 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 	return queues.NewGetPaymentRequestsQueueOK().WithPayload(result)
 }
 
-func branchFilter(params queues.GetMovesQueueParams) FilterOption {
+func branchFilter(branch *string) FilterOption {
 	return func(query *pop.Query) {
-		if params.Branch != nil {
-			query = query.Where("service_members.affiliation = ?", *params.Branch)
+		if branch != nil {
+			query = query.Where("service_members.affiliation = ?", *branch)
 		}
 	}
 }
 
-func lastNameFilter(params queues.GetMovesQueueParams) FilterOption {
+func lastNameFilter(lastName *string) FilterOption {
 	return func(query *pop.Query) {
-		if params.LastName != nil {
-			nameSearch := fmt.Sprintf("%s%%", *params.LastName)
+		if lastName != nil {
+			nameSearch := fmt.Sprintf("%s%%", *lastName)
 			query = query.Where("service_members.last_name ILIKE ?", nameSearch)
 		}
 	}
 }
 
-func dodIDFilter(params queues.GetMovesQueueParams) FilterOption {
+func dodIDFilter(dodID *string) FilterOption {
 	return func(query *pop.Query) {
-		if params.DodID != nil {
-			query = query.Where("service_members.edipi = ?", params.DodID)
+		if dodID != nil {
+			query = query.Where("service_members.edipi = ?", dodID)
 		}
 	}
 }
 
-func moveIDFilter(params queues.GetMovesQueueParams) FilterOption {
+func moveIDFilter(moveID *string) FilterOption {
 	return func(query *pop.Query) {
-		if params.MoveID != nil {
-			query = query.Where("moves.locator = ?", *params.MoveID)
+		if moveID != nil {
+			query = query.Where("moves.locator = ?", *moveID)
 		}
 	}
 }
-func destinationDutyStationFilter(params queues.GetMovesQueueParams) FilterOption {
+func destinationDutyStationFilter(destinationDutyStation *string) FilterOption {
 	return func(query *pop.Query) {
-		if params.DestinationDutyStation != nil {
-			nameSearch := fmt.Sprintf("%s%%", *params.DestinationDutyStation)
+		if destinationDutyStation != nil {
+			nameSearch := fmt.Sprintf("%s%%", *destinationDutyStation)
 			query = query.InnerJoin("duty_stations as destination_duty_station", "orders.new_duty_station_id = destination_duty_station.id").Where("destination_duty_station.name ILIKE ?", nameSearch)
 		}
 	}
 }
 
 // statusFilter filters the status after the pop query call.
-func statusFilter(statuses []string, moves *ghcmessages.QueueMoves) *ghcmessages.QueueMoves {
+func moveStatusFilter(statuses []string, moves *ghcmessages.QueueMoves) *ghcmessages.QueueMoves {
 	if len(statuses) <= 0 || moves == nil {
 		return moves
 	}
@@ -168,4 +182,27 @@ func statusFilter(statuses []string, moves *ghcmessages.QueueMoves) *ghcmessages
 	}
 
 	return &ret
+}
+
+// statusFilter filters the status after the pop query call.
+func paymentRequestsStatusFilter(statuses []string) FilterOption {
+	return func(query *pop.Query) {
+		var translatedStatuses []string
+		if len(statuses) > 0 {
+			for _, status := range statuses {
+				if strings.EqualFold(status, "Payment requested") {
+					translatedStatuses = append(translatedStatuses, models.PaymentRequestStatusPending.String())
+
+				}
+				if strings.EqualFold(status, "reviewed") {
+					translatedStatuses = append(translatedStatuses,
+						models.PaymentRequestStatusReviewed.String(),
+						models.PaymentRequestStatusSentToGex.String(),
+						models.PaymentRequestStatusReceivedByGex.String())
+				}
+			}
+			query = query.Where("payment_requests.status in (?)", translatedStatuses)
+		}
+	}
+
 }

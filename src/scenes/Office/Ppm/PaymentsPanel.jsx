@@ -16,6 +16,7 @@ import { selectPaymentRequestCertificationForMove } from 'shared/Entities/module
 import { getLastError } from 'shared/Swagger/selectors';
 
 import { no_op } from 'shared/utils';
+import { SIGNED_CERT_OPTIONS } from 'shared/constants';
 import { formatCents, formatDate } from 'shared/formatters';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
@@ -39,7 +40,7 @@ export function sswIsDisabled(ppm, signedCertification) {
 }
 
 function missingSignature(signedCertification) {
-  return isEmpty(signedCertification) || signedCertification.certification_type !== 'PPM_PAYMENT';
+  return isEmpty(signedCertification) || signedCertification.certification_type !== SIGNED_CERT_OPTIONS.PPM_PAYMENT;
 }
 
 function missingRequiredPPMInfo(ppm) {

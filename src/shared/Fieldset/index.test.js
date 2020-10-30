@@ -28,7 +28,6 @@ describe('Fieldset component', () => {
     const hintText = 'Example hint';
     const wrapper = mountFieldset({ legend: legendText, hintText });
     expect(wrapper.find('Hint').length).toBe(1);
-    expect(wrapper.find('div.hint').length).toBe(1);
-    expect(wrapper.find('div.hint').text()).toBe(hintText);
+    expect(wrapper.find('Hint').text()).toBe(hintText);
   });
 });
