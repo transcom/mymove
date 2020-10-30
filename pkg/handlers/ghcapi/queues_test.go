@@ -790,26 +790,28 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 
 	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
-	params := queues.GetPaymentRequestsQueueParams{
-		HTTPRequest: request,
-	}
+
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetPaymentRequestsQueueHandler{
 		context,
 		paymentrequest.NewPaymentRequestListFetcher(suite.DB()),
 	}
+	suite.Run("returns unfiltered results", func() {
+		params := queues.GetPaymentRequestsQueueParams{
+			HTTPRequest: request,
+		}
 
-	response := handler.Handle(params)
-	suite.IsNotErrResponse(response)
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
 
-	suite.Assertions.IsType(&queues.GetPaymentRequestsQueueOK{}, response)
-	payload := response.(*queues.GetPaymentRequestsQueueOK).Payload
+		suite.Assertions.IsType(&queues.GetPaymentRequestsQueueOK{}, response)
+		payload := response.(*queues.GetPaymentRequestsQueueOK).Payload
 
-	suite.Len(payload.QueuePaymentRequests, 2)
-
-	submittedAtDate := "2020-10-29"
+		suite.Len(payload.QueuePaymentRequests, 2)
+	})
 
 	suite.Run("returns results matching SubmittedAt date", func() {
+		submittedAtDate := "2020-10-29"
 		params := queues.GetPaymentRequestsQueueParams{
 			HTTPRequest: request,
 			SubmittedAt: &submittedAtDate,
