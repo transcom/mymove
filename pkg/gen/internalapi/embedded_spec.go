@@ -3783,7 +3783,7 @@ func init() {
         },
         "certification_type": {
           "x-nullable": true,
-          "$ref": "#/definitions/SignedCertificationType"
+          "$ref": "#/definitions/SignedCertificationTypeCreate"
         },
         "date": {
           "type": "string",
@@ -6056,9 +6056,18 @@ func init() {
     "SignedCertificationType": {
       "type": "string",
       "enum": [
-        "PPM",
         "PPM_PAYMENT",
+        "SHIPMENT",
+        "PPM",
         "HHG"
+      ],
+      "x-nullable": true
+    },
+    "SignedCertificationTypeCreate": {
+      "type": "string",
+      "enum": [
+        "PPM_PAYMENT",
+        "SHIPMENT"
       ],
       "x-nullable": true
     },
@@ -10330,7 +10339,7 @@ func init() {
         },
         "certification_type": {
           "x-nullable": true,
-          "$ref": "#/definitions/SignedCertificationType"
+          "$ref": "#/definitions/SignedCertificationTypeCreate"
         },
         "date": {
           "type": "string",
@@ -12611,9 +12620,18 @@ func init() {
     "SignedCertificationType": {
       "type": "string",
       "enum": [
-        "PPM",
         "PPM_PAYMENT",
+        "SHIPMENT",
+        "PPM",
         "HHG"
+      ],
+      "x-nullable": true
+    },
+    "SignedCertificationTypeCreate": {
+      "type": "string",
+      "enum": [
+        "PPM_PAYMENT",
+        "SHIPMENT"
       ],
       "x-nullable": true
     },

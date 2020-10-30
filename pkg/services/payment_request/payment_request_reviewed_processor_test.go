@@ -162,7 +162,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB())
 
 		// Process Reviewed Payment Requests
-		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(suite.DB(), suite.logger, reviewedPaymentRequestFetcher, generator)
+		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(suite.DB(), suite.logger, reviewedPaymentRequestFetcher, generator, false)
 		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 		suite.NoError(err)
 	})
@@ -179,7 +179,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			On("Generate", mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, errors.New("test error"))
 
 		// Process Reviewed Payment Requests
-		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(suite.DB(), suite.logger, reviewedPaymentRequestFetcher, ediGenerator)
+		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(suite.DB(), suite.logger, reviewedPaymentRequestFetcher, ediGenerator, false)
 		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 		suite.Contains(err.Error(), "function ProcessReviewedPaymentRequest failed call")
 	})
@@ -196,7 +196,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			On("FetchReviewedPaymentRequest").Return(models.PaymentRequests{}, errors.New("test error"))
 
 		// Process Reviewed Payment Requests
-		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(suite.DB(), suite.logger, reviewedPaymentRequestFetcher, ediGenerator)
+		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(suite.DB(), suite.logger, reviewedPaymentRequestFetcher, ediGenerator, false)
 		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 		suite.Contains(err.Error(), "function ProcessReviewedPaymentRequest failed call")
 	})

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
@@ -17,11 +17,20 @@ type paymentRequestReviewedProcessor struct {
 	logger                        Logger
 	reviewedPaymentRequestFetcher services.PaymentRequestReviewedFetcher
 	ediGenerator                  services.GHCPaymentRequestInvoiceGenerator
+	runSendToSyncada              bool // if false, do not send to Syncada, e.g. UT shouldn't send to Syncada
 }
 
 // NewPaymentRequestReviewedProcessor returns a new payment request reviewed processor
-func NewPaymentRequestReviewedProcessor(db *pop.Connection, logger Logger, fetcher services.PaymentRequestReviewedFetcher, generator services.GHCPaymentRequestInvoiceGenerator) services.PaymentRequestReviewedProcessor {
-	return &paymentRequestReviewedProcessor{db, logger, fetcher, generator}
+func NewPaymentRequestReviewedProcessor(db *pop.Connection,
+	logger Logger,
+	fetcher services.PaymentRequestReviewedFetcher,
+	generator services.GHCPaymentRequestInvoiceGenerator,
+	runSendToSyncada bool) services.PaymentRequestReviewedProcessor {
+
+	// TODO: can't send to syncada always, need to work this a little smarter
+	// TODO: write new story to cover this.
+	runSendToSyncada = false
+	return &paymentRequestReviewedProcessor{db, logger, fetcher, generator, runSendToSyncada}
 }
 
 func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error {
@@ -38,7 +47,6 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error 
 	var failed []string
 
 	// Send all reviewed payment request to Syncada
-	paymentHelper := paymentrequesthelper.RequestPaymentHelper{DB: p.db, Logger: p.logger}
 	for _, pr := range reviewedPaymentRequests {
 
 		// generate EDI file
@@ -59,7 +67,7 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error 
 
 		// Send EDI string to Syncada
 		// If sent successfully to GEX, update payment request status to SENT_TO_GEX.
-		err = paymentHelper.SendToSyncada(edi858cString)
+		err = paymentrequesthelper.SendToSyncada(edi858cString, p.runSendToSyncada)
 		if err != nil {
 			// save payment request ID and error
 			// TODO: if there is an error, no way to flag it with a status.
