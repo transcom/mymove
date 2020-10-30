@@ -821,7 +821,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 
 	suite.Len(payload.QueuePaymentRequests, 2)
 
-	suite.Run("returns results matching DestinationDutyStation name search term", func() {
+	suite.Run("returns results matching SubmittedAt date", func() {
 		params := queues.GetPaymentRequestsQueueParams{
 			HTTPRequest:            request,
 			SubmittedAt: time.Now(),
