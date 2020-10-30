@@ -14,7 +14,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
-	unknownUser := testdatagen.MakeDefaultUser(suite.DB())
+	unknownUser := testdatagen.MakeStubbedUser(suite.DB())
 
 	req := httptest.NewRequest("GET", "/users/logged_in", nil)
 	req = suite.AuthenticateUserRequest(req, unknownUser)

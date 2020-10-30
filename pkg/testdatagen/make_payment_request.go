@@ -3,7 +3,7 @@ package testdatagen
 import (
 	"fmt"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -27,6 +27,7 @@ func MakePaymentRequest(db *pop.Connection, assertions Assertions) models.Paymen
 	}
 
 	paymentRequest := models.PaymentRequest{
+		CreatedAt:            assertions.PaymentRequest.CreatedAt,
 		MoveTaskOrder:        moveTaskOrder,
 		MoveTaskOrderID:      moveTaskOrder.ID,
 		IsFinal:              false,
@@ -39,7 +40,7 @@ func MakePaymentRequest(db *pop.Connection, assertions Assertions) models.Paymen
 	// Overwrite values with those from assertions
 	mergeModels(&paymentRequest, assertions.PaymentRequest)
 
-	mustCreate(db, &paymentRequest)
+	mustCreate(db, &paymentRequest, assertions.Stub)
 
 	return paymentRequest
 }

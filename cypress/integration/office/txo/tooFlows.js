@@ -9,7 +9,7 @@ describe('TOO user', () => {
     cy.removeFetch();
     cy.server();
     cy.route('GET', '/ghc/v1/swagger.yaml').as('getGHCClient');
-    cy.route('GET', '/ghc/v1/move-orders').as('getMoveOrders');
+    cy.route('GET', '/ghc/v1/queues/moves').as('getMoveOrders');
     cy.route('GET', '/ghc/v1/move-orders/**/move-task-orders').as('getMoveTaskOrders');
     cy.route('GET', '/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
     cy.route('GET', '/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
@@ -25,9 +25,10 @@ describe('TOO user', () => {
   // This test performs a mutation so it can only succeed on a fresh DB.
   it('is able to approve a shipment', () => {
     const moveOrderId = '6fca843a-a87e-4752-b454-0fac67aa4988';
+    const moveLocator = 'TEST12';
 
     // TOO Moves queue
-    cy.contains(moveOrderId).click();
+    cy.contains(moveLocator).click();
     cy.url().should('include', `/moves/${moveOrderId}/details`);
 
     // Move Details page
@@ -79,9 +80,10 @@ describe('TOO user', () => {
 
   it('is able to approve and reject mto service items', () => {
     const moveOrderId = '6fca843a-a87e-4752-b454-0fac67aa4988';
+    const moveLocator = 'TEST12';
 
     // TOO Moves queue
-    cy.contains(moveOrderId).click();
+    cy.contains(moveLocator).click();
     cy.url().should('include', `/moves/${moveOrderId}/details`);
     cy.get('[data-testid="MoveTaskOrder-Tab"]').click();
     cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
@@ -91,7 +93,7 @@ describe('TOO user', () => {
     const shipments = cy.get('[data-testid="ShipmentContainer"]');
     shipments.should('have.length', 1);
 
-    cy.contains('Requested service items (6 items)');
+    cy.contains('Requested service items (8 items)');
     cy.contains('Rejected service items').should('not.exist');
     cy.contains('Approved service items').should('not.exist');
 
@@ -99,16 +101,16 @@ describe('TOO user', () => {
 
     // Approve a requested service item
     cy.get('[data-testid="RequestedServiceItemsTable"]').within(($table) => {
-      cy.get('tbody tr').should('have.length', 6);
+      cy.get('tbody tr').should('have.length', 8);
       cy.get('.acceptButton').first().click();
     });
     cy.contains('Approved service items (1 item)');
     cy.get('[data-testid="ApprovedServiceItemsTable"] tbody tr').should('have.length', 1);
 
     // Reject a requested service item
-    cy.contains('Requested service items (5 items)');
+    cy.contains('Requested service items (7 items)');
     cy.get('[data-testid="RequestedServiceItemsTable"]').within(($table) => {
-      cy.get('tbody tr').should('have.length', 5);
+      cy.get('tbody tr').should('have.length', 7);
       cy.get('.rejectButton').first().click();
     });
 
@@ -152,7 +154,7 @@ describe('TOO user', () => {
     });
 
     cy.contains('Requested service items').should('not.exist');
-    cy.contains('Approved service items (5 items)');
-    cy.get('[data-testid="ApprovedServiceItemsTable"] tbody tr').should('have.length', 5);
+    cy.contains('Approved service items (7 items)');
+    cy.get('[data-testid="ApprovedServiceItemsTable"] tbody tr').should('have.length', 7);
   });
 });

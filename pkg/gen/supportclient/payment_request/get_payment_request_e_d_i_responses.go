@@ -54,6 +54,12 @@ func (o *GetPaymentRequestEDIReader) ReadResponse(response runtime.ClientRespons
 			return nil, err
 		}
 		return nil, result
+	case 422:
+		result := NewGetPaymentRequestEDIUnprocessableEntity()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	case 500:
 		result := NewGetPaymentRequestEDIInternalServerError()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -222,6 +228,39 @@ func (o *GetPaymentRequestEDINotFound) GetPayload() *supportmessages.ClientError
 func (o *GetPaymentRequestEDINotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(supportmessages.ClientError)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewGetPaymentRequestEDIUnprocessableEntity creates a GetPaymentRequestEDIUnprocessableEntity with default headers values
+func NewGetPaymentRequestEDIUnprocessableEntity() *GetPaymentRequestEDIUnprocessableEntity {
+	return &GetPaymentRequestEDIUnprocessableEntity{}
+}
+
+/*GetPaymentRequestEDIUnprocessableEntity handles this case with default header values.
+
+The payload was unprocessable.
+*/
+type GetPaymentRequestEDIUnprocessableEntity struct {
+	Payload *supportmessages.ValidationError
+}
+
+func (o *GetPaymentRequestEDIUnprocessableEntity) Error() string {
+	return fmt.Sprintf("[GET /payment-requests/{paymentRequestID}/edi][%d] getPaymentRequestEDIUnprocessableEntity  %+v", 422, o.Payload)
+}
+
+func (o *GetPaymentRequestEDIUnprocessableEntity) GetPayload() *supportmessages.ValidationError {
+	return o.Payload
+}
+
+func (o *GetPaymentRequestEDIUnprocessableEntity) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(supportmessages.ValidationError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

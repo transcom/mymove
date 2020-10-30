@@ -65,10 +65,10 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 }
 
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
-	moveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
+	moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusSUBMITTED}})
 
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	request = suite.AuthenticateUserRequest(request, requestUser)
 
 	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
@@ -114,6 +114,10 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 	moveTaskOrdersResponse := response.(*movetaskorderops.UpdateMoveTaskOrderStatusOK)
 	moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
 
+	updatedMove := models.Move{}
+	suite.DB().Find(&updatedMove, moveTaskOrdersPayload.ID)
+	suite.Equal(models.MoveStatusAPPROVED, updatedMove.Status)
+
 	suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusOK{}, response)
 	suite.Equal(moveTaskOrdersPayload.ID, strfmt.UUID(moveTaskOrder.ID.String()))
 	suite.NotNil(moveTaskOrdersPayload.AvailableToPrimeAt)
@@ -142,7 +146,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithStaleEta
 	moveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
 
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	request = suite.AuthenticateUserRequest(request, requestUser)
 	params := move_task_order.UpdateMoveTaskOrderStatusParams{
 		HTTPRequest:     request,

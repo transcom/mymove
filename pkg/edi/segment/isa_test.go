@@ -1,19 +1,20 @@
 package edisegment
 
 import (
+	"fmt"
 	"testing"
 )
 
 func (suite *SegmentSuite) TestValidateISA() {
 	validISA := ISA{
 		AuthorizationInformationQualifier: "00",
-		AuthorizationInformation:          "0000000000",
+		AuthorizationInformation:          "0084182369",
 		SecurityInformationQualifier:      "00",
 		SecurityInformation:               "0000000000",
 		InterchangeSenderIDQualifier:      "ZZ",
-		InterchangeSenderID:               "MYMOVE         ",
+		InterchangeSenderID:               fmt.Sprintf("%-15s", "MYMOVE"),
 		InterchangeReceiverIDQualifier:    "12",
-		InterchangeReceiverID:             "8004171844     ",
+		InterchangeReceiverID:             fmt.Sprintf("%-15s", "8004171844"),
 		InterchangeDate:                   "190903",
 		InterchangeTime:                   "1644",
 		InterchangeControlStandards:       "U",
@@ -31,22 +32,22 @@ func (suite *SegmentSuite) TestValidateISA() {
 
 	suite.T().Run("validate failure 1", func(t *testing.T) {
 		isa := ISA{
-			AuthorizationInformationQualifier: "11",              // eq
-			AuthorizationInformation:          "1111111111",      // eq
-			SecurityInformationQualifier:      "11",              // eq
-			SecurityInformation:               "1111111111",      // eq
-			InterchangeSenderIDQualifier:      "QQ",              // eq
-			InterchangeSenderID:               "ABCDEF         ", // eq
-			InterchangeReceiverIDQualifier:    "15",              // eq
-			InterchangeReceiverID:             "1234566133     ", // eq
-			InterchangeDate:                   "190933",          // timeformat
-			InterchangeTime:                   "344",             // timeformat
-			InterchangeControlStandards:       "Q",               // eq
-			InterchangeControlVersionNumber:   "00403",           // eq
-			InterchangeControlNumber:          0,                 // min
-			AcknowledgementRequested:          5,                 // eq
-			UsageIndicator:                    "Q",               // oneof
-			ComponentElementSeparator:         ",",               // eq
+			AuthorizationInformationQualifier: "11",                               // eq
+			AuthorizationInformation:          "1111111111",                       // eq
+			SecurityInformationQualifier:      "11",                               // eq
+			SecurityInformation:               "1111111111",                       // eq
+			InterchangeSenderIDQualifier:      "QQ",                               // eq
+			InterchangeSenderID:               fmt.Sprintf("%-15s", "ABCDEF"),     // eq
+			InterchangeReceiverIDQualifier:    "15",                               // eq
+			InterchangeReceiverID:             fmt.Sprintf("%-15s", "1234566133"), // eq
+			InterchangeDate:                   "190933",                           // datetime
+			InterchangeTime:                   "344",                              // datetime
+			InterchangeControlStandards:       "Q",                                // eq
+			InterchangeControlVersionNumber:   "00403",                            // eq
+			InterchangeControlNumber:          0,                                  // min
+			AcknowledgementRequested:          5,                                  // eq
+			UsageIndicator:                    "Q",                                // oneof
+			ComponentElementSeparator:         ",",                                // eq
 		}
 
 		err := suite.validator.Struct(isa)
@@ -58,12 +59,12 @@ func (suite *SegmentSuite) TestValidateISA() {
 		suite.ValidateError(err, "InterchangeSenderID", "eq")
 		suite.ValidateError(err, "InterchangeReceiverIDQualifier", "eq")
 		suite.ValidateError(err, "InterchangeReceiverID", "eq")
-		suite.ValidateError(err, "InterchangeDate", "timeformat")
-		suite.ValidateError(err, "InterchangeTime", "timeformat")
+		suite.ValidateError(err, "InterchangeDate", "datetime")
+		suite.ValidateError(err, "InterchangeTime", "datetime")
 		suite.ValidateError(err, "InterchangeControlStandards", "eq")
 		suite.ValidateError(err, "InterchangeControlVersionNumber", "eq")
 		suite.ValidateError(err, "InterchangeControlNumber", "min")
-		suite.ValidateError(err, "AcknowledgementRequested", "eq")
+		suite.ValidateError(err, "AcknowledgementRequested", "oneof")
 		suite.ValidateError(err, "UsageIndicator", "oneof")
 		suite.ValidateError(err, "ComponentElementSeparator", "eq")
 		suite.ValidateErrorLen(err, 16)

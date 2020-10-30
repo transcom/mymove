@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/getlantern/deepcopy"
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -524,6 +524,21 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 	}
 
 	if shipment.Status == models.MTOShipmentStatusApproved {
+
+		if verrs != nil && verrs.HasAny() {
+			invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue with validating the updates")
+			return &models.MTOShipment{}, invalidInputError
+		}
+
+		if err != nil {
+			switch err.(type) {
+			case query.StaleIdentifierError:
+				return nil, services.NewPreconditionFailedError(shipment.ID, err)
+			default:
+				return nil, err
+			}
+		}
+
 		// We will detect the type of shipment we're working with and then call a helper with the correct
 		// default service items that we want created as a side effect.
 		// More info in MB-1140: https://dp3.atlassian.net/browse/MB-1140
@@ -714,7 +729,7 @@ func (f mtoShipmentUpdater) MTOShipmentsMTOAvailableToPrime(mtoShipmentID uuid.U
 		Where("mto_shipments.id = ?", mtoShipmentID).
 		First(&mto)
 	if err != nil {
-		if err.Error() == "sql: no rows in result set" {
+		if err.Error() == models.RecordNotFoundErrorString {
 			return false, services.NewNotFoundError(mtoShipmentID, "for mtoShipment")
 		}
 		return false, services.NewQueryError("mtoShipments", err, "Unexpected error")

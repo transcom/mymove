@@ -24,7 +24,7 @@ import (
 func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 	mto := testdatagen.MakeDefaultMove(suite.DB())
 	paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItem(suite.DB())
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
 	req := httptest.NewRequest("PATCH", fmt.Sprintf("/move-task-orders/%s/payment-service-items/%s/status", mto.ID.String(), paymentServiceItem.ID.String()), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
@@ -136,7 +136,7 @@ func (suite *HandlerSuite) TestUpdatePaymentServiceItemHandler() {
 		availablePaymentServiceItem := testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
 			Move: availableMTO,
 		})
-		requestUser := testdatagen.MakeDefaultUser(suite.DB())
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move-task-orders/%s/payment-service-items/%s/status", availableMTO.ID.String(), availablePaymentServiceItem.ID.String()), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)

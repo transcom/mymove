@@ -1,0 +1,156 @@
+@import 'shared/styles/colors';
+@import 'shared/styles/_basics';
+
+.Modal {
+  @include u-bg('white');
+  @include u-padding-y(3);
+  @include u-padding-x(4);
+  @include u-margin-y(2);
+  @include u-margin-x(1);
+  @include u-radius('05');
+  @include u-border('base-light');
+  @include u-border('1px');
+  @include u-shadow(2);
+  min-width: 0;
+  position: relative;
+
+  @include at-media('tablet') {
+    @include u-margin-y(6);
+    min-width: 400px;
+  }
+
+  // needed until ReactUSWDS modal allows for more styling
+  > div {
+    padding: 0 !important;
+
+    // TITLE & ACTIONS - not used
+    &:first-child,
+    &:last-child {
+      display: none;
+    }
+  }
+
+  > * + div {
+    border: 0px !important;
+  }
+
+  h4 {
+    font-size: 15px;
+    line-height: 1.4;
+
+    @include u-margin-y(0);
+
+    @include at-media(tablet) {
+      @include typeset('body', 6, 2);
+    }
+
+    + p {
+      @include u-margin-top(2);
+    }
+  }
+
+  * + h4 {
+    @include u-margin-top(3);
+  }
+
+  p,
+  ul {
+    font-size: 15px;
+    line-height: 1.53;
+    @include u-color('base-darker');
+    @include u-margin(0);
+  }
+
+  ul {
+    @include u-padding-left(2);
+  }
+
+  li + li {
+    @include u-margin-top(0.5);
+  }
+
+  p + p {
+    @include u-margin-top(2);
+  }
+
+  p + ul,
+  ul + p {
+    @include u-margin-top(2);
+  }
+
+  :global(.usa-form) {
+    max-width: 100%;
+  }
+
+  .ModalTitle {
+    > * {
+      @include u-margin(0);
+    }
+
+    & + * {
+      @include u-margin-top(3);
+    }
+  }
+
+  .ModalClose {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 10px;
+    padding: 14px; // Required to get to 44px for touch area
+    min-width: 0;
+    width: auto;
+
+    // TODO - needed until we remove some duplicate USWDS CSS in this project
+    &:global(.usa-button) {
+      margin: 10px;
+      padding: 14px; // Required to get to 44px for touch area
+      min-width: 0;
+    }
+
+    svg {
+      width: 16px;
+      height: 16px;
+      fill: $base;
+    }
+  }
+
+  // Position other modal content out of the way of the close button
+  .ModalClose + *:not(.ModalTitle) {
+    @include u-margin-top(4);
+  }
+
+  .ModalClose + .ModalTitle {
+    @include u-margin-right(3);
+  }
+
+  .ModalActions {
+    @include u-margin-top(3);
+    display: flex;
+
+    button,
+    :global(.usa-button) {
+      @include u-margin(0);
+
+      + button {
+        @include u-margin-left(2);
+      }
+    }
+  }
+}
+
+.AppLocked {
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+:global(#modal-root) {
+  div:last-child {
+    // ReactUSDWS ModalContainer overrides
+    position: relative;
+    height: auto;
+  }
+}

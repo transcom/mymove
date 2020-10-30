@@ -20,10 +20,6 @@ export async function makeGHCRequest(operationPath, params = {}, options = {}) {
   return makeSwaggerRequest(client, operationPath, params, options);
 }
 
-export async function getPaymentRequestList() {
-  return makeGHCRequest('paymentRequests.listPaymentRequests');
-}
-
 export async function getPaymentRequest(key, paymentRequestID) {
   return makeGHCRequest('paymentRequests.getPaymentRequest', { paymentRequestID });
 }
@@ -106,4 +102,9 @@ export async function updateMoveOrder({ moveOrderID, ifMatchETag, body }) {
 export async function getMovesQueue() {
   const operationPath = 'queues.getMovesQueue';
   return makeGHCRequest(operationPath, {}, { schemaKey: 'queueMovesResult' });
+}
+
+export async function getPaymentRequestsQueue() {
+  const operationPath = 'queues.getPaymentRequestsQueue';
+  return makeGHCRequest(operationPath, {}, { schemaKey: 'queuePaymentRequestsResult', normalize: false });
 }

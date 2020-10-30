@@ -1,8 +1,8 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { string, bool, func, arrayOf, shape, number } from 'prop-types';
-import { get } from 'lodash';
+import { string, bool, func, arrayOf, shape } from 'prop-types';
 
 import styles from './SelectMoveType.module.scss';
 
@@ -17,12 +17,13 @@ import {
   loadMTOShipments as loadMTOShipmentsAction,
 } from 'shared/Entities/modules/mtoShipments';
 import { MoveTaskOrderShape, MTOShipmentShape } from 'types/moveOrder';
+import ConnectedStorageInfoModal from 'components/Customer/modals/StorageInfoModal/StorageInfoModal';
 
 export class SelectMoveType extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      moveType: props.selectedMoveType,
+      showStorageInfoModal: false,
     };
   }
 
@@ -35,6 +36,12 @@ export class SelectMoveType extends Component {
     this.setState({ moveType: e.target.value });
   };
 
+  toggleStorageModal = () => {
+    this.setState((state) => ({
+      showStorageInfoModal: !state.showStorageInfoModal,
+    }));
+  };
+
   handleSubmit = () => {
     const { match, updateMove } = this.props;
     const { moveType } = this.state;
@@ -42,22 +49,21 @@ export class SelectMoveType extends Component {
   };
 
   render() {
-    const {
-      pageKey,
-      pageList,
-      match,
-      push,
-      move,
-      mtoShipments,
-      isPpmSelectable,
-      isHhgSelectable,
-      shipmentNumber,
-    } = this.props;
-    const { moveType } = this.state;
-    const hasPpm = !!move?.personally_procured_moves?.length; // eslint-disable-line camelcase
-    const hasSubmittedMove = move?.status !== MOVE_STATUSES.DRAFT;
-    const hasShipments = !!mtoShipments.length;
-    const hasAnyShipments = hasPpm || hasShipments;
+    const { pageKey, pageList, match, push, move, mtoShipments } = this.props;
+    const { moveType, showStorageInfoModal } = this.state;
+    const hasNTS = mtoShipments.some((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.NTS);
+    const hasNTSR = mtoShipments.some((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.NTSR);
+    const isMoveDraft = move.status === MOVE_STATUSES.DRAFT;
+    const hasPpm = !!move.personally_procured_moves?.length;
+    const isPpmSelectable = !hasPpm;
+    const isHhgSelectable = isMoveDraft;
+    const isNtsSelectable = isMoveDraft && !hasNTS;
+    const isNtsrSelectable = isMoveDraft && !hasNTSR;
+    const ppmCount = hasPpm ? 1 : 0;
+    const mtosCount = mtoShipments?.length || 0;
+    const shipmentNumber = 1 + ppmCount + mtosCount;
+    const hasShipment = ppmCount + mtosCount > 0;
+    const canMoveNext = moveType ? moveType !== '' : false;
     const ppmCardText =
       'You pack and move your things, or make other arrangements, The government pays you for the weight you move.  This is a a Personally Procured Move (PPM), sometimes called a DITY.';
     const hhgCardText =
@@ -65,67 +71,70 @@ export class SelectMoveType extends Component {
     const ntsCardText = `Movers pack and ship things to a storage facility, where they stay until a future move. Your orders might not authorize long-term storage — your counselor can verify. This is an NTS (non-temporary storage) shipment.`;
     const ntsrCardText =
       'Movers pick up things you put into NTS during an earlier move and ship them to your new destination. This is an NTS-R (non-temporary storage release) shipment.';
-    const hasNTSCardText =
-      "You've already requested a long-term storage shipment for this move. Talk to your movers to change or add to your request.";
-    const hasNTSRCardText =
-      "You've already asked to have things taken out of storage for this move. Talk to your movers to change or add to your request.";
+    const ntsDisabledText =
+      'You’ve already requested a long-term storage shipment for this move. Talk to your movers to change or add to your request.';
+    const ntsrDisabledText =
+      'You’ve already asked to have things taken out of storage for this move. Talk to your movers to change or add to your request.';
     const hhgCardTextPostSubmit = 'Talk with your movers directly if you want to add or change shipments.';
     const ppmCardTextAlreadyChosen = `You’ve already requested a PPM shipment. If you have more things to move yourself but that you can’t add to that shipment, contact the PPPO at your origin duty station.`;
+    const noLongTermStorageCardsText =
+      'Talk to your movers about long-term storage if you need to add it to this move or change a request you made earlier.';
     const selectableCardDefaultProps = {
       onChange: (e) => this.setMoveType(e),
       name: 'moveType',
     };
-    // TODO: Make dynamic when we have ability to submit nts/ntsr
-    const hasNTS = false;
-    const hasNTSR = false;
-    const selectPpmHasNoPpm = (
+    const ppmEnabledCard = (
       <SelectableCard
-        {...selectableCardDefaultProps} // eslint-disable-line
+        {...selectableCardDefaultProps}
         label="Do it yourself"
         value={SHIPMENT_OPTIONS.PPM}
         id={SHIPMENT_OPTIONS.PPM}
         cardText={ppmCardText}
-        checked={moveType === SHIPMENT_OPTIONS.PPM && isPpmSelectable}
-        disabled={!isPpmSelectable}
+        checked={moveType === SHIPMENT_OPTIONS.PPM}
+        disabled={false}
       />
     );
-    const selectPpmHasPpm = (
+    const ppmDisabledCard = (
       <SelectableCard
-        {...selectableCardDefaultProps} // eslint-disable-line
+        {...selectableCardDefaultProps}
         label="Do it yourself (already chosen)"
         value={SHIPMENT_OPTIONS.PPM}
         id={SHIPMENT_OPTIONS.PPM}
         cardText={ppmCardTextAlreadyChosen}
-        checked={moveType === SHIPMENT_OPTIONS.PPM && isPpmSelectable}
+        checked={false}
         disabled={!isPpmSelectable}
       />
     );
-    const selectHhgDefault = (
+    const hhgEnabledCard = (
       <SelectableCard
-        {...selectableCardDefaultProps} // eslint-disable-line
+        {...selectableCardDefaultProps}
         label="Professional movers"
         value={SHIPMENT_OPTIONS.HHG}
         id={SHIPMENT_OPTIONS.HHG}
         cardText={hhgCardText}
-        checked={moveType === SHIPMENT_OPTIONS.HHG && isHhgSelectable}
-        disabled={!isHhgSelectable}
+        checked={moveType === SHIPMENT_OPTIONS.HHG}
+        disabled={false}
       />
     );
-    const selectHhgSubmittedMove = (
+    const hhgDisabledCard = (
       <SelectableCard
-        {...selectableCardDefaultProps} // eslint-disable-line
+        {...selectableCardDefaultProps}
         label="Professional movers"
         value={SHIPMENT_OPTIONS.HHG}
         id={SHIPMENT_OPTIONS.HHG}
         cardText={hhgCardTextPostSubmit}
-        checked={moveType === SHIPMENT_OPTIONS.HHG && isHhgSelectable}
+        checked={false}
         disabled={!isHhgSelectable}
       />
     );
     const footerText = (
-      <div className={styles.footer}>
-        It’s OK if you’re not sure about your choices. Your move counselor will go over all your options and can help
-        make changes if necessary.
+      <div>
+        {!hasShipment && (
+          <div data-testid="helper-footer" className={`${styles.footer} grid-col-12`}>
+            It’s OK if you’re not sure about your choices. Your move counselor will go over all your options and can
+            help make changes if necessary.
+          </div>
+        )}
       </div>
     );
     return (
@@ -141,41 +150,57 @@ export class SelectMoveType extends Component {
               handleSubmit={this.handleSubmit}
               push={push}
               footerText={footerText}
+              canMoveNext={canMoveNext}
             >
-              <h6 className="sm-heading">Shipment {shipmentNumber}</h6>
-              <h1 className={`sm-heading ${styles.selectTypeHeader} ${styles.header}`}>
-                {hasAnyShipments
+              <h6 data-testid="number-eyebrow" className="sm-heading">
+                Shipment {shipmentNumber}
+              </h6>
+              <h1
+                className={`sm-heading ${styles.selectTypeHeader} ${styles.header}`}
+                data-testid="select-move-type-header"
+              >
+                {shipmentNumber > 1
                   ? 'How do you want this group of things moved?'
                   : 'How do you want to move your belongings?'}
               </h1>
               <h2>Choose 1 shipment at a time.</h2>
               <p>You can add more later</p>
-              {hasPpm ? selectPpmHasPpm : selectPpmHasNoPpm}
-              {hasSubmittedMove ? selectHhgSubmittedMove : selectHhgDefault}
-              <h3>Long-term storage</h3>
-              <p>These shipments do count against your weight allowance for this move.</p>
-              <SelectableCard
-                {...selectableCardDefaultProps} // eslint-disable-line
-                label="Put things into long-term storage"
-                value={SHIPMENT_OPTIONS.NTS}
-                id={SHIPMENT_OPTIONS.NTS}
-                cardText={hasNTS ? ntsCardText : hasNTSCardText}
-                checked={moveType === SHIPMENT_OPTIONS.NTS && isHhgSelectable}
-                disabled={hasNTS}
-              />
-              <SelectableCard
-                {...selectableCardDefaultProps} // eslint-disable-line
-                label="Get things out of long-term storage"
-                value={SHIPMENT_OPTIONS.NTS}
-                id={SHIPMENT_OPTIONS.NTS}
-                cardText={hasNTSR ? ntsrCardText : hasNTSRCardText}
-                checked={moveType === SHIPMENT_OPTIONS.NTS && isHhgSelectable}
-                disabled={hasNTSR}
-              />
+              {isPpmSelectable ? ppmEnabledCard : ppmDisabledCard}
+              {isHhgSelectable ? hhgEnabledCard : hhgDisabledCard}
+              <h3 data-testid="long-term-storage-heading">Long-term storage</h3>
+              {!isNtsSelectable && !isNtsrSelectable ? (
+                <p className={styles.pSmall}>{noLongTermStorageCardsText}</p>
+              ) : (
+                <>
+                  <p>These shipments do count against your weight allowance for this move.</p>
+                  <SelectableCard
+                    {...selectableCardDefaultProps}
+                    label="Put things into long-term storage"
+                    value={SHIPMENT_OPTIONS.NTS}
+                    id={SHIPMENT_OPTIONS.NTS}
+                    cardText={isNtsSelectable ? ntsCardText : ntsDisabledText}
+                    checked={moveType === SHIPMENT_OPTIONS.NTS && isNtsSelectable}
+                    disabled={!isNtsSelectable}
+                    onHelpClick={this.toggleStorageModal}
+                  />
+                  <SelectableCard
+                    {...selectableCardDefaultProps}
+                    label="Get things out of long-term storage"
+                    value={SHIPMENT_OPTIONS.NTSR}
+                    id={SHIPMENT_OPTIONS.NTSR}
+                    cardText={isNtsrSelectable ? ntsrCardText : ntsrDisabledText}
+                    checked={moveType === SHIPMENT_OPTIONS.NTSR && isNtsrSelectable}
+                    disabled={!isNtsrSelectable}
+                    onHelpClick={this.toggleStorageModal}
+                  />
+                </>
+              )}
             </WizardPage>
           </div>
           <div className="tablet:grid-col-2" />
         </div>
+
+        <ConnectedStorageInfoModal isOpen={showStorageInfoModal} closeModal={this.toggleStorageModal} />
       </div>
     );
   }
@@ -195,26 +220,17 @@ SelectMoveType.propTypes = {
   push: func.isRequired,
   updateMove: func.isRequired,
   loadMTOShipments: func.isRequired,
-  selectedMoveType: string.isRequired,
   move: MoveTaskOrderShape.isRequired,
   mtoShipments: arrayOf(MTOShipmentShape).isRequired,
-  isPpmSelectable: bool.isRequired,
-  isHhgSelectable: bool.isRequired,
-  shipmentNumber: number.isRequired,
 };
 
 function mapStateToProps(state) {
   const move = selectActiveOrLatestMove(state);
-  const hasPpm = !!move.personally_procured_moves?.length;
-  const ppmCount = hasPpm ? 1 : 0;
-  const hhgCount = selectMTOShipmentsByMoveId(state, move.id)?.length || 0;
+  const mtoShipments = selectMTOShipmentsByMoveId(state, move.id);
+
   const props = {
     move,
-    selectedMoveType: get(move, 'selected_move_type'),
-    mtoShipments: selectMTOShipmentsByMoveId(state, move.id),
-    isPpmSelectable: !hasPpm,
-    isHhgSelectable: move.status === 'DRAFT',
-    shipmentNumber: 1 + ppmCount + hhgCount,
+    mtoShipments,
   };
   return props;
 }

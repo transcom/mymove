@@ -1,7 +1,7 @@
 package testdatagen
 
 import (
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -29,7 +29,7 @@ func MakeEntitlement(db *pop.Connection, assertions Assertions) models.Entitleme
 	// Overwrite values with those from assertions
 	mergeModels(&entitlement, assertions.Entitlement)
 
-	mustCreate(db, &entitlement)
+	mustCreate(db, &entitlement, assertions.Stub)
 
 	return entitlement
 }

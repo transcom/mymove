@@ -166,6 +166,54 @@ describe('when getting the routes for the current workflow', () => {
         ]);
       });
     });
+    describe('given hhgFlow + selected shipment NTS is true', () => {
+      const props = {
+        selectedMoveType: SHIPMENT_OPTIONS.NTS,
+        context: hhgContext,
+      };
+      const pages = getPagesInFlow(props);
+      it('getPagesInFlow returns service member, order and select move type page', () => {
+        expect(pages).toEqual([
+          '/service-member/:serviceMemberId/create',
+          '/service-member/:serviceMemberId/name',
+          '/service-member/:serviceMemberId/contact-info',
+          '/service-member/:serviceMemberId/duty-station',
+          '/service-member/:serviceMemberId/residence-address',
+          '/service-member/:serviceMemberId/backup-mailing-address',
+          '/service-member/:serviceMemberId/backup-contacts',
+          '/orders',
+          '/orders/upload',
+          '/moves/:moveId/select-type',
+          '/moves/:moveId/nts-start',
+          '/moves/:moveId/review',
+          '/moves/:moveId/agreement',
+        ]);
+      });
+    });
+    describe('given hhgFlow + selected shipment NTSR is true', () => {
+      const props = {
+        selectedMoveType: SHIPMENT_OPTIONS.NTSR,
+        context: hhgContext,
+      };
+      const pages = getPagesInFlow(props);
+      it('getPagesInFlow returns service member, order and select move type page', () => {
+        expect(pages).toEqual([
+          '/service-member/:serviceMemberId/create',
+          '/service-member/:serviceMemberId/name',
+          '/service-member/:serviceMemberId/contact-info',
+          '/service-member/:serviceMemberId/duty-station',
+          '/service-member/:serviceMemberId/residence-address',
+          '/service-member/:serviceMemberId/backup-mailing-address',
+          '/service-member/:serviceMemberId/backup-contacts',
+          '/orders',
+          '/orders/upload',
+          '/moves/:moveId/select-type',
+          '/moves/:moveId/ntsr-start',
+          '/moves/:moveId/review',
+          '/moves/:moveId/agreement',
+        ]);
+      });
+    });
   });
 });
 

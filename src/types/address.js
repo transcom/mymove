@@ -1,12 +1,18 @@
 /* eslint-disable import/prefer-default-export */
-import PropTypes from 'prop-types';
+import { shape, string } from 'prop-types';
 
-export const AddressShape = PropTypes.shape({
-  street_address_1: PropTypes.string,
-  street_address_2: PropTypes.string,
-  street_address_3: PropTypes.string,
-  city: PropTypes.string,
-  state: PropTypes.string,
-  postal_code: PropTypes.string,
-  country: PropTypes.string,
+export const SimpleAddressShape = shape({
+  city: string,
+  state: string,
+  postal_code: string,
+});
+
+export const AddressShape = shape({
+  city: string,
+  state: string,
+  postal_code: string,
+  street_address_1: string,
+  street_address_2: string,
+  street_address_3: string,
+  country: string,
 });

@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -26,7 +26,7 @@ func NewGHCPaymentRequestInvoiceGenerator(db *pop.Connection) services.GHCPaymen
 	}
 }
 
-const dateFormat = "20060102"
+const dateFormat = "060102"
 const timeFormat = "1504"
 
 // Generate method takes a payment request and returns an Invoice858C
@@ -94,11 +94,11 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		AuthorizationInformationQualifier: "00", // No authorization information
 		AuthorizationInformation:          "0084182369",
 		SecurityInformationQualifier:      "00", // No security information
-		SecurityInformation:               "_   _",
+		SecurityInformation:               "0000000000",
 		InterchangeSenderIDQualifier:      "ZZ",
-		InterchangeSenderID:               "GOVDPIBS",
+		InterchangeSenderID:               fmt.Sprintf("%-15s", "MYMOVE"),
 		InterchangeReceiverIDQualifier:    "12",
-		InterchangeReceiverID:             "8004171844",
+		InterchangeReceiverID:             fmt.Sprintf("%-15s", "8004171844"),
 		InterchangeDate:                   currentTime.Format(dateFormat),
 		InterchangeTime:                   currentTime.Format(timeFormat),
 		InterchangeControlStandards:       "U",
@@ -111,7 +111,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 
 	edi858.GS = edisegment.GS{
 		FunctionalIdentifierCode: "SI",
-		ApplicationSendersCode:   "MYMOVE",
+		ApplicationSendersCode:   fmt.Sprintf("%-9s", "MYMOVE"),
 		ApplicationReceiversCode: "8004171844",
 		Date:                     currentTime.Format(dateFormat),
 		Time:                     currentTime.Format(timeFormat),
@@ -343,10 +343,9 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	}
 
 	// destination name
-	destinationStationName := orders.NewDutyStation.Name
 	destinationName := edisegment.N1{
 		EntityIdentifierCode:        "ST",
-		Name:                        destinationStationName,
+		Name:                        destinationDutyStation.Name,
 		IdentificationCodeQualifier: "10",
 		IdentificationCode:          destTransportationOffice.Gbloc,
 	}
@@ -368,12 +367,31 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 		PostalCode:          destinationDutyStation.Address.PostalCode,
 	}
 	if destinationDutyStation.Address.Country != nil {
-		destinationPostalDetails.CountryCode = string(*destinationDutyStation.Address.Country)
+		countryCode, ccErr := destinationDutyStation.Address.CountryCode()
+		if ccErr != nil {
+			return []edisegment.Segment{}, ccErr
+		}
+		destinationPostalDetails.CountryCode = string(*countryCode)
 	}
-
 	originAndDestinationSegments = append(originAndDestinationSegments, &destinationPostalDetails)
 
-	// TODO: Create PER segment and implement Destination POC Phone
+	// Destination PER
+	destinationStationPhoneLines := destTransportationOffice.PhoneLines
+	var destPhoneLines []string
+	for _, phoneLine := range destinationStationPhoneLines {
+		if phoneLine.Type == "voice" {
+			destPhoneLines = append(destPhoneLines, phoneLine.Number)
+		}
+	}
+
+	if len(destPhoneLines) > 0 {
+		destinationPhone := edisegment.PER{
+			ContactFunctionCode:          "CN",
+			CommunicationNumberQualifier: "TE",
+			CommunicationNumber:          destPhoneLines[0],
+		}
+		originAndDestinationSegments = append(originAndDestinationSegments, &destinationPhone)
+	}
 
 	// ========  ORIGIN ========= //
 	// origin station name
@@ -420,12 +438,32 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 		PostalCode:          originDutyStation.Address.PostalCode,
 	}
 	if originDutyStation.Address.Country != nil {
-		originPostalDetails.CountryCode = string(*originDutyStation.Address.Country)
+		countryCode, ccErr := originDutyStation.Address.CountryCode()
+		if ccErr != nil {
+			return []edisegment.Segment{}, ccErr
+		}
+		originPostalDetails.CountryCode = string(*countryCode)
 	}
 
 	originAndDestinationSegments = append(originAndDestinationSegments, &originPostalDetails)
 
-	// TODO: Create PER segment and implement Origin POC Phone
+	// Origin Station Phone
+	originStationPhoneLines := originTransportationOffice.PhoneLines
+	var originPhoneLines []string
+	for _, phoneLine := range originStationPhoneLines {
+		if phoneLine.Type == "voice" {
+			originPhoneLines = append(originPhoneLines, phoneLine.Number)
+		}
+	}
+
+	if len(originPhoneLines) > 0 {
+		originPhone := edisegment.PER{
+			ContactFunctionCode:          "CN",
+			CommunicationNumberQualifier: "TE",
+			CommunicationNumber:          originPhoneLines[0],
+		}
+		originAndDestinationSegments = append(originAndDestinationSegments, &originPhone)
+	}
 
 	return originAndDestinationSegments, nil
 }
@@ -523,7 +561,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 		// Build and put together the segments
 		hlSegment := edisegment.HL{
 			HierarchicalIDNumber:  strconv.Itoa(hierarchicalIDNumber), // may need to change if sending multiple payment request in a single edi
-			HierarchicalLevelCode: "|",
+			HierarchicalLevelCode: "I",
 		}
 
 		n9Segment := edisegment.N9{

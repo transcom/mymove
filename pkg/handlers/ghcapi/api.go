@@ -20,7 +20,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
-	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 )
 
 // NewGhcAPIHandler returns a handler for the GHC API
@@ -68,11 +67,6 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 		Builder:        *queryBuilder,
 	}
 
-	ghcAPI.PaymentRequestsListPaymentRequestsHandler = ListPaymentRequestsHandler{
-		context,
-		paymentrequest.NewPaymentRequestListFetcher(context.DB()),
-	}
-
 	ghcAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandler{
 		context,
 		movetaskorder.NewMoveTaskOrderFetcher(context.DB()),
@@ -81,7 +75,6 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 		context,
 		customer.NewCustomerFetcher(context.DB()),
 	}
-	ghcAPI.MoveOrderListMoveOrdersHandler = ListMoveOrdersHandler{context, moveorder.NewMoveOrderFetcher(context.DB())}
 	ghcAPI.MoveOrderGetMoveOrderHandler = GetMoveOrdersHandler{
 		context,
 		moveorder.NewMoveOrderFetcher(context.DB()),
@@ -118,8 +111,12 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 
 	ghcAPI.QueuesGetMovesQueueHandler = GetMovesQueueHandler{
 		context,
-		officeuser.NewOfficeUserFetcher(queryBuilder),
 		moveorder.NewMoveOrderFetcher(context.DB()),
+	}
+
+	ghcAPI.QueuesGetPaymentRequestsQueueHandler = GetPaymentRequestsQueueHandler{
+		context,
+		paymentrequest.NewPaymentRequestListFetcher(context.DB()),
 	}
 
 	return ghcAPI

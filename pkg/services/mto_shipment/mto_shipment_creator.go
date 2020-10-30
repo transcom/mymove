@@ -9,8 +9,8 @@ import (
 
 	"github.com/transcom/mymove/pkg/services/fetch"
 
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -69,6 +69,17 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 		return nil, services.NewNotFoundError(moveID, "for move")
 	}
 
+	for _, existingShipment := range move.MTOShipments {
+		hasNTSShipment := shipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom &&
+			(existingShipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom && existingShipment.Status == models.MTOShipmentStatusSubmitted)
+
+		hasNTSRShipment := shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && (existingShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && existingShipment.Status == models.MTOShipmentStatusSubmitted)
+
+		if hasNTSShipment || hasNTSRShipment {
+			return nil, services.NewInvalidInputError(existingShipment.ID, nil, nil, "Cannot create another NTS Shipment")
+		}
+	}
+
 	if serviceItems != nil {
 		serviceItemsList := make(models.MTOServiceItems, 0, len(serviceItems))
 
@@ -112,9 +123,8 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 				return fmt.Errorf("failed to create pickup address %#v %e", verrs, err)
 			}
 			shipment.PickupAddressID = &shipment.PickupAddress.ID
-		} else {
-			// Swagger should pick this up before it ever gets here
-			return services.NewInvalidInputError(uuid.Nil, nil, nil, "PickupAddress is required to create MTO shipment")
+		} else if shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
+			return services.NewInvalidInputError(uuid.Nil, nil, nil, "PickupAddress is required to create an HHG or NTS type MTO shipment")
 		}
 
 		if shipment.DestinationAddress != nil {
@@ -126,8 +136,8 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 		}
 
 		// check that required items to create shipment are present
-		if shipment.RequestedPickupDate == nil {
-			return services.NewInvalidInputError(uuid.Nil, nil, nil, "RequestedPickupDate is required to create MTO shipment")
+		if shipment.RequestedPickupDate == nil && shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
+			return services.NewInvalidInputError(uuid.Nil, nil, nil, "RequestedPickupDate is required to create an HHG or NTS type MTO shipment")
 		}
 
 		//assign status to shipment draft by default

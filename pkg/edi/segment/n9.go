@@ -6,10 +6,10 @@ import (
 
 // N9 represents the N9 EDI segment
 type N9 struct {
-	ReferenceIdentificationQualifier string `validate:"oneof=DY CN PQ OQ"`
+	ReferenceIdentificationQualifier string `validate:"oneof=DY CN CT PQ OQ 1W ML 3L PO"`
 	ReferenceIdentification          string `validate:"min=1,max=30"`
 	FreeFormDescription              string `validate:"omitempty,min=1,max=45"`
-	Date                             string `validate:"omitempty,timeformat=20060102"`
+	Date                             string `validate:"omitempty,datetime=20060102"`
 }
 
 // StringArray converts N9 to an array of strings

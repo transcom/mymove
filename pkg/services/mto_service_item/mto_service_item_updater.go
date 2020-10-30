@@ -3,7 +3,7 @@ package mtoserviceitem
 import (
 	"time"
 
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
@@ -64,7 +64,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 	}
 
 	if err != nil {
-		if errors.Cause(err).Error() == "sql: no rows in result set" {
+		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 			return nil, services.NewNotFoundError(mtoServiceItemID, "")
 		}
 

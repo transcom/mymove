@@ -1,7 +1,7 @@
 package testdatagen
 
 import (
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -22,7 +22,7 @@ func MakeDocument(db *pop.Connection, assertions Assertions) models.Document {
 	// Overwrite values with those from assertions
 	mergeModels(&document, assertions.Document)
 
-	mustCreate(db, &document)
+	mustCreate(db, &document, assertions.Stub)
 
 	return document
 }

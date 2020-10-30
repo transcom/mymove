@@ -3,9 +3,9 @@ package models
 import (
 	"time"
 
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
-	"github.com/gobuffalo/validate/validators"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
+	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/unit"
@@ -13,6 +13,14 @@ import (
 
 // MTOShipmentType represents the type of shipments the mto shipment is
 type MTOShipmentType string
+
+// using these also in move.go selected move type
+const (
+	// NTSRaw is the raw string value of the NTS Shipment Type
+	NTSRaw = "HHG_INTO_NTS_DOMESTIC"
+	// NTSrRaw is the raw string value of the NTSr Shipment Type
+	NTSrRaw = "HHG_OUTOF_NTS_DOMESTIC"
+)
 
 const (
 	// MTOShipmentTypeHHG is an HHG Shipment Type default
@@ -26,9 +34,9 @@ const (
 	// MTOShipmentTypeHHGShortHaulDom is an HHG Shipment Type for Shothaul Domestic
 	MTOShipmentTypeHHGShortHaulDom MTOShipmentType = "HHG_SHORTHAUL_DOMESTIC"
 	// MTOShipmentTypeHHGIntoNTSDom is an HHG Shipment Type for going into NTS Domestic
-	MTOShipmentTypeHHGIntoNTSDom MTOShipmentType = "HHG_INTO_NTS_DOMESTIC"
+	MTOShipmentTypeHHGIntoNTSDom MTOShipmentType = NTSRaw
 	// MTOShipmentTypeHHGOutOfNTSDom is an HHG Shipment Type for going out of NTS Domestic
-	MTOShipmentTypeHHGOutOfNTSDom MTOShipmentType = "HHG_OUTOF_NTS_DOMESTIC"
+	MTOShipmentTypeHHGOutOfNTSDom MTOShipmentType = NTSrRaw
 	// MTOShipmentTypeMotorhome is a Shipment Type for Motorhome
 	MTOShipmentTypeMotorhome MTOShipmentType = "MOTORHOME"
 	// MTOShipmentTypeBoatHaulAway is a Shipment Type for Boat Haul Away

@@ -5,6 +5,7 @@ import {
   useMoveTaskOrderQueries,
   useOrdersDocumentQueries,
   useMovesQueueQueries,
+  usePaymentRequestQueueQueries,
 } from './queries';
 
 jest.mock('services/ghcApi', () => ({
@@ -85,6 +86,20 @@ jest.mock('services/ghcApi', () => ({
           ],
         },
       },
+    }),
+  getPaymentRequestsQueue: () =>
+    Promise.resolve({
+      page: 0,
+      perPage: 100,
+      totalCount: 2,
+      queuePaymentRequests: [
+        {
+          id: 'payment1',
+        },
+        {
+          id: 'payment2',
+        },
+      ],
     }),
 }));
 
@@ -256,6 +271,33 @@ describe('useMovesQueueQueries', () => {
             },
           ],
         },
+      },
+      isLoading: false,
+      isError: false,
+      isSuccess: true,
+    });
+  });
+});
+
+describe('usePaymentRequestsQueueQueries', () => {
+  it('loads data', async () => {
+    const { result, waitForNextUpdate } = renderHook(() => usePaymentRequestQueueQueries());
+
+    await waitForNextUpdate();
+
+    expect(result.current).toEqual({
+      queuePaymentRequestsResult: {
+        page: 0,
+        perPage: 100,
+        totalCount: 2,
+        queuePaymentRequests: [
+          {
+            id: 'payment1',
+          },
+          {
+            id: 'payment2',
+          },
+        ],
       },
       isLoading: false,
       isError: false,

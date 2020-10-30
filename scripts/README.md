@@ -94,6 +94,7 @@ application testing
 | Script Name                     | Description                                                                                       |
 | ------------------------------- | ------------------------------------------------------------------------------------------------- |
 | `check-docker-size`             | Script to check the available disk space Docker has used                                          |
+| `ds-for-gbloc`                  | Helper script to find duty stations with the same GBLOC as the given transportation office        |
 | `ensure-application`            | Ensure APPLICATION is set to `app` or `orders` and matches input value                            |
 | `export-obfuscated-tspp-sample` | Export a subset of rows from the `transportation_service_provider_performances` table             |
 | `find-invoices`                 | This script will use available API endpoints to find invoices in whatever environment you specify |
@@ -103,6 +104,7 @@ application testing
 | `make-test`                     | A script to test common developer make targets.                                                   |
 | `prime-api`                     | A script to connect to endpoints on the Prime API.                                                |
 | `prime-api-demo`                | A script to demo the Prime API.                                                                   |
+| `to-for-gbloc`                  | Helper script to find transportation offices with the same GBLOC as the given duty station        |
 | `update-docker-compose`         | Update branch name before running docker-compose                                                  |
 
 ### Building

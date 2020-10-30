@@ -7,8 +7,8 @@ import (
 
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -135,6 +135,56 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 		suite.NotNil(createdShipment)
 		suite.NotNil(createdShipment.MTOServiceItems, "Service Items are empty")
 		suite.Equal(createdShipment.MTOServiceItems[0].MTOShipmentID, &createdShipment.ID, "Service items are not the same")
+	})
+
+	suite.T().Run("If the move already has a submitted NTS shipment, it should return a validation error", func(t *testing.T) {
+		ntsShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		})
+
+		secondNTSShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				MoveTaskOrderID: ntsShipment.MoveTaskOrderID,
+				ShipmentType:    models.MTOShipmentTypeHHGIntoNTSDom,
+				Status:          models.MTOShipmentStatusDraft,
+			},
+		})
+
+		serviceItemsList := models.MTOServiceItems{}
+		cleanedNTSShipment := clearShipmentIDFields(&secondNTSShipment)
+		createdShipment, err := creator.CreateMTOShipment(cleanedNTSShipment, serviceItemsList)
+
+		suite.Nil(createdShipment)
+		suite.Error(err)
+		suite.IsType(services.InvalidInputError{}, err)
+	})
+
+	suite.T().Run("If the move already has a submitted NTSr shipment, it should return a validation error", func(t *testing.T) {
+		ntsShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		})
+
+		secondNTSShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				MoveTaskOrderID: ntsShipment.MoveTaskOrderID,
+				ShipmentType:    models.MTOShipmentTypeHHGOutOfNTSDom,
+				Status:          models.MTOShipmentStatusDraft,
+			},
+		})
+
+		serviceItemsList := models.MTOServiceItems{}
+		cleanedNTSShipment := clearShipmentIDFields(&secondNTSShipment)
+		createdShipment, err := creator.CreateMTOShipment(cleanedNTSShipment, serviceItemsList)
+
+		suite.Nil(createdShipment)
+		suite.Error(err)
+		suite.IsType(services.InvalidInputError{}, err)
 	})
 }
 

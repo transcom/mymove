@@ -95,41 +95,6 @@ paths:
       description: Returns a given move
       summary: Returns a given move
       operationId: getMove
-  /move-orders:
-    get:
-      produces:
-        - application/json
-      parameters: []
-      responses:
-        '200':
-          description: Successfully retrieved all move orders
-          schema:
-            $ref: '#/definitions/MoveOrders'
-        '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
-        '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
-        '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
-      tags:
-        - moveOrder
-      description: Gets all move orders
-      operationId: listMoveOrders
-      summary: Gets all move orders
   '/move-orders/{moveOrderID}':
     parameters:
       - description: ID of customer to use
@@ -907,38 +872,6 @@ paths:
       description: Gets entitlements
       operationId: getEntitlements
       summary: Gets entitlements for a move order by ID
-  /payment-requests:
-    get:
-      produces:
-        - application/json
-      parameters: []
-      responses:
-        '200':
-          description: fetched list of payment requests
-          schema:
-            $ref: '#/definitions/PaymentRequests'
-        '401':
-          description: The request was denied
-          schema:
-            $ref: '#/definitions/Error'
-        '403':
-          description: The request was denied
-          schema:
-            $ref: '#/definitions/Error'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
-        '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/definitions/Error'
-      tags:
-        - paymentRequests
-        - gov
-      description: Gets a list of payment requests
-      operationId: listPaymentRequests
-      summary: Gets payment requests
   '/payment-requests/{paymentRequestID}':
     parameters:
       - description: UUID of payment request
@@ -1100,11 +1033,91 @@ paths:
       operationId: getMovesQueue
       tags:
         - queues
+      parameters:
+        - in: query
+          name: branch
+          type: string
+        - in: query
+          name: moveID
+          type: string
+        - in: query
+          name: lastName
+          type: string
+        - in: query
+          name: dodID
+          type: string
+        - in: query
+          name: destinationDutyStation
+          type: string
+        - in: query
+          name: status
+          type: array
+          description: Filtering for the status.
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+              - New move
+              - Approvals requested
+              - Move approved
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
           schema:
             $ref: '#/definitions/QueueMovesResult'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+  /queues/payment-requests:
+    get:
+      produces:
+        - application/json
+      summary: Gets queued list of all payment requests by GBLOC origin
+      description: >
+        An office TIO user will be assigned a transportation office that will determine which payment requests are displayed in their queue based on the origin duty station.
+      operationId: getPaymentRequestsQueue
+      tags:
+        - queues
+      parameters:
+        - in: query
+          name: submittedAt
+          type: string
+        - in: query
+          name: branch
+          type: string
+        - in: query
+          name: moveID
+          type: string
+        - in: query
+          name: lastName
+          type: string
+        - in: query
+          name: dodID
+          type: string
+        - in: query
+          name: destinationDutyStation
+          type: string
+        - in: query
+          name: status
+          type: array
+          description: Filtering for the status.
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+              - Payment requested
+              - Reviewed
+              - Paid
+      responses:
+        '200':
+          description: Successfully returned all moves matching the criteria
+          schema:
+            $ref: '#/definitions/QueuePaymentRequestsResult'
         '403':
           description: The request was denied
           schema:
@@ -2404,9 +2417,50 @@ definitions:
   QueueMoveStatus:
     type: string
     enum:
-      - NEW
-      - APPROVED
-      - APPROVALS_REQUESTED
+      - New move
+      - Move approved
+      - Approvals requested
+  QueuePaymentRequest:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      moveID:
+        type: string
+        format: uuid
+      customer:
+        $ref: '#/definitions/Customer'
+      status:
+        $ref: '#/definitions/PaymentRequestStatus'
+      age:
+        type: number
+        format: integer
+        description: Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.
+      submittedAt:
+        type: string
+        format: date-time
+      locator:
+        type: string
+      departmentIndicator:
+        $ref: '#/definitions/DeptIndicator'
+      originGBLOC:
+        $ref: '#/definitions/GBLOC'
+  QueuePaymentRequests:
+    type: array
+    items:
+      $ref: '#/definitions/QueuePaymentRequest'
+  QueuePaymentRequestsResult:
+    type: object
+    properties:
+      page:
+        type: integer
+      perPage:
+        type: integer
+      totalCount:
+        type: integer
+      queuePaymentRequests:
+        $ref: '#/definitions/QueuePaymentRequests'
   GBLOC:
     type: string
     enum:
