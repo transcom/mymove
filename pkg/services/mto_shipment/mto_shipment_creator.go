@@ -123,8 +123,8 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 				return fmt.Errorf("failed to create pickup address %#v %e", verrs, err)
 			}
 			shipment.PickupAddressID = &shipment.PickupAddress.ID
-		} else if shipment.ShipmentType == models.MTOShipmentTypeHHG {
-			return services.NewInvalidInputError(uuid.Nil, nil, nil, "PickupAddress is required to create an HHG type MTO shipment")
+		} else if shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
+			return services.NewInvalidInputError(uuid.Nil, nil, nil, "PickupAddress is required to create an HHG or NTS type MTO shipment")
 		}
 
 		if shipment.DestinationAddress != nil {
@@ -136,8 +136,8 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 		}
 
 		// check that required items to create shipment are present
-		if shipment.RequestedPickupDate == nil {
-			return services.NewInvalidInputError(uuid.Nil, nil, nil, "RequestedPickupDate is required to create MTO shipment")
+		if shipment.RequestedPickupDate == nil && shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
+			return services.NewInvalidInputError(uuid.Nil, nil, nil, "RequestedPickupDate is required to create an HHG or NTS type MTO shipment")
 		}
 
 		//assign status to shipment draft by default

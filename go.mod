@@ -22,9 +22,9 @@ require (
 	github.com/go-openapi/errors v0.19.4
 	github.com/go-openapi/loads v0.19.5
 	github.com/go-openapi/runtime v0.19.15
-	github.com/go-openapi/spec v0.19.9
-	github.com/go-openapi/strfmt v0.19.6
-	github.com/go-openapi/swag v0.19.10
+	github.com/go-openapi/spec v0.19.11
+	github.com/go-openapi/strfmt v0.19.7
+	github.com/go-openapi/swag v0.19.11
 	github.com/go-openapi/validate v0.19.8
 	github.com/go-playground/locales v0.13.0
 	github.com/go-playground/universal-translator v0.17.0
@@ -73,7 +73,6 @@ require (
 	golang.org/x/net v0.0.0-20200930145003-4acb6c075d10
 	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
 	golang.org/x/text v0.3.3
-	golang.org/x/tools v0.0.0-20200929161345-d7fc70abf50f
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.31.0

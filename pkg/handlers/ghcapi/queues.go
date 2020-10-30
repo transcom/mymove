@@ -2,6 +2,7 @@ package ghcapi
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/pop/v5"
@@ -19,7 +20,6 @@ import (
 // GetMovesQueueHandler returns the moves for the TOO queue user via GET /queues/moves
 type GetMovesQueueHandler struct {
 	handlers.HandlerContext
-	services.OfficeUserFetcher
 	services.MoveOrderFetcher
 }
 
@@ -73,7 +73,6 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 // GetPaymentRequestsQueueHandler returns the payment requests for the TIO queue user via GET /queues/payment-requests
 type GetPaymentRequestsQueueHandler struct {
 	handlers.HandlerContext
-	services.OfficeUserFetcher
 	services.PaymentRequestListFetcher
 }
 
@@ -91,10 +90,12 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 	dodIDQuery := dodIDFilter(params.DodID)
 	lastNameQuery := lastNameFilter(params.LastName)
 	dutyStationQuery := destinationDutyStationFilter(params.DestinationDutyStation)
+	statusQuery := paymentRequestsStatusFilter(params.Status)
 	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
 
 	paymentRequests, err := h.FetchPaymentRequestList(
 		session.OfficeUserID,
+		statusQuery,
 		branchQuery,
 		moveIDQuery,
 		lastNameQuery,
@@ -108,8 +109,6 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 	}
 
 	queuePaymentRequests := payloads.QueuePaymentRequests(paymentRequests)
-
-	queuePaymentRequests = paymentRequestsStatusFilter(params.Status, queuePaymentRequests)
 
 	result := &ghcmessages.QueuePaymentRequestsResult{
 		TotalCount:           int64(len(*queuePaymentRequests)),
@@ -196,27 +195,24 @@ func moveStatusFilter(statuses []string, moves *ghcmessages.QueueMoves) *ghcmess
 }
 
 // statusFilter filters the status after the pop query call.
-func paymentRequestsStatusFilter(statuses []string, paymentRequests *ghcmessages.QueuePaymentRequests) *ghcmessages.QueuePaymentRequests {
-	if len(statuses) <= 0 || paymentRequests == nil {
-		return paymentRequests
-	}
+func paymentRequestsStatusFilter(statuses []string) FilterOption {
+	return func(query *pop.Query) {
+		var translatedStatuses []string
+		if len(statuses) > 0 {
+			for _, status := range statuses {
+				if strings.EqualFold(status, "Payment requested") {
+					translatedStatuses = append(translatedStatuses, models.PaymentRequestStatusPending.String())
 
-	ret := make(ghcmessages.QueuePaymentRequests, 0)
-	// New move, Approvals requested, and Move approved statuses
-	// convert into a map to make it easier to lookup
-	statusMap := make(map[string]string, 0)
-	for _, status := range statuses {
-		statusMap[status] = status
-	}
-
-	// then include only the moves based on status filter
-	// and exclude DRAFT and CANCELLED
-	for _, paymentRequest := range *paymentRequests {
-		if _, ok := statusMap[string(paymentRequest.Status)]; ok && string(paymentRequest.Status) != string(models.MoveStatusCANCELED) &&
-			string(paymentRequest.Status) != string(models.MoveStatusDRAFT) {
-			ret = append(ret, paymentRequest)
+				}
+				if strings.EqualFold(status, "reviewed") {
+					translatedStatuses = append(translatedStatuses,
+						models.PaymentRequestStatusReviewed.String(),
+						models.PaymentRequestStatusSentToGex.String(),
+						models.PaymentRequestStatusReceivedByGex.String())
+				}
+			}
+			query = query.Where("payment_requests.status in (?)", translatedStatuses)
 		}
 	}
 
-	return &ret
 }

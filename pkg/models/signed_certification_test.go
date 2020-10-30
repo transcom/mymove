@@ -114,7 +114,7 @@ func (suite *ModelSuite) TestFetchSignedCertifications() {
 			Date:                     testdatagen.NextValidMoveDate,
 		},
 	})
-	ppmCert := SignedCertificationTypePPM
+	ppmCert := SignedCertificationTypeSHIPMENT
 	ppmSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
 		SignedCertification: SignedCertification{
 			MoveID:                   ppm.Move.ID,
@@ -126,7 +126,7 @@ func (suite *ModelSuite) TestFetchSignedCertifications() {
 			Date:                     testdatagen.NextValidMoveDate,
 		},
 	})
-	hhgCert := SignedCertificationTypeHHG
+	hhgCert := SignedCertificationTypeSHIPMENT
 	hhgSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
 		SignedCertification: SignedCertification{
 			MoveID:                   ppm.Move.ID,
