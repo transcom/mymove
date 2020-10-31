@@ -6,6 +6,8 @@ import (
 
 	"github.com/gobuffalo/pop/v5"
 
+	"github.com/transcom/mymove/pkg/services/invoice"
+
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
 	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
@@ -18,6 +20,8 @@ type paymentRequestReviewedProcessor struct {
 	reviewedPaymentRequestFetcher services.PaymentRequestReviewedFetcher
 	ediGenerator                  services.GHCPaymentRequestInvoiceGenerator
 	runSendToSyncada              bool // if false, do not send to Syncada, e.g. UT shouldn't send to Syncada
+	gexSender                     services.GexSender
+	sftpSender                    services.SyncadaSFTPSender
 }
 
 // NewPaymentRequestReviewedProcessor returns a new payment request reviewed processor
@@ -25,12 +29,36 @@ func NewPaymentRequestReviewedProcessor(db *pop.Connection,
 	logger Logger,
 	fetcher services.PaymentRequestReviewedFetcher,
 	generator services.GHCPaymentRequestInvoiceGenerator,
-	runSendToSyncada bool) services.PaymentRequestReviewedProcessor {
+	runSendToSyncada bool,
+	gexSender services.GexSender,
+	sftpSender services.SyncadaSFTPSender) services.PaymentRequestReviewedProcessor {
 
-	// TODO: can't send to syncada always, need to work this a little smarter
-	// TODO: write new story to cover this.
-	runSendToSyncada = false
-	return &paymentRequestReviewedProcessor{db, logger, fetcher, generator, runSendToSyncada}
+	return &paymentRequestReviewedProcessor{
+		db:                            db,
+		logger:                        logger,
+		reviewedPaymentRequestFetcher: fetcher,
+		ediGenerator:                  generator,
+		gexSender:                     gexSender,
+		sftpSender:                    sftpSender,
+		runSendToSyncada:              runSendToSyncada}
+}
+
+// InitNewPaymentRequestReviewedProcessor initialize NewPaymentRequestReviewedProcessor for production use
+func InitNewPaymentRequestReviewedProcessor(db *pop.Connection, logger Logger, sendToSyncada bool) services.PaymentRequestReviewedProcessor {
+	reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(db)
+	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(db)
+	SFTPSession := invoice.InitNewSyncadaSFTPSession()
+	var gexSender services.GexSender
+	gexSender = nil
+
+	return NewPaymentRequestReviewedProcessor(
+		db,
+		logger,
+		reviewedPaymentRequestFetcher,
+		generator,
+		sendToSyncada,
+		gexSender,
+		SFTPSession)
 }
 
 func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error {
@@ -63,11 +91,9 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error 
 
 		}
 
-		// TODO: USING STUB FUNCTION FOR SEND TO SYNCADA
-
 		// Send EDI string to Syncada
 		// If sent successfully to GEX, update payment request status to SENT_TO_GEX.
-		err = paymentrequesthelper.SendToSyncada(edi858cString, p.runSendToSyncada)
+		err = paymentrequesthelper.SendToSyncada(edi858cString, p.gexSender, p.sftpSender, p.runSendToSyncada, p.logger)
 		if err != nil {
 			// save payment request ID and error
 			// TODO: if there is an error, no way to flag it with a status.
@@ -93,36 +119,40 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error 
 		}
 	}
 
-	transactionError := p.db.Transaction(func(tx *pop.Connection) error {
-		// Save PRs with successful sent to GEX
+	var transactionError error
+	// If we have successfully sent EDIs to Syncada, then update status in the DB
+	if len(sentToGexStatuses) > 0 {
+		transactionError = p.db.Transaction(func(tx *pop.Connection) error {
+			// Save PRs with successful sent to GEX
 
-		/* Use `update...from` postgres syntax described here https://stackoverflow.com/a/18799497
-		   To have one call to the DB if we have multiple updates.
-		UPDATE payment_requests AS pr SET
-		    status = c.status
-		FROM (VALUES
-		    ('id1', 'status1'),
-		    ('id2', 'status2')
-		    ) AS c(id, status)
-		WHERE c.id = pr.id;
-		*/
+			/* Use `update...from` postgres syntax described here https://stackoverflow.com/a/18799497
+			   To have one call to the DB if we have multiple updates.
+			UPDATE payment_requests AS pr SET
+			    status = c.status
+			FROM (VALUES
+			    ('id1', 'status1'),
+			    ('id2', 'status2')
+			    ) AS c(id, status)
+			WHERE c.id = pr.id;
+			*/
 
-		values := strings.Join(sentToGexStatuses, ",")
-		q := `
+			values := strings.Join(sentToGexStatuses, ",")
+			q := `
 UPDATE payment_requests AS pr SET
     status = c.status
 FROM (VALUES
 	%s
     ) AS c(id, status)
 WHERE c.id = pr.id;`
-		qq := fmt.Sprintf(q, values)
-		err = tx.RawQuery(qq).Exec()
-		if err != nil {
-			return fmt.Errorf("failure updating payment request status: %w", err)
-		}
+			qq := fmt.Sprintf(q, values)
+			err = tx.RawQuery(qq).Exec()
+			if err != nil {
+				return fmt.Errorf("failure updating payment request status: %w", err)
+			}
 
-		return nil
-	})
+			return nil
+		})
+	}
 
 	// Build up error string
 	returnError := ""

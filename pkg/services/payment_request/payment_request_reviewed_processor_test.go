@@ -8,6 +8,8 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/services"
+
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/services/invoice"
 	"github.com/transcom/mymove/pkg/services/mocks"
@@ -148,7 +150,7 @@ func (suite *PaymentRequestServiceSuite) createPaymentRequest(num int) {
 
 func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
-	suite.T().Run("process reviewed payment request succesfully", func(t *testing.T) {
+	suite.T().Run("process reviewed payment request succesfully (do not send file)", func(t *testing.T) {
 
 		suite.createPaymentRequest(4)
 
@@ -160,9 +162,20 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
 		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB())
+		SFTPSession := invoice.InitNewSyncadaSFTPSession()
+		var gexSender services.GexSender
+		gexSender = nil
+		sendToSyncada := false
 
 		// Process Reviewed Payment Requests
-		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(suite.DB(), suite.logger, reviewedPaymentRequestFetcher, generator, false)
+		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
+			suite.DB(),
+			suite.logger,
+			reviewedPaymentRequestFetcher,
+			generator,
+			sendToSyncada,
+			gexSender,
+			SFTPSession)
 		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 		suite.NoError(err)
 	})
@@ -172,6 +185,10 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		suite.createPaymentRequest(4)
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
+		SFTPSession := invoice.InitNewSyncadaSFTPSession()
+		var gexSender services.GexSender
+		gexSender = nil
+		sendToSyncada := false
 
 		// ediinvoice.Invoice858C, error
 		ediGenerator := &mocks.GHCPaymentRequestInvoiceGenerator{}
@@ -179,7 +196,14 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			On("Generate", mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, errors.New("test error"))
 
 		// Process Reviewed Payment Requests
-		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(suite.DB(), suite.logger, reviewedPaymentRequestFetcher, ediGenerator, false)
+		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
+			suite.DB(),
+			suite.logger,
+			reviewedPaymentRequestFetcher,
+			ediGenerator,
+			sendToSyncada,
+			gexSender,
+			SFTPSession)
 		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 		suite.Contains(err.Error(), "function ProcessReviewedPaymentRequest failed call")
 	})
@@ -189,6 +213,10 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		suite.createPaymentRequest(4)
 
 		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB())
+		SFTPSession := invoice.InitNewSyncadaSFTPSession()
+		var gexSender services.GexSender
+		gexSender = nil
+		sendToSyncada := false
 
 		// models.PaymentRequests, error
 		reviewedPaymentRequestFetcher := &mocks.PaymentRequestReviewedFetcher{}
@@ -196,8 +224,83 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			On("FetchReviewedPaymentRequest").Return(models.PaymentRequests{}, errors.New("test error"))
 
 		// Process Reviewed Payment Requests
-		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(suite.DB(), suite.logger, reviewedPaymentRequestFetcher, ediGenerator, false)
+		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
+			suite.DB(),
+			suite.logger,
+			reviewedPaymentRequestFetcher,
+			ediGenerator,
+			sendToSyncada,
+			gexSender,
+			SFTPSession)
+
 		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 		suite.Contains(err.Error(), "function ProcessReviewedPaymentRequest failed call")
+	})
+
+	suite.T().Run("process reviewed payment request, fail SFTP send", func(t *testing.T) {
+
+		suite.createPaymentRequest(4)
+
+		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
+		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB())
+		var gexSender services.GexSender
+		gexSender = nil
+		sendToSyncada := true // Call SendToSyncadaViaSFTP but using mock here
+
+		bytesSent := int64(0)
+		// int64, error
+		sftpSender := &mocks.SyncadaSFTPSender{}
+		sftpSender.
+			On("SendToSyncadaViaSFTP", mock.Anything, mock.Anything).Return(bytesSent, errors.New("test error"))
+
+		// Process Reviewed Payment Requests
+		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
+			suite.DB(),
+			suite.logger,
+			reviewedPaymentRequestFetcher,
+			ediGenerator,
+			sendToSyncada,
+			gexSender,
+			sftpSender)
+
+		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
+		suite.Contains(err.Error(), "error sending the following EDIs")
+
+	})
+
+	suite.T().Run("process reviewed payment request, successful SFTP send", func(t *testing.T) {
+
+		suite.createPaymentRequest(4)
+
+		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
+		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB())
+		var gexSender services.GexSender
+		gexSender = nil
+		sendToSyncada := true // Call SendToSyncadaViaSFTP but using mock here
+
+		bytesSent := int64(614)
+		// int64, error
+		sftpSender := &mocks.SyncadaSFTPSender{}
+		sftpSender.
+			On("SendToSyncadaViaSFTP", mock.Anything, mock.Anything).Return(bytesSent, nil)
+
+		// Process Reviewed Payment Requests
+		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
+			suite.DB(),
+			suite.logger,
+			reviewedPaymentRequestFetcher,
+			ediGenerator,
+			sendToSyncada,
+			gexSender,
+			sftpSender)
+
+		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
+		suite.NoError(err)
+
+	})
+
+	suite.T().Run("process reviewed payment request, successfully test init function", func(t *testing.T) {
+		// Run init with no issues
+		_ = InitNewPaymentRequestReviewedProcessor(suite.DB(), suite.logger, false)
 	})
 }
