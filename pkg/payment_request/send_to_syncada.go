@@ -13,6 +13,7 @@ func SendToSyncada(edi string, gexSender services.GexSender, sftpSender services
 	var err error
 	if gexSender != nil {
 		//TODO: Send to Syncada via GEX needs to be implemented
+		logger.Warn("func SendToSyncada() -- GEX Sender NOT IMPLEMENTED")
 	} else if sftpSender != nil {
 		// Send to Syncada via SFTP
 		edi858String := strings.NewReader(edi)

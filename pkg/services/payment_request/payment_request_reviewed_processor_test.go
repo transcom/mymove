@@ -33,8 +33,7 @@ func (suite *PaymentRequestServiceSuite) createPaymentRequest(num int) {
 			{
 				Key:     models.ServiceItemParamNameRequestedPickupDate,
 				KeyType: models.ServiceItemParamTypeDate,
-				//Value:   currentTime.Format(dateFormat),
-				Value: currentTime.Format(testDateFormat),
+				Value:   currentTime.Format(testDateFormat),
 			},
 			{
 				Key:     models.ServiceItemParamNameWeightBilledActual,
