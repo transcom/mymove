@@ -1,19 +1,18 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import TextBoxFilter from './TextBoxFilter';
+import DateSelectFilter from './DateSelectFilter';
 
 describe('React table', () => {
   it('renders without crashing', () => {
     const wrapper = mount(
-      <TextBoxFilter
+      <DateSelectFilter
         column={{
           filterValue: '',
-          preFilteredRows: [],
           setFilter: jest.fn(),
         }}
       />,
     );
-    expect(wrapper.find(TextBoxFilter).length).toBe(1);
+    expect(wrapper.find('[data-testid="DateSelectFilter"]').length).toBe(1);
   });
 });
