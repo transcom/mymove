@@ -79,7 +79,6 @@ const columns = [
     {
       id: 'submittedAt',
       isFilterable: true,
-      // eslint-disable-next-line react/jsx-props-no-spreading
       Filter: DateSelectFilter,
     },
   ),
