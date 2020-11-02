@@ -576,13 +576,8 @@ definitions:
   SubmitMoveForApprovalPayload:
     type: object
     properties:
-      ppm_submit_date:
-        type: string
-        format: date-time
-        title: When was the ppm move submitted?
-        example: '2019-03-26T13:19:56-04:00'
-    required:
-      - ppm_submit_date
+      certificate:
+        $ref: '#/definitions/CreateSignedCertificationPayload'
   SubmitPersonallyProcuredMovePayload:
     type: object
     properties:
