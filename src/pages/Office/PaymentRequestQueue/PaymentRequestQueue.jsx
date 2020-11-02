@@ -5,7 +5,6 @@ import { useTable, useFilters } from 'react-table';
 
 import styles from './PaymentRequestQueue.module.scss';
 
-// import { DatePickerInput } from 'components/form/fields';
 import { usePaymentRequestQueueQueries } from 'hooks/queries';
 import Table from 'components/Table/Table';
 import { createHeader } from 'components/Table/utils';
@@ -22,7 +21,7 @@ import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
-import { PAYMENT_REQUEST_STATUS_OPTIONS } from 'constants/queues';
+import { BRANCH_OPTIONS, PAYMENT_REQUEST_STATUS_OPTIONS } from 'constants/queues';
 
 const paymentRequestStatusOptions = Object.keys(PAYMENT_REQUEST_STATUS_OPTIONS).map((key) => ({
   value: key,
@@ -31,11 +30,10 @@ const paymentRequestStatusOptions = Object.keys(PAYMENT_REQUEST_STATUS_OPTIONS).
 
 const branchFilterOptions = [
   { value: '', label: 'All' },
-  { value: 'ARMY', label: 'Army' },
-  { value: 'NAVY', label: 'Navy' },
-  { value: 'MARINES', label: 'Marine Corps' },
-  { value: 'AIR_FORCE', label: 'Air Force' },
-  { value: 'COAST_GUARD', label: 'Coast Guard' },
+  ...Object.keys(BRANCH_OPTIONS).map((key) => ({
+    value: key,
+    label: BRANCH_OPTIONS[`${key}`],
+  })),
 ];
 
 const columns = [
@@ -107,7 +105,7 @@ const columns = [
 const PaymentRequestQueue = ({ history }) => {
   const [paramFilters, setParamFilters] = useState([]);
   const {
-    queuePaymentRequestsResult: { totalCount, queuePaymentRequests = [] },
+    queuePaymentRequestsResult: { totalCount = 0, queuePaymentRequests = [] },
     isLoading,
     isError,
   } = usePaymentRequestQueueQueries(paramFilters);
@@ -144,9 +142,7 @@ const PaymentRequestQueue = ({ history }) => {
   // When these table states change, fetch new data!
   useEffect(() => {
     if (!isLoading && !isError) {
-      if (filters.length > 0) {
-        setParamFilters(filters);
-      }
+      setParamFilters(filters);
     }
   }, [filters, isLoading, isError]);
 

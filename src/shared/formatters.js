@@ -7,7 +7,7 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { DEPARTMENT_INDICATOR_OPTIONS, DEPARTMENT_INDICATOR_LABELS } from 'constants/departmentIndicators';
 import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orders';
 import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
-import { SERVICE_MEMBER_AGENCY_LABELS } from 'constants/serviceMemberAgencies';
+import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
 
 /**
  * Formats number into a dollar string. Eg. $1,234.12

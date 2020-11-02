@@ -3,10 +3,10 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import Select, { components } from 'react-select';
 import { Checkbox } from '@trussworks/react-uswds';
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faSort from '@fortawesome/fontawesome-free-solid/faSort';
 
 import styles from './MultiSelectCheckBoxFilter.module.scss';
-
-import { ReactComponent as ArrowBoth } from 'icons/arrow-both.svg';
 
 const Option = (props) => {
   const {
@@ -24,7 +24,7 @@ const Option = (props) => {
 const DropdownIndicator = (props) => {
   return (
     <components.DropdownIndicator {...props}>
-      <ArrowBoth />
+      <FontAwesomeIcon className="fas fa-sort" icon={faSort} />
     </components.DropdownIndicator>
   );
 };

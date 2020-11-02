@@ -58,14 +58,14 @@ describe('PaymentRequestQueue', () => {
   });
 
   it('renders the correct column headers', () => {
-    expect(wrapper.find('thead tr').length).toBe(1);
+    expect(wrapper.find('thead tr').length).toBe(2);
 
     expect(wrapper.find('thead tr th').at(0).text()).toBe('Customer name');
     expect(wrapper.find('thead tr th').at(1).text()).toBe('DoD ID');
     expect(wrapper.find('thead tr th').at(2).text()).toContain('Status');
     expect(wrapper.find('thead tr th').at(3).text()).toBe('Age');
     expect(wrapper.find('thead tr th').at(4).text()).toBe('Submitted');
-    expect(wrapper.find('thead tr th').at(5).text()).toBe('Move ID');
+    expect(wrapper.find('thead tr th').at(5).text()).toBe('Move Code');
     expect(wrapper.find('thead tr th').at(6).text()).toContain('Branch');
     expect(wrapper.find('thead tr th').at(7).text()).toBe('Origin GBLOC');
   });

@@ -15,7 +15,7 @@ import { serviceMemberAgencyLabel } from 'shared/formatters';
 import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
-import { MOVE_STATUS_OPTIONS } from 'constants/queues';
+import { BRANCH_OPTIONS, MOVE_STATUS_OPTIONS } from 'constants/queues';
 
 const moveStatusOptions = Object.keys(MOVE_STATUS_OPTIONS).map((key) => ({
   value: key,
@@ -24,11 +24,10 @@ const moveStatusOptions = Object.keys(MOVE_STATUS_OPTIONS).map((key) => ({
 
 const branchFilterOptions = [
   { value: '', label: 'All' },
-  { value: 'ARMY', label: 'Army' },
-  { value: 'NAVY', label: 'Navy' },
-  { value: 'MARINES', label: 'Marine Corps' },
-  { value: 'AIR_FORCE', label: 'Air Force' },
-  { value: 'COAST_GUARD', label: 'Coast Guard' },
+  ...Object.keys(BRANCH_OPTIONS).map((key) => ({
+    value: key,
+    label: BRANCH_OPTIONS[`${key}`],
+  })),
 ];
 
 const columns = [
@@ -80,7 +79,7 @@ const MoveQueue = ({ history }) => {
   const [paramFilters, setParamFilters] = useState([]);
 
   const {
-    queueMovesResult: { totalCount, queueMoves = [] },
+    queueMovesResult: { totalCount = 0, queueMoves = [] },
     isLoading,
     isError,
   } = useMovesQueueQueries(paramFilters);
