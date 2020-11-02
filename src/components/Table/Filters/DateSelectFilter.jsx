@@ -13,6 +13,7 @@ const DateSelectFilter = ({ column: { filterValue, setFilter } }) => {
       value={filterValue || ''}
       format="DD MMM YYYY"
       data-testid="DateSelectFilter"
+      placeholder=""
       onChange={(e) => {
         setFilter(formatDateForSwagger(e) || undefined); // Set undefined to remove the filter entirely
       }}
