@@ -3,6 +3,7 @@ package invoice
 import (
 	"fmt"
 	"io"
+	"os"
 
 	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
@@ -28,6 +29,11 @@ func NewSyncadaSFTPSession(port string, userID string, remote string, password s
 		password,
 		syncadaInboundDirectory,
 	}
+}
+
+// InitNewSyncadaSFTPSession initialize a NewSyncadaSFTPSession and return services.SyncadaSFTPSender
+func InitNewSyncadaSFTPSession() services.SyncadaSFTPSender {
+	return NewSyncadaSFTPSession(os.Getenv("SYNCADA_SFTP_PORT"), os.Getenv("SYNCADA_SFTP_USER_ID"), os.Getenv("SYNCADA_SFTP_IP_ADDRESS"), os.Getenv("SYNCADA_SFTP_PASSWORD"), os.Getenv("SYNCADA_SFTP_INBOUND_DIRECTORY"))
 }
 
 // SendToSyncadaViaSFTP copies specified local content to Syncada's SFTP server
