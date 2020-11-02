@@ -6,8 +6,6 @@ import SingleDatePicker from '../../../shared/JsonSchemaForm/SingleDatePicker';
 import { formatDateForSwagger } from 'shared/dates';
 
 const DateSelectFilter = ({ column: { filterValue, setFilter } }) => {
-  // eslint-disable-next-line react/prop-types
-
   return (
     <SingleDatePicker
       value={filterValue || ''}
