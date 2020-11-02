@@ -153,8 +153,11 @@ func (h UpdateMoveOrderHandler) Handle(params moveorderop.UpdateMoveOrderParams)
 	query := h.DB().Where("orders_id = ?", updatedOrder.ID)
 	err = query.First(&move)
 
+	var moveID = move.ID
+
 	if err != nil {
 		logger.Error("ghcapi.UpdateMoveOrderHandler could not find move")
+		moveID = uuid.Nil
 	}
 
 	// UpdateMoveOrder event Trigger for the first updated move:
@@ -163,7 +166,7 @@ func (h UpdateMoveOrderHandler) Handle(params moveorderop.UpdateMoveOrderParams)
 		// Endpoint that is being handled
 		EventKey:        event.MoveOrderUpdateEventKey, // Event that you want to trigger
 		UpdatedObjectID: updatedOrder.ID,               // ID of the updated logical object (look at what the payload returns)
-		MtoID:           move.ID,                       // ID of the associated Move
+		MtoID:           moveID,                        // ID of the associated Move
 		Request:         params.HTTPRequest,            // Pass on the http.Request
 		DBConnection:    h.DB(),                        // Pass on the pop.Connection
 		HandlerContext:  h,                             // Pass on the handlerContext
