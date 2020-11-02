@@ -69,6 +69,11 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error 
 		return fmt.Errorf("function ProcessReviewedPaymentRequest failed call to FetchReviewedPaymentRequest: %w", err)
 	}
 
+	if len(reviewedPaymentRequests) == 0 {
+		// No reviewed payment requests to process
+		return nil
+	}
+
 	// records for successfully sent PRs
 	var sentToGexStatuses []string
 	// records for PRs that failed to send

@@ -149,7 +149,28 @@ func (suite *PaymentRequestServiceSuite) createPaymentRequest(num int) {
 
 func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
-	suite.T().Run("process reviewed payment request succesfully (do not send file)", func(t *testing.T) {
+	suite.T().Run("process reviewed payment request successfully (0 Payments to review)", func(t *testing.T) {
+		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
+		generator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB())
+		SFTPSession := invoice.InitNewSyncadaSFTPSession()
+		var gexSender services.GexSender
+		gexSender = nil
+		sendToSyncada := false
+
+		// Process Reviewed Payment Requests
+		paymentRequestReviewedProcessor := NewPaymentRequestReviewedProcessor(
+			suite.DB(),
+			suite.logger,
+			reviewedPaymentRequestFetcher,
+			generator,
+			sendToSyncada,
+			gexSender,
+			SFTPSession)
+		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
+		suite.NoError(err)
+	})
+
+	suite.T().Run("process reviewed payment request successfully (do not send file)", func(t *testing.T) {
 
 		suite.createPaymentRequest(4)
 
