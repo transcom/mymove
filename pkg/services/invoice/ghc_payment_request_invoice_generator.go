@@ -352,13 +352,15 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	originAndDestinationSegments = append(originAndDestinationSegments, &destinationName)
 
 	// destination address
-	destinationStreetAddress := edisegment.N3{
-		AddressInformation1: destinationDutyStation.Address.StreetAddress1,
+	if len(destinationDutyStation.Address.StreetAddress1) > 0 {
+		destinationStreetAddress := edisegment.N3{
+			AddressInformation1: destinationDutyStation.Address.StreetAddress1,
+		}
+		if destinationDutyStation.Address.StreetAddress2 != nil {
+			destinationStreetAddress.AddressInformation2 = *destinationDutyStation.Address.StreetAddress2
+		}
+		originAndDestinationSegments = append(originAndDestinationSegments, &destinationStreetAddress)
 	}
-	if destinationDutyStation.Address.StreetAddress2 != nil {
-		destinationStreetAddress.AddressInformation2 = *destinationDutyStation.Address.StreetAddress2
-	}
-	originAndDestinationSegments = append(originAndDestinationSegments, &destinationStreetAddress)
 
 	// destination city/state/postal
 	destinationPostalDetails := edisegment.N4{
@@ -420,13 +422,15 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	originAndDestinationSegments = append(originAndDestinationSegments, &originName)
 
 	// origin address
-	originStreetAddress := edisegment.N3{
-		AddressInformation1: originDutyStation.Address.StreetAddress1,
+	if len(originDutyStation.Address.StreetAddress1) > 0 {
+		originStreetAddress := edisegment.N3{
+			AddressInformation1: originDutyStation.Address.StreetAddress1,
+		}
+		if originDutyStation.Address.StreetAddress2 != nil {
+			originStreetAddress.AddressInformation2 = *originDutyStation.Address.StreetAddress2
+		}
+		originAndDestinationSegments = append(originAndDestinationSegments, &originStreetAddress)
 	}
-	if originDutyStation.Address.StreetAddress2 != nil {
-		originStreetAddress.AddressInformation2 = *originDutyStation.Address.StreetAddress2
-	}
-	originAndDestinationSegments = append(originAndDestinationSegments, &originStreetAddress)
 
 	// origin city/state/postal
 	originPostalDetails := edisegment.N4{
