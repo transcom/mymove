@@ -12,7 +12,7 @@ import { HhgShipmentShape, MatchShape, HistoryShape, PageKeyShape, PageListShape
 import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
 
 class MtoShipmentForm extends Component {
-  submitMTOShipment = ({ shipmentType, pickup, delivery, customerRemarks }) => {
+  submitMTOShipment = ({ shipmentType, pickup, hasDeliveryAddress, delivery, customerRemarks }) => {
     const {
       createMTOShipment,
       updateMTOShipment,
@@ -24,12 +24,17 @@ class MtoShipmentForm extends Component {
     } = this.props;
     const { moveId } = match.params;
 
+    const deliveryDetails = delivery;
+    if (hasDeliveryAddress === 'no') {
+      delete deliveryDetails.address;
+    }
+
     const pendingMtoShipment = formatMtoShipmentForAPI({
       shipmentType: shipmentType || selectedMoveType,
       moveId,
       customerRemarks,
       pickup,
-      delivery,
+      delivery: deliveryDetails,
     });
 
     if (isCreatePage) {

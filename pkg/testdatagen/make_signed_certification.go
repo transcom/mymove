@@ -19,7 +19,7 @@ func MakeSignedCertification(db *pop.Connection, assertions Assertions) models.S
 		userID = sm.UserID
 	}
 
-	certificationType := models.SignedCertificationTypePPM
+	certificationType := models.SignedCertificationTypeSHIPMENT
 	signedCertification := models.SignedCertification{
 		MoveID:                   moveID,
 		SubmittingUserID:         userID,
