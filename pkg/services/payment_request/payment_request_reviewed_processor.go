@@ -90,7 +90,7 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error 
 
 		}
 		var edi858cString string
-		edi858cString, err = edi858c.EDIString()
+		edi858cString, err = edi858c.EDIString(p.logger)
 		if err != nil {
 			return fmt.Errorf("function ProcessReviewedPaymentRequest failed call to edi858c.EDIString: %w", err)
 
