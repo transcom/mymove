@@ -104,6 +104,7 @@ const columns = [
 
 const PaymentRequestQueue = ({ history }) => {
   const [paramFilters, setParamFilters] = useState([]);
+
   const {
     queuePaymentRequestsResult: { totalCount = 0, queuePaymentRequests = [] },
     isLoading,
