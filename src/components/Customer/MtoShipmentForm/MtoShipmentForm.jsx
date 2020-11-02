@@ -3,10 +3,11 @@ import React, { Component } from 'react';
 import { bool, string, func, shape, number } from 'prop-types';
 import { Formik } from 'formik';
 
-import { getShipmentOptions } from './getShipmentOptions';
+import getShipmentOptions from './getShipmentOptions';
 import MtoShipmentFormFields from './MtoShipmentFormFields';
 
-import { WizardPage } from 'shared/WizardPage';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { WizardPage } from 'shared/WizardPage/index';
 import { AddressShape, SimpleAddressShape } from 'types/address';
 import { HhgShipmentShape, MatchShape, HistoryShape, PageKeyShape, PageListShape } from 'types/customerShapes';
 import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
@@ -56,7 +57,6 @@ class MtoShipmentForm extends Component {
   };
 
   render() {
-    // TODO: replace minimal styling with actual styling during UI phase
     const {
       pageKey,
       pageList,
@@ -70,7 +70,8 @@ class MtoShipmentForm extends Component {
       currentResidence,
     } = this.props;
 
-    const displayOptions = getShipmentOptions(selectedMoveType || mtoShipment.shipmentType);
+    const shipmentType = selectedMoveType || mtoShipment.shipmentType;
+    const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(shipmentType);
     const initialValues = formatMtoShipmentForDisplay(isCreatePage ? {} : mtoShipment);
 
     const commonFormProps = {
@@ -80,95 +81,101 @@ class MtoShipmentForm extends Component {
       match,
       history,
       newDutyStationAddress,
-      displayOptions,
       serviceMember,
-      shipmentNumber: displayOptions.displayName === 'HHG' ? this.getShipmentNumber() : null,
+      showPickupFields,
+      showDeliveryFields,
+      shipmentType,
+      shipmentNumber: shipmentType === SHIPMENT_OPTIONS.HHG ? this.getShipmentNumber() : null,
     };
 
     return (
-      <div className="grid-container">
-        <Formik
-          initialValues={initialValues}
-          enableReinitialize
-          validateOnBlur
-          validateOnChange
-          validationSchema={displayOptions.schema}
-        >
-          {({ values, dirty, isValid, isSubmitting, setValues }) => {
-            const handleUseCurrentResidenceChange = (e) => {
-              const { checked } = e.target;
-              if (checked) {
-                // use current residence
-                setValues({
-                  ...values,
-                  pickup: {
-                    ...values.pickup,
-                    address: currentResidence,
+      <Formik
+        initialValues={initialValues}
+        enableReinitialize
+        validateOnBlur
+        validateOnChange
+        validationSchema={schema}
+      >
+        {({ values, dirty, isValid, isSubmitting, setValues }) => {
+          const handleUseCurrentResidenceChange = (e) => {
+            const { checked } = e.target;
+            if (checked) {
+              // use current residence
+              setValues({
+                ...values,
+                pickup: {
+                  ...values.pickup,
+                  address: currentResidence,
+                },
+              });
+            } else if (match.params.moveId === mtoShipment?.moveTaskOrderId) {
+              // TODO - what is the purpose of this check?
+              // Revert address
+              setValues({
+                ...values,
+                pickup: {
+                  ...values.pickup,
+                  address: mtoShipment.pickupAddress,
+                },
+              });
+            } else {
+              // Revert address
+              setValues({
+                ...values,
+                pickup: {
+                  ...values.pickup,
+                  address: {
+                    street_address_1: '',
+                    street_address_2: '',
+                    city: '',
+                    state: '',
+                    postal_code: '',
                   },
-                });
-              } else if (match.params.moveId === mtoShipment?.moveTaskOrderId) {
-                // TODO - what is the purpose of this check?
-                // Revert address
-                setValues({
-                  ...values,
-                  pickup: {
-                    ...values.pickup,
-                    address: mtoShipment.pickupAddress,
-                  },
-                });
-              } else {
-                // Revert address
-                setValues({
-                  ...values,
-                  pickup: {
-                    ...values.pickup,
-                    address: {
-                      street_address_1: '',
-                      street_address_2: '',
-                      city: '',
-                      state: '',
-                      postal_code: '',
-                    },
-                  },
-                });
-              }
-            };
+                },
+              });
+            }
+          };
 
-            if (isCreatePage) {
-              // return MTO Shipment form in the wizard
-              return (
-                <WizardPage
-                  canMoveNext={dirty && isValid}
-                  match={match}
-                  pageKey={pageKey}
-                  pageList={pageList}
-                  push={history.push}
-                  handleSubmit={() => this.submitMTOShipment(values, dirty)}
-                >
+          if (isCreatePage) {
+            // return MTO Shipment form in the wizard
+            return (
+              <WizardPage
+                canMoveNext={dirty && isValid}
+                match={match}
+                pageKey={pageKey}
+                pageList={pageList}
+                push={history.push}
+                handleSubmit={() => this.submitMTOShipment(values, dirty)}
+              >
+                <MtoShipmentFormFields
+                  {...commonFormProps}
+                  values={values}
+                  onUseCurrentResidenceChange={handleUseCurrentResidenceChange}
+                  submitHandler={this.submitMTOShipment}
+                />
+              </WizardPage>
+            );
+          }
+
+          return (
+            <div className="grid-container usa-prose">
+              <div className="grid-row">
+                <div className="grid-col">
                   <MtoShipmentFormFields
                     {...commonFormProps}
                     values={values}
                     onUseCurrentResidenceChange={handleUseCurrentResidenceChange}
                     submitHandler={this.submitMTOShipment}
+                    dirty={dirty}
+                    isValid={isValid}
+                    isSubmitting={isSubmitting}
                   />
-                </WizardPage>
-              );
-            }
-
-            return (
-              <MtoShipmentFormFields
-                {...commonFormProps}
-                values={values}
-                onUseCurrentResidenceChange={handleUseCurrentResidenceChange}
-                submitHandler={this.submitMTOShipment}
-                dirty={dirty}
-                isValid={isValid}
-                isSubmitting={isSubmitting}
-              />
-            );
-          }}
-        </Formik>
-      </div>
+                </div>
+              </div>
+            </div>
+          );
+        }}
+      </Formik>
     );
   }
 }

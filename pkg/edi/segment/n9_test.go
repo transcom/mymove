@@ -32,14 +32,14 @@ func (suite *SegmentSuite) TestValidateN9() {
 			ReferenceIdentificationQualifier: "XX",                                             // oneof
 			ReferenceIdentification:          "",                                               // min
 			FreeFormDescription:              "1234567890123456789012345678901234567890123456", // max
-			Date:                             "20190933",                                       // timeformat
+			Date:                             "20190933",                                       // datetime
 		}
 
 		err := suite.validator.Struct(n9)
 		suite.ValidateError(err, "ReferenceIdentificationQualifier", "oneof")
 		suite.ValidateError(err, "ReferenceIdentification", "min")
 		suite.ValidateError(err, "FreeFormDescription", "max")
-		suite.ValidateError(err, "Date", "timeformat")
+		suite.ValidateError(err, "Date", "datetime")
 		suite.ValidateErrorLen(err, 4)
 	})
 

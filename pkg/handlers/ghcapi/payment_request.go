@@ -20,44 +20,8 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 )
-
-// ListPaymentRequestsHandler lists payments requests
-type ListPaymentRequestsHandler struct {
-	handlers.HandlerContext
-	services.PaymentRequestListFetcher
-}
-
-// Handle lists payment requests
-func (h ListPaymentRequestsHandler) Handle(params paymentrequestop.ListPaymentRequestsParams) middleware.Responder {
-	request := params.HTTPRequest
-	session, logger := h.SessionAndLoggerFromRequest(request)
-	officeUserAuthorized := session.Roles.HasRole(roles.RoleTypeTIO)
-	if !officeUserAuthorized {
-		return paymentrequestop.NewListPaymentRequestsForbidden()
-	}
-
-	officeUserID := session.OfficeUserID
-
-	paymentRequests, err := h.FetchPaymentRequestList(officeUserID)
-	if err != nil {
-		logger.Error("listing payment requests", zap.String("office_user_id", officeUserID.String()), zap.Error(err))
-		return paymentrequestop.NewListPaymentRequestsInternalServerError()
-	}
-
-	paymentRequestsList := make(ghcmessages.PaymentRequests, len(*paymentRequests))
-	for i, paymentRequest := range *paymentRequests {
-		pr, err := payloads.PaymentRequest(&paymentRequest, h.FileStorer())
-		if err != nil {
-			return paymentrequestop.NewListPaymentRequestsInternalServerError()
-		}
-		paymentRequestsList[i] = pr
-	}
-
-	return paymentrequestop.NewListPaymentRequestsOK().WithPayload(paymentRequestsList)
-}
 
 // GetPaymentRequestHandler gets payment requests
 type GetPaymentRequestHandler struct {

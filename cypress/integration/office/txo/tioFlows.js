@@ -23,7 +23,7 @@ describe('TIO user', () => {
     cy.removeFetch();
     cy.server();
     cy.route('GET', '/ghc/v1/swagger.yaml').as('getGHCClient');
-    cy.route('GET', '/ghc/v1/payment-requests').as('getPaymentRequests');
+    cy.route('GET', '/ghc/v1/queues/payment-requests').as('getPaymentRequests');
     cy.route('GET', '/ghc/v1/payment-requests/**').as('getPaymentRequest');
     cy.route('GET', '/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
     cy.route('GET', '/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
@@ -43,8 +43,7 @@ describe('TIO user', () => {
 
     // TIO Payment Requests queue
     cy.wait(['@getGHCClient', '@getPaymentRequests']);
-    cy.contains(paymentRequestId).parents('tr').contains('PENDING');
-    cy.contains(paymentRequestId).click();
+    cy.get('[data-uuid="' + paymentRequestId + '"]').click();
 
     // Payment Request detail page
     cy.url().should('include', `/payment-requests/${paymentRequestId}`);
@@ -76,7 +75,10 @@ describe('TIO user', () => {
     cy.wait('@patchPaymentRequestStatus');
 
     // Go back to queue
-    cy.contains('Payment Requests');
-    cy.contains(paymentRequestId).parents('tr').contains('REVIEWED');
+    cy.contains('Payment requests', { matchCase: false });
+    cy.contains('Reviewed', { matchCase: false });
+    cy.get('[data-uuid="' + paymentRequestId + '"]').within(() => {
+      cy.get('td').eq(2).contains('Reviewed');
+    });
   });
 });

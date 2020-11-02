@@ -47,6 +47,10 @@ small,
 .usa-prose > small {
   @include typeset('body', 2, 2);
 }
+legend {
+  @extend h2;
+  @include u-text('bold');
+}
 
 a,
 .usa-link,
