@@ -328,13 +328,13 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 
 	var err error
 	var destinationDutyStation models.DutyStation
-	if orders.NewDutyStation.ID == uuid.Nil {
+	if orders.NewDutyStationID != uuid.Nil {
 		destinationDutyStation, err = models.FetchDutyStation(g.db, orders.NewDutyStationID)
 		if err != nil {
 			return []edisegment.Segment{}, services.NewInvalidInputError(orders.NewDutyStationID, err, nil, "unable to find new duty station")
 		}
 	} else {
-		destinationDutyStation = orders.NewDutyStation
+		return []edisegment.Segment{}, services.NewBadDataError("Invalid Order, must have NewDutyStation")
 	}
 
 	destTransportationOffice, err := models.FetchDutyStationTransportationOffice(g.db, destinationDutyStation.ID)
@@ -397,16 +397,13 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	// origin station name
 	var originDutyStation models.DutyStation
 
-	if orders.OriginDutyStationID != nil {
+	if orders.OriginDutyStationID != nil && *orders.OriginDutyStationID != uuid.Nil {
 		originDutyStation, err = models.FetchDutyStation(g.db, *orders.OriginDutyStationID)
 		if err != nil {
 			return []edisegment.Segment{}, services.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
 		}
 	} else {
-		if orders.OriginDutyStation == nil {
-			return []edisegment.Segment{}, services.NewBadDataError("Invalid Order, must have OriginDutyStation")
-		}
-		originDutyStation = *orders.OriginDutyStation
+		return []edisegment.Segment{}, services.NewBadDataError("Invalid Order, must have OriginDutyStation")
 	}
 
 	originTransportationOffice, err := models.FetchDutyStationTransportationOffice(g.db, originDutyStation.ID)
