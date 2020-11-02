@@ -20,6 +20,7 @@ import {
 import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
+import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
 import { BRANCH_OPTIONS, PAYMENT_REQUEST_STATUS_OPTIONS } from 'constants/queues';
 
 const paymentRequestStatusOptions = Object.keys(PAYMENT_REQUEST_STATUS_OPTIONS).map((key) => ({
@@ -75,7 +76,11 @@ const columns = [
     (row) => {
       return formatDateFromIso(row.submittedAt, 'DD MMM YYYY');
     },
-    'submittedAt',
+    {
+      id: 'submittedAt',
+      isFilterable: true,
+      Filter: DateSelectFilter,
+    },
   ),
   createHeader('Move Code', 'locator', {
     id: 'moveID',
