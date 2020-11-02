@@ -2,7 +2,6 @@ package ghcapi
 
 import (
 	"database/sql"
-	"fmt"
 	"time"
 
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -147,7 +146,6 @@ func (h UpdateMoveOrderHandler) Handle(params moveorderop.UpdateMoveOrderParams)
 		}
 	}
 
-	fmt.Println("moveOrder.ID", updatedOrder.ID)
 	// Find the record where orderID matches moveOrder.ID
 	var move models.Move
 	query := h.DB().Where("orders_id = ?", updatedOrder.ID)
