@@ -97,9 +97,9 @@ export function selectMoveStatus(state, moveId) {
   return move.status;
 }
 
-export function submitMoveForApproval(moveId, ppmSubmitDate, label = submitMoveForApprovalLabel) {
+export function submitMoveForApproval(moveId, certificate, label = submitMoveForApprovalLabel) {
   const swaggerTag = 'moves.submitMoveForApproval';
-  const submitMoveForApprovalPayload = { ppm_submit_date: ppmSubmitDate };
+  const submitMoveForApprovalPayload = { certificate: certificate };
   return swaggerRequest(
     getClient,
     swaggerTag,

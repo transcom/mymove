@@ -10,24 +10,21 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // SubmitMoveForApprovalPayload submit move for approval payload
 // swagger:model SubmitMoveForApprovalPayload
 type SubmitMoveForApprovalPayload struct {
 
-	// When was the ppm move submitted?
-	// Required: true
-	// Format: date-time
-	PpmSubmitDate *strfmt.DateTime `json:"ppm_submit_date"`
+	// certificate
+	Certificate *CreateSignedCertificationPayload `json:"certificate,omitempty"`
 }
 
 // Validate validates this submit move for approval payload
 func (m *SubmitMoveForApprovalPayload) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validatePpmSubmitDate(formats); err != nil {
+	if err := m.validateCertificate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -37,14 +34,19 @@ func (m *SubmitMoveForApprovalPayload) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *SubmitMoveForApprovalPayload) validatePpmSubmitDate(formats strfmt.Registry) error {
+func (m *SubmitMoveForApprovalPayload) validateCertificate(formats strfmt.Registry) error {
 
-	if err := validate.Required("ppm_submit_date", "body", m.PpmSubmitDate); err != nil {
-		return err
+	if swag.IsZero(m.Certificate) { // not required
+		return nil
 	}
 
-	if err := validate.FormatOf("ppm_submit_date", "body", "date-time", m.PpmSubmitDate.String(), formats); err != nil {
-		return err
+	if m.Certificate != nil {
+		if err := m.Certificate.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("certificate")
+			}
+			return err
+		}
 	}
 
 	return nil

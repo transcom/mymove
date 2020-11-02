@@ -18,12 +18,14 @@ import {
 } from 'shared/Entities/modules/mtoShipments';
 import { MoveTaskOrderShape, MTOShipmentShape } from 'types/moveOrder';
 import ConnectedStorageInfoModal from 'components/Customer/modals/StorageInfoModal/StorageInfoModal';
+import ConnectedMoveInfoModal from 'components/Customer/modals/MoveInfoModal/MoveInfoModal';
 
 export class SelectMoveType extends Component {
   constructor(props) {
     super(props);
     this.state = {
       showStorageInfoModal: false,
+      showMoveInfoModal: false,
     };
   }
 
@@ -42,6 +44,12 @@ export class SelectMoveType extends Component {
     }));
   };
 
+  toggleMoveInfoModal = () => {
+    this.setState((state) => ({
+      showMoveInfoModal: !state.showMoveInfoModal,
+    }));
+  };
+
   handleSubmit = () => {
     const { match, updateMove } = this.props;
     const { moveType } = this.state;
@@ -50,7 +58,7 @@ export class SelectMoveType extends Component {
 
   render() {
     const { pageKey, pageList, match, push, move, mtoShipments } = this.props;
-    const { moveType, showStorageInfoModal } = this.state;
+    const { moveType, showStorageInfoModal, showMoveInfoModal } = this.state;
     const hasNTS = mtoShipments.some((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.NTS);
     const hasNTSR = mtoShipments.some((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.NTSR);
     const isMoveDraft = move.status === MOVE_STATUSES.DRAFT;
@@ -92,6 +100,7 @@ export class SelectMoveType extends Component {
         cardText={ppmCardText}
         checked={moveType === SHIPMENT_OPTIONS.PPM}
         disabled={false}
+        onHelpClick={this.toggleMoveInfoModal}
       />
     );
     const ppmDisabledCard = (
@@ -103,6 +112,7 @@ export class SelectMoveType extends Component {
         cardText={ppmCardTextAlreadyChosen}
         checked={false}
         disabled={!isPpmSelectable}
+        onHelpClick={this.toggleMoveInfoModal}
       />
     );
     const hhgEnabledCard = (
@@ -114,6 +124,7 @@ export class SelectMoveType extends Component {
         cardText={hhgCardText}
         checked={moveType === SHIPMENT_OPTIONS.HHG}
         disabled={false}
+        onHelpClick={this.toggleMoveInfoModal}
       />
     );
     const hhgDisabledCard = (
@@ -125,6 +136,7 @@ export class SelectMoveType extends Component {
         cardText={hhgCardTextPostSubmit}
         checked={false}
         disabled={!isHhgSelectable}
+        onHelpClick={this.toggleMoveInfoModal}
       />
     );
     const footerText = (
@@ -199,7 +211,7 @@ export class SelectMoveType extends Component {
           </div>
           <div className="tablet:grid-col-2" />
         </div>
-
+        <ConnectedMoveInfoModal isOpen={showMoveInfoModal} closeModal={this.toggleMoveInfoModal} />
         <ConnectedStorageInfoModal isOpen={showStorageInfoModal} closeModal={this.toggleStorageModal} />
       </div>
     );
