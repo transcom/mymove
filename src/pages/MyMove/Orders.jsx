@@ -3,7 +3,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { get, isEmpty } from 'lodash';
 import { connect } from 'react-redux';
-import { getFormValues, Field } from 'redux-form';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
 
 import {
   createOrders as createOrdersAction,
@@ -11,32 +12,24 @@ import {
   fetchLatestOrders as fetchLatestOrdersAction,
   selectActiveOrLatestOrders,
 } from 'shared/Entities/modules/orders';
-import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { withContext } from 'shared/AppContext';
-import { DutyStationSearchBox } from 'scenes/ServiceMembers/DutyStationSearchBox';
-import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
-import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { validateAdditionalFields } from 'shared/JsonSchemaForm';
-import { createModifiedSchemaForOrdersTypesFlag } from 'shared/featureFlags';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-
-const validateOrdersForm = validateAdditionalFields(['new_duty_station']);
-
-const formName = 'orders_info';
-const OrdersWizardForm = reduxifyWizardForm(formName, validateOrdersForm);
+import OrdersInfoForm from 'components/Customer/OrdersInfoForm/OrdersInfoForm';
 
 export class Orders extends Component {
   componentDidMount() {
+    // TODO
     const { serviceMemberId, currentOrders, fetchLatestOrders } = this.props;
     if (!isEmpty(currentOrders)) {
       fetchLatestOrders(serviceMemberId);
     }
   }
 
-  handleSubmit = () => {
-    const { formValues, serviceMemberId, currentOrders, createOrders, updateOrders } = this.props;
-    const pendingValues = { ...formValues };
+  handleSubmit = (values) => {
+    const { serviceMemberId, currentOrders, createOrders, updateOrders } = this.props;
+    const pendingValues = { ...values };
 
+    // TODO
     // Update if orders object already extant
     if (pendingValues) {
       pendingValues.service_member_id = serviceMemberId;
@@ -56,67 +49,69 @@ export class Orders extends Component {
 
   render() {
     const {
-      schema,
-      context,
-      pages,
-      pageKey,
-      error,
-      currentOrders,
-      serviceMemberId,
-      newDutyStation,
+      // context,
+      // pages,
+      // pageKey,
+      // error,
+      // currentOrders,
+      // serviceMemberId,
+      // newDutyStation,
       currentStation,
     } = this.props;
 
     // initialValues has to be null until there are values from the action since only the first values are taken
-    const initialValues = currentOrders || null;
-    const newDutyStationErrorMsg =
-      newDutyStation.name === currentStation.name
-        ? 'You entered the same duty station for your origin and destination. Please change one of them.'
-        : '';
-    const showAllOrdersTypes = context.flags.allOrdersTypes;
-    const modifiedSchemaForOrdersTypesFlag = createModifiedSchemaForOrdersTypesFlag(schema);
+    // TODO - initialize values based on currentOrders
+    // const initialValues = currentOrders || null;
+    const initialValues = {
+      orders_type: '', // required
+      issue_date: '', // required
+      report_by_date: '', // required
+      has_dependents: '', // required
+      new_duty_station: null,
+    };
+
+    // TODO - orders types feature flag
+    // const showAllOrdersTypes = context.flags.allOrdersTypes;
+    const ordersTypeOptions = [
+      { key: 'PERMANENT_CHANGE_OF_STATION', value: 'Permanent Change Of Station (PCS)' },
+      { key: 'RETIREMENT', value: 'Retirement' },
+      { key: 'SEPARATION', value: 'Separation' },
+    ];
+
+    const ordersInfoSchema = Yup.object().shape({
+      orders_type: Yup.mixed()
+        .oneOf(ordersTypeOptions.map((i) => i.key))
+        .required('Required'),
+      issue_date: Yup.date().required('Required'),
+      report_by_date: Yup.date().required('Required'),
+      has_dependents: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
+      new_duty_station: Yup.object()
+        .shape({
+          name: Yup.string().notOneOf(
+            [currentStation?.name],
+            'You entered the same duty station for your origin and destination. Please change one of them.',
+          ),
+        })
+        .nullable()
+        .required('Required'),
+    });
 
     return (
-      <OrdersWizardForm
-        additionalParams={{ serviceMemberId }}
-        className={formName}
-        handleSubmit={this.handleSubmit}
-        initialValues={initialValues}
-        pageKey={pageKey}
-        pageList={pages}
-        readyToSubmit={!newDutyStationErrorMsg}
-        serverError={error}
-      >
-        <h1>Tell us about your move orders</h1>
-        <SectionWrapper>
-          <div className="tablet:margin-top-neg-3">
-            <SwaggerField
-              fieldName="orders_type"
-              swagger={showAllOrdersTypes ? schema : modifiedSchemaForOrdersTypesFlag}
-              required
-            />
-            <SwaggerField fieldName="issue_date" swagger={schema} required />
-            <div style={{ marginTop: '0.25rem' }}>
-              <span className="usa-hint">Date your orders were issued.</span>
-            </div>
-            <SwaggerField fieldName="report_by_date" swagger={schema} required />
-            <SwaggerField fieldName="has_dependents" swagger={schema} component={YesNoBoolean} />
-            <Field
-              name="new_duty_station"
-              component={DutyStationSearchBox}
-              errorMsg={newDutyStationErrorMsg}
-              title="New duty station"
-            />
-          </div>
-        </SectionWrapper>
-      </OrdersWizardForm>
+      <Formik initialValues={initialValues} validateOnMount validationSchema={ordersInfoSchema}>
+        {() => (
+          <>
+            <h1>Tell us about your move orders</h1>
+            <SectionWrapper>
+              <OrdersInfoForm currentStation={currentStation} />
+            </SectionWrapper>
+          </>
+        )}
+      </Formik>
     );
   }
 }
 
 Orders.propTypes = {
-  schema: PropTypes.object.isRequired,
-  error: PropTypes.object,
   context: PropTypes.shape({
     flags: PropTypes.shape({
       allOrdersTypes: PropTypes.bool,
@@ -127,35 +122,24 @@ Orders.propTypes = {
   fetchLatestOrders: PropTypes.func,
   createOrders: PropTypes.func,
   updateOrders: PropTypes.func,
-  formValues: PropTypes.object,
-  pages: PropTypes.arrayOf(PropTypes.string).isRequired,
-  pageKey: PropTypes.string.isRequired,
-  newDutyStation: PropTypes.object,
   currentStation: PropTypes.object,
 };
 
 Orders.defaultProps = {
-  error: null,
   currentOrders: null,
   fetchLatestOrders: () => {},
   createOrders: () => {},
   updateOrders: () => {},
-  formValues: {},
-  newDutyStation: {},
   currentStation: {},
 };
 
 function mapStateToProps(state) {
-  const formValues = getFormValues(formName)(state);
   const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
 
   return {
     serviceMemberId,
     currentOrders: selectActiveOrLatestOrders(state),
-    schema: get(state, 'swaggerInternal.spec.definitions.CreateUpdateOrders', {}),
-    formValues,
     currentStation: get(state, 'serviceMember.currentServiceMember.current_station', {}),
-    newDutyStation: get(formValues, 'new_duty_station', {}),
   };
 }
 

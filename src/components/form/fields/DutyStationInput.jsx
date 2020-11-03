@@ -11,6 +11,9 @@ export const DutyStationInput = (props) => {
   const { label, name, displayAddress } = props;
   // eslint-disable-next-line no-unused-vars
   const [field, meta, helpers] = useField(props);
+
+  const errorString = meta.value?.name ? meta.error?.name || meta.error : '';
+
   return (
     <DutyStationSearchBox
       title={label}
@@ -19,7 +22,7 @@ export const DutyStationInput = (props) => {
         value: field.value,
         onChange: helpers.setValue,
       }}
-      errorMsg={meta.error}
+      errorMsg={errorString}
       displayAddress={displayAddress}
     />
   );
