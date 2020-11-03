@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { get, isEmpty } from 'lodash';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { getFormValues, Field } from 'redux-form';
 
 import {
@@ -160,14 +159,10 @@ function mapStateToProps(state) {
   };
 }
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    {
-      fetchLatestOrders: fetchLatestOrdersAction,
-      updateOrders: updateOrdersAction,
-      createOrders: createOrdersAction,
-    },
-    dispatch,
-  );
-}
+const mapDispatchToProps = {
+  fetchLatestOrders: fetchLatestOrdersAction,
+  updateOrders: updateOrdersAction,
+  createOrders: createOrdersAction,
+};
+
 export default withContext(connect(mapStateToProps, mapDispatchToProps)(Orders));
