@@ -328,13 +328,13 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 
 	var err error
 	var destinationDutyStation models.DutyStation
-	if orders.NewDutyStation.ID == uuid.Nil {
+	if orders.NewDutyStationID != uuid.Nil {
 		destinationDutyStation, err = models.FetchDutyStation(g.db, orders.NewDutyStationID)
 		if err != nil {
 			return []edisegment.Segment{}, services.NewInvalidInputError(orders.NewDutyStationID, err, nil, "unable to find new duty station")
 		}
 	} else {
-		destinationDutyStation = orders.NewDutyStation
+		return []edisegment.Segment{}, services.NewBadDataError("Invalid Order, must have NewDutyStation")
 	}
 
 	destTransportationOffice, err := models.FetchDutyStationTransportationOffice(g.db, destinationDutyStation.ID)
@@ -352,13 +352,15 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	originAndDestinationSegments = append(originAndDestinationSegments, &destinationName)
 
 	// destination address
-	destinationStreetAddress := edisegment.N3{
-		AddressInformation1: destinationDutyStation.Address.StreetAddress1,
+	if len(destinationDutyStation.Address.StreetAddress1) > 0 {
+		destinationStreetAddress := edisegment.N3{
+			AddressInformation1: destinationDutyStation.Address.StreetAddress1,
+		}
+		if destinationDutyStation.Address.StreetAddress2 != nil {
+			destinationStreetAddress.AddressInformation2 = *destinationDutyStation.Address.StreetAddress2
+		}
+		originAndDestinationSegments = append(originAndDestinationSegments, &destinationStreetAddress)
 	}
-	if destinationDutyStation.Address.StreetAddress2 != nil {
-		destinationStreetAddress.AddressInformation2 = *destinationDutyStation.Address.StreetAddress2
-	}
-	originAndDestinationSegments = append(originAndDestinationSegments, &destinationStreetAddress)
 
 	// destination city/state/postal
 	destinationPostalDetails := edisegment.N4{
@@ -397,16 +399,13 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	// origin station name
 	var originDutyStation models.DutyStation
 
-	if orders.OriginDutyStationID != nil {
+	if orders.OriginDutyStationID != nil && *orders.OriginDutyStationID != uuid.Nil {
 		originDutyStation, err = models.FetchDutyStation(g.db, *orders.OriginDutyStationID)
 		if err != nil {
 			return []edisegment.Segment{}, services.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
 		}
 	} else {
-		if orders.OriginDutyStation == nil {
-			return []edisegment.Segment{}, services.NewBadDataError("Invalid Order, must have OriginDutyStation")
-		}
-		originDutyStation = *orders.OriginDutyStation
+		return []edisegment.Segment{}, services.NewBadDataError("Invalid Order, must have OriginDutyStation")
 	}
 
 	originTransportationOffice, err := models.FetchDutyStationTransportationOffice(g.db, originDutyStation.ID)
@@ -423,13 +422,15 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	originAndDestinationSegments = append(originAndDestinationSegments, &originName)
 
 	// origin address
-	originStreetAddress := edisegment.N3{
-		AddressInformation1: originDutyStation.Address.StreetAddress1,
+	if len(originDutyStation.Address.StreetAddress1) > 0 {
+		originStreetAddress := edisegment.N3{
+			AddressInformation1: originDutyStation.Address.StreetAddress1,
+		}
+		if originDutyStation.Address.StreetAddress2 != nil {
+			originStreetAddress.AddressInformation2 = *originDutyStation.Address.StreetAddress2
+		}
+		originAndDestinationSegments = append(originAndDestinationSegments, &originStreetAddress)
 	}
-	if originDutyStation.Address.StreetAddress2 != nil {
-		originStreetAddress.AddressInformation2 = *originDutyStation.Address.StreetAddress2
-	}
-	originAndDestinationSegments = append(originAndDestinationSegments, &originStreetAddress)
 
 	// origin city/state/postal
 	originPostalDetails := edisegment.N4{
