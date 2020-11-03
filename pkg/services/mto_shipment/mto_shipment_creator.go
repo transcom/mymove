@@ -136,7 +136,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 		}
 
 		// check that required items to create shipment are present
-		if shipment.RequestedPickupDate == nil && shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
+		if shipment.RequestedPickupDate.IsZero() && shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
 			return services.NewInvalidInputError(uuid.Nil, nil, nil, "RequestedPickupDate is required to create an HHG or NTS type MTO shipment")
 		}
 
