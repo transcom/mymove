@@ -48,6 +48,7 @@ const Table = ({ handleClick, getTableProps, getTableBodyProps, headerGroups, ro
           })}
         </tbody>
       </table>
+      <div className="pagination" />
     </div>
   );
 };

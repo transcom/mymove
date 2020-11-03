@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { withKnobs } from '@storybook/addon-knobs';
-import { useFilters, useTable } from 'react-table';
+import { useFilters, usePagination, useTable } from 'react-table';
 
 import { createHeader } from './utils';
 import Table from './Table';
@@ -120,6 +120,39 @@ const CreatedTableWithFilters = () => {
   return <Table {...propsWithFilters} />;
 };
 
+const CreateTableWithPagination = () => {
+  const defaultColumn = useMemo(
+    () => ({
+      // Let's set up our default Filter UI
+      Filter: TextBoxFilter,
+    }),
+    [],
+  );
+
+  const tableData = useMemo(() => data, []);
+  const tableColumns = useMemo(() => columns(true), []);
+  const controlledPageCount = 5;
+  const propsWithPagination = useTable(
+    {
+      columns: tableColumns,
+      data: tableData,
+      initialState: { pageIndex: 0 }, // Pass our hoisted table state
+      manualFilters: true,
+      manualPagination: true, // Tell the usePagination
+      // hook that we'll handle our own data fetching
+      // This means we'll also have to provide our own
+      // pageCount.
+      defaultColumn,
+      pageCount: controlledPageCount,
+    },
+    usePagination,
+  );
+  // eslint-disable-next-line react/jsx-props-no-spreading
+  return <Table {...propsWithPagination} />;
+};
+
 export const TXOTable = () => <CreatedTable />;
 
 export const TXOTableFilters = () => <CreatedTableWithFilters />;
+
+export const TXOTablePagination = () => <CreateTableWithPagination />;
