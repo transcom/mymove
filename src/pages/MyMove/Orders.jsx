@@ -1,7 +1,8 @@
+/* eslint-disable react/no-unused-prop-types */
 /* eslint-disable react/forbid-prop-types */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { get, isEmpty } from 'lodash';
+import { isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -15,6 +16,8 @@ import {
 import { withContext } from 'shared/AppContext';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import OrdersInfoForm from 'components/Customer/OrdersInfoForm/OrdersInfoForm';
+import { WizardPage } from 'shared/WizardPage/index';
+import { MatchShape, HistoryShape, PageKeyShape, PageListShape } from 'types/customerShapes';
 
 export class Orders extends Component {
   componentDidMount() {
@@ -25,49 +28,43 @@ export class Orders extends Component {
     }
   }
 
-  handleSubmit = (values) => {
-    const { serviceMemberId, currentOrders, createOrders, updateOrders } = this.props;
-    const pendingValues = { ...values };
-
-    // TODO
-    // Update if orders object already extant
-    if (pendingValues) {
-      pendingValues.service_member_id = serviceMemberId;
-      pendingValues.new_duty_station_id = pendingValues.new_duty_station.id;
-      pendingValues.has_dependents = pendingValues.has_dependents || false;
-      pendingValues.spouse_has_pro_gear = (pendingValues.has_dependents && pendingValues.spouse_has_pro_gear) || false;
-
-      if (isEmpty(currentOrders)) {
-        return createOrders(pendingValues);
-      }
-
-      return updateOrders(currentOrders.id, pendingValues);
-    }
-
-    return null;
-  };
-
   render() {
     const {
       // context,
-      // pages,
-      // pageKey,
       // error,
-      // currentOrders,
-      // serviceMemberId,
-      // newDutyStation,
       currentStation,
+      match,
+      pages,
+      pageKey,
+      history,
+      serviceMemberId,
+      currentOrders,
+      createOrders,
+      updateOrders,
     } = this.props;
 
-    // initialValues has to be null until there are values from the action since only the first values are taken
-    // TODO - initialize values based on currentOrders
-    // const initialValues = currentOrders || null;
+    const submitOrders = (values) => {
+      const pendingValues = {
+        ...values,
+        service_member_id: serviceMemberId,
+        new_duty_station_id: values.new_duty_station.id,
+        has_dependents: values.has_dependents === 'yes',
+        spouse_has_pro_gear: false, // TODO - this input seems to be deprecated?
+      };
+
+      if (currentOrders?.id) {
+        return updateOrders(currentOrders.id, pendingValues);
+      }
+
+      return createOrders(pendingValues);
+    };
+
     const initialValues = {
-      orders_type: '', // required
-      issue_date: '', // required
-      report_by_date: '', // required
-      has_dependents: '', // required
-      new_duty_station: null,
+      orders_type: currentOrders?.orders_type || '',
+      issue_date: currentOrders?.issue_date || '',
+      report_by_date: currentOrders?.report_by_date || '',
+      has_dependents: currentOrders?.has_dependents ? 'yes' : 'no', // TODO - radio is not prefilling
+      new_duty_station: currentOrders?.new_duty_station || null,
     };
 
     // TODO - orders types feature flag
@@ -97,14 +94,22 @@ export class Orders extends Component {
     });
 
     return (
-      <Formik initialValues={initialValues} validateOnMount validationSchema={ordersInfoSchema}>
-        {() => (
-          <>
+      <Formik initialValues={initialValues} validateOnMount validationSchema={ordersInfoSchema} onSubmit={submitOrders}>
+        {({ isValid, dirty, handleSubmit }) => (
+          <WizardPage
+            canMoveNext={dirty && isValid}
+            match={match}
+            pageKey={pageKey}
+            pageList={pages}
+            push={history.push}
+            handleSubmit={handleSubmit}
+            dirty={dirty}
+          >
             <h1>Tell us about your move orders</h1>
             <SectionWrapper>
-              <OrdersInfoForm currentStation={currentStation} />
+              <OrdersInfoForm />
             </SectionWrapper>
-          </>
+          </WizardPage>
         )}
       </Formik>
     );
@@ -123,6 +128,10 @@ Orders.propTypes = {
   createOrders: PropTypes.func,
   updateOrders: PropTypes.func,
   currentStation: PropTypes.object,
+  match: MatchShape.isRequired,
+  history: HistoryShape.isRequired,
+  pages: PageListShape,
+  pageKey: PageKeyShape,
 };
 
 Orders.defaultProps = {
@@ -131,17 +140,15 @@ Orders.defaultProps = {
   createOrders: () => {},
   updateOrders: () => {},
   currentStation: {},
+  pages: [],
+  pageKey: '',
 };
 
-function mapStateToProps(state) {
-  const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
-
-  return {
-    serviceMemberId,
-    currentOrders: selectActiveOrLatestOrders(state),
-    currentStation: get(state, 'serviceMember.currentServiceMember.current_station', {}),
-  };
-}
+const mapStateToProps = (state) => ({
+  serviceMemberId: state.serviceMember?.currentServiceMember?.id,
+  currentOrders: selectActiveOrLatestOrders(state),
+  currentStation: state.serviceMember?.currentServiceMember?.current_station || {},
+});
 
 const mapDispatchToProps = {
   fetchLatestOrders: fetchLatestOrdersAction,

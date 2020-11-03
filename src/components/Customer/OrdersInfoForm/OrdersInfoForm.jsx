@@ -6,16 +6,6 @@ import { DropdownInput, DatePickerInput, DutyStationInput } from 'components/for
 import Hint from 'components/Hint/index';
 import { Form } from 'components/form/Form';
 
-/**
- * TODO:
- * - fetch latest orders on mount
- * - handle submit (create or update)
- * - initialize values based on current orders
- * - orders types feature flag
- * - display server error
- * -
- */
-
 const OrdersInfoForm = () => {
   const ordersTypeOptions = [
     { key: 'PERMANENT_CHANGE_OF_STATION', value: 'Permanent Change Of Station (PCS)' },
