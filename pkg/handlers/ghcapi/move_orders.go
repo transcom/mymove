@@ -8,6 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/event"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
@@ -106,6 +107,34 @@ func (h UpdateMoveOrderHandler) Handle(params moveorderop.UpdateMoveOrderParams)
 		default:
 			return moveorderop.NewUpdateMoveOrderInternalServerError()
 		}
+	}
+
+	// Find the record where orderID matches moveOrder.ID
+	var move models.Move
+	query := h.DB().Where("orders_id = ?", updatedOrder.ID)
+	err = query.First(&move)
+
+	var moveID = move.ID
+
+	if err != nil {
+		logger.Error("ghcapi.UpdateMoveOrderHandler could not find move")
+		moveID = uuid.Nil
+	}
+
+	// UpdateMoveOrder event Trigger for the first updated move:
+	_, err = event.TriggerEvent(event.Event{
+		EndpointKey: event.GhcUpdateMoveOrderEndpointKey,
+		// Endpoint that is being handled
+		EventKey:        event.MoveOrderUpdateEventKey, // Event that you want to trigger
+		UpdatedObjectID: updatedOrder.ID,               // ID of the updated logical object (look at what the payload returns)
+		MtoID:           moveID,                        // ID of the associated Move
+		Request:         params.HTTPRequest,            // Pass on the http.Request
+		DBConnection:    h.DB(),                        // Pass on the pop.Connection
+		HandlerContext:  h,                             // Pass on the handlerContext
+	})
+	// If the event trigger fails, just log the error.
+	if err != nil {
+		logger.Error("ghcapi.UpdateMoveOrderHandler could not generate the event")
 	}
 
 	moveOrderPayload := payloads.MoveOrder(updatedOrder)
