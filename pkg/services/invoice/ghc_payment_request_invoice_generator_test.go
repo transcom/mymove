@@ -178,7 +178,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal("00", result.ISA.SecurityInformationQualifier)
 		suite.Equal("0000000000", result.ISA.SecurityInformation)
 		suite.Equal("ZZ", result.ISA.InterchangeSenderIDQualifier)
-		suite.Equal("MYMOVE         ", result.ISA.InterchangeSenderID)
+		suite.Equal("MILMOVE        ", result.ISA.InterchangeSenderID)
 		suite.Equal("12", result.ISA.InterchangeReceiverIDQualifier)
 		suite.Equal("8004171844     ", result.ISA.InterchangeReceiverID)
 		suite.Equal(currentTime.Format(testDateFormat), result.ISA.InterchangeDate)
