@@ -9,6 +9,7 @@ import {
   HelperNeedsShipment,
   HelperNeedsSubmitMove,
   HelperSubmittedMove,
+  HelperSubmittedPPM,
   HelperSubmittedNoPPM,
 } from 'pages/MyMove/Home/HomeHelpers';
 
@@ -51,4 +52,5 @@ export const NeedsOrders = () => <HelperNeedsOrders />;
 export const NeedsShipment = () => <HelperNeedsShipment />;
 export const NeedsSubmitMove = () => <HelperNeedsSubmitMove />;
 export const SubmittedMove = () => <HelperSubmittedMove />;
+export const SubmittedPPM = () => <HelperSubmittedPPM />;
 export const SubmittedNoPPM = () => <HelperSubmittedNoPPM />;

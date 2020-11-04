@@ -11,6 +11,7 @@ import {
   HelperNeedsShipment,
   HelperNeedsSubmitMove,
   HelperSubmittedMove,
+  HelperSubmittedPPM,
   HelperSubmittedNoPPM,
 } from './HomeHelpers';
 
@@ -146,8 +147,13 @@ class Home extends Component {
     if (!this.hasOrders) return <HelperNeedsOrders />;
     if (!this.hasAnyShipments) return <HelperNeedsShipment />;
     if (!this.hasSubmittedMove) return <HelperNeedsSubmitMove />;
-    // TODO: support PPM shipments; see MB-4267
-    if (this.hasPPMShipment) return <HelperSubmittedMove />;
+    if (this.hasPPMShipment)
+      return (
+        <>
+          <HelperSubmittedMove />
+          <HelperSubmittedPPM />
+        </>
+      );
     return <HelperSubmittedNoPPM />;
   };
 

@@ -41,6 +41,16 @@ export const HelperSubmittedMove = () => (
   </Helper>
 );
 
+export const HelperSubmittedPPM = () => (
+  <Helper title="For your do-it-yourself shipments (PPMs)">
+    <ul>
+      {/* TBD, add associated link to the text 'Visit the MilMove PPM page' */}
+      <li>Visit the MilMove PPM page to learn more about DITY shipments and to manage yours.</li>
+      <li>Once you have moved, you’ll request payment using MilMove.</li>
+    </ul>
+  </Helper>
+);
+
 export const HelperSubmittedNoPPM = () => (
   <Helper title="What’s next?">
     <ul>
