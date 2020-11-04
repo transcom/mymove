@@ -97,7 +97,7 @@ export class Orders extends Component {
       <Formik initialValues={initialValues} validateOnMount validationSchema={ordersInfoSchema} onSubmit={submitOrders}>
         {({ isValid, dirty, handleSubmit }) => (
           <WizardPage
-            canMoveNext={dirty && isValid}
+            canMoveNext={isValid}
             match={match}
             pageKey={pageKey}
             pageList={pages}

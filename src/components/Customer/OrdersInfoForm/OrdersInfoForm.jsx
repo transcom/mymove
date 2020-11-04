@@ -16,12 +16,19 @@ const OrdersInfoForm = () => {
   return (
     <Form>
       <Field as={DropdownInput} label="Orders type" name="orders_type" options={ordersTypeOptions} />
-      <FormGroup>
-        <Field as={DatePickerInput} name="issue_date" label="Orders date" />
-        <Hint>
-          <p>Date your orders were issued.</p>
-        </Hint>
-      </FormGroup>
+      <Field
+        as={DatePickerInput}
+        name="issue_date"
+        label="Orders date"
+        renderInput={(input) => (
+          <>
+            {input}
+            <Hint>
+              <p>Date your orders were issued.</p>
+            </Hint>
+          </>
+        )}
+      />
       <Field as={DatePickerInput} name="report_by_date" label="Report-by date" />
       <FormGroup>
         <Label>Are dependents included in your orders?</Label>
