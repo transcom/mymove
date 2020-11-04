@@ -1,4 +1,3 @@
-/* eslint-disable no-only-tests/no-only-tests */
 describe('the PPM flow', function () {
   before(() => {
     cy.prepareCustomerApp();
