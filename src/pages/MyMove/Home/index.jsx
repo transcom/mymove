@@ -12,7 +12,6 @@ import {
   HelperNeedsSubmitMove,
   HelperSubmittedMove,
   HelperSubmittedPPM,
-  HelperSubmittedNoPPM,
 } from './HomeHelpers';
 
 import { withContext } from 'shared/AppContext';
@@ -154,7 +153,7 @@ class Home extends Component {
           <HelperSubmittedPPM />
         </>
       );
-    return <HelperSubmittedNoPPM />;
+    return <HelperSubmittedMove />;
   };
 
   renderCustomerHeader = () => {

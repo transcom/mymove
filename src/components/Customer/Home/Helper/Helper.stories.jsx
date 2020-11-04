@@ -10,7 +10,6 @@ import {
   HelperNeedsSubmitMove,
   HelperSubmittedMove,
   HelperSubmittedPPM,
-  HelperSubmittedNoPPM,
 } from 'pages/MyMove/Home/HomeHelpers';
 
 const title = 'Next step: Add your orders';
@@ -53,4 +52,3 @@ export const NeedsShipment = () => <HelperNeedsShipment />;
 export const NeedsSubmitMove = () => <HelperNeedsSubmitMove />;
 export const SubmittedMove = () => <HelperSubmittedMove />;
 export const SubmittedPPM = () => <HelperSubmittedPPM />;
-export const SubmittedNoPPM = () => <HelperSubmittedNoPPM />;
