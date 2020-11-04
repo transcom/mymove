@@ -31,12 +31,6 @@
       .usa-form-group:first-of-type .usa-label {
         margin-top: 0;
       }
-
-      .usa-fieldset,
-      .usa-legend {
-        @include u-padding-top(0);
-        @include u-margin-top(0);
-      }
     }
   }
 }
