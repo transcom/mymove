@@ -10,76 +10,82 @@ import styles from './Table.module.scss';
 const Table = ({ handleClick, getTableProps, getTableBodyProps, headerGroups, rows, prepareRow }) => {
   return (
     /* eslint-disable react/jsx-props-no-spreading */
-    <div data-testid="react-table" className={styles.Table}>
-      <table {...getTableProps()}>
-        <thead>
-          {headerGroups.map((headerGroup, hgIndex) => (
-            <Fragment key={`headerGroup${hgIndex}`}>
-              <tr {...headerGroup.getHeaderGroupProps()}>
-                {headerGroup.headers.map((column, headerIndex) => (
-                  <th key={`header${headerIndex}`} data-testid={column.id} {...column.getHeaderProps()}>
-                    {column.render('Header')}
-                  </th>
-                ))}
-              </tr>
-              <tr className={styles.tableHeaderFilters} key={`headerGroupFilters${hgIndex}`}>
-                {headerGroup.headers.map((column, headerIndex) => (
-                  <th key={`headerFilter${headerIndex}`} data-testid={column.id}>
-                    {/* isFilterable is a custom prop that can be set in the Column object */}
-                    <div>{column.isFilterable ? column.render('Filter') : null}</div>
-                  </th>
-                ))}
-              </tr>
-            </Fragment>
-          ))}
-        </thead>
-        <tbody {...getTableBodyProps()}>
-          {rows.map((row) => {
-            prepareRow(row);
-            return (
-              <tr data-uuid={row.values.id} onClick={() => handleClick(row.values)} {...row.getRowProps()}>
-                {row.cells.map((cell, index) => {
-                  return (
-                    // eslint-disable-next-line react/no-array-index-key
-                    <td key={`cell${index}`} data-testid={`${cell.column.id}-${cell.row.id}`} {...cell.getCellProps()}>
-                      {cell.render('Cell')}
-                    </td>
-                  );
-                })}
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-      <div className={styles.paginationSectionWrapper}>
-        <div className={styles.paginationTableWrapper}>
-          <div className={styles.tableControlRowsPerPage}>
-            <select className={styles.usaSelect} name="table-rows-per-page">
-              <option value="10">10</option>
-              <option value="20">20</option>
-              <option value="50">50</option>
-            </select>
-            <p>rows per page</p>
+    <div className={styles.inlineBlock}>
+      <div data-testid="react-table" className={styles.Table}>
+        <table {...getTableProps()}>
+          <thead>
+            {headerGroups.map((headerGroup, hgIndex) => (
+              <Fragment key={`headerGroup${hgIndex}`}>
+                <tr {...headerGroup.getHeaderGroupProps()}>
+                  {headerGroup.headers.map((column, headerIndex) => (
+                    <th key={`header${headerIndex}`} data-testid={column.id} {...column.getHeaderProps()}>
+                      {column.render('Header')}
+                    </th>
+                  ))}
+                </tr>
+                <tr className={styles.tableHeaderFilters} key={`headerGroupFilters${hgIndex}`}>
+                  {headerGroup.headers.map((column, headerIndex) => (
+                    <th key={`headerFilter${headerIndex}`} data-testid={column.id}>
+                      {/* isFilterable is a custom prop that can be set in the Column object */}
+                      <div>{column.isFilterable ? column.render('Filter') : null}</div>
+                    </th>
+                  ))}
+                </tr>
+              </Fragment>
+            ))}
+          </thead>
+          <tbody {...getTableBodyProps()}>
+            {rows.map((row) => {
+              prepareRow(row);
+              return (
+                <tr data-uuid={row.values.id} onClick={() => handleClick(row.values)} {...row.getRowProps()}>
+                  {row.cells.map((cell, index) => {
+                    return (
+                      // eslint-disable-next-line react/no-array-index-key
+                      <td
+                        key={`cell${index}`}
+                        data-testid={`${cell.column.id}-${cell.row.id}`}
+                        {...cell.getCellProps()}
+                      >
+                        {cell.render('Cell')}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        <div className={styles.paginationSectionWrapper}>
+          <div className={styles.paginationTableWrapper}>
+            <div className={styles.tableControlRowsPerPage}>
+              <select className={styles.usaSelect} name="table-rows-per-page">
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+              </select>
+              <p>rows per page</p>
+            </div>
           </div>
-        </div>
-        <div className={styles.tableControlPagination}>
-          <c disabled className={styles.usaButtonUnstyled}>
-            <span className="icon">
-              <ChevronLeft />
-            </span>
-            <span>Prev</span>
-          </c>
-          <select className={styles.usaSelect} name="table-pagination">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-          </select>
-          <c className={styles.usaButtonUnstyled}>
-            <span>Next</span>
-            <span className="icon">
-              <ChevronRight />
-            </span>
-          </c>
+          <div className={styles.tableControlPagination}>
+            <c disabled className={styles.usaButtonUnstyled}>
+              <span className="icon">
+                <ChevronLeft />
+              </span>
+              <span>Prev</span>
+            </c>
+            <select className={styles.usaSelect} name="table-pagination">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+            </select>
+            <c className={styles.usaButtonUnstyled}>
+              <span>Next</span>
+              <span className="icon">
+                <ChevronRight />
+              </span>
+            </c>
+          </div>
         </div>
       </div>
     </div>
