@@ -97,7 +97,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		SecurityInformationQualifier:      "00", // No security information
 		SecurityInformation:               "0000000000",
 		InterchangeSenderIDQualifier:      "ZZ",
-		InterchangeSenderID:               fmt.Sprintf("%-15s", "MYMOVE"),
+		InterchangeSenderID:               fmt.Sprintf("%-15s", "MILMOVE"),
 		InterchangeReceiverIDQualifier:    "12",
 		InterchangeReceiverID:             fmt.Sprintf("%-15s", "8004171844"),
 		InterchangeDate:                   currentTime.Format(isaDateFormat),
@@ -112,7 +112,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 
 	edi858.GS = edisegment.GS{
 		FunctionalIdentifierCode: "SI",
-		ApplicationSendersCode:   fmt.Sprintf("%-9s", "MYMOVE"),
+		ApplicationSendersCode:   "MILMOVE",
 		ApplicationReceiversCode: "8004171844",
 		Date:                     currentTime.Format(dateFormat),
 		Time:                     currentTime.Format(timeFormat),

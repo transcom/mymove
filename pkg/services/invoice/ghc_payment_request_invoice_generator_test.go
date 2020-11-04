@@ -179,9 +179,9 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal("00", result.ISA.SecurityInformationQualifier)
 		suite.Equal("0000000000", result.ISA.SecurityInformation)
 		suite.Equal("ZZ", result.ISA.InterchangeSenderIDQualifier)
-		suite.Equal("MYMOVE         ", result.ISA.InterchangeSenderID)
+		suite.Equal(fmt.Sprintf("%-15s", "MILMOVE"), result.ISA.InterchangeSenderID)
 		suite.Equal("12", result.ISA.InterchangeReceiverIDQualifier)
-		suite.Equal("8004171844     ", result.ISA.InterchangeReceiverID)
+		suite.Equal(fmt.Sprintf("%-15s", "8004171844"), result.ISA.InterchangeReceiverID)
 		suite.Equal(currentTime.Format(testISADateFormat), result.ISA.InterchangeDate)
 		suite.Equal(currentTime.Format(testTimeFormat), result.ISA.InterchangeTime)
 		suite.Equal("U", result.ISA.InterchangeControlStandards)
@@ -194,7 +194,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	suite.T().Run("adds gs start segment", func(t *testing.T) {
 		suite.Equal("SI", result.GS.FunctionalIdentifierCode)
-		suite.Equal("MYMOVE   ", result.GS.ApplicationSendersCode)
+		suite.Equal("MILMOVE", result.GS.ApplicationSendersCode)
 		suite.Equal("8004171844", result.GS.ApplicationReceiversCode)
 		suite.Equal(currentTime.Format(testDateFormat), result.GS.Date)
 		suite.Equal(currentTime.Format(testTimeFormat), result.GS.Time)
