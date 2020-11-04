@@ -11,21 +11,30 @@
     @include u-border('1px');
     @include u-padding(5);
     @include u-margin-bottom(4);
-    .usa-fieldset,
-    .usa-legend {
-      @include u-padding-top(0);
-      @include u-margin-top(0);
-    }
+
     hr {
       color: $base-lighter;
       background-color: $base-lighter;
       height: 1px;
       border: 0;
     }
+
     h2,
     h3,
     h4 {
       &:first-child {
+        @include u-margin-top(0);
+      }
+    }
+
+    :global {
+      .usa-form-group:first-of-type .usa-label {
+        margin-top: 0;
+      }
+
+      .usa-fieldset,
+      .usa-legend {
+        @include u-padding-top(0);
         @include u-margin-top(0);
       }
     }

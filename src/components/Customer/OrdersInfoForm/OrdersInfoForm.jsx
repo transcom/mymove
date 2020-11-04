@@ -33,6 +33,7 @@ const OrdersInfoForm = () => {
             name="has_dependents"
             value="yes"
             title="Yes, dependents are included in my orders"
+            type="radio"
           />
           <Field
             as={Radio}
@@ -41,6 +42,7 @@ const OrdersInfoForm = () => {
             name="has_dependents"
             value="no"
             title="No, dependents are not included in my orders"
+            type="radio"
           />
         </div>
       </FormGroup>
