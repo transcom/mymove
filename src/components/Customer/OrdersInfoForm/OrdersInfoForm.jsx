@@ -58,8 +58,4 @@ const OrdersInfoForm = () => {
   );
 };
 
-OrdersInfoForm.propTypes = {};
-
-OrdersInfoForm.defaultProps = {};
-
 export default OrdersInfoForm;

@@ -17,14 +17,29 @@ import { withContext } from 'shared/AppContext';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import OrdersInfoForm from 'components/Customer/OrdersInfoForm/OrdersInfoForm';
 import { WizardPage } from 'shared/WizardPage/index';
-import { MatchShape, HistoryShape, PageKeyShape, PageListShape } from 'types/customerShapes';
+import { HistoryShape, PageKeyShape, PageListShape } from 'types/customerShapes';
+import { formatYesNoInputValue, formatYesNoAPIValue } from 'utils/formatters';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
 export class Orders extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isLoading: true,
+    };
+  }
+
   componentDidMount() {
-    // TODO
+    // TODO - migrate to saga pattern
     const { serviceMemberId, currentOrders, fetchLatestOrders } = this.props;
+
     if (!isEmpty(currentOrders)) {
-      fetchLatestOrders(serviceMemberId);
+      fetchLatestOrders(serviceMemberId).then(() => {
+        this.setState({ isLoading: false });
+      });
+    } else {
+      this.setState({ isLoading: false });
     }
   }
 
@@ -42,13 +57,16 @@ export class Orders extends Component {
       createOrders,
       updateOrders,
     } = this.props;
+    const { isLoading } = this.state;
+
+    if (isLoading) return <LoadingPlaceholder />;
 
     const submitOrders = (values) => {
       const pendingValues = {
         ...values,
         service_member_id: serviceMemberId,
         new_duty_station_id: values.new_duty_station.id,
-        has_dependents: values.has_dependents === 'yes',
+        has_dependents: formatYesNoAPIValue(values.has_dependents),
         spouse_has_pro_gear: false, // TODO - this input seems to be deprecated?
       };
 
@@ -63,7 +81,7 @@ export class Orders extends Component {
       orders_type: currentOrders?.orders_type || '',
       issue_date: currentOrders?.issue_date || '',
       report_by_date: currentOrders?.report_by_date || '',
-      has_dependents: currentOrders?.has_dependents ? 'yes' : 'no', // TODO - radio is not prefilling
+      has_dependents: formatYesNoInputValue(currentOrders?.has_dependents),
       new_duty_station: currentOrders?.new_duty_station || null,
     };
 
@@ -128,7 +146,9 @@ Orders.propTypes = {
   createOrders: PropTypes.func,
   updateOrders: PropTypes.func,
   currentStation: PropTypes.object,
-  match: MatchShape.isRequired,
+  match: PropTypes.shape({
+    params: PropTypes.object,
+  }).isRequired,
   history: HistoryShape.isRequired,
   pages: PageListShape,
   pageKey: PageKeyShape,
