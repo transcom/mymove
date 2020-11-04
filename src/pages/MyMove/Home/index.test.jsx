@@ -119,6 +119,10 @@ describe('Home component', () => {
       it('renders the SubmittedMove helper', () => {
         expect(wrapper.find('HelperSubmittedMove').exists()).toBe(true);
       });
+
+      it('renders the SubmittedPPM helper', () => {
+        expect(wrapper.find('HelperSubmittedPPM').exists()).toBe(true);
+      });
     });
 
     describe('for HHG moves', () => {
