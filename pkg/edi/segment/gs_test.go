@@ -10,7 +10,7 @@ func (suite *SegmentSuite) TestValidateGS() {
 		FunctionalIdentifierCode: "SI",
 		ApplicationSendersCode:   fmt.Sprintf("%-9s", "MYMOVE"),
 		ApplicationReceiversCode: "8004171844",
-		Date:                     "190903",
+		Date:                     "20190903",
 		Time:                     "1617",
 		GroupControlNumber:       1,
 		ResponsibleAgencyCode:    "X",
