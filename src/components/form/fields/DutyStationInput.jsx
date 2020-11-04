@@ -21,6 +21,7 @@ export const DutyStationInput = (props) => {
       input={{
         value: field.value,
         onChange: helpers.setValue,
+        name,
       }}
       errorMsg={errorString}
       displayAddress={displayAddress}
