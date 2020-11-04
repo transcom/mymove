@@ -1,6 +1,7 @@
 /* eslint-disable react/no-array-index-key */
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
+import { Button, Dropdown } from '@trussworks/react-uswds';
 
 import { ReactComponent as ChevronLeft } from '../../shared/icon/chevron-left.svg';
 import { ReactComponent as ChevronRight } from '../../shared/icon/chevron-right.svg';
@@ -59,32 +60,32 @@ const Table = ({ handleClick, getTableProps, getTableBodyProps, headerGroups, ro
         <div className={styles.paginationSectionWrapper}>
           <div className={styles.paginationTableWrapper}>
             <div className={styles.tableControlRowsPerPage}>
-              <select className={styles.usaSelect} name="table-rows-per-page">
+              <Dropdown className={styles.usaSelect} name="table-rows-per-page">
                 <option value="10">10</option>
                 <option value="20">20</option>
                 <option value="50">50</option>
-              </select>
+              </Dropdown>
               <p>rows per page</p>
             </div>
           </div>
           <div className={styles.tableControlPagination}>
-            <c disabled className={styles.usaButtonUnstyled}>
+            <Button disabled className={styles.usaButtonUnstyled}>
               <span className="icon">
                 <ChevronLeft />
               </span>
               <span>Prev</span>
-            </c>
-            <select className={styles.usaSelect} name="table-pagination">
+            </Button>
+            <Dropdown className={styles.usaSelect} name="table-pagination">
               <option value="1">1</option>
               <option value="2">2</option>
               <option value="3">3</option>
-            </select>
-            <c className={styles.usaButtonUnstyled}>
+            </Dropdown>
+            <Button className={styles.usaButtonUnstyled}>
               <span>Next</span>
               <span className="icon">
                 <ChevronRight />
               </span>
-            </c>
+            </Button>
           </div>
         </div>
       </div>
