@@ -51,4 +51,50 @@
       }
     }
   }
+
+   .paginationSectionWrapper {
+     display: flex;
+     flex-wrap: wrap;
+     justify-content: space-between;
+
+       .paginationTableWrapper {
+        margin: 20px;
+        min-width: 173px;
+        code {
+          font-size: 12px;
+          color: $base-darkest;
+        }
+       }
+
+      .tableControlRowsPerPage {
+        display: flex;
+        align-items: center;
+        .usaSelect {
+          width: 89px;
+          height: 38px;
+          @include u-margin(0);
+          @include u-margin-right('105');
+        }
+      }
+
+      .tableControlPagination {
+        display: flex;
+        align-items: center;
+        @include u-margin-y(1);
+        .usaSelect {
+          width: 89px;
+          height: 38px;
+          @include u-margin(0);
+          @include u-margin-x('105');
+        }
+
+        .usaButtonUnstyled {
+          @include u-margin(0);
+          @include u-padding-x(0);
+          .icon {
+            @include u-padding-left('05');
+          }
+        }
+    }
+  }
 }

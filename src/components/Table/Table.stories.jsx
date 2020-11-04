@@ -131,7 +131,6 @@ const CreateTableWithPagination = () => {
 
   const tableData = useMemo(() => data, []);
   const tableColumns = useMemo(() => columns(true), []);
-  const controlledPageCount = 5;
   const propsWithPagination = useTable(
     {
       columns: tableColumns,
@@ -143,7 +142,6 @@ const CreateTableWithPagination = () => {
       // This means we'll also have to provide our own
       // pageCount.
       defaultColumn,
-      pageCount: controlledPageCount,
     },
     usePagination,
   );
