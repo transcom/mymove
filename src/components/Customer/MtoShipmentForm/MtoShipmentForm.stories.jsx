@@ -79,7 +79,7 @@ const mockMtoShipment = {
 };
 
 export default {
-  title: 'Customer Components | Forms / MtoShipmentForm',
+  title: 'Customer Components | MtoShipmentForm',
 };
 
 function renderStory(props) {

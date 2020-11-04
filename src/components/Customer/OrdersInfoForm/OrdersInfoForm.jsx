@@ -5,14 +5,9 @@ import { Radio, FormGroup, Label } from '@trussworks/react-uswds';
 import { DropdownInput, DatePickerInput, DutyStationInput } from 'components/form/fields';
 import Hint from 'components/Hint/index';
 import { Form } from 'components/form/Form';
+import { DropdownArrayOf } from 'types';
 
-const OrdersInfoForm = () => {
-  const ordersTypeOptions = [
-    { key: 'PERMANENT_CHANGE_OF_STATION', value: 'Permanent Change Of Station (PCS)' },
-    { key: 'RETIREMENT', value: 'Retirement' },
-    { key: 'SEPARATION', value: 'Separation' },
-  ];
-
+const OrdersInfoForm = ({ ordersTypeOptions }) => {
   return (
     <Form>
       <Field as={DropdownInput} label="Orders type" name="orders_type" options={ordersTypeOptions} />
@@ -56,6 +51,10 @@ const OrdersInfoForm = () => {
       <DutyStationInput name="new_duty_station" label="New duty station" displayAddress={false} />
     </Form>
   );
+};
+
+OrdersInfoForm.propTypes = {
+  ordersTypeOptions: DropdownArrayOf.isRequired,
 };
 
 export default OrdersInfoForm;

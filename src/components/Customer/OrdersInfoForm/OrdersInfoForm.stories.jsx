@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { Formik } from 'formik';
 
@@ -41,20 +42,28 @@ export default {
   ], */
 };
 
+const testProps = {
+  ordersTypeOptions: [
+    { key: 'PERMANENT_CHANGE_OF_STATION', value: 'Permanent Change Of Station (PCS)' },
+    { key: 'RETIREMENT', value: 'Retirement' },
+    { key: 'SEPARATION', value: 'Separation' },
+  ],
+};
+
 export const EmptyValues = () => (
   <Formik>
-    <OrdersInfoForm />
+    <OrdersInfoForm {...testProps} />
   </Formik>
 );
 
 export const PrefillNoDependents = () => (
   <Formik initialValues={testInitialValues}>
-    <OrdersInfoForm />
+    <OrdersInfoForm {...testProps} />
   </Formik>
 );
 
 export const PrefillYesDependents = () => (
   <Formik initialValues={{ ...testInitialValues, has_dependents: 'yes' }}>
-    <OrdersInfoForm />
+    <OrdersInfoForm {...testProps} />
   </Formik>
 );

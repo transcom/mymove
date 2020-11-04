@@ -20,6 +20,8 @@ import { WizardPage } from 'shared/WizardPage/index';
 import { HistoryShape, PageKeyShape, PageListShape } from 'types/customerShapes';
 import { formatYesNoInputValue, formatYesNoAPIValue } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
+import { dropdownInputOptions } from 'shared/formatters';
 
 export class Orders extends Component {
   constructor(props) {
@@ -87,11 +89,7 @@ export class Orders extends Component {
 
     // TODO - orders types feature flag
     // const showAllOrdersTypes = context.flags.allOrdersTypes;
-    const ordersTypeOptions = [
-      { key: 'PERMANENT_CHANGE_OF_STATION', value: 'Permanent Change Of Station (PCS)' },
-      { key: 'RETIREMENT', value: 'Retirement' },
-      { key: 'SEPARATION', value: 'Separation' },
-    ];
+    const ordersTypeOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 
     const ordersInfoSchema = Yup.object().shape({
       orders_type: Yup.mixed()
@@ -125,7 +123,7 @@ export class Orders extends Component {
           >
             <h1>Tell us about your move orders</h1>
             <SectionWrapper>
-              <OrdersInfoForm />
+              <OrdersInfoForm ordersTypeOptions={ordersTypeOptions} />
             </SectionWrapper>
           </WizardPage>
         )}

@@ -1,14 +1,23 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { mount } from 'enzyme';
 import { Formik } from 'formik';
 
 import OrdersInfoForm from './OrdersInfoForm';
 
+const testProps = {
+  ordersTypeOptions: [
+    { key: 'PERMANENT_CHANGE_OF_STATION', value: 'Permanent Change Of Station (PCS)' },
+    { key: 'RETIREMENT', value: 'Retirement' },
+    { key: 'SEPARATION', value: 'Separation' },
+  ],
+};
+
 describe('OrdersInfoForm component', () => {
   describe('with no initial values', () => {
     const wrapper = mount(
       <Formik>
-        <OrdersInfoForm />
+        <OrdersInfoForm {...testProps} />
       </Formik>,
     );
 
@@ -63,7 +72,7 @@ describe('OrdersInfoForm component', () => {
     };
     const wrapper = mount(
       <Formik initialValues={testInitialValues}>
-        <OrdersInfoForm />
+        <OrdersInfoForm {...testProps} />
       </Formik>,
     );
 
