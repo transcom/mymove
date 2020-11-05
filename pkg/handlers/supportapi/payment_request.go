@@ -226,8 +226,8 @@ func (h GetPaymentRequestEDIHandler) Handle(params paymentrequestop.GetPaymentRe
 	return paymentrequestop.NewGetPaymentRequestEDIOK().WithPayload(&payload)
 }
 
-// ProcessPaymentRequestHandler returns the EDI for a given payment request
-type ProcessPaymentRequestHandler struct {
+// ProcessPaymentRequestsHandler returns the EDI for a given payment request
+type ProcessPaymentRequestsHandler struct {
 	handlers.HandlerContext
 	services.PaymentRequestFetcher
 	services.PaymentRequestReviewedFetcher
@@ -236,7 +236,7 @@ type ProcessPaymentRequestHandler struct {
 }
 
 // Handle getting the EDI for a given payment request
-func (h ProcessPaymentRequestHandler) Handle(params paymentrequestop.ProcessReviewedPaymentRequestsParams) middleware.Responder {
+func (h ProcessPaymentRequestsHandler) Handle(params paymentrequestop.ProcessReviewedPaymentRequestsParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	paymentRequestID := uuid.FromStringOrNil(params.PaymentRequestID.String())

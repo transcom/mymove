@@ -57,12 +57,12 @@ func ProcessReviewedPaymentRequests(cmd *cobra.Command, args []string) error {
 
 	// Decode json from file that was passed in
 	filename := v.GetString(utils.FilenameFlag)
-	var getPaymentRequestEDIParams payment_request.GetPaymentRequestEDIParams
-	err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &getPaymentRequestEDIParams)
+	var processReviewedPaymentRequestsParams payment_request.ProcessReviewedPaymentRequestsParams
+	err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &processReviewedPaymentRequestsParams)
 	if err != nil {
 		logger.Fatal(err)
 	}
-	getPaymentRequestEDIParams.SetTimeout(time.Second * 30)
+	processReviewedPaymentRequestsParams.SetTimeout(time.Second * 30)
 
 	// Create the client and open the cacStore
 	supportGateway, cacStore, errCreateClient := utils.CreateSupportClient(v)
@@ -74,9 +74,9 @@ func ProcessReviewedPaymentRequests(cmd *cobra.Command, args []string) error {
 	if cacStore != nil {
 		defer cacStore.Close()
 	}
-	getPaymentRequestEDIParams.SetTimeout(time.Second * 30)
+	processReviewedPaymentRequestsParams.SetTimeout(time.Second * 30)
 
-	resp, err := supportGateway.PaymentRequest.GetPaymentRequestEDI(&getPaymentRequestEDIParams)
+	resp, err := supportGateway.PaymentRequest.ProcessReviewedPaymentRequests(&processReviewedPaymentRequestsParams)
 	if err != nil {
 		return utils.HandleGatewayError(err, logger)
 	}
