@@ -66,7 +66,10 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 	queueMoves := payloads.QueueMoves(orders)
 	// ToDo - May want to move this logic into the pop query later.
 	// filter queueMoves by status
+	queueMovesBeforeStatusFilterCount := len(*queueMoves)
 	queueMoves = movesFilteredByStatus(params.Status, queueMoves)
+	queueMovesAfterStatusFilterCount := len(*queueMoves)
+	count = count - (queueMovesBeforeStatusFilterCount - queueMovesAfterStatusFilterCount)
 
 	result := &ghcmessages.QueueMovesResult{
 		Page:       int64(page),
