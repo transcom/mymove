@@ -215,6 +215,6 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrdersWithPagination() {
 
 	suite.NoError(err)
 	suite.Equal(1, len(moveOrders))
-	suite.Equal(1, count)
+	suite.Equal(2, count)
 
 }
