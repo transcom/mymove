@@ -269,12 +269,20 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 	})
 
 	// Approvals requested
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+	approvedMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
 			Status:           models.MoveStatusAPPROVED,
 		},
-		MTOShipment: submittedShipment,
+	})
+	testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		Move: approvedMove,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusApproved,
+		},
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusSubmitted,
+		},
 	})
 
 	// Move approved
@@ -313,7 +321,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		moveorder.NewMoveOrderFetcher(suite.DB()),
 	}
 
-	suite.Run("loads results with all STATUS selected", func() {
+	suite.Run("loads results with all STATUSes selected", func() {
 		params := queues.GetMovesQueueParams{
 			HTTPRequest: request,
 			Status: []string{
@@ -346,6 +354,27 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		suite.EqualValues(1, payload.TotalCount)
 		suite.Len(payload.QueueMoves, 1)
 		suite.EqualValues(modelToPayload.QueueMoveStatusNEWMOVE, payload.QueueMoves[0].Status)
+	})
+
+	suite.Run("Excludes draft and canceled moves when STATUS params is empty", func() {
+		params := queues.GetMovesQueueParams{
+			HTTPRequest: request,
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		payload := response.(*queues.GetMovesQueueOK).Payload
+		moves := payload.QueueMoves
+		var actualStatuses []string
+		for _, move := range moves {
+			actualStatuses = append(actualStatuses, string(move.Status))
+		}
+		expectedStatuses := [3]string{"New move", "Move approved", "Approvals requested"}
+
+		suite.EqualValues(3, payload.TotalCount)
+		suite.Len(payload.QueueMoves, 3)
+		suite.ElementsMatch(expectedStatuses, actualStatuses)
 	})
 
 	suite.Run("1 result with status New Move and branch AIR_FORCE", func() {
