@@ -40,10 +40,19 @@ import {
 } from 'shared/Data/users';
 import { formatCustomerDate } from 'utils/formatters';
 
-const Description = ({ children }) => <p className={styles.description}>{children}</p>;
+const Description = ({ children, dataTestId }) => (
+  <p className={styles.description} data-testid={dataTestId}>
+    {children}
+  </p>
+);
 
 Description.propTypes = {
+  dataTestId: string,
   children: node.isRequired,
+};
+
+Description.defaultProps = {
+  dataTestId: '',
 };
 
 class Home extends Component {
@@ -349,11 +358,13 @@ class Home extends Component {
                       containerClassName="margin-bottom-8"
                       headerText="Confirm move request"
                       onActionBtnClick={() => this.handleNewPathClick(confirmationPath)}
-                      secondaryBtn={move.submitted_at}
+                      secondaryBtn={this.hasSubmittedMove}
                       step="4"
                     >
                       {this.hasSubmittedMove ? (
-                        <Description>Move submitted {formatCustomerDate(move.submitted_at)}.</Description>
+                        <Description dataTestId="move-submitted-description">
+                          Move submitted {formatCustomerDate(move.submitted_at)}.
+                        </Description>
                       ) : (
                         <Description>
                           Review your move details and sign the legal paperwork, then send the info on to your move
