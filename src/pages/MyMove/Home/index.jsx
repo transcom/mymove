@@ -38,6 +38,7 @@ import {
   selectGetCurrentUserIsLoading,
   selectGetCurrentUserIsSuccess,
 } from 'shared/Data/users';
+import { formatCustomerDate } from 'utils/formatters';
 
 const Description = ({ children }) => <p className={styles.description}>{children}</p>;
 
@@ -340,18 +341,19 @@ class Home extends Component {
                       )}
                     </Step>
                     <Step
-                      complete={this.hasSubmittedMove}
                       actionBtnDisabled={!this.hasAnyShipments}
-                      actionBtnLabel={!this.hasSubmittedMove ? 'Review and submit' : ''}
                       actionBtnId="review-and-submit-btn"
+                      actionBtnLabel={!this.hasSubmittedMove ? 'Review and submit' : 'Review your request'}
+                      complete={this.hasSubmittedMove}
+                      completedHeaderText="Move request confirmed"
                       containerClassName="margin-bottom-8"
                       headerText="Confirm move request"
-                      completedHeaderText="Move request confirmed"
                       onActionBtnClick={() => this.handleNewPathClick(confirmationPath)}
+                      secondaryBtn={move.submitted_at}
                       step="4"
                     >
                       {this.hasSubmittedMove ? (
-                        <Description>Move submitted.</Description>
+                        <Description>Move submitted {formatCustomerDate(move.submitted_at)}.</Description>
                       ) : (
                         <Description>
                           Review your move details and sign the legal paperwork, then send the info on to your move
