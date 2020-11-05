@@ -1,7 +1,6 @@
 package payloads
 
 import (
-	"fmt"
 	"math"
 	"time"
 
@@ -520,10 +519,8 @@ func queueMoveStatus(move models.Move) string {
 	// approvals requested status when the move is in an APPROVED status and there are mtoServiceItems in
 	// a submitted status. This is all detailed in: https://dp3.atlassian.net/browse/MB-4158
 	if move.Status == models.MoveStatusAPPROVED {
-		fmt.Println("move status is approved")
 		// Let's check to see if there are any MTOServiceItems for this move that need review (SUBMITTED status)
 		for _, mtoSI := range move.MTOServiceItems {
-			fmt.Println("move has service items")
 			// If we find one, we'll immediately return this status as there's no need to continue iterating through.
 			if mtoSI.Status == "SUBMITTED" {
 				return QueueMoveStatusAPPROVALSREQUESTED

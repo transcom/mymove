@@ -172,8 +172,7 @@ func submittedAtFilter(submittedAt *string) FilterOption {
 func moveStatusFilter(statuses []string) FilterOption {
 	return func(query *pop.Query) {
 		if len(statuses) <= 0 {
-			queryString := fmt.Sprintf("moves.status NOT IN ('%s', '%s')", models.MoveStatusDRAFT, models.MoveStatusCANCELED)
-			query = query.Where(queryString)
+			query = query.Where("moves.status NOT IN (?)", models.MoveStatusDRAFT, models.MoveStatusCANCELED)
 		}
 	}
 }
