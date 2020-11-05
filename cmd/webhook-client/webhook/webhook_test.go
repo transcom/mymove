@@ -423,6 +423,7 @@ func truncateAllNotifications(db *pop.Connection) {
 	notifications := []models.WebhookNotification{}
 	db.All(&notifications)
 	for _, notif := range notifications {
+		// #nosec G601 TODO needs review
 		db.Destroy(&notif)
 	}
 }
@@ -432,6 +433,7 @@ func truncateAllSubscriptions(db *pop.Connection) {
 	subscriptions := []models.WebhookSubscription{}
 	db.All(&subscriptions)
 	for _, sub := range subscriptions {
+		// #nosec G601 TODO needs review
 		db.Destroy(&sub)
 	}
 }

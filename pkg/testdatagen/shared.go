@@ -149,6 +149,7 @@ const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567
 func makeRandomString(n int) string {
 	b := make([]byte, n)
 	for i := range b {
+		// #nosec G404 TODO needs review
 		b[i] = letterBytes[rand.Intn(len(letterBytes))]
 	}
 	return string(b)

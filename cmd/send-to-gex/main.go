@@ -96,6 +96,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	// #nosec G307 TODO needs review
 	defer file.Close()
 
 	edi, err := ioutil.ReadAll(file)
@@ -118,6 +119,7 @@ func main() {
 		log.Fatal("Error in getting tls certs", err)
 	}
 
+	// #nosec G402 TODO needs review
 	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs}
 
 	logger.Println("Sending to GEX ...")
