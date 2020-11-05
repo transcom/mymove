@@ -6,6 +6,7 @@ import moment from 'moment';
 
 import Home from '.';
 
+import { MockProviders } from 'testUtils';
 import { store } from 'shared/store';
 
 const defaultProps = {
@@ -109,23 +110,35 @@ describe('Home component', () => {
 
   describe('if the user has submitted their move', () => {
     describe('for PPM moves', () => {
-      const wrapper = mountHome({
-        orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
-        uploadedOrderDocuments: [{ filename: 'testOrder1.pdf' }],
-        move: { status: 'SUBMITTED' },
-        currentPpm: { id: 'mockPpm' },
-      });
-
-      it('renders the SubmittedMove helper', () => {
-        expect(wrapper.find('HelperSubmittedMove').exists()).toBe(true);
-      });
-
-      it('renders the SubmittedPPM helper', () => {
-        expect(wrapper.find('HelperSubmittedPPM').exists()).toBe(true);
+      const orders = {
+        id: 'testOrder123',
+        new_duty_station: {
+          name: 'Test Duty Station',
+        },
+      };
+      const uploadedOrderDocuments = [{ filename: 'testOrder1.pdf' }];
+      const move = { status: 'SUBMITTED' };
+      const currentPpm = { id: 'mockPpm ' };
+      it('NEW renders the SubmittedPPM helper', () => {
+        const wrapper = mount(
+          <MockProviders initialEntries={['/']}>
+            <Home
+              {...defaultProps}
+              orders={orders}
+              uploadedOrderDocuments={uploadedOrderDocuments}
+              move={move}
+              currentPpm={currentPpm}
+            />
+          </MockProviders>,
+        );
+        // HelperSubmittedMove
+        expect(wrapper.find(Home).html()).toContain('Next: Talk to a move counselor');
+        // HelperSubmittedPPM
+        expect(wrapper.find(Home).html()).toContain('For your do-it-yourself shipments (PPMs)');
       });
     });
 
-    describe('for HHG moves', () => {
+    describe('for HHG moves (no PPM)', () => {
       const wrapper = mountHome({
         orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
         uploadedOrderDocuments: [{ filename: 'testOrder1.pdf' }],
@@ -138,7 +151,7 @@ describe('Home component', () => {
       });
     });
 
-    describe('for NTS moves', () => {
+    describe('for NTS moves (no PPM)', () => {
       const wrapper = mountHome({
         orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
         uploadedOrderDocuments: [{ filename: 'testOrder1.pdf' }],
@@ -148,24 +161,6 @@ describe('Home component', () => {
 
       it('renders the SubmittedMove helper', () => {
         expect(wrapper.find('HelperSubmittedMove').exists()).toBe(true);
-      });
-    });
-
-    describe('for HHG/PPM combo moves', () => {
-      const wrapper = mountHome({
-        orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
-        uploadedOrderDocuments: [{ filename: 'testOrder1.pdf' }],
-        mtoShipments: [{ id: 'test123', shipmentType: 'HHG' }],
-        move: { status: 'SUBMITTED' },
-        currentPpm: { id: 'mockPpm' },
-      });
-
-      it('renders the SubmittedMove helper', () => {
-        expect(wrapper.find('HelperSubmittedMove').exists()).toBe(true);
-      });
-
-      it('renders the SubmittedPPM helper', () => {
-        expect(wrapper.find('HelperSubmittedPPM').exists()).toBe(true);
       });
     });
   });
