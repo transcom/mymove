@@ -110,10 +110,11 @@ export const ConfirmMove = () => (
     <Step
       complete={boolean('Complete', false)}
       completedHeaderText={text('Complete Header Text', 'Shipments')}
-      headerText={text('Header Text', 'Confirm and move request')}
+      headerText={text('Header Text', 'Review your request')}
       step={text('Step', '4')}
       actionBtnLabel="Review and submit"
-      actionBtnDisabled
+      secondaryBtn
+      secondaryBtnStyle={{ boxShadow: 'inset 0 0 0 2px #0050d8' }}
     >
       <p>
         {
