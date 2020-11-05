@@ -18,8 +18,8 @@ import { stringifyName } from 'shared/utils/serviceMember';
 import { getRequestStatus } from 'shared/Swagger/selectors';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import faPhone from '@fortawesome/free-solid-svg-icons/faPhone';
-import faEmail from '@fortawesome/free-solid-svg-icons/faEnvelope';
+import { faPhone } from '@fortawesome/free-solid-svg-icons/faPhone';
+import { faEmail } from '@fortawesome/free-solid-svg-icons/faEnvelope';
 
 const CustomerInfoDisplay = (props) => {
   const fieldProps = {

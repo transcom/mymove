@@ -19,7 +19,7 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import faExternalLinkAlt from '@fortawesome/free-solid-svg-icons/faExternalLinkAlt';
+import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons/faExternalLinkAlt';
 import PropTypes from 'prop-types';
 
 function renderEntitlements(entitlements, orders) {

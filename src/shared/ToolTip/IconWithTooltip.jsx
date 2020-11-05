@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import faQuestionCircle from '@fortawesome/free-solid-svg-icons/faQuestionCircle';
+import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons/faQuestionCircle';
 import styles from './IconWithTooltip.module.scss';
 
 class IconWithTooltip extends Component {

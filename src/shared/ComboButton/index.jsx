@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import faCheck from '@fortawesome/free-solid-svg-icons/faCheck';
-import faCaretDown from '@fortawesome/free-solid-svg-icons/faCaretDown';
+import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
+import { faCaretDown } from '@fortawesome/free-solid-svg-icons/faCaretDown';
 import './index.css';
 
 class ComboButton extends Component {

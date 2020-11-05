@@ -20,10 +20,10 @@ import { SIGNED_CERT_OPTIONS } from 'shared/constants';
 import { formatCents, formatDate } from 'shared/formatters';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import faCheck from '@fortawesome/free-solid-svg-icons/faCheck';
-import faClock from '@fortawesome/free-solid-svg-icons/faClock';
-import faPlusSquare from '@fortawesome/free-solid-svg-icons/faPlusSquare';
-import faMinusSquare from '@fortawesome/free-solid-svg-icons/faMinusSquare';
+import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
+import { faClock } from '@fortawesome/free-solid-svg-icons/faClock';
+import { faPlusSquare } from '@fortawesome/free-solid-svg-icons/faPlusSquare';
+import { faMinusSquare } from '@fortawesome/free-solid-svg-icons/faMinusSquare';
 
 import './PaymentsPanel.css';
 import Alert from 'shared/Alert';

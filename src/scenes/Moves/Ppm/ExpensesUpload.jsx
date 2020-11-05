@@ -12,7 +12,7 @@ import { withLastLocation } from 'react-router-last-location';
 import RadioButton from 'shared/RadioButton';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import faQuestionCircle from '@fortawesome/free-solid-svg-icons/faQuestionCircle';
+import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons/faQuestionCircle';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import Uploader from 'shared/Uploader';
 import Checkbox from 'shared/Checkbox';

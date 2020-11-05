@@ -3,8 +3,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './index.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import faSpinner from '@fortawesome/free-solid-svg-icons/faSpinner';
-import faTimes from '@fortawesome/free-solid-svg-icons/faTimes';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons/faSpinner';
+import { faTimes } from '@fortawesome/free-solid-svg-icons/faTimes';
 
 //this is taken from https://designsystem.digital.gov/components/alerts/
 const Alert = (props) => (

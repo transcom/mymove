@@ -3,7 +3,7 @@ import { bool } from 'prop-types';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import faPlusCircle from '@fortawesome/free-solid-svg-icons/faPlusCircle';
+import { faPlusCircle } from '@fortawesome/free-solid-svg-icons/faPlusCircle';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import { getMoveDocumentsForMove, deleteMoveDocument } from 'shared/Entities/modules/moveDocuments';
 import docsAddedCheckmarkImg from 'shared/images/docs_added_checkmark.png';

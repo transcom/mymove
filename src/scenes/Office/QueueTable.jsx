@@ -11,7 +11,7 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { defaultColumns } from './queueTableColumns';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import faSyncAlt from '@fortawesome/free-solid-svg-icons/faSyncAlt';
+import { faSyncAlt } from '@fortawesome/free-solid-svg-icons/faSyncAlt';
 import 'react-table-6/react-table.css';
 
 class QueueTable extends Component {
