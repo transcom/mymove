@@ -52,7 +52,7 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, page *int, perP
 		}
 	}
 	var moveOrdersCountObj models.Orders
-	count, err := query.GroupBy("orders.id").Count(&moveOrdersCountObj)
+	count, err := query.Count(&moveOrdersCountObj)
 
 	if err != nil {
 		switch err {
