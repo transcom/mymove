@@ -45,6 +45,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 	dodIDQuery := dodIDFilter(params.DodID)
 	lastNameQuery := lastNameFilter(params.LastName)
 	dutyStationQuery := destinationDutyStationFilter(params.DestinationDutyStation)
+	moveStatusQuery := moveStatusFilter(params.Status)
 
 	orders, count, err := h.MoveOrderFetcher.ListMoveOrders(
 		session.OfficeUserID,
@@ -54,6 +55,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 		lastNameQuery,
 		dutyStationQuery,
 		dodIDQuery,
+		moveStatusQuery,
 	)
 
 	if err != nil {
@@ -64,7 +66,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 	queueMoves := payloads.QueueMoves(orders)
 	// ToDo - May want to move this logic into the pop query later.
 	// filter queueMoves by status
-	queueMoves = moveStatusFilter(params.Status, queueMoves)
+	queueMoves = movesFilteredByStatus(params.Status, queueMoves)
 
 	result := &ghcmessages.QueueMovesResult{
 		Page:       int64(page),
@@ -173,8 +175,16 @@ func submittedAtFilter(submittedAt *string) FilterOption {
 	}
 }
 
-// statusFilter filters the status after the pop query call.
-func moveStatusFilter(statuses []string, moves *ghcmessages.QueueMoves) *ghcmessages.QueueMoves {
+func moveStatusFilter(statuses []string) FilterOption {
+	return func(query *pop.Query) {
+		if len(statuses) <= 0 {
+			query = query.Where("moves.status NOT IN (?)", models.MoveStatusDRAFT, models.MoveStatusCANCELED)
+		}
+	}
+}
+
+// movesFilteredByStatus filters the status after the pop query call.
+func movesFilteredByStatus(statuses []string, moves *ghcmessages.QueueMoves) *ghcmessages.QueueMoves {
 	if len(statuses) <= 0 || moves == nil {
 		return moves
 	}
