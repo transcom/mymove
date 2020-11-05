@@ -14,7 +14,7 @@ type moveOrderFetcher struct {
 	db *pop.Connection
 }
 
-func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, page *int, options ...func(query *pop.Query)) ([]models.Order, error) {
+func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, page *int, options ...func(query *pop.Query)) ([]models.Order, int, error) {
 	// Now that we've joined orders and move_orders, we only want to return orders that
 	// have an associated move.
 	var moveOrders []models.Order
@@ -25,7 +25,7 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, page *int, opti
 		Where("office_users.id = ?", officeUserID).First(&transportationOffice)
 
 	if err != nil {
-		return []models.Order{}, err
+		return []models.Order{}, 0, err
 	}
 
 	gbloc := transportationOffice.Gbloc
@@ -49,6 +49,18 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, page *int, opti
 			option(query)
 		}
 	}
+	var moveOrdersCountObj models.Orders
+	count, err := query.GroupBy("orders.id").Count(&moveOrdersCountObj)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return []models.Order{}, 0, services.NotFoundError{}
+		default:
+			return []models.Order{}, 0, err
+		}
+	}
+
 	// If we have a page argument let's do the pagination thing.
 	if page != nil {
 		err = query.GroupBy("orders.id").Paginate(*page, 20).All(&moveOrders)
@@ -59,9 +71,9 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, page *int, opti
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return []models.Order{}, services.NotFoundError{}
+			return []models.Order{}, 0, services.NotFoundError{}
 		default:
-			return []models.Order{}, err
+			return []models.Order{}, 0, err
 		}
 	}
 
@@ -74,7 +86,7 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, page *int, opti
 		}
 	}
 
-	return moveOrders, nil
+	return moveOrders, count, nil
 }
 
 // NewMoveOrderFetcher creates a new struct with the service dependencies

@@ -93,7 +93,7 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
 
 	suite.T().Run("returns move orders", func(t *testing.T) {
-		moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, nil)
+		moveOrders, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, nil)
 
 		suite.FatalNoError(err)
 		suite.Len(moveOrders, 1)
@@ -128,7 +128,7 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 			},
 		})
 
-		moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, nil)
+		moveOrders, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, nil)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moveOrders))
@@ -148,7 +148,7 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 			},
 		})
 
-		moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, nil, armyBranchFilter())
+		moveOrders, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, nil, armyBranchFilter())
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moveOrders))
@@ -187,7 +187,7 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrdersWithEmptyFields() {
 
 	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
-	moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, nil)
+	moveOrders, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, nil)
 
 	suite.FatalNoError(err)
 	suite.Nil(moveOrders)
@@ -211,9 +211,10 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrdersWithPagination() {
 	}
 
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
-	moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, swag.Int(1))
+	moveOrders, count, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, swag.Int(1))
 
 	suite.NoError(err)
 	suite.Equal(20, len(moveOrders))
+	suite.Equal(22, count)
 
 }
