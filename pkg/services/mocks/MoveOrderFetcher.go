@@ -39,20 +39,20 @@ func (_m *MoveOrderFetcher) FetchMoveOrder(moveTaskOrderID uuid.UUID) (*models.O
 	return r0, r1
 }
 
-// ListMoveOrders provides a mock function with given fields: officeUserID, options
-func (_m *MoveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, options ...func(*pop.Query)) ([]models.Order, error) {
+// ListMoveOrders provides a mock function with given fields: officeUserID, page, options
+func (_m *MoveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, page *int, options ...func(*pop.Query)) ([]models.Order, error) {
 	_va := make([]interface{}, len(options))
 	for _i := range options {
 		_va[_i] = options[_i]
 	}
 	var _ca []interface{}
-	_ca = append(_ca, officeUserID)
+	_ca = append(_ca, officeUserID, page)
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
 	var r0 []models.Order
-	if rf, ok := ret.Get(0).(func(uuid.UUID, ...func(*pop.Query)) []models.Order); ok {
-		r0 = rf(officeUserID, options...)
+	if rf, ok := ret.Get(0).(func(uuid.UUID, *int, ...func(*pop.Query)) []models.Order); ok {
+		r0 = rf(officeUserID, page, options...)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]models.Order)
@@ -60,8 +60,8 @@ func (_m *MoveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, options ...fu
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(uuid.UUID, ...func(*pop.Query)) error); ok {
-		r1 = rf(officeUserID, options...)
+	if rf, ok := ret.Get(1).(func(uuid.UUID, *int, ...func(*pop.Query)) error); ok {
+		r1 = rf(officeUserID, page, options...)
 	} else {
 		r1 = ret.Error(1)
 	}
