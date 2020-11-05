@@ -225,3 +225,103 @@ func (h GetPaymentRequestEDIHandler) Handle(params paymentrequestop.GetPaymentRe
 
 	return paymentrequestop.NewGetPaymentRequestEDIOK().WithPayload(&payload)
 }
+
+// ProcessPaymentRequestHandler returns the EDI for a given payment request
+type ProcessPaymentRequestHandler struct {
+	handlers.HandlerContext
+	services.PaymentRequestFetcher
+	services.PaymentRequestReviewedFetcher
+	services.PaymentRequestStatusUpdater
+	services.PaymentRequestReviewedProcessor
+}
+
+// Handle getting the EDI for a given payment request
+func (h ProcessPaymentRequestHandler) Handle(params paymentrequestop.ProcessReviewedPaymentRequestsParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	paymentRequestID := uuid.FromStringOrNil(params.PaymentRequestID.String())
+	sendToSyncada := params.SendToSyncada
+	paymentRequestStatus := params.Status
+
+	if sendToSyncada {
+		err := h.PaymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
+		if err != nil {
+			msg := fmt.Sprintf("Error processing reviewed payment requests")
+			logger.Error(msg, zap.Error(err))
+			return paymentrequestop.NewProcessReviewedPaymentRequestsInternalServerError().WithPayload(payloads.ClientError(handlers.NotFoundMessage, msg, h.GetTraceID()))
+		}
+	} else {
+		var paymentRequests models.PaymentRequests
+		if paymentRequestID == uuid.Nil {
+			reviewedPaymentRequests, err := h.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest()
+			for _, pr := range reviewedPaymentRequests {
+				paymentRequests = append(paymentRequests, pr)
+			}
+		} else {
+			pr, err := h.PaymentRequestFetcher.FetchPaymentRequest(paymentRequestID)
+			if err != nil {
+				msg := fmt.Sprintf("Error finding Payment Request with ID: %s", params.PaymentRequestID.String())
+				logger.Error(msg, zap.Error(err))
+				return paymentrequestop.NewProcessReviewedPaymentRequestsNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, msg, h.GetTraceID()))
+			}
+			paymentRequests = append(paymentRequests, pr)
+		}
+
+		var reviewedDate time.Time
+		var recGexDate time.Time
+		var sentGexDate time.Time
+		var paidAtDate time.Time
+		switch paymentRequestStatus {
+		case "PENDING":
+			paymentRequestStatus = models.PaymentRequestStatusPending
+		case "REVIEWED":
+			paymentRequestStatus = models.PaymentRequestStatusReviewed
+			reviewedDate = time.Now()
+		case "SENT_TO_GEX":
+			paymentRequestStatus = models.PaymentRequestStatusSentToGex
+			sentGexDate = time.Now()
+		case "RECEIVED_BY_GEX":
+			paymentRequestStatus = models.PaymentRequestStatusReceivedByGex
+			recGexDate = time.Now()
+		case "PAID":
+			paymentRequestStatus = models.PaymentRequestStatusPaid
+			paidAtDate = time.Now()
+		default:
+			paymentRequestStatus = models.PaymentRequestStatusSentToGex
+			sentGexDate = time.Now()
+		}
+		// Update each payment request to have the given status
+		for _, pr := range paymentRequests {
+			paymentRequestForUpdate := models.PaymentRequest{
+				ID:                   pr.ID,
+				MoveTaskOrder:        pr.MoveTaskOrder,
+				MoveTaskOrderID:      pr.MoveTaskOrderID,
+				IsFinal:              pr.IsFinal,
+				Status:               paymentRequestStatus,
+				RejectionReason:      pr.RejectionReason,
+				RequestedAt:          pr.RequestedAt,
+				ReviewedAt:           &reviewedDate,
+				SentToGexAt:          &sentGexDate,
+				ReceivedByGexAt:      &recGexDate,
+				PaidAt:               &paidAtDate,
+				PaymentRequestNumber: pr.PaymentRequestNumber,
+				SequenceNumber:       pr.SequenceNumber,
+			}
+			_, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(&pr, params.IfMatch)
+			if err != nil {
+				switch err.(type) {
+				case services.NotFoundError:
+					return paymentrequestop.NewUpdatePaymentRequestStatusNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+				case services.PreconditionFailedError:
+					return paymentrequestop.NewUpdatePaymentRequestStatusPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
+				default:
+					logger.Error(fmt.Sprintf("Error saving payment request status for ID: %s: %s", paymentRequestID, err))
+					return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
+				}
+			}
+		}
+		payload := payloads.PaymentRequests(&paymentRequests)
+
+		return paymentrequestop.NewProcessReviewedPaymentRequestsOK().WithPayload(payload)
+	}
+}
