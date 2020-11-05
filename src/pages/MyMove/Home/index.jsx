@@ -359,6 +359,7 @@ class Home extends Component {
                       headerText="Confirm move request"
                       onActionBtnClick={() => this.handleNewPathClick(confirmationPath)}
                       secondaryBtn={this.hasSubmittedMove}
+                      secondaryBtnClassName={styles.secondaryBtn}
                       step="4"
                     >
                       {this.hasSubmittedMove ? (

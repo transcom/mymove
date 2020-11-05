@@ -28,12 +28,17 @@ const Step = ({
   onActionBtnClick,
   onEditBtnClick,
   secondaryBtn,
+  secondaryBtnClassName,
   step,
 }) => {
   const showThoughNotFunctional = false; // remove when all Edit buttons work
-  const actionBtnClassName = classnames(styles['action-btn'], {
-    [styles['action-button--secondary']]: secondaryBtn,
-  });
+  const actionBtnClassName = classnames(
+    styles['action-btn'],
+    {
+      [styles['action-button--secondary']]: secondaryBtn,
+    },
+    secondaryBtnClassName,
+  );
 
   return (
     <div data-testid={`stepContainer${step}`} className={`${styles['step-container']} ${containerClassName}`}>
@@ -78,6 +83,7 @@ Step.propTypes = {
   onActionBtnClick: func,
   onEditBtnClick: func,
   secondaryBtn: bool,
+  secondaryBtnClassName: string,
   step: oneOfType([string, number]).isRequired,
 };
 
@@ -94,6 +100,7 @@ Step.defaultProps = {
   onActionBtnClick: () => {},
   onEditBtnClick: () => {},
   secondaryBtn: false,
+  secondaryBtnClassName: '',
 };
 
 export default Step;
