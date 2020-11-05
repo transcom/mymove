@@ -40,6 +40,11 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 		page = int(*params.Page)
 	}
 
+	var perPage int
+	if params.PerPage != nil {
+		perPage = int(*params.PerPage)
+	}
+
 	branchQuery := branchFilter(params.Branch)
 	moveIDQuery := moveIDFilter(params.MoveID)
 	dodIDQuery := dodIDFilter(params.DodID)
@@ -50,6 +55,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 	orders, count, err := h.MoveOrderFetcher.ListMoveOrders(
 		session.OfficeUserID,
 		&page,
+		&perPage,
 		branchQuery,
 		moveIDQuery,
 		lastNameQuery,
@@ -73,7 +79,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 
 	result := &ghcmessages.QueueMovesResult{
 		Page:       int64(page),
-		PerPage:    20,
+		PerPage:    int64(perPage),
 		TotalCount: int64(count),
 		QueueMoves: *queueMoves,
 	}

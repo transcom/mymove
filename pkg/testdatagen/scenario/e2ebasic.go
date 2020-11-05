@@ -2129,16 +2129,4 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 
-	for i := 0; i < 22; i++ {
-		expectedMoveTaskOrder := testdatagen.MakeMove(db, testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusSUBMITTED}})
-
-		// Only orders with shipments are returned, so we need to add a shipment
-		// to the move we just created
-		testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
-			Move: expectedMoveTaskOrder,
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
-			},
-		})
-	}
 }

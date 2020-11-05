@@ -58,6 +58,10 @@ type GetMovesQueueParams struct {
 	  In: query
 	*/
 	Page *int64
+	/*results per page
+	  In: query
+	*/
+	PerPage *int64
 	/*Filtering for the status.
 	  Unique: true
 	  In: query
@@ -103,6 +107,11 @@ func (o *GetMovesQueueParams) BindRequest(r *http.Request, route *middleware.Mat
 
 	qPage, qhkPage, _ := qs.GetOK("page")
 	if err := o.bindPage(qPage, qhkPage, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qPerPage, qhkPerPage, _ := qs.GetOK("perPage")
+	if err := o.bindPerPage(qPerPage, qhkPerPage, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -225,6 +234,28 @@ func (o *GetMovesQueueParams) bindPage(rawData []string, hasKey bool, formats st
 		return errors.InvalidType("page", "query", "int64", raw)
 	}
 	o.Page = &value
+
+	return nil
+}
+
+// bindPerPage binds and validates parameter PerPage from query.
+func (o *GetMovesQueueParams) bindPerPage(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	value, err := swag.ConvertInt64(raw)
+	if err != nil {
+		return errors.InvalidType("perPage", "query", "int64", raw)
+	}
+	o.PerPage = &value
 
 	return nil
 }

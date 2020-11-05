@@ -1538,6 +1538,12 @@ func init() {
             "in": "query"
           },
           {
+            "type": "integer",
+            "description": "results per page",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
             "type": "string",
             "name": "branch",
             "in": "query"
@@ -5316,6 +5322,12 @@ func init() {
             "type": "integer",
             "description": "requested page of results",
             "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "results per page",
+            "name": "perPage",
             "in": "query"
           },
           {

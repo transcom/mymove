@@ -11,7 +11,7 @@ import (
 //go:generate mockery -name MoveOrderFetcher
 type MoveOrderFetcher interface {
 	FetchMoveOrder(moveTaskOrderID uuid.UUID) (*models.Order, error)
-	ListMoveOrders(officeUserID uuid.UUID, page *int, options ...func(query *pop.Query)) ([]models.Order, int, error)
+	ListMoveOrders(officeUserID uuid.UUID, page *int, perPage *int, options ...func(query *pop.Query)) ([]models.Order, int, error)
 }
 
 //MoveOrderUpdater is the service object interface for updating fields of a MoveOrder

@@ -3,6 +3,8 @@ package moveorder
 import (
 	"database/sql"
 
+	"github.com/go-openapi/swag"
+
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
@@ -14,7 +16,7 @@ type moveOrderFetcher struct {
 	db *pop.Connection
 }
 
-func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, page *int, options ...func(query *pop.Query)) ([]models.Order, int, error) {
+func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, page *int, perPage *int, options ...func(query *pop.Query)) ([]models.Order, int, error) {
 	// Now that we've joined orders and move_orders, we only want to return orders that
 	// have an associated move.
 	var moveOrders []models.Order
@@ -62,11 +64,15 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, page *int, opti
 	}
 
 	// If we have a page argument let's do the pagination thing.
-	if page != nil {
-		err = query.GroupBy("orders.id").Paginate(*page, 20).All(&moveOrders)
-	} else {
-		err = query.GroupBy("orders.id").All(&moveOrders)
+	if page == nil {
+		page = swag.Int(1)
 	}
+
+	if perPage == nil {
+		perPage = swag.Int(20)
+	}
+
+	err = query.GroupBy("orders.id").Paginate(*page, *perPage).All(&moveOrders)
 
 	if err != nil {
 		switch err {
