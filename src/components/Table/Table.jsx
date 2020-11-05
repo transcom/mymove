@@ -7,7 +7,7 @@ import { faChevronLeft, faChevronRight } from '@fortawesome/fontawesome-free-sol
 
 import styles from './Table.module.scss';
 
-const Table = ({ handleClick, getTableProps, getTableBodyProps, headerGroups, rows, prepareRow }) => {
+const Table = ({ handleClick, getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, showPagination }) => {
   return (
     /* eslint-disable react/jsx-props-no-spreading */
     <div data-testid="react-table" className={styles.Table}>
@@ -51,31 +51,33 @@ const Table = ({ handleClick, getTableProps, getTableBodyProps, headerGroups, ro
           })}
         </tbody>
       </table>
-      <div className={styles.paginationSectionWrapper}>
-        <div className={styles.tableControlRowsPerPage}>
-          <Dropdown className={styles.usaSelect} name="table-rows-per-page">
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="50">50</option>
-          </Dropdown>
-          <p>rows per page</p>
+      {showPagination && (
+        <div className={styles.paginationSectionWrapper} data-testid="pagination">
+          <div className={styles.tableControlRowsPerPage}>
+            <Dropdown className={styles.usaSelect} name="table-rows-per-page">
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="50">50</option>
+            </Dropdown>
+            <div>rows per page</div>
+          </div>
+          <div className={styles.tableControlPagination}>
+            <Button disabled className={styles.usaButtonUnstyled}>
+              <FontAwesomeIcon className="icon fas fa-chevron-left" icon={faChevronLeft} />
+              <span>Prev</span>
+            </Button>
+            <Dropdown className={styles.usaSelect} name="table-pagination">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+            </Dropdown>
+            <Button className={styles.usaButtonUnstyled}>
+              <span>Next</span>
+              <FontAwesomeIcon className="icon fas fa-chevron-right" icon={faChevronRight} />
+            </Button>
+          </div>
         </div>
-        <div className={styles.tableControlPagination}>
-          <Button disabled className="usa-button--unstyled">
-            <FontAwesomeIcon className="fas fa-chevron-left" icon={faChevronLeft} />
-            <span>Prev</span>
-          </Button>
-          <Dropdown className={styles.usaSelect} name="table-pagination">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-          </Dropdown>
-          <Button className="usa-button--unstyled">
-            <span>Next</span>
-            <FontAwesomeIcon className="fas fa-chevron-right" icon={faChevronRight} />
-          </Button>
-        </div>
-      </div>
+      )}
     </div>
   );
 };
@@ -88,10 +90,12 @@ Table.propTypes = {
   headerGroups: PropTypes.arrayOf(PropTypes.object).isRequired,
   rows: PropTypes.arrayOf(PropTypes.object).isRequired,
   prepareRow: PropTypes.func.isRequired,
+  showPagination: PropTypes.bool,
 };
 
 Table.defaultProps = {
   handleClick: undefined,
+  showPagination: false,
 };
 
 export default Table;

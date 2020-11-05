@@ -135,12 +135,9 @@ const CreateTableWithPagination = () => {
     {
       columns: tableColumns,
       data: tableData,
-      initialState: { pageIndex: 0 }, // Pass our hoisted table state
-      manualFilters: true,
-      manualPagination: true, // Tell the usePagination
-      // hook that we'll handle our own data fetching
-      // This means we'll also have to provide our own
-      // pageCount.
+      initialState: { pageIndex: 0 },
+      manualPagination: true,
+      showPagination: true,
       defaultColumn,
     },
     usePagination,
