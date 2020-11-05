@@ -3,6 +3,8 @@ package moveorder
 import (
 	"testing"
 
+	"github.com/go-openapi/swag"
+
 	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -91,7 +93,7 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
 
 	suite.T().Run("returns move orders", func(t *testing.T) {
-		moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUser.ID)
+		moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, nil)
 
 		suite.FatalNoError(err)
 		suite.Len(moveOrders, 1)
@@ -126,7 +128,7 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 			},
 		})
 
-		moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUser.ID)
+		moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, nil)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moveOrders))
@@ -146,7 +148,7 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 			},
 		})
 
-		moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, armyBranchFilter())
+		moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, nil, armyBranchFilter())
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moveOrders))
@@ -185,9 +187,33 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrdersWithEmptyFields() {
 
 	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
-	moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUser.ID)
+	moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, nil)
 
 	suite.FatalNoError(err)
 	suite.Nil(moveOrders)
+
+}
+
+func (suite *MoveOrderServiceSuite) TestListMoveOrdersWithPagination() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+
+	for i := 0; i < 22; i++ {
+		expectedMoveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusSUBMITTED}})
+
+		// Only orders with shipments are returned, so we need to add a shipment
+		// to the move we just created
+		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: expectedMoveTaskOrder,
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+		})
+	}
+
+	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
+	moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, swag.Int(1))
+
+	suite.NoError(err)
+	suite.Equal(20, len(moveOrders))
 
 }

@@ -1532,6 +1532,12 @@ func init() {
         "operationId": "getMovesQueue",
         "parameters": [
           {
+            "type": "integer",
+            "description": "requested page of results",
+            "name": "page",
+            "in": "query"
+          },
+          {
             "type": "string",
             "name": "branch",
             "in": "query"
@@ -5306,6 +5312,12 @@ func init() {
         "summary": "Gets queued list of all customer moves by GBLOC origin",
         "operationId": "getMovesQueue",
         "parameters": [
+          {
+            "type": "integer",
+            "description": "requested page of results",
+            "name": "page",
+            "in": "query"
+          },
           {
             "type": "string",
             "name": "branch",

@@ -54,6 +54,10 @@ type GetMovesQueueParams struct {
 	  In: query
 	*/
 	MoveID *string
+	/*requested page of results
+	  In: query
+	*/
+	Page *int64
 	/*Filtering for the status.
 	  Unique: true
 	  In: query
@@ -94,6 +98,11 @@ func (o *GetMovesQueueParams) BindRequest(r *http.Request, route *middleware.Mat
 
 	qMoveID, qhkMoveID, _ := qs.GetOK("moveID")
 	if err := o.bindMoveID(qMoveID, qhkMoveID, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qPage, qhkPage, _ := qs.GetOK("page")
+	if err := o.bindPage(qPage, qhkPage, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -194,6 +203,28 @@ func (o *GetMovesQueueParams) bindMoveID(rawData []string, hasKey bool, formats 
 	}
 
 	o.MoveID = &raw
+
+	return nil
+}
+
+// bindPage binds and validates parameter Page from query.
+func (o *GetMovesQueueParams) bindPage(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	value, err := swag.ConvertInt64(raw)
+	if err != nil {
+		return errors.InvalidType("page", "query", "int64", raw)
+	}
+	o.Page = &value
 
 	return nil
 }

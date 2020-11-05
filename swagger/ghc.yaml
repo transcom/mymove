@@ -1035,6 +1035,10 @@ paths:
         - queues
       parameters:
         - in: query
+          name: page
+          type: integer
+          description: requested page of results
+        - in: query
           name: branch
           type: string
         - in: query

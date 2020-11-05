@@ -14,7 +14,7 @@ type moveOrderFetcher struct {
 	db *pop.Connection
 }
 
-func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, options ...func(query *pop.Query)) ([]models.Order, error) {
+func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, page *int, options ...func(query *pop.Query)) ([]models.Order, error) {
 	// Now that we've joined orders and move_orders, we only want to return orders that
 	// have an associated move.
 	var moveOrders []models.Order
@@ -49,8 +49,13 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, options ...func
 			option(query)
 		}
 	}
+	// If we have a page argument let's do the pagination thing.
+	if page != nil {
+		err = query.GroupBy("orders.id").Paginate(*page, 20).All(&moveOrders)
+	} else {
+		err = query.GroupBy("orders.id").All(&moveOrders)
+	}
 
-	err = query.GroupBy("orders.id").All(&moveOrders)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:

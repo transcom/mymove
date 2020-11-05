@@ -34,6 +34,11 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 		logger.Error("user is not authenticated with TOO office role")
 		return queues.NewGetMovesQueueForbidden()
 	}
+	// If we get a page argument let's pull it out and cast it to the expected int type.
+	var page int
+	if params.Page != nil {
+		page = int(*params.Page)
+	}
 
 	branchQuery := branchFilter(params.Branch)
 	moveIDQuery := moveIDFilter(params.MoveID)
@@ -43,6 +48,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 
 	orders, err := h.MoveOrderFetcher.ListMoveOrders(
 		session.OfficeUserID,
+		&page,
 		branchQuery,
 		moveIDQuery,
 		lastNameQuery,
@@ -61,8 +67,8 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 	queueMoves = moveStatusFilter(params.Status, queueMoves)
 
 	result := &ghcmessages.QueueMovesResult{
-		Page:       0,
-		PerPage:    0,
+		Page:       int64(page),
+		PerPage:    20,
 		TotalCount: int64(len(*queueMoves)),
 		QueueMoves: *queueMoves,
 	}
