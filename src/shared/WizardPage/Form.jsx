@@ -1,7 +1,6 @@
 import React, { Component } from 'react'; // eslint-disable-line
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import windowSize from 'react-window-size';
 import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router-dom';
 import { push } from 'connected-react-router';
@@ -166,7 +165,6 @@ WizardFormPage.propTypes = {
   match: PropTypes.object, //from withRouter
   additionalParams: PropTypes.object,
   additionalValues: PropTypes.object, // These values are passed into the form with change()
-  windowWidth: PropTypes.number,
   discardOnBack: PropTypes.bool,
 };
 
@@ -186,8 +184,6 @@ function composeValidations(initialValidations, additionalValidations) {
   };
 }
 
-const wizardFormPageWithSize = windowSize(WizardFormPage);
-
 export const reduxifyWizardForm = (name, additionalValidations, asyncValidate, asyncBlurFields) => {
   let validations = validateRequiredFields;
   if (additionalValidations) {
@@ -200,5 +196,5 @@ export const reduxifyWizardForm = (name, additionalValidations, asyncValidate, a
     asyncBlurFields,
     enableReinitialize: true,
     keepDirtyOnReinitialize: true,
-  })(withRouter(connect(null, mapDispatchToProps)(wizardFormPageWithSize)));
+  })(withRouter(connect(null, mapDispatchToProps)(WizardFormPage)));
 };

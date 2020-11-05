@@ -1,7 +1,6 @@
 import React, { Component } from 'react'; // eslint-disable-line
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import windowSize from 'react-window-size';
 import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router-dom';
 import { push } from 'connected-react-router';
@@ -142,7 +141,6 @@ WizardPage.propTypes = {
   push: PropTypes.func,
   match: PropTypes.object, //from withRouter
   additionalParams: PropTypes.object,
-  windowWidth: PropTypes.number,
   footerText: PropTypes.node,
 };
 
@@ -159,5 +157,4 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ push }, dispatch);
 }
 
-const wizardFormPageWithSize = windowSize(WizardPage);
-export default withRouter(connect(null, mapDispatchToProps)(wizardFormPageWithSize));
+export default withRouter(connect(null, mapDispatchToProps)(WizardPage));
