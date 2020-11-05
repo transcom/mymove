@@ -1,4 +1,4 @@
--- Add enum values for FAILING and SKIPPED
+-- Add enum values for FAILING
 ALTER TYPE webhook_subscriptions_status
     ADD VALUE 'FAILING';
 
