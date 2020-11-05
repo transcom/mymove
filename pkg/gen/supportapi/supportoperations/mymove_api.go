@@ -64,6 +64,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		WebhookPostWebhookNotifyHandler: webhook.PostWebhookNotifyHandlerFunc(func(params webhook.PostWebhookNotifyParams) middleware.Responder {
 			return middleware.NotImplemented("operation WebhookPostWebhookNotify has not yet been implemented")
 		}),
+		PaymentRequestProcessReviewedPaymentRequestsHandler: payment_request.ProcessReviewedPaymentRequestsHandlerFunc(func(params payment_request.ProcessReviewedPaymentRequestsParams) middleware.Responder {
+			return middleware.NotImplemented("operation PaymentRequestProcessReviewedPaymentRequests has not yet been implemented")
+		}),
 		MtoServiceItemUpdateMTOServiceItemStatusHandler: mto_service_item.UpdateMTOServiceItemStatusHandlerFunc(func(params mto_service_item.UpdateMTOServiceItemStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation MtoServiceItemUpdateMTOServiceItemStatus has not yet been implemented")
 		}),
@@ -123,6 +126,8 @@ type MymoveAPI struct {
 	MoveTaskOrderMakeMoveTaskOrderAvailableHandler move_task_order.MakeMoveTaskOrderAvailableHandler
 	// WebhookPostWebhookNotifyHandler sets the operation handler for the post webhook notify operation
 	WebhookPostWebhookNotifyHandler webhook.PostWebhookNotifyHandler
+	// PaymentRequestProcessReviewedPaymentRequestsHandler sets the operation handler for the process reviewed payment requests operation
+	PaymentRequestProcessReviewedPaymentRequestsHandler payment_request.ProcessReviewedPaymentRequestsHandler
 	// MtoServiceItemUpdateMTOServiceItemStatusHandler sets the operation handler for the update m t o service item status operation
 	MtoServiceItemUpdateMTOServiceItemStatusHandler mto_service_item.UpdateMTOServiceItemStatusHandler
 	// MtoShipmentUpdateMTOShipmentStatusHandler sets the operation handler for the update m t o shipment status operation
@@ -218,6 +223,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.WebhookPostWebhookNotifyHandler == nil {
 		unregistered = append(unregistered, "webhook.PostWebhookNotifyHandler")
+	}
+
+	if o.PaymentRequestProcessReviewedPaymentRequestsHandler == nil {
+		unregistered = append(unregistered, "payment_request.ProcessReviewedPaymentRequestsHandler")
 	}
 
 	if o.MtoServiceItemUpdateMTOServiceItemStatusHandler == nil {
@@ -364,6 +373,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/webhook-notify"] = webhook.NewPostWebhookNotify(o.context, o.WebhookPostWebhookNotifyHandler)
+
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/payment-requests/process-reviewed"] = payment_request.NewProcessReviewedPaymentRequests(o.context, o.PaymentRequestProcessReviewedPaymentRequestsHandler)
 
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)

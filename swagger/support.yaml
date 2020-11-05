@@ -505,13 +505,7 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  '/payment-requests/ProcessReviewedPaymentRequests':
-    parameters:
-      - in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/ProcessReviewedPaymentRequests'
+  '/payment-requests/process-reviewed':
     patch:
       summary: processReviewedPaymentRequests
       description: |
@@ -522,13 +516,28 @@ paths:
       operationId: processReviewedPaymentRequests
       tags:
         - paymentRequest
+      consumes:
+        - application/json
       produces:
         - application/json
+      parameters:
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/ProcessReviewedPaymentRequests'
       responses:
         '200':
           description: Successfully updated status of reviewed payment request and sent to Syncada if that flag is set
           schema:
-            $ref: '#/definitions/PaymentRequest'
+            $ref: '#/definitions/PaymentRequests'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -1292,6 +1301,7 @@ definitions:
     title: Payment Request Status
     type: string
   ProcessReviewedPaymentRequests:
+    type: object
     properties:
       paymentRequestID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -1308,9 +1318,8 @@ definitions:
         type: string
         readOnly: true
         description: Attribute of the payment request object that automatically changes when the request is updated. This matches the value passed in the header for `If-Match`. Required when sending PUT or PATCH requests to prevent updating stale data.
-      required:
-        - sendToSyncada
-      type: object
+    required:
+      - sendToSyncada
   ProofOfServicePackage:
     properties:
       id:

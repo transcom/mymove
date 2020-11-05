@@ -50,7 +50,7 @@ func ProcessReviewedPaymentRequests(cmd *cobra.Command, args []string) error {
 	}
 
 	// Check the config before talking to the CAC
-	err := checkGetPaymentRequestEDIConfig(v, args, logger)
+	err := checkProcessReviewedPaymentRequestsConfig(v, args, logger)
 	if err != nil {
 		logger.Fatal(err)
 	}

@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/invoice"
 	internalmovetaskorder "github.com/transcom/mymove/pkg/services/support/move_task_order"
 
@@ -24,7 +25,7 @@ import (
 // NewSupportAPIHandler returns a handler for the Prime API
 func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 	queryBuilder := query.NewQueryBuilder(context.DB())
-
+	var logger paymentrequest.Logger
 	supportSpec, err := loads.Analyzed(supportapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)
@@ -78,13 +79,20 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 		PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(context.DB()),
 		GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(context.DB()),
 	}
-
-	supportAPI.PaymentRequestProcessReviewedPaymentRequestsEDIHandler = ProcessReviewedPaymentRequestsHandler{
-		HandlerContext:                  context,
-		PaymentRequestFetcher:           paymentrequest.NewPaymentRequestFetcher(context.DB()),
-		PaymentRequestStatusUpdater:     paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
-		PaymentRequestReviewedFetcher:   paymentrequest.NewPaymentRequestReviewedFetcher(context.DB()),
-		PaymentRequestReviewedProcessor: paymentrequest.NewPaymentRequestReviewedProcessor(context.DB()),
+	var gexSender services.GexSender
+	gexSender = nil
+	supportAPI.PaymentRequestProcessReviewedPaymentRequestsHandler = ProcessReviewedPaymentRequestsHandler{
+		HandlerContext:                context,
+		PaymentRequestFetcher:         paymentrequest.NewPaymentRequestFetcher(context.DB()),
+		PaymentRequestStatusUpdater:   paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
+		PaymentRequestReviewedFetcher: paymentrequest.NewPaymentRequestReviewedFetcher(context.DB()),
+		PaymentRequestReviewedProcessor: paymentrequest.NewPaymentRequestReviewedProcessor(context.DB(),
+			logger,
+			paymentrequest.NewPaymentRequestReviewedFetcher(context.DB()),
+			invoice.NewGHCPaymentRequestInvoiceGenerator(context.DB()),
+			true,
+			gexSender,
+			invoice.InitNewSyncadaSFTPSession()),
 	}
 
 	return supportAPI.Serve(nil)
