@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { forEach } from 'lodash';
 import { string, number, bool } from 'prop-types';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import faExclamationCircle from '@fortawesome/free-solid-svg-icons/faExclamationCircle';
 import carImg from 'shared/images/car_mobile.png';
 import boxTruckImg from 'shared/images/box_truck_mobile.png';
 import carTrailerImg from 'shared/images/car-trailer_mobile.png';

@@ -2,9 +2,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import './index.css';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner';
-import faTimes from '@fortawesome/fontawesome-free-solid/faTimes';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import faSpinner from '@fortawesome/free-solid-svg-icons/faSpinner';
+import faTimes from '@fortawesome/free-solid-svg-icons/faTimes';
 
 //this is taken from https://designsystem.digital.gov/components/alerts/
 const Alert = (props) => (

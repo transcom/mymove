@@ -3,8 +3,8 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import Select, { components } from 'react-select';
 import { Checkbox } from '@trussworks/react-uswds';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faSort from '@fortawesome/fontawesome-free-solid/faSort';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import faSort from '@fortawesome/free-solid-svg-icons/faSort';
 
 import styles from './MultiSelectCheckBoxFilter.module.scss';
 

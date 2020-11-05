@@ -1,7 +1,7 @@
 import React from 'react';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
-import faBan from '@fortawesome/fontawesome-free-solid/faBan';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import faCheck from '@fortawesome/free-solid-svg-icons/faCheck';
+import faBan from '@fortawesome/free-solid-svg-icons/faBan';
 
 function AllowableExpenses(props) {
   function goBack() {
