@@ -40,7 +40,7 @@ func (_m *MoveOrderFetcher) FetchMoveOrder(moveTaskOrderID uuid.UUID) (*models.O
 }
 
 // ListMoveOrders provides a mock function with given fields: officeUserID, page, options
-func (_m *MoveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, page *int, options ...func(*pop.Query)) ([]models.Order, error) {
+func (_m *MoveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, page *int, options ...func(*pop.Query)) ([]models.Order, int, error) {
 	_va := make([]interface{}, len(options))
 	for _i := range options {
 		_va[_i] = options[_i]
@@ -59,12 +59,19 @@ func (_m *MoveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, page *int, op
 		}
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(uuid.UUID, *int, ...func(*pop.Query)) error); ok {
+	var r1 int
+	if rf, ok := ret.Get(1).(func(uuid.UUID, *int, ...func(*pop.Query)) int); ok {
 		r1 = rf(officeUserID, page, options...)
 	} else {
-		r1 = ret.Error(1)
+		r1 = ret.Get(1).(int)
 	}
 
-	return r0, r1
+	var r2 error
+	if rf, ok := ret.Get(2).(func(uuid.UUID, *int, ...func(*pop.Query)) error); ok {
+		r2 = rf(officeUserID, page, options...)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }
