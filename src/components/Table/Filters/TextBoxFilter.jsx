@@ -1,18 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { TextInput } from '@trussworks/react-uswds';
 
-const TextBoxFilter = ({ column: { filterValue, preFilteredRows, setFilter } }) => {
-  // eslint-disable-next-line react/prop-types
-  const count = preFilteredRows.length;
-
+const TextBoxFilter = ({ column: { filterValue, setFilter, id } }) => {
   return (
-    <input
+    <TextInput
       data-testid="TextBoxFilter"
-      value={filterValue || ''}
-      onChange={(e) => {
+      id={id}
+      name={id}
+      defaultValue={filterValue || ''}
+      onBlur={(e) => {
         setFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
       }}
-      placeholder={`Search ${count} records...`}
+      type="text"
     />
   );
 };
@@ -21,8 +21,8 @@ const TextBoxFilter = ({ column: { filterValue, preFilteredRows, setFilter } }) 
 TextBoxFilter.propTypes = {
   column: PropTypes.shape({
     filterValue: PropTypes.node,
-    preFilteredRows: PropTypes.node,
     setFilter: PropTypes.func,
+    id: PropTypes.string,
   }).isRequired,
 };
 

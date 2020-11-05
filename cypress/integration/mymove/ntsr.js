@@ -28,7 +28,7 @@ describe('Customer NTSr Setup flow', function () {
 
 function customerEditsNTSRShipmentFromHomePage() {
   cy.get('[data-testid="shipment-list-item-container"]').contains('NTS-R').click();
-  cy.get('input[data-testid="remarks"]').clear().type('Warning: glass').blur();
+  cy.get('textarea[data-testid="remarks"]').clear().type('Warning: glass').blur();
 
   cy.get('button').contains('Save').click();
   cy.location().should((loc) => {
@@ -59,7 +59,7 @@ function customerEditsNTSRShipmentFromReviewPage() {
   cy.get('input[name="delivery.requestedDate"]').clear().type('01/01/2022').blur();
   cy.get('[data-testid="mailingAddress1"]').clear().type('123 Maple street');
   cy.get('input[data-testid="firstName"]').clear().type('Ketchum').blur();
-  cy.get('input[data-testid="remarks"]').clear().type('Warning: fragile').blur();
+  cy.get('textarea[data-testid="remarks"]').clear().type('Warning: fragile').blur();
   cy.get('button').contains('Save').click();
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);

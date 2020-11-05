@@ -6,6 +6,13 @@ import (
 	"io/ioutil"
 	"time"
 
+	"github.com/transcom/mymove/pkg/certs"
+
+	"github.com/gobuffalo/pop/v5"
+	"github.com/pkg/errors"
+
+	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
+
 	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/rateengine"
@@ -14,6 +21,8 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
+
+	"github.com/gobuffalo/validate/v3"
 
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -160,14 +169,18 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	}
 	logger = logger.With(zap.String("moveLocator", move.Locator))
 
-	submitDate := time.Time(*params.SubmitMoveForApprovalPayload.PpmSubmitDate)
+	submitDate := time.Now()
 	err = move.Submit(submitDate)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
+	certificateParams := certop.NewCreateSignedCertificationParams()
+	certificateParams.CreateSignedCertificationPayload = params.SubmitMoveForApprovalPayload.Certificate
+	certificateParams.HTTPRequest = params.HTTPRequest
+	certificateParams.MoveID = params.MoveID
 	// Transaction to save move and dependencies
-	verrs, err := models.SaveMoveDependencies(h.DB(), move)
+	verrs, err := h.saveMoveDependencies(h.DB(), logger, move, certificateParams, session.UserID)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
@@ -186,6 +199,79 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 		return handlers.ResponseForError(logger, err)
 	}
 	return moveop.NewSubmitMoveForApprovalOK().WithPayload(movePayload)
+}
+
+// SaveMoveDependencies safely saves a Move status, ppms' advances' statuses, orders statuses, signed certificate,
+// and shipment GBLOCs.
+func (h SubmitMoveHandler) saveMoveDependencies(db *pop.Connection, logger certs.Logger, move *models.Move, certificateParams certop.CreateSignedCertificationParams, userID uuid.UUID) (*validate.Errors, error) {
+	responseVErrors := validate.NewErrors()
+	var responseError error
+
+	date := time.Time(*certificateParams.CreateSignedCertificationPayload.Date)
+	certType := models.SignedCertificationType(*certificateParams.CreateSignedCertificationPayload.CertificationType)
+	newSignedCertification := models.SignedCertification{
+		MoveID:                   uuid.FromStringOrNil(certificateParams.MoveID.String()),
+		PersonallyProcuredMoveID: nil,
+		CertificationType:        &certType,
+		SubmittingUserID:         userID,
+		CertificationText:        *certificateParams.CreateSignedCertificationPayload.CertificationText,
+		Signature:                *certificateParams.CreateSignedCertificationPayload.Signature,
+		Date:                     date,
+	}
+
+	if certificateParams.CreateSignedCertificationPayload.PersonallyProcuredMoveID != nil {
+		ppmID := uuid.FromStringOrNil(certificateParams.CreateSignedCertificationPayload.PersonallyProcuredMoveID.String())
+		newSignedCertification.PersonallyProcuredMoveID = &ppmID
+	}
+
+	db.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("Rollback The transaction")
+		// TODO: move creation of signed certification into a service
+		verrs, err := db.ValidateAndCreate(&newSignedCertification)
+		if err != nil || verrs.HasAny() {
+			responseError = fmt.Errorf("error saving signed certification: %w", err)
+			responseVErrors.Append(verrs)
+			return transactionError
+		}
+
+		for _, ppm := range move.PersonallyProcuredMoves {
+			if ppm.Advance != nil {
+				if verrs, err := db.ValidateAndSave(ppm.Advance); verrs.HasAny() || err != nil {
+					responseVErrors.Append(verrs)
+					responseError = errors.Wrap(err, "Error Saving Advance")
+					return transactionError
+				}
+			}
+
+			if verrs, err := db.ValidateAndSave(&ppm); verrs.HasAny() || err != nil {
+				responseVErrors.Append(verrs)
+				responseError = errors.Wrap(err, "Error Saving PPM")
+				return transactionError
+			}
+		}
+
+		if verrs, err := db.ValidateAndSave(&move.Orders); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error Saving Orders")
+			return transactionError
+		}
+
+		if verrs, err := db.ValidateAndSave(move); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error Saving Move")
+			return transactionError
+		}
+		return nil
+	})
+
+	logger.Info("signedCertification created",
+		zap.String("id", newSignedCertification.ID.String()),
+		zap.String("moveId", newSignedCertification.MoveID.String()),
+		zap.String("createdAt", newSignedCertification.CreatedAt.String()),
+		zap.String("certification_type", string(*newSignedCertification.CertificationType)),
+		zap.String("certification_text", newSignedCertification.CertificationText),
+	)
+	return responseVErrors, responseError
 }
 
 // Handle returns a generated PDF

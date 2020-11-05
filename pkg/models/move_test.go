@@ -175,8 +175,7 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 	move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, ppm)
 
 	// Once submitted
-	currentTime := time.Now()
-	err = move.Submit(currentTime)
+	err = move.Submit(time.Now())
 	suite.MustSave(move)
 	suite.DB().Reload(move)
 	suite.NoError(err)

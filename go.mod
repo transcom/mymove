@@ -22,12 +22,13 @@ require (
 	github.com/go-openapi/errors v0.19.4
 	github.com/go-openapi/loads v0.19.5
 	github.com/go-openapi/runtime v0.19.15
-	github.com/go-openapi/spec v0.19.9
-	github.com/go-openapi/strfmt v0.19.6
-	github.com/go-openapi/swag v0.19.10
+	github.com/go-openapi/spec v0.19.11
+	github.com/go-openapi/strfmt v0.19.7
+	github.com/go-openapi/swag v0.19.11
 	github.com/go-openapi/validate v0.19.8
 	github.com/go-playground/locales v0.13.0
 	github.com/go-playground/universal-translator v0.17.0
+	github.com/go-playground/validator/v10 v10.4.1
 	github.com/gobuffalo/envy v1.9.0
 	github.com/gobuffalo/fizz v1.13.0
 	github.com/gobuffalo/flect v0.2.2
@@ -72,10 +73,8 @@ require (
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
 	golang.org/x/net v0.0.0-20200930145003-4acb6c075d10
 	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
-	golang.org/x/text v0.3.3
+	golang.org/x/text v0.3.4
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
-	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
-	gopkg.in/go-playground/validator.v9 v9.31.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
 	gopkg.in/urfave/cli.v1 v1.20.0 // indirect
 	pault.ag/go/pksigner v1.0.2

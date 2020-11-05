@@ -1,40 +1,54 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { mount } from 'enzyme';
 
 import Table from './Table';
 
-import { createHeader } from 'components/Table/utils';
-
 describe('React table', () => {
+  const defaultProps = {
+    getTableProps: jest.fn(() => ({})),
+    getTableBodyProps: jest.fn(() => ({})),
+    prepareRow: jest.fn(),
+    headerGroups: [],
+    rows: [],
+  };
+
+  const createTableComponent = (columns, data, handleClick) => {
+    const rows = data.map((row, index) => {
+      const cells = Object.keys(row).map((v, i) => {
+        return {
+          key: `cells${i}`,
+          column: v.accessor,
+          row: v.accessor,
+          getCellProps: jest.fn(),
+        };
+      });
+      return { key: `rows${index}`, cells, getRowProps: jest.fn() };
+    });
+
+    const headers = columns.map((column, index) => ({
+      key: `headers${index}`,
+      id: column.accessor,
+      render: (val) => val,
+      getHeaderProps: jest.fn(),
+    }));
+    return mount(
+      <Table
+        {...defaultProps}
+        rows={rows}
+        headerGroups={[
+          {
+            headers,
+            getHeaderGroupProps: jest.fn(),
+          },
+        ]}
+        handleClick={handleClick}
+      />,
+    );
+  };
+
   it('renders without crashing', () => {
-    const wrapper = mount(<Table />);
+    const wrapper = createTableComponent([], []);
     expect(wrapper.find('[data-testid="react-table"]').length).toBe(1);
-  });
-
-  it('renders with data', () => {
-    const data = [{ col1: 'Column 1 value' }];
-    const cols = [createHeader('Column 1 header', 'col1')];
-    const wrapper = mount(<Table data={data} columns={cols} />);
-
-    // checking to see if we get expected lengths
-    expect(wrapper.find('th').length).toBe(1);
-    expect(wrapper.find('td').length).toBe(1);
-
-    // checking data
-    expect(wrapper.find('th[data-testid="col1"]').text()).toBe('Column 1 header');
-    // data-testid has a format of ${columnKey}-${rowIndex}
-    expect(wrapper.find('td[data-testid="col1-0"]').text()).toBe('Column 1 value');
-  });
-
-  it('attaches the click listener', () => {
-    const data = [{ col1: 'Column 1 value' }];
-    const cols = [createHeader('Column 1 header', 'col1')];
-    const handleClick = jest.fn();
-
-    const wrapper = mount(<Table data={data} columns={cols} handleClick={handleClick} />);
-
-    wrapper.find('tbody tr').simulate('click');
-
-    expect(handleClick).toHaveBeenCalledWith({ col1: 'Column 1 value' });
   });
 });

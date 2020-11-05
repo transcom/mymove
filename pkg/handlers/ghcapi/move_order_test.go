@@ -1,13 +1,8 @@
 package ghcapi
 
 import (
-	"fmt"
 	"net/http/httptest"
-	"testing"
 	"time"
-
-	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services/mocks"
 
 	"github.com/gofrs/uuid"
 
@@ -23,83 +18,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/services/query"
 )
-
-func (suite *HandlerSuite) TestListMoveOrdersHandler() {
-
-	moveOrderID1, _ := uuid.FromString("00000000-0000-0000-0000-000000000001")
-	moveOrderID2, _ := uuid.FromString("00000000-0000-0000-0000-000000000002")
-	moveOrderID3, _ := uuid.FromString("00000000-0000-0000-0000-000000000003")
-
-	IDs := []uuid.UUID{
-		moveOrderID1,
-		moveOrderID2,
-		moveOrderID3,
-	}
-
-	var moveOrders []models.Order
-
-	for _, id := range IDs {
-		moveOrder := models.Order{
-			ID:        id,
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
-		}
-		moveOrders = append(moveOrders, moveOrder)
-	}
-
-	suite.T().Run("When office user is TOO and fetch is successful", func(t *testing.T) {
-		moveOrderFetcher := &mocks.MoveOrderFetcher{}
-		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{
-			Stub: true,
-		})
-
-		moveOrderFetcher.On("ListMoveOrders", officeUser.ID).Return(moveOrders, nil).Once()
-
-		req := httptest.NewRequest("GET", fmt.Sprintf("/move_orders"), nil)
-		req = suite.AuthenticateOfficeRequest(req, officeUser)
-
-		params := moveorderop.ListMoveOrdersParams{
-			HTTPRequest: req,
-		}
-
-		handler := ListMoveOrdersHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			moveOrderFetcher,
-		}
-
-		response := handler.Handle(params)
-
-		suite.IsType(&moveorderop.ListMoveOrdersOK{}, response)
-		okResponse := response.(*moveorderop.ListMoveOrdersOK)
-		suite.Equal(len(IDs), len(okResponse.Payload))
-		suite.Equal(moveOrderID1.String(), okResponse.Payload[0].ID.String())
-		suite.Equal(moveOrderID2.String(), okResponse.Payload[1].ID.String())
-		suite.Equal(moveOrderID3.String(), okResponse.Payload[2].ID.String())
-	})
-
-	suite.T().Run("When office user is not TOO, response should be 403", func(t *testing.T) {
-		moveOrderFetcher := &mocks.MoveOrderFetcher{}
-		officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
-			Stub: true,
-		})
-		moveOrderFetcher.AssertNumberOfCalls(t, "ListMoveOrders", 0)
-
-		req := httptest.NewRequest("GET", fmt.Sprintf("/move_orders"), nil)
-		req = suite.AuthenticateOfficeRequest(req, officeUser)
-
-		params := moveorderop.ListMoveOrdersParams{
-			HTTPRequest: req,
-		}
-
-		handler := ListMoveOrdersHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			moveOrderFetcher,
-		}
-		response := handler.Handle(params)
-
-		suite.IsType(&moveorderop.ListMoveOrdersForbidden{}, response)
-	})
-}
 
 func (suite *HandlerSuite) TestGetMoveOrderHandlerIntegration() {
 	moveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
@@ -193,6 +111,60 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerIntegration() {
 	suite.Equal(body.DepartmentIndicator, moveOrdersPayload.DepartmentIndicator)
 	suite.Equal(body.Tac, moveOrdersPayload.Tac)
 	suite.Equal(body.Sac, moveOrdersPayload.Sac)
+}
+
+// Test that a move order notification got stored Successfully
+func (suite *HandlerSuite) TestUpdateMoveOrderEventTrigger() {
+	moveTaskOrder := testdatagen.MakeAvailableMove(suite.DB())
+	moveOrder := moveTaskOrder.Orders
+	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+
+	request := httptest.NewRequest("PATCH", "/move-orders/{moveOrderID}", nil)
+
+	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
+	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
+
+	body := &ghcmessages.UpdateMoveOrderPayload{
+		IssueDate:           handlers.FmtDatePtr(&issueDate),
+		ReportByDate:        handlers.FmtDatePtr(&reportByDate),
+		OrdersType:          "RETIREMENT",
+		OrdersTypeDetail:    "INSTRUCTION_20_WEEKS",
+		DepartmentIndicator: "COAST_GUARD",
+		OrdersNumber:        handlers.FmtString("ORDER100"),
+		NewDutyStationID:    handlers.FmtUUID(destinationDutyStation.ID),
+		OriginDutyStationID: handlers.FmtUUID(originDutyStation.ID),
+		Tac:                 handlers.FmtString("012345678"),
+		Sac:                 handlers.FmtString("987654321"),
+	}
+
+	params := moveorderop.UpdateMoveOrderParams{
+		HTTPRequest: request,
+		MoveOrderID: strfmt.UUID(moveOrder.ID.String()),
+		IfMatch:     etag.GenerateEtag(moveOrder.UpdatedAt), // This is broken if you get a preconditioned failed error
+		Body:        body,
+	}
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	queryBuilder := query.NewQueryBuilder(context.DB())
+	// Set up handler:
+	handler := UpdateMoveOrderHandler{
+		context,
+		moveorder.NewMoveOrderUpdater(suite.DB(), queryBuilder),
+	}
+
+	traceID, err := uuid.NewV4()
+	handler.SetTraceID(traceID)        // traceID is inserted into handler
+	response := handler.Handle(params) // This step also saves traceID into DB
+	suite.IsNotErrResponse(response)
+	moveOrderOK := response.(*moveorderop.UpdateMoveOrderOK)
+	moveOrdersPayload := moveOrderOK.Payload
+
+	suite.FatalNoError(err, "Error creating a new trace ID.")
+
+	suite.Assertions.IsType(&moveorderop.UpdateMoveOrderOK{}, response)
+	suite.Equal(moveOrdersPayload.ID, strfmt.UUID(moveOrder.ID.String()))
+	suite.HasWebhookNotification(moveOrder.ID, traceID)
 }
 
 func (suite *HandlerSuite) TestUpdateMoveOrderHandlerNotFound() {

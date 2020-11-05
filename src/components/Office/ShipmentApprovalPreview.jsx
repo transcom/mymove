@@ -88,7 +88,7 @@ const ShipmentApprovalPreview = ({
                             <th className="text-bold" scope="row">
                               Current Address
                             </th>
-                            <td>{formatAddress(shipment.pickupAddress)}</td>
+                            <td>{shipment.pickupAddress && formatAddress(shipment.pickupAddress)}</td>
                           </tr>
                           <tr>
                             <th className="text-bold" scope="row">
