@@ -3,6 +3,8 @@ package paymentrequest
 import (
 	"database/sql"
 
+	"github.com/go-openapi/swag"
+
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
@@ -21,11 +23,11 @@ func NewPaymentRequestListFetcher(db *pop.Connection) services.PaymentRequestLis
 	return &paymentRequestListFetcher{db}
 }
 
-func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UUID, options ...func(query *pop.Query)) (*models.PaymentRequests, error) {
+func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UUID, page *int, perPage *int, options ...func(query *pop.Query)) (*models.PaymentRequests, int, error) {
 	gblocFetcher := officeuser.NewOfficeUserGblocFetcher(f.db)
 	gbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(officeUserID)
 	if gblocErr != nil {
-		return &models.PaymentRequests{}, gblocErr
+		return &models.PaymentRequests{}, 0, gblocErr
 	}
 
 	paymentRequests := models.PaymentRequests{}
@@ -46,18 +48,34 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 		}
 	}
 
-	err := query.GroupBy("payment_requests.id").All(&paymentRequests)
+	var paymentRequestModelForCount models.PaymentRequest
+	count, err := query.GroupBy("payment_requests.id").Count(&paymentRequestModelForCount)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return nil, services.NotFoundError{}
+			return nil, 0, services.NotFoundError{}
 		default:
-			return nil, err
+			return nil, 0, err
 		}
 	}
 
+	if page == nil {
+		page = swag.Int(1)
+	}
+
+	if perPage == nil {
+		perPage = swag.Int(20)
+	}
+
+	err = query.GroupBy("payment_requests.id").Paginate(*page, *perPage).All(&paymentRequests)
+
 	if err != nil {
-		return &models.PaymentRequests{}, err
+		switch err {
+		case sql.ErrNoRows:
+			return nil, 0, services.NotFoundError{}
+		default:
+			return nil, 0, err
+		}
 	}
 
 	for i := range paymentRequests {
@@ -69,5 +87,5 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 		}
 	}
 
-	return &paymentRequests, nil
+	return &paymentRequests, count, nil
 }

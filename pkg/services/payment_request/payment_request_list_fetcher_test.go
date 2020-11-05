@@ -3,6 +3,8 @@ package paymentrequest
 import (
 	"testing"
 
+	"github.com/go-openapi/swag"
+
 	"github.com/gobuffalo/pop/v5"
 
 	"github.com/gofrs/uuid"
@@ -25,7 +27,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 	testdatagen.MakeDefaultPaymentRequest(suite.DB())
 
 	suite.T().Run("Returns payment requests matching office user GBLOC", func(t *testing.T) {
-		expectedPaymentRequests, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, nil, nil)
 
 		suite.NoError(err)
 		suite.Equal(2, len(*expectedPaymentRequests))
@@ -35,7 +37,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 		// Locator
 		moveID := paymentRequest.MoveTaskOrder.Locator
 		moveIDQuery := moveIDFilter(&moveID)
-		expectedPaymentRequests, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, moveIDQuery)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, nil, nil, moveIDQuery)
 		suite.NoError(err)
 		suite.Equal(1, len(*expectedPaymentRequests))
 		paymentRequests := *expectedPaymentRequests
@@ -50,7 +52,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 
 		branch := serviceMember.Affiliation.String()
 		branchQuery := branchFilter(&branch)
-		expectedPaymentRequests, err = paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, branchQuery)
+		expectedPaymentRequests, _, err = paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, nil, nil, branchQuery)
 		suite.NoError(err)
 		suite.Equal(1, len(*expectedPaymentRequests))
 		paymentRequests = *expectedPaymentRequests
@@ -74,7 +76,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListNoGBLOCMatch
 			},
 		})
 
-		expectedPaymentRequests, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID)
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, nil, nil)
 
 		suite.NoError(err)
 		suite.Equal(0, len(*expectedPaymentRequests))
@@ -86,7 +88,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListFailure() {
 
 	suite.T().Run("Error when office user ID does not exist", func(t *testing.T) {
 		nonexistentOfficeUserID := uuid.Must(uuid.NewV4())
-		_, err := paymentRequestListFetcher.FetchPaymentRequestList(nonexistentOfficeUserID)
+		_, _, err := paymentRequestListFetcher.FetchPaymentRequestList(nonexistentOfficeUserID, nil, nil)
 
 		suite.Error(err)
 		suite.Contains(err.Error(), "error fetching transportationOffice for officeUserID")
@@ -109,4 +111,20 @@ func branchFilter(branch *string) FilterOption {
 			query = query.Where("service_members.affiliation = ?", *branch)
 		}
 	}
+}
+
+func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListWithPagination() {
+	paymentRequestListFetcher := NewPaymentRequestListFetcher(suite.DB())
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+
+	for i := 0; i < 2; i++ {
+		testdatagen.MakeDefaultPaymentRequest(suite.DB())
+	}
+
+	expectedPaymentRequests, count, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, swag.Int(1), swag.Int(1))
+
+	suite.NoError(err)
+	suite.Equal(1, len(*expectedPaymentRequests))
+	suite.Equal(2, count)
+
 }

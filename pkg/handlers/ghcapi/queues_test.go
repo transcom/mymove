@@ -857,6 +857,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerServerError() {
 		mock.Anything,
 		mock.Anything,
 		mock.Anything,
+		mock.Anything,
+		mock.Anything,
 		mock.Anything).Return(nil, errors.New("database query error"))
 
 	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
@@ -881,6 +883,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerEmptyResults() {
 	paymentRequestListFetcher := mocks.PaymentRequestListFetcher{}
 
 	paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID,
+		mock.Anything,
+		mock.Anything,
 		mock.Anything,
 		mock.Anything,
 		mock.Anything,

@@ -16,32 +16,39 @@ type PaymentRequestListFetcher struct {
 	mock.Mock
 }
 
-// FetchPaymentRequestList provides a mock function with given fields: officeUserID, options
-func (_m *PaymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UUID, options ...func(*pop.Query)) (*models.PaymentRequests, error) {
+// FetchPaymentRequestList provides a mock function with given fields: officeUserID, page, perPage, options
+func (_m *PaymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UUID, page *int, perPage *int, options ...func(*pop.Query)) (*models.PaymentRequests, int, error) {
 	_va := make([]interface{}, len(options))
 	for _i := range options {
 		_va[_i] = options[_i]
 	}
 	var _ca []interface{}
-	_ca = append(_ca, officeUserID)
+	_ca = append(_ca, officeUserID, page, perPage)
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
 	var r0 *models.PaymentRequests
-	if rf, ok := ret.Get(0).(func(uuid.UUID, ...func(*pop.Query)) *models.PaymentRequests); ok {
-		r0 = rf(officeUserID, options...)
+	if rf, ok := ret.Get(0).(func(uuid.UUID, *int, *int, ...func(*pop.Query)) *models.PaymentRequests); ok {
+		r0 = rf(officeUserID, page, perPage, options...)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.PaymentRequests)
 		}
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(uuid.UUID, ...func(*pop.Query)) error); ok {
-		r1 = rf(officeUserID, options...)
+	var r1 int
+	if rf, ok := ret.Get(1).(func(uuid.UUID, *int, *int, ...func(*pop.Query)) int); ok {
+		r1 = rf(officeUserID, page, perPage, options...)
 	} else {
-		r1 = ret.Error(1)
+		r1 = ret.Get(1).(int)
 	}
 
-	return r0, r1
+	var r2 error
+	if rf, ok := ret.Get(2).(func(uuid.UUID, *int, *int, ...func(*pop.Query)) error); ok {
+		r2 = rf(officeUserID, page, perPage, options...)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }

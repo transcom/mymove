@@ -95,8 +95,21 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 	statusQuery := paymentRequestsStatusFilter(params.Status)
 	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
 
-	paymentRequests, err := h.FetchPaymentRequestList(
+	// If we get a page argument let's pull it out and cast it to the expected int type.
+	var page int
+	if params.Page != nil {
+		page = int(*params.Page)
+	}
+
+	var perPage int
+	if params.PerPage != nil {
+		perPage = int(*params.PerPage)
+	}
+
+	paymentRequests, count, err := h.FetchPaymentRequestList(
 		session.OfficeUserID,
+		&page,
+		&perPage,
 		statusQuery,
 		branchQuery,
 		moveIDQuery,
@@ -113,7 +126,8 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 	queuePaymentRequests := payloads.QueuePaymentRequests(paymentRequests)
 
 	result := &ghcmessages.QueuePaymentRequestsResult{
-		TotalCount:           int64(len(*queuePaymentRequests)),
+		TotalCount:           int64(count),
+		PerPage:              int64(perPage),
 		QueuePaymentRequests: *queuePaymentRequests,
 	}
 
