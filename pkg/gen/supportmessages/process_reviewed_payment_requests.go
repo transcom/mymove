@@ -17,10 +17,6 @@ import (
 // swagger:model ProcessReviewedPaymentRequests
 type ProcessReviewedPaymentRequests struct {
 
-	// Attribute of the payment request object that automatically changes when the request is updated. This matches the value passed in the header for `If-Match`. Required when sending PUT or PATCH requests to prevent updating stale data.
-	// Read Only: true
-	ETag string `json:"eTag,omitempty"`
-
 	// payment request ID
 	// Read Only: true
 	// Format: uuid

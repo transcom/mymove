@@ -317,7 +317,9 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 				PaymentRequestNumber: pr.PaymentRequestNumber,
 				SequenceNumber:       pr.SequenceNumber,
 			}
-			updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(&paymentRequestForUpdate, params.IfMatch)
+			var nilEtag string
+			updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(&paymentRequestForUpdate, nilEtag)
+
 			if err != nil {
 				switch err.(type) {
 				case services.NotFoundError:

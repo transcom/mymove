@@ -63,12 +63,6 @@ for the process reviewed payment requests operation typically these are written 
 */
 type ProcessReviewedPaymentRequestsParams struct {
 
-	/*IfMatch
-	  Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match the
-
-
-	*/
-	IfMatch string
 	/*Body*/
 	Body *supportmessages.ProcessReviewedPaymentRequests
 
@@ -110,17 +104,6 @@ func (o *ProcessReviewedPaymentRequestsParams) SetHTTPClient(client *http.Client
 	o.HTTPClient = client
 }
 
-// WithIfMatch adds the ifMatch to the process reviewed payment requests params
-func (o *ProcessReviewedPaymentRequestsParams) WithIfMatch(ifMatch string) *ProcessReviewedPaymentRequestsParams {
-	o.SetIfMatch(ifMatch)
-	return o
-}
-
-// SetIfMatch adds the ifMatch to the process reviewed payment requests params
-func (o *ProcessReviewedPaymentRequestsParams) SetIfMatch(ifMatch string) {
-	o.IfMatch = ifMatch
-}
-
 // WithBody adds the body to the process reviewed payment requests params
 func (o *ProcessReviewedPaymentRequestsParams) WithBody(body *supportmessages.ProcessReviewedPaymentRequests) *ProcessReviewedPaymentRequestsParams {
 	o.SetBody(body)
@@ -139,11 +122,6 @@ func (o *ProcessReviewedPaymentRequestsParams) WriteToRequest(r runtime.ClientRe
 		return err
 	}
 	var res []error
-
-	// header param If-Match
-	if err := r.SetHeaderParam("If-Match", o.IfMatch); err != nil {
-		return err
-	}
 
 	if o.Body != nil {
 		if err := r.SetBodyParam(o.Body); err != nil {
