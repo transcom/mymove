@@ -158,6 +158,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 
 			for _, agent := range shipment.MTOAgents {
 				agent.MTOShipmentID = shipment.ID
+				// #nosec G601 TODO needs review
 				verrs, err = txBuilder.CreateOne(&agent)
 				if verrs != nil && verrs.HasAny() {
 					return verrs
@@ -177,6 +178,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 			for _, serviceItem := range shipment.MTOServiceItems {
 				serviceItem.MTOShipmentID = &shipment.ID
 				serviceItem.MoveTaskOrderID = shipment.MoveTaskOrderID
+				// #nosec G601 TODO needs review
 				verrs, err = txBuilder.CreateOne(&serviceItem)
 				if verrs != nil && verrs.HasAny() {
 					return verrs
