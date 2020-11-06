@@ -2,11 +2,50 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import ConnectedOrders from './Orders';
+import ConnectedOrders, { Orders } from './Orders';
 
 import { MockProviders } from 'testUtils';
 
 describe('Orders page', () => {
+  const mockHistory = {
+    push: jest.fn(),
+    goBack: jest.fn(),
+  };
+
+  const ordersOptions = [
+    { key: 'PERMANENT_CHANGE_OF_STATION', value: 'Permanent Change Of Station (PCS)' },
+    { key: 'RETIREMENT', value: 'Retirement' },
+    { key: 'SEPARATION', value: 'Separation' },
+  ];
+
+  describe('with the allOrdersType feature flag set to true', () => {
+    const wrapper = mount(
+      <Orders
+        serviceMemberId="123"
+        match={{ params: {} }}
+        history={mockHistory}
+        context={{ flags: { allOrdersTypes: true } }}
+      />,
+    );
+    it('passes all orders types into the form', () => {
+      expect(wrapper.find('OrdersInfoForm').prop('ordersTypeOptions')).toEqual(ordersOptions);
+    });
+  });
+
+  describe('with the allOrdersType feature flag set to false', () => {
+    const wrapper = mount(
+      <Orders
+        serviceMemberId="123"
+        match={{ params: {} }}
+        history={mockHistory}
+        context={{ flags: { allOrdersTypes: false } }}
+      />,
+    );
+    it('passes only the PCS option into the form', () => {
+      expect(wrapper.find('OrdersInfoForm').prop('ordersTypeOptions')).toEqual([ordersOptions[0]]);
+    });
+  });
+
   describe('with no existing orders', () => {
     const initialState = {
       serviceMember: {
@@ -14,11 +53,6 @@ describe('Orders page', () => {
           id: 'testServiceMember123',
         },
       },
-    };
-
-    const mockHistory = {
-      push: jest.fn(),
-      goBack: jest.fn(),
     };
 
     const testProps = {

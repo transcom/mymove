@@ -67,3 +67,9 @@ export const PrefillYesDependents = () => (
     <OrdersInfoForm {...testProps} />
   </Formik>
 );
+
+export const PCSOnly = () => (
+  <Formik>
+    <OrdersInfoForm ordersTypeOptions={[testProps.ordersTypeOptions[0]]} />
+  </Formik>
+);

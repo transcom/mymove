@@ -47,8 +47,7 @@ export class Orders extends Component {
 
   render() {
     const {
-      // context,
-      // error,
+      context,
       currentStation,
       match,
       pages,
@@ -87,9 +86,13 @@ export class Orders extends Component {
       new_duty_station: currentOrders?.new_duty_station || null,
     };
 
-    // TODO - orders types feature flag
-    // const showAllOrdersTypes = context.flags.allOrdersTypes;
-    const ordersTypeOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
+    // Only allow PCS unless feature flag is on
+    const showAllOrdersTypes = context.flags?.allOrdersTypes;
+    const allowedOrdersTypes = showAllOrdersTypes
+      ? ORDERS_TYPE_OPTIONS
+      : { PERMANENT_CHANGE_OF_STATION: ORDERS_TYPE_OPTIONS.PERMANENT_CHANGE_OF_STATION };
+
+    const ordersTypeOptions = dropdownInputOptions(allowedOrdersTypes);
 
     const ordersInfoSchema = Yup.object().shape({
       orders_type: Yup.mixed()
