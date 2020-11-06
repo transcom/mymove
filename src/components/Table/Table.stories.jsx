@@ -135,7 +135,7 @@ const CreateTableWithPagination = () => {
     {
       columns: tableColumns,
       data: tableData,
-      initialState: { pageIndex: 0 },
+      initialState: { pageIndex: 0, pageSize: 20 },
       manualPagination: true,
       showPagination: true,
       defaultColumn,

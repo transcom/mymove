@@ -7,7 +7,16 @@ import { faChevronLeft, faChevronRight } from '@fortawesome/fontawesome-free-sol
 
 import styles from './Table.module.scss';
 
-const Table = ({ handleClick, getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, showPagination }) => {
+const Table = ({
+  handleClick,
+  getTableProps,
+  getTableBodyProps,
+  headerGroups,
+  rows,
+  prepareRow,
+  showPagination,
+  initialState,
+}) => {
   return (
     /* eslint-disable react/jsx-props-no-spreading */
     <div data-testid="react-table" className={styles.Table}>
@@ -54,7 +63,7 @@ const Table = ({ handleClick, getTableProps, getTableBodyProps, headerGroups, ro
       {showPagination && (
         <div className={styles.paginationSectionWrapper} data-testid="pagination">
           <div className={styles.tableControlRowsPerPage}>
-            <Dropdown className={styles.usaSelect} name="table-rows-per-page" defaultValue={20}>
+            <Dropdown className={styles.usaSelect} name="table-rows-per-page" defaultValue={initialState.pageSize}>
               <option value="10">10</option>
               <option value="20">20</option>
               <option value="50">50</option>
@@ -91,11 +100,13 @@ Table.propTypes = {
   rows: PropTypes.arrayOf(PropTypes.object).isRequired,
   prepareRow: PropTypes.func.isRequired,
   showPagination: PropTypes.bool,
+  initialState: PropTypes.node,
 };
 
 Table.defaultProps = {
   handleClick: undefined,
   showPagination: false,
+  initialState: { pageIndex: 0, pageSize: 20 },
 };
 
 export default Table;
