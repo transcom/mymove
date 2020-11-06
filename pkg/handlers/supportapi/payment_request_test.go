@@ -17,7 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/unit"
 
-	"github.com/transcom/mymove/pkg/gen/supportmessages"
+	supportmessages "github.com/transcom/mymove/pkg/gen/supportmessages"
 
 	"github.com/transcom/mymove/pkg/services"
 
@@ -384,8 +384,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 
 const testDateFormat = "060102"
 
-func (suite *HandlerSuite) createPaymentRequest(num int) {
-
+func (suite *HandlerSuite) createPaymentRequest(num int) models.PaymentRequests {
+	var prs models.PaymentRequests
 	for i := 0; i < 4; i++ {
 		currentTime := time.Now()
 		basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
@@ -425,7 +425,7 @@ func (suite *HandlerSuite) createPaymentRequest(num int) {
 				RejectionReason: nil,
 			},
 		})
-
+		prs = append(prs, paymentRequest)
 		requestedPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 15, 0, 0, 0, 0, time.UTC)
 		scheduledPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 20, 0, 0, 0, 0, time.UTC)
 		actualPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 22, 0, 0, 0, 0, time.UTC)
@@ -452,161 +452,68 @@ func (suite *HandlerSuite) createPaymentRequest(num int) {
 			basicPaymentServiceItemParams,
 			assertions,
 		)
-		// fsc
-		_ = testdatagen.MakePaymentServiceItemWithParams(
-			suite.DB(),
-			models.ReServiceCodeFSC,
-			basicPaymentServiceItemParams,
-			assertions,
-		)
-		// ms
-		_ = testdatagen.MakePaymentServiceItemWithParams(
-			suite.DB(),
-			models.ReServiceCodeMS,
-			basicPaymentServiceItemParams,
-			assertions,
-		)
-		// cs
-		_ = testdatagen.MakePaymentServiceItemWithParams(
-			suite.DB(),
-			models.ReServiceCodeCS,
-			basicPaymentServiceItemParams,
-			assertions,
-		)
-		// dsh
-		_ = testdatagen.MakePaymentServiceItemWithParams(
-			suite.DB(),
-			models.ReServiceCodeDSH,
-			basicPaymentServiceItemParams,
-			assertions,
-		)
-		// dop
-		_ = testdatagen.MakePaymentServiceItemWithParams(
-			suite.DB(),
-			models.ReServiceCodeDOP,
-			basicPaymentServiceItemParams,
-			assertions,
-		)
-		// ddp
-		_ = testdatagen.MakePaymentServiceItemWithParams(
-			suite.DB(),
-			models.ReServiceCodeDDP,
-			basicPaymentServiceItemParams,
-			assertions,
-		)
-		// dpk
-		_ = testdatagen.MakePaymentServiceItemWithParams(
-			suite.DB(),
-			models.ReServiceCodeDPK,
-			basicPaymentServiceItemParams,
-			assertions,
-		)
-		// dupk
-		_ = testdatagen.MakePaymentServiceItemWithParams(
-			suite.DB(),
-			models.ReServiceCodeDUPK,
-			basicPaymentServiceItemParams,
-			assertions,
-		)
 	}
+	return prs
 }
 func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
-	// basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
-	// 	{
-	// 		Key:     models.ServiceItemParamNameContractCode,
-	// 		KeyType: models.ServiceItemParamTypeString,
-	// 		Value:   testdatagen.DefaultContractCode,
-	// 	},
-	// 	{
-	// 		Key:     models.ServiceItemParamNameRequestedPickupDate,
-	// 		KeyType: models.ServiceItemParamTypeDate,
-	// 		Value:   time.Now().Format("20060102"),
-	// 	},
-	// 	{
-	// 		Key:     models.ServiceItemParamNameWeightBilledActual,
-	// 		KeyType: models.ServiceItemParamTypeInteger,
-	// 		Value:   "4242",
-	// 	},
-	// 	{
-	// 		Key:     models.ServiceItemParamNameDistanceZip3,
-	// 		KeyType: models.ServiceItemParamTypeInteger,
-	// 		Value:   "2424",
-	// 	},
-	// }
-	// paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItemWithParams(
-	// 	suite.DB(),
-	// 	models.ReServiceCodeDLH,
-	// 	basicPaymentServiceItemParams,
-	// )
+	reviewedPRs := suite.createPaymentRequest(4)
 
-	// // Add a price to the service item.
-	// priceCents := unit.Cents(250000)
-	// paymentServiceItem.PriceCents = &priceCents
-	// suite.MustSave(&paymentServiceItem)
+	sentToGEXTime := time.Now()
+	paymentRequestForUpdate := models.PaymentRequest{
+		ID:                   reviewedPRs[0].ID,
+		MoveTaskOrder:        reviewedPRs[0].MoveTaskOrder,
+		MoveTaskOrderID:      reviewedPRs[0].MoveTaskOrderID,
+		IsFinal:              reviewedPRs[0].IsFinal,
+		Status:               models.PaymentRequestStatusSentToGex,
+		RejectionReason:      reviewedPRs[0].RejectionReason,
+		SentToGexAt:          &sentToGEXTime,
+		PaymentRequestNumber: reviewedPRs[0].PaymentRequestNumber,
+		SequenceNumber:       reviewedPRs[0].SequenceNumber,
+	}
+	paymentRequestReviewedFetcher := &mocks.PaymentRequestReviewedFetcher{}
+	paymentRequestReviewedFetcher.On("FetchReviewedPaymentRequest", mock.Anything, mock.Anything).Return(reviewedPRs, nil)
 
-	// paymentRequestID := paymentServiceItem.PaymentRequestID
-	// strfmtPaymentRequestID := strfmt.UUID(paymentRequestID.String())
-	queryBuilder := query.NewQueryBuilder(suite.DB())
+	paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
+	paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.Anything, mock.Anything).Return(&paymentRequestForUpdate, nil)
 
-	// paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-	// 	PaymentRequest: models.PaymentRequest{
-	// 		Status: models.PaymentRequestStatusReviewed,
-	// 	},
-	// })
-	// _ = testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
-	// 	ServiceMember: models.ServiceMember{
-	// 		ID: uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d984"),
-	// 	},
-	// })
+	paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
+	paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(reviewedPRs[0], nil)
+
+	paymentRequestProcessor := &mocks.PaymentRequestReviewedProcessor{}
+	paymentRequestProcessor.On("ProcessReviewedPaymentRequest").Return(nil)
+
 	handler := ProcessReviewedPaymentRequestsHandler{
 		HandlerContext:                  handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-		PaymentRequestFetcher:           paymentrequest.NewPaymentRequestFetcher(suite.DB()),
-		PaymentRequestStatusUpdater:     paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
-		PaymentRequestReviewedFetcher:   paymentrequest.NewPaymentRequestReviewedFetcher(suite.DB()),
-		PaymentRequestReviewedProcessor: paymentrequest.InitNewPaymentRequestReviewedProcessor(suite.DB(), suite.TestLogger(), true),
+		PaymentRequestFetcher:           paymentRequestFetcher,
+		PaymentRequestStatusUpdater:     paymentRequestStatusUpdater,
+		PaymentRequestReviewedFetcher:   paymentRequestReviewedFetcher,
+		PaymentRequestReviewedProcessor: paymentRequestProcessor,
 	}
 
 	urlFormat := "/payment-requests/process-reviewed"
 
 	suite.T().Run("successful update of reviewed payment requests with send to syncada true", func(t *testing.T) {
-		// testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		// 	PaymentRequest: models.PaymentRequest{
-		// 		Status: models.PaymentRequestStatusReviewed,
-		// 	},
-		// })
-		// move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
-		// testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		// 	Move: move,
-		// 	PaymentRequest: models.PaymentRequest{
-		// 		Status: models.PaymentRequestStatusReviewed,
-		// 	},
-		// })
-
-		reviewedPaymentRequestsw, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest()
-		suite.Equal(1, len(reviewedPaymentRequestsw))
+		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status
 		req := httptest.NewRequest("PATCH", fmt.Sprintf(urlFormat), nil)
 		eTag := etag.GenerateEtag(time.Now())
 		sendToSyncada := true
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
-			Body:        &supportmessages.ProcessReviewedPaymentRequests{SendToSyncada: &sendToSyncada, ETag: eTag},
+			Body:        &supportmessages.ProcessReviewedPaymentRequests{SendToSyncada: &sendToSyncada, ETag: eTag, Status: "SENT_TO_GEX"},
 			IfMatch:     eTag,
 		}
-		err := handler.PaymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
-		suite.NoError(err)
 
 		response := handler.Handle(params)
-		// reviewedPaymentRequests, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest()
 
-		// suite.Equal(0, len(reviewedPaymentRequests))
 		suite.IsType(paymentrequestop.NewProcessReviewedPaymentRequestsOK(), response)
 	})
 
 	suite.T().Run("successful update of reviewed payment requests with send to syncada false", func(t *testing.T) {
-		suite.createPaymentRequest(4)
+		// Ensure that there are reviewed payment requests
+		reviewedPaymentRequests, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest()
+		suite.Equal(4, len(reviewedPaymentRequests))
 
-		reviewedPaymentRequestsw, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest()
-		suite.Equal(1, len(reviewedPaymentRequestsw))
+		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status
 		req := httptest.NewRequest("PATCH", fmt.Sprintf(urlFormat), nil)
 		eTag := etag.GenerateEtag(time.Now())
 		sendToSyncada := false
@@ -615,104 +522,160 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 			Body:        &supportmessages.ProcessReviewedPaymentRequests{SendToSyncada: &sendToSyncada, ETag: eTag, Status: "SENT_TO_GEX"},
 			IfMatch:     eTag,
 		}
-		pr := reviewedPaymentRequestsw[0]
-		_, err := handler.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(&pr, eTag)
-		suite.NoError(err)
-		response := handler.Handle(params)
-		reviewedPaymentRequests, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest()
 
-		suite.Equal(0, len(reviewedPaymentRequests))
-		// suite.Equal(models.PaymentRequestStatusSentToGex, pr.Status)
+		response := handler.Handle(params)
+
+		paymentRequestsResponse := response.(*paymentrequestop.ProcessReviewedPaymentRequestsOK)
+		paymentRequestsPayload := paymentRequestsResponse.Payload
+		// Ensure that the previously reviewed status have been updated to match the status flag
+		for _, pr := range paymentRequestsPayload {
+			suite.Equal(params.Body.Status, pr.Status)
+		}
 		suite.IsType(paymentrequestop.NewProcessReviewedPaymentRequestsOK(), response)
 	})
 
-	// suite.T().Run("successful update of a particular reviewed payment request with send to syncada false", func(t *testing.T) {
-	// 	req := httptest.NewRequest("PATCH", fmt.Sprintf(urlFormat), nil)
-	// 	eTag := etag.GenerateEtag(time.Now())
-	// 	sendToSyncada := false
-	// 	params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
-	// 		HTTPRequest: req,
-	// 		Body:        &supportmessages.ProcessReviewedPaymentRequests{SendToSyncada: &sendToSyncada, ETag: eTag, Status: "SENT_TO_GEX"},
-	// 		IfMatch:     eTag,
-	// 	}
+	suite.T().Run("successful update of reviewed payment requests with send to syncada false, when no status flag is set", func(t *testing.T) {
+		// Ensure that there are reviewed payment requests
+		reviewedPaymentRequests, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest()
+		suite.Equal(4, len(reviewedPaymentRequests))
 
-	// 	response := handler.Handle(params)
+		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf(urlFormat), nil)
+		eTag := etag.GenerateEtag(time.Now())
+		sendToSyncada := false
+		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
+			HTTPRequest: req,
+			Body:        &supportmessages.ProcessReviewedPaymentRequests{SendToSyncada: &sendToSyncada},
+			IfMatch:     eTag,
+		}
 
-	// 	suite.IsType(paymentrequestop.NewProcessReviewedPaymentRequestsOK(), response)
-	// })
+		response := handler.Handle(params)
 
-	// suite.T().Run("failure due to incorrectly formatted payment request ID", func(t *testing.T) {
-	// 	invalidID := "12345"
-	// 	req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, invalidID), nil)
+		paymentRequestsResponse := response.(*paymentrequestop.ProcessReviewedPaymentRequestsOK)
+		paymentRequestsPayload := paymentRequestsResponse.Payload
+		// Ensure that the previously reviewed status have been updated to match the default status of SENT_TO_GEX
+		for _, pr := range paymentRequestsPayload {
+			suite.Equal(supportmessages.PaymentRequestStatusSENTTOGEX, pr.Status)
+		}
+		suite.IsType(paymentrequestop.NewProcessReviewedPaymentRequestsOK(), response)
+	})
 
-	// 	params := paymentrequestop.GetPaymentRequestEDIParams{
-	// 		HTTPRequest:      req,
-	// 		PaymentRequestID: strfmt.UUID(invalidID),
-	// 	}
+	suite.T().Run("successful update of a given reviewed payment request", func(t *testing.T) {
+		reviewedPaymentRequests, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest()
 
-	// 	response := handler.Handle(params)
+		paymentRequestID := reviewedPaymentRequests[0].ID
+		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf(urlFormat), nil)
+		eTag := etag.GenerateEtag(time.Now())
+		sendToSyncada := false
+		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
+			HTTPRequest: req,
+			Body: &supportmessages.ProcessReviewedPaymentRequests{
+				SendToSyncada:    &sendToSyncada,
+				PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
+			},
+			IfMatch: eTag,
+		}
 
-	// 	suite.IsType(paymentrequestop.NewGetPaymentRequestEDINotFound(), response)
-	// })
+		response := handler.Handle(params)
 
-	// suite.T().Run("failure due to a validation error", func(t *testing.T) {
-	// 	req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, paymentRequestID), nil)
+		paymentRequestsResponse := response.(*paymentrequestop.ProcessReviewedPaymentRequestsOK)
+		paymentRequestsPayload := paymentRequestsResponse.Payload
+		// Ensure that the previously reviewed status have been updated to match the default status of SENT_TO_GEX
+		suite.Equal(supportmessages.PaymentRequestStatusSENTTOGEX, paymentRequestsPayload[0].Status)
+		suite.IsType(paymentrequestop.NewProcessReviewedPaymentRequestsOK(), response)
+	})
 
-	// 	params := paymentrequestop.GetPaymentRequestEDIParams{
-	// 		HTTPRequest:      req,
-	// 		PaymentRequestID: strfmtPaymentRequestID,
-	// 	}
+	suite.T().Run("fail if required send to syncada flag is not set", func(t *testing.T) {
+		// Ensure that there are reviewed payment requests
+		reviewedPaymentRequests, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest()
+		suite.Equal(4, len(reviewedPaymentRequests))
 
-	// 	mockGenerator := &mocks.GHCPaymentRequestInvoiceGenerator{}
-	// 	mockGenerator.On("Generate", mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, services.NewInvalidInputError(paymentRequestID, nil, validate.NewErrors(), ""))
+		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf(urlFormat), nil)
+		eTag := etag.GenerateEtag(time.Now())
+		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
+			HTTPRequest: req,
+			Body:        &supportmessages.ProcessReviewedPaymentRequests{},
+			IfMatch:     eTag,
+		}
 
-	// 	mockGeneratorHandler := GetPaymentRequestEDIHandler{
-	// 		HandlerContext:                    handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-	// 		PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(suite.DB()),
-	// 		GHCPaymentRequestInvoiceGenerator: mockGenerator,
-	// 	}
+		response := handler.Handle(params)
 
-	// 	response := mockGeneratorHandler.Handle(params)
+		suite.IsType(paymentrequestop.NewProcessReviewedPaymentRequestsBadRequest(), response)
+	})
 
-	// 	suite.IsType(paymentrequestop.NewGetPaymentRequestEDIUnprocessableEntity(), response)
-	// })
+	suite.T().Run("fail if paymentRequestId is supplied but not found", func(t *testing.T) {
+		paymentRequestReviewedFetcher := &mocks.PaymentRequestReviewedFetcher{}
+		paymentRequestReviewedFetcher.On("FetchReviewedPaymentRequest", mock.Anything, mock.Anything).Return(reviewedPRs, nil)
 
-	// suite.T().Run("failure due to payment request ID not found", func(t *testing.T) {
-	// 	notFoundID := uuid.Must(uuid.NewV4())
-	// 	req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, notFoundID), nil)
+		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
+		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.Anything, mock.Anything).Return(&paymentRequestForUpdate, nil)
 
-	// 	params := paymentrequestop.GetPaymentRequestEDIParams{
-	// 		HTTPRequest:      req,
-	// 		PaymentRequestID: strfmt.UUID(notFoundID.String()),
-	// 	}
+		var nilPr models.PaymentRequest
+		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
+		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(nilPr, errors.New("could not fetch payment request"))
 
-	// 	response := handler.Handle(params)
+		handler := ProcessReviewedPaymentRequestsHandler{
+			HandlerContext:                  handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			PaymentRequestFetcher:           paymentRequestFetcher,
+			PaymentRequestStatusUpdater:     paymentRequestStatusUpdater,
+			PaymentRequestReviewedFetcher:   paymentRequestReviewedFetcher,
+			PaymentRequestReviewedProcessor: paymentrequest.InitNewPaymentRequestReviewedProcessor(suite.DB(), suite.TestLogger(), true),
+		}
 
-	// 	suite.IsType(paymentrequestop.NewGetPaymentRequestEDINotFound(), response)
-	// })
+		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf(urlFormat), nil)
+		prID := reviewedPRs[0].ID
+		sendToSyncada := false
 
-	// suite.T().Run("failure when generating EDI", func(t *testing.T) {
-	// 	req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, paymentRequestID), nil)
+		eTag := etag.GenerateEtag(time.Now())
+		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
+			HTTPRequest: req,
+			Body: &supportmessages.ProcessReviewedPaymentRequests{
+				SendToSyncada:    &sendToSyncada,
+				PaymentRequestID: strfmt.UUID(prID.String()),
+			},
+			IfMatch: eTag,
+		}
 
-	// 	params := paymentrequestop.GetPaymentRequestEDIParams{
-	// 		HTTPRequest:      req,
-	// 		PaymentRequestID: strfmtPaymentRequestID,
-	// 	}
+		response := handler.Handle(params)
+		suite.IsType(paymentrequestop.NewProcessReviewedPaymentRequestsNotFound(), response)
+	})
 
-	// 	mockGenerator := &mocks.GHCPaymentRequestInvoiceGenerator{}
-	// 	errStr := "some error"
-	// 	mockGenerator.On("Generate", mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, errors.New(errStr)).Once()
+	suite.T().Run("fail if reviewed payment request are not retrieved", func(t *testing.T) {
+		var nilReviewedPrs models.PaymentRequests
+		paymentRequestReviewedFetcher := &mocks.PaymentRequestReviewedFetcher{}
+		paymentRequestReviewedFetcher.On("FetchReviewedPaymentRequest", mock.Anything, mock.Anything).Return(nilReviewedPrs, errors.New("Reviewed Payment Requests notretrieved"))
 
-	// 	mockGeneratorHandler := GetPaymentRequestEDIHandler{
-	// 		HandlerContext:                    handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-	// 		PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(suite.DB()),
-	// 		GHCPaymentRequestInvoiceGenerator: mockGenerator,
-	// 	}
+		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
+		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.Anything, mock.Anything).Return(&paymentRequestForUpdate, nil)
 
-	// 	response := mockGeneratorHandler.Handle(params)
+		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
+		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(reviewedPRs[0], nil)
 
-	// 	suite.IsType(paymentrequestop.NewGetPaymentRequestEDIInternalServerError(), response)
-	// 	errResponse := response.(*paymentrequestop.GetPaymentRequestEDIInternalServerError)
-	// 	suite.Contains(*errResponse.Payload.Detail, errStr)
-	// })
+		handler := ProcessReviewedPaymentRequestsHandler{
+			HandlerContext:                  handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			PaymentRequestFetcher:           paymentRequestFetcher,
+			PaymentRequestStatusUpdater:     paymentRequestStatusUpdater,
+			PaymentRequestReviewedFetcher:   paymentRequestReviewedFetcher,
+			PaymentRequestReviewedProcessor: paymentrequest.InitNewPaymentRequestReviewedProcessor(suite.DB(), suite.TestLogger(), true),
+		}
+
+		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf(urlFormat), nil)
+		sendToSyncada := false
+
+		eTag := etag.GenerateEtag(time.Now())
+		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
+			HTTPRequest: req,
+			Body: &supportmessages.ProcessReviewedPaymentRequests{
+				SendToSyncada: &sendToSyncada,
+			},
+			IfMatch: eTag,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(paymentrequestop.NewProcessReviewedPaymentRequestsInternalServerError(), response)
+	})
 }

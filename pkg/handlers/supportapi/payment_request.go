@@ -246,6 +246,9 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 	var paymentRequests models.PaymentRequests
 	var updatedPaymentRequests models.PaymentRequests
 
+	if sendToSyncada == nil {
+		return paymentrequestop.NewProcessReviewedPaymentRequestsBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, "bad request, sendToSyncada flag required", h.GetTraceID()))
+	}
 	if *sendToSyncada {
 		err := h.PaymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 		if err != nil {
@@ -254,7 +257,15 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 			return paymentrequestop.NewProcessReviewedPaymentRequestsInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
 		}
 	} else {
-		if paymentRequestID == uuid.Nil {
+		if paymentRequestID != uuid.Nil {
+			pr, err := h.PaymentRequestFetcher.FetchPaymentRequest(paymentRequestID)
+			if err != nil {
+				msg := fmt.Sprintf("Error finding Payment Request with ID: %s", params.Body.PaymentRequestID.String())
+				logger.Error(msg, zap.Error(err))
+				return paymentrequestop.NewProcessReviewedPaymentRequestsNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, msg, h.GetTraceID()))
+			}
+			paymentRequests = append(paymentRequests, pr)
+		} else {
 			reviewedPaymentRequests, err := h.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest()
 			if err != nil {
 				msg := fmt.Sprintf("function ProcessReviewedPaymentRequest failed call to FetchReviewedPaymentRequest")
@@ -264,14 +275,6 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 			for _, pr := range reviewedPaymentRequests {
 				paymentRequests = append(paymentRequests, pr)
 			}
-		} else {
-			pr, err := h.PaymentRequestFetcher.FetchPaymentRequest(paymentRequestID)
-			if err != nil {
-				msg := fmt.Sprintf("Error finding Payment Request with ID: %s", params.Body.PaymentRequestID.String())
-				logger.Error(msg, zap.Error(err))
-				return paymentrequestop.NewProcessReviewedPaymentRequestsNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, msg, h.GetTraceID()))
-			}
-			paymentRequests = append(paymentRequests, pr)
 		}
 
 		var reviewedDate time.Time
