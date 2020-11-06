@@ -244,6 +244,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 	paymentRequestStatus := params.Body.Status
 	var newPaymentRequestStatus models.PaymentRequestStatus
 	var paymentRequests models.PaymentRequests
+	var updatedPaymentRequests models.PaymentRequests
 
 	if *sendToSyncada {
 		err := h.PaymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
@@ -313,7 +314,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 				PaymentRequestNumber: pr.PaymentRequestNumber,
 				SequenceNumber:       pr.SequenceNumber,
 			}
-			_, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(&paymentRequestForUpdate, params.IfMatch)
+			updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(&paymentRequestForUpdate, params.IfMatch)
 			if err != nil {
 				switch err.(type) {
 				case services.NotFoundError:
@@ -325,9 +326,10 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 					return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
 				}
 			}
+			updatedPaymentRequests = append(updatedPaymentRequests, *updatedPaymentRequest)
 		}
 	}
-	payload := payloads.PaymentRequests(&paymentRequests)
+	payload := payloads.PaymentRequests(&updatedPaymentRequests)
 
 	return paymentrequestop.NewProcessReviewedPaymentRequestsOK().WithPayload(*payload)
 }

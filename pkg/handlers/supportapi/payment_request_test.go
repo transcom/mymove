@@ -382,82 +382,205 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 	})
 }
 
-func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
-	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
-		{
-			Key:     models.ServiceItemParamNameContractCode,
-			KeyType: models.ServiceItemParamTypeString,
-			Value:   testdatagen.DefaultContractCode,
-		},
-		{
-			Key:     models.ServiceItemParamNameRequestedPickupDate,
-			KeyType: models.ServiceItemParamTypeDate,
-			Value:   time.Now().Format("20060102"),
-		},
-		{
-			Key:     models.ServiceItemParamNameWeightBilledActual,
-			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   "4242",
-		},
-		{
-			Key:     models.ServiceItemParamNameDistanceZip3,
-			KeyType: models.ServiceItemParamTypeInteger,
-			Value:   "2424",
-		},
-	}
-	paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItemWithParams(
-		suite.DB(),
-		models.ReServiceCodeDLH,
-		basicPaymentServiceItemParams,
-	)
+const testDateFormat = "060102"
 
-	// Add a price to the service item.
-	priceCents := unit.Cents(250000)
-	paymentServiceItem.PriceCents = &priceCents
-	suite.MustSave(&paymentServiceItem)
+func (suite *HandlerSuite) createPaymentRequest(num int) {
+
+	for i := 0; i < 4; i++ {
+		currentTime := time.Now()
+		basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
+			{
+				Key:     models.ServiceItemParamNameContractCode,
+				KeyType: models.ServiceItemParamTypeString,
+				Value:   testdatagen.DefaultContractCode,
+			},
+			{
+				Key:     models.ServiceItemParamNameRequestedPickupDate,
+				KeyType: models.ServiceItemParamTypeDate,
+				Value:   currentTime.Format(testDateFormat),
+			},
+			{
+				Key:     models.ServiceItemParamNameWeightBilledActual,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   "4242",
+			},
+			{
+				Key:     models.ServiceItemParamNameDistanceZip3,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   "2424",
+			},
+			{
+				Key:     models.ServiceItemParamNameDistanceZip5,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   "24245",
+			},
+		}
+
+		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			Move: mto,
+			PaymentRequest: models.PaymentRequest{
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusReviewed,
+				RejectionReason: nil,
+			},
+		})
+
+		requestedPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 15, 0, 0, 0, 0, time.UTC)
+		scheduledPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 20, 0, 0, 0, 0, time.UTC)
+		actualPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 22, 0, 0, 0, 0, time.UTC)
+
+		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: mto,
+			MTOShipment: models.MTOShipment{
+				RequestedPickupDate: &requestedPickupDate,
+				ScheduledPickupDate: &scheduledPickupDate,
+				ActualPickupDate:    &actualPickupDate,
+			},
+		})
+
+		assertions := testdatagen.Assertions{
+			Move:           mto,
+			MTOShipment:    mtoShipment,
+			PaymentRequest: paymentRequest,
+		}
+
+		// dlh
+		_ = testdatagen.MakePaymentServiceItemWithParams(
+			suite.DB(),
+			models.ReServiceCodeDLH,
+			basicPaymentServiceItemParams,
+			assertions,
+		)
+		// fsc
+		_ = testdatagen.MakePaymentServiceItemWithParams(
+			suite.DB(),
+			models.ReServiceCodeFSC,
+			basicPaymentServiceItemParams,
+			assertions,
+		)
+		// ms
+		_ = testdatagen.MakePaymentServiceItemWithParams(
+			suite.DB(),
+			models.ReServiceCodeMS,
+			basicPaymentServiceItemParams,
+			assertions,
+		)
+		// cs
+		_ = testdatagen.MakePaymentServiceItemWithParams(
+			suite.DB(),
+			models.ReServiceCodeCS,
+			basicPaymentServiceItemParams,
+			assertions,
+		)
+		// dsh
+		_ = testdatagen.MakePaymentServiceItemWithParams(
+			suite.DB(),
+			models.ReServiceCodeDSH,
+			basicPaymentServiceItemParams,
+			assertions,
+		)
+		// dop
+		_ = testdatagen.MakePaymentServiceItemWithParams(
+			suite.DB(),
+			models.ReServiceCodeDOP,
+			basicPaymentServiceItemParams,
+			assertions,
+		)
+		// ddp
+		_ = testdatagen.MakePaymentServiceItemWithParams(
+			suite.DB(),
+			models.ReServiceCodeDDP,
+			basicPaymentServiceItemParams,
+			assertions,
+		)
+		// dpk
+		_ = testdatagen.MakePaymentServiceItemWithParams(
+			suite.DB(),
+			models.ReServiceCodeDPK,
+			basicPaymentServiceItemParams,
+			assertions,
+		)
+		// dupk
+		_ = testdatagen.MakePaymentServiceItemWithParams(
+			suite.DB(),
+			models.ReServiceCodeDUPK,
+			basicPaymentServiceItemParams,
+			assertions,
+		)
+	}
+}
+func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
+	// basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
+	// 	{
+	// 		Key:     models.ServiceItemParamNameContractCode,
+	// 		KeyType: models.ServiceItemParamTypeString,
+	// 		Value:   testdatagen.DefaultContractCode,
+	// 	},
+	// 	{
+	// 		Key:     models.ServiceItemParamNameRequestedPickupDate,
+	// 		KeyType: models.ServiceItemParamTypeDate,
+	// 		Value:   time.Now().Format("20060102"),
+	// 	},
+	// 	{
+	// 		Key:     models.ServiceItemParamNameWeightBilledActual,
+	// 		KeyType: models.ServiceItemParamTypeInteger,
+	// 		Value:   "4242",
+	// 	},
+	// 	{
+	// 		Key:     models.ServiceItemParamNameDistanceZip3,
+	// 		KeyType: models.ServiceItemParamTypeInteger,
+	// 		Value:   "2424",
+	// 	},
+	// }
+	// paymentServiceItem := testdatagen.MakeDefaultPaymentServiceItemWithParams(
+	// 	suite.DB(),
+	// 	models.ReServiceCodeDLH,
+	// 	basicPaymentServiceItemParams,
+	// )
+
+	// // Add a price to the service item.
+	// priceCents := unit.Cents(250000)
+	// paymentServiceItem.PriceCents = &priceCents
+	// suite.MustSave(&paymentServiceItem)
 
 	// paymentRequestID := paymentServiceItem.PaymentRequestID
 	// strfmtPaymentRequestID := strfmt.UUID(paymentRequestID.String())
-	// queryBuilder := query.NewQueryBuilder(suite.DB())
-	var gexSender services.GexSender
-	gexSender = nil
+	queryBuilder := query.NewQueryBuilder(suite.DB())
 
-	paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
-	paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.Anything, mock.Anything).Return(nil, errors.New("Something bad happened")).Once()
-
-	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		PaymentRequest: models.PaymentRequest{
-			Status: models.PaymentRequestStatusReviewed,
-		},
-	})
-	paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
-	paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
-
-	paymentRequestReviewedFetcher := &mocks.PaymentRequestReviewedFetcher{}
-	paymentRequestFetcher.On("FetchReviewedPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
-
+	// paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+	// 	PaymentRequest: models.PaymentRequest{
+	// 		Status: models.PaymentRequestStatusReviewed,
+	// 	},
+	// })
+	// _ = testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
+	// 	ServiceMember: models.ServiceMember{
+	// 		ID: uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d984"),
+	// 	},
+	// })
 	handler := ProcessReviewedPaymentRequestsHandler{
-		HandlerContext:                handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-		PaymentRequestFetcher:         paymentRequestFetcher,
-		PaymentRequestStatusUpdater:   paymentRequestStatusUpdater,
-		PaymentRequestReviewedFetcher: paymentRequestReviewedFetcher,
-		PaymentRequestReviewedProcessor: paymentrequest.NewPaymentRequestReviewedProcessor(suite.DB(),
-			suite.TestLogger(),
-			paymentrequest.NewPaymentRequestReviewedFetcher(suite.DB()),
-			invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB()),
-			true,
-			gexSender,
-			invoice.InitNewSyncadaSFTPSession()),
+		HandlerContext:                  handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+		PaymentRequestFetcher:           paymentrequest.NewPaymentRequestFetcher(suite.DB()),
+		PaymentRequestStatusUpdater:     paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
+		PaymentRequestReviewedFetcher:   paymentrequest.NewPaymentRequestReviewedFetcher(suite.DB()),
+		PaymentRequestReviewedProcessor: paymentrequest.InitNewPaymentRequestReviewedProcessor(suite.DB(), suite.TestLogger(), true),
 	}
 
 	urlFormat := "/payment-requests/process-reviewed"
 
 	suite.T().Run("successful update of reviewed payment requests with send to syncada true", func(t *testing.T) {
-		testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				Status: models.PaymentRequestStatusReviewed,
-			},
-		})
+		// testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		// 	PaymentRequest: models.PaymentRequest{
+		// 		Status: models.PaymentRequestStatusReviewed,
+		// 	},
+		// })
+		// move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		// testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		// 	Move: move,
+		// 	PaymentRequest: models.PaymentRequest{
+		// 		Status: models.PaymentRequestStatusReviewed,
+		// 	},
+		// })
 
 		reviewedPaymentRequestsw, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest()
 		suite.Equal(1, len(reviewedPaymentRequestsw))
@@ -469,20 +592,19 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 			Body:        &supportmessages.ProcessReviewedPaymentRequests{SendToSyncada: &sendToSyncada, ETag: eTag},
 			IfMatch:     eTag,
 		}
+		err := handler.PaymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
+		suite.NoError(err)
 
 		response := handler.Handle(params)
-		reviewedPaymentRequests, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest()
+		// reviewedPaymentRequests, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest()
 
-		suite.Equal(0, len(reviewedPaymentRequests))
+		// suite.Equal(0, len(reviewedPaymentRequests))
 		suite.IsType(paymentrequestop.NewProcessReviewedPaymentRequestsOK(), response)
 	})
 
 	suite.T().Run("successful update of reviewed payment requests with send to syncada false", func(t *testing.T) {
-		testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-			PaymentRequest: models.PaymentRequest{
-				Status: models.PaymentRequestStatusReviewed,
-			},
-		})
+		suite.createPaymentRequest(4)
+
 		reviewedPaymentRequestsw, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest()
 		suite.Equal(1, len(reviewedPaymentRequestsw))
 		req := httptest.NewRequest("PATCH", fmt.Sprintf(urlFormat), nil)
@@ -493,11 +615,14 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 			Body:        &supportmessages.ProcessReviewedPaymentRequests{SendToSyncada: &sendToSyncada, ETag: eTag, Status: "SENT_TO_GEX"},
 			IfMatch:     eTag,
 		}
-
+		pr := reviewedPaymentRequestsw[0]
+		_, err := handler.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(&pr, eTag)
+		suite.NoError(err)
 		response := handler.Handle(params)
 		reviewedPaymentRequests, _ := handler.PaymentRequestReviewedFetcher.FetchReviewedPaymentRequest()
 
 		suite.Equal(0, len(reviewedPaymentRequests))
+		// suite.Equal(models.PaymentRequestStatusSentToGex, pr.Status)
 		suite.IsType(paymentrequestop.NewProcessReviewedPaymentRequestsOK(), response)
 	})
 

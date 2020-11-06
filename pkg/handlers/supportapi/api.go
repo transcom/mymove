@@ -4,7 +4,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/invoice"
 	internalmovetaskorder "github.com/transcom/mymove/pkg/services/support/move_task_order"
 
@@ -79,20 +78,13 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 		PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(context.DB()),
 		GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(context.DB()),
 	}
-	var gexSender services.GexSender
-	gexSender = nil
+
 	supportAPI.PaymentRequestProcessReviewedPaymentRequestsHandler = ProcessReviewedPaymentRequestsHandler{
-		HandlerContext:                context,
-		PaymentRequestFetcher:         paymentrequest.NewPaymentRequestFetcher(context.DB()),
-		PaymentRequestStatusUpdater:   paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
-		PaymentRequestReviewedFetcher: paymentrequest.NewPaymentRequestReviewedFetcher(context.DB()),
-		PaymentRequestReviewedProcessor: paymentrequest.NewPaymentRequestReviewedProcessor(context.DB(),
-			logger,
-			paymentrequest.NewPaymentRequestReviewedFetcher(context.DB()),
-			invoice.NewGHCPaymentRequestInvoiceGenerator(context.DB()),
-			true,
-			gexSender,
-			invoice.InitNewSyncadaSFTPSession()),
+		HandlerContext:                  context,
+		PaymentRequestFetcher:           paymentrequest.NewPaymentRequestFetcher(context.DB()),
+		PaymentRequestStatusUpdater:     paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
+		PaymentRequestReviewedFetcher:   paymentrequest.NewPaymentRequestReviewedFetcher(context.DB()),
+		PaymentRequestReviewedProcessor: paymentrequest.InitNewPaymentRequestReviewedProcessor(context.DB(), logger, true),
 	}
 
 	return supportAPI.Serve(nil)
