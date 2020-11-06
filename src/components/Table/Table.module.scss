@@ -6,6 +6,7 @@
 .Table {
   min-height: 300px;
   table {
+    width: 100%;
     @include u-font('body', 'xs');
     color: $base-darkest;
     border-collapse: collapse;

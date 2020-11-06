@@ -130,7 +130,7 @@ const CreateTableWithPagination = () => {
   );
 
   const tableData = useMemo(() => data, []);
-  const tableColumns = useMemo(() => columns(true), []);
+  const tableColumns = useMemo(() => columns(), []);
   const propsWithPagination = useTable(
     {
       columns: tableColumns,
