@@ -5,13 +5,13 @@
 #############################
 
 # Secrets should be stored in the corresponding Google Doc listed in the .envrc file.
-# Secrets should also be added to chamber with `chamber write app-devlocal lower_case_version secret_key`
+# Secrets should also be added to chamber with `chamber write transcom-gov-dev lower_case_version secret_key`
 
-# This line grabs any available secrets in app-devlocal and adds them to the environment.
+# This line grabs any available secrets in transcom-gov-dev and adds them to the environment.
 # Lines that begin with `require ...` should still run to verify the secret is set.
-if ! chamber list app-devlocal --retries=1 > /dev/null ; then
-  log_error "Unable to access app-devlocal variables with chamber."
-  log_error "Login to chamber with 'chamber list app-devlocal'."
+if ! chamber list transcom-gov-dev --retries=1 > /dev/null ; then
+  log_error "Unable to access transcom-gov-dev variables with chamber."
+  log_error "Login to chamber with 'chamber list transcom-gov-dev'."
 else
-  eval "$(chamber env app-devlocal --retries=1)"
+  eval "$(chamber env transcom-gov-dev --retries=1)"
 fi
