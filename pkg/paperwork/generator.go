@@ -174,6 +174,7 @@ func (g *Generator) ConvertUploadsToPDF(uploads models.Uploads) ([]string, error
 			}
 		}
 
+		// #nosec G601 TODO needs review
 		download, err := g.uploader.Download(&upload)
 		if err != nil {
 			return nil, errors.Wrap(err, "Downloading file from upload")

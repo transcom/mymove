@@ -319,6 +319,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 				}
 				if agent.ID == uuid.Nil {
 					// create a new agent if it doesn't already exist
+					// #nosec G601 TODO needs review
 					verrs, err := f.builder.CreateOne(&agent)
 					if verrs != nil && verrs.HasAny() {
 						return verrs
@@ -619,6 +620,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 			serviceItemsToCreate = constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
 		}
 		for _, serviceItem := range serviceItemsToCreate {
+			// #nosec G601 TODO needs review
 			_, verrs, err := o.siCreator.CreateMTOServiceItem(&serviceItem)
 
 			if verrs != nil && verrs.HasAny() {
