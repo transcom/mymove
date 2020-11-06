@@ -54,7 +54,7 @@ const Table = ({ handleClick, getTableProps, getTableBodyProps, headerGroups, ro
       {showPagination && (
         <div className={styles.paginationSectionWrapper} data-testid="pagination">
           <div className={styles.tableControlRowsPerPage}>
-            <Dropdown className={styles.usaSelect} name="table-rows-per-page">
+            <Dropdown className={styles.usaSelect} name="table-rows-per-page" defaultValue={20}>
               <option value="10">10</option>
               <option value="20">20</option>
               <option value="50">50</option>
