@@ -17,18 +17,16 @@ import ProfileReview from 'scenes/Review/ProfileReview';
 import DutyStation from 'scenes/ServiceMembers/DutyStation';
 
 import Home from 'pages/MyMove/Home';
-import SelectMoveType from 'pages/MyMove/SelectMoveType';
 import ConusOrNot from 'pages/MyMove/ConusOrNot';
-import MovingInfo from 'pages/MyMove/MovingInfo';
-
-import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
-import PpmWeight from 'scenes/Moves/Ppm/Weight';
-import Review from 'scenes/Review/Review';
-import Agreement from 'scenes/Legalese';
-
-import HHGShipmentSetup from 'pages/MyMove/HHGShipmentSetup';
 import Orders from 'pages/MyMove/Orders';
 import UploadOrders from 'pages/MyMove/UploadOrders';
+import MovingInfo from 'pages/MyMove/MovingInfo';
+import SelectMoveType from 'pages/MyMove/SelectMoveType';
+import ConnectedCreateOrEditMtoShipment from 'pages/MyMove/CreateOrEditMtoShipment';
+import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
+import PpmWeight from 'scenes/Moves/Ppm/Weight';
+import Review from 'pages/MyMove/Review';
+import Agreement from 'scenes/Legalese';
 
 const PageNotInFlow = ({ location }) => (
   <div className="usa-grid">
@@ -217,7 +215,51 @@ const pages = {
       );
     },
     render: (key, pages, description, props) => ({ match, history }) => (
-      <HHGShipmentSetup pageList={pages} pageKey={key} match={match} history={history} />
+      <ConnectedCreateOrEditMtoShipment
+        match={match}
+        history={history}
+        pageList={pages}
+        pageKey={key}
+        selectedMoveType={props.selectedMoveType}
+        mtoShipment={props.mtoShipment}
+        isCreate={true}
+      />
+    ),
+  },
+  '/moves/:moveId/nts-start': {
+    isInFlow: (state) => inHhgFlow && state.selectedMoveType === SHIPMENT_OPTIONS.NTS,
+    isComplete: ({ sm, orders, move, ppm, mtoShipment }) => {
+      return (
+        mtoShipment && every([mtoShipment.requestedPickupDate, mtoShipment.pickupAddress, mtoShipment.shipmentType])
+      );
+    },
+    render: (key, pages, description, props) => ({ match, history }) => (
+      <ConnectedCreateOrEditMtoShipment
+        match={match}
+        history={history}
+        pageList={pages}
+        pageKey={key}
+        selectedMoveType={props.selectedMoveType}
+        mtoShipment={props.mtoShipment}
+        isCreate={true}
+      />
+    ),
+  },
+  '/moves/:moveId/ntsr-start': {
+    isInFlow: (state) => inHhgFlow && state.selectedMoveType === SHIPMENT_OPTIONS.NTSR,
+    isComplete: ({ sm, orders, move, ppm, mtoShipment }) => {
+      return mtoShipment && every([mtoShipment.requestedDeliveryDate, mtoShipment.shipmentType]);
+    },
+    render: (key, pages, description, props) => ({ match, history }) => (
+      <ConnectedCreateOrEditMtoShipment
+        match={match}
+        history={history}
+        pageList={pages}
+        pageKey={key}
+        selectedMoveType={props.selectedMoveType}
+        mtoShipment={props.mtoShipment}
+        isCreate={true}
+      />
     ),
   },
   '/moves/:moveId/review': {
@@ -231,7 +273,7 @@ const pages = {
     isInFlow: always,
     isComplete: ({ sm, orders, move, ppm, mtoShipment }) => isCurrentMoveSubmitted(move),
     render: (key, pages, description, props) => ({ match }) => {
-      return <Agreement pages={pages} pageKey={key} match={match} selectedMoveType={props.selectedMoveType} />;
+      return <Agreement pages={pages} pageKey={key} match={match} />;
     },
   },
 };

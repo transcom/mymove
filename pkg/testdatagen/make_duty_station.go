@@ -1,7 +1,7 @@
 package testdatagen
 
 import (
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -42,7 +42,7 @@ func MakeDutyStation(db *pop.Connection, assertions Assertions) models.DutyStati
 	}
 	mergeModels(&station, assertions.DutyStation)
 
-	mustCreate(db, &station)
+	mustCreate(db, &station, assertions.Stub)
 
 	return station
 }

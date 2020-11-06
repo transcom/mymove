@@ -1,7 +1,7 @@
 package services
 
 import (
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
@@ -12,6 +12,13 @@ import (
 //go:generate mockery -name OfficeUserFetcher
 type OfficeUserFetcher interface {
 	FetchOfficeUser(filters []QueryFilter) (models.OfficeUser, error)
+}
+
+// OfficeUserGblocFetcher is the exported interface for fetching the GBLOC of the
+// currently signed in office user
+//go:generate mockery -name OfficeUserGblocFetcher
+type OfficeUserGblocFetcher interface {
+	FetchGblocForOfficeUser(id uuid.UUID) (string, error)
 }
 
 // OfficeUserCreator is the exported interface for creating an office user

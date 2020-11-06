@@ -3,7 +3,7 @@ package testdatagen
 import (
 	"time"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -27,7 +27,7 @@ func MakeMTOServiceItemCustomerContact(db *pop.Connection, assertions Assertions
 	// Overwrite values with those from assertions
 	mergeModels(&MTOServiceItemCustomerContact, assertions.MTOServiceItemCustomerContact)
 
-	mustCreate(db, &MTOServiceItemCustomerContact)
+	mustCreate(db, &MTOServiceItemCustomerContact, assertions.Stub)
 
 	return MTOServiceItemCustomerContact
 }

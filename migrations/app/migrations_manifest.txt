@@ -560,3 +560,13 @@
 20200929210500_remove_rdhariwal_cac.up.sql
 20201001183657_rriser_cac.up.sql
 20201006003951_shimona_cac.up.sql
+20201006145421_add_reference_id_to_psi.up.sql
+20201006180000_dspencer_cac.up.sql
+20201006232216_gidjin_cac.up.sql
+20201007210622_sandy_cac.up.sql
+20201008171129_ryan_cac.up.sql
+20201012143646_add_index_to_gbloc.up.sql
+20201020164146_gidjin_cac.up.sql
+20201023202845_update_selectedMoveType_NTS.up.sql
+20201027143150_moncef_cac.up.sql
+20201103225532_remove_mr337_cac.up.sql

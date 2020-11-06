@@ -8,7 +8,7 @@ import { AddressShape } from '../../../types/address';
 import styles from './ShipmentDisplay.module.scss';
 
 import { ReactComponent as ChevronDown } from 'shared/icon/chevron-down.svg';
-import formatAddress from 'utils/shipmentDisplay';
+import { formatAddress } from 'utils/shipmentDisplay';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatDate } from 'shared/dates';
 import { ReactComponent as CheckmarkIcon } from 'shared/icon/checkbox--unchecked.svg';
@@ -39,7 +39,7 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
           </div>
           <div className={styles.row}>
             <dt>Current address</dt>
-            <dd>{formatAddress(displayInfo.currentAddress)}</dd>
+            <dd>{displayInfo.currentAddress && formatAddress(displayInfo.currentAddress)}</dd>
           </div>
           <div className={styles.row}>
             <dt className={styles.label}>Destination address</dt>

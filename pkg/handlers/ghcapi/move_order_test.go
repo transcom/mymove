@@ -113,6 +113,60 @@ func (suite *HandlerSuite) TestUpdateMoveOrderHandlerIntegration() {
 	suite.Equal(body.Sac, moveOrdersPayload.Sac)
 }
 
+// Test that a move order notification got stored Successfully
+func (suite *HandlerSuite) TestUpdateMoveOrderEventTrigger() {
+	moveTaskOrder := testdatagen.MakeAvailableMove(suite.DB())
+	moveOrder := moveTaskOrder.Orders
+	originDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+	destinationDutyStation := testdatagen.MakeDefaultDutyStation(suite.DB())
+
+	request := httptest.NewRequest("PATCH", "/move-orders/{moveOrderID}", nil)
+
+	issueDate, _ := time.Parse("2006-01-02", "2020-08-01")
+	reportByDate, _ := time.Parse("2006-01-02", "2020-10-31")
+
+	body := &ghcmessages.UpdateMoveOrderPayload{
+		IssueDate:           handlers.FmtDatePtr(&issueDate),
+		ReportByDate:        handlers.FmtDatePtr(&reportByDate),
+		OrdersType:          "RETIREMENT",
+		OrdersTypeDetail:    "INSTRUCTION_20_WEEKS",
+		DepartmentIndicator: "COAST_GUARD",
+		OrdersNumber:        handlers.FmtString("ORDER100"),
+		NewDutyStationID:    handlers.FmtUUID(destinationDutyStation.ID),
+		OriginDutyStationID: handlers.FmtUUID(originDutyStation.ID),
+		Tac:                 handlers.FmtString("012345678"),
+		Sac:                 handlers.FmtString("987654321"),
+	}
+
+	params := moveorderop.UpdateMoveOrderParams{
+		HTTPRequest: request,
+		MoveOrderID: strfmt.UUID(moveOrder.ID.String()),
+		IfMatch:     etag.GenerateEtag(moveOrder.UpdatedAt), // This is broken if you get a preconditioned failed error
+		Body:        body,
+	}
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	queryBuilder := query.NewQueryBuilder(context.DB())
+	// Set up handler:
+	handler := UpdateMoveOrderHandler{
+		context,
+		moveorder.NewMoveOrderUpdater(suite.DB(), queryBuilder),
+	}
+
+	traceID, err := uuid.NewV4()
+	handler.SetTraceID(traceID)        // traceID is inserted into handler
+	response := handler.Handle(params) // This step also saves traceID into DB
+	suite.IsNotErrResponse(response)
+	moveOrderOK := response.(*moveorderop.UpdateMoveOrderOK)
+	moveOrdersPayload := moveOrderOK.Payload
+
+	suite.FatalNoError(err, "Error creating a new trace ID.")
+
+	suite.Assertions.IsType(&moveorderop.UpdateMoveOrderOK{}, response)
+	suite.Equal(moveOrdersPayload.ID, strfmt.UUID(moveOrder.ID.String()))
+	suite.HasWebhookNotification(moveOrder.ID, traceID)
+}
+
 func (suite *HandlerSuite) TestUpdateMoveOrderHandlerNotFound() {
 	request := httptest.NewRequest("PATCH", "/move-orders/{moveOrderID}", nil)
 

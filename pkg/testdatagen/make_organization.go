@@ -1,7 +1,7 @@
 package testdatagen
 
 import (
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -27,7 +27,7 @@ func MakeOrganization(db *pop.Connection, assertions Assertions) models.Organiza
 
 	mergeModels(&organization, assertions.Organization)
 
-	mustCreate(db, &organization)
+	mustCreate(db, &organization, assertions.Stub)
 
 	return organization
 }

@@ -36,6 +36,8 @@
   text-align: center;
   padding: 5px;
   margin-right: 12px;
+  line-height: 1.4;
+  @include u-text(bold);
 }
 
 .action-btn {

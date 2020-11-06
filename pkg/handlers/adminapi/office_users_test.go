@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 
 	"github.com/transcom/mymove/pkg/models/roles"
 
@@ -41,7 +41,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 	testdatagen.MakeOfficeUser(suite.DB(), assertions)
 	testdatagen.MakeDefaultOfficeUser(suite.DB())
 
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req := httptest.NewRequest("GET", "/office_users", nil)
 	req = suite.AuthenticateAdminRequest(req, requestUser)
 
@@ -115,7 +115,7 @@ func (suite *HandlerSuite) TestGetOfficeUserHandler() {
 	}
 	testdatagen.MakeOfficeUser(suite.DB(), assertions)
 
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req := httptest.NewRequest("GET", fmt.Sprintf("/office_users/%s", id), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -205,7 +205,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
 
 	req := httptest.NewRequest("POST", "/office_users", nil)
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
 	params := officeuserop.CreateOfficeUserParams{
@@ -261,7 +261,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 
 	endpoint := fmt.Sprintf("/office_users/%s", officeUserID)
 	req := httptest.NewRequest("PUT", endpoint, nil)
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
 	params := officeuserop.UpdateOfficeUserParams{

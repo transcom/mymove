@@ -2,7 +2,7 @@ package payloads
 
 import (
 	"github.com/go-openapi/strfmt"
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -79,11 +79,11 @@ func MTOShipment(mtoShipment *models.MTOShipment) *internalmessages.MTOShipment 
 	}
 
 	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
-		payload.RequestedPickupDate = strfmt.Date(*mtoShipment.RequestedPickupDate)
+		payload.RequestedPickupDate = handlers.FmtDatePtr(mtoShipment.RequestedPickupDate)
 	}
 
 	if mtoShipment.RequestedDeliveryDate != nil && !mtoShipment.RequestedDeliveryDate.IsZero() {
-		payload.RequestedDeliveryDate = strfmt.Date(*mtoShipment.RequestedDeliveryDate)
+		payload.RequestedDeliveryDate = handlers.FmtDatePtr(mtoShipment.RequestedDeliveryDate)
 	}
 
 	return payload

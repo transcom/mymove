@@ -86,10 +86,4 @@ describe('utils', () => {
       });
     });
   });
-
-  describe('forma date for customer app', () => {
-    it('should format customer date to DD MMM YYYY', () => {
-      expect(utils.formatCustomerDate('Sep-27-20')).toBe('27 Sep 2020');
-    });
-  });
 });

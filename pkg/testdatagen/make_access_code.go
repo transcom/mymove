@@ -3,7 +3,7 @@ package testdatagen
 import (
 	"time"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -18,7 +18,7 @@ func MakeAccessCode(db *pop.Connection, assertions Assertions) models.AccessCode
 
 	mergeModels(&accessCode, assertions.AccessCode)
 
-	mustCreate(db, &accessCode)
+	mustCreate(db, &accessCode, assertions.Stub)
 
 	return accessCode
 }

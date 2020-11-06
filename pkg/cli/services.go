@@ -36,7 +36,7 @@ func InitServiceFlags(flag *pflag.FlagSet) {
 	flag.Bool(ServeAPIInternalFlag, false, "Enable the Internal API Service.")
 	flag.Bool(ServeGHCFlag, false, "Enable the GHC API Service.")
 	flag.Bool(ServePrimeFlag, false, "Enable the Prime API Service.")
-	flag.Bool(ServeSupportFlag, true, "Enable the Support Service.")
+	flag.Bool(ServeSupportFlag, false, "Enable the Support Service.")
 }
 
 // CheckServices validates these lovely service flags

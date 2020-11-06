@@ -1,7 +1,7 @@
 package testdatagen
 
 import (
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -29,7 +29,7 @@ func MakeProofOfServiceDoc(db *pop.Connection, assertions Assertions) models.Pro
 	// Overwrite values with those from assertions
 	mergeModels(&posDoc, assertions.ProofOfServiceDoc)
 
-	mustCreate(db, &posDoc)
+	mustCreate(db, &posDoc, assertions.Stub)
 
 	return posDoc
 }

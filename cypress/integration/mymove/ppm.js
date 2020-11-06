@@ -5,7 +5,7 @@ describe('the PPM flow', function () {
 
   it('can submit a PPM move', () => {
     // profile@comple.te
-    const userId = '13f3949d-0d53-4be4-b1b1-ae4314793f34';
+    const userId = '3b9360a3-3304-4c60-90f4-83d687884077';
     cy.apiSignInAsPpmUser(userId);
     SMSubmitsMove();
   });
@@ -91,7 +91,7 @@ function SMSubmitsMove() {
   cy.get('.wizard-header').should('not.exist');
 
   // todo: should probably have test suite for review and edit screens
-  cy.get('[data-testid="sit-display"]').contains('30 days').contains('$726.76');
+  cy.get('[data-testid="sit-display"]').contains('30 days');
 
   cy.get('[data-testid="edit-ppm-dates"]').click();
 
@@ -110,8 +110,6 @@ function SMSubmitsMove() {
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
   });
-
-  cy.get('[data-testid="sit-display"]').contains('35 days').contains('$745.88');
 
   cy.nextPage();
 
@@ -172,11 +170,7 @@ function SMCompletesMove() {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
   });
   cy.get('.wizard-header').should('not.exist');
-  cy.get('td').contains('Not ready yet');
-  cy.get('[data-icon="question-circle"]').click();
-  cy.get('[data-testid="tooltip"]').contains(
-    'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
-  );
+  cy.get('dd').contains('Rate info unavailable');
 
   cy.nextPage();
 

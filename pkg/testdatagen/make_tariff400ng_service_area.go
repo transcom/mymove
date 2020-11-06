@@ -1,7 +1,7 @@
 package testdatagen
 
 import (
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
@@ -24,7 +24,7 @@ func MakeTariff400ngServiceArea(db *pop.Connection, assertions Assertions) model
 
 	mergeModels(&serviceArea, assertions.Tariff400ngServiceArea)
 
-	mustCreate(db, &serviceArea)
+	mustCreate(db, &serviceArea, assertions.Stub)
 
 	return serviceArea
 }

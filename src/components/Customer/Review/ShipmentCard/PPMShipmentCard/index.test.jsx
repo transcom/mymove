@@ -4,13 +4,15 @@ import { mount } from 'enzyme';
 
 import PPMShipmentCard from '.';
 
-import { formatCustomerDate } from 'shared/utils';
+import { formatCustomerDate } from 'utils/formatters';
 
 const defaultProps = {
+  editPath: '',
+  onEditClick: () => {},
   destinationZIP: '11111',
   estimatedWeight: '5,000',
   expectedDepartureDate: new Date('01/01/2020').toISOString(),
-  shipmentId: '#ABC123K-001',
+  shipmentId: 'ABC123K-001',
   sitDays: '24',
   originZIP: '00000',
 };

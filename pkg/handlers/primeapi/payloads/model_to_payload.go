@@ -3,7 +3,7 @@ package payloads
 import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -267,6 +267,7 @@ func PaymentServiceItem(paymentServiceItem *models.PaymentServiceItem) *primemes
 		MtoServiceItemID:         strfmt.UUID(paymentServiceItem.MTOServiceItemID.String()),
 		Status:                   primemessages.PaymentServiceItemStatus(paymentServiceItem.Status),
 		RejectionReason:          paymentServiceItem.RejectionReason,
+		ReferenceID:              paymentServiceItem.ReferenceID,
 		PaymentServiceItemParams: *paymentServiceItemParams,
 		ETag:                     etag.GenerateEtag(paymentServiceItem.UpdatedAt),
 	}

@@ -12,7 +12,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/services"
 
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 
@@ -41,7 +41,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 	})
 
 	shipments := models.MTOShipments{mtoShipment}
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("/move_task_orders/%s/mto_shipments", mto.ID.String()), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
@@ -148,7 +148,7 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		})
 	}
 
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 
 	req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", mto.ID.String(), mtoShipment.ID.String()), nil)

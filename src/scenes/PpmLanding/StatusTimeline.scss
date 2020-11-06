@@ -112,7 +112,7 @@
   left: 1rem;
 }
 
-a.usa-button {
+.st-wrapper a.usa-button {
   margin-left: 16px;
   max-width: 90%;
 }
@@ -121,7 +121,7 @@ a.usa-button {
   .shipment_box_contents .status_timeline {
     @include u-font-size('body', '2xs');
   }
-  a.usa-button {
+  .st-wrapper a.usa-button {
     max-width: 100%;
   }
 }

@@ -6,8 +6,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -61,6 +61,10 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 		if paymentRequestArg == nil {
 			return fmt.Errorf("failure creating payment request <nil> for %s", mtoMessageString+prMessageString)
 		}
+
+		// Service Item Param Cache
+		serviceParamCache := serviceparamlookups.ServiceParamsCache{}
+		serviceParamCache.Initialize(p.db)
 
 		// Run the pricer within this transactional context
 		txPricer := p.pricer.UsingConnection(tx)
@@ -129,7 +133,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			}
 
 			// Get values for needed service item params (do lookups)
-			paramLookup, err := serviceparamlookups.ServiceParamLookupInitialize(tx, p.planner, paymentServiceItem.MTOServiceItemID, paymentServiceItem.ID, paymentRequestArg.MoveTaskOrderID)
+			paramLookup, err := serviceparamlookups.ServiceParamLookupInitialize(tx, p.planner, paymentServiceItem.MTOServiceItemID, paymentServiceItem.ID, paymentRequestArg.MoveTaskOrderID, &serviceParamCache)
 			if err != nil {
 				return err
 			}
@@ -353,7 +357,7 @@ func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection
 func (p *paymentRequestCreator) createServiceItemParamFromLookup(tx *pop.Connection, paramLookup *serviceparamlookups.ServiceItemParamKeyData, serviceParam models.ServiceParam, paymentServiceItem models.PaymentServiceItem) (*models.PaymentServiceItemParam, error) {
 	// key not found in map
 	// Did not find service item param needed for pricing, add it to the list
-	value, err := paramLookup.ServiceParamValue(serviceParam.ServiceItemParamKey.Key.String())
+	value, err := paramLookup.ServiceParamValue(serviceParam.ServiceItemParamKey.Key)
 	if err != nil {
 		errMessage := "Failed to lookup ServiceParamValue for param key <" + serviceParam.ServiceItemParamKey.Key + "> "
 		return nil, fmt.Errorf("%s err: %w", errMessage, err)

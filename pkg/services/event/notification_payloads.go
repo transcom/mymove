@@ -115,6 +115,7 @@ func PaymentServiceItemModelToPayload(paymentServiceItem *models.PaymentServiceI
 		MtoServiceItemID: strfmt.UUID(paymentServiceItem.MTOServiceItemID.String()),
 		Status:           primemessages.PaymentServiceItemStatus(paymentServiceItem.Status),
 		RejectionReason:  paymentServiceItem.RejectionReason,
+		ReferenceID:      paymentServiceItem.ReferenceID,
 		ETag:             etag.GenerateEtag(paymentServiceItem.UpdatedAt),
 	}
 

@@ -7,7 +7,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/services/event"
 
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/services/audit"
@@ -22,35 +22,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
-
-// ListPaymentRequestsHandler lists payments requests
-type ListPaymentRequestsHandler struct {
-	handlers.HandlerContext
-	services.PaymentRequestListFetcher
-}
-
-// Handle lists payment requests
-func (h ListPaymentRequestsHandler) Handle(params paymentrequestop.ListPaymentRequestsParams) middleware.Responder {
-	// TODO: add authorizations
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-
-	paymentRequests, err := h.FetchPaymentRequestList()
-	if err != nil {
-		logger.Error("Error listing payment requests err", zap.Error(err))
-		return paymentrequestop.NewListPaymentRequestsInternalServerError()
-	}
-
-	paymentRequestsList := make(ghcmessages.PaymentRequests, len(*paymentRequests))
-	for i, paymentRequest := range *paymentRequests {
-		pr, err := payloads.PaymentRequest(&paymentRequest, h.FileStorer())
-		if err != nil {
-			return paymentrequestop.NewListPaymentRequestsInternalServerError()
-		}
-		paymentRequestsList[i] = pr
-	}
-
-	return paymentrequestop.NewListPaymentRequestsOK().WithPayload(paymentRequestsList)
-}
 
 // GetPaymentRequestHandler gets payment requests
 type GetPaymentRequestHandler struct {

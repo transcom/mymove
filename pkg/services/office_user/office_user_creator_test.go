@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -32,12 +32,16 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 		fakeCreateOne := func(interface{}) (*validate.Errors, error) {
 			return nil, nil
 		}
+		fakeQueryAssociations := func(model interface{}, associations services.QueryAssociations, filters []services.QueryFilter, pagination services.Pagination, ordering services.QueryOrder) error {
+			return nil
+		}
 
 		filter := []services.QueryFilter{query.NewQueryFilter("id", "=", transportationOffice.ID)}
 
 		builder := &testOfficeUserQueryBuilder{
-			fakeFetchOne:  fakeFetchOne,
-			fakeCreateOne: fakeCreateOne,
+			fakeFetchOne:             fakeFetchOne,
+			fakeCreateOne:            fakeCreateOne,
+			fakeQueryForAssociations: fakeQueryAssociations,
 		}
 
 		creator := NewOfficeUserCreator(builder)

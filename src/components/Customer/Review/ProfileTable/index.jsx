@@ -1,41 +1,48 @@
 /* eslint-ignore */
 import React from 'react';
 import classnames from 'classnames';
-import { string } from 'prop-types';
+import { string, func } from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
 import TableDivider from '../TableDivider';
 import reviewStyles from '../Review.module.scss';
 
 const ProfileTable = ({
+  affiliation,
+  city,
+  currentDutyStationName,
+  edipi,
+  email,
   firstName,
   lastName,
-  affiliation,
+  onEditClick,
+  postalCode,
   rank,
-  edipi,
-  currentDutyStationName,
-  telephone,
-  email,
+  state,
   streetAddress1,
   streetAddress2,
-  city,
-  state,
-  postalCode,
+  telephone,
 }) => {
   const containerClassNames = classnames(reviewStyles['review-container'], reviewStyles['profile-container']);
   const tableClassNames = classnames('table--stacked', reviewStyles['review-table']);
+  const editProfilePath = '/moves/review/edit-profile';
   return (
     <div className={containerClassNames}>
       <div className={reviewStyles['review-header']}>
         <h2>Profile</h2>
-        <Button unstyled className={reviewStyles['edit-btn']}>
+        <Button
+          unstyled
+          className={reviewStyles['edit-btn']}
+          data-testid="edit-profile-table"
+          onClick={() => onEditClick(editProfilePath)}
+        >
           Edit
         </Button>
       </div>
       <table className={tableClassNames}>
         <colgroup>
-          <col style={{ width: '40%' }} />
-          <col style={{ width: '60%' }} />
+          <col />
+          <col />
         </colgroup>
         <tbody>
           <tr>
@@ -94,19 +101,20 @@ const ProfileTable = ({
 };
 
 ProfileTable.propTypes = {
+  affiliation: string.isRequired,
+  city: string.isRequired,
+  currentDutyStationName: string.isRequired,
+  edipi: string.isRequired,
+  email: string.isRequired,
   firstName: string.isRequired,
   lastName: string.isRequired,
-  affiliation: string.isRequired,
+  onEditClick: func.isRequired,
+  postalCode: string.isRequired,
   rank: string.isRequired,
-  edipi: string.isRequired,
-  currentDutyStationName: string.isRequired,
-  telephone: string.isRequired,
-  email: string.isRequired,
+  state: string.isRequired,
   streetAddress1: string.isRequired,
   streetAddress2: string,
-  city: string.isRequired,
-  state: string.isRequired,
-  postalCode: string.isRequired,
+  telephone: string.isRequired,
 };
 
 ProfileTable.defaultProps = {

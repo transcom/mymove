@@ -10,12 +10,36 @@
   @include u-padding-left(2);
   border-radius: 2px;
   background-color: $bg-white;
-  border:  2px solid $base-lighter;
+  border: 2px solid $base-lighter;
+
+  :global(.usa-radio__label) {
+    font-weight: bold;
+  }
+  :global(.usa-radio__input:disabled + .usa-radio__label) {
+    color: $base-darkest;
+  }
+  :global(.usa-radio__label) {
+    @include u-margin-top(0);
+  }
+}
+
+.cardTitle {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  :global(.usa-radio) {
+    @include u-margin-right(1);
+  }
 }
 
 .selected {
   @include u-shadow(2);
   background-color: $info-light;
+}
+
+p + .cardContainer {
+  margin-top: 0px;
 }
 
 .cardContainer + .cardContainer {
@@ -27,7 +51,32 @@
   color: $base;
   font-size: 13px;
   line-height: 1.25;
+  @include u-padding-top(1);
   @media (min-width: $tablet) {
     padding-left: 2rem;
+  }
+}
+
+.helpButton {
+  margin: -10px;
+  margin-top: -9px;
+  padding: 10px; // Required to get to 44px for touch area
+
+  // TODO - needed until we remove some duplicate USWDS CSS in this project
+  &:global(.usa-button) {
+    margin: -10px;
+    margin-top: -9px;
+    padding: 10px; // Required to get to 44px for touch area
+    min-width: 0;
+    width: auto;
+    flex-shrink: 0;
+    flex-grow: 0;
+  }
+
+  svg {
+    // TODO - temp until we can make icon code more consistent
+    width: 24px !important;
+    height: 24px;
+    fill: $primary;
   }
 }

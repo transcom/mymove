@@ -4,6 +4,8 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/services/event"
+
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -66,7 +68,7 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 		serviceItemCodes.ServiceCodeMS, serviceItemCodes.ServiceCodeCS)
 
 	if err != nil {
-		logger.Error("ghcapi.MoveTaskOrderHandler error", zap.Error(err))
+		logger.Error("ghcapi.UpdateMoveTaskOrderStatusHandlerFunc error", zap.Error(err))
 		switch err.(type) {
 		case services.NotFoundError:
 			return movetaskorderops.NewUpdateMoveTaskOrderStatusNotFound()
@@ -87,5 +89,19 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 		logger.Error("Auditing service error for making MTO available to Prime.", zap.Error(err))
 		return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError()
 	}
+
+	_, err = event.TriggerEvent(event.Event{
+		EventKey:        event.MoveTaskOrderUpdateEventKey,
+		MtoID:           mto.ID,
+		UpdatedObjectID: mto.ID,
+		Request:         params.HTTPRequest,
+		EndpointKey:     event.GhcUpdateMoveTaskOrderStatusEndpointKey,
+		DBConnection:    h.DB(),
+		HandlerContext:  h,
+	})
+	if err != nil {
+		logger.Error("ghcapi.UpdateMoveTaskOrderStatusHandlerFunc could not generate the event")
+	}
+
 	return movetaskorderops.NewUpdateMoveTaskOrderStatusOK().WithPayload(moveTaskOrderPayload)
 }

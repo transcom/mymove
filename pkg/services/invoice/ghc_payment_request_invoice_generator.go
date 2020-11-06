@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -27,11 +27,11 @@ func NewGHCPaymentRequestInvoiceGenerator(db *pop.Connection) services.GHCPaymen
 }
 
 const dateFormat = "20060102"
+const isaDateFormat = "060102"
 const timeFormat = "1504"
 
 // Generate method takes a payment request and returns an Invoice858C
 func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.PaymentRequest, sendProductionInvoice bool) (ediinvoice.Invoice858C, error) {
-	// TODO: seems ReferenceID is a *string but cannot be saved as nil, do we need to validate it's not nil here
 	var moveTaskOrder models.Move
 	if paymentRequest.MoveTaskOrder.ID == uuid.Nil {
 		// load mto
@@ -39,18 +39,28 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 			Where("id = ?", paymentRequest.MoveTaskOrderID).
 			First(&moveTaskOrder)
 		if err != nil {
-			return ediinvoice.Invoice858C{}, fmt.Errorf("cannot load MTO %s for PaymentRequest %s: %w", paymentRequest.MoveTaskOrderID, paymentRequest.ID, err)
+			if err.Error() == models.RecordNotFoundErrorString {
+				return ediinvoice.Invoice858C{}, services.NewNotFoundError(paymentRequest.MoveTaskOrder.ID, "for MoveTaskOrder")
+			}
+			return ediinvoice.Invoice858C{}, services.NewQueryError("MoveTaskOrder", err, "Unexpected error")
 		}
 	} else {
 		moveTaskOrder = paymentRequest.MoveTaskOrder
 	}
 
 	// check or load orders
+	if moveTaskOrder.ReferenceID == nil {
+		return ediinvoice.Invoice858C{}, services.NewBadDataError("Invalid move taskorder. Must have a ReferenceID value")
+	}
+
 	if moveTaskOrder.Orders.ID == uuid.Nil {
 		err := g.db.
 			Load(&moveTaskOrder, "Orders")
 		if err != nil {
-			return ediinvoice.Invoice858C{}, fmt.Errorf("cannot load Orders %s for PaymentRequest %s: %w", moveTaskOrder.OrdersID, paymentRequest.ID, err)
+			if err.Error() == models.RecordNotFoundErrorString {
+				return ediinvoice.Invoice858C{}, services.NewNotFoundError(moveTaskOrder.Orders.ID, "for Orders")
+			}
+			return ediinvoice.Invoice858C{}, services.NewQueryError("Orders", err, "Unexpected error")
 		}
 	}
 
@@ -58,8 +68,12 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	if moveTaskOrder.Orders.ServiceMember.ID == uuid.Nil {
 		err := g.db.
 			Load(&moveTaskOrder.Orders, "ServiceMember")
+
 		if err != nil {
-			return ediinvoice.Invoice858C{}, fmt.Errorf("cannot load ServiceMember %s for PaymentRequest %s: %w", moveTaskOrder.Orders.ServiceMemberID, paymentRequest.ID, err)
+			if err.Error() == models.RecordNotFoundErrorString {
+				return ediinvoice.Invoice858C{}, services.NewNotFoundError(moveTaskOrder.Orders.ServiceMemberID, "for ServiceMember")
+			}
+			return ediinvoice.Invoice858C{}, services.NewQueryError("ServiceMember", err, fmt.Sprintf("cannot load ServiceMember %s for PaymentRequest %s: %s", moveTaskOrder.Orders.ServiceMemberID, paymentRequest.ID, err))
 		}
 	}
 
@@ -81,12 +95,12 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		AuthorizationInformationQualifier: "00", // No authorization information
 		AuthorizationInformation:          "0084182369",
 		SecurityInformationQualifier:      "00", // No security information
-		SecurityInformation:               "_   _",
+		SecurityInformation:               "0000000000",
 		InterchangeSenderIDQualifier:      "ZZ",
-		InterchangeSenderID:               "GOVDPIBS",
+		InterchangeSenderID:               fmt.Sprintf("%-15s", "MILMOVE"),
 		InterchangeReceiverIDQualifier:    "12",
-		InterchangeReceiverID:             "8004171844",
-		InterchangeDate:                   currentTime.Format(dateFormat),
+		InterchangeReceiverID:             fmt.Sprintf("%-15s", "8004171844"),
+		InterchangeDate:                   currentTime.Format(isaDateFormat),
 		InterchangeTime:                   currentTime.Format(timeFormat),
 		InterchangeControlStandards:       "U",
 		InterchangeControlVersionNumber:   "00401",
@@ -98,7 +112,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 
 	edi858.GS = edisegment.GS{
 		FunctionalIdentifierCode: "SI",
-		ApplicationSendersCode:   "MYMOVE",
+		ApplicationSendersCode:   "MILMOVE",
 		ApplicationReceiversCode: "8004171844",
 		Date:                     currentTime.Format(dateFormat),
 		Time:                     currentTime.Format(timeFormat),
@@ -110,10 +124,6 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	edi858.ST = edisegment.ST{
 		TransactionSetIdentifierCode: "858",
 		TransactionSetControlNumber:  "0001",
-	}
-
-	if moveTaskOrder.ReferenceID == nil {
-		return ediinvoice.Invoice858C{}, fmt.Errorf("Invalid move taskorder. Must have a ReferenceID value")
 	}
 
 	bx := edisegment.BX{
@@ -143,7 +153,10 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		Where("sipk.key = ?", models.ServiceItemParamNameContractCode).
 		First(&contractCodeServiceItemParam)
 	if err != nil {
-		return ediinvoice.Invoice858C{}, fmt.Errorf("Couldn't find contract code: %s", err)
+		if err.Error() == models.RecordNotFoundErrorString {
+			return ediinvoice.Invoice858C{}, services.NewNotFoundError(contractCodeServiceItemParam.ID, "for ContractCode")
+		}
+		return ediinvoice.Invoice858C{}, services.NewQueryError("ContractCode", err, fmt.Sprintf("Couldn't find contract code: %s", err))
 	}
 
 	contractCodeSegment := edisegment.N9{
@@ -155,7 +168,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	// Add service member details to header
 	serviceMemberSegments, err := g.createServiceMemberDetailSegments(paymentRequest.ID, moveTaskOrder.Orders.ServiceMember)
 	if err != nil {
-		return ediinvoice.Invoice858C{}, fmt.Errorf("Could not create service: %s", err)
+		return ediinvoice.Invoice858C{}, err
 	}
 	edi858.Header = append(edi858.Header, serviceMemberSegments...)
 
@@ -165,7 +178,10 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		Where("payment_request_id = ?", paymentRequest.ID).
 		All(&paymentServiceItems)
 	if err != nil {
-		return ediinvoice.Invoice858C{}, fmt.Errorf("Could not find payment service items: %w", err)
+		if err.Error() == models.RecordNotFoundErrorString {
+			return ediinvoice.Invoice858C{}, services.NewNotFoundError(paymentRequest.ID, "for paayment service items in PaymentRequest")
+		}
+		return ediinvoice.Invoice858C{}, services.NewQueryError("PaymentServiceItems", err, fmt.Sprintf("Could not find payment service items: %s", err))
 	}
 
 	if !msOrCsOnly(paymentServiceItems) {
@@ -194,7 +210,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 
 	paymentServiceItemSegments, err := g.generatePaymentServiceItemSegments(paymentServiceItems)
 	if err != nil {
-		return ediinvoice.Invoice858C{}, fmt.Errorf("Could not generate payment service item segments: %w", err)
+		return ediinvoice.Invoice858C{}, err
 	}
 	edi858.ServiceItems = append(edi858.ServiceItems, paymentServiceItemSegments...)
 
@@ -230,7 +246,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 	// rank
 	rank := serviceMember.Rank
 	if rank == nil {
-		return []edisegment.Segment{}, fmt.Errorf("no rank found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID)
+		return []edisegment.Segment{}, services.NewBadDataError(fmt.Sprintf("no rank found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID))
 	}
 	serviceMemberRank := edisegment.N9{
 		ReferenceIdentificationQualifier: "ML",
@@ -241,7 +257,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 	// branch
 	branch := serviceMember.Affiliation
 	if branch == nil {
-		return []edisegment.Segment{}, fmt.Errorf("no branch found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID)
+		return []edisegment.Segment{}, services.NewBadDataError(fmt.Sprintf("no branch found for ServiceMember ID: %s Payment Request ID: %s", serviceMember.ID, paymentRequestID))
 	}
 	serviceMemberBranch := edisegment.N9{
 		ReferenceIdentificationQualifier: "3L",
@@ -264,7 +280,10 @@ func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(paymentRequestID uu
 		Order("msi.created_at").
 		All(&shipments)
 	if err != nil {
-		return nil, fmt.Errorf("error querying for shipments to use in G62 segments in PaymentRequest %s: %w", paymentRequestID, err)
+		if err.Error() == models.RecordNotFoundErrorString {
+			return nil, services.NewNotFoundError(paymentRequestID, "for mto shipments associated with PaymentRequest")
+		}
+		return nil, services.NewQueryError("MTOShipments", err, fmt.Sprintf("error querying for shipments to use in G62 segments in PaymentRequest %s: %s", paymentRequestID, err))
 	}
 
 	// If no shipments, then just return because we will not have access to the dates.
@@ -310,38 +329,39 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 
 	var err error
 	var destinationDutyStation models.DutyStation
-	if orders.NewDutyStation.ID == uuid.Nil {
+	if orders.NewDutyStationID != uuid.Nil {
 		destinationDutyStation, err = models.FetchDutyStation(g.db, orders.NewDutyStationID)
 		if err != nil {
-			return []edisegment.Segment{}, fmt.Errorf("cannot load NewDutyStation %s for PaymentRequest %s: %w", orders.NewDutyStationID, paymentRequestID, err)
+			return []edisegment.Segment{}, services.NewInvalidInputError(orders.NewDutyStationID, err, nil, "unable to find new duty station")
 		}
 	} else {
-		destinationDutyStation = orders.NewDutyStation
+		return []edisegment.Segment{}, services.NewBadDataError("Invalid Order, must have NewDutyStation")
 	}
 
 	destTransportationOffice, err := models.FetchDutyStationTransportationOffice(g.db, destinationDutyStation.ID)
 	if err != nil {
-		return []edisegment.Segment{}, fmt.Errorf("cannot load TransportationOffice for DutyStation %s for PaymentRequest %s: %w", orders.NewDutyStationID, paymentRequestID, err)
+		return []edisegment.Segment{}, services.NewInvalidInputError(destinationDutyStation.ID, err, nil, "unable to find destination duty station")
 	}
 
 	// destination name
-	destinationStationName := orders.NewDutyStation.Name
 	destinationName := edisegment.N1{
 		EntityIdentifierCode:        "ST",
-		Name:                        destinationStationName,
+		Name:                        destinationDutyStation.Name,
 		IdentificationCodeQualifier: "10",
 		IdentificationCode:          destTransportationOffice.Gbloc,
 	}
 	originAndDestinationSegments = append(originAndDestinationSegments, &destinationName)
 
 	// destination address
-	destinationStreetAddress := edisegment.N3{
-		AddressInformation1: destinationDutyStation.Address.StreetAddress1,
+	if len(destinationDutyStation.Address.StreetAddress1) > 0 {
+		destinationStreetAddress := edisegment.N3{
+			AddressInformation1: destinationDutyStation.Address.StreetAddress1,
+		}
+		if destinationDutyStation.Address.StreetAddress2 != nil {
+			destinationStreetAddress.AddressInformation2 = *destinationDutyStation.Address.StreetAddress2
+		}
+		originAndDestinationSegments = append(originAndDestinationSegments, &destinationStreetAddress)
 	}
-	if destinationDutyStation.Address.StreetAddress2 != nil {
-		destinationStreetAddress.AddressInformation2 = *destinationDutyStation.Address.StreetAddress2
-	}
-	originAndDestinationSegments = append(originAndDestinationSegments, &destinationStreetAddress)
 
 	// destination city/state/postal
 	destinationPostalDetails := edisegment.N4{
@@ -350,32 +370,48 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 		PostalCode:          destinationDutyStation.Address.PostalCode,
 	}
 	if destinationDutyStation.Address.Country != nil {
-		destinationPostalDetails.CountryCode = string(*destinationDutyStation.Address.Country)
+		countryCode, ccErr := destinationDutyStation.Address.CountryCode()
+		if ccErr != nil {
+			return []edisegment.Segment{}, ccErr
+		}
+		destinationPostalDetails.CountryCode = string(*countryCode)
 	}
-
 	originAndDestinationSegments = append(originAndDestinationSegments, &destinationPostalDetails)
 
-	// TODO: Create PER segment and implement Destination POC Phone
+	// Destination PER
+	destinationStationPhoneLines := destTransportationOffice.PhoneLines
+	var destPhoneLines []string
+	for _, phoneLine := range destinationStationPhoneLines {
+		if phoneLine.Type == "voice" {
+			destPhoneLines = append(destPhoneLines, phoneLine.Number)
+		}
+	}
+
+	if len(destPhoneLines) > 0 {
+		destinationPhone := edisegment.PER{
+			ContactFunctionCode:          "CN",
+			CommunicationNumberQualifier: "TE",
+			CommunicationNumber:          destPhoneLines[0],
+		}
+		originAndDestinationSegments = append(originAndDestinationSegments, &destinationPhone)
+	}
 
 	// ========  ORIGIN ========= //
 	// origin station name
 	var originDutyStation models.DutyStation
 
-	if orders.OriginDutyStationID != nil {
+	if orders.OriginDutyStationID != nil && *orders.OriginDutyStationID != uuid.Nil {
 		originDutyStation, err = models.FetchDutyStation(g.db, *orders.OriginDutyStationID)
 		if err != nil {
-			return []edisegment.Segment{}, fmt.Errorf("cannot load OriginDutyStation %s for PaymentRequest %s: %w", orders.OriginDutyStationID, paymentRequestID, err)
+			return []edisegment.Segment{}, services.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
 		}
 	} else {
-		if orders.OriginDutyStation == nil {
-			return []edisegment.Segment{}, fmt.Errorf("Invalid Order, must have OriginDutyStation")
-		}
-		originDutyStation = *orders.OriginDutyStation
+		return []edisegment.Segment{}, services.NewBadDataError("Invalid Order, must have OriginDutyStation")
 	}
 
 	originTransportationOffice, err := models.FetchDutyStationTransportationOffice(g.db, originDutyStation.ID)
 	if err != nil {
-		return []edisegment.Segment{}, fmt.Errorf("cannot load TransportationOffice for DutyStation %s for PaymentRequest %s: %w", orders.OriginDutyStationID, paymentRequestID, err)
+		return []edisegment.Segment{}, services.NewInvalidInputError(originDutyStation.ID, err, nil, "unable to find transportation office of origin duty station")
 	}
 
 	originName := edisegment.N1{
@@ -387,13 +423,15 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	originAndDestinationSegments = append(originAndDestinationSegments, &originName)
 
 	// origin address
-	originStreetAddress := edisegment.N3{
-		AddressInformation1: originDutyStation.Address.StreetAddress1,
+	if len(originDutyStation.Address.StreetAddress1) > 0 {
+		originStreetAddress := edisegment.N3{
+			AddressInformation1: originDutyStation.Address.StreetAddress1,
+		}
+		if originDutyStation.Address.StreetAddress2 != nil {
+			originStreetAddress.AddressInformation2 = *originDutyStation.Address.StreetAddress2
+		}
+		originAndDestinationSegments = append(originAndDestinationSegments, &originStreetAddress)
 	}
-	if originDutyStation.Address.StreetAddress2 != nil {
-		originStreetAddress.AddressInformation2 = *originDutyStation.Address.StreetAddress2
-	}
-	originAndDestinationSegments = append(originAndDestinationSegments, &originStreetAddress)
 
 	// origin city/state/postal
 	originPostalDetails := edisegment.N4{
@@ -402,12 +440,32 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 		PostalCode:          originDutyStation.Address.PostalCode,
 	}
 	if originDutyStation.Address.Country != nil {
-		originPostalDetails.CountryCode = string(*originDutyStation.Address.Country)
+		countryCode, ccErr := originDutyStation.Address.CountryCode()
+		if ccErr != nil {
+			return []edisegment.Segment{}, ccErr
+		}
+		originPostalDetails.CountryCode = string(*countryCode)
 	}
 
 	originAndDestinationSegments = append(originAndDestinationSegments, &originPostalDetails)
 
-	// TODO: Create PER segment and implement Origin POC Phone
+	// Origin Station Phone
+	originStationPhoneLines := originTransportationOffice.PhoneLines
+	var originPhoneLines []string
+	for _, phoneLine := range originStationPhoneLines {
+		if phoneLine.Type == "voice" {
+			originPhoneLines = append(originPhoneLines, phoneLine.Number)
+		}
+	}
+
+	if len(originPhoneLines) > 0 {
+		originPhone := edisegment.PER{
+			ContactFunctionCode:          "CN",
+			CommunicationNumberQualifier: "TE",
+			CommunicationNumber:          originPhoneLines[0],
+		}
+		originAndDestinationSegments = append(originAndDestinationSegments, &originPhone)
+	}
 
 	return originAndDestinationSegments, nil
 }
@@ -415,10 +473,17 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(orders models.Order) ([]edisegment.Segment, error) {
 	segments := []edisegment.Segment{}
 	if orders.TAC == nil {
-		return segments, fmt.Errorf("Invalid order. Must have a TAC value")
+		return segments, services.NewBadDataError("Invalid order. Must have a TAC value")
 	}
+	affiliation := models.ServiceMemberAffiliation(*orders.DepartmentIndicator)
+	agencyQualifierCode, found := edisegment.AffiliationToAgency[affiliation]
+
+	if !found {
+		agencyQualifierCode = "DF"
+	}
+
 	fa1 := edisegment.FA1{
-		AgencyQualifierCode: "DF",
+		AgencyQualifierCode: agencyQualifierCode,
 	}
 
 	segments = append(segments, &fa1)
@@ -442,7 +507,10 @@ func (g ghcPaymentRequestInvoiceGenerator) fetchPaymentServiceItemParam(serviceI
 		Where("sk.key = ?", key).
 		First(&paymentServiceItemParam)
 	if err != nil {
-		return models.PaymentServiceItemParam{}, fmt.Errorf("Could not lookup PaymentServiceItemParam key (%s) payment service item id (%s): %w", key, serviceItemID, err)
+		if err.Error() == models.RecordNotFoundErrorString {
+			return models.PaymentServiceItemParam{}, services.NewNotFoundError(serviceItemID, "for paymentServiceItemParam")
+		}
+		return models.PaymentServiceItemParam{}, services.NewQueryError("paymentServiceItemParam", err, fmt.Sprintf("Could not lookup PaymentServiceItemParam key (%s) payment service item id (%s): %s", key, serviceItemID, err))
 	}
 	return paymentServiceItemParam, nil
 }
@@ -465,7 +533,7 @@ func (g ghcPaymentRequestInvoiceGenerator) getWeightAndDistanceParams(serviceIte
 	// and the distance key can differ (zip3 v zip5, and distances for SIT)
 	weightFloat, err := g.getWeightParams(serviceItem)
 	if err != nil {
-		return 0, 0, fmt.Errorf("Could not parse weight for PaymentServiceItem %s: %w", serviceItem.ID, err)
+		return 0, 0, err
 	}
 	distanceModel := models.ServiceItemParamNameDistanceZip3
 	if serviceItem.MTOServiceItem.ReService.Code == models.ReServiceCodeDSH {
@@ -489,20 +557,18 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 	// Iterate over payment service items
 	for idx, serviceItem := range paymentServiceItems {
 		if serviceItem.PriceCents == nil {
-			return segments, fmt.Errorf("Invalid service item. Must have a PriceCents value")
+			return segments, services.NewBadDataError("Invalid service item. Must have a PriceCents value")
 		}
 		hierarchicalIDNumber := idx + 1
 		// Build and put together the segments
 		hlSegment := edisegment.HL{
 			HierarchicalIDNumber:  strconv.Itoa(hierarchicalIDNumber), // may need to change if sending multiple payment request in a single edi
-			HierarchicalLevelCode: "|",
+			HierarchicalLevelCode: "I",
 		}
 
 		n9Segment := edisegment.N9{
 			ReferenceIdentificationQualifier: "PO",
-			// pending creation of shorter identifier for payment service item
-			// https://dp3.atlassian.net/browse/MB-3718
-			ReferenceIdentification: serviceItem.ID.String(),
+			ReferenceIdentification:          serviceItem.ReferenceID,
 		}
 		// TODO: add another n9 for SIT
 
@@ -521,18 +587,14 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				LadingLineItemNumber: hierarchicalIDNumber,
 			}
 
-			l3Segment := edisegment.L3{
-				PriceCents: int64(*serviceItem.PriceCents),
-			}
-
-			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment, &l3Segment)
+			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment)
 		// pack and unpack, dom dest and dom origin have weight no distance
 		case models.ReServiceCodeDOP, models.ReServiceCodeDUPK,
 			models.ReServiceCodeDPK, models.ReServiceCodeDDP:
 			var err error
 			weightFloat, err = g.getWeightParams(serviceItem)
 			if err != nil {
-				return segments, fmt.Errorf("Could not parse weight or distance for PaymentServiceItem %w", err)
+				return segments, err
 			}
 
 			l5Segment := edisegment.L5{
@@ -549,19 +611,13 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				WeightUnitCode:       "L",
 			}
 
-			l3Segment := edisegment.L3{
-				Weight:          weightFloat,
-				WeightQualifier: "B",
-				PriceCents:      int64(*serviceItem.PriceCents),
-			}
-
-			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment, &l3Segment)
+			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment)
 
 		default:
 			var err error
 			weightFloat, distanceFloat, err = g.getWeightAndDistanceParams(serviceItem)
 			if err != nil {
-				return segments, fmt.Errorf("Could not parse weight or distance for PaymentServiceItem %w", err)
+				return segments, err
 			}
 
 			l5Segment := edisegment.L5{
@@ -580,15 +636,15 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				WeightUnitCode:         "L",
 			}
 
-			l3Segment := edisegment.L3{
-				Weight:          weightFloat,
-				WeightQualifier: "B",
-				PriceCents:      int64(*serviceItem.PriceCents),
-			}
-
-			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment, &l3Segment)
+			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment)
 		}
 	}
+
+	l3Segment := edisegment.L3{
+		PriceCents: 0, // TODO: hard-coded to zero for now
+	}
+
+	segments = append(segments, &l3Segment)
 
 	return segments, nil
 }

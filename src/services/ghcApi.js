@@ -1,21 +1,6 @@
 import Swagger from 'swagger-client';
-import * as Cookies from 'js-cookie';
 
-import { makeSwaggerRequest } from './swaggerRequest';
-
-// setting up the same config from Swagger/api.js
-const requestInterceptor = (req) => {
-  if (!req.loadSpec) {
-    const token = Cookies.get('masked_gorilla_csrf');
-    if (token) {
-      req.headers['X-CSRF-Token'] = token;
-    } else {
-      // eslint-disable-next-line no-console
-      console.warn('Unable to retrieve CSRF Token from cookie');
-    }
-  }
-  return req;
-};
+import { makeSwaggerRequest, requestInterceptor } from './swaggerRequest';
 
 let ghcClient = null;
 
@@ -33,10 +18,6 @@ export async function getGHCClient() {
 export async function makeGHCRequest(operationPath, params = {}, options = {}) {
   const client = await getGHCClient();
   return makeSwaggerRequest(client, operationPath, params, options);
-}
-
-export async function getPaymentRequestList() {
-  return makeGHCRequest('paymentRequests.listPaymentRequests');
 }
 
 export async function getPaymentRequest(key, paymentRequestID) {
@@ -116,4 +97,26 @@ export async function patchPaymentServiceItemStatus({
 export async function updateMoveOrder({ moveOrderID, ifMatchETag, body }) {
   const operationPath = 'moveOrder.updateMoveOrder';
   return makeGHCRequest(operationPath, { moveOrderID, 'If-Match': ifMatchETag, body });
+}
+
+export async function getMovesQueue(key, { filters = [] }) {
+  const operationPath = 'queues.getMovesQueue';
+  const paramFilters = {};
+  filters.forEach((filter) => {
+    paramFilters[`${filter.id}`] = filter.value;
+  });
+  return makeGHCRequest(operationPath, { ...paramFilters }, { schemaKey: 'queueMovesResult', normalize: false });
+}
+
+export async function getPaymentRequestsQueue(key, { filters = [] }) {
+  const operationPath = 'queues.getPaymentRequestsQueue';
+  const paramFilters = {};
+  filters.forEach((filter) => {
+    paramFilters[`${filter.id}`] = filter.value;
+  });
+  return makeGHCRequest(
+    operationPath,
+    { ...paramFilters },
+    { schemaKey: 'queuePaymentRequestsResult', normalize: false },
+  );
 }

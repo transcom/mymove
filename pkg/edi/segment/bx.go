@@ -9,7 +9,7 @@ type BX struct {
 	TransactionSetPurposeCode    string `validate:"eq=00"`
 	TransactionMethodTypeCode    string `validate:"eq=J"`
 	ShipmentMethodOfPayment      string `validate:"eq=PP"`
-	ShipmentIdentificationNumber string `validate:"alphanum,min=1,max=30"`
+	ShipmentIdentificationNumber string `validate:"min=1,max=30"`
 	StandardCarrierAlphaCode     string `validate:"alpha,min=2,max=4"`
 	WeightUnitCode               string `validate:"isdefault"` // not used
 	ShipmentQualifier            string `validate:"eq=4"`

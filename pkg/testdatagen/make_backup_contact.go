@@ -2,7 +2,7 @@ package testdatagen
 
 import (
 	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -26,7 +26,7 @@ func MakeBackupContact(db *pop.Connection, assertions Assertions) models.BackupC
 
 	mergeModels(&backupContact, assertions.BackupContact)
 
-	mustCreate(db, &backupContact)
+	mustCreate(db, &backupContact, assertions.Stub)
 
 	return backupContact
 }

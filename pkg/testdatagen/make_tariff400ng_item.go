@@ -1,7 +1,7 @@
 package testdatagen
 
 import (
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -22,7 +22,7 @@ func MakeTariff400ngItem(db *pop.Connection, assertions Assertions) models.Tarif
 	// Overwrite values with those from assertions
 	mergeModels(&item, assertions.Tariff400ngItem)
 
-	mustCreate(db, &item)
+	mustCreate(db, &item, assertions.Stub)
 
 	return item
 }

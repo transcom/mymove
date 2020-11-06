@@ -8,6 +8,8 @@ import {
   getMoveOrder,
   getMoveTaskOrderList,
   getDocument,
+  getMovesQueue,
+  getPaymentRequestsQueue,
 } from 'services/ghcApi';
 import { getQueriesStatus } from 'utils/api';
 import {
@@ -17,6 +19,8 @@ import {
   MOVE_ORDERS,
   MOVE_TASK_ORDERS,
   ORDERS_DOCUMENTS,
+  MOVES_QUEUE,
+  PAYMENT_REQUESTS_QUEUE,
 } from 'constants/queryKeys';
 
 export const usePaymentRequestQueries = (paymentRequestId) => {
@@ -142,6 +146,34 @@ export const useOrdersDocumentQueries = (moveOrderId) => {
     moveOrders,
     documents,
     upload,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useMovesQueueQueries = (filters = []) => {
+  const { data = {}, ...movesQueueQuery } = useQuery([MOVES_QUEUE, { filters }], getMovesQueue);
+  const { isLoading, isError, isSuccess } = getQueriesStatus([movesQueueQuery]);
+
+  return {
+    queueMovesResult: data,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const usePaymentRequestQueueQueries = (filters = []) => {
+  const { data = {}, ...paymentRequestsQueueQuery } = useQuery(
+    [PAYMENT_REQUESTS_QUEUE, { filters }],
+    getPaymentRequestsQueue,
+  );
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([paymentRequestsQueueQuery]);
+
+  return {
+    queuePaymentRequestsResult: data,
     isLoading,
     isError,
     isSuccess,

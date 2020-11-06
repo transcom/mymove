@@ -78,7 +78,7 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithWeight(es
 			},
 		})
 
-	paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+	paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 	suite.FatalNoError(err)
 
 	return mtoServiceItem, paymentRequest, paramLookup
@@ -87,7 +87,7 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithWeight(es
 func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	suite.T().Run("contract passed in", func(t *testing.T) {
 		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()))
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 
 		suite.FatalNoError(err)
 		suite.Equal(ghcrateengine.DefaultContractCode, paramLookup.ContractCode)
@@ -96,7 +96,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	suite.T().Run("MTOServiceItem passed in", func(t *testing.T) {
 		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()))
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 
 		suite.FatalNoError(err)
 		suite.Equal(mtoServiceItem.ID, paramLookup.MTOServiceItemID)
@@ -123,21 +123,21 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 			mtoServiceItem.MTOShipment = models.MTOShipment{}
 			suite.MustSave(&mtoServiceItem)
 
-			paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()))
+			paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 			suite.FatalNoError(err)
 
 			suite.NotNil(paramLookup.MTOServiceItem)
-			if rpdl, ok := paramLookup.lookups[models.ServiceItemParamNameRequestedPickupDate.String()].(RequestedPickupDateLookup); ok {
+			if rpdl, ok := paramLookup.lookups[models.ServiceItemParamNameRequestedPickupDate].(RequestedPickupDateLookup); ok {
 				suite.Equal(uuid.Nil, rpdl.MTOShipment.ID)
 			} else {
 				suite.Fail("lookup not RequestedPickupDateLookup type")
 			}
-			if zpal, ok := paramLookup.lookups[models.ServiceItemParamNameZipPickupAddress.String()].(ZipAddressLookup); ok {
+			if zpal, ok := paramLookup.lookups[models.ServiceItemParamNameZipPickupAddress].(ZipAddressLookup); ok {
 				suite.Equal(uuid.Nil, zpal.Address.ID)
 			} else {
 				suite.Fail("lookup not ZipAddressLookup type")
 			}
-			if zdal, ok := paramLookup.lookups[models.ServiceItemParamNameZipDestAddress.String()].(ZipAddressLookup); ok {
+			if zdal, ok := paramLookup.lookups[models.ServiceItemParamNameZipDestAddress].(ZipAddressLookup); ok {
 				suite.Equal(uuid.Nil, zdal.Address.ID)
 			} else {
 				suite.Fail("lookup not ZipAddressLookup type")
@@ -153,11 +153,11 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 			},
 		})
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()))
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 		suite.FatalNoError(err)
 
 		suite.NotNil(paramLookup.MTOServiceItem)
-		if rpdl, ok := paramLookup.lookups[models.ServiceItemParamNameRequestedPickupDate.String()].(RequestedPickupDateLookup); ok {
+		if rpdl, ok := paramLookup.lookups[models.ServiceItemParamNameRequestedPickupDate].(RequestedPickupDateLookup); ok {
 			suite.Equal(*mtoServiceItem.MTOShipmentID, rpdl.MTOShipment.ID)
 		} else {
 			suite.Fail("lookup not RequestedPickupDateLookup type")
@@ -181,11 +181,11 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 		}
 
 		for _, mtoServiceItem := range testData {
-			paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()))
+			paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 			suite.FatalNoError(err)
 
 			suite.NotNil(paramLookup.MTOServiceItem)
-			if zdal, ok := paramLookup.lookups[models.ServiceItemParamNameZipDestAddress.String()].(ZipAddressLookup); ok {
+			if zdal, ok := paramLookup.lookups[models.ServiceItemParamNameZipDestAddress].(ZipAddressLookup); ok {
 				suite.Equal(mtoServiceItem.MTOShipment.DestinationAddress.PostalCode, zdal.Address.PostalCode)
 			} else {
 				suite.Fail("lookup not ZipAddressLookup type")
@@ -205,7 +205,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 		mtoShipment.DestinationAddressID = nil
 		suite.DB().Save(&mtoShipment)
 
-		_, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()))
+		_, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 		suite.FatalNoError(err)
 	})
 
@@ -226,11 +226,11 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 		}
 
 		for _, mtoServiceItem := range testData {
-			paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()))
+			paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 			suite.FatalNoError(err)
 
 			suite.NotNil(paramLookup.MTOServiceItem)
-			if zpal, ok := paramLookup.lookups[models.ServiceItemParamNameZipPickupAddress.String()].(ZipAddressLookup); ok {
+			if zpal, ok := paramLookup.lookups[models.ServiceItemParamNameZipPickupAddress].(ZipAddressLookup); ok {
 				suite.Equal(mtoServiceItem.MTOShipment.PickupAddress.PostalCode, zpal.Address.PostalCode)
 			} else {
 				suite.Fail("lookup not ZipAddressLookup type")
@@ -250,13 +250,13 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 		mtoShipment.PickupAddressID = nil
 		suite.DB().Save(&mtoShipment)
 
-		_, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()))
+		_, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 		suite.FatalNoError(err)
 	})
 
 	suite.T().Run("nil MTOServiceItemID", func(t *testing.T) {
 		badMTOServiceItemID := uuid.Must(uuid.NewV4())
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, badMTOServiceItemID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()))
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, badMTOServiceItemID, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4()), nil)
 
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)

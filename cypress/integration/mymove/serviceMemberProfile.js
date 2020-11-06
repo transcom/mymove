@@ -28,10 +28,11 @@ function serviceMemberEntersAccessCode() {
 }
 
 function serviceMemberChoosesConusOrOconus() {
+  cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/conus-status/);
   });
-  cy.get('[data-testid="radio"] label').contains('CONUS');
+  cy.get('[data-testid="radio"] label').contains('CONUS').click();
   cy.get('button[data-testid="wizardNextButton"]').click();
 }
 

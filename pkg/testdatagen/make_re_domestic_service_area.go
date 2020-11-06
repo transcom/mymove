@@ -1,7 +1,7 @@
 package testdatagen
 
 import (
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -24,7 +24,7 @@ func MakeReDomesticServiceArea(db *pop.Connection, assertions Assertions) models
 	// Overwrite values with those from assertions
 	mergeModels(&reDomesticServiceArea, assertions.ReDomesticServiceArea)
 
-	mustCreate(db, &reDomesticServiceArea)
+	mustCreate(db, &reDomesticServiceArea, assertions.Stub)
 
 	return reDomesticServiceArea
 }

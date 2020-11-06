@@ -3,7 +3,7 @@ package testdatagen
 import (
 	"time"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -28,7 +28,7 @@ func MakeReContractYear(db *pop.Connection, assertions Assertions) models.ReCont
 	// Overwrite values with those from assertions
 	mergeModels(&reContractYear, assertions.ReContractYear)
 
-	mustCreate(db, &reContractYear)
+	mustCreate(db, &reContractYear, assertions.Stub)
 
 	return reContractYear
 }

@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 

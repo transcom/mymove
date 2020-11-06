@@ -4,7 +4,7 @@ import (
 	"log"
 	"math/rand"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -47,7 +47,7 @@ func MakeBlackoutDate(db *pop.Connection, assertions Assertions) models.Blackout
 
 	mergeModels(&blackoutDate, assertions.BlackoutDate)
 
-	mustCreate(db, &blackoutDate)
+	mustCreate(db, &blackoutDate, assertions.Stub)
 
 	return blackoutDate
 }

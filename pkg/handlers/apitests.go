@@ -169,6 +169,9 @@ func (suite *BaseHandlerTestSuite) AuthenticateOfficeRequest(req *http.Request, 
 		IDToken:         "fake token",
 		OfficeUserID:    user.ID,
 	}
+	for _, role := range user.User.Roles {
+		session.Roles = append(session.Roles, role)
+	}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	return req.WithContext(ctx)
 }

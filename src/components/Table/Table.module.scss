@@ -1,0 +1,54 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+
+.Table {
+  min-height: 300px;
+  table {
+    @include u-font('body', 'xs');
+    color: $base-darkest;
+    border-collapse: collapse;
+    td,
+    th {
+      @include u-padding-y(1.5);
+      @include u-padding-x(1);
+      @include u-text('left');
+      @include u-bg('white');
+      @include u-border(0);
+      @include u-border-bottom(1px);
+      @include u-border('base-lighter');
+      @include u-minw(1)
+    }
+    tr {
+      &:hover {
+        background-color: rgb(217, 231, 247);
+
+        td {
+          @include u-bg('transparent')
+        }
+      }
+    }
+    th {
+      color: $base-darker;
+      @include u-text('bold');
+    }
+
+    .tableHeaderFilters {
+      background-color: $base-lighter;
+
+      th {
+        @include u-bg('transparent');
+        @include u-padding-top(0);
+        @include u-padding-bottom(1);
+      }
+
+      &:hover {
+        background-color: $base-lighter;
+
+        th {
+          @include u-bg('transparent')
+        }
+      }
+    }
+  }
+}

@@ -112,8 +112,8 @@ describe('Home component', () => {
       const wrapper = mountHome({
         orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
         uploadedOrderDocuments: [{ filename: 'testOrder1.pdf' }],
-        mtoShipments: [{ id: 'test123', shipmentType: 'PPM' }],
         move: { status: 'SUBMITTED' },
+        currentPpm: { id: 'mockPpm' },
       });
 
       it('renders the SubmittedMove helper', () => {
@@ -151,11 +151,9 @@ describe('Home component', () => {
       const wrapper = mountHome({
         orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
         uploadedOrderDocuments: [{ filename: 'testOrder1.pdf' }],
-        mtoShipments: [
-          { id: 'test123', shipmentType: 'HHG' },
-          { id: 'test123', shipmentType: 'PPM' },
-        ],
+        mtoShipments: [{ id: 'test123', shipmentType: 'HHG' }],
         move: { status: 'SUBMITTED' },
+        currentPpm: { id: 'mockPpm' },
       });
 
       it('renders the SubmittedMove helper', () => {

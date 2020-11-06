@@ -3,6 +3,9 @@ package models_test
 import (
 	"testing"
 
+	"github.com/jackc/pgerrcode"
+
+	"github.com/transcom/mymove/pkg/db/dberr"
 	"github.com/transcom/mymove/pkg/models/roles"
 
 	"github.com/gofrs/uuid"
@@ -49,8 +52,6 @@ func (suite *ModelSuite) TestUserCreationWithoutValues() {
 }
 
 func (suite *ModelSuite) TestUserCreationDuplicateUUID() {
-	t := suite.T()
-
 	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
 	userEmail := "sally@government.gov"
 
@@ -67,9 +68,7 @@ func (suite *ModelSuite) TestUserCreationDuplicateUUID() {
 	suite.DB().Create(&newUser)
 	err := suite.DB().Create(&sameUser)
 
-	if err.Error() != `pq: duplicate key value violates unique constraint "constraint_name"` {
-		t.Fatal("Db should have errored on unique constraint for UUID")
-	}
+	suite.True(dberr.IsDBErrorForConstraint(err, pgerrcode.UniqueViolation, "constraint_name"), "Db should have errored on unique constraint for UUID")
 }
 
 func (suite *ModelSuite) TestCreateUser() {
@@ -177,7 +176,7 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 func (suite *ModelSuite) TestFetchAppUserIdentities() {
 
 	suite.T().Run("default user no profile", func(t *testing.T) {
-		testdatagen.MakeDefaultUser(suite.DB())
+		testdatagen.MakeStubbedUser(suite.DB())
 		identities, err := FetchAppUserIdentities(suite.DB(), auth.MilApp, 5)
 		suite.NoError(err)
 		suite.Empty(identities)

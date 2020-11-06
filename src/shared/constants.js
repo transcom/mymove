@@ -19,6 +19,13 @@ export const titleCase = (str) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
+export const MOVE_STATUSES = {
+  DRAFT: 'DRAFT',
+  SUBMITTED: 'SUBMITTED',
+  APPROVED: 'APPROVED',
+  CANCELED: 'CANCELED',
+};
+
 export const MOVE_DOC_TYPE = {
   WEIGHT_TICKET_SET: 'WEIGHT_TICKET_SET',
   EXPENSE: 'EXPENSE',
@@ -55,8 +62,22 @@ export const SHIPMENT_OPTIONS = {
   PPM: 'PPM',
   HHG_SHORTHAUL_DOMESTIC: 'HHG_SHORTHAUL_DOMESTIC',
   HHG_LONGHAUL_DOMESTIC: 'HHG_LONGHAUL_DOMESTIC',
-  NTS: 'NTS',
+  NTS: 'HHG_INTO_NTS_DOMESTIC',
+  NTSR: 'HHG_OUTOF_NTS_DOMESTIC',
 };
+
+export const SIGNED_CERT_OPTIONS = {
+  SHIPMENT: 'SHIPMENT',
+  PPM_PAYMENT: 'PPM_PAYMENT',
+};
+
+export const shipmentOptionLabels = [
+  { key: SHIPMENT_OPTIONS.NTSR, label: 'NTS-R' },
+  { key: SHIPMENT_OPTIONS.NTS, label: 'NTS' },
+  { key: SHIPMENT_OPTIONS.HHG, label: 'HHG' },
+  { key: SHIPMENT_OPTIONS.PPM, label: 'PPM' },
+  { key: SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC, label: 'HHG_SHORTHAUL_DOMESTIC' },
+];
 
 export const SERVICE_ITEM_STATUS = {
   SUBMITTED: 'SUBMITTED',

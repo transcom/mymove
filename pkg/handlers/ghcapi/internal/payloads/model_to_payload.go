@@ -1,6 +1,9 @@
 package payloads
 
 import (
+	"math"
+	"time"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
@@ -239,7 +242,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
 	}
 
-	if mtoShipment.RequestedPickupDate != nil {
+	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
 		payload.RequestedPickupDate = *handlers.FmtDatePtr(mtoShipment.RequestedPickupDate)
 	}
 
@@ -326,6 +329,7 @@ func PaymentServiceItem(ps *models.PaymentServiceItem) *ghcmessages.PaymentServi
 		PriceCents:       handlers.FmtCost(ps.PriceCents),
 		RejectionReason:  ps.RejectionReason,
 		Status:           ghcmessages.PaymentServiceItemStatus(ps.Status),
+		ReferenceID:      ps.ReferenceID,
 		ETag:             etag.GenerateEtag(ps.UpdatedAt),
 	}
 }
@@ -451,4 +455,134 @@ func ProofOfServiceDoc(proofOfService models.ProofOfServiceDoc, storer storage.F
 	return &ghcmessages.ProofOfServiceDoc{
 		Uploads: uploads,
 	}, nil
+}
+
+// QueueMoves payload
+func QueueMoves(moveOrders []models.Order) *ghcmessages.QueueMoves {
+	queueMoveOrders := make(ghcmessages.QueueMoves, len(moveOrders))
+	for i, order := range moveOrders {
+		customer := order.ServiceMember
+		// Finds the first move that is an HHG and use that locator.  Should we include combo HHG_PPM or others?
+		var hhgMove models.Move
+		for _, move := range order.Moves {
+			if *move.SelectedMoveType == models.SelectedMoveTypeHHG {
+				hhgMove = move
+				break
+			}
+		}
+
+		var validMTOShipments []models.MTOShipment
+		for _, shipment := range hhgMove.MTOShipments {
+			if shipment.Status == models.MTOShipmentStatusSubmitted || shipment.Status == models.MTOShipmentStatusApproved {
+				validMTOShipments = append(validMTOShipments, shipment)
+			}
+		}
+
+		deptIndicator := ""
+		if order.DepartmentIndicator != nil {
+			deptIndicator = *order.DepartmentIndicator
+		}
+
+		queueMoveOrders[i] = &ghcmessages.QueueMove{
+			Customer:               Customer(&customer),
+			Status:                 ghcmessages.QueueMoveStatus(queueMoveStatus(hhgMove)),
+			ID:                     *handlers.FmtUUID(order.ID),
+			Locator:                hhgMove.Locator,
+			DepartmentIndicator:    ghcmessages.DeptIndicator(deptIndicator),
+			ShipmentsCount:         int64(len(validMTOShipments)),
+			DestinationDutyStation: DutyStation(&order.NewDutyStation),
+			OriginGBLOC:            ghcmessages.GBLOC(order.OriginDutyStation.TransportationOffice.Gbloc),
+		}
+	}
+	return &queueMoveOrders
+}
+
+var (
+	// QueueMoveStatusNEWMOVE status New move
+	QueueMoveStatusNEWMOVE string = "New move"
+	// QueueMoveStatusAPPROVALSREQUESTED status Approvals requested
+	QueueMoveStatusAPPROVALSREQUESTED string = "Approvals requested"
+	// QueueMoveStatusMOVEAPPROVED status Move approved
+	QueueMoveStatusMOVEAPPROVED string = "Move approved"
+)
+
+// This is a helper function to calculate the inferred status needed for the QueueMove payload.
+func queueMoveStatus(move models.Move) string {
+	// If the move is in the submitted status then we'll translate that to New move
+	if move.Status == models.MoveStatusSUBMITTED {
+		return QueueMoveStatusNEWMOVE
+	}
+
+	// For moves that are in an approved status there are two potential translation paths:
+	// either move approved or approvals requested. A move is move approved if the move is in an APPROVED
+	// status and there are no mtoServiceItems that are in a submitted status. A move is in the
+	// approvals requested status when the move is in an APPROVED status and there are mtoServiceItems in
+	// a submitted status. This is all detailed in: https://dp3.atlassian.net/browse/MB-4158
+	if move.Status == models.MoveStatusAPPROVED {
+		// Let's check to see if there are any MTOServiceItems for this move that need review (SUBMITTED status)
+		for _, mtoSI := range move.MTOServiceItems {
+			// If we find one, we'll immediately return this status as there's no need to continue iterating through.
+			if mtoSI.Status == "SUBMITTED" {
+				return QueueMoveStatusAPPROVALSREQUESTED
+			}
+		}
+		// If we iterate through the MTOServiceItems and don't find a submitted status item, we return move approved.
+		return QueueMoveStatusMOVEAPPROVED
+	}
+	// If we have a status not covered here let's pass it through. This is unlikely to happen, but we should be able to
+	// see it if it does.
+	return string(move.Status)
+}
+
+var (
+	// QueuePaymentRequestPaymentRequested status payment requested
+	QueuePaymentRequestPaymentRequested string = "Payment requested"
+	// QueuePaymentRequestReviewed status Payment request reviewed
+	QueuePaymentRequestReviewed string = "Reviewed"
+	// QueuePaymentRequestPaid status PaymentRequest paid
+	QueuePaymentRequestPaid string = "Paid"
+)
+
+// This is a helper function to calculate the inferred status needed for QueuePaymentRequest payload
+func queuePaymentRequestStatus(paymentRequest models.PaymentRequest) string {
+	// If a payment request is in the PENDING state, let's use the term 'payment requested'
+	if paymentRequest.Status == models.PaymentRequestStatusPending {
+		return QueuePaymentRequestPaymentRequested
+	}
+
+	// If a payment request is either reviewed, sent_to_gex or recieved_by_gex then we'll use 'reviewed'
+	if paymentRequest.Status == models.PaymentRequestStatusSentToGex ||
+		paymentRequest.Status == models.PaymentRequestStatusReceivedByGex ||
+		paymentRequest.Status == models.PaymentRequestStatusReviewed {
+		return QueuePaymentRequestReviewed
+	}
+
+	return QueuePaymentRequestPaid
+}
+
+// QueuePaymentRequests payload
+func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.QueuePaymentRequests {
+	queuePaymentRequests := make(ghcmessages.QueuePaymentRequests, len(*paymentRequests))
+
+	for i, paymentRequest := range *paymentRequests {
+		moveTaskOrder := paymentRequest.MoveTaskOrder
+		orders := moveTaskOrder.Orders
+
+		queuePaymentRequests[i] = &ghcmessages.QueuePaymentRequest{
+			ID:          *handlers.FmtUUID(paymentRequest.ID),
+			MoveID:      *handlers.FmtUUID(moveTaskOrder.ID),
+			Customer:    Customer(&orders.ServiceMember),
+			Status:      ghcmessages.PaymentRequestStatus(queuePaymentRequestStatus(paymentRequest)),
+			Age:         int64(math.Ceil(time.Since(paymentRequest.CreatedAt).Hours() / 24.0)),
+			SubmittedAt: *handlers.FmtDateTime(paymentRequest.CreatedAt), // RequestedAt does not seem to be populated
+			Locator:     moveTaskOrder.Locator,
+			OriginGBLOC: ghcmessages.GBLOC(orders.OriginDutyStation.TransportationOffice.Gbloc),
+		}
+
+		if deptIndicator := orders.DepartmentIndicator; deptIndicator != nil {
+			queuePaymentRequests[i].DepartmentIndicator = ghcmessages.DeptIndicator(*deptIndicator)
+		}
+	}
+
+	return &queuePaymentRequests
 }

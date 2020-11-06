@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 
 	"github.com/gofrs/uuid"
 
@@ -15,9 +15,10 @@ import (
 )
 
 type testOfficeUserQueryBuilder struct {
-	fakeFetchOne  func(model interface{}) error
-	fakeCreateOne func(models interface{}) (*validate.Errors, error)
-	fakeUpdateOne func(models interface{}, eTag *string) (*validate.Errors, error)
+	fakeFetchOne             func(model interface{}) error
+	fakeCreateOne            func(models interface{}) (*validate.Errors, error)
+	fakeUpdateOne            func(models interface{}, eTag *string) (*validate.Errors, error)
+	fakeQueryForAssociations func(model interface{}, associations services.QueryAssociations, filters []services.QueryFilter, pagination services.Pagination, ordering services.QueryOrder) error
 }
 
 func (t *testOfficeUserQueryBuilder) FetchOne(model interface{}, filters []services.QueryFilter) error {
@@ -31,6 +32,10 @@ func (t *testOfficeUserQueryBuilder) CreateOne(model interface{}) (*validate.Err
 
 func (t *testOfficeUserQueryBuilder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, error) {
 	return nil, nil
+}
+
+func (t *testOfficeUserQueryBuilder) QueryForAssociations(model interface{}, associations services.QueryAssociations, filters []services.QueryFilter, pagination services.Pagination, ordering services.QueryOrder) error {
+	return nil
 }
 
 func (suite *OfficeUserServiceSuite) TestFetchOfficeUser() {

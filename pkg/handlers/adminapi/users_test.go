@@ -9,7 +9,7 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/alexedwards/scs/v2/memstore"
 	"github.com/go-openapi/strfmt"
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/stretchr/testify/mock"
 
 	userop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
@@ -45,7 +45,7 @@ func (suite *HandlerSuite) TestGetUserHandler() {
 	userIDString := user.ID.String()
 	userID := user.ID
 
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req := httptest.NewRequest("GET", fmt.Sprintf("/users/%s", userID), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -141,7 +141,7 @@ func (suite *HandlerSuite) TestRevokeUserSessionHandler() {
 
 	endpoint := fmt.Sprintf("/users/%s", userID)
 	req := httptest.NewRequest("PUT", endpoint, nil)
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
 	revokeMilSession := true

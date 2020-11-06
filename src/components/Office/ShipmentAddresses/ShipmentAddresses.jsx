@@ -2,7 +2,7 @@ import React from 'react';
 import classnames from 'classnames';
 
 import { AddressShape } from '../../../types/address';
-import formatAddress from '../../../utils/shipmentDisplay';
+import { formatAddress } from '../../../utils/shipmentDisplay';
 import DataPointGroup from '../../DataPointGroup/index';
 import DataPoint from '../../DataPoint/index';
 

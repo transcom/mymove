@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -86,7 +86,7 @@ func (suite *HandlerSuite) TestFetchAccessCodeHandler_FeatureFlagIsOff() {
 
 func (suite *HandlerSuite) TestValidateAccessCodeHandler_Valid() {
 	// create user
-	user := testdatagen.MakeDefaultUser(suite.DB())
+	user := testdatagen.MakeStubbedUser(suite.DB())
 	selectedMoveType := models.SelectedMoveTypePPM
 
 	// creates access code
@@ -125,7 +125,7 @@ func (suite *HandlerSuite) TestValidateAccessCodeHandler_Valid() {
 
 func (suite *HandlerSuite) TestValidateAccessCodeHandler_Invalid() {
 	// create user
-	user := testdatagen.MakeDefaultUser(suite.DB())
+	user := testdatagen.MakeStubbedUser(suite.DB())
 	selectedMoveType := models.SelectedMoveTypeHHG
 	smID, _ := uuid.NewV4()
 

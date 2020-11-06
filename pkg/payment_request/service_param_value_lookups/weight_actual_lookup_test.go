@@ -9,7 +9,7 @@ import (
 )
 
 func (suite *ServiceParamValueLookupsSuite) TestWeightActualLookup() {
-	key := models.ServiceItemParamNameWeightActual.String()
+	key := models.ServiceItemParamNameWeightActual
 
 	suite.T().Run("actual weight is present on MTO Shipment", func(t *testing.T) {
 		_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDLH, models.MTOShipmentTypeHHG)
@@ -25,7 +25,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightActualLookup() {
 		mtoShipment.PrimeActualWeight = nil
 		suite.MustSave(&mtoShipment)
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 
 		valueStr, err := paramLookup.ServiceParamValue(key)

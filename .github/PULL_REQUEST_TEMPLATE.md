@@ -16,6 +16,8 @@ echo "Code goes here"
 
 ## Code Review Verification Steps
 
+
+* [ ] If the change is risky, it has been tested in experimental before merging.
 * [ ] Code follows the guidelines for [Logging](https://github.com/transcom/mymove/wiki/Backend-Programming-Guide#logging)
 * [ ] The requirements listed in
  [Querying the Database Safely](https://github.com/transcom/mymove/wiki/Backend-Programming-Guide#querying-the-database-safely)

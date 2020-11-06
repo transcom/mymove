@@ -71,7 +71,8 @@ export function selectMTOShipments(state, moveOrderId) {
 }
 
 export function selectMTOShipmentsByMoveId(state, moveId) {
-  return filter(state.entities.mtoShipments, (mtoShipment) => mtoShipment.moveTaskOrderID === moveId);
+  const mtoShipments = filter(state.entities.mtoShipments, (mtoShipment) => mtoShipment.moveTaskOrderID === moveId);
+  return mtoShipments;
 }
 
 export function selectMTOShipmentForMTO(state, moveTaskOrderId) {

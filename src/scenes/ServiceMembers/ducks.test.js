@@ -68,11 +68,28 @@ describe('Service Member Reducer', () => {
         hasLoadSuccess: true,
       });
     });
+
     it('should handle emptyPayload', () => {
       //todo: should this do anything with back up contacts (once the handler returns them properly)
       const newState = serviceMemberReducer({}, emptyPayload);
       expect(newState).toEqual({
-        currentServiceMember: null,
+        currentServiceMember: undefined,
+        currentBackupContacts: [],
+        hasLoadError: false,
+        hasLoadSuccess: true,
+      });
+    });
+
+    it('SUCCESS with empty payload does not overwrite existing currentServiceMember', () => {
+      const existingServiceMember = {
+        id: 'test123',
+        first_name: 'Existing',
+        last_name: 'Old name',
+        someOtherAttribute: 'still exists',
+      };
+      const newState = serviceMemberReducer({ currentServiceMember: existingServiceMember }, emptyPayload);
+      expect(newState).toEqual({
+        currentServiceMember: existingServiceMember,
         currentBackupContacts: [],
         hasLoadError: false,
         hasLoadSuccess: true,

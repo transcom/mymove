@@ -3,9 +3,9 @@ package models
 import (
 	"time"
 
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
-	"github.com/gobuffalo/validate/validators"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
+	"github.com/gobuffalo/validate/v3/validators"
 
 	"github.com/gofrs/uuid"
 )
@@ -163,7 +163,63 @@ const (
 )
 
 // ValidServiceItemParamNames lists all valid service item param key names
-var ValidServiceItemParamNames = []string{
+var ValidServiceItemParamNames = []ServiceItemParamName{
+	ServiceItemParamNameCanStandAlone,
+	ServiceItemParamNameContractCode,
+	ServiceItemParamNameCubicFeetBilled,
+	ServiceItemParamNameCubicFeetCrating,
+	ServiceItemParamNameDistanceZip3,
+	ServiceItemParamNameDistanceZip5,
+	ServiceItemParamNameDistanceZip5SITDest,
+	ServiceItemParamNameDistanceZip5SITOrigin,
+	ServiceItemParamNameEIAFuelPrice,
+	ServiceItemParamNameMarketDest,
+	ServiceItemParamNameMarketOrigin,
+	ServiceItemParamNameMTOAvailableToPrimeAt,
+	ServiceItemParamNameNumberDaysSIT,
+	ServiceItemParamNamePriceAreaDest,
+	ServiceItemParamNamePriceAreaIntlDest,
+	ServiceItemParamNamePriceAreaIntlOrigin,
+	ServiceItemParamNamePriceAreaOrigin,
+	ServiceItemParamNamePSILinehaulDom,
+	ServiceItemParamNamePSILinehaulDomPrice,
+	ServiceItemParamNamePSILinehaulShort,
+	ServiceItemParamNamePSILinehaulShortPrice,
+	ServiceItemParamNamePSIPackingDom,
+	ServiceItemParamNamePSIPackingDomPrice,
+	ServiceItemParamNamePSIPackingHHGIntl,
+	ServiceItemParamNamePSIPackingHHGIntlPrice,
+	ServiceItemParamNamePSIPriceDomDest,
+	ServiceItemParamNamePSIPriceDomDestPrice,
+	ServiceItemParamNamePSIPriceDomOrigin,
+	ServiceItemParamNamePSIPriceDomOriginPrice,
+	ServiceItemParamNamePSIShippingLinehaulIntlCO,
+	ServiceItemParamNamePSIShippingLinehaulIntlCOPrice,
+	ServiceItemParamNamePSIShippingLinehaulIntlOC,
+	ServiceItemParamNamePSIShippingLinehaulIntlOCPrice,
+	ServiceItemParamNamePSIShippingLinehaulIntlOO,
+	ServiceItemParamNamePSIShippingLinehaulIntlOOPrice,
+	ServiceItemParamNameRateAreaNonStdDest,
+	ServiceItemParamNameRateAreaNonStdOrigin,
+	ServiceItemParamNameRequestedPickupDate,
+	ServiceItemParamNameActualPickupDate,
+	ServiceItemParamNameServiceAreaDest,
+	ServiceItemParamNameServiceAreaOrigin,
+	ServiceItemParamNameServicesScheduleDest,
+	ServiceItemParamNameServicesScheduleOrigin,
+	ServiceItemParamNameSITScheduleDest,
+	ServiceItemParamNameSITScheduleOrigin,
+	ServiceItemParamNameWeightActual,
+	ServiceItemParamNameFSCWeightBasedDistanceMultiplier,
+	ServiceItemParamNameWeightBilledActual,
+	ServiceItemParamNameWeightEstimated,
+	ServiceItemParamNameZipDestAddress,
+	ServiceItemParamNameZipPickupAddress,
+	ServiceItemParamNameZipSITAddress,
+}
+
+// ValidServiceItemParamNameStrings lists all valid service item param key names
+var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameCanStandAlone),
 	string(ServiceItemParamNameContractCode),
 	string(ServiceItemParamNameCubicFeetBilled),
@@ -252,7 +308,7 @@ type ServiceItemParamKeys []ServiceItemParamKey
 func (s *ServiceItemParamKey) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: s.Key.String(), Name: "Key"},
-		&validators.StringInclusion{Field: s.Key.String(), Name: "Key", List: ValidServiceItemParamNames},
+		&validators.StringInclusion{Field: s.Key.String(), Name: "Key", List: ValidServiceItemParamNameStrings},
 		&validators.StringIsPresent{Field: s.Description, Name: "Description"},
 		&validators.StringIsPresent{Field: string(s.Type), Name: "Type"},
 		&validators.StringInclusion{Field: s.Type.String(), Name: "Type", List: ValidServiceItemParamTypes},

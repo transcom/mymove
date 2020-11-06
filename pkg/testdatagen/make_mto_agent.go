@@ -1,7 +1,7 @@
 package testdatagen
 
 import (
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -34,7 +34,7 @@ func MakeMTOAgent(db *pop.Connection, assertions Assertions) models.MTOAgent {
 
 	mergeModels(&MTOAgent, assertions.MTOAgent)
 
-	mustCreate(db, &MTOAgent)
+	mustCreate(db, &MTOAgent, assertions.Stub)
 
 	return MTOAgent
 }

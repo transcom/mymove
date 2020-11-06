@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/alexedwards/scs/v2/memstore"
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/adminmessages"

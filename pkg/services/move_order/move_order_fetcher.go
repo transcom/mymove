@@ -3,7 +3,7 @@ package moveorder
 import (
 	"database/sql"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -14,19 +14,43 @@ type moveOrderFetcher struct {
 	db *pop.Connection
 }
 
-func (f moveOrderFetcher) ListMoveOrders() ([]models.Order, error) {
+func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, options ...func(query *pop.Query)) ([]models.Order, error) {
 	// Now that we've joined orders and move_orders, we only want to return orders that
 	// have an associated move.
 	var moveOrders []models.Order
-	err := f.db.Q().Eager(
+	var transportationOffice models.TransportationOffice
+	// select the GBLOC associated with the transportation office of the session's current office user
+	err := f.db.Q().
+		Join("office_users", "transportation_offices.id = office_users.transportation_office_id").
+		Where("office_users.id = ?", officeUserID).First(&transportationOffice)
+
+	if err != nil {
+		return []models.Order{}, err
+	}
+
+	gbloc := transportationOffice.Gbloc
+
+	query := f.db.Q().Eager(
 		"ServiceMember",
 		"NewDutyStation.Address",
 		"OriginDutyStation",
 		"Entitlement",
+		"Moves.MTOShipments",
+		"Moves.MTOServiceItems",
 	).InnerJoin("moves", "orders.id = moves.orders_id").
+		InnerJoin("service_members", "orders.service_member_id = service_members.id").
 		InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
-		All(&moveOrders)
+		InnerJoin("duty_stations", "orders.origin_duty_station_id = duty_stations.id").
+		InnerJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id").
+		Where("transportation_offices.gbloc = ?", gbloc)
 
+	for _, option := range options {
+		if option != nil {
+			option(query)
+		}
+	}
+
+	err = query.GroupBy("orders.id").All(&moveOrders)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -41,7 +65,7 @@ func (f moveOrderFetcher) ListMoveOrders() ([]models.Order, error) {
 		// cannot eager load the address as "OriginDutyStation.Address" because
 		// OriginDutyStation is a pointer.
 		if moveOrders[i].OriginDutyStation != nil {
-			f.db.Load(moveOrders[i].OriginDutyStation, "Address")
+			f.db.Load(moveOrders[i].OriginDutyStation, "Address", "TransportationOffice")
 		}
 	}
 

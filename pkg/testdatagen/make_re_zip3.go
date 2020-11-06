@@ -1,7 +1,7 @@
 package testdatagen
 
 import (
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -29,7 +29,7 @@ func MakeReZip3(db *pop.Connection, assertions Assertions) models.ReZip3 {
 	// Overwrite values with those from assertions
 	mergeModels(&reZip3, assertions.ReZip3)
 
-	mustCreate(db, &reZip3)
+	mustCreate(db, &reZip3, assertions.Stub)
 
 	return reZip3
 }

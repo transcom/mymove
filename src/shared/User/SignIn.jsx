@@ -21,7 +21,6 @@ const SignIn = ({ context, location }) => {
             </div>
           )}
           <h1 className="align-center">Welcome to {context.siteName}!</h1>
-          <br />
           <p>This is a new system from USTRANSCOM to support the relocation of families during PCS.</p>
           {context.showLoginWarning && (
             <div>

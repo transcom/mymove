@@ -11,8 +11,8 @@ import (
 )
 
 func (suite *ServiceParamValueLookupsSuite) TestServicesScheduleOrigin() {
-	originKey := models.ServiceItemParamNameServicesScheduleOrigin.String()
-	destKey := models.ServiceItemParamNameServicesScheduleDest.String()
+	originKey := models.ServiceItemParamNameServicesScheduleOrigin
+	destKey := models.ServiceItemParamNameServicesScheduleDest
 
 	originAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 		Address: models.Address{
@@ -71,7 +71,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServicesScheduleOrigin() {
 	})
 
 	suite.T().Run("lookup origin ServicesSchedule", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 		valueStr, err := paramLookup.ServiceParamValue(originKey)
 		suite.FatalNoError(err)
@@ -79,7 +79,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServicesScheduleOrigin() {
 	})
 
 	suite.T().Run("lookup dest ServicesSchedule", func(t *testing.T) {
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 		valueStr, err := paramLookup.ServiceParamValue(destKey)
 		suite.FatalNoError(err)
@@ -94,7 +94,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServicesScheduleOrigin() {
 				Move: mtoServiceItem.MoveTaskOrder,
 			})
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 		valueStr, err := paramLookup.ServiceParamValue(originKey)
 		suite.Equal("", valueStr)
@@ -111,7 +111,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServicesScheduleOrigin() {
 				Move: mtoServiceItem.MoveTaskOrder,
 			})
 
-		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID)
+		paramLookup, err := ServiceParamLookupInitialize(suite.DB(), suite.planner, mtoServiceItem.ID, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 		valueStr, err := paramLookup.ServiceParamValue(destKey)
 		suite.Equal("", valueStr)
