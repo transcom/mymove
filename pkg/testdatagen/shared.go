@@ -26,7 +26,6 @@ type Assertions struct {
 	Address                                  models.Address
 	AdminUser                                models.AdminUser
 	BackupContact                            models.BackupContact
-	BlackoutDate                             models.BlackoutDate
 	Contractor                               models.Contractor
 	DestinationAddress                       models.Address
 	DestinationDutyStation                   models.DutyStation
