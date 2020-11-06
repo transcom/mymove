@@ -90,10 +90,6 @@ func main() {
 	}
 
 	paymentRequestNumber := v.GetString("payment-request-number")
-	if paymentRequestNumber == "" {
-		fmt.Fprintln(os.Stderr, "ERROR: Must provide payment-request-number")
-		os.Exit(1)
-	}
 
 	var paymentRequest models.PaymentRequest
 	err = dbConnection.Where("payment_request_number = ?", paymentRequestNumber).First(&paymentRequest)
