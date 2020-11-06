@@ -1,6 +1,8 @@
 package main
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -20,8 +22,10 @@ import (
 // Must use a payment request that is submitted, but not yet approved for payment (that does not already have a submitted invoice)
 
 func checkConfig(v *viper.Viper, logger logger) error {
-
-	logger.Debug("checking config")
+	paymentRequestNumber := v.GetString("payment-request-number")
+	if paymentRequestNumber == "" {
+		return errors.New("must provide payment-request-number")
+	}
 
 	err := cli.CheckDatabase(v, logger)
 	if err != nil {
@@ -32,8 +36,7 @@ func checkConfig(v *viper.Viper, logger logger) error {
 }
 
 func initFlags(flag *pflag.FlagSet) {
-
-	// // Scenario config
+	// This command's config
 	flag.String("payment-request-number", "", "The payment request number to generate an EDI for")
 
 	// DB Config
@@ -70,11 +73,12 @@ func main() {
 	}
 	zap.ReplaceGlobals(logger)
 
-	fmt.Println("logger: ", logger)
-
 	err = checkConfig(v, logger)
 	if err != nil {
-		logger.Fatal("invalid configuration", zap.Error(err))
+		fmt.Fprintf(os.Stderr, "ERROR: %s\n\n", err.Error())
+		fmt.Fprintln(os.Stderr, "Usage:")
+		flag.PrintDefaults()
+		os.Exit(1)
 	}
 
 	// DB connection
@@ -86,11 +90,20 @@ func main() {
 	}
 
 	paymentRequestNumber := v.GetString("payment-request-number")
-	var paymentRequest models.PaymentRequest
+	if paymentRequestNumber == "" {
+		fmt.Fprintln(os.Stderr, "ERROR: Must provide payment-request-number")
+		os.Exit(1)
+	}
 
+	var paymentRequest models.PaymentRequest
 	err = dbConnection.Where("payment_request_number = ?", paymentRequestNumber).First(&paymentRequest)
 	if err != nil {
-		logger.Fatal(err.Error())
+		if err == sql.ErrNoRows {
+			fmt.Fprintf(os.Stderr, "ERROR: Could not find a payment request with number %s\n", paymentRequestNumber)
+		} else {
+			logger.Error(err.Error())
+		}
+		os.Exit(1)
 	}
 
 	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(dbConnection)
