@@ -1372,6 +1372,22 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 
+	orders9 := testdatagen.MakeOrder(db, testdatagen.Assertions{
+		Order: models.Order{
+			ID:              uuid.FromStringOrNil("3e49bb07-d9dd-4308-934d-baad94f2dr5t"),
+			ServiceMemberID: customer8.ID,
+			ServiceMember:   customer8,
+		},
+		UserUploader: userUploader,
+	})
+
+	move9 := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			ID:       uuid.FromStringOrNil("d4d95c55-2d9d-428b-9a65-284455aa87vb"),
+			OrdersID: orders9.ID,
+		},
+	})
+
 	mtoShipment8 := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			ID:                   uuid.FromStringOrNil("acf7b357-5cad-40e2-baa7-dedc1d4cf04c"),
@@ -1411,6 +1427,35 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 		PaymentRequest: paymentRequest8,
 		MTOServiceItem: serviceItemMS,
+	})
+
+	paymentRequest9 := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			ID:            uuid.FromStringOrNil("345c9ebb-972f-4711-acb2-5911f52acpp9"),
+			MoveTaskOrder: move9,
+			IsFinal:       false,
+			Status:        models.PaymentRequestStatusReviewed,
+		},
+		Move: move9,
+	})
+
+	serviceItemMS9 := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID:     uuid.FromStringOrNil("4fba4454-b5aa-4c29-8448-66aa07ac9657"),
+			Status: models.MTOServiceItemStatusApproved,
+		},
+		Move: move8,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973y-72f33685e453"), // MS - Move Management
+		},
+	})
+
+	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &msCost,
+		},
+		PaymentRequest: paymentRequest9,
+		MTOServiceItem: serviceItemMS9,
 	})
 
 	csCost := unit.Cents(25000)

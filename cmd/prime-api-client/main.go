@@ -358,7 +358,7 @@ func main() {
   It requires the caller to pass in a file using the --filename arg.
   The file should contain path parameters.
 
-  Endpoint path: /payment-requests/{paymentRequestID}/edi
+  Endpoint path: /payment-requests/process-reviewed
   The file should contain json as follows:
   	{
 	  "paymentRequestID": <uuid string>,
@@ -366,7 +366,7 @@ func main() {
 	  "status: <string>
   	}
   Please see API documentation for full details on the endpoint definition.`,
-		RunE:         support.GetPaymentRequestEDI,
+		RunE:         support.ProcessReviewedPaymentRequests,
 		SilenceUsage: true,
 	}
 	support.InitGetPaymentRequestEDIFlags(processReviewedPaymentRequests.Flags())
