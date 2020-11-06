@@ -568,4 +568,7 @@
 20201020164146_gidjin_cac.up.sql
 20201023202845_update_selectedMoveType_NTS.up.sql
 20201027143150_moncef_cac.up.sql
+20201103194328_add_skipped_failing_to_wh_notifications.up.sql
 20201103225532_remove_mr337_cac.up.sql
+20201103231542_add_failing_to_wh_subscriptions_status.up.sql
+20201105195546_add_index_for_webhook_notifications.up.sql
