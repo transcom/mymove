@@ -26,6 +26,7 @@
     "js-yaml": "^3.14.0",
     "jwt-decode": "^3.0.0",
     "lodash": "^4.17.20",
+    "markdown-toc": "^1.2.0",
     "marked": "^1.2.2",
     "moment": "^2.29.1",
     "node-sass": "^4.14.1",
