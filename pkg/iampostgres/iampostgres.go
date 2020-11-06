@@ -92,6 +92,7 @@ func EnableIAM(host string, port string, region string, user string, passTemplat
 		// Add some entropy to this value so all instances don't fire at the same time
 		minDur := 100
 		maxDur := 5000
+		// #nosec G404 TODO needs review
 		wait := time.Millisecond * time.Duration(rand.Intn(maxDur-minDur)+minDur)
 		logger.Info(fmt.Sprintf("Waiting %v before enabling IAM access for entropy", wait))
 		time.Sleep(wait)

@@ -259,6 +259,7 @@ func (m Move) createMoveDocumentWithoutTransaction(
 	// Associate uploads to the new document
 	for _, upload := range userUploads {
 		upload.DocumentID = &newDoc.ID
+		// #nosec G601 TODO needs review
 		verrs, err := db.ValidateAndUpdate(&upload)
 		if err != nil || verrs.HasAny() {
 			responseVErrors.Append(verrs)
@@ -565,7 +566,9 @@ func GenerateReferenceID(db *pop.Connection) (string, error) {
 func generateReferenceIDHelper(db *pop.Connection) (string, error) {
 	min := 0
 	max := 9999
+	// #nosec G404 TODO needs review
 	firstNum := rand.Intn(max - min + 1)
+	// #nosec G404 TODO needs review
 	secondNum := rand.Intn(max - min + 1)
 	newReferenceID := fmt.Sprintf("%04d-%04d", firstNum, secondNum)
 
@@ -597,6 +600,7 @@ func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, err
 				}
 			}
 
+			// #nosec G601 TODO needs review
 			if verrs, err := db.ValidateAndSave(&ppm); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = errors.Wrap(err, "Error Saving PPM")
