@@ -38,6 +38,7 @@ type Engine struct {
 // processNotifications reads all the notifications and all the subscriptions and processes them one by one
 func (eng *Engine) processNotifications(notifications []models.WebhookNotification, subscriptions []models.WebhookSubscription) {
 	for _, notif := range notifications {
+		notif := notif
 
 		// search for subscription
 		foundSub := false
