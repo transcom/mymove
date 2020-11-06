@@ -36,12 +36,12 @@ export class Orders extends Component {
     // TODO - migrate to saga pattern
     const { serviceMemberId, currentOrders, fetchLatestOrders } = this.props;
 
-    if (!isEmpty(currentOrders)) {
+    if (isEmpty(currentOrders)) {
+      this.setState({ isLoading: false });
+    } else {
       fetchLatestOrders(serviceMemberId).then(() => {
         this.setState({ isLoading: false });
       });
-    } else {
-      this.setState({ isLoading: false });
     }
   }
 
