@@ -2165,18 +2165,18 @@
     react-lifecycles-compat "^3.0.4"
     util-deprecate "^1.0.2"
 
-"@storybook/addon-knobs@^6.0.26":
-  version "6.0.26"
-  resolved "https://registry.yarnpkg.com/@storybook/addon-knobs/-/addon-knobs-6.0.26.tgz#c574a817c8d791aced89a272eb0c6baaee9a0bdf"
-  integrity sha512-a25hOepctnsqX1nym80HLKrn8fvXFqsbcL3ZkAZWAIXZhf+zPYTJFrw25FxvbyhktmjQv6l89jteAfGfC0g8DA==
+"@storybook/addon-knobs@^6.0.28":
+  version "6.0.28"
+  resolved "https://registry.yarnpkg.com/@storybook/addon-knobs/-/addon-knobs-6.0.28.tgz#1956cc5d9200467ef271fb95d34656fddf149009"
+  integrity sha512-5vmr/kiOSO6Uvpx9DHQqAPDWbc6SXbLid7XYBMKBBZVHiu76iPgsLjx4KV3GFLSHaJZ4DPhwEN0hlIyf5Qlvvw==
   dependencies:
-    "@storybook/addons" "6.0.26"
-    "@storybook/api" "6.0.26"
-    "@storybook/channels" "6.0.26"
-    "@storybook/client-api" "6.0.26"
-    "@storybook/components" "6.0.26"
-    "@storybook/core-events" "6.0.26"
-    "@storybook/theming" "6.0.26"
+    "@storybook/addons" "6.0.28"
+    "@storybook/api" "6.0.28"
+    "@storybook/channels" "6.0.28"
+    "@storybook/client-api" "6.0.28"
+    "@storybook/components" "6.0.28"
+    "@storybook/core-events" "6.0.28"
+    "@storybook/theming" "6.0.28"
     copy-to-clipboard "^3.0.8"
     core-js "^3.0.1"
     escape-html "^1.0.3"
@@ -2253,7 +2253,7 @@
     global "^4.3.2"
     regenerator-runtime "^0.13.3"
 
-"@storybook/addons@6.0.27", "@storybook/addons@^6.0.26":
+"@storybook/addons@6.0.27":
   version "6.0.27"
   resolved "https://registry.yarnpkg.com/@storybook/addons/-/addons-6.0.27.tgz#bd39373b3b95360d732b855f692f843e0745f9fe"
   integrity sha512-ruumzJ1BLQ/2+KbV6qTN1OWPqejPWczY2EjEKo8azMlmZ4xBSiczi5HvDto/fYt6fMQfzgkdIUAcofHGf4XQGQ==
@@ -2268,7 +2268,7 @@
     global "^4.3.2"
     regenerator-runtime "^0.13.3"
 
-"@storybook/addons@6.0.28":
+"@storybook/addons@6.0.28", "@storybook/addons@^6.0.26":
   version "6.0.28"
   resolved "https://registry.yarnpkg.com/@storybook/addons/-/addons-6.0.28.tgz#8c7ef3229706e2dc32d40ec9158431a3ffee3e5b"
   integrity sha512-3Brf9w/u2sw0huarcO1iLFBmGt7KtApRxX4bFcsRiPPFxliDrmb1sAsd37UbKp8qBSw1U6FByjuTJQ7xn/TDhg==
