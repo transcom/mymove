@@ -101,6 +101,15 @@ Table.propTypes = {
   prepareRow: PropTypes.func.isRequired,
   showPagination: PropTypes.bool,
   initialState: PropTypes.node,
+  canPreviousPage: PropTypes.bool,
+  canNextPage: PropTypes.bool,
+  pageCount: PropTypes.number,
+  gotoPage: PropTypes.func,
+  nextPage: PropTypes.func,
+  previousPage: PropTypes.func,
+  setPageSize: PropTypes.func,
+  pageIndex: PropTypes.number,
+  pageSize: PropTypes.number,
 };
 
 Table.defaultProps = {

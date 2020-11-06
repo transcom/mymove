@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { withRouter } from 'react-router-dom';
 import { GridContainer } from '@trussworks/react-uswds';
-import { useTable, useFilters } from 'react-table';
+import { useTable, useFilters, usePagination } from 'react-table';
 
 import styles from './MoveQueue.module.scss';
 
@@ -101,17 +101,39 @@ const MoveQueue = ({ history }) => {
     headerGroups,
     rows,
     prepareRow,
-    state: { filters },
+    page,
+    canPreviousPage,
+    canNextPage,
+    pageOptions,
+    pageCount,
+    gotoPage,
+    nextPage,
+    previousPage,
+    setPageSize,
+    state: { filters, pageIndex, pageSize },
   } = useTable(
     {
       columns: tableColumns,
       data: tableData,
-      initialState: { hiddenColumns: ['id'] },
+      initialState: { hiddenColumns: ['id'], pageSize: 20, pageIndex: 0 },
       defaultColumn, // Be sure to pass the defaultColumn option
       manualFilters: true,
+      showPagination: true,
+      manualPagination: true,
+      // pages: {this.state.pages}
     },
     useFilters,
+    usePagination,
   );
+
+  console.log('canPreviousPage', canPreviousPage);
+  console.log('canNextPage', canNextPage);
+  console.log('pageOptions', pageOptions);
+  console.log('pageCount', pageCount);
+  console.log('gotoPage', gotoPage);
+  console.log('nextPage', nextPage);
+  console.log('previousPage', previousPage);
+  console.log('setPageSize', setPageSize);
 
   // When these table states change, fetch new data!
   useEffect(() => {
@@ -138,6 +160,7 @@ const MoveQueue = ({ history }) => {
           headerGroups={headerGroups}
           rows={rows}
           prepareRow={prepareRow}
+          showPagination
         />
       </div>
     </GridContainer>
