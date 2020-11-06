@@ -76,7 +76,7 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
     * [More about content dispositions](#more-about-content-dispositions)
     * [More about browser settings](#more-about-browser-settings)
 
-Regenerate with "pre-commit run -a markdown-toc"
+<!-- Regenerate with "pre-commit run -a markdown-toc" -->
 
 <!-- tocstop -->
 
