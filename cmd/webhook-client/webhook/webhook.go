@@ -54,9 +54,9 @@ func (eng *Engine) processNotifications(notifications []models.WebhookNotificati
 			}
 		}
 		if foundSub == false {
-			//Need to update notification status to skipped, once that's available. Currently updating to pending. [MB-3875]
-			eng.Logger.Debug("No subscription found for notification event.", zap.String("eventKey", notif.EventKey))
-			notif.Status = models.WebhookNotificationPending
+			//If no subscription was found, update notification status to skipped.
+			eng.Logger.Debug("No subscription found for notification event, skipping.", zap.String("eventKey", notif.EventKey))
+			notif.Status = models.WebhookNotificationSkipped
 			err := eng.updateNotification(&notif)
 			if err != nil {
 				eng.Logger.Error("Notification update failed", zap.Error(err))
@@ -179,7 +179,6 @@ func (eng *Engine) run() error {
 		return nil
 	}
 
-	// MYTODO: Maybe want to reorganize subs in memory for faster access
 	// process notifications
 	eng.processNotifications(notifications, subscriptions)
 	return nil

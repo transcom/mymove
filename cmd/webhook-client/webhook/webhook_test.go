@@ -293,8 +293,8 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunInactiveSub() {
 	suite.DB().All(&updatedNotifs)
 	for _, notif := range updatedNotifs {
 		if notif.EventKey == "Payment.Create" {
-			// MYTODO: Should be skipped not pending after migration
-			suite.Equal(models.WebhookNotificationPending, notif.Status)
+			// if there's no subscription, we except status to be skipped
+			suite.Equal(models.WebhookNotificationSkipped, notif.Status)
 		} else {
 			suite.Equal(models.WebhookNotificationSent, notif.Status)
 		}
