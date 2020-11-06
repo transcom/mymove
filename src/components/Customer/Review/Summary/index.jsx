@@ -150,6 +150,7 @@ export class Summary extends Component {
           shipmentId={shipment.id}
           shipmentNumber={hhgShipmentNumber}
           shipmentType={shipment.shipmentType}
+          showEditBtn={showEditBtn}
         />
       );
     });

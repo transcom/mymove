@@ -8,6 +8,7 @@ import Home from '.';
 
 import { MockProviders } from 'testUtils';
 import { store } from 'shared/store';
+import { formatCustomerDate } from 'utils/formatters';
 
 const defaultProps = {
   serviceMember: {
@@ -157,6 +158,34 @@ describe('Home component', () => {
         uploadedOrderDocuments: [{ filename: 'testOrder1.pdf' }],
         mtoShipments: [{ id: 'test123', shipmentType: 'NTS' }],
         move: { status: 'SUBMITTED' },
+      });
+
+      it('renders the SubmittedNoPPM helper', () => {
+        expect(wrapper.find('HelperSubmittedNoPPM').exists()).toBe(true);
+      });
+    });
+
+    describe('for HHG/PPM combo moves', () => {
+      const submittedAt = new Date();
+
+      const wrapper = mountHome({
+        orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
+        uploadedOrderDocuments: [{ filename: 'testOrder1.pdf' }],
+        mtoShipments: [{ id: 'test123', shipmentType: 'HHG' }],
+        move: { status: 'SUBMITTED', submitted_at: submittedAt },
+        currentPpm: { id: 'mockPpm' },
+      });
+
+      it('renders submitted date at step 4', () => {
+        expect(wrapper.find('[data-testid="move-submitted-description"]').text()).toBe(
+          `Move submitted ${formatCustomerDate(submittedAt)}.`,
+        );
+      });
+
+      it('renders secondary button when step 4 is completed', () => {
+        expect(wrapper.find('[data-testid="review-and-submit-btn"]').at(1).hasClass('usa-button--secondary')).toBe(
+          true,
+        );
       });
 
       it('renders the SubmittedMove helper', () => {
