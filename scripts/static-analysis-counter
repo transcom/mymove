@@ -1,0 +1,53 @@
+#! /usr/bin/env bash
+
+# errcheck
+echo "Total count of errcheck - Error return value of 'function' is not checked"
+grep -c "(errcheck)" golangci-lint.out
+echo ""
+
+# gosec
+echo "Total count of gosec codes"
+declare -A gosecCodes=(["G101"]=0
+  ["G102"]=0
+  ["G103"]=0
+  ["G104"]=0
+  ["G105"]=0
+  ["G106"]=0
+  ["G107"]=0
+  ["G108"]=0
+  ["G109"]=0
+  ["G110"]=0
+  ["G201"]=0
+  ["G202"]=0
+  ["G203"]=0
+  ["G204"]=0
+  ["G301"]=0
+  ["G302"]=0
+  ["G303"]=0
+  ["G304"]=0
+  ["G305"]=0
+  ["G306"]=0
+  ["G307"]=0
+  ["G401"]=0
+  ["G402"]=0
+  ["G403"]=0
+  ["G404"]=0
+  ["G501"]=0
+  ["G502"]=0
+  ["G503"]=0
+  ["G504"]=0
+  ["G505"]=0
+  ["G601"]=0
+)
+
+# get the count for each code
+for key in "${!gosecCodes[@]}"; do
+  gosecCodes[$key]=$(grep -c "$key" golangci-lint.out)
+
+  if [ "${gosecCodes[$key]}" -gt 0 ]; then
+    echo "$key count"
+    echo "${gosecCodes[$key]}"
+  fi
+done
+
+#echo "${!gosecCodes[@]}"

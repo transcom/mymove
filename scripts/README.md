@@ -106,6 +106,7 @@ application testing
 | `prime-api-demo`                | A script to demo the Prime API.                                                                   |
 | `to-for-gbloc`                  | Helper script to find transportation offices with the same GBLOC as the given duty station        |
 | `update-docker-compose`         | Update branch name before running docker-compose                                                  |
+| `static-analysis-counter`       | Helps count the static analysis linter findings by type                                           |
 
 ### Building
 
