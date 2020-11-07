@@ -1,8 +1,9 @@
 #! /usr/bin/env bash
 
 # errcheck
+output=$(pre-commit run -v --all-files golangci-lint)
 echo "Total count of errcheck - Error return value of 'function' is not checked"
-grep -c "(errcheck)" golangci-lint.out
+echo "$output" | grep -c "(errcheck)"
 echo ""
 
 # gosec
@@ -42,12 +43,10 @@ declare -A gosecCodes=(["G101"]=0
 
 # get the count for each code
 for key in "${!gosecCodes[@]}"; do
-  gosecCodes[$key]=$(grep -c "$key" golangci-lint.out)
+  gosecCodes[$key]=$(echo "$output" | grep -c "$key")
 
   if [ "${gosecCodes[$key]}" -gt 0 ]; then
     echo "$key count"
     echo "${gosecCodes[$key]}"
   fi
 done
-
-#echo "${!gosecCodes[@]}"
