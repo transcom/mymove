@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/swag"
-
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -717,13 +716,6 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 		},
 	})
 
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: hhgMove,
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
-		},
-	})
-
 	// Fake this as a day and a half in the past so floating point age values can be tested
 	prevCreatedAt := time.Now().Add(time.Duration(time.Hour * -36))
 
@@ -827,6 +819,24 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 		suite.Len(payload.QueuePaymentRequests, 2)
 	})
 
+	suite.Run("returns unfiltered paginated results", func() {
+		params := queues.GetPaymentRequestsQueueParams{
+			HTTPRequest: request,
+			Page:        swag.Int64(1),
+			PerPage:     swag.Int64(1),
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		suite.Assertions.IsType(&queues.GetPaymentRequestsQueueOK{}, response)
+		payload := response.(*queues.GetPaymentRequestsQueueOK).Payload
+
+		suite.Len(payload.QueuePaymentRequests, 1)
+		// Total count is more than the perPage
+		suite.Equal(int64(2), payload.TotalCount)
+	})
+
 	suite.Run("returns results matching SubmittedAt date", func() {
 		submittedAtDate := "2020-10-29"
 		params := queues.GetPaymentRequestsQueueParams{
@@ -851,6 +861,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerUnauthorizedRole() 
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 	params := queues.GetPaymentRequestsQueueParams{
 		HTTPRequest: request,
+		Page:        swag.Int64(1),
+		PerPage:     swag.Int64(1),
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetPaymentRequestsQueueHandler{
@@ -870,17 +882,14 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerServerError() {
 
 	paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID,
 		mock.Anything,
-		mock.Anything,
-		mock.Anything,
-		mock.Anything,
-		mock.Anything,
-		mock.Anything,
-		mock.Anything).Return(nil, errors.New("database query error"))
+		mock.Anything).Return(nil, 0, errors.New("database query error"))
 
 	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 	params := queues.GetPaymentRequestsQueueParams{
 		HTTPRequest: request,
+		Page:        swag.Int64(1),
+		PerPage:     swag.Int64(1),
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetPaymentRequestsQueueHandler{
@@ -900,17 +909,14 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerEmptyResults() {
 
 	paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID,
 		mock.Anything,
-		mock.Anything,
-		mock.Anything,
-		mock.Anything,
-		mock.Anything,
-		mock.Anything,
-		mock.Anything).Return(&models.PaymentRequests{}, nil)
+		mock.Anything).Return(&models.PaymentRequests{}, 0, nil)
 
 	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 	params := queues.GetPaymentRequestsQueueParams{
 		HTTPRequest: request,
+		Page:        swag.Int64(1),
+		PerPage:     swag.Int64(1),
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetPaymentRequestsQueueHandler{
