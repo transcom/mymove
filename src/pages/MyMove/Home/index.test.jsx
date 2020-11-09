@@ -167,14 +167,26 @@ describe('Home component', () => {
 
     describe('for HHG/PPM combo moves', () => {
       const submittedAt = new Date();
-
-      const wrapper = mountHome({
-        orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
-        uploadedOrderDocuments: [{ filename: 'testOrder1.pdf' }],
-        mtoShipments: [{ id: 'test123', shipmentType: 'HHG' }],
-        move: { status: 'SUBMITTED', submitted_at: submittedAt },
-        currentPpm: { id: 'mockPpm' },
-      });
+      const orders = {
+        id: 'testOrder123',
+        new_duty_station: {
+          name: 'Test Duty Station',
+        },
+      };
+      const uploadedOrderDocuments = [{ filename: 'testOrder1.pdf' }];
+      const move = { status: 'SUBMITTED', submitted_at: submittedAt };
+      const currentPpm = { id: 'mockCombo' };
+      const wrapper = mount(
+        <MockProviders initialEntries={['/']}>
+          <Home
+            {...defaultProps}
+            orders={orders}
+            uploadedOrderDocuments={uploadedOrderDocuments}
+            move={move}
+            currentPpm={currentPpm}
+          />
+        </MockProviders>,
+      );
 
       it('renders submitted date at step 4', () => {
         expect(wrapper.find('[data-testid="move-submitted-description"]').text()).toBe(
