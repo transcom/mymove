@@ -51,7 +51,7 @@
     "react-query": "^2.25.2",
     "react-query-devtools": "^2.6.0",
     "react-rangeslider": "^2.2.0",
-    "react-redux": "^7.2.1",
+    "react-redux": "^7.2.2",
     "react-router": "^5.1.2",
     "react-router-dom": "^5.2.0",
     "react-router-last-location": "^2.0.1",
