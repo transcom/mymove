@@ -280,7 +280,7 @@ func (o *GetMovesQueueParams) bindStatus(rawData []string, hasKey bool, formats 
 	for i, statusIV := range statusIC {
 		statusI := statusIV
 
-		if err := validate.Enum(fmt.Sprintf("%s.%v", "status", i), "query", statusI, []interface{}{"New move", "Approvals requested", "Move approved"}); err != nil {
+		if err := validate.Enum(fmt.Sprintf("%s.%v", "status", i), "query", statusI, []interface{}{"SUBMITTED", "APPROVALS REQUESTED", "APPROVED"}); err != nil {
 			return err
 		}
 

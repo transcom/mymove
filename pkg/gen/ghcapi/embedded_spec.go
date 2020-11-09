@@ -1573,9 +1573,9 @@ func init() {
             "type": "array",
             "items": {
               "enum": [
-                "New move",
-                "Approvals requested",
-                "Move approved"
+                "SUBMITTED",
+                "APPROVALS REQUESTED",
+                "APPROVED"
               ],
               "type": "string"
             },
@@ -5360,9 +5360,9 @@ func init() {
             "type": "array",
             "items": {
               "enum": [
-                "New move",
-                "Approvals requested",
-                "Move approved"
+                "SUBMITTED",
+                "APPROVALS REQUESTED",
+                "APPROVED"
               ],
               "type": "string"
             },
