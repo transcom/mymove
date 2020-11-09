@@ -361,9 +361,11 @@ func main() {
   Endpoint path: /payment-requests/process-reviewed
   The file should contain json as follows:
   	{
-	  "paymentRequestID": <uuid string>,
-	  "sendToSyncada": <boolean>,
-	  "status: <string>
+	  body: {
+		"paymentRequestID": <uuid string>,
+		"sendToSyncada": <boolean>,
+		"status: <string>
+	  }
   	}
   Please see API documentation for full details on the endpoint definition.`,
 		RunE:         support.ProcessReviewedPaymentRequests,
