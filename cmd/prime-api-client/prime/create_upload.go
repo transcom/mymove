@@ -81,6 +81,7 @@ func CreatePaymentRequestUpload(cmd *cobra.Command, args []string) error {
 	paymentRequestID := v.GetString(utils.PaymentRequestIDFlag)
 
 	file, fileErr := os.Open(filepath.Clean(filename))
+	// #nosec G307 TODO needs review
 	defer file.Close()
 	if fileErr != nil {
 		logger.Fatal(fileErr)

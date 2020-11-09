@@ -25,6 +25,8 @@ describe('orders entry', function () {
 
     cy.get('input[name="report_by_date"]').last().type('8/9/2018{enter}').blur();
 
+    cy.get('label[for="hasDependentsNo"]').first().click();
+
     // Choosing same current and destination duty station should block you from progressing and give an error
     cy.selectDutyStation('Yuma AFB', 'new_duty_station');
     cy.get('.usa-error-message').contains(

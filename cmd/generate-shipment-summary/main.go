@@ -162,6 +162,7 @@ func main() {
 	page1Layout := paperwork.ShipmentSummaryPage1Layout
 	page1Template, err := os.Open(page1Layout.TemplateImagePath)
 	noErr(err)
+	// #nosec G307 TODO needs review
 	defer page1Template.Close()
 
 	err = formFiller.AppendPage(page1Template, page1Layout.FieldsLayout, page1Data)
@@ -171,6 +172,7 @@ func main() {
 	page2Layout := paperwork.ShipmentSummaryPage2Layout
 	page2Template, err := os.Open(page2Layout.TemplateImagePath)
 	noErr(err)
+	// #nosec G307 TODO needs review
 	defer page2Template.Close()
 
 	err = formFiller.AppendPage(page2Template, page2Layout.FieldsLayout, page2Data)
@@ -180,6 +182,7 @@ func main() {
 	page3Layout := paperwork.ShipmentSummaryPage3Layout
 	page3Template, err := os.Open(page3Layout.TemplateImagePath)
 	noErr(err)
+	// #nosec G307 TODO needs review
 	defer page3Template.Close()
 
 	err = formFiller.AppendPage(page3Template, page3Layout.FieldsLayout, page3Data)
@@ -189,6 +192,7 @@ func main() {
 
 	output, err := os.Create(filename)
 	noErr(err)
+	// #nosec G307 TODO needs review
 	defer output.Close()
 
 	err = formFiller.Output(output)

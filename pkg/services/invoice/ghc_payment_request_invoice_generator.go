@@ -26,7 +26,8 @@ func NewGHCPaymentRequestInvoiceGenerator(db *pop.Connection) services.GHCPaymen
 	}
 }
 
-const dateFormat = "060102"
+const dateFormat = "20060102"
+const isaDateFormat = "060102"
 const timeFormat = "1504"
 
 // Generate method takes a payment request and returns an Invoice858C
@@ -96,10 +97,10 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		SecurityInformationQualifier:      "00", // No security information
 		SecurityInformation:               "0000000000",
 		InterchangeSenderIDQualifier:      "ZZ",
-		InterchangeSenderID:               fmt.Sprintf("%-15s", "MYMOVE"),
+		InterchangeSenderID:               fmt.Sprintf("%-15s", "MILMOVE"),
 		InterchangeReceiverIDQualifier:    "12",
 		InterchangeReceiverID:             fmt.Sprintf("%-15s", "8004171844"),
-		InterchangeDate:                   currentTime.Format(dateFormat),
+		InterchangeDate:                   currentTime.Format(isaDateFormat),
 		InterchangeTime:                   currentTime.Format(timeFormat),
 		InterchangeControlStandards:       "U",
 		InterchangeControlVersionNumber:   "00401",
@@ -111,7 +112,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 
 	edi858.GS = edisegment.GS{
 		FunctionalIdentifierCode: "SI",
-		ApplicationSendersCode:   fmt.Sprintf("%-9s", "MYMOVE"),
+		ApplicationSendersCode:   "MILMOVE",
 		ApplicationReceiversCode: "8004171844",
 		Date:                     currentTime.Format(dateFormat),
 		Time:                     currentTime.Format(timeFormat),
@@ -586,11 +587,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				LadingLineItemNumber: hierarchicalIDNumber,
 			}
 
-			l3Segment := edisegment.L3{
-				PriceCents: int64(*serviceItem.PriceCents),
-			}
-
-			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment, &l3Segment)
+			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment)
 		// pack and unpack, dom dest and dom origin have weight no distance
 		case models.ReServiceCodeDOP, models.ReServiceCodeDUPK,
 			models.ReServiceCodeDPK, models.ReServiceCodeDDP:
@@ -614,13 +611,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				WeightUnitCode:       "L",
 			}
 
-			l3Segment := edisegment.L3{
-				Weight:          weightFloat,
-				WeightQualifier: "B",
-				PriceCents:      int64(*serviceItem.PriceCents),
-			}
-
-			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment, &l3Segment)
+			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment)
 
 		default:
 			var err error
@@ -645,15 +636,15 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				WeightUnitCode:         "L",
 			}
 
-			l3Segment := edisegment.L3{
-				Weight:          weightFloat,
-				WeightQualifier: "B",
-				PriceCents:      int64(*serviceItem.PriceCents),
-			}
-
-			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment, &l3Segment)
+			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment)
 		}
 	}
+
+	l3Segment := edisegment.L3{
+		PriceCents: 0, // TODO: hard-coded to zero for now
+	}
+
+	segments = append(segments, &l3Segment)
 
 	return segments, nil
 }

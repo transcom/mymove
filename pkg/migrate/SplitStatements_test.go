@@ -14,6 +14,7 @@ func TestSplitStatementsCopyFromStdin(t *testing.T) {
 	// Load the fixture with the sql example
 	fixture := "./fixtures/copyFromStdin.sql"
 	f, err := os.Open(fixture)
+	// #nosec G307 TODO needs review
 	defer f.Close()
 	require.Nil(t, err)
 
@@ -60,6 +61,7 @@ func TestSplitStatementsCopyFromStdinMultiple(t *testing.T) {
 	// Load the fixture with the sql example
 	fixture := "./fixtures/copyFromStdinMultiple.sql"
 	f, err := os.Open(fixture)
+	// #nosec G307 TODO needs review
 	defer f.Close()
 	require.Nil(t, err)
 
@@ -103,6 +105,7 @@ func TestSplitStatementsLoop(t *testing.T) {
 	// Load the fixture with the sql example
 	fixture := "./fixtures/loop.sql"
 	f, err := os.Open(fixture)
+	// #nosec G307 TODO needs review
 	defer f.Close()
 	require.Nil(t, err)
 
