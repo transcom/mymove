@@ -319,6 +319,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 				}
 				if agent.ID == uuid.Nil {
 					// create a new agent if it doesn't already exist
+					// #nosec G601 TODO needs review
 					verrs, err := f.builder.CreateOne(&agent)
 					if verrs != nil && verrs.HasAny() {
 						return verrs
@@ -524,7 +525,6 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 	}
 
 	if shipment.Status == models.MTOShipmentStatusApproved {
-
 		if verrs != nil && verrs.HasAny() {
 			invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue with validating the updates")
 			return &models.MTOShipment{}, invalidInputError
@@ -619,6 +619,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 			serviceItemsToCreate = constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
 		}
 		for _, serviceItem := range serviceItemsToCreate {
+			// #nosec G601 TODO needs review
 			_, verrs, err := o.siCreator.CreateMTOServiceItem(&serviceItem)
 
 			if verrs != nil && verrs.HasAny() {

@@ -26,7 +26,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
-	mto := testdatagen.MakeDefaultMove(suite.DB())
+	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusSUBMITTED}})
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 		MTOShipment: models.MTOShipment{
@@ -146,6 +146,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	// Second to last because many of the above tests fail because of a conflict error with APPROVED/REJECTED shipments
 	// first:
 	suite.T().Run("Successful patch - Integration Test", func(t *testing.T) {
+		move := mtoShipment.MoveTaskOrder
+		move.Status = models.MoveStatusAPPROVED
+		_ = suite.DB().Save(&move)
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusOK{}, response)
 

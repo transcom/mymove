@@ -46,6 +46,7 @@ func (eng *Engine) processNotifications(notifications []models.WebhookNotificati
 			if sub.EventKey == notif.EventKey {
 				foundSub = true
 				// If found, send  to subscription
+				// #nosec G601 TODO needs review
 				err := eng.sendOneNotification(&notif, &sub)
 				if err != nil {
 					eng.Logger.Error("Webhook Notification send failed", zap.Error(err))

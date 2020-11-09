@@ -438,6 +438,35 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(minimalMtoShipment.PrimeEstimatedWeight.Int64(), okResponse.Payload.PrimeEstimatedWeight)
 	})
 
+	suite.T().Run("PUT Failure (422) - Cannot update weight without scheduledPickupDate", func(t *testing.T) {
+		noScheduledPickupShipment := testdatagen.MakeMTOShipmentMinimal(suite.DB(), testdatagen.Assertions{
+			Move: move,
+			MTOShipment: models.MTOShipment{
+				Status:              models.MTOShipmentStatusSubmitted,
+				ScheduledPickupDate: nil,
+			},
+		})
+
+		noScheduledPickupShipment.PrimeEstimatedWeight = &primeEstimatedWeight
+		noScheduledPickupShipment.PrimeActualWeight = &primeActualWeight
+
+		noPickupReq := httptest.NewRequest("PUT", fmt.Sprintf("/mto-shipments/%s", noScheduledPickupShipment.ID.String()), nil)
+		noPickupETag := etag.GenerateEtag(noScheduledPickupShipment.UpdatedAt)
+		noPickupParams := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   noPickupReq,
+			MtoShipmentID: *handlers.FmtUUID(noScheduledPickupShipment.ID),
+			Body:          ClearNonUpdateFields(&noScheduledPickupShipment),
+			IfMatch:       noPickupETag,
+		}
+
+		response := handler.Handle(noPickupParams)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentUnprocessableEntity{}, response)
+
+		errResponse := response.(*mtoshipmentops.UpdateMTOShipmentUnprocessableEntity)
+		suite.NotEmpty(errResponse.Payload.InvalidFields)
+		suite.Contains(errResponse.Payload.InvalidFields, "primeEstimatedWeight")
+	})
+
 	suite.T().Run("PUT failure - Shipment is not part of MTO available to prime", func(t *testing.T) {
 		notAvailableShipment := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   params.HTTPRequest,
