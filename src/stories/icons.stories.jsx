@@ -1,7 +1,7 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFile } from '@fortawesome/free-solid-svg-icons/faFile';
-import { faCheckCircle } from '@fortawesome/free-regular-svg-icons/faCheckCircle';
+import { faFile, faPen, faPlus, faChevronLeft, faChevronRight, faChevronDown, faChevronUp, faCheck, faTimes, faSearchPlus, faSearchMinus, faRedoAlt, faUndoAlt, faLock, faSolidMapMarkerAlt, faArrowRight, faArrowLeft, faThList} from '@fortawesome/free-solid-svg-icons';
+import { faCheckCircle } from '@fortawesome/free-regular-svg-icons';
 
 // Icons
 export default {
