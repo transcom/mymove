@@ -851,6 +851,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerUnauthorizedRole() 
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 	params := queues.GetPaymentRequestsQueueParams{
 		HTTPRequest: request,
+		Page:        swag.Int64(1),
+		PerPage:     swag.Int64(1),
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetPaymentRequestsQueueHandler{
@@ -870,19 +872,14 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerServerError() {
 
 	paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID,
 		mock.Anything,
-		mock.Anything,
-		mock.Anything,
-		mock.Anything,
-		mock.Anything,
-		mock.Anything,
-		mock.Anything,
-		mock.Anything,
-		mock.Anything).Return(nil, errors.New("database query error"))
+		mock.Anything).Return(nil, 0, errors.New("database query error"))
 
 	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 	params := queues.GetPaymentRequestsQueueParams{
 		HTTPRequest: request,
+		Page:        swag.Int64(1),
+		PerPage:     swag.Int64(1),
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetPaymentRequestsQueueHandler{
@@ -902,19 +899,14 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerEmptyResults() {
 
 	paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID,
 		mock.Anything,
-		mock.Anything,
-		mock.Anything,
-		mock.Anything,
-		mock.Anything,
-		mock.Anything,
-		mock.Anything,
-		mock.Anything,
-		mock.Anything).Return(&models.PaymentRequests{}, nil)
+		mock.Anything).Return(&models.PaymentRequests{}, 0, nil)
 
 	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 	params := queues.GetPaymentRequestsQueueParams{
 		HTTPRequest: request,
+		Page:        swag.Int64(1),
+		PerPage:     swag.Int64(1),
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetPaymentRequestsQueueHandler{
