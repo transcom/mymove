@@ -2,10 +2,8 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import { every, some, get, findKey, pick } from 'lodash';
 import ValidatedPrivateRoute from 'shared/User/ValidatedPrivateRoute';
-import WizardPage from 'shared/WizardPage';
 import generatePath from 'shared/WizardPage/generatePath';
-import { no_op } from 'shared/utils';
-import { NULL_UUID, SHIPMENT_OPTIONS, CONUS_STATUS } from 'shared/constants';
+import { NULL_UUID, SHIPMENT_OPTIONS } from 'shared/constants';
 import DodInfo from 'scenes/ServiceMembers/DodInfo';
 import SMName from 'scenes/ServiceMembers/Name';
 import ContactInfo from 'scenes/ServiceMembers/ContactInfo';
@@ -77,17 +75,13 @@ const pages = {
     isInFlow: inGhcFlow,
     isComplete: ({ sm }) => sm.is_profile_complete || every([sm.rank, sm.edipi, sm.affiliation]),
     render: (key, pages, description, props) => ({ match }) => {
-      return (
-        <WizardPage
-          handleSubmit={no_op}
-          pageList={pages}
-          pageKey={key}
-          match={match}
-          canMoveNext={props.conusStatus === CONUS_STATUS.CONUS}
-        >
-          <ConusOrNot conusStatus={props.conusStatus} />
-        </WizardPage>
-      );
+      const wizardProps = {
+        pageList: pages,
+        pageKey: key,
+        match,
+      };
+
+      return <ConusOrNot conusStatus={props.conusStatus} wizardProps={wizardProps} />;
     },
   },
   '/service-member/:serviceMemberId/create': {
@@ -173,12 +167,13 @@ const pages = {
   '/moves/:moveId/moving-info': {
     isInFlow: (props) => inGhcFlow(props),
     isComplete: always,
-    render: (key, pages) => () => {
-      return (
-        <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key} hideBackBtn showFinishLaterBtn>
-          <MovingInfo />
-        </WizardPage>
-      );
+    render: (key, pages) => ({ match }) => {
+      const wizardProps = {
+        pageList: pages,
+        pageKey: key,
+        match,
+      };
+      return <MovingInfo wizardProps={wizardProps} />;
     },
   },
   '/moves/:moveId/select-type': {
