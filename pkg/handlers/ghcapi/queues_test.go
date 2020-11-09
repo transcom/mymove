@@ -701,13 +701,6 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 		},
 	})
 
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: hhgMove,
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
-		},
-	})
-
 	// Fake this as a day and a half in the past so floating point age values can be tested
 	prevCreatedAt := time.Now().Add(time.Duration(time.Hour * -36))
 
@@ -825,6 +818,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 		payload := response.(*queues.GetPaymentRequestsQueueOK).Payload
 
 		suite.Len(payload.QueuePaymentRequests, 1)
+		// Total count is more than the perPage
+		suite.Equal(int64(2), payload.TotalCount)
 	})
 
 	suite.Run("returns results matching SubmittedAt date", func() {
