@@ -525,7 +525,6 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 	}
 
 	if shipment.Status == models.MTOShipmentStatusApproved {
-
 		if verrs != nil && verrs.HasAny() {
 			invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue with validating the updates")
 			return &models.MTOShipment{}, invalidInputError
