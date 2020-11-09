@@ -21,6 +21,43 @@ export const all = () => (
         <FontAwesomeIcon icon={faFile} />
         <code>documents | faFile</code>
       </div>
+       <div>
+        <FontAwesomeIcon icon={faPen} />
+        <code>edit | faPen</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faPlus} />
+        <code>add | faPlus</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faChevronLeft} />
+        <code>chevron-left |  faChevronLeft</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faChevronRight} />
+        <code>chevron-right |  faChevronRight</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faChevronDown} />
+        <code>chevron-down |  faChevronDown</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faChevronUp} />
+        <code>chevron-up |  faChevronUp</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faCheck} />
+        <code>checkmark | faCheck</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faTimes} />
+        <code> x |  faTimes</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={ } />
+        <code>  |  </code>
+      </div>
+
       <div>
         <FontAwesomeIcon icon={faCheckCircle} />
         <code>accept | faCheckCircle (regular)</code>
