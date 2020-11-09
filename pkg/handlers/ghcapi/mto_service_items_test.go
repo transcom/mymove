@@ -282,6 +282,11 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		okResponse := response.(*mtoserviceitemop.UpdateMTOServiceItemStatusOK)
 		suite.Equal(ghcmessages.MTOServiceItemstatusStatusAPPROVED, string(okResponse.Payload.Status))
 		suite.NotNil(okResponse.Payload.ApprovedAt)
+
+		impactedMove := models.Move{}
+		_ = suite.DB().Find(&impactedMove, okResponse.Payload.MoveTaskOrderID)
+		suite.Equal(models.MoveStatusAPPROVED, impactedMove.Status)
+
 	})
 
 	// With this we'll do a happy path integration test to ensure that the use of the service object
