@@ -101,14 +101,12 @@ const MoveQueue = ({ history }) => {
     headerGroups,
     rows,
     prepareRow,
-    page,
     canPreviousPage,
     canNextPage,
+    gotoPage,
+    previousPage,
     pageOptions,
     pageCount,
-    gotoPage,
-    nextPage,
-    previousPage,
     setPageSize,
     state: { filters, pageIndex, pageSize },
   } = useTable(
@@ -126,15 +124,6 @@ const MoveQueue = ({ history }) => {
     usePagination,
   );
 
-  console.log('canPreviousPage', canPreviousPage);
-  console.log('canNextPage', canNextPage);
-  console.log('pageOptions', pageOptions);
-  console.log('pageCount', pageCount);
-  console.log('gotoPage', gotoPage);
-  console.log('nextPage', nextPage);
-  console.log('previousPage', previousPage);
-  console.log('setPageSize', setPageSize);
-
   // When these table states change, fetch new data!
   useEffect(() => {
     if (!isLoading && !isError) {
@@ -149,18 +138,46 @@ const MoveQueue = ({ history }) => {
     history.push(`/moves/${values.id}/details`);
   };
 
+  const handlePreviousClick = (value) => {
+    // eslint-disable-next-line no-param-reassign
+    value -= 1;
+    history.push(`/moves/queue?page=${value}`);
+    // if (canPreviousPage) {
+    // pageIndex = state[page] - 1
+  };
+  const handleNextClick = (value) => {
+    // eslint-disable-next-line no-param-reassign
+    value += 1;
+    history.push(`/moves/queue?page=${value}`);
+    // if (canNextPage) {
+    // }
+  };
+
+  const handlePageSelect = (value) => {
+    history.push(`/moves/queue?page=${value}`);
+  };
+
   return (
     <GridContainer containerSize="widescreen" className={styles.MoveQueue}>
       <h1>{`All moves (${totalCount})`}</h1>
       <div className={styles.tableContainer}>
         <Table
           handleClick={handleClick}
+          handleNextClick={handleNextClick}
+          handlePreviousClick={handlePreviousClick}
+          handlePageSelect={handlePageSelect}
           getTableProps={getTableProps}
           getTableBodyProps={getTableBodyProps}
           headerGroups={headerGroups}
           rows={rows}
           prepareRow={prepareRow}
           showPagination
+          previousPage={previousPage}
+          canPreviousPage={canPreviousPage}
+          canNextPage={canNextPage}
+          gotoPage={gotoPage}
+          setPageSize={setPageSize}
+          pageIndex={pageIndex}
         />
       </div>
     </GridContainer>

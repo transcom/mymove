@@ -152,7 +152,7 @@ export const useOrdersDocumentQueries = (moveOrderId) => {
   };
 };
 
-export const useMovesQueueQueries = (filters = []) => {
+export const useMovesQueueQueries = (filters = [], pageIndex) => {
   const { data = {}, ...movesQueueQuery } = useQuery([MOVES_QUEUE, { filters }], getMovesQueue);
   const { isLoading, isError, isSuccess } = getQueriesStatus([movesQueueQuery]);
 

@@ -13,9 +13,19 @@ const Table = ({
   getTableBodyProps,
   headerGroups,
   rows,
-  prepareRow,
-  showPagination,
   initialState,
+  prepareRow,
+  canPreviousPage,
+  canNextPage,
+  gotoPage,
+  nextPage,
+  previousPage,
+  setPageSize,
+  showPagination,
+  pageSize,
+  handleNextClick,
+  handlePageSelect,
+  pageIndex,
 }) => {
   return (
     /* eslint-disable react/jsx-props-no-spreading */
@@ -63,7 +73,12 @@ const Table = ({
       {showPagination && (
         <div className={styles.paginationSectionWrapper} data-testid="pagination">
           <div className={styles.tableControlRowsPerPage}>
-            <Dropdown className={styles.usaSelect} name="table-rows-per-page" defaultValue={initialState.pageSize}>
+            <Dropdown
+              className={styles.usaSelect}
+              name="table-rows-per-page"
+              defaultValue={pageSize}
+              onClick={() => setPageSize()}
+            >
               <option value="10">10</option>
               <option value="20">20</option>
               <option value="50">50</option>
@@ -71,16 +86,20 @@ const Table = ({
             <div>rows per page</div>
           </div>
           <div className={styles.tableControlPagination}>
-            <Button disabled className={styles.usaButtonUnstyled}>
+            <Button
+              className={styles.usaButtonUnstyled}
+              onClick={() => previousPage(pageIndex)}
+              disabled={!canPreviousPage}
+            >
               <FontAwesomeIcon className="icon fas fa-chevron-left" icon={faChevronLeft} />
               <span>Prev</span>
             </Button>
-            <Dropdown className={styles.usaSelect} name="table-pagination">
+            <Dropdown className={styles.usaSelect} name="table-pagination" onClick={() => handlePageSelect(rows.value)}>
               <option value="1">1</option>
               <option value="2">2</option>
               <option value="3">3</option>
             </Dropdown>
-            <Button className={styles.usaButtonUnstyled}>
+            <Button className={styles.usaButtonUnstyled} onClick={() => handleNextClick(pageIndex)}>
               <span>Next</span>
               <FontAwesomeIcon className="icon fas fa-chevron-right" icon={faChevronRight} />
             </Button>
@@ -93,6 +112,9 @@ const Table = ({
 
 Table.propTypes = {
   handleClick: PropTypes.func,
+  handlePreviousClick: PropTypes.func,
+  handleNextClick: PropTypes.func,
+  handlePageSelect: PropTypes.func,
   // below are props from useTable() hook
   getTableProps: PropTypes.func.isRequired,
   getTableBodyProps: PropTypes.func.isRequired,
@@ -100,7 +122,8 @@ Table.propTypes = {
   rows: PropTypes.arrayOf(PropTypes.object).isRequired,
   prepareRow: PropTypes.func.isRequired,
   showPagination: PropTypes.bool,
-  initialState: PropTypes.node,
+  // eslint-disable-next-line react/forbid-prop-types
+  initialState: PropTypes.object,
   canPreviousPage: PropTypes.bool,
   canNextPage: PropTypes.bool,
   pageCount: PropTypes.number,
@@ -110,12 +133,15 @@ Table.propTypes = {
   setPageSize: PropTypes.func,
   pageIndex: PropTypes.number,
   pageSize: PropTypes.number,
+  state: PropTypes.node,
+  goToPage: PropTypes.func,
 };
 
 Table.defaultProps = {
   handleClick: undefined,
   showPagination: false,
   initialState: { pageIndex: 0, pageSize: 20 },
+  canPreviousPage: false,
 };
 
 export default Table;
