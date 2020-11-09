@@ -1,8 +1,8 @@
 // eslint-disable-next-line import/prefer-default-export
 export const MOVE_STATUS_OPTIONS = {
-  'New move': 'New move',
-  'Approvals requested': 'Approvals requested',
-  'Move approved': 'Move approved',
+  SUBMITTED: 'New move',
+  'APPROVALS REQUESTED': 'Approvals requested',
+  APPROVED: 'Move approved',
 };
 
 export const PAYMENT_REQUEST_STATUS_OPTIONS = {

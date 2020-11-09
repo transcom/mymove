@@ -112,6 +112,7 @@ func MakeAvailableMove(db *pop.Connection) models.Move {
 	move := MakeMove(db, Assertions{
 		Move: models.Move{
 			AvailableToPrimeAt: &now,
+			Status:             models.MoveStatusAPPROVED,
 		},
 	})
 	return move

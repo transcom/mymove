@@ -1,8 +1,10 @@
-import { milmoveAppName } from '../../support/constants';
-
 describe('allows a SM to request a payment', function () {
   before(() => {
     cy.prepareCustomerApp();
+  });
+
+  beforeEach(() => {
+    cy.logout();
   });
 
   beforeEach(() => {

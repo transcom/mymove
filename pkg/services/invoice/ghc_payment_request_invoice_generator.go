@@ -26,7 +26,8 @@ func NewGHCPaymentRequestInvoiceGenerator(db *pop.Connection) services.GHCPaymen
 	}
 }
 
-const dateFormat = "060102"
+const dateFormat = "20060102"
+const isaDateFormat = "060102"
 const timeFormat = "1504"
 
 // Generate method takes a payment request and returns an Invoice858C
@@ -96,10 +97,10 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		SecurityInformationQualifier:      "00", // No security information
 		SecurityInformation:               "0000000000",
 		InterchangeSenderIDQualifier:      "ZZ",
-		InterchangeSenderID:               fmt.Sprintf("%-15s", "MYMOVE"),
+		InterchangeSenderID:               fmt.Sprintf("%-15s", "MILMOVE"),
 		InterchangeReceiverIDQualifier:    "12",
 		InterchangeReceiverID:             fmt.Sprintf("%-15s", "8004171844"),
-		InterchangeDate:                   currentTime.Format(dateFormat),
+		InterchangeDate:                   currentTime.Format(isaDateFormat),
 		InterchangeTime:                   currentTime.Format(timeFormat),
 		InterchangeControlStandards:       "U",
 		InterchangeControlVersionNumber:   "00401",
@@ -111,7 +112,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 
 	edi858.GS = edisegment.GS{
 		FunctionalIdentifierCode: "SI",
-		ApplicationSendersCode:   fmt.Sprintf("%-9s", "MYMOVE"),
+		ApplicationSendersCode:   "MILMOVE",
 		ApplicationReceiversCode: "8004171844",
 		Date:                     currentTime.Format(dateFormat),
 		Time:                     currentTime.Format(timeFormat),
@@ -328,13 +329,13 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 
 	var err error
 	var destinationDutyStation models.DutyStation
-	if orders.NewDutyStation.ID == uuid.Nil {
+	if orders.NewDutyStationID != uuid.Nil {
 		destinationDutyStation, err = models.FetchDutyStation(g.db, orders.NewDutyStationID)
 		if err != nil {
 			return []edisegment.Segment{}, services.NewInvalidInputError(orders.NewDutyStationID, err, nil, "unable to find new duty station")
 		}
 	} else {
-		destinationDutyStation = orders.NewDutyStation
+		return []edisegment.Segment{}, services.NewBadDataError("Invalid Order, must have NewDutyStation")
 	}
 
 	destTransportationOffice, err := models.FetchDutyStationTransportationOffice(g.db, destinationDutyStation.ID)
@@ -352,13 +353,15 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	originAndDestinationSegments = append(originAndDestinationSegments, &destinationName)
 
 	// destination address
-	destinationStreetAddress := edisegment.N3{
-		AddressInformation1: destinationDutyStation.Address.StreetAddress1,
+	if len(destinationDutyStation.Address.StreetAddress1) > 0 {
+		destinationStreetAddress := edisegment.N3{
+			AddressInformation1: destinationDutyStation.Address.StreetAddress1,
+		}
+		if destinationDutyStation.Address.StreetAddress2 != nil {
+			destinationStreetAddress.AddressInformation2 = *destinationDutyStation.Address.StreetAddress2
+		}
+		originAndDestinationSegments = append(originAndDestinationSegments, &destinationStreetAddress)
 	}
-	if destinationDutyStation.Address.StreetAddress2 != nil {
-		destinationStreetAddress.AddressInformation2 = *destinationDutyStation.Address.StreetAddress2
-	}
-	originAndDestinationSegments = append(originAndDestinationSegments, &destinationStreetAddress)
 
 	// destination city/state/postal
 	destinationPostalDetails := edisegment.N4{
@@ -397,16 +400,13 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	// origin station name
 	var originDutyStation models.DutyStation
 
-	if orders.OriginDutyStationID != nil {
+	if orders.OriginDutyStationID != nil && *orders.OriginDutyStationID != uuid.Nil {
 		originDutyStation, err = models.FetchDutyStation(g.db, *orders.OriginDutyStationID)
 		if err != nil {
 			return []edisegment.Segment{}, services.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
 		}
 	} else {
-		if orders.OriginDutyStation == nil {
-			return []edisegment.Segment{}, services.NewBadDataError("Invalid Order, must have OriginDutyStation")
-		}
-		originDutyStation = *orders.OriginDutyStation
+		return []edisegment.Segment{}, services.NewBadDataError("Invalid Order, must have OriginDutyStation")
 	}
 
 	originTransportationOffice, err := models.FetchDutyStationTransportationOffice(g.db, originDutyStation.ID)
@@ -423,13 +423,15 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 	originAndDestinationSegments = append(originAndDestinationSegments, &originName)
 
 	// origin address
-	originStreetAddress := edisegment.N3{
-		AddressInformation1: originDutyStation.Address.StreetAddress1,
+	if len(originDutyStation.Address.StreetAddress1) > 0 {
+		originStreetAddress := edisegment.N3{
+			AddressInformation1: originDutyStation.Address.StreetAddress1,
+		}
+		if originDutyStation.Address.StreetAddress2 != nil {
+			originStreetAddress.AddressInformation2 = *originDutyStation.Address.StreetAddress2
+		}
+		originAndDestinationSegments = append(originAndDestinationSegments, &originStreetAddress)
 	}
-	if originDutyStation.Address.StreetAddress2 != nil {
-		originStreetAddress.AddressInformation2 = *originDutyStation.Address.StreetAddress2
-	}
-	originAndDestinationSegments = append(originAndDestinationSegments, &originStreetAddress)
 
 	// origin city/state/postal
 	originPostalDetails := edisegment.N4{
@@ -585,11 +587,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				LadingLineItemNumber: hierarchicalIDNumber,
 			}
 
-			l3Segment := edisegment.L3{
-				PriceCents: int64(*serviceItem.PriceCents),
-			}
-
-			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment, &l3Segment)
+			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment)
 		// pack and unpack, dom dest and dom origin have weight no distance
 		case models.ReServiceCodeDOP, models.ReServiceCodeDUPK,
 			models.ReServiceCodeDPK, models.ReServiceCodeDDP:
@@ -613,13 +611,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				WeightUnitCode:       "L",
 			}
 
-			l3Segment := edisegment.L3{
-				Weight:          weightFloat,
-				WeightQualifier: "B",
-				PriceCents:      int64(*serviceItem.PriceCents),
-			}
-
-			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment, &l3Segment)
+			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment)
 
 		default:
 			var err error
@@ -644,15 +636,15 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 				WeightUnitCode:         "L",
 			}
 
-			l3Segment := edisegment.L3{
-				Weight:          weightFloat,
-				WeightQualifier: "B",
-				PriceCents:      int64(*serviceItem.PriceCents),
-			}
-
-			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment, &l3Segment)
+			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment)
 		}
 	}
+
+	l3Segment := edisegment.L3{
+		PriceCents: 0, // TODO: hard-coded to zero for now
+	}
+
+	segments = append(segments, &l3Segment)
 
 	return segments, nil
 }
