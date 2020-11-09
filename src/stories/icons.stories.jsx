@@ -4,6 +4,7 @@ import { faFile, faPen, faPlus, faChevronLeft, faChevronRight, faChevronDown, fa
 import { faTimesCircle, faCalendar } from '@fortawesome/free-regular-svg-icons';
 import { faCheckCircle as fasCheckCircle } from '@fortawesome/free-solid-svg-icons'
 import { faCheckCircle as farCheckCircle } from '@fortawesome/free-regular-svg-icons';
+import { ReactComponent as ExternalLink } from 'shared/icon/external-link.svg';
 
 // Icons
 export default {
@@ -130,6 +131,10 @@ export const all = () => (
       <div>
         <FontAwesomeIcon icon={faPlusSquare} />
         <code>plus square | faPlusSquare</code>
+      </div>
+      <div>
+        <ExternalLink />
+        <code>external link | <strong>uses local svg, not FontAwesome</strong></code>
       </div>
     </div>
   </div>
