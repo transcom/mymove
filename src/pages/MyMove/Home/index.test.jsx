@@ -120,7 +120,7 @@ describe('Home component', () => {
       const uploadedOrderDocuments = [{ filename: 'testOrder1.pdf' }];
       const move = { status: 'SUBMITTED' };
       const currentPpm = { id: 'mockPpm ' };
-      it('NEW renders the SubmittedPPM helper', () => {
+      it('renders the SubmittedPPM helper', () => {
         const wrapper = mount(
           <MockProviders initialEntries={['/']}>
             <Home
@@ -160,8 +160,8 @@ describe('Home component', () => {
         move: { status: 'SUBMITTED' },
       });
 
-      it('renders the SubmittedNoPPM helper', () => {
-        expect(wrapper.find('HelperSubmittedNoPPM').exists()).toBe(true);
+      it('renders the SubmittedMove helper', () => {
+        expect(wrapper.find('HelperSubmittedMove').exists()).toBe(true);
       });
     });
 
