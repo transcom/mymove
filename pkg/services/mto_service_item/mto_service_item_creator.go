@@ -155,7 +155,6 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 			return nil, nil, err
 		}
 		verrs, err := o.builder.UpdateOne(&move, nil)
-		fmt.Println(move.Status)
 		if verrs != nil || err != nil {
 			return nil, verrs, err
 		}

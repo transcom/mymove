@@ -31,7 +31,7 @@ func (t *testMTOServiceItemQueryBuilder) CreateOne(model interface{}) (*validate
 }
 
 func (t *testMTOServiceItemQueryBuilder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, error) {
-	return nil, nil
+	return t.fakeUpdateOne(model, eTag)
 }
 
 func (t *testMTOServiceItemQueryBuilder) FetchOne(model interface{}, filters []services.QueryFilter) error {
