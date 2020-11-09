@@ -3,19 +3,13 @@ package moveorder
 import (
 	"testing"
 
-	"github.com/gobuffalo/pop/v5"
+	"github.com/transcom/mymove/pkg/services"
+
+	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
-
-type FilterOption func(*pop.Query)
-
-func armyBranchFilter() FilterOption {
-	return func(query *pop.Query) {
-		query = query.Where("orders.department_indicator = 'ARMY'")
-	}
-}
 
 func (suite *MoveOrderServiceSuite) TestMoveOrderFetcher() {
 	expectedMoveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
@@ -91,7 +85,7 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
 
 	suite.T().Run("returns move orders", func(t *testing.T) {
-		moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUser.ID)
+		moveOrders, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &services.ListMoveOrderParams{PerPage: swag.Int64(1), Page: swag.Int64(1)})
 
 		suite.FatalNoError(err)
 		suite.Len(moveOrders, 1)
@@ -126,7 +120,7 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 			},
 		})
 
-		moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUser.ID)
+		moveOrders, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &services.ListMoveOrderParams{PerPage: swag.Int64(1), Page: swag.Int64(1)})
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moveOrders))
@@ -134,6 +128,7 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 
 	suite.T().Run("returns orders filtered by an arbitrary query", func(t *testing.T) {
 		army := "ARMY"
+		params := services.ListMoveOrderParams{Branch: &army, PerPage: swag.Int64(1), Page: swag.Int64(1)}
 		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				Status: models.MTOShipmentStatusSubmitted,
@@ -146,7 +141,7 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 			},
 		})
 
-		moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, armyBranchFilter())
+		moveOrders, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moveOrders))
@@ -185,9 +180,35 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrdersWithEmptyFields() {
 
 	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
-	moveOrders, err := moveOrderFetcher.ListMoveOrders(officeUser.ID)
+	moveOrders, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &services.ListMoveOrderParams{PerPage: swag.Int64(1), Page: swag.Int64(1)})
 
 	suite.FatalNoError(err)
 	suite.Nil(moveOrders)
+
+}
+
+func (suite *MoveOrderServiceSuite) TestListMoveOrdersWithPagination() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+
+	for i := 0; i < 2; i++ {
+		expectedMoveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusSUBMITTED}})
+
+		// Only orders with shipments are returned, so we need to add a shipment
+		// to the move we just created
+		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: expectedMoveTaskOrder,
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+		})
+	}
+
+	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
+	params := services.ListMoveOrderParams{Page: swag.Int64(1), PerPage: swag.Int64(1)}
+	moveOrders, count, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+
+	suite.NoError(err)
+	suite.Equal(1, len(moveOrders))
+	suite.Equal(2, count)
 
 }

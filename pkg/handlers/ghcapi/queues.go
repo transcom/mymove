@@ -4,17 +4,20 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v5"
+
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
+
+	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
-	"github.com/transcom/mymove/pkg/services"
 )
 
 // GetMovesQueueHandler returns the moves for the TOO queue user via GET /queues/moves
@@ -23,7 +26,7 @@ type GetMovesQueueHandler struct {
 	services.MoveOrderFetcher
 }
 
-// FilterOption defines the type for the functional arguments passed to ListMoveOrders
+// FilterOption defines the type for the functional arguments used for private functions in MoveOrderFetcher
 type FilterOption func(*pop.Query)
 
 // Handle returns the paginated list of moves for the TOO user
@@ -35,21 +38,30 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 		return queues.NewGetMovesQueueForbidden()
 	}
 
-	branchQuery := branchFilter(params.Branch)
-	moveIDQuery := moveIDFilter(params.MoveID)
-	dodIDQuery := dodIDFilter(params.DodID)
-	lastNameQuery := lastNameFilter(params.LastName)
-	dutyStationQuery := destinationDutyStationFilter(params.DestinationDutyStation)
-	moveStatusQuery := moveStatusFilter(params.Status)
+	listMoveOrderParams := services.ListMoveOrderParams{
+		Branch:                 params.Branch,
+		MoveID:                 params.MoveID,
+		DodID:                  params.DodID,
+		LastName:               params.LastName,
+		DestinationDutyStation: params.DestinationDutyStation,
+		Status:                 params.Status,
+		Page:                   params.Page,
+		PerPage:                params.PerPage,
+	}
 
-	orders, err := h.MoveOrderFetcher.ListMoveOrders(
+	// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
+	// for perPage.
+	if params.Page == nil {
+		listMoveOrderParams.Page = swag.Int64(1)
+	}
+	// Same for perPage
+	if params.PerPage == nil {
+		listMoveOrderParams.PerPage = swag.Int64(20)
+	}
+
+	orders, count, err := h.MoveOrderFetcher.ListMoveOrders(
 		session.OfficeUserID,
-		branchQuery,
-		moveIDQuery,
-		lastNameQuery,
-		dutyStationQuery,
-		dodIDQuery,
-		moveStatusQuery,
+		&listMoveOrderParams,
 	)
 
 	if err != nil {
@@ -58,14 +70,11 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 	}
 
 	queueMoves := payloads.QueueMoves(orders)
-	// ToDo - May want to move this logic into the pop query later.
-	// filter queueMoves by status
-	queueMoves = movesFilteredByStatus(params.Status, queueMoves)
 
 	result := &ghcmessages.QueueMovesResult{
-		Page:       0,
-		PerPage:    0,
-		TotalCount: int64(len(*queueMoves)),
+		Page:       *listMoveOrderParams.Page,
+		PerPage:    *listMoveOrderParams.PerPage,
+		TotalCount: int64(count),
 		QueueMoves: *queueMoves,
 	}
 
@@ -120,6 +129,8 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 	return queues.NewGetPaymentRequestsQueueOK().WithPayload(result)
 }
 
+// These are a bunch of private functions that are used to cobbble our list MoveOrders filters together.
+// TODO: These are moving to the service objects, to TOO queue now and will happen for the TIO queue in: https://github.com/transcom/mymove/pull/5162
 func branchFilter(branch *string) FilterOption {
 	return func(query *pop.Query) {
 		if branch != nil {
@@ -167,40 +178,6 @@ func submittedAtFilter(submittedAt *string) FilterOption {
 			query = query.Where("CAST(payment_requests.created_at AS DATE) = ?", *submittedAt)
 		}
 	}
-}
-
-func moveStatusFilter(statuses []string) FilterOption {
-	return func(query *pop.Query) {
-		if len(statuses) <= 0 {
-			query = query.Where("moves.status NOT IN (?)", models.MoveStatusDRAFT, models.MoveStatusCANCELED)
-		}
-	}
-}
-
-// movesFilteredByStatus filters the status after the pop query call.
-func movesFilteredByStatus(statuses []string, moves *ghcmessages.QueueMoves) *ghcmessages.QueueMoves {
-	if len(statuses) <= 0 || moves == nil {
-		return moves
-	}
-
-	ret := make(ghcmessages.QueueMoves, 0)
-	// New move, Approvals requested, and Move approved statuses
-	// convert into a map to make it easier to lookup
-	statusMap := make(map[string]string, 0)
-	for _, status := range statuses {
-		statusMap[status] = status
-	}
-
-	// then include only the moves based on status filter
-	// and exclude DRAFT and CANCELLED
-	for _, move := range *moves {
-		if _, ok := statusMap[string(move.Status)]; ok && string(move.Status) != string(models.MoveStatusCANCELED) &&
-			string(move.Status) != string(models.MoveStatusDRAFT) {
-			ret = append(ret, move)
-		}
-	}
-
-	return &ret
 }
 
 // statusFilter filters the status after the pop query call.
