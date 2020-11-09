@@ -252,8 +252,8 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 	// by the handler is working as expected.
 	suite.T().Run("Successful status update - Integration test", func(t *testing.T) {
 		queryBuilder := query.NewQueryBuilder(suite.DB())
-		mto := testdatagen.MakeDefaultMove(suite.DB())
-		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusSUBMITTED}})
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{Move: models.Move{ID: mto.ID}})
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_service_items/%s/status",
@@ -289,7 +289,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 	suite.T().Run("Successful rejected status update - Integration test", func(t *testing.T) {
 		queryBuilder := query.NewQueryBuilder(suite.DB())
 		mto := testdatagen.MakeDefaultMove(suite.DB())
-		mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusSUBMITTED}})
 		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_service_items/%s/status",

@@ -17,6 +17,7 @@ import (
 type createMTOServiceItemQueryBuilder interface {
 	FetchOne(model interface{}, filters []services.QueryFilter) error
 	CreateOne(model interface{}) (*validate.Errors, error)
+	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
 	Transaction(fn func(tx *pop.Connection) error) error
 }
 
@@ -146,6 +147,18 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		return nil, verrs, nil
 	} else if err != nil {
 		return nil, verrs, services.NewQueryError("unknown", err, "")
+	}
+
+	if move.Status != models.MoveStatusAPPROVALSREQUESTED {
+		err := move.SetApprovalsRequested()
+		if err != nil {
+			return nil, nil, err
+		}
+		verrs, err := o.builder.UpdateOne(&move, nil)
+		fmt.Println(move.Status)
+		if verrs != nil || err != nil {
+			return nil, verrs, err
+		}
 	}
 
 	return &createdServiceItems, nil, nil

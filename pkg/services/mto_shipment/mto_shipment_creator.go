@@ -21,6 +21,7 @@ type createMTOShipmentQueryBuilder interface {
 	FetchOne(model interface{}, filters []services.QueryFilter) error
 	CreateOne(model interface{}) (*validate.Errors, error)
 	Transaction(fn func(tx *pop.Connection) error) error
+	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
 }
 
 type mtoShipmentCreator struct {
