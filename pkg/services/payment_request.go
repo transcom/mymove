@@ -3,8 +3,6 @@ package services
 import (
 	"io"
 
-	"github.com/gobuffalo/pop/v5"
-
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -19,7 +17,7 @@ type PaymentRequestCreator interface {
 // PaymentRequestListFetcher is the exported interface for fetching a list of payment requests
 //go:generate mockery -name PaymentRequestListFetcher
 type PaymentRequestListFetcher interface {
-	FetchPaymentRequestList(officeUserID uuid.UUID, page *int, perPage *int, options ...func(query *pop.Query)) (*models.PaymentRequests, int, error)
+	FetchPaymentRequestList(officeUserID uuid.UUID, params *FetchPaymentRequestListParams) (*models.PaymentRequests, int, error)
 }
 
 // PaymentRequestFetcher is the exported interface for fetching a payment request
@@ -50,4 +48,17 @@ type PaymentRequestUploadCreator interface {
 //go:generate mockery -name PaymentRequestReviewedProcessor
 type PaymentRequestReviewedProcessor interface {
 	ProcessReviewedPaymentRequest() error
+}
+
+// FetchPaymentRequestListParams is a public struct that's used to pass filter arguments to FetchPaymentRequestList
+type FetchPaymentRequestListParams struct {
+	Branch                 *string
+	MoveID                 *string
+	DodID                  *string
+	LastName               *string
+	DestinationDutyStation *string
+	Status                 []string
+	Page                   *int64
+	PerPage                *int64
+	SubmittedAt            *string
 }

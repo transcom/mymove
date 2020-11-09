@@ -5,6 +5,8 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/go-openapi/swag"
+
 	"github.com/stretchr/testify/mock"
 
 	modelToPayload "github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
@@ -807,6 +809,22 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 		payload := response.(*queues.GetPaymentRequestsQueueOK).Payload
 
 		suite.Len(payload.QueuePaymentRequests, 2)
+	})
+
+	suite.Run("returns unfiltered paginated results", func() {
+		params := queues.GetPaymentRequestsQueueParams{
+			HTTPRequest: request,
+			Page:        swag.Int64(1),
+			PerPage:     swag.Int64(1),
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		suite.Assertions.IsType(&queues.GetPaymentRequestsQueueOK{}, response)
+		payload := response.(*queues.GetPaymentRequestsQueueOK).Payload
+
+		suite.Len(payload.QueuePaymentRequests, 1)
 	})
 
 	suite.Run("returns results matching SubmittedAt date", func() {

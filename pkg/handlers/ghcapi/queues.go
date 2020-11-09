@@ -2,7 +2,8 @@ package ghcapi
 
 import (
 	"fmt"
-	"strings"
+
+	"github.com/go-openapi/swag"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/pop/v5"
@@ -87,36 +88,31 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 		return queues.NewGetPaymentRequestsQueueForbidden()
 	}
 
-	branchQuery := branchFilter(params.Branch)
-	moveIDQuery := moveIDFilter(params.MoveID)
-	dodIDQuery := dodIDFilter(params.DodID)
-	lastNameQuery := lastNameFilter(params.LastName)
-	dutyStationQuery := destinationDutyStationFilter(params.DestinationDutyStation)
-	statusQuery := paymentRequestsStatusFilter(params.Status)
-	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
-
-	// If we get a page argument let's pull it out and cast it to the expected int type.
-	var page int
-	if params.Page != nil {
-		page = int(*params.Page)
+	listPaymentRequestParams := services.FetchPaymentRequestListParams{
+		Branch:                 params.Branch,
+		MoveID:                 params.MoveID,
+		DodID:                  params.DodID,
+		LastName:               params.LastName,
+		DestinationDutyStation: params.DestinationDutyStation,
+		Status:                 params.Status,
+		Page:                   params.Page,
+		PerPage:                params.PerPage,
+		SubmittedAt:            params.SubmittedAt,
 	}
 
-	var perPage int
-	if params.PerPage != nil {
-		perPage = int(*params.PerPage)
+	// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
+	// for perPage.
+	if params.Page == nil {
+		listPaymentRequestParams.Page = swag.Int64(1)
+	}
+	// Same for perPage
+	if params.PerPage == nil {
+		listPaymentRequestParams.PerPage = swag.Int64(20)
 	}
 
 	paymentRequests, count, err := h.FetchPaymentRequestList(
 		session.OfficeUserID,
-		&page,
-		&perPage,
-		statusQuery,
-		branchQuery,
-		moveIDQuery,
-		lastNameQuery,
-		dutyStationQuery,
-		dodIDQuery,
-		submittedAtQuery,
+		&listPaymentRequestParams,
 	)
 	if err != nil {
 		logger.Error("payment requests queue", zap.String("office_user_id", session.OfficeUserID.String()), zap.Error(err))
@@ -127,7 +123,8 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 
 	result := &ghcmessages.QueuePaymentRequestsResult{
 		TotalCount:           int64(count),
-		PerPage:              int64(perPage),
+		Page:                 int64(*listPaymentRequestParams.Page),
+		PerPage:              int64(*listPaymentRequestParams.PerPage),
 		QueuePaymentRequests: *queuePaymentRequests,
 	}
 
@@ -175,14 +172,6 @@ func destinationDutyStationFilter(destinationDutyStation *string) FilterOption {
 	}
 }
 
-func submittedAtFilter(submittedAt *string) FilterOption {
-	return func(query *pop.Query) {
-		if submittedAt != nil {
-			query = query.Where("CAST(payment_requests.created_at AS DATE) = ?", *submittedAt)
-		}
-	}
-}
-
 func moveStatusFilter(statuses []string) FilterOption {
 	return func(query *pop.Query) {
 		if len(statuses) <= 0 {
@@ -215,27 +204,4 @@ func movesFilteredByStatus(statuses []string, moves *ghcmessages.QueueMoves) *gh
 	}
 
 	return &ret
-}
-
-// statusFilter filters the status after the pop query call.
-func paymentRequestsStatusFilter(statuses []string) FilterOption {
-	return func(query *pop.Query) {
-		var translatedStatuses []string
-		if len(statuses) > 0 {
-			for _, status := range statuses {
-				if strings.EqualFold(status, "Payment requested") {
-					translatedStatuses = append(translatedStatuses, models.PaymentRequestStatusPending.String())
-
-				}
-				if strings.EqualFold(status, "reviewed") {
-					translatedStatuses = append(translatedStatuses,
-						models.PaymentRequestStatusReviewed.String(),
-						models.PaymentRequestStatusSentToGex.String(),
-						models.PaymentRequestStatusReceivedByGex.String())
-				}
-			}
-			query = query.Where("payment_requests.status in (?)", translatedStatuses)
-		}
-	}
-
 }
