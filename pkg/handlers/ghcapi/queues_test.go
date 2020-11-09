@@ -6,10 +6,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/swag"
-
 	"github.com/stretchr/testify/mock"
-
-	modelToPayload "github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 
@@ -209,7 +206,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 	payload := response.(*queues.GetMovesQueueOK).Payload
 	result := payload.QueueMoves[0]
 
-	suite.Equal(ghcmessages.QueueMoveStatus("New move"), result.Status)
+	suite.Equal(ghcmessages.QueueMoveStatus("SUBMITTED"), result.Status)
 
 	// let's test for the Move approved status
 	hhgMove.Status = models.MoveStatusAPPROVED
@@ -223,15 +220,11 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 
 	result = payload.QueueMoves[0]
 
-	suite.Equal(ghcmessages.QueueMoveStatus("Move approved"), result.Status)
+	suite.Equal(ghcmessages.QueueMoveStatus("APPROVED"), result.Status)
 
 	// Now let's test Approvals requested
-	testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			Status: models.MTOServiceItemStatusSubmitted,
-		},
-		Move: hhgMove,
-	})
+	hhgMove.Status = models.MoveStatusAPPROVALSREQUESTED
+	_, _ = suite.DB().ValidateAndSave(&hhgMove)
 
 	response = handler.Handle(params)
 	suite.IsNotErrResponse(response)
@@ -241,7 +234,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 
 	result = payload.QueueMoves[0]
 
-	suite.Equal(ghcmessages.QueueMoveStatus("Approvals requested"), result.Status)
+	suite.Equal(ghcmessages.QueueMoveStatus("APPROVALS REQUESTED"), result.Status)
 
 }
 
@@ -274,7 +267,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 	approvedMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
-			Status:           models.MoveStatusAPPROVED,
+			Status:           models.MoveStatusAPPROVALSREQUESTED,
 		},
 	})
 	testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
@@ -327,9 +320,9 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		params := queues.GetMovesQueueParams{
 			HTTPRequest: request,
 			Status: []string{
-				modelToPayload.QueueMoveStatusNEWMOVE,
-				modelToPayload.QueueMoveStatusAPPROVALSREQUESTED,
-				modelToPayload.QueueMoveStatusMOVEAPPROVED,
+				string(models.MoveStatusSUBMITTED),
+				string(models.MoveStatusAPPROVED),
+				string(models.MoveStatusAPPROVALSREQUESTED),
 			},
 		}
 
@@ -341,12 +334,34 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		suite.Len(payload.QueueMoves, 3)
 	})
 
+	suite.Run("loads results with all STATUSes and 1 page selected", func() {
+		params := queues.GetMovesQueueParams{
+			HTTPRequest: request,
+			Status: []string{
+				string(models.MoveStatusSUBMITTED),
+				string(models.MoveStatusAPPROVED),
+				string(models.MoveStatusAPPROVALSREQUESTED),
+			},
+			PerPage: swag.Int64(1),
+			Page:    swag.Int64(1),
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		payload := response.(*queues.GetMovesQueueOK).Payload
+		suite.EqualValues(3, payload.TotalCount)
+		suite.Len(payload.QueueMoves, 1)
+	})
+
 	suite.Run("loads results with one STATUS selected", func() {
 		params := queues.GetMovesQueueParams{
 			HTTPRequest: request,
 			Status: []string{
-				modelToPayload.QueueMoveStatusNEWMOVE,
+				string(models.MoveStatusSUBMITTED),
 			},
+			Page:    swag.Int64(1),
+			PerPage: swag.Int64(1),
 		}
 
 		response := handler.Handle(params)
@@ -355,7 +370,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		payload := response.(*queues.GetMovesQueueOK).Payload
 		suite.EqualValues(1, payload.TotalCount)
 		suite.Len(payload.QueueMoves, 1)
-		suite.EqualValues(modelToPayload.QueueMoveStatusNEWMOVE, payload.QueueMoves[0].Status)
+		suite.EqualValues(string(models.MoveStatusSUBMITTED), payload.QueueMoves[0].Status)
 	})
 
 	suite.Run("Excludes draft and canceled moves when STATUS params is empty", func() {
@@ -372,7 +387,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		for _, move := range moves {
 			actualStatuses = append(actualStatuses, string(move.Status))
 		}
-		expectedStatuses := [3]string{"New move", "Move approved", "Approvals requested"}
+		expectedStatuses := [3]string{"SUBMITTED", "APPROVED", "APPROVALS REQUESTED"}
 
 		suite.EqualValues(3, payload.TotalCount)
 		suite.Len(payload.QueueMoves, 3)
@@ -383,7 +398,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		params := queues.GetMovesQueueParams{
 			HTTPRequest: request,
 			Status: []string{
-				modelToPayload.QueueMoveStatusNEWMOVE,
+				string(models.MoveStatusSUBMITTED),
 			},
 			Branch: models.StringPointer("AIR_FORCE"),
 		}
@@ -394,7 +409,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		payload := response.(*queues.GetMovesQueueOK).Payload
 		suite.EqualValues(1, payload.TotalCount)
 		suite.Len(payload.QueueMoves, 1)
-		suite.EqualValues(modelToPayload.QueueMoveStatusNEWMOVE, payload.QueueMoves[0].Status)
+		suite.EqualValues(string(models.MoveStatusSUBMITTED), payload.QueueMoves[0].Status)
 		suite.Equal("AIR_FORCE", payload.QueueMoves[0].Customer.Agency)
 	})
 
@@ -402,7 +417,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		params := queues.GetMovesQueueParams{
 			HTTPRequest: request,
 			Status: []string{
-				modelToPayload.QueueMoveStatusNEWMOVE,
+				string(models.MoveStatusSUBMITTED),
 			},
 			Branch: models.StringPointer("ARMY"),
 		}

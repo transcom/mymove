@@ -23,10 +23,15 @@ type testMTOServiceItemQueryBuilder struct {
 	fakeCreateOne   func(model interface{}) (*validate.Errors, error)
 	fakeFetchOne    func(model interface{}, filters []services.QueryFilter) error
 	fakeTransaction func(func(tx *pop.Connection) error) error
+	fakeUpdateOne   func(models interface{}, eTag *string) (*validate.Errors, error)
 }
 
 func (t *testMTOServiceItemQueryBuilder) CreateOne(model interface{}) (*validate.Errors, error) {
 	return t.fakeCreateOne(model)
+}
+
+func (t *testMTOServiceItemQueryBuilder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, error) {
+	return t.fakeUpdateOne(model, eTag)
 }
 
 func (t *testMTOServiceItemQueryBuilder) FetchOne(model interface{}, filters []services.QueryFilter) error {
@@ -38,7 +43,7 @@ func (t *testMTOServiceItemQueryBuilder) Transaction(fn func(tx *pop.Connection)
 }
 
 func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
-	moveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
+	moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusAPPROVED}})
 	dimension := testdatagen.MakeDefaultMTOServiceItemDimension(suite.DB())
 	serviceItem := models.MTOServiceItem{
 		MoveTaskOrderID: moveTaskOrder.ID,
@@ -59,11 +64,15 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		fakeTx := func(fn func(tx *pop.Connection) error) error {
 			return fn(&pop.Connection{})
 		}
+		fakeUpdateOne := func(model interface{}, etag *string) (*validate.Errors, error) {
+			return nil, nil
+		}
 
 		builder := &testMTOServiceItemQueryBuilder{
 			fakeCreateOne:   fakeCreateOne,
 			fakeFetchOne:    fakeFetchOne,
 			fakeTransaction: fakeTx,
+			fakeUpdateOne:   fakeUpdateOne,
 		}
 
 		fakeCreateNewBuilder := func(db *pop.Connection) createMTOServiceItemQueryBuilder {
@@ -247,7 +256,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 	// The timeMilitary fields need to be in the correct format.
 	suite.T().Run("timeMilitary formatting for DDFSIT", func(t *testing.T) {
-		shipment := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{MTOShipment: models.MTOShipment{MoveTaskOrder: moveTaskOrder}})
 		contact := models.MTOServiceItemCustomerContact{
 			Type:                       models.CustomerContactTypeFirst,
 			FirstAvailableDeliveryDate: time.Now(),
@@ -344,6 +353,18 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		})
 
 		suite.T().Run("timeMilitary=HHMMZ success", func(t *testing.T) {
+			contact := models.MTOServiceItemCustomerContact{
+				Type:                       models.CustomerContactTypeFirst,
+				FirstAvailableDeliveryDate: time.Now(),
+			}
+			serviceItemDDFSIT := models.MTOServiceItem{
+				MoveTaskOrderID: moveTaskOrder.ID,
+				MoveTaskOrder:   moveTaskOrder,
+				ReService: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			}
+
 			contact.TimeMilitary = "1405Z"
 			serviceItemDDFSIT.CustomerContacts = models.MTOServiceItemCustomerContacts{contact}
 			createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDFSIT)

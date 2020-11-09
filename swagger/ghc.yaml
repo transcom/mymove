@@ -1035,6 +1035,14 @@ paths:
         - queues
       parameters:
         - in: query
+          name: page
+          type: integer
+          description: requested page of results
+        - in: query
+          name: perPage
+          type: integer
+          description: results per page
+        - in: query
           name: branch
           type: string
         - in: query
@@ -1057,9 +1065,9 @@ paths:
           items:
             type: string
             enum:
-              - New move
-              - Approvals requested
-              - Move approved
+              - SUBMITTED
+              - APPROVALS REQUESTED
+              - APPROVED
       responses:
         '200':
           description: Successfully returned all moves matching the criteria

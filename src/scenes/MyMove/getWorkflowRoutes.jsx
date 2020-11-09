@@ -157,7 +157,9 @@ const pages = {
         orders.report_by_date,
         get(orders, 'new_duty_station.id', NULL_UUID) !== NULL_UUID,
       ]),
-    render: (key, pages) => ({ match }) => <Orders pages={pages} pageKey={key} match={match} />,
+    render: (key, pages) => ({ match, history }) => (
+      <Orders pages={pages} pageKey={key} match={match} history={history} />
+    ),
   },
   '/orders/upload': {
     isInFlow: always,

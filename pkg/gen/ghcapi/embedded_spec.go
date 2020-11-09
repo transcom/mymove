@@ -1532,6 +1532,18 @@ func init() {
         "operationId": "getMovesQueue",
         "parameters": [
           {
+            "type": "integer",
+            "description": "requested page of results",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "results per page",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
             "type": "string",
             "name": "branch",
             "in": "query"
@@ -1561,9 +1573,9 @@ func init() {
             "type": "array",
             "items": {
               "enum": [
-                "New move",
-                "Approvals requested",
-                "Move approved"
+                "SUBMITTED",
+                "APPROVALS REQUESTED",
+                "APPROVED"
               ],
               "type": "string"
             },
@@ -5319,6 +5331,18 @@ func init() {
         "operationId": "getMovesQueue",
         "parameters": [
           {
+            "type": "integer",
+            "description": "requested page of results",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "results per page",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
             "type": "string",
             "name": "branch",
             "in": "query"
@@ -5348,9 +5372,9 @@ func init() {
             "type": "array",
             "items": {
               "enum": [
-                "New move",
-                "Approvals requested",
-                "Move approved"
+                "SUBMITTED",
+                "APPROVALS REQUESTED",
+                "APPROVED"
               ],
               "type": "string"
             },

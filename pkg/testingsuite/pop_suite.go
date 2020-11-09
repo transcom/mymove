@@ -22,6 +22,7 @@ import (
 const charset = "abcdefghijklmnopqrstuvwxyz" +
 	"0123456789"
 
+	// #nosec G404 TODO needs review
 var seededRand = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 var fileLock = flock.New(os.TempDir() + "/server-test-lock.lock")
