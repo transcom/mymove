@@ -36,13 +36,19 @@ export const HelperNeedsSubmitMove = () => (
 export const HelperSubmittedMove = () => (
   <Helper title="Next: Talk to a move counselor">
     <p>They’ll contact you soon to let you know what to expect and to answer questions.</p>
-    <p>Tell them or your movers if anything changes about your move.</p>
-    <p>If you’re using government-funded movers, they’ll contact you soon to:</p>
+    <p>
+      <strong>Tell them or your movers if anything changes about your move.</strong>
+    </p>
+    <p>
+      <strong>If you’re using government-funded movers, they’ll contact you soon to:</strong>
+    </p>
     <ul>
       <li>estimate the weight of your move</li>
       <li>finalize packing and pickup dates</li>
     </ul>
-    <p>For more moving tips:</p>
+    <p>
+      <strong>For more moving tips:</strong>
+    </p>
     <ul>
       <li>
         <ExternalLink
