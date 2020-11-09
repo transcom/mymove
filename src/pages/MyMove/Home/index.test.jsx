@@ -120,22 +120,24 @@ describe('Home component', () => {
       const uploadedOrderDocuments = [{ filename: 'testOrder1.pdf' }];
       const move = { status: 'SUBMITTED' };
       const currentPpm = { id: 'mockPpm ' };
+      const wrapper = mount(
+        <MockProviders initialEntries={['/']}>
+          <Home
+            {...defaultProps}
+            orders={orders}
+            uploadedOrderDocuments={uploadedOrderDocuments}
+            move={move}
+            currentPpm={currentPpm}
+          />
+        </MockProviders>,
+      );
+
+      it('renders the SubmittedMove helper', () => {
+        expect(wrapper.find('HelperSubmittedMove').exists()).toBe(true);
+      });
+
       it('renders the SubmittedPPM helper', () => {
-        const wrapper = mount(
-          <MockProviders initialEntries={['/']}>
-            <Home
-              {...defaultProps}
-              orders={orders}
-              uploadedOrderDocuments={uploadedOrderDocuments}
-              move={move}
-              currentPpm={currentPpm}
-            />
-          </MockProviders>,
-        );
-        // HelperSubmittedMove
-        expect(wrapper.find(Home).html()).toContain('Next: Talk to a move counselor');
-        // HelperSubmittedPPM
-        expect(wrapper.find(Home).html()).toContain('For your do-it-yourself shipments (PPMs)');
+        expect(wrapper.find('HelperSubmittedPPM').exists()).toBe(true);
       });
     });
 
@@ -207,11 +209,6 @@ describe('Home component', () => {
       it('renders the SubmittedPPM helper', () => {
         expect(wrapper.find('HelperSubmittedPPM').exists()).toBe(true);
       });
-
-      // HelperSubmittedMove
-      expect(wrapper.find(Home).html()).toContain('Next: Talk to a move counselor');
-      // HelperSubmittedPPM
-      expect(wrapper.find(Home).html()).toContain('For your do-it-yourself shipments (PPMs)');
     });
   });
 });
