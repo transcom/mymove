@@ -31,6 +31,8 @@ const (
 	MoveStatusAPPROVED MoveStatus = "APPROVED"
 	// MoveStatusCANCELED captures enum value "CANCELED"
 	MoveStatusCANCELED MoveStatus = "CANCELED"
+	// MoveStatusAPPROVALSREQUESTED captures enum value "APPROVALS REQUESTED"
+	MoveStatusAPPROVALSREQUESTED MoveStatus = "APPROVALS REQUESTED"
 )
 
 // SelectedMoveType represents the type of move being represented
@@ -157,11 +159,22 @@ func (m *Move) Submit(submittedDate time.Time) error {
 
 // Approve approves the Move
 func (m *Move) Approve() error {
-	if m.Status != MoveStatusSUBMITTED {
-		return errors.Wrap(ErrInvalidTransition, "Approve")
+	if m.Status == MoveStatusSUBMITTED || m.Status == MoveStatusAPPROVALSREQUESTED {
+		m.Status = MoveStatusAPPROVED
+		return nil
 	}
+	if m.Status == MoveStatusAPPROVED {
+		return nil
+	}
+	return errors.Wrap(ErrInvalidTransition, fmt.Sprintf("Cannot move to Approved state when the Move is not either in a Submitted or Approvals Requested state for status: %s", m.Status))
+}
 
-	m.Status = MoveStatusAPPROVED
+// SetApprovalsRequested sets the move to approvals requested
+func (m *Move) SetApprovalsRequested() error {
+	if m.Status != MoveStatusAPPROVED {
+		return errors.Wrap(ErrInvalidTransition, fmt.Sprintf("Cannot move to Approvals Requested when the Move is not in an Approved state for status: %s and ID: %s", m.Status, m.ID))
+	}
+	m.Status = MoveStatusAPPROVALSREQUESTED
 	return nil
 }
 
