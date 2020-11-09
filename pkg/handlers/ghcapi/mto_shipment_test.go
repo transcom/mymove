@@ -119,7 +119,7 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 }
 
 func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
-	mto := testdatagen.MakeDefaultMove(suite.DB())
+	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusAPPROVED}})
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 		MTOShipment: models.MTOShipment{
@@ -173,7 +173,6 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 			fetcher,
 			updater,
 		}
-
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusOK{}, response)
 

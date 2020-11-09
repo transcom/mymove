@@ -14,6 +14,7 @@ import (
 func randomEdipi() string {
 	low := 1000000000
 	high := 9999999999
+	// #nosec G404 TODO needs review
 	return strconv.Itoa(low + rand.Intn(high-low))
 }
 

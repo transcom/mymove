@@ -323,7 +323,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 }
 
 func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
-	mto := testdatagen.MakeDefaultMove(suite.DB())
+	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusAPPROVED}})
 	estimatedWeight := unit.Pound(2000)
 	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
