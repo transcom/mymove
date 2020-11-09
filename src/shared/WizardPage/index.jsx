@@ -43,9 +43,9 @@ export class WizardPage extends Component {
   }
 
   async nextPage() {
-    const { pageList, pageKey, dirty, handleSubmit, isLastPage } = this.props;
+    const { pageList, pageKey, dirty, handleSubmit } = this.props;
 
-    if (isLastPage) return handleSubmit();
+    if (isLastPage(pageList, pageKey)) return handleSubmit();
 
     if (dirty && handleSubmit) {
       const awaitSubmit = await handleSubmit(); // wait for API save
