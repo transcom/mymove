@@ -89,6 +89,7 @@ func (p LoginGovProvider) RegisterProvider(milHostname string, milClientID strin
 
 func generateNonce() string {
 	nonceBytes := make([]byte, 64)
+	// #nosec G404 TODO needs review
 	random := rand.New(rand.NewSource(time.Now().UnixNano()))
 	for i := 0; i < 64; i++ {
 		nonceBytes[i] = byte(random.Int63() % 256)

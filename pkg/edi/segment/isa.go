@@ -12,7 +12,7 @@ type ISA struct {
 	SecurityInformationQualifier      string `validate:"eq=00"`
 	SecurityInformation               string `validate:"eq=0000000000"`
 	InterchangeSenderIDQualifier      string `validate:"eq=ZZ"`
-	InterchangeSenderID               string `validate:"eq=MYMOVE         "`
+	InterchangeSenderID               string `validate:"eq=MILMOVE        "`
 	InterchangeReceiverIDQualifier    string `validate:"eq=12"`
 	InterchangeReceiverID             string `validate:"eq=8004171844     "`
 	InterchangeDate                   string `validate:"datetime=060102"`

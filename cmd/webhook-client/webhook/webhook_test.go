@@ -230,10 +230,12 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunInactiveSub() {
 	// notification.Status in the model with SENT or FAILED accordingly
 
 	// EXPECTED BEHAVIOR IN THIS TEST
-	// We're going to make 2 Payment.Update events and one
-	// Payment.Create event. We will have 1 active subscription for Payment.Update
-	// and 1 inactive subscription for Payment.Create.
-	// Therefore we expect only the 2 Payment.Update notifications to get sent.
+	// We're going to make 2 PaymentUpdate events and one
+	// PaymentCreate event.
+	// We will have an active subscription for PaymentUpdate
+	// and a disabled subscription for PaymentCreate.
+	// Therefore we expect only the 2 PaymentUpdate notifications to get SENT.
+	// And the PaymentCreate notification to be SKIPPED.
 
 	// SETUP SCENARIO
 	engine, notifications, subscriptions := setupEngineRun(suite)
@@ -293,8 +295,8 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunInactiveSub() {
 	suite.DB().All(&updatedNotifs)
 	for _, notif := range updatedNotifs {
 		if notif.EventKey == "Payment.Create" {
-			// MYTODO: Should be skipped not pending after migration
-			suite.Equal(models.WebhookNotificationPending, notif.Status)
+			// if there's no subscription, we except status to be skipped
+			suite.Equal(models.WebhookNotificationSkipped, notif.Status)
 		} else {
 			suite.Equal(models.WebhookNotificationSent, notif.Status)
 		}
@@ -423,6 +425,7 @@ func truncateAllNotifications(db *pop.Connection) {
 	notifications := []models.WebhookNotification{}
 	db.All(&notifications)
 	for _, notif := range notifications {
+		// #nosec G601 TODO needs review
 		db.Destroy(&notif)
 	}
 }
@@ -432,6 +435,7 @@ func truncateAllSubscriptions(db *pop.Connection) {
 	subscriptions := []models.WebhookSubscription{}
 	db.All(&subscriptions)
 	for _, sub := range subscriptions {
+		// #nosec G601 TODO needs review
 		db.Destroy(&sub)
 	}
 }
