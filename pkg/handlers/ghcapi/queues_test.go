@@ -335,6 +335,26 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		suite.Len(payload.QueueMoves, 3)
 	})
 
+	suite.Run("loads results with all STATUSes and 1 page selected", func() {
+		params := queues.GetMovesQueueParams{
+			HTTPRequest: request,
+			Status: []string{
+				string(models.MoveStatusSUBMITTED),
+				string(models.MoveStatusAPPROVED),
+				string(models.MoveStatusAPPROVALSREQUESTED),
+			},
+			PerPage: swag.Int64(1),
+			Page:    swag.Int64(1),
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		payload := response.(*queues.GetMovesQueueOK).Payload
+		suite.EqualValues(3, payload.TotalCount)
+		suite.Len(payload.QueueMoves, 1)
+	})
+
 	suite.Run("loads results with one STATUS selected", func() {
 		params := queues.GetMovesQueueParams{
 			HTTPRequest: request,
