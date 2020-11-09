@@ -203,6 +203,15 @@ describe('Home component', () => {
       it('renders the SubmittedMove helper', () => {
         expect(wrapper.find('HelperSubmittedMove').exists()).toBe(true);
       });
+
+      it('renders the SubmittedPPM helper', () => {
+        expect(wrapper.find('HelperSubmittedPPM').exists()).toBe(true);
+      });
+
+      // HelperSubmittedMove
+      expect(wrapper.find(Home).html()).toContain('Next: Talk to a move counselor');
+      // HelperSubmittedPPM
+      expect(wrapper.find(Home).html()).toContain('For your do-it-yourself shipments (PPMs)');
     });
   });
 });
