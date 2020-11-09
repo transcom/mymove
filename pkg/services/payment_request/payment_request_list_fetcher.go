@@ -1,7 +1,9 @@
 package paymentrequest
 
 import (
-	"github.com/gobuffalo/pop"
+	"database/sql"
+
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -19,7 +21,7 @@ func NewPaymentRequestListFetcher(db *pop.Connection) services.PaymentRequestLis
 	return &paymentRequestListFetcher{db}
 }
 
-func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UUID) (*models.PaymentRequests, error) {
+func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UUID, options ...func(query *pop.Query)) (*models.PaymentRequests, error) {
 	gblocFetcher := officeuser.NewOfficeUserGblocFetcher(f.db)
 	gbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(officeUserID)
 	if gblocErr != nil {
@@ -27,16 +29,32 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 	}
 
 	paymentRequests := models.PaymentRequests{}
-	err := f.db.Q().Eager(
+	query := f.db.Q().Eager(
 		"MoveTaskOrder.Orders.OriginDutyStation",
 		"MoveTaskOrder.Orders.ServiceMember",
 	).
 		InnerJoin("moves", "payment_requests.move_id = moves.id").
 		InnerJoin("orders", "orders.id = moves.orders_id").
+		InnerJoin("service_members", "orders.service_member_id = service_members.id").
 		InnerJoin("duty_stations", "duty_stations.id = orders.origin_duty_station_id").
 		InnerJoin("transportation_offices", "transportation_offices.id = duty_stations.transportation_office_id").
-		Where("transportation_offices.gbloc = ?", gbloc).
-		All(&paymentRequests)
+		Where("transportation_offices.gbloc = ?", gbloc)
+
+	for _, option := range options {
+		if option != nil {
+			option(query)
+		}
+	}
+
+	err := query.GroupBy("payment_requests.id").All(&paymentRequests)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, services.NotFoundError{}
+		default:
+			return nil, err
+		}
+	}
 
 	if err != nil {
 		return &models.PaymentRequests{}, err

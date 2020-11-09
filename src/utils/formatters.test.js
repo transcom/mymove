@@ -11,4 +11,40 @@ describe('formatters', () => {
       expect(formatters.formatOrderType('PERMANENT_CHANGE_OF_STATION')).toBe('Permanent change of station');
     });
   });
+
+  describe('formatYesNoInputValue', () => {
+    it('returns yes for true', () => {
+      expect(formatters.formatYesNoInputValue(true)).toBe('yes');
+    });
+    it('returns no for false', () => {
+      expect(formatters.formatYesNoInputValue(false)).toBe('no');
+    });
+    it('returns null for anything else', () => {
+      expect(formatters.formatYesNoInputValue('true')).toBe(null);
+      expect(formatters.formatYesNoInputValue('false')).toBe(null);
+      expect(formatters.formatYesNoInputValue('')).toBe(null);
+      expect(formatters.formatYesNoInputValue({})).toBe(null);
+      expect(formatters.formatYesNoInputValue(0)).toBe(null);
+      expect(formatters.formatYesNoInputValue(undefined)).toBe(null);
+    });
+  });
+
+  describe('formatYesNoAPIValue', () => {
+    it('returns true for yes', () => {
+      expect(formatters.formatYesNoAPIValue('yes')).toBe(true);
+    });
+    it('returns false for no', () => {
+      expect(formatters.formatYesNoAPIValue('no')).toBe(false);
+    });
+    it('returns undefined for anything else', () => {
+      expect(formatters.formatYesNoAPIValue('true')).toBe(undefined);
+      expect(formatters.formatYesNoAPIValue('false')).toBe(undefined);
+      expect(formatters.formatYesNoAPIValue(true)).toBe(undefined);
+      expect(formatters.formatYesNoAPIValue(false)).toBe(undefined);
+      expect(formatters.formatYesNoAPIValue('')).toBe(undefined);
+      expect(formatters.formatYesNoAPIValue({})).toBe(undefined);
+      expect(formatters.formatYesNoAPIValue(0)).toBe(undefined);
+      expect(formatters.formatYesNoAPIValue(null)).toBe(undefined);
+    });
+  });
 });

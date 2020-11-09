@@ -5,7 +5,8 @@ import { getFormValues } from 'redux-form';
 import SaveCancelButtons from './SaveCancelButtons';
 import React, { Component, Fragment } from 'react';
 import { reduxForm } from 'redux-form';
-import Alert from 'shared/Alert'; // eslint-disable-line
+import Alert from 'shared/Alert';
+import SectionWrapper from 'components/Customer/SectionWrapper';
 
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -46,50 +47,54 @@ let EditDateAndLocationForm = (props) => {
       <div className="grid-row">
         <div className="grid-col-12">
           <form onSubmit={handleSubmit}>
-            <h1 className="sm-heading"> Edit PPM Dates & Locations </h1>
+            <h1>Edit PPM Dates & Locations</h1>
             <p>Changes could impact your move, including the estimated PPM incentive.</p>
-            <h3 className="sm-heading-2"> Move Date </h3>
-            <SwaggerField fieldName="original_move_date" onChange={getSitEstimate} swagger={schema} required />
-            <hr className="spacer" />
-            <h3 className="sm-heading-2">Pickup Location</h3>
-            <SwaggerField fieldName="pickup_postal_code" onChange={getSitEstimate} swagger={schema} required />
-            <SwaggerField fieldName="has_additional_postal_code" swagger={schema} component={YesNoBoolean} />
-            {get(props, 'formValues.has_additional_postal_code', false) && (
-              <Fragment>
-                <SwaggerField fieldName="additional_pickup_postal_code" swagger={schema} required />
-                <span className="grey">Making additional stops may decrease your PPM incentive.</span>
-              </Fragment>
-            )}
-            <hr className="spacer" />
-            <h3 className="sm-heading-2">Destination Location</h3>
-            <p>
-              Enter the ZIP for your new home if you know it, or for{' '}
-              {currentOrders && currentOrders.new_duty_station.name} if you don't.
-            </p>
-            <SwaggerField fieldName="destination_postal_code" swagger={schema} required />
-            <span className="grey">
-              The ZIP code for {currentOrders && currentOrders.new_duty_station.name} is{' '}
-              {currentOrders && currentOrders.new_duty_station.address.postal_code}{' '}
-            </span>
-            <SwaggerField fieldName="has_sit" swagger={schema} component={YesNoBoolean} />
-            {get(props, 'formValues.has_sit', false) && (
-              <Fragment>
-                <SwaggerField
-                  className="days-in-storage"
-                  fieldName="days_in_storage"
-                  swagger={schema}
-                  onChange={getSitEstimate}
-                  required
-                />{' '}
-                <span className="grey">You can choose up to 90 days.</span>
-                {displayedSitReimbursement && (
-                  <div data-testid="storage-estimate" className="storage-estimate">
-                    You can spend up to {displayedSitReimbursement} on private storage. Save your receipts to submit
-                    with your PPM paperwork.
-                  </div>
-                )}
-              </Fragment>
-            )}
+            <SectionWrapper>
+              <h2>Move Date</h2>
+              <SwaggerField fieldName="original_move_date" onChange={getSitEstimate} swagger={schema} required />
+            </SectionWrapper>
+            <SectionWrapper>
+              <h2>Pickup Location</h2>
+              <SwaggerField fieldName="pickup_postal_code" onChange={getSitEstimate} swagger={schema} required />
+              <SwaggerField fieldName="has_additional_postal_code" swagger={schema} component={YesNoBoolean} />
+              {get(props, 'formValues.has_additional_postal_code', false) && (
+                <Fragment>
+                  <SwaggerField fieldName="additional_pickup_postal_code" swagger={schema} required />
+                  <span className="grey">Making additional stops may decrease your PPM incentive.</span>
+                </Fragment>
+              )}
+            </SectionWrapper>
+            <SectionWrapper>
+              <h2>Destination Location</h2>
+              <p>
+                Enter the ZIP for your new home if you know it, or for{' '}
+                {currentOrders && currentOrders.new_duty_station.name} if you don't.
+              </p>
+              <SwaggerField fieldName="destination_postal_code" swagger={schema} required />
+              <span className="grey">
+                The ZIP code for {currentOrders && currentOrders.new_duty_station.name} is{' '}
+                {currentOrders && currentOrders.new_duty_station.address.postal_code}{' '}
+              </span>
+              <SwaggerField fieldName="has_sit" swagger={schema} component={YesNoBoolean} />
+              {get(props, 'formValues.has_sit', false) && (
+                <Fragment>
+                  <SwaggerField
+                    className="days-in-storage"
+                    fieldName="days_in_storage"
+                    swagger={schema}
+                    onChange={getSitEstimate}
+                    required
+                  />{' '}
+                  <span className="grey">You can choose up to 90 days.</span>
+                  {displayedSitReimbursement && (
+                    <div data-testid="storage-estimate" className="storage-estimate">
+                      You can spend up to {displayedSitReimbursement} on private storage. Save your receipts to submit
+                      with your PPM paperwork.
+                    </div>
+                  )}
+                </Fragment>
+              )}
+            </SectionWrapper>
             <SaveCancelButtons valid={valid} submitting={submitting} />
           </form>
         </div>

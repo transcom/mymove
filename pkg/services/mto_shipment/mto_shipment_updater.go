@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/getlantern/deepcopy"
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -319,6 +319,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(dbShipment *models.MTOShipment
 				}
 				if agent.ID == uuid.Nil {
 					// create a new agent if it doesn't already exist
+					// #nosec G601 TODO needs review
 					verrs, err := f.builder.CreateOne(&agent)
 					if verrs != nil && verrs.HasAny() {
 						return verrs
@@ -524,16 +525,6 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 	}
 
 	if shipment.Status == models.MTOShipmentStatusApproved {
-		// If we're approving a shipment, we also need the move the shipment is in to change statuses
-		moveToUpdate := shipment.MoveTaskOrder
-		if moveToUpdate.Status == models.MoveStatusSUBMITTED {
-			err = moveToUpdate.Approve()
-			if err != nil {
-				return &models.MTOShipment{}, err
-			}
-		}
-
-		verrs, err := o.builder.UpdateOne(&moveToUpdate, nil)
 
 		if verrs != nil && verrs.HasAny() {
 			invalidInputError := services.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue with validating the updates")
@@ -629,6 +620,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipmentID uuid.UUID,
 			serviceItemsToCreate = constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
 		}
 		for _, serviceItem := range serviceItemsToCreate {
+			// #nosec G601 TODO needs review
 			_, verrs, err := o.siCreator.CreateMTOServiceItem(&serviceItem)
 
 			if verrs != nil && verrs.HasAny() {
@@ -739,7 +731,7 @@ func (f mtoShipmentUpdater) MTOShipmentsMTOAvailableToPrime(mtoShipmentID uuid.U
 		Where("mto_shipments.id = ?", mtoShipmentID).
 		First(&mto)
 	if err != nil {
-		if err.Error() == "sql: no rows in result set" {
+		if err.Error() == models.RecordNotFoundErrorString {
 			return false, services.NewNotFoundError(mtoShipmentID, "for mtoShipment")
 		}
 		return false, services.NewQueryError("mtoShipments", err, "Unexpected error")

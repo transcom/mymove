@@ -8,6 +8,7 @@ import { getFullSMName } from 'utils/moveSetupFlow';
 import Address from './Address';
 
 import ReviewSection from '../../components/Customer/ReviewSection';
+import SectionWrapper from '../../components/Customer/SectionWrapper';
 
 import './Review.css';
 
@@ -53,10 +54,16 @@ function ServiceMemberSummary(props) {
 
   return (
     <div className="service-member-summary">
-      <ReviewSection fieldData={serviceMemberData} title="Profile" editLink={editProfilePath} />
+      <SectionWrapper>
+        <ReviewSection fieldData={serviceMemberData} title="Profile" editLink={editProfilePath} />
+      </SectionWrapper>
       <div>
         {moveIsApproved && '*'}
-        {!moveIsApproved && <ReviewSection fieldData={ordersData} title="Orders" editLink={editOrdersPath} />}
+        {!moveIsApproved && (
+          <SectionWrapper>
+            <ReviewSection fieldData={ordersData} title="Orders" editLink={editOrdersPath} />
+          </SectionWrapper>
+        )}
       </div>
     </div>
   );

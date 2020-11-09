@@ -1,25 +1,22 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"io"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/pkg/sftp"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
-	"golang.org/x/crypto/ssh"
 
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/services/invoice"
 )
 
-// Call this from command line with go run ./cmd/send-to-syncada-via-sftp/ --local-file-path <localFilePath> --destination-file-name <destinationFileName>
+// Call this from command line with go run ./cmd/send-to-syncada-via-sftp/ --local-file-path <localFilePath> --syncada-file-name <syncadaFileName>
 
 func checkConfig(v *viper.Viper, logger logger) error {
 
@@ -45,43 +42,10 @@ func initFlags(flag *pflag.FlagSet) {
 	cli.InitSyncadaFlags(flag)
 
 	flag.String("local-file-path", "", "The path where the file to be sent is located")
-	flag.String("destination-file-name", "", "The name of the file to be stored in Syncada")
+	flag.String("syncada-file-name", "", "The name of the file to be stored in Syncada")
 
 	// Don't sort flags
 	flag.SortFlags = false
-}
-
-func getHostKey(host string) ssh.PublicKey {
-	// parse OpenSSH known_hosts file
-	// ssh or use ssh-keyscan to get initial key
-	file, err := os.Open(filepath.Join(os.Getenv("HOME"), ".ssh", "known_hosts"))
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	var hostKey ssh.PublicKey
-	for scanner.Scan() {
-		fields := strings.Split(scanner.Text(), " ")
-		if len(fields) != 3 {
-			continue
-		}
-		if strings.Contains(fields[0], host) {
-			var err error
-			hostKey, _, _, _, err = ssh.ParseAuthorizedKey(scanner.Bytes())
-			if err != nil {
-				log.Fatalf("error parsing %q: %v", fields[2], err)
-			}
-			break
-		}
-	}
-
-	if hostKey == nil {
-		log.Fatalf("no hostkey found for %s", host)
-	}
-
-	return hostKey
 }
 
 func main() {
@@ -115,37 +79,7 @@ func main() {
 		logger.Fatal("invalid configuration", zap.Error(err))
 	}
 
-	userID := v.GetString(cli.SyncadaSFTPUserIDFlag)
-	password := v.GetString(cli.SyncadaSFTPPsswrdFlag)
-	remote := v.GetString(cli.SyncadaSFTPIPAddressFlag)
-	port := v.GetString(cli.SyncadaSFTPPortFlag)
-	syncadaInboundDirectory := v.GetString(cli.SyncadaSFTPInboundDirectoryFlag)
-
-	// get host public key
-	hostKey := getHostKey(remote)
-
-	config := &ssh.ClientConfig{
-		User: userID,
-		Auth: []ssh.AuthMethod{
-			ssh.Password(password),
-		},
-		// HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-		HostKeyCallback: ssh.FixedHostKey(hostKey),
-	}
-
-	// connect
-	connection, err := ssh.Dial("tcp", remote+port, config)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer connection.Close()
-
-	// create new SFTP client
-	client, err := sftp.NewClient(connection)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer client.Close()
+	syncadaSFTPSession := invoice.NewSyncadaSFTPSession(v.GetString(cli.SyncadaSFTPPortFlag), v.GetString(cli.SyncadaSFTPUserIDFlag), v.GetString(cli.SyncadaSFTPIPAddressFlag), v.GetString(cli.SyncadaSFTPPsswrdFlag), v.GetString(cli.SyncadaSFTPInboundDirectoryFlag))
 
 	// open local file
 	localFile, err := os.Open(filepath.Clean(v.GetString("local-file-path")))
@@ -153,19 +87,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// create destination file
-	destinationFileName := v.GetString(("destination-file-name"))
-	destinationFilePath := fmt.Sprintf("/%s/%s/%s", userID, syncadaInboundDirectory, destinationFileName)
-	destinationFile, err := client.Create(destinationFilePath)
+	bytes, err := syncadaSFTPSession.SendToSyncadaViaSFTP(localFile, v.GetString("syncada-file-name"))
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer destinationFile.Close()
 
-	// copy source file to destination file
-	bytes, err := io.Copy(destinationFile, localFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("%d bytes copied\n", bytes)
+	fmt.Printf("%d bytes copied to the Syncada SFTP server\n", bytes)
 }

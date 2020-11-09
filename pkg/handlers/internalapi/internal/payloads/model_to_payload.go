@@ -2,7 +2,7 @@ package payloads
 
 import (
 	"github.com/go-openapi/strfmt"
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
@@ -56,6 +56,7 @@ func MTOAgents(mtoAgents *models.MTOAgents) *internalmessages.MTOAgents {
 	agents := make(internalmessages.MTOAgents, len(*mtoAgents))
 
 	for i, m := range *mtoAgents {
+		// #nosec G601 TODO needs review
 		agents[i] = MTOAgent(&m)
 	}
 
@@ -94,6 +95,7 @@ func MTOShipments(mtoShipments *models.MTOShipments) *internalmessages.MTOShipme
 	payload := make(internalmessages.MTOShipments, len(*mtoShipments))
 
 	for i, m := range *mtoShipments {
+		// #nosec G601 TODO needs review
 		payload[i] = MTOShipment(&m)
 	}
 	return &payload

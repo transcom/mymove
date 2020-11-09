@@ -76,7 +76,7 @@ in the [LICENSE.txt](./LICENSE.txt) file in this repository.
     * [More about content dispositions](#more-about-content-dispositions)
     * [More about browser settings](#more-about-browser-settings)
 
-Regenerate with "pre-commit run -a markdown-toc"
+<!-- Regenerate with "pre-commit run -a markdown-toc" -->
 
 <!-- tocstop -->
 
@@ -462,7 +462,7 @@ The test DB commands all talk to the DB over localhost.  But in a docker-only en
 
 #### Migrations
 
-To add new regular and/or secure migrations, see the [database development guide](./docs/database/database.md)
+To add new regular and/or secure migrations, see the [database development guide](https://github.com/transcom/mymove/wiki/migrate-the-database)
 
 Running migrations in local development:
 

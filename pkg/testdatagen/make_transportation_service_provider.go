@@ -5,7 +5,7 @@ import (
 	"log"
 	"math/rand"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -26,6 +26,7 @@ const defaultPayeeCode = "2708"
 func RandomSCAC() string {
 	b := make([]byte, 4)
 	for i := range b {
+		// #nosec G404 TODO needs review
 		b[i] = alphanumericBytes[rand.Intn(len(alphanumericBytes))]
 	}
 	return string(b)

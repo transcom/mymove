@@ -2,13 +2,14 @@ package mtoshipment
 
 import (
 	"testing"
+	"time"
 
 	"github.com/transcom/mymove/pkg/unit"
 
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -68,6 +69,35 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 		invalidErr := err.(services.InvalidInputError)
 		suite.NotNil(invalidErr.ValidationErrors)
 		suite.NotEmpty(invalidErr.ValidationErrors)
+	})
+
+	// Unhappy path
+	suite.T().Run("When required requested pickup dates are zero (required for NTS & HHG shipment types)", func(t *testing.T) {
+		hhgShipmentFail := testdatagen.MakeDefaultMTOShipment(suite.DB()) // default is HHG
+		hhgShipmentFailClear := clearShipmentIDFields(&hhgShipmentFail)
+		hhgShipmentFailClear.RequestedPickupDate = new(time.Time)
+
+		// We don't need the shipment because it only returns data that wasn't saved.
+		_, err := creator.CreateMTOShipment(hhgShipmentFailClear, nil)
+
+		suite.Error(err)
+		suite.IsType(services.InvalidInputError{}, err)
+		suite.Contains(err.Error(), "RequestedPickupDate")
+	})
+
+	suite.T().Run("When non-required requested pickup dates are zero (not required for NTSr shipment type)", func(t *testing.T) {
+		ntsrShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+			},
+		})
+		ntsrShipmentNoIDs := clearShipmentIDFields(&ntsrShipment)
+		ntsrShipmentNoIDs.RequestedPickupDate = new(time.Time)
+
+		// We don't need the shipment because it only returns data that wasn't saved.
+		_, err := creator.CreateMTOShipment(ntsrShipmentNoIDs, nil)
+
+		suite.NoError(err)
 	})
 
 	// Happy path
@@ -163,24 +193,24 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 	})
 
 	suite.T().Run("If the move already has a submitted NTSr shipment, it should return a validation error", func(t *testing.T) {
-		ntsShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		ntsrShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
 				Status:       models.MTOShipmentStatusSubmitted,
 			},
 		})
 
-		secondNTSShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		secondNTSrShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
-				MoveTaskOrderID: ntsShipment.MoveTaskOrderID,
+				MoveTaskOrderID: ntsrShipment.MoveTaskOrderID,
 				ShipmentType:    models.MTOShipmentTypeHHGOutOfNTSDom,
 				Status:          models.MTOShipmentStatusDraft,
 			},
 		})
 
 		serviceItemsList := models.MTOServiceItems{}
-		cleanedNTSShipment := clearShipmentIDFields(&secondNTSShipment)
-		createdShipment, err := creator.CreateMTOShipment(cleanedNTSShipment, serviceItemsList)
+		cleanedNTSrShipment := clearShipmentIDFields(&secondNTSrShipment)
+		createdShipment, err := creator.CreateMTOShipment(cleanedNTSrShipment, serviceItemsList)
 
 		suite.Nil(createdShipment)
 		suite.Error(err)
@@ -190,10 +220,14 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipmentRequest() {
 
 // Clears all the ID fields that we need to be null for a new shipment to get created:
 func clearShipmentIDFields(shipment *models.MTOShipment) *models.MTOShipment {
-	shipment.PickupAddressID = nil
-	shipment.PickupAddress.ID = uuid.Nil
-	shipment.DestinationAddressID = nil
-	shipment.DestinationAddress.ID = uuid.Nil
+	if shipment.PickupAddress != nil {
+		shipment.PickupAddressID = nil
+		shipment.PickupAddress.ID = uuid.Nil
+	}
+	if shipment.DestinationAddress != nil {
+		shipment.DestinationAddressID = nil
+		shipment.DestinationAddress.ID = uuid.Nil
+	}
 	shipment.SecondaryPickupAddressID = nil
 	shipment.SecondaryPickupAddress = nil
 	shipment.SecondaryDeliveryAddressID = nil

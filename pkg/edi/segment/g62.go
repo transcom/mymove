@@ -10,13 +10,22 @@ import (
 // Actual Pickup Date 86, Actual Pickup Time 8
 type G62 struct {
 	DateQualifier int    `validate:"oneof=10 76 86"`
-	Date          string `validate:"timeformat=20060102"`
-	TimeQualifier int    `validate:"oneof=5 8"`
-	Time          string `validate:"required_with=TimeQualifier,timeformat=1504"`
+	Date          string `validate:"datetime=20060102"`
+	TimeQualifier int    `validate:"omitempty,oneof=5 8"`
+	Time          string `validate:"omitempty,required_with=TimeQualifier,datetime=1504"`
 }
 
 // StringArray converts G62 to an array of strings
 func (s *G62) StringArray() []string {
+	if s.Time == "" {
+		return []string{
+			"G62",
+			strconv.Itoa(s.DateQualifier),
+			s.Date,
+			"",
+			"",
+		}
+	}
 	return []string{
 		"G62",
 		strconv.Itoa(s.DateQualifier),

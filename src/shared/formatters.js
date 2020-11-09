@@ -7,6 +7,7 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { DEPARTMENT_INDICATOR_OPTIONS, DEPARTMENT_INDICATOR_LABELS } from 'constants/departmentIndicators';
 import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orders';
 import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
+import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
 
 /**
  * Formats number into a dollar string. Eg. $1,234.12
@@ -304,6 +305,10 @@ export const departmentIndicatorLabel = (departmentIndicator) => {
   return DEPARTMENT_INDICATOR_LABELS[`${departmentIndicator}`] || departmentIndicator;
 };
 
+export const serviceMemberAgencyLabel = (agency) => {
+  return SERVICE_MEMBER_AGENCY_LABELS[`${agency}`] || agency;
+};
+
 export const ordersTypeReadable = (ordersType) => {
   return ORDERS_TYPE_OPTIONS[`${ordersType}`] || ordersType;
 };
@@ -329,7 +334,7 @@ export const formatAgeToDays = (age) => {
   if (age < 1) {
     return 'Less than 1 day';
   }
-  if (age > 1 && age < 2) {
+  if (age >= 1 && age < 2) {
     return '1 day';
   }
   return `${Math.floor(age)} days`;

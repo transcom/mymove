@@ -39,7 +39,8 @@ func TestGHCInvoiceSuite(t *testing.T) {
 	ts.PopTestSuite.TearDown()
 }
 
-const testDateFormat = "060102"
+const testDateFormat = "20060102"
+const testISADateFormat = "060102"
 const testTimeFormat = "1504"
 
 func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
@@ -54,7 +55,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		{
 			Key:     models.ServiceItemParamNameRequestedPickupDate,
 			KeyType: models.ServiceItemParamTypeDate,
-			Value:   currentTime.Format(dateFormat),
+			Value:   currentTime.Format(testDateFormat),
 		},
 		{
 			Key:     models.ServiceItemParamNameWeightBilledActual,
@@ -178,10 +179,10 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal("00", result.ISA.SecurityInformationQualifier)
 		suite.Equal("0000000000", result.ISA.SecurityInformation)
 		suite.Equal("ZZ", result.ISA.InterchangeSenderIDQualifier)
-		suite.Equal("MYMOVE         ", result.ISA.InterchangeSenderID)
+		suite.Equal(fmt.Sprintf("%-15s", "MILMOVE"), result.ISA.InterchangeSenderID)
 		suite.Equal("12", result.ISA.InterchangeReceiverIDQualifier)
-		suite.Equal("8004171844     ", result.ISA.InterchangeReceiverID)
-		suite.Equal(currentTime.Format(testDateFormat), result.ISA.InterchangeDate)
+		suite.Equal(fmt.Sprintf("%-15s", "8004171844"), result.ISA.InterchangeReceiverID)
+		suite.Equal(currentTime.Format(testISADateFormat), result.ISA.InterchangeDate)
 		suite.Equal(currentTime.Format(testTimeFormat), result.ISA.InterchangeTime)
 		suite.Equal("U", result.ISA.InterchangeControlStandards)
 		suite.Equal("00401", result.ISA.InterchangeControlVersionNumber)
@@ -193,10 +194,10 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	suite.T().Run("adds gs start segment", func(t *testing.T) {
 		suite.Equal("SI", result.GS.FunctionalIdentifierCode)
-		suite.Equal("MYMOVE", result.GS.ApplicationSendersCode)
+		suite.Equal("MILMOVE", result.GS.ApplicationSendersCode)
 		suite.Equal("8004171844", result.GS.ApplicationReceiversCode)
-		suite.Equal(currentTime.Format(dateFormat), result.GS.Date)
-		suite.Equal(currentTime.Format(timeFormat), result.GS.Time)
+		suite.Equal(currentTime.Format(testDateFormat), result.GS.Date)
+		suite.Equal(currentTime.Format(testTimeFormat), result.GS.Time)
 		suite.Equal(int64(100001251), result.GS.GroupControlNumber)
 		suite.Equal("X", result.GS.ResponsibleAgencyCode)
 		suite.Equal("004010", result.GS.Version)
@@ -209,7 +210,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	suite.T().Run("adds se end segment", func(t *testing.T) {
 		// Will need to be updated as more service items are supported
-		suite.Equal(66, result.SE.NumberOfIncludedSegments)
+		suite.Equal(58, result.SE.NumberOfIncludedSegments)
 		suite.Equal("0001", result.SE.TransactionSetControlNumber)
 	})
 
@@ -236,7 +237,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	})
 
 	suite.T().Run("does not error out creating EDI from Invoice858", func(t *testing.T) {
-		_, err := result.EDIString()
+		_, err := result.EDIString(suite.logger)
 		suite.NoError(err)
 	})
 
@@ -301,7 +302,9 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal(address.City, n4.CityName)
 		suite.Equal(address.State, n4.StateOrProvinceCode)
 		suite.Equal(address.PostalCode, n4.PostalCode)
-		suite.Equal(*address.Country, n4.CountryCode)
+		countryCode, err := address.CountryCode()
+		suite.NoError(err)
+		suite.Equal(*countryCode, n4.CountryCode)
 		// Office Phone
 		destinationStationPhoneLines := expectedDutyStation.TransportationOffice.PhoneLines
 		var destPhoneLines []string
@@ -338,7 +341,9 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal(address.City, n4.CityName)
 		suite.Equal(address.State, n4.StateOrProvinceCode)
 		suite.Equal(address.PostalCode, n4.PostalCode)
-		suite.Equal(*address.Country, n4.CountryCode)
+		countryCode, err := address.CountryCode()
+		suite.NoError(err)
+		suite.Equal(*countryCode, n4.CountryCode)
 		// Office Phone
 		originStationPhoneLines := expectedDutyStation.TransportationOffice.PhoneLines
 		var originPhoneLines []string
@@ -364,7 +369,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.Equal(*paymentRequest.MoveTaskOrder.Orders.TAC, fa2.FinancialInformationCode)
 	})
 
-	var numOfSegments = 5
+	var numOfSegments = 4
 	for idx, paymentServiceItem := range paymentServiceItems {
 		var hierarchicalNumberInt = idx + 1
 		var hierarchicalNumber = strconv.Itoa(hierarchicalNumberInt)
@@ -374,7 +379,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			suite.IsType(&edisegment.HL{}, result.ServiceItems[segmentOffset])
 			hl := result.ServiceItems[segmentOffset].(*edisegment.HL)
 			suite.Equal(hierarchicalNumber, hl.HierarchicalIDNumber)
-			suite.Equal("|", hl.HierarchicalLevelCode)
+			suite.Equal("I", hl.HierarchicalLevelCode)
 		})
 
 		suite.T().Run("adds n9 service item segment", func(t *testing.T) {
@@ -400,12 +405,6 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 				l0 := result.ServiceItems[segmentOffset+3].(*edisegment.L0)
 				suite.Equal(hierarchicalNumberInt, l0.LadingLineItemNumber)
 			})
-
-			suite.T().Run("adds l3 service item segment", func(t *testing.T) {
-				suite.IsType(&edisegment.L3{}, result.ServiceItems[segmentOffset+4])
-				l3 := result.ServiceItems[segmentOffset+4].(*edisegment.L3)
-				suite.Equal(paymentServiceItem.PriceCents.Int64(), l3.PriceCents)
-			})
 		case models.ReServiceCodeDOP, models.ReServiceCodeDUPK,
 			models.ReServiceCodeDPK, models.ReServiceCodeDDP:
 			suite.T().Run("adds l5 service item segment", func(t *testing.T) {
@@ -424,14 +423,6 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 				suite.Equal(float64(4242), l0.Weight)
 				suite.Equal("B", l0.WeightQualifier)
 				suite.Equal("L", l0.WeightUnitCode)
-			})
-
-			suite.T().Run("adds l3 service item segment", func(t *testing.T) {
-				suite.IsType(&edisegment.L3{}, result.ServiceItems[segmentOffset+4])
-				l3 := result.ServiceItems[segmentOffset+4].(*edisegment.L3)
-				suite.Equal(float64(4242), l3.Weight)
-				suite.Equal("B", l3.WeightQualifier)
-				suite.Equal(paymentServiceItem.PriceCents.Int64(), l3.PriceCents)
 			})
 		default:
 			suite.T().Run("adds l5 service item segment", func(t *testing.T) {
@@ -457,16 +448,15 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 				suite.Equal("B", l0.WeightQualifier)
 				suite.Equal("L", l0.WeightUnitCode)
 			})
-
-			suite.T().Run("adds l3 service item segment", func(t *testing.T) {
-				suite.IsType(&edisegment.L3{}, result.ServiceItems[segmentOffset+4])
-				l3 := result.ServiceItems[segmentOffset+4].(*edisegment.L3)
-				suite.Equal(float64(4242), l3.Weight)
-				suite.Equal("B", l3.WeightQualifier)
-				suite.Equal(paymentServiceItem.PriceCents.Int64(), l3.PriceCents)
-			})
 		}
 	}
+
+	l3Location := numOfSegments * len(paymentServiceItems)
+	suite.T().Run("adds l3 service item segment", func(t *testing.T) {
+		suite.IsType(&edisegment.L3{}, result.ServiceItems[l3Location])
+		l3 := result.ServiceItems[l3Location].(*edisegment.L3)
+		suite.Equal(int64(0), l3.PriceCents) // TODO: hard-coded to zero for now
+	})
 }
 
 func (suite *GHCInvoiceSuite) TestOnlyMsandCsGenerateEdi() {
@@ -521,7 +511,7 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 		{
 			Key:     models.ServiceItemParamNameRequestedPickupDate,
 			KeyType: models.ServiceItemParamTypeDate,
-			Value:   currentTime.Format(dateFormat),
+			Value:   currentTime.Format(testDateFormat),
 		},
 		{
 			Key:     models.ServiceItemParamNameWeightBilledActual,

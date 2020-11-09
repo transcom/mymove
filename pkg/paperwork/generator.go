@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/disintegration/imaging"
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/jung-kurt/gofpdf"
 	"github.com/pdfcpu/pdfcpu/pkg/api"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
@@ -174,6 +174,7 @@ func (g *Generator) ConvertUploadsToPDF(uploads models.Uploads) ([]string, error
 			}
 		}
 
+		// #nosec G601 TODO needs review
 		download, err := g.uploader.Download(&upload)
 		if err != nil {
 			return nil, errors.Wrap(err, "Downloading file from upload")

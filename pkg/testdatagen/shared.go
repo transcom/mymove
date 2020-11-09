@@ -9,7 +9,7 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 	"github.com/imdario/mergo"
 	"github.com/spf13/afero"
@@ -26,7 +26,6 @@ type Assertions struct {
 	Address                                  models.Address
 	AdminUser                                models.AdminUser
 	BackupContact                            models.BackupContact
-	BlackoutDate                             models.BlackoutDate
 	Contractor                               models.Contractor
 	DestinationAddress                       models.Address
 	DestinationDutyStation                   models.DutyStation
@@ -149,6 +148,7 @@ const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567
 func makeRandomString(n int) string {
 	b := make([]byte, n)
 	for i := range b {
+		// #nosec G404 TODO needs review
 		b[i] = letterBytes[rand.Intn(len(letterBytes))]
 	}
 	return string(b)

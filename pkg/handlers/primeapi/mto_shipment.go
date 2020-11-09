@@ -9,7 +9,7 @@ import (
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -279,12 +279,14 @@ func (h UpdateMTOShipmentHandler) checkPrimeValidationsOnModel(mtoShipment *mode
 			scheduledPickupDate = mtoShipment.ScheduledPickupDate
 		}
 		now := time.Now()
-		if dbShipment.ApprovedDate != nil {
+		if dbShipment.ApprovedDate != nil && scheduledPickupDate != nil {
 			err := validatePrimeEstimatedWeightRecordedDate(now, *scheduledPickupDate, *dbShipment.ApprovedDate)
 			if err != nil {
 				verrs.Add("primeEstimatedWeight", "the time period for updating the estimated weight for a shipment has expired, please contact the TOO directly to request updates to this shipment’s estimated weight")
 				verrs.Add("primeEstimatedWeight", err.Error())
 			}
+		} else if scheduledPickupDate == nil {
+			verrs.Add("primeEstimatedWeight", "the scheduled pickup date must be set before estimating the weight")
 		}
 		mtoShipment.PrimeEstimatedWeightRecordedDate = &now
 	}

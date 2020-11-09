@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
@@ -317,6 +318,28 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(paymentrequestop.NewGetPaymentRequestEDINotFound(), response)
+	})
+
+	suite.T().Run("failure due to a validation error", func(t *testing.T) {
+		req := httptest.NewRequest("GET", fmt.Sprintf(urlFormat, paymentRequestID), nil)
+
+		params := paymentrequestop.GetPaymentRequestEDIParams{
+			HTTPRequest:      req,
+			PaymentRequestID: strfmtPaymentRequestID,
+		}
+
+		mockGenerator := &mocks.GHCPaymentRequestInvoiceGenerator{}
+		mockGenerator.On("Generate", mock.Anything, mock.Anything).Return(ediinvoice.Invoice858C{}, services.NewInvalidInputError(paymentRequestID, nil, validate.NewErrors(), ""))
+
+		mockGeneratorHandler := GetPaymentRequestEDIHandler{
+			HandlerContext:                    handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(suite.DB()),
+			GHCPaymentRequestInvoiceGenerator: mockGenerator,
+		}
+
+		response := mockGeneratorHandler.Handle(params)
+
+		suite.IsType(paymentrequestop.NewGetPaymentRequestEDIUnprocessableEntity(), response)
 	})
 
 	suite.T().Run("failure due to payment request ID not found", func(t *testing.T) {

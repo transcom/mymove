@@ -19,6 +19,7 @@ import { fetchLatestOrders, selectActiveOrLatestOrders } from 'shared/Entities/m
 import Alert from 'shared/Alert';
 import { ValidateZipRateData } from 'shared/api';
 import { setInitialFormValues } from './ducks';
+import SectionWrapper from 'components/Customer/SectionWrapper';
 
 import './DateAndLocation.css';
 
@@ -122,63 +123,69 @@ export class DateAndLocation extends Component {
           enableReinitialize={true} //this is needed as the pickup_postal_code value needs to be initialized to the users residential address
         >
           <h1 data-testid="location-page-title">PPM dates & locations</h1>
-          <h3> Move date </h3>
-          <SwaggerField fieldName="original_move_date" swagger={this.props.schema} required />
-          <h3>Pickup location</h3>
-          <SwaggerField fieldName="pickup_postal_code" swagger={this.props.schema} required />
-          <SwaggerField fieldName="has_additional_postal_code" swagger={this.props.schema} component={YesNoBoolean} />
-          {get(this.props, 'formValues.has_additional_postal_code', false) && (
-            <Fragment>
-              <SwaggerField fieldName="additional_pickup_postal_code" swagger={this.props.schema} required />
-              <span className="grey">
-                Making additional stops may decrease your PPM incentive.{' '}
-                <a onClick={this.openInfo} className="usa-link">
-                  Why
-                </a>
-              </span>
-              {this.state.showInfo && (
-                <Alert type="info" heading="">
-                  Your PPM incentive is based primarily off two factors -- the weight of your household goods and the
-                  base rate it would cost the government to transport your household goods between your destination and
-                  origin. When you add additional stops, your overall PPM incentive will change to account for any
-                  deviations from the standard route and to account for the fact that not 100% of your household goods
-                  travelled the entire way from origin to destination.{' '}
-                  <a onClick={this.closeInfo} className="usa-link">
-                    Close
+          <SectionWrapper>
+            <h2> Move date </h2>
+            <SwaggerField fieldName="original_move_date" swagger={this.props.schema} required />
+          </SectionWrapper>
+          <SectionWrapper>
+            <h2>Pickup location</h2>
+            <SwaggerField fieldName="pickup_postal_code" swagger={this.props.schema} required />
+            <SwaggerField fieldName="has_additional_postal_code" swagger={this.props.schema} component={YesNoBoolean} />
+            {get(this.props, 'formValues.has_additional_postal_code', false) && (
+              <Fragment>
+                <SwaggerField fieldName="additional_pickup_postal_code" swagger={this.props.schema} required />
+                <span className="grey">
+                  Making additional stops may decrease your PPM incentive.{' '}
+                  <a onClick={this.openInfo} className="usa-link">
+                    Why
                   </a>
-                </Alert>
-              )}
-            </Fragment>
-          )}
-          <h3>Destination location</h3>
-          <p>
-            Enter the ZIP for your new home if you know it, or for{' '}
-            {this.props.currentOrders && this.props.currentOrders.new_duty_station.name} if you don't.
-          </p>
-          <SwaggerField
-            fieldName="destination_postal_code"
-            swagger={this.props.schema}
-            validate={validateDifferentZip}
-            required
-          />
-          <div style={{ marginTop: '0.5rem' }}>
-            <span className="grey">
-              The ZIP code for {currentOrders && currentOrders.new_duty_station.name} is{' '}
-              {currentOrders && currentOrders.new_duty_station.address.postal_code}.
-            </span>
-          </div>
-          <SwaggerField fieldName="has_sit" swagger={this.props.schema} component={YesNoBoolean} />
-          {get(this.props, 'formValues.has_sit', false) && (
-            <Fragment>
-              <SwaggerField
-                className="days-in-storage"
-                fieldName="days_in_storage"
-                swagger={this.props.schema}
-                required
-              />{' '}
-              <span className="grey">You can choose up to 90 days.</span>
-            </Fragment>
-          )}
+                </span>
+                {this.state.showInfo && (
+                  <Alert type="info" heading="">
+                    Your PPM incentive is based primarily off two factors -- the weight of your household goods and the
+                    base rate it would cost the government to transport your household goods between your destination
+                    and origin. When you add additional stops, your overall PPM incentive will change to account for any
+                    deviations from the standard route and to account for the fact that not 100% of your household goods
+                    travelled the entire way from origin to destination.{' '}
+                    <a onClick={this.closeInfo} className="usa-link">
+                      Close
+                    </a>
+                  </Alert>
+                )}
+              </Fragment>
+            )}
+          </SectionWrapper>
+          <SectionWrapper>
+            <h2>Destination location</h2>
+            <p>
+              Enter the ZIP for your new home if you know it, or for{' '}
+              {this.props.currentOrders && this.props.currentOrders.new_duty_station.name} if you don't.
+            </p>
+            <SwaggerField
+              fieldName="destination_postal_code"
+              swagger={this.props.schema}
+              validate={validateDifferentZip}
+              required
+            />
+            <div style={{ marginTop: '0.5rem' }}>
+              <span className="grey">
+                The ZIP code for {currentOrders && currentOrders.new_duty_station.name} is{' '}
+                {currentOrders && currentOrders.new_duty_station.address.postal_code}.
+              </span>
+            </div>
+            <SwaggerField fieldName="has_sit" swagger={this.props.schema} component={YesNoBoolean} />
+            {get(this.props, 'formValues.has_sit', false) && (
+              <Fragment>
+                <SwaggerField
+                  className="days-in-storage"
+                  fieldName="days_in_storage"
+                  swagger={this.props.schema}
+                  required
+                />{' '}
+                <span className="grey">You can choose up to 90 days.</span>
+              </Fragment>
+            )}
+          </SectionWrapper>
         </DateAndLocationWizardForm>
       </div>
     );

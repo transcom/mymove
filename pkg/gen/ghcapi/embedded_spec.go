@@ -167,57 +167,6 @@ func init() {
         }
       }
     },
-    "/move-orders": {
-      "get": {
-        "description": "Gets all move orders",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moveOrder"
-        ],
-        "summary": "Gets all move orders",
-        "operationId": "listMoveOrders",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved all move orders",
-            "schema": {
-              "$ref": "#/definitions/MoveOrders"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
-          }
-        }
-      }
-    },
     "/move-orders/{moveOrderID}": {
       "get": {
         "description": "Gets a move order",
@@ -1417,52 +1366,6 @@ func init() {
         }
       ]
     },
-    "/payment-requests": {
-      "get": {
-        "description": "Gets a list of payment requests",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "paymentRequests",
-          "gov"
-        ],
-        "summary": "Gets payment requests",
-        "operationId": "listPaymentRequests",
-        "responses": {
-          "200": {
-            "description": "fetched list of payment requests",
-            "schema": {
-              "$ref": "#/definitions/PaymentRequests"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      }
-    },
     "/payment-requests/{paymentRequestID}": {
       "get": {
         "description": "Fetches an instance of a payment request by id",
@@ -1627,6 +1530,48 @@ func init() {
         ],
         "summary": "Gets queued list of all customer moves by GBLOC origin",
         "operationId": "getMovesQueue",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "moveID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "lastName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "destinationDutyStation",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "New move",
+                "Approvals requested",
+                "Move approved"
+              ],
+              "type": "string"
+            },
+            "description": "Filtering for the status.",
+            "name": "status",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successfully returned all moves matching the criteria",
@@ -1660,6 +1605,53 @@ func init() {
         ],
         "summary": "Gets queued list of all payment requests by GBLOC origin",
         "operationId": "getPaymentRequestsQueue",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "submittedAt",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "moveID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "lastName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "destinationDutyStation",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "Payment requested",
+                "Reviewed",
+                "Paid"
+              ],
+              "type": "string"
+            },
+            "description": "Filtering for the status.",
+            "name": "status",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successfully returned all moves matching the criteria",
@@ -3046,7 +3038,7 @@ func init() {
         "age": {
           "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
           "type": "number",
-          "format": "float"
+          "format": "integer"
         },
         "customer": {
           "$ref": "#/definitions/Customer"
@@ -3651,72 +3643,6 @@ func init() {
             "description": "Validation error",
             "schema": {
               "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/move-orders": {
-      "get": {
-        "description": "Gets all move orders",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moveOrder"
-        ],
-        "summary": "Gets all move orders",
-        "operationId": "listMoveOrders",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved all move orders",
-            "schema": {
-              "$ref": "#/definitions/MoveOrders"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
             }
           },
           "500": {
@@ -5182,55 +5108,6 @@ func init() {
         }
       ]
     },
-    "/payment-requests": {
-      "get": {
-        "description": "Gets a list of payment requests",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "paymentRequests",
-          "gov"
-        ],
-        "summary": "Gets payment requests",
-        "operationId": "listPaymentRequests",
-        "responses": {
-          "200": {
-            "description": "fetched list of payment requests",
-            "schema": {
-              "$ref": "#/definitions/PaymentRequests"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      }
-    },
     "/payment-requests/{paymentRequestID}": {
       "get": {
         "description": "Fetches an instance of a payment request by id",
@@ -5428,6 +5305,48 @@ func init() {
         ],
         "summary": "Gets queued list of all customer moves by GBLOC origin",
         "operationId": "getMovesQueue",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "moveID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "lastName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "destinationDutyStation",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "New move",
+                "Approvals requested",
+                "Move approved"
+              ],
+              "type": "string"
+            },
+            "description": "Filtering for the status.",
+            "name": "status",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successfully returned all moves matching the criteria",
@@ -5467,6 +5386,53 @@ func init() {
         ],
         "summary": "Gets queued list of all payment requests by GBLOC origin",
         "operationId": "getPaymentRequestsQueue",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "submittedAt",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "moveID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "lastName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "destinationDutyStation",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "Payment requested",
+                "Reviewed",
+                "Paid"
+              ],
+              "type": "string"
+            },
+            "description": "Filtering for the status.",
+            "name": "status",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successfully returned all moves matching the criteria",
@@ -6859,7 +6825,7 @@ func init() {
         "age": {
           "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
           "type": "number",
-          "format": "float"
+          "format": "integer"
         },
         "customer": {
           "$ref": "#/definitions/Customer"

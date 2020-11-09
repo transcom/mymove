@@ -30,24 +30,24 @@ func (suite *SegmentSuite) TestValidateL0() {
 
 	suite.T().Run("validate failure 1", func(t *testing.T) {
 		l0 := L0{
-			LadingLineItemNumber:  2,   // eq
-			BilledRatedAsQuantity: 3.0, // required_with
+			LadingLineItemNumber:  2000, // max
+			BilledRatedAsQuantity: 3.0,  // required_with
 		}
 
 		err := suite.validator.Struct(l0)
-		suite.ValidateError(err, "LadingLineItemNumber", "eq")
+		suite.ValidateError(err, "LadingLineItemNumber", "max")
 		suite.ValidateError(err, "BilledRatedAsQualifier", "required_with")
 		suite.ValidateErrorLen(err, 2)
 	})
 
 	suite.T().Run("validate failure 2", func(t *testing.T) {
 		l0 := L0{
-			LadingLineItemNumber: 2,     // eq
+			LadingLineItemNumber: 0,     // min
 			Weight:               300.0, // required_with
 		}
 
 		err := suite.validator.Struct(l0)
-		suite.ValidateError(err, "LadingLineItemNumber", "eq")
+		suite.ValidateError(err, "LadingLineItemNumber", "min")
 		suite.ValidateError(err, "WeightQualifier", "required_with")
 		suite.ValidateError(err, "WeightUnitCode", "required_with")
 		suite.ValidateErrorLen(err, 3)

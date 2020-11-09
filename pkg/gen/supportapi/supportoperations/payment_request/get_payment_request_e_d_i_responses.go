@@ -233,6 +233,50 @@ func (o *GetPaymentRequestEDINotFound) WriteResponse(rw http.ResponseWriter, pro
 	}
 }
 
+// GetPaymentRequestEDIUnprocessableEntityCode is the HTTP code returned for type GetPaymentRequestEDIUnprocessableEntity
+const GetPaymentRequestEDIUnprocessableEntityCode int = 422
+
+/*GetPaymentRequestEDIUnprocessableEntity The payload was unprocessable.
+
+swagger:response getPaymentRequestEDIUnprocessableEntity
+*/
+type GetPaymentRequestEDIUnprocessableEntity struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *supportmessages.ValidationError `json:"body,omitempty"`
+}
+
+// NewGetPaymentRequestEDIUnprocessableEntity creates GetPaymentRequestEDIUnprocessableEntity with default headers values
+func NewGetPaymentRequestEDIUnprocessableEntity() *GetPaymentRequestEDIUnprocessableEntity {
+
+	return &GetPaymentRequestEDIUnprocessableEntity{}
+}
+
+// WithPayload adds the payload to the get payment request e d i unprocessable entity response
+func (o *GetPaymentRequestEDIUnprocessableEntity) WithPayload(payload *supportmessages.ValidationError) *GetPaymentRequestEDIUnprocessableEntity {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the get payment request e d i unprocessable entity response
+func (o *GetPaymentRequestEDIUnprocessableEntity) SetPayload(payload *supportmessages.ValidationError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *GetPaymentRequestEDIUnprocessableEntity) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(422)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // GetPaymentRequestEDIInternalServerErrorCode is the HTTP code returned for type GetPaymentRequestEDIInternalServerError
 const GetPaymentRequestEDIInternalServerErrorCode int = 500
 

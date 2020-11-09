@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -45,6 +45,7 @@ func (eng *Engine) processNotifications(notifications []models.WebhookNotificati
 			if sub.EventKey == notif.EventKey {
 				foundSub = true
 				// If found, send  to subscription
+				// #nosec G601 TODO needs review
 				err := eng.sendOneNotification(&notif, &sub)
 				if err != nil {
 					eng.Logger.Error("Webhook Notification send failed", zap.Error(err))
@@ -57,6 +58,7 @@ func (eng *Engine) processNotifications(notifications []models.WebhookNotificati
 			//Need to update notification status to skipped, once that's available. Currently updating to pending. [MB-3875]
 			eng.Logger.Debug("No subscription found for notification event.", zap.String("eventKey", notif.EventKey))
 			notif.Status = models.WebhookNotificationPending
+			// #nosec G601 TODO needs review
 			err := eng.updateNotification(&notif)
 			if err != nil {
 				eng.Logger.Error("Notification update failed", zap.Error(err))

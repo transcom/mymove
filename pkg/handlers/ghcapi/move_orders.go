@@ -4,12 +4,11 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/transcom/mymove/pkg/models/roles"
-
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/event"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
@@ -44,41 +43,6 @@ func (h GetMoveOrdersHandler) Handle(params moveorderop.GetMoveOrderParams) midd
 	return moveorderop.NewGetMoveOrderOK().WithPayload(moveOrderPayload)
 }
 
-// ListMoveOrdersHandler fetches all the move orders
-type ListMoveOrdersHandler struct {
-	handlers.HandlerContext
-	services.MoveOrderFetcher
-}
-
-// Handle getting the all move orders
-func (h ListMoveOrdersHandler) Handle(params moveorderop.ListMoveOrdersParams) middleware.Responder {
-	// get the session from http request
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-
-	officeUserAuthorized := session.Roles.HasRole(roles.RoleTypeTOO)
-	if !officeUserAuthorized {
-		return moveorderop.NewListMoveOrdersForbidden()
-	}
-
-	// list move orders and pass in office user ID as argument to filter list
-	moveOrders, err := h.MoveOrderFetcher.ListMoveOrders(session.OfficeUserID)
-	if err != nil {
-		logger.Error("fetching all move orders", zap.Error(err))
-		switch err {
-		case sql.ErrNoRows:
-			return moveorderop.NewListMoveOrdersNotFound()
-		default:
-			return moveorderop.NewListMoveOrdersInternalServerError()
-		}
-	}
-
-	moveOrdersPayload := make(ghcmessages.MoveOrders, len(moveOrders))
-	for i, moveOrder := range moveOrders {
-		moveOrdersPayload[i] = payloads.MoveOrder(&moveOrder)
-	}
-	return moveorderop.NewListMoveOrdersOK().WithPayload(moveOrdersPayload)
-}
-
 // ListMoveTaskOrdersHandler fetches all the move orders
 type ListMoveTaskOrdersHandler struct {
 	handlers.HandlerContext
@@ -101,6 +65,7 @@ func (h ListMoveTaskOrdersHandler) Handle(params moveorderop.ListMoveTaskOrdersP
 	}
 	moveTaskOrdersPayload := make(ghcmessages.MoveTaskOrders, len(moveTaskOrders))
 	for i, moveTaskOrder := range moveTaskOrders {
+		// #nosec G601 TODO needs review
 		moveTaskOrdersPayload[i] = payloads.MoveTaskOrder(&moveTaskOrder)
 	}
 	return moveorderop.NewListMoveTaskOrdersOK().WithPayload(moveTaskOrdersPayload)
@@ -143,6 +108,34 @@ func (h UpdateMoveOrderHandler) Handle(params moveorderop.UpdateMoveOrderParams)
 		default:
 			return moveorderop.NewUpdateMoveOrderInternalServerError()
 		}
+	}
+
+	// Find the record where orderID matches moveOrder.ID
+	var move models.Move
+	query := h.DB().Where("orders_id = ?", updatedOrder.ID)
+	err = query.First(&move)
+
+	var moveID = move.ID
+
+	if err != nil {
+		logger.Error("ghcapi.UpdateMoveOrderHandler could not find move")
+		moveID = uuid.Nil
+	}
+
+	// UpdateMoveOrder event Trigger for the first updated move:
+	_, err = event.TriggerEvent(event.Event{
+		EndpointKey: event.GhcUpdateMoveOrderEndpointKey,
+		// Endpoint that is being handled
+		EventKey:        event.MoveOrderUpdateEventKey, // Event that you want to trigger
+		UpdatedObjectID: updatedOrder.ID,               // ID of the updated logical object (look at what the payload returns)
+		MtoID:           moveID,                        // ID of the associated Move
+		Request:         params.HTTPRequest,            // Pass on the http.Request
+		DBConnection:    h.DB(),                        // Pass on the pop.Connection
+		HandlerContext:  h,                             // Pass on the handlerContext
+	})
+	// If the event trigger fails, just log the error.
+	if err != nil {
+		logger.Error("ghcapi.UpdateMoveOrderHandler could not generate the event")
 	}
 
 	moveOrderPayload := payloads.MoveOrder(updatedOrder)

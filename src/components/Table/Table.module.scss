@@ -3,6 +3,7 @@
 @import 'shared/styles/colors';
 
 .Table {
+  min-height: 300px;
   table {
     @include u-font('body', 'xs');
     color: $base-darkest;
@@ -30,6 +31,24 @@
     th {
       color: $base-darker;
       @include u-text('bold');
+    }
+
+    .tableHeaderFilters {
+      background-color: $base-lighter;
+
+      th {
+        @include u-bg('transparent');
+        @include u-padding-top(0);
+        @include u-padding-bottom(1);
+      }
+
+      &:hover {
+        background-color: $base-lighter;
+
+        th {
+          @include u-bg('transparent')
+        }
+      }
     }
   }
 }

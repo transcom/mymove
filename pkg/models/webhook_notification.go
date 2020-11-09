@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
-	"github.com/gobuffalo/validate/validators"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
+	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
 )
 
@@ -21,6 +21,11 @@ const (
 	WebhookNotificationPending WebhookNotificationStatus = "PENDING"
 	// WebhookNotificationSent is the sent status type for a WebhookNotification
 	WebhookNotificationSent WebhookNotificationStatus = "SENT"
+	// WebhookNotificationSkipped is the skipped status type for a WebhookNotification
+	WebhookNotificationSkipped WebhookNotificationStatus = "SKIPPED"
+	// WebhookNotificationFailing is the failing status type for a WebhookNotification
+	// - indicates the send has failed at least once but we are still retrying it
+	WebhookNotificationFailing WebhookNotificationStatus = "FAILING"
 	// WebhookNotificationFailed is the failed status type for a WebhookNotification
 	WebhookNotificationFailed WebhookNotificationStatus = "FAILED"
 )
@@ -63,6 +68,8 @@ func (w *WebhookNotification) Validate(tx *pop.Connection) (*validate.Errors, er
 		&validators.StringInclusion{Field: string(w.Status), Name: "Status", List: []string{
 			string(WebhookNotificationPending),
 			string(WebhookNotificationSent),
+			string(WebhookNotificationSkipped),
+			string(WebhookNotificationFailing),
 			string(WebhookNotificationFailed),
 		}},
 	), nil

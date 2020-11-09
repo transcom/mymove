@@ -4,17 +4,18 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"math/rand"
-	"strings"
 	"time"
 
 	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
-	"github.com/gobuffalo/validate/validators"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
+	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+	"github.com/jackc/pgerrcode"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/db/dberr"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -126,17 +127,18 @@ func (m *Move) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 // Avoid calling Move.Status = ... ever. Use these methods to change the state.
 
 // Submit submits the Move
-func (m *Move) Submit(submitDate time.Time) error {
+func (m *Move) Submit(submittedDate time.Time) error {
 	if m.Status != MoveStatusDRAFT {
 		return errors.Wrap(ErrInvalidTransition, "Submit")
 	}
 	m.Status = MoveStatusSUBMITTED
-	m.SubmittedAt = swag.Time(time.Now())
+	submitDate := swag.Time(submittedDate)
+	m.SubmittedAt = submitDate
 
 	// Update PPM status too
 	for i := range m.PersonallyProcuredMoves {
 		ppm := &m.PersonallyProcuredMoves[i]
-		err := ppm.Submit(submitDate)
+		err := ppm.Submit(*submitDate)
 		if err != nil {
 			return err
 		}
@@ -257,6 +259,7 @@ func (m Move) createMoveDocumentWithoutTransaction(
 	// Associate uploads to the new document
 	for _, upload := range userUploads {
 		upload.DocumentID = &newDoc.ID
+		// #nosec G601 TODO needs review
 		verrs, err := db.ValidateAndUpdate(&upload)
 		if err != nil || verrs.HasAny() {
 			responseVErrors.Append(verrs)
@@ -531,7 +534,7 @@ func createNewMove(db *pop.Connection,
 			return nil, verrs, nil
 		}
 		if err != nil {
-			if strings.HasPrefix(errors.Cause(err).Error(), uniqueConstraintViolationErrorPrefix) {
+			if dberr.IsDBErrorForConstraint(err, pgerrcode.UniqueViolation, "moves_locator_idx") {
 				// If we have a collision, try again for maxLocatorAttempts
 				continue
 			}
@@ -563,7 +566,9 @@ func GenerateReferenceID(db *pop.Connection) (string, error) {
 func generateReferenceIDHelper(db *pop.Connection) (string, error) {
 	min := 0
 	max := 9999
+	// #nosec G404 TODO needs review
 	firstNum := rand.Intn(max - min + 1)
+	// #nosec G404 TODO needs review
 	secondNum := rand.Intn(max - min + 1)
 	newReferenceID := fmt.Sprintf("%04d-%04d", firstNum, secondNum)
 
@@ -595,6 +600,7 @@ func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, err
 				}
 			}
 
+			// #nosec G601 TODO needs review
 			if verrs, err := db.ValidateAndSave(&ppm); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = errors.Wrap(err, "Error Saving PPM")

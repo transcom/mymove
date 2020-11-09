@@ -18,7 +18,7 @@ import (
 type QueuePaymentRequest struct {
 
 	// Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.
-	Age float32 `json:"age,omitempty"`
+	Age int64 `json:"age,omitempty"`
 
 	// customer
 	Customer *Customer `json:"customer,omitempty"`
