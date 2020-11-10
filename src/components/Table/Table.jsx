@@ -13,18 +13,15 @@ const Table = ({
   getTableBodyProps,
   headerGroups,
   rows,
-  initialState,
   prepareRow,
   canPreviousPage,
   canNextPage,
-  gotoPage,
-  nextPage,
-  previousPage,
-  setPageSize,
   showPagination,
   pageSize,
   handleNextClick,
+  handlePreviousClick,
   handlePageSelect,
+  handleSetPageSize,
   pageIndex,
 }) => {
   return (
@@ -77,7 +74,9 @@ const Table = ({
               className={styles.usaSelect}
               name="table-rows-per-page"
               defaultValue={pageSize}
-              onClick={() => setPageSize()}
+              onChange={(e) => {
+                handleSetPageSize(e);
+              }}
             >
               <option value="10">10</option>
               <option value="20">20</option>
@@ -88,13 +87,19 @@ const Table = ({
           <div className={styles.tableControlPagination}>
             <Button
               className={styles.usaButtonUnstyled}
-              onClick={() => previousPage(pageIndex)}
+              onClick={() => handlePreviousClick(pageIndex)}
               disabled={!canPreviousPage}
             >
               <FontAwesomeIcon className="icon fas fa-chevron-left" icon={faChevronLeft} />
               <span>Prev</span>
             </Button>
-            <Dropdown className={styles.usaSelect} name="table-pagination" onClick={() => handlePageSelect(rows.value)}>
+            <Dropdown
+              className={styles.usaSelect}
+              name="table-pagination"
+              onChange={(e) => {
+                handlePageSelect(e);
+              }}
+            >
               <option value="1">1</option>
               <option value="2">2</option>
               <option value="3">3</option>
@@ -115,6 +120,7 @@ Table.propTypes = {
   handlePreviousClick: PropTypes.func,
   handleNextClick: PropTypes.func,
   handlePageSelect: PropTypes.func,
+  handleSetPageSize: PropTypes.func,
   // below are props from useTable() hook
   getTableProps: PropTypes.func.isRequired,
   getTableBodyProps: PropTypes.func.isRequired,
@@ -122,25 +128,19 @@ Table.propTypes = {
   rows: PropTypes.arrayOf(PropTypes.object).isRequired,
   prepareRow: PropTypes.func.isRequired,
   showPagination: PropTypes.bool,
-  // eslint-disable-next-line react/forbid-prop-types
-  initialState: PropTypes.object,
   canPreviousPage: PropTypes.bool,
   canNextPage: PropTypes.bool,
   pageCount: PropTypes.number,
-  gotoPage: PropTypes.func,
-  nextPage: PropTypes.func,
-  previousPage: PropTypes.func,
-  setPageSize: PropTypes.func,
   pageIndex: PropTypes.number,
   pageSize: PropTypes.number,
   state: PropTypes.node,
-  goToPage: PropTypes.func,
 };
 
 Table.defaultProps = {
   handleClick: undefined,
   showPagination: false,
-  initialState: { pageIndex: 0, pageSize: 20 },
+  pageIndex: 0,
+  pageSize: 20,
   canPreviousPage: false,
 };
 

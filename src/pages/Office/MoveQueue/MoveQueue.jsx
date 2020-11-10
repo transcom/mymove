@@ -77,7 +77,8 @@ const columns = [
 
 const MoveQueue = ({ history }) => {
   const [paramFilters, setParamFilters] = useState([]);
-
+  const [pageIndex, nextPage, previousPage, goToPage] = useState(0);
+  const [pageSize, setPageSize] = useState(20);
   const {
     queueMovesResult: { totalCount = 0, queueMoves = [] },
     isLoading,
@@ -104,11 +105,9 @@ const MoveQueue = ({ history }) => {
     canPreviousPage,
     canNextPage,
     gotoPage,
-    previousPage,
     pageOptions,
     pageCount,
-    setPageSize,
-    state: { filters, pageIndex, pageSize },
+    state: { filters },
   } = useTable(
     {
       columns: tableColumns,
@@ -118,7 +117,6 @@ const MoveQueue = ({ history }) => {
       manualFilters: true,
       showPagination: true,
       manualPagination: true,
-      // pages: {this.state.pages}
     },
     useFilters,
     usePagination,
@@ -139,22 +137,35 @@ const MoveQueue = ({ history }) => {
   };
 
   const handlePreviousClick = (value) => {
-    // eslint-disable-next-line no-param-reassign
-    value -= 1;
-    history.push(`/moves/queue?page=${value}`);
+    console.log('value:', value);
+    const newPage = value + 1;
+    previousPage(newPage);
+    // history.push(`/moves/queue?page=${value}`);
     // if (canPreviousPage) {
     // pageIndex = state[page] - 1
   };
+
   const handleNextClick = (value) => {
+    console.log('value:', value);
+    const newPage = value + 1;
+    nextPage(newPage);
     // eslint-disable-next-line no-param-reassign
-    value += 1;
-    history.push(`/moves/queue?page=${value}`);
+    // value += 1;
+    // history.push(`/moves/queue?page=${value}`);
     // if (canNextPage) {
     // }
   };
 
-  const handlePageSelect = (value) => {
-    history.push(`/moves/queue?page=${value}`);
+  const handleSetPageSize = (event) => {
+    const size = event.target.value;
+    setPageSize(size);
+    // history.push(`/moves/queue?perPage=${size}`);
+  };
+
+  const handlePageSelect = (event) => {
+    const page = event.target.value;
+    goToPage(page);
+    // history.push(`/moves/queue?page=${page}`);
   };
 
   return (
@@ -166,18 +177,19 @@ const MoveQueue = ({ history }) => {
           handleNextClick={handleNextClick}
           handlePreviousClick={handlePreviousClick}
           handlePageSelect={handlePageSelect}
+          handleSetPageSize={handleSetPageSize}
           getTableProps={getTableProps}
           getTableBodyProps={getTableBodyProps}
           headerGroups={headerGroups}
           rows={rows}
           prepareRow={prepareRow}
           showPagination
-          previousPage={previousPage}
           canPreviousPage={canPreviousPage}
           canNextPage={canNextPage}
           gotoPage={gotoPage}
-          setPageSize={setPageSize}
+          previousPage={previousPage}
           pageIndex={pageIndex}
+          nextPage={nextPage}
         />
       </div>
     </GridContainer>
