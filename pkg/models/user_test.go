@@ -22,7 +22,7 @@ func (suite *ModelSuite) TestUserCreation() {
 	userEmail := "sally@government.gov"
 
 	newUser := User{
-		LoginGovUUID:  fakeUUID,
+		LoginGovUUID:  &fakeUUID,
 		LoginGovEmail: userEmail,
 	}
 
@@ -35,7 +35,7 @@ func (suite *ModelSuite) TestUserCreation() {
 	}
 
 	if (newUser.LoginGovEmail != userEmail) &&
-		(newUser.LoginGovUUID != fakeUUID) {
+		(*newUser.LoginGovUUID != fakeUUID) {
 		t.Error("Required values didn't get set.")
 	}
 }
@@ -56,12 +56,12 @@ func (suite *ModelSuite) TestUserCreationDuplicateUUID() {
 	userEmail := "sally@government.gov"
 
 	newUser := User{
-		LoginGovUUID:  fakeUUID,
+		LoginGovUUID:  &fakeUUID,
 		LoginGovEmail: userEmail,
 	}
 
 	sameUser := User{
-		LoginGovUUID:  fakeUUID,
+		LoginGovUUID:  &fakeUUID,
 		LoginGovEmail: userEmail,
 	}
 

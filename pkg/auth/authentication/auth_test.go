@@ -162,7 +162,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
 
 	user := models.User{
-		LoginGovUUID:  loginGovUUID,
+		LoginGovUUID:  &loginGovUUID,
 		LoginGovEmail: "email@example.com",
 		Active:        true,
 	}
@@ -210,7 +210,7 @@ func (suite *AuthSuite) TestRequireAuthMiddleware() {
 	// Given: a logged in user
 	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
 	user := models.User{
-		LoginGovUUID:  loginGovUUID,
+		LoginGovUUID:  &loginGovUUID,
 		LoginGovEmail: "email@example.com",
 		Active:        true,
 	}
@@ -267,7 +267,7 @@ func (suite *AuthSuite) TestIsLoggedInWhenNoUserLoggedIn() {
 func (suite *AuthSuite) TestIsLoggedInWhenUserLoggedIn() {
 	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
 	user := models.User{
-		LoginGovUUID:  loginGovUUID,
+		LoginGovUUID:  &loginGovUUID,
 		LoginGovEmail: "email@example.com",
 		Active:        true,
 	}
@@ -319,7 +319,7 @@ func (suite *AuthSuite) TestRequireAdminAuthMiddleware() {
 	// Given: a logged in user
 	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
 	user := models.User{
-		LoginGovUUID:  loginGovUUID,
+		LoginGovUUID:  &loginGovUUID,
 		LoginGovEmail: "email@example.com",
 		Active:        true,
 	}
@@ -401,7 +401,7 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleOffice() {
 	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
 
 	user := models.User{
-		LoginGovUUID:  loginGovUUID,
+		LoginGovUUID:  &loginGovUUID,
 		LoginGovEmail: "email@example.com",
 		Active:        true,
 	}
@@ -476,7 +476,7 @@ func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
 
 	user := models.User{
-		LoginGovUUID:  loginGovUUID,
+		LoginGovUUID:  &loginGovUUID,
 		LoginGovEmail: "email@example.com",
 		Active:        true,
 	}
@@ -547,7 +547,7 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleAdmin() {
 	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
 
 	user := models.User{
-		LoginGovUUID:  loginGovUUID,
+		LoginGovUUID:  &loginGovUUID,
 		LoginGovEmail: "email@example.com",
 		Active:        true,
 	}

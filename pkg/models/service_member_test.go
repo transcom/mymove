@@ -25,8 +25,9 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 
 	t := suite.T()
 	// Given: a user and a service member
+	lgu := uuid.Must(uuid.NewV4())
 	user1 := User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
+		LoginGovUUID:  &lgu,
 		LoginGovEmail: "whoever@example.com",
 	}
 	verrs, err := suite.DB().ValidateAndCreate(&user1)

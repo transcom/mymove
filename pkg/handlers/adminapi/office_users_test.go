@@ -229,6 +229,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			officeUserCreator,
 			newQueryFilter,
+			usersroles.NewUsersRolesCreator(suite.DB()),
 		}
 
 		response := handler.Handle(params)
@@ -246,6 +247,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			officeUserCreator,
 			newQueryFilter,
+			usersroles.NewUsersRolesCreator(suite.DB()),
 		}
 
 		response := handler.Handle(params)

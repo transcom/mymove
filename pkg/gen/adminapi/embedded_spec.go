@@ -1639,6 +1639,12 @@ func init() {
           "x-nullable": true,
           "example": "L."
         },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserRole"
+          }
+        },
         "telephone": {
           "type": "string",
           "format": "telephone",
@@ -3724,6 +3730,12 @@ func init() {
           "title": "Middle Initials",
           "x-nullable": true,
           "example": "L."
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserRole"
+          }
         },
         "telephone": {
           "type": "string",

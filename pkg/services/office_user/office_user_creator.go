@@ -1,6 +1,8 @@
 package officeuser
 
 import (
+	"strings"
+
 	"github.com/gobuffalo/validate/v3"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -12,7 +14,7 @@ type officeUserCreator struct {
 }
 
 // CreateOfficeUser creates office users
-func (o *officeUserCreator) CreateOfficeUser(user *models.OfficeUser, transportationIDFilter []services.QueryFilter) (*models.OfficeUser, *validate.Errors, error) {
+func (o *officeUserCreator) CreateOfficeUser(officeUser *models.OfficeUser, transportationIDFilter []services.QueryFilter) (*models.OfficeUser, *validate.Errors, error) {
 	// Use FetchOne to see if we have a transportation office that matches the provided id
 	var transportationOffice models.TransportationOffice
 	err := o.builder.FetchOne(&transportationOffice, transportationIDFilter)
@@ -21,12 +23,24 @@ func (o *officeUserCreator) CreateOfficeUser(user *models.OfficeUser, transporta
 		return nil, nil, err
 	}
 
+	user := &models.User{
+		LoginGovEmail: strings.ToLower(officeUser.Email),
+		Active:        true,
+	}
 	verrs, err := o.builder.CreateOne(user)
 	if verrs != nil || err != nil {
 		return nil, verrs, err
 	}
 
-	return user, nil, nil
+	officeUser.UserID = &user.ID
+	officeUser.User = *user
+
+	verrs, err = o.builder.CreateOne(officeUser)
+	if verrs != nil || err != nil {
+		return nil, verrs, err
+	}
+
+	return officeUser, nil, nil
 }
 
 // NewOfficeUserCreator returns a new office user creator
