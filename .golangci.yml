@@ -5,7 +5,25 @@ linters-settings:
     # put imports beginning with prefix after 3rd-party packages;
     # it's a comma-separated list of prefixes
     local-prefixes: github.com/transcom/mymove
-
+  gomodguard:
+    blocked:
+      modules:
+        - github.com/gobuffalo/uuid:
+            recommendations:
+              - github.com/gofrs/uuid
+            reason: "uuid from GoBuffalo is deprecated in favor of the gofrs uuid package. See https://github.com/gobuffalo/uuid"
+        - github.com/gobuffalo/validate:
+            recommendations:
+              - github.com/gobuffalo/validate/v3
+            reason: "MilMove is now on Pop v5, do not use older versions of this module"
+        - github.com/gobuffalo/pop:
+            recommendations:
+              - github.com/gobuffalo/pop/v5
+            reason: "MilMove is now on Pop v5, do not use older versions of this module"
+        - github.com/gobuffalo/pop/soda:
+            recommendations:
+              - github.com/gobuffalo/pop/v5/soda
+            reason: "MilMove is now on Pop v5, do not use older versions of this module"
 linters:
   enable:
     - deadcode
@@ -18,6 +36,7 @@ linters:
     - structcheck
     - typecheck
     - varcheck
+    - gomodguard
   disable:
     - errcheck #requires patching code
     - staticcheck # 30+files need to be patched
