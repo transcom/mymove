@@ -2129,4 +2129,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 
+	// Create one webhook subscription for PaymentRequestUpdate
+	testdatagen.MakeDefaultWebhookSubscription(db)
 }

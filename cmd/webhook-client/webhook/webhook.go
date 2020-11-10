@@ -123,7 +123,6 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 			// Not writing to db, but should be written within
 			// this function.
 		}
-		fmt.Println("\ntrying", try, notif.ID, notif.EventKey, notif.Status, notif.FirstAttemptedAt)
 
 		if err2 == nil && resp.StatusCode == 200 {
 			// Update notification
@@ -158,7 +157,7 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 		notif.Status = models.WebhookNotificationFailing
 		eng.updateNotification(notif)
 
-		errmsg := fmt.Sprintf("Failed to send notification ID: %s after %d immediate retries", notif.ID, try+1)
+		errmsg := fmt.Sprintf("Failed to send notification ID: %s after %d immediate retries", notif.ID, try)
 		err = errors.New(errmsg)
 		return err
 	}
@@ -177,7 +176,7 @@ func (eng *Engine) run() error {
 	logger := eng.Logger
 	// Read all notifications
 	notifications := []models.WebhookNotification{}
-	err := eng.DB.Order("created_at asc").Where("status = ?", models.WebhookNotificationPending).All(&notifications)
+	err := eng.DB.Order("created_at asc").Where("status = ? OR status = ?", models.WebhookNotificationPending, models.WebhookNotificationFailing).All(&notifications)
 
 	if err != nil {
 		logger.Error("Error:", zap.Error(err))
@@ -192,7 +191,7 @@ func (eng *Engine) run() error {
 
 	// If there are notifications, get subscriptions
 	subscriptions := []models.WebhookSubscription{}
-	err = eng.DB.Where("status = ?", models.WebhookSubscriptionStatusActive).All(&subscriptions)
+	err = eng.DB.Where("status = ? OR status = ?", models.WebhookSubscriptionStatusActive, models.WebhookSubscriptionStatusFailing).All(&subscriptions)
 
 	if err != nil {
 		logger.Error("Error:", zap.Error(err))

@@ -18,11 +18,14 @@ import (
 const (
 	// PeriodFlag indicates how often to check the db in seconds
 	PeriodFlag string = "period"
+	// MaxRetriesFlag indicates how many times to immediately retry
+	MaxRetriesFlag string = "max-retries"
 )
 
 // Init flags specific to this command
 func initDbWebhookNotifyFlags(flag *pflag.FlagSet) {
 	flag.Int(PeriodFlag, 5, "Period in secs to check for notifications")
+	flag.Int(MaxRetriesFlag, 3, "Number of times to immediately retry")
 	flag.SortFlags = false
 }
 
@@ -62,7 +65,7 @@ func dbWebhookNotify(cmd *cobra.Command, args []string) error {
 		Logger:              logger,
 		Client:              runtime,
 		PeriodInSeconds:     v.GetInt(PeriodFlag),
-		MaxImmediateRetries: 3,
+		MaxImmediateRetries: v.GetInt(MaxRetriesFlag),
 	}
 
 	// Start polling the db for changes

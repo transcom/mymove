@@ -3,7 +3,6 @@ package webhook
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"testing"
 
@@ -262,8 +261,6 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunSuccessful() {
 	response.StatusCode = 200
 	response.Status = "200 Success"
 
-	fmt.Printf("%v", suite.DB())
-
 	// SETUP MOCKED OBJECT EXPECTATIONS
 	// Expectation: When Post is called, verify it was called with the callback url from the subscription.
 	// Then, make it return 200 success and a body
@@ -299,7 +296,6 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunSuccessful() {
 	updatedNotifs := []models.WebhookNotification{}
 	suite.DB().All(&updatedNotifs)
 	for _, notif := range updatedNotifs {
-		fmt.Println(notif.ID, ":", notif.EventKey)
 		suite.Equal(models.WebhookNotificationSent, notif.Status)
 		suite.False(notif.FirstAttemptedAt.IsZero())
 	}
