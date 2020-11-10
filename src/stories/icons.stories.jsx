@@ -1,9 +1,34 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFile, faPen, faPlus, faChevronLeft, faChevronRight, faChevronDown, faChevronUp, faCheck, faTimes, faSearchPlus, faSearchMinus, faRedoAlt, faUndoAlt, faLock, faMapMarkerAlt, faArrowRight, faArrowLeft, faThList, faQuestionCircle, faPhoneAlt, faClock, faPlusCircle, faPlayCircle, faPlusSquare} from '@fortawesome/free-solid-svg-icons';
-import { faTimesCircle, faCalendar } from '@fortawesome/free-regular-svg-icons';
-import { faCheckCircle as fasCheckCircle } from '@fortawesome/free-solid-svg-icons'
-import { faCheckCircle as farCheckCircle } from '@fortawesome/free-regular-svg-icons';
+import {
+  faFile,
+  faPen,
+  faPlus,
+  faChevronLeft,
+  faChevronRight,
+  faChevronDown,
+  faChevronUp,
+  faCheck,
+  faTimes,
+  faSearchPlus,
+  faSearchMinus,
+  faRedoAlt,
+  faUndoAlt,
+  faLock,
+  faMapMarkerAlt,
+  faArrowRight,
+  faArrowLeft,
+  faThList,
+  faQuestionCircle,
+  faPhoneAlt,
+  faClock,
+  faPlusCircle,
+  faPlayCircle,
+  faPlusSquare,
+  faCheckCircle as fasCheckCircle,
+} from '@fortawesome/free-solid-svg-icons';
+import { faTimesCircle, faCalendar, faCheckCircle as farCheckCircle } from '@fortawesome/free-regular-svg-icons';
+
 import { ReactComponent as ExternalLink } from 'shared/icon/external-link.svg';
 
 // Icons
@@ -24,7 +49,7 @@ export const all = () => (
         <FontAwesomeIcon icon={faFile} />
         <code>documents | faFile</code>
       </div>
-       <div>
+      <div>
         <FontAwesomeIcon icon={faPen} />
         <code>edit | faPen</code>
       </div>
@@ -34,19 +59,19 @@ export const all = () => (
       </div>
       <div>
         <FontAwesomeIcon icon={faChevronLeft} />
-        <code>chevron-left |  faChevronLeft</code>
+        <code>chevron-left | faChevronLeft</code>
       </div>
       <div>
         <FontAwesomeIcon icon={faChevronRight} />
-        <code>chevron-right |  faChevronRight</code>
+        <code>chevron-right | faChevronRight</code>
       </div>
       <div>
         <FontAwesomeIcon icon={faChevronDown} />
-        <code>chevron-down |  faChevronDown</code>
+        <code>chevron-down | faChevronDown</code>
       </div>
       <div>
         <FontAwesomeIcon icon={faChevronUp} />
-        <code>chevron-up |  faChevronUp</code>
+        <code>chevron-up | faChevronUp</code>
       </div>
       <div>
         <FontAwesomeIcon icon={faCheck} />
@@ -54,7 +79,7 @@ export const all = () => (
       </div>
       <div>
         <FontAwesomeIcon icon={faTimes} />
-        <code> x |  faTimes</code>
+        <code> x | faTimes</code>
       </div>
       <div>
         <FontAwesomeIcon icon={farCheckCircle} />
@@ -134,7 +159,9 @@ export const all = () => (
       </div>
       <div>
         <ExternalLink />
-        <code>external link | <strong>uses local svg, not FontAwesome</strong></code>
+        <code>
+          external link | <strong>uses local svg, not FontAwesome</strong>
+        </code>
       </div>
     </div>
   </div>
