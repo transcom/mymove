@@ -49,7 +49,7 @@ export default {
       edipi: '1234567890',
       email_is_preferred: false,
       first_name: 'Erin',
-      has_social_security_number: true,
+      has_social_security_number: false,
       id: '1694e00e-17ff-43fe-af6d-ab0519a18ff2',
       is_profile_complete: true,
       last_name: 'Stanfill',
