@@ -72,6 +72,7 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 		context,
 		fetch.NewFetcher(queryBuilder),
 		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)),
+		movetaskorder.NewMoveTaskOrderChecker(context.DB()),
 	}
 
 	primeAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
