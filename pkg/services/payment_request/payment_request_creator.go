@@ -224,6 +224,10 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 	if moveTaskOrder.Orders.TAC == nil || *moveTaskOrder.Orders.TAC == "" {
 		return nil, services.NewBadDataError(fmt.Sprintf("MoveTaskOrder (ID: %s) Orders (ID: %s) missing Lines of Accounting TAC", moveTaskOrder.ID, moveTaskOrder.OrdersID))
 	}
+	// Verify that the Orders have OriginDutyStation
+	if moveTaskOrder.Orders.OriginDutyStationID == nil {
+		return nil, services.NewBadDataError(fmt.Sprintf("MoveTaskOrder (ID: %s) Orders (ID: %s) missing OriginDutyStation", moveTaskOrder.ID, moveTaskOrder.OrdersID))
+	}
 
 	// Update PaymentRequest
 	paymentRequest.MoveTaskOrder = moveTaskOrder
