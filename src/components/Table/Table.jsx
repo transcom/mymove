@@ -153,7 +153,7 @@ Table.defaultProps = {
   pageIndex: 0,
   pageSize: 20,
   pageOptions: [],
-  perPage: [1, 20, 50],
+  perPage: [10, 20, 50],
 };
 
 export default Table;
