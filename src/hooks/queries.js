@@ -164,9 +164,9 @@ export const useMovesQueueQueries = (filters = []) => {
   };
 };
 
-export const usePaymentRequestQueueQueries = (filters = []) => {
+export const usePaymentRequestQueueQueries = ({ filters = [], page = 1, perPage = 20 }) => {
   const { data = {}, ...paymentRequestsQueueQuery } = useQuery(
-    [PAYMENT_REQUESTS_QUEUE, { filters }],
+    [PAYMENT_REQUESTS_QUEUE, { filters, page, perPage }],
     getPaymentRequestsQueue,
   );
 
