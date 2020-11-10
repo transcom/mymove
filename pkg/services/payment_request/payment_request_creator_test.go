@@ -323,6 +323,66 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		suite.Equal("Invalid Create Input Error: MoveTaskOrderID is required on PaymentRequest create", err.Error())
 	})
 
+	suite.T().Run("Given move with orders but no LOA, the create should fail", func(t *testing.T) {
+		mtoWithoutOrders := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		orders := mtoWithoutOrders.Orders
+		orders.TAC = nil
+		suite.MustSave(&orders)
+		paymentRequest := models.PaymentRequest{
+			MoveTaskOrderID: mtoWithoutOrders.ID,
+			IsFinal:         false,
+			PaymentServiceItems: models.PaymentServiceItems{
+				{
+					MTOServiceItemID:         mtoServiceItem1.ID,
+					MTOServiceItem:           mtoServiceItem1,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{},
+				},
+				{
+					MTOServiceItemID:         mtoServiceItem2.ID,
+					MTOServiceItem:           mtoServiceItem2,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{},
+				},
+			},
+		}
+		_, err := creator.CreatePaymentRequest(&paymentRequest)
+
+		suite.Error(err)
+		_, ok := err.(*services.BadDataError)
+		suite.Equal(true, ok)
+		suite.Equal(fmt.Sprintf("Data received from requester is bad: BAD_DATA: MoveTaskOrder (ID: %s) Orders (ID: %s) missing Lines of Accounting TAC", mtoWithoutOrders.ID, mtoWithoutOrders.OrdersID), err.Error())
+	})
+
+	suite.T().Run("Given move with orders blank LOA, the create should fail", func(t *testing.T) {
+		mtoWithoutOrders := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		orders := mtoWithoutOrders.Orders
+		blankTAC := ""
+		orders.TAC = &blankTAC
+		err := suite.DB().Update(&orders)
+		suite.FatalNoError(err)
+		paymentRequest := models.PaymentRequest{
+			MoveTaskOrderID: mtoWithoutOrders.ID,
+			IsFinal:         false,
+			PaymentServiceItems: models.PaymentServiceItems{
+				{
+					MTOServiceItemID:         mtoServiceItem1.ID,
+					MTOServiceItem:           mtoServiceItem1,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{},
+				},
+				{
+					MTOServiceItemID:         mtoServiceItem2.ID,
+					MTOServiceItem:           mtoServiceItem2,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{},
+				},
+			},
+		}
+		_, err = creator.CreatePaymentRequest(&paymentRequest)
+
+		suite.Error(err)
+		_, ok := err.(*services.BadDataError)
+		suite.Equal(true, ok)
+		suite.Equal(fmt.Sprintf("Data received from requester is bad: BAD_DATA: MoveTaskOrder (ID: %s) Orders (ID: %s) missing Lines of Accounting TAC", mtoWithoutOrders.ID, mtoWithoutOrders.OrdersID), err.Error())
+	})
+
 	suite.T().Run("Given a non-existent service item id, the create should fail", func(t *testing.T) {
 		badID, _ := uuid.FromString("0aee14dd-b5ea-441a-89ad-db4439fa4ea2")
 		invalidPaymentRequest := models.PaymentRequest{

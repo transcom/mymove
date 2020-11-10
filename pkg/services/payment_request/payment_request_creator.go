@@ -218,6 +218,13 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 		return nil, fmt.Errorf("could not retrieve Move with ID [%s]: %w", paymentRequest.MoveTaskOrderID, err)
 	}
 
+	// Verify the Orders on the MTO
+	tx.Load(&moveTaskOrder, "Orders")
+	// Verify that the Orders has LOA
+	if moveTaskOrder.Orders.TAC == nil || *moveTaskOrder.Orders.TAC == "" {
+		return nil, services.NewBadDataError(fmt.Sprintf("MoveTaskOrder (ID: %s) Orders (ID: %s) missing Lines of Accounting TAC", moveTaskOrder.ID, moveTaskOrder.OrdersID))
+	}
+
 	// Update PaymentRequest
 	paymentRequest.MoveTaskOrder = moveTaskOrder
 	paymentRequest.Status = models.PaymentRequestStatusPending
