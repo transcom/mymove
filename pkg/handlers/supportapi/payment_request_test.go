@@ -495,7 +495,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 	suite.T().Run("successful update of reviewed payment requests with send to syncada true", func(t *testing.T) {
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status
 		req := httptest.NewRequest("PATCH", fmt.Sprintf(urlFormat), nil)
-		// eTag := etag.GenerateEtag(time.Now())
+
 		sendToSyncada := true
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
@@ -503,7 +503,6 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 				SendToSyncada: &sendToSyncada,
 				Status:        "SENT_TO_GEX",
 			},
-			// IfMatch:     eTag,
 		}
 
 		response := handler.Handle(params)
@@ -518,16 +517,14 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status
 		req := httptest.NewRequest("PATCH", fmt.Sprintf(urlFormat), nil)
-		// eTag := etag.GenerateEtag(time.Now())
+
 		sendToSyncada := false
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
 			Body: &supportmessages.ProcessReviewedPaymentRequests{
 				SendToSyncada: &sendToSyncada,
-				// ETag: eTag,
-				Status: "SENT_TO_GEX",
+				Status:        "SENT_TO_GEX",
 			},
-			// IfMatch:     eTag,
 		}
 
 		response := handler.Handle(params)
@@ -548,12 +545,11 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf(urlFormat), nil)
-		// eTag := etag.GenerateEtag(time.Now())
+
 		sendToSyncada := false
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
 			Body:        &supportmessages.ProcessReviewedPaymentRequests{SendToSyncada: &sendToSyncada},
-			// IfMatch:     eTag,
 		}
 
 		response := handler.Handle(params)
@@ -573,7 +569,7 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		paymentRequestID := reviewedPaymentRequests[0].ID
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf(urlFormat), nil)
-		// eTag := etag.GenerateEtag(time.Now())
+
 		sendToSyncada := false
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
@@ -581,7 +577,6 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 				SendToSyncada:    &sendToSyncada,
 				PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
 			},
-			// IfMatch: eTag,
 		}
 
 		response := handler.Handle(params)
@@ -600,11 +595,10 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf(urlFormat), nil)
-		// eTag := etag.GenerateEtag(time.Now())
+
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
 			Body:        &supportmessages.ProcessReviewedPaymentRequests{},
-			// IfMatch:     eTag,
 		}
 
 		response := handler.Handle(params)
@@ -636,14 +630,12 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		prID := reviewedPRs[0].ID
 		sendToSyncada := false
 
-		// eTag := etag.GenerateEtag(time.Now())
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
 			Body: &supportmessages.ProcessReviewedPaymentRequests{
 				SendToSyncada:    &sendToSyncada,
 				PaymentRequestID: strfmt.UUID(prID.String()),
 			},
-			// IfMatch: eTag,
 		}
 
 		response := handler.Handle(params)
@@ -673,13 +665,11 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		req := httptest.NewRequest("PATCH", fmt.Sprintf(urlFormat), nil)
 		sendToSyncada := false
 
-		// eTag := etag.GenerateEtag(time.Now())
 		params := paymentrequestop.ProcessReviewedPaymentRequestsParams{
 			HTTPRequest: req,
 			Body: &supportmessages.ProcessReviewedPaymentRequests{
 				SendToSyncada: &sendToSyncada,
 			},
-			// IfMatch: eTag,
 		}
 
 		response := handler.Handle(params)

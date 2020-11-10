@@ -277,48 +277,59 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 			}
 		}
 
-		var reviewedDate time.Time
-		var recGexDate time.Time
-		var sentGexDate time.Time
-		var paidAtDate time.Time
-		switch paymentRequestStatus {
-		case "PENDING":
-			newPaymentRequestStatus = models.PaymentRequestStatusPending
-		case "REVIEWED":
-			newPaymentRequestStatus = models.PaymentRequestStatusReviewed
-			reviewedDate = time.Now()
-		case "SENT_TO_GEX":
-			newPaymentRequestStatus = models.PaymentRequestStatusSentToGex
-			sentGexDate = time.Now()
-		case "RECEIVED_BY_GEX":
-			newPaymentRequestStatus = models.PaymentRequestStatusReceivedByGex
-			recGexDate = time.Now()
-		case "PAID":
-			newPaymentRequestStatus = models.PaymentRequestStatusPaid
-			paidAtDate = time.Now()
-		default:
-			newPaymentRequestStatus = models.PaymentRequestStatusSentToGex
-			sentGexDate = time.Now()
-		}
 		// Update each payment request to have the given status
 		for _, pr := range paymentRequests {
-			paymentRequestForUpdate := models.PaymentRequest{
-				ID:                   pr.ID,
-				MoveTaskOrder:        pr.MoveTaskOrder,
-				MoveTaskOrderID:      pr.MoveTaskOrderID,
-				IsFinal:              pr.IsFinal,
-				Status:               newPaymentRequestStatus,
-				RejectionReason:      pr.RejectionReason,
-				RequestedAt:          pr.RequestedAt,
-				ReviewedAt:           &reviewedDate,
-				SentToGexAt:          &sentGexDate,
-				ReceivedByGexAt:      &recGexDate,
-				PaidAt:               &paidAtDate,
-				PaymentRequestNumber: pr.PaymentRequestNumber,
-				SequenceNumber:       pr.SequenceNumber,
+
+			var reviewedDate time.Time
+			var recGexDate time.Time
+			var sentGexDate time.Time
+			var paidAtDate time.Time
+
+			if pr.ReviewedAt != nil {
+				reviewedDate = *pr.ReviewedAt
 			}
+			if pr.ReceivedByGexAt != nil {
+				recGexDate = *pr.ReceivedByGexAt
+			}
+			if pr.SentToGexAt != nil {
+				sentGexDate = *pr.SentToGexAt
+			}
+			if pr.PaidAt != nil {
+				paidAtDate = *pr.PaidAt
+			}
+			switch paymentRequestStatus {
+			case "PENDING":
+				newPaymentRequestStatus = models.PaymentRequestStatusPending
+			case "REVIEWED":
+				newPaymentRequestStatus = models.PaymentRequestStatusReviewed
+				reviewedDate = time.Now()
+			case "SENT_TO_GEX":
+				newPaymentRequestStatus = models.PaymentRequestStatusSentToGex
+				sentGexDate = time.Now()
+			case "RECEIVED_BY_GEX":
+				newPaymentRequestStatus = models.PaymentRequestStatusReceivedByGex
+				recGexDate = time.Now()
+			case "PAID":
+				newPaymentRequestStatus = models.PaymentRequestStatusPaid
+				paidAtDate = time.Now()
+			default:
+				if len(paymentRequestStatus) == 0 {
+					newPaymentRequestStatus = models.PaymentRequestStatusSentToGex
+					sentGexDate = time.Now()
+				} else {
+					return paymentrequestop.NewProcessReviewedPaymentRequestsBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, "bad request, an invalid status type was used", h.GetTraceID()))
+				}
+			}
+
+			// Update payment request values to relect new status
+			pr.Status = newPaymentRequestStatus
+			pr.ReviewedAt = &reviewedDate
+			pr.SentToGexAt = &sentGexDate
+			pr.ReceivedByGexAt = &recGexDate
+			pr.PaidAt = &paidAtDate
+			newPr := pr
 			var nilEtag string
-			updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(&paymentRequestForUpdate, nilEtag)
+			updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(&newPr, nilEtag)
 
 			if err != nil {
 				switch err.(type) {

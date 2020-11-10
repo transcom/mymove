@@ -1372,22 +1372,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 
-	orders9 := testdatagen.MakeOrder(db, testdatagen.Assertions{
-		Order: models.Order{
-			ID:              uuid.FromStringOrNil("3e49bb07-d9dd-4308-934d-baad94f2dr5t"),
-			ServiceMemberID: customer8.ID,
-			ServiceMember:   customer8,
-		},
-		UserUploader: userUploader,
-	})
-
-	move9 := testdatagen.MakeMove(db, testdatagen.Assertions{
-		Move: models.Move{
-			ID:       uuid.FromStringOrNil("d4d95c55-2d9d-428b-9a65-284455aa87vb"),
-			OrdersID: orders9.ID,
-		},
-	})
-
 	mtoShipment8 := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment: models.MTOShipment{
 			ID:                   uuid.FromStringOrNil("acf7b357-5cad-40e2-baa7-dedc1d4cf04c"),
@@ -1429,9 +1413,37 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		MTOServiceItem: serviceItemMS,
 	})
 
+	orders9 := testdatagen.MakeOrder(db, testdatagen.Assertions{
+		Order: models.Order{
+			ID:              uuid.FromStringOrNil("796a0acd-1ccb-4a2f-a9b3-e44906ced698"),
+			ServiceMemberID: customer.ID,
+			ServiceMember:   customer,
+		},
+		UserUploader: userUploader,
+	})
+
+	move9 := testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			ID:       uuid.FromStringOrNil("7cbe57ba-fd3a-45a7-aa9a-1970f1908ae7"),
+			OrdersID: orders9.ID,
+		},
+	})
+
+	mtoShipment9 := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			ID:                   uuid.FromStringOrNil("ec3f4edf-1463-43fb-98c4-272d3acb204a"),
+			PrimeEstimatedWeight: &estimatedWeight,
+			PrimeActualWeight:    &actualWeight,
+			ShipmentType:         models.MTOShipmentTypeHHGLongHaulDom,
+			ApprovedDate:         swag.Time(time.Now()),
+			Status:               models.MTOShipmentStatusSubmitted,
+		},
+		Move: move9,
+	})
+
 	paymentRequest9 := testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
 		PaymentRequest: models.PaymentRequest{
-			ID:            uuid.FromStringOrNil("345c9ebb-972f-4711-acb2-5911f52acpp9"),
+			ID:            uuid.FromStringOrNil("cfd110d4-1f62-401c-a92c-39987a0b4228"),
 			MoveTaskOrder: move9,
 			IsFinal:       false,
 			Status:        models.PaymentRequestStatusReviewed,
@@ -1439,24 +1451,69 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		Move: move9,
 	})
 
-	serviceItemMS9 := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.FromStringOrNil("4fba4454-b5aa-4c29-8448-66aa07ac9657"),
-			Status: models.MTOServiceItemStatusApproved,
-		},
-		Move: move8,
-		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973y-72f33685e453"), // MS - Move Management
-		},
-	})
+	// dlhCost9 := unit.Cents(99999)
+	// serviceItemDLH9 := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+	// 	MTOServiceItem: models.MTOServiceItem{
+	// 		ID: uuid.FromStringOrNil("877bdec0-2115-4a76-a2d9-5f2fa20a5470"),
+	// 	},
+	// 	Move:        move9,
+	// 	MTOShipment: mtoShipment9,
+	// 	ReService: models.ReService{
+	// 		ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH - Domestic Linehaul
+	// 	},
+	// })
 
-	testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
-		PaymentServiceItem: models.PaymentServiceItem{
-			PriceCents: &msCost,
-		},
+	// testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
+	// 	PaymentServiceItem: models.PaymentServiceItem{
+	// 		PriceCents: &dlhCost9,
+	// 	},
+	// 	PaymentRequest: paymentRequest9,
+	// 	MTOServiceItem: serviceItemDLH9,
+	// })
+
+	assertions9 := testdatagen.Assertions{
+		Move:           move9,
+		MTOShipment:    mtoShipment9,
 		PaymentRequest: paymentRequest9,
-		MTOServiceItem: serviceItemMS9,
-	})
+	}
+
+	currentTime := time.Now()
+	const testDateFormat = "060102"
+
+	basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   testdatagen.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameRequestedPickupDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format(testDateFormat),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightBilledActual,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "4242",
+		},
+		{
+			Key:     models.ServiceItemParamNameDistanceZip3,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "2424",
+		},
+		{
+			Key:     models.ServiceItemParamNameDistanceZip5,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "24245",
+		},
+	}
+
+	testdatagen.MakePaymentServiceItemWithParams(
+		db,
+		models.ReServiceCodeDLH,
+		basicPaymentServiceItemParams,
+		assertions9,
+	)
 
 	csCost := unit.Cents(25000)
 	serviceItemCS := testdatagen.MakeMTOServiceItemBasic(db, testdatagen.Assertions{

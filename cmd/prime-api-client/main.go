@@ -382,12 +382,12 @@ func main() {
   The file should contain path parameters.
 
   Endpoint path: /payment-requests/process-reviewed
-  The file should contain json as follows:
+  The file should contain json as follows (only sendToSyncada is required):
   	{
 	  body: {
 		"paymentRequestID": <uuid string>,
 		"sendToSyncada": <boolean>,
-		"status: <string>
+		"status": <string>
 	  }
   	}
   Please see API documentation for full details on the endpoint definition.`,
