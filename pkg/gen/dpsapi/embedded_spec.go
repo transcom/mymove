@@ -123,12 +123,6 @@ func init() {
           "x-nullable": true,
           "example": "L."
         },
-        "social_security_number": {
-          "type": "string",
-          "format": "ssn",
-          "pattern": "^\\d{9}$",
-          "example": 666555555
-        },
         "suffix": {
           "type": "string",
           "x-nullable": true,
@@ -249,12 +243,6 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "L."
-        },
-        "social_security_number": {
-          "type": "string",
-          "format": "ssn",
-          "pattern": "^\\d{9}$",
-          "example": 666555555
         },
         "suffix": {
           "type": "string",

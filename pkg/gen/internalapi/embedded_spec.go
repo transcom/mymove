@@ -3703,13 +3703,6 @@ func init() {
           "x-nullable": true,
           "example": "212-555-5555"
         },
-        "social_security_number": {
-          "type": "string",
-          "format": "ssn",
-          "title": "Social security number",
-          "x-nullable": true,
-          "example": "555-55-5555"
-        },
         "suffix": {
           "type": "string",
           "title": "Suffix",
@@ -5346,13 +5339,6 @@ func init() {
           "x-nullable": true,
           "example": "212-555-5555"
         },
-        "social_security_number": {
-          "type": "string",
-          "format": "ssn",
-          "title": "Social security number",
-          "x-nullable": true,
-          "example": "555-55-5555"
-        },
         "suffix": {
           "type": "string",
           "title": "Suffix",
@@ -5779,7 +5765,6 @@ func init() {
         "id",
         "user_id",
         "is_profile_complete",
-        "has_social_security_number",
         "created_at",
         "updated_at",
         "requires_access_code"
@@ -5822,9 +5807,6 @@ func init() {
           "title": "First name",
           "x-nullable": true,
           "example": "John"
-        },
-        "has_social_security_number": {
-          "type": "boolean"
         },
         "id": {
           "type": "string",
@@ -10253,13 +10235,6 @@ func init() {
           "x-nullable": true,
           "example": "212-555-5555"
         },
-        "social_security_number": {
-          "type": "string",
-          "format": "ssn",
-          "title": "Social security number",
-          "x-nullable": true,
-          "example": "555-55-5555"
-        },
         "suffix": {
           "type": "string",
           "title": "Suffix",
@@ -11902,13 +11877,6 @@ func init() {
           "x-nullable": true,
           "example": "212-555-5555"
         },
-        "social_security_number": {
-          "type": "string",
-          "format": "ssn",
-          "title": "Social security number",
-          "x-nullable": true,
-          "example": "555-55-5555"
-        },
         "suffix": {
           "type": "string",
           "title": "Suffix",
@@ -12337,7 +12305,6 @@ func init() {
         "id",
         "user_id",
         "is_profile_complete",
-        "has_social_security_number",
         "created_at",
         "updated_at",
         "requires_access_code"
@@ -12380,9 +12347,6 @@ func init() {
           "title": "First name",
           "x-nullable": true,
           "example": "John"
-        },
-        "has_social_security_number": {
-          "type": "boolean"
         },
         "id": {
           "type": "string",

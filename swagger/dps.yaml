@@ -30,11 +30,6 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      social_security_number:
-        type: string
-        format: ssn
-        pattern: '^\d{9}$'
-        example: 666555555
       first_name:
         type: string
         example: John
