@@ -14,16 +14,17 @@ const Table = ({
   headerGroups,
   rows,
   prepareRow,
-  showPagination,
-  pageIndex,
-  pageSize,
-  gotoPage,
-  nextPage,
-  previousPage,
   canPreviousPage,
   canNextPage,
-  pageOptions,
+  showPagination,
+  pageSize,
+  nextPage,
+  previousPage,
+  gotoPage,
   setPageSize,
+  pageOptions,
+  perPage,
+  pageIndex,
 }) => {
   return (
     /* eslint-disable react/jsx-props-no-spreading */
@@ -75,32 +76,36 @@ const Table = ({
               className={styles.usaSelect}
               name="table-rows-per-page"
               defaultValue={pageSize}
-              onChange={(e) => setPageSize(e.target.value)}
+              onChange={(e) => {
+                setPageSize(Number(e.target.value));
+              }}
             >
-              <option value={10}>10</option>
-              <option value={20}>20</option>
-              <option value={50}>50</option>
+              {perPage.map((page, index) => (
+                <option value={page} key={`page-size-${index}`}>
+                  {page}
+                </option>
+              ))}
             </Dropdown>
             <div>rows per page</div>
           </div>
           <div className={styles.tableControlPagination}>
-            <Button className={styles.usaButtonUnstyled} onClick={() => previousPage()} disabled={!canPreviousPage}>
+            <Button className={styles.usaButtonUnstyled} onClick={previousPage} disabled={!canPreviousPage}>
               <FontAwesomeIcon className="icon fas fa-chevron-left" icon={faChevronLeft} />
               <span>Prev</span>
             </Button>
             <Dropdown
               className={styles.usaSelect}
               name="table-pagination"
-              defaultValue={pageIndex}
-              onChange={(e) => gotoPage(e.target.value)}
+              value={pageIndex}
+              onChange={(e) => gotoPage(Number(e.target.value))}
             >
-              {pageOptions.map((page, index) => (
-                <option key={`pageOption${index}`} value={page}>
-                  {page + 1}
+              {pageOptions.map((pageOption, index) => (
+                <option value={pageOption} key={`page-options-${index}`}>
+                  {pageOption + 1}
                 </option>
               ))}
             </Dropdown>
-            <Button className={styles.usaButtonUnstyled} onClick={() => nextPage()} disabled={!canNextPage}>
+            <Button className={styles.usaButtonUnstyled} onClick={nextPage} disabled={!canNextPage}>
               <span>Next</span>
               <FontAwesomeIcon className="icon fas fa-chevron-right" icon={faChevronRight} />
             </Button>
@@ -113,6 +118,10 @@ const Table = ({
 
 Table.propTypes = {
   handleClick: PropTypes.func,
+  previousPage: PropTypes.func,
+  nextPage: PropTypes.func,
+  setPageSize: PropTypes.func,
+  gotoPage: PropTypes.func,
   // below are props from useTable() hook
   getTableProps: PropTypes.func.isRequired,
   getTableBodyProps: PropTypes.func.isRequired,
@@ -120,29 +129,31 @@ Table.propTypes = {
   rows: PropTypes.arrayOf(PropTypes.object).isRequired,
   prepareRow: PropTypes.func.isRequired,
   showPagination: PropTypes.bool,
-  pageIndex: PropTypes.number,
-  pageSize: PropTypes.number,
-  nextPage: PropTypes.func,
-  gotoPage: PropTypes.func,
-  previousPage: PropTypes.func,
   canPreviousPage: PropTypes.bool,
   canNextPage: PropTypes.bool,
+  pageCount: PropTypes.number,
+  pageIndex: PropTypes.number,
+  pageSize: PropTypes.number,
+  state: PropTypes.node,
   pageOptions: PropTypes.arrayOf(PropTypes.number),
-  setPageSize: PropTypes.func,
+  perPage: PropTypes.arrayOf(PropTypes.number),
 };
 
 Table.defaultProps = {
   handleClick: undefined,
   showPagination: false,
+  canPreviousPage: undefined,
+  previousPage: undefined,
+  nextPage: undefined,
+  setPageSize: undefined,
+  gotoPage: undefined,
+  canNextPage: undefined,
+  pageCount: undefined,
+  state: undefined,
   pageIndex: 0,
   pageSize: 20,
-  nextPage: undefined,
-  gotoPage: undefined,
-  previousPage: undefined,
-  canPreviousPage: undefined,
-  canNextPage: undefined,
-  pageOptions: undefined,
-  setPageSize: undefined,
+  pageOptions: [],
+  perPage: [10, 20, 50],
 };
 
 export default Table;
