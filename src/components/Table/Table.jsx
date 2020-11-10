@@ -19,11 +19,12 @@ const Table = ({
   showPagination,
   pageSize,
   nextPage,
-  handlePreviousClick,
-  handlePageSelect,
+  previousPage,
+  gotoPage,
   setPageSize,
-  pageIndex,
   pageOptions,
+  perPage,
+  pageIndex,
 }) => {
   return (
     /* eslint-disable react/jsx-props-no-spreading */
@@ -79,35 +80,32 @@ const Table = ({
                 setPageSize(Number(e.target.value));
               }}
             >
-              {pageOptions.map((size, index) => (
-                <option value={size} key={`page-size-${index}`}>
-                  {size}
+              {perPage.map((page, index) => (
+                <option value={page} key={`page-size-${index}`}>
+                  {page}
                 </option>
               ))}
             </Dropdown>
             <div>rows per page</div>
           </div>
           <div className={styles.tableControlPagination}>
-            <Button
-              className={styles.usaButtonUnstyled}
-              onClick={() => handlePreviousClick(pageIndex)}
-              disabled={!canPreviousPage}
-            >
+            <Button className={styles.usaButtonUnstyled} onClick={previousPage} disabled={!canPreviousPage}>
               <FontAwesomeIcon className="icon fas fa-chevron-left" icon={faChevronLeft} />
               <span>Prev</span>
             </Button>
             <Dropdown
               className={styles.usaSelect}
               name="table-pagination"
-              onChange={(e) => {
-                handlePageSelect(e);
-              }}
+              value={pageIndex}
+              onChange={(e) => gotoPage(Number(e.target.value))}
             >
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
+              {pageOptions.map((pageOption, index) => (
+                <option value={pageOption} key={`page-options-${index}`}>
+                  {pageOption + 1}
+                </option>
+              ))}
             </Dropdown>
-            <Button className={styles.usaButtonUnstyled} onClick={nextPage}>
+            <Button className={styles.usaButtonUnstyled} onClick={nextPage} disabled={!canNextPage}>
               <span>Next</span>
               <FontAwesomeIcon className="icon fas fa-chevron-right" icon={faChevronRight} />
             </Button>
@@ -120,10 +118,10 @@ const Table = ({
 
 Table.propTypes = {
   handleClick: PropTypes.func,
-  handlePreviousClick: PropTypes.func,
+  previousPage: PropTypes.func,
   nextPage: PropTypes.func,
   setPageSize: PropTypes.func,
-  handlePageSelect: PropTypes.func,
+  gotoPage: PropTypes.func,
   // below are props from useTable() hook
   getTableProps: PropTypes.func.isRequired,
   getTableBodyProps: PropTypes.func.isRequired,
@@ -138,15 +136,24 @@ Table.propTypes = {
   pageSize: PropTypes.number,
   state: PropTypes.node,
   pageOptions: PropTypes.arrayOf(PropTypes.number),
+  perPage: PropTypes.arrayOf(PropTypes.number),
 };
 
 Table.defaultProps = {
   handleClick: undefined,
   showPagination: false,
+  canPreviousPage: undefined,
+  previousPage: undefined,
+  nextPage: undefined,
+  setPageSize: undefined,
+  gotoPage: undefined,
+  canNextPage: undefined,
+  pageCount: undefined,
+  state: undefined,
   pageIndex: 0,
   pageSize: 20,
-  canPreviousPage: false,
-  pageOptions: [10, 20, 50],
+  pageOptions: [],
+  perPage: [1, 20, 50],
 };
 
 export default Table;

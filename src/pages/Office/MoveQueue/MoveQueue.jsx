@@ -77,10 +77,12 @@ const columns = [
 
 const MoveQueue = ({ history }) => {
   const [paramFilters, setParamFilters] = useState([]);
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
   const [currentPageSize, setCurrentPageSize] = useState(20);
+  const [pageCount, setPageCount] = React.useState(0);
+
   const {
-    queueMovesResult: { totalCount = 0, queueMoves = [], page = 0, perPage = 20 },
+    queueMovesResult: { totalCount = 0, queueMoves = [], page = 1, perPage = 20 },
     isLoading,
     isError,
   } = useMovesQueueQueries({ paramFilters, currentPage, currentPageSize });
@@ -106,7 +108,6 @@ const MoveQueue = ({ history }) => {
     canNextPage,
     gotoPage,
     pageOptions,
-    pageCount,
     previousPage,
     nextPage,
     setPageSize,
@@ -115,11 +116,12 @@ const MoveQueue = ({ history }) => {
     {
       columns: tableColumns,
       data: tableData,
-      initialState: { hiddenColumns: ['id'], pageSize: perPage, pageIndex: page },
+      initialState: { hiddenColumns: ['id'], pageSize: perPage, pageIndex: page - 1 },
       defaultColumn, // Be sure to pass the defaultColumn option
       manualFilters: true,
       showPagination: true,
       manualPagination: true,
+      pageCount,
     },
     useFilters,
     usePagination,
@@ -129,10 +131,11 @@ const MoveQueue = ({ history }) => {
   useEffect(() => {
     if (!isLoading && !isError) {
       setParamFilters(filters);
-      setCurrentPage(pageIndex);
+      setCurrentPage(pageIndex + 1);
       setCurrentPageSize(pageSize);
+      setPageCount(Math.ceil(totalCount / pageSize));
     }
-  }, [filters, pageIndex, pageSize, isLoading, isError]);
+  }, [filters, pageIndex, pageSize, isLoading, isError, totalCount]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -141,31 +144,16 @@ const MoveQueue = ({ history }) => {
     history.push(`/moves/${values.id}/details`);
   };
 
-  const handlePreviousClick = (value) => {
-    console.log('value:', value);
-    const newPage = value + 1;
-    previousPage(newPage);
-    // history.push(`/moves/queue?page=${value}`);
-    // if (canPreviousPage) {
-    // pageIndex = state[page] - 1
-  };
-
-  const handlePageSelect = (event) => {
-    // const page = event.target.value;
-    // goToPage(page);
-    // history.push(`/moves/queue?page=${page}`);
-  };
-
   return (
     <GridContainer containerSize="widescreen" className={styles.MoveQueue}>
       <h1>{`All moves (${totalCount})`}</h1>
       <div className={styles.tableContainer}>
         <Table
           handleClick={handleClick}
-          nextPage={() => nextPage}
-          handlePreviousClick={handlePreviousClick}
-          handlePageSelect={handlePageSelect}
+          gotoPage={gotoPage}
           setPageSize={setPageSize}
+          nextPage={nextPage}
+          previousPage={previousPage}
           getTableProps={getTableProps}
           getTableBodyProps={getTableBodyProps}
           headerGroups={headerGroups}
@@ -174,10 +162,10 @@ const MoveQueue = ({ history }) => {
           showPagination
           canPreviousPage={canPreviousPage}
           canNextPage={canNextPage}
-          gotoPage={gotoPage}
-          previousPage={previousPage}
           pageIndex={pageIndex}
           pageSize={pageSize}
+          pageCount={pageCount}
+          pageOptions={pageOptions}
         />
       </div>
     </GridContainer>
