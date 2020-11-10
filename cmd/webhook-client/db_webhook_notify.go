@@ -58,10 +58,11 @@ func dbWebhookNotify(cmd *cobra.Command, args []string) error {
 
 	// Create a webhook engine
 	webhookEngine := webhook.Engine{
-		DB:              db,
-		Logger:          logger,
-		Client:          runtime,
-		PeriodInSeconds: v.GetInt(PeriodFlag),
+		DB:                  db,
+		Logger:              logger,
+		Client:              runtime,
+		PeriodInSeconds:     v.GetInt(PeriodFlag),
+		MaxImmediateRetries: 3,
 	}
 
 	// Start polling the db for changes

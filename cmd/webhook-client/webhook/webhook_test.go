@@ -43,12 +43,14 @@ func TestWebhookClientTestingSuite(t *testing.T) {
 
 func (suite *WebhookClientTestingSuite) Test_SendOneNotification() {
 	mockClient := mocks.WebhookRuntimeClient{}
+	defer teardownEngineRun(suite)
 
 	// Create the engine replacing the client with the mock client
 	engine := Engine{
-		DB:     suite.DB(),
-		Logger: suite.logger,
-		Client: &mockClient,
+		DB:                  suite.DB(),
+		Logger:              suite.logger,
+		Client:              &mockClient,
+		MaxImmediateRetries: 3,
 	}
 	// Create a notification
 	notification := testdatagen.MakeWebhookNotification(suite.DB(), testdatagen.Assertions{
@@ -64,7 +66,15 @@ func (suite *WebhookClientTestingSuite) Test_SendOneNotification() {
 		},
 	})
 	// Some return values
-	var response = http.Response{}
+	var responseSuccess = http.Response{}
+	responseSuccess.StatusCode = 200
+	responseSuccess.Status = "200 Success"
+
+	// Create 400 response
+	var responseFail = http.Response{}
+	responseFail.StatusCode = 400
+	responseFail.Status = "400 Not Found Error"
+
 	var body = "A nice message saying that the notification was received."
 	var bodyBytes = []byte(body)
 
@@ -78,13 +88,21 @@ func (suite *WebhookClientTestingSuite) Test_SendOneNotification() {
 
 	suite.T().Run("Successful post, updated notification", func(t *testing.T) {
 
-		// Expected behaviour: Response is set to 200, so model should be set to SENT
-		response.StatusCode = 200
-		response.Status = "200 Success"
+		// Under test: sendOneNotification function
+		// Mocked:     Client
+		// Set up:     We provide a PENDING webhook notification, and make the client return 200, success
+		// Expected outcome:
+		//             Client.Post called once in total
+		//             Notification would be updated as SENT
 
-		// Expectation: When Post is called, verify it was called with the callback url from the subscription.
-		// Then, make it return 200 success and a body
-		mockClient.On("Post", mock.Anything, subscription.CallbackURL).Return(&response, bodyBytes, nil)
+		// Set beginning status as pending
+		suite.DB().Find(&notification, notification.ID)
+		notification.Status = models.WebhookNotificationPending
+		suite.DB().ValidateAndUpdate(&notification)
+
+		// Expectation: When Post is called, verify it was called with correct url.
+		// Then, make it return 200 success and a body. It should run once.
+		mockClient.On("Post", mock.Anything, subscription.CallbackURL).Return(&responseSuccess, bodyBytes, nil).Once()
 
 		// Call the engine function. Internally it should call the mocked client
 		err := engine.sendOneNotification(&notification, &subscription)
@@ -93,60 +111,131 @@ func (suite *WebhookClientTestingSuite) Test_SendOneNotification() {
 		suite.Nil(err)
 		// Check that the set expectations were met (the mockClient.On call)
 		mockClient.AssertExpectations(suite.T())
+		mockClient.AssertNumberOfCalls(suite.T(), "Post", 1)
 		// Check that notification Status was set to Sent in the model
-		suite.Equal(models.WebhookNotificationSent, notification.Status)
-		// Check in the db
 		notif := models.WebhookNotification{}
 		suite.DB().Find(&notif, notification.ID)
 		suite.Equal(models.WebhookNotificationSent, notif.Status)
+		// Check that first attempted at date was set
+		suite.False(notif.FirstAttemptedAt.IsZero())
+
 	})
 
 	suite.T().Run("Failed post, updated notification", func(t *testing.T) {
 
-		// Expected behaviour: Response is set to 400, so model should be set to FAILED
-		response.StatusCode = 400
-		response.Status = "400 Not Found Error"
+		// Under test: sendOneNotification function
+		// Mocked:     Client
+		// Set up:     We provide a PENDING webhook notification, and make the client return 400
+		// Expected outcome:
+		//             Client.Post called 3 times in total
+		//             Notification would be updated as FAILING
 
-		// Expectation: When Post is called, verify it was called with the callback url from the subscription.
-		// Then, make it return 200 success and a body
-		mockClient.On("Post", mock.Anything, subscription.CallbackURL).Return(&response, bodyBytes, nil)
+		// Set original status as pending
+		suite.DB().Find(&notification, notification.ID)
+		notification.Status = models.WebhookNotificationPending
+		suite.DB().ValidateAndUpdate(&notification)
+
+		// Recreate mock to clear stats
+		mockClient := mocks.WebhookRuntimeClient{}
+		engine.Client = &mockClient
+
+		// Set Expectation: When Post is called, verify it was called with the callback url from the subscription.
+		// Then, return failure.
+		mockClient.On("Post", mock.Anything, subscription.CallbackURL).Return(&responseFail, bodyBytes, nil)
 
 		// Call the engine function. Internally it should call the mocked client
 		err := engine.sendOneNotification(&notification, &subscription)
 
-		// Check that there was no error
+		// Check that there was an error returned
 		suite.NotNil(err)
-		// Check that the set expectations were met (the mockClient.On call)
+		// Check that the set expectations were met (the mockClient.On call) and that it was called 3 times
 		mockClient.AssertExpectations(suite.T())
-		// Check that notification Status was set to Failed in the model
-		suite.Equal(models.WebhookNotificationFailed, notification.Status)
-		// Check in the db
+		mockClient.AssertNumberOfCalls(suite.T(), "Post", 3)
+		// Check that notification Status was set to Failing
 		notif := models.WebhookNotification{}
 		suite.DB().Find(&notif, notification.ID)
-		suite.Equal(models.WebhookNotificationFailed, notif.Status)
+		suite.Equal(models.WebhookNotificationFailing, notif.Status)
+		// Check that first attempted at date was set
+		suite.False(notif.FirstAttemptedAt.IsZero())
 	})
 
 	suite.T().Run("Failed post due to send error, updated notification", func(t *testing.T) {
 
-		// Expected behaviour: Error was detected on sending, so model should be set to FAILED
+		// Under test: sendOneNotification function
+		// Mocked:     Client
+		// Set up:     We provide a PENDING webhook notification, and make the client fail every time
+		// Expected outcome:
+		//             Client.Post called 3 times in total
+		//             Notification would be updated as FAILING
+
+		// Set original status as pending
+		suite.DB().Find(&notification, notification.ID)
+		notification.Status = models.WebhookNotificationPending
+		suite.DB().ValidateAndUpdate(&notification)
+
+		// Recreate mock to clear stats
+		mockClient := mocks.WebhookRuntimeClient{}
+		engine.Client = &mockClient
 
 		// Expectation: When Post is called, verify it was called with the callback url from the subscription.
-		// Then, make it return 200 success and a body
-		mockClient.On("Post", mock.Anything, subscription.CallbackURL).Return(&response, bodyBytes, errors.New("Error due to server down"))
+		// Then make it return an error.
+		mockClient.On("Post", mock.Anything, subscription.CallbackURL).Return(&responseSuccess, bodyBytes, errors.New("Error due to server down"))
+
+		// Call the engine function. Internally it should call the mocked client
+		err := engine.sendOneNotification(&notification, &subscription)
+
+		// Check that there was an error returned
+		suite.NotNil(err)
+		// Check that the set expectations were met (the mockClient.On call) and that it was called 3 times
+		mockClient.AssertExpectations(suite.T())
+		mockClient.AssertNumberOfCalls(suite.T(), "Post", 3)
+		// Check that notification Status was set to Failing
+		notif := models.WebhookNotification{}
+		suite.DB().Find(&notif, notification.ID)
+		suite.Equal(models.WebhookNotificationFailing, notif.Status)
+		// Check that first attempted at date was set
+		suite.False(notif.FirstAttemptedAt.IsZero())
+	})
+
+	suite.T().Run("Failed post twice, then success, updated notification", func(t *testing.T) {
+
+		// Under test: sendOneNotification function
+		// Mocked:     Client
+		// Set up:     We provide a FAILING webhook notification, and make the client fail twice to send
+		//             and then succeed
+		// Expected outcome:
+		//             Client.Post called 3 times in total
+		//             Notification would be updated as SENT
+
+		// Set original status as failing
+		suite.DB().Find(&notification, notification.ID)
+		notification.Status = models.WebhookNotificationFailing
+		suite.DB().ValidateAndUpdate(&notification)
+
+		// Recreate mock to clear stats
+		mockClient := mocks.WebhookRuntimeClient{}
+		engine.Client = &mockClient
+
+		// Set Expectation: When Post is called, return failure twice
+		mockClient.On("Post", mock.Anything, subscription.CallbackURL).Return(&responseFail, bodyBytes, nil).Twice()
+
+		// Then return success
+		mockClient.On("Post", mock.Anything, subscription.CallbackURL).Return(&responseSuccess, bodyBytes, nil)
 
 		// Call the engine function. Internally it should call the mocked client
 		err := engine.sendOneNotification(&notification, &subscription)
 
 		// Check that there was no error
-		suite.NotNil(err)
+		suite.Nil(err)
 		// Check that the set expectations were met (the mockClient.On call)
 		mockClient.AssertExpectations(suite.T())
-		// Check that notification Status was set to Failed in the model
-		suite.Equal(models.WebhookNotificationFailed, notification.Status)
-		// Check in the db
+		mockClient.AssertNumberOfCalls(suite.T(), "Post", 3)
+		// Check that notification Status was set to Sent
 		notif := models.WebhookNotification{}
 		suite.DB().Find(&notif, notification.ID)
-		suite.Equal(models.WebhookNotificationFailed, notif.Status)
+		suite.Equal(models.WebhookNotificationSent, notif.Status)
+		// Check that first attempted at date was set
+		suite.False(notif.FirstAttemptedAt.IsZero())
 	})
 
 }
@@ -154,19 +243,16 @@ func (suite *WebhookClientTestingSuite) Test_SendOneNotification() {
 func (suite *WebhookClientTestingSuite) Test_EngineRunSuccessful() {
 
 	// TESTCASE SCENARIO
-	// What is being tested: Engine.run() function
-	// Behaviour: The function checks the db for notifications and subscriptions
-	// 1. Only pending notifications should get sent
-	// 2. Only if an active subscription exists
-	// It should create a payload from the notification and send it to the url
-	// listed in the subscription. On success or failure, it should update the
-	// notification.Status in the model with SENT or FAILED accordingly
-
-	// EXPECTED BEHAVIOR IN THIS TEST
-	// All three notifications should get sent, in order of creation
+	// Under test: Engine.run() function
+	// Mocked:     Client
+	// Set up:     We provide a 3 PENDING webhook notifications,
+	//             1 active subscription
+	//             And make the client return 200, success
+	// Expected outcome:
+	//             All three Notifications would be updated as SENT
 
 	// SETUP SCENARIO
-	// Setup some default notifications, and subscriptions, and the engine
+	// Setup 3 pending notifications notifications, and subscriptions, and the engine
 	engine, notifications, subscriptions := setupEngineRun(suite)
 	mockClient := engine.Client.(*mocks.WebhookRuntimeClient)
 	defer teardownEngineRun(suite)
@@ -215,27 +301,22 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunSuccessful() {
 	for _, notif := range updatedNotifs {
 		fmt.Println(notif.ID, ":", notif.EventKey)
 		suite.Equal(models.WebhookNotificationSent, notif.Status)
+		suite.False(notif.FirstAttemptedAt.IsZero())
 	}
 }
 
 func (suite *WebhookClientTestingSuite) Test_EngineRunInactiveSub() {
 
 	// TESTCASE SCENARIO
-	// What is being tested: Engine.run() function
-	// Behaviour: The function checks the db for notifications and subscriptions
-	// 1. Only pending notifications should get sent
-	// 2. Only if an active subscription exists
-	// It should create a payload from the notification and send it to the url
-	// listed in the subscription. On success or failure, it should update the
-	// notification.Status in the model with SENT or FAILED accordingly
-
-	// EXPECTED BEHAVIOR IN THIS TEST
-	// We're going to make 2 PaymentUpdate events and one
-	// PaymentCreate event.
-	// We will have an active subscription for PaymentUpdate
-	// and a disabled subscription for PaymentCreate.
-	// Therefore we expect only the 2 PaymentUpdate notifications to get SENT.
-	// And the PaymentCreate notification to be SKIPPED.
+	// Under test: Engine.run() function
+	// Mocked:     Client
+	// Set up:     We provide a 3 PENDING webhook notifications,
+	//             1 active subscription for PaymentUpdate
+	//             No active subscription for PaymentCreate
+	//             And make the client return 200, success
+	// Expected outcome:
+	//             PaymentUpdate notification would be updated as SENT
+	//             PaymentCreate notification would be updated as SKIPPED
 
 	// SETUP SCENARIO
 	engine, notifications, subscriptions := setupEngineRun(suite)
@@ -246,7 +327,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunInactiveSub() {
 	response.StatusCode = 200
 	response.Status = "200 Success"
 
-	// Change the eventkey on notification[1] and save it
+	// Change the eventkey on 1 notification to PaymentCreate
 	notifications[1].EventKey = "Payment.Create"
 	verrs, err := suite.DB().ValidateAndUpdate(&notifications[1])
 	if verrs != nil {
@@ -297,8 +378,11 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunInactiveSub() {
 		if notif.EventKey == "Payment.Create" {
 			// if there's no subscription, we except status to be skipped
 			suite.Equal(models.WebhookNotificationSkipped, notif.Status)
+			// And we except firstAttemptedAt to be unset
+			suite.True(notif.FirstAttemptedAt.IsZero())
 		} else {
 			suite.Equal(models.WebhookNotificationSent, notif.Status)
+			suite.False(notif.FirstAttemptedAt.IsZero())
 		}
 	}
 
@@ -307,17 +391,14 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunInactiveSub() {
 func (suite *WebhookClientTestingSuite) Test_EngineRunNoPending() {
 
 	// TESTCASE SCENARIO
-	// What is being tested: Engine.run() function
-	// Behaviour: The function checks the db for notifications and subscriptions
-	// 1. Only pending notifications should get sent
-	// 2. Only if an active subscription exists
-	// It should create a payload from the notification and send it to the url
-	// listed in the subscription. On success or failure, it should update the
-	// notification.Status in the model with SENT or FAILED accordingly
-
-	// EXPECTED BEHAVIOR IN THIS TEST
-	// We're going to make all notifications status SENT or FAILED, so none should
-	// actually be sent.
+	// Under test: Engine.run() function
+	// Mocked:     Client
+	// Set up:     We provide a 3 SENT, FAILED, SKIPPED webhook notifications,
+	//             1 active subscription
+	//             And make the client return 200, success
+	// Expected outcome:
+	//             Since no notifications are PENDING or FAILING
+	//   		   Expect no calls to Client.Post
 
 	// SETUP SCENARIO
 	engine, notifications, _ := setupEngineRun(suite)
@@ -330,25 +411,13 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunNoPending() {
 
 	// Change the status on the notifications to sent
 	notifications[0].Status = models.WebhookNotificationSent
-	verrs, err := suite.DB().ValidateAndUpdate(&notifications[0])
-	if verrs != nil {
-		suite.False(verrs.HasAny())
-	}
-	suite.Nil(err)
+	suite.DB().ValidateAndUpdate(&notifications[0])
 
 	notifications[1].Status = models.WebhookNotificationFailed
-	verrs, err = suite.DB().ValidateAndUpdate(&notifications[1])
-	if verrs != nil {
-		suite.False(verrs.HasAny())
-	}
-	suite.Nil(err)
+	suite.DB().ValidateAndUpdate(&notifications[1])
 
-	notifications[2].Status = models.WebhookNotificationSent
-	verrs, err = suite.DB().ValidateAndUpdate(&notifications[2])
-	if verrs != nil {
-		suite.False(verrs.HasAny())
-	}
-	suite.Nil(err)
+	notifications[2].Status = models.WebhookNotificationSkipped
+	suite.DB().ValidateAndUpdate(&notifications[2])
 
 	// SETUP MOCKED OBJECT EXPECTATIONS
 	// Expectation: We set up a possible call here, but we will be checking that in fact
@@ -357,7 +426,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunNoPending() {
 
 	// RUN TEST
 	// Call the engine function. Internally it should call the mocked client
-	err = engine.run()
+	err := engine.run()
 
 	// VERIFY RESULTS
 	// Check that there was no error
@@ -372,9 +441,10 @@ func setupEngineRun(suite *WebhookClientTestingSuite) (*Engine, []models.Webhook
 
 	// Create the engine replacing the client with the mock client
 	engine := Engine{
-		DB:     suite.DB(),
-		Logger: suite.logger,
-		Client: &mockClient,
+		DB:                  suite.DB(),
+		Logger:              suite.logger,
+		Client:              &mockClient,
+		MaxImmediateRetries: 3,
 	}
 	// Create 3 notifications
 	// Pending notification for Payment.Update
