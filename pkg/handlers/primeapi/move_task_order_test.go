@@ -263,7 +263,7 @@ func (suite *HandlerSuite) TestListMoveTaskOrdersHandlerReturnsUpdated() {
 }
 
 func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
-	mto := testdatagen.MakeDefaultMove(suite.DB())
+	mto := testdatagen.MakeAvailableMove(suite.DB())
 
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	eTag := base64.StdEncoding.EncodeToString([]byte(mto.UpdatedAt.Format(time.RFC3339Nano)))
@@ -288,10 +288,13 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		fetcher := fetch.NewFetcher(queryBuilder)
 		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
 		updater := movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator)
+		mtoChecker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
+
 		handler := UpdateMTOPostCounselingInformationHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			fetcher,
 			updater,
+			mtoChecker,
 		}
 
 		response := handler.Handle(params)
@@ -303,13 +306,54 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 		suite.Equal(okResponse.Payload.PpmType, "FULL")
 		suite.Equal(okResponse.Payload.PpmEstimatedWeight, int64(3000))
 	})
+
+	suite.T().Run("Unsuccessful patch - Integration Test - patch fail MTO not available", func(t *testing.T) {
+		defaultMTO := testdatagen.MakeDefaultMove(suite.DB())
+
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		eTag := base64.StdEncoding.EncodeToString([]byte(defaultMTO.UpdatedAt.Format(time.RFC3339Nano)))
+
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/post-counseling-info", defaultMTO.ID.String()), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
+		ppmType := "FULL"
+		defaultMTOParams := movetaskorderops.UpdateMTOPostCounselingInformationParams{
+			HTTPRequest:     req,
+			MoveTaskOrderID: defaultMTO.ID.String(),
+			Body: movetaskorderops.UpdateMTOPostCounselingInformationBody{
+				PpmType:            ppmType,
+				PpmEstimatedWeight: 3000,
+				PointOfContact:     "user@prime.com",
+			},
+			IfMatch: eTag,
+		}
+
+		mtoChecker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
+		queryBuilder := query.NewQueryBuilder(suite.DB())
+		fetcher := fetch.NewFetcher(queryBuilder)
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+		updater := movetaskorder.NewMoveTaskOrderUpdater(suite.DB(), queryBuilder, siCreator)
+		handler := UpdateMTOPostCounselingInformationHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			fetcher,
+			updater,
+			mtoChecker,
+		}
+
+		response := handler.Handle(defaultMTOParams)
+		suite.IsType(&movetaskorderops.UpdateMTOPostCounselingInformationNotFound{}, response)
+	})
+
 	suite.T().Run("Patch failure - 500", func(t *testing.T) {
 		mockFetcher := mocks.Fetcher{}
 		mockUpdater := mocks.MoveTaskOrderUpdater{}
+		mtoChecker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
+
 		handler := UpdateMTOPostCounselingInformationHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			&mockFetcher,
 			&mockUpdater,
+			mtoChecker,
 		}
 
 		internalServerErr := errors.New("ServerError")
@@ -327,10 +371,13 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 	suite.T().Run("Patch failure - 404", func(t *testing.T) {
 		mockFetcher := mocks.Fetcher{}
 		mockUpdater := mocks.MoveTaskOrderUpdater{}
+		mtoChecker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
+
 		handler := UpdateMTOPostCounselingInformationHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			&mockFetcher,
 			&mockUpdater,
+			mtoChecker,
 		}
 
 		mockUpdater.On("UpdatePostCounselingInfo",
@@ -346,10 +393,13 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 	suite.T().Run("Patch failure - 422", func(t *testing.T) {
 		mockFetcher := mocks.Fetcher{}
 		mockUpdater := mocks.MoveTaskOrderUpdater{}
+		mtoChecker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
+
 		handler := UpdateMTOPostCounselingInformationHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			&mockFetcher,
 			&mockUpdater,
+			mtoChecker,
 		}
 
 		mockUpdater.On("UpdatePostCounselingInfo",
