@@ -18,11 +18,12 @@ const Table = ({
   canNextPage,
   showPagination,
   pageSize,
-  handleNextClick,
+  nextPage,
   handlePreviousClick,
   handlePageSelect,
-  handleSetPageSize,
+  setPageSize,
   pageIndex,
+  pageOptions,
 }) => {
   return (
     /* eslint-disable react/jsx-props-no-spreading */
@@ -75,12 +76,14 @@ const Table = ({
               name="table-rows-per-page"
               defaultValue={pageSize}
               onChange={(e) => {
-                handleSetPageSize(e);
+                setPageSize(Number(e.target.value));
               }}
             >
-              <option value="10">10</option>
-              <option value="20">20</option>
-              <option value="50">50</option>
+              {pageOptions.map((size, index) => (
+                <option value={size} key={`page-size-${index}`}>
+                  {size}
+                </option>
+              ))}
             </Dropdown>
             <div>rows per page</div>
           </div>
@@ -104,7 +107,7 @@ const Table = ({
               <option value="2">2</option>
               <option value="3">3</option>
             </Dropdown>
-            <Button className={styles.usaButtonUnstyled} onClick={() => handleNextClick(pageIndex)}>
+            <Button className={styles.usaButtonUnstyled} onClick={nextPage}>
               <span>Next</span>
               <FontAwesomeIcon className="icon fas fa-chevron-right" icon={faChevronRight} />
             </Button>
@@ -118,9 +121,9 @@ const Table = ({
 Table.propTypes = {
   handleClick: PropTypes.func,
   handlePreviousClick: PropTypes.func,
-  handleNextClick: PropTypes.func,
+  nextPage: PropTypes.func,
+  setPageSize: PropTypes.func,
   handlePageSelect: PropTypes.func,
-  handleSetPageSize: PropTypes.func,
   // below are props from useTable() hook
   getTableProps: PropTypes.func.isRequired,
   getTableBodyProps: PropTypes.func.isRequired,
@@ -134,6 +137,7 @@ Table.propTypes = {
   pageIndex: PropTypes.number,
   pageSize: PropTypes.number,
   state: PropTypes.node,
+  pageOptions: PropTypes.arrayOf(PropTypes.number),
 };
 
 Table.defaultProps = {
@@ -142,6 +146,7 @@ Table.defaultProps = {
   pageIndex: 0,
   pageSize: 20,
   canPreviousPage: false,
+  pageOptions: [10, 20, 50],
 };
 
 export default Table;
