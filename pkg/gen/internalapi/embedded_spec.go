@@ -6079,15 +6079,9 @@ func init() {
     },
     "SubmitMoveForApprovalPayload": {
       "type": "object",
-      "required": [
-        "ppm_submit_date"
-      ],
       "properties": {
-        "ppm_submit_date": {
-          "type": "string",
-          "format": "date-time",
-          "title": "When was the ppm move submitted?",
-          "example": "2019-03-26T13:19:56-04:00"
+        "certificate": {
+          "$ref": "#/definitions/CreateSignedCertificationPayload"
         }
       }
     },
@@ -12643,15 +12637,9 @@ func init() {
     },
     "SubmitMoveForApprovalPayload": {
       "type": "object",
-      "required": [
-        "ppm_submit_date"
-      ],
       "properties": {
-        "ppm_submit_date": {
-          "type": "string",
-          "format": "date-time",
-          "title": "When was the ppm move submitted?",
-          "example": "2019-03-26T13:19:56-04:00"
+        "certificate": {
+          "$ref": "#/definitions/CreateSignedCertificationPayload"
         }
       }
     },

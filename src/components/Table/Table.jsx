@@ -1,55 +1,33 @@
-import React from 'react';
-import { useTable, useFilters } from 'react-table';
+/* eslint-disable react/no-array-index-key */
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 
-import { textFilter } from './utils';
-import TextBoxFilter from './Filters/TextBoxFilter';
 import styles from './Table.module.scss';
 
-const Table = ({ data, columns, hiddenColumns, handleClick }) => {
-  const filterTypes = React.useMemo(
-    () => ({
-      // "startWith"
-      text: textFilter,
-    }),
-    [],
-  );
-
-  const defaultColumn = React.useMemo(
-    () => ({
-      // Let's set up our default Filter UI
-      Filter: TextBoxFilter,
-    }),
-    [],
-  );
-
-  const tableData = React.useMemo(() => data, [data]);
-  const tableColumns = React.useMemo(() => columns, [columns]);
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
-    {
-      columns: tableColumns,
-      data: tableData,
-      initialState: { hiddenColumns },
-      defaultColumn, // Be sure to pass the defaultColumn option
-      filterTypes,
-    },
-    useFilters,
-  );
-
+const Table = ({ handleClick, getTableProps, getTableBodyProps, headerGroups, rows, prepareRow }) => {
   return (
     /* eslint-disable react/jsx-props-no-spreading */
     <div data-testid="react-table" className={styles.Table}>
       <table {...getTableProps()}>
         <thead>
-          {headerGroups.map((headerGroup) => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column) => (
-                <th data-testid={column.id} {...column.getHeaderProps()}>
-                  {column.render('Header')}
-                  <div>{column.canFilter ? column.render('Filter') : null}</div>
-                </th>
-              ))}
-            </tr>
+          {headerGroups.map((headerGroup, hgIndex) => (
+            <Fragment key={`headerGroup${hgIndex}`}>
+              <tr {...headerGroup.getHeaderGroupProps()}>
+                {headerGroup.headers.map((column, headerIndex) => (
+                  <th key={`header${headerIndex}`} data-testid={column.id} {...column.getHeaderProps()}>
+                    {column.render('Header')}
+                  </th>
+                ))}
+              </tr>
+              <tr className={styles.tableHeaderFilters} key={`headerGroupFilters${hgIndex}`}>
+                {headerGroup.headers.map((column, headerIndex) => (
+                  <th key={`headerFilter${headerIndex}`} data-testid={column.id}>
+                    {/* isFilterable is a custom prop that can be set in the Column object */}
+                    <div>{column.isFilterable ? column.render('Filter') : null}</div>
+                  </th>
+                ))}
+              </tr>
+            </Fragment>
           ))}
         </thead>
         <tbody {...getTableBodyProps()}>
@@ -57,9 +35,10 @@ const Table = ({ data, columns, hiddenColumns, handleClick }) => {
             prepareRow(row);
             return (
               <tr data-uuid={row.values.id} onClick={() => handleClick(row.values)} {...row.getRowProps()}>
-                {row.cells.map((cell) => {
+                {row.cells.map((cell, index) => {
                   return (
-                    <td data-testid={`${cell.column.id}-${cell.row.id}`} {...cell.getCellProps()}>
+                    // eslint-disable-next-line react/no-array-index-key
+                    <td key={`cell${index}`} data-testid={`${cell.column.id}-${cell.row.id}`} {...cell.getCellProps()}>
                       {cell.render('Cell')}
                     </td>
                   );
@@ -74,23 +53,16 @@ const Table = ({ data, columns, hiddenColumns, handleClick }) => {
 };
 
 Table.propTypes = {
-  // data is an array of objects to populate the table
-  data: PropTypes.arrayOf(PropTypes.object),
-  // columns is an array of objects to define the header name and accessor
-  columns: PropTypes.arrayOf(
-    PropTypes.shape({
-      Header: PropTypes.string,
-      accessor: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
-    }),
-  ),
-  hiddenColumns: PropTypes.arrayOf(PropTypes.string),
   handleClick: PropTypes.func,
+  // below are props from useTable() hook
+  getTableProps: PropTypes.func.isRequired,
+  getTableBodyProps: PropTypes.func.isRequired,
+  headerGroups: PropTypes.arrayOf(PropTypes.object).isRequired,
+  rows: PropTypes.arrayOf(PropTypes.object).isRequired,
+  prepareRow: PropTypes.func.isRequired,
 };
 
 Table.defaultProps = {
-  data: [],
-  columns: [],
-  hiddenColumns: [],
   handleClick: undefined,
 };
 

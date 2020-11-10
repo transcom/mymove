@@ -1,20 +1,20 @@
 package ghcapi
 
 import (
-	"fmt"
+	"github.com/go-openapi/swag"
+
+	"github.com/gobuffalo/pop/v5"
+
+	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/gobuffalo/pop/v5"
 	"go.uber.org/zap"
-
-	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models/roles"
-	"github.com/transcom/mymove/pkg/services"
 )
 
 // GetMovesQueueHandler returns the moves for the TOO queue user via GET /queues/moves
@@ -23,7 +23,7 @@ type GetMovesQueueHandler struct {
 	services.MoveOrderFetcher
 }
 
-// FilterOption defines the type for the functional arguments passed to ListMoveOrders
+// FilterOption defines the type for the functional arguments used for private functions in MoveOrderFetcher
 type FilterOption func(*pop.Query)
 
 // Handle returns the paginated list of moves for the TOO user
@@ -35,19 +35,30 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 		return queues.NewGetMovesQueueForbidden()
 	}
 
-	branchQuery := branchFilter(params)
-	moveIDQuery := moveIDFilter(params)
-	dodIDQuery := dodIDFilter(params)
-	lastNameQuery := lastNameFilter(params)
-	dutyStationQuery := destinationDutyStationFilter(params)
+	listMoveOrderParams := services.ListMoveOrderParams{
+		Branch:                 params.Branch,
+		MoveID:                 params.MoveID,
+		DodID:                  params.DodID,
+		LastName:               params.LastName,
+		DestinationDutyStation: params.DestinationDutyStation,
+		Status:                 params.Status,
+		Page:                   params.Page,
+		PerPage:                params.PerPage,
+	}
 
-	orders, err := h.MoveOrderFetcher.ListMoveOrders(
+	// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
+	// for perPage.
+	if params.Page == nil {
+		listMoveOrderParams.Page = swag.Int64(1)
+	}
+	// Same for perPage
+	if params.PerPage == nil {
+		listMoveOrderParams.PerPage = swag.Int64(20)
+	}
+
+	orders, count, err := h.MoveOrderFetcher.ListMoveOrders(
 		session.OfficeUserID,
-		branchQuery,
-		moveIDQuery,
-		lastNameQuery,
-		dutyStationQuery,
-		dodIDQuery,
+		&listMoveOrderParams,
 	)
 
 	if err != nil {
@@ -56,14 +67,11 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 	}
 
 	queueMoves := payloads.QueueMoves(orders)
-	// ToDo - May want to move this logic into the pop query later.
-	// filter queueMoves by status
-	queueMoves = statusFilter(params.Status, queueMoves)
 
 	result := &ghcmessages.QueueMovesResult{
-		Page:       0,
-		PerPage:    0,
-		TotalCount: int64(len(*queueMoves)),
+		Page:       *listMoveOrderParams.Page,
+		PerPage:    *listMoveOrderParams.PerPage,
+		TotalCount: int64(count),
 		QueueMoves: *queueMoves,
 	}
 
@@ -85,7 +93,32 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 		return queues.NewGetPaymentRequestsQueueForbidden()
 	}
 
-	paymentRequests, err := h.FetchPaymentRequestList(session.OfficeUserID)
+	listPaymentRequestParams := services.FetchPaymentRequestListParams{
+		Branch:                 params.Branch,
+		MoveID:                 params.MoveID,
+		DodID:                  params.DodID,
+		LastName:               params.LastName,
+		DestinationDutyStation: params.DestinationDutyStation,
+		Status:                 params.Status,
+		Page:                   params.Page,
+		PerPage:                params.PerPage,
+		SubmittedAt:            params.SubmittedAt,
+	}
+
+	// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
+	// for perPage.
+	if params.Page == nil {
+		listPaymentRequestParams.Page = swag.Int64(1)
+	}
+	// Same for perPage
+	if params.PerPage == nil {
+		listPaymentRequestParams.PerPage = swag.Int64(20)
+	}
+
+	paymentRequests, count, err := h.FetchPaymentRequestList(
+		session.OfficeUserID,
+		&listPaymentRequestParams,
+	)
 	if err != nil {
 		logger.Error("payment requests queue", zap.String("office_user_id", session.OfficeUserID.String()), zap.Error(err))
 		return queues.NewGetPaymentRequestsQueueInternalServerError()
@@ -94,76 +127,11 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 	queuePaymentRequests := payloads.QueuePaymentRequests(paymentRequests)
 
 	result := &ghcmessages.QueuePaymentRequestsResult{
-		TotalCount:           int64(len(*queuePaymentRequests)),
+		TotalCount:           int64(count),
+		Page:                 int64(*listPaymentRequestParams.Page),
+		PerPage:              int64(*listPaymentRequestParams.PerPage),
 		QueuePaymentRequests: *queuePaymentRequests,
 	}
 
 	return queues.NewGetPaymentRequestsQueueOK().WithPayload(result)
-}
-
-func branchFilter(params queues.GetMovesQueueParams) FilterOption {
-	return func(query *pop.Query) {
-		if params.Branch != nil {
-			query = query.Where("service_members.affiliation = ?", *params.Branch)
-		}
-	}
-}
-
-func lastNameFilter(params queues.GetMovesQueueParams) FilterOption {
-	return func(query *pop.Query) {
-		if params.LastName != nil {
-			nameSearch := fmt.Sprintf("%s%%", *params.LastName)
-			query = query.Where("service_members.last_name ILIKE ?", nameSearch)
-		}
-	}
-}
-
-func dodIDFilter(params queues.GetMovesQueueParams) FilterOption {
-	return func(query *pop.Query) {
-		if params.DodID != nil {
-			query = query.Where("service_members.edipi = ?", params.DodID)
-		}
-	}
-}
-
-func moveIDFilter(params queues.GetMovesQueueParams) FilterOption {
-	return func(query *pop.Query) {
-		if params.MoveID != nil {
-			query = query.Where("moves.locator = ?", *params.MoveID)
-		}
-	}
-}
-func destinationDutyStationFilter(params queues.GetMovesQueueParams) FilterOption {
-	return func(query *pop.Query) {
-		if params.DestinationDutyStation != nil {
-			nameSearch := fmt.Sprintf("%s%%", *params.DestinationDutyStation)
-			query = query.InnerJoin("duty_stations as destination_duty_station", "orders.new_duty_station_id = destination_duty_station.id").Where("destination_duty_station.name ILIKE ?", nameSearch)
-		}
-	}
-}
-
-// statusFilter filters the status after the pop query call.
-func statusFilter(statuses []string, moves *ghcmessages.QueueMoves) *ghcmessages.QueueMoves {
-	if len(statuses) <= 0 || moves == nil {
-		return moves
-	}
-
-	ret := make(ghcmessages.QueueMoves, 0)
-	// New move, Approvals requested, and Move approved statuses
-	// convert into a map to make it easier to lookup
-	statusMap := make(map[string]string, 0)
-	for _, status := range statuses {
-		statusMap[status] = status
-	}
-
-	// then include only the moves based on status filter
-	// and exclude DRAFT and CANCELLED
-	for _, move := range *moves {
-		if _, ok := statusMap[string(move.Status)]; ok && string(move.Status) != string(models.MoveStatusCANCELED) &&
-			string(move.Status) != string(models.MoveStatusDRAFT) {
-			ret = append(ret, move)
-		}
-	}
-
-	return &ret
 }

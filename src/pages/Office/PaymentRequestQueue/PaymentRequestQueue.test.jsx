@@ -58,15 +58,15 @@ describe('PaymentRequestQueue', () => {
   });
 
   it('renders the correct column headers', () => {
-    expect(wrapper.find('thead tr').length).toBe(1);
+    expect(wrapper.find('thead tr').length).toBe(2);
 
     expect(wrapper.find('thead tr th').at(0).text()).toBe('Customer name');
     expect(wrapper.find('thead tr th').at(1).text()).toBe('DoD ID');
-    expect(wrapper.find('thead tr th').at(2).text()).toBe('Status');
+    expect(wrapper.find('thead tr th').at(2).text()).toContain('Status');
     expect(wrapper.find('thead tr th').at(3).text()).toBe('Age');
     expect(wrapper.find('thead tr th').at(4).text()).toBe('Submitted');
-    expect(wrapper.find('thead tr th').at(5).text()).toBe('Move ID');
-    expect(wrapper.find('thead tr th').at(6).text()).toBe('Branch');
+    expect(wrapper.find('thead tr th').at(5).text()).toBe('Move Code');
+    expect(wrapper.find('thead tr th').at(6).text()).toContain('Branch');
     expect(wrapper.find('thead tr th').at(7).text()).toBe('Origin GBLOC');
   });
 
@@ -80,7 +80,7 @@ describe('PaymentRequestQueue', () => {
     expect(wrapper.find('tbody tr td').at(3).text()).toBe('Less than 1 day');
     expect(wrapper.find('tbody tr td').at(4).text()).toBe('15 Oct 2020');
     expect(wrapper.find('tbody tr td').at(5).text()).toBe('R993T7');
-    expect(wrapper.find('tbody tr td').at(6).text()).toBe('Air Force');
+    expect(wrapper.find('tbody tr td').at(6).text()).toBe('Army');
     expect(wrapper.find('tbody tr td').at(7).text()).toBe('LKNQ');
   });
 });

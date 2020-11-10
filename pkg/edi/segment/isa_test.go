@@ -8,11 +8,11 @@ import (
 func (suite *SegmentSuite) TestValidateISA() {
 	validISA := ISA{
 		AuthorizationInformationQualifier: "00",
-		AuthorizationInformation:          "0000000000",
+		AuthorizationInformation:          "0084182369",
 		SecurityInformationQualifier:      "00",
 		SecurityInformation:               "0000000000",
 		InterchangeSenderIDQualifier:      "ZZ",
-		InterchangeSenderID:               fmt.Sprintf("%-15s", "MYMOVE"),
+		InterchangeSenderID:               fmt.Sprintf("%-15s", "MILMOVE"),
 		InterchangeReceiverIDQualifier:    "12",
 		InterchangeReceiverID:             fmt.Sprintf("%-15s", "8004171844"),
 		InterchangeDate:                   "190903",
@@ -40,8 +40,8 @@ func (suite *SegmentSuite) TestValidateISA() {
 			InterchangeSenderID:               fmt.Sprintf("%-15s", "ABCDEF"),     // eq
 			InterchangeReceiverIDQualifier:    "15",                               // eq
 			InterchangeReceiverID:             fmt.Sprintf("%-15s", "1234566133"), // eq
-			InterchangeDate:                   "190933",                           // timeformat
-			InterchangeTime:                   "344",                              // timeformat
+			InterchangeDate:                   "190933",                           // datetime
+			InterchangeTime:                   "344",                              // datetime
 			InterchangeControlStandards:       "Q",                                // eq
 			InterchangeControlVersionNumber:   "00403",                            // eq
 			InterchangeControlNumber:          0,                                  // min
@@ -59,12 +59,12 @@ func (suite *SegmentSuite) TestValidateISA() {
 		suite.ValidateError(err, "InterchangeSenderID", "eq")
 		suite.ValidateError(err, "InterchangeReceiverIDQualifier", "eq")
 		suite.ValidateError(err, "InterchangeReceiverID", "eq")
-		suite.ValidateError(err, "InterchangeDate", "timeformat")
-		suite.ValidateError(err, "InterchangeTime", "timeformat")
+		suite.ValidateError(err, "InterchangeDate", "datetime")
+		suite.ValidateError(err, "InterchangeTime", "datetime")
 		suite.ValidateError(err, "InterchangeControlStandards", "eq")
 		suite.ValidateError(err, "InterchangeControlVersionNumber", "eq")
 		suite.ValidateError(err, "InterchangeControlNumber", "min")
-		suite.ValidateError(err, "AcknowledgementRequested", "eq")
+		suite.ValidateError(err, "AcknowledgementRequested", "oneof")
 		suite.ValidateError(err, "UsageIndicator", "oneof")
 		suite.ValidateError(err, "ComponentElementSeparator", "eq")
 		suite.ValidateErrorLen(err, 16)

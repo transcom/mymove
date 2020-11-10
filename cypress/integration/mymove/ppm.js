@@ -3,6 +3,10 @@ describe('the PPM flow', function () {
     cy.prepareCustomerApp();
   });
 
+  beforeEach(() => {
+    cy.logout();
+  });
+
   it('can submit a PPM move', () => {
     // profile@comple.te
     const userId = '3b9360a3-3304-4c60-90f4-83d687884077';

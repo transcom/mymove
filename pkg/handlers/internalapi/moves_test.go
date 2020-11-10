@@ -179,42 +179,87 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 
 }
 
-func (suite *HandlerSuite) TestSubmitPPMMoveForApprovalHandler() {
-	// Given: a set of orders, a move, user and servicemember
-	ppm := testdatagen.MakeDefaultPPM(suite.DB())
-	move := ppm.Move
+func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
+	suite.Run("Submits ppm success", func() {
+		// Given: a set of orders, a move, user and servicemember
+		ppm := testdatagen.MakeDefaultPPM(suite.DB())
+		move := ppm.Move
 
-	// And: the context contains the auth values
-	req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
-	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
-	submitDate := strfmt.DateTime(time.Now())
+		// And: the context contains the auth values
+		req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
+		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+		certType := internalmessages.SignedCertificationTypeCreateSHIPMENT
+		signingDate := strfmt.DateTime(time.Now())
+		ppmID := strfmt.UUID(ppm.ID.String())
+		certificate := internalmessages.CreateSignedCertificationPayload{
+			CertificationText:        swag.String("This is your legal message"),
+			CertificationType:        &certType,
+			PersonallyProcuredMoveID: &ppmID,
+			Date:                     &signingDate,
+			Signature:                swag.String("Jane Doe"),
+		}
+		newSubmitMoveForApprovalPayload := internalmessages.SubmitMoveForApprovalPayload{Certificate: &certificate}
 
-	newSubmitMoveForApprovalPayload := internalmessages.SubmitMoveForApprovalPayload{
-		PpmSubmitDate: &submitDate,
-	}
+		params := moveop.SubmitMoveForApprovalParams{
+			HTTPRequest:                  req,
+			MoveID:                       strfmt.UUID(move.ID.String()),
+			SubmitMoveForApprovalPayload: &newSubmitMoveForApprovalPayload,
+		}
+		// When: a move is submitted
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
+		handler := SubmitMoveHandler{context}
+		response := handler.Handle(params)
 
-	params := moveop.SubmitMoveForApprovalParams{
-		HTTPRequest:                  req,
-		MoveID:                       strfmt.UUID(move.ID.String()),
-		SubmitMoveForApprovalPayload: &newSubmitMoveForApprovalPayload,
-	}
-	// And: a move is submitted
-	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
-	handler := SubmitMoveHandler{context}
-	response := handler.Handle(params)
+		// Then: expect a 200 status code
+		suite.Assertions.IsType(&moveop.SubmitMoveForApprovalOK{}, response)
+		okResponse := response.(*moveop.SubmitMoveForApprovalOK)
 
-	// Then: expect a 200 status code
-	suite.Assertions.IsType(&moveop.SubmitMoveForApprovalOK{}, response)
-	okResponse := response.(*moveop.SubmitMoveForApprovalOK)
+		// And: Returned query to have an submitted status
+		suite.Assertions.Equal(internalmessages.MoveStatusSUBMITTED, okResponse.Payload.Status)
+		// And: Expect move's PPM's advance to have "Requested" status
+		suite.Assertions.Equal(
+			internalmessages.ReimbursementStatusREQUESTED,
+			*okResponse.Payload.PersonallyProcuredMoves[0].Advance.Status)
+		suite.Assertions.NotNil(okResponse.Payload.SubmittedAt)
+	})
+	suite.Run("Submits hhg shipment success", func() {
+		// Given: a set of orders, a move, user and servicemember
+		hhg := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		move := hhg.MoveTaskOrder
 
-	// And: Returned query to have an approved status
-	suite.Assertions.Equal(internalmessages.MoveStatusSUBMITTED, okResponse.Payload.Status)
-	// And: Expect move's PPM's advance to have "Requested" status
-	suite.Assertions.Equal(
-		internalmessages.ReimbursementStatusREQUESTED,
-		*okResponse.Payload.PersonallyProcuredMoves[0].Advance.Status)
-	suite.Assertions.NotNil(okResponse.Payload.SubmittedAt)
+		// And: the context contains the auth values
+		req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
+		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+		certType := internalmessages.SignedCertificationTypeCreateSHIPMENT
+		signingDate := strfmt.DateTime(time.Now())
+		certificate := internalmessages.CreateSignedCertificationPayload{
+			CertificationText: swag.String("This is your legal message"),
+			CertificationType: &certType,
+			Date:              &signingDate,
+			Signature:         swag.String("Jane Doe"),
+		}
+		newSubmitMoveForApprovalPayload := internalmessages.SubmitMoveForApprovalPayload{Certificate: &certificate}
+
+		params := moveop.SubmitMoveForApprovalParams{
+			HTTPRequest:                  req,
+			MoveID:                       strfmt.UUID(move.ID.String()),
+			SubmitMoveForApprovalPayload: &newSubmitMoveForApprovalPayload,
+		}
+		// And: a move is submitted
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
+		handler := SubmitMoveHandler{context}
+		response := handler.Handle(params)
+
+		// Then: expect a 200 status code
+		suite.Assertions.IsType(&moveop.SubmitMoveForApprovalOK{}, response)
+		okResponse := response.(*moveop.SubmitMoveForApprovalOK)
+
+		// And: Returned query to have a submitted status
+		suite.Assertions.Equal(internalmessages.MoveStatusSUBMITTED, okResponse.Payload.Status)
+	})
+
 }
 
 func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {

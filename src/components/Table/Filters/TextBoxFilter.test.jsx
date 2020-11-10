@@ -14,6 +14,6 @@ describe('React table', () => {
         }}
       />,
     );
-    expect(wrapper.find('[data-testid="TextBoxFilter"]').length).toBe(1);
+    expect(wrapper.find(TextBoxFilter).length).toBe(1);
   });
 });

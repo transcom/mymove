@@ -5,7 +5,8 @@ import (
 	"net/http/httptest"
 	"time"
 
-	modelToPayload "github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
+	"github.com/go-openapi/swag"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 
@@ -205,7 +206,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 	payload := response.(*queues.GetMovesQueueOK).Payload
 	result := payload.QueueMoves[0]
 
-	suite.Equal(ghcmessages.QueueMoveStatus("New move"), result.Status)
+	suite.Equal(ghcmessages.QueueMoveStatus("SUBMITTED"), result.Status)
 
 	// let's test for the Move approved status
 	hhgMove.Status = models.MoveStatusAPPROVED
@@ -219,15 +220,11 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 
 	result = payload.QueueMoves[0]
 
-	suite.Equal(ghcmessages.QueueMoveStatus("Move approved"), result.Status)
+	suite.Equal(ghcmessages.QueueMoveStatus("APPROVED"), result.Status)
 
 	// Now let's test Approvals requested
-	testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			Status: models.MTOServiceItemStatusSubmitted,
-		},
-		Move: hhgMove,
-	})
+	hhgMove.Status = models.MoveStatusAPPROVALSREQUESTED
+	_, _ = suite.DB().ValidateAndSave(&hhgMove)
 
 	response = handler.Handle(params)
 	suite.IsNotErrResponse(response)
@@ -237,7 +234,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 
 	result = payload.QueueMoves[0]
 
-	suite.Equal(ghcmessages.QueueMoveStatus("Approvals requested"), result.Status)
+	suite.Equal(ghcmessages.QueueMoveStatus("APPROVALS REQUESTED"), result.Status)
 
 }
 
@@ -267,12 +264,20 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 	})
 
 	// Approvals requested
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+	approvedMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
-			Status:           models.MoveStatusAPPROVED,
+			Status:           models.MoveStatusAPPROVALSREQUESTED,
 		},
-		MTOShipment: submittedShipment,
+	})
+	testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		Move: approvedMove,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusApproved,
+		},
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusSubmitted,
+		},
 	})
 
 	// Move approved
@@ -311,13 +316,13 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		moveorder.NewMoveOrderFetcher(suite.DB()),
 	}
 
-	suite.Run("loads results with all STATUS selected", func() {
+	suite.Run("loads results with all STATUSes selected", func() {
 		params := queues.GetMovesQueueParams{
 			HTTPRequest: request,
 			Status: []string{
-				modelToPayload.QueueMoveStatusNEWMOVE,
-				modelToPayload.QueueMoveStatusAPPROVALSREQUESTED,
-				modelToPayload.QueueMoveStatusMOVEAPPROVED,
+				string(models.MoveStatusSUBMITTED),
+				string(models.MoveStatusAPPROVED),
+				string(models.MoveStatusAPPROVALSREQUESTED),
 			},
 		}
 
@@ -329,12 +334,34 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		suite.Len(payload.QueueMoves, 3)
 	})
 
+	suite.Run("loads results with all STATUSes and 1 page selected", func() {
+		params := queues.GetMovesQueueParams{
+			HTTPRequest: request,
+			Status: []string{
+				string(models.MoveStatusSUBMITTED),
+				string(models.MoveStatusAPPROVED),
+				string(models.MoveStatusAPPROVALSREQUESTED),
+			},
+			PerPage: swag.Int64(1),
+			Page:    swag.Int64(1),
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		payload := response.(*queues.GetMovesQueueOK).Payload
+		suite.EqualValues(3, payload.TotalCount)
+		suite.Len(payload.QueueMoves, 1)
+	})
+
 	suite.Run("loads results with one STATUS selected", func() {
 		params := queues.GetMovesQueueParams{
 			HTTPRequest: request,
 			Status: []string{
-				modelToPayload.QueueMoveStatusNEWMOVE,
+				string(models.MoveStatusSUBMITTED),
 			},
+			Page:    swag.Int64(1),
+			PerPage: swag.Int64(1),
 		}
 
 		response := handler.Handle(params)
@@ -343,14 +370,35 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		payload := response.(*queues.GetMovesQueueOK).Payload
 		suite.EqualValues(1, payload.TotalCount)
 		suite.Len(payload.QueueMoves, 1)
-		suite.EqualValues(modelToPayload.QueueMoveStatusNEWMOVE, payload.QueueMoves[0].Status)
+		suite.EqualValues(string(models.MoveStatusSUBMITTED), payload.QueueMoves[0].Status)
+	})
+
+	suite.Run("Excludes draft and canceled moves when STATUS params is empty", func() {
+		params := queues.GetMovesQueueParams{
+			HTTPRequest: request,
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		payload := response.(*queues.GetMovesQueueOK).Payload
+		moves := payload.QueueMoves
+		var actualStatuses []string
+		for _, move := range moves {
+			actualStatuses = append(actualStatuses, string(move.Status))
+		}
+		expectedStatuses := [3]string{"SUBMITTED", "APPROVED", "APPROVALS REQUESTED"}
+
+		suite.EqualValues(3, payload.TotalCount)
+		suite.Len(payload.QueueMoves, 3)
+		suite.ElementsMatch(expectedStatuses, actualStatuses)
 	})
 
 	suite.Run("1 result with status New Move and branch AIR_FORCE", func() {
 		params := queues.GetMovesQueueParams{
 			HTTPRequest: request,
 			Status: []string{
-				modelToPayload.QueueMoveStatusNEWMOVE,
+				string(models.MoveStatusSUBMITTED),
 			},
 			Branch: models.StringPointer("AIR_FORCE"),
 		}
@@ -361,7 +409,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		payload := response.(*queues.GetMovesQueueOK).Payload
 		suite.EqualValues(1, payload.TotalCount)
 		suite.Len(payload.QueueMoves, 1)
-		suite.EqualValues(modelToPayload.QueueMoveStatusNEWMOVE, payload.QueueMoves[0].Status)
+		suite.EqualValues(string(models.MoveStatusSUBMITTED), payload.QueueMoves[0].Status)
 		suite.Equal("AIR_FORCE", payload.QueueMoves[0].Customer.Agency)
 	})
 
@@ -369,7 +417,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		params := queues.GetMovesQueueParams{
 			HTTPRequest: request,
 			Status: []string{
-				modelToPayload.QueueMoveStatusNEWMOVE,
+				string(models.MoveStatusSUBMITTED),
 			},
 			Branch: models.StringPointer("ARMY"),
 		}
@@ -668,13 +716,6 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 		},
 	})
 
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: hhgMove,
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
-		},
-	})
-
 	// Fake this as a day and a half in the past so floating point age values can be tested
 	prevCreatedAt := time.Now().Add(time.Duration(time.Hour * -36))
 
@@ -726,7 +767,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	suite.Equal(actualPaymentRequest.ID.String(), paymentRequest.ID.String())
 	suite.Equal(actualPaymentRequest.MoveTaskOrderID.String(), paymentRequest.MoveID.String())
 	suite.Equal(hhgMove.Orders.ServiceMemberID.String(), paymentRequest.Customer.ID.String())
-	suite.Equal(actualPaymentRequest.Status.String(), string(paymentRequest.Status))
+	suite.Equal(string(paymentRequest.Status), "Payment requested")
 
 	createdAt := actualPaymentRequest.CreatedAt
 	age := int64(2)
@@ -738,6 +779,81 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	suite.Equal(*hhgMove.Orders.DepartmentIndicator, string(paymentRequest.DepartmentIndicator))
 }
 
+func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
+	officeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{})
+
+	outOfRangeDate, _ := time.Parse("2006-01-02", "2020-10-10")
+
+	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			CreatedAt: outOfRangeDate,
+		},
+	})
+
+	createdAtTime, _ := time.Parse("2006-01-02", "2020-10-29")
+	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			CreatedAt: createdAtTime,
+		},
+	})
+
+	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
+	request = suite.AuthenticateOfficeRequest(request, officeUser)
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	handler := GetPaymentRequestsQueueHandler{
+		context,
+		paymentrequest.NewPaymentRequestListFetcher(suite.DB()),
+	}
+	suite.Run("returns unfiltered results", func() {
+		params := queues.GetPaymentRequestsQueueParams{
+			HTTPRequest: request,
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		suite.Assertions.IsType(&queues.GetPaymentRequestsQueueOK{}, response)
+		payload := response.(*queues.GetPaymentRequestsQueueOK).Payload
+
+		suite.Len(payload.QueuePaymentRequests, 2)
+	})
+
+	suite.Run("returns unfiltered paginated results", func() {
+		params := queues.GetPaymentRequestsQueueParams{
+			HTTPRequest: request,
+			Page:        swag.Int64(1),
+			PerPage:     swag.Int64(1),
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		suite.Assertions.IsType(&queues.GetPaymentRequestsQueueOK{}, response)
+		payload := response.(*queues.GetPaymentRequestsQueueOK).Payload
+
+		suite.Len(payload.QueuePaymentRequests, 1)
+		// Total count is more than the perPage
+		suite.Equal(int64(2), payload.TotalCount)
+	})
+
+	suite.Run("returns results matching SubmittedAt date", func() {
+		submittedAtDate := "2020-10-29"
+		params := queues.GetPaymentRequestsQueueParams{
+			HTTPRequest: request,
+			SubmittedAt: &submittedAtDate,
+		}
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		payload := response.(*queues.GetPaymentRequestsQueueOK).Payload
+
+		suite.Len(payload.QueuePaymentRequests, 1)
+	})
+
+}
+
 func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerUnauthorizedRole() {
 	officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 
@@ -745,6 +861,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerUnauthorizedRole() 
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 	params := queues.GetPaymentRequestsQueueParams{
 		HTTPRequest: request,
+		Page:        swag.Int64(1),
+		PerPage:     swag.Int64(1),
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetPaymentRequestsQueueHandler{
@@ -762,12 +880,16 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerServerError() {
 
 	paymentRequestListFetcher := mocks.PaymentRequestListFetcher{}
 
-	paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID).Return(nil, errors.New("database query error"))
+	paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID,
+		mock.Anything,
+		mock.Anything).Return(nil, 0, errors.New("database query error"))
 
 	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 	params := queues.GetPaymentRequestsQueueParams{
 		HTTPRequest: request,
+		Page:        swag.Int64(1),
+		PerPage:     swag.Int64(1),
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetPaymentRequestsQueueHandler{
@@ -785,12 +907,16 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerEmptyResults() {
 
 	paymentRequestListFetcher := mocks.PaymentRequestListFetcher{}
 
-	paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID).Return(&models.PaymentRequests{}, nil)
+	paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID,
+		mock.Anything,
+		mock.Anything).Return(&models.PaymentRequests{}, 0, nil)
 
 	request := httptest.NewRequest("GET", "/queues/payment-requests", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)
 	params := queues.GetPaymentRequestsQueueParams{
 		HTTPRequest: request,
+		Page:        swag.Int64(1),
+		PerPage:     swag.Int64(1),
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetPaymentRequestsQueueHandler{

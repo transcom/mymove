@@ -56,7 +56,7 @@ func (suite *ModelSuite) TestWebhookNotification() {
 		newNotification := models.WebhookNotification{
 			EventKey: "PaymentRequest.Update",
 			Payload:  swag.String("{\"msg\": \"This is the payload\"}"),
-			Status:   "PENDING",
+			Status:   "SKIPPED",
 		}
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&newNotification, expErrors)
@@ -71,7 +71,7 @@ func (suite *ModelSuite) TestWebhookNotification() {
 			Status:   "NEW",
 		}
 		expErrors := map[string][]string{}
-		expErrors["status"] = []string{"Status is not in the list [PENDING, SENT, FAILED]."}
+		expErrors["status"] = []string{"Status is not in the list [PENDING, SENT, SKIPPED, FAILING, FAILED]."}
 		expErrors["event_key"] = []string{"Eventkey should be in Subject.Action format."}
 		expErrors["payload"] = []string{"Payload can not be blank."}
 		suite.verifyValidationErrors(&newNotification, expErrors)

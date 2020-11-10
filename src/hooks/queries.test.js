@@ -71,21 +71,17 @@ jest.mock('services/ghcApi', () => ({
     }),
   getMovesQueue: () =>
     Promise.resolve({
-      queueMovesResult: {
-        undefined: {
-          page: 0,
-          perPage: 100,
-          totalCount: 2,
-          queueMoves: [
-            {
-              id: 'move1',
-            },
-            {
-              id: 'move2',
-            },
-          ],
+      page: 0,
+      perPage: 100,
+      totalCount: 2,
+      queueMoves: [
+        {
+          id: 'move1',
         },
-      },
+        {
+          id: 'move2',
+        },
+      ],
     }),
   getPaymentRequestsQueue: () =>
     Promise.resolve({
@@ -258,19 +254,17 @@ describe('useMovesQueueQueries', () => {
 
     expect(result.current).toEqual({
       queueMovesResult: {
-        undefined: {
-          page: 0,
-          perPage: 100,
-          totalCount: 2,
-          queueMoves: [
-            {
-              id: 'move1',
-            },
-            {
-              id: 'move2',
-            },
-          ],
-        },
+        page: 0,
+        perPage: 100,
+        totalCount: 2,
+        queueMoves: [
+          {
+            id: 'move1',
+          },
+          {
+            id: 'move2',
+          },
+        ],
       },
       isLoading: false,
       isError: false,

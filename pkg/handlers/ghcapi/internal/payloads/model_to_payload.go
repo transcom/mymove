@@ -242,7 +242,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
 	}
 
-	if mtoShipment.RequestedPickupDate != nil {
+	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
 		payload.RequestedPickupDate = *handlers.FmtDatePtr(mtoShipment.RequestedPickupDate)
 	}
 
@@ -262,6 +262,7 @@ func MTOShipments(mtoShipments *models.MTOShipments) *ghcmessages.MTOShipments {
 	payload := make(ghcmessages.MTOShipments, len(*mtoShipments))
 
 	for i, m := range *mtoShipments {
+		// #nosec G601 TODO needs review
 		payload[i] = MTOShipment(&m)
 	}
 	return &payload
@@ -288,6 +289,7 @@ func MTOAgent(mtoAgent *models.MTOAgent) *ghcmessages.MTOAgent {
 func MTOAgents(mtoAgents *models.MTOAgents) *ghcmessages.MTOAgents {
 	payload := make(ghcmessages.MTOAgents, len(*mtoAgents))
 	for i, m := range *mtoAgents {
+		// #nosec G601 TODO needs review
 		payload[i] = MTOAgent(&m)
 	}
 	return &payload
@@ -338,6 +340,7 @@ func PaymentServiceItem(ps *models.PaymentServiceItem) *ghcmessages.PaymentServi
 func PaymentServiceItems(paymentServiceItems *models.PaymentServiceItems) *ghcmessages.PaymentServiceItems {
 	payload := make(ghcmessages.PaymentServiceItems, len(*paymentServiceItems))
 	for i, m := range *paymentServiceItems {
+		// #nosec G601 TODO needs review
 		payload[i] = PaymentServiceItem(&m)
 	}
 	return &payload
@@ -374,6 +377,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOServiceItem {
 func MTOServiceItemModels(s models.MTOServiceItems) ghcmessages.MTOServiceItems {
 	serviceItems := ghcmessages.MTOServiceItems{}
 	for _, item := range s {
+		// #nosec G601 TODO needs review
 		serviceItems = append(serviceItems, MTOServiceItemModel(&item))
 	}
 
@@ -395,6 +399,7 @@ func MTOServiceItemDimension(d *models.MTOServiceItemDimension) *ghcmessages.MTO
 func MTOServiceItemDimensions(d models.MTOServiceItemDimensions) ghcmessages.MTOServiceItemDimensions {
 	payload := make(ghcmessages.MTOServiceItemDimensions, len(d))
 	for i, item := range d {
+		// #nosec G601 TODO needs review
 		payload[i] = MTOServiceItemDimension(&item)
 	}
 	return payload
@@ -413,6 +418,7 @@ func MTOServiceItemCustomerContact(c *models.MTOServiceItemCustomerContact) *ghc
 func MTOServiceItemCustomerContacts(c models.MTOServiceItemCustomerContacts) ghcmessages.MTOServiceItemCustomerContacts {
 	payload := make(ghcmessages.MTOServiceItemCustomerContacts, len(c))
 	for i, item := range c {
+		// #nosec G601 TODO needs review
 		payload[i] = MTOServiceItemCustomerContact(&item)
 	}
 	return payload
@@ -485,7 +491,7 @@ func QueueMoves(moveOrders []models.Order) *ghcmessages.QueueMoves {
 
 		queueMoveOrders[i] = &ghcmessages.QueueMove{
 			Customer:               Customer(&customer),
-			Status:                 ghcmessages.QueueMoveStatus(queueMoveStatus(hhgMove)),
+			Status:                 ghcmessages.QueueMoveStatus(hhgMove.Status),
 			ID:                     *handlers.FmtUUID(order.ID),
 			Locator:                hhgMove.Locator,
 			DepartmentIndicator:    ghcmessages.DeptIndicator(deptIndicator),
@@ -498,40 +504,29 @@ func QueueMoves(moveOrders []models.Order) *ghcmessages.QueueMoves {
 }
 
 var (
-	// QueueMoveStatusNEWMOVE status New move
-	QueueMoveStatusNEWMOVE string = "New move"
-	// QueueMoveStatusAPPROVALSREQUESTED status Approvals requested
-	QueueMoveStatusAPPROVALSREQUESTED string = "Approvals requested"
-	// QueueMoveStatusMOVEAPPROVED status Move approved
-	QueueMoveStatusMOVEAPPROVED string = "Move approved"
+	// QueuePaymentRequestPaymentRequested status payment requested
+	QueuePaymentRequestPaymentRequested string = "Payment requested"
+	// QueuePaymentRequestReviewed status Payment request reviewed
+	QueuePaymentRequestReviewed string = "Reviewed"
+	// QueuePaymentRequestPaid status PaymentRequest paid
+	QueuePaymentRequestPaid string = "Paid"
 )
 
-// This is a helper function to calculate the inferred status needed for the QueueMove payload.
-func queueMoveStatus(move models.Move) string {
-	// If the move is in the submitted status then we'll translate that to New move
-	if move.Status == models.MoveStatusSUBMITTED {
-		return QueueMoveStatusNEWMOVE
+// This is a helper function to calculate the inferred status needed for QueuePaymentRequest payload
+func queuePaymentRequestStatus(paymentRequest models.PaymentRequest) string {
+	// If a payment request is in the PENDING state, let's use the term 'payment requested'
+	if paymentRequest.Status == models.PaymentRequestStatusPending {
+		return QueuePaymentRequestPaymentRequested
 	}
 
-	// For moves that are in an approved status there are two potential translation paths:
-	// either move approved or approvals requested. A move is move approved if the move is in an APPROVED
-	// status and there are no mtoServiceItems that are in a submitted status. A move is in the
-	// approvals requested status when the move is in an APPROVED status and there are mtoServiceItems in
-	// a submitted status. This is all detailed in: https://dp3.atlassian.net/browse/MB-4158
-	if move.Status == models.MoveStatusAPPROVED {
-		// Let's check to see if there are any MTOServiceItems for this move that need review (SUBMITTED status)
-		for _, mtoSI := range move.MTOServiceItems {
-			// If we find one, we'll immediately return this status as there's no need to continue iterating through.
-			if mtoSI.Status == "SUBMITTED" {
-				return QueueMoveStatusAPPROVALSREQUESTED
-			}
-		}
-		// If we iterate through the MTOServiceItems and don't find a submitted status item, we return move approved.
-		return QueueMoveStatusMOVEAPPROVED
+	// If a payment request is either reviewed, sent_to_gex or recieved_by_gex then we'll use 'reviewed'
+	if paymentRequest.Status == models.PaymentRequestStatusSentToGex ||
+		paymentRequest.Status == models.PaymentRequestStatusReceivedByGex ||
+		paymentRequest.Status == models.PaymentRequestStatusReviewed {
+		return QueuePaymentRequestReviewed
 	}
-	// If we have a status not covered here let's pass it through. This is unlikely to happen, but we should be able to
-	// see it if it does.
-	return string(move.Status)
+
+	return QueuePaymentRequestPaid
 }
 
 // QueuePaymentRequests payload
@@ -546,7 +541,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 			ID:          *handlers.FmtUUID(paymentRequest.ID),
 			MoveID:      *handlers.FmtUUID(moveTaskOrder.ID),
 			Customer:    Customer(&orders.ServiceMember),
-			Status:      ghcmessages.PaymentRequestStatus(paymentRequest.Status),
+			Status:      ghcmessages.PaymentRequestStatus(queuePaymentRequestStatus(paymentRequest)),
 			Age:         int64(math.Ceil(time.Since(paymentRequest.CreatedAt).Hours() / 24.0)),
 			SubmittedAt: *handlers.FmtDateTime(paymentRequest.CreatedAt), // RequestedAt does not seem to be populated
 			Locator:     moveTaskOrder.Locator,

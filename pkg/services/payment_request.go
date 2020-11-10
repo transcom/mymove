@@ -17,7 +17,7 @@ type PaymentRequestCreator interface {
 // PaymentRequestListFetcher is the exported interface for fetching a list of payment requests
 //go:generate mockery -name PaymentRequestListFetcher
 type PaymentRequestListFetcher interface {
-	FetchPaymentRequestList(officeUserID uuid.UUID) (*models.PaymentRequests, error)
+	FetchPaymentRequestList(officeUserID uuid.UUID, params *FetchPaymentRequestListParams) (*models.PaymentRequests, int, error)
 }
 
 // PaymentRequestFetcher is the exported interface for fetching a payment request
@@ -42,4 +42,23 @@ type PaymentRequestStatusUpdater interface {
 //go:generate mockery -name PaymentRequestUploadCreator
 type PaymentRequestUploadCreator interface {
 	CreateUpload(file io.ReadCloser, paymentRequestID uuid.UUID, userID uuid.UUID, filename string) (*models.Upload, error)
+}
+
+// PaymentRequestReviewedProcessor is the exported interface for processing reviewed payment requests
+//go:generate mockery -name PaymentRequestReviewedProcessor
+type PaymentRequestReviewedProcessor interface {
+	ProcessReviewedPaymentRequest() error
+}
+
+// FetchPaymentRequestListParams is a public struct that's used to pass filter arguments to FetchPaymentRequestList
+type FetchPaymentRequestListParams struct {
+	Branch                 *string
+	MoveID                 *string
+	DodID                  *string
+	LastName               *string
+	DestinationDutyStation *string
+	Status                 []string
+	Page                   *int64
+	PerPage                *int64
+	SubmittedAt            *string
 }
