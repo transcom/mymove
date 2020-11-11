@@ -99,11 +99,15 @@ const Table = ({
               value={pageIndex}
               onChange={(e) => gotoPage(Number(e.target.value))}
             >
-              {pageOptions.map((pageOption, index) => (
-                <option value={pageOption} key={`page-options-${index}`}>
-                  {pageOption + 1}
-                </option>
-              ))}
+              {pageOptions.length > 0 ? (
+                pageOptions.map((pageOption, index) => (
+                  <option value={pageOption} key={`page-options-${index}`}>
+                    {pageOption + 1}
+                  </option>
+                ))
+              ) : (
+                <option value={0}>{1}</option>
+              )}
             </Dropdown>
             <Button className={styles.usaButtonUnstyled} onClick={nextPage} disabled={!canNextPage}>
               <span>Next</span>
@@ -152,7 +156,7 @@ Table.defaultProps = {
   state: undefined,
   pageIndex: 0,
   pageSize: 20,
-  pageOptions: [],
+  pageOptions: [0],
   perPage: [10, 20, 50],
 };
 
