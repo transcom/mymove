@@ -233,6 +233,50 @@ func (o *CreatePaymentRequestNotFound) WriteResponse(rw http.ResponseWriter, pro
 	}
 }
 
+// CreatePaymentRequestConflictCode is the HTTP code returned for type CreatePaymentRequestConflict
+const CreatePaymentRequestConflictCode int = 409
+
+/*CreatePaymentRequestConflict The request could not be processed because of conflict in the current state of the resource.
+
+swagger:response createPaymentRequestConflict
+*/
+type CreatePaymentRequestConflict struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *primemessages.ClientError `json:"body,omitempty"`
+}
+
+// NewCreatePaymentRequestConflict creates CreatePaymentRequestConflict with default headers values
+func NewCreatePaymentRequestConflict() *CreatePaymentRequestConflict {
+
+	return &CreatePaymentRequestConflict{}
+}
+
+// WithPayload adds the payload to the create payment request conflict response
+func (o *CreatePaymentRequestConflict) WithPayload(payload *primemessages.ClientError) *CreatePaymentRequestConflict {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the create payment request conflict response
+func (o *CreatePaymentRequestConflict) SetPayload(payload *primemessages.ClientError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *CreatePaymentRequestConflict) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(409)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // CreatePaymentRequestUnprocessableEntityCode is the HTTP code returned for type CreatePaymentRequestUnprocessableEntity
 const CreatePaymentRequestUnprocessableEntityCode int = 422
 

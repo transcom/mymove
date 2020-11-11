@@ -54,6 +54,12 @@ func (o *CreatePaymentRequestReader) ReadResponse(response runtime.ClientRespons
 			return nil, err
 		}
 		return nil, result
+	case 409:
+		result := NewCreatePaymentRequestConflict()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	case 422:
 		result := NewCreatePaymentRequestUnprocessableEntity()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -226,6 +232,39 @@ func (o *CreatePaymentRequestNotFound) GetPayload() *primemessages.ClientError {
 }
 
 func (o *CreatePaymentRequestNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(primemessages.ClientError)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewCreatePaymentRequestConflict creates a CreatePaymentRequestConflict with default headers values
+func NewCreatePaymentRequestConflict() *CreatePaymentRequestConflict {
+	return &CreatePaymentRequestConflict{}
+}
+
+/*CreatePaymentRequestConflict handles this case with default header values.
+
+The request could not be processed because of conflict in the current state of the resource.
+*/
+type CreatePaymentRequestConflict struct {
+	Payload *primemessages.ClientError
+}
+
+func (o *CreatePaymentRequestConflict) Error() string {
+	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestConflict  %+v", 409, o.Payload)
+}
+
+func (o *CreatePaymentRequestConflict) GetPayload() *primemessages.ClientError {
+	return o.Payload
+}
+
+func (o *CreatePaymentRequestConflict) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(primemessages.ClientError)
 
