@@ -386,7 +386,7 @@ const testDateFormat = "060102"
 
 func (suite *HandlerSuite) createPaymentRequest(num int) models.PaymentRequests {
 	var prs models.PaymentRequests
-	for i := 0; i < 4; i++ {
+	for i := 0; i < num; i++ {
 		currentTime := time.Now()
 		basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 			{

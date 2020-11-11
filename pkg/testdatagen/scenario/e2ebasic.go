@@ -1451,26 +1451,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		Move: move9,
 	})
 
-	// dlhCost9 := unit.Cents(99999)
-	// serviceItemDLH9 := testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-	// 	MTOServiceItem: models.MTOServiceItem{
-	// 		ID: uuid.FromStringOrNil("877bdec0-2115-4a76-a2d9-5f2fa20a5470"),
-	// 	},
-	// 	Move:        move9,
-	// 	MTOShipment: mtoShipment9,
-	// 	ReService: models.ReService{
-	// 		ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH - Domestic Linehaul
-	// 	},
-	// })
-
-	// testdatagen.MakePaymentServiceItem(db, testdatagen.Assertions{
-	// 	PaymentServiceItem: models.PaymentServiceItem{
-	// 		PriceCents: &dlhCost9,
-	// 	},
-	// 	PaymentRequest: paymentRequest9,
-	// 	MTOServiceItem: serviceItemDLH9,
-	// })
-
 	assertions9 := testdatagen.Assertions{
 		Move:           move9,
 		MTOShipment:    mtoShipment9,
