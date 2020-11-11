@@ -85,7 +85,7 @@ const MoveQueue = ({ history }) => {
     queueMovesResult: { totalCount = 0, queueMoves = [], page = 1, perPage = 20 },
     isLoading,
     isError,
-  } = useMovesQueueQueries({ paramFilters, currentPage, currentPageSize });
+  } = useMovesQueueQueries({ filters: paramFilters, currentPage, currentPageSize });
 
   // react-table setup below
 
