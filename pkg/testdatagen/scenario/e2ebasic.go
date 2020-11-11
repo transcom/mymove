@@ -2129,4 +2129,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 
+	// Create multiple payment requests to fill queue
+	testdatagen.MakeMultiPaymentRequestWithItems(db, testdatagen.Assertions{
+		Move: mto7,
+	}, 35)
 }

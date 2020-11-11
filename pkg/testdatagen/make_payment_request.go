@@ -3,6 +3,10 @@ package testdatagen
 import (
 	"fmt"
 
+	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/unit"
+
 	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -48,4 +52,52 @@ func MakePaymentRequest(db *pop.Connection, assertions Assertions) models.Paymen
 // MakeDefaultPaymentRequest makes an PaymentRequest with default values
 func MakeDefaultPaymentRequest(db *pop.Connection) models.PaymentRequest {
 	return MakePaymentRequest(db, Assertions{})
+}
+
+// MakePaymentRequestWithServiceItems creates a payment request with service items
+func MakePaymentRequestWithServiceItems(db *pop.Connection, assertions Assertions) {
+	paymentRequest := MakePaymentRequest(db, Assertions{})
+	serviceItemCS := MakeMTOServiceItemBasic(db, Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusSubmitted,
+		},
+		Move: assertions.Move,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
+		},
+	})
+
+	serviceItemMS := MakeMTOServiceItemBasic(db, Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			Status: models.MTOServiceItemStatusSubmitted,
+		},
+		Move: assertions.Move,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
+		},
+	})
+
+	cost := unit.Cents(20000)
+	MakePaymentServiceItem(db, Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &cost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: serviceItemCS,
+	})
+
+	MakePaymentServiceItem(db, Assertions{
+		PaymentServiceItem: models.PaymentServiceItem{
+			PriceCents: &cost,
+		},
+		PaymentRequest: paymentRequest,
+		MTOServiceItem: serviceItemMS,
+	})
+}
+
+// MakeMultiPaymentRequestWithItems makes multiple payment requests with payment service items
+func MakeMultiPaymentRequestWithItems(db *pop.Connection, assertions Assertions, numberOfPaymentRequestToCreate int) {
+	for i := 0; i < numberOfPaymentRequestToCreate; i++ {
+		MakePaymentRequestWithServiceItems(db, assertions)
+	}
 }
