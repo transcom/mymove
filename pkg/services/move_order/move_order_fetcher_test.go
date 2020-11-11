@@ -150,7 +150,7 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 	})
 }
 
-func (suite *MoveOrderServiceSuite) TestListMoveOrdersUSMCGbloc() {
+func (suite *MoveOrderServiceSuite) TestListMoveOrdersUSMCGBLOC() {
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
 
 	suite.T().Run("returns USMC order for USMC office user", func(t *testing.T) {
@@ -179,26 +179,26 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrdersUSMCGbloc() {
 			Move: models.Move{
 				Status: models.MoveStatusSUBMITTED,
 			},
-			ServiceMember: models.ServiceMember{Affiliation: &marines},
-		})
-
-		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
-			},
-			Move: models.Move{
-				Status: models.MoveStatusSUBMITTED,
-			},
 			ServiceMember: models.ServiceMember{Affiliation: &army},
 		})
 
-		officeUserUSMC := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{OfficeUser: models.OfficeUser{TransportationOfficeID: officeUUID}})
+		officeUserOooRah := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{OfficeUser: models.OfficeUser{TransportationOfficeID: officeUUID}})
+		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
-		params := services.ListMoveOrderParams{PerPage: swag.Int64(20), Page: swag.Int64(1)}
-		moveOrders, _, err := moveOrderFetcher.ListMoveOrders(officeUserUSMC.ID, &params)
+		params := services.ListMoveOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
+		moveOrders, _, err := moveOrderFetcher.ListMoveOrders(officeUserOooRah.ID, &params)
 
 		suite.FatalNoError(err)
-		suite.Equal(2, len(moveOrders))
+		suite.Equal(1, len(moveOrders))
+		suite.Equal(models.AffiliationMARINES, *moveOrders[0].ServiceMember.Affiliation)
+
+		params = services.ListMoveOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
+		moveOrders, _, err = moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moveOrders))
+		suite.Equal(models.AffiliationARMY, *moveOrders[0].ServiceMember.Affiliation)
+
 	})
 }
 
