@@ -56,7 +56,32 @@ func MakeDefaultPaymentRequest(db *pop.Connection) models.PaymentRequest {
 
 // MakePaymentRequestWithServiceItems creates a payment request with service items
 func MakePaymentRequestWithServiceItems(db *pop.Connection, assertions Assertions) {
-	paymentRequest := MakePaymentRequest(db, Assertions{})
+	paymentRequest := MakePaymentRequest(db, Assertions{
+		PaymentRequest: models.PaymentRequest{
+			MoveTaskOrder:   assertions.Move,
+			IsFinal:         false,
+			Status:          models.PaymentRequestStatusPending,
+			RejectionReason: nil,
+			SequenceNumber:  assertions.PaymentRequest.SequenceNumber,
+		},
+		Move: assertions.Move,
+	})
+	proofOfService := MakeProofOfServiceDoc(db, Assertions{
+		PaymentRequest: paymentRequest,
+	})
+
+	MakePrimeUpload(db, Assertions{
+		PrimeUpload: models.PrimeUpload{
+			ProofOfServiceDoc:   proofOfService,
+			ProofOfServiceDocID: proofOfService.ID,
+			Contractor: models.Contractor{
+				ID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"), // Prime
+			},
+			ContractorID: uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6"),
+		},
+		PrimeUploader: assertions.PrimeUploader,
+	})
+
 	serviceItemCS := MakeMTOServiceItemBasic(db, Assertions{
 		MTOServiceItem: models.MTOServiceItem{
 			Status: models.MTOServiceItemStatusSubmitted,
@@ -98,6 +123,7 @@ func MakePaymentRequestWithServiceItems(db *pop.Connection, assertions Assertion
 // MakeMultiPaymentRequestWithItems makes multiple payment requests with payment service items
 func MakeMultiPaymentRequestWithItems(db *pop.Connection, assertions Assertions, numberOfPaymentRequestToCreate int) {
 	for i := 0; i < numberOfPaymentRequestToCreate; i++ {
+		assertions.PaymentRequest.SequenceNumber = 1000 + i
 		MakePaymentRequestWithServiceItems(db, assertions)
 	}
 }

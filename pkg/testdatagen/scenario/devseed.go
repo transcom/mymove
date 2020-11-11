@@ -2123,6 +2123,7 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 
 	// Create multiple payment requests to fill queue
 	testdatagen.MakeMultiPaymentRequestWithItems(db, testdatagen.Assertions{
-		Move: mto7,
+		Move:          move8,
+		PrimeUploader: primeUploader,
 	}, 35)
 }
