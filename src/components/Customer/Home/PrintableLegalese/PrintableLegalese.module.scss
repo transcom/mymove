@@ -1,0 +1,23 @@
+.printableCertification {
+  display: none;
+}
+
+@media print {
+  .printableCertification {
+    display: block;
+  }
+
+  .signatureFields {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .signature {
+    flex-grow: 1;
+  }
+
+  .date {
+    flex-grow: 1;
+    max-width: 200px;
+  }
+}
