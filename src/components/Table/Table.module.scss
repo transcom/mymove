@@ -1,6 +1,5 @@
 @import 'shared/styles/_basics';
 @import 'shared/styles/_mixins';
-// @import 'shared/styles/_overrides';
 @import 'shared/styles/colors';
 
 .Table {
@@ -56,10 +55,6 @@
 
 .inlineBlock {
   display: inline-block
-}
-
-.displayFlex {
-  justify-content: space-between;
 }
 
 .paginationSectionWrapper {
