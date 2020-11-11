@@ -310,6 +310,19 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		suite.Equal(true, ok)
 	})
 
+	suite.T().Run("Given no move task order id, the create should fail", func(t *testing.T) {
+		invalidPaymentRequest := models.PaymentRequest{
+			MoveTaskOrderID: uuid.Nil,
+			IsFinal:         false,
+		}
+		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
+
+		suite.Error(err)
+		_, ok := err.(services.InvalidCreateInputError)
+		suite.Equal(true, ok)
+		suite.Equal("Invalid Create Input Error: MoveTaskOrderID is required on PaymentRequest create", err.Error())
+	})
+
 	suite.T().Run("Given a non-existent service item id, the create should fail", func(t *testing.T) {
 		badID, _ := uuid.FromString("0aee14dd-b5ea-441a-89ad-db4439fa4ea2")
 		invalidPaymentRequest := models.PaymentRequest{
