@@ -844,72 +844,30 @@ tasks_post_file_to_gex: tasks_build_linux_docker ## Run post-file-to-gex from in
 # ----- START Deployed MIGRATION TARGETS -----
 #
 
-.PHONY: run_prod_migrations
-run_prod_migrations: run_com_prod_migrations
-	# run_gov_prod_migrations
-
-.PHONY: run_com_prod_migrations
-run_com_prod_migrations: bin/milmove db_deployed_migrations_reset ## Run Commercial Prod migrations against Deployed Migrations DB
-	@echo "Migrating the prod-migrations database with prod migrations..."
-	MIGRATION_PATH="s3://transcom-ppp-app-prod-us-west-2/secure-migrations;file://migrations/$(APPLICATION)/schema" \
-	DB_HOST=localhost \
-	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
-	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
-	DB_DEBUG=0 \
-	bin/milmove migrate
-
-.PHONY: run_gov_prod_migrations
-run_gov_prod_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud Prod migrations against Deployed Migrations DB
-	@echo "Migrating the prod-migrations database with prod migrations..."
+.PHONY: run_prd_migrations
+run_prd_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud prd migrations against Deployed Migrations DB
+	@echo "Migrating the prd-migrations database with prd migrations..."
 	MIGRATION_PATH="s3://transcom-gov-milmove-prd-app-us-gov-west-1/secure-migrations;file://migrations/$(APPLICATION)/schema" \
- 	DB_HOST=localhost \
- 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
- 	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
- 	DB_DEBUG=0 \
- 	bin/milmove migrate
-
-.PHONY: run_staging_migrations
-run_staging_migrations: run_com_staging_migrations
-  # run_gov_staging_migrations
-
-.PHONY: run_com_staging_migrations
-run_com_staging_migrations: bin/milmove db_deployed_migrations_reset ## Run Commercial Staging migrations against Deployed Migrations DB
-	@echo "Migrating the staging-migrations database with staging migrations..."
-	MIGRATION_PATH="s3://transcom-ppp-app-staging-us-west-2/secure-migrations;file://migrations/$(APPLICATION)/schema" \
 	DB_HOST=localhost \
 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
 	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
 	DB_DEBUG=0 \
 	bin/milmove migrate
 
-.PHONY: run_gov_staging_migrations ## Run GovCloud Staging migrations against Deployed Migrations DB
-run_gov_staging_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud Staging migrations against Deployed Migrations DB in commercial
-	@echo "Migrating the staging-migrations database with staging migrations..."
-	MIGRATION_PATH="s3://transcom-gov-milmove-stg-app/secure-migrations;file://migrations/$(APPLICATION)/schema" \
+.PHONY: run_stg_migrations
+run_stg_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud stg migrations against Deployed Migrations DB
+	@echo "Migrating the stg-migrations database with stg migrations..."
+	MIGRATION_PATH="s3://transcom-gov-milmove-stg-app-us-gov-west-1/secure-migrations;file://migrations/$(APPLICATION)/schema" \
 	DB_HOST=localhost \
 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
 	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
 	DB_DEBUG=0 \
 	bin/milmove migrate
 
-.PHONY: run_experimental_migrations
-run_experimental_migrations: run_com_experimental_migrations
-	# run_gov_experimental_migrations
-
-.PHONY: run_com_experimental_migrations
-run_com_experimental_migrations: bin/milmove db_deployed_migrations_reset ## Run Commercial Experimental migrations against Deployed Migrations DB
-	@echo "Migrating the experimental-migrations database with experimental migrations..."
-	MIGRATION_PATH="s3://transcom-ppp-app-experimental-us-west-2/secure-migrations;file://migrations/$(APPLICATION)/schema" \
-	DB_HOST=localhost \
-	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
-	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
-	DB_DEBUG=0 \
-	bin/milmove migrate
-
-.PHONY: run_gov_experimental_migrations
-run_gov_experimental_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud Experimental migrations against Deployed Migrations DB
-	@echo "Migrating the experimental-migrations database with experimental migrations..."
-	MIGRATION_PATH="s3://transcom-gov-milmove-exp-app/secure-migrations;file://migrations/$(APPLICATION)/schema" \
+.PHONY: run_exp_migrations
+run_exp_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud exp migrations against Deployed Migrations DB
+	@echo "Migrating the exp-migrations database with exp migrations..."
+	MIGRATION_PATH="s3://transcom-gov-milmove-exp-app-us-gov-west-1/secure-migrations;file://migrations/$(APPLICATION)/schema" \
 	DB_HOST=localhost \
 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
 	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
