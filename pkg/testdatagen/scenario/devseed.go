@@ -2121,6 +2121,12 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 		},
 	})
 
+	// Create one webhook subscription for PaymentRequestUpdate
+	testdatagen.MakeWebhookSubscription(db, testdatagen.Assertions{
+		WebhookSubscription: models.WebhookSubscription{
+			CallbackURL: "https://primelocal:9443/support/v1/webhook-notify",
+		},
+	})
 	// Create multiple payment requests to fill queue
 	testdatagen.MakeMultiPaymentRequestWithItems(db, testdatagen.Assertions{
 		Move:          move8,
