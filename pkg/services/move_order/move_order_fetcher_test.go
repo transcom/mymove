@@ -3,6 +3,8 @@ package moveorder
 import (
 	"testing"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/go-openapi/swag"
@@ -145,6 +147,58 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moveOrders))
+	})
+}
+
+func (suite *MoveOrderServiceSuite) TestListMoveOrdersUSMCGbloc() {
+	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
+
+	suite.T().Run("returns USMC order for USMC office user", func(t *testing.T) {
+		officeUUID, _ := uuid.NewV4()
+		marines := models.AffiliationMARINES
+		army := models.AffiliationARMY
+
+		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+			TransportationOffice: models.TransportationOffice{
+				Gbloc: "USMC",
+				ID:    officeUUID,
+			},
+			Move: models.Move{
+				Status: models.MoveStatusSUBMITTED,
+			},
+			ServiceMember: models.ServiceMember{Affiliation: &marines},
+		})
+
+		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+			Move: models.Move{
+				Status: models.MoveStatusSUBMITTED,
+			},
+			ServiceMember: models.ServiceMember{Affiliation: &marines},
+		})
+
+		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+			Move: models.Move{
+				Status: models.MoveStatusSUBMITTED,
+			},
+			ServiceMember: models.ServiceMember{Affiliation: &army},
+		})
+
+		officeUserUSMC := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{OfficeUser: models.OfficeUser{TransportationOfficeID: officeUUID}})
+
+		params := services.ListMoveOrderParams{PerPage: swag.Int64(20), Page: swag.Int64(1)}
+		moveOrders, _, err := moveOrderFetcher.ListMoveOrders(officeUserUSMC.ID, &params)
+
+		suite.FatalNoError(err)
+		suite.Equal(2, len(moveOrders))
 	})
 }
 
