@@ -2128,9 +2128,4 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 			ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
 		},
 	})
-
-	// Create multiple payment requests to fill queue
-	testdatagen.MakeMultiPaymentRequestWithItems(db, testdatagen.Assertions{
-		Move: mto7,
-	}, 35)
 }
