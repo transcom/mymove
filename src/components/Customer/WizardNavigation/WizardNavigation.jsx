@@ -2,6 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 
+import styles from './WizardNavigation.module.scss';
+
 const WizardNavigation = ({
   isFirstPage,
   isLastPage,
@@ -12,7 +14,7 @@ const WizardNavigation = ({
   onCancelClick,
 }) => {
   return (
-    <div>
+    <div className={styles.WizardNavigation}>
       {!isFirstPage && (
         <Button type="button" secondary onClick={onBackClick} data-testid="wizardBackButton">
           Back

@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { push } from 'connected-react-router';
 
+import ScrollToTop from 'components/ScrollToTop';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Alert from 'shared/Alert';
 import generatePath from './generatePath';
@@ -13,10 +14,9 @@ import { getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage } from '.
 
 /**
  * TODO:
- * - global scroll to top
  * - verify next/previous actions
  * - functional component, move file
- * - style buttons
+ * - style buttons - WIP need design input
  */
 
 export class WizardPage extends Component {
@@ -82,6 +82,7 @@ export class WizardPage extends Component {
 
     return (
       <div className="grid-container usa-prose">
+        <ScrollToTop />
         {error && (
           <div className="grid-row">
             <div className="grid-col-12 error-message">

@@ -11,7 +11,8 @@ import Alert from 'shared/Alert';
 import generatePath from './generatePath';
 import './index.css';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
-import scrollToTop from 'shared/scrollToTop';
+import styles from 'components/Customer/WizardNavigation/WizardNavigation.module.scss';
+import ScrollToTop from 'components/ScrollToTop';
 
 import { getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage, beforeTransition } from './utils';
 
@@ -36,12 +37,6 @@ export class WizardFormPage extends Component {
         }
       });
     }
-
-    if (this.props.serverError) scrollToTop();
-  }
-
-  componentDidMount() {
-    scrollToTop();
   }
 
   goto(path) {
@@ -98,6 +93,7 @@ export class WizardFormPage extends Component {
     const hideBackBtn = isFirstPage(pageList, pageKey);
     return (
       <div className="grid-container usa-prose">
+        <ScrollToTop otherDep={serverError} />
         {serverError && (
           <div className="grid-row">
             <div className="grid-col-12 error-message">
@@ -114,7 +110,7 @@ export class WizardFormPage extends Component {
         </div>
         <div className="grid-row" style={{ marginTop: '24px' }}>
           <div className="grid-col">
-            <div className="display-flex">
+            <div className={styles.WizardNavigation}>
               {!hideBackBtn && (
                 <Button
                   type="button"

@@ -1,0 +1,11 @@
+.WizardNavigation {
+  display: flex;
+
+  * {
+    flex-grow: 0;
+  }
+
+  *:last-child {
+    margin-right: 0;
+  }
+}
