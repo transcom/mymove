@@ -28,11 +28,12 @@ type Message struct {
 
 // Engine encapsulates the services used by the webhook notification engine
 type Engine struct {
-	DB              *pop.Connection
-	Logger          utils.Logger
-	Client          utils.WebhookClientPoster
-	Cmd             *cobra.Command
-	PeriodInSeconds int
+	DB                  *pop.Connection
+	Logger              utils.Logger
+	Client              utils.WebhookClientPoster
+	Cmd                 *cobra.Command
+	PeriodInSeconds     int
+	MaxImmediateRetries int
 }
 
 // processNotifications reads all the notifications and all the subscriptions and processes them one by one
@@ -110,35 +111,57 @@ func (eng *Engine) sendOneNotification(notif *models.WebhookNotification, sub *m
 		return err
 	}
 
-	// Post the notification
-	url := sub.CallbackURL
-	resp, body, err := eng.Client.Post(json, url)
+	// Try MaxImmediateRetries times to send
+	try := 0
+	for try = 0; try < eng.MaxImmediateRetries; try++ {
+		// Post the notification
+		url := sub.CallbackURL
+		resp, body, err2 := eng.Client.Post(json, url)
 
-	// Check for error making the request
-	if err != nil {
-		notif.Status = models.WebhookNotificationFailed
-		eng.updateNotification(notif)
-		logger.Error("Failed to send, error making request:", zap.Error(err))
-		return err
+		if notif.Status == models.WebhookNotificationPending {
+			notif.FirstAttemptedAt = time.Now()
+			// Not writing to db, but should be written within
+			// this function.
+		}
+
+		if err2 == nil && resp.StatusCode == 200 {
+			// Update notification
+			notif.Status = models.WebhookNotificationSent
+			eng.updateNotification(notif)
+			logger.Info("Notification successfully sent:",
+				zap.String("Status", resp.Status),
+				zap.String("EventName", message.EventName),
+				zap.String("NotificationID", message.ID.String()),
+				zap.String("UpdatedObjectID", message.UpdatedObjectID.String()),
+			)
+			break // send was successful
+		}
+		// If there was an error sending, log error and continue
+		if err2 != nil {
+			logger.Error("Failed to send, error sending webhook:", zap.Error(err2),
+				zap.String("notificationID", notif.ID.String()),
+				zap.Int("Retry #", try))
+			continue
+		}
+		// If there was an error response from server, log error and continue
+		if resp.StatusCode != 200 {
+			errmsg := fmt.Sprintf("Failed to send. Response Status: %s. Body: %s", resp.Status, string(body))
+			logger.Error("Received error on sending webhook", zap.String("Error", errmsg),
+				zap.String("notificationID", notif.ID.String()),
+				zap.Int("Retry #", try))
+		}
 	}
-	// Check for error response from server
-	if resp.StatusCode != 200 {
-		notif.Status = models.WebhookNotificationFailed
+
+	// Update Notification with failing if appropriate
+	if try == eng.MaxImmediateRetries {
+		notif.Status = models.WebhookNotificationFailing
 		eng.updateNotification(notif)
-		errmsg := fmt.Sprintf("Failed to send. Response Status: %s. Body: %s", resp.Status, string(body))
+
+		errmsg := fmt.Sprintf("Failed to send notification ID: %s after %d immediate retries", notif.ID, try)
 		err = errors.New(errmsg)
-		logger.Error("db-webhook-notify: Failed to send notification", zap.Error(err))
 		return err
 	}
 
-	notif.Status = models.WebhookNotificationSent
-	eng.updateNotification(notif)
-	logger.Info("Notification successfully sent:",
-		zap.String("Status", resp.Status),
-		zap.String("EventName", message.EventName),
-		zap.String("NotificationID", message.ID.String()),
-		zap.String("UpdatedObjectID", message.UpdatedObjectID.String()),
-	)
 	return nil
 
 }
@@ -153,7 +176,7 @@ func (eng *Engine) run() error {
 	logger := eng.Logger
 	// Read all notifications
 	notifications := []models.WebhookNotification{}
-	err := eng.DB.Order("created_at asc").Where("status = ?", models.WebhookNotificationPending).All(&notifications)
+	err := eng.DB.Order("created_at asc").Where("status = ? OR status = ?", models.WebhookNotificationPending, models.WebhookNotificationFailing).All(&notifications)
 
 	if err != nil {
 		logger.Error("Error:", zap.Error(err))
@@ -168,7 +191,7 @@ func (eng *Engine) run() error {
 
 	// If there are notifications, get subscriptions
 	subscriptions := []models.WebhookSubscription{}
-	err = eng.DB.Where("status = ?", models.WebhookSubscriptionStatusActive).All(&subscriptions)
+	err = eng.DB.Where("status = ? OR status = ?", models.WebhookSubscriptionStatusActive, models.WebhookSubscriptionStatusFailing).All(&subscriptions)
 
 	if err != nil {
 		logger.Error("Error:", zap.Error(err))
