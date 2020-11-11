@@ -1,14 +1,16 @@
-import React, { Component } from 'react'; // eslint-disable-line
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router-dom';
 import { push } from 'connected-react-router';
-import Alert from 'shared/Alert'; // eslint-disable-line
+import { reduxForm } from 'redux-form';
+import { Button } from '@trussworks/react-uswds';
+
+import Alert from 'shared/Alert';
 import generatePath from './generatePath';
 import './index.css';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
-import { reduxForm } from 'redux-form';
 import scrollToTop from 'shared/scrollToTop';
 
 import { getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage, beforeTransition } from './utils';
@@ -28,21 +30,20 @@ export class WizardFormPage extends Component {
 
   componentDidUpdate(prevProps) {
     if (this.props.additionalValues) {
-      /* eslint-disable security/detect-object-injection */
-
       Object.keys(this.props.additionalValues).forEach((key) => {
-        if (this.props.additionalValues[key] !== prevProps.additionalValues[key]) {
-          this.props.change(key, this.props.additionalValues[key]);
+        if (this.props.additionalValues[`${key}`] !== prevProps.additionalValues[`${key}`]) {
+          this.props.change(key, this.props.additionalValues[`${key}`]);
         }
       });
     }
-    /* eslint-enable security/detect-object-injection */
 
     if (this.props.serverError) scrollToTop();
   }
+
   componentDidMount() {
     scrollToTop();
   }
+
   goto(path) {
     const {
       push,
@@ -111,41 +112,41 @@ export class WizardFormPage extends Component {
             <form className={className}>{children}</form>
           </div>
         </div>
-        <div className="grid-row" style={{ marginTop: '0.5rem' }}>
-          <div className="grid-col-12 text-right margin-top-6 margin-left-neg-1 tablet:margin-top-3">
+        <div className="grid-row" style={{ marginTop: '24px' }}>
+          <div className="grid-col">
             <div className="display-flex">
               {!hideBackBtn && (
-                <button
-                  className="usa-button usa-button--secondary margin-right-0"
+                <Button
+                  type="button"
+                  secondary
                   onClick={hasReduxFormSubmitHandler ? handleSubmit(this.previousPage) : this.previousPage}
                   disabled={!canMoveBackward}
                   data-testid="wizardBackButton"
                 >
                   Back
-                </button>
+                </Button>
               )}
-              {!isLastPage(pageList, pageKey) && (
-                <button
-                  className="usa-button margin-right-0"
+
+              {isLastPage(pageList, pageKey) ? (
+                <Button
+                  type="button"
+                  onClick={hasReduxFormSubmitHandler ? handleSubmit(this.submit) : this.submit}
+                  disabled={!canMoveForward}
+                  data-testid="wizardCompleteButton"
+                >
+                  Complete
+                </Button>
+              ) : (
+                <Button
+                  type="button"
                   onClick={hasReduxFormSubmitHandler ? handleSubmit(this.nextPage) : this.nextPage}
                   disabled={!canMoveForward}
                   data-testid="wizardNextButton"
                 >
                   Next
-                </button>
+                </Button>
               )}
             </div>
-
-            {isLastPage(pageList, pageKey) && (
-              <button
-                className="usa-button margin-right-0"
-                onClick={hasReduxFormSubmitHandler ? handleSubmit(this.submit) : this.submit}
-                disabled={!canMoveForward}
-                data-testid="wizardCompleteButton"
-              >
-                Complete
-              </button>
-            )}
           </div>
         </div>
       </div>

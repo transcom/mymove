@@ -16,7 +16,7 @@ import { getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage } from '.
  * - global scroll to top
  * - verify next/previous actions
  * - functional component, move file
- * - duplicate changes in WizardPage/Form.jsx
+ * - style buttons
  */
 
 export class WizardPage extends Component {
@@ -98,7 +98,7 @@ export class WizardPage extends Component {
           <div className="grid-col">
             {footerText && footerText}
             <WizardNavigation
-              isFirstPage={isFirstPage(pageList, pageKey) && !hideBackBtn}
+              isFirstPage={isFirstPage(pageList, pageKey) || hideBackBtn}
               isLastPage={isLastPage(pageList, pageKey)}
               disableNext={!canMoveForward}
               showFinishLater={showFinishLaterBtn}

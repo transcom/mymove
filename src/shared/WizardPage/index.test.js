@@ -318,9 +318,9 @@ describe('the WizardPage component', () => {
   describe('when hideBackBtn is true on middle page', () => {
     const wrapper = mount(<WizardPage {...middleFlowProps} hideBackBtn />);
 
-    it('the WizardNavigation isFirstPage prop is false', () => {
+    it('the WizardNavigation isFirstPage prop is true', () => {
       const navigation = wrapper.find('WizardNavigation');
-      expect(navigation.prop('isFirstPage')).toEqual(false);
+      expect(navigation.prop('isFirstPage')).toEqual(true);
     });
   });
 
