@@ -25,8 +25,6 @@ import (
 func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 	queryBuilder := query.NewQueryBuilder(context.DB())
 	var logger paymentrequest.Logger
-	// logger = log.Printf
-
 	supportSpec, err := loads.Analyzed(supportapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)
