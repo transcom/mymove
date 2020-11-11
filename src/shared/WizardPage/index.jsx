@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
@@ -15,36 +15,39 @@ import { getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage } from '.
 /**
  * TODO:
  * - verify next/previous actions
- * - functional component, move file
  * - style buttons - WIP need design input
  */
 
-export class WizardPage extends Component {
-  constructor(props) {
-    super(props);
-    this.nextPage = this.nextPage.bind(this);
-    this.previousPage = this.previousPage.bind(this);
-    this.goHome = this.goHome.bind(this);
-  }
+export const WizardPage = (props) => {
+  const {
+    push,
+    match,
+    additionalParams,
+    pageList,
+    pageKey,
+    dirty,
+    handleSubmit,
+    children,
+    error,
+    pageIsValid,
+    canMoveNext,
+    hideBackBtn,
+    showFinishLaterBtn,
+    footerText,
+  } = props;
 
-  goHome() {
-    this.props.push(`/`);
-  }
+  const goHome = () => {
+    push(`/`);
+  };
 
-  goto(path) {
-    const {
-      push,
-      match: { params },
-      additionalParams,
-    } = this.props;
-    const combinedParams = additionalParams ? Object.assign({}, additionalParams, params) : params;
+  const goto = (path) => {
+    const { params } = match;
+    const combinedParams = additionalParams ? { ...additionalParams, ...params } : params;
     // comes from react router redux: doing this moves to the route at path  (might consider going back to history since we need withRouter)
     push(generatePath(path, combinedParams));
-  }
+  };
 
-  async nextPage() {
-    const { pageList, pageKey, dirty, handleSubmit } = this.props;
-
+  const nextPage = async () => {
     if (isLastPage(pageList, pageKey)) return handleSubmit();
 
     if (dirty && handleSubmit) {
@@ -56,63 +59,49 @@ export class WizardPage extends Component {
     }
 
     const path = getNextPagePath(pageList, pageKey);
-    if (path) this.goto(path);
-  }
+    if (path) goto(path);
+  };
 
-  previousPage() {
+  const previousPage = () => {
     // Don't submit or validate when going back
-    const { pageList, pageKey } = this.props;
     const path = getPreviousPagePath(pageList, pageKey);
-    if (path) this.goto(path);
-  }
+    if (path) goto(path);
+  };
 
-  render() {
-    const {
-      pageKey,
-      pageList,
-      children,
-      error,
-      pageIsValid,
-      canMoveNext,
-      hideBackBtn,
-      showFinishLaterBtn,
-      footerText,
-    } = this.props;
-    const canMoveForward = pageIsValid && canMoveNext;
+  const canMoveForward = pageIsValid && canMoveNext;
 
-    return (
-      <div className="grid-container usa-prose">
-        <ScrollToTop />
-        {error && (
-          <div className="grid-row">
-            <div className="grid-col-12 error-message">
-              <Alert type="error" heading="An error occurred">
-                {error.message}
-              </Alert>
-            </div>
-          </div>
-        )}
+  return (
+    <div className="grid-container usa-prose">
+      <ScrollToTop />
+      {error && (
         <div className="grid-row">
-          <div className="grid-col">{children}</div>
-        </div>
-        <div className="grid-row" style={{ marginTop: '24px' }}>
-          <div className="grid-col">
-            {footerText && footerText}
-            <WizardNavigation
-              isFirstPage={isFirstPage(pageList, pageKey) || hideBackBtn}
-              isLastPage={isLastPage(pageList, pageKey)}
-              disableNext={!canMoveForward}
-              showFinishLater={showFinishLaterBtn}
-              onBackClick={this.previousPage}
-              onNextClick={this.nextPage}
-              onCancelClick={this.goHome}
-            />
+          <div className="grid-col-12 error-message">
+            <Alert type="error" heading="An error occurred">
+              {error.message}
+            </Alert>
           </div>
+        </div>
+      )}
+      <div className="grid-row">
+        <div className="grid-col">{children}</div>
+      </div>
+      <div className="grid-row" style={{ marginTop: '24px' }}>
+        <div className="grid-col">
+          {footerText && footerText}
+          <WizardNavigation
+            isFirstPage={isFirstPage(pageList, pageKey) || hideBackBtn}
+            isLastPage={isLastPage(pageList, pageKey)}
+            disableNext={!canMoveForward}
+            showFinishLater={showFinishLaterBtn}
+            onBackClick={previousPage}
+            onNextClick={nextPage}
+            onCancelClick={goHome}
+          />
         </div>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
 WizardPage.propTypes = {
   handleSubmit: PropTypes.func.isRequired,
