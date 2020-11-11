@@ -59,6 +59,7 @@ func checkConfig(v *viper.Viper, logger logger) error {
 
 	namedScenarios := []string{
 		tdgs.E2eBasicScenario.Name,
+		tdgs.DevSeedScenario.Name,
 	}
 	namedScenario := v.GetString(namedScenarioFlag)
 	if !stringSliceContains(namedScenarios, namedScenario) {
@@ -150,7 +151,7 @@ func main() {
 			logger.Fatal("Failed to run raw query", zap.Error(err))
 		}
 		err = tdgs.RunRateEngineScenario2(dbConnection)
-	} else if namedScenario == tdgs.E2eBasicScenario.Name {
+	} else if namedScenario == tdgs.E2eBasicScenario.Name || namedScenario == tdgs.DevSeedScenario.Name {
 		// Initialize logger
 		logger, newDevelopmentErr := zap.NewDevelopment()
 		if newDevelopmentErr != nil {
@@ -171,7 +172,11 @@ func main() {
 		if uploaderErr != nil {
 			logger.Fatal("could not instantiate prime uploader", zap.Error(err))
 		}
-		tdgs.E2eBasicScenario.Run(dbConnection, userUploader, primeUploader, logger, storer)
+		if namedScenario == tdgs.E2eBasicScenario.Name {
+			tdgs.E2eBasicScenario.Run(dbConnection, userUploader, primeUploader, logger, storer)
+		} else if namedScenario == tdgs.DevSeedScenario.Name {
+			tdgs.DevSeedScenario.Run(dbConnection, userUploader, primeUploader, logger, storer)
+		}
 		logger.Info("Success! Created e2e test data.")
 	} else {
 		flag.PrintDefaults()
