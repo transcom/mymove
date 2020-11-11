@@ -44,11 +44,16 @@ func (eng *Engine) processNotifications(notifications []models.WebhookNotificati
 		// search for subscription
 		foundSub := false
 		for _, sub := range subscriptions {
+			sub := sub
 			if sub.EventKey == notif.EventKey {
 				foundSub = true
 				// If found, send  to subscription
 				// #nosec G601 TODO needs review
 				err := eng.sendOneNotification(&notif, &sub)
+				errDB := eng.updateSubscriptionStatus(&notif, &sub)
+				if errDB != nil {
+					eng.Logger.Error("Webhook Subscription update failed", zap.Error(err))
+				}
 				if err != nil {
 					eng.Logger.Error("Webhook Notification send failed", zap.Error(err))
 					return
@@ -67,6 +72,41 @@ func (eng *Engine) processNotifications(notifications []models.WebhookNotificati
 		}
 
 	}
+}
+
+// updateSubscriptionStatus updates the subscription based on the status of the last notification.
+// Returns nil if nothing to update or update succeeds, returns error if error found
+func (eng *Engine) updateSubscriptionStatus(notif *models.WebhookNotification, sub *models.WebhookSubscription) error {
+	// Update subscription status if it has changed
+	// Eventually we will use the severity to make these decisions too
+	var doUpdate = false
+	switch notif.Status {
+	case models.WebhookNotificationFailing:
+		if sub.Status != models.WebhookSubscriptionStatusFailing {
+			sub.Status = models.WebhookSubscriptionStatusFailing
+			doUpdate = true
+		}
+	case models.WebhookNotificationSent:
+		if sub.Status != models.WebhookSubscriptionStatusActive {
+			sub.Status = models.WebhookSubscriptionStatusActive
+			doUpdate = true
+		}
+	}
+
+	if doUpdate {
+		verrs, err := eng.DB.ValidateAndUpdate(sub)
+		if verrs != nil && verrs.HasAny() {
+			err = errors.New(verrs.Error())
+			eng.Logger.Error(err.Error())
+			return err
+		}
+		if err != nil {
+			eng.Logger.Error(err.Error())
+			return err
+		}
+		return nil
+	}
+	return nil
 }
 
 // updateNotification is a helper function to write the notification to the db.
