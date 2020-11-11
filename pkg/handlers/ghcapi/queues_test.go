@@ -332,6 +332,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		payload := response.(*queues.GetMovesQueueOK).Payload
 		suite.EqualValues(3, payload.TotalCount)
 		suite.Len(payload.QueueMoves, 3)
+		// test that the moves are sorted by status descending
+		suite.Equal(ghcmessages.QueueMoveStatus("SUBMITTED"), payload.QueueMoves[0].Status)
 	})
 
 	suite.Run("loads results with all STATUSes and 1 page selected", func() {
