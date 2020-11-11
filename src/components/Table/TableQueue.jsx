@@ -76,7 +76,7 @@ const TableQueue = ({ title, columns, handleClick, useQueries }) => {
   if (isError) return <SomethingWentWrong />;
 
   return (
-    <GridContainer containerSize="widescreen" className={styles.TableQueue}>
+    <GridContainer data-testid="TableQueue" containerSize="widescreen" className={styles.TableQueue}>
       <h1>{`${title} (${totalCount})`}</h1>
       <div className={styles.tableContainer}>
         <Table
