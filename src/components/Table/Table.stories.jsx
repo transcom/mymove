@@ -139,6 +139,7 @@ const CreateTableWithPagination = () => {
       manualPagination: true,
       showPagination: true,
       defaultColumn,
+      pageCount: 1,
     },
     usePagination,
   );
