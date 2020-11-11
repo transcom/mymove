@@ -9,7 +9,7 @@ describe('TOO user', () => {
     cy.removeFetch();
     cy.server();
     cy.route('GET', '/ghc/v1/swagger.yaml').as('getGHCClient');
-    cy.route('GET', '/ghc/v1/queues/moves?page=1&perPage=20').as('getMoveOrders');
+    cy.route('GET', '/ghc/v1/queues/moves?**').as('getMoveOrders');
     cy.route('GET', '/ghc/v1/move-orders/**/move-task-orders').as('getMoveTaskOrders');
     cy.route('GET', '/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
     cy.route('GET', '/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
