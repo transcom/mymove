@@ -167,9 +167,9 @@ export const useMovesQueueQueries = ({ filters = [], currentPage = 1, currentPag
   };
 };
 
-export const usePaymentRequestQueueQueries = ({ filters = [], page = 1, perPage = 20 }) => {
+export const usePaymentRequestQueueQueries = ({ filters = [], currentPage = 1, currentPageSize = 20 }) => {
   const { data = {}, ...paymentRequestsQueueQuery } = useQuery(
-    [PAYMENT_REQUESTS_QUEUE, { filters, page, perPage }],
+    [PAYMENT_REQUESTS_QUEUE, { filters, currentPage, currentPageSize }],
     getPaymentRequestsQueue,
   );
 
