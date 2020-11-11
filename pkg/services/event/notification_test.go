@@ -201,3 +201,5 @@ func (suite *EventServiceSuite) TestAssembleMoveOrderPayload() {
 		}
 	})
 }
+
+// Check Success that if thre is an MTO, a notification is STORED, but if there isn't no error is returned.
