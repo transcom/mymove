@@ -138,7 +138,6 @@ Table.propTypes = {
   pageCount: PropTypes.number,
   pageIndex: PropTypes.number,
   pageSize: PropTypes.number,
-  state: PropTypes.node,
   pageOptions: PropTypes.arrayOf(PropTypes.number),
   perPage: PropTypes.arrayOf(PropTypes.number),
 };
@@ -153,7 +152,6 @@ Table.defaultProps = {
   gotoPage: undefined,
   canNextPage: undefined,
   pageCount: undefined,
-  state: undefined,
   pageIndex: 0,
   pageSize: 20,
   pageOptions: [0],
