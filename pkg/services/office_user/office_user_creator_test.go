@@ -44,7 +44,7 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 			fakeQueryForAssociations: fakeQueryAssociations,
 		}
 
-		creator := NewOfficeUserCreator(builder)
+		creator := NewOfficeUserCreator(suite.DB(), builder)
 		_, verrs, err := creator.CreateOfficeUser(&userInfo, filter)
 		suite.NoError(err)
 		suite.Nil(verrs)
@@ -61,7 +61,7 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 			fakeFetchOne: fakeFetchOne,
 		}
 
-		creator := NewOfficeUserCreator(builder)
+		creator := NewOfficeUserCreator(suite.DB(), builder)
 		_, _, err := creator.CreateOfficeUser(&userInfo, filter)
 		suite.Error(err)
 		suite.Equal(models.ErrFetchNotFound.Error(), err.Error())

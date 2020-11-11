@@ -57,7 +57,7 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 	userRolesCreator := usersroles.NewUsersRolesCreator(context.DB())
 	adminAPI.OfficeUsersCreateOfficeUserHandler = CreateOfficeUserHandler{
 		context,
-		officeuser.NewOfficeUserCreator(queryBuilder),
+		officeuser.NewOfficeUserCreator(context.DB(), queryBuilder),
 		query.NewQueryFilter,
 		userRolesCreator,
 	}
@@ -137,7 +137,7 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	adminAPI.AdminUsersCreateAdminUserHandler = CreateAdminUserHandler{
 		context,
-		adminuser.NewAdminUserCreator(queryBuilder),
+		adminuser.NewAdminUserCreator(context.DB(), queryBuilder),
 		query.NewQueryFilter,
 	}
 

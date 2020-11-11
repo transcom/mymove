@@ -3,6 +3,7 @@ package adminuser
 import (
 	"strings"
 
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -10,6 +11,7 @@ import (
 )
 
 type adminUserCreator struct {
+	db      *pop.Connection
 	builder adminUserQueryBuilder
 }
 
@@ -17,10 +19,10 @@ type adminUserCreator struct {
 func (o *adminUserCreator) CreateAdminUser(admin *models.AdminUser, organizationIDFilter []services.QueryFilter) (*models.AdminUser, *validate.Errors, error) {
 	// Use FetchOne to see if we have an organization that matches the provided id
 	var organization models.Organization
-	err := o.builder.FetchOne(&organization, organizationIDFilter)
+	fetchErr := o.builder.FetchOne(&organization, organizationIDFilter)
 
-	if err != nil {
-		return nil, nil, err
+	if fetchErr != nil {
+		return nil, nil, fetchErr
 	}
 
 	user := &models.User{
@@ -28,23 +30,34 @@ func (o *adminUserCreator) CreateAdminUser(admin *models.AdminUser, organization
 		Active:        true,
 	}
 
-	verrs, err := o.builder.CreateOne(user)
-	if verrs != nil || err != nil {
-		return nil, verrs, err
-	}
+	var verrs *validate.Errors
+	var err error
+	//
+	txErr := o.db.Transaction(func(connection *pop.Connection) error {
+		verrs, err = o.builder.CreateOne(user)
+		if verrs != nil || err != nil {
+			return err
+		}
 
-	admin.UserID = &user.ID
-	admin.User = *user
+		admin.UserID = &user.ID
+		admin.User = *user
 
-	verrs, err = o.builder.CreateOne(admin)
-	if verrs != nil || err != nil {
-		return nil, verrs, err
+		verrs, err = o.builder.CreateOne(admin)
+		if verrs != nil || err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if verrs != nil || txErr != nil {
+		return nil, verrs, txErr
 	}
 
 	return admin, nil, nil
 }
 
 // NewAdminUserCreator returns a new admin user creator builder
-func NewAdminUserCreator(builder adminUserQueryBuilder) services.AdminUserCreator {
-	return &adminUserCreator{builder}
+func NewAdminUserCreator(db *pop.Connection, builder adminUserQueryBuilder) services.AdminUserCreator {
+	return &adminUserCreator{db, builder}
 }

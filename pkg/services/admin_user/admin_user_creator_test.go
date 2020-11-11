@@ -39,7 +39,7 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 			fakeCreateOne: fakeCreateOne,
 		}
 
-		creator := NewAdminUserCreator(builder)
+		creator := NewAdminUserCreator(suite.DB(), builder)
 		_, verrs, err := creator.CreateAdminUser(&userInfo, filter)
 		suite.NoError(err)
 		suite.Nil(verrs)
@@ -56,7 +56,7 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 			fakeFetchOne: fakeFetchOne,
 		}
 
-		creator := NewAdminUserCreator(builder)
+		creator := NewAdminUserCreator(suite.DB(), builder)
 		_, _, err := creator.CreateAdminUser(&userInfo, filter)
 		suite.Error(err)
 		suite.Equal(models.ErrFetchNotFound.Error(), err.Error())

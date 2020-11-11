@@ -1,6 +1,7 @@
 package adminapi
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -195,10 +196,11 @@ func (suite *HandlerSuite) TestGetOfficeUserHandler() {
 func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 	transportationOfficeID, _ := uuid.NewV4()
 	officeUserID, _ := uuid.FromString("00000000-0000-0000-0000-000000000000")
+	userID, _ := uuid.FromString("00000000-0000-0000-0000-000000000001")
 	officeUser := models.OfficeUser{
 		ID:                     officeUserID,
 		TransportationOfficeID: transportationOfficeID,
-		UserID:                 nil,
+		UserID:                 &userID,
 		Active:                 true,
 	}
 	queryFilter := mocks.QueryFilter{}
@@ -208,22 +210,43 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
+	tooRoleName := "Transportation Ordering Officer"
+	tooRoleType := string(roles.RoleTypeTOO)
+
+	tioRoleName := "Transportation Invoicing Officer"
+	tioRoleType := string(roles.RoleTypeTIO)
+
 	params := officeuserop.CreateOfficeUserParams{
 		HTTPRequest: req,
 		OfficeUser: &adminmessages.OfficeUserCreatePayload{
-			FirstName:              officeUser.FirstName,
-			LastName:               officeUser.LastName,
-			Telephone:              officeUser.Telephone,
+			FirstName: officeUser.FirstName,
+			LastName:  officeUser.LastName,
+			Telephone: officeUser.Telephone,
+			Roles: []*adminmessages.OfficeUserRole{
+				{
+					Name:     &tooRoleName,
+					RoleType: &tooRoleType,
+				},
+				{
+					Name:     &tioRoleName,
+					RoleType: &tioRoleType,
+				},
+			},
 			TransportationOfficeID: strfmt.UUID(officeUser.TransportationOfficeID.String()),
 		},
 	}
 
 	suite.T().Run("Successful create", func(t *testing.T) {
 		officeUserCreator := &mocks.OfficeUserCreator{}
+		userRolesAssociator := &mocks.UserRoleAssociator{}
 
 		officeUserCreator.On("CreateOfficeUser",
-			&officeUser,
+			mock.Anything,
 			mock.Anything).Return(&officeUser, nil, nil).Once()
+
+		userRolesAssociator.On("UpdateUserRoles",
+			mock.Anything,
+			mock.Anything).Return(nil, nil).Once()
 
 		handler := CreateOfficeUserHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -240,8 +263,8 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 		officeUserCreator := &mocks.OfficeUserCreator{}
 
 		officeUserCreator.On("CreateOfficeUser",
-			&officeUser,
-			mock.Anything).Return(&officeUser, nil, nil).Once()
+			mock.Anything,
+			mock.Anything).Return(&officeUser, nil, errors.New("Could not save user")).Once()
 
 		handler := CreateOfficeUserHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -251,7 +274,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 		}
 
 		response := handler.Handle(params)
-		suite.IsType(&officeuserop.CreateOfficeUserCreated{}, response)
+		suite.IsType(&officeuserop.CreateOfficeUserInternalServerError{}, response)
 	})
 }
 

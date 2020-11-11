@@ -10,9 +10,7 @@ import (
 // MakeUser creates a single User.
 func MakeUser(db *pop.Connection, assertions Assertions) models.User {
 
-	lgu := uuid.Must(uuid.NewV4())
 	user := models.User{
-		LoginGovUUID:  &lgu,
 		LoginGovEmail: "first.last@login.gov.test",
 		Active:        true,
 	}
@@ -27,7 +25,12 @@ func MakeUser(db *pop.Connection, assertions Assertions) models.User {
 
 // MakeDefaultUser makes a user with default values
 func MakeDefaultUser(db *pop.Connection) models.User {
-	return MakeUser(db, Assertions{})
+	lgu := uuid.Must(uuid.NewV4())
+	return MakeUser(db, Assertions{
+		User: models.User{
+			LoginGovUUID: &lgu,
+		},
+	})
 }
 
 // MakeStubbedUser returns a user without hitting the DB
