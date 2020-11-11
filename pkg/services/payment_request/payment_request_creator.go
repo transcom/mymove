@@ -196,7 +196,10 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 
 func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection, paymentRequest *models.PaymentRequest, requestedAt time.Time) (*models.PaymentRequest, error) {
 	// Verify that the MTO ID exists
-	//
+	if paymentRequest.MoveTaskOrderID == uuid.Nil {
+		return nil, services.NewInvalidCreateInputError(nil, "Invalid Create Input Error: MoveTaskOrderID is required on PaymentRequest create")
+	}
+
 	// Lock on the parent row to keep multiple transactions from getting this count at the same time
 	// for the same move_id.  This should block if another payment request comes in for the
 	// same move_id.  Payment requests for other move_ids should run concurrently.
