@@ -729,7 +729,7 @@ db_dev_e2e_populate: db_dev_reset db_dev_migrate ## Populate Dev DB with generat
 	@echo "Ensure that you're running the correct APPLICATION..."
 	./scripts/ensure-application app
 	@echo "Populate the ${DB_NAME_DEV} database with docker command..."
-	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="e2e_basic" --db-env="development"
+	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development"
 
 .PHONY: db_test_e2e_populate
 db_test_e2e_populate: db_test_reset db_test_migrate redis_reset build_tools db_e2e_up ## Populate Test DB with generated e2e (end-to-end) data
