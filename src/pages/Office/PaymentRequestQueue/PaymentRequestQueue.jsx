@@ -135,7 +135,6 @@ const PaymentRequestQueue = ({ history }) => {
       initialState: { hiddenColumns: ['id'] },
       defaultColumn, // Be sure to pass the defaultColumn option
       manualFilters: true,
-      showPagination: false,
     },
     useFilters,
   );
