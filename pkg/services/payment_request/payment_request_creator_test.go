@@ -347,9 +347,9 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		_, err := creator.CreatePaymentRequest(&paymentRequest)
 
 		suite.Error(err)
-		_, ok := err.(*services.BadDataError)
+		_, ok := err.(services.ConflictError)
 		suite.Equal(true, ok)
-		suite.Equal(fmt.Sprintf("Data received from requester is bad: BAD_DATA: MoveTaskOrder (ID: %s) Orders (ID: %s) missing Lines of Accounting TAC", mtoInvalidOrders.ID, mtoInvalidOrders.OrdersID), err.Error())
+		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Orders on MoveTaskOrder (ID: %s) missing Lines of Accounting TAC", mtoInvalidOrders.OrdersID, mtoInvalidOrders.ID), err.Error())
 	})
 
 	suite.T().Run("Given move with orders blank LOA, the create should fail", func(t *testing.T) {
@@ -378,9 +378,9 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		_, err = creator.CreatePaymentRequest(&paymentRequest)
 
 		suite.Error(err)
-		_, ok := err.(*services.BadDataError)
+		_, ok := err.(services.ConflictError)
 		suite.Equal(true, ok)
-		suite.Equal(fmt.Sprintf("Data received from requester is bad: BAD_DATA: MoveTaskOrder (ID: %s) Orders (ID: %s) missing Lines of Accounting TAC", mtoInvalidOrders.ID, mtoInvalidOrders.OrdersID), err.Error())
+		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Orders on MoveTaskOrder (ID: %s) missing Lines of Accounting TAC", mtoInvalidOrders.OrdersID, mtoInvalidOrders.ID), err.Error())
 	})
 
 	suite.T().Run("Given move with orders no OriginDutyStation, the create should fail", func(t *testing.T) {
@@ -409,9 +409,9 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		_, err = creator.CreatePaymentRequest(&paymentRequest)
 
 		suite.Error(err)
-		_, ok := err.(*services.BadDataError)
+		_, ok := err.(services.ConflictError)
 		suite.Equal(true, ok)
-		suite.Equal(fmt.Sprintf("Data received from requester is bad: BAD_DATA: MoveTaskOrder (ID: %s) Orders (ID: %s) missing OriginDutyStation", mtoInvalidOrders.ID, mtoInvalidOrders.OrdersID), err.Error())
+		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Orders on MoveTaskOrder (ID: %s) missing OriginDutyStation", mtoInvalidOrders.OrdersID, mtoInvalidOrders.ID), err.Error())
 	})
 
 	suite.T().Run("Given a non-existent service item id, the create should fail", func(t *testing.T) {

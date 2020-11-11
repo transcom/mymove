@@ -53,6 +53,9 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			if _, ok := err.(services.NotFoundError); ok {
 				return err
 			}
+			if _, ok := err.(services.ConflictError); ok {
+				return err
+			}
 			if errors.As(err, &badDataError) {
 				return err
 			}
@@ -222,11 +225,11 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 	tx.Load(&moveTaskOrder, "Orders")
 	// Verify that the Orders has LOA
 	if moveTaskOrder.Orders.TAC == nil || *moveTaskOrder.Orders.TAC == "" {
-		return nil, services.NewBadDataError(fmt.Sprintf("MoveTaskOrder (ID: %s) Orders (ID: %s) missing Lines of Accounting TAC", moveTaskOrder.ID, moveTaskOrder.OrdersID))
+		return nil, services.NewConflictError(moveTaskOrder.OrdersID, fmt.Sprintf("Orders on MoveTaskOrder (ID: %s) missing Lines of Accounting TAC", moveTaskOrder.ID))
 	}
 	// Verify that the Orders have OriginDutyStation
 	if moveTaskOrder.Orders.OriginDutyStationID == nil {
-		return nil, services.NewBadDataError(fmt.Sprintf("MoveTaskOrder (ID: %s) Orders (ID: %s) missing OriginDutyStation", moveTaskOrder.ID, moveTaskOrder.OrdersID))
+		return nil, services.NewConflictError(moveTaskOrder.OrdersID, fmt.Sprintf("Orders on MoveTaskOrder (ID: %s) missing OriginDutyStation", moveTaskOrder.ID))
 	}
 
 	// Update PaymentRequest
