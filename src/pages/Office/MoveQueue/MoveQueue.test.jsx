@@ -91,4 +91,8 @@ describe('MoveQueue', () => {
     expect(secondMove.find({ 'data-testid': 'destinationDutyStation-1' }).text()).toBe('Los Alamos');
     expect(secondMove.find({ 'data-testid': 'originGBLOC-1' }).text()).toBe('EEEE');
   });
+
+  it('should render the pagination component', () => {
+    expect(wrapper.find({ 'data-testid': 'pagination' }).exists()).toBe(true);
+  });
 });
