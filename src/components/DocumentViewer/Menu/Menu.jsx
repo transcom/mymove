@@ -7,7 +7,8 @@ import { FilesShape } from '../types';
 
 import styles from './Menu.module.scss';
 
-import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes as CloseIcon } from '@fortawesome/free-solid-svg-icons';
 import { filenameFromPath } from 'shared/formatters';
 
 const DocViewerMenu = ({ isOpen, files, handleClose, selectedFileIndex, handleSelectFile }) => (
@@ -16,7 +17,7 @@ const DocViewerMenu = ({ isOpen, files, handleClose, selectedFileIndex, handleSe
       <h3>Documents</h3>
       <div className={styles.menuControls}>
         <Button data-testid="closeMenu" type="button" onClick={handleClose} unstyled className={styles.menuClose}>
-          <XLightIcon />
+          <FontAwesomeIcon icon={CloseIcon} title="Close menu" aria-label="Close menu" />
         </Button>
       </div>
     </div>
