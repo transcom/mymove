@@ -201,14 +201,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	}
 	edi858.Header = append(edi858.Header, originDestinationSegments...)
 
-	// Add LOA segments to header
-	loaSegments, err := g.createLoaSegments(moveTaskOrder.Orders)
-	if err != nil {
-		return ediinvoice.Invoice858C{}, err
-	}
-	edi858.Header = append(edi858.Header, loaSegments...)
-
-	paymentServiceItemSegments, err := g.generatePaymentServiceItemSegments(paymentServiceItems)
+	paymentServiceItemSegments, err := g.generatePaymentServiceItemSegments(paymentServiceItems, moveTaskOrder.Orders)
 	if err != nil {
 		return ediinvoice.Invoice858C{}, err
 	}
@@ -550,7 +543,7 @@ func (g ghcPaymentRequestInvoiceGenerator) getWeightAndDistanceParams(serviceIte
 	return weightFloat, distanceFloat, nil
 }
 
-func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(paymentServiceItems models.PaymentServiceItems) ([]edisegment.Segment, error) {
+func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(paymentServiceItems models.PaymentServiceItems, orders models.Order) ([]edisegment.Segment, error) {
 	//Initialize empty collection of segments
 	var segments []edisegment.Segment
 	var weightFloat, distanceFloat float64
@@ -638,6 +631,12 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 
 			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment)
 		}
+
+		loaSegments, err := g.createLoaSegments(orders)
+		if err != nil {
+			return segments, err
+		}
+		segments = append(segments, loaSegments...)
 	}
 
 	l3Segment := edisegment.L3{
