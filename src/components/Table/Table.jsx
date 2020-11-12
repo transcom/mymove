@@ -73,7 +73,7 @@ const Table = ({
         <div className={styles.paginationSectionWrapper} data-testid="pagination">
           <div className={styles.tableControlRowsPerPage}>
             <Dropdown
-              className={styles.usaSelect}
+              className={styles.paginationSelect}
               name="table-rows-per-page"
               defaultValue={pageSize}
               onChange={(e) => {
@@ -89,12 +89,18 @@ const Table = ({
             <div>rows per page</div>
           </div>
           <div className={styles.tableControlPagination}>
-            <Button className={styles.usaButtonUnstyled} onClick={previousPage} disabled={!canPreviousPage}>
-              <FontAwesomeIcon className="icon fas fa-chevron-left" icon={faChevronLeft} />
+            <Button
+              type="button"
+              unstyled
+              className={styles.pageControlButton}
+              onClick={previousPage}
+              disabled={!canPreviousPage}
+            >
+              <FontAwesomeIcon className="icon-left fas fa-chevron-left" icon={faChevronLeft} />
               <span>Prev</span>
             </Button>
             <Dropdown
-              className={styles.usaSelect}
+              className={styles.paginationSelect}
               name="table-pagination"
               value={pageIndex}
               onChange={(e) => gotoPage(Number(e.target.value))}
@@ -105,9 +111,15 @@ const Table = ({
                 </option>
               ))}
             </Dropdown>
-            <Button className={styles.usaButtonUnstyled} onClick={nextPage} disabled={!canNextPage}>
+            <Button
+              type="button"
+              unstyled
+              className={styles.pageControlButton}
+              onClick={nextPage}
+              disabled={!canNextPage}
+            >
               <span>Next</span>
-              <FontAwesomeIcon className="icon fas fa-chevron-right" icon={faChevronRight} />
+              <FontAwesomeIcon className="icon-right fas fa-chevron-right" icon={faChevronRight} />
             </Button>
           </div>
         </div>

@@ -53,23 +53,23 @@
     }
   }
 
-.inlineBlock {
-  display: inline-block
-}
-
 .paginationSectionWrapper {
    display: flex;
    flex-wrap: wrap;
    justify-content: space-between;
    margin: 20px;
 
+  .paginationSelect {
+    width: unset;
+  }
     .tableControlPagination {
       display: flex;
       align-items: center;
       flex-grow: 1;
       justify-content: flex-end;
 
-      .usaButtonUnstyled {
+      .pageControlButton {
+        font-weight: bold;
         @include u-bg('transparent');
         @include u-text('primary-vivid');
         @include u-text('no-underline');
@@ -82,21 +82,12 @@
           @include u-text('base-light');
         }
       }
-
-
-      .usaSelect {
-        width: unset;
-      }
      }
 
     .tableControlRowsPerPage {
       display: flex;
       align-items: center;
       flex-grow: 1;
-
-      .usaSelect {
-        width: unset;
-      }
 
       div {
          @include u-padding(1);
