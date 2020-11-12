@@ -242,6 +242,10 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 	if serviceMember.LastName == nil || *serviceMember.LastName == "" {
 		return nil, services.NewConflictError(moveTaskOrder.Orders.ServiceMemberID, fmt.Sprintf("ServiceMember on MoveTaskOrder (ID: %s) missing Last Name", moveTaskOrder.ID))
 	}
+	// Verify Rank
+	if serviceMember.Rank == nil {
+		return nil, services.NewConflictError(moveTaskOrder.Orders.ServiceMemberID, fmt.Sprintf("ServiceMember on MoveTaskOrder (ID: %s) missing Rank", moveTaskOrder.ID))
+	}
 
 	// Update PaymentRequest
 	paymentRequest.MoveTaskOrder = moveTaskOrder
