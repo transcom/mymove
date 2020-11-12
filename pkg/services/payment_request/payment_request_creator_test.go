@@ -330,19 +330,6 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		suite.MustSave(&orders)
 		paymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: mtoInvalidOrders.ID,
-			IsFinal:         false,
-			PaymentServiceItems: models.PaymentServiceItems{
-				{
-					MTOServiceItemID:         mtoServiceItem1.ID,
-					MTOServiceItem:           mtoServiceItem1,
-					PaymentServiceItemParams: models.PaymentServiceItemParams{},
-				},
-				{
-					MTOServiceItemID:         mtoServiceItem2.ID,
-					MTOServiceItem:           mtoServiceItem2,
-					PaymentServiceItemParams: models.PaymentServiceItemParams{},
-				},
-			},
 		}
 		_, err := creator.CreatePaymentRequest(&paymentRequest)
 
@@ -361,19 +348,6 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		suite.FatalNoError(err)
 		paymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: mtoInvalidOrders.ID,
-			IsFinal:         false,
-			PaymentServiceItems: models.PaymentServiceItems{
-				{
-					MTOServiceItemID:         mtoServiceItem1.ID,
-					MTOServiceItem:           mtoServiceItem1,
-					PaymentServiceItemParams: models.PaymentServiceItemParams{},
-				},
-				{
-					MTOServiceItemID:         mtoServiceItem2.ID,
-					MTOServiceItem:           mtoServiceItem2,
-					PaymentServiceItemParams: models.PaymentServiceItemParams{},
-				},
-			},
 		}
 		_, err = creator.CreatePaymentRequest(&paymentRequest)
 
@@ -392,19 +366,6 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		suite.FatalNoError(err)
 		paymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: mtoInvalidOrders.ID,
-			IsFinal:         false,
-			PaymentServiceItems: models.PaymentServiceItems{
-				{
-					MTOServiceItemID:         mtoServiceItem1.ID,
-					MTOServiceItem:           mtoServiceItem1,
-					PaymentServiceItemParams: models.PaymentServiceItemParams{},
-				},
-				{
-					MTOServiceItemID:         mtoServiceItem2.ID,
-					MTOServiceItem:           mtoServiceItem2,
-					PaymentServiceItemParams: models.PaymentServiceItemParams{},
-				},
-			},
 		}
 		_, err = creator.CreatePaymentRequest(&paymentRequest)
 
