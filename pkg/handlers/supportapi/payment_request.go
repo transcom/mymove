@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/event"
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 )
 
 // UpdatePaymentRequestStatusHandler updates payment requests status
@@ -232,12 +233,20 @@ type ProcessReviewedPaymentRequestsHandler struct {
 	services.PaymentRequestFetcher
 	services.PaymentRequestReviewedFetcher
 	services.PaymentRequestStatusUpdater
-	services.PaymentRequestReviewedProcessor
+	// Unable to get logger to pass in for the instantiation of
+	// paymentrequest.InitNewPaymentRequestReviewedProcessor(h.DB(), logger, true),
+	// This limitation has come up a few times
+	// - https://dp3.atlassian.net/browse/MB-2352 (story to address issue)
+	// - https://ustcdp3.slack.com/archives/CP6F568DC/p1592508325118600
+	// - https://github.com/transcom/mymove/blob/c42adf61735be8ee8e5e83f41a656206f1e59b9d/pkg/handlers/primeapi/api.go
+	// As a temporary workaround paymentrequest.InitNewPaymentRequestReviewedProcessor
+	// is called directly in the handler
 }
 
 // Handle getting the EDI for a given payment request
 func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.ProcessReviewedPaymentRequestsParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	reviewedPaymentRequestProcessor := paymentrequest.InitNewPaymentRequestReviewedProcessor(h.DB(), logger, true)
 
 	paymentRequestID := uuid.FromStringOrNil(params.Body.PaymentRequestID.String())
 	sendToSyncada := params.Body.SendToSyncada
@@ -250,7 +259,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 		return paymentrequestop.NewProcessReviewedPaymentRequestsBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, "bad request, sendToSyncada flag required", h.GetTraceID()))
 	}
 	if *sendToSyncada {
-		err := h.PaymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
+		err := reviewedPaymentRequestProcessor.ProcessReviewedPaymentRequest()
 		if err != nil {
 			msg := fmt.Sprintf("Error processing reviewed payment requests")
 			logger.Error(msg, zap.Error(err))

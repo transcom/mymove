@@ -479,15 +479,11 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 	paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 	paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(reviewedPRs[0], nil)
 
-	paymentRequestProcessor := &mocks.PaymentRequestReviewedProcessor{}
-	paymentRequestProcessor.On("ProcessReviewedPaymentRequest").Return(nil)
-
 	handler := ProcessReviewedPaymentRequestsHandler{
-		HandlerContext:                  handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-		PaymentRequestFetcher:           paymentRequestFetcher,
-		PaymentRequestStatusUpdater:     paymentRequestStatusUpdater,
-		PaymentRequestReviewedFetcher:   paymentRequestReviewedFetcher,
-		PaymentRequestReviewedProcessor: paymentRequestProcessor,
+		HandlerContext:                handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+		PaymentRequestFetcher:         paymentRequestFetcher,
+		PaymentRequestStatusUpdater:   paymentRequestStatusUpdater,
+		PaymentRequestReviewedFetcher: paymentRequestReviewedFetcher,
 	}
 
 	urlFormat := "/payment-requests/process-reviewed"
@@ -618,11 +614,10 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(nilPr, errors.New("could not fetch payment request"))
 
 		handler := ProcessReviewedPaymentRequestsHandler{
-			HandlerContext:                  handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			PaymentRequestFetcher:           paymentRequestFetcher,
-			PaymentRequestStatusUpdater:     paymentRequestStatusUpdater,
-			PaymentRequestReviewedFetcher:   paymentRequestReviewedFetcher,
-			PaymentRequestReviewedProcessor: paymentrequest.InitNewPaymentRequestReviewedProcessor(suite.DB(), suite.TestLogger(), true),
+			HandlerContext:                handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			PaymentRequestFetcher:         paymentRequestFetcher,
+			PaymentRequestStatusUpdater:   paymentRequestStatusUpdater,
+			PaymentRequestReviewedFetcher: paymentRequestReviewedFetcher,
 		}
 
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
@@ -654,11 +649,10 @@ func (suite *HandlerSuite) TestProcessReviewedPaymentRequestsHandler() {
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(reviewedPRs[0], nil)
 
 		handler := ProcessReviewedPaymentRequestsHandler{
-			HandlerContext:                  handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			PaymentRequestFetcher:           paymentRequestFetcher,
-			PaymentRequestStatusUpdater:     paymentRequestStatusUpdater,
-			PaymentRequestReviewedFetcher:   paymentRequestReviewedFetcher,
-			PaymentRequestReviewedProcessor: paymentrequest.InitNewPaymentRequestReviewedProcessor(suite.DB(), suite.TestLogger(), true),
+			HandlerContext:                handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			PaymentRequestFetcher:         paymentRequestFetcher,
+			PaymentRequestStatusUpdater:   paymentRequestStatusUpdater,
+			PaymentRequestReviewedFetcher: paymentRequestReviewedFetcher,
 		}
 
 		// Call the handler to update all reviewed payment request to a "Sent_To_Gex" status (default status when no flag is set)
