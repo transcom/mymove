@@ -31,6 +31,8 @@ type ClientService interface {
 
 	ListMTOPaymentRequests(params *ListMTOPaymentRequestsParams) (*ListMTOPaymentRequestsOK, error)
 
+	ProcessReviewedPaymentRequests(params *ProcessReviewedPaymentRequestsParams) (*ProcessReviewedPaymentRequestsOK, error)
+
 	UpdatePaymentRequestStatus(params *UpdatePaymentRequestStatusParams) (*UpdatePaymentRequestStatusOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
@@ -115,6 +117,46 @@ func (a *Client) ListMTOPaymentRequests(params *ListMTOPaymentRequestsParams) (*
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for listMTOPaymentRequests: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+  ProcessReviewedPaymentRequests processes reviewed payment requests
+
+  Updates the status of reviewed payment requests and sends PRs to Syncada if
+the SendToSyncada flag is set
+
+This is a support endpoint and will not be available in production.
+
+*/
+func (a *Client) ProcessReviewedPaymentRequests(params *ProcessReviewedPaymentRequestsParams) (*ProcessReviewedPaymentRequestsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewProcessReviewedPaymentRequestsParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "processReviewedPaymentRequests",
+		Method:             "PATCH",
+		PathPattern:        "/payment-requests/process-reviewed",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &ProcessReviewedPaymentRequestsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ProcessReviewedPaymentRequestsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for processReviewedPaymentRequests: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 
