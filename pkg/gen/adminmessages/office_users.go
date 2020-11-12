@@ -8,13 +8,13 @@ package adminmessages
 import (
 	"strconv"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
 
 // OfficeUsers office users
+//
 // swagger:model OfficeUsers
 type OfficeUsers []*OfficeUser
 

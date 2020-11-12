@@ -13,7 +13,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 
-	supportmessages "github.com/transcom/mymove/pkg/gen/supportmessages"
+	"github.com/transcom/mymove/pkg/gen/supportmessages"
 )
 
 // NewProcessReviewedPaymentRequestsParams creates a new ProcessReviewedPaymentRequestsParams object
@@ -53,7 +53,7 @@ func (o *ProcessReviewedPaymentRequestsParams) BindRequest(r *http.Request, rout
 		var body supportmessages.ProcessReviewedPaymentRequests
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
-				res = append(res, errors.Required("body", "body"))
+				res = append(res, errors.Required("body", "body", ""))
 			} else {
 				res = append(res, errors.NewParseError("body", "body", "", err))
 			}
@@ -68,7 +68,7 @@ func (o *ProcessReviewedPaymentRequestsParams) BindRequest(r *http.Request, rout
 			}
 		}
 	} else {
-		res = append(res, errors.Required("body", "body"))
+		res = append(res, errors.Required("body", "body", ""))
 	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)

@@ -8,13 +8,13 @@ package adminmessages
 import (
 	"strconv"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
 
 // ElectronicOrdersTotals electronic orders totals
+//
 // swagger:model ElectronicOrdersTotals
 type ElectronicOrdersTotals []*ElectronicOrdersTotal
 

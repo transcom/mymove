@@ -12,11 +12,10 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	adminmessages "github.com/transcom/mymove/pkg/gen/adminmessages"
+	"github.com/transcom/mymove/pkg/gen/adminmessages"
 )
 
 // NewRevokeUserSessionParams creates a new RevokeUserSessionParams object
@@ -61,7 +60,7 @@ func (o *RevokeUserSessionParams) BindRequest(r *http.Request, route *middleware
 		var body adminmessages.UserRevokeSessionPayload
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
-				res = append(res, errors.Required("user", "body"))
+				res = append(res, errors.Required("user", "body", ""))
 			} else {
 				res = append(res, errors.NewParseError("user", "body", "", err))
 			}
@@ -76,7 +75,7 @@ func (o *RevokeUserSessionParams) BindRequest(r *http.Request, route *middleware
 			}
 		}
 	} else {
-		res = append(res, errors.Required("user", "body"))
+		res = append(res, errors.Required("user", "body", ""))
 	}
 	rUserID, rhkUserID, _ := route.Params.GetOK("userId")
 	if err := o.bindUserID(rUserID, rhkUserID, route.Formats); err != nil {

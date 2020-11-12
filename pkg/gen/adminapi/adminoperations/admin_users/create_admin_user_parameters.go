@@ -12,7 +12,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 
-	adminmessages "github.com/transcom/mymove/pkg/gen/adminmessages"
+	"github.com/transcom/mymove/pkg/gen/adminmessages"
 )
 
 // NewCreateAdminUserParams creates a new CreateAdminUserParams object

@@ -12,11 +12,10 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	internalmessages "github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // NewUpdateServiceMemberBackupContactParams creates a new UpdateServiceMemberBackupContactParams object
@@ -66,7 +65,7 @@ func (o *UpdateServiceMemberBackupContactParams) BindRequest(r *http.Request, ro
 		var body internalmessages.UpdateServiceMemberBackupContactPayload
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
-				res = append(res, errors.Required("updateServiceMemberBackupContactPayload", "body"))
+				res = append(res, errors.Required("updateServiceMemberBackupContactPayload", "body", ""))
 			} else {
 				res = append(res, errors.NewParseError("updateServiceMemberBackupContactPayload", "body", "", err))
 			}
@@ -81,7 +80,7 @@ func (o *UpdateServiceMemberBackupContactParams) BindRequest(r *http.Request, ro
 			}
 		}
 	} else {
-		res = append(res, errors.Required("updateServiceMemberBackupContactPayload", "body"))
+		res = append(res, errors.Required("updateServiceMemberBackupContactPayload", "body", ""))
 	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)

@@ -8,7 +8,7 @@ package postal_codes
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // ValidatePostalCodeWithRateDataHandlerFunc turns a function with the right signature into a validate postal code with rate data handler

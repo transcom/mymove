@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	adminmessages "github.com/transcom/mymove/pkg/gen/adminmessages"
+	"github.com/transcom/mymove/pkg/gen/adminmessages"
 )
 
 // IndexOfficesOKCode is the HTTP code returned for type IndexOfficesOK

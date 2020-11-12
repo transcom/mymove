@@ -4,12 +4,11 @@ package internalapi
 
 import (
 	"crypto/tls"
-	"io"
 	"net/http"
 
-	errors "github.com/go-openapi/errors"
-	runtime "github.com/go-openapi/runtime"
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/errors"
+	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/runtime/middleware"
 
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/accesscode"
@@ -52,14 +51,10 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	// api.Logger = log.Printf
 
 	api.JSONConsumer = runtime.JSONConsumer()
-
 	api.MultipartformConsumer = runtime.DiscardConsumer
 
+	api.BinProducer = runtime.ByteStreamProducer()
 	api.JSONProducer = runtime.JSONProducer()
-
-	api.ApplicationPdfProducer = runtime.ProducerFunc(func(w io.Writer, data interface{}) error {
-		return errors.NotImplemented("applicationPdf producer has not yet been implemented")
-	})
 
 	if api.OfficeApproveMoveHandler == nil {
 		api.OfficeApproveMoveHandler = office.ApproveMoveHandlerFunc(func(params office.ApproveMoveParams) middleware.Responder {
@@ -381,6 +376,8 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation postal_codes.ValidatePostalCodeWithRateData has not yet been implemented")
 		})
 	}
+
+	api.PreServerShutdown = func() {}
 
 	api.ServerShutdown = func() {}
 

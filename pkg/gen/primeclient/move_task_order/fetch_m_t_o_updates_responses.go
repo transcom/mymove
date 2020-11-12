@@ -10,10 +10,9 @@ import (
 	"io"
 
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	primemessages "github.com/transcom/mymove/pkg/gen/primemessages"
+	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
 // FetchMTOUpdatesReader is a Reader for the FetchMTOUpdates structure.

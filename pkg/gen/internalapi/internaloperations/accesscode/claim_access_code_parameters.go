@@ -51,7 +51,7 @@ func (o *ClaimAccessCodeParams) BindRequest(r *http.Request, route *middleware.M
 		var body ClaimAccessCodeBody
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
-				res = append(res, errors.Required("accessCode", "body"))
+				res = append(res, errors.Required("accessCode", "body", ""))
 			} else {
 				res = append(res, errors.NewParseError("accessCode", "body", "", err))
 			}
@@ -66,7 +66,7 @@ func (o *ClaimAccessCodeParams) BindRequest(r *http.Request, route *middleware.M
 			}
 		}
 	} else {
-		res = append(res, errors.Required("accessCode", "body"))
+		res = append(res, errors.Required("accessCode", "body", ""))
 	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)

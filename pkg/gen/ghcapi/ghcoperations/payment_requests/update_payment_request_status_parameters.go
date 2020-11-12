@@ -12,11 +12,10 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	ghcmessages "github.com/transcom/mymove/pkg/gen/ghcmessages"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 )
 
 // NewUpdatePaymentRequestStatusParams creates a new UpdatePaymentRequestStatusParams object
@@ -70,7 +69,7 @@ func (o *UpdatePaymentRequestStatusParams) BindRequest(r *http.Request, route *m
 		var body ghcmessages.UpdatePaymentRequestStatusPayload
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
-				res = append(res, errors.Required("body", "body"))
+				res = append(res, errors.Required("body", "body", ""))
 			} else {
 				res = append(res, errors.NewParseError("body", "body", "", err))
 			}
@@ -85,7 +84,7 @@ func (o *UpdatePaymentRequestStatusParams) BindRequest(r *http.Request, route *m
 			}
 		}
 	} else {
-		res = append(res, errors.Required("body", "body"))
+		res = append(res, errors.Required("body", "body", ""))
 	}
 	rPaymentRequestID, rhkPaymentRequestID, _ := route.Params.GetOK("paymentRequestID")
 	if err := o.bindPaymentRequestID(rPaymentRequestID, rhkPaymentRequestID, route.Formats); err != nil {
@@ -101,7 +100,7 @@ func (o *UpdatePaymentRequestStatusParams) BindRequest(r *http.Request, route *m
 // bindIfMatch binds and validates parameter IfMatch from header.
 func (o *UpdatePaymentRequestStatusParams) bindIfMatch(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
-		return errors.Required("If-Match", "header")
+		return errors.Required("If-Match", "header", rawData)
 	}
 	var raw string
 	if len(rawData) > 0 {

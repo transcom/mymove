@@ -8,13 +8,13 @@ package ordersmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
 // Affiliation Military branch of service
+//
 // swagger:model Affiliation
 type Affiliation string
 
@@ -53,7 +53,7 @@ func init() {
 }
 
 func (m Affiliation) validateAffiliationEnum(path, location string, value Affiliation) error {
-	if err := validate.Enum(path, location, value, affiliationEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, affiliationEnum, true); err != nil {
 		return err
 	}
 	return nil

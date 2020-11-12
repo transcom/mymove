@@ -8,7 +8,7 @@ package tsps
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // IndexTSPsHandlerFunc turns a function with the right signature into a index t s ps handler

@@ -8,7 +8,7 @@ package move_order
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // GetMoveOrderHandlerFunc turns a function with the right signature into a get move order handler

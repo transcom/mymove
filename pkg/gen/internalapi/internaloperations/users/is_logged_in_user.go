@@ -8,7 +8,7 @@ package users
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // IsLoggedInUserHandlerFunc turns a function with the right signature into a is logged in user handler

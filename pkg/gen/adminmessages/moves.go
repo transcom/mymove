@@ -8,13 +8,13 @@ package adminmessages
 import (
 	"strconv"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
 
 // Moves moves
+//
 // swagger:model Moves
 type Moves []*Move
 

@@ -9,14 +9,14 @@ import (
 	"bytes"
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // MTOServiceItemDDFSIT Describes a domestic destination 1st day SIT service item subtype of a MTOServiceItem.
+//
 // swagger:model MTOServiceItemDDFSIT
 type MTOServiceItemDDFSIT struct {
 	eTagField string
@@ -89,7 +89,6 @@ func (m *MTOServiceItemDDFSIT) ModelType() MTOServiceItemModelType {
 
 // SetModelType sets the model type of this subtype
 func (m *MTOServiceItemDDFSIT) SetModelType(val MTOServiceItemModelType) {
-
 }
 
 // MoveTaskOrderID gets the move task order ID of this subtype
@@ -141,18 +140,6 @@ func (m *MTOServiceItemDDFSIT) Status() MTOServiceItemStatus {
 func (m *MTOServiceItemDDFSIT) SetStatus(val MTOServiceItemStatus) {
 	m.statusField = val
 }
-
-// FirstAvailableDeliveryDate1 gets the first available delivery date1 of this subtype
-
-// FirstAvailableDeliveryDate2 gets the first available delivery date2 of this subtype
-
-// ReServiceCode gets the re service code of this subtype
-
-// TimeMilitary1 gets the time military1 of this subtype
-
-// TimeMilitary2 gets the time military2 of this subtype
-
-// Type gets the type of this subtype
 
 // UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
 func (m *MTOServiceItemDDFSIT) UnmarshalJSON(raw []byte) error {
@@ -231,7 +218,6 @@ func (m *MTOServiceItemDDFSIT) UnmarshalJSON(raw []byte) error {
 		/* Not the type we're looking for. */
 		return errors.New(422, "invalid modelType value: %q", base.ModelType)
 	}
-
 	result.moveTaskOrderIdField = base.MoveTaskOrderID
 
 	result.mtoShipmentIdField = base.MtoShipmentID
@@ -243,15 +229,10 @@ func (m *MTOServiceItemDDFSIT) UnmarshalJSON(raw []byte) error {
 	result.statusField = base.Status
 
 	result.FirstAvailableDeliveryDate1 = data.FirstAvailableDeliveryDate1
-
 	result.FirstAvailableDeliveryDate2 = data.FirstAvailableDeliveryDate2
-
 	result.ReServiceCode = data.ReServiceCode
-
 	result.TimeMilitary1 = data.TimeMilitary1
-
 	result.TimeMilitary2 = data.TimeMilitary2
-
 	result.Type = data.Type
 
 	*m = result
@@ -305,8 +286,7 @@ func (m MTOServiceItemDDFSIT) MarshalJSON() ([]byte, error) {
 		TimeMilitary2: m.TimeMilitary2,
 
 		Type: m.Type,
-	},
-	)
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -343,8 +323,7 @@ func (m MTOServiceItemDDFSIT) MarshalJSON() ([]byte, error) {
 		RejectionReason: m.RejectionReason(),
 
 		Status: m.Status(),
-	},
-	)
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -497,7 +476,7 @@ func init() {
 
 // property enum
 func (m *MTOServiceItemDDFSIT) validateReServiceCodeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, mTOServiceItemDDFSITTypeReServiceCodePropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, mTOServiceItemDDFSITTypeReServiceCodePropEnum, true); err != nil {
 		return err
 	}
 	return nil

@@ -8,14 +8,14 @@ package ghcmessages
 import (
 	"strconv"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // ProofOfServicePackage proof of service package
+//
 // swagger:model ProofOfServicePackage
 type ProofOfServicePackage struct {
 

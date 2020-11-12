@@ -8,14 +8,14 @@ package adminmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // Notification notification
+//
 // swagger:model Notification
 type Notification struct {
 
@@ -140,7 +140,7 @@ const (
 
 // prop value enum
 func (m *Notification) validateNotificationTypeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, notificationTypeNotificationTypePropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, notificationTypeNotificationTypePropEnum, true); err != nil {
 		return err
 	}
 	return nil

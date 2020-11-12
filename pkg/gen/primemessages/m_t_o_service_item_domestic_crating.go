@@ -9,14 +9,14 @@ import (
 	"bytes"
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // MTOServiceItemDomesticCrating Describes a domestic crating/uncrating service item subtype of a MTOServiceItem.
+//
 // swagger:model MTOServiceItemDomesticCrating
 type MTOServiceItemDomesticCrating struct {
 	eTagField string
@@ -78,7 +78,6 @@ func (m *MTOServiceItemDomesticCrating) ModelType() MTOServiceItemModelType {
 
 // SetModelType sets the model type of this subtype
 func (m *MTOServiceItemDomesticCrating) SetModelType(val MTOServiceItemModelType) {
-
 }
 
 // MoveTaskOrderID gets the move task order ID of this subtype
@@ -130,14 +129,6 @@ func (m *MTOServiceItemDomesticCrating) Status() MTOServiceItemStatus {
 func (m *MTOServiceItemDomesticCrating) SetStatus(val MTOServiceItemStatus) {
 	m.statusField = val
 }
-
-// Crate gets the crate of this subtype
-
-// Description gets the description of this subtype
-
-// Item gets the item of this subtype
-
-// ReServiceCode gets the re service code of this subtype
 
 // UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
 func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
@@ -205,7 +196,6 @@ func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 		/* Not the type we're looking for. */
 		return errors.New(422, "invalid modelType value: %q", base.ModelType)
 	}
-
 	result.moveTaskOrderIdField = base.MoveTaskOrderID
 
 	result.mtoShipmentIdField = base.MtoShipmentID
@@ -217,11 +207,8 @@ func (m *MTOServiceItemDomesticCrating) UnmarshalJSON(raw []byte) error {
 	result.statusField = base.Status
 
 	result.Crate = data.Crate
-
 	result.Description = data.Description
-
 	result.Item = data.Item
-
 	result.ReServiceCode = data.ReServiceCode
 
 	*m = result
@@ -260,8 +247,7 @@ func (m MTOServiceItemDomesticCrating) MarshalJSON() ([]byte, error) {
 		Item: m.Item,
 
 		ReServiceCode: m.ReServiceCode,
-	},
-	)
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -298,8 +284,7 @@ func (m MTOServiceItemDomesticCrating) MarshalJSON() ([]byte, error) {
 		RejectionReason: m.RejectionReason(),
 
 		Status: m.Status(),
-	},
-	)
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -463,7 +448,7 @@ func init() {
 
 // property enum
 func (m *MTOServiceItemDomesticCrating) validateReServiceCodeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, mTOServiceItemDomesticCratingTypeReServiceCodePropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, mTOServiceItemDomesticCratingTypeReServiceCodePropEnum, true); err != nil {
 		return err
 	}
 	return nil

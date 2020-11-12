@@ -12,11 +12,10 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	internalmessages "github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // NewUpdatePersonallyProcuredMoveParams creates a new UpdatePersonallyProcuredMoveParams object
@@ -76,7 +75,7 @@ func (o *UpdatePersonallyProcuredMoveParams) BindRequest(r *http.Request, route 
 		var body internalmessages.UpdatePersonallyProcuredMovePayload
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
-				res = append(res, errors.Required("updatePersonallyProcuredMovePayload", "body"))
+				res = append(res, errors.Required("updatePersonallyProcuredMovePayload", "body", ""))
 			} else {
 				res = append(res, errors.NewParseError("updatePersonallyProcuredMovePayload", "body", "", err))
 			}
@@ -91,7 +90,7 @@ func (o *UpdatePersonallyProcuredMoveParams) BindRequest(r *http.Request, route 
 			}
 		}
 	} else {
-		res = append(res, errors.Required("updatePersonallyProcuredMovePayload", "body"))
+		res = append(res, errors.Required("updatePersonallyProcuredMovePayload", "body", ""))
 	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
