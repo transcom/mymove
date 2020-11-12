@@ -14,7 +14,8 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
 import { MatchShape, HistoryShape } from 'types/router';
-import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes as CloseIcon } from '@fortawesome/free-solid-svg-icons';
 import { dropdownInputOptions, formatSwaggerDate } from 'shared/formatters';
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orders';
@@ -118,7 +119,7 @@ const MoveOrders = ({ history, match }) => {
                     onClick={handleClose}
                     unstyled
                   >
-                    <XLightIcon />
+                    <FontAwesomeIcon icon={ CloseIcon } title=“Close sidebar” aria-label=“Close sidebar” />
                   </Button>
                   <h2 className={styles.header}>View Orders</h2>
                   <div>
