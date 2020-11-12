@@ -5,6 +5,8 @@ import { Button } from '@trussworks/react-uswds';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
 import { queryCache, useMutation } from 'react-query';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes as CloseIcon } from '@fortawesome/free-solid-svg-icons';
 
 import styles from './MoveOrders.module.scss';
 
@@ -14,8 +16,6 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
 import { MatchShape, HistoryShape } from 'types/router';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes as CloseIcon } from '@fortawesome/free-solid-svg-icons';
 import { dropdownInputOptions, formatSwaggerDate } from 'shared/formatters';
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orders';
@@ -119,7 +119,7 @@ const MoveOrders = ({ history, match }) => {
                     onClick={handleClose}
                     unstyled
                   >
-                    <FontAwesomeIcon icon={ CloseIcon } title=“Close sidebar” aria-label=“Close sidebar” />
+                    <FontAwesomeIcon icon={CloseIcon} title="Close sidebar" aria-label="Close sidebar" />
                   </Button>
                   <h2 className={styles.header}>View Orders</h2>
                   <div>

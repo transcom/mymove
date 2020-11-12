@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes as XIcon } from '@fortawesome/free-solid-svg-icons';
 
 import { sortServiceItemsByGroup } from '../../../utils/serviceItems';
 
@@ -15,8 +17,6 @@ import PaymentReviewed from './PaymentReviewed';
 import Alert from 'shared/Alert';
 import { ServiceItemCardsShape } from 'types/serviceItemCard';
 import { PAYMENT_SERVICE_ITEM_STATUS, PAYMENT_REQUEST_STATUS } from 'shared/constants';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes as CloseIcon } from '@fortawesome/free-solid-svg-icons';
 import { toDollarString } from 'shared/formatters';
 import { PaymentRequestShape } from 'types/index';
 
@@ -119,7 +119,7 @@ const ReviewServiceItems = ({
       <div data-testid="ReviewServiceItems" className={styles.ReviewServiceItems}>
         <div className={styles.top}>
           <Button data-testid="closeSidebar" type="button" onClick={handleClose} unstyled>
-            <FontAwesomeIcon icon={ CloseIcon } title=“Close sidebar” aria-label=“Close sidebar” />
+            <FontAwesomeIcon icon={XIcon} title="Close sidebar" aria-label="Close sidebar" />
           </Button>
           <h2 className={styles.header}>Complete request</h2>
         </div>
@@ -156,7 +156,7 @@ const ReviewServiceItems = ({
     <div data-testid="ReviewServiceItems" className={styles.ReviewServiceItems}>
       <div className={styles.top}>
         <Button data-testid="closeSidebar" type="button" onClick={handleClose} unstyled>
-          <XLightIcon />
+          <FontAwesomeIcon icon={XIcon} ariaLabel="close" />
         </Button>
         <div data-testid="itemCount" className={styles.eyebrowTitle}>
           {curCardIndex + 1} OF {totalCards} ITEMS

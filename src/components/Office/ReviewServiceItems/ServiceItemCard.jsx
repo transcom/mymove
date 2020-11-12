@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { Radio, Textarea, FormGroup, Fieldset, Label, Button, Form } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import classnames from 'classnames';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes as XIcon } from '@fortawesome/free-solid-svg-icons';
 
 import styles from './ServiceItemCard.module.scss';
 
@@ -10,8 +12,6 @@ import ShipmentContainer from 'components/Office/ShipmentContainer';
 import { mtoShipmentTypeToFriendlyDisplay, toDollarString } from 'shared/formatters';
 import { ShipmentOptionsOneOf } from 'types/shipment';
 import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes as XIcon } from '@fortawesome/free-solid-svg-icons';
 import { ReactComponent as FormCheckmarkIcon } from 'shared/icon/form-checkmark.svg';
 
 /** This component represents a Payment Request Service Item */
@@ -51,7 +51,7 @@ const ServiceItemCard = ({
             ) : (
               <>
                 <div data-testid="statusHeading" className={classnames(styles.statusHeading, styles.statusRejected)}>
-                  <FontAwesomeIcon icon={ XIcon } aria-hidden />
+                  <FontAwesomeIcon icon={XIcon} aria-hidden />
                   Rejected
                 </div>
                 {rejectionReason && (
@@ -161,7 +161,7 @@ const ServiceItemCard = ({
                       onClick={handleFormReset}
                     >
                       <span className="icon">
-                        <FontAwesomeIcon icon={ XIcon } title=“Clear status” aria-label=“Clear status” />
+                        <FontAwesomeIcon icon={XIcon} title="Clear status" aria-label="Clear status" />
                       </span>
                       Clear selection
                     </Button>
