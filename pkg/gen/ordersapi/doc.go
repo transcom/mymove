@@ -10,7 +10,7 @@ API to submit, amend, and cancel orders for move.mil.
     Host: localhost
     BasePath: /orders/v1
     Version: 1.0.0
-    License: MIT https://github.com/transcom/mymove/blob/master/LICENSE.md
+    License: MIT https://github.com/transcom/mymove/blob/master/LICENSE.txt
 
     Consumes:
     - application/json

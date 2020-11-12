@@ -5,7 +5,7 @@ info:
   title: move.mil Orders Gateway
   license:
     name: MIT
-    url: 'https://github.com/transcom/mymove/blob/master/LICENSE.md'
+    url: 'https://github.com/transcom/mymove/blob/master/LICENSE.txt'
 basePath: /orders/v1
 paths:
   '/edipis/{edipi}/orders':

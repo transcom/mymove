@@ -5,7 +5,7 @@ info:
   title: MyMove DPS API
   license:
     name: MIT
-    url: https://github.com/transcom/mymove/blob/master/LICENSE.md
+    url: https://github.com/transcom/mymove/blob/master/LICENSE.txt
 basePath: /dps/v0
 produces:
   - application/json

@@ -10,7 +10,7 @@ The API for move.mil admin actions.
     Host: localhost
     BasePath: /admin/v1
     Version: 1.0.0
-    License: MIT https://github.com/transcom/mymove/blob/master/LICENSE.md
+    License: MIT https://github.com/transcom/mymove/blob/master/LICENSE.txt
 
     Consumes:
     - application/json
