@@ -4,9 +4,11 @@ import FileViewer from '@trussworks/react-file-viewer';
 import { Button } from '@trussworks/react-uswds';
 
 import styles from './Content.module.scss';
-
-import { ReactComponent as ZoomIn } from 'shared/icon/zoom-in.svg';
-import { ReactComponent as ZoomOut } from 'shared/icon/zoom-out.svg';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+faSearchPlus as ZoomIn,
+  faSearchMinus as ZoomOut
+  } from '@fortawesome/free-solid-svg-icons';
 // TODO
 /*
 import { ReactComponent as RotateLeft } from 'shared/icon/rotate-counter-clockwise.svg';
@@ -25,11 +27,11 @@ const DocViewerContent = ({ fileType, filePath }) => (
         return (
           <div className={styles.controls}>
             <Button type="button" unstyled onClick={handleZoomOut}>
-              <ZoomOut />
+              <FontAwesomeIcon icon={ZoomOut} title="Zoom out"/>
               Zoom out
             </Button>
             <Button type="button" unstyled onClick={handleZoomIn}>
-              <ZoomIn />
+              <FontAwesomeIcon icon={ZoomIn} title="Zoom in"/>
               Zoom in
             </Button>
           </div>
