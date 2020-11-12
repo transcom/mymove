@@ -10,7 +10,8 @@ import styles from './RejectServiceItemModal.module.scss';
 import { Form } from 'components/form';
 import { TextInput } from 'components/form/fields';
 import ServiceItemDetails from 'components/Office/ServiceItemDetails/ServiceItemDetails';
-import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes as CloseIcon } from '@fortawesome/free-solid-svg-icons';
 import { formatDateFromIso } from 'shared/formatters';
 import { SERVICE_ITEM_STATUS } from 'shared/constants';
 
@@ -35,7 +36,7 @@ const RejectServiceItemModal = ({ serviceItem, onSubmit, onClose }) => {
                 className={classNames(styles.rejectReasonClose, 'usa-button--unstyled')}
                 data-testid="closeRejectServiceItem"
               >
-                <XLightIcon />
+                <FontAwesomeIcon icon={ CloseIcon } title=“Close” aria-label=“Close” />
               </Button>
             </div>
             <Formik
