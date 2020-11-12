@@ -1,7 +1,8 @@
 package testdatagen
 
 import (
-	"math/rand"
+	"crypto/rand"
+	"math/big"
 	"strconv"
 
 	"github.com/go-openapi/swag"
@@ -12,10 +13,13 @@ import (
 
 // randomEdipi creates a random Edipi for a service member
 func randomEdipi() string {
-	low := 1000000000
-	high := 9999999999
+	low := int64(1000000000)
+	high := int64(649999999999)
 	// #nosec G404 TODO needs review
-	return strconv.Itoa(low + rand.Intn(high-low))
+	randMax := big.NewInt(high - low)
+	randInt, _ := rand.Int(rand.Reader, randMax)
+
+	return strconv.Itoa(int(low + randInt.Int64()))
 }
 
 // MakeServiceMember creates a single ServiceMember with associated data.
@@ -49,10 +53,12 @@ func MakeServiceMember(db *pop.Connection, assertions Assertions) models.Service
 		currentAddress = &newAddress
 	}
 
+	randomEdipi := randomEdipi()
+
 	serviceMember := models.ServiceMember{
 		UserID:               user.ID,
 		User:                 user,
-		Edipi:                swag.String(randomEdipi()),
+		Edipi:                swag.String(randomEdipi),
 		Affiliation:          agency,
 		FirstName:            swag.String("Leo"),
 		LastName:             swag.String("Spacemen"),
