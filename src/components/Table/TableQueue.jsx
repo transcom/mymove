@@ -11,7 +11,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
 
 // TableQueue is a react-table that uses react-hooks to fetch, filter, sort and page data
-const TableQueue = ({ title, columns, handleClick, useQueries }) => {
+const TableQueue = ({ title, columns, handleClick, useQueries, showFilters, showPagination }) => {
   const [paramFilters, setParamFilters] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPageSize, setCurrentPageSize] = useState(20);
@@ -76,11 +76,12 @@ const TableQueue = ({ title, columns, handleClick, useQueries }) => {
   if (isError) return <SomethingWentWrong />;
 
   return (
-    <GridContainer data-testid="TableQueue" containerSize="widescreen" className={styles.TableQueue}>
+    <GridContainer data-testid="table-queue" containerSize="widescreen" className={styles.TableQueue}>
       <h1>{`${title} (${totalCount})`}</h1>
       <div className={styles.tableContainer}>
         <Table
-          showPagination
+          showFilters={showFilters}
+          showPagination={showPagination}
           handleClick={handleClick}
           gotoPage={gotoPage}
           setPageSize={setPageSize}
@@ -112,6 +113,15 @@ TableQueue.propTypes = {
   title: PropTypes.string.isRequired,
   // columns is the columns to show in the table
   columns: PropTypes.arrayOf(PropTypes.object).isRequired,
+  // showFilters is bool value to show filters or not
+  showFilters: PropTypes.bool,
+  // showPagination is bool value to show pagination or not
+  showPagination: PropTypes.bool,
+};
+
+TableQueue.defaultProps = {
+  showFilters: false,
+  showPagination: false,
 };
 
 export default TableQueue;
