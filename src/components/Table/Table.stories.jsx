@@ -1,23 +1,39 @@
-import React, { useMemo } from 'react';
+/* eslint-disable react/jsx-props-no-spreading */
+import React from 'react';
 import { withKnobs } from '@storybook/addon-knobs';
-import { useFilters, usePagination, useTable } from 'react-table';
 
 import { createHeader } from './utils';
-import Table from './Table';
+import TableQueue from './TableQueue';
 
-import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
+import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
+import { BRANCH_OPTIONS, MOVE_STATUS_OPTIONS } from 'constants/queues';
+import SelectFilter from 'components/Table/Filters/SelectFilter';
+import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
 
 export default {
   title: 'TOO/TIO Components|Table',
   decorators: [
     withKnobs,
     (storyFn) => (
-      <div style={{ margin: '10px', height: '80vh', display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
+      <div style={{ margin: '10px', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
         {storyFn()}
       </div>
     ),
   ],
 };
+
+const moveStatusOptions = Object.keys(MOVE_STATUS_OPTIONS).map((key) => ({
+  value: key,
+  label: MOVE_STATUS_OPTIONS[`${key}`],
+}));
+
+const branchFilterOptions = [
+  { value: '', label: 'All' },
+  ...Object.keys(BRANCH_OPTIONS).map((key) => ({
+    value: key,
+    label: BRANCH_OPTIONS[`${key}`],
+  })),
+];
 
 const data = [
   {
@@ -58,97 +74,30 @@ const data = [
 const columns = (isFilterable = false) => [
   createHeader('Customer name', 'col1', { isFilterable }),
   createHeader('DoD ID', 'col2', { isFilterable }),
-  createHeader('Status', 'col3', { isFilterable }),
+  createHeader('Status', 'col3', {
+    isFilterable,
+    Filter: (props) => <MultiSelectCheckBoxFilter options={moveStatusOptions} {...props} />,
+  }),
   createHeader('Move Code', 'col4', { isFilterable }),
-  createHeader('Branch', 'col5', { isFilterable }),
+  createHeader('Branch', 'col5', {
+    isFilterable,
+    Filter: (props) => <SelectFilter options={branchFilterOptions} {...props} />,
+  }),
   createHeader('# of shipments', 'col6', { isFilterable }),
   createHeader('Destination duty station', 'col7', { isFilterable }),
   createHeader('Origin GBLOC', 'col8', { isFilterable }),
-  createHeader('Last modified by', 'col9', { isFilterable }),
+  createHeader('Last modified by', 'col9', { isFilterable, Filter: DateSelectFilter }),
 ];
 
-// eslint-disable-next-line react/prop-types
-const CreatedTable = () => {
-  const defaultColumn = useMemo(
-    () => ({
-      // Let's set up our default Filter UI
-      Filter: TextBoxFilter,
-    }),
-    [],
-  );
-
-  const tableData = useMemo(() => data, []);
-  const tableColumns = useMemo(() => columns(), []);
-  const propsWithFilters = useTable(
-    {
-      columns: tableColumns,
-      data: tableData,
-      initialState: { hiddenColumns: ['id'] },
-      manualFilters: true,
-      defaultColumn,
-    },
-    useFilters,
-  );
-
-  // eslint-disable-next-line react/jsx-props-no-spreading
-  return <Table {...propsWithFilters} />;
+const defaultProps = {
+  title: 'Table queue',
+  useQueries: () => ({ queueResult: { data, totalCount: data.length, perPage: 1 } }),
+  handleClick: () => {},
+  columns: columns(),
 };
 
-const CreatedTableWithFilters = () => {
-  const defaultColumn = useMemo(
-    () => ({
-      // Let's set up our default Filter UI
-      Filter: TextBoxFilter,
-    }),
-    [],
-  );
+export const TXOTable = () => <TableQueue {...defaultProps} />;
 
-  const tableData = useMemo(() => data, []);
-  const tableColumns = useMemo(() => columns(true), []);
-  const propsWithFilters = useTable(
-    {
-      columns: tableColumns,
-      data: tableData,
-      initialState: { hiddenColumns: ['id'] },
-      manualFilters: true,
-      defaultColumn,
-    },
-    useFilters,
-  );
+export const TXOTableFilters = () => <TableQueue {...defaultProps} columns={columns(true)} showFilters />;
 
-  // eslint-disable-next-line react/jsx-props-no-spreading
-  return <Table {...propsWithFilters} />;
-};
-
-const CreateTableWithPagination = () => {
-  const defaultColumn = useMemo(
-    () => ({
-      // Let's set up our default Filter UI
-      Filter: TextBoxFilter,
-    }),
-    [],
-  );
-
-  const tableData = useMemo(() => data, []);
-  const tableColumns = useMemo(() => columns(), []);
-  const propsWithPagination = useTable(
-    {
-      columns: tableColumns,
-      data: tableData,
-      initialState: { pageIndex: 0, pageSize: 20 },
-      manualPagination: true,
-      showPagination: true,
-      defaultColumn,
-      pageCount: 1,
-    },
-    usePagination,
-  );
-  // eslint-disable-next-line react/jsx-props-no-spreading
-  return <Table {...propsWithPagination} />;
-};
-
-export const TXOTable = () => <CreatedTable />;
-
-export const TXOTableFilters = () => <CreatedTableWithFilters />;
-
-export const TXOTablePagination = () => <CreateTableWithPagination />;
+export const TXOTablePagination = () => <TableQueue {...defaultProps} showPagination />;
