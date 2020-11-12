@@ -246,12 +246,10 @@ type ProcessReviewedPaymentRequestsHandler struct {
 // Handle getting the EDI for a given payment request
 func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.ProcessReviewedPaymentRequestsParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	reviewedPaymentRequestProcessor := paymentrequest.InitNewPaymentRequestReviewedProcessor(h.DB(), logger, true)
 
 	paymentRequestID := uuid.FromStringOrNil(params.Body.PaymentRequestID.String())
 	sendToSyncada := params.Body.SendToSyncada
 	paymentRequestStatus := params.Body.Status
-	var newPaymentRequestStatus models.PaymentRequestStatus
 	var paymentRequests models.PaymentRequests
 	var updatedPaymentRequests models.PaymentRequests
 
@@ -259,6 +257,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 		return paymentrequestop.NewProcessReviewedPaymentRequestsBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, "bad request, sendToSyncada flag required", h.GetTraceID()))
 	}
 	if *sendToSyncada {
+		reviewedPaymentRequestProcessor := paymentrequest.InitNewPaymentRequestReviewedProcessor(h.DB(), logger, true)
 		err := reviewedPaymentRequestProcessor.ProcessReviewedPaymentRequest()
 		if err != nil {
 			msg := fmt.Sprintf("Error processing reviewed payment requests")
@@ -288,54 +287,33 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 
 		// Update each payment request to have the given status
 		for _, pr := range paymentRequests {
-
-			var reviewedDate time.Time
-			var recGexDate time.Time
-			var sentGexDate time.Time
-			var paidAtDate time.Time
-
-			if pr.ReviewedAt != nil {
-				reviewedDate = *pr.ReviewedAt
-			}
-			if pr.ReceivedByGexAt != nil {
-				recGexDate = *pr.ReceivedByGexAt
-			}
-			if pr.SentToGexAt != nil {
-				sentGexDate = *pr.SentToGexAt
-			}
-			if pr.PaidAt != nil {
-				paidAtDate = *pr.PaidAt
-			}
 			switch paymentRequestStatus {
 			case "PENDING":
-				newPaymentRequestStatus = models.PaymentRequestStatusPending
+				pr.Status = models.PaymentRequestStatusPending
 			case "REVIEWED":
-				newPaymentRequestStatus = models.PaymentRequestStatusReviewed
-				reviewedDate = time.Now()
+				reviewedAt := time.Now()
+				pr.Status = models.PaymentRequestStatusReviewed
+				pr.ReviewedAt = &reviewedAt
 			case "SENT_TO_GEX":
-				newPaymentRequestStatus = models.PaymentRequestStatusSentToGex
-				sentGexDate = time.Now()
+				sentToGex := time.Now()
+				pr.Status = models.PaymentRequestStatusSentToGex
+				pr.SentToGexAt = &sentToGex
 			case "RECEIVED_BY_GEX":
-				newPaymentRequestStatus = models.PaymentRequestStatusReceivedByGex
-				recGexDate = time.Now()
+				recByGex := time.Now()
+				pr.Status = models.PaymentRequestStatusReceivedByGex
+				pr.ReceivedByGexAt = &recByGex
 			case "PAID":
-				newPaymentRequestStatus = models.PaymentRequestStatusPaid
-				paidAtDate = time.Now()
+				paidAt := time.Now()
+				pr.Status = models.PaymentRequestStatusPaid
+				pr.PaidAt = &paidAt
+			case "":
+				sentToGex := time.Now()
+				pr.Status = models.PaymentRequestStatusSentToGex
+				pr.SentToGexAt = &sentToGex
 			default:
-				if len(paymentRequestStatus) == 0 {
-					newPaymentRequestStatus = models.PaymentRequestStatusSentToGex
-					sentGexDate = time.Now()
-				} else {
-					return paymentrequestop.NewProcessReviewedPaymentRequestsBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, "bad request, an invalid status type was used", h.GetTraceID()))
-				}
+				return paymentrequestop.NewProcessReviewedPaymentRequestsBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, "bad request, an invalid status type was used", h.GetTraceID()))
 			}
 
-			// Update payment request values to relect new status
-			pr.Status = newPaymentRequestStatus
-			pr.ReviewedAt = &reviewedDate
-			pr.SentToGexAt = &sentGexDate
-			pr.ReceivedByGexAt = &recGexDate
-			pr.PaidAt = &paidAtDate
 			newPr := pr
 			var nilEtag string
 			updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(&newPr, nilEtag)
