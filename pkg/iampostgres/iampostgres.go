@@ -4,9 +4,10 @@ package iampostgres
 // - https://stackoverflow.com/questions/56355577/using-database-sql-library-and-fetching-password-from-vault-when-a-new-connectio
 
 import (
+	"crypto/rand"
 	"errors"
 	"fmt"
-	"math/rand"
+	"math/big"
 	"net/url"
 	"strings"
 	"sync"
@@ -90,10 +91,15 @@ func EnableIAM(host string, port string, region string, user string, passTemplat
 	go func() {
 
 		// Add some entropy to this value so all instances don't fire at the same time
-		minDur := 100
-		maxDur := 5000
-		// #nosec G404 TODO needs review
-		wait := time.Millisecond * time.Duration(rand.Intn(maxDur-minDur)+minDur)
+		minDur := int64(100)
+		maxDur := int64(5000)
+		randDur := big.NewInt(maxDur - minDur)
+		randInt, err := rand.Int(rand.Reader, randDur)
+		if err != nil {
+			logger.Error("Error building auth token", zap.Error(err))
+			return
+		}
+		wait := time.Millisecond * time.Duration(randInt.Int64()+minDur)
 		logger.Info(fmt.Sprintf("Waiting %v before enabling IAM access for entropy", wait))
 		time.Sleep(wait)
 
