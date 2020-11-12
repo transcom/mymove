@@ -7,12 +7,20 @@ export default {
   component: WizardNavigation,
 };
 
-export const backAndNext = () => <WizardNavigation />;
+export const stepStartPages = () => <WizardNavigation isFirstPage />;
 
-export const firstPage = () => <WizardNavigation isFirstPage />;
+export const stepStartPagesWithFinishLater = () => <WizardNavigation isFirstPage showFinishLater />;
 
-export const lastPage = () => <WizardNavigation isLastPage />;
+export const midStepPages = () => <WizardNavigation />;
+
+export const midStepPagesWithFinishLater = () => <WizardNavigation showFinishLater />;
+
+export const fullFlowCompletion = () => <WizardNavigation isLastPage />;
+
+export const fullFlowCompletionWithFinishLater = () => <WizardNavigation isLastPage showFinishLater />;
 
 export const nextDisabled = () => <WizardNavigation disableNext />;
 
-export const showFinishLater = () => <WizardNavigation showFinishLater />;
+export const editPages = () => <WizardNavigation editMode />;
+
+export const postSubmissionPages = () => <WizardNavigation readOnly />;
