@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
@@ -10,7 +10,7 @@ import Alert from 'shared/Alert';
 import generatePath from './generatePath';
 import './index.css';
 
-import { getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage } from './utils';
+import { getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage, beforeTransition } from './utils';
 
 /**
  * TODO:
@@ -18,90 +18,89 @@ import { getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage } from '.
  * - style buttons - WIP need design input
  */
 
-export const WizardPage = (props) => {
-  const {
-    push,
-    match,
-    additionalParams,
-    pageList,
-    pageKey,
-    dirty,
-    handleSubmit,
-    children,
-    error,
-    pageIsValid,
-    canMoveNext,
-    hideBackBtn,
-    showFinishLaterBtn,
-    footerText,
-  } = props;
+export class WizardPage extends Component {
+  constructor(props) {
+    super(props);
+    this.nextPage = this.nextPage.bind(this);
+    this.previousPage = this.previousPage.bind(this);
+    this.goHome = this.goHome.bind(this);
+    this.beforeTransition = beforeTransition.bind(this);
+  }
 
-  const goHome = () => {
-    push(`/`);
-  };
+  goHome() {
+    this.props.push(`/`);
+  }
 
-  const goto = (path) => {
-    const { params } = match;
+  goto(path) {
+    const {
+      push,
+      match: { params },
+      additionalParams,
+    } = this.props;
     const combinedParams = additionalParams ? { ...additionalParams, ...params } : params;
     // comes from react router redux: doing this moves to the route at path  (might consider going back to history since we need withRouter)
     push(generatePath(path, combinedParams));
-  };
+  }
 
-  const nextPage = async () => {
-    if (isLastPage(pageList, pageKey)) return handleSubmit();
+  nextPage() {
+    this.beforeTransition(getNextPagePath);
+  }
 
-    if (dirty && handleSubmit) {
-      const awaitSubmit = await handleSubmit(); // wait for API save
-      if (awaitSubmit?.error) {
-        console.error('Wizard submit error', awaitSubmit.error);
-        return;
-      }
-    }
-
-    const path = getNextPagePath(pageList, pageKey);
-    if (path) goto(path);
-  };
-
-  const previousPage = () => {
+  previousPage() {
+    const { pageList, pageKey } = this.props;
     // Don't submit or validate when going back
     const path = getPreviousPagePath(pageList, pageKey);
-    if (path) goto(path);
-  };
+    if (path) this.goto(path);
+  }
 
-  const canMoveForward = pageIsValid && canMoveNext;
+  render() {
+    const {
+      pageList,
+      pageKey,
+      children,
+      error,
+      pageIsValid,
+      canMoveNext,
+      hideBackBtn,
+      showFinishLaterBtn,
+      footerText,
+    } = this.props;
 
-  return (
-    <div className="grid-container usa-prose">
-      <ScrollToTop />
-      {error && (
+    const canMoveForward = pageIsValid && canMoveNext;
+
+    return (
+      <div className="grid-container usa-prose">
+        <ScrollToTop />
+        {error && (
+          <div className="grid-row">
+            <div className="grid-col-12 error-message">
+              <Alert type="error" heading="An error occurred">
+                {error.message}
+              </Alert>
+            </div>
+          </div>
+        )}
         <div className="grid-row">
-          <div className="grid-col-12 error-message">
-            <Alert type="error" heading="An error occurred">
-              {error.message}
-            </Alert>
+          <div className="grid-col">{children}</div>
+        </div>
+        <div className="grid-row" style={{ marginTop: '24px' }}>
+          <div className="grid-col">
+            {footerText && footerText}
+            <WizardNavigation
+              isFirstPage={isFirstPage(pageList, pageKey) || hideBackBtn}
+              isLastPage={isLastPage(pageList, pageKey)}
+              disableNext={!canMoveForward}
+              showFinishLater={showFinishLaterBtn}
+              onBackClick={this.previousPage}
+              onNextClick={this.nextPage}
+              onCancelClick={this.goHome}
+            />
           </div>
         </div>
-      )}
-      <div className="grid-row">
-        <div className="grid-col">{children}</div>
       </div>
-      <div className="grid-row" style={{ marginTop: '24px' }}>
-        <div className="grid-col">
-          {footerText && footerText}
-          <WizardNavigation
-            isFirstPage={isFirstPage(pageList, pageKey) || hideBackBtn}
-            isLastPage={isLastPage(pageList, pageKey)}
-            disableNext={!canMoveForward}
-            showFinishLater={showFinishLaterBtn}
-            onBackClick={previousPage}
-            onNextClick={nextPage}
-            onCancelClick={goHome}
-          />
-        </div>
-      </div>
-    </div>
-  );
-};
+    );
+  }
+}
 
 WizardPage.propTypes = {
   handleSubmit: PropTypes.func.isRequired,
