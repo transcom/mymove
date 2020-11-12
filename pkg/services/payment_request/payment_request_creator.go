@@ -231,6 +231,13 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 	if moveTaskOrder.Orders.OriginDutyStationID == nil {
 		return nil, services.NewConflictError(moveTaskOrder.OrdersID, fmt.Sprintf("Orders on MoveTaskOrder (ID: %s) missing OriginDutyStation", moveTaskOrder.ID))
 	}
+	// Verify that ServiceMember is Valid
+	tx.Load(&moveTaskOrder.Orders, "ServiceMember")
+	serviceMember := moveTaskOrder.Orders.ServiceMember
+	// Verify First Name
+	if serviceMember.FirstName == nil || *serviceMember.FirstName == "" {
+		return nil, services.NewConflictError(moveTaskOrder.Orders.ServiceMemberID, fmt.Sprintf("ServiceMember on MoveTaskOrder (ID: %s) missing First Name", moveTaskOrder.ID))
+	}
 
 	// Update PaymentRequest
 	paymentRequest.MoveTaskOrder = moveTaskOrder
