@@ -73,7 +73,7 @@ export class WizardPage extends Component {
         <ScrollToTop />
         {error && (
           <div className="grid-row">
-            <div className="grid-col-12 error-message">
+            <div className="desktop:grid-col-8 desktop:grid-offset-2 error-message">
               <Alert type="error" heading="An error occurred">
                 {error.message}
               </Alert>
@@ -81,10 +81,10 @@ export class WizardPage extends Component {
           </div>
         )}
         <div className="grid-row">
-          <div className="grid-col">{children}</div>
+          <div className="grid-col desktop:grid-col-8 desktop:grid-offset-2">{children}</div>
         </div>
         <div className="grid-row" style={{ marginTop: '24px' }}>
-          <div className="grid-col">
+          <div className="grid-col desktop:grid-col-8 desktop:grid-offset-2">
             {footerText && footerText}
             <WizardNavigation
               isFirstPage={isFirstPage(pageList, pageKey) || hideBackBtn}

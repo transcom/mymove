@@ -96,7 +96,7 @@ export class WizardFormPage extends Component {
         <ScrollToTop otherDep={serverError} />
         {serverError && (
           <div className="grid-row">
-            <div className="grid-col-12 error-message">
+            <div className="desktop:grid-col-8 desktop:grid-offset-2 error-message">
               <Alert type="error" heading="An error occurred">
                 {serverError.message}
               </Alert>
@@ -104,17 +104,18 @@ export class WizardFormPage extends Component {
           </div>
         )}
         <div className="grid-row">
-          <div className="grid-col">
+          <div className="grid-col desktop:grid-col-8 desktop:grid-offset-2">
             <form className={className}>{children}</form>
           </div>
         </div>
         <div className="grid-row" style={{ marginTop: '24px' }}>
-          <div className="grid-col">
+          <div className="grid-col desktop:grid-col-8 desktop:grid-offset-2">
             <div className={styles.WizardNavigation}>
               {!hideBackBtn && (
                 <Button
                   type="button"
                   secondary
+                  className={styles.button}
                   onClick={hasReduxFormSubmitHandler ? handleSubmit(this.previousPage) : this.previousPage}
                   disabled={!canMoveBackward}
                   data-testid="wizardBackButton"
@@ -126,6 +127,7 @@ export class WizardFormPage extends Component {
               {isLastPage(pageList, pageKey) ? (
                 <Button
                   type="button"
+                  className={styles.button}
                   onClick={hasReduxFormSubmitHandler ? handleSubmit(this.submit) : this.submit}
                   disabled={!canMoveForward}
                   data-testid="wizardCompleteButton"
@@ -135,6 +137,7 @@ export class WizardFormPage extends Component {
               ) : (
                 <Button
                   type="button"
+                  className={styles.button}
                   onClick={hasReduxFormSubmitHandler ? handleSubmit(this.nextPage) : this.nextPage}
                   disabled={!canMoveForward}
                   data-testid="wizardNextButton"
