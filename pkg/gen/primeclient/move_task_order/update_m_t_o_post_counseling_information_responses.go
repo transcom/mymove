@@ -12,12 +12,11 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	primemessages "github.com/transcom/mymove/pkg/gen/primemessages"
+	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
 // UpdateMTOPostCounselingInformationReader is a Reader for the UpdateMTOPostCounselingInformation structure.
@@ -363,7 +362,7 @@ const (
 
 // prop value enum
 func (o *UpdateMTOPostCounselingInformationBody) validatePpmTypeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, updateMTOPostCounselingInformationBodyTypePpmTypePropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, updateMTOPostCounselingInformationBodyTypePpmTypePropEnum, true); err != nil {
 		return err
 	}
 	return nil

@@ -8,14 +8,14 @@ package internalmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // CreatePersonallyProcuredMovePayload create personally procured move payload
+//
 // swagger:model CreatePersonallyProcuredMovePayload
 type CreatePersonallyProcuredMovePayload struct {
 
@@ -241,7 +241,7 @@ const (
 
 // prop value enum
 func (m *CreatePersonallyProcuredMovePayload) validateHasProGearEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, createPersonallyProcuredMovePayloadTypeHasProGearPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, createPersonallyProcuredMovePayloadTypeHasProGearPropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -287,7 +287,7 @@ const (
 
 // prop value enum
 func (m *CreatePersonallyProcuredMovePayload) validateHasProGearOverThousandEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, createPersonallyProcuredMovePayloadTypeHasProGearOverThousandPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, createPersonallyProcuredMovePayloadTypeHasProGearOverThousandPropEnum, true); err != nil {
 		return err
 	}
 	return nil

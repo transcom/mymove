@@ -8,13 +8,13 @@ package internalmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
 // SignedCertificationType signed certification type
+//
 // swagger:model SignedCertificationType
 type SignedCertificationType string
 
@@ -47,7 +47,7 @@ func init() {
 }
 
 func (m SignedCertificationType) validateSignedCertificationTypeEnum(path, location string, value SignedCertificationType) error {
-	if err := validate.Enum(path, location, value, signedCertificationTypeEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, signedCertificationTypeEnum, true); err != nil {
 		return err
 	}
 	return nil

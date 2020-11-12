@@ -8,7 +8,7 @@ package certification
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // CreateSignedCertificationHandlerFunc turns a function with the right signature into a create signed certification handler

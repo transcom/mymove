@@ -8,7 +8,7 @@ package transportation_offices
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // ShowDutyStationTransportationOfficeHandlerFunc turns a function with the right signature into a show duty station transportation office handler

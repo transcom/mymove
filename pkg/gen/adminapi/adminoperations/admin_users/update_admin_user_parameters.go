@@ -12,11 +12,10 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	adminmessages "github.com/transcom/mymove/pkg/gen/adminmessages"
+	"github.com/transcom/mymove/pkg/gen/adminmessages"
 )
 
 // NewUpdateAdminUserParams creates a new UpdateAdminUserParams object
@@ -61,7 +60,7 @@ func (o *UpdateAdminUserParams) BindRequest(r *http.Request, route *middleware.M
 		var body adminmessages.AdminUserUpdatePayload
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
-				res = append(res, errors.Required("adminUser", "body"))
+				res = append(res, errors.Required("adminUser", "body", ""))
 			} else {
 				res = append(res, errors.NewParseError("adminUser", "body", "", err))
 			}
@@ -76,7 +75,7 @@ func (o *UpdateAdminUserParams) BindRequest(r *http.Request, route *middleware.M
 			}
 		}
 	} else {
-		res = append(res, errors.Required("adminUser", "body"))
+		res = append(res, errors.Required("adminUser", "body", ""))
 	}
 	rAdminUserID, rhkAdminUserID, _ := route.Params.GetOK("adminUserId")
 	if err := o.bindAdminUserID(rAdminUserID, rhkAdminUserID, route.Formats); err != nil {
