@@ -45,16 +45,24 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
 		InnerJoin("duty_stations", "duty_stations.id = orders.origin_duty_station_id").
 		InnerJoin("transportation_offices", "transportation_offices.id = duty_stations.transportation_office_id").
-		Where("transportation_offices.gbloc = ?", gbloc).Order("status asc")
+		Order("status asc")
 
 	branchQuery := branchFilter(params.Branch)
+	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
+	// We also only want to do the gbloc filtering thing if we aren't a USMC user, which we cover with the else.
+	var gblocQuery FilterOption
+	if gbloc == "USMC" {
+		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)))
+	} else {
+		gblocQuery = gblocFilter(gbloc)
+	}
 	moveIDQuery := moveIDFilter(params.MoveID)
 	dodIDQuery := dodIDFilter(params.DodID)
 	lastNameQuery := lastNameFilter(params.LastName)
 	dutyStationQuery := destinationDutyStationFilter(params.DestinationDutyStation)
 	statusQuery := paymentRequestsStatusFilter(params.Status)
 	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
-	options := [7]FilterOption{branchQuery, moveIDQuery, dodIDQuery, lastNameQuery, dutyStationQuery, statusQuery, submittedAtQuery}
+	options := [8]FilterOption{branchQuery, moveIDQuery, dodIDQuery, lastNameQuery, dutyStationQuery, statusQuery, submittedAtQuery, gblocQuery}
 
 	for _, option := range options {
 		if option != nil {
@@ -145,7 +153,12 @@ func submittedAtFilter(submittedAt *string) FilterOption {
 	}
 }
 
-// statusFilter filters the status after the pop query call.
+func gblocFilter(gbloc string) FilterOption {
+	return func(query *pop.Query) {
+		query = query.Where("transportation_offices.gbloc = ?", gbloc)
+	}
+}
+
 func paymentRequestsStatusFilter(statuses []string) FilterOption {
 	return func(query *pop.Query) {
 		var translatedStatuses []string
