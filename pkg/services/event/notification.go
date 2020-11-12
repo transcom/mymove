@@ -215,12 +215,6 @@ func objectEventHandler(event *Event, modelBeingUpdated interface{}) (bool, erro
 		return false, nil
 	}
 
-	// CHECK IF MOVE ID IS NIL
-	// If moveID (mto ID) is nil, then return false, nil
-	if event.MtoID == uuid.Nil {
-		return false, nil
-	}
-
 	// CHECK FOR AVAILABILITY TO PRIME
 	// Continue only if MTO is available to Prime
 	if isAvailableToPrime, err := checkAvailabilityToPrime(event); !isAvailableToPrime {
@@ -260,27 +254,30 @@ func objectEventHandler(event *Event, modelBeingUpdated interface{}) (bool, erro
 	return true, nil
 }
 
-// func ordersEventHandler(event *Event, modelBeingUpdated interface{}) (bool, error) {
-// 	// CHECK SOURCE
-// 	// Continue only if source of event is not Prime
-// 	if isSourcePrime(event) {
-// 		return false, nil
-// 	}
+// The purpose of this function is to handle order specific events.
 
-// 	// CHECK IF MOVE ID IS NIL
-// 	// If moveID (mto ID) is nil, then return false, nil
-// 	if event.MtoID == uuid.Nil {
-// 		return false, nil
-// 	}
+func orderEventHandler(event *Event, modelBeingUpdated interface{}) (bool, error) {
+	fmt.Printf("\n\n LOOK HERE \n\n ")
+	// CHECK SOURCE
+	// Continue only if source of event is not Prime
+	if isSourcePrime(event) {
+		return false, nil
+	}
 
-// 	// CHECK FOR AVAILABILITY TO PRIME
-// 	// Continue only if MTO is available to Prime
-// 	if isAvailableToPrime, _ := checkAvailabilityToPrime(event); !isAvailableToPrime {
-// 		return false, nil
-// 	}
+	// CHECK IF MOVE ID IS NIL
+	// If moveID (mto ID) is nil, then return false, nil
+	if event.MtoID == uuid.Nil {
+		return false, nil
+	}
 
-// 	return true, nil
-// }
+	// CHECK FOR AVAILABILITY TO PRIME
+	// Continue only if MTO is available to Prime
+	if isAvailableToPrime, _ := checkAvailabilityToPrime(event); !isAvailableToPrime {
+		return false, nil
+	}
+
+	return true, nil
+}
 
 // NotificationEventHandler receives notifications from the events package
 // For alerting ALL errors should be logged here.
@@ -293,9 +290,14 @@ func NotificationEventHandler(event *Event) error {
 		return err
 	}
 
-	// Call the default handler
-	// if the event is Orders.Update then call ordersEventHandler
-	stored, err := objectEventHandler(event, modelBeingUpdated)
+	// Call the object specific handler if it exists else call the default
+	stored := false
+	switch modelBeingUpdated.(type) {
+	case models.Order:
+		stored, err = orderEventHandler(event, modelBeingUpdated)
+	default:
+		stored, err = objectEventHandler(event, modelBeingUpdated)
+	}
 
 	// Log what happened.
 	if err != nil {
