@@ -13,7 +13,8 @@ import CustomerInfoTable from './CustomerInfoTable';
 import ShipmentContainer from './ShipmentContainer';
 import ShipmentServiceItemsTable from './ShipmentServiceItemsTable/ShipmentServiceItemsTable';
 
-import { ReactComponent as XHeavyIcon } from 'shared/icon/x-heavy.svg';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes as XIcon } from '@fortawesome/free-solid-svg-icons';
 
 const ShipmentApprovalPreview = ({
   mtoShipments,
@@ -47,7 +48,7 @@ const ShipmentApprovalPreview = ({
                 className={classNames(styles.approvalClose, 'usa-button--unstyled')}
                 data-testid="closeShipmentApproval"
               >
-                <XHeavyIcon />
+                <FontAwesomeIcon icon={ XIcon } title="Close modal" aria-label="Close modal" />
               </button>
             </div>
             <h2>Preview and post move task order</h2>
