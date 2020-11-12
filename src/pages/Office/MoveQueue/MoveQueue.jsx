@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { withRouter } from 'react-router-dom';
 import { GridContainer } from '@trussworks/react-uswds';
-import { useTable, useFilters } from 'react-table';
+import { useTable, useFilters, usePagination } from 'react-table';
 
 import styles from './MoveQueue.module.scss';
 
@@ -77,12 +77,15 @@ const columns = [
 
 const MoveQueue = ({ history }) => {
   const [paramFilters, setParamFilters] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPageSize, setCurrentPageSize] = useState(20);
+  const [pageCount, setPageCount] = React.useState(0);
 
   const {
-    queueMovesResult: { totalCount = 0, queueMoves = [] },
+    queueMovesResult: { totalCount = 0, queueMoves = [], page = 1, perPage = 20 },
     isLoading,
     isError,
-  } = useMovesQueueQueries(paramFilters);
+  } = useMovesQueueQueries({ filters: paramFilters, currentPage, currentPageSize });
 
   // react-table setup below
 
@@ -101,24 +104,38 @@ const MoveQueue = ({ history }) => {
     headerGroups,
     rows,
     prepareRow,
-    state: { filters },
+    canPreviousPage,
+    canNextPage,
+    gotoPage,
+    pageOptions,
+    previousPage,
+    nextPage,
+    setPageSize,
+    state: { filters, pageIndex, pageSize },
   } = useTable(
     {
       columns: tableColumns,
       data: tableData,
-      initialState: { hiddenColumns: ['id'] },
+      initialState: { hiddenColumns: ['id'], pageSize: perPage, pageIndex: page - 1 },
       defaultColumn, // Be sure to pass the defaultColumn option
       manualFilters: true,
+      showPagination: true,
+      manualPagination: true,
+      pageCount,
     },
     useFilters,
+    usePagination,
   );
 
   // When these table states change, fetch new data!
   useEffect(() => {
     if (!isLoading && !isError) {
       setParamFilters(filters);
+      setCurrentPage(pageIndex + 1);
+      setCurrentPageSize(pageSize);
+      setPageCount(Math.ceil(totalCount / pageSize));
     }
-  }, [filters, isLoading, isError]);
+  }, [filters, pageIndex, pageSize, isLoading, isError, totalCount]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -133,11 +150,22 @@ const MoveQueue = ({ history }) => {
       <div className={styles.tableContainer}>
         <Table
           handleClick={handleClick}
+          gotoPage={gotoPage}
+          setPageSize={setPageSize}
+          nextPage={nextPage}
+          previousPage={previousPage}
           getTableProps={getTableProps}
           getTableBodyProps={getTableBodyProps}
           headerGroups={headerGroups}
           rows={rows}
           prepareRow={prepareRow}
+          showPagination
+          canPreviousPage={canPreviousPage}
+          canNextPage={canNextPage}
+          pageIndex={pageIndex}
+          pageSize={pageSize}
+          pageCount={pageCount}
+          pageOptions={pageOptions}
         />
       </div>
     </GridContainer>
