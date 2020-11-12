@@ -27,11 +27,11 @@ const DocViewerContent = ({ fileType, filePath }) => (
         return (
           <div className={styles.controls}>
             <Button type="button" unstyled onClick={handleZoomOut}>
-              <FontAwesomeIcon icon={ZoomOut} title="Zoom out"/>
+              <FontAwesomeIcon icon={ZoomOut} title="Zoom out" aria-label="Zoom out"/>
               Zoom out
             </Button>
             <Button type="button" unstyled onClick={handleZoomIn}>
-              <FontAwesomeIcon icon={ZoomIn} title="Zoom in"/>
+              <FontAwesomeIcon icon={ZoomIn} title="Zoom in" aria-label="Zoom in"/>
               Zoom in
             </Button>
           </div>
