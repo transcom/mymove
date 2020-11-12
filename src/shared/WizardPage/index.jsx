@@ -12,12 +12,6 @@ import './index.css';
 
 import { getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage, beforeTransition } from './utils';
 
-/**
- * TODO:
- * - verify next/previous actions
- * - style buttons - WIP need design input
- */
-
 export class WizardPage extends Component {
   constructor(props) {
     super(props);
