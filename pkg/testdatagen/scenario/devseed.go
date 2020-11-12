@@ -2203,4 +2203,10 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 		assertions9,
 	)
 
+	// Create one webhook subscription for PaymentRequestUpdate
+	testdatagen.MakeWebhookSubscription(db, testdatagen.Assertions{
+		WebhookSubscription: models.WebhookSubscription{
+			CallbackURL: "https://primelocal:9443/support/v1/webhook-notify",
+		},
+	})
 }
