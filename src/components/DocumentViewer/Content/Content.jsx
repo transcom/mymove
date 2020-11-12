@@ -2,13 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import FileViewer from '@trussworks/react-file-viewer';
 import { Button } from '@trussworks/react-uswds';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSearchPlus as ZoomIn, faSearchMinus as ZoomOut } from '@fortawesome/free-solid-svg-icons';
 
 import styles from './Content.module.scss';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-faSearchPlus as ZoomIn,
-  faSearchMinus as ZoomOut
-  } from '@fortawesome/free-solid-svg-icons';
 // TODO
 /*
 import { ReactComponent as RotateLeft } from 'shared/icon/rotate-counter-clockwise.svg';
@@ -27,11 +24,11 @@ const DocViewerContent = ({ fileType, filePath }) => (
         return (
           <div className={styles.controls}>
             <Button type="button" unstyled onClick={handleZoomOut}>
-              <FontAwesomeIcon icon={ZoomOut} title="Zoom out" aria-label="Zoom out"/>
+              <FontAwesomeIcon icon={ZoomOut} title="Zoom out" aria-label="Zoom out" />
               Zoom out
             </Button>
             <Button type="button" unstyled onClick={handleZoomIn}>
-              <FontAwesomeIcon icon={ZoomIn} title="Zoom in" aria-label="Zoom in"/>
+              <FontAwesomeIcon icon={ZoomIn} title="Zoom in" aria-label="Zoom in" />
               Zoom in
             </Button>
           </div>
