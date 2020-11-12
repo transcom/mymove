@@ -13,7 +13,6 @@ import (
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
@@ -22,21 +21,14 @@ import (
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
-// E2eBasicScenario builds a basic set of data for e2e testing
-type e2eBasicScenario NamedScenario
+// devSeedScenario builds a basic set of data for e2e testing
+type devSeedScenario NamedScenario
 
-// E2eBasicScenario Is the thing
-var E2eBasicScenario = e2eBasicScenario{"e2e_basic"}
-
-// Often weekends and holidays are not allowable dates
-var cal = dates.NewUSCalendar()
-var nextValidMoveDate = dates.NextValidMoveDate(time.Now(), cal)
-
-var nextValidMoveDatePlusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, 10), cal)
-var nextValidMoveDateMinusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -10), cal)
+// DevSeedScenario Is the thing
+var DevSeedScenario = devSeedScenario{"dev_seed"}
 
 // Run does that data load thing
-func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger, storer *storage.Filesystem) {
+func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger, storer *storage.Filesystem) {
 	/*
 	 * Basic user with office access
 	 */
@@ -2129,4 +2121,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 		},
 	})
 
+	// Create one webhook subscription for PaymentRequestUpdate
+	testdatagen.MakeWebhookSubscription(db, testdatagen.Assertions{
+		WebhookSubscription: models.WebhookSubscription{
+			CallbackURL: "https://primelocal:9443/support/v1/webhook-notify",
+		},
+	})
 }

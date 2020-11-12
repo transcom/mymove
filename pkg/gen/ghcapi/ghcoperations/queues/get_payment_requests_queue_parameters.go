@@ -53,6 +53,14 @@ type GetPaymentRequestsQueueParams struct {
 	  In: query
 	*/
 	MoveID *string
+	/*requested page of results
+	  In: query
+	*/
+	Page *int64
+	/*number of records to include per page
+	  In: query
+	*/
+	PerPage *int64
 	/*Filtering for the status.
 	  Unique: true
 	  In: query
@@ -97,6 +105,16 @@ func (o *GetPaymentRequestsQueueParams) BindRequest(r *http.Request, route *midd
 
 	qMoveID, qhkMoveID, _ := qs.GetOK("moveID")
 	if err := o.bindMoveID(qMoveID, qhkMoveID, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qPage, qhkPage, _ := qs.GetOK("page")
+	if err := o.bindPage(qPage, qhkPage, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qPerPage, qhkPerPage, _ := qs.GetOK("perPage")
+	if err := o.bindPerPage(qPerPage, qhkPerPage, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -202,6 +220,50 @@ func (o *GetPaymentRequestsQueueParams) bindMoveID(rawData []string, hasKey bool
 	}
 
 	o.MoveID = &raw
+
+	return nil
+}
+
+// bindPage binds and validates parameter Page from query.
+func (o *GetPaymentRequestsQueueParams) bindPage(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	value, err := swag.ConvertInt64(raw)
+	if err != nil {
+		return errors.InvalidType("page", "query", "int64", raw)
+	}
+	o.Page = &value
+
+	return nil
+}
+
+// bindPerPage binds and validates parameter PerPage from query.
+func (o *GetPaymentRequestsQueueParams) bindPerPage(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	value, err := swag.ConvertInt64(raw)
+	if err != nil {
+		return errors.InvalidType("perPage", "query", "int64", raw)
+	}
+	o.PerPage = &value
 
 	return nil
 }
