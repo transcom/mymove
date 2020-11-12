@@ -15,7 +15,8 @@ import PaymentReviewed from './PaymentReviewed';
 import Alert from 'shared/Alert';
 import { ServiceItemCardsShape } from 'types/serviceItemCard';
 import { PAYMENT_SERVICE_ITEM_STATUS, PAYMENT_REQUEST_STATUS } from 'shared/constants';
-import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes as CloseIcon } from '@fortawesome/free-solid-svg-icons';
 import { toDollarString } from 'shared/formatters';
 import { PaymentRequestShape } from 'types/index';
 
@@ -118,7 +119,7 @@ const ReviewServiceItems = ({
       <div data-testid="ReviewServiceItems" className={styles.ReviewServiceItems}>
         <div className={styles.top}>
           <Button data-testid="closeSidebar" type="button" onClick={handleClose} unstyled>
-            <XLightIcon />
+            <FontAwesomeIcon icon={ CloseIcon } title=“Close sidebar” aria-label=“Close sidebar” />
           </Button>
           <h2 className={styles.header}>Complete request</h2>
         </div>
