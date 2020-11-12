@@ -9,6 +9,8 @@ import styles from './Table.module.scss';
 
 const Table = ({
   handleClick,
+  showFilters,
+  showPagination,
   getTableProps,
   getTableBodyProps,
   headerGroups,
@@ -16,7 +18,7 @@ const Table = ({
   prepareRow,
   canPreviousPage,
   canNextPage,
-  showPagination,
+
   pageSize,
   nextPage,
   previousPage,
@@ -40,14 +42,16 @@ const Table = ({
                   </th>
                 ))}
               </tr>
-              <tr className={styles.tableHeaderFilters} key={`headerGroupFilters${hgIndex}`}>
-                {headerGroup.headers.map((column, headerIndex) => (
-                  <th key={`headerFilter${headerIndex}`} data-testid={column.id}>
-                    {/* isFilterable is a custom prop that can be set in the Column object */}
-                    <div>{column.isFilterable ? column.render('Filter') : null}</div>
-                  </th>
-                ))}
-              </tr>
+              {showFilters && (
+                <tr className={styles.tableHeaderFilters} key={`headerGroupFilters${hgIndex}`}>
+                  {headerGroup.headers.map((column, headerIndex) => (
+                    <th key={`headerFilter${headerIndex}`} data-testid={column.id}>
+                      {/* isFilterable is a custom prop that can be set in the Column object */}
+                      <div>{column.isFilterable ? column.render('Filter') : null}</div>
+                    </th>
+                  ))}
+                </tr>
+              )}
             </Fragment>
           ))}
         </thead>
@@ -122,6 +126,8 @@ const Table = ({
 
 Table.propTypes = {
   handleClick: PropTypes.func,
+  showFilters: PropTypes.bool,
+  showPagination: PropTypes.bool,
   previousPage: PropTypes.func,
   nextPage: PropTypes.func,
   setPageSize: PropTypes.func,
@@ -132,7 +138,6 @@ Table.propTypes = {
   headerGroups: PropTypes.arrayOf(PropTypes.object).isRequired,
   rows: PropTypes.arrayOf(PropTypes.object).isRequired,
   prepareRow: PropTypes.func.isRequired,
-  showPagination: PropTypes.bool,
   canPreviousPage: PropTypes.bool,
   canNextPage: PropTypes.bool,
   pageCount: PropTypes.number,
@@ -144,6 +149,7 @@ Table.propTypes = {
 
 Table.defaultProps = {
   handleClick: undefined,
+  showFilters: false,
   showPagination: false,
   canPreviousPage: undefined,
   previousPage: undefined,
