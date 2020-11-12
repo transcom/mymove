@@ -10656,6 +10656,17 @@ func init() {
         }
       }
     },
+    "ExpenseSummaryPayloadGrandTotal": {
+      "type": "object",
+      "properties": {
+        "payment_method_totals": {
+          "$ref": "#/definitions/PaymentMethodsTotals"
+        },
+        "total": {
+          "type": "integer"
+        }
+      }
+    },
     "IndexEntitlements": {
       "type": "object",
       "additionalProperties": {
@@ -12969,7 +12980,7 @@ func init() {
           "$ref": "#/definitions/ClientError"
         },
         {
-          "type": "object"
+          "$ref": "#/definitions/ValidationErrorAllOf1"
         }
       ],
       "properties": {
@@ -12984,6 +12995,9 @@ func init() {
           }
         }
       }
+    },
+    "ValidationErrorAllOf1": {
+      "type": "object"
     },
     "WeightAllotment": {
       "type": "object",

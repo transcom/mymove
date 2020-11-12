@@ -12,11 +12,10 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	ghcmessages "github.com/transcom/mymove/pkg/gen/ghcmessages"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 )
 
 // NewUpdateMoveTaskOrderStatusParams creates a new UpdateMoveTaskOrderStatusParams object
@@ -75,7 +74,7 @@ func (o *UpdateMoveTaskOrderStatusParams) BindRequest(r *http.Request, route *mi
 		var body ghcmessages.MTOApprovalServiceItemCodes
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
-				res = append(res, errors.Required("serviceItemCodes", "body"))
+				res = append(res, errors.Required("serviceItemCodes", "body", ""))
 			} else {
 				res = append(res, errors.NewParseError("serviceItemCodes", "body", "", err))
 			}
@@ -90,7 +89,7 @@ func (o *UpdateMoveTaskOrderStatusParams) BindRequest(r *http.Request, route *mi
 			}
 		}
 	} else {
-		res = append(res, errors.Required("serviceItemCodes", "body"))
+		res = append(res, errors.Required("serviceItemCodes", "body", ""))
 	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
@@ -101,7 +100,7 @@ func (o *UpdateMoveTaskOrderStatusParams) BindRequest(r *http.Request, route *mi
 // bindIfMatch binds and validates parameter IfMatch from header.
 func (o *UpdateMoveTaskOrderStatusParams) bindIfMatch(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
-		return errors.Required("If-Match", "header")
+		return errors.Required("If-Match", "header", rawData)
 	}
 	var raw string
 	if len(rawData) > 0 {

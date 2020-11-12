@@ -8,13 +8,13 @@ package internalmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
 // MethodOfReceipt Method of Receipt
+//
 // swagger:model MethodOfReceipt
 type MethodOfReceipt string
 
@@ -44,7 +44,7 @@ func init() {
 }
 
 func (m MethodOfReceipt) validateMethodOfReceiptEnum(path, location string, value MethodOfReceipt) error {
-	if err := validate.Enum(path, location, value, methodOfReceiptEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, methodOfReceiptEnum, true); err != nil {
 		return err
 	}
 	return nil

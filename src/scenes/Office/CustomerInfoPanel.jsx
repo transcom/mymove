@@ -19,7 +19,7 @@ import { getRequestStatus } from 'shared/Swagger/selectors';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPhone } from '@fortawesome/free-solid-svg-icons/faPhone';
-import { faEmail } from '@fortawesome/free-solid-svg-icons/faEnvelope';
+import { faEnvelope } from '@fortawesome/free-solid-svg-icons/faEnvelope';
 
 const CustomerInfoDisplay = (props) => {
   const fieldProps = {
@@ -52,7 +52,7 @@ const CustomerInfoDisplay = (props) => {
           )}
           {values.email_is_preferred && (
             <span>
-              <FontAwesomeIcon icon={faEmail} />
+              <FontAwesomeIcon icon={faEnvelope} />
               email
             </span>
           )}

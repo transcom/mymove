@@ -8,13 +8,13 @@ package primemessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
 // MTOShipmentType Shipment Type
+//
 // swagger:model MTOShipmentType
 type MTOShipmentType string
 
@@ -44,7 +44,7 @@ func init() {
 }
 
 func (m MTOShipmentType) validateMTOShipmentTypeEnum(path, location string, value MTOShipmentType) error {
-	if err := validate.Enum(path, location, value, mTOShipmentTypeEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, mTOShipmentTypeEnum, true); err != nil {
 		return err
 	}
 	return nil

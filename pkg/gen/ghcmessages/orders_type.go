@@ -8,13 +8,13 @@ package ghcmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
 // OrdersType Orders type
+//
 // swagger:model OrdersType
 type OrdersType string
 
@@ -44,7 +44,7 @@ func init() {
 }
 
 func (m OrdersType) validateOrdersTypeEnum(path, location string, value OrdersType) error {
-	if err := validate.Enum(path, location, value, ordersTypeEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, ordersTypeEnum, true); err != nil {
 		return err
 	}
 	return nil

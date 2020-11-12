@@ -277,13 +277,13 @@ function officeUserVerifiesPPM() {
   // Approve advance
   cy.get('.payment-table').within(() => {
     // Verify the status icon
-    cy.get('td svg:first').should('have.attr', 'title').and('eq', 'Awaiting Review');
+    cy.get('td svg:first').contains('Awaiting Review');
     // Verify the approve checkmark
-    cy.get('td svg:last').should('have.attr', 'title').and('eq', 'Approve');
+    cy.get('td svg:last').contains('Approve');
 
     // Approve advance and verify icon change
     cy.get('td svg:last').click();
-    cy.get('td svg:first').should('have.attr', 'title').and('eq', 'Approved');
+    cy.get('td svg:first').contains('Approved');
   });
 }
 

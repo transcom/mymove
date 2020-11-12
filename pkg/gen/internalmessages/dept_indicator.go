@@ -8,13 +8,13 @@ package internalmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
 // DeptIndicator Dept. indicator
+//
 // swagger:model DeptIndicator
 type DeptIndicator string
 
@@ -47,7 +47,7 @@ func init() {
 }
 
 func (m DeptIndicator) validateDeptIndicatorEnum(path, location string, value DeptIndicator) error {
-	if err := validate.Enum(path, location, value, deptIndicatorEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, deptIndicatorEnum, true); err != nil {
 		return err
 	}
 	return nil

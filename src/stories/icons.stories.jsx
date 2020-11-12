@@ -26,6 +26,15 @@ import {
   faPlayCircle,
   faPlusSquare,
   faCheckCircle as fasCheckCircle,
+  faSort,
+  faBan,
+  faExclamationCircle,
+  faEnvelope,
+  faExternalLinkAlt,
+  faMinusSquare,
+  faSyncAlt,
+  faSpinner,
+  faCaretDown,
 } from '@fortawesome/free-solid-svg-icons';
 import { faTimesCircle, faCalendar, faCheckCircle as farCheckCircle } from '@fortawesome/free-regular-svg-icons';
 
@@ -156,6 +165,42 @@ export const all = () => (
       <div>
         <FontAwesomeIcon icon={faPlusSquare} />
         <code>plus square | faPlusSquare</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faSort} />
+        <code>sort | faSort</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faBan} />
+        <code>ban | faBan</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faExclamationCircle} />
+        <code>exclamation circle | faExclamationCircle</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faEnvelope} />
+        <code>envelope | faEnvelope</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faExternalLinkAlt} />
+        <code>external link (alt) | faExternalLinkAlt</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faMinusSquare} />
+        <code>minus square | faMinusSquare</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faSyncAlt} />
+        <code>sync (alt) | faSyncAlt</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faSpinner} />
+        <code>spinner | faSpinner</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faCaretDown} />
+        <code>caret down | faCaretDown</code>
       </div>
       <div>
         <ExternalLink />
