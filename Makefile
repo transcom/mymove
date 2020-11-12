@@ -852,6 +852,9 @@ run_prd_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud prd
 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
 	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
 	DB_DEBUG=0 \
+	DISABLE_AWS_VAULT_WRAPPER=1 \
+	AWS_REGION=us-gov-west-1 \
+	aws-vault exec transcom-gov-milmove-prd \
 	bin/milmove migrate
 
 .PHONY: run_stg_migrations
@@ -862,6 +865,9 @@ run_stg_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud stg
 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
 	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
 	DB_DEBUG=0 \
+	DISABLE_AWS_VAULT_WRAPPER=1 \
+	AWS_REGION=us-gov-west-1 \
+	aws-vault exec transcom-gov-milmove-stg \
 	bin/milmove migrate
 
 .PHONY: run_exp_migrations
@@ -872,6 +878,9 @@ run_exp_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud exp
 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
 	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
 	DB_DEBUG=0 \
+	DISABLE_AWS_VAULT_WRAPPER=1 \
+	AWS_REGION=us-gov-west-1 \
+	aws-vault exec transcom-gov-milmove-exp \
 	bin/milmove migrate
 
 #
