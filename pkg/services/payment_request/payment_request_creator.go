@@ -238,6 +238,10 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 	if serviceMember.FirstName == nil || *serviceMember.FirstName == "" {
 		return nil, services.NewConflictError(moveTaskOrder.Orders.ServiceMemberID, fmt.Sprintf("ServiceMember on MoveTaskOrder (ID: %s) missing First Name", moveTaskOrder.ID))
 	}
+	// Verify Last Name
+	if serviceMember.LastName == nil || *serviceMember.LastName == "" {
+		return nil, services.NewConflictError(moveTaskOrder.Orders.ServiceMemberID, fmt.Sprintf("ServiceMember on MoveTaskOrder (ID: %s) missing Last Name", moveTaskOrder.ID))
+	}
 
 	// Update PaymentRequest
 	paymentRequest.MoveTaskOrder = moveTaskOrder

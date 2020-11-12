@@ -449,6 +449,41 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing First Name", mtoInvalidOrders.Orders.ServiceMemberID, mtoInvalidOrders.ID), err.Error())
 	})
 
+	suite.T().Run("Given move with service member that has no Last Name, the create should fail", func(t *testing.T) {
+		mtoInvalidOrders := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		sm := mtoInvalidOrders.Orders.ServiceMember
+		sm.LastName = nil
+		err := suite.DB().Update(&sm)
+		suite.FatalNoError(err)
+		paymentRequest := models.PaymentRequest{
+			MoveTaskOrderID: mtoInvalidOrders.ID,
+		}
+		_, err = creator.CreatePaymentRequest(&paymentRequest)
+
+		suite.Error(err)
+		_, ok := err.(services.ConflictError)
+		suite.Equal(true, ok)
+		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Last Name", mtoInvalidOrders.Orders.ServiceMemberID, mtoInvalidOrders.ID), err.Error())
+	})
+
+	suite.T().Run("Given move with service member that has blank Last Name, the create should fail", func(t *testing.T) {
+		mtoInvalidOrders := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		sm := mtoInvalidOrders.Orders.ServiceMember
+		blankStr := ""
+		sm.LastName = &blankStr
+		err := suite.DB().Update(&sm)
+		suite.FatalNoError(err)
+		paymentRequest := models.PaymentRequest{
+			MoveTaskOrderID: mtoInvalidOrders.ID,
+		}
+		_, err = creator.CreatePaymentRequest(&paymentRequest)
+
+		suite.Error(err)
+		_, ok := err.(services.ConflictError)
+		suite.Equal(true, ok)
+		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Last Name", mtoInvalidOrders.Orders.ServiceMemberID, mtoInvalidOrders.ID), err.Error())
+	})
+
 	suite.T().Run("Given a non-existent service item id, the create should fail", func(t *testing.T) {
 		badID, _ := uuid.FromString("0aee14dd-b5ea-441a-89ad-db4439fa4ea2")
 		invalidPaymentRequest := models.PaymentRequest{
