@@ -116,6 +116,14 @@ func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(moveTaskOrderID uuid.UUI
 		return nil, services.NewNotFoundError(moveTaskOrderID, "while looking for moveTaskOrder.")
 	}
 
+	err = o.db.Q().Eager(
+		"Orders.NewDutyStation.Address",
+		"Orders.ServiceMember").Find(&moveTaskOrder, moveTaskOrderID)
+
+	if err != nil {
+		return nil, services.NewNotFoundError(moveTaskOrderID, "while looking for moveTaskOrder.")
+	}
+
 	estimatedWeight := unit.Pound(body.PpmEstimatedWeight)
 	moveTaskOrder.PPMType = &body.PpmType
 	moveTaskOrder.PPMEstimatedWeight = &estimatedWeight
