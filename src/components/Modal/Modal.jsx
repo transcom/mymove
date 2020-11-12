@@ -7,7 +7,8 @@ import { Modal as USWDSModal, connectModal as connectUSWDSModal, Button } from '
 
 import styles from './Modal.module.scss';
 
-import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes as CloseIcon } from '@fortawesome/free-solid-svg-icons';
 
 const Modal = ({ className, ...props }) => {
   const classes = classnames(styles.Modal, className);
@@ -61,7 +62,7 @@ export const ModalClose = ({ handleClick, className, ...buttonProps }) => (
     data-testid="modalCloseButton"
     {...buttonProps}
   >
-    <XLightIcon />
+    <FontAwesomeIcon icon={ CloseIcon } title=“Close modal” aria-label=“Close modal” />
   </Button>
 );
 
