@@ -1,7 +1,7 @@
 import React from 'react';
 import { bool, shape, string, func, number } from 'prop-types';
 import { Field } from 'formik';
-import { Button, Fieldset, Radio, Checkbox, Alert, FormGroup, Label, Textarea } from '@trussworks/react-uswds';
+import { Fieldset, Radio, Checkbox, Alert, FormGroup, Label, Textarea } from '@trussworks/react-uswds';
 
 import styles from './MtoShipmentForm.module.scss';
 
@@ -17,6 +17,7 @@ import { MtoShipmentFormValuesShape } from 'types/customerShapes';
 import { validateDate } from 'utils/formikValidators';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import SectionWrapper from 'components/Customer/SectionWrapper';
+import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 
 const MtoShipmentFormFields = ({
   // formik data
@@ -253,16 +254,12 @@ const MtoShipmentFormFields = ({
 
         {!isCreatePage && (
           <div className={styles.formActions}>
-            <Button
-              type="submit"
-              disabled={isSubmitting || (!isValid && !dirty) || (isValid && !dirty)}
-              onClick={() => submitHandler(values)}
-            >
-              Save
-            </Button>
-            <Button type="button" className={styles.cancelButton} onClick={history.goBack}>
-              Cancel
-            </Button>
+            <WizardNavigation
+              disableNext={isSubmitting || (!isValid && !dirty) || (isValid && !dirty)}
+              editMode
+              onNextClick={() => submitHandler(values)}
+              onBackClick={history.goBack}
+            />
           </div>
         )}
       </Form>

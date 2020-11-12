@@ -5,7 +5,8 @@
   display: flex;
   flex-wrap: wrap;
 
-  button {
+  button,
+  :global(.usa-button) {
     // Reset button margins
     margin: 0;
     flex-grow: 1;
