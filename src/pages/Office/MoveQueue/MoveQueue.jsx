@@ -73,7 +73,16 @@ const MoveQueue = ({ history }) => {
     history.push(`/moves/${values.id}/details`);
   };
 
-  return <TableQueue columns={columns} title="All moves" handleClick={handleClick} useQueries={useMovesQueueQueries} />;
+  return (
+    <TableQueue
+      showFilters
+      showPagination
+      columns={columns}
+      title="All moves"
+      handleClick={handleClick}
+      useQueries={useMovesQueueQueries}
+    />
+  );
 };
 
 MoveQueue.propTypes = {

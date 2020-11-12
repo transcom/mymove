@@ -101,6 +101,8 @@ const PaymentRequestQueue = ({ history }) => {
 
   return (
     <TableQueue
+      showFilters
+      showPagination
       columns={columns}
       title="Payment requests"
       handleClick={handleClick}
