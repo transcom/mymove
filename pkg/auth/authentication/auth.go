@@ -647,7 +647,7 @@ var authorizeKnownUser = func(userIdentity *models.UserIdentity, h CallbackHandl
 
 var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session *auth.Session, w http.ResponseWriter, r *http.Request, lURL string) {
 	var officeUser *models.OfficeUser
-	var user models.User
+	var user *models.User
 	var err error
 
 	// Loads the User and Roles associations of the office or admin user
@@ -669,7 +669,7 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
 		}
-		user = officeUser.User
+		user = &officeUser.User
 	}
 
 	var adminUser models.AdminUser
@@ -694,13 +694,17 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
 		}
-		user = adminUser.User
+		user = &adminUser.User
 	}
 
-	err = models.UpdateUser(h.db, &user, openIDUser.UserID)
+	if session.IsMilApp() {
+		user, err = models.CreateUser(h.db, openIDUser.UserID, openIDUser.Email)
+	} else {
+		err = models.UpdateUser(h.db, user, openIDUser.UserID)
+	}
 
 	if err != nil {
-		h.logger.Error("Error updating user", zap.Error(err))
+		h.logger.Error("Error updating/creating user", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
