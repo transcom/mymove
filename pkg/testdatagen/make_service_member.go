@@ -2,6 +2,7 @@ package testdatagen
 
 import (
 	"crypto/rand"
+	"log"
 	"math/big"
 	"strconv"
 
@@ -17,8 +18,10 @@ func randomEdipi() string {
 	high := int64(649999999999)
 	// #nosec G404 TODO needs review
 	randMax := big.NewInt(high - low)
-	randInt, _ := rand.Int(rand.Reader, randMax)
-
+	randInt, err := rand.Int(rand.Reader, randMax)
+	if err != nil {
+		log.Panicf("Failure to generate randomEdipi %v", err)
+	}
 	return strconv.Itoa(int(low + randInt.Int64()))
 }
 

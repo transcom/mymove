@@ -1,9 +1,10 @@
 package testdatagen
 
 import (
+	"crypto/rand"
 	"fmt"
 	"log"
-	"math/rand"
+	"math/big"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
@@ -26,8 +27,13 @@ const defaultPayeeCode = "2708"
 func RandomSCAC() string {
 	b := make([]byte, 4)
 	for i := range b {
-		// #nosec G404 TODO needs review
-		b[i] = alphanumericBytes[rand.Intn(len(alphanumericBytes))]
+		randLen := big.NewInt(int64(len(alphanumericBytes)))
+		randInt, err := rand.Int(rand.Reader, randLen)
+		if err != nil {
+			log.Panicf("failed to create random SCAC %v", err)
+			return ""
+		}
+		b[i] = alphanumericBytes[randInt.Int64()]
 	}
 	return string(b)
 }
