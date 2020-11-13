@@ -45,4 +45,26 @@
   .descriptionExtra {
     @include u-padding-bottom(3);
   }
+
+  .printBtn {
+    padding: 0;
+    justify-content: start;
+    text-decoration: underline;
+  }
+}
+
+.moveSubmittedDescription {
+  a {
+    text-decoration: underline;
+
+    &:visited {
+      color: $link;
+    }
+  }
+}
+
+@media print {
+  .homeContainer {
+    display: none;
+  }
 }
