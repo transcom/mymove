@@ -396,103 +396,125 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		})
 	}
 
-	suite.T().Run("Given move with service member that has no First Name, the create should fail", func(t *testing.T) {
-		mtoInvalidOrders := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
-		sm := mtoInvalidOrders.Orders.ServiceMember
-		sm.FirstName = nil
-		err := suite.DB().Update(&sm)
-		suite.FatalNoError(err)
-		paymentRequest := models.PaymentRequest{
-			MoveTaskOrderID: mtoInvalidOrders.ID,
-		}
-		_, err = creator.CreatePaymentRequest(&paymentRequest)
+	invalidServiceMemberTestData := []struct {
+		TestDescription      string
+		InvalidMove          generateInvalidMove
+		ExpectedError        error
+		ExpectedErrorMessage generateExpectedErrorMessage
+	}{
+		// ServiceMember with no First Name
+		{
+			TestDescription: "Given move with service member that has no First Name, the create should fail",
+			InvalidMove: func() models.Move {
+				mtoInvalid := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+				sm := mtoInvalid.Orders.ServiceMember
+				sm.FirstName = nil
+				err := suite.DB().Update(&sm)
+				suite.FatalNoError(err)
+				return mtoInvalid
+			},
+			ExpectedError: services.ConflictError{},
+			ExpectedErrorMessage: func(serviceMemberID uuid.UUID, mtoID uuid.UUID) string {
+				return fmt.Sprintf("id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing First Name", serviceMemberID, mtoID)
+			},
+		},
+		// ServiceMember with blank First Name
+		{
+			TestDescription: "Given move with service member that has blank First Name, the create should fail",
+			InvalidMove: func() models.Move {
+				mtoInvalid := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+				sm := mtoInvalid.Orders.ServiceMember
+				blankStr := ""
+				sm.FirstName = &blankStr
+				err := suite.DB().Update(&sm)
+				suite.FatalNoError(err)
+				return mtoInvalid
+			},
+			ExpectedError: services.ConflictError{},
+			ExpectedErrorMessage: func(serviceMemberID uuid.UUID, mtoID uuid.UUID) string {
+				return fmt.Sprintf("id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing First Name", serviceMemberID, mtoID)
+			},
+		},
+		// ServiceMember with no Last Name
+		{
+			TestDescription: "Given move with service member that has no Last Name, the create should fail",
+			InvalidMove: func() models.Move {
+				mtoInvalid := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+				sm := mtoInvalid.Orders.ServiceMember
+				sm.LastName = nil
+				err := suite.DB().Update(&sm)
+				suite.FatalNoError(err)
+				return mtoInvalid
+			},
+			ExpectedError: services.ConflictError{},
+			ExpectedErrorMessage: func(serviceMemberID uuid.UUID, mtoID uuid.UUID) string {
+				return fmt.Sprintf("id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Last Name", serviceMemberID, mtoID)
+			},
+		},
+		// ServiceMember with blank Last Name
+		{
+			TestDescription: "Given move with service member that has blank Last Name, the create should fail",
+			InvalidMove: func() models.Move {
+				mtoInvalid := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+				sm := mtoInvalid.Orders.ServiceMember
+				blankStr := ""
+				sm.LastName = &blankStr
+				err := suite.DB().Update(&sm)
+				suite.FatalNoError(err)
+				return mtoInvalid
+			},
+			ExpectedError: services.ConflictError{},
+			ExpectedErrorMessage: func(serviceMemberID uuid.UUID, mtoID uuid.UUID) string {
+				return fmt.Sprintf("id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Last Name", serviceMemberID, mtoID)
+			},
+		},
+		// ServiceMember with no Rank
+		{
+			TestDescription: "Given move with service member that has no Rank, the create should fail",
+			InvalidMove: func() models.Move {
+				mtoInvalid := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+				sm := mtoInvalid.Orders.ServiceMember
+				sm.Rank = nil
+				err := suite.DB().Update(&sm)
+				suite.FatalNoError(err)
+				return mtoInvalid
+			},
+			ExpectedError: services.ConflictError{},
+			ExpectedErrorMessage: func(serviceMemberID uuid.UUID, mtoID uuid.UUID) string {
+				return fmt.Sprintf("id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Rank", serviceMemberID, mtoID)
+			},
+		},
+		// ServiceMember with no Affiliation
+		{
+			TestDescription: "Given move with service member that has no Affiliation, the create should fail",
+			InvalidMove: func() models.Move {
+				mtoInvalid := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+				sm := mtoInvalid.Orders.ServiceMember
+				sm.Affiliation = nil
+				err := suite.DB().Update(&sm)
+				suite.FatalNoError(err)
+				return mtoInvalid
+			},
+			ExpectedError: services.ConflictError{},
+			ExpectedErrorMessage: func(serviceMemberID uuid.UUID, mtoID uuid.UUID) string {
+				return fmt.Sprintf("id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Affiliation", serviceMemberID, mtoID)
+			},
+		},
+	}
 
-		suite.Error(err)
-		suite.IsType(services.ConflictError{}, err)
-		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing First Name", mtoInvalidOrders.Orders.ServiceMemberID, mtoInvalidOrders.ID), err.Error())
-	})
+	for _, testData := range invalidServiceMemberTestData {
+		suite.T().Run(testData.TestDescription, func(t *testing.T) {
+			mtoInvalid := testData.InvalidMove()
+			paymentRequest := models.PaymentRequest{
+				MoveTaskOrderID: mtoInvalid.ID,
+			}
+			_, err := creator.CreatePaymentRequest(&paymentRequest)
 
-	suite.T().Run("Given move with service member that has blank First Name, the create should fail", func(t *testing.T) {
-		mtoInvalidOrders := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
-		sm := mtoInvalidOrders.Orders.ServiceMember
-		blankStr := ""
-		sm.FirstName = &blankStr
-		err := suite.DB().Update(&sm)
-		suite.FatalNoError(err)
-		paymentRequest := models.PaymentRequest{
-			MoveTaskOrderID: mtoInvalidOrders.ID,
-		}
-		_, err = creator.CreatePaymentRequest(&paymentRequest)
-
-		suite.Error(err)
-		suite.IsType(services.ConflictError{}, err)
-		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing First Name", mtoInvalidOrders.Orders.ServiceMemberID, mtoInvalidOrders.ID), err.Error())
-	})
-
-	suite.T().Run("Given move with service member that has no Last Name, the create should fail", func(t *testing.T) {
-		mtoInvalidOrders := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
-		sm := mtoInvalidOrders.Orders.ServiceMember
-		sm.LastName = nil
-		err := suite.DB().Update(&sm)
-		suite.FatalNoError(err)
-		paymentRequest := models.PaymentRequest{
-			MoveTaskOrderID: mtoInvalidOrders.ID,
-		}
-		_, err = creator.CreatePaymentRequest(&paymentRequest)
-
-		suite.Error(err)
-		suite.IsType(services.ConflictError{}, err)
-		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Last Name", mtoInvalidOrders.Orders.ServiceMemberID, mtoInvalidOrders.ID), err.Error())
-	})
-
-	suite.T().Run("Given move with service member that has blank Last Name, the create should fail", func(t *testing.T) {
-		mtoInvalidOrders := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
-		sm := mtoInvalidOrders.Orders.ServiceMember
-		blankStr := ""
-		sm.LastName = &blankStr
-		err := suite.DB().Update(&sm)
-		suite.FatalNoError(err)
-		paymentRequest := models.PaymentRequest{
-			MoveTaskOrderID: mtoInvalidOrders.ID,
-		}
-		_, err = creator.CreatePaymentRequest(&paymentRequest)
-
-		suite.Error(err)
-		suite.IsType(services.ConflictError{}, err)
-		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Last Name", mtoInvalidOrders.Orders.ServiceMemberID, mtoInvalidOrders.ID), err.Error())
-	})
-
-	suite.T().Run("Given move with service member that has no Rank, the create should fail", func(t *testing.T) {
-		mtoInvalidOrders := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
-		sm := mtoInvalidOrders.Orders.ServiceMember
-		sm.Rank = nil
-		err := suite.DB().Update(&sm)
-		suite.FatalNoError(err)
-		paymentRequest := models.PaymentRequest{
-			MoveTaskOrderID: mtoInvalidOrders.ID,
-		}
-		_, err = creator.CreatePaymentRequest(&paymentRequest)
-
-		suite.Error(err)
-		suite.IsType(services.ConflictError{}, err)
-		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Rank", mtoInvalidOrders.Orders.ServiceMemberID, mtoInvalidOrders.ID), err.Error())
-	})
-
-	suite.T().Run("Given move with service member that has no Affiliation, the create should fail", func(t *testing.T) {
-		mtoInvalidOrders := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
-		sm := mtoInvalidOrders.Orders.ServiceMember
-		sm.Affiliation = nil
-		err := suite.DB().Update(&sm)
-		suite.FatalNoError(err)
-		paymentRequest := models.PaymentRequest{
-			MoveTaskOrderID: mtoInvalidOrders.ID,
-		}
-		_, err = creator.CreatePaymentRequest(&paymentRequest)
-
-		suite.Error(err)
-		suite.IsType(services.ConflictError{}, err)
-		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Affiliation", mtoInvalidOrders.Orders.ServiceMemberID, mtoInvalidOrders.ID), err.Error())
-	})
+			suite.Error(err)
+			suite.IsType(testData.ExpectedError, err)
+			suite.Equal(testData.ExpectedErrorMessage(mtoInvalid.Orders.ServiceMemberID, mtoInvalid.ID), err.Error())
+		})
+	}
 
 	suite.T().Run("Given a non-existent service item id, the create should fail", func(t *testing.T) {
 		badID, _ := uuid.FromString("0aee14dd-b5ea-441a-89ad-db4439fa4ea2")
