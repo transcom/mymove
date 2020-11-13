@@ -96,7 +96,7 @@ const Table = ({
               onClick={previousPage}
               disabled={!canPreviousPage}
             >
-              <FontAwesomeIcon className="pagination-icon-left fas fa-chevron-left" icon={faChevronLeft} />
+              <FontAwesomeIcon className={`${styles.paginationIconRight} fas fa-chevron-left`} icon={faChevronLeft} />
               <span>Prev</span>
             </Button>
             <Dropdown
@@ -119,7 +119,7 @@ const Table = ({
               disabled={!canNextPage}
             >
               <span>Next</span>
-              <FontAwesomeIcon className="pagination-icon-right fas fa-chevron-right" icon={faChevronRight} />
+              <FontAwesomeIcon className={`${styles.paginationIconRight} fas fa-chevron-right`} icon={faChevronRight} />
             </Button>
           </div>
         </div>

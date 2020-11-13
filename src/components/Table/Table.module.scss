@@ -78,6 +78,14 @@
         @include u-margin-x(0);
         @include u-margin-bottom(0);
 
+        .paginationIconRight {
+          margin: 0 0.5em 0 0.3em;
+        }
+
+        .paginationIconLeft {
+          margin: 0 0.3em 0 0.5em;
+        }
+
         &:disabled {
           @include u-text('base-light');
         }
