@@ -306,8 +306,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 
 		suite.Error(err)
-		_, ok := err.(services.NotFoundError)
-		suite.Equal(true, ok)
+		suite.IsType(services.NotFoundError{}, err)
 	})
 
 	suite.T().Run("Given no move task order id, the create should fail", func(t *testing.T) {
@@ -318,8 +317,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 
 		suite.Error(err)
-		_, ok := err.(services.InvalidCreateInputError)
-		suite.Equal(true, ok)
+		suite.IsType(services.InvalidCreateInputError{}, err)
 		suite.Equal("Invalid Create Input Error: MoveTaskOrderID is required on PaymentRequest create", err.Error())
 	})
 
@@ -334,8 +332,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		_, err := creator.CreatePaymentRequest(&paymentRequest)
 
 		suite.Error(err)
-		_, ok := err.(services.ConflictError)
-		suite.Equal(true, ok)
+		suite.IsType(services.ConflictError{}, err)
 		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Orders on MoveTaskOrder (ID: %s) missing Lines of Accounting TAC", mtoInvalidOrders.OrdersID, mtoInvalidOrders.ID), err.Error())
 	})
 
@@ -352,8 +349,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		_, err = creator.CreatePaymentRequest(&paymentRequest)
 
 		suite.Error(err)
-		_, ok := err.(services.ConflictError)
-		suite.Equal(true, ok)
+		suite.IsType(services.ConflictError{}, err)
 		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Orders on MoveTaskOrder (ID: %s) missing Lines of Accounting TAC", mtoInvalidOrders.OrdersID, mtoInvalidOrders.ID), err.Error())
 	})
 
@@ -370,8 +366,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		_, err = creator.CreatePaymentRequest(&paymentRequest)
 
 		suite.Error(err)
-		_, ok := err.(services.ConflictError)
-		suite.Equal(true, ok)
+		suite.IsType(services.ConflictError{}, err)
 		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Orders on MoveTaskOrder (ID: %s) missing OriginDutyStation", mtoInvalidOrders.OrdersID, mtoInvalidOrders.ID), err.Error())
 	})
 
@@ -387,8 +382,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		_, err = creator.CreatePaymentRequest(&paymentRequest)
 
 		suite.Error(err)
-		_, ok := err.(services.ConflictError)
-		suite.Equal(true, ok)
+		suite.IsType(services.ConflictError{}, err)
 		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing First Name", mtoInvalidOrders.Orders.ServiceMemberID, mtoInvalidOrders.ID), err.Error())
 	})
 
@@ -405,8 +399,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		_, err = creator.CreatePaymentRequest(&paymentRequest)
 
 		suite.Error(err)
-		_, ok := err.(services.ConflictError)
-		suite.Equal(true, ok)
+		suite.IsType(services.ConflictError{}, err)
 		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing First Name", mtoInvalidOrders.Orders.ServiceMemberID, mtoInvalidOrders.ID), err.Error())
 	})
 
@@ -422,8 +415,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		_, err = creator.CreatePaymentRequest(&paymentRequest)
 
 		suite.Error(err)
-		_, ok := err.(services.ConflictError)
-		suite.Equal(true, ok)
+		suite.IsType(services.ConflictError{}, err)
 		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Last Name", mtoInvalidOrders.Orders.ServiceMemberID, mtoInvalidOrders.ID), err.Error())
 	})
 
@@ -440,8 +432,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		_, err = creator.CreatePaymentRequest(&paymentRequest)
 
 		suite.Error(err)
-		_, ok := err.(services.ConflictError)
-		suite.Equal(true, ok)
+		suite.IsType(services.ConflictError{}, err)
 		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Last Name", mtoInvalidOrders.Orders.ServiceMemberID, mtoInvalidOrders.ID), err.Error())
 	})
 
@@ -457,8 +448,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		_, err = creator.CreatePaymentRequest(&paymentRequest)
 
 		suite.Error(err)
-		_, ok := err.(services.ConflictError)
-		suite.Equal(true, ok)
+		suite.IsType(services.ConflictError{}, err)
 		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Rank", mtoInvalidOrders.Orders.ServiceMemberID, mtoInvalidOrders.ID), err.Error())
 	})
 
@@ -474,8 +464,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		_, err = creator.CreatePaymentRequest(&paymentRequest)
 
 		suite.Error(err)
-		_, ok := err.(services.ConflictError)
-		suite.Equal(true, ok)
+		suite.IsType(services.ConflictError{}, err)
 		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Affiliation", mtoInvalidOrders.Orders.ServiceMemberID, mtoInvalidOrders.ID), err.Error())
 	})
 
@@ -492,8 +481,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		}
 		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
-		_, ok := err.(services.NotFoundError)
-		suite.Equal(true, ok)
+		suite.IsType(services.NotFoundError{}, err)
 	})
 
 	suite.T().Run("Given a non-existent service item param key id, the create should fail", func(t *testing.T) {
@@ -516,8 +504,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		}
 		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
-		_, ok := err.(services.NotFoundError)
-		suite.Equal(true, ok)
+		suite.IsType(services.NotFoundError{}, err)
 	})
 
 	suite.T().Run("Given a non-existent service item param key name, the create should fail", func(t *testing.T) {
@@ -539,8 +526,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		}
 		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
-		_, ok := err.(*services.BadDataError)
-		suite.Equal(true, ok)
+		suite.IsType(&services.BadDataError{}, err)
 	})
 
 	suite.T().Run("Payment request numbers increment by 1", func(t *testing.T) {
