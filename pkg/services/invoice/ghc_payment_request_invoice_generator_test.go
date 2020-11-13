@@ -576,7 +576,7 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 		nilPaymentRequest.MoveTaskOrder.Orders.TAC = oldTAC
 	})
 
-	suite.T().Run("blank TAC returns error", func(t *testing.T) {
+	suite.T().Run("nil TAC returns error", func(t *testing.T) {
 		oldTAC := nilPaymentRequest.MoveTaskOrder.Orders.TAC
 		nilPaymentRequest.MoveTaskOrder.Orders.TAC = nil
 		_, err := generator.Generate(nilPaymentRequest, false)
