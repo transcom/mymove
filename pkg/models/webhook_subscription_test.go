@@ -13,7 +13,7 @@ func (suite *ModelSuite) TestWebhookSubscription_NotNullConstraint() {
 	expectedErrors := map[string][]string{
 		"subscriber_id": {"SubscriberID can not be blank."},
 		"event_key":     {"EventKey can not be blank."},
-		"status":        {"Status is not in the list [ACTIVE, DISABLED]."},
+		"status":        {"Status is not in the list [ACTIVE, DISABLED, FAILING]."},
 		"callback_url":  {"CallbackURL can not be blank."},
 	}
 

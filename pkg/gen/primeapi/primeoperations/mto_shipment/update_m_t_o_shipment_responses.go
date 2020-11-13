@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	primemessages "github.com/transcom/mymove/pkg/gen/primemessages"
+	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
 // UpdateMTOShipmentOKCode is the HTTP code returned for type UpdateMTOShipmentOK

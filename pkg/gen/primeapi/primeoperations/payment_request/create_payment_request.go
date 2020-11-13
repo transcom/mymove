@@ -8,7 +8,7 @@ package payment_request
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // CreatePaymentRequestHandlerFunc turns a function with the right signature into a create payment request handler

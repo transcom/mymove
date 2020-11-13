@@ -8,7 +8,7 @@ package accesscode
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // FetchAccessCodeHandlerFunc turns a function with the right signature into a fetch access code handler

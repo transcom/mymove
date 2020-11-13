@@ -13,7 +13,7 @@ describe('React table', () => {
     rows: [],
   };
 
-  const createTableComponent = (columns, data, handleClick) => {
+  const createTableComponent = (columns, data, handleClick, showPagination) => {
     const rows = data.map((row, index) => {
       const cells = Object.keys(row).map((v, i) => {
         return {
@@ -43,6 +43,7 @@ describe('React table', () => {
           },
         ]}
         handleClick={handleClick}
+        showPagination={showPagination}
       />,
     );
   };
@@ -50,5 +51,10 @@ describe('React table', () => {
   it('renders without crashing', () => {
     const wrapper = createTableComponent([], []);
     expect(wrapper.find('[data-testid="react-table"]').length).toBe(1);
+  });
+
+  it('renders a table with pagination', () => {
+    const wrapper = createTableComponent([], [], undefined, true);
+    expect(wrapper.find('[data-testid="pagination"]').length).toBe(1);
   });
 });

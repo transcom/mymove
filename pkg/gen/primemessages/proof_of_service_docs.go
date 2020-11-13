@@ -8,13 +8,13 @@ package primemessages
 import (
 	"strconv"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
 
 // ProofOfServiceDocs proof of service docs
+//
 // swagger:model ProofOfServiceDocs
 type ProofOfServiceDocs struct {
 
