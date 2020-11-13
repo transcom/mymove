@@ -96,7 +96,7 @@ const Table = ({
             <Button
               type="button"
               unstyled
-              className={styles.pageControlButton}
+              className={`${styles.pageControlButton} ${styles.pageControlButtonPrev}`}
               onClick={previousPage}
               disabled={!canPreviousPage}
             >
@@ -123,7 +123,7 @@ const Table = ({
             <Button
               type="button"
               unstyled
-              className={styles.pageControlButton}
+              className={`${styles.pageControlButton} ${styles.pageControlButtonNext}`}
               onClick={nextPage}
               disabled={!canNextPage}
             >
