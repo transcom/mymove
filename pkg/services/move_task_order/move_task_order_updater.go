@@ -107,18 +107,12 @@ type UpdateMoveTaskOrderQueryBuilder interface {
 func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(moveTaskOrderID uuid.UUID, body movetaskorderops.UpdateMTOPostCounselingInformationBody, eTag string) (*models.Move, error) {
 	var moveTaskOrder models.Move
 
-	queryFilters := []services.QueryFilter{
-		query.NewQueryFilter("id", "=", moveTaskOrderID),
-	}
-	err := o.builder.FetchOne(&moveTaskOrder, queryFilters)
-
-	if err != nil {
-		return nil, services.NewNotFoundError(moveTaskOrderID, "while looking for moveTaskOrder.")
-	}
-
-	err = o.db.Q().Eager(
+	err := o.db.Q().Eager(
 		"Orders.NewDutyStation.Address",
-		"Orders.ServiceMember").Find(&moveTaskOrder, moveTaskOrderID)
+		"Orders.ServiceMember",
+		"MTOShipments",
+		"PaymentRequests",
+	).Find(&moveTaskOrder, moveTaskOrderID)
 
 	if err != nil {
 		return nil, services.NewNotFoundError(moveTaskOrderID, "while looking for moveTaskOrder.")
