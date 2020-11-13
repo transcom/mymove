@@ -6,9 +6,9 @@ import (
 	"crypto/tls"
 	"net/http"
 
-	errors "github.com/go-openapi/errors"
-	runtime "github.com/go-openapi/runtime"
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/errors"
+	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/runtime/middleware"
 
 	"github.com/transcom/mymove/pkg/gen/ordersapi/ordersoperations"
 )
@@ -35,29 +35,31 @@ func configureAPI(api *ordersoperations.MymoveAPI) http.Handler {
 
 	if api.GetOrdersHandler == nil {
 		api.GetOrdersHandler = ordersoperations.GetOrdersHandlerFunc(func(params ordersoperations.GetOrdersParams) middleware.Responder {
-			return middleware.NotImplemented("operation .GetOrders has not yet been implemented")
+			return middleware.NotImplemented("operation ordersoperations.GetOrders has not yet been implemented")
 		})
 	}
 	if api.GetOrdersByIssuerAndOrdersNumHandler == nil {
 		api.GetOrdersByIssuerAndOrdersNumHandler = ordersoperations.GetOrdersByIssuerAndOrdersNumHandlerFunc(func(params ordersoperations.GetOrdersByIssuerAndOrdersNumParams) middleware.Responder {
-			return middleware.NotImplemented("operation .GetOrdersByIssuerAndOrdersNum has not yet been implemented")
+			return middleware.NotImplemented("operation ordersoperations.GetOrdersByIssuerAndOrdersNum has not yet been implemented")
 		})
 	}
 	if api.IndexOrdersForMemberHandler == nil {
 		api.IndexOrdersForMemberHandler = ordersoperations.IndexOrdersForMemberHandlerFunc(func(params ordersoperations.IndexOrdersForMemberParams) middleware.Responder {
-			return middleware.NotImplemented("operation .IndexOrdersForMember has not yet been implemented")
+			return middleware.NotImplemented("operation ordersoperations.IndexOrdersForMember has not yet been implemented")
 		})
 	}
 	if api.PostRevisionHandler == nil {
 		api.PostRevisionHandler = ordersoperations.PostRevisionHandlerFunc(func(params ordersoperations.PostRevisionParams) middleware.Responder {
-			return middleware.NotImplemented("operation .PostRevision has not yet been implemented")
+			return middleware.NotImplemented("operation ordersoperations.PostRevision has not yet been implemented")
 		})
 	}
 	if api.PostRevisionToOrdersHandler == nil {
 		api.PostRevisionToOrdersHandler = ordersoperations.PostRevisionToOrdersHandlerFunc(func(params ordersoperations.PostRevisionToOrdersParams) middleware.Responder {
-			return middleware.NotImplemented("operation .PostRevisionToOrders has not yet been implemented")
+			return middleware.NotImplemented("operation ordersoperations.PostRevisionToOrders has not yet been implemented")
 		})
 	}
+
+	api.PreServerShutdown = func() {}
 
 	api.ServerShutdown = func() {}
 

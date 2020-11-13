@@ -8,7 +8,7 @@ package payment_requests
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // UpdatePaymentRequestStatusHandlerFunc turns a function with the right signature into a update payment request status handler

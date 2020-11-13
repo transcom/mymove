@@ -8,7 +8,7 @@ package office
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // ApproveMoveHandlerFunc turns a function with the right signature into a approve move handler

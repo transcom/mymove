@@ -6,9 +6,9 @@ import (
 	"crypto/tls"
 	"net/http"
 
-	errors "github.com/go-openapi/errors"
-	runtime "github.com/go-openapi/runtime"
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/errors"
+	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/runtime/middleware"
 
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations"
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/move_task_order"
@@ -73,6 +73,11 @@ func configureAPI(api *supportoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation webhook.PostWebhookNotify has not yet been implemented")
 		})
 	}
+	if api.PaymentRequestProcessReviewedPaymentRequestsHandler == nil {
+		api.PaymentRequestProcessReviewedPaymentRequestsHandler = payment_request.ProcessReviewedPaymentRequestsHandlerFunc(func(params payment_request.ProcessReviewedPaymentRequestsParams) middleware.Responder {
+			return middleware.NotImplemented("operation payment_request.ProcessReviewedPaymentRequests has not yet been implemented")
+		})
+	}
 	if api.MtoServiceItemUpdateMTOServiceItemStatusHandler == nil {
 		api.MtoServiceItemUpdateMTOServiceItemStatusHandler = mto_service_item.UpdateMTOServiceItemStatusHandlerFunc(func(params mto_service_item.UpdateMTOServiceItemStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.UpdateMTOServiceItemStatus has not yet been implemented")
@@ -88,6 +93,8 @@ func configureAPI(api *supportoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation payment_request.UpdatePaymentRequestStatus has not yet been implemented")
 		})
 	}
+
+	api.PreServerShutdown = func() {}
 
 	api.ServerShutdown = func() {}
 

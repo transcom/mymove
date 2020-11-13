@@ -12,11 +12,10 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	internalmessages "github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // NewApprovePPMParams creates a new ApprovePPMParams object
@@ -61,7 +60,7 @@ func (o *ApprovePPMParams) BindRequest(r *http.Request, route *middleware.Matche
 		var body internalmessages.ApprovePersonallyProcuredMovePayload
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
-				res = append(res, errors.Required("approvePersonallyProcuredMovePayload", "body"))
+				res = append(res, errors.Required("approvePersonallyProcuredMovePayload", "body", ""))
 			} else {
 				res = append(res, errors.NewParseError("approvePersonallyProcuredMovePayload", "body", "", err))
 			}
@@ -76,7 +75,7 @@ func (o *ApprovePPMParams) BindRequest(r *http.Request, route *middleware.Matche
 			}
 		}
 	} else {
-		res = append(res, errors.Required("approvePersonallyProcuredMovePayload", "body"))
+		res = append(res, errors.Required("approvePersonallyProcuredMovePayload", "body", ""))
 	}
 	rPersonallyProcuredMoveID, rhkPersonallyProcuredMoveID, _ := route.Params.GetOK("personallyProcuredMoveId")
 	if err := o.bindPersonallyProcuredMoveID(rPersonallyProcuredMoveID, rhkPersonallyProcuredMoveID, route.Formats); err != nil {

@@ -8,13 +8,13 @@ package internalmessages
 import (
 	"strconv"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
 
 // DutyStationsPayload duty stations payload
+//
 // swagger:model DutyStationsPayload
 type DutyStationsPayload []*DutyStationPayload
 

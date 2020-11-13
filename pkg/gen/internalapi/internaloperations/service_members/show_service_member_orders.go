@@ -8,7 +8,7 @@ package service_members
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // ShowServiceMemberOrdersHandlerFunc turns a function with the right signature into a show service member orders handler

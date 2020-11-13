@@ -12,9 +12,8 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // NewUpdateMTOPostCounselingInformationParams creates a new UpdateMTOPostCounselingInformationParams object
@@ -69,7 +68,7 @@ func (o *UpdateMTOPostCounselingInformationParams) BindRequest(r *http.Request, 
 		var body UpdateMTOPostCounselingInformationBody
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
-				res = append(res, errors.Required("body", "body"))
+				res = append(res, errors.Required("body", "body", ""))
 			} else {
 				res = append(res, errors.NewParseError("body", "body", "", err))
 			}
@@ -84,7 +83,7 @@ func (o *UpdateMTOPostCounselingInformationParams) BindRequest(r *http.Request, 
 			}
 		}
 	} else {
-		res = append(res, errors.Required("body", "body"))
+		res = append(res, errors.Required("body", "body", ""))
 	}
 	rMoveTaskOrderID, rhkMoveTaskOrderID, _ := route.Params.GetOK("moveTaskOrderID")
 	if err := o.bindMoveTaskOrderID(rMoveTaskOrderID, rhkMoveTaskOrderID, route.Formats); err != nil {
@@ -100,7 +99,7 @@ func (o *UpdateMTOPostCounselingInformationParams) BindRequest(r *http.Request, 
 // bindIfMatch binds and validates parameter IfMatch from header.
 func (o *UpdateMTOPostCounselingInformationParams) bindIfMatch(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
-		return errors.Required("If-Match", "header")
+		return errors.Required("If-Match", "header", rawData)
 	}
 	var raw string
 	if len(rawData) > 0 {

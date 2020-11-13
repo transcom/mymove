@@ -12,11 +12,10 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	internalmessages "github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // NewUpdateMoveDocumentParams creates a new UpdateMoveDocumentParams object
@@ -66,7 +65,7 @@ func (o *UpdateMoveDocumentParams) BindRequest(r *http.Request, route *middlewar
 		var body internalmessages.MoveDocumentPayload
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
-				res = append(res, errors.Required("updateMoveDocument", "body"))
+				res = append(res, errors.Required("updateMoveDocument", "body", ""))
 			} else {
 				res = append(res, errors.NewParseError("updateMoveDocument", "body", "", err))
 			}
@@ -81,7 +80,7 @@ func (o *UpdateMoveDocumentParams) BindRequest(r *http.Request, route *middlewar
 			}
 		}
 	} else {
-		res = append(res, errors.Required("updateMoveDocument", "body"))
+		res = append(res, errors.Required("updateMoveDocument", "body", ""))
 	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)

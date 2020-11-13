@@ -46,7 +46,13 @@ func (p *paymentRequestStatusUpdater) UpdatePaymentRequestStatus(paymentRequest 
 		}
 	}
 
-	verrs, err := p.builder.UpdateOne(paymentRequest, &eTag)
+	var verrs *validate.Errors
+	var err error
+	if eTag == "" {
+		verrs, err = p.builder.UpdateOne(paymentRequest, nil)
+	} else {
+		verrs, err = p.builder.UpdateOne(paymentRequest, &eTag)
+	}
 
 	if verrs != nil && verrs.HasAny() {
 		return nil, services.NewInvalidInputError(id, err, verrs, "")

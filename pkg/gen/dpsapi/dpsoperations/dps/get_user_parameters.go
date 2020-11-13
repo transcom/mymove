@@ -11,9 +11,8 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // NewGetUserParams creates a new GetUserParams object
@@ -64,7 +63,7 @@ func (o *GetUserParams) BindRequest(r *http.Request, route *middleware.MatchedRo
 // bindToken binds and validates parameter Token from query.
 func (o *GetUserParams) bindToken(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
-		return errors.Required("token", "query")
+		return errors.Required("token", "query", rawData)
 	}
 	var raw string
 	if len(rawData) > 0 {

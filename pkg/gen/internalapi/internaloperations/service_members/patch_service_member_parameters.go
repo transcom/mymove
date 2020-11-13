@@ -12,11 +12,10 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	internalmessages "github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // NewPatchServiceMemberParams creates a new PatchServiceMemberParams object
@@ -61,7 +60,7 @@ func (o *PatchServiceMemberParams) BindRequest(r *http.Request, route *middlewar
 		var body internalmessages.PatchServiceMemberPayload
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
-				res = append(res, errors.Required("patchServiceMemberPayload", "body"))
+				res = append(res, errors.Required("patchServiceMemberPayload", "body", ""))
 			} else {
 				res = append(res, errors.NewParseError("patchServiceMemberPayload", "body", "", err))
 			}
@@ -76,7 +75,7 @@ func (o *PatchServiceMemberParams) BindRequest(r *http.Request, route *middlewar
 			}
 		}
 	} else {
-		res = append(res, errors.Required("patchServiceMemberPayload", "body"))
+		res = append(res, errors.Required("patchServiceMemberPayload", "body", ""))
 	}
 	rServiceMemberID, rhkServiceMemberID, _ := route.Params.GetOK("serviceMemberId")
 	if err := o.bindServiceMemberID(rServiceMemberID, rhkServiceMemberID, route.Formats); err != nil {

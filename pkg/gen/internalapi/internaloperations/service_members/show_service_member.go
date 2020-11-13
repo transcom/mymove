@@ -8,7 +8,7 @@ package service_members
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // ShowServiceMemberHandlerFunc turns a function with the right signature into a show service member handler

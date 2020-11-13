@@ -8,7 +8,7 @@ package move_task_order
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // ListMTOsHandlerFunc turns a function with the right signature into a list m t os handler

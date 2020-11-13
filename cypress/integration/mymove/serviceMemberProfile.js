@@ -44,7 +44,6 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   cy.get('button[data-testid="wizardNextButton"]').should('be.disabled');
   cy.get('select[name="affiliation"]').select('Army');
   cy.get('input[name="edipi"]').type('1234567890');
-  cy.get('input[name="social_security_number').type('123456789');
   cy.get('select[name="rank"]').select('E-9');
   cy.nextPage();
   cy.location().should((loc) => {

@@ -4174,7 +4174,7 @@ func init() {
           "$ref": "#/definitions/ClientError"
         },
         {
-          "type": "object"
+          "$ref": "#/definitions/ValidationErrorAllOf1"
         }
       ],
       "properties": {
@@ -4185,6 +4185,9 @@ func init() {
           }
         }
       }
+    },
+    "ValidationErrorAllOf1": {
+      "type": "object"
     }
   }
 }`))

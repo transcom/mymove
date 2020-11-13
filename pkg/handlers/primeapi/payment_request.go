@@ -98,8 +98,14 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 			logger.Error("Payment Request",
 				zap.Any("payload", payload))
 			return paymentrequestop.NewCreatePaymentRequestNotFound().WithPayload(payload)
+		case services.ConflictError:
+			payload := payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID())
+
+			logger.Error("Payment Request",
+				zap.Any("payload", payload))
+			return paymentrequestop.NewCreatePaymentRequestConflict().WithPayload(payload)
 		case *services.BadDataError:
-			payload := payloads.ClientError(handlers.SQLErrMessage, err.Error(), h.GetTraceID())
+			payload := payloads.ClientError(handlers.BadRequestErrMessage, err.Error(), h.GetTraceID())
 
 			logger.Error("Payment Request",
 				zap.Any("payload", payload))
