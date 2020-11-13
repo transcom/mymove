@@ -130,7 +130,7 @@
     "case-sensitive-paths-webpack-plugin": "^2.3.0",
     "cypress": "~5.6.0",
     "cypress-wait-until": "^1.7.1",
-    "danger": "^10.5.0",
+    "danger": "^10.5.1",
     "danger-plugin-jira-issue": "^1.4.1",
     "dotenv": "^8.2.0",
     "enzyme": "^3.11.0",
