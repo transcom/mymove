@@ -322,54 +322,79 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		suite.Equal("Invalid Create Input Error: MoveTaskOrderID is required on PaymentRequest create", err.Error())
 	})
 
-	suite.T().Run("Given move with orders but no LOA, the create should fail", func(t *testing.T) {
-		mtoInvalidOrders := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
-		orders := mtoInvalidOrders.Orders
-		orders.TAC = nil
-		suite.MustSave(&orders)
-		paymentRequest := models.PaymentRequest{
-			MoveTaskOrderID: mtoInvalidOrders.ID,
-		}
-		_, err := creator.CreatePaymentRequest(&paymentRequest)
+	type generateInvalidMove func() models.Move
+	type generateExpectedErrorMessage func(uuid.UUID, uuid.UUID) string
 
-		suite.Error(err)
-		suite.IsType(services.ConflictError{}, err)
-		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Orders on MoveTaskOrder (ID: %s) missing Lines of Accounting TAC", mtoInvalidOrders.OrdersID, mtoInvalidOrders.ID), err.Error())
-	})
+	invalidOrdersTestData := []struct {
+		TestDescription      string
+		InvalidMove          generateInvalidMove
+		ExpectedError        error
+		ExpectedErrorMessage generateExpectedErrorMessage
+	}{
+		// Orders with nil TAC
+		{
+			TestDescription: "Given move with orders but no LOA, the create should fail",
+			InvalidMove: func() models.Move {
+				mtoInvalid := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+				orders := mtoInvalid.Orders
+				orders.TAC = nil
+				suite.MustSave(&orders)
+				return mtoInvalid
+			},
+			ExpectedError: services.ConflictError{},
+			ExpectedErrorMessage: func(ordersID uuid.UUID, mtoID uuid.UUID) string {
+				return fmt.Sprintf("id: %s is in a conflicting state Orders on MoveTaskOrder (ID: %s) missing Lines of Accounting TAC", ordersID, mtoID)
+			},
+		},
+		// Orders with blank TAC
+		{
+			TestDescription: "Given move with orders but blank LOA, the create should fail",
+			InvalidMove: func() models.Move {
+				mtoInvalid := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+				orders := mtoInvalid.Orders
+				blankTAC := ""
+				orders.TAC = &blankTAC
+				err := suite.DB().Update(&orders)
+				suite.FatalNoError(err)
+				return mtoInvalid
+			},
+			ExpectedError: services.ConflictError{},
+			ExpectedErrorMessage: func(ordersID uuid.UUID, mtoID uuid.UUID) string {
+				return fmt.Sprintf("id: %s is in a conflicting state Orders on MoveTaskOrder (ID: %s) missing Lines of Accounting TAC", ordersID, mtoID)
+			},
+		},
+		// Orders with no OriginDutyStation
+		{
+			TestDescription: "Given move with orders no OriginDutyStation, the create should fail",
+			InvalidMove: func() models.Move {
+				mtoInvalid := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+				orders := mtoInvalid.Orders
+				orders.OriginDutyStation = nil
+				orders.OriginDutyStationID = nil
+				err := suite.DB().Update(&orders)
+				suite.FatalNoError(err)
+				return mtoInvalid
+			},
+			ExpectedError: services.ConflictError{},
+			ExpectedErrorMessage: func(ordersID uuid.UUID, mtoID uuid.UUID) string {
+				return fmt.Sprintf("id: %s is in a conflicting state Orders on MoveTaskOrder (ID: %s) missing OriginDutyStation", ordersID, mtoID)
+			},
+		},
+	}
 
-	suite.T().Run("Given move with orders blank LOA, the create should fail", func(t *testing.T) {
-		mtoInvalidOrders := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
-		orders := mtoInvalidOrders.Orders
-		blankTAC := ""
-		orders.TAC = &blankTAC
-		err := suite.DB().Update(&orders)
-		suite.FatalNoError(err)
-		paymentRequest := models.PaymentRequest{
-			MoveTaskOrderID: mtoInvalidOrders.ID,
-		}
-		_, err = creator.CreatePaymentRequest(&paymentRequest)
+	for _, testData := range invalidOrdersTestData {
+		suite.T().Run(testData.TestDescription, func(t *testing.T) {
+			mtoInvalid := testData.InvalidMove()
+			paymentRequest := models.PaymentRequest{
+				MoveTaskOrderID: mtoInvalid.ID,
+			}
+			_, err := creator.CreatePaymentRequest(&paymentRequest)
 
-		suite.Error(err)
-		suite.IsType(services.ConflictError{}, err)
-		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Orders on MoveTaskOrder (ID: %s) missing Lines of Accounting TAC", mtoInvalidOrders.OrdersID, mtoInvalidOrders.ID), err.Error())
-	})
-
-	suite.T().Run("Given move with orders no OriginDutyStation, the create should fail", func(t *testing.T) {
-		mtoInvalidOrders := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
-		orders := mtoInvalidOrders.Orders
-		orders.OriginDutyStation = nil
-		orders.OriginDutyStationID = nil
-		err := suite.DB().Update(&orders)
-		suite.FatalNoError(err)
-		paymentRequest := models.PaymentRequest{
-			MoveTaskOrderID: mtoInvalidOrders.ID,
-		}
-		_, err = creator.CreatePaymentRequest(&paymentRequest)
-
-		suite.Error(err)
-		suite.IsType(services.ConflictError{}, err)
-		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Orders on MoveTaskOrder (ID: %s) missing OriginDutyStation", mtoInvalidOrders.OrdersID, mtoInvalidOrders.ID), err.Error())
-	})
+			suite.Error(err)
+			suite.IsType(testData.ExpectedError, err)
+			suite.Equal(testData.ExpectedErrorMessage(mtoInvalid.OrdersID, mtoInvalid.ID), err.Error())
+		})
+	}
 
 	suite.T().Run("Given move with service member that has no First Name, the create should fail", func(t *testing.T) {
 		mtoInvalidOrders := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
