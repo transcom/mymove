@@ -193,6 +193,14 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		edi858.Header = append(edi858.Header, g62Segments...)
 	}
 
+	// Add buyer and seller organization names
+	var buyerAndSellerOrganizationNamesSegments []edisegment.Segment
+	buyerAndSellerOrganizationNamesSegments, err = g.createBuyerAndSellerOrganizationNamesSegments(paymentRequest.ID, moveTaskOrder.Orders)
+	if err != nil {
+		return ediinvoice.Invoice858C{}, err
+	}
+	edi858.Header = append(edi858.Header, buyerAndSellerOrganizationNamesSegments...)
+
 	// Add origin and destination details to header
 	var originDestinationSegments []edisegment.Segment
 	originDestinationSegments, err = g.createOriginAndDestinationSegments(paymentRequest.ID, moveTaskOrder.Orders)
@@ -315,6 +323,46 @@ func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(paymentRequestID uu
 	}
 
 	return g62Segments, nil
+}
+
+func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNamesSegments(paymentRequestID uuid.UUID, orders models.Order) ([]edisegment.Segment, error) {
+	buyerAndSellerOrganizationNames := []edisegment.Segment{}
+
+	var err error
+	var originDutyStation models.DutyStation
+	if orders.OriginDutyStation.ID != uuid.Nil {
+		originDutyStation, err = models.FetchDutyStation(g.db, *orders.OriginDutyStationID)
+		if err != nil {
+			return []edisegment.Segment{}, services.NewInvalidInputError(orders.OriginDutyStation.ID, err, nil, "unable to find new duty station")
+		}
+	} else {
+		return []edisegment.Segment{}, services.NewBadDataError("Invalid Order, must have OriginDutyStation")
+	}
+
+	originTransportationOffice, err := models.FetchDutyStationTransportationOffice(g.db, originDutyStation.ID)
+	if err != nil {
+		return []edisegment.Segment{}, services.NewInvalidInputError(originDutyStation.ID, err, nil, "unable to find origin duty station")
+	}
+
+	// buyer organization name
+	buyerOrganizationName := edisegment.N1{
+		EntityIdentifierCode:        "BY",
+		Name:                        originTransportationOffice.Name,
+		IdentificationCodeQualifier: "92",
+		IdentificationCode:          originTransportationOffice.Gbloc,
+	}
+	buyerAndSellerOrganizationNames = append(buyerAndSellerOrganizationNames, &buyerOrganizationName)
+
+	// seller organization name
+	sellerOrganizationName := edisegment.N1{
+		EntityIdentifierCode:        "SE",
+		Name:                        "Prime",
+		IdentificationCodeQualifier: "2",
+		IdentificationCode:          "PRME",
+	}
+	buyerAndSellerOrganizationNames = append(buyerAndSellerOrganizationNames, &sellerOrganizationName)
+
+	return buyerAndSellerOrganizationNames, nil
 }
 
 func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(paymentRequestID uuid.UUID, orders models.Order) ([]edisegment.Segment, error) {
