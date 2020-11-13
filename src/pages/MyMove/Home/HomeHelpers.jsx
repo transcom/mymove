@@ -1,5 +1,6 @@
 import React from 'react';
-import { Link } from '@trussworks/react-uswds';
+import { Link } from 'react-router-dom';
+import { Link as ExternalLink } from '@trussworks/react-uswds';
 
 import Helper from 'components/Customer/Home/Helper';
 
@@ -33,42 +34,55 @@ export const HelperNeedsSubmitMove = () => (
 );
 
 export const HelperSubmittedMove = () => (
-  <Helper title="Track your HHG move here">
+  <Helper title="Next: Talk to a move counselor">
+    <p>They’ll contact you soon to let you know what to expect and to answer questions.</p>
+    <p>
+      <strong>Tell them or your movers if anything changes about your move.</strong>
+    </p>
+    <p>
+      <strong>If you’re using government-funded movers, they’ll contact you soon to:</strong>
+    </p>
     <ul>
-      <li>Create a custom checklist at Plan My Move</li>
-      <li>Learn more about your new duty station</li>
+      <li>estimate the weight of your move</li>
+      <li>finalize packing and pickup dates</li>
     </ul>
-  </Helper>
-);
-
-export const HelperSubmittedNoPPM = () => (
-  <Helper title="What’s next?">
+    <p>
+      <strong>For more moving tips:</strong>
+    </p>
     <ul>
       <li>
-        Create a custom checklist at{' '}
-        <Link
+        <ExternalLink
           variant="external"
           target="_blank"
           rel="noopener noreferrer"
           href="https://planmymove.militaryonesource.mil/"
         >
-          Plan My Move
-        </Link>
+          Create a custom checklist at
+        </ExternalLink>{' '}
+        Plan My Move
       </li>
       <li>
-        <Link
+        <ExternalLink
           variant="external"
           target="_blank"
           rel="noopener noreferrer"
           href="https://installations.militaryonesource.mil/"
         >
           Learn more
-        </Link>{' '}
+        </ExternalLink>{' '}
         about your new duty station
       </li>
-      <li>If details about your move change, talk to your move counselor or with your movers</li>
-      <li>Your movers will help you estimate the weight of your things</li>
-      <li>They’ll also finalize moving dates</li>
+    </ul>
+  </Helper>
+);
+
+export const HelperSubmittedPPM = () => (
+  <Helper title="For your do-it-yourself shipments (PPMs)">
+    <ul>
+      <li>
+        <Link to="/ppm">Visit the MilMove PPM page</Link> to learn more about DITY shipments and to manage yours.
+      </li>
+      <li>Once you have moved, you’ll request payment using MilMove.</li>
     </ul>
   </Helper>
 );
