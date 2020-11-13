@@ -8,7 +8,7 @@ package ordersoperations
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // PostRevisionHandlerFunc turns a function with the right signature into a post revision handler

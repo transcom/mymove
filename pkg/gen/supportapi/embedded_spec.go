@@ -360,6 +360,58 @@ func init() {
         }
       ]
     },
+    "/payment-requests/process-reviewed": {
+      "patch": {
+        "description": "Updates the status of reviewed payment requests and sends PRs to Syncada if\nthe SendToSyncada flag is set\n\nThis is a support endpoint and will not be available in production.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentRequest"
+        ],
+        "summary": "processReviewedPaymentRequests",
+        "operationId": "processReviewedPaymentRequests",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ProcessReviewedPaymentRequests"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated status of reviewed payment request and sent to Syncada if that flag is set",
+            "schema": {
+              "$ref": "#/definitions/PaymentRequests"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/payment-requests/{paymentRequestID}/edi": {
       "get": {
         "description": "Returns the EDI (Electronic Data Interchange) message for the payment request identified\nby the given payment request ID. Note that the EDI returned in the JSON payload will have \\n where there\nwould normally be line breaks (due to JSON not allowing line breaks in a string).\n\nThis is a support endpoint and will not be available in production.\n",
@@ -1572,6 +1624,28 @@ func init() {
         "$ref": "#/definitions/PaymentRequest"
       }
     },
+    "ProcessReviewedPaymentRequests": {
+      "type": "object",
+      "required": [
+        "sendToSyncada"
+      ],
+      "properties": {
+        "paymentRequestID": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "sendToSyncada": {
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
+        "status": {
+          "$ref": "#/definitions/PaymentRequestStatus"
+        }
+      }
+    },
     "ProofOfServicePackage": {
       "type": "object",
       "properties": {
@@ -2289,6 +2363,76 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/payment-requests/process-reviewed": {
+      "patch": {
+        "description": "Updates the status of reviewed payment requests and sends PRs to Syncada if\nthe SendToSyncada flag is set\n\nThis is a support endpoint and will not be available in production.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentRequest"
+        ],
+        "summary": "processReviewedPaymentRequests",
+        "operationId": "processReviewedPaymentRequests",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ProcessReviewedPaymentRequests"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated status of reviewed payment request and sent to Syncada if that flag is set",
+            "schema": {
+              "$ref": "#/definitions/PaymentRequests"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
     },
     "/payment-requests/{paymentRequestID}/edi": {
       "get": {
@@ -3565,6 +3709,28 @@ func init() {
         "$ref": "#/definitions/PaymentRequest"
       }
     },
+    "ProcessReviewedPaymentRequests": {
+      "type": "object",
+      "required": [
+        "sendToSyncada"
+      ],
+      "properties": {
+        "paymentRequestID": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "sendToSyncada": {
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
+        "status": {
+          "$ref": "#/definitions/PaymentRequestStatus"
+        }
+      }
+    },
     "ProofOfServicePackage": {
       "type": "object",
       "properties": {
@@ -3753,7 +3919,7 @@ func init() {
           "$ref": "#/definitions/ClientError"
         },
         {
-          "type": "object"
+          "$ref": "#/definitions/ValidationErrorAllOf1"
         }
       ],
       "properties": {
@@ -3768,6 +3934,9 @@ func init() {
           }
         }
       }
+    },
+    "ValidationErrorAllOf1": {
+      "type": "object"
     }
   },
   "responses": {

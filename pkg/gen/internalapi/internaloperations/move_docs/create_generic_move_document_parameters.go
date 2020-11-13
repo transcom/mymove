@@ -12,11 +12,10 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	internalmessages "github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // NewCreateGenericMoveDocumentParams creates a new CreateGenericMoveDocumentParams object
@@ -61,7 +60,7 @@ func (o *CreateGenericMoveDocumentParams) BindRequest(r *http.Request, route *mi
 		var body internalmessages.CreateGenericMoveDocumentPayload
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
-				res = append(res, errors.Required("createGenericMoveDocumentPayload", "body"))
+				res = append(res, errors.Required("createGenericMoveDocumentPayload", "body", ""))
 			} else {
 				res = append(res, errors.NewParseError("createGenericMoveDocumentPayload", "body", "", err))
 			}
@@ -76,7 +75,7 @@ func (o *CreateGenericMoveDocumentParams) BindRequest(r *http.Request, route *mi
 			}
 		}
 	} else {
-		res = append(res, errors.Required("createGenericMoveDocumentPayload", "body"))
+		res = append(res, errors.Required("createGenericMoveDocumentPayload", "body", ""))
 	}
 	rMoveID, rhkMoveID, _ := route.Params.GetOK("moveId")
 	if err := o.bindMoveID(rMoveID, rhkMoveID, route.Formats); err != nil {

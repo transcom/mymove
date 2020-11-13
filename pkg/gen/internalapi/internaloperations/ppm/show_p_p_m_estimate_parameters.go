@@ -11,10 +11,9 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // NewShowPPMEstimateParams creates a new ShowPPMEstimateParams object
@@ -107,7 +106,7 @@ func (o *ShowPPMEstimateParams) BindRequest(r *http.Request, route *middleware.M
 // bindOrdersID binds and validates parameter OrdersID from query.
 func (o *ShowPPMEstimateParams) bindOrdersID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
-		return errors.Required("orders_id", "query")
+		return errors.Required("orders_id", "query", rawData)
 	}
 	var raw string
 	if len(rawData) > 0 {
@@ -146,7 +145,7 @@ func (o *ShowPPMEstimateParams) validateOrdersID(formats strfmt.Registry) error 
 // bindOriginDutyStationZip binds and validates parameter OriginDutyStationZip from query.
 func (o *ShowPPMEstimateParams) bindOriginDutyStationZip(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
-		return errors.Required("origin_duty_station_zip", "query")
+		return errors.Required("origin_duty_station_zip", "query", rawData)
 	}
 	var raw string
 	if len(rawData) > 0 {
@@ -181,7 +180,7 @@ func (o *ShowPPMEstimateParams) validateOriginDutyStationZip(formats strfmt.Regi
 // bindOriginZip binds and validates parameter OriginZip from query.
 func (o *ShowPPMEstimateParams) bindOriginZip(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
-		return errors.Required("origin_zip", "query")
+		return errors.Required("origin_zip", "query", rawData)
 	}
 	var raw string
 	if len(rawData) > 0 {
@@ -216,7 +215,7 @@ func (o *ShowPPMEstimateParams) validateOriginZip(formats strfmt.Registry) error
 // bindOriginalMoveDate binds and validates parameter OriginalMoveDate from query.
 func (o *ShowPPMEstimateParams) bindOriginalMoveDate(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
-		return errors.Required("original_move_date", "query")
+		return errors.Required("original_move_date", "query", rawData)
 	}
 	var raw string
 	if len(rawData) > 0 {
@@ -255,7 +254,7 @@ func (o *ShowPPMEstimateParams) validateOriginalMoveDate(formats strfmt.Registry
 // bindWeightEstimate binds and validates parameter WeightEstimate from query.
 func (o *ShowPPMEstimateParams) bindWeightEstimate(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
-		return errors.Required("weight_estimate", "query")
+		return errors.Required("weight_estimate", "query", rawData)
 	}
 	var raw string
 	if len(rawData) > 0 {

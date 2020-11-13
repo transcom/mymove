@@ -8,7 +8,7 @@ package duty_stations
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // SearchDutyStationsHandlerFunc turns a function with the right signature into a search duty stations handler

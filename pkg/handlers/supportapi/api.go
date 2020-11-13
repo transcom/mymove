@@ -24,7 +24,6 @@ import (
 // NewSupportAPIHandler returns a handler for the Prime API
 func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 	queryBuilder := query.NewQueryBuilder(context.DB())
-
 	supportSpec, err := loads.Analyzed(supportapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)
@@ -77,6 +76,21 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 		HandlerContext:                    context,
 		PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(context.DB()),
 		GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(context.DB()),
+	}
+
+	supportAPI.PaymentRequestProcessReviewedPaymentRequestsHandler = ProcessReviewedPaymentRequestsHandler{
+		HandlerContext:                context,
+		PaymentRequestFetcher:         paymentrequest.NewPaymentRequestFetcher(context.DB()),
+		PaymentRequestStatusUpdater:   paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
+		PaymentRequestReviewedFetcher: paymentrequest.NewPaymentRequestReviewedFetcher(context.DB()),
+		// Unable to get logger to pass in for the instantiation of
+		// paymentrequest.InitNewPaymentRequestReviewedProcessor(h.DB(), logger, true),
+		// This limitation has come up a few times
+		// - https://dp3.atlassian.net/browse/MB-2352 (story to address issue)
+		// - https://ustcdp3.slack.com/archives/CP6F568DC/p1592508325118600
+		// - https://github.com/transcom/mymove/blob/c42adf61735be8ee8e5e83f41a656206f1e59b9d/pkg/handlers/primeapi/api.go
+		// As a temporary workaround paymentrequest.InitNewPaymentRequestReviewedProcessor
+		// is called directly in the handler
 	}
 
 	return supportAPI.Serve(nil)

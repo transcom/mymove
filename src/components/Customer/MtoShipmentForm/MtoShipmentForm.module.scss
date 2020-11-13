@@ -171,37 +171,4 @@ p + .radioGroup {
 .formActions {
   @include u-margin-top(3);
   @include u-margin-bottom(6);
-
-  :global(.usa-button) {
-    @include u-margin(0);
-
-    + :global(.usa-button) {
-      @include u-margin-top('105');
-    }
-  }
-
-  @include at-media('tablet') {
-    display: flex;
-    @include u-margin-top(2);
-
-    :global(.usa-button) {
-      + :global(.usa-button) {
-        @include u-margin-top(0);
-        @include u-margin-left(5);
-      }
-    }
-  }
-}
-
-.cancelButton {
-  color: $primary;
-  background-color: transparent;
-  border-color: transparent;
-  @include u-padding-x(0);
-
-  &:hover {
-    color: $primary-darker;
-    background-color: transparent;
-    border-color: transparent;
-  }
 }

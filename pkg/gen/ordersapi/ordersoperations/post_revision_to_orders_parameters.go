@@ -12,11 +12,10 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	ordersmessages "github.com/transcom/mymove/pkg/gen/ordersmessages"
+	"github.com/transcom/mymove/pkg/gen/ordersmessages"
 )
 
 // NewPostRevisionToOrdersParams creates a new PostRevisionToOrdersParams object
@@ -61,7 +60,7 @@ func (o *PostRevisionToOrdersParams) BindRequest(r *http.Request, route *middlew
 		var body ordersmessages.Revision
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
-				res = append(res, errors.Required("revision", "body"))
+				res = append(res, errors.Required("revision", "body", ""))
 			} else {
 				res = append(res, errors.NewParseError("revision", "body", "", err))
 			}
@@ -76,7 +75,7 @@ func (o *PostRevisionToOrdersParams) BindRequest(r *http.Request, route *middlew
 			}
 		}
 	} else {
-		res = append(res, errors.Required("revision", "body"))
+		res = append(res, errors.Required("revision", "body", ""))
 	}
 	rUUID, rhkUUID, _ := route.Params.GetOK("uuid")
 	if err := o.bindUUID(rUUID, rhkUUID, route.Formats); err != nil {

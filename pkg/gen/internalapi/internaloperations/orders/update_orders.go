@@ -8,7 +8,7 @@ package orders
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // UpdateOrdersHandlerFunc turns a function with the right signature into a update orders handler

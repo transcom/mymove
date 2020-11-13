@@ -8,7 +8,7 @@ package mto_shipment
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // CreateMTOShipmentHandlerFunc turns a function with the right signature into a create m t o shipment handler

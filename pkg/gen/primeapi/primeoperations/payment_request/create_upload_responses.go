@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	primemessages "github.com/transcom/mymove/pkg/gen/primemessages"
+	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
 // CreateUploadCreatedCode is the HTTP code returned for type CreateUploadCreated

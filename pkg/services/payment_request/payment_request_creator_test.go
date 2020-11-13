@@ -323,6 +323,97 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		suite.Equal("Invalid Create Input Error: MoveTaskOrderID is required on PaymentRequest create", err.Error())
 	})
 
+	suite.T().Run("Given move with orders but no LOA, the create should fail", func(t *testing.T) {
+		mtoInvalidOrders := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		orders := mtoInvalidOrders.Orders
+		orders.TAC = nil
+		suite.MustSave(&orders)
+		paymentRequest := models.PaymentRequest{
+			MoveTaskOrderID: mtoInvalidOrders.ID,
+			IsFinal:         false,
+			PaymentServiceItems: models.PaymentServiceItems{
+				{
+					MTOServiceItemID:         mtoServiceItem1.ID,
+					MTOServiceItem:           mtoServiceItem1,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{},
+				},
+				{
+					MTOServiceItemID:         mtoServiceItem2.ID,
+					MTOServiceItem:           mtoServiceItem2,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{},
+				},
+			},
+		}
+		_, err := creator.CreatePaymentRequest(&paymentRequest)
+
+		suite.Error(err)
+		_, ok := err.(services.ConflictError)
+		suite.Equal(true, ok)
+		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Orders on MoveTaskOrder (ID: %s) missing Lines of Accounting TAC", mtoInvalidOrders.OrdersID, mtoInvalidOrders.ID), err.Error())
+	})
+
+	suite.T().Run("Given move with orders blank LOA, the create should fail", func(t *testing.T) {
+		mtoInvalidOrders := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		orders := mtoInvalidOrders.Orders
+		blankTAC := ""
+		orders.TAC = &blankTAC
+		err := suite.DB().Update(&orders)
+		suite.FatalNoError(err)
+		paymentRequest := models.PaymentRequest{
+			MoveTaskOrderID: mtoInvalidOrders.ID,
+			IsFinal:         false,
+			PaymentServiceItems: models.PaymentServiceItems{
+				{
+					MTOServiceItemID:         mtoServiceItem1.ID,
+					MTOServiceItem:           mtoServiceItem1,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{},
+				},
+				{
+					MTOServiceItemID:         mtoServiceItem2.ID,
+					MTOServiceItem:           mtoServiceItem2,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{},
+				},
+			},
+		}
+		_, err = creator.CreatePaymentRequest(&paymentRequest)
+
+		suite.Error(err)
+		_, ok := err.(services.ConflictError)
+		suite.Equal(true, ok)
+		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Orders on MoveTaskOrder (ID: %s) missing Lines of Accounting TAC", mtoInvalidOrders.OrdersID, mtoInvalidOrders.ID), err.Error())
+	})
+
+	suite.T().Run("Given move with orders no OriginDutyStation, the create should fail", func(t *testing.T) {
+		mtoInvalidOrders := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+		orders := mtoInvalidOrders.Orders
+		orders.OriginDutyStation = nil
+		orders.OriginDutyStationID = nil
+		err := suite.DB().Update(&orders)
+		suite.FatalNoError(err)
+		paymentRequest := models.PaymentRequest{
+			MoveTaskOrderID: mtoInvalidOrders.ID,
+			IsFinal:         false,
+			PaymentServiceItems: models.PaymentServiceItems{
+				{
+					MTOServiceItemID:         mtoServiceItem1.ID,
+					MTOServiceItem:           mtoServiceItem1,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{},
+				},
+				{
+					MTOServiceItemID:         mtoServiceItem2.ID,
+					MTOServiceItem:           mtoServiceItem2,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{},
+				},
+			},
+		}
+		_, err = creator.CreatePaymentRequest(&paymentRequest)
+
+		suite.Error(err)
+		_, ok := err.(services.ConflictError)
+		suite.Equal(true, ok)
+		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Orders on MoveTaskOrder (ID: %s) missing OriginDutyStation", mtoInvalidOrders.OrdersID, mtoInvalidOrders.ID), err.Error())
+	})
+
 	suite.T().Run("Given a non-existent service item id, the create should fail", func(t *testing.T) {
 		badID, _ := uuid.FromString("0aee14dd-b5ea-441a-89ad-db4439fa4ea2")
 		invalidPaymentRequest := models.PaymentRequest{

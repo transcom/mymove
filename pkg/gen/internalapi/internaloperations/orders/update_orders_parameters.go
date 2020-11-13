@@ -12,11 +12,10 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	internalmessages "github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // NewUpdateOrdersParams creates a new UpdateOrdersParams object
@@ -66,7 +65,7 @@ func (o *UpdateOrdersParams) BindRequest(r *http.Request, route *middleware.Matc
 		var body internalmessages.CreateUpdateOrders
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
-				res = append(res, errors.Required("updateOrders", "body"))
+				res = append(res, errors.Required("updateOrders", "body", ""))
 			} else {
 				res = append(res, errors.NewParseError("updateOrders", "body", "", err))
 			}
@@ -81,7 +80,7 @@ func (o *UpdateOrdersParams) BindRequest(r *http.Request, route *middleware.Matc
 			}
 		}
 	} else {
-		res = append(res, errors.Required("updateOrders", "body"))
+		res = append(res, errors.Required("updateOrders", "body", ""))
 	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
