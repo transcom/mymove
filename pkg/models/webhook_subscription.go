@@ -45,6 +45,7 @@ func (wS *WebhookSubscription) Validate(tx *pop.Connection) (*validate.Errors, e
 		&validators.StringInclusion{Field: string(wS.Status), Name: "Status", List: []string{
 			string(WebhookSubscriptionStatusActive),
 			string(WebhookSubscriptionStatusDisabled),
+			string(WebhookSubscriptionStatusFailing),
 		}},
 	), nil
 }
