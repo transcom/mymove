@@ -128,6 +128,7 @@ func (suite *WebhookClientTestingSuite) Test_SendOneNotification() {
 		// Expected outcome:
 		//             Client.Post called 3 times in total
 		//             Notification would be updated as FAILING
+		//             Subscription should be updated as FAILING
 
 		// Set original status as pending
 		suite.DB().Find(&notification, notification.ID)
@@ -366,7 +367,7 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunInactiveSub() {
 	// Check that the set expectations were met (the mockClient.On call)
 	mockClient.AssertExpectations(suite.T())
 
-	// Check that notification Status was still pending on Payment.Create
+	// Check that notification Status was Skipped on Payment.Create
 	// but set to Sent on the other notifications
 	updatedNotifs := []models.WebhookNotification{}
 	suite.DB().All(&updatedNotifs)
@@ -381,6 +382,91 @@ func (suite *WebhookClientTestingSuite) Test_EngineRunInactiveSub() {
 			suite.False(notif.FirstAttemptedAt.IsZero())
 		}
 	}
+
+}
+func (suite *WebhookClientTestingSuite) Test_EngineRunFailingSub() {
+
+	// TESTCASE SCENARIO
+	// Under test: Engine.run() function
+	// Mocked:     Client
+	// Set up:     We provide a 3 PENDING webhook notifications
+	//             1 active subscription for PaymentUpdate, client returns success
+	//             1 active subscription for PaymentCreate, client returns failure
+	// Expected outcome:
+	//             PaymentUpdate notification would be updated as SENT
+	//             PaymentCreate notification would be updated as FAILING
+	//             PaymentCreate subscription would be updated as FAILING
+
+	// SETUP SCENARIO
+	engine, notifications, subscriptions := setupEngineRun(suite)
+	mockClient := engine.Client.(*mocks.WebhookRuntimeClient)
+	defer teardownEngineRun(suite)
+
+	var response = http.Response{}
+	response.StatusCode = 200
+	response.Status = "200 Success"
+
+	// Change the eventkey on 1 notification to PaymentCreate
+	notifications[1].EventKey = "Payment.Create"
+	verrs, err := suite.DB().ValidateAndUpdate(&notifications[1])
+	if verrs != nil {
+		suite.False(verrs.HasAny())
+	}
+	suite.Nil(err)
+
+	// Some responses for client to return
+	var responseSuccess = http.Response{
+		Status:     "200 Success",
+		StatusCode: 200,
+	}
+	var responseFail = http.Response{
+		Status:     "400 Not Found Error",
+		StatusCode: 400,
+	}
+
+	// SETUP MOCKED OBJECT EXPECTATIONS
+	// Expectation: Post will be once for notification 1 and return success
+	// It will be called 3 times for notification 2 and return failure
+	bodyBytes := []byte("notification1 received")
+	mockClient.On("Post", mock.MatchedBy(func(body []byte) bool {
+		message := convertBodyToPayload(body)
+		return message.ID == notifications[0].ID
+	}), subscriptions[0].CallbackURL).Return(&responseSuccess, bodyBytes, nil)
+
+	bodyBytes = []byte("notification2 received")
+	mockClient.On("Post", mock.MatchedBy(func(body []byte) bool {
+		message := convertBodyToPayload(body)
+		return message.ID == notifications[1].ID
+	}), subscriptions[1].CallbackURL).Return(&responseFail, bodyBytes, nil)
+
+	// RUN TEST
+	// Call the engine function. Internally it should call the mocked client
+	err = engine.run()
+
+	// VERIFY RESULTS
+	// Check that there was no error
+	suite.Nil(err)
+	// Check that the set expectations were met (the mockClient.On call)
+	mockClient.AssertExpectations(suite.T())
+	mockClient.AssertNumberOfCalls(suite.T(), "Post", 4)
+
+	// Check that notification Status was SENT on 1st notification
+	updatedNotifs := []models.WebhookNotification{}
+	suite.DB().Order("created_at asc").All(&updatedNotifs)
+	// First notification should have sent
+	suite.Equal(models.WebhookNotificationSent, updatedNotifs[0].Status)
+	suite.False(updatedNotifs[0].FirstAttemptedAt.IsZero())
+
+	// Second notification should be FAILING
+	suite.Equal(models.WebhookNotificationFailing, updatedNotifs[1].Status)
+	suite.False(updatedNotifs[1].FirstAttemptedAt.IsZero())
+	// Subscription should be set to FAILING
+	suite.DB().Find(&subscriptions[1], subscriptions[1].ID)
+	suite.Equal(models.WebhookSubscriptionStatusFailing, subscriptions[1].Status)
+
+	// Third notification should be PENDING
+	suite.Equal(models.WebhookNotificationPending, updatedNotifs[2].Status)
+	suite.True(updatedNotifs[2].FirstAttemptedAt.IsZero())
 
 }
 
