@@ -36,7 +36,7 @@ import {
 } from 'shared/Entities/modules/signed_certifications';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 import { selectMTOShipmentsByMoveId, selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
 import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
 import {
   selectCurrentUser,
@@ -64,6 +64,13 @@ Description.defaultProps = {
 };
 
 class Home extends Component {
+  componentDidMount() {
+    const { move, getSignedCertification } = this.props;
+    if (Object.entries(move).length && move.status === MOVE_STATUSES.SUBMITTED) {
+      getSignedCertification(move.id);
+    }
+  }
+
   componentDidUpdate(prevProps) {
     const { serviceMember, loggedInUserSuccess, isProfileComplete, move, getSignedCertification } = this.props;
     if (!prevProps.loggedInUserSuccess && loggedInUserSuccess) {
@@ -390,7 +397,7 @@ class Home extends Component {
                           >
                             Move submitted {formatCustomerDate(move.submitted_at)}.<br />
                             <Button unstyled onClick={this.handlePrintLegalese} className={styles.printBtn}>
-                              Prink the legal agreement
+                              Print the legal agreement
                             </Button>
                           </Description>
                         ) : (
