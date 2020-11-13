@@ -161,7 +161,7 @@ describe('Home component', () => {
 
       it('renders submitted date at step 4', () => {
         expect(wrapper.find('[data-testid="move-submitted-description"]').text()).toBe(
-          `Move submitted ${formatCustomerDate(submittedAt)}.`,
+          `Move submitted ${formatCustomerDate(submittedAt)}.Print the legal agreement`,
         );
       });
 
