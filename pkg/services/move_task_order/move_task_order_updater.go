@@ -100,7 +100,6 @@ func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eT
 
 // UpdateMoveTaskOrderQueryBuilder is the query builder for updating MTO
 type UpdateMoveTaskOrderQueryBuilder interface {
-	FetchOne(model interface{}, filters []services.QueryFilter) error
 	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
 }
 
