@@ -307,6 +307,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
+		suite.Equal(fmt.Sprintf("id: %s not found for Move", badID), err.Error())
 	})
 
 	suite.T().Run("Given no move task order id, the create should fail", func(t *testing.T) {
@@ -482,6 +483,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
+		suite.Equal(fmt.Sprintf("id: %s not found for MTO Service Item", badID), err.Error())
 	})
 
 	suite.T().Run("Given a non-existent service item param key id, the create should fail", func(t *testing.T) {
@@ -505,6 +507,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
 		suite.IsType(services.NotFoundError{}, err)
+		suite.Equal(fmt.Sprintf("id: %s not found Service Item Param Key ID", badID), err.Error())
 	})
 
 	suite.T().Run("Given a non-existent service item param key name, the create should fail", func(t *testing.T) {
