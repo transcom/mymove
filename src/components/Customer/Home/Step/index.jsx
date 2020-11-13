@@ -45,7 +45,13 @@ const Step = ({
         {complete ? <AcceptIcon aria-hidden className={styles.accept} /> : <NumberCircle num={step} />}
         <strong>{complete ? completedHeaderText : headerText}</strong>
         {editBtnLabel && (
-          <Button className={styles['edit-btn']} disabled={editBtnDisabled} onClick={onEditBtnClick} type="button">
+          <Button
+            data-testid="editButton"
+            className={styles['edit-btn']}
+            disabled={editBtnDisabled}
+            onClick={onEditBtnClick}
+            type="button"
+          >
             {editBtnLabel}
           </Button>
         )}
