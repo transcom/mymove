@@ -28,7 +28,7 @@
     "lodash": "^4.17.20",
     "marked": "^1.2.3",
     "moment": "^2.29.1",
-    "node-sass": "^4.14.1",
+    "node-sass": "^5.0.0",
     "normalizr": "^3.6.1",
     "numeral": "^2.0.6",
     "path": "^0.12.7",
