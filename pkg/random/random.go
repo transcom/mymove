@@ -18,7 +18,7 @@ func NewCryptoSeededSource() mrand.Source {
 	return mrand.NewSource(seed)
 }
 
-// GetRandomInt takes an int and returns a cryptographically sourced random integer of type int64
+// GetRandomInt takes an int and returns a cryptographically sourced random integer of type int64 (exclusive of the max int)
 func GetRandomInt(max int) (int, error) {
 	randMax := big.NewInt(int64(max))
 	randInt, err := crand.Int(crand.Reader, randMax)
