@@ -18,7 +18,6 @@ const Table = ({
   prepareRow,
   canPreviousPage,
   canNextPage,
-
   pageSize,
   nextPage,
   previousPage,
