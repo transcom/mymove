@@ -234,8 +234,6 @@ func objectEventHandler(event *Event, modelBeingUpdated interface{}) (bool, erro
 		payloadArray, err = assembleMTOServiceItemPayload(db, event.UpdatedObjectID)
 	case models.Move:
 		payloadArray, err = assembleMTOPayload(db, event.UpdatedObjectID)
-	case models.Order:
-		payloadArray, err = assembleMoveOrderPayload(db, event.UpdatedObjectID)
 	default:
 		event.logger.Error("event.NotificationEventHandler: Unknown logical object being updated.")
 		err = services.NewEventError(fmt.Sprintf("No notification handler for event %s", event.EventKey), nil)
@@ -257,7 +255,7 @@ func objectEventHandler(event *Event, modelBeingUpdated interface{}) (bool, erro
 // The purpose of this function is to handle order specific events.
 
 func orderEventHandler(event *Event, modelBeingUpdated interface{}) (bool, error) {
-	fmt.Printf("\n\n LOOK HERE \n\n ")
+	db := event.DBConnection
 	// CHECK SOURCE
 	// Continue only if source of event is not Prime
 	if isSourcePrime(event) {
@@ -274,6 +272,18 @@ func orderEventHandler(event *Event, modelBeingUpdated interface{}) (bool, error
 	// Continue only if MTO is available to Prime
 	if isAvailableToPrime, _ := checkAvailabilityToPrime(event); !isAvailableToPrime {
 		return false, nil
+	}
+
+	// case models.Order:
+	var payloadArray []byte
+	var err error
+	payloadArray, _ = assembleMoveOrderPayload(db, event.UpdatedObjectID)
+
+	// STORE NOTIFICATION IN DB
+	err = notificationSave(event, &payloadArray)
+	if err != nil {
+		unknownErr := services.NewEventError("Unknown error storing notification", err)
+		return false, unknownErr
 	}
 
 	return true, nil
