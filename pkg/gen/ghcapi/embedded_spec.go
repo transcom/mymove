@@ -6997,17 +6997,7 @@ func init() {
         "params": {
           "type": "array",
           "items": {
-            "type": "object",
-            "properties": {
-              "key": {
-                "type": "string",
-                "example": "Service Item Parameter Name"
-              },
-              "value": {
-                "type": "string",
-                "example": "Service Item Parameter Value"
-              }
-            }
+            "$ref": "#/definitions/ServiceItemParamsItems0"
           },
           "readOnly": true
         }
@@ -7087,6 +7077,19 @@ func init() {
         "TIMESTAMP",
         "PaymentServiceItemUUID"
       ]
+    },
+    "ServiceItemParamsItems0": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "example": "Service Item Parameter Name"
+        },
+        "value": {
+          "type": "string",
+          "example": "Service Item Parameter Value"
+        }
+      }
     },
     "UpdateMoveOrderPayload": {
       "type": "object",
@@ -7252,7 +7255,7 @@ func init() {
           "$ref": "#/definitions/ClientError"
         },
         {
-          "type": "object"
+          "$ref": "#/definitions/ValidationErrorAllOf1"
         }
       ],
       "properties": {
@@ -7263,6 +7266,9 @@ func init() {
           }
         }
       }
+    },
+    "ValidationErrorAllOf1": {
+      "type": "object"
     }
   },
   "responses": {

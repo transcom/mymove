@@ -8,7 +8,7 @@ package accesscode
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // ValidateAccessCodeHandlerFunc turns a function with the right signature into a validate access code handler

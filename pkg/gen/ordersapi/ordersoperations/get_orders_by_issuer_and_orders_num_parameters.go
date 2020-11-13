@@ -10,9 +10,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // NewGetOrdersByIssuerAndOrdersNumParams creates a new GetOrdersByIssuerAndOrdersNumParams object
@@ -90,7 +89,7 @@ func (o *GetOrdersByIssuerAndOrdersNumParams) bindIssuer(rawData []string, hasKe
 // validateIssuer carries on validations for parameter Issuer
 func (o *GetOrdersByIssuerAndOrdersNumParams) validateIssuer(formats strfmt.Registry) error {
 
-	if err := validate.Enum("issuer", "path", o.Issuer, []interface{}{"army", "navy", "air-force", "marine-corps", "coast-guard"}); err != nil {
+	if err := validate.EnumCase("issuer", "path", o.Issuer, []interface{}{"army", "navy", "air-force", "marine-corps", "coast-guard"}, true); err != nil {
 		return err
 	}
 

@@ -12,10 +12,9 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // NewCreatePPMAttachmentsParams creates a new CreatePPMAttachmentsParams object
@@ -79,7 +78,7 @@ func (o *CreatePPMAttachmentsParams) BindRequest(r *http.Request, route *middlew
 // Arrays are parsed according to CollectionFormat: "csv" (defaults to "csv" when empty).
 func (o *CreatePPMAttachmentsParams) bindDocTypes(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
-		return errors.Required("docTypes", "query")
+		return errors.Required("docTypes", "query", rawData)
 	}
 
 	var qvDocTypes string
@@ -91,14 +90,14 @@ func (o *CreatePPMAttachmentsParams) bindDocTypes(rawData []string, hasKey bool,
 	docTypesIC := swag.SplitByFormat(qvDocTypes, "csv")
 
 	if len(docTypesIC) == 0 {
-		return errors.Required("docTypes", "query")
+		return errors.Required("docTypes", "query", docTypesIC)
 	}
 
 	var docTypesIR []string
 	for i, docTypesIV := range docTypesIC {
 		docTypesI := docTypesIV
 
-		if err := validate.Enum(fmt.Sprintf("%s.%v", "docTypes", i), "query", docTypesI, []interface{}{"OTHER", "WEIGHT_TICKET", "STORAGE_EXPENSE", "SHIPMENT_SUMMARY", "EXPENSE", "WEIGHT_TICKET_SET"}); err != nil {
+		if err := validate.EnumCase(fmt.Sprintf("%s.%v", "docTypes", i), "query", docTypesI, []interface{}{"OTHER", "WEIGHT_TICKET", "STORAGE_EXPENSE", "SHIPMENT_SUMMARY", "EXPENSE", "WEIGHT_TICKET_SET"}, true); err != nil {
 			return err
 		}
 

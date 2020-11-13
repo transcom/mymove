@@ -8,7 +8,7 @@ package transportation_service_provider_performances
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // GetTSPPHandlerFunc turns a function with the right signature into a get t s p p handler

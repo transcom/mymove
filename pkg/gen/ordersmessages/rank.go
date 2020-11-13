@@ -8,13 +8,13 @@ package ordersmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
 // Rank DoD paygrade or rank of the service member. Some of these ranks will have identical entitlements.
+//
 // swagger:model Rank
 type Rank string
 
@@ -119,7 +119,7 @@ func init() {
 }
 
 func (m Rank) validateRankEnum(path, location string, value Rank) error {
-	if err := validate.Enum(path, location, value, rankEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, rankEnum, true); err != nil {
 		return err
 	}
 	return nil

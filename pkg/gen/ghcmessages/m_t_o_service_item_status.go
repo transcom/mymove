@@ -8,13 +8,13 @@ package ghcmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
 // MTOServiceItemStatus Describes all statuses for a MTOServiceItem
+//
 // swagger:model MTOServiceItemStatus
 type MTOServiceItemStatus string
 
@@ -44,7 +44,7 @@ func init() {
 }
 
 func (m MTOServiceItemStatus) validateMTOServiceItemStatusEnum(path, location string, value MTOServiceItemStatus) error {
-	if err := validate.Enum(path, location, value, mTOServiceItemStatusEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, mTOServiceItemStatusEnum, true); err != nil {
 		return err
 	}
 	return nil

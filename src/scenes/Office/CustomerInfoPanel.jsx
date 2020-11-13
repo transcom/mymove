@@ -17,9 +17,9 @@ import { PanelSwaggerField, PanelField, SwaggerValue, editablePanelify } from 's
 import { stringifyName } from 'shared/utils/serviceMember';
 import { getRequestStatus } from 'shared/Swagger/selectors';
 
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
-import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPhone } from '@fortawesome/free-solid-svg-icons/faPhone';
+import { faEnvelope } from '@fortawesome/free-solid-svg-icons/faEnvelope';
 
 const CustomerInfoDisplay = (props) => {
   const fieldProps = {
@@ -52,7 +52,7 @@ const CustomerInfoDisplay = (props) => {
           )}
           {values.email_is_preferred && (
             <span>
-              <FontAwesomeIcon icon={faEmail} />
+              <FontAwesomeIcon icon={faEnvelope} />
               email
             </span>
           )}

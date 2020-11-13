@@ -2,7 +2,7 @@
 # BUILDER #
 ###########
 
-FROM milmove/circleci-docker:milmove-app-6fc6df164790ca7c9261696f113e403d711e4af0 as builder
+FROM milmove/circleci-docker:milmove-app-0ec766d47ee829323bd4db9d7b420cffc4894a12 as builder
 
 ENV CIRCLECI=true
 

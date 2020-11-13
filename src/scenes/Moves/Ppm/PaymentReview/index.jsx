@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons/faExclamationCircle';
 import { get, isEmpty } from 'lodash';
 import moment from 'moment';
 import Alert from 'shared/Alert';

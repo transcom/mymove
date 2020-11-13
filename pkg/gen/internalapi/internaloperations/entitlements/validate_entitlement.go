@@ -8,7 +8,7 @@ package entitlements
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // ValidateEntitlementHandlerFunc turns a function with the right signature into a validate entitlement handler

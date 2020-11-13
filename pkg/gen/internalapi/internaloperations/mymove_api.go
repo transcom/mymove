@@ -7,17 +7,16 @@ package internaloperations
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 	"strings"
 
-	errors "github.com/go-openapi/errors"
-	loads "github.com/go-openapi/loads"
-	runtime "github.com/go-openapi/runtime"
-	middleware "github.com/go-openapi/runtime/middleware"
-	security "github.com/go-openapi/runtime/security"
-	spec "github.com/go-openapi/spec"
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/errors"
+	"github.com/go-openapi/loads"
+	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/security"
+	"github.com/go-openapi/spec"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/accesscode"
@@ -46,215 +45,217 @@ import (
 // NewMymoveAPI creates a new Mymove instance
 func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 	return &MymoveAPI{
-		handlers:              make(map[string]map[string]http.Handler),
-		formats:               strfmt.Default,
-		defaultConsumes:       "application/json",
-		defaultProduces:       "application/json",
-		customConsumers:       make(map[string]runtime.Consumer),
-		customProducers:       make(map[string]runtime.Producer),
-		ServerShutdown:        func() {},
-		spec:                  spec,
-		ServeError:            errors.ServeError,
-		BasicAuthenticator:    security.BasicAuth,
-		APIKeyAuthenticator:   security.APIKeyAuth,
-		BearerAuthenticator:   security.BearerAuth,
+		handlers:            make(map[string]map[string]http.Handler),
+		formats:             strfmt.Default,
+		defaultConsumes:     "application/json",
+		defaultProduces:     "application/json",
+		customConsumers:     make(map[string]runtime.Consumer),
+		customProducers:     make(map[string]runtime.Producer),
+		PreServerShutdown:   func() {},
+		ServerShutdown:      func() {},
+		spec:                spec,
+		ServeError:          errors.ServeError,
+		BasicAuthenticator:  security.BasicAuth,
+		APIKeyAuthenticator: security.APIKeyAuth,
+		BearerAuthenticator: security.BearerAuth,
+
 		JSONConsumer:          runtime.JSONConsumer(),
 		MultipartformConsumer: runtime.DiscardConsumer,
-		JSONProducer:          runtime.JSONProducer(),
-		ApplicationPdfProducer: runtime.ProducerFunc(func(w io.Writer, data interface{}) error {
-			return errors.NotImplemented("applicationPdf producer has not yet been implemented")
-		}),
+
+		BinProducer:  runtime.ByteStreamProducer(),
+		JSONProducer: runtime.JSONProducer(),
+
 		OfficeApproveMoveHandler: office.ApproveMoveHandlerFunc(func(params office.ApproveMoveParams) middleware.Responder {
-			return middleware.NotImplemented("operation OfficeApproveMove has not yet been implemented")
+			return middleware.NotImplemented("operation office.ApproveMove has not yet been implemented")
 		}),
 		OfficeApprovePPMHandler: office.ApprovePPMHandlerFunc(func(params office.ApprovePPMParams) middleware.Responder {
-			return middleware.NotImplemented("operation OfficeApprovePPM has not yet been implemented")
+			return middleware.NotImplemented("operation office.ApprovePPM has not yet been implemented")
 		}),
 		OfficeApproveReimbursementHandler: office.ApproveReimbursementHandlerFunc(func(params office.ApproveReimbursementParams) middleware.Responder {
-			return middleware.NotImplemented("operation OfficeApproveReimbursement has not yet been implemented")
+			return middleware.NotImplemented("operation office.ApproveReimbursement has not yet been implemented")
 		}),
 		OfficeCancelMoveHandler: office.CancelMoveHandlerFunc(func(params office.CancelMoveParams) middleware.Responder {
-			return middleware.NotImplemented("operation OfficeCancelMove has not yet been implemented")
+			return middleware.NotImplemented("operation office.CancelMove has not yet been implemented")
 		}),
 		AccesscodeClaimAccessCodeHandler: accesscode.ClaimAccessCodeHandlerFunc(func(params accesscode.ClaimAccessCodeParams) middleware.Responder {
-			return middleware.NotImplemented("operation AccesscodeClaimAccessCode has not yet been implemented")
+			return middleware.NotImplemented("operation accesscode.ClaimAccessCode has not yet been implemented")
 		}),
 		DocumentsCreateDocumentHandler: documents.CreateDocumentHandlerFunc(func(params documents.CreateDocumentParams) middleware.Responder {
-			return middleware.NotImplemented("operation DocumentsCreateDocument has not yet been implemented")
+			return middleware.NotImplemented("operation documents.CreateDocument has not yet been implemented")
 		}),
 		MoveDocsCreateGenericMoveDocumentHandler: move_docs.CreateGenericMoveDocumentHandlerFunc(func(params move_docs.CreateGenericMoveDocumentParams) middleware.Responder {
-			return middleware.NotImplemented("operation MoveDocsCreateGenericMoveDocument has not yet been implemented")
+			return middleware.NotImplemented("operation move_docs.CreateGenericMoveDocument has not yet been implemented")
 		}),
 		MtoShipmentCreateMTOShipmentHandler: mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
-			return middleware.NotImplemented("operation MtoShipmentCreateMTOShipment has not yet been implemented")
+			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
 		}),
 		MoveDocsCreateMovingExpenseDocumentHandler: move_docs.CreateMovingExpenseDocumentHandlerFunc(func(params move_docs.CreateMovingExpenseDocumentParams) middleware.Responder {
-			return middleware.NotImplemented("operation MoveDocsCreateMovingExpenseDocument has not yet been implemented")
+			return middleware.NotImplemented("operation move_docs.CreateMovingExpenseDocument has not yet been implemented")
 		}),
 		OrdersCreateOrdersHandler: orders.CreateOrdersHandlerFunc(func(params orders.CreateOrdersParams) middleware.Responder {
-			return middleware.NotImplemented("operation OrdersCreateOrders has not yet been implemented")
+			return middleware.NotImplemented("operation orders.CreateOrders has not yet been implemented")
 		}),
 		PpmCreatePPMAttachmentsHandler: ppm.CreatePPMAttachmentsHandlerFunc(func(params ppm.CreatePPMAttachmentsParams) middleware.Responder {
-			return middleware.NotImplemented("operation PpmCreatePPMAttachments has not yet been implemented")
+			return middleware.NotImplemented("operation ppm.CreatePPMAttachments has not yet been implemented")
 		}),
 		PpmCreatePersonallyProcuredMoveHandler: ppm.CreatePersonallyProcuredMoveHandlerFunc(func(params ppm.CreatePersonallyProcuredMoveParams) middleware.Responder {
-			return middleware.NotImplemented("operation PpmCreatePersonallyProcuredMove has not yet been implemented")
+			return middleware.NotImplemented("operation ppm.CreatePersonallyProcuredMove has not yet been implemented")
 		}),
 		ServiceMembersCreateServiceMemberHandler: service_members.CreateServiceMemberHandlerFunc(func(params service_members.CreateServiceMemberParams) middleware.Responder {
-			return middleware.NotImplemented("operation ServiceMembersCreateServiceMember has not yet been implemented")
+			return middleware.NotImplemented("operation service_members.CreateServiceMember has not yet been implemented")
 		}),
 		BackupContactsCreateServiceMemberBackupContactHandler: backup_contacts.CreateServiceMemberBackupContactHandlerFunc(func(params backup_contacts.CreateServiceMemberBackupContactParams) middleware.Responder {
-			return middleware.NotImplemented("operation BackupContactsCreateServiceMemberBackupContact has not yet been implemented")
+			return middleware.NotImplemented("operation backup_contacts.CreateServiceMemberBackupContact has not yet been implemented")
 		}),
 		CertificationCreateSignedCertificationHandler: certification.CreateSignedCertificationHandlerFunc(func(params certification.CreateSignedCertificationParams) middleware.Responder {
-			return middleware.NotImplemented("operation CertificationCreateSignedCertification has not yet been implemented")
+			return middleware.NotImplemented("operation certification.CreateSignedCertification has not yet been implemented")
 		}),
 		UploadsCreateUploadHandler: uploads.CreateUploadHandlerFunc(func(params uploads.CreateUploadParams) middleware.Responder {
-			return middleware.NotImplemented("operation UploadsCreateUpload has not yet been implemented")
+			return middleware.NotImplemented("operation uploads.CreateUpload has not yet been implemented")
 		}),
 		MoveDocsCreateWeightTicketDocumentHandler: move_docs.CreateWeightTicketDocumentHandlerFunc(func(params move_docs.CreateWeightTicketDocumentParams) middleware.Responder {
-			return middleware.NotImplemented("operation MoveDocsCreateWeightTicketDocument has not yet been implemented")
+			return middleware.NotImplemented("operation move_docs.CreateWeightTicketDocument has not yet been implemented")
 		}),
 		MoveDocsDeleteMoveDocumentHandler: move_docs.DeleteMoveDocumentHandlerFunc(func(params move_docs.DeleteMoveDocumentParams) middleware.Responder {
-			return middleware.NotImplemented("operation MoveDocsDeleteMoveDocument has not yet been implemented")
+			return middleware.NotImplemented("operation move_docs.DeleteMoveDocument has not yet been implemented")
 		}),
 		UploadsDeleteUploadHandler: uploads.DeleteUploadHandlerFunc(func(params uploads.DeleteUploadParams) middleware.Responder {
-			return middleware.NotImplemented("operation UploadsDeleteUpload has not yet been implemented")
+			return middleware.NotImplemented("operation uploads.DeleteUpload has not yet been implemented")
 		}),
 		UploadsDeleteUploadsHandler: uploads.DeleteUploadsHandlerFunc(func(params uploads.DeleteUploadsParams) middleware.Responder {
-			return middleware.NotImplemented("operation UploadsDeleteUploads has not yet been implemented")
+			return middleware.NotImplemented("operation uploads.DeleteUploads has not yet been implemented")
 		}),
 		AccesscodeFetchAccessCodeHandler: accesscode.FetchAccessCodeHandlerFunc(func(params accesscode.FetchAccessCodeParams) middleware.Responder {
-			return middleware.NotImplemented("operation AccesscodeFetchAccessCode has not yet been implemented")
+			return middleware.NotImplemented("operation accesscode.FetchAccessCode has not yet been implemented")
 		}),
 		DpsAuthGetCookieURLHandler: dps_auth.GetCookieURLHandlerFunc(func(params dps_auth.GetCookieURLParams) middleware.Responder {
-			return middleware.NotImplemented("operation DpsAuthGetCookieURL has not yet been implemented")
+			return middleware.NotImplemented("operation dps_auth.GetCookieURL has not yet been implemented")
 		}),
 		EntitlementsIndexEntitlementsHandler: entitlements.IndexEntitlementsHandlerFunc(func(params entitlements.IndexEntitlementsParams) middleware.Responder {
-			return middleware.NotImplemented("operation EntitlementsIndexEntitlements has not yet been implemented")
+			return middleware.NotImplemented("operation entitlements.IndexEntitlements has not yet been implemented")
 		}),
 		MoveDocsIndexMoveDocumentsHandler: move_docs.IndexMoveDocumentsHandlerFunc(func(params move_docs.IndexMoveDocumentsParams) middleware.Responder {
-			return middleware.NotImplemented("operation MoveDocsIndexMoveDocuments has not yet been implemented")
+			return middleware.NotImplemented("operation move_docs.IndexMoveDocuments has not yet been implemented")
 		}),
 		PpmIndexPersonallyProcuredMovesHandler: ppm.IndexPersonallyProcuredMovesHandlerFunc(func(params ppm.IndexPersonallyProcuredMovesParams) middleware.Responder {
-			return middleware.NotImplemented("operation PpmIndexPersonallyProcuredMoves has not yet been implemented")
+			return middleware.NotImplemented("operation ppm.IndexPersonallyProcuredMoves has not yet been implemented")
 		}),
 		BackupContactsIndexServiceMemberBackupContactsHandler: backup_contacts.IndexServiceMemberBackupContactsHandlerFunc(func(params backup_contacts.IndexServiceMemberBackupContactsParams) middleware.Responder {
-			return middleware.NotImplemented("operation BackupContactsIndexServiceMemberBackupContacts has not yet been implemented")
+			return middleware.NotImplemented("operation backup_contacts.IndexServiceMemberBackupContacts has not yet been implemented")
 		}),
 		CertificationIndexSignedCertificationHandler: certification.IndexSignedCertificationHandlerFunc(func(params certification.IndexSignedCertificationParams) middleware.Responder {
-			return middleware.NotImplemented("operation CertificationIndexSignedCertification has not yet been implemented")
+			return middleware.NotImplemented("operation certification.IndexSignedCertification has not yet been implemented")
 		}),
 		UsersIsLoggedInUserHandler: users.IsLoggedInUserHandlerFunc(func(params users.IsLoggedInUserParams) middleware.Responder {
-			return middleware.NotImplemented("operation UsersIsLoggedInUser has not yet been implemented")
+			return middleware.NotImplemented("operation users.IsLoggedInUser has not yet been implemented")
 		}),
 		MtoShipmentListMTOShipmentsHandler: mto_shipment.ListMTOShipmentsHandlerFunc(func(params mto_shipment.ListMTOShipmentsParams) middleware.Responder {
-			return middleware.NotImplemented("operation MtoShipmentListMTOShipments has not yet been implemented")
+			return middleware.NotImplemented("operation mto_shipment.ListMTOShipments has not yet been implemented")
 		}),
 		MovesPatchMoveHandler: moves.PatchMoveHandlerFunc(func(params moves.PatchMoveParams) middleware.Responder {
-			return middleware.NotImplemented("operation MovesPatchMove has not yet been implemented")
+			return middleware.NotImplemented("operation moves.PatchMove has not yet been implemented")
 		}),
 		PpmPatchPersonallyProcuredMoveHandler: ppm.PatchPersonallyProcuredMoveHandlerFunc(func(params ppm.PatchPersonallyProcuredMoveParams) middleware.Responder {
-			return middleware.NotImplemented("operation PpmPatchPersonallyProcuredMove has not yet been implemented")
+			return middleware.NotImplemented("operation ppm.PatchPersonallyProcuredMove has not yet been implemented")
 		}),
 		ServiceMembersPatchServiceMemberHandler: service_members.PatchServiceMemberHandlerFunc(func(params service_members.PatchServiceMemberParams) middleware.Responder {
-			return middleware.NotImplemented("operation ServiceMembersPatchServiceMember has not yet been implemented")
+			return middleware.NotImplemented("operation service_members.PatchServiceMember has not yet been implemented")
 		}),
 		PpmRequestPPMExpenseSummaryHandler: ppm.RequestPPMExpenseSummaryHandlerFunc(func(params ppm.RequestPPMExpenseSummaryParams) middleware.Responder {
-			return middleware.NotImplemented("operation PpmRequestPPMExpenseSummary has not yet been implemented")
+			return middleware.NotImplemented("operation ppm.RequestPPMExpenseSummary has not yet been implemented")
 		}),
 		PpmRequestPPMPaymentHandler: ppm.RequestPPMPaymentHandlerFunc(func(params ppm.RequestPPMPaymentParams) middleware.Responder {
-			return middleware.NotImplemented("operation PpmRequestPPMPayment has not yet been implemented")
+			return middleware.NotImplemented("operation ppm.RequestPPMPayment has not yet been implemented")
 		}),
 		DutyStationsSearchDutyStationsHandler: duty_stations.SearchDutyStationsHandlerFunc(func(params duty_stations.SearchDutyStationsParams) middleware.Responder {
-			return middleware.NotImplemented("operation DutyStationsSearchDutyStations has not yet been implemented")
+			return middleware.NotImplemented("operation duty_stations.SearchDutyStations has not yet been implemented")
 		}),
 		AddressesShowAddressHandler: addresses.ShowAddressHandlerFunc(func(params addresses.ShowAddressParams) middleware.Responder {
-			return middleware.NotImplemented("operation AddressesShowAddress has not yet been implemented")
+			return middleware.NotImplemented("operation addresses.ShowAddress has not yet been implemented")
 		}),
 		CalendarShowAvailableMoveDatesHandler: calendar.ShowAvailableMoveDatesHandlerFunc(func(params calendar.ShowAvailableMoveDatesParams) middleware.Responder {
-			return middleware.NotImplemented("operation CalendarShowAvailableMoveDates has not yet been implemented")
+			return middleware.NotImplemented("operation calendar.ShowAvailableMoveDates has not yet been implemented")
 		}),
 		DocumentsShowDocumentHandler: documents.ShowDocumentHandlerFunc(func(params documents.ShowDocumentParams) middleware.Responder {
-			return middleware.NotImplemented("operation DocumentsShowDocument has not yet been implemented")
+			return middleware.NotImplemented("operation documents.ShowDocument has not yet been implemented")
 		}),
 		TransportationOfficesShowDutyStationTransportationOfficeHandler: transportation_offices.ShowDutyStationTransportationOfficeHandlerFunc(func(params transportation_offices.ShowDutyStationTransportationOfficeParams) middleware.Responder {
-			return middleware.NotImplemented("operation TransportationOfficesShowDutyStationTransportationOffice has not yet been implemented")
+			return middleware.NotImplemented("operation transportation_offices.ShowDutyStationTransportationOffice has not yet been implemented")
 		}),
 		UsersShowLoggedInUserHandler: users.ShowLoggedInUserHandlerFunc(func(params users.ShowLoggedInUserParams) middleware.Responder {
-			return middleware.NotImplemented("operation UsersShowLoggedInUser has not yet been implemented")
+			return middleware.NotImplemented("operation users.ShowLoggedInUser has not yet been implemented")
 		}),
 		MovesShowMoveHandler: moves.ShowMoveHandlerFunc(func(params moves.ShowMoveParams) middleware.Responder {
-			return middleware.NotImplemented("operation MovesShowMove has not yet been implemented")
+			return middleware.NotImplemented("operation moves.ShowMove has not yet been implemented")
 		}),
 		MovesShowMoveDatesSummaryHandler: moves.ShowMoveDatesSummaryHandlerFunc(func(params moves.ShowMoveDatesSummaryParams) middleware.Responder {
-			return middleware.NotImplemented("operation MovesShowMoveDatesSummary has not yet been implemented")
+			return middleware.NotImplemented("operation moves.ShowMoveDatesSummary has not yet been implemented")
 		}),
 		OfficeShowOfficeOrdersHandler: office.ShowOfficeOrdersHandlerFunc(func(params office.ShowOfficeOrdersParams) middleware.Responder {
-			return middleware.NotImplemented("operation OfficeShowOfficeOrders has not yet been implemented")
+			return middleware.NotImplemented("operation office.ShowOfficeOrders has not yet been implemented")
 		}),
 		OrdersShowOrdersHandler: orders.ShowOrdersHandlerFunc(func(params orders.ShowOrdersParams) middleware.Responder {
-			return middleware.NotImplemented("operation OrdersShowOrders has not yet been implemented")
+			return middleware.NotImplemented("operation orders.ShowOrders has not yet been implemented")
 		}),
 		PpmShowPPMEstimateHandler: ppm.ShowPPMEstimateHandlerFunc(func(params ppm.ShowPPMEstimateParams) middleware.Responder {
-			return middleware.NotImplemented("operation PpmShowPPMEstimate has not yet been implemented")
+			return middleware.NotImplemented("operation ppm.ShowPPMEstimate has not yet been implemented")
 		}),
 		PpmShowPPMIncentiveHandler: ppm.ShowPPMIncentiveHandlerFunc(func(params ppm.ShowPPMIncentiveParams) middleware.Responder {
-			return middleware.NotImplemented("operation PpmShowPPMIncentive has not yet been implemented")
+			return middleware.NotImplemented("operation ppm.ShowPPMIncentive has not yet been implemented")
 		}),
 		PpmShowPPMSitEstimateHandler: ppm.ShowPPMSitEstimateHandlerFunc(func(params ppm.ShowPPMSitEstimateParams) middleware.Responder {
-			return middleware.NotImplemented("operation PpmShowPPMSitEstimate has not yet been implemented")
+			return middleware.NotImplemented("operation ppm.ShowPPMSitEstimate has not yet been implemented")
 		}),
 		PpmShowPersonallyProcuredMoveHandler: ppm.ShowPersonallyProcuredMoveHandlerFunc(func(params ppm.ShowPersonallyProcuredMoveParams) middleware.Responder {
-			return middleware.NotImplemented("operation PpmShowPersonallyProcuredMove has not yet been implemented")
+			return middleware.NotImplemented("operation ppm.ShowPersonallyProcuredMove has not yet been implemented")
 		}),
 		QueuesShowQueueHandler: queues.ShowQueueHandlerFunc(func(params queues.ShowQueueParams) middleware.Responder {
-			return middleware.NotImplemented("operation QueuesShowQueue has not yet been implemented")
+			return middleware.NotImplemented("operation queues.ShowQueue has not yet been implemented")
 		}),
 		ServiceMembersShowServiceMemberHandler: service_members.ShowServiceMemberHandlerFunc(func(params service_members.ShowServiceMemberParams) middleware.Responder {
-			return middleware.NotImplemented("operation ServiceMembersShowServiceMember has not yet been implemented")
+			return middleware.NotImplemented("operation service_members.ShowServiceMember has not yet been implemented")
 		}),
 		BackupContactsShowServiceMemberBackupContactHandler: backup_contacts.ShowServiceMemberBackupContactHandlerFunc(func(params backup_contacts.ShowServiceMemberBackupContactParams) middleware.Responder {
-			return middleware.NotImplemented("operation BackupContactsShowServiceMemberBackupContact has not yet been implemented")
+			return middleware.NotImplemented("operation backup_contacts.ShowServiceMemberBackupContact has not yet been implemented")
 		}),
 		ServiceMembersShowServiceMemberOrdersHandler: service_members.ShowServiceMemberOrdersHandlerFunc(func(params service_members.ShowServiceMemberOrdersParams) middleware.Responder {
-			return middleware.NotImplemented("operation ServiceMembersShowServiceMemberOrders has not yet been implemented")
+			return middleware.NotImplemented("operation service_members.ShowServiceMemberOrders has not yet been implemented")
 		}),
 		MovesShowShipmentSummaryWorksheetHandler: moves.ShowShipmentSummaryWorksheetHandlerFunc(func(params moves.ShowShipmentSummaryWorksheetParams) middleware.Responder {
-			return middleware.NotImplemented("operation MovesShowShipmentSummaryWorksheet has not yet been implemented")
+			return middleware.NotImplemented("operation moves.ShowShipmentSummaryWorksheet has not yet been implemented")
 		}),
 		MovesSubmitMoveForApprovalHandler: moves.SubmitMoveForApprovalHandlerFunc(func(params moves.SubmitMoveForApprovalParams) middleware.Responder {
-			return middleware.NotImplemented("operation MovesSubmitMoveForApproval has not yet been implemented")
+			return middleware.NotImplemented("operation moves.SubmitMoveForApproval has not yet been implemented")
 		}),
 		PpmSubmitPersonallyProcuredMoveHandler: ppm.SubmitPersonallyProcuredMoveHandlerFunc(func(params ppm.SubmitPersonallyProcuredMoveParams) middleware.Responder {
-			return middleware.NotImplemented("operation PpmSubmitPersonallyProcuredMove has not yet been implemented")
+			return middleware.NotImplemented("operation ppm.SubmitPersonallyProcuredMove has not yet been implemented")
 		}),
 		MtoShipmentUpdateMTOShipmentHandler: mto_shipment.UpdateMTOShipmentHandlerFunc(func(params mto_shipment.UpdateMTOShipmentParams) middleware.Responder {
-			return middleware.NotImplemented("operation MtoShipmentUpdateMTOShipment has not yet been implemented")
+			return middleware.NotImplemented("operation mto_shipment.UpdateMTOShipment has not yet been implemented")
 		}),
 		MoveDocsUpdateMoveDocumentHandler: move_docs.UpdateMoveDocumentHandlerFunc(func(params move_docs.UpdateMoveDocumentParams) middleware.Responder {
-			return middleware.NotImplemented("operation MoveDocsUpdateMoveDocument has not yet been implemented")
+			return middleware.NotImplemented("operation move_docs.UpdateMoveDocument has not yet been implemented")
 		}),
 		OrdersUpdateOrdersHandler: orders.UpdateOrdersHandlerFunc(func(params orders.UpdateOrdersParams) middleware.Responder {
-			return middleware.NotImplemented("operation OrdersUpdateOrders has not yet been implemented")
+			return middleware.NotImplemented("operation orders.UpdateOrders has not yet been implemented")
 		}),
 		PpmUpdatePersonallyProcuredMoveHandler: ppm.UpdatePersonallyProcuredMoveHandlerFunc(func(params ppm.UpdatePersonallyProcuredMoveParams) middleware.Responder {
-			return middleware.NotImplemented("operation PpmUpdatePersonallyProcuredMove has not yet been implemented")
+			return middleware.NotImplemented("operation ppm.UpdatePersonallyProcuredMove has not yet been implemented")
 		}),
 		PpmUpdatePersonallyProcuredMoveEstimateHandler: ppm.UpdatePersonallyProcuredMoveEstimateHandlerFunc(func(params ppm.UpdatePersonallyProcuredMoveEstimateParams) middleware.Responder {
-			return middleware.NotImplemented("operation PpmUpdatePersonallyProcuredMoveEstimate has not yet been implemented")
+			return middleware.NotImplemented("operation ppm.UpdatePersonallyProcuredMoveEstimate has not yet been implemented")
 		}),
 		BackupContactsUpdateServiceMemberBackupContactHandler: backup_contacts.UpdateServiceMemberBackupContactHandlerFunc(func(params backup_contacts.UpdateServiceMemberBackupContactParams) middleware.Responder {
-			return middleware.NotImplemented("operation BackupContactsUpdateServiceMemberBackupContact has not yet been implemented")
+			return middleware.NotImplemented("operation backup_contacts.UpdateServiceMemberBackupContact has not yet been implemented")
 		}),
 		AccesscodeValidateAccessCodeHandler: accesscode.ValidateAccessCodeHandlerFunc(func(params accesscode.ValidateAccessCodeParams) middleware.Responder {
-			return middleware.NotImplemented("operation AccesscodeValidateAccessCode has not yet been implemented")
+			return middleware.NotImplemented("operation accesscode.ValidateAccessCode has not yet been implemented")
 		}),
 		EntitlementsValidateEntitlementHandler: entitlements.ValidateEntitlementHandlerFunc(func(params entitlements.ValidateEntitlementParams) middleware.Responder {
-			return middleware.NotImplemented("operation EntitlementsValidateEntitlement has not yet been implemented")
+			return middleware.NotImplemented("operation entitlements.ValidateEntitlement has not yet been implemented")
 		}),
 		PostalCodesValidatePostalCodeWithRateDataHandler: postal_codes.ValidatePostalCodeWithRateDataHandlerFunc(func(params postal_codes.ValidatePostalCodeWithRateDataParams) middleware.Responder {
-			return middleware.NotImplemented("operation PostalCodesValidatePostalCodeWithRateData has not yet been implemented")
+			return middleware.NotImplemented("operation postal_codes.ValidatePostalCodeWithRateData has not yet been implemented")
 		}),
 	}
 }
@@ -281,15 +282,19 @@ type MymoveAPI struct {
 	// It has a default implementation in the security package, however you can replace it for your particular usage.
 	BearerAuthenticator func(string, security.ScopedTokenAuthentication) runtime.Authenticator
 
-	// JSONConsumer registers a consumer for a "application/json" mime type
+	// JSONConsumer registers a consumer for the following mime types:
+	//   - application/json
 	JSONConsumer runtime.Consumer
-	// MultipartformConsumer registers a consumer for a "multipart/form-data" mime type
+	// MultipartformConsumer registers a consumer for the following mime types:
+	//   - multipart/form-data
 	MultipartformConsumer runtime.Consumer
 
-	// JSONProducer registers a producer for a "application/json" mime type
+	// BinProducer registers a producer for the following mime types:
+	//   - application/pdf
+	BinProducer runtime.Producer
+	// JSONProducer registers a producer for the following mime types:
+	//   - application/json
 	JSONProducer runtime.Producer
-	// ApplicationPdfProducer registers a producer for a "application/pdf" mime type
-	ApplicationPdfProducer runtime.Producer
 
 	// OfficeApproveMoveHandler sets the operation handler for the approve move operation
 	OfficeApproveMoveHandler office.ApproveMoveHandler
@@ -419,10 +424,13 @@ type MymoveAPI struct {
 	EntitlementsValidateEntitlementHandler entitlements.ValidateEntitlementHandler
 	// PostalCodesValidatePostalCodeWithRateDataHandler sets the operation handler for the validate postal code with rate data operation
 	PostalCodesValidatePostalCodeWithRateDataHandler postal_codes.ValidatePostalCodeWithRateDataHandler
-
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
 	ServeError func(http.ResponseWriter, *http.Request, error)
+
+	// PreServerShutdown is called before the HTTP(S) server is shutdown
+	// This allows for custom functions to get executed before the HTTP(S) server stops accepting traffic
+	PreServerShutdown func()
 
 	// ServerShutdown is called when the HTTP(S) server is shut down and done
 	// handling all active connections and does not accept connections any more
@@ -477,271 +485,206 @@ func (o *MymoveAPI) Validate() error {
 	if o.JSONConsumer == nil {
 		unregistered = append(unregistered, "JSONConsumer")
 	}
-
 	if o.MultipartformConsumer == nil {
 		unregistered = append(unregistered, "MultipartformConsumer")
 	}
 
+	if o.BinProducer == nil {
+		unregistered = append(unregistered, "BinProducer")
+	}
 	if o.JSONProducer == nil {
 		unregistered = append(unregistered, "JSONProducer")
-	}
-
-	if o.ApplicationPdfProducer == nil {
-		unregistered = append(unregistered, "ApplicationPdfProducer")
 	}
 
 	if o.OfficeApproveMoveHandler == nil {
 		unregistered = append(unregistered, "office.ApproveMoveHandler")
 	}
-
 	if o.OfficeApprovePPMHandler == nil {
 		unregistered = append(unregistered, "office.ApprovePPMHandler")
 	}
-
 	if o.OfficeApproveReimbursementHandler == nil {
 		unregistered = append(unregistered, "office.ApproveReimbursementHandler")
 	}
-
 	if o.OfficeCancelMoveHandler == nil {
 		unregistered = append(unregistered, "office.CancelMoveHandler")
 	}
-
 	if o.AccesscodeClaimAccessCodeHandler == nil {
 		unregistered = append(unregistered, "accesscode.ClaimAccessCodeHandler")
 	}
-
 	if o.DocumentsCreateDocumentHandler == nil {
 		unregistered = append(unregistered, "documents.CreateDocumentHandler")
 	}
-
 	if o.MoveDocsCreateGenericMoveDocumentHandler == nil {
 		unregistered = append(unregistered, "move_docs.CreateGenericMoveDocumentHandler")
 	}
-
 	if o.MtoShipmentCreateMTOShipmentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.CreateMTOShipmentHandler")
 	}
-
 	if o.MoveDocsCreateMovingExpenseDocumentHandler == nil {
 		unregistered = append(unregistered, "move_docs.CreateMovingExpenseDocumentHandler")
 	}
-
 	if o.OrdersCreateOrdersHandler == nil {
 		unregistered = append(unregistered, "orders.CreateOrdersHandler")
 	}
-
 	if o.PpmCreatePPMAttachmentsHandler == nil {
 		unregistered = append(unregistered, "ppm.CreatePPMAttachmentsHandler")
 	}
-
 	if o.PpmCreatePersonallyProcuredMoveHandler == nil {
 		unregistered = append(unregistered, "ppm.CreatePersonallyProcuredMoveHandler")
 	}
-
 	if o.ServiceMembersCreateServiceMemberHandler == nil {
 		unregistered = append(unregistered, "service_members.CreateServiceMemberHandler")
 	}
-
 	if o.BackupContactsCreateServiceMemberBackupContactHandler == nil {
 		unregistered = append(unregistered, "backup_contacts.CreateServiceMemberBackupContactHandler")
 	}
-
 	if o.CertificationCreateSignedCertificationHandler == nil {
 		unregistered = append(unregistered, "certification.CreateSignedCertificationHandler")
 	}
-
 	if o.UploadsCreateUploadHandler == nil {
 		unregistered = append(unregistered, "uploads.CreateUploadHandler")
 	}
-
 	if o.MoveDocsCreateWeightTicketDocumentHandler == nil {
 		unregistered = append(unregistered, "move_docs.CreateWeightTicketDocumentHandler")
 	}
-
 	if o.MoveDocsDeleteMoveDocumentHandler == nil {
 		unregistered = append(unregistered, "move_docs.DeleteMoveDocumentHandler")
 	}
-
 	if o.UploadsDeleteUploadHandler == nil {
 		unregistered = append(unregistered, "uploads.DeleteUploadHandler")
 	}
-
 	if o.UploadsDeleteUploadsHandler == nil {
 		unregistered = append(unregistered, "uploads.DeleteUploadsHandler")
 	}
-
 	if o.AccesscodeFetchAccessCodeHandler == nil {
 		unregistered = append(unregistered, "accesscode.FetchAccessCodeHandler")
 	}
-
 	if o.DpsAuthGetCookieURLHandler == nil {
 		unregistered = append(unregistered, "dps_auth.GetCookieURLHandler")
 	}
-
 	if o.EntitlementsIndexEntitlementsHandler == nil {
 		unregistered = append(unregistered, "entitlements.IndexEntitlementsHandler")
 	}
-
 	if o.MoveDocsIndexMoveDocumentsHandler == nil {
 		unregistered = append(unregistered, "move_docs.IndexMoveDocumentsHandler")
 	}
-
 	if o.PpmIndexPersonallyProcuredMovesHandler == nil {
 		unregistered = append(unregistered, "ppm.IndexPersonallyProcuredMovesHandler")
 	}
-
 	if o.BackupContactsIndexServiceMemberBackupContactsHandler == nil {
 		unregistered = append(unregistered, "backup_contacts.IndexServiceMemberBackupContactsHandler")
 	}
-
 	if o.CertificationIndexSignedCertificationHandler == nil {
 		unregistered = append(unregistered, "certification.IndexSignedCertificationHandler")
 	}
-
 	if o.UsersIsLoggedInUserHandler == nil {
 		unregistered = append(unregistered, "users.IsLoggedInUserHandler")
 	}
-
 	if o.MtoShipmentListMTOShipmentsHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.ListMTOShipmentsHandler")
 	}
-
 	if o.MovesPatchMoveHandler == nil {
 		unregistered = append(unregistered, "moves.PatchMoveHandler")
 	}
-
 	if o.PpmPatchPersonallyProcuredMoveHandler == nil {
 		unregistered = append(unregistered, "ppm.PatchPersonallyProcuredMoveHandler")
 	}
-
 	if o.ServiceMembersPatchServiceMemberHandler == nil {
 		unregistered = append(unregistered, "service_members.PatchServiceMemberHandler")
 	}
-
 	if o.PpmRequestPPMExpenseSummaryHandler == nil {
 		unregistered = append(unregistered, "ppm.RequestPPMExpenseSummaryHandler")
 	}
-
 	if o.PpmRequestPPMPaymentHandler == nil {
 		unregistered = append(unregistered, "ppm.RequestPPMPaymentHandler")
 	}
-
 	if o.DutyStationsSearchDutyStationsHandler == nil {
 		unregistered = append(unregistered, "duty_stations.SearchDutyStationsHandler")
 	}
-
 	if o.AddressesShowAddressHandler == nil {
 		unregistered = append(unregistered, "addresses.ShowAddressHandler")
 	}
-
 	if o.CalendarShowAvailableMoveDatesHandler == nil {
 		unregistered = append(unregistered, "calendar.ShowAvailableMoveDatesHandler")
 	}
-
 	if o.DocumentsShowDocumentHandler == nil {
 		unregistered = append(unregistered, "documents.ShowDocumentHandler")
 	}
-
 	if o.TransportationOfficesShowDutyStationTransportationOfficeHandler == nil {
 		unregistered = append(unregistered, "transportation_offices.ShowDutyStationTransportationOfficeHandler")
 	}
-
 	if o.UsersShowLoggedInUserHandler == nil {
 		unregistered = append(unregistered, "users.ShowLoggedInUserHandler")
 	}
-
 	if o.MovesShowMoveHandler == nil {
 		unregistered = append(unregistered, "moves.ShowMoveHandler")
 	}
-
 	if o.MovesShowMoveDatesSummaryHandler == nil {
 		unregistered = append(unregistered, "moves.ShowMoveDatesSummaryHandler")
 	}
-
 	if o.OfficeShowOfficeOrdersHandler == nil {
 		unregistered = append(unregistered, "office.ShowOfficeOrdersHandler")
 	}
-
 	if o.OrdersShowOrdersHandler == nil {
 		unregistered = append(unregistered, "orders.ShowOrdersHandler")
 	}
-
 	if o.PpmShowPPMEstimateHandler == nil {
 		unregistered = append(unregistered, "ppm.ShowPPMEstimateHandler")
 	}
-
 	if o.PpmShowPPMIncentiveHandler == nil {
 		unregistered = append(unregistered, "ppm.ShowPPMIncentiveHandler")
 	}
-
 	if o.PpmShowPPMSitEstimateHandler == nil {
 		unregistered = append(unregistered, "ppm.ShowPPMSitEstimateHandler")
 	}
-
 	if o.PpmShowPersonallyProcuredMoveHandler == nil {
 		unregistered = append(unregistered, "ppm.ShowPersonallyProcuredMoveHandler")
 	}
-
 	if o.QueuesShowQueueHandler == nil {
 		unregistered = append(unregistered, "queues.ShowQueueHandler")
 	}
-
 	if o.ServiceMembersShowServiceMemberHandler == nil {
 		unregistered = append(unregistered, "service_members.ShowServiceMemberHandler")
 	}
-
 	if o.BackupContactsShowServiceMemberBackupContactHandler == nil {
 		unregistered = append(unregistered, "backup_contacts.ShowServiceMemberBackupContactHandler")
 	}
-
 	if o.ServiceMembersShowServiceMemberOrdersHandler == nil {
 		unregistered = append(unregistered, "service_members.ShowServiceMemberOrdersHandler")
 	}
-
 	if o.MovesShowShipmentSummaryWorksheetHandler == nil {
 		unregistered = append(unregistered, "moves.ShowShipmentSummaryWorksheetHandler")
 	}
-
 	if o.MovesSubmitMoveForApprovalHandler == nil {
 		unregistered = append(unregistered, "moves.SubmitMoveForApprovalHandler")
 	}
-
 	if o.PpmSubmitPersonallyProcuredMoveHandler == nil {
 		unregistered = append(unregistered, "ppm.SubmitPersonallyProcuredMoveHandler")
 	}
-
 	if o.MtoShipmentUpdateMTOShipmentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.UpdateMTOShipmentHandler")
 	}
-
 	if o.MoveDocsUpdateMoveDocumentHandler == nil {
 		unregistered = append(unregistered, "move_docs.UpdateMoveDocumentHandler")
 	}
-
 	if o.OrdersUpdateOrdersHandler == nil {
 		unregistered = append(unregistered, "orders.UpdateOrdersHandler")
 	}
-
 	if o.PpmUpdatePersonallyProcuredMoveHandler == nil {
 		unregistered = append(unregistered, "ppm.UpdatePersonallyProcuredMoveHandler")
 	}
-
 	if o.PpmUpdatePersonallyProcuredMoveEstimateHandler == nil {
 		unregistered = append(unregistered, "ppm.UpdatePersonallyProcuredMoveEstimateHandler")
 	}
-
 	if o.BackupContactsUpdateServiceMemberBackupContactHandler == nil {
 		unregistered = append(unregistered, "backup_contacts.UpdateServiceMemberBackupContactHandler")
 	}
-
 	if o.AccesscodeValidateAccessCodeHandler == nil {
 		unregistered = append(unregistered, "accesscode.ValidateAccessCodeHandler")
 	}
-
 	if o.EntitlementsValidateEntitlementHandler == nil {
 		unregistered = append(unregistered, "entitlements.ValidateEntitlementHandler")
 	}
-
 	if o.PostalCodesValidatePostalCodeWithRateDataHandler == nil {
 		unregistered = append(unregistered, "postal_codes.ValidatePostalCodeWithRateDataHandler")
 	}
@@ -760,31 +703,24 @@ func (o *MymoveAPI) ServeErrorFor(operationID string) func(http.ResponseWriter, 
 
 // AuthenticatorsFor gets the authenticators for the specified security schemes
 func (o *MymoveAPI) AuthenticatorsFor(schemes map[string]spec.SecurityScheme) map[string]runtime.Authenticator {
-
 	return nil
-
 }
 
 // Authorizer returns the registered authorizer
 func (o *MymoveAPI) Authorizer() runtime.Authorizer {
-
 	return nil
-
 }
 
-// ConsumersFor gets the consumers for the specified media types
+// ConsumersFor gets the consumers for the specified media types.
+// MIME type parameters are ignored here.
 func (o *MymoveAPI) ConsumersFor(mediaTypes []string) map[string]runtime.Consumer {
-
-	result := make(map[string]runtime.Consumer)
+	result := make(map[string]runtime.Consumer, len(mediaTypes))
 	for _, mt := range mediaTypes {
 		switch mt {
-
 		case "application/json":
 			result["application/json"] = o.JSONConsumer
-
 		case "multipart/form-data":
 			result["multipart/form-data"] = o.MultipartformConsumer
-
 		}
 
 		if c, ok := o.customConsumers[mt]; ok {
@@ -792,22 +728,18 @@ func (o *MymoveAPI) ConsumersFor(mediaTypes []string) map[string]runtime.Consume
 		}
 	}
 	return result
-
 }
 
-// ProducersFor gets the producers for the specified media types
+// ProducersFor gets the producers for the specified media types.
+// MIME type parameters are ignored here.
 func (o *MymoveAPI) ProducersFor(mediaTypes []string) map[string]runtime.Producer {
-
-	result := make(map[string]runtime.Producer)
+	result := make(map[string]runtime.Producer, len(mediaTypes))
 	for _, mt := range mediaTypes {
 		switch mt {
-
+		case "application/pdf":
+			result["application/pdf"] = o.BinProducer
 		case "application/json":
 			result["application/json"] = o.JSONProducer
-
-		case "application/pdf":
-			result["application/pdf"] = o.ApplicationPdfProducer
-
 		}
 
 		if p, ok := o.customProducers[mt]; ok {
@@ -815,7 +747,6 @@ func (o *MymoveAPI) ProducersFor(mediaTypes []string) map[string]runtime.Produce
 		}
 	}
 	return result
-
 }
 
 // HandlerFor gets a http.Handler for the provided operation method and path
@@ -845,7 +776,6 @@ func (o *MymoveAPI) Context() *middleware.Context {
 
 func (o *MymoveAPI) initHandlerCache() {
 	o.Context() // don't care about the result, just that the initialization happened
-
 	if o.handlers == nil {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
@@ -854,322 +784,258 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/moves/{moveId}/approve"] = office.NewApproveMove(o.context, o.OfficeApproveMoveHandler)
-
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/personally_procured_moves/{personallyProcuredMoveId}/approve"] = office.NewApprovePPM(o.context, o.OfficeApprovePPMHandler)
-
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/reimbursement/{reimbursementId}/approve"] = office.NewApproveReimbursement(o.context, o.OfficeApproveReimbursementHandler)
-
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/moves/{moveId}/cancel"] = office.NewCancelMove(o.context, o.OfficeCancelMoveHandler)
-
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/access_codes/invalid"] = accesscode.NewClaimAccessCode(o.context, o.AccesscodeClaimAccessCodeHandler)
-
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/documents"] = documents.NewCreateDocument(o.context, o.DocumentsCreateDocumentHandler)
-
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/moves/{moveId}/move_documents"] = move_docs.NewCreateGenericMoveDocument(o.context, o.MoveDocsCreateGenericMoveDocumentHandler)
-
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/mto_shipments"] = mto_shipment.NewCreateMTOShipment(o.context, o.MtoShipmentCreateMTOShipmentHandler)
-
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/moves/{moveId}/moving_expense_documents"] = move_docs.NewCreateMovingExpenseDocument(o.context, o.MoveDocsCreateMovingExpenseDocumentHandler)
-
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/orders"] = orders.NewCreateOrders(o.context, o.OrdersCreateOrdersHandler)
-
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/personally_procured_moves/{personallyProcuredMoveId}/create_ppm_attachments"] = ppm.NewCreatePPMAttachments(o.context, o.PpmCreatePPMAttachmentsHandler)
-
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/moves/{moveId}/personally_procured_move"] = ppm.NewCreatePersonallyProcuredMove(o.context, o.PpmCreatePersonallyProcuredMoveHandler)
-
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/service_members"] = service_members.NewCreateServiceMember(o.context, o.ServiceMembersCreateServiceMemberHandler)
-
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/service_members/{serviceMemberId}/backup_contacts"] = backup_contacts.NewCreateServiceMemberBackupContact(o.context, o.BackupContactsCreateServiceMemberBackupContactHandler)
-
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/moves/{moveId}/signed_certifications"] = certification.NewCreateSignedCertification(o.context, o.CertificationCreateSignedCertificationHandler)
-
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/uploads"] = uploads.NewCreateUpload(o.context, o.UploadsCreateUploadHandler)
-
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/moves/{moveId}/weight_ticket"] = move_docs.NewCreateWeightTicketDocument(o.context, o.MoveDocsCreateWeightTicketDocumentHandler)
-
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
 	o.handlers["DELETE"]["/move_documents/{moveDocumentId}"] = move_docs.NewDeleteMoveDocument(o.context, o.MoveDocsDeleteMoveDocumentHandler)
-
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
 	o.handlers["DELETE"]["/uploads/{uploadId}"] = uploads.NewDeleteUpload(o.context, o.UploadsDeleteUploadHandler)
-
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
 	o.handlers["DELETE"]["/uploads"] = uploads.NewDeleteUploads(o.context, o.UploadsDeleteUploadsHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/access_codes"] = accesscode.NewFetchAccessCode(o.context, o.AccesscodeFetchAccessCodeHandler)
-
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/dps_auth/cookie_url"] = dps_auth.NewGetCookieURL(o.context, o.DpsAuthGetCookieURLHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/entitlements"] = entitlements.NewIndexEntitlements(o.context, o.EntitlementsIndexEntitlementsHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/moves/{moveId}/move_documents"] = move_docs.NewIndexMoveDocuments(o.context, o.MoveDocsIndexMoveDocumentsHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/moves/{moveId}/personally_procured_move"] = ppm.NewIndexPersonallyProcuredMoves(o.context, o.PpmIndexPersonallyProcuredMovesHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/service_members/{serviceMemberId}/backup_contacts"] = backup_contacts.NewIndexServiceMemberBackupContacts(o.context, o.BackupContactsIndexServiceMemberBackupContactsHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/moves/{moveId}/signed_certifications"] = certification.NewIndexSignedCertification(o.context, o.CertificationIndexSignedCertificationHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/users/is_logged_in"] = users.NewIsLoggedInUser(o.context, o.UsersIsLoggedInUserHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/moves/{moveTaskOrderID}/mto_shipments"] = mto_shipment.NewListMTOShipments(o.context, o.MtoShipmentListMTOShipmentsHandler)
-
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/moves/{moveId}"] = moves.NewPatchMove(o.context, o.MovesPatchMoveHandler)
-
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}"] = ppm.NewPatchPersonallyProcuredMove(o.context, o.PpmPatchPersonallyProcuredMoveHandler)
-
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/service_members/{serviceMemberId}"] = service_members.NewPatchServiceMember(o.context, o.ServiceMembersPatchServiceMemberHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/personally_procured_move/{personallyProcuredMoveId}/expense_summary"] = ppm.NewRequestPPMExpenseSummary(o.context, o.PpmRequestPPMExpenseSummaryHandler)
-
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/personally_procured_move/{personallyProcuredMoveId}/request_payment"] = ppm.NewRequestPPMPayment(o.context, o.PpmRequestPPMPaymentHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/duty_stations"] = duty_stations.NewSearchDutyStations(o.context, o.DutyStationsSearchDutyStationsHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/addresses/{addressId}"] = addresses.NewShowAddress(o.context, o.AddressesShowAddressHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/calendar/available_move_dates"] = calendar.NewShowAvailableMoveDates(o.context, o.CalendarShowAvailableMoveDatesHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/documents/{documentId}"] = documents.NewShowDocument(o.context, o.DocumentsShowDocumentHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/duty_stations/{dutyStationId}/transportation_office"] = transportation_offices.NewShowDutyStationTransportationOffice(o.context, o.TransportationOfficesShowDutyStationTransportationOfficeHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/users/logged_in"] = users.NewShowLoggedInUser(o.context, o.UsersShowLoggedInUserHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/moves/{moveId}"] = moves.NewShowMove(o.context, o.MovesShowMoveHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/moves/{moveId}/move_dates_summary"] = moves.NewShowMoveDatesSummary(o.context, o.MovesShowMoveDatesSummaryHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/moves/{moveId}/orders"] = office.NewShowOfficeOrders(o.context, o.OfficeShowOfficeOrdersHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/orders/{ordersId}"] = orders.NewShowOrders(o.context, o.OrdersShowOrdersHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/estimates/ppm"] = ppm.NewShowPPMEstimate(o.context, o.PpmShowPPMEstimateHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/personally_procured_moves/incentive"] = ppm.NewShowPPMIncentive(o.context, o.PpmShowPPMIncentiveHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/estimates/ppm_sit"] = ppm.NewShowPPMSitEstimate(o.context, o.PpmShowPPMSitEstimateHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}"] = ppm.NewShowPersonallyProcuredMove(o.context, o.PpmShowPersonallyProcuredMoveHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/queues/{queueType}"] = queues.NewShowQueue(o.context, o.QueuesShowQueueHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/service_members/{serviceMemberId}"] = service_members.NewShowServiceMember(o.context, o.ServiceMembersShowServiceMemberHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/backup_contacts/{backupContactId}"] = backup_contacts.NewShowServiceMemberBackupContact(o.context, o.BackupContactsShowServiceMemberBackupContactHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/service_members/{serviceMemberId}/current_orders"] = service_members.NewShowServiceMemberOrders(o.context, o.ServiceMembersShowServiceMemberOrdersHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/moves/{moveId}/shipment_summary_worksheet"] = moves.NewShowShipmentSummaryWorksheet(o.context, o.MovesShowShipmentSummaryWorksheetHandler)
-
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/moves/{moveId}/submit"] = moves.NewSubmitMoveForApproval(o.context, o.MovesSubmitMoveForApprovalHandler)
-
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/personally_procured_move/{personallyProcuredMoveId}/submit"] = ppm.NewSubmitPersonallyProcuredMove(o.context, o.PpmSubmitPersonallyProcuredMoveHandler)
-
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/mto-shipments/{mtoShipmentId}"] = mto_shipment.NewUpdateMTOShipment(o.context, o.MtoShipmentUpdateMTOShipmentHandler)
-
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
 	o.handlers["PUT"]["/move_documents/{moveDocumentId}"] = move_docs.NewUpdateMoveDocument(o.context, o.MoveDocsUpdateMoveDocumentHandler)
-
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
 	o.handlers["PUT"]["/orders/{ordersId}"] = orders.NewUpdateOrders(o.context, o.OrdersUpdateOrdersHandler)
-
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
 	o.handlers["PUT"]["/moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}"] = ppm.NewUpdatePersonallyProcuredMove(o.context, o.PpmUpdatePersonallyProcuredMoveHandler)
-
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}/estimate"] = ppm.NewUpdatePersonallyProcuredMoveEstimate(o.context, o.PpmUpdatePersonallyProcuredMoveEstimateHandler)
-
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
 	o.handlers["PUT"]["/backup_contacts/{backupContactId}"] = backup_contacts.NewUpdateServiceMemberBackupContact(o.context, o.BackupContactsUpdateServiceMemberBackupContactHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/access_codes/valid"] = accesscode.NewValidateAccessCode(o.context, o.AccesscodeValidateAccessCodeHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/entitlements/{moveId}"] = entitlements.NewValidateEntitlement(o.context, o.EntitlementsValidateEntitlementHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/rate_engine_postal_codes/{postal_code}"] = postal_codes.NewValidatePostalCodeWithRateData(o.context, o.PostalCodesValidatePostalCodeWithRateDataHandler)
-
 }
 
 // Serve creates a http handler to serve the API over HTTP
@@ -1198,4 +1064,16 @@ func (o *MymoveAPI) RegisterConsumer(mediaType string, consumer runtime.Consumer
 // RegisterProducer allows you to add (or override) a producer for a media type.
 func (o *MymoveAPI) RegisterProducer(mediaType string, producer runtime.Producer) {
 	o.customProducers[mediaType] = producer
+}
+
+// AddMiddlewareFor adds a http middleware to existing handler
+func (o *MymoveAPI) AddMiddlewareFor(method, path string, builder middleware.Builder) {
+	um := strings.ToUpper(method)
+	if path == "/" {
+		path = ""
+	}
+	o.Init()
+	if h, ok := o.handlers[um][path]; ok {
+		o.handlers[method][path] = builder(h)
+	}
 }

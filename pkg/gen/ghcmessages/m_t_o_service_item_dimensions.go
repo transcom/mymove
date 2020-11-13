@@ -8,13 +8,13 @@ package ghcmessages
 import (
 	"strconv"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
 
 // MTOServiceItemDimensions m t o service item dimensions
+//
 // swagger:model MTOServiceItemDimensions
 type MTOServiceItemDimensions []*MTOServiceItemDimension
 

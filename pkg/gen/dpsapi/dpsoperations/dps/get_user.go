@@ -8,7 +8,7 @@ package dps
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // GetUserHandlerFunc turns a function with the right signature into a get user handler

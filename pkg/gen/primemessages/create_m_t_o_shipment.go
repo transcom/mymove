@@ -11,15 +11,15 @@ import (
 	"io"
 	"strconv"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // CreateMTOShipment create m t o shipment
+//
 // swagger:model CreateMTOShipment
 type CreateMTOShipment struct {
 
@@ -176,8 +176,7 @@ func (m CreateMTOShipment) MarshalJSON() ([]byte, error) {
 		RequestedPickupDate: m.RequestedPickupDate,
 
 		ShipmentType: m.ShipmentType,
-	},
-	)
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -186,8 +185,7 @@ func (m CreateMTOShipment) MarshalJSON() ([]byte, error) {
 	}{
 
 		MtoServiceItems: m.mtoServiceItemsField,
-	},
-	)
+	})
 	if err != nil {
 		return nil, err
 	}
