@@ -37,6 +37,11 @@ type AuthenticationUserPayload struct {
 	// middle name
 	MiddleName *string `json:"middle_name,omitempty"`
 
+	// social security number
+	// Pattern: ^\d{9}$
+	// Format: ssn
+	SocialSecurityNumber strfmt.SSN `json:"social_security_number,omitempty"`
+
 	// suffix
 	Suffix *string `json:"suffix,omitempty"`
 
@@ -57,6 +62,10 @@ func (m *AuthenticationUserPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateLoginGovID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSocialSecurityNumber(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -104,6 +113,23 @@ func (m *AuthenticationUserPayload) validateLoginGovID(formats strfmt.Registry) 
 	}
 
 	if err := validate.FormatOf("login_gov_id", "body", "uuid", m.LoginGovID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *AuthenticationUserPayload) validateSocialSecurityNumber(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SocialSecurityNumber) { // not required
+		return nil
+	}
+
+	if err := validate.Pattern("social_security_number", "body", string(m.SocialSecurityNumber), `^\d{9}$`); err != nil {
+		return err
+	}
+
+	if err := validate.FormatOf("social_security_number", "body", "ssn", m.SocialSecurityNumber.String(), formats); err != nil {
 		return err
 	}
 

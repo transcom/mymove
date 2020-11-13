@@ -71,6 +71,7 @@ func (suite *HandlerSuite) TestGetUserHandler() {
 	suite.Equal(okResponse.Payload.LastName, *serviceMember.LastName)
 	suite.Equal(okResponse.Payload.LoginGovID, strfmt.UUID(loginGovID))
 	suite.Equal(*okResponse.Payload.MiddleName, *serviceMember.MiddleName)
+	suite.Equal(okResponse.Payload.SocialSecurityNumber, strfmt.SSN(iws.SSN))
 	suite.Equal(*okResponse.Payload.Suffix, *serviceMember.Suffix)
 	suite.Equal(*okResponse.Payload.Telephone, *serviceMember.Telephone)
 }

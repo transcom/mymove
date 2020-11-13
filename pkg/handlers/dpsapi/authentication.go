@@ -2,6 +2,7 @@ package dpsapi
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
@@ -103,6 +104,11 @@ func getPayload(db *pop.Connection, loginGovID string, rbs iws.PersonLookup) (*d
 		}
 	}
 
+	ssn, err := getSSNFromIWS(*sm.Edipi, rbs)
+	if err != nil {
+		return nil, errors.Wrap(err, "Getting SSN from IWS using EDIPI")
+	}
+
 	if sm.FirstName == nil || sm.LastName == nil {
 		return nil, &errUserMissingData{
 			userID:     userIdentity.ID,
@@ -111,14 +117,33 @@ func getPayload(db *pop.Connection, loginGovID string, rbs iws.PersonLookup) (*d
 	}
 
 	payload := dpsmessages.AuthenticationUserPayload{
-		Affiliation: affiliation,
-		Email:       userIdentity.Email,
-		FirstName:   *sm.FirstName,
-		MiddleName:  sm.MiddleName,
-		LastName:    *sm.LastName,
-		Suffix:      sm.Suffix,
-		LoginGovID:  strfmt.UUID(loginGovID),
-		Telephone:   sm.Telephone,
+		Affiliation:          affiliation,
+		Email:                userIdentity.Email,
+		FirstName:            *sm.FirstName,
+		MiddleName:           sm.MiddleName,
+		LastName:             *sm.LastName,
+		Suffix:               sm.Suffix,
+		LoginGovID:           strfmt.UUID(loginGovID),
+		SocialSecurityNumber: strfmt.SSN(ssn),
+		Telephone:            sm.Telephone,
 	}
 	return &payload, nil
+}
+
+func getSSNFromIWS(edipi string, rbs iws.PersonLookup) (string, error) {
+	edipiInt, err := strconv.ParseUint(edipi, 10, 64)
+	if err != nil {
+		return "", errors.Wrap(err, "Converting EDIPI from string to int")
+	}
+
+	person, _, err := rbs.GetPersonUsingEDIPI(edipiInt)
+	if err != nil {
+		return "", errors.Wrap(err, "Using IWS")
+	}
+
+	if person.TypeCode != iws.PersonTypeCodeSSN {
+		return "", errors.New("Person from IWS does not have SSN TypeCode")
+	}
+
+	return person.ID, nil
 }
