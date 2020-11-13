@@ -1,14 +1,14 @@
 package testdatagen
 
 import (
-	"crypto/rand"
 	"fmt"
 	"log"
-	"math/big"
 	"os"
 	"path"
 	"reflect"
 	"time"
+
+	"github.com/transcom/mymove/pkg/random"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
@@ -149,13 +149,12 @@ const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567
 func makeRandomString(n int) string {
 	b := make([]byte, n)
 	for i := range b {
-		randLen := big.NewInt(int64(len(letterBytes)))
-		randInt, err := rand.Int(rand.Reader, randLen)
+		randInt, err := random.GetRandomInt(len(letterBytes))
 		if err != nil {
 			log.Panicf("failed to create random string %v", err)
 			return ""
 		}
-		b[i] = letterBytes[randInt.Int64()]
+		b[i] = letterBytes[randInt]
 
 	}
 	return string(b)

@@ -1,10 +1,10 @@
 package testdatagen
 
 import (
-	"crypto/rand"
 	"log"
-	"math/big"
 	"strconv"
+
+	"github.com/transcom/mymove/pkg/random"
 
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v5"
@@ -14,15 +14,13 @@ import (
 
 // randomEdipi creates a random Edipi for a service member
 func randomEdipi() string {
-	low := int64(1000000000)
-	high := int64(649999999999)
-	// #nosec G404 TODO needs review
-	randMax := big.NewInt(high - low)
-	randInt, err := rand.Int(rand.Reader, randMax)
+	low := 1000000000
+	high := 649999999999
+	randInt, err := random.GetRandomIntAddend(low, high)
 	if err != nil {
 		log.Panicf("Failure to generate randomEdipi %v", err)
 	}
-	return strconv.Itoa(int(low + randInt.Int64()))
+	return strconv.Itoa(low + int(randInt))
 }
 
 // MakeServiceMember creates a single ServiceMember with associated data.
