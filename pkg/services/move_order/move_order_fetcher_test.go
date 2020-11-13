@@ -185,18 +185,18 @@ func (suite *MoveOrderServiceSuite) TestListMovesUSMCGBLOC() {
 		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 		params := services.ListMoveOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
-		moveOrders, _, err := moveOrderFetcher.ListMoveOrders(officeUserOooRah.ID, &params)
+		moves, _, err := moveOrderFetcher.ListMoveOrders(officeUserOooRah.ID, &params)
 
 		suite.FatalNoError(err)
-		suite.Equal(1, len(moveOrders))
-		suite.Equal(models.AffiliationMARINES, *moveOrders[0].ServiceMember.Affiliation)
+		suite.Equal(1, len(moves))
+		suite.Equal(models.AffiliationMARINES, *moves[0].Orders.ServiceMember.Affiliation)
 
 		params = services.ListMoveOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
-		moveOrders, _, err = moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+		moves, _, err = moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
 
 		suite.FatalNoError(err)
-		suite.Equal(1, len(moveOrders))
-		suite.Equal(models.AffiliationARMY, *moveOrders[0].ServiceMember.Affiliation)
+		suite.Equal(1, len(moves))
+		suite.Equal(models.AffiliationARMY, *moves[0].Orders.ServiceMember.Affiliation)
 
 	})
 }
