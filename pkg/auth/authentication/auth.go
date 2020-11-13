@@ -700,7 +700,7 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 	if session.IsMilApp() {
 		user, err = models.CreateUser(h.db, openIDUser.UserID, openIDUser.Email)
 	} else {
-		err = models.UpdateUser(h.db, user, openIDUser.UserID)
+		err = models.UpdateUserLoginGovUUID(h.db, user, openIDUser.UserID)
 	}
 
 	if err != nil {

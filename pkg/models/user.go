@@ -95,8 +95,8 @@ func CreateUser(db *pop.Connection, loginGovID string, email string) (*User, err
 	return &newUser, nil
 }
 
-// UpdateUser is called upon the first successful login.gov verification of a new user
-func UpdateUser(db *pop.Connection, user *User, loginGovID string) error {
+// UpdateUserLoginGovUUID is called upon the first successful login.gov verification of a new user
+func UpdateUserLoginGovUUID(db *pop.Connection, user *User, loginGovID string) error {
 	lgu, err := uuid.FromString(loginGovID)
 	if err != nil {
 		return err

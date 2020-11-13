@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/gobuffalo/validate/v3"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -16,6 +17,15 @@ import (
 func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 	queryBuilder := query.NewQueryBuilder(suite.DB())
 	transportationOffice := testdatagen.MakeDefaultTransportationOffice(suite.DB())
+	loginGovUUID := uuid.Must(uuid.NewV4())
+	existingUser := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
+		User: models.User{
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: "spaceman+existing@leo.org",
+			Active:        true,
+		},
+	})
+
 	userInfo := models.OfficeUser{
 		LastName:               "Spaceman",
 		FirstName:              "Leo",
@@ -28,7 +38,12 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 	// Happy path
 	suite.T().Run("If the user is created successfully it should be returned", func(t *testing.T) {
 		fakeFetchOne := func(model interface{}) error {
-			reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(transportationOffice.ID))
+			switch model.(type) {
+			case *models.TransportationOffice:
+				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(transportationOffice.ID))
+			case *models.User:
+				return errors.New("User Not Found")
+			}
 			return nil
 		}
 		fakeQueryAssociations := func(model interface{}, associations services.QueryAssociations, filters []services.QueryFilter, pagination services.Pagination, ordering services.QueryOrder) error {
@@ -52,6 +67,44 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 		suite.Equal(userInfo.Email, officeUser.User.LoginGovEmail)
 	})
 
+	// Reuses existing user if it's already been created for an admin or service member
+	suite.T().Run("Finds existing user by email and associates with office user", func(t *testing.T) {
+		existingUserInfo := models.OfficeUser{
+			LastName:               "Spaceman",
+			FirstName:              "Leo",
+			Email:                  existingUser.LoginGovEmail,
+			TransportationOfficeID: transportationOffice.ID,
+			Telephone:              "312-111-1111",
+			TransportationOffice:   transportationOffice,
+		}
+
+		fakeFetchOne := func(model interface{}) error {
+			switch model.(type) {
+			case *models.TransportationOffice:
+				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(transportationOffice.ID))
+			case *models.User:
+				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(existingUser.ID))
+				reflect.ValueOf(model).Elem().FieldByName("LoginGovUUID").Set(reflect.ValueOf(existingUser.LoginGovUUID))
+				reflect.ValueOf(model).Elem().FieldByName("LoginGovEmail").Set(reflect.ValueOf(existingUserInfo.User.LoginGovEmail))
+			}
+			return nil
+		}
+
+		filter := []services.QueryFilter{query.NewQueryFilter("id", "=", transportationOffice.ID)}
+
+		builder := &testOfficeUserQueryBuilder{
+			fakeFetchOne:  fakeFetchOne,
+			fakeCreateOne: queryBuilder.CreateOne,
+		}
+
+		creator := NewOfficeUserCreator(suite.DB(), builder)
+		officeUser, verrs, err := creator.CreateOfficeUser(&existingUserInfo, filter)
+		suite.NoError(err)
+		suite.Nil(verrs)
+		suite.NotNil(officeUser.User)
+		suite.Equal(officeUser.User.ID, *officeUser.UserID)
+	})
+
 	// Bad transportation office ID
 	suite.T().Run("If we are provided a transportation office that doesn't exist, the create should fail", func(t *testing.T) {
 		fakeFetchOne := func(model interface{}) error {
@@ -72,7 +125,12 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 	// Transaction rollback on createOne validation failure
 	suite.T().Run("CreateOne validation error should rollback transaction", func(t *testing.T) {
 		fakeFetchOne := func(model interface{}) error {
-			reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(transportationOffice.ID))
+			switch model.(type) {
+			case *models.TransportationOffice:
+				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(transportationOffice.ID))
+			case *models.User:
+				return errors.New("User Not Found")
+			}
 			return nil
 		}
 		fakeCreateOne := func(model interface{}) (*validate.Errors, error) {
@@ -111,7 +169,12 @@ func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 	// Transaction rollback on createOne error failure
 	suite.T().Run("CreateOne error should rollback transaction", func(t *testing.T) {
 		fakeFetchOne := func(model interface{}) error {
-			reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(transportationOffice.ID))
+			switch model.(type) {
+			case *models.TransportationOffice:
+				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(transportationOffice.ID))
+			case *models.User:
+				return errors.New("User Not Found")
+			}
 			return nil
 		}
 		fakeCreateOne := func(model interface{}) (*validate.Errors, error) {

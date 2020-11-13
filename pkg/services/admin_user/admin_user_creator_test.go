@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/gobuffalo/validate/v3"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -16,6 +17,15 @@ import (
 func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 	queryBuilder := query.NewQueryBuilder(suite.DB())
 	organization := testdatagen.MakeDefaultOrganization(suite.DB())
+	loginGovUUID := uuid.Must(uuid.NewV4())
+	existingUser := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
+		User: models.User{
+			LoginGovUUID:  &loginGovUUID,
+			LoginGovEmail: "spaceman+existing@leo.org",
+			Active:        true,
+		},
+	})
+
 	userInfo := models.AdminUser{
 		LastName:       "Spaceman",
 		FirstName:      "Leo",
@@ -28,7 +38,12 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 	// Happy path
 	suite.T().Run("If the user is created successfully it should be returned", func(t *testing.T) {
 		fakeFetchOne := func(model interface{}) error {
-			reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(organization.ID))
+			switch model.(type) {
+			case *models.Organization:
+				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(organization.ID))
+			case *models.User:
+				return errors.New("User Not Found")
+			}
 			return nil
 		}
 
@@ -46,6 +61,44 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 		suite.NotNil(adminUser.User)
 		suite.Equal(adminUser.User.ID, *adminUser.UserID)
 		suite.Equal(userInfo.Email, adminUser.User.LoginGovEmail)
+	})
+
+	// Reuses existing user if it's already been created for an office or service member
+	suite.T().Run("Finds existing user by email and associates with office user", func(t *testing.T) {
+		existingUserInfo := models.AdminUser{
+			LastName:       "Spaceman",
+			FirstName:      "Leo",
+			Email:          existingUser.LoginGovEmail,
+			OrganizationID: &organization.ID,
+			Organization:   organization,
+			Role:           models.SystemAdminRole,
+		}
+
+		fakeFetchOne := func(model interface{}) error {
+			switch model.(type) {
+			case *models.Organization:
+				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(organization.ID))
+			case *models.User:
+				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(existingUser.ID))
+				reflect.ValueOf(model).Elem().FieldByName("LoginGovUUID").Set(reflect.ValueOf(existingUser.LoginGovUUID))
+				reflect.ValueOf(model).Elem().FieldByName("LoginGovEmail").Set(reflect.ValueOf(existingUserInfo.User.LoginGovEmail))
+			}
+			return nil
+		}
+
+		filter := []services.QueryFilter{query.NewQueryFilter("id", "=", organization.ID)}
+
+		builder := &testAdminUserQueryBuilder{
+			fakeFetchOne:  fakeFetchOne,
+			fakeCreateOne: queryBuilder.CreateOne,
+		}
+
+		creator := NewAdminUserCreator(suite.DB(), builder)
+		adminUser, verrs, err := creator.CreateAdminUser(&existingUserInfo, filter)
+		suite.NoError(err)
+		suite.Nil(verrs)
+		suite.NotNil(adminUser.User)
+		suite.Equal(adminUser.User.ID, *adminUser.UserID)
 	})
 
 	// Bad organization ID
@@ -67,7 +120,12 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 	// Transaction rollback on createOne validation failure
 	suite.T().Run("CreateOne validation error should rollback transaction", func(t *testing.T) {
 		fakeFetchOne := func(model interface{}) error {
-			reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(organization.ID))
+			switch model.(type) {
+			case *models.Organization:
+				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(organization.ID))
+			case *models.User:
+				return errors.New("User Not Found")
+			}
 			return nil
 		}
 		fakeCreateOne := func(model interface{}) (*validate.Errors, error) {
@@ -101,7 +159,12 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 	// Transaction rollback on createOne error failure
 	suite.T().Run("CreateOne error should rollback transaction", func(t *testing.T) {
 		fakeFetchOne := func(model interface{}) error {
-			reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(organization.ID))
+			switch model.(type) {
+			case *models.Organization:
+				reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(organization.ID))
+			case *models.User:
+				return errors.New("User Not Found")
+			}
 			return nil
 		}
 		fakeCreateOne := func(model interface{}) (*validate.Errors, error) {
