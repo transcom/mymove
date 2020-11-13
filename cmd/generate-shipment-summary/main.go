@@ -104,7 +104,7 @@ func main() {
 
 	err = checkConfig(v, logger)
 	if err != nil {
-		logger.Fatal("invalid configuration", zap.Error(err))
+		logger.Panic("invalid configuration", zap.Error(err))
 	}
 
 	// DB connection
