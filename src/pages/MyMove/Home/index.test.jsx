@@ -40,11 +40,19 @@ function mountHome(props = {}) {
   );
 }
 describe('Home component', () => {
-  it('renders Home with the right amount of components', () => {
+  describe('with default props', () => {
     const wrapper = mountHome();
-    expect(wrapper.find('Step').length).toBe(4);
-    expect(wrapper.find('Helper').length).toBe(1);
-    expect(wrapper.find('Contact').length).toBe(1);
+
+    it('renders Home with the right amount of components', () => {
+      expect(wrapper.find('Step').length).toBe(4);
+      expect(wrapper.find('Helper').length).toBe(1);
+      expect(wrapper.find('Contact').length).toBe(1);
+    });
+
+    it('Profile Step is editable', () => {
+      const profileStep = wrapper.find('Step[step="1"]');
+      expect(profileStep.prop('editBtnLabel')).toEqual('Edit');
+    });
   });
 
   describe('contents of Step 3', () => {
@@ -71,6 +79,11 @@ describe('Home component', () => {
     it('renders the NeedsOrders helper', () => {
       expect(wrapper.find('HelperNeedsOrders').exists()).toBe(true);
     });
+
+    it('Orders Step is not editable', () => {
+      const ordersStep = wrapper.find('Step[step="2"]');
+      expect(ordersStep.prop('editBtnLabel')).toEqual('');
+    });
   });
 
   describe('if the user has orders but not shipments', () => {
@@ -81,6 +94,11 @@ describe('Home component', () => {
 
     it('renders the NeedsShipment helper', () => {
       expect(wrapper.find('HelperNeedsShipment').exists()).toBe(true);
+    });
+
+    it('Orders Step is editable', () => {
+      const ordersStep = wrapper.find('Step[step="2"]');
+      expect(ordersStep.prop('editBtnLabel')).toEqual('Edit');
     });
   });
 
@@ -120,6 +138,16 @@ describe('Home component', () => {
       it('renders the SubmittedMove helper', () => {
         expect(wrapper.find('HelperSubmittedMove').exists()).toBe(true);
       });
+
+      it('Profile step is editable', () => {
+        const profileStep = wrapper.find('Step[step="1"]');
+        expect(profileStep.prop('editBtnLabel')).toEqual('Edit');
+      });
+
+      it('Orders Step is not editable', () => {
+        const ordersStep = wrapper.find('Step[step="2"]');
+        expect(ordersStep.prop('editBtnLabel')).toEqual('');
+      });
     });
 
     describe('for HHG moves', () => {
@@ -133,6 +161,16 @@ describe('Home component', () => {
       it('renders the SubmittedNoPPM helper', () => {
         expect(wrapper.find('HelperSubmittedNoPPM').exists()).toBe(true);
       });
+
+      it('Profile step is editable', () => {
+        const profileStep = wrapper.find('Step[step="1"]');
+        expect(profileStep.prop('editBtnLabel')).toEqual('Edit');
+      });
+
+      it('Orders Step is not editable', () => {
+        const ordersStep = wrapper.find('Step[step="2"]');
+        expect(ordersStep.prop('editBtnLabel')).toEqual('');
+      });
     });
 
     describe('for NTS moves', () => {
@@ -145,6 +183,16 @@ describe('Home component', () => {
 
       it('renders the SubmittedNoPPM helper', () => {
         expect(wrapper.find('HelperSubmittedNoPPM').exists()).toBe(true);
+      });
+
+      it('Profile step is editable', () => {
+        const profileStep = wrapper.find('Step[step="1"]');
+        expect(profileStep.prop('editBtnLabel')).toEqual('Edit');
+      });
+
+      it('Orders Step is not editable', () => {
+        const ordersStep = wrapper.find('Step[step="2"]');
+        expect(ordersStep.prop('editBtnLabel')).toEqual('');
       });
     });
 
@@ -173,6 +221,16 @@ describe('Home component', () => {
 
       it('renders the SubmittedMove helper', () => {
         expect(wrapper.find('HelperSubmittedMove').exists()).toBe(true);
+      });
+
+      it('Profile step is editable', () => {
+        const profileStep = wrapper.find('Step[step="1"]');
+        expect(profileStep.prop('editBtnLabel')).toEqual('Edit');
+      });
+
+      it('Orders Step is not editable', () => {
+        const ordersStep = wrapper.find('Step[step="2"]');
+        expect(ordersStep.prop('editBtnLabel')).toEqual('');
       });
     });
   });
