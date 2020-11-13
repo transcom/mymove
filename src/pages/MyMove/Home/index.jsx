@@ -11,7 +11,7 @@ import {
   HelperNeedsShipment,
   HelperNeedsSubmitMove,
   HelperSubmittedMove,
-  HelperSubmittedNoPPM,
+  HelperSubmittedPPM,
 } from './HomeHelpers';
 
 import { withContext } from 'shared/AppContext';
@@ -156,9 +156,14 @@ class Home extends Component {
     if (!this.hasOrders) return <HelperNeedsOrders />;
     if (!this.hasAnyShipments) return <HelperNeedsShipment />;
     if (!this.hasSubmittedMove) return <HelperNeedsSubmitMove />;
-    // TODO: support PPM shipments; see MB-4267
-    if (this.hasPPMShipment) return <HelperSubmittedMove />;
-    return <HelperSubmittedNoPPM />;
+    if (this.hasPPMShipment)
+      return (
+        <>
+          <HelperSubmittedMove />
+          <HelperSubmittedPPM />
+        </>
+      );
+    return <HelperSubmittedMove />;
   };
 
   renderCustomerHeader = () => {

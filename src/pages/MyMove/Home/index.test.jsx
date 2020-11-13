@@ -6,6 +6,7 @@ import moment from 'moment';
 
 import Home from '.';
 
+import { MockProviders } from 'testUtils';
 import { store } from 'shared/store';
 import { formatCustomerDate } from 'utils/formatters';
 
@@ -128,11 +129,52 @@ describe('Home component', () => {
 
   describe('if the user has submitted their move', () => {
     describe('for PPM moves', () => {
+      const orders = {
+        id: 'testOrder123',
+        new_duty_station: {
+          name: 'Test Duty Station',
+        },
+      };
+      const uploadedOrderDocuments = [{ filename: 'testOrder1.pdf' }];
+      const move = { status: 'SUBMITTED' };
+      const currentPpm = { id: 'mockPpm ' };
+      const wrapper = mount(
+        <MockProviders initialEntries={['/']}>
+          <Home
+            {...defaultProps}
+            orders={orders}
+            uploadedOrderDocuments={uploadedOrderDocuments}
+            move={move}
+            currentPpm={currentPpm}
+          />
+        </MockProviders>,
+      );
+
+      it('renders the SubmittedMove helper', () => {
+        expect(wrapper.find('HelperSubmittedMove').exists()).toBe(true);
+      });
+
+      it('Profile step is editable', () => {
+        const profileStep = wrapper.find('Step[step="1"]');
+        expect(profileStep.prop('editBtnLabel')).toEqual('Edit');
+      });
+
+      it('Orders Step is not editable', () => {
+        const ordersStep = wrapper.find('Step[step="2"]');
+        expect(ordersStep.prop('editBtnLabel')).toEqual('');
+      });
+
+      it('renders the SubmittedPPM helper', () => {
+        expect(wrapper.find('HelperSubmittedPPM').exists()).toBe(true);
+      });
+    });
+
+    describe('for HHG moves (no PPM)', () => {
       const wrapper = mountHome({
         orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
         uploadedOrderDocuments: [{ filename: 'testOrder1.pdf' }],
+        mtoShipments: [{ id: 'test123', shipmentType: 'HHG' }],
         move: { status: 'SUBMITTED' },
-        currentPpm: { id: 'mockPpm' },
       });
 
       it('renders the SubmittedMove helper', () => {
@@ -150,30 +192,7 @@ describe('Home component', () => {
       });
     });
 
-    describe('for HHG moves', () => {
-      const wrapper = mountHome({
-        orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
-        uploadedOrderDocuments: [{ filename: 'testOrder1.pdf' }],
-        mtoShipments: [{ id: 'test123', shipmentType: 'HHG' }],
-        move: { status: 'SUBMITTED' },
-      });
-
-      it('renders the SubmittedNoPPM helper', () => {
-        expect(wrapper.find('HelperSubmittedNoPPM').exists()).toBe(true);
-      });
-
-      it('Profile step is editable', () => {
-        const profileStep = wrapper.find('Step[step="1"]');
-        expect(profileStep.prop('editBtnLabel')).toEqual('Edit');
-      });
-
-      it('Orders Step is not editable', () => {
-        const ordersStep = wrapper.find('Step[step="2"]');
-        expect(ordersStep.prop('editBtnLabel')).toEqual('');
-      });
-    });
-
-    describe('for NTS moves', () => {
+    describe('for NTS moves (no PPM)', () => {
       const wrapper = mountHome({
         orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
         uploadedOrderDocuments: [{ filename: 'testOrder1.pdf' }],
@@ -181,8 +200,8 @@ describe('Home component', () => {
         move: { status: 'SUBMITTED' },
       });
 
-      it('renders the SubmittedNoPPM helper', () => {
-        expect(wrapper.find('HelperSubmittedNoPPM').exists()).toBe(true);
+      it('renders the SubmittedMove helper', () => {
+        expect(wrapper.find('HelperSubmittedMove').exists()).toBe(true);
       });
 
       it('Profile step is editable', () => {
@@ -198,14 +217,26 @@ describe('Home component', () => {
 
     describe('for HHG/PPM combo moves', () => {
       const submittedAt = new Date();
-
-      const wrapper = mountHome({
-        orders: { id: 'testOrder123', new_duty_station: { name: 'Test Duty Station' } },
-        uploadedOrderDocuments: [{ filename: 'testOrder1.pdf' }],
-        mtoShipments: [{ id: 'test123', shipmentType: 'HHG' }],
-        move: { status: 'SUBMITTED', submitted_at: submittedAt },
-        currentPpm: { id: 'mockPpm' },
-      });
+      const orders = {
+        id: 'testOrder123',
+        new_duty_station: {
+          name: 'Test Duty Station',
+        },
+      };
+      const uploadedOrderDocuments = [{ filename: 'testOrder1.pdf' }];
+      const move = { status: 'SUBMITTED', submitted_at: submittedAt };
+      const currentPpm = { id: 'mockCombo' };
+      const wrapper = mount(
+        <MockProviders initialEntries={['/']}>
+          <Home
+            {...defaultProps}
+            orders={orders}
+            uploadedOrderDocuments={uploadedOrderDocuments}
+            move={move}
+            currentPpm={currentPpm}
+          />
+        </MockProviders>,
+      );
 
       it('renders submitted date at step 4', () => {
         expect(wrapper.find('[data-testid="move-submitted-description"]').text()).toBe(
@@ -231,6 +262,10 @@ describe('Home component', () => {
       it('Orders Step is not editable', () => {
         const ordersStep = wrapper.find('Step[step="2"]');
         expect(ordersStep.prop('editBtnLabel')).toEqual('');
+      });
+
+      it('renders the SubmittedPPM helper', () => {
+        expect(wrapper.find('HelperSubmittedPPM').exists()).toBe(true);
       });
     });
   });
