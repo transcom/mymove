@@ -1,6 +1,7 @@
 package adminuser
 
 import (
+	"errors"
 	"reflect"
 	"testing"
 
@@ -13,6 +14,7 @@ import (
 )
 
 func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
+	queryBuilder := query.NewQueryBuilder(suite.DB())
 	organization := testdatagen.MakeDefaultOrganization(suite.DB())
 	userInfo := models.AdminUser{
 		LastName:       "Spaceman",
@@ -20,6 +22,7 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 		Email:          "spaceman@leo.org",
 		OrganizationID: &organization.ID,
 		Organization:   organization,
+		Role:           models.SystemAdminRole,
 	}
 
 	// Happy path
@@ -28,22 +31,21 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 			reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(organization.ID))
 			return nil
 		}
-		fakeCreateOne := func(interface{}) (*validate.Errors, error) {
-			return nil, nil
-		}
 
 		filter := []services.QueryFilter{query.NewQueryFilter("id", "=", organization.ID)}
 
 		builder := &testAdminUserQueryBuilder{
 			fakeFetchOne:  fakeFetchOne,
-			fakeCreateOne: fakeCreateOne,
+			fakeCreateOne: queryBuilder.CreateOne,
 		}
 
 		creator := NewAdminUserCreator(suite.DB(), builder)
-		_, verrs, err := creator.CreateAdminUser(&userInfo, filter)
+		adminUser, verrs, err := creator.CreateAdminUser(&userInfo, filter)
 		suite.NoError(err)
 		suite.Nil(verrs)
-
+		suite.NotNil(adminUser.User)
+		suite.Equal(adminUser.User.ID, *adminUser.UserID)
+		suite.Equal(userInfo.Email, adminUser.User.LoginGovEmail)
 	})
 
 	// Bad organization ID
@@ -60,7 +62,67 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 		_, _, err := creator.CreateAdminUser(&userInfo, filter)
 		suite.Error(err)
 		suite.Equal(models.ErrFetchNotFound.Error(), err.Error())
-
 	})
 
+	// Transaction rollback on createOne validation failure
+	suite.T().Run("CreateOne validation error should rollback transaction", func(t *testing.T) {
+		fakeFetchOne := func(model interface{}) error {
+			reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(organization.ID))
+			return nil
+		}
+		fakeCreateOne := func(model interface{}) (*validate.Errors, error) {
+			// Fail on the OfficeUser call to CreateOne but let User succeed
+			switch model.(type) {
+			case *models.AdminUser:
+				return &validate.Errors{
+					Errors: map[string][]string{
+						"errorKey": {"violation message"},
+					},
+				}, nil
+			default:
+				{
+					return nil, nil
+				}
+			}
+		}
+		filter := []services.QueryFilter{query.NewQueryFilter("id", "=", organization.ID)}
+
+		builder := &testAdminUserQueryBuilder{
+			fakeFetchOne:  fakeFetchOne,
+			fakeCreateOne: fakeCreateOne,
+		}
+
+		creator := NewAdminUserCreator(suite.DB(), builder)
+		_, verrs, _ := creator.CreateAdminUser(&userInfo, filter)
+		suite.NotNil(verrs)
+		suite.Equal("violation message", verrs.Errors["errorKey"][0])
+	})
+
+	// Transaction rollback on createOne error failure
+	suite.T().Run("CreateOne error should rollback transaction", func(t *testing.T) {
+		fakeFetchOne := func(model interface{}) error {
+			reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(organization.ID))
+			return nil
+		}
+		fakeCreateOne := func(model interface{}) (*validate.Errors, error) {
+			// Fail on the second createOne call with OfficeUser
+			switch model.(type) {
+			case *models.AdminUser:
+				return nil, errors.New("uniqueness constraint conflict")
+			default:
+				return nil, nil
+			}
+		}
+
+		filter := []services.QueryFilter{query.NewQueryFilter("id", "=", organization.ID)}
+
+		builder := &testAdminUserQueryBuilder{
+			fakeFetchOne:  fakeFetchOne,
+			fakeCreateOne: fakeCreateOne,
+		}
+
+		creator := NewAdminUserCreator(suite.DB(), builder)
+		_, _, err := creator.CreateAdminUser(&userInfo, filter)
+		suite.EqualError(err, "uniqueness constraint conflict")
+	})
 }
