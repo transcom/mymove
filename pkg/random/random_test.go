@@ -13,7 +13,7 @@ func TestGetRandomInt(t *testing.T) {
 		}
 
 		if result >= intMax {
-			t.Errorf("random number %d utside of expected max %d", result, intMax)
+			t.Errorf("random number %d outside of expected max %d", result, intMax)
 		}
 	}
 }
