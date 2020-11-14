@@ -15,7 +15,7 @@ import (
 // randomEdipi creates a random Edipi for a service member
 func randomEdipi() string {
 	low := 1000000000
-	high := 649999999999
+	high := 9999999999
 	randInt, err := random.GetRandomIntAddend(low, high)
 	if err != nil {
 		log.Panicf("Failure to generate randomEdipi %v", err)
