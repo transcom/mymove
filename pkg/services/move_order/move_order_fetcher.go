@@ -19,10 +19,10 @@ type moveOrderFetcher struct {
 // FilterOption defines the type for the functional arguments used for private functions in MoveOrderFetcher
 type FilterOption func(*pop.Query)
 
-func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *services.ListMoveOrderParams) ([]models.Order, int, error) {
+func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *services.ListMoveOrderParams) ([]models.Move, int, error) {
 	// Now that we've joined orders and move_orders, we only want to return orders that
 	// have an associated move.
-	var moveOrders []models.Order
+	var moves []models.Move
 	var transportationOffice models.TransportationOffice
 	// select the GBLOC associated with the transportation office of the session's current office user
 	err := f.db.Q().
@@ -30,7 +30,7 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 		Where("office_users.id = ?", officeUserID).First(&transportationOffice)
 
 	if err != nil {
-		return []models.Order{}, 0, err
+		return []models.Move{}, 0, err
 	}
 
 	gbloc := transportationOffice.Gbloc
@@ -57,13 +57,13 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 	options := [7]FilterOption{branchQuery, moveIDQuery, dodIDQuery, lastNameQuery, dutyStationQuery, moveStatusQuery, gblocQuery}
 
 	query := f.db.Q().Eager(
-		"ServiceMember",
-		"NewDutyStation.Address",
-		"OriginDutyStation",
-		"Entitlement",
-		"Moves.MTOShipments",
-		"Moves.MTOServiceItems",
-	).InnerJoin("moves", "orders.id = moves.orders_id").
+		"Orders.ServiceMember",
+		"Orders.NewDutyStation.Address",
+		"Orders.OriginDutyStation",
+		"Orders.Entitlement",
+		"MTOShipments",
+		"MTOServiceItems",
+	).InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
 		InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
 		InnerJoin("duty_stations", "orders.origin_duty_station_id = duty_stations.id").
@@ -79,9 +79,9 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return []models.Order{}, 0, services.NotFoundError{}
+			return []models.Move{}, 0, services.NotFoundError{}
 		default:
-			return []models.Order{}, 0, err
+			return []models.Move{}, 0, err
 		}
 	}
 	// Pass zeros into paginate in this case. Which will give us 1 page and 20 per page respectively
@@ -92,28 +92,28 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 		params.Page = swag.Int64(0)
 	}
 
-	err = query.GroupBy("orders.id").Paginate(int(*params.Page), int(*params.PerPage)).All(&moveOrders)
+	err = query.GroupBy("moves.id").Paginate(int(*params.Page), int(*params.PerPage)).All(&moves)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return []models.Order{}, 0, services.NotFoundError{}
+			return []models.Move{}, 0, services.NotFoundError{}
 		default:
-			return []models.Order{}, 0, err
+			return []models.Move{}, 0, err
 		}
 	}
 	// Get the count
 	count := query.Paginator.TotalEntriesSize
 
-	for i := range moveOrders {
+	for i := range moves {
 		// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we
 		// cannot eager load the address as "OriginDutyStation.Address" because
 		// OriginDutyStation is a pointer.
-		if moveOrders[i].OriginDutyStation != nil {
-			f.db.Load(moveOrders[i].OriginDutyStation, "Address", "TransportationOffice")
+		if moves[i].Orders.OriginDutyStation != nil {
+			f.db.Load(moves[i].Orders.OriginDutyStation, "Address", "TransportationOffice")
 		}
 	}
 
-	return moveOrders, count, nil
+	return moves, count, nil
 }
 
 // NewMoveOrderFetcher creates a new struct with the service dependencies
