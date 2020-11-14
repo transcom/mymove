@@ -100,17 +100,18 @@ func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eT
 
 // UpdateMoveTaskOrderQueryBuilder is the query builder for updating MTO
 type UpdateMoveTaskOrderQueryBuilder interface {
-	FetchOne(model interface{}, filters []services.QueryFilter) error
 	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
 }
 
 func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(moveTaskOrderID uuid.UUID, body movetaskorderops.UpdateMTOPostCounselingInformationBody, eTag string) (*models.Move, error) {
 	var moveTaskOrder models.Move
 
-	queryFilters := []services.QueryFilter{
-		query.NewQueryFilter("id", "=", moveTaskOrderID),
-	}
-	err := o.builder.FetchOne(&moveTaskOrder, queryFilters)
+	err := o.db.Q().Eager(
+		"Orders.NewDutyStation.Address",
+		"Orders.ServiceMember",
+		"MTOShipments",
+		"PaymentRequests",
+	).Find(&moveTaskOrder, moveTaskOrderID)
 
 	if err != nil {
 		return nil, services.NewNotFoundError(moveTaskOrderID, "while looking for moveTaskOrder.")

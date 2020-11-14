@@ -361,6 +361,45 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		suite.IsType(&paymentrequestop.CreatePaymentRequestUnprocessableEntity{}, response)
 	})
 
+	suite.T().Run("failed create payment request due to conflict in model", func(t *testing.T) {
+
+		ordersID, _ := uuid.FromString("2b8b141a-7c44-45f2-9114-bb0831cc5db3")
+		err := services.NewConflictError(ordersID, "incomplete orders")
+		paymentRequestCreator := &mocks.PaymentRequestCreator{}
+		paymentRequestCreator.On("CreatePaymentRequest",
+			mock.AnythingOfType("*models.PaymentRequest")).Return(nil, err).Once()
+
+		handler := CreatePaymentRequestHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			paymentRequestCreator,
+		}
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests"), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
+		serviceItemID1, _ := uuid.FromString("1b7b134a-7c44-45f2-9114-bb0831cc5db3")
+		serviceItemID2, _ := uuid.FromString("119f0a05-34d7-4d86-9745-009c0707b4c2")
+		params := paymentrequestop.CreatePaymentRequestParams{
+			HTTPRequest: req,
+			Body: &primemessages.CreatePaymentRequest{
+				IsFinal:         swag.Bool(false),
+				MoveTaskOrderID: handlers.FmtUUID(moveTaskOrderID),
+				ServiceItems: []*primemessages.ServiceItem{
+					{
+						ID: *handlers.FmtUUID(serviceItemID1),
+					},
+					{
+						ID: *handlers.FmtUUID(serviceItemID2),
+					},
+				},
+				PointOfContact: "user@prime.com",
+			},
+		}
+		response := handler.Handle(params)
+
+		suite.IsType(&paymentrequestop.CreatePaymentRequestConflict{}, response)
+	})
+
 	suite.T().Run("failed create payment request due to bad data", func(t *testing.T) {
 
 		err := services.NewBadDataError("sent some bad data, foo!")

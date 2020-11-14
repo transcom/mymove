@@ -1,7 +1,6 @@
 package internalapi
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -10,7 +9,6 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/auth"
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -104,7 +102,6 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerNoValues() {
 
 	suite.Assertions.NotEqual(*serviceMemberPayload.ID, uuid.Nil)
 	suite.Assertions.NotEqual(*serviceMemberPayload.UserID, uuid.Nil)
-	suite.Assertions.Equal(*serviceMemberPayload.HasSocialSecurityNumber, false)
 	suite.Assertions.Equal(*serviceMemberPayload.IsProfileComplete, false)
 	suite.Assertions.Equal(len((*serviceMemberPayload).Orders), 0)
 	fmt.Println((*serviceMemberPayload).CurrentStation)
@@ -139,7 +136,6 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 		EmailIsPreferred:     swag.Bool(true),
 		ResidentialAddress:   fakeAddressPayload(),
 		BackupMailingAddress: fakeAddressPayload(),
-		SocialSecurityNumber: (*strfmt.SSN)(swag.String("123-45-6789")),
 	}
 
 	req := httptest.NewRequest("GET", "/service_members/some_id", nil)
@@ -165,56 +161,6 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 	suite.Assertions.Len(serviceMembers, 1)
 }
 
-func (suite *HandlerSuite) TestSubmitServiceMemberSSN() {
-	ctx := context.Background()
-
-	// Given: A logged-in user
-	user := testdatagen.MakeDefaultUser(suite.DB())
-	session := &auth.Session{
-		UserID:          user.ID,
-		ApplicationName: auth.MilApp,
-	}
-
-	// When: a new ServiceMember is posted
-	ssn := "123-45-6789"
-	newServiceMemberPayload := internalmessages.CreateServiceMemberPayload{
-		SocialSecurityNumber: (*strfmt.SSN)(swag.String(ssn)),
-	}
-
-	req := httptest.NewRequest("GET", "/service_members/some_id", nil)
-	req = suite.AuthenticateUserRequest(req, user)
-
-	params := servicememberop.CreateServiceMemberParams{
-		CreateServiceMemberPayload: &newServiceMemberPayload,
-		HTTPRequest:                req,
-	}
-
-	handler := CreateServiceMemberHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
-	response := handler.Handle(params)
-
-	suite.Assertions.IsType(&handlers.CookieUpdateResponder{}, response)
-	unwrappedResponse := response.(*handlers.CookieUpdateResponder).Responder
-	suite.Assertions.IsType(&servicememberop.CreateServiceMemberCreated{}, unwrappedResponse)
-	okResponse := unwrappedResponse.(*servicememberop.CreateServiceMemberCreated)
-
-	suite.Assertions.True(*okResponse.Payload.HasSocialSecurityNumber)
-
-	// Then: we expect a ServiceMember to have been created for the user
-	query := suite.DB().Where("user_id = ?", user.ID)
-	var serviceMembers models.ServiceMembers
-	query.All(&serviceMembers)
-
-	suite.Assertions.Len(serviceMembers, 1)
-
-	serviceMemberID, _ := uuid.FromString(okResponse.Payload.ID.String())
-
-	session.ServiceMemberID = serviceMemberID
-	serviceMember, err := models.FetchServiceMemberForUser(ctx, suite.DB(), session, serviceMemberID)
-	suite.Assertions.NoError(err)
-
-	suite.Assertions.True(serviceMember.SocialSecurityNumber.Matches(ssn))
-}
-
 func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	// Given: a logged in user
 	user := testdatagen.MakeDefaultUser(suite.DB())
@@ -230,7 +176,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 
 	affiliation := internalmessages.AffiliationARMY
 	rank := internalmessages.ServiceMemberRankE1
-	ssn := handlers.FmtSSN("555-55-5555")
 	resAddress := fakeAddressPayload()
 	backupAddress := fakeAddressPayload()
 	patchPayload := internalmessages.PatchServiceMemberPayload{
@@ -246,7 +191,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 		PhoneIsPreferred:     swag.Bool(true),
 		Rank:                 &rank,
 		SecondaryTelephone:   swag.String("555555555"),
-		SocialSecurityNumber: ssn,
 		Suffix:               swag.String("Sr."),
 		Telephone:            swag.String("555555555"),
 	}
@@ -270,7 +214,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 
 	suite.Assertions.Equal(*serviceMemberPayload.Edipi, newEdipi)
 	suite.Assertions.Equal(*serviceMemberPayload.Affiliation, affiliation)
-	suite.Assertions.Equal(*serviceMemberPayload.HasSocialSecurityNumber, true)
 	suite.Assertions.Equal(*serviceMemberPayload.ResidentialAddress.StreetAddress1, *resAddress.StreetAddress1)
 	suite.Assertions.Equal(*serviceMemberPayload.BackupMailingAddress.StreetAddress1, *backupAddress.StreetAddress1)
 
@@ -278,11 +221,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	addresses := []models.Address{}
 	suite.DB().All(&addresses)
 	suite.Assertions.Len(addresses, 2)
-
-	// Then: we expect a SSN to have been created
-	ssns := models.SocialSecurityNumbers{}
-	suite.DB().All(&ssns)
-	suite.Assertions.Len(ssns, 1)
 }
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {

@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// ClientCert represents a known x509 Certificate in the database. It stores the SSN securely by hashing it.
+// ClientCert represents a known x509 Certificate in the database.
 type ClientCert struct {
 	ID                          uuid.UUID `json:"id" db:"id"`
 	Sha256Digest                string    `db:"sha256_digest"`
