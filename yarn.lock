@@ -17252,10 +17252,10 @@ swagger-client@^3.12.0:
     traverse "~0.6.6"
     url "~0.11.0"
 
-swagger-ui-dist@^3.35.2:
-  version "3.35.2"
-  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-3.35.2.tgz#d251a4a3a72501f221c4ef3625f140c900542e45"
-  integrity sha512-19oRW6ZVCTY7JnaMFnIUoxkqI+xhBOGzSFVQTMLDB9KTNASP82v/0SkNpY2T4zbjwZF2Y5bcty9E6rhLGAj0Gg==
+swagger-ui-dist@^3.36.2:
+  version "3.36.2"
+  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-3.36.2.tgz#353e01ae4c6d4a324319e4325e2b0a96aa7b5366"
+  integrity sha512-jbxorhRC/FKk8yMx5zEbg1A1sXc/vsW2vrDTJ3clmaMr9F12zsy161kwnxjVt/vVkMglDOz+BC8ZMY01toxHwA==
 
 symbol-observable@^1.1.0, symbol-observable@^1.2.0:
   version "1.2.0"
