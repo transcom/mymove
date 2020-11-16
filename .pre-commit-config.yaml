@@ -19,6 +19,12 @@ repos:
       - id: check-yaml
         exclude: config/database.yml # database.yml is not a valid yaml file, it contains go templating
       - id: detect-private-key
+        #RA Summary: detect-private-key - Private key found.
+        #RA: detect-private-key detected a private key, but this key is a fake key intended to be used for a local environment only.
+        #RA Developer Status: Mitigated
+        #RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+        #RA Validator: jneuner@mitre.org
+        #RA Modified Severity:
         exclude: >
           (?x)^(
             config/tls/devlocal-.+\.key$|
