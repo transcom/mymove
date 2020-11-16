@@ -234,8 +234,6 @@ func objectEventHandler(event *Event, modelBeingUpdated interface{}) (bool, erro
 		payloadArray, err = assembleMTOServiceItemPayload(db, event.UpdatedObjectID)
 	case models.Move:
 		payloadArray, err = assembleMTOPayload(db, event.UpdatedObjectID)
-	case models.Order:
-		payloadArray, err = assembleMoveOrderPayload(db, event.UpdatedObjectID)
 	default:
 		event.logger.Error("event.NotificationEventHandler: Unknown logical object being updated.")
 		err = services.NewEventError(fmt.Sprintf("No notification handler for event %s", event.EventKey), nil)
@@ -243,6 +241,43 @@ func objectEventHandler(event *Event, modelBeingUpdated interface{}) (bool, erro
 	if err != nil {
 		return false, err
 	}
+
+	// STORE NOTIFICATION IN DB
+	err = notificationSave(event, &payloadArray)
+	if err != nil {
+		unknownErr := services.NewEventError("Unknown error storing notification", err)
+		return false, unknownErr
+	}
+
+	return true, nil
+}
+
+// The purpose of this function is to handle order specific events.
+
+func orderEventHandler(event *Event, modelBeingUpdated interface{}) (bool, error) {
+	db := event.DBConnection
+	// CHECK SOURCE
+	// Continue only if source of event is not Prime
+	if isSourcePrime(event) {
+		return false, nil
+	}
+
+	// CHECK IF MOVE ID IS NIL
+	// If moveID (mto ID) is nil, then return false, nil
+	if event.MtoID == uuid.Nil {
+		return false, nil
+	}
+
+	// CHECK FOR AVAILABILITY TO PRIME
+	// Continue only if MTO is available to Prime
+	if isAvailableToPrime, _ := checkAvailabilityToPrime(event); !isAvailableToPrime {
+		return false, nil
+	}
+
+	// case models.Order:
+	var payloadArray []byte
+	var err error
+	payloadArray, _ = assembleMoveOrderPayload(db, event.UpdatedObjectID)
 
 	// STORE NOTIFICATION IN DB
 	err = notificationSave(event, &payloadArray)
@@ -265,8 +300,14 @@ func NotificationEventHandler(event *Event) error {
 		return err
 	}
 
-	// Call the default handler
-	stored, err := objectEventHandler(event, modelBeingUpdated)
+	// Call the object specific handler if it exists else call the default
+	stored := false
+	switch modelBeingUpdated.(type) {
+	case models.Order:
+		stored, err = orderEventHandler(event, modelBeingUpdated)
+	default:
+		stored, err = objectEventHandler(event, modelBeingUpdated)
+	}
 
 	// Log what happened.
 	if err != nil {
