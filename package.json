@@ -149,7 +149,7 @@
     "prettier": "=2.1.2",
     "react-test-renderer": "^16.14.0",
     "source-map-explorer": "^2.5.0",
-    "storybook-addons-abstract": "^5.0.6",
+    "storybook-addons-abstract": "^6.0.3",
     "terser-webpack-plugin": "^4.2.3"
   },
   "browserslist": [
