@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import React from 'react';
 import { bool, node, string, oneOfType, number, func, shape } from 'prop-types';
 import classnames from 'classnames';
@@ -32,7 +31,6 @@ const Step = ({
   secondaryBtnStyle,
   step,
 }) => {
-  const showThoughNotFunctional = false; // remove when all Edit buttons work
   const actionBtnClassName = classnames(
     styles['action-btn'],
     {
@@ -46,14 +44,21 @@ const Step = ({
       <div className={styles['step-header-container']}>
         {complete ? <AcceptIcon aria-hidden className={styles.accept} /> : <NumberCircle num={step} />}
         <strong>{complete ? completedHeaderText : headerText}</strong>
-        {showThoughNotFunctional && editBtnLabel && (
-          <Button className={styles['edit-btn']} disabled={editBtnDisabled} onClick={onEditBtnClick} type="button">
+        {editBtnLabel && (
+          <Button
+            data-testid="editButton"
+            className={styles['edit-btn']}
+            disabled={editBtnDisabled}
+            onClick={onEditBtnClick}
+            type="button"
+          >
             {editBtnLabel}
           </Button>
         )}
       </div>
 
       {children}
+
       {actionBtnLabel && (
         <Button
           className={actionBtnClassName}
