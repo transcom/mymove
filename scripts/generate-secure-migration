@@ -74,7 +74,7 @@ Next:
     3. If everything looks good, upload the migration to S3 with this utility:
        scripts/upload-secure-migration \\
           ${prod_migration_name}
-    4. Run make run_prod_migrations to verify that the upload worked and that the migration can be applied successfully. This will check against the commercial environment only at the moment.
+    4. Run make run_pr_migrations to verify that the upload worked and that the migration can be applied successfully. This will check against the commercial environment only at the moment.
     5. Open a pull request for this change; when it is accepted, your migration will run on staging.
 EOM
 
