@@ -46,7 +46,7 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 
 	var hhgPayloads internalmessages.MTOShipments
 	for _, hhg := range move.MTOShipments {
-		// #nosec G601 TODO needs review
+		//  G601 TODO needs review
 		payload := payloads.MTOShipment(&hhg)
 		hhgPayloads = append(hhgPayloads, payload)
 	}
@@ -244,7 +244,7 @@ func (h SubmitMoveHandler) saveMoveDependencies(db *pop.Connection, logger certs
 				}
 			}
 
-			// #nosec G601 TODO needs review
+			//  G601 TODO needs review
 			if verrs, err := db.ValidateAndSave(&ppm); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = errors.Wrap(err, "Error Saving PPM")

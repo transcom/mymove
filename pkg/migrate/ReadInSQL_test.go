@@ -13,7 +13,7 @@ func TestReadInSQLLine(t *testing.T) {
 	// Load the fixture with the sql example
 	fixture := "./fixtures/copyFromStdin.sql"
 	f, err := os.Open(fixture)
-	// #nosec G307 TODO needs review
+	//  G307 TODO needs review
 	defer f.Close()
 	require.Nil(t, err)
 

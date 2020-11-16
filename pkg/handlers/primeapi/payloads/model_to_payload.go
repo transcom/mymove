@@ -53,7 +53,7 @@ func MoveTaskOrders(moveTaskOrders *models.Moves) []*primemessages.MoveTaskOrder
 	payload := make(primemessages.MoveTaskOrders, len(*moveTaskOrders))
 
 	for i, m := range *moveTaskOrders {
-		// #nosec G601 TODO needs review
+		//  G601 TODO needs review
 		payload[i] = MoveTaskOrder(&m)
 	}
 	return payload
@@ -215,7 +215,7 @@ func MTOAgents(mtoAgents *models.MTOAgents) *primemessages.MTOAgents {
 	agents := make(primemessages.MTOAgents, len(*mtoAgents))
 
 	for i, m := range *mtoAgents {
-		// #nosec G601 TODO needs review
+		//  G601 TODO needs review
 		agents[i] = MTOAgent(&m)
 	}
 
@@ -250,7 +250,7 @@ func PaymentRequests(paymentRequests *models.PaymentRequests) *primemessages.Pay
 	payload := make(primemessages.PaymentRequests, len(*paymentRequests))
 
 	for i, p := range *paymentRequests {
-		// #nosec G601 TODO needs review
+		//  G601 TODO needs review
 		payload[i] = PaymentRequest(&p)
 	}
 	return &payload
@@ -291,7 +291,7 @@ func PaymentServiceItems(paymentServiceItems *models.PaymentServiceItems) *prime
 	payload := make(primemessages.PaymentServiceItems, len(*paymentServiceItems))
 
 	for i, p := range *paymentServiceItems {
-		// #nosec G601 TODO needs review
+		//  G601 TODO needs review
 		payload[i] = PaymentServiceItem(&p)
 	}
 	return &payload
@@ -323,7 +323,7 @@ func PaymentServiceItemParams(paymentServiceItemParams *models.PaymentServiceIte
 	payload := make(primemessages.PaymentServiceItemParams, len(*paymentServiceItemParams))
 
 	for i, p := range *paymentServiceItemParams {
-		// #nosec G601 TODO needs review
+		//  G601 TODO needs review
 		payload[i] = PaymentServiceItemParam(&p)
 	}
 	return &payload
@@ -393,7 +393,7 @@ func MTOShipments(mtoShipments *models.MTOShipments) *primemessages.MTOShipments
 	payload := make(primemessages.MTOShipments, len(*mtoShipments))
 
 	for i, m := range *mtoShipments {
-		// #nosec G601 TODO needs review
+		//  G601 TODO needs review
 		payload[i] = MTOShipment(&m)
 	}
 	return &payload
@@ -475,7 +475,7 @@ func MTOServiceItems(mtoServiceItems *models.MTOServiceItems) *[]primemessages.M
 	var payload []primemessages.MTOServiceItem
 
 	for _, p := range *mtoServiceItems {
-		// #nosec G601 TODO needs review
+		//  G601 TODO needs review
 		payload = append(payload, MTOServiceItem(&p))
 	}
 	return &payload

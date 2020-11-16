@@ -102,7 +102,7 @@ func (gre *GHCRateEngineImporter) importOconusToOconusPrices(dbTx *pop.Connectio
 		intlPricingModels = append(intlPricingModels, intlPricingModelIOOUB)
 
 		for _, model := range intlPricingModels {
-			// #nosec G601 TODO needs review
+			//  G601 TODO needs review
 			verrs, dbErr := dbTx.ValidateAndSave(&model)
 			if dbErr != nil {
 				return fmt.Errorf("error saving ReIntlPrices: %+v with error: %w", model, dbErr)
@@ -186,7 +186,7 @@ func (gre *GHCRateEngineImporter) importConusToOconusPrices(dbTx *pop.Connection
 		intlPricingModels = append(intlPricingModels, intlPricingModelICOUB)
 
 		for _, model := range intlPricingModels {
-			// #nosec G601 TODO needs review
+			//  G601 TODO needs review
 			verrs, dbErr := dbTx.ValidateAndSave(&model)
 			if dbErr != nil {
 				return fmt.Errorf("error saving ReIntlPrices: %+v with error: %w", model, dbErr)
@@ -270,7 +270,7 @@ func (gre *GHCRateEngineImporter) importOconusToConusPrices(dbTx *pop.Connection
 		intlPricingModels = append(intlPricingModels, intlPricingModelIOCUB)
 
 		for _, model := range intlPricingModels {
-			// #nosec G601 TODO needs review
+			//  G601 TODO needs review
 			verrs, dbErr := dbTx.ValidateAndSave(&model)
 			if dbErr != nil {
 				return fmt.Errorf("error saving ReIntlPrices: %+v with error: %w", model, dbErr)
@@ -359,7 +359,7 @@ func (gre *GHCRateEngineImporter) importNonStandardLocationPrices(dbTx *pop.Conn
 		intlPricingModels = append(intlPricingModels, intlPricingModelNSTUB)
 
 		for _, model := range intlPricingModels {
-			// #nosec G601 TODO needs review
+			//  G601 TODO needs review
 			verrs, dbErr := dbTx.ValidateAndSave(&model)
 			if dbErr != nil {
 				return fmt.Errorf("error saving ReIntlPrices: %+v with error: %w", model, dbErr)

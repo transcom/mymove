@@ -273,7 +273,7 @@ func (m Move) createMoveDocumentWithoutTransaction(
 	// Associate uploads to the new document
 	for _, upload := range userUploads {
 		upload.DocumentID = &newDoc.ID
-		// #nosec G601 TODO needs review
+		//  G601 TODO needs review
 		verrs, err := db.ValidateAndUpdate(&upload)
 		if err != nil || verrs.HasAny() {
 			responseVErrors.Append(verrs)
@@ -620,7 +620,7 @@ func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, err
 				}
 			}
 
-			// #nosec G601 TODO needs review
+			//  G601 TODO needs review
 			if verrs, err := db.ValidateAndSave(&ppm); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = errors.Wrap(err, "Error Saving PPM")

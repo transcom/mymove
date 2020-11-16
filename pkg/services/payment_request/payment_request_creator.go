@@ -84,7 +84,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			serviceItemMessageString := " RE Service Item Code: <" + string(reServiceItem.Code) + "> Name: <" + reServiceItem.Name + ">"
 			errMessageString := mtoMessageString + prMessageString + mtoServiceItemString + serviceItemMessageString
 			// Create the payment service item
-			// #nosec G601 TODO needs review
+			//  G601 TODO needs review
 			paymentServiceItem, mtoServiceItem, err = p.createPaymentServiceItem(tx, &paymentServiceItem, paymentRequestArg, now)
 			if err != nil {
 				if _, ok := err.(services.InvalidCreateInputError); ok {
@@ -105,7 +105,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			for _, paymentServiceItemParam := range paymentServiceItem.PaymentServiceItemParams {
 				var param *models.PaymentServiceItemParam
 				var key, value *string
-				// #nosec G601 TODO needs review
+				//  G601 TODO needs review
 				param, key, value, err = p.createPaymentServiceItemParam(tx, &paymentServiceItemParam, paymentServiceItem)
 				if err != nil {
 					if _, ok := err.(*services.BadDataError); ok {
@@ -175,7 +175,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			}
 
 			// Price the payment service item
-			// #nosec G601 TODO needs review
+			//  G601 TODO needs review
 			err = p.pricePaymentServiceItem(tx, txPricer, &paymentServiceItem)
 			if err != nil {
 				return fmt.Errorf("failure pricing service %s for MTO service item ID %s: %w",

@@ -43,7 +43,7 @@ func (s *SyncadaSenderSFTPSession) SendToSyncadaViaSFTP(localDataReader io.Reade
 		Auth: []ssh.AuthMethod{
 			ssh.Password(s.password),
 		},
-		/* #nosec */
+		/* nosec */
 		// The hostKey was removed because authentication is performed using a user ID and password
 		// If hostKey configuration is needed, please see PR #5039: https://github.com/transcom/mymove/pull/5039
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),

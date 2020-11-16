@@ -32,7 +32,7 @@ const charset = "abcdefghijklmnopqrstuvwxyz" +
 //RA Validator: jneuner@mitre.org
 //RA Validator Status: Mitigated
 //RA Modified Severity: CAT III
-// #nosec G404
+//  G404
 var seededRand = rand.New(random.NewCryptoSeededSource())
 
 var fileLock = flock.New(os.TempDir() + "/server-test-lock.lock")

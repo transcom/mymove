@@ -262,7 +262,7 @@ func MTOShipments(mtoShipments *models.MTOShipments) *ghcmessages.MTOShipments {
 	payload := make(ghcmessages.MTOShipments, len(*mtoShipments))
 
 	for i, m := range *mtoShipments {
-		// #nosec G601 TODO needs review
+		//  G601 TODO needs review
 		payload[i] = MTOShipment(&m)
 	}
 	return &payload
@@ -289,7 +289,7 @@ func MTOAgent(mtoAgent *models.MTOAgent) *ghcmessages.MTOAgent {
 func MTOAgents(mtoAgents *models.MTOAgents) *ghcmessages.MTOAgents {
 	payload := make(ghcmessages.MTOAgents, len(*mtoAgents))
 	for i, m := range *mtoAgents {
-		// #nosec G601 TODO needs review
+		//  G601 TODO needs review
 		payload[i] = MTOAgent(&m)
 	}
 	return &payload
@@ -340,7 +340,7 @@ func PaymentServiceItem(ps *models.PaymentServiceItem) *ghcmessages.PaymentServi
 func PaymentServiceItems(paymentServiceItems *models.PaymentServiceItems) *ghcmessages.PaymentServiceItems {
 	payload := make(ghcmessages.PaymentServiceItems, len(*paymentServiceItems))
 	for i, m := range *paymentServiceItems {
-		// #nosec G601 TODO needs review
+		//  G601 TODO needs review
 		payload[i] = PaymentServiceItem(&m)
 	}
 	return &payload
@@ -377,7 +377,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOServiceItem {
 func MTOServiceItemModels(s models.MTOServiceItems) ghcmessages.MTOServiceItems {
 	serviceItems := ghcmessages.MTOServiceItems{}
 	for _, item := range s {
-		// #nosec G601 TODO needs review
+		//  G601 TODO needs review
 		serviceItems = append(serviceItems, MTOServiceItemModel(&item))
 	}
 
@@ -399,7 +399,7 @@ func MTOServiceItemDimension(d *models.MTOServiceItemDimension) *ghcmessages.MTO
 func MTOServiceItemDimensions(d models.MTOServiceItemDimensions) ghcmessages.MTOServiceItemDimensions {
 	payload := make(ghcmessages.MTOServiceItemDimensions, len(d))
 	for i, item := range d {
-		// #nosec G601 TODO needs review
+		//  G601 TODO needs review
 		payload[i] = MTOServiceItemDimension(&item)
 	}
 	return payload
@@ -418,7 +418,7 @@ func MTOServiceItemCustomerContact(c *models.MTOServiceItemCustomerContact) *ghc
 func MTOServiceItemCustomerContacts(c models.MTOServiceItemCustomerContacts) ghcmessages.MTOServiceItemCustomerContacts {
 	payload := make(ghcmessages.MTOServiceItemCustomerContacts, len(c))
 	for i, item := range c {
-		// #nosec G601 TODO needs review
+		//  G601 TODO needs review
 		payload[i] = MTOServiceItemCustomerContact(&item)
 	}
 	return payload

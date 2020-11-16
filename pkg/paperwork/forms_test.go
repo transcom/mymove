@@ -16,7 +16,7 @@ func (suite *PaperworkSuite) TestFormFillerSmokeTest() {
 
 	f, err := os.Open(templateImagePath)
 	suite.FatalNil(err)
-	// #nosec G307 TODO needs review
+	//  G307 TODO needs review
 	defer f.Close()
 
 	var fields = map[string]FieldPos{

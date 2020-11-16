@@ -135,7 +135,7 @@ func PaymentServiceItemsModelToPayload(paymentServiceItems *models.PaymentServic
 	payload := make(primemessages.PaymentServiceItems, len(*paymentServiceItems))
 
 	for i, p := range *paymentServiceItems {
-		// #nosec G601 TODO needs review
+		//  G601 TODO needs review
 		payload[i] = PaymentServiceItemModelToPayload(&p)
 	}
 	return &payload

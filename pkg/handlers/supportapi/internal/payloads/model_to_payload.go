@@ -17,7 +17,7 @@ func MoveTaskOrders(moveTaskOrders *models.Moves) []*supportmessages.MoveTaskOrd
 	payload := make(supportmessages.MoveTaskOrders, len(*moveTaskOrders))
 
 	for i, m := range *moveTaskOrders {
-		// #nosec G601 TODO needs review
+		//  G601 TODO needs review
 		payload[i] = MoveTaskOrder(&m)
 	}
 	return payload
@@ -255,7 +255,7 @@ func MTOShipments(mtoShipments *models.MTOShipments) *supportmessages.MTOShipmen
 	payload := make(supportmessages.MTOShipments, len(*mtoShipments))
 
 	for i, m := range *mtoShipments {
-		// #nosec G601 TODO needs review
+		//  G601 TODO needs review
 		payload[i] = MTOShipment(&m)
 	}
 	return &payload
@@ -282,7 +282,7 @@ func MTOAgent(mtoAgent *models.MTOAgent) *supportmessages.MTOAgent {
 func MTOAgents(mtoAgents *models.MTOAgents) *supportmessages.MTOAgents {
 	payload := make(supportmessages.MTOAgents, len(*mtoAgents))
 	for i, m := range *mtoAgents {
-		// #nosec G601 TODO needs review
+		//  G601 TODO needs review
 		payload[i] = MTOAgent(&m)
 	}
 	return &payload
@@ -306,7 +306,7 @@ func PaymentRequests(paymentRequests *models.PaymentRequests) *supportmessages.P
 	payload := make(supportmessages.PaymentRequests, len(*paymentRequests))
 
 	for i, pr := range *paymentRequests {
-		// #nosec G601 TODO needs review
+		//  G601 TODO needs review
 		payload[i] = PaymentRequest(&pr)
 	}
 	return &payload

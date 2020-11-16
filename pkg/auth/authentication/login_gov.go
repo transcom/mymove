@@ -98,7 +98,7 @@ func generateNonce() string {
 	//RA Validator: jneuner@mitre.org
 	//RA Validator Status: Mitigated
 	//RA Modified Severity: CAT III
-	// #nosec G404
+	//  G404
 	randomInt := rand.New(random.NewCryptoSeededSource())
 	for i := 0; i < 64; i++ {
 		nonceBytes[i] = byte(randomInt.Int63() % 256)
