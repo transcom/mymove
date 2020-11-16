@@ -7,8 +7,8 @@ WITH office_never_signed_in AS (
              LEFT JOIN users ON office_users.email = users.login_gov_email
     WHERE users.login_gov_email IS NULL
 )
-INSERT INTO users (id, login_gov_email, created_at, updated_at)
-SELECT uuid_generate_v4(), email, now(), now()
+INSERT INTO users (id, login_gov_email, active, created_at, updated_at)
+SELECT uuid_generate_v4(), email, TRUE, now(), now()
 FROM office_never_signed_in;
 
 -- Now that we've created the user record, update the office_user record with
@@ -32,8 +32,8 @@ WITH admin_never_signed_in AS (
              LEFT JOIN users ON admin_users.email = users.login_gov_email
     WHERE users.login_gov_email IS NULL
 )
-INSERT INTO users (id, login_gov_email, created_at, updated_at)
-SELECT uuid_generate_v4(), email, now(), now()
+INSERT INTO users (id, login_gov_email, active, created_at, updated_at)
+SELECT uuid_generate_v4(), email, TRUE, now(), now()
 FROM admin_never_signed_in;
 
 -- Now that we've created the user record, update the admin_user record with
