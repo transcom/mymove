@@ -23,7 +23,7 @@ describe('TIO user', () => {
     cy.removeFetch();
     cy.server();
     cy.route('GET', '/ghc/v1/swagger.yaml').as('getGHCClient');
-    cy.route('GET', '/ghc/v1/queues/payment-requests').as('getPaymentRequests');
+    cy.route('GET', '/ghc/v1/queues/payment-requests?**').as('getPaymentRequests');
     cy.route('GET', '/ghc/v1/payment-requests/**').as('getPaymentRequest');
     cy.route('GET', '/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
     cy.route('GET', '/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');

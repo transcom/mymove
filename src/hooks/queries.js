@@ -158,25 +158,25 @@ export const useMovesQueueQueries = ({ filters = [], currentPage = 1, currentPag
     getMovesQueue,
   );
   const { isLoading, isError, isSuccess } = getQueriesStatus([movesQueueQuery]);
-
+  const { queueMoves, ...dataProps } = data;
   return {
-    queueMovesResult: data,
+    queueResult: { data: queueMoves, ...dataProps },
     isLoading,
     isError,
     isSuccess,
   };
 };
 
-export const usePaymentRequestQueueQueries = (filters = []) => {
+export const usePaymentRequestQueueQueries = ({ filters = [], currentPage = 1, currentPageSize = 20 }) => {
   const { data = {}, ...paymentRequestsQueueQuery } = useQuery(
-    [PAYMENT_REQUESTS_QUEUE, { filters }],
+    [PAYMENT_REQUESTS_QUEUE, { filters, currentPage, currentPageSize }],
     getPaymentRequestsQueue,
   );
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([paymentRequestsQueueQuery]);
-
+  const { queuePaymentRequests, ...dataProps } = data;
   return {
-    queuePaymentRequestsResult: data,
+    queueResult: { data: queuePaymentRequests, ...dataProps },
     isLoading,
     isError,
     isSuccess,

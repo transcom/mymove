@@ -74,7 +74,7 @@ jest.mock('services/ghcApi', () => ({
       page: 1,
       perPage: 100,
       totalCount: 2,
-      queueMoves: [
+      data: [
         {
           id: 'move1',
         },
@@ -88,7 +88,7 @@ jest.mock('services/ghcApi', () => ({
       page: 0,
       perPage: 100,
       totalCount: 2,
-      queuePaymentRequests: [
+      data: [
         {
           id: 'payment1',
         },
@@ -255,11 +255,11 @@ describe('useMovesQueueQueries', () => {
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
-      queueMovesResult: {
+      queueResult: {
         page: 1,
         perPage: 100,
         totalCount: 2,
-        queueMoves: [
+        data: [
           {
             id: 'move1',
           },
@@ -277,16 +277,18 @@ describe('useMovesQueueQueries', () => {
 
 describe('usePaymentRequestsQueueQueries', () => {
   it('loads data', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => usePaymentRequestQueueQueries());
+    const { result, waitForNextUpdate } = renderHook(() =>
+      usePaymentRequestQueueQueries({ filters: [], currentPage: 1, currentPageSize: 100 }),
+    );
 
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
-      queuePaymentRequestsResult: {
+      queueResult: {
         page: 0,
         perPage: 100,
         totalCount: 2,
-        queuePaymentRequests: [
+        data: [
           {
             id: 'payment1',
           },

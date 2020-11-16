@@ -2209,4 +2209,9 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 			CallbackURL: "https://primelocal:9443/support/v1/webhook-notify",
 		},
 	})
+	// Create multiple payment requests to fill queue
+	testdatagen.MakeMultiPaymentRequestWithItems(db, testdatagen.Assertions{
+		Move:          move8,
+		PrimeUploader: primeUploader,
+	}, 35)
 }

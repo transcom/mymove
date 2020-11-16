@@ -9,6 +9,8 @@ import styles from './Table.module.scss';
 
 const Table = ({
   handleClick,
+  showFilters,
+  showPagination,
   getTableProps,
   getTableBodyProps,
   headerGroups,
@@ -16,7 +18,6 @@ const Table = ({
   prepareRow,
   canPreviousPage,
   canNextPage,
-  showPagination,
   pageSize,
   nextPage,
   previousPage,
@@ -40,14 +41,16 @@ const Table = ({
                   </th>
                 ))}
               </tr>
-              <tr className={styles.tableHeaderFilters} key={`headerGroupFilters${hgIndex}`}>
-                {headerGroup.headers.map((column, headerIndex) => (
-                  <th key={`headerFilter${headerIndex}`} data-testid={column.id}>
-                    {/* isFilterable is a custom prop that can be set in the Column object */}
-                    <div>{column.isFilterable ? column.render('Filter') : null}</div>
-                  </th>
-                ))}
-              </tr>
+              {showFilters && (
+                <tr className={styles.tableHeaderFilters} key={`headerGroupFilters${hgIndex}`}>
+                  {headerGroup.headers.map((column, headerIndex) => (
+                    <th key={`headerFilter${headerIndex}`} data-testid={column.id}>
+                      {/* isFilterable is a custom prop that can be set in the Column object */}
+                      <div>{column.isFilterable ? column.render('Filter') : null}</div>
+                    </th>
+                  ))}
+                </tr>
+              )}
             </Fragment>
           ))}
         </thead>
@@ -73,6 +76,7 @@ const Table = ({
         <div className={styles.paginationSectionWrapper} data-testid="pagination">
           <div className={styles.tableControlRowsPerPage}>
             <Dropdown
+              id="table-rows-per-page"
               className={styles.paginationSelect}
               name="table-rows-per-page"
               defaultValue={pageSize}
@@ -92,29 +96,34 @@ const Table = ({
             <Button
               type="button"
               unstyled
-              className={styles.pageControlButton}
+              className={`${styles.pageControlButton} ${styles.pageControlButtonPrev}`}
               onClick={previousPage}
               disabled={!canPreviousPage}
             >
-              <FontAwesomeIcon className={`${styles.paginationIconRight} fas fa-chevron-left`} icon={faChevronLeft} />
+              <FontAwesomeIcon className={`${styles.paginationIconLeft} fas fa-chevron-left`} icon={faChevronLeft} />
               <span>Prev</span>
             </Button>
             <Dropdown
+              id="table-pagination"
               className={styles.paginationSelect}
               name="table-pagination"
               value={pageIndex}
               onChange={(e) => gotoPage(Number(e.target.value))}
             >
-              {pageOptions.map((pageOption, index) => (
-                <option value={pageOption} key={`page-options-${index}`}>
-                  {pageOption + 1}
-                </option>
-              ))}
+              {pageOptions.length > 0 ? (
+                pageOptions.map((pageOption, index) => (
+                  <option value={pageOption} key={`page-options-${index}`}>
+                    {pageOption + 1}
+                  </option>
+                ))
+              ) : (
+                <option value={0}>{1}</option>
+              )}
             </Dropdown>
             <Button
               type="button"
               unstyled
-              className={styles.pageControlButton}
+              className={`${styles.pageControlButton} ${styles.pageControlButtonNext}`}
               onClick={nextPage}
               disabled={!canNextPage}
             >
@@ -130,6 +139,8 @@ const Table = ({
 
 Table.propTypes = {
   handleClick: PropTypes.func,
+  showFilters: PropTypes.bool,
+  showPagination: PropTypes.bool,
   previousPage: PropTypes.func,
   nextPage: PropTypes.func,
   setPageSize: PropTypes.func,
@@ -140,19 +151,18 @@ Table.propTypes = {
   headerGroups: PropTypes.arrayOf(PropTypes.object).isRequired,
   rows: PropTypes.arrayOf(PropTypes.object).isRequired,
   prepareRow: PropTypes.func.isRequired,
-  showPagination: PropTypes.bool,
   canPreviousPage: PropTypes.bool,
   canNextPage: PropTypes.bool,
   pageCount: PropTypes.number,
   pageIndex: PropTypes.number,
   pageSize: PropTypes.number,
-  state: PropTypes.node,
   pageOptions: PropTypes.arrayOf(PropTypes.number),
   perPage: PropTypes.arrayOf(PropTypes.number),
 };
 
 Table.defaultProps = {
   handleClick: undefined,
+  showFilters: false,
   showPagination: false,
   canPreviousPage: undefined,
   previousPage: undefined,
@@ -161,10 +171,9 @@ Table.defaultProps = {
   gotoPage: undefined,
   canNextPage: undefined,
   pageCount: undefined,
-  state: undefined,
   pageIndex: 0,
   pageSize: 20,
-  pageOptions: [],
+  pageOptions: [0],
   perPage: [10, 20, 50],
 };
 
