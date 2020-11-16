@@ -12,7 +12,13 @@ const OfficeUserCreate = (props) => (
       <TextInput source="email" validate={required()} />
       <TextInput source="telephone" validate={phoneValidators} />
       <RolesCheckboxInput source="roles" validate={required()} />
-      <ReferenceInput label="Transportation Office" reference="offices" source="transportationOfficeId" perPage={500}>
+      <ReferenceInput
+        label="Transportation Office"
+        reference="offices"
+        source="transportationOfficeId"
+        perPage={500}
+        validate={required()}
+      >
         <AutocompleteInput optionText="name" />
       </ReferenceInput>
     </SimpleForm>
