@@ -330,10 +330,11 @@ func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNames
 
 	var err error
 	var originDutyStation models.DutyStation
-	if orders.OriginDutyStation.ID != uuid.Nil {
+
+	if orders.OriginDutyStationID != nil && *orders.OriginDutyStationID != uuid.Nil {
 		originDutyStation, err = models.FetchDutyStation(g.db, *orders.OriginDutyStationID)
 		if err != nil {
-			return []edisegment.Segment{}, services.NewInvalidInputError(orders.OriginDutyStation.ID, err, nil, "unable to find new duty station")
+			return []edisegment.Segment{}, services.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
 		}
 	} else {
 		return []edisegment.Segment{}, services.NewBadDataError("Invalid Order, must have OriginDutyStation")
