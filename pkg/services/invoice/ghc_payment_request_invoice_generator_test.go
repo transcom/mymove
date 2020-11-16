@@ -570,19 +570,17 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 		nilPaymentRequest.MoveTaskOrder.Orders.TAC = &blank
 		_, err := generator.Generate(nilPaymentRequest, false)
 		suite.Error(err)
-		_, ok := err.(services.ConflictError)
-		suite.Equal(true, ok)
+		suite.IsType(services.ConflictError{}, err)
 		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Invalid order. Must have a TAC value", nilPaymentRequest.MoveTaskOrder.OrdersID), err.Error())
 		nilPaymentRequest.MoveTaskOrder.Orders.TAC = oldTAC
 	})
 
-	suite.T().Run("blank TAC returns error", func(t *testing.T) {
+	suite.T().Run("nil TAC returns error", func(t *testing.T) {
 		oldTAC := nilPaymentRequest.MoveTaskOrder.Orders.TAC
 		nilPaymentRequest.MoveTaskOrder.Orders.TAC = nil
 		_, err := generator.Generate(nilPaymentRequest, false)
 		suite.Error(err)
-		_, ok := err.(services.ConflictError)
-		suite.Equal(true, ok)
+		suite.IsType(services.ConflictError{}, err)
 		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Invalid order. Must have a TAC value", nilPaymentRequest.MoveTaskOrder.OrdersID), err.Error())
 		nilPaymentRequest.MoveTaskOrder.Orders.TAC = oldTAC
 	})
