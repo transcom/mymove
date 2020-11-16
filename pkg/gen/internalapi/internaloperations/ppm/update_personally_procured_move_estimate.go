@@ -8,7 +8,7 @@ package ppm
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // UpdatePersonallyProcuredMoveEstimateHandlerFunc turns a function with the right signature into a update personally procured move estimate handler

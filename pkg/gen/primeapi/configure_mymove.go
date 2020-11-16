@@ -6,9 +6,9 @@ import (
 	"crypto/tls"
 	"net/http"
 
-	errors "github.com/go-openapi/errors"
-	runtime "github.com/go-openapi/runtime"
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/errors"
+	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/runtime/middleware"
 
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
@@ -34,7 +34,6 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 	// api.Logger = log.Printf
 
 	api.JSONConsumer = runtime.JSONConsumer()
-
 	api.MultipartformConsumer = runtime.DiscardConsumer
 
 	api.JSONProducer = runtime.JSONProducer()
@@ -84,6 +83,8 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation mto_shipment.UpdateMTOShipmentAddress has not yet been implemented")
 		})
 	}
+
+	api.PreServerShutdown = func() {}
 
 	api.ServerShutdown = func() {}
 

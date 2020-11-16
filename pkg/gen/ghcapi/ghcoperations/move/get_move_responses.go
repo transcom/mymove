@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	ghcmessages "github.com/transcom/mymove/pkg/gen/ghcmessages"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 )
 
 // GetMoveOKCode is the HTTP code returned for type GetMoveOK

@@ -10,13 +10,13 @@ import (
 	"net/http"
 	"strings"
 
-	errors "github.com/go-openapi/errors"
-	loads "github.com/go-openapi/loads"
-	runtime "github.com/go-openapi/runtime"
-	middleware "github.com/go-openapi/runtime/middleware"
-	security "github.com/go-openapi/runtime/security"
-	spec "github.com/go-openapi/spec"
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/errors"
+	"github.com/go-openapi/loads"
+	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/security"
+	"github.com/go-openapi/spec"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/access_codes"
@@ -41,73 +41,77 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		defaultProduces:     "application/json",
 		customConsumers:     make(map[string]runtime.Consumer),
 		customProducers:     make(map[string]runtime.Producer),
+		PreServerShutdown:   func() {},
 		ServerShutdown:      func() {},
 		spec:                spec,
 		ServeError:          errors.ServeError,
 		BasicAuthenticator:  security.BasicAuth,
 		APIKeyAuthenticator: security.APIKeyAuth,
 		BearerAuthenticator: security.BearerAuth,
-		JSONConsumer:        runtime.JSONConsumer(),
-		JSONProducer:        runtime.JSONProducer(),
+
+		JSONConsumer: runtime.JSONConsumer(),
+
+		JSONProducer: runtime.JSONProducer(),
+
 		AdminUsersCreateAdminUserHandler: admin_users.CreateAdminUserHandlerFunc(func(params admin_users.CreateAdminUserParams) middleware.Responder {
-			return middleware.NotImplemented("operation AdminUsersCreateAdminUser has not yet been implemented")
+			return middleware.NotImplemented("operation admin_users.CreateAdminUser has not yet been implemented")
 		}),
 		OfficeUsersCreateOfficeUserHandler: office_users.CreateOfficeUserHandlerFunc(func(params office_users.CreateOfficeUserParams) middleware.Responder {
-			return middleware.NotImplemented("operation OfficeUsersCreateOfficeUser has not yet been implemented")
+			return middleware.NotImplemented("operation office_users.CreateOfficeUser has not yet been implemented")
 		}),
 		AdminUsersGetAdminUserHandler: admin_users.GetAdminUserHandlerFunc(func(params admin_users.GetAdminUserParams) middleware.Responder {
-			return middleware.NotImplemented("operation AdminUsersGetAdminUser has not yet been implemented")
+			return middleware.NotImplemented("operation admin_users.GetAdminUser has not yet been implemented")
 		}),
 		ElectronicOrderGetElectronicOrdersTotalsHandler: electronic_order.GetElectronicOrdersTotalsHandlerFunc(func(params electronic_order.GetElectronicOrdersTotalsParams) middleware.Responder {
-			return middleware.NotImplemented("operation ElectronicOrderGetElectronicOrdersTotals has not yet been implemented")
+			return middleware.NotImplemented("operation electronic_order.GetElectronicOrdersTotals has not yet been implemented")
 		}),
 		OfficeUsersGetOfficeUserHandler: office_users.GetOfficeUserHandlerFunc(func(params office_users.GetOfficeUserParams) middleware.Responder {
-			return middleware.NotImplemented("operation OfficeUsersGetOfficeUser has not yet been implemented")
+			return middleware.NotImplemented("operation office_users.GetOfficeUser has not yet been implemented")
 		}),
 		TransportationServiceProviderPerformancesGetTSPPHandler: transportation_service_provider_performances.GetTSPPHandlerFunc(func(params transportation_service_provider_performances.GetTSPPParams) middleware.Responder {
-			return middleware.NotImplemented("operation TransportationServiceProviderPerformancesGetTSPP has not yet been implemented")
+			return middleware.NotImplemented("operation transportation_service_provider_performances.GetTSPP has not yet been implemented")
 		}),
 		UploadGetUploadHandler: upload.GetUploadHandlerFunc(func(params upload.GetUploadParams) middleware.Responder {
-			return middleware.NotImplemented("operation UploadGetUpload has not yet been implemented")
+			return middleware.NotImplemented("operation upload.GetUpload has not yet been implemented")
 		}),
 		UsersGetUserHandler: users.GetUserHandlerFunc(func(params users.GetUserParams) middleware.Responder {
-			return middleware.NotImplemented("operation UsersGetUser has not yet been implemented")
+			return middleware.NotImplemented("operation users.GetUser has not yet been implemented")
 		}),
 		AccessCodesIndexAccessCodesHandler: access_codes.IndexAccessCodesHandlerFunc(func(params access_codes.IndexAccessCodesParams) middleware.Responder {
-			return middleware.NotImplemented("operation AccessCodesIndexAccessCodes has not yet been implemented")
+			return middleware.NotImplemented("operation access_codes.IndexAccessCodes has not yet been implemented")
 		}),
 		AdminUsersIndexAdminUsersHandler: admin_users.IndexAdminUsersHandlerFunc(func(params admin_users.IndexAdminUsersParams) middleware.Responder {
-			return middleware.NotImplemented("operation AdminUsersIndexAdminUsers has not yet been implemented")
+			return middleware.NotImplemented("operation admin_users.IndexAdminUsers has not yet been implemented")
 		}),
 		ElectronicOrderIndexElectronicOrdersHandler: electronic_order.IndexElectronicOrdersHandlerFunc(func(params electronic_order.IndexElectronicOrdersParams) middleware.Responder {
-			return middleware.NotImplemented("operation ElectronicOrderIndexElectronicOrders has not yet been implemented")
+			return middleware.NotImplemented("operation electronic_order.IndexElectronicOrders has not yet been implemented")
 		}),
 		MoveIndexMovesHandler: move.IndexMovesHandlerFunc(func(params move.IndexMovesParams) middleware.Responder {
-			return middleware.NotImplemented("operation MoveIndexMoves has not yet been implemented")
+			return middleware.NotImplemented("operation move.IndexMoves has not yet been implemented")
 		}),
 		NotificationIndexNotificationsHandler: notification.IndexNotificationsHandlerFunc(func(params notification.IndexNotificationsParams) middleware.Responder {
-			return middleware.NotImplemented("operation NotificationIndexNotifications has not yet been implemented")
+			return middleware.NotImplemented("operation notification.IndexNotifications has not yet been implemented")
 		}),
 		OfficeUsersIndexOfficeUsersHandler: office_users.IndexOfficeUsersHandlerFunc(func(params office_users.IndexOfficeUsersParams) middleware.Responder {
-			return middleware.NotImplemented("operation OfficeUsersIndexOfficeUsers has not yet been implemented")
+			return middleware.NotImplemented("operation office_users.IndexOfficeUsers has not yet been implemented")
 		}),
 		OfficeIndexOfficesHandler: office.IndexOfficesHandlerFunc(func(params office.IndexOfficesParams) middleware.Responder {
-			return middleware.NotImplemented("operation OfficeIndexOffices has not yet been implemented")
+			return middleware.NotImplemented("operation office.IndexOffices has not yet been implemented")
 		}),
 		OrganizationIndexOrganizationsHandler: organization.IndexOrganizationsHandlerFunc(func(params organization.IndexOrganizationsParams) middleware.Responder {
-			return middleware.NotImplemented("operation OrganizationIndexOrganizations has not yet been implemented")
+			return middleware.NotImplemented("operation organization.IndexOrganizations has not yet been implemented")
 		}),
 		TransportationServiceProviderPerformancesIndexTSPPsHandler: transportation_service_provider_performances.IndexTSPPsHandlerFunc(func(params transportation_service_provider_performances.IndexTSPPsParams) middleware.Responder {
-			return middleware.NotImplemented("operation TransportationServiceProviderPerformancesIndexTSPPs has not yet been implemented")
+			return middleware.NotImplemented("operation transportation_service_provider_performances.IndexTSPPs has not yet been implemented")
 		}),
 		UsersRevokeUserSessionHandler: users.RevokeUserSessionHandlerFunc(func(params users.RevokeUserSessionParams) middleware.Responder {
-			return middleware.NotImplemented("operation UsersRevokeUserSession has not yet been implemented")
+			return middleware.NotImplemented("operation users.RevokeUserSession has not yet been implemented")
 		}),
 		AdminUsersUpdateAdminUserHandler: admin_users.UpdateAdminUserHandlerFunc(func(params admin_users.UpdateAdminUserParams) middleware.Responder {
-			return middleware.NotImplemented("operation AdminUsersUpdateAdminUser has not yet been implemented")
+			return middleware.NotImplemented("operation admin_users.UpdateAdminUser has not yet been implemented")
 		}),
 		OfficeUsersUpdateOfficeUserHandler: office_users.UpdateOfficeUserHandlerFunc(func(params office_users.UpdateOfficeUserParams) middleware.Responder {
-			return middleware.NotImplemented("operation OfficeUsersUpdateOfficeUser has not yet been implemented")
+			return middleware.NotImplemented("operation office_users.UpdateOfficeUser has not yet been implemented")
 		}),
 	}
 }
@@ -134,10 +138,12 @@ type MymoveAPI struct {
 	// It has a default implementation in the security package, however you can replace it for your particular usage.
 	BearerAuthenticator func(string, security.ScopedTokenAuthentication) runtime.Authenticator
 
-	// JSONConsumer registers a consumer for a "application/json" mime type
+	// JSONConsumer registers a consumer for the following mime types:
+	//   - application/json
 	JSONConsumer runtime.Consumer
 
-	// JSONProducer registers a producer for a "application/json" mime type
+	// JSONProducer registers a producer for the following mime types:
+	//   - application/json
 	JSONProducer runtime.Producer
 
 	// AdminUsersCreateAdminUserHandler sets the operation handler for the create admin user operation
@@ -180,10 +186,13 @@ type MymoveAPI struct {
 	AdminUsersUpdateAdminUserHandler admin_users.UpdateAdminUserHandler
 	// OfficeUsersUpdateOfficeUserHandler sets the operation handler for the update office user operation
 	OfficeUsersUpdateOfficeUserHandler office_users.UpdateOfficeUserHandler
-
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
 	ServeError func(http.ResponseWriter, *http.Request, error)
+
+	// PreServerShutdown is called before the HTTP(S) server is shutdown
+	// This allows for custom functions to get executed before the HTTP(S) server stops accepting traffic
+	PreServerShutdown func()
 
 	// ServerShutdown is called when the HTTP(S) server is shut down and done
 	// handling all active connections and does not accept connections any more
@@ -246,79 +255,60 @@ func (o *MymoveAPI) Validate() error {
 	if o.AdminUsersCreateAdminUserHandler == nil {
 		unregistered = append(unregistered, "admin_users.CreateAdminUserHandler")
 	}
-
 	if o.OfficeUsersCreateOfficeUserHandler == nil {
 		unregistered = append(unregistered, "office_users.CreateOfficeUserHandler")
 	}
-
 	if o.AdminUsersGetAdminUserHandler == nil {
 		unregistered = append(unregistered, "admin_users.GetAdminUserHandler")
 	}
-
 	if o.ElectronicOrderGetElectronicOrdersTotalsHandler == nil {
 		unregistered = append(unregistered, "electronic_order.GetElectronicOrdersTotalsHandler")
 	}
-
 	if o.OfficeUsersGetOfficeUserHandler == nil {
 		unregistered = append(unregistered, "office_users.GetOfficeUserHandler")
 	}
-
 	if o.TransportationServiceProviderPerformancesGetTSPPHandler == nil {
 		unregistered = append(unregistered, "transportation_service_provider_performances.GetTSPPHandler")
 	}
-
 	if o.UploadGetUploadHandler == nil {
 		unregistered = append(unregistered, "upload.GetUploadHandler")
 	}
-
 	if o.UsersGetUserHandler == nil {
 		unregistered = append(unregistered, "users.GetUserHandler")
 	}
-
 	if o.AccessCodesIndexAccessCodesHandler == nil {
 		unregistered = append(unregistered, "access_codes.IndexAccessCodesHandler")
 	}
-
 	if o.AdminUsersIndexAdminUsersHandler == nil {
 		unregistered = append(unregistered, "admin_users.IndexAdminUsersHandler")
 	}
-
 	if o.ElectronicOrderIndexElectronicOrdersHandler == nil {
 		unregistered = append(unregistered, "electronic_order.IndexElectronicOrdersHandler")
 	}
-
 	if o.MoveIndexMovesHandler == nil {
 		unregistered = append(unregistered, "move.IndexMovesHandler")
 	}
-
 	if o.NotificationIndexNotificationsHandler == nil {
 		unregistered = append(unregistered, "notification.IndexNotificationsHandler")
 	}
-
 	if o.OfficeUsersIndexOfficeUsersHandler == nil {
 		unregistered = append(unregistered, "office_users.IndexOfficeUsersHandler")
 	}
-
 	if o.OfficeIndexOfficesHandler == nil {
 		unregistered = append(unregistered, "office.IndexOfficesHandler")
 	}
-
 	if o.OrganizationIndexOrganizationsHandler == nil {
 		unregistered = append(unregistered, "organization.IndexOrganizationsHandler")
 	}
-
 	if o.TransportationServiceProviderPerformancesIndexTSPPsHandler == nil {
 		unregistered = append(unregistered, "transportation_service_provider_performances.IndexTSPPsHandler")
 	}
-
 	if o.UsersRevokeUserSessionHandler == nil {
 		unregistered = append(unregistered, "users.RevokeUserSessionHandler")
 	}
-
 	if o.AdminUsersUpdateAdminUserHandler == nil {
 		unregistered = append(unregistered, "admin_users.UpdateAdminUserHandler")
 	}
-
 	if o.OfficeUsersUpdateOfficeUserHandler == nil {
 		unregistered = append(unregistered, "office_users.UpdateOfficeUserHandler")
 	}
@@ -337,28 +327,22 @@ func (o *MymoveAPI) ServeErrorFor(operationID string) func(http.ResponseWriter, 
 
 // AuthenticatorsFor gets the authenticators for the specified security schemes
 func (o *MymoveAPI) AuthenticatorsFor(schemes map[string]spec.SecurityScheme) map[string]runtime.Authenticator {
-
 	return nil
-
 }
 
 // Authorizer returns the registered authorizer
 func (o *MymoveAPI) Authorizer() runtime.Authorizer {
-
 	return nil
-
 }
 
-// ConsumersFor gets the consumers for the specified media types
+// ConsumersFor gets the consumers for the specified media types.
+// MIME type parameters are ignored here.
 func (o *MymoveAPI) ConsumersFor(mediaTypes []string) map[string]runtime.Consumer {
-
-	result := make(map[string]runtime.Consumer)
+	result := make(map[string]runtime.Consumer, len(mediaTypes))
 	for _, mt := range mediaTypes {
 		switch mt {
-
 		case "application/json":
 			result["application/json"] = o.JSONConsumer
-
 		}
 
 		if c, ok := o.customConsumers[mt]; ok {
@@ -366,19 +350,16 @@ func (o *MymoveAPI) ConsumersFor(mediaTypes []string) map[string]runtime.Consume
 		}
 	}
 	return result
-
 }
 
-// ProducersFor gets the producers for the specified media types
+// ProducersFor gets the producers for the specified media types.
+// MIME type parameters are ignored here.
 func (o *MymoveAPI) ProducersFor(mediaTypes []string) map[string]runtime.Producer {
-
-	result := make(map[string]runtime.Producer)
+	result := make(map[string]runtime.Producer, len(mediaTypes))
 	for _, mt := range mediaTypes {
 		switch mt {
-
 		case "application/json":
 			result["application/json"] = o.JSONProducer
-
 		}
 
 		if p, ok := o.customProducers[mt]; ok {
@@ -386,7 +367,6 @@ func (o *MymoveAPI) ProducersFor(mediaTypes []string) map[string]runtime.Produce
 		}
 	}
 	return result
-
 }
 
 // HandlerFor gets a http.Handler for the provided operation method and path
@@ -416,7 +396,6 @@ func (o *MymoveAPI) Context() *middleware.Context {
 
 func (o *MymoveAPI) initHandlerCache() {
 	o.Context() // don't care about the result, just that the initialization happened
-
 	if o.handlers == nil {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
@@ -425,102 +404,82 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/admin_users"] = admin_users.NewCreateAdminUser(o.context, o.AdminUsersCreateAdminUserHandler)
-
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/office_users"] = office_users.NewCreateOfficeUser(o.context, o.OfficeUsersCreateOfficeUserHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/admin_users/{adminUserId}"] = admin_users.NewGetAdminUser(o.context, o.AdminUsersGetAdminUserHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/electronic_orders/totals"] = electronic_order.NewGetElectronicOrdersTotals(o.context, o.ElectronicOrderGetElectronicOrdersTotalsHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/office_users/{officeUserId}"] = office_users.NewGetOfficeUser(o.context, o.OfficeUsersGetOfficeUserHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/transportation_service_provider_performances/{tsppId}"] = transportation_service_provider_performances.NewGetTSPP(o.context, o.TransportationServiceProviderPerformancesGetTSPPHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/uploads/{uploadId}"] = upload.NewGetUpload(o.context, o.UploadGetUploadHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/users/{userId}"] = users.NewGetUser(o.context, o.UsersGetUserHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/access_codes"] = access_codes.NewIndexAccessCodes(o.context, o.AccessCodesIndexAccessCodesHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/admin_users"] = admin_users.NewIndexAdminUsers(o.context, o.AdminUsersIndexAdminUsersHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/electronic_orders"] = electronic_order.NewIndexElectronicOrders(o.context, o.ElectronicOrderIndexElectronicOrdersHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/moves"] = move.NewIndexMoves(o.context, o.MoveIndexMovesHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/notifications"] = notification.NewIndexNotifications(o.context, o.NotificationIndexNotificationsHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/office_users"] = office_users.NewIndexOfficeUsers(o.context, o.OfficeUsersIndexOfficeUsersHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/offices"] = office.NewIndexOffices(o.context, o.OfficeIndexOfficesHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/organizations"] = organization.NewIndexOrganizations(o.context, o.OrganizationIndexOrganizationsHandler)
-
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/transportation_service_provider_performances"] = transportation_service_provider_performances.NewIndexTSPPs(o.context, o.TransportationServiceProviderPerformancesIndexTSPPsHandler)
-
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/users/{userId}"] = users.NewRevokeUserSession(o.context, o.UsersRevokeUserSessionHandler)
-
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/admin_users/{adminUserId}"] = admin_users.NewUpdateAdminUser(o.context, o.AdminUsersUpdateAdminUserHandler)
-
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/office_users/{officeUserId}"] = office_users.NewUpdateOfficeUser(o.context, o.OfficeUsersUpdateOfficeUserHandler)
-
 }
 
 // Serve creates a http handler to serve the API over HTTP
@@ -549,4 +508,16 @@ func (o *MymoveAPI) RegisterConsumer(mediaType string, consumer runtime.Consumer
 // RegisterProducer allows you to add (or override) a producer for a media type.
 func (o *MymoveAPI) RegisterProducer(mediaType string, producer runtime.Producer) {
 	o.customProducers[mediaType] = producer
+}
+
+// AddMiddlewareFor adds a http middleware to existing handler
+func (o *MymoveAPI) AddMiddlewareFor(method, path string, builder middleware.Builder) {
+	um := strings.ToUpper(method)
+	if path == "/" {
+		path = ""
+	}
+	o.Init()
+	if h, ok := o.handlers[um][path]; ok {
+		o.handlers[method][path] = builder(h)
+	}
 }

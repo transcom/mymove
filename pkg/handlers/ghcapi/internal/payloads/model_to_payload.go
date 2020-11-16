@@ -464,17 +464,14 @@ func ProofOfServiceDoc(proofOfService models.ProofOfServiceDoc, storer storage.F
 }
 
 // QueueMoves payload
-func QueueMoves(moveOrders []models.Order) *ghcmessages.QueueMoves {
-	queueMoveOrders := make(ghcmessages.QueueMoves, len(moveOrders))
-	for i, order := range moveOrders {
-		customer := order.ServiceMember
+func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
+	queueMoveOrders := make(ghcmessages.QueueMoves, len(moves))
+	for i, move := range moves {
+		customer := move.Orders.ServiceMember
 		// Finds the first move that is an HHG and use that locator.  Should we include combo HHG_PPM or others?
 		var hhgMove models.Move
-		for _, move := range order.Moves {
-			if *move.SelectedMoveType == models.SelectedMoveTypeHHG {
-				hhgMove = move
-				break
-			}
+		if *move.SelectedMoveType == models.SelectedMoveTypeHHG {
+			hhgMove = move
 		}
 
 		var validMTOShipments []models.MTOShipment
@@ -485,19 +482,19 @@ func QueueMoves(moveOrders []models.Order) *ghcmessages.QueueMoves {
 		}
 
 		deptIndicator := ""
-		if order.DepartmentIndicator != nil {
-			deptIndicator = *order.DepartmentIndicator
+		if move.Orders.DepartmentIndicator != nil {
+			deptIndicator = *move.Orders.DepartmentIndicator
 		}
 
 		queueMoveOrders[i] = &ghcmessages.QueueMove{
 			Customer:               Customer(&customer),
 			Status:                 ghcmessages.QueueMoveStatus(hhgMove.Status),
-			ID:                     *handlers.FmtUUID(order.ID),
+			ID:                     *handlers.FmtUUID(move.Orders.ID),
 			Locator:                hhgMove.Locator,
 			DepartmentIndicator:    ghcmessages.DeptIndicator(deptIndicator),
 			ShipmentsCount:         int64(len(validMTOShipments)),
-			DestinationDutyStation: DutyStation(&order.NewDutyStation),
-			OriginGBLOC:            ghcmessages.GBLOC(order.OriginDutyStation.TransportationOffice.Gbloc),
+			DestinationDutyStation: DutyStation(&move.Orders.NewDutyStation),
+			OriginGBLOC:            ghcmessages.GBLOC(move.Orders.OriginDutyStation.TransportationOffice.Gbloc),
 		}
 	}
 	return &queueMoveOrders

@@ -9,12 +9,11 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new payment request API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -26,10 +25,19 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
-/*
-CreatePaymentRequest creates payment request
+// ClientService is the interface for Client methods
+type ClientService interface {
+	CreatePaymentRequest(params *CreatePaymentRequestParams) (*CreatePaymentRequestCreated, error)
 
-Creates a new instance of a paymentRequest.
+	CreateUpload(params *CreateUploadParams) (*CreateUploadCreated, error)
+
+	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+  CreatePaymentRequest creates payment request
+
+  Creates a new instance of a paymentRequest.
 A newly created payment request is assigned the status `PENDING`.
 A move task order can have multiple payment requests, and
 a final payment request can be marked using boolean `isFinal`.
@@ -67,9 +75,9 @@ func (a *Client) CreatePaymentRequest(params *CreatePaymentRequestParams) (*Crea
 }
 
 /*
-CreateUpload creates upload
+  CreateUpload creates upload
 
-### Functionality
+  ### Functionality
 This endpoint **uploads** a Proof of Service document for a PaymentRequest.
 
 The PaymentRequest should already exist.

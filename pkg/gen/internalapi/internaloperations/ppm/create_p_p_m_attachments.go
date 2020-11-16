@@ -8,7 +8,7 @@ package ppm
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // CreatePPMAttachmentsHandlerFunc turns a function with the right signature into a create p p m attachments handler

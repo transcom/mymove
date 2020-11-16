@@ -12,6 +12,7 @@ import (
 
 	edisegment "github.com/transcom/mymove/pkg/edi/segment"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 
@@ -582,6 +583,27 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 		oldTAC := nilPaymentRequest.MoveTaskOrder.Orders.TAC
 		nilPaymentRequest.MoveTaskOrder.Orders.TAC = nil
 		suite.NotPanics(panicFunc)
+		nilPaymentRequest.MoveTaskOrder.Orders.TAC = oldTAC
+	})
+
+	suite.T().Run("empty TAC returns error", func(t *testing.T) {
+		oldTAC := nilPaymentRequest.MoveTaskOrder.Orders.TAC
+		blank := ""
+		nilPaymentRequest.MoveTaskOrder.Orders.TAC = &blank
+		_, err := generator.Generate(nilPaymentRequest, false)
+		suite.Error(err)
+		suite.IsType(services.ConflictError{}, err)
+		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Invalid order. Must have a TAC value", nilPaymentRequest.MoveTaskOrder.OrdersID), err.Error())
+		nilPaymentRequest.MoveTaskOrder.Orders.TAC = oldTAC
+	})
+
+	suite.T().Run("nil TAC returns error", func(t *testing.T) {
+		oldTAC := nilPaymentRequest.MoveTaskOrder.Orders.TAC
+		nilPaymentRequest.MoveTaskOrder.Orders.TAC = nil
+		_, err := generator.Generate(nilPaymentRequest, false)
+		suite.Error(err)
+		suite.IsType(services.ConflictError{}, err)
+		suite.Equal(fmt.Sprintf("id: %s is in a conflicting state Invalid order. Must have a TAC value", nilPaymentRequest.MoveTaskOrder.OrdersID), err.Error())
 		nilPaymentRequest.MoveTaskOrder.Orders.TAC = oldTAC
 	})
 

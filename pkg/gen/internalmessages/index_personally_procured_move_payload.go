@@ -8,13 +8,13 @@ package internalmessages
 import (
 	"strconv"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
 
 // IndexPersonallyProcuredMovePayload index personally procured move payload
+//
 // swagger:model IndexPersonallyProcuredMovePayload
 type IndexPersonallyProcuredMovePayload []*PersonallyProcuredMovePayload
 

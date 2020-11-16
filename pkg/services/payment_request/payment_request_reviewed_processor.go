@@ -47,7 +47,8 @@ func NewPaymentRequestReviewedProcessor(db *pop.Connection,
 func InitNewPaymentRequestReviewedProcessor(db *pop.Connection, logger Logger, sendToSyncada bool) services.PaymentRequestReviewedProcessor {
 	reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(db)
 	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(db)
-	sftpSession := invoice.InitNewSyncadaSFTPSession()
+	var sftpSession services.SyncadaSFTPSender
+	sftpSession = nil
 	var gexSender services.GexSender
 	gexSender = nil
 

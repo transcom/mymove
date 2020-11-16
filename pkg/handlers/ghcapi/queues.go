@@ -56,7 +56,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 		listMoveOrderParams.PerPage = swag.Int64(20)
 	}
 
-	orders, count, err := h.MoveOrderFetcher.ListMoveOrders(
+	moves, count, err := h.MoveOrderFetcher.ListMoveOrders(
 		session.OfficeUserID,
 		&listMoveOrderParams,
 	)
@@ -66,7 +66,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 		return queues.NewGetMovesQueueInternalServerError()
 	}
 
-	queueMoves := payloads.QueueMoves(orders)
+	queueMoves := payloads.QueueMoves(moves)
 
 	result := &ghcmessages.QueueMovesResult{
 		Page:       *listMoveOrderParams.Page,

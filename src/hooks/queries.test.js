@@ -71,7 +71,7 @@ jest.mock('services/ghcApi', () => ({
     }),
   getMovesQueue: () =>
     Promise.resolve({
-      page: 0,
+      page: 1,
       perPage: 100,
       totalCount: 2,
       queueMoves: [
@@ -248,13 +248,15 @@ describe('useOrdersDocumentQueries', () => {
 
 describe('useMovesQueueQueries', () => {
   it('loads data', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useMovesQueueQueries());
+    const { result, waitForNextUpdate } = renderHook(() =>
+      useMovesQueueQueries({ filters: [], currentPage: 1, currentPageSize: 100 }),
+    );
 
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
       queueMovesResult: {
-        page: 0,
+        page: 1,
         perPage: 100,
         totalCount: 2,
         queueMoves: [

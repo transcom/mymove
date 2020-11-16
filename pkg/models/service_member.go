@@ -59,8 +59,6 @@ type ServiceMember struct {
 	ResidentialAddress     *Address                  `belongs_to:"address"`
 	BackupMailingAddressID *uuid.UUID                `json:"backup_mailing_address_id" db:"backup_mailing_address_id"`
 	BackupMailingAddress   *Address                  `belongs_to:"address"`
-	SocialSecurityNumberID *uuid.UUID                `json:"social_security_number_id" db:"social_security_number_id"`
-	SocialSecurityNumber   *SocialSecurityNumber     `belongs_to:"social_security_numbers"`
 	Orders                 Orders                    `has_many:"orders" order_by:"created_at desc"`
 	BackupContacts         BackupContacts            `has_many:"backup_contacts"`
 	DutyStationID          *uuid.UUID                `json:"duty_station_id" db:"duty_station_id"`
@@ -102,8 +100,7 @@ func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, session 
 		"DutyStation.Address",
 		"DutyStation.TransportationOffice",
 		"Orders.NewDutyStation.TransportationOffice",
-		"ResidentialAddress",
-		"SocialSecurityNumber").Find(&serviceMember, id)
+		"ResidentialAddress").Find(&serviceMember, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return ServiceMember{}, ErrFetchNotFound
@@ -122,9 +119,6 @@ func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, session 
 	}
 	if serviceMember.BackupMailingAddressID == nil {
 		serviceMember.BackupMailingAddress = nil
-	}
-	if serviceMember.SocialSecurityNumberID == nil {
-		serviceMember.SocialSecurityNumber = nil
 	}
 
 	return serviceMember, nil
@@ -173,15 +167,6 @@ func SaveServiceMember(ctx context.Context, dbConnection *pop.Connection, servic
 				return transactionError
 			}
 			serviceMember.BackupMailingAddressID = &serviceMember.BackupMailingAddress.ID
-		}
-
-		if serviceMember.SocialSecurityNumber != nil {
-			if verrs, err := dbConnection.ValidateAndSave(serviceMember.SocialSecurityNumber); verrs.HasAny() || err != nil {
-				responseVErrors.Append(verrs)
-				responseError = err
-				return transactionError
-			}
-			serviceMember.SocialSecurityNumberID = &serviceMember.SocialSecurityNumber.ID
 		}
 
 		if verrs, err := dbConnection.ValidateAndSave(serviceMember); verrs.HasAny() || err != nil {
@@ -315,9 +300,6 @@ func (s *ServiceMember) IsProfileComplete() bool {
 		return false
 	}
 	if s.BackupMailingAddressID == nil {
-		return false
-	}
-	if s.SocialSecurityNumberID == nil {
 		return false
 	}
 	if s.DutyStationID == nil {

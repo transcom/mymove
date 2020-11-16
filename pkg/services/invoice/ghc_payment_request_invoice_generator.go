@@ -514,8 +514,8 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(pa
 
 func (g ghcPaymentRequestInvoiceGenerator) createLoaSegments(orders models.Order) ([]edisegment.Segment, error) {
 	segments := []edisegment.Segment{}
-	if orders.TAC == nil {
-		return segments, services.NewBadDataError("Invalid order. Must have a TAC value")
+	if orders.TAC == nil || *orders.TAC == "" {
+		return segments, services.NewConflictError(orders.ID, "Invalid order. Must have a TAC value")
 	}
 	affiliation := models.ServiceMemberAffiliation(*orders.DepartmentIndicator)
 	agencyQualifierCode, found := edisegment.AffiliationToAgency[affiliation]

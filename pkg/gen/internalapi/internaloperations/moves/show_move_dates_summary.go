@@ -8,7 +8,7 @@ package moves
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // ShowMoveDatesSummaryHandlerFunc turns a function with the right signature into a show move dates summary handler

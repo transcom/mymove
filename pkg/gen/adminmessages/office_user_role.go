@@ -6,12 +6,12 @@ package adminmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	strfmt "github.com/go-openapi/strfmt"
-
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
 
 // OfficeUserRole office user role
+//
 // swagger:model OfficeUserRole
 type OfficeUserRole struct {
 

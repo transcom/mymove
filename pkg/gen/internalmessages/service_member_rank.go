@@ -8,13 +8,13 @@ package internalmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
 // ServiceMemberRank Rank
+//
 // swagger:model ServiceMemberRank
 type ServiceMemberRank string
 
@@ -119,7 +119,7 @@ func init() {
 }
 
 func (m ServiceMemberRank) validateServiceMemberRankEnum(path, location string, value ServiceMemberRank) error {
-	if err := validate.Enum(path, location, value, serviceMemberRankEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, serviceMemberRankEnum, true); err != nil {
 		return err
 	}
 	return nil

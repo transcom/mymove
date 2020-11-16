@@ -8,7 +8,7 @@ package ppm
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // ShowPPMSitEstimateHandlerFunc turns a function with the right signature into a show p p m sit estimate handler

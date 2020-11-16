@@ -11,9 +11,8 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // NewValidatePostalCodeWithRateDataParams creates a new ValidatePostalCodeWithRateDataParams object
@@ -104,7 +103,7 @@ func (o *ValidatePostalCodeWithRateDataParams) validatePostalCode(formats strfmt
 // bindPostalCodeType binds and validates parameter PostalCodeType from query.
 func (o *ValidatePostalCodeWithRateDataParams) bindPostalCodeType(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
-		return errors.Required("postal_code_type", "query")
+		return errors.Required("postal_code_type", "query", rawData)
 	}
 	var raw string
 	if len(rawData) > 0 {
@@ -129,7 +128,7 @@ func (o *ValidatePostalCodeWithRateDataParams) bindPostalCodeType(rawData []stri
 // validatePostalCodeType carries on validations for parameter PostalCodeType
 func (o *ValidatePostalCodeWithRateDataParams) validatePostalCodeType(formats strfmt.Registry) error {
 
-	if err := validate.Enum("postal_code_type", "query", o.PostalCodeType, []interface{}{"origin", "destination"}); err != nil {
+	if err := validate.EnumCase("postal_code_type", "query", o.PostalCodeType, []interface{}{"origin", "destination"}, true); err != nil {
 		return err
 	}
 

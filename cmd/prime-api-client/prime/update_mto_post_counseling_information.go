@@ -1,13 +1,11 @@
 package prime
 
 import (
-	"bufio"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -57,6 +55,15 @@ func UpdatePostCounselingInfo(cmd *cobra.Command, args []string) error {
 		logger.Fatal(err)
 	}
 
+	// Decode json from file that was passed in
+	filename := v.GetString(utils.FilenameFlag)
+	var mtoParams mto.UpdateMTOPostCounselingInformationParams
+	err = utils.DecodeJSONFileToPayload(filename, utils.ContainsDash(args), &mtoParams)
+	if err != nil {
+		logger.Fatal(err)
+	}
+	mtoParams.SetTimeout(time.Second * 30)
+
 	primeGateway, cacStore, errCreateClient := utils.CreatePrimeClient(v)
 	if errCreateClient != nil {
 		return errCreateClient
@@ -67,42 +74,10 @@ func UpdatePostCounselingInfo(cmd *cobra.Command, args []string) error {
 		defer cacStore.Close()
 	}
 
-	// Decode json from file that was passed into MTOShipment
-	filename := v.GetString(utils.FilenameFlag)
-	var reader *bufio.Reader
-	if filename != "" {
-		file, fileErr := os.Open(filepath.Clean(filename))
-		if fileErr != nil {
-			logger.Fatal(fileErr)
-		}
-		reader = bufio.NewReader(file)
-	}
-
-	if len(args) > 0 && utils.ContainsDash(args) {
-		reader = bufio.NewReader(os.Stdin)
-	}
-
-	jsonDecoder := json.NewDecoder(reader)
-	var postCounselingInfo mto.UpdateMTOPostCounselingInformationBody
-	err = jsonDecoder.Decode(&postCounselingInfo)
+	// Make the API Call
+	resp, err := primeGateway.MoveTaskOrder.UpdateMTOPostCounselingInformation(&mtoParams)
 	if err != nil {
-		return fmt.Errorf("decoding data failed: %w", err)
-	}
-
-	params := mto.UpdateMTOPostCounselingInformationParams{
-		MoveTaskOrderID: postCounselingInfo.MoveTaskOrderID,
-		Body:            postCounselingInfo,
-		IfMatch:         v.GetString(utils.ETagFlag),
-	}
-	params.SetTimeout(time.Second * 30)
-
-	resp, errUpdatePostCounselingInfo := primeGateway.MoveTaskOrder.UpdateMTOPostCounselingInformation(&params)
-	if errUpdatePostCounselingInfo != nil {
-		// If the response cannot be parsed as JSON you may see an error like
-		// is not supported by the TextConsumer, can be resolved by supporting TextUnmarshaler interface
-		// Likely this is because the API doesn't return JSON response for BadRequest OR
-		// The response type is not being set to text
-		logger.Fatal(errUpdatePostCounselingInfo.Error())
+		return utils.HandleGatewayError(err, logger)
 	}
 
 	payload := resp.GetPayload()

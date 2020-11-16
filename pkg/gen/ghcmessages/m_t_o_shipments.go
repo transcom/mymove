@@ -8,13 +8,13 @@ package ghcmessages
 import (
 	"strconv"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
 
 // MTOShipments m t o shipments
+//
 // swagger:model MTOShipments
 type MTOShipments []*MTOShipment
 

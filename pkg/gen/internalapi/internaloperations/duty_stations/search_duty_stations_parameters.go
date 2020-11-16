@@ -11,9 +11,8 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // NewSearchDutyStationsParams creates a new SearchDutyStationsParams object
@@ -64,7 +63,7 @@ func (o *SearchDutyStationsParams) BindRequest(r *http.Request, route *middlewar
 // bindSearch binds and validates parameter Search from query.
 func (o *SearchDutyStationsParams) bindSearch(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
-		return errors.Required("search", "query")
+		return errors.Required("search", "query", rawData)
 	}
 	var raw string
 	if len(rawData) > 0 {

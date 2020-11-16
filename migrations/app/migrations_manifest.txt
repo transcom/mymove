@@ -573,3 +573,8 @@
 20201103225532_remove_mr337_cac.up.sql
 20201103231542_add_failing_to_wh_subscriptions_status.up.sql
 20201105195546_add_index_for_webhook_notifications.up.sql
+20201110162431_add_indexes_for_txo_queues.up.sql
+20201110162713_make_usmc_transportation_office.up.sql
+20201111015201_add_sit_fields_zip_entry_departure.up.sql
+20201111170419_jacquelinemckinney_cac.up.sql
+20201111232031_remove_ssn.up.sql
