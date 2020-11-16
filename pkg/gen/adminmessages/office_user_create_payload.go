@@ -8,14 +8,14 @@ package adminmessages
 import (
 	"strconv"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // OfficeUserCreatePayload office user create payload
+//
 // swagger:model OfficeUserCreatePayload
 type OfficeUserCreatePayload struct {
 

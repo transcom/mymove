@@ -8,7 +8,7 @@ package admin_users
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // CreateAdminUserHandlerFunc turns a function with the right signature into a create admin user handler

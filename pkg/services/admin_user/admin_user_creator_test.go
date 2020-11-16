@@ -64,7 +64,7 @@ func (suite *AdminUserServiceSuite) TestCreateAdminUser() {
 	})
 
 	// Reuses existing user if it's already been created for an office or service member
-	suite.T().Run("Finds existing user by email and associates with office user", func(t *testing.T) {
+	suite.T().Run("Finds existing user by email and associates with admin user", func(t *testing.T) {
 		existingUserInfo := models.AdminUser{
 			LastName:       "Spaceman",
 			FirstName:      "Leo",

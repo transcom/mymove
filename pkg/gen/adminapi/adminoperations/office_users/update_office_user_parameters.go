@@ -12,11 +12,10 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	adminmessages "github.com/transcom/mymove/pkg/gen/adminmessages"
+	"github.com/transcom/mymove/pkg/gen/adminmessages"
 )
 
 // NewUpdateOfficeUserParams creates a new UpdateOfficeUserParams object
@@ -61,7 +60,7 @@ func (o *UpdateOfficeUserParams) BindRequest(r *http.Request, route *middleware.
 		var body adminmessages.OfficeUserUpdatePayload
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
-				res = append(res, errors.Required("officeUser", "body"))
+				res = append(res, errors.Required("officeUser", "body", ""))
 			} else {
 				res = append(res, errors.NewParseError("officeUser", "body", "", err))
 			}
@@ -76,7 +75,7 @@ func (o *UpdateOfficeUserParams) BindRequest(r *http.Request, route *middleware.
 			}
 		}
 	} else {
-		res = append(res, errors.Required("officeUser", "body"))
+		res = append(res, errors.Required("officeUser", "body", ""))
 	}
 	rOfficeUserID, rhkOfficeUserID, _ := route.Params.GetOK("officeUserId")
 	if err := o.bindOfficeUserID(rOfficeUserID, rhkOfficeUserID, route.Formats); err != nil {

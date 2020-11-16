@@ -21,7 +21,6 @@ func (suite *ModelSuite) TestBasicServiceMemberInstantiation() {
 }
 
 func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
-	ctx := context.Background()
 
 	t := suite.T()
 	// Given: a user and a service member
@@ -68,12 +67,6 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 	// When: all required fields are set
 	emailPreferred := true
 	serviceMember.EmailIsPreferred = &emailPreferred
-
-	newSsn := SocialSecurityNumber{}
-	newSsn.SetEncryptedHash(ctx, "555-55-5555")
-	suite.MustSave(&newSsn)
-	serviceMember.SocialSecurityNumber = &newSsn
-	serviceMember.SocialSecurityNumberID = &newSsn.ID
 
 	suite.MustSave(&serviceMember)
 

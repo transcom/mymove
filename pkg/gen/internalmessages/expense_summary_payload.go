@@ -8,13 +8,13 @@ package internalmessages
 import (
 	"strconv"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
 
 // ExpenseSummaryPayload expense summary payload
+//
 // swagger:model ExpenseSummaryPayload
 type ExpenseSummaryPayload struct {
 
@@ -105,6 +105,7 @@ func (m *ExpenseSummaryPayload) UnmarshalBinary(b []byte) error {
 }
 
 // ExpenseSummaryPayloadGrandTotal expense summary payload grand total
+//
 // swagger:model ExpenseSummaryPayloadGrandTotal
 type ExpenseSummaryPayloadGrandTotal struct {
 

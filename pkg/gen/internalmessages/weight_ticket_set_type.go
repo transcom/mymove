@@ -8,13 +8,13 @@ package internalmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
 // WeightTicketSetType Select weight ticket type
+//
 // swagger:model WeightTicketSetType
 type WeightTicketSetType string
 
@@ -47,7 +47,7 @@ func init() {
 }
 
 func (m WeightTicketSetType) validateWeightTicketSetTypeEnum(path, location string, value WeightTicketSetType) error {
-	if err := validate.Enum(path, location, value, weightTicketSetTypeEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, weightTicketSetTypeEnum, true); err != nil {
 		return err
 	}
 	return nil

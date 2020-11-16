@@ -6,11 +6,12 @@ package iampostgres
 import (
 	"errors"
 	"fmt"
-	"math/rand"
 	"net/url"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/transcom/mymove/pkg/random"
 
 	"database/sql"
 	"database/sql/driver"
@@ -92,8 +93,12 @@ func EnableIAM(host string, port string, region string, user string, passTemplat
 		// Add some entropy to this value so all instances don't fire at the same time
 		minDur := 100
 		maxDur := 5000
-		// #nosec G404 TODO needs review
-		wait := time.Millisecond * time.Duration(rand.Intn(maxDur-minDur)+minDur)
+		randInt, err := random.GetRandomIntAddend(minDur, maxDur)
+		if err != nil {
+			logger.Error("Error building auth token", zap.Error(err))
+			return
+		}
+		wait := time.Millisecond * time.Duration(randInt+minDur)
 		logger.Info(fmt.Sprintf("Waiting %v before enabling IAM access for entropy", wait))
 		time.Sleep(wait)
 

@@ -550,6 +550,9 @@ func init() {
               "$ref": "#/definitions/ClientError"
             }
           },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
           "422": {
             "$ref": "#/responses/UnprocessableEntity"
           },
@@ -2811,6 +2814,12 @@ func init() {
               "$ref": "#/definitions/ClientError"
             }
           },
+          "409": {
+            "description": "The request could not be processed because of conflict in the current state of the resource.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
           "422": {
             "description": "The payload was unprocessable.",
             "schema": {
@@ -4209,17 +4218,7 @@ func init() {
         "params": {
           "type": "array",
           "items": {
-            "type": "object",
-            "properties": {
-              "key": {
-                "type": "string",
-                "example": "Service Item Parameter Name"
-              },
-              "value": {
-                "type": "string",
-                "example": "Service Item Parameter Value"
-              }
-            }
+            "$ref": "#/definitions/ServiceItemParamsItems0"
           },
           "readOnly": true
         }
@@ -4300,6 +4299,19 @@ func init() {
         "PaymentServiceItemUUID"
       ]
     },
+    "ServiceItemParamsItems0": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "example": "Service Item Parameter Name"
+        },
+        "value": {
+          "type": "string",
+          "example": "Service Item Parameter Value"
+        }
+      }
+    },
     "Upload": {
       "type": "object",
       "required": [
@@ -4343,7 +4355,7 @@ func init() {
           "$ref": "#/definitions/ClientError"
         },
         {
-          "type": "object"
+          "$ref": "#/definitions/ValidationErrorAllOf1"
         }
       ],
       "properties": {
@@ -4358,6 +4370,9 @@ func init() {
           }
         }
       }
+    },
+    "ValidationErrorAllOf1": {
+      "type": "object"
     }
   },
   "responses": {

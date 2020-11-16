@@ -1135,8 +1135,6 @@ definitions:
       rank:
         $ref: '#/definitions/ServiceMemberRank'
         title: Rank
-      has_social_security_number:
-        type: boolean
       first_name:
         type: string
         example: John
@@ -1213,7 +1211,6 @@ definitions:
       - id
       - user_id
       - is_profile_complete
-      - has_social_security_number
       - created_at
       - updated_at
       - requires_access_code
@@ -1237,12 +1234,6 @@ definitions:
         $ref: '#/definitions/Affiliation'
       rank:
         $ref: '#/definitions/ServiceMemberRank'
-      social_security_number:
-        type: string
-        format: ssn
-        x-nullable: true
-        title: 'Social security number'
-        example: '555-55-5555'
       first_name:
         type: string
         example: John
@@ -1323,12 +1314,6 @@ definitions:
         $ref: '#/definitions/Affiliation'
       rank:
         $ref: '#/definitions/ServiceMemberRank'
-      social_security_number:
-        type: string
-        format: ssn
-        x-nullable: true
-        title: Social security number
-        example: '555-55-5555'
       first_name:
         type: string
         example: John

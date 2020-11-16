@@ -11,9 +11,8 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // NewShowAvailableMoveDatesParams creates a new ShowAvailableMoveDatesParams object
@@ -64,7 +63,7 @@ func (o *ShowAvailableMoveDatesParams) BindRequest(r *http.Request, route *middl
 // bindStartDate binds and validates parameter StartDate from query.
 func (o *ShowAvailableMoveDatesParams) bindStartDate(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
-		return errors.Required("startDate", "query")
+		return errors.Required("startDate", "query", rawData)
 	}
 	var raw string
 	if len(rawData) > 0 {

@@ -24,18 +24,3 @@
 .hide-btn {
   display: none;
 }
-
-.usa-button.usa-button--unstyled.finish-later {
-  padding-top: 12px;
-  padding-bottom: 12px;
-  margin-top: 12px;
-}
-
-@media (min-width: 480px) {
-  .usa-button.usa-button--unstyled.finish-later {
-    margin-top: 0px;
-  }
-  .usa-button.next {
-    margin-left: 12px;
-  }
-}

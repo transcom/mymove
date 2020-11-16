@@ -3,6 +3,8 @@ package moveorder
 import (
 	"testing"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/go-openapi/swag"
@@ -63,17 +65,17 @@ func (suite *MoveOrderServiceSuite) TestMoveOrderFetcherWithEmptyFields() {
 	suite.Nil(moveOrder.Grade)
 }
 
-func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
+func (suite *MoveOrderServiceSuite) TestListMoves() {
 	// Create a Move without a shipment to test that only Orders with shipments
 	// are displayed to the TOO
 	testdatagen.MakeDefaultMove(suite.DB())
 
-	expectedMoveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusSUBMITTED}})
+	expectedMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusSUBMITTED}})
 
 	// Only orders with shipments are returned, so we need to add a shipment
 	// to the move we just created
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: expectedMoveTaskOrder,
+		Move: expectedMove,
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusSubmitted,
 		},
@@ -81,33 +83,32 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
-	expectedMoveOrder := expectedMoveTaskOrder.Orders
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
 
-	suite.T().Run("returns move orders", func(t *testing.T) {
-		moveOrders, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &services.ListMoveOrderParams{PerPage: swag.Int64(1), Page: swag.Int64(1)})
+	suite.T().Run("returns moves", func(t *testing.T) {
+		moves, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &services.ListMoveOrderParams{PerPage: swag.Int64(1), Page: swag.Int64(1)})
 
 		suite.FatalNoError(err)
-		suite.Len(moveOrders, 1)
+		suite.Len(moves, 1)
 
-		moveOrder := moveOrders[0]
+		move := moves[0]
 
-		suite.NotNil(moveOrder.ServiceMember)
-		suite.Equal(expectedMoveOrder.ServiceMember.FirstName, moveOrder.ServiceMember.FirstName)
-		suite.Equal(expectedMoveOrder.ServiceMember.LastName, moveOrder.ServiceMember.LastName)
-		suite.Equal(expectedMoveOrder.ID, moveOrder.ID)
-		suite.Equal(expectedMoveOrder.ServiceMemberID, moveOrder.ServiceMemberID)
-		suite.NotNil(moveOrder.NewDutyStation)
-		suite.Equal(expectedMoveOrder.NewDutyStationID, moveOrder.NewDutyStation.ID)
-		suite.NotNil(moveOrder.Entitlement)
-		suite.Equal(*expectedMoveOrder.EntitlementID, moveOrder.Entitlement.ID)
-		suite.Equal(expectedMoveOrder.OriginDutyStation.ID, moveOrder.OriginDutyStation.ID)
-		suite.NotNil(moveOrder.OriginDutyStation)
-		suite.Equal(expectedMoveOrder.OriginDutyStation.AddressID, moveOrder.OriginDutyStation.AddressID)
-		suite.Equal(expectedMoveOrder.OriginDutyStation.Address.StreetAddress1, moveOrder.OriginDutyStation.Address.StreetAddress1)
+		suite.NotNil(move.Orders.ServiceMember)
+		suite.Equal(expectedMove.Orders.ServiceMember.FirstName, move.Orders.ServiceMember.FirstName)
+		suite.Equal(expectedMove.Orders.ServiceMember.LastName, move.Orders.ServiceMember.LastName)
+		suite.Equal(expectedMove.Orders.ID, move.Orders.ID)
+		suite.Equal(expectedMove.Orders.ServiceMemberID, move.Orders.ServiceMemberID)
+		suite.NotNil(move.Orders.NewDutyStation)
+		suite.Equal(expectedMove.Orders.NewDutyStationID, move.Orders.NewDutyStation.ID)
+		suite.NotNil(move.Orders.Entitlement)
+		suite.Equal(*expectedMove.Orders.EntitlementID, move.Orders.Entitlement.ID)
+		suite.Equal(expectedMove.Orders.OriginDutyStation.ID, move.Orders.OriginDutyStation.ID)
+		suite.NotNil(move.Orders.OriginDutyStation)
+		suite.Equal(expectedMove.Orders.OriginDutyStation.AddressID, move.Orders.OriginDutyStation.AddressID)
+		suite.Equal(expectedMove.Orders.OriginDutyStation.Address.StreetAddress1, move.Orders.OriginDutyStation.Address.StreetAddress1)
 	})
 
-	suite.T().Run("returns move orders filtered by GBLOC", func(t *testing.T) {
+	suite.T().Run("returns moves filtered by GBLOC", func(t *testing.T) {
 		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				Status: models.MTOShipmentStatusSubmitted,
@@ -120,13 +121,13 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 			},
 		})
 
-		moveOrders, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &services.ListMoveOrderParams{PerPage: swag.Int64(1), Page: swag.Int64(1)})
+		moves, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &services.ListMoveOrderParams{PerPage: swag.Int64(1), Page: swag.Int64(1)})
 
 		suite.FatalNoError(err)
-		suite.Equal(1, len(moveOrders))
+		suite.Equal(1, len(moves))
 	})
 
-	suite.T().Run("returns orders filtered by an arbitrary query", func(t *testing.T) {
+	suite.T().Run("returns moves filtered by an arbitrary query", func(t *testing.T) {
 		army := "ARMY"
 		params := services.ListMoveOrderParams{Branch: &army, PerPage: swag.Int64(1), Page: swag.Int64(1)}
 		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -141,14 +142,66 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrders() {
 			},
 		})
 
-		moveOrders, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+		moves, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
 
 		suite.FatalNoError(err)
-		suite.Equal(1, len(moveOrders))
+		suite.Equal(1, len(moves))
 	})
 }
 
-func (suite *MoveOrderServiceSuite) TestListMoveOrdersWithEmptyFields() {
+func (suite *MoveOrderServiceSuite) TestListMovesUSMCGBLOC() {
+	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
+
+	suite.T().Run("returns USMC order for USMC office user", func(t *testing.T) {
+		officeUUID, _ := uuid.NewV4()
+		marines := models.AffiliationMARINES
+		army := models.AffiliationARMY
+
+		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+			TransportationOffice: models.TransportationOffice{
+				Gbloc: "USMC",
+				ID:    officeUUID,
+			},
+			Move: models.Move{
+				Status: models.MoveStatusSUBMITTED,
+			},
+			ServiceMember: models.ServiceMember{Affiliation: &marines},
+		})
+
+		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+			Move: models.Move{
+				Status: models.MoveStatusSUBMITTED,
+			},
+			ServiceMember: models.ServiceMember{Affiliation: &army},
+		})
+
+		officeUserOooRah := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{OfficeUser: models.OfficeUser{TransportationOfficeID: officeUUID}})
+		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+
+		params := services.ListMoveOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
+		moves, _, err := moveOrderFetcher.ListMoveOrders(officeUserOooRah.ID, &params)
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal(models.AffiliationMARINES, *moves[0].Orders.ServiceMember.Affiliation)
+
+		params = services.ListMoveOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
+		moves, _, err = moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal(models.AffiliationARMY, *moves[0].Orders.ServiceMember.Affiliation)
+
+	})
+}
+
+func (suite *MoveOrderServiceSuite) TestListMovesWithEmptyFields() {
 	expectedOrder := testdatagen.MakeDefaultOrder(suite.DB())
 
 	expectedOrder.Entitlement = nil
@@ -158,13 +211,13 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrdersWithEmptyFields() {
 	expectedOrder.OriginDutyStationID = nil
 	suite.MustSave(&expectedOrder)
 
-	moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Order: expectedOrder,
 	})
 	// Only orders with shipments are returned, so we need to add a shipment
 	// to the move we just created
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: moveTaskOrder,
+		Move: move,
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusSubmitted,
 		},
@@ -172,7 +225,7 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrdersWithEmptyFields() {
 	// Add a second shipment to make sure we only return 1 order even if its
 	// move has more than one shipment
 	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: moveTaskOrder,
+		Move: move,
 		MTOShipment: models.MTOShipment{
 			Status: models.MTOShipmentStatusSubmitted,
 		},
@@ -180,23 +233,23 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrdersWithEmptyFields() {
 
 	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{})
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
-	moveOrders, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &services.ListMoveOrderParams{PerPage: swag.Int64(1), Page: swag.Int64(1)})
+	moves, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &services.ListMoveOrderParams{PerPage: swag.Int64(1), Page: swag.Int64(1)})
 
 	suite.FatalNoError(err)
-	suite.Nil(moveOrders)
+	suite.Nil(moves)
 
 }
 
-func (suite *MoveOrderServiceSuite) TestListMoveOrdersWithPagination() {
+func (suite *MoveOrderServiceSuite) TestListMovesWithPagination() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	for i := 0; i < 2; i++ {
-		expectedMoveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusSUBMITTED}})
+		expectedMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusSUBMITTED}})
 
 		// Only orders with shipments are returned, so we need to add a shipment
 		// to the move we just created
 		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: expectedMoveTaskOrder,
+			Move: expectedMove,
 			MTOShipment: models.MTOShipment{
 				Status: models.MTOShipmentStatusSubmitted,
 			},
@@ -205,10 +258,10 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrdersWithPagination() {
 
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
 	params := services.ListMoveOrderParams{Page: swag.Int64(1), PerPage: swag.Int64(1)}
-	moveOrders, count, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+	moves, count, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
 
 	suite.NoError(err)
-	suite.Equal(1, len(moveOrders))
+	suite.Equal(1, len(moves))
 	suite.Equal(2, count)
 
 }

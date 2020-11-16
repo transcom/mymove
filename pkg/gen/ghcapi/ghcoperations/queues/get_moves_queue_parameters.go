@@ -12,10 +12,9 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // NewGetMovesQueueParams creates a new GetMovesQueueParams object
@@ -280,7 +279,7 @@ func (o *GetMovesQueueParams) bindStatus(rawData []string, hasKey bool, formats 
 	for i, statusIV := range statusIC {
 		statusI := statusIV
 
-		if err := validate.Enum(fmt.Sprintf("%s.%v", "status", i), "query", statusI, []interface{}{"SUBMITTED", "APPROVALS REQUESTED", "APPROVED"}); err != nil {
+		if err := validate.EnumCase(fmt.Sprintf("%s.%v", "status", i), "query", statusI, []interface{}{"SUBMITTED", "APPROVALS REQUESTED", "APPROVED"}, true); err != nil {
 			return err
 		}
 

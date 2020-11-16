@@ -8,13 +8,13 @@ package ordersmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
 // Status Indicates whether these Orders are authorized, RFO (Request For Orders), or canceled. An RFO is not sufficient to authorize moving expenses; only authorized Orders can do that.
+//
 // swagger:model Status
 type Status string
 
@@ -44,7 +44,7 @@ func init() {
 }
 
 func (m Status) validateStatusEnum(path, location string, value Status) error {
-	if err := validate.Enum(path, location, value, statusEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, statusEnum, true); err != nil {
 		return err
 	}
 	return nil

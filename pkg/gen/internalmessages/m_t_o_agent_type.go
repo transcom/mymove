@@ -8,13 +8,13 @@ package internalmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
 // MTOAgentType MTO Agent Type
+//
 // swagger:model MTOAgentType
 type MTOAgentType string
 
@@ -41,7 +41,7 @@ func init() {
 }
 
 func (m MTOAgentType) validateMTOAgentTypeEnum(path, location string, value MTOAgentType) error {
-	if err := validate.Enum(path, location, value, mTOAgentTypeEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, mTOAgentTypeEnum, true); err != nil {
 		return err
 	}
 	return nil

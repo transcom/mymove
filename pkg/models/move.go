@@ -3,8 +3,9 @@ package models
 import (
 	"crypto/sha256"
 	"fmt"
-	"math/rand"
 	"time"
+
+	"github.com/transcom/mymove/pkg/random"
 
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v5"
@@ -578,11 +579,17 @@ func GenerateReferenceID(db *pop.Connection) (string, error) {
 // GenerateReferenceID creates a random ID for an MTO. Format (xxxx-xxxx) with X being a number 0-9 (ex. 0009-1234. 4321-4444)
 func generateReferenceIDHelper(db *pop.Connection) (string, error) {
 	min := 0
-	max := 9999
-	// #nosec G404 TODO needs review
-	firstNum := rand.Intn(max - min + 1)
-	// #nosec G404 TODO needs review
-	secondNum := rand.Intn(max - min + 1)
+	max := 10000
+	firstNum, err := random.GetRandomIntAddend(min, max)
+	if err != nil {
+		return "", err
+	}
+
+	secondNum, err := random.GetRandomIntAddend(min, max)
+	if err != nil {
+		return "", err
+	}
+
 	newReferenceID := fmt.Sprintf("%04d-%04d", firstNum, secondNum)
 
 	count, err := db.Where(`reference_id= $1`, newReferenceID).Count(&Move{})

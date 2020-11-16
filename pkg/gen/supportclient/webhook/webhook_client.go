@@ -9,12 +9,11 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new webhook API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -26,10 +25,17 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
-/*
-PostWebhookNotify tests endpoint for sending messages via webhook
+// ClientService is the interface for Client methods
+type ClientService interface {
+	PostWebhookNotify(params *PostWebhookNotifyParams) (*PostWebhookNotifyOK, error)
 
-This endpoint represents the receiving server, The Prime, in our webhook-client testing workflow. The `webhook-client` is responsible for retrieving messages from the webhook_notifications table and sending them to the Prime (this endpoint in our testing case) via an mTLS connection.
+	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+  PostWebhookNotify tests endpoint for sending messages via webhook
+
+  This endpoint represents the receiving server, The Prime, in our webhook-client testing workflow. The `webhook-client` is responsible for retrieving messages from the webhook_notifications table and sending them to the Prime (this endpoint in our testing case) via an mTLS connection.
 
 */
 func (a *Client) PostWebhookNotify(params *PostWebhookNotifyParams) (*PostWebhookNotifyOK, error) {
