@@ -400,7 +400,7 @@ func (suite *EventServiceSuite) TestNotificationEventHandler() {
 		afterCount, _ := suite.DB().Count(&models.WebhookNotification{})
 		suite.Equal(count, afterCount)
 
-		// No notificationn adn nil error returned
+		// No notification stored and nil error returned
 		_, err = suite.getNotification(order.ID, traceID)
 		suite.Error(err)
 		suite.Equal("sql: no rows in result set", err.Error())
