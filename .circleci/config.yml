@@ -502,26 +502,15 @@ jobs:
       - restore_cache:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
-      - restore_cache:
-          keys:
-            - v3-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run:
           name: Install YARN dependencies
-          # setting network concurrency to 1 because using the default failed with errors trying to extract package tar files saying they were corrupt.
-          # this was workaround that seemed to fix the issue See for details https://github.com/yarnpkg/yarn/issues/7212
-          # This is caused by a timing issue when using react-uswds branch. It can be removed once we switch to a released version
-          command: yarn install --network-concurrency 1
+          command: yarn install --frozen-lockfile
       - run: scripts/check-generated-code yarn.lock
       # `v3-cache-yarn-v3-{{ checksum "yarn.lock" }}` is used to cache yarn sources
       - save_cache:
           key: v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
           paths:
             - ~/.cache/yarn/v3
-      # `v3-mymove-node-modules-{{ checksum "yarn.lock" }}` is used to cache installed node modules
-      - save_cache:
-          key: v3-mymove-node-modules-{{ checksum "yarn.lock" }}
-          paths:
-            - ~/transcom/mymove/node_modules
       - announce_failure
 
   pre_deps_cypress:
@@ -531,23 +520,14 @@ jobs:
       - restore_cache:
           keys:
             - v1-cache-cypress-yarn-{{ checksum "cypress/yarn.lock" }}
-      - restore_cache:
-          keys:
-            - v1-cache-cypress-node-modules-{{ checksum "cypress/yarn.lock" }}
       - run:
           name: Install YARN dependencies
-          # setting network concurrency to 1 to follow the others; this is pretty standard for cloud yarning. see note in pre_deps_yarn for more detail.
-          command: yarn install --network-concurrency 1
+          command: yarn install --frozen-lockfile
       # `v1-cache-cypress-yarn-{{ checksum "cypress/yarn.lock" }}` is used to cache yarn sources
       - save_cache:
           key: v1-cache-cypress-yarn-{{ checksum "cypress/yarn.lock" }}
           paths:
             - ~/.cache/cypress/yarn/v1
-      # `v1-cache-cypress-node-modules-{{ checksum "cypress/yarn.lock" }}` is used to cache installed node modules
-      - save_cache:
-          key: v1-cache-cypress-node-modules-{{ checksum "cypress/yarn.lock" }}
-          paths:
-            - ~/.cache/cypress/node_modules/v1
       - announce_failure
 
   # `check_generated_code` is used to ensure generated code doesn't change
@@ -607,9 +587,6 @@ jobs:
       - restore_cache:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
-      - restore_cache:
-          keys:
-            - v3-mymove-node-modules-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
@@ -743,13 +720,7 @@ jobs:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
-            - v3-mymove-node-modules-{{ checksum "yarn.lock" }}
-      - restore_cache:
-          keys:
             - v1-cache-cypress-yarn-{{ checksum "cypress/yarn.lock" }}
-      - restore_cache:
-          keys:
-            - v1-cache-cypress-node-modules-{{ checksum "cypress/yarn.lock" }}
       - attach_workspace:
           at: /home/circleci/transcom/mymove/bin
       - run:
@@ -794,9 +765,6 @@ jobs:
       - restore_cache:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
-      - restore_cache:
-          keys:
-            - v3-mymove-node-modules-{{ checksum "yarn.lock" }}
       - attach_workspace:
           at: /home/circleci/transcom/mymove/bin
       - run: rm -f pkg/assets/assets.go && make pkg/assets/assets.go
@@ -880,9 +848,6 @@ jobs:
       - restore_cache:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
-      - restore_cache:
-          keys:
-            - v3-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run: make bin/rds-ca-2019-root.pem
       - run: make bin/rds-ca-us-gov-west-1-2017-root.pem
       - run: make client_build
@@ -958,9 +923,6 @@ jobs:
       - restore_cache:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
-      - restore_cache:
-          keys:
-            - v3-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run:
           name: Output processes and resource usage every 5 seconds while job is running
           command: |
