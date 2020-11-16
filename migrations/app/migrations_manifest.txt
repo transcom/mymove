@@ -559,6 +559,7 @@
 20200925155922_deep_cac.up.sql
 20200929210500_remove_rdhariwal_cac.up.sql
 20201001183657_rriser_cac.up.sql
+20201006003951_shimona_cac.up.sql
 20201006145421_add_reference_id_to_psi.up.sql
 20201006180000_dspencer_cac.up.sql
 20201006232216_gidjin_cac.up.sql
@@ -568,4 +569,12 @@
 20201020164146_gidjin_cac.up.sql
 20201023202845_update_selectedMoveType_NTS.up.sql
 20201027143150_moncef_cac.up.sql
+20201103194328_add_skipped_failing_to_wh_notifications.up.sql
 20201103225532_remove_mr337_cac.up.sql
+20201103231542_add_failing_to_wh_subscriptions_status.up.sql
+20201105195546_add_index_for_webhook_notifications.up.sql
+20201110162431_add_indexes_for_txo_queues.up.sql
+20201110162713_make_usmc_transportation_office.up.sql
+20201111015201_add_sit_fields_zip_entry_departure.up.sql
+20201111170419_jacquelinemckinney_cac.up.sql
+20201111232031_remove_ssn.up.sql

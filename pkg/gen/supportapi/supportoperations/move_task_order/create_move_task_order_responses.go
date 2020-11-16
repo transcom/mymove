@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	supportmessages "github.com/transcom/mymove/pkg/gen/supportmessages"
+	"github.com/transcom/mymove/pkg/gen/supportmessages"
 )
 
 // CreateMoveTaskOrderCreatedCode is the HTTP code returned for type CreateMoveTaskOrderCreated

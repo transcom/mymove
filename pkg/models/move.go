@@ -3,8 +3,9 @@ package models
 import (
 	"crypto/sha256"
 	"fmt"
-	"math/rand"
 	"time"
+
+	"github.com/transcom/mymove/pkg/random"
 
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v5"
@@ -31,6 +32,8 @@ const (
 	MoveStatusAPPROVED MoveStatus = "APPROVED"
 	// MoveStatusCANCELED captures enum value "CANCELED"
 	MoveStatusCANCELED MoveStatus = "CANCELED"
+	// MoveStatusAPPROVALSREQUESTED captures enum value "APPROVALS REQUESTED"
+	MoveStatusAPPROVALSREQUESTED MoveStatus = "APPROVALS REQUESTED"
 )
 
 // SelectedMoveType represents the type of move being represented
@@ -157,11 +160,22 @@ func (m *Move) Submit(submittedDate time.Time) error {
 
 // Approve approves the Move
 func (m *Move) Approve() error {
-	if m.Status != MoveStatusSUBMITTED {
-		return errors.Wrap(ErrInvalidTransition, "Approve")
+	if m.Status == MoveStatusSUBMITTED || m.Status == MoveStatusAPPROVALSREQUESTED {
+		m.Status = MoveStatusAPPROVED
+		return nil
 	}
+	if m.Status == MoveStatusAPPROVED {
+		return nil
+	}
+	return errors.Wrap(ErrInvalidTransition, fmt.Sprintf("Cannot move to Approved state when the Move is not either in a Submitted or Approvals Requested state for status: %s", m.Status))
+}
 
-	m.Status = MoveStatusAPPROVED
+// SetApprovalsRequested sets the move to approvals requested
+func (m *Move) SetApprovalsRequested() error {
+	if m.Status != MoveStatusAPPROVED {
+		return errors.Wrap(ErrInvalidTransition, fmt.Sprintf("Cannot move to Approvals Requested when the Move is not in an Approved state for status: %s and ID: %s", m.Status, m.ID))
+	}
+	m.Status = MoveStatusAPPROVALSREQUESTED
 	return nil
 }
 
@@ -259,6 +273,7 @@ func (m Move) createMoveDocumentWithoutTransaction(
 	// Associate uploads to the new document
 	for _, upload := range userUploads {
 		upload.DocumentID = &newDoc.ID
+		// #nosec G601 TODO needs review
 		verrs, err := db.ValidateAndUpdate(&upload)
 		if err != nil || verrs.HasAny() {
 			responseVErrors.Append(verrs)
@@ -564,9 +579,17 @@ func GenerateReferenceID(db *pop.Connection) (string, error) {
 // GenerateReferenceID creates a random ID for an MTO. Format (xxxx-xxxx) with X being a number 0-9 (ex. 0009-1234. 4321-4444)
 func generateReferenceIDHelper(db *pop.Connection) (string, error) {
 	min := 0
-	max := 9999
-	firstNum := rand.Intn(max - min + 1)
-	secondNum := rand.Intn(max - min + 1)
+	max := 10000
+	firstNum, err := random.GetRandomIntAddend(min, max)
+	if err != nil {
+		return "", err
+	}
+
+	secondNum, err := random.GetRandomIntAddend(min, max)
+	if err != nil {
+		return "", err
+	}
+
 	newReferenceID := fmt.Sprintf("%04d-%04d", firstNum, secondNum)
 
 	count, err := db.Where(`reference_id= $1`, newReferenceID).Count(&Move{})
@@ -597,6 +620,7 @@ func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, err
 				}
 			}
 
+			// #nosec G601 TODO needs review
 			if verrs, err := db.ValidateAndSave(&ppm); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = errors.Wrap(err, "Error Saving PPM")

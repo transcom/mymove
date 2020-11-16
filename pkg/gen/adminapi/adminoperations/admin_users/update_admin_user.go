@@ -8,7 +8,7 @@ package admin_users
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // UpdateAdminUserHandlerFunc turns a function with the right signature into a update admin user handler

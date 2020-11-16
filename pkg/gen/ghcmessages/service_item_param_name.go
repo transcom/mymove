@@ -8,13 +8,13 @@ package ghcmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
 // ServiceItemParamName service item param name
+//
 // swagger:model ServiceItemParamName
 type ServiceItemParamName string
 
@@ -191,7 +191,7 @@ func init() {
 }
 
 func (m ServiceItemParamName) validateServiceItemParamNameEnum(path, location string, value ServiceItemParamName) error {
-	if err := validate.Enum(path, location, value, serviceItemParamNameEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, serviceItemParamNameEnum, true); err != nil {
 		return err
 	}
 	return nil

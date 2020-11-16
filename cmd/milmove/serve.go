@@ -583,6 +583,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	logger.Debug("Trusted Certificate Authorities", zap.Any("subjects", rootCAs.Subjects()))
 
 	// Set the GexSender() and GexSender fields
+	// #nosec G402 TODO needs review
 	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs}
 	var gexRequester services.GexSender
 	gexURL := v.GetString(cli.GEXURLFlag)
@@ -594,6 +595,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		gexRequester = invoice.NewGexSenderHTTP(
 			server.URL,
 			false,
+			// #nosec G402 TODO needs review
 			&tls.Config{},
 			"",
 			"",

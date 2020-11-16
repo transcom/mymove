@@ -135,6 +135,29 @@ func main() {
 	prime.InitUpdateMTOShipmentAddressFlags(updateMTOShipmentAddressCommand.Flags())
 	root.AddCommand(updateMTOShipmentAddressCommand)
 
+	updateMTOAgentCommand := &cobra.Command{
+		Use:   "update-mto-agent",
+		Short: "Update MTO agent",
+		Long: `
+  This command updates an agent associated with an MTO shipment.
+  It requires the caller to pass in a file using the --filename arg.
+  The file should contain path parameters, headers and a body for the payload.
+
+  Endpoint path: /mto-shipments/{mtoShipmentID}/agents/{agentID}
+  The file should contain json as follows:
+  	{
+	  "mtoShipmentID": <uuid string>,
+	  "agentID": <uuid string>,
+      "ifMatch": <eTag>,
+      "body": <MTOAgent>
+  	}
+  Please see API documentation for full details on the endpoint definition.`,
+		RunE:         prime.UpdateMTOAgent,
+		SilenceUsage: true,
+	}
+	prime.InitUpdateMTOAgentFlags(updateMTOAgentCommand.Flags())
+	root.AddCommand(updateMTOAgentCommand)
+
 	updatePostCounselingInfo := &cobra.Command{
 		Use:          "update-mto-post-counseling-information",
 		Short:        "update post counseling info",
@@ -347,6 +370,32 @@ func main() {
 	}
 	support.InitGetPaymentRequestEDIFlags(getPaymentRequestEDI.Flags())
 	root.AddCommand(getPaymentRequestEDI)
+
+	processReviewedPaymentRequests := &cobra.Command{
+		Use:   "support-reviewed-payment-requests",
+		Short: "Use to test sending a payment request to syncada",
+		Long: `
+  This command gives the option to update the status of payment request to a given status.
+  It also has the option to send the reviewed payment request to syncada.
+  This is a support endpoint and is not available in production.
+  It requires the caller to pass in a file using the --filename arg.
+  The file should contain path parameters.
+
+  Endpoint path: /payment-requests/process-reviewed
+  The file should contain json as follows (only sendToSyncada is required):
+  	{
+	  body: {
+		"paymentRequestID": <uuid string>,
+		"sendToSyncada": <boolean>,
+		"status": <string>
+	  }
+  	}
+  Please see API documentation for full details on the endpoint definition.`,
+		RunE:         support.ProcessReviewedPaymentRequests,
+		SilenceUsage: true,
+	}
+	support.InitGetPaymentRequestEDIFlags(processReviewedPaymentRequests.Flags())
+	root.AddCommand(processReviewedPaymentRequests)
 
 	completionCommand := &cobra.Command{
 		Use:   "completion",

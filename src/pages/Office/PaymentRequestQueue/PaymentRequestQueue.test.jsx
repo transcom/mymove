@@ -8,8 +8,8 @@ import { MockProviders } from 'testUtils';
 jest.mock('hooks/queries', () => ({
   usePaymentRequestQueueQueries: () => {
     return {
-      queuePaymentRequestsResult: {
-        queuePaymentRequests: [
+      queueResult: {
+        data: [
           {
             age: 0.8477863,
             customer: {

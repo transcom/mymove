@@ -8,14 +8,14 @@ package internalmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // UploadPayload upload payload
+//
 // swagger:model UploadPayload
 type UploadPayload struct {
 
@@ -177,7 +177,7 @@ const (
 
 // prop value enum
 func (m *UploadPayload) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, uploadPayloadTypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, uploadPayloadTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil

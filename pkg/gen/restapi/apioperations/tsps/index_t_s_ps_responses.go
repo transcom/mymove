@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	apimessages "github.com/transcom/mymove/pkg/gen/apimessages"
+	"github.com/transcom/mymove/pkg/gen/apimessages"
 )
 
 // IndexTSPsOKCode is the HTTP code returned for type IndexTSPsOK

@@ -8,7 +8,7 @@ package ordersoperations
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // IndexOrdersForMemberHandlerFunc turns a function with the right signature into a index orders for member handler

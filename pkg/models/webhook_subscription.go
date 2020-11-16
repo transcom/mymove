@@ -14,6 +14,10 @@ const (
 	WebhookSubscriptionStatusActive WebhookSubscriptionStatus = "ACTIVE"
 	// WebhookSubscriptionStatusDisabled is the disabled status for Webhook Subscription
 	WebhookSubscriptionStatusDisabled WebhookSubscriptionStatus = "DISABLED"
+	// WebhookSubscriptionStatusFailing is the failing status for Webhook Subscription
+	// - it indicates that we have experienced notifications failing to be sent, but
+	// have not disabled this subscription yet.
+	WebhookSubscriptionStatusFailing WebhookSubscriptionStatus = "FAILING"
 )
 
 // WebhookSubscriptionStatus is a type representing the webhook subscription status type - string
@@ -25,6 +29,7 @@ type WebhookSubscription struct {
 	Subscriber   Contractor                `belongs_to:"contractors:"`
 	SubscriberID uuid.UUID                 `db:"subscriber_id"`
 	Status       WebhookSubscriptionStatus `db:"status"`
+	Severity     int                       `db:"severity"` // Zero indicates no severity value, 1 is highest
 	EventKey     string                    `db:"event_key"`
 	CallbackURL  string                    `db:"callback_url"`
 	CreatedAt    time.Time                 `db:"created_at"`
@@ -40,6 +45,7 @@ func (wS *WebhookSubscription) Validate(tx *pop.Connection) (*validate.Errors, e
 		&validators.StringInclusion{Field: string(wS.Status), Name: "Status", List: []string{
 			string(WebhookSubscriptionStatusActive),
 			string(WebhookSubscriptionStatusDisabled),
+			string(WebhookSubscriptionStatusFailing),
 		}},
 	), nil
 }

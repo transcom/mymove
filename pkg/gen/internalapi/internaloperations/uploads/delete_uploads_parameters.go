@@ -12,10 +12,9 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // NewDeleteUploadsParams creates a new DeleteUploadsParams object
@@ -68,7 +67,7 @@ func (o *DeleteUploadsParams) BindRequest(r *http.Request, route *middleware.Mat
 // Arrays are parsed according to CollectionFormat: "" (defaults to "csv" when empty).
 func (o *DeleteUploadsParams) bindUploadIds(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
-		return errors.Required("uploadIds", "query")
+		return errors.Required("uploadIds", "query", rawData)
 	}
 
 	var qvUploadIds string
@@ -80,7 +79,7 @@ func (o *DeleteUploadsParams) bindUploadIds(rawData []string, hasKey bool, forma
 	uploadIdsIC := swag.SplitByFormat(qvUploadIds, "")
 
 	if len(uploadIdsIC) == 0 {
-		return errors.Required("uploadIds", "query")
+		return errors.Required("uploadIds", "query", uploadIdsIC)
 	}
 
 	var uploadIdsIR []strfmt.UUID

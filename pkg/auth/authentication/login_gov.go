@@ -7,6 +7,8 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/transcom/mymove/pkg/random"
+
 	"net/http"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -89,9 +91,17 @@ func (p LoginGovProvider) RegisterProvider(milHostname string, milClientID strin
 
 func generateNonce() string {
 	nonceBytes := make([]byte, 64)
-	random := rand.New(rand.NewSource(time.Now().UnixNano()))
+	//RA Summary: gosec - G404 - Insecure random number source (rand)
+	//RA: gosec detected use of the insecure package math/rand rather than the more secure cryptographically secure pseudo-random number generator crypto/rand.
+	//RA: This particular usage is mitigated by sourcing the seed from crypto/rand in order to create the new random number using math/rand.
+	//RA Developer Status: Mitigated
+	//RA Validator: jneuner@mitre.org
+	//RA Validator Status: Mitigated
+	//RA Modified Severity: CAT III
+	// #nosec G404
+	randomInt := rand.New(random.NewCryptoSeededSource())
 	for i := 0; i < 64; i++ {
-		nonceBytes[i] = byte(random.Int63() % 256)
+		nonceBytes[i] = byte(randomInt.Int63() % 256)
 	}
 	return base64.URLEncoding.EncodeToString(nonceBytes)
 }

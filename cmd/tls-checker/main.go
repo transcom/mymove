@@ -123,6 +123,7 @@ func createTLSConfig(clientKey []byte, clientCert []byte, ca []byte, tlsVersion 
 		return nil, err
 	}
 
+	// #nosec G402 TODO needs review
 	tlsConfig := &tls.Config{
 		Certificates: []tls.Certificate{keyPair},
 		MinVersion:   tlsVersion,
@@ -154,6 +155,7 @@ func createHTTPClient(v *viper.Viper, logger *zap.Logger, tlsVersion uint16) (*h
 	}
 
 	// Supported TLS versions
+	// #nosec G402 TODO needs review
 	tlsConfig := &tls.Config{
 		MinVersion: tlsVersion,
 		MaxVersion: tlsVersion,

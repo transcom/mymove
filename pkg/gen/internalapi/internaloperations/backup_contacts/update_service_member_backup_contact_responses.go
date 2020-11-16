@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	internalmessages "github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // UpdateServiceMemberBackupContactCreatedCode is the HTTP code returned for type UpdateServiceMemberBackupContactCreated

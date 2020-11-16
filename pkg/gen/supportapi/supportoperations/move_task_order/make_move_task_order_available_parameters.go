@@ -10,9 +10,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // NewMakeMoveTaskOrderAvailableParams creates a new MakeMoveTaskOrderAvailableParams object
@@ -71,7 +70,7 @@ func (o *MakeMoveTaskOrderAvailableParams) BindRequest(r *http.Request, route *m
 // bindIfMatch binds and validates parameter IfMatch from header.
 func (o *MakeMoveTaskOrderAvailableParams) bindIfMatch(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
-		return errors.Required("If-Match", "header")
+		return errors.Required("If-Match", "header", rawData)
 	}
 	var raw string
 	if len(rawData) > 0 {

@@ -8,9 +8,8 @@ package supportmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
@@ -18,6 +17,7 @@ import (
 //   * DOFSIT - MTOServiceItemDOFSIT
 //   * DOSHUT, DDSHUT - MTOServiceItemShuttle
 //   * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating
+//
 //
 // swagger:model MTOServiceItemModelType
 type MTOServiceItemModelType string
@@ -51,7 +51,7 @@ func init() {
 }
 
 func (m MTOServiceItemModelType) validateMTOServiceItemModelTypeEnum(path, location string, value MTOServiceItemModelType) error {
-	if err := validate.Enum(path, location, value, mTOServiceItemModelTypeEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, mTOServiceItemModelTypeEnum, true); err != nil {
 		return err
 	}
 	return nil

@@ -8,13 +8,13 @@ package internalmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
 // MoveDocumentStatus Document status
+//
 // swagger:model MoveDocumentStatus
 type MoveDocumentStatus string
 
@@ -47,7 +47,7 @@ func init() {
 }
 
 func (m MoveDocumentStatus) validateMoveDocumentStatusEnum(path, location string, value MoveDocumentStatus) error {
-	if err := validate.Enum(path, location, value, moveDocumentStatusEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, moveDocumentStatusEnum, true); err != nil {
 		return err
 	}
 	return nil

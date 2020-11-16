@@ -12,7 +12,7 @@ repos:
         types: [go]
 
   - repo: git://github.com/pre-commit/pre-commit-hooks
-    rev: v2.5.0
+    rev: v3.3.0
     hooks:
       - id: check-json
       - id: check-merge-conflict
@@ -92,7 +92,7 @@ repos:
         pass_filenames: false
 
   - repo: git://github.com/trussworks/pre-commit-hooks
-    rev: v0.0.3
+    rev: v1.0.0
     hooks:
       - id: gen-docs
         args: ['docs/adr']

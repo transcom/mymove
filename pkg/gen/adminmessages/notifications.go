@@ -8,13 +8,13 @@ package adminmessages
 import (
 	"strconv"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
 
 // Notifications notifications
+//
 // swagger:model Notifications
 type Notifications []*Notification
 

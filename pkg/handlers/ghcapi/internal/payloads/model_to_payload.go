@@ -262,6 +262,7 @@ func MTOShipments(mtoShipments *models.MTOShipments) *ghcmessages.MTOShipments {
 	payload := make(ghcmessages.MTOShipments, len(*mtoShipments))
 
 	for i, m := range *mtoShipments {
+		// #nosec G601 TODO needs review
 		payload[i] = MTOShipment(&m)
 	}
 	return &payload
@@ -288,6 +289,7 @@ func MTOAgent(mtoAgent *models.MTOAgent) *ghcmessages.MTOAgent {
 func MTOAgents(mtoAgents *models.MTOAgents) *ghcmessages.MTOAgents {
 	payload := make(ghcmessages.MTOAgents, len(*mtoAgents))
 	for i, m := range *mtoAgents {
+		// #nosec G601 TODO needs review
 		payload[i] = MTOAgent(&m)
 	}
 	return &payload
@@ -338,6 +340,7 @@ func PaymentServiceItem(ps *models.PaymentServiceItem) *ghcmessages.PaymentServi
 func PaymentServiceItems(paymentServiceItems *models.PaymentServiceItems) *ghcmessages.PaymentServiceItems {
 	payload := make(ghcmessages.PaymentServiceItems, len(*paymentServiceItems))
 	for i, m := range *paymentServiceItems {
+		// #nosec G601 TODO needs review
 		payload[i] = PaymentServiceItem(&m)
 	}
 	return &payload
@@ -374,6 +377,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOServiceItem {
 func MTOServiceItemModels(s models.MTOServiceItems) ghcmessages.MTOServiceItems {
 	serviceItems := ghcmessages.MTOServiceItems{}
 	for _, item := range s {
+		// #nosec G601 TODO needs review
 		serviceItems = append(serviceItems, MTOServiceItemModel(&item))
 	}
 
@@ -395,6 +399,7 @@ func MTOServiceItemDimension(d *models.MTOServiceItemDimension) *ghcmessages.MTO
 func MTOServiceItemDimensions(d models.MTOServiceItemDimensions) ghcmessages.MTOServiceItemDimensions {
 	payload := make(ghcmessages.MTOServiceItemDimensions, len(d))
 	for i, item := range d {
+		// #nosec G601 TODO needs review
 		payload[i] = MTOServiceItemDimension(&item)
 	}
 	return payload
@@ -413,6 +418,7 @@ func MTOServiceItemCustomerContact(c *models.MTOServiceItemCustomerContact) *ghc
 func MTOServiceItemCustomerContacts(c models.MTOServiceItemCustomerContacts) ghcmessages.MTOServiceItemCustomerContacts {
 	payload := make(ghcmessages.MTOServiceItemCustomerContacts, len(c))
 	for i, item := range c {
+		// #nosec G601 TODO needs review
 		payload[i] = MTOServiceItemCustomerContact(&item)
 	}
 	return payload
@@ -458,17 +464,14 @@ func ProofOfServiceDoc(proofOfService models.ProofOfServiceDoc, storer storage.F
 }
 
 // QueueMoves payload
-func QueueMoves(moveOrders []models.Order) *ghcmessages.QueueMoves {
-	queueMoveOrders := make(ghcmessages.QueueMoves, len(moveOrders))
-	for i, order := range moveOrders {
-		customer := order.ServiceMember
+func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
+	queueMoveOrders := make(ghcmessages.QueueMoves, len(moves))
+	for i, move := range moves {
+		customer := move.Orders.ServiceMember
 		// Finds the first move that is an HHG and use that locator.  Should we include combo HHG_PPM or others?
 		var hhgMove models.Move
-		for _, move := range order.Moves {
-			if *move.SelectedMoveType == models.SelectedMoveTypeHHG {
-				hhgMove = move
-				break
-			}
+		if *move.SelectedMoveType == models.SelectedMoveTypeHHG {
+			hhgMove = move
 		}
 
 		var validMTOShipments []models.MTOShipment
@@ -479,59 +482,22 @@ func QueueMoves(moveOrders []models.Order) *ghcmessages.QueueMoves {
 		}
 
 		deptIndicator := ""
-		if order.DepartmentIndicator != nil {
-			deptIndicator = *order.DepartmentIndicator
+		if move.Orders.DepartmentIndicator != nil {
+			deptIndicator = *move.Orders.DepartmentIndicator
 		}
 
 		queueMoveOrders[i] = &ghcmessages.QueueMove{
 			Customer:               Customer(&customer),
-			Status:                 ghcmessages.QueueMoveStatus(queueMoveStatus(hhgMove)),
-			ID:                     *handlers.FmtUUID(order.ID),
+			Status:                 ghcmessages.QueueMoveStatus(hhgMove.Status),
+			ID:                     *handlers.FmtUUID(move.Orders.ID),
 			Locator:                hhgMove.Locator,
 			DepartmentIndicator:    ghcmessages.DeptIndicator(deptIndicator),
 			ShipmentsCount:         int64(len(validMTOShipments)),
-			DestinationDutyStation: DutyStation(&order.NewDutyStation),
-			OriginGBLOC:            ghcmessages.GBLOC(order.OriginDutyStation.TransportationOffice.Gbloc),
+			DestinationDutyStation: DutyStation(&move.Orders.NewDutyStation),
+			OriginGBLOC:            ghcmessages.GBLOC(move.Orders.OriginDutyStation.TransportationOffice.Gbloc),
 		}
 	}
 	return &queueMoveOrders
-}
-
-var (
-	// QueueMoveStatusNEWMOVE status New move
-	QueueMoveStatusNEWMOVE string = "New move"
-	// QueueMoveStatusAPPROVALSREQUESTED status Approvals requested
-	QueueMoveStatusAPPROVALSREQUESTED string = "Approvals requested"
-	// QueueMoveStatusMOVEAPPROVED status Move approved
-	QueueMoveStatusMOVEAPPROVED string = "Move approved"
-)
-
-// This is a helper function to calculate the inferred status needed for the QueueMove payload.
-func queueMoveStatus(move models.Move) string {
-	// If the move is in the submitted status then we'll translate that to New move
-	if move.Status == models.MoveStatusSUBMITTED {
-		return QueueMoveStatusNEWMOVE
-	}
-
-	// For moves that are in an approved status there are two potential translation paths:
-	// either move approved or approvals requested. A move is move approved if the move is in an APPROVED
-	// status and there are no mtoServiceItems that are in a submitted status. A move is in the
-	// approvals requested status when the move is in an APPROVED status and there are mtoServiceItems in
-	// a submitted status. This is all detailed in: https://dp3.atlassian.net/browse/MB-4158
-	if move.Status == models.MoveStatusAPPROVED {
-		// Let's check to see if there are any MTOServiceItems for this move that need review (SUBMITTED status)
-		for _, mtoSI := range move.MTOServiceItems {
-			// If we find one, we'll immediately return this status as there's no need to continue iterating through.
-			if mtoSI.Status == "SUBMITTED" {
-				return QueueMoveStatusAPPROVALSREQUESTED
-			}
-		}
-		// If we iterate through the MTOServiceItems and don't find a submitted status item, we return move approved.
-		return QueueMoveStatusMOVEAPPROVED
-	}
-	// If we have a status not covered here let's pass it through. This is unlikely to happen, but we should be able to
-	// see it if it does.
-	return string(move.Status)
 }
 
 var (

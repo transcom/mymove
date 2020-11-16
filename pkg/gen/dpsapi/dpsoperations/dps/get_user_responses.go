@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	dpsmessages "github.com/transcom/mymove/pkg/gen/dpsmessages"
+	"github.com/transcom/mymove/pkg/gen/dpsmessages"
 )
 
 // GetUserOKCode is the HTTP code returned for type GetUserOK

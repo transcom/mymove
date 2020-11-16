@@ -3,11 +3,12 @@ package testdatagen
 import (
 	"fmt"
 	"log"
-	"math/rand"
 	"os"
 	"path"
 	"reflect"
 	"time"
+
+	"github.com/transcom/mymove/pkg/random"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
@@ -26,7 +27,6 @@ type Assertions struct {
 	Address                                  models.Address
 	AdminUser                                models.AdminUser
 	BackupContact                            models.BackupContact
-	BlackoutDate                             models.BlackoutDate
 	Contractor                               models.Contractor
 	DestinationAddress                       models.Address
 	DestinationDutyStation                   models.DutyStation
@@ -149,7 +149,13 @@ const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567
 func makeRandomString(n int) string {
 	b := make([]byte, n)
 	for i := range b {
-		b[i] = letterBytes[rand.Intn(len(letterBytes))]
+		randInt, err := random.GetRandomInt(len(letterBytes))
+		if err != nil {
+			log.Panicf("failed to create random string %v", err)
+			return ""
+		}
+		b[i] = letterBytes[randInt]
+
 	}
 	return string(b)
 }
