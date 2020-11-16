@@ -4,102 +4,16 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
-import { Field } from 'redux-form';
-import { normalizeSSN } from 'shared/JsonSchemaForm/reduxFieldNormalizer';
-import classNames from 'classnames';
 
 import { updateServiceMember } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 
-const subsetOfFields = ['affiliation', 'edipi', 'social_security_number', 'rank'];
-
-class SSNField extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      focused: false,
-    };
-
-    this.localOnBlur = this.localOnBlur.bind(this);
-    this.localOnFocus = this.localOnFocus.bind(this);
-  }
-
-  localOnBlur(value, something) {
-    this.setState({ focused: false });
-    this.props.input.onBlur(value);
-  }
-
-  localOnFocus(value, something) {
-    this.setState({ focused: true });
-    this.props.input.onFocus(value);
-  }
-
-  render() {
-    const {
-      input: { value, name },
-      meta: { touched, error },
-      ssnOnServer,
-    } = this.props;
-
-    let displayedValue = value;
-    if (!this.state.focused && (value !== '' || ssnOnServer)) {
-      displayedValue = '•••-••-••••';
-    }
-    const displayError = touched && error;
-
-    // This is copied from JsonSchemaField to match the styling
-    return (
-      <div className={classNames('usa-form-group', { 'usa-form-group--error': displayError })}>
-        <label className={classNames('usa-label', { 'usa-label--error': displayError })} htmlFor={name}>
-          Social Security number
-        </label>
-        {touched && error && (
-          <span className="usa-error-message" id={name + '-error'} role="alert">
-            {error}
-          </span>
-        )}
-        <input
-          {...this.props.input}
-          className="usa-input"
-          onFocus={this.localOnFocus}
-          onBlur={this.localOnBlur}
-          value={displayedValue}
-        />
-      </div>
-    );
-  }
-}
-
-const validateDodForm = (values, form) => {
-  // Everything is taken care of except for SSN
-  let errors = {};
-  const ssn = values.social_security_number;
-  const hasSSN = form.ssnOnServer;
-
-  const validSSNPattern = RegExp('^\\d{3}-\\d{2}-\\d{4}$');
-  const validSSN = validSSNPattern.test(ssn);
-  const ssnPresent = ssn !== '' && ssn !== undefined;
-
-  if (hasSSN) {
-    if (ssnPresent && !validSSN) {
-      errors.social_security_number = 'SSN must have 9 digits';
-    }
-  } else {
-    if (!ssnPresent) {
-      errors.social_security_number = 'Required';
-    } else if (!validSSN) {
-      errors.social_security_number = 'SSN must have 9 digits';
-    }
-  }
-
-  return errors;
-};
+const subsetOfFields = ['affiliation', 'edipi', 'rank'];
 
 const formName = 'service_member_dod_info';
-const DodWizardForm = reduxifyWizardForm(formName, validateDodForm);
+const DodWizardForm = reduxifyWizardForm(formName);
 
 export class DodInfo extends Component {
   handleSubmit = () => {
@@ -114,8 +28,6 @@ export class DodInfo extends Component {
     const { pages, pageKey, error, currentServiceMember, schema } = this.props;
     const initialValues = currentServiceMember ? pick(currentServiceMember, subsetOfFields) : null;
 
-    const ssnOnServer = currentServiceMember ? currentServiceMember.has_social_security_number : false;
-
     return (
       <DodWizardForm
         handleSubmit={this.handleSubmit}
@@ -124,7 +36,6 @@ export class DodInfo extends Component {
         pageKey={pageKey}
         serverError={error}
         initialValues={initialValues}
-        ssnOnServer={ssnOnServer}
       >
         <h1>Create your profile</h1>
         <p>Before we can schedule your move, we need to know a little more about you.</p>
@@ -133,12 +44,6 @@ export class DodInfo extends Component {
             <SwaggerField fieldName="affiliation" swagger={schema} required />
           </div>
           <SwaggerField fieldName="edipi" swagger={schema} required />
-          <Field
-            name="social_security_number"
-            component={SSNField}
-            ssnOnServer={ssnOnServer}
-            normalize={normalizeSSN}
-          />
           <SwaggerField fieldName="rank" swagger={schema} required />
         </SectionWrapper>
       </DodWizardForm>

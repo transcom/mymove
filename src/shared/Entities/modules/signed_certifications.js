@@ -37,3 +37,8 @@ export function selectPaymentRequestCertificationForMove(state, moveId) {
   }
   return signedCertifications[0];
 }
+
+export function selectSignedCertification(state) {
+  const certifications = Object.values(state.entities.signedCertifications);
+  return certifications.length ? certifications[0] : {};
+}
