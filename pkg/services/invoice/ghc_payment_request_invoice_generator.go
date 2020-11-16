@@ -193,6 +193,14 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 		edi858.Header = append(edi858.Header, g62Segments...)
 	}
 
+	// Add buyer and seller organization names
+	var buyerAndSellerOrganizationNamesSegments []edisegment.Segment
+	buyerAndSellerOrganizationNamesSegments, err = g.createBuyerAndSellerOrganizationNamesSegments(paymentRequest.ID, moveTaskOrder.Orders)
+	if err != nil {
+		return ediinvoice.Invoice858C{}, err
+	}
+	edi858.Header = append(edi858.Header, buyerAndSellerOrganizationNamesSegments...)
+
 	// Add origin and destination details to header
 	var originDestinationSegments []edisegment.Segment
 	originDestinationSegments, err = g.createOriginAndDestinationSegments(paymentRequest.ID, moveTaskOrder.Orders)
@@ -201,14 +209,7 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(paymentRequest models.Paymen
 	}
 	edi858.Header = append(edi858.Header, originDestinationSegments...)
 
-	// Add LOA segments to header
-	loaSegments, err := g.createLoaSegments(moveTaskOrder.Orders)
-	if err != nil {
-		return ediinvoice.Invoice858C{}, err
-	}
-	edi858.Header = append(edi858.Header, loaSegments...)
-
-	paymentServiceItemSegments, err := g.generatePaymentServiceItemSegments(paymentServiceItems)
+	paymentServiceItemSegments, err := g.generatePaymentServiceItemSegments(paymentServiceItems, moveTaskOrder.Orders)
 	if err != nil {
 		return ediinvoice.Invoice858C{}, err
 	}
@@ -322,6 +323,47 @@ func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(paymentRequestID uu
 	}
 
 	return g62Segments, nil
+}
+
+func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNamesSegments(paymentRequestID uuid.UUID, orders models.Order) ([]edisegment.Segment, error) {
+	buyerAndSellerOrganizationNames := []edisegment.Segment{}
+
+	var err error
+	var originDutyStation models.DutyStation
+
+	if orders.OriginDutyStationID != nil && *orders.OriginDutyStationID != uuid.Nil {
+		originDutyStation, err = models.FetchDutyStation(g.db, *orders.OriginDutyStationID)
+		if err != nil {
+			return []edisegment.Segment{}, services.NewInvalidInputError(*orders.OriginDutyStationID, err, nil, "unable to find origin duty station")
+		}
+	} else {
+		return []edisegment.Segment{}, services.NewBadDataError("Invalid Order, must have OriginDutyStation")
+	}
+
+	originTransportationOffice, err := models.FetchDutyStationTransportationOffice(g.db, originDutyStation.ID)
+	if err != nil {
+		return []edisegment.Segment{}, services.NewInvalidInputError(originDutyStation.ID, err, nil, "unable to find origin duty station")
+	}
+
+	// buyer organization name
+	buyerOrganizationName := edisegment.N1{
+		EntityIdentifierCode:        "BY",
+		Name:                        originTransportationOffice.Name,
+		IdentificationCodeQualifier: "92",
+		IdentificationCode:          originTransportationOffice.Gbloc,
+	}
+	buyerAndSellerOrganizationNames = append(buyerAndSellerOrganizationNames, &buyerOrganizationName)
+
+	// seller organization name
+	sellerOrganizationName := edisegment.N1{
+		EntityIdentifierCode:        "SE",
+		Name:                        "Prime",
+		IdentificationCodeQualifier: "2",
+		IdentificationCode:          "PRME",
+	}
+	buyerAndSellerOrganizationNames = append(buyerAndSellerOrganizationNames, &sellerOrganizationName)
+
+	return buyerAndSellerOrganizationNames, nil
 }
 
 func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(paymentRequestID uuid.UUID, orders models.Order) ([]edisegment.Segment, error) {
@@ -550,7 +592,7 @@ func (g ghcPaymentRequestInvoiceGenerator) getWeightAndDistanceParams(serviceIte
 	return weightFloat, distanceFloat, nil
 }
 
-func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(paymentServiceItems models.PaymentServiceItems) ([]edisegment.Segment, error) {
+func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(paymentServiceItems models.PaymentServiceItems, orders models.Order) ([]edisegment.Segment, error) {
 	//Initialize empty collection of segments
 	var segments []edisegment.Segment
 	var weightFloat, distanceFloat float64
@@ -638,6 +680,12 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(pa
 
 			segments = append(segments, &hlSegment, &n9Segment, &l5Segment, &l0Segment)
 		}
+
+		loaSegments, err := g.createLoaSegments(orders)
+		if err != nil {
+			return segments, err
+		}
+		segments = append(segments, loaSegments...)
 	}
 
 	l3Segment := edisegment.L3{
