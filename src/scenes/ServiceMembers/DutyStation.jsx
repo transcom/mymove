@@ -1,15 +1,15 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 import { Field } from 'redux-form';
 import { get } from 'lodash';
-import { updateServiceMember } from './ducks';
+
+import { patchServiceMember } from 'services/internalApi';
+import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
 import { NULL_UUID } from 'shared/constants';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { selectActiveOrLatestOrders } from 'shared/Entities/modules/orders';
-
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 
@@ -32,26 +32,25 @@ const dutyStationFormName = 'duty_station';
 const DutyStationWizardForm = reduxifyWizardForm(dutyStationFormName, validateDutyStationForm);
 
 export class DutyStation extends Component {
-  constructor(props) {
-    super(props);
+  handleSubmit = () => {
+    const { values, currentServiceMember, updateServiceMember } = this.props;
 
-    this.state = {
-      value: null,
-    };
-    this.stationOnChange = this.stationOnChange.bind(this);
-  }
+    if (values) {
+      const payload = {
+        id: currentServiceMember.id,
+        current_station_id: values.current_station.id,
+      };
 
-  stationOnChange = (newStation) => {
-    this.setState({ value: newStation });
-  };
-
-  handleSubmit = (somethings, elses) => {
-    const pendingValues = this.props.values;
-    if (pendingValues) {
-      return this.props.updateServiceMember({
-        current_station_id: pendingValues.current_station.id,
-      });
+      return patchServiceMember(payload)
+        .then((response) => {
+          updateServiceMember(response);
+        })
+        .catch(() => {
+          // TODO - error handling
+        });
     }
+
+    return Promise.resolve();
   };
 
   render() {
@@ -94,9 +93,10 @@ DutyStation.propTypes = {
   updateServiceMember: PropTypes.func.isRequired,
 };
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ updateServiceMember }, dispatch);
-}
+const mapDispatchToProps = {
+  updateServiceMember: updateServiceMemberAction,
+};
+
 function mapStateToProps(state) {
   const formValues = getFormValues(dutyStationFormName)(state);
   const orders = selectActiveOrLatestOrders(state);

@@ -2,9 +2,10 @@ import { get, pick } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
-import { updateServiceMember } from './ducks';
+
+import { patchServiceMember } from 'services/internalApi';
+import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
@@ -16,11 +17,27 @@ const NameWizardForm = reduxifyWizardForm(formName);
 
 export class Name extends Component {
   handleSubmit = () => {
-    const pendingValues = this.props.values;
-    if (pendingValues) {
-      const patch = pick(pendingValues, subsetOfFields);
-      return this.props.updateServiceMember(patch);
+    const { values, currentServiceMember, updateServiceMember } = this.props;
+
+    if (values) {
+      const payload = {
+        id: currentServiceMember.id,
+        first_name: values.first_name,
+        middle_name: values.middle_name,
+        last_name: values.last_name,
+        suffix: values.suffix,
+      };
+
+      return patchServiceMember(payload)
+        .then((response) => {
+          updateServiceMember(response);
+        })
+        .catch(() => {
+          // TODO - error handling
+        });
     }
+
+    return Promise.resolve();
   };
 
   render() {
@@ -58,9 +75,10 @@ Name.propTypes = {
   error: PropTypes.object,
 };
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ updateServiceMember }, dispatch);
-}
+const mapDispatchToProps = {
+  updateServiceMember: updateServiceMemberAction,
+};
+
 function mapStateToProps(state) {
   return {
     schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),

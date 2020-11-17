@@ -2,11 +2,11 @@ import { get, pick } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
-import { updateServiceMember } from './ducks';
-import { selectCurrentUser } from 'shared/Data/users';
 
+import { patchServiceMember } from 'services/internalApi';
+import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
+import { selectCurrentUser } from 'shared/Data/users';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -31,15 +31,29 @@ const validateContactForm = (values) => {
   }
   return errors;
 };
+
 const formName = 'service_member_contact_info';
 const ContactWizardForm = reduxifyWizardForm(formName, validateContactForm);
 
 export class ContactInfo extends Component {
   handleSubmit = () => {
-    const pendingValues = this.props.values;
-    if (pendingValues) {
-      return this.props.updateServiceMember(pendingValues);
+    const { values, currentServiceMember, updateServiceMember } = this.props;
+    if (values) {
+      const payload = {
+        id: currentServiceMember.id,
+        ...values,
+      };
+
+      return patchServiceMember(payload)
+        .then((response) => {
+          updateServiceMember(response);
+        })
+        .catch(() => {
+          // TODO - error handling
+        });
     }
+
+    return Promise.resolve();
   };
 
   render() {
@@ -83,9 +97,10 @@ ContactInfo.propTypes = {
   error: PropTypes.object,
 };
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ updateServiceMember }, dispatch);
-}
+const mapDispatchToProps = {
+  updateServiceMember: updateServiceMemberAction,
+};
+
 function mapStateToProps(state) {
   const user = selectCurrentUser(state);
   return {

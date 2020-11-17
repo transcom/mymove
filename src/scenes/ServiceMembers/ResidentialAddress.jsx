@@ -2,9 +2,10 @@ import { get } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
-import { updateServiceMember } from './ducks';
+
+import { patchServiceMember } from 'services/internalApi';
+import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { ValidateZipRateData } from 'shared/api';
 import AddressForm from 'shared/AddressForm';
@@ -28,8 +29,20 @@ const ResidentalWizardForm = reduxifyWizardForm(formName, null, asyncValidate, [
 
 export class ResidentialAddress extends Component {
   handleSubmit = () => {
-    const newAddress = { residential_address: this.props.values };
-    return this.props.updateServiceMember(newAddress);
+    const { values, currentServiceMember, updateServiceMember } = this.props;
+
+    const payload = {
+      id: currentServiceMember.id,
+      residential_address: values,
+    };
+
+    return patchServiceMember(payload)
+      .then((response) => {
+        updateServiceMember(response);
+      })
+      .catch(() => {
+        // TODO - error handling
+      });
   };
 
   render() {
@@ -64,9 +77,10 @@ ResidentialAddress.propTypes = {
   error: PropTypes.object,
 };
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ updateServiceMember }, dispatch);
-}
+const mapDispatchToProps = {
+  updateServiceMember: updateServiceMemberAction,
+};
+
 function mapStateToProps(state) {
   return {
     schema: get(state, 'swaggerInternal.spec.definitions.Address', {}),
