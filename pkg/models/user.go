@@ -69,7 +69,10 @@ func GetUserFromEmail(db *pop.Connection, email string) (*User, error) {
 	downcasedEmail := strings.ToLower(email)
 	err := db.Where("login_gov_email = $1", downcasedEmail).All(&users)
 	if len(users) == 0 {
-		return nil, errors.Wrapf(err, "Unable to find user by email %s", downcasedEmail)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Unable to find user by email %s", downcasedEmail)
+		}
+		return nil, errors.Errorf("Unable to find user by email %s", downcasedEmail)
 	}
 	return &users[0], err
 }
