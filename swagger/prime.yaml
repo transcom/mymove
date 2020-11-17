@@ -754,12 +754,6 @@ definitions:
       eTag:
         type: string
         readOnly: true
-  CustomerContactType:
-    description: Describes a customer contact type for a MTOServiceItemDomesticDestSIT.
-    type: string
-    enum:
-      - FIRST
-      - SECOND
   DimensionType:
     description: Describes a dimension type for a MTOServiceItemDimension.
     type: string
