@@ -15,7 +15,17 @@ const (
 	HTTPSDDCPortFlag string = "http-sddc-port"
 	// HTTPDPSServerNameFlag is the HTTP DPS Server Name Flag
 	HTTPDPSServerNameFlag string = "http-dps-server-name"
-	// DPSAuthSecretKeyFlag is the DPS Auth Secret Key Flag #nosec G101
+
+	//RA Summary: gosec - G101 - Password Management: Hardcoded Password
+	//RA: This line was flagged because of use of the word "secret"
+	//RA: This line is used to identify the name of the flag.
+	//RA: The value of this variable does not identify the actual secret, so is not a risk.
+	//RA Developer Status: False Positive
+	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+	//RA Validator: jneuner@mitre.org
+	//RA Modified Severity:
+
+	// DPSAuthSecretKeyFlag is the DPS Auth Secret Key Flag // #nosec G101
 	DPSAuthSecretKeyFlag string = "dps-auth-secret-key"
 	// DPSRedirectURLFlag is the DPS Redirect URL Flag
 	DPSRedirectURLFlag string = "dps-redirect-url"
@@ -23,7 +33,17 @@ const (
 	DPSCookieNameFlag string = "dps-cookie-name"
 	// DPSCookieDomainFlag is the DPS Cookie Domain Flag Flag
 	DPSCookieDomainFlag string = "dps-cookie-domain"
-	// DPSAuthCookieSecretKeyFlag is the DPS Auth Cookie Scret Key Flag #nosec G101
+
+	//RA Summary: gosec - G101 - Password Management: Hardcoded Password
+	//RA: This line was flagged because of use of the word "secret"
+	//RA: This line is used to identify the name of the flag.
+	//RA: The value of this variable does not identify the actual secret, so is not a risk.
+	//RA Developer Status: False Positive
+	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+	//RA Validator: jneuner@mitre.org
+	//RA Modified Severity:
+
+	// DPSAuthCookieSecretKeyFlag is the DPS Auth Cookie Scret Key Flag // #nosec G101
 	DPSAuthCookieSecretKeyFlag string = "dps-auth-cookie-secret-key"
 	// DPSCookieExpiresInMinutesFlag is the DPS Cookie Expires In Minutes Flag
 	DPSCookieExpiresInMinutesFlag string = "dps-cookie-expires-in-minutes"
