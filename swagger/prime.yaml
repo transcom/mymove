@@ -1051,8 +1051,7 @@ definitions:
             description: Service code allowed for this model type.
             enum:
               - DDFSIT # Domestic Destination First Day SIT
-          type:
-            $ref: '#/definitions/CustomerContactType'
+              - DDASIT # Domestic Destination Additional SIT
           timeMilitary1:
             type: string
             example: 1400Z
@@ -1071,12 +1070,17 @@ definitions:
             format: date
             type: string
             description: Second available date that Prime can deliver SIT service item.
+          sitEntryDate:
+            format: date
+            type: string
+            description: Entry date for the SIT
         required:
           - reServiceCode
           - timeMilitary1
           - firstAvailableDeliveryDate1
           - timeMilitary2
           - firstAvailableDeliveryDate2
+          - sitEntryDate
   MTOServiceItemDimension:
     description: Describes a dimension object for the MTOServiceItem.
     type: object
