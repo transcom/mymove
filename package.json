@@ -6,7 +6,7 @@
     "@fortawesome/free-solid-svg-icons": "^5.15.1",
     "@fortawesome/react-fontawesome": "^0.1.12",
     "@trussworks/react-file-viewer": "https://github.com/trussworks/react-file-viewer#ds-enable-image-file-type-support",
-    "@trussworks/react-uswds": "^1.6.0",
+    "@trussworks/react-uswds": "^1.9.3",
     "bytes": "^3.0.0",
     "classnames": "^2.2.5",
     "connected-react-router": "^6.8.0",
