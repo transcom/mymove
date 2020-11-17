@@ -1,4 +1,4 @@
-/* eslint-disable no-await-in-loop */
+
 import * as child from 'child_process';
 
 /* eslint-disable import/no-extraneous-dependencies */
@@ -72,22 +72,23 @@ View the [frontend file org ADR](https://github.com/transcom/mymove/blob/master/
 const bypassingLinterChecks = async () => {
   // load all modified and new files
   const allFiles = danger.git.modified_files.concat(danger.git.created_files);
-  const bypassString = '#nosec';
-  let includesBypassString = false;
+  const bypassCodes = ['#nosec', 'eslint-disable', 'eslint-disable-next-line'];
+  let addedByPassCode = false;
+  const diffs = await Promise.all(allFiles.map((f) => danger.git.diffForFile(f)));
 
-  // Go though all files and search for added bypass strings
-  for (let file = 0; file < allFiles.length; file += 1) {
-    // eslint-disable-next-line security/detect-object-injection
-    const fileDiff = await danger.git.diffForFile(allFiles[file]);
-    if (fileDiff.diff.includes(bypassString)) {
-      includesBypassString = true;
+  for (let i = 0; i < diffs.length; i += 1) {
+    const diff = diffs[Number(i)];
+    const diffsWithbypassCodes = bypassCodes.find((b) => diff.diff.includes(b));
+    if (diffsWithbypassCodes) {
+      addedByPassCode = true;
       break;
     }
   }
-  if (includesBypassString === true) {
+
+  if (addedByPassCode === true) {
     warn(
       `It looks like you are attempting to bypass a linter rule, which is not a sustainable solution to meet
-      security compliance rules.`,
+      security compliance rules. Please remove the bypass code and address the underlying issue.`,
     );
   }
 };

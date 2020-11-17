@@ -22,8 +22,8 @@
 *.scss @transcom/truss-design @suzubara
 
 # Require team Pamplemoose to review changes to configs that may affect cATO static analysis compliancy
-.golangci.yaml @Truss-Pamplemoose
-.pre-commit-config.yaml @Truss-Pamplemoose
-.circleci/config.yml @Truss-Pamplemoose
+.golangci.yaml @transcom/Truss-Pamplemoose
+.pre-commit-config.yaml @transcom/Truss-Pamplemoose
+.circleci/config.yml @transcom/Truss-Pamplemoose
 
 
