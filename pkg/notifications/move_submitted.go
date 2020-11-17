@@ -87,7 +87,7 @@ func (m MoveSubmitted) emails(ctx context.Context) ([]emailContent, error) {
 
 	smEmail := emailContent{
 		recipientEmail: *serviceMember.PersonalEmail,
-		subject:        "[MilMove] You’ve submitted your move details",
+		subject:        "Thank you for submitting your move details",
 		htmlBody:       htmlBody,
 		textBody:       textBody,
 	}

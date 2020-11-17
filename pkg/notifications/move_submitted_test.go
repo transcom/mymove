@@ -17,7 +17,7 @@ func (suite *NotificationSuite) TestMoveSubmitted() {
 	}, move.ID)
 
 	emails, err := notification.emails(ctx)
-	subject := "[MilMove] You’ve submitted your move details"
+	subject := "Thank you for submitting your move details"
 
 	suite.NoError(err)
 	suite.Equal(len(emails), 1)
