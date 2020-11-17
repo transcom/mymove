@@ -1093,6 +1093,12 @@ paths:
         - queues
       parameters:
         - in: query
+          name: sort
+          type: string
+        - in: query
+          name: order
+          type: boolean
+        - in: query
           name: page
           type: integer
           description: requested page of results

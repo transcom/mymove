@@ -1619,6 +1619,16 @@ func init() {
         "operationId": "getPaymentRequestsQueue",
         "parameters": [
           {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          },
+          {
             "type": "integer",
             "description": "requested page of results",
             "name": "page",
@@ -5423,6 +5433,16 @@ func init() {
         "summary": "Gets queued list of all payment requests by GBLOC origin",
         "operationId": "getPaymentRequestsQueue",
         "parameters": [
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          },
           {
             "type": "integer",
             "description": "requested page of results",

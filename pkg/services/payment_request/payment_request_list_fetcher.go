@@ -28,6 +28,8 @@ func NewPaymentRequestListFetcher(db *pop.Connection) services.PaymentRequestLis
 // FilterOption defines the type for the functional arguments passed to ListMoveOrders
 type FilterOption func(*pop.Query)
 
+type sortOrder func(*pop.Query)
+
 func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UUID, params *services.FetchPaymentRequestListParams) (*models.PaymentRequests, int, error) {
 	gblocFetcher := officeuser.NewOfficeUserGblocFetcher(f.db)
 	gbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(officeUserID)
@@ -45,7 +47,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
 		InnerJoin("duty_stations", "duty_stations.id = orders.origin_duty_station_id").
 		InnerJoin("transportation_offices", "transportation_offices.id = duty_stations.transportation_office_id").
-		Order("status asc")
+		Order("created_at asc")
 
 	branchQuery := branchFilter(params.Branch)
 	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
@@ -69,6 +71,8 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 			option(query)
 		}
 	}
+
+	queryOrder(params.Sort, params.Order)
 
 	if params.Page == nil {
 		params.Page = swag.Int64(1)
@@ -102,6 +106,21 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 	count := query.Paginator.TotalEntriesSize
 
 	return &paymentRequests, count, nil
+}
+
+func queryOrder(sort *string, order *bool) sortOrder {
+	return func(query *pop.Query) {
+		if sort != nil {
+			sortOrder := "desc"
+			if *order {
+				sortOrder = "asc"
+			}
+			orderQuery := fmt.Sprintf("%s %s", *sort, sortOrder)
+			query = query.Order(orderQuery)
+		}
+		query = query.Order("created_at asc")
+	}
+
 }
 
 func branchFilter(branch *string) FilterOption {

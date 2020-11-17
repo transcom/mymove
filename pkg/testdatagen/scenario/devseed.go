@@ -1262,6 +1262,7 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 			MoveTaskOrder: mto,
 			IsFinal:       false,
 			Status:        models.PaymentRequestStatusPending,
+			CreatedAt:     time.Now().Add(time.Hour * -24),
 		},
 		Move: mto,
 	})

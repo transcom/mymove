@@ -53,6 +53,10 @@ type GetPaymentRequestsQueueParams struct {
 	  In: query
 	*/
 	MoveID *string
+	/*
+	  In: query
+	*/
+	Order *bool
 	/*requested page of results
 	  In: query
 	*/
@@ -61,6 +65,10 @@ type GetPaymentRequestsQueueParams struct {
 	  In: query
 	*/
 	PerPage *int64
+	/*
+	  In: query
+	*/
+	Sort *string
 	/*Filtering for the status.
 	  Unique: true
 	  In: query
@@ -108,6 +116,11 @@ func (o *GetPaymentRequestsQueueParams) BindRequest(r *http.Request, route *midd
 		res = append(res, err)
 	}
 
+	qOrder, qhkOrder, _ := qs.GetOK("order")
+	if err := o.bindOrder(qOrder, qhkOrder, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
 	qPage, qhkPage, _ := qs.GetOK("page")
 	if err := o.bindPage(qPage, qhkPage, route.Formats); err != nil {
 		res = append(res, err)
@@ -115,6 +128,11 @@ func (o *GetPaymentRequestsQueueParams) BindRequest(r *http.Request, route *midd
 
 	qPerPage, qhkPerPage, _ := qs.GetOK("perPage")
 	if err := o.bindPerPage(qPerPage, qhkPerPage, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qSort, qhkSort, _ := qs.GetOK("sort")
+	if err := o.bindSort(qSort, qhkSort, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -224,6 +242,28 @@ func (o *GetPaymentRequestsQueueParams) bindMoveID(rawData []string, hasKey bool
 	return nil
 }
 
+// bindOrder binds and validates parameter Order from query.
+func (o *GetPaymentRequestsQueueParams) bindOrder(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	value, err := swag.ConvertBool(raw)
+	if err != nil {
+		return errors.InvalidType("order", "query", "bool", raw)
+	}
+	o.Order = &value
+
+	return nil
+}
+
 // bindPage binds and validates parameter Page from query.
 func (o *GetPaymentRequestsQueueParams) bindPage(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
@@ -264,6 +304,24 @@ func (o *GetPaymentRequestsQueueParams) bindPerPage(rawData []string, hasKey boo
 		return errors.InvalidType("perPage", "query", "int64", raw)
 	}
 	o.PerPage = &value
+
+	return nil
+}
+
+// bindSort binds and validates parameter Sort from query.
+func (o *GetPaymentRequestsQueueParams) bindSort(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	o.Sort = &raw
 
 	return nil
 }
