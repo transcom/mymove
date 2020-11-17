@@ -6,13 +6,13 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
 
 // UpdatePaymentRequestStatusPayload update payment request status payload
+//
 // swagger:model UpdatePaymentRequestStatusPayload
 type UpdatePaymentRequestStatusPayload struct {
 

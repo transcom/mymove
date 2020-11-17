@@ -8,7 +8,7 @@ package office_users
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // IndexOfficeUsersHandlerFunc turns a function with the right signature into a index office users handler

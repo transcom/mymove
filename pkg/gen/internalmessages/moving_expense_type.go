@@ -8,13 +8,13 @@ package internalmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
 // MovingExpenseType Moving Expense Type
+//
 // swagger:model MovingExpenseType
 type MovingExpenseType string
 
@@ -62,7 +62,7 @@ func init() {
 }
 
 func (m MovingExpenseType) validateMovingExpenseTypeEnum(path, location string, value MovingExpenseType) error {
-	if err := validate.Enum(path, location, value, movingExpenseTypeEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, movingExpenseTypeEnum, true); err != nil {
 		return err
 	}
 	return nil

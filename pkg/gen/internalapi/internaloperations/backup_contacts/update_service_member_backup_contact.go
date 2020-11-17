@@ -8,7 +8,7 @@ package backup_contacts
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // UpdateServiceMemberBackupContactHandlerFunc turns a function with the right signature into a update service member backup contact handler

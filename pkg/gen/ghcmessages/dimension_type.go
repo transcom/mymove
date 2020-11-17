@@ -8,13 +8,13 @@ package ghcmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
 // DimensionType Describes a dimension type for a MTOServiceItemDimension.
+//
 // swagger:model DimensionType
 type DimensionType string
 
@@ -41,7 +41,7 @@ func init() {
 }
 
 func (m DimensionType) validateDimensionTypeEnum(path, location string, value DimensionType) error {
-	if err := validate.Enum(path, location, value, dimensionTypeEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, dimensionTypeEnum, true); err != nil {
 		return err
 	}
 	return nil

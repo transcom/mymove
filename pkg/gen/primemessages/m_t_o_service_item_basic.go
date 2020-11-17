@@ -9,14 +9,14 @@ import (
 	"bytes"
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // MTOServiceItemBasic Describes a basic service item subtype of a MTOServiceItem.
+//
 // swagger:model MTOServiceItemBasic
 type MTOServiceItemBasic struct {
 	eTagField string
@@ -65,7 +65,6 @@ func (m *MTOServiceItemBasic) ModelType() MTOServiceItemModelType {
 
 // SetModelType sets the model type of this subtype
 func (m *MTOServiceItemBasic) SetModelType(val MTOServiceItemModelType) {
-
 }
 
 // MoveTaskOrderID gets the move task order ID of this subtype
@@ -117,8 +116,6 @@ func (m *MTOServiceItemBasic) Status() MTOServiceItemStatus {
 func (m *MTOServiceItemBasic) SetStatus(val MTOServiceItemStatus) {
 	m.statusField = val
 }
-
-// ReServiceCode gets the re service code of this subtype
 
 // UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
 func (m *MTOServiceItemBasic) UnmarshalJSON(raw []byte) error {
@@ -173,7 +170,6 @@ func (m *MTOServiceItemBasic) UnmarshalJSON(raw []byte) error {
 		/* Not the type we're looking for. */
 		return errors.New(422, "invalid modelType value: %q", base.ModelType)
 	}
-
 	result.moveTaskOrderIdField = base.MoveTaskOrderID
 
 	result.mtoShipmentIdField = base.MtoShipmentID
@@ -203,8 +199,7 @@ func (m MTOServiceItemBasic) MarshalJSON() ([]byte, error) {
 	}{
 
 		ReServiceCode: m.ReServiceCode,
-	},
-	)
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -241,8 +236,7 @@ func (m MTOServiceItemBasic) MarshalJSON() ([]byte, error) {
 		RejectionReason: m.RejectionReason(),
 
 		Status: m.Status(),
-	},
-	)
+	})
 	if err != nil {
 		return nil, err
 	}

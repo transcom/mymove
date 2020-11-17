@@ -6,14 +6,14 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // CreateServiceMemberPayload create service member payload
+//
 // swagger:model CreateServiceMemberPayload
 type CreateServiceMemberPayload struct {
 
@@ -62,10 +62,6 @@ type CreateServiceMemberPayload struct {
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
 	SecondaryTelephone *string `json:"secondary_telephone,omitempty"`
 
-	// Social security number
-	// Format: ssn
-	SocialSecurityNumber *strfmt.SSN `json:"social_security_number,omitempty"`
-
 	// Suffix
 	Suffix *string `json:"suffix,omitempty"`
 
@@ -111,10 +107,6 @@ func (m *CreateServiceMemberPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateSecondaryTelephone(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateSocialSecurityNumber(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -258,19 +250,6 @@ func (m *CreateServiceMemberPayload) validateSecondaryTelephone(formats strfmt.R
 	}
 
 	if err := validate.Pattern("secondary_telephone", "body", string(*m.SecondaryTelephone), `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *CreateServiceMemberPayload) validateSocialSecurityNumber(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.SocialSecurityNumber) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("social_security_number", "body", "ssn", m.SocialSecurityNumber.String(), formats); err != nil {
 		return err
 	}
 

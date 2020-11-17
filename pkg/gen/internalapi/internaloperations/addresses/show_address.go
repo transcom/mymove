@@ -8,7 +8,7 @@ package addresses
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // ShowAddressHandlerFunc turns a function with the right signature into a show address handler

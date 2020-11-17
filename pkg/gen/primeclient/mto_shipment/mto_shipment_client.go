@@ -9,12 +9,11 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new mto shipment API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -26,10 +25,23 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
-/*
-CreateMTOShipment creates m t o shipment
+// ClientService is the interface for Client methods
+type ClientService interface {
+	CreateMTOShipment(params *CreateMTOShipmentParams) (*CreateMTOShipmentOK, error)
 
-Creates a MTO shipment for the specified Move Task Order.
+	UpdateMTOAgent(params *UpdateMTOAgentParams) (*UpdateMTOAgentOK, error)
+
+	UpdateMTOShipment(params *UpdateMTOShipmentParams) (*UpdateMTOShipmentOK, error)
+
+	UpdateMTOShipmentAddress(params *UpdateMTOShipmentAddressParams) (*UpdateMTOShipmentAddressOK, error)
+
+	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+  CreateMTOShipment creates m t o shipment
+
+  Creates a MTO shipment for the specified Move Task Order.
 Required fields include:
 * Shipment Type
 * Customer requested pick-up date
@@ -75,9 +87,9 @@ func (a *Client) CreateMTOShipment(params *CreateMTOShipmentParams) (*CreateMTOS
 }
 
 /*
-UpdateMTOAgent updates m t o agent
+  UpdateMTOAgent updates m t o agent
 
-### Functionality
+  ### Functionality
 This endpoint is used to **update** the agents for an MTO Shipment. Only the fields being modified need to be sent in the request body.
 
 ### Errors:
@@ -121,9 +133,9 @@ func (a *Client) UpdateMTOAgent(params *UpdateMTOAgentParams) (*UpdateMTOAgentOK
 }
 
 /*
-UpdateMTOShipment updates m t o shipment
+  UpdateMTOShipment updates m t o shipment
 
-Updates an existing shipment for a Move Task Order (MTO). Only the following fields can be updated using this endpoint:
+  Updates an existing shipment for a Move Task Order (MTO). Only the following fields can be updated using this endpoint:
 
 * `scheduledPickupDate`
 * `actualPickupDate`
@@ -172,9 +184,9 @@ func (a *Client) UpdateMTOShipment(params *UpdateMTOShipmentParams) (*UpdateMTOS
 }
 
 /*
-UpdateMTOShipmentAddress updates m t o shipment address
+  UpdateMTOShipmentAddress updates m t o shipment address
 
-### Functionality
+  ### Functionality
 This endpoint is used to **update** the addresses on an MTO Shipment. The address details completely replace the original, except for the UUID.
 Therefore a complete address should be sent in the request.
 

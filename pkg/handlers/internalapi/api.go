@@ -109,7 +109,7 @@ func NewInternalAPI(context handlers.HandlerContext) *internalops.MymoveAPI {
 
 	internalAPI.MovesShowShipmentSummaryWorksheetHandler = ShowShipmentSummaryWorksheetHandler{context}
 
-	internalAPI.ApplicationPdfProducer = PDFProducer()
+	internalAPI.RegisterProducer("application/pdf", PDFProducer())
 
 	internalAPI.PostalCodesValidatePostalCodeWithRateDataHandler = ValidatePostalCodeWithRateDataHandler{
 		context,

@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	internalmessages "github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // CreateOrdersCreatedCode is the HTTP code returned for type CreateOrdersCreated

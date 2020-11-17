@@ -18,7 +18,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerApproveSuccess() {
-	mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusSUBMITTED}})
 
 	request := httptest.NewRequest("PATCH", "/service-items/{mtoServiceItemID}/status", nil)
 	reason := "should not update reason"
@@ -50,7 +50,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerApproveSuccess()
 }
 
 func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectSuccess() {
-	mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusSUBMITTED}})
 
 	request := httptest.NewRequest("PATCH", "/service-items/{mtoServiceItemID}/status", nil)
 	reason := "item too heavy"

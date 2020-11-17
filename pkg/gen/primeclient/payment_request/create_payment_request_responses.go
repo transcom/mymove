@@ -10,10 +10,9 @@ import (
 	"io"
 
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	primemessages "github.com/transcom/mymove/pkg/gen/primemessages"
+	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
 // CreatePaymentRequestReader is a Reader for the CreatePaymentRequest structure.
@@ -50,6 +49,12 @@ func (o *CreatePaymentRequestReader) ReadResponse(response runtime.ClientRespons
 		return nil, result
 	case 404:
 		result := NewCreatePaymentRequestNotFound()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
+	case 409:
+		result := NewCreatePaymentRequestConflict()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -226,6 +231,39 @@ func (o *CreatePaymentRequestNotFound) GetPayload() *primemessages.ClientError {
 }
 
 func (o *CreatePaymentRequestNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(primemessages.ClientError)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewCreatePaymentRequestConflict creates a CreatePaymentRequestConflict with default headers values
+func NewCreatePaymentRequestConflict() *CreatePaymentRequestConflict {
+	return &CreatePaymentRequestConflict{}
+}
+
+/*CreatePaymentRequestConflict handles this case with default header values.
+
+The request could not be processed because of conflict in the current state of the resource.
+*/
+type CreatePaymentRequestConflict struct {
+	Payload *primemessages.ClientError
+}
+
+func (o *CreatePaymentRequestConflict) Error() string {
+	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestConflict  %+v", 409, o.Payload)
+}
+
+func (o *CreatePaymentRequestConflict) GetPayload() *primemessages.ClientError {
+	return o.Payload
+}
+
+func (o *CreatePaymentRequestConflict) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(primemessages.ClientError)
 

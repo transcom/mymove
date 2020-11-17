@@ -8,7 +8,7 @@ package move
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // GetMoveHandlerFunc turns a function with the right signature into a get move handler

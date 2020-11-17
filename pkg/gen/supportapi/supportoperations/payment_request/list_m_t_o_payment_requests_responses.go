@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	supportmessages "github.com/transcom/mymove/pkg/gen/supportmessages"
+	"github.com/transcom/mymove/pkg/gen/supportmessages"
 )
 
 // ListMTOPaymentRequestsOKCode is the HTTP code returned for type ListMTOPaymentRequestsOK

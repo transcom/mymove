@@ -8,7 +8,7 @@ package office_users
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // GetOfficeUserHandlerFunc turns a function with the right signature into a get office user handler

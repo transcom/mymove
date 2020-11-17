@@ -9,14 +9,14 @@ import (
 	"bytes"
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // MTOServiceItemDDFSIT Describes a domestic destination 1st day SIT service item subtype of a MTOServiceItem.
+//
 // swagger:model MTOServiceItemDDFSIT
 type MTOServiceItemDDFSIT struct {
 	eTagField string
@@ -45,8 +45,13 @@ type MTOServiceItemDDFSIT struct {
 
 	// Service code allowed for this model type.
 	// Required: true
-	// Enum: [DDFSIT]
+	// Enum: [DDFSIT DDASIT]
 	ReServiceCode *string `json:"reServiceCode"`
+
+	// Entry date for the SIT
+	// Required: true
+	// Format: date
+	SitEntryDate *strfmt.Date `json:"sitEntryDate"`
 
 	// Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
 	// Required: true
@@ -57,9 +62,6 @@ type MTOServiceItemDDFSIT struct {
 	// Required: true
 	// Pattern: \d{4}Z
 	TimeMilitary2 *string `json:"timeMilitary2"`
-
-	// type
-	Type CustomerContactType `json:"type,omitempty"`
 }
 
 // ETag gets the e tag of this subtype
@@ -89,7 +91,6 @@ func (m *MTOServiceItemDDFSIT) ModelType() MTOServiceItemModelType {
 
 // SetModelType sets the model type of this subtype
 func (m *MTOServiceItemDDFSIT) SetModelType(val MTOServiceItemModelType) {
-
 }
 
 // MoveTaskOrderID gets the move task order ID of this subtype
@@ -142,18 +143,6 @@ func (m *MTOServiceItemDDFSIT) SetStatus(val MTOServiceItemStatus) {
 	m.statusField = val
 }
 
-// FirstAvailableDeliveryDate1 gets the first available delivery date1 of this subtype
-
-// FirstAvailableDeliveryDate2 gets the first available delivery date2 of this subtype
-
-// ReServiceCode gets the re service code of this subtype
-
-// TimeMilitary1 gets the time military1 of this subtype
-
-// TimeMilitary2 gets the time military2 of this subtype
-
-// Type gets the type of this subtype
-
 // UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
 func (m *MTOServiceItemDDFSIT) UnmarshalJSON(raw []byte) error {
 	var data struct {
@@ -170,8 +159,13 @@ func (m *MTOServiceItemDDFSIT) UnmarshalJSON(raw []byte) error {
 
 		// Service code allowed for this model type.
 		// Required: true
-		// Enum: [DDFSIT]
+		// Enum: [DDFSIT DDASIT]
 		ReServiceCode *string `json:"reServiceCode"`
+
+		// Entry date for the SIT
+		// Required: true
+		// Format: date
+		SitEntryDate *strfmt.Date `json:"sitEntryDate"`
 
 		// Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
 		// Required: true
@@ -182,9 +176,6 @@ func (m *MTOServiceItemDDFSIT) UnmarshalJSON(raw []byte) error {
 		// Required: true
 		// Pattern: \d{4}Z
 		TimeMilitary2 *string `json:"timeMilitary2"`
-
-		// type
-		Type CustomerContactType `json:"type,omitempty"`
 	}
 	buf := bytes.NewBuffer(raw)
 	dec := json.NewDecoder(buf)
@@ -231,7 +222,6 @@ func (m *MTOServiceItemDDFSIT) UnmarshalJSON(raw []byte) error {
 		/* Not the type we're looking for. */
 		return errors.New(422, "invalid modelType value: %q", base.ModelType)
 	}
-
 	result.moveTaskOrderIdField = base.MoveTaskOrderID
 
 	result.mtoShipmentIdField = base.MtoShipmentID
@@ -243,16 +233,11 @@ func (m *MTOServiceItemDDFSIT) UnmarshalJSON(raw []byte) error {
 	result.statusField = base.Status
 
 	result.FirstAvailableDeliveryDate1 = data.FirstAvailableDeliveryDate1
-
 	result.FirstAvailableDeliveryDate2 = data.FirstAvailableDeliveryDate2
-
 	result.ReServiceCode = data.ReServiceCode
-
+	result.SitEntryDate = data.SitEntryDate
 	result.TimeMilitary1 = data.TimeMilitary1
-
 	result.TimeMilitary2 = data.TimeMilitary2
-
-	result.Type = data.Type
 
 	*m = result
 
@@ -277,8 +262,13 @@ func (m MTOServiceItemDDFSIT) MarshalJSON() ([]byte, error) {
 
 		// Service code allowed for this model type.
 		// Required: true
-		// Enum: [DDFSIT]
+		// Enum: [DDFSIT DDASIT]
 		ReServiceCode *string `json:"reServiceCode"`
+
+		// Entry date for the SIT
+		// Required: true
+		// Format: date
+		SitEntryDate *strfmt.Date `json:"sitEntryDate"`
 
 		// Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
 		// Required: true
@@ -289,9 +279,6 @@ func (m MTOServiceItemDDFSIT) MarshalJSON() ([]byte, error) {
 		// Required: true
 		// Pattern: \d{4}Z
 		TimeMilitary2 *string `json:"timeMilitary2"`
-
-		// type
-		Type CustomerContactType `json:"type,omitempty"`
 	}{
 
 		FirstAvailableDeliveryDate1: m.FirstAvailableDeliveryDate1,
@@ -300,13 +287,12 @@ func (m MTOServiceItemDDFSIT) MarshalJSON() ([]byte, error) {
 
 		ReServiceCode: m.ReServiceCode,
 
+		SitEntryDate: m.SitEntryDate,
+
 		TimeMilitary1: m.TimeMilitary1,
 
 		TimeMilitary2: m.TimeMilitary2,
-
-		Type: m.Type,
-	},
-	)
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -343,8 +329,7 @@ func (m MTOServiceItemDDFSIT) MarshalJSON() ([]byte, error) {
 		RejectionReason: m.RejectionReason(),
 
 		Status: m.Status(),
-	},
-	)
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -384,15 +369,15 @@ func (m *MTOServiceItemDDFSIT) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateSitEntryDate(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateTimeMilitary1(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.validateTimeMilitary2(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -487,7 +472,7 @@ var mTOServiceItemDDFSITTypeReServiceCodePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DDFSIT"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DDFSIT","DDASIT"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -497,7 +482,7 @@ func init() {
 
 // property enum
 func (m *MTOServiceItemDDFSIT) validateReServiceCodeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, mTOServiceItemDDFSITTypeReServiceCodePropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, mTOServiceItemDDFSITTypeReServiceCodePropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -511,6 +496,19 @@ func (m *MTOServiceItemDDFSIT) validateReServiceCode(formats strfmt.Registry) er
 
 	// value enum
 	if err := m.validateReServiceCodeEnum("reServiceCode", "body", *m.ReServiceCode); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDDFSIT) validateSitEntryDate(formats strfmt.Registry) error {
+
+	if err := validate.Required("sitEntryDate", "body", m.SitEntryDate); err != nil {
+		return err
+	}
+
+	if err := validate.FormatOf("sitEntryDate", "body", "date", m.SitEntryDate.String(), formats); err != nil {
 		return err
 	}
 
@@ -537,22 +535,6 @@ func (m *MTOServiceItemDDFSIT) validateTimeMilitary2(formats strfmt.Registry) er
 	}
 
 	if err := validate.Pattern("timeMilitary2", "body", string(*m.TimeMilitary2), `\d{4}Z`); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MTOServiceItemDDFSIT) validateType(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Type) { // not required
-		return nil
-	}
-
-	if err := m.Type.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("type")
-		}
 		return err
 	}
 

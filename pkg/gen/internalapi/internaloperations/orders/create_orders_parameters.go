@@ -13,7 +13,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 
-	internalmessages "github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // NewCreateOrdersParams creates a new CreateOrdersParams object
@@ -53,7 +53,7 @@ func (o *CreateOrdersParams) BindRequest(r *http.Request, route *middleware.Matc
 		var body internalmessages.CreateUpdateOrders
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
-				res = append(res, errors.Required("createOrders", "body"))
+				res = append(res, errors.Required("createOrders", "body", ""))
 			} else {
 				res = append(res, errors.NewParseError("createOrders", "body", "", err))
 			}
@@ -68,7 +68,7 @@ func (o *CreateOrdersParams) BindRequest(r *http.Request, route *middleware.Matc
 			}
 		}
 	} else {
-		res = append(res, errors.Required("createOrders", "body"))
+		res = append(res, errors.Required("createOrders", "body", ""))
 	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)

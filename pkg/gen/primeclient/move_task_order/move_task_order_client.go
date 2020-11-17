@@ -9,12 +9,11 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new move task order API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -26,10 +25,19 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
-/*
-FetchMTOUpdates fetches m t o updates
+// ClientService is the interface for Client methods
+type ClientService interface {
+	FetchMTOUpdates(params *FetchMTOUpdatesParams) (*FetchMTOUpdatesOK, error)
 
-Gets all move task orders where `availableToPrimeAt` has been set. This prevents viewing any move task orders that have not been made available to the Prime.
+	UpdateMTOPostCounselingInformation(params *UpdateMTOPostCounselingInformationParams) (*UpdateMTOPostCounselingInformationOK, error)
+
+	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+  FetchMTOUpdates fetches m t o updates
+
+  Gets all move task orders where `availableToPrimeAt` has been set. This prevents viewing any move task orders that have not been made available to the Prime.
 
 */
 func (a *Client) FetchMTOUpdates(params *FetchMTOUpdatesParams) (*FetchMTOUpdatesOK, error) {
@@ -43,7 +51,7 @@ func (a *Client) FetchMTOUpdates(params *FetchMTOUpdatesParams) (*FetchMTOUpdate
 		Method:             "GET",
 		PathPattern:        "/move-task-orders",
 		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &FetchMTOUpdatesReader{formats: a.formats},
@@ -64,9 +72,9 @@ func (a *Client) FetchMTOUpdates(params *FetchMTOUpdatesParams) (*FetchMTOUpdate
 }
 
 /*
-UpdateMTOPostCounselingInformation updates m t o post counseling information
+  UpdateMTOPostCounselingInformation updates m t o post counseling information
 
-### Functionality
+  ### Functionality
 This endpoint **updates** the MoveTaskOrder after the Prime has completed Counseling.
 
 PPM related information is updated here. Most other fields will be found on the specific MTOShipment and updated using [updateMTOShipment](#operation/updateMTOShipment).

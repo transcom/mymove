@@ -11,15 +11,15 @@ import (
 	"io"
 	"io/ioutil"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // MTOServiceItem MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.
+//
 // swagger:discriminator MTOServiceItem modelType
 type MTOServiceItem interface {
 	runtime.Validatable
@@ -63,6 +63,9 @@ type MTOServiceItem interface {
 	// status
 	Status() MTOServiceItemStatus
 	SetStatus(MTOServiceItemStatus)
+
+	// AdditionalProperties in base type shoud be handled just like regular properties
+	// At this moment, the base type property is pushed down to the subtype
 }
 
 type mTOServiceItem struct {
@@ -110,7 +113,6 @@ func (m *mTOServiceItem) ModelType() MTOServiceItemModelType {
 
 // SetModelType sets the model type of this polymorphic type
 func (m *mTOServiceItem) SetModelType(val MTOServiceItemModelType) {
-
 }
 
 // MoveTaskOrderID gets the move task order ID of this polymorphic type
@@ -215,45 +217,44 @@ func unmarshalMTOServiceItem(data []byte, consumer runtime.Consumer) (MTOService
 			return nil, err
 		}
 		return &result, nil
-
 	case "MTOServiceItemBasic":
 		var result MTOServiceItemBasic
 		if err := consumer.Consume(buf2, &result); err != nil {
 			return nil, err
 		}
 		return &result, nil
-
 	case "MTOServiceItemDDFSIT":
 		var result MTOServiceItemDDFSIT
 		if err := consumer.Consume(buf2, &result); err != nil {
 			return nil, err
 		}
 		return &result, nil
-
 	case "MTOServiceItemDOFSIT":
 		var result MTOServiceItemDOFSIT
 		if err := consumer.Consume(buf2, &result); err != nil {
 			return nil, err
 		}
 		return &result, nil
-
 	case "MTOServiceItemDomesticCrating":
 		var result MTOServiceItemDomesticCrating
 		if err := consumer.Consume(buf2, &result); err != nil {
 			return nil, err
 		}
 		return &result, nil
-
+	case "MTOServiceItemSITDeparture":
+		var result MTOServiceItemSITDeparture
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
 	case "MTOServiceItemShuttle":
 		var result MTOServiceItemShuttle
 		if err := consumer.Consume(buf2, &result); err != nil {
 			return nil, err
 		}
 		return &result, nil
-
 	}
 	return nil, errors.New(422, "invalid modelType value: %q", getType.ModelType)
-
 }
 
 // Validate validates this m t o service item

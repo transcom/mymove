@@ -11,9 +11,8 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // NewShowShipmentSummaryWorksheetParams creates a new ShowShipmentSummaryWorksheetParams object
@@ -107,7 +106,7 @@ func (o *ShowShipmentSummaryWorksheetParams) validateMoveID(formats strfmt.Regis
 // bindPreparationDate binds and validates parameter PreparationDate from query.
 func (o *ShowShipmentSummaryWorksheetParams) bindPreparationDate(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
-		return errors.Required("preparationDate", "query")
+		return errors.Required("preparationDate", "query", rawData)
 	}
 	var raw string
 	if len(rawData) > 0 {

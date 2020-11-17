@@ -8,9 +8,8 @@ package ordersmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
@@ -31,6 +30,7 @@ import (
 //   * Deadlines to create a shipment associated with Orders differs by Orders type.
 //   * Accession, separation, and retirement moves currently require the
 //     member to go through in-person counseling at the TMO / PPPO.
+//
 //
 // swagger:model OrdersType
 type OrdersType string
@@ -94,7 +94,7 @@ func init() {
 }
 
 func (m OrdersType) validateOrdersTypeEnum(path, location string, value OrdersType) error {
-	if err := validate.Enum(path, location, value, ordersTypeEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, ordersTypeEnum, true); err != nil {
 		return err
 	}
 	return nil

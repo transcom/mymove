@@ -8,9 +8,8 @@ package primemessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
@@ -19,6 +18,7 @@ import (
 //   * DDFSIT - MTOServiceItemDDFSIT
 //   * DOSHUT, DDSHUT - MTOServiceItemShuttle
 //   * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating
+//
 //
 // swagger:model MTOServiceItemModelType
 type MTOServiceItemModelType string
@@ -39,6 +39,9 @@ const (
 
 	// MTOServiceItemModelTypeMTOServiceItemDomesticCrating captures enum value "MTOServiceItemDomesticCrating"
 	MTOServiceItemModelTypeMTOServiceItemDomesticCrating MTOServiceItemModelType = "MTOServiceItemDomesticCrating"
+
+	// MTOServiceItemModelTypeMTOServiceItemSITDeparture captures enum value "MTOServiceItemSITDeparture"
+	MTOServiceItemModelTypeMTOServiceItemSITDeparture MTOServiceItemModelType = "MTOServiceItemSITDeparture"
 )
 
 // for schema
@@ -46,7 +49,7 @@ var mTOServiceItemModelTypeEnum []interface{}
 
 func init() {
 	var res []MTOServiceItemModelType
-	if err := json.Unmarshal([]byte(`["MTOServiceItemBasic","MTOServiceItemDOFSIT","MTOServiceItemDDFSIT","MTOServiceItemShuttle","MTOServiceItemDomesticCrating"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["MTOServiceItemBasic","MTOServiceItemDOFSIT","MTOServiceItemDDFSIT","MTOServiceItemShuttle","MTOServiceItemDomesticCrating","MTOServiceItemSITDeparture"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -55,7 +58,7 @@ func init() {
 }
 
 func (m MTOServiceItemModelType) validateMTOServiceItemModelTypeEnum(path, location string, value MTOServiceItemModelType) error {
-	if err := validate.Enum(path, location, value, mTOServiceItemModelTypeEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, mTOServiceItemModelTypeEnum, true); err != nil {
 		return err
 	}
 	return nil

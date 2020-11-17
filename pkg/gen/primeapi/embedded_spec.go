@@ -550,6 +550,9 @@ func init() {
               "$ref": "#/definitions/ClientError"
             }
           },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
           "422": {
             "$ref": "#/responses/UnprocessableEntity"
           },
@@ -930,14 +933,6 @@ func init() {
         }
       }
     },
-    "CustomerContactType": {
-      "description": "Describes a customer contact type for a MTOServiceItemDomesticDestSIT.",
-      "type": "string",
-      "enum": [
-        "FIRST",
-        "SECOND"
-      ]
-    },
     "DimensionType": {
       "description": "Describes a dimension type for a MTOServiceItemDimension.",
       "type": "string",
@@ -1197,7 +1192,8 @@ func init() {
             "timeMilitary1",
             "firstAvailableDeliveryDate1",
             "timeMilitary2",
-            "firstAvailableDeliveryDate2"
+            "firstAvailableDeliveryDate2",
+            "sitEntryDate"
           ],
           "properties": {
             "firstAvailableDeliveryDate1": {
@@ -1214,8 +1210,14 @@ func init() {
               "description": "Service code allowed for this model type.",
               "type": "string",
               "enum": [
-                "DDFSIT"
+                "DDFSIT",
+                "DDASIT"
               ]
+            },
+            "sitEntryDate": {
+              "description": "Entry date for the SIT",
+              "type": "string",
+              "format": "date"
             },
             "timeMilitary1": {
               "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate1` + "`" + `, in military format.",
@@ -1228,9 +1230,6 @@ func init() {
               "type": "string",
               "pattern": "\\d{4}Z",
               "example": "1400Z"
-            },
-            "type": {
-              "$ref": "#/definitions/CustomerContactType"
             }
           }
         }
@@ -1247,7 +1246,9 @@ func init() {
           "required": [
             "reServiceCode",
             "reason",
-            "pickupPostalCode"
+            "sitPostalCode",
+            "pickupPostalCode",
+            "sitEntryDate"
           ],
           "properties": {
             "pickupPostalCode": {
@@ -1260,13 +1261,25 @@ func init() {
               "description": "Service code allowed for this model type.",
               "type": "string",
               "enum": [
-                "DOFSIT"
+                "DOFSIT",
+                "DOASIT"
               ]
             },
             "reason": {
               "description": "Explanation of why Prime is picking up SIT item.",
               "type": "string",
               "example": "Storage items need to be picked up"
+            },
+            "sitEntryDate": {
+              "description": "Entry date for the SIT",
+              "type": "string",
+              "format": "date"
+            },
+            "sitPostalCode": {
+              "type": "string",
+              "format": "zip",
+              "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+              "example": "90210"
             }
           }
         }
@@ -1355,7 +1368,34 @@ func init() {
         "MTOServiceItemDOFSIT",
         "MTOServiceItemDDFSIT",
         "MTOServiceItemShuttle",
-        "MTOServiceItemDomesticCrating"
+        "MTOServiceItemDomesticCrating",
+        "MTOServiceItemSITDeparture"
+      ]
+    },
+    "MTOServiceItemSITDeparture": {
+      "description": "Describes a SIT service item departure, a subtype of the MTOServiceItem.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "reServiceCode": {
+              "description": "Service code allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "DDDSIT",
+                "DOPSIT"
+              ]
+            },
+            "sitDepartureDate": {
+              "description": "Departure date for SIT",
+              "type": "string",
+              "format": "date"
+            }
+          }
+        }
       ]
     },
     "MTOServiceItemShuttle": {
@@ -2811,6 +2851,12 @@ func init() {
               "$ref": "#/definitions/ClientError"
             }
           },
+          "409": {
+            "description": "The request could not be processed because of conflict in the current state of the resource.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
           "422": {
             "description": "The payload was unprocessable.",
             "schema": {
@@ -3215,14 +3261,6 @@ func init() {
         }
       }
     },
-    "CustomerContactType": {
-      "description": "Describes a customer contact type for a MTOServiceItemDomesticDestSIT.",
-      "type": "string",
-      "enum": [
-        "FIRST",
-        "SECOND"
-      ]
-    },
     "DimensionType": {
       "description": "Describes a dimension type for a MTOServiceItemDimension.",
       "type": "string",
@@ -3482,7 +3520,8 @@ func init() {
             "timeMilitary1",
             "firstAvailableDeliveryDate1",
             "timeMilitary2",
-            "firstAvailableDeliveryDate2"
+            "firstAvailableDeliveryDate2",
+            "sitEntryDate"
           ],
           "properties": {
             "firstAvailableDeliveryDate1": {
@@ -3499,8 +3538,14 @@ func init() {
               "description": "Service code allowed for this model type.",
               "type": "string",
               "enum": [
-                "DDFSIT"
+                "DDFSIT",
+                "DDASIT"
               ]
+            },
+            "sitEntryDate": {
+              "description": "Entry date for the SIT",
+              "type": "string",
+              "format": "date"
             },
             "timeMilitary1": {
               "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate1` + "`" + `, in military format.",
@@ -3513,9 +3558,6 @@ func init() {
               "type": "string",
               "pattern": "\\d{4}Z",
               "example": "1400Z"
-            },
-            "type": {
-              "$ref": "#/definitions/CustomerContactType"
             }
           }
         }
@@ -3532,7 +3574,9 @@ func init() {
           "required": [
             "reServiceCode",
             "reason",
-            "pickupPostalCode"
+            "sitPostalCode",
+            "pickupPostalCode",
+            "sitEntryDate"
           ],
           "properties": {
             "pickupPostalCode": {
@@ -3545,13 +3589,25 @@ func init() {
               "description": "Service code allowed for this model type.",
               "type": "string",
               "enum": [
-                "DOFSIT"
+                "DOFSIT",
+                "DOASIT"
               ]
             },
             "reason": {
               "description": "Explanation of why Prime is picking up SIT item.",
               "type": "string",
               "example": "Storage items need to be picked up"
+            },
+            "sitEntryDate": {
+              "description": "Entry date for the SIT",
+              "type": "string",
+              "format": "date"
+            },
+            "sitPostalCode": {
+              "type": "string",
+              "format": "zip",
+              "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+              "example": "90210"
             }
           }
         }
@@ -3640,7 +3696,34 @@ func init() {
         "MTOServiceItemDOFSIT",
         "MTOServiceItemDDFSIT",
         "MTOServiceItemShuttle",
-        "MTOServiceItemDomesticCrating"
+        "MTOServiceItemDomesticCrating",
+        "MTOServiceItemSITDeparture"
+      ]
+    },
+    "MTOServiceItemSITDeparture": {
+      "description": "Describes a SIT service item departure, a subtype of the MTOServiceItem.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "reServiceCode": {
+              "description": "Service code allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "DDDSIT",
+                "DOPSIT"
+              ]
+            },
+            "sitDepartureDate": {
+              "description": "Departure date for SIT",
+              "type": "string",
+              "format": "date"
+            }
+          }
+        }
       ]
     },
     "MTOServiceItemShuttle": {
@@ -4209,17 +4292,7 @@ func init() {
         "params": {
           "type": "array",
           "items": {
-            "type": "object",
-            "properties": {
-              "key": {
-                "type": "string",
-                "example": "Service Item Parameter Name"
-              },
-              "value": {
-                "type": "string",
-                "example": "Service Item Parameter Value"
-              }
-            }
+            "$ref": "#/definitions/ServiceItemParamsItems0"
           },
           "readOnly": true
         }
@@ -4300,6 +4373,19 @@ func init() {
         "PaymentServiceItemUUID"
       ]
     },
+    "ServiceItemParamsItems0": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "example": "Service Item Parameter Name"
+        },
+        "value": {
+          "type": "string",
+          "example": "Service Item Parameter Value"
+        }
+      }
+    },
     "Upload": {
       "type": "object",
       "required": [
@@ -4343,7 +4429,7 @@ func init() {
           "$ref": "#/definitions/ClientError"
         },
         {
-          "type": "object"
+          "$ref": "#/definitions/ValidationErrorAllOf1"
         }
       ],
       "properties": {
@@ -4358,6 +4444,9 @@ func init() {
           }
         }
       }
+    },
+    "ValidationErrorAllOf1": {
+      "type": "object"
     }
   },
   "responses": {

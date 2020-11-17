@@ -12,11 +12,10 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	ghcmessages "github.com/transcom/mymove/pkg/gen/ghcmessages"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 )
 
 // NewUpdateMoveTaskOrderParams creates a new UpdateMoveTaskOrderParams object
@@ -70,7 +69,7 @@ func (o *UpdateMoveTaskOrderParams) BindRequest(r *http.Request, route *middlewa
 		var body ghcmessages.MoveTaskOrder
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
-				res = append(res, errors.Required("body", "body"))
+				res = append(res, errors.Required("body", "body", ""))
 			} else {
 				res = append(res, errors.NewParseError("body", "body", "", err))
 			}
@@ -85,7 +84,7 @@ func (o *UpdateMoveTaskOrderParams) BindRequest(r *http.Request, route *middlewa
 			}
 		}
 	} else {
-		res = append(res, errors.Required("body", "body"))
+		res = append(res, errors.Required("body", "body", ""))
 	}
 	rMoveTaskOrderID, rhkMoveTaskOrderID, _ := route.Params.GetOK("moveTaskOrderID")
 	if err := o.bindMoveTaskOrderID(rMoveTaskOrderID, rhkMoveTaskOrderID, route.Formats); err != nil {
@@ -101,7 +100,7 @@ func (o *UpdateMoveTaskOrderParams) BindRequest(r *http.Request, route *middlewa
 // bindIfMatch binds and validates parameter IfMatch from header.
 func (o *UpdateMoveTaskOrderParams) bindIfMatch(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
-		return errors.Required("If-Match", "header")
+		return errors.Required("If-Match", "header", rawData)
 	}
 	var raw string
 	if len(rawData) > 0 {

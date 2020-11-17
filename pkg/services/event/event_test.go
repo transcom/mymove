@@ -369,3 +369,40 @@ func (suite *EventServiceSuite) TestMoveOrderEventTrigger() {
 		suite.Equal(move.Orders.OriginDutyStation.ID.String(), moveOrderPayload.OriginDutyStation.ID.String())
 	})
 }
+
+func (suite *EventServiceSuite) TestNotificationEventHandler() {
+	order := testdatagen.MakeDefaultOrder(suite.DB())
+	dummyRequest := http.Request{
+		URL: &url.URL{
+			Path: "",
+		},
+	}
+	logger, _ := zap.NewDevelopment()
+	handler := handlers.NewHandlerContext(suite.DB(), logger)
+	traceID, _ := uuid.NewV4()
+	handler.SetTraceID(traceID)
+
+	// Test a nil MTO ID is present and no notification stored
+	suite.T().Run("No move and notification stored", func(t *testing.T) {
+		count, _ := suite.DB().Count(&models.WebhookNotification{})
+		event := Event{
+			EventKey:        MoveOrderUpdateEventKey,
+			MtoID:           uuid.Nil,
+			UpdatedObjectID: order.ID,
+			Request:         &dummyRequest,
+			EndpointKey:     InternalUpdateOrdersEndpointKey,
+			HandlerContext:  handler,
+			DBConnection:    suite.DB(),
+		}
+		_, err := TriggerEvent(event)
+		suite.NoError(err)
+
+		afterCount, _ := suite.DB().Count(&models.WebhookNotification{})
+		suite.Equal(count, afterCount)
+
+		// No notification stored and nil error returned
+		_, err = suite.getNotification(order.ID, traceID)
+		suite.Error(err)
+		suite.Equal("sql: no rows in result set", err.Error())
+	})
+}

@@ -9,14 +9,14 @@ import (
 	"bytes"
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // MTOServiceItemDOFSIT Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem.
+//
 // swagger:model MTOServiceItemDOFSIT
 type MTOServiceItemDOFSIT struct {
 	eTagField string
@@ -40,12 +40,22 @@ type MTOServiceItemDOFSIT struct {
 
 	// Service code allowed for this model type.
 	// Required: true
-	// Enum: [DOFSIT]
+	// Enum: [DOFSIT DOASIT]
 	ReServiceCode *string `json:"reServiceCode"`
 
 	// Explanation of why Prime is picking up SIT item.
 	// Required: true
 	Reason *string `json:"reason"`
+
+	// Entry date for the SIT
+	// Required: true
+	// Format: date
+	SitEntryDate *strfmt.Date `json:"sitEntryDate"`
+
+	// sit postal code
+	// Required: true
+	// Pattern: ^(\d{5}([\-]\d{4})?)$
+	SitPostalCode *string `json:"sitPostalCode"`
 }
 
 // ETag gets the e tag of this subtype
@@ -75,7 +85,6 @@ func (m *MTOServiceItemDOFSIT) ModelType() MTOServiceItemModelType {
 
 // SetModelType sets the model type of this subtype
 func (m *MTOServiceItemDOFSIT) SetModelType(val MTOServiceItemModelType) {
-
 }
 
 // MoveTaskOrderID gets the move task order ID of this subtype
@@ -128,12 +137,6 @@ func (m *MTOServiceItemDOFSIT) SetStatus(val MTOServiceItemStatus) {
 	m.statusField = val
 }
 
-// PickupPostalCode gets the pickup postal code of this subtype
-
-// ReServiceCode gets the re service code of this subtype
-
-// Reason gets the reason of this subtype
-
 // UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
 func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
 	var data struct {
@@ -145,12 +148,22 @@ func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
 
 		// Service code allowed for this model type.
 		// Required: true
-		// Enum: [DOFSIT]
+		// Enum: [DOFSIT DOASIT]
 		ReServiceCode *string `json:"reServiceCode"`
 
 		// Explanation of why Prime is picking up SIT item.
 		// Required: true
 		Reason *string `json:"reason"`
+
+		// Entry date for the SIT
+		// Required: true
+		// Format: date
+		SitEntryDate *strfmt.Date `json:"sitEntryDate"`
+
+		// sit postal code
+		// Required: true
+		// Pattern: ^(\d{5}([\-]\d{4})?)$
+		SitPostalCode *string `json:"sitPostalCode"`
 	}
 	buf := bytes.NewBuffer(raw)
 	dec := json.NewDecoder(buf)
@@ -197,7 +210,6 @@ func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
 		/* Not the type we're looking for. */
 		return errors.New(422, "invalid modelType value: %q", base.ModelType)
 	}
-
 	result.moveTaskOrderIdField = base.MoveTaskOrderID
 
 	result.mtoShipmentIdField = base.MtoShipmentID
@@ -209,10 +221,10 @@ func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
 	result.statusField = base.Status
 
 	result.PickupPostalCode = data.PickupPostalCode
-
 	result.ReServiceCode = data.ReServiceCode
-
 	result.Reason = data.Reason
+	result.SitEntryDate = data.SitEntryDate
+	result.SitPostalCode = data.SitPostalCode
 
 	*m = result
 
@@ -232,12 +244,22 @@ func (m MTOServiceItemDOFSIT) MarshalJSON() ([]byte, error) {
 
 		// Service code allowed for this model type.
 		// Required: true
-		// Enum: [DOFSIT]
+		// Enum: [DOFSIT DOASIT]
 		ReServiceCode *string `json:"reServiceCode"`
 
 		// Explanation of why Prime is picking up SIT item.
 		// Required: true
 		Reason *string `json:"reason"`
+
+		// Entry date for the SIT
+		// Required: true
+		// Format: date
+		SitEntryDate *strfmt.Date `json:"sitEntryDate"`
+
+		// sit postal code
+		// Required: true
+		// Pattern: ^(\d{5}([\-]\d{4})?)$
+		SitPostalCode *string `json:"sitPostalCode"`
 	}{
 
 		PickupPostalCode: m.PickupPostalCode,
@@ -245,8 +267,11 @@ func (m MTOServiceItemDOFSIT) MarshalJSON() ([]byte, error) {
 		ReServiceCode: m.ReServiceCode,
 
 		Reason: m.Reason,
-	},
-	)
+
+		SitEntryDate: m.SitEntryDate,
+
+		SitPostalCode: m.SitPostalCode,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -283,8 +308,7 @@ func (m MTOServiceItemDOFSIT) MarshalJSON() ([]byte, error) {
 		RejectionReason: m.RejectionReason(),
 
 		Status: m.Status(),
-	},
-	)
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -321,6 +345,14 @@ func (m *MTOServiceItemDOFSIT) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReason(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitEntryDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitPostalCode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -402,7 +434,7 @@ var mTOServiceItemDOFSITTypeReServiceCodePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DOFSIT"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DOFSIT","DOASIT"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -412,7 +444,7 @@ func init() {
 
 // property enum
 func (m *MTOServiceItemDOFSIT) validateReServiceCodeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, mTOServiceItemDOFSITTypeReServiceCodePropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, mTOServiceItemDOFSITTypeReServiceCodePropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -435,6 +467,32 @@ func (m *MTOServiceItemDOFSIT) validateReServiceCode(formats strfmt.Registry) er
 func (m *MTOServiceItemDOFSIT) validateReason(formats strfmt.Registry) error {
 
 	if err := validate.Required("reason", "body", m.Reason); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDOFSIT) validateSitEntryDate(formats strfmt.Registry) error {
+
+	if err := validate.Required("sitEntryDate", "body", m.SitEntryDate); err != nil {
+		return err
+	}
+
+	if err := validate.FormatOf("sitEntryDate", "body", "date", m.SitEntryDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDOFSIT) validateSitPostalCode(formats strfmt.Registry) error {
+
+	if err := validate.Required("sitPostalCode", "body", m.SitPostalCode); err != nil {
+		return err
+	}
+
+	if err := validate.Pattern("sitPostalCode", "body", string(*m.SitPostalCode), `^(\d{5}([\-]\d{4})?)$`); err != nil {
 		return err
 	}
 
