@@ -1120,6 +1120,11 @@ definitions:
             type: string
             example: Storage items need to be picked up
             description: Explanation of why Prime is picking up SIT item.
+          pickupPostalCode:
+            type: string
+            format: zip
+            example: "90210"
+            pattern: '^(\d{5}([\-]\d{4})?)$'
           sitPostalCode:
             type: string
             format: zip
@@ -1133,6 +1138,7 @@ definitions:
           - reServiceCode
           - reason
           - sitPostalCode
+          - pickupPostalCode
           - sitEntryDate
   MTOServiceItemDomesticCrating: # spectral oas2-unused-definition is OK here due to polymorphism
     description: Describes a domestic crating/uncrating service item subtype of a MTOServiceItem.
