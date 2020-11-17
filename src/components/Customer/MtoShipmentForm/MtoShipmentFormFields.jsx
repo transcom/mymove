@@ -259,6 +259,7 @@ const MtoShipmentFormFields = ({
               editMode
               onNextClick={() => submitHandler(values)}
               onBackClick={history.goBack}
+              onCancelClick={history.goBack}
             />
           </div>
         )}
