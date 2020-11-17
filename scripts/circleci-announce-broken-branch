@@ -6,7 +6,7 @@ NOW_ISO8601=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 pretext="CircleCI $CIRCLE_BRANCH branch failure!"
 title="CircleCI build #$CIRCLE_BUILD_NUM failed on job $CIRCLE_JOB"
-message="The $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME $CIRCLE_BRANCH branch broke on job $CIRCLE_JOB! Contact $CIRCLE_USERNAME for more information."
+message="The $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME $CIRCLE_BRANCH branch broke on job $CIRCLE_JOB! Contact $CIRCLE_USERNAME information."
 
 #####
 ## Announce in Slack channel
@@ -20,7 +20,7 @@ fi
 slack_payload=$(
 cat <<EOM
 {
-    "channel": "#on-call",
+    "channel": "#prac-engineering",
     "attachments": [
         {
             "fallback": "$message $CIRCLE_BUILD_URL",
