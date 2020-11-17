@@ -54,3 +54,29 @@ export async function patchServiceMember(serviceMember) {
     },
   );
 }
+
+export async function createBackupContactForServiceMember(serviceMemberId, backupContact) {
+  return makeInternalRequest(
+    'backup_contacts.createServiceMemberBackupContact',
+    {
+      serviceMemberId,
+      createBackupContactPayload: backupContact,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function patchBackupContact(backupContact) {
+  return makeInternalRequest(
+    'backup_contacts.updateServiceMemberBackupContact',
+    {
+      backupContactId: backupContact.id,
+      updateServiceMemberBackupContactPayload: backupContact,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
