@@ -503,7 +503,7 @@ jobs:
           keys:
             - v3-cache-yarn-v3-{{ checksum "yarn.lock" }}
       - run:
-          name: Install YARN dependencies
+          name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile
       - run: scripts/check-generated-code yarn.lock
       # `v3-cache-yarn-v3-{{ checksum "yarn.lock" }}` is used to cache yarn sources
@@ -521,7 +521,7 @@ jobs:
           keys:
             - v1-cache-cypress-yarn-{{ checksum "cypress/yarn.lock" }}
       - run:
-          name: Install YARN dependencies
+          name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile
       # `v1-cache-cypress-yarn-{{ checksum "cypress/yarn.lock" }}` is used to cache yarn sources
       - save_cache:
