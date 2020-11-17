@@ -600,6 +600,9 @@ jobs:
             done
           background: true
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
+      - run:
+          name: Install Frozen YARN dependencies
+          command: yarn install --frozen-lockfile
       # this is so we can avoid go mod downloading and resulting in an error on a false positive
       - run: scripts/pre-commit-go-mod || exit 0
       - run:
