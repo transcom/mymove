@@ -18,8 +18,8 @@ import { defaultRelativeWindowSize } from 'shared/constants';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons/faExternalLinkAlt';
 import PropTypes from 'prop-types';
 
 function renderEntitlements(entitlements, orders) {

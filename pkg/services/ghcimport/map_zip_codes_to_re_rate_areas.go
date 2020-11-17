@@ -40,6 +40,7 @@ func (gre *GHCRateEngineImporter) mapREZip3sToRERateAreas(dbTx *pop.Connection) 
 			reZip3.RateAreaID = nil
 			reZip3.HasMultipleRateAreas = true
 
+			// #nosec G601 TODO needs review
 			verrs, err := dbTx.ValidateAndUpdate(&reZip3)
 			if err != nil {
 				return fmt.Errorf("failed to update ReZip3 %v: %w", reZip3.Zip3, err)
@@ -56,6 +57,7 @@ func (gre *GHCRateEngineImporter) mapREZip3sToRERateAreas(dbTx *pop.Connection) 
 			reZip3.RateAreaID = &rateAreaID
 			reZip3.HasMultipleRateAreas = false
 
+			// #nosec G601 TODO needs review
 			verrs, err := dbTx.ValidateAndUpdate(&reZip3)
 			if err != nil {
 				return fmt.Errorf("failed to update ReZip3: %v: %w", reZip3.Zip3, err)

@@ -11,9 +11,8 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // NewShowMoveDatesSummaryParams creates a new ShowMoveDatesSummaryParams object
@@ -74,7 +73,7 @@ func (o *ShowMoveDatesSummaryParams) BindRequest(r *http.Request, route *middlew
 // bindMoveDate binds and validates parameter MoveDate from query.
 func (o *ShowMoveDatesSummaryParams) bindMoveDate(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
-		return errors.Required("moveDate", "query")
+		return errors.Required("moveDate", "query", rawData)
 	}
 	var raw string
 	if len(rawData) > 0 {

@@ -8,23 +8,26 @@ package internalmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
 // SignedCertificationType signed certification type
+//
 // swagger:model SignedCertificationType
 type SignedCertificationType string
 
 const (
 
-	// SignedCertificationTypePPM captures enum value "PPM"
-	SignedCertificationTypePPM SignedCertificationType = "PPM"
-
 	// SignedCertificationTypePPMPAYMENT captures enum value "PPM_PAYMENT"
 	SignedCertificationTypePPMPAYMENT SignedCertificationType = "PPM_PAYMENT"
+
+	// SignedCertificationTypeSHIPMENT captures enum value "SHIPMENT"
+	SignedCertificationTypeSHIPMENT SignedCertificationType = "SHIPMENT"
+
+	// SignedCertificationTypePPM captures enum value "PPM"
+	SignedCertificationTypePPM SignedCertificationType = "PPM"
 
 	// SignedCertificationTypeHHG captures enum value "HHG"
 	SignedCertificationTypeHHG SignedCertificationType = "HHG"
@@ -35,7 +38,7 @@ var signedCertificationTypeEnum []interface{}
 
 func init() {
 	var res []SignedCertificationType
-	if err := json.Unmarshal([]byte(`["PPM","PPM_PAYMENT","HHG"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PPM_PAYMENT","SHIPMENT","PPM","HHG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -44,7 +47,7 @@ func init() {
 }
 
 func (m SignedCertificationType) validateSignedCertificationTypeEnum(path, location string, value SignedCertificationType) error {
-	if err := validate.Enum(path, location, value, signedCertificationTypeEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, signedCertificationTypeEnum, true); err != nil {
 		return err
 	}
 	return nil

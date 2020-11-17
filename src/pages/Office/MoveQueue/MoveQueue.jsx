@@ -1,16 +1,27 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-import { GridContainer } from '@trussworks/react-uswds';
-
-import styles from './MoveQueue.module.scss';
 
 import { HistoryShape } from 'types/router';
-import Table from 'components/Table/Table';
 import { createHeader } from 'components/Table/utils';
-import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useMovesQueueQueries } from 'hooks/queries';
-import { departmentIndicatorLabel } from 'shared/formatters';
+import { serviceMemberAgencyLabel } from 'shared/formatters';
+import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
+import SelectFilter from 'components/Table/Filters/SelectFilter';
+import { BRANCH_OPTIONS, MOVE_STATUS_OPTIONS } from 'constants/queues';
+import TableQueue from 'components/Table/TableQueue';
+
+const moveStatusOptions = Object.keys(MOVE_STATUS_OPTIONS).map((key) => ({
+  value: key,
+  label: MOVE_STATUS_OPTIONS[`${key}`],
+}));
+
+const branchFilterOptions = [
+  { value: '', label: 'All' },
+  ...Object.keys(BRANCH_OPTIONS).map((key) => ({
+    value: key,
+    label: BRANCH_OPTIONS[`${key}`],
+  })),
+];
 
 const columns = [
   createHeader('ID', 'id'),
@@ -19,43 +30,58 @@ const columns = [
     (row) => {
       return `${row.customer.last_name}, ${row.customer.first_name}`;
     },
-    { id: 'name' },
+    {
+      id: 'lastName',
+      isFilterable: true,
+    },
   ),
-  createHeader('DoD ID', 'customer.dodID'),
-  createHeader('Status', 'status'),
-  createHeader('Move ID', 'locator'),
+  createHeader('DoD ID', 'customer.dodID', {
+    id: 'dodID',
+    isFilterable: true,
+  }),
+  createHeader('Status', 'status', {
+    isFilterable: true,
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    Filter: (props) => <MultiSelectCheckBoxFilter options={moveStatusOptions} {...props} />,
+  }),
+  createHeader('Move Code', 'locator', {
+    id: 'moveID',
+    isFilterable: true,
+  }),
   createHeader(
     'Branch',
     (row) => {
-      return departmentIndicatorLabel(row.departmentIndicator);
+      return serviceMemberAgencyLabel(row.customer.agency);
     },
-    { id: 'branch' },
+    {
+      id: 'branch',
+      isFilterable: true,
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      Filter: (props) => <SelectFilter options={branchFilterOptions} {...props} />,
+    },
   ),
   createHeader('# of shipments', 'shipmentsCount'),
-  createHeader('Destination duty station', 'destinationDutyStation.name'),
+  createHeader('Destination duty station', 'destinationDutyStation.name', {
+    id: 'destinationDutyStation',
+    isFilterable: true,
+  }),
   createHeader('Origin GBLOC', 'originGBLOC'),
 ];
 
 const MoveQueue = ({ history }) => {
-  const { queueMovesResult, isLoading, isError } = useMovesQueueQueries();
-
-  if (isLoading) return <LoadingPlaceholder />;
-  if (isError) return <SomethingWentWrong />;
-
-  //  no-unused-vars
-  const { page, perPage, totalCount, queueMoves } = queueMovesResult[`${undefined}`];
-
   const handleClick = (values) => {
     history.push(`/moves/${values.id}/details`);
   };
 
   return (
-    <GridContainer containerSize="widescreen" className={styles.MoveQueue}>
-      <h1>{`All moves (${totalCount})`}</h1>
-      <div className={styles.tableContainer}>
-        <Table columns={columns} data={queueMoves} hiddenColumns={['id']} handleClick={handleClick} />
-      </div>
-    </GridContainer>
+    <TableQueue
+      showFilters
+      showPagination
+      columns={columns}
+      title="All moves"
+      handleClick={handleClick}
+      useQueries={useMovesQueueQueries}
+    />
   );
 };
 

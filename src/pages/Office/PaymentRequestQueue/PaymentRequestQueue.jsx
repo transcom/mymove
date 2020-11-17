@@ -1,21 +1,33 @@
 import React from 'react';
-import { GridContainer } from '@trussworks/react-uswds';
 import { withRouter } from 'react-router-dom';
 
-import styles from './PaymentRequestQueue.module.scss';
-
 import { usePaymentRequestQueueQueries } from 'hooks/queries';
-import Table from 'components/Table/Table';
 import { createHeader } from 'components/Table/utils';
-import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { HistoryShape } from 'types/router';
 import {
-  departmentIndicatorLabel,
   formatDateFromIso,
   formatAgeToDays,
   paymentRequestStatusReadable,
+  serviceMemberAgencyLabel,
 } from 'shared/formatters';
+import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
+import SelectFilter from 'components/Table/Filters/SelectFilter';
+import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
+import { BRANCH_OPTIONS, PAYMENT_REQUEST_STATUS_OPTIONS } from 'constants/queues';
+import TableQueue from 'components/Table/TableQueue';
+
+const paymentRequestStatusOptions = Object.keys(PAYMENT_REQUEST_STATUS_OPTIONS).map((key) => ({
+  value: key,
+  label: PAYMENT_REQUEST_STATUS_OPTIONS[`${key}`],
+}));
+
+const branchFilterOptions = [
+  { value: '', label: 'All' },
+  ...Object.keys(BRANCH_OPTIONS).map((key) => ({
+    value: key,
+    label: BRANCH_OPTIONS[`${key}`],
+  })),
+];
 
 const columns = [
   createHeader('ID', 'id'),
@@ -24,15 +36,26 @@ const columns = [
     (row) => {
       return `${row.customer.last_name}, ${row.customer.first_name}`;
     },
-    { id: 'name' },
+    {
+      id: 'lastName',
+      isFilterable: true,
+    },
   ),
-  createHeader('DoD ID', 'customer.dodID'),
+  createHeader('DoD ID', 'customer.dodID', {
+    id: 'dodID',
+    isFilterable: true,
+  }),
   createHeader(
     'Status',
     (row) => {
       return paymentRequestStatusReadable(row.status);
     },
-    'status',
+    {
+      id: 'status',
+      isFilterable: true,
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      Filter: (props) => <MultiSelectCheckBoxFilter options={paymentRequestStatusOptions} {...props} />,
+    },
   ),
   createHeader(
     'Age',
@@ -46,39 +69,45 @@ const columns = [
     (row) => {
       return formatDateFromIso(row.submittedAt, 'DD MMM YYYY');
     },
-    'submittedAt',
+    {
+      id: 'submittedAt',
+      isFilterable: true,
+      Filter: DateSelectFilter,
+    },
   ),
-  createHeader('Move ID', 'locator'),
+  createHeader('Move Code', 'locator', {
+    id: 'moveID',
+    isFilterable: true,
+  }),
   createHeader(
     'Branch',
     (row) => {
-      return departmentIndicatorLabel(row.departmentIndicator);
+      return serviceMemberAgencyLabel(row.customer.agency);
     },
-    { id: 'branch' },
+    {
+      id: 'branch',
+      isFilterable: true,
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      Filter: (props) => <SelectFilter options={branchFilterOptions} {...props} />,
+    },
   ),
   createHeader('Origin GBLOC', 'originGBLOC'),
 ];
 
 const PaymentRequestQueue = ({ history }) => {
-  const { queuePaymentRequestsResult, isLoading, isError } = usePaymentRequestQueueQueries();
-
-  if (isLoading) return <LoadingPlaceholder />;
-  if (isError) return <SomethingWentWrong />;
-
-  //  no-unused-vars
-  const { page, perPage, totalCount, queuePaymentRequests } = queuePaymentRequestsResult;
-
   const handleClick = (values) => {
     history.push(`/moves/MOVE_CODE/payment-requests/${values.id}`);
   };
 
   return (
-    <GridContainer containerSize="widescreen" className={styles.PaymentRequestQueue}>
-      <h1>{`Payment requests (${totalCount})`}</h1>
-      <div className={styles.tableContainer}>
-        <Table columns={columns} data={queuePaymentRequests} hiddenColumns={['id']} handleClick={handleClick} />
-      </div>
-    </GridContainer>
+    <TableQueue
+      showFilters
+      showPagination
+      columns={columns}
+      title="Payment requests"
+      handleClick={handleClick}
+      useQueries={usePaymentRequestQueueQueries}
+    />
   );
 };
 

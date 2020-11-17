@@ -12,11 +12,10 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	internalmessages "github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // NewCancelMoveParams creates a new CancelMoveParams object
@@ -61,7 +60,7 @@ func (o *CancelMoveParams) BindRequest(r *http.Request, route *middleware.Matche
 		var body internalmessages.CancelMove
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
-				res = append(res, errors.Required("cancelMove", "body"))
+				res = append(res, errors.Required("cancelMove", "body", ""))
 			} else {
 				res = append(res, errors.NewParseError("cancelMove", "body", "", err))
 			}
@@ -76,7 +75,7 @@ func (o *CancelMoveParams) BindRequest(r *http.Request, route *middleware.Matche
 			}
 		}
 	} else {
-		res = append(res, errors.Required("cancelMove", "body"))
+		res = append(res, errors.Required("cancelMove", "body", ""))
 	}
 	rMoveID, rhkMoveID, _ := route.Params.GetOK("moveId")
 	if err := o.bindMoveID(rMoveID, rhkMoveID, route.Formats); err != nil {

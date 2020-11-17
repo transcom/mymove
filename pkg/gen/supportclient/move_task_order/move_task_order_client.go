@@ -9,12 +9,11 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new move task order API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -26,10 +25,23 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
-/*
-CreateMoveTaskOrder creates move task order
+// ClientService is the interface for Client methods
+type ClientService interface {
+	CreateMoveTaskOrder(params *CreateMoveTaskOrderParams) (*CreateMoveTaskOrderCreated, error)
 
-Creates an instance of moveTaskOrder.
+	GetMoveTaskOrder(params *GetMoveTaskOrderParams) (*GetMoveTaskOrderOK, error)
+
+	ListMTOs(params *ListMTOsParams) (*ListMTOsOK, error)
+
+	MakeMoveTaskOrderAvailable(params *MakeMoveTaskOrderAvailableParams) (*MakeMoveTaskOrderAvailableOK, error)
+
+	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+  CreateMoveTaskOrder creates move task order
+
+  Creates an instance of moveTaskOrder.
 Current this will also create a number of nested objects but not all.
 It will currently create
 * MoveTaskOrder
@@ -76,9 +88,9 @@ func (a *Client) CreateMoveTaskOrder(params *CreateMoveTaskOrderParams) (*Create
 }
 
 /*
-GetMoveTaskOrder gets move task order
+  GetMoveTaskOrder gets move task order
 
-### Functionality
+  ### Functionality
 This endpoint gets an individual MoveTaskOrder by ID.
 
 It will provide nested information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.
@@ -97,7 +109,7 @@ func (a *Client) GetMoveTaskOrder(params *GetMoveTaskOrderParams) (*GetMoveTaskO
 		Method:             "GET",
 		PathPattern:        "/move-task-orders/{moveTaskOrderID}",
 		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &GetMoveTaskOrderReader{formats: a.formats},
@@ -118,9 +130,9 @@ func (a *Client) GetMoveTaskOrder(params *GetMoveTaskOrderParams) (*GetMoveTaskO
 }
 
 /*
-ListMTOs lists m t os
+  ListMTOs lists m t os
 
-### Functionality
+  ### Functionality
 This endpoint lists all MoveTaskOrders regardless of whether or not they have been made available to Prime.
 
 It will provide nested information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.
@@ -137,7 +149,7 @@ func (a *Client) ListMTOs(params *ListMTOsParams) (*ListMTOsOK, error) {
 		Method:             "GET",
 		PathPattern:        "/move-task-orders",
 		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &ListMTOsReader{formats: a.formats},
@@ -158,9 +170,9 @@ func (a *Client) ListMTOs(params *ListMTOsParams) (*ListMTOsOK, error) {
 }
 
 /*
-MakeMoveTaskOrderAvailable makes move task order available
+  MakeMoveTaskOrderAvailable makes move task order available
 
-Updates move task order `availableToPrimeAt` to make it available to prime. No request body required. <br />
+  Updates move task order `availableToPrimeAt` to make it available to prime. No request body required. <br />
 <br />
 This is a support endpoint and will not be available in production.
 

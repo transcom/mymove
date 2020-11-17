@@ -6,13 +6,13 @@ import { capitalize, get, includes } from 'lodash';
 
 import { NavTab, RoutedTabs } from 'react-router-tabs';
 import { NavLink, Redirect, Switch } from 'react-router-dom';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
-import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
-import faClock from '@fortawesome/fontawesome-free-solid/faClock';
-import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
-import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
-import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPhone } from '@fortawesome/free-solid-svg-icons/faPhone';
+import { faEnvelope } from '@fortawesome/free-solid-svg-icons/faEnvelope';
+import { faClock } from '@fortawesome/free-solid-svg-icons/faClock';
+import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
+import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons/faExclamationCircle';
+import { faPlayCircle } from '@fortawesome/free-solid-svg-icons/faPlayCircle';
 import moment from 'moment';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -264,7 +264,7 @@ class MoveInfo extends Component {
                 {serviceMember.phone_is_preferred && (
                   <FontAwesomeIcon className="icon icon-grey" icon={faPhone} flip="horizontal" />
                 )}
-                {serviceMember.email_is_preferred && <FontAwesomeIcon className="icon icon-grey" icon={faEmail} />}
+                {serviceMember.email_is_preferred && <FontAwesomeIcon className="icon icon-grey" icon={faEnvelope} />}
                 &nbsp;
               </li>
               <li>Locator# {move.locator}&nbsp;</li>

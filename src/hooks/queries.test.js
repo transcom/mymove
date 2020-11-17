@@ -71,28 +71,24 @@ jest.mock('services/ghcApi', () => ({
     }),
   getMovesQueue: () =>
     Promise.resolve({
-      queueMovesResult: {
-        undefined: {
-          page: 0,
-          perPage: 100,
-          totalCount: 2,
-          queueMoves: [
-            {
-              id: 'move1',
-            },
-            {
-              id: 'move2',
-            },
-          ],
+      page: 1,
+      perPage: 100,
+      totalCount: 2,
+      data: [
+        {
+          id: 'move1',
         },
-      },
+        {
+          id: 'move2',
+        },
+      ],
     }),
   getPaymentRequestsQueue: () =>
     Promise.resolve({
       page: 0,
       perPage: 100,
       totalCount: 2,
-      queuePaymentRequests: [
+      data: [
         {
           id: 'payment1',
         },
@@ -252,25 +248,25 @@ describe('useOrdersDocumentQueries', () => {
 
 describe('useMovesQueueQueries', () => {
   it('loads data', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useMovesQueueQueries());
+    const { result, waitForNextUpdate } = renderHook(() =>
+      useMovesQueueQueries({ filters: [], currentPage: 1, currentPageSize: 100 }),
+    );
 
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
-      queueMovesResult: {
-        undefined: {
-          page: 0,
-          perPage: 100,
-          totalCount: 2,
-          queueMoves: [
-            {
-              id: 'move1',
-            },
-            {
-              id: 'move2',
-            },
-          ],
-        },
+      queueResult: {
+        page: 1,
+        perPage: 100,
+        totalCount: 2,
+        data: [
+          {
+            id: 'move1',
+          },
+          {
+            id: 'move2',
+          },
+        ],
       },
       isLoading: false,
       isError: false,
@@ -281,16 +277,18 @@ describe('useMovesQueueQueries', () => {
 
 describe('usePaymentRequestsQueueQueries', () => {
   it('loads data', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => usePaymentRequestQueueQueries());
+    const { result, waitForNextUpdate } = renderHook(() =>
+      usePaymentRequestQueueQueries({ filters: [], currentPage: 1, currentPageSize: 100 }),
+    );
 
     await waitForNextUpdate();
 
     expect(result.current).toEqual({
-      queuePaymentRequestsResult: {
+      queueResult: {
         page: 0,
         perPage: 100,
         totalCount: 2,
-        queuePaymentRequests: [
+        data: [
           {
             id: 'payment1',
           },

@@ -1,13 +1,10 @@
 /*  react/jsx-props-no-spreading */
 import React from 'react';
 import { mount } from 'enzyme';
-import { Provider } from 'react-redux';
-import configureStore from 'redux-mock-store';
-import { HashRouter as Router } from 'react-router-dom';
-import thunk from 'redux-thunk';
 
-//  import/no-named-as-default
-import UploadOrders from './UploadOrders';
+import ConnectedUploadOrders from './UploadOrders';
+
+import { MockProviders } from 'testUtils';
 
 const defaultProps = {
   pages: ['1', '2', '3'],
@@ -15,28 +12,22 @@ const defaultProps = {
   fetchLatestOrders: () => {},
 };
 
-const mockStore = configureStore([thunk]);
 const initialState = {
   entities: {
     orders: {},
   },
 };
 
-const store = mockStore(initialState);
-
-function mountUploadOrders(props = defaultProps) {
-  return mount(
-    <Provider store={store}>
-      <Router>
-        <UploadOrders {...props} />
-      </Router>
-    </Provider>,
+const mountUploadOrders = (props = {}) =>
+  mount(
+    <MockProviders initialState={initialState}>
+      <ConnectedUploadOrders {...defaultProps} {...props} />
+    </MockProviders>,
   );
-}
 
 describe('UploadOrders component', () => {
-  it('renders component with next button', () => {
+  it('renders without errors', () => {
     const wrapper = mountUploadOrders();
-    expect(wrapper.find('[data-testid="wizardNextButton"]').length).toBe(1);
+    expect(wrapper.exists()).toBe(true);
   });
 });

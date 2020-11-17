@@ -152,27 +152,31 @@ export const useOrdersDocumentQueries = (moveOrderId) => {
   };
 };
 
-// TODO skip normalizing of schema response and cleanup
-export const useMovesQueueQueries = () => {
-  const { data: { queueMovesResult } = {}, ...movesQueueQuery } = useQuery([MOVES_QUEUE], getMovesQueue);
-
+export const useMovesQueueQueries = ({ filters = [], currentPage = 1, currentPageSize = 20 }) => {
+  const { data = {}, ...movesQueueQuery } = useQuery(
+    [MOVES_QUEUE, { filters, currentPage, currentPageSize }],
+    getMovesQueue,
+  );
   const { isLoading, isError, isSuccess } = getQueriesStatus([movesQueueQuery]);
-
+  const { queueMoves, ...dataProps } = data;
   return {
-    queueMovesResult,
+    queueResult: { data: queueMoves, ...dataProps },
     isLoading,
     isError,
     isSuccess,
   };
 };
 
-export const usePaymentRequestQueueQueries = () => {
-  const { data = {}, ...paymentRequestsQueueQuery } = useQuery([PAYMENT_REQUESTS_QUEUE], getPaymentRequestsQueue);
+export const usePaymentRequestQueueQueries = ({ filters = [], currentPage = 1, currentPageSize = 20 }) => {
+  const { data = {}, ...paymentRequestsQueueQuery } = useQuery(
+    [PAYMENT_REQUESTS_QUEUE, { filters, currentPage, currentPageSize }],
+    getPaymentRequestsQueue,
+  );
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([paymentRequestsQueueQuery]);
-
+  const { queuePaymentRequests, ...dataProps } = data;
   return {
-    queuePaymentRequestsResult: data,
+    queueResult: { data: queuePaymentRequests, ...dataProps },
     isLoading,
     isError,
     isSuccess,

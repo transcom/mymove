@@ -16,13 +16,14 @@ import { selectPaymentRequestCertificationForMove } from 'shared/Entities/module
 import { getLastError } from 'shared/Swagger/selectors';
 
 import { no_op } from 'shared/utils';
+import { SIGNED_CERT_OPTIONS } from 'shared/constants';
 import { formatCents, formatDate } from 'shared/formatters';
 
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
-import faClock from '@fortawesome/fontawesome-free-solid/faClock';
-import faPlusSquare from '@fortawesome/fontawesome-free-solid/faPlusSquare';
-import faMinusSquare from '@fortawesome/fontawesome-free-solid/faMinusSquare';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
+import { faClock } from '@fortawesome/free-solid-svg-icons/faClock';
+import { faPlusSquare } from '@fortawesome/free-solid-svg-icons/faPlusSquare';
+import { faMinusSquare } from '@fortawesome/free-solid-svg-icons/faMinusSquare';
 
 import './PaymentsPanel.css';
 import Alert from 'shared/Alert';
@@ -39,7 +40,7 @@ export function sswIsDisabled(ppm, signedCertification) {
 }
 
 function missingSignature(signedCertification) {
-  return isEmpty(signedCertification) || signedCertification.certification_type !== 'PPM_PAYMENT';
+  return isEmpty(signedCertification) || signedCertification.certification_type !== SIGNED_CERT_OPTIONS.PPM_PAYMENT;
 }
 
 function missingRequiredPPMInfo(ppm) {

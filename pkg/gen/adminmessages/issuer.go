@@ -8,13 +8,13 @@ package adminmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
 // Issuer Organization that issues orders. If more organizations, especially civilian ones, become clients of this API in the future, this enumeration may need to be expanded.
+//
 // swagger:model Issuer
 type Issuer string
 
@@ -50,7 +50,7 @@ func init() {
 }
 
 func (m Issuer) validateIssuerEnum(path, location string, value Issuer) error {
-	if err := validate.Enum(path, location, value, issuerEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, issuerEnum, true); err != nil {
 		return err
 	}
 	return nil

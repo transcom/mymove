@@ -4,7 +4,7 @@ import classnames from 'classnames';
 
 import styles from './index.module.scss';
 
-import Hint from 'shared/Hint';
+import Hint from 'components/Hint/index';
 
 const Fieldset = ({ children, legend, className, legendSrOnly, legendClassName, hintText }) => {
   const classes = classnames('usa-fieldset', className);
@@ -30,7 +30,7 @@ Fieldset.propTypes = {
   legendClassName: string,
   legendSrOnly: bool,
   legend: node,
-  hintText: string,
+  hintText: node,
 };
 
 Fieldset.defaultProps = {
@@ -38,7 +38,7 @@ Fieldset.defaultProps = {
   legendClassName: '',
   legendSrOnly: false,
   legend: null,
-  hintText: '',
+  hintText: null,
 };
 
 export default Fieldset;

@@ -8,14 +8,14 @@ package ghcmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // MTOServiceItem m t o service item
+//
 // swagger:model MTOServiceItem
 type MTOServiceItem struct {
 
@@ -307,7 +307,7 @@ const (
 
 // prop value enum
 func (m *MTOServiceItem) validateFeeTypeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, mTOServiceItemTypeFeeTypePropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, mTOServiceItemTypeFeeTypePropEnum, true); err != nil {
 		return err
 	}
 	return nil

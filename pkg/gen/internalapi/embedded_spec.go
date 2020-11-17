@@ -3703,13 +3703,6 @@ func init() {
           "x-nullable": true,
           "example": "212-555-5555"
         },
-        "social_security_number": {
-          "type": "string",
-          "format": "ssn",
-          "title": "Social security number",
-          "x-nullable": true,
-          "example": "555-55-5555"
-        },
         "suffix": {
           "type": "string",
           "title": "Suffix",
@@ -3783,7 +3776,7 @@ func init() {
         },
         "certification_type": {
           "x-nullable": true,
-          "$ref": "#/definitions/SignedCertificationType"
+          "$ref": "#/definitions/SignedCertificationTypeCreate"
         },
         "date": {
           "type": "string",
@@ -5346,13 +5339,6 @@ func init() {
           "x-nullable": true,
           "example": "212-555-5555"
         },
-        "social_security_number": {
-          "type": "string",
-          "format": "ssn",
-          "title": "Social security number",
-          "x-nullable": true,
-          "example": "555-55-5555"
-        },
         "suffix": {
           "type": "string",
           "title": "Suffix",
@@ -5779,7 +5765,6 @@ func init() {
         "id",
         "user_id",
         "is_profile_complete",
-        "has_social_security_number",
         "created_at",
         "updated_at",
         "requires_access_code"
@@ -5822,9 +5807,6 @@ func init() {
           "title": "First name",
           "x-nullable": true,
           "example": "John"
-        },
-        "has_social_security_number": {
-          "type": "boolean"
         },
         "id": {
           "type": "string",
@@ -6056,9 +6038,18 @@ func init() {
     "SignedCertificationType": {
       "type": "string",
       "enum": [
-        "PPM",
         "PPM_PAYMENT",
+        "SHIPMENT",
+        "PPM",
         "HHG"
+      ],
+      "x-nullable": true
+    },
+    "SignedCertificationTypeCreate": {
+      "type": "string",
+      "enum": [
+        "PPM_PAYMENT",
+        "SHIPMENT"
       ],
       "x-nullable": true
     },
@@ -6070,15 +6061,9 @@ func init() {
     },
     "SubmitMoveForApprovalPayload": {
       "type": "object",
-      "required": [
-        "ppm_submit_date"
-      ],
       "properties": {
-        "ppm_submit_date": {
-          "type": "string",
-          "format": "date-time",
-          "title": "When was the ppm move submitted?",
-          "example": "2019-03-26T13:19:56-04:00"
+        "certificate": {
+          "$ref": "#/definitions/CreateSignedCertificationPayload"
         }
       }
     },
@@ -10250,13 +10235,6 @@ func init() {
           "x-nullable": true,
           "example": "212-555-5555"
         },
-        "social_security_number": {
-          "type": "string",
-          "format": "ssn",
-          "title": "Social security number",
-          "x-nullable": true,
-          "example": "555-55-5555"
-        },
         "suffix": {
           "type": "string",
           "title": "Suffix",
@@ -10330,7 +10308,7 @@ func init() {
         },
         "certification_type": {
           "x-nullable": true,
-          "$ref": "#/definitions/SignedCertificationType"
+          "$ref": "#/definitions/SignedCertificationTypeCreate"
         },
         "date": {
           "type": "string",
@@ -10650,6 +10628,17 @@ func init() {
               "type": "integer"
             }
           }
+        }
+      }
+    },
+    "ExpenseSummaryPayloadGrandTotal": {
+      "type": "object",
+      "properties": {
+        "payment_method_totals": {
+          "$ref": "#/definitions/PaymentMethodsTotals"
+        },
+        "total": {
+          "type": "integer"
         }
       }
     },
@@ -11899,13 +11888,6 @@ func init() {
           "x-nullable": true,
           "example": "212-555-5555"
         },
-        "social_security_number": {
-          "type": "string",
-          "format": "ssn",
-          "title": "Social security number",
-          "x-nullable": true,
-          "example": "555-55-5555"
-        },
         "suffix": {
           "type": "string",
           "title": "Suffix",
@@ -12334,7 +12316,6 @@ func init() {
         "id",
         "user_id",
         "is_profile_complete",
-        "has_social_security_number",
         "created_at",
         "updated_at",
         "requires_access_code"
@@ -12377,9 +12358,6 @@ func init() {
           "title": "First name",
           "x-nullable": true,
           "example": "John"
-        },
-        "has_social_security_number": {
-          "type": "boolean"
         },
         "id": {
           "type": "string",
@@ -12611,9 +12589,18 @@ func init() {
     "SignedCertificationType": {
       "type": "string",
       "enum": [
-        "PPM",
         "PPM_PAYMENT",
+        "SHIPMENT",
+        "PPM",
         "HHG"
+      ],
+      "x-nullable": true
+    },
+    "SignedCertificationTypeCreate": {
+      "type": "string",
+      "enum": [
+        "PPM_PAYMENT",
+        "SHIPMENT"
       ],
       "x-nullable": true
     },
@@ -12625,15 +12612,9 @@ func init() {
     },
     "SubmitMoveForApprovalPayload": {
       "type": "object",
-      "required": [
-        "ppm_submit_date"
-      ],
       "properties": {
-        "ppm_submit_date": {
-          "type": "string",
-          "format": "date-time",
-          "title": "When was the ppm move submitted?",
-          "example": "2019-03-26T13:19:56-04:00"
+        "certificate": {
+          "$ref": "#/definitions/CreateSignedCertificationPayload"
         }
       }
     },
@@ -12963,7 +12944,7 @@ func init() {
           "$ref": "#/definitions/ClientError"
         },
         {
-          "type": "object"
+          "$ref": "#/definitions/ValidationErrorAllOf1"
         }
       ],
       "properties": {
@@ -12978,6 +12959,9 @@ func init() {
           }
         }
       }
+    },
+    "ValidationErrorAllOf1": {
+      "type": "object"
     },
     "WeightAllotment": {
       "type": "object",

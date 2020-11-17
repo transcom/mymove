@@ -7,6 +7,10 @@
   max-width: 64rem;
   padding-left: 1.25rem;
   padding-right: 1.25rem;
+
+  .secondaryBtn {
+    box-shadow: inset 0 0 0 2px $primary;
+  }
 }
 
 .customer-header {
@@ -40,5 +44,27 @@
 
   .descriptionExtra {
     @include u-padding-bottom(3);
+  }
+
+  .printBtn {
+    padding: 0;
+    justify-content: start;
+    text-decoration: underline;
+  }
+}
+
+.moveSubmittedDescription {
+  a {
+    text-decoration: underline;
+
+    &:visited {
+      color: $link;
+    }
+  }
+}
+
+@media print {
+  .homeContainer {
+    display: none;
   }
 }

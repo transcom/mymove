@@ -8,7 +8,7 @@ package move_task_order
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // UpdateMoveTaskOrderStatusHandlerFunc turns a function with the right signature into a update move task order status handler

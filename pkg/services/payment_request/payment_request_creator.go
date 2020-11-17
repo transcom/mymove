@@ -53,6 +53,9 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			if _, ok := err.(services.NotFoundError); ok {
 				return err
 			}
+			if _, ok := err.(services.ConflictError); ok {
+				return err
+			}
 			if errors.As(err, &badDataError) {
 				return err
 			}
@@ -81,6 +84,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			serviceItemMessageString := " RE Service Item Code: <" + string(reServiceItem.Code) + "> Name: <" + reServiceItem.Name + ">"
 			errMessageString := mtoMessageString + prMessageString + mtoServiceItemString + serviceItemMessageString
 			// Create the payment service item
+			// #nosec G601 TODO needs review
 			paymentServiceItem, mtoServiceItem, err = p.createPaymentServiceItem(tx, &paymentServiceItem, paymentRequestArg, now)
 			if err != nil {
 				if _, ok := err.(services.InvalidCreateInputError); ok {
@@ -101,6 +105,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			for _, paymentServiceItemParam := range paymentServiceItem.PaymentServiceItemParams {
 				var param *models.PaymentServiceItemParam
 				var key, value *string
+				// #nosec G601 TODO needs review
 				param, key, value, err = p.createPaymentServiceItemParam(tx, &paymentServiceItemParam, paymentServiceItem)
 				if err != nil {
 					if _, ok := err.(*services.BadDataError); ok {
@@ -170,6 +175,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			}
 
 			// Price the payment service item
+			// #nosec G601 TODO needs review
 			err = p.pricePaymentServiceItem(tx, txPricer, &paymentServiceItem)
 			if err != nil {
 				return fmt.Errorf("failure pricing service %s for MTO service item ID %s: %w",
@@ -193,7 +199,10 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 
 func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection, paymentRequest *models.PaymentRequest, requestedAt time.Time) (*models.PaymentRequest, error) {
 	// Verify that the MTO ID exists
-	//
+	if paymentRequest.MoveTaskOrderID == uuid.Nil {
+		return nil, services.NewInvalidCreateInputError(nil, "Invalid Create Input Error: MoveTaskOrderID is required on PaymentRequest create")
+	}
+
 	// Lock on the parent row to keep multiple transactions from getting this count at the same time
 	// for the same move_id.  This should block if another payment request comes in for the
 	// same move_id.  Payment requests for other move_ids should run concurrently.
@@ -210,6 +219,36 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 			return nil, services.NewNotFoundError(paymentRequest.MoveTaskOrderID, msg)
 		}
 		return nil, fmt.Errorf("could not retrieve Move with ID [%s]: %w", paymentRequest.MoveTaskOrderID, err)
+	}
+
+	// Verify the Orders on the MTO
+	tx.Load(&moveTaskOrder, "Orders")
+	// Verify that the Orders has LOA
+	if moveTaskOrder.Orders.TAC == nil || *moveTaskOrder.Orders.TAC == "" {
+		return nil, services.NewConflictError(moveTaskOrder.OrdersID, fmt.Sprintf("Orders on MoveTaskOrder (ID: %s) missing Lines of Accounting TAC", moveTaskOrder.ID))
+	}
+	// Verify that the Orders have OriginDutyStation
+	if moveTaskOrder.Orders.OriginDutyStationID == nil {
+		return nil, services.NewConflictError(moveTaskOrder.OrdersID, fmt.Sprintf("Orders on MoveTaskOrder (ID: %s) missing OriginDutyStation", moveTaskOrder.ID))
+	}
+	// Verify that ServiceMember is Valid
+	tx.Load(&moveTaskOrder.Orders, "ServiceMember")
+	serviceMember := moveTaskOrder.Orders.ServiceMember
+	// Verify First Name
+	if serviceMember.FirstName == nil || *serviceMember.FirstName == "" {
+		return nil, services.NewConflictError(moveTaskOrder.Orders.ServiceMemberID, fmt.Sprintf("ServiceMember on MoveTaskOrder (ID: %s) missing First Name", moveTaskOrder.ID))
+	}
+	// Verify Last Name
+	if serviceMember.LastName == nil || *serviceMember.LastName == "" {
+		return nil, services.NewConflictError(moveTaskOrder.Orders.ServiceMemberID, fmt.Sprintf("ServiceMember on MoveTaskOrder (ID: %s) missing Last Name", moveTaskOrder.ID))
+	}
+	// Verify Rank
+	if serviceMember.Rank == nil {
+		return nil, services.NewConflictError(moveTaskOrder.Orders.ServiceMemberID, fmt.Sprintf("ServiceMember on MoveTaskOrder (ID: %s) missing Rank", moveTaskOrder.ID))
+	}
+	// Verify Affiliation
+	if serviceMember.Affiliation == nil {
+		return nil, services.NewConflictError(moveTaskOrder.Orders.ServiceMemberID, fmt.Sprintf("ServiceMember on MoveTaskOrder (ID: %s) missing Affiliation", moveTaskOrder.ID))
 	}
 
 	// Update PaymentRequest

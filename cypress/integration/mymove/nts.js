@@ -24,11 +24,28 @@ describe('Customer NTS Setup flow', function () {
     cy.apiSignInAsUser(ntsUser);
     customerEditsNTSShipmentFromHomePage();
   });
+
+  it('Submits an NTS shipment from homepage', function () {
+    cy.apiSignInAsUser(ntsUser);
+    customerVisitsReviewPage();
+    customerSubmitsNTSShipmentMoveFromHomePage();
+  });
 });
+
+function customerSubmitsNTSShipmentMoveFromHomePage() {
+  cy.nextPage();
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/agreement/);
+  });
+  cy.get('.wizard-header').should('not.exist');
+
+  cy.get('input[name="signature"]').type('Jane Doe');
+  cy.completeFlow();
+}
 
 function customerEditsNTSShipmentFromHomePage() {
   cy.get('[data-testid="shipment-list-item-container"]').contains('NTS').click();
-  cy.get('input[data-testid="remarks"]').clear().type('Warning: glass').blur();
+  cy.get('textarea[data-testid="remarks"]').clear().type('Warning: glass').blur();
 
   cy.get('button').contains('Save').click();
   cy.location().should((loc) => {
@@ -60,7 +77,7 @@ function customerEditsNTSShipment() {
   cy.get('button[data-testid="edit-nts-shipment-btn"]').contains('Edit').click();
   cy.get('input[name="pickup.requestedDate"]').clear().type('12/25/2020').blur();
   cy.get('input[data-testid="lastName"]').clear().type('Bourne').blur();
-  cy.get('input[data-testid="remarks"]').clear().type('Handle with care').blur();
+  cy.get('textarea[data-testid="remarks"]').clear().type('Handle with care').blur();
   cy.get('button').contains('Save').click();
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);

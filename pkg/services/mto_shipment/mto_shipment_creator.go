@@ -21,6 +21,7 @@ type createMTOShipmentQueryBuilder interface {
 	FetchOne(model interface{}, filters []services.QueryFilter) error
 	CreateOne(model interface{}) (*validate.Errors, error)
 	Transaction(fn func(tx *pop.Connection) error) error
+	UpdateOne(model interface{}, eTag *string) (*validate.Errors, error)
 }
 
 type mtoShipmentCreator struct {
@@ -123,8 +124,8 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 				return fmt.Errorf("failed to create pickup address %#v %e", verrs, err)
 			}
 			shipment.PickupAddressID = &shipment.PickupAddress.ID
-		} else if shipment.ShipmentType == models.MTOShipmentTypeHHG {
-			return services.NewInvalidInputError(uuid.Nil, nil, nil, "PickupAddress is required to create an HHG type MTO shipment")
+		} else if shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
+			return services.NewInvalidInputError(uuid.Nil, nil, nil, "PickupAddress is required to create an HHG or NTS type MTO shipment")
 		}
 
 		if shipment.DestinationAddress != nil {
@@ -136,8 +137,8 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 		}
 
 		// check that required items to create shipment are present
-		if shipment.RequestedPickupDate == nil {
-			return services.NewInvalidInputError(uuid.Nil, nil, nil, "RequestedPickupDate is required to create MTO shipment")
+		if shipment.RequestedPickupDate.IsZero() && shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
+			return services.NewInvalidInputError(uuid.Nil, nil, nil, "RequestedPickupDate is required to create an HHG or NTS type MTO shipment")
 		}
 
 		//assign status to shipment draft by default
@@ -158,6 +159,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 
 			for _, agent := range shipment.MTOAgents {
 				agent.MTOShipmentID = shipment.ID
+				// #nosec G601 TODO needs review
 				verrs, err = txBuilder.CreateOne(&agent)
 				if verrs != nil && verrs.HasAny() {
 					return verrs
@@ -177,6 +179,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(shipment *models.MTOShipment, serv
 			for _, serviceItem := range shipment.MTOServiceItems {
 				serviceItem.MTOShipmentID = &shipment.ID
 				serviceItem.MoveTaskOrderID = shipment.MoveTaskOrderID
+				// #nosec G601 TODO needs review
 				verrs, err = txBuilder.CreateOne(&serviceItem)
 				if verrs != nil && verrs.HasAny() {
 					return verrs

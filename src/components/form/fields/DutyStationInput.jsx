@@ -11,6 +11,9 @@ export const DutyStationInput = (props) => {
   const { label, name, displayAddress } = props;
   //  no-unused-vars
   const [field, meta, helpers] = useField(props);
+
+  const errorString = meta.value?.name ? meta.error?.name || meta.error : '';
+
   return (
     <DutyStationSearchBox
       title={label}
@@ -18,8 +21,9 @@ export const DutyStationInput = (props) => {
       input={{
         value: field.value,
         onChange: helpers.setValue,
+        name,
       }}
-      errorMsg={meta.error}
+      errorMsg={errorString}
       displayAddress={displayAddress}
     />
   );

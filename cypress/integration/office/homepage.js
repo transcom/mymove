@@ -38,13 +38,13 @@ describe('Office authorization', () => {
 
   it('redirects TOO to TOO homepage', () => {
     cy.signInAsNewTOOUser();
-    cy.contains('All Customer Moves');
+    cy.contains('All moves');
     cy.url().should('eq', officeBaseURL + '/');
   });
 
   it('redirects TIO to TIO homepage', () => {
     cy.signInAsNewTIOUser();
-    cy.contains('Payment Requests');
+    cy.contains('Payment requests');
     cy.url().should('eq', officeBaseURL + '/');
   });
 
@@ -59,14 +59,14 @@ describe('Office authorization', () => {
       cy.removeFetch();
       cy.server();
       cy.route('GET', '/ghc/v1/swagger.yaml').as('getGHCClient');
-      cy.route('GET', '/ghc/v1/move-orders').as('getMoveOrders');
-      cy.route('GET', '/ghc/v1/payment-requests').as('getPaymentRequests');
+      cy.route('GET', '/ghc/v1/queues/moves?**').as('getMoveOrders');
+      cy.route('GET', '/ghc/v1/queues/payment-requests?**').as('getPaymentRequests');
     });
 
     it('can switch between TOO & TIO roles', () => {
       cy.signInAsMultiRoleOfficeUser();
       cy.wait(['@getGHCClient', '@getMoveOrders']);
-      cy.contains('All Customer Moves'); // TOO home
+      cy.contains('All moves'); // TOO home
 
       cy.contains('Change user role').click();
       cy.url().should('contain', '/select-application');
@@ -74,14 +74,14 @@ describe('Office authorization', () => {
       cy.contains('Select transportation_invoicing_officer').click();
       cy.url().should('eq', officeBaseURL + '/');
       cy.wait('@getPaymentRequests');
-      cy.contains('Payment Requests');
+      cy.contains('Payment requests');
 
       cy.contains('Change user role').click();
       cy.url().should('contain', '/select-application');
       cy.contains('Select transportation_ordering_officer').click();
       cy.wait('@getMoveOrders');
       cy.url().should('eq', officeBaseURL + '/');
-      cy.contains('All Customer Moves');
+      cy.contains('All moves');
     });
   });
 });

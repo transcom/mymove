@@ -8,7 +8,7 @@ package payment_service_item
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // UpdatePaymentServiceItemStatusHandlerFunc turns a function with the right signature into a update payment service item status handler

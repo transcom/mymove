@@ -8,14 +8,14 @@ package adminmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // AccessCode access code
+//
 // swagger:model AccessCode
 type AccessCode struct {
 
@@ -85,7 +85,7 @@ const (
 
 // prop value enum
 func (m *AccessCode) validateMoveTypeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, accessCodeTypeMoveTypePropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, accessCodeTypeMoveTypePropEnum, true); err != nil {
 		return err
 	}
 	return nil

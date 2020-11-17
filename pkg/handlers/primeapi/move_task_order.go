@@ -1,6 +1,8 @@
 package primeapi
 
 import (
+	"fmt"
+
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 	"github.com/transcom/mymove/pkg/services"
 
@@ -39,6 +41,7 @@ type UpdateMTOPostCounselingInformationHandler struct {
 	handlers.HandlerContext
 	services.Fetcher
 	services.MoveTaskOrderUpdater
+	mtoAvailabilityChecker services.MoveTaskOrderChecker
 }
 
 // Handle updates to move task order post-counseling
@@ -47,6 +50,13 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 	mtoID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 	eTag := params.IfMatch
 	logger.Info("primeapi.UpdateMTOPostCounselingInformationHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
+	mtoAvailableToPrime, err := h.mtoAvailabilityChecker.MTOAvailableToPrime(mtoID)
+
+	if !mtoAvailableToPrime {
+		logger.Error("primeapi.UpdateMTOPostCounselingInformationHandler error - MTO is not available to Prime")
+		return movetaskorderops.NewUpdateMTOPostCounselingInformationNotFound().WithPayload(payloads.ClientError(
+			handlers.NotFoundMessage, fmt.Sprintf("id: %s not found for moveTaskOrder", mtoID), h.GetTraceID()))
+	}
 
 	mto, err := h.MoveTaskOrderUpdater.UpdatePostCounselingInfo(mtoID, params.Body, eTag)
 	if err != nil {

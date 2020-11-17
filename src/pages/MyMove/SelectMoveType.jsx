@@ -6,7 +6,6 @@ import { string, bool, func, arrayOf, shape } from 'prop-types';
 
 import styles from './SelectMoveType.module.scss';
 
-import wizardStyles from 'pages/MyMove/index.module.scss';
 import { updateMove as updateMoveAction } from 'scenes/Moves/ducks';
 import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
 import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
@@ -18,12 +17,14 @@ import {
 } from 'shared/Entities/modules/mtoShipments';
 import { MoveTaskOrderShape, MTOShipmentShape } from 'types/moveOrder';
 import ConnectedStorageInfoModal from 'components/Customer/modals/StorageInfoModal/StorageInfoModal';
+import ConnectedMoveInfoModal from 'components/Customer/modals/MoveInfoModal/MoveInfoModal';
 
 export class SelectMoveType extends Component {
   constructor(props) {
     super(props);
     this.state = {
       showStorageInfoModal: false,
+      showMoveInfoModal: false,
     };
   }
 
@@ -42,6 +43,12 @@ export class SelectMoveType extends Component {
     }));
   };
 
+  toggleMoveInfoModal = () => {
+    this.setState((state) => ({
+      showMoveInfoModal: !state.showMoveInfoModal,
+    }));
+  };
+
   handleSubmit = () => {
     const { match, updateMove } = this.props;
     const { moveType } = this.state;
@@ -50,7 +57,7 @@ export class SelectMoveType extends Component {
 
   render() {
     const { pageKey, pageList, match, push, move, mtoShipments } = this.props;
-    const { moveType, showStorageInfoModal } = this.state;
+    const { moveType, showStorageInfoModal, showMoveInfoModal } = this.state;
     const hasNTS = mtoShipments.some((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.NTS);
     const hasNTSR = mtoShipments.some((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.NTSR);
     const isMoveDraft = move.status === MOVE_STATUSES.DRAFT;
@@ -92,6 +99,7 @@ export class SelectMoveType extends Component {
         cardText={ppmCardText}
         checked={moveType === SHIPMENT_OPTIONS.PPM}
         disabled={false}
+        onHelpClick={this.toggleMoveInfoModal}
       />
     );
     const ppmDisabledCard = (
@@ -103,6 +111,7 @@ export class SelectMoveType extends Component {
         cardText={ppmCardTextAlreadyChosen}
         checked={false}
         disabled={!isPpmSelectable}
+        onHelpClick={this.toggleMoveInfoModal}
       />
     );
     const hhgEnabledCard = (
@@ -114,6 +123,7 @@ export class SelectMoveType extends Component {
         cardText={hhgCardText}
         checked={moveType === SHIPMENT_OPTIONS.HHG}
         disabled={false}
+        onHelpClick={this.toggleMoveInfoModal}
       />
     );
     const hhgDisabledCard = (
@@ -125,6 +135,7 @@ export class SelectMoveType extends Component {
         cardText={hhgCardTextPostSubmit}
         checked={false}
         disabled={!isHhgSelectable}
+        onHelpClick={this.toggleMoveInfoModal}
       />
     );
     const footerText = (
@@ -138,70 +149,61 @@ export class SelectMoveType extends Component {
       </div>
     );
     return (
-      <div className={`grid-container ${wizardStyles.gridContainer} ${styles.gridContainer}`}>
-        <div className="grid-row">
-          <div className="tablet:grid-col-2 desktop:grid-col-2" />
-          <div className="tablet:grid-col-8 desktop:grid-col-8">
-            <WizardPage
-              pageKey={pageKey}
-              match={match}
-              pageList={pageList}
-              dirty
-              handleSubmit={this.handleSubmit}
-              push={push}
-              footerText={footerText}
-              canMoveNext={canMoveNext}
-            >
-              <h6 data-testid="number-eyebrow" className="sm-heading">
-                Shipment {shipmentNumber}
-              </h6>
-              <h1
-                className={`sm-heading ${styles.selectTypeHeader} ${styles.header}`}
-                data-testid="select-move-type-header"
-              >
-                {shipmentNumber > 1
-                  ? 'How do you want this group of things moved?'
-                  : 'How do you want to move your belongings?'}
-              </h1>
-              <h2>Choose 1 shipment at a time.</h2>
-              <p>You can add more later</p>
-              {isPpmSelectable ? ppmEnabledCard : ppmDisabledCard}
-              {isHhgSelectable ? hhgEnabledCard : hhgDisabledCard}
-              <h3 data-testid="long-term-storage-heading">Long-term storage</h3>
-              {!isNtsSelectable && !isNtsrSelectable ? (
-                <p className={styles.pSmall}>{noLongTermStorageCardsText}</p>
-              ) : (
-                <>
-                  <p>These shipments do count against your weight allowance for this move.</p>
-                  <SelectableCard
-                    {...selectableCardDefaultProps}
-                    label="Put things into long-term storage"
-                    value={SHIPMENT_OPTIONS.NTS}
-                    id={SHIPMENT_OPTIONS.NTS}
-                    cardText={isNtsSelectable ? ntsCardText : ntsDisabledText}
-                    checked={moveType === SHIPMENT_OPTIONS.NTS && isNtsSelectable}
-                    disabled={!isNtsSelectable}
-                    onHelpClick={this.toggleStorageModal}
-                  />
-                  <SelectableCard
-                    {...selectableCardDefaultProps}
-                    label="Get things out of long-term storage"
-                    value={SHIPMENT_OPTIONS.NTSR}
-                    id={SHIPMENT_OPTIONS.NTSR}
-                    cardText={isNtsrSelectable ? ntsrCardText : ntsrDisabledText}
-                    checked={moveType === SHIPMENT_OPTIONS.NTSR && isNtsrSelectable}
-                    disabled={!isNtsrSelectable}
-                    onHelpClick={this.toggleStorageModal}
-                  />
-                </>
-              )}
-            </WizardPage>
-          </div>
-          <div className="tablet:grid-col-2" />
-        </div>
-
+      <>
+        <WizardPage
+          pageKey={pageKey}
+          match={match}
+          pageList={pageList}
+          dirty
+          handleSubmit={this.handleSubmit}
+          push={push}
+          footerText={footerText}
+          canMoveNext={canMoveNext}
+        >
+          <h6 data-testid="number-eyebrow" className="sm-heading">
+            Shipment {shipmentNumber}
+          </h6>
+          <h1 className={`${styles.selectTypeHeader} ${styles.header}`} data-testid="select-move-type-header">
+            {shipmentNumber > 1
+              ? 'How do you want this group of things moved?'
+              : 'How do you want to move your belongings?'}
+          </h1>
+          <h2>Choose 1 shipment at a time.</h2>
+          <p>You can add more later</p>
+          {isPpmSelectable ? ppmEnabledCard : ppmDisabledCard}
+          {isHhgSelectable ? hhgEnabledCard : hhgDisabledCard}
+          <h3 data-testid="long-term-storage-heading">Long-term storage</h3>
+          {!isNtsSelectable && !isNtsrSelectable ? (
+            <p className={styles.pSmall}>{noLongTermStorageCardsText}</p>
+          ) : (
+            <>
+              <p>These shipments do count against your weight allowance for this move.</p>
+              <SelectableCard
+                {...selectableCardDefaultProps}
+                label="Put things into long-term storage"
+                value={SHIPMENT_OPTIONS.NTS}
+                id={SHIPMENT_OPTIONS.NTS}
+                cardText={isNtsSelectable ? ntsCardText : ntsDisabledText}
+                checked={moveType === SHIPMENT_OPTIONS.NTS && isNtsSelectable}
+                disabled={!isNtsSelectable}
+                onHelpClick={this.toggleStorageModal}
+              />
+              <SelectableCard
+                {...selectableCardDefaultProps}
+                label="Get things out of long-term storage"
+                value={SHIPMENT_OPTIONS.NTSR}
+                id={SHIPMENT_OPTIONS.NTSR}
+                cardText={isNtsrSelectable ? ntsrCardText : ntsrDisabledText}
+                checked={moveType === SHIPMENT_OPTIONS.NTSR && isNtsrSelectable}
+                disabled={!isNtsrSelectable}
+                onHelpClick={this.toggleStorageModal}
+              />
+            </>
+          )}
+        </WizardPage>
+        <ConnectedMoveInfoModal isOpen={showMoveInfoModal} closeModal={this.toggleMoveInfoModal} />
         <ConnectedStorageInfoModal isOpen={showStorageInfoModal} closeModal={this.toggleStorageModal} />
-      </div>
+      </>
     );
   }
 }

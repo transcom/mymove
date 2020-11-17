@@ -6,9 +6,9 @@ import (
 
 // N1 represents the N1 EDI segment
 type N1 struct {
-	EntityIdentifierCode        string `validate:"oneof=SF RG RH"`
+	EntityIdentifierCode        string `validate:"oneof=BY SE ST SF RG RH"`
 	Name                        string `validate:"min=1,max=60"`
-	IdentificationCodeQualifier string `validate:"required_with=IdentificationCode,omitempty,eq=27"`
+	IdentificationCodeQualifier string `validate:"required_with=IdentificationCode,omitempty,oneof=2 10 27 92"`
 	IdentificationCode          string `validate:"required_with=IdentificationCodeQualifier,omitempty,min=2,max=80"`
 }
 

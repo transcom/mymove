@@ -67,7 +67,7 @@ describe('MtoShipmentForm component', () => {
       expect(createHhgWrapper.find('DatePickerInput').length).toBe(2);
       expect(createHhgWrapper.find('AddressFields').length).toBe(1);
       expect(createHhgWrapper.find('ContactInfoFields').length).toBe(2);
-      expect(createHhgWrapper.find('input[name="customerRemarks"]').length).toBe(1);
+      expect(createHhgWrapper.find('Field[name="customerRemarks"]').length).toBe(1);
     });
 
     it('does not render special NTS What to expect section', () => {
@@ -103,8 +103,8 @@ describe('MtoShipmentForm component', () => {
       expect(wrapper.find('DatePickerInput').length).toBe(2);
       expect(wrapper.find('AddressFields').length).toBe(2);
       expect(wrapper.find('ContactInfoFields').length).toBe(2);
-      expect(wrapper.find('input[name="customerRemarks"]').length).toBe(1);
-      expect(wrapper.find('TextInput[name="customerRemarks"]').prop('value')).toEqual(mockMtoShipment.customerRemarks);
+      expect(wrapper.find('Field[name="customerRemarks"]').length).toBe(1);
+      expect(wrapper.find('Field[name="customerRemarks"]').prop('value')).toEqual(mockMtoShipment.customerRemarks);
       expect(wrapper.find('Field[name="delivery.address.street_address_1"]').prop('value')).toContain(
         mockMtoShipment.destinationAddress.street_address_1,
       );
@@ -119,7 +119,7 @@ describe('MtoShipmentForm component', () => {
       expect(createNtsWrapper.find('DatePickerInput').length).toBe(1);
       expect(createNtsWrapper.find('AddressFields').length).toBe(1);
       expect(createNtsWrapper.find('ContactInfoFields').length).toBe(1);
-      expect(createNtsWrapper.find('input[name="customerRemarks"]').length).toBe(1);
+      expect(createNtsWrapper.find('Field[name="customerRemarks"]').length).toBe(1);
     });
 
     it('renders special NTS What to expect section', () => {
@@ -135,7 +135,7 @@ describe('MtoShipmentForm component', () => {
       expect(createNtsrWrapper.find('DatePickerInput').length).toBe(1);
       expect(createNtsrWrapper.find('AddressFields').length).toBe(0);
       expect(createNtsrWrapper.find('ContactInfoFields').length).toBe(1);
-      expect(createNtsrWrapper.find('input[name="customerRemarks"]').length).toBe(1);
+      expect(createNtsrWrapper.find('Field[name="customerRemarks"]').length).toBe(1);
     });
 
     it('does not render special NTS What to expect section', () => {

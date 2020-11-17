@@ -3,10 +3,11 @@ package testdatagen
 import (
 	"fmt"
 	"log"
-	"math/rand"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/random"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -26,7 +27,12 @@ const defaultPayeeCode = "2708"
 func RandomSCAC() string {
 	b := make([]byte, 4)
 	for i := range b {
-		b[i] = alphanumericBytes[rand.Intn(len(alphanumericBytes))]
+		randInt, err := random.GetRandomInt(len(alphanumericBytes))
+		if err != nil {
+			log.Panicf("failed to create random SCAC %v", err)
+			return ""
+		}
+		b[i] = alphanumericBytes[randInt]
 	}
 	return string(b)
 }

@@ -8,7 +8,7 @@ package office
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // ApprovePPMHandlerFunc turns a function with the right signature into a approve p p m handler

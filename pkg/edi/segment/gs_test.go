@@ -7,7 +7,7 @@ import (
 func (suite *SegmentSuite) TestValidateGS() {
 	validGS := GS{
 		FunctionalIdentifierCode: "SI",
-		ApplicationSendersCode:   "MYMOVE",
+		ApplicationSendersCode:   "MILMOVE",
 		ApplicationReceiversCode: "8004171844",
 		Date:                     "20190903",
 		Time:                     "1617",
@@ -24,10 +24,10 @@ func (suite *SegmentSuite) TestValidateGS() {
 	suite.T().Run("validate failure 1", func(t *testing.T) {
 		gs := GS{
 			FunctionalIdentifierCode: "XX",        // eq
-			ApplicationSendersCode:   "XXXXXX",    // eq
+			ApplicationSendersCode:   "XXXXX",     // eq
 			ApplicationReceiversCode: "123456789", // eq
-			Date:                     "20190945",  // timeformat
-			Time:                     "2517",      // timeformat
+			Date:                     "20190945",  // datetime
+			Time:                     "2517",      // datetime
 			GroupControlNumber:       0,           // min
 			ResponsibleAgencyCode:    "Y",         // eq
 			Version:                  "123456",    // eq
@@ -37,8 +37,8 @@ func (suite *SegmentSuite) TestValidateGS() {
 		suite.ValidateError(err, "FunctionalIdentifierCode", "eq")
 		suite.ValidateError(err, "ApplicationSendersCode", "eq")
 		suite.ValidateError(err, "ApplicationReceiversCode", "eq")
-		suite.ValidateError(err, "Date", "timeformat")
-		suite.ValidateError(err, "Time", "timeformat")
+		suite.ValidateError(err, "Date", "datetime")
+		suite.ValidateError(err, "Time", "datetime")
 		suite.ValidateError(err, "GroupControlNumber", "min")
 		suite.ValidateError(err, "ResponsibleAgencyCode", "eq")
 		suite.ValidateError(err, "Version", "eq")

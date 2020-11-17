@@ -165,19 +165,17 @@ func checkConfig(v *viper.Viper) error {
 	return nil
 }
 
-func createTLSConfig(clientKey []byte, clientCert []byte, ca []byte, insecureSkipVerify bool) (*tls.Config, error) {
+func createTLSConfig(clientKey []byte, clientCert []byte, ca []byte) (*tls.Config, error) {
 
 	keyPair, err := tls.X509KeyPair(clientCert, clientKey)
 	if err != nil {
 		return nil, err
 	}
 
-	// #nosec b/c gosec triggers on InsecureSkipVerify
 	tlsConfig := &tls.Config{
-		Certificates:       []tls.Certificate{keyPair},
-		InsecureSkipVerify: insecureSkipVerify,
-		MinVersion:         tls.VersionTLS12,
-		MaxVersion:         tls.VersionTLS13,
+		Certificates: []tls.Certificate{keyPair},
+		MinVersion:   tls.VersionTLS12,
+		MaxVersion:   tls.VersionTLS13,
 	}
 
 	if len(ca) > 0 {
@@ -232,7 +230,7 @@ func createHTTPClient(v *viper.Viper, logger *zap.Logger) (*http.Client, error) 
 		}
 
 		var tlsConfigErr error
-		tlsConfig, tlsConfigErr = createTLSConfig([]byte(clientKey), []byte(clientCert), caBytes, false)
+		tlsConfig, tlsConfigErr = createTLSConfig([]byte(clientKey), []byte(clientCert), caBytes)
 		if tlsConfigErr != nil {
 			return nil, errors.Wrap(tlsConfigErr, "error creating TLS config")
 		}
@@ -263,7 +261,7 @@ func createHTTPClient(v *viper.Viper, logger *zap.Logger) (*http.Client, error) 
 				caBytes = content
 			}
 			var tlsConfigErr error
-			tlsConfig, tlsConfigErr = createTLSConfig(clientKey, clientCert, caBytes, false)
+			tlsConfig, tlsConfigErr = createTLSConfig(clientKey, clientCert, caBytes)
 			if tlsConfigErr != nil {
 				return nil, errors.Wrap(tlsConfigErr, "error creating TLS config")
 			}

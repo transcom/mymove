@@ -17,3 +17,21 @@ export function formatOrderType(orderType) {
 export function formatCustomerDate(date) {
   return moment(date).format('DD MMM YYYY');
 }
+
+export function formatSignatureDate(date) {
+  return moment(date).format('YYYY-MM-DD');
+}
+
+// Translate boolean (true/false) into "yes"/"no" string
+export const formatYesNoInputValue = (value) => {
+  if (value === true) return 'yes';
+  if (value === false) return 'no';
+  return null;
+};
+
+// Translate "yes"/"no" string into boolean (true/false)
+export const formatYesNoAPIValue = (value) => {
+  if (value === 'yes') return true;
+  if (value === 'no') return false;
+  return undefined;
+};

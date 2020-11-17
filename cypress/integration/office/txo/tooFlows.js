@@ -9,7 +9,7 @@ describe('TOO user', () => {
     cy.removeFetch();
     cy.server();
     cy.route('GET', '/ghc/v1/swagger.yaml').as('getGHCClient');
-    cy.route('GET', '/ghc/v1/move-orders').as('getMoveOrders');
+    cy.route('GET', '/ghc/v1/queues/moves?**').as('getMoveOrders');
     cy.route('GET', '/ghc/v1/move-orders/**/move-task-orders').as('getMoveTaskOrders');
     cy.route('GET', '/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
     cy.route('GET', '/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
@@ -25,9 +25,10 @@ describe('TOO user', () => {
   // This test performs a mutation so it can only succeed on a fresh DB.
   it('is able to approve a shipment', () => {
     const moveOrderId = '6fca843a-a87e-4752-b454-0fac67aa4988';
+    const moveLocator = 'TEST12';
 
     // TOO Moves queue
-    cy.contains(moveOrderId).click();
+    cy.contains(moveLocator).click();
     cy.url().should('include', `/moves/${moveOrderId}/details`);
 
     // Move Details page
@@ -79,9 +80,10 @@ describe('TOO user', () => {
 
   it('is able to approve and reject mto service items', () => {
     const moveOrderId = '6fca843a-a87e-4752-b454-0fac67aa4988';
+    const moveLocator = 'TEST12';
 
     // TOO Moves queue
-    cy.contains(moveOrderId).click();
+    cy.contains(moveLocator).click();
     cy.url().should('include', `/moves/${moveOrderId}/details`);
     cy.get('[data-testid="MoveTaskOrder-Tab"]').click();
     cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);

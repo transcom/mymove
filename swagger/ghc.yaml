@@ -95,41 +95,6 @@ paths:
       description: Returns a given move
       summary: Returns a given move
       operationId: getMove
-  /move-orders:
-    get:
-      produces:
-        - application/json
-      parameters: []
-      responses:
-        '200':
-          description: Successfully retrieved all move orders
-          schema:
-            $ref: '#/definitions/MoveOrders'
-        '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
-        '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
-        '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
-      tags:
-        - moveOrder
-      description: Gets all move orders
-      operationId: listMoveOrders
-      summary: Gets all move orders
   '/move-orders/{moveOrderID}':
     parameters:
       - description: ID of customer to use
@@ -907,38 +872,6 @@ paths:
       description: Gets entitlements
       operationId: getEntitlements
       summary: Gets entitlements for a move order by ID
-  /payment-requests:
-    get:
-      produces:
-        - application/json
-      parameters: []
-      responses:
-        '200':
-          description: fetched list of payment requests
-          schema:
-            $ref: '#/definitions/PaymentRequests'
-        '401':
-          description: The request was denied
-          schema:
-            $ref: '#/definitions/Error'
-        '403':
-          description: The request was denied
-          schema:
-            $ref: '#/definitions/Error'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
-        '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/definitions/Error'
-      tags:
-        - paymentRequests
-        - gov
-      description: Gets a list of payment requests
-      operationId: listPaymentRequests
-      summary: Gets payment requests
   '/payment-requests/{paymentRequestID}':
     parameters:
       - description: UUID of payment request
@@ -1102,6 +1035,14 @@ paths:
         - queues
       parameters:
         - in: query
+          name: page
+          type: integer
+          description: requested page of results
+        - in: query
+          name: perPage
+          type: integer
+          description: results per page
+        - in: query
           name: branch
           type: string
         - in: query
@@ -1124,9 +1065,9 @@ paths:
           items:
             type: string
             enum:
-              - New move
-              - Approvals requested
-              - Move approved
+              - SUBMITTED
+              - APPROVALS REQUESTED
+              - APPROVED
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -1150,6 +1091,44 @@ paths:
       operationId: getPaymentRequestsQueue
       tags:
         - queues
+      parameters:
+        - in: query
+          name: page
+          type: integer
+          description: requested page of results
+        - in: query
+          name: perPage
+          type: integer
+          description: number of records to include per page
+        - in: query
+          name: submittedAt
+          type: string
+        - in: query
+          name: branch
+          type: string
+        - in: query
+          name: moveID
+          type: string
+        - in: query
+          name: lastName
+          type: string
+        - in: query
+          name: dodID
+          type: string
+        - in: query
+          name: destinationDutyStation
+          type: string
+        - in: query
+          name: status
+          type: array
+          description: Filtering for the status.
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+              - Payment requested
+              - Reviewed
+              - Paid
       responses:
         '200':
           description: Successfully returned all moves matching the criteria

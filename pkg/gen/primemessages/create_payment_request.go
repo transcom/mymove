@@ -8,14 +8,14 @@ package primemessages
 import (
 	"strconv"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // CreatePaymentRequest create payment request
+//
 // swagger:model CreatePaymentRequest
 type CreatePaymentRequest struct {
 

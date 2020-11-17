@@ -8,7 +8,7 @@ require (
 	github.com/99designs/keyring v1.1.6
 	github.com/alexedwards/scs/redisstore v0.0.0-20200225172727-3308e1066830
 	github.com/alexedwards/scs/v2 v2.4.0
-	github.com/aws/aws-sdk-go v1.35.7
+	github.com/aws/aws-sdk-go v1.35.27
 	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
@@ -19,15 +19,16 @@ require (
 	github.com/getlantern/deepcopy v0.0.0-20160317154340-7f45deb8130a
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
 	github.com/go-ini/ini v1.49.0 // indirect
-	github.com/go-openapi/errors v0.19.4
+	github.com/go-openapi/errors v0.19.6
 	github.com/go-openapi/loads v0.19.5
-	github.com/go-openapi/runtime v0.19.15
-	github.com/go-openapi/spec v0.19.9
-	github.com/go-openapi/strfmt v0.19.6
-	github.com/go-openapi/swag v0.19.10
-	github.com/go-openapi/validate v0.19.8
+	github.com/go-openapi/runtime v0.19.23
+	github.com/go-openapi/spec v0.19.11
+	github.com/go-openapi/strfmt v0.19.7
+	github.com/go-openapi/swag v0.19.11
+	github.com/go-openapi/validate v0.19.10
 	github.com/go-playground/locales v0.13.0
 	github.com/go-playground/universal-translator v0.17.0
+	github.com/go-playground/validator/v10 v10.4.1
 	github.com/gobuffalo/envy v1.9.0
 	github.com/gobuffalo/fizz v1.13.0
 	github.com/gobuffalo/flect v0.2.2
@@ -49,7 +50,7 @@ require (
 	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/leodido/go-urn v1.2.0
 	github.com/lib/pq v1.8.0
-	github.com/markbates/goth v1.65.0
+	github.com/markbates/goth v1.66.0
 	github.com/mattn/go-shellwords v1.0.6 // indirect
 	github.com/mitchellh/mapstructure v1.3.3
 	github.com/namsral/flag v1.7.4-pre
@@ -72,10 +73,8 @@ require (
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
 	golang.org/x/net v0.0.0-20200930145003-4acb6c075d10
 	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
-	golang.org/x/text v0.3.3
+	golang.org/x/text v0.3.4
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
-	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
-	gopkg.in/go-playground/validator.v9 v9.31.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
 	gopkg.in/urfave/cli.v1 v1.20.0 // indirect
 	pault.ag/go/pksigner v1.0.2

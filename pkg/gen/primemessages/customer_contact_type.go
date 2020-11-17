@@ -8,13 +8,13 @@ package primemessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
 // CustomerContactType Describes a customer contact type for a MTOServiceItemDomesticDestSIT.
+//
 // swagger:model CustomerContactType
 type CustomerContactType string
 
@@ -41,7 +41,7 @@ func init() {
 }
 
 func (m CustomerContactType) validateCustomerContactTypeEnum(path, location string, value CustomerContactType) error {
-	if err := validate.Enum(path, location, value, customerContactTypeEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, customerContactTypeEnum, true); err != nil {
 		return err
 	}
 	return nil

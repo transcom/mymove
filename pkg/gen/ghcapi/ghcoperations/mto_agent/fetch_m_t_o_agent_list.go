@@ -8,7 +8,7 @@ package mto_agent
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // FetchMTOAgentListHandlerFunc turns a function with the right signature into a fetch m t o agent list handler

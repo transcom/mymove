@@ -8,7 +8,7 @@ package moves
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // ShowShipmentSummaryWorksheetHandlerFunc turns a function with the right signature into a show shipment summary worksheet handler

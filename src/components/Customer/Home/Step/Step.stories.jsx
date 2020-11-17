@@ -109,11 +109,10 @@ export const ConfirmMove = () => (
     <h3>Confirm move</h3>
     <Step
       complete={boolean('Complete', false)}
-      completedHeaderText={text('Complete Header Text', 'Shipments')}
-      headerText={text('Header Text', 'Confirm and move request')}
+      completedHeaderText={text('Complete Header Text', 'Move request confirmed')}
+      headerText={text('Header Text', 'Confirm move request')}
       step={text('Step', '4')}
       actionBtnLabel="Review and submit"
-      actionBtnDisabled
     >
       <p>
         {
@@ -121,6 +120,23 @@ export const ConfirmMove = () => (
           'Review your move details and sign the legal paperwork, then send the info on to your move counselor')
         }
       </p>
+    </Step>
+  </div>
+);
+
+export const MoveSubmitted = () => (
+  <div className="grid-container">
+    <h3>Move submitted</h3>
+    <Step
+      complete={boolean('Complete', true)}
+      completedHeaderText={text('Complete Header Text', 'Move request confirmed')}
+      headerText={text('Header Text', 'Review your request')}
+      step={text('Step', '4')}
+      actionBtnLabel="Review your request"
+      secondaryBtn
+      secondaryBtnStyle={{ boxShadow: 'inset 0 0 0 2px #0050d8' }}
+    >
+      <p>{(text('Description'), 'Move submitted 03 Nov 2020')}</p>
     </Step>
   </div>
 );

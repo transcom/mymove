@@ -8,15 +8,15 @@ package ordersmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
 // TourType Accompanied or Unaccompanied; i.e., are dependents authorized to accompany the service member on the move. For certain OCONUS destinations, the tour type affects the member's entitlement. Otherwise, it doesn't matter.
 //
 // If omitted, assume accompanied.
+//
 //
 // swagger:model TourType
 type TourType string
@@ -47,7 +47,7 @@ func init() {
 }
 
 func (m TourType) validateTourTypeEnum(path, location string, value TourType) error {
-	if err := validate.Enum(path, location, value, tourTypeEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, tourTypeEnum, true); err != nil {
 		return err
 	}
 	return nil

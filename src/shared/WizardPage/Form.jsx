@@ -1,16 +1,18 @@
-import React, { Component } from 'react'; //
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import windowSize from 'react-window-size';
 import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router-dom';
 import { push } from 'connected-react-router';
-import Alert from 'shared/Alert'; //
+import { reduxForm } from 'redux-form';
+import { Button } from '@trussworks/react-uswds';
+
+import Alert from 'shared/Alert';
 import generatePath from './generatePath';
 import './index.css';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
-import { reduxForm } from 'redux-form';
-import scrollToTop from 'shared/scrollToTop';
+import styles from 'components/Customer/WizardNavigation/WizardNavigation.module.scss';
+import ScrollToTop from 'components/ScrollToTop';
 
 import { getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage, beforeTransition } from './utils';
 
@@ -29,21 +31,14 @@ export class WizardFormPage extends Component {
 
   componentDidUpdate(prevProps) {
     if (this.props.additionalValues) {
-      /*  security/detect-object-injection */
-
       Object.keys(this.props.additionalValues).forEach((key) => {
-        if (this.props.additionalValues[key] !== prevProps.additionalValues[key]) {
-          this.props.change(key, this.props.additionalValues[key]);
+        if (this.props.additionalValues[`${key}`] !== prevProps.additionalValues[`${key}`]) {
+          this.props.change(key, this.props.additionalValues[`${key}`]);
         }
       });
     }
-    /* eslint-enable security/detect-object-injection */
+  }
 
-    if (this.props.serverError) scrollToTop();
-  }
-  componentDidMount() {
-    scrollToTop();
-  }
   goto(path) {
     const {
       push,
@@ -98,9 +93,10 @@ export class WizardFormPage extends Component {
     const hideBackBtn = isFirstPage(pageList, pageKey);
     return (
       <div className="grid-container usa-prose">
+        <ScrollToTop otherDep={serverError} />
         {serverError && (
           <div className="grid-row">
-            <div className="grid-col-12 error-message">
+            <div className="desktop:grid-col-8 desktop:grid-offset-2 error-message">
               <Alert type="error" heading="An error occurred">
                 {serverError.message}
               </Alert>
@@ -108,45 +104,48 @@ export class WizardFormPage extends Component {
           </div>
         )}
         <div className="grid-row">
-          <div className="grid-col">
+          <div className="grid-col desktop:grid-col-8 desktop:grid-offset-2">
             <form className={className}>{children}</form>
           </div>
         </div>
-        <div className="grid-row" style={{ marginTop: '0.5rem' }}>
-          <div className="grid-col-12 text-right margin-top-6 margin-left-neg-1 tablet:margin-top-3">
-            <div className="display-flex">
+        <div className="grid-row" style={{ marginTop: '24px' }}>
+          <div className="grid-col desktop:grid-col-8 desktop:grid-offset-2">
+            <div className={styles.WizardNavigation}>
               {!hideBackBtn && (
-                <button
-                  className="usa-button usa-button--secondary margin-right-0"
+                <Button
+                  type="button"
+                  secondary
+                  className={styles.button}
                   onClick={hasReduxFormSubmitHandler ? handleSubmit(this.previousPage) : this.previousPage}
                   disabled={!canMoveBackward}
                   data-testid="wizardBackButton"
                 >
                   Back
-                </button>
+                </Button>
               )}
-              {!isLastPage(pageList, pageKey) && (
-                <button
-                  className="usa-button margin-right-0"
+
+              {isLastPage(pageList, pageKey) ? (
+                <Button
+                  type="button"
+                  className={styles.button}
+                  onClick={hasReduxFormSubmitHandler ? handleSubmit(this.submit) : this.submit}
+                  disabled={!canMoveForward}
+                  data-testid="wizardCompleteButton"
+                >
+                  Complete
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  className={styles.button}
                   onClick={hasReduxFormSubmitHandler ? handleSubmit(this.nextPage) : this.nextPage}
                   disabled={!canMoveForward}
                   data-testid="wizardNextButton"
                 >
                   Next
-                </button>
+                </Button>
               )}
             </div>
-
-            {isLastPage(pageList, pageKey) && (
-              <button
-                className="usa-button margin-right-0"
-                onClick={hasReduxFormSubmitHandler ? handleSubmit(this.submit) : this.submit}
-                disabled={!canMoveForward}
-                data-testid="wizardCompleteButton"
-              >
-                Complete
-              </button>
-            )}
           </div>
         </div>
       </div>
@@ -166,7 +165,6 @@ WizardFormPage.propTypes = {
   match: PropTypes.object, //from withRouter
   additionalParams: PropTypes.object,
   additionalValues: PropTypes.object, // These values are passed into the form with change()
-  windowWidth: PropTypes.number,
   discardOnBack: PropTypes.bool,
 };
 
@@ -186,8 +184,6 @@ function composeValidations(initialValidations, additionalValidations) {
   };
 }
 
-const wizardFormPageWithSize = windowSize(WizardFormPage);
-
 export const reduxifyWizardForm = (name, additionalValidations, asyncValidate, asyncBlurFields) => {
   let validations = validateRequiredFields;
   if (additionalValidations) {
@@ -200,5 +196,5 @@ export const reduxifyWizardForm = (name, additionalValidations, asyncValidate, a
     asyncBlurFields,
     enableReinitialize: true,
     keepDirtyOnReinitialize: true,
-  })(withRouter(connect(null, mapDispatchToProps)(wizardFormPageWithSize)));
+  })(withRouter(connect(null, mapDispatchToProps)(WizardFormPage)));
 };
