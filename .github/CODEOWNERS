@@ -20,3 +20,10 @@
 *.stories.jsx @transcom/truss-design @suzubara
 *.css @transcom/truss-design @suzubara
 *.scss @transcom/truss-design @suzubara
+
+# Require team Pamplemoose to review changes to configs that may affect cATO static analysis compliancy
+.golangci.yaml @Truss-Pamplemoose
+.pre-commit-config.yaml @Truss-Pamplemoose
+.circleci/config.yml @Truss-Pamplemoose
+
+

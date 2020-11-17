@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 import * as child from 'child_process';
 
 /* eslint-disable import/no-extraneous-dependencies */
@@ -65,6 +66,29 @@ View the [frontend file org ADR](https://github.com/transcom/mymove/blob/master/
     const message = 'Changes were made to package.json, but not to yarn.lock';
     const idea = 'Perhaps you need to run `yarn install`?';
     warn(`${message} - <i>${idea}</i>`);
+  }
+};
+
+const bypassingLinterChecks = async () => {
+  // load all modified and new files
+  const allFiles = danger.git.modified_files.concat(danger.git.created_files);
+  const bypassString = '#nosec';
+  let includesBypassString = false;
+
+  // Go though all files and search for added bypass strings
+  for (let file = 0; file < allFiles.length; file += 1) {
+    // eslint-disable-next-line security/detect-object-injection
+    const fileDiff = await danger.git.diffForFile(allFiles[file]);
+    if (fileDiff.diff.includes(bypassString)) {
+      includesBypassString = true;
+      break;
+    }
+  }
+  if (includesBypassString === true) {
+    warn(
+      `It looks like you are attempting to bypass a linter rule, which is not a sustainable solution to meet
+      security compliance rules.`,
+    );
   }
 };
 
@@ -166,4 +190,5 @@ if (!danger.github || (danger.github && danger.github.pr.user.login !== 'dependa
   fileChecks();
   checkYarnAudit();
   cypressUpdateChecks();
+  bypassingLinterChecks();
 }
