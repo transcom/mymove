@@ -18,7 +18,7 @@ const (
 
 	//RA Summary: gosec - G101 - Password Management: Hardcoded Password
 	//RA: This line was flagged because of use of the word "secret"
-	//RA: This line is used to identify the name of the flag.
+	//RA: This line is used to identify the name of the flag. DPSAuthSecretKeyFlag is the DPS Auth Secret Key Flag.
 	//RA: The value of this variable does not identify the actual secret, so is not a risk.
 	//RA Developer Status: False Positive
 	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
@@ -36,14 +36,14 @@ const (
 
 	//RA Summary: gosec - G101 - Password Management: Hardcoded Password
 	//RA: This line was flagged because of use of the word "secret"
-	//RA: This line is used to identify the name of the flag.
+	//RA: This line is used to identify the name of the flag. DPSAuthCookieSecretKeyFlag is the DPS Auth Cookie Secret Key Flag
 	//RA: The value of this variable does not identify the actual secret, so is not a risk.
 	//RA Developer Status: False Positive
 	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
 	//RA Validator: jneuner@mitre.org
 	//RA Modified Severity:
 
-	// DPSAuthCookieSecretKeyFlag is the DPS Auth Cookie Scret Key Flag // #nosec G101
+	// DPSAuthCookieSecretKeyFlag is the DPS Auth Cookie Secret Key Flag // #nosec G101
 	DPSAuthCookieSecretKeyFlag string = "dps-auth-cookie-secret-key"
 	// DPSCookieExpiresInMinutesFlag is the DPS Cookie Expires In Minutes Flag
 	DPSCookieExpiresInMinutesFlag string = "dps-cookie-expires-in-minutes"

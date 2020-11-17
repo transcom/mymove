@@ -11,6 +11,15 @@ import (
 const (
 	// GEXBasicAuthUsernameFlag is the GEX Basic Auth Username Flag
 	GEXBasicAuthUsernameFlag string = "gex-basic-auth-username"
+	//RA Summary: gosec - G101 - Password Management: Hardcoded Password
+	//RA: This line was flagged because of use of the word "password"
+	//RA: This line is used to identify the name of the flag. GEXBasicAuthPasswordFlag is the GEX Basic Auth Password Flag.
+	//RA: This value of this variable does not identify the actual password, so is not a risk.
+	//RA Developer Status: False Positive
+	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+	//RA Validator: jneuner@mitre.org
+	//RA Modified Severity:
+
 	// GEXBasicAuthPasswordFlag is the GEX Basic Auth Password Flag #nosec G101
 	GEXBasicAuthPasswordFlag string = "gex-basic-auth-password"
 	// GEXSendProdInvoiceFlag is the GEX Send Prod Invoice Flag

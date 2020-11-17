@@ -13,7 +13,7 @@ import (
 const (
 	//RA Summary: gosec - G101 - Password Management: Hardcoded Password
 	//RA: This line was flagged because of use of the word "secret"
-	//RA: This line is used to identify the name of the flag.
+	//RA: This line is used to identify the name of the flag. ClientAuthSecretKeyFlag is the Client Auth Secret Key Flag.
 	//RA: This value of this variable does not identify the actual secret, so is not a risk.
 	//RA Developer Status: False Positive
 	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
