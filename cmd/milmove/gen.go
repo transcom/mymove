@@ -77,7 +77,18 @@ func writeEmptyFile(migrationPath, filename string) error {
 	}
 	path := filepath.Join(migrationPath, filename)
 
-	// #nosec G306 TODO needs review
+	//RA Summary: gosec - G306 - Privilege Management: Unnecessary Permission
+	//RA: The linter expects WriteFile permissions to be 0600 or less and here it is 0644.
+	//RA: This code is used to set the permissions on migration files.
+	//RA: Permissions of 600 mean that the owner has full read and write access to the file, while no other user can access the file.
+	//RA: Permissions of 644 mean that the owner of the file has read and write access, while the group members and other users on the system only have read access.
+	//RA: In this situation, we do not want any changes to migration files once they have been deployed, and changes to the db should happen in a new migration.
+	//RA: Therefore, 644 is the appropriate permission level in this case.
+	//RA Developer Status: Mitigated
+	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+	//RA Validator: jneuner@mitre.org
+	//RA Modified Severity:
+	// #nosec G306
 	err := ioutil.WriteFile(path, []byte{}, 0644)
 	if err != nil {
 		return errors.Wrap(err, "could not write new migration file")
