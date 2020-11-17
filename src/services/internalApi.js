@@ -41,3 +41,16 @@ export async function createServiceMember(serviceMember = {}) {
     { normalize: false },
   );
 }
+
+export async function patchServiceMember(serviceMember) {
+  return makeInternalRequest(
+    'service_members.patchServiceMember',
+    {
+      serviceMemberId: serviceMember.id,
+      patchServiceMemberPayload: serviceMember,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
