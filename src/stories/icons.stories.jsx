@@ -63,7 +63,7 @@ export const all = () => (
         <FontAwesomeIcon icon={faPen} />
         <code>edit | faPen</code>
       </div>
-    <div>
+      <div>
         <FontAwesomeIcon icon={faPlus} />
         <code>add | faPlus</code>
       </div>
