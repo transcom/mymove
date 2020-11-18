@@ -1,9 +1,10 @@
 import React from 'react';
 import { string, arrayOf, shape } from 'prop-types';
 
-import styles from './DocsUploaded.module.scss';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFile } from '@fortawesome/free-solid-svg-icons';
 
-import { ReactComponent as DocsIcon } from 'shared/icon/documents.svg';
+import styles from './DocsUploaded.module.scss';
 
 const DocsUploaded = ({ files }) => (
   <div className={styles['doc-list-container']} data-testid="doc-list-container">
@@ -12,7 +13,7 @@ const DocsUploaded = ({ files }) => (
     </h6>
     {files.map((file) => (
       <div key={file.filename} className={styles['doc-list-item']}>
-        <DocsIcon className={styles['docs-icon']} />
+        <FontAwesomeIcon icon={faFile} className={styles['docs-icon']} />
         {file.filename}
       </div>
     ))}
