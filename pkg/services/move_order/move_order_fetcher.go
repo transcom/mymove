@@ -53,8 +53,9 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 	lastNameQuery := lastNameFilter(params.LastName)
 	dutyStationQuery := destinationDutyStationFilter(params.DestinationDutyStation)
 	moveStatusQuery := moveStatusFilter(params.Status)
+	sortOrderQuery := sortOrder(params.Sort, params.Order)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [7]FilterOption{branchQuery, moveIDQuery, dodIDQuery, lastNameQuery, dutyStationQuery, moveStatusQuery, gblocQuery}
+	options := [8]FilterOption{branchQuery, moveIDQuery, dodIDQuery, lastNameQuery, dutyStationQuery, moveStatusQuery, gblocQuery, sortOrderQuery}
 
 	query := f.db.Q().Eager(
 		"Orders.ServiceMember",
@@ -67,8 +68,7 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
 		InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
 		InnerJoin("duty_stations", "orders.origin_duty_station_id = duty_stations.id").
-		InnerJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id").
-		Order("status desc")
+		InnerJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id")
 
 	for _, option := range options {
 		if option != nil {
@@ -213,5 +213,16 @@ func moveStatusFilter(statuses []string) FilterOption {
 func gblocFilter(gbloc string) FilterOption {
 	return func(query *pop.Query) {
 		query = query.Where("transportation_offices.gbloc = ?", gbloc)
+	}
+}
+
+func sortOrder(sort *string, order *string) FilterOption {
+	return func(query *pop.Query) {
+		// If we have a sort and order defined let's use it. Otherwise we'll use our default status desc sort order.
+		if sort != nil && order != nil {
+			query = query.Order(fmt.Sprintf("%s %s", *sort, *order))
+		} else {
+			query = query.Order("status desc")
+		}
 	}
 }

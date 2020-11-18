@@ -1,6 +1,7 @@
 package moveorder
 
 import (
+	"sort"
 	"testing"
 
 	"github.com/gofrs/uuid"
@@ -264,4 +265,34 @@ func (suite *MoveOrderServiceSuite) TestListMovesWithPagination() {
 	suite.Equal(1, len(moves))
 	suite.Equal(2, count)
 
+}
+
+func (suite *MoveOrderServiceSuite) TestListMovesWithSortOrder() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	var expectedMoveLocators []string
+	for i := 0; i < 2; i++ {
+		expectedMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusSUBMITTED}})
+
+		// Only moves with shipments are returned, so we need to add a shipment
+		// to the move we just created
+		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: expectedMove,
+			MTOShipment: models.MTOShipment{
+				Status: models.MTOShipmentStatusSubmitted,
+			},
+		})
+
+		expectedMoveLocators = append(expectedMoveLocators, expectedMove.Locator)
+	}
+
+	sort.Strings(expectedMoveLocators)
+
+	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
+	params := services.ListMoveOrderParams{Page: swag.Int64(1), PerPage: swag.Int64(2), Sort: swag.String("locator"), Order: swag.String("asc")}
+	moves, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+
+	suite.NoError(err)
+	suite.Equal(2, len(moves))
+	suite.Equal(expectedMoveLocators[0], moves[0].Locator)
+	suite.Equal(expectedMoveLocators[1], moves[1].Locator)
 }

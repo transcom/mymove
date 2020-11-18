@@ -1043,6 +1043,15 @@ paths:
           type: integer
           description: results per page
         - in: query
+          name: sort
+          type: string
+          description: field that results should be sorted by
+        - in: query
+          name: order
+          type: string
+          enum: [ asc, desc ]
+          description: direction of sort order if applied
+        - in: query
           name: branch
           type: string
         - in: query
