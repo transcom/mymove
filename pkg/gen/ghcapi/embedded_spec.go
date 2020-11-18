@@ -3112,6 +3112,9 @@ func init() {
     "QueuePaymentRequestsResult": {
       "type": "object",
       "properties": {
+        "order": {
+          "type": "boolean"
+        },
         "page": {
           "type": "integer"
         },
@@ -3120,6 +3123,9 @@ func init() {
         },
         "queuePaymentRequests": {
           "$ref": "#/definitions/QueuePaymentRequests"
+        },
+        "sort": {
+          "type": "string"
         },
         "totalCount": {
           "type": "integer"
@@ -6933,6 +6939,9 @@ func init() {
     "QueuePaymentRequestsResult": {
       "type": "object",
       "properties": {
+        "order": {
+          "type": "boolean"
+        },
         "page": {
           "type": "integer"
         },
@@ -6941,6 +6950,9 @@ func init() {
         },
         "queuePaymentRequests": {
           "$ref": "#/definitions/QueuePaymentRequests"
+        },
+        "sort": {
+          "type": "string"
         },
         "totalCount": {
           "type": "integer"

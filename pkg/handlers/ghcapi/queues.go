@@ -107,6 +107,16 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 		Order:                  params.Order,
 	}
 
+	if params.Sort == nil {
+		sortBy := "created_at"
+		listPaymentRequestParams.Sort = &sortBy
+	}
+
+	if params.Order == nil {
+		orderBy := true
+		listPaymentRequestParams.Order = &orderBy
+	}
+
 	// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
 	// for perPage.
 	if params.Page == nil {
@@ -133,6 +143,8 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 		Page:                 int64(*listPaymentRequestParams.Page),
 		PerPage:              int64(*listPaymentRequestParams.PerPage),
 		QueuePaymentRequests: *queuePaymentRequests,
+		Sort:                 *listPaymentRequestParams.Sort,
+		Order:                *listPaymentRequestParams.Order,
 	}
 
 	return queues.NewGetPaymentRequestsQueueOK().WithPayload(result)

@@ -16,6 +16,9 @@ import (
 // swagger:model QueuePaymentRequestsResult
 type QueuePaymentRequestsResult struct {
 
+	// order
+	Order bool `json:"order,omitempty"`
+
 	// page
 	Page int64 `json:"page,omitempty"`
 
@@ -24,6 +27,9 @@ type QueuePaymentRequestsResult struct {
 
 	// queue payment requests
 	QueuePaymentRequests QueuePaymentRequests `json:"queuePaymentRequests,omitempty"`
+
+	// sort
+	Sort string `json:"sort,omitempty"`
 
 	// total count
 	TotalCount int64 `json:"totalCount,omitempty"`
