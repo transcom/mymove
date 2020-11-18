@@ -43,9 +43,11 @@ func createPPMOfficeUser(db *pop.Connection) {
 
 	email := "ppm_role@office.mil"
 	userID := uuid.Must(uuid.FromString("9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b"))
+	loginGovUUID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            userID,
+			LoginGovUUID:  &loginGovUUID,
 			LoginGovEmail: email,
 			Active:        true,
 			Roles:         []roles.Role{ppmOfficeRole},
@@ -64,9 +66,11 @@ func createPPMWithAdvance(db *pop.Connection, userUploader *uploader.UserUploade
 	 */
 	email := "ppm@incomple.te"
 	uuidStr := "e10d5964-c070-49cb-9bd1-eaf9f7348eb6"
+	loginGovUUID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovUUID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -103,9 +107,11 @@ func createPPMWithNoAdvance(db *pop.Connection, userUploader *uploader.UserUploa
 	 */
 	email := "ppm@advance.no"
 	uuidStr := "f0ddc118-3f7e-476b-b8be-0f964a5feee2"
+	loginGovUUID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovUUID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -138,9 +144,11 @@ func createPPMWithPaymentRequest(db *pop.Connection, userUploader *uploader.User
 	 */
 	email := "ppm@paymentrequest.ed"
 	uuidStr := "1842091b-b9a0-4d4a-ba22-1e2f38f26317"
+	loginGovUUID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovUUID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -187,9 +195,11 @@ func createCanceledPPM(db *pop.Connection, userUploader *uploader.UserUploader) 
 	 */
 	email := "ppm-canceled@example.com"
 	uuidStr := "20102768-4d45-449c-a585-81bc386204b1"
+	loginGovUUID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovUUID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -224,10 +234,12 @@ func createServiceMemberWithOrdersButNoMoveType(db *pop.Connection) {
 	 */
 	email := "sm_no_move_type@example.com"
 	uuidStr := "9ceb8321-6a82-4f6d-8bb3-a1d85922a202"
+	loginGovUUID := uuid.Must(uuid.NewV4())
 
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovUUID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -255,9 +267,11 @@ func createServiceMemberWithNoUploadedOrders(db *pop.Connection) {
 	 */
 	email := "needs@orde.rs"
 	uuidStr := "feac0e92-66ec-4cab-ad29-538129bf918e"
+	loginGovUUID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovUUID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -280,10 +294,12 @@ func createMoveWithPPMAndHHG(db *pop.Connection, userUploader *uploader.UserUplo
 	 */
 	email := "combo@ppm.hhg"
 	uuidStr := "6016e423-f8d5-44ca-98a8-af03c8445c94"
+	loginGovUUID := uuid.Must(uuid.NewV4())
 
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovUUID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -374,10 +390,12 @@ func createUnsubmittedHHGMove(db *pop.Connection) {
 	 */
 	email := "hhg@only.unsubmitted"
 	uuidStr := "f08146cf-4d6b-43d5-9ca5-c8d239d37b3e"
+	loginGovUUID := uuid.Must(uuid.NewV4())
 
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovUUID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -429,10 +447,12 @@ func createUnsubmittedMoveWithNTSAndNTSR(db *pop.Connection) {
 	 */
 	email := "nts@ntsr.unsubmitted"
 	uuidStr := "583cfbe1-cb34-4381-9e1f-54f68200da1b"
+	loginGovUUID := uuid.Must(uuid.NewV4())
 
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovUUID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -515,12 +535,14 @@ func createPPMReadyToRequestPayment(db *pop.Connection, userUploader *uploader.U
 	 */
 	email := "ppm@requestingpayment.newflow"
 	uuidStr := "745e0eba-4028-4c78-a262-818b00802748"
+	loginGovUUID := uuid.Must(uuid.NewV4())
 	typeDetail := internalmessages.OrdersTypeDetailPCSTDY
 	pastTime := nextValidMoveDateMinusTen
 
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovUUID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -1177,9 +1199,11 @@ func createTOO(db *pop.Connection) {
 
 	email := "too_role@office.mil"
 	tooUUID := uuid.Must(uuid.FromString("dcf86235-53d3-43dd-8ee8-54212ae3078f"))
+	loginGovUUID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            tooUUID,
+			LoginGovUUID:  &loginGovUUID,
 			LoginGovEmail: email,
 			Active:        true,
 			Roles:         []roles.Role{tooRole},
@@ -1205,9 +1229,11 @@ func createTIO(db *pop.Connection) {
 
 	email := "tio_role@office.mil"
 	tioUUID := uuid.Must(uuid.FromString("3b2cc1b0-31a2-4d1b-874f-0591f9127374"))
+	loginGovUUID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            tioUUID,
+			LoginGovUUID:  &loginGovUUID,
 			LoginGovEmail: email,
 			Active:        true,
 			Roles:         []roles.Role{tioRole},
@@ -1239,9 +1265,11 @@ func createTXO(db *pop.Connection) {
 	}
 
 	tooTioUUID := uuid.Must(uuid.FromString("9bda91d2-7a0c-4de1-ae02-b8cf8b4b858b"))
+	loginGovUUID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            tooTioUUID,
+			LoginGovUUID:  &loginGovUUID,
 			LoginGovEmail: email,
 			Active:        true,
 			Roles:         []roles.Role{tooRole, tioRole},
