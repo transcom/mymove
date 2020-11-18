@@ -87,7 +87,7 @@ const bypassingLinterChecks = async () => {
   if (addedByPassCode === true) {
     warn(
       `It looks like you are attempting to bypass a linter rule, which is not a sustainable solution to meet
-      security compliance rules. Please remove the bypass code and address the underlying issue. cc: @Truss-Pamplemoose`,
+      security compliance rules. Please remove the bypass code and address the underlying issue. cc: @transcom/Truss-Pamplemoose`,
     );
   }
 };
