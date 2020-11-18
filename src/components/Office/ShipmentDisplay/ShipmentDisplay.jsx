@@ -1,14 +1,14 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
 import { Checkbox } from '@trussworks/react-uswds';
-import { ReactComponent as CheckmarkIcon } from 'shared/icon/checkbox--unchecked.svg';
+import { faCheckCircle } from '@fortawesome/free-regular-svg-icons';
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 
 import ShipmentContainer from '../ShipmentContainer';
 import { AddressShape } from '../../../types/address';
 
 import styles from './ShipmentDisplay.module.scss';
 
-import { ReactComponent as ChevronDown } from 'shared/icon/chevron-down.svg';
 import { formatAddress } from 'utils/shipmentDisplay';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatDate } from 'shared/dates';
@@ -28,9 +28,9 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
               value={shipmentId}
             />
           )}
-          {!isSubmitted && <CheckmarkIcon />}
+          {!isSubmitted && <FontAwesomeIcon icon={faCheckCircle} />}
           <h3>{displayInfo.heading}</h3>
-          <ChevronDown />
+          <FontAwesomeIcon icon={faChevronDown e} />
         </div>
         <dl>
           <div className={styles.row}>
