@@ -20,7 +20,7 @@ type GetPaymentRequestsQueueURL struct {
 	DodID                  *string
 	LastName               *string
 	MoveID                 *string
-	Order                  *bool
+	Order                  *string
 	Page                   *int64
 	PerPage                *int64
 	Sort                   *string
@@ -103,7 +103,7 @@ func (o *GetPaymentRequestsQueueURL) Build() (*url.URL, error) {
 
 	var orderQ string
 	if o.Order != nil {
-		orderQ = swag.FormatBool(*o.Order)
+		orderQ = *o.Order
 	}
 	if orderQ != "" {
 		qs.Set("order", orderQ)

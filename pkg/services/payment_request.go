@@ -62,5 +62,5 @@ type FetchPaymentRequestListParams struct {
 	PerPage                *int64
 	SubmittedAt            *string
 	Sort                   *string
-	Order                  *bool
+	Order                  *string
 }

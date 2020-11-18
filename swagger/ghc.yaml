@@ -1097,7 +1097,8 @@ paths:
           type: string
         - in: query
           name: order
-          type: boolean
+          type: string
+          enum: [ asc, desc ]
         - in: query
           name: page
           type: integer

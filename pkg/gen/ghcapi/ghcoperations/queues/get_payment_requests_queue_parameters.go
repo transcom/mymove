@@ -56,7 +56,7 @@ type GetPaymentRequestsQueueParams struct {
 	/*
 	  In: query
 	*/
-	Order *bool
+	Order *string
 	/*requested page of results
 	  In: query
 	*/
@@ -255,11 +255,21 @@ func (o *GetPaymentRequestsQueueParams) bindOrder(rawData []string, hasKey bool,
 		return nil
 	}
 
-	value, err := swag.ConvertBool(raw)
-	if err != nil {
-		return errors.InvalidType("order", "query", "bool", raw)
+	o.Order = &raw
+
+	if err := o.validateOrder(formats); err != nil {
+		return err
 	}
-	o.Order = &value
+
+	return nil
+}
+
+// validateOrder carries on validations for parameter Order
+func (o *GetPaymentRequestsQueueParams) validateOrder(formats strfmt.Registry) error {
+
+	if err := validate.EnumCase("order", "query", *o.Order, []interface{}{"asc", "desc"}, true); err != nil {
+		return err
+	}
 
 	return nil
 }

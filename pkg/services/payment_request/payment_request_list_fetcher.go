@@ -16,9 +16,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-const asc = "asc"
-const desc = "desc"
-
 type paymentRequestListFetcher struct {
 	db *pop.Connection
 }
@@ -48,7 +45,6 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
 		InnerJoin("duty_stations", "duty_stations.id = orders.origin_duty_station_id").
 		InnerJoin("transportation_offices", "transportation_offices.id = duty_stations.transportation_office_id")
-	queryOrder(query, params.Sort, params.Order)
 
 	branchQuery := branchFilter(params.Branch)
 	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
@@ -65,7 +61,9 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 	dutyStationQuery := destinationDutyStationFilter(params.DestinationDutyStation)
 	statusQuery := paymentRequestsStatusFilter(params.Status)
 	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
-	options := [8]FilterOption{branchQuery, moveIDQuery, dodIDQuery, lastNameQuery, dutyStationQuery, statusQuery, submittedAtQuery, gblocQuery}
+	orderQuery := queryOrder(params.Sort, params.Order)
+
+	options := [9]FilterOption{branchQuery, moveIDQuery, dodIDQuery, lastNameQuery, dutyStationQuery, statusQuery, submittedAtQuery, gblocQuery, orderQuery}
 
 	for _, option := range options {
 		if option != nil {
@@ -107,13 +105,14 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 	return &paymentRequests, count, nil
 }
 
-func queryOrder(query *pop.Query, sort *string, order *bool) *pop.Query {
-	sortOrder := desc
-	if *order {
-		sortOrder = asc
+func queryOrder(sort *string, order *string) FilterOption {
+	return func(query *pop.Query) {
+		if sort != nil && order != nil {
+			query = query.Order(fmt.Sprintf("%s %s", *sort, *order))
+		} else {
+			query = query.Order("created_at asc")
+		}
 	}
-	orderQuery := fmt.Sprintf("%s %s", *sort, sortOrder)
-	return query.Order(orderQuery)
 }
 
 func branchFilter(branch *string) FilterOption {

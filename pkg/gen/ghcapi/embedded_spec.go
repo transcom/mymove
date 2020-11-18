@@ -1624,7 +1624,11 @@ func init() {
             "in": "query"
           },
           {
-            "type": "boolean",
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
             "name": "order",
             "in": "query"
           },
@@ -5445,7 +5449,11 @@ func init() {
             "in": "query"
           },
           {
-            "type": "boolean",
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
             "name": "order",
             "in": "query"
           },
