@@ -1,8 +1,8 @@
 import React from 'react';
 import { Button } from '@trussworks/react-uswds';
 
-import { ReactComponent as ChevronLeft } from '../../shared/icon/chevron-left.svg';
-import { ReactComponent as ChevronRight } from '../../shared/icon/chevron-right.svg';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 
 const QueueTable = () => (
   <div className="table--queue">
@@ -78,7 +78,7 @@ const QueueTable = () => (
       <div className="tcontrol--pagination">
         <Button disabled className="usa-button--unstyled">
           <span className="icon">
-            <ChevronLeft />
+            <FontAwesomeIcon icon={faChevronLeft} />
           </span>
           <span>Prev</span>
         </Button>
@@ -90,7 +90,7 @@ const QueueTable = () => (
         <Button className="usa-button--unstyled">
           <span>Next</span>
           <span className="icon">
-            <ChevronRight />
+            <FontAwesomeIcon icon={faChevronRight} />
           </span>
         </Button>
       </div>
