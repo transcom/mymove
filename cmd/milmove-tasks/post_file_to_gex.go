@@ -120,8 +120,11 @@ func postFileToGEX(cmd *cobra.Command, args []string) error {
 		logger.Fatal("Error in getting tls certs", zap.Error(err))
 	}
 
-	// #nosec G402 TODO needs review
-	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs}
+	tlsConfig := &tls.Config{
+		Certificates: certificates,
+		RootCAs:      rootCAs,
+		MinVersion:   tls.VersionTLS12,
+	}
 
 	filename := foramtFilename("filename")
 	urlWithFilename := fmt.Sprintf("%s&fname=%s", v.GetString("gex-url"), filename)

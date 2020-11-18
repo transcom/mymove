@@ -120,8 +120,7 @@ func main() {
 		log.Fatal("Error in getting tls certs", err)
 	}
 
-	// #nosec G402 TODO needs review
-	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs}
+	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
 
 	logger.Println("Sending to GEX ...")
 	resp, err := invoice.NewGexSenderHTTP(

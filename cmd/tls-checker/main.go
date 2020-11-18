@@ -124,6 +124,7 @@ func createTLSConfig(clientKey []byte, clientCert []byte, ca []byte, tlsVersion 
 		return nil, err
 	}
 
+	// TODO: annotate
 	// #nosec G402 TODO needs review
 	tlsConfig := &tls.Config{
 		Certificates: []tls.Certificate{keyPair},
