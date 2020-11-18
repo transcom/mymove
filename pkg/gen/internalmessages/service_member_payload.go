@@ -48,10 +48,6 @@ type ServiceMemberPayload struct {
 	// First name
 	FirstName *string `json:"first_name,omitempty"`
 
-	// has social security number
-	// Required: true
-	HasSocialSecurityNumber *bool `json:"has_social_security_number"`
-
 	// id
 	// Required: true
 	// Format: uuid
@@ -137,10 +133,6 @@ func (m *ServiceMemberPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateEdipi(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateHasSocialSecurityNumber(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -296,15 +288,6 @@ func (m *ServiceMemberPayload) validateEdipi(formats strfmt.Registry) error {
 	}
 
 	if err := validate.Pattern("edipi", "body", string(*m.Edipi), `^\d{10}$`); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *ServiceMemberPayload) validateHasSocialSecurityNumber(formats strfmt.Registry) error {
-
-	if err := validate.Required("has_social_security_number", "body", m.HasSocialSecurityNumber); err != nil {
 		return err
 	}
 

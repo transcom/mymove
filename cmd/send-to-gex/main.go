@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/spf13/pflag"
@@ -92,7 +93,7 @@ func main() {
 
 	ediFile := v.GetString("edi")
 
-	file, err := os.Open(ediFile) // #nosec
+	file, err := os.Open(filepath.Clean(ediFile))
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -443,6 +443,8 @@ paths:
           description: The requested resource wasn't found.
           schema:
             $ref: '#/definitions/ClientError'
+        '409':
+          $ref: '#/responses/Conflict'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
@@ -752,12 +754,6 @@ definitions:
       eTag:
         type: string
         readOnly: true
-  CustomerContactType:
-    description: Describes a customer contact type for a MTOServiceItemDomesticDestSIT.
-    type: string
-    enum:
-      - FIRST
-      - SECOND
   DimensionType:
     description: Describes a dimension type for a MTOServiceItemDimension.
     type: string
@@ -1049,8 +1045,7 @@ definitions:
             description: Service code allowed for this model type.
             enum:
               - DDFSIT # Domestic Destination First Day SIT
-          type:
-            $ref: '#/definitions/CustomerContactType'
+              - DDASIT # Domestic Destination Additional SIT
           timeMilitary1:
             type: string
             example: 1400Z
@@ -1069,12 +1064,17 @@ definitions:
             format: date
             type: string
             description: Second available date that Prime can deliver SIT service item.
+          sitEntryDate:
+            format: date
+            type: string
+            description: Entry date for the SIT
         required:
           - reServiceCode
           - timeMilitary1
           - firstAvailableDeliveryDate1
           - timeMilitary2
           - firstAvailableDeliveryDate2
+          - sitEntryDate
   MTOServiceItemDimension:
     description: Describes a dimension object for the MTOServiceItem.
     type: object
@@ -1115,6 +1115,7 @@ definitions:
             description: Service code allowed for this model type.
             enum:
               - DOFSIT # Domestic Origin First Day SIT
+              - DOASIT # Domestic Origin Additional SIT
           reason:
             type: string
             example: Storage items need to be picked up
@@ -1124,10 +1125,21 @@ definitions:
             format: zip
             example: "90210"
             pattern: '^(\d{5}([\-]\d{4})?)$'
+          sitPostalCode:
+            type: string
+            format: zip
+            example: "90210"
+            pattern: '^(\d{5}([\-]\d{4})?)$'
+          sitEntryDate:
+            format: date
+            type: string
+            description: Entry date for the SIT
         required:
           - reServiceCode
           - reason
+          - sitPostalCode
           - pickupPostalCode
+          - sitEntryDate
   MTOServiceItemDomesticCrating: # spectral oas2-unused-definition is OK here due to polymorphism
     description: Describes a domestic crating/uncrating service item subtype of a MTOServiceItem.
     allOf:
@@ -1168,6 +1180,7 @@ definitions:
       - MTOServiceItemDDFSIT
       - MTOServiceItemShuttle
       - MTOServiceItemDomesticCrating
+      - MTOServiceItemSITDeparture
   MTOServiceItemShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
     description: Describes a shuttle service item.
     allOf:
@@ -1192,6 +1205,22 @@ definitions:
           - reason
           - reServiceCode
           - description
+  MTOServiceItemSITDeparture:
+    description: Describes a SIT service item departure, a subtype of the MTOServiceItem.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: Service code allowed for this model type.
+            enum:
+              - DDDSIT # Domestic Destination SIT Delivery
+              - DOPSIT # Domestic Origin SIT Pickup
+          sitDepartureDate:
+            format: date
+            type: string
+            description: Departure date for SIT
   MTOServiceItemStatus:
     description: Describes all statuses for a MTOServiceItem.
     type: string

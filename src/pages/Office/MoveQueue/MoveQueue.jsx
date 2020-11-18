@@ -1,21 +1,14 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React from 'react';
 import { withRouter } from 'react-router-dom';
-import { GridContainer } from '@trussworks/react-uswds';
-import { useTable, useFilters } from 'react-table';
-
-import styles from './MoveQueue.module.scss';
 
 import { HistoryShape } from 'types/router';
-import Table from 'components/Table/Table';
 import { createHeader } from 'components/Table/utils';
-import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useMovesQueueQueries } from 'hooks/queries';
 import { serviceMemberAgencyLabel } from 'shared/formatters';
-import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import { BRANCH_OPTIONS, MOVE_STATUS_OPTIONS } from 'constants/queues';
+import TableQueue from 'components/Table/TableQueue';
 
 const moveStatusOptions = Object.keys(MOVE_STATUS_OPTIONS).map((key) => ({
   value: key,
@@ -76,71 +69,19 @@ const columns = [
 ];
 
 const MoveQueue = ({ history }) => {
-  const [paramFilters, setParamFilters] = useState([]);
-
-  const {
-    queueMovesResult: { totalCount = 0, queueMoves = [] },
-    isLoading,
-    isError,
-  } = useMovesQueueQueries(paramFilters);
-
-  // react-table setup below
-
-  const defaultColumn = useMemo(
-    () => ({
-      // Let's set up our default Filter UI
-      Filter: TextBoxFilter,
-    }),
-    [],
-  );
-  const tableData = useMemo(() => queueMoves, [queueMoves]);
-  const tableColumns = useMemo(() => columns, []);
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-    state: { filters },
-  } = useTable(
-    {
-      columns: tableColumns,
-      data: tableData,
-      initialState: { hiddenColumns: ['id'] },
-      defaultColumn, // Be sure to pass the defaultColumn option
-      manualFilters: true,
-    },
-    useFilters,
-  );
-
-  // When these table states change, fetch new data!
-  useEffect(() => {
-    if (!isLoading && !isError) {
-      setParamFilters(filters);
-    }
-  }, [filters, isLoading, isError]);
-
-  if (isLoading) return <LoadingPlaceholder />;
-  if (isError) return <SomethingWentWrong />;
-
   const handleClick = (values) => {
     history.push(`/moves/${values.id}/details`);
   };
 
   return (
-    <GridContainer containerSize="widescreen" className={styles.MoveQueue}>
-      <h1>{`All moves (${totalCount})`}</h1>
-      <div className={styles.tableContainer}>
-        <Table
-          handleClick={handleClick}
-          getTableProps={getTableProps}
-          getTableBodyProps={getTableBodyProps}
-          headerGroups={headerGroups}
-          rows={rows}
-          prepareRow={prepareRow}
-        />
-      </div>
-    </GridContainer>
+    <TableQueue
+      showFilters
+      showPagination
+      columns={columns}
+      title="All moves"
+      handleClick={handleClick}
+      useQueries={useMovesQueueQueries}
+    />
   );
 };
 

@@ -1,15 +1,8 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { GridContainer } from '@trussworks/react-uswds';
+import React from 'react';
 import { withRouter } from 'react-router-dom';
-import { useTable, useFilters } from 'react-table';
-
-import styles from './PaymentRequestQueue.module.scss';
 
 import { usePaymentRequestQueueQueries } from 'hooks/queries';
-import Table from 'components/Table/Table';
 import { createHeader } from 'components/Table/utils';
-import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { HistoryShape } from 'types/router';
 import {
   formatDateFromIso,
@@ -17,11 +10,11 @@ import {
   paymentRequestStatusReadable,
   serviceMemberAgencyLabel,
 } from 'shared/formatters';
-import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
 import { BRANCH_OPTIONS, PAYMENT_REQUEST_STATUS_OPTIONS } from 'constants/queues';
+import TableQueue from 'components/Table/TableQueue';
 
 const paymentRequestStatusOptions = Object.keys(PAYMENT_REQUEST_STATUS_OPTIONS).map((key) => ({
   value: key,
@@ -102,71 +95,19 @@ const columns = [
 ];
 
 const PaymentRequestQueue = ({ history }) => {
-  const [paramFilters, setParamFilters] = useState([]);
-
-  const {
-    queuePaymentRequestsResult: { totalCount = 0, queuePaymentRequests = [] },
-    isLoading,
-    isError,
-  } = usePaymentRequestQueueQueries(paramFilters);
-
-  // react-table setup below
-
-  const defaultColumn = useMemo(
-    () => ({
-      // Let's set up our default Filter UI
-      Filter: TextBoxFilter,
-    }),
-    [],
-  );
-  const tableData = useMemo(() => queuePaymentRequests, [queuePaymentRequests]);
-  const tableColumns = useMemo(() => columns, []);
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-    state: { filters },
-  } = useTable(
-    {
-      columns: tableColumns,
-      data: tableData,
-      initialState: { hiddenColumns: ['id'] },
-      defaultColumn, // Be sure to pass the defaultColumn option
-      manualFilters: true,
-    },
-    useFilters,
-  );
-
-  // When these table states change, fetch new data!
-  useEffect(() => {
-    if (!isLoading && !isError) {
-      setParamFilters(filters);
-    }
-  }, [filters, isLoading, isError]);
-
-  if (isLoading) return <LoadingPlaceholder />;
-  if (isError) return <SomethingWentWrong />;
-
   const handleClick = (values) => {
     history.push(`/moves/MOVE_CODE/payment-requests/${values.id}`);
   };
 
   return (
-    <GridContainer containerSize="widescreen" className={styles.PaymentRequestQueue}>
-      <h1>{`Payment requests (${totalCount})`}</h1>
-      <div className={styles.tableContainer}>
-        <Table
-          handleClick={handleClick}
-          getTableProps={getTableProps}
-          getTableBodyProps={getTableBodyProps}
-          headerGroups={headerGroups}
-          rows={rows}
-          prepareRow={prepareRow}
-        />
-      </div>
-    </GridContainer>
+    <TableQueue
+      showFilters
+      showPagination
+      columns={columns}
+      title="Payment requests"
+      handleClick={handleClick}
+      useQueries={usePaymentRequestQueueQueries}
+    />
   );
 };
 

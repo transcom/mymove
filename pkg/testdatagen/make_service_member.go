@@ -1,8 +1,10 @@
 package testdatagen
 
 import (
-	"math/rand"
+	"log"
 	"strconv"
+
+	"github.com/transcom/mymove/pkg/random"
 
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v5"
@@ -14,8 +16,11 @@ import (
 func randomEdipi() string {
 	low := 1000000000
 	high := 9999999999
-	// #nosec G404 TODO needs review
-	return strconv.Itoa(low + rand.Intn(high-low))
+	randInt, err := random.GetRandomIntAddend(low, high)
+	if err != nil {
+		log.Panicf("Failure to generate randomEdipi %v", err)
+	}
+	return strconv.Itoa(low + int(randInt))
 }
 
 // MakeServiceMember creates a single ServiceMember with associated data.
@@ -32,7 +37,7 @@ func MakeServiceMember(db *pop.Connection, assertions Assertions) models.Service
 		if assertions.User.LoginGovEmail == "" {
 			assertions.User.LoginGovEmail = email
 		}
-		user = MakeUser(db, assertions)
+		user = MakeDefaultUser(db)
 	}
 	if assertions.User.LoginGovEmail != "" {
 		email = assertions.User.LoginGovEmail
@@ -49,10 +54,12 @@ func MakeServiceMember(db *pop.Connection, assertions Assertions) models.Service
 		currentAddress = &newAddress
 	}
 
+	randomEdipi := randomEdipi()
+
 	serviceMember := models.ServiceMember{
 		UserID:               user.ID,
 		User:                 user,
-		Edipi:                swag.String(randomEdipi()),
+		Edipi:                swag.String(randomEdipi),
 		Affiliation:          agency,
 		FirstName:            swag.String("Leo"),
 		LastName:             swag.String("Spacemen"),

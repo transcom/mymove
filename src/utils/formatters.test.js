@@ -5,6 +5,9 @@ describe('formatters', () => {
     it('should format customer date to DD MMM YYYY', () => {
       expect(formatters.formatCustomerDate('Sep-27-20')).toBe('27 Sep 2020');
     });
+    it('should format signature date to YYYY-MM-DD', () => {
+      expect(formatters.formatSignatureDate('Sep-27-20')).toBe('2020-09-27');
+    });
   });
   describe('format order type for customer app', () => {
     it('should format order type to be human readable', () => {

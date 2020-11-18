@@ -18,6 +18,10 @@ export function formatCustomerDate(date) {
   return moment(date).format('DD MMM YYYY');
 }
 
+export function formatSignatureDate(date) {
+  return moment(date).format('YYYY-MM-DD');
+}
+
 // Translate boolean (true/false) into "yes"/"no" string
 export const formatYesNoInputValue = (value) => {
   if (value === true) return 'yes';
