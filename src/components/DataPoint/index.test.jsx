@@ -3,7 +3,8 @@ import { shallow, mount } from 'enzyme';
 
 import DataPoint from '.';
 
-import { ReactComponent as ArrowRight } from 'shared/icon/arrow-right.svg';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
 
 describe('DataPoint', () => {
   it('renders with column header and data row', () => {
@@ -17,7 +18,7 @@ describe('DataPoint', () => {
   it('renders with an icon', () => {
     const headers = ['column 1', 'column 2'];
     const row = ['cell 1', 'cell 2'];
-    const wrapper = mount(<DataPoint columnHeaders={headers} dataRow={row} Icon={ArrowRight} />);
+    const wrapper = mount(<DataPoint columnHeaders={headers} dataRow={row} Icon={<FontAwesomeIcon icon={faArrowRight} />} />);
     expect(wrapper.find('th').at(0).text()).toContain('column 1');
     expect(wrapper.find('th').at(1).text()).toContain('column 2');
     expect(wrapper.find('td').at(0).text()).toContain('cell 1');
