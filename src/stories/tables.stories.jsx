@@ -2,6 +2,7 @@ import React from 'react';
 import { action } from '@storybook/addon-actions';
 import { Button } from '@trussworks/react-uswds';
 import { isHappoRun } from 'happo-plugin-storybook/register';
+import { ReactComponent as ArrowRight } from 'shared/icon/arrow-right.svg';
 
 import QueueTable from '../components/QueueTable';
 import ServiceItemTable from '../components/ServiceItemTable';
@@ -11,7 +12,6 @@ import DataPointGroup from '../components/DataPointGroup';
 
 import { ReactComponent as ChevronRight } from 'shared/icon/chevron-right.svg';
 import { ReactComponent as ChevronLeft } from 'shared/icon/chevron-left.svg';
-import { ReactComponent as ArrowRight } from 'shared/icon/arrow-right.svg';
 
 const dataPointBody = (
   <>

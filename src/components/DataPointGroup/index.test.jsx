@@ -1,11 +1,11 @@
 import React from 'react';
 import { shallow } from 'enzyme';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
 
 import DataPointGroup from '.';
 
 import DataPoint from 'components/DataPoint';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
 
 describe('DataPair', () => {
   it('renders a single data point child', () => {

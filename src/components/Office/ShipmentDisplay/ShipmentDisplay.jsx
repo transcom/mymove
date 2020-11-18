@@ -1,6 +1,7 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
 import { Checkbox } from '@trussworks/react-uswds';
+import { ReactComponent as CheckmarkIcon } from 'shared/icon/checkbox--unchecked.svg';
 
 import ShipmentContainer from '../ShipmentContainer';
 import { AddressShape } from '../../../types/address';
@@ -11,7 +12,6 @@ import { ReactComponent as ChevronDown } from 'shared/icon/chevron-down.svg';
 import { formatAddress } from 'utils/shipmentDisplay';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { formatDate } from 'shared/dates';
-import { ReactComponent as CheckmarkIcon } from 'shared/icon/checkbox--unchecked.svg';
 
 const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSubmitted }) => {
   return (
