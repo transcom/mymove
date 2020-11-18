@@ -3,7 +3,7 @@ import { Tag } from '@trussworks/react-uswds';
 
 import LeftNav from './index';
 
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 
 // Left Nav
 export default {
@@ -22,7 +22,7 @@ export const Basic = () => (
       <a href="#" className="active">
         Requested Shipments
         <Tag className="usa-tag--alert usa-tag--alert--small">
-          <FontAwesomeIcon icon={faPlus} />
+          <FontAwesomeIcon icon={faExclamationTriangle} />
         </Tag>
       </a>
       <a href="#orders-anchor">
@@ -45,7 +45,7 @@ export const Layout = () => (
         <a href="#" className="active">
           Requested Shipments
           <Tag className="usa-tag--alert usa-tag--alert--small">
-            <FontAwesomeIcon icon={faPlus} />
+            <FontAwesomeIcon icon={faExclamationTriangle} />
           </Tag>
         </a>
         <a href="#orders-anchor">
