@@ -35,6 +35,7 @@ const RolesCheckboxInput = (props) => (
     parse={parseCheckboxInput}
     choices={choices}
     optionValue="roleType"
+    validate={props.validate}
   />
 );
 

@@ -16,8 +16,9 @@ func (suite *HandlerSuite) TestSearchDutyStationHandler() {
 	t := suite.T()
 
 	// Need a logged in user
+	lgu := uuid.Must(uuid.NewV4())
 	user := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
+		LoginGovUUID:  &lgu,
 		LoginGovEmail: "email@example.com",
 	}
 	suite.MustSave(&user)
