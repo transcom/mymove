@@ -34,6 +34,9 @@ type MTOServiceItem struct {
 	RejectionReason  *string                        `db:"rejection_reason"`
 	Status           MTOServiceItemStatus           `db:"status"`
 	PickupPostalCode *string                        `db:"pickup_postal_code"`
+	SITPostalCode    *string                        `db:"sit_postal_code"`
+	SITEntryDate     *time.Time                     `db:"sit_entry_date"`
+	SITDepartureDate *time.Time                     `db:"sit_departure_date"`
 	Description      *string                        `db:"description"`
 	Dimensions       MTOServiceItemDimensions       `has_many:"mto_service_item_dimensions" fk_id:"mto_service_item_id"`
 	CustomerContacts MTOServiceItemCustomerContacts `has_many:"mto_service_item_customer_contacts" fk_id:"mto_service_item_id"`
