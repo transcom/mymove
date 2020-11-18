@@ -576,3 +576,6 @@
 20201110162431_add_indexes_for_txo_queues.up.sql
 20201110162713_make_usmc_transportation_office.up.sql
 20201111015201_add_sit_fields_zip_entry_departure.up.sql
+20201111170419_jacquelinemckinney_cac.up.sql
+20201111232031_remove_ssn.up.sql
+20201117203528_fix_orders_status_comment.up.sql

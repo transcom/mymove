@@ -10,9 +10,9 @@ jest.mock('hooks/queries', () => ({
     return {
       isLoading: false,
       isError: false,
-      queueMovesResult: {
+      queueResult: {
         totalCount: 2,
-        queueMoves: [
+        data: [
           {
             id: 'move1',
             customer: {

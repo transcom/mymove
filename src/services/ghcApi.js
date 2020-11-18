@@ -112,7 +112,7 @@ export async function getMovesQueue(key, { filters = [], currentPage = 1, curren
   );
 }
 
-export async function getPaymentRequestsQueue(key, { filters = [] }) {
+export async function getPaymentRequestsQueue(key, { filters = [], currentPage = 1, currentPageSize = 20 }) {
   const operationPath = 'queues.getPaymentRequestsQueue';
   const paramFilters = {};
   filters.forEach((filter) => {
@@ -120,7 +120,7 @@ export async function getPaymentRequestsQueue(key, { filters = [] }) {
   });
   return makeGHCRequest(
     operationPath,
-    { ...paramFilters },
+    { page: currentPage, perPage: currentPageSize, ...paramFilters },
     { schemaKey: 'queuePaymentRequestsResult', normalize: false },
   );
 }
