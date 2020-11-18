@@ -8,7 +8,7 @@ require (
 	github.com/99designs/keyring v1.1.6
 	github.com/alexedwards/scs/redisstore v0.0.0-20200225172727-3308e1066830
 	github.com/alexedwards/scs/v2 v2.4.0
-	github.com/aws/aws-sdk-go v1.35.29
+	github.com/aws/aws-sdk-go v1.35.30
 	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
@@ -22,10 +22,10 @@ require (
 	github.com/go-openapi/errors v0.19.8
 	github.com/go-openapi/loads v0.19.6
 	github.com/go-openapi/runtime v0.19.24
-	github.com/go-openapi/spec v0.19.13
+	github.com/go-openapi/spec v0.19.14
 	github.com/go-openapi/strfmt v0.19.11
 	github.com/go-openapi/swag v0.19.12
-	github.com/go-openapi/validate v0.19.13
+	github.com/go-openapi/validate v0.19.14
 	github.com/go-playground/locales v0.13.0
 	github.com/go-playground/universal-translator v0.17.0
 	github.com/go-playground/validator/v10 v10.4.1

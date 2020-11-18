@@ -162,7 +162,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
 
 	user := models.User{
-		LoginGovUUID:  loginGovUUID,
+		LoginGovUUID:  &loginGovUUID,
 		LoginGovEmail: "email@example.com",
 		Active:        true,
 	}
@@ -210,7 +210,7 @@ func (suite *AuthSuite) TestRequireAuthMiddleware() {
 	// Given: a logged in user
 	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
 	user := models.User{
-		LoginGovUUID:  loginGovUUID,
+		LoginGovUUID:  &loginGovUUID,
 		LoginGovEmail: "email@example.com",
 		Active:        true,
 	}
@@ -267,7 +267,7 @@ func (suite *AuthSuite) TestIsLoggedInWhenNoUserLoggedIn() {
 func (suite *AuthSuite) TestIsLoggedInWhenUserLoggedIn() {
 	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
 	user := models.User{
-		LoginGovUUID:  loginGovUUID,
+		LoginGovUUID:  &loginGovUUID,
 		LoginGovEmail: "email@example.com",
 		Active:        true,
 	}
@@ -319,7 +319,7 @@ func (suite *AuthSuite) TestRequireAdminAuthMiddleware() {
 	// Given: a logged in user
 	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
 	user := models.User{
-		LoginGovUUID:  loginGovUUID,
+		LoginGovUUID:  &loginGovUUID,
 		LoginGovEmail: "email@example.com",
 		Active:        true,
 	}
@@ -401,7 +401,7 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleOffice() {
 	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
 
 	user := models.User{
-		LoginGovUUID:  loginGovUUID,
+		LoginGovUUID:  &loginGovUUID,
 		LoginGovEmail: "email@example.com",
 		Active:        true,
 	}
@@ -476,7 +476,7 @@ func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
 
 	user := models.User{
-		LoginGovUUID:  loginGovUUID,
+		LoginGovUUID:  &loginGovUUID,
 		LoginGovEmail: "email@example.com",
 		Active:        true,
 	}
@@ -547,7 +547,7 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleAdmin() {
 	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
 
 	user := models.User{
-		LoginGovUUID:  loginGovUUID,
+		LoginGovUUID:  &loginGovUUID,
 		LoginGovEmail: "email@example.com",
 		Active:        true,
 	}
@@ -751,28 +751,30 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeNotFound() {
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
+	user := testdatagen.MakeDefaultUser(suite.DB())
 	// user is in office_users but has never logged into the app
-	officeUser := testdatagen.MakeOfficeUserWithNoUser(suite.DB(), testdatagen.Assertions{
+	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
 		OfficeUser: models.OfficeUser{
 			Active: true,
+			UserID: &user.ID,
 		},
+		User: user,
 	})
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/login-gov/callback", OfficeTestHost), nil)
 	fakeToken := "some_token"
-	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
+
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
-		UserID:          fakeUUID,
+		UserID:          user.ID,
 		IDToken:         fakeToken,
 		Hostname:        OfficeTestHost,
 		Email:           officeUser.Email,
 	}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 
-	id, _ := uuid.NewV4()
-	user := goth.User{
-		UserID: id.String(),
+	gothUser := goth.User{
+		UserID: user.ID.String(),
 		Email:  officeUser.Email,
 	}
 
@@ -789,7 +791,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 	}
 	rr := httptest.NewRecorder()
 
-	authorizeUnknownUser(user, h, &session, rr, req.WithContext(scsContext), "")
+	authorizeUnknownUser(gothUser, h, &session, rr, req.WithContext(scsContext), "")
 
 	foundUser, _ := models.GetUserFromEmail(suite.DB(), officeUser.Email)
 
@@ -866,11 +868,14 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminNotFound() {
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
+	user := testdatagen.MakeDefaultUser(suite.DB())
 	// user is in admin_users but has not logged into the app before
-	adminUser := testdatagen.MakeAdminUserWithNoUser(suite.DB(), testdatagen.Assertions{
+	adminUser := testdatagen.MakeAdminUser(suite.DB(), testdatagen.Assertions{
 		AdminUser: models.AdminUser{
 			Active: true,
+			UserID: &user.ID,
 		},
+		User: user,
 	})
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/logout", AdminTestHost), nil)
@@ -885,8 +890,8 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
 	}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 
-	user := goth.User{
-		UserID: "39b28c92-0506-4bef-8b57-e39519f42dc2",
+	gothUser := goth.User{
+		UserID: user.ID.String(),
 		Email:  adminUser.Email,
 	}
 
@@ -903,7 +908,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
 	}
 	rr := httptest.NewRecorder()
 
-	authorizeUnknownUser(user, h, &session, rr, req.WithContext(scsContext), "")
+	authorizeUnknownUser(gothUser, h, &session, rr, req.WithContext(scsContext), "")
 
 	foundUser, _ := models.GetUserFromEmail(suite.DB(), adminUser.Email)
 
