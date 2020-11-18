@@ -4,8 +4,7 @@ import { Radio, Textarea, FormGroup, Fieldset, Label, Button, Form } from '@trus
 import { Formik } from 'formik';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes as XIcon } from '@fortawesome/free-solid-svg-icons';
-import { ReactComponent as FormCheckmarkIcon } from 'shared/icon/form-checkmark.svg';
+import { faTimes as XIcon, faCheck } from '@fortawesome/free-solid-svg-icons';
 
 import styles from './ServiceItemCard.module.scss';
 
@@ -45,7 +44,7 @@ const ServiceItemCard = ({
           <div data-testid="completeSummary" className={styles.completeContainer}>
             {status === APPROVED ? (
               <div data-testid="statusHeading" className={classnames(styles.statusHeading, styles.statusApproved)}>
-                <FormCheckmarkIcon />
+                <FontAwesomeIcon icon={faCheck} />
                 Accepted
               </div>
             ) : (
