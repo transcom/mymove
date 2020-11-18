@@ -2,17 +2,14 @@ import React from 'react';
 import { action } from '@storybook/addon-actions';
 import { Button } from '@trussworks/react-uswds';
 import { isHappoRun } from 'happo-plugin-storybook/register';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChevronRight, faChevronLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 
 import QueueTable from '../components/QueueTable';
 import ServiceItemTable from '../components/ServiceItemTable';
 import ServiceItemTableHasImg from '../components/ServiceItemTableHasImg';
 import DataPoint from '../components/DataPoint';
 import DataPointGroup from '../components/DataPointGroup';
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronRight, faChevronLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons';
-
 
 const dataPointBody = (
   <>

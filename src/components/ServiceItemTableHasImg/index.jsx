@@ -2,10 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import classnames from 'classnames';
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
-
 
 import { SERVICE_ITEM_STATUS } from '../../shared/constants';
 import { MTOServiceItemCustomerContactShape, MTOServiceItemDimensionShape } from '../../types/moveOrder';
@@ -84,7 +82,6 @@ const ServiceItemTableHasImg = ({
                 <span className="icon">
                   <FontAwesomeIcon icon={faTimes} />
                 </span>{' '}
-
                 Reject
               </Button>
             </div>
@@ -98,7 +95,7 @@ const ServiceItemTableHasImg = ({
                 onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.APPROVED)}
               >
                 <span className="icon">
-                  <Ex />
+                  <FontAwesomeIcon icon={faTimes} />
                 </span>{' '}
                 Approve
               </Button>
