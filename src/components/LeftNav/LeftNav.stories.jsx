@@ -1,9 +1,9 @@
 import React from 'react';
 import { Tag } from '@trussworks/react-uswds';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 
 import LeftNav from './index';
-
-import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 
 // Left Nav
 export default {

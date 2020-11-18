@@ -35,7 +35,7 @@ import {
   faSyncAlt,
   faSpinner,
   faCaretDown,
-  faExclamationTriangle
+  faExclamationTriangle,
 } from '@fortawesome/free-solid-svg-icons';
 import { faTimesCircle, faCalendar, faCheckCircle as farCheckCircle } from '@fortawesome/free-regular-svg-icons';
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tag } from '@trussworks/react-uswds';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 
 export default {
