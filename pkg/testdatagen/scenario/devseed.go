@@ -2214,4 +2214,39 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 		Move:          move8,
 		PrimeUploader: primeUploader,
 	}, 35)
+
+	// Make an available to prime move with a unique address.
+	address := testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: models.Address{
+			StreetAddress1: "2 Second St",
+			StreetAddress2: swag.String("Apt 2"),
+			StreetAddress3: swag.String("Suite B"),
+			City:           "Columbia",
+			State:          "SC",
+			PostalCode:     "29212",
+			Country:        swag.String("US"),
+		},
+	})
+
+	newDutyStation := testdatagen.MakeDutyStation(db, testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			AddressID: address.ID,
+			Address:   address,
+		},
+	})
+
+	moveOrder := testdatagen.MakeOrder(db, testdatagen.Assertions{
+		Order: models.Order{
+			NewDutyStationID: newDutyStation.ID,
+			NewDutyStation:   newDutyStation,
+		},
+	})
+
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			AvailableToPrimeAt: swag.Time(time.Now()),
+			Status:             models.MoveStatusAPPROVED,
+		},
+		Order: moveOrder,
+	})
 }
