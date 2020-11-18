@@ -1,5 +1,6 @@
 /* eslint-disable react/no-array-index-key */
 import React, { Fragment } from 'react';
+import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { Button, Dropdown } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -35,11 +36,22 @@ const Table = ({
           {headerGroups.map((headerGroup, hgIndex) => (
             <Fragment key={`headerGroup${hgIndex}`}>
               <tr {...headerGroup.getHeaderGroupProps()}>
-                {headerGroup.headers.map((column, headerIndex) => (
-                  <th key={`header${headerIndex}`} data-testid={column.id} {...column.getHeaderProps()}>
-                    {column.render('Header')}
-                  </th>
-                ))}
+                {headerGroup.headers.map((column, headerIndex) => {
+                  const sortProperties = column.canSort ? column.getSortByToggleProps() : {};
+                  return (
+                    <th
+                      key={`header${headerIndex}`}
+                      className={classNames({
+                        [`${styles.sortAscending}`]: column.isSortedDesc === false, // undefined if column is not sorted
+                        [`${styles.sortDescending}`]: column.isSortedDesc,
+                      })}
+                      data-testid={column.id}
+                      {...column.getHeaderProps(sortProperties)}
+                    >
+                      {column.render('Header')}
+                    </th>
+                  );
+                })}
               </tr>
               {showFilters && (
                 <tr className={styles.tableHeaderFilters} key={`headerGroupFilters${hgIndex}`}>
@@ -62,7 +74,12 @@ const Table = ({
                 {row.cells.map((cell, index) => {
                   return (
                     // eslint-disable-next-line react/no-array-index-key
-                    <td key={`cell${index}`} data-testid={`${cell.column.id}-${cell.row.id}`} {...cell.getCellProps()}>
+                    <td
+                      key={`cell${index}`}
+                      className={cell.column.id}
+                      data-testid={`${cell.column.id}-${cell.row.id}`}
+                      {...cell.getCellProps()}
+                    >
                       {cell.render('Cell')}
                     </td>
                   );

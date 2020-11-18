@@ -21,7 +21,7 @@
       @include u-border(0);
       @include u-border-bottom(1px);
       @include u-border('base-lighter');
-      @include u-minw(1)
+      @include u-minw(1);
     }
 
     tr {
@@ -29,14 +29,27 @@
         background-color: rgb(217, 231, 247);
 
         td {
-          @include u-bg('transparent')
+          @include u-bg('transparent');
         }
       }
+    }
+
+    thead tr .sortHeader {
+      @include u-margin-top('05');
+      @include u-margin-bottom('05');
     }
 
     th {
       color: $base-darker;
       @include u-text('bold');
+
+      &.sortAscending {
+        @include u-border-top('05', 'black');
+      }
+
+      &.sortDescending {
+        @include u-border-bottom('05', 'black');
+      }
     }
 
     .tableHeaderFilters {
@@ -52,7 +65,7 @@
         background-color: $base-lighter;
 
         th {
-          @include u-bg('transparent')
+          @include u-bg('transparent');
         }
       }
     }
@@ -104,7 +117,6 @@
             @include u-margin-left(0.5);
           }
         }
-
 
         &:disabled {
           @include u-text('base-light');
