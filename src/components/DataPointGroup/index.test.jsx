@@ -4,7 +4,8 @@ import { shallow } from 'enzyme';
 import DataPointGroup from '.';
 
 import DataPoint from 'components/DataPoint';
-import { ReactComponent as ArrowRight } from 'shared/icon/arrow-right.svg';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
 
 describe('DataPair', () => {
   it('renders a single data point child', () => {
@@ -23,8 +24,8 @@ describe('DataPair', () => {
     const row = ['cell 1', 'cell 2'];
     const wrapper = shallow(
       <DataPointGroup>
-        <DataPoint columnHeaders={[headers]} dataRow={[row]} Icon={ArrowRight} />
-        <DataPoint columnHeaders={[headers]} dataRow={[row]} Icon={ArrowRight} />
+        <DataPoint columnHeaders={[headers]} dataRow={[row]} Icon={<FontAwesomeIcon icon={faArrowRight} />} />
+        <DataPoint columnHeaders={[headers]} dataRow={[row]} Icon={<FontAwesomeIcon icon={faArrowRight} />} />
       </DataPointGroup>,
     );
     expect(wrapper.find(DataPoint).length).toBe(2);
