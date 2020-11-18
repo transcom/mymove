@@ -1,6 +1,5 @@
 import React from 'react';
 import { string, arrayOf, shape } from 'prop-types';
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFile } from '@fortawesome/free-solid-svg-icons';
 

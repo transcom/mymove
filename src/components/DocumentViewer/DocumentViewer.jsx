@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@trussworks/react-uswds';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faThList } from '@fortawesome/free-solid-svg-icons';
 
 import { FilesShape } from './types';
 import styles from './DocumentViewer.module.scss';
@@ -8,9 +10,6 @@ import Menu from './Menu/Menu';
 
 import { ReactComponent as ExternalLink } from 'shared/icon/external-link.svg';
 import { filenameFromPath } from 'shared/formatters';
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faThList } from '@fortawesome/free-solid-svg-icons';
 
 /**
  * TODO

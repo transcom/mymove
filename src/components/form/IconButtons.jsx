@@ -1,15 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faFile } from '@fortawesome/free-solid-svg-icons';
+import { faPen, faFile } from '@fortawesome/free-solid-svg-icons';
 
 export const EditButton = ({ label, ...props }) => (
   /* eslint-disable-next-line react/jsx-props-no-spreading */
   <Button icon {...props}>
     <span className="icon">
-      <FontAwesomeIcon icon={faEdit} />
+      <FontAwesomeIcon icon={faPen} />
     </span>
     <span>{label}</span>
   </Button>

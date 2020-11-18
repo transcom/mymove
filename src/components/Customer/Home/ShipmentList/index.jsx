@@ -2,12 +2,13 @@
 import React from 'react';
 import { string, arrayOf, shape, func, number, bool } from 'prop-types';
 import classnames from 'classnames';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPen } from '@fortawesome/free-solid-svg-icons';
 
 import styles from './ShipmentList.module.scss';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
-import { ReactComponent as EditIcon } from 'shared/icon/edit.svg';
 
 const ShipmentListItem = ({ shipment, onShipmentClick, shipmentNumber, canEdit, showNumber }) => {
   function handleEnterOrSpace(event) {
@@ -44,7 +45,7 @@ const ShipmentListItem = ({ shipment, onShipmentClick, shipmentNumber, canEdit, 
       </strong>{' '}
       {/* use substring of the UUID until actual shipment code is available */}
       <span className={styles['shipment-code']}>#{shipment.id.substring(0, 8).toUpperCase()}</span>{' '}
-      {canEdit ? <EditIcon className={styles.edit} /> : <div className={styles.noEdit} />}
+      {canEdit ? <FontAwesomeIcon icon={faPen} className={styles.edit} /> : <div className={styles.noEdit} />}
     </div>
   );
 };
