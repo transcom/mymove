@@ -2,6 +2,8 @@ import { Button, Modal, ModalContainer, Overlay } from '@trussworks/react-uswds'
 import React, { Fragment } from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes as XIcon } from '@fortawesome/free-solid-svg-icons';
 
 import { mtoShipmentTypeToFriendlyDisplay } from '../../shared/formatters';
 import { MTOAgentShape, MTOShipmentShape, OrdersInfoShape } from '../../types/moveOrder';
@@ -12,9 +14,6 @@ import AllowancesTable from './AllowancesTable';
 import CustomerInfoTable from './CustomerInfoTable';
 import ShipmentContainer from './ShipmentContainer';
 import ShipmentServiceItemsTable from './ShipmentServiceItemsTable/ShipmentServiceItemsTable';
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes as XIcon } from '@fortawesome/free-solid-svg-icons';
 
 const ShipmentApprovalPreview = ({
   mtoShipments,
@@ -48,7 +47,7 @@ const ShipmentApprovalPreview = ({
                 className={classNames(styles.approvalClose, 'usa-button--unstyled')}
                 data-testid="closeShipmentApproval"
               >
-                <FontAwesomeIcon icon={ XIcon } title="Close modal" aria-label="Close modal" />
+                <FontAwesomeIcon icon={XIcon} title="Close modal" aria-label="Close modal" />
               </button>
             </div>
             <h2>Preview and post move task order</h2>
