@@ -85,7 +85,7 @@ export const MoveTaskOrder = ({ match }) => {
       // RA Summary: eslint: no-console - System Information Leak: External
       // RA: The linter flags any use of console.
       // RA: This console displays an error message from unsuccessful mutation.
-      // RA: As indicated, this error needs to be handled and needs further investigation.
+      // RA: TODO: As indicated, this error needs to be handled and needs further investigation.
       // RA Developer Status: Known Issue
       // RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
       // RA Validator: jneuner@mitre.org

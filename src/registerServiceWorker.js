@@ -66,6 +66,14 @@ function registerValidSW(swUrl) {
       };
     })
     .catch((error) => {
+      // RA Summary: eslint: no-console - System Information Leak: External
+      // RA: The linter flags any use of console.
+      // RA: This console displays an error message when registering a valid service worker fails.
+      // RA: TODO: The possible values of this error need to be investigated further to determine risk.
+      // RA Developer Status: Known Issue
+      // RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+      // RA Validator: jneuner@mitre.org
+      // RA Modified Severity:
       console.error('Error during service worker registration:', error); // eslint-disable-line no-console
     });
 }
