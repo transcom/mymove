@@ -558,7 +558,15 @@ func createPPMReadyToRequestPayment(db *pop.Connection, userUploader *uploader.U
 }
 
 func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger) {
-	customer := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{})
+	lastName := "Spacemen"
+	firstName := "Lena"
+	customer := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+
+		ServiceMember: models.ServiceMember{
+			LastName:  &lastName,
+			FirstName: &firstName,
+		}})
+
 	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
 			ServiceMemberID: customer.ID,
