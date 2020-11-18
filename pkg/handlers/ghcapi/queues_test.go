@@ -86,7 +86,53 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 	suite.Equal(order.NewDutyStation.ID.String(), result.DestinationDutyStation.ID.String())
 	suite.Equal(hhgMove.Locator, result.Locator)
 	suite.Equal(int64(1), result.ShipmentsCount)
+}
 
+func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
+	suite.Run("displays move attributes for all move types returned by ListMoveOrders", func() {
+		stub := testdatagen.Assertions{Stub: true}
+
+		// Stub HHG move
+		hhgMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), stub)
+
+		// Stub HHG_PPM move
+		hhgPPMMove := testdatagen.MakeHHGPPMMoveWithShipment(suite.DB(), stub)
+
+		// Stub NTS move
+		ntsMove := testdatagen.MakeNTSMoveWithShipment(suite.DB(), stub)
+
+		// Stub NTSR move
+		ntsrMove := testdatagen.MakeNTSRMoveWithShipment(suite.DB(), stub)
+
+		var expectedMoves []models.Move
+		expectedMoves = append(expectedMoves, hhgMove, hhgPPMMove, ntsMove, ntsrMove)
+
+		officeUser := testdatagen.MakeTOOOfficeUser(suite.DB(), stub)
+
+		moveOrderFetcher := mocks.MoveOrderFetcher{}
+		moveOrderFetcher.On("ListMoveOrders", officeUser.ID, mock.Anything).Return(expectedMoves, 4, nil)
+
+		request := httptest.NewRequest("GET", "/queues/moves", nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		params := queues.GetMovesQueueParams{
+			HTTPRequest: request,
+		}
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		handler := GetMovesQueueHandler{
+			context,
+			&moveOrderFetcher,
+		}
+		response := handler.Handle(params)
+		payload := response.(*queues.GetMovesQueueOK).Payload
+		moves := payload.QueueMoves
+
+		suite.Equal(4, len(moves))
+		for i := range moves {
+			suite.Equal(moves[i].Locator, expectedMoves[i].Locator)
+			suite.Equal(string(moves[i].Status), string(expectedMoves[i].Status))
+			suite.Equal(moves[i].ShipmentsCount, int64(len(expectedMoves[i].MTOShipments)))
+		}
+	})
 }
 
 func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
