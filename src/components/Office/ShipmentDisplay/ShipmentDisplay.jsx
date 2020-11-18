@@ -30,7 +30,7 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
           )}
           {!isSubmitted && <FontAwesomeIcon icon={faCheckCircle} />}
           <h3>{displayInfo.heading}</h3>
-          <FontAwesomeIcon icon={faChevronDown e} />
+          <FontAwesomeIcon icon={faChevronDown} />
         </div>
         <dl>
           <div className={styles.row}>
