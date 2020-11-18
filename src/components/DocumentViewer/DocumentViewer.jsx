@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Button } from '@trussworks/react-uswds';
-import { ReactComponent as DocMenu } from 'shared/icon/doc-menu.svg';
 
 import { FilesShape } from './types';
 import styles from './DocumentViewer.module.scss';
@@ -9,6 +8,9 @@ import Menu from './Menu/Menu';
 
 import { ReactComponent as ExternalLink } from 'shared/icon/external-link.svg';
 import { filenameFromPath } from 'shared/formatters';
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faThList } from '@fortawesome/free-solid-svg-icons';
 
 /**
  * TODO
@@ -76,7 +78,7 @@ const DocumentViewer = ({ files }) => {
     <div className={styles.DocumentViewer}>
       <div className={styles.titleBar}>
         <Button data-testid="openMenu" type="button" onClick={openMenu} unstyled>
-          <DocMenu />
+          <FontAwesomeIcon icon={faThList} />
         </Button>
 
         <p title={selectedFilename}>{selectedFilename}</p>
