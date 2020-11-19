@@ -16,6 +16,8 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+const lastName = "last_name"
+
 type paymentRequestListFetcher struct {
 	db *pop.Connection
 }
@@ -105,10 +107,18 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 	return &paymentRequests, count, nil
 }
 
+func orderName(query *pop.Query, order *string) *pop.Query {
+	return query.Order(fmt.Sprintf("service_members.last_name %s, service_members.first_name %s", *order, *order))
+}
+
 func queryOrder(sort *string, order *string) FilterOption {
 	return func(query *pop.Query) {
 		if sort != nil && order != nil {
-			query = query.Order(fmt.Sprintf("%s %s", *sort, *order))
+			if *sort == lastName {
+				orderName(query, order)
+			} else {
+				query = query.Order(fmt.Sprintf("%s %s", *sort, *order))
+			}
 		} else {
 			query = query.Order("created_at asc")
 		}
