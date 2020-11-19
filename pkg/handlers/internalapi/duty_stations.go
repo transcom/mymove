@@ -4,8 +4,9 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
-	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 
 	stationop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_stations"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"

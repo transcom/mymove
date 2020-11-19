@@ -3,8 +3,9 @@ package internalapi
 import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
-	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 
 	addressop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/addresses"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"

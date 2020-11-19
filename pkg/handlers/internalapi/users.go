@@ -2,10 +2,12 @@ package internalapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
+	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/cli"
@@ -18,7 +20,7 @@ import (
 // ShowLoggedInUserHandler returns the logged in user
 type ShowLoggedInUserHandler struct {
 	handlers.HandlerContext
-	builder query.Builder
+	officeUserFetcherPop services.OfficeUserFetcherPop
 }
 
 // decoratePayloadWithRoles will add session roles to the logged in user payload and return it
@@ -40,14 +42,27 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	if !session.IsServiceMember() {
+		var officeUser *models.OfficeUser
+		if session.OfficeUserID != uuid.Nil {
+			fetchedOfficeUser, err := h.officeUserFetcherPop.FetchOfficeUserByID(session.OfficeUserID)
+			if err != nil {
+				logger.Error("Error retrieving office_user", zap.Error(err))
+				return userop.NewIsLoggedInUserInternalServerError()
+			}
+
+			officeUser = &fetchedOfficeUser
+		}
+
 		userPayload := internalmessages.LoggedInUserPayload{
-			ID:        handlers.FmtUUID(session.UserID),
-			FirstName: session.FirstName,
-			Email:     session.Email,
+			ID:         handlers.FmtUUID(session.UserID),
+			FirstName:  session.FirstName,
+			Email:      session.Email,
+			OfficeUser: payloads.OfficeUser(officeUser),
 		}
 		decoratePayloadWithRoles(session, &userPayload)
 		return userop.NewShowLoggedInUserOK().WithPayload(&userPayload)
 	}
+
 	// Load Servicemember and first level associations
 	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, session.ServiceMemberID)
 
