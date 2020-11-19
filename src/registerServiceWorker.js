@@ -69,7 +69,8 @@ function registerValidSW(swUrl) {
       // RA Summary: eslint: no-console - System Information Leak: External
       // RA: The linter flags any use of console.
       // RA: This console displays an error message when registering a valid service worker fails.
-      // RA: TODO: The possible values of this error need to be investigated further to determine risk.
+      // RA: TODO: The possible values of this error need to be investigated further to determine mitigation actions.
+      // RA: POAM story here: https://dp3.atlassian.net/browse/MB-5595
       // RA Developer Status: Known Issue
       // RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
       // RA Validator: jneuner@mitre.org
