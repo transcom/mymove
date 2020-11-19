@@ -19,54 +19,13 @@ repos:
       - id: check-yaml
         exclude: config/database.yml # database.yml is not a valid yaml file, it contains go templating
       - id: detect-private-key
-        #RA Summary: detect-private-key - Private key found for config/tls/devlocal-client_auth_secret.key$,
-        #RA config/tls/devlocal-faux-air-force-orders.key$, config/tls/devlocal-faux-all-orders.key$,
-        #RA config/tls/devlocal-faux-army-hrc-orders.key$, config/tls/devlocal-faux-coast-guard-orders.key$,
-        #RA config/tls/devlocal-faux-marin-corps-orders.key$, config/tls/devlocal-faux-navy-orders.key$,
-        #RA config/tls/devlocal-https.key$, config/tls/devlocal-mtls.key$, config/tls/devlocal-not-dps.key$.
-        #RA: detect-private-key detected a private key, but all keys in the directory "config/tls/devlocal-" are fake keys intended to
-        #RA: be used for a local environments only.
-        #RA: The risk of a production key being introduced is mitigated by this detect-private-key hook failing, and
-        #RA: the PR requiring approval by a team designated to gate changes to this file, specifically attempts to exclude
-        #RA: new key additions.
-        #RA Developer Status: Mitigated
-        #RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-        #RA Validator: jneuner@mitre.org
-        #RA Modified Severity:
-        #RA Summary: detect-private-key - Private key found for config/tls/devlocal-.+\.key$, pkg/server/testdata/localhost.key$,
-        #RA pkg/server/testdata/localhost-invalid.key$, pkg/server/testdata/officelocal.key$.
-        #RA: detect-private-key detected a private key, but all keys in the directory "testdata" are fake keys intended to
-        #RA: be used for testing purposes only.
-        #RA: The risk of a production key being introduced is mitigated by this detect-private-key hook failing, and
-        #RA: the PR requiring approval by a team designated to gate changes to this file, specifically attempts to exclude
-        #RA: new key additions.
-        #RA Developer Status: Mitigated
-        #RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-        #RA Validator: jneuner@mitre.org
-        #RA Modified Severity:
-        #RA Summary: detect-private-key - Private key found for pkg/auth/authentication/auth_test.go$.
-        #RA: detect-private-key detected a private key, but the failing value (called "FakeRSAKey") is a fake key intended to
-        #RA: be used for testing the authentication package only.
-        #RA: The risk of a production key being introduced is mitigated by this detect-private-key hook failing, and
-        #RA: the PR requiring approval by a team designated to gate changes to this file, specifically attempts to exclude
-        #RA: new key additions.
-        #RA Developer Status: Mitigated
-        #RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-        #RA Validator: jneuner@mitre.org
-        #RA Modified Severity:
-        #RA Summary: detect-private-key - Private key found for .envrc.local.template.
-        #RA: detect-private-key detected a private key, but key in the local envrc template is intended to
-        #RA: be used for local development only.
-        #RA: The risk of a production key being introduced is mitigated by this detect-private-key hook failing, and
-        #RA: the PR requiring approval by a team designated to gate changes to this file, specifically attempts to exclude
-        #RA: new key additions.
-        #RA Developer Status: Mitigated
-        #RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-        #RA Validator: jneuner@mitre.org
-        #RA Modified Severity:
-        #RA Summary: detect-private-key - Private key found for pkg/cli/auth.go$.
-        #RA: detect-private-key detected a private key, but the trigger in the CLI package is due to formatting the key via
-        #RA: string interpolation. That is, the key value itself is not included in this file.
+        #RA Summary: detect-private-key - Private key found
+        #RA: detect-private-key detected a private key in source control
+        #RA: config/tls/devlocal-*.key files are used in devlocal testing environments only.
+        #RA: pkg/server/testdata*.key files are used for testing purposes only.
+        #RA: pkg/auth/authentication/auth_test.go contains a static key, used for unit tests in devlocal and pipeline only.
+        #RA: pkg/cli/auth.go is a false positive; this code generates a keyfile at runtime, and its heuristics resemble an encoded key.
+        #RA: .envrc.local.template is used in devlocal environments only.
         #RA: The risk of a production key being introduced is mitigated by this detect-private-key hook failing, and
         #RA: the PR requiring approval by a team designated to gate changes to this file, specifically attempts to exclude
         #RA: new key additions.
@@ -82,7 +41,7 @@ repos:
             config/tls/devlocal-faux-all-orders.key$|
             config/tls/devlocal-faux-army-hrc-orders.key$|
             config/tls/devlocal-faux-coast-guard-orders.key$|
-            config/tls/devlocal-faux-marin-corps-orders.key$|
+            config/tls/devlocal-faux-marine-corps-orders.key$|
             config/tls/devlocal-faux-navy-orders.key$|
             config/tls/devlocal-https.key$|
             config/tls/devlocal-mtls.key$|
