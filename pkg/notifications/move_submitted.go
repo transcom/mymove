@@ -72,14 +72,17 @@ func (m MoveSubmitted) emails(ctx context.Context) ([]emailContent, error) {
 	if serviceMember.PersonalEmail == nil {
 		return emails, fmt.Errorf("no email found for service member")
 	}
+	// ^ fetch weight? there is a GetEntitlement function in entitlements.go
 
-	// add weight allowance
+	// add weight allowance field
 	htmlBody, textBody, err := m.renderTemplates(moveSubmittedEmailData{
-		Link:                       "https://www.surveymonkey.com/r/MilMovePt1-08191",
+		Link:                       "https://my.move.mil/",
+		PpmLink:                    "https://office.move.mil/downloads/ppm_info_sheet.pdf",
 		OriginDutyStation:          originDSTransportInfo.Name,
 		DestinationDutyStation:     orders.NewDutyStation.Name,
 		OriginDutyStationPhoneLine: originDSTransportInfo.PhoneLine,
 		Locator:                    move.Locator,
+		// WeightAllowance:	entitlement total_weight_self
 	})
 
 	if err != nil {
@@ -114,10 +117,12 @@ func (m MoveSubmitted) renderTemplates(data moveSubmittedEmailData) (string, str
 
 type moveSubmittedEmailData struct {
 	Link                       string
+	PpmLink                    string
 	OriginDutyStation          string
 	DestinationDutyStation     string
 	OriginDutyStationPhoneLine string
 	Locator                    string
+	// WeightAllowance		   string
 }
 
 // RenderHTML renders the html for the email
