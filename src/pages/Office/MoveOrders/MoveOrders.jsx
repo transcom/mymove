@@ -67,9 +67,8 @@ const MoveOrders = ({ history, match }) => {
       // RA: TODO: As indicated, this error needs to be handled and needs further investigation and work.
       // RA: POAM story here: https://dp3.atlassian.net/browse/MB-5597
       // RA Developer Status: Known Issue
-      // RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-      // RA Validator: jneuner@mitre.org
-      // RA Modified Severity:
+      // RA Validator Status: Known Issue
+      // RA Modified Severity: CAT II
       // eslint-disable-next-line no-console
       console.log(errorMsg);
     },

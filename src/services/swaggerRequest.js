@@ -19,7 +19,7 @@ export const requestInterceptor = (req) => {
       // RA: nor variable names, SQL strings, system path information, or source or program code,
       // RA: this is not a finding.
       // RA Developer Status: Mitigated
-      // RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+      // RA Validator Status: Mitigated
       // RA Validator: jneuner@mitre.org
       // RA Modified Severity: CAT III
       // eslint-disable-next-line no-console
@@ -74,7 +74,7 @@ function successfulReturnType(routeDefinition, status) {
     // RA: Given that this console error does not contain variable names, SQL strings, system path information, or source or program code,
     // RA: this is not a finding.
     // RA Developer Status: Mitigated
-    // RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+    // RA Validator Status: Mitigated
     // RA Validator: jneuner@mitre.org
     // RA Modified Severity: CAT III
     // eslint-disable-next-line no-console
@@ -112,7 +112,7 @@ export async function makeSwaggerRequest(client, operationPath, params = {}, opt
     // RA: Given that this console error does not contain variable names, SQL strings, system path information, or source or program code,
     // RA: this is not a finding.
     // RA Developer Status: Mitigated
-    // RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+    // RA Validator Status: Mitigated
     // RA Validator: jneuner@mitre.org
     // RA Modified Severity: CAT III
     // eslint-disable-next-line no-console
@@ -145,7 +145,7 @@ export async function makeSwaggerRequest(client, operationPath, params = {}, opt
           // RA: Given that this console.warn does not contain variable names, SQL strings, system path information, or source or program code,
           // RA: this is not a finding.
           // RA Developer Status: Mitigated
-          // RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+          // RA Validator Status: Mitigated
           // RA Validator: jneuner@mitre.org
           // RA Modified Severity: CAT III
           // eslint-disable-next-line no-console
@@ -169,7 +169,7 @@ export async function makeSwaggerRequest(client, operationPath, params = {}, opt
       // RA: Given that this console error does not contain variable names, SQL strings, system path information, or source or program code,
       // RA: this is not a finding.
       // RA Developer Status: Mitigated
-      // RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+      // RA Validator Status: Mitigated
       // RA Validator: jneuner@mitre.org
       // RA Modified Severity: CAT III
       // eslint-disable-next-line no-console

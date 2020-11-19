@@ -37,7 +37,7 @@ function registerValidSW(swUrl) {
               // RA: nor variable names, SQL strings, system path information, or source or program code,
               // RA: this is not a finding.
               // RA Developer Status: Mitigated
-              // RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+              // RA Validator Status: Mitigated
               // RA Validator: jneuner@mitre.org
               // RA Modified Severity: CAT III
               // At this point, the old content will have been purged and
@@ -53,7 +53,7 @@ function registerValidSW(swUrl) {
               // RA: nor variable names, SQL strings, system path information, or source or program code,
               // RA: this is not a finding.
               // RA Developer Status: Mitigated
-              // RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+              // RA Validator Status: Mitigated
               // RA Validator: jneuner@mitre.org
               // RA Modified Severity: CAT III
               // At this point, everything has been precached.
@@ -72,9 +72,8 @@ function registerValidSW(swUrl) {
       // RA: TODO: The possible values of this error need to be investigated further to determine mitigation actions.
       // RA: POAM story here: https://dp3.atlassian.net/browse/MB-5595
       // RA Developer Status: Known Issue
-      // RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-      // RA Validator: jneuner@mitre.org
-      // RA Modified Severity:
+      // RA Validator Status: Known Issue
+      // RA Modified Severity: CAT II
       console.error('Error during service worker registration:', error); // eslint-disable-line no-console
     });
 }
@@ -104,7 +103,7 @@ function checkValidServiceWorker(swUrl) {
       // RA: nor variable names, SQL strings, system path information, or source or program code,
       // RA: this is not a finding.
       // RA Developer Status: Mitigated
-      // RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+      // RA Validator Status: Mitigated
       // RA Validator: jneuner@mitre.org
       // RA Modified Severity: CAT III
       console.log('No internet connection found. App is running in offline mode.'); // eslint-disable-line no-console
