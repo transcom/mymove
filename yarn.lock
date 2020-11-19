@@ -6695,10 +6695,10 @@ danger-plugin-jira-issue@^1.4.1:
   resolved "https://registry.yarnpkg.com/danger-plugin-jira-issue/-/danger-plugin-jira-issue-1.4.1.tgz#1e2317ae8a291d96dc19762a55cb905681320940"
   integrity sha512-B/XaW8YigUboK4BH4sMM8GmE0e+Bc6ibAg+Xyf0HFGph4DIawNYOuwKbCh2K1fAyXafott6tGpxFMe9Tc0Aabw==
 
-danger@^10.5.1:
-  version "10.5.1"
-  resolved "https://registry.yarnpkg.com/danger/-/danger-10.5.1.tgz#54f6acee8953a2facad1359f5c94694556f9e6e9"
-  integrity sha512-M+SnvfD4VKSXwXMRGYR0KPtdl8jYmWqHIlqw1vwB/oTikjCi0nwXFJ7Nw/H3lCPY5NgXDFfJ7UHf8cR7kLNBlQ==
+danger@^10.5.2:
+  version "10.5.2"
+  resolved "https://registry.yarnpkg.com/danger/-/danger-10.5.2.tgz#1905701fe471acf3a573bbbe0582c2ee47a4e50b"
+  integrity sha512-cndHjaFST6kkTFYdX6WwULhN51sX4DXXolL+1ohhncigXEO6EyJDk+YyH3R3e0CtwcobZ1+oY/SIkdffuw8Ogg==
   dependencies:
     "@babel/polyfill" "^7.2.5"
     "@octokit/rest" "^16.43.1"
