@@ -126,10 +126,10 @@ func createTLSConfig(clientKey []byte, clientCert []byte, ca []byte, tlsVersion 
 
 	//RA Summary: gosec - G402 - TLS MinVersion too low
 	//RA: The linter flagged this line of code, because we are passing in a tlsVersion which could be bad.
-	//RA: However, this by design. The purpose of the tls-checker is to attempt to deploy the app with some
-	//RA: known bad versions of TLS -- including 1.0 and 1.1. Relevant PR in which tls-checker was added:
+	//RA: However, this is by design. The purpose of the tls-checker is to attempt to deploy the app with
+	//RA: some known bad versions of TLS including 1.0 and 1.1. Relevant PR in which tls-checker was added:
 	//RA: - https://github.com/transcom/mymove/pull/3340
-	//RA Developer Status: {RA Request, RA Accepted, POA&M Request, POA&M Accepted, **Mitigated**, Need Developer Fix, False Positive, Bad Practice}
+	//RA Developer Status: Mitigated
 	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
 	//RA Validator: jneuner@mitre.org
 	//RA Modified Severity:
@@ -166,10 +166,10 @@ func createHTTPClient(v *viper.Viper, logger *zap.Logger, tlsVersion uint16) (*h
 
 	//RA Summary: gosec - G402 - TLS MinVersion too low
 	//RA: The linter flagged this line of code, because we are passing in a tlsVersion which could be bad.
-	//RA: However, this by design. The purpose of the tls-checker is to attempt to deploy the app with some
-	//RA: known bad versions of TLS -- including 1.0 and 1.1. Relevant PR in which tls-checker was added:
+	//RA: However, this is by design. The purpose of the tls-checker is to attempt to deploy the app with
+	//RA: some known bad versions of TLS including 1.0 and 1.1. Relevant PR in which tls-checker was added:
 	//RA: - https://github.com/transcom/mymove/pull/3340
-	//RA Developer Status: {RA Request, RA Accepted, POA&M Request, POA&M Accepted, **Mitigated**, Need Developer Fix, False Positive, Bad Practice}
+	//RA Developer Status: Mitigated
 	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
 	//RA Validator: jneuner@mitre.org
 	//RA Modified Severity:
