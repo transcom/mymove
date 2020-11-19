@@ -123,6 +123,53 @@ func MakeDefaultMove(db *pop.Connection) models.Move {
 	return MakeMove(db, Assertions{})
 }
 
+// MakeHHGMoveWithShipment makes an HHG Move with one submitted shipment
+func MakeHHGMoveWithShipment(db *pop.Connection, assertions Assertions) models.Move {
+	hhgMoveType := models.SelectedMoveTypeHHG
+	move := MakeMove(db, Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusSUBMITTED,
+		},
+		ServiceMember:        assertions.ServiceMember,
+		TransportationOffice: assertions.TransportationOffice,
+		Stub:                 assertions.Stub,
+	})
+
+	MakeMTOShipment(db, Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+		Stub: assertions.Stub,
+	})
+
+	return move
+}
+
+// MakeHiddenHHGMoveWithShipment makes an HHG Move with show = false
+func MakeHiddenHHGMoveWithShipment(db *pop.Connection, assertions Assertions) models.Move {
+	hhgMoveType := models.SelectedMoveTypeHHG
+	move := MakeMove(db, Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusSUBMITTED,
+			Show:             swag.Bool(false),
+		},
+		Stub: assertions.Stub,
+	})
+
+	MakeMTOShipment(db, Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+		Stub: assertions.Stub,
+	})
+
+	return move
+}
+
 func setShow(assertionShow *bool) *bool {
 	show := swag.Bool(true)
 	if assertionShow != nil {
