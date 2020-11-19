@@ -110,6 +110,7 @@ const PaymentRequestQueue = ({ history }) => {
         defaultCanSort
         defaultSortedColumns={[{ id: 'age', desc: true }]}
         disableMultiSort
+        disableSortBy={false}
         columns={columns}
         title="Payment requests"
         handleClick={handleClick}

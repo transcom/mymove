@@ -18,6 +18,7 @@ const TableQueue = ({
   manualSortBy,
   disableMultiSort,
   defaultCanSort,
+  disableSortBy,
   defaultSortedColumns,
   handleClick,
   useQueries,
@@ -82,6 +83,7 @@ const TableQueue = ({
       manualSortBy,
       disableMultiSort,
       defaultCanSort,
+      disableSortBy,
     },
     useFilters,
     useSortBy,
@@ -150,6 +152,8 @@ TableQueue.propTypes = {
   disableMultiSort: PropTypes.bool,
   // defaultCanSort determines if all columns are by default sortable
   defaultCanSort: PropTypes.bool,
+  // disableSortBy is bool flag to turn off sorting functionality
+  disableSortBy: PropTypes.bool,
   // defaultSortedColumns is an object of the column id and sort direction
   defaultSortedColumns: SortShape,
 };
@@ -160,6 +164,7 @@ TableQueue.defaultProps = {
   manualSortBy: false,
   disableMultiSort: false,
   defaultCanSort: false,
+  disableSortBy: true,
   defaultSortedColumns: [],
 };
 
