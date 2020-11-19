@@ -37,7 +37,7 @@ func MakeServiceMember(db *pop.Connection, assertions Assertions) models.Service
 		if assertions.User.LoginGovEmail == "" {
 			assertions.User.LoginGovEmail = email
 		}
-		user = MakeUser(db, assertions)
+		user = MakeDefaultUser(db)
 	}
 	if assertions.User.LoginGovEmail != "" {
 		email = assertions.User.LoginGovEmail

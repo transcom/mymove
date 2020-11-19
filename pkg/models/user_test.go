@@ -22,7 +22,7 @@ func (suite *ModelSuite) TestUserCreation() {
 	userEmail := "sally@government.gov"
 
 	newUser := User{
-		LoginGovUUID:  fakeUUID,
+		LoginGovUUID:  &fakeUUID,
 		LoginGovEmail: userEmail,
 	}
 
@@ -35,7 +35,7 @@ func (suite *ModelSuite) TestUserCreation() {
 	}
 
 	if (newUser.LoginGovEmail != userEmail) &&
-		(newUser.LoginGovUUID != fakeUUID) {
+		(*newUser.LoginGovUUID != fakeUUID) {
 		t.Error("Required values didn't get set.")
 	}
 }
@@ -45,7 +45,6 @@ func (suite *ModelSuite) TestUserCreationWithoutValues() {
 
 	expErrors := map[string][]string{
 		"login_gov_email": {"LoginGovEmail can not be blank."},
-		"login_gov_uuid":  {"LoginGovUUID can not be blank."},
 	}
 
 	suite.verifyValidationErrors(newUser, expErrors)
@@ -56,12 +55,12 @@ func (suite *ModelSuite) TestUserCreationDuplicateUUID() {
 	userEmail := "sally@government.gov"
 
 	newUser := User{
-		LoginGovUUID:  fakeUUID,
+		LoginGovUUID:  &fakeUUID,
 		LoginGovEmail: userEmail,
 	}
 
 	sameUser := User{
-		LoginGovUUID:  fakeUUID,
+		LoginGovUUID:  &fakeUUID,
 		LoginGovEmail: userEmail,
 	}
 
@@ -94,11 +93,7 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Equal(ErrFetchNotFound, err, "Expected not to find missing Identity")
 	suite.Nil(identity)
 
-	alice := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
-		User: User{
-			Active: true,
-		},
-	})
+	alice := testdatagen.MakeDefaultUser(suite.DB())
 	identity, err = FetchUserIdentity(suite.DB(), alice.LoginGovUUID.String())
 	suite.Nil(err, "loading alice's identity")
 	suite.NotNil(identity)
@@ -116,7 +111,13 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Equal(bob.ID, *identity.ServiceMemberID)
 	suite.Nil(identity.OfficeUserID)
 
-	carol := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	carolUser := testdatagen.MakeDefaultUser(suite.DB())
+	carol := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
+		OfficeUser: OfficeUser{
+			UserID: &carolUser.ID,
+			User:   carolUser,
+		},
+	})
 	identity, err = FetchUserIdentity(suite.DB(), carol.User.LoginGovUUID.String())
 	suite.Nil(err, "loading carol's identity")
 	suite.NotNil(identity)
@@ -125,7 +126,13 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Nil(identity.ServiceMemberID)
 	suite.Equal(carol.ID, *identity.OfficeUserID)
 
-	systemAdmin := testdatagen.MakeDefaultAdminUser(suite.DB())
+	adminUser := testdatagen.MakeDefaultUser(suite.DB())
+	systemAdmin := testdatagen.MakeAdminUser(suite.DB(), testdatagen.Assertions{
+		AdminUser: AdminUser{
+			User:   adminUser,
+			UserID: &adminUser.ID,
+		},
+	})
 	identity, err = FetchUserIdentity(suite.DB(), systemAdmin.User.LoginGovUUID.String())
 	suite.Nil(err, "loading systemAdmin's identity")
 	suite.NotNil(identity)
@@ -144,10 +151,12 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	}
 	suite.NoError(suite.DB().Create(&rs))
 	customerRole := rs[0]
+	patUUID := uuid.Must(uuid.NewV4())
 	pat := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
 		User: User{
-			Active: true,
-			Roles:  []roles.Role{customerRole},
+			LoginGovUUID: &patUUID,
+			Active:       true,
+			Roles:        []roles.Role{customerRole},
 		},
 	})
 
@@ -157,11 +166,12 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Equal(len(identity.Roles), 1)
 
 	tooRole := rs[1]
-	suite.NoError(err)
+	billyUUID := uuid.Must(uuid.NewV4())
 	billy := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
 		User: User{
-			Active: true,
-			Roles:  []roles.Role{tooRole},
+			LoginGovUUID: &billyUUID,
+			Active:       true,
+			Roles:        []roles.Role{tooRole},
 		},
 	})
 

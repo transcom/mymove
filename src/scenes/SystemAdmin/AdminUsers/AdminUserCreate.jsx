@@ -7,7 +7,13 @@ const AdminUserCreate = (props) => (
       <TextInput source="email" validate={required()} />
       <TextInput source="firstName" validate={required()} />
       <TextInput source="lastName" validate={required()} />
-      <ReferenceInput label="Organization" reference="organizations" source="organizationId" perPage={500}>
+      <ReferenceInput
+        label="Organization"
+        reference="organizations"
+        source="organizationId"
+        perPage={500}
+        validate={required()}
+      >
         <AutocompleteInput optionText="name" />
       </ReferenceInput>
     </SimpleForm>
