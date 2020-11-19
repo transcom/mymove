@@ -16,8 +16,8 @@ type moveOrderFetcher struct {
 	db *pop.Connection
 }
 
-// FilterOption defines the type for the functional arguments used for private functions in MoveOrderFetcher
-type FilterOption func(*pop.Query)
+// QueryOption defines the type for the functional arguments used for private functions in MoveOrderFetcher
+type QueryOption func(*pop.Query)
 
 func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *services.ListMoveOrderParams) ([]models.Move, int, error) {
 	// Now that we've joined orders and move_orders, we only want to return orders that
@@ -42,7 +42,7 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 	branchQuery := branchFilter(params.Branch)
 	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
 	// We also only want to do the gbloc filtering thing if we aren't a USMC user, which we cover with the else.
-	var gblocQuery FilterOption
+	var gblocQuery QueryOption
 	if gbloc == "USMC" {
 		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)))
 	} else {
@@ -55,7 +55,7 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 	moveStatusQuery := moveStatusFilter(params.Status)
 	sortOrderQuery := sortOrder(params.Sort, params.Order)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [8]FilterOption{branchQuery, moveIDQuery, dodIDQuery, lastNameQuery, dutyStationQuery, moveStatusQuery, gblocQuery, sortOrderQuery}
+	options := [8]QueryOption{branchQuery, moveIDQuery, dodIDQuery, lastNameQuery, dutyStationQuery, moveStatusQuery, gblocQuery, sortOrderQuery}
 
 	query := f.db.Q().Eager(
 		"Orders.ServiceMember",
@@ -92,7 +92,7 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 		params.Page = swag.Int64(0)
 	}
 
-	err = query.GroupBy("moves.id").Paginate(int(*params.Page), int(*params.PerPage)).All(&moves)
+	err = query.GroupBy("moves.id, service_members.id, orders.id").Paginate(int(*params.Page), int(*params.PerPage)).All(&moves)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -153,7 +153,7 @@ func (f moveOrderFetcher) FetchMoveOrder(moveOrderID uuid.UUID) (*models.Order, 
 }
 
 // These are a bunch of private functions that are used to cobble our list MoveOrders filters together.
-func branchFilter(branch *string) FilterOption {
+func branchFilter(branch *string) QueryOption {
 	return func(query *pop.Query) {
 		if branch == nil {
 			query = query.Where("service_members.affiliation != ?", models.AffiliationMARINES)
@@ -164,7 +164,7 @@ func branchFilter(branch *string) FilterOption {
 	}
 }
 
-func lastNameFilter(lastName *string) FilterOption {
+func lastNameFilter(lastName *string) QueryOption {
 	return func(query *pop.Query) {
 		if lastName != nil {
 			nameSearch := fmt.Sprintf("%s%%", *lastName)
@@ -173,7 +173,7 @@ func lastNameFilter(lastName *string) FilterOption {
 	}
 }
 
-func dodIDFilter(dodID *string) FilterOption {
+func dodIDFilter(dodID *string) QueryOption {
 	return func(query *pop.Query) {
 		if dodID != nil {
 			query = query.Where("service_members.edipi = ?", dodID)
@@ -181,14 +181,14 @@ func dodIDFilter(dodID *string) FilterOption {
 	}
 }
 
-func moveIDFilter(moveID *string) FilterOption {
+func moveIDFilter(moveID *string) QueryOption {
 	return func(query *pop.Query) {
 		if moveID != nil {
 			query = query.Where("moves.locator = ?", *moveID)
 		}
 	}
 }
-func destinationDutyStationFilter(destinationDutyStation *string) FilterOption {
+func destinationDutyStationFilter(destinationDutyStation *string) QueryOption {
 	return func(query *pop.Query) {
 		if destinationDutyStation != nil {
 			nameSearch := fmt.Sprintf("%s%%", *destinationDutyStation)
@@ -197,7 +197,7 @@ func destinationDutyStationFilter(destinationDutyStation *string) FilterOption {
 	}
 }
 
-func moveStatusFilter(statuses []string) FilterOption {
+func moveStatusFilter(statuses []string) QueryOption {
 	return func(query *pop.Query) {
 		// If we have statuses let's use them
 		if len(statuses) > 0 {
@@ -210,19 +210,23 @@ func moveStatusFilter(statuses []string) FilterOption {
 	}
 }
 
-func gblocFilter(gbloc string) FilterOption {
+func gblocFilter(gbloc string) QueryOption {
 	return func(query *pop.Query) {
 		query = query.Where("transportation_offices.gbloc = ?", gbloc)
 	}
 }
 
-func sortOrder(sort *string, order *string) FilterOption {
+func sortOrder(sort *string, order *string) QueryOption {
 	return func(query *pop.Query) {
 		// If we have a sort and order defined let's use it. Otherwise we'll use our default status desc sort order.
 		if sort != nil && order != nil {
-			query = query.Order(fmt.Sprintf("%s %s", *sort, *order))
+			if *sort == "service_member.last_name" {
+				query = query.Order(fmt.Sprintf("service_members.last_name %s, service_members.first_name %s", *order, *order))
+			} else {
+				query = query.Order(fmt.Sprintf("%s %s", *sort, *order))
+			}
 		} else {
-			query = query.Order("status desc")
+			query = query.Order("moves.status desc")
 		}
 	}
 }

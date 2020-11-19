@@ -336,29 +336,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		suite.Equal(ghcmessages.QueueMoveStatus("SUBMITTED"), payload.QueueMoves[0].Status)
 	})
 
-	suite.Run("loads results with all STATUSes selected and ordered", func() {
-		params := queues.GetMovesQueueParams{
-			HTTPRequest: request,
-			Status: []string{
-				string(models.MoveStatusSUBMITTED),
-				string(models.MoveStatusAPPROVED),
-				string(models.MoveStatusAPPROVALSREQUESTED),
-			},
-			Sort:  swag.String("status"),
-			Order: swag.String("asc"),
-		}
-		response := handler.Handle(params)
-		suite.IsNotErrResponse(response)
-
-		payload := response.(*queues.GetMovesQueueOK).Payload
-		suite.EqualValues(3, payload.TotalCount)
-		suite.Len(payload.QueueMoves, 3)
-		// test that the moves are sorted by status descending
-		suite.Equal(ghcmessages.QueueMoveStatus("APPROVALS REQUESTED"), payload.QueueMoves[0].Status)
-		suite.Equal(ghcmessages.QueueMoveStatus("APPROVED"), payload.QueueMoves[1].Status)
-		suite.Equal(ghcmessages.QueueMoveStatus("SUBMITTED"), payload.QueueMoves[2].Status)
-	})
-
 	suite.Run("loads results with all STATUSes and 1 page selected", func() {
 		params := queues.GetMovesQueueParams{
 			HTTPRequest: request,
