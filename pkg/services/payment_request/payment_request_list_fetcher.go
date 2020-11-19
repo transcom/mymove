@@ -16,7 +16,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-const lastName = "last_name"
 
 type paymentRequestListFetcher struct {
 	db *pop.Connection
@@ -28,7 +27,7 @@ func NewPaymentRequestListFetcher(db *pop.Connection) services.PaymentRequestLis
 }
 
 // FilterOption defines the type for the functional arguments passed to ListMoveOrders
-type FilterOption func(*pop.Query)
+type QueryOption func(*pop.Query)
 
 func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UUID, params *services.FetchPaymentRequestListParams) (*models.PaymentRequests, int, error) {
 	gblocFetcher := officeuser.NewOfficeUserGblocFetcher(f.db)
@@ -51,7 +50,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 	branchQuery := branchFilter(params.Branch)
 	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
 	// We also only want to do the gbloc filtering thing if we aren't a USMC user, which we cover with the else.
-	var gblocQuery FilterOption
+	var gblocQuery QueryOption
 	if gbloc == "USMC" {
 		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)))
 	} else {
@@ -65,7 +64,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
 	orderQuery := queryOrder(params.Sort, params.Order)
 
-	options := [9]FilterOption{branchQuery, moveIDQuery, dodIDQuery, lastNameQuery, dutyStationQuery, statusQuery, submittedAtQuery, gblocQuery, orderQuery}
+	options := [9]QueryOption{branchQuery, moveIDQuery, dodIDQuery, lastNameQuery, dutyStationQuery, statusQuery, submittedAtQuery, gblocQuery, orderQuery}
 
 	for _, option := range options {
 		if option != nil {
@@ -111,10 +110,10 @@ func orderName(query *pop.Query, order *string) *pop.Query {
 	return query.Order(fmt.Sprintf("service_members.last_name %s, service_members.first_name %s", *order, *order))
 }
 
-func queryOrder(sort *string, order *string) FilterOption {
+func queryOrder(sort *string, order *string) QueryOption {
 	return func(query *pop.Query) {
 		if sort != nil && order != nil {
-			if *sort == lastName {
+			if *sort == "service_member.last_name" {
 				orderName(query, order)
 			} else {
 				query = query.Order(fmt.Sprintf("%s %s", *sort, *order))
@@ -125,7 +124,7 @@ func queryOrder(sort *string, order *string) FilterOption {
 	}
 }
 
-func branchFilter(branch *string) FilterOption {
+func branchFilter(branch *string) QueryOption {
 	return func(query *pop.Query) {
 		if branch != nil {
 			query = query.Where("service_members.affiliation = ?", *branch)
@@ -133,7 +132,7 @@ func branchFilter(branch *string) FilterOption {
 	}
 }
 
-func lastNameFilter(lastName *string) FilterOption {
+func lastNameFilter(lastName *string) QueryOption {
 	return func(query *pop.Query) {
 		if lastName != nil {
 			nameSearch := fmt.Sprintf("%s%%", *lastName)
@@ -142,7 +141,7 @@ func lastNameFilter(lastName *string) FilterOption {
 	}
 }
 
-func dodIDFilter(dodID *string) FilterOption {
+func dodIDFilter(dodID *string) QueryOption {
 	return func(query *pop.Query) {
 		if dodID != nil {
 			query = query.Where("service_members.edipi = ?", dodID)
@@ -150,14 +149,14 @@ func dodIDFilter(dodID *string) FilterOption {
 	}
 }
 
-func moveIDFilter(moveID *string) FilterOption {
+func moveIDFilter(moveID *string) QueryOption {
 	return func(query *pop.Query) {
 		if moveID != nil {
 			query = query.Where("moves.locator = ?", *moveID)
 		}
 	}
 }
-func destinationDutyStationFilter(destinationDutyStation *string) FilterOption {
+func destinationDutyStationFilter(destinationDutyStation *string) QueryOption {
 	return func(query *pop.Query) {
 		if destinationDutyStation != nil {
 			nameSearch := fmt.Sprintf("%s%%", *destinationDutyStation)
@@ -166,7 +165,7 @@ func destinationDutyStationFilter(destinationDutyStation *string) FilterOption {
 	}
 }
 
-func submittedAtFilter(submittedAt *string) FilterOption {
+func submittedAtFilter(submittedAt *string) QueryOption {
 	return func(query *pop.Query) {
 		if submittedAt != nil {
 			query = query.Where("CAST(payment_requests.created_at AS DATE) = ?", *submittedAt)
@@ -174,13 +173,13 @@ func submittedAtFilter(submittedAt *string) FilterOption {
 	}
 }
 
-func gblocFilter(gbloc string) FilterOption {
+func gblocFilter(gbloc string) QueryOption {
 	return func(query *pop.Query) {
 		query = query.Where("transportation_offices.gbloc = ?", gbloc)
 	}
 }
 
-func paymentRequestsStatusFilter(statuses []string) FilterOption {
+func paymentRequestsStatusFilter(statuses []string) QueryOption {
 	return func(query *pop.Query) {
 		var translatedStatuses []string
 		if len(statuses) > 0 {

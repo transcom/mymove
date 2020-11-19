@@ -1,7 +1,9 @@
 package paymentrequest
 
 import (
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/transcom/mymove/pkg/services"
 
@@ -164,5 +166,68 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListWithPaginati
 	suite.NoError(err)
 	suite.Equal(1, len(*expectedPaymentRequests))
 	suite.Equal(2, count)
+}
 
+
+func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
+	hhgMoveType := models.SelectedMoveTypeHHG
+	branchNavy := models.AffiliationNAVY
+	//
+	officeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{})
+
+	hhgMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			FirstName: models.StringPointer("Lena"),
+			LastName:  models.StringPointer("Spacemen"),
+			Edipi: models.StringPointer("AZFG"),
+
+		},
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusSUBMITTED,
+			Locator:          "ZZZZ",
+		},
+	})
+	// Fake this as a day and a half in the past so floating point age values can be tested
+	prevCreatedAt := time.Now().Add(time.Duration(time.Hour * -36))
+
+	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		Move: hhgMove,
+		PaymentRequest: models.PaymentRequest{
+			CreatedAt: prevCreatedAt,
+		},
+	})
+
+	paymentRequest2 := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			Edipi: models.StringPointer("EZFG"),
+			LastName:  models.StringPointer("Spacemen"),
+			FirstName: models.StringPointer("Leo"),
+			Affiliation: &branchNavy,
+		},
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusAPPROVED,
+		},
+	})
+
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: paymentRequest2.MoveTaskOrder,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+	})
+	//
+	paymentRequestListFetcher := NewPaymentRequestListFetcher(suite.DB())
+
+	// Sort by service member name
+	params := &services.FetchPaymentRequestListParams{Page: swag.Int64(1), Sort: swag.String("last_name"), Order: swag.String("desc")}
+	expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, params)
+	paymentRequests := *expectedPaymentRequests
+
+	fmt.Printf(" first re %+v", paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.FirstName)
+	fmt.Printf("second re %+v", paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.FirstName)
+	suite.NoError(err)
+	suite.Equal(2, len(paymentRequests))
+	suite.Equal("Lena", *paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.FirstName )
 }
