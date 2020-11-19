@@ -5,6 +5,7 @@ import (
 	"crypto/x509"
 	"fmt"
 	"io/ioutil"
+	"path/filepath"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -49,7 +50,7 @@ func InitDoDCertificates(v *viper.Viper, logger Logger) ([]tls.Certificate, *x50
 	logger.Info("DOD keypair", zap.Any("certificates", len(keyPair.Certificate)))
 
 	pathToPackage := v.GetString(cli.DoDCAPackageFlag)
-	pkcs7Package, err := ioutil.ReadFile(pathToPackage) // #nosec
+	pkcs7Package, err := ioutil.ReadFile(filepath.Clean(pathToPackage))
 	if err != nil {
 		return make([]tls.Certificate, 0), nil, errors.Wrap(err, fmt.Sprintf("%s is invalid", cli.DoDCAPackageFlag))
 	}

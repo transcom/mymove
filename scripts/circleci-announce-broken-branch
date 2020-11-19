@@ -20,7 +20,7 @@ fi
 slack_payload=$(
 cat <<EOM
 {
-    "channel": "#on-call",
+    "channel": "#prac-engineering",
     "attachments": [
         {
             "fallback": "$message $CIRCLE_BUILD_URL",

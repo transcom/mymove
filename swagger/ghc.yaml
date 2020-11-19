@@ -1093,6 +1093,13 @@ paths:
         - queues
       parameters:
         - in: query
+          name: sort
+          type: string
+        - in: query
+          name: order
+          type: string
+          enum: [ asc, desc ]
+        - in: query
           name: page
           type: integer
           description: requested page of results
@@ -2477,6 +2484,10 @@ definitions:
         type: integer
       queuePaymentRequests:
         $ref: '#/definitions/QueuePaymentRequests'
+      sort:
+        type: string
+      order:
+        type: boolean
   GBLOC:
     type: string
     enum:

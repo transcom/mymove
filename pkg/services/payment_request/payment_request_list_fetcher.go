@@ -16,6 +16,8 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+const lastName = "last_name"
+
 type paymentRequestListFetcher struct {
 	db *pop.Connection
 }
@@ -44,8 +46,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 		InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
 		InnerJoin("duty_stations", "duty_stations.id = orders.origin_duty_station_id").
-		InnerJoin("transportation_offices", "transportation_offices.id = duty_stations.transportation_office_id").
-		Order("status asc")
+		InnerJoin("transportation_offices", "transportation_offices.id = duty_stations.transportation_office_id")
 
 	branchQuery := branchFilter(params.Branch)
 	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
@@ -62,7 +63,9 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 	dutyStationQuery := destinationDutyStationFilter(params.DestinationDutyStation)
 	statusQuery := paymentRequestsStatusFilter(params.Status)
 	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
-	options := [8]FilterOption{branchQuery, moveIDQuery, dodIDQuery, lastNameQuery, dutyStationQuery, statusQuery, submittedAtQuery, gblocQuery}
+	orderQuery := queryOrder(params.Sort, params.Order)
+
+	options := [9]FilterOption{branchQuery, moveIDQuery, dodIDQuery, lastNameQuery, dutyStationQuery, statusQuery, submittedAtQuery, gblocQuery, orderQuery}
 
 	for _, option := range options {
 		if option != nil {
@@ -78,7 +81,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 		params.PerPage = swag.Int64(20)
 	}
 
-	err := query.GroupBy("payment_requests.id").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
+	err := query.GroupBy("payment_requests.id, service_members.id, moves.id").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
 
 	if err != nil {
 		switch err {
@@ -102,6 +105,24 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 	count := query.Paginator.TotalEntriesSize
 
 	return &paymentRequests, count, nil
+}
+
+func orderName(query *pop.Query, order *string) *pop.Query {
+	return query.Order(fmt.Sprintf("service_members.last_name %s, service_members.first_name %s", *order, *order))
+}
+
+func queryOrder(sort *string, order *string) FilterOption {
+	return func(query *pop.Query) {
+		if sort != nil && order != nil {
+			if *sort == lastName {
+				orderName(query, order)
+			} else {
+				query = query.Order(fmt.Sprintf("%s %s", *sort, *order))
+			}
+		} else {
+			query = query.Order("created_at asc")
+		}
+	}
 }
 
 func branchFilter(branch *string) FilterOption {

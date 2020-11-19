@@ -103,6 +103,8 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 		Page:                   params.Page,
 		PerPage:                params.PerPage,
 		SubmittedAt:            params.SubmittedAt,
+		Sort:                   params.Sort,
+		Order:                  params.Order,
 	}
 
 	// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
@@ -130,8 +132,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(params queues.GetPaymentRequestsQ
 		TotalCount:           int64(count),
 		Page:                 int64(*listPaymentRequestParams.Page),
 		PerPage:              int64(*listPaymentRequestParams.PerPage),
-		QueuePaymentRequests: *queuePaymentRequests,
-	}
+		QueuePaymentRequests: *queuePaymentRequests}
 
 	return queues.NewGetPaymentRequestsQueueOK().WithPayload(result)
 }

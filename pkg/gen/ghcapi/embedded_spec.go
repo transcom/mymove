@@ -1619,6 +1619,20 @@ func init() {
         "operationId": "getPaymentRequestsQueue",
         "parameters": [
           {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "name": "order",
+            "in": "query"
+          },
+          {
             "type": "integer",
             "description": "requested page of results",
             "name": "page",
@@ -3102,6 +3116,9 @@ func init() {
     "QueuePaymentRequestsResult": {
       "type": "object",
       "properties": {
+        "order": {
+          "type": "boolean"
+        },
         "page": {
           "type": "integer"
         },
@@ -3110,6 +3127,9 @@ func init() {
         },
         "queuePaymentRequests": {
           "$ref": "#/definitions/QueuePaymentRequests"
+        },
+        "sort": {
+          "type": "string"
         },
         "totalCount": {
           "type": "integer"
@@ -5424,6 +5444,20 @@ func init() {
         "operationId": "getPaymentRequestsQueue",
         "parameters": [
           {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "name": "order",
+            "in": "query"
+          },
+          {
             "type": "integer",
             "description": "requested page of results",
             "name": "page",
@@ -6913,6 +6947,9 @@ func init() {
     "QueuePaymentRequestsResult": {
       "type": "object",
       "properties": {
+        "order": {
+          "type": "boolean"
+        },
         "page": {
           "type": "integer"
         },
@@ -6921,6 +6958,9 @@ func init() {
         },
         "queuePaymentRequests": {
           "$ref": "#/definitions/QueuePaymentRequests"
+        },
+        "sort": {
+          "type": "string"
         },
         "totalCount": {
           "type": "integer"
