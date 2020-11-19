@@ -122,7 +122,7 @@ func createUser(tx *pop.Connection, userEmail *string, logger handlers.Logger) (
 	}
 	id := uuid.Must(uuid.NewV4())
 	user := models.User{
-		LoginGovUUID:  id,
+		LoginGovUUID:  &id,
 		LoginGovEmail: *userEmail,
 		Active:        true,
 	}
