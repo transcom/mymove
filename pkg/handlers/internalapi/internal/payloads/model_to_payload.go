@@ -2,9 +2,9 @@ package payloads
 
 import (
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -85,6 +85,53 @@ func MTOShipment(mtoShipment *models.MTOShipment) *internalmessages.MTOShipment 
 
 	if mtoShipment.RequestedDeliveryDate != nil && !mtoShipment.RequestedDeliveryDate.IsZero() {
 		payload.RequestedDeliveryDate = handlers.FmtDatePtr(mtoShipment.RequestedDeliveryDate)
+	}
+
+	return payload
+}
+
+// TransportationOffice internal payload
+func TransportationOffice(office models.TransportationOffice) *internalmessages.TransportationOffice {
+	if office.ID == uuid.Nil {
+		return nil
+	}
+
+	var phoneLines []string
+	for _, phoneLine := range office.PhoneLines {
+		if phoneLine.Type == "voice" {
+			phoneLines = append(phoneLines, phoneLine.Number)
+		}
+	}
+
+	payload := &internalmessages.TransportationOffice{
+		ID:         handlers.FmtUUID(office.ID),
+		CreatedAt:  handlers.FmtDateTime(office.CreatedAt),
+		UpdatedAt:  handlers.FmtDateTime(office.UpdatedAt),
+		Name:       swag.String(office.Name),
+		Gbloc:      office.Gbloc,
+		Address:    Address(&office.Address),
+		PhoneLines: phoneLines,
+	}
+	return payload
+}
+
+// OfficeUser internal payload
+func OfficeUser(officeUser *models.OfficeUser) *internalmessages.OfficeUser {
+	if officeUser == nil {
+		return nil
+	}
+
+	payload := &internalmessages.OfficeUser{
+		ID:                   strfmt.UUID(officeUser.ID.String()),
+		UserID:               strfmt.UUID(officeUser.UserID.String()),
+		Email:                &officeUser.Email,
+		FirstName:            &officeUser.FirstName,
+		LastName:             &officeUser.LastName,
+		MiddleName:           officeUser.MiddleInitials,
+		Telephone:            &officeUser.Telephone,
+		TransportationOffice: TransportationOffice(officeUser.TransportationOffice),
+		CreatedAt:            strfmt.DateTime(officeUser.CreatedAt),
+		UpdatedAt:            strfmt.DateTime(officeUser.UpdatedAt),
 	}
 
 	return payload

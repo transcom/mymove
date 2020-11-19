@@ -4,6 +4,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
+	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"go.uber.org/zap"
 
 	stationop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_stations"
@@ -25,10 +26,10 @@ func payloadForDutyStationModel(station models.DutyStation) *internalmessages.Du
 		Name:        swag.String(station.Name),
 		Affiliation: &station.Affiliation,
 		AddressID:   handlers.FmtUUID(station.AddressID),
-		Address:     payloadForAddressModel(&station.Address),
+		Address:     payloads.Address(&station.Address),
 	}
 
-	payload.TransportationOffice = payloadForTransportationOfficeModel(station.TransportationOffice)
+	payload.TransportationOffice = payloads.TransportationOffice(station.TransportationOffice)
 
 	return &payload
 }

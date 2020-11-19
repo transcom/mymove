@@ -2,9 +2,8 @@ package internalapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
+	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"go.uber.org/zap"
 
 	addressop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/addresses"
@@ -25,22 +24,6 @@ func addressModelFromPayload(rawAddress *internalmessages.Address) *models.Addre
 		State:          *rawAddress.State,
 		PostalCode:     *rawAddress.PostalCode,
 		Country:        rawAddress.Country,
-	}
-}
-
-func payloadForAddressModel(a *models.Address) *internalmessages.Address {
-	if a == nil {
-		return nil
-	}
-	return &internalmessages.Address{
-		ID:             strfmt.UUID(a.ID.String()),
-		StreetAddress1: swag.String(a.StreetAddress1),
-		StreetAddress2: a.StreetAddress2,
-		StreetAddress3: a.StreetAddress3,
-		City:           swag.String(a.City),
-		State:          swag.String(a.State),
-		PostalCode:     swag.String(a.PostalCode),
-		Country:        a.Country,
 	}
 }
 
@@ -69,6 +52,6 @@ func (h ShowAddressHandler) Handle(params addressop.ShowAddressParams) middlewar
 		logger.Error("Finding address", zap.Error(err))
 	}
 
-	addressPayload := payloadForAddressModel(address)
+	addressPayload := payloads.Address(address)
 	return addressop.NewShowAddressOK().WithPayload(addressPayload)
 }
