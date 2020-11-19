@@ -73,6 +73,7 @@ func (m MoveSubmitted) emails(ctx context.Context) ([]emailContent, error) {
 		return emails, fmt.Errorf("no email found for service member")
 	}
 
+	// add weight allowance
 	htmlBody, textBody, err := m.renderTemplates(moveSubmittedEmailData{
 		Link:                       "https://www.surveymonkey.com/r/MilMovePt1-08191",
 		OriginDutyStation:          originDSTransportInfo.Name,
