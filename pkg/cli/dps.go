@@ -21,9 +21,9 @@ const (
 	//RA: This line is used to identify the name of the flag. DPSAuthSecretKeyFlag is the DPS Auth Secret Key Flag.
 	//RA: This variable does not store an application secret.
 	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+	//RA Validator Status: Mitigated
 	//RA Validator: jneuner@mitre.org
-	//RA Modified Severity:
+	//RA Modified Severity: CAT III
 
 	// DPSAuthSecretKeyFlag is the DPS Auth Secret Key Flag // #nosec G101
 	DPSAuthSecretKeyFlag string = "dps-auth-secret-key"
@@ -39,9 +39,9 @@ const (
 	//RA: This line is used to identify the name of the flag. DPSAuthCookieSecretKeyFlag is the DPS Auth Cookie Secret Key Flag
 	//RA: The value of this variable does not store an application secret.
 	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+	//RA Validator Status: Mitigated
 	//RA Validator: jneuner@mitre.org
-	//RA Modified Severity:
+	//RA Modified Severity: CAT III
 
 	// DPSAuthCookieSecretKeyFlag is the DPS Auth Cookie Secret Key Flag // #nosec G101
 	DPSAuthCookieSecretKeyFlag string = "dps-auth-cookie-secret-key"

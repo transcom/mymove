@@ -16,9 +16,9 @@ const (
 	//RA: This line is used to identify the name of the flag. GEXBasicAuthPasswordFlag is the GEX Basic Auth Password Flag.
 	//RA: This value of this variable does not store an application password.
 	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+	//RA Validator Status: Mitigated
 	//RA Validator: jneuner@mitre.org
-	//RA Modified Severity:
+	//RA Modified Severity: CAT III
 
 	// GEXBasicAuthPasswordFlag is the GEX Basic Auth Password Flag #nosec G101
 	GEXBasicAuthPasswordFlag string = "gex-basic-auth-password"

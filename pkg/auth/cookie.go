@@ -41,9 +41,9 @@ func (e *errInvalidHostname) Error() string {
 //RA: This line is used to identify the name of the token. GorillaCSRFToken is the name of the base CSRF token.
 //RA: This variable does not store an application token.
 //RA Developer Status: Mitigated
-//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+//RA Validator Status: Mitigated
 //RA Validator: jneuner@mitre.org
-//RA Modified Severity:
+//RA Modified Severity: CAT III
 
 // GorillaCSRFToken is the name of the base CSRF token
 const GorillaCSRFToken = "_gorilla_csrf" // #nosec G101
