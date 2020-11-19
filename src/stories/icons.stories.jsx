@@ -35,7 +35,7 @@ import {
   faSyncAlt,
   faSpinner,
   faCaretDown,
-  faExclamationTriangle,
+  faExclamation,
 } from '@fortawesome/free-solid-svg-icons';
 import { faTimesCircle, faCalendar, faCheckCircle as farCheckCircle } from '@fortawesome/free-regular-svg-icons';
 
@@ -204,7 +204,7 @@ export const all = () => (
         <code>caret down | faCaretDown</code>
       </div>
       <div>
-        <FontAwesomeIcon icon={faExclamationTriangle} />
+        <FontAwesomeIcon icon={faExclamation} />
         <code>alert | faExclamationTriangle</code>
       </div>
       <div>

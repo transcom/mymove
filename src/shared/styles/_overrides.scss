@@ -149,11 +149,13 @@
     height: 24px;
     display: inline-block;
     svg {
-      width: 100%;
       vertical-align: sub;
       path {
         fill: #fff;
       }
+    }
+    .svg-inline--fa.fa-w-6 {
+      width: .5rem;
     }
     &--small {
       width: 20px;
