@@ -21,7 +21,7 @@ const DataPoint = ({ columnHeaders, dataRow, Icon, custClass }) => (
           <td key={i}>
             <div className={classnames({ [`${styles.iconCellContainer}`]: !!Icon && i === 0 })}>
               <span>{cell}</span>
-              {!!Icon && i === 0 && <Icon />}
+              {!!Icon && i === 0 && Icon}
             </div>
           </td>
         ))}
