@@ -9,6 +9,7 @@ import Table from 'components/Table/Table';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
+import { SortShape } from 'constants/queues';
 
 // TableQueue is a react-table that uses react-hooks to fetch, filter, sort and page data
 const TableQueue = ({
@@ -24,17 +25,25 @@ const TableQueue = ({
   showPagination,
 }) => {
   // eslint-disable-next-line no-unused-vars
-  const [paramSort, setParamSort] = useState(defaultSortedColumns);
+  const [paramSort, setParamSort] = useState([]);
   const [paramFilters, setParamFilters] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPageSize, setCurrentPageSize] = useState(20);
   const [pageCount, setPageCount] = useState(0);
 
+  const { id, desc } = paramSort.length ? paramSort[0] : {};
+
   const {
     queueResult: { totalCount = 0, data = [], page = 1, perPage = 20 },
     isLoading,
     isError,
-  } = useQueries({ filters: paramFilters, currentPage, currentPageSize });
+  } = useQueries({
+    sort: id,
+    order: desc ? 'desc' : 'asc',
+    filters: paramFilters,
+    currentPage,
+    currentPageSize,
+  });
 
   // react-table setup below
 
@@ -141,8 +150,8 @@ TableQueue.propTypes = {
   disableMultiSort: PropTypes.bool,
   // defaultCanSort determines if all columns are by default sortable
   defaultCanSort: PropTypes.bool,
-  // defaultSortedColumns is an array of column ids and sort directions
-  defaultSortedColumns: PropTypes.arrayOf(PropTypes.object),
+  // defaultSortedColumns is an object of the column id and sort direction
+  defaultSortedColumns: SortShape,
 };
 
 TableQueue.defaultProps = {
