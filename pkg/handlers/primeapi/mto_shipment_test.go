@@ -982,15 +982,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	})
 
 	suite.T().Run("Successful case for valid and complete payload including approved date and re service code", func(t *testing.T) {
-		reServiceID, _ := uuid.NewV4()
 		mto := testdatagen.MakeAvailableMove(suite.DB())
 
-		reService := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-			ReService: models.ReService{
-				ID:   reServiceID,
-				Code: models.ReServiceCodeDDFSIT,
-			},
-		})
+		reService := testdatagen.MakeDDFSITReService(suite.DB())
 
 		now := time.Now()
 		oldShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
@@ -1043,7 +1037,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
 		responsePayload := okResponse.Payload
 
-		suite.Equal(1, len(responsePayload.MtoServiceItems()))
+		suite.Equal(3, len(responsePayload.MtoServiceItems()))
 		var serviceItemDDFSIT *primemessages.MTOServiceItemDDFSIT
 		var serviceItemDDFSITCode string
 
