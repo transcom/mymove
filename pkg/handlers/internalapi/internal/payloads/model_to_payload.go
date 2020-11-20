@@ -118,7 +118,7 @@ func TransportationOffice(office models.TransportationOffice) *internalmessages.
 
 // OfficeUser internal payload
 func OfficeUser(officeUser *models.OfficeUser) *internalmessages.OfficeUser {
-	if officeUser == nil {
+	if officeUser == nil || officeUser.ID == uuid.Nil {
 		return nil
 	}
 
