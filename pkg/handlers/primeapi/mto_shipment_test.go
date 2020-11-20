@@ -1037,7 +1037,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		okResponse := response.(*mtoshipmentops.UpdateMTOShipmentOK)
 		responsePayload := okResponse.Payload
 
-		suite.Equal(3, len(responsePayload.MtoServiceItems()))
+		suite.Equal(1, len(responsePayload.MtoServiceItems()))
 		var serviceItemDDFSIT *primemessages.MTOServiceItemDDFSIT
 		var serviceItemDDFSITCode string
 
