@@ -108,6 +108,31 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		}
 	}
 
+	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT {
+		// check if there's another DDFSIT item for this shipment
+		err = o.checkDuplicateServiceCodes(serviceItem)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		// create extra DDASIT and DDDSIT service items
+		serviceItemDDASIT, errSIT := o.makeExtraSITServiceItem(serviceItem, models.ReServiceCodeDDASIT)
+		if errSIT != nil {
+			return nil, nil, errSIT
+		}
+		if serviceItemDDASIT != nil {
+			requestedServiceItems = append(requestedServiceItems, *serviceItemDDASIT)
+		}
+
+		serviceItemDDDSIT, errSIT := o.makeExtraSITServiceItem(serviceItem, models.ReServiceCodeDDDSIT)
+		if errSIT != nil {
+			return nil, nil, errSIT
+		}
+		if serviceItemDDDSIT != nil {
+			requestedServiceItems = append(requestedServiceItems, *serviceItemDDDSIT)
+		}
+	}
+
 	requestedServiceItems = append(requestedServiceItems, *serviceItem)
 
 	// create new items in a transaction in case of failure
