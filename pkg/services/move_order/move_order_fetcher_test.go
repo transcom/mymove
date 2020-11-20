@@ -70,16 +70,7 @@ func (suite *MoveOrderServiceSuite) TestListMoves() {
 	// are displayed to the TOO
 	testdatagen.MakeDefaultMove(suite.DB())
 
-	expectedMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusSUBMITTED}})
-
-	// Only orders with shipments are returned, so we need to add a shipment
-	// to the move we just created
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: expectedMove,
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
-		},
-	})
+	expectedMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
@@ -109,36 +100,36 @@ func (suite *MoveOrderServiceSuite) TestListMoves() {
 	})
 
 	suite.T().Run("returns moves filtered by GBLOC", func(t *testing.T) {
-		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
-			},
+		// This move is outside of the office user's GBLOC, so it should not be returned
+		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
 			TransportationOffice: models.TransportationOffice{
 				Gbloc: "AGFM",
 			},
-			Move: models.Move{
-				Status: models.MoveStatusSUBMITTED,
-			},
 		})
 
-		moves, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &services.ListMoveOrderParams{PerPage: swag.Int64(1), Page: swag.Int64(1)})
+		moves, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &services.ListMoveOrderParams{Page: swag.Int64(1)})
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
 	})
 
-	suite.T().Run("returns moves filtered by an arbitrary query", func(t *testing.T) {
-		army := "ARMY"
-		params := services.ListMoveOrderParams{Branch: &army, PerPage: swag.Int64(1), Page: swag.Int64(1)}
-		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
-			},
-			Order: models.Order{
-				DepartmentIndicator: &army,
-			},
-			Move: models.Move{
-				Status: models.MoveStatusSUBMITTED,
+	suite.T().Run("only returns visible moves (where show = True)", func(t *testing.T) {
+		params := services.ListMoveOrderParams{}
+		testdatagen.MakeHiddenHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+
+		moves, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+	})
+
+	suite.T().Run("returns moves filtered by service member affiliation", func(t *testing.T) {
+		airForce := models.AffiliationAIRFORCE
+		airForceString := "AIR_FORCE"
+		params := services.ListMoveOrderParams{Branch: &airForceString, Page: swag.Int64(1)}
+		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			ServiceMember: models.ServiceMember{
+				Affiliation: &airForce,
 			},
 		})
 

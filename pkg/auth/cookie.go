@@ -36,6 +36,15 @@ func (e *errInvalidHostname) Error() string {
 	return fmt.Sprintf("invalid hostname %s, must be one of %s, %s, or %s", e.Hostname, e.MilApp, e.OfficeApp, e.AdminApp)
 }
 
+//RA Summary: gosec - G101 - Password Management: Hardcoded Password
+//RA: This line was flagged because it detected use of the word "token"
+//RA: This line is used to identify the name of the token. GorillaCSRFToken is the name of the base CSRF token.
+//RA: This variable does not store an application token.
+//RA Developer Status: Mitigated
+//RA Validator Status: Mitigated
+//RA Validator: jneuner@mitre.org
+//RA Modified Severity: CAT III
+
 // GorillaCSRFToken is the name of the base CSRF token
 const GorillaCSRFToken = "_gorilla_csrf" // #nosec G101
 

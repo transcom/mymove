@@ -1095,6 +1095,7 @@ paths:
         - in: query
           name: sort
           type: string
+          enum: [ lastName, moveID, submittedAt, branch, status, dodID]
         - in: query
           name: order
           type: string

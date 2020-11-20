@@ -1619,6 +1619,14 @@ func init() {
         "operationId": "getPaymentRequestsQueue",
         "parameters": [
           {
+            "enum": [
+              "lastName",
+              "moveID",
+              "submittedAt",
+              "branch",
+              "status",
+              "dodID"
+            ],
             "type": "string",
             "name": "sort",
             "in": "query"
@@ -5444,6 +5452,14 @@ func init() {
         "operationId": "getPaymentRequestsQueue",
         "parameters": [
           {
+            "enum": [
+              "lastName",
+              "moveID",
+              "submittedAt",
+              "branch",
+              "status",
+              "dodID"
+            ],
             "type": "string",
             "name": "sort",
             "in": "query"

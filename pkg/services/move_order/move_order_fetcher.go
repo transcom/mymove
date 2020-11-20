@@ -68,6 +68,7 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 		InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
 		InnerJoin("duty_stations", "orders.origin_duty_station_id = duty_stations.id").
 		InnerJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id").
+		Where("show = ?", swag.Bool(true)).
 		Order("status desc")
 
 	for _, option := range options {
@@ -89,7 +90,7 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 		params.Page = swag.Int64(0)
 	}
 	if params.PerPage == nil {
-		params.Page = swag.Int64(0)
+		params.PerPage = swag.Int64(0)
 	}
 
 	err = query.GroupBy("moves.id").Paginate(int(*params.Page), int(*params.PerPage)).All(&moves)
