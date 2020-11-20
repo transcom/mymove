@@ -11,6 +11,7 @@ import {
   getMovesQueue,
   getPaymentRequestsQueue,
 } from 'services/ghcApi';
+import { getLoggedInUserQueries } from 'services/internalApi';
 import { getQueriesStatus } from 'utils/api';
 import {
   PAYMENT_REQUESTS,
@@ -21,7 +22,20 @@ import {
   ORDERS_DOCUMENTS,
   MOVES_QUEUE,
   PAYMENT_REQUESTS_QUEUE,
+  USER,
 } from 'constants/queryKeys';
+
+export const useUserQueries = () => {
+  const { data = {}, ...userQuery } = useQuery([USER, false], getLoggedInUserQueries);
+  const { isLoading, isError, isSuccess } = getQueriesStatus([userQuery]);
+
+  return {
+    data,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
 
 export const usePaymentRequestQueries = (paymentRequestId) => {
   // get payment request by ID
