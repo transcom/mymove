@@ -1544,6 +1544,14 @@ func init() {
             "in": "query"
           },
           {
+            "enum": [
+              "lastName",
+              "dodID",
+              "branch",
+              "moveID",
+              "status",
+              "destinationDutyStation"
+            ],
             "type": "string",
             "description": "field that results should be sorted by",
             "name": "sort",
@@ -5359,6 +5367,14 @@ func init() {
             "in": "query"
           },
           {
+            "enum": [
+              "lastName",
+              "dodID",
+              "branch",
+              "moveID",
+              "status",
+              "destinationDutyStation"
+            ],
             "type": "string",
             "description": "field that results should be sorted by",
             "name": "sort",
