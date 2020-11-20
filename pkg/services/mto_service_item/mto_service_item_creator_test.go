@@ -426,12 +426,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		suite.Contains(err.Error(), "service code")
 	})
 
-	_ = testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
 			Code: models.ReServiceCodeDDASIT,
 		},
 	})
-	_ = testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
 			Code: models.ReServiceCodeDDDSIT,
 		},
