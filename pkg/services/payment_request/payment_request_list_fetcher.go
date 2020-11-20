@@ -16,7 +16,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-
 type paymentRequestListFetcher struct {
 	db *pop.Connection
 }
@@ -26,7 +25,7 @@ func NewPaymentRequestListFetcher(db *pop.Connection) services.PaymentRequestLis
 	return &paymentRequestListFetcher{db}
 }
 
-// FilterOption defines the type for the functional arguments passed to ListMoveOrders
+// QueryOption defines the type for the functional arguments passed to ListMoveOrders
 type QueryOption func(*pop.Query)
 
 func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UUID, params *services.FetchPaymentRequestListParams) (*models.PaymentRequests, int, error) {

@@ -98,4 +98,3 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequest() {
 		suite.Equal(models.PaymentRequest{}, paymentRequest)
 	})
 }
-
