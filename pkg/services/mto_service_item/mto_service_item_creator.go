@@ -39,7 +39,6 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	}
 	// check if Move exists
 	err = o.builder.FetchOne(&move, queryFilters)
-
 	if err != nil {
 
 		return nil, nil, services.NewNotFoundError(moveID, "in Moves")
@@ -52,7 +51,6 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		query.NewQueryFilter("code", "=", reServiceCode),
 	}
 	err = o.builder.FetchOne(&reService, queryFilters)
-
 	if err != nil {
 		return nil, nil, services.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service item with code: %s", reServiceCode))
 	}
@@ -90,7 +88,6 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		query.NewQueryFilter("id", "=", mtoShipmentID),
 		query.NewQueryFilter("move_id", "=", moveID),
 	}
-
 	err = o.builder.FetchOne(&mtoShipment, queryFilters)
 	if err != nil {
 		return nil, nil, services.NewNotFoundError(mtoShipmentID,
