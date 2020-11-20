@@ -20,8 +20,10 @@ type GetMovesQueueURL struct {
 	DodID                  *string
 	LastName               *string
 	MoveID                 *string
+	Order                  *string
 	Page                   *int64
 	PerPage                *int64
+	Sort                   *string
 	Status                 []string
 
 	_basePath string
@@ -98,6 +100,14 @@ func (o *GetMovesQueueURL) Build() (*url.URL, error) {
 		qs.Set("moveID", moveIDQ)
 	}
 
+	var orderQ string
+	if o.Order != nil {
+		orderQ = *o.Order
+	}
+	if orderQ != "" {
+		qs.Set("order", orderQ)
+	}
+
 	var pageQ string
 	if o.Page != nil {
 		pageQ = swag.FormatInt64(*o.Page)
@@ -112,6 +122,14 @@ func (o *GetMovesQueueURL) Build() (*url.URL, error) {
 	}
 	if perPageQ != "" {
 		qs.Set("perPage", perPageQ)
+	}
+
+	var sortQ string
+	if o.Sort != nil {
+		sortQ = *o.Sort
+	}
+	if sortQ != "" {
+		qs.Set("sort", sortQ)
 	}
 
 	var statusIR []string
