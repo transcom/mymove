@@ -324,6 +324,20 @@ func (o *GetMovesQueueParams) bindSort(rawData []string, hasKey bool, formats st
 
 	o.Sort = &raw
 
+	if err := o.validateSort(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateSort carries on validations for parameter Sort
+func (o *GetMovesQueueParams) validateSort(formats strfmt.Registry) error {
+
+	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "dodID", "branch", "moveID", "status", "destinationDutyStation"}, true); err != nil {
+		return err
+	}
+
 	return nil
 }
 

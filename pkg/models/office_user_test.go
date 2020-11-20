@@ -24,7 +24,7 @@ func (suite *ModelSuite) Test_BasicOfficeUser() {
 	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc1")
 	userEmail := "sally@government.gov"
 	sally := User{
-		LoginGovUUID:  fakeUUID,
+		LoginGovUUID:  &fakeUUID,
 		LoginGovEmail: userEmail,
 	}
 	suite.MustSave(&sally)
@@ -75,7 +75,7 @@ func (suite *ModelSuite) TestFetchOfficeUserByEmailCaseSensitivity() {
 	userEmail := "Chris@government.gov"
 
 	chris := User{
-		LoginGovUUID:  fakeUUID,
+		LoginGovUUID:  &fakeUUID,
 		LoginGovEmail: userEmail,
 	}
 	suite.MustSave(&chris)

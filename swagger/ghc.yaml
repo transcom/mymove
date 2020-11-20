@@ -1045,6 +1045,7 @@ paths:
         - in: query
           name: sort
           type: string
+          enum: [lastName, dodID, branch, moveID, status, destinationDutyStation]
           description: field that results should be sorted by
         - in: query
           name: order

@@ -68,7 +68,8 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
 		InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
 		InnerJoin("duty_stations", "orders.origin_duty_station_id = duty_stations.id").
-		InnerJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id")
+		InnerJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id").
+		Where("show = ?", swag.Bool(true))
 
 	for _, option := range options {
 		if option != nil {
@@ -89,10 +90,10 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 		params.Page = swag.Int64(0)
 	}
 	if params.PerPage == nil {
-		params.Page = swag.Int64(0)
+		params.PerPage = swag.Int64(0)
 	}
 
-	err = query.GroupBy("moves.id, service_members.id, orders.id").Paginate(int(*params.Page), int(*params.PerPage)).All(&moves)
+	err = query.GroupBy("moves.id, service_members.id, orders.id, duty_stations.id").Paginate(int(*params.Page), int(*params.PerPage)).All(&moves)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -217,13 +218,23 @@ func gblocFilter(gbloc string) QueryOption {
 }
 
 func sortOrder(sort *string, order *string) QueryOption {
+	parameters := map[string]string{
+		"lastName":               "service_members.last_name",
+		"dodID":                  "service_members.edipi",
+		"branch":                 "service_members.affiliation",
+		"moveID":                 "moves.locator",
+		"status":                 "moves.status",
+		"destinationDutyStation": "duty_stations.name",
+	}
+
 	return func(query *pop.Query) {
 		// If we have a sort and order defined let's use it. Otherwise we'll use our default status desc sort order.
 		if sort != nil && order != nil {
-			if *sort == "service_member.last_name" {
+			sortTerm := parameters[*sort]
+			if sortTerm == "service_members.last_name" {
 				query = query.Order(fmt.Sprintf("service_members.last_name %s, service_members.first_name %s", *order, *order))
 			} else {
-				query = query.Order(fmt.Sprintf("%s %s", *sort, *order))
+				query = query.Order(fmt.Sprintf("%s %s", sortTerm, *order))
 			}
 		} else {
 			query = query.Order("moves.status desc")

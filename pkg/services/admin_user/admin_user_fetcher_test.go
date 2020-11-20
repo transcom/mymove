@@ -26,7 +26,7 @@ func (t *testAdminUserQueryBuilder) FetchOne(model interface{}, filters []servic
 }
 
 func (t *testAdminUserQueryBuilder) CreateOne(model interface{}) (*validate.Errors, error) {
-	return nil, nil
+	return t.fakeCreateOne(model)
 }
 
 func (t *testAdminUserQueryBuilder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, error) {
