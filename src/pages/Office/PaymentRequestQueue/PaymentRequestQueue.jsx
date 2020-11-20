@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 
@@ -78,6 +77,7 @@ const columns = (includeBranchOptionMarines = true) => [
       id: 'branch',
       isFilterable: true,
       Filter: (props) => (
+        // eslint-disable-next-line react/jsx-props-no-spreading
         <SelectFilter options={includeBranchOptionMarines ? BRANCH_OPTIONS : BRANCH_OPTIONS_NO_MARINES} {...props} />
       ),
     },
