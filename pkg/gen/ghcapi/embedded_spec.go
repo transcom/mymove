@@ -1625,7 +1625,8 @@ func init() {
               "submittedAt",
               "branch",
               "status",
-              "dodID"
+              "dodID",
+              "age"
             ],
             "type": "string",
             "name": "sort",
@@ -5458,7 +5459,8 @@ func init() {
               "submittedAt",
               "branch",
               "status",
-              "dodID"
+              "dodID",
+              "age"
             ],
             "type": "string",
             "name": "sort",
