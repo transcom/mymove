@@ -234,6 +234,7 @@ func (o *mtoServiceItemCreator) makeExtraSITServiceItem(firstSIT *models.MTOServ
 		ReService:       reService,
 		SITEntryDate:    firstSIT.SITEntryDate,
 		SITPostalCode:   firstSIT.SITPostalCode,
+		Reason:          firstSIT.Reason,
 		Status:          models.MTOServiceItemStatusSubmitted,
 	}
 
