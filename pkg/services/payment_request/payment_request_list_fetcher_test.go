@@ -219,7 +219,6 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 		},
 		Move: models.Move{
 			SelectedMoveType: &hhgMoveType,
-			Status:           models.MoveStatusAPPROVED,
 			Locator:          "AAAA",
 		},
 		PaymentRequest: models.PaymentRequest{
@@ -298,20 +297,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	})
 
 	suite.T().Run("Sort by status ASC", func(t *testing.T) {
-		sort.Strings(expectedStatusOrder)
 		params := services.FetchPaymentRequestListParams{Sort: swag.String("status"), Order: swag.String("asc")}
-		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, &params)
-		paymentRequests := *expectedPaymentRequests
-
-		suite.NoError(err)
-		suite.Equal(2, len(paymentRequests))
-		suite.Equal(expectedStatusOrder[0], string(paymentRequests[1].Status))
-		suite.Equal(expectedStatusOrder[1], string(paymentRequests[0].Status))
-	})
-
-	suite.T().Run("Sort by status DESC", func(t *testing.T) {
-		sort.Strings(expectedStatusOrder)
-		params := services.FetchPaymentRequestListParams{Sort: swag.String("status"), Order: swag.String("desc")}
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
@@ -319,6 +305,17 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 		suite.Equal(2, len(paymentRequests))
 		suite.Equal(expectedStatusOrder[0], string(paymentRequests[0].Status))
 		suite.Equal(expectedStatusOrder[1], string(paymentRequests[1].Status))
+	})
+
+	suite.T().Run("Sort by status DESC", func(t *testing.T) {
+		params := services.FetchPaymentRequestListParams{Sort: swag.String("status"), Order: swag.String("desc")}
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, &params)
+		paymentRequests := *expectedPaymentRequests
+
+		suite.NoError(err)
+		suite.Equal(2, len(paymentRequests))
+		suite.Equal(expectedStatusOrder[0], string(paymentRequests[1].Status))
+		suite.Equal(expectedStatusOrder[1], string(paymentRequests[0].Status))
 	})
 	suite.T().Run("Sort by submittedAt ASC", func(t *testing.T) {
 		sort.Slice(expectedCreatedAtOrder, func(i, j int) bool { return expectedCreatedAtOrder[i].Before(expectedCreatedAtOrder[j]) })
