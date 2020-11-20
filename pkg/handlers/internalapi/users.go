@@ -42,22 +42,21 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	if !session.IsServiceMember() {
-		var officeUser *models.OfficeUser
+		var officeUser models.OfficeUser
+		var err error
 		if session.OfficeUserID != uuid.Nil {
-			fetchedOfficeUser, err := h.officeUserFetcherPop.FetchOfficeUserByID(session.OfficeUserID)
+			officeUser, err = h.officeUserFetcherPop.FetchOfficeUserByID(session.OfficeUserID)
 			if err != nil {
 				logger.Error("Error retrieving office_user", zap.Error(err))
 				return userop.NewIsLoggedInUserInternalServerError()
 			}
-
-			officeUser = &fetchedOfficeUser
 		}
 
 		userPayload := internalmessages.LoggedInUserPayload{
 			ID:         handlers.FmtUUID(session.UserID),
 			FirstName:  session.FirstName,
 			Email:      session.Email,
-			OfficeUser: payloads.OfficeUser(officeUser),
+			OfficeUser: payloads.OfficeUser(&officeUser),
 		}
 		decoratePayloadWithRoles(session, &userPayload)
 		return userop.NewShowLoggedInUserOK().WithPayload(&userPayload)
