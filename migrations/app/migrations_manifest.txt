@@ -578,3 +578,6 @@
 20201111015201_add_sit_fields_zip_entry_departure.up.sql
 20201111170419_jacquelinemckinney_cac.up.sql
 20201111232031_remove_ssn.up.sql
+20201117203528_fix_orders_status_comment.up.sql
+20201117222119_alter_users_login_gov_uuid_nullable.up.sql
+20201117222339_create_user_records_for_office_and_admin_users_without.up.sql

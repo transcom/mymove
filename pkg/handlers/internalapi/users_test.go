@@ -38,14 +38,20 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserRequiringAccessCodeHandl
 	smRole := roles.Role{
 		RoleType: roles.RoleTypeCustomer,
 	}
+
+	user := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
+		User: models.User{
+			Roles: []roles.Role{smRole},
+		},
+	})
+
 	suite.NoError(suite.DB().Save(&smRole))
 	sm := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			FirstName:          &firstName,
 			RequiresAccessCode: true,
-		},
-		User: models.User{
-			Roles: []roles.Role{smRole},
+			UserID:             user.ID,
+			User:               user,
 		},
 	})
 	req := httptest.NewRequest("GET", "/users/logged_in", nil)

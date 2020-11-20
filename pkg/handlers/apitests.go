@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"path/filepath"
 	"runtime/debug"
 
 	"github.com/gofrs/uuid"
@@ -209,8 +210,7 @@ func (suite *BaseHandlerTestSuite) Fixture(name string) *runtime.File {
 
 	fixturePath := path.Join(cwd, "..", "..", fixtureDir, name)
 
-	// #nosec never comes from user input
-	file, err := os.Open(fixturePath)
+	file, err := os.Open(filepath.Clean(fixturePath))
 	if err != nil {
 		suite.logger.Fatal("Error opening fixture file", zap.Error(err))
 	}

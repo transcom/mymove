@@ -29,7 +29,7 @@ func (t *testOfficeUserQueryBuilder) FetchOne(model interface{}, filters []servi
 }
 
 func (t *testOfficeUserQueryBuilder) CreateOne(model interface{}) (*validate.Errors, error) {
-	return nil, nil
+	return t.fakeCreateOne(model)
 }
 
 func (t *testOfficeUserQueryBuilder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, error) {
