@@ -108,6 +108,13 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		}
 	}
 
+	if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT {
+		verrs = validate.NewErrors()
+		verrs.Add("reServiceCode", fmt.Sprintf("%s cannot be created", serviceItem.ReService.Code))
+		return nil, nil, services.NewInvalidInputError(serviceItem.ID, nil, verrs,
+			fmt.Sprintf("A service object with reServiceCode %s cannot be manually created.", serviceItem.ReService.Code))
+	}
+
 	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT {
 		// check if there's another DDFSIT item for this shipment
 		err = o.checkDuplicateServiceCodes(serviceItem)

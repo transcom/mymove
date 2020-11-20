@@ -426,12 +426,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		suite.Contains(err.Error(), "service code")
 	})
 
-	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+	_ = testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
 			Code: models.ReServiceCodeDDASIT,
 		},
 	})
-	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+	reServiceDDDSIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
 			Code: models.ReServiceCodeDDDSIT,
 		},
@@ -530,5 +530,28 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		suite.Error(err)
 		suite.IsType(services.ConflictError{}, err)
 		suite.Contains(err.Error(), "A service item with reServiceCode DDFSIT already exists for this move and/or shipment.")
+	})
+
+	// Failed creation of DDDSIT service item
+	suite.T().Run("cannot create DDDSIT", func(t *testing.T) {
+		serviceItemDDDSIT := models.MTOServiceItem{
+			MoveTaskOrderID:  shipment.MoveTaskOrderID,
+			MoveTaskOrder:    shipment.MoveTaskOrder,
+			MTOShipmentID:    &shipment.ID,
+			MTOShipment:      shipment,
+			ReService:        reServiceDDDSIT,
+			SITEntryDate:     &sitEntryDate,
+			CustomerContacts: contacts,
+		}
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDDSIT)
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(services.InvalidInputError{}, err)
+		suite.Contains(err.Error(), "DDDSIT")
+
+		invalidInputError := err.(services.InvalidInputError)
+		suite.NotEmpty(invalidInputError.ValidationErrors)
+		suite.Contains(invalidInputError.ValidationErrors.Keys(), "reServiceCode")
 	})
 }
