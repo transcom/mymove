@@ -147,7 +147,9 @@
     border-radius: 100%;
     width: 24px;
     height: 24px;
-    display: inline-block;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
     svg {
       vertical-align: sub;
       path {
