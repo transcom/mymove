@@ -105,7 +105,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 
 	if serviceItem.ReService.Code == models.ReServiceCodeDOASIT {
 		// DOASIT must be associated with shipment that has DOFSIT
-		serviceItem, err = o.validateDOASITServiceItem(serviceItem, models.ReServiceCodeDOASIT)
+		serviceItem, err = o.validateDOASITServiceItem(serviceItem, models.ReServiceCodeDOFSIT)
 
 		if err != nil {
 			return nil, nil, err
@@ -225,20 +225,14 @@ func (o *mtoServiceItemCreator) validateDOASITServiceItem(serviceItem *models.MT
 	var mtoServiceItem models.MTOServiceItem
 	var mtoShipmentID uuid.UUID
 	var validReService models.ReService
-	var parentReServiceCode models.ReServiceCode
 
 	mtoShipmentID = *serviceItem.MTOShipmentID
 
-	// #TODO: Add in scenario for DDASIT/DDDSIT in future ticket MB-5547
-	if reServiceCode == models.ReServiceCodeDOASIT {
-		parentReServiceCode = models.ReServiceCodeDOFSIT
-	}
-
 	queryFilter := []services.QueryFilter{
-		query.NewQueryFilter("code", "=", parentReServiceCode),
+		query.NewQueryFilter("code", "=", reServiceCode),
 	}
 
-	// Fetch the ID for the ReService, so we can check the shipment for its existence
+	// Fetch the ID for the ReServiceCode passed in, so we can check the shipment for its existence
 	err := o.builder.FetchOne(&validReService, queryFilter)
 
 	if err != nil {
