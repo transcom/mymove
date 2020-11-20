@@ -105,7 +105,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 
 	if serviceItem.ReService.Code == models.ReServiceCodeDOASIT {
 		// DOASIT must be associated with shipment that has DOFSIT
-		serviceItem, err = o.validateDOASITServiceItem(serviceItem, models.ReServiceCodeDOFSIT)
+		serviceItem, err = o.validateSITStandaloneServiceItem(serviceItem, models.ReServiceCodeDOFSIT)
 
 		if err != nil {
 			return nil, nil, err
@@ -221,7 +221,7 @@ func validateTimeMilitaryField(timeMilitary string) error {
 	return nil
 }
 
-func (o *mtoServiceItemCreator) validateDOASITServiceItem(serviceItem *models.MTOServiceItem, reServiceCode models.ReServiceCode) (*models.MTOServiceItem, error) {
+func (o *mtoServiceItemCreator) validateSITStandaloneServiceItem(serviceItem *models.MTOServiceItem, reServiceCode models.ReServiceCode) (*models.MTOServiceItem, error) {
 	var mtoServiceItem models.MTOServiceItem
 	var mtoShipmentID uuid.UUID
 	var validReService models.ReService
