@@ -29,6 +29,7 @@ func NewPaymentRequestListFetcher(db *pop.Connection) services.PaymentRequestLis
 type QueryOption func(*pop.Query)
 
 func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UUID, params *services.FetchPaymentRequestListParams) (*models.PaymentRequests, int, error) {
+
 	gblocFetcher := officeuser.NewOfficeUserGblocFetcher(f.db)
 	gbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(officeUserID)
 	if gblocErr != nil {
@@ -62,7 +63,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 	dutyStationQuery := destinationDutyStationFilter(params.DestinationDutyStation)
 	statusQuery := paymentRequestsStatusFilter(params.Status)
 	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
-	orderQuery := queryOrder(params.Sort, params.Order)
+	orderQuery := sortOrder(params.Sort, params.Order)
 
 	options := [9]QueryOption{branchQuery, moveIDQuery, dodIDQuery, lastNameQuery, dutyStationQuery, statusQuery, submittedAtQuery, gblocQuery, orderQuery}
 
@@ -110,16 +111,26 @@ func orderName(query *pop.Query, order *string) *pop.Query {
 	return query.Order(fmt.Sprintf("service_members.last_name %s, service_members.first_name %s", *order, *order))
 }
 
-func queryOrder(sort *string, order *string) QueryOption {
+func sortOrder(sort *string, order *string) QueryOption {
+	parameters := map[string]string{
+		"lastName":    "service_members.last_name",
+		"dodID":       "service_members.edipi",
+		"submittedAt": "payment_requests.created_at",
+		"branch":      "service_members.affiliation",
+		"moveID":      "moves.locator",
+		"status":      "payment_requests.status",
+	}
+
 	return func(query *pop.Query) {
 		if sort != nil && order != nil {
-			if *sort == "service_member.last_name" {
+			sortTerm := parameters[*sort]
+			if *sort == "lastName" {
 				orderName(query, order)
 			} else {
-				query = query.Order(fmt.Sprintf("%s %s", *sort, *order))
+				query = query.Order(fmt.Sprintf("%s %s", sortTerm, *order))
 			}
 		} else {
-			query = query.Order("created_at asc")
+			query = query.Order("payment_requests.created_at asc")
 		}
 	}
 }
