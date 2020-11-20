@@ -16,6 +16,17 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+//
+//const (
+//	lastName    	string = "service_members.last_name"
+//	dodID    	  	string = "service_members.edipi"
+//	submittedAt 	string = "payment_requests.created_at"
+//	branch		   	string = "service_members.affiliation"
+//	moveID	    	string = "moves.locator"
+//	status      	string = "payment_requests.status"
+//	age    	    	string = "payment_requests.created_at"
+//)
+
 type paymentRequestListFetcher struct {
 	db *pop.Connection
 }

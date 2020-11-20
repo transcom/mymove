@@ -2,6 +2,7 @@ package paymentrequest
 
 import (
 	"sort"
+	"strings"
 	"testing"
 	"time"
 
@@ -240,128 +241,155 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	expectedMoveIDOrder = append(expectedMoveIDOrder, paymentRequest1.MoveTaskOrder.Locator, paymentRequest2.MoveTaskOrder.Locator)
 	expectedBranchOrder = append(expectedBranchOrder, string(*paymentRequest1.MoveTaskOrder.Orders.ServiceMember.Affiliation), string(*paymentRequest2.MoveTaskOrder.Orders.ServiceMember.Affiliation))
 
-	sort.Strings(expectedNameOrder)
-	sort.Strings(expectedDodIDOrder)
-	sort.Strings(expectedStatusOrder)
-	sort.Slice(expectedCreatedAtOrder, func(i, j int) bool { return expectedCreatedAtOrder[i].Before(expectedCreatedAtOrder[j]) })
-	sort.Strings(expectedMoveIDOrder)
-	sort.Strings(expectedBranchOrder)
-
 	paymentRequestListFetcher := NewPaymentRequestListFetcher(suite.DB())
 
-	// Sort by service member name
-	params := services.FetchPaymentRequestListParams{Sort: swag.String("lastName"), Order: swag.String("asc")}
-	expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, &params)
-	paymentRequests := *expectedPaymentRequests
+	suite.T().Run("Sort by service member name ASC", func(t *testing.T) {
+		sort.Strings(expectedNameOrder)
 
-	suite.NoError(err)
-	suite.Equal(2, len(paymentRequests))
-	suite.Equal(expectedNameOrder[0], *paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.FirstName)
-	suite.Equal(expectedNameOrder[1], *paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.FirstName)
+		params := services.FetchPaymentRequestListParams{Sort: swag.String("lastName"), Order: swag.String("asc")}
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, &params)
+		paymentRequests := *expectedPaymentRequests
 
-	// Sort by service member name
-	params = services.FetchPaymentRequestListParams{Sort: swag.String("lastName"), Order: swag.String("desc")}
-	expectedPaymentRequests, _, err = paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, &params)
-	paymentRequests = *expectedPaymentRequests
+		suite.NoError(err)
+		suite.Equal(2, len(paymentRequests))
+		suite.Equal(expectedNameOrder[0], *paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.FirstName)
+		suite.Equal(expectedNameOrder[1], *paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.FirstName)
+	})
 
-	suite.NoError(err)
-	suite.Equal(2, len(paymentRequests))
-	suite.Equal(expectedNameOrder[0], *paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.FirstName)
-	suite.Equal(expectedNameOrder[1], *paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.FirstName)
+	suite.T().Run("Sort by service member name DESC", func(t *testing.T) {
+		sort.Strings(expectedNameOrder)
 
-	// Sort by dodID
-	params = services.FetchPaymentRequestListParams{Sort: swag.String("dodID"), Order: swag.String("asc")}
-	expectedPaymentRequests, _, err = paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, &params)
-	paymentRequests = *expectedPaymentRequests
+		// Sort by service member name
+		params := services.FetchPaymentRequestListParams{Sort: swag.String("lastName"), Order: swag.String("desc")}
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, &params)
+		paymentRequests := *expectedPaymentRequests
 
-	suite.NoError(err)
-	suite.Equal(2, len(paymentRequests))
-	suite.Equal(expectedDodIDOrder[0], *paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.Edipi)
-	suite.Equal(expectedDodIDOrder[1], *paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.Edipi)
+		suite.NoError(err)
+		suite.Equal(2, len(paymentRequests))
+		suite.Equal(expectedNameOrder[0], *paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.FirstName)
+		suite.Equal(expectedNameOrder[1], *paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.FirstName)
+	})
 
-	params = services.FetchPaymentRequestListParams{Sort: swag.String("dodID"), Order: swag.String("desc")}
-	expectedPaymentRequests, _, err = paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, &params)
-	paymentRequests = *expectedPaymentRequests
+	suite.T().Run("Sort by dodID ASC", func(t *testing.T) {
+		sort.Strings(expectedDodIDOrder)
 
-	suite.NoError(err)
-	suite.Equal(2, len(paymentRequests))
-	suite.Equal(expectedDodIDOrder[0], *paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.Edipi)
-	suite.Equal(expectedDodIDOrder[1], *paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.Edipi)
+		// Sort by dodID
+		params := services.FetchPaymentRequestListParams{Sort: swag.String("dodID"), Order: swag.String("asc")}
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, &params)
+		paymentRequests := *expectedPaymentRequests
 
-	// Sort by status
-	params = services.FetchPaymentRequestListParams{Sort: swag.String("status"), Order: swag.String("asc")}
-	expectedPaymentRequests, _, err = paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, &params)
-	paymentRequests = *expectedPaymentRequests
+		suite.NoError(err)
+		suite.Equal(2, len(paymentRequests))
+		suite.Equal(expectedDodIDOrder[0], *paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.Edipi)
+		suite.Equal(expectedDodIDOrder[1], *paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.Edipi)
+	})
 
-	suite.NoError(err)
-	suite.Equal(2, len(paymentRequests))
-	suite.Equal(expectedStatusOrder[0], paymentRequests[0].Status)
-	suite.Equal(expectedStatusOrder[1], paymentRequests[1].Status)
+	suite.T().Run("Sort by dodID DESC", func(t *testing.T) {
+		sort.Strings(expectedDodIDOrder)
 
-	params = services.FetchPaymentRequestListParams{Sort: swag.String("status"), Order: swag.String("desc")}
-	expectedPaymentRequests, _, err = paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, &params)
-	paymentRequests = *expectedPaymentRequests
+		params := services.FetchPaymentRequestListParams{Sort: swag.String("dodID"), Order: swag.String("desc")}
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, &params)
+		paymentRequests := *expectedPaymentRequests
 
-	suite.NoError(err)
-	suite.Equal(2, len(paymentRequests))
-	suite.Equal(expectedStatusOrder[0], paymentRequests[1].Status)
-	suite.Equal(expectedStatusOrder[1], paymentRequests[0].Status)
+		suite.NoError(err)
+		suite.Equal(2, len(paymentRequests))
+		suite.Equal(expectedDodIDOrder[0], *paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.Edipi)
+		suite.Equal(expectedDodIDOrder[1], *paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.Edipi)
+	})
 
-	// Sort by Age & Date Submitted
-	params = services.FetchPaymentRequestListParams{Sort: swag.String("submittedAt"), Order: swag.String("asc")}
-	expectedPaymentRequests, _, err = paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, &params)
-	paymentRequests = *expectedPaymentRequests
+	suite.T().Run("Sort by status ASC", func(t *testing.T) {
+		sort.Strings(expectedStatusOrder)
+		params := services.FetchPaymentRequestListParams{Sort: swag.String("status"), Order: swag.String("asc")}
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, &params)
+		paymentRequests := *expectedPaymentRequests
 
-	suite.NoError(err)
-	suite.Equal(2, len(paymentRequests))
-	suite.Equal(expectedStatusOrder[0], paymentRequests[0].Status)
-	suite.Equal(expectedStatusOrder[1], paymentRequests[1].Status)
+		suite.NoError(err)
+		suite.Equal(2, len(paymentRequests))
+		suite.Equal(expectedStatusOrder[0], string(paymentRequests[1].Status))
+		suite.Equal(expectedStatusOrder[1], string(paymentRequests[0].Status))
+	})
 
-	params = services.FetchPaymentRequestListParams{Sort: swag.String("submittedAt"), Order: swag.String("desc")}
-	expectedPaymentRequests, _, err = paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, &params)
-	paymentRequests = *expectedPaymentRequests
+	suite.T().Run("Sort by status DESC", func(t *testing.T) {
+		sort.Strings(expectedStatusOrder)
+		params := services.FetchPaymentRequestListParams{Sort: swag.String("status"), Order: swag.String("desc")}
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, &params)
+		paymentRequests := *expectedPaymentRequests
 
-	suite.NoError(err)
-	suite.Equal(2, len(paymentRequests))
-	suite.Equal(expectedStatusOrder[0], paymentRequests[1].Status)
-	suite.Equal(expectedStatusOrder[1], paymentRequests[0].Status)
+		suite.NoError(err)
+		suite.Equal(2, len(paymentRequests))
+		suite.Equal(expectedStatusOrder[0], string(paymentRequests[0].Status))
+		suite.Equal(expectedStatusOrder[1], string(paymentRequests[1].Status))
+	})
+	suite.T().Run("Sort by submittedAt ASC", func(t *testing.T) {
+		sort.Slice(expectedCreatedAtOrder, func(i, j int) bool { return expectedCreatedAtOrder[i].Before(expectedCreatedAtOrder[j]) })
+		params := services.FetchPaymentRequestListParams{Sort: swag.String("submittedAt"), Order: swag.String("asc")}
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, &params)
+		paymentRequests := *expectedPaymentRequests
 
-	// Sort by Move ID
-	params = services.FetchPaymentRequestListParams{Sort: swag.String("moveID"), Order: swag.String("asc")}
-	expectedPaymentRequests, _, err = paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, &params)
-	paymentRequests = *expectedPaymentRequests
+		suite.NoError(err)
+		suite.Equal(2, len(paymentRequests))
+		suite.Equal(expectedCreatedAtOrder[0].Format("2006-01-02T15:04:05.000Z07:00"), paymentRequests[0].CreatedAt.Format("2006-01-02T15:04:05.000Z07:00"))
+		suite.Equal(expectedCreatedAtOrder[1].Format("2006-01-02T15:04:05.000Z07:00"), paymentRequests[1].CreatedAt.Format("2006-01-02T15:04:05.000Z07:00"))
+	})
 
-	suite.NoError(err)
-	suite.Equal(2, len(paymentRequests))
-	suite.Equal(expectedMoveIDOrder[0], paymentRequests[0].Status)
-	suite.Equal(expectedMoveIDOrder[1], paymentRequests[1].Status)
+	suite.T().Run("Sort by submittedAt DESC", func(t *testing.T) {
+		sort.Slice(expectedCreatedAtOrder, func(i, j int) bool { return expectedCreatedAtOrder[i].Before(expectedCreatedAtOrder[j]) })
+		params := services.FetchPaymentRequestListParams{Sort: swag.String("submittedAt"), Order: swag.String("desc")}
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, &params)
+		paymentRequests := *expectedPaymentRequests
 
-	params = services.FetchPaymentRequestListParams{Sort: swag.String("moveID"), Order: swag.String("desc")}
-	expectedPaymentRequests, _, err = paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, &params)
-	paymentRequests = *expectedPaymentRequests
+		suite.NoError(err)
+		suite.Equal(2, len(paymentRequests))
+		suite.Equal(expectedCreatedAtOrder[0].Format("2006-01-02T15:04:05.000Z07:00"), paymentRequests[1].CreatedAt.Format("2006-01-02T15:04:05.000Z07:00"))
+		suite.Equal(expectedCreatedAtOrder[1].Format("2006-01-02T15:04:05.000Z07:00"), paymentRequests[0].CreatedAt.Format("2006-01-02T15:04:05.000Z07:00"))
+	})
 
-	suite.NoError(err)
-	suite.Equal(2, len(paymentRequests))
-	suite.Equal(expectedMoveIDOrder[0], paymentRequests[1].Status)
-	suite.Equal(expectedMoveIDOrder[1], paymentRequests[0].Status)
+	suite.T().Run("Sort by moveID ASC", func(t *testing.T) {
+		sort.Strings(expectedMoveIDOrder)
+		params := services.FetchPaymentRequestListParams{Sort: swag.String("moveID"), Order: swag.String("asc")}
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, &params)
+		paymentRequests := *expectedPaymentRequests
 
-	// Sort by Branch
-	params = services.FetchPaymentRequestListParams{Sort: swag.String("branch"), Order: swag.String("asc")}
-	expectedPaymentRequests, _, err = paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, &params)
-	paymentRequests = *expectedPaymentRequests
+		suite.NoError(err)
+		suite.Equal(2, len(paymentRequests))
+		suite.Equal(expectedMoveIDOrder[0], strings.TrimSpace(paymentRequests[0].MoveTaskOrder.Locator))
+		suite.Equal(expectedMoveIDOrder[1], strings.TrimSpace(paymentRequests[1].MoveTaskOrder.Locator))
+	})
 
-	suite.NoError(err)
-	suite.Equal(2, len(paymentRequests))
-	suite.Equal(expectedBranchOrder[0], paymentRequests[0].Status)
-	suite.Equal(expectedBranchOrder[1], paymentRequests[1].Status)
+	suite.T().Run("Sort by moveID DESC", func(t *testing.T) {
+		sort.Strings(expectedMoveIDOrder)
 
-	params = services.FetchPaymentRequestListParams{Sort: swag.String("branch"), Order: swag.String("desc")}
-	expectedPaymentRequests, _, err = paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, &params)
-	paymentRequests = *expectedPaymentRequests
+		params := services.FetchPaymentRequestListParams{Sort: swag.String("moveID"), Order: swag.String("desc")}
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, &params)
+		paymentRequests := *expectedPaymentRequests
 
-	suite.NoError(err)
-	suite.Equal(2, len(paymentRequests))
-	suite.Equal(expectedBranchOrder[0], paymentRequests[1].Status)
-	suite.Equal(expectedBranchOrder[1], paymentRequests[0].Status)
+		suite.NoError(err)
+		suite.Equal(2, len(paymentRequests))
+		suite.Equal(expectedMoveIDOrder[0], strings.TrimSpace(paymentRequests[1].MoveTaskOrder.Locator))
+		suite.Equal(expectedMoveIDOrder[1], strings.TrimSpace(paymentRequests[0].MoveTaskOrder.Locator))
+	})
 
+	suite.T().Run("Sort by branch ASC", func(t *testing.T) {
+		sort.Strings(expectedBranchOrder)
+		params := services.FetchPaymentRequestListParams{Sort: swag.String("branch"), Order: swag.String("asc")}
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, &params)
+		paymentRequests := *expectedPaymentRequests
+
+		suite.NoError(err)
+		suite.Equal(2, len(paymentRequests))
+		suite.Equal(expectedBranchOrder[0], string(*paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.Affiliation))
+		suite.Equal(expectedBranchOrder[1], string(*paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.Affiliation))
+	})
+
+	suite.T().Run("Sort by branch DESC", func(t *testing.T) {
+		sort.Strings(expectedBranchOrder)
+		params := services.FetchPaymentRequestListParams{Sort: swag.String("branch"), Order: swag.String("desc")}
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, &params)
+		paymentRequests := *expectedPaymentRequests
+
+		suite.NoError(err)
+		suite.Equal(2, len(paymentRequests))
+		suite.Equal(expectedBranchOrder[0], string(*paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.Affiliation))
+		suite.Equal(expectedBranchOrder[1], string(*paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.Affiliation))
+	})
 }
