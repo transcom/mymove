@@ -26,14 +26,19 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 			Gbloc: "ABCD",
 		},
 	})
-	testdatagen.MakeDefaultPaymentRequest(suite.DB())
+	// Hidden move should not be returned
+	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			Show: swag.Bool(false),
+		},
+	})
 
-	suite.T().Run("Returns payment requests matching office user GBLOC", func(t *testing.T) {
+	suite.T().Run("Only returns visible (where Move.Show is not false) payment requests matching office user GBLOC", func(t *testing.T) {
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID,
 			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2)})
 
 		suite.NoError(err)
-		suite.Equal(2, len(*expectedPaymentRequests))
+		suite.Equal(1, len(*expectedPaymentRequests))
 	})
 
 	suite.T().Run("Returns payment request matching an arbitrary filter", func(t *testing.T) {

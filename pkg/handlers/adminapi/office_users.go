@@ -133,6 +133,7 @@ type CreateOfficeUserHandler struct {
 	handlers.HandlerContext
 	services.OfficeUserCreator
 	services.NewQueryFilter
+	services.UserRoleAssociator
 }
 
 // Handle creates an office user
@@ -143,6 +144,18 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 	transportationOfficeID, err := uuid.FromString(payload.TransportationOfficeID.String())
 	if err != nil {
 		logger.Error(fmt.Sprintf("UUID Parsing for %s", payload.TransportationOfficeID.String()), zap.Error(err))
+		return officeuserop.NewCreateOfficeUserUnprocessableEntity()
+	}
+
+	if len(payload.Roles) == 0 {
+		logger.Error("At least one office user role is required")
+		return officeuserop.NewCreateOfficeUserUnprocessableEntity()
+	}
+
+	updatedRoles := rolesPayloadToModel(payload.Roles)
+	if len(updatedRoles) == 0 {
+		logger.Error("No roles were matched from payload")
+		return officeuserop.NewCreateOfficeUserUnprocessableEntity()
 	}
 
 	officeUser := models.OfficeUser{
@@ -160,20 +173,26 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 
 	createdOfficeUser, verrs, err := h.OfficeUserCreator.CreateOfficeUser(&officeUser, transportationIDFilter)
 	if verrs != nil {
-		payload := &adminmessages.ValidationError{
+		validationError := &adminmessages.ValidationError{
 			InvalidFields: handlers.NewValidationErrorsResponse(verrs).Errors,
 		}
 
-		payload.Title = handlers.FmtString(handlers.ValidationErrMessage)
-		payload.Detail = handlers.FmtString("The information you provided is invalid.")
-		payload.Instance = handlers.FmtUUID(h.GetTraceID())
+		validationError.Title = handlers.FmtString(handlers.ValidationErrMessage)
+		validationError.Detail = handlers.FmtString("The information you provided is invalid.")
+		validationError.Instance = handlers.FmtUUID(h.GetTraceID())
 
-		return officeuserop.NewCreateOfficeUserUnprocessableEntity().WithPayload(payload)
+		return officeuserop.NewCreateOfficeUserUnprocessableEntity().WithPayload(validationError)
 	}
 
 	if err != nil {
 		logger.Error("Error saving user", zap.Error(err))
 		return officeuserop.NewCreateOfficeUserInternalServerError()
+	}
+
+	_, err = h.UserRoleAssociator.UpdateUserRoles(*createdOfficeUser.UserID, updatedRoles)
+	if err != nil {
+		logger.Error("error updating user roles", zap.Error(err))
+		return officeuserop.NewUpdateOfficeUserInternalServerError()
 	}
 
 	_, err = audit.Capture(createdOfficeUser, nil, logger, session, params.HTTPRequest)

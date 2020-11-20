@@ -68,6 +68,30 @@ View the [frontend file org ADR](https://github.com/transcom/mymove/blob/master/
   }
 };
 
+const bypassingLinterChecks = async () => {
+  // load all modified and new files
+  const allFiles = danger.git.modified_files.concat(danger.git.created_files);
+  const bypassCodes = ['#nosec', 'eslint-disable', 'eslint-disable-next-line'];
+  let addedByPassCode = false;
+  const diffs = await Promise.all(allFiles.map((f) => danger.git.diffForFile(f)));
+
+  for (let i = 0; i < diffs.length; i += 1) {
+    const diff = diffs[Number(i)];
+    const diffsWithbypassCodes = bypassCodes.find((b) => diff.diff.includes(b));
+    if (diffsWithbypassCodes) {
+      addedByPassCode = true;
+      break;
+    }
+  }
+
+  if (addedByPassCode === true) {
+    warn(
+      `It looks like you are attempting to bypass a linter rule, which is not a sustainable solution to meet
+      security compliance rules. Please remove the bypass code and address the underlying issue. cc: @transcom/Truss-Pamplemoose`,
+    );
+  }
+};
+
 const cypressUpdateChecks = async () => {
   // load all modified and new files
   const allFiles = danger.git.modified_files.concat(danger.git.created_files);
@@ -166,4 +190,5 @@ if (!danger.github || (danger.github && danger.github.pr.user.login !== 'dependa
   fileChecks();
   checkYarnAudit();
   cypressUpdateChecks();
+  bypassingLinterChecks();
 }

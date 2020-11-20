@@ -48,9 +48,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 
 	email := "officeuser1@example.com"
 	userID := uuid.Must(uuid.FromString("9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b"))
+	loginGovID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            userID,
+			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
 			Roles:         []roles.Role{ppmOfficeRole},
@@ -67,9 +69,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	 */
 	email = "needs@orde.rs"
 	uuidStr := "feac0e92-66ec-4cab-ad29-538129bf918e"
+	loginGovID = uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -90,9 +94,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	 */
 	email = "ppm@incomple.te"
 	uuidStr = "e10d5964-c070-49cb-9bd1-eaf9f7348eb6"
+	loginGovID = uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -127,9 +133,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	 */
 	email = "ppm@advance.no"
 	uuidStr = "f0ddc118-3f7e-476b-b8be-0f964a5feee2"
+	loginGovID = uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -160,9 +168,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	 */
 	email = "office.user.completes@storage.panel"
 	uuidStr = "ebac4efd-c980-48d6-9cce-99fb34644789"
+	loginGovID = uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -196,9 +206,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	 */
 	email = "office.user.cancelss@storage.panel"
 	uuidStr = "cbb56f00-97f7-4d20-83cf-25a7b2f150b6"
+	loginGovID = uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -232,9 +244,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	 */
 	email = "ppm-to-cancel@example.com"
 	uuidStr = "e10d5964-c070-49cb-9bd1-eaf9f7348eb7"
+	loginGovID = uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -265,9 +279,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	 */
 	email = "ppm.on@progre.ss"
 	uuidStr = "20199d12-5165-4980-9ca7-19b5dc9f1032"
+	loginGovID = uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -300,9 +316,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	 */
 	email = "ppm@paymentrequest.ed"
 	uuidStr = "1842091b-b9a0-4d4a-ba22-1e2f38f26317"
+	loginGovID = uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -347,9 +365,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	 */
 	email = "ppmpayment@request.ed"
 	uuidStr = "beccca28-6e15-40cc-8692-261cae0d4b14"
+	loginGovID = uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -413,9 +433,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 
 	email = "ppm.excludecalculations.expenses"
 	uuidStr = "4f092d53-9005-4371-814d-0c88e970d2f7"
+	loginGovID = uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -487,9 +509,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	 */
 	email = "ppm-canceled@example.com"
 	uuidStr = "20102768-4d45-449c-a585-81bc386204b1"
+	loginGovID = uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -522,9 +546,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	 */
 	email = "profile@comple.te"
 	uuidStr = "13f3949d-0d53-4be4-b1b1-ae4314793f34"
+	loginGovID = uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -556,10 +582,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	 */
 	email = "sm_no_move_type@example.com"
 	uuidStr = "9ceb8321-6a82-4f6d-8bb3-a1d85922a202"
-
+	loginGovID = uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -585,10 +612,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	 */
 	email = "combo@ppm.hhg"
 	uuidStr = "6016e423-f8d5-44ca-98a8-af03c8445c94"
-
+	loginGovID = uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -678,10 +706,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	 */
 	email = "hhg@only.unsubmitted"
 	uuidStr = "f08146cf-4d6b-43d5-9ca5-c8d239d37b3e"
-
+	loginGovID = uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -732,10 +761,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	 */
 	email = "nts@ntsr.unsubmitted"
 	uuidStr = "583cfbe1-cb34-4381-9e1f-54f68200da1b"
-
+	loginGovID = uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -828,9 +858,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	})
 	email = "accesscode@mail.com"
 	uuidStr = "1dc93d47-0f3e-4686-9dcf-5d940d0d3ed9"
+	loginGovID = uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -865,9 +897,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	 */
 	email = "ppm@requestingpayment.newflow"
 	uuidStr = "745e0eba-4028-4c78-a262-818b00802748"
+	loginGovID = uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -908,9 +942,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	 */
 	email = "ppm@continue.requestingpayment"
 	uuidStr = "4ebc03b7-c801-4c0d-806c-a95aed242102"
+	loginGovID = uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -951,9 +987,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	 */
 	email = "ppm@requestingpay.ment"
 	uuidStr = "8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e"
+	loginGovID = uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -995,9 +1033,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	 */
 	email = "ppm@approv.ed"
 	uuidStr = "70665111-7bbb-4876-a53d-18bb125c943e"
+	loginGovID = uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -1041,9 +1081,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	 */
 	email = "profile@co.mple.te"
 	uuidStr = "99360a51-8cfa-4e25-ae57-24e66077305f"
+	loginGovID = uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -1071,9 +1113,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 
 	email = "profile@complete.draft"
 	uuidStr = "3b9360a3-3304-4c60-90f4-83d687884070"
+	loginGovID = uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -1101,9 +1145,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 
 	email = "profile2@complete.draft"
 	uuidStr = "3b9360a3-3304-4c60-90f4-83d687884077"
+	loginGovID = uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
 		},
@@ -1819,9 +1865,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	}
 	email = "role_tester@service.mil"
 	uuidStr = "3b9360a3-3304-4c60-90f4-83d687884079"
+	loginGovID = uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
 			Roles:         []roles.Role{smRole},
@@ -1837,9 +1885,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 
 	email = "too_role@office.mil"
 	tooUUID := uuid.Must(uuid.FromString("dcf86235-53d3-43dd-8ee8-54212ae3078f"))
+	loginGovID = uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            tooUUID,
+			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
 			Roles:         []roles.Role{tooRole},
@@ -1863,9 +1913,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 
 	email = "tio_role@office.mil"
 	tioUUID := uuid.Must(uuid.FromString("3b2cc1b0-31a2-4d1b-874f-0591f9127374"))
+	loginGovID = uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            tioUUID,
+			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
 			Roles:         []roles.Role{tioRole},
@@ -1883,9 +1935,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, userUploader *uploader.UserUpl
 	/* A user with both too and tio roles */
 	email = "too_tio_role@office.mil"
 	tooTioUUID := uuid.Must(uuid.FromString("9bda91d2-7a0c-4de1-ae02-b8cf8b4b858b"))
+	loginGovID = uuid.Must(uuid.NewV4())
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            tooTioUUID,
+			LoginGovUUID:  &loginGovID,
 			LoginGovEmail: email,
 			Active:        true,
 			Roles:         []roles.Role{tooRole, tioRole},
