@@ -1626,6 +1626,43 @@ func createMoveWithBasicServiceItems(db *pop.Connection, userUploader *uploader.
 	)
 }
 
+func createMoveWithUniqueDestinationAddress(db *pop.Connection) {
+	address := testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: models.Address{
+			StreetAddress1: "2 Second St",
+			StreetAddress2: swag.String("Apt 2"),
+			StreetAddress3: swag.String("Suite B"),
+			City:           "Columbia",
+			State:          "SC",
+			PostalCode:     "29212",
+			Country:        swag.String("US"),
+		},
+	})
+
+	newDutyStation := testdatagen.MakeDutyStation(db, testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			AddressID: address.ID,
+			Address:   address,
+		},
+	})
+
+	moveOrder := testdatagen.MakeOrder(db, testdatagen.Assertions{
+		Order: models.Order{
+			NewDutyStationID: newDutyStation.ID,
+			NewDutyStation:   newDutyStation,
+		},
+	})
+
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			ID:                 uuid.FromStringOrNil("ecbc2e6a-1b45-403b-9bd4-ea315d4d3d93"),
+			AvailableToPrimeAt: swag.Time(time.Now()),
+			Status:             models.MoveStatusAPPROVED,
+		},
+		Order: moveOrder,
+	})
+}
+
 // Run does that data load thing
 func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger, storer *storage.Filesystem) {
 	// PPM Office Queue
@@ -1664,4 +1701,7 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	// This move below is a PPM move in DRAFT status. It should probably
 	// be changed to an HHG move in SUBMITTED status to reflect reality.
 	createMoveWithBasicServiceItems(db, userUploader)
+	// Sets up a move with a non-default destination duty station address
+	// (to more easily spot issues with addresses being overwritten).
+	createMoveWithUniqueDestinationAddress(db)
 }
