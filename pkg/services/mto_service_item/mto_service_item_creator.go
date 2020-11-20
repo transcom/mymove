@@ -224,7 +224,7 @@ func (o *mtoServiceItemCreator) makeExtraSITServiceItem(firstSIT *models.MTOServ
 	}
 	err := o.builder.FetchOne(&reService, queryFilters)
 	if err != nil {
-		return nil, services.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service item with code: %s", reServiceCode))
+		return nil, services.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service code: %s", reServiceCode))
 	}
 
 	extraServiceItem := models.MTOServiceItem{
