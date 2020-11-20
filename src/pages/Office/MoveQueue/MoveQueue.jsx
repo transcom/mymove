@@ -1,29 +1,19 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 
 import { HistoryShape } from 'types/router';
 import { createHeader } from 'components/Table/utils';
-import { useMovesQueueQueries } from 'hooks/queries';
+import { useMovesQueueQueries, useUserQueries } from 'hooks/queries';
 import { serviceMemberAgencyLabel } from 'shared/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
-import { BRANCH_OPTIONS, MOVE_STATUS_OPTIONS } from 'constants/queues';
+import { BRANCH_OPTIONS, BRANCH_OPTIONS_NO_MARINES, MOVE_STATUS_OPTIONS, GBLOC } from 'constants/queues';
 import TableQueue from 'components/Table/TableQueue';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
 
-const moveStatusOptions = Object.keys(MOVE_STATUS_OPTIONS).map((key) => ({
-  value: key,
-  label: MOVE_STATUS_OPTIONS[`${key}`],
-}));
-
-const branchFilterOptions = [
-  { value: '', label: 'All' },
-  ...Object.keys(BRANCH_OPTIONS).map((key) => ({
-    value: key,
-    label: BRANCH_OPTIONS[`${key}`],
-  })),
-];
-
-const columns = [
+const columns = (includeBranchOptionMarines = true) => [
   createHeader('ID', 'id'),
   createHeader(
     'Customer name',
@@ -42,7 +32,7 @@ const columns = [
   createHeader('Status', 'status', {
     isFilterable: true,
     // eslint-disable-next-line react/jsx-props-no-spreading
-    Filter: (props) => <MultiSelectCheckBoxFilter options={moveStatusOptions} {...props} />,
+    Filter: (props) => <MultiSelectCheckBoxFilter options={MOVE_STATUS_OPTIONS} {...props} />,
   }),
   createHeader('Move Code', 'locator', {
     id: 'moveID',
@@ -56,8 +46,9 @@ const columns = [
     {
       id: 'branch',
       isFilterable: true,
-      // eslint-disable-next-line react/jsx-props-no-spreading
-      Filter: (props) => <SelectFilter options={branchFilterOptions} {...props} />,
+      Filter: (props) => (
+        <SelectFilter options={includeBranchOptionMarines ? BRANCH_OPTIONS : BRANCH_OPTIONS_NO_MARINES} {...props} />
+      ),
     },
   ),
   createHeader('# of shipments', 'shipmentsCount'),
@@ -69,15 +60,27 @@ const columns = [
 ];
 
 const MoveQueue = ({ history }) => {
+  const {
+    // eslint-disable-next-line camelcase
+    data: { office_user },
+    isLoading,
+    isError,
+  } = useUserQueries();
+
+  const includeBranchOptionMarines = office_user?.transportation_office?.gbloc === GBLOC.USMC;
+
   const handleClick = (values) => {
     history.push(`/moves/${values.id}/details`);
   };
+
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong />;
 
   return (
     <TableQueue
       showFilters
       showPagination
-      columns={columns}
+      columns={columns(includeBranchOptionMarines)}
       title="All moves"
       handleClick={handleClick}
       useQueries={useMovesQueueQueries}
