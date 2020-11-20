@@ -130,9 +130,8 @@ func createTLSConfig(clientKey []byte, clientCert []byte, ca []byte, tlsVersion 
 	//RA: The subroutine is executed by the MilMove pipeline, post-deployment.  It is not included in the production system.
 	//RA: Related pull request... https://github.com/transcom/mymove/pull/3340
 	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-	//RA Validator: jneuner@mitre.org
-	//RA Modified Severity:
+	//RA Validator Status: Mitigated
+	//RA Modified Severity: N/A
 	// #nosec G402
 	tlsConfig := &tls.Config{
 		Certificates: []tls.Certificate{keyPair},
@@ -170,9 +169,8 @@ func createHTTPClient(v *viper.Viper, logger *zap.Logger, tlsVersion uint16) (*h
 	//RA: This subroutine is executed by the MilMove pipeline, post-deployment.  It is not included in the production system.
 	//RA: Related pull request... https://github.com/transcom/mymove/pull/3340
 	//RA Developer Status: Mitigated
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-	//RA Validator: jneuner@mitre.org
-	//RA Modified Severity:
+	//RA Validator Status: Mitigated
+	//RA Modified Severity: N/A
 	// #nosec G402
 	tlsConfig := &tls.Config{
 		MinVersion: tlsVersion,
