@@ -30,6 +30,7 @@ type mtoServiceItemCreator struct {
 func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, *validate.Errors, error) {
 	var verrs *validate.Errors
 	var err error
+	var requestedServiceItems models.MTOServiceItems // used in case additional service items need to be auto-created
 	var createdServiceItems models.MTOServiceItems
 
 	var move models.Move
@@ -107,36 +108,40 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		}
 	}
 
+	requestedServiceItems = append(requestedServiceItems, *serviceItem)
+
 	// create new items in a transaction in case of failure
 	o.builder.Transaction(func(tx *pop.Connection) error {
 		// create new builder to use tx
 		txBuilder := o.createNewBuilder(tx)
 
-		// create service item
-		verrs, err = txBuilder.CreateOne(serviceItem)
-		if verrs != nil || err != nil {
-			return fmt.Errorf("%#v %e", verrs, err)
-		}
-
-		createdServiceItems = append(createdServiceItems, *serviceItem)
-
-		// create dimensions if any
-		for index := range serviceItem.Dimensions {
-			createDimension := &serviceItem.Dimensions[index]
-			createDimension.MTOServiceItemID = serviceItem.ID
-			verrs, err = txBuilder.CreateOne(createDimension)
+		for serviceItemIndex := range requestedServiceItems {
+			requestedServiceItem := &requestedServiceItems[serviceItemIndex]
+			verrs, err = txBuilder.CreateOne(requestedServiceItem)
 			if verrs != nil || err != nil {
 				return fmt.Errorf("%#v %e", verrs, err)
 			}
-		}
 
-		// create customer contacts if any
-		for index := range serviceItem.CustomerContacts {
-			createCustContacts := &serviceItem.CustomerContacts[index]
-			createCustContacts.MTOServiceItemID = serviceItem.ID
-			verrs, err = txBuilder.CreateOne(createCustContacts)
-			if verrs != nil || err != nil {
-				return fmt.Errorf("%#v %e", verrs, err)
+			createdServiceItems = append(createdServiceItems, *requestedServiceItem)
+
+			// create dimensions if any
+			for index := range requestedServiceItem.Dimensions {
+				createDimension := &requestedServiceItem.Dimensions[index]
+				createDimension.MTOServiceItemID = requestedServiceItem.ID
+				verrs, err = txBuilder.CreateOne(createDimension)
+				if verrs != nil || err != nil {
+					return fmt.Errorf("%#v %e", verrs, err)
+				}
+			}
+
+			// create customer contacts if any
+			for index := range requestedServiceItem.CustomerContacts {
+				createCustContacts := &requestedServiceItem.CustomerContacts[index]
+				createCustContacts.MTOServiceItemID = requestedServiceItem.ID
+				verrs, err = txBuilder.CreateOne(createCustContacts)
+				if verrs != nil || err != nil {
+					return fmt.Errorf("%#v %e", verrs, err)
+				}
 			}
 		}
 
