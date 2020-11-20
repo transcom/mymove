@@ -374,3 +374,161 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		})
 	})
 }
+
+// TestCreateDestSITServiceItem tests the service object for destination SIT service items
+func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
+		},
+	})
+	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: move,
+	})
+	builder := query.NewQueryBuilder(suite.DB())
+	creator := NewMTOServiceItemCreator(builder)
+
+	reServiceDDFSIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDDFSIT,
+		},
+	})
+	sitEntryDate := time.Now()
+	contact1 := models.MTOServiceItemCustomerContact{
+		Type:                       models.CustomerContactTypeFirst,
+		FirstAvailableDeliveryDate: sitEntryDate,
+		TimeMilitary:               "0815Z",
+	}
+	contact2 := models.MTOServiceItemCustomerContact{
+		Type:                       models.CustomerContactTypeSecond,
+		FirstAvailableDeliveryDate: sitEntryDate,
+		TimeMilitary:               "1430Z",
+	}
+	var contacts models.MTOServiceItemCustomerContacts
+	contacts = append(contacts, contact1, contact2)
+
+	// Failed creation of DDFSIT because DDASIT/DDDSIT codes are not found in DB
+	suite.T().Run("no DDASIT/DDDSIT codes", func(t *testing.T) {
+		serviceItemDDFSIT := models.MTOServiceItem{
+			MoveTaskOrderID:  shipment.MoveTaskOrderID,
+			MoveTaskOrder:    shipment.MoveTaskOrder,
+			MTOShipmentID:    &shipment.ID,
+			MTOShipment:      shipment,
+			ReService:        reServiceDDFSIT,
+			SITEntryDate:     &sitEntryDate,
+			CustomerContacts: contacts,
+		}
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDFSIT)
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(services.NotFoundError{}, err)
+		suite.Contains(err.Error(), "service code")
+	})
+
+	_ = testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDDASIT,
+		},
+	})
+	_ = testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDDDSIT,
+		},
+	})
+
+	// Failed creation of DDFSIT because CustomerContacts has invalid data
+	suite.T().Run("bad CustomerContacts", func(t *testing.T) {
+		badContact1 := models.MTOServiceItemCustomerContact{
+			Type:                       models.CustomerContactTypeFirst,
+			FirstAvailableDeliveryDate: sitEntryDate,
+			TimeMilitary:               "2611B",
+		}
+		badContact2 := models.MTOServiceItemCustomerContact{
+			Type:                       models.CustomerContactTypeSecond,
+			FirstAvailableDeliveryDate: sitEntryDate,
+			TimeMilitary:               "aaaaaaah",
+		}
+		var badContacts models.MTOServiceItemCustomerContacts
+		badContacts = append(badContacts, badContact1, badContact2)
+
+		serviceItemDDFSIT := models.MTOServiceItem{
+			MoveTaskOrderID:  shipment.MoveTaskOrderID,
+			MoveTaskOrder:    shipment.MoveTaskOrder,
+			MTOShipmentID:    &shipment.ID,
+			MTOShipment:      shipment,
+			ReService:        reServiceDDFSIT,
+			SITEntryDate:     &sitEntryDate,
+			CustomerContacts: badContacts,
+		}
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDFSIT)
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(services.InvalidInputError{}, err)
+		suite.Contains(err.Error(), "timeMilitary")
+	})
+
+	// Successful creation of DDFSIT service item and the extra DDASIT/DDDSIT items
+	suite.T().Run("DDFSIT creation approved", func(t *testing.T) {
+		serviceItemDDFSIT := models.MTOServiceItem{
+			MoveTaskOrderID:  shipment.MoveTaskOrderID,
+			MoveTaskOrder:    shipment.MoveTaskOrder,
+			MTOShipmentID:    &shipment.ID,
+			MTOShipment:      shipment,
+			ReService:        reServiceDDFSIT,
+			SITEntryDate:     &sitEntryDate,
+			CustomerContacts: contacts,
+		}
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDFSIT)
+		suite.NotNil(createdServiceItems)
+		suite.NoError(err)
+
+		createdServiceItemList := *createdServiceItems
+		suite.Equal(len(createdServiceItemList), 3)
+
+		// check the returned items for the correct data
+		numDDASITFound := 0
+		numDDDSITFound := 0
+		numDDFSITFound := 0
+		for _, item := range createdServiceItemList {
+			suite.Equal(item.MoveTaskOrderID, serviceItemDDFSIT.MoveTaskOrderID)
+			suite.Equal(item.MTOShipmentID, serviceItemDDFSIT.MTOShipmentID)
+			suite.Equal(item.SITEntryDate, serviceItemDDFSIT.SITEntryDate)
+
+			if item.ReService.Code == models.ReServiceCodeDDASIT {
+				numDDASITFound++
+			}
+			if item.ReService.Code == models.ReServiceCodeDDDSIT {
+				numDDDSITFound++
+			}
+			if item.ReService.Code == models.ReServiceCodeDDFSIT {
+				numDDFSITFound++
+				suite.Equal(len(item.CustomerContacts), len(serviceItemDDFSIT.CustomerContacts))
+			}
+		}
+		suite.Equal(numDDASITFound, 1)
+		suite.Equal(numDDDSITFound, 1)
+		suite.Equal(numDDFSITFound, 1)
+	})
+
+	// Failed creation of DDFSIT because of duplicate service for shipment
+	suite.T().Run("duplicate DDFSIT", func(t *testing.T) {
+		serviceItemDDFSIT := models.MTOServiceItem{
+			MoveTaskOrderID:  shipment.MoveTaskOrderID,
+			MoveTaskOrder:    shipment.MoveTaskOrder,
+			MTOShipmentID:    &shipment.ID,
+			MTOShipment:      shipment,
+			ReService:        reServiceDDFSIT,
+			SITEntryDate:     &sitEntryDate,
+			CustomerContacts: contacts,
+		}
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDFSIT)
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(services.ConflictError{}, err)
+		suite.Contains(err.Error(), "A service item with reServiceCode DDFSIT already exists for this move and/or shipment.")
+	})
+}
