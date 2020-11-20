@@ -39,7 +39,9 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	}
 	// check if Move exists
 	err = o.builder.FetchOne(&move, queryFilters)
+
 	if err != nil {
+
 		return nil, nil, services.NewNotFoundError(moveID, "in Moves")
 	}
 
@@ -50,6 +52,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		query.NewQueryFilter("code", "=", reServiceCode),
 	}
 	err = o.builder.FetchOne(&reService, queryFilters)
+
 	if err != nil {
 		return nil, nil, services.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service item with code: %s", reServiceCode))
 	}
@@ -87,6 +90,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		query.NewQueryFilter("id", "=", mtoShipmentID),
 		query.NewQueryFilter("move_id", "=", moveID),
 	}
+
 	err = o.builder.FetchOne(&mtoShipment, queryFilters)
 	if err != nil {
 		return nil, nil, services.NewNotFoundError(mtoShipmentID,
@@ -96,6 +100,15 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	if serviceItem.ReService.Code == models.ReServiceCodeDOSHUT || serviceItem.ReService.Code == models.ReServiceCodeDDSHUT {
 		if mtoShipment.PrimeEstimatedWeight == nil {
 			return nil, verrs, services.NewConflictError(reService.ID, "for creating a service item. MTOShipment associated with this service item must have a valid PrimeEstimatedWeight.")
+		}
+	}
+
+	if serviceItem.ReService.Code == models.ReServiceCodeDOASIT {
+		// DOASIT must be associated with shipment that has DOFSIT
+		serviceItem, err = o.validateDOASITServiceItem(serviceItem, models.ReServiceCodeDOASIT)
+
+		if err != nil {
+			return nil, nil, err
 		}
 	}
 
@@ -206,4 +219,51 @@ func validateTimeMilitaryField(timeMilitary string) error {
 	}
 
 	return nil
+}
+
+func (o *mtoServiceItemCreator) validateDOASITServiceItem(serviceItem *models.MTOServiceItem, reServiceCode models.ReServiceCode) (*models.MTOServiceItem, error) {
+	var mtoServiceItem models.MTOServiceItem
+	var mtoShipmentID uuid.UUID
+	var validReService models.ReService
+	var parentReServiceCode models.ReServiceCode
+
+	mtoShipmentID = *serviceItem.MTOShipmentID
+
+	// #TODO: Add in scenario for DDASIT/DDDSIT in future ticket MB-5547
+	if reServiceCode == models.ReServiceCodeDOASIT {
+		parentReServiceCode = models.ReServiceCodeDOFSIT
+	}
+
+	queryFilter := []services.QueryFilter{
+		query.NewQueryFilter("code", "=", parentReServiceCode),
+	}
+
+	// Fetch the ID for the ReService, so we can check the shipment for its existence
+	err := o.builder.FetchOne(&validReService, queryFilter)
+
+	if err != nil {
+		err = services.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service code: %s", validReService.Code))
+		return nil, err
+	}
+
+	mtoServiceItemQueryFilter := []services.QueryFilter{
+		query.NewQueryFilter("mto_shipment_id", "=", mtoShipmentID),
+		query.NewQueryFilter("re_service_id", "=", validReService.ID),
+	}
+	// Fetch the required first-day SIT item for the shipment
+	err = o.builder.FetchOne(&mtoServiceItem, mtoServiceItemQueryFilter)
+
+	if err != nil {
+		err = services.NewNotFoundError(uuid.Nil, fmt.Sprintf("No matching first-day SIT service item found for shipment: %s", mtoShipmentID))
+		return nil, err
+	}
+
+	// If the required first-day SIT item exists, we can update the related
+	// service item passed in with the parent item's field values
+	serviceItem.SITEntryDate = mtoServiceItem.SITEntryDate
+	serviceItem.SITDepartureDate = mtoServiceItem.SITDepartureDate
+	serviceItem.SITPostalCode = mtoServiceItem.SITPostalCode
+	serviceItem.Reason = mtoServiceItem.Reason
+
+	return serviceItem, nil
 }
