@@ -259,7 +259,7 @@ func (suite *MoveOrderServiceSuite) TestListMovesWithPagination() {
 
 func (suite *MoveOrderServiceSuite) TestListMovesWithSortOrder() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-	expectedMove1 := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusSUBMITTED, Locator: "AA1234"}})
+	expectedMove1 := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusAPPROVED, Locator: "AA1234"}})
 
 	serviceMemberLastName := "Zephyer"
 	affiliation := models.AffiliationNAVY
