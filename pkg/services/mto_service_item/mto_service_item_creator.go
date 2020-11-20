@@ -163,6 +163,53 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	return &createdServiceItems, nil, nil
 }
 
+// checkDuplicateServiceCodes checks if the move or shipment has a duplicate service item with the same code as the one
+// requested.
+func (o *mtoServiceItemCreator) checkDuplicateServiceCodes(serviceItem *models.MTOServiceItem) error {
+	var duplicateServiceItem models.MTOServiceItem
+
+	queryFilters := []services.QueryFilter{
+		query.NewQueryFilter("move_id", "=", serviceItem.MoveTaskOrderID),
+		query.NewQueryFilter("re_service_id", "=", serviceItem.ReServiceID),
+	}
+	if serviceItem.MTOShipmentID != nil {
+		queryFilters = append(queryFilters, query.NewQueryFilter("mto_shipment_id", "=", serviceItem.MTOShipmentID))
+	}
+
+	err := o.builder.FetchOne(&duplicateServiceItem, queryFilters)
+	if err == nil && duplicateServiceItem.ID != uuid.Nil {
+		return services.NewConflictError(duplicateServiceItem.ID,
+			fmt.Sprintf("for creating a service item. A service item with reServiceCode %s already exists for this move and/or shipment.", serviceItem.ReService.Code))
+	}
+
+	return nil
+}
+
+// makeExtraSITServiceItem sets up extra SIT service items if a first-day SIT service item is being created.
+func (o *mtoServiceItemCreator) makeExtraSITServiceItem(firstSIT *models.MTOServiceItem, reServiceCode models.ReServiceCode) (*models.MTOServiceItem, error) {
+	var reService models.ReService
+
+	queryFilters := []services.QueryFilter{
+		query.NewQueryFilter("code", "=", reServiceCode),
+	}
+	err := o.builder.FetchOne(&reService, queryFilters)
+	if err != nil {
+		return nil, services.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service item with code: %s", reServiceCode))
+	}
+
+	extraServiceItem := models.MTOServiceItem{
+		MTOShipmentID:   firstSIT.MTOShipmentID,
+		MoveTaskOrderID: firstSIT.MoveTaskOrderID,
+		ReServiceID:     reService.ID,
+		ReService:       reService,
+		SITEntryDate:    firstSIT.SITEntryDate,
+		SITPostalCode:   firstSIT.SITPostalCode,
+		Status:          models.MTOServiceItemStatusSubmitted,
+	}
+
+	return &extraServiceItem, nil
+}
+
 // NewMTOServiceItemCreator returns a new MTO service item creator
 func NewMTOServiceItemCreator(builder createMTOServiceItemQueryBuilder) services.MTOServiceItemCreator {
 	// used inside a transaction and mocking
