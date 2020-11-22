@@ -82,7 +82,7 @@ func (m MoveSubmitted) emails(ctx context.Context) ([]emailContent, error) {
 		DestinationDutyStation:     orders.NewDutyStation.Name,
 		OriginDutyStationPhoneLine: originDSTransportInfo.PhoneLine,
 		Locator:                    move.Locator,
-		// WeightAllowance:	entitlement total_weight_self
+		WeightAllowance:            "7999",
 	})
 
 	if err != nil {
@@ -122,7 +122,7 @@ type moveSubmittedEmailData struct {
 	DestinationDutyStation     string
 	OriginDutyStationPhoneLine string
 	Locator                    string
-	// WeightAllowance		   string
+	WeightAllowance            string
 }
 
 // RenderHTML renders the html for the email

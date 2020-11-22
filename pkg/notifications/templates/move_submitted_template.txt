@@ -1,29 +1,13 @@
-  to be replaced:
-  /* Your move from {{.OriginDutyStation}} to {{.DestinationDutyStation}} has been submitted to your local transportation office for review.
-
-  This can take up to 3 business days. The office will email you once your move has been approved.
-
-  Your move locator code is {{.Locator}}. Use this code when communicating with the office about your move.
-
-  In the meantime, if you have questions or need expedited processing, call the {{.OriginDutyStation}} PPPO at {{.OriginDutyStationPhoneLine}}.
-
-  You can check the status of your move at any time at https://my.move.mil/
-
-  Let us know how we’re doing. Please take a brief survey and share how well we’re handling your move so far at {{.Link}}.
-  */
-
-
-
 This is a confirmation that you’ve submitted the details for your move from {{.OriginDutyStation}} to {{.DestinationDutyStation}}.
 
 We’ve assigned you a move code: {{.Locator}}. You can use this code when talking to any representative about your move.
 
 To change any other information about your move, or to add or cancel shipments, you should tell your movers (if you’re using them) or your move counselor.
 
-Your weight allowance: {{.WeightAllowance}} pounds
+Your weight allowance: weightPlaceholder pounds
 That’s how much the government will pay to ship for you on this move. You won’t owe anything if all your shipments combined weigh less than that.
 
-If you move more than {{.WeightAllowance}} pounds, you will owe the government the difference between that and the total amount you move.
+If you move more than weightPlaceholder pounds, you will owe the government the difference between that and the total amount you move.
 
 Your movers will estimate the total weight of your belongings, and you will be notified if it looks like you might exceed your weight allowance. But you’re ultimately responsible for the weight you move.
 
