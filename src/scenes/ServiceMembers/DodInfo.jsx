@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { getFormValues } from 'redux-form';
 
-import { patchServiceMember } from 'services/internalApi';
+import { patchServiceMember, getResponseError } from 'services/internalApi';
 import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -16,6 +16,14 @@ const formName = 'service_member_dod_info';
 const DodWizardForm = reduxifyWizardForm(formName);
 
 export class DodInfo extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      errorMessage: null,
+    };
+  }
+
   handleSubmit = () => {
     const { values, currentServiceMember, updateServiceMember } = this.props;
 
@@ -31,8 +39,14 @@ export class DodInfo extends Component {
         .then((response) => {
           updateServiceMember(response);
         })
-        .catch(() => {
-          // TODO - error handling
+        .catch((e) => {
+          // TODO - error handling - below is rudimentary error handling to approximate existing UX
+          // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
+          const { response } = e;
+          const errorMessage = getResponseError(response, 'failed to update service member due to server error');
+          this.setState({
+            errorMessage,
+          });
         });
     }
 
@@ -41,6 +55,8 @@ export class DodInfo extends Component {
 
   render() {
     const { pages, pageKey, error, currentServiceMember, schema } = this.props;
+    const { errorMessage } = this.state;
+
     const initialValues = currentServiceMember ? pick(currentServiceMember, subsetOfFields) : null;
 
     return (
@@ -49,7 +65,7 @@ export class DodInfo extends Component {
         className={formName}
         pageList={pages}
         pageKey={pageKey}
-        serverError={error}
+        serverError={error || errorMessage}
         initialValues={initialValues}
       >
         <h1>Create your profile</h1>

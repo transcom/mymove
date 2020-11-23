@@ -6,7 +6,7 @@ import { get } from 'lodash';
 import { push } from 'connected-react-router';
 import { Field, reduxForm } from 'redux-form';
 
-import { patchServiceMember } from 'services/internalApi';
+import { patchServiceMember, getResponseError } from 'services/internalApi';
 import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
 import Alert from 'shared/Alert';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -131,7 +131,7 @@ class EditProfile extends Component {
         // TODO - error handling - below is rudimentary error handling to approximate existing UX
         // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
         const { response } = e;
-        const errorMessage = response?.body?.detail || 'failed to update service member due to server error';
+        const errorMessage = getResponseError(response, 'failed to update service member due to server error');
         this.setState({
           errorMessage,
         });

@@ -8,7 +8,7 @@ import { push } from 'connected-react-router';
 import { reduxForm } from 'redux-form';
 
 import { updateBackupContact as updateBackupContactAction } from 'store/entities/actions';
-import { patchBackupContact } from 'services/internalApi';
+import { patchBackupContact, getResponseError } from 'services/internalApi';
 import Alert from 'shared/Alert';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import SaveCancelButtons from './SaveCancelButtons';
@@ -87,7 +87,7 @@ class EditBackupContact extends Component {
         // TODO - error handling - below is rudimentary error handling to approximate existing UX
         // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
         const { response } = e;
-        const errorMessage = response?.body?.detail || 'failed to update service member due to server error';
+        const errorMessage = getResponseError(response, 'failed to update service member due to server error');
         this.setState({
           errorMessage,
         });

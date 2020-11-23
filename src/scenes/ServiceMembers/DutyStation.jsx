@@ -5,7 +5,7 @@ import { getFormValues } from 'redux-form';
 import { Field } from 'redux-form';
 import { get } from 'lodash';
 
-import { patchServiceMember } from 'services/internalApi';
+import { patchServiceMember, getResponseError } from 'services/internalApi';
 import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
 import { NULL_UUID } from 'shared/constants';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
@@ -32,6 +32,14 @@ const dutyStationFormName = 'duty_station';
 const DutyStationWizardForm = reduxifyWizardForm(dutyStationFormName, validateDutyStationForm);
 
 export class DutyStation extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      errorMessage: null,
+    };
+  }
+
   handleSubmit = () => {
     const { values, currentServiceMember, updateServiceMember } = this.props;
 
@@ -45,8 +53,14 @@ export class DutyStation extends Component {
         .then((response) => {
           updateServiceMember(response);
         })
-        .catch(() => {
-          // TODO - error handling
+        .catch((e) => {
+          // TODO - error handling - below is rudimentary error handling to approximate existing UX
+          // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
+          const { response } = e;
+          const errorMessage = getResponseError(response, 'failed to update service member due to server error');
+          this.setState({
+            errorMessage,
+          });
         });
     }
 
@@ -55,6 +69,7 @@ export class DutyStation extends Component {
 
   render() {
     const { pages, pageKey, error, existingStation, newDutyStation, currentStation } = this.props;
+    const { errorMessage } = this.state;
 
     let initialValues = null;
     if (existingStation.name) {
@@ -72,7 +87,7 @@ export class DutyStation extends Component {
         pageList={pages}
         pageKey={pageKey}
         initialValues={initialValues}
-        serverError={error}
+        serverError={error || errorMessage}
       >
         <h1>Current duty station</h1>
         <SectionWrapper>

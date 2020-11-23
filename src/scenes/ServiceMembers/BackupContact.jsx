@@ -5,11 +5,12 @@ import { connect } from 'react-redux';
 import { getFormValues } from 'redux-form';
 
 import { updateBackupContact as updateBackupContactAction } from 'store/entities/actions';
-import { createBackupContactForServiceMember, patchBackupContact } from 'services/internalApi';
+import { createBackupContactForServiceMember, patchBackupContact, getResponseError } from 'services/internalApi';
 import { renderField, recursivelyAnnotateRequiredFields } from 'shared/JsonSchemaForm';
 import { reduxForm } from 'redux-form';
 import { no_op } from 'shared/utils';
 import WizardPage from 'shared/WizardPage';
+import scrollToTop from 'shared/scrollToTop';
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
 
@@ -72,6 +73,7 @@ export class BackupContact extends Component {
     this.state = {
       isValid: true,
       isDirty: false,
+      errorMessage: null,
     };
   }
 
@@ -92,8 +94,16 @@ export class BackupContact extends Component {
           .then((response) => {
             updateBackupContact(response);
           })
-          .catch(() => {
-            // TODO - error handling
+          .catch((e) => {
+            // TODO - error handling - below is rudimentary error handling to approximate existing UX
+            // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
+            const { response } = e;
+            const errorMessage = getResponseError(response, 'failed to update backup contact due to server error');
+            this.setState({
+              errorMessage,
+            });
+
+            scrollToTop();
           });
       } else {
         const { serviceMemberId } = match.params;
@@ -101,8 +111,16 @@ export class BackupContact extends Component {
           .then((response) => {
             updateBackupContact(response);
           })
-          .catch(() => {
-            // TODO - error handling
+          .catch((e) => {
+            // TODO - error handling - below is rudimentary error handling to approximate existing UX
+            // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
+            const { response } = e;
+            const errorMessage = getResponseError(response, 'failed to create backup contact due to server error');
+            this.setState({
+              errorMessage,
+            });
+
+            scrollToTop();
           });
       }
     }
@@ -119,8 +137,7 @@ export class BackupContact extends Component {
 
   render() {
     const { pages, pageKey, error } = this.props;
-    const isValid = this.state.isValid;
-    const isDirty = this.state.isDirty;
+    const { isValid, isDirty, errorMessage } = this.state;
 
     // eslint-disable-next-line
     var [contact1, contact2] = this.props.currentBackupContacts; // contact2 will be used when we implement saving two backup contacts.
@@ -135,7 +152,7 @@ export class BackupContact extends Component {
         pageKey={pageKey}
         pageIsValid={isValid}
         dirty={isDirty}
-        error={error}
+        error={error || errorMessage}
       >
         <ContactForm
           ref="currentForm"

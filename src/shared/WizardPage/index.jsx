@@ -69,7 +69,7 @@ export class WizardPage extends Component {
           <div className="grid-row">
             <div className="desktop:grid-col-8 desktop:grid-offset-2 error-message">
               <Alert type="error" heading="An error occurred">
-                {error.message}
+                {error?.message || error}
               </Alert>
             </div>
           </div>

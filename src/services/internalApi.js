@@ -16,6 +16,12 @@ export async function getInternalClient() {
   return internalClient;
 }
 
+// Attempt at catch-all error handling
+// TODO improve this function when we have better standardized errors
+export function getResponseError(response, defaultErrorMessage) {
+  return response.body?.detail || response.statusText || defaultErrorMessage;
+}
+
 export async function makeInternalRequest(operationPath, params = {}, options = {}) {
   const client = await getInternalClient();
   return makeSwaggerRequest(client, operationPath, params, options);
