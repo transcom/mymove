@@ -45,6 +45,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
 		InnerJoin("duty_stations", "duty_stations.id = orders.origin_duty_station_id").
 		InnerJoin("transportation_offices", "transportation_offices.id = duty_stations.transportation_office_id").
+		Where("moves.show = ?", swag.Bool(true)).
 		Order("status asc")
 
 	branchQuery := branchFilter(params.Branch)

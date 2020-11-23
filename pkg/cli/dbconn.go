@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 	"io/ioutil"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -195,7 +196,7 @@ func CheckDatabase(v *viper.Viper, logger Logger) error {
 	}
 
 	if filename := v.GetString(DbSSLRootCertFlag); len(filename) > 0 {
-		b, err := ioutil.ReadFile(filename) // #nosec
+		b, err := ioutil.ReadFile(filepath.Clean(filename))
 		if err != nil {
 			return errors.Wrap(err, fmt.Sprintf("error reading %s at %q", DbSSLRootCertFlag, filename))
 		}
