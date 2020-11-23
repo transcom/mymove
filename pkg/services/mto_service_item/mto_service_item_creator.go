@@ -3,6 +3,7 @@ package mtoserviceitem
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
@@ -215,10 +216,13 @@ func (o *mtoServiceItemCreator) checkDuplicateServiceCodes(serviceItem *models.M
 		queryFilters = append(queryFilters, query.NewQueryFilter("mto_shipment_id", "=", serviceItem.MTOShipmentID))
 	}
 
+	// We DON'T want to find this service item:
 	err := o.builder.FetchOne(&duplicateServiceItem, queryFilters)
 	if err == nil && duplicateServiceItem.ID != uuid.Nil {
 		return services.NewConflictError(duplicateServiceItem.ID,
 			fmt.Sprintf("for creating a service item. A service item with reServiceCode %s already exists for this move and/or shipment.", serviceItem.ReService.Code))
+	} else if err != nil && !strings.Contains(err.Error(), "sql: no rows in result set") {
+		return err
 	}
 
 	return nil
