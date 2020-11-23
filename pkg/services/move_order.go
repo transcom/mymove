@@ -29,4 +29,6 @@ type ListMoveOrderParams struct {
 	Status                 []string
 	Page                   *int64
 	PerPage                *int64
+	Sort                   *string
+	Order                  *string
 }
