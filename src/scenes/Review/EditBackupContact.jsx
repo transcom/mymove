@@ -87,7 +87,7 @@ class EditBackupContact extends Component {
         // TODO - error handling - below is rudimentary error handling to approximate existing UX
         // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
         const { response } = e;
-        const errorMessage = getResponseError(response, 'failed to update service member due to server error');
+        const errorMessage = getResponseError(response, 'failed to update backup contact due to server error');
         this.setState({
           errorMessage,
         });
