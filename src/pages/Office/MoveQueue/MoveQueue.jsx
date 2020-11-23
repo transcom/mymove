@@ -7,12 +7,12 @@ import { useMovesQueueQueries, useUserQueries } from 'hooks/queries';
 import { serviceMemberAgencyLabel } from 'shared/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
-import { BRANCH_OPTIONS, BRANCH_OPTIONS_NO_MARINES, MOVE_STATUS_OPTIONS, GBLOC } from 'constants/queues';
+import { BRANCH_OPTIONS, MOVE_STATUS_OPTIONS, GBLOC } from 'constants/queues';
 import TableQueue from 'components/Table/TableQueue';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
-const columns = (includeBranchOptionMarines = true) => [
+const columns = (showBranchFilter = true) => [
   createHeader('ID', 'id'),
   createHeader(
     'Customer name',
@@ -44,10 +44,10 @@ const columns = (includeBranchOptionMarines = true) => [
     },
     {
       id: 'branch',
-      isFilterable: true,
+      isFilterable: showBranchFilter,
       Filter: (props) => (
         // eslint-disable-next-line react/jsx-props-no-spreading
-        <SelectFilter options={includeBranchOptionMarines ? BRANCH_OPTIONS : BRANCH_OPTIONS_NO_MARINES} {...props} />
+        <SelectFilter options={BRANCH_OPTIONS} {...props} />
       ),
     },
   ),
@@ -67,7 +67,7 @@ const MoveQueue = ({ history }) => {
     isError,
   } = useUserQueries();
 
-  const includeBranchOptionMarines = office_user?.transportation_office?.gbloc === GBLOC.USMC;
+  const showBranchFilter = office_user?.transportation_office?.gbloc !== GBLOC.USMC;
 
   const handleClick = (values) => {
     history.push(`/moves/${values.id}/details`);
@@ -80,7 +80,7 @@ const MoveQueue = ({ history }) => {
     <TableQueue
       showFilters
       showPagination
-      columns={columns(includeBranchOptionMarines)}
+      columns={columns(showBranchFilter)}
       title="All moves"
       handleClick={handleClick}
       useQueries={useMovesQueueQueries}

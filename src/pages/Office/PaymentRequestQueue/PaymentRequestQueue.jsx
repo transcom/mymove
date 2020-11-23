@@ -13,12 +13,12 @@ import {
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
-import { BRANCH_OPTIONS, BRANCH_OPTIONS_NO_MARINES, GBLOC, PAYMENT_REQUEST_STATUS_OPTIONS } from 'constants/queues';
+import { BRANCH_OPTIONS, GBLOC, PAYMENT_REQUEST_STATUS_OPTIONS } from 'constants/queues';
 import TableQueue from 'components/Table/TableQueue';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
-const columns = (includeBranchOptionMarines = true) => [
+const columns = (showBranchFilter = true) => [
   createHeader('ID', 'id'),
   createHeader(
     'Customer name',
@@ -75,10 +75,10 @@ const columns = (includeBranchOptionMarines = true) => [
     },
     {
       id: 'branch',
-      isFilterable: true,
+      isFilterable: showBranchFilter,
       Filter: (props) => (
         // eslint-disable-next-line react/jsx-props-no-spreading
-        <SelectFilter options={includeBranchOptionMarines ? BRANCH_OPTIONS : BRANCH_OPTIONS_NO_MARINES} {...props} />
+        <SelectFilter options={BRANCH_OPTIONS} {...props} />
       ),
     },
   ),
@@ -93,7 +93,7 @@ const PaymentRequestQueue = ({ history }) => {
     isError,
   } = useUserQueries();
 
-  const includeBranchOptionMarines = office_user?.transportation_office?.gbloc === GBLOC.USMC;
+  const showBranchFilter = office_user?.transportation_office?.gbloc !== GBLOC.USMC;
 
   const handleClick = (values) => {
     history.push(`/moves/MOVE_CODE/payment-requests/${values.id}`);
@@ -106,7 +106,7 @@ const PaymentRequestQueue = ({ history }) => {
     <TableQueue
       showFilters
       showPagination
-      columns={columns(includeBranchOptionMarines)}
+      columns={columns(showBranchFilter)}
       title="Payment requests"
       handleClick={handleClick}
       useQueries={usePaymentRequestQueueQueries}
