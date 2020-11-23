@@ -6,6 +6,15 @@ import PaymentRequestQueue from './PaymentRequestQueue';
 import { MockProviders } from 'testUtils';
 
 jest.mock('hooks/queries', () => ({
+  useUserQueries: () => {
+    return {
+      isLoading: false,
+      isError: false,
+      data: {
+        office_user: { transportation_office: { gbloc: 'TEST' } },
+      },
+    };
+  },
   usePaymentRequestQueueQueries: () => {
     return {
       queueResult: {
