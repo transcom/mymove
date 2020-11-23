@@ -126,28 +126,12 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	}
 
 	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT {
-		// check if there's another DDFSIT item for this shipment
-		err = o.checkDuplicateServiceCodes(serviceItem)
-		if err != nil {
-			return nil, nil, err
-		}
-
-		// create extra DDASIT and DDDSIT service items
-		serviceItemDDASIT, errSIT := o.makeExtraSITServiceItem(serviceItem, models.ReServiceCodeDDASIT)
+		extraServiceItems, errSIT := o.validateFirstDaySITServiceItem(serviceItem)
 		if errSIT != nil {
 			return nil, nil, errSIT
 		}
-		if serviceItemDDASIT != nil {
-			requestedServiceItems = append(requestedServiceItems, *serviceItemDDASIT)
-		}
 
-		serviceItemDDDSIT, errSIT := o.makeExtraSITServiceItem(serviceItem, models.ReServiceCodeDDDSIT)
-		if errSIT != nil {
-			return nil, nil, errSIT
-		}
-		if serviceItemDDDSIT != nil {
-			requestedServiceItems = append(requestedServiceItems, *serviceItemDDDSIT)
-		}
+		requestedServiceItems = append(requestedServiceItems, *extraServiceItems...)
 	}
 
 	requestedServiceItems = append(requestedServiceItems, *serviceItem)
@@ -347,4 +331,35 @@ func (o *mtoServiceItemCreator) validateSITStandaloneServiceItem(serviceItem *mo
 	serviceItem.Reason = mtoServiceItem.Reason
 
 	return serviceItem, nil
+}
+
+func (o *mtoServiceItemCreator) validateFirstDaySITServiceItem(serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, error) {
+	var extraServiceItems models.MTOServiceItems
+	var extraServiceItem *models.MTOServiceItem
+
+	// check if there's another First Day SIT item for this shipment
+	err := o.checkDuplicateServiceCodes(serviceItem)
+	if err != nil {
+		return nil, err
+	}
+
+	// create the extra service items for first day SIT
+	var reServiceCodes []models.ReServiceCode
+	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT {
+		reServiceCodes = append(reServiceCodes, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT)
+	} else {
+		reServiceCodes = append(reServiceCodes, models.ReServiceCodeDOASIT, models.ReServiceCodeDOPSIT)
+	}
+
+	for _, code := range reServiceCodes {
+		extraServiceItem, err = o.makeExtraSITServiceItem(serviceItem, code)
+		if err != nil {
+			return nil, err
+		}
+		if extraServiceItem != nil {
+			extraServiceItems = append(extraServiceItems, *extraServiceItem)
+		}
+	}
+
+	return &extraServiceItems, nil
 }
