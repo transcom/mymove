@@ -69,16 +69,24 @@ func (m MoveSubmitted) emails(ctx context.Context) ([]emailContent, error) {
 		return emails, err
 	}
 
+	totalEntitlement, err := models.GetEntitlement(*serviceMember.Rank, orders.HasDependents, orders.SpouseHasProGear)
+	if err != nil {
+		return emails, err
+	}
+
 	if serviceMember.PersonalEmail == nil {
 		return emails, fmt.Errorf("no email found for service member")
 	}
 
+	// add weight allowance field
 	htmlBody, textBody, err := m.renderTemplates(moveSubmittedEmailData{
-		Link:                       "https://www.surveymonkey.com/r/MilMovePt1-08191",
+		Link:                       "https://my.move.mil/",
+		PpmLink:                    "https://office.move.mil/downloads/ppm_info_sheet.pdf",
 		OriginDutyStation:          originDSTransportInfo.Name,
 		DestinationDutyStation:     orders.NewDutyStation.Name,
 		OriginDutyStationPhoneLine: originDSTransportInfo.PhoneLine,
 		Locator:                    move.Locator,
+		WeightAllowance:            totalEntitlement,
 	})
 
 	if err != nil {
@@ -87,7 +95,7 @@ func (m MoveSubmitted) emails(ctx context.Context) ([]emailContent, error) {
 
 	smEmail := emailContent{
 		recipientEmail: *serviceMember.PersonalEmail,
-		subject:        "[MilMove] You’ve submitted your move details",
+		subject:        "Thank you for submitting your move details",
 		htmlBody:       htmlBody,
 		textBody:       textBody,
 	}
@@ -113,10 +121,12 @@ func (m MoveSubmitted) renderTemplates(data moveSubmittedEmailData) (string, str
 
 type moveSubmittedEmailData struct {
 	Link                       string
+	PpmLink                    string
 	OriginDutyStation          string
 	DestinationDutyStation     string
 	OriginDutyStationPhoneLine string
 	Locator                    string
+	WeightAllowance            int
 }
 
 // RenderHTML renders the html for the email
