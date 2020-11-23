@@ -111,6 +111,13 @@ func orderName(query *pop.Query, order *string) *pop.Query {
 	return query.Order(fmt.Sprintf("service_members.last_name %s, service_members.first_name %s", *order, *order))
 }
 
+func reverseOrder(order *string) string {
+	if *order == "asc" {
+		return "desc"
+	}
+	return "asc"
+}
+
 func sortOrder(sort *string, order *string) QueryOption {
 	parameters := map[string]string{
 		"lastName":    "service_members.last_name",
@@ -127,6 +134,8 @@ func sortOrder(sort *string, order *string) QueryOption {
 			sortTerm := parameters[*sort]
 			if *sort == "lastName" {
 				orderName(query, order)
+			} else if *sort == "age" {
+				query = query.Order(fmt.Sprintf("%s %s", sortTerm, reverseOrder(order)))
 			} else {
 				query = query.Order(fmt.Sprintf("%s %s", sortTerm, *order))
 			}
