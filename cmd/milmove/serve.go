@@ -300,7 +300,6 @@ func fileHandler(entrypoint string) http.HandlerFunc {
 func indexHandler(buildDir string, logger logger) http.HandlerFunc {
 
 	indexPath := path.Join(buildDir, "index.html")
-	// #nosec - indexPath does not come from user input
 	indexHTML, err := ioutil.ReadFile(filepath.Clean(indexPath))
 	if err != nil {
 		logger.Fatal("could not read index.html template: run make client_build", zap.Error(err))
