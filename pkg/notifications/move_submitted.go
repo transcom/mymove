@@ -78,7 +78,6 @@ func (m MoveSubmitted) emails(ctx context.Context) ([]emailContent, error) {
 		return emails, fmt.Errorf("no email found for service member")
 	}
 
-	// add weight allowance field
 	htmlBody, textBody, err := m.renderTemplates(moveSubmittedEmailData{
 		Link:                       "https://my.move.mil/",
 		PpmLink:                    "https://office.move.mil/downloads/ppm_info_sheet.pdf",
