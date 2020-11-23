@@ -294,3 +294,22 @@ printf "\n-----\n\n"
 bin/prime-api-client "${primeapiopts[@]}" support-get-payment-request-edi --filename ./tmp/pad_get_payment_request_edi.json > tmp/pad_edi_response.json
 
 jq -r .edi tmp/pad_edi_response.json
+
+echo
+
+echo "Payment request status updated for payment request number: ${prNumber}:"
+
+printf "\n-----\n\n"
+
+cat > ./tmp/pad_update_payment_request_status.json <<-EOM
+{
+  "body": {
+    "paymentRequestID": "${prID}",
+    "sendToSyncada": false
+  }
+}
+EOM
+
+bin/prime-api-client "${primeapiopts[@]}" support-reviewed-payment-requests --filename ./tmp/pad_update_payment_request_status.json > tmp/pad_pr_update_response.json
+
+jq . tmp/pad_pr_update_response.json
