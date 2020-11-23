@@ -1,28 +1,16 @@
 import { pick, without, cloneDeep, get, every } from 'lodash';
 import { NULL_UUID } from 'shared/constants';
 
-import {
-  GetServiceMember,
-  UpdateServiceMember,
-  CreateServiceMember,
-  IndexBackupContactsAPI,
-  CreateBackupContactAPI,
-  UpdateBackupContactAPI,
-} from './api.js';
 import { GET_LOGGED_IN_USER } from 'shared/Data/users';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { upsert } from 'shared/utils';
+
 // Types
 export const GET_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes('GET_SERVICE_MEMBER');
 export const UPDATE_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes('UPDATE_SERVICE_MEMBER');
 
 const createServiceMemberType = 'CREATE_SERVICE_MEMBER';
 export const CREATE_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(createServiceMemberType);
-
-export const createServiceMember = ReduxHelpers.generateAsyncActionCreator(
-  createServiceMemberType,
-  CreateServiceMember,
-);
 
 const createBackupContactType = 'CREATE_BACKUP_CONTACT';
 const indexBackupContactsType = 'INDEX_BACKUP_CONTACTS';
@@ -33,54 +21,6 @@ export const CREATE_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(creat
 export const INDEX_BACKUP_CONTACTS = ReduxHelpers.generateAsyncActionTypes(indexBackupContactsType);
 
 export const UPDATE_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(updateBackupContactType);
-
-export const createBackupContact = ReduxHelpers.generateAsyncActionCreator(
-  createBackupContactType,
-  CreateBackupContactAPI,
-);
-
-export const indexBackupContacts = ReduxHelpers.generateAsyncActionCreator(
-  indexBackupContactsType,
-  IndexBackupContactsAPI,
-);
-
-export const updateBackupContact = ReduxHelpers.generateAsyncActionCreator(
-  updateBackupContactType,
-  UpdateBackupContactAPI,
-);
-
-// Action creation
-export function updateServiceMember(serviceMember) {
-  const action = ReduxHelpers.generateAsyncActions('UPDATE_SERVICE_MEMBER');
-  return function (dispatch, getState) {
-    dispatch(action.start());
-    const state = getState();
-    const { currentServiceMember } = state.serviceMember;
-    if (currentServiceMember) {
-      return UpdateServiceMember(currentServiceMember.id, serviceMember)
-        .then((item) => dispatch(action.success(Object.assign({}, currentServiceMember, item))))
-        .catch((error) => dispatch(action.error(error)));
-    } else {
-      return Promise.reject();
-    }
-  };
-}
-
-export function loadServiceMember(serviceMemberId) {
-  const action = ReduxHelpers.generateAsyncActions('GET_SERVICE_MEMBER');
-  return function (dispatch, getState) {
-    dispatch(action.start);
-    const state = getState();
-    const { currentServiceMember } = state.serviceMember;
-    if (!currentServiceMember) {
-      return GetServiceMember(serviceMemberId)
-        .then((item) => dispatch(action.success(item)))
-        .catch((error) => dispatch(action.error(error)));
-    } else {
-      return Promise.resolve();
-    }
-  };
-}
 
 //this is similar to go service_member.IsProfileComplete and we should figure out how to use just one if possible
 export const isProfileComplete = (state) => {

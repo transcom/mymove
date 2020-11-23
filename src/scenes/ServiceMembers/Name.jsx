@@ -2,9 +2,10 @@ import { get, pick } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
-import { updateServiceMember } from './ducks';
+
+import { patchServiceMember, getResponseError } from 'services/internalApi';
+import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
@@ -15,16 +16,48 @@ const formName = 'service_member_name';
 const NameWizardForm = reduxifyWizardForm(formName);
 
 export class Name extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      errorMessage: null,
+    };
+  }
+
   handleSubmit = () => {
-    const pendingValues = this.props.values;
-    if (pendingValues) {
-      const patch = pick(pendingValues, subsetOfFields);
-      return this.props.updateServiceMember(patch);
+    const { values, currentServiceMember, updateServiceMember } = this.props;
+
+    if (values) {
+      const payload = {
+        id: currentServiceMember.id,
+        first_name: values.first_name,
+        middle_name: values.middle_name,
+        last_name: values.last_name,
+        suffix: values.suffix,
+      };
+
+      return patchServiceMember(payload)
+        .then((response) => {
+          updateServiceMember(response);
+        })
+        .catch((e) => {
+          // TODO - error handling - below is rudimentary error handling to approximate existing UX
+          // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
+          const { response } = e;
+          const errorMessage = getResponseError(response, 'failed to update service member due to server error');
+          this.setState({
+            errorMessage,
+          });
+        });
     }
+
+    return Promise.resolve();
   };
 
   render() {
     const { pages, pageKey, error, currentServiceMember } = this.props;
+    const { errorMessage } = this.state;
+
     // initialValues has to be null until there are values from the action since only the first values are taken
     const initialValues = currentServiceMember ? pick(currentServiceMember, subsetOfFields) : null;
     const serviceMemberId = this.props.match.params.serviceMemberId;
@@ -34,7 +67,7 @@ export class Name extends Component {
         className={formName}
         pageList={pages}
         pageKey={pageKey}
-        serverError={error}
+        serverError={error || errorMessage}
         initialValues={initialValues}
         additionalParams={{ serviceMemberId }}
       >
@@ -58,9 +91,10 @@ Name.propTypes = {
   error: PropTypes.object,
 };
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ updateServiceMember }, dispatch);
-}
+const mapDispatchToProps = {
+  updateServiceMember: updateServiceMemberAction,
+};
+
 function mapStateToProps(state) {
   return {
     schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),

@@ -10,7 +10,7 @@ import { withContext } from 'shared/AppContext';
 import { PpmSummary } from './PpmSummary';
 import PpmAlert from './PpmAlert';
 import { selectedMoveType, lastMoveIsCanceled, updateMove } from 'scenes/Moves/ducks';
-import { createServiceMember, isProfileComplete } from 'scenes/ServiceMembers/ducks';
+import { isProfileComplete } from 'scenes/ServiceMembers/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import {
   selectCurrentUser,
@@ -42,20 +42,9 @@ export class PpmLanding extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const {
-      serviceMember,
-      createdServiceMemberIsLoading,
-      createdServiceMemberError,
-      loggedInUserSuccess,
-      createServiceMember,
-      isProfileComplete,
-    } = this.props;
+    const { serviceMember, loggedInUserSuccess, isProfileComplete } = this.props;
     if (loggedInUserSuccess) {
-      if (!createdServiceMemberIsLoading && isEmpty(serviceMember) && !createdServiceMemberError) {
-        // Once the logged in user loads, if the service member doesn't
-        // exist we need to dispatch creating one, once.
-        createServiceMember({});
-      } else if (!isEmpty(serviceMember) && !isProfileComplete) {
+      if (!isEmpty(serviceMember) && !isProfileComplete) {
         // If the service member exists, but is not complete, redirect to next incomplete page.
         this.resumeMove();
       }
@@ -226,7 +215,7 @@ const mapStateToProps = (state) => {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { push, createServiceMember, updateMove, loadPPMs, loadMTOShipments, showLoggedInUser: showLoggedInUserAction },
+    { push, updateMove, loadPPMs, loadMTOShipments, showLoggedInUser: showLoggedInUserAction },
     dispatch,
   );
 }
