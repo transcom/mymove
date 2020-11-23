@@ -48,3 +48,29 @@ func FetchOrMakeReService(db *pop.Connection, assertions Assertions) models.ReSe
 func MakeDefaultReService(db *pop.Connection) models.ReService {
 	return MakeReService(db, Assertions{})
 }
+
+// MakeDDFSITReService creates the three destination SIT service codes: DDFSIT, DDASIT, DDDSIT. Returns DDFSIT only.
+func MakeDDFSITReService(db *pop.Connection) models.ReService {
+	assertionsDDFSIT := Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDDFSIT,
+		},
+	}
+	reService := MakeReService(db, assertionsDDFSIT)
+
+	assertionsDDASIT := Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDDASIT,
+		},
+	}
+	MakeReService(db, assertionsDDASIT)
+
+	assertionsDDDSIT := Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDDDSIT,
+		},
+	}
+	MakeReService(db, assertionsDDDSIT)
+
+	return reService
+}

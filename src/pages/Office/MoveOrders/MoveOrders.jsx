@@ -13,11 +13,11 @@ import { updateMoveOrder } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
-import { MatchShape, HistoryShape } from 'types/router';
+import { HistoryShape, MatchShape } from 'types/router';
 import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
 import { dropdownInputOptions, formatSwaggerDate } from 'shared/formatters';
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
-import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orders';
+import { ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { MOVE_ORDERS } from 'constants/queryKeys';
 import { useOrdersDocumentQueries } from 'hooks/queries';
 
