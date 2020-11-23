@@ -647,9 +647,14 @@ var authorizeKnownUser = func(userIdentity *models.UserIdentity, h CallbackHandl
 
 var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session *auth.Session, w http.ResponseWriter, r *http.Request, lURL string) {
 	var officeUser *models.OfficeUser
+	var user *models.User
 	var err error
+
+	// Loads the User and Roles associations of the office or admin user
+	conn := h.db.Eager("User", "User.Roles")
+
 	if session.IsOfficeApp() { // Look to see if we have OfficeUser with this email address
-		officeUser, err = models.FetchOfficeUserByEmail(h.db, session.Email)
+		officeUser, err = models.FetchOfficeUserByEmail(conn, session.Email)
 		if err == models.ErrFetchNotFound {
 			h.logger.Error("No Office user found", zap.String("email", session.Email))
 			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
@@ -664,11 +669,12 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
 		}
+		user = &officeUser.User
 	}
 
 	var adminUser models.AdminUser
 	if session.IsAdminApp() {
-		queryBuilder := query.NewQueryBuilder(h.db)
+		queryBuilder := query.NewQueryBuilder(conn)
 		filters := []services.QueryFilter{
 			query.NewQueryFilter("email", "=", session.Email),
 		}
@@ -688,26 +694,30 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
 		}
+		user = &adminUser.User
 	}
 
-	user, err := models.CreateUser(h.db, openIDUser.UserID, openIDUser.Email)
-
-	if err == nil { // Successfully created the user
-		session.UserID = user.ID
-		if session.IsOfficeApp() && officeUser != nil {
-			session.OfficeUserID = officeUser.ID
-			officeUser.UserID = &user.ID
-			err = h.db.Save(officeUser)
-		} else if session.IsAdminApp() && adminUser.ID != uuid.Nil {
-			session.AdminUserID = adminUser.ID
-			adminUser.UserID = &user.ID
-			err = h.db.Save(&adminUser)
-		}
+	if session.IsMilApp() {
+		user, err = models.CreateUser(h.db, openIDUser.UserID, openIDUser.Email)
+	} else {
+		err = models.UpdateUserLoginGovUUID(h.db, user, openIDUser.UserID)
 	}
+
 	if err != nil {
-		h.logger.Error("Error creating user", zap.Error(err))
+		h.logger.Error("Error updating/creating user", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
+	}
+
+	session.UserID = user.ID
+	if session.IsOfficeApp() && officeUser != nil {
+		session.OfficeUserID = officeUser.ID
+	} else if session.IsAdminApp() && adminUser.ID != uuid.Nil {
+		session.AdminUserID = adminUser.ID
+	}
+
+	for _, role := range user.Roles {
+		session.Roles = append(session.Roles, role)
 	}
 
 	sessionManager := h.sessionManager(session)

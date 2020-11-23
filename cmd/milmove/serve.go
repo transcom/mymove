@@ -15,6 +15,7 @@ import (
 	"os"
 	"os/signal"
 	"path"
+	"path/filepath"
 	"strings"
 	"sync"
 	"syscall"
@@ -299,8 +300,8 @@ func fileHandler(entrypoint string) http.HandlerFunc {
 func indexHandler(buildDir string, logger logger) http.HandlerFunc {
 
 	indexPath := path.Join(buildDir, "index.html")
-	//  - indexPath does not come from user input
-	indexHTML, err := ioutil.ReadFile(indexPath)
+	// #nosec - indexPath does not come from user input
+	indexHTML, err := ioutil.ReadFile(filepath.Clean(indexPath))
 	if err != nil {
 		logger.Fatal("could not read index.html template: run make client_build", zap.Error(err))
 	}
@@ -583,8 +584,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	logger.Debug("Trusted Certificate Authorities", zap.Any("subjects", rootCAs.Subjects()))
 
 	// Set the GexSender() and GexSender fields
-	//  G402 TODO needs review
-	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs}
+	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
 	var gexRequester services.GexSender
 	gexURL := v.GetString(cli.GEXURLFlag)
 	if len(gexURL) == 0 {
@@ -595,8 +595,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		gexRequester = invoice.NewGexSenderHTTP(
 			server.URL,
 			false,
-			//  G402 TODO needs review
-			&tls.Config{},
+			&tls.Config{MinVersion: tls.VersionTLS12},
 			"",
 			"",
 		)
@@ -963,7 +962,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		if stringSliceContains([]string{cli.EnvironmentTest, cli.EnvironmentDevelopment}, v.GetString(cli.EnvironmentFlag)) {
 			logger.Info("Adding devlocal CA to root CAs")
 			devlocalCAPath := v.GetString(cli.DevlocalCAFlag)
-			devlocalCa, readFileErr := ioutil.ReadFile(devlocalCAPath) //
+			devlocalCa, readFileErr := ioutil.ReadFile(filepath.Clean(devlocalCAPath))
 			if readFileErr != nil {
 				logger.Error(fmt.Sprintf("Unable to read devlocal CA from path %s", devlocalCAPath), zap.Error(readFileErr))
 			} else {

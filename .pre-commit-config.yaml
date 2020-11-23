@@ -19,16 +19,39 @@ repos:
       - id: check-yaml
         # exclude: config/database.yml # database.yml is not a valid yaml file, it contains go templating
       - id: detect-private-key
-        # exclude: >
-        # (?x)^(
-        # config/tls/devlocal-.+\.key$|
-        # pkg/server/testdata/localhost.key$|
-        # pkg/server/testdata/localhost-invalid.key$|
-        # pkg/server/testdata/officelocal.key$|
-        # pkg/auth/authentication/auth_test.go$|
-        # pkg/cli/auth.go$|
-        # .envrc.local.template|
-        # )$
+        #RA Summary: detect-private-key - Private key found
+        #RA: detect-private-key detected a private key in source control
+        #RA: config/tls/devlocal-*.key files are used in devlocal testing environments only.
+        #RA: pkg/server/testdata*.key files are used for testing purposes only.
+        #RA: pkg/auth/authentication/auth_test.go contains a static key, used for unit tests in devlocal and pipeline only.
+        #RA: pkg/cli/auth.go is a false positive; this code generates a keyfile at runtime, and its heuristics resemble an encoded key.
+        #RA: .envrc.local.template is used in devlocal environments only.
+        #RA: The risk of a production key being introduced is mitigated by this detect-private-key hook failing, and
+        #RA: the PR requiring approval by a team designated to gate changes to this file, specifically attempts to exclude
+        #RA: new key additions.
+        #RA Developer Status: Mitigated
+        #RA Validator Status: Mitigated
+        #RA Modified Severity: CAT III
+        exclude: >
+          (?x)^(
+            config/tls/devlocal-ca.key$|
+            config/tls/devlocal-client_auth_secret.key$|
+            config/tls/devlocal-faux-air-force-orders.key$|
+            config/tls/devlocal-faux-all-orders.key$|
+            config/tls/devlocal-faux-army-hrc-orders.key$|
+            config/tls/devlocal-faux-coast-guard-orders.key$|
+            config/tls/devlocal-faux-marine-corps-orders.key$|
+            config/tls/devlocal-faux-navy-orders.key$|
+            config/tls/devlocal-https.key$|
+            config/tls/devlocal-mtls.key$|
+            config/tls/devlocal-not-dps.key$|
+            pkg/server/testdata/localhost.key$|
+            pkg/server/testdata/localhost-invalid.key$|
+            pkg/server/testdata/officelocal.key$|
+            pkg/auth/authentication/auth_test.go$|
+            .envrc.local.template|
+            pkg/cli/auth.go$|
+          )$
       - id: trailing-whitespace
         exclude: public/swagger-ui/*
 

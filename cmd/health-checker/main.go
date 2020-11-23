@@ -9,6 +9,7 @@ import (
 	"net/http"
 	neturl "net/url"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -242,19 +243,19 @@ func createHTTPClient(v *viper.Viper, logger *zap.Logger) (*http.Client, error) 
 
 		if len(clientKeyFile) > 0 && len(clientCertFile) > 0 {
 
-			clientKey, clientKeyErr := ioutil.ReadFile(clientKeyFile) //  b/c we need to read a file from a user-defined path
+			clientKey, clientKeyErr := ioutil.ReadFile(filepath.Clean(clientKeyFile))
 			if clientKeyErr != nil {
 				return nil, errors.Wrap(clientKeyErr, "error reading client key file at "+clientKeyFile)
 			}
 
-			clientCert, clientCertErr := ioutil.ReadFile(clientCertFile) //  b/c we need to read a file from a user-defined path
+			clientCert, clientCertErr := ioutil.ReadFile(filepath.Clean(clientCertFile))
 			if clientCertErr != nil {
 				return nil, errors.Wrap(clientCertErr, "error reading client cert file at "+clientKeyFile)
 			}
 
 			caBytes := make([]byte, 0)
 			if caFile := v.GetString("ca-file"); len(caFile) > 0 {
-				content, err := ioutil.ReadFile(caFile) //  b/c we need to read a file from a user-defined path
+				content, err := ioutil.ReadFile(filepath.Clean(caFile))
 				if err != nil {
 					return nil, errors.Wrap(err, "error reading ca file at "+caFile)
 				}

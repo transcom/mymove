@@ -364,7 +364,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 
 	// Create the User (which is the basis of all Service Members)
 	user := models.User{
-		LoginGovUUID:  id,
+		LoginGovUUID:  &id,
 		LoginGovEmail: email,
 		Active:        true,
 	}

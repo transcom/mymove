@@ -1,4 +1,5 @@
 import React from 'react';
+import { RolesCheckboxInput } from 'scenes/SystemAdmin/shared/RolesCheckboxes';
 import { phoneValidators } from 'scenes/SystemAdmin/shared/form_validators';
 import { Create, SimpleForm, TextInput, ReferenceInput, AutocompleteInput, required } from 'react-admin';
 
@@ -10,7 +11,14 @@ const OfficeUserCreate = (props) => (
       <TextInput source="lastName" validate={required()} />
       <TextInput source="email" validate={required()} />
       <TextInput source="telephone" validate={phoneValidators} />
-      <ReferenceInput label="Transportation Office" reference="offices" source="transportationOfficeId" perPage={500}>
+      <RolesCheckboxInput source="roles" validate={required()} />
+      <ReferenceInput
+        label="Transportation Office"
+        reference="offices"
+        source="transportationOfficeId"
+        perPage={500}
+        validate={required()}
+      >
         <AutocompleteInput optionText="name" />
       </ReferenceInput>
     </SimpleForm>

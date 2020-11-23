@@ -21,7 +21,7 @@ type User struct {
 	ID                     uuid.UUID   `json:"id" db:"id"`
 	CreatedAt              time.Time   `json:"created_at" db:"created_at"`
 	UpdatedAt              time.Time   `json:"updated_at" db:"updated_at"`
-	LoginGovUUID           uuid.UUID   `json:"login_gov_uuid" db:"login_gov_uuid"`
+	LoginGovUUID           *uuid.UUID  `json:"login_gov_uuid" db:"login_gov_uuid"`
 	LoginGovEmail          string      `json:"login_gov_email" db:"login_gov_email"`
 	Active                 bool        `json:"active" db:"active"`
 	Roles                  roles.Roles `many_to_many:"users_roles"`
@@ -37,7 +37,6 @@ type Users []User
 // This method is not required and may be deleted.
 func (u *User) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.UUIDIsPresent{Field: u.LoginGovUUID, Name: "LoginGovUUID"},
 		&validators.StringIsPresent{Field: u.LoginGovEmail, Name: "LoginGovEmail"},
 	), nil
 }
@@ -70,7 +69,10 @@ func GetUserFromEmail(db *pop.Connection, email string) (*User, error) {
 	downcasedEmail := strings.ToLower(email)
 	err := db.Where("login_gov_email = $1", downcasedEmail).All(&users)
 	if len(users) == 0 {
-		return nil, errors.Wrapf(err, "Unable to find user by email %s", downcasedEmail)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Unable to find user by email %s", downcasedEmail)
+		}
+		return nil, errors.Errorf("Unable to find user by email %s", downcasedEmail)
 	}
 	return &users[0], err
 }
@@ -82,7 +84,7 @@ func CreateUser(db *pop.Connection, loginGovID string, email string) (*User, err
 		return nil, err
 	}
 	newUser := User{
-		LoginGovUUID:  lgu,
+		LoginGovUUID:  &lgu,
 		LoginGovEmail: strings.ToLower(email),
 		Active:        true,
 	}
@@ -94,6 +96,26 @@ func CreateUser(db *pop.Connection, loginGovID string, email string) (*User, err
 		return nil, err
 	}
 	return &newUser, nil
+}
+
+// UpdateUserLoginGovUUID is called upon the first successful login.gov verification of a new user
+func UpdateUserLoginGovUUID(db *pop.Connection, user *User, loginGovID string) error {
+	lgu, err := uuid.FromString(loginGovID)
+	if err != nil {
+		return err
+	}
+
+	user.LoginGovUUID = &lgu
+
+	verrs, err := db.ValidateAndUpdate(user)
+	if verrs.HasAny() {
+		return verrs
+	} else if err != nil {
+		err = errors.Wrap(err, "Unable to update user")
+		return err
+	}
+
+	return nil
 }
 
 // UserIdentity is summary of the information about a user from the database

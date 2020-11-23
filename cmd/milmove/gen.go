@@ -77,8 +77,7 @@ func writeEmptyFile(migrationPath, filename string) error {
 	}
 	path := filepath.Join(migrationPath, filename)
 
-	//  G306 TODO needs review
-	err := ioutil.WriteFile(path, []byte{}, 0644)
+	err := ioutil.WriteFile(path, []byte{}, 0600)
 	if err != nil {
 		return errors.Wrap(err, "could not write new migration file")
 	}
