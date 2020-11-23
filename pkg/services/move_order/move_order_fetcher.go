@@ -70,7 +70,6 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 		InnerJoin("duty_stations as origin_ds", "orders.origin_duty_station_id = origin_ds.id").
 		InnerJoin("transportation_offices as origin_to", "origin_ds.transportation_office_id = origin_to.id").
 		LeftJoin("duty_stations as dest_ds", "dest_ds.id = orders.new_duty_station_id").
-		LeftJoin("transportation_offices as dest_to", "dest_to.id = dest_ds.id").
 		Where("show = ?", swag.Bool(true))
 
 	for _, option := range options {
