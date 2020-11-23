@@ -84,6 +84,7 @@ const TableQueue = ({
       disableMultiSort,
       defaultCanSort,
       disableSortBy,
+      autoResetSortBy: false,
     },
     useFilters,
     useSortBy,
