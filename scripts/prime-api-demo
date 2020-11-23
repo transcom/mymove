@@ -7,7 +7,7 @@
 set -eu -o pipefail
 
 function usage() {
-  echo "Usage: $0 <moveTaskOrderID> [[hostname] path/to/proof.pdf]"
+  echo "Usage: $0 <moveTaskOrderID|moveOrderID> [[hostname] path/to/proof.pdf]"
   echo
   echo "If omitted, the optional parameters are set as follows:"
   echo "  hostname = local"
@@ -31,7 +31,7 @@ elif [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
 fi
 
 primeapiopts=(--insecure)
-readonly mtoid=$1
+mtoid=$1
 readonly environment=${2:-local}
 
 # check to see if proofs are passed in
@@ -72,7 +72,20 @@ read -p "Ready to continue? Hit enter..." -n 1 -r
 
 printf "\n==========\n\n"
 
-jq 'map(select(.id == "'"${mtoid}"'")) | .[0]' tmp/pad_all_mtos.json > tmp/pad_demo_mto.json
+if jq -e 'map(select(.id == "'"${mtoid}"'")) | .[0]' tmp/pad_all_mtos.json > tmp/pad_demo_mto.json; then
+  # MTO found
+  echo "Found by Move Task Order ID"
+else
+  # maybe we have a moveOrderID
+  if jq -e 'map(select(.moveOrderID == "'"${mtoid}"'")) | .[0]' tmp/pad_all_mtos.json > tmp/pad_demo_mto.json; then
+    # great
+    mtoid=$(jq '.id' tmp/pad_demo_mto.json | tr -d '"')
+    echo "Found by Move Order ID. Actual MTO ID is ${mtoid}"
+  else
+    echo "ID not found"
+    exit 1
+  fi
+fi
 
 jq . tmp/pad_demo_mto.json
 
