@@ -85,6 +85,10 @@ const defaultProps = {
 
 export const TXOTable = () => <TableQueue {...defaultProps} />;
 
+export const TXOTableSortable = () => (
+  <TableQueue {...defaultProps} disableSortBy={false} defaultSortedColumns={[{ id: 'col1', desc: false }]} />
+);
+
 export const TXOTableFilters = () => <TableQueue {...defaultProps} columns={columns(true)} showFilters />;
 
 export const TXOTablePagination = () => <TableQueue {...defaultProps} showPagination />;

@@ -6,11 +6,12 @@ import scrollToTop from 'shared/scrollToTop';
 
 import { push } from 'connected-react-router';
 import { reduxForm, FormSection } from 'redux-form';
-import Alert from 'shared/Alert'; // eslint-disable-line
-import AddressForm from 'shared/AddressForm';
 
+import { patchServiceMember, getResponseError } from 'services/internalApi';
+import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
+import Alert from 'shared/Alert';
+import AddressForm from 'shared/AddressForm';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { updateServiceMember } from 'scenes/ServiceMembers/ducks';
 
 import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
 import './Review.css';
@@ -83,19 +84,39 @@ EditContactForm = reduxForm({
 })(EditContactForm);
 
 class EditContact extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      errorMessage: null,
+    };
+  }
+
   updateContact = (fieldValues) => {
     let serviceMember = fieldValues.serviceMember;
+    serviceMember.id = this.props.serviceMember.id;
     serviceMember.residential_address = fieldValues.resAddress;
     serviceMember.backup_mailing_address = fieldValues.backupAddress;
-    return this.props.updateServiceMember(serviceMember).then(() => {
-      // This promise resolves regardless of error.
-      if (!this.props.hasSubmitError) {
+
+    return patchServiceMember(serviceMember)
+      .then((response) => {
+        // Update Redux with new data
+        this.props.updateServiceMember(response);
+
         this.props.editSuccessful();
         this.props.history.goBack();
-      } else {
+      })
+      .catch((e) => {
+        // TODO - error handling - below is rudimentary error handling to approximate existing UX
+        // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
+        const { response } = e;
+        const errorMessage = getResponseError(response, 'failed to update service member due to server error');
+        this.setState({
+          errorMessage,
+        });
+
         scrollToTop();
-      }
-    });
+      });
   };
 
   componentDidMount() {
@@ -105,6 +126,8 @@ class EditContact extends Component {
 
   render() {
     const { error, serviceMemberSchema, addressSchema, serviceMember } = this.props;
+    const { errorMessage } = this.state;
+
     let initialValues = null;
     if (serviceMember && get(serviceMember, 'residential_address') && get(serviceMember, 'backup_mailing_address'))
       initialValues = {
@@ -112,12 +135,13 @@ class EditContact extends Component {
         resAddress: serviceMember.residential_address,
         backupAddress: serviceMember.backup_mailing_address,
       };
+
     return (
       <div className="usa-grid">
-        {error && (
+        {(error || errorMessage) && (
           <div className="usa-width-one-whole error-message">
             <Alert type="error" heading="An error occurred">
-              {error.message}
+              {error?.message || errorMessage}
             </Alert>
           </div>
         )}
@@ -148,7 +172,7 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
       push,
-      updateServiceMember,
+      updateServiceMember: updateServiceMemberAction,
       editBegin,
       editSuccessful,
       entitlementChangeBegin,

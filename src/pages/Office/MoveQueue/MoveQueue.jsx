@@ -56,7 +56,7 @@ const columns = (showBranchFilter = true) => [
     id: 'destinationDutyStation',
     isFilterable: true,
   }),
-  createHeader('Origin GBLOC', 'originGBLOC'),
+  createHeader('Origin GBLOC', 'originGBLOC', { disableSortBy: true }),
 ];
 
 const MoveQueue = ({ history }) => {
@@ -80,6 +80,11 @@ const MoveQueue = ({ history }) => {
     <TableQueue
       showFilters
       showPagination
+      manualSortBy
+      defaultCanSort
+      defaultSortedColumns={[{ id: 'status', desc: false }]}
+      disableMultiSort
+      disableSortBy={false}
       columns={columns(showBranchFilter)}
       title="All moves"
       handleClick={handleClick}

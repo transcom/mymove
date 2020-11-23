@@ -1,3 +1,5 @@
+import { shape, string, bool, arrayOf } from 'prop-types';
+
 // eslint-disable-next-line import/prefer-default-export
 export const MOVE_STATUS_OPTIONS = [
   { value: 'SUBMITTED', label: 'New move' },
@@ -22,3 +24,10 @@ export const BRANCH_OPTIONS = [
 export const GBLOC = {
   USMC: 'USMC',
 };
+
+export const SortShape = arrayOf(
+  shape({
+    id: string,
+    desc: bool,
+  }),
+);

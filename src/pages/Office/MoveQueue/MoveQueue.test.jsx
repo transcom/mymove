@@ -104,4 +104,30 @@ describe('MoveQueue', () => {
   it('should render the pagination component', () => {
     expect(wrapper.find({ 'data-testid': 'pagination' }).exists()).toBe(true);
   });
+
+  it('applies the sort to the status column in descending direction', () => {
+    expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortAscending')).toBe(true);
+  });
+
+  it('toggles the sort direction when clicked', () => {
+    const statusHeading = wrapper.find({ 'data-testid': 'status' }).at(0);
+
+    statusHeading.simulate('click');
+    wrapper.update();
+
+    expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortDescending')).toBe(true);
+
+    statusHeading.simulate('click');
+    wrapper.update();
+
+    // no sort direction should be applied
+    expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortAscending')).toBe(false);
+    expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortDescending')).toBe(false);
+
+    const nameHeading = wrapper.find({ 'data-testid': 'lastName' }).at(0);
+    nameHeading.simulate('click');
+    wrapper.update();
+
+    expect(wrapper.find({ 'data-testid': 'lastName' }).at(0).hasClass('sortAscending')).toBe(true);
+  });
 });
