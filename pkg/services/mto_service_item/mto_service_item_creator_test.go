@@ -375,6 +375,125 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 	})
 }
 
+func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
+	// Set up data to use for all Origin SIT Service Item tests
+	moveTaskOrder := testdatagen.MakeAvailableMove(suite.DB())
+	moveTaskOrder.Status = models.MoveStatusAPPROVED
+	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: moveTaskOrder,
+	})
+
+	reServiceDOASIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDOASIT,
+		},
+	})
+
+	reServiceDOFSIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDOFSIT,
+		},
+	})
+
+	serviceItemDOASIT := models.MTOServiceItem{
+		MoveTaskOrder:   moveTaskOrder,
+		MoveTaskOrderID: moveTaskOrder.ID,
+		MTOShipment:     mtoShipment,
+		MTOShipmentID:   &mtoShipment.ID,
+		ReService:       reServiceDOASIT,
+	}
+
+	sitEntryDate := time.Date(2020, time.October, 24, 0, 0, 0, 0, time.UTC)
+	sitPostalCode := "99999"
+	reason := "lorem ipsum"
+
+	suite.T().Run("Create DOFSIT service item", func(t *testing.T) {
+		serviceItemDOFSIT := models.MTOServiceItem{
+			MoveTaskOrder:   moveTaskOrder,
+			MoveTaskOrderID: moveTaskOrder.ID,
+			MTOShipment:     mtoShipment,
+			MTOShipmentID:   &mtoShipment.ID,
+			ReService:       reServiceDOFSIT,
+			SITEntryDate:    &sitEntryDate,
+			SITPostalCode:   &sitPostalCode,
+			Reason:          &reason,
+		}
+		builder := query.NewQueryBuilder(suite.DB())
+		creator := NewMTOServiceItemCreator(builder)
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDOFSIT)
+
+		suite.NotNil(createdServiceItems)
+		suite.NoError(err)
+	})
+
+	suite.T().Run("Create DOASIT item for shipment with DOFSIT", func(t *testing.T) {
+		builder := query.NewQueryBuilder(suite.DB())
+		creator := NewMTOServiceItemCreator(builder)
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDOASIT)
+
+		createdDOASITItem := (*createdServiceItems)[0]
+		originalDate, _ := sitEntryDate.MarshalText()
+		returnedDate, _ := createdDOASITItem.SITEntryDate.MarshalText()
+
+		// Item is created successfully
+		suite.NotNil(createdServiceItems)
+		suite.NoError(err)
+		// Item contains fields copied over from DOFSIT parent
+		suite.EqualValues(originalDate, returnedDate)
+		suite.EqualValues(*createdDOASITItem.Reason, reason)
+		suite.EqualValues(*createdDOASITItem.SITPostalCode, sitPostalCode)
+	})
+
+	suite.T().Run("Do not create DOASIT if there is no DOFSIT on shipment", func(t *testing.T) {
+		mtoShipmentNoServiceItems := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: moveTaskOrder,
+		})
+
+		serviceItemDOASIT := models.MTOServiceItem{
+			MoveTaskOrder:   moveTaskOrder,
+			MoveTaskOrderID: moveTaskOrder.ID,
+			MTOShipment:     mtoShipmentNoServiceItems,
+			MTOShipmentID:   &mtoShipmentNoServiceItems.ID,
+			ReService:       reServiceDOASIT,
+		}
+
+		builder := query.NewQueryBuilder(suite.DB())
+		creator := NewMTOServiceItemCreator(builder)
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDOASIT)
+
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(services.NotFoundError{}, err)
+	})
+
+	suite.T().Run("Do not create DOASIT if the DOFSIT ReService Code is bad", func(t *testing.T) {
+		badReService := models.ReService{
+			Code: "bad code",
+		}
+
+		serviceItemDOASIT := models.MTOServiceItem{
+			MoveTaskOrder:   moveTaskOrder,
+			MoveTaskOrderID: moveTaskOrder.ID,
+			MTOShipment:     mtoShipment,
+			MTOShipmentID:   &mtoShipment.ID,
+			ReService:       badReService,
+		}
+
+		builder := query.NewQueryBuilder(suite.DB())
+		creator := NewMTOServiceItemCreator(builder)
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDOASIT)
+
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(services.NotFoundError{}, err)
+	})
+
+}
+
 // TestCreateDestSITServiceItem tests the creation of destination SIT service items
 func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{

@@ -1544,6 +1544,30 @@ func init() {
             "in": "query"
           },
           {
+            "enum": [
+              "lastName",
+              "dodID",
+              "branch",
+              "moveID",
+              "status",
+              "destinationDutyStation"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
+          {
             "type": "string",
             "name": "branch",
             "in": "query"
@@ -5340,6 +5364,30 @@ func init() {
             "type": "integer",
             "description": "results per page",
             "name": "perPage",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "lastName",
+              "dodID",
+              "branch",
+              "moveID",
+              "status",
+              "destinationDutyStation"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
             "in": "query"
           },
           {

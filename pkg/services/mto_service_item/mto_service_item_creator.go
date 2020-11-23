@@ -101,6 +101,15 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		}
 	}
 
+	if serviceItem.ReService.Code == models.ReServiceCodeDOASIT {
+		// DOASIT must be associated with shipment that has DOFSIT
+		serviceItem, err = o.validateSITStandaloneServiceItem(serviceItem, models.ReServiceCodeDOFSIT)
+
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+
 	for index := range serviceItem.CustomerContacts {
 		createCustContacts := &serviceItem.CustomerContacts[index]
 		err = validateTimeMilitaryField(createCustContacts.TimeMilitary)
@@ -297,4 +306,45 @@ func validateTimeMilitaryField(timeMilitary string) error {
 	}
 
 	return nil
+}
+
+func (o *mtoServiceItemCreator) validateSITStandaloneServiceItem(serviceItem *models.MTOServiceItem, reServiceCode models.ReServiceCode) (*models.MTOServiceItem, error) {
+	var mtoServiceItem models.MTOServiceItem
+	var mtoShipmentID uuid.UUID
+	var validReService models.ReService
+
+	mtoShipmentID = *serviceItem.MTOShipmentID
+
+	queryFilter := []services.QueryFilter{
+		query.NewQueryFilter("code", "=", reServiceCode),
+	}
+
+	// Fetch the ID for the ReServiceCode passed in, so we can check the shipment for its existence
+	err := o.builder.FetchOne(&validReService, queryFilter)
+
+	if err != nil {
+		err = services.NewNotFoundError(uuid.Nil, fmt.Sprintf("for service code: %s", validReService.Code))
+		return nil, err
+	}
+
+	mtoServiceItemQueryFilter := []services.QueryFilter{
+		query.NewQueryFilter("mto_shipment_id", "=", mtoShipmentID),
+		query.NewQueryFilter("re_service_id", "=", validReService.ID),
+	}
+	// Fetch the required first-day SIT item for the shipment
+	err = o.builder.FetchOne(&mtoServiceItem, mtoServiceItemQueryFilter)
+
+	if err != nil {
+		err = services.NewNotFoundError(uuid.Nil, fmt.Sprintf("No matching first-day SIT service item found for shipment: %s", mtoShipmentID))
+		return nil, err
+	}
+
+	// If the required first-day SIT item exists, we can update the related
+	// service item passed in with the parent item's field values
+	serviceItem.SITEntryDate = mtoServiceItem.SITEntryDate
+	serviceItem.SITDepartureDate = mtoServiceItem.SITDepartureDate
+	serviceItem.SITPostalCode = mtoServiceItem.SITPostalCode
+	serviceItem.Reason = mtoServiceItem.Reason
+
+	return serviceItem, nil
 }

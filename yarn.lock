@@ -2300,22 +2300,22 @@
     regenerator-runtime "^0.13.3"
     ts-dedent "^1.1.1"
 
-"@storybook/addon-viewport@^6.0.28":
-  version "6.0.28"
-  resolved "https://registry.yarnpkg.com/@storybook/addon-viewport/-/addon-viewport-6.0.28.tgz#20f096695699c90c1b5ba795ff858a46d4084a10"
-  integrity sha512-I2I6+V0GCtypn0AKw4s1EKHicPqHyQfcM9T7RMbeZIf11Dc71hbbRt9U6kajZ8go84qzXGPm8/Vd0kvDO28WaA==
+"@storybook/addon-viewport@^6.1.0":
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/@storybook/addon-viewport/-/addon-viewport-6.1.0.tgz#19121cefe0fe8735463f27ce5f81315c1184c726"
+  integrity sha512-M62QJAA66baVm+Hm6bFgu96xJMNJDeXEo5StG+5uGbNqRCQ6Y7iH177KQvA58YizW9zCDQnumUAEgct6tb9XEw==
   dependencies:
-    "@storybook/addons" "6.0.28"
-    "@storybook/api" "6.0.28"
-    "@storybook/client-logger" "6.0.28"
-    "@storybook/components" "6.0.28"
-    "@storybook/core-events" "6.0.28"
-    "@storybook/theming" "6.0.28"
+    "@storybook/addons" "6.1.0"
+    "@storybook/api" "6.1.0"
+    "@storybook/client-logger" "6.1.0"
+    "@storybook/components" "6.1.0"
+    "@storybook/core-events" "6.1.0"
+    "@storybook/theming" "6.1.0"
     core-js "^3.0.1"
     global "^4.3.2"
     memoizerific "^1.11.3"
     prop-types "^15.7.2"
-    regenerator-runtime "^0.13.3"
+    regenerator-runtime "^0.13.7"
 
 "@storybook/addons@5.3.19", "@storybook/addons@^5.2.8":
   version "5.3.19"
@@ -2747,34 +2747,6 @@
     "@storybook/client-logger" "6.0.26"
     "@storybook/csf" "0.0.1"
     "@storybook/theming" "6.0.26"
-    "@types/overlayscrollbars" "^1.9.0"
-    "@types/react-color" "^3.0.1"
-    "@types/react-syntax-highlighter" "11.0.4"
-    core-js "^3.0.1"
-    fast-deep-equal "^3.1.1"
-    global "^4.3.2"
-    lodash "^4.17.15"
-    markdown-to-jsx "^6.11.4"
-    memoizerific "^1.11.3"
-    overlayscrollbars "^1.10.2"
-    polished "^3.4.4"
-    popper.js "^1.14.7"
-    react "^16.8.3"
-    react-color "^2.17.0"
-    react-dom "^16.8.3"
-    react-popper-tooltip "^2.11.0"
-    react-syntax-highlighter "^12.2.1"
-    react-textarea-autosize "^8.1.1"
-    ts-dedent "^1.1.1"
-
-"@storybook/components@6.0.28":
-  version "6.0.28"
-  resolved "https://registry.yarnpkg.com/@storybook/components/-/components-6.0.28.tgz#aca24419a3941e0f5a20dd349f2b13614542b3da"
-  integrity sha512-rp18w+xC5/ATQThnUR6Rv2cg/DAokbV88uZLPCGHX8HsPY2jFPLyCsWnNiIHBF/SfUCjIlljChlX3bzGk+SQUA==
-  dependencies:
-    "@storybook/client-logger" "6.0.28"
-    "@storybook/csf" "0.0.1"
-    "@storybook/theming" "6.0.28"
     "@types/overlayscrollbars" "^1.9.0"
     "@types/react-color" "^3.0.1"
     "@types/react-syntax-highlighter" "11.0.4"
@@ -14565,10 +14537,10 @@ prettier-linter-helpers@^1.0.0:
   dependencies:
     fast-diff "^1.1.2"
 
-prettier@=2.1.2, prettier@^2.0.5:
-  version "2.1.2"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.1.2.tgz#3050700dae2e4c8b67c4c3f666cdb8af405e1ce5"
-  integrity sha512-16c7K+x4qVlJg9rEbXl7HEGmQyZlG4R9AgP+oHKRMsMsuk8s+ATStlf1NpDqyBI1HpVyfjLOeMhH2LvuNvV5Vg==
+prettier@=2.2.0, prettier@^2.0.5:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.2.0.tgz#8a03c7777883b29b37fb2c4348c66a78e980418b"
+  integrity sha512-yYerpkvseM4iKD/BXLYUkQV5aKt4tQPqaGW6EsZjzyu0r7sVZZNPJW4Y8MyKmicp6t42XUPcBVA+H6sB3gqndw==
 
 prettier@^1.18.2:
   version "1.19.1"
@@ -17569,10 +17541,10 @@ swagger-client@^3.12.0:
     traverse "~0.6.6"
     url "~0.11.0"
 
-swagger-ui-dist@^3.36.2:
-  version "3.36.2"
-  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-3.36.2.tgz#353e01ae4c6d4a324319e4325e2b0a96aa7b5366"
-  integrity sha512-jbxorhRC/FKk8yMx5zEbg1A1sXc/vsW2vrDTJ3clmaMr9F12zsy161kwnxjVt/vVkMglDOz+BC8ZMY01toxHwA==
+swagger-ui-dist@^3.37.0:
+  version "3.37.0"
+  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-3.37.0.tgz#789b19ba2be42c0f99fdbc0ad605ce9992853550"
+  integrity sha512-ySYfsGTSxuyIAAynncQew9WLRsKu6bI3/tWTqcuXYSqTLCjz3ROtUbNj2zRNs7i37V8CteKE9CUMkYnNklGi2g==
 
 symbol-observable@^1.1.0, symbol-observable@^1.2.0:
   version "1.2.0"
