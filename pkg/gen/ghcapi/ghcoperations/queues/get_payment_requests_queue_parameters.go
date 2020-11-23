@@ -53,7 +53,7 @@ type GetPaymentRequestsQueueParams struct {
 	  In: query
 	*/
 	MoveID *string
-	/*
+	/*direction of sort order if applied
 	  In: query
 	*/
 	Order *string
@@ -65,7 +65,7 @@ type GetPaymentRequestsQueueParams struct {
 	  In: query
 	*/
 	PerPage *int64
-	/*
+	/*field that results should be sorted by
 	  In: query
 	*/
 	Sort *string

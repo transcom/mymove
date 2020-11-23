@@ -1629,6 +1629,7 @@ func init() {
               "age"
             ],
             "type": "string",
+            "description": "field that results should be sorted by",
             "name": "sort",
             "in": "query"
           },
@@ -1638,6 +1639,7 @@ func init() {
               "desc"
             ],
             "type": "string",
+            "description": "direction of sort order if applied",
             "name": "order",
             "in": "query"
           },
@@ -3125,9 +3127,6 @@ func init() {
     "QueuePaymentRequestsResult": {
       "type": "object",
       "properties": {
-        "order": {
-          "type": "boolean"
-        },
         "page": {
           "type": "integer"
         },
@@ -3136,9 +3135,6 @@ func init() {
         },
         "queuePaymentRequests": {
           "$ref": "#/definitions/QueuePaymentRequests"
-        },
-        "sort": {
-          "type": "string"
         },
         "totalCount": {
           "type": "integer"
@@ -5463,6 +5459,7 @@ func init() {
               "age"
             ],
             "type": "string",
+            "description": "field that results should be sorted by",
             "name": "sort",
             "in": "query"
           },
@@ -5472,6 +5469,7 @@ func init() {
               "desc"
             ],
             "type": "string",
+            "description": "direction of sort order if applied",
             "name": "order",
             "in": "query"
           },
@@ -6965,9 +6963,6 @@ func init() {
     "QueuePaymentRequestsResult": {
       "type": "object",
       "properties": {
-        "order": {
-          "type": "boolean"
-        },
         "page": {
           "type": "integer"
         },
@@ -6976,9 +6971,6 @@ func init() {
         },
         "queuePaymentRequests": {
           "$ref": "#/definitions/QueuePaymentRequests"
-        },
-        "sort": {
-          "type": "string"
         },
         "totalCount": {
           "type": "integer"
