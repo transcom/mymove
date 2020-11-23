@@ -118,7 +118,7 @@
     "@rescripts/utilities": "^0.0.7",
     "@stoplight/spectral": "^5.7.1",
     "@storybook/addon-a11y": "^6.1.0",
-    "@storybook/addon-actions": "^6.0.26",
+    "@storybook/addon-actions": "^6.1.2",
     "@storybook/addon-info": "^5.3.19",
     "@storybook/addon-knobs": "^6.1.0",
     "@storybook/addon-links": "^6.0.28",
