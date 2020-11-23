@@ -201,7 +201,7 @@ func destinationDutyStationFilter(destinationDutyStation *string) QueryOption {
 	return func(query *pop.Query) {
 		if destinationDutyStation != nil {
 			nameSearch := fmt.Sprintf("%s%%", *destinationDutyStation)
-			query = query.InnerJoin("duty_stations as dest_ds", "orders.new_duty_station_id = dest_ds.id").Where("dest_ds.name ILIKE ?", nameSearch)
+			query = query.Where("dest_ds.name ILIKE ?", nameSearch)
 		}
 	}
 }
@@ -241,9 +241,6 @@ func sortOrder(sort *string, order *string) QueryOption {
 			if sortTerm, ok := parameters[*sort]; ok {
 				if sortTerm == "lastName" {
 					query = query.Order(fmt.Sprintf("service_members.last_name %s, service_members.first_name %s", *order, *order))
-				} else if sortTerm == "destinationDutyStation" {
-					query = query.Order(fmt.Sprintf("%s %s", sortTerm, *order))
-					query = query.GroupBy("dest_ds.name")
 				} else {
 					query = query.Order(fmt.Sprintf("%s %s", sortTerm, *order))
 				}
