@@ -3,6 +3,10 @@
 @import '../../../shared/styles/colors';
 
 .PaymentRequestQueue {
+  @include u-display(flex);
+  flex-direction: column;
+  flex: auto;
+
   background-color: $bg-gray;
 
   :global td.age {
