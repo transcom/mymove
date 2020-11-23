@@ -1,3 +1,5 @@
+import { shape, string, bool, arrayOf } from 'prop-types';
+
 // eslint-disable-next-line import/prefer-default-export
 export const MOVE_STATUS_OPTIONS = {
   SUBMITTED: 'New move',
@@ -18,3 +20,10 @@ export const BRANCH_OPTIONS = {
   AIR_FORCE: 'Air Force',
   COAST_GUARD: 'Coast Guard',
 };
+
+export const SortShape = arrayOf(
+  shape({
+    id: string,
+    desc: bool,
+  }),
+);

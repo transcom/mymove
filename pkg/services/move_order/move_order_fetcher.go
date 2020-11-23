@@ -55,7 +55,7 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 	moveStatusQuery := moveStatusFilter(params.Status)
 	sortOrderQuery := sortOrder(params.Sort, params.Order)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [8]QueryOption{branchQuery, moveIDQuery, dodIDQuery, lastNameQuery, dutyStationQuery, moveStatusQuery, gblocQuery, sortOrderQuery}
+	options := []QueryOption{branchQuery, moveIDQuery, dodIDQuery, lastNameQuery, dutyStationQuery, moveStatusQuery, gblocQuery, sortOrderQuery}
 
 	query := f.db.Q().Eager(
 		"Orders.ServiceMember",
@@ -67,8 +67,9 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 	).InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
 		InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
-		InnerJoin("duty_stations", "orders.origin_duty_station_id = duty_stations.id").
-		InnerJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id").
+		InnerJoin("duty_stations as origin_ds", "orders.origin_duty_station_id = origin_ds.id").
+		InnerJoin("transportation_offices as origin_to", "origin_ds.transportation_office_id = origin_to.id").
+		LeftJoin("duty_stations as dest_ds", "dest_ds.id = orders.new_duty_station_id").
 		Where("show = ?", swag.Bool(true))
 
 	for _, option := range options {
@@ -93,7 +94,13 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 		params.PerPage = swag.Int64(0)
 	}
 
-	err = query.GroupBy("moves.id, service_members.id, orders.id, duty_stations.id").Paginate(int(*params.Page), int(*params.PerPage)).All(&moves)
+	var groupByColumms []string
+	groupByColumms = append(groupByColumms, "service_members.id", "orders.id", "origin_ds.id")
+	if params.Sort != nil && *params.Sort == "destinationDutyStation" {
+		groupByColumms = append(groupByColumms, "dest_ds.name")
+	}
+
+	err = query.GroupBy("moves.id", groupByColumms...).Paginate(int(*params.Page), int(*params.PerPage)).All(&moves)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -193,7 +200,7 @@ func destinationDutyStationFilter(destinationDutyStation *string) QueryOption {
 	return func(query *pop.Query) {
 		if destinationDutyStation != nil {
 			nameSearch := fmt.Sprintf("%s%%", *destinationDutyStation)
-			query = query.InnerJoin("duty_stations as destination_duty_station", "orders.new_duty_station_id = destination_duty_station.id").Where("destination_duty_station.name ILIKE ?", nameSearch)
+			query = query.Where("dest_ds.name ILIKE ?", nameSearch)
 		}
 	}
 }
@@ -213,7 +220,7 @@ func moveStatusFilter(statuses []string) QueryOption {
 
 func gblocFilter(gbloc string) QueryOption {
 	return func(query *pop.Query) {
-		query = query.Where("transportation_offices.gbloc = ?", gbloc)
+		query = query.Where("origin_to.gbloc = ?", gbloc)
 	}
 }
 
@@ -224,17 +231,20 @@ func sortOrder(sort *string, order *string) QueryOption {
 		"branch":                 "service_members.affiliation",
 		"moveID":                 "moves.locator",
 		"status":                 "moves.status",
-		"destinationDutyStation": "duty_stations.name",
+		"destinationDutyStation": "dest_ds.name",
 	}
 
 	return func(query *pop.Query) {
 		// If we have a sort and order defined let's use it. Otherwise we'll use our default status desc sort order.
 		if sort != nil && order != nil {
-			sortTerm := parameters[*sort]
-			if sortTerm == "service_members.last_name" {
-				query = query.Order(fmt.Sprintf("service_members.last_name %s, service_members.first_name %s", *order, *order))
+			if sortTerm, ok := parameters[*sort]; ok {
+				if sortTerm == "lastName" {
+					query = query.Order(fmt.Sprintf("service_members.last_name %s, service_members.first_name %s", *order, *order))
+				} else {
+					query = query.Order(fmt.Sprintf("%s %s", sortTerm, *order))
+				}
 			} else {
-				query = query.Order(fmt.Sprintf("%s %s", sortTerm, *order))
+				query = query.Order("moves.status desc")
 			}
 		} else {
 			query = query.Order("moves.status desc")
