@@ -580,14 +580,7 @@ func createPPMReadyToRequestPayment(db *pop.Connection, userUploader *uploader.U
 }
 
 func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger) {
-	lastName := "Spacemen"
-	firstName := "Lena"
-	customer := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			LastName:  &lastName,
-			FirstName: &firstName,
-		},
-	})
+	customer := testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{})
 
 	orders := testdatagen.MakeOrder(db, testdatagen.Assertions{
 		Order: models.Order{
@@ -632,7 +625,6 @@ func createHHGMoveWithPaymentRequest(db *pop.Connection, userUploader *uploader.
 			MoveTaskOrder: mto,
 			IsFinal:       false,
 			Status:        models.PaymentRequestStatusPending,
-			CreatedAt:     time.Now().Add(time.Hour * -24),
 		},
 		Move: mto,
 	})
