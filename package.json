@@ -73,7 +73,7 @@
     "reselect": "^4.0.0",
     "selenium-webdriver": "^3.6.0",
     "swagger-client": "^3.12.0",
-    "swagger-ui-dist": "^3.36.2",
+    "swagger-ui-dist": "^3.37.0",
     "uswds": "2.9.0",
     "uuid": "^8.3.0",
     "yup": "^0.29.1"
@@ -146,7 +146,7 @@
     "markdown-spellcheck": "^1.3.1",
     "mime-types": "^2.1.27",
     "mockdate": "^3.0.2",
-    "prettier": "=2.1.2",
+    "prettier": "=2.2.0",
     "react-test-renderer": "^16.14.0",
     "source-map-explorer": "^2.5.0",
     "storybook-addons-abstract": "^5.0.6",

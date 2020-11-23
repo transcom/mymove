@@ -1095,11 +1095,13 @@ paths:
         - in: query
           name: sort
           type: string
-          enum: [ lastName, moveID, submittedAt, branch, status, dodID]
+          enum: [ lastName, moveID, submittedAt, branch, status, dodID, age]
+          description: field that results should be sorted by
         - in: query
           name: order
           type: string
           enum: [ asc, desc ]
+          description: direction of sort order if applied
         - in: query
           name: page
           type: integer
@@ -2485,10 +2487,6 @@ definitions:
         type: integer
       queuePaymentRequests:
         $ref: '#/definitions/QueuePaymentRequests'
-      sort:
-        type: string
-      order:
-        type: boolean
   GBLOC:
     type: string
     enum:

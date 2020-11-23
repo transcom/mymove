@@ -119,6 +119,7 @@ func sortOrder(sort *string, order *string) QueryOption {
 		"branch":      "service_members.affiliation",
 		"moveID":      "moves.locator",
 		"status":      "payment_requests.status",
+		"age":         "payment_requests.created_at",
 	}
 
 	return func(query *pop.Query) {
