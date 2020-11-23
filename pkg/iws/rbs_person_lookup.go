@@ -118,10 +118,10 @@ func NewRBSPersonLookup(host string, dodCACertPackage string, certString string,
 	}
 
 	// Setup HTTPS client
-	// #nosec G402 TODO needs review
 	tlsConfig := &tls.Config{
 		Certificates: []tls.Certificate{cert},
 		RootCAs:      caCertPool,
+		MinVersion:   tls.VersionTLS12,
 	}
 	tlsConfig.BuildNameToCertificate()
 	transport := &http.Transport{TLSClientConfig: tlsConfig}
