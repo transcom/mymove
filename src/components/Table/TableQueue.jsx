@@ -25,7 +25,6 @@ const TableQueue = ({
   showFilters,
   showPagination,
 }) => {
-  // eslint-disable-next-line no-unused-vars
   const [paramSort, setParamSort] = useState([]);
   const [paramFilters, setParamFilters] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);

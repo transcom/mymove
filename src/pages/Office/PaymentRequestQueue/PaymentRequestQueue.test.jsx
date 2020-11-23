@@ -83,4 +83,30 @@ describe('PaymentRequestQueue', () => {
     expect(wrapper.find('tbody tr td').at(6).text()).toBe('Army');
     expect(wrapper.find('tbody tr td').at(7).text()).toBe('LKNQ');
   });
+
+  it('applies the sort to the age column in descending direction', () => {
+    expect(wrapper.find({ 'data-testid': 'age' }).at(0).hasClass('sortDescending')).toBe(true);
+  });
+
+  it('toggles the sort direction when clicked', () => {
+    const ageHeading = wrapper.find({ 'data-testid': 'age' }).at(0);
+
+    ageHeading.simulate('click');
+    wrapper.update();
+
+    // no sort direction should be applied
+    expect(wrapper.find({ 'data-testid': 'age' }).at(0).hasClass('sortAscending')).toBe(false);
+    expect(wrapper.find({ 'data-testid': 'age' }).at(0).hasClass('sortDescending')).toBe(false);
+
+    ageHeading.simulate('click');
+    wrapper.update();
+
+    expect(wrapper.find({ 'data-testid': 'age' }).at(0).hasClass('sortAscending')).toBe(true);
+
+    const nameHeading = wrapper.find({ 'data-testid': 'lastName' }).at(0);
+    nameHeading.simulate('click');
+    wrapper.update();
+
+    expect(wrapper.find({ 'data-testid': 'lastName' }).at(0).hasClass('sortAscending')).toBe(true);
+  });
 });
