@@ -527,7 +527,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 	contacts = append(contacts, contact1, contact2)
 
 	// Failed creation of DDFSIT because DDASIT/DDDSIT codes are not found in DB
-	suite.T().Run("no DDASIT/DDDSIT codes", func(t *testing.T) {
+	suite.T().Run("Failure - no DDASIT/DDDSIT codes", func(t *testing.T) {
 		serviceItemDDFSIT := models.MTOServiceItem{
 			MoveTaskOrderID:  shipment.MoveTaskOrderID,
 			MoveTaskOrder:    shipment.MoveTaskOrder,
@@ -557,7 +557,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 	})
 
 	// Failed creation of DDFSIT because CustomerContacts has invalid data
-	suite.T().Run("bad CustomerContacts", func(t *testing.T) {
+	suite.T().Run("Failure - bad CustomerContacts", func(t *testing.T) {
 		badContact1 := models.MTOServiceItemCustomerContact{
 			Type:                       models.CustomerContactTypeFirst,
 			FirstAvailableDeliveryDate: sitEntryDate,
@@ -589,7 +589,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 	})
 
 	// Successful creation of DDFSIT service item and the extra DDASIT/DDDSIT items
-	suite.T().Run("DDFSIT creation approved", func(t *testing.T) {
+	suite.T().Run("Success - DDFSIT creation approved", func(t *testing.T) {
 		serviceItemDDFSIT := models.MTOServiceItem{
 			MoveTaskOrderID:  shipment.MoveTaskOrderID,
 			MoveTaskOrder:    shipment.MoveTaskOrder,
@@ -633,7 +633,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 	})
 
 	// Failed creation of DDFSIT because of duplicate service for shipment
-	suite.T().Run("duplicate DDFSIT", func(t *testing.T) {
+	suite.T().Run("Failure - duplicate DDFSIT", func(t *testing.T) {
 		serviceItemDDFSIT := models.MTOServiceItem{
 			MoveTaskOrderID:  shipment.MoveTaskOrderID,
 			MoveTaskOrder:    shipment.MoveTaskOrder,
@@ -652,7 +652,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 	})
 
 	// Failed creation of DDDSIT service item
-	suite.T().Run("cannot create DDDSIT", func(t *testing.T) {
+	suite.T().Run("Failure - cannot create DDDSIT", func(t *testing.T) {
 		serviceItemDDDSIT := models.MTOServiceItem{
 			MoveTaskOrderID:  shipment.MoveTaskOrderID,
 			MoveTaskOrder:    shipment.MoveTaskOrder,
