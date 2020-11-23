@@ -45,8 +45,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRender() {
 		DestinationDutyStation:     "destDutyStation",
 		OriginDutyStationPhoneLine: "555-555-5555",
 		Locator:                    "abc123",
-		WeightAllowance:            "7999",
-		// also fix references below
+		WeightAllowance:            7999,
 	}
 	expectedHTMLContent := `<p>
   This is a confirmation that you’ve submitted the details for your move from origDutyStation to
@@ -167,7 +166,7 @@ func (suite *NotificationSuite) TestMoveSubmittedTextTemplateRender() {
 		DestinationDutyStation:     "destDutyStation",
 		OriginDutyStationPhoneLine: "555-555-5555",
 		Locator:                    "abc123",
-		WeightAllowance:            "7999",
+		WeightAllowance:            7999,
 	}
 
 	expectedTextContent := `This is a confirmation that you’ve submitted the details for your move from origDutyStation to destDutyStation.
