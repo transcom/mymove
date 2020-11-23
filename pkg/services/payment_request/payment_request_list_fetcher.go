@@ -20,6 +20,16 @@ type paymentRequestListFetcher struct {
 	db *pop.Connection
 }
 
+var parameters = map[string]string{
+	"lastName":    "service_members.last_name",
+	"dodID":       "service_members.edipi",
+	"submittedAt": "payment_requests.created_at",
+	"branch":      "service_members.affiliation",
+	"moveID":      "moves.locator",
+	"status":      "payment_requests.status",
+	"age":         "payment_requests.created_at",
+}
+
 // NewPaymentRequestListFetcher returns a new payment request list fetcher
 func NewPaymentRequestListFetcher(db *pop.Connection) services.PaymentRequestListFetcher {
 	return &paymentRequestListFetcher{db}
@@ -119,16 +129,6 @@ func reverseOrder(order *string) string {
 }
 
 func sortOrder(sort *string, order *string) QueryOption {
-	parameters := map[string]string{
-		"lastName":    "service_members.last_name",
-		"dodID":       "service_members.edipi",
-		"submittedAt": "payment_requests.created_at",
-		"branch":      "service_members.affiliation",
-		"moveID":      "moves.locator",
-		"status":      "payment_requests.status",
-		"age":         "payment_requests.created_at",
-	}
-
 	return func(query *pop.Query) {
 		if sort != nil && order != nil {
 			sortTerm := parameters[*sort]
