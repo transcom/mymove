@@ -51,7 +51,7 @@ const columns = (showBranchFilter = true) => [
       ),
     },
   ),
-  createHeader('# of shipments', 'shipmentsCount'),
+  createHeader('# of shipments', 'shipmentsCount', { disableSortBy: true }),
   createHeader('Destination duty station', 'destinationDutyStation.name', {
     id: 'destinationDutyStation',
     isFilterable: true,
