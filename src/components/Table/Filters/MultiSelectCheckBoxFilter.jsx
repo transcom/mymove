@@ -1,4 +1,5 @@
-/* eslint-disable react/jsx-props-no-spreading,react/prop-types */
+/* eslint-disable react/jsx-props-no-spreading */
+/* react/prop-types */
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import Select, { components } from 'react-select';

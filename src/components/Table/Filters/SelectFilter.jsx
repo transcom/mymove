@@ -1,4 +1,4 @@
-/* eslint-disable react/no-array-index-key */
+/* react/no-array-index-key */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Dropdown } from '@trussworks/react-uswds';

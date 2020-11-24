@@ -1,4 +1,4 @@
-/* eslint-disable react/no-array-index-key */
+/* react/no-array-index-key */
 import React, { Fragment } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
@@ -73,7 +73,7 @@ const Table = ({
               <tr data-uuid={row.values.id} onClick={() => handleClick(row.values)} {...row.getRowProps()}>
                 {row.cells.map((cell, index) => {
                   return (
-                    // eslint-disable-next-line react/no-array-index-key
+                    // react/no-array-index-key
                     <td
                       key={`cell${index}`}
                       className={cell.column.id}

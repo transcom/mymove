@@ -1,4 +1,4 @@
-/* eslint-disable security/detect-object-injection */
+/* security/detect-object-injection */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Tag } from '@trussworks/react-uswds';
