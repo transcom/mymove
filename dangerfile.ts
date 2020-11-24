@@ -72,6 +72,21 @@ const bypassingLinterChecks = async () => {
   // load all modified and new files
   const allFiles = danger.git.modified_files.concat(danger.git.created_files);
   const bypassCodes = ['#nosec', 'eslint-disable', 'eslint-disable-next-line'];
+  const okBypassRules = [
+    'no-underscore-dangle',
+    'prefer-object-spread',
+    'object-shorthand',
+    'camelcase',
+    'jsx-props-no-spreading',
+    'destructuring-assignment',
+    'forbid-prop-types',
+    'prefer-stateless-function',
+    'sort-comp',
+    'import/no-extraneous-dependencies',
+    'order',
+    'prefer-default-export',
+    'no-named-as-default',
+  ];
   let addedByPassCode = false;
   const diffs = await Promise.all(allFiles.map((f) => danger.git.diffForFile(f)));
 
@@ -79,8 +94,12 @@ const bypassingLinterChecks = async () => {
     const diff = diffs[Number(i)];
     const diffsWithbypassCodes = bypassCodes.find((b) => diff.diff.includes(b));
     if (diffsWithbypassCodes) {
-      addedByPassCode = true;
-      break;
+      for (const rule in okBypassRules) {
+        if (diffsWithbypassCodes.includes(rule) === false) {
+          addedByPassCode = true;
+          break;
+        }
+      }
     }
   }
 
