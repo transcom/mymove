@@ -110,13 +110,6 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		}
 	}
 
-	if serviceItem.ReService.Code == models.ReServiceCodeDOPSIT {
-		verrs = validate.NewErrors()
-		verrs.Add("reServiceCode", fmt.Sprintf("%s cannot be created", serviceItem.ReService.Code))
-		return nil, nil, services.NewInvalidInputError(serviceItem.ID, nil, verrs,
-			fmt.Sprintf("A service item with reServiceCode %s cannot be manually created.", serviceItem.ReService.Code))
-	}
-
 	for index := range serviceItem.CustomerContacts {
 		createCustContacts := &serviceItem.CustomerContacts[index]
 		err = validateTimeMilitaryField(createCustContacts.TimeMilitary)
@@ -125,7 +118,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		}
 	}
 
-	if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT {
+	if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT || serviceItem.ReService.Code == models.ReServiceCodeDOPSIT {
 		verrs = validate.NewErrors()
 		verrs.Add("reServiceCode", fmt.Sprintf("%s cannot be created", serviceItem.ReService.Code))
 		return nil, nil, services.NewInvalidInputError(serviceItem.ID, nil, verrs,
