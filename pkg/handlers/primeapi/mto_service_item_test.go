@@ -4,6 +4,8 @@ import (
 	"errors"
 	"net/http/httptest"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -21,8 +23,6 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/models"
 
 	mtoserviceitemops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_service_item"
@@ -37,10 +37,9 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 	})
-	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+	testdatagen.MakeDOFSITReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
-			ID:   uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"),
-			Code: "DOFSIT",
+			ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"),
 		},
 	})
 	builder := query.NewQueryBuilder(suite.DB())
