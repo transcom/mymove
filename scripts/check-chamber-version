@@ -13,7 +13,7 @@ if [[ -x "${GOPATH}/bin/chamber" ]]; then
   exit 1
 fi
 
-VERSION="2.8"
+VERSION="2.9"
 
 CHAMBER_VERSION=$(type -p chamber && DISABLE_AWS_VAULT_WRAPPER=1 chamber version)
 

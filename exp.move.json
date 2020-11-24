@@ -1,0 +1,279 @@
+[
+  {
+    "availableToPrimeAt": "2020-11-09T17:35:04.660Z",
+    "createdAt": "2020-11-09T16:57:55.075Z",
+    "eTag": "MjAyMC0xMS0wOVQxNzozNTowNC43MjI2NDRa",
+    "id": "72f5cfea-c3b2-4a65-897a-e18760feeb31",
+    "isCanceled": false,
+    "moveOrder": {
+      "customer": {
+        "branch": "ARMY",
+        "dodID": "9999999999",
+        "eTag": "MjAyMC0xMS0wOVQxNjo1NzoxNy43MDg5OTVa",
+        "email": "duncan+20201109@truss.works",
+        "firstName": "John",
+        "id": "e607c86f-c380-4578-9d59-396964341652",
+        "lastName": "John",
+        "phone": "444-444-4444",
+        "userID": "35dff32f-cb97-4d41-ba1e-958ccec299d0"
+      },
+      "customerID": "e607c86f-c380-4578-9d59-396964341652",
+      "destinationDutyStation": {
+        "address": {
+          "city": "Augusta",
+          "country": "United States",
+          "eTag": "MjAxOC0wNy0xMlQyMDoyNzowMi45NDUwMjJa",
+          "id": "5ac95be8-0230-47ea-90b4-b0f6f60de364",
+          "postalCode": "30813",
+          "state": "GA",
+          "streetAddress1": "Fort Gordon"
+        },
+        "addressID": "5ac95be8-0230-47ea-90b4-b0f6f60de364",
+        "id": "2d5ada83-e09a-47f8-8de6-83ec51694a86",
+        "name": "Fort Gordon"
+      },
+      "eTag": "MjAyMC0xMS0wOVQxNzozNTozMC45ODIzNzJa",
+      "entitlement": {
+        "authorizedWeight": 20000,
+        "dependentsAuthorized": true,
+        "eTag": "MjAyMC0xMS0wOVQxNjo1Nzo1NS4wNjIwODZa",
+        "id": "f3fd46ec-693f-484a-bd87-dc043002e2a5",
+        "proGearWeight": 2000,
+        "proGearWeightSpouse": 500,
+        "totalWeight": 18000
+      },
+      "id": "333d8488-e3a1-435e-897b-9c8052404c43",
+      "linesOfAccounting": "tac",
+      "orderNumber": "5555555555555555",
+      "rank": "CIVILIAN_EMPLOYEE",
+      "reportByDate": "2020-11-16"
+    },
+    "moveOrderID": "333d8488-e3a1-435e-897b-9c8052404c43",
+    "mtoShipments": [
+      {
+        "actualPickupDate": "2020-11-20",
+        "approvedDate": "0001-01-01",
+        "createdAt": "2020-11-09T17:00:15.192Z",
+        "customerRemarks": "",
+        "destinationAddress": {
+          "city": "San Francisco",
+          "country": "US",
+          "eTag": "MjAyMC0xMS0yNFQxNzo0MDo1NC43MzE3Mjda",
+          "id": "eef02963-f8eb-4ac6-bdb5-e49cdd560908",
+          "postalCode": "94142",
+          "state": "CA",
+          "streetAddress1": "987 Any Avenue",
+          "streetAddress2": "P.O. Box 9876"
+        },
+        "eTag": "MjAyMC0xMS0yNFQxNzo0MTowOS4zMzM5NjFa",
+        "firstAvailableDeliveryDate": "0001-01-01",
+        "id": "4c22401a-96c5-4002-b076-aa3549c5113b",
+        "moveTaskOrderID": "72f5cfea-c3b2-4a65-897a-e18760feeb31",
+        "pickupAddress": {
+          "city": "New York",
+          "eTag": "MjAyMC0xMS0yNFQxNzo0MDo1NC43MzM2OFo=",
+          "id": "54fc9650-894d-4071-adbb-2ef3b1e6e57f",
+          "postalCode": "10025",
+          "state": "NY",
+          "streetAddress1": "1111 Main Street"
+        },
+        "primeActualWeight": 3998,
+        "primeEstimatedWeight": 4000,
+        "primeEstimatedWeightRecordedDate": "2020-11-24",
+        "requestedPickupDate": "2020-11-13",
+        "requiredDeliveryDate": "0001-01-01",
+        "scheduledPickupDate": "2020-11-20",
+        "shipmentType": "HHG",
+        "status": "APPROVED",
+        "updatedAt": "2020-11-24T17:41:09.333Z",
+        "mtoServiceItems": null
+      }
+    ],
+    "paymentRequests": [
+      {
+        "eTag": "MjAyMC0xMS0yNFQxNzo0MTowOC40Njk0NjRa",
+        "id": "e2474b21-2f82-4b89-ab8d-6a4f3d47cee8",
+        "isFinal": false,
+        "moveTaskOrderID": "72f5cfea-c3b2-4a65-897a-e18760feeb31",
+        "paymentRequestNumber": "8933-6994-1",
+        "paymentServiceItems": [
+          {
+            "eTag": "MjAyMC0xMS0yNFQxNzo0MTowOS4zNzI1OTha",
+            "id": "3531c893-e291-4443-925f-339c193e6628",
+            "mtoServiceItemID": "51a001e0-16ad-447b-904f-6c284c50077f",
+            "paymentRequestID": "e2474b21-2f82-4b89-ab8d-6a4f3d47cee8",
+            "paymentServiceItemParams": [
+              {
+                "eTag": "MjAyMC0xMS0yNFQxNzo0MTowOC41NDM4NTRa",
+                "id": "c80f3278-f31c-4cbb-8b03-05de8671e089",
+                "key": "RequestedPickupDate",
+                "origin": "PRIME",
+                "paymentServiceItemID": "3531c893-e291-4443-925f-339c193e6628",
+                "type": "DATE",
+                "value": "2020-11-13"
+              },
+              {
+                "eTag": "MjAyMC0xMS0yNFQxNzo0MTowOS4zMzY2MTRa",
+                "id": "13adf6fd-3129-4819-bf0a-4e12e5fa18b6",
+                "key": "DistanceZip3",
+                "origin": "SYSTEM",
+                "paymentServiceItemID": "3531c893-e291-4443-925f-339c193e6628",
+                "type": "INTEGER",
+                "value": "2996"
+              },
+              {
+                "eTag": "MjAyMC0xMS0yNFQxNzo0MTowOS4zMzk4NjNa",
+                "id": "0221e702-af1d-4bc5-a5c3-8e4ac7f96066",
+                "key": "ZipPickupAddress",
+                "origin": "PRIME",
+                "paymentServiceItemID": "3531c893-e291-4443-925f-339c193e6628",
+                "type": "STRING",
+                "value": "10025"
+              },
+              {
+                "eTag": "MjAyMC0xMS0yNFQxNzo0MTowOS4zNDMxMDVa",
+                "id": "210d0434-5978-4724-9963-a4998b6979cc",
+                "key": "ZipDestAddress",
+                "origin": "PRIME",
+                "paymentServiceItemID": "3531c893-e291-4443-925f-339c193e6628",
+                "type": "STRING",
+                "value": "94142"
+              },
+              {
+                "eTag": "MjAyMC0xMS0yNFQxNzo0MTowOS4zNDYyNDZa",
+                "id": "ce103a30-2cc2-44fa-8420-34117720e486",
+                "key": "WeightBilledActual",
+                "origin": "SYSTEM",
+                "paymentServiceItemID": "3531c893-e291-4443-925f-339c193e6628",
+                "type": "INTEGER",
+                "value": "3998"
+              },
+              {
+                "eTag": "MjAyMC0xMS0yNFQxNzo0MTowOS4zNDk0NTJa",
+                "id": "863b43a2-0c2a-4bc4-90c5-3bc01afe2a82",
+                "key": "WeightActual",
+                "origin": "PRIME",
+                "paymentServiceItemID": "3531c893-e291-4443-925f-339c193e6628",
+                "type": "INTEGER",
+                "value": "3998"
+              },
+              {
+                "eTag": "MjAyMC0xMS0yNFQxNzo0MTowOS4zNTI5MjJa",
+                "id": "b3ed3f03-04c5-42ef-9c89-6130c9ee618f",
+                "key": "WeightEstimated",
+                "origin": "PRIME",
+                "paymentServiceItemID": "3531c893-e291-4443-925f-339c193e6628",
+                "type": "INTEGER",
+                "value": "4000"
+              },
+              {
+                "eTag": "MjAyMC0xMS0yNFQxNzo0MTowOS4zNjAzODda",
+                "id": "ba1b17de-1040-418a-88cb-a68c745aa8e3",
+                "key": "ServiceAreaOrigin",
+                "origin": "SYSTEM",
+                "paymentServiceItemID": "3531c893-e291-4443-925f-339c193e6628",
+                "type": "STRING",
+                "value": "545"
+              },
+              {
+                "eTag": "MjAyMC0xMS0yNFQxNzo0MTowOS4zNjQxMTda",
+                "id": "d7b13e63-0c40-40f4-b417-1bdbcb0e12e9",
+                "key": "ContractCode",
+                "origin": "SYSTEM",
+                "paymentServiceItemID": "3531c893-e291-4443-925f-339c193e6628",
+                "type": "STRING",
+                "value": "TRUSS_TEST"
+              }
+            ],
+            "priceCents": 55744883,
+            "referenceID": "8933-6994-3531c893",
+            "status": "REQUESTED"
+          }
+        ],
+        "status": "PENDING"
+      }
+    ],
+    "referenceId": "8933-6994",
+    "updatedAt": "2020-11-09T17:35:04.722Z",
+    "mtoServiceItems": [
+      {
+        "reServiceCode": "MS",
+        "eTag": "MjAyMC0xMS0wOVQxNzozNTowNC42ODE4MzVa",
+        "id": "db2e57b1-a2c3-4096-8007-251c3df1fd8e",
+        "modelType": "MTOServiceItemBasic",
+        "moveTaskOrderID": "72f5cfea-c3b2-4a65-897a-e18760feeb31",
+        "reServiceName": "Shipment Mgmt. Services",
+        "status": "APPROVED"
+      },
+      {
+        "reServiceCode": "CS",
+        "eTag": "MjAyMC0xMS0wOVQxNzozNTowNC43MTIyNjla",
+        "id": "b3b62e46-de2d-4b44-82e7-e9554104bee4",
+        "modelType": "MTOServiceItemBasic",
+        "moveTaskOrderID": "72f5cfea-c3b2-4a65-897a-e18760feeb31",
+        "reServiceName": "Counseling Services",
+        "status": "APPROVED"
+      },
+      {
+        "reServiceCode": "DLH",
+        "eTag": "MjAyMC0xMS0wOVQxNzo1ODoxNy4zMjk1NTFa",
+        "id": "51a001e0-16ad-447b-904f-6c284c50077f",
+        "modelType": "MTOServiceItemBasic",
+        "moveTaskOrderID": "72f5cfea-c3b2-4a65-897a-e18760feeb31",
+        "mtoShipmentID": "4c22401a-96c5-4002-b076-aa3549c5113b",
+        "reServiceName": "Dom. Linehaul",
+        "status": "APPROVED"
+      },
+      {
+        "reServiceCode": "DOP",
+        "eTag": "MjAyMC0xMS0wOVQxNzo1ODoxOC4yODg2NjNa",
+        "id": "7876bb5f-b604-46bd-b92b-4950c4e2affb",
+        "modelType": "MTOServiceItemBasic",
+        "moveTaskOrderID": "72f5cfea-c3b2-4a65-897a-e18760feeb31",
+        "mtoShipmentID": "4c22401a-96c5-4002-b076-aa3549c5113b",
+        "reServiceName": "Dom. Origin Price",
+        "status": "APPROVED"
+      },
+      {
+        "reServiceCode": "DDP",
+        "eTag": "MjAyMC0xMS0wOVQxNzo1ODoxOS4wNjg0MjZa",
+        "id": "a45a0ba7-c3aa-43da-8594-0c8e893f0ee9",
+        "modelType": "MTOServiceItemBasic",
+        "moveTaskOrderID": "72f5cfea-c3b2-4a65-897a-e18760feeb31",
+        "mtoShipmentID": "4c22401a-96c5-4002-b076-aa3549c5113b",
+        "reServiceName": "Dom. Destination Price",
+        "status": "APPROVED"
+      },
+      {
+        "reServiceCode": "DPK",
+        "eTag": "MjAyMC0xMS0wOVQxNzo1ODoxOS44MzcwMjRa",
+        "id": "9e6ef845-0850-46c2-8acb-d706a3bd6d9c",
+        "modelType": "MTOServiceItemBasic",
+        "moveTaskOrderID": "72f5cfea-c3b2-4a65-897a-e18760feeb31",
+        "mtoShipmentID": "4c22401a-96c5-4002-b076-aa3549c5113b",
+        "reServiceName": "Dom. Packing",
+        "status": "APPROVED"
+      },
+      {
+        "reServiceCode": "DUPK",
+        "eTag": "MjAyMC0xMS0wOVQxNzo1ODoyMC42MzA4OTJa",
+        "id": "74b5f955-5c9b-446c-8fab-07b36ffe16ce",
+        "modelType": "MTOServiceItemBasic",
+        "moveTaskOrderID": "72f5cfea-c3b2-4a65-897a-e18760feeb31",
+        "mtoShipmentID": "4c22401a-96c5-4002-b076-aa3549c5113b",
+        "reServiceName": "Dom. Unpacking",
+        "status": "APPROVED"
+      },
+      {
+        "reServiceCode": "FSC",
+        "eTag": "MjAyMC0xMS0wOVQxNzo1ODoyMS40MDY3NDFa",
+        "id": "e93e92fe-658a-4da1-8a46-3de8e2c4fd7b",
+        "modelType": "MTOServiceItemBasic",
+        "moveTaskOrderID": "72f5cfea-c3b2-4a65-897a-e18760feeb31",
+        "mtoShipmentID": "4c22401a-96c5-4002-b076-aa3549c5113b",
+        "reServiceName": "Fuel Surcharge",
+        "status": "APPROVED"
+      }
+    ]
+  }
+]
