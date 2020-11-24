@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/spf13/pflag"
@@ -92,7 +93,7 @@ func main() {
 
 	ediFile := v.GetString("edi")
 
-	file, err := os.Open(ediFile) // #nosec
+	file, err := os.Open(filepath.Clean(ediFile))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -119,8 +120,7 @@ func main() {
 		log.Fatal("Error in getting tls certs", err)
 	}
 
-	// #nosec G402 TODO needs review
-	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs}
+	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs, MinVersion: tls.VersionTLS12}
 
 	logger.Println("Sending to GEX ...")
 	resp, err := invoice.NewGexSenderHTTP(

@@ -111,6 +111,7 @@ func (h CreateAdminUserHandler) Handle(params adminuserop.CreateAdminUserParams)
 	organizationID, err := uuid.FromString(payload.OrganizationID.String())
 	if err != nil {
 		logger.Error(fmt.Sprintf("UUID Parsing for %s", payload.OrganizationID.String()), zap.Error(err))
+		return adminuserop.NewCreateAdminUserBadRequest()
 	}
 
 	adminUser := models.AdminUser{

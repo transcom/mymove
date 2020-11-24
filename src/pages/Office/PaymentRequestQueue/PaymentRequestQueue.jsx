@@ -1,7 +1,7 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 
-import { usePaymentRequestQueueQueries } from 'hooks/queries';
+import { usePaymentRequestQueueQueries, useUserQueries } from 'hooks/queries';
 import { createHeader } from 'components/Table/utils';
 import { HistoryShape } from 'types/router';
 import {
@@ -13,23 +13,12 @@ import {
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
-import { BRANCH_OPTIONS, PAYMENT_REQUEST_STATUS_OPTIONS } from 'constants/queues';
+import { BRANCH_OPTIONS, GBLOC, PAYMENT_REQUEST_STATUS_OPTIONS } from 'constants/queues';
 import TableQueue from 'components/Table/TableQueue';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
 
-const paymentRequestStatusOptions = Object.keys(PAYMENT_REQUEST_STATUS_OPTIONS).map((key) => ({
-  value: key,
-  label: PAYMENT_REQUEST_STATUS_OPTIONS[`${key}`],
-}));
-
-const branchFilterOptions = [
-  { value: '', label: 'All' },
-  ...Object.keys(BRANCH_OPTIONS).map((key) => ({
-    value: key,
-    label: BRANCH_OPTIONS[`${key}`],
-  })),
-];
-
-const columns = [
+const columns = (showBranchFilter = true) => [
   createHeader('ID', 'id'),
   createHeader(
     'Customer name',
@@ -54,7 +43,7 @@ const columns = [
       id: 'status',
       isFilterable: true,
       // eslint-disable-next-line react/jsx-props-no-spreading
-      Filter: (props) => <MultiSelectCheckBoxFilter options={paymentRequestStatusOptions} {...props} />,
+      Filter: (props) => <MultiSelectCheckBoxFilter options={PAYMENT_REQUEST_STATUS_OPTIONS} {...props} />,
     },
   ),
   createHeader(
@@ -86,24 +75,38 @@ const columns = [
     },
     {
       id: 'branch',
-      isFilterable: true,
-      // eslint-disable-next-line react/jsx-props-no-spreading
-      Filter: (props) => <SelectFilter options={branchFilterOptions} {...props} />,
+      isFilterable: showBranchFilter,
+      Filter: (props) => (
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        <SelectFilter options={BRANCH_OPTIONS} {...props} />
+      ),
     },
   ),
   createHeader('Origin GBLOC', 'originGBLOC'),
 ];
 
 const PaymentRequestQueue = ({ history }) => {
+  const {
+    // eslint-disable-next-line camelcase
+    data: { office_user },
+    isLoading,
+    isError,
+  } = useUserQueries();
+
+  const showBranchFilter = office_user?.transportation_office?.gbloc !== GBLOC.USMC;
+
   const handleClick = (values) => {
     history.push(`/moves/MOVE_CODE/payment-requests/${values.id}`);
   };
+
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong />;
 
   return (
     <TableQueue
       showFilters
       showPagination
-      columns={columns}
+      columns={columns(showBranchFilter)}
       title="Payment requests"
       handleClick={handleClick}
       useQueries={usePaymentRequestQueueQueries}

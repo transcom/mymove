@@ -82,7 +82,15 @@ export const MoveTaskOrder = ({ match }) => {
     onError: (error) => {
       const errorMsg = error?.response?.body;
       // TODO: Handle error some how
-      //  no-console
+      // RA Summary: eslint: no-console - System Information Leak: External
+      // RA: The linter flags any use of console.
+      // RA: This console displays an error message from unsuccessful mutation.
+      // RA: TODO: As indicated, this error needs to be handled and needs further investigation.
+      // RA: POAM story here: https://dp3.atlassian.net/browse/MB-5597
+      // RA Developer Status: Known Issue
+      // RA Validator Status: Known Issue
+      // RA Modified Severity: CAT II
+      // eslint-disable-next-line no-console
       console.log(errorMsg);
     },
   });
@@ -168,7 +176,7 @@ export const MoveTaskOrder = ({ match }) => {
           const rejectedServiceItems = serviceItemsForShipment.filter(
             (item) => item.status === SERVICE_ITEM_STATUS.REJECTED,
           );
-          //  camelcase
+          // eslint-disable-next-line camelcase
           const dutyStationPostal = { postal_code: moveOrder.destinationDutyStation.address.postal_code };
 
           return (

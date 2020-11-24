@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-openapi/swag"
+
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
@@ -260,6 +262,137 @@ func (suite *HandlerSuite) TestListMoveTaskOrdersHandlerReturnsUpdated() {
 
 	suite.Equal(1, len(moveTaskOrdersPayload))
 	suite.Equal(moveTaskOrder.ID.String(), moveTaskOrdersPayload[0].ID.String())
+}
+
+func (suite *HandlerSuite) makeAvailableMoveWithAddress(addressToSet models.Address) models.Move {
+	address := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+		Address: addressToSet,
+	})
+
+	newDutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			AddressID: address.ID,
+			Address:   address,
+		},
+	})
+
+	moveOrder := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			NewDutyStationID: newDutyStation.ID,
+			NewDutyStation:   newDutyStation,
+		},
+	})
+
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			AvailableToPrimeAt: swag.Time(time.Now()),
+			Status:             models.MoveStatusAPPROVED,
+		},
+		Order: moveOrder,
+	})
+
+	return move
+}
+
+func (suite *HandlerSuite) equalAddress(expected models.Address, actual *primemessages.Address) {
+	suite.Equal(expected.ID.String(), actual.ID.String())
+	suite.Equal(expected.StreetAddress1, *actual.StreetAddress1)
+	suite.Equal(*expected.StreetAddress2, *actual.StreetAddress2)
+	suite.Equal(*expected.StreetAddress3, *actual.StreetAddress3)
+	suite.Equal(expected.City, *actual.City)
+	suite.Equal(expected.State, *actual.State)
+	suite.Equal(expected.PostalCode, *actual.PostalCode)
+	suite.Equal(*expected.Country, *actual.Country)
+}
+
+func (suite *HandlerSuite) equalPaymentRequest(expected models.PaymentRequest, actual *primemessages.PaymentRequest) {
+	suite.Equal(expected.ID.String(), actual.ID.String())
+	suite.Equal(expected.MoveTaskOrderID.String(), actual.MoveTaskOrderID.String())
+	suite.Equal(expected.IsFinal, *actual.IsFinal)
+	suite.Equal(expected.Status.String(), string(actual.Status))
+	suite.Equal(expected.RejectionReason, actual.RejectionReason)
+	suite.Equal(expected.PaymentRequestNumber, actual.PaymentRequestNumber)
+}
+
+func (suite *HandlerSuite) TestFetchMTOUpdatesHandlerLoopIteratorPointer() {
+	// Create two moves with different addresses.
+	move1 := suite.makeAvailableMoveWithAddress(models.Address{
+		StreetAddress1: "1 First St",
+		StreetAddress2: swag.String("Apt 1"),
+		StreetAddress3: swag.String("Suite A"),
+		City:           "Augusta",
+		State:          "GA",
+		PostalCode:     "30907",
+		Country:        swag.String("US"),
+	})
+
+	move2 := suite.makeAvailableMoveWithAddress(models.Address{
+		StreetAddress1: "2 Second St",
+		StreetAddress2: swag.String("Apt 2"),
+		StreetAddress3: swag.String("Suite B"),
+		City:           "Columbia",
+		State:          "SC",
+		PostalCode:     "29212",
+		Country:        swag.String("United States"),
+	})
+
+	// Create two payment requests on the second move.
+	paymentRequest1 := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		Move: move2,
+		PaymentRequest: models.PaymentRequest{
+			IsFinal:        false,
+			SequenceNumber: 1,
+		},
+	})
+
+	paymentRequest2 := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		Move: move2,
+		PaymentRequest: models.PaymentRequest{
+			IsFinal:        true,
+			SequenceNumber: 2,
+		},
+	})
+
+	// Setup and call the handler.
+	request := httptest.NewRequest("GET", "/move-task-orders", nil)
+	params := movetaskorderops.FetchMTOUpdatesParams{HTTPRequest: request}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	handler := FetchMTOUpdatesHandler{
+		HandlerContext:       context,
+		MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(suite.DB()),
+	}
+	response := handler.Handle(params)
+
+	suite.IsNotErrResponse(response)
+	moveTaskOrdersResponse := response.(*movetaskorderops.FetchMTOUpdatesOK)
+	moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
+
+	// Check the addresses across the two moves.
+	// NOTE: The payload isn't ordered, so I have to associate the correct move.
+	suite.FatalFalse(len(moveTaskOrdersPayload) != 2)
+	move1Payload := moveTaskOrdersPayload[0]
+	move2Payload := moveTaskOrdersPayload[1]
+	if move1Payload.ID.String() != move1.ID.String() {
+		move1Payload = moveTaskOrdersPayload[1]
+		move2Payload = moveTaskOrdersPayload[0]
+	}
+
+	suite.equalAddress(move1.Orders.NewDutyStation.Address, move1Payload.MoveOrder.DestinationDutyStation.Address)
+	suite.equalAddress(move2.Orders.NewDutyStation.Address, move2Payload.MoveOrder.DestinationDutyStation.Address)
+
+	// Check the two payment requests across the second move.
+	// NOTE: The payload isn't ordered, so I have to associate the correct payment request.
+	paymentRequestsPayload := move2Payload.PaymentRequests
+	suite.FatalFalse(len(paymentRequestsPayload) != 2)
+	paymentRequest1Payload := paymentRequestsPayload[0]
+	paymentRequest2Payload := paymentRequestsPayload[1]
+	if paymentRequest1Payload.ID.String() != paymentRequest1.ID.String() {
+		paymentRequest1Payload = paymentRequestsPayload[1]
+		paymentRequest2Payload = paymentRequestsPayload[0]
+	}
+
+	suite.equalPaymentRequest(paymentRequest1, paymentRequest1Payload)
+	suite.equalPaymentRequest(paymentRequest2, paymentRequest2Payload)
 }
 
 func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {

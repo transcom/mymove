@@ -1544,6 +1544,30 @@ func init() {
             "in": "query"
           },
           {
+            "enum": [
+              "lastName",
+              "dodID",
+              "branch",
+              "moveID",
+              "status",
+              "destinationDutyStation"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
+          {
             "type": "string",
             "name": "branch",
             "in": "query"
@@ -1618,6 +1642,31 @@ func init() {
         "summary": "Gets queued list of all payment requests by GBLOC origin",
         "operationId": "getPaymentRequestsQueue",
         "parameters": [
+          {
+            "enum": [
+              "lastName",
+              "moveID",
+              "submittedAt",
+              "branch",
+              "status",
+              "dodID",
+              "age"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
           {
             "type": "integer",
             "description": "requested page of results",
@@ -5343,6 +5392,30 @@ func init() {
             "in": "query"
           },
           {
+            "enum": [
+              "lastName",
+              "dodID",
+              "branch",
+              "moveID",
+              "status",
+              "destinationDutyStation"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
+          {
             "type": "string",
             "name": "branch",
             "in": "query"
@@ -5423,6 +5496,31 @@ func init() {
         "summary": "Gets queued list of all payment requests by GBLOC origin",
         "operationId": "getPaymentRequestsQueue",
         "parameters": [
+          {
+            "enum": [
+              "lastName",
+              "moveID",
+              "submittedAt",
+              "branch",
+              "status",
+              "dodID",
+              "age"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
           {
             "type": "integer",
             "description": "requested page of results",
