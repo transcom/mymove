@@ -1,6 +1,8 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 
+import styles from './PaymentRequestQueue.module.scss';
+
 import { usePaymentRequestQueueQueries, useUserQueries } from 'hooks/queries';
 import { createHeader } from 'components/Table/utils';
 import { HistoryShape } from 'types/router';
@@ -51,7 +53,7 @@ const columns = (showBranchFilter = true) => [
     (row) => {
       return formatAgeToDays(row.age);
     },
-    'age',
+    { id: 'age' },
   ),
   createHeader(
     'Submitted',
@@ -82,7 +84,7 @@ const columns = (showBranchFilter = true) => [
       ),
     },
   ),
-  createHeader('Origin GBLOC', 'originGBLOC'),
+  createHeader('Origin GBLOC', 'originGBLOC', { disableSortBy: true }),
 ];
 
 const PaymentRequestQueue = ({ history }) => {
@@ -103,14 +105,21 @@ const PaymentRequestQueue = ({ history }) => {
   if (isError) return <SomethingWentWrong />;
 
   return (
-    <TableQueue
-      showFilters
-      showPagination
-      columns={columns(showBranchFilter)}
-      title="Payment requests"
-      handleClick={handleClick}
-      useQueries={usePaymentRequestQueueQueries}
-    />
+    <div className={styles.PaymentRequestQueue}>
+      <TableQueue
+        showFilters
+        showPagination
+        manualSortBy
+        defaultCanSort
+        defaultSortedColumns={[{ id: 'age', desc: true }]}
+        disableMultiSort
+        disableSortBy={false}
+        columns={columns(showBranchFilter)}
+        title="Payment requests"
+        handleClick={handleClick}
+        useQueries={usePaymentRequestQueueQueries}
+      />
+    </div>
   );
 };
 
