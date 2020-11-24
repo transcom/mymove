@@ -3,6 +3,8 @@ package internalapi
 import (
 	"context"
 
+	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
@@ -54,8 +56,8 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 		PhoneIsPreferred:     serviceMember.PhoneIsPreferred,
 		PersonalEmail:        serviceMember.PersonalEmail,
 		EmailIsPreferred:     serviceMember.EmailIsPreferred,
-		ResidentialAddress:   payloadForAddressModel(serviceMember.ResidentialAddress),
-		BackupMailingAddress: payloadForAddressModel(serviceMember.BackupMailingAddress),
+		ResidentialAddress:   payloads.Address(serviceMember.ResidentialAddress),
+		BackupMailingAddress: payloads.Address(serviceMember.BackupMailingAddress),
 		BackupContacts:       contactPayloads,
 		IsProfileComplete:    handlers.FmtBool(serviceMember.IsProfileComplete()),
 		CurrentStation:       payloadForDutyStationModel(serviceMember.DutyStation),

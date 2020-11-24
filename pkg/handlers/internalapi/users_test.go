@@ -3,7 +3,7 @@ package internalapi
 import (
 	"net/http/httptest"
 
-	"github.com/transcom/mymove/pkg/services/query"
+	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 
 	"github.com/transcom/mymove/pkg/models/roles"
 
@@ -22,9 +22,9 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 	params := userop.ShowLoggedInUserParams{
 		HTTPRequest: req,
 	}
-	builder := query.NewQueryBuilder(suite.DB())
+	builder := officeuser.NewOfficeUserFetcherPop(suite.DB())
 
-	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), *builder}
+	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), builder}
 
 	response := handler.Handle(params)
 
@@ -64,9 +64,9 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserRequiringAccessCodeHandl
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	featureFlag := handlers.FeatureFlag{Name: "requires-access-code", Active: true}
 	context.SetFeatureFlag(featureFlag)
-	builder := query.NewQueryBuilder(suite.DB())
+	builder := officeuser.NewOfficeUserFetcherPop(suite.DB())
 
-	handler := ShowLoggedInUserHandler{context, *builder}
+	handler := ShowLoggedInUserHandler{context, builder}
 
 	response := handler.Handle(params)
 
@@ -97,8 +97,8 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserNotRequiringAccessCodeHa
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	featureFlag := handlers.FeatureFlag{Name: "requires-access-code", Active: false}
 	context.SetFeatureFlag(featureFlag)
-	builder := query.NewQueryBuilder(suite.DB())
-	handler := ShowLoggedInUserHandler{context, *builder}
+	builder := officeuser.NewOfficeUserFetcherPop(suite.DB())
+	handler := ShowLoggedInUserHandler{context, builder}
 
 	response := handler.Handle(params)
 
@@ -128,8 +128,8 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 	params := userop.ShowLoggedInUserParams{
 		HTTPRequest: req,
 	}
-	builder := query.NewQueryBuilder(suite.DB())
-	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), *builder}
+	builder := officeuser.NewOfficeUserFetcherPop(suite.DB())
+	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), builder}
 
 	response := handler.Handle(params)
 

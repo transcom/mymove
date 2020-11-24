@@ -16,8 +16,8 @@ type moveOrderFetcher struct {
 	db *pop.Connection
 }
 
-// FilterOption defines the type for the functional arguments used for private functions in MoveOrderFetcher
-type FilterOption func(*pop.Query)
+// QueryOption defines the type for the functional arguments used for private functions in MoveOrderFetcher
+type QueryOption func(*pop.Query)
 
 func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *services.ListMoveOrderParams) ([]models.Move, int, error) {
 	// Now that we've joined orders and move_orders, we only want to return orders that
@@ -42,7 +42,7 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 	branchQuery := branchFilter(params.Branch)
 	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
 	// We also only want to do the gbloc filtering thing if we aren't a USMC user, which we cover with the else.
-	var gblocQuery FilterOption
+	var gblocQuery QueryOption
 	if gbloc == "USMC" {
 		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)))
 	} else {
@@ -53,8 +53,9 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 	lastNameQuery := lastNameFilter(params.LastName)
 	dutyStationQuery := destinationDutyStationFilter(params.DestinationDutyStation)
 	moveStatusQuery := moveStatusFilter(params.Status)
+	sortOrderQuery := sortOrder(params.Sort, params.Order)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [7]FilterOption{branchQuery, moveIDQuery, dodIDQuery, lastNameQuery, dutyStationQuery, moveStatusQuery, gblocQuery}
+	options := []QueryOption{branchQuery, moveIDQuery, dodIDQuery, lastNameQuery, dutyStationQuery, moveStatusQuery, gblocQuery, sortOrderQuery}
 
 	query := f.db.Q().Eager(
 		"Orders.ServiceMember",
@@ -66,10 +67,10 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 	).InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
 		InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
-		InnerJoin("duty_stations", "orders.origin_duty_station_id = duty_stations.id").
-		InnerJoin("transportation_offices", "duty_stations.transportation_office_id = transportation_offices.id").
-		Where("show = ?", swag.Bool(true)).
-		Order("status desc")
+		InnerJoin("duty_stations as origin_ds", "orders.origin_duty_station_id = origin_ds.id").
+		InnerJoin("transportation_offices as origin_to", "origin_ds.transportation_office_id = origin_to.id").
+		LeftJoin("duty_stations as dest_ds", "dest_ds.id = orders.new_duty_station_id").
+		Where("show = ?", swag.Bool(true))
 
 	for _, option := range options {
 		if option != nil {
@@ -93,7 +94,13 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 		params.PerPage = swag.Int64(0)
 	}
 
-	err = query.GroupBy("moves.id").Paginate(int(*params.Page), int(*params.PerPage)).All(&moves)
+	var groupByColumms []string
+	groupByColumms = append(groupByColumms, "service_members.id", "orders.id", "origin_ds.id")
+	if params.Sort != nil && *params.Sort == "destinationDutyStation" {
+		groupByColumms = append(groupByColumms, "dest_ds.name")
+	}
+
+	err = query.GroupBy("moves.id", groupByColumms...).Paginate(int(*params.Page), int(*params.PerPage)).All(&moves)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -154,7 +161,7 @@ func (f moveOrderFetcher) FetchMoveOrder(moveOrderID uuid.UUID) (*models.Order, 
 }
 
 // These are a bunch of private functions that are used to cobble our list MoveOrders filters together.
-func branchFilter(branch *string) FilterOption {
+func branchFilter(branch *string) QueryOption {
 	return func(query *pop.Query) {
 		if branch == nil {
 			query = query.Where("service_members.affiliation != ?", models.AffiliationMARINES)
@@ -165,7 +172,7 @@ func branchFilter(branch *string) FilterOption {
 	}
 }
 
-func lastNameFilter(lastName *string) FilterOption {
+func lastNameFilter(lastName *string) QueryOption {
 	return func(query *pop.Query) {
 		if lastName != nil {
 			nameSearch := fmt.Sprintf("%s%%", *lastName)
@@ -174,7 +181,7 @@ func lastNameFilter(lastName *string) FilterOption {
 	}
 }
 
-func dodIDFilter(dodID *string) FilterOption {
+func dodIDFilter(dodID *string) QueryOption {
 	return func(query *pop.Query) {
 		if dodID != nil {
 			query = query.Where("service_members.edipi = ?", dodID)
@@ -182,23 +189,23 @@ func dodIDFilter(dodID *string) FilterOption {
 	}
 }
 
-func moveIDFilter(moveID *string) FilterOption {
+func moveIDFilter(moveID *string) QueryOption {
 	return func(query *pop.Query) {
 		if moveID != nil {
 			query = query.Where("moves.locator = ?", *moveID)
 		}
 	}
 }
-func destinationDutyStationFilter(destinationDutyStation *string) FilterOption {
+func destinationDutyStationFilter(destinationDutyStation *string) QueryOption {
 	return func(query *pop.Query) {
 		if destinationDutyStation != nil {
 			nameSearch := fmt.Sprintf("%s%%", *destinationDutyStation)
-			query = query.InnerJoin("duty_stations as destination_duty_station", "orders.new_duty_station_id = destination_duty_station.id").Where("destination_duty_station.name ILIKE ?", nameSearch)
+			query = query.Where("dest_ds.name ILIKE ?", nameSearch)
 		}
 	}
 }
 
-func moveStatusFilter(statuses []string) FilterOption {
+func moveStatusFilter(statuses []string) QueryOption {
 	return func(query *pop.Query) {
 		// If we have statuses let's use them
 		if len(statuses) > 0 {
@@ -211,8 +218,36 @@ func moveStatusFilter(statuses []string) FilterOption {
 	}
 }
 
-func gblocFilter(gbloc string) FilterOption {
+func gblocFilter(gbloc string) QueryOption {
 	return func(query *pop.Query) {
-		query = query.Where("transportation_offices.gbloc = ?", gbloc)
+		query = query.Where("origin_to.gbloc = ?", gbloc)
+	}
+}
+
+func sortOrder(sort *string, order *string) QueryOption {
+	parameters := map[string]string{
+		"lastName":               "service_members.last_name",
+		"dodID":                  "service_members.edipi",
+		"branch":                 "service_members.affiliation",
+		"moveID":                 "moves.locator",
+		"status":                 "moves.status",
+		"destinationDutyStation": "dest_ds.name",
+	}
+
+	return func(query *pop.Query) {
+		// If we have a sort and order defined let's use it. Otherwise we'll use our default status desc sort order.
+		if sort != nil && order != nil {
+			if sortTerm, ok := parameters[*sort]; ok {
+				if sortTerm == "lastName" {
+					query = query.Order(fmt.Sprintf("service_members.last_name %s, service_members.first_name %s", *order, *order))
+				} else {
+					query = query.Order(fmt.Sprintf("%s %s", sortTerm, *order))
+				}
+			} else {
+				query = query.Order("moves.status desc")
+			}
+		} else {
+			query = query.Order("moves.status desc")
+		}
 	}
 }

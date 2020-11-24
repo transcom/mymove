@@ -124,7 +124,15 @@ func createTLSConfig(clientKey []byte, clientCert []byte, ca []byte, tlsVersion 
 		return nil, err
 	}
 
-	// #nosec G402 TODO needs review
+	//RA Summary: gosec - G402 - TLS MinVersion too low
+	//RA: The linter flagged this line of code, because we are passing in a tlsVersion which could be bad.
+	//RA: The code is part of a subroutine that checks that MilMove public endpoints use TLS v1.2 or higher.
+	//RA: The subroutine is executed by the MilMove pipeline, post-deployment.  It is not included in the production system.
+	//RA: Related pull request... https://github.com/transcom/mymove/pull/3340
+	//RA Developer Status: Mitigated
+	//RA Validator Status: Mitigated
+	//RA Modified Severity: N/A
+	// #nosec G402
 	tlsConfig := &tls.Config{
 		Certificates: []tls.Certificate{keyPair},
 		MinVersion:   tlsVersion,
@@ -155,8 +163,15 @@ func createHTTPClient(v *viper.Viper, logger *zap.Logger, tlsVersion uint16) (*h
 		}
 	}
 
-	// Supported TLS versions
-	// #nosec G402 TODO needs review
+	//RA Summary: gosec - G402 - TLS MinVersion too low
+	//RA: The linter flagged this line of code, because we are passing in a tlsVersion which could be bad.
+	//RA: The code is part of a subroutine that checks that MilMove public endpoints use TLS v1.2 or higher.
+	//RA: This subroutine is executed by the MilMove pipeline, post-deployment.  It is not included in the production system.
+	//RA: Related pull request... https://github.com/transcom/mymove/pull/3340
+	//RA Developer Status: Mitigated
+	//RA Validator Status: Mitigated
+	//RA Modified Severity: N/A
+	// #nosec G402
 	tlsConfig := &tls.Config{
 		MinVersion: tlsVersion,
 		MaxVersion: tlsVersion,

@@ -15,6 +15,16 @@
     "no-debugger": "warn",
     "no-console": "warn",
     "jsx-a11y/anchor-is-valid": ["warn", { "aspects": ["noHref", "preferButton"] }],
+    "jsx-a11y/label-has-associated-control": [
+      "error",
+      {
+        "labelAttributes": [
+          "htmlFor"
+        ],
+        "assert": "either",
+        "depth": 2
+      }
+    ],
     "react/button-has-type": "error",
     "react/jsx-no-target-blank": "error",
     "react/jsx-curly-brace-presence": "error",

@@ -6,6 +6,7 @@ import {
   useOrdersDocumentQueries,
   useMovesQueueQueries,
   usePaymentRequestQueueQueries,
+  useUserQueries,
 } from './queries';
 
 jest.mock('services/ghcApi', () => ({
@@ -96,6 +97,17 @@ jest.mock('services/ghcApi', () => ({
           id: 'payment2',
         },
       ],
+    }),
+  getLoggedInUserQueries: () =>
+    Promise.resolve({
+      data: {},
+    }),
+}));
+
+jest.mock('services/internalApi', () => ({
+  getLoggedInUserQueries: () =>
+    Promise.resolve({
+      office_user: { transportation_office: { gbloc: 'LMKG' } },
     }),
 }));
 
@@ -296,6 +308,23 @@ describe('usePaymentRequestsQueueQueries', () => {
             id: 'payment2',
           },
         ],
+      },
+      isLoading: false,
+      isError: false,
+      isSuccess: true,
+    });
+  });
+});
+
+describe('useUserQueries', () => {
+  it('loads data', async () => {
+    const { result, waitForNextUpdate } = renderHook(() => useUserQueries());
+
+    await waitForNextUpdate();
+
+    expect(result.current).toEqual({
+      data: {
+        office_user: { transportation_office: { gbloc: 'LMKG' } },
       },
       isLoading: false,
       isError: false,

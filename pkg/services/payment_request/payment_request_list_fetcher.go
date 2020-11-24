@@ -20,6 +20,16 @@ type paymentRequestListFetcher struct {
 	db *pop.Connection
 }
 
+var parameters = map[string]string{
+	"lastName":    "service_members.last_name",
+	"dodID":       "service_members.edipi",
+	"submittedAt": "payment_requests.created_at",
+	"branch":      "service_members.affiliation",
+	"moveID":      "moves.locator",
+	"status":      "payment_requests.status",
+	"age":         "payment_requests.created_at",
+}
+
 // NewPaymentRequestListFetcher returns a new payment request list fetcher
 func NewPaymentRequestListFetcher(db *pop.Connection) services.PaymentRequestListFetcher {
 	return &paymentRequestListFetcher{db}
@@ -111,22 +121,21 @@ func orderName(query *pop.Query, order *string) *pop.Query {
 	return query.Order(fmt.Sprintf("service_members.last_name %s, service_members.first_name %s", *order, *order))
 }
 
-func sortOrder(sort *string, order *string) QueryOption {
-	parameters := map[string]string{
-		"lastName":    "service_members.last_name",
-		"dodID":       "service_members.edipi",
-		"submittedAt": "payment_requests.created_at",
-		"branch":      "service_members.affiliation",
-		"moveID":      "moves.locator",
-		"status":      "payment_requests.status",
-		"age":         "payment_requests.created_at",
+func reverseOrder(order *string) string {
+	if *order == "asc" {
+		return "desc"
 	}
+	return "asc"
+}
 
+func sortOrder(sort *string, order *string) QueryOption {
 	return func(query *pop.Query) {
 		if sort != nil && order != nil {
 			sortTerm := parameters[*sort]
 			if *sort == "lastName" {
 				orderName(query, order)
+			} else if *sort == "age" {
+				query = query.Order(fmt.Sprintf("%s %s", sortTerm, reverseOrder(order)))
 			} else {
 				query = query.Order(fmt.Sprintf("%s %s", sortTerm, *order))
 			}
