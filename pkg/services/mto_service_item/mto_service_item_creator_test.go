@@ -395,6 +395,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		},
 	})
 
+	reServiceDOPSIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDOPSIT,
+		},
+	})
+
 	serviceItemDOASIT := models.MTOServiceItem{
 		MoveTaskOrder:   moveTaskOrder,
 		MoveTaskOrderID: moveTaskOrder.ID,
@@ -407,7 +413,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 	sitPostalCode := "99999"
 	reason := "lorem ipsum"
 
-	suite.T().Run("Create DOFSIT service item", func(t *testing.T) {
+	suite.T().Run("Create DOFSIT service item and auto-create DOASIT, DOPSIT", func(t *testing.T) {
 		serviceItemDOFSIT := models.MTOServiceItem{
 			MoveTaskOrder:   moveTaskOrder,
 			MoveTaskOrderID: moveTaskOrder.ID,
@@ -422,12 +428,39 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		creator := NewMTOServiceItemCreator(builder)
 
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDOFSIT)
-
 		suite.NotNil(createdServiceItems)
 		suite.NoError(err)
+
+		createdServiceItemsList := *createdServiceItems
+		suite.Equal(3, len(createdServiceItemsList))
+
+		numDOFSITFound := 0
+		numDOASITFound := 0
+		numDOPSITFound := 0
+
+		for _, item := range createdServiceItemsList {
+			suite.Equal(serviceItemDOFSIT.MoveTaskOrderID, item.MoveTaskOrderID)
+			suite.Equal(serviceItemDOFSIT.MTOShipmentID, item.MTOShipmentID)
+			suite.Equal(serviceItemDOFSIT.SITEntryDate, item.SITEntryDate)
+			suite.Equal(serviceItemDOFSIT.Reason, item.Reason)
+			suite.Equal(serviceItemDOFSIT.SITPostalCode, item.SITPostalCode)
+
+			switch item.ReService.Code {
+			case models.ReServiceCodeDOFSIT:
+				numDOFSITFound++
+			case models.ReServiceCodeDOASIT:
+				numDOASITFound++
+			case models.ReServiceCodeDOPSIT:
+				numDOPSITFound++
+			}
+		}
+
+		suite.Equal(1, numDOFSITFound)
+		suite.Equal(1, numDOASITFound)
+		suite.Equal(1, numDOPSITFound)
 	})
 
-	suite.T().Run("Create DOASIT item for shipment with DOFSIT", func(t *testing.T) {
+	suite.T().Run("Create standalone DOASIT item for shipment if existing DOFSIT", func(t *testing.T) {
 		builder := query.NewQueryBuilder(suite.DB())
 		creator := NewMTOServiceItemCreator(builder)
 
@@ -446,7 +479,51 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		suite.EqualValues(*createdDOASITItem.SITPostalCode, sitPostalCode)
 	})
 
-	suite.T().Run("Do not create DOASIT if there is no DOFSIT on shipment", func(t *testing.T) {
+	suite.T().Run("Do not create DOFSIT if one already exists for the shipment", func(t *testing.T) {
+		serviceItemDOFSIT := models.MTOServiceItem{
+			MoveTaskOrder:   moveTaskOrder,
+			MoveTaskOrderID: moveTaskOrder.ID,
+			MTOShipment:     mtoShipment,
+			MTOShipmentID:   &mtoShipment.ID,
+			ReService:       reServiceDOFSIT,
+			SITEntryDate:    &sitEntryDate,
+			SITPostalCode:   &sitPostalCode,
+			Reason:          &reason,
+		}
+		builder := query.NewQueryBuilder(suite.DB())
+		creator := NewMTOServiceItemCreator(builder)
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDOFSIT)
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(services.ConflictError{}, err)
+	})
+
+	suite.T().Run("Do not create standalone DOPSIT service item", func(t *testing.T) {
+		mtoShipmentNoServiceItems := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: moveTaskOrder,
+		})
+
+		serviceItemDOPSIT := models.MTOServiceItem{
+			MoveTaskOrder:   moveTaskOrder,
+			MoveTaskOrderID: moveTaskOrder.ID,
+			MTOShipment:     mtoShipmentNoServiceItems,
+			MTOShipmentID:   &mtoShipmentNoServiceItems.ID,
+			ReService:       reServiceDOPSIT,
+		}
+
+		builder := query.NewQueryBuilder(suite.DB())
+		creator := NewMTOServiceItemCreator(builder)
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDOPSIT)
+
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(services.InvalidInputError{}, err)
+
+	})
+
+	suite.T().Run("Do not create standalone DOASIT if there is no DOFSIT on shipment", func(t *testing.T) {
 		mtoShipmentNoServiceItems := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			Move: moveTaskOrder,
 		})
