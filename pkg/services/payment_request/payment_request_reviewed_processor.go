@@ -50,7 +50,11 @@ func InitNewPaymentRequestReviewedProcessor(db *pop.Connection, logger Logger, s
 	reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(db)
 	generator := invoice.NewGHCPaymentRequestInvoiceGenerator(db)
 	var sftpSession services.SyncadaSFTPSender
-	sftpSession = nil
+	sftpSession, err := invoice.InitNewSyncadaSFTPSession()
+	if err != nil {
+		// just log the error, sftpSession is set to nil if there is an error
+		logger.Error(fmt.Errorf("Configuration of SyncadaSFTPSession failed: %w", err).Error())
+	}
 	var gexSender services.GexSender
 	gexSender = nil
 

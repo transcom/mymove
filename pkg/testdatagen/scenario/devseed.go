@@ -1283,6 +1283,34 @@ func createTXO(db *pop.Connection) {
 			UserID: &tooTioUUID,
 		},
 	})
+
+	// Makes user with both too and tio role with USMC gbloc
+	transportationOfficeUSMC := models.TransportationOffice{}
+	err = db.Where("id = $1", "ccf50409-9d03-4cac-a931-580649f1647a").First(&transportationOfficeUSMC)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find transportation office USMC in the DB: %w", err))
+	}
+	emailUSMC := "too_tio_role_usmc@office.mil"
+	tooTioWithUsmcUUID := uuid.Must(uuid.FromString("9bda91d2-7a0c-4de1-ae02-bbbbbbbbbbbb"))
+	loginGovWithUsmcUUID := uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            tooTioWithUsmcUUID,
+			LoginGovUUID:  &loginGovWithUsmcUUID,
+			LoginGovEmail: emailUSMC,
+			Active:        true,
+			Roles:         []roles.Role{tooRole, tioRole},
+		},
+	})
+	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:                   uuid.FromStringOrNil("dce86235-53d3-43dd-8ee8-bbbbbbbbbbbb"),
+			Email:                emailUSMC,
+			Active:               true,
+			UserID:               &tooTioWithUsmcUUID,
+			TransportationOffice: transportationOfficeUSMC,
+		},
+	})
 }
 
 // func createRecentlyUpdatedHHGMove(db *pop.Connection, userUploader *uploader.UserUploader) {

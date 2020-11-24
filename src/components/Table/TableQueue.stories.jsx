@@ -22,19 +22,6 @@ export default {
   ],
 };
 
-const moveStatusOptions = Object.keys(MOVE_STATUS_OPTIONS).map((key) => ({
-  value: key,
-  label: MOVE_STATUS_OPTIONS[`${key}`],
-}));
-
-const branchFilterOptions = [
-  { value: '', label: 'All' },
-  ...Object.keys(BRANCH_OPTIONS).map((key) => ({
-    value: key,
-    label: BRANCH_OPTIONS[`${key}`],
-  })),
-];
-
 const data = [
   {
     col1: 'Banks, Aaliyah',
@@ -76,12 +63,12 @@ const columns = (isFilterable = false) => [
   createHeader('DoD ID', 'col2', { isFilterable }),
   createHeader('Status', 'col3', {
     isFilterable,
-    Filter: (props) => <MultiSelectCheckBoxFilter options={moveStatusOptions} {...props} />,
+    Filter: (props) => <MultiSelectCheckBoxFilter options={MOVE_STATUS_OPTIONS} {...props} />,
   }),
   createHeader('Move Code', 'col4', { isFilterable }),
   createHeader('Branch', 'col5', {
     isFilterable,
-    Filter: (props) => <SelectFilter options={branchFilterOptions} {...props} />,
+    Filter: (props) => <SelectFilter options={BRANCH_OPTIONS} {...props} />,
   }),
   createHeader('# of shipments', 'col6', { isFilterable }),
   createHeader('Destination duty station', 'col7', { isFilterable }),
@@ -97,6 +84,10 @@ const defaultProps = {
 };
 
 export const TXOTable = () => <TableQueue {...defaultProps} />;
+
+export const TXOTableSortable = () => (
+  <TableQueue {...defaultProps} disableSortBy={false} defaultSortedColumns={[{ id: 'col1', desc: false }]} />
+);
 
 export const TXOTableFilters = () => <TableQueue {...defaultProps} columns={columns(true)} showFilters />;
 

@@ -20,15 +20,26 @@ type paymentRequestListFetcher struct {
 	db *pop.Connection
 }
 
+var parameters = map[string]string{
+	"lastName":    "service_members.last_name",
+	"dodID":       "service_members.edipi",
+	"submittedAt": "payment_requests.created_at",
+	"branch":      "service_members.affiliation",
+	"moveID":      "moves.locator",
+	"status":      "payment_requests.status",
+	"age":         "payment_requests.created_at",
+}
+
 // NewPaymentRequestListFetcher returns a new payment request list fetcher
 func NewPaymentRequestListFetcher(db *pop.Connection) services.PaymentRequestListFetcher {
 	return &paymentRequestListFetcher{db}
 }
 
-// FilterOption defines the type for the functional arguments passed to ListMoveOrders
-type FilterOption func(*pop.Query)
+// QueryOption defines the type for the functional arguments passed to ListMoveOrders
+type QueryOption func(*pop.Query)
 
 func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UUID, params *services.FetchPaymentRequestListParams) (*models.PaymentRequests, int, error) {
+
 	gblocFetcher := officeuser.NewOfficeUserGblocFetcher(f.db)
 	gbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(officeUserID)
 	if gblocErr != nil {
@@ -45,13 +56,12 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
 		InnerJoin("duty_stations", "duty_stations.id = orders.origin_duty_station_id").
 		InnerJoin("transportation_offices", "transportation_offices.id = duty_stations.transportation_office_id").
-		Where("moves.show = ?", swag.Bool(true)).
-		Order("status asc")
+		Where("moves.show = ?", swag.Bool(true))
 
 	branchQuery := branchFilter(params.Branch)
 	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
 	// We also only want to do the gbloc filtering thing if we aren't a USMC user, which we cover with the else.
-	var gblocQuery FilterOption
+	var gblocQuery QueryOption
 	if gbloc == "USMC" {
 		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)))
 	} else {
@@ -63,7 +73,9 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 	dutyStationQuery := destinationDutyStationFilter(params.DestinationDutyStation)
 	statusQuery := paymentRequestsStatusFilter(params.Status)
 	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
-	options := [8]FilterOption{branchQuery, moveIDQuery, dodIDQuery, lastNameQuery, dutyStationQuery, statusQuery, submittedAtQuery, gblocQuery}
+	orderQuery := sortOrder(params.Sort, params.Order)
+
+	options := [9]QueryOption{branchQuery, moveIDQuery, dodIDQuery, lastNameQuery, dutyStationQuery, statusQuery, submittedAtQuery, gblocQuery, orderQuery}
 
 	for _, option := range options {
 		if option != nil {
@@ -79,7 +91,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 		params.PerPage = swag.Int64(20)
 	}
 
-	err := query.GroupBy("payment_requests.id").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
+	err := query.GroupBy("payment_requests.id, service_members.id, moves.id").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
 
 	if err != nil {
 		switch err {
@@ -105,7 +117,35 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 	return &paymentRequests, count, nil
 }
 
-func branchFilter(branch *string) FilterOption {
+func orderName(query *pop.Query, order *string) *pop.Query {
+	return query.Order(fmt.Sprintf("service_members.last_name %s, service_members.first_name %s", *order, *order))
+}
+
+func reverseOrder(order *string) string {
+	if *order == "asc" {
+		return "desc"
+	}
+	return "asc"
+}
+
+func sortOrder(sort *string, order *string) QueryOption {
+	return func(query *pop.Query) {
+		if sort != nil && order != nil {
+			sortTerm := parameters[*sort]
+			if *sort == "lastName" {
+				orderName(query, order)
+			} else if *sort == "age" {
+				query = query.Order(fmt.Sprintf("%s %s", sortTerm, reverseOrder(order)))
+			} else {
+				query = query.Order(fmt.Sprintf("%s %s", sortTerm, *order))
+			}
+		} else {
+			query = query.Order("payment_requests.created_at asc")
+		}
+	}
+}
+
+func branchFilter(branch *string) QueryOption {
 	return func(query *pop.Query) {
 		if branch != nil {
 			query = query.Where("service_members.affiliation = ?", *branch)
@@ -113,7 +153,7 @@ func branchFilter(branch *string) FilterOption {
 	}
 }
 
-func lastNameFilter(lastName *string) FilterOption {
+func lastNameFilter(lastName *string) QueryOption {
 	return func(query *pop.Query) {
 		if lastName != nil {
 			nameSearch := fmt.Sprintf("%s%%", *lastName)
@@ -122,7 +162,7 @@ func lastNameFilter(lastName *string) FilterOption {
 	}
 }
 
-func dodIDFilter(dodID *string) FilterOption {
+func dodIDFilter(dodID *string) QueryOption {
 	return func(query *pop.Query) {
 		if dodID != nil {
 			query = query.Where("service_members.edipi = ?", dodID)
@@ -130,14 +170,14 @@ func dodIDFilter(dodID *string) FilterOption {
 	}
 }
 
-func moveIDFilter(moveID *string) FilterOption {
+func moveIDFilter(moveID *string) QueryOption {
 	return func(query *pop.Query) {
 		if moveID != nil {
 			query = query.Where("moves.locator = ?", *moveID)
 		}
 	}
 }
-func destinationDutyStationFilter(destinationDutyStation *string) FilterOption {
+func destinationDutyStationFilter(destinationDutyStation *string) QueryOption {
 	return func(query *pop.Query) {
 		if destinationDutyStation != nil {
 			nameSearch := fmt.Sprintf("%s%%", *destinationDutyStation)
@@ -146,7 +186,7 @@ func destinationDutyStationFilter(destinationDutyStation *string) FilterOption {
 	}
 }
 
-func submittedAtFilter(submittedAt *string) FilterOption {
+func submittedAtFilter(submittedAt *string) QueryOption {
 	return func(query *pop.Query) {
 		if submittedAt != nil {
 			query = query.Where("CAST(payment_requests.created_at AS DATE) = ?", *submittedAt)
@@ -154,13 +194,13 @@ func submittedAtFilter(submittedAt *string) FilterOption {
 	}
 }
 
-func gblocFilter(gbloc string) FilterOption {
+func gblocFilter(gbloc string) QueryOption {
 	return func(query *pop.Query) {
 		query = query.Where("transportation_offices.gbloc = ?", gbloc)
 	}
 }
 
-func paymentRequestsStatusFilter(statuses []string) FilterOption {
+func paymentRequestsStatusFilter(statuses []string) QueryOption {
 	return func(query *pop.Query) {
 		var translatedStatuses []string
 		if len(statuses) > 0 {

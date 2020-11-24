@@ -2,38 +2,14 @@ package internalapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
+
 	transportationofficeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/transportation_offices"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
-
-func payloadForTransportationOfficeModel(office models.TransportationOffice) *internalmessages.TransportationOffice {
-	if office.ID == uuid.Nil {
-		return nil
-	}
-
-	var phoneLines []string
-	for _, phoneLine := range office.PhoneLines {
-		if phoneLine.Type == "voice" {
-			phoneLines = append(phoneLines, phoneLine.Number)
-		}
-	}
-
-	payload := &internalmessages.TransportationOffice{
-		ID:         handlers.FmtUUID(office.ID),
-		CreatedAt:  handlers.FmtDateTime(office.CreatedAt),
-		UpdatedAt:  handlers.FmtDateTime(office.UpdatedAt),
-		Name:       swag.String(office.Name),
-		Gbloc:      office.Gbloc,
-		Address:    payloadForAddressModel(&office.Address),
-		PhoneLines: phoneLines,
-	}
-	return payload
-}
 
 // ShowDutyStationTransportationOfficeHandler returns the transportation office for a duty station ID
 type ShowDutyStationTransportationOfficeHandler struct {
@@ -48,7 +24,7 @@ func (h ShowDutyStationTransportationOfficeHandler) Handle(params transportation
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
-	transportationOfficePayload := payloadForTransportationOfficeModel(transportationOffice)
+	transportationOfficePayload := payloads.TransportationOffice(transportationOffice)
 
 	return transportationofficeop.NewShowDutyStationTransportationOfficeOK().WithPayload(transportationOfficePayload)
 }

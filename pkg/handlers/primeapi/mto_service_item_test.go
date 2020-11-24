@@ -391,11 +391,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDDFSITHandler() {
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
 	})
-	testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
-		ReService: models.ReService{
-			Code: "DDFSIT",
-		},
-	})
+	testdatagen.MakeDDFSITReService(suite.DB())
 	builder := query.NewQueryBuilder(suite.DB())
 	mtoChecker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
 

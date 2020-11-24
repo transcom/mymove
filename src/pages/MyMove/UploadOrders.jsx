@@ -5,7 +5,6 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { get } from 'lodash';
 
-import { loadServiceMember } from 'scenes/ServiceMembers/ducks';
 import {
   fetchLatestOrders,
   selectActiveOrLatestOrders,
@@ -138,7 +137,7 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ fetchLatestOrders, createUpload, deleteUpload, loadServiceMember }, dispatch);
+  return bindActionCreators({ fetchLatestOrders, createUpload, deleteUpload }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(UploadOrders);
