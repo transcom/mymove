@@ -526,6 +526,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 	var contacts models.MTOServiceItemCustomerContacts
 	contacts = append(contacts, contact1, contact2)
 
+	var successfulDDFSIT models.MTOServiceItem // set in the success test for DDFSIT and used in other tests
+
 	// Failed creation of DDFSIT because DDASIT/DDDSIT codes are not found in DB
 	suite.T().Run("Failure - no DDASIT/DDDSIT codes", func(t *testing.T) {
 		serviceItemDDFSIT := models.MTOServiceItem{
@@ -625,6 +627,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			}
 			if item.ReService.Code == models.ReServiceCodeDDFSIT {
 				numDDFSITFound++
+				successfulDDFSIT = item
 				suite.Equal(len(item.CustomerContacts), len(serviceItemDDFSIT.CustomerContacts))
 			}
 		}
@@ -669,6 +672,10 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 
 		createdServiceItemsList := *createdServiceItems
 		suite.Equal(createdServiceItemsList[0].ReService.Code, models.ReServiceCodeDDASIT)
+		// The time on the date doesn't matter, so let's just check the date:
+		suite.Equal(createdServiceItemsList[0].SITEntryDate.Day(), successfulDDFSIT.SITEntryDate.Day())
+		suite.Equal(createdServiceItemsList[0].SITEntryDate.Month(), successfulDDFSIT.SITEntryDate.Month())
+		suite.Equal(createdServiceItemsList[0].SITEntryDate.Year(), successfulDDFSIT.SITEntryDate.Year())
 	})
 
 	// Failed creation of DDASIT service item due to no DDFSIT on shipment
