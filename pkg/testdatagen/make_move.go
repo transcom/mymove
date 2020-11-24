@@ -177,7 +177,7 @@ func MakeHHGMoveWithShipment(db *pop.Connection, assertions Assertions) models.M
 
 // MakeHHGPPMMoveWithShipment makes an HHG_PPM Move with one submitted shipment
 func MakeHHGPPMMoveWithShipment(db *pop.Connection, assertions Assertions) models.Move {
-	hhgPPMMoveType := models.SelectedMoveTypeHHGPPM
+	hhgPPMMoveType := models.SelectedMoveTypePPM
 	move := MakeMove(db, Assertions{
 		Move: models.Move{
 			SelectedMoveType: &hhgPPMMoveType,
@@ -185,6 +185,10 @@ func MakeHHGPPMMoveWithShipment(db *pop.Connection, assertions Assertions) model
 		},
 		Stub: assertions.Stub,
 	})
+
+	if !assertions.Stub {
+		mustSave(db, &move)
+	}
 
 	MakeMTOShipment(db, Assertions{
 		Move: move,
