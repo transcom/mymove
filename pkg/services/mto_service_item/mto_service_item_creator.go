@@ -125,6 +125,15 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 			fmt.Sprintf("A service item with reServiceCode %s cannot be manually created.", serviceItem.ReService.Code))
 	}
 
+	if serviceItem.ReService.Code == models.ReServiceCodeDDASIT {
+		// DDASIT must be associated with shipment that has DDFSIT
+		serviceItem, err = o.validateSITStandaloneServiceItem(serviceItem, models.ReServiceCodeDDFSIT)
+
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+
 	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT {
 		extraServiceItems, errSIT := o.validateFirstDaySITServiceItem(serviceItem)
 		if errSIT != nil {
