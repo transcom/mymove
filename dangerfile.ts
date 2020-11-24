@@ -68,6 +68,7 @@ View the [frontend file org ADR](https://github.com/transcom/mymove/blob/master/
   }
 };
 // eslint-disable no-underscore-dangle test
+// eslint-disable jsx-no-target-blank test
 const bypassingLinterChecks = async () => {
   // load all modified and new files
   const allFiles = danger.git.modified_files.concat(danger.git.created_files);
