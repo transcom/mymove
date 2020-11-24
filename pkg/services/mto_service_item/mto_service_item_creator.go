@@ -110,6 +110,23 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		}
 	}
 
+	if serviceItem.ReService.Code == models.ReServiceCodeDOFSIT {
+		extraServiceItems, errSIT := o.validateFirstDaySITServiceItem(serviceItem)
+		if errSIT != nil {
+			return nil, nil, errSIT
+		}
+
+		requestedServiceItems = append(requestedServiceItems, *extraServiceItems...)
+
+	}
+
+	if serviceItem.ReService.Code == models.ReServiceCodeDOPSIT {
+		verrs = validate.NewErrors()
+		verrs.Add("reServiceCode", fmt.Sprintf("%s cannot be created", serviceItem.ReService.Code))
+		return nil, nil, services.NewInvalidInputError(serviceItem.ID, nil, verrs,
+			fmt.Sprintf("A service item with reServiceCode %s cannot be manually created.", serviceItem.ReService.Code))
+	}
+
 	for index := range serviceItem.CustomerContacts {
 		createCustContacts := &serviceItem.CustomerContacts[index]
 		err = validateTimeMilitaryField(createCustContacts.TimeMilitary)
@@ -345,10 +362,15 @@ func (o *mtoServiceItemCreator) validateFirstDaySITServiceItem(serviceItem *mode
 
 	// create the extra service items for first day SIT
 	var reServiceCodes []models.ReServiceCode
-	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT {
+
+	switch serviceItem.ReService.Code {
+	case models.ReServiceCodeDDFSIT:
 		reServiceCodes = append(reServiceCodes, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT)
-	} else {
+	case models.ReServiceCodeDOFSIT:
 		reServiceCodes = append(reServiceCodes, models.ReServiceCodeDOASIT, models.ReServiceCodeDOPSIT)
+	default:
+		err = services.NewNotFoundError(serviceItem.ID, fmt.Sprintf("No additional items can be created for this service item with code %s", serviceItem.ReService.Code))
+		return nil, err // #TODO: Is this the correct error?
 	}
 
 	for _, code := range reServiceCodes {
