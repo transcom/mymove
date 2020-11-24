@@ -20,9 +20,9 @@ import (
 
 const testDateFormat = "060102"
 
-func (suite *PaymentRequestServiceSuite) createPaymentRequest(num int) {
-
-	for i := 0; i < 4; i++ {
+func (suite *PaymentRequestServiceSuite) createPaymentRequest(num int) models.PaymentRequests {
+	var paymentRequests models.PaymentRequests
+	for i := 0; i < num; i++ {
 		currentTime := time.Now()
 		basicPaymentServiceItemParams := []testdatagen.CreatePaymentServiceItemParams{
 			{
@@ -144,7 +144,9 @@ func (suite *PaymentRequestServiceSuite) createPaymentRequest(num int) {
 			basicPaymentServiceItemParams,
 			assertions,
 		)
+		paymentRequests = append(paymentRequests, paymentRequest)
 	}
+	return paymentRequests
 }
 
 func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
@@ -172,7 +174,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 	suite.T().Run("process reviewed payment request successfully (do not send file)", func(t *testing.T) {
 
-		suite.createPaymentRequest(4)
+		prs := suite.createPaymentRequest(4)
 
 		_ = testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
 			ServiceMember: models.ServiceMember{
@@ -198,11 +200,18 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			SFTPSession)
 		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 		suite.NoError(err)
+
+		// Ensure that sent_to_gex_at timestamp has been added
+		fetcher := NewPaymentRequestFetcher(suite.DB())
+		for _, pr := range prs {
+			paymentRequest, _ := fetcher.FetchPaymentRequest(pr.ID)
+			suite.NotNil(paymentRequest.SentToGexAt)
+		}
 	})
 
 	suite.T().Run("process reviewed payment request, failed EDI generator", func(t *testing.T) {
 
-		suite.createPaymentRequest(4)
+		prs := suite.createPaymentRequest(4)
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
 		SFTPSession := invoice.InitNewSyncadaSFTPSession()
@@ -226,11 +235,18 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 			SFTPSession)
 		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 		suite.Contains(err.Error(), "function ProcessReviewedPaymentRequest failed call")
+
+		// Ensure that sent_to_gex_at is Nil on unsucessful call to processReviewedPaymentRequest service
+		fetcher := NewPaymentRequestFetcher(suite.DB())
+		for _, pr := range prs {
+			paymentRequest, _ := fetcher.FetchPaymentRequest(pr.ID)
+			suite.Nil(paymentRequest.SentToGexAt)
+		}
 	})
 
 	suite.T().Run("process reviewed payment request, failed payment request fetcher", func(t *testing.T) {
 
-		suite.createPaymentRequest(4)
+		prs := suite.createPaymentRequest(4)
 
 		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB())
 		SFTPSession := invoice.InitNewSyncadaSFTPSession()
@@ -255,11 +271,18 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 		suite.Contains(err.Error(), "function ProcessReviewedPaymentRequest failed call")
+
+		// Ensure that sent_to_gex_at is Nil on unsucessful call to processReviewedPaymentRequest service
+		fetcher := NewPaymentRequestFetcher(suite.DB())
+		for _, pr := range prs {
+			paymentRequest, _ := fetcher.FetchPaymentRequest(pr.ID)
+			suite.Nil(paymentRequest.SentToGexAt)
+		}
 	})
 
 	suite.T().Run("process reviewed payment request, fail SFTP send", func(t *testing.T) {
 
-		suite.createPaymentRequest(4)
+		prs := suite.createPaymentRequest(4)
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
 		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB())
@@ -285,12 +308,17 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 
 		err := paymentRequestReviewedProcessor.ProcessReviewedPaymentRequest()
 		suite.Contains(err.Error(), "error sending the following EDIs")
-
+		// Ensure that sent_to_gex_at is Nil on unsucessful call to processReviewedPaymentRequest service
+		fetcher := NewPaymentRequestFetcher(suite.DB())
+		for _, pr := range prs {
+			paymentRequest, _ := fetcher.FetchPaymentRequest(pr.ID)
+			suite.Nil(paymentRequest.SentToGexAt)
+		}
 	})
 
 	suite.T().Run("process reviewed payment request, successful SFTP send", func(t *testing.T) {
 
-		suite.createPaymentRequest(4)
+		_ = suite.createPaymentRequest(4)
 
 		reviewedPaymentRequestFetcher := NewPaymentRequestReviewedFetcher(suite.DB())
 		ediGenerator := invoice.NewGHCPaymentRequestInvoiceGenerator(suite.DB())

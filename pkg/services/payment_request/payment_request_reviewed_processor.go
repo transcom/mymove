@@ -3,7 +3,9 @@ package paymentrequest
 import (
 	"fmt"
 	"strings"
+	"time"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/services/invoice"
@@ -108,9 +110,13 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error 
 			value := "('" + strings.Join(f, "','") + "')"
 			failed = append(failed, value)
 		} else {
-			// (ID, status) to be used in update query
-			// ('a2c34dba-015f-4f96-a38b-0c0b9272e208'::uuid,'SENT_TO_GEX'::payment_request_status)
-			status := []string{"'" + pr.ID.String() + "'::uuid", "'" + models.PaymentRequestStatusSentToGex.String() + "'::payment_request_status"}
+			// (ID, status, sentToGexAt) to be used in update query
+			// ('a2c34dba-015f-4f96-a38b-0c0b9272e208'::uuid,'SENT_TO_GEX'::payment_request_status,'2020-11-24 03:09:36.873'::*time.Time)
+			sentToGexAt := strfmt.DateTime(time.Now()).String()
+
+			status := []string{"'" + pr.ID.String() + "'::uuid",
+				"'" + models.PaymentRequestStatusSentToGex.String() + "'::payment_request_status",
+				"'" + sentToGexAt + "'::timestamp"}
 			value := "(" + strings.Join(status, ",") + ")"
 			sentToGexStatuses = append(sentToGexStatuses, value)
 		}
@@ -141,15 +147,15 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest() error 
 			    ) AS c(id, status)
 			WHERE c.id = pr.id;
 			*/
-
 			values := strings.Join(sentToGexStatuses, ",")
 			q := `
-UPDATE payment_requests AS pr SET
-    status = c.status
-FROM (VALUES
-	%s
-    ) AS c(id, status)
-WHERE c.id = pr.id;`
+				UPDATE payment_requests AS pr SET
+					status = c.status,
+					sent_to_gex_at = c.sentToGexAt
+				FROM (VALUES
+					%s
+					) AS c(id, status, sentToGexAt)
+				WHERE c.id = pr.id;`
 			qq := fmt.Sprintf(q, values)
 			err = tx.RawQuery(qq).Exec()
 			if err != nil {
