@@ -529,6 +529,24 @@ func createUnsubmittedMoveWithNTSAndNTSR(db *pop.Connection) {
 	})
 }
 
+func createNTSMove(db *pop.Connection) {
+	testdatagen.MakeNTSMoveWithShipment(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			FirstName: models.StringPointer("Spaceman"),
+			LastName:  models.StringPointer("NTS"),
+		},
+	})
+}
+
+func createNTSRMove(db *pop.Connection) {
+	testdatagen.MakeNTSRMoveWithShipment(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			FirstName: models.StringPointer("Spaceman"),
+			LastName:  models.StringPointer("NTS-R"),
+		},
+	})
+}
+
 func createPPMReadyToRequestPayment(db *pop.Connection, userUploader *uploader.UserUploader) {
 	/*
 	 * Service member with a ppm ready to request payment
@@ -1702,6 +1720,8 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	createTOO(db)
 	createTIO(db)
 	createTXO(db)
+	createNTSMove(db)
+	createNTSRMove(db)
 
 	// This allows testing the pagination feature in the TXO queues.
 	// Feel free to comment out the loop if you don't need this many moves.
