@@ -545,7 +545,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		suite.Contains(err.Error(), "service code")
 	})
 
-	_ = testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+	// These codes will be needed for the following tests:
+	reServiceDDASIT := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
 		ReService: models.ReService{
 			Code: models.ReServiceCodeDDASIT,
 		},
@@ -649,6 +650,46 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		suite.Error(err)
 		suite.IsType(services.ConflictError{}, err)
 		suite.Contains(err.Error(), "A service item with reServiceCode DDFSIT already exists for this move and/or shipment.")
+	})
+
+	// Successful creation of DDASIT service item
+	suite.T().Run("Success - DDASIT creation approved", func(t *testing.T) {
+		serviceItemDDASIT := models.MTOServiceItem{
+			MoveTaskOrderID: shipment.MoveTaskOrderID,
+			MoveTaskOrder:   shipment.MoveTaskOrder,
+			MTOShipmentID:   &shipment.ID,
+			MTOShipment:     shipment,
+			ReService:       reServiceDDASIT,
+		}
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDASIT)
+		suite.NotNil(createdServiceItems)
+		suite.NoError(err)
+		suite.Equal(len(*createdServiceItems), 1)
+
+		createdServiceItemsList := *createdServiceItems
+		suite.Equal(createdServiceItemsList[0].ReService.Code, models.ReServiceCodeDDASIT)
+	})
+
+	// Failed creation of DDASIT service item due to no DDFSIT on shipment
+	suite.T().Run("Failure - DDASIT creation needs DDFSIT", func(t *testing.T) {
+		shipmentNoDDFSIT := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: move,
+		})
+		serviceItemDDASIT := models.MTOServiceItem{
+			MoveTaskOrderID: shipmentNoDDFSIT.MoveTaskOrderID,
+			MoveTaskOrder:   shipmentNoDDFSIT.MoveTaskOrder,
+			MTOShipmentID:   &shipmentNoDDFSIT.ID,
+			MTOShipment:     shipmentNoDDFSIT,
+			ReService:       reServiceDDASIT,
+		}
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(&serviceItemDDASIT)
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(services.NotFoundError{}, err)
+		suite.Contains(err.Error(), "No matching first-day SIT service item found")
+		suite.Contains(err.Error(), shipmentNoDDFSIT.ID.String())
 	})
 
 	// Failed creation of DDDSIT service item
