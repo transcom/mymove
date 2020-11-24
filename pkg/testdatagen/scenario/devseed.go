@@ -1441,13 +1441,13 @@ func createHHGMoveWithTaskOrderServices(db *pop.Connection, userUploader *upload
 
 	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.FromStringOrNil("eee4b555-2475-4e67-a5b8-102f28d950f8"),
+			ID:     uuid.FromStringOrNil("fd6741a5-a92c-44d5-8303-1d7f5e60afbf"),
 			Status: models.MTOServiceItemStatusApproved,
 		},
 		Move:        mtoWithTaskOrderServices,
 		MTOShipment: mtoShipment4,
 		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("4b85962e-25d3-4485-b43c-2497c4365598"), // DSH
+			ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH
 		},
 	})
 
@@ -1465,13 +1465,13 @@ func createHHGMoveWithTaskOrderServices(db *pop.Connection, userUploader *upload
 
 	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.FromStringOrNil("fd6741a5-a92c-44d5-8303-1d7f5e60afbf"),
+			ID:     uuid.FromStringOrNil("eee4b555-2475-4e67-a5b8-102f28d950f8"),
 			Status: models.MTOServiceItemStatusApproved,
 		},
 		Move:        mtoWithTaskOrderServices,
 		MTOShipment: mtoShipment5,
 		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH
+			ID: uuid.FromStringOrNil("4b85962e-25d3-4485-b43c-2497c4365598"), // DSH
 		},
 	})
 
