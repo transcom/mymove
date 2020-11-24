@@ -83,9 +83,10 @@ const ServiceItemCard = ({
 
           const handleFormReset = () => {
             setValues({
-              status: undefined,
+              status: 'REQUESTED',
               rejectionReason: undefined,
             });
+            submitForm();
           };
 
           return (

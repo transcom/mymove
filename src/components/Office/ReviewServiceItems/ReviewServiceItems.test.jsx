@@ -387,6 +387,27 @@ describe('ReviewServiceItems component', () => {
     );
     const approvedAmount = componentWithInitialValues.find('[data-testid="approvedAmount"]');
 
+    it('can clear approved amount for an item', async () => {
+      const approveInput = mountedComponent.find(`input[name="status"][value="APPROVED"]`);
+      expect(approveInput.length).toBe(1);
+
+      await act(async () => {
+        approveInput.simulate('change');
+      });
+      mountedComponent.update();
+      expect(approvedAmount.text()).toEqual('$1,050.25');
+
+      const clearSelectionButton = mountedComponent.find('button[data-testid="clearStatusButton"]');
+      expect(clearSelectionButton.length).toBe(1);
+
+      await act(async () => {
+        clearSelectionButton.simulate('click');
+      });
+      mountedComponent.update();
+
+      expect(approvedAmount.text()).toEqual(0);
+    });
+
     it('calculates the approved sum for items with initial values', () => {
       expect(approvedAmount.text()).toEqual('$1,050.25');
     });
