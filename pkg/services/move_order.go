@@ -22,7 +22,7 @@ type MoveOrderUpdater interface {
 // ListMoveOrderParams is a public struct that's used to pass filter arguments to the ListMoveOrders
 type ListMoveOrderParams struct {
 	Branch                 *string
-	MoveID                 *string
+	Locator                *string
 	DodID                  *string
 	LastName               *string
 	DestinationDutyStation *string

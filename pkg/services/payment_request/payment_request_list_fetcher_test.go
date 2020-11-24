@@ -44,9 +44,9 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 
 	suite.T().Run("Returns payment request matching an arbitrary filter", func(t *testing.T) {
 		// Locator
-		moveID := paymentRequest.MoveTaskOrder.Locator
+		locator := paymentRequest.MoveTaskOrder.Locator
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID,
-			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2), MoveID: &moveID})
+			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2), Locator: &locator})
 		suite.NoError(err)
 		suite.Equal(1, len(*expectedPaymentRequests))
 		paymentRequests := *expectedPaymentRequests
@@ -180,7 +180,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	var expectedDodIDOrder []string
 	var expectedStatusOrder []string
 	var expectedCreatedAtOrder []time.Time
-	var expectedMoveIDOrder []string
+	var expectedLocatorOrder []string
 	var expectedBranchOrder []string
 
 	hhgMoveType := models.SelectedMoveTypeHHG
@@ -237,7 +237,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	expectedDodIDOrder = append(expectedDodIDOrder, *paymentRequest1.MoveTaskOrder.Orders.ServiceMember.Edipi, *paymentRequest2.MoveTaskOrder.Orders.ServiceMember.Edipi)
 	expectedStatusOrder = append(expectedStatusOrder, string(paymentRequest1.Status), string(paymentRequest2.Status))
 	expectedCreatedAtOrder = append(expectedCreatedAtOrder, paymentRequest1.CreatedAt, paymentRequest2.CreatedAt)
-	expectedMoveIDOrder = append(expectedMoveIDOrder, paymentRequest1.MoveTaskOrder.Locator, paymentRequest2.MoveTaskOrder.Locator)
+	expectedLocatorOrder = append(expectedLocatorOrder, paymentRequest1.MoveTaskOrder.Locator, paymentRequest2.MoveTaskOrder.Locator)
 	expectedBranchOrder = append(expectedBranchOrder, string(*paymentRequest1.MoveTaskOrder.Orders.ServiceMember.Affiliation), string(*paymentRequest2.MoveTaskOrder.Orders.ServiceMember.Affiliation))
 
 	paymentRequestListFetcher := NewPaymentRequestListFetcher(suite.DB())
@@ -366,29 +366,29 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 		suite.Equal(expectedCreatedAtOrder[1].Format("2006-01-02T15:04:05.000Z07:00"), paymentRequests[0].CreatedAt.Format("2006-01-02T15:04:05.000Z07:00"))
 	})
 
-	suite.T().Run("Sort by moveID ASC", func(t *testing.T) {
-		sort.Strings(expectedMoveIDOrder)
-		params := services.FetchPaymentRequestListParams{Sort: swag.String("moveID"), Order: swag.String("asc")}
+	suite.T().Run("Sort by locator ASC", func(t *testing.T) {
+		sort.Strings(expectedLocatorOrder)
+		params := services.FetchPaymentRequestListParams{Sort: swag.String("locator"), Order: swag.String("asc")}
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
 		suite.Equal(2, len(paymentRequests))
-		suite.Equal(expectedMoveIDOrder[0], strings.TrimSpace(paymentRequests[0].MoveTaskOrder.Locator))
-		suite.Equal(expectedMoveIDOrder[1], strings.TrimSpace(paymentRequests[1].MoveTaskOrder.Locator))
+		suite.Equal(expectedLocatorOrder[0], strings.TrimSpace(paymentRequests[0].MoveTaskOrder.Locator))
+		suite.Equal(expectedLocatorOrder[1], strings.TrimSpace(paymentRequests[1].MoveTaskOrder.Locator))
 	})
 
-	suite.T().Run("Sort by moveID DESC", func(t *testing.T) {
-		sort.Strings(expectedMoveIDOrder)
+	suite.T().Run("Sort by locator DESC", func(t *testing.T) {
+		sort.Strings(expectedLocatorOrder)
 
-		params := services.FetchPaymentRequestListParams{Sort: swag.String("moveID"), Order: swag.String("desc")}
+		params := services.FetchPaymentRequestListParams{Sort: swag.String("locator"), Order: swag.String("desc")}
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
 		suite.Equal(2, len(paymentRequests))
-		suite.Equal(expectedMoveIDOrder[0], strings.TrimSpace(paymentRequests[1].MoveTaskOrder.Locator))
-		suite.Equal(expectedMoveIDOrder[1], strings.TrimSpace(paymentRequests[0].MoveTaskOrder.Locator))
+		suite.Equal(expectedLocatorOrder[0], strings.TrimSpace(paymentRequests[1].MoveTaskOrder.Locator))
+		suite.Equal(expectedLocatorOrder[1], strings.TrimSpace(paymentRequests[0].MoveTaskOrder.Locator))
 	})
 
 	suite.T().Run("Sort by branch ASC", func(t *testing.T) {
