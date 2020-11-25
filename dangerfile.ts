@@ -67,7 +67,7 @@ View the [frontend file org ADR](https://github.com/transcom/mymove/blob/master/
     warn(`${message} - <i>${idea}</i>`);
   }
 };
-// eslint-disable jsx-no-target-blank test
+
 const bypassingLinterChecks = async () => {
   // load all modified and new files
   const allFiles = danger.git.modified_files.concat(danger.git.created_files);
@@ -95,6 +95,7 @@ const bypassingLinterChecks = async () => {
     const bypassCodeInDiff = bypassCodes.find((b) => diff.diff.includes(b));
     if (bypassCodeInDiff) {
       addedByPassCode = true;
+      // TODO: if a file has ANY acceptable rule, the warning won't be triggered.  Make it so if ANY unacceptable rule is present, it will worn
       if (bypassCodeInDiff === 'eslint-disable' || bypassCodeInDiff === 'eslint-disable-next-lie') {
         for (const rule in okBypassRules) {
           if (diff.diff.includes(bypassCodeInDiff + okBypassRules[`${rule}`])) {
@@ -103,7 +104,6 @@ const bypassingLinterChecks = async () => {
           }
         }
       }
-      addedByPassCode = true;
       break;
     }
   }
