@@ -3,6 +3,8 @@ package moveorder
 import (
 	"testing"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/go-openapi/swag"
@@ -68,40 +70,34 @@ func (suite *MoveOrderServiceSuite) TestListMoves() {
 	// are displayed to the TOO
 	testdatagen.MakeDefaultMove(suite.DB())
 
-	// Create a combination HHG and PPM move and make sure it's included
-	expectedComboMove := testdatagen.MakeHHGPPMMoveWithShipment(suite.DB(), testdatagen.Assertions{})
-
 	expectedMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
-
-	expectedMoves := []models.Move{expectedComboMove, expectedMove}
 
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
 
 	suite.T().Run("returns moves", func(t *testing.T) {
-		moves, moveCount, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &services.ListMoveOrderParams{PerPage: swag.Int64(1), Page: swag.Int64(1)})
+		moves, moveCount, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &services.ListMoveOrderParams{})
 
 		suite.FatalNoError(err)
-		suite.Equal(2, moveCount)
+		suite.Equal(1, moveCount)
+		suite.Len(moves, 1)
 
-		for i, move := range moves {
-			expectedMove := expectedMoves[i]
+		move := moves[0]
 
-			suite.NotNil(move.Orders.ServiceMember)
-			suite.Equal(expectedMove.Orders.ServiceMember.FirstName, move.Orders.ServiceMember.FirstName)
-			suite.Equal(expectedMove.Orders.ServiceMember.LastName, move.Orders.ServiceMember.LastName)
-			suite.Equal(expectedMove.Orders.ID, move.Orders.ID)
-			suite.Equal(expectedMove.Orders.ServiceMemberID, move.Orders.ServiceMemberID)
-			suite.NotNil(move.Orders.NewDutyStation)
-			suite.Equal(expectedMove.Orders.NewDutyStationID, move.Orders.NewDutyStation.ID)
-			suite.NotNil(move.Orders.Entitlement)
-			suite.Equal(*expectedMove.Orders.EntitlementID, move.Orders.Entitlement.ID)
-			suite.Equal(expectedMove.Orders.OriginDutyStation.ID, move.Orders.OriginDutyStation.ID)
-			suite.NotNil(move.Orders.OriginDutyStation)
-			suite.Equal(expectedMove.Orders.OriginDutyStation.AddressID, move.Orders.OriginDutyStation.AddressID)
-			suite.Equal(expectedMove.Orders.OriginDutyStation.Address.StreetAddress1, move.Orders.OriginDutyStation.Address.StreetAddress1)
-		}
+		suite.NotNil(move.Orders.ServiceMember)
+		suite.Equal(expectedMove.Orders.ServiceMember.FirstName, move.Orders.ServiceMember.FirstName)
+		suite.Equal(expectedMove.Orders.ServiceMember.LastName, move.Orders.ServiceMember.LastName)
+		suite.Equal(expectedMove.Orders.ID, move.Orders.ID)
+		suite.Equal(expectedMove.Orders.ServiceMemberID, move.Orders.ServiceMemberID)
+		suite.NotNil(move.Orders.NewDutyStation)
+		suite.Equal(expectedMove.Orders.NewDutyStationID, move.Orders.NewDutyStation.ID)
+		suite.NotNil(move.Orders.Entitlement)
+		suite.Equal(*expectedMove.Orders.EntitlementID, move.Orders.Entitlement.ID)
+		suite.Equal(expectedMove.Orders.OriginDutyStation.ID, move.Orders.OriginDutyStation.ID)
+		suite.NotNil(move.Orders.OriginDutyStation)
+		suite.Equal(expectedMove.Orders.OriginDutyStation.AddressID, move.Orders.OriginDutyStation.AddressID)
+		suite.Equal(expectedMove.Orders.OriginDutyStation.Address.StreetAddress1, move.Orders.OriginDutyStation.Address.StreetAddress1)
 	})
 
 	suite.T().Run("returns moves filtered by GBLOC", func(t *testing.T) {
@@ -115,7 +111,7 @@ func (suite *MoveOrderServiceSuite) TestListMoves() {
 		moves, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &services.ListMoveOrderParams{Page: swag.Int64(1)})
 
 		suite.FatalNoError(err)
-		suite.Equal(2, len(moves))
+		suite.Equal(1, len(moves))
 	})
 
 	suite.T().Run("only returns visible moves (where show = True)", func(t *testing.T) {
@@ -125,7 +121,22 @@ func (suite *MoveOrderServiceSuite) TestListMoves() {
 		moves, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
 
 		suite.FatalNoError(err)
-		suite.Equal(2, len(moves))
+		suite.Equal(1, len(moves))
+	})
+
+	suite.T().Run("includes combo hhg and ppm moves", func(t *testing.T) {
+		// Create a combination HHG and PPM move and make sure it's included
+		expectedComboMove := testdatagen.MakeHHGPPMMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+
+		moves, moveCount, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &services.ListMoveOrderParams{})
+
+		suite.FatalNoError(err)
+		suite.Equal(2, moveCount)
+		suite.Len(moves, 2)
+
+		moveIDs := []uuid.UUID{moves[0].ID, moves[1].ID}
+
+		suite.Contains(moveIDs, expectedComboMove.ID)
 	})
 
 	suite.T().Run("returns moves filtered by service member affiliation", func(t *testing.T) {

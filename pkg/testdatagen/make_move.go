@@ -186,10 +186,6 @@ func MakeHHGPPMMoveWithShipment(db *pop.Connection, assertions Assertions) model
 		Stub: assertions.Stub,
 	})
 
-	if !assertions.Stub {
-		mustSave(db, &move)
-	}
-
 	MakeMTOShipment(db, Assertions{
 		Move: move,
 		MTOShipment: models.MTOShipment{
