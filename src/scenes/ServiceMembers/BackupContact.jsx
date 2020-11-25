@@ -167,7 +167,6 @@ export class BackupContact extends Component {
 }
 BackupContact.propTypes = {
   schema: PropTypes.object.isRequired,
-  currentServiceMember: PropTypes.object,
   error: PropTypes.object,
 };
 

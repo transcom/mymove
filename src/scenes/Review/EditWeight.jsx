@@ -345,7 +345,7 @@ function mapStateToProps(state) {
     hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
     entitlement: loadEntitlementsFromState(state),
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
-    originDutyStationZip: state.serviceMember.currentServiceMember.current_station.address.postal_code,
+    originDutyStationZip: serviceMember?.current_station?.address?.postal_code,
     orders: selectActiveOrLatestOrders(state),
   };
 }

@@ -503,6 +503,7 @@ const mapStateToProps = (state) => {
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
     loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
     loggedInUserError: selectGetCurrentUserIsError(state),
+    // TODO
     createdServiceMemberError: state.serviceMember.error,
     isProfileComplete: selectIsProfileComplete(state),
     moveSubmitSuccess: state.signedCertification.moveSubmitSuccess,

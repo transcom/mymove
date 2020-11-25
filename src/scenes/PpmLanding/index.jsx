@@ -206,7 +206,6 @@ const mapStateToProps = (state) => {
     createdServiceMemberIsLoading: state.serviceMember.isLoading,
     createdServiceMemberSuccess: state.serviceMember.hasSubmitSuccess,
     createdServiceMemberError: state.serviceMember.error,
-    createdServiceMember: state.serviceMember.currentServiceMember,
     //
     moveSubmitSuccess: state.signedCertification.moveSubmitSuccess,
     entitlement: loadEntitlementsFromState(state),

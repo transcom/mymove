@@ -19,6 +19,11 @@ export const selectServiceMemberFromLoggedInUser = (state) => {
   return state.entities.serviceMembers?.[`${user.service_member}`] || null;
 };
 
+export const selectCurrentDutyStation = (state) => {
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+  return serviceMember?.current_station;
+};
+
 // TODO: this is similar to service_member.isProfileComplete and we should figure out how to use just one if possible
 export const selectIsProfileComplete = createSelector(
   selectServiceMemberFromLoggedInUser,
