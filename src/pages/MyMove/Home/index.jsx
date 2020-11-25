@@ -416,9 +416,9 @@ class Home extends Component {
                     </SectionWrapper>
                     <Contact
                       header="Contacts"
-                      dutyStationName={current_station.transportation_office.name}
+                      dutyStationName={current_station?.transportation_office.name}
                       officeType="Origin Transportation Office"
-                      telephone={current_station.transportation_office.phone_lines[0]}
+                      telephone={current_station?.transportation_office.phone_lines[0]}
                       moveSubmitted={move.status === MOVE_STATUSES.SUBMITTED}
                     />
                   </>

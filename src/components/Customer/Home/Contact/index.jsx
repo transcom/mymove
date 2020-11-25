@@ -13,7 +13,11 @@ const Contact = ({ header, dutyStationName, moveSubmitted, officeType, telephone
       <br />
       <span>{telephone}</span>
     </p>
-    {moveSubmitted && <p>After you hear from your move counselor, they should be your first resource for questions.</p>}
+    {moveSubmitted && (
+      <p data-testid="move-submitted-instructions">
+        After you hear from your move counselor, they should be your first resource for questions.
+      </p>
+    )}
   </div>
 );
 

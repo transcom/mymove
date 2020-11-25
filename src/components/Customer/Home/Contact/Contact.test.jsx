@@ -24,6 +24,7 @@ describe('Contact component', () => {
       dutyStationName,
       officeType,
       telephone,
+      moveSubmitted: false,
     };
     const wrapper = mountFooter(props);
     expect(wrapper.find('h6').text()).toBe(header);
@@ -31,5 +32,24 @@ describe('Contact component', () => {
     expect(wrapper.find('span').length).toBe(2);
     expect(wrapper.find('span').at(0).text()).toBe(officeType);
     expect(wrapper.find('span').at(1).text()).toBe(telephone);
+    expect(wrapper.find('[data-testid="move-submitted-instructions"]').exists()).toBe(false);
+  });
+
+  it('renders additional copy if the move is submitted', () => {
+    const header = 'Contact Info';
+    const dutyStationName = 'Headquarters';
+    const officeType = 'Homebase';
+    const telephone = '(777) 777-7777';
+    const props = {
+      header,
+      dutyStationName,
+      officeType,
+      telephone,
+      moveSubmitted: true,
+    };
+    const wrapper = mountFooter(props);
+    expect(wrapper.find('[data-testid="move-submitted-instructions"]').text()).toBe(
+      'After you hear from your move counselor, they should be your first resource for questions.',
+    );
   });
 });
