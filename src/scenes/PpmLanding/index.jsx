@@ -10,7 +10,7 @@ import { withContext } from 'shared/AppContext';
 import { PpmSummary } from './PpmSummary';
 import PpmAlert from './PpmAlert';
 import { selectedMoveType, lastMoveIsCanceled, updateMove } from 'scenes/Moves/ducks';
-import { isProfileComplete } from 'scenes/ServiceMembers/ducks';
+import { selectIsProfileComplete } from 'store/entities/selectors';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import {
   selectCurrentUser,
@@ -191,7 +191,7 @@ const mapStateToProps = (state) => {
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     selectedMoveType: selectedMoveType(state),
     isLoggedIn: user.isLoggedIn,
-    isProfileComplete: isProfileComplete(state),
+    isProfileComplete: selectIsProfileComplete(state),
     serviceMember: serviceMember || {},
     backupContacts: state.serviceMember.currentBackupContacts || [],
     orders: selectActiveOrLatestOrders(state),

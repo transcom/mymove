@@ -27,8 +27,7 @@ import ShipmentList from 'components/Customer/Home/ShipmentList';
 import Contact from 'components/Customer/Home/Contact';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import PrintableLegalese from 'components/Customer/Home/PrintableLegalese';
-import { isProfileComplete as isProfileCompleteCheck } from 'scenes/ServiceMembers/ducks';
-import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser, selectIsProfileComplete } from 'store/entities/selectors';
 import { selectUploadedOrders, selectActiveOrLatestOrdersFromEntities } from 'shared/Entities/modules/orders';
 import {
   getSignedCertification as getSignedCertificationAction,
@@ -505,12 +504,12 @@ const mapStateToProps = (state) => {
     loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
     loggedInUserError: selectGetCurrentUserIsError(state),
     createdServiceMemberError: state.serviceMember.error,
-    isProfileComplete: isProfileCompleteCheck(state),
+    isProfileComplete: selectIsProfileComplete(state),
     moveSubmitSuccess: state.signedCertification.moveSubmitSuccess,
     orders: selectActiveOrLatestOrdersFromEntities(state),
     uploadedOrderDocuments: selectUploadedOrders(state),
     serviceMember,
-    backupContacts: serviceMember.backup_contacts || state.serviceMember.currentBackupContacts || [],
+    backupContacts: serviceMember?.backup_contacts || state.serviceMember.currentBackupContacts || [],
     signedCertification: selectSignedCertification(state),
     // TODO: change when we support PPM shipments as well
     mtoShipments: selectMTOShipmentsByMoveId(state, move.id),
