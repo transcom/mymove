@@ -23,6 +23,7 @@ export const INDEX_BACKUP_CONTACTS = ReduxHelpers.generateAsyncActionTypes(index
 export const UPDATE_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(updateBackupContactType);
 
 //this is similar to go service_member.IsProfileComplete and we should figure out how to use just one if possible
+// TODO - migrate to selectors
 export const isProfileComplete = (state) => {
   const sm = get(state, 'serviceMember.currentServiceMember') || {};
   return every([

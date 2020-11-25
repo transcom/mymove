@@ -28,7 +28,7 @@ import Contact from 'components/Customer/Home/Contact';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import PrintableLegalese from 'components/Customer/Home/PrintableLegalese';
 import { isProfileComplete as isProfileCompleteCheck } from 'scenes/ServiceMembers/ducks';
-import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import { selectUploadedOrders, selectActiveOrLatestOrdersFromEntities } from 'shared/Entities/modules/orders';
 import {
   getSignedCertification as getSignedCertificationAction,

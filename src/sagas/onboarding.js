@@ -49,6 +49,7 @@ export function* watchUpdateServiceMember() {
 }
 
 export function* createServiceMember() {
+  // TODO - delete legacy actions after service member reducer is deleted
   try {
     yield put({ type: CREATE_SERVICE_MEMBER.start });
     const serviceMember = yield call(createServiceMemberApi);
