@@ -13,16 +13,7 @@ const Contact = ({ header, dutyStationName, moveSubmitted, officeType, telephone
       <br />
       <span>{telephone}</span>
     </p>
-    <p>
-      {moveSubmitted && (
-        <>
-          You&apos;ll hear from a move counselor and the movers themselves within the next few days.
-          <br />
-          <br />
-          Talk to either of them with questions about your move.
-        </>
-      )}
-    </p>
+    {moveSubmitted && <p>After you hear from your move counselor, they should be your first resource for questions.</p>}
   </div>
 );
 
