@@ -34,29 +34,14 @@ func NewSyncadaSFTPSession(port string, userID string, remote string, password s
 // InitNewSyncadaSFTPSession initialize a NewSyncadaSFTPSession and return services.SyncadaSFTPSender
 func InitNewSyncadaSFTPSession() (services.SyncadaSFTPSender, error) {
 	port := os.Getenv("SYNCADA_SFTP_PORT")
-	if port == "" {
-		return nil, fmt.Errorf("Invalid credentials sftp missing SYNCADA_SFTP_PORT")
-	}
 
 	userID := os.Getenv("SYNCADA_SFTP_USER_ID")
-	if userID == "" {
-		return nil, fmt.Errorf("Invalid credentials sftp missing SYNCADA_SFTP_USER_ID")
-	}
 
 	ipAddress := os.Getenv("SYNCADA_SFTP_IP_ADDRESS")
-	if ipAddress == "" {
-		return nil, fmt.Errorf("Invalid credentials sftp missing SYNCADA_SFTP_IP_ADDRESS")
-	}
 
 	password := os.Getenv("SYNCADA_SFTP_PASSWORD")
-	if password == "" {
-		return nil, fmt.Errorf("Invalid credentials sftp missing SYNCADA_SFTP_PASSWORD")
-	}
 
 	inboundDir := os.Getenv("SYNCADA_SFTP_INBOUND_DIRECTORY")
-	if inboundDir == "" {
-		return nil, fmt.Errorf("Invalid credentials sftp missing SYNCADA_SFTP_INBOUND_DIRECTORY")
-	}
 
 	return NewSyncadaSFTPSession(port, userID, ipAddress, password, inboundDir), nil
 }
