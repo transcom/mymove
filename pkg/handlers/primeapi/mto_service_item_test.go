@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 
 	"github.com/gofrs/uuid"
-  
+
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 
