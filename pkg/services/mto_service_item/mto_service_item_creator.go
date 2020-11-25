@@ -110,6 +110,15 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		}
 	}
 
+	if serviceItem.ReService.Code == models.ReServiceCodeDDASIT {
+		// DDASIT must be associated with shipment that has DDFSIT
+		serviceItem, err = o.validateSITStandaloneServiceItem(serviceItem, models.ReServiceCodeDDFSIT)
+
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+
 	for index := range serviceItem.CustomerContacts {
 		createCustContacts := &serviceItem.CustomerContacts[index]
 		err = validateTimeMilitaryField(createCustContacts.TimeMilitary)
