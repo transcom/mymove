@@ -206,6 +206,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		for _, pr := range prs {
 			paymentRequest, _ := fetcher.FetchPaymentRequest(pr.ID)
 			suite.NotNil(paymentRequest.SentToGexAt)
+			suite.Equal(false, paymentRequest.SentToGexAt.IsZero())
 		}
 	})
 
