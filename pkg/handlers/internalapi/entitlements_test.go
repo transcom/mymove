@@ -39,7 +39,7 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns200() {
 	ppm := testdatagen.MakeDefaultPPM(suite.DB())
 	move := ppm.Move
 
-	// When: rank is E1, the orders have dependents and spouse gear, and
+	// When: rank is E1, the orders have dependents
 	// the weight estimate stored is under entitlement of 8000
 	wtgEst := unit.Pound(7500)
 	ppm.WeightEstimate = &wtgEst
