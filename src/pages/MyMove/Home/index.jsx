@@ -509,7 +509,7 @@ const mapStateToProps = (state) => {
     orders: selectActiveOrLatestOrdersFromEntities(state),
     uploadedOrderDocuments: selectUploadedOrders(state),
     serviceMember,
-    backupContacts: serviceMember?.backup_contacts || state.serviceMember.currentBackupContacts || [],
+    backupContacts: serviceMember?.backup_contacts || [],
     signedCertification: selectSignedCertification(state),
     // TODO: change when we support PPM shipments as well
     mtoShipments: selectMTOShipmentsByMoveId(state, move.id),

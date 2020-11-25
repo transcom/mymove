@@ -12,6 +12,7 @@ import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { selectActiveOrLatestOrders } from 'shared/Entities/modules/orders';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import SectionWrapper from 'components/Customer/SectionWrapper';
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
 import './DutyStation.css';
 
@@ -115,11 +116,15 @@ const mapDispatchToProps = {
 function mapStateToProps(state) {
   const formValues = getFormValues(dutyStationFormName)(state);
   const orders = selectActiveOrLatestOrders(state);
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
 
   return {
     values: getFormValues(dutyStationFormName)(state),
-    existingStation: get(state, 'serviceMember.currentServiceMember.current_station', {}),
+    existingStation: serviceMember?.current_station || {},
+    // TODO
     ...state.serviceMember,
+    //
+    currentServiceMember: serviceMember,
     currentStation: get(formValues, 'current_station', {}),
     newDutyStation: get(orders, 'new_duty_station', {}),
   };

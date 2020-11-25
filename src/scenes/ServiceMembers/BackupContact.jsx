@@ -177,6 +177,7 @@ const mapDispatchToProps = {
 
 function mapStateToProps(state) {
   return {
+    // TODO
     currentBackupContacts: state.serviceMember.currentBackupContacts,
     error: state.serviceMember.error,
     schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberBackupContactPayload', {}),

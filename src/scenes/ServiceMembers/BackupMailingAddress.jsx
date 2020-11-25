@@ -8,6 +8,7 @@ import { patchServiceMember, getResponseError } from 'services/internalApi';
 import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import AddressForm from 'shared/AddressForm';
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
 
@@ -89,10 +90,15 @@ const mapDispatchToProps = {
 };
 
 function mapStateToProps(state) {
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+
   return {
     schema: get(state, 'swaggerInternal.spec.definitions.Address', {}),
     values: getFormValues(formName)(state),
+    // TODO
     ...state.serviceMember,
+    //
+    currentServiceMember: serviceMember,
   };
 }
 export default connect(mapStateToProps, mapDispatchToProps)(BackupMailingAddress);

@@ -15,6 +15,7 @@ import SaveCancelButtons from './SaveCancelButtons';
 import './Review.css';
 import profileImage from './images/profile.png';
 import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
 const editBackupContactFormName = 'edit_backup_contact';
 
@@ -123,9 +124,12 @@ class EditBackupContact extends Component {
 }
 
 function mapStateToProps(state) {
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+
   return {
     backupContacts: state.serviceMember.currentBackupContacts,
-    serviceMember: state.serviceMember.currentServiceMember,
+    serviceMember,
+    // TODO
     error: get(state, 'serviceMember.error'),
     hasSubmitError: get(state, 'serviceMember.updateBackupContactError'),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberBackupContactPayload', {}),

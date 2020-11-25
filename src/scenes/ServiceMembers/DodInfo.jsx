@@ -9,6 +9,7 @@ import { updateServiceMember as updateServiceMemberAction } from 'store/entities
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import SectionWrapper from 'components/Customer/SectionWrapper';
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
 const subsetOfFields = ['affiliation', 'edipi', 'rank'];
 
@@ -94,10 +95,15 @@ const mapDispatchToProps = {
 };
 
 function mapStateToProps(state) {
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+
   const props = {
     schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),
     values: getFormValues(formName)(state),
+    // TODO
     ...state.serviceMember,
+    //
+    currentServiceMember: serviceMember,
   };
   return props;
 }

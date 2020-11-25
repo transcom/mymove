@@ -10,7 +10,7 @@ import { withContext } from 'shared/AppContext';
 import { PpmSummary } from './PpmSummary';
 import PpmAlert from './PpmAlert';
 import { selectedMoveType, lastMoveIsCanceled, updateMove } from 'scenes/Moves/ducks';
-import { selectIsProfileComplete } from 'store/entities/selectors';
+import { selectServiceMemberFromLoggedInUser, selectIsProfileComplete } from 'store/entities/selectors';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import {
   selectCurrentUser,
@@ -183,7 +183,7 @@ PpmLanding.defaultProps = {
 
 const mapStateToProps = (state) => {
   const user = selectCurrentUser(state);
-  const serviceMember = get(state, 'serviceMember.currentServiceMember');
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const move = selectActiveOrLatestMove(state);
 
   const props = {
@@ -193,7 +193,7 @@ const mapStateToProps = (state) => {
     isLoggedIn: user.isLoggedIn,
     isProfileComplete: selectIsProfileComplete(state),
     serviceMember: serviceMember || {},
-    backupContacts: state.serviceMember.currentBackupContacts || [],
+    backupContacts: state.serviceMember.currentBackupContacts || [], // TODO
     orders: selectActiveOrLatestOrders(state),
     uploads: selectUploadsForActiveOrders(state),
     move: move,
@@ -202,10 +202,12 @@ const mapStateToProps = (state) => {
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
     loggedInUserError: selectGetCurrentUserIsError(state),
     loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
+    // TODO
     createdServiceMemberIsLoading: state.serviceMember.isLoading,
     createdServiceMemberSuccess: state.serviceMember.hasSubmitSuccess,
     createdServiceMemberError: state.serviceMember.error,
     createdServiceMember: state.serviceMember.currentServiceMember,
+    //
     moveSubmitSuccess: state.signedCertification.moveSubmitSuccess,
     entitlement: loadEntitlementsFromState(state),
     requestPaymentSuccess: state.ppm.requestPaymentSuccess,

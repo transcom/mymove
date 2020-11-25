@@ -12,6 +12,7 @@ import { updateServiceMember as updateServiceMemberAction } from 'store/entities
 import Alert from 'shared/Alert';
 import AddressForm from 'shared/AddressForm';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
 import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
 import './Review.css';
@@ -159,8 +160,11 @@ class EditContact extends Component {
 }
 
 function mapStateToProps(state) {
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+
   return {
-    serviceMember: state.serviceMember.currentServiceMember,
+    serviceMember,
+    // TODO
     error: get(state, 'serviceMember.error'),
     hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
     serviceMemberSchema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),

@@ -22,6 +22,7 @@ import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCentsRange } from 'shared/formatters';
 import { editBegin, editSuccessful, entitlementChangeBegin, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
 import EntitlementBar from 'scenes/EntitlementBar';
 import './Review.css';
@@ -331,12 +332,15 @@ class EditWeight extends Component {
 
 function mapStateToProps(state) {
   const moveID = state.moves.currentMove.id;
-  const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+  const serviceMemberId = serviceMember?.id;
+
   return {
-    serviceMemberId: serviceMemberId,
+    serviceMemberId,
     currentPPM: selectActivePPMForMove(state, moveID),
     incentiveEstimateMin: selectPPMEstimateRange(state).range_min,
     incentiveEstimateMax: selectPPMEstimateRange(state).range_max,
+    // TODO
     error: get(state, 'serviceMember.error'),
     hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
     entitlement: loadEntitlementsFromState(state),

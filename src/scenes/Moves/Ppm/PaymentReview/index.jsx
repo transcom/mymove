@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons/faExclamationCircle';
 import { get, isEmpty } from 'lodash';
 import moment from 'moment';
+
 import Alert from 'shared/Alert';
 import { formatCents } from 'shared/formatters';
 import { SIGNED_CERT_OPTIONS } from 'shared/constants';
@@ -16,6 +17,7 @@ import CustomerAgreement from 'scenes/Legalese/CustomerAgreement';
 import { ppmPaymentLegal } from 'scenes/Legalese/legaleseText';
 import PPMPaymentRequestActionBtns from 'scenes/Moves/Ppm/PPMPaymentRequestActionBtns';
 import { loadEntitlementsFromState } from 'shared/entitlements';
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
 import { submitExpenseDocs } from '../ducks';
 import DocumentsUploaded from './DocumentsUploaded';
@@ -202,6 +204,8 @@ class PaymentReview extends Component {
 
 const mapStateToProps = (state, props) => {
   const { moveId } = props.match.params;
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+
   return {
     moveDocuments: {
       expenses: selectPPMCloseoutDocumentsForMove(state, moveId, ['EXPENSE']),
@@ -211,7 +215,7 @@ const mapStateToProps = (state, props) => {
     currentPPM: selectActivePPMForMove(state, moveId),
     incentiveEstimateMin: selectPPMEstimateRange(state).range_min,
     incentiveEstimateMax: selectPPMEstimateRange(state).range_max,
-    originDutyStationZip: get(state, 'serviceMember.currentServiceMember.current_station.address.postal_code'),
+    originDutyStationZip: serviceMember?.current_station.address.postal_code,
     entitlement: loadEntitlementsFromState(state),
     orders: get(state, 'orders.currentOrders', {}),
   };
