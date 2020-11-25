@@ -92,7 +92,6 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 	}
 
 	err := query.GroupBy("payment_requests.id, service_members.id, moves.id").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
-
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -208,12 +207,13 @@ func paymentRequestsStatusFilter(statuses []string) QueryOption {
 				if strings.EqualFold(status, "Payment requested") {
 					translatedStatuses = append(translatedStatuses, models.PaymentRequestStatusPending.String())
 
-				}
-				if strings.EqualFold(status, "reviewed") {
+				} else if strings.EqualFold(status, "Reviewed") {
 					translatedStatuses = append(translatedStatuses,
 						models.PaymentRequestStatusReviewed.String(),
 						models.PaymentRequestStatusSentToGex.String(),
 						models.PaymentRequestStatusReceivedByGex.String())
+				} else if strings.EqualFold(status, "Paid") {
+					translatedStatuses = append(translatedStatuses, models.PaymentRequestStatusPaid.String())
 				}
 			}
 			query = query.Where("payment_requests.status in (?)", translatedStatuses)

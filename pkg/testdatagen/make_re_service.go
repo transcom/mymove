@@ -74,3 +74,32 @@ func MakeDDFSITReService(db *pop.Connection) models.ReService {
 
 	return reService
 }
+
+// MakeDOFSITReService creates the three origin SIT service codes: DOFSIT, DOPSIT, DOASIT. Returns DOFSIT only.
+func MakeDOFSITReService(db *pop.Connection, assertions Assertions) models.ReService {
+	assertionsDOFSIT := Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDOFSIT,
+		},
+	}
+	// Any assertions passed in should be applied to the DOFSIT only
+	mergeModels(&assertionsDOFSIT, assertions)
+
+	reService := MakeReService(db, assertionsDOFSIT)
+
+	assertionsDOASIT := Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDOASIT,
+		},
+	}
+	MakeReService(db, assertionsDOASIT)
+
+	assertionsDOPSIT := Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDOPSIT,
+		},
+	}
+	MakeReService(db, assertionsDOPSIT)
+
+	return reService
+}
