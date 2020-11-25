@@ -291,6 +291,7 @@ class Home extends Component {
       signedCertification,
       uploadedOrderDocuments,
     } = this.props;
+    const { current_station } = serviceMember;
     const ordersPath = this.hasOrdersNoUpload ? '/orders/upload' : '/orders';
     const shipmentSelectionPath = this.hasAnyShipments
       ? `/moves/${move.id}/select-type`
@@ -415,9 +416,10 @@ class Home extends Component {
                     </SectionWrapper>
                     <Contact
                       header="Contacts"
-                      dutyStationName="Seymour Johnson AFB"
+                      dutyStationName={current_station.transportation_office.name}
                       officeType="Origin Transportation Office"
-                      telephone="(919) 722-5458"
+                      telephone={current_station.transportation_office.phone_lines[0]}
+                      moveSubmitted={move.status === MOVE_STATUSES.SUBMITTED}
                     />
                   </>
                 )}

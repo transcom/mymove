@@ -7,8 +7,20 @@ import Contact from '.';
 export const Basic = () => (
   <div className="grid-container">
     <Contact
-      header={text('Header', 'This is the header')}
       dutyStationName={text('Duty Station Name', 'Some duty station')}
+      header={text('Header', 'This is the header')}
+      officeType={text('Office type', 'Some office type')}
+      telephone={text('Telephone', '(777) 777-7777')}
+    />
+  </div>
+);
+
+export const MoveSubmitted = () => (
+  <div className="grid-container">
+    <Contact
+      dutyStationName={text('Duty Station Name', 'Some duty station')}
+      header={text('Header', 'This is the header')}
+      moveSubmitted
       officeType={text('Office type', 'Some office type')}
       telephone={text('Telephone', '(777) 777-7777')}
     />
