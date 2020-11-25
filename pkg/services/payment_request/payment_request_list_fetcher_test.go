@@ -69,6 +69,82 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 	})
 }
 
+func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter() {
+	paymentRequestListFetcher := NewPaymentRequestListFetcher(suite.DB())
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+
+	// The default GBLOC is "LKNQ" for office users and payment requests
+	pendingPaymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+
+	reviewedPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			Status: models.PaymentRequestStatusReviewed,
+		},
+	})
+
+	sentToGexPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			Status: models.PaymentRequestStatusSentToGex,
+		},
+	})
+	recByGexPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			Status: models.PaymentRequestStatusReceivedByGex,
+		},
+	})
+	paidPaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			Status: models.PaymentRequestStatusPaid,
+		},
+	})
+
+	allPaymentRequests := []models.PaymentRequest{pendingPaymentRequest, reviewedPaymentRequest, sentToGexPaymentRequest, recByGexPaymentRequest, paidPaymentRequest}
+
+	suite.T().Run("Returns all payment requests when no status filter is specified", func(t *testing.T) {
+		_, actualCount, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID,
+			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2)})
+		suite.NoError(err)
+		suite.Equal(len(allPaymentRequests), actualCount)
+	})
+
+	suite.T().Run("Returns all payment requests when all status filters are selected", func(t *testing.T) {
+		_, actualCount, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID,
+			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2), Status: []string{"Payment requested", "Reviewed", "Paid"}})
+		suite.NoError(err)
+		suite.Equal(len(allPaymentRequests), actualCount)
+	})
+
+	suite.T().Run("Returns only those payment requests with the exact status", func(t *testing.T) {
+		pendingPaymentRequests, pendingCount, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID,
+			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2), Status: []string{"Payment requested"}})
+		var pending []models.PaymentRequest
+		pending = *pendingPaymentRequests
+		suite.NoError(err)
+		suite.Equal(1, pendingCount)
+		suite.Equal(pendingPaymentRequest.ID, pending[0].ID)
+
+		reviewedPaymentRequests, reviewedCount, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID,
+			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2), Status: []string{"Reviewed"}})
+		var reviewed []models.PaymentRequest
+		reviewed = *reviewedPaymentRequests
+		suite.NoError(err)
+		suite.Equal(3, reviewedCount)
+
+		reviewedIDs := []uuid.UUID{reviewedPaymentRequest.ID, sentToGexPaymentRequest.ID, recByGexPaymentRequest.ID}
+		for _, pr := range reviewed {
+			suite.Contains(reviewedIDs, pr.ID)
+		}
+
+		paidPaymentRequests, paidCount, err := paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID,
+			&services.FetchPaymentRequestListParams{Page: swag.Int64(1), PerPage: swag.Int64(2), Status: []string{"Paid"}})
+		var paid []models.PaymentRequest
+		paid = *paidPaymentRequests
+		suite.NoError(err)
+		suite.Equal(1, paidCount)
+		suite.Equal(paidPaymentRequest.ID, paid[0].ID)
+	})
+}
+
 func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListUSMCGBLOC() {
 	suite.T().Run("returns USMC payment requests", func(t *testing.T) {
 		officeUUID, _ := uuid.NewV4()
