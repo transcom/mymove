@@ -2,10 +2,12 @@ package primeapi
 
 import (
 	"errors"
+	"fmt"
 	"net/http/httptest"
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -435,4 +437,38 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDDFSITHandler() {
 		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
 		suite.NotZero(okResponse.Payload[0].ID())
 	})
+}
+
+func (suite *HandlerSuite) TestUpdateMTOServiceItemHandler() {
+
+	// Under test: updateMTOServiceItemHandler function
+	// Set up:     We hit the endpoint with any data really
+	// Expected outcome:
+	//             Receive a 501 - Not Implemented Error
+	// SETUP
+	// Create the payload
+	id := uuid.Must(uuid.NewV4())
+	payload := &primemessages.UpdateMTOServiceItemSIT{
+		ReServiceCode:    "DDFSIT",
+		SitDepartureDate: *handlers.FmtDate(time.Now()),
+	}
+	payload.SetID(strfmt.UUID(id.String()))
+
+	// Create the handler
+	handler := UpdateMTOServiceItemHandler{
+		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+	}
+
+	// CALL FUNCTION UNDER TEST
+	req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-service_items/%s", payload.ID()), nil)
+	eTag := etag.GenerateEtag(time.Now())
+	params := mtoserviceitemops.UpdateMTOServiceItemParams{
+		HTTPRequest: req,
+		Body:        payload,
+		IfMatch:     eTag,
+	}
+	response := handler.Handle(params)
+
+	// CHECK RESULTS
+	suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemNotImplemented{}, response)
 }

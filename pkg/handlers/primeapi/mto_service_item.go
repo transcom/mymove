@@ -21,10 +21,10 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// AllowedServiceItemMap is a map of MTOServiceItemModelTypes and their allowed statuses
+// CreateableServiceItemMap is a map of MTOServiceItemModelTypes and their allowed statuses
 // THIS WILL NEED TO BE UPDATED AS WE CONTINUE TO ADD MORE SERVICE ITEMS.
 // We will eventually remove this when all service items are added.
-var AllowedServiceItemMap = map[primemessages.MTOServiceItemModelType]bool{
+var CreateableServiceItemMap = map[primemessages.MTOServiceItemModelType]bool{
 	primemessages.MTOServiceItemModelTypeMTOServiceItemDOFSIT:          true,
 	primemessages.MTOServiceItemModelTypeMTOServiceItemDDFSIT:          true,
 	primemessages.MTOServiceItemModelTypeMTOServiceItemShuttle:         true,
@@ -43,9 +43,9 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	// restrict creation to a list
-	if _, ok := AllowedServiceItemMap[params.Body.ModelType()]; !ok {
+	if _, ok := CreateableServiceItemMap[params.Body.ModelType()]; !ok {
 		// throw error if modelType() not on the list
-		mapKeys := GetMapKeys(AllowedServiceItemMap)
+		mapKeys := GetMapKeys(CreateableServiceItemMap)
 		detailErr := fmt.Sprintf("MTOServiceItem modelType() not allowed: %s ", params.Body.ModelType())
 		verrs := validate.NewErrors()
 		verrs.Add("modelType", fmt.Sprintf("allowed modelType() %v", mapKeys))
@@ -105,6 +105,18 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 
 	mtoServiceItemsPayload := *payloads.MTOServiceItems(mtoServiceItems)
 	return mtoserviceitemops.NewCreateMTOServiceItemOK().WithPayload(mtoServiceItemsPayload)
+}
+
+// UpdateMTOServiceItemHandler is the handler to update MTO shipments
+type UpdateMTOServiceItemHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle handler that updates a mto shipment
+func (h UpdateMTOServiceItemHandler) Handle(params mtoserviceitemops.UpdateMTOServiceItemParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	logger.Error("primeapi.UpdateMTOServiceItemHandler error - This endpoint in not implemented yet")
+	return mtoserviceitemops.NewUpdateMTOServiceItemNotImplemented().WithPayload(payloads.NotImplementedError(nil, h.GetTraceID()))
 }
 
 // GetMapKeys is a helper function that returns the keys that are MTOServiceItemModelTypes from the map
