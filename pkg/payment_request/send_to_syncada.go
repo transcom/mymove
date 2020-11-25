@@ -24,6 +24,7 @@ func SendToSyncada(edi string, gexSender services.GexSender, sftpSender services
 			if err != nil {
 				return err
 			}
+			logger.Info("SendToSyncada() SENT FILE, syncadaFileName: " + syncadaFileName + "")
 		} else {
 			logger.Info("SendToSyncada() is in do not send mode, syncadaFileName: " + syncadaFileName + "")
 		}
