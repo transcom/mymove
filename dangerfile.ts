@@ -98,7 +98,7 @@ const bypassingLinterChecks = async () => {
       // TODO: if a file has ANY acceptable rule, the warning won't be triggered.  Make it so if ANY unacceptable rule is present, it will worn
       if (bypassCodeInDiff === 'eslint-disable' || bypassCodeInDiff === 'eslint-disable-next-lie') {
         for (const rule in okBypassRules) {
-          if (diff.diff.includes(bypassCodeInDiff + okBypassRules[`${rule}`])) {
+          if (diff.diff.includes(bypassCodeInDiff + ' ' + okBypassRules[`${rule}`])) {
             hasBypass = false;
             break;
           }
