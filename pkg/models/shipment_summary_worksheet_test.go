@@ -110,9 +110,11 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	suite.Equal(unit.Pound(rankWtgAllotment.ProGearWeight), ssd.WeightAllotment.ProGear)
 	suite.Equal(unit.Pound(0), ssd.WeightAllotment.SpouseProGear)
 	suite.Require().NotNil(ssd.ServiceMember.Rank)
-	totalEntitlement, err := models.GetEntitlement(*ssd.ServiceMember.Rank, ssd.Order.HasDependents, ssd.Order.SpouseHasProGear)
+	weightAllotment := models.GetWeightAllotment(*ssd.ServiceMember.Rank)
+	// E_9 rank, no dependents, no spouse pro-gear
+	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight
 	suite.Require().Nil(err)
-	suite.Equal(unit.Pound(totalEntitlement), ssd.WeightAllotment.TotalWeight)
+	suite.Equal(unit.Pound(totalWeight), ssd.WeightAllotment.TotalWeight)
 	suite.Require().Len(ssd.MovingExpenseDocuments, 2)
 	suite.NotNil(ssd.MovingExpenseDocuments[0].ID)
 	suite.NotNil(ssd.MovingExpenseDocuments[1].ID)
@@ -233,9 +235,10 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 	suite.Equal(unit.Pound(rankWtgAllotment.ProGearWeight), ssd.WeightAllotment.ProGear)
 	suite.Equal(unit.Pound(0), ssd.WeightAllotment.SpouseProGear)
 	suite.Require().NotNil(ssd.ServiceMember.Rank)
-	totalEntitlement, err := models.GetEntitlement(*ssd.ServiceMember.Rank, ssd.Order.HasDependents, ssd.Order.SpouseHasProGear)
-	suite.Require().Nil(err)
-	suite.Equal(unit.Pound(totalEntitlement), ssd.WeightAllotment.TotalWeight)
+	weightAllotment := models.GetWeightAllotment(*ssd.ServiceMember.Rank)
+	// E_9 rank, no dependents, no spouse pro-gear
+	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight
+	suite.Equal(unit.Pound(totalWeight), ssd.WeightAllotment.TotalWeight)
 	suite.Require().Len(ssd.MovingExpenseDocuments, 2)
 	suite.NotNil(ssd.MovingExpenseDocuments[0].ID)
 	suite.NotNil(ssd.MovingExpenseDocuments[1].ID)
@@ -617,11 +620,10 @@ func (suite *ModelSuite) TestFormatSSWGetEntitlement() {
 	spouseHasProGear := true
 	hasDependants := true
 	allotment := models.GetWeightAllotment(models.ServiceMemberRankE1)
-	totalEntitlement, err := models.GetEntitlement(models.ServiceMemberRankE1, hasDependants, spouseHasProGear)
-	suite.NoError(err)
+	expectedTotalWeight := allotment.TotalWeightSelfPlusDependents + allotment.ProGearWeight + allotment.ProGearWeightSpouse
 	sswEntitlement := models.SSWGetEntitlement(models.ServiceMemberRankE1, hasDependants, spouseHasProGear)
 
-	suite.Equal(unit.Pound(totalEntitlement), sswEntitlement.TotalWeight)
+	suite.Equal(unit.Pound(expectedTotalWeight), sswEntitlement.TotalWeight)
 	suite.Equal(unit.Pound(allotment.TotalWeightSelfPlusDependents), sswEntitlement.Entitlement)
 	suite.Equal(unit.Pound(allotment.ProGearWeightSpouse), sswEntitlement.SpouseProGear)
 	suite.Equal(unit.Pound(allotment.ProGearWeight), sswEntitlement.ProGear)
@@ -631,11 +633,10 @@ func (suite *ModelSuite) TestFormatSSWGetEntitlementNoDependants() {
 	spouseHasProGear := false
 	hasDependants := false
 	allotment := models.GetWeightAllotment(models.ServiceMemberRankE1)
-	totalEntitlement, err := models.GetEntitlement(models.ServiceMemberRankE1, hasDependants, spouseHasProGear)
-	suite.NoError(err)
+	expectedTotalWeight := allotment.TotalWeightSelf + allotment.ProGearWeight
 	sswEntitlement := models.SSWGetEntitlement(models.ServiceMemberRankE1, hasDependants, spouseHasProGear)
 
-	suite.Equal(unit.Pound(totalEntitlement), sswEntitlement.TotalWeight)
+	suite.Equal(unit.Pound(expectedTotalWeight), sswEntitlement.TotalWeight)
 	suite.Equal(unit.Pound(allotment.TotalWeightSelf), sswEntitlement.Entitlement)
 	suite.Equal(unit.Pound(allotment.ProGearWeight), sswEntitlement.ProGear)
 	suite.Equal(unit.Pound(0), sswEntitlement.SpouseProGear)

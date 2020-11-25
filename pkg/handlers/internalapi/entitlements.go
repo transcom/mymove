@@ -88,7 +88,7 @@ func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlem
 
 	}
 
-	smEntitlement, err := models.GetEntitlement(*serviceMember.Rank, orders.HasDependents, orders.SpouseHasProGear)
+	smEntitlement, err := models.GetEntitlement(*serviceMember.Rank, orders.HasDependents)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

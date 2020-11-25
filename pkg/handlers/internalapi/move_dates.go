@@ -42,8 +42,7 @@ func calculateMoveDatesFromMove(db *pop.Connection, planner route.Planner, moveI
 		return summary, err
 	}
 
-	entitlement, err := models.GetEntitlement(*move.Orders.ServiceMember.Rank, move.Orders.HasDependents,
-		move.Orders.SpouseHasProGear)
+	entitlement, err := models.GetEntitlement(*move.Orders.ServiceMember.Rank, move.Orders.HasDependents)
 	if err != nil {
 		return summary, err
 	}
