@@ -72,7 +72,7 @@ View the [frontend file org ADR](https://github.com/transcom/mymove/blob/master/
 const bypassingLinterChecks = async () => {
   // load all modified and new files
   const allFiles = danger.git.modified_files.concat(danger.git.created_files);
-  const bypassCodes = ['#nosec', 'eslint-disable', 'eslint-disable-next-line'];
+  const bypassCodes = ['eslint-disable', 'eslint-disable-next-line', '#nosec'];
   const okBypassRules = [
     'no-underscore-dangle',
     'prefer-object-spread',
@@ -96,7 +96,7 @@ const bypassingLinterChecks = async () => {
     const diffsWithbypassCodes = bypassCodes.find((b) => diff.diff.includes(b));
     if (diffsWithbypassCodes) {
       for (const rule in okBypassRules) {
-        if (diffsWithbypassCodes.includes(rule) === false) {
+        if (diff.diff.includes(okBypassRules[`${rule}`]) === false) {
           addedByPassCode = true;
           break;
         }
