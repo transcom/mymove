@@ -87,7 +87,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 	originDutyStation := serviceMember.DutyStation
 	grade := (*string)(serviceMember.Rank)
 
-	weight, entitlementErr := models.GetEntitlement(*serviceMember.Rank, *payload.HasDependents, *payload.SpouseHasProGear)
+	weight, entitlementErr := models.GetEntitlement(*serviceMember.Rank, *payload.HasDependents)
 	if entitlementErr != nil {
 		return handlers.ResponseForError(logger, entitlementErr)
 	}
