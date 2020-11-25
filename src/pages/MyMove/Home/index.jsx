@@ -186,7 +186,7 @@ class Home extends Component {
   };
 
   renderCustomerHeader = () => {
-    const { serviceMember, orders } = this.props;
+    const { serviceMember, orders, move } = this.props;
     if (!this.hasOrders) {
       return (
         <p>
@@ -200,7 +200,18 @@ class Home extends Component {
         <strong>{serviceMember.current_station.name}.</strong> Report by{' '}
         <strong>{moment(orders.report_by_date).format('DD MMM YYYY')}.</strong>
         <br />
-        Weight allowance: <strong>{serviceMember.weight_allotment.total_weight_self} lbs</strong>
+        <div className={styles.subheaderContainer}>
+          <div className={styles.subheaderWeightAllowance}>
+            <div>Weight allowance:</div>
+            <strong>{serviceMember.weight_allotment.total_weight_self} lbs</strong>
+          </div>
+          {move.locator && (
+            <div className={styles.subheaderMoveCode}>
+              <div>Move code:</div>
+              <strong>#{move.locator}</strong>
+            </div>
+          )}
+        </div>
       </p>
     );
   };

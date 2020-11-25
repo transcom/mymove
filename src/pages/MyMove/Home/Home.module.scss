@@ -1,5 +1,6 @@
 @import 'shared/styles/colors';
 @import 'shared/styles/_basics';
+@import 'shared/styles/_variables';
 
 .grid-container {
   margin-left: auto;
@@ -66,5 +67,26 @@
 @media print {
   .homeContainer {
     display: none;
+  }
+}
+
+@media (min-width: $tablet) {
+  .subheaderContainer {
+    .subheaderWeightAllowance {
+      margin-right: 15px;
+    }
+
+    .subheaderWeightAllowance,
+    .subheaderMoveCode {
+      display: inline-block;
+
+      > * {
+        display: inline-block;
+      }
+
+      div:first-child {
+        margin-right: 5px;
+      }
+    }
   }
 }
