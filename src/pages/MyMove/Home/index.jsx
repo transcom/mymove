@@ -190,14 +190,14 @@ class Home extends Component {
     if (!this.hasOrders) {
       return (
         <p>
-          You&apos;re leaving <strong>{serviceMember?.current_station?.name}</strong>
+          You&apos;re leaving <strong>{serviceMember.current_station?.name}</strong>
         </p>
       );
     }
     return (
       <p>
         You&apos;re moving to <strong>{orders.new_duty_station.name}</strong> from{' '}
-        <strong>{serviceMember?.current_station?.name}.</strong> Report by{' '}
+        <strong>{serviceMember.current_station?.name}.</strong> Report by{' '}
         <strong>{moment(orders.report_by_date).format('DD MMM YYYY')}.</strong>
         <br />
         Weight allowance: <strong>{serviceMember.weight_allotment.total_weight_self} lbs</strong>
@@ -307,7 +307,7 @@ class Home extends Component {
             <header data-testid="customer-header" className={styles['customer-header']}>
               <div className={`usa-prose grid-container ${styles['grid-container']}`}>
                 <h2>
-                  {serviceMember?.first_name} {serviceMember?.last_name}
+                  {serviceMember.first_name} {serviceMember.last_name}
                 </h2>
                 {this.renderCustomerHeader()}
               </div>
