@@ -1548,7 +1548,7 @@ func init() {
               "lastName",
               "dodID",
               "branch",
-              "moveID",
+              "locator",
               "status",
               "destinationDutyStation"
             ],
@@ -1574,7 +1574,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "moveID",
+            "name": "locator",
             "in": "query"
           },
           {
@@ -1645,7 +1645,7 @@ func init() {
           {
             "enum": [
               "lastName",
-              "moveID",
+              "locator",
               "submittedAt",
               "branch",
               "status",
@@ -1691,7 +1691,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "moveID",
+            "name": "locator",
             "in": "query"
           },
           {
@@ -5396,7 +5396,7 @@ func init() {
               "lastName",
               "dodID",
               "branch",
-              "moveID",
+              "locator",
               "status",
               "destinationDutyStation"
             ],
@@ -5422,7 +5422,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "moveID",
+            "name": "locator",
             "in": "query"
           },
           {
@@ -5499,7 +5499,7 @@ func init() {
           {
             "enum": [
               "lastName",
-              "moveID",
+              "locator",
               "submittedAt",
               "branch",
               "status",
@@ -5545,7 +5545,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "moveID",
+            "name": "locator",
             "in": "query"
           },
           {

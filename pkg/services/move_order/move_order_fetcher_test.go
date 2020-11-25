@@ -294,14 +294,14 @@ func (suite *MoveOrderServiceSuite) TestListMovesWithSortOrder() {
 	suite.Equal("Spacemen, Leo", *moves[1].Orders.ServiceMember.LastName+", "+*moves[1].Orders.ServiceMember.FirstName)
 
 	// Sort by locator
-	params = services.ListMoveOrderParams{Sort: swag.String("moveID"), Order: swag.String("asc")}
+	params = services.ListMoveOrderParams{Sort: swag.String("locator"), Order: swag.String("asc")}
 	moves, _, err = moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
 	suite.NoError(err)
 	suite.Equal(2, len(moves))
 	suite.Equal(expectedMove1.Locator, moves[0].Locator)
 	suite.Equal(expectedMove2.Locator, moves[1].Locator)
 
-	params = services.ListMoveOrderParams{Sort: swag.String("moveID"), Order: swag.String("desc")}
+	params = services.ListMoveOrderParams{Sort: swag.String("locator"), Order: swag.String("desc")}
 	moves, _, err = moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
 	suite.NoError(err)
 	suite.Equal(2, len(moves))
