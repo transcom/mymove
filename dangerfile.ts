@@ -92,14 +92,19 @@ const bypassingLinterChecks = async () => {
 
   for (let i = 0; i < diffs.length; i += 1) {
     const diff = diffs[Number(i)];
-    const diffsWithbypassCodes = bypassCodes.find((b) => diff.diff.includes(b));
-    if (diffsWithbypassCodes) {
-      for (const rule in okBypassRules) {
-        if (diff.diff.includes(okBypassRules[`${rule}`]) === false) {
-          addedByPassCode = true;
-          break;
+    const bypassCodeInDiff = bypassCodes.find((b) => diff.diff.includes(b));
+    if (bypassCodeInDiff) {
+      addedByPassCode = true;
+      if (bypassCodeInDiff === 'eslint-disable' || bypassCodeInDiff === 'eslint-disable-next-lie') {
+        for (const rule in okBypassRules) {
+          if (diff.diff.includes(bypassCodeInDiff + okBypassRules[`${rule}`])) {
+            addedByPassCode = false;
+            break;
+          }
         }
       }
+      addedByPassCode = true;
+      break;
     }
   }
 
