@@ -121,7 +121,7 @@
     "@storybook/addon-actions": "^6.1.5",
     "@storybook/addon-info": "^5.3.19",
     "@storybook/addon-knobs": "^6.1.5",
-    "@storybook/addon-links": "^6.1.5",
+    "@storybook/addon-links": "^6.1.6",
     "@storybook/addon-viewport": "^6.1.0",
     "@storybook/addons": "^6.1.5",
     "@storybook/react": "^5.3.19",
