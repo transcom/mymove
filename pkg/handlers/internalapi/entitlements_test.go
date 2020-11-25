@@ -40,8 +40,8 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns200() {
 	move := ppm.Move
 
 	// When: rank is E1, the orders have dependents and spouse gear, and
-	// the weight estimate stored is under entitlement of 10500
-	wtgEst := unit.Pound(10000)
+	// the weight estimate stored is under entitlement of 8000
+	wtgEst := unit.Pound(7500)
 	ppm.WeightEstimate = &wtgEst
 	suite.MustSave(&ppm)
 
