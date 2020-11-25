@@ -87,19 +87,19 @@ const bypassingLinterChecks = async () => {
     'prefer-default-export',
     'no-named-as-default',
   ];
-  let addedByPassCode = false;
+  let hasBypass = false;
   const diffs = await Promise.all(allFiles.map((f) => danger.git.diffForFile(f)));
 
   for (let i = 0; i < diffs.length; i += 1) {
     const diff = diffs[Number(i)];
     const bypassCodeInDiff = bypassCodes.find((b) => diff.diff.includes(b));
     if (bypassCodeInDiff) {
-      addedByPassCode = true;
+      hasBypass = true;
       // TODO: if a file has ANY acceptable rule, the warning won't be triggered.  Make it so if ANY unacceptable rule is present, it will worn
       if (bypassCodeInDiff === 'eslint-disable' || bypassCodeInDiff === 'eslint-disable-next-lie') {
         for (const rule in okBypassRules) {
           if (diff.diff.includes(bypassCodeInDiff + okBypassRules[`${rule}`])) {
-            addedByPassCode = false;
+            hasBypass = false;
             break;
           }
         }
@@ -108,7 +108,7 @@ const bypassingLinterChecks = async () => {
     }
   }
 
-  if (addedByPassCode === true) {
+  if (hasBypass === true) {
     warn(
       `It looks like you are attempting to bypass a linter rule, which is not a sustainable solution to meet
       security compliance rules. Please remove the bypass code and address the underlying issue. cc: @transcom/Truss-Pamplemoose`,
