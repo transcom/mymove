@@ -202,12 +202,12 @@ class Home extends Component {
         <br />
         <div className={styles.subheaderContainer}>
           <div className={styles.subheaderWeightAllowance}>
-            <div>Weight allowance:</div>
+            <div>Weight allowance</div>
             <strong>{serviceMember.weight_allotment.total_weight_self} lbs</strong>
           </div>
           {move.locator && (
             <div className={styles.subheaderMoveCode}>
-              <div>Move code:</div>
+              <div>Move code</div>
               <strong>#{move.locator}</strong>
             </div>
           )}

@@ -70,6 +70,25 @@
   }
 }
 
+@media (max-width: $tablet) {
+  .subheaderContainer {
+    margin-top: 12px;
+
+    > div {
+      display: inline-block;
+      min-width: 159px;
+    }
+
+    .subheaderWeightAllowance,
+    .subheaderMoveCode {
+      > div:first-child {
+        font-size: 13px;
+        color: $base-light;
+      }
+    }
+  }
+}
+
 @media (min-width: $tablet) {
   .subheaderContainer {
     .subheaderWeightAllowance {
@@ -82,6 +101,15 @@
 
       > * {
         display: inline-block;
+      }
+
+      > div:first-child {
+        font-size: 13px;
+        color: $base-light;
+
+        &::after {
+          content: ':';
+        }
       }
 
       div:first-child {
