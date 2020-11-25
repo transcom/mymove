@@ -300,6 +300,7 @@ class Home extends Component {
     const profileEditPath = '/moves/review/edit-profile';
     const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
     const allSortedShipments = this.sortAllShipments(mtoShipments, currentPpm);
+
     return (
       <>
         <div className={styles.homeContainer}>
