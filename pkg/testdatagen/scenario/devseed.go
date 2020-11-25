@@ -30,6 +30,7 @@ var DevSeedScenario = devSeedScenario{"dev_seed"}
 var estimatedWeight = unit.Pound(1400)
 var actualWeight = unit.Pound(2000)
 var hhgMoveType = models.SelectedMoveTypeHHG
+var ppmMoveType = models.SelectedMoveTypePPM
 
 func createPPMOfficeUser(db *pop.Connection) {
 	/*
@@ -316,7 +317,7 @@ func createMoveWithPPMAndHHG(db *pop.Connection, userUploader *uploader.UserUplo
 			PersonalEmail: models.StringPointer(email),
 		},
 	})
-	// currently don't have "combo move" selection option, so testing ppm office when type is HHG
+	// SelectedMoveType could be either HHG or PPM depending on creation order of combo
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Order: models.Order{
 			ServiceMemberID: uuid.FromStringOrNil(smIDCombo),
@@ -325,7 +326,7 @@ func createMoveWithPPMAndHHG(db *pop.Connection, userUploader *uploader.UserUplo
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("7024c8c5-52ca-4639-bf69-dd8238308c98"),
 			Locator:          "COMBOS",
-			SelectedMoveType: &hhgMoveType,
+			SelectedMoveType: &ppmMoveType,
 		},
 	})
 

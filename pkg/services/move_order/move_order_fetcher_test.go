@@ -3,6 +3,8 @@ package moveorder
 import (
 	"testing"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/go-openapi/swag"
@@ -75,9 +77,10 @@ func (suite *MoveOrderServiceSuite) TestListMoves() {
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
 
 	suite.T().Run("returns moves", func(t *testing.T) {
-		moves, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &services.ListMoveOrderParams{PerPage: swag.Int64(1), Page: swag.Int64(1)})
+		moves, moveCount, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &services.ListMoveOrderParams{})
 
 		suite.FatalNoError(err)
+		suite.Equal(1, moveCount)
 		suite.Len(moves, 1)
 
 		move := moves[0]
@@ -119,6 +122,21 @@ func (suite *MoveOrderServiceSuite) TestListMoves() {
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
+	})
+
+	suite.T().Run("includes combo hhg and ppm moves", func(t *testing.T) {
+		// Create a combination HHG and PPM move and make sure it's included
+		expectedComboMove := testdatagen.MakeHHGPPMMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+
+		moves, moveCount, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &services.ListMoveOrderParams{})
+
+		suite.FatalNoError(err)
+		suite.Equal(2, moveCount)
+		suite.Len(moves, 2)
+
+		moveIDs := []uuid.UUID{moves[0].ID, moves[1].ID}
+
+		suite.Contains(moveIDs, expectedComboMove.ID)
 	})
 
 	suite.T().Run("returns moves filtered by service member affiliation", func(t *testing.T) {

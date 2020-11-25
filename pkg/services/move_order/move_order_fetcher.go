@@ -71,7 +71,7 @@ func (f moveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *service
 		InnerJoin("transportation_offices as origin_to", "origin_ds.transportation_office_id = origin_to.id").
 		LeftJoin("duty_stations as dest_ds", "dest_ds.id = orders.new_duty_station_id").
 		Where("show = ?", swag.Bool(true)).
-		Where("moves.selected_move_type NOT IN (?)", models.SelectedMoveTypePPM, models.SelectedMoveTypeUB, models.SelectedMoveTypePOV)
+		Where("moves.selected_move_type NOT IN (?)", models.SelectedMoveTypeUB, models.SelectedMoveTypePOV)
 
 	for _, option := range options {
 		if option != nil {
