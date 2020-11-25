@@ -4,6 +4,8 @@ import (
 	"io"
 	"log"
 
+	officeuser "github.com/transcom/mymove/pkg/services/office_user"
+
 	"github.com/transcom/mymove/pkg/services/fetch"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -35,7 +37,7 @@ func NewInternalAPI(context handlers.HandlerContext) *internalops.MymoveAPI {
 	builder := query.NewQueryBuilder(context.DB())
 	fetcher := fetch.NewFetcher(builder)
 
-	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{context, *builder}
+	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{context, officeuser.NewOfficeUserFetcherPop(context.DB())}
 	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler{context}
 	internalAPI.CertificationIndexSignedCertificationHandler = IndexSignedCertificationsHandler{context}
 

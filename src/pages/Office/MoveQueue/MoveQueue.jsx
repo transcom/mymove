@@ -3,27 +3,16 @@ import { withRouter } from 'react-router-dom';
 
 import { HistoryShape } from 'types/router';
 import { createHeader } from 'components/Table/utils';
-import { useMovesQueueQueries } from 'hooks/queries';
-import { serviceMemberAgencyLabel } from 'shared/formatters';
+import { useMovesQueueQueries, useUserQueries } from 'hooks/queries';
+import { serviceMemberAgencyLabel, moveStatusLabel } from 'shared/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
-import { BRANCH_OPTIONS, MOVE_STATUS_OPTIONS } from 'constants/queues';
+import { BRANCH_OPTIONS, MOVE_STATUS_OPTIONS, GBLOC } from 'constants/queues';
 import TableQueue from 'components/Table/TableQueue';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
 
-const moveStatusOptions = Object.keys(MOVE_STATUS_OPTIONS).map((key) => ({
-  value: key,
-  label: MOVE_STATUS_OPTIONS[`${key}`],
-}));
-
-const branchFilterOptions = [
-  { value: '', label: 'All' },
-  ...Object.keys(BRANCH_OPTIONS).map((key) => ({
-    value: key,
-    label: BRANCH_OPTIONS[`${key}`],
-  })),
-];
-
-const columns = [
+const columns = (showBranchFilter = true) => [
   createHeader('ID', 'id'),
   createHeader(
     'Customer name',
@@ -39,13 +28,20 @@ const columns = [
     id: 'dodID',
     isFilterable: true,
   }),
-  createHeader('Status', 'status', {
-    isFilterable: true,
-    // eslint-disable-next-line react/jsx-props-no-spreading
-    Filter: (props) => <MultiSelectCheckBoxFilter options={moveStatusOptions} {...props} />,
-  }),
+  createHeader(
+    'Status',
+    (row) => {
+      return moveStatusLabel(row.status);
+    },
+    {
+      id: 'status',
+      isFilterable: true,
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      Filter: (props) => <MultiSelectCheckBoxFilter options={MOVE_STATUS_OPTIONS} {...props} />,
+    },
+  ),
   createHeader('Move Code', 'locator', {
-    id: 'moveID',
+    id: 'locator',
     isFilterable: true,
   }),
   createHeader(
@@ -55,12 +51,14 @@ const columns = [
     },
     {
       id: 'branch',
-      isFilterable: true,
-      // eslint-disable-next-line react/jsx-props-no-spreading
-      Filter: (props) => <SelectFilter options={branchFilterOptions} {...props} />,
+      isFilterable: showBranchFilter,
+      Filter: (props) => (
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        <SelectFilter options={BRANCH_OPTIONS} {...props} />
+      ),
     },
   ),
-  createHeader('# of shipments', 'shipmentsCount'),
+  createHeader('# of shipments', 'shipmentsCount', { disableSortBy: true }),
   createHeader('Destination duty station', 'destinationDutyStation.name', {
     id: 'destinationDutyStation',
     isFilterable: true,
@@ -69,9 +67,21 @@ const columns = [
 ];
 
 const MoveQueue = ({ history }) => {
+  const {
+    // eslint-disable-next-line camelcase
+    data: { office_user },
+    isLoading,
+    isError,
+  } = useUserQueries();
+
+  const showBranchFilter = office_user?.transportation_office?.gbloc !== GBLOC.USMC;
+
   const handleClick = (values) => {
     history.push(`/moves/${values.id}/details`);
   };
+
+  if (isLoading) return <LoadingPlaceholder />;
+  if (isError) return <SomethingWentWrong />;
 
   return (
     <TableQueue
@@ -82,7 +92,7 @@ const MoveQueue = ({ history }) => {
       defaultSortedColumns={[{ id: 'status', desc: false }]}
       disableMultiSort
       disableSortBy={false}
-      columns={columns}
+      columns={columns(showBranchFilter)}
       title="All moves"
       handleClick={handleClick}
       useQueries={useMovesQueueQueries}

@@ -52,7 +52,7 @@ type GetMovesQueueParams struct {
 	/*
 	  In: query
 	*/
-	MoveID *string
+	Locator *string
 	/*direction of sort order if applied
 	  In: query
 	*/
@@ -107,8 +107,8 @@ func (o *GetMovesQueueParams) BindRequest(r *http.Request, route *middleware.Mat
 		res = append(res, err)
 	}
 
-	qMoveID, qhkMoveID, _ := qs.GetOK("moveID")
-	if err := o.bindMoveID(qMoveID, qhkMoveID, route.Formats); err != nil {
+	qLocator, qhkLocator, _ := qs.GetOK("locator")
+	if err := o.bindLocator(qLocator, qhkLocator, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -215,8 +215,8 @@ func (o *GetMovesQueueParams) bindLastName(rawData []string, hasKey bool, format
 	return nil
 }
 
-// bindMoveID binds and validates parameter MoveID from query.
-func (o *GetMovesQueueParams) bindMoveID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+// bindLocator binds and validates parameter Locator from query.
+func (o *GetMovesQueueParams) bindLocator(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -228,7 +228,7 @@ func (o *GetMovesQueueParams) bindMoveID(rawData []string, hasKey bool, formats 
 		return nil
 	}
 
-	o.MoveID = &raw
+	o.Locator = &raw
 
 	return nil
 }
@@ -334,7 +334,7 @@ func (o *GetMovesQueueParams) bindSort(rawData []string, hasKey bool, formats st
 // validateSort carries on validations for parameter Sort
 func (o *GetMovesQueueParams) validateSort(formats strfmt.Registry) error {
 
-	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "dodID", "branch", "moveID", "status", "destinationDutyStation"}, true); err != nil {
+	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "dodID", "branch", "locator", "status", "destinationDutyStation"}, true); err != nil {
 		return err
 	}
 

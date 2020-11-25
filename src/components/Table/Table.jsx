@@ -36,11 +36,11 @@ const Table = ({
           {headerGroups.map((headerGroup, hgIndex) => (
             <Fragment key={`headerGroup${hgIndex}`}>
               <tr {...headerGroup.getHeaderGroupProps()}>
-                {headerGroup.headers.map((column, headerIndex) => {
+                {headerGroup.headers.map((column) => {
                   const sortProperties = column.canSort ? column.getSortByToggleProps() : {};
                   return (
                     <th
-                      key={`header${headerIndex}`}
+                      key={`header-${column.id}`}
                       className={classNames({
                         [`${styles.sortAscending}`]: column.isSortedDesc === false, // undefined if column is not sorted
                         [`${styles.sortDescending}`]: column.isSortedDesc,
@@ -71,11 +71,10 @@ const Table = ({
             prepareRow(row);
             return (
               <tr data-uuid={row.values.id} onClick={() => handleClick(row.values)} {...row.getRowProps()}>
-                {row.cells.map((cell, index) => {
+                {row.cells.map((cell) => {
                   return (
-                    // eslint-disable-next-line react/no-array-index-key
                     <td
-                      key={`cell${index}`}
+                      key={`${row.values.id}-${cell.column.id}`}
                       className={cell.column.id}
                       data-testid={`${cell.column.id}-${cell.row.id}`}
                       {...cell.getCellProps()}

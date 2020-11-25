@@ -3,7 +3,13 @@
 @import '../../shared/styles/colors';
 
 .TableQueue {
+  @include u-display(flex);
+  flex-direction: column;
+  flex: auto;
+
   .tableContainer {
+    flex: auto;
+
     @include u-margin-top(1);
     max-width: 100%;
     overflow-x: auto;

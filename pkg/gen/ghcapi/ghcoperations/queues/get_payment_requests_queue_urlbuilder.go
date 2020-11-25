@@ -19,9 +19,11 @@ type GetPaymentRequestsQueueURL struct {
 	DestinationDutyStation *string
 	DodID                  *string
 	LastName               *string
-	MoveID                 *string
+	Locator                *string
+	Order                  *string
 	Page                   *int64
 	PerPage                *int64
+	Sort                   *string
 	Status                 []string
 	SubmittedAt            *string
 
@@ -91,12 +93,20 @@ func (o *GetPaymentRequestsQueueURL) Build() (*url.URL, error) {
 		qs.Set("lastName", lastNameQ)
 	}
 
-	var moveIDQ string
-	if o.MoveID != nil {
-		moveIDQ = *o.MoveID
+	var locatorQ string
+	if o.Locator != nil {
+		locatorQ = *o.Locator
 	}
-	if moveIDQ != "" {
-		qs.Set("moveID", moveIDQ)
+	if locatorQ != "" {
+		qs.Set("locator", locatorQ)
+	}
+
+	var orderQ string
+	if o.Order != nil {
+		orderQ = *o.Order
+	}
+	if orderQ != "" {
+		qs.Set("order", orderQ)
 	}
 
 	var pageQ string
@@ -113,6 +123,14 @@ func (o *GetPaymentRequestsQueueURL) Build() (*url.URL, error) {
 	}
 	if perPageQ != "" {
 		qs.Set("perPage", perPageQ)
+	}
+
+	var sortQ string
+	if o.Sort != nil {
+		sortQ = *o.Sort
+	}
+	if sortQ != "" {
+		qs.Set("sort", sortQ)
 	}
 
 	var statusIR []string

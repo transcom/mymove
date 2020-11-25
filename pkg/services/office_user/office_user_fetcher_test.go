@@ -5,6 +5,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/transcom/mymove/pkg/testdatagen"
+
 	"github.com/gobuffalo/validate/v3"
 
 	"github.com/gofrs/uuid"
@@ -79,5 +81,26 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUser() {
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")
 		suite.Equal(models.OfficeUser{}, officeUser)
+	})
+}
+
+func (suite *OfficeUserServiceSuite) TestFetchOfficeUserPop() {
+	suite.T().Run("returns office user on success", func(t *testing.T) {
+		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		fetcher := NewOfficeUserFetcherPop(suite.DB())
+
+		fetchedUser, err := fetcher.FetchOfficeUserByID(officeUser.ID)
+
+		suite.NoError(err)
+		suite.Equal(officeUser.ID, fetchedUser.ID)
+	})
+
+	suite.T().Run("returns zero value office user on error", func(t *testing.T) {
+		fetcher := NewOfficeUserFetcherPop(suite.DB())
+		officeUser, err := fetcher.FetchOfficeUserByID(uuid.Nil)
+
+		suite.Error(err)
+		suite.Equal(err.Error(), "sql: no rows in result set")
+		suite.Equal(uuid.Nil, officeUser.ID)
 	})
 }
