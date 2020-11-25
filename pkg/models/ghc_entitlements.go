@@ -36,7 +36,8 @@ func (e *Entitlement) WeightAllotment() *WeightAllotment {
 }
 
 // AuthorizedWeight returns authorized weight. If authorized weight has not been
-// stored in DBAuthorizedWeight use TotalWeightSelf
+// stored in DBAuthorizedWeight use either TotalWeightSelf with no dependents or TotalWeightSelfPlusDependents
+// with dependents.
 func (e *Entitlement) AuthorizedWeight() *int {
 	switch {
 	case e.DBAuthorizedWeight != nil:
