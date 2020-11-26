@@ -77,15 +77,15 @@ const bypassingLinterChecks = async () => {
     'prefer-object-spread',
     'object-shorthand',
     'camelcase',
-    'jsx-props-no-spreading',
-    'destructuring-assignment',
-    'forbid-prop-types',
-    'prefer-stateless-function',
-    'sort-comp',
+    'react/jsx-props-no-spreading',
+    'react/destructuring-assignment',
+    'react/forbid-prop-types',
+    'react/prefer-stateless-function',
+    'react/sort-comp',
     'import/no-extraneous-dependencies',
-    'order',
-    'prefer-default-export',
-    'no-named-as-default',
+    'import/order',
+    'import/prefer-default-export',
+    'import/no-named-as-default',
   ];
   let hasBypass = false;
   const diffs = await Promise.all(allFiles.map((f) => danger.git.diffForFile(f)));
