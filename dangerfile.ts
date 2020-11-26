@@ -71,7 +71,7 @@ View the [frontend file org ADR](https://github.com/transcom/mymove/blob/master/
 const bypassingLinterChecks = async () => {
   // load all modified and new files
   const allFiles = danger.git.modified_files.concat(danger.git.created_files);
-  const bypassCodes = ['eslint-disable', 'eslint-disable-next-line', '#nosec'];
+  const bypassCodes = ['eslint-disable-next-line', 'eslint-disable', '#nosec'];
   const okBypassRules = [
     'no-underscore-dangle',
     'prefer-object-spread',
@@ -92,19 +92,29 @@ const bypassingLinterChecks = async () => {
 
   for (let i = 0; i < diffs.length; i += 1) {
     const diff = diffs[Number(i)];
-    const bypassCodeInDiff = bypassCodes.find((b) => diff.diff.includes(b));
-    if (bypassCodeInDiff) {
-      hasBypass = true;
-      // TODO: if a file has ANY acceptable rule, the warning won't be triggered.  Make it so if ANY unacceptable rule is present, it will worn
-      if (bypassCodeInDiff === 'eslint-disable' || bypassCodeInDiff === 'eslint-disable-next-lie') {
-        for (const rule in okBypassRules) {
-          if (diff.diff.includes(bypassCodeInDiff + ' ' + okBypassRules[`${rule}`])) {
-            hasBypass = false;
-            break;
+    const bypassCodesInDiff = bypassCodes.map((b) => {
+      if (diff.diff.includes(b)) {
+        return b;
+      }
+    });
+    if (bypassCodesInDiff.length > 0) {
+      for (const code in bypassCodesInDiff) {
+        const codeValue = bypassCodesInDiff[code];
+        if (codeValue !== '#nosec') {
+          for (const rule in okBypassRules) {
+            if (diff.diff.includes(codeValue + ' ' + okBypassRules[`${rule}`])) {
+              hasBypass = false;
+              break;
+            }
           }
+        } else {
+          hasBypass = true;
+          break;
+        }
+        if (hasBypass) {
+          break;
         }
       }
-      break;
     }
   }
 
