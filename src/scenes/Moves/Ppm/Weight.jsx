@@ -46,7 +46,6 @@ export class PpmWeight extends Component {
 
   getDefaultWeightClassMedian() {
     const { entitlement, currentPPM } = this.props;
-    // eslint-disable-next-line camelcase
     if (isNull(entitlement) || isNull(currentPPM)) {
       return null;
     }

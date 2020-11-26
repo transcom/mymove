@@ -116,6 +116,9 @@ const bypassingLinterChecks = async () => {
         }
       }
     }
+    if (hasBypass) {
+      break;
+    }
   }
 
   if (hasBypass === true) {
