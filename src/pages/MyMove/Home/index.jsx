@@ -201,15 +201,15 @@ class Home extends Component {
         <strong>{moment(orders.report_by_date).format('DD MMM YYYY')}.</strong>
         <br />
         <div className={styles.subheaderContainer}>
-          <div className={styles.subheaderWeightAllowance}>
-            <div>Weight allowance</div>
-            <strong>{serviceMember.weight_allotment.total_weight_self} lbs</strong>
-          </div>
+          <p className={styles.subheaderSubsection}>
+            Weight allowance
+            <strong>{serviceMember.weight_allotment.total_weight_self} lbs.</strong>
+          </p>
           {move.locator && (
-            <div className={styles.subheaderMoveCode}>
-              <div>Move code</div>
+            <p className={styles.subheaderSubsection}>
+              Move code
               <strong>#{move.locator}</strong>
-            </div>
+            </p>
           )}
         </div>
       </p>
