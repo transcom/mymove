@@ -2,7 +2,7 @@
 
 set -eu -o pipefail
 
-VERSION="2.0"
+VERSION="2.1"
 
 AWS_VERSION=$(DISABLE_AWS_VAULT_WRAPPER=1 env -u AWS_PROFILE aws --version)
 
