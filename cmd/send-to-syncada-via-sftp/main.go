@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"log"
 	"os"
@@ -10,6 +11,7 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
+	"golang.org/x/crypto/ssh"
 
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
@@ -48,6 +50,39 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = false
 }
 
+func getHostKey(host string) ssh.PublicKey {
+	// parse OpenSSH known_hosts file
+	// ssh or use ssh-keyscan to get initial key
+	file, err := os.Open(filepath.Join(os.Getenv("HOME"), ".ssh", "known_hosts"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	var hostKey ssh.PublicKey
+	for scanner.Scan() {
+		fields := strings.Split(scanner.Text(), " ")
+		if len(fields) != 3 {
+			continue
+		}
+		if strings.Contains(fields[0], host) {
+			var err error
+			hostKey, _, _, _, err = ssh.ParseAuthorizedKey(scanner.Bytes())
+			if err != nil {
+				log.Fatalf("error parsing %q: %v", fields[2], err)
+			}
+			break
+		}
+	}
+
+	if hostKey == nil {
+		log.Fatalf("no hostkey found for %s", host)
+	}
+
+	return hostKey
+}
+
 func main() {
 	flag := pflag.CommandLine
 	initFlags(flag)
@@ -79,7 +114,17 @@ func main() {
 		logger.Fatal("invalid configuration", zap.Error(err))
 	}
 
-	syncadaSFTPSession := invoice.NewSyncadaSFTPSession(v.GetString(cli.SyncadaSFTPPortFlag), v.GetString(cli.SyncadaSFTPUserIDFlag), v.GetString(cli.SyncadaSFTPIPAddressFlag), v.GetString(cli.SyncadaSFTPPsswrdFlag), v.GetString(cli.SyncadaSFTPInboundDirectoryFlag))
+	// get host public key
+	remote := v.GetString(cli.SyncadaSFTPIPAddressFlag)
+	hostKey := getHostKey(remote)
+
+	syncadaSFTPSession := invoice.NewSyncadaSFTPSession(
+		v.GetString(cli.SyncadaSFTPPortFlag),
+		v.GetString(cli.SyncadaSFTPUserIDFlag),
+		remote,
+		v.GetString(cli.SyncadaSFTPPsswrdFlag),
+		v.GetString(cli.SyncadaSFTPInboundDirectoryFlag),
+		hostKey)
 
 	// open local file
 	localFile, err := os.Open(filepath.Clean(v.GetString("local-file-path")))

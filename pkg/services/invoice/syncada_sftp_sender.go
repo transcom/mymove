@@ -18,16 +18,18 @@ type SyncadaSenderSFTPSession struct {
 	remote                  string
 	password                string
 	syncadaInboundDirectory string
+	hostKey                 ssh.PublicKey
 }
 
 // NewSyncadaSFTPSession creates a new SyncadaSFTPSession service object
-func NewSyncadaSFTPSession(port string, userID string, remote string, password string, syncadaInboundDirectory string) services.SyncadaSFTPSender {
+func NewSyncadaSFTPSession(port string, userID string, remote string, password string, syncadaInboundDirectory string, hostKey ssh.PublicKey) services.SyncadaSFTPSender {
 	return &SyncadaSenderSFTPSession{
 		port,
 		userID,
 		remote,
 		password,
 		syncadaInboundDirectory,
+		hostKey,
 	}
 }
 
@@ -58,6 +60,10 @@ func InitNewSyncadaSFTPSession() (services.SyncadaSFTPSender, error) {
 		return nil, fmt.Errorf("Invalid credentials sftp missing SYNCADA_SFTP_INBOUND_DIRECTORY")
 	}
 
+	// TODO: handle hostKey?
+	// TODO: why do we have this reimplementation of the viper CLI layer??
+	// TODO: or else why do we need both init and new??
+
 	return NewSyncadaSFTPSession(port, userID, ipAddress, password, inboundDir), nil
 }
 
@@ -68,11 +74,7 @@ func (s *SyncadaSenderSFTPSession) SendToSyncadaViaSFTP(localDataReader io.Reade
 		Auth: []ssh.AuthMethod{
 			ssh.Password(s.password),
 		},
-		/* #nosec */
-		// The hostKey was removed because authentication is performed using a user ID and password
-		// If hostKey configuration is needed, please see PR #5039: https://github.com/transcom/mymove/pull/5039
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-		// HostKeyCallback: ssh.FixedHostKey(hostKey),
+		HostKeyCallback: ssh.FixedHostKey(s.hostKey),
 	}
 
 	// connect
