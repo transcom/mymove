@@ -1,6 +1,7 @@
 package movetaskorder
 
 import (
+	"errors"
 	"time"
 
 	"github.com/gobuffalo/pop/v5"
@@ -46,6 +47,19 @@ func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eT
 		if mto.Status == models.MoveStatusSUBMITTED {
 			err = mto.Approve()
 			if err != nil {
+				return &models.Move{}, services.NewConflictError(mto.ID, err.Error())
+			}
+		}
+
+		verrs, err = o.builder.UpdateOne(mto, &eTag)
+		if verrs != nil && verrs.HasAny() {
+			return &models.Move{}, services.NewInvalidInputError(mto.ID, nil, verrs, "")
+		}
+		if err != nil {
+			switch err.(type) {
+			case query.StaleIdentifierError:
+				return nil, services.NewPreconditionFailedError(mto.ID, err)
+			default:
 				return &models.Move{}, err
 			}
 		}
@@ -63,6 +77,17 @@ func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eT
 				ApprovedAt:      &now,
 			})
 		}
+
+		if err != nil {
+			if errors.Is(err, models.ErrInvalidTransition) {
+				return &models.Move{}, services.NewConflictError(mto.ID, err.Error())
+			}
+			return &models.Move{}, err
+		}
+		if verrs != nil {
+			return &models.Move{}, verrs
+		}
+
 		if includeServiceCodeCS {
 			// create if doesn't exist
 			_, verrs, err = o.serviceItemCreator.CreateMTOServiceItem(&models.MTOServiceItem{
@@ -75,22 +100,19 @@ func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eT
 		}
 
 		if err != nil {
+			if errors.Is(err, models.ErrInvalidTransition) {
+				return &models.Move{}, services.NewConflictError(mto.ID, err.Error())
+			}
 			return &models.Move{}, err
 		}
 		if verrs != nil {
 			return &models.Move{}, verrs
 		}
-	}
 
-	verrs, err = o.builder.UpdateOne(mto, &eTag)
-	if verrs != nil && verrs.HasAny() {
-		return &models.Move{}, services.InvalidInputError{}
-	}
-	if err != nil {
-		switch err.(type) {
-		case query.StaleIdentifierError:
-			return nil, services.NewPreconditionFailedError(mto.ID, err)
-		default:
+		// CreateMTOServiceItem may have updated the mto status so refetch as to not return incorrect status
+		// TODO: Modify CreateMTOServiceItem to return the updated move or refactor to operate on the passed in reference
+		mto, err = o.FetchMoveTaskOrder(moveTaskOrderID)
+		if err != nil {
 			return &models.Move{}, err
 		}
 	}
