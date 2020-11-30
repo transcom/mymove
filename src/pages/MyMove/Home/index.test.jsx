@@ -92,9 +92,7 @@ describe('Home component', () => {
       };
 
       const wrapper = mountHome(props);
-      expect(wrapper.find('[data-testid="move-submitted-instructions"]').text()).toBe(
-        'After you hear from your move counselor, they should be your first resource for questions.',
-      );
+      expect(wrapper.find('Contact').prop('moveSubmitted')).toEqual(true);
     });
   });
 

@@ -49,7 +49,7 @@ describe('Contact component', () => {
     };
     const wrapper = mountFooter(props);
     expect(wrapper.find('[data-testid="move-submitted-instructions"]').text()).toBe(
-      'After you hear from your move counselor, they should be your first resource for questions.',
+      'Talk to your move counselor or directly with your movers if you have questions during your move.',
     );
   });
 });
