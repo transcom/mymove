@@ -484,6 +484,24 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				return fmt.Sprintf("id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Rank", serviceMemberID, mtoID)
 			},
 		},
+		// ServiceMember with blank Rank
+		{
+			TestDescription: "Given move with service member that has blank Rank, the create should fail",
+			InvalidMove: func() models.Move {
+				mtoInvalid := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+				sm := mtoInvalid.Orders.ServiceMember
+				var blank models.ServiceMemberRank
+				blank = ""
+				sm.Rank = &blank
+				err := suite.DB().Update(&sm)
+				suite.FatalNoError(err)
+				return mtoInvalid
+			},
+			ExpectedError: services.ConflictError{},
+			ExpectedErrorMessage: func(serviceMemberID uuid.UUID, mtoID uuid.UUID) string {
+				return fmt.Sprintf("id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Rank", serviceMemberID, mtoID)
+			},
+		},
 		// ServiceMember with no Affiliation
 		{
 			TestDescription: "Given move with service member that has no Affiliation, the create should fail",
@@ -491,6 +509,24 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				mtoInvalid := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
 				sm := mtoInvalid.Orders.ServiceMember
 				sm.Affiliation = nil
+				err := suite.DB().Update(&sm)
+				suite.FatalNoError(err)
+				return mtoInvalid
+			},
+			ExpectedError: services.ConflictError{},
+			ExpectedErrorMessage: func(serviceMemberID uuid.UUID, mtoID uuid.UUID) string {
+				return fmt.Sprintf("id: %s is in a conflicting state ServiceMember on MoveTaskOrder (ID: %s) missing Affiliation", serviceMemberID, mtoID)
+			},
+		},
+		// ServiceMember with blank Affiliation
+		{
+			TestDescription: "Given move with service member that has blank Affiliation, the create should fail",
+			InvalidMove: func() models.Move {
+				mtoInvalid := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{})
+				sm := mtoInvalid.Orders.ServiceMember
+				var blank models.ServiceMemberAffiliation
+				blank = ""
+				sm.Affiliation = &blank
 				err := suite.DB().Update(&sm)
 				suite.FatalNoError(err)
 				return mtoInvalid

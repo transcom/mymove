@@ -131,10 +131,14 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		return nil
 	}
 	var proGearWeight, proGearWeightSpouse, totalWeight int64
-	if entitlement.WeightAllotment() != nil {
-		proGearWeight = int64(entitlement.WeightAllotment().ProGearWeight)
-		proGearWeightSpouse = int64(entitlement.WeightAllotment().ProGearWeightSpouse)
-		totalWeight = int64(entitlement.WeightAllotment().TotalWeightSelf)
+	if weightAllotment := entitlement.WeightAllotment(); weightAllotment != nil {
+		proGearWeight = int64(weightAllotment.ProGearWeight)
+		proGearWeightSpouse = int64(weightAllotment.ProGearWeightSpouse)
+		if *entitlement.DependentsAuthorized {
+			totalWeight = int64(weightAllotment.TotalWeightSelfPlusDependents)
+		} else {
+			totalWeight = int64(weightAllotment.TotalWeightSelf)
+		}
 	}
 	var authorizedWeight *int64
 	if entitlement.AuthorizedWeight() != nil {
@@ -468,14 +472,9 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 	queueMoveOrders := make(ghcmessages.QueueMoves, len(moves))
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
-		// Finds the first move that is an HHG and use that locator.  Should we include combo HHG_PPM or others?
-		var hhgMove models.Move
-		if *move.SelectedMoveType == models.SelectedMoveTypeHHG {
-			hhgMove = move
-		}
 
 		var validMTOShipments []models.MTOShipment
-		for _, shipment := range hhgMove.MTOShipments {
+		for _, shipment := range move.MTOShipments {
 			if shipment.Status == models.MTOShipmentStatusSubmitted || shipment.Status == models.MTOShipmentStatusApproved {
 				validMTOShipments = append(validMTOShipments, shipment)
 			}
@@ -488,9 +487,9 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 
 		queueMoveOrders[i] = &ghcmessages.QueueMove{
 			Customer:               Customer(&customer),
-			Status:                 ghcmessages.QueueMoveStatus(hhgMove.Status),
+			Status:                 ghcmessages.QueueMoveStatus(move.Status),
 			ID:                     *handlers.FmtUUID(move.Orders.ID),
-			Locator:                hhgMove.Locator,
+			Locator:                move.Locator,
 			DepartmentIndicator:    ghcmessages.DeptIndicator(deptIndicator),
 			ShipmentsCount:         int64(len(validMTOShipments)),
 			DestinationDutyStation: DutyStation(&move.Orders.NewDutyStation),

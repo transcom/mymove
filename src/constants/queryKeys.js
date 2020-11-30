@@ -6,3 +6,4 @@ export const MOVE_ORDERS = 'moveOrders';
 export const ORDERS_DOCUMENTS = 'documents';
 export const MOVES_QUEUE = 'movesQueue';
 export const PAYMENT_REQUESTS_QUEUE = 'paymentRequestsQueue';
+export const USER = 'user';

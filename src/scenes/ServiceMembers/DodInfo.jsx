@@ -2,10 +2,10 @@ import { get, pick } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 
-import { updateServiceMember } from './ducks';
+import { patchServiceMember, getResponseError } from 'services/internalApi';
+import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import SectionWrapper from 'components/Customer/SectionWrapper';
@@ -16,16 +16,47 @@ const formName = 'service_member_dod_info';
 const DodWizardForm = reduxifyWizardForm(formName);
 
 export class DodInfo extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      errorMessage: null,
+    };
+  }
+
   handleSubmit = () => {
-    const pendingValues = this.props.values;
-    if (pendingValues) {
-      const patch = pick(pendingValues, subsetOfFields);
-      return this.props.updateServiceMember(patch);
+    const { values, currentServiceMember, updateServiceMember } = this.props;
+
+    if (values) {
+      const payload = {
+        id: currentServiceMember.id,
+        affiliation: values.affiliation,
+        edipi: values.edipi,
+        rank: values.rank,
+      };
+
+      return patchServiceMember(payload)
+        .then((response) => {
+          updateServiceMember(response);
+        })
+        .catch((e) => {
+          // TODO - error handling - below is rudimentary error handling to approximate existing UX
+          // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
+          const { response } = e;
+          const errorMessage = getResponseError(response, 'failed to update service member due to server error');
+          this.setState({
+            errorMessage,
+          });
+        });
     }
+
+    return Promise.resolve();
   };
 
   render() {
     const { pages, pageKey, error, currentServiceMember, schema } = this.props;
+    const { errorMessage } = this.state;
+
     const initialValues = currentServiceMember ? pick(currentServiceMember, subsetOfFields) : null;
 
     return (
@@ -34,7 +65,7 @@ export class DodInfo extends Component {
         className={formName}
         pageList={pages}
         pageKey={pageKey}
-        serverError={error}
+        serverError={error || errorMessage}
         initialValues={initialValues}
       >
         <h1>Create your profile</h1>
@@ -50,6 +81,7 @@ export class DodInfo extends Component {
     );
   }
 }
+
 DodInfo.propTypes = {
   schema: PropTypes.object.isRequired,
   updateServiceMember: PropTypes.func.isRequired,
@@ -57,9 +89,10 @@ DodInfo.propTypes = {
   error: PropTypes.object,
 };
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ updateServiceMember }, dispatch);
-}
+const mapDispatchToProps = {
+  updateServiceMember: updateServiceMemberAction,
+};
+
 function mapStateToProps(state) {
   const props = {
     schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),
@@ -68,4 +101,5 @@ function mapStateToProps(state) {
   };
   return props;
 }
+
 export default connect(mapStateToProps, mapDispatchToProps)(DodInfo);

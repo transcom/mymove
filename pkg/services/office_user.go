@@ -14,6 +14,12 @@ type OfficeUserFetcher interface {
 	FetchOfficeUser(filters []QueryFilter) (models.OfficeUser, error)
 }
 
+// OfficeUserFetcherPop is the exported interface for fetching a single office user
+//go:generate mockery -name OfficeUserFetcherPop
+type OfficeUserFetcherPop interface {
+	FetchOfficeUserByID(id uuid.UUID) (models.OfficeUser, error)
+}
+
 // OfficeUserGblocFetcher is the exported interface for fetching the GBLOC of the
 // currently signed in office user
 //go:generate mockery -name OfficeUserGblocFetcher

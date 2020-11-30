@@ -213,11 +213,10 @@ func GetWeightAllotment(rank ServiceMemberRank) WeightAllotment {
 	return entitlements[rank]
 }
 
-// GetEntitlement calculates the entitlement for a rank, has dependents and has spouseprogear
-func GetEntitlement(rank ServiceMemberRank, hasDependents bool, spouseHasProGear bool) (int, error) {
-
+// GetEntitlement calculates the entitlement weight based on rank and dependents.
+// Only includes either TotalWeightSelf or TotalWeightSelfPlusDependents.
+func GetEntitlement(rank ServiceMemberRank, hasDependents bool) (int, error) {
 	entitlements := makeEntitlements()
-	spouseProGear := 0
 	weight := 0
 
 	selfEntitlement, ok := entitlements[rank]
@@ -226,14 +225,10 @@ func GetEntitlement(rank ServiceMemberRank, hasDependents bool, spouseHasProGear
 	}
 
 	if hasDependents {
-		if spouseHasProGear {
-			spouseProGear = selfEntitlement.ProGearWeightSpouse
-		}
 		weight = selfEntitlement.TotalWeightSelfPlusDependents
 	} else {
 		weight = selfEntitlement.TotalWeightSelf
 	}
-	proGear := selfEntitlement.ProGearWeight
 
-	return weight + proGear + spouseProGear, nil
+	return weight, nil
 }

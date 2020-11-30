@@ -1544,13 +1544,37 @@ func init() {
             "in": "query"
           },
           {
+            "enum": [
+              "lastName",
+              "dodID",
+              "branch",
+              "locator",
+              "status",
+              "destinationDutyStation"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
+          {
             "type": "string",
             "name": "branch",
             "in": "query"
           },
           {
             "type": "string",
-            "name": "moveID",
+            "name": "locator",
             "in": "query"
           },
           {
@@ -1619,6 +1643,31 @@ func init() {
         "operationId": "getPaymentRequestsQueue",
         "parameters": [
           {
+            "enum": [
+              "lastName",
+              "locator",
+              "submittedAt",
+              "branch",
+              "status",
+              "dodID",
+              "age"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
+          {
             "type": "integer",
             "description": "requested page of results",
             "name": "page",
@@ -1642,7 +1691,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "moveID",
+            "name": "locator",
             "in": "query"
           },
           {
@@ -5343,13 +5392,37 @@ func init() {
             "in": "query"
           },
           {
+            "enum": [
+              "lastName",
+              "dodID",
+              "branch",
+              "locator",
+              "status",
+              "destinationDutyStation"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
+          {
             "type": "string",
             "name": "branch",
             "in": "query"
           },
           {
             "type": "string",
-            "name": "moveID",
+            "name": "locator",
             "in": "query"
           },
           {
@@ -5424,6 +5497,31 @@ func init() {
         "operationId": "getPaymentRequestsQueue",
         "parameters": [
           {
+            "enum": [
+              "lastName",
+              "locator",
+              "submittedAt",
+              "branch",
+              "status",
+              "dodID",
+              "age"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
+          {
             "type": "integer",
             "description": "requested page of results",
             "name": "page",
@@ -5447,7 +5545,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "moveID",
+            "name": "locator",
             "in": "query"
           },
           {

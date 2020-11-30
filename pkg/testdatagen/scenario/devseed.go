@@ -30,6 +30,7 @@ var DevSeedScenario = devSeedScenario{"dev_seed"}
 var estimatedWeight = unit.Pound(1400)
 var actualWeight = unit.Pound(2000)
 var hhgMoveType = models.SelectedMoveTypeHHG
+var ppmMoveType = models.SelectedMoveTypePPM
 
 func createPPMOfficeUser(db *pop.Connection) {
 	/*
@@ -316,7 +317,7 @@ func createMoveWithPPMAndHHG(db *pop.Connection, userUploader *uploader.UserUplo
 			PersonalEmail: models.StringPointer(email),
 		},
 	})
-	// currently don't have "combo move" selection option, so testing ppm office when type is HHG
+	// SelectedMoveType could be either HHG or PPM depending on creation order of combo
 	move := testdatagen.MakeMove(db, testdatagen.Assertions{
 		Order: models.Order{
 			ServiceMemberID: uuid.FromStringOrNil(smIDCombo),
@@ -325,7 +326,7 @@ func createMoveWithPPMAndHHG(db *pop.Connection, userUploader *uploader.UserUplo
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("7024c8c5-52ca-4639-bf69-dd8238308c98"),
 			Locator:          "COMBOS",
-			SelectedMoveType: &hhgMoveType,
+			SelectedMoveType: &ppmMoveType,
 		},
 	})
 
@@ -525,6 +526,24 @@ func createUnsubmittedMoveWithNTSAndNTSR(db *pop.Connection) {
 			MTOShipment:   ntsrShipment,
 			MTOShipmentID: ntsrShipment.ID,
 			MTOAgentType:  models.MTOAgentReceiving,
+		},
+	})
+}
+
+func createNTSMove(db *pop.Connection) {
+	testdatagen.MakeNTSMoveWithShipment(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			FirstName: models.StringPointer("Spaceman"),
+			LastName:  models.StringPointer("NTS"),
+		},
+	})
+}
+
+func createNTSRMove(db *pop.Connection) {
+	testdatagen.MakeNTSRMoveWithShipment(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			FirstName: models.StringPointer("Spaceman"),
+			LastName:  models.StringPointer("NTS-R"),
 		},
 	})
 }
@@ -1283,6 +1302,34 @@ func createTXO(db *pop.Connection) {
 			UserID: &tooTioUUID,
 		},
 	})
+
+	// Makes user with both too and tio role with USMC gbloc
+	transportationOfficeUSMC := models.TransportationOffice{}
+	err = db.Where("id = $1", "ccf50409-9d03-4cac-a931-580649f1647a").First(&transportationOfficeUSMC)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to find transportation office USMC in the DB: %w", err))
+	}
+	emailUSMC := "too_tio_role_usmc@office.mil"
+	tooTioWithUsmcUUID := uuid.Must(uuid.FromString("9bda91d2-7a0c-4de1-ae02-bbbbbbbbbbbb"))
+	loginGovWithUsmcUUID := uuid.Must(uuid.NewV4())
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            tooTioWithUsmcUUID,
+			LoginGovUUID:  &loginGovWithUsmcUUID,
+			LoginGovEmail: emailUSMC,
+			Active:        true,
+			Roles:         []roles.Role{tooRole, tioRole},
+		},
+	})
+	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:                   uuid.FromStringOrNil("dce86235-53d3-43dd-8ee8-bbbbbbbbbbbb"),
+			Email:                emailUSMC,
+			Active:               true,
+			UserID:               &tooTioWithUsmcUUID,
+			TransportationOffice: transportationOfficeUSMC,
+		},
+	})
 }
 
 // func createRecentlyUpdatedHHGMove(db *pop.Connection, userUploader *uploader.UserUploader) {
@@ -1441,13 +1488,13 @@ func createHHGMoveWithTaskOrderServices(db *pop.Connection, userUploader *upload
 
 	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.FromStringOrNil("eee4b555-2475-4e67-a5b8-102f28d950f8"),
+			ID:     uuid.FromStringOrNil("fd6741a5-a92c-44d5-8303-1d7f5e60afbf"),
 			Status: models.MTOServiceItemStatusApproved,
 		},
 		Move:        mtoWithTaskOrderServices,
 		MTOShipment: mtoShipment4,
 		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("4b85962e-25d3-4485-b43c-2497c4365598"), // DSH
+			ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH
 		},
 	})
 
@@ -1465,13 +1512,13 @@ func createHHGMoveWithTaskOrderServices(db *pop.Connection, userUploader *upload
 
 	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID:     uuid.FromStringOrNil("fd6741a5-a92c-44d5-8303-1d7f5e60afbf"),
+			ID:     uuid.FromStringOrNil("eee4b555-2475-4e67-a5b8-102f28d950f8"),
 			Status: models.MTOServiceItemStatusApproved,
 		},
 		Move:        mtoWithTaskOrderServices,
 		MTOShipment: mtoShipment5,
 		ReService: models.ReService{
-			ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH
+			ID: uuid.FromStringOrNil("4b85962e-25d3-4485-b43c-2497c4365598"), // DSH
 		},
 	})
 
@@ -1617,6 +1664,43 @@ func createMoveWithBasicServiceItems(db *pop.Connection, userUploader *uploader.
 	)
 }
 
+func createMoveWithUniqueDestinationAddress(db *pop.Connection) {
+	address := testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: models.Address{
+			StreetAddress1: "2 Second St",
+			StreetAddress2: swag.String("Apt 2"),
+			StreetAddress3: swag.String("Suite B"),
+			City:           "Columbia",
+			State:          "SC",
+			PostalCode:     "29212",
+			Country:        swag.String("US"),
+		},
+	})
+
+	newDutyStation := testdatagen.MakeDutyStation(db, testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			AddressID: address.ID,
+			Address:   address,
+		},
+	})
+
+	moveOrder := testdatagen.MakeOrder(db, testdatagen.Assertions{
+		Order: models.Order{
+			NewDutyStationID: newDutyStation.ID,
+			NewDutyStation:   newDutyStation,
+		},
+	})
+
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		Move: models.Move{
+			ID:                 uuid.FromStringOrNil("ecbc2e6a-1b45-403b-9bd4-ea315d4d3d93"),
+			AvailableToPrimeAt: swag.Time(time.Now()),
+			Status:             models.MoveStatusAPPROVED,
+		},
+		Order: moveOrder,
+	})
+}
+
 // Run does that data load thing
 func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader, logger Logger, storer *storage.Filesystem) {
 	// PPM Office Queue
@@ -1637,6 +1721,8 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	createTOO(db)
 	createTIO(db)
 	createTXO(db)
+	createNTSMove(db)
+	createNTSRMove(db)
 
 	// This allows testing the pagination feature in the TXO queues.
 	// Feel free to comment out the loop if you don't need this many moves.
@@ -1655,4 +1741,7 @@ func (e devSeedScenario) Run(db *pop.Connection, userUploader *uploader.UserUplo
 	// This move below is a PPM move in DRAFT status. It should probably
 	// be changed to an HHG move in SUBMITTED status to reflect reality.
 	createMoveWithBasicServiceItems(db, userUploader)
+	// Sets up a move with a non-default destination duty station address
+	// (to more easily spot issues with addresses being overwritten).
+	createMoveWithUniqueDestinationAddress(db)
 }

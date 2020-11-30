@@ -99,7 +99,7 @@ export async function updateMoveOrder({ moveOrderID, ifMatchETag, body }) {
   return makeGHCRequest(operationPath, { moveOrderID, 'If-Match': ifMatchETag, body });
 }
 
-export async function getMovesQueue(key, { filters = [], currentPage = 1, currentPageSize = 20 }) {
+export async function getMovesQueue(key, { sort, order, filters = [], currentPage = 1, currentPageSize = 20 }) {
   const operationPath = 'queues.getMovesQueue';
   const paramFilters = {};
   filters.forEach((filter) => {
@@ -107,12 +107,15 @@ export async function getMovesQueue(key, { filters = [], currentPage = 1, curren
   });
   return makeGHCRequest(
     operationPath,
-    { page: currentPage, perPage: currentPageSize, ...paramFilters },
+    { sort, order, page: currentPage, perPage: currentPageSize, ...paramFilters },
     { schemaKey: 'queueMovesResult', normalize: false },
   );
 }
 
-export async function getPaymentRequestsQueue(key, { filters = [], currentPage = 1, currentPageSize = 20 }) {
+export async function getPaymentRequestsQueue(
+  key,
+  { sort, order, filters = [], currentPage = 1, currentPageSize = 20 },
+) {
   const operationPath = 'queues.getPaymentRequestsQueue';
   const paramFilters = {};
   filters.forEach((filter) => {
@@ -120,7 +123,7 @@ export async function getPaymentRequestsQueue(key, { filters = [], currentPage =
   });
   return makeGHCRequest(
     operationPath,
-    { page: currentPage, perPage: currentPageSize, ...paramFilters },
+    { sort, order, page: currentPage, perPage: currentPageSize, ...paramFilters },
     { schemaKey: 'queuePaymentRequestsResult', normalize: false },
   );
 }

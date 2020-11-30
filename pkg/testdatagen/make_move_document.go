@@ -81,7 +81,9 @@ func MakeMoveDocumentWeightTicketSet(db *pop.Connection, assertions Assertions) 
 	weightTicketSetDocument := MakeWeightTicketSetDocument(db, weightTicketSetAssertions)
 	moveDocument.WeightTicketSetDocument = &weightTicketSetDocument
 
-	mustSave(db, &moveDocument)
+	if !assertions.Stub {
+		mustSave(db, &moveDocument)
+	}
 
 	return moveDocument
 }

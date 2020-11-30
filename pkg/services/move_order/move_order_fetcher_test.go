@@ -70,25 +70,17 @@ func (suite *MoveOrderServiceSuite) TestListMoves() {
 	// are displayed to the TOO
 	testdatagen.MakeDefaultMove(suite.DB())
 
-	expectedMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusSUBMITTED}})
-
-	// Only orders with shipments are returned, so we need to add a shipment
-	// to the move we just created
-	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		Move: expectedMove,
-		MTOShipment: models.MTOShipment{
-			Status: models.MTOShipmentStatusSubmitted,
-		},
-	})
+	expectedMove := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
 
 	suite.T().Run("returns moves", func(t *testing.T) {
-		moves, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &services.ListMoveOrderParams{PerPage: swag.Int64(1), Page: swag.Int64(1)})
+		moves, moveCount, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &services.ListMoveOrderParams{})
 
 		suite.FatalNoError(err)
+		suite.Equal(1, moveCount)
 		suite.Len(moves, 1)
 
 		move := moves[0]
@@ -109,36 +101,51 @@ func (suite *MoveOrderServiceSuite) TestListMoves() {
 	})
 
 	suite.T().Run("returns moves filtered by GBLOC", func(t *testing.T) {
-		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
-			},
+		// This move is outside of the office user's GBLOC, so it should not be returned
+		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
 			TransportationOffice: models.TransportationOffice{
 				Gbloc: "AGFM",
 			},
-			Move: models.Move{
-				Status: models.MoveStatusSUBMITTED,
-			},
 		})
 
-		moves, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &services.ListMoveOrderParams{PerPage: swag.Int64(1), Page: swag.Int64(1)})
+		moves, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &services.ListMoveOrderParams{Page: swag.Int64(1)})
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
 	})
 
-	suite.T().Run("returns moves filtered by an arbitrary query", func(t *testing.T) {
-		army := "ARMY"
-		params := services.ListMoveOrderParams{Branch: &army, PerPage: swag.Int64(1), Page: swag.Int64(1)}
-		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
-			},
-			Order: models.Order{
-				DepartmentIndicator: &army,
-			},
-			Move: models.Move{
-				Status: models.MoveStatusSUBMITTED,
+	suite.T().Run("only returns visible moves (where show = True)", func(t *testing.T) {
+		params := services.ListMoveOrderParams{}
+		testdatagen.MakeHiddenHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+
+		moves, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+	})
+
+	suite.T().Run("includes combo hhg and ppm moves", func(t *testing.T) {
+		// Create a combination HHG and PPM move and make sure it's included
+		expectedComboMove := testdatagen.MakeHHGPPMMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+
+		moves, moveCount, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &services.ListMoveOrderParams{})
+
+		suite.FatalNoError(err)
+		suite.Equal(2, moveCount)
+		suite.Len(moves, 2)
+
+		moveIDs := []uuid.UUID{moves[0].ID, moves[1].ID}
+
+		suite.Contains(moveIDs, expectedComboMove.ID)
+	})
+
+	suite.T().Run("returns moves filtered by service member affiliation", func(t *testing.T) {
+		airForce := models.AffiliationAIRFORCE
+		airForceString := "AIR_FORCE"
+		params := services.ListMoveOrderParams{Branch: &airForceString, Page: swag.Int64(1)}
+		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			ServiceMember: models.ServiceMember{
+				Affiliation: &airForce,
 			},
 		})
 
@@ -153,35 +160,18 @@ func (suite *MoveOrderServiceSuite) TestListMovesUSMCGBLOC() {
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
 
 	suite.T().Run("returns USMC order for USMC office user", func(t *testing.T) {
-		officeUUID, _ := uuid.NewV4()
 		marines := models.AffiliationMARINES
-		army := models.AffiliationARMY
-
-		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
-			},
-			TransportationOffice: models.TransportationOffice{
-				Gbloc: "USMC",
-				ID:    officeUUID,
-			},
-			Move: models.Move{
-				Status: models.MoveStatusSUBMITTED,
-			},
+		// It doesn't matter what the Origin GBLOC is for the move. Only the Marines
+		// affiliation matters for office users who are tied to the USMC GBLOC.
+		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
 			ServiceMember: models.ServiceMember{Affiliation: &marines},
 		})
 
-		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
-			},
-			Move: models.Move{
-				Status: models.MoveStatusSUBMITTED,
-			},
-			ServiceMember: models.ServiceMember{Affiliation: &army},
-		})
+		// Create move where service member has the default ARMY affiliation
+		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 
-		officeUserOooRah := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{OfficeUser: models.OfficeUser{TransportationOfficeID: officeUUID}})
+		officeUserOooRah := testdatagen.MakeOfficeUserWithUSMCGBLOC(suite.DB())
+		// Create office user tied to the default LKNQ GBLOC
 		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 		params := services.ListMoveOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
@@ -197,7 +187,23 @@ func (suite *MoveOrderServiceSuite) TestListMovesUSMCGBLOC() {
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
 		suite.Equal(models.AffiliationARMY, *moves[0].Orders.ServiceMember.Affiliation)
+	})
+}
 
+func (suite *MoveOrderServiceSuite) TestListMovesMarines() {
+	suite.T().Run("does not return moves where the service member affiliation is Marines for non-USMC office user", func(t *testing.T) {
+		moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
+		marines := models.AffiliationMARINES
+		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+			ServiceMember: models.ServiceMember{Affiliation: &marines},
+		})
+		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+
+		params := services.ListMoveOrderParams{PerPage: swag.Int64(2), Page: swag.Int64(1)}
+		moves, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+
+		suite.FatalNoError(err)
+		suite.Equal(0, len(moves))
 	})
 }
 
@@ -244,16 +250,7 @@ func (suite *MoveOrderServiceSuite) TestListMovesWithPagination() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	for i := 0; i < 2; i++ {
-		expectedMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusSUBMITTED}})
-
-		// Only orders with shipments are returned, so we need to add a shipment
-		// to the move we just created
-		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: expectedMove,
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
-			},
-		})
+		testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
 	}
 
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
@@ -263,5 +260,115 @@ func (suite *MoveOrderServiceSuite) TestListMovesWithPagination() {
 	suite.NoError(err)
 	suite.Equal(1, len(moves))
 	suite.Equal(2, count)
+
+}
+
+func (suite *MoveOrderServiceSuite) TestListMovesWithSortOrder() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	// Default New Duty Station name is Fort Gordon
+	expectedMove1 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			Status:  models.MoveStatusAPPROVED,
+			Locator: "AA1234",
+		},
+	})
+
+	serviceMemberLastName := "Zephyer"
+	affiliation := models.AffiliationNAVY
+	edipi := "9999999999"
+	newDutyStationName := "Ze Duty Station"
+	newDutyStation2 := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			Name: newDutyStationName,
+		},
+	})
+
+	expectedMove2 := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			Locator: "TTZ123",
+		},
+		ServiceMember: models.ServiceMember{Affiliation: &affiliation, LastName: &serviceMemberLastName, Edipi: &edipi},
+		Order: models.Order{
+			NewDutyStation:   newDutyStation2,
+			NewDutyStationID: newDutyStation2.ID,
+		},
+	})
+
+	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
+	// Sort by service member name
+	params := services.ListMoveOrderParams{Sort: swag.String("lastName"), Order: swag.String("asc")}
+	moves, _, err := moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+
+	suite.NoError(err)
+	suite.Equal(2, len(moves))
+	suite.Equal("Spacemen, Leo", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
+	suite.Equal("Zephyer, Leo", *moves[1].Orders.ServiceMember.LastName+", "+*moves[1].Orders.ServiceMember.FirstName)
+
+	params = services.ListMoveOrderParams{Sort: swag.String("lastName"), Order: swag.String("desc")}
+	moves, _, err = moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+	suite.NoError(err)
+	suite.Equal(2, len(moves))
+	suite.Equal("Zephyer, Leo", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
+	suite.Equal("Spacemen, Leo", *moves[1].Orders.ServiceMember.LastName+", "+*moves[1].Orders.ServiceMember.FirstName)
+
+	// Sort by locator
+	params = services.ListMoveOrderParams{Sort: swag.String("locator"), Order: swag.String("asc")}
+	moves, _, err = moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+	suite.NoError(err)
+	suite.Equal(2, len(moves))
+	suite.Equal(expectedMove1.Locator, moves[0].Locator)
+	suite.Equal(expectedMove2.Locator, moves[1].Locator)
+
+	params = services.ListMoveOrderParams{Sort: swag.String("locator"), Order: swag.String("desc")}
+	moves, _, err = moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+	suite.NoError(err)
+	suite.Equal(2, len(moves))
+	suite.Equal(expectedMove2.Locator, moves[0].Locator)
+	suite.Equal(expectedMove1.Locator, moves[1].Locator)
+
+	// sort by move statuses
+	params = services.ListMoveOrderParams{Sort: swag.String("status"), Order: swag.String("asc")}
+	moves, _, err = moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+	suite.NoError(err)
+	suite.Equal(2, len(moves))
+	suite.Equal(expectedMove1.Status, moves[0].Status)
+	suite.Equal(expectedMove2.Status, moves[1].Status)
+
+	params = services.ListMoveOrderParams{Sort: swag.String("status"), Order: swag.String("desc")}
+	moves, _, err = moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+	suite.NoError(err)
+	suite.Equal(2, len(moves))
+	suite.Equal(expectedMove2.Status, moves[0].Status)
+	suite.Equal(expectedMove1.Status, moves[1].Status)
+
+	// Sort by service member affiliations
+	params = services.ListMoveOrderParams{Sort: swag.String("branch"), Order: swag.String("asc")}
+	moves, _, err = moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+	suite.NoError(err)
+	suite.Equal(2, len(moves))
+	suite.Equal(*expectedMove1.Orders.ServiceMember.Affiliation, *moves[0].Orders.ServiceMember.Affiliation)
+	suite.Equal(*expectedMove2.Orders.ServiceMember.Affiliation, *moves[1].Orders.ServiceMember.Affiliation)
+
+	params = services.ListMoveOrderParams{Sort: swag.String("branch"), Order: swag.String("desc")}
+	moves, _, err = moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+	suite.NoError(err)
+	suite.Equal(2, len(moves))
+	suite.Equal(*expectedMove2.Orders.ServiceMember.Affiliation, *moves[0].Orders.ServiceMember.Affiliation)
+	suite.Equal(*expectedMove1.Orders.ServiceMember.Affiliation, *moves[1].Orders.ServiceMember.Affiliation)
+
+	// Sort by destination duty station
+	params = services.ListMoveOrderParams{Sort: swag.String("destinationDutyStation"), Order: swag.String("asc")}
+	moves, _, err = moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+	suite.NoError(err)
+	suite.Equal(2, len(moves))
+	suite.Equal(expectedMove1.Orders.NewDutyStation.Name, moves[0].Orders.NewDutyStation.Name)
+	suite.Equal(expectedMove2.Orders.NewDutyStation.Name, moves[1].Orders.NewDutyStation.Name)
+
+	params = services.ListMoveOrderParams{Sort: swag.String("destinationDutyStation"), Order: swag.String("desc")}
+	moves, _, err = moveOrderFetcher.ListMoveOrders(officeUser.ID, &params)
+	suite.NoError(err)
+	suite.Equal(2, len(moves))
+	suite.Equal(expectedMove2.Orders.NewDutyStation.Name, moves[0].Orders.NewDutyStation.Name)
+	suite.Equal(expectedMove1.Orders.NewDutyStation.Name, moves[1].Orders.NewDutyStation.Name)
 
 }

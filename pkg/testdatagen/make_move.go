@@ -123,6 +123,128 @@ func MakeDefaultMove(db *pop.Connection) models.Move {
 	return MakeMove(db, Assertions{})
 }
 
+// MakeHiddenHHGMoveWithShipment makes an HHG Move with show = false
+func MakeHiddenHHGMoveWithShipment(db *pop.Connection, assertions Assertions) models.Move {
+	hhgMoveType := models.SelectedMoveTypeHHG
+	move := MakeMove(db, Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusSUBMITTED,
+			Show:             swag.Bool(false),
+		},
+	})
+
+	MakeMTOShipment(db, Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+		Stub: assertions.Stub,
+	})
+
+	return move
+}
+
+// MakeHHGMoveWithShipment makes an HHG Move with one submitted shipment
+func MakeHHGMoveWithShipment(db *pop.Connection, assertions Assertions) models.Move {
+	hhgMoveType := models.SelectedMoveTypeHHG
+	move := MakeMove(db, Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgMoveType,
+			Status:           models.MoveStatusSUBMITTED,
+		},
+		ServiceMember:        assertions.ServiceMember,
+		TransportationOffice: assertions.TransportationOffice,
+		Order:                assertions.Order,
+		Stub:                 assertions.Stub,
+	})
+
+	mergeModels(&move, assertions.Move)
+	if !assertions.Stub {
+		mustSave(db, &move)
+	}
+
+	MakeMTOShipment(db, Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+		Stub: assertions.Stub,
+	})
+
+	return move
+}
+
+// MakeHHGPPMMoveWithShipment makes an HHG_PPM Move with one submitted shipment
+func MakeHHGPPMMoveWithShipment(db *pop.Connection, assertions Assertions) models.Move {
+	hhgPPMMoveType := models.SelectedMoveTypePPM
+	move := MakeMove(db, Assertions{
+		Move: models.Move{
+			SelectedMoveType: &hhgPPMMoveType,
+			Status:           models.MoveStatusSUBMITTED,
+		},
+		Stub: assertions.Stub,
+	})
+
+	MakeMTOShipment(db, Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
+		Stub: assertions.Stub,
+	})
+
+	return move
+}
+
+// MakeNTSMoveWithShipment makes an NTS Move with one submitted shipment
+func MakeNTSMoveWithShipment(db *pop.Connection, assertions Assertions) models.Move {
+	ntsMoveType := models.SelectedMoveTypeNTS
+	move := MakeMove(db, Assertions{
+		Move: models.Move{
+			SelectedMoveType: &ntsMoveType,
+			Status:           models.MoveStatusSUBMITTED,
+		},
+		ServiceMember: assertions.ServiceMember,
+		Stub:          assertions.Stub,
+	})
+
+	MakeMTOShipment(db, Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+			Status:       models.MTOShipmentStatusSubmitted,
+		},
+		Stub: assertions.Stub,
+	})
+
+	return move
+}
+
+// MakeNTSRMoveWithShipment makes an NTSR Move with one submitted shipment
+func MakeNTSRMoveWithShipment(db *pop.Connection, assertions Assertions) models.Move {
+	ntsrMoveType := models.SelectedMoveTypeNTSR
+	move := MakeMove(db, Assertions{
+		Move: models.Move{
+			SelectedMoveType: &ntsrMoveType,
+			Status:           models.MoveStatusSUBMITTED,
+		},
+		ServiceMember: assertions.ServiceMember,
+		Stub:          assertions.Stub,
+	})
+
+	MakeMTOShipment(db, Assertions{
+		Move: move,
+		MTOShipment: models.MTOShipment{
+			ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+			Status:       models.MTOShipmentStatusSubmitted,
+		},
+		Stub: assertions.Stub,
+	})
+
+	return move
+}
+
 func setShow(assertionShow *bool) *bool {
 	show := swag.Bool(true)
 	if assertionShow != nil {

@@ -122,7 +122,9 @@ func MakeExtendedServiceMember(db *pop.Connection, assertions Assertions) models
 	}
 	backupContact := MakeBackupContact(db, contactAssertions)
 	serviceMember.BackupContacts = append(serviceMember.BackupContacts, backupContact)
-	mustSave(db, &serviceMember)
+	if !assertions.Stub {
+		mustSave(db, &serviceMember)
+	}
 
 	return serviceMember
 }

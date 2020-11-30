@@ -53,7 +53,7 @@ type PaymentRequestReviewedProcessor interface {
 // FetchPaymentRequestListParams is a public struct that's used to pass filter arguments to FetchPaymentRequestList
 type FetchPaymentRequestListParams struct {
 	Branch                 *string
-	MoveID                 *string
+	Locator                *string
 	DodID                  *string
 	LastName               *string
 	DestinationDutyStation *string
@@ -61,4 +61,6 @@ type FetchPaymentRequestListParams struct {
 	Page                   *int64
 	PerPage                *int64
 	SubmittedAt            *string
+	Sort                   *string
+	Order                  *string
 }

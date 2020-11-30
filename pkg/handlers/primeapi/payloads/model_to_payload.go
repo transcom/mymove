@@ -53,8 +53,8 @@ func MoveTaskOrders(moveTaskOrders *models.Moves) []*primemessages.MoveTaskOrder
 	payload := make(primemessages.MoveTaskOrders, len(*moveTaskOrders))
 
 	for i, m := range *moveTaskOrders {
-		// #nosec G601 TODO needs review
-		payload[i] = MoveTaskOrder(&m)
+		copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload[i] = MoveTaskOrder(&copyOfM)
 	}
 	return payload
 }
@@ -215,8 +215,8 @@ func MTOAgents(mtoAgents *models.MTOAgents) *primemessages.MTOAgents {
 	agents := make(primemessages.MTOAgents, len(*mtoAgents))
 
 	for i, m := range *mtoAgents {
-		// #nosec G601 TODO needs review
-		agents[i] = MTOAgent(&m)
+		copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.
+		agents[i] = MTOAgent(&copyOfM)
 	}
 
 	return &agents
@@ -250,8 +250,8 @@ func PaymentRequests(paymentRequests *models.PaymentRequests) *primemessages.Pay
 	payload := make(primemessages.PaymentRequests, len(*paymentRequests))
 
 	for i, p := range *paymentRequests {
-		// #nosec G601 TODO needs review
-		payload[i] = PaymentRequest(&p)
+		copyOfP := p // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload[i] = PaymentRequest(&copyOfP)
 	}
 	return &payload
 }
@@ -291,8 +291,8 @@ func PaymentServiceItems(paymentServiceItems *models.PaymentServiceItems) *prime
 	payload := make(primemessages.PaymentServiceItems, len(*paymentServiceItems))
 
 	for i, p := range *paymentServiceItems {
-		// #nosec G601 TODO needs review
-		payload[i] = PaymentServiceItem(&p)
+		copyOfP := p // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload[i] = PaymentServiceItem(&copyOfP)
 	}
 	return &payload
 }
@@ -323,8 +323,8 @@ func PaymentServiceItemParams(paymentServiceItemParams *models.PaymentServiceIte
 	payload := make(primemessages.PaymentServiceItemParams, len(*paymentServiceItemParams))
 
 	for i, p := range *paymentServiceItemParams {
-		// #nosec G601 TODO needs review
-		payload[i] = PaymentServiceItemParam(&p)
+		copyOfP := p // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload[i] = PaymentServiceItemParam(&copyOfP)
 	}
 	return &payload
 }
@@ -393,8 +393,8 @@ func MTOShipments(mtoShipments *models.MTOShipments) *primemessages.MTOShipments
 	payload := make(primemessages.MTOShipments, len(*mtoShipments))
 
 	for i, m := range *mtoShipments {
-		// #nosec G601 TODO needs review
-		payload[i] = MTOShipment(&m)
+		copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload[i] = MTOShipment(&copyOfM)
 	}
 	return &payload
 }
@@ -475,8 +475,8 @@ func MTOServiceItems(mtoServiceItems *models.MTOServiceItems) *[]primemessages.M
 	var payload []primemessages.MTOServiceItem
 
 	for _, p := range *mtoServiceItems {
-		// #nosec G601 TODO needs review
-		payload = append(payload, MTOServiceItem(&p))
+		copyOfP := p // Make copy to avoid implicit memory aliasing of items from a range statement.
+		payload = append(payload, MTOServiceItem(&copyOfP))
 	}
 	return &payload
 }
