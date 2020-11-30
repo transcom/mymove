@@ -107,7 +107,6 @@ export class PpmLanding extends Component {
       loggedInUserSuccess,
       loggedInUserError,
       isProfileComplete,
-      createdServiceMemberError,
       moveSubmitSuccess,
       entitlement,
       serviceMember,
@@ -133,11 +132,6 @@ export class PpmLanding extends Component {
               {loggedInUserError && (
                 <Alert type="error" heading="An error occurred">
                   There was an error loading your user information.
-                </Alert>
-              )}
-              {createdServiceMemberError && (
-                <Alert type="error" heading="An error occurred">
-                  There was an error creating your profile information.
                 </Alert>
               )}
             </div>
@@ -202,11 +196,6 @@ const mapStateToProps = (state) => {
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
     loggedInUserError: selectGetCurrentUserIsError(state),
     loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
-    // TODO
-    createdServiceMemberIsLoading: state.serviceMember.isLoading,
-    createdServiceMemberSuccess: state.serviceMember.hasSubmitSuccess,
-    createdServiceMemberError: state.serviceMember.error,
-    //
     moveSubmitSuccess: state.signedCertification.moveSubmitSuccess,
     entitlement: loadEntitlementsFromState(state),
     requestPaymentSuccess: state.ppm.requestPaymentSuccess,

@@ -69,7 +69,7 @@ export class DutyStation extends Component {
   };
 
   render() {
-    const { pages, pageKey, error, existingStation, newDutyStation, currentStation } = this.props;
+    const { pages, pageKey, existingStation, newDutyStation, currentStation } = this.props;
     const { errorMessage } = this.state;
 
     let initialValues = null;
@@ -88,7 +88,7 @@ export class DutyStation extends Component {
         pageList={pages}
         pageKey={pageKey}
         initialValues={initialValues}
-        serverError={error || errorMessage}
+        serverError={errorMessage}
       >
         <h1>Current duty station</h1>
         <SectionWrapper>
@@ -105,7 +105,6 @@ export class DutyStation extends Component {
   }
 }
 DutyStation.propTypes = {
-  error: PropTypes.object,
   updateServiceMember: PropTypes.func.isRequired,
 };
 
@@ -121,9 +120,6 @@ function mapStateToProps(state) {
   return {
     values: getFormValues(dutyStationFormName)(state),
     existingStation: serviceMember?.current_station || {},
-    // TODO
-    ...state.serviceMember,
-    //
     currentServiceMember: serviceMember,
     currentStation: get(formValues, 'current_station', {}),
     newDutyStation: get(orders, 'new_duty_station', {}),

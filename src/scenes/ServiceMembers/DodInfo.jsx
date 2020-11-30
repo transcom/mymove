@@ -55,7 +55,7 @@ export class DodInfo extends Component {
   };
 
   render() {
-    const { pages, pageKey, error, currentServiceMember, schema } = this.props;
+    const { pages, pageKey, currentServiceMember, schema } = this.props;
     const { errorMessage } = this.state;
 
     const initialValues = currentServiceMember ? pick(currentServiceMember, subsetOfFields) : null;
@@ -66,7 +66,7 @@ export class DodInfo extends Component {
         className={formName}
         pageList={pages}
         pageKey={pageKey}
-        serverError={error || errorMessage}
+        serverError={errorMessage}
         initialValues={initialValues}
       >
         <h1>Create your profile</h1>
@@ -87,7 +87,6 @@ DodInfo.propTypes = {
   schema: PropTypes.object.isRequired,
   updateServiceMember: PropTypes.func.isRequired,
   currentServiceMember: PropTypes.object,
-  error: PropTypes.object,
 };
 
 const mapDispatchToProps = {
@@ -100,9 +99,6 @@ function mapStateToProps(state) {
   const props = {
     schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),
     values: getFormValues(formName)(state),
-    // TODO
-    ...state.serviceMember,
-    //
     currentServiceMember: serviceMember,
   };
   return props;

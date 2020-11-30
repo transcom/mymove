@@ -136,7 +136,7 @@ export class BackupContact extends Component {
   };
 
   render() {
-    const { pages, pageKey, error } = this.props;
+    const { pages, pageKey } = this.props;
     const { isValid, isDirty, errorMessage } = this.state;
 
     // eslint-disable-next-line
@@ -152,7 +152,7 @@ export class BackupContact extends Component {
         pageKey={pageKey}
         pageIsValid={isValid}
         dirty={isDirty}
-        error={error || errorMessage}
+        error={errorMessage}
       >
         <ContactForm
           ref="currentForm"
@@ -167,7 +167,6 @@ export class BackupContact extends Component {
 }
 BackupContact.propTypes = {
   schema: PropTypes.object.isRequired,
-  error: PropTypes.object,
 };
 
 const mapDispatchToProps = {
@@ -178,9 +177,9 @@ function mapStateToProps(state) {
   return {
     // TODO
     currentBackupContacts: state.serviceMember.currentBackupContacts,
-    error: state.serviceMember.error,
     schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberBackupContactPayload', {}),
     values: getFormValues(formName)(state),
   };
 }
+
 export default connect(mapStateToProps, mapDispatchToProps)(BackupContact);
