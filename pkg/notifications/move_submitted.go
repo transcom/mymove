@@ -69,7 +69,7 @@ func (m MoveSubmitted) emails(ctx context.Context) ([]emailContent, error) {
 		return emails, err
 	}
 
-	totalEntitlement, err := models.GetEntitlement(*serviceMember.Rank, orders.HasDependents, orders.SpouseHasProGear)
+	totalEntitlement, err := models.GetEntitlement(*serviceMember.Rank, orders.HasDependents)
 	if err != nil {
 		return emails, err
 	}

@@ -25,7 +25,7 @@ var parameters = map[string]string{
 	"dodID":       "service_members.edipi",
 	"submittedAt": "payment_requests.created_at",
 	"branch":      "service_members.affiliation",
-	"moveID":      "moves.locator",
+	"locator":     "moves.locator",
 	"status":      "payment_requests.status",
 	"age":         "payment_requests.created_at",
 }
@@ -67,7 +67,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 	} else {
 		gblocQuery = gblocFilter(gbloc)
 	}
-	moveIDQuery := moveIDFilter(params.MoveID)
+	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
 	lastNameQuery := lastNameFilter(params.LastName)
 	dutyStationQuery := destinationDutyStationFilter(params.DestinationDutyStation)
@@ -75,7 +75,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
 	orderQuery := sortOrder(params.Sort, params.Order)
 
-	options := [9]QueryOption{branchQuery, moveIDQuery, dodIDQuery, lastNameQuery, dutyStationQuery, statusQuery, submittedAtQuery, gblocQuery, orderQuery}
+	options := [9]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyStationQuery, statusQuery, submittedAtQuery, gblocQuery, orderQuery}
 
 	for _, option := range options {
 		if option != nil {
@@ -169,10 +169,10 @@ func dodIDFilter(dodID *string) QueryOption {
 	}
 }
 
-func moveIDFilter(moveID *string) QueryOption {
+func locatorFilter(locator *string) QueryOption {
 	return func(query *pop.Query) {
-		if moveID != nil {
-			query = query.Where("moves.locator = ?", *moveID)
+		if locator != nil {
+			query = query.Where("moves.locator = ?", *locator)
 		}
 	}
 }

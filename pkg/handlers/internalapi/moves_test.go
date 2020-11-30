@@ -354,7 +354,6 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 	suite.Equal(moveDate, *okResponse.Payload.MoveDate)
 
 	pack := []strfmt.Date{
-		strfmt.Date(time.Date(2018, 10, 4, 0, 0, 0, 0, time.UTC)),
 		strfmt.Date(time.Date(2018, 10, 5, 0, 0, 0, 0, time.UTC)),
 		strfmt.Date(time.Date(2018, 10, 9, 0, 0, 0, 0, time.UTC)),
 	}

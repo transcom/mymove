@@ -52,7 +52,7 @@ type GetPaymentRequestsQueueParams struct {
 	/*
 	  In: query
 	*/
-	MoveID *string
+	Locator *string
 	/*direction of sort order if applied
 	  In: query
 	*/
@@ -111,8 +111,8 @@ func (o *GetPaymentRequestsQueueParams) BindRequest(r *http.Request, route *midd
 		res = append(res, err)
 	}
 
-	qMoveID, qhkMoveID, _ := qs.GetOK("moveID")
-	if err := o.bindMoveID(qMoveID, qhkMoveID, route.Formats); err != nil {
+	qLocator, qhkLocator, _ := qs.GetOK("locator")
+	if err := o.bindLocator(qLocator, qhkLocator, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -224,8 +224,8 @@ func (o *GetPaymentRequestsQueueParams) bindLastName(rawData []string, hasKey bo
 	return nil
 }
 
-// bindMoveID binds and validates parameter MoveID from query.
-func (o *GetPaymentRequestsQueueParams) bindMoveID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+// bindLocator binds and validates parameter Locator from query.
+func (o *GetPaymentRequestsQueueParams) bindLocator(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -237,7 +237,7 @@ func (o *GetPaymentRequestsQueueParams) bindMoveID(rawData []string, hasKey bool
 		return nil
 	}
 
-	o.MoveID = &raw
+	o.Locator = &raw
 
 	return nil
 }
@@ -343,7 +343,7 @@ func (o *GetPaymentRequestsQueueParams) bindSort(rawData []string, hasKey bool, 
 // validateSort carries on validations for parameter Sort
 func (o *GetPaymentRequestsQueueParams) validateSort(formats strfmt.Registry) error {
 
-	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "moveID", "submittedAt", "branch", "status", "dodID", "age"}, true); err != nil {
+	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "locator", "submittedAt", "branch", "status", "dodID", "age"}, true); err != nil {
 		return err
 	}
 

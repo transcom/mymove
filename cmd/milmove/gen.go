@@ -52,8 +52,7 @@ func createMigration(path string, filename string, t *template.Template, templat
 }
 
 func addMigrationToManifest(migrationManifest string, filename string) error {
-	// #nosec G304 TODO needs review
-	mmf, err := os.OpenFile(migrationManifest, os.O_APPEND|os.O_WRONLY, 0600)
+	mmf, err := os.OpenFile(filepath.Clean(migrationManifest), os.O_APPEND|os.O_WRONLY, 0600)
 	if err != nil {
 		return errors.Wrap(err, "could not open migration manifest")
 	}

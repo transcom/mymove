@@ -41,7 +41,7 @@ const columns = (showBranchFilter = true) => [
     },
   ),
   createHeader('Move Code', 'locator', {
-    id: 'moveID',
+    id: 'locator',
     isFilterable: true,
   }),
   createHeader(
