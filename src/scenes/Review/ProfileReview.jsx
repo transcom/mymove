@@ -50,7 +50,7 @@ class ProfileReview extends Component {
     });
   };
   render() {
-    const { backupContacts, serviceMember, schemaRank, schemaAffiliation, schemaOrdersType } = this.props;
+    const { serviceMember, schemaRank, schemaAffiliation, schemaOrdersType } = this.props;
     return (
       <WizardPage
         handleSubmit={this.resumeMove}
@@ -61,7 +61,6 @@ class ProfileReview extends Component {
         <h1>Review your Profile</h1>
         <p>Has anything changed since your last move? Please check your info below, especially your Rank.</p>
         <ServiceMemberSummary
-          backupContacts={backupContacts}
           serviceMember={serviceMember}
           schemaRank={schemaRank}
           schemaAffiliation={schemaAffiliation}
@@ -102,11 +101,12 @@ function mapStateToProps(state) {
     schemaRank: getInternalSwaggerDefinition(state, 'ServiceMemberRank'),
     schemaOrdersType: getInternalSwaggerDefinition(state, 'OrdersType'),
     schemaAffiliation: getInternalSwaggerDefinition(state, 'Affiliation'),
-    // TODO
-    backupContacts: state.serviceMember.currentBackupContacts,
+    backupContacts: serviceMember?.backup_contacts || [],
   };
 }
+
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({ push }, dispatch);
 }
+
 export default withContext(connect(mapStateToProps, mapDispatchToProps)(ProfileReview));

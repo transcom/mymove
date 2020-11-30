@@ -43,3 +43,10 @@ export const selectIsProfileComplete = createSelector(
       serviceMember.backup_contacts?.length > 0
     ),
 );
+
+/** Backup Contacts */
+export const selectBackupContacts = (state) => {
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+  const backupContactIds = serviceMember?.backup_contacts || [];
+  return backupContactIds.map((id) => state.entities.backupContacts?.[`${id}`]);
+};

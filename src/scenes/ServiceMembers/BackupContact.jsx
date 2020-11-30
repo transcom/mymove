@@ -11,6 +11,7 @@ import { reduxForm } from 'redux-form';
 import { no_op } from 'shared/utils';
 import WizardPage from 'shared/WizardPage';
 import scrollToTop from 'shared/scrollToTop';
+import { selectBackupContacts } from 'store/entities/selectors';
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
 
@@ -175,8 +176,7 @@ const mapDispatchToProps = {
 
 function mapStateToProps(state) {
   return {
-    // TODO
-    currentBackupContacts: state.serviceMember.currentBackupContacts,
+    currentBackupContacts: selectBackupContacts(state),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberBackupContactPayload', {}),
     values: getFormValues(formName)(state),
   };

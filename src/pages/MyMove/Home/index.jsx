@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import React, { Component } from 'react';
-import { arrayOf, bool, shape, string, node, oneOfType, func } from 'prop-types';
+import { arrayOf, bool, shape, string, node, func } from 'prop-types';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
@@ -292,7 +292,7 @@ class Home extends Component {
 
     // early return if loading user/service member
     // TODO - handle this at the top level MyMove/index instead
-    if (loggedInUserIsLoading || !serviceMember) {
+    if (loggedInUserIsLoading || (isLoggedIn && !serviceMember)) {
       return (
         <div className={styles.homeContainer}>
           <div className={`usa-prose grid-container ${styles['grid-container']}`}>
@@ -475,7 +475,7 @@ Home.propTypes = {
   location: shape({}).isRequired,
   selectedMoveType: string,
   lastMoveIsCanceled: bool,
-  backupContacts: arrayOf(oneOfType([string, shape({})])),
+  backupContacts: arrayOf(string),
   context: shape({
     flags: shape({
       hhgFlow: bool,

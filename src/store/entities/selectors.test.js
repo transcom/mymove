@@ -1,4 +1,9 @@
-import { selectLoggedInUser, selectServiceMemberFromLoggedInUser, selectIsProfileComplete } from './selectors';
+import {
+  selectLoggedInUser,
+  selectServiceMemberFromLoggedInUser,
+  selectIsProfileComplete,
+  selectBackupContacts,
+} from './selectors';
 
 describe('selectLoggedInUser', () => {
   it('returns the first user stored in entities', () => {
@@ -83,6 +88,73 @@ describe('selectServiceMemberFromLoggedInUser', () => {
     };
 
     expect(selectServiceMemberFromLoggedInUser(testState)).toEqual(null);
+  });
+});
+
+describe('selectBackupContacts', () => {
+  it('returns the backup contacts associated with the logged in user', () => {
+    const testState = {
+      entities: {
+        backupContacts: {
+          backupContact789: {
+            id: 'backupContact789',
+            service_member_id: 'serviceMemberId456',
+          },
+          backupContact8910: {
+            id: 'backupContact8910',
+            service_member_id: 'serviceMemberId456',
+          },
+        },
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'serviceMemberId456',
+          },
+        },
+        serviceMembers: {
+          serviceMemberId456: {
+            id: 'serviceMemberId456',
+            backup_contacts: ['backupContact789', 'backupContact8910'],
+          },
+        },
+      },
+    };
+
+    expect(selectBackupContacts(testState)).toEqual([
+      testState.entities.backupContacts.backupContact789,
+      testState.entities.backupContacts.backupContact8910,
+    ]);
+  });
+
+  it('returns an empty array if the service member has no backup contacts', () => {
+    const testState = {
+      entities: {
+        backupContacts: {
+          backupContact789: {
+            id: 'backupContact789',
+            service_member_id: 'serviceMemberId123',
+          },
+          backupContact8910: {
+            id: 'backupContact8910',
+            service_member_id: 'serviceMemberId123',
+          },
+        },
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'serviceMemberId456',
+          },
+        },
+        serviceMembers: {
+          serviceMemberId456: {
+            id: 'serviceMemberId456',
+            backup_contacts: [],
+          },
+        },
+      },
+    };
+
+    expect(selectBackupContacts(testState)).toEqual([]);
   });
 });
 
