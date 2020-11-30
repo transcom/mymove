@@ -53,7 +53,7 @@ func (o moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eT
 
 		verrs, err = o.builder.UpdateOne(mto, &eTag)
 		if verrs != nil && verrs.HasAny() {
-			return &models.Move{}, services.InvalidInputError{}
+			return &models.Move{}, services.NewInvalidInputError(mto.ID, nil, verrs, "")
 		}
 		if err != nil {
 			switch err.(type) {
