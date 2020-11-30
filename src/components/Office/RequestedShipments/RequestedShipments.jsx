@@ -45,13 +45,10 @@ const RequestedShipments = ({
       shipments: [],
     },
     onSubmit: (values, { setSubmitting }) => {
-      const requests = [
-        Promise.all(
-          filteredShipments.map((shipment) =>
-            approveMTOShipment(moveTaskOrder.id, shipment.id, 'APPROVED', shipment.eTag),
-          ),
-        ),
-      ];
+      const shipmentRequests = filteredShipments.map((shipment) =>
+        approveMTOShipment(moveTaskOrder.id, shipment.id, 'APPROVED', shipment.eTag),
+      );
+
       const mtoApprovalServiceItemCodes = {
         serviceCodeMS: values.shipmentManagementFee,
         serviceCodeCS: values.counselingFee,
@@ -59,22 +56,27 @@ const RequestedShipments = ({
 
       // if mto is not yet approved, add request to approve it
       if (!moveTaskOrder.availableToPrimeAt) {
-        requests.push(approveMTO(moveTaskOrder.id, moveTaskOrder.eTag, mtoApprovalServiceItemCodes));
-      }
-
-      Promise.all(requests)
-        .then((results) => {
-          if (results[0].every((shipmentResult) => shipmentResult.response.status === 200)) {
-            if (results[1]?.response?.status === 200) {
-              // TODO: We will need to change this so that it goes to the MoveTaskOrder view when we're implementing the success UI element in a later story.
-              window.location.reload();
+        approveMTO(moveTaskOrder.id, moveTaskOrder.eTag, mtoApprovalServiceItemCodes)
+          .then((result) => {
+            if (result?.response?.status === 200) {
+              Promise.all(shipmentRequests)
+                .then((results) => {
+                  if (results.every((shipmentResult) => shipmentResult.response.status === 200)) {
+                    // TODO: We will need to change this so that it goes to the MoveTaskOrder view when we're implementing the success UI element in a later story.
+                    window.location.reload();
+                  }
+                })
+                .catch(() => {
+                  // TODO: Decide if we want to display an error notice, log error event, or retry
+                  setSubmitting(false);
+                });
             }
-          }
-        })
-        .catch(() => {
-          // TODO: Decided if we wnat to display an error notice, log error event, or retry
-          setSubmitting(false);
-        });
+          })
+          .catch(() => {
+            // TODO: Decide if we want to display an error notice, log error event, or retry
+            setSubmitting(false);
+          });
+      }
     },
   });
 
