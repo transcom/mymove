@@ -1,5 +1,6 @@
 import * as mime from 'mime-types';
 import 'cypress-wait-until';
+import "cypress-audit/commands";
 
 import {
   milmoveBaseURL,
@@ -253,3 +254,5 @@ Cypress.Commands.add('selectDutyStation', (stationName, fieldName) => {
   let classSelector = '.duty-input-box';
   genericSelect(stationName, fieldName, classSelector);
 });
+
+
