@@ -182,7 +182,11 @@ export class Summary extends Component {
 
     const showPPMShipmentSummary = !isReviewPage && Object.keys(currentPPM).length && currentPPM.status !== 'DRAFT';
     const showHHGShipmentSummary = isReviewPage && !!mtoShipments.length;
-    const hasPPMorHHG = (isReviewPage && Object.keys(currentPPM).length) || !!mtoShipments.length;
+    const hasPPM = Object.keys(currentPPM).length;
+
+    // customer can add another shipment IFF the move is still draft OR it's not a draft & they don't have a PPM yet
+    // double not is to prevent js from converting false to 0 and displaying said 0 on the page
+    const canAddAnotherShipment = isReviewPage && !!(currentMove.status === MOVE_STATUSES.DRAFT || !hasPPM);
 
     const showMoveSetup = showPPMShipmentSummary || showHHGShipmentSummary;
     const shipmentSelectionPath = `/moves/${currentMove.id}/select-type`;
@@ -237,16 +241,20 @@ export class Summary extends Component {
           {showPPMShipmentSummary && (
             <PPMShipmentSummary ppm={currentPPM} movePath={rootReviewAddressWithMoveId} orders={currentOrders} />
           )}
-          {hasPPMorHHG && (
-            <div className="grid-col-row margin-top-5">
-              <span className="float-right">Optional</span>
-              <h3>Add another shipment</h3>
-              <p>Will you move any belongings to or from another location?</p>
-              <Button className="usa-button--secondary" onClick={() => history.push(shipmentSelectionPath)}>
-                Add another shipment
-              </Button>
-            </div>
-          )}
+          <div className="grid-col-row margin-top-5">
+            <span className="float-right">Optional</span>
+            <h3>Add another shipment</h3>
+            {canAddAnotherShipment ? (
+              <>
+                <p>Do you have more to move, either to or from another location, or by another method?</p>
+                <Button className="usa-button--secondary" onClick={() => history.push(shipmentSelectionPath)}>
+                  Add another shipment
+                </Button>
+              </>
+            ) : (
+              <p>Talk with your movers directly if you want to add or change shipments.</p>
+            )}
+          </div>
           {moveIsApproved && (
             <div className="approved-edit-warning">
               *To change these fields, contact your local PPPO office at {get(currentStation, 'name')}{' '}
@@ -260,7 +268,7 @@ export class Summary extends Component {
 }
 
 Summary.propTypes = {
-  currentMove: shape({ id: string.isRequired }).isRequired,
+  currentMove: shape({ id: string.isRequired, status: string.isRequired }).isRequired,
   currentOrders: shape({}).isRequired,
   currentPPM: shape({}).isRequired,
   history: shape({ push: func.isRequired }).isRequired,
