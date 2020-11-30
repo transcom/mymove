@@ -137,3 +137,32 @@ func (o *moveTaskOrderUpdater) UpdatePostCounselingInfo(moveTaskOrderID uuid.UUI
 
 	return &moveTaskOrder, nil
 }
+
+//MakeAvailableToPrime updates the status of a MoveTaskOrder for a given UUID to make it available to prime
+func (o moveTaskOrderUpdater) Hide(moveTaskOrderID uuid.UUID, eTag string) (*models.Move, error) {
+	var err error
+	var verrs *validate.Errors
+
+	mto, err := o.FetchMoveTaskOrder(moveTaskOrderID)
+	if err != nil {
+		return &models.Move{}, err
+	}
+
+	show := false
+	mto.Show = &show
+
+	verrs, err = o.builder.UpdateOne(mto, &eTag)
+	if verrs != nil && verrs.HasAny() {
+		return &models.Move{}, services.InvalidInputError{}
+	}
+	if err != nil {
+		switch err.(type) {
+		case query.StaleIdentifierError:
+			return nil, services.NewPreconditionFailedError(mto.ID, err)
+		default:
+			return &models.Move{}, err
+		}
+	}
+
+	return mto, nil
+}
