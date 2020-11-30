@@ -56,6 +56,11 @@ describe('the PPM flow', function () {
     cy.apiSignInAsPpmUser(userId);
     SMContinueRequestPayment();
   });
+
+  it("should pass the audits", function () {
+    cy.lighthouse();
+    cy.pa11y();
+  });
 });
 
 function SMSubmitsMove() {
@@ -327,3 +332,5 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true, ordina
     cy.wait('@postWeightTicket').its('status').should('eq', 200);
   }
 }
+
+
