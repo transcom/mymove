@@ -195,24 +195,26 @@ class Home extends Component {
       );
     }
     return (
-      <p>
-        You&apos;re moving to <strong>{orders.new_duty_station.name}</strong> from{' '}
-        <strong>{serviceMember.current_station.name}.</strong> Report by{' '}
-        <strong>{moment(orders.report_by_date).format('DD MMM YYYY')}.</strong>
-        <br />
-        <div className={styles.subheaderContainer}>
-          <p className={styles.subheaderSubsection}>
-            Weight allowance
-            <strong>{serviceMember.weight_allotment.total_weight_self} lbs.</strong>
-          </p>
+      <>
+        <p>
+          You&apos;re moving to <strong>{orders.new_duty_station.name}</strong> from{' '}
+          <strong>{serviceMember.current_station.name}.</strong> Report by{' '}
+          <strong>{moment(orders.report_by_date).format('DD MMM YYYY')}.</strong>
+        </p>
+
+        <dl className={styles.subheaderContainer}>
+          <div className={styles.subheaderSubsection}>
+            <dt>Weight allowance</dt>
+            <dd>{serviceMember.weight_allotment.total_weight_self} lbs.</dd>
+          </div>
           {move.locator && (
-            <p className={styles.subheaderSubsection}>
-              Move code
-              <strong>#{move.locator}</strong>
-            </p>
+            <div className={styles.subheaderSubsection}>
+              <dt>Move code</dt>
+              <dd>#{move.locator}</dd>
+            </div>
           )}
-        </div>
-      </p>
+        </dl>
+      </>
     );
   };
 
