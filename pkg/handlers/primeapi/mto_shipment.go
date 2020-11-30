@@ -45,9 +45,9 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 
 	for _, mtoServiceItem := range params.Body.MtoServiceItems() {
 		// restrict creation to a list
-		if _, ok := AllowedServiceItemMap[mtoServiceItem.ModelType()]; !ok {
+		if _, ok := CreateableServiceItemMap[mtoServiceItem.ModelType()]; !ok {
 			// throw error if modelType() not on the list
-			mapKeys := GetMapKeys(AllowedServiceItemMap)
+			mapKeys := GetMapKeys(CreateableServiceItemMap)
 			detailErr := fmt.Sprintf("MTOServiceItem modelType() not allowed: %s ", mtoServiceItem.ModelType())
 			verrs := validate.NewErrors()
 			verrs.Add("modelType", fmt.Sprintf("allowed modelType() %v", mapKeys))

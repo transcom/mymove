@@ -614,7 +614,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 	suite.Run("returns results matching Move ID search term", func() {
 		params := queues.GetMovesQueueParams{
 			HTTPRequest: request,
-			MoveID:      &move1.Locator,
+			Locator:     &move1.Locator,
 		}
 
 		response := handler.Handle(params)
@@ -649,7 +649,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 			HTTPRequest:            request,
 			LastName:               models.StringPointer("Dar"),
 			DodID:                  serviceMember1.Edipi,
-			MoveID:                 &move1.Locator,
+			Locator:                &move1.Locator,
 			DestinationDutyStation: &dutyStation1.Name,
 		}
 

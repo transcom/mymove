@@ -189,14 +189,14 @@ class Home extends Component {
     if (!this.hasOrders) {
       return (
         <p>
-          You&apos;re leaving <strong>{serviceMember?.current_station?.name}</strong>
+          You&apos;re leaving <strong>{serviceMember.current_station?.name}</strong>
         </p>
       );
     }
     return (
       <p>
         You&apos;re moving to <strong>{orders.new_duty_station.name}</strong> from{' '}
-        <strong>{serviceMember.current_station.name}.</strong> Report by{' '}
+        <strong>{serviceMember.current_station?.name}.</strong> Report by{' '}
         <strong>{moment(orders.report_by_date).format('DD MMM YYYY')}.</strong>
         <br />
         Weight allowance: <strong>{serviceMember.weight_allotment.total_weight_self} lbs</strong>
@@ -290,6 +290,7 @@ class Home extends Component {
       signedCertification,
       uploadedOrderDocuments,
     } = this.props;
+    const { current_station } = serviceMember;
     const ordersPath = this.hasOrdersNoUpload ? '/orders/upload' : '/orders';
     const shipmentSelectionPath = this.hasAnyShipments
       ? `/moves/${move.id}/select-type`
@@ -298,6 +299,7 @@ class Home extends Component {
     const profileEditPath = '/moves/review/edit-profile';
     const ordersEditPath = `/moves/${move.id}/review/edit-orders`;
     const allSortedShipments = this.sortAllShipments(mtoShipments, currentPpm);
+
     return (
       <>
         <div className={styles.homeContainer}>
@@ -305,7 +307,7 @@ class Home extends Component {
             <header data-testid="customer-header" className={styles['customer-header']}>
               <div className={`usa-prose grid-container ${styles['grid-container']}`}>
                 <h2>
-                  {serviceMember?.first_name} {serviceMember?.last_name}
+                  {serviceMember.first_name} {serviceMember.last_name}
                 </h2>
                 {this.renderCustomerHeader()}
               </div>
@@ -414,9 +416,10 @@ class Home extends Component {
                     </SectionWrapper>
                     <Contact
                       header="Contacts"
-                      dutyStationName="Seymour Johnson AFB"
+                      dutyStationName={current_station?.transportation_office?.name}
                       officeType="Origin Transportation Office"
-                      telephone="(919) 722-5458"
+                      telephone={current_station?.transportation_office?.phone_lines[0]}
+                      moveSubmitted={move.status === MOVE_STATUSES.SUBMITTED}
                     />
                   </>
                 )}

@@ -47,6 +47,10 @@ type MTOServiceItemDOFSIT struct {
 	// Required: true
 	Reason *string `json:"reason"`
 
+	// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
+	// Format: date
+	SitDepartureDate strfmt.Date `json:"sitDepartureDate,omitempty"`
+
 	// Entry date for the SIT
 	// Required: true
 	// Format: date
@@ -155,6 +159,10 @@ func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
 		// Required: true
 		Reason *string `json:"reason"`
 
+		// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
+		// Format: date
+		SitDepartureDate strfmt.Date `json:"sitDepartureDate,omitempty"`
+
 		// Entry date for the SIT
 		// Required: true
 		// Format: date
@@ -223,6 +231,7 @@ func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
 	result.PickupPostalCode = data.PickupPostalCode
 	result.ReServiceCode = data.ReServiceCode
 	result.Reason = data.Reason
+	result.SitDepartureDate = data.SitDepartureDate
 	result.SitEntryDate = data.SitEntryDate
 	result.SitPostalCode = data.SitPostalCode
 
@@ -251,6 +260,10 @@ func (m MTOServiceItemDOFSIT) MarshalJSON() ([]byte, error) {
 		// Required: true
 		Reason *string `json:"reason"`
 
+		// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
+		// Format: date
+		SitDepartureDate strfmt.Date `json:"sitDepartureDate,omitempty"`
+
 		// Entry date for the SIT
 		// Required: true
 		// Format: date
@@ -267,6 +280,8 @@ func (m MTOServiceItemDOFSIT) MarshalJSON() ([]byte, error) {
 		ReServiceCode: m.ReServiceCode,
 
 		Reason: m.Reason,
+
+		SitDepartureDate: m.SitDepartureDate,
 
 		SitEntryDate: m.SitEntryDate,
 
@@ -345,6 +360,10 @@ func (m *MTOServiceItemDOFSIT) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReason(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitDepartureDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -467,6 +486,19 @@ func (m *MTOServiceItemDOFSIT) validateReServiceCode(formats strfmt.Registry) er
 func (m *MTOServiceItemDOFSIT) validateReason(formats strfmt.Registry) error {
 
 	if err := validate.Required("reason", "body", m.Reason); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDOFSIT) validateSitDepartureDate(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SitDepartureDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("sitDepartureDate", "body", "date", m.SitDepartureDate.String(), formats); err != nil {
 		return err
 	}
 
