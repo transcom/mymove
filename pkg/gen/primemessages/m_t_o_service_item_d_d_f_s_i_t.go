@@ -48,6 +48,10 @@ type MTOServiceItemDDFSIT struct {
 	// Enum: [DDFSIT DDASIT]
 	ReServiceCode *string `json:"reServiceCode"`
 
+	// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
+	// Format: date
+	SitDepartureDate strfmt.Date `json:"sitDepartureDate,omitempty"`
+
 	// Entry date for the SIT
 	// Required: true
 	// Format: date
@@ -162,6 +166,10 @@ func (m *MTOServiceItemDDFSIT) UnmarshalJSON(raw []byte) error {
 		// Enum: [DDFSIT DDASIT]
 		ReServiceCode *string `json:"reServiceCode"`
 
+		// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
+		// Format: date
+		SitDepartureDate strfmt.Date `json:"sitDepartureDate,omitempty"`
+
 		// Entry date for the SIT
 		// Required: true
 		// Format: date
@@ -235,6 +243,7 @@ func (m *MTOServiceItemDDFSIT) UnmarshalJSON(raw []byte) error {
 	result.FirstAvailableDeliveryDate1 = data.FirstAvailableDeliveryDate1
 	result.FirstAvailableDeliveryDate2 = data.FirstAvailableDeliveryDate2
 	result.ReServiceCode = data.ReServiceCode
+	result.SitDepartureDate = data.SitDepartureDate
 	result.SitEntryDate = data.SitEntryDate
 	result.TimeMilitary1 = data.TimeMilitary1
 	result.TimeMilitary2 = data.TimeMilitary2
@@ -265,6 +274,10 @@ func (m MTOServiceItemDDFSIT) MarshalJSON() ([]byte, error) {
 		// Enum: [DDFSIT DDASIT]
 		ReServiceCode *string `json:"reServiceCode"`
 
+		// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
+		// Format: date
+		SitDepartureDate strfmt.Date `json:"sitDepartureDate,omitempty"`
+
 		// Entry date for the SIT
 		// Required: true
 		// Format: date
@@ -286,6 +299,8 @@ func (m MTOServiceItemDDFSIT) MarshalJSON() ([]byte, error) {
 		FirstAvailableDeliveryDate2: m.FirstAvailableDeliveryDate2,
 
 		ReServiceCode: m.ReServiceCode,
+
+		SitDepartureDate: m.SitDepartureDate,
 
 		SitEntryDate: m.SitEntryDate,
 
@@ -366,6 +381,10 @@ func (m *MTOServiceItemDDFSIT) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReServiceCode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitDepartureDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -496,6 +515,19 @@ func (m *MTOServiceItemDDFSIT) validateReServiceCode(formats strfmt.Registry) er
 
 	// value enum
 	if err := m.validateReServiceCodeEnum("reServiceCode", "body", *m.ReServiceCode); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDDFSIT) validateSitDepartureDate(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SitDepartureDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("sitDepartureDate", "body", "date", m.SitDepartureDate.String(), formats); err != nil {
 		return err
 	}
 

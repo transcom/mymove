@@ -131,10 +131,14 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		return nil
 	}
 	var proGearWeight, proGearWeightSpouse, totalWeight int64
-	if entitlement.WeightAllotment() != nil {
-		proGearWeight = int64(entitlement.WeightAllotment().ProGearWeight)
-		proGearWeightSpouse = int64(entitlement.WeightAllotment().ProGearWeightSpouse)
-		totalWeight = int64(entitlement.WeightAllotment().TotalWeightSelf)
+	if weightAllotment := entitlement.WeightAllotment(); weightAllotment != nil {
+		proGearWeight = int64(weightAllotment.ProGearWeight)
+		proGearWeightSpouse = int64(weightAllotment.ProGearWeightSpouse)
+		if *entitlement.DependentsAuthorized {
+			totalWeight = int64(weightAllotment.TotalWeightSelfPlusDependents)
+		} else {
+			totalWeight = int64(weightAllotment.TotalWeightSelf)
+		}
 	}
 	var authorizedWeight *int64
 	if entitlement.AuthorizedWeight() != nil {

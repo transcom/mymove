@@ -4,19 +4,21 @@ import (
 	"net/http/httptest"
 	"time"
 
-	"github.com/gofrs/uuid"
+	"github.com/go-openapi/swag"
 
-	moveorder "github.com/transcom/mymove/pkg/services/move_order"
+	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/go-openapi/strfmt"
-
-	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/etag"
 	moveorderop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_order"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/services/mocks"
+	moveorder "github.com/transcom/mymove/pkg/services/move_order"
 	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestGetMoveOrderHandlerIntegration() {
@@ -47,13 +49,88 @@ func (suite *HandlerSuite) TestGetMoveOrderHandlerIntegration() {
 	suite.Equal((*moveOrder.EntitlementID).String(), payloadEntitlement.ID.String())
 	moveOrderEntitlement := moveOrder.Entitlement
 	suite.NotNil(moveOrderEntitlement)
-	suite.Equal(int64(moveOrderEntitlement.WeightAllotment().ProGearWeight), payloadEntitlement.ProGearWeight)
-	suite.Equal(int64(moveOrderEntitlement.WeightAllotment().ProGearWeightSpouse), payloadEntitlement.ProGearWeightSpouse)
-	suite.Equal(int64(moveOrderEntitlement.WeightAllotment().TotalWeightSelf), payloadEntitlement.TotalWeight)
-	suite.Equal(int64(*moveOrderEntitlement.AuthorizedWeight()), *payloadEntitlement.AuthorizedWeight)
 	suite.Equal(moveOrder.OriginDutyStation.ID.String(), moveOrdersPayload.OriginDutyStation.ID.String())
 	suite.NotZero(moveOrder.OriginDutyStation)
 	suite.NotZero(moveOrdersPayload.DateIssued)
+}
+
+func (suite *HandlerSuite) TestWeightAllowances() {
+	suite.Run("With E-1 rank and no dependents", func() {
+		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+			Stub: true,
+			Order: models.Order{
+				HasDependents: *swag.Bool(false),
+			},
+			Entitlement: models.Entitlement{
+				ID:                   uuid.Must(uuid.NewV4()),
+				DependentsAuthorized: swag.Bool(false),
+			},
+		})
+		request := httptest.NewRequest("GET", "/move-orders/{moveOrderID}", nil)
+		params := moveorderop.GetMoveOrderParams{
+			HTTPRequest: request,
+			MoveOrderID: strfmt.UUID(order.ID.String()),
+		}
+		moveOrderFetcher := mocks.MoveOrderFetcher{}
+		moveOrderFetcher.On("FetchMoveOrder", order.ID).Return(&order, nil)
+
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		handler := GetMoveOrdersHandler{
+			context,
+			&moveOrderFetcher,
+		}
+		response := handler.Handle(params)
+
+		suite.IsNotErrResponse(response)
+
+		orderOK := response.(*moveorderop.GetMoveOrderOK)
+		orderPayload := orderOK.Payload
+		payloadEntitlement := orderPayload.Entitlement
+		orderEntitlement := order.Entitlement
+		expectedAllowance := int64(orderEntitlement.WeightAllotment().TotalWeightSelf)
+
+		suite.Equal(int64(orderEntitlement.WeightAllotment().ProGearWeight), payloadEntitlement.ProGearWeight)
+		suite.Equal(int64(orderEntitlement.WeightAllotment().ProGearWeightSpouse), payloadEntitlement.ProGearWeightSpouse)
+		suite.Equal(expectedAllowance, payloadEntitlement.TotalWeight)
+		suite.Equal(int64(*orderEntitlement.AuthorizedWeight()), *payloadEntitlement.AuthorizedWeight)
+	})
+
+	suite.Run("With E-1 rank and dependents", func() {
+		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+			Stub: true,
+			Order: models.Order{
+				HasDependents: *swag.Bool(true),
+			},
+		})
+
+		request := httptest.NewRequest("GET", "/move-orders/{orderID}", nil)
+		params := moveorderop.GetMoveOrderParams{
+			HTTPRequest: request,
+			MoveOrderID: strfmt.UUID(order.ID.String()),
+		}
+		moveOrderFetcher := mocks.MoveOrderFetcher{}
+		moveOrderFetcher.On("FetchMoveOrder", order.ID).Return(&order, nil)
+
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		handler := GetMoveOrdersHandler{
+			context,
+			&moveOrderFetcher,
+		}
+		response := handler.Handle(params)
+
+		suite.IsNotErrResponse(response)
+
+		orderOK := response.(*moveorderop.GetMoveOrderOK)
+		orderPayload := orderOK.Payload
+		payloadEntitlement := orderPayload.Entitlement
+		orderEntitlement := order.Entitlement
+		expectedAllowance := int64(orderEntitlement.WeightAllotment().TotalWeightSelfPlusDependents)
+
+		suite.Equal(int64(orderEntitlement.WeightAllotment().ProGearWeight), payloadEntitlement.ProGearWeight)
+		suite.Equal(int64(orderEntitlement.WeightAllotment().ProGearWeightSpouse), payloadEntitlement.ProGearWeightSpouse)
+		suite.Equal(expectedAllowance, payloadEntitlement.TotalWeight)
+		suite.Equal(int64(*orderEntitlement.AuthorizedWeight()), *payloadEntitlement.AuthorizedWeight)
+	})
 }
 
 func (suite *HandlerSuite) TestUpdateMoveOrderHandlerIntegration() {

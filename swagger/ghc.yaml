@@ -1045,7 +1045,7 @@ paths:
         - in: query
           name: sort
           type: string
-          enum: [lastName, dodID, branch, moveID, status, destinationDutyStation]
+          enum: [lastName, dodID, branch, locator, status, destinationDutyStation]
           description: field that results should be sorted by
         - in: query
           name: order
@@ -1056,7 +1056,7 @@ paths:
           name: branch
           type: string
         - in: query
-          name: moveID
+          name: locator
           type: string
         - in: query
           name: lastName
@@ -1105,7 +1105,7 @@ paths:
         - in: query
           name: sort
           type: string
-          enum: [ lastName, moveID, submittedAt, branch, status, dodID, age]
+          enum: [ lastName, locator, submittedAt, branch, status, dodID, age]
           description: field that results should be sorted by
         - in: query
           name: order
@@ -1127,7 +1127,7 @@ paths:
           name: branch
           type: string
         - in: query
-          name: moveID
+          name: locator
           type: string
         - in: query
           name: lastName
