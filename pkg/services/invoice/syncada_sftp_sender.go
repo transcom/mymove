@@ -68,9 +68,16 @@ func (s *SyncadaSenderSFTPSession) SendToSyncadaViaSFTP(localDataReader io.Reade
 		Auth: []ssh.AuthMethod{
 			ssh.Password(s.password),
 		},
-		/* #nosec */
-		// The hostKey was removed because authentication is performed using a user ID and password
-		// If hostKey configuration is needed, please see PR #5039: https://github.com/transcom/mymove/pull/5039
+
+		//RA Summary: gosec - G106 - Audit the use of ssh.InsecureIgnoreHostKey
+		//RA: The linter is flagging this line of code because we are setting insecure ignore host key.
+		//RA: The hostKey was removed because authentication is performed using a user ID and password
+		//RA: If hostKey configuration is needed, please see PR #5039: https://github.com/transcom/mymove/pull/5039
+		//RA Developer Status: {RA Request, RA Accepted, POA&M Request, POA&M Accepted, Mitigated, Need Developer Fix, False Positive, Bad Practice}
+		//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
+		//RA Validator: jneuner@mitre.org
+		//RA Modified Severity:
+		// #nosec G106
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 		// HostKeyCallback: ssh.FixedHostKey(hostKey),
 	}
