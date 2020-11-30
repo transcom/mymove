@@ -294,6 +294,7 @@ class EditWeight extends Component {
       incentiveEstimateMin,
       incentiveEstimateMax,
     } = this.props;
+
     return (
       <div className="grid-container usa-prose">
         {error && (
@@ -340,9 +341,6 @@ function mapStateToProps(state) {
     currentPPM: selectActivePPMForMove(state, moveID),
     incentiveEstimateMin: selectPPMEstimateRange(state).range_min,
     incentiveEstimateMax: selectPPMEstimateRange(state).range_max,
-    // TODO
-    error: get(state, 'serviceMember.error'),
-    hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
     entitlement: loadEntitlementsFromState(state),
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
     originDutyStationZip: serviceMember?.current_station?.address?.postal_code,

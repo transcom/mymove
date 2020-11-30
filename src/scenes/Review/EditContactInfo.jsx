@@ -126,7 +126,7 @@ class EditContact extends Component {
   }
 
   render() {
-    const { error, serviceMemberSchema, addressSchema, serviceMember } = this.props;
+    const { serviceMemberSchema, addressSchema, serviceMember } = this.props;
     const { errorMessage } = this.state;
 
     let initialValues = null;
@@ -139,10 +139,10 @@ class EditContact extends Component {
 
     return (
       <div className="usa-grid">
-        {(error || errorMessage) && (
+        {errorMessage && (
           <div className="usa-width-one-whole error-message">
             <Alert type="error" heading="An error occurred">
-              {error?.message || errorMessage}
+              {errorMessage}
             </Alert>
           </div>
         )}
@@ -164,9 +164,6 @@ function mapStateToProps(state) {
 
   return {
     serviceMember,
-    // TODO
-    error: get(state, 'serviceMember.error'),
-    hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
     serviceMemberSchema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),
     addressSchema: get(state, 'swaggerInternal.spec.definitions.Address', {}),
   };

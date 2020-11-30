@@ -147,15 +147,15 @@ class EditProfile extends Component {
   }
 
   render() {
-    const { error, schema, serviceMember, moveIsApproved, schemaAffiliation, schemaRank } = this.props;
+    const { schema, serviceMember, moveIsApproved, schemaAffiliation, schemaRank } = this.props;
     const { errorMessage } = this.state;
 
     return (
       <div className="usa-grid">
-        {(error || errorMessage) && (
+        {errorMessage && (
           <div className="usa-width-one-whole error-message">
             <Alert type="error" heading="An error occurred">
-              {error?.message || errorMessage}
+              {errorMessage}
             </Alert>
           </div>
         )}
@@ -182,9 +182,6 @@ function mapStateToProps(state) {
   return {
     serviceMember,
     move: get(state, 'moves.currentMove'),
-    // TODO
-    error: get(state, 'serviceMember.error'),
-    hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),
     moveIsApproved: moveIsApproved(state),
     isPpm: isPpm(state),
