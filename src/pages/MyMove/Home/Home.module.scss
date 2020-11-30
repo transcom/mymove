@@ -1,5 +1,6 @@
 @import 'shared/styles/colors';
 @import 'shared/styles/_basics';
+@import 'shared/styles/_variables';
 
 .grid-container {
   margin-left: auto;
@@ -66,5 +67,68 @@
 @media print {
   .homeContainer {
     display: none;
+  }
+}
+
+.subheaderContainer {
+  display: flex;
+  justify-content: space-between;
+  color: $base-light;
+  @include u-margin-top(1.5);
+  @include u-margin-bottom(0);
+
+  .subheaderSubsection {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    flex-shrink: 0;
+    flex-basis: 0;
+  }
+
+  .subheaderSubsection + .subheaderSubsection {
+    @include u-margin-left(2);
+  }
+
+  dt {
+    letter-spacing: 0.5px;
+    font-size: 13px;
+    line-height: 1.23;
+  }
+
+  dt + dd {
+    @include u-margin-left(0);
+    @include u-margin-top(1);
+  }
+
+  dd {
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 1.2;
+    color: white;
+  }
+
+  @media (min-width: $tablet) {
+    justify-content: flex-start;
+
+    .subheaderSubsection {
+      flex-direction: row;
+      flex-basis: auto;
+      flex-grow: 0;
+    }
+
+    dt:after {
+      content: ': ';
+    }
+
+    dt,
+    dd {
+      font-size: 13px;
+      line-height: 1.38;
+    }
+
+    dt + dd {
+      @include u-margin-left(0.5em);
+      @include u-margin-top(0);
+    }
   }
 }
