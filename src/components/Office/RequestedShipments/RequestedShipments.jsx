@@ -54,7 +54,7 @@ const RequestedShipments = ({
         serviceCodeCS: values.counselingFee,
       };
 
-      // if mto is not yet approved, add request to approve it
+      // The MTO has not yet been approved so resolve before updating the shipment statuses and creating accessorial service items
       if (!moveTaskOrder.availableToPrimeAt) {
         approveMTO(moveTaskOrder.id, moveTaskOrder.eTag, mtoApprovalServiceItemCodes)
           .then((result) => {
@@ -70,6 +70,19 @@ const RequestedShipments = ({
                   // TODO: Decide if we want to display an error notice, log error event, or retry
                   setSubmitting(false);
                 });
+            }
+          })
+          .catch(() => {
+            // TODO: Decide if we want to display an error notice, log error event, or retry
+            setSubmitting(false);
+          });
+      } else {
+        // The MTO was previously approved along with at least one shipment, only update the new shipment statuses
+        Promise.all(shipmentRequests)
+          .then((results) => {
+            if (results.every((shipmentResult) => shipmentResult.response.status === 200)) {
+              // TODO: We will need to change this so that it goes to the MoveTaskOrder view when we're implementing the success UI element in a later story.
+              window.location.reload();
             }
           })
           .catch(() => {
