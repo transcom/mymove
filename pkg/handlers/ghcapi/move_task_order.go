@@ -17,7 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/audit"
 )
 
-// GetMoveTaskOrderHandler fetches a of a Move Task Order
+// GetMoveTaskOrderHandler fetches a Move Task Order
 type GetMoveTaskOrderHandler struct {
 	handlers.HandlerContext
 	moveTaskOrderFetcher services.MoveTaskOrderFetcher

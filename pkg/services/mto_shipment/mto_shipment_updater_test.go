@@ -567,16 +567,11 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.T().Run("When move status is not already approved", func(t *testing.T) {
-		submittedMTO := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusSUBMITTED}})
-		shipment7 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: submittedMTO,
-			MTOShipment: models.MTOShipment{
-				Status: models.MTOShipmentStatusSubmitted,
-			},
-		})
-		eTag = etag.GenerateEtag(shipment7.UpdatedAt)
+		submittedMTO := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+		mtoShipment := submittedMTO.MTOShipments[0]
+		eTag = etag.GenerateEtag(mtoShipment.UpdatedAt)
 
-		updatedShipment, err := updater.UpdateMTOShipmentStatus(shipment7.ID, models.MTOShipmentStatusApproved, nil, eTag)
+		updatedShipment, err := updater.UpdateMTOShipmentStatus(mtoShipment.ID, models.MTOShipmentStatusApproved, nil, eTag)
 		suite.Nil(updatedShipment)
 		suite.Error(err)
 		suite.IsType(services.ConflictError{}, err)
