@@ -755,6 +755,10 @@ paths:
           description: The requested resource wasn't found
           schema:
             $ref: '#/responses/NotFound'
+        '409':
+          description: Conflict error
+          schema:
+            $ref: '#/responses/Conflict'
         '412':
           description: Precondition Failed
           schema:
@@ -1050,7 +1054,7 @@ paths:
         - in: query
           name: order
           type: string
-          enum: [ asc, desc ]
+          enum: [asc, desc]
           description: direction of sort order if applied
         - in: query
           name: branch
@@ -1105,12 +1109,12 @@ paths:
         - in: query
           name: sort
           type: string
-          enum: [ lastName, locator, submittedAt, branch, status, dodID, age]
+          enum: [lastName, locator, submittedAt, branch, status, dodID, age]
           description: field that results should be sorted by
         - in: query
           name: order
           type: string
-          enum: [ asc, desc ]
+          enum: [asc, desc]
           description: direction of sort order if applied
         - in: query
           name: page
