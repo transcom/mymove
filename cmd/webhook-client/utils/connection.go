@@ -50,12 +50,11 @@ func (wr *WebhookRuntime) SetupClient(cert *tls.Certificate) (*WebhookRuntime, e
 	//RA: The linter is flagging this line of code because we are passing in a boolean value which can set InsecureSkipVerify to true.
 	//RA: In production, the value of this flag is always false. We are, however, using
 	//RA: this flag during local development to test the Prime API as further specified in the following docs:
-	// * https://github.com/transcom/prime_api_deliverable/wiki/Getting-Started#run-prime-api-client
-	// * https://github.com/transcom/mymove/wiki/How-to-Test-the-Prime-API-(Local,-Staging,-and-Experimental)#testing-locally
+	//RA: * https://github.com/transcom/prime_api_deliverable/wiki/Getting-Started#run-prime-api-client
+	//RA: * https://github.com/transcom/mymove/wiki/How-to-Test-the-Prime-API-(Local,-Staging,-and-Experimental)#testing-locally
 	//RA Developer Status: {RA Request, RA Accepted, POA&M Request, POA&M Accepted, Mitigated, Need Developer Fix, False Positive, Bad Practice}
-	//RA Validator Status: {RA Accepted, Return to Developer, Known Issue, Mitigated, False Positive, Bad Practice}
-	//RA Validator: jneuner@mitre.org
-	//RA Modified Severity:
+	//RA Validator Status: Mitigated
+	//RA Modified Severity: CAT III
 	// #nosec G402
 	tlsConfig := tls.Config{
 		Certificates:       []tls.Certificate{*cert},
