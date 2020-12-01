@@ -111,9 +111,9 @@ var fakeDataTestCases = []fakeDataTestCase{
 }
 
 func (suite *FakeDataSuite) TestPricersTestCases() {
+	var result bool
+	var err error
 	for i, testCase := range fakeDataTestCases {
-		var result bool
-		var err error
 		result, err = IsValidFakeDataFullName(testCase.firstName, testCase.lastName)
 		if !suite.Equal(testCase.expected, result) {
 			fmt.Printf("Failure on IsValidFakeDataFullName test case %d (0 indexed)\n", i)
