@@ -92,12 +92,13 @@ const bypassingLinterChecks = async () => {
 
   for (let i = 0; i < diffs.length; i += 1) {
     const diff = diffs[Number(i)];
-    const bypassCodesInDiff = bypassCodes.map((b) => {
+    let bypassCodesInDiff = [];
+    bypassCodes.forEach((b) => {
       if (diff.diff.includes(b)) {
-        return b;
+        bypassCodesInDiff.push[b];
       }
     });
-    if (bypassCodesInDiff.length > 0) {
+    if (bypassCodesInDiff.length) {
       for (const code in bypassCodesInDiff) {
         const codeValue = bypassCodesInDiff[code];
         if (codeValue !== '#nosec') {
