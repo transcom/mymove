@@ -45,10 +45,6 @@ const RequestedShipments = ({
       shipments: [],
     },
     onSubmit: (values, { setSubmitting }) => {
-      const shipmentRequests = filteredShipments.map((shipment) =>
-        approveMTOShipment(moveTaskOrder.id, shipment.id, 'APPROVED', shipment.eTag),
-      );
-
       const mtoApprovalServiceItemCodes = {
         serviceCodeMS: values.shipmentManagementFee,
         serviceCodeCS: values.counselingFee,
@@ -59,7 +55,11 @@ const RequestedShipments = ({
         approveMTO(moveTaskOrder.id, moveTaskOrder.eTag, mtoApprovalServiceItemCodes)
           .then((result) => {
             if (result?.response?.status === 200) {
-              Promise.all(shipmentRequests)
+              Promise.all(
+                filteredShipments.map((shipment) =>
+                  approveMTOShipment(moveTaskOrder.id, shipment.id, 'APPROVED', shipment.eTag),
+                ),
+              )
                 .then((results) => {
                   if (results.every((shipmentResult) => shipmentResult.response.status === 200)) {
                     // TODO: We will need to change this so that it goes to the MoveTaskOrder view when we're implementing the success UI element in a later story.
@@ -78,7 +78,11 @@ const RequestedShipments = ({
           });
       } else {
         // The MTO was previously approved along with at least one shipment, only update the new shipment statuses
-        Promise.all(shipmentRequests)
+        Promise.all(
+          filteredShipments.map((shipment) =>
+            approveMTOShipment(moveTaskOrder.id, shipment.id, 'APPROVED', shipment.eTag),
+          ),
+        )
           .then((results) => {
             if (results.every((shipmentResult) => shipmentResult.response.status === 200)) {
               // TODO: We will need to change this so that it goes to the MoveTaskOrder view when we're implementing the success UI element in a later story.
