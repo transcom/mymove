@@ -223,6 +223,9 @@ var fakeAddress = []string{
 /*
 IsValidFakeDataFullNameStrict checks the first name and last name can be found in the
 fake data. If the name is found true is returned, if not found, false is returned.
+
+This function will compare using case insensitive comparison, but spaces and all characters
+will be compared.
 */
 func IsValidFakeDataFullNameStrict(firstName string, lastName string) (bool, error) {
 	firstName = strings.TrimSpace(firstName)
@@ -241,6 +244,10 @@ func IsValidFakeDataFullNameStrict(firstName string, lastName string) (bool, err
 /*
 IsValidFakeDataFullName checks the first name and last name can be found in the
 fake data. If the name is found true is returned, if not found, false is returned.
+
+This function will compare using case insensitive comparison, but spaces and all characters
+not in the range a-z, A-Z, 0-9 will be removed and not used in the comparison. This will allow
+forgiveness of use of spaces, ',', '#' etc and other non alphabet characters.
 */
 func IsValidFakeDataFullName(firstName string, lastName string) (bool, error) {
 	// Make a Regex to say we only want letters and numbers
@@ -270,6 +277,10 @@ func IsValidFakeDataFullName(firstName string, lastName string) (bool, error) {
 /*
 IsValidFakeDataAddress checks the that the address can be found in the
 fake data. If the address is found true is returned, if not found, false is returned.
+
+This function will compare using case insensitive comparison, but spaces and all characters
+not in the range a-z, A-Z, 0-9 will be removed and not used in the comparison. This will allow
+forgiveness of use of spaces, ',', '#' etc and other non alphabet characters.
 */
 func IsValidFakeDataAddress(address string) (bool, error) {
 	// Make a Regex to say we only want letters and numbers
@@ -292,6 +303,9 @@ func IsValidFakeDataAddress(address string) (bool, error) {
 /*
 IsValidFakeDataAddressStrict checks the that the address can be found in the
 fake data. If the address is found true is returned, if not found, false is returned.
+
+This function will compare using case insensitive comparison, but spaces and all characters
+will be compared.
 */
 func IsValidFakeDataAddressStrict(address string) (bool, error) {
 	address = strings.TrimSpace(address)
@@ -334,13 +348,13 @@ IsValidFakeDataEmail - checks for the format
 */
 func IsValidFakeDataEmail(email string) (bool, error) {
 	email = strings.TrimSpace(email)
-	lowerPhone := strings.ToLower(email)
+	lowerEmail := strings.ToLower(email)
 
-	if strings.HasSuffix(lowerPhone, "@example.com") {
+	if strings.HasSuffix(lowerEmail, "@example.com") {
 		return true, nil
 	}
 
-	if strings.HasSuffix(lowerPhone, "@email.com") {
+	if strings.HasSuffix(lowerEmail, "@email.com") {
 		return true, nil
 	}
 
