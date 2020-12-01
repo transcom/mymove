@@ -2,6 +2,7 @@ package mtoshipment
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -563,5 +564,17 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		suite.DB().Find(&shipment6, shipment6.ID)
 		suite.Equal(models.MTOShipmentStatusRejected, shipment6.Status)
 		suite.Nil(shipment3.ApprovedDate)
+	})
+
+	suite.T().Run("When move status is not already approved", func(t *testing.T) {
+		submittedMTO := testdatagen.MakeHHGMoveWithShipment(suite.DB(), testdatagen.Assertions{})
+		mtoShipment := submittedMTO.MTOShipments[0]
+		eTag = etag.GenerateEtag(mtoShipment.UpdatedAt)
+
+		updatedShipment, err := updater.UpdateMTOShipmentStatus(mtoShipment.ID, models.MTOShipmentStatusApproved, nil, eTag)
+		suite.Nil(updatedShipment)
+		suite.Error(err)
+		suite.IsType(services.ConflictError{}, err)
+		suite.True(strings.Contains(err.Error(), "Cannot move to Approvals Requested when the Move is not in an Approved state"))
 	})
 }

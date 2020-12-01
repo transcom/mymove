@@ -189,12 +189,11 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		return nil, verrs, services.NewQueryError("unknown", err, "")
 	}
 
-	// TODO: Fix error message to be conflict error instead of server error so user knows the Move status is wrong
 	// TODO: Determine if this should be in the same transaction as the service items (they get created even if this fails)
 	if move.Status != models.MoveStatusAPPROVALSREQUESTED {
 		err := move.SetApprovalsRequested()
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, services.NewConflictError(move.ID, err.Error())
 		}
 		verrs, err := o.builder.UpdateOne(&move, nil)
 		if verrs != nil || err != nil {

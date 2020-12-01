@@ -17,13 +17,13 @@ import (
 	"github.com/transcom/mymove/pkg/services/audit"
 )
 
-// GetMoveTaskOrderHandler updates the status of a Move Task Order
+// GetMoveTaskOrderHandler fetches a Move Task Order
 type GetMoveTaskOrderHandler struct {
 	handlers.HandlerContext
 	moveTaskOrderFetcher services.MoveTaskOrderFetcher
 }
 
-// Handle updates the status of a MoveTaskOrder
+// Handle fetches a single MoveTaskOrder
 func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrderParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
@@ -76,6 +76,8 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 			return movetaskorderops.NewUpdateMoveTaskOrderStatusBadRequest()
 		case services.PreconditionFailedError:
 			return movetaskorderops.NewUpdateMoveTaskOrderStatusPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		case services.ConflictError:
+			return movetaskorderops.NewUpdateMoveTaskOrderStatusConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
 			return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError()
 		}

@@ -2,7 +2,7 @@
 
 set -eu -o pipefail
 
-VERSION="0.20"
+VERSION="0.21"
 
 OPENSC_VERSION=$(brew info opensc | head -n1 | cut -d" " -f3)
 
