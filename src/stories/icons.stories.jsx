@@ -19,7 +19,6 @@ import {
   faArrowRight,
   faArrowLeft,
   faThList,
-  faQuestionCircle,
   faPhoneAlt,
   faClock,
   faPlusCircle,
@@ -140,8 +139,12 @@ export const all = () => (
         <code>calendar | faCalendar</code>
       </div>
       <div>
-        <FontAwesomeIcon icon={faQuestionCircle} />
-        <code>question circle | faQuestionCircle</code>
+        <FontAwesomeIcon icon={['far', 'question-circle']} />
+        <code>question circle (regular) | {`icon={['far', 'question-circle']}`}</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon="question-circle" />
+        <code>question circle (solid) | icon=&quot;question-circle&quot;</code>
       </div>
       <div>
         <FontAwesomeIcon icon={faPhoneAlt} />

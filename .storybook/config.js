@@ -7,6 +7,8 @@ import './storybook.scss';
 import '../src/index.scss';
 import '../src/ghc_index.scss';
 
+import '../src/icons';
+
 configure(require.context('../src', true, /\.stories\.jsx?$/), module);
 
 addDecorator(withInfo);
