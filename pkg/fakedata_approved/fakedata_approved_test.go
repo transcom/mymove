@@ -60,8 +60,8 @@ var fakeDataTestCases = []fakeDataTestCase{
 	{
 		// 4
 		firstName: "Christopher",
-		lastName: "Swinglehurst Walters",
-		address: "4124 Apache Dr Apt 18C",
+		lastName: "Swinglehurst Walters", //"Swinglehurst-Walters"
+		address: "4124 Apache Dr Apt 18C", //"4124 Apache Dr, Apt 18C",
 		phone: "456-555-9359",
 		email: "test@email.com",
 		expected: true,
@@ -70,8 +70,8 @@ var fakeDataTestCases = []fakeDataTestCase{
 	{
 		// 5
 		firstName: "Jayden",
-		lastName: "Jackson Jr",
-		address: "6622 Airport Way S 1430",
+		lastName: "Jackson Jr", // "Jackson Jr."
+		address: "6622 Airport Way S 1430", //"6622 Airport Way S #1430"
 		phone: "456-555-9359",
 		email: "test@email.com",
 		expected: true,
@@ -80,8 +80,8 @@ var fakeDataTestCases = []fakeDataTestCase{
 	{
 		// 6
 		firstName: "Barbara",
-		lastName: "St Juste",
-		address: "441 SW R de la Plata Drive",
+		lastName: "St Juste", //"St. Juste"
+		address: "1292 Orchard Terrace, Building C Unit 10", //"1292 Orchard Terrace, Building C, Unit 10",
 		phone: "456-555-9359",
 		email: "test@email.com",
 		expected: true,
@@ -90,9 +90,9 @@ var fakeDataTestCases = []fakeDataTestCase{
 	// FAKE DATA IS NOT VALID
 	{
 		// 7
-		firstName: "Paul",
+		firstName: "Paul", //"Jason"
 		lastName: "Ash",
-		address: "448 Washington NE",
+		address: "448 Washington NE", //"448 Washington Blvd NE",
 		phone: "999-199-9999",
 		email: "test@google.com",
 		expected: false,
@@ -100,9 +100,9 @@ var fakeDataTestCases = []fakeDataTestCase{
 	},
 	{
 		// 8
-		firstName: "Gregxry",
-		lastName: "Vaz der Zeide",
-		address: "99 Airport Way S #1430",
+		firstName: "Gregxry", //"Gregory"
+		lastName: "Vaz der Zeide", //"Van der Heide"
+		address: "99 Airport Way S #1430", //"6622 Airport Way S #1430"
 		phone: "123-55-9999",
 		email: "test@ex.com",
 		expected: false,
@@ -115,32 +115,32 @@ func (suite *FakeDataSuite) TestPricersTestCases() {
 		var result bool
 		var err error
 		result, err = IsValidFakeDataFullName(testCase.firstName, testCase.lastName)
-		if !suite.Equal(result, testCase.expected) {
+		if !suite.Equal(testCase.expected, result) {
 			fmt.Printf("Failure on IsValidFakeDataFullName test case %d (0 indexed)\n", i)
 		}
 		suite.NoError(err)
 		result, err = IsValidFakeDataFullNameStrict(testCase.firstName, testCase.lastName)
-		if !suite.Equal(result, testCase.expectedStrict) {
+		if !suite.Equal(testCase.expectedStrict, result) {
 			fmt.Printf("Failure on IsValidFakeDataFullNameStrict test case %d (0 indexed)\n", i)
 		}
 		suite.NoError(err)
 		result, err = IsValidFakeDataAddress(testCase.address)
-		if !suite.Equal(result, testCase.expected) {
+		if !suite.Equal(testCase.expected, result) {
 			fmt.Printf("Failure on IsValidFakeDataAddress test case %d (0 indexed)\n", i)
 		}
 		suite.NoError(err)
 		result, err = IsValidFakeDataAddressStrict(testCase.address)
-		if !suite.Equal(result, testCase.expectedStrict) {
+		if !suite.Equal(testCase.expectedStrict, result) {
 			fmt.Printf("Failure on IsValidFakeDataAddressStrict test case %d (0 indexed)\n", i)
 		}
 		suite.NoError(err)
 		result, err = IsValidFakeDataPhone(testCase.phone)
-		if !suite.Equal(result, testCase.expected) {
+		if !suite.Equal(testCase.expected, result) {
 			fmt.Printf("Failure on IsValidFakeDataPhone test case %d (0 indexed)\n", i)
 		}
 		suite.NoError(err)
 		result, err = IsValidFakeDataEmail(testCase.email)
-		if !suite.Equal(result, testCase.expected) {
+		if !suite.Equal(testCase.expected, result) {
 			fmt.Printf("Failure on IsValidFakeDataEmail test case %d (0 indexed)\n", i)
 		}
 		suite.NoError(err)

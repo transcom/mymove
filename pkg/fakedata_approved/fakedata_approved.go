@@ -12,6 +12,7 @@ import (
 	"regexp"
 	"strings"
 )
+
 type fakeName struct {
 	first string
 	last string
