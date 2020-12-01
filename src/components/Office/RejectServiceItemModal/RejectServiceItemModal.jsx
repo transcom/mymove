@@ -5,7 +5,6 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes as CloseIcon } from '@fortawesome/free-solid-svg-icons';
 
 import styles from './RejectServiceItemModal.module.scss';
 
@@ -36,7 +35,7 @@ const RejectServiceItemModal = ({ serviceItem, onSubmit, onClose }) => {
                 className={classNames(styles.rejectReasonClose, 'usa-button--unstyled')}
                 data-testid="closeRejectServiceItem"
               >
-                <FontAwesomeIcon icon={CloseIcon} title="Close" aria-label="Close" />
+                <FontAwesomeIcon icon="times" title="Close" aria-label="Close" />
               </Button>
             </div>
             <Formik

@@ -20,10 +20,6 @@ import { SIGNED_CERT_OPTIONS } from 'shared/constants';
 import { formatCents, formatDate } from 'shared/formatters';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
-import { faClock } from '@fortawesome/free-solid-svg-icons/faClock';
-import { faPlusSquare } from '@fortawesome/free-solid-svg-icons/faPlusSquare';
-import { faMinusSquare } from '@fortawesome/free-solid-svg-icons/faMinusSquare';
 
 import './PaymentsPanel.css';
 import Alert from 'shared/Alert';
@@ -123,7 +119,7 @@ class PaymentsTable extends Component {
         return (
           <div onClick={this.approveReimbursement}>
             <ToolTip disabled={false} text="Approve" textStyle="tooltiptext-small">
-              <FontAwesomeIcon aria-hidden className="icon approval-ready" icon={faCheck} title="Approve" />
+              <FontAwesomeIcon aria-hidden className="icon approval-ready" icon="check" title="Approve" />
             </ToolTip>
           </div>
         );
@@ -138,7 +134,7 @@ class PaymentsTable extends Component {
           <FontAwesomeIcon
             aria-hidden
             className="icon approval-blocked"
-            icon={faCheck}
+            icon="check"
             title="Can't approve payment until shipment is approved."
           />
         </ToolTip>
@@ -149,7 +145,7 @@ class PaymentsTable extends Component {
   render() {
     const attachmentsError = this.props.attachmentsError;
     const advance = this.props.advance;
-    const paperworkIcon = this.state.showPaperwork ? faMinusSquare : faPlusSquare;
+    const paperworkIcon = this.state.showPaperwork ? 'minus-square' : 'plus-square';
 
     return (
       <div className="payment-panel">
@@ -181,7 +177,7 @@ class PaymentsTable extends Component {
                   <td className="payment-table-column-content">
                     {advance.status === 'APPROVED' ? (
                       <div>
-                        <FontAwesomeIcon aria-hidden className="icon approval-ready" icon={faCheck} title="Approved" />{' '}
+                        <FontAwesomeIcon aria-hidden className="icon approval-ready" icon="check" title="Approved" />{' '}
                         Approved
                       </div>
                     ) : (
@@ -189,7 +185,7 @@ class PaymentsTable extends Component {
                         <FontAwesomeIcon
                           aria-hidden
                           className="icon approval-waiting"
-                          icon={faClock}
+                          icon="clock"
                           title="Awaiting Review"
                         />{' '}
                         Awaiting review

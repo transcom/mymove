@@ -3,7 +3,6 @@ import { useFormik } from 'formik';
 import * as PropTypes from 'prop-types';
 import { Button, Checkbox, Fieldset } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck } from '@fortawesome/free-solid-svg-icons';
 
 import ShipmentApprovalPreview from '../ShipmentApprovalPreview';
 
@@ -209,7 +208,7 @@ const RequestedShipments = ({
                       <td data-testid="basicServiceItemDate">
                         {serviceItem.status === 'APPROVED' && (
                           <span>
-                            <FontAwesomeIcon icon={faCheck} className={styles.serviceItemApproval} />{' '}
+                            <FontAwesomeIcon icon="check" className={styles.serviceItemApproval} />{' '}
                             {formatDateFromIso(serviceItem.approvedAt, 'DD MMM YYYY')}
                           </span>
                         )}

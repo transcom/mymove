@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes as CloseIcon } from '@fortawesome/free-solid-svg-icons';
 
 import { FilesShape } from '../types';
 
@@ -17,7 +16,7 @@ const DocViewerMenu = ({ isOpen, files, handleClose, selectedFileIndex, handleSe
       <h3>Documents</h3>
       <div className={styles.menuControls}>
         <Button data-testid="closeMenu" type="button" onClick={handleClose} unstyled className={styles.menuClose}>
-          <FontAwesomeIcon icon={CloseIcon} title="Close menu" aria-label="Close menu" />
+          <FontAwesomeIcon icon="times" title="Close menu" aria-label="Close menu" />
         </Button>
       </div>
     </div>

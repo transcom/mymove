@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faThList } from '@fortawesome/free-solid-svg-icons';
 
 import { FilesShape } from './types';
 import styles from './DocumentViewer.module.scss';
@@ -77,7 +76,7 @@ const DocumentViewer = ({ files }) => {
     <div className={styles.DocumentViewer}>
       <div className={styles.titleBar}>
         <Button data-testid="openMenu" type="button" onClick={openMenu} unstyled>
-          <FontAwesomeIcon icon={faThList} />
+          <FontAwesomeIcon icon="th-list" />
         </Button>
 
         <p title={selectedFilename}>{selectedFilename}</p>

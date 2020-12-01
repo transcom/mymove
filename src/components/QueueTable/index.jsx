@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 
 const QueueTable = () => (
   <div className="table--queue">
@@ -77,7 +76,7 @@ const QueueTable = () => (
       <div className="tcontrol--pagination">
         <Button disabled className="usa-button--unstyled">
           <span className="icon">
-            <FontAwesomeIcon icon={faChevronLeft} />
+            <FontAwesomeIcon icon="chevron-left" />
           </span>
           <span>Prev</span>
         </Button>
@@ -89,7 +88,7 @@ const QueueTable = () => (
         <Button className="usa-button--unstyled">
           <span>Next</span>
           <span className="icon">
-            <FontAwesomeIcon icon={faChevronRight} />
+            <FontAwesomeIcon icon="chevron-right" />
           </span>
         </Button>
       </div>

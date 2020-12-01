@@ -4,7 +4,6 @@ import { Radio, Textarea, FormGroup, Fieldset, Label, Button, Form } from '@trus
 import { Formik } from 'formik';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes as XIcon, faCheck } from '@fortawesome/free-solid-svg-icons';
 
 import styles from './ServiceItemCard.module.scss';
 
@@ -44,13 +43,13 @@ const ServiceItemCard = ({
           <div data-testid="completeSummary" className={styles.completeContainer}>
             {status === APPROVED ? (
               <div data-testid="statusHeading" className={classnames(styles.statusHeading, styles.statusApproved)}>
-                <FontAwesomeIcon icon={faCheck} />
+                <FontAwesomeIcon icon="check" />
                 Accepted
               </div>
             ) : (
               <>
                 <div data-testid="statusHeading" className={classnames(styles.statusHeading, styles.statusRejected)}>
-                  <FontAwesomeIcon icon={XIcon} aria-hidden />
+                  <FontAwesomeIcon icon="times" aria-hidden />
                   Rejected
                 </div>
                 {rejectionReason && (
@@ -161,7 +160,7 @@ const ServiceItemCard = ({
                       onClick={handleFormReset}
                     >
                       <span className="icon">
-                        <FontAwesomeIcon icon={XIcon} title="Clear status" aria-label="Clear status" />
+                        <FontAwesomeIcon icon="times" title="Clear status" aria-label="Clear status" />
                       </span>
                       Clear selection
                     </Button>

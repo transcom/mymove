@@ -1,7 +1,6 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
 
 import DataPointGroup from '.';
 
@@ -24,8 +23,8 @@ describe('DataPair', () => {
     const row = ['cell 1', 'cell 2'];
     const wrapper = shallow(
       <DataPointGroup>
-        <DataPoint columnHeaders={[headers]} dataRow={[row]} Icon={<FontAwesomeIcon icon={faArrowRight} />} />
-        <DataPoint columnHeaders={[headers]} dataRow={[row]} Icon={<FontAwesomeIcon icon={faArrowRight} />} />
+        <DataPoint columnHeaders={[headers]} dataRow={[row]} icon={<FontAwesomeIcon icon="arrow-right" />} />
+        <DataPoint columnHeaders={[headers]} dataRow={[row]} icon={<FontAwesomeIcon icon="arrow-right" />} />
       </DataPointGroup>,
     );
     expect(wrapper.find(DataPoint).length).toBe(2);
