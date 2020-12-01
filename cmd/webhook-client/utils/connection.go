@@ -52,7 +52,7 @@ func (wr *WebhookRuntime) SetupClient(cert *tls.Certificate) (*WebhookRuntime, e
 	//RA: this flag during local development to test the Prime API as further specified in the following docs:
 	//RA: * https://github.com/transcom/prime_api_deliverable/wiki/Getting-Started#run-prime-api-client
 	//RA: * https://github.com/transcom/mymove/wiki/How-to-Test-the-Prime-API-(Local,-Staging,-and-Experimental)#testing-locally
-	//RA Developer Status: {RA Request, RA Accepted, POA&M Request, POA&M Accepted, Mitigated, Need Developer Fix, False Positive, Bad Practice}
+	//RA Developer Status: Mitigated
 	//RA Validator Status: Mitigated
 	//RA Modified Severity: CAT III
 	// #nosec G402
