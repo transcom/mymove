@@ -7,9 +7,10 @@ describe('flashReducer', () => {
   });
 
   it('handles the setFlashMessage action', () => {
-    expect(flashReducer(initialState, setFlashMessage('test message', 'success'))).toEqual({
+    expect(flashReducer(initialState, setFlashMessage('success', 'test message', 'Success!'))).toEqual({
       ...initialState,
       flashMessage: {
+        title: 'Success!',
         message: 'test message',
         type: 'success',
         key: null,

@@ -4,12 +4,15 @@ describe('flash actions', () => {
   it('setFlashMessage returns the expected action', () => {
     const expectedAction = {
       type: SET_FLASH_MESSAGE,
+      title: 'Success!',
       message: 'Test flash message',
       messageType: 'success',
       key: 'GENERIC_FLASH_MESSAGE',
     };
 
-    expect(setFlashMessage('Test flash message', 'success', 'GENERIC_FLASH_MESSAGE')).toEqual(expectedAction);
+    expect(setFlashMessage('success', 'Test flash message', 'Success!', 'GENERIC_FLASH_MESSAGE')).toEqual(
+      expectedAction,
+    );
   });
 
   it('clearFlashMessage returns the expected action', () => {

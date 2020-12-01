@@ -6,6 +6,7 @@ import {
   initOnboardingFailed,
   initOnboardingComplete,
 } from 'store/onboarding/actions';
+import { setFlashMessage } from 'store/flash/actions';
 import {
   getLoggedInUser,
   getMTOShipmentsForMove,
@@ -56,6 +57,14 @@ export function* createServiceMember() {
     yield call(fetchCustomerData);
   } catch (e) {
     yield put({ type: CREATE_SERVICE_MEMBER.failure, error: e });
+    yield put(
+      setFlashMessage(
+        'error',
+        'There was an error creating your profile information.',
+        'An error occurred',
+        'SERVICE_MEMBER_CREATE_ERROR',
+      ),
+    );
   }
 }
 

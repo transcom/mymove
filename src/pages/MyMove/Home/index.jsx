@@ -45,6 +45,7 @@ import {
   selectGetCurrentUserIsSuccess,
 } from 'shared/Data/users';
 import { formatCustomerDate } from 'utils/formatters';
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -330,11 +331,13 @@ class Home extends Component {
           <div className={`usa-prose grid-container ${styles['grid-container']}`}>
             {loggedInUserIsLoading && <LoadingPlaceholder />}
             {!isLoggedIn && !loggedInUserIsLoading && <SignIn location={location} />}
+            {isLoggedIn && <ConnectedFlashMessage />}
             {isLoggedIn && !isEmpty(serviceMember) && isProfileComplete && (
               <>
                 {loggedInUserSuccess && (
                   <>
                     {this.renderAlert(loggedInUserError, createdServiceMemberError, moveSubmitSuccess, currentPpm)}
+
                     {this.renderHelper()}
                     <SectionWrapper>
                       <Step
