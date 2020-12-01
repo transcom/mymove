@@ -1,15 +1,17 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 import { Field } from 'redux-form';
 import { get } from 'lodash';
-import { updateServiceMember } from './ducks';
+
+import { patchServiceMember, getResponseError } from 'services/internalApi';
+import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
 import { NULL_UUID } from 'shared/constants';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
-
+import { selectActiveOrLatestOrders } from 'shared/Entities/modules/orders';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
+import SectionWrapper from 'components/Customer/SectionWrapper';
 
 import './DutyStation.css';
 
@@ -34,26 +36,40 @@ export class DutyStation extends Component {
     super(props);
 
     this.state = {
-      value: null,
+      errorMessage: null,
     };
-    this.stationOnChange = this.stationOnChange.bind(this);
   }
 
-  stationOnChange = (newStation) => {
-    this.setState({ value: newStation });
-  };
+  handleSubmit = () => {
+    const { values, currentServiceMember, updateServiceMember } = this.props;
 
-  handleSubmit = (somethings, elses) => {
-    const pendingValues = this.props.values;
-    if (pendingValues) {
-      return this.props.updateServiceMember({
-        current_station_id: pendingValues.current_station.id,
-      });
+    if (values) {
+      const payload = {
+        id: currentServiceMember.id,
+        current_station_id: values.current_station.id,
+      };
+
+      return patchServiceMember(payload)
+        .then((response) => {
+          updateServiceMember(response);
+        })
+        .catch((e) => {
+          // TODO - error handling - below is rudimentary error handling to approximate existing UX
+          // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
+          const { response } = e;
+          const errorMessage = getResponseError(response, 'failed to update service member due to server error');
+          this.setState({
+            errorMessage,
+          });
+        });
     }
+
+    return Promise.resolve();
   };
 
   render() {
     const { pages, pageKey, error, existingStation, newDutyStation, currentStation } = this.props;
+    const { errorMessage } = this.state;
 
     let initialValues = null;
     if (existingStation.name) {
@@ -71,19 +87,18 @@ export class DutyStation extends Component {
         pageList={pages}
         pageKey={pageKey}
         initialValues={initialValues}
-        serverError={error}
+        serverError={error || errorMessage}
       >
-        <div className="grid-row">
-          <div className="grid-col-12">
-            <h1 className="sm-heading">Current duty station</h1>
-            <Field
-              name="current_station"
-              title="What is your current duty station?"
-              component={DutyStationSearchBox}
-              errorMsg={newDutyStationErrorMsg}
-            />
-          </div>
-        </div>
+        <h1>Current duty station</h1>
+        <SectionWrapper>
+          <div className="tablet:margin-top-neg-3"></div>
+          <Field
+            name="current_station"
+            title="What is your current duty station?"
+            component={DutyStationSearchBox}
+            errorMsg={newDutyStationErrorMsg}
+          />
+        </SectionWrapper>
       </DutyStationWizardForm>
     );
   }
@@ -93,17 +108,20 @@ DutyStation.propTypes = {
   updateServiceMember: PropTypes.func.isRequired,
 };
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ updateServiceMember }, dispatch);
-}
+const mapDispatchToProps = {
+  updateServiceMember: updateServiceMemberAction,
+};
+
 function mapStateToProps(state) {
   const formValues = getFormValues(dutyStationFormName)(state);
+  const orders = selectActiveOrLatestOrders(state);
+
   return {
     values: getFormValues(dutyStationFormName)(state),
     existingStation: get(state, 'serviceMember.currentServiceMember.current_station', {}),
     ...state.serviceMember,
     currentStation: get(formValues, 'current_station', {}),
-    newDutyStation: get(state, 'orders.currentOrders.new_duty_station', {}),
+    newDutyStation: get(orders, 'new_duty_station', {}),
   };
 }
 

@@ -1,12 +1,12 @@
-import { fileUploadTimeout, officeAppName } from '../../support/constants';
+import { fileUploadTimeout } from '../../support/constants';
 
-/* global cy */
 describe('The document viewer', function () {
   describe('When not logged in', function () {
     beforeEach(() => {
-      cy.setupBaseUrl(officeAppName);
+      cy.prepareOfficeApp();
       cy.logout();
     });
+
     it('shows page not found', function () {
       cy.patientVisit('/moves/foo/documents');
       cy.contains('Welcome');
@@ -16,8 +16,7 @@ describe('The document viewer', function () {
 
   describe('When user is logged in', function () {
     beforeEach(() => {
-      // The document viewer is launched in a new tab, so pass in false to prevent visiting home page first
-      cy.signIntoOffice(false);
+      cy.signIntoOffice();
     });
     it('produces error when move cannot be found', () => {
       cy.patientVisit('/moves/9bfa91d2-7a0c-4de0-ae02-b90988cf8b4b858b/documents');
@@ -31,11 +30,11 @@ describe('The document viewer', function () {
     });
     it('can upload a new document', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
-      cy.get('[data-cy="document-upload-link"]')
+      cy.get('[data-testid="document-upload-link"]')
         .find('a')
         .should('have.attr', 'href')
         .and('contain', '/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents/new');
-      cy.get('[data-cy="document-upload-link"]');
+      cy.get('[data-testid="document-upload-link"]');
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents/new');
 
       cy.contains('Upload a new document');
@@ -63,7 +62,7 @@ describe('The document viewer', function () {
 
     it('can edit an uploaded weight ticket set', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
-      cy.get('[data-cy="doc-link"]')
+      cy.get('[data-testid="doc-link"]')
         .find('a')
         .contains('Weight ticket document')
         .should('have.attr', 'href')
@@ -117,7 +116,7 @@ describe('The document viewer', function () {
     });
     it('can select and update newly-uploaded expense document', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
-      cy.get('[data-cy="doc-link"]')
+      cy.get('[data-testid="doc-link"]')
         .find('a')
         .contains('expense document')
         .should('have.attr', 'href')
@@ -144,7 +143,7 @@ describe('The document viewer', function () {
     });
     it('can update expense document to other doc type', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
-      cy.get('[data-cy="doc-link"]')
+      cy.get('[data-testid="doc-link"]')
         .find('a')
         .contains('expense document')
         .should('have.attr', 'href')
@@ -166,7 +165,7 @@ describe('The document viewer', function () {
     });
     it('can update other document type back to expense type', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
-      cy.get('[data-cy="doc-link"]')
+      cy.get('[data-testid="doc-link"]')
         .find('a')
         .contains('expense document')
         .should('have.attr', 'href')

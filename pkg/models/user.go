@@ -7,9 +7,9 @@ import (
 
 	"strings"
 
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
-	"github.com/gobuffalo/validate/validators"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
+	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
@@ -18,13 +18,16 @@ import (
 
 // User is an entity with a registered uuid and email at login.gov
 type User struct {
-	ID            uuid.UUID   `json:"id" db:"id"`
-	CreatedAt     time.Time   `json:"created_at" db:"created_at"`
-	UpdatedAt     time.Time   `json:"updated_at" db:"updated_at"`
-	LoginGovUUID  uuid.UUID   `json:"login_gov_uuid" db:"login_gov_uuid"`
-	LoginGovEmail string      `json:"login_gov_email" db:"login_gov_email"`
-	Active        bool        `json:"active" db:"active"`
-	Roles         roles.Roles `many_to_many:"users_roles"`
+	ID                     uuid.UUID   `json:"id" db:"id"`
+	CreatedAt              time.Time   `json:"created_at" db:"created_at"`
+	UpdatedAt              time.Time   `json:"updated_at" db:"updated_at"`
+	LoginGovUUID           *uuid.UUID  `json:"login_gov_uuid" db:"login_gov_uuid"`
+	LoginGovEmail          string      `json:"login_gov_email" db:"login_gov_email"`
+	Active                 bool        `json:"active" db:"active"`
+	Roles                  roles.Roles `many_to_many:"users_roles"`
+	CurrentAdminSessionID  string      `json:"current_admin_session_id" db:"current_admin_session_id"`
+	CurrentOfficeSessionID string      `json:"current_office_session_id" db:"current_office_session_id"`
+	CurrentMilSessionID    string      `json:"current_mil_session_id" db:"current_mil_session_id"`
 }
 
 // Users is not required by pop and may be deleted
@@ -34,7 +37,6 @@ type Users []User
 // This method is not required and may be deleted.
 func (u *User) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.UUIDIsPresent{Field: u.LoginGovUUID, Name: "LoginGovUUID"},
 		&validators.StringIsPresent{Field: u.LoginGovEmail, Name: "LoginGovEmail"},
 	), nil
 }
@@ -64,9 +66,13 @@ func GetUser(db *pop.Connection, userID uuid.UUID) (*User, error) {
 // GetUserFromEmail loads the associated User from the DB using the user email
 func GetUserFromEmail(db *pop.Connection, email string) (*User, error) {
 	users := []User{}
-	err := db.Where("login_gov_email = $1", email).All(&users)
+	downcasedEmail := strings.ToLower(email)
+	err := db.Where("login_gov_email = $1", downcasedEmail).All(&users)
 	if len(users) == 0 {
-		return nil, errors.Wrapf(err, "Unable to find user by email %s", email)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Unable to find user by email %s", downcasedEmail)
+		}
+		return nil, errors.Errorf("Unable to find user by email %s", downcasedEmail)
 	}
 	return &users[0], err
 }
@@ -78,7 +84,7 @@ func CreateUser(db *pop.Connection, loginGovID string, email string) (*User, err
 		return nil, err
 	}
 	newUser := User{
-		LoginGovUUID:  lgu,
+		LoginGovUUID:  &lgu,
 		LoginGovEmail: strings.ToLower(email),
 		Active:        true,
 	}
@@ -90,6 +96,26 @@ func CreateUser(db *pop.Connection, loginGovID string, email string) (*User, err
 		return nil, err
 	}
 	return &newUser, nil
+}
+
+// UpdateUserLoginGovUUID is called upon the first successful login.gov verification of a new user
+func UpdateUserLoginGovUUID(db *pop.Connection, user *User, loginGovID string) error {
+	lgu, err := uuid.FromString(loginGovID)
+	if err != nil {
+		return err
+	}
+
+	user.LoginGovUUID = &lgu
+
+	verrs, err := db.ValidateAndUpdate(user)
+	if verrs.HasAny() {
+		return verrs
+	} else if err != nil {
+		err = errors.Wrap(err, "Unable to update user")
+		return err
+	}
+
+	return nil
 }
 
 // UserIdentity is summary of the information about a user from the database

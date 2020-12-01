@@ -1,29 +1,44 @@
 import React from 'react';
-import { SHIPMENT_TYPE } from 'shared/constants';
-import classNames from 'classnames/bind';
+import classNames from 'classnames';
 import * as PropTypes from 'prop-types';
-import styles from './shipmentContainer.module.scss';
 
-const cx = classNames.bind(styles);
+import styles from './ShipmentContainer.module.scss';
+
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { ShipmentOptionsOneOf } from 'types/shipment';
 
 const ShipmentContainer = ({ className, children, shipmentType }) => {
-  const containerClasses = cx('container', 'shipment-container', {
-    'container--accent--hhg': shipmentType === SHIPMENT_TYPE.HHG,
-    'container--accent--nts': shipmentType === SHIPMENT_TYPE.NTS,
-  });
+  const containerClasses = classNames(
+    styles.shipmentContainer,
+    {
+      'container--accent--default': shipmentType === null,
+      'container--accent--hhg':
+        shipmentType === SHIPMENT_OPTIONS.HHG ||
+        shipmentType === SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC ||
+        shipmentType === SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC,
+      'container--accent--nts': shipmentType === SHIPMENT_OPTIONS.NTS,
+      'container--accent--ntsr': shipmentType === SHIPMENT_OPTIONS.NTSR,
+      'container--accent--ppm': shipmentType === SHIPMENT_OPTIONS.PPM,
+    },
+    className,
+  );
 
-  return <div className={`${containerClasses} ${className}`}>{children}</div>;
+  return (
+    <div data-testid="ShipmentContainer" className={`${containerClasses}`}>
+      {children}
+    </div>
+  );
 };
 
 ShipmentContainer.propTypes = {
   className: PropTypes.string,
-  children: PropTypes.element,
+  children: PropTypes.node.isRequired,
   /** Describes the type of shipment container. */
-  shipmentType: PropTypes.oneOf([SHIPMENT_TYPE.HHG, SHIPMENT_TYPE.NTS]),
+  shipmentType: ShipmentOptionsOneOf,
 };
 
 ShipmentContainer.defaultProps = {
-  shipmentType: SHIPMENT_TYPE.HHG,
+  shipmentType: null,
   className: '',
 };
 

@@ -1,0 +1,47 @@
+@import '../../shared/styles/basics';
+@import '../../shared/styles/mixins';
+@import '../../shared/styles/colors';
+
+.DocumentViewer {
+  position: relative;
+  height: 100%;
+
+  .titleBar {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.75);
+    display: flex;
+    justify-content: flex-start;
+    @include icon-hover-state;
+    @include u-padding-x(1); // Additional padding is built into the buttons
+    z-index: 98;
+
+    p {
+      @include u-text('bold');
+      color: $base-darkest;
+      flex-grow: 1;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    button {
+      flex-shrink: 0;
+    }
+
+    button svg:not(:only-child) {
+      @include u-margin-left(1);
+    }
+  }
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 99;
+  background-color: rgba($base-darkest, 0.7);
+}

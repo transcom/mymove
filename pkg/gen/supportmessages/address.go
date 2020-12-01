@@ -8,14 +8,14 @@ package supportmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // Address address
+//
 // swagger:model Address
 type Address struct {
 
@@ -27,6 +27,7 @@ type Address struct {
 	Country *string `json:"country,omitempty"`
 
 	// e tag
+	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// id
@@ -36,7 +37,7 @@ type Address struct {
 	// ZIP
 	// Required: true
 	// Pattern: ^(\d{5}([\-]\d{4})?)$
-	PostalCode *string `json:"postal_code"`
+	PostalCode *string `json:"postalCode"`
 
 	// State
 	// Required: true
@@ -45,13 +46,13 @@ type Address struct {
 
 	// Street address 1
 	// Required: true
-	StreetAddress1 *string `json:"street_address_1"`
+	StreetAddress1 *string `json:"streetAddress1"`
 
 	// Street address 2
-	StreetAddress2 *string `json:"street_address_2,omitempty"`
+	StreetAddress2 *string `json:"streetAddress2,omitempty"`
 
 	// Address Line 3
-	StreetAddress3 *string `json:"street_address_3,omitempty"`
+	StreetAddress3 *string `json:"streetAddress3,omitempty"`
 }
 
 // Validate validates this address
@@ -108,11 +109,11 @@ func (m *Address) validateID(formats strfmt.Registry) error {
 
 func (m *Address) validatePostalCode(formats strfmt.Registry) error {
 
-	if err := validate.Required("postal_code", "body", m.PostalCode); err != nil {
+	if err := validate.Required("postalCode", "body", m.PostalCode); err != nil {
 		return err
 	}
 
-	if err := validate.Pattern("postal_code", "body", string(*m.PostalCode), `^(\d{5}([\-]\d{4})?)$`); err != nil {
+	if err := validate.Pattern("postalCode", "body", string(*m.PostalCode), `^(\d{5}([\-]\d{4})?)$`); err != nil {
 		return err
 	}
 
@@ -289,7 +290,7 @@ const (
 
 // prop value enum
 func (m *Address) validateStateEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, addressTypeStatePropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, addressTypeStatePropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -311,7 +312,7 @@ func (m *Address) validateState(formats strfmt.Registry) error {
 
 func (m *Address) validateStreetAddress1(formats strfmt.Registry) error {
 
-	if err := validate.Required("street_address_1", "body", m.StreetAddress1); err != nil {
+	if err := validate.Required("streetAddress1", "body", m.StreetAddress1); err != nil {
 		return err
 	}
 

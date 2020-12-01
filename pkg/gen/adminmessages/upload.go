@@ -8,14 +8,14 @@ package adminmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // Upload upload
+//
 // swagger:model Upload
 type Upload struct {
 
@@ -24,7 +24,7 @@ type Upload struct {
 	ContentType string `json:"contentType,omitempty"`
 
 	// Created at
-	// Format: datetime
+	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// filename
@@ -78,7 +78,7 @@ const (
 
 // prop value enum
 func (m *Upload) validateContentTypeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, uploadTypeContentTypePropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, uploadTypeContentTypePropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -104,7 +104,7 @@ func (m *Upload) validateCreatedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("createdAt", "body", "datetime", m.CreatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -44,6 +44,7 @@ func main() {
 	flag.StringVar(&params.XlsxFilename, "filename", "", "Filename (including path) of the XLSX to parse for the GHC rate engine data import")
 	flag.StringVar(&params.ContractCode, "contract-code", "", "Contract code to use for this import")
 	flag.StringVar(&params.ContractName, "contract-name", "", "Contract name to use for this import; if not provided, the contract-code value will be used")
+	flag.StringVar(&params.ContractStartDate, "contract-start-date", "2021-02-01", "Beginning base date for contracts periods, in format: YYYY-MM-DD; if not provided, 2021-02-01 will be used")
 	flag.BoolVar(&params.ProcessAll, "all", true, "Parse entire GHC Rate Engine XLSX")
 	flag.StringSliceVar(&params.XlsxSheets, "xlsxSheets", []string{}, xlsxSheetsUsage(xlsxDataSheets))
 	flag.BoolVar(&params.ShowOutput, "display", false, "Display output of parsed info")
@@ -113,6 +114,12 @@ func main() {
 		logger.Fatal("Did not receive a contract code; missing --contract-code")
 	}
 
+	// Before parsing spreadsheet, ensure there's a valid contract start date
+	basePeriodStartDateForPrimeContract1, err := time.Parse("2006-01-02", params.ContractStartDate)
+	if err != nil {
+		logger.Fatal("could not parse the given contract start date", zap.Error(err))
+	}
+
 	// Open the spreadsheet
 	logger.Info("Importing file", zap.String("XlsxFilename", params.XlsxFilename))
 	params.XlsxFile, err = xlsx.OpenFile(params.XlsxFilename)
@@ -132,9 +139,10 @@ func main() {
 	// If the parsing was successful, run GHC Rate Engine importer
 	if params.RunImport {
 		ghcREImporter := ghcimport.GHCRateEngineImporter{
-			Logger:       logger,
-			ContractCode: params.ContractCode,
-			ContractName: params.ContractName,
+			Logger:            logger,
+			ContractCode:      params.ContractCode,
+			ContractName:      params.ContractName,
+			ContractStartDate: basePeriodStartDateForPrimeContract1,
 		}
 		err = ghcREImporter.Import(db)
 		if err != nil {

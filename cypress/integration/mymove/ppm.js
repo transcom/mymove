@@ -1,64 +1,66 @@
-/* global cy */
-
-import { milmoveAppName } from '../../support/constants';
-
-describe('completing the ppm flow', function () {
-  describe('progresses thru forms', () => {
-    //profile@comple.te
-    it('submit a PPM move', () => {
-      cy.signInAsUserPostRequest(milmoveAppName, '13f3949d-0d53-4be4-b1b1-ae4314793f34');
-      SMSubmitsMove();
-    });
+describe('the PPM flow', function () {
+  before(() => {
+    cy.prepareCustomerApp();
   });
 
-  describe('completing the ppm flow with a move date that we currently do not have rates for', () => {
-    it('complete a PPM move', () => {
-      //profile@complete.draft
-      cy.signInAsUserPostRequest(milmoveAppName, '3b9360a3-3304-4c60-90f4-83d687884070');
-      SMCompletesMove();
-    });
+  beforeEach(() => {
+    cy.logout();
   });
 
-  describe('check invalid ppm inputs', () => {
-    it('doesnt allow same origin and destination zip', () => {
-      cy.signInAsUserPostRequest(milmoveAppName, '99360a51-8cfa-4e25-ae57-24e66077305f');
-      SMInputsSamePostalCodes();
-    });
-    it('doesnt allow SM to progress if dont have rate data for zips"', () => {
-      cy.signInAsUserPostRequest(milmoveAppName, '99360a51-8cfa-4e25-ae57-24e66077305f');
-      SMInputsInvalidPostalCodes();
-    });
+  it('can submit a PPM move', () => {
+    // profile@comple.te
+    const userId = '3b9360a3-3304-4c60-90f4-83d687884077';
+    cy.apiSignInAsPpmUser(userId);
+    SMSubmitsMove();
   });
 
-  describe('editing ppm only move', () => {
-    it('sees only details relevant to PPM only move', () => {
-      cy.signInAsUserPostRequest(milmoveAppName, 'e10d5964-c070-49cb-9bd1-eaf9f7348eb6');
-      SMSeesMoveDetails();
-    });
+  it('can complete the PPM flow with a move date that we currently do not have rates for', () => {
+    // profile@complete.draft
+    const userId = '3b9360a3-3304-4c60-90f4-83d687884070';
+    cy.apiSignInAsPpmUser(userId);
+    SMCompletesMove();
   });
 
-  describe('allows a SM to continue requesting a payment', () => {
-    const smId = '4ebc03b7-c801-4c0d-806c-a95aed242102';
-    beforeEach(() => {
-      cy.removeFetch();
-      cy.server();
-      cy.route('POST', '**/internal/uploads').as('postUploadDocument');
-      cy.route('POST', '**/moves/**/weight_ticket').as('postWeightTicket');
-      cy.route('POST', '**/moves/**/moving_expense_documents').as('postMovingExpense');
-      cy.route('POST', '**/internal/personally_procured_move/**/request_payment').as('requestPayment');
-      cy.route('POST', '**/moves/**/signed_certifications').as('signedCertifications');
-      cy.signInAsUserPostRequest(milmoveAppName, smId);
-    });
+  it('doesn’t allow a user to enter the same origin and destination zip', () => {
+    // profile@co.mple.te
+    const userId = '99360a51-8cfa-4e25-ae57-24e66077305f';
+    cy.apiSignInAsPpmUser(userId);
+    SMInputsSamePostalCodes();
+  });
 
-    it('service should be able to continue requesting payment', () => {
-      SMContinueRequestPayment();
-    });
+  it('doesn’t allow SM to progress if don’t have rate data for zips"', () => {
+    // profile@co.mple.te
+    const userId = '99360a51-8cfa-4e25-ae57-24e66077305f';
+    cy.apiSignInAsPpmUser(userId);
+    SMInputsInvalidPostalCodes();
+  });
+
+  it('when editing PPM only move, sees only details relevant to PPM only move', () => {
+    // ppm@incomple.te
+    const userId = 'e10d5964-c070-49cb-9bd1-eaf9f7348eb6';
+    cy.apiSignInAsPpmUser(userId);
+    SMSeesMoveDetails();
+  });
+
+  it('service member should be able to continue requesting payment', () => {
+    // ppm@continue.requestingpayment
+    const userId = '4ebc03b7-c801-4c0d-806c-a95aed242102';
+
+    cy.removeFetch();
+    cy.server();
+    cy.route('POST', '**/internal/uploads').as('postUploadDocument');
+    cy.route('POST', '**/moves/**/weight_ticket').as('postWeightTicket');
+    cy.route('POST', '**/moves/**/moving_expense_documents').as('postMovingExpense');
+    cy.route('POST', '**/internal/personally_procured_move/**/request_payment').as('requestPayment');
+    cy.route('POST', '**/moves/**/signed_certifications').as('signedCertifications');
+    cy.apiSignInAsPpmUser(userId);
+    SMContinueRequestPayment();
   });
 });
 
 function SMSubmitsMove() {
   cy.contains('Fort Gordon (from Yuma AFB)');
-  cy.get('[data-cy="move-header-weight-estimate"]').contains('8,000 lbs');
+  cy.get('[data-testid="move-header-weight-estimate"]').contains('8,000 lbs');
   cy.contains('Continue Move Setup').click();
 
   cy.location().should((loc) => {
@@ -83,7 +85,7 @@ function SMSubmitsMove() {
   cy.get('.wizard-header').should('not.exist');
   cy.get('#incentive-estimation-slider').click();
 
-  cy.get('[data-cy="incentive-range-values"]').contains('$');
+  cy.get('[data-testid="incentive-range-values"]').contains('$');
 
   cy.nextPage();
 
@@ -93,27 +95,25 @@ function SMSubmitsMove() {
   cy.get('.wizard-header').should('not.exist');
 
   // todo: should probably have test suite for review and edit screens
-  cy.get('[data-cy="sit-display"]').contains('30 days').contains('$726.76');
+  cy.get('[data-testid="sit-display"]').contains('30 days');
 
-  cy.get('[data-cy="edit-ppm-dates"]').click();
+  cy.get('[data-testid="edit-ppm-dates"]').click();
 
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review\/edit-date-and-location/);
   });
 
-  cy.get('[data-cy="storage-estimate"]').contains('$726.76');
+  cy.get('[data-testid="storage-estimate"]').contains('$726.76');
 
   cy.get('input[name="days_in_storage"]').clear().type('35');
 
-  cy.get('[data-cy="storage-estimate"]').contains('$726.76');
+  cy.get('[data-testid="storage-estimate"]').contains('$726.76');
 
   cy.get('button').contains('Save').click();
 
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
   });
-
-  cy.get('[data-cy="sit-display"]').contains('35 days').contains('$745.88');
 
   cy.nextPage();
 
@@ -124,7 +124,7 @@ function SMSubmitsMove() {
 
   cy.get('input[name="signature"]').type('Jane Doe');
 
-  cy.nextPage();
+  cy.completeFlow();
 
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/$/);
@@ -139,7 +139,7 @@ function SMSubmitsMove() {
 
 function SMCompletesMove() {
   cy.contains('Fort Gordon (from Yuma AFB)');
-  cy.get('[data-cy="move-header-weight-estimate"]').contains('8,000 lbs');
+  cy.get('[data-testid="move-header-weight-estimate"]').contains('8,000 lbs');
   cy.contains('Continue Move Setup').click();
 
   cy.location().should((loc) => {
@@ -164,9 +164,8 @@ function SMCompletesMove() {
   cy.get('.wizard-header').should('not.exist');
   cy.get('#incentive-estimation-slider').click();
 
-  cy.get('[data-cy="incentive-range-text"]').contains('Not ready yet');
   cy.get('[data-icon="question-circle"]').click();
-  cy.get('[data-cy="tooltip"]').contains(
+  cy.get('[data-testid="tooltip"]').contains(
     'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
   );
   cy.nextPage();
@@ -175,11 +174,7 @@ function SMCompletesMove() {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
   });
   cy.get('.wizard-header').should('not.exist');
-  cy.get('td').contains('Not ready yet');
-  cy.get('[data-icon="question-circle"]').click();
-  cy.get('[data-cy="tooltip"]').contains(
-    'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
-  );
+  cy.get('dd').contains('Rate info unavailable');
 
   cy.nextPage();
 
@@ -190,7 +185,7 @@ function SMCompletesMove() {
 
   cy.get('input[name="signature"]').type('Jane Doe');
 
-  cy.nextPage();
+  cy.completeFlow();
 
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/$/);
@@ -202,19 +197,20 @@ function SMCompletesMove() {
     cy.get('a').contains('PPM info sheet').should('have.attr', 'href').and('include', '/downloads/ppm_info_sheet.pdf');
   });
 
+  cy.visit('/ppm');
   cy.contains('Payment: Not ready yet');
   cy.get('[data-icon="question-circle"]').click();
-  cy.get('[data-cy="tooltip"]').contains(
+  cy.get('[data-testid="tooltip"]').contains(
     'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
   );
 
-  cy.get('[data-cy="edit-move"]').contains('Edit Move').click();
+  // cy.get('[data-testid="edit-move"]').contains('Edit Move').click();
 
-  cy.get('td').contains('Not ready yet');
-  cy.get('[data-icon="question-circle"]').click();
-  cy.get('[data-cy="tooltip"]').contains(
-    'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
-  );
+  // cy.get('td').contains('Not ready yet');
+  // cy.get('[data-icon="question-circle"]').click();
+  // cy.get('[data-testid="tooltip"]').contains(
+  //   'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
+  // );
 }
 
 function SMInputsSamePostalCodes() {
@@ -259,7 +255,7 @@ function SMInputsInvalidPostalCodes() {
 function SMSeesMoveDetails() {
   cy.get('.sidebar button').contains('Edit Move').click();
 
-  cy.get('[data-cy="ppm-summary"]').should((ppmContainer) => {
+  cy.get('[data-testid="ppm-summary"]').should((ppmContainer) => {
     expect(ppmContainer).to.have.length(1);
   });
 }
@@ -273,7 +269,7 @@ function SMContinueRequestPayment() {
   cy.get('button').contains('OK').click();
 
   cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/$/);
+    expect(loc.pathname).to.match(/^\/ppm$/);
   });
 
   cy.get('a').contains('Continue Requesting Payment').click();
@@ -292,9 +288,9 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true, ordina
   if (ordinal) {
     cy.contains(`Weight Tickets - ${ordinal} set`);
     if (ordinal === '1st') {
-      cy.get('[data-cy=documents-uploaded]').should('not.exist');
+      cy.get('[data-testid=documents-uploaded]').should('not.exist');
     } else {
-      cy.get('[data-cy=documents-uploaded]').should('exist');
+      cy.get('[data-testid=documents-uploaded]').should('exist');
     }
   }
 
@@ -309,12 +305,12 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true, ordina
 
   cy.get('input[name="empty_weight"]').type('1000');
 
-  cy.upload_file('[data-cy=empty-weight-upload] .filepond--root', 'top-secret.png');
+  cy.upload_file('[data-testid=empty-weight-upload] .filepond--root', 'top-secret.png');
   cy.wait('@postUploadDocument');
   cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 1);
 
   cy.get('input[name="full_weight"]').type('5000');
-  cy.upload_file('[data-cy=full-weight-upload] .filepond--root', 'top-secret.png');
+  cy.upload_file('[data-testid=full-weight-upload] .filepond--root', 'top-secret.png');
   cy.wait('@postUploadDocument');
   cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 2);
   cy.get('input[name="weight_ticket_date"]').type('6/2/2018{enter}').blur();
@@ -325,7 +321,7 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true, ordina
     cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('be.checked');
     cy.get('button').contains('Save & Add Another').click();
     cy.wait('@postWeightTicket').its('status').should('eq', 200);
-    cy.get('[data-cy=documents-uploaded]').should('exist');
+    cy.get('[data-testid=documents-uploaded]').should('exist');
   } else {
     cy.get('button').contains('Save & Continue').click();
     cy.wait('@postWeightTicket').its('status').should('eq', 200);

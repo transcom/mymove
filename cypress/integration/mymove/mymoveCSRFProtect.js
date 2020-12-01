@@ -1,39 +1,104 @@
 import { milmoveAppName } from '../../support/constants';
 
-/* global cy */
-
 // CSRF protection is turned on for all routes.
 // We can test with the local dev login that uses POST
 describe('testing CSRF protection for dev login', function () {
+  before(() => {
+    cy.prepareCustomerApp();
+  });
+
   const csrfForbiddenMsg = 'Forbidden - CSRF token invalid\n';
   const csrfForbiddenRespCode = 403;
   const userId = '9ceb8321-6a82-4f6d-8bb3-a1d85922a202';
+  const requestParams = {
+    url: '/devlocal-auth/login',
+    method: 'POST',
+    body: {
+      id: userId,
+      userType: milmoveAppName,
+    },
+    form: true,
+    failOnStatusCode: false,
+  };
 
   it('tests dev login with both unmasked and masked token', function () {
-    cy.signInAsUserPostRequest(milmoveAppName, userId);
+    // sm_no_move_type@example.com
+    cy.apiSignInAsPpmUser(userId);
     cy.contains('Move to be scheduled');
     cy.contains('Next Step: Finish setting up your move');
   });
 
-  it('tests dev login with masked token only', function () {
-    cy.signInAsUserPostRequest(milmoveAppName, userId, csrfForbiddenRespCode, csrfForbiddenMsg, false, true, false);
+  it('cannot dev login with masked token only', function () {
+    cy.request('/internal/users/is_logged_in');
+    cy.getCookie('_gorilla_csrf').should('exist');
+
+    // Remove unmasked token
+    cy.clearCookie('_gorilla_csrf');
+
+    cy.getCookie('masked_gorilla_csrf')
+      .then((cookie) => cookie && cookie.value)
+      .then((csrfToken) => {
+        cy.request({
+          ...requestParams,
+          headers: { 'X-CSRF-TOKEN': csrfToken },
+        }).then((response) => {
+          cy.visit('/');
+          expect(response.status).to.eq(csrfForbiddenRespCode);
+          expect(response.body).to.eq(csrfForbiddenMsg);
+        });
+      });
   });
 
-  it('tests dev login with unmasked token only', function () {
-    cy.signInAsUserPostRequest(milmoveAppName, userId, csrfForbiddenRespCode, csrfForbiddenMsg, true, false, false);
+  it('cannot dev login with unmasked token only', function () {
+    cy.request('/internal/users/is_logged_in');
+    cy.getCookie('_gorilla_csrf').should('exist');
+
+    // Remove masked CSRF token
+    cy.clearCookie('masked_gorilla_csrf');
+
+    // Attempt to log in with no X-CSRF-TOKEN
+    cy.request({
+      ...requestParams,
+      headers: { 'X-CSRF-TOKEN': null },
+    }).then((response) => {
+      cy.visit('/');
+      expect(response.status).to.eq(csrfForbiddenRespCode);
+      expect(response.body).to.eq(csrfForbiddenMsg);
+    });
   });
 
-  it('tests dev login without unmasked and masked token', function () {
-    cy.signInAsUserPostRequest(milmoveAppName, userId, csrfForbiddenRespCode, csrfForbiddenMsg, false, false, false);
+  it('cannot dev login without unmasked and masked token', function () {
+    cy.request('/internal/users/is_logged_in');
+    cy.getCookie('_gorilla_csrf').should('exist');
+
+    // Remove both CSRF tokens
+    cy.clearCookie('_gorilla_csrf');
+    cy.clearCookie('masked_gorilla_csrf');
+
+    // Attempt to log in with no X-CSRF-TOKEN
+    cy.request({
+      ...requestParams,
+      headers: { 'X-CSRF-TOKEN': null },
+    }).then((response) => {
+      cy.visit('/');
+      expect(response.status).to.eq(csrfForbiddenRespCode);
+      expect(response.body).to.eq(csrfForbiddenMsg);
+    });
   });
 });
 
 describe('testing CSRF protection updating user profile', function () {
-  const userId = '9ceb8321-6a82-4f6d-8bb3-a1d85922a202';
+  before(() => {
+    cy.prepareCustomerApp();
+  });
+
+  beforeEach(() => {
+    // sm_no_move_type@example.com
+    const userId = '9ceb8321-6a82-4f6d-8bb3-a1d85922a202';
+    cy.apiSignInAsPpmUser(userId);
+  });
 
   it('tests updating user profile with proper tokens', function () {
-    cy.signIntoMyMoveAsUser(userId);
-
     cy.visit('/moves/review/edit-profile');
 
     // update info
@@ -45,7 +110,7 @@ describe('testing CSRF protection updating user profile', function () {
     cy.get('button[type="submit"]').click();
 
     cy.location().should((loc) => {
-      expect(loc.pathname).to.match(/^\/$/);
+      expect(loc.pathname).to.match(/^\/ppm$/);
     });
 
     // reload page
@@ -55,8 +120,6 @@ describe('testing CSRF protection updating user profile', function () {
   });
 
   it('tests updating user profile without masked token', function () {
-    cy.signIntoMyMoveAsUser(userId);
-
     cy.visit('/moves/review/edit-profile');
 
     // update info

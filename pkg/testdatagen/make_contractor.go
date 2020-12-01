@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"log"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -38,7 +38,7 @@ func MakeContractor(db *pop.Connection, assertions Assertions) models.Contractor
 	// Overwrite values with those from assertions
 	mergeModels(&contractor, assertions.Contractor)
 
-	mustCreate(db, &contractor)
+	mustCreate(db, &contractor, assertions.Stub)
 
 	return contractor
 }

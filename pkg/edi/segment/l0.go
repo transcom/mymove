@@ -7,7 +7,7 @@ import (
 
 // L0 represents the L0 EDI segment
 type L0 struct {
-	LadingLineItemNumber   int     `validate:"eq=1"`
+	LadingLineItemNumber   int     `validate:"min=1,max=999"`
 	BilledRatedAsQuantity  float64 `validate:"required_with=BilledRatedAsQualifier"`
 	BilledRatedAsQualifier string  `validate:"required_with=BilledRatedAsQuantity,omitempty,len=2"`
 	Weight                 float64 `validate:"required_with=WeightQualifier WeightUnitCode"`
@@ -39,6 +39,7 @@ func (s *L0) StringArray() []string {
 		s.BilledRatedAsQualifier,
 		weight,
 		s.WeightQualifier,
+		// TODO: will need to fill in the blank fields for crating
 		"",
 		"",
 		"",

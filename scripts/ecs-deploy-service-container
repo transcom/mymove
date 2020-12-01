@@ -81,7 +81,7 @@ echo "* Registering new task definition"
 set +e
 green_task_def_arn=$("${DIR}/../bin/ecs-deploy" task-def \
   --aws-account-id "${AWS_ACCOUNT_ID}" \
-  --aws-region us-west-2 \
+  --aws-region "${AWS_DEFAULT_REGION}" \
   --service "${name}" \
   --environment "${environment}" \
   --image "${image}" \

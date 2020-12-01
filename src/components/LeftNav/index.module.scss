@@ -3,16 +3,7 @@
 @import '../../shared/styles/colors';
 
 //Left Nav
-
-
-.sidebar {
-  position: relative;
-  width: 15vw;
-  max-width: 230px;
-  min-width: 230px;
-}
-
-nav {
+.LeftNav {
   @include u-font-size('body', 'xs'); //15px
   @include u-text('no-underline');
   @include u-text('gray-50');
@@ -20,43 +11,42 @@ nav {
   @include u-border('1px');
   @include u-radius('md'); //4px
   @include u-bg('white');
-  display: flex;
-  flex-direction: column;
-  @include u-padding-x(0); //20px
-  @include u-padding-y(0);
-  width: 227px;
-  @include u-margin(0);
-  position: fixed;
-  a {
+  width: 230px;
+
+  > a {
+    @include u-text('gray-50');
+    @include u-text('no-underline');
+
     @include u-padding-y(1.5); //12px
     @include u-padding-x(2.5); //20px
     @include u-border(0);
     display: flex;
     justify-content: space-between;
+
     &:not(:first-child) {
-      border-top: 0.5px solid;
+      border-top: 1px solid;
       @include u-border-y('base-lighter');
     }
-    &:not(:last-child) {
-      border-bottom: 0.5px solid;
-      @include u-border-y('base-lighter');
-    }
+
     &:hover {
       @include u-text('no-underline');
       @include u-text('primary-vivid');
     }
+
     &:active,
-    &.active {
+    &:global(.active) {
       @include u-text('bold');
       @include u-text('black');
       @include u-border-left(0.5); //4px
       @include u-border-left('primary-vivid');
     }
+
     &:visited {
       @include u-text('gray-50');
     }
   }
-  .active {
+
+  :global(.active) {
     @include u-text('bold');
     @include u-text('black');
     @include u-border-left(0.5); //4px
@@ -66,9 +56,10 @@ nav {
   }
 }
 
-nav a:first-child:active, nav a.active:first-child  {
-      border-top-left-radius: 4px;
+nav a:first-child:active,
+nav a.active:first-child {
+  border-top-left-radius: 4px;
 }
 nav a:last-child:active {
-      border-bottom-left-radius: 4px;
+  border-bottom-left-radius: 4px;
 }

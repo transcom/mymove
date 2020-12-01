@@ -25,3 +25,7 @@ header.header {
 .usa-width-one-fourth .btn__approve--green {
   background-color: green;
 }
+
+header.nav-header {
+  border-bottom: 1px solid #dfe1e2;
+}

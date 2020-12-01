@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { bool } from 'prop-types';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlusCircle } from '@fortawesome/free-solid-svg-icons/faPlusCircle';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import { getMoveDocumentsForMove, deleteMoveDocument } from 'shared/Entities/modules/moveDocuments';
 import docsAddedCheckmarkImg from 'shared/images/docs_added_checkmark.png';
@@ -66,7 +66,7 @@ export class DocumentsUploaded extends Component {
     return (
       <div
         className="doc-summary-container"
-        data-cy="documents-uploaded"
+        data-testid="documents-uploaded"
         style={{ paddingBottom: hiddenDocumentList ? '1em' : null, marginTop: !inReviewPage ? '1em' : null }}
       >
         <div className="documents-uploaded-header">
@@ -80,7 +80,7 @@ export class DocumentsUploaded extends Component {
           {this.renderHeader()}
           {!inReviewPage && (
             <a
-              data-cy="toggle-documents-uploaded"
+              data-testid="toggle-documents-uploaded"
               style={{ paddingLeft: '1em' }}
               onClick={this.toggleShowDocs}
               className="usa-link"
@@ -124,7 +124,7 @@ export class DocumentsUploaded extends Component {
               ))}
             </div>
             {showLinks && (
-              <Link data-cy="weight-ticket-link" to={`/moves/${moveId}/ppm-weight-ticket`} className="usa-link">
+              <Link data-testid="weight-ticket-link" to={`/moves/${moveId}/ppm-weight-ticket`} className="usa-link">
                 <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} /> Add weight ticket
               </Link>
             )}
@@ -145,7 +145,7 @@ export class DocumentsUploaded extends Component {
             </div>
             {showLinks && (
               <div className="add-expense-link">
-                <Link data-cy="expense-link" to={`/moves/${moveId}/ppm-expenses`} className="usa-link">
+                <Link data-testid="expense-link" to={`/moves/${moveId}/ppm-expenses`} className="usa-link">
                   <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} /> Add expense
                 </Link>
               </div>

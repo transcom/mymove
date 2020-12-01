@@ -6,9 +6,9 @@ import (
 
 // HL represents the HL EDI segment
 type HL struct {
-	HierarchicalIDNumber       string `validate:"oneof=303 304"`
+	HierarchicalIDNumber       string `validate:"alphanum,min=1,max=12"`
 	HierarchicalParentIDNumber string `validate:"isdefault"` // not used
-	HierarchicalLevelCode      string `validate:"eq=SS"`
+	HierarchicalLevelCode      string `validate:"oneof=SS I"`
 }
 
 // StringArray converts HL to an array of strings

@@ -1,71 +1,103 @@
 package ghcrateengine
 
 import (
+	"fmt"
 	"time"
 
 	"go.uber.org/zap/zapcore"
 
-	"github.com/gobuffalo/pop"
+	"github.com/transcom/mymove/pkg/models"
+
+	"github.com/gobuffalo/pop/v5"
 	"github.com/pkg/errors"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// NewDomesticLinehaulPricer is the public constructor for a DomesticLinehaulPricer using Pop
-func NewDomesticLinehaulPricer(db *pop.Connection, logger Logger, contractCode string) services.DomesticLinehaulPricer {
-	return &domesticLinehaulPricer{
-		db:           db,
-		logger:       logger,
-		contractCode: contractCode,
-	}
-}
+const (
+	dlhPricerMinimumWeight   = 500
+	dlhPricerMinimumDistance = 50
+)
 
-// domesticLinehaulPricer is a service object to price domestic linehaul
 type domesticLinehaulPricer struct {
-	db           *pop.Connection
-	logger       Logger
-	contractCode string
+	db *pop.Connection
 }
 
-// priceAndEscalation is used to hold data returned by the database query
-type milliCentPriceAndEscalation struct {
-	PriceMillicents      unit.Millicents `db:"price_millicents"`
-	EscalationCompounded float64         `db:"escalation_compounded"`
+// NewDomesticLinehaulPricer creates a new pricer for domestic linehaul services
+func NewDomesticLinehaulPricer(db *pop.Connection) services.DomesticLinehaulPricer {
+	return &domesticLinehaulPricer{
+		db: db,
+	}
 }
 
-func (p milliCentPriceAndEscalation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
-	encoder.AddInt("PriceMillicents", p.PriceMillicents.Int())
-	encoder.AddFloat64("EscalationCompounded", p.EscalationCompounded)
-	return nil
+// Price determines the price for a domestic linehaul
+func (p domesticLinehaulPricer) Price(contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, distance int, weightBilledActual int, serviceArea string) (unit.Cents, error) {
+	priceAndEscalation, err := fetchDomesticLinehaulPrice(p.db, contractCode, requestedPickupDate, isPeakPeriod, distance, weightBilledActual, serviceArea)
+	if err != nil {
+		return unit.Cents(0), fmt.Errorf("could not fetch domestic linehaul rate: %w", err)
+	}
+
+	weightPounds := unit.Pound(weightBilledActual)
+	distanceMiles := unit.Miles(distance)
+	baseTotalPrice := weightPounds.ToCWTFloat64() * distanceMiles.Float64() * priceAndEscalation.PriceMillicents.Float64()
+	escalatedTotalPrice := priceAndEscalation.EscalationCompounded * baseTotalPrice
+
+	totalPriceMillicents := unit.Millicents(escalatedTotalPrice)
+	totalPriceCents := totalPriceMillicents.ToCents()
+
+	return totalPriceCents, nil
+
 }
 
-// PriceDomesticLinehaul produces the price in cents for the linehaul charge for the given move parameters
-func (p domesticLinehaulPricer) PriceDomesticLinehaul(moveDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (unit.Cents, error) {
+// PriceUsingParams determines the price for a domestic linehaul given PaymentServiceItemParams
+func (p domesticLinehaulPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, error) {
+	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
+	if err != nil {
+		return unit.Cents(0), err
+	}
+
+	requestedPickupDate, err := getParamTime(params, models.ServiceItemParamNameRequestedPickupDate)
+	if err != nil {
+		return unit.Cents(0), err
+	}
+
+	distanceZip3, err := getParamInt(params, models.ServiceItemParamNameDistanceZip3)
+	if err != nil {
+		return unit.Cents(0), err
+	}
+
+	weightBilledActual, err := getParamInt(params, models.ServiceItemParamNameWeightBilledActual)
+	if err != nil {
+		return unit.Cents(0), err
+	}
+
+	serviceAreaOrigin, err := getParamString(params, models.ServiceItemParamNameServiceAreaOrigin)
+	if err != nil {
+		return unit.Cents(0), err
+	}
+
+	isPeakPeriod := IsPeakPeriod(requestedPickupDate)
+
+	return p.Price(contractCode, requestedPickupDate, isPeakPeriod, distanceZip3, weightBilledActual, serviceAreaOrigin)
+}
+
+func fetchDomesticLinehaulPrice(db *pop.Connection, contractCode string, requestedPickupDate time.Time, isPeakPeriod bool, distance int, weight int, serviceArea string) (milliCentPriceAndEscalation, error) {
 	// Validate parameters
-	if moveDate.IsZero() {
-		return 0, errors.New("MoveDate is required")
+	if requestedPickupDate.IsZero() {
+		return milliCentPriceAndEscalation{}, errors.New("MoveDate is required")
 	}
-	if distance <= 0 {
-		return 0, errors.New("Distance must be greater than 0")
+	if distance < dlhPricerMinimumDistance {
+		return milliCentPriceAndEscalation{}, fmt.Errorf("distance must be at least %d", dlhPricerMinimumDistance)
 	}
-	if weight <= 0 {
-		return 0, errors.New("Weight must be greater than 0")
+	if weight < dlhPricerMinimumWeight {
+		return milliCentPriceAndEscalation{}, fmt.Errorf("weight must be at least %d", dlhPricerMinimumWeight)
 	}
 	if len(serviceArea) == 0 {
-		return 0, errors.New("ServiceArea is required")
+		return milliCentPriceAndEscalation{}, errors.New("ServiceArea is required")
 	}
 
-	// Minimum weight is 500 pounds
-	effectiveWeight := weight
-	if weight < minDomesticWeight {
-		effectiveWeight = minDomesticWeight
-	}
-
-	isPeakPeriod := IsPeakPeriod(moveDate)
-
-	var pe milliCentPriceAndEscalation
+	var mpe milliCentPriceAndEscalation
 	query :=
 		`select price_millicents, escalation_compounded
          from re_domestic_linehaul_prices dlp
@@ -78,38 +110,30 @@ func (p domesticLinehaulPricer) PriceDomesticLinehaul(moveDate time.Time, distan
          and $4 between dlp.weight_lower and dlp.weight_upper
          and $5 between dlp.miles_lower and dlp.miles_upper
          and dsa.service_area = $6;`
-	err := p.db.RawQuery(
+	err := db.RawQuery(
 		query,
-		p.contractCode,
-		moveDate,
+		contractCode,
+		requestedPickupDate,
 		isPeakPeriod,
-		effectiveWeight,
+		weight,
 		distance,
-		serviceArea).First(&pe)
+		serviceArea).First(&mpe)
 	if err != nil {
-		return 0, errors.Wrap(err, "Lookup of domestic linehaul rate failed")
+		return mpe, errors.Wrap(err, "Lookup of domestic linehaul rate failed")
 	}
 
-	baseTotalPrice := effectiveWeight.ToCWTFloat64() * distance.Float64() * pe.PriceMillicents.Float64()
-	escalatedTotalPrice := pe.EscalationCompounded * baseTotalPrice
+	return mpe, nil
 
-	// TODO: Round or truncate?
-	totalPriceMillicents := unit.Millicents(escalatedTotalPrice)
-	totalPriceCents := totalPriceMillicents.ToCents()
+}
 
-	p.logger.Info("Base domestic linehaul calculated",
-		zap.String("contractCode", p.contractCode),
-		zap.Time("moveDate", moveDate),
-		zap.Int("distance", distance.Int()),
-		zap.Int("weight", weight.Int()),
-		zap.String("serviceArea", serviceArea),
-		zap.Bool("isPeakPeriod", isPeakPeriod),
-		zap.Int("effectiveWeight", effectiveWeight.Int()),
-		zap.Object("priceAndEscalation", pe),
-		zap.Float64("baseTotalPrice", baseTotalPrice),
-		zap.Float64("escalatedTotalPrice", escalatedTotalPrice),
-		zap.Int("totalPriceCents", totalPriceCents.Int()),
-	)
+// priceAndEscalation is used to hold data returned by the database query
+type milliCentPriceAndEscalation struct {
+	PriceMillicents      unit.Millicents `db:"price_millicents"`
+	EscalationCompounded float64         `db:"escalation_compounded"`
+}
 
-	return totalPriceCents, err
+func (p milliCentPriceAndEscalation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	encoder.AddInt("PriceMillicents", p.PriceMillicents.Int())
+	encoder.AddFloat64("EscalationCompounded", p.EscalationCompounded)
+	return nil
 }

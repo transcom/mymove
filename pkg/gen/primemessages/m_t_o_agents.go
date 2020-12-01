@@ -8,19 +8,26 @@ package primemessages
 import (
 	"strconv"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // MTOAgents m t o agents
+//
 // swagger:model MTOAgents
 type MTOAgents []*MTOAgent
 
 // Validate validates this m t o agents
 func (m MTOAgents) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	iMTOAgentsSize := int64(len(m))
+
+	if err := validate.MaxItems("", "body", iMTOAgentsSize, 2); err != nil {
+		return err
+	}
 
 	for i := 0; i < len(m); i++ {
 		if swag.IsZero(m[i]) { // not required

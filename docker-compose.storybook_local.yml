@@ -1,9 +1,0 @@
-version: '3.3'
-
-services:
-  storybook:
-    build:
-      dockerfile: Dockerfile.storybook_local
-  storybook_tests:
-    build:
-      dockerfile: Dockerfile.storybook_local

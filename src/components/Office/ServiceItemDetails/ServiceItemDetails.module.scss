@@ -1,0 +1,34 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+
+@import 'shared/styles/_custom';
+
+.detailLine {
+  @include u-font-size('body', '3xs');
+}
+
+// abstract called for thin semi bold which isn't a variant
+.detailType {
+  @include u-font-weight(600);
+}
+
+.customerContact {
+  @include u-margin-top(2);
+}
+
+.detailImage {
+  @include u-display(flex);
+  p {
+    @include u-margin-top(0);
+  }
+}
+
+.siThumbnail {
+  width: 100px;
+  height: 100px;
+}
+
+.detailCaption {
+  @include u-margin-left(3);
+}

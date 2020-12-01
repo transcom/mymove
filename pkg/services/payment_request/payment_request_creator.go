@@ -6,8 +6,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -20,11 +20,16 @@ import (
 type paymentRequestCreator struct {
 	db      *pop.Connection
 	planner route.Planner
+	pricer  services.ServiceItemPricer
 }
 
 // NewPaymentRequestCreator returns a new payment request creator
-func NewPaymentRequestCreator(db *pop.Connection, planner route.Planner) services.PaymentRequestCreator {
-	return &paymentRequestCreator{db: db, planner: planner}
+func NewPaymentRequestCreator(db *pop.Connection, planner route.Planner, pricer services.ServiceItemPricer) services.PaymentRequestCreator {
+	return &paymentRequestCreator{
+		db:      db,
+		planner: planner,
+		pricer:  pricer,
+	}
 }
 
 func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.PaymentRequest) (*models.PaymentRequest, error) {
@@ -48,6 +53,9 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			if _, ok := err.(services.NotFoundError); ok {
 				return err
 			}
+			if _, ok := err.(services.ConflictError); ok {
+				return err
+			}
 			if errors.As(err, &badDataError) {
 				return err
 			}
@@ -57,11 +65,17 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			return fmt.Errorf("failure creating payment request <nil> for %s", mtoMessageString+prMessageString)
 		}
 
+		// Service Item Param Cache
+		serviceParamCache := serviceparamlookups.ServiceParamsCache{}
+		serviceParamCache.Initialize(p.db)
+
+		// Run the pricer within this transactional context
+		txPricer := p.pricer.UsingConnection(tx)
+
 		// Create a payment service item for each incoming payment service item in the payment request
 		// These incoming payment service items have not been created in the database yet
 		var newPaymentServiceItems models.PaymentServiceItems
 		for _, paymentServiceItem := range paymentRequestArg.PaymentServiceItems {
-
 			var mtoServiceItem models.MTOServiceItem
 
 			// Gather message information for logging
@@ -70,6 +84,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			serviceItemMessageString := " RE Service Item Code: <" + string(reServiceItem.Code) + "> Name: <" + reServiceItem.Name + ">"
 			errMessageString := mtoMessageString + prMessageString + mtoServiceItemString + serviceItemMessageString
 			// Create the payment service item
+			// #nosec G601 TODO needs review
 			paymentServiceItem, mtoServiceItem, err = p.createPaymentServiceItem(tx, &paymentServiceItem, paymentRequestArg, now)
 			if err != nil {
 				if _, ok := err.(services.InvalidCreateInputError); ok {
@@ -90,6 +105,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			for _, paymentServiceItemParam := range paymentServiceItem.PaymentServiceItemParams {
 				var param *models.PaymentServiceItemParam
 				var key, value *string
+				// #nosec G601 TODO needs review
 				param, key, value, err = p.createPaymentServiceItemParam(tx, &paymentServiceItemParam, paymentServiceItem)
 				if err != nil {
 					if _, ok := err.(*services.BadDataError); ok {
@@ -114,6 +130,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 
 			// Retrieve all of the params needed to price this service item
 			paymentHelper := paymentrequesthelper.RequestPaymentHelper{DB: tx}
+
 			reServiceParams, err := paymentHelper.FetchServiceParamList(paymentServiceItem.MTOServiceItemID)
 			if err != nil {
 				errMessage := "Failed to retrieve service item param list for " + errMessageString
@@ -121,7 +138,10 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			}
 
 			// Get values for needed service item params (do lookups)
-			paramLookup := serviceparamlookups.ServiceParamLookupInitialize(tx, p.planner, paymentServiceItem.MTOServiceItemID, paymentServiceItem.ID, paymentRequestArg.MoveTaskOrderID)
+			paramLookup, err := serviceparamlookups.ServiceParamLookupInitialize(tx, p.planner, paymentServiceItem.MTOServiceItemID, paymentServiceItem.ID, paymentRequestArg.MoveTaskOrderID, &serviceParamCache)
+			if err != nil {
+				return err
+			}
 			for _, reServiceParam := range reServiceParams {
 				if _, found := incomingMTOServiceItemParams[reServiceParam.ServiceItemParamKey.Key.String()]; !found {
 					// create the missing service item param
@@ -144,8 +164,6 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 
 			paymentServiceItem.PaymentServiceItemParams = newPaymentServiceItemParams
 
-			newPaymentServiceItems = append(newPaymentServiceItems, paymentServiceItem)
-
 			//
 			// Validate that all params are available to prices the service item that is in
 			// the payment request
@@ -155,7 +173,18 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 				errMessage := "service item param list is not valid (will not be able to price the item) " + validateMessage + " for " + errMessageString
 				return fmt.Errorf("%s err: %w", errMessage, err)
 			}
+
+			// Price the payment service item
+			// #nosec G601 TODO needs review
+			err = p.pricePaymentServiceItem(tx, txPricer, &paymentServiceItem)
+			if err != nil {
+				return fmt.Errorf("failure pricing service %s for MTO service item ID %s: %w",
+					paymentServiceItem.MTOServiceItem.ReService.Code, paymentServiceItem.MTOServiceItemID, err)
+			}
+
+			newPaymentServiceItems = append(newPaymentServiceItems, paymentServiceItem)
 		}
+
 		paymentRequestArg.PaymentServiceItems = newPaymentServiceItems
 
 		return nil
@@ -170,23 +199,56 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 
 func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection, paymentRequest *models.PaymentRequest, requestedAt time.Time) (*models.PaymentRequest, error) {
 	// Verify that the MTO ID exists
-	//
+	if paymentRequest.MoveTaskOrderID == uuid.Nil {
+		return nil, services.NewInvalidCreateInputError(nil, "Invalid Create Input Error: MoveTaskOrderID is required on PaymentRequest create")
+	}
+
 	// Lock on the parent row to keep multiple transactions from getting this count at the same time
-	// for the same move_task_order_id.  This should block if another payment request comes in for the
-	// same move_task_order_id.  Payment requests for other move_task_order_ids should run concurrently.
+	// for the same move_id.  This should block if another payment request comes in for the
+	// same move_id.  Payment requests for other move_ids should run concurrently.
 	// Also note that we use "FOR NO KEY UPDATE" to allow concurrent mods to other tables that have a
 	// FK to move_task_orders.
-	var moveTaskOrder models.MoveTaskOrder
+	var moveTaskOrder models.Move
 	sqlString, sqlArgs := tx.Where("id = $1", paymentRequest.MoveTaskOrderID).ToSQL(&pop.Model{Value: &moveTaskOrder})
 	sqlString += " FOR NO KEY UPDATE"
 	err := tx.RawQuery(sqlString, sqlArgs...).First(&moveTaskOrder)
 
 	if err != nil {
 		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-			msg := fmt.Sprint("for MoveTaskOrder")
+			msg := fmt.Sprint("for Move")
 			return nil, services.NewNotFoundError(paymentRequest.MoveTaskOrderID, msg)
 		}
-		return nil, fmt.Errorf("could not retrieve MoveTaskOrder with ID [%s]: %w", paymentRequest.MoveTaskOrderID, err)
+		return nil, fmt.Errorf("could not retrieve Move with ID [%s]: %w", paymentRequest.MoveTaskOrderID, err)
+	}
+
+	// Verify the Orders on the MTO
+	tx.Load(&moveTaskOrder, "Orders")
+	// Verify that the Orders has LOA
+	if moveTaskOrder.Orders.TAC == nil || *moveTaskOrder.Orders.TAC == "" {
+		return nil, services.NewConflictError(moveTaskOrder.OrdersID, fmt.Sprintf("Orders on MoveTaskOrder (ID: %s) missing Lines of Accounting TAC", moveTaskOrder.ID))
+	}
+	// Verify that the Orders have OriginDutyStation
+	if moveTaskOrder.Orders.OriginDutyStationID == nil {
+		return nil, services.NewConflictError(moveTaskOrder.OrdersID, fmt.Sprintf("Orders on MoveTaskOrder (ID: %s) missing OriginDutyStation", moveTaskOrder.ID))
+	}
+	// Verify that ServiceMember is Valid
+	tx.Load(&moveTaskOrder.Orders, "ServiceMember")
+	serviceMember := moveTaskOrder.Orders.ServiceMember
+	// Verify First Name
+	if serviceMember.FirstName == nil || *serviceMember.FirstName == "" {
+		return nil, services.NewConflictError(moveTaskOrder.Orders.ServiceMemberID, fmt.Sprintf("ServiceMember on MoveTaskOrder (ID: %s) missing First Name", moveTaskOrder.ID))
+	}
+	// Verify Last Name
+	if serviceMember.LastName == nil || *serviceMember.LastName == "" {
+		return nil, services.NewConflictError(moveTaskOrder.Orders.ServiceMemberID, fmt.Sprintf("ServiceMember on MoveTaskOrder (ID: %s) missing Last Name", moveTaskOrder.ID))
+	}
+	// Verify Rank
+	if serviceMember.Rank == nil || *serviceMember.Rank == "" {
+		return nil, services.NewConflictError(moveTaskOrder.Orders.ServiceMemberID, fmt.Sprintf("ServiceMember on MoveTaskOrder (ID: %s) missing Rank", moveTaskOrder.ID))
+	}
+	// Verify Affiliation
+	if serviceMember.Affiliation == nil || *serviceMember.Affiliation == "" {
+		return nil, services.NewConflictError(moveTaskOrder.Orders.ServiceMemberID, fmt.Sprintf("ServiceMember on MoveTaskOrder (ID: %s) missing Affiliation", moveTaskOrder.ID))
 	}
 
 	// Update PaymentRequest
@@ -231,7 +293,7 @@ func (p *paymentRequestCreator) createPaymentServiceItem(tx *pop.Connection, pay
 	paymentServiceItem.PaymentRequestID = paymentRequest.ID
 	paymentServiceItem.PaymentRequest = *paymentRequest
 	paymentServiceItem.Status = models.PaymentServiceItemStatusRequested
-	// TODO: No pricing yet, so skipping the PriceCents field.
+	// No pricing at this point, so skipping the PriceCents field.
 	paymentServiceItem.RequestedAt = requestedAt
 
 	verrs, err := tx.ValidateAndCreate(paymentServiceItem)
@@ -244,6 +306,32 @@ func (p *paymentRequestCreator) createPaymentServiceItem(tx *pop.Connection, pay
 	}
 
 	return *paymentServiceItem, mtoServiceItem, nil
+}
+
+func (p *paymentRequestCreator) pricePaymentServiceItem(tx *pop.Connection, pricer services.ServiceItemPricer, paymentServiceItem *models.PaymentServiceItem) error {
+	price, err := pricer.PriceServiceItem(*paymentServiceItem)
+	if err != nil {
+		// If a pricer isn't implemented yet, just skip saving any pricing for now.
+		// TODO: Once all pricers are implemented, this should be removed.
+		if _, ok := err.(services.NotImplementedError); ok {
+			return nil
+		}
+
+		return err
+	}
+
+	paymentServiceItem.PriceCents = &price
+
+	verrs, err := tx.ValidateAndUpdate(paymentServiceItem)
+	if verrs.HasAny() {
+		return services.NewInvalidInputError(paymentServiceItem.ID, err, verrs, "")
+	}
+	if err != nil {
+		return fmt.Errorf("could not update payment service item for MTO service item ID %s: %w",
+			paymentServiceItem.ID, err)
+	}
+
+	return nil
 }
 
 func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection, paymentServiceItemParam *models.PaymentServiceItemParam, paymentServiceItem models.PaymentServiceItem) (*models.PaymentServiceItemParam, *string, *string, error) {
@@ -308,7 +396,7 @@ func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection
 func (p *paymentRequestCreator) createServiceItemParamFromLookup(tx *pop.Connection, paramLookup *serviceparamlookups.ServiceItemParamKeyData, serviceParam models.ServiceParam, paymentServiceItem models.PaymentServiceItem) (*models.PaymentServiceItemParam, error) {
 	// key not found in map
 	// Did not find service item param needed for pricing, add it to the list
-	value, err := paramLookup.ServiceParamValue(serviceParam.ServiceItemParamKey.Key.String())
+	value, err := paramLookup.ServiceParamValue(serviceParam.ServiceItemParamKey.Key)
 	if err != nil {
 		errMessage := "Failed to lookup ServiceParamValue for param key <" + serviceParam.ServiceItemParamKey.Key + "> "
 		return nil, fmt.Errorf("%s err: %w", errMessage, err)
@@ -338,21 +426,21 @@ func (p *paymentRequestCreator) createServiceItemParamFromLookup(tx *pop.Connect
 	return &paymentServiceItemParam, nil
 }
 
-func (p *paymentRequestCreator) makeUniqueIdentifier(tx *pop.Connection, mto models.MoveTaskOrder) (string, int, error) {
+func (p *paymentRequestCreator) makeUniqueIdentifier(tx *pop.Connection, mto models.Move) (string, int, error) {
 	// Get the max sequence number that exists for the payment requests associated with the given MTO.
 	// Since we have a lock to prevent concurrent payment requests for this MTO, this should be safe.
 	var max int
-	err := tx.RawQuery("SELECT COALESCE(MAX(sequence_number),0) FROM payment_requests WHERE move_task_order_id = $1", mto.ID).First(&max)
+	err := tx.RawQuery("SELECT COALESCE(MAX(sequence_number),0) FROM payment_requests WHERE move_id = $1", mto.ID).First(&max)
 	if err != nil {
 		return "", 0, fmt.Errorf("max sequence_number for MoveTaskOrderID [%s] failed: %w", mto.ID, err)
 	}
 
-	if mto.ReferenceID == "" {
+	if *mto.ReferenceID == "" {
 		return "", 0, fmt.Errorf("could not find reference ID for MoveTaskOrderID [%s]", mto.ID)
 	}
 
 	nextSequence := max + 1
-	paymentRequestNumber := fmt.Sprintf("%s-%d", mto.ReferenceID, nextSequence)
+	paymentRequestNumber := fmt.Sprintf("%s-%d", *mto.ReferenceID, nextSequence)
 
 	return paymentRequestNumber, nextSequence, nil
 }

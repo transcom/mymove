@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	ghcmessages "github.com/transcom/mymove/pkg/gen/ghcmessages"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 )
 
 // UpdateMTOServiceItemStatusOKCode is the HTTP code returned for type UpdateMTOServiceItemStatusOK
@@ -264,6 +264,50 @@ func (o *UpdateMTOServiceItemStatusPreconditionFailed) WriteResponse(rw http.Res
 	payload := o.Payload
 	if err := producer.Produce(rw, payload); err != nil {
 		panic(err) // let the recovery middleware deal with this
+	}
+}
+
+// UpdateMTOServiceItemStatusUnprocessableEntityCode is the HTTP code returned for type UpdateMTOServiceItemStatusUnprocessableEntity
+const UpdateMTOServiceItemStatusUnprocessableEntityCode int = 422
+
+/*UpdateMTOServiceItemStatusUnprocessableEntity Validation error
+
+swagger:response updateMTOServiceItemStatusUnprocessableEntity
+*/
+type UpdateMTOServiceItemStatusUnprocessableEntity struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *ghcmessages.ValidationError `json:"body,omitempty"`
+}
+
+// NewUpdateMTOServiceItemStatusUnprocessableEntity creates UpdateMTOServiceItemStatusUnprocessableEntity with default headers values
+func NewUpdateMTOServiceItemStatusUnprocessableEntity() *UpdateMTOServiceItemStatusUnprocessableEntity {
+
+	return &UpdateMTOServiceItemStatusUnprocessableEntity{}
+}
+
+// WithPayload adds the payload to the update m t o service item status unprocessable entity response
+func (o *UpdateMTOServiceItemStatusUnprocessableEntity) WithPayload(payload *ghcmessages.ValidationError) *UpdateMTOServiceItemStatusUnprocessableEntity {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update m t o service item status unprocessable entity response
+func (o *UpdateMTOServiceItemStatusUnprocessableEntity) SetPayload(payload *ghcmessages.ValidationError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *UpdateMTOServiceItemStatusUnprocessableEntity) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(422)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 

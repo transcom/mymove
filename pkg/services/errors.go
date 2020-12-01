@@ -3,7 +3,7 @@ package services
 import (
 	"fmt"
 
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 )
 
@@ -30,6 +30,7 @@ func (e PreconditionFailedError) Error() string {
 type NotFoundError struct {
 	id      uuid.UUID
 	message string
+	err     error
 }
 
 // NewNotFoundError returns an error for when a struct can not be found
@@ -42,6 +43,16 @@ func NewNotFoundError(id uuid.UUID, message string) NotFoundError {
 
 func (e NotFoundError) Error() string {
 	return fmt.Sprintf("id: %s not found %s", e.id.String(), e.message)
+}
+
+// Wrap lets the caller add an error to be wrapped in the NotFoundError
+func (e *NotFoundError) Wrap(err error) {
+	e.err = err
+}
+
+// Unwrap returns the wrapped error, could be nil
+func (e *NotFoundError) Unwrap() error {
+	return e.err
 }
 
 // ErrorCode contains error codes for the route package
@@ -105,10 +116,13 @@ func NewInvalidInputError(id uuid.UUID, err error, validationErrors *validate.Er
 func (e InvalidInputError) Error() string {
 	if e.message != "" {
 		return fmt.Sprintf(e.message)
-	} else if e.id == uuid.Nil {
+	} else if e.id == uuid.Nil && e.ValidationErrors != nil {
 		return fmt.Sprintf("Invalid input received. %s", e.ValidationErrors)
+	} else if e.ValidationErrors != nil {
+		return fmt.Sprintf("Invalid input for id: %s. %s", e.id.String(), e.ValidationErrors)
+	} else {
+		return ("Invalid Input.")
 	}
-	return fmt.Sprintf("Invalid input for id: %s. %s", e.id.String(), e.ValidationErrors)
 }
 
 // QueryError is returned when a query in the database failed.
@@ -125,6 +139,11 @@ func (e QueryError) Error() string {
 		return fmt.Sprintf(e.message)
 	}
 	return fmt.Sprintf("Could not complete query related to object of type: %s.", e.objectType)
+}
+
+// Unwrap returns the enclosed error
+func (e *QueryError) Unwrap() error {
+	return e.err
 }
 
 // NewQueryError returns an error on a query to the database
@@ -166,7 +185,7 @@ type ConflictError struct {
 }
 
 func (e ConflictError) Error() string {
-	return fmt.Sprintf("id: %s not found %s", e.id.String(), e.message)
+	return fmt.Sprintf("id: %s is in a conflicting state %s", e.id.String(), e.message)
 }
 
 // NewConflictError returns an error for when a struct can not be found
@@ -175,4 +194,47 @@ func NewConflictError(id uuid.UUID, message string) ConflictError {
 		id:      id,
 		message: message,
 	}
+}
+
+// NotImplementedError is returned when some functionality is not yet implemented
+type NotImplementedError struct {
+	message string
+}
+
+func (e NotImplementedError) Error() string {
+	return fmt.Sprintf("NotImplementedError: %s", e.message)
+}
+
+// NewNotImplementedError creates an error for some unimplemented functionality
+func NewNotImplementedError(message string) NotImplementedError {
+	return NotImplementedError{
+		message: message,
+	}
+}
+
+// EventError is an error generated in the events/notifications system.
+// We should log but not return this sort of error to the client because
+// client's request could be successful but our notification subsystem
+// encountered an error
+type EventError struct {
+	message string
+	error
+}
+
+// NewEventError returns a new EventError
+func NewEventError(message string, err error) EventError {
+	return EventError{
+		message: message,
+		error:   err,
+	}
+}
+
+// Error is the string representation of the EventError
+func (e EventError) Error() string {
+	return e.message
+}
+
+// Unwrap returns the wrapped error, could be nil
+func (e EventError) Unwrap() error {
+	return e.error
 }

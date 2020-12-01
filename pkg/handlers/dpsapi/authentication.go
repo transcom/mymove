@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
@@ -103,6 +103,7 @@ func getPayload(db *pop.Connection, loginGovID string, rbs iws.PersonLookup) (*d
 			errMessage: fmt.Sprintf("User %s is missing EDIPI", userIdentity.ID.String()),
 		}
 	}
+
 	ssn, err := getSSNFromIWS(*sm.Edipi, rbs)
 	if err != nil {
 		return nil, errors.Wrap(err, "Getting SSN from IWS using EDIPI")

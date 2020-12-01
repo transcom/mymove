@@ -3,7 +3,8 @@ package testdatagen
 import (
 	"time"
 
-	"github.com/gobuffalo/pop"
+	"github.com/go-openapi/swag"
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
@@ -11,103 +12,161 @@ import (
 
 // MakeMTOShipment creates a single MTOShipment and associated set relationships
 func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipment {
-	moveTaskOrder := assertions.MoveTaskOrder
-	if isZeroUUID(moveTaskOrder.ID) {
-		moveTaskOrder = MakeMoveTaskOrder(db, assertions)
-	}
-
-	pickupAddress := MakeAddress(db, assertions)
-	destinationAddress := MakeAddress2(db, assertions)
-	secondaryPickupAddress := MakeAddress(db, assertions)
-	secondaryDeliveryAddress := MakeAddress(db, assertions)
 	shipmentType := models.MTOShipmentTypeHHG
-
-	if assertions.MTOShipment.ShipmentType != "" {
-		shipmentType = assertions.MTOShipment.ShipmentType
+	shipmentStatus := models.MTOShipmentStatusDraft
+	mtoShipment := assertions.MTOShipment
+	// Make move if it was not provided
+	moveTaskOrder := assertions.Move
+	if isZeroUUID(moveTaskOrder.ID) {
+		moveTaskOrder = MakeMove(db, assertions)
 	}
 
-	// mock remarks
-	remarks := "please treat gently"
-	rejectionReason := "shipment not good enough"
+	if mtoShipment.ShipmentType != "" {
+		shipmentType = mtoShipment.ShipmentType
+	}
+
+	if mtoShipment.Status != "" {
+		shipmentStatus = mtoShipment.Status
+	}
+
+	shipmentHasPickupDetails := mtoShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom
+	shipmentHasDeliveryDetails := mtoShipment.ShipmentType != models.MTOShipmentTypeHHGIntoNTSDom
+
+	var pickupAddress, secondaryPickupAddress models.Address
+	if shipmentHasPickupDetails {
+		// Make pickup address if it was not provided
+		pickupAddress = assertions.PickupAddress
+		if isZeroUUID(pickupAddress.ID) {
+			pickupAddress = MakeAddress(db, Assertions{
+				Address: assertions.PickupAddress,
+			})
+		}
+
+		// Make secondary pickup address if it was not provided
+		secondaryPickupAddress = assertions.SecondaryPickupAddress
+		if isZeroUUID(secondaryPickupAddress.ID) {
+			secondaryPickupAddress = MakeAddress(db, Assertions{
+				Address: assertions.SecondaryPickupAddress,
+			})
+		}
+	}
+
+	var destinationAddress, secondaryDeliveryAddress models.Address
+	if shipmentHasDeliveryDetails {
+		// Make destination address if it was not provided
+		destinationAddress = assertions.DestinationAddress
+		if isZeroUUID(destinationAddress.ID) {
+			destinationAddress = MakeAddress2(db, Assertions{
+				Address: assertions.DestinationAddress,
+			})
+		}
+
+		// Make secondary delivery address if it was not provided
+		secondaryDeliveryAddress = assertions.SecondaryDeliveryAddress
+		if isZeroUUID(secondaryDeliveryAddress.ID) {
+			secondaryDeliveryAddress = MakeAddress(db, Assertions{
+				Address: assertions.SecondaryDeliveryAddress,
+			})
+		}
+	}
 
 	// mock weights
 	actualWeight := unit.Pound(980)
 
 	// mock dates
-	scheduledPickupDate := time.Date(TestYear, time.March, 16, 0, 0, 0, 0, time.UTC)
-	requestedPickupDate := time.Date(TestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
+	var requestedPickupDate, scheduledPickupDate, actualPickupDate, requestedDeliveryDate time.Time
+
+	if shipmentHasPickupDetails {
+		requestedPickupDate = time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
+		scheduledPickupDate = time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)
+		actualPickupDate = time.Date(GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)
+	}
+	if shipmentHasDeliveryDetails {
+		requestedDeliveryDate = time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
+	}
 
 	MTOShipment := models.MTOShipment{
-		MoveTaskOrder:            moveTaskOrder,
-		MoveTaskOrderID:          moveTaskOrder.ID,
-		ScheduledPickupDate:      &scheduledPickupDate,
-		RequestedPickupDate:      &requestedPickupDate,
-		CustomerRemarks:          &remarks,
-		PickupAddress:            &pickupAddress,
-		PickupAddressID:          &pickupAddress.ID,
-		DestinationAddress:       &destinationAddress,
-		DestinationAddressID:     &destinationAddress.ID,
-		PrimeActualWeight:        &actualWeight,
-		SecondaryPickupAddress:   &secondaryPickupAddress,
-		SecondaryDeliveryAddress: &secondaryDeliveryAddress,
-		ShipmentType:             shipmentType,
-		Status:                   "SUBMITTED",
-		RejectionReason:          &rejectionReason,
+		MoveTaskOrder:         moveTaskOrder,
+		MoveTaskOrderID:       moveTaskOrder.ID,
+		RequestedPickupDate:   &requestedPickupDate,
+		ScheduledPickupDate:   &scheduledPickupDate,
+		ActualPickupDate:      &actualPickupDate,
+		RequestedDeliveryDate: &requestedDeliveryDate,
+		CustomerRemarks:       swag.String("Please treat gently"),
+		PrimeActualWeight:     &actualWeight,
+		ShipmentType:          shipmentType,
+		Status:                shipmentStatus,
+		RejectionReason:       swag.String("Not enough information"),
+	}
+
+	if shipmentHasDeliveryDetails {
+		MTOShipment.DestinationAddress = &destinationAddress
+		MTOShipment.DestinationAddressID = &destinationAddress.ID
+		MTOShipment.SecondaryDeliveryAddress = &secondaryDeliveryAddress
+	}
+
+	if shipmentHasPickupDetails {
+		MTOShipment.PickupAddress = &pickupAddress
+		MTOShipment.PickupAddressID = &pickupAddress.ID
+		MTOShipment.SecondaryPickupAddress = &secondaryPickupAddress
 	}
 
 	if assertions.MTOShipment.Status == models.MTOShipmentStatusApproved {
-		approvedDate := time.Date(TestYear, time.March, 20, 0, 0, 0, 0, time.UTC)
+		approvedDate := time.Date(GHCTestYear, time.March, 20, 0, 0, 0, 0, time.UTC)
 		MTOShipment.ApprovedDate = &approvedDate
 	}
 
 	if assertions.MTOShipment.ScheduledPickupDate != nil {
-		requiredDeliveryDate := time.Date(TestYear, time.April, 15, 0, 0, 0, 0, time.UTC)
+		requiredDeliveryDate := time.Date(GHCTestYear, time.April, 15, 0, 0, 0, 0, time.UTC)
 		MTOShipment.RequiredDeliveryDate = &requiredDeliveryDate
 	}
 
 	// Overwrite values with those from assertions
 	mergeModels(&MTOShipment, assertions.MTOShipment)
 
-	mustCreate(db, &MTOShipment)
+	mustCreate(db, &MTOShipment, assertions.Stub)
 
 	return MTOShipment
+}
+
+// MakeDefaultMTOShipment makes an MTOShipment with default values
+func MakeDefaultMTOShipment(db *pop.Connection) models.MTOShipment {
+	return MakeMTOShipment(db, Assertions{})
 }
 
 // MakeMTOShipmentMinimal creates a single MTOShipment with a minimal set of data as could be possible
 // through milmove UI.
 func MakeMTOShipmentMinimal(db *pop.Connection, assertions Assertions) models.MTOShipment {
-	moveTaskOrder := assertions.MoveTaskOrder
+	moveTaskOrder := assertions.Move
 	if isZeroUUID(moveTaskOrder.ID) {
-		moveTaskOrder = MakeMoveTaskOrder(db, assertions)
+		moveTaskOrder = MakeMove(db, assertions)
 	}
-	pickupAddress := MakeAddress(db, assertions)
-	destinationAddress := MakeAddress2(db, assertions)
-	shipmentType := models.MTOShipmentTypeHHG
 
 	// mock dates
-	requestedPickupDate := time.Date(TestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
+	requestedPickupDate := time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
 
 	MTOShipment := models.MTOShipment{
-		MoveTaskOrder:        moveTaskOrder,
-		MoveTaskOrderID:      moveTaskOrder.ID,
-		RequestedPickupDate:  &requestedPickupDate,
-		PickupAddress:        &pickupAddress,
-		PickupAddressID:      &pickupAddress.ID,
-		DestinationAddress:   &destinationAddress,
-		DestinationAddressID: &destinationAddress.ID,
-		ShipmentType:         shipmentType,
-		Status:               "SUBMITTED",
+		MoveTaskOrder:       moveTaskOrder,
+		MoveTaskOrderID:     moveTaskOrder.ID,
+		RequestedPickupDate: &requestedPickupDate,
+		ShipmentType:        models.MTOShipmentTypeHHG,
+		Status:              "SUBMITTED",
 	}
 
 	if assertions.MTOShipment.Status == models.MTOShipmentStatusApproved {
-		approvedDate := time.Date(TestYear, time.March, 20, 0, 0, 0, 0, time.UTC)
+		approvedDate := time.Date(GHCTestYear, time.March, 20, 0, 0, 0, 0, time.UTC)
 		MTOShipment.ApprovedDate = &approvedDate
 	}
 
 	// Overwrite values with those from assertions
 	mergeModels(&MTOShipment, assertions.MTOShipment)
 
-	mustCreate(db, &MTOShipment)
+	mustCreate(db, &MTOShipment, assertions.Stub)
 
 	return MTOShipment
+}
+
+// MakeDefaultMTOShipmentMinimal makes a minimal MTOShipment with default values
+func MakeDefaultMTOShipmentMinimal(db *pop.Connection) models.MTOShipment {
+	return MakeMTOShipmentMinimal(db, Assertions{})
 }

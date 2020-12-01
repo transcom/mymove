@@ -109,6 +109,7 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	// Given: a set of orders, a move, and office user
 	// Orders has service member with transportation office and phone nums
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
+	testdatagen.MakeDefaultContractor(suite.DB())
 
 	selectedMoveType := models.SelectedMoveTypePPM
 	moveOptions := models.MoveOptions{
@@ -260,7 +261,7 @@ func (suite *HandlerSuite) TestApprovePPMHandlerForbidden() {
 
 func (suite *HandlerSuite) TestApproveReimbursementHandler() {
 	// Given: a set of orders, a move, user and servicemember
-	reimbursement, _ := testdatagen.MakeRequestedReimbursement(suite.DB())
+	reimbursement := testdatagen.MakeDefaultRequestedReimbursement(suite.DB())
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	// And: the context contains the auth values
@@ -285,7 +286,7 @@ func (suite *HandlerSuite) TestApproveReimbursementHandler() {
 
 func (suite *HandlerSuite) TestApproveReimbursementHandlerForbidden() {
 	// Given: a set of orders, a move, user and servicemember
-	reimbursement, _ := testdatagen.MakeRequestedReimbursement(suite.DB())
+	reimbursement := testdatagen.MakeDefaultRequestedReimbursement(suite.DB())
 	user := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	// And: the context contains the auth values

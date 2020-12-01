@@ -6,7 +6,9 @@ import (
 
 	"github.com/facebookgo/clock"
 	"github.com/gofrs/uuid"
+	"github.com/jackc/pgerrcode"
 
+	"github.com/transcom/mymove/pkg/db/dberr"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -32,10 +34,10 @@ func (suite *ModelSuite) TestBasicFuelEIADieselPriceInstantiation() {
 		"Empty Fields": {
 			fuelEIADP: models.FuelEIADieselPrice{},
 			expectedErrs: map[string][]string{
-				"pub_date":                          {"PubDate can not be blank."},
-				"rate_start_date":                   {"RateStartDate can not be blank."},
-				"rate_end_date":                     {"RateEndDate can not be blank."},
-				"e_i_a_price_per_gallon_millicents": {"0 is not greater than 0."},
+				"pub_date":                        {"PubDate can not be blank."},
+				"rate_start_date":                 {"RateStartDate can not be blank."},
+				"rate_end_date":                   {"RateEndDate can not be blank."},
+				"eia_price_per_gallon_millicents": {"0 is not greater than 0."},
 			},
 		},
 
@@ -120,18 +122,17 @@ func (suite *ModelSuite) TestFuelEIADieselPriceOverlappingDatesConstraint() {
 		}
 
 		verrs, err = suite.DB().ValidateAndCreate(&newFuelPrice)
-		suite.EqualError(err, "pq: conflicting key value violates exclusion constraint \"no_overlapping_rates\"")
+
+		suite.True(dberr.IsDBErrorForConstraint(err, pgerrcode.ExclusionViolation, "no_overlapping_rates"))
 		suite.Empty(verrs.Error())
-
 	})
-
 }
 
 // Create multiple records covering a range of dates
 // Can change the dates for start and end ranges and
 // can create a default baseline and price to use via assertions
 func (suite *ModelSuite) TestMakeFuelEIADieselPrices() {
-	testdatagen.MakeFuelEIADieselPrices(suite.DB(), testdatagen.Assertions{})
+	testdatagen.MakeDefaultFuelEIADieselPrices(suite.DB())
 	// or call testdatagen.MakeDefaultFuelEIADieselPrices(suite.DB())
 	// to change the date range:
 	//     assertions testdatagen.Assertions{}

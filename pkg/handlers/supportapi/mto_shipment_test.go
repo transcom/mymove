@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"net/http/httptest"
 	"testing"
-
-	"github.com/gofrs/uuid"
+	"time"
 
 	"github.com/go-openapi/strfmt"
-
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
 
@@ -16,7 +15,8 @@ import (
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/supportmessages"
 	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/models"
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
@@ -26,12 +26,36 @@ import (
 )
 
 func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
-	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusSUBMITTED}})
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: mto,
+		Move: mto,
+		MTOShipment: models.MTOShipment{
+			Status:       models.MTOShipmentStatusSubmitted,
+			ShipmentType: models.MTOShipmentTypeHHGLongHaulDom,
+		},
 	})
+	// Populate the reServices table with codes needed by the
+	// HHG_LONGHAUL_DOMESTIC shipment type
+	reServiceCodes := []models.ReServiceCode{
+		models.ReServiceCodeDLH,
+		models.ReServiceCodeFSC,
+		models.ReServiceCodeDOP,
+		models.ReServiceCodeDDP,
+		models.ReServiceCodeDPK,
+		models.ReServiceCodeDUPK,
+	}
+	for _, serviceCode := range reServiceCodes {
+		testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code:      serviceCode,
+				Name:      "test",
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
+			},
+		})
+	}
 
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 
 	req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", mtoShipment.ID.String()), nil)
@@ -48,7 +72,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	queryBuilder := query.NewQueryBuilder(suite.DB())
 	fetcher := fetch.NewFetcher(queryBuilder)
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
-	updater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), queryBuilder, siCreator, route.NewTestingPlanner(500))
+	planner := &routemocks.Planner{}
+	planner.On("Zip5TransitDistanceLineHaul",
+		mock.Anything,
+		mock.Anything,
+	).Return(500, nil)
+	updater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), queryBuilder, siCreator, planner)
 	handler := UpdateMTOShipmentStatusHandlerFunc{
 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 		fetcher,
@@ -75,6 +104,10 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 		response := mockHandler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusInternalServerError{}, response)
+
+		errResponse := response.(*mtoshipmentops.UpdateMTOShipmentStatusInternalServerError)
+		suite.Equal(handlers.InternalServerErrMessage, string(*errResponse.Payload.Title), "Payload title is wrong")
+
 	})
 
 	suite.T().Run("Patch failure - 404", func(t *testing.T) {
@@ -113,6 +146,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	// Second to last because many of the above tests fail because of a conflict error with APPROVED/REJECTED shipments
 	// first:
 	suite.T().Run("Successful patch - Integration Test", func(t *testing.T) {
+		move := mtoShipment.MoveTaskOrder
+		move.Status = models.MoveStatusAPPROVED
+		_ = suite.DB().Save(&move)
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentStatusOK{}, response)
 

@@ -1,3 +1,8 @@
+.header-container {
+  display: flex;
+  justify-content: space-between;
+}
+
 .edit-title {
   margin-top: 1.5rem;
 }
@@ -6,17 +11,14 @@
   margin-top: 2rem;
 }
 
-.review-title > h2 {
-  margin-top: 1.5em;
-}
-
-.review-content {
-  border-top: 1px solid black;
-  padding-bottom: 2.5rem;
+.review-content h3 {
+  border-bottom: 1px solid black;
+  padding-bottom: 1.5rem;
+  /* background-color: yellow; */
 }
 
 .review-section {
-  padding: 2rem 0 1rem 1.5rem;
+  padding: 0rem 0 1rem 0rem;
 }
 
 .review-section .notice {
@@ -37,6 +39,11 @@
   text-align: left;
   padding: 0;
   margin-bottom: 0.5rem;
+}
+
+.float-right {
+  float: right;
+  color: grey;
 }
 
 .review-section tr {

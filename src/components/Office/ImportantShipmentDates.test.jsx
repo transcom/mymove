@@ -1,5 +1,6 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { mount } from 'enzyme';
+
 import ImportantShipmentDates from './ImportantShipmentDates';
 
 describe('ImportantShipmentDates', () => {
@@ -7,11 +8,10 @@ describe('ImportantShipmentDates', () => {
   const scheduledPickupDate = 'Friday, 27 Mar 2020';
 
   it('should render the shipment dates we pass in', () => {
-    const wrapper = shallow(
+    const wrapper = mount(
       <ImportantShipmentDates requestedPickupDate={requestedPickupDate} scheduledPickupDate={scheduledPickupDate} />,
     );
-
-    expect(wrapper.find('p.date').at(0).text()).toEqual(requestedPickupDate);
-    expect(wrapper.find('p.date').at(1).text()).toEqual(scheduledPickupDate);
+    expect(wrapper.find('td').at(0).text()).toEqual(requestedPickupDate);
+    expect(wrapper.find('td').at(1).text()).toEqual(scheduledPickupDate);
   });
 });

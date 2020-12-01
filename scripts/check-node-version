@@ -2,7 +2,7 @@
 
 set -eu -o pipefail
 
-VERSION_NUMBER=10
+VERSION_NUMBER=12
 VERSION="v${VERSION_NUMBER}."
 
 NODE_VERSION=$(node --version)
@@ -10,7 +10,7 @@ if [[ $NODE_VERSION = *$VERSION* ]]; then
   echo "Node $NODE_VERSION installed"
 else
   echo "Node $VERSION_NUMBER is required to run this project! Found $NODE_VERSION"
-  echo "Run 'brew install node@${VERSION_NUMBER} && brew link --force node@${VERSION_NUMBER}' to install"
+  echo "Run 'nodenv local ${VERSION_NUMBER} to install"
   exit 1
 fi
 

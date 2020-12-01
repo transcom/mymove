@@ -21,15 +21,6 @@ export async function DeleteUpload(uploadId, isPublic = false) {
   return response.body;
 }
 
-export async function DeleteUploads(uploadIds) {
-  const client = await getInternalClient();
-  const response = await client.apis.uploads.deleteUploads({
-    uploadIds,
-  });
-  checkResponse(response, 'failed to delete files due to server error');
-  return response.body;
-}
-
 export async function CreateDocument(name, serviceMemberId) {
   const client = await getInternalClient();
   const response = await client.apis.documents.createDocument({

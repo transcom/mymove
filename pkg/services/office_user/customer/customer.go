@@ -3,7 +3,7 @@ package customer
 import (
 	"database/sql"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -20,14 +20,14 @@ func NewCustomerFetcher(db *pop.Connection) services.CustomerFetcher {
 }
 
 //FetchCustomer retrieves a Customer for a given UUID
-func (f fetchCustomer) FetchCustomer(customerID uuid.UUID) (*models.Customer, error) {
-	customer := &models.Customer{}
+func (f fetchCustomer) FetchCustomer(customerID uuid.UUID) (*models.ServiceMember, error) {
+	customer := &models.ServiceMember{}
 	if err := f.db.Eager().Find(customer, customerID); err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return &models.Customer{}, services.NewNotFoundError(customerID, "")
+			return &models.ServiceMember{}, services.NewNotFoundError(customerID, "")
 		default:
-			return &models.Customer{}, err
+			return &models.ServiceMember{}, err
 		}
 	}
 	return customer, nil

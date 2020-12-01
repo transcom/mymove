@@ -1,7 +1,7 @@
 package testdatagen
 
 import (
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -39,7 +39,7 @@ func MakeServiceParam(db *pop.Connection, assertions Assertions) models.ServiceP
 	// Overwrite values with those from assertions
 	mergeModels(&serviceParam, assertions.ServiceParam)
 
-	mustCreate(db, &serviceParam)
+	mustCreate(db, &serviceParam, assertions.Stub)
 
 	return serviceParam
 }

@@ -14,7 +14,7 @@ const RadioButton = ({ name, label, onChange, value, checked, inputClassName, la
         value={value}
         checked={checked}
         onChange={onChange}
-        data-cy={testId}
+        data-testid={testId}
       />
       <label className={labelClassName} htmlFor={radioId}>
         {label}

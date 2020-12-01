@@ -18,7 +18,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerApproveSuccess() {
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{})
+	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusSUBMITTED}})
 
 	request := httptest.NewRequest("PATCH", "/service-items/{mtoServiceItemID}/status", nil)
 	reason := "should not update reason"
@@ -50,12 +50,12 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerApproveSuccess()
 }
 
 func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectSuccess() {
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{})
+	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusSUBMITTED}})
 
 	request := httptest.NewRequest("PATCH", "/service-items/{mtoServiceItemID}/status", nil)
 	reason := "item too heavy"
 	mtoServiceItem.Status = models.MTOServiceItemStatusRejected
-	mtoServiceItem.Reason = &reason
+	mtoServiceItem.RejectionReason = &reason
 	params := mtoserviceitemop.UpdateMTOServiceItemStatusParams{
 		HTTPRequest:      request,
 		MtoServiceItemID: mtoServiceItem.ID.String(),
@@ -81,42 +81,8 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectSuccess() 
 	suite.Equal(*mtoServiceItemPayload.RejectionReason, reason)
 }
 
-func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerUpdateFailed() {
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{
-			Status: models.MTOServiceItemStatusApproved,
-		},
-	})
-
-	request := httptest.NewRequest("PATCH", "/service-items/{mtoServiceItemID}/status", nil)
-	reason := "item too heavy"
-	mtoServiceItem.Status = models.MTOServiceItemStatusRejected
-	mtoServiceItem.Reason = &reason
-	params := mtoserviceitemop.UpdateMTOServiceItemStatusParams{
-		HTTPRequest:      request,
-		MtoServiceItemID: mtoServiceItem.ID.String(),
-		Body:             payloads.MTOServiceItem(&mtoServiceItem),
-		IfMatch:          etag.GenerateEtag(mtoServiceItem.UpdatedAt),
-	}
-
-	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	queryBuilder := query.NewQueryBuilder(suite.DB())
-
-	// make the request
-	handler := UpdateMTOServiceItemStatusHandler{context,
-		mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder),
-	}
-	response := handler.Handle(params)
-
-	mtoServiceItemResponse := response.(*mtoserviceitemop.UpdateMTOServiceItemStatusConflict)
-	mtoServiceItemPayload := mtoServiceItemResponse.Payload
-
-	suite.Assertions.IsType(&mtoserviceitemop.UpdateMTOServiceItemStatusConflict{}, mtoServiceItemResponse)
-	suite.Assertions.IsType(mtoServiceItemPayload, &supportmessages.ClientError{})
-}
-
 func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectionFailedNoReason() {
-	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{})
+	mtoServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 
 	request := httptest.NewRequest("PATCH", "/service-items/{mtoServiceItemID}/status", nil)
 	mtoServiceItem.Status = models.MTOServiceItemStatusRejected

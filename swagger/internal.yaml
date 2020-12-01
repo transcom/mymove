@@ -34,6 +34,9 @@ definitions:
       service_member:
         $ref: '#/definitions/ServiceMemberPayload'
         x-nullable: true
+      office_user:
+        $ref: '#/definitions/OfficeUser'
+        x-nullable: true
       roles:
         type: array
         items:
@@ -576,13 +579,8 @@ definitions:
   SubmitMoveForApprovalPayload:
     type: object
     properties:
-      ppm_submit_date:
-        type: string
-        format: date-time
-        title: When was the ppm move submitted?
-        example: '2019-03-26T13:19:56-04:00'
-    required:
-      - ppm_submit_date
+      certificate:
+        $ref: '#/definitions/CreateSignedCertificationPayload'
   SubmitPersonallyProcuredMovePayload:
     type: object
     properties:
@@ -710,8 +708,14 @@ definitions:
       updated_at:
         type: string
         format: date-time
+      submitted_at:
+        type: string
+        format: date-time
+        x-nullable: true
       personally_procured_moves:
         $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
+      mto_shipments:
+        $ref: '#/definitions/MTOShipments'
       cancel_reason:
         type: string
         example: 'Change of orders'
@@ -744,7 +748,8 @@ definitions:
       - PPM
       - UB
       - POV
-      - NTS
+      - HHG_INTO_NTS_DOMESTIC
+      - HHG_OUTOF_NTS_DOMESTIC
       - HHG_PPM
     x-nullable: true
     x-display-value:
@@ -752,7 +757,8 @@ definitions:
       PPM: Personal Procured Move
       UB: Unaccompanied Baggage
       POV: Privately-Owned Vehicle
-      NTS: Non-Temporary Storage
+      HHG_INTO_NTS_DOMESTIC: Non-Temporary Storage
+      HHG_OUTOF_NTS_DOMESTIC: Non-Temporary Storage Release
       HHG_PPM: Both HHG and PPM
   IndexMovesPayload:
     type: array
@@ -1102,6 +1108,54 @@ definitions:
       - full_weight_ticket_missing
       - empty_weight_ticket_missing
       - trailer_ownership_missing
+  OfficeUser:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      user_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      first_name:
+        type: string
+        example: John
+        x-nullable: true
+        title: First name
+      middle_name:
+        type: string
+        example: L.
+        x-nullable: true
+        title: Middle name
+      last_name:
+        type: string
+        example: Donut
+        x-nullable: true
+        title: Last name
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        example: john_bob@example.com
+        x-nullable: true
+        title: Personal Email Address
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+        x-nullable: true
+        title: Best contact phone
+      transportation_office:
+        $ref: '#/definitions/TransportationOffice'
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
   ServiceMemberPayload:
     type: object
     properties:
@@ -1132,8 +1186,6 @@ definitions:
       rank:
         $ref: '#/definitions/ServiceMemberRank'
         title: Rank
-      has_social_security_number:
-        type: boolean
       first_name:
         type: string
         example: John
@@ -1210,7 +1262,6 @@ definitions:
       - id
       - user_id
       - is_profile_complete
-      - has_social_security_number
       - created_at
       - updated_at
       - requires_access_code
@@ -1234,12 +1285,6 @@ definitions:
         $ref: '#/definitions/Affiliation'
       rank:
         $ref: '#/definitions/ServiceMemberRank'
-      social_security_number:
-        type: string
-        format: ssn
-        x-nullable: true
-        title: 'Social security number'
-        example: '555-55-5555'
       first_name:
         type: string
         example: John
@@ -1320,12 +1365,6 @@ definitions:
         $ref: '#/definitions/Affiliation'
       rank:
         $ref: '#/definitions/ServiceMemberRank'
-      social_security_number:
-        type: string
-        format: ssn
-        x-nullable: true
-        title: Social security number
-        example: '555-55-5555'
       first_name:
         type: string
         example: John
@@ -1601,7 +1640,7 @@ definitions:
         format: uuid
         x-nullable: true
       certification_type:
-        $ref: '#/definitions/SignedCertificationType'
+        $ref: '#/definitions/SignedCertificationTypeCreate'
         x-nullable: true
     required:
       - date
@@ -1614,9 +1653,16 @@ definitions:
   SignedCertificationType:
     type: string
     enum:
-      - PPM
       - PPM_PAYMENT
+      - SHIPMENT
+      - PPM
       - HHG
+    x-nullable: true
+  SignedCertificationTypeCreate:
+    type: string
+    enum:
+      - PPM_PAYMENT
+      - SHIPMENT
     x-nullable: true
   DocumentPayload:
     type: object
@@ -2054,8 +2100,12 @@ definitions:
     title: Orders type
     enum:
       - PERMANENT_CHANGE_OF_STATION
+      - RETIREMENT
+      - SEPARATION
     x-display-value:
-      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
+      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station (PCS)
+      RETIREMENT: Retirement
+      SEPARATION: Separation
   OrdersTypeDetail:
     type: string
     title: Orders type detail
@@ -2485,12 +2535,10 @@ definitions:
           - PPM
       created_at:
         type: string
-        format: datetime
-        example: 2018-04-12T23:20:50.52Z
-        description: when the access code was created
+        format: date-time
       claimed_at:
         type: string
-        format: datetime
+        format: date-time
         example: 2018-04-12T23:20:50.52Z
         description: when the access code was claimed or used
         x-nullable: true
@@ -2511,26 +2559,240 @@ definitions:
         example: customer
       createdAt:
         type: string
-        format: datetime
-        example: 2018-04-12T23:20:50.52Z
-        description: when the role was created
+        format: date-time
       updatedAt:
         type: string
-        format: datetime
-        example: 2018-04-12T23:20:50.52Z
-        description: when the role was updated
+        format: date-time
     required:
       - id
       - roleType
       - createdAt
       - updatedAt
+  MTOAgentType:
+    type: string
+    title: MTO Agent Type
+    example: RELEASING_AGENT
+    enum:
+      - RELEASING_AGENT
+      - RECEIVING_AGENT
+  MTOAgent:
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        readOnly: true
+        type: string
+      mtoShipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      createdAt:
+        format: date-time
+        type: string
+        readOnly: true
+      updatedAt:
+        format: date-time
+        type: string
+        readOnly: true
+      firstName:
+        type: string
+        x-nullable: true
+      lastName:
+        type: string
+        x-nullable: true
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        x-nullable: true
+      phone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
+      agentType:
+        $ref: '#/definitions/MTOAgentType'
+    type: object
+  MTOAgents:
+    items:
+      $ref: '#/definitions/MTOAgent'
+    type: array
+  MTOShipmentType:
+    type: string
+    title: Shipment Type
+    example: HHG
+    enum:
+      - HHG
+      - HHG_LONGHAUL_DOMESTIC
+      - HHG_SHORTHAUL_DOMESTIC
+      - HHG_INTO_NTS_DOMESTIC
+      - HHG_OUTOF_NTS_DOMESTIC
+    x-display-value:
+      HHG: HHG
+      INTERNATIONAL_HHG: International HHG
+      INTERNATIONAL_UB: International UB
+  MTOShipment:
+    properties:
+      moveTaskOrderID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      createdAt:
+        format: date-time
+        type: string
+        readOnly: true
+      updatedAt:
+        format: date-time
+        type: string
+        readOnly: true
+      requestedPickupDate:
+        format: date
+        type: string
+        readOnly: true
+        x-nullable: true
+      requestedDeliveryDate:
+        format: date
+        type: string
+        readOnly: true
+        x-nullable: true
+      agents:
+        $ref: '#/definitions/MTOAgents'
+      customerRemarks:
+        type: string
+        readOnly: true
+        example: handle with care
+        x-nullable: true
+      shipmentType:
+        $ref: '#/definitions/MTOShipmentType'
+      status:
+        $ref: '#/definitions/MTOShipmentStatus'
+      pickupAddress:
+        $ref: '#/definitions/Address'
+      destinationAddress:
+        $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        $ref: '#/definitions/Address'
+      secondaryDeliveryAddress:
+        $ref: '#/definitions/Address'
+      eTag:
+        type: string
+  MTOShipments:
+    items:
+      $ref: '#/definitions/MTOShipment'
+    type: array
+  MTOShipmentStatus:
+    type: string
+    readOnly: true
+    enum:
+      - DRAFT
+      - APPROVED
+      - SUBMITTED
+      - REJECTED
+  CreateShipment:
+    type: object
+    properties:
+      moveTaskOrderID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      shipmentType:
+        $ref: '#/definitions/MTOShipmentType'
+      requestedPickupDate:
+        format: date
+        type: string
+      requestedDeliveryDate:
+        format: date
+        type: string
+      customerRemarks:
+        type: string
+        example: handle with care
+        x-nullable: true
+      pickupAddress:
+        $ref: '#/definitions/Address'
+      destinationAddress:
+        $ref: '#/definitions/Address'
+      agents:
+        $ref: '#/definitions/MTOAgents'
+    required:
+      - moveTaskOrderID
+      - shipmentType
+  UpdateShipment:
+    type: object
+    properties:
+      status:
+        $ref: '#/definitions/MTOShipmentStatus'
+      shipmentType:
+        $ref: '#/definitions/MTOShipmentType'
+      requestedPickupDate:
+        format: date
+        type: string
+      requestedDeliveryDate:
+        format: date
+        type: string
+      customerRemarks:
+        type: string
+        example: handle with care
+        x-nullable: true
+      pickupAddress:
+        $ref: '#/definitions/Address'
+      destinationAddress:
+        $ref: '#/definitions/Address'
+        x-nullable: true
+      agents:
+        $ref: '#/definitions/MTOAgents'
+        x-nullable: true
+  ClientError:
+    type: object
+    properties:
+      title:
+        type: string
+      detail:
+        type: string
+      instance:
+        type: string
+        format: uuid
+    required:
+      - title
+      - detail
+      - instance
+  ValidationError:
+    allOf:
+      - $ref: '#/definitions/ClientError'
+      - type: object
+    properties:
+      invalidFields:
+        type: object
+        additionalProperties:
+          description: List of errors for the field
+          type: array
+          items:
+            type: string
+    required:
+      - invalidFields
+  Error:
+    properties:
+      title:
+        type: string
+      detail:
+        type: string
+      instance:
+        type: string
+        format: uuid
+    required:
+      - title
+      - detail
+    type: object
 paths:
   /estimates/ppm:
     get:
       summary: Return a PPM cost estimate
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Calculates a reimbursement range for a PPM move (excluding SIT)
       operationId: showPPMEstimate
       tags:
@@ -2584,14 +2846,16 @@ paths:
   /estimates/ppm_sit:
     get:
       summary: Return a PPM move's SIT cost estimate
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Calculates a reimbursment for a PPM move's SIT
       operationId: showPPMSitEstimate
       tags:
         - ppm
       parameters:
+        - in: query
+          name: personally_procured_move_id
+          type: string
+          format: uuid
+          required: true
         - in: query
           name: original_move_date
           type: string
@@ -2629,15 +2893,13 @@ paths:
           description: user is not authorized
         409:
           description: distance is less than 50 miles (no short haul moves)
+        422:
+          description: the payload was unprocessable
         500:
           description: internal server error
   /users/logged_in:
     get:
       summary: Returns the user info for the currently logged in user
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
-        - customer
       description: Returns the user info for the currently logged in user
       operationId: showLoggedInUser
       tags:
@@ -2656,10 +2918,6 @@ paths:
   /users/is_logged_in:
     get:
       summary: Returns boolean as to whether the user is logged in
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
-        - customer
       description: Returns boolean as to whether the user is logged in
       operationId: isLoggedInUser
       tags:
@@ -2676,9 +2934,6 @@ paths:
   /orders:
     post:
       summary: Creates an orders model for a logged-in user
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Creates an instance of orders tied to a service member
       operationId: createOrders
       tags:
@@ -2705,9 +2960,6 @@ paths:
   /orders/{ordersId}:
     put:
       summary: Updates orders
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: All fields sent in this request will be set on the orders referenced
       operationId: updateOrders
       tags:
@@ -2741,9 +2993,6 @@ paths:
           description: internal server error
     get:
       summary: Returns the given order
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Returns the given order
       operationId: showOrders
       tags:
@@ -2773,9 +3022,6 @@ paths:
   /moves/{moveId}:
     patch:
       summary: Patches the move
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Any fields sent in this request will be set on the move referenced
       operationId: patchMove
       tags:
@@ -2809,9 +3055,6 @@ paths:
           description: internal server error
     get:
       summary: Returns the given move
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Returns the given move
       operationId: showMove
       tags:
@@ -2841,9 +3084,6 @@ paths:
   /moves/{moveId}/signed_certifications:
     post:
       summary: Submits signed certification for the given move ID
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Create an instance of signed_certification tied to the move ID
       operationId: createSignedCertification
       tags:
@@ -2877,9 +3117,6 @@ paths:
           description: internal server error
     get:
       summary: gets the signed certifications for the given move ID
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: returns a list of all signed_certifications associated with the move ID
       operationId: indexSignedCertification
       tags:
@@ -2908,9 +3145,6 @@ paths:
   /moves/{moveId}/personally_procured_move:
     post:
       summary: Creates a new PPM for the given move
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Create an instance of personally_procured_move tied to the move ID
       operationId: createPersonallyProcuredMove
       tags:
@@ -2944,9 +3178,6 @@ paths:
           description: server error
     get:
       summary: Returns a list of all PPMs associated with this move
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Returns a list of all PPMs associated with this move
       operationId: indexPersonallyProcuredMoves
       tags:
@@ -2972,9 +3203,6 @@ paths:
   /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}/estimate:
     patch:
       summary: Calculates the estimated incentive of a PPM
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: This request calculates the estimated incentive of a PPM and attaches this range to the PPM
       operationId: updatePersonallyProcuredMoveEstimate
       tags:
@@ -3012,9 +3240,6 @@ paths:
   /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}:
     put:
       summary: Updates the PPM
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: This replaces the current version of the PPM with the version sent.
       operationId: updatePersonallyProcuredMove
       tags:
@@ -3052,9 +3277,6 @@ paths:
           description: internal server error
     patch:
       summary: Patches the PPM
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Any fields sent in this request will be set on the PPM referenced
       operationId: patchPersonallyProcuredMove
       tags:
@@ -3096,9 +3318,6 @@ paths:
           description: internal server error
     get:
       summary: Returns the given PPM
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Returns the given PPM
       operationId: showPersonallyProcuredMove
       tags:
@@ -3130,9 +3349,6 @@ paths:
   /personally_procured_move/{personallyProcuredMoveId}/submit:
     post:
       summary: Submits a PPM for approval
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Submits a PPM for approval by the office. The status of the PPM will be updated to SUBMITTED
       operationId: submitPersonallyProcuredMove
       tags:
@@ -3167,9 +3383,6 @@ paths:
   /personally_procured_move/{personallyProcuredMoveId}/expense_summary:
     get:
       summary: Returns an expense summary organized by expense type
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Calculates and returns an expense summary organized by expense type
       operationId: requestPPMExpenseSummary
       tags:
@@ -3199,9 +3412,6 @@ paths:
   /personally_procured_move/{personallyProcuredMoveId}/request_payment:
     post:
       summary: Moves the PPM and the move into the PAYMENT_REQUESTED state
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Moves the PPM and the move into the PAYMENT_REQUESTED state
       operationId: requestPPMPayment
       tags:
@@ -3231,9 +3441,6 @@ paths:
   /reimbursement/{reimbursementId}/approve:
     post:
       summary: Approves the reimbursement
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Sets the status of the reimbursement to APPROVED.
       operationId: approveReimbursement
       tags:
@@ -3261,9 +3468,6 @@ paths:
   /moves/{moveId}/orders:
     get:
       summary: Returns orders information for a move for office use
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Returns orders information for a move for office use
       operationId: showOfficeOrders
       tags:
@@ -3293,9 +3497,6 @@ paths:
   /moves/{moveId}/move_documents:
     get:
       summary: Returns a list of all Move Documents associated with this move
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Returns a list of all Move Documents associated with this move
       operationId: indexMoveDocuments
       tags:
@@ -3320,9 +3521,6 @@ paths:
           description: user is not authorized
     post:
       summary: Creates a move document
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Created a move document with the given information
       operationId: createGenericMoveDocument
       tags:
@@ -3355,9 +3553,6 @@ paths:
   /move_documents/{moveDocumentId}:
     put:
       summary: Updates a move document
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Update a move document with the given information
       operationId: updateMoveDocument
       tags:
@@ -3391,9 +3586,6 @@ paths:
           description: internal server error
     delete:
       summary: Deletes a move document
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Deletes a move document with the given information
       operationId: deleteMoveDocument
       tags:
@@ -3421,9 +3613,6 @@ paths:
   /moves/{moveId}/moving_expense_documents:
     post:
       summary: Creates a moving expense document
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Created a moving expense document with the given information
       operationId: createMovingExpenseDocument
       tags:
@@ -3456,9 +3645,6 @@ paths:
   /moves/{moveId}/approve:
     post:
       summary: Approves a move to proceed
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Approves the basic details of a move. The status of the move will be updated to APPROVED
       operationId: approveMove
       tags:
@@ -3490,10 +3676,6 @@ paths:
   /moves/{moveId}/submit:
     post:
       summary: Submits a move for approval
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
-        - customer
       description: Submits a move for approval by the office. The status of the move will be updated to SUBMITTED
       operationId: submitMoveForApproval
       tags:
@@ -3530,9 +3712,6 @@ paths:
   /moves/{moveId}/cancel:
     post:
       summary: Cancels a move
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Cancels the basic details of a move. The status of the move will be updated to CANCELED
       operationId: cancelMove
       tags:
@@ -3569,9 +3748,6 @@ paths:
   /moves/{moveId}/move_dates_summary:
     get:
       summary: Returns projected move-related dates for a given move date
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Returns projected move-related dates for a given move date
       operationId: showMoveDatesSummary
       tags:
@@ -3605,9 +3781,6 @@ paths:
   /moves/{moveId}/shipment_summary_worksheet:
     get:
       summary: Returns Shipment Summary Worksheet
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Generates pre-filled PDF using data already collected
       operationId: showShipmentSummaryWorksheet
       tags:
@@ -3648,9 +3821,6 @@ paths:
   /personally_procured_moves/{personallyProcuredMoveId}/create_ppm_attachments:
     post:
       summary: Creates PPM attachments PDF
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Creates a PPM attachments PDF
       operationId: createPPMAttachments
       tags:
@@ -3693,9 +3863,6 @@ paths:
   /personally_procured_moves/{personallyProcuredMoveId}/approve:
     post:
       summary: Approves the PPM
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Sets the status of the PPM to APPROVED.
       operationId: approvePPM
       tags:
@@ -3728,9 +3895,6 @@ paths:
   /personally_procured_moves/incentive:
     get:
       summary: Return a PPM incentive value
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Calculates incentive for a PPM move (excluding SIT)
       operationId: showPPMIncentive
       tags:
@@ -3780,9 +3944,6 @@ paths:
   /documents:
     post:
       summary: Create a new document
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Documents represent a physical artifact such as a scanned document or a PDF file
       operationId: createDocument
       tags:
@@ -3805,9 +3966,6 @@ paths:
   /documents/{documentId}:
     get:
       summary: Returns a document
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Returns a document and its uploads
       operationId: showDocument
       tags:
@@ -3837,9 +3995,6 @@ paths:
   /uploads/{uploadId}:
     delete:
       summary: Deletes an upload
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Uploads represent a single digital file, such as a JPEG or PDF.
       operationId: deleteUpload
       tags:
@@ -3867,9 +4022,6 @@ paths:
   /uploads:
     post:
       summary: Create a new upload
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Uploads represent a single digital file, such as a JPEG or PDF.
       operationId: createUpload
       tags:
@@ -3907,9 +4059,6 @@ paths:
           description: server error
     delete:
       summary: Deletes a collection of uploads
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Uploads represent a single digital file, such as a JPEG or PDF.
       operationId: deleteUploads
       tags:
@@ -3939,9 +4088,6 @@ paths:
   /service_members:
     post:
       summary: Creates service member for a logged-in user
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Creates an instance of a service member tied to a user
       operationId: createServiceMember
       tags:
@@ -3970,9 +4116,6 @@ paths:
   /service_members/{serviceMemberId}:
     get:
       summary: Returns the given service member
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Returns the given service member
       operationId: showServiceMember
       tags:
@@ -4001,9 +4144,6 @@ paths:
           description: internal server error
     patch:
       summary: Patches the service member
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Any fields sent in this request will be set on the service member referenced
       operationId: patchServiceMember
       tags:
@@ -4038,9 +4178,6 @@ paths:
   /service_members/{serviceMemberId}/current_orders:
     get:
       summary: Returns the latest orders for a given service member
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Returns orders
       operationId: showServiceMemberOrders
       tags:
@@ -4070,9 +4207,6 @@ paths:
   /service_members/{serviceMemberId}/backup_contacts:
     post:
       summary: Submits backup contact for a logged-in user
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Creates an instance of a backup contact tied to a service member user
       operationId: createServiceMemberBackupContact
       tags:
@@ -4106,9 +4240,6 @@ paths:
           description: internal server error
     get:
       summary: List all service member backup contacts
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: List all service member backup contacts
       operationId: indexServiceMemberBackupContacts
       tags:
@@ -4138,9 +4269,6 @@ paths:
   /backup_contacts/{backupContactId}:
     get:
       summary: Returns the given service member backup contact
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Returns the given service member backup contact
       operationId: showServiceMemberBackupContact
       tags:
@@ -4169,9 +4297,6 @@ paths:
           description: internal server error
     put:
       summary: Updates a service member backup contact
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Any fields sent in this request will be set on the backup contact referenced
       operationId: updateServiceMemberBackupContact
       tags:
@@ -4206,9 +4331,6 @@ paths:
   /duty_stations:
     get:
       summary: Returns the duty stations matching the search query
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Returns the duty stations matching the search query
       operationId: searchDutyStations
       tags:
@@ -4237,9 +4359,6 @@ paths:
   /duty_stations/{dutyStationId}/transportation_office:
     get:
       summary: Returns the transportation office for a given duty station
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Returns the given duty station's transportation office
       operationId: showDutyStationTransportationOffice
       tags:
@@ -4269,9 +4388,6 @@ paths:
   /queues/{queueType}:
     get:
       summary: Show all moves in a queue
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Show all moves in a queue
       operationId: showQueue
       tags:
@@ -4306,9 +4422,6 @@ paths:
   /entitlements:
     get:
       summary: List weight weights allotted by entitlement
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: List weight weights allotted by entitlement
       operationId: indexEntitlements
       tags:
@@ -4321,9 +4434,6 @@ paths:
   /entitlements/{moveId}:
     get:
       summary: Validates that the stored weight estimate is below the allotted entitlement range for a service member
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Determine whether weight estimate is below entitlement
       operationId: validateEntitlement
       tags:
@@ -4345,9 +4455,6 @@ paths:
   /calendar/available_move_dates:
     get:
       summary: Returns available dates for the move calendar
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Returns available dates for the move calendar
       operationId: showAvailableMoveDates
       tags:
@@ -4375,9 +4482,6 @@ paths:
   /dps_auth/cookie_url:
     post:
       summary: Returns the URL to redirect to that begins DPS auth
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Returns the URL to redirect to that begins DPS auth
       operationId: getCookieURL
       tags:
@@ -4407,9 +4511,6 @@ paths:
   /moves/{moveId}/weight_ticket:
     post:
       summary: Creates a weight ticket document
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Created a weight ticket document with the given information
       operationId: createWeightTicketDocument
       tags:
@@ -4442,9 +4543,6 @@ paths:
   /rate_engine_postal_codes/{postal_code}:
     get:
       summary: Validate if a zipcode is valid for origin or destination location for a move.
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Verifies if a zipcode is valid for origin or destination location for a move.
       operationId: validatePostalCodeWithRateData
       tags:
@@ -4479,10 +4577,6 @@ paths:
   /access_codes:
     get:
       summary: Fetches an access code
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
-        - customer
       description: Fetches the access code for a service member.
       operationId: fetchAccessCode
       tags:
@@ -4503,10 +4597,6 @@ paths:
   /access_codes/valid:
     get:
       summary: Validate if an access code has been unused and associated with the correct move type.
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
-        - customer
       description: Verifies if access code is both unused and correctly associated with a move type.
       operationId: validateAccessCode
       tags:
@@ -4534,10 +4624,6 @@ paths:
   /access_codes/invalid:
     patch:
       summary: Updates access code as invalid by associating it with the current service member.
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
-        - customer
       description: Updates access code as invalid by associating it with the current service member.
       operationId: claimAccessCode
       tags:
@@ -4570,9 +4656,6 @@ paths:
   /addresses/{addressId}:
     get:
       summary: Returns an address
-      x-swagger-roles:
-        - ppm_office_users
-        - contracting_officer
       description: Returns an address
       operationId: showAddress
       tags:
@@ -4597,3 +4680,168 @@ paths:
           description: not found
         500:
           description: server error
+  '/mto_shipments':
+    post:
+      summary: createMTOShipment
+      description: |
+        Creates a MTO shipment for the specified Move Task Order.
+        Required fields include:
+        * Shipment Type
+        * Customer requested pick-up date
+        * Pick-up Address
+        * Delivery Address
+
+        Optional fields include:
+        * Customer Remarks
+        * Releasing / Receiving agents
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      operationId: createMTOShipment
+      tags:
+        - mtoShipment
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/CreateShipment'
+      responses:
+        '200':
+          description: Successfully created a MTO shipment.
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/mto-shipments/{mtoShipmentId}':
+    patch:
+      summary: updateMTOShipment
+      description: |
+        Updates a specified MTO shipment.
+
+        Required fields include:
+        * MTO Shipment ID required in path
+        * If-Match required in headers
+        * No fields required in body
+
+        Optional fields include:
+        * New shipment status type
+        * Shipment Type
+        * Customer requested pick-up date
+        * Pick-up Address
+        * Delivery Address
+        * Customer Remarks
+        * Releasing / Receiving agents
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      operationId: updateMTOShipment
+      tags:
+        - mtoShipment
+      parameters:
+        - in: path
+          name: mtoShipmentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the MTO Shipment to update
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/UpdateShipment'
+      responses:
+        '200':
+          description: Successfully updated the specified MTO shipment.
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /moves/{moveTaskOrderID}/mto_shipments:
+    get:
+      summary: Gets all shipments for a move task order
+      description: |
+        Gets all MTO shipments for the specified Move Task Order.
+      produces:
+        - application/json
+      operationId: listMTOShipments
+      tags:
+        - mtoShipment
+      parameters:
+        - description: ID of move task order for mto shipment to use
+          in: path
+          name: moveTaskOrderID
+          required: true
+          format: uuid
+          type: string
+      responses:
+        '200':
+          description: Successfully retrieved all mto shipments for a move task order.
+          schema:
+            $ref: '#/definitions/MTOShipments'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+responses:
+  InvalidRequest:
+    description: The request payload is invalid.
+    schema:
+      $ref: '#/definitions/ClientError'
+  NotFound:
+    description: The requested resource wasn't found.
+    schema:
+      $ref: '#/definitions/ClientError'
+  Conflict:
+    description: 'The request could not be processed because of conflict in the current state of the resource.'
+    schema:
+      $ref: '#/definitions/ClientError'
+  PermissionDenied:
+    description: The request was denied.
+    schema:
+      $ref: '#/definitions/ClientError'
+  ServerError:
+    description: A server error occurred.
+    schema:
+      $ref: '#/definitions/Error'
+  PreconditionFailed:
+    description: Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
+    schema:
+      $ref: '#/definitions/ClientError'
+  UnprocessableEntity:
+    description: The payload was unprocessable.
+    schema:
+      $ref: '#/definitions/ValidationError'

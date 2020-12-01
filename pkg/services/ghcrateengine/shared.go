@@ -8,6 +8,9 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+// DefaultContractCode is the default contract code to assume for now
+const DefaultContractCode = "TRUSS_TEST"
+
 // minDomesticWeight is the minimum weight used in domestic calculations (weights below this are upgraded to the min)
 const minDomesticWeight = unit.Pound(500)
 
@@ -55,13 +58,13 @@ func IsPeakPeriod(date time.Time) bool {
 	return false
 }
 
-// priceAndEscalation is used to hold data returned by the database query
+// centPriceAndEscalation is used to hold data returned by the database query
 type centPriceAndEscalation struct {
 	PriceCents           unit.Cents `db:"price_cents"`
 	EscalationCompounded float64    `db:"escalation_compounded"`
 }
 
-// MarshalLogObject allows priceAndEscalation to be logged by zap
+// MarshalLogObject allows centPriceAndEscalation to be logged by zap
 func (p centPriceAndEscalation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	encoder.AddInt("PriceCents", p.PriceCents.Int())
 	encoder.AddFloat64("EscalationCompounded", p.EscalationCompounded)

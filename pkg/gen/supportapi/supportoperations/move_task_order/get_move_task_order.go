@@ -8,7 +8,7 @@ package move_task_order
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // GetMoveTaskOrderHandlerFunc turns a function with the right signature into a get move task order handler
@@ -33,9 +33,12 @@ func NewGetMoveTaskOrder(ctx *middleware.Context, handler GetMoveTaskOrderHandle
 
 getMoveTaskOrder
 
-Gets an individual move task order by ID. <br />
-<br />
-This is a support endpoint and will not be available in production.
+### Functionality
+This endpoint gets an individual MoveTaskOrder by ID.
+
+It will provide nested information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.
+
+This is a support endpoint and is not available in production.
 
 
 */

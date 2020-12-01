@@ -1,209 +1,63 @@
+/* eslint-disable no-only-tests/no-only-tests */
 import React from 'react';
-import { shallow } from 'enzyme';
-import { WizardPage } from 'shared/WizardPage';
-describe('given a WizardPage', () => {
-  let wrapper, buttons;
-  const submit = jest.fn();
-  const mockPush = jest.fn();
+import { mount } from 'enzyme';
+import { act } from 'react-dom/test-utils';
 
+import { WizardPage } from 'shared/WizardPage';
+
+describe('the WizardPage component', () => {
   const minProps = {
     handleSubmit: jest.fn(),
     pageList: ['1', '2', '3'],
     pageKey: '1',
+    match: {},
   };
-  describe('Component renders', () => {
-    expect(shallow(<WizardPage {...minProps} />).length).toEqual(1);
+
+  const middleFlowProps = {
+    handleSubmit: jest.fn(),
+    pageList: ['1', '2', '3'],
+    pageKey: '2',
+    push: jest.fn(),
+    match: {},
+  };
+
+  describe('with minimum props', () => {
+    const wrapper = mount(<WizardPage {...minProps} />);
+    it('renders without errors', () => {
+      expect(wrapper.exists()).toBe(true);
+    });
+
+    it('renders navigation', () => {
+      expect(wrapper.find('WizardNavigation').exists()).toBe(true);
+    });
   });
-  describe('when handler is not async', () => {
-    describe('when there is a pageIsValid prop set', () => {
-      describe('when pageIsValid is false', () => {
-        describe('when on the first page', () => {
-          beforeEach(() => {
-            const continueToNextPage = false;
 
-            wrapper = shallow(
-              <WizardPage {...minProps} pageIsValid={continueToNextPage} match={{}}>
-                <div>This is page 1</div>
-              </WizardPage>,
-            );
-            buttons = wrapper.find('button');
-          });
-          it('the next button is last and is disabled', () => {
-            const nextButton = buttons.last();
-            expect(nextButton.text()).toBe('Next');
-            expect(nextButton.prop('disabled')).toBeTruthy();
-          });
-        });
-        describe('when on the last page', () => {
-          beforeEach(() => {
-            const pageIsValid = false;
+  describe('navigation', () => {
+    describe('on the first page', () => {
+      const mockPush = jest.fn();
+      const wrapper = mount(
+        <WizardPage {...minProps} push={mockPush}>
+          <div>This is page 1</div>
+        </WizardPage>,
+      );
 
-            wrapper = shallow(
-              <WizardPage {...minProps} pageKey="3" pageIsValid={pageIsValid} match={{}}>
-                <div>This is page 1</div>
-              </WizardPage>,
-            );
-            buttons = wrapper.find('button');
-          });
-          it('the complete button is last and is disabled', () => {
-            const nextButton = buttons.last();
-            expect(nextButton.text()).toBe('Complete');
-            expect(nextButton.prop('disabled')).toBeTruthy();
-          });
-        });
-      });
-      describe('when pageIsValid is true', () => {
-        beforeEach(() => {
-          const continueToNextPage = true;
-
-          wrapper = shallow(
-            <WizardPage {...minProps} pageIsValid={continueToNextPage}>
-              <div>This is page 1</div>
-            </WizardPage>,
-          );
-          buttons = wrapper.find('button');
-        });
-        it('the next button is last and is enabled', () => {
-          const nextButton = buttons.last();
-          expect(nextButton.text()).toBe('Next');
-          expect(nextButton.prop('disabled')).toBeFalsy();
-        });
-      });
-    });
-    describe('when there is an error', () => {
-      describe('when on the middle page', () => {
-        beforeEach(() => {
-          mockPush.mockClear();
-          wrapper = shallow(
-            <WizardPage
-              {...minProps}
-              pageKey="2"
-              push={mockPush}
-              match={{}}
-              hasSucceeded={false}
-              error={{ message: 'Something bad happened' }}
-            >
-              <div>This is page 2</div>
-            </WizardPage>,
-          );
-          buttons = wrapper.find('button');
-        });
-        it('it shows an error alert before its child', () => {
-          const childContainer = wrapper.find('div.error-message');
-          expect(childContainer.exists()).toBe(true);
-          expect(childContainer.first().text()).toBe('<Alert />');
-        });
-        it('it renders button for cancel, back, next', () => {
-          expect(buttons.length).toBe(3);
-        });
-        it('the cancel button is first and is enabled', () => {
-          const cancelButton = buttons.first();
-          expect(cancelButton.text()).toBe('Cancel');
-          expect(cancelButton.prop('disabled')).toBe(false);
-        });
-        it('the back button is second and is enabled', () => {
-          const backButton = buttons.at(1);
-          expect(backButton.text()).toBe('Back');
-          expect(backButton.prop('disabled')).toBe(false);
-        });
-        it('the next button is last and is enabled', () => {
-          const nextButton = buttons.last();
-          expect(nextButton.text()).toBe('Next');
-          expect(nextButton.prop('disabled')).toBe(false);
-        });
-      });
-    });
-    describe('when page is not dirty', () => {
-      beforeEach(() => {
-        mockPush.mockClear();
-        wrapper = shallow(
-          <WizardPage {...minProps} pageKey="2" push={mockPush} match={{}} hasSucceeded={false} dirty={false}>
-            <div>This is page 2</div>
-          </WizardPage>,
-        );
-        buttons = wrapper.find('button');
-      });
-      it('the previous button is second and is enabled', () => {
-        const prevButton = buttons.at(1);
-        expect(prevButton.text()).toBe('Back');
-        expect(prevButton.prop('disabled')).toBe(false);
-      });
-      describe('when the prev button is clicked', () => {
-        beforeEach(() => {
-          const prevButton = buttons.at(1);
-          prevButton.simulate('click');
-        });
-        it('push gets the prev page', () => {
-          expect(mockPush.mock.calls.length).toBe(1);
-          expect(mockPush.mock.calls[0][0]).toBe('1');
-        });
-        it('submit is not called', () => {
-          expect(submit.mock.calls.length).toBe(0);
-        });
-      });
-      it('the cancel button is first and is enabled', () => {
-        const prevButton = buttons.first();
-        expect(prevButton.text()).toBe('Cancel');
-        expect(prevButton.prop('disabled')).toBe(false);
-      });
-      it('the next button is last and is enabled', () => {
-        const nextButton = buttons.last();
-        expect(nextButton.text()).toBe('Next');
-        expect(nextButton.prop('disabled')).toBeFalsy();
-      });
-      describe('when the next button is clicked', () => {
-        beforeEach(() => {
-          const nextButton = buttons.last();
-          nextButton.simulate('click');
-        });
-        it('push gets the next page', () => {
-          expect(mockPush.mock.calls.length).toBe(1);
-          expect(mockPush.mock.calls[0][0]).toBe('3');
-        });
-        it('submit is not called', () => {
-          expect(submit.mock.calls.length).toBe(0);
-        });
-      });
-    });
-    describe('when on the first page', () => {
-      beforeEach(() => {
-        wrapper = shallow(
-          <WizardPage {...minProps} push={mockPush} match={{}}>
-            <div>This is page 1</div>
-          </WizardPage>,
-        );
-        buttons = wrapper.find('button');
-      });
-      afterEach(() => mockPush.mockClear());
-      it('it starts on the first page', () => {
-        expect(wrapper.children().first().text()).toBe('This is page 1');
-      });
-      it('it renders button for cancel, back, next', () => {
-        expect(buttons.length).toBe(3);
-      });
-      it('the back button is second and is disabled', () => {
-        const prevButton = buttons.at(1);
-        expect(prevButton.text()).toBe('Back');
-        expect(prevButton.prop('disabled')).toBe(true);
-      });
-      it('the cancel button is first and is enabled', () => {
-        const prevButton = buttons.first();
-
-        expect(prevButton.text()).toBe('Cancel');
-        expect(prevButton.prop('disabled')).toBe(false);
-      });
-      it('the next button is last and is enabled', () => {
-        const nextButton = buttons.last();
+      it('it renders buttons for next', () => {
+        const nextButton = wrapper.find('button[data-testid="wizardNextButton"]');
         expect(nextButton.text()).toBe('Next');
         expect(nextButton.prop('disabled')).toBeFalsy();
       });
 
+      it('does not render a back button', () => {
+        const backButton = wrapper.find('[data-testid="wizardBackButton"]');
+        expect(backButton.exists()).toBe(false);
+      });
+
       describe('when the next button is clicked', () => {
-        beforeEach(() => {
-          const nextButton = buttons.last();
-          nextButton.simulate('click');
-        });
-        it('push gets the next page', () => {
+        it('push gets the next page', async () => {
+          const nextButton = wrapper.find('button[data-testid="wizardNextButton"]');
+          await act(async () => {
+            nextButton.simulate('click');
+          });
           expect(mockPush.mock.calls.length).toBe(1);
           expect(mockPush.mock.calls[0][0]).toBe('2');
         });
@@ -211,153 +65,271 @@ describe('given a WizardPage', () => {
     });
 
     describe('when on the middle page', () => {
-      beforeEach(() => {
-        mockPush.mockClear();
-        wrapper = shallow(
-          <WizardPage {...minProps} pageKey="2" push={mockPush} match={{}}>
-            <div>This is page 2</div>
-          </WizardPage>,
-        );
-        buttons = wrapper.find('button');
+      const mockPush = jest.fn();
+      const mockSubmit = jest.fn();
+      const wrapper = mount(
+        <WizardPage {...middleFlowProps} push={mockPush} handleSubmit={mockSubmit}>
+          <div>This is page 2</div>
+        </WizardPage>,
+      );
+
+      it('it renders button for back and next', () => {
+        const nextButton = wrapper.find('button[data-testid="wizardNextButton"]');
+        expect(nextButton.text()).toBe('Next');
+        const backButton = wrapper.find('button[data-testid="wizardBackButton"]');
+        expect(backButton.text()).toBe('Back');
       });
-      it('it shows its child', () => {
-        expect(wrapper.children().first().text()).toBe('This is page 2');
+
+      it('does not render a complete button', () => {
+        const completeButton = wrapper.find('[data-testid="wizardCompleteButton"]');
+        expect(completeButton.exists()).toBe(false);
       });
-      it('it renders button for cancel, back, next', () => {
-        expect(buttons.length).toBe(3);
+
+      it('the back button is enabled', () => {
+        const backButton = wrapper.find('button[data-testid="wizardBackButton"]');
+        expect(backButton.prop('disabled')).toBeFalsy();
       });
-      it('the back button is second and is enabled', () => {
-        const prevButton = buttons.at(1);
-        expect(prevButton.text()).toBe('Back');
-        expect(prevButton.prop('disabled')).toBe(false);
-      });
-      describe('when the back button is clicked', () => {
+
+      describe('when the prev button is clicked', () => {
         beforeEach(() => {
-          const prevButton = buttons.at(1);
+          mockPush.mockClear();
+          mockSubmit.mockClear();
+          const prevButton = wrapper.find('button[data-testid="wizardBackButton"]');
           prevButton.simulate('click');
         });
+
         it('push gets the prev page', () => {
           expect(mockPush.mock.calls.length).toBe(1);
           expect(mockPush.mock.calls[0][0]).toBe('1');
         });
+
+        it('submit is not called', () => {
+          expect(mockSubmit.mock.calls.length).toBe(0);
+        });
       });
-      it('the cancel button is first and is enabled', () => {
-        const prevButton = buttons.first();
-        expect(prevButton.text()).toBe('Cancel');
-        expect(prevButton.prop('disabled')).toBe(false);
-      });
-      it('the next button is last and is enabled', () => {
-        const nextButton = buttons.last();
-        expect(nextButton.text()).toBe('Next');
-        expect(nextButton.prop('disabled')).toBeFalsy();
-      });
+
       describe('when the next button is clicked', () => {
         beforeEach(() => {
-          const nextButton = buttons.last();
+          mockPush.mockClear();
+          mockSubmit.mockClear();
+          const nextButton = wrapper.find('button[data-testid="wizardNextButton"]');
           nextButton.simulate('click');
         });
+
         it('push gets the next page', () => {
           expect(mockPush.mock.calls.length).toBe(1);
           expect(mockPush.mock.calls[0][0]).toBe('3');
         });
+
+        it('submit is called', () => {
+          expect(mockSubmit.mock.calls.length).toBe(1);
+        });
       });
     });
-    describe('when on the last page', () => {
-      beforeEach(() => {
-        mockPush.mockClear();
-        wrapper = shallow(
-          <WizardPage {...minProps} handleSubmit={submit} pageKey="3" push={mockPush} match={{}}>
-            <div>This is page 3</div>
-          </WizardPage>,
-        );
-        buttons = wrapper.find('button');
-      });
-      afterEach(() => {
-        submit.mockClear();
+
+    describe('on the last page', () => {
+      const mockPush = jest.fn();
+      const mockSubmit = jest.fn();
+      const wrapper = mount(
+        <WizardPage {...minProps} pageKey="3" handleSubmit={mockSubmit} push={mockPush}>
+          <div>This is page 3</div>
+        </WizardPage>,
+      );
+
+      it('it renders buttons for back and complete', () => {
+        const backButton = wrapper.find('button[data-testid="wizardBackButton"]');
+        expect(backButton.text()).toBe('Back');
+        expect(backButton.prop('disabled')).toBeFalsy();
+
+        const completeButton = wrapper.find('button[data-testid="wizardCompleteButton"]');
+        expect(completeButton.text()).toBe('Complete');
       });
 
-      it('it shows its child', () => {
-        expect(wrapper.children().first().text()).toBe('This is page 3');
+      it('does not render a next button', () => {
+        const nextButton = wrapper.find('[data-testid="wizardNextButton"]');
+        expect(nextButton.exists()).toBe(false);
       });
-      it('it renders button for cancel, back, next', () => {
-        expect(buttons.length).toBe(3);
-      });
-      it('the back button is second and is enabled', () => {
-        const prevButton = buttons.at(1);
-        expect(prevButton.text()).toBe('Back');
-        expect(prevButton.prop('disabled')).toBe(false);
-      });
+
       describe('when the back button is clicked', () => {
         beforeEach(() => {
-          const prevButton = buttons.at(1);
+          const prevButton = wrapper.find('button[data-testid="wizardBackButton"]');
           prevButton.simulate('click');
         });
+
         it('push gets the prev page', () => {
           expect(mockPush.mock.calls.length).toBe(1);
           expect(mockPush.mock.calls[0][0]).toBe('2');
         });
       });
-      it('the cancel button is first and is enabled', () => {
-        const saveButton = buttons.first();
-        expect(saveButton.text()).toBe('Cancel');
-        expect(saveButton.prop('disabled')).toBe(false);
-      });
-      it('the Complete button is last and is enabled', () => {
-        const nextButton = buttons.last();
-        expect(nextButton.text()).toBe('Complete');
-        expect(nextButton.prop('disabled')).toBeFalsy();
-      });
+
       describe('when the complete button is clicked', () => {
         beforeEach(() => {
-          const nextButton = buttons.last();
-          nextButton.simulate('click');
+          const completeButton = wrapper.find('button[data-testid="wizardCompleteButton"]');
+          completeButton.simulate('click');
         });
+
         it('submit is called', () => {
-          expect(submit.mock.calls.length).toBe(1);
+          expect(mockSubmit.mock.calls.length).toBe(1);
         });
       });
     });
   });
-  describe('when there is an additionalParams prop', () => {
-    beforeEach(() => {
-      mockPush.mockClear();
-      wrapper = shallow(
-        <WizardPage
-          {...minProps}
-          pageList={['page1', 'anotherPage/:foo/:bar']}
-          pageKey="page1"
-          match={{ params: { foo: 'dvorak' } }}
-          push={mockPush}
-          additionalParams={{ bar: 'querty' }}
-        >
-          <div>This is page 1</div>
-        </WizardPage>,
-      );
-      buttons = wrapper.find('button');
+
+  describe('when the pageIsValid prop', () => {
+    describe('is false', () => {
+      describe('on the first page', () => {
+        const wrapper = mount(
+          <WizardPage {...minProps} pageIsValid={false}>
+            <div>This is page 1</div>
+          </WizardPage>,
+        );
+
+        it('the next button is disabled', () => {
+          const nextButton = wrapper.find('button[data-testid="wizardNextButton"]');
+          expect(nextButton.prop('disabled')).toBeTruthy();
+        });
+      });
+
+      describe('on the last page', () => {
+        const wrapper = mount(
+          <WizardPage {...minProps} pageKey="3" pageIsValid={false}>
+            <div>This is page 3</div>
+          </WizardPage>,
+        );
+
+        it('the complete button is disabled', () => {
+          const completeButton = wrapper.find('button[data-testid="wizardCompleteButton"]');
+          expect(completeButton.prop('disabled')).toBeTruthy();
+        });
+      });
     });
+
+    describe('is true', () => {
+      describe('on the first page', () => {
+        const wrapper = mount(
+          <WizardPage {...minProps} pageIsValid={true}>
+            <div>This is page 1</div>
+          </WizardPage>,
+        );
+
+        it('the next button is enabled', () => {
+          const nextButton = wrapper.find('button[data-testid="wizardNextButton"]');
+          expect(nextButton.prop('disabled')).toBeFalsy();
+        });
+      });
+
+      describe('on the last page', () => {
+        const wrapper = mount(
+          <WizardPage {...minProps} pageKey="3" pageIsValid={true}>
+            <div>This is page 3</div>
+          </WizardPage>,
+        );
+
+        it('the complete button is enabled', () => {
+          const completeButton = wrapper.find('button[data-testid="wizardCompleteButton"]');
+          expect(completeButton.prop('disabled')).toBeFalsy();
+        });
+      });
+    });
+  });
+
+  describe('when there is an error', () => {
+    const wrapper = mount(
+      <WizardPage {...middleFlowProps} error={{ message: 'Something bad happened' }}>
+        <div>This is page 2</div>
+      </WizardPage>,
+    );
+
+    it('it renders an error alert', () => {
+      expect(wrapper.find('Alert[type="error"]').exists()).toBe(true);
+    });
+  });
+
+  describe('when page is not dirty', () => {
+    const mockSubmit = jest.fn();
+    const mockPush = jest.fn();
+
+    const wrapper = mount(
+      <WizardPage {...minProps} pageKey="2" push={mockPush} handleSubmit={mockSubmit} dirty={false}>
+        <div>This is page 2</div>
+      </WizardPage>,
+    );
+
     describe('when the next button is clicked', () => {
       beforeEach(() => {
-        const nextButton = buttons.last();
+        mockSubmit.mockClear();
+        mockPush.mockClear();
+        const nextButton = wrapper.find('button[data-testid="wizardNextButton"]');
         nextButton.simulate('click');
       });
-      it('push gets a page with the additionalParams expanded', () => {
+
+      it('push gets the next page', () => {
         expect(mockPush.mock.calls.length).toBe(1);
-        expect(mockPush.mock.calls[0][0]).toBe('anotherPage/dvorak/querty');
+        expect(mockPush.mock.calls[0][0]).toBe('3');
+      });
+
+      it('submit is not called', () => {
+        expect(mockSubmit.mock.calls.length).toBe(0);
       });
     });
   });
-  describe('when there is a canMoveNext prop', () => {
-    describe('when canMoveNext is true', () => {
-      wrapper = shallow(<WizardPage {...minProps} />);
-      const nextButton = wrapper.find('button').last();
-      expect(nextButton.text()).toBe('Next');
-      expect(nextButton.prop('disabled')).toEqual(false);
+
+  describe('when there is an additionalParams prop', () => {
+    const mockPush = jest.fn();
+    const wrapper = mount(
+      <WizardPage
+        {...minProps}
+        pageList={['page1', 'anotherPage/:foo/:bar']}
+        pageKey="page1"
+        match={{ params: { foo: 'dvorak' } }}
+        push={mockPush}
+        additionalParams={{ bar: 'querty' }}
+      >
+        <div>This is page 1</div>
+      </WizardPage>,
+    );
+
+    it('clicking the next button calls the handler with additionalParams', async () => {
+      const nextButton = wrapper.find('button[data-testid="wizardNextButton"]');
+      await act(async () => {
+        nextButton.simulate('click');
+      });
+
+      expect(mockPush).toHaveBeenCalledWith('anotherPage/dvorak/querty');
     });
-    describe('when canMoveNext is false', () => {
-      wrapper = shallow(<WizardPage {...minProps} canMoveNext={false} />);
-      const nextButton = wrapper.find('button').last();
-      expect(nextButton.text()).toBe('Next');
-      expect(nextButton.prop('disabled')).toEqual(true);
+  });
+
+  describe('when canMoveNext is true', () => {
+    const wrapper = mount(<WizardPage {...minProps} />);
+    it('the WizardNavigation disableNext prop is false', () => {
+      const navigation = wrapper.find('WizardNavigation');
+      expect(navigation.prop('disableNext')).toEqual(false);
+    });
+  });
+
+  describe('when canMoveNext is false', () => {
+    const wrapper = mount(<WizardPage {...minProps} canMoveNext={false} />);
+    it('the WizardNavigation disableNext prop is true', () => {
+      const navigation = wrapper.find('WizardNavigation');
+      expect(navigation.prop('disableNext')).toEqual(true);
+    });
+  });
+
+  describe('when hideBackBtn is true on middle page', () => {
+    const wrapper = mount(<WizardPage {...middleFlowProps} hideBackBtn />);
+
+    it('the WizardNavigation isFirstPage prop is true', () => {
+      const navigation = wrapper.find('WizardNavigation');
+      expect(navigation.prop('isFirstPage')).toEqual(true);
+    });
+  });
+
+  describe('when showFinishLaterBtn is true', () => {
+    const wrapper = mount(<WizardPage {...middleFlowProps} showFinishLaterBtn />);
+
+    it('the WizardNavigation showFinishLater prop is true', () => {
+      const navigation = wrapper.find('WizardNavigation');
+      expect(navigation.prop('showFinishLater')).toEqual(true);
     });
   });
 });

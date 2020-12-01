@@ -37,11 +37,13 @@ func (suite *AuthSuite) TestCreateUserHandlerMilMove() {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 	req.ParseForm()
 
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
-	handler := NewCreateUserHandler(authContext, suite.DB(), appnames, FakeRSAKey, false, false)
+	sessionManagers := setupSessionManagers()
+	milSession := sessionManagers[0]
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+	handler := NewCreateUserHandler(authContext, suite.DB(), appnames)
 
 	rr := httptest.NewRecorder()
-	handler.ServeHTTP(rr, req)
+	milSession.LoadAndSave(handler).ServeHTTP(rr, req)
 
 	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
 	if status := rr.Code; status != http.StatusOK {
@@ -68,7 +70,7 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 
 	// Exercise all variables in the office user
 	form := url.Values{}
-	form.Add("userType", "office")
+	form.Add("userType", "PPM office")
 	form.Add("firstName", "Carol")
 	form.Add("lastName", "X")
 	form.Add("telephone", "222-222-2222")
@@ -78,11 +80,13 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 	req.ParseForm()
 
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
-	handler := NewCreateUserHandler(authContext, suite.DB(), appnames, FakeRSAKey, false, false)
+	sessionManagers := setupSessionManagers()
+	officeSession := sessionManagers[2]
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+	handler := NewCreateUserHandler(authContext, suite.DB(), appnames)
 
 	rr := httptest.NewRecorder()
-	handler.ServeHTTP(rr, req)
+	officeSession.LoadAndSave(handler).ServeHTTP(rr, req)
 
 	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
 	if status := rr.Code; status != http.StatusOK {
@@ -123,11 +127,13 @@ func (suite *AuthSuite) TestCreateUserHandlerDPS() {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 	req.ParseForm()
 
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
-	handler := NewCreateUserHandler(authContext, suite.DB(), appnames, FakeRSAKey, false, false)
+	sessionManagers := setupSessionManagers()
+	milSession := sessionManagers[0]
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+	handler := NewCreateUserHandler(authContext, suite.DB(), appnames)
 
 	rr := httptest.NewRecorder()
-	handler.ServeHTTP(rr, req)
+	milSession.LoadAndSave(handler).ServeHTTP(rr, req)
 
 	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
 	if status := rr.Code; status != http.StatusOK {
@@ -164,11 +170,13 @@ func (suite *AuthSuite) TestCreateUserHandlerAdmin() {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 	req.ParseForm()
 
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
-	handler := NewCreateUserHandler(authContext, suite.DB(), appnames, FakeRSAKey, false, false)
+	sessionManagers := setupSessionManagers()
+	adminSession := sessionManagers[1]
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+	handler := NewCreateUserHandler(authContext, suite.DB(), appnames)
 
 	rr := httptest.NewRecorder()
-	handler.ServeHTTP(rr, req)
+	adminSession.LoadAndSave(handler).ServeHTTP(rr, req)
 
 	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
 	if status := rr.Code; status != http.StatusOK {
@@ -210,11 +218,13 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToMilMove() {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 	req.ParseForm()
 
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
-	handler := NewCreateAndLoginUserHandler(authContext, suite.DB(), appnames, FakeRSAKey, false, false)
+	sessionManagers := setupSessionManagers()
+	milSession := sessionManagers[0]
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+	handler := NewCreateAndLoginUserHandler(authContext, suite.DB(), appnames)
 
 	rr := httptest.NewRecorder()
-	handler.ServeHTTP(rr, req)
+	milSession.LoadAndSave(handler).ServeHTTP(rr, req)
 
 	suite.Equal(http.StatusSeeOther, rr.Code, "handler returned wrong status code")
 	if status := rr.Code; status != http.StatusSeeOther {
@@ -236,17 +246,19 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToOffice() {
 	callbackPort := 1234
 
 	form := url.Values{}
-	form.Add("userType", "office")
+	form.Add("userType", "PPM office")
 
 	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/devlocal-auth/new", appnames.MilServername), strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 	req.ParseForm()
 
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
-	handler := NewCreateAndLoginUserHandler(authContext, suite.DB(), appnames, FakeRSAKey, false, false)
+	sessionManagers := setupSessionManagers()
+	officeSession := sessionManagers[2]
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+	handler := NewCreateAndLoginUserHandler(authContext, suite.DB(), appnames)
 
 	rr := httptest.NewRecorder()
-	handler.ServeHTTP(rr, req)
+	officeSession.LoadAndSave(handler).ServeHTTP(rr, req)
 
 	suite.Equal(http.StatusSeeOther, rr.Code, "handler returned wrong status code")
 	if status := rr.Code; status != http.StatusSeeOther {
@@ -274,11 +286,13 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToAdmin() {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 	req.ParseForm()
 
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
-	handler := NewCreateAndLoginUserHandler(authContext, suite.DB(), appnames, FakeRSAKey, false, false)
+	sessionManagers := setupSessionManagers()
+	adminSession := sessionManagers[1]
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+	handler := NewCreateAndLoginUserHandler(authContext, suite.DB(), appnames)
 
 	rr := httptest.NewRecorder()
-	handler.ServeHTTP(rr, req)
+	adminSession.LoadAndSave(handler).ServeHTTP(rr, req)
 
 	suite.Equal(http.StatusSeeOther, rr.Code, "handler returned wrong status code")
 	if status := rr.Code; status != http.StatusSeeOther {
@@ -306,11 +320,13 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromOfficeToMilMove() {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 	req.ParseForm()
 
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
-	handler := NewCreateAndLoginUserHandler(authContext, suite.DB(), appnames, FakeRSAKey, false, false)
+	sessionManagers := setupSessionManagers()
+	milSession := sessionManagers[0]
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+	handler := NewCreateAndLoginUserHandler(authContext, suite.DB(), appnames)
 
 	rr := httptest.NewRecorder()
-	handler.ServeHTTP(rr, req)
+	milSession.LoadAndSave(handler).ServeHTTP(rr, req)
 
 	suite.Equal(http.StatusSeeOther, rr.Code, "handler returned wrong status code")
 	if status := rr.Code; status != http.StatusSeeOther {
@@ -338,11 +354,13 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromOfficeToAdmin() {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 	req.ParseForm()
 
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
-	handler := NewCreateAndLoginUserHandler(authContext, suite.DB(), appnames, FakeRSAKey, false, false)
+	sessionManagers := setupSessionManagers()
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+	handler := NewCreateAndLoginUserHandler(authContext, suite.DB(), appnames)
+	adminSession := sessionManagers[1]
 
 	rr := httptest.NewRecorder()
-	handler.ServeHTTP(rr, req)
+	adminSession.LoadAndSave(handler).ServeHTTP(rr, req)
 
 	suite.Equal(http.StatusSeeOther, rr.Code, "handler returned wrong status code")
 	if status := rr.Code; status != http.StatusSeeOther {
@@ -370,11 +388,13 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromAdminToMilMove() {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 	req.ParseForm()
 
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
-	handler := NewCreateAndLoginUserHandler(authContext, suite.DB(), appnames, FakeRSAKey, false, false)
+	sessionManagers := setupSessionManagers()
+	milSession := sessionManagers[0]
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+	handler := NewCreateAndLoginUserHandler(authContext, suite.DB(), appnames)
 
 	rr := httptest.NewRecorder()
-	handler.ServeHTTP(rr, req)
+	milSession.LoadAndSave(handler).ServeHTTP(rr, req)
 
 	suite.Equal(http.StatusSeeOther, rr.Code, "handler returned wrong status code")
 	if status := rr.Code; status != http.StatusSeeOther {
@@ -396,17 +416,19 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromAdminToOffice() {
 	callbackPort := 1234
 
 	form := url.Values{}
-	form.Add("userType", "office")
+	form.Add("userType", "PPM office")
 
 	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/devlocal-auth/new", appnames.AdminServername), strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 	req.ParseForm()
 
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
-	handler := NewCreateAndLoginUserHandler(authContext, suite.DB(), appnames, FakeRSAKey, false, false)
+	sessionManagers := setupSessionManagers()
+	officeSession := sessionManagers[2]
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort, sessionManagers)
+	handler := NewCreateAndLoginUserHandler(authContext, suite.DB(), appnames)
 
 	rr := httptest.NewRecorder()
-	handler.ServeHTTP(rr, req)
+	officeSession.LoadAndSave(handler).ServeHTTP(rr, req)
 
 	suite.Equal(http.StatusSeeOther, rr.Code, "handler returned wrong status code")
 	if status := rr.Code; status != http.StatusSeeOther {

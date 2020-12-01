@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { get } from 'lodash';
 import { LastLocationProvider } from 'react-router-last-location';
 
@@ -10,12 +11,13 @@ import { bindActionCreators } from 'redux';
 
 import 'uswds';
 import '../../../node_modules/uswds/dist/css/uswds.css';
+import 'styles/customer.scss';
 
 import Alert from 'shared/Alert';
 import InfectedUpload from 'shared/Uploader/InfectedUpload';
 import ProcessingUpload from 'shared/Uploader/ProcessingUpload';
 import StyleGuide from 'scenes/StyleGuide';
-import Landing from 'scenes/Landing';
+import PpmLanding from 'scenes/PpmLanding';
 import Edit from 'scenes/Review/Edit';
 import EditProfile from 'scenes/Review/EditProfile';
 import EditBackupContact from 'scenes/Review/EditBackupContact';
@@ -30,15 +32,13 @@ import ExpensesLanding from 'scenes/Moves/Ppm/ExpensesLanding';
 import ExpensesUpload from 'scenes/Moves/Ppm/ExpensesUpload';
 import AllowableExpenses from 'scenes/Moves/Ppm/AllowableExpenses';
 import WeightTicketExamples from 'scenes/Moves/Ppm/WeightTicketExamples';
-import PaymentRequest from 'scenes/Moves/Ppm/PaymentRequest';
 import { history } from 'shared/store';
 import Footer from 'shared/Footer';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivacyPolicyStatement from 'shared/Statements/PrivacyAndPolicyStatement';
 import AccessibilityStatement from 'shared/Statements/AccessibilityStatement';
-import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
+import { lastMoveIsCanceled, selectedConusStatus, selectedMoveType } from 'scenes/Moves/ducks';
 import { getWorkflowRoutes } from './getWorkflowRoutes';
-import { getCurrentUserInfo } from 'shared/Data/users';
 import { loadInternalSchema } from 'shared/Swagger/ducks';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { detectIE11, no_op } from 'shared/utils';
@@ -47,13 +47,22 @@ import TrailerCriteria from 'scenes/Moves/Ppm/TrailerCriteria';
 import PaymentReview from 'scenes/Moves/Ppm/PaymentReview/index';
 import CustomerAgreementLegalese from 'scenes/Moves/Ppm/CustomerAgreementLegalese';
 import { withContext } from 'shared/AppContext';
+import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
+import ConnectedCreateOrEditMtoShipment from 'pages/MyMove/CreateOrEditMtoShipment';
+import Home from 'pages/MyMove/Home';
+
+import { loadUser as loadUserAction } from 'store/auth/actions';
+import { initOnboarding as initOnboardingAction } from 'store/onboarding/actions';
 
 export class AppWrapper extends Component {
   state = { hasError: false };
 
   componentDidMount() {
-    this.props.loadInternalSchema();
-    this.props.getCurrentUserInfo();
+    const { loadUser, loadInternalSchema, initOnboarding } = this.props;
+
+    loadInternalSchema();
+    loadUser();
+    initOnboarding();
   }
 
   componentDidCatch(error, info) {
@@ -67,7 +76,7 @@ export class AppWrapper extends Component {
   noMatch = () => (
     <div className="usa-grid">
       <div className="grid-container usa-prose">
-        <h2>Page not found</h2>
+        <h1>Page not found</h1>
         <p>Looks like you've followed a broken link or entered a URL that doesn't exist on this site.</p>
         <button className="usa-button" onClick={this.props.goBack}>
           Go Back
@@ -83,7 +92,7 @@ export class AppWrapper extends Component {
     return (
       <ConnectedRouter history={history}>
         <LastLocationProvider>
-          <div className="my-move site">
+          <div className="my-move site" id="app-root">
             <Header />
             <Tag role="main" className="site__content my-move-container">
               <div className="usa-grid">
@@ -103,23 +112,28 @@ export class AppWrapper extends Component {
               {this.state.hasError && <SomethingWentWrong />}
               {!this.state.hasError && !props.swaggerError && (
                 <Switch>
-                  <Route exact path="/" component={Landing} />
+                  <Route exact path="/" component={Home} />
+                  <Route exact path="/ppm" component={PpmLanding} />
                   <Route exact path="/sm_style_guide" component={StyleGuide} />
                   <Route path="/privacy-and-security-policy" component={PrivacyPolicyStatement} />
                   <Route path="/accessibility" component={AccessibilityStatement} />
                   {getWorkflowRoutes(props)}
+                  {props.context.flags.hhgFlow && <ValidatedPrivateRoute exact path="/" component={Home} />}
                   <ValidatedPrivateRoute exact path="/moves/:moveId/edit" component={Edit} />
                   <ValidatedPrivateRoute exact path="/moves/review/edit-profile" component={EditProfile} />
+                  <ValidatedPrivateRoute
+                    exact
+                    path="/moves/:moveId/mto-shipments/:mtoShipmentId/edit-shipment"
+                    component={ConnectedCreateOrEditMtoShipment}
+                  />
                   <ValidatedPrivateRoute exact path="/moves/review/edit-backup-contact" component={EditBackupContact} />
                   <ValidatedPrivateRoute exact path="/moves/review/edit-contact-info" component={EditContactInfo} />
-
                   <ValidatedPrivateRoute path="/moves/:moveId/review/edit-orders" component={EditOrders} />
                   <ValidatedPrivateRoute
                     path="/moves/:moveId/review/edit-date-and-location"
                     component={EditDateAndLocation}
                   />
                   <ValidatedPrivateRoute path="/moves/:moveId/review/edit-weight" component={EditWeight} />
-                  <ValidatedPrivateRoute path="/moves/:moveId/request-payment" component={PaymentRequest} />
                   <ValidatedPrivateRoute exact path="/weight-ticket-examples" component={WeightTicketExamples} />
                   <ValidatedPrivateRoute exact path="/trailer-criteria" component={TrailerCriteria} />
                   <ValidatedPrivateRoute exact path="/allowable-expenses" component={AllowableExpenses} />
@@ -151,27 +165,63 @@ export class AppWrapper extends Component {
             </Tag>
             <Footer />
           </div>
+          <div id="modal-root"></div>
         </LastLocationProvider>
       </ConnectedRouter>
     );
   }
 }
+
+AppWrapper.propTypes = {
+  loadInternalSchema: PropTypes.func,
+  loadUser: PropTypes.func,
+  initOnboarding: PropTypes.func,
+  conusStatus: PropTypes.string.isRequired,
+  context: PropTypes.shape({
+    flags: PropTypes.shape({
+      hhgFlow: PropTypes.bool,
+      ghcFlow: PropTypes.bool,
+    }),
+  }).isRequired,
+};
+
 AppWrapper.defaultProps = {
   loadInternalSchema: no_op,
-  getCurrentUserInfo: no_op,
+  loadUser: no_op,
+  initOnboarding: no_op,
+  conusStatus: '',
+  context: {
+    flags: {
+      hhgFlow: false,
+      ghcFlow: false,
+    },
+  },
 };
 
 const mapStateToProps = (state) => {
+  const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
+  const move = selectActiveOrLatestMove(state);
+
   return {
-    currentServiceMemberId: get(state, 'serviceMember.currentServiceMember.id'),
+    currentServiceMemberId: serviceMemberId,
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     latestMove: get(state, 'moves.latestMove'),
-    moveId: get(state, 'moves.currentMove.id'),
+    moveId: move.id,
     selectedMoveType: selectedMoveType(state),
+    conusStatus: selectedConusStatus(state),
     swaggerError: state.swaggerInternal.hasErrored,
   };
 };
 const mapDispatchToProps = (dispatch) =>
-  bindActionCreators({ goBack, push, loadInternalSchema, getCurrentUserInfo }, dispatch);
+  bindActionCreators(
+    {
+      goBack,
+      push,
+      loadInternalSchema,
+      loadUser: loadUserAction,
+      initOnboarding: initOnboardingAction,
+    },
+    dispatch,
+  );
 
 export default withContext(connect(mapStateToProps, mapDispatchToProps)(AppWrapper));

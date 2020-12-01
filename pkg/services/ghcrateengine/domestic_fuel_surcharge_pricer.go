@@ -3,7 +3,7 @@ package ghcrateengine
 import (
 	"time"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/route"

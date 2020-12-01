@@ -6,16 +6,14 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"encoding/json"
-
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // MoveOrder move order
+//
 // swagger:model MoveOrder
 type MoveOrder struct {
 
@@ -33,6 +31,9 @@ type MoveOrder struct {
 	// Format: date
 	DateIssued strfmt.Date `json:"date_issued,omitempty"`
 
+	// department indicator
+	DepartmentIndicator DeptIndicator `json:"department_indicator,omitempty"`
+
 	// destination duty station
 	DestinationDutyStation *DutyStation `json:"destinationDutyStation,omitempty"`
 
@@ -48,6 +49,9 @@ type MoveOrder struct {
 
 	// grade
 	Grade string `json:"grade,omitempty"`
+
+	// Are dependents included in your orders?
+	HasDependents bool `json:"has_dependents,omitempty"`
 
 	// id
 	// Format: uuid
@@ -65,11 +69,10 @@ type MoveOrder struct {
 	OrderNumber *string `json:"order_number,omitempty"`
 
 	// order type
-	OrderType string `json:"order_type,omitempty"`
+	OrderType OrdersType `json:"order_type,omitempty"`
 
 	// order type detail
-	// Enum: [GHC NTS]
-	OrderTypeDetail *string `json:"order_type_detail,omitempty"`
+	OrderTypeDetail OrdersTypeDetail `json:"order_type_detail,omitempty"`
 
 	// origin duty station
 	OriginDutyStation *DutyStation `json:"originDutyStation,omitempty"`
@@ -77,6 +80,19 @@ type MoveOrder struct {
 	// report by date
 	// Format: date
 	ReportByDate strfmt.Date `json:"report_by_date,omitempty"`
+
+	// SAC
+	Sac *string `json:"sac,omitempty"`
+
+	// Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
+	SpouseHasProGear bool `json:"spouse_has_pro_gear,omitempty"`
+
+	// TAC
+	Tac *string `json:"tac,omitempty"`
+
+	// uploaded order id
+	// Format: uuid
+	UploadedOrderID strfmt.UUID `json:"uploaded_order_id,omitempty"`
 }
 
 // Validate validates this move order
@@ -88,6 +104,10 @@ func (m *MoveOrder) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateDateIssued(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDepartmentIndicator(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -107,6 +127,10 @@ func (m *MoveOrder) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateOrderType(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateOrderTypeDetail(formats); err != nil {
 		res = append(res, err)
 	}
@@ -116,6 +140,10 @@ func (m *MoveOrder) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReportByDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateUploadedOrderID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -145,6 +173,22 @@ func (m *MoveOrder) validateDateIssued(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("date_issued", "body", "date", m.DateIssued.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveOrder) validateDepartmentIndicator(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.DepartmentIndicator) { // not required
+		return nil
+	}
+
+	if err := m.DepartmentIndicator.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("department_indicator")
+		}
 		return err
 	}
 
@@ -213,32 +257,19 @@ func (m *MoveOrder) validateMoveTaskOrderID(formats strfmt.Registry) error {
 	return nil
 }
 
-var moveOrderTypeOrderTypeDetailPropEnum []interface{}
+func (m *MoveOrder) validateOrderType(formats strfmt.Registry) error {
 
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["GHC","NTS"]`), &res); err != nil {
-		panic(err)
+	if swag.IsZero(m.OrderType) { // not required
+		return nil
 	}
-	for _, v := range res {
-		moveOrderTypeOrderTypeDetailPropEnum = append(moveOrderTypeOrderTypeDetailPropEnum, v)
-	}
-}
 
-const (
-
-	// MoveOrderOrderTypeDetailGHC captures enum value "GHC"
-	MoveOrderOrderTypeDetailGHC string = "GHC"
-
-	// MoveOrderOrderTypeDetailNTS captures enum value "NTS"
-	MoveOrderOrderTypeDetailNTS string = "NTS"
-)
-
-// prop value enum
-func (m *MoveOrder) validateOrderTypeDetailEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, moveOrderTypeOrderTypeDetailPropEnum); err != nil {
+	if err := m.OrderType.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("order_type")
+		}
 		return err
 	}
+
 	return nil
 }
 
@@ -248,8 +279,10 @@ func (m *MoveOrder) validateOrderTypeDetail(formats strfmt.Registry) error {
 		return nil
 	}
 
-	// value enum
-	if err := m.validateOrderTypeDetailEnum("order_type_detail", "body", *m.OrderTypeDetail); err != nil {
+	if err := m.OrderTypeDetail.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("order_type_detail")
+		}
 		return err
 	}
 
@@ -281,6 +314,19 @@ func (m *MoveOrder) validateReportByDate(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("report_by_date", "body", "date", m.ReportByDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveOrder) validateUploadedOrderID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.UploadedOrderID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("uploaded_order_id", "body", "uuid", m.UploadedOrderID.String(), formats); err != nil {
 		return err
 	}
 

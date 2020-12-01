@@ -23,12 +23,12 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadSuccess() {
 	moveTaskOrderID, err := uuid.FromString("cc4523e2-e418-48cc-804e-57a507fff093")
 	suite.NoError(err)
 
-	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: models.MoveTaskOrder{ID: moveTaskOrderID},
+	moveTaskOrder := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{ID: moveTaskOrderID},
 	})
 
 	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: moveTaskOrder,
+		Move: moveTaskOrder,
 		PaymentRequest: models.PaymentRequest{
 			ID: paymentRequestID,
 		},
@@ -39,9 +39,9 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadSuccess() {
 
 	suite.T().Run("PrimeUpload is created successfully", func(t *testing.T) {
 		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, fakeS3)
-		upload, err := uploadCreator.CreateUpload(testFile, paymentRequest.ID, contractor.ID)
+		upload, err := uploadCreator.CreateUpload(testFile, paymentRequest.ID, contractor.ID, "unit-test-file.pdf")
 
-		expectedFilename := fmt.Sprintf("/app/payment-request-uploads/mto-%s/payment-request-%s", moveTaskOrderID, paymentRequest.ID)
+		expectedFilename := fmt.Sprintf("/payment-request-uploads/mto-%s/payment-request-%s", moveTaskOrderID, paymentRequest.ID)
 		suite.NoError(err)
 		suite.Contains(upload.Filename, expectedFilename)
 		suite.Equal(int64(10596), upload.Bytes)
@@ -70,20 +70,22 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 	suite.T().Run("invalid payment request ID", func(t *testing.T) {
 		testFile, err := os.Open("../../testdatagen/testdata/test.pdf")
 		suite.NoError(err)
+		// #nosec G307 TODO needs review
 		defer testFile.Close()
 		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, fakeS3)
-		_, err = uploadCreator.CreateUpload(testFile, uuid.FromStringOrNil("96b77644-4028-48c2-9ab8-754f33309db9"), contractor.ID)
+		_, err = uploadCreator.CreateUpload(testFile, uuid.FromStringOrNil("96b77644-4028-48c2-9ab8-754f33309db9"), contractor.ID, "unit-test-file.pdf")
 		suite.Error(err)
 	})
 
 	suite.T().Run("invalid user ID", func(t *testing.T) {
 		testFile, err := os.Open("../../testdatagen/testdata/test.pdf")
 		suite.NoError(err)
+		// #nosec G307 TODO needs review
 		defer testFile.Close()
 
 		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, fakeS3)
-		_, err = uploadCreator.CreateUpload(testFile, paymentRequest.ID, uuid.FromStringOrNil("806e2f96-f9f9-4cbb-9a3d-d2f488539a1f"))
+		_, err = uploadCreator.CreateUpload(testFile, paymentRequest.ID, uuid.FromStringOrNil("806e2f96-f9f9-4cbb-9a3d-d2f488539a1f"), "unit-test-file.pdf")
 		suite.Error(err)
 	})
 
@@ -92,9 +94,10 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, fakeS3)
 		wrongTypeFile, err := os.Open("../../testdatagen/testdata/test.txt")
 		suite.NoError(err)
+		// #nosec G307 TODO needs review
 		defer wrongTypeFile.Close()
 
-		_, err = uploadCreator.CreateUpload(wrongTypeFile, paymentRequest.ID, contractor.ID)
+		_, err = uploadCreator.CreateUpload(wrongTypeFile, paymentRequest.ID, contractor.ID, "unit-test-file.pdf")
 		suite.Error(err)
 	})
 

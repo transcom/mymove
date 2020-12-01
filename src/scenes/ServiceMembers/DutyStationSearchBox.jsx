@@ -97,7 +97,7 @@ export class DutyStationSearchBox extends Component {
     );
   }
   render() {
-    const { errorMsg } = this.props;
+    const { errorMsg, displayAddress } = this.props;
     const defaultTitle = 'Name of Duty Station:';
     const inputContainerClasses = classNames({ 'usa-input-error': errorMsg });
     const searchBoxHeaderClasses = classNames({ 'duty-station-header': errorMsg });
@@ -111,8 +111,9 @@ export class DutyStationSearchBox extends Component {
     const isEmptyStation = get(this.props, 'input.value.id', NULL_UUID) === NULL_UUID;
     const title = this.props.title || defaultTitle;
     const uswdsBlack = '#565c65';
+    const uswdsBlue = '#2491ff';
     const customStyles = {
-      control: (provided) => ({
+      control: (provided, state) => ({
         ...provided,
         borderRadius: '0px',
         borderColor: uswdsBlack,
@@ -122,6 +123,7 @@ export class DutyStationSearchBox extends Component {
           ...styles[':hover'],
           borderColor: uswdsBlack,
         },
+        boxShadow: state.isFocused ? `0 0 0 0.26667rem ${uswdsBlue}` : '',
       }),
       dropdownIndicator: (provided) => ({
         ...provided,
@@ -154,6 +156,7 @@ export class DutyStationSearchBox extends Component {
               {errorMsg ? <strong>{title}</strong> : title}
             </label>
             <AsyncSelect
+              name={this.props.name}
               className={dutyInputClasses}
               cacheOptions
               getOptionLabel={getOptionName}
@@ -167,7 +170,7 @@ export class DutyStationSearchBox extends Component {
               placeholder="Start typing a duty station..."
               styles={customStyles}
             />
-            {!isEmptyStation && (
+            {displayAddress && !isEmptyStation && (
               <p className={locationClasses}>
                 {this.props.input.value.address.city}, {this.props.input.value.address.state}{' '}
                 {this.props.input.value.address.postal_code}
@@ -184,6 +187,14 @@ DutyStationSearchBox.propTypes = {
   onChange: PropTypes.func,
   existingStation: PropTypes.object,
   title: PropTypes.string,
+  name: PropTypes.string,
+  displayAddress: PropTypes.bool,
+  errorMsg: PropTypes.string,
+};
+
+DutyStationSearchBox.defaultProps = {
+  displayAddress: true,
+  errorMsg: undefined,
 };
 
 export default DutyStationSearchBox;

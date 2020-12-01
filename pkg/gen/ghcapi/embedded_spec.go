@@ -84,13 +84,7 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       },
       "parameters": [
         {
@@ -103,22 +97,29 @@ func init() {
         }
       ]
     },
-    "/move-orders": {
+    "/documents/{documentId}": {
       "get": {
-        "description": "Gets all move orders",
-        "produces": [
-          "application/json"
-        ],
+        "description": "Returns a document and its uploads",
         "tags": [
-          "moveOrder"
+          "ghcDocuments"
         ],
-        "summary": "Gets all move orders",
-        "operationId": "listMoveOrders",
+        "summary": "Returns a document",
+        "operationId": "getDocument",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the document to return",
+            "name": "documentId",
+            "in": "path",
+            "required": true
+          }
+        ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved all move orders",
+            "description": "the requested document",
             "schema": {
-              "$ref": "#/definitions/MoveOrders"
+              "$ref": "#/definitions/DocumentPayload"
             }
           },
           "400": {
@@ -145,19 +146,25 @@ func init() {
               "$ref": "#/responses/NotFound"
             }
           },
+          "412": {
+            "description": "Precondition Failed",
+            "schema": {
+              "$ref": "#/responses/PreconditionFailed"
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
           "500": {
             "description": "A server error occurred",
             "schema": {
               "$ref": "#/responses/ServerError"
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       }
     },
     "/move-orders/{moveOrderID}": {
@@ -207,6 +214,77 @@ func init() {
             "schema": {
               "$ref": "#/responses/ServerError"
             }
+          }
+        }
+      },
+      "patch": {
+        "description": "All fields sent in this request will be set on the move order referenced",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveOrder"
+        ],
+        "summary": "Updates a move order",
+        "operationId": "updateMoveOrder",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateMoveOrderPayload"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated instance of orders",
+            "schema": {
+              "$ref": "#/definitions/MoveOrder"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was unauthenticated",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was unauthorized",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/responses/PreconditionFailed"
+            }
+          },
+          "500": {
+            "description": "internal server error"
           }
         }
       },
@@ -330,13 +408,7 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       },
       "delete": {
         "description": "Deletes a move order by ID",
@@ -385,13 +457,7 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       },
       "patch": {
         "description": "Updates a move order by ID",
@@ -465,13 +531,7 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       },
       "parameters": [
         {
@@ -543,6 +603,98 @@ func init() {
         }
       ]
     },
+    "/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status": {
+      "patch": {
+        "description": "Changes the status of a line item for a move order by ID",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentServiceItem"
+        ],
+        "summary": "Change the status of a payment service item for a move order by ID",
+        "operationId": "updatePaymentServiceItemStatus",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PaymentServiceItem"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated status for a line item for a move task order by ID",
+            "schema": {
+              "$ref": "#/definitions/PaymentServiceItem"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "412": {
+            "description": "Precondition Failed",
+            "schema": {
+              "$ref": "#/responses/PreconditionFailed"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "ID of move order to use",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "description": "ID of payment service item to use",
+          "name": "paymentServiceItemID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}": {
       "get": {
         "description": "Gets a line item by ID for a move order by ID",
@@ -591,13 +743,7 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       },
       "delete": {
         "description": "Deletes a line item by ID for a move order by ID",
@@ -646,13 +792,7 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       },
       "patch": {
         "description": "Updates a service item by ID for a move order by ID",
@@ -726,13 +866,7 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       },
       "parameters": [
         {
@@ -771,7 +905,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MTOServiceItem"
+              "$ref": "#/definitions/PatchMTOServiceItemStatusPayload"
             }
           },
           {
@@ -818,19 +952,19 @@ func init() {
               "$ref": "#/responses/PreconditionFailed"
             }
           },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
           "500": {
             "description": "A server error occurred",
             "schema": {
               "$ref": "#/responses/ServerError"
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       },
       "parameters": [
         {
@@ -876,6 +1010,14 @@ func init() {
             "name": "If-Match",
             "in": "header",
             "required": true
+          },
+          {
+            "name": "serviceItemCodes",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MTOApprovalServiceItemCodes"
+            }
           }
         ],
         "responses": {
@@ -909,6 +1051,12 @@ func init() {
               "$ref": "#/responses/NotFound"
             }
           },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/responses/Conflict"
+            }
+          },
           "412": {
             "description": "Precondition Failed",
             "schema": {
@@ -921,13 +1069,7 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       }
     },
     "/move/{locator}": {
@@ -975,13 +1117,7 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       },
       "parameters": [
         {
@@ -1029,92 +1165,7 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
-      },
-      "post": {
-        "description": "Creates a service item for a move order by id",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoServiceItem"
-        ],
-        "summary": "Creates a service item for a move order by id",
-        "operationId": "createMTOServiceItem",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "ID of move order to use",
-            "name": "moveTaskOrderID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "description": "ID of the rate engine services",
-            "name": "createMTOServiceItemBody",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "required": [
-                "reServiceID",
-                "mtoShipmentID"
-              ],
-              "properties": {
-                "mtoShipmentID": {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                "reServiceID": {
-                  "type": "string",
-                  "format": "uuid"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Successfully created service item for move task order",
-            "schema": {
-              "$ref": "#/definitions/MTOServiceItem"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "422": {
-            "description": "Validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
-          }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       },
       "parameters": [
         {
@@ -1140,7 +1191,7 @@ func init() {
         "operationId": "listMTOShipments",
         "responses": {
           "200": {
-            "description": "Successfully retrieved all line items for a move task order",
+            "description": "Successfully retrieved all mto shipments for a move task order",
             "schema": {
               "$ref": "#/definitions/MTOShipments"
             }
@@ -1163,13 +1214,7 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       },
       "parameters": [
         {
@@ -1218,13 +1263,7 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       },
       "parameters": [
         {
@@ -1312,12 +1351,7 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer"
-        ]
+        }
       },
       "parameters": [
         {
@@ -1337,46 +1371,6 @@ func init() {
           "required": true
         }
       ]
-    },
-    "/payment-requests": {
-      "get": {
-        "description": "Gets a list of payment requests",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "paymentRequests",
-          "gov"
-        ],
-        "summary": "Gets payment requests",
-        "operationId": "listPaymentRequests",
-        "responses": {
-          "200": {
-            "description": "fetched list of payment requests",
-            "schema": {
-              "$ref": "#/definitions/PaymentRequests"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      }
     },
     "/payment-requests/{paymentRequestID}": {
       "get": {
@@ -1427,93 +1421,7 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
-      },
-      "patch": {
-        "description": "Updates a payment request by id",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "paymentRequests"
-        ],
-        "summary": "Updates a payment request by id",
-        "operationId": "updatePaymentRequest",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UpdatePaymentRequestPayload"
-            }
-          },
-          {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "updated payment request",
-            "schema": {
-              "$ref": "#/definitions/PaymentRequest"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
-          },
-          "412": {
-            "description": "Precondition failed",
-            "schema": {
-              "$ref": "#/responses/PreconditionFailed"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
-          }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       },
       "parameters": [
         {
@@ -1614,13 +1522,235 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
+      }
+    },
+    "/queues/moves": {
+      "get": {
+        "description": "An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all customer moves by GBLOC origin",
+        "operationId": "getMovesQueue",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "requested page of results",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "results per page",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "lastName",
+              "dodID",
+              "branch",
+              "locator",
+              "status",
+              "destinationDutyStation"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "locator",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "lastName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "destinationDutyStation",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "SUBMITTED",
+                "APPROVALS REQUESTED",
+                "APPROVED"
+              ],
+              "type": "string"
+            },
+            "description": "Filtering for the status.",
+            "name": "status",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/QueueMovesResult"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      }
+    },
+    "/queues/payment-requests": {
+      "get": {
+        "description": "An office TIO user will be assigned a transportation office that will determine which payment requests are displayed in their queue based on the origin duty station.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all payment requests by GBLOC origin",
+        "operationId": "getPaymentRequestsQueue",
+        "parameters": [
+          {
+            "enum": [
+              "lastName",
+              "locator",
+              "submittedAt",
+              "branch",
+              "status",
+              "dodID",
+              "age"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "requested page of results",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "number of records to include per page",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "submittedAt",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "locator",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "lastName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "destinationDutyStation",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "Payment requested",
+                "Reviewed",
+                "Paid"
+              ],
+              "type": "string"
+            },
+            "description": "Filtering for the status.",
+            "name": "status",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/QueuePaymentRequestsResult"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
       }
     }
   },
@@ -1790,6 +1920,27 @@ func init() {
         }
       }
     },
+    "BackupContact": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
+        "name": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        }
+      }
+    },
     "ClientError": {
       "type": "object",
       "required": [
@@ -1817,11 +1968,11 @@ func init() {
           "type": "string",
           "title": "Agency customer is affilated with"
         },
-        "current_address": {
+        "backup_contact": {
           "x-nullable": true,
-          "$ref": "#/definitions/Address"
+          "$ref": "#/definitions/BackupContact"
         },
-        "destination_address": {
+        "current_address": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
@@ -1860,6 +2011,64 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "CustomerContactType": {
+      "description": "Describes a customer contact type for a MTOServiceItem of type domestic destination SIT.",
+      "type": "string",
+      "enum": [
+        "FIRST",
+        "SECOND"
+      ]
+    },
+    "DeptIndicator": {
+      "type": "string",
+      "title": "Dept. indicator",
+      "enum": [
+        "NAVY_AND_MARINES",
+        "ARMY",
+        "AIR_FORCE",
+        "COAST_GUARD"
+      ],
+      "x-display-value": {
+        "AIR_FORCE": "57 Air Force",
+        "ARMY": "21 Army",
+        "COAST_GUARD": "70 Coast Guard",
+        "NAVY_AND_MARINES": "17 Navy and Marine Corps"
+      }
+    },
+    "DimensionType": {
+      "description": "Describes a dimension type for a MTOServiceItemDimension.",
+      "type": "string",
+      "enum": [
+        "ITEM",
+        "CRATE"
+      ]
+    },
+    "DocumentPayload": {
+      "type": "object",
+      "required": [
+        "id",
+        "service_member_id",
+        "uploads"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "service_member_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "The service member this document belongs to"
+        },
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Upload"
+          }
         }
       }
     },
@@ -1932,6 +2141,7 @@ func init() {
         },
         "storageInTransit": {
           "type": "integer",
+          "x-nullable": true,
           "example": 90
         },
         "totalDependents": {
@@ -1956,6 +2166,33 @@ func init() {
         }
       }
     },
+    "GBLOC": {
+      "type": "string",
+      "enum": [
+        "AGFM",
+        "APAT",
+        "BGAC",
+        "BGNC",
+        "BKAS",
+        "CFMQ",
+        "CLPK",
+        "CNNQ",
+        "DMAT",
+        "GSAT",
+        "HAFC",
+        "HBAT",
+        "JEAT",
+        "JENQ",
+        "KKFA",
+        "LHNQ",
+        "LKNQ",
+        "MAPK",
+        "MAPS",
+        "MBFL",
+        "MLNQ",
+        "XXXX"
+      ]
+    },
     "MTOAgent": {
       "type": "object",
       "properties": {
@@ -1968,7 +2205,7 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date"
+          "format": "date-time"
         },
         "eTag": {
           "type": "string"
@@ -2006,7 +2243,7 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date"
+          "format": "date-time"
         }
       }
     },
@@ -2014,6 +2251,20 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MTOAgent"
+      }
+    },
+    "MTOApprovalServiceItemCodes": {
+      "description": "MTO level service items to create when updating MTO status.",
+      "type": "object",
+      "properties": {
+        "serviceCodeCS": {
+          "type": "boolean",
+          "example": true
+        },
+        "serviceCodeMS": {
+          "type": "boolean",
+          "example": true
+        }
       }
     },
     "MTOServiceItem": {
@@ -2026,16 +2277,21 @@ func init() {
         "reServiceName",
         "mtoShipmentID",
         "reason",
-        "pickupPostalCode"
+        "pickupPostalCode",
+        "description"
       ],
       "properties": {
         "approvedAt": {
           "type": "string",
-          "format": "date"
+          "format": "date-time",
+          "x-nullable": true
         },
         "createdAt": {
           "type": "string",
-          "format": "date"
+          "format": "date-time"
+        },
+        "customerContacts": {
+          "$ref": "#/definitions/MTOServiceItemCustomerContacts"
         },
         "deletedAt": {
           "type": "string",
@@ -2043,6 +2299,9 @@ func init() {
         },
         "description": {
           "type": "string"
+        },
+        "dimensions": {
+          "$ref": "#/definitions/MTOServiceItemDimensions"
         },
         "eTag": {
           "type": "string"
@@ -2096,7 +2355,12 @@ func init() {
         },
         "rejectedAt": {
           "type": "string",
-          "format": "date"
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true
         },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
@@ -2111,8 +2375,77 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "datetime"
+          "format": "date-time"
         }
+      }
+    },
+    "MTOServiceItemCustomerContact": {
+      "description": "Customer contact information for a destination SIT service item",
+      "type": "object",
+      "properties": {
+        "firstAvailableDeliveryDate": {
+          "description": "First available date that Prime can deliver SIT service item.",
+          "type": "string",
+          "format": "date",
+          "example": "2020-12-31"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "timeMilitary": {
+          "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate` + "`" + `.",
+          "type": "string",
+          "example": "0400Z"
+        },
+        "type": {
+          "$ref": "#/definitions/CustomerContactType"
+        }
+      }
+    },
+    "MTOServiceItemCustomerContacts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOServiceItemCustomerContact"
+      }
+    },
+    "MTOServiceItemDimension": {
+      "description": "Describes a dimension object for the MTOServiceItem.",
+      "type": "object",
+      "properties": {
+        "height": {
+          "description": "Height in thousandth inches. 1000 thou = 1 inch.",
+          "type": "integer",
+          "format": "int32",
+          "example": 1000
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "length": {
+          "description": "Length in thousandth inches. 1000 thou = 1 inch.",
+          "type": "integer",
+          "format": "int32",
+          "example": 1000
+        },
+        "type": {
+          "$ref": "#/definitions/DimensionType"
+        },
+        "width": {
+          "description": "Width in thousandth inches. 1000 thou = 1 inch.",
+          "type": "integer",
+          "format": "int32",
+          "example": 1000
+        }
+      }
+    },
+    "MTOServiceItemDimensions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOServiceItemDimension"
       }
     },
     "MTOServiceItemStatus": {
@@ -2151,7 +2484,7 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "datetime"
+          "format": "date-time"
         },
         "customerRemarks": {
           "type": "string",
@@ -2159,7 +2492,7 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "eTag": {
@@ -2176,8 +2509,18 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "pickupAddress": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
+        },
+        "primeActualWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "primeEstimatedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
         },
         "rejectionReason": {
           "type": "string",
@@ -2193,11 +2536,11 @@ func init() {
           "format": "date"
         },
         "secondaryDeliveryAddress": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "shipmentType": {
@@ -2217,7 +2560,7 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "datetime"
+          "format": "date-time"
         }
       }
     },
@@ -2274,6 +2617,10 @@ func init() {
           "format": "date",
           "example": "2020-01-01"
         },
+        "department_indicator": {
+          "x-nullable": true,
+          "$ref": "#/definitions/DeptIndicator"
+        },
         "destinationDutyStation": {
           "$ref": "#/definitions/DutyStation"
         },
@@ -2291,6 +2638,11 @@ func init() {
         "grade": {
           "type": "string",
           "example": "E_1"
+        },
+        "has_dependents": {
+          "type": "boolean",
+          "title": "Are dependents included in your orders?",
+          "example": false
         },
         "id": {
           "type": "string",
@@ -2313,16 +2665,11 @@ func init() {
           "example": "030-00362"
         },
         "order_type": {
-          "type": "string",
-          "example": "GHC"
+          "$ref": "#/definitions/OrdersType"
         },
         "order_type_detail": {
-          "type": "string",
-          "enum": [
-            "GHC",
-            "NTS"
-          ],
-          "x-nullable": true
+          "x-nullable": true,
+          "$ref": "#/definitions/OrdersTypeDetail"
         },
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"
@@ -2331,6 +2678,28 @@ func init() {
           "type": "string",
           "format": "date",
           "example": "2020-01-01"
+        },
+        "sac": {
+          "type": "string",
+          "title": "SAC",
+          "x-nullable": true,
+          "example": "N002214CSW32Y9"
+        },
+        "spouse_has_pro_gear": {
+          "type": "boolean",
+          "title": "Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?",
+          "example": false
+        },
+        "tac": {
+          "type": "string",
+          "title": "TAC",
+          "x-nullable": true,
+          "example": "F8J1"
+        },
+        "uploaded_order_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
@@ -2343,9 +2712,14 @@ func init() {
     "MoveTaskOrder": {
       "type": "object",
       "properties": {
+        "availableToPrimeAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "createdAt": {
           "type": "string",
-          "format": "date"
+          "format": "date-time"
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
@@ -2365,10 +2739,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "isAvailableToPrime": {
-          "type": "boolean",
-          "x-nullable": true
         },
         "isCanceled": {
           "type": "boolean",
@@ -2397,15 +2767,7 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date"
-        }
-      }
-    },
-    "MoveTaskOrderStatus": {
-      "type": "object",
-      "properties": {
-        "is_available_to_prime": {
-          "type": "boolean"
+          "format": "date-time"
         }
       }
     },
@@ -2413,6 +2775,61 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MoveTaskOrder"
+      }
+    },
+    "OrdersType": {
+      "type": "string",
+      "title": "Orders type",
+      "enum": [
+        "PERMANENT_CHANGE_OF_STATION",
+        "RETIREMENT",
+        "SEPARATION"
+      ],
+      "x-display-value": {
+        "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
+        "RETIREMENT": "Retirement",
+        "SEPARATION": "Separation"
+      }
+    },
+    "OrdersTypeDetail": {
+      "type": "string",
+      "title": "Orders type detail",
+      "enum": [
+        "HHG_PERMITTED",
+        "PCS_TDY",
+        "HHG_RESTRICTED_PROHIBITED",
+        "HHG_RESTRICTED_AREA",
+        "INSTRUCTION_20_WEEKS",
+        "HHG_PROHIBITED_20_WEEKS",
+        "DELAYED_APPROVAL"
+      ],
+      "x-display-value": {
+        "DELAYED_APPROVAL": "Delayed Approval 20 Weeks or More",
+        "HHG_PERMITTED": "Shipment of HHG Permitted",
+        "HHG_PROHIBITED_20_WEEKS": "Shipment of HHG Prohibited but Authorized within 20 weeks",
+        "HHG_RESTRICTED_AREA": "HHG Restricted Area-HHG Prohibited",
+        "HHG_RESTRICTED_PROHIBITED": "Shipment of HHG Restricted or Prohibited",
+        "INSTRUCTION_20_WEEKS": "Course of Instruction 20 Weeks or More",
+        "PCS_TDY": "PCS with TDY Enroute"
+      }
+    },
+    "PatchMTOServiceItemStatusPayload": {
+      "properties": {
+        "rejectionReason": {
+          "description": "Reason the service item was rejected",
+          "type": "string",
+          "x-nullable": true,
+          "example": "Insufficent details provided"
+        },
+        "status": {
+          "description": "Describes all statuses for a MTOServiceItem",
+          "type": "string",
+          "enum": [
+            "SUBMITTED",
+            "APPROVED",
+            "REJECTED"
+          ]
+        }
       }
     },
     "PatchMTOShipmentStatusPayload": {
@@ -2435,9 +2852,6 @@ func init() {
     "PaymentRequest": {
       "type": "object",
       "properties": {
-        "documentPackage": {
-          "$ref": "#/definitions/ProofOfServicePackage"
-        },
         "eTag": {
           "type": "string"
         },
@@ -2461,18 +2875,21 @@ func init() {
           "readOnly": true,
           "example": "1234-5678-1"
         },
+        "proofOfServiceDocs": {
+          "$ref": "#/definitions/ProofOfServiceDocs"
+        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
           "example": "documentation was incomplete"
         },
-        "serviceItemIDs": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uuid",
-            "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-          }
+        "reviewedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "serviceItems": {
+          "$ref": "#/definitions/PaymentServiceItems"
         },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"
@@ -2496,6 +2913,127 @@ func init() {
         "$ref": "#/definitions/PaymentRequest"
       }
     },
+    "PaymentServiceItem": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "mtoServiceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paymentRequestID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paymentServiceItemParams": {
+          "$ref": "#/definitions/PaymentServiceItemParams"
+        },
+        "priceCents": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Price of the service item in cents",
+          "x-nullable": true
+        },
+        "referenceID": {
+          "format": "string",
+          "readOnly": true,
+          "example": "1234-5678-c56a4180"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "documentation was incomplete"
+        },
+        "status": {
+          "$ref": "#/definitions/PaymentServiceItemStatus"
+        }
+      }
+    },
+    "PaymentServiceItemParam": {
+      "type": "object",
+      "properties": {
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "key": {
+          "$ref": "#/definitions/ServiceItemParamName"
+        },
+        "origin": {
+          "$ref": "#/definitions/ServiceItemParamOrigin"
+        },
+        "paymentServiceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "type": {
+          "$ref": "#/definitions/ServiceItemParamType"
+        },
+        "value": {
+          "type": "string",
+          "example": 3025
+        }
+      }
+    },
+    "PaymentServiceItemParams": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PaymentServiceItemParam"
+      }
+    },
+    "PaymentServiceItemStatus": {
+      "type": "string",
+      "title": "Payment Service Item Status",
+      "enum": [
+        "REQUESTED",
+        "APPROVED",
+        "DENIED",
+        "SENT_TO_GEX",
+        "PAID"
+      ]
+    },
+    "PaymentServiceItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PaymentServiceItem"
+      }
+    },
+    "ProofOfServiceDoc": {
+      "properties": {
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Upload"
+          }
+        }
+      }
+    },
+    "ProofOfServiceDocs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ProofOfServiceDoc"
+      }
+    },
     "ProofOfServicePackage": {
       "type": "object",
       "properties": {
@@ -2509,6 +3047,356 @@ func init() {
           "items": {
             "$ref": "#/definitions/Upload"
           }
+        }
+      }
+    },
+    "QueueMove": {
+      "type": "object",
+      "properties": {
+        "customer": {
+          "$ref": "#/definitions/Customer"
+        },
+        "departmentIndicator": {
+          "$ref": "#/definitions/DeptIndicator"
+        },
+        "destinationDutyStation": {
+          "$ref": "#/definitions/DutyStation"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "locator": {
+          "type": "string"
+        },
+        "originGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "shipmentsCount": {
+          "type": "integer"
+        },
+        "status": {
+          "$ref": "#/definitions/QueueMoveStatus"
+        }
+      }
+    },
+    "QueueMoveStatus": {
+      "type": "string",
+      "enum": [
+        "New move",
+        "Move approved",
+        "Approvals requested"
+      ]
+    },
+    "QueueMoves": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/QueueMove"
+      }
+    },
+    "QueueMovesResult": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer"
+        },
+        "perPage": {
+          "type": "integer"
+        },
+        "queueMoves": {
+          "$ref": "#/definitions/QueueMoves"
+        },
+        "totalCount": {
+          "type": "integer"
+        }
+      }
+    },
+    "QueuePaymentRequest": {
+      "type": "object",
+      "properties": {
+        "age": {
+          "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
+          "type": "number",
+          "format": "integer"
+        },
+        "customer": {
+          "$ref": "#/definitions/Customer"
+        },
+        "departmentIndicator": {
+          "$ref": "#/definitions/DeptIndicator"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "locator": {
+          "type": "string"
+        },
+        "moveID": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "originGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "status": {
+          "$ref": "#/definitions/PaymentRequestStatus"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "QueuePaymentRequests": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/QueuePaymentRequest"
+      }
+    },
+    "QueuePaymentRequestsResult": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer"
+        },
+        "perPage": {
+          "type": "integer"
+        },
+        "queuePaymentRequests": {
+          "$ref": "#/definitions/QueuePaymentRequests"
+        },
+        "totalCount": {
+          "type": "integer"
+        }
+      }
+    },
+    "ReServiceCode": {
+      "description": "This is the full list of service items that can be found on a shipment. Not all service items\nmay be requested by the Prime, but may be returned in a response.\n\nDocumentation of all the service items will be provided.\n",
+      "type": "string",
+      "enum": [
+        "CS",
+        "DBHF",
+        "DBTF",
+        "DCRT",
+        "DCRTSA",
+        "DDASIT",
+        "DDDSIT",
+        "DDFSIT",
+        "DDP",
+        "DDSHUT",
+        "DLH",
+        "DMHF",
+        "DNPKF",
+        "DOASIT",
+        "DOFSIT",
+        "DOP",
+        "DOPSIT",
+        "DOSHUT",
+        "DPK",
+        "DSH",
+        "DUCRT",
+        "DUPK",
+        "FSC",
+        "IBHF",
+        "IBTF",
+        "ICOLH",
+        "ICOUB",
+        "ICRT",
+        "ICRTSA",
+        "IDASIT",
+        "IDDSIT",
+        "IDFSIT",
+        "IDSHUT",
+        "IHPK",
+        "IHUPK",
+        "INPKF",
+        "IOASIT",
+        "IOCLH",
+        "IOCUB",
+        "IOFSIT",
+        "IOOLH",
+        "IOOUB",
+        "IOPSIT",
+        "IOSHUT",
+        "IUBPK",
+        "IUBUPK",
+        "IUCRT",
+        "MS",
+        "NSTH",
+        "NSTUB"
+      ]
+    },
+    "ServiceItem": {
+      "type": "object",
+      "properties": {
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "params": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "example": "Service Item Parameter Name"
+              },
+              "value": {
+                "type": "string",
+                "example": "Service Item Parameter Value"
+              }
+            }
+          },
+          "readOnly": true
+        }
+      }
+    },
+    "ServiceItemParamName": {
+      "type": "string",
+      "enum": [
+        "ActualPickupDate",
+        "CanStandAlone",
+        "ContractCode",
+        "CubicFeetBilled",
+        "CubicFeetCrating",
+        "DistanceZip3",
+        "DistanceZip5",
+        "DistanceZip5SITDest",
+        "DistanceZip5SITOrigin",
+        "EIAFuelPrice",
+        "FSCWeightBasedDistanceMultiplier",
+        "MarketDest",
+        "MarketOrigin",
+        "MTOAvailableToPrimeAt",
+        "NumberDaysSIT",
+        "PriceAreaDest",
+        "PriceAreaIntlDest",
+        "PriceAreaIntlOrigin",
+        "PriceAreaOrigin",
+        "PSI_LinehaulDom",
+        "PSI_LinehaulDomPrice",
+        "PSI_LinehaulShort",
+        "PSI_LinehaulShortPrice",
+        "PSI_PackingDom",
+        "PSI_PackingDomPrice",
+        "PSI_PackingHHGIntl",
+        "PSI_PackingHHGIntlPrice",
+        "PSI_PriceDomDest",
+        "PSI_PriceDomDestPrice",
+        "PSI_PriceDomOrigin",
+        "PSI_PriceDomOriginPrice",
+        "PSI_ShippingLinehaulIntlCO",
+        "PSI_ShippingLinehaulIntlCOPrice",
+        "PSI_ShippingLinehaulIntlOC",
+        "PSI_ShippingLinehaulIntlOCPrice",
+        "PSI_ShippingLinehaulIntlOO",
+        "PSI_ShippingLinehaulIntlOOPrice",
+        "RateAreaNonStdDest",
+        "RateAreaNonStdOrigin",
+        "RequestedPickupDate",
+        "ServiceAreaDest",
+        "ServiceAreaOrigin",
+        "ServicesScheduleDest",
+        "ServicesScheduleOrigin",
+        "SITScheduleDest",
+        "SITScheduleOrigin",
+        "WeightActual",
+        "WeightBilledActual",
+        "WeightEstimated",
+        "ZipDestAddress",
+        "ZipPickupAddress",
+        "ZipSITAddress"
+      ]
+    },
+    "ServiceItemParamOrigin": {
+      "type": "string",
+      "enum": [
+        "PRIME",
+        "SYSTEM"
+      ]
+    },
+    "ServiceItemParamType": {
+      "type": "string",
+      "enum": [
+        "STRING",
+        "DATE",
+        "INTEGER",
+        "DECIMAL",
+        "TIMESTAMP",
+        "PaymentServiceItemUUID"
+      ]
+    },
+    "UpdateMoveOrderPayload": {
+      "type": "object",
+      "required": [
+        "issueDate",
+        "reportByDate",
+        "ordersType",
+        "ordersTypeDetail",
+        "newDutyStationId",
+        "originDutyStationId",
+        "ordersNumber",
+        "tac",
+        "sac",
+        "departmentIndicator"
+      ],
+      "properties": {
+        "departmentIndicator": {
+          "$ref": "#/definitions/DeptIndicator"
+        },
+        "issueDate": {
+          "description": "The date and time that these orders were cut.",
+          "type": "string",
+          "format": "date",
+          "title": "Orders date",
+          "example": "2018-04-26"
+        },
+        "newDutyStationId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ordersNumber": {
+          "type": "string",
+          "title": "Orders Number",
+          "x-nullable": true,
+          "example": "030-00362"
+        },
+        "ordersType": {
+          "$ref": "#/definitions/OrdersType"
+        },
+        "ordersTypeDetail": {
+          "$ref": "#/definitions/OrdersTypeDetail"
+        },
+        "originDutyStationId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "reportByDate": {
+          "description": "Report By Date",
+          "type": "string",
+          "format": "date",
+          "title": "Report-by date",
+          "example": "2018-04-26"
+        },
+        "sac": {
+          "type": "string",
+          "title": "SAC",
+          "x-nullable": true,
+          "example": "N002214CSW32Y9"
+        },
+        "tac": {
+          "type": "string",
+          "title": "TAC",
+          "x-nullable": true,
+          "example": "F8J1"
         }
       }
     },
@@ -2573,13 +3461,20 @@ func init() {
         },
         "filename": {
           "type": "string",
-          "format": "binary",
           "example": "filename.pdf"
         },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "INFECTED",
+            "CLEAN",
+            "PROCESSING"
+          ]
         },
         "updatedAt": {
           "type": "string",
@@ -2651,7 +3546,12 @@ func init() {
         "$ref": "#/definitions/Error"
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "queues"
+    }
+  ]
 }`))
 	FlatSwaggerJSON = json.RawMessage([]byte(`{
   "schemes": [
@@ -2735,13 +3635,7 @@ func init() {
               }
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       },
       "parameters": [
         {
@@ -2754,22 +3648,29 @@ func init() {
         }
       ]
     },
-    "/move-orders": {
+    "/documents/{documentId}": {
       "get": {
-        "description": "Gets all move orders",
-        "produces": [
-          "application/json"
-        ],
+        "description": "Returns a document and its uploads",
         "tags": [
-          "moveOrder"
+          "ghcDocuments"
         ],
-        "summary": "Gets all move orders",
-        "operationId": "listMoveOrders",
+        "summary": "Returns a document",
+        "operationId": "getDocument",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the document to return",
+            "name": "documentId",
+            "in": "path",
+            "required": true
+          }
+        ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved all move orders",
+            "description": "the requested document",
             "schema": {
-              "$ref": "#/definitions/MoveOrders"
+              "$ref": "#/definitions/DocumentPayload"
             }
           },
           "400": {
@@ -2808,6 +3709,21 @@ func init() {
               }
             }
           },
+          "412": {
+            "description": "Precondition Failed",
+            "schema": {
+              "description": "Precondition failed",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
           "500": {
             "description": "A server error occurred",
             "schema": {
@@ -2817,13 +3733,7 @@ func init() {
               }
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       }
     },
     "/move-orders/{moveOrderID}": {
@@ -2888,6 +3798,92 @@ func init() {
                 "$ref": "#/definitions/Error"
               }
             }
+          }
+        }
+      },
+      "patch": {
+        "description": "All fields sent in this request will be set on the move order referenced",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveOrder"
+        ],
+        "summary": "Updates a move order",
+        "operationId": "updateMoveOrder",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateMoveOrderPayload"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated instance of orders",
+            "schema": {
+              "$ref": "#/definitions/MoveOrder"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was unauthenticated",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was unauthorized",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "description": "Precondition failed",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "internal server error"
           }
         }
       },
@@ -3041,13 +4037,7 @@ func init() {
               }
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       },
       "delete": {
         "description": "Deletes a move order by ID",
@@ -3111,13 +4101,7 @@ func init() {
               }
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       },
       "patch": {
         "description": "Updates a move order by ID",
@@ -3209,13 +4193,7 @@ func init() {
               }
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       },
       "parameters": [
         {
@@ -3302,6 +4280,116 @@ func init() {
         }
       ]
     },
+    "/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status": {
+      "patch": {
+        "description": "Changes the status of a line item for a move order by ID",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentServiceItem"
+        ],
+        "summary": "Change the status of a payment service item for a move order by ID",
+        "operationId": "updatePaymentServiceItemStatus",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PaymentServiceItem"
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated status for a line item for a move task order by ID",
+            "schema": {
+              "$ref": "#/definitions/PaymentServiceItem"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "412": {
+            "description": "Precondition Failed",
+            "schema": {
+              "description": "Precondition failed",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "ID of move order to use",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "description": "ID of payment service item to use",
+          "name": "paymentServiceItemID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}": {
       "get": {
         "description": "Gets a line item by ID for a move order by ID",
@@ -3365,13 +4453,7 @@ func init() {
               }
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       },
       "delete": {
         "description": "Deletes a line item by ID for a move order by ID",
@@ -3435,13 +4517,7 @@ func init() {
               }
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       },
       "patch": {
         "description": "Updates a service item by ID for a move order by ID",
@@ -3533,13 +4609,7 @@ func init() {
               }
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       },
       "parameters": [
         {
@@ -3578,7 +4648,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MTOServiceItem"
+              "$ref": "#/definitions/PatchMTOServiceItemStatusPayload"
             }
           },
           {
@@ -3640,6 +4710,12 @@ func init() {
               }
             }
           },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
           "500": {
             "description": "A server error occurred",
             "schema": {
@@ -3649,13 +4725,7 @@ func init() {
               }
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       },
       "parameters": [
         {
@@ -3701,6 +4771,14 @@ func init() {
             "name": "If-Match",
             "in": "header",
             "required": true
+          },
+          {
+            "name": "serviceItemCodes",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MTOApprovalServiceItemCodes"
+            }
           }
         ],
         "responses": {
@@ -3746,6 +4824,15 @@ func init() {
               }
             }
           },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "description": "Conflict error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
           "412": {
             "description": "Precondition Failed",
             "schema": {
@@ -3764,13 +4851,7 @@ func init() {
               }
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       }
     },
     "/move/{locator}": {
@@ -3830,13 +4911,7 @@ func init() {
               }
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       },
       "parameters": [
         {
@@ -3890,95 +4965,7 @@ func init() {
               }
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
-      },
-      "post": {
-        "description": "Creates a service item for a move order by id",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "mtoServiceItem"
-        ],
-        "summary": "Creates a service item for a move order by id",
-        "operationId": "createMTOServiceItem",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "ID of move order to use",
-            "name": "moveTaskOrderID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "description": "ID of the rate engine services",
-            "name": "createMTOServiceItemBody",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "required": [
-                "reServiceID",
-                "mtoShipmentID"
-              ],
-              "properties": {
-                "mtoShipmentID": {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                "reServiceID": {
-                  "type": "string",
-                  "format": "uuid"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Successfully created service item for move task order",
-            "schema": {
-              "$ref": "#/definitions/MTOServiceItem"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "422": {
-            "description": "Validation error",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       },
       "parameters": [
         {
@@ -4004,7 +4991,7 @@ func init() {
         "operationId": "listMTOShipments",
         "responses": {
           "200": {
-            "description": "Successfully retrieved all line items for a move task order",
+            "description": "Successfully retrieved all mto shipments for a move task order",
             "schema": {
               "$ref": "#/definitions/MTOShipments"
             }
@@ -4033,13 +5020,7 @@ func init() {
               }
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       },
       "parameters": [
         {
@@ -4094,13 +5075,7 @@ func init() {
               }
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       },
       "parameters": [
         {
@@ -4200,12 +5175,7 @@ func init() {
               }
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer"
-        ]
+        }
       },
       "parameters": [
         {
@@ -4225,46 +5195,6 @@ func init() {
           "required": true
         }
       ]
-    },
-    "/payment-requests": {
-      "get": {
-        "description": "Gets a list of payment requests",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "paymentRequests",
-          "gov"
-        ],
-        "summary": "Gets payment requests",
-        "operationId": "listPaymentRequests",
-        "responses": {
-          "200": {
-            "description": "fetched list of payment requests",
-            "schema": {
-              "$ref": "#/definitions/PaymentRequests"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      }
     },
     "/payment-requests/{paymentRequestID}": {
       "get": {
@@ -4330,111 +5260,7 @@ func init() {
               }
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
-      },
-      "patch": {
-        "description": "Updates a payment request by id",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "paymentRequests"
-        ],
-        "summary": "Updates a payment request by id",
-        "operationId": "updatePaymentRequest",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UpdatePaymentRequestPayload"
-            }
-          },
-          {
-            "type": "string",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "updated payment request",
-            "schema": {
-              "$ref": "#/definitions/PaymentRequest"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "412": {
-            "description": "Precondition failed",
-            "schema": {
-              "description": "Precondition failed",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
       },
       "parameters": [
         {
@@ -4553,13 +5379,247 @@ func init() {
               }
             }
           }
-        },
-        "x-swagger-roles": [
-          "transportation_invoicing_officer",
-          "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
-        ]
+        }
+      }
+    },
+    "/queues/moves": {
+      "get": {
+        "description": "An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty station.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all customer moves by GBLOC origin",
+        "operationId": "getMovesQueue",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "requested page of results",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "results per page",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "lastName",
+              "dodID",
+              "branch",
+              "locator",
+              "status",
+              "destinationDutyStation"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "locator",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "lastName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "destinationDutyStation",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "SUBMITTED",
+                "APPROVALS REQUESTED",
+                "APPROVED"
+              ],
+              "type": "string"
+            },
+            "description": "Filtering for the status.",
+            "name": "status",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/QueueMovesResult"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/queues/payment-requests": {
+      "get": {
+        "description": "An office TIO user will be assigned a transportation office that will determine which payment requests are displayed in their queue based on the origin duty station.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all payment requests by GBLOC origin",
+        "operationId": "getPaymentRequestsQueue",
+        "parameters": [
+          {
+            "enum": [
+              "lastName",
+              "locator",
+              "submittedAt",
+              "branch",
+              "status",
+              "dodID",
+              "age"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "requested page of results",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "number of records to include per page",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "submittedAt",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "locator",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "lastName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "destinationDutyStation",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "Payment requested",
+                "Reviewed",
+                "Paid"
+              ],
+              "type": "string"
+            },
+            "description": "Filtering for the status.",
+            "name": "status",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/QueuePaymentRequestsResult"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -4729,6 +5789,27 @@ func init() {
         }
       }
     },
+    "BackupContact": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
+        "name": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        }
+      }
+    },
     "ClientError": {
       "type": "object",
       "required": [
@@ -4756,11 +5837,11 @@ func init() {
           "type": "string",
           "title": "Agency customer is affilated with"
         },
-        "current_address": {
+        "backup_contact": {
           "x-nullable": true,
-          "$ref": "#/definitions/Address"
+          "$ref": "#/definitions/BackupContact"
         },
-        "destination_address": {
+        "current_address": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
@@ -4799,6 +5880,64 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "CustomerContactType": {
+      "description": "Describes a customer contact type for a MTOServiceItem of type domestic destination SIT.",
+      "type": "string",
+      "enum": [
+        "FIRST",
+        "SECOND"
+      ]
+    },
+    "DeptIndicator": {
+      "type": "string",
+      "title": "Dept. indicator",
+      "enum": [
+        "NAVY_AND_MARINES",
+        "ARMY",
+        "AIR_FORCE",
+        "COAST_GUARD"
+      ],
+      "x-display-value": {
+        "AIR_FORCE": "57 Air Force",
+        "ARMY": "21 Army",
+        "COAST_GUARD": "70 Coast Guard",
+        "NAVY_AND_MARINES": "17 Navy and Marine Corps"
+      }
+    },
+    "DimensionType": {
+      "description": "Describes a dimension type for a MTOServiceItemDimension.",
+      "type": "string",
+      "enum": [
+        "ITEM",
+        "CRATE"
+      ]
+    },
+    "DocumentPayload": {
+      "type": "object",
+      "required": [
+        "id",
+        "service_member_id",
+        "uploads"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "service_member_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "The service member this document belongs to"
+        },
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Upload"
+          }
         }
       }
     },
@@ -4871,6 +6010,7 @@ func init() {
         },
         "storageInTransit": {
           "type": "integer",
+          "x-nullable": true,
           "example": 90
         },
         "totalDependents": {
@@ -4895,6 +6035,33 @@ func init() {
         }
       }
     },
+    "GBLOC": {
+      "type": "string",
+      "enum": [
+        "AGFM",
+        "APAT",
+        "BGAC",
+        "BGNC",
+        "BKAS",
+        "CFMQ",
+        "CLPK",
+        "CNNQ",
+        "DMAT",
+        "GSAT",
+        "HAFC",
+        "HBAT",
+        "JEAT",
+        "JENQ",
+        "KKFA",
+        "LHNQ",
+        "LKNQ",
+        "MAPK",
+        "MAPS",
+        "MBFL",
+        "MLNQ",
+        "XXXX"
+      ]
+    },
     "MTOAgent": {
       "type": "object",
       "properties": {
@@ -4907,7 +6074,7 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "date"
+          "format": "date-time"
         },
         "eTag": {
           "type": "string"
@@ -4945,7 +6112,7 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date"
+          "format": "date-time"
         }
       }
     },
@@ -4953,6 +6120,20 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MTOAgent"
+      }
+    },
+    "MTOApprovalServiceItemCodes": {
+      "description": "MTO level service items to create when updating MTO status.",
+      "type": "object",
+      "properties": {
+        "serviceCodeCS": {
+          "type": "boolean",
+          "example": true
+        },
+        "serviceCodeMS": {
+          "type": "boolean",
+          "example": true
+        }
       }
     },
     "MTOServiceItem": {
@@ -4965,16 +6146,21 @@ func init() {
         "reServiceName",
         "mtoShipmentID",
         "reason",
-        "pickupPostalCode"
+        "pickupPostalCode",
+        "description"
       ],
       "properties": {
         "approvedAt": {
           "type": "string",
-          "format": "date"
+          "format": "date-time",
+          "x-nullable": true
         },
         "createdAt": {
           "type": "string",
-          "format": "date"
+          "format": "date-time"
+        },
+        "customerContacts": {
+          "$ref": "#/definitions/MTOServiceItemCustomerContacts"
         },
         "deletedAt": {
           "type": "string",
@@ -4982,6 +6168,9 @@ func init() {
         },
         "description": {
           "type": "string"
+        },
+        "dimensions": {
+          "$ref": "#/definitions/MTOServiceItemDimensions"
         },
         "eTag": {
           "type": "string"
@@ -5035,7 +6224,12 @@ func init() {
         },
         "rejectedAt": {
           "type": "string",
-          "format": "date"
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true
         },
         "status": {
           "$ref": "#/definitions/MTOServiceItemStatus"
@@ -5050,8 +6244,77 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "datetime"
+          "format": "date-time"
         }
+      }
+    },
+    "MTOServiceItemCustomerContact": {
+      "description": "Customer contact information for a destination SIT service item",
+      "type": "object",
+      "properties": {
+        "firstAvailableDeliveryDate": {
+          "description": "First available date that Prime can deliver SIT service item.",
+          "type": "string",
+          "format": "date",
+          "example": "2020-12-31"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "timeMilitary": {
+          "description": "Time of delivery corresponding to ` + "`" + `firstAvailableDeliveryDate` + "`" + `.",
+          "type": "string",
+          "example": "0400Z"
+        },
+        "type": {
+          "$ref": "#/definitions/CustomerContactType"
+        }
+      }
+    },
+    "MTOServiceItemCustomerContacts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOServiceItemCustomerContact"
+      }
+    },
+    "MTOServiceItemDimension": {
+      "description": "Describes a dimension object for the MTOServiceItem.",
+      "type": "object",
+      "properties": {
+        "height": {
+          "description": "Height in thousandth inches. 1000 thou = 1 inch.",
+          "type": "integer",
+          "format": "int32",
+          "example": 1000
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "length": {
+          "description": "Length in thousandth inches. 1000 thou = 1 inch.",
+          "type": "integer",
+          "format": "int32",
+          "example": 1000
+        },
+        "type": {
+          "$ref": "#/definitions/DimensionType"
+        },
+        "width": {
+          "description": "Width in thousandth inches. 1000 thou = 1 inch.",
+          "type": "integer",
+          "format": "int32",
+          "example": 1000
+        }
+      }
+    },
+    "MTOServiceItemDimensions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOServiceItemDimension"
       }
     },
     "MTOServiceItemStatus": {
@@ -5090,7 +6353,7 @@ func init() {
         },
         "createdAt": {
           "type": "string",
-          "format": "datetime"
+          "format": "date-time"
         },
         "customerRemarks": {
           "type": "string",
@@ -5098,7 +6361,7 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "eTag": {
@@ -5115,8 +6378,18 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "pickupAddress": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
+        },
+        "primeActualWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
+        },
+        "primeEstimatedWeight": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2000
         },
         "rejectionReason": {
           "type": "string",
@@ -5132,11 +6405,11 @@ func init() {
           "format": "date"
         },
         "secondaryDeliveryAddress": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
-          "x-nullabe": true,
+          "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
         "shipmentType": {
@@ -5156,7 +6429,7 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "datetime"
+          "format": "date-time"
         }
       }
     },
@@ -5213,6 +6486,10 @@ func init() {
           "format": "date",
           "example": "2020-01-01"
         },
+        "department_indicator": {
+          "x-nullable": true,
+          "$ref": "#/definitions/DeptIndicator"
+        },
         "destinationDutyStation": {
           "$ref": "#/definitions/DutyStation"
         },
@@ -5230,6 +6507,11 @@ func init() {
         "grade": {
           "type": "string",
           "example": "E_1"
+        },
+        "has_dependents": {
+          "type": "boolean",
+          "title": "Are dependents included in your orders?",
+          "example": false
         },
         "id": {
           "type": "string",
@@ -5252,16 +6534,11 @@ func init() {
           "example": "030-00362"
         },
         "order_type": {
-          "type": "string",
-          "example": "GHC"
+          "$ref": "#/definitions/OrdersType"
         },
         "order_type_detail": {
-          "type": "string",
-          "enum": [
-            "GHC",
-            "NTS"
-          ],
-          "x-nullable": true
+          "x-nullable": true,
+          "$ref": "#/definitions/OrdersTypeDetail"
         },
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"
@@ -5270,6 +6547,28 @@ func init() {
           "type": "string",
           "format": "date",
           "example": "2020-01-01"
+        },
+        "sac": {
+          "type": "string",
+          "title": "SAC",
+          "x-nullable": true,
+          "example": "N002214CSW32Y9"
+        },
+        "spouse_has_pro_gear": {
+          "type": "boolean",
+          "title": "Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?",
+          "example": false
+        },
+        "tac": {
+          "type": "string",
+          "title": "TAC",
+          "x-nullable": true,
+          "example": "F8J1"
+        },
+        "uploaded_order_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
@@ -5282,9 +6581,14 @@ func init() {
     "MoveTaskOrder": {
       "type": "object",
       "properties": {
+        "availableToPrimeAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "createdAt": {
           "type": "string",
-          "format": "date"
+          "format": "date-time"
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
@@ -5304,10 +6608,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "isAvailableToPrime": {
-          "type": "boolean",
-          "x-nullable": true
         },
         "isCanceled": {
           "type": "boolean",
@@ -5336,15 +6636,7 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date"
-        }
-      }
-    },
-    "MoveTaskOrderStatus": {
-      "type": "object",
-      "properties": {
-        "is_available_to_prime": {
-          "type": "boolean"
+          "format": "date-time"
         }
       }
     },
@@ -5352,6 +6644,61 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MoveTaskOrder"
+      }
+    },
+    "OrdersType": {
+      "type": "string",
+      "title": "Orders type",
+      "enum": [
+        "PERMANENT_CHANGE_OF_STATION",
+        "RETIREMENT",
+        "SEPARATION"
+      ],
+      "x-display-value": {
+        "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
+        "RETIREMENT": "Retirement",
+        "SEPARATION": "Separation"
+      }
+    },
+    "OrdersTypeDetail": {
+      "type": "string",
+      "title": "Orders type detail",
+      "enum": [
+        "HHG_PERMITTED",
+        "PCS_TDY",
+        "HHG_RESTRICTED_PROHIBITED",
+        "HHG_RESTRICTED_AREA",
+        "INSTRUCTION_20_WEEKS",
+        "HHG_PROHIBITED_20_WEEKS",
+        "DELAYED_APPROVAL"
+      ],
+      "x-display-value": {
+        "DELAYED_APPROVAL": "Delayed Approval 20 Weeks or More",
+        "HHG_PERMITTED": "Shipment of HHG Permitted",
+        "HHG_PROHIBITED_20_WEEKS": "Shipment of HHG Prohibited but Authorized within 20 weeks",
+        "HHG_RESTRICTED_AREA": "HHG Restricted Area-HHG Prohibited",
+        "HHG_RESTRICTED_PROHIBITED": "Shipment of HHG Restricted or Prohibited",
+        "INSTRUCTION_20_WEEKS": "Course of Instruction 20 Weeks or More",
+        "PCS_TDY": "PCS with TDY Enroute"
+      }
+    },
+    "PatchMTOServiceItemStatusPayload": {
+      "properties": {
+        "rejectionReason": {
+          "description": "Reason the service item was rejected",
+          "type": "string",
+          "x-nullable": true,
+          "example": "Insufficent details provided"
+        },
+        "status": {
+          "description": "Describes all statuses for a MTOServiceItem",
+          "type": "string",
+          "enum": [
+            "SUBMITTED",
+            "APPROVED",
+            "REJECTED"
+          ]
+        }
       }
     },
     "PatchMTOShipmentStatusPayload": {
@@ -5374,9 +6721,6 @@ func init() {
     "PaymentRequest": {
       "type": "object",
       "properties": {
-        "documentPackage": {
-          "$ref": "#/definitions/ProofOfServicePackage"
-        },
         "eTag": {
           "type": "string"
         },
@@ -5400,18 +6744,21 @@ func init() {
           "readOnly": true,
           "example": "1234-5678-1"
         },
+        "proofOfServiceDocs": {
+          "$ref": "#/definitions/ProofOfServiceDocs"
+        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
           "example": "documentation was incomplete"
         },
-        "serviceItemIDs": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uuid",
-            "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-          }
+        "reviewedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "serviceItems": {
+          "$ref": "#/definitions/PaymentServiceItems"
         },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"
@@ -5435,6 +6782,127 @@ func init() {
         "$ref": "#/definitions/PaymentRequest"
       }
     },
+    "PaymentServiceItem": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "mtoServiceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paymentRequestID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paymentServiceItemParams": {
+          "$ref": "#/definitions/PaymentServiceItemParams"
+        },
+        "priceCents": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Price of the service item in cents",
+          "x-nullable": true
+        },
+        "referenceID": {
+          "format": "string",
+          "readOnly": true,
+          "example": "1234-5678-c56a4180"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "documentation was incomplete"
+        },
+        "status": {
+          "$ref": "#/definitions/PaymentServiceItemStatus"
+        }
+      }
+    },
+    "PaymentServiceItemParam": {
+      "type": "object",
+      "properties": {
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "key": {
+          "$ref": "#/definitions/ServiceItemParamName"
+        },
+        "origin": {
+          "$ref": "#/definitions/ServiceItemParamOrigin"
+        },
+        "paymentServiceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "type": {
+          "$ref": "#/definitions/ServiceItemParamType"
+        },
+        "value": {
+          "type": "string",
+          "example": 3025
+        }
+      }
+    },
+    "PaymentServiceItemParams": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PaymentServiceItemParam"
+      }
+    },
+    "PaymentServiceItemStatus": {
+      "type": "string",
+      "title": "Payment Service Item Status",
+      "enum": [
+        "REQUESTED",
+        "APPROVED",
+        "DENIED",
+        "SENT_TO_GEX",
+        "PAID"
+      ]
+    },
+    "PaymentServiceItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PaymentServiceItem"
+      }
+    },
+    "ProofOfServiceDoc": {
+      "properties": {
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Upload"
+          }
+        }
+      }
+    },
+    "ProofOfServiceDocs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ProofOfServiceDoc"
+      }
+    },
     "ProofOfServicePackage": {
       "type": "object",
       "properties": {
@@ -5448,6 +6916,359 @@ func init() {
           "items": {
             "$ref": "#/definitions/Upload"
           }
+        }
+      }
+    },
+    "QueueMove": {
+      "type": "object",
+      "properties": {
+        "customer": {
+          "$ref": "#/definitions/Customer"
+        },
+        "departmentIndicator": {
+          "$ref": "#/definitions/DeptIndicator"
+        },
+        "destinationDutyStation": {
+          "$ref": "#/definitions/DutyStation"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "locator": {
+          "type": "string"
+        },
+        "originGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "shipmentsCount": {
+          "type": "integer"
+        },
+        "status": {
+          "$ref": "#/definitions/QueueMoveStatus"
+        }
+      }
+    },
+    "QueueMoveStatus": {
+      "type": "string",
+      "enum": [
+        "New move",
+        "Move approved",
+        "Approvals requested"
+      ]
+    },
+    "QueueMoves": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/QueueMove"
+      }
+    },
+    "QueueMovesResult": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer"
+        },
+        "perPage": {
+          "type": "integer"
+        },
+        "queueMoves": {
+          "$ref": "#/definitions/QueueMoves"
+        },
+        "totalCount": {
+          "type": "integer"
+        }
+      }
+    },
+    "QueuePaymentRequest": {
+      "type": "object",
+      "properties": {
+        "age": {
+          "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
+          "type": "number",
+          "format": "integer"
+        },
+        "customer": {
+          "$ref": "#/definitions/Customer"
+        },
+        "departmentIndicator": {
+          "$ref": "#/definitions/DeptIndicator"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "locator": {
+          "type": "string"
+        },
+        "moveID": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "originGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "status": {
+          "$ref": "#/definitions/PaymentRequestStatus"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "QueuePaymentRequests": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/QueuePaymentRequest"
+      }
+    },
+    "QueuePaymentRequestsResult": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "integer"
+        },
+        "perPage": {
+          "type": "integer"
+        },
+        "queuePaymentRequests": {
+          "$ref": "#/definitions/QueuePaymentRequests"
+        },
+        "totalCount": {
+          "type": "integer"
+        }
+      }
+    },
+    "ReServiceCode": {
+      "description": "This is the full list of service items that can be found on a shipment. Not all service items\nmay be requested by the Prime, but may be returned in a response.\n\nDocumentation of all the service items will be provided.\n",
+      "type": "string",
+      "enum": [
+        "CS",
+        "DBHF",
+        "DBTF",
+        "DCRT",
+        "DCRTSA",
+        "DDASIT",
+        "DDDSIT",
+        "DDFSIT",
+        "DDP",
+        "DDSHUT",
+        "DLH",
+        "DMHF",
+        "DNPKF",
+        "DOASIT",
+        "DOFSIT",
+        "DOP",
+        "DOPSIT",
+        "DOSHUT",
+        "DPK",
+        "DSH",
+        "DUCRT",
+        "DUPK",
+        "FSC",
+        "IBHF",
+        "IBTF",
+        "ICOLH",
+        "ICOUB",
+        "ICRT",
+        "ICRTSA",
+        "IDASIT",
+        "IDDSIT",
+        "IDFSIT",
+        "IDSHUT",
+        "IHPK",
+        "IHUPK",
+        "INPKF",
+        "IOASIT",
+        "IOCLH",
+        "IOCUB",
+        "IOFSIT",
+        "IOOLH",
+        "IOOUB",
+        "IOPSIT",
+        "IOSHUT",
+        "IUBPK",
+        "IUBUPK",
+        "IUCRT",
+        "MS",
+        "NSTH",
+        "NSTUB"
+      ]
+    },
+    "ServiceItem": {
+      "type": "object",
+      "properties": {
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "params": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ServiceItemParamsItems0"
+          },
+          "readOnly": true
+        }
+      }
+    },
+    "ServiceItemParamName": {
+      "type": "string",
+      "enum": [
+        "ActualPickupDate",
+        "CanStandAlone",
+        "ContractCode",
+        "CubicFeetBilled",
+        "CubicFeetCrating",
+        "DistanceZip3",
+        "DistanceZip5",
+        "DistanceZip5SITDest",
+        "DistanceZip5SITOrigin",
+        "EIAFuelPrice",
+        "FSCWeightBasedDistanceMultiplier",
+        "MarketDest",
+        "MarketOrigin",
+        "MTOAvailableToPrimeAt",
+        "NumberDaysSIT",
+        "PriceAreaDest",
+        "PriceAreaIntlDest",
+        "PriceAreaIntlOrigin",
+        "PriceAreaOrigin",
+        "PSI_LinehaulDom",
+        "PSI_LinehaulDomPrice",
+        "PSI_LinehaulShort",
+        "PSI_LinehaulShortPrice",
+        "PSI_PackingDom",
+        "PSI_PackingDomPrice",
+        "PSI_PackingHHGIntl",
+        "PSI_PackingHHGIntlPrice",
+        "PSI_PriceDomDest",
+        "PSI_PriceDomDestPrice",
+        "PSI_PriceDomOrigin",
+        "PSI_PriceDomOriginPrice",
+        "PSI_ShippingLinehaulIntlCO",
+        "PSI_ShippingLinehaulIntlCOPrice",
+        "PSI_ShippingLinehaulIntlOC",
+        "PSI_ShippingLinehaulIntlOCPrice",
+        "PSI_ShippingLinehaulIntlOO",
+        "PSI_ShippingLinehaulIntlOOPrice",
+        "RateAreaNonStdDest",
+        "RateAreaNonStdOrigin",
+        "RequestedPickupDate",
+        "ServiceAreaDest",
+        "ServiceAreaOrigin",
+        "ServicesScheduleDest",
+        "ServicesScheduleOrigin",
+        "SITScheduleDest",
+        "SITScheduleOrigin",
+        "WeightActual",
+        "WeightBilledActual",
+        "WeightEstimated",
+        "ZipDestAddress",
+        "ZipPickupAddress",
+        "ZipSITAddress"
+      ]
+    },
+    "ServiceItemParamOrigin": {
+      "type": "string",
+      "enum": [
+        "PRIME",
+        "SYSTEM"
+      ]
+    },
+    "ServiceItemParamType": {
+      "type": "string",
+      "enum": [
+        "STRING",
+        "DATE",
+        "INTEGER",
+        "DECIMAL",
+        "TIMESTAMP",
+        "PaymentServiceItemUUID"
+      ]
+    },
+    "ServiceItemParamsItems0": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "example": "Service Item Parameter Name"
+        },
+        "value": {
+          "type": "string",
+          "example": "Service Item Parameter Value"
+        }
+      }
+    },
+    "UpdateMoveOrderPayload": {
+      "type": "object",
+      "required": [
+        "issueDate",
+        "reportByDate",
+        "ordersType",
+        "ordersTypeDetail",
+        "newDutyStationId",
+        "originDutyStationId",
+        "ordersNumber",
+        "tac",
+        "sac",
+        "departmentIndicator"
+      ],
+      "properties": {
+        "departmentIndicator": {
+          "$ref": "#/definitions/DeptIndicator"
+        },
+        "issueDate": {
+          "description": "The date and time that these orders were cut.",
+          "type": "string",
+          "format": "date",
+          "title": "Orders date",
+          "example": "2018-04-26"
+        },
+        "newDutyStationId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "ordersNumber": {
+          "type": "string",
+          "title": "Orders Number",
+          "x-nullable": true,
+          "example": "030-00362"
+        },
+        "ordersType": {
+          "$ref": "#/definitions/OrdersType"
+        },
+        "ordersTypeDetail": {
+          "$ref": "#/definitions/OrdersTypeDetail"
+        },
+        "originDutyStationId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "reportByDate": {
+          "description": "Report By Date",
+          "type": "string",
+          "format": "date",
+          "title": "Report-by date",
+          "example": "2018-04-26"
+        },
+        "sac": {
+          "type": "string",
+          "title": "SAC",
+          "x-nullable": true,
+          "example": "N002214CSW32Y9"
+        },
+        "tac": {
+          "type": "string",
+          "title": "TAC",
+          "x-nullable": true,
+          "example": "F8J1"
         }
       }
     },
@@ -5512,13 +7333,20 @@ func init() {
         },
         "filename": {
           "type": "string",
-          "format": "binary",
           "example": "filename.pdf"
         },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "INFECTED",
+            "CLEAN",
+            "PROCESSING"
+          ]
         },
         "updatedAt": {
           "type": "string",
@@ -5540,7 +7368,7 @@ func init() {
           "$ref": "#/definitions/ClientError"
         },
         {
-          "type": "object"
+          "$ref": "#/definitions/ValidationErrorAllOf1"
         }
       ],
       "properties": {
@@ -5551,6 +7379,9 @@ func init() {
           }
         }
       }
+    },
+    "ValidationErrorAllOf1": {
+      "type": "object"
     }
   },
   "responses": {
@@ -5590,6 +7421,11 @@ func init() {
         "$ref": "#/definitions/Error"
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "queues"
+    }
+  ]
 }`))
 }

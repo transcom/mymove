@@ -78,6 +78,11 @@ func (p *bingPlanner) LatLongTransitDistance(source LatLong, dest LatLong) (int,
 	return p.wayPointsTransitDistance(source.Coords(), dest.Coords())
 }
 
+// Zip5TransitDistanceLineHaul calculates the distance between two valid Zip5s
+func (p *bingPlanner) Zip5TransitDistanceLineHaul(source string, destination string) (int, error) {
+	return zip5TransitDistanceLineHaulHelper(p, source, destination)
+}
+
 // Zip5TransitDistance calculates the distance between two valid Zip5s
 func (p *bingPlanner) Zip5TransitDistance(source string, destination string) (int, error) {
 	return zip5TransitDistanceHelper(p, source, destination)

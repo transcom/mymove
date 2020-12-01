@@ -8,14 +8,14 @@ package primemessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // Address address
+//
 // swagger:model Address
 type Address struct {
 
@@ -27,6 +27,7 @@ type Address struct {
 	Country *string `json:"country,omitempty"`
 
 	// e tag
+	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// id
@@ -289,7 +290,7 @@ const (
 
 // prop value enum
 func (m *Address) validateStateEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, addressTypeStatePropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, addressTypeStatePropEnum, true); err != nil {
 		return err
 	}
 	return nil

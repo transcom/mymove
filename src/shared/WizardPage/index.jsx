@@ -1,15 +1,14 @@
-import React, { Component } from 'react'; // eslint-disable-line
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import windowSize from 'react-window-size';
-import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router-dom';
-import { push } from 'react-router-redux';
-import Alert from 'shared/Alert'; // eslint-disable-line
+import { push } from 'connected-react-router';
+
+import ScrollToTop from 'components/ScrollToTop';
+import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
+import Alert from 'shared/Alert';
 import generatePath from './generatePath';
 import './index.css';
-import { mobileSize } from 'shared/constants';
-import scrollToTop from 'shared/scrollToTop';
 
 import { getNextPagePath, getPreviousPagePath, isFirstPage, isLastPage, beforeTransition } from './utils';
 
@@ -18,16 +17,11 @@ export class WizardPage extends Component {
     super(props);
     this.nextPage = this.nextPage.bind(this);
     this.previousPage = this.previousPage.bind(this);
-    this.cancelFlow = this.cancelFlow.bind(this);
+    this.goHome = this.goHome.bind(this);
     this.beforeTransition = beforeTransition.bind(this);
   }
-  componentDidUpdate() {
-    if (this.props.error) scrollToTop();
-  }
-  componentDidMount() {
-    scrollToTop();
-  }
-  cancelFlow() {
+
+  goHome() {
     this.props.push(`/`);
   }
 
@@ -37,7 +31,7 @@ export class WizardPage extends Component {
       match: { params },
       additionalParams,
     } = this.props;
-    const combinedParams = additionalParams ? Object.assign({}, additionalParams, params) : params;
+    const combinedParams = additionalParams ? { ...additionalParams, ...params } : params;
     // comes from react router redux: doing this moves to the route at path  (might consider going back to history since we need withRouter)
     push(generatePath(path, combinedParams));
   }
@@ -47,56 +41,54 @@ export class WizardPage extends Component {
   }
 
   previousPage() {
-    this.beforeTransition(getPreviousPagePath);
+    const { pageList, pageKey } = this.props;
+    // Don't submit or validate when going back
+    const path = getPreviousPagePath(pageList, pageKey);
+    if (path) this.goto(path);
   }
 
   render() {
-    const isMobile = this.props.windowWidth < mobileSize;
-    const { handleSubmit, pageKey, pageList, children, error, pageIsValid, dirty, canMoveNext } = this.props;
+    const {
+      pageList,
+      pageKey,
+      children,
+      error,
+      pageIsValid,
+      canMoveNext,
+      hideBackBtn,
+      showFinishLaterBtn,
+      footerText,
+    } = this.props;
+
     const canMoveForward = pageIsValid && canMoveNext;
-    const canMoveBackward = (pageIsValid || !dirty) && !isFirstPage(pageList, pageKey);
+
     return (
       <div className="grid-container usa-prose">
+        <ScrollToTop />
         {error && (
           <div className="grid-row">
-            <div className="grid-col-12 error-message">
+            <div className="desktop:grid-col-8 desktop:grid-offset-2 error-message">
               <Alert type="error" heading="An error occurred">
-                {error.message}
+                {error?.message || error}
               </Alert>
             </div>
           </div>
         )}
-        {children}
-        <div className="grid-row" style={{ marginTop: '0.5rem' }}>
-          <div className="grid-col margin-top-6 tablet:margin-top-3">
-            {!isMobile && (
-              <button
-                className="usa-button usa-button--outline cancel padding-left-0"
-                onClick={this.cancelFlow}
-                disabled={false}
-              >
-                Cancel
-              </button>
-            )}
-          </div>
-          <div className="grid-col text-right margin-top-6 tablet:margin-top-3">
-            <button
-              className="usa-button usa-button--outline prev"
-              onClick={this.previousPage}
-              disabled={!canMoveBackward}
-            >
-              Back
-            </button>
-            {!isLastPage(pageList, pageKey) && (
-              <button className="usa-button next" onClick={this.nextPage} disabled={!canMoveForward}>
-                Next
-              </button>
-            )}
-            {isLastPage(pageList, pageKey) && (
-              <button className="usa-button next" onClick={handleSubmit} disabled={!canMoveForward}>
-                Complete
-              </button>
-            )}
+        <div className="grid-row">
+          <div className="grid-col desktop:grid-col-8 desktop:grid-offset-2">{children}</div>
+        </div>
+        <div className="grid-row" style={{ marginTop: '24px' }}>
+          <div className="grid-col desktop:grid-col-8 desktop:grid-offset-2">
+            {footerText && footerText}
+            <WizardNavigation
+              isFirstPage={isFirstPage(pageList, pageKey) || hideBackBtn}
+              isLastPage={isLastPage(pageList, pageKey)}
+              disableNext={!canMoveForward}
+              showFinishLater={showFinishLaterBtn}
+              onBackClick={this.previousPage}
+              onNextClick={this.nextPage}
+              onCancelClick={this.goHome}
+            />
           </div>
         </div>
       </div>
@@ -115,18 +107,20 @@ WizardPage.propTypes = {
   push: PropTypes.func,
   match: PropTypes.object, //from withRouter
   additionalParams: PropTypes.object,
-  windowWidth: PropTypes.number,
+  footerText: PropTypes.node,
 };
 
 WizardPage.defaultProps = {
   pageIsValid: true,
   canMoveNext: true,
   dirty: true,
+  hideBackBtn: false,
+  showFinishLaterBtn: false,
+  footerText: null,
 };
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ push }, dispatch);
-}
+const mapDispatchToProps = {
+  push,
+};
 
-const wizardFormPageWithSize = windowSize(WizardPage);
-export default withRouter(connect(null, mapDispatchToProps)(wizardFormPageWithSize));
+export default withRouter(connect(null, mapDispatchToProps)(WizardPage));

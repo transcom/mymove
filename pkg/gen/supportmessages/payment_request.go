@@ -6,14 +6,14 @@ package supportmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // PaymentRequest payment request
+//
 // swagger:model PaymentRequest
 type PaymentRequest struct {
 
@@ -21,6 +21,7 @@ type PaymentRequest struct {
 	DocumentPackage *ProofOfServicePackage `json:"documentPackage,omitempty"`
 
 	// e tag
+	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// id

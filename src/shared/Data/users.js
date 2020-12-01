@@ -1,41 +1,10 @@
 import * as helpers from 'shared/ReduxHelpers';
-import { GetLoggedInUser, GetIsLoggedIn } from 'shared/User/api';
-import { pick } from 'lodash';
-import { normalize } from 'normalizr';
-import { ordersArray } from 'shared/Entities/schema';
-import { addEntities } from 'shared/Entities/actions';
 
 export const setIsLoggedInType = 'SET_IS_LOGGED_IN';
 const getLoggedInUserType = 'GET_LOGGED_IN_USER';
 
 export const GET_LOGGED_IN_USER = helpers.generateAsyncActionTypes(getLoggedInUserType);
-const getLoggedInActions = helpers.generateAsyncActions(getLoggedInUserType);
-
-export function getCurrentUserInfo() {
-  return function (dispatch) {
-    dispatch(getLoggedInActions.start());
-    return GetIsLoggedIn()
-      .then((response) => {
-        if (response.isLoggedIn === true) {
-          return GetLoggedInUser()
-            .then((response) => {
-              if (response.service_member) {
-                const data = normalize(response.service_member.orders, ordersArray);
-
-                // Only store addresses in a normalized way. This prevents
-                // data duplication while we're using both Redux approaches.
-                const filtered = pick(data.entities, ['addresses']);
-                dispatch(addEntities(filtered));
-              }
-              return dispatch(getLoggedInActions.success(response));
-            })
-            .catch((error) => dispatch(getLoggedInActions.error(error)));
-        }
-        return dispatch(getLoggedInActions.error('User is not logged in'));
-      })
-      .catch((error) => dispatch(getLoggedInActions.error(error)));
-  };
-}
+export const getLoggedInActions = helpers.generateAsyncActions(getLoggedInUserType);
 
 export function setUserIsLoggedIn(isLoggedIn) {
   return function (dispatch) {

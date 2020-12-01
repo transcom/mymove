@@ -11,6 +11,7 @@ const allowedDateFormats = [
   'D-MMM-YYYY',
   'MMM-D-YYYY',
   'DD-MMM-YY',
+  'DD MMM YYYY',
 ];
 
 export function parseDate(str, _format, locale = 'en') {
@@ -29,6 +30,6 @@ export function formatDate(date, format = defaultDateFormat, locale = 'en') {
 
 export function formatDateForSwagger(dateString) {
   if (dateString) {
-    return formatDate(dateString, swaggerDateFormat); //
+    return formatDate(dateString, swaggerDateFormat);
   }
 }

@@ -17,13 +17,19 @@ type PaymentRequestCreator interface {
 // PaymentRequestListFetcher is the exported interface for fetching a list of payment requests
 //go:generate mockery -name PaymentRequestListFetcher
 type PaymentRequestListFetcher interface {
-	FetchPaymentRequestList() (*models.PaymentRequests, error)
+	FetchPaymentRequestList(officeUserID uuid.UUID, params *FetchPaymentRequestListParams) (*models.PaymentRequests, int, error)
 }
 
 // PaymentRequestFetcher is the exported interface for fetching a payment request
 //go:generate mockery -name PaymentRequestFetcher
 type PaymentRequestFetcher interface {
-	FetchPaymentRequest(filters []QueryFilter) (models.PaymentRequest, error)
+	FetchPaymentRequest(paymentRequestID uuid.UUID) (models.PaymentRequest, error)
+}
+
+// PaymentRequestReviewedFetcher is the exported interface for fetching all payment requests in 'reviewed' status
+//go:generate mockery -name PaymentRequestReviewedFetcher
+type PaymentRequestReviewedFetcher interface {
+	FetchReviewedPaymentRequest() (models.PaymentRequests, error)
 }
 
 // PaymentRequestStatusUpdater is the exported interface for updating the status of a payment request
@@ -35,5 +41,26 @@ type PaymentRequestStatusUpdater interface {
 // PaymentRequestUploadCreator is the exported interface for creating a payment request upload
 //go:generate mockery -name PaymentRequestUploadCreator
 type PaymentRequestUploadCreator interface {
-	CreateUpload(file io.ReadCloser, paymentRequestID uuid.UUID, userID uuid.UUID) (*models.Upload, error)
+	CreateUpload(file io.ReadCloser, paymentRequestID uuid.UUID, userID uuid.UUID, filename string) (*models.Upload, error)
+}
+
+// PaymentRequestReviewedProcessor is the exported interface for processing reviewed payment requests
+//go:generate mockery -name PaymentRequestReviewedProcessor
+type PaymentRequestReviewedProcessor interface {
+	ProcessReviewedPaymentRequest() error
+}
+
+// FetchPaymentRequestListParams is a public struct that's used to pass filter arguments to FetchPaymentRequestList
+type FetchPaymentRequestListParams struct {
+	Branch                 *string
+	Locator                *string
+	DodID                  *string
+	LastName               *string
+	DestinationDutyStation *string
+	Status                 []string
+	Page                   *int64
+	PerPage                *int64
+	SubmittedAt            *string
+	Sort                   *string
+	Order                  *string
 }

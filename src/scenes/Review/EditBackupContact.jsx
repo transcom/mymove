@@ -4,13 +4,13 @@ import { connect } from 'react-redux';
 import { get } from 'lodash';
 import scrollToTop from 'shared/scrollToTop';
 
-import { push } from 'react-router-redux';
+import { push } from 'connected-react-router';
 import { reduxForm } from 'redux-form';
 
-import Alert from 'shared/Alert'; // eslint-disable-line
+import { updateBackupContact as updateBackupContactAction } from 'store/entities/actions';
+import { patchBackupContact, getResponseError } from 'services/internalApi';
+import Alert from 'shared/Alert';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-
-import { updateBackupContact } from 'scenes/ServiceMembers/ducks';
 import SaveCancelButtons from './SaveCancelButtons';
 import './Review.css';
 import profileImage from './images/profile.png';
@@ -37,7 +37,7 @@ let EditBackupContactForm = (props) => {
               Backup Contact
             </h1>
             <hr />
-            <h3 className="sm-heading">Edit Backup Contact:</h3>
+            <h3>Edit Backup Contact:</h3>
             <p>Any person you assign as a backup contact must be 18 years of age or older.</p>
             <SwaggerField fieldName="name" swagger={schema} required />
             <SwaggerField fieldName="email" swagger={schema} required />
@@ -54,6 +54,14 @@ EditBackupContactForm = reduxForm({
 })(EditBackupContactForm);
 
 class EditBackupContact extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      errorMessage: null,
+    };
+  }
+
   componentDidMount() {
     this.props.editBegin();
     this.props.entitlementChangeBegin();
@@ -61,22 +69,36 @@ class EditBackupContact extends Component {
   }
 
   updateContact = (fieldValues) => {
+    const { updateBackupContact } = this.props;
+
     if (fieldValues.telephone === '') {
       fieldValues.telephone = null;
     }
-    return this.props.updateBackupContact(fieldValues.id, fieldValues).then(() => {
-      // This promise resolves regardless of error.
-      if (!this.props.hasSubmitError) {
+
+    return patchBackupContact(fieldValues)
+      .then((response) => {
+        // Update in Redux
+        updateBackupContact(response);
+
         this.props.editSuccessful();
         this.props.history.goBack();
-      } else {
+      })
+      .catch((e) => {
+        // TODO - error handling - below is rudimentary error handling to approximate existing UX
+        // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
+        const { response } = e;
+        const errorMessage = getResponseError(response, 'failed to update backup contact due to server error');
+        this.setState({
+          errorMessage,
+        });
+
         scrollToTop();
-      }
-    });
+      });
   };
 
   render() {
     const { error, schema, backupContacts } = this.props;
+    const { errorMessage } = this.state;
 
     let backupContact = null;
     if (backupContacts) {
@@ -85,10 +107,10 @@ class EditBackupContact extends Component {
 
     return (
       <div className="usa-grid">
-        {error && (
+        {(error || errorMessage) && (
           <div className="usa-width-one-whole error-message">
             <Alert type="error" heading="An error occurred">
-              {error.message}
+              {error?.message || errorMessage}
             </Alert>
           </div>
         )}
@@ -114,7 +136,7 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
       push,
-      updateBackupContact,
+      updateBackupContact: updateBackupContactAction,
       editBegin,
       editSuccessful,
       entitlementChangeBegin,

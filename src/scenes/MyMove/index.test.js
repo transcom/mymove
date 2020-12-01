@@ -1,33 +1,50 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import { AppWrapper } from '.';
+
+import { AppWrapper } from './index';
+
 import Header from 'shared/Header/MyMove';
 import Footer from 'shared/Footer';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
 describe('AppWrapper tests', () => {
-  let _wrapper;
+  let wrapper;
+
+  const minProps = {
+    loadInternalSchema: jest.fn(),
+    loadUser: jest.fn(),
+    context: {
+      flags: {
+        hhgFlow: false,
+      },
+    },
+  };
 
   beforeEach(() => {
-    _wrapper = shallow(<AppWrapper />);
+    wrapper = shallow(<AppWrapper {...minProps} />);
   });
 
   it('renders without crashing or erroring', () => {
-    const appWrapper = _wrapper.find('div');
+    const appWrapper = wrapper.find('div');
     expect(appWrapper).toBeDefined();
-    expect(_wrapper.find(SomethingWentWrong)).toHaveLength(0);
+    expect(wrapper.find(SomethingWentWrong)).toHaveLength(0);
   });
 
   it('renders Header component', () => {
-    expect(_wrapper.find(Header)).toHaveLength(1);
+    expect(wrapper.find(Header)).toHaveLength(1);
   });
 
   it('renders Footer component', () => {
-    expect(_wrapper.find(Footer)).toHaveLength(1);
+    expect(wrapper.find(Footer)).toHaveLength(1);
+  });
+
+  it('fetches initial data', () => {
+    expect(minProps.loadUser).toHaveBeenCalled();
+    expect(minProps.loadInternalSchema).toHaveBeenCalled();
   });
 
   it('renders the fail whale', () => {
-    _wrapper.setState({ hasError: true });
-    expect(_wrapper.find(SomethingWentWrong)).toHaveLength(1);
+    wrapper.setState({ hasError: true });
+    expect(wrapper.find(SomethingWentWrong)).toHaveLength(1);
   });
 });

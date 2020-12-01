@@ -1,31 +1,18 @@
 import React from 'react';
-import classNames from 'classnames/bind';
-import { Tag } from '@trussworks/react-uswds';
+import PropTypes from 'prop-types';
+import classnames from 'classnames';
+
 import styles from './index.module.scss';
-import { ReactComponent as AlertIcon } from '../../shared/icon/alert.svg';
 
-const cx = classNames.bind(styles);
+const LeftNav = ({ className, children }) => <nav className={classnames(styles.LeftNav, className)}>{children}</nav>;
 
-const LeftNav = () => (
-  <div className={cx('sidebar')}>
-    <nav className={cx('left-nav')}>
-      <a className={cx('active')}>
-        Requested Shipments
-        <Tag className="usa-tag--alert usa-tag--alert--small">
-          <AlertIcon />
-        </Tag>
-      </a>
-      <a href="#orders-anchor">
-        Orders
-        <Tag className="usa-tag--teal">INTL</Tag>
-      </a>
-      <a>Allowances</a>
-      <a>
-        Customer Info
-        <Tag>3</Tag>
-      </a>
-    </nav>
-  </div>
-);
+LeftNav.propTypes = {
+  className: PropTypes.string,
+  children: PropTypes.node.isRequired,
+};
+
+LeftNav.defaultProps = {
+  className: '',
+};
 
 export default LeftNav;

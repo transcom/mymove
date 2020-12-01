@@ -66,12 +66,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer",
-          "customer"
-        ]
+        }
       }
     },
     "/access_codes/invalid": {
@@ -120,12 +115,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer",
-          "customer"
-        ]
+        }
       }
     },
     "/access_codes/valid": {
@@ -165,12 +155,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer",
-          "customer"
-        ]
+        }
       }
     },
     "/addresses/{addressId}": {
@@ -210,11 +195,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/backup_contacts/{backupContactId}": {
@@ -257,11 +238,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       },
       "put": {
         "description": "Any fields sent in this request will be set on the backup contact referenced",
@@ -310,11 +287,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/calendar/available_move_dates": {
@@ -354,11 +327,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/documents": {
@@ -392,11 +361,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/documents/{documentId}": {
@@ -439,11 +404,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/dps_auth/cookie_url": {
@@ -484,11 +445,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/duty_stations": {
@@ -530,11 +487,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/duty_stations/{dutyStationId}/transportation_office": {
@@ -577,11 +530,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/entitlements": {
@@ -599,11 +548,7 @@ func init() {
               "$ref": "#/definitions/IndexEntitlements"
             }
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/entitlements/{moveId}": {
@@ -634,11 +579,7 @@ func init() {
           "409": {
             "description": "Requested weight estimate is above allotted entitlement"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/estimates/ppm": {
@@ -715,11 +656,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/estimates/ppm_sit": {
@@ -731,6 +668,13 @@ func init() {
         "summary": "Return a PPM move's SIT cost estimate",
         "operationId": "showPPMSitEstimate",
         "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "personally_procured_move_id",
+            "in": "query",
+            "required": true
+          },
           {
             "type": "string",
             "format": "date",
@@ -785,14 +729,13 @@ func init() {
           "409": {
             "description": "distance is less than 50 miles (no short haul moves)"
           },
+          "422": {
+            "description": "the payload was unprocessable"
+          },
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/move_documents/{moveDocumentId}": {
@@ -843,11 +786,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       },
       "delete": {
         "description": "Deletes a move document with the given information",
@@ -885,11 +824,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/moves/{moveId}": {
@@ -932,11 +867,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       },
       "patch": {
         "description": "Any fields sent in this request will be set on the move referenced",
@@ -985,11 +916,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/moves/{moveId}/approve": {
@@ -1035,11 +962,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/moves/{moveId}/cancel": {
@@ -1093,11 +1016,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/moves/{moveId}/move_dates_summary": {
@@ -1145,11 +1064,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/moves/{moveId}/move_documents": {
@@ -1186,11 +1101,7 @@ func init() {
           "403": {
             "description": "user is not authorized"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       },
       "post": {
         "description": "Created a move document with the given information",
@@ -1236,11 +1147,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/moves/{moveId}/moving_expense_documents": {
@@ -1288,11 +1195,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/moves/{moveId}/orders": {
@@ -1335,11 +1238,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/moves/{moveId}/personally_procured_move": {
@@ -1376,11 +1275,7 @@ func init() {
           "403": {
             "description": "user is not authorized"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       },
       "post": {
         "description": "Create an instance of personally_procured_move tied to the move ID",
@@ -1429,11 +1324,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}": {
@@ -1478,11 +1369,7 @@ func init() {
           "403": {
             "description": "user is not authorized"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       },
       "put": {
         "description": "This replaces the current version of the PPM with the version sent.",
@@ -1536,11 +1423,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       },
       "patch": {
         "description": "Any fields sent in this request will be set on the PPM referenced",
@@ -1600,11 +1483,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}/estimate": {
@@ -1658,11 +1537,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/moves/{moveId}/shipment_summary_worksheet": {
@@ -1720,11 +1595,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/moves/{moveId}/signed_certifications": {
@@ -1766,11 +1637,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       },
       "post": {
         "description": "Create an instance of signed_certification tied to the move ID",
@@ -1819,11 +1686,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/moves/{moveId}/submit": {
@@ -1877,12 +1740,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer",
-          "customer"
-        ]
+        }
       }
     },
     "/moves/{moveId}/weight_ticket": {
@@ -1930,11 +1788,170 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
+      }
+    },
+    "/moves/{moveTaskOrderID}/mto_shipments": {
+      "get": {
+        "description": "Gets all MTO shipments for the specified Move Task Order.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "Gets all shipments for a move task order",
+        "operationId": "listMTOShipments",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of move task order for mto shipment to use",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all mto shipments for a move task order.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipments"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/mto-shipments/{mtoShipmentId}": {
+      "patch": {
+        "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\n\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Releasing / Receiving agents\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "updateMTOShipment",
+        "operationId": "updateMTOShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the MTO Shipment to update",
+            "name": "mtoShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UpdateShipment"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the specified MTO shipment.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/mto_shipments": {
+      "post": {
+        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "createMTOShipment",
+        "operationId": "createMTOShipment",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateShipment"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created a MTO shipment.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
       }
     },
     "/orders": {
@@ -1974,11 +1991,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/orders/{ordersId}": {
@@ -2021,11 +2034,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       },
       "put": {
         "description": "All fields sent in this request will be set on the orders referenced",
@@ -2074,11 +2083,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/personally_procured_move/{personallyProcuredMoveId}/expense_summary": {
@@ -2121,11 +2126,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/personally_procured_move/{personallyProcuredMoveId}/request_payment": {
@@ -2168,11 +2169,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/personally_procured_move/{personallyProcuredMoveId}/submit": {
@@ -2223,11 +2220,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/personally_procured_moves/incentive": {
@@ -2298,11 +2291,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/personally_procured_moves/{personallyProcuredMoveId}/approve": {
@@ -2350,11 +2339,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/personally_procured_moves/{personallyProcuredMoveId}/create_ppm_attachments": {
@@ -2422,11 +2407,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/queues/{queueType}": {
@@ -2475,11 +2456,7 @@ func init() {
           "404": {
             "description": "move queue item is not found"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/rate_engine_postal_codes/{postal_code}": {
@@ -2529,11 +2506,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/reimbursement/{reimbursementId}/approve": {
@@ -2573,11 +2546,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/service_members": {
@@ -2620,11 +2589,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/service_members/{serviceMemberId}": {
@@ -2667,11 +2632,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       },
       "patch": {
         "description": "Any fields sent in this request will be set on the service member referenced",
@@ -2720,11 +2681,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/service_members/{serviceMemberId}/backup_contacts": {
@@ -2767,11 +2724,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       },
       "post": {
         "description": "Creates an instance of a backup contact tied to a service member user",
@@ -2820,11 +2773,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/service_members/{serviceMemberId}/current_orders": {
@@ -2867,11 +2816,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/uploads": {
@@ -2926,11 +2871,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       },
       "delete": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
@@ -2971,11 +2912,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/uploads/{uploadId}": {
@@ -3015,11 +2952,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/users/is_logged_in": {
@@ -3043,12 +2976,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer",
-          "customer"
-        ]
+        }
       }
     },
     "/users/logged_in": {
@@ -3075,12 +3003,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer",
-          "customer"
-        ]
+        }
       }
     }
   },
@@ -3097,7 +3020,7 @@ func init() {
         "claimed_at": {
           "description": "when the access code was claimed or used",
           "type": "string",
-          "format": "datetime",
+          "format": "date-time",
           "x-nullable": true,
           "example": "2018-04-12T23:20:50.52Z"
         },
@@ -3106,10 +3029,8 @@ func init() {
           "example": "CODE456"
         },
         "created_at": {
-          "description": "when the access code was created",
           "type": "string",
-          "format": "datetime",
-          "example": "2018-04-12T23:20:50.52Z"
+          "format": "date-time"
         },
         "id": {
           "type": "string",
@@ -3410,6 +3331,26 @@ func init() {
           "type": "string",
           "title": "MilMove access code",
           "x-nullable": false
+        }
+      }
+    },
+    "ClientError": {
+      "type": "object",
+      "required": [
+        "title",
+        "detail",
+        "instance"
+      ],
+      "properties": {
+        "detail": {
+          "type": "string"
+        },
+        "instance": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string"
         }
       }
     },
@@ -3762,13 +3703,6 @@ func init() {
           "x-nullable": true,
           "example": "212-555-5555"
         },
-        "social_security_number": {
-          "type": "string",
-          "format": "ssn",
-          "title": "Social security number",
-          "x-nullable": true,
-          "example": "555-55-5555"
-        },
         "suffix": {
           "type": "string",
           "title": "Suffix",
@@ -3790,6 +3724,45 @@ func init() {
         }
       }
     },
+    "CreateShipment": {
+      "type": "object",
+      "required": [
+        "moveTaskOrderID",
+        "shipmentType"
+      ],
+      "properties": {
+        "agents": {
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "customerRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "handle with care"
+        },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "shipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
+        }
+      }
+    },
     "CreateSignedCertificationPayload": {
       "type": "object",
       "required": [
@@ -3803,7 +3776,7 @@ func init() {
         },
         "certification_type": {
           "x-nullable": true,
-          "$ref": "#/definitions/SignedCertificationType"
+          "$ref": "#/definitions/SignedCertificationTypeCreate"
         },
         "date": {
           "type": "string",
@@ -4083,6 +4056,25 @@ func init() {
         "$ref": "#/definitions/DutyStationPayload"
       }
     },
+    "Error": {
+      "type": "object",
+      "required": [
+        "title",
+        "detail"
+      ],
+      "properties": {
+        "detail": {
+          "type": "string"
+        },
+        "instance": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string"
+        }
+      }
+    },
     "ExpenseSummaryPayload": {
       "type": "object",
       "properties": {
@@ -4219,6 +4211,10 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "office_user": {
+          "x-nullable": true,
+          "$ref": "#/definitions/OfficeUser"
+        },
         "roles": {
           "type": "array",
           "items": {
@@ -4229,6 +4225,172 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/ServiceMemberPayload"
         }
+      }
+    },
+    "MTOAgent": {
+      "type": "object",
+      "properties": {
+        "agentType": {
+          "$ref": "#/definitions/MTOAgentType"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
+        "firstName": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "lastName": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "mtoShipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "MTOAgentType": {
+      "type": "string",
+      "title": "MTO Agent Type",
+      "enum": [
+        "RELEASING_AGENT",
+        "RECEIVING_AGENT"
+      ],
+      "example": "RELEASING_AGENT"
+    },
+    "MTOAgents": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOAgent"
+      }
+    },
+    "MTOShipment": {
+      "properties": {
+        "agents": {
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "customerRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "handle with care"
+        },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "readOnly": true
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "readOnly": true
+        },
+        "secondaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "secondaryPickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "shipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
+        },
+        "status": {
+          "$ref": "#/definitions/MTOShipmentStatus"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "MTOShipmentStatus": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "APPROVED",
+        "SUBMITTED",
+        "REJECTED"
+      ],
+      "readOnly": true
+    },
+    "MTOShipmentType": {
+      "type": "string",
+      "title": "Shipment Type",
+      "enum": [
+        "HHG",
+        "HHG_LONGHAUL_DOMESTIC",
+        "HHG_SHORTHAUL_DOMESTIC",
+        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS_DOMESTIC"
+      ],
+      "x-display-value": {
+        "HHG": "HHG",
+        "INTERNATIONAL_HHG": "International HHG",
+        "INTERNATIONAL_UB": "International UB"
+      },
+      "example": "HHG"
+    },
+    "MTOShipments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOShipment"
       }
     },
     "MethodOfReceipt": {
@@ -4528,6 +4690,9 @@ func init() {
           "type": "string",
           "example": "12432"
         },
+        "mto_shipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
         "orders_id": {
           "type": "string",
           "format": "uuid",
@@ -4547,6 +4712,11 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/MoveStatus"
+        },
+        "submitted_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         },
         "updated_at": {
           "type": "string",
@@ -4750,6 +4920,66 @@ func init() {
         "WEIGHING_FEES": "Weighing fees"
       }
     },
+    "OfficeUser": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "title": "Personal Email Address",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true,
+          "example": "john_bob@example.com"
+        },
+        "first_name": {
+          "type": "string",
+          "title": "First name",
+          "x-nullable": true,
+          "example": "John"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "last_name": {
+          "type": "string",
+          "title": "Last name",
+          "x-nullable": true,
+          "example": "Donut"
+        },
+        "middle_name": {
+          "type": "string",
+          "title": "Middle name",
+          "x-nullable": true,
+          "example": "L."
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "title": "Best contact phone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true,
+          "example": "212-555-5555"
+        },
+        "transportation_office": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "user_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
     "Orders": {
       "type": "object",
       "required": [
@@ -4867,10 +5097,14 @@ func init() {
       "type": "string",
       "title": "Orders type",
       "enum": [
-        "PERMANENT_CHANGE_OF_STATION"
+        "PERMANENT_CHANGE_OF_STATION",
+        "RETIREMENT",
+        "SEPARATION"
       ],
       "x-display-value": {
-        "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station"
+        "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
+        "RETIREMENT": "Retirement",
+        "SEPARATION": "Separation"
       }
     },
     "OrdersTypeDetail": {
@@ -5168,13 +5402,6 @@ func init() {
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true,
           "example": "212-555-5555"
-        },
-        "social_security_number": {
-          "type": "string",
-          "format": "ssn",
-          "title": "Social security number",
-          "x-nullable": true,
-          "example": "555-55-5555"
         },
         "suffix": {
           "type": "string",
@@ -5498,10 +5725,8 @@ func init() {
       ],
       "properties": {
         "createdAt": {
-          "description": "when the role was created",
           "type": "string",
-          "format": "datetime",
-          "example": "2018-04-12T23:20:50.52Z"
+          "format": "date-time"
         },
         "id": {
           "type": "string",
@@ -5513,10 +5738,8 @@ func init() {
           "example": "customer"
         },
         "updatedAt": {
-          "description": "when the role was updated",
           "type": "string",
-          "format": "datetime",
-          "example": "2018-04-12T23:20:50.52Z"
+          "format": "date-time"
         }
       }
     },
@@ -5528,13 +5751,15 @@ func init() {
         "PPM",
         "UB",
         "POV",
-        "NTS",
+        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS_DOMESTIC",
         "HHG_PPM"
       ],
       "x-display-value": {
         "HHG": "Household Goods Move",
+        "HHG_INTO_NTS_DOMESTIC": "Non-Temporary Storage",
+        "HHG_OUTOF_NTS_DOMESTIC": "Non-Temporary Storage Release",
         "HHG_PPM": "Both HHG and PPM",
-        "NTS": "Non-Temporary Storage",
         "POV": "Privately-Owned Vehicle",
         "PPM": "Personal Procured Move",
         "UB": "Unaccompanied Baggage"
@@ -5604,7 +5829,6 @@ func init() {
         "id",
         "user_id",
         "is_profile_complete",
-        "has_social_security_number",
         "created_at",
         "updated_at",
         "requires_access_code"
@@ -5647,9 +5871,6 @@ func init() {
           "title": "First name",
           "x-nullable": true,
           "example": "John"
-        },
-        "has_social_security_number": {
-          "type": "boolean"
         },
         "id": {
           "type": "string",
@@ -5881,9 +6102,18 @@ func init() {
     "SignedCertificationType": {
       "type": "string",
       "enum": [
-        "PPM",
         "PPM_PAYMENT",
+        "SHIPMENT",
+        "PPM",
         "HHG"
+      ],
+      "x-nullable": true
+    },
+    "SignedCertificationTypeCreate": {
+      "type": "string",
+      "enum": [
+        "PPM_PAYMENT",
+        "SHIPMENT"
       ],
       "x-nullable": true
     },
@@ -5895,15 +6125,9 @@ func init() {
     },
     "SubmitMoveForApprovalPayload": {
       "type": "object",
-      "required": [
-        "ppm_submit_date"
-      ],
       "properties": {
-        "ppm_submit_date": {
-          "type": "string",
-          "format": "date-time",
-          "title": "When was the ppm move submitted?",
-          "example": "2019-03-26T13:19:56-04:00"
+        "certificate": {
+          "$ref": "#/definitions/CreateSignedCertificationPayload"
         }
       }
     },
@@ -6134,6 +6358,41 @@ func init() {
         }
       }
     },
+    "UpdateShipment": {
+      "type": "object",
+      "properties": {
+        "agents": {
+          "x-nullable": true,
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "customerRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "handle with care"
+        },
+        "destinationAddress": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
+        },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "shipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
+        },
+        "status": {
+          "$ref": "#/definitions/MTOShipmentStatus"
+        }
+      }
+    },
     "UploadPayload": {
       "type": "object",
       "required": [
@@ -6186,6 +6445,31 @@ func init() {
         }
       }
     },
+    "ValidationError": {
+      "required": [
+        "invalidFields"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/ClientError"
+        },
+        {
+          "type": "object"
+        }
+      ],
+      "properties": {
+        "invalidFields": {
+          "type": "object",
+          "additionalProperties": {
+            "description": "List of errors for the field",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
     "WeightAllotment": {
       "type": "object",
       "required": [
@@ -6229,6 +6513,50 @@ func init() {
         "PRO_GEAR": "Pro-gear"
       },
       "x-nullable": true
+    }
+  },
+  "responses": {
+    "Conflict": {
+      "description": "The request could not be processed because of conflict in the current state of the resource.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "InvalidRequest": {
+      "description": "The request payload is invalid.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "NotFound": {
+      "description": "The requested resource wasn't found.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "PermissionDenied": {
+      "description": "The request was denied.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "PreconditionFailed": {
+      "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "ServerError": {
+      "description": "A server error occurred.",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
+    "UnprocessableEntity": {
+      "description": "The payload was unprocessable.",
+      "schema": {
+        "$ref": "#/definitions/ValidationError"
+      }
     }
   }
 }`))
@@ -6281,12 +6609,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer",
-          "customer"
-        ]
+        }
       }
     },
     "/access_codes/invalid": {
@@ -6335,12 +6658,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer",
-          "customer"
-        ]
+        }
       }
     },
     "/access_codes/valid": {
@@ -6380,12 +6698,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer",
-          "customer"
-        ]
+        }
       }
     },
     "/addresses/{addressId}": {
@@ -6425,11 +6738,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/backup_contacts/{backupContactId}": {
@@ -6472,11 +6781,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       },
       "put": {
         "description": "Any fields sent in this request will be set on the backup contact referenced",
@@ -6525,11 +6830,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/calendar/available_move_dates": {
@@ -6569,11 +6870,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/documents": {
@@ -6607,11 +6904,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/documents/{documentId}": {
@@ -6654,11 +6947,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/dps_auth/cookie_url": {
@@ -6699,11 +6988,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/duty_stations": {
@@ -6745,11 +7030,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/duty_stations/{dutyStationId}/transportation_office": {
@@ -6792,11 +7073,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/entitlements": {
@@ -6814,11 +7091,7 @@ func init() {
               "$ref": "#/definitions/IndexEntitlements"
             }
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/entitlements/{moveId}": {
@@ -6849,11 +7122,7 @@ func init() {
           "409": {
             "description": "Requested weight estimate is above allotted entitlement"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/estimates/ppm": {
@@ -6930,11 +7199,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/estimates/ppm_sit": {
@@ -6946,6 +7211,13 @@ func init() {
         "summary": "Return a PPM move's SIT cost estimate",
         "operationId": "showPPMSitEstimate",
         "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "personally_procured_move_id",
+            "in": "query",
+            "required": true
+          },
           {
             "type": "string",
             "format": "date",
@@ -7000,14 +7272,13 @@ func init() {
           "409": {
             "description": "distance is less than 50 miles (no short haul moves)"
           },
+          "422": {
+            "description": "the payload was unprocessable"
+          },
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/move_documents/{moveDocumentId}": {
@@ -7058,11 +7329,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       },
       "delete": {
         "description": "Deletes a move document with the given information",
@@ -7100,11 +7367,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/moves/{moveId}": {
@@ -7147,11 +7410,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       },
       "patch": {
         "description": "Any fields sent in this request will be set on the move referenced",
@@ -7200,11 +7459,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/moves/{moveId}/approve": {
@@ -7250,11 +7505,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/moves/{moveId}/cancel": {
@@ -7308,11 +7559,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/moves/{moveId}/move_dates_summary": {
@@ -7360,11 +7607,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/moves/{moveId}/move_documents": {
@@ -7401,11 +7644,7 @@ func init() {
           "403": {
             "description": "user is not authorized"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       },
       "post": {
         "description": "Created a move document with the given information",
@@ -7451,11 +7690,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/moves/{moveId}/moving_expense_documents": {
@@ -7503,11 +7738,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/moves/{moveId}/orders": {
@@ -7550,11 +7781,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/moves/{moveId}/personally_procured_move": {
@@ -7591,11 +7818,7 @@ func init() {
           "403": {
             "description": "user is not authorized"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       },
       "post": {
         "description": "Create an instance of personally_procured_move tied to the move ID",
@@ -7644,11 +7867,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}": {
@@ -7693,11 +7912,7 @@ func init() {
           "403": {
             "description": "user is not authorized"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       },
       "put": {
         "description": "This replaces the current version of the PPM with the version sent.",
@@ -7751,11 +7966,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       },
       "patch": {
         "description": "Any fields sent in this request will be set on the PPM referenced",
@@ -7815,11 +8026,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}/estimate": {
@@ -7873,11 +8080,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/moves/{moveId}/shipment_summary_worksheet": {
@@ -7935,11 +8138,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/moves/{moveId}/signed_certifications": {
@@ -7981,11 +8180,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       },
       "post": {
         "description": "Create an instance of signed_certification tied to the move ID",
@@ -8034,11 +8229,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/moves/{moveId}/submit": {
@@ -8092,12 +8283,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer",
-          "customer"
-        ]
+        }
       }
     },
     "/moves/{moveId}/weight_ticket": {
@@ -8145,11 +8331,221 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
+      }
+    },
+    "/moves/{moveTaskOrderID}/mto_shipments": {
+      "get": {
+        "description": "Gets all MTO shipments for the specified Move Task Order.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "Gets all shipments for a move task order",
+        "operationId": "listMTOShipments",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of move task order for mto shipment to use",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all mto shipments for a move task order.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipments"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/mto-shipments/{mtoShipmentId}": {
+      "patch": {
+        "description": "Updates a specified MTO shipment.\n\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\n\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Customer Remarks\n* Releasing / Receiving agents\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "updateMTOShipment",
+        "operationId": "updateMTOShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the MTO Shipment to update",
+            "name": "mtoShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/UpdateShipment"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the specified MTO shipment.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/mto_shipments": {
+      "post": {
+        "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n\nOptional fields include:\n* Customer Remarks\n* Releasing / Receiving agents\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "createMTOShipment",
+        "operationId": "createMTOShipment",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateShipment"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created a MTO shipment.",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
       }
     },
     "/orders": {
@@ -8189,11 +8585,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/orders/{ordersId}": {
@@ -8236,11 +8628,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       },
       "put": {
         "description": "All fields sent in this request will be set on the orders referenced",
@@ -8289,11 +8677,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/personally_procured_move/{personallyProcuredMoveId}/expense_summary": {
@@ -8336,11 +8720,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/personally_procured_move/{personallyProcuredMoveId}/request_payment": {
@@ -8383,11 +8763,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/personally_procured_move/{personallyProcuredMoveId}/submit": {
@@ -8438,11 +8814,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/personally_procured_moves/incentive": {
@@ -8513,11 +8885,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/personally_procured_moves/{personallyProcuredMoveId}/approve": {
@@ -8565,11 +8933,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/personally_procured_moves/{personallyProcuredMoveId}/create_ppm_attachments": {
@@ -8637,11 +9001,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/queues/{queueType}": {
@@ -8690,11 +9050,7 @@ func init() {
           "404": {
             "description": "move queue item is not found"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/rate_engine_postal_codes/{postal_code}": {
@@ -8744,11 +9100,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/reimbursement/{reimbursementId}/approve": {
@@ -8788,11 +9140,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/service_members": {
@@ -8835,11 +9183,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/service_members/{serviceMemberId}": {
@@ -8882,11 +9226,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       },
       "patch": {
         "description": "Any fields sent in this request will be set on the service member referenced",
@@ -8935,11 +9275,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/service_members/{serviceMemberId}/backup_contacts": {
@@ -8982,11 +9318,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       },
       "post": {
         "description": "Creates an instance of a backup contact tied to a service member user",
@@ -9035,11 +9367,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/service_members/{serviceMemberId}/current_orders": {
@@ -9082,11 +9410,7 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/uploads": {
@@ -9141,11 +9465,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       },
       "delete": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
@@ -9186,11 +9506,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/uploads/{uploadId}": {
@@ -9230,11 +9546,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer"
-        ]
+        }
       }
     },
     "/users/is_logged_in": {
@@ -9258,12 +9570,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer",
-          "customer"
-        ]
+        }
       }
     },
     "/users/logged_in": {
@@ -9290,12 +9597,7 @@ func init() {
           "500": {
             "description": "server error"
           }
-        },
-        "x-swagger-roles": [
-          "ppm_office_users",
-          "contracting_officer",
-          "customer"
-        ]
+        }
       }
     }
   },
@@ -9312,7 +9614,7 @@ func init() {
         "claimed_at": {
           "description": "when the access code was claimed or used",
           "type": "string",
-          "format": "datetime",
+          "format": "date-time",
           "x-nullable": true,
           "example": "2018-04-12T23:20:50.52Z"
         },
@@ -9321,10 +9623,8 @@ func init() {
           "example": "CODE456"
         },
         "created_at": {
-          "description": "when the access code was created",
           "type": "string",
-          "format": "datetime",
-          "example": "2018-04-12T23:20:50.52Z"
+          "format": "date-time"
         },
         "id": {
           "type": "string",
@@ -9625,6 +9925,26 @@ func init() {
           "type": "string",
           "title": "MilMove access code",
           "x-nullable": false
+        }
+      }
+    },
+    "ClientError": {
+      "type": "object",
+      "required": [
+        "title",
+        "detail",
+        "instance"
+      ],
+      "properties": {
+        "detail": {
+          "type": "string"
+        },
+        "instance": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string"
         }
       }
     },
@@ -9979,13 +10299,6 @@ func init() {
           "x-nullable": true,
           "example": "212-555-5555"
         },
-        "social_security_number": {
-          "type": "string",
-          "format": "ssn",
-          "title": "Social security number",
-          "x-nullable": true,
-          "example": "555-55-5555"
-        },
         "suffix": {
           "type": "string",
           "title": "Suffix",
@@ -10007,6 +10320,45 @@ func init() {
         }
       }
     },
+    "CreateShipment": {
+      "type": "object",
+      "required": [
+        "moveTaskOrderID",
+        "shipmentType"
+      ],
+      "properties": {
+        "agents": {
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "customerRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "handle with care"
+        },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "shipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
+        }
+      }
+    },
     "CreateSignedCertificationPayload": {
       "type": "object",
       "required": [
@@ -10020,7 +10372,7 @@ func init() {
         },
         "certification_type": {
           "x-nullable": true,
-          "$ref": "#/definitions/SignedCertificationType"
+          "$ref": "#/definitions/SignedCertificationTypeCreate"
         },
         "date": {
           "type": "string",
@@ -10302,6 +10654,25 @@ func init() {
         "$ref": "#/definitions/DutyStationPayload"
       }
     },
+    "Error": {
+      "type": "object",
+      "required": [
+        "title",
+        "detail"
+      ],
+      "properties": {
+        "detail": {
+          "type": "string"
+        },
+        "instance": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string"
+        }
+      }
+    },
     "ExpenseSummaryPayload": {
       "type": "object",
       "properties": {
@@ -10321,6 +10692,17 @@ func init() {
               "type": "integer"
             }
           }
+        }
+      }
+    },
+    "ExpenseSummaryPayloadGrandTotal": {
+      "type": "object",
+      "properties": {
+        "payment_method_totals": {
+          "$ref": "#/definitions/PaymentMethodsTotals"
+        },
+        "total": {
+          "type": "integer"
         }
       }
     },
@@ -10438,6 +10820,10 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "office_user": {
+          "x-nullable": true,
+          "$ref": "#/definitions/OfficeUser"
+        },
         "roles": {
           "type": "array",
           "items": {
@@ -10448,6 +10834,172 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/ServiceMemberPayload"
         }
+      }
+    },
+    "MTOAgent": {
+      "type": "object",
+      "properties": {
+        "agentType": {
+          "$ref": "#/definitions/MTOAgentType"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
+        "firstName": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "lastName": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "mtoShipmentID": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "MTOAgentType": {
+      "type": "string",
+      "title": "MTO Agent Type",
+      "enum": [
+        "RELEASING_AGENT",
+        "RECEIVING_AGENT"
+      ],
+      "example": "RELEASING_AGENT"
+    },
+    "MTOAgents": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOAgent"
+      }
+    },
+    "MTOShipment": {
+      "properties": {
+        "agents": {
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "customerRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "handle with care"
+        },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "readOnly": true
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "readOnly": true
+        },
+        "secondaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "secondaryPickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "shipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
+        },
+        "status": {
+          "$ref": "#/definitions/MTOShipmentStatus"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "MTOShipmentStatus": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "APPROVED",
+        "SUBMITTED",
+        "REJECTED"
+      ],
+      "readOnly": true
+    },
+    "MTOShipmentType": {
+      "type": "string",
+      "title": "Shipment Type",
+      "enum": [
+        "HHG",
+        "HHG_LONGHAUL_DOMESTIC",
+        "HHG_SHORTHAUL_DOMESTIC",
+        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS_DOMESTIC"
+      ],
+      "x-display-value": {
+        "HHG": "HHG",
+        "INTERNATIONAL_HHG": "International HHG",
+        "INTERNATIONAL_UB": "International UB"
+      },
+      "example": "HHG"
+    },
+    "MTOShipments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOShipment"
       }
     },
     "MethodOfReceipt": {
@@ -10749,6 +11301,9 @@ func init() {
           "type": "string",
           "example": "12432"
         },
+        "mto_shipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
         "orders_id": {
           "type": "string",
           "format": "uuid",
@@ -10768,6 +11323,11 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/MoveStatus"
+        },
+        "submitted_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         },
         "updated_at": {
           "type": "string",
@@ -10971,6 +11531,66 @@ func init() {
         "WEIGHING_FEES": "Weighing fees"
       }
     },
+    "OfficeUser": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "title": "Personal Email Address",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true,
+          "example": "john_bob@example.com"
+        },
+        "first_name": {
+          "type": "string",
+          "title": "First name",
+          "x-nullable": true,
+          "example": "John"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "last_name": {
+          "type": "string",
+          "title": "Last name",
+          "x-nullable": true,
+          "example": "Donut"
+        },
+        "middle_name": {
+          "type": "string",
+          "title": "Middle name",
+          "x-nullable": true,
+          "example": "L."
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "title": "Best contact phone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true,
+          "example": "212-555-5555"
+        },
+        "transportation_office": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "user_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
     "Orders": {
       "type": "object",
       "required": [
@@ -11088,10 +11708,14 @@ func init() {
       "type": "string",
       "title": "Orders type",
       "enum": [
-        "PERMANENT_CHANGE_OF_STATION"
+        "PERMANENT_CHANGE_OF_STATION",
+        "RETIREMENT",
+        "SEPARATION"
       ],
       "x-display-value": {
-        "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station"
+        "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
+        "RETIREMENT": "Retirement",
+        "SEPARATION": "Separation"
       }
     },
     "OrdersTypeDetail": {
@@ -11391,13 +12015,6 @@ func init() {
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true,
           "example": "212-555-5555"
-        },
-        "social_security_number": {
-          "type": "string",
-          "format": "ssn",
-          "title": "Social security number",
-          "x-nullable": true,
-          "example": "555-55-5555"
         },
         "suffix": {
           "type": "string",
@@ -11723,10 +12340,8 @@ func init() {
       ],
       "properties": {
         "createdAt": {
-          "description": "when the role was created",
           "type": "string",
-          "format": "datetime",
-          "example": "2018-04-12T23:20:50.52Z"
+          "format": "date-time"
         },
         "id": {
           "type": "string",
@@ -11738,10 +12353,8 @@ func init() {
           "example": "customer"
         },
         "updatedAt": {
-          "description": "when the role was updated",
           "type": "string",
-          "format": "datetime",
-          "example": "2018-04-12T23:20:50.52Z"
+          "format": "date-time"
         }
       }
     },
@@ -11753,13 +12366,15 @@ func init() {
         "PPM",
         "UB",
         "POV",
-        "NTS",
+        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS_DOMESTIC",
         "HHG_PPM"
       ],
       "x-display-value": {
         "HHG": "Household Goods Move",
+        "HHG_INTO_NTS_DOMESTIC": "Non-Temporary Storage",
+        "HHG_OUTOF_NTS_DOMESTIC": "Non-Temporary Storage Release",
         "HHG_PPM": "Both HHG and PPM",
-        "NTS": "Non-Temporary Storage",
         "POV": "Privately-Owned Vehicle",
         "PPM": "Personal Procured Move",
         "UB": "Unaccompanied Baggage"
@@ -11829,7 +12444,6 @@ func init() {
         "id",
         "user_id",
         "is_profile_complete",
-        "has_social_security_number",
         "created_at",
         "updated_at",
         "requires_access_code"
@@ -11872,9 +12486,6 @@ func init() {
           "title": "First name",
           "x-nullable": true,
           "example": "John"
-        },
-        "has_social_security_number": {
-          "type": "boolean"
         },
         "id": {
           "type": "string",
@@ -12106,9 +12717,18 @@ func init() {
     "SignedCertificationType": {
       "type": "string",
       "enum": [
-        "PPM",
         "PPM_PAYMENT",
+        "SHIPMENT",
+        "PPM",
         "HHG"
+      ],
+      "x-nullable": true
+    },
+    "SignedCertificationTypeCreate": {
+      "type": "string",
+      "enum": [
+        "PPM_PAYMENT",
+        "SHIPMENT"
       ],
       "x-nullable": true
     },
@@ -12120,15 +12740,9 @@ func init() {
     },
     "SubmitMoveForApprovalPayload": {
       "type": "object",
-      "required": [
-        "ppm_submit_date"
-      ],
       "properties": {
-        "ppm_submit_date": {
-          "type": "string",
-          "format": "date-time",
-          "title": "When was the ppm move submitted?",
-          "example": "2019-03-26T13:19:56-04:00"
+        "certificate": {
+          "$ref": "#/definitions/CreateSignedCertificationPayload"
         }
       }
     },
@@ -12362,6 +12976,41 @@ func init() {
         }
       }
     },
+    "UpdateShipment": {
+      "type": "object",
+      "properties": {
+        "agents": {
+          "x-nullable": true,
+          "$ref": "#/definitions/MTOAgents"
+        },
+        "customerRemarks": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "handle with care"
+        },
+        "destinationAddress": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
+        },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "shipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
+        },
+        "status": {
+          "$ref": "#/definitions/MTOShipmentStatus"
+        }
+      }
+    },
     "UploadPayload": {
       "type": "object",
       "required": [
@@ -12414,6 +13063,34 @@ func init() {
         }
       }
     },
+    "ValidationError": {
+      "required": [
+        "invalidFields"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/ClientError"
+        },
+        {
+          "$ref": "#/definitions/ValidationErrorAllOf1"
+        }
+      ],
+      "properties": {
+        "invalidFields": {
+          "type": "object",
+          "additionalProperties": {
+            "description": "List of errors for the field",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "ValidationErrorAllOf1": {
+      "type": "object"
+    },
     "WeightAllotment": {
       "type": "object",
       "required": [
@@ -12457,6 +13134,50 @@ func init() {
         "PRO_GEAR": "Pro-gear"
       },
       "x-nullable": true
+    }
+  },
+  "responses": {
+    "Conflict": {
+      "description": "The request could not be processed because of conflict in the current state of the resource.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "InvalidRequest": {
+      "description": "The request payload is invalid.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "NotFound": {
+      "description": "The requested resource wasn't found.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "PermissionDenied": {
+      "description": "The request was denied.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "PreconditionFailed": {
+      "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
+    "ServerError": {
+      "description": "A server error occurred.",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
+    "UnprocessableEntity": {
+      "description": "The payload was unprocessable.",
+      "schema": {
+        "$ref": "#/definitions/ValidationError"
+      }
     }
   }
 }`))

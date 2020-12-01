@@ -11,10 +11,10 @@ A description of the certificates in this directory will helpful:
 | `devlocal-ca.pem` | Devlocal CA PEM |
 | `devlocal-ca.srl` | Devlocal CA Serial |
 | `devlocal-client_auth_secret.key` | Client auth secret JWT key. |
-| `devlocal-faux-(air-force|all|army-hrc|coast-guard|marine-corps|navy)-orders.(cer|key)` | Certs signed by Devlocal CA for Orders API testing |
-| `devlocal-https.(key|pem)` | a self-signed TLS cert/key pair |
-| `devlocal-mtls.(cer|key)` | Certs signed by Devlocal CA for mTLS testing |
-| `devlocal-not-dps.(cer|key)` | Certs signed by Devlocal CA for DPS Auth testing |
+| `devlocal-faux-(air-force/all/army-hrc/coast-guard/marine-corps/navy)-orders.(cer/key)` | Certs signed by Devlocal CA for Orders API testing |
+| `devlocal-https.(key/pem)` | a self-signed TLS cert/key pair |
+| `devlocal-mtls.(cer/key)` | Certs signed by Devlocal CA for mTLS testing |
+| `devlocal-not-dps.(cer/key)` | Certs signed by Devlocal CA for DPS Auth testing |
 | `dod-sw-ca-54.pem` | DoD SW CA-54 package |
 
 ## DoD certificate authority package

@@ -1,4 +1,5 @@
 import React from 'react';
+import { withRouter } from 'react-router-dom';
 import { Formik, Form, Field } from 'formik';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -31,7 +32,7 @@ class PaymentRequestShow extends React.Component {
             <li>serviceItemIds: {serviceItemIDs}</li>
             <li>status: {status}</li>
           </ul>
-          <button className="usa-button usa-button--outline" onClick={this.updatePaymentRequest}>
+          <button className="usa-button usa-button--secondary" onClick={this.updatePaymentRequest}>
             Approve
           </button>
 
@@ -45,7 +46,7 @@ class PaymentRequestShow extends React.Component {
             {({ isSubmitting }) => (
               <Form>
                 <Field type="text" name="rejectionReason" />
-                <button className="usa-button usa-button--outline" type="submit" disabled={isSubmitting}>
+                <button className="usa-button usa-button--secondary" type="submit" disabled={isSubmitting}>
                   Reject
                 </button>
               </Form>
@@ -66,4 +67,4 @@ const mapStateToProps = (state, props) => {
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({ getPaymentRequest, updatePaymentRequest }, dispatch);
 
-export default connect(mapStateToProps, mapDispatchToProps)(PaymentRequestShow);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(PaymentRequestShow));

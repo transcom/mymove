@@ -7,10 +7,11 @@ $mm-periwinkle: #8cafea;
 //Group 2: Background Colors
 $bg-white: #fff;
 $bg-gray: #f9f9f9;
+$bg-blue-warm-10: #e1e7f1;
 
 //Group 3: Base colors
 $base-lightest: #f0f0f0;
-$base-lighter: #dcdee0;
+$base-lighter: #dfe1e2;
 $base-light: #a9aeb1;
 $base: #71767a;
 $base-dark: #565c65;
@@ -30,10 +31,15 @@ $link: #0050d8;
 $link-light: #d9e8f6;
 $accent-teal: #009bc2;
 $accent-hhg: #0096f4;
-$accent-ppm: #E6C74C;
-$accent-ub: #F2938C;
-$accent-nts: #D85BEF;
-$accent-ntsr: #8168B3;
+$accent-ppm: #e6c74c;
+$accent-ub: #f2938c;
+$accent-nts: #d85bef;
+$accent-ntsr: #8168b3;
+$accent-default: $base-light;
+
+// Group 6 Info colors
+$info: #5994f6;
+$info-light: #ecf1f7;
 
 //USWDS Colorrs
 $primary: #0050d8;
@@ -49,8 +55,9 @@ $color-gray-dark: #767676;
 $color-gray-light: #b2b2b2;
 $color-red: #cd3504;
 $color-blue: #005ea2;
+$color-blue-focus: #2491ff;
 
-// This section is for Storybook purposes only. It exports color variables for use in Webpack. the name in front is going to print as our color name in storybook, and the color variable we refernce will get inserted into the color swatch.
+  // This section is for Storybook purposes only. It exports color variables for use in Webpack. the name in front is going to print as our color name in storybook, and the color variable we refernce will get inserted into the color swatch.
 :export {
   brand: {
     mmblue: $mm-blue;

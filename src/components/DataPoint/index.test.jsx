@@ -1,24 +1,27 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
+
 import DataPoint from '.';
 
+import { ReactComponent as ArrowRight } from 'shared/icon/arrow-right.svg';
+
 describe('DataPoint', () => {
-  it('renders empty header and body', () => {
-    const wrapper = shallow(<DataPoint />);
-    expect(wrapper.text()).toBe('');
-  });
-
-  it('renders with header text', () => {
+  it('renders with column header and data row', () => {
     const header = 'This is a datapoint header.';
-    const wrapper = shallow(<DataPoint header={header} />);
-    expect(wrapper.find('thead').text()).toContain(header);
+    const row = 'This is a datapoint row.';
+    const wrapper = shallow(<DataPoint columnHeaders={[header]} dataRow={[row]} />);
+    expect(wrapper.find('th').text()).toContain(header);
+    expect(wrapper.find('td').text()).toContain(row);
   });
 
-  it('renders with body element', () => {
-    const bodyText = 'Body test.';
-    const BodyElement = () => <>{bodyText}</>;
-    const wrapper = shallow(<DataPoint body={<BodyElement />} />);
-    expect(wrapper.find(BodyElement).name()).toBe('BodyElement');
-    expect(wrapper.find(BodyElement).dive().text()).toContain(bodyText);
+  it('renders with an icon', () => {
+    const headers = ['column 1', 'column 2'];
+    const row = ['cell 1', 'cell 2'];
+    const wrapper = mount(<DataPoint columnHeaders={headers} dataRow={row} Icon={ArrowRight} />);
+    expect(wrapper.find('th').at(0).text()).toContain('column 1');
+    expect(wrapper.find('th').at(1).text()).toContain('column 2');
+    expect(wrapper.find('td').at(0).text()).toContain('cell 1');
+    expect(wrapper.find('svg').text()).toBe('arrow-right.svg');
+    expect(wrapper.find('td').at(1).text()).toContain('cell 2');
   });
 });

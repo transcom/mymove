@@ -287,6 +287,15 @@ INSERT INTO public.stage_conus_to_oconus_prices (origin_domestic_price_area_code
 INSERT INTO public.stage_conus_to_oconus_prices (origin_domestic_price_area_code, origin_domestic_price_area, destination_intl_price_area_id, destination_intl_price_area, season, hhg_shipping_linehaul_price, ub_price) VALUES ('US68', 'Texas-South', 'US8101000', 'Alaska (Zone) I', 'NonPeak', '$27.63', '$44.91');
 INSERT INTO public.stage_conus_to_oconus_prices (origin_domestic_price_area_code, origin_domestic_price_area, destination_intl_price_area_id, destination_intl_price_area, season, hhg_shipping_linehaul_price, ub_price) VALUES ('US68', 'Texas-South', 'US8101000', 'Alaska (Zone) I', 'Peak', '$32.60', '$52.99');
 
+-- Data for Test_mapZipCodesToReRateAreas
+INSERT INTO public.stage_conus_to_oconus_prices (origin_domestic_price_area_code, origin_domestic_price_area, destination_intl_price_area_id, destination_intl_price_area, season, hhg_shipping_linehaul_price, ub_price) VALUES ('US34', 'Ohio', 'AS11', 'New South Wales/Australian Capital Territory', 'NonPeak', '$16.05', '$44.74');
+INSERT INTO public.stage_conus_to_oconus_prices (origin_domestic_price_area_code, origin_domestic_price_area, destination_intl_price_area_id, destination_intl_price_area, season, hhg_shipping_linehaul_price, ub_price) VALUES ('US49', 'Florida', 'AS11', 'New South Wales/Australian Capital Territory', 'NonPeak', '$27.63', '$32.44');
+INSERT INTO public.stage_conus_to_oconus_prices (origin_domestic_price_area_code, origin_domestic_price_area, destination_intl_price_area_id, destination_intl_price_area, season, hhg_shipping_linehaul_price, ub_price) VALUES ('US4964400', 'Florida', 'AS11', 'New South Wales/Australian Capital Territory', 'NonPeak', '$27.63', '$32.44');
+INSERT INTO public.stage_conus_to_oconus_prices (origin_domestic_price_area_code, origin_domestic_price_area, destination_intl_price_area_id, destination_intl_price_area, season, hhg_shipping_linehaul_price, ub_price) VALUES ('US51', 'North Dakota', 'AS11', 'New South Wales/Australian Capital Territory', 'NonPeak', '$30.90', '$33.98');
+INSERT INTO public.stage_conus_to_oconus_prices (origin_domestic_price_area_code, origin_domestic_price_area, destination_intl_price_area_id, destination_intl_price_area, season, hhg_shipping_linehaul_price, ub_price) VALUES ('US56', 'Missouri', 'AS11', 'New South Wales/Australian Capital Territory', 'NonPeak', '$27.63', '$32.44');
+INSERT INTO public.stage_conus_to_oconus_prices (origin_domestic_price_area_code, origin_domestic_price_area, destination_intl_price_area_id, destination_intl_price_area, season, hhg_shipping_linehaul_price, ub_price) VALUES ('US66', 'Texas', 'AS11', 'New South Wales/Australian Capital Territory', 'NonPeak', '$27.63', '$32.44');
+INSERT INTO public.stage_conus_to_oconus_prices (origin_domestic_price_area_code, origin_domestic_price_area, destination_intl_price_area_id, destination_intl_price_area, season, hhg_shipping_linehaul_price, ub_price) VALUES ('US87', 'California', 'AS11', 'New South Wales/Australian Capital Territory', 'NonPeak', '$27.63', '$32.44');
+INSERT INTO public.stage_conus_to_oconus_prices (origin_domestic_price_area_code, origin_domestic_price_area, destination_intl_price_area_id, destination_intl_price_area, season, hhg_shipping_linehaul_price, ub_price) VALUES ('US88', 'California', 'AS11', 'New South Wales/Australian Capital Territory', 'NonPeak', '$27.63', '$32.44');
 
 --
 -- Data for Name: stage_counseling_services_prices; Type: TABLE DATA; Schema: public; Owner: -
@@ -580,6 +589,8 @@ INSERT INTO public.stage_domestic_move_accessorial_prices (services_schedule, se
 -- Data for Name: stage_domestic_service_area_prices; Type: TABLE DATA; Schema: public; Owner: -
 --
 
+INSERT INTO public.stage_domestic_service_area_prices (service_area_number, service_area_name, services_schedule, sit_pickup_delivery_schedule, season, shorthaul_price, origin_destination_price, origin_destination_sit_first_day_warehouse, origin_destination_sit_addl_days) VALUES ('184.0', 'Sanford, FL', '2', '2', 'NonPeak', '$1.27', '$6.89', '$19.31', '$0.68');
+INSERT INTO public.stage_domestic_service_area_prices (service_area_number, service_area_name, services_schedule, sit_pickup_delivery_schedule, season, shorthaul_price, origin_destination_price, origin_destination_sit_first_day_warehouse, origin_destination_sit_addl_days) VALUES ('184.0', 'Sanford, FL', '2', '2', 'Peak', '$1.28', '$8.28', '$22.31', '$0.75');
 INSERT INTO public.stage_domestic_service_area_prices (service_area_number, service_area_name, services_schedule, sit_pickup_delivery_schedule, season, shorthaul_price, origin_destination_price, origin_destination_sit_first_day_warehouse, origin_destination_sit_addl_days) VALUES ('4.0', 'Birmingham, AL', '2', '2', 'NonPeak', '$1.27', '$6.89', '$19.31', '$0.68');
 INSERT INTO public.stage_domestic_service_area_prices (service_area_number, service_area_name, services_schedule, sit_pickup_delivery_schedule, season, shorthaul_price, origin_destination_price, origin_destination_sit_first_day_warehouse, origin_destination_sit_addl_days) VALUES ('4.0', 'Birmingham, AL', '2', '2', 'Peak', '$1.46', '$7.92', '$22.21', '$0.78');
 INSERT INTO public.stage_domestic_service_area_prices (service_area_number, service_area_name, services_schedule, sit_pickup_delivery_schedule, season, shorthaul_price, origin_destination_price, origin_destination_sit_first_day_warehouse, origin_destination_sit_addl_days) VALUES ('452.0', 'Springfield, MO', '1', '3', 'NonPeak', '$1.08', '$7.20', '$14.27', '$0.55');
@@ -594,6 +605,7 @@ INSERT INTO public.stage_domestic_service_area_prices (service_area_number, serv
 -- Data for Name: stage_domestic_service_areas; Type: TABLE DATA; Schema: public; Owner: -
 --
 
+INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Sanford', 'FL', '184', '327.0');
 INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Birmingham', 'AL', '004', '352.0');
 INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Butler', 'MO', '452.0', '647.0');
 INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Carbon Hill', 'AL', '004', '355.0');

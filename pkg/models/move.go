@@ -2,17 +2,21 @@ package models
 
 import (
 	"crypto/sha256"
-	"strings"
+	"fmt"
 	"time"
 
+	"github.com/transcom/mymove/pkg/random"
+
 	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
-	"github.com/gobuffalo/validate/validators"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
+	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+	"github.com/jackc/pgerrcode"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/db/dberr"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -28,6 +32,8 @@ const (
 	MoveStatusAPPROVED MoveStatus = "APPROVED"
 	// MoveStatusCANCELED captures enum value "CANCELED"
 	MoveStatusCANCELED MoveStatus = "CANCELED"
+	// MoveStatusAPPROVALSREQUESTED captures enum value "APPROVALS REQUESTED"
+	MoveStatusAPPROVALSREQUESTED MoveStatus = "APPROVALS REQUESTED"
 )
 
 // SelectedMoveType represents the type of move being represented
@@ -50,7 +56,9 @@ const (
 	// MoveStatusPOV captures enum value "POV" for Privately-Owned Vehicle
 	SelectedMoveTypePOV SelectedMoveType = "POV"
 	// MoveStatusNTS captures enum value "NTS" for Non-Temporary Storage
-	SelectedMoveTypeNTS SelectedMoveType = "NTS"
+	SelectedMoveTypeNTS SelectedMoveType = NTSRaw
+	// MoveStatusNTS captures enum value "NTS" for Non-Temporary Storage Release
+	SelectedMoveTypeNTSR SelectedMoveType = NTSrRaw
 	// MoveStatusHHGPPM captures enum value "HHG_PPM" for combination move HHG + PPM
 	SelectedMoveTypeHHGPPM SelectedMoveType = "HHG_PPM"
 )
@@ -67,6 +75,7 @@ type Move struct {
 	Locator                 string                  `json:"locator" db:"locator"`
 	CreatedAt               time.Time               `json:"created_at" db:"created_at"`
 	UpdatedAt               time.Time               `json:"updated_at" db:"updated_at"`
+	SubmittedAt             *time.Time              `json:"submitted_at" db:"submitted_at"`
 	OrdersID                uuid.UUID               `json:"orders_id" db:"orders_id"`
 	Orders                  Order                   `belongs_to:"orders"`
 	SelectedMoveType        *SelectedMoveType       `json:"selected_move_type" db:"selected_move_type"`
@@ -76,6 +85,14 @@ type Move struct {
 	SignedCertifications    SignedCertifications    `has_many:"signed_certifications" order_by:"created_at desc"`
 	CancelReason            *string                 `json:"cancel_reason" db:"cancel_reason"`
 	Show                    *bool                   `json:"show" db:"show"`
+	AvailableToPrimeAt      *time.Time              `db:"available_to_prime_at"`
+	ContractorID            *uuid.UUID              `db:"contractor_id"`
+	PPMEstimatedWeight      *unit.Pound             `db:"ppm_estimated_weight"`
+	PPMType                 *string                 `db:"ppm_type"`
+	MTOServiceItems         MTOServiceItems         `has_many:"mto_service_items"`
+	PaymentRequests         PaymentRequests         `has_many:"payment_requests"`
+	MTOShipments            MTOShipments            `has_many:"mto_shipments"`
+	ReferenceID             *string                 `db:"reference_id"`
 }
 
 // MoveOptions is used when creating new moves based on parameters
@@ -113,17 +130,18 @@ func (m *Move) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 // Avoid calling Move.Status = ... ever. Use these methods to change the state.
 
 // Submit submits the Move
-func (m *Move) Submit(submitDate time.Time) error {
+func (m *Move) Submit(submittedDate time.Time) error {
 	if m.Status != MoveStatusDRAFT {
 		return errors.Wrap(ErrInvalidTransition, "Submit")
 	}
-
 	m.Status = MoveStatusSUBMITTED
+	submitDate := swag.Time(submittedDate)
+	m.SubmittedAt = submitDate
 
 	// Update PPM status too
 	for i := range m.PersonallyProcuredMoves {
 		ppm := &m.PersonallyProcuredMoves[i]
-		err := ppm.Submit(submitDate)
+		err := ppm.Submit(*submitDate)
 		if err != nil {
 			return err
 		}
@@ -142,11 +160,22 @@ func (m *Move) Submit(submitDate time.Time) error {
 
 // Approve approves the Move
 func (m *Move) Approve() error {
-	if m.Status != MoveStatusSUBMITTED {
-		return errors.Wrap(ErrInvalidTransition, "Approve")
+	if m.Status == MoveStatusSUBMITTED || m.Status == MoveStatusAPPROVALSREQUESTED {
+		m.Status = MoveStatusAPPROVED
+		return nil
 	}
+	if m.Status == MoveStatusAPPROVED {
+		return nil
+	}
+	return errors.Wrap(ErrInvalidTransition, fmt.Sprintf("Cannot move to Approved state when the Move is not either in a Submitted or Approvals Requested state for status: %s", m.Status))
+}
 
-	m.Status = MoveStatusAPPROVED
+// SetApprovalsRequested sets the move to approvals requested
+func (m *Move) SetApprovalsRequested() error {
+	if m.Status != MoveStatusAPPROVED {
+		return errors.Wrap(ErrInvalidTransition, fmt.Sprintf("Cannot move to Approvals Requested when the Move is not in an Approved state for status: %s and ID: %s", m.Status, m.ID))
+	}
+	m.Status = MoveStatusAPPROVALSREQUESTED
 	return nil
 }
 
@@ -186,6 +215,9 @@ func (m *Move) Cancel(reason string) error {
 func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, error) {
 	var move Move
 	err := db.Q().Eager("PersonallyProcuredMoves.Advance",
+		"MTOShipments.MTOAgents",
+		"MTOShipments.PickupAddress",
+		"MTOShipments.DestinationAddress",
 		"SignedCertifications",
 		"Orders",
 		"MoveDocuments.Document",
@@ -241,6 +273,7 @@ func (m Move) createMoveDocumentWithoutTransaction(
 	// Associate uploads to the new document
 	for _, upload := range userUploads {
 		upload.DocumentID = &newDoc.ID
+		// #nosec G601 TODO needs review
 		verrs, err := db.ValidateAndUpdate(&upload)
 		if err != nil || verrs.HasAny() {
 			responseVErrors.Append(verrs)
@@ -488,6 +521,17 @@ func createNewMove(db *pop.Connection,
 		show = moveOptions.Show
 	}
 
+	var contractor Contractor
+	err := db.Where("contract_number = ?", "HTC111-11-1-1111").First(&contractor)
+	if err != nil {
+		return nil, nil, fmt.Errorf("Could not find contractor: %w", err)
+	}
+
+	referenceID, err := GenerateReferenceID(db)
+	if err != nil {
+		return nil, nil, fmt.Errorf("Could not generate a unique ReferenceID: %w", err)
+	}
+
 	for i := 0; i < maxLocatorAttempts; i++ {
 		move := Move{
 			Orders:           orders,
@@ -496,13 +540,15 @@ func createNewMove(db *pop.Connection,
 			SelectedMoveType: &stringSelectedType,
 			Status:           MoveStatusDRAFT,
 			Show:             show,
+			ContractorID:     &contractor.ID,
+			ReferenceID:      &referenceID,
 		}
 		verrs, err := db.ValidateAndCreate(&move)
 		if verrs.HasAny() {
 			return nil, verrs, nil
 		}
 		if err != nil {
-			if strings.HasPrefix(errors.Cause(err).Error(), uniqueConstraintViolationErrorPrefix) {
+			if dberr.IsDBErrorForConstraint(err, pgerrcode.UniqueViolation, "moves_locator_idx") {
 				// If we have a collision, try again for maxLocatorAttempts
 				continue
 			}
@@ -514,6 +560,46 @@ func createNewMove(db *pop.Connection,
 	// the only way we get here is if we got a unique constraint error maxLocatorAttempts times.
 	verrs := validate.NewErrors()
 	return nil, verrs, ErrLocatorGeneration
+}
+
+// GenerateReferenceID generates a reference ID for the MTO
+func GenerateReferenceID(db *pop.Connection) (string, error) {
+	const maxAttempts = 10
+	var referenceID string
+	var err error
+	for i := 0; i < maxAttempts; i++ {
+		referenceID, err = generateReferenceIDHelper(db)
+		if err == nil {
+			return referenceID, nil
+		}
+	}
+	return "", fmt.Errorf("move: failed to generate reference id; %w", err)
+}
+
+// GenerateReferenceID creates a random ID for an MTO. Format (xxxx-xxxx) with X being a number 0-9 (ex. 0009-1234. 4321-4444)
+func generateReferenceIDHelper(db *pop.Connection) (string, error) {
+	min := 0
+	max := 10000
+	firstNum, err := random.GetRandomIntAddend(min, max)
+	if err != nil {
+		return "", err
+	}
+
+	secondNum, err := random.GetRandomIntAddend(min, max)
+	if err != nil {
+		return "", err
+	}
+
+	newReferenceID := fmt.Sprintf("%04d-%04d", firstNum, secondNum)
+
+	count, err := db.Where(`reference_id= $1`, newReferenceID).Count(&Move{})
+	if err != nil {
+		return "", err
+	} else if count > 0 {
+		return "", errors.New("move: reference_id already exists")
+	}
+
+	return newReferenceID, nil
 }
 
 // SaveMoveDependencies safely saves a Move status, ppms' advances' statuses, orders statuses,
@@ -534,6 +620,7 @@ func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, err
 				}
 			}
 
+			// #nosec G601 TODO needs review
 			if verrs, err := db.ValidateAndSave(&ppm); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = errors.Wrap(err, "Error Saving PPM")
@@ -598,4 +685,12 @@ func FetchMoveByMoveID(db *pop.Connection, moveID uuid.UUID) (Move, error) {
 		return Move{}, err
 	}
 	return move, nil
+}
+
+// IsCanceled returns true if the Move's status is `CANCELED`, false otherwise
+func (m Move) IsCanceled() *bool {
+	if m.Status == MoveStatusCANCELED {
+		return swag.Bool(true)
+	}
+	return swag.Bool(false)
 }

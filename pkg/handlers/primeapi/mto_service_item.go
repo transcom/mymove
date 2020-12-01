@@ -4,21 +4,27 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
+
+	"github.com/transcom/mymove/pkg/models"
+
+	"github.com/gofrs/uuid"
+
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 
 	mtoserviceitemops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/handlers/primeapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/services"
 )
 
+// CreateableServiceItemMap is a map of MTOServiceItemModelTypes and their allowed statuses
 // THIS WILL NEED TO BE UPDATED AS WE CONTINUE TO ADD MORE SERVICE ITEMS.
 // We will eventually remove this when all service items are added.
-var allowedServiceItemMap = map[primemessages.MTOServiceItemModelType]bool{
+var CreateableServiceItemMap = map[primemessages.MTOServiceItemModelType]bool{
 	primemessages.MTOServiceItemModelTypeMTOServiceItemDOFSIT:          true,
 	primemessages.MTOServiceItemModelTypeMTOServiceItemDDFSIT:          true,
 	primemessages.MTOServiceItemModelTypeMTOServiceItemShuttle:         true,
@@ -28,7 +34,8 @@ var allowedServiceItemMap = map[primemessages.MTOServiceItemModelType]bool{
 // CreateMTOServiceItemHandler is the handler to update MTO shipments
 type CreateMTOServiceItemHandler struct {
 	handlers.HandlerContext
-	mtoServiceItemCreator services.MTOServiceItemCreator
+	mtoServiceItemCreator  services.MTOServiceItemCreator
+	mtoAvailabilityChecker services.MoveTaskOrderChecker
 }
 
 // Handle handler that updates a mto shipment
@@ -36,9 +43,9 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	// restrict creation to a list
-	if _, ok := allowedServiceItemMap[params.Body.ModelType()]; !ok {
+	if _, ok := CreateableServiceItemMap[params.Body.ModelType()]; !ok {
 		// throw error if modelType() not on the list
-		mapKeys := getMapKeys(allowedServiceItemMap)
+		mapKeys := GetMapKeys(CreateableServiceItemMap)
 		detailErr := fmt.Sprintf("MTOServiceItem modelType() not allowed: %s ", params.Body.ModelType())
 		verrs := validate.NewErrors()
 		verrs.Add("modelType", fmt.Sprintf("allowed modelType() %v", mapKeys))
@@ -53,30 +60,66 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 	if verrs != nil && verrs.HasAny() {
 		return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
 			verrs.Error(), h.GetTraceID(), verrs))
+	} else if mtoServiceItem == nil {
+		return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(
+			payloads.ValidationError("Unable to process service item", h.GetTraceID(), nil))
 	}
 
-	mtoServiceItem, verrs, err := h.mtoServiceItemCreator.CreateMTOServiceItem(mtoServiceItem)
+	moveTaskOrderID := uuid.FromStringOrNil(mtoServiceItem.MoveTaskOrderID.String())
+	mtoAvailableToPrime, err := h.mtoAvailabilityChecker.MTOAvailableToPrime(moveTaskOrderID)
+	var mtoServiceItems *models.MTOServiceItems
+
+	if mtoAvailableToPrime {
+		mtoServiceItems, verrs, err = h.mtoServiceItemCreator.CreateMTOServiceItem(mtoServiceItem)
+	} else if err == nil {
+		logger.Error("primeapi.CreateMTOServiceItemHandler error - MTO is not available to Prime")
+		return mtoserviceitemops.NewCreateMTOServiceItemNotFound().WithPayload(payloads.ClientError(
+			handlers.NotFoundMessage, fmt.Sprintf("id: %s not found for moveTaskOrder", moveTaskOrderID), h.GetTraceID()))
+	}
+
 	if verrs != nil && verrs.HasAny() {
 		return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
 			verrs.Error(), h.GetTraceID(), verrs))
 	}
 
+	// Could be the error from MTOAvailableToPrime or CreateMTOServiceItem:
 	if err != nil {
 		logger.Error("primeapi.CreateMTOServiceItemHandler error", zap.Error(err))
-		switch err.(type) {
+		switch e := err.(type) {
 		case services.NotFoundError:
 			return mtoserviceitemops.NewCreateMTOServiceItemNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
 		case services.InvalidInputError:
-			return mtoserviceitemops.NewCreateMTOServiceItemBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage, err.Error(), h.GetTraceID()))
+			return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(e.Error(), h.GetTraceID(), e.ValidationErrors))
+		case services.ConflictError:
+			return mtoserviceitemops.NewCreateMTOServiceItemConflict().WithPayload(payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID()))
+		case services.QueryError:
+			if e.Unwrap() != nil {
+				// If you can unwrap, log the internal error (usually a pq error) for better debugging
+				logger.Error("primeapi.CreateMTOServiceItemHandler query error", zap.Error(e.Unwrap()))
+			}
+			return mtoserviceitemops.NewCreateMTOServiceItemInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
 		default:
-			return mtoserviceitemops.NewCreateMTOServiceItemInternalServerError().WithPayload(&primemessages.Error{Message: handlers.FmtString(err.Error())})
+			return mtoserviceitemops.NewCreateMTOServiceItemInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
 		}
 	}
-	mtoServiceItemPayload := payloads.MTOServiceItem(mtoServiceItem)
-	return mtoserviceitemops.NewCreateMTOServiceItemOK().WithPayload(mtoServiceItemPayload)
+
+	mtoServiceItemsPayload := *payloads.MTOServiceItems(mtoServiceItems)
+	return mtoserviceitemops.NewCreateMTOServiceItemOK().WithPayload(mtoServiceItemsPayload)
 }
 
-// helper to get the keys from a map
-func getMapKeys(m map[primemessages.MTOServiceItemModelType]bool) []reflect.Value {
+// UpdateMTOServiceItemHandler is the handler to update MTO shipments
+type UpdateMTOServiceItemHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle handler that updates a mto shipment
+func (h UpdateMTOServiceItemHandler) Handle(params mtoserviceitemops.UpdateMTOServiceItemParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	logger.Error("primeapi.UpdateMTOServiceItemHandler error - This endpoint in not implemented yet")
+	return mtoserviceitemops.NewUpdateMTOServiceItemNotImplemented().WithPayload(payloads.NotImplementedError(nil, h.GetTraceID()))
+}
+
+// GetMapKeys is a helper function that returns the keys that are MTOServiceItemModelTypes from the map
+func GetMapKeys(m map[primemessages.MTOServiceItemModelType]bool) []reflect.Value {
 	return reflect.ValueOf(m).MapKeys()
 }

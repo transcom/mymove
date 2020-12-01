@@ -28,4 +28,4 @@ function QueueHeader() {
   );
 }
 
-export default QueueHeader;
+export { QueueHeader };

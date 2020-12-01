@@ -3,17 +3,12 @@ import { getGHCClient } from 'shared/Swagger/api';
 import { get, filter } from 'lodash';
 
 const updateMoveTaskOrders = 'moveTaskOrder.updateMoveTaskOrderStatus';
-export function updateMoveTaskOrderStatus(
-  moveTaskOrderID,
-  ifMatchETag,
-  isAvailableToPrime,
-  label = updateMoveTaskOrders,
-) {
+export function updateMoveTaskOrderStatus(moveTaskOrderID, ifMatchETag, mtoApprovalServiceItemCodes) {
   const swaggerTag = 'moveTaskOrder.updateMoveTaskOrderStatus';
   return swaggerRequest(
     getGHCClient,
     swaggerTag,
-    { moveTaskOrderID, 'If-Match': ifMatchETag },
+    { moveTaskOrderID, 'If-Match': ifMatchETag, serviceItemCodes: mtoApprovalServiceItemCodes },
     { updateMoveTaskOrders },
   );
 }
@@ -25,12 +20,16 @@ export function getMoveOrder(moveOrderID, label = getMoveOrderLabel) {
 }
 
 export function selectMoveOrder(state, moveOrderId) {
-  return get(state, `entities.moveOrder.${moveOrderId}`, {});
+  return get(state, `entities.moveOrders.${moveOrderId}`, {});
 }
 
 export function selectMoveTaskOrders(state, moveOrderId) {
-  const mtos = get(state, 'entities.moveTaskOrder', {});
+  const mtos = get(state, 'entities.moveTaskOrders', {});
   return filter(mtos, (mto) => mto.moveOrderID === moveOrderId);
+}
+
+export function selectMoveTaskOrder(state, moveTaskOrderId) {
+  return get(state, `entities.moveTaskOrder.${moveTaskOrderId}`, {});
 }
 
 const getMoveTaskOrderLabel = 'moveTaskOrder.getMoveTaskOrder';

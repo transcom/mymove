@@ -4,38 +4,70 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/swag"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *ModelSuite) TestCreateNewMoveShow() {
+func (suite *ModelSuite) TestCreateMoveWithPPMShow() {
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
+	testdatagen.MakeDefaultContractor(suite.DB())
 
-	selectedMoveType := SelectedMoveTypeHHG
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Order: orders,
+		Move: models.Move{
+			ID:   uuid.FromStringOrNil("7024c8c5-52ca-4639-bf69-dd8238308c98"),
+			Show: swag.Bool(true),
+		},
+	})
 
-	moveOptions := MoveOptions{
-		SelectedType: &selectedMoveType,
-		Show:         swag.Bool(true),
-	}
-	_, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
-	suite.NoError(err)
-	suite.False(verrs.HasAny(), "failed to validate move")
+	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		ServiceMember: move.Orders.ServiceMember,
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			Move:   move,
+			MoveID: move.ID,
+		},
+	})
 
 	moves, moveErrs := GetMoveQueueItems(suite.DB(), "all")
 	suite.Nil(moveErrs)
 	suite.Len(moves, 1)
 }
 
-func (suite *ModelSuite) TestCreateNewMoveShowFalse() {
+func (suite *ModelSuite) TestCreateMoveWithPPMNoShow() {
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
+	testdatagen.MakeDefaultContractor(suite.DB())
 
-	selectedMoveType := SelectedMoveTypeHHG
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Order: orders,
+		Move: models.Move{
+			ID:   uuid.FromStringOrNil("7024c8c5-52ca-4639-bf69-dd8238308c98"),
+			Show: swag.Bool(false),
+		},
+	})
+
+	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		ServiceMember: move.Orders.ServiceMember,
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			Move:   move,
+			MoveID: move.ID,
+		},
+	})
+
+	moves, moveErrs := GetMoveQueueItems(suite.DB(), "all")
+	suite.Nil(moveErrs)
+	suite.Empty(moves)
+
+}
+
+func (suite *ModelSuite) TestCreateNewMoveWithNoPPMShow() {
+	orders := testdatagen.MakeDefaultOrder(suite.DB())
+	testdatagen.MakeDefaultContractor(suite.DB())
 
 	moveOptions := MoveOptions{
-		SelectedType: &selectedMoveType,
-		Show:         swag.Bool(false),
+		Show: swag.Bool(true),
 	}
 	_, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)

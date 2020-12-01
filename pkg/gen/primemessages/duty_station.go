@@ -6,25 +6,26 @@ package primemessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // DutyStation duty station
+//
 // swagger:model DutyStation
 type DutyStation struct {
 
 	// address
 	Address *Address `json:"address,omitempty"`
 
-	// address Id
+	// address ID
 	// Format: uuid
-	AddressID strfmt.UUID `json:"addressId,omitempty"`
+	AddressID strfmt.UUID `json:"addressID,omitempty"`
 
 	// e tag
+	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// id
@@ -81,7 +82,7 @@ func (m *DutyStation) validateAddressID(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("addressId", "body", "uuid", m.AddressID.String(), formats); err != nil {
+	if err := validate.FormatOf("addressID", "body", "uuid", m.AddressID.String(), formats); err != nil {
 		return err
 	}
 

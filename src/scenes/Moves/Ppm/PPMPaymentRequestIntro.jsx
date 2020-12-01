@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faQuestionCircle from '@fortawesome/fontawesome-free-solid/faQuestionCircle';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons/faQuestionCircle';
 import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
 import './PPMPaymentRequest.css';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -52,7 +52,7 @@ class PPMPaymentRequestIntro extends Component {
         )}
         <div className="grid-row">
           <div className="grid-col-12">
-            <h3 className="title">Request PPM Payment</h3>
+            <h1 className="title">Request PPM Payment</h1>
             <p>Gather these documents:</p>
             <ul>
               <li>

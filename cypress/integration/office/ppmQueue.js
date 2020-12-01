@@ -1,13 +1,14 @@
-/* global cy */
 describe('Office ppm queue', () => {
-  beforeEach(() => {
-    cy.signIntoOffice();
-    cy.get('[data-cy=ppm-queue]').click();
+  before(() => {
+    cy.prepareOfficeApp();
   });
 
-  it('does not have a GBL column', checkForGBLColumn);
-});
+  beforeEach(() => {
+    cy.signIntoOffice();
+    cy.get('[data-testid=ppm-queue]').click();
+  });
 
-function checkForGBLColumn() {
-  cy.contains('GBL').should('not.exist');
-}
+  it('does not have a GBL column', () => {
+    cy.contains('GBL').should('not.exist');
+  });
+});

@@ -6,9 +6,12 @@ import (
 	"io/ioutil"
 	"time"
 
-	"github.com/transcom/mymove/pkg/services/converthelper"
+	"github.com/transcom/mymove/pkg/certs"
 
-	"github.com/transcom/mymove/pkg/cli"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/pkg/errors"
+
+	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
 
 	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/paperwork"
@@ -19,9 +22,12 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/gobuffalo/validate/v3"
+
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/storage"
@@ -38,22 +44,36 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 		ppmPayloads = append(ppmPayloads, payload)
 	}
 
+	var hhgPayloads internalmessages.MTOShipments
+	for _, hhg := range move.MTOShipments {
+		// #nosec G601 TODO needs review
+		payload := payloads.MTOShipment(&hhg)
+		hhgPayloads = append(hhgPayloads, payload)
+	}
+
 	var SelectedMoveType internalmessages.SelectedMoveType
 	if move.SelectedMoveType != nil {
 		SelectedMoveType = internalmessages.SelectedMoveType(*move.SelectedMoveType)
 	}
+	var SubmittedAt time.Time
+	if move.SubmittedAt != nil {
+		SubmittedAt = *move.SubmittedAt
+	}
 
 	movePayload := &internalmessages.MovePayload{
 		CreatedAt:               handlers.FmtDateTime(move.CreatedAt),
+		SubmittedAt:             handlers.FmtDateTime(SubmittedAt),
 		SelectedMoveType:        &SelectedMoveType,
 		Locator:                 swag.String(move.Locator),
 		ID:                      handlers.FmtUUID(move.ID),
 		UpdatedAt:               handlers.FmtDateTime(move.UpdatedAt),
 		PersonallyProcuredMoves: ppmPayloads,
+		MtoShipments:            hhgPayloads,
 		OrdersID:                handlers.FmtUUID(order.ID),
 		ServiceMemberID:         *handlers.FmtUUID(order.ServiceMemberID),
 		Status:                  internalmessages.MoveStatus(move.Status),
 	}
+
 	return movePayload, nil
 }
 
@@ -103,6 +123,8 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
+	logger = logger.With(zap.String("moveLocator", move.Locator))
+
 	// Fetch orders for authorized user
 	orders, err := models.FetchOrderForUser(h.DB(), session, move.OrdersID)
 	if err != nil {
@@ -124,6 +146,7 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
+
 	return moveop.NewPatchMoveCreated().WithPayload(movePayload)
 }
 
@@ -145,15 +168,20 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
+	logger = logger.With(zap.String("moveLocator", move.Locator))
 
-	submitDate := time.Time(*params.SubmitMoveForApprovalPayload.PpmSubmitDate)
+	submitDate := time.Now()
 	err = move.Submit(submitDate)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
+	certificateParams := certop.NewCreateSignedCertificationParams()
+	certificateParams.CreateSignedCertificationPayload = params.SubmitMoveForApprovalPayload.Certificate
+	certificateParams.HTTPRequest = params.HTTPRequest
+	certificateParams.MoveID = params.MoveID
 	// Transaction to save move and dependencies
-	verrs, err := models.SaveMoveDependencies(h.DB(), move)
+	verrs, err := h.saveMoveDependencies(h.DB(), logger, move, certificateParams, session.UserID)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
@@ -167,22 +195,85 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 		return handlers.ResponseForError(logger, err)
 	}
 
-	if h.HandlerContext.GetFeatureFlag(cli.FeatureFlagConvertPPMsToGHC) {
-		if moID, convertErr := converthelper.ConvertFromPPMToGHC(h.DB(), move.ID); convertErr != nil {
-			logger.Error("PPM->GHC conversion error", zap.Error(convertErr))
-			// don't return an error here because we don't want this to break the endpoint
-		} else {
-			logger.Info("PPM->GHC conversion successful. New MoveOrder created.", zap.String("move_order_id", moID.String()))
-		}
-	} else {
-		logger.Info("PPM->GHC conversion skipped (env var not set)")
-	}
-
 	movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 	return moveop.NewSubmitMoveForApprovalOK().WithPayload(movePayload)
+}
+
+// SaveMoveDependencies safely saves a Move status, ppms' advances' statuses, orders statuses, signed certificate,
+// and shipment GBLOCs.
+func (h SubmitMoveHandler) saveMoveDependencies(db *pop.Connection, logger certs.Logger, move *models.Move, certificateParams certop.CreateSignedCertificationParams, userID uuid.UUID) (*validate.Errors, error) {
+	responseVErrors := validate.NewErrors()
+	var responseError error
+
+	date := time.Time(*certificateParams.CreateSignedCertificationPayload.Date)
+	certType := models.SignedCertificationType(*certificateParams.CreateSignedCertificationPayload.CertificationType)
+	newSignedCertification := models.SignedCertification{
+		MoveID:                   uuid.FromStringOrNil(certificateParams.MoveID.String()),
+		PersonallyProcuredMoveID: nil,
+		CertificationType:        &certType,
+		SubmittingUserID:         userID,
+		CertificationText:        *certificateParams.CreateSignedCertificationPayload.CertificationText,
+		Signature:                *certificateParams.CreateSignedCertificationPayload.Signature,
+		Date:                     date,
+	}
+
+	if certificateParams.CreateSignedCertificationPayload.PersonallyProcuredMoveID != nil {
+		ppmID := uuid.FromStringOrNil(certificateParams.CreateSignedCertificationPayload.PersonallyProcuredMoveID.String())
+		newSignedCertification.PersonallyProcuredMoveID = &ppmID
+	}
+
+	db.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("Rollback The transaction")
+		// TODO: move creation of signed certification into a service
+		verrs, err := db.ValidateAndCreate(&newSignedCertification)
+		if err != nil || verrs.HasAny() {
+			responseError = fmt.Errorf("error saving signed certification: %w", err)
+			responseVErrors.Append(verrs)
+			return transactionError
+		}
+
+		for _, ppm := range move.PersonallyProcuredMoves {
+			if ppm.Advance != nil {
+				if verrs, err := db.ValidateAndSave(ppm.Advance); verrs.HasAny() || err != nil {
+					responseVErrors.Append(verrs)
+					responseError = errors.Wrap(err, "Error Saving Advance")
+					return transactionError
+				}
+			}
+
+			// #nosec G601 TODO needs review
+			if verrs, err := db.ValidateAndSave(&ppm); verrs.HasAny() || err != nil {
+				responseVErrors.Append(verrs)
+				responseError = errors.Wrap(err, "Error Saving PPM")
+				return transactionError
+			}
+		}
+
+		if verrs, err := db.ValidateAndSave(&move.Orders); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error Saving Orders")
+			return transactionError
+		}
+
+		if verrs, err := db.ValidateAndSave(move); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error Saving Move")
+			return transactionError
+		}
+		return nil
+	})
+
+	logger.Info("signedCertification created",
+		zap.String("id", newSignedCertification.ID.String()),
+		zap.String("moveId", newSignedCertification.MoveID.String()),
+		zap.String("createdAt", newSignedCertification.CreatedAt.String()),
+		zap.String("certification_type", string(*newSignedCertification.CertificationType)),
+		zap.String("certification_text", newSignedCertification.CertificationText),
+	)
+	return responseVErrors, responseError
 }
 
 // Handle returns a generated PDF
@@ -194,6 +285,7 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
+	logger = logger.With(zap.String("moveLocator", move.Locator))
 
 	ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(h.DB(), logger, *move))
 
@@ -274,7 +366,7 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 	}
 
 	payload := ioutil.NopCloser(buf)
-	filename := fmt.Sprintf("attachment; filename=\"%s-%s-ssw-%s.pdf\"", *ssfd.ServiceMember.FirstName, *ssfd.ServiceMember.LastName, time.Now().Format("01-02-2006"))
+	filename := fmt.Sprintf("inline; filename=\"%s-%s-ssw-%s.pdf\"", *ssfd.ServiceMember.FirstName, *ssfd.ServiceMember.LastName, time.Now().Format("01-02-2006"))
 
 	return moveop.NewShowShipmentSummaryWorksheetOK().WithContentDisposition(filename).WithPayload(payload)
 }
@@ -292,10 +384,13 @@ func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryPa
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
-	_, err := models.FetchMove(h.DB(), session, moveID)
+	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
+
+	// Attach move locator to logger
+	logger.With(zap.String("moveLocator", move.Locator))
 
 	summary, err := calculateMoveDatesFromMove(h.DB(), h.Planner(), moveID, moveDate)
 	if err != nil {

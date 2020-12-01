@@ -3,14 +3,14 @@ package ghcrateengine
 import (
 	"time"
 
-	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticFuelSurcharge() {
 	moveDate := time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC)
-	planner := route.NewTestingPlanner(1000)
+	planner := &mocks.Planner{}
 	sourceZip := "00001"
 	destinationZip := "90210"
 	weight := unit.Pound(3000)

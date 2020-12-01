@@ -1,24 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
 import { useField } from 'formik';
 import { FormGroup, Label, TextInput as UswdsTextInput } from '@trussworks/react-uswds';
-import { ErrorMessage } from '..';
 
-const idOrNameIsRequired = ({ id, name }, _, componentName) => {
-  if (!id && !name) {
-    return new Error(`id or name required on '${componentName}'`);
-  }
-  return null;
-};
+import { ErrorMessage } from '../index';
 
-export const TextInput = ({ label, id, name, ...props }) => {
+export const TextInput = ({ label, labelClassName, id, name, labelHint, ...props }) => {
   /* eslint-disable react/jsx-props-no-spreading */
   const [, meta] = useField({ id, name, ...props });
   const hasError = meta.touched && !!meta.error;
   return (
     <FormGroup error={hasError}>
-      <Label error={hasError} htmlFor={id || name}>
+      <Label className={labelClassName} hint={labelHint} error={hasError} htmlFor={id || name}>
         {label}
       </Label>
       <TextInputMinimal id={id} name={name} {...props} />
@@ -28,9 +21,16 @@ export const TextInput = ({ label, id, name, ...props }) => {
 };
 
 TextInput.propTypes = {
-  id: idOrNameIsRequired,
-  name: idOrNameIsRequired,
+  labelClassName: PropTypes.string,
+  labelHint: PropTypes.string,
+  id: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
+};
+
+TextInput.defaultProps = {
+  labelHint: '',
+  labelClassName: '',
 };
 
 export default TextInput;
@@ -49,6 +49,6 @@ export const TextInputMinimal = ({ id, name, ...props }) => {
 };
 
 TextInputMinimal.propTypes = {
-  id: idOrNameIsRequired,
-  name: idOrNameIsRequired,
+  id: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
 };

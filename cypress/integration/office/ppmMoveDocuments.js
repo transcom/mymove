@@ -1,9 +1,13 @@
-/* global cy */
 describe('office user finds the shipment', function () {
+  before(() => {
+    cy.prepareOfficeApp();
+  });
+
   beforeEach(() => {
     cy.signIntoOffice();
-    cy.get('[data-cy=ppm-queue]').click();
+    cy.get('[data-testid=ppm-queue]').click();
   });
+
   it('office user views ppm panel and goes to a ppm with a move document for awaiting review', function () {
     officeUserViewsPpmPanel('PMTRVW');
     officeUserChecksExpensePanelForAlert(true);

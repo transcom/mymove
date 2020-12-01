@@ -16,14 +16,16 @@ echo "Code goes here"
 
 ## Code Review Verification Steps
 
-* [ ] Code follows the guidelines for [Logging](https://github.com/transcom/mymove/tree/master/docs/backend.md#logging)
+
+* [ ] If the change is risky, it has been tested in experimental before merging.
+* [ ] Code follows the guidelines for [Logging](https://github.com/transcom/mymove/wiki/Backend-Programming-Guide#logging)
 * [ ] The requirements listed in
- [Querying the Database Safely](https://github.com/transcom/mymove/tree/master/docs/backend.md#querying-the-database-safely)
+ [Querying the Database Safely](https://github.com/transcom/mymove/wiki/Backend-Programming-Guide#querying-the-database-safely)
  have been satisfied.
 * Any new migrations/schema changes:
-  * [ ] Follow our guidelines for zero-downtime deploys (see [Zero-Downtime Deploys](https://github.com/transcom/mymove/tree/master/docs/database.md#zero-downtime-migrations))
-  * [ ] Have been communicated to #dp3-engineering
-  * [ ] Secure migrations have been tested following the instructions in our [docs](https://github.com/transcom/mymove/blob/master/docs/database/migrate-the-database.md#secure-migrations)
+  * [ ] Follow our guidelines for zero-downtime deploys (see [Zero-Downtime Deploys](https://github.com/transcom/mymove/wiki/migrate-the-database#zero-downtime-migrations))
+  * [ ] Have been communicated to #g-database
+  * [ ] Secure migrations have been tested following the instructions in our [docs](https://github.com/transcom/mymove/wiki/migrate-the-database#secure-migrations)
 * [ ] There are no aXe warnings for UI.
 * [ ] This works in [Supported Browsers and their phone views](https://github.com/transcom/mymove/tree/master/docs/adr/0016-Browser-Support.md) (Chrome, Firefox, IE, Edge).
 * [ ] Tested in the Experimental environment (for changes to containers, app startup, or connection to data stores)

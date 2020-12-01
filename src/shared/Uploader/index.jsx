@@ -83,7 +83,6 @@ export class Uploader extends Component {
     const isIdle = every(existingFiles, (f) => {
       return includes(idleStatuses, f.status);
     });
-
     return isIdle;
   }
 

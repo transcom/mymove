@@ -6,8 +6,8 @@ import (
 
 	"github.com/transcom/mymove/pkg/uploader"
 
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -20,7 +20,7 @@ func MakeUpload(db *pop.Connection, assertions Assertions) models.Upload {
 		// If an Uploader is passed in, Upload assertions are ignored
 		var verrs *validate.Errors
 		var err error
-		file := fixture("test.pdf")
+		file := Fixture("test.pdf")
 		upload, verrs, err = assertions.Uploader.CreateUpload(uploader.File{File: file}, uploader.AllowedTypesServiceMember)
 		if verrs.HasAny() || err != nil {
 			log.Panic(fmt.Errorf("errors encountered saving upload %v, %v", verrs, err))
@@ -63,7 +63,7 @@ func MakeUpload(db *pop.Connection, assertions Assertions) models.Upload {
 
 		mergeModels(upload, assertions.Upload)
 
-		mustCreate(db, upload)
+		mustCreate(db, upload, assertions.Stub)
 	}
 
 	return *upload

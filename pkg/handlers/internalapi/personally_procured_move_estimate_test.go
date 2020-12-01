@@ -7,13 +7,15 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
+	"github.com/stretchr/testify/mock"
+
 	"github.com/transcom/mymove/pkg/unit"
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
 )
@@ -154,7 +156,12 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	context.SetPlanner(route.NewTestingPlanner(1693))
+	planner := &mocks.Planner{}
+	planner.On("Zip5TransitDistanceLineHaul",
+		mock.Anything,
+		mock.Anything,
+	).Return(1693, nil)
+	context.SetPlanner(planner)
 	showHandler := ShowPPMEstimateHandler{context}
 	showResponse := showHandler.Handle(params)
 
@@ -187,7 +194,12 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	context.SetPlanner(route.NewTestingPlanner(1693))
+	planner := &mocks.Planner{}
+	planner.On("Zip5TransitDistanceLineHaul",
+		mock.Anything,
+		mock.Anything,
+	).Return(1693, nil)
+	context.SetPlanner(planner)
 	showHandler := ShowPPMEstimateHandler{context}
 	showResponse := showHandler.Handle(params)
 

@@ -6,20 +6,20 @@ package adminmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // ElectronicOrder electronic order
+//
 // swagger:model ElectronicOrder
 type ElectronicOrder struct {
 
 	// Created at
 	// Required: true
-	// Format: datetime
+	// Format: date-time
 	CreatedAt *strfmt.DateTime `json:"createdAt"`
 
 	// id
@@ -37,7 +37,7 @@ type ElectronicOrder struct {
 
 	// Updated at
 	// Required: true
-	// Format: datetime
+	// Format: date-time
 	UpdatedAt *strfmt.DateTime `json:"updatedAt"`
 }
 
@@ -77,7 +77,7 @@ func (m *ElectronicOrder) validateCreatedAt(formats strfmt.Registry) error {
 		return err
 	}
 
-	if err := validate.FormatOf("createdAt", "body", "datetime", m.CreatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -124,7 +124,7 @@ func (m *ElectronicOrder) validateUpdatedAt(formats strfmt.Registry) error {
 		return err
 	}
 
-	if err := validate.FormatOf("updatedAt", "body", "datetime", m.UpdatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
 		return err
 	}
 

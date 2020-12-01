@@ -3,6 +3,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { reduxForm, Field, FormSection, getFormValues } from 'redux-form';
 
+import { withContext } from 'shared/AppContext';
 import { calculateEntitlementsForMove } from 'shared/Entities/modules/moves';
 import { updateServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { selectOrdersForMove, updateOrders } from 'shared/Entities/modules/orders';
@@ -10,14 +11,16 @@ import { selectServiceMemberForOrders } from 'shared/Entities/modules/serviceMem
 import { formatDate } from 'shared/formatters';
 
 import { PanelSwaggerField, PanelField, SwaggerValue, editablePanelify } from 'shared/EditablePanel';
+import { createModifiedSchemaForOrdersTypesFlag } from 'shared/featureFlags';
 import { openLinkInNewWindow } from 'shared/utils';
 import { defaultRelativeWindowSize } from 'shared/constants';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons/faExternalLinkAlt';
+import PropTypes from 'prop-types';
 
 function renderEntitlements(entitlements, orders) {
   return (
@@ -35,6 +38,7 @@ function renderEntitlements(entitlements, orders) {
 
 const OrdersDisplay = (props) => {
   const { entitlements, moveId, orders, ordersSchema, serviceMember } = props;
+
   const fieldProps = {
     schema: ordersSchema,
     values: orders,
@@ -99,7 +103,10 @@ const OrdersDisplay = (props) => {
 };
 
 const OrdersEdit = (props) => {
-  const schema = props.ordersSchema;
+  const showAllOrdersTypes = props.context.flags.allOrdersTypes;
+  const modifiedSchemaForOrdersTypesFlag = createModifiedSchemaForOrdersTypesFlag(props.ordersSchema);
+  const schema = showAllOrdersTypes ? props.ordersSchema : modifiedSchemaForOrdersTypesFlag;
+
   return (
     <React.Fragment>
       <div className="editable-panel-column">
@@ -140,11 +147,20 @@ const OrdersEdit = (props) => {
 const formName = 'office_move_info_orders';
 
 let OrdersPanel = editablePanelify(OrdersDisplay, OrdersEdit);
-OrdersPanel = reduxForm({
-  form: formName,
-  enableReinitialize: true,
-  keepDirtyOnReinitialize: true,
-})(OrdersPanel);
+OrdersPanel.propTypes = {
+  context: PropTypes.shape({
+    flags: PropTypes.shape({
+      allOrdersTypes: PropTypes.bool,
+    }).isRequired,
+  }).isRequired,
+};
+OrdersPanel = withContext(
+  reduxForm({
+    form: formName,
+    enableReinitialize: true,
+    keepDirtyOnReinitialize: true,
+  })(OrdersPanel),
+);
 
 function mapStateToProps(state, ownProps) {
   let formValues = getFormValues(formName)(state);

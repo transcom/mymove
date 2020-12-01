@@ -3,9 +3,9 @@ package models
 import (
 	"time"
 
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
-	"github.com/gobuffalo/validate/validators"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
+	"github.com/gobuffalo/validate/v3/validators"
 
 	"github.com/gofrs/uuid"
 )
@@ -18,8 +18,12 @@ func (s ServiceItemParamName) String() string {
 }
 
 const (
+	// ServiceItemParamNameActualPickupDate is the param key name ActualPickupDate
+	ServiceItemParamNameActualPickupDate ServiceItemParamName = "ActualPickupDate"
 	// ServiceItemParamNameCanStandAlone is the param key name CanStandAlone
 	ServiceItemParamNameCanStandAlone ServiceItemParamName = "CanStandAlone"
+	// ServiceItemParamNameContractCode is the param key name ContractCode
+	ServiceItemParamNameContractCode ServiceItemParamName = "ContractCode"
 	// ServiceItemParamNameCubicFeetBilled is the param key name CubicFeetBilled
 	ServiceItemParamNameCubicFeetBilled ServiceItemParamName = "CubicFeetBilled"
 	// ServiceItemParamNameCubicFeetCrating is the param key name CubicFeetCrating
@@ -38,6 +42,8 @@ const (
 	ServiceItemParamNameMarketDest ServiceItemParamName = "MarketDest"
 	// ServiceItemParamNameMarketOrigin is the param key name MarketOrigin
 	ServiceItemParamNameMarketOrigin ServiceItemParamName = "MarketOrigin"
+	// ServiceItemParamNameMTOAvailableToPrimeAt is the param key name MTOAvailableToPrimeAt
+	ServiceItemParamNameMTOAvailableToPrimeAt ServiceItemParamName = "MTOAvailableToPrimeAt"
 	// ServiceItemParamNameNumberDaysSIT is the param key name NumberDaysSIT
 	ServiceItemParamNameNumberDaysSIT ServiceItemParamName = "NumberDaysSIT"
 	// ServiceItemParamNamePriceAreaDest is the param key name PriceAreaDest
@@ -104,6 +110,8 @@ const (
 	ServiceItemParamNameSITScheduleOrigin ServiceItemParamName = "SITScheduleOrigin"
 	// ServiceItemParamNameWeightActual is the param key name WeightActual
 	ServiceItemParamNameWeightActual ServiceItemParamName = "WeightActual"
+	// ServiceItemParamNameFSCWeightBasedDistanceMultiplier is the param key name WeightBasedDistanceMultiplier
+	ServiceItemParamNameFSCWeightBasedDistanceMultiplier ServiceItemParamName = "FSCWeightBasedDistanceMultiplier"
 	// ServiceItemParamNameWeightBilledActual is the param key name WeightBilledActual
 	ServiceItemParamNameWeightBilledActual ServiceItemParamName = "WeightBilledActual"
 	// ServiceItemParamNameWeightEstimated is the param key name WeightEstimated
@@ -133,6 +141,10 @@ const (
 	ServiceItemParamTypeInteger ServiceItemParamType = "INTEGER"
 	// ServiceItemParamTypeDecimal is a decimal
 	ServiceItemParamTypeDecimal ServiceItemParamType = "DECIMAL"
+	// ServiceItemParamTypeTimestamp is a timestamp
+	ServiceItemParamTypeTimestamp ServiceItemParamType = "TIMESTAMP"
+	// ServiceItemParamTypePaymentServiceItemUUID is a UUID
+	ServiceItemParamTypePaymentServiceItemUUID ServiceItemParamType = "PaymentServiceItemUUID"
 )
 
 // ServiceItemParamOrigin is a type of service item parameter origin
@@ -150,9 +162,66 @@ const (
 	ServiceItemParamOriginSystem ServiceItemParamOrigin = "SYSTEM"
 )
 
-// ValidServiceItemParamName lists all valid service item param key names
-var ValidServiceItemParamName = []string{
+// ValidServiceItemParamNames lists all valid service item param key names
+var ValidServiceItemParamNames = []ServiceItemParamName{
+	ServiceItemParamNameCanStandAlone,
+	ServiceItemParamNameContractCode,
+	ServiceItemParamNameCubicFeetBilled,
+	ServiceItemParamNameCubicFeetCrating,
+	ServiceItemParamNameDistanceZip3,
+	ServiceItemParamNameDistanceZip5,
+	ServiceItemParamNameDistanceZip5SITDest,
+	ServiceItemParamNameDistanceZip5SITOrigin,
+	ServiceItemParamNameEIAFuelPrice,
+	ServiceItemParamNameMarketDest,
+	ServiceItemParamNameMarketOrigin,
+	ServiceItemParamNameMTOAvailableToPrimeAt,
+	ServiceItemParamNameNumberDaysSIT,
+	ServiceItemParamNamePriceAreaDest,
+	ServiceItemParamNamePriceAreaIntlDest,
+	ServiceItemParamNamePriceAreaIntlOrigin,
+	ServiceItemParamNamePriceAreaOrigin,
+	ServiceItemParamNamePSILinehaulDom,
+	ServiceItemParamNamePSILinehaulDomPrice,
+	ServiceItemParamNamePSILinehaulShort,
+	ServiceItemParamNamePSILinehaulShortPrice,
+	ServiceItemParamNamePSIPackingDom,
+	ServiceItemParamNamePSIPackingDomPrice,
+	ServiceItemParamNamePSIPackingHHGIntl,
+	ServiceItemParamNamePSIPackingHHGIntlPrice,
+	ServiceItemParamNamePSIPriceDomDest,
+	ServiceItemParamNamePSIPriceDomDestPrice,
+	ServiceItemParamNamePSIPriceDomOrigin,
+	ServiceItemParamNamePSIPriceDomOriginPrice,
+	ServiceItemParamNamePSIShippingLinehaulIntlCO,
+	ServiceItemParamNamePSIShippingLinehaulIntlCOPrice,
+	ServiceItemParamNamePSIShippingLinehaulIntlOC,
+	ServiceItemParamNamePSIShippingLinehaulIntlOCPrice,
+	ServiceItemParamNamePSIShippingLinehaulIntlOO,
+	ServiceItemParamNamePSIShippingLinehaulIntlOOPrice,
+	ServiceItemParamNameRateAreaNonStdDest,
+	ServiceItemParamNameRateAreaNonStdOrigin,
+	ServiceItemParamNameRequestedPickupDate,
+	ServiceItemParamNameActualPickupDate,
+	ServiceItemParamNameServiceAreaDest,
+	ServiceItemParamNameServiceAreaOrigin,
+	ServiceItemParamNameServicesScheduleDest,
+	ServiceItemParamNameServicesScheduleOrigin,
+	ServiceItemParamNameSITScheduleDest,
+	ServiceItemParamNameSITScheduleOrigin,
+	ServiceItemParamNameWeightActual,
+	ServiceItemParamNameFSCWeightBasedDistanceMultiplier,
+	ServiceItemParamNameWeightBilledActual,
+	ServiceItemParamNameWeightEstimated,
+	ServiceItemParamNameZipDestAddress,
+	ServiceItemParamNameZipPickupAddress,
+	ServiceItemParamNameZipSITAddress,
+}
+
+// ValidServiceItemParamNameStrings lists all valid service item param key names
+var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameCanStandAlone),
+	string(ServiceItemParamNameContractCode),
 	string(ServiceItemParamNameCubicFeetBilled),
 	string(ServiceItemParamNameCubicFeetCrating),
 	string(ServiceItemParamNameDistanceZip3),
@@ -162,6 +231,7 @@ var ValidServiceItemParamName = []string{
 	string(ServiceItemParamNameEIAFuelPrice),
 	string(ServiceItemParamNameMarketDest),
 	string(ServiceItemParamNameMarketOrigin),
+	string(ServiceItemParamNameMTOAvailableToPrimeAt),
 	string(ServiceItemParamNameNumberDaysSIT),
 	string(ServiceItemParamNamePriceAreaDest),
 	string(ServiceItemParamNamePriceAreaIntlDest),
@@ -188,6 +258,7 @@ var ValidServiceItemParamName = []string{
 	string(ServiceItemParamNameRateAreaNonStdDest),
 	string(ServiceItemParamNameRateAreaNonStdOrigin),
 	string(ServiceItemParamNameRequestedPickupDate),
+	string(ServiceItemParamNameActualPickupDate),
 	string(ServiceItemParamNameServiceAreaDest),
 	string(ServiceItemParamNameServiceAreaOrigin),
 	string(ServiceItemParamNameServicesScheduleDest),
@@ -195,6 +266,7 @@ var ValidServiceItemParamName = []string{
 	string(ServiceItemParamNameSITScheduleDest),
 	string(ServiceItemParamNameSITScheduleOrigin),
 	string(ServiceItemParamNameWeightActual),
+	string(ServiceItemParamNameFSCWeightBasedDistanceMultiplier),
 	string(ServiceItemParamNameWeightBilledActual),
 	string(ServiceItemParamNameWeightEstimated),
 	string(ServiceItemParamNameZipDestAddress),
@@ -202,14 +274,18 @@ var ValidServiceItemParamName = []string{
 	string(ServiceItemParamNameZipSITAddress),
 }
 
-var validServiceItemParamType = []string{
+// ValidServiceItemParamTypes lists all valid service item param types
+var ValidServiceItemParamTypes = []string{
 	string(ServiceItemParamTypeString),
 	string(ServiceItemParamTypeDate),
 	string(ServiceItemParamTypeInteger),
 	string(ServiceItemParamTypeDecimal),
+	string(ServiceItemParamTypeTimestamp),
+	string(ServiceItemParamTypePaymentServiceItemUUID),
 }
 
-var validServiceItemParamOrigin = []string{
+// ValidServiceItemParamOrigins lists all valid service item param origins
+var ValidServiceItemParamOrigins = []string{
 	string(ServiceItemParamOriginPrime),
 	string(ServiceItemParamOriginSystem),
 }
@@ -232,11 +308,11 @@ type ServiceItemParamKeys []ServiceItemParamKey
 func (s *ServiceItemParamKey) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: s.Key.String(), Name: "Key"},
-		&validators.StringInclusion{Field: s.Key.String(), Name: "Key", List: ValidServiceItemParamName},
+		&validators.StringInclusion{Field: s.Key.String(), Name: "Key", List: ValidServiceItemParamNameStrings},
 		&validators.StringIsPresent{Field: s.Description, Name: "Description"},
 		&validators.StringIsPresent{Field: string(s.Type), Name: "Type"},
-		&validators.StringInclusion{Field: s.Type.String(), Name: "Type", List: validServiceItemParamType},
+		&validators.StringInclusion{Field: s.Type.String(), Name: "Type", List: ValidServiceItemParamTypes},
 		&validators.StringIsPresent{Field: string(s.Origin), Name: "Origin"},
-		&validators.StringInclusion{Field: s.Origin.String(), Name: "Origin", List: validServiceItemParamOrigin},
+		&validators.StringInclusion{Field: s.Origin.String(), Name: "Origin", List: ValidServiceItemParamOrigins},
 	), nil
 }

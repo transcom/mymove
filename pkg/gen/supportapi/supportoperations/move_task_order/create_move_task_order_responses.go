@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	supportmessages "github.com/transcom/mymove/pkg/gen/supportmessages"
+	"github.com/transcom/mymove/pkg/gen/supportmessages"
 )
 
 // CreateMoveTaskOrderCreatedCode is the HTTP code returned for type CreateMoveTaskOrderCreated
@@ -104,7 +104,7 @@ func (o *CreateMoveTaskOrderBadRequest) WriteResponse(rw http.ResponseWriter, pr
 // CreateMoveTaskOrderUnauthorizedCode is the HTTP code returned for type CreateMoveTaskOrderUnauthorized
 const CreateMoveTaskOrderUnauthorizedCode int = 401
 
-/*CreateMoveTaskOrderUnauthorized The request was unauthorized.
+/*CreateMoveTaskOrderUnauthorized The request was denied.
 
 swagger:response createMoveTaskOrderUnauthorized
 */
@@ -113,7 +113,7 @@ type CreateMoveTaskOrderUnauthorized struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *supportmessages.ClientError `json:"body,omitempty"`
 }
 
 // NewCreateMoveTaskOrderUnauthorized creates CreateMoveTaskOrderUnauthorized with default headers values
@@ -123,13 +123,13 @@ func NewCreateMoveTaskOrderUnauthorized() *CreateMoveTaskOrderUnauthorized {
 }
 
 // WithPayload adds the payload to the create move task order unauthorized response
-func (o *CreateMoveTaskOrderUnauthorized) WithPayload(payload interface{}) *CreateMoveTaskOrderUnauthorized {
+func (o *CreateMoveTaskOrderUnauthorized) WithPayload(payload *supportmessages.ClientError) *CreateMoveTaskOrderUnauthorized {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create move task order unauthorized response
-func (o *CreateMoveTaskOrderUnauthorized) SetPayload(payload interface{}) {
+func (o *CreateMoveTaskOrderUnauthorized) SetPayload(payload *supportmessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -137,16 +137,18 @@ func (o *CreateMoveTaskOrderUnauthorized) SetPayload(payload interface{}) {
 func (o *CreateMoveTaskOrderUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(401)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // CreateMoveTaskOrderForbiddenCode is the HTTP code returned for type CreateMoveTaskOrderForbidden
 const CreateMoveTaskOrderForbiddenCode int = 403
 
-/*CreateMoveTaskOrderForbidden The client doesn't have permissions to perform the request.
+/*CreateMoveTaskOrderForbidden The request was denied.
 
 swagger:response createMoveTaskOrderForbidden
 */
@@ -155,7 +157,7 @@ type CreateMoveTaskOrderForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *supportmessages.ClientError `json:"body,omitempty"`
 }
 
 // NewCreateMoveTaskOrderForbidden creates CreateMoveTaskOrderForbidden with default headers values
@@ -165,13 +167,13 @@ func NewCreateMoveTaskOrderForbidden() *CreateMoveTaskOrderForbidden {
 }
 
 // WithPayload adds the payload to the create move task order forbidden response
-func (o *CreateMoveTaskOrderForbidden) WithPayload(payload interface{}) *CreateMoveTaskOrderForbidden {
+func (o *CreateMoveTaskOrderForbidden) WithPayload(payload *supportmessages.ClientError) *CreateMoveTaskOrderForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create move task order forbidden response
-func (o *CreateMoveTaskOrderForbidden) SetPayload(payload interface{}) {
+func (o *CreateMoveTaskOrderForbidden) SetPayload(payload *supportmessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -179,9 +181,11 @@ func (o *CreateMoveTaskOrderForbidden) SetPayload(payload interface{}) {
 func (o *CreateMoveTaskOrderForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(403)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 

@@ -6,7 +6,7 @@ import (
 
 func (suite *SegmentSuite) TestValidateFA1() {
 	validFA1 := FA1{
-		AgencyQualifierCode: "DZ",
+		AgencyQualifierCode: "DF",
 	}
 
 	suite.T().Run("validate success", func(t *testing.T) {

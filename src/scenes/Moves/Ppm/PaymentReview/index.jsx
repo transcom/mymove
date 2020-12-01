@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons/faExclamationCircle';
 import { get, isEmpty } from 'lodash';
 import moment from 'moment';
 import Alert from 'shared/Alert';
 import { formatCents } from 'shared/formatters';
+import { SIGNED_CERT_OPTIONS } from 'shared/constants';
 import { createSignedCertification } from 'shared/Entities/modules/signed_certifications';
 import scrollToTop from 'shared/scrollToTop';
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
@@ -94,7 +95,7 @@ class PaymentReview extends Component {
       date: signatureTime,
       signature: 'CHECKBOX',
       personally_procured_move_id: currentPPM.id,
-      certification_type: 'PPM_PAYMENT',
+      certification_type: SIGNED_CERT_OPTIONS.PPM_PAYMENT,
     };
     return this.props.createSignedCertification(moveId, certificate);
   };
@@ -103,7 +104,8 @@ class PaymentReview extends Component {
     this.setState({ moveSubmissionError: false }, () =>
       Promise.all([this.submitCertificate(), this.props.submitExpenseDocs()])
         .then(() => {
-          this.props.history.push('/');
+          // TODO: path may change to home after ppm integration with new home page
+          this.props.history.push('/ppm');
         })
         .catch(() => {
           this.setState({ moveSubmissionError: true });

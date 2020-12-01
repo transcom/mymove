@@ -75,7 +75,7 @@ const (
 	logGitCommit              string = "git_commit"
 )
 
-var environments = []string{"prod", "staging", "experimental"}
+var environments = []string{"prod", "staging", "experimental", "exp"}
 var ecsTaskStatuses = []string{"RUNNING", "STOPPED", "ALL"}
 var logLevels = []string{"debug", "info", "warn", "error", "panic", "fatal"}
 

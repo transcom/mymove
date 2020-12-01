@@ -1,0 +1,54 @@
+@import 'shared/styles/colors';
+@import 'shared/styles/_basics';
+
+.shipment-list-item-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 5px;
+  border: 1px solid $base-lighter;
+  padding-left: 6px;
+  padding-right: 13px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  @include u-margin-bottom(1);
+
+  strong {
+    white-space: nowrap;
+    @include u-minw(8);
+  }
+
+  &:last-child {
+    margin-bottom: 0px;
+  }
+}
+
+.edit {
+  fill: $primary;
+}
+
+.noEdit {
+  width: 20px;
+}
+
+.shipment-code {
+  font-size: 13px;
+  font-weight: normal;
+  word-wrap: anywhere;
+}
+
+.shipment-list-item-PPM {
+  border-left: 5px solid $accent-ppm;
+}
+
+.shipment-list-item-HHG {
+  border-left: 5px solid $accent-hhg;
+}
+
+.shipment-list-item-NTS {
+  border-left: 5px solid $accent-nts;
+}
+
+.shipment-list-item-NTS-R {
+  border-left: 5px solid $accent-ntsr;
+}

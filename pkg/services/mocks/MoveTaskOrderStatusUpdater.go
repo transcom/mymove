@@ -15,15 +15,15 @@ type MoveTaskOrderStatusUpdater struct {
 }
 
 // MakeAvailableToPrime provides a mock function with given fields: moveTaskOrderID
-func (_m *MoveTaskOrderStatusUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID) (*models.MoveTaskOrder, error) {
+func (_m *MoveTaskOrderStatusUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID) (*models.Move, error) {
 	ret := _m.Called(moveTaskOrderID)
 
-	var r0 *models.MoveTaskOrder
-	if rf, ok := ret.Get(0).(func(uuid.UUID) *models.MoveTaskOrder); ok {
+	var r0 *models.Move
+	if rf, ok := ret.Get(0).(func(uuid.UUID) *models.Move); ok {
 		r0 = rf(moveTaskOrderID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.MoveTaskOrder)
+			r0 = ret.Get(0).(*models.Move)
 		}
 	}
 

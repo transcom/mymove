@@ -5,9 +5,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
-	"github.com/gobuffalo/validate/validators"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
+	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -45,7 +45,7 @@ func FetchAddressByID(dbConnection *pop.Connection, id *uuid.UUID) *Address {
 	var response *Address
 	if err := dbConnection.Find(&address, id); err != nil {
 		response = nil
-		if err.Error() != "sql: no rows in result set" {
+		if err.Error() != RecordNotFoundErrorString {
 			// This is an unknown error from the db
 			zap.L().Error("DB Insertion error", zap.Error(err))
 		}
@@ -142,4 +142,29 @@ func (a *Address) LineFormat() string {
 	}
 
 	return strings.Join(parts, ", ")
+}
+
+// NotImplementedCountryCode is the default for unimplemented country code lookup
+type NotImplementedCountryCode struct {
+	message string
+}
+
+func (e NotImplementedCountryCode) Error() string {
+	return fmt.Sprintf("NotImplementedCountryCode: %s", e.message)
+}
+
+// CountryCode returns 2-3 character code for country, returns nil if no Country
+// TODO: since we only support CONUS at this time this just returns USA and otherwise throws a NotImplementedCountryCode
+func (a *Address) CountryCode() (*string, error) {
+	if a.Country != nil && len(*a.Country) > 0 {
+		result := ""
+		switch *a.Country {
+		case "United States", "US":
+			result = "USA"
+		default:
+			return nil, NotImplementedCountryCode{message: fmt.Sprintf("Country '%s'", *a.Country)}
+		}
+		return &result, nil
+	}
+	return nil, nil
 }

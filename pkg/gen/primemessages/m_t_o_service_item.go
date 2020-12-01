@@ -11,24 +11,25 @@ import (
 	"io"
 	"io/ioutil"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // MTOServiceItem MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.
+//
 // swagger:discriminator MTOServiceItem modelType
 type MTOServiceItem interface {
 	runtime.Validatable
 
-	// e tag
+	// ETag identifier required to update this object
+	// Read Only: true
 	ETag() string
 	SetETag(string)
 
-	// id
+	// ID of the service item
 	// Format: uuid
 	ID() strfmt.UUID
 	SetID(strfmt.UUID)
@@ -38,32 +39,33 @@ type MTOServiceItem interface {
 	ModelType() MTOServiceItemModelType
 	SetModelType(MTOServiceItemModelType)
 
-	// move task order ID
+	// ID of the associated moveTaskOrder
+	// Required: true
 	// Format: uuid
-	MoveTaskOrderID() strfmt.UUID
-	SetMoveTaskOrderID(strfmt.UUID)
+	MoveTaskOrderID() *strfmt.UUID
+	SetMoveTaskOrderID(*strfmt.UUID)
 
-	// mto shipment ID
+	// ID of the associated mtoShipment
 	// Format: uuid
 	MtoShipmentID() strfmt.UUID
 	SetMtoShipmentID(strfmt.UUID)
 
-	// re service ID
-	// Format: uuid
-	ReServiceID() strfmt.UUID
-	SetReServiceID(strfmt.UUID)
-
-	// re service name
+	// Full descriptive name of the service
+	// Read Only: true
 	ReServiceName() string
 	SetReServiceName(string)
 
-	// rejection reason
+	// Reason the service item was rejected by the TOO
+	// Read Only: true
 	RejectionReason() *string
 	SetRejectionReason(*string)
 
 	// status
 	Status() MTOServiceItemStatus
 	SetStatus(MTOServiceItemStatus)
+
+	// AdditionalProperties in base type shoud be handled just like regular properties
+	// At this moment, the base type property is pushed down to the subtype
 }
 
 type mTOServiceItem struct {
@@ -73,11 +75,9 @@ type mTOServiceItem struct {
 
 	modelTypeField MTOServiceItemModelType
 
-	moveTaskOrderIdField strfmt.UUID
+	moveTaskOrderIdField *strfmt.UUID
 
 	mtoShipmentIdField strfmt.UUID
-
-	reServiceIdField strfmt.UUID
 
 	reServiceNameField string
 
@@ -113,16 +113,15 @@ func (m *mTOServiceItem) ModelType() MTOServiceItemModelType {
 
 // SetModelType sets the model type of this polymorphic type
 func (m *mTOServiceItem) SetModelType(val MTOServiceItemModelType) {
-
 }
 
 // MoveTaskOrderID gets the move task order ID of this polymorphic type
-func (m *mTOServiceItem) MoveTaskOrderID() strfmt.UUID {
+func (m *mTOServiceItem) MoveTaskOrderID() *strfmt.UUID {
 	return m.moveTaskOrderIdField
 }
 
 // SetMoveTaskOrderID sets the move task order ID of this polymorphic type
-func (m *mTOServiceItem) SetMoveTaskOrderID(val strfmt.UUID) {
+func (m *mTOServiceItem) SetMoveTaskOrderID(val *strfmt.UUID) {
 	m.moveTaskOrderIdField = val
 }
 
@@ -134,16 +133,6 @@ func (m *mTOServiceItem) MtoShipmentID() strfmt.UUID {
 // SetMtoShipmentID sets the mto shipment ID of this polymorphic type
 func (m *mTOServiceItem) SetMtoShipmentID(val strfmt.UUID) {
 	m.mtoShipmentIdField = val
-}
-
-// ReServiceID gets the re service ID of this polymorphic type
-func (m *mTOServiceItem) ReServiceID() strfmt.UUID {
-	return m.reServiceIdField
-}
-
-// SetReServiceID sets the re service ID of this polymorphic type
-func (m *mTOServiceItem) SetReServiceID(val strfmt.UUID) {
-	m.reServiceIdField = val
 }
 
 // ReServiceName gets the re service name of this polymorphic type
@@ -228,45 +217,38 @@ func unmarshalMTOServiceItem(data []byte, consumer runtime.Consumer) (MTOService
 			return nil, err
 		}
 		return &result, nil
-
 	case "MTOServiceItemBasic":
 		var result MTOServiceItemBasic
 		if err := consumer.Consume(buf2, &result); err != nil {
 			return nil, err
 		}
 		return &result, nil
-
 	case "MTOServiceItemDDFSIT":
 		var result MTOServiceItemDDFSIT
 		if err := consumer.Consume(buf2, &result); err != nil {
 			return nil, err
 		}
 		return &result, nil
-
 	case "MTOServiceItemDOFSIT":
 		var result MTOServiceItemDOFSIT
 		if err := consumer.Consume(buf2, &result); err != nil {
 			return nil, err
 		}
 		return &result, nil
-
 	case "MTOServiceItemDomesticCrating":
 		var result MTOServiceItemDomesticCrating
 		if err := consumer.Consume(buf2, &result); err != nil {
 			return nil, err
 		}
 		return &result, nil
-
 	case "MTOServiceItemShuttle":
 		var result MTOServiceItemShuttle
 		if err := consumer.Consume(buf2, &result); err != nil {
 			return nil, err
 		}
 		return &result, nil
-
 	}
 	return nil, errors.New(422, "invalid modelType value: %q", getType.ModelType)
-
 }
 
 // Validate validates this m t o service item
@@ -282,10 +264,6 @@ func (m *mTOServiceItem) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateMtoShipmentID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateReServiceID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -314,8 +292,8 @@ func (m *mTOServiceItem) validateID(formats strfmt.Registry) error {
 
 func (m *mTOServiceItem) validateMoveTaskOrderID(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.MoveTaskOrderID()) { // not required
-		return nil
+	if err := validate.Required("moveTaskOrderID", "body", m.MoveTaskOrderID()); err != nil {
+		return err
 	}
 
 	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID().String(), formats); err != nil {
@@ -332,19 +310,6 @@ func (m *mTOServiceItem) validateMtoShipmentID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("mtoShipmentID", "body", "uuid", m.MtoShipmentID().String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *mTOServiceItem) validateReServiceID(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.ReServiceID()) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("reServiceID", "body", "uuid", m.ReServiceID().String(), formats); err != nil {
 		return err
 	}
 

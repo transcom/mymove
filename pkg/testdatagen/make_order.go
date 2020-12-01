@@ -3,7 +3,7 @@ package testdatagen
 import (
 	"time"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -46,9 +46,31 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 
 	ordersNumber := "ORDER3"
 	TAC := "F8E1"
-	departmentIndicator := "AIR_FORCE"
+	defaultDepartmentIndicator := "AIR_FORCE"
+	departmentIndicator := assertions.Order.DepartmentIndicator
+	if departmentIndicator == nil {
+		departmentIndicator = &defaultDepartmentIndicator
+	}
 	hasDependents := assertions.Order.HasDependents || false
 	spouseHasProGear := assertions.Order.SpouseHasProGear || false
+	grade := "E_1"
+
+	entitlement := assertions.Entitlement
+	if isZeroUUID(entitlement.ID) {
+		assertions.Order.Grade = &grade
+		entitlement = MakeEntitlement(db, assertions)
+	}
+
+	originDutyStation := assertions.OriginDutyStation
+	if isZeroUUID(originDutyStation.ID) {
+		originDutyStation = MakeDutyStation(db, assertions)
+	}
+
+	orderTypeDetail := assertions.Order.OrdersTypeDetail
+	hhgPermittedString := internalmessages.OrdersTypeDetail("HHG_PERMITTED")
+	if orderTypeDetail == nil || *orderTypeDetail == "" {
+		orderTypeDetail = &hhgPermittedString
+	}
 
 	order := models.Order{
 		ServiceMember:       sm,
@@ -65,13 +87,19 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 		SpouseHasProGear:    spouseHasProGear,
 		Status:              models.OrderStatusDRAFT,
 		TAC:                 &TAC,
-		DepartmentIndicator: &departmentIndicator,
+		DepartmentIndicator: departmentIndicator,
+		Grade:               &grade,
+		Entitlement:         &entitlement,
+		EntitlementID:       &entitlement.ID,
+		OriginDutyStation:   &originDutyStation,
+		OriginDutyStationID: &originDutyStation.ID,
+		OrdersTypeDetail:    orderTypeDetail,
 	}
 
 	// Overwrite values with those from assertions
 	mergeModels(&order, assertions.Order)
 
-	mustCreate(db, &order)
+	mustCreate(db, &order, assertions.Stub)
 
 	return order
 }

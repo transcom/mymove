@@ -41,12 +41,12 @@ func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middl
 		return handlers.ResponseForError(logger, err)
 	}
 
-	distanceMilesFromOriginPickupZip, err := h.Planner().Zip5TransitDistance(params.OriginZip, destinationZip)
+	distanceMilesFromOriginPickupZip, err := h.Planner().Zip5TransitDistanceLineHaul(params.OriginZip, destinationZip)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
-	distanceMilesFromOriginDutyStationZip, err := h.Planner().Zip5TransitDistance(params.OriginDutyStationZip, destinationZip)
+	distanceMilesFromOriginDutyStationZip, err := h.Planner().Zip5TransitDistanceLineHaul(params.OriginDutyStationZip, destinationZip)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

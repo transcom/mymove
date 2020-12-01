@@ -6,17 +6,17 @@ import { capitalize, get, includes } from 'lodash';
 
 import { NavTab, RoutedTabs } from 'react-router-tabs';
 import { NavLink, Redirect, Switch } from 'react-router-dom';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
-import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
-import faClock from '@fortawesome/fontawesome-free-solid/faClock';
-import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
-import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
-import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPhone } from '@fortawesome/free-solid-svg-icons/faPhone';
+import { faEnvelope } from '@fortawesome/free-solid-svg-icons/faEnvelope';
+import { faClock } from '@fortawesome/free-solid-svg-icons/faClock';
+import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
+import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons/faExclamationCircle';
+import { faPlayCircle } from '@fortawesome/free-solid-svg-icons/faPlayCircle';
 import moment from 'moment';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import PrivateRoute from 'shared/User/PrivateRoute';
+import PrivateRoute from 'containers/PrivateRoute';
 import Alert from 'shared/Alert'; // eslint-disable-line
 import ToolTip from 'shared/ToolTip';
 import ComboButton from 'shared/ComboButton';
@@ -42,6 +42,8 @@ import { loadBackupContacts, loadServiceMember, selectServiceMember } from 'shar
 import { loadOrders, loadOrdersLabel, selectOrders } from 'shared/Entities/modules/orders';
 import { openLinkInNewWindow } from 'shared/utils';
 import { defaultRelativeWindowSize } from 'shared/constants';
+
+import { roleTypes } from 'constants/userRoles';
 
 import { showBanner, removeBanner } from './ducks';
 import {
@@ -209,7 +211,6 @@ class MoveInfo extends Component {
 
   render() {
     const { move, moveId, moveDocuments, moveStatus, orders, ppm, serviceMember, upload } = this.props;
-    const isPPM = move.selected_move_type === 'PPM';
     const showDocumentViewer = this.props.context.flags.documentViewer;
     const moveInfoComboButton = this.props.context.flags.moveInfoComboButton;
     const ordersComplete = Boolean(
@@ -219,7 +220,7 @@ class MoveInfo extends Component {
     const ppmApproved = includes(['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
     const moveApproved = moveStatus === 'APPROVED';
 
-    const moveDate = isPPM ? ppm.original_move_date : null;
+    const moveDate = ppm.original_move_date;
 
     const uploadDocumentUrl = `/moves/${moveId}/documents/new`;
     const ordersUrl = `/moves/${move.id}/orders`;
@@ -263,7 +264,7 @@ class MoveInfo extends Component {
                 {serviceMember.phone_is_preferred && (
                   <FontAwesomeIcon className="icon icon-grey" icon={faPhone} flip="horizontal" />
                 )}
-                {serviceMember.email_is_preferred && <FontAwesomeIcon className="icon icon-grey" icon={faEmail} />}
+                {serviceMember.email_is_preferred && <FontAwesomeIcon className="icon icon-grey" icon={faEnvelope} />}
                 &nbsp;
               </li>
               <li>Locator# {move.locator}&nbsp;</li>
@@ -276,7 +277,7 @@ class MoveInfo extends Component {
           <div className="grid-col-9">
             <RoutedTabs startPathWith={this.props.match.url}>
               <NavTab to="/basics">
-                <span className="title" data-cy="basics-tab">
+                <span className="title" data-testid="basics-tab">
                   Basics
                 </span>
                 <span className="status">
@@ -284,14 +285,12 @@ class MoveInfo extends Component {
                   {capitalize(this.props.moveStatus)}
                 </span>
               </NavTab>
-              {isPPM && (
-                <NavTab to="/ppm">
-                  <span className="title" data-cy="ppm-tab">
-                    PPM
-                  </span>
-                  {this.renderPPMTabStatus()}
-                </NavTab>
-              )}
+              <NavTab to="/ppm">
+                <span className="title" data-testid="ppm-tab">
+                  PPM
+                </span>
+                {this.renderPPMTabStatus()}
+              </NavTab>
             </RoutedTabs>
 
             <div className="tab-content">
@@ -305,11 +304,12 @@ class MoveInfo extends Component {
                       to={{ pathname: `${this.props.match.url}/basics`, state: this.props.history.location.state }}
                     />
                   )}
+                  requiredRoles={[roleTypes.PPM]}
                 />
-                <PrivateRoute path={`${this.props.match.path}/basics`}>
+                <PrivateRoute path={`${this.props.match.path}/basics`} requiredRoles={[roleTypes.PPM]}>
                   <BasicsTabContent moveId={moveId} serviceMember={this.props.serviceMember} />
                 </PrivateRoute>
-                <PrivateRoute path={`${this.props.match.path}/ppm`}>
+                <PrivateRoute path={`${this.props.match.path}/ppm`} requiredRoles={[roleTypes.PPM]}>
                   <PPMTabContent
                     ppmPaymentRequestedFlag={this.props.context.flags.ppmPaymentRequest}
                     moveId={moveId}
@@ -345,13 +345,11 @@ class MoveInfo extends Component {
                           disabled={moveApproved || !ordersComplete}
                           onClick={this.approveBasics}
                         />
-                        {isPPM && (
-                          <DropDownItem
-                            disabled={ppmApproved || !moveApproved || !ordersComplete}
-                            onClick={this.approvePPM}
-                            value="Approve PPM"
-                          />
-                        )}
+                        <DropDownItem
+                          disabled={ppmApproved || !moveApproved || !ordersComplete}
+                          onClick={this.approvePPM}
+                          value="Approve PPM"
+                        />
                       </DropDown>
                     </ComboButton>
                   )}

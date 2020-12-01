@@ -6,14 +6,14 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // CreateSignedCertificationPayload create signed certification payload
+//
 // swagger:model CreateSignedCertificationPayload
 type CreateSignedCertificationPayload struct {
 
@@ -22,7 +22,7 @@ type CreateSignedCertificationPayload struct {
 	CertificationText *string `json:"certification_text"`
 
 	// certification type
-	CertificationType *SignedCertificationType `json:"certification_type,omitempty"`
+	CertificationType *SignedCertificationTypeCreate `json:"certification_type,omitempty"`
 
 	// Date
 	// Required: true

@@ -9,25 +9,23 @@ import (
 	"bytes"
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // MTOServiceItemDOFSIT Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem.
+//
 // swagger:model MTOServiceItemDOFSIT
 type MTOServiceItemDOFSIT struct {
 	eTagField string
 
 	idField strfmt.UUID
 
-	moveTaskOrderIdField strfmt.UUID
+	moveTaskOrderIdField *strfmt.UUID
 
 	mtoShipmentIdField strfmt.UUID
-
-	reServiceIdField strfmt.UUID
 
 	reServiceNameField string
 
@@ -40,12 +38,28 @@ type MTOServiceItemDOFSIT struct {
 	// Pattern: ^(\d{5}([\-]\d{4})?)$
 	PickupPostalCode *string `json:"pickupPostalCode"`
 
-	// re service code
-	ReServiceCode ReServiceCode `json:"reServiceCode,omitempty"`
+	// Service code allowed for this model type.
+	// Required: true
+	// Enum: [DOFSIT DOASIT]
+	ReServiceCode *string `json:"reServiceCode"`
 
-	// reason
+	// Explanation of why Prime is picking up SIT item.
 	// Required: true
 	Reason *string `json:"reason"`
+
+	// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
+	// Format: date
+	SitDepartureDate strfmt.Date `json:"sitDepartureDate,omitempty"`
+
+	// Entry date for the SIT
+	// Required: true
+	// Format: date
+	SitEntryDate *strfmt.Date `json:"sitEntryDate"`
+
+	// sit postal code
+	// Required: true
+	// Pattern: ^(\d{5}([\-]\d{4})?)$
+	SitPostalCode *string `json:"sitPostalCode"`
 }
 
 // ETag gets the e tag of this subtype
@@ -75,16 +89,15 @@ func (m *MTOServiceItemDOFSIT) ModelType() MTOServiceItemModelType {
 
 // SetModelType sets the model type of this subtype
 func (m *MTOServiceItemDOFSIT) SetModelType(val MTOServiceItemModelType) {
-
 }
 
 // MoveTaskOrderID gets the move task order ID of this subtype
-func (m *MTOServiceItemDOFSIT) MoveTaskOrderID() strfmt.UUID {
+func (m *MTOServiceItemDOFSIT) MoveTaskOrderID() *strfmt.UUID {
 	return m.moveTaskOrderIdField
 }
 
 // SetMoveTaskOrderID sets the move task order ID of this subtype
-func (m *MTOServiceItemDOFSIT) SetMoveTaskOrderID(val strfmt.UUID) {
+func (m *MTOServiceItemDOFSIT) SetMoveTaskOrderID(val *strfmt.UUID) {
 	m.moveTaskOrderIdField = val
 }
 
@@ -96,16 +109,6 @@ func (m *MTOServiceItemDOFSIT) MtoShipmentID() strfmt.UUID {
 // SetMtoShipmentID sets the mto shipment ID of this subtype
 func (m *MTOServiceItemDOFSIT) SetMtoShipmentID(val strfmt.UUID) {
 	m.mtoShipmentIdField = val
-}
-
-// ReServiceID gets the re service ID of this subtype
-func (m *MTOServiceItemDOFSIT) ReServiceID() strfmt.UUID {
-	return m.reServiceIdField
-}
-
-// SetReServiceID sets the re service ID of this subtype
-func (m *MTOServiceItemDOFSIT) SetReServiceID(val strfmt.UUID) {
-	m.reServiceIdField = val
 }
 
 // ReServiceName gets the re service name of this subtype
@@ -138,12 +141,6 @@ func (m *MTOServiceItemDOFSIT) SetStatus(val MTOServiceItemStatus) {
 	m.statusField = val
 }
 
-// PickupPostalCode gets the pickup postal code of this subtype
-
-// ReServiceCode gets the re service code of this subtype
-
-// Reason gets the reason of this subtype
-
 // UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
 func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
 	var data struct {
@@ -153,12 +150,28 @@ func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
 		// Pattern: ^(\d{5}([\-]\d{4})?)$
 		PickupPostalCode *string `json:"pickupPostalCode"`
 
-		// re service code
-		ReServiceCode ReServiceCode `json:"reServiceCode,omitempty"`
+		// Service code allowed for this model type.
+		// Required: true
+		// Enum: [DOFSIT DOASIT]
+		ReServiceCode *string `json:"reServiceCode"`
 
-		// reason
+		// Explanation of why Prime is picking up SIT item.
 		// Required: true
 		Reason *string `json:"reason"`
+
+		// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
+		// Format: date
+		SitDepartureDate strfmt.Date `json:"sitDepartureDate,omitempty"`
+
+		// Entry date for the SIT
+		// Required: true
+		// Format: date
+		SitEntryDate *strfmt.Date `json:"sitEntryDate"`
+
+		// sit postal code
+		// Required: true
+		// Pattern: ^(\d{5}([\-]\d{4})?)$
+		SitPostalCode *string `json:"sitPostalCode"`
 	}
 	buf := bytes.NewBuffer(raw)
 	dec := json.NewDecoder(buf)
@@ -177,11 +190,9 @@ func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
 
 		ModelType MTOServiceItemModelType `json:"modelType"`
 
-		MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
+		MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
 
 		MtoShipmentID strfmt.UUID `json:"mtoShipmentID,omitempty"`
-
-		ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
 
 		ReServiceName string `json:"reServiceName,omitempty"`
 
@@ -207,12 +218,9 @@ func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
 		/* Not the type we're looking for. */
 		return errors.New(422, "invalid modelType value: %q", base.ModelType)
 	}
-
 	result.moveTaskOrderIdField = base.MoveTaskOrderID
 
 	result.mtoShipmentIdField = base.MtoShipmentID
-
-	result.reServiceIdField = base.ReServiceID
 
 	result.reServiceNameField = base.ReServiceName
 
@@ -221,10 +229,11 @@ func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
 	result.statusField = base.Status
 
 	result.PickupPostalCode = data.PickupPostalCode
-
 	result.ReServiceCode = data.ReServiceCode
-
 	result.Reason = data.Reason
+	result.SitDepartureDate = data.SitDepartureDate
+	result.SitEntryDate = data.SitEntryDate
+	result.SitPostalCode = data.SitPostalCode
 
 	*m = result
 
@@ -242,12 +251,28 @@ func (m MTOServiceItemDOFSIT) MarshalJSON() ([]byte, error) {
 		// Pattern: ^(\d{5}([\-]\d{4})?)$
 		PickupPostalCode *string `json:"pickupPostalCode"`
 
-		// re service code
-		ReServiceCode ReServiceCode `json:"reServiceCode,omitempty"`
+		// Service code allowed for this model type.
+		// Required: true
+		// Enum: [DOFSIT DOASIT]
+		ReServiceCode *string `json:"reServiceCode"`
 
-		// reason
+		// Explanation of why Prime is picking up SIT item.
 		// Required: true
 		Reason *string `json:"reason"`
+
+		// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
+		// Format: date
+		SitDepartureDate strfmt.Date `json:"sitDepartureDate,omitempty"`
+
+		// Entry date for the SIT
+		// Required: true
+		// Format: date
+		SitEntryDate *strfmt.Date `json:"sitEntryDate"`
+
+		// sit postal code
+		// Required: true
+		// Pattern: ^(\d{5}([\-]\d{4})?)$
+		SitPostalCode *string `json:"sitPostalCode"`
 	}{
 
 		PickupPostalCode: m.PickupPostalCode,
@@ -255,8 +280,13 @@ func (m MTOServiceItemDOFSIT) MarshalJSON() ([]byte, error) {
 		ReServiceCode: m.ReServiceCode,
 
 		Reason: m.Reason,
-	},
-	)
+
+		SitDepartureDate: m.SitDepartureDate,
+
+		SitEntryDate: m.SitEntryDate,
+
+		SitPostalCode: m.SitPostalCode,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -267,11 +297,9 @@ func (m MTOServiceItemDOFSIT) MarshalJSON() ([]byte, error) {
 
 		ModelType MTOServiceItemModelType `json:"modelType"`
 
-		MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
+		MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
 
 		MtoShipmentID strfmt.UUID `json:"mtoShipmentID,omitempty"`
-
-		ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
 
 		ReServiceName string `json:"reServiceName,omitempty"`
 
@@ -290,15 +318,12 @@ func (m MTOServiceItemDOFSIT) MarshalJSON() ([]byte, error) {
 
 		MtoShipmentID: m.MtoShipmentID(),
 
-		ReServiceID: m.ReServiceID(),
-
 		ReServiceName: m.ReServiceName(),
 
 		RejectionReason: m.RejectionReason(),
 
 		Status: m.Status(),
-	},
-	)
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -322,10 +347,6 @@ func (m *MTOServiceItemDOFSIT) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateReServiceID(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
@@ -339,6 +360,18 @@ func (m *MTOServiceItemDOFSIT) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReason(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitDepartureDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitEntryDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitPostalCode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -363,8 +396,8 @@ func (m *MTOServiceItemDOFSIT) validateID(formats strfmt.Registry) error {
 
 func (m *MTOServiceItemDOFSIT) validateMoveTaskOrderID(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.MoveTaskOrderID()) { // not required
-		return nil
+	if err := validate.Required("moveTaskOrderID", "body", m.MoveTaskOrderID()); err != nil {
+		return err
 	}
 
 	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID().String(), formats); err != nil {
@@ -381,19 +414,6 @@ func (m *MTOServiceItemDOFSIT) validateMtoShipmentID(formats strfmt.Registry) er
 	}
 
 	if err := validate.FormatOf("mtoShipmentID", "body", "uuid", m.MtoShipmentID().String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MTOServiceItemDOFSIT) validateReServiceID(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.ReServiceID()) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("reServiceID", "body", "uuid", m.ReServiceID().String(), formats); err != nil {
 		return err
 	}
 
@@ -429,16 +449,34 @@ func (m *MTOServiceItemDOFSIT) validatePickupPostalCode(formats strfmt.Registry)
 	return nil
 }
 
+var mTOServiceItemDOFSITTypeReServiceCodePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["DOFSIT","DOASIT"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		mTOServiceItemDOFSITTypeReServiceCodePropEnum = append(mTOServiceItemDOFSITTypeReServiceCodePropEnum, v)
+	}
+}
+
+// property enum
+func (m *MTOServiceItemDOFSIT) validateReServiceCodeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, mTOServiceItemDOFSITTypeReServiceCodePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (m *MTOServiceItemDOFSIT) validateReServiceCode(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.ReServiceCode) { // not required
-		return nil
+	if err := validate.Required("reServiceCode", "body", m.ReServiceCode); err != nil {
+		return err
 	}
 
-	if err := m.ReServiceCode.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("reServiceCode")
-		}
+	// value enum
+	if err := m.validateReServiceCodeEnum("reServiceCode", "body", *m.ReServiceCode); err != nil {
 		return err
 	}
 
@@ -448,6 +486,45 @@ func (m *MTOServiceItemDOFSIT) validateReServiceCode(formats strfmt.Registry) er
 func (m *MTOServiceItemDOFSIT) validateReason(formats strfmt.Registry) error {
 
 	if err := validate.Required("reason", "body", m.Reason); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDOFSIT) validateSitDepartureDate(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SitDepartureDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("sitDepartureDate", "body", "date", m.SitDepartureDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDOFSIT) validateSitEntryDate(formats strfmt.Registry) error {
+
+	if err := validate.Required("sitEntryDate", "body", m.SitEntryDate); err != nil {
+		return err
+	}
+
+	if err := validate.FormatOf("sitEntryDate", "body", "date", m.SitEntryDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItemDOFSIT) validateSitPostalCode(formats strfmt.Registry) error {
+
+	if err := validate.Required("sitPostalCode", "body", m.SitPostalCode); err != nil {
+		return err
+	}
+
+	if err := validate.Pattern("sitPostalCode", "body", string(*m.SitPostalCode), `^(\d{5}([\-]\d{4})?)$`); err != nil {
 		return err
 	}
 

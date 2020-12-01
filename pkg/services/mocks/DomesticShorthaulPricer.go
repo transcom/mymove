@@ -4,6 +4,7 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	models "github.com/transcom/mymove/pkg/models"
 
 	time "time"
 
@@ -15,20 +16,41 @@ type DomesticShorthaulPricer struct {
 	mock.Mock
 }
 
-// PriceDomesticShorthaul provides a mock function with given fields: moveDate, distance, weight, serviceArea
-func (_m *DomesticShorthaulPricer) PriceDomesticShorthaul(moveDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (unit.Cents, error) {
-	ret := _m.Called(moveDate, distance, weight, serviceArea)
+// Price provides a mock function with given fields: contractCode, requestedPickupDate, distance, weight, serviceArea
+func (_m *DomesticShorthaulPricer) Price(contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (unit.Cents, error) {
+	ret := _m.Called(contractCode, requestedPickupDate, distance, weight, serviceArea)
 
 	var r0 unit.Cents
-	if rf, ok := ret.Get(0).(func(time.Time, unit.Miles, unit.Pound, string) unit.Cents); ok {
-		r0 = rf(moveDate, distance, weight, serviceArea)
+	if rf, ok := ret.Get(0).(func(string, time.Time, unit.Miles, unit.Pound, string) unit.Cents); ok {
+		r0 = rf(contractCode, requestedPickupDate, distance, weight, serviceArea)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(time.Time, unit.Miles, unit.Pound, string) error); ok {
-		r1 = rf(moveDate, distance, weight, serviceArea)
+	if rf, ok := ret.Get(1).(func(string, time.Time, unit.Miles, unit.Pound, string) error); ok {
+		r1 = rf(contractCode, requestedPickupDate, distance, weight, serviceArea)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// PriceUsingParams provides a mock function with given fields: params
+func (_m *DomesticShorthaulPricer) PriceUsingParams(params models.PaymentServiceItemParams) (unit.Cents, error) {
+	ret := _m.Called(params)
+
+	var r0 unit.Cents
+	if rf, ok := ret.Get(0).(func(models.PaymentServiceItemParams) unit.Cents); ok {
+		r0 = rf(params)
+	} else {
+		r0 = ret.Get(0).(unit.Cents)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(models.PaymentServiceItemParams) error); ok {
+		r1 = rf(params)
 	} else {
 		r1 = ret.Error(1)
 	}

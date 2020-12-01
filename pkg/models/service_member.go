@@ -5,9 +5,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
-	"github.com/gobuffalo/validate/validators"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
+	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
@@ -17,6 +17,11 @@ import (
 
 // ServiceMemberAffiliation represents a service member's branch
 type ServiceMemberAffiliation string
+
+// String is a string representation of a ServiceMemberAffiliation
+func (s ServiceMemberAffiliation) String() string {
+	return string(s)
+}
 
 const (
 	// AffiliationARMY captures enum value "ARMY"
@@ -54,8 +59,6 @@ type ServiceMember struct {
 	ResidentialAddress     *Address                  `belongs_to:"address"`
 	BackupMailingAddressID *uuid.UUID                `json:"backup_mailing_address_id" db:"backup_mailing_address_id"`
 	BackupMailingAddress   *Address                  `belongs_to:"address"`
-	SocialSecurityNumberID *uuid.UUID                `json:"social_security_number_id" db:"social_security_number_id"`
-	SocialSecurityNumber   *SocialSecurityNumber     `belongs_to:"social_security_numbers"`
 	Orders                 Orders                    `has_many:"orders" order_by:"created_at desc"`
 	BackupContacts         BackupContacts            `has_many:"backup_contacts"`
 	DutyStationID          *uuid.UUID                `json:"duty_station_id" db:"duty_station_id"`
@@ -96,9 +99,11 @@ func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, session 
 		"BackupContacts",
 		"DutyStation.Address",
 		"DutyStation.TransportationOffice",
+		"DutyStation.TransportationOffice.PhoneLines",
 		"Orders.NewDutyStation.TransportationOffice",
-		"ResidentialAddress",
-		"SocialSecurityNumber").Find(&serviceMember, id)
+		"Orders.Moves",
+		"Orders.UploadedOrders.UserUploads.Upload",
+		"ResidentialAddress").Find(&serviceMember, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return ServiceMember{}, ErrFetchNotFound
@@ -117,9 +122,6 @@ func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, session 
 	}
 	if serviceMember.BackupMailingAddressID == nil {
 		serviceMember.BackupMailingAddress = nil
-	}
-	if serviceMember.SocialSecurityNumberID == nil {
-		serviceMember.SocialSecurityNumber = nil
 	}
 
 	return serviceMember, nil
@@ -170,15 +172,6 @@ func SaveServiceMember(ctx context.Context, dbConnection *pop.Connection, servic
 			serviceMember.BackupMailingAddressID = &serviceMember.BackupMailingAddress.ID
 		}
 
-		if serviceMember.SocialSecurityNumber != nil {
-			if verrs, err := dbConnection.ValidateAndSave(serviceMember.SocialSecurityNumber); verrs.HasAny() || err != nil {
-				responseVErrors.Append(verrs)
-				responseError = err
-				return transactionError
-			}
-			serviceMember.SocialSecurityNumberID = &serviceMember.SocialSecurityNumber.ID
-		}
-
 		if verrs, err := dbConnection.ValidateAndSave(serviceMember); verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
 			responseError = err
@@ -221,7 +214,10 @@ func (s ServiceMember) CreateOrder(db *pop.Connection,
 	ordersNumber *string,
 	tac *string,
 	sac *string,
-	departmentIndicator *string) (Order, *validate.Errors, error) {
+	departmentIndicator *string,
+	originDutyStation *DutyStation,
+	grade *string,
+	entitlement *Entitlement) (Order, *validate.Errors, error) {
 
 	var newOrders Order
 	responseVErrors := validate.NewErrors()
@@ -257,6 +253,9 @@ func (s ServiceMember) CreateOrder(db *pop.Connection,
 			TAC:                 tac,
 			SAC:                 sac,
 			DepartmentIndicator: departmentIndicator,
+			Grade:               grade,
+			OriginDutyStation:   originDutyStation,
+			Entitlement:         entitlement,
 		}
 
 		verrs, err = db.ValidateAndCreate(&newOrders)
@@ -306,9 +305,6 @@ func (s *ServiceMember) IsProfileComplete() bool {
 	if s.BackupMailingAddressID == nil {
 		return false
 	}
-	if s.SocialSecurityNumberID == nil {
-		return false
-	}
 	if s.DutyStationID == nil {
 		return false
 	}
@@ -320,24 +316,36 @@ func (s *ServiceMember) IsProfileComplete() bool {
 }
 
 // FetchLatestOrder gets the latest order for a service member
-func (s ServiceMember) FetchLatestOrder(ctx context.Context, db *pop.Connection) (Order, error) {
+func (s ServiceMember) FetchLatestOrder(session *auth.Session, db *pop.Connection) (Order, error) {
 
 	var order Order
-	query := db.Where("orders.service_member_id = $1 and u.deleted_at is null", s.ID).Order("created_at desc")
+	query := db.Where("orders.service_member_id = $1", s.ID).Order("created_at desc")
 	err := query.Eager("ServiceMember.User",
 		"NewDutyStation.Address",
 		"UploadedOrders.UserUploads.Upload",
 		"Moves.PersonallyProcuredMoves",
 		"Moves.SignedCertifications").
-		Join("documents as d", "orders.uploaded_orders_id = d.id").
-		LeftJoin("user_uploads as uu", "d.id = uu.document_id").
-		LeftJoin("uploads as u", "uu.upload_id = u.id").
 		First(&order)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return Order{}, ErrFetchNotFound
 		}
 		return Order{}, err
+	}
+
+	// Only return user uploads that haven't been deleted
+	userUploads := order.UploadedOrders.UserUploads
+	relevantUploads := make([]UserUpload, 0, len(userUploads))
+	for _, userUpload := range userUploads {
+		if userUpload.DeletedAt == nil {
+			relevantUploads = append(relevantUploads, userUpload)
+		}
+	}
+	order.UploadedOrders.UserUploads = relevantUploads
+
+	// User must be logged in service member
+	if session.IsMilApp() && order.ServiceMember.ID != session.ServiceMemberID {
+		return Order{}, ErrFetchForbidden
 	}
 	return order, nil
 }

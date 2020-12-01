@@ -1,0 +1,17 @@
+{
+  "plugins": ["prettier", "security", "no-only-tests"],
+  "extends": ["react-app", "plugin:prettier/recommended", "plugin:security/recommended"],
+  "rules": {
+    "prettier/prettier": "error",
+    "no-only-tests/no-only-tests": "error",
+    "no-debugger": "warn",
+    "jsx-a11y/anchor-is-valid": "off",
+    "react/jsx-no-target-blank": "error",
+    "react/jsx-curly-brace-presence": "error"
+  },
+  "globals": {
+    "cy": "readonly",
+    "Cypress": "readonly",
+    "before": "readonly"
+  }
+}

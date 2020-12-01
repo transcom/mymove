@@ -1,0 +1,149 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/_variables';
+@import 'shared/styles/colors';
+
+@media (max-width: $tablet) {
+  .remarksRow {
+    flex-direction: column;
+    .remarksCell {
+      width: 100%;
+    }
+  }
+}
+
+.ShipmentCard {
+  @include u-margin-top(3);
+  .ShipmentCardHeader {
+    display: flex;
+    justify-content: space-between;
+    @include u-margin-top('205');
+    @include u-padding-x('105');
+    @include u-padding-bottom('105');
+    @include u-border-bottom('1px');
+    @include u-border-bottom('base-lighter');
+
+    h3 {
+      @include u-text('normal');
+      @include u-margin-bottom('05');
+      margin: 0;
+    }
+    p {
+      color: #92979b;
+      margin: 0;
+    }
+
+    .editBtn {
+      display: inline-flex;
+      align-items: flex-start;
+      min-width: auto;
+      padding: 0;
+      width: 40px;
+      height: 42px;
+      @include u-font('body', 'xs');
+    }
+  }
+
+  .shipmentCardSubsection {
+    @include u-margin-y(0);
+    @include u-padding-x('05');
+
+    &:first-child {
+      div:first-child {
+        dt,
+        dd {
+          @include u-border-top('1px');
+          @include u-border-top('base-lighter');
+        }
+      }
+    }
+  }
+
+  .container {
+    @include u-padding-left(0);
+    @include u-padding-right(0);
+    @include u-padding-bottom(2);
+  }
+
+  dt {
+    @include u-text('bold');
+    @include u-text('base-darker');
+    width: 30%;
+  }
+
+  dd {
+    @include u-margin(0);
+    width: 70%;
+  }
+
+  .subsectionHeader {
+    border-top: 1px solid $base-lighter;
+    @include u-margin-top('105');
+    @include u-padding-top('05');
+
+    h4 {
+      @include u-text('bold');
+      @include u-text('base-darker');
+      display: flex;
+      align-items: center;
+      margin: 0;
+    }
+
+    display: flex;
+    justify-content: space-between;
+    @include u-padding-x('105');
+
+    .editBtn {
+      @include u-font('body', 'xs');
+      min-width: auto;
+      padding: 0;
+      width: 40px;
+      height: 42px;
+    }
+  }
+
+  .row {
+    display: flex;
+    @include u-font('body', 'xs');
+    @include u-line-height('body', 2);
+
+    dt,
+    dd {
+      @include u-padding-x(1);
+      @include u-padding-y(1.5);
+
+      @include u-border-bottom('1px');
+      @include u-border-bottom('base-lighter');
+    }
+
+    .noborder {
+      @include u-border(0);
+    }
+  }
+  .remarksRow {
+    .remarksCell {
+      @include u-font('body', 'xs');
+    }
+    dt,
+    dd {
+      @include u-border-bottom(0);
+    }
+  }
+}
+
+@media (min-width: $tablet) {
+  .ShipmentCard {
+    .shipmentCardSubsection {
+      @include u-padding-x(3);
+    }
+
+    .ShipmentCardHeader {
+      @include u-padding-x(3);
+    }
+
+    .subsectionHeader {
+      @include u-padding-x(3);
+      @include u-padding-top(2);
+    }
+  }
+}

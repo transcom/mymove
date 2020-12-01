@@ -8,6 +8,7 @@ import (
 	"path"
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudfront/sign"
 	"github.com/aws/aws-sdk-go/service/s3"
@@ -57,10 +58,11 @@ func (s *S3) Store(key string, data io.ReadSeeker, checksum string, tags *string
 	namespacedKey := path.Join(s.keyNamespace, key)
 
 	input := &s3.PutObjectInput{
-		Bucket:     &s.bucket,
-		Key:        &namespacedKey,
-		Body:       data,
-		ContentMD5: &checksum,
+		Bucket:               &s.bucket,
+		Key:                  &namespacedKey,
+		Body:                 data,
+		ContentMD5:           &checksum,
+		ServerSideEncryption: aws.String("AES256"),
 	}
 	if tags != nil {
 		input.Tagging = tags

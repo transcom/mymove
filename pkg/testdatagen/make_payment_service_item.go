@@ -3,9 +3,10 @@ package testdatagen
 import (
 	"time"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // MakePaymentServiceItem creates a single PaymentServiceItem and associated relationships
@@ -20,11 +21,13 @@ func MakePaymentServiceItem(db *pop.Connection, assertions Assertions) models.Pa
 		mtoServiceItem = MakeMTOServiceItem(db, assertions)
 	}
 
+	var cents = unit.Cents(888)
 	paymentServiceItem := models.PaymentServiceItem{
 		PaymentRequest:   paymentRequest,
 		PaymentRequestID: paymentRequest.ID,
 		MTOServiceItem:   mtoServiceItem,
 		MTOServiceItemID: mtoServiceItem.ID,
+		PriceCents:       &cents,
 		Status:           models.PaymentServiceItemStatusRequested,
 		RequestedAt:      time.Now(),
 	}
@@ -32,7 +35,7 @@ func MakePaymentServiceItem(db *pop.Connection, assertions Assertions) models.Pa
 	// Overwrite values with those from assertions
 	mergeModels(&paymentServiceItem, assertions.PaymentServiceItem)
 
-	mustCreate(db, &paymentServiceItem)
+	mustCreate(db, &paymentServiceItem, assertions.Stub)
 
 	return paymentServiceItem
 }

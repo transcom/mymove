@@ -9,11 +9,11 @@ import (
 	"encoding/json"
 	"net/http"
 
-	errors "github.com/go-openapi/errors"
-	middleware "github.com/go-openapi/runtime/middleware"
-	strfmt "github.com/go-openapi/strfmt"
-	swag "github.com/go-openapi/swag"
-	validate "github.com/go-openapi/validate"
+	"github.com/go-openapi/errors"
+	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // UpdateMTOPostCounselingInformationHandlerFunc turns a function with the right signature into a update m t o post counseling information handler
@@ -38,7 +38,11 @@ func NewUpdateMTOPostCounselingInformation(ctx *middleware.Context, handler Upda
 
 updateMTOPostCounselingInformation
 
-Updates move task order after the counseling stage. Allows update of fields ppmType and ppmEstimatedWeight.
+### Functionality
+This endpoint **updates** the MoveTaskOrder after the Prime has completed Counseling.
+
+PPM related information is updated here. Most other fields will be found on the specific MTOShipment and updated using [updateMTOShipment](#operation/updateMTOShipment).
+
 
 */
 type UpdateMTOPostCounselingInformation struct {
@@ -65,6 +69,7 @@ func (o *UpdateMTOPostCounselingInformation) ServeHTTP(rw http.ResponseWriter, r
 }
 
 // UpdateMTOPostCounselingInformationBody update m t o post counseling information body
+//
 // swagger:model UpdateMTOPostCounselingInformationBody
 type UpdateMTOPostCounselingInformationBody struct {
 
@@ -119,7 +124,7 @@ const (
 
 // prop value enum
 func (o *UpdateMTOPostCounselingInformationBody) validatePpmTypeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, updateMTOPostCounselingInformationBodyTypePpmTypePropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, updateMTOPostCounselingInformationBodyTypePpmTypePropEnum, true); err != nil {
 		return err
 	}
 	return nil

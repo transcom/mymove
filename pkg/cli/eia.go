@@ -16,20 +16,20 @@ const (
 
 // InitEIAFlags initializes EIA command line flags
 func InitEIAFlags(flag *pflag.FlagSet) {
-	flag.String(EIAKeyFlag, "", "Key for Energy Information Administration (EIA) api")
-	flag.String(EIAURLFlag, "https://api.eia.gov/series/", "Url for Energy Information Administration (EIA) api")
+	flag.String(EIAURLFlag, "https://api.eia.gov/series/", "URL for Energy Information Administration (EIA) Open Data API")
+	flag.String(EIAKeyFlag, "", "Key for Energy Information Administration (EIA) Open Data API")
 }
 
 // CheckEIA validates EIA command line flags
 func CheckEIA(v *viper.Viper) error {
-	eiaKey := v.GetString(EIAKeyFlag)
-	if len(eiaKey) != 32 {
-		return fmt.Errorf("expected eia key to be 32 characters long; key is %d chars", len(eiaKey))
-	}
-
 	eiaURL := v.GetString(EIAURLFlag)
 	if eiaURL != "https://api.eia.gov/series/" {
-		return fmt.Errorf("invalid eia url %s, expecting https://api.eia.gov/series/", eiaURL)
+		return fmt.Errorf("invalid EIA Open Data URL %s, expecting https://api.eia.gov/series/", eiaURL)
+	}
+
+	eiaKey := v.GetString(EIAKeyFlag)
+	if len(eiaKey) != 32 {
+		return fmt.Errorf("expected EIA Open Data API key to be 32 characters long; key is %d chars", len(eiaKey))
 	}
 	return nil
 }

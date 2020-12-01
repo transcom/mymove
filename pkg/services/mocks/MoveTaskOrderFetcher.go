@@ -15,15 +15,15 @@ type MoveTaskOrderFetcher struct {
 }
 
 // FetchMoveTaskOrder provides a mock function with given fields: moveTaskOrderID
-func (_m *MoveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*models.MoveTaskOrder, error) {
+func (_m *MoveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*models.Move, error) {
 	ret := _m.Called(moveTaskOrderID)
 
-	var r0 *models.MoveTaskOrder
-	if rf, ok := ret.Get(0).(func(uuid.UUID) *models.MoveTaskOrder); ok {
+	var r0 *models.Move
+	if rf, ok := ret.Get(0).(func(uuid.UUID) *models.Move); ok {
 		r0 = rf(moveTaskOrderID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.MoveTaskOrder)
+			r0 = ret.Get(0).(*models.Move)
 		}
 	}
 
@@ -37,16 +37,39 @@ func (_m *MoveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*
 	return r0, r1
 }
 
+// ListAllMoveTaskOrders provides a mock function with given fields: isAvailableToPrime, since
+func (_m *MoveTaskOrderFetcher) ListAllMoveTaskOrders(isAvailableToPrime bool, since *int64) (models.Moves, error) {
+	ret := _m.Called(isAvailableToPrime, since)
+
+	var r0 models.Moves
+	if rf, ok := ret.Get(0).(func(bool, *int64) models.Moves); ok {
+		r0 = rf(isAvailableToPrime, since)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(models.Moves)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(bool, *int64) error); ok {
+		r1 = rf(isAvailableToPrime, since)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // ListMoveTaskOrders provides a mock function with given fields: moveOrderID
-func (_m *MoveTaskOrderFetcher) ListMoveTaskOrders(moveOrderID uuid.UUID) ([]models.MoveTaskOrder, error) {
+func (_m *MoveTaskOrderFetcher) ListMoveTaskOrders(moveOrderID uuid.UUID) ([]models.Move, error) {
 	ret := _m.Called(moveOrderID)
 
-	var r0 []models.MoveTaskOrder
-	if rf, ok := ret.Get(0).(func(uuid.UUID) []models.MoveTaskOrder); ok {
+	var r0 []models.Move
+	if rf, ok := ret.Get(0).(func(uuid.UUID) []models.Move); ok {
 		r0 = rf(moveOrderID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]models.MoveTaskOrder)
+			r0 = ret.Get(0).([]models.Move)
 		}
 	}
 

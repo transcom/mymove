@@ -1,0 +1,315 @@
+#! /usr/bin/env bash
+
+#
+# script to help with prime demo script
+#
+
+set -eu -o pipefail
+
+function usage() {
+  echo "Usage: $0 <moveTaskOrderID|moveOrderID> [[hostname] path/to/proof.pdf]"
+  echo
+  echo "If omitted, the optional parameters are set as follows:"
+  echo "  hostname = local"
+  echo "  proofs of service = (./tmp/uploads/proof_of_service.png ./tmp/uploads/proof_of_service.jpg ./tmp/uploads/proof_of_service.pdf)"
+  echo "  # you can specify as many proofs as you want"
+  echo
+  echo "EXAMPLES:"
+  echo "$0 --help # prints this help"
+  echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d"
+  echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d local path/to/proof.pdf path/to/proof.jpg"
+  echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d api.staging"
+  echo "$0 9c7b255c-2981-4bf8-839f-61c7458e2b4d api.staging path/to/proof.pdf path/to/proof.jpg"
+}
+
+if [ "${#@}" -eq 0 ]; then
+  usage
+  exit 1
+elif [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+  usage
+  exit 0
+fi
+
+primeapiopts=(--insecure)
+mtoid=$1
+readonly environment=${2:-local}
+
+# check to see if proofs are passed in
+if [ "${#@}" -gt 2 ]; then
+  shift # to remove mtoid from $@
+  shift # to remove envinronment from $@
+  proofs=("$@")
+else
+  # if no proofs are passed in set some defaults
+  proofs=(./tmp/uploads/proof_of_service.png ./tmp/uploads/proof_of_service.jpg ./tmp/uploads/proof_of_service.pdf)
+fi
+
+printf "\nRunning against "
+if [ "$environment" == "local" ]; then
+  echo "local server"
+else
+  echo "remote ${environment}"
+  primeapiopts=(--cac --hostname "${environment}" --port 443)
+fi
+
+if bin/prime-api-client "${primeapiopts[@]}" fetch-mto-updates > tmp/pad_all_mtos.json; then
+  echo "server is running"
+else
+  echo "server is not running"
+  exit 1
+fi
+
+echo
+
+read -p "Ready to continue? Hit enter..." -n 1 -r
+
+printf "\n==========\n\n"
+
+echo "The prime is notified of a new move task order ID: ${mtoid}"
+printf "\nThe prime will now fetch the new MTO.\n\n"
+
+read -p "Ready to continue? Hit enter..." -n 1 -r
+
+printf "\n==========\n\n"
+
+if jq -e 'map(select(.id == "'"${mtoid}"'")) | .[0]' tmp/pad_all_mtos.json > tmp/pad_demo_mto.json; then
+  # MTO found
+  echo "Found by Move Task Order ID"
+else
+  # maybe we have a moveOrderID
+  if jq -e 'map(select(.moveOrderID == "'"${mtoid}"'")) | .[0]' tmp/pad_all_mtos.json > tmp/pad_demo_mto.json; then
+    # great
+    mtoid=$(jq '.id' tmp/pad_demo_mto.json | tr -d '"')
+    echo "Found by Move Order ID. Actual MTO ID is ${mtoid}"
+  else
+    echo "ID not found"
+    exit 1
+  fi
+fi
+
+jq . tmp/pad_demo_mto.json
+
+printf "\n-----\n\n"
+
+echo "MTO Shipment IDs:"
+jq -r '.mtoShipments | map(.id)' tmp/pad_demo_mto.json
+
+shipmentID=$(jq '.mtoShipments | .[0] | .id' tmp/pad_demo_mto.json)
+shipmentEtag=$(jq '.mtoShipments | .[0] | .eTag' tmp/pad_demo_mto.json)
+echo
+echo "Using:"
+echo "MTO Shipment ID: ${shipmentID}"
+echo "eTag: ${shipmentEtag}"
+
+printf "\n==========\n\n"
+
+printf "It's time for the prime to update dates and destination address:\n\n"
+destDutyZip=$(jq '.moveOrder.destinationDutyStation.address.postalCode' tmp/pad_demo_mto.json | tr -d '"')
+destDutyCity=$(jq '.moveOrder.destinationDutyStation.address.city' tmp/pad_demo_mto.json | tr -d '"')
+destDutyState=$(jq '.moveOrder.destinationDutyStation.address.state' tmp/pad_demo_mto.json | tr -d '"')
+read -p "Provide a scheduled pickup date (yyyy-mm-dd): " -r scheduledPickupDate
+read -p "Provide an actual pickup date (yyyy-mm-dd): " -r actualPickupDate
+echo "Provide the customer's destination address. defaults from new duty station address"
+read -p "  street address: " -r destStreetAddress1
+read -p "  city (default ${destDutyCity}): " -r destCity
+read -p "  state (default ${destDutyState}): " -r destState
+read -p "  zip (default ${destDutyZip}): " -r destZip
+
+cat > tmp/pad_update_mto_shipment.json <<- EOM
+{
+  "mtoShipmentID": ${shipmentID},
+  "ifMatch": ${shipmentEtag},
+  "body": {
+    "scheduledPickupDate": "${scheduledPickupDate}",
+    "actualPickupDate": "${actualPickupDate}",
+    "destinationAddress": {
+      "streetAddress1": "${destStreetAddress1}",
+      "city": "${destCity:-${destDutyCity}}",
+      "state": "${destState:-${destDutyState}}",
+      "postalCode": "${destZip:-${destDutyZip}}",
+      "country": "US"
+    }
+  }
+}
+EOM
+
+printf "We will be sending this payload to milmove:\n\n"
+jq . tmp/pad_update_mto_shipment.json
+
+echo
+
+read -p "Ready to continue? Hit enter..." -n 1 -r
+
+printf "\n==========\n\n"
+
+bin/prime-api-client "${primeapiopts[@]}" update-mto-shipment --filename ./tmp/pad_update_mto_shipment.json > tmp/pad_update_response_mto_shipment.json
+
+jq . tmp/pad_update_response_mto_shipment.json
+
+printf "\n-----\n\n"
+
+shipmentEtag=$(jq '.eTag' tmp/pad_update_response_mto_shipment.json)
+echo "Updated Shipment eTag: ${shipmentEtag}"
+
+printf "\n==========\n\n"
+
+printf "The prime will also update weights:\n\n"
+
+if jq -e '.primeEstimatedWeight' tmp/pad_update_response_mto_shipment.json > tmp/pad_estimated_weight; then
+  # estimated weight is set already
+  echo "Prime Estimated Weight Set Already: $(cat tmp/pad_estimated_weight)"
+  read -p "Provide the actual weight: " -r actualWeight
+
+  echo
+
+  cat > tmp/pad_update_weights.json <<- EOM
+{
+  "mtoShipmentID": ${shipmentID},
+  "ifMatch": ${shipmentEtag},
+  "body": {
+    "primeActualWeight": ${actualWeight}
+  }
+}
+EOM
+
+  printf "Sending the following update payload:\n\n"
+
+  jq . tmp/pad_update_weights.json
+
+  echo
+
+  read -p "Ready to continue? Hit enter..." -n 1 -r
+
+  printf "\n==========\n\n"
+
+  bin/prime-api-client "${primeapiopts[@]}" update-mto-shipment --filename ./tmp/pad_update_weights.json > tmp/pad_update_response_weights.json
+else # estimated weight not set
+  read -p "Provide the estimated weight: " -r estimatedWeight
+  read -p "Provide the actual weight: " -r actualWeight
+
+  echo
+
+  cat > tmp/pad_update_weights.json <<- EOM
+{
+  "mtoShipmentID": ${shipmentID},
+  "ifMatch": ${shipmentEtag},
+  "body": {
+    "primeEstimatedWeight": ${estimatedWeight},
+    "primeActualWeight": ${actualWeight}
+  }
+}
+EOM
+
+  printf "Sending the following update payload:\n\n"
+
+  jq . tmp/pad_update_weights.json
+
+  echo
+
+  read -p "Ready to continue? Hit enter..." -n 1 -r
+
+  printf "\n==========\n\n"
+
+  bin/prime-api-client "${primeapiopts[@]}" update-mto-shipment --filename ./tmp/pad_update_weights.json > tmp/pad_update_response_weights.json
+fi
+
+jq . tmp/pad_update_response_weights.json
+
+printf "\n-----\n\n"
+
+shipmentEtag=$(jq '.eTag' tmp/pad_update_response_weights.json)
+echo "Updated Shipment eTag: ${shipmentEtag}"
+
+printf "\n==========\n\n"
+
+jq '.mtoServiceItems | map(select((.mtoShipmentID == '"${shipmentID}"') and (.reServiceCode == "FSC" or .reServiceCode == "DLH") or .reServiceCode == "MS" or .reServiceCode == "CS"))  | { body: { isFinal: false, moveTaskOrderID: "'"${mtoid}"'", serviceItems: map({ id: .id }) } }' tmp/pad_demo_mto.json > tmp/pad_create_payment_request.json
+
+printf "Sending the following create payment request payload for DLH, FSC, MS, and CS:\n\n"
+jq . tmp/pad_create_payment_request.json
+
+echo
+
+read -p "Ready to continue? Hit enter..." -n 1 -r
+
+printf "\n==========\n\n"
+
+bin/prime-api-client "${primeapiopts[@]}" create-payment-request --filename ./tmp/pad_create_payment_request.json > tmp/pad_create_payment_request_response.json
+
+jq . tmp/pad_create_payment_request_response.json
+
+printf "\n-----\n\n"
+
+prID=$(jq .id tmp/pad_create_payment_request_response.json | tr -d '"')
+prNumber=$(jq .paymentRequestNumber tmp/pad_create_payment_request_response.json)
+
+echo "Payment Request ID: \"${prID}\""
+echo "Payment Request Number: ${prNumber}"
+
+printf "\n==========\n\n"
+
+printf "Now add the proof of service docs in three formats: PNG, JPG, and PDF\n\n"
+
+read -p "Ready to continue? Hit enter..." -n 1 -r
+
+printf "\n==========\n\n"
+
+for proofOfService in "${proofs[@]}"
+do
+  echo upload "$proofOfService"
+  proofBase=$(basename "${proofOfService}")
+  bin/prime-api-client "${primeapiopts[@]}" create-upload --paymentRequestID "${prID}" --filename "${proofOfService}" > tmp/pad_create_upload_response_"${proofBase}".json
+
+  jq . tmp/pad_create_upload_response_"${proofBase}".json
+
+  echo
+done
+
+printf "\n==========\n\n"
+
+printf "Now we wait for the payment request to be approved.\n\n"
+
+read -p "Ready to continue? Hit enter..." -n 1 -r
+
+printf "\n==========\n\n"
+
+cat > ./tmp/pad_get_payment_request_edi.json <<-EOM
+{
+  "paymentRequestID": "${prID}"
+}
+EOM
+
+printf "Sending the following to generate an EDI:\n\n"
+jq . tmp/pad_get_payment_request_edi.json
+
+echo
+
+read -p "Ready to continue? Hit enter..." -n 1 -r
+
+printf "\n==========\n\n"
+
+echo "EDI for payment request number: ${prNumber}:"
+
+printf "\n-----\n\n"
+
+bin/prime-api-client "${primeapiopts[@]}" support-get-payment-request-edi --filename ./tmp/pad_get_payment_request_edi.json > tmp/pad_edi_response.json
+
+jq -r .edi tmp/pad_edi_response.json
+
+echo
+
+echo "Payment request status updated for payment request number: ${prNumber}:"
+
+printf "\n-----\n\n"
+
+cat > ./tmp/pad_update_payment_request_status.json <<-EOM
+{
+  "body": {
+    "paymentRequestID": "${prID}",
+    "sendToSyncada": false
+  }
+}
+EOM
+
+bin/prime-api-client "${primeapiopts[@]}" support-reviewed-payment-requests --filename ./tmp/pad_update_payment_request_status.json > tmp/pad_pr_update_response.json
+
+jq . tmp/pad_pr_update_response.json

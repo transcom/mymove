@@ -3,9 +3,9 @@ package models
 import (
 	"time"
 
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
-	"github.com/gobuffalo/validate/validators"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
+	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
@@ -53,6 +53,12 @@ type Order struct {
 	TAC                 *string                            `json:"tac" db:"tac"`
 	SAC                 *string                            `json:"sac" db:"sac"`
 	DepartmentIndicator *string                            `json:"department_indicator" db:"department_indicator"`
+	Grade               *string                            `json:"grade" db:"grade"`
+	ConfirmationNumber  *string                            `json:"confirmation_number" db:"confirmation_number"`
+	Entitlement         *Entitlement                       `belongs_to:"entitlements"`
+	EntitlementID       *uuid.UUID                         `json:"entitlement_id" db:"entitlement_id"`
+	OriginDutyStation   *DutyStation                       `belongs_to:"duty_stations"`
+	OriginDutyStationID *uuid.UUID                         `json:"origin_duty_station_id" db:"origin_duty_station_id"`
 }
 
 // Orders is not required by pop and may be deleted
@@ -72,6 +78,8 @@ func (o *Order) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&StringIsNilOrNotBlank{Field: o.SAC, Name: "SAC"},
 		&StringIsNilOrNotBlank{Field: o.DepartmentIndicator, Name: "DepartmentIndicator"},
 		&CannotBeTrueIfFalse{Field1: o.SpouseHasProGear, Name1: "SpouseHasProGear", Field2: o.HasDependents, Name2: "HasDependents"},
+		&OptionalUUIDIsPresent{Field: o.EntitlementID, Name: "EntitlementID"},
+		&OptionalUUIDIsPresent{Field: o.OriginDutyStationID, Name: "OriginDutyStationID"},
 	), nil
 }
 
@@ -149,10 +157,6 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		"UploadedOrders.UserUploads.Upload",
 		"Moves.PersonallyProcuredMoves",
 		"Moves.SignedCertifications").
-		Join("documents as d", "orders.uploaded_orders_id = d.id").
-		LeftJoin("user_uploads as uu", "d.id = uu.document_id").
-		LeftJoin("uploads as u", "uu.upload_id = u.id").
-		Where("u.deleted_at is null and uu.deleted_at is null").
 		Find(&order, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
@@ -161,6 +165,17 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		// Otherwise, it's an unexpected err so we return that.
 		return Order{}, err
 	}
+
+	// Only return user uploads that haven't been deleted
+	userUploads := order.UploadedOrders.UserUploads
+	relevantUploads := make([]UserUpload, 0, len(userUploads))
+	for _, userUpload := range userUploads {
+		if userUpload.DeletedAt == nil {
+			relevantUploads = append(relevantUploads, userUpload)
+		}
+	}
+	order.UploadedOrders.UserUploads = relevantUploads
+
 	// TODO: Handle case where more than one user is authorized to modify orders
 	if session.IsMilApp() && order.ServiceMember.ID != session.ServiceMemberID {
 		return Order{}, ErrFetchForbidden
@@ -201,7 +216,6 @@ func FetchOrderForPDFConversion(db *pop.Connection, id uuid.UUID) (Order, error)
 // CreateNewMove creates a move associated with these Orders
 func (o *Order) CreateNewMove(db *pop.Connection, moveOptions MoveOptions) (*Move, *validate.Errors, error) {
 	return createNewMove(db, *o, moveOptions)
-	//return createNewMove(db, *o, moveType, swag.Bool(moveShow))
 }
 
 // IsComplete checks if orders have all fields necessary to approve a move

@@ -1,0 +1,135 @@
+#! /usr/bin/env bash
+
+set -eu -o pipefail
+
+#set up variable names used in script
+readonly db_name=${DB_NAME:-dev_db}
+readonly db_user=${DB_USER:-postgres}
+readonly db_host=${DB_HOST:-localhost}
+
+# find current directory
+readonly dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+readonly local_secure_migrations_dir="${dir}/../migrations/app/secure"
+readonly prod_migrations_temp_dir="${dir}/../tmp"
+readonly path="${dir}/../tmp/pricing_import_dump.sql"
+
+#
+# Ensure Pricing Parser has been run on clean rate engine tables
+#
+
+cat << EOM
+
+To get started, make sure you have cleared all 're_' prefixed tables (rate engine tables), and run the pricing parser on your most recent ghc pricing template.
+
+Overview of steps is in the wiki at https://github.com/transcom/mymove/wiki/ghc-pricing-import
+
+Setup:
+  1. make db_dev_reset db_dev_migrate
+  2. If your rate engine tables currently have records we want to clear them. Open psql-dev and run the following query:
+     TRUNCATE re_contracts, re_contract_years CASCADE;
+  3. rm -f bin/ghc-pricing-parser && make bin/ghc-pricing-parser
+  4. ghc-pricing-parser --filename <path_to_xlsx_pricing_template> --display --contract-code=<Unique Code>
+
+Due to the size of pricing template, this may take several minutes to complete
+
+EOM
+
+read -r -p "Have you run the above steps? (y/n) " answer
+
+if [[ $answer == 'y' || $answer == 'Y' ]]
+  then
+    pg_dump -h "$db_host" -U "$db_user" "$db_name" -t re_* --data-only -T re_services --data-only > "$path"
+    echo "Successful pg-dump to tmp/pricing_import_dump.sql"
+elif [[ $answer == 'n' || $answer == 'N' ]]
+  then
+    echo "See above instructions to run ghc pricing importer"
+    exit
+else
+  echo "Enter Y or N, please."
+  exit
+fi
+
+#
+# Pre-flight checks
+#
+
+echo "Open tmp/pricing_import_dump.sql and find the contract code in the re_contracts table, paste it here followed by [ENTER]:"
+
+read -r unique_contract_code
+
+while [[ -z ${unique_contract_code:-} ]]; do
+  echo "Please enter contract code from the re_contracts table for this migration"
+  read -r unique_contract_code
+done
+# make lowercase
+unique_contract_code=$(echo "$unique_contract_code" | tr '[:upper:]' '[:lower:]')
+# replace space with underscore
+unique_contract_code="${unique_contract_code// /_}"
+
+if [[ ! -d "$prod_migrations_temp_dir" ]]; then
+  mkdir "$prod_migrations_temp_dir"
+fi
+
+readonly migration_name="import_pricing_data_${unique_contract_code}"
+
+#
+# Build secure migration file names
+#
+
+# Generate the secure migration filename:
+# - remove ".up.fizz" from filename
+# - remove "migrations/" from filename
+# - append ".sql"
+readonly version=$(date +"%Y%m%d%H%M%S")
+readonly secure_migration_name="${version}_${migration_name}.up.sql"
+
+readonly local_test_migration_name="${local_secure_migrations_dir}/${secure_migration_name}"
+readonly prod_migration_name="${prod_migrations_temp_dir}/${secure_migration_name}"
+
+#
+# Build secure migration stub content
+#
+
+# Create empty file for local test migration
+cat > "${local_test_migration_name}" << EOM
+-- Local test migration.
+-- This will be run on development environments.
+-- It should mirror what you intend to apply on prod/staging/experimental
+-- DO NOT include any sensitive data.
+EOM
+
+# Create empty file for real secure migration
+cat > "${prod_migration_name}" << EOM
+-- Production Migration!
+-- This will be distributed to all deployed environments (e.g. experimental, staging, prod)
+EOM
+
+# replace pg_dump with production migration
+mv -v "${path}" "${prod_migration_name}"
+#
+# Display next steps for user
+#
+
+# directions for creating a secure migration: https://github.com/transcom/mymove/wiki/migrate-the-database#secure-migrations
+
+cat << EOM
+Generated migration files:
+
+Local test migration: ${local_test_migration_name}
+Production migration: ${prod_migration_name}
+
+Next:
+    1. Copy the production migration into the local secure migration, scrubbing sensitive data
+    2. If everything looks good, upload the migration to S3 with this utility:
+       scripts/upload-secure-migration \\
+          ${prod_migration_name}
+    3. Run make run_prd_migrations to verify that the upload worked and that the migration can be applied successfully.
+    4. Open a pull request for this change; when it is accepted, your migration will run on staging.
+    5. Delete local test and production migrations
+EOM
+
+#
+# Update the migrations manifest
+#
+
+"${dir}"/../scripts/update-migrations-manifest

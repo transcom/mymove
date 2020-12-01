@@ -3,14 +3,14 @@ package models
 import (
 	"time"
 
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
-	"github.com/gobuffalo/validate/validators"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
+	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 )
 
-// ClientCert represents a known x509 Certificate in the database. It stores the SSN securely by hashing it.
+// ClientCert represents a known x509 Certificate in the database.
 type ClientCert struct {
 	ID                          uuid.UUID `json:"id" db:"id"`
 	Sha256Digest                string    `db:"sha256_digest"`

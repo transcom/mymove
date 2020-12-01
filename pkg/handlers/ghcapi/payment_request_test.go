@@ -24,73 +24,6 @@ import (
 	"time"
 )
 
-func (suite *HandlerSuite) TestListPaymentRequestsHandler() {
-
-	paymentRequestID1, _ := uuid.FromString("00000000-0000-0000-0000-000000000001")
-	paymentRequestID2, _ := uuid.FromString("00000000-0000-0000-0000-000000000002")
-	paymentRequestID3, _ := uuid.FromString("00000000-0000-0000-0000-000000000003")
-
-	IDs := []uuid.UUID{
-		paymentRequestID1,
-		paymentRequestID2,
-		paymentRequestID3,
-	}
-
-	var paymentRequests models.PaymentRequests
-
-	for _, id := range IDs {
-		paymentRequest := models.PaymentRequest{
-			ID:        id,
-			IsFinal:   false,
-			Status:    models.PaymentRequestStatusPending,
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
-		}
-		paymentRequests = append(paymentRequests, paymentRequest)
-	}
-
-	suite.T().Run("successful fetch of payment requests", func(t *testing.T) {
-		paymentRequestListFetcher := &mocks.PaymentRequestListFetcher{}
-		paymentRequestListFetcher.On("FetchPaymentRequestList").Return(&paymentRequests, nil).Once()
-
-		req := httptest.NewRequest("GET", fmt.Sprintf("/payment_requests"), nil)
-
-		params := paymentrequestop.ListPaymentRequestsParams{
-			HTTPRequest: req,
-		}
-
-		handler := ListPaymentRequestsHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			paymentRequestListFetcher,
-		}
-		response := handler.Handle(params)
-
-		suite.IsType(&paymentrequestop.ListPaymentRequestsOK{}, response)
-		okResponse := response.(*paymentrequestop.ListPaymentRequestsOK)
-		suite.Equal(len(IDs), len(okResponse.Payload))
-		suite.Equal(paymentRequestID1.String(), okResponse.Payload[0].ID.String())
-	})
-
-	suite.T().Run("failed fetch of payment requests", func(t *testing.T) {
-		paymentRequestListFetcher := &mocks.PaymentRequestListFetcher{}
-		paymentRequestListFetcher.On("FetchPaymentRequestList").Return(nil, errors.New("test failed to create with err returned")).Once()
-
-		req := httptest.NewRequest("GET", fmt.Sprintf("/payment_requests"), nil)
-
-		params := paymentrequestop.ListPaymentRequestsParams{
-			HTTPRequest: req,
-		}
-
-		handler := ListPaymentRequestsHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			paymentRequestListFetcher,
-		}
-		response := handler.Handle(params)
-
-		suite.IsType(&paymentrequestop.ListPaymentRequestsInternalServerError{}, response)
-	})
-}
-
 func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 
 	paymentRequestID, _ := uuid.FromString("00000000-0000-0000-0000-000000000001")
@@ -107,7 +40,7 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
 
-		requestUser := testdatagen.MakeDefaultUser(suite.DB())
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 		req := httptest.NewRequest("GET", fmt.Sprintf("/payment_request"), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -165,7 +98,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
 
-		requestUser := testdatagen.MakeDefaultUser(suite.DB())
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -187,6 +120,44 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 	})
 
+	suite.T().Run("successful status update of prime-available payment request", func(t *testing.T) {
+		availableMove := testdatagen.MakeAvailableMove(suite.DB())
+		availablePaymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+			Move: availableMove,
+		})
+		availablePaymentRequestID := availablePaymentRequest.ID
+
+		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
+		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.Anything, mock.Anything).Return(&availablePaymentRequest, nil).Once()
+
+		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
+		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(availablePaymentRequest, nil).Once()
+
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", availablePaymentRequestID), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
+		params := paymentrequestop.UpdatePaymentRequestStatusParams{
+			HTTPRequest:      req,
+			Body:             &ghcmessages.UpdatePaymentRequestStatusPayload{Status: "REVIEWED", RejectionReason: nil},
+			PaymentRequestID: strfmt.UUID(availablePaymentRequestID.String()),
+		}
+
+		handler := UpdatePaymentRequestStatusHandler{
+			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
+			PaymentRequestFetcher:       paymentRequestFetcher,
+		}
+		traceID, err := uuid.NewV4()
+		suite.FatalNoError(err, "Error creating a new trace ID.")
+		handler.SetTraceID(traceID)
+
+		response := handler.Handle(params)
+
+		suite.IsType(paymentrequestop.NewUpdatePaymentRequestStatusOK(), response)
+		suite.HasWebhookNotification(availablePaymentRequestID, traceID)
+	})
+
 	suite.T().Run("unsuccessful status update of payment request (500)", func(t *testing.T) {
 		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
 		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.Anything, mock.Anything).Return(nil, errors.New("Something bad happened")).Once()
@@ -194,7 +165,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
 
-		requestUser := testdatagen.MakeDefaultUser(suite.DB())
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -223,7 +194,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
 
-		requestUser := testdatagen.MakeDefaultUser(suite.DB())
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -252,7 +223,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
 
-		requestUser := testdatagen.MakeDefaultUser(suite.DB())
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -272,5 +243,33 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 
 		suite.IsType(paymentrequestop.NewUpdatePaymentRequestStatusPreconditionFailed(), response)
 
+	})
+
+	suite.T().Run("unsuccessful status update of payment request, validation errors (422)", func(t *testing.T) {
+		paymentRequestStatusUpdater := &mocks.PaymentRequestStatusUpdater{}
+		paymentRequestStatusUpdater.On("UpdatePaymentRequestStatus", mock.Anything, mock.Anything).Return(nil, services.NewInvalidInputError(paymentRequestID, nil, nil, "")).Once()
+
+		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
+		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
+
+		requestUser := testdatagen.MakeStubbedUser(suite.DB())
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
+		params := paymentrequestop.UpdatePaymentRequestStatusParams{
+			HTTPRequest:      req,
+			Body:             &ghcmessages.UpdatePaymentRequestStatusPayload{Status: "REVIEWED", RejectionReason: nil},
+			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
+		}
+
+		handler := UpdatePaymentRequestStatusHandler{
+			HandlerContext:              handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
+			PaymentRequestFetcher:       paymentRequestFetcher,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(paymentrequestop.NewUpdatePaymentRequestStatusUnprocessableEntity(), response)
 	})
 }

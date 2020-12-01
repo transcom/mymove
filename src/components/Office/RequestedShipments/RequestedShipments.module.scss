@@ -1,0 +1,80 @@
+@import 'src/shared/styles/basics';
+@import 'src/shared/styles/mixins';
+@import 'src/shared/styles/colors';
+
+.RequestedShipments {
+  @include u-bg('white');
+  @include u-padding-x(4);
+  @include u-padding-y(2);
+
+  h4 {
+    @include u-margin(0);
+    font-weight: bold;
+  }
+
+  h4 + .shipmentCards,
+  h4 + table {
+    @include u-margin-top(2);
+  }
+
+  .serviceItems {
+    @include u-padding-top(2);
+    @include u-border-top('1px');
+    @include u-border-top('base-lighter');
+
+    table {
+      @include u-width(full)
+    }
+
+    :global(.usa-fieldset) {
+      @include u-padding-x(2);
+    }
+
+    :global(.usa-checkbox) {
+      @include u-margin-bottom(2);
+    }
+  }
+
+  .shipmentCards {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%; // required to wrap in IE11
+
+    > * {
+      flex-grow: 1;
+      flex-shrink: 1;
+      width: 100%;
+      @include u-margin-bottom(4);
+
+      @include at-media('tablet-lg') {
+        &:not(:only-child) {
+          width: calc(50% - 1em);
+          flex-grow: 0;
+
+          &:nth-child(even) {
+            @include u-margin-left(4);
+          }
+        }
+      }
+
+      @include u-margin-bottom(4);
+    }
+  }
+}
+
+.serviceItemApproval {
+  @include u-height(1rem);
+  @include u-width(1rem);
+  fill: #00aa2a;
+}
+
+.serviceItemRejection {
+  @include u-height(1rem);
+  @include u-width(1rem);
+  fill: #da3613;
+}
+
+.approveButton {
+  @include u-margin-top(2);
+  @include u-margin-left(0);
+}

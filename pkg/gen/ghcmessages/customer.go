@@ -6,25 +6,25 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // Customer customer
+//
 // swagger:model Customer
 type Customer struct {
 
 	// Agency customer is affilated with
 	Agency string `json:"agency,omitempty"`
 
+	// backup contact
+	BackupContact *BackupContact `json:"backup_contact,omitempty"`
+
 	// current address
 	CurrentAddress *Address `json:"current_address,omitempty"`
-
-	// destination address
-	DestinationAddress *Address `json:"destination_address,omitempty"`
 
 	// dod ID
 	DodID string `json:"dodID,omitempty"`
@@ -59,11 +59,11 @@ type Customer struct {
 func (m *Customer) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateCurrentAddress(formats); err != nil {
+	if err := m.validateBackupContact(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateDestinationAddress(formats); err != nil {
+	if err := m.validateCurrentAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -89,6 +89,24 @@ func (m *Customer) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *Customer) validateBackupContact(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.BackupContact) { // not required
+		return nil
+	}
+
+	if m.BackupContact != nil {
+		if err := m.BackupContact.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("backup_contact")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *Customer) validateCurrentAddress(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.CurrentAddress) { // not required
@@ -99,24 +117,6 @@ func (m *Customer) validateCurrentAddress(formats strfmt.Registry) error {
 		if err := m.CurrentAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("current_address")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *Customer) validateDestinationAddress(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.DestinationAddress) { // not required
-		return nil
-	}
-
-	if m.DestinationAddress != nil {
-		if err := m.DestinationAddress.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("destination_address")
 			}
 			return err
 		}

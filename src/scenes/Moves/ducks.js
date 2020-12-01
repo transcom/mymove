@@ -5,7 +5,9 @@ import { fetchActive } from 'shared/utils';
 
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 // Types
+const SET_CONUS_STATUS = 'SET_CONUS_STATUS';
 const SET_PENDING_MOVE_TYPE = 'SET_PENDING_MOVE_TYPE';
+const SET_SELECTED_MOVE_TYPE = 'SET_SELECTED_MOVE_TYPE';
 
 export const getMoveType = 'GET_MOVE';
 export const GET_MOVE = ReduxHelpers.generateAsyncActionTypes(getMoveType);
@@ -17,10 +19,18 @@ export const submitForApprovalType = 'SUBMIT_FOR_APPROVAL';
 export const SUBMIT_FOR_APPROVAL = ReduxHelpers.generateAsyncActionTypes(submitForApprovalType);
 
 // Action creation
+export function setConusStatus(moveType) {
+  return { type: SET_CONUS_STATUS, moveType };
+}
+
+// Action creation
 export function setPendingMoveType(value) {
   return { type: SET_PENDING_MOVE_TYPE, payload: value };
 }
 
+export function setSelectedMoveType(moveType) {
+  return { type: SET_SELECTED_MOVE_TYPE, moveType };
+}
 export function updateMove(moveId, moveType) {
   return function (dispatch) {
     const action = ReduxHelpers.generateAsyncActions(createOrUpdateMoveType);
@@ -48,6 +58,8 @@ export const moveIsApproved = (state) => get(state, 'moves.currentMove.status') 
 export const lastMoveIsCanceled = (state) => get(state, 'moves.latestMove.status') === 'CANCELED';
 
 export const selectedMoveType = (state) => get(state, 'moves.currentMove.selected_move_type');
+
+export const selectedConusStatus = (state) => get(state, 'moves.currentMove.conus_status');
 
 export const isPpm = (state) => Boolean(get(state, 'ppm.currentPpm', false));
 
@@ -128,6 +140,20 @@ export function moveReducer(state = initialState, action) {
       return Object.assign({}, state, {
         submittedForApproval: false,
         error: action.error,
+      });
+    case SET_CONUS_STATUS:
+      return Object.assign({}, state, {
+        currentMove: {
+          ...state.currentMove,
+          conus_status: action.moveType,
+        },
+      });
+    case SET_SELECTED_MOVE_TYPE:
+      return Object.assign({}, state, {
+        currentMove: {
+          ...state.currentMove,
+          selected_move_type: action.moveType,
+        },
       });
     default:
       return state;

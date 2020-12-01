@@ -3,13 +3,15 @@ package testdatagen
 import (
 	"fmt"
 	"log"
-	"math/rand"
 	"os"
 	"path"
+	"path/filepath"
 	"reflect"
 	"time"
 
-	"github.com/gobuffalo/pop"
+	"github.com/transcom/mymove/pkg/random"
+
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 	"github.com/imdario/mergo"
 	"github.com/spf13/afero"
@@ -26,9 +28,7 @@ type Assertions struct {
 	Address                                  models.Address
 	AdminUser                                models.AdminUser
 	BackupContact                            models.BackupContact
-	BlackoutDate                             models.BlackoutDate
 	Contractor                               models.Contractor
-	Customer                                 models.Customer
 	DestinationAddress                       models.Address
 	DestinationDutyStation                   models.DutyStation
 	DistanceCalculation                      models.DistanceCalculation
@@ -41,8 +41,6 @@ type Assertions struct {
 	Invoice                                  models.Invoice
 	Move                                     models.Move
 	MoveDocument                             models.MoveDocument
-	MoveOrder                                models.MoveOrder
-	MoveTaskOrder                            models.MoveTaskOrder
 	MovingExpenseDocument                    models.MovingExpenseDocument
 	MTOAgent                                 models.MTOAgent
 	MTOServiceItem                           models.MTOServiceItem
@@ -68,17 +66,20 @@ type Assertions struct {
 	ReDomesticServiceArea                    models.ReDomesticServiceArea
 	Reimbursement                            models.Reimbursement
 	ReService                                models.ReService
+	ReZip3                                   models.ReZip3
+	SecondaryPickupAddress                   models.Address
+	SecondaryDeliveryAddress                 models.Address
 	ServiceItemParamKey                      models.ServiceItemParamKey
 	ServiceParam                             models.ServiceParam
 	SignedCertification                      models.SignedCertification
 	ServiceMember                            models.ServiceMember
+	Stub                                     bool
 	Tariff400ngServiceArea                   models.Tariff400ngServiceArea
 	Tariff400ngItem                          models.Tariff400ngItem
 	Tariff400ngItemRate                      models.Tariff400ngItemRate
 	Tariff400ngZip3                          models.Tariff400ngZip3
 	TrafficDistributionList                  models.TrafficDistributionList
 	TransportationOffice                     models.TransportationOffice
-	TransportationOrderingOfficer            models.TransportationOrderingOfficer
 	TransportationServiceProvider            models.TransportationServiceProvider
 	TransportationServiceProviderPerformance models.TransportationServiceProviderPerformance
 	Upload                                   models.Upload
@@ -87,6 +88,8 @@ type Assertions struct {
 	UserUpload                               models.UserUpload
 	UserUploader                             *uploader.UserUploader
 	User                                     models.User
+	WebhookNotification                      models.WebhookNotification
+	WebhookSubscription                      models.WebhookSubscription
 }
 
 func stringPointer(s string) *string {
@@ -97,7 +100,11 @@ func poundPointer(p unit.Pound) *unit.Pound {
 	return &p
 }
 
-func mustCreate(db *pop.Connection, model interface{}) {
+func mustCreate(db *pop.Connection, model interface{}, stub bool) {
+	if stub {
+		return
+	}
+
 	verrs, err := db.ValidateAndCreate(model)
 	if err != nil {
 		log.Panic(fmt.Errorf("Errors encountered saving %#v: %v", model, err))
@@ -143,12 +150,19 @@ const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567
 func makeRandomString(n int) string {
 	b := make([]byte, n)
 	for i := range b {
-		b[i] = letterBytes[rand.Intn(len(letterBytes))]
+		randInt, err := random.GetRandomInt(len(letterBytes))
+		if err != nil {
+			log.Panicf("failed to create random string %v", err)
+			return ""
+		}
+		b[i] = letterBytes[randInt]
+
 	}
 	return string(b)
 }
 
-func fixture(name string) afero.File {
+// Fixture opens a file from the testdata dir
+func Fixture(name string) afero.File {
 	fixtureDir := "testdata"
 	cwd, err := os.Getwd()
 	if err != nil {
@@ -157,7 +171,7 @@ func fixture(name string) afero.File {
 
 	fixturePath := path.Join(cwd, "pkg/testdatagen", fixtureDir, name)
 	// #nosec This will only be using test data
-	file, err := os.Open(fixturePath)
+	file, err := os.Open(filepath.Clean(fixturePath))
 	if err != nil {
 		log.Panic(fmt.Errorf("Error opening local file: %v", err))
 	}

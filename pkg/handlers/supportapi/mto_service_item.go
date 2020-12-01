@@ -38,7 +38,8 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemops.Updat
 
 		switch e := err.(type) {
 		case services.NotFoundError:
-			return mtoserviceitemops.NewUpdateMTOServiceItemStatusNotFound()
+			payload := payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID())
+			return mtoserviceitemops.NewUpdateMTOServiceItemStatusNotFound().WithPayload(payload)
 		case services.InvalidInputError:
 			payload := payloads.ValidationError("The information you provided is invalid", h.GetTraceID(), e.ValidationErrors)
 			return mtoserviceitemops.NewUpdateMTOServiceItemStatusUnprocessableEntity().WithPayload(payload)
@@ -54,7 +55,7 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemops.Updat
 			}
 			return mtoserviceitemops.NewUpdateMTOServiceItemStatusConflict().WithPayload(payload)
 		default:
-			return mtoserviceitemops.NewUpdateMTOServiceItemStatusInternalServerError()
+			return mtoserviceitemops.NewUpdateMTOServiceItemStatusInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
 		}
 	}
 

@@ -11,6 +11,9 @@ services:
       - POSTGRES_PASSWORD=mysecretpassword
       - POSTGRES_DB=dev_db
 
+  redis:
+    image: redis:5.0.6
+
   milmove_migrate:
     depends_on:
       - database
@@ -40,6 +43,7 @@ services:
     depends_on:
       - database
       - milmove_migrate
+      - redis
     build:
       context: .
       dockerfile: Dockerfile.local
@@ -97,10 +101,12 @@ services:
       - NO_TLS_ENABLED=1
       - NO_TLS_PORT=4000
       - PGPASSWORD=mysecretpassword
+      - REDIS_HOST=redis
       - SERVE_ADMIN=true
-      - SERVE_API_GHC=false
+      - SERVE_API_GHC=true
       - SERVE_API_INTERNAL=true
       - SERVE_API_PRIME=false
+      - SERVE_API_SUPPORT=false
       - STORAGE_BACKEND=local
       - TLS_ENABLED=1
       - TZ=UTC

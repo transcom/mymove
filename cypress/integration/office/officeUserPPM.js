@@ -1,14 +1,22 @@
-/* global cy */
 import { userCancelsStorageDetails, userSavesStorageDetails } from '../../support/storagePanel';
 
 describe('office user finds the move', function () {
+  before(() => {
+    cy.prepareOfficeApp();
+  });
+
   beforeEach(() => {
-    cy.signIntoOffice();
+    cy.signInAsNewPPMOfficeUser();
   });
 
   it('office user views moves in queue new moves', function () {
     officeUserViewsMoves();
   });
+
+  it('office user views ppm of move with combo hhg/ppm', function () {
+    officeUserViewsPpmOfComboMove('COMBOS');
+  });
+
   it('office user verifies the orders tab', function () {
     officeUserVerifiesOrders('VGHEIS');
   });
@@ -88,9 +96,7 @@ describe('office user finds the move', function () {
 
 function officeUserViewsMoves() {
   // Open new moves queue
-  cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/queues\/new/);
-  });
+  cy.location('pathname').should('eq', '/');
 
   // Find move and open it
   cy.selectQueueItemMoveLocator('VGHEIS');
@@ -100,11 +106,30 @@ function officeUserViewsMoves() {
   });
 }
 
+function officeUserViewsPpmOfComboMove(moveLocator) {
+  // Open new moves queue
+  cy.location('pathname').should('eq', '/');
+
+  // Find move and open it
+  cy.selectQueueItemMoveLocator(moveLocator);
+
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
+  });
+
+  // Click on PPM tab
+  cy.get('[data-testid="ppm-tab"]').click();
+
+  cy.location().should((loc) => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/ppm/);
+  });
+
+  cy.patientVisit('/');
+}
+
 function officeUserVerifiesOrders(moveLocator) {
   // Open new moves queue
-  cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/queues\/new/);
-  });
+  cy.location('pathname').should('eq', '/');
 
   // Find move and open it
   cy.selectQueueItemMoveLocator(moveLocator);
@@ -161,9 +186,7 @@ function officeUserVerifiesOrders(moveLocator) {
 
 function officeUserVerifiesAccounting() {
   // Open new moves queue
-  cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/queues\/new/);
-  });
+  cy.location('pathname').should('eq', '/');
 
   // Find move and open it
   cy.selectQueueItemMoveLocator('VGHEIS');
@@ -202,9 +225,7 @@ function officeUserVerifiesAccounting() {
 
 function officeUserApprovesMoveAndPPM(moveLocator) {
   // Open new moves queue
-  cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/queues\/new/);
-  });
+  cy.location('pathname').should('eq', '/');
 
   // Find move and open it
   cy.selectQueueItemMoveLocator(moveLocator);
@@ -226,9 +247,6 @@ function officeUserApprovesMoveAndPPM(moveLocator) {
 
   // Open new moves queue
   cy.patientVisit('/');
-  cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/queues\/new/);
-  });
 
   // Find move and open it
   cy.selectQueueItemMoveLocator(moveLocator);
@@ -238,7 +256,7 @@ function officeUserApprovesMoveAndPPM(moveLocator) {
   });
 
   // Click on PPM tab
-  cy.get('[data-cy="ppm-tab"]').click();
+  cy.get('[data-testid="ppm-tab"]').click();
 
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/ppm/);
@@ -259,13 +277,13 @@ function officeUserVerifiesPPM() {
   // Approve advance
   cy.get('.payment-table').within(() => {
     // Verify the status icon
-    cy.get('td svg:first').should('have.attr', 'title').and('eq', 'Awaiting Review');
+    cy.get('td svg:first').contains('Awaiting Review');
     // Verify the approve checkmark
-    cy.get('td svg:last').should('have.attr', 'title').and('eq', 'Approve');
+    cy.get('td svg:last').contains('Approve');
 
     // Approve advance and verify icon change
     cy.get('td svg:last').click();
-    cy.get('td svg:first').should('have.attr', 'title').and('eq', 'Approved');
+    cy.get('td svg:first').contains('Approved');
   });
 }
 
@@ -284,7 +302,7 @@ function officeUserGoesToPPMPanel(locator) {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
 
-  cy.get('[data-cy="ppm-tab"]').click();
+  cy.get('[data-testid="ppm-tab"]').click();
 
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/ppm/);
@@ -332,7 +350,7 @@ function officeUserGoesToStoragePanel(locator) {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
 
-  cy.get('[data-cy="ppm-tab"]').click();
+  cy.get('[data-testid="ppm-tab"]').click();
 
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/ppm/);

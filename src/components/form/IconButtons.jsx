@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
 import { Button } from '@trussworks/react-uswds';
+
 import { ReactComponent as EditIcon } from '../../shared/icon/edit.svg';
 import { ReactComponent as DocsIcon } from '../../shared/icon/documents.svg';
 

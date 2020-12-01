@@ -16,8 +16,48 @@ info:
 basePath: /support/v1
 schemes:
   - http
+tags:
+  - name: moveTaskOrder
+  - name: paymentRequest
+  - name: mtoServiceItem
+  - name: mtoShipment
+  - name: webhook
 paths:
   '/move-task-orders':
+    get:
+      summary: listMTOs
+      description: |
+        ### Functionality
+        This endpoint lists all MoveTaskOrders regardless of whether or not they have been made available to Prime.
+
+        It will provide nested information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.
+
+      operationId: listMTOs
+      tags:
+        - moveTaskOrder
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: since
+          type: integer
+          format: timestamp
+          description: Only return move task orders updated since this time.
+      responses:
+        '200':
+          description: Successfully retrieved all move task orders.
+          schema:
+            $ref: '#/definitions/MoveTaskOrders'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
     post:
       summary: createMoveTaskOrder
       description: |
@@ -30,8 +70,9 @@ paths:
         * User
         * Entitlement
 
-        It will not create addresses or duty stations. <br />
-        <br />
+        It will not create addresses or duty stations. It requires an existing contractor ID, destination duty station ID,
+        origin duty station ID, and an uploaded orders ID to be passed into the request.
+
         This is a support endpoint and will not be available in production.
       operationId: createMoveTaskOrder
       consumes:
@@ -54,13 +95,9 @@ paths:
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was unauthorized.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The client doesn't have permissions to perform the request.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
         '422':
@@ -77,9 +114,12 @@ paths:
     get:
       summary: getMoveTaskOrder
       description: |
-        Gets an individual move task order by ID. <br />
-        <br />
-        This is a support endpoint and will not be available in production.
+        ### Functionality
+        This endpoint gets an individual MoveTaskOrder by ID.
+
+        It will provide nested information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.
+
+        This is a support endpoint and is not available in production.
       operationId: getMoveTaskOrder
       tags:
         - moveTaskOrder
@@ -94,18 +134,14 @@ paths:
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was unauthorized.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The client doesn't have permissions to perform the request.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
-  '/move-task-orders/{moveTaskOrderID}/status':
+  '/move-task-orders/{moveTaskOrderID}/available-to-prime':
     parameters:
       - description: UUID of move task order.
         in: path
@@ -113,12 +149,12 @@ paths:
         required: true
         type: string
     patch:
-      summary: updateMoveTaskOrderStatus
+      summary: makeMoveTaskOrderAvailable
       description: |
-        Updates move task order `isAvailableToPrime` to TRUE to make it available to prime. <br />
+        Updates move task order `availableToPrimeAt` to make it available to prime. No request body required. <br />
         <br />
         This is a support endpoint and will not be available in production.
-      operationId: updateMoveTaskOrderStatus
+      operationId: makeMoveTaskOrderAvailable
       tags:
         - moveTaskOrder
       consumes:
@@ -133,30 +169,60 @@ paths:
           description: >
             Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
             the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/UpdateMoveTaskOrderStatus'
       responses:
         '200':
-          description: Successfully updated move task order status.
+          description: Successfully made MTO available to Prime.
           schema:
             $ref: '#/definitions/MoveTaskOrder'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was unauthorized.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The client doesn't have permissions to perform the request.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
         '412':
           $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /move-task-orders/{moveTaskOrderID}/payment-requests:
+    get:
+      summary: listMTOPaymentRequests
+      description: |
+        ### Functionality
+
+        This endpoint lists all PaymentRequests associated with a given MoveTaskOrder.
+
+        This is a support endpoint and is not available in production.
+
+      operationId: listMTOPaymentRequests
+      tags:
+        - paymentRequest
+      produces:
+        - application/json
+      parameters:
+        - description: Only return move task orders updated since this time.
+          format: uuid
+          in: path
+          name: moveTaskOrderID
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Successfully retrieved payment requests associated with a given move task order
+          schema:
+            $ref: '#/definitions/PaymentRequests'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
   '/payment-requests/{paymentRequestID}/status':
@@ -171,12 +237,13 @@ paths:
       summary: updatePaymentRequestStatus
       description: |
         Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, or PAID.
-        A status of REVIEWED can optionally have a `rejectionReason`. <br />
-        <br />
-        This is a support endpoint and will not be available in production.
+
+        A status of REVIEWED can optionally have a `rejectionReason`.
+
+        This is a support endpoint and is not available in production.
       operationId: updatePaymentRequestStatus
       tags:
-        - paymentRequests
+        - paymentRequest
       consumes:
         - application/json
       produces:
@@ -202,13 +269,9 @@ paths:
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was unauthorized.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The client doesn't have permissions to perform the request.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
         '412':
@@ -258,19 +321,13 @@ paths:
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was unauthorized.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The client doesn't have permissions to perform the request.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
         '409':
-          description: Conflict error due to trying to change the status of service item that is not currently "SUBMITTED".
-          schema:
-            $ref: '#/responses/Conflict'
+          $ref: '#/responses/Conflict'
         '412':
           $ref: '#/responses/PreconditionFailed'
         '422':
@@ -321,54 +378,172 @@ paths:
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
-          description: The request was unauthorized.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '403':
-          description: The client doesn't have permissions to perform the request.
-          schema:
-            $ref: '#/responses/PermissionDenied'
+          $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
         '409':
-          description: Conflict error due to trying to change the status of shipment that is not currently "SUBMITTED".
-          schema:
-            $ref: '#/responses/Conflict'
+          $ref: '#/responses/Conflict'
         '412':
           $ref: '#/responses/PreconditionFailed'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-definitions:
-  ClientError:
-    type: object
-    properties:
-      title:
-        type: string
-      detail:
-        type: string
-      instance:
-        type: string
+  '/webhook-notify':
+    post:
+      summary: Test endpoint for sending messages via webhook
+      description: >
+        This endpoint represents the receiving server, The Prime, in our webhook-client testing workflow.
+        The `webhook-client` is responsible for retrieving messages from the webhook_notifications table and
+        sending them to the Prime (this endpoint in our testing case) via an mTLS connection.
+      operationId: postWebhookNotify
+      tags:
+        - webhook
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          required: true
+          name: body
+          description: The notification sent by webhook-client.
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                example: c56a4180-65aa-42ec-a945-5fd21dec0538
+              eventName:
+                type: string
+                description: Name of event triggered
+                example: paymentRequest.updated
+              triggeredAt:
+                  type: string
+                  format: date-time
+                  description: Time representing when the event was triggered
+              objectType:
+                type: string
+                description: The type of object that's being updated
+                example: paymentRequest
+              object:
+                type: string
+                format: object
+      responses:
+        '200':
+          description: Sent
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                example: c56a4180-65aa-42ec-a945-5fd21dec0538
+              eventName:
+                type: string
+                description: Name of event triggered
+                example: paymentRequest.updated
+              triggeredAt:
+                  type: string
+                  format: date-time
+                  description: Time representing when the event was triggered
+              objectType:
+                type: string
+                description: The type of object that's being updated
+                example: paymentRequest
+              object:
+                type: string
+                format: object
+        '400':
+          description: Bad request
+        '401':
+          description: must be authenticated to use this endpoint
+        '403':
+          description: Forbidden
+        '404':
+          description: No orders found
+        '500':
+          description: Server error
+  '/payment-requests/{paymentRequestID}/edi':
+    parameters:
+      - description: UUID of the payment request for which EDI should be generated.
         format: uuid
-    required:
-      - title
-      - detail
-      - instance
-  ValidationError:
-    allOf:
-      - $ref: '#/definitions/ClientError'
-      - type: object
-    properties:
-      invalidFields:
-        type: object
-        additionalProperties:
-          description: List of errors for the field
-          type: array
-          items:
-            type: string
-    required:
-      - invalidFields
+        in: path
+        name: paymentRequestID
+        required: true
+        type: string
+    get:
+      summary: getPaymentRequestEDI
+      description: |
+        Returns the EDI (Electronic Data Interchange) message for the payment request identified
+        by the given payment request ID. Note that the EDI returned in the JSON payload will have \n where there
+        would normally be line breaks (due to JSON not allowing line breaks in a string).
+
+        This is a support endpoint and will not be available in production.
+      operationId: getPaymentRequestEDI
+      tags:
+        - paymentRequest
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successfully retrieved payment requests associated with a given move task order
+          schema:
+            $ref: '#/definitions/PaymentRequestEDI'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/payment-requests/process-reviewed':
+    patch:
+      summary: processReviewedPaymentRequests
+      description: |
+        Updates the status of reviewed payment requests and sends PRs to Syncada if
+        the SendToSyncada flag is set
+
+        This is a support endpoint and will not be available in production.
+      operationId: processReviewedPaymentRequests
+      tags:
+        - paymentRequest
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/ProcessReviewedPaymentRequests'
+      responses:
+        '200':
+          description: Successfully updated status of reviewed payment request and sent to Syncada if that flag is set
+          schema:
+            $ref: '#/definitions/PaymentRequests'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+definitions:
   Address:
     type: object
     properties:
@@ -376,16 +551,16 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      street_address_1:
+      streetAddress1:
         type: string
         example: 123 Main Ave
         title: Street address 1
-      street_address_2:
+      streetAddress2:
         type: string
         example: Apartment 9000
         x-nullable: true
         title: Street address 2
-      street_address_3:
+      streetAddress3:
         type: string
         example: Montmârtre
         x-nullable: true
@@ -396,6 +571,7 @@ definitions:
         title: City
       eTag:
         type: string
+        readOnly: true
       state:
         title: State
         type: string
@@ -503,7 +679,7 @@ definitions:
           - WI
           - WV
           - WY
-      postal_code:
+      postalCode:
         type: string
         format: zip
         title: ZIP
@@ -516,10 +692,24 @@ definitions:
         example: 'USA'
         default: USA
     required:
-      - street_address_1
+      - streetAddress1
       - city
       - state
-      - postal_code
+      - postalCode
+  ClientError:
+    type: object
+    properties:
+      title:
+        type: string
+      detail:
+        type: string
+      instance:
+        type: string
+        format: uuid
+    required:
+      - title
+      - detail
+      - instance
   Customer:
     type: object
     properties:
@@ -543,10 +733,6 @@ definitions:
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         x-nullable: true
       currentAddress:
-        x-nullable: true
-        $ref: '#/definitions/Address'
-      destinationAddress:
-        x-nullable: true
         $ref: '#/definitions/Address'
       id:
         type: string
@@ -561,6 +747,26 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       eTag:
         type: string
+        readOnly: true
+  Document:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      serviceMemberID:
+        type: string
+        format: uuid
+        title: The service member this document belongs to
+      uploads:
+        type: array
+        items:
+          $ref: '#/definitions/Upload'
+    required:
+      - id
+      - serviceMemberID
+      - uploads
   DutyStation:
     type: object
     properties:
@@ -571,7 +777,7 @@ definitions:
       name:
         type: string
         example: Fort Bragg North Station
-      address_id:
+      addressID:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -579,6 +785,7 @@ definitions:
         $ref: '#/definitions/Address'
       eTag:
         type: string
+        readOnly: true
   Entitlement:
     properties:
       id:
@@ -628,10 +835,16 @@ definitions:
     type: object
   Error:
     properties:
-      message:
+      title:
         type: string
+      detail:
+        type: string
+      instance:
+        type: string
+        format: uuid
     required:
-      - message
+      - title
+      - detail
     type: object
   MoveOrder:
     properties:
@@ -662,6 +875,8 @@ definitions:
           ID of the destination duty station.
 
           If creating a MoveTaskOrder, this should match an existing duty station.
+      ordersType:
+        $ref: '#/definitions/OrdersType'
       originDutyStation:
         $ref: '#/definitions/DutyStation'
       originDutyStationID:
@@ -680,17 +895,24 @@ definitions:
         description: Date that the service member must report to the new DutyStation by.
         type: string
         format: date
-        example: '2020-01-01'
+      status:
+        $ref: '#/definitions/OrdersStatus'
+      uploadedOrders:
+        $ref: '#/definitions/Document'
+      uploadedOrdersID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+        description: ID of the uploaded document.
       orderNumber:
         description: ID of the military orders associated with this move.
         type: string
         x-nullable: true
         example: '030-00362'
-      dateIssued:
+      issueDate:
         description: The date the orders were issued.
         type: string
         format: date
-        example: '2020-01-01'
       eTag:
         description: |
           Uniquely identifies the state of the MoveOrder object (but not the nested objects)
@@ -700,6 +922,26 @@ definitions:
         type: string
         readOnly: true
     type: object
+    required:
+      - orderNumber
+      - ordersType
+      - rank
+      - reportByDate
+      - issueDate
+      - status
+  MoveStatus:
+    type: string
+    description: Current status of this MoveTaskOrder
+    enum:
+      - DRAFT
+      - SUBMITTED
+      - APPROVED
+      - CANCELED
+    x-display-value:
+      DRAFT: Draft
+      SUBMITTED: Submitted
+      APPROVED: Approved
+      CANCELED: Canceled
   MoveTaskOrder:
     type: object
     required:
@@ -712,8 +954,9 @@ definitions:
         readOnly: true
         description: ID of the MoveTaskOrder object.
       createdAt:
-        format: date
+        format: date-time
         type: string
+        readOnly: true
         description: Date the MoveTaskOrder was created on.
       moveOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -722,7 +965,6 @@ definitions:
         description: ID of the MoveOrder object
       moveOrder:
         $ref: '#/definitions/MoveOrder'
-        description: MoveOrder associated with this MoveTaskOrder.
       referenceId:
         example: 1001-3456
         type: string
@@ -731,18 +973,18 @@ definitions:
 
           No two MoveTaskOrders may have the same ID.
           Attempting to create a MoveTaskOrder may fail if this referenceId has been used already.
-      isAvailableToPrime:
-        type: boolean
+      availableToPrimeAt:
+        format: date-time
+        type: string
         x-nullable: true
         description: |
           Indicates this MoveTaskOrder is available for Prime API handling.
 
-          In production, only MoveTaskOrders for which this is true will be available to the API.
+          In production, only MoveTaskOrders for which this is set will be available to the API.
       isCanceled:
         type: boolean
         x-nullable: true
-        description:
-          Indicated this MoveTaskOrder has been canceled.
+        description: Indicated this MoveTaskOrder has been canceled.
       contractorID:
         type: string
         format: uuid
@@ -750,19 +992,18 @@ definitions:
           ID associated with the contractor, in this case Prime
         example: 5db13bb4-6d29-4bdb-bc81-262f4513ecf6
       updatedAt:
-        format: date
+        format: date-time
         type: string
+        readOnly: true
         description: Date on which this MoveTaskOrder was last updated.
       paymentRequests:
         $ref: '#/definitions/PaymentRequests'
-        description: Array of PaymentRequests associated with this MoveTaskOrder.
       mtoServiceItems:
         description: Array of MTOServiceItems associated with this MoveTaskOrder.
         type: array
         items:
-          $ref: "#/definitions/MTOServiceItem"
+          $ref: '#/definitions/MTOServiceItem'
       mtoShipments:
-        description: array of MTOShipments associated with the MoveTaskOrder.
         $ref: '#/definitions/MTOShipments'
       ppmType:
         description: If the move is a PPM, indicates whether it is full or partial.
@@ -780,21 +1021,16 @@ definitions:
           It will change everytime the object is updated. Client should store the value.
           Updates to this MoveTaskOrder will require that this eTag be passed in with the If-Match header.
         type: string
-  UpdateMoveTaskOrderStatus:
-    properties:
-      is_available_to_prime:
-        type: boolean
-  MoveOrders:
-    items:
-      $ref: '#/definitions/MoveOrder'
-    type: array
+        readOnly: true
+      status:
+        $ref: '#/definitions/MoveStatus'
+      locator:
+        description: Unique 6-character code the customer can use to refer to their move
+        type: string
+        example: ABC123
   MoveTaskOrders:
     items:
       $ref: '#/definitions/MoveTaskOrder'
-    type: array
-  MTOAgents:
-    items:
-      $ref: '#/definitions/MTOAgent'
     type: array
   MTOAgent:
     properties:
@@ -808,11 +1044,13 @@ definitions:
         format: uuid
         type: string
       createdAt:
-        format: date
+        format: date-time
         type: string
+        readOnly: true
       updatedAt:
-        format: date
+        format: date-time
         type: string
+        readOnly: true
       firstName:
         type: string
         x-nullable: true
@@ -836,7 +1074,171 @@ definitions:
           - RECEIVING_AGENT
       eTag:
         type: string
+        readOnly: true
     type: object
+  MTOAgents:
+    items:
+      $ref: '#/definitions/MTOAgent'
+    type: array
+    maxItems: 2
+  MTOServiceItem:
+    description: MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.
+    type: object
+    discriminator: modelType
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      moveTaskOrderID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      mtoShipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      reServiceName:
+        type: string
+      status:
+        $ref: '#/definitions/MTOServiceItemStatus'
+      description:
+        type: string
+      feeType:
+        enum:
+          - COUNSELING
+          - CRATING
+          - TRUCKING
+          - SHUTTLE
+        type: string
+      quantity:
+        type: integer
+      rate:
+        type: integer
+      rejectionReason:
+        example: item was too heavy
+        type: string
+        x-nullable: true
+      modelType: # Base type and sub-types of MTOServiceItem
+        $ref: '#/definitions/MTOServiceItemModelType'
+      eTag:
+        type: string
+        readOnly: true
+    required:
+      - modelType
+      - moveTaskOrderID
+  MTOServiceItemModelType:
+    description: >
+      Describes all model sub-types for a MTOServiceItem model.
+      Prime can only request the following service codes for which they will use the corresponding modelType
+        * DOFSIT - MTOServiceItemDOFSIT
+        * DOSHUT, DDSHUT - MTOServiceItemShuttle
+        * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating
+    type: string
+    enum:
+      - MTOServiceItemBasic
+      - MTOServiceItemDOFSIT
+      - MTOServiceItemShuttle
+      - MTOServiceItemDomesticCrating
+  MTOServiceItemStatus:
+    description: Describes all statuses for a MTOServiceItem.
+    type: string
+    enum:
+      - SUBMITTED
+      - APPROVED
+      - REJECTED
+  MTOShipment:
+    properties:
+      moveTaskOrderID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      createdAt:
+        format: date-time
+        type: string
+        readOnly: true
+      updatedAt:
+        format: date-time
+        type: string
+        readOnly: true
+      scheduledPickupDate:
+        format: date
+        type: string
+      requestedPickupDate:
+        format: date
+        type: string
+      approvedDate:
+        format: date
+        type: string
+      primeActualWeight:
+        type: integer
+        example: 4500
+      pickupAddress:
+        $ref: '#/definitions/Address'
+      destinationAddress:
+        $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        $ref: '#/definitions/Address'
+      secondaryDeliveryAddress:
+        $ref: '#/definitions/Address'
+      customerRemarks:
+        type: string
+        example: handle with care
+        x-nullable: true
+      shipmentType:
+        enum:
+          - HHG
+          - INTERNATIONAL_HHG
+          - INTERNATIONAL_UB
+      status:
+        type: string
+        enum:
+          - APPROVED
+          - SUBMITTED
+          - REJECTED
+      rejectionReason:
+        type: string
+        example: MTO Shipment not good enough
+        x-nullable: true
+      eTag:
+        type: string
+        readOnly: true
+  MTOShipments:
+    items:
+      $ref: '#/definitions/MTOShipment'
+    type: array
+  OrdersStatus:
+    type: string
+    title: Move status
+    enum:
+      - DRAFT
+      - SUBMITTED
+      - APPROVED
+      - CANCELED
+    x-display-value:
+      DRAFT: Draft
+      SUBMITTED: Submitted
+      APPROVED: Approved
+      CANCELED: Canceled
+  OrdersType:
+    type: string
+    title: Orders type
+    enum:
+      - PERMANENT_CHANGE_OF_STATION
+      - RETIREMENT
+      - SEPARATION
+      - GHC
+      - NTS
+    x-display-value:
+      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station (PCS)
+      RETIREMENT: Retirement
+      SEPARATION: Separation
+      GHC: GHC
+      NTS: NTS
   PaymentRequest:
     properties:
       documentPackage:
@@ -865,6 +1267,18 @@ definitions:
         type: string
       eTag:
         type: string
+        readOnly: true
+    type: object
+  PaymentRequestEDI:
+    properties:
+      id:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+        readOnly: true
+      edi:
+        type: string
+        readOnly: true
     type: object
   PaymentRequests:
     items:
@@ -879,6 +1293,22 @@ definitions:
       - PAID
     title: Payment Request Status
     type: string
+  ProcessReviewedPaymentRequests:
+    type: object
+    properties:
+      paymentRequestID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      status:
+        $ref: '#/definitions/PaymentRequestStatus'
+      sendToSyncada:
+        example: true
+        type: boolean
+        x-nullable: true
+    required:
+      - sendToSyncada
   ProofOfServicePackage:
     properties:
       id:
@@ -890,68 +1320,62 @@ definitions:
           $ref: '#/definitions/Upload'
         type: array
     type: object
-  MTOShipment:
+  UpdateMTOServiceItemStatus:
     properties:
       moveTaskOrderID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+        readOnly: true
+      mtoShipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      reServiceCode:
+        type: string
+        readOnly: true
+      reServiceName:
+        type: string
+        readOnly: true
+      description:
+        type: string
+        readOnly: true
+      feeType:
+        enum:
+          - COUNSELING
+          - CRATING
+          - TRUCKING
+          - SHUTTLE
+        type: string
+        readOnly: true
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
-      createdAt:
-        format: datetime
-        type: string
-      updatedAt:
-        format: datetime
-        type: string
-      scheduledPickupDate:
-        format: date
-        type: string
-      requestedPickupDate:
-        format: date
-        type: string
-      approvedDate:
-        format: date
-        type: string
-      pickupAddress:
-        x-nullabe: true
-        $ref: '#/definitions/Address'
-      destinationAddress:
-        x-nullabe: true
-        $ref: '#/definitions/Address'
-      secondaryPickupAddress:
-        x-nullabe: true
-        $ref: '#/definitions/Address'
-      secondaryDeliveryAddress:
-        x-nullabe: true
-        $ref: '#/definitions/Address'
-      customerRemarks:
-        type: string
-        example: handle with care
-        x-nullable: true
-      shipmentType:
-        enum:
-          - HHG
-          - INTERNATIONAL_HHG
-          - INTERNATIONAL_UB
-      status:
-        type: string
-        enum:
-          - APPROVED
-          - SUBMITTED
-          - REJECTED
+        readOnly: true
+      quantity:
+        type: integer
+        readOnly: true
+      rate:
+        type: integer
+        readOnly: true
       rejectionReason:
+        example: item was too heavy
         type: string
-        example: MTO Shipment not good enough
         x-nullable: true
+      status:
+        $ref: '#/definitions/MTOServiceItemStatus'
+      total:
+        format: cents
+        type: integer
+        readOnly: true
       eTag:
         type: string
-  MTOShipments:
-    items:
-      $ref: '#/definitions/MTOShipment'
-    type: array
+        readOnly: true
+    required:
+      - status
+    type: object
   UpdateMTOShipmentStatus:
     properties:
       status:
@@ -964,169 +1388,6 @@ definitions:
         type: string
         example: MTO Shipment not good enough
         x-nullable: true
-  MTOServiceItem:
-    properties:
-      moveTaskOrderID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      mtoShipmentID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      reServiceID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      reServiceCode:
-        type: string
-      reServiceName:
-        type: string
-      approvedAt:
-        format: date
-        type: string
-      createdAt:
-        format: date
-        type: string
-      deletedAt:
-        format: date
-        type: string
-      description:
-        type: string
-      feeType:
-        enum:
-          - COUNSELING
-          - CRATING
-          - TRUCKING
-          - SHUTTLE
-        type: string
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      quantity:
-        type: integer
-      rate:
-        type: integer
-      rejectionReason:
-        example: item was too heavy
-        type: string
-        x-nullable: true
-      rejectedAt:
-        format: date
-        type: string
-      status:
-        $ref: '#/definitions/MTOServiceItemStatus'
-      submittedAt:
-        format: date
-        type: string
-      total:
-        format: cents
-        type: integer
-      updatedAt:
-        format: datetime
-        type: string
-      eTag:
-        type: string
-    required:
-      - id
-      - moveTaskOrderID
-      - reServiceID
-      - reServiceCode
-      - reServiceName
-      - mtoShipmentID
-    type: object
-  MTOServiceItems:
-    type: array
-    items:
-      $ref: '#/definitions/MTOServiceItem'
-  MTOServiceItemStatus:
-    description: Describes all statuses for a MTOServiceItem
-    type: string
-    enum:
-      - SUBMITTED
-      - APPROVED
-      - REJECTED
-  UpdatePaymentRequest:
-    properties:
-      proofOfServicePackage:
-        $ref: '#/definitions/ProofOfServicePackage'
-      serviceItemIDs:
-        items:
-          example: c56a4180-65aa-42ec-a945-5fd21dec0538
-          format: uuid
-          type: string
-        type: array
-      eTag:
-        type: string
-    type: object
-  UpdateMTOServiceItemStatus:
-    properties:
-      moveTaskOrderID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      mtoShipmentID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      reServiceID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      reServiceCode:
-        type: string
-      reServiceName:
-        type: string
-      approvedAt:
-        format: date
-        type: string
-      createdAt:
-        format: date
-        type: string
-      deletedAt:
-        format: date
-        type: string
-      description:
-        type: string
-      feeType:
-        enum:
-          - COUNSELING
-          - CRATING
-          - TRUCKING
-          - SHUTTLE
-        type: string
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      quantity:
-        type: integer
-      rate:
-        type: integer
-      rejectionReason:
-        example: item was too heavy
-        type: string
-        x-nullable: true
-      rejectedAt:
-        format: date
-        type: string
-      status:
-        $ref: '#/definitions/MTOServiceItemStatus'
-      submittedAt:
-        format: date
-        type: string
-      total:
-        format: cents
-        type: integer
-      updatedAt:
-        format: datetime
-        type: string
-      eTag:
-        type: string
-    required:
-      - status
-    type: object
   UpdatePaymentRequestStatus:
     properties:
       rejectionReason:
@@ -1138,34 +1399,43 @@ definitions:
         $ref: '#/definitions/PaymentRequestStatus'
       eTag:
         type: string
+        readOnly: true
         description: Attribute of the payment request object that automatically changes when the request is updated. This matches the value passed in the header for `If-Match`. Required when sending PUT or PATCH requests to prevent updating stale data.
     type: object
   Upload:
+    type: object
     properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      url:
+        type: string
+        format: uri
+        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
+      filename:
+        type: string
+        example: filename.pdf
+      contentType:
+        type: string
+        format: mime-type
+        example: application/pdf
       bytes:
         type: integer
-      contentType:
-        example: application/pdf
-        format: mime-type
+      status:
         type: string
+        enum:
+          - INFECTED
+          - CLEAN
+          - PROCESSING
       createdAt:
+        type: string
         format: date-time
-        type: string
-      filename:
-        example: filename.pdf
-        format: binary
-        type: string
-      id:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
+        readOnly: true
       updatedAt:
+        type: string
         format: date-time
-        type: string
-      url:
-        example: 'https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538'
-        format: uri
-        type: string
+        readOnly: true
     required:
       - id
       - url
@@ -1174,7 +1444,20 @@ definitions:
       - bytes
       - createdAt
       - updatedAt
-    type: object
+  ValidationError:
+    allOf:
+      - $ref: '#/definitions/ClientError'
+      - type: object
+    properties:
+      invalidFields:
+        type: object
+        additionalProperties:
+          description: List of errors for the field
+          type: array
+          items:
+            type: string
+    required:
+      - invalidFields
 responses:
   InvalidRequest:
     description: The request payload is invalid.

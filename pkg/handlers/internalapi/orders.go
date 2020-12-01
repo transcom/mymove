@@ -80,9 +80,24 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
-	dutyStation, err := models.FetchDutyStation(h.DB(), stationID)
+	newDutyStation, err := models.FetchDutyStation(h.DB(), stationID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
+	}
+	originDutyStation := serviceMember.DutyStation
+	grade := (*string)(serviceMember.Rank)
+
+	weight, entitlementErr := models.GetEntitlement(*serviceMember.Rank, *payload.HasDependents)
+	if entitlementErr != nil {
+		return handlers.ResponseForError(logger, entitlementErr)
+	}
+	entitlement := models.Entitlement{
+		DependentsAuthorized: payload.HasDependents,
+		DBAuthorizedWeight:   models.IntPointer(weight),
+	}
+
+	if saveEntitlementErr := h.DB().Save(&entitlement); saveEntitlementErr != nil {
+		return handlers.ResponseForError(logger, saveEntitlementErr)
 	}
 
 	var deptIndicator *string
@@ -98,11 +113,15 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 		payload.OrdersType,
 		*payload.HasDependents,
 		*payload.SpouseHasProGear,
-		dutyStation,
+		newDutyStation,
 		payload.OrdersNumber,
 		payload.Tac,
 		payload.Sac,
-		deptIndicator)
+		deptIndicator,
+		&originDutyStation,
+		grade,
+		&entitlement,
+	)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}

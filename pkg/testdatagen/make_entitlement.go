@@ -1,7 +1,8 @@
 package testdatagen
 
 import (
-	"github.com/gobuffalo/pop"
+	"github.com/go-openapi/swag"
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -11,14 +12,14 @@ func MakeEntitlement(db *pop.Connection, assertions Assertions) models.Entitleme
 	truePtr := true
 	dependents := 1
 	storageInTransit := 2
-	grade := assertions.MoveOrder.Grade
+	grade := assertions.Order.Grade
 
 	if grade == nil || *grade == "" {
 		grade = stringPointer("E_1")
 	}
 
 	entitlement := models.Entitlement{
-		DependentsAuthorized:  &truePtr,
+		DependentsAuthorized:  setDependentsAuthorized(assertions.Entitlement.DependentsAuthorized),
 		TotalDependents:       &dependents,
 		NonTemporaryStorage:   &truePtr,
 		PrivatelyOwnedVehicle: &truePtr,
@@ -29,7 +30,15 @@ func MakeEntitlement(db *pop.Connection, assertions Assertions) models.Entitleme
 	// Overwrite values with those from assertions
 	mergeModels(&entitlement, assertions.Entitlement)
 
-	mustCreate(db, &entitlement)
+	mustCreate(db, &entitlement, assertions.Stub)
 
 	return entitlement
+}
+
+func setDependentsAuthorized(assertionDependentsAuthorized *bool) *bool {
+	dependentsAuthorized := swag.Bool(true)
+	if assertionDependentsAuthorized != nil {
+		dependentsAuthorized = assertionDependentsAuthorized
+	}
+	return dependentsAuthorized
 }

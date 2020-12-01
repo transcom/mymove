@@ -6,6 +6,8 @@ import (
 	mock "github.com/stretchr/testify/mock"
 	models "github.com/transcom/mymove/pkg/models"
 
+	services "github.com/transcom/mymove/pkg/services"
+
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -15,15 +17,15 @@ type MoveOrderFetcher struct {
 }
 
 // FetchMoveOrder provides a mock function with given fields: moveTaskOrderID
-func (_m *MoveOrderFetcher) FetchMoveOrder(moveTaskOrderID uuid.UUID) (*models.MoveOrder, error) {
+func (_m *MoveOrderFetcher) FetchMoveOrder(moveTaskOrderID uuid.UUID) (*models.Order, error) {
 	ret := _m.Called(moveTaskOrderID)
 
-	var r0 *models.MoveOrder
-	if rf, ok := ret.Get(0).(func(uuid.UUID) *models.MoveOrder); ok {
+	var r0 *models.Order
+	if rf, ok := ret.Get(0).(func(uuid.UUID) *models.Order); ok {
 		r0 = rf(moveTaskOrderID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.MoveOrder)
+			r0 = ret.Get(0).(*models.Order)
 		}
 	}
 
@@ -37,25 +39,32 @@ func (_m *MoveOrderFetcher) FetchMoveOrder(moveTaskOrderID uuid.UUID) (*models.M
 	return r0, r1
 }
 
-// ListMoveOrders provides a mock function with given fields:
-func (_m *MoveOrderFetcher) ListMoveOrders() ([]models.MoveOrder, error) {
-	ret := _m.Called()
+// ListMoveOrders provides a mock function with given fields: officeUserID, params
+func (_m *MoveOrderFetcher) ListMoveOrders(officeUserID uuid.UUID, params *services.ListMoveOrderParams) ([]models.Move, int, error) {
+	ret := _m.Called(officeUserID, params)
 
-	var r0 []models.MoveOrder
-	if rf, ok := ret.Get(0).(func() []models.MoveOrder); ok {
-		r0 = rf()
+	var r0 []models.Move
+	if rf, ok := ret.Get(0).(func(uuid.UUID, *services.ListMoveOrderParams) []models.Move); ok {
+		r0 = rf(officeUserID, params)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]models.MoveOrder)
+			r0 = ret.Get(0).([]models.Move)
 		}
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	var r1 int
+	if rf, ok := ret.Get(1).(func(uuid.UUID, *services.ListMoveOrderParams) int); ok {
+		r1 = rf(officeUserID, params)
 	} else {
-		r1 = ret.Error(1)
+		r1 = ret.Get(1).(int)
 	}
 
-	return r0, r1
+	var r2 error
+	if rf, ok := ret.Get(2).(func(uuid.UUID, *services.ListMoveOrderParams) error); ok {
+		r2 = rf(officeUserID, params)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }

@@ -12,18 +12,18 @@ import (
 )
 
 // CustomerModel converts payload to model - currently does not tackle addresses
-func CustomerModel(customer *supportmessages.Customer) *models.Customer {
+func CustomerModel(customer *supportmessages.Customer) *models.ServiceMember {
 	if customer == nil {
 		return nil
 	}
-	return &models.Customer{
-		ID:          uuid.FromStringOrNil(customer.ID.String()),
-		Agency:      &customer.Agency,
-		DODID:       &customer.DodID,
-		FirstName:   &customer.FirstName,
-		LastName:    &customer.LastName,
-		Email:       customer.Email,
-		PhoneNumber: customer.Phone,
+	return &models.ServiceMember{
+		ID:            uuid.FromStringOrNil(customer.ID.String()),
+		Affiliation:   (*models.ServiceMemberAffiliation)(&customer.Agency),
+		Edipi:         &customer.DodID,
+		FirstName:     &customer.FirstName,
+		LastName:      &customer.LastName,
+		PersonalEmail: customer.Email,
+		Telephone:     customer.Phone,
 	}
 }
 
@@ -31,30 +31,30 @@ func CustomerModel(customer *supportmessages.Customer) *models.Customer {
 // duty stations but will preserve the ID if provided.
 // It will create nested customer and entitlement models
 // if those are provided in the payload
-func MoveOrderModel(moveOrderPayload *supportmessages.MoveOrder) *models.MoveOrder {
+func MoveOrderModel(moveOrderPayload *supportmessages.MoveOrder) *models.Order {
 	if moveOrderPayload == nil {
 		return nil
 	}
-	model := &models.MoveOrder{
-		ID:          uuid.FromStringOrNil(moveOrderPayload.ID.String()),
-		Grade:       &moveOrderPayload.Rank,
-		OrderNumber: moveOrderPayload.OrderNumber,
-		Customer:    CustomerModel(moveOrderPayload.Customer),
-		Entitlement: EntitlementModel(moveOrderPayload.Entitlement),
+	model := &models.Order{
+		ID:            uuid.FromStringOrNil(moveOrderPayload.ID.String()),
+		Grade:         moveOrderPayload.Rank,
+		OrdersNumber:  moveOrderPayload.OrderNumber,
+		ServiceMember: *CustomerModel(moveOrderPayload.Customer),
+		Entitlement:   EntitlementModel(moveOrderPayload.Entitlement),
 	}
 
 	customerID := uuid.FromStringOrNil(moveOrderPayload.CustomerID.String())
-	model.CustomerID = &customerID
+	model.ServiceMemberID = customerID
 
 	destinationDutyStationID := uuid.FromStringOrNil(moveOrderPayload.DestinationDutyStationID.String())
-	model.DestinationDutyStationID = &destinationDutyStationID
+	model.NewDutyStationID = destinationDutyStationID
 
 	originDutyStationID := uuid.FromStringOrNil(moveOrderPayload.OriginDutyStationID.String())
 	model.OriginDutyStationID = &originDutyStationID
 
-	reportByDate := time.Time(moveOrderPayload.ReportByDate)
+	reportByDate := time.Time(*moveOrderPayload.ReportByDate)
 	if !reportByDate.IsZero() {
-		model.ReportByDate = &reportByDate
+		model.ReportByDate = reportByDate
 	}
 	return model
 }
@@ -89,24 +89,26 @@ func EntitlementModel(entitlementPayload *supportmessages.Entitlement) *models.E
 
 // MoveTaskOrderModel return an MTO model constructed from the payload.
 // Does not create nested mtoServiceItems, mtoShipments, or paymentRequests
-func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.MoveTaskOrder {
+func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.Move {
 	if mtoPayload == nil {
 		return nil
 	}
 	ppmEstimatedWeight := unit.Pound(mtoPayload.PpmEstimatedWeight)
-	model := &models.MoveTaskOrder{
-		ReferenceID:        mtoPayload.ReferenceID,
+	contractorID := uuid.FromStringOrNil(mtoPayload.ContractorID.String())
+	model := &models.Move{
+		ReferenceID:        &mtoPayload.ReferenceID,
 		PPMEstimatedWeight: &ppmEstimatedWeight,
 		PPMType:            &mtoPayload.PpmType,
-		ContractorID:       uuid.FromStringOrNil(mtoPayload.ContractorID.String()),
+		ContractorID:       &contractorID,
 	}
 
-	if mtoPayload.IsAvailableToPrime != nil {
-		model.IsAvailableToPrime = *mtoPayload.IsAvailableToPrime
+	if mtoPayload.AvailableToPrimeAt != nil {
+		availableToPrimeAt := time.Time(*mtoPayload.AvailableToPrimeAt)
+		model.AvailableToPrimeAt = &availableToPrimeAt
 	}
 
-	if mtoPayload.IsCanceled != nil {
-		model.IsCanceled = *mtoPayload.IsCanceled
+	if mtoPayload.IsCanceled != nil && *mtoPayload.IsCanceled == true {
+		model.Status = models.MoveStatusCANCELED
 	}
 
 	return model

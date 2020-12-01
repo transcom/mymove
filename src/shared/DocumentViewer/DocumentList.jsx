@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import { faPlusCircle } from '@fortawesome/fontawesome-free-solid';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import { renderStatusIcon, openLinkInNewWindow } from 'shared/utils';
 import styles from 'shared/DocumentViewer/DocumentList.module.scss';
@@ -23,7 +23,7 @@ const DocumentList = ({
       const status = renderStatusIcon(doc.status);
       const detailUrl = `${detailUrlPrefix}/${doc.id}`;
       return (
-        <div className={`panel-field ${chosenDocument}`} data-cy="doc-link" key={doc.id}>
+        <div className={`panel-field ${chosenDocument}`} data-testid="doc-link" key={doc.id}>
           <span className="status">{status}</span>
           {!disableLinks &&
             (window.name === `docViewer-${moveId}` ? (
@@ -60,7 +60,7 @@ const DocumentList = ({
         </Link>
       </div>
     ) : (
-      <div className={styles['document-upload-link']} data-cy="document-upload-link">
+      <div className={styles['document-upload-link']} data-testid="document-upload-link">
         <a
           href={uploadDocumentUrl}
           target={`docViewer-${moveId}`}

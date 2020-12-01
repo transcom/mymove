@@ -75,7 +75,7 @@ func (suite *GHCRateEngineImportSuite) helperVerifyDomesticRateAreaToIDMap(contr
 		Count(models.ReRateArea{})
 	suite.NoError(dbErr)
 
-	suite.Equal(4, count)
+	suite.Equal(12, count)
 	suite.Equal(count, len(domesticRateAreaToIDMap))
 
 	var rateArea models.ReRateArea
@@ -134,15 +134,6 @@ func (suite *GHCRateEngineImportSuite) helperVerifyInternationalRateAreaToIDMap(
 	suite.Equal(rateArea.ID, internationalRateAreaToIDMap["US8101000"])
 }
 
-func (suite *GHCRateEngineImportSuite) helperImportRERateAreaDropStage(action string) {
-	if action == "setup" {
-		// drop a staging table that we are depending on to do import
-		dropQuery := fmt.Sprintf("DROP TABLE IF EXISTS %s;", "stage_conus_to_oconus_prices")
-		dropErr := suite.DB().RawQuery(dropQuery).Exec()
-		suite.NoError(dropErr)
-	}
-}
-
 func (suite *GHCRateEngineImportSuite) helperImportRERateAreaVerifyImportComplete(contractCode string) {
 	// Get contract UUID.
 	var contract models.ReContract
@@ -153,7 +144,7 @@ func (suite *GHCRateEngineImportSuite) helperImportRERateAreaVerifyImportComplet
 	count, countErr := suite.DB().Where("contract_id = ?", contract.ID).Count(&rateArea)
 
 	suite.NoError(countErr)
-	suite.Equal(9, count)
+	suite.Equal(17, count)
 }
 
 func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_importRERateArea() {
@@ -197,12 +188,16 @@ func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_importRERateAre
 	})
 
 	suite.T().Run("Fail to run import, missing staging table", func(t *testing.T) {
-		suite.helperImportRERateAreaDropStage("setup")
+		renameQuery := fmt.Sprintf("ALTER TABLE stage_conus_to_oconus_prices RENAME TO missing_stage_conus_to_oconus_prices")
+		renameErr := suite.DB().RawQuery(renameQuery).Exec()
+		suite.NoError(renameErr)
 
 		err = gre.importRERateArea(suite.DB())
 		suite.Error(err)
 
-		suite.helperSetupStagingTables()
+		renameQuery = fmt.Sprintf("ALTER TABLE missing_stage_conus_to_oconus_prices RENAME TO stage_conus_to_oconus_prices")
+		renameErr = suite.DB().RawQuery(renameQuery).Exec()
+		suite.NoError(renameErr)
 	})
 
 	gre2 := &GHCRateEngineImporter{

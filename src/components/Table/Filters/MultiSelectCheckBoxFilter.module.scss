@@ -1,0 +1,97 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/_mixins';
+@import 'shared/styles/colors';
+
+:global {
+  :local(.MultiSelectCheckBoxFilterWrapper) {
+    @include u-radius(0);
+    @include u-padding-top(1);
+    @include u-font-weight(normal);
+    @include u-font-size('body', 4);
+
+    label {
+      @include u-margin-y(0.5);
+    }
+
+    .MultiSelectCheckBoxFilter__placeholder {
+      color: $base-darkest;
+    }
+
+    .MultiSelectCheckBoxFilter__control {
+      height: 2.5rem;
+      @include u-radius(0);
+      @include u-minw(15);
+      max-width: 200px;
+      border-color: $base-darkest;
+    }
+
+    .MultiSelectCheckBoxFilter__control:hover {
+      border-color: $base-darkest;
+    }
+
+    .MultiSelectCheckBoxFilter__control--is-focused {
+      box-shadow: none;
+      border-color: $base-darkest;
+      outline: 0.25rem solid #2491ff !important;
+      outline-offset: 0;
+    }
+
+    .MultiSelectCheckBoxFilter__menu {
+      @include u-margin-top(0.5);
+      @include u-radius(0);
+    }
+
+    .MultiSelectCheckBoxFilter__value-container {
+      @include u-height(2.5);
+    }
+
+    .MultiSelectCheckBoxFilter__value-container div {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .MultiSelectCheckBoxFilter__value-container div span + span:before {
+      content: ', ';
+    }
+
+    .MultiSelectCheckBoxFilter__indicator-separator {
+      display: none;
+    }
+
+    .MultiSelectCheckBoxFilter__option {
+      border: 2px solid $base-darkest;
+      border-left: 0;
+      border-right: 0;
+      background-color: white;
+      color: $base-darkest;
+
+      .usa-checkbox label {
+        display: flex;
+        align-items: center;
+        padding-left: 0;
+        text-indent: unset;
+      }
+
+      .usa-checkbox label:before {
+        flex-grow: 0;
+        flex-shrink: 0;
+      }
+    }
+
+    .MultiSelectCheckBoxFilter__option:not(:first-child),
+    :global .MultiSelectCheckBoxFilter__option:first-child {
+      border-top: 0;
+    }
+
+    .MultiSelectCheckBoxFilter__option:last-child {
+      border-bottom: 0;
+    }
+
+    .MultiSelectCheckBoxFilter__indicator svg {
+      color: $base-darker;
+      height: 0.9rem;
+      width: 0.9rem;
+    }
+  }
+}

@@ -5,7 +5,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/gobuffalo/validate"
+	"github.com/transcom/mymove/pkg/testdatagen"
+
+	"github.com/gobuffalo/validate/v3"
 
 	"github.com/gofrs/uuid"
 
@@ -15,9 +17,10 @@ import (
 )
 
 type testOfficeUserQueryBuilder struct {
-	fakeFetchOne  func(model interface{}) error
-	fakeCreateOne func(models interface{}) (*validate.Errors, error)
-	fakeUpdateOne func(models interface{}, eTag *string) (*validate.Errors, error)
+	fakeFetchOne             func(model interface{}) error
+	fakeCreateOne            func(models interface{}) (*validate.Errors, error)
+	fakeUpdateOne            func(models interface{}, eTag *string) (*validate.Errors, error)
+	fakeQueryForAssociations func(model interface{}, associations services.QueryAssociations, filters []services.QueryFilter, pagination services.Pagination, ordering services.QueryOrder) error
 }
 
 func (t *testOfficeUserQueryBuilder) FetchOne(model interface{}, filters []services.QueryFilter) error {
@@ -26,11 +29,15 @@ func (t *testOfficeUserQueryBuilder) FetchOne(model interface{}, filters []servi
 }
 
 func (t *testOfficeUserQueryBuilder) CreateOne(model interface{}) (*validate.Errors, error) {
-	return nil, nil
+	return t.fakeCreateOne(model)
 }
 
 func (t *testOfficeUserQueryBuilder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, error) {
 	return nil, nil
+}
+
+func (t *testOfficeUserQueryBuilder) QueryForAssociations(model interface{}, associations services.QueryAssociations, filters []services.QueryFilter, pagination services.Pagination, ordering services.QueryOrder) error {
+	return nil
 }
 
 func (suite *OfficeUserServiceSuite) TestFetchOfficeUser() {
@@ -74,5 +81,26 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUser() {
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")
 		suite.Equal(models.OfficeUser{}, officeUser)
+	})
+}
+
+func (suite *OfficeUserServiceSuite) TestFetchOfficeUserPop() {
+	suite.T().Run("returns office user on success", func(t *testing.T) {
+		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		fetcher := NewOfficeUserFetcherPop(suite.DB())
+
+		fetchedUser, err := fetcher.FetchOfficeUserByID(officeUser.ID)
+
+		suite.NoError(err)
+		suite.Equal(officeUser.ID, fetchedUser.ID)
+	})
+
+	suite.T().Run("returns zero value office user on error", func(t *testing.T) {
+		fetcher := NewOfficeUserFetcherPop(suite.DB())
+		officeUser, err := fetcher.FetchOfficeUserByID(uuid.Nil)
+
+		suite.Error(err)
+		suite.Equal(err.Error(), "sql: no rows in result set")
+		suite.Equal(uuid.Nil, officeUser.ID)
 	})
 }

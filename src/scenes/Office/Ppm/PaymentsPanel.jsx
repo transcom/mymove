@@ -1,7 +1,7 @@
 import { get, isEmpty } from 'lodash';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { push } from 'react-router-redux';
+import { push } from 'connected-react-router';
 import { bindActionCreators } from 'redux';
 import {
   selectReimbursement,
@@ -16,13 +16,14 @@ import { selectPaymentRequestCertificationForMove } from 'shared/Entities/module
 import { getLastError } from 'shared/Swagger/selectors';
 
 import { no_op } from 'shared/utils';
+import { SIGNED_CERT_OPTIONS } from 'shared/constants';
 import { formatCents, formatDate } from 'shared/formatters';
 
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
-import faClock from '@fortawesome/fontawesome-free-solid/faClock';
-import faPlusSquare from '@fortawesome/fontawesome-free-solid/faPlusSquare';
-import faMinusSquare from '@fortawesome/fontawesome-free-solid/faMinusSquare';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
+import { faClock } from '@fortawesome/free-solid-svg-icons/faClock';
+import { faPlusSquare } from '@fortawesome/free-solid-svg-icons/faPlusSquare';
+import { faMinusSquare } from '@fortawesome/free-solid-svg-icons/faMinusSquare';
 
 import './PaymentsPanel.css';
 import Alert from 'shared/Alert';
@@ -39,7 +40,7 @@ export function sswIsDisabled(ppm, signedCertification) {
 }
 
 function missingSignature(signedCertification) {
-  return isEmpty(signedCertification) || signedCertification.certification_type !== 'PPM_PAYMENT';
+  return isEmpty(signedCertification) || signedCertification.certification_type !== SIGNED_CERT_OPTIONS.PPM_PAYMENT;
 }
 
 function missingRequiredPPMInfo(ppm) {
@@ -48,6 +49,20 @@ function missingRequiredPPMInfo(ppm) {
 
 function getUserDate() {
   return new Date().toISOString().split('T')[0];
+}
+
+// Taken from https://mathiasbynens.github.io/rel-noopener/
+// tl;dr-- opening content in target _blank can leave parent window open to malicious code
+// below is a safer way to open content in a new tab
+function safeOpenInNewTab(url) {
+  if (url) {
+    let win = window.open();
+    // win can be null if a pop-up blocker is used
+    if (win) {
+      win.opener = null;
+      win.location = url;
+    }
+  }
 }
 
 class PaymentsTable extends Component {
@@ -83,15 +98,7 @@ class PaymentsTable extends Component {
           obj: { url },
         },
       } = response;
-      if (url) {
-        // Taken from https://mathiasbynens.github.io/rel-noopener/
-        let win = window.open();
-        // win can be null if a pop-up blocker is used
-        if (win) {
-          win.opener = null;
-          win.location = url;
-        }
-      }
+      safeOpenInNewTab(url);
       this.setState({ disableDownload: false });
     });
   };
@@ -105,8 +112,7 @@ class PaymentsTable extends Component {
     const { moveId } = this.props;
     const userDate = getUserDate();
 
-    // eslint-disable-next-line
-    window.open(`/internal/moves/${moveId}/shipment_summary_worksheet/?preparationDate=${userDate}`);
+    safeOpenInNewTab(`/internal/moves/${moveId}/shipment_summary_worksheet/?preparationDate=${userDate}`);
   };
 
   renderAdvanceAction = () => {
@@ -218,15 +224,15 @@ class PaymentsTable extends Component {
               <div className="paperwork">
                 <div className="paperwork-step">
                   <div>
-                    <p>Download Shipment Summary Worksheet</p>
-                    <p>Download and complete the worksheet, which is a fill-in PDF form.</p>
+                    <p>Complete the Shipment Summary Worksheet</p>
+                    <p>Open the SSW in a new tab. Download and open the PDF, then fill in any required info.</p>
                   </div>
                   <button
                     className="usa-button"
                     disabled={this.props.disableSSW}
                     onClick={this.downloadShipmentSummary}
                   >
-                    Download Worksheet (PDF)
+                    Open SSW in a New Tab
                   </button>
                 </div>
                 {this.props.disableSSW && (

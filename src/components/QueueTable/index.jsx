@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from '@trussworks/react-uswds';
+
 import { ReactComponent as ChevronLeft } from '../../shared/icon/chevron-left.svg';
 import { ReactComponent as ChevronRight } from '../../shared/icon/chevron-right.svg';
 
@@ -46,7 +47,7 @@ const QueueTable = () => (
         <tr>
           <td>Payment requested</td>
           <td>
-            <a>Clark-Nuñez, Sofía</a>
+            <a href="#">Clark-Nuñez, Sofía</a>
           </td>
           <td>GIW13</td>
           <td>Marines</td>
@@ -56,7 +57,7 @@ const QueueTable = () => (
         <tr>
           <td>Payment requested</td>
           <td>
-            <a>Clark-Nuñez, Sofía</a>
+            <a href="#">Clark-Nuñez, Sofía</a>
           </td>
           <td>GIW13</td>
           <td>Marines</td>

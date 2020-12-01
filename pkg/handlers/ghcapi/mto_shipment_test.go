@@ -4,12 +4,15 @@ import (
 	"fmt"
 	"net/http/httptest"
 	"testing"
+	"time"
 
-	"github.com/transcom/mymove/pkg/route"
+	"github.com/gofrs/uuid"
+
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 
 	"github.com/transcom/mymove/pkg/services"
 
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 
@@ -29,13 +32,16 @@ import (
 )
 
 func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
-	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	mto := testdatagen.MakeDefaultMove(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: mto,
+		Move: mto,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusSubmitted,
+		},
 	})
 
 	shipments := models.MTOShipments{mtoShipment}
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("/move_task_orders/%s/mto_shipments", mto.ID.String()), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
@@ -113,12 +119,36 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 }
 
 func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
-	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{Move: models.Move{Status: models.MoveStatusAPPROVED}})
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-		MoveTaskOrder: mto,
+		Move: mto,
+		MTOShipment: models.MTOShipment{
+			Status:       models.MTOShipmentStatusSubmitted,
+			ShipmentType: models.MTOShipmentTypeHHGLongHaulDom,
+		},
 	})
+	// Populate the reServices table with codes needed by the
+	// HHG_LONGHAUL_DOMESTIC shipment type
+	reServiceCodes := []models.ReServiceCode{
+		models.ReServiceCodeDLH,
+		models.ReServiceCodeFSC,
+		models.ReServiceCodeDOP,
+		models.ReServiceCodeDDP,
+		models.ReServiceCodeDPK,
+		models.ReServiceCodeDUPK,
+	}
+	for _, serviceCode := range reServiceCodes {
+		testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code:      serviceCode,
+				Name:      "test",
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
+			},
+		})
+	}
 
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
 
 	req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", mto.ID.String(), mtoShipment.ID.String()), nil)
@@ -136,13 +166,13 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		queryBuilder := query.NewQueryBuilder(suite.DB())
 		fetcher := fetch.NewFetcher(queryBuilder)
 		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
-		updater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), queryBuilder, siCreator, route.NewTestingPlanner(500))
+		planner := &routemocks.Planner{}
+		updater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), queryBuilder, siCreator, planner)
 		handler := PatchShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			fetcher,
 			updater,
 		}
-
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusOK{}, response)
 
@@ -251,5 +281,95 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusConflict{}, response)
+	})
+
+	suite.T().Run("Successful patch with webhook notification - On a submitted move", func(t *testing.T) {
+		// Create mock fetcher and updater
+		mockFetcher := mocks.Fetcher{}
+		mockUpdater := mocks.MTOShipmentStatusUpdater{}
+
+		// Create an mto shipment on a move that is available to prime
+		now := time.Now()
+		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			Move: models.Move{
+				AvailableToPrimeAt: &now,
+			},
+			MTOShipment: models.MTOShipment{
+				Status:       models.MTOShipmentStatusSubmitted,
+				ShipmentType: models.MTOShipmentTypeHHGLongHaulDom,
+			},
+		})
+
+		// Set the traceID so we can use it to find the webhook notification
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
+
+		handler := PatchShipmentHandler{
+			handlerContext,
+			&mockFetcher,
+			&mockUpdater,
+		}
+
+		mockUpdater.On("UpdateMTOShipmentStatus",
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		).Return(&mtoShipment, nil)
+
+		// Call the handler
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusOK{}, response)
+
+		okResponse := response.(*mtoshipmentops.PatchMTOShipmentStatusOK)
+		suite.Equal(mtoShipment.ID.String(), okResponse.Payload.ID.String())
+		suite.NotNil(okResponse.Payload.ETag)
+
+		// Check that webhook notification was stored
+		suite.HasWebhookNotification(mtoShipment.ID, handlerContext.GetTraceID())
+
+	})
+
+	suite.T().Run("Successful patch with no webhook notification - On an unsubmitted move", func(t *testing.T) {
+		// Create mock fetcher and updater
+		mockFetcher := mocks.Fetcher{}
+		mockUpdater := mocks.MTOShipmentStatusUpdater{}
+
+		// Create an mto shipment on a move that is available to prime
+		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status:       models.MTOShipmentStatusSubmitted,
+				ShipmentType: models.MTOShipmentTypeHHGLongHaulDom,
+			},
+		})
+
+		// Set the traceID so we can use it to find the webhook notification
+		handlerContext := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		handlerContext.SetTraceID(uuid.Must(uuid.NewV4()))
+
+		handler := PatchShipmentHandler{
+			handlerContext,
+			&mockFetcher,
+			&mockUpdater,
+		}
+
+		mockUpdater.On("UpdateMTOShipmentStatus",
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		).Return(&mtoShipment, nil)
+
+		// Call the handler
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusOK{}, response)
+
+		okResponse := response.(*mtoshipmentops.PatchMTOShipmentStatusOK)
+		suite.Equal(mtoShipment.ID.String(), okResponse.Payload.ID.String())
+		suite.NotNil(okResponse.Payload.ETag)
+
+		// Check that webhook notification was stored
+		suite.HasNoWebhookNotification(mtoShipment.ID, handlerContext.GetTraceID())
+
 	})
 }

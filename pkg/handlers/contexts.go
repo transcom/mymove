@@ -4,7 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/gobuffalo/pop"
+	"github.com/alexedwards/scs/v2"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -36,8 +37,6 @@ type HandlerContext interface {
 	SetPlanner(planner route.Planner)
 	CookieSecret() string
 	SetCookieSecret(secret string)
-	NoSessionTimeout() bool
-	SetNoSessionTimeout()
 	IWSPersonLookup() iws.PersonLookup
 	SetIWSPersonLookup(rbs iws.PersonLookup)
 	SendProductionInvoice() bool
@@ -57,6 +56,8 @@ type HandlerContext interface {
 	SetDPSAuthParams(params dpsauth.Params)
 	SetTraceID(traceID uuid.UUID)
 	GetTraceID() uuid.UUID
+	SetSessionManagers(sessionManagers [3]*scs.SessionManager)
+	SessionManager(session *auth.Session) *scs.SessionManager
 }
 
 // FeatureFlag struct for feature flags
@@ -70,7 +71,6 @@ type handlerContext struct {
 	db                    *pop.Connection
 	logger                Logger
 	cookieSecret          string
-	noSessionTimeout      bool
 	planner               route.Planner
 	storage               storage.FileStorer
 	notificationSender    notifications.NotificationSender
@@ -83,6 +83,7 @@ type handlerContext struct {
 	appNames              auth.ApplicationServername
 	featureFlags          map[string]bool
 	traceID               uuid.UUID
+	sessionManagers       [3]*scs.SessionManager
 }
 
 // NewHandlerContext returns a new handlerContext with its required private fields set.
@@ -175,16 +176,6 @@ func (hctx *handlerContext) SetCookieSecret(cookieSecret string) {
 	hctx.cookieSecret = cookieSecret
 }
 
-// NoSessionTimeout is a flag which, when true, indicates that sessions should not timeout. Used in dev.
-func (hctx *handlerContext) NoSessionTimeout() bool {
-	return hctx.noSessionTimeout
-}
-
-// SetNoSessionTimeout is a simple setter for the noSessionTimeout private Field
-func (hctx *handlerContext) SetNoSessionTimeout() {
-	hctx.noSessionTimeout = true
-}
-
 func (hctx *handlerContext) IWSPersonLookup() iws.PersonLookup {
 	return hctx.iwsPersonLookup
 }
@@ -258,4 +249,22 @@ func (hctx *handlerContext) SetTraceID(traceID uuid.UUID) {
 
 func (hctx *handlerContext) GetTraceID() uuid.UUID {
 	return hctx.traceID
+}
+
+func (hctx *handlerContext) SetSessionManagers(sessionManagers [3]*scs.SessionManager) {
+	hctx.sessionManagers = sessionManagers
+}
+
+// SessionManager returns the session manager corresponding to the current app.
+// A user can be signed in at the same time across multiple apps.
+func (hctx *handlerContext) SessionManager(session *auth.Session) *scs.SessionManager {
+	if session.IsMilApp() {
+		return hctx.sessionManagers[0]
+	} else if session.IsAdminApp() {
+		return hctx.sessionManagers[1]
+	} else if session.IsOfficeApp() {
+		return hctx.sessionManagers[2]
+	}
+
+	return nil
 }

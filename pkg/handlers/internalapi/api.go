@@ -4,9 +4,16 @@ import (
 	"io"
 	"log"
 
+	officeuser "github.com/transcom/mymove/pkg/services/office_user"
+
+	"github.com/transcom/mymove/pkg/services/fetch"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	"github.com/transcom/mymove/pkg/services/query"
+
 	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
 	movedocument "github.com/transcom/mymove/pkg/services/move_documents"
 	postalcodeservice "github.com/transcom/mymove/pkg/services/postal_codes"
+	"github.com/transcom/mymove/pkg/services/ppmservices"
 
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/runtime"
@@ -26,18 +33,21 @@ func NewInternalAPI(context handlers.HandlerContext) *internalops.MymoveAPI {
 	}
 	internalAPI := internalops.NewMymoveAPI(internalSpec)
 
-	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{context}
+	internalAPI.ServeError = handlers.ServeCustomError
+	builder := query.NewQueryBuilder(context.DB())
+	fetcher := fetch.NewFetcher(builder)
 
+	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{context, officeuser.NewOfficeUserFetcherPop(context.DB())}
 	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler{context}
 	internalAPI.CertificationIndexSignedCertificationHandler = IndexSignedCertificationsHandler{context}
 
 	internalAPI.PpmCreatePersonallyProcuredMoveHandler = CreatePersonallyProcuredMoveHandler{context}
 	internalAPI.PpmIndexPersonallyProcuredMovesHandler = IndexPersonallyProcuredMovesHandler{context}
 	internalAPI.PpmPatchPersonallyProcuredMoveHandler = PatchPersonallyProcuredMoveHandler{context}
-	internalAPI.PpmUpdatePersonallyProcuredMoveEstimateHandler = UpdatePersonallyProcuredMoveEstimateHandler{context}
+	internalAPI.PpmUpdatePersonallyProcuredMoveEstimateHandler = UpdatePersonallyProcuredMoveEstimateHandler{context, ppmservices.NewEstimateCalculator(context.DB(), context.Planner())}
 	internalAPI.PpmSubmitPersonallyProcuredMoveHandler = SubmitPersonallyProcuredMoveHandler{context}
 	internalAPI.PpmShowPPMEstimateHandler = ShowPPMEstimateHandler{context}
-	internalAPI.PpmShowPPMSitEstimateHandler = ShowPPMSitEstimateHandler{context}
+	internalAPI.PpmShowPPMSitEstimateHandler = ShowPPMSitEstimateHandler{context, ppmservices.NewEstimateCalculator(context.DB(), context.Planner())}
 	internalAPI.PpmShowPPMIncentiveHandler = ShowPPMIncentiveHandler{context}
 	internalAPI.PpmRequestPPMPaymentHandler = RequestPPMPaymentHandler{context}
 	internalAPI.PpmCreatePPMAttachmentsHandler = CreatePersonallyProcuredMoveAttachmentsHandler{context}
@@ -101,7 +111,7 @@ func NewInternalAPI(context handlers.HandlerContext) *internalops.MymoveAPI {
 
 	internalAPI.MovesShowShipmentSummaryWorksheetHandler = ShowShipmentSummaryWorksheetHandler{context}
 
-	internalAPI.ApplicationPdfProducer = PDFProducer()
+	internalAPI.RegisterProducer("application/pdf", PDFProducer())
 
 	internalAPI.PostalCodesValidatePostalCodeWithRateDataHandler = ValidatePostalCodeWithRateDataHandler{
 		context,
@@ -112,6 +122,24 @@ func NewInternalAPI(context handlers.HandlerContext) *internalops.MymoveAPI {
 	internalAPI.AccesscodeFetchAccessCodeHandler = FetchAccessCodeHandler{context, accesscodeservice.NewAccessCodeFetcher(context.DB())}
 	internalAPI.AccesscodeValidateAccessCodeHandler = ValidateAccessCodeHandler{context, accesscodeservice.NewAccessCodeValidator(context.DB())}
 	internalAPI.AccesscodeClaimAccessCodeHandler = ClaimAccessCodeHandler{context, accesscodeservice.NewAccessCodeClaimer(context.DB())}
+
+	// GHC Endpoint
+
+	internalAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
+		context,
+		mtoshipment.NewMTOShipmentCreator(context.DB(), builder, fetcher),
+	}
+
+	internalAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateMTOShipmentHandler{
+		context,
+		mtoshipment.NewMTOShipmentUpdater(context.DB(), builder, fetcher, context.Planner()),
+	}
+
+	internalAPI.MtoShipmentListMTOShipmentsHandler = ListMTOShipmentsHandler{
+		context,
+		fetch.NewListFetcher(builder),
+		fetch.NewFetcher(builder),
+	}
 
 	return internalAPI
 }

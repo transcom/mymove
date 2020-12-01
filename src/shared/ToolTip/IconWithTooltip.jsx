@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faQuestionCircle from '@fortawesome/fontawesome-free-solid/faQuestionCircle';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons/faQuestionCircle';
 import styles from './IconWithTooltip.module.scss';
 
 class IconWithTooltip extends Component {
@@ -26,7 +26,7 @@ class IconWithTooltip extends Component {
           onClick={this.toggleTooltip}
         />
         {showTooltip && (
-          <div data-cy="tooltip" className={styles['tooltip']} style={{ ...toolTipStyles }}>
+          <div data-testid="tooltip" className={styles['tooltip']} style={{ ...toolTipStyles }}>
             <div className={styles['arrow']} onClick={this.toggleTooltip} />
             <div className={`${styles['tooltiptext']} ${toolTipTextClassName}`}>{toolTipText}</div>
           </div>

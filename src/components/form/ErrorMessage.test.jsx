@@ -1,7 +1,8 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import { ErrorMessage as UswdsErrorMessage } from '@trussworks/react-uswds';
-import { ErrorMessage } from '.';
+
+import { ErrorMessage } from './index';
 
 describe('ErrorMessage', () => {
   describe('with error and display true', () => {

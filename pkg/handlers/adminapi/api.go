@@ -21,6 +21,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/office"
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 	tspop "github.com/transcom/mymove/pkg/services/tsp"
+	user "github.com/transcom/mymove/pkg/services/user"
 
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -38,6 +39,7 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	adminAPI := adminops.NewMymoveAPI(adminSpec)
 	queryBuilder := query.NewQueryBuilder(context.DB())
+	adminAPI.ServeError = handlers.ServeCustomError
 
 	adminAPI.OfficeUsersIndexOfficeUsersHandler = IndexOfficeUsersHandler{
 		context,
@@ -52,17 +54,19 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		query.NewQueryFilter,
 	}
 
+	userRolesCreator := usersroles.NewUsersRolesCreator(context.DB())
 	adminAPI.OfficeUsersCreateOfficeUserHandler = CreateOfficeUserHandler{
 		context,
-		officeuser.NewOfficeUserCreator(queryBuilder),
+		officeuser.NewOfficeUserCreator(context.DB(), queryBuilder),
 		query.NewQueryFilter,
+		userRolesCreator,
 	}
 
 	adminAPI.OfficeUsersUpdateOfficeUserHandler = UpdateOfficeUserHandler{
 		context,
 		officeuser.NewOfficeUserUpdater(queryBuilder),
 		query.NewQueryFilter,
-		usersroles.NewUsersRolesCreator(context.DB()),
+		userRolesCreator,
 	}
 
 	adminAPI.OfficeIndexOfficesHandler = IndexOfficesHandler{
@@ -119,6 +123,12 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		pagination.NewPagination,
 	}
 
+	adminAPI.UsersRevokeUserSessionHandler = RevokeUserSessionHandler{
+		context,
+		user.NewUserSessionRevocation(queryBuilder),
+		query.NewQueryFilter,
+	}
+
 	adminAPI.AdminUsersGetAdminUserHandler = GetAdminUserHandler{
 		context,
 		adminuser.NewAdminUserFetcher(queryBuilder),
@@ -127,13 +137,19 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	adminAPI.AdminUsersCreateAdminUserHandler = CreateAdminUserHandler{
 		context,
-		adminuser.NewAdminUserCreator(queryBuilder),
+		adminuser.NewAdminUserCreator(context.DB(), queryBuilder),
 		query.NewQueryFilter,
 	}
 
 	adminAPI.AdminUsersUpdateAdminUserHandler = UpdateAdminUserHandler{
 		context,
 		adminuser.NewAdminUserUpdater(queryBuilder),
+		query.NewQueryFilter,
+	}
+
+	adminAPI.UsersGetUserHandler = GetUserHandler{
+		context,
+		user.NewUserFetcher(queryBuilder),
 		query.NewQueryFilter,
 	}
 

@@ -8,7 +8,7 @@ import (
 
 	"github.com/mitchellh/mapstructure"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"golang.org/x/text/language"
@@ -32,6 +32,7 @@ func FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData ShipmentSummar
 
 // ShipmentSummaryWorksheetPage1Values is an object representing a Shipment Summary Worksheet
 type ShipmentSummaryWorksheetPage1Values struct {
+	FOUOBanner                      string
 	ServiceMemberName               string
 	MaxSITStorageEntitlement        string
 	PreferredPhoneNumber            string
@@ -90,6 +91,7 @@ type ShipmentSummaryWorkSheetSIT struct {
 
 // ShipmentSummaryWorksheetPage2Values is an object representing a Shipment Summary Worksheet
 type ShipmentSummaryWorksheetPage2Values struct {
+	FOUOBanner      string
 	PreparationDate string
 	TAC             string
 	SAC             string
@@ -141,6 +143,7 @@ type FormattedOtherExpenses struct {
 
 // ShipmentSummaryWorksheetPage3Values is an object representing a Shipment Summary Worksheet
 type ShipmentSummaryWorksheetPage3Values struct {
+	FOUOBanner             string
 	PreparationDate        string
 	ServiceMemberSignature string
 	SignatureDate          string
@@ -346,9 +349,14 @@ func FetchMovingExpensesShipmentSummaryWorksheet(move Move, db *pop.Connection, 
 	return movingExpenseDocuments, nil
 }
 
+const (
+	forOfficialUseOnlyText = "UNCLASSIFIED // FOR OFFICIAL USE ONLY"
+)
+
 // FormatValuesShipmentSummaryWorksheetFormPage1 formats the data for page 1 of the Shipment Summary Worksheet
 func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData) ShipmentSummaryWorksheetPage1Values {
 	page1 := ShipmentSummaryWorksheetPage1Values{}
+	page1.FOUOBanner = forOfficialUseOnlyText
 	page1.MaxSITStorageEntitlement = "90 days per each shipment"
 	// We don't currently know what allows POV to be authorized, so we are hardcoding it to "No" to start
 	page1.POVAuthorized = "No"
@@ -454,6 +462,7 @@ func FormatRank(rank *ServiceMemberRank) string {
 func FormatValuesShipmentSummaryWorksheetFormPage2(data ShipmentSummaryFormData) (ShipmentSummaryWorksheetPage2Values, error) {
 	var err error
 	page2 := ShipmentSummaryWorksheetPage2Values{}
+	page2.FOUOBanner = forOfficialUseOnlyText
 	page2.TAC = derefStringTypes(data.Order.TAC)
 	page2.SAC = derefStringTypes(data.Order.SAC)
 	page2.PreparationDate = FormatDate(data.PreparationDate)
@@ -469,6 +478,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data ShipmentSummaryFormData)
 // FormatValuesShipmentSummaryWorksheetFormPage3 formats the data for page 2 of the Shipment Summary Worksheet
 func FormatValuesShipmentSummaryWorksheetFormPage3(data ShipmentSummaryFormData) ShipmentSummaryWorksheetPage3Values {
 	page3 := ShipmentSummaryWorksheetPage3Values{}
+	page3.FOUOBanner = forOfficialUseOnlyText
 	page3.PreparationDate = FormatDate(data.PreparationDate)
 	page3.FormattedOtherExpenses = FormatOtherExpenses(data.MovingExpenseDocuments)
 	page3.ServiceMemberSignature = FormatSignature(data.ServiceMember)

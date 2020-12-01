@@ -1,6 +1,7 @@
-FROM alpine:3.11.6
+FROM alpine:3.12.1
 
 COPY bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
+COPY bin/rds-ca-us-gov-west-1-2017-root.pem /bin/rds-ca-us-gov-west-1-2017-root.pem
 COPY bin/milmove /bin/milmove
 
 COPY migrations/app/schema /migrate/schema

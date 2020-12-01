@@ -8,14 +8,14 @@ package internalmessages
 import (
 	"strconv"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // LoggedInUserPayload logged in user payload
+//
 // swagger:model LoggedInUserPayload
 type LoggedInUserPayload struct {
 
@@ -33,6 +33,9 @@ type LoggedInUserPayload struct {
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
 
+	// office user
+	OfficeUser *OfficeUser `json:"office_user,omitempty"`
+
 	// roles
 	Roles []*Role `json:"roles"`
 
@@ -49,6 +52,10 @@ func (m *LoggedInUserPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOfficeUser(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -87,6 +94,24 @@ func (m *LoggedInUserPayload) validateID(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *LoggedInUserPayload) validateOfficeUser(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.OfficeUser) { // not required
+		return nil
+	}
+
+	if m.OfficeUser != nil {
+		if err := m.OfficeUser.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("office_user")
+			}
+			return err
+		}
 	}
 
 	return nil

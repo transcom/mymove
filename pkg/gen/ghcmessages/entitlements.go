@@ -6,14 +6,14 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // Entitlements entitlements
+//
 // swagger:model Entitlements
 type Entitlements struct {
 
@@ -43,7 +43,7 @@ type Entitlements struct {
 	ProGearWeightSpouse int64 `json:"proGearWeightSpouse,omitempty"`
 
 	// storage in transit
-	StorageInTransit int64 `json:"storageInTransit,omitempty"`
+	StorageInTransit *int64 `json:"storageInTransit,omitempty"`
 
 	// total dependents
 	TotalDependents int64 `json:"totalDependents,omitempty"`

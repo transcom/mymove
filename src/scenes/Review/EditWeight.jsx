@@ -3,7 +3,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { debounce, get } from 'lodash';
 import SaveCancelButtons from './SaveCancelButtons';
-import { push } from 'react-router-redux';
+import { push } from 'connected-react-router';
 import { reduxForm } from 'redux-form';
 
 import Alert from 'shared/Alert'; // eslint-disable-line
@@ -17,6 +17,7 @@ import {
   updatePPMEstimate,
   getPpmWeightEstimate,
 } from 'shared/Entities/modules/ppms';
+import { fetchLatestOrders, selectActiveOrLatestOrders } from 'shared/Entities/modules/orders';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCentsRange } from 'shared/formatters';
 import { editBegin, editSuccessful, entitlementChangeBegin, checkEntitlement } from './ducks';
@@ -102,12 +103,12 @@ let EditWeightForm = (props) => {
               Profile
             </h1>
             <hr />
-            <h3 className="sm-heading">Edit PPM Weight:</h3>
+            <h3>Edit PPM Weight:</h3>
             <p>Changes could impact your move, including the estimated PPM incentive.</p>
             <EntitlementBar entitlement={entitlement} />
             <div className="edit-weight-container">
               <div className="usa-width-one-half">
-                <h4 className="sm-heading">Move estimate</h4>
+                <h4>Move estimate</h4>
                 <div>
                   <SwaggerField
                     className={fullFieldClass}
@@ -160,7 +161,7 @@ let EditWeightForm = (props) => {
               </div>
 
               <div className="usa-width-one-half">
-                <h4 className="sm-heading">Examples</h4>
+                <h4>Examples</h4>
                 <table className="examples-table">
                   <thead>
                     <tr>
@@ -203,6 +204,7 @@ class EditWeight extends Component {
     this.props.editBegin();
     this.props.entitlementChangeBegin();
     this.props.loadPPMs(this.props.match.params.moveId);
+    this.props.fetchLatestOrders(this.props.serviceMemberId);
     scrollToTop();
   }
 
@@ -329,7 +331,9 @@ class EditWeight extends Component {
 
 function mapStateToProps(state) {
   const moveID = state.moves.currentMove.id;
+  const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
   return {
+    serviceMemberId: serviceMemberId,
     currentPPM: selectActivePPMForMove(state, moveID),
     incentiveEstimateMin: selectPPMEstimateRange(state).range_min,
     incentiveEstimateMax: selectPPMEstimateRange(state).range_max,
@@ -338,7 +342,7 @@ function mapStateToProps(state) {
     entitlement: loadEntitlementsFromState(state),
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
     originDutyStationZip: state.serviceMember.currentServiceMember.current_station.address.postal_code,
-    orders: get(state, 'orders.currentOrders', {}),
+    orders: selectActiveOrLatestOrders(state),
   };
 }
 
@@ -347,6 +351,7 @@ function mapDispatchToProps(dispatch) {
     {
       push,
       loadPPMs,
+      fetchLatestOrders,
       updatePPM,
       getPpmWeightEstimate,
       editBegin,

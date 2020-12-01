@@ -3,9 +3,11 @@ package testdatagen
 import (
 	"fmt"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 )
 
 // MakeOfficeUser creates a single office user and associated TransportOffice
@@ -43,7 +45,7 @@ func MakeOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser
 
 	mergeModels(&officeUser, assertions.OfficeUser)
 
-	mustCreate(db, &officeUser)
+	mustCreate(db, &officeUser, assertions.Stub)
 
 	return officeUser
 }
@@ -73,7 +75,7 @@ func MakeOfficeUserWithNoUser(db *pop.Connection, assertions Assertions) models.
 
 	mergeModels(&officeUser, assertions.OfficeUser)
 
-	mustCreate(db, &officeUser)
+	mustCreate(db, &officeUser, assertions.Stub)
 
 	return officeUser
 }
@@ -81,4 +83,66 @@ func MakeOfficeUserWithNoUser(db *pop.Connection, assertions Assertions) models.
 // MakeDefaultOfficeUser makes an OfficeUser with default values
 func MakeDefaultOfficeUser(db *pop.Connection) models.OfficeUser {
 	return MakeOfficeUser(db, Assertions{})
+}
+
+// MakeTIOOfficeUser makes an OfficeUser with the TIO role
+func MakeTIOOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser {
+	tioRole := roles.Role{
+		ID:       uuid.Must(uuid.NewV4()),
+		RoleType: roles.RoleTypeTIO,
+		RoleName: "Transportation Invoicing Officer",
+	}
+
+	tioUser := models.User{
+		Roles: []roles.Role{tioRole},
+	}
+
+	officeUser := MakeOfficeUser(db, Assertions{
+		OfficeUser: models.OfficeUser{
+			User: tioUser,
+		},
+		Stub: assertions.Stub,
+	})
+
+	return officeUser
+}
+
+// MakeTOOOfficeUser makes an OfficeUser with the TOO role
+func MakeTOOOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser {
+	tooRole := roles.Role{
+		ID:       uuid.Must(uuid.NewV4()),
+		RoleType: roles.RoleTypeTOO,
+		RoleName: "Transportation Ordering Officer",
+	}
+
+	tooUser := models.User{
+		Roles: []roles.Role{tooRole},
+	}
+
+	officeUser := MakeOfficeUser(db, Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:   uuid.Must(uuid.NewV4()),
+			User: tooUser,
+		},
+		Stub: assertions.Stub,
+	})
+
+	return officeUser
+}
+
+// MakeOfficeUserWithUSMCGBLOC makes an OfficeUser tied to the USMC GBLOC
+func MakeOfficeUserWithUSMCGBLOC(db *pop.Connection) models.OfficeUser {
+	officeUUID, _ := uuid.NewV4()
+	transportationOffice := MakeTransportationOffice(db, Assertions{
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "USMC",
+			ID:    officeUUID,
+		},
+	})
+
+	return MakeOfficeUser(db, Assertions{
+		OfficeUser: models.OfficeUser{
+			TransportationOffice: transportationOffice,
+		},
+	})
 }

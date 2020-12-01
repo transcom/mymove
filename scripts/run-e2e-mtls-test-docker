@@ -132,31 +132,20 @@ function prime_api_client () {
     "$@"
 }
 
-#Integration test for Prime API
-#Return mtos from the fetch-mto endpoint where is_available_for_prime is true
+
+#Integration test/health check for Prime API
+#Return mtos from the fetch-mto-updates endpoint where available_to_prime_at is NOT NULL
 mtos=$(prime_api_client fetch-mto-updates)
-#Returns mtoShipments from the fetch-mto response, needed to return etag below
+#Returns mtoShipments from the fetch-mto-updates response (this would fail if API returns 500/400)
 mtoShipments=$(echo "$mtos" | jq '.[0] | .mtoShipments')
 echo "$mtoShipments"
 
-#TODO Decide what the goal of this test is. If it is simply to check that the
-#     Prime API is up and running, the above functions as a health check
-#     Adding more API calls makes this test more fragile without checking the
-#     output anyway.
-
-#Get etag for the first mtoShipment, needed to run update-mto-shipment below
-#etag=$(echo "$mtoShipments" | jq '.[0] | .eTag' |  tr -d '"')
-#Get ids from the received data
-#mto_id=$(echo "$mtos" | jq '.[0] | .id' |  tr -d '"')
-#mto_shipment_id=$(echo "$mtoShipments" | jq '.[0] | .id' |  tr -d '"')
-
-#Get body for update-mto-shipment request
-#params=$(cat ./pkg/testdatagen/testdata/update_mto_shipment.json)
-#Add ids and etag to the params
-#params=$(echo $params | jq \
-#  --arg etag $etag --arg mto_id $mto_id --arg mto_shipment_id $mto_shipment_id \
-#  '. + {ifMatch: $etag} + {mtoShipmentID: $mto_shipment_id} + {moveTaskOrderID: $mto_id}')
-
+#Integration test/health check for Support API
+#Return all mtos regardless of whether or not they have been made available to prime at some point
+list_mtos=$(prime_api_client support-list-mtos)
+#Returns mtoShipments from the fetch-mto-updates response (this would fail if API returns 500/400)
+supportMtoShipments=$(echo "$list_mtos" | jq '.[0] | .mtoShipments')
+echo "$supportMtoShipments"
 
 #
 # INTEGRATION TESTS END

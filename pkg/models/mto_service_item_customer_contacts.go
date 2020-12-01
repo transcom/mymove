@@ -3,9 +3,9 @@ package models
 import (
 	"time"
 
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
-	"github.com/gobuffalo/validate/validators"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
+	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
 )
 
@@ -20,7 +20,7 @@ const (
 	CustomerContactTypeSecond CustomerContactType = "SECOND"
 )
 
-// MTOServiceItemCustomerContact is an object representing dimensions for a service item.
+// MTOServiceItemCustomerContact is an object representing customer contact for a service item.
 type MTOServiceItemCustomerContact struct {
 	ID                         uuid.UUID           `db:"id"`
 	MTOServiceItem             MTOServiceItem      `belongs_to:"mto_service_items"`

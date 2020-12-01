@@ -8,18 +8,19 @@ package primemessages
 import (
 	"strconv"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // ServiceItem service item
+//
 // swagger:model ServiceItem
 type ServiceItem struct {
 
 	// e tag
+	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// id
@@ -27,6 +28,7 @@ type ServiceItem struct {
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// params
+	// Read Only: true
 	Params []*ServiceItemParamsItems0 `json:"params"`
 }
 
@@ -105,6 +107,7 @@ func (m *ServiceItem) UnmarshalBinary(b []byte) error {
 }
 
 // ServiceItemParamsItems0 service item params items0
+//
 // swagger:model ServiceItemParamsItems0
 type ServiceItemParamsItems0 struct {
 

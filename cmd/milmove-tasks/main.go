@@ -27,15 +27,15 @@ func main() {
 		SilenceUsage: true,
 	})
 
-	saveFuelPriceDataCommand := &cobra.Command{
-		Use:          "save-fuel-price-data",
-		Short:        "saves fuel price data",
-		Long:         "saves fuel price data",
-		RunE:         saveFuelPriceData,
+	saveGHCFuelPriceDataCommand := &cobra.Command{
+		Use:          "save-ghc-fuel-price-data",
+		Short:        "saves GHC diesel fuel price data",
+		Long:         "saves the national weekly average GHC diesel fuel price data from the EIA Open Data API",
+		RunE:         saveGHCFuelPriceData,
 		SilenceUsage: true,
 	}
-	initSaveFuelPriceFlags(saveFuelPriceDataCommand.Flags())
-	root.AddCommand(saveFuelPriceDataCommand)
+	initSaveGHCFuelPriceFlags(saveGHCFuelPriceDataCommand.Flags())
+	root.AddCommand(saveGHCFuelPriceDataCommand)
 
 	sendPostMoveSurveyCommand := &cobra.Command{
 		Use:          "send-post-move-survey",
@@ -56,6 +56,16 @@ func main() {
 	}
 	initPaymentReminderFlags(sendPaymentReminderCommand.Flags())
 	root.AddCommand(sendPaymentReminderCommand)
+
+	postFileToGEXCommand := &cobra.Command{
+		Use:          "post-file-to-gex",
+		Short:        "posts a file to GEX",
+		Long:         "posts a file to GEX",
+		RunE:         postFileToGEX,
+		SilenceUsage: true,
+	}
+	initPostFileToGEXFlags(postFileToGEXCommand.Flags())
+	root.AddCommand(postFileToGEXCommand)
 
 	completionCommand := &cobra.Command{
 		Use:   "completion",

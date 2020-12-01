@@ -1,3 +1,5 @@
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+
 export const emptyPayload = {
   type: 'GET_LOGGED_IN_USER_SUCCESS',
   payload: {
@@ -47,7 +49,6 @@ export default {
       edipi: '1234567890',
       email_is_preferred: false,
       first_name: 'Erin',
-      has_social_security_number: true,
       id: '1694e00e-17ff-43fe-af6d-ab0519a18ff2',
       is_profile_complete: true,
       last_name: 'Stanfill',
@@ -80,7 +81,7 @@ export default {
                   weight_estimate: 9000,
                 },
               ],
-              selected_move_type: 'PPM',
+              selected_move_type: SHIPMENT_OPTIONS.PPM,
               status: 'CANCELED',
             },
           ],
@@ -157,7 +158,7 @@ export default {
                   weight_estimate: 9000,
                 },
               ],
-              selected_move_type: 'PPM',
+              selected_move_type: SHIPMENT_OPTIONS.PPM,
               status: 'DRAFT',
             },
           ],

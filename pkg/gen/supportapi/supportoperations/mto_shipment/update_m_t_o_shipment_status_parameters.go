@@ -12,11 +12,10 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	supportmessages "github.com/transcom/mymove/pkg/gen/supportmessages"
+	"github.com/transcom/mymove/pkg/gen/supportmessages"
 )
 
 // NewUpdateMTOShipmentStatusParams creates a new UpdateMTOShipmentStatusParams object
@@ -71,7 +70,7 @@ func (o *UpdateMTOShipmentStatusParams) BindRequest(r *http.Request, route *midd
 		var body supportmessages.UpdateMTOShipmentStatus
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
-				res = append(res, errors.Required("body", "body"))
+				res = append(res, errors.Required("body", "body", ""))
 			} else {
 				res = append(res, errors.NewParseError("body", "body", "", err))
 			}
@@ -86,7 +85,7 @@ func (o *UpdateMTOShipmentStatusParams) BindRequest(r *http.Request, route *midd
 			}
 		}
 	} else {
-		res = append(res, errors.Required("body", "body"))
+		res = append(res, errors.Required("body", "body", ""))
 	}
 	rMtoShipmentID, rhkMtoShipmentID, _ := route.Params.GetOK("mtoShipmentID")
 	if err := o.bindMtoShipmentID(rMtoShipmentID, rhkMtoShipmentID, route.Formats); err != nil {
@@ -102,7 +101,7 @@ func (o *UpdateMTOShipmentStatusParams) BindRequest(r *http.Request, route *midd
 // bindIfMatch binds and validates parameter IfMatch from header.
 func (o *UpdateMTOShipmentStatusParams) bindIfMatch(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
-		return errors.Required("If-Match", "header")
+		return errors.Required("If-Match", "header", rawData)
 	}
 	var raw string
 	if len(rawData) > 0 {

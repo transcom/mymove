@@ -9,6 +9,7 @@ import (
 	"net/http"
 	neturl "net/url"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -165,19 +166,17 @@ func checkConfig(v *viper.Viper) error {
 	return nil
 }
 
-func createTLSConfig(clientKey []byte, clientCert []byte, ca []byte, insecureSkipVerify bool) (*tls.Config, error) {
+func createTLSConfig(clientKey []byte, clientCert []byte, ca []byte) (*tls.Config, error) {
 
 	keyPair, err := tls.X509KeyPair(clientCert, clientKey)
 	if err != nil {
 		return nil, err
 	}
 
-	// #nosec b/c gosec triggers on InsecureSkipVerify
 	tlsConfig := &tls.Config{
-		Certificates:       []tls.Certificate{keyPair},
-		InsecureSkipVerify: insecureSkipVerify,
-		MinVersion:         tls.VersionTLS12,
-		MaxVersion:         tls.VersionTLS13,
+		Certificates: []tls.Certificate{keyPair},
+		MinVersion:   tls.VersionTLS12,
+		MaxVersion:   tls.VersionTLS13,
 	}
 
 	if len(ca) > 0 {
@@ -232,7 +231,7 @@ func createHTTPClient(v *viper.Viper, logger *zap.Logger) (*http.Client, error) 
 		}
 
 		var tlsConfigErr error
-		tlsConfig, tlsConfigErr = createTLSConfig([]byte(clientKey), []byte(clientCert), caBytes, false)
+		tlsConfig, tlsConfigErr = createTLSConfig([]byte(clientKey), []byte(clientCert), caBytes)
 		if tlsConfigErr != nil {
 			return nil, errors.Wrap(tlsConfigErr, "error creating TLS config")
 		}
@@ -244,26 +243,26 @@ func createHTTPClient(v *viper.Viper, logger *zap.Logger) (*http.Client, error) 
 
 		if len(clientKeyFile) > 0 && len(clientCertFile) > 0 {
 
-			clientKey, clientKeyErr := ioutil.ReadFile(clientKeyFile) // #nosec b/c we need to read a file from a user-defined path
+			clientKey, clientKeyErr := ioutil.ReadFile(filepath.Clean(clientKeyFile))
 			if clientKeyErr != nil {
 				return nil, errors.Wrap(clientKeyErr, "error reading client key file at "+clientKeyFile)
 			}
 
-			clientCert, clientCertErr := ioutil.ReadFile(clientCertFile) // #nosec b/c we need to read a file from a user-defined path
+			clientCert, clientCertErr := ioutil.ReadFile(filepath.Clean(clientCertFile))
 			if clientCertErr != nil {
 				return nil, errors.Wrap(clientCertErr, "error reading client cert file at "+clientKeyFile)
 			}
 
 			caBytes := make([]byte, 0)
 			if caFile := v.GetString("ca-file"); len(caFile) > 0 {
-				content, err := ioutil.ReadFile(caFile) // #nosec b/c we need to read a file from a user-defined path
+				content, err := ioutil.ReadFile(filepath.Clean(caFile))
 				if err != nil {
 					return nil, errors.Wrap(err, "error reading ca file at "+caFile)
 				}
 				caBytes = content
 			}
 			var tlsConfigErr error
-			tlsConfig, tlsConfigErr = createTLSConfig(clientKey, clientCert, caBytes, false)
+			tlsConfig, tlsConfigErr = createTLSConfig(clientKey, clientCert, caBytes)
 			if tlsConfigErr != nil {
 				return nil, errors.Wrap(tlsConfigErr, "error creating TLS config")
 			}

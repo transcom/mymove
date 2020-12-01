@@ -6,15 +6,16 @@ import (
 	"crypto/tls"
 	"net/http"
 
-	errors "github.com/go-openapi/errors"
-	runtime "github.com/go-openapi/runtime"
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/errors"
+	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/runtime/middleware"
 
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations"
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/mto_shipment"
-	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/payment_requests"
+	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/payment_request"
+	"github.com/transcom/mymove/pkg/gen/supportapi/supportoperations/webhook"
 )
 
 //go:generate swagger generate server --target ../../gen --name Mymove --spec ../../../swagger/support.yaml --api-package supportoperations --model-package supportmessages --server-package supportapi --exclude-main
@@ -47,6 +48,36 @@ func configureAPI(api *supportoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation move_task_order.GetMoveTaskOrder has not yet been implemented")
 		})
 	}
+	if api.PaymentRequestGetPaymentRequestEDIHandler == nil {
+		api.PaymentRequestGetPaymentRequestEDIHandler = payment_request.GetPaymentRequestEDIHandlerFunc(func(params payment_request.GetPaymentRequestEDIParams) middleware.Responder {
+			return middleware.NotImplemented("operation payment_request.GetPaymentRequestEDI has not yet been implemented")
+		})
+	}
+	if api.PaymentRequestListMTOPaymentRequestsHandler == nil {
+		api.PaymentRequestListMTOPaymentRequestsHandler = payment_request.ListMTOPaymentRequestsHandlerFunc(func(params payment_request.ListMTOPaymentRequestsParams) middleware.Responder {
+			return middleware.NotImplemented("operation payment_request.ListMTOPaymentRequests has not yet been implemented")
+		})
+	}
+	if api.MoveTaskOrderListMTOsHandler == nil {
+		api.MoveTaskOrderListMTOsHandler = move_task_order.ListMTOsHandlerFunc(func(params move_task_order.ListMTOsParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.ListMTOs has not yet been implemented")
+		})
+	}
+	if api.MoveTaskOrderMakeMoveTaskOrderAvailableHandler == nil {
+		api.MoveTaskOrderMakeMoveTaskOrderAvailableHandler = move_task_order.MakeMoveTaskOrderAvailableHandlerFunc(func(params move_task_order.MakeMoveTaskOrderAvailableParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.MakeMoveTaskOrderAvailable has not yet been implemented")
+		})
+	}
+	if api.WebhookPostWebhookNotifyHandler == nil {
+		api.WebhookPostWebhookNotifyHandler = webhook.PostWebhookNotifyHandlerFunc(func(params webhook.PostWebhookNotifyParams) middleware.Responder {
+			return middleware.NotImplemented("operation webhook.PostWebhookNotify has not yet been implemented")
+		})
+	}
+	if api.PaymentRequestProcessReviewedPaymentRequestsHandler == nil {
+		api.PaymentRequestProcessReviewedPaymentRequestsHandler = payment_request.ProcessReviewedPaymentRequestsHandlerFunc(func(params payment_request.ProcessReviewedPaymentRequestsParams) middleware.Responder {
+			return middleware.NotImplemented("operation payment_request.ProcessReviewedPaymentRequests has not yet been implemented")
+		})
+	}
 	if api.MtoServiceItemUpdateMTOServiceItemStatusHandler == nil {
 		api.MtoServiceItemUpdateMTOServiceItemStatusHandler = mto_service_item.UpdateMTOServiceItemStatusHandlerFunc(func(params mto_service_item.UpdateMTOServiceItemStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.UpdateMTOServiceItemStatus has not yet been implemented")
@@ -57,16 +88,13 @@ func configureAPI(api *supportoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation mto_shipment.UpdateMTOShipmentStatus has not yet been implemented")
 		})
 	}
-	if api.MoveTaskOrderUpdateMoveTaskOrderStatusHandler == nil {
-		api.MoveTaskOrderUpdateMoveTaskOrderStatusHandler = move_task_order.UpdateMoveTaskOrderStatusHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderStatusParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_task_order.UpdateMoveTaskOrderStatus has not yet been implemented")
+	if api.PaymentRequestUpdatePaymentRequestStatusHandler == nil {
+		api.PaymentRequestUpdatePaymentRequestStatusHandler = payment_request.UpdatePaymentRequestStatusHandlerFunc(func(params payment_request.UpdatePaymentRequestStatusParams) middleware.Responder {
+			return middleware.NotImplemented("operation payment_request.UpdatePaymentRequestStatus has not yet been implemented")
 		})
 	}
-	if api.PaymentRequestsUpdatePaymentRequestStatusHandler == nil {
-		api.PaymentRequestsUpdatePaymentRequestStatusHandler = payment_requests.UpdatePaymentRequestStatusHandlerFunc(func(params payment_requests.UpdatePaymentRequestStatusParams) middleware.Responder {
-			return middleware.NotImplemented("operation payment_requests.UpdatePaymentRequestStatus has not yet been implemented")
-		})
-	}
+
+	api.PreServerShutdown = func() {}
 
 	api.ServerShutdown = func() {}
 

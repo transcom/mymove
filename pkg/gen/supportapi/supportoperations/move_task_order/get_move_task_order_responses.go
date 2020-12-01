@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	supportmessages "github.com/transcom/mymove/pkg/gen/supportmessages"
+	"github.com/transcom/mymove/pkg/gen/supportmessages"
 )
 
 // GetMoveTaskOrderOKCode is the HTTP code returned for type GetMoveTaskOrderOK
@@ -104,7 +104,7 @@ func (o *GetMoveTaskOrderBadRequest) WriteResponse(rw http.ResponseWriter, produ
 // GetMoveTaskOrderUnauthorizedCode is the HTTP code returned for type GetMoveTaskOrderUnauthorized
 const GetMoveTaskOrderUnauthorizedCode int = 401
 
-/*GetMoveTaskOrderUnauthorized The request was unauthorized.
+/*GetMoveTaskOrderUnauthorized The request was denied.
 
 swagger:response getMoveTaskOrderUnauthorized
 */
@@ -113,7 +113,7 @@ type GetMoveTaskOrderUnauthorized struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *supportmessages.ClientError `json:"body,omitempty"`
 }
 
 // NewGetMoveTaskOrderUnauthorized creates GetMoveTaskOrderUnauthorized with default headers values
@@ -123,13 +123,13 @@ func NewGetMoveTaskOrderUnauthorized() *GetMoveTaskOrderUnauthorized {
 }
 
 // WithPayload adds the payload to the get move task order unauthorized response
-func (o *GetMoveTaskOrderUnauthorized) WithPayload(payload interface{}) *GetMoveTaskOrderUnauthorized {
+func (o *GetMoveTaskOrderUnauthorized) WithPayload(payload *supportmessages.ClientError) *GetMoveTaskOrderUnauthorized {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get move task order unauthorized response
-func (o *GetMoveTaskOrderUnauthorized) SetPayload(payload interface{}) {
+func (o *GetMoveTaskOrderUnauthorized) SetPayload(payload *supportmessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -137,16 +137,18 @@ func (o *GetMoveTaskOrderUnauthorized) SetPayload(payload interface{}) {
 func (o *GetMoveTaskOrderUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(401)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
 // GetMoveTaskOrderForbiddenCode is the HTTP code returned for type GetMoveTaskOrderForbidden
 const GetMoveTaskOrderForbiddenCode int = 403
 
-/*GetMoveTaskOrderForbidden The client doesn't have permissions to perform the request.
+/*GetMoveTaskOrderForbidden The request was denied.
 
 swagger:response getMoveTaskOrderForbidden
 */
@@ -155,7 +157,7 @@ type GetMoveTaskOrderForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *supportmessages.ClientError `json:"body,omitempty"`
 }
 
 // NewGetMoveTaskOrderForbidden creates GetMoveTaskOrderForbidden with default headers values
@@ -165,13 +167,13 @@ func NewGetMoveTaskOrderForbidden() *GetMoveTaskOrderForbidden {
 }
 
 // WithPayload adds the payload to the get move task order forbidden response
-func (o *GetMoveTaskOrderForbidden) WithPayload(payload interface{}) *GetMoveTaskOrderForbidden {
+func (o *GetMoveTaskOrderForbidden) WithPayload(payload *supportmessages.ClientError) *GetMoveTaskOrderForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get move task order forbidden response
-func (o *GetMoveTaskOrderForbidden) SetPayload(payload interface{}) {
+func (o *GetMoveTaskOrderForbidden) SetPayload(payload *supportmessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -179,9 +181,11 @@ func (o *GetMoveTaskOrderForbidden) SetPayload(payload interface{}) {
 func (o *GetMoveTaskOrderForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(403)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 

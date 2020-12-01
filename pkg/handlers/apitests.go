@@ -5,7 +5,10 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"path/filepath"
 	"runtime/debug"
+
+	"github.com/gofrs/uuid"
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
@@ -57,6 +60,21 @@ func (suite *BaseHandlerTestSuite) CloseFile(file *runtime.File) {
 // TestNotificationSender returns the notification sender to use in the suite
 func (suite *BaseHandlerTestSuite) TestNotificationSender() notifications.NotificationSender {
 	return suite.notificationSender
+}
+
+// HasWebhookNotification checks that there's a record on the WebhookNotifications table for the object and trace IDs
+func (suite *BaseHandlerTestSuite) HasWebhookNotification(objectID uuid.UUID, traceID uuid.UUID) {
+	notification := &models.WebhookNotification{}
+	err := suite.DB().Where("object_id = $1 AND trace_id = $2", objectID.String(), traceID.String()).First(notification)
+	suite.NoError(err)
+}
+
+// HasNoWebhookNotification checks that there's no record on the WebhookNotifications table for the object and trace IDs
+func (suite *BaseHandlerTestSuite) HasNoWebhookNotification(objectID uuid.UUID, traceID uuid.UUID) {
+	notification := &models.WebhookNotification{}
+	numRows, err := suite.DB().Where("object_id = $1 AND trace_id = $2", objectID.String(), traceID.String()).Count(notification)
+	suite.NoError(err)
+	suite.Equal(numRows, 0)
 }
 
 // IsNotErrResponse enforces handler does not return an error response
@@ -152,6 +170,9 @@ func (suite *BaseHandlerTestSuite) AuthenticateOfficeRequest(req *http.Request, 
 		IDToken:         "fake token",
 		OfficeUserID:    user.ID,
 	}
+	for _, role := range user.User.Roles {
+		session.Roles = append(session.Roles, role)
+	}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	return req.WithContext(ctx)
 }
@@ -189,8 +210,7 @@ func (suite *BaseHandlerTestSuite) Fixture(name string) *runtime.File {
 
 	fixturePath := path.Join(cwd, "..", "..", fixtureDir, name)
 
-	// #nosec never comes from user input
-	file, err := os.Open(fixturePath)
+	file, err := os.Open(filepath.Clean(fixturePath))
 	if err != nil {
 		suite.logger.Fatal("Error opening fixture file", zap.Error(err))
 	}

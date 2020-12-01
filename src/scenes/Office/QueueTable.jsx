@@ -7,10 +7,11 @@ import { get } from 'lodash';
 import Alert from 'shared/Alert';
 import { formatTimeAgo } from 'shared/formatters';
 import { setUserIsLoggedIn } from 'shared/Data/users';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { defaultColumns } from './queueTableColumns';
 
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faSyncAlt from '@fortawesome/fontawesome-free-solid/faSyncAlt';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSyncAlt } from '@fortawesome/free-solid-svg-icons/faSyncAlt';
 import 'react-table-6/react-table.css';
 
 class QueueTable extends Component {
@@ -49,7 +50,7 @@ class QueueTable extends Component {
   }
 
   openMove(rowInfo) {
-    this.props.history.push(`new/moves/${rowInfo.original.id}`, {
+    this.props.history.push(`/queues/new/moves/${rowInfo.original.id}`, {
       referrerPathname: this.props.history.location.pathname,
     });
   }
@@ -160,7 +161,7 @@ class QueueTable extends Component {
     };
 
     this.state.data.forEach((row) => {
-      row.shipments = 'PPM';
+      row.shipments = SHIPMENT_OPTIONS.PPM;
 
       if (row.ppm_status !== null) {
         row.synthetic_status = row.ppm_status;
@@ -179,12 +180,12 @@ class QueueTable extends Component {
         ) : null}
         <h1 className="queue-heading">{titles[this.props.queueType]}</h1>
         <div className="queue-table">
-          <span className="staleness-indicator" data-cy="staleness-indicator">
+          <span className="staleness-indicator" data-testid="staleness-indicator">
             Last updated {formatTimeAgo(this.state.lastLoadedAt)}
           </span>
           <span className={'refresh' + (this.state.refreshing ? ' focused' : '')} title="Refresh" aria-label="Refresh">
             <FontAwesomeIcon
-              data-cy="refreshQueue"
+              data-testid="refreshQueue"
               className="link-blue"
               icon={faSyncAlt}
               onClick={this.refresh.bind(this)}
@@ -202,7 +203,7 @@ class QueueTable extends Component {
             className="-striped -highlight"
             showPagination={false}
             getTrProps={(state, rowInfo) => ({
-              'data-cy': 'queueTableRow',
+              'data-testid': 'queueTableRow',
               onDoubleClick: () => this.openMove(rowInfo),
               onClick: () => this.openMove(rowInfo),
             })}

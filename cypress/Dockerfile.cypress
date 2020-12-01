@@ -1,7 +1,8 @@
 FROM cypress/base:12
 
 COPY package.json /package.json
-RUN npm install --dev --silent
+COPY yarn.lock /yarn.lock
+RUN yarn install --dev --silent
 
 COPY . /cypress
 COPY cypress.json /cypress.json

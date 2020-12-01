@@ -8,31 +8,38 @@ package ghcmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // MTOServiceItem m t o service item
+//
 // swagger:model MTOServiceItem
 type MTOServiceItem struct {
 
 	// approved at
-	// Format: date
-	ApprovedAt strfmt.Date `json:"approvedAt,omitempty"`
+	// Format: date-time
+	ApprovedAt *strfmt.DateTime `json:"approvedAt,omitempty"`
 
 	// created at
-	// Format: date
-	CreatedAt strfmt.Date `json:"createdAt,omitempty"`
+	// Format: date-time
+	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
+
+	// customer contacts
+	CustomerContacts MTOServiceItemCustomerContacts `json:"customerContacts,omitempty"`
 
 	// deleted at
 	// Format: date
 	DeletedAt strfmt.Date `json:"deletedAt,omitempty"`
 
 	// description
-	Description string `json:"description,omitempty"`
+	// Required: true
+	Description *string `json:"description"`
+
+	// dimensions
+	Dimensions MTOServiceItemDimensions `json:"dimensions,omitempty"`
 
 	// e tag
 	ETag string `json:"eTag,omitempty"`
@@ -84,8 +91,11 @@ type MTOServiceItem struct {
 	Reason *string `json:"reason"`
 
 	// rejected at
-	// Format: date
-	RejectedAt strfmt.Date `json:"rejectedAt,omitempty"`
+	// Format: date-time
+	RejectedAt *strfmt.DateTime `json:"rejectedAt,omitempty"`
+
+	// rejection reason
+	RejectionReason *string `json:"rejectionReason,omitempty"`
 
 	// status
 	Status MTOServiceItemStatus `json:"status,omitempty"`
@@ -98,7 +108,7 @@ type MTOServiceItem struct {
 	Total int64 `json:"total,omitempty"`
 
 	// updated at
-	// Format: datetime
+	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 }
 
@@ -114,7 +124,19 @@ func (m *MTOServiceItem) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateCustomerContacts(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateDeletedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDescription(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDimensions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -182,7 +204,7 @@ func (m *MTOServiceItem) validateApprovedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("approvedAt", "body", "date", m.ApprovedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("approvedAt", "body", "date-time", m.ApprovedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -195,7 +217,23 @@ func (m *MTOServiceItem) validateCreatedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("createdAt", "body", "date", m.CreatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItem) validateCustomerContacts(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.CustomerContacts) { // not required
+		return nil
+	}
+
+	if err := m.CustomerContacts.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("customerContacts")
+		}
 		return err
 	}
 
@@ -209,6 +247,31 @@ func (m *MTOServiceItem) validateDeletedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("deletedAt", "body", "date", m.DeletedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItem) validateDescription(formats strfmt.Registry) error {
+
+	if err := validate.Required("description", "body", m.Description); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItem) validateDimensions(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Dimensions) { // not required
+		return nil
+	}
+
+	if err := m.Dimensions.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("dimensions")
+		}
 		return err
 	}
 
@@ -244,7 +307,7 @@ const (
 
 // prop value enum
 func (m *MTOServiceItem) validateFeeTypeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, mTOServiceItemTypeFeeTypePropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, mTOServiceItemTypeFeeTypePropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -358,7 +421,7 @@ func (m *MTOServiceItem) validateRejectedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("rejectedAt", "body", "date", m.RejectedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("rejectedAt", "body", "date-time", m.RejectedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -400,7 +463,7 @@ func (m *MTOServiceItem) validateUpdatedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("updatedAt", "body", "datetime", m.UpdatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
 		return err
 	}
 

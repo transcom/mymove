@@ -1,8 +1,17 @@
 import React from 'react';
 import { action } from '@storybook/addon-actions';
-import { storiesOf } from '@storybook/react';
 import * as Yup from 'yup';
+
 import { StackedTableRowForm, DocsButton } from '../components/form';
+
+export default {
+  title: 'Components|Stacked Table',
+  parameters: {
+    abstract: {
+      url: 'https://share.goabstract.com/55411d0f-417d-48d0-9964-2d575ba4b390?mode=design',
+    },
+  },
+};
 
 const StackedTableExample = () => (
   <div>
@@ -195,19 +204,20 @@ const StackedTableWithSomeButtons = () => (
   </div>
 );
 
-storiesOf('Components|StackedTable', module)
-  .add('default', () => (
-    <div style={{ padding: `20px`, background: `#f0f0f0` }}>
-      <StackedTableExample />
-    </div>
-  ))
-  .add('with buttons to edit', () => (
-    <div style={{ padding: `20px`, background: `#f0f0f0` }}>
-      <StackedTableWithButtons />
-    </div>
-  ))
-  .add('with some buttons to edit', () => (
-    <div style={{ padding: `20px`, background: `#f0f0f0` }}>
-      <StackedTableWithSomeButtons />
-    </div>
-  ));
+export const Default = () => (
+  <div style={{ padding: `20px`, background: `#f0f0f0` }}>
+    <StackedTableExample />
+  </div>
+);
+
+export const withButtonsToEdit = () => (
+  <div style={{ padding: `20px`, background: `#f0f0f0` }}>
+    <StackedTableWithButtons />
+  </div>
+);
+
+export const withButtonsSomeToEdit = () => (
+  <div style={{ padding: `20px`, background: `#f0f0f0` }}>
+    <StackedTableWithSomeButtons />
+  </div>
+);

@@ -6,16 +6,20 @@ package primemessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"bytes"
 	"encoding/json"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"io"
+	"strconv"
 
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // MTOShipment m t o shipment
+//
 // swagger:model MTOShipment
 type MTOShipment struct {
 
@@ -33,7 +37,7 @@ type MTOShipment struct {
 
 	// created at
 	// Read Only: true
-	// Format: datetime
+	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// customer remarks
@@ -60,6 +64,8 @@ type MTOShipment struct {
 	// Read Only: true
 	// Format: uuid
 	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
+
+	mtoServiceItemsField []MTOServiceItem
 
 	// pickup address
 	PickupAddress *Address `json:"pickupAddress,omitempty"`
@@ -112,8 +118,288 @@ type MTOShipment struct {
 
 	// updated at
 	// Read Only: true
-	// Format: datetime
+	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
+}
+
+// MtoServiceItems gets the mto service items of this base type
+func (m *MTOShipment) MtoServiceItems() []MTOServiceItem {
+	return m.mtoServiceItemsField
+}
+
+// SetMtoServiceItems sets the mto service items of this base type
+func (m *MTOShipment) SetMtoServiceItems(val []MTOServiceItem) {
+	m.mtoServiceItemsField = val
+}
+
+// UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
+func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
+	var data struct {
+		ActualPickupDate strfmt.Date `json:"actualPickupDate,omitempty"`
+
+		Agents MTOAgents `json:"agents,omitempty"`
+
+		ApprovedDate strfmt.Date `json:"approvedDate,omitempty"`
+
+		CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
+
+		CustomerRemarks *string `json:"customerRemarks,omitempty"`
+
+		DestinationAddress *Address `json:"destinationAddress,omitempty"`
+
+		ETag string `json:"eTag,omitempty"`
+
+		FirstAvailableDeliveryDate strfmt.Date `json:"firstAvailableDeliveryDate,omitempty"`
+
+		ID strfmt.UUID `json:"id,omitempty"`
+
+		MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
+
+		MtoServiceItems json.RawMessage `json:"mtoServiceItems"`
+
+		PickupAddress *Address `json:"pickupAddress,omitempty"`
+
+		PointOfContact string `json:"pointOfContact,omitempty"`
+
+		PrimeActualWeight int64 `json:"primeActualWeight,omitempty"`
+
+		PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
+
+		PrimeEstimatedWeightRecordedDate strfmt.Date `json:"primeEstimatedWeightRecordedDate,omitempty"`
+
+		RejectionReason *string `json:"rejectionReason,omitempty"`
+
+		RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
+
+		RequiredDeliveryDate strfmt.Date `json:"requiredDeliveryDate,omitempty"`
+
+		ScheduledPickupDate strfmt.Date `json:"scheduledPickupDate,omitempty"`
+
+		SecondaryDeliveryAddress *Address `json:"secondaryDeliveryAddress,omitempty"`
+
+		SecondaryPickupAddress *Address `json:"secondaryPickupAddress,omitempty"`
+
+		ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
+
+		Status string `json:"status,omitempty"`
+
+		UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
+	}
+	buf := bytes.NewBuffer(raw)
+	dec := json.NewDecoder(buf)
+	dec.UseNumber()
+
+	if err := dec.Decode(&data); err != nil {
+		return err
+	}
+
+	var propMtoServiceItems []MTOServiceItem
+	if string(data.MtoServiceItems) != "null" {
+		mtoServiceItems, err := UnmarshalMTOServiceItemSlice(bytes.NewBuffer(data.MtoServiceItems), runtime.JSONConsumer())
+		if err != nil && err != io.EOF {
+			return err
+		}
+		propMtoServiceItems = mtoServiceItems
+	}
+
+	var result MTOShipment
+
+	// actualPickupDate
+	result.ActualPickupDate = data.ActualPickupDate
+
+	// agents
+	result.Agents = data.Agents
+
+	// approvedDate
+	result.ApprovedDate = data.ApprovedDate
+
+	// createdAt
+	result.CreatedAt = data.CreatedAt
+
+	// customerRemarks
+	result.CustomerRemarks = data.CustomerRemarks
+
+	// destinationAddress
+	result.DestinationAddress = data.DestinationAddress
+
+	// eTag
+	result.ETag = data.ETag
+
+	// firstAvailableDeliveryDate
+	result.FirstAvailableDeliveryDate = data.FirstAvailableDeliveryDate
+
+	// id
+	result.ID = data.ID
+
+	// moveTaskOrderID
+	result.MoveTaskOrderID = data.MoveTaskOrderID
+
+	// mtoServiceItems
+	result.mtoServiceItemsField = propMtoServiceItems
+
+	// pickupAddress
+	result.PickupAddress = data.PickupAddress
+
+	// pointOfContact
+	result.PointOfContact = data.PointOfContact
+
+	// primeActualWeight
+	result.PrimeActualWeight = data.PrimeActualWeight
+
+	// primeEstimatedWeight
+	result.PrimeEstimatedWeight = data.PrimeEstimatedWeight
+
+	// primeEstimatedWeightRecordedDate
+	result.PrimeEstimatedWeightRecordedDate = data.PrimeEstimatedWeightRecordedDate
+
+	// rejectionReason
+	result.RejectionReason = data.RejectionReason
+
+	// requestedPickupDate
+	result.RequestedPickupDate = data.RequestedPickupDate
+
+	// requiredDeliveryDate
+	result.RequiredDeliveryDate = data.RequiredDeliveryDate
+
+	// scheduledPickupDate
+	result.ScheduledPickupDate = data.ScheduledPickupDate
+
+	// secondaryDeliveryAddress
+	result.SecondaryDeliveryAddress = data.SecondaryDeliveryAddress
+
+	// secondaryPickupAddress
+	result.SecondaryPickupAddress = data.SecondaryPickupAddress
+
+	// shipmentType
+	result.ShipmentType = data.ShipmentType
+
+	// status
+	result.Status = data.Status
+
+	// updatedAt
+	result.UpdatedAt = data.UpdatedAt
+
+	*m = result
+
+	return nil
+}
+
+// MarshalJSON marshals this object with a polymorphic type to a JSON structure
+func (m MTOShipment) MarshalJSON() ([]byte, error) {
+	var b1, b2, b3 []byte
+	var err error
+	b1, err = json.Marshal(struct {
+		ActualPickupDate strfmt.Date `json:"actualPickupDate,omitempty"`
+
+		Agents MTOAgents `json:"agents,omitempty"`
+
+		ApprovedDate strfmt.Date `json:"approvedDate,omitempty"`
+
+		CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
+
+		CustomerRemarks *string `json:"customerRemarks,omitempty"`
+
+		DestinationAddress *Address `json:"destinationAddress,omitempty"`
+
+		ETag string `json:"eTag,omitempty"`
+
+		FirstAvailableDeliveryDate strfmt.Date `json:"firstAvailableDeliveryDate,omitempty"`
+
+		ID strfmt.UUID `json:"id,omitempty"`
+
+		MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
+
+		PickupAddress *Address `json:"pickupAddress,omitempty"`
+
+		PointOfContact string `json:"pointOfContact,omitempty"`
+
+		PrimeActualWeight int64 `json:"primeActualWeight,omitempty"`
+
+		PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
+
+		PrimeEstimatedWeightRecordedDate strfmt.Date `json:"primeEstimatedWeightRecordedDate,omitempty"`
+
+		RejectionReason *string `json:"rejectionReason,omitempty"`
+
+		RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
+
+		RequiredDeliveryDate strfmt.Date `json:"requiredDeliveryDate,omitempty"`
+
+		ScheduledPickupDate strfmt.Date `json:"scheduledPickupDate,omitempty"`
+
+		SecondaryDeliveryAddress *Address `json:"secondaryDeliveryAddress,omitempty"`
+
+		SecondaryPickupAddress *Address `json:"secondaryPickupAddress,omitempty"`
+
+		ShipmentType MTOShipmentType `json:"shipmentType,omitempty"`
+
+		Status string `json:"status,omitempty"`
+
+		UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
+	}{
+
+		ActualPickupDate: m.ActualPickupDate,
+
+		Agents: m.Agents,
+
+		ApprovedDate: m.ApprovedDate,
+
+		CreatedAt: m.CreatedAt,
+
+		CustomerRemarks: m.CustomerRemarks,
+
+		DestinationAddress: m.DestinationAddress,
+
+		ETag: m.ETag,
+
+		FirstAvailableDeliveryDate: m.FirstAvailableDeliveryDate,
+
+		ID: m.ID,
+
+		MoveTaskOrderID: m.MoveTaskOrderID,
+
+		PickupAddress: m.PickupAddress,
+
+		PointOfContact: m.PointOfContact,
+
+		PrimeActualWeight: m.PrimeActualWeight,
+
+		PrimeEstimatedWeight: m.PrimeEstimatedWeight,
+
+		PrimeEstimatedWeightRecordedDate: m.PrimeEstimatedWeightRecordedDate,
+
+		RejectionReason: m.RejectionReason,
+
+		RequestedPickupDate: m.RequestedPickupDate,
+
+		RequiredDeliveryDate: m.RequiredDeliveryDate,
+
+		ScheduledPickupDate: m.ScheduledPickupDate,
+
+		SecondaryDeliveryAddress: m.SecondaryDeliveryAddress,
+
+		SecondaryPickupAddress: m.SecondaryPickupAddress,
+
+		ShipmentType: m.ShipmentType,
+
+		Status: m.Status,
+
+		UpdatedAt: m.UpdatedAt,
+	})
+	if err != nil {
+		return nil, err
+	}
+	b2, err = json.Marshal(struct {
+		MtoServiceItems []MTOServiceItem `json:"mtoServiceItems"`
+	}{
+
+		MtoServiceItems: m.mtoServiceItemsField,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return swag.ConcatJSON(b1, b2, b3), nil
 }
 
 // Validate validates this m t o shipment
@@ -149,6 +435,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateMoveTaskOrderID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMtoServiceItems(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -246,7 +536,7 @@ func (m *MTOShipment) validateCreatedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("createdAt", "body", "datetime", m.CreatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -305,6 +595,26 @@ func (m *MTOShipment) validateMoveTaskOrderID(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validateMtoServiceItems(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.MtoServiceItems()) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.MtoServiceItems()); i++ {
+
+		if err := m.mtoServiceItemsField[i].Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("mtoServiceItems" + "." + strconv.Itoa(i))
+			}
+			return err
+		}
+
 	}
 
 	return nil
@@ -458,7 +768,7 @@ const (
 
 // prop value enum
 func (m *MTOShipment) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, mTOShipmentTypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, mTOShipmentTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -484,7 +794,7 @@ func (m *MTOShipment) validateUpdatedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("updatedAt", "body", "datetime", m.UpdatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
 		return err
 	}
 

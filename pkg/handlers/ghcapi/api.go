@@ -30,6 +30,7 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 	}
 	ghcAPI := ghcops.NewMymoveAPI(ghcSpec)
 	queryBuilder := query.NewQueryBuilder(context.DB())
+	ghcAPI.ServeError = handlers.ServeCustomError
 
 	ghcAPI.MoveGetMoveHandler = GetMoveHandler{
 		HandlerContext: context,
@@ -37,9 +38,10 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 		NewQueryFilter: query.NewQueryFilter,
 	}
 
-	ghcAPI.MtoServiceItemCreateMTOServiceItemHandler = CreateMTOServiceItemHandler{
-		context,
-		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder),
+	ghcAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{
+		HandlerContext:        context,
+		MTOServiceItemUpdater: mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder),
+		Fetcher:               fetch.NewFetcher(queryBuilder),
 	}
 
 	ghcAPI.MtoServiceItemListMTOServiceItemsHandler = ListMTOServiceItemsHandler{
@@ -50,18 +52,19 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 
 	ghcAPI.PaymentRequestsGetPaymentRequestHandler = GetPaymentRequestHandler{
 		context,
-		paymentrequest.NewPaymentRequestFetcher(queryBuilder),
+		paymentrequest.NewPaymentRequestFetcher(context.DB()),
 	}
 
 	ghcAPI.PaymentRequestsUpdatePaymentRequestStatusHandler = UpdatePaymentRequestStatusHandler{
 		HandlerContext:              context,
 		PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
-		PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(queryBuilder),
+		PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(context.DB()),
 	}
 
-	ghcAPI.PaymentRequestsListPaymentRequestsHandler = ListPaymentRequestsHandler{
-		context,
-		paymentrequest.NewPaymentRequestListFetcher(context.DB()),
+	ghcAPI.PaymentServiceItemUpdatePaymentServiceItemStatusHandler = UpdatePaymentServiceItemStatusHandler{
+		HandlerContext: context,
+		Fetcher:        fetch.NewFetcher(queryBuilder),
+		Builder:        *queryBuilder,
 	}
 
 	ghcAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandler{
@@ -72,16 +75,19 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 		context,
 		customer.NewCustomerFetcher(context.DB()),
 	}
-	ghcAPI.MoveOrderListMoveOrdersHandler = ListMoveOrdersHandler{context, moveorder.NewMoveOrderFetcher(context.DB())}
 	ghcAPI.MoveOrderGetMoveOrderHandler = GetMoveOrdersHandler{
 		context,
 		moveorder.NewMoveOrderFetcher(context.DB()),
+	}
+	ghcAPI.MoveOrderUpdateMoveOrderHandler = UpdateMoveOrderHandler{
+		context,
+		moveorder.NewMoveOrderUpdater(context.DB(), queryBuilder),
 	}
 	ghcAPI.MoveOrderListMoveTaskOrdersHandler = ListMoveTaskOrdersHandler{context, movetaskorder.NewMoveTaskOrderFetcher(context.DB())}
 
 	ghcAPI.MoveTaskOrderUpdateMoveTaskOrderStatusHandler = UpdateMoveTaskOrderStatusHandlerFunc{
 		context,
-		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder),
+		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)),
 	}
 
 	ghcAPI.MtoShipmentListMTOShipmentsHandler = ListMTOShipmentsHandler{
@@ -99,6 +105,18 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 	ghcAPI.MtoAgentFetchMTOAgentListHandler = ListMTOAgentsHandler{
 		HandlerContext: context,
 		ListFetcher:    fetch.NewListFetcher(queryBuilder),
+	}
+
+	ghcAPI.GhcDocumentsGetDocumentHandler = GetDocumentHandler{context}
+
+	ghcAPI.QueuesGetMovesQueueHandler = GetMovesQueueHandler{
+		context,
+		moveorder.NewMoveOrderFetcher(context.DB()),
+	}
+
+	ghcAPI.QueuesGetPaymentRequestsQueueHandler = GetPaymentRequestsQueueHandler{
+		context,
+		paymentrequest.NewPaymentRequestListFetcher(context.DB()),
 	}
 
 	return ghcAPI

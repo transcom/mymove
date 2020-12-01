@@ -3,13 +3,14 @@ package cli
 import (
 	"fmt"
 	"io/ioutil"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/service/rds"
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
@@ -195,7 +196,7 @@ func CheckDatabase(v *viper.Viper, logger Logger) error {
 	}
 
 	if filename := v.GetString(DbSSLRootCertFlag); len(filename) > 0 {
-		b, err := ioutil.ReadFile(filename) // #nosec
+		b, err := ioutil.ReadFile(filepath.Clean(filename))
 		if err != nil {
 			return errors.Wrap(err, fmt.Sprintf("error reading %s at %q", DbSSLRootCertFlag, filename))
 		}

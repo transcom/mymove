@@ -14,10 +14,14 @@ services:
       - POSTGRES_PASSWORD=mysecretpassword
       - POSTGRES_DB=test_db
 
+  redis:
+    image: redis:5.0.6
+
   server_test:
     depends_on:
       - database
-    image: milmove/circleci-docker:milmove-app-ce60239ffca056a033af6330daf922a5a9635066
+      - redis
+    image: milmove/circleci-docker:milmove-app-fcd43e812a1cb05183d967c2fafb4e36edeeabc9
     deploy:
       resources:
         limits:
@@ -76,8 +80,10 @@ services:
       - NO_TLS_ENABLED=1
       - NO_TLS_PORT=4000
       - PGPASSWORD=mysecretpassword
+      - REDIS_HOST=redis
       - SERVE_ADMIN=true
-      - SERVE_API_GHC=false
+      - SERVE_API_GHC=true
       - SERVE_API_INTERNAL=true
+      - SERVE_API_SUPPORT=true
       - STORAGE_BACKEND=local
     command: ./scripts/run-server-test-in-circle-container

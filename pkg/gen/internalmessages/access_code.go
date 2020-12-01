@@ -8,28 +8,28 @@ package internalmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // AccessCode access code
+//
 // swagger:model AccessCode
 type AccessCode struct {
 
 	// when the access code was claimed or used
-	// Format: datetime
+	// Format: date-time
 	ClaimedAt *strfmt.DateTime `json:"claimed_at,omitempty"`
 
 	// code
 	// Required: true
 	Code *string `json:"code"`
 
-	// when the access code was created
+	// created at
 	// Required: true
-	// Format: datetime
+	// Format: date-time
 	CreatedAt *strfmt.DateTime `json:"created_at"`
 
 	// id
@@ -87,7 +87,7 @@ func (m *AccessCode) validateClaimedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("claimed_at", "body", "datetime", m.ClaimedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("claimed_at", "body", "date-time", m.ClaimedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -109,7 +109,7 @@ func (m *AccessCode) validateCreatedAt(formats strfmt.Registry) error {
 		return err
 	}
 
-	if err := validate.FormatOf("created_at", "body", "datetime", m.CreatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("created_at", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -152,7 +152,7 @@ const (
 
 // prop value enum
 func (m *AccessCode) validateMoveTypeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, accessCodeTypeMoveTypePropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, accessCodeTypeMoveTypePropEnum, true); err != nil {
 		return err
 	}
 	return nil

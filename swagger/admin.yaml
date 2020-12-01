@@ -74,14 +74,10 @@ definitions:
         example: Transportation Ordering Officer
       createdAt:
         type: string
-        format: datetime
-        example: 2018-04-12T23:20:50.52Z
-        description: when the role was created
+        format: date-time
       updatedAt:
         type: string
-        format: datetime
-        example: 2018-04-12T23:20:50.52Z
-        description: when the role was updated
+        format: date-time
     required:
       - id
       - roleType
@@ -120,10 +116,10 @@ definitions:
           $ref: '#/definitions/Role'
       createdAt:
         type: string
-        format: datetime
+        format: date-time
       updatedAt:
         type: string
-        format: datetime
+        format: date-time
     required:
       - id
       - firstName
@@ -165,10 +161,10 @@ definitions:
         type: boolean
       createdAt:
         type: string
-        format: datetime
+        format: date-time
       updatedAt:
         type: string
-        format: datetime
+        format: date-time
     required:
       - id
       - firstName
@@ -183,6 +179,31 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/AdminUser'
+  User:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      loginGovEmail:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+      currentAdminSessionId:
+        type: string
+        example: WiPgsPj-jPySR1d0dpmvIZ-HvZqemjmaQWxGQ6B8K_w
+      currentMilSessionId:
+        type: string
+        example: WiPgsPj-jPySR1d0dpmvIZ-HvZqemjmaQWxGQ6B8K_w
+      currentOfficeSessionId:
+        type: string
+        example: WiPgsPj-jPySR1d0dpmvIZ-HvZqemjmaQWxGQ6B8K_w
+    required:
+      - loginGovEmail
+      - currentAdminSessionId
+      - currentMilSessionId
+      - currentOfficeSessionId
   TransportationOffice:
     type: object
     properties:
@@ -469,6 +490,10 @@ definitions:
         type: string
         format: uuid
         example: 'c56a4180-65aa-42ec-a945-5fd21dec0538'
+      roles:
+        type: array
+        items:
+          $ref: '#/definitions/OfficeUserRole'
   OfficeUserUpdatePayload:
     type: object
     properties:
@@ -528,6 +553,18 @@ definitions:
         type: string
         format: uuid
         example: 'c56a4180-65aa-42ec-a945-5fd21dec0538'
+  UserRevokeSessionPayload:
+    type: object
+    properties:
+      revokeAdminSession:
+        type: boolean
+        x-nullable: true
+      revokeOfficeSession:
+        type: boolean
+        x-nullable: true
+      revokeMilSession:
+        type: boolean
+        x-nullable: true
   AdminUserUpdatePayload:
     type: object
     properties:
@@ -562,11 +599,11 @@ definitions:
         title: Orders Number
       createdAt:
         type: string
-        format: datetime
+        format: date-time
         title: Created at
       updatedAt:
         type: string
-        format: datetime
+        format: date-time
         title: Updated at
   ElectronicOrders:
     type: array
@@ -599,11 +636,11 @@ definitions:
         x-nullable: true
       createdAt:
         type: string
-        format: datetime
+        format: date-time
         title: Created at
       updatedAt:
         type: string
-        format: datetime
+        format: date-time
         title: Updated at
   Organizations:
     type: array
@@ -639,7 +676,7 @@ definitions:
     properties:
       createdAt:
         type: string
-        format: datetime
+        format: date-time
         title: Created at
       filename:
         type: string
@@ -727,7 +764,7 @@ definitions:
           - MOVE_PAYMENT_REMINDER_EMAIL
       createdAt:
         type: string
-        format: datetime
+        format: date-time
   Notifications:
     type: array
     items:
@@ -1394,3 +1431,59 @@ paths:
           description: not found
         500:
           description: server error
+  /users/{userId}:
+    get:
+      summary: Get information about a user
+      description: Returns the given user and their sessions
+      operationId: getUser
+      tags:
+        - users
+      parameters:
+        - in: path
+          name: userId
+          type: string
+          format: uuid
+          required: true
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/User'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        404:
+          description: user not found
+        500:
+          description: server error
+    patch:
+      summary: revokes a user's session on any specified apps
+      operationId: revokeUserSession
+      tags:
+        - users
+      parameters:
+        - in: path
+          name: userId
+          type: string
+          format: uuid
+          required: true
+        - in: body
+          name: User
+          description: User information
+          required: true
+          schema:
+            $ref: '#/definitions/UserRevokeSessionPayload'
+      responses:
+        200:
+          description: Successfully updated User
+          schema:
+            $ref: '#/definitions/User'
+        400:
+          description: Invalid Request
+        401:
+          description: Must be authenticated to use this end point
+        403:
+          description: Not authorized to update this user
+        500:
+          description: Server error

@@ -8,13 +8,17 @@ package primemessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
-// ReServiceCode re service code
+// ReServiceCode This is the full list of service items that can be found on a shipment. Not all service items
+// may be requested by the Prime, but may be returned in a response.
+//
+// Documentation of all the service items will be provided.
+//
+//
 // swagger:model ReServiceCode
 type ReServiceCode string
 
@@ -185,7 +189,7 @@ func init() {
 }
 
 func (m ReServiceCode) validateReServiceCodeEnum(path, location string, value ReServiceCode) error {
-	if err := validate.Enum(path, location, value, reServiceCodeEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, reServiceCodeEnum, true); err != nil {
 		return err
 	}
 	return nil

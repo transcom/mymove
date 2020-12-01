@@ -2,7 +2,7 @@
 
 set -eu -o pipefail
 
-VERSION_NUMBER=1.14
+VERSION_NUMBER=1.15
 
 VERSION="go${VERSION_NUMBER}"
 
@@ -11,9 +11,7 @@ if [[ $GOLANG_VERSION = *$VERSION* ]]; then
   echo "Golang $GOLANG_VERSION installed"
 else
   echo "Golang ${VERSION} is required to run this project! Found ${GOLANG_VERSION}"
-  echo "Install go with 'brew install go'"
-  echo "or if that version is ahead of ${GOLANG_VERSION} then run:"
-  echo "Run 'brew install go@${VERSION_NUMBER} && brew link --force go@${VERSION_NUMBER}' to install"
+  echo "Install go with 'asdf plugin add golang; asdf install'"
   exit 1
 fi
 

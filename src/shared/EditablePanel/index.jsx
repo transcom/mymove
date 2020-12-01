@@ -12,7 +12,7 @@ const DefaultHeader = ({ title, isEditable, editEnabled, handleEditClick }) => (
   <div className="editable-panel-header">
     <h4>{title}</h4>
     {!isEditable && editEnabled && (
-      <a data-cy="edit-link" className="usa-link editable-panel-edit" onClick={handleEditClick}>
+      <a data-testid="edit-link" className="usa-link editable-panel-edit" onClick={handleEditClick}>
         Edit
       </a>
     )}
@@ -27,7 +27,7 @@ export const RowBasedHeader = ({ title, isEditable, editEnabled, handleEditClick
     {!isEditable && editEnabled && (
       <div className="grid-col-2 text-right">
         <p>
-          <a data-cy="edit-link" className="usa-link" onClick={handleEditClick}>
+          <a data-testid="edit-link" className="usa-link" onClick={handleEditClick}>
             Edit
           </a>
         </p>
@@ -152,7 +152,7 @@ export class EditablePanel extends Component {
       controls = (
         <div>
           <p>
-            <button className="usa-button usa-button--outline editable-panel-cancel" onClick={this.handleCancelClick}>
+            <button className="usa-button usa-button--secondary editable-panel-cancel" onClick={this.handleCancelClick}>
               Cancel
             </button>
             <button

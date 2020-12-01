@@ -2,7 +2,8 @@ package sequence
 
 import (
 	"errors"
-	"math/rand"
+
+	"github.com/transcom/mymove/pkg/random"
 )
 
 // randomSequencer represents a sequencer that produces a random number between min and max, inclusive
@@ -13,7 +14,12 @@ type randomSequencer struct {
 
 // NextVal returns the next random value within the range
 func (rs randomSequencer) NextVal() (int64, error) {
-	return rand.Int63n(rs.max-rs.min+1) + rs.min, nil
+	randMax := int(rs.max) - int(rs.min) + 1
+	randInt, err := random.GetRandomInt(randMax)
+	if err != nil {
+		return -1, err
+	}
+	return int64(randInt) + rs.min, nil
 }
 
 // SetVal is a no-op for the random sequence generator.

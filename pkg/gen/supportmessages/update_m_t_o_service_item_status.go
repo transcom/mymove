@@ -8,70 +8,60 @@ package supportmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // UpdateMTOServiceItemStatus update m t o service item status
+//
 // swagger:model UpdateMTOServiceItemStatus
 type UpdateMTOServiceItemStatus struct {
 
-	// approved at
-	// Format: date
-	ApprovedAt strfmt.Date `json:"approvedAt,omitempty"`
-
-	// created at
-	// Format: date
-	CreatedAt strfmt.Date `json:"createdAt,omitempty"`
-
-	// deleted at
-	// Format: date
-	DeletedAt strfmt.Date `json:"deletedAt,omitempty"`
-
 	// description
+	// Read Only: true
 	Description string `json:"description,omitempty"`
 
 	// e tag
+	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// fee type
+	// Read Only: true
 	// Enum: [COUNSELING CRATING TRUCKING SHUTTLE]
 	FeeType string `json:"feeType,omitempty"`
 
 	// id
+	// Read Only: true
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// move task order ID
+	// Read Only: true
 	// Format: uuid
 	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
 	// mto shipment ID
+	// Read Only: true
 	// Format: uuid
 	MtoShipmentID strfmt.UUID `json:"mtoShipmentID,omitempty"`
 
 	// quantity
+	// Read Only: true
 	Quantity int64 `json:"quantity,omitempty"`
 
 	// rate
+	// Read Only: true
 	Rate int64 `json:"rate,omitempty"`
 
 	// re service code
+	// Read Only: true
 	ReServiceCode string `json:"reServiceCode,omitempty"`
 
-	// re service ID
-	// Format: uuid
-	ReServiceID strfmt.UUID `json:"reServiceID,omitempty"`
-
 	// re service name
+	// Read Only: true
 	ReServiceName string `json:"reServiceName,omitempty"`
-
-	// rejected at
-	// Format: date
-	RejectedAt strfmt.Date `json:"rejectedAt,omitempty"`
 
 	// rejection reason
 	RejectionReason *string `json:"rejectionReason,omitempty"`
@@ -80,33 +70,14 @@ type UpdateMTOServiceItemStatus struct {
 	// Required: true
 	Status MTOServiceItemStatus `json:"status"`
 
-	// submitted at
-	// Format: date
-	SubmittedAt strfmt.Date `json:"submittedAt,omitempty"`
-
 	// total
+	// Read Only: true
 	Total int64 `json:"total,omitempty"`
-
-	// updated at
-	// Format: datetime
-	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 }
 
 // Validate validates this update m t o service item status
 func (m *UpdateMTOServiceItemStatus) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := m.validateApprovedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateCreatedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateDeletedAt(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := m.validateFeeType(formats); err != nil {
 		res = append(res, err)
@@ -124,68 +95,13 @@ func (m *UpdateMTOServiceItemStatus) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateReServiceID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateRejectedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateSubmittedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateUpdatedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *UpdateMTOServiceItemStatus) validateApprovedAt(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.ApprovedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("approvedAt", "body", "date", m.ApprovedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *UpdateMTOServiceItemStatus) validateCreatedAt(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.CreatedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("createdAt", "body", "date", m.CreatedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *UpdateMTOServiceItemStatus) validateDeletedAt(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.DeletedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("deletedAt", "body", "date", m.DeletedAt.String(), formats); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -218,7 +134,7 @@ const (
 
 // prop value enum
 func (m *UpdateMTOServiceItemStatus) validateFeeTypeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, updateMTOServiceItemStatusTypeFeeTypePropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, updateMTOServiceItemStatusTypeFeeTypePropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -277,64 +193,12 @@ func (m *UpdateMTOServiceItemStatus) validateMtoShipmentID(formats strfmt.Regist
 	return nil
 }
 
-func (m *UpdateMTOServiceItemStatus) validateReServiceID(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.ReServiceID) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("reServiceID", "body", "uuid", m.ReServiceID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *UpdateMTOServiceItemStatus) validateRejectedAt(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.RejectedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("rejectedAt", "body", "date", m.RejectedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *UpdateMTOServiceItemStatus) validateStatus(formats strfmt.Registry) error {
 
 	if err := m.Status.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
 		}
-		return err
-	}
-
-	return nil
-}
-
-func (m *UpdateMTOServiceItemStatus) validateSubmittedAt(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.SubmittedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("submittedAt", "body", "date", m.SubmittedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *UpdateMTOServiceItemStatus) validateUpdatedAt(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.UpdatedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("updatedAt", "body", "datetime", m.UpdatedAt.String(), formats); err != nil {
 		return err
 	}
 

@@ -2,7 +2,7 @@
 # BUILDER #
 ###########
 
-FROM milmove/circleci-docker:milmove-app-ce60239ffca056a033af6330daf922a5a9635066 as builder
+FROM milmove/circleci-docker:milmove-app-fcd43e812a1cb05183d967c2fafb4e36edeeabc9 as builder
 
 ENV CIRCLECI=true
 
@@ -11,6 +11,7 @@ WORKDIR /home/circleci/project
 
 RUN make clean
 RUN make bin/rds-ca-2019-root.pem
+RUN make bin/rds-ca-us-gov-west-1-2017-root.pem
 RUN rm -f pkg/assets/assets.go && make pkg/assets/assets.go
 RUN make server_generate
 RUN rm -f bin/milmove && make bin/milmove
@@ -22,6 +23,7 @@ RUN rm -f bin/milmove && make bin/milmove
 FROM gcr.io/distroless/base:latest
 
 COPY --from=builder --chown=root:root /home/circleci/project/bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
+COPY --from=builder --chown=root:root /home/circleci/project/bin/rds-ca-us-gov-west-1-2017-root.pem /bin/rds-ca-us-gov-west-1-2017-root.pem
 COPY --from=builder --chown=root:root /home/circleci/project/bin/milmove /bin/milmove
 
 COPY config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b /config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b

@@ -1,6 +1,7 @@
 package ghcrateengine
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -13,74 +14,81 @@ const (
 	dlhTestServiceArea = "004"
 	dlhTestDistance    = unit.Miles(1200)
 	dlhTestWeight      = unit.Pound(4000)
+	dlhPriceCents      = unit.Cents(249770)
 )
+
+var dlhRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 	suite.setupDomesticLinehaulData()
-	domesticLinehaulPricer := NewDomesticLinehaulPricer(suite.DB(), suite.logger, testdatagen.DefaultContractCode)
+	paymentServiceItem := suite.setupDomesticLinehaulServiceItem()
+	linehaulServicePricer := NewDomesticLinehaulPricer(suite.DB())
 
-	suite.T().Run("success within peak period", func(t *testing.T) {
-		totalPrice, err := domesticLinehaulPricer.PriceDomesticLinehaul(
-			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
-			dlhTestDistance, dlhTestWeight, dlhTestServiceArea)
-
+	suite.T().Run("success using PaymentServiceItemParams", func(t *testing.T) {
+		priceCents, err := linehaulServicePricer.PriceUsingParams(paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
-		suite.Equal(249770, totalPrice.Int())
+		suite.Equal(dlhPriceCents, priceCents)
 	})
 
-	suite.T().Run("success within non-peak period", func(t *testing.T) {
-		nonPeakDate := peakStart.addDate(0, -1)
-		totalPrice, err := domesticLinehaulPricer.PriceDomesticLinehaul(
-			time.Date(testdatagen.TestYear, nonPeakDate.month, nonPeakDate.day, 0, 0, 0, 0, time.UTC),
-			dlhTestDistance, dlhTestWeight, dlhTestServiceArea)
-
+	suite.T().Run("success without PaymentServiceItemParams", func(t *testing.T) {
+		priceCents, err := linehaulServicePricer.Price(testdatagen.DefaultContractCode, dlhRequestedPickupDate, true, int(dlhTestDistance), int(dlhTestWeight), dlhTestServiceArea)
+		//contractCode, requestedPickupDate, isPeakPeriod, distanceZip3, weightBilledActual, serviceAreaOrigin
 		suite.NoError(err)
-		suite.Equal(224793, totalPrice.Int())
+		suite.Equal(dlhPriceCents, priceCents)
 	})
 
-	suite.T().Run("weight below minimum", func(t *testing.T) {
-		totalPrice, err := domesticLinehaulPricer.PriceDomesticLinehaul(
-			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
-			dlhTestDistance, minDomesticWeight/2, dlhTestServiceArea)
-
-		suite.NoError(err)
-		suite.Equal(31221, totalPrice.Int())
+	suite.T().Run("sending PaymentServiceItemParams without expected param", func(t *testing.T) {
+		_, err := linehaulServicePricer.PriceUsingParams(models.PaymentServiceItemParams{})
+		suite.Error(err)
 	})
 
-	suite.T().Run("date outside of valid contract year", func(t *testing.T) {
-		_, err := domesticLinehaulPricer.PriceDomesticLinehaul(
-			time.Date(testdatagen.TestYear-1, time.January, 1, 0, 0, 0, 0, time.UTC),
-			dlhTestDistance, dlhTestWeight, dlhTestServiceArea)
+	paramsWithBelowMinimumWeight := paymentServiceItem.PaymentServiceItemParams
+	weightBilledActualIndex := 5
+	if paramsWithBelowMinimumWeight[weightBilledActualIndex].ServiceItemParamKey.Key != models.ServiceItemParamNameWeightBilledActual {
+		suite.T().Fatalf("Test needs to adjust the weight of %s but the index is pointing to %s ", models.ServiceItemParamNameWeightBilledActual, paramsWithBelowMinimumWeight[5].ServiceItemParamKey.Key)
+	}
+	paramsWithBelowMinimumWeight[weightBilledActualIndex].Value = "200"
+	suite.T().Run("fails using PaymentServiceItemParams with below minimum weight for WeightBilledActual", func(t *testing.T) {
+		priceCents, err := linehaulServicePricer.PriceUsingParams(paramsWithBelowMinimumWeight)
+		suite.Equal("could not fetch domestic linehaul rate: weight must be at least 500", err.Error())
+		suite.Equal(unit.Cents(0), priceCents)
+	})
 
+	suite.T().Run("not finding a rate record", func(t *testing.T) {
+		_, err := linehaulServicePricer.Price("BOGUS", dlhRequestedPickupDate, true, int(dlhTestDistance), int(dlhTestWeight), dlhTestServiceArea)
 		suite.Error(err)
 	})
 
 	suite.T().Run("validation errors", func(t *testing.T) {
-		moveDate := time.Date(testdatagen.TestYear, time.July, 4, 0, 0, 0, 0, time.UTC)
-
 		// No move date
-		_, err := domesticLinehaulPricer.PriceDomesticLinehaul(time.Time{}, dlhTestDistance, dlhTestWeight, dlhTestServiceArea)
+		_, err := linehaulServicePricer.Price("BOGUS", time.Time{}, true, int(dlhTestDistance), int(dlhTestWeight), dlhTestServiceArea)
 		suite.Error(err)
-		suite.Equal("MoveDate is required", err.Error())
+		suite.Equal("could not fetch domestic linehaul rate: MoveDate is required", err.Error())
 
 		// No distance
-		_, err = domesticLinehaulPricer.PriceDomesticLinehaul(moveDate, 0, dlhTestWeight, dlhTestServiceArea)
+		_, err = linehaulServicePricer.Price(testdatagen.DefaultContractCode, dlhRequestedPickupDate, true, 0, int(dlhTestWeight), dlhTestServiceArea)
 		suite.Error(err)
-		suite.Equal("Distance must be greater than 0", err.Error())
+		suite.Equal("could not fetch domestic linehaul rate: distance must be at least 50", err.Error())
+
+		// Short haul distance
+		_, err = linehaulServicePricer.Price(testdatagen.DefaultContractCode, dlhRequestedPickupDate, true, 49, int(dlhTestWeight), dlhTestServiceArea)
+		suite.Error(err)
+		suite.Equal("could not fetch domestic linehaul rate: distance must be at least 50", err.Error())
 
 		// No weight
-		_, err = domesticLinehaulPricer.PriceDomesticLinehaul(moveDate, dlhTestDistance, 0, dlhTestServiceArea)
+		_, err = linehaulServicePricer.Price(testdatagen.DefaultContractCode, dlhRequestedPickupDate, true, int(dlhTestDistance), 0, dlhTestServiceArea)
 		suite.Error(err)
-		suite.Equal("Weight must be greater than 0", err.Error())
+		suite.Equal("could not fetch domestic linehaul rate: weight must be at least 500", err.Error())
 
 		// No service area
-		_, err = domesticLinehaulPricer.PriceDomesticLinehaul(moveDate, dlhTestDistance, dlhTestWeight, "")
+		_, err = linehaulServicePricer.Price(testdatagen.DefaultContractCode, dlhRequestedPickupDate, true, int(dlhTestDistance), int(dlhTestWeight), "")
 		suite.Error(err)
-		suite.Equal("ServiceArea is required", err.Error())
+		suite.Equal("could not fetch domestic linehaul rate: ServiceArea is required", err.Error())
 	})
 }
 
 func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulData() {
+
 	contractYear := testdatagen.MakeReContractYear(suite.DB(),
 		testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
@@ -111,8 +119,58 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulData() {
 	linehaulPricePeak.PriceMillicents = 5000 // 0.050
 	suite.MustSave(&linehaulPricePeak)
 
-	linehaulPriceNonPeak := baseLinehaulPrice
-	linehaulPriceNonPeak.IsPeakPeriod = false
-	linehaulPriceNonPeak.PriceMillicents = 4500 // 0.045
-	suite.MustSave(&linehaulPriceNonPeak)
+}
+
+func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulServiceItem() models.PaymentServiceItem {
+	return testdatagen.MakeDefaultPaymentServiceItemWithParams(
+		suite.DB(),
+		models.ReServiceCodeDLH,
+		[]testdatagen.CreatePaymentServiceItemParams{
+			{
+				Key:     models.ServiceItemParamNameContractCode,
+				KeyType: models.ServiceItemParamTypeString,
+				Value:   testdatagen.DefaultContractCode,
+			},
+			{
+				Key:     models.ServiceItemParamNameRequestedPickupDate,
+				KeyType: models.ServiceItemParamTypeTimestamp,
+				Value:   dlhRequestedPickupDate.Format(TimestampParamFormat),
+			},
+			{
+				Key:     models.ServiceItemParamNameDistanceZip3,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   fmt.Sprintf("%d", int(dlhTestDistance)),
+			},
+			{
+				Key:     models.ServiceItemParamNameZipPickupAddress,
+				KeyType: models.ServiceItemParamTypeString,
+				Value:   "90210",
+			},
+			{
+				Key:     models.ServiceItemParamNameZipDestAddress,
+				KeyType: models.ServiceItemParamTypeString,
+				Value:   "94535",
+			},
+			{
+				Key:     models.ServiceItemParamNameWeightBilledActual,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   fmt.Sprintf("%d", int(dlhTestWeight)),
+			},
+			{
+				Key:     models.ServiceItemParamNameWeightActual,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   "1400",
+			},
+			{
+				Key:     models.ServiceItemParamNameWeightEstimated,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   "1400",
+			},
+			{
+				Key:     models.ServiceItemParamNameServiceAreaOrigin,
+				KeyType: models.ServiceItemParamTypeString,
+				Value:   dlhTestServiceArea,
+			},
+		},
+	)
 }

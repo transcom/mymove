@@ -6,13 +6,16 @@ package move_task_order
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"io"
 	"net/http"
 
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 )
 
 // NewUpdateMoveTaskOrderStatusParams creates a new UpdateMoveTaskOrderStatusParams object
@@ -41,6 +44,11 @@ type UpdateMoveTaskOrderStatusParams struct {
 	  In: path
 	*/
 	MoveTaskOrderID string
+	/*
+	  Required: true
+	  In: body
+	*/
+	ServiceItemCodes *ghcmessages.MTOApprovalServiceItemCodes
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -61,6 +69,28 @@ func (o *UpdateMoveTaskOrderStatusParams) BindRequest(r *http.Request, route *mi
 		res = append(res, err)
 	}
 
+	if runtime.HasBody(r) {
+		defer r.Body.Close()
+		var body ghcmessages.MTOApprovalServiceItemCodes
+		if err := route.Consumer.Consume(r.Body, &body); err != nil {
+			if err == io.EOF {
+				res = append(res, errors.Required("serviceItemCodes", "body", ""))
+			} else {
+				res = append(res, errors.NewParseError("serviceItemCodes", "body", "", err))
+			}
+		} else {
+			// validate body object
+			if err := body.Validate(route.Formats); err != nil {
+				res = append(res, err)
+			}
+
+			if len(res) == 0 {
+				o.ServiceItemCodes = &body
+			}
+		}
+	} else {
+		res = append(res, errors.Required("serviceItemCodes", "body", ""))
+	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -70,7 +100,7 @@ func (o *UpdateMoveTaskOrderStatusParams) BindRequest(r *http.Request, route *mi
 // bindIfMatch binds and validates parameter IfMatch from header.
 func (o *UpdateMoveTaskOrderStatusParams) bindIfMatch(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
-		return errors.Required("If-Match", "header")
+		return errors.Required("If-Match", "header", rawData)
 	}
 	var raw string
 	if len(rawData) > 0 {

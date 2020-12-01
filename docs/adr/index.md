@@ -50,6 +50,19 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0043](0043-prime-time.md) - *Handling time in the Prime API*
 - [ADR-0044](0044-params-styling.md) - Use camelCase for API params
 - [ADR-0045](0045-nesting-swagger-paths.md) - Nesting Swagger paths in the Prime API with multiple IDs
+- [ADR-0046](0046-use-nodenv.md) - Use [nodenv](https://github.com/nodenv/nodenv) to manage Node versions in development
+- [ADR-0047](0047-build-only-pull-requests-in-circleci.md) - Use CircleCI to build only Pull Requests and master
+- [ADR-0048](0048-frontend-file-org.md) - Use a consistent file structure for front-end code
+- [ADR-0049](0049-etag-for-child-updates.md) - Do not update child records using parent's E-tag
+- [ADR-0050](0050-doc-viewer-fork.md) - Fork & maintain react-file-viewer under @trussworks
+- [ADR-0051](0051-swagger-date-formats.md) - Use only Swagger supported formats for dates
+- [ADR-0052](0052-use-data-testid.md) - Use `data-testid` as an attribute for finding components in tests
+- [ADR-0053](0053-use-react-query-office-app.md) - Use React Query for Office App API interactions
+- [ADR-0054](0054-use-CSS-to-highlight-unfinished-features.md) - Use CSS to highlight unfinished features
+- [ADR-0055](0055-consolidate-moves-and-mtos.md) - Consolidate moves and move task orders into one database table
+- [ADR-0056](0056-use-asdf-to-manage-golang-versions-in-development.md) - Use ASDF To Manage Golang Versions In Development
+- [ADR-0057](0057-lodash.md) - Deprecate use of lodash over time
+- [ADR-0058](0058-replace-loki-with-happo.md) - Use Happo for visual regression testing
 
 <!-- adrlogstop -->
 

@@ -1,0 +1,157 @@
+.usa-header {
+  font-family: 'Public Sans', Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
+  font-size: 1.06rem;
+  line-height: 1.5;
+  z-index: 300;
+}
+
+.my-move-header .usa-nav {
+  padding: 0;
+}
+
+.usa-header:after {
+  clear: both;
+  content: '';
+  display: block;
+}
+
+header {
+  display: block;
+}
+
+.my-move-header {
+  color: #fff;
+  background-color: #252f3e;
+}
+
+.usa-navbar {
+  height: 3rem;
+}
+
+.usa-logo__text {
+  display: block;
+  font-style: normal;
+  font-weight: 700;
+  margin: 0;
+}
+
+.maintenance-image {
+  display: flex;
+  justify-content: center;
+  margin-top: 64px;
+}
+
+.maintenance-main-msg-container {
+  display: flex;
+  justify-content: center;
+}
+
+.maintenance-header {
+  font-family: 'Public Sans';
+  font-size: 40px;
+  font-weight: bold;
+  height: 96px;
+  line-height: 48px;
+  width: 518px;
+  text-align: center;
+  margin: 0 auto;
+  margin-top: 70px;
+}
+
+.maintenance-description {
+  font-family: 'Public Sans';
+  font-size: 21px;
+  font-weight: normal;
+  height: 69px;
+  line-height: 23px;
+  text-align: center;
+  width: 456px;
+  margin: 0 auto;
+  margin-top: 32px;
+}
+
+@media (min-width: 64em) {
+  .desktop\:padding-bottom-3 {
+    padding-bottom: 1.5rem;
+  }
+
+  .usa-header--basic .usa-nav-container {
+    align-items: flex-end;
+    justify-content: space-between;
+    display: flex;
+  }
+
+  .usa-nav-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  .usa-nav-container {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 64rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  .usa-nav-container:after {
+    clear: both;
+    content: '';
+    display: block;
+  }
+
+  .usa-header--basic .usa-navbar {
+    position: relative;
+    width: 33%;
+  }
+
+  .usa-navbar {
+    border-bottom: none;
+    display: inline-block;
+    height: auto;
+  }
+
+  .usa-logo {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-size: 1.46rem;
+    line-height: 1.1;
+  }
+}
+
+@media screen and (min-width: 951px) {
+  .my-move-header .usa-navbar {
+    height: 4rem;
+  }
+}
+
+@media (max-width: 63.99em) {
+  .usa-nav {
+    right: 0;
+    position: absolute;
+    bottom: 0;
+    top: 0;
+    position: fixed;
+    background: #fff;
+    border-right: 0;
+    display: none;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 1rem;
+    width: 15rem;
+    z-index: 500;
+  }
+
+  .usa-navbar {
+    align-items: center;
+    border-bottom: 1px solid #dfe1e2;
+    display: flex;
+  }
+
+  .usa-logo {
+    flex: 1 0;
+    font-size: 0.93rem;
+    line-height: 0.9;
+    margin-left: 1rem;
+  }
+}

@@ -8,13 +8,13 @@ package primemessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
 // ServiceItemParamType service item param type
+//
 // swagger:model ServiceItemParamType
 type ServiceItemParamType string
 
@@ -31,6 +31,12 @@ const (
 
 	// ServiceItemParamTypeDECIMAL captures enum value "DECIMAL"
 	ServiceItemParamTypeDECIMAL ServiceItemParamType = "DECIMAL"
+
+	// ServiceItemParamTypeTIMESTAMP captures enum value "TIMESTAMP"
+	ServiceItemParamTypeTIMESTAMP ServiceItemParamType = "TIMESTAMP"
+
+	// ServiceItemParamTypePaymentServiceItemUUID captures enum value "PaymentServiceItemUUID"
+	ServiceItemParamTypePaymentServiceItemUUID ServiceItemParamType = "PaymentServiceItemUUID"
 )
 
 // for schema
@@ -38,7 +44,7 @@ var serviceItemParamTypeEnum []interface{}
 
 func init() {
 	var res []ServiceItemParamType
-	if err := json.Unmarshal([]byte(`["STRING","DATE","INTEGER","DECIMAL"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["STRING","DATE","INTEGER","DECIMAL","TIMESTAMP","PaymentServiceItemUUID"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -47,7 +53,7 @@ func init() {
 }
 
 func (m ServiceItemParamType) validateServiceItemParamTypeEnum(path, location string, value ServiceItemParamType) error {
-	if err := validate.Enum(path, location, value, serviceItemParamTypeEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, serviceItemParamTypeEnum, true); err != nil {
 		return err
 	}
 	return nil

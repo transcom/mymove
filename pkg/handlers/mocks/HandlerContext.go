@@ -19,9 +19,11 @@ import (
 
 	notifications "github.com/transcom/mymove/pkg/notifications"
 
-	pop "github.com/gobuffalo/pop"
+	pop "github.com/gobuffalo/pop/v5"
 
 	route "github.com/transcom/mymove/pkg/route"
+
+	scs "github.com/alexedwards/scs/v2"
 
 	sequence "github.com/transcom/mymove/pkg/db/sequence"
 
@@ -221,20 +223,6 @@ func (_m *HandlerContext) LoggerFromRequest(r *http.Request) handlers.Logger {
 	return r0
 }
 
-// NoSessionTimeout provides a mock function with given fields:
-func (_m *HandlerContext) NoSessionTimeout() bool {
-	ret := _m.Called()
-
-	var r0 bool
-	if rf, ok := ret.Get(0).(func() bool); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Get(0).(bool)
-	}
-
-	return r0
-}
-
 // NotificationSender provides a mock function with given fields:
 func (_m *HandlerContext) NotificationSender() notifications.NotificationSender {
 	ret := _m.Called()
@@ -363,6 +351,22 @@ func (_m *HandlerContext) SessionFromRequest(r *http.Request) *auth.Session {
 	return r0
 }
 
+// SessionManager provides a mock function with given fields: session
+func (_m *HandlerContext) SessionManager(session *auth.Session) *scs.SessionManager {
+	ret := _m.Called(session)
+
+	var r0 *scs.SessionManager
+	if rf, ok := ret.Get(0).(func(*auth.Session) *scs.SessionManager); ok {
+		r0 = rf(session)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*scs.SessionManager)
+		}
+	}
+
+	return r0
+}
+
 // SetAppNames provides a mock function with given fields: appNames
 func (_m *HandlerContext) SetAppNames(appNames auth.ApplicationServername) {
 	_m.Called(appNames)
@@ -403,11 +407,6 @@ func (_m *HandlerContext) SetIWSPersonLookup(rbs iws.PersonLookup) {
 	_m.Called(rbs)
 }
 
-// SetNoSessionTimeout provides a mock function with given fields:
-func (_m *HandlerContext) SetNoSessionTimeout() {
-	_m.Called()
-}
-
 // SetNotificationSender provides a mock function with given fields: sender
 func (_m *HandlerContext) SetNotificationSender(sender notifications.NotificationSender) {
 	_m.Called(sender)
@@ -421,6 +420,11 @@ func (_m *HandlerContext) SetPlanner(planner route.Planner) {
 // SetSendProductionInvoice provides a mock function with given fields: sendProductionInvoice
 func (_m *HandlerContext) SetSendProductionInvoice(sendProductionInvoice bool) {
 	_m.Called(sendProductionInvoice)
+}
+
+// SetSessionManagers provides a mock function with given fields: sessionManagers
+func (_m *HandlerContext) SetSessionManagers(sessionManagers [3]*scs.SessionManager) {
+	_m.Called(sessionManagers)
 }
 
 // SetTraceID provides a mock function with given fields: traceID

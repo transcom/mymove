@@ -14,7 +14,7 @@ function CustomerAgreementLegalese(props) {
               {'<'} Back
             </a>
           </div>
-          <h2>Customer Agreement</h2>
+          <h1>Customer Agreement</h1>
           <p style={{ marginBottom: '20px' }}>
             Before submitting your payment request, please carefully read the following:
           </p>
@@ -42,7 +42,7 @@ function CustomerAgreementLegalese(props) {
             </p>
           </div>
           <div className="usa-grid button-bar">
-            <button className="usa-button usa-button--outline" data-cy="back-button" onClick={goBack}>
+            <button className="usa-button usa-button--secondary" data-testid="back-button" onClick={goBack}>
               Back
             </button>
           </div>

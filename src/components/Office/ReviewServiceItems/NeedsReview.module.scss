@@ -1,0 +1,21 @@
+@import '../../../shared/styles/basics';
+@import '../../../shared/styles/mixins';
+@import '../../../shared/styles/colors';
+
+.NeedsReview {
+  @include u-bg('gray-5');
+  @include u-padding('2');
+  @include u-radius('05');
+  @include u-border('base-light');
+  @include u-border('1px');
+  @include u-font-size('base', 4);
+
+  .content {
+    @include u-margin-top(1)
+  }
+
+  button {
+    @include u-margin-x(0);
+    @include u-margin-bottom(0);
+  }
+}

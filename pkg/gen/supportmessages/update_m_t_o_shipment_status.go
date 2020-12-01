@@ -8,14 +8,14 @@ package supportmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // UpdateMTOShipmentStatus update m t o shipment status
+//
 // swagger:model UpdateMTOShipmentStatus
 type UpdateMTOShipmentStatus struct {
 
@@ -67,7 +67,7 @@ const (
 
 // prop value enum
 func (m *UpdateMTOShipmentStatus) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, updateMTOShipmentStatusTypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, updateMTOShipmentStatusTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil

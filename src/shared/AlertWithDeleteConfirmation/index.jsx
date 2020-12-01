@@ -19,12 +19,12 @@ export function AlertWithDeleteConfirmation(props) {
             <button
               type="button"
               className={`usa-button ${styles['delete-button']}`}
-              data-cy="delete-confirmation-button"
+              data-testid="delete-confirmation-button"
               onClick={props.deleteActionHandler}
             >
               Delete
             </button>
-            <button type="button" className="usa-button usa-button--outline" onClick={props.cancelActionHandler}>
+            <button type="button" className="usa-button usa-button--secondary" onClick={props.cancelActionHandler}>
               Cancel
             </button>
           </div>

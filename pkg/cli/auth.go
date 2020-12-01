@@ -11,12 +11,17 @@ import (
 )
 
 const (
-	// ClientAuthSecretKeyFlag is the Client Auth Secret Key Flag #nosec G101
+	//RA Summary: gosec - G101 - Password Management: Hardcoded Password
+	//RA: This line was flagged because of use of the word "secret"
+	//RA: This line is used to identify the name of the flag. ClientAuthSecretKeyFlag is the Client Auth Secret Key Flag.
+	//RA: This value of this variable does not store an application secret.
+	//RA Developer Status: Mitigated
+	//RA Validator Status: Mitigated
+	//RA Validator: jneuner@mitre.org
+	//RA Modified Severity: CAT III
+
+	// ClientAuthSecretKeyFlag is the Client Auth Secret Key Flag // #nosec G101
 	ClientAuthSecretKeyFlag string = "client-auth-secret-key"
-
-	// NoSessionTimeoutFlag is the No Session Timeout Flag
-	NoSessionTimeoutFlag string = "no-session-timeout"
-
 	// LoginGovCallbackProtocolFlag is the Login.gov Callback Protocol Flag
 	LoginGovCallbackProtocolFlag string = "login-gov-callback-protocol"
 	// LoginGovCallbackPortFlag is the Login.gov Callback Port Flag
@@ -44,8 +49,6 @@ func (e *errInvalidClientID) Error() string {
 // InitAuthFlags initializes Auth command line flags
 func InitAuthFlags(flag *pflag.FlagSet) {
 	flag.String(ClientAuthSecretKeyFlag, "", "Client auth secret JWT key.")
-
-	flag.Bool(NoSessionTimeoutFlag, false, "whether user sessions should timeout.")
 
 	flag.String(LoginGovCallbackProtocolFlag, "https", "Protocol for non local environments.")
 	flag.Int(LoginGovCallbackPortFlag, 443, "The port for callback urls.")

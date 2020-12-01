@@ -1,0 +1,10 @@
+@import 'shared/styles/_variables';
+
+@media (max-width: $mobile) {
+  .legend-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 21px;
+  }
+}

@@ -1,108 +1,213 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faFile,
+  faPen,
+  faPlus,
+  faChevronLeft,
+  faChevronRight,
+  faChevronDown,
+  faChevronUp,
+  faCheck,
+  faTimes,
+  faSearchPlus,
+  faSearchMinus,
+  faRedoAlt,
+  faUndoAlt,
+  faLock,
+  faMapMarkerAlt,
+  faArrowRight,
+  faArrowLeft,
+  faThList,
+  faQuestionCircle,
+  faPhoneAlt,
+  faClock,
+  faPlusCircle,
+  faPlayCircle,
+  faPlusSquare,
+  faCheckCircle as fasCheckCircle,
+  faSort,
+  faBan,
+  faExclamationCircle,
+  faEnvelope,
+  faExternalLinkAlt,
+  faMinusSquare,
+  faSyncAlt,
+  faSpinner,
+  faCaretDown,
+} from '@fortawesome/free-solid-svg-icons';
+import { faTimesCircle, faCalendar, faCheckCircle as farCheckCircle } from '@fortawesome/free-regular-svg-icons';
 
-import { ReactComponent as AddIcon } from 'shared/icon/add.svg';
-import { ReactComponent as AlertIcon } from 'shared/icon/alert.svg';
-import { ReactComponent as ArrowRightIcon } from 'shared/icon/arrow-right.svg';
-import { ReactComponent as CheckmarkIcon } from 'shared/icon/checkmark.svg';
-import { ReactComponent as ChevLeftIcon } from 'shared/icon/chevron-left.svg';
-import { ReactComponent as ChevRightIcon } from 'shared/icon/chevron-right.svg';
-import { ReactComponent as DocsIcon } from 'shared/icon/documents.svg';
-import { ReactComponent as EditIcon } from 'shared/icon/edit.svg';
-import { ReactComponent as ExtenalLinkIcon } from 'shared/icon/external-link.svg';
-import { ReactComponent as FormCheckmarkIcon } from 'shared/icon/form-checkmark.svg';
-import { ReactComponent as FormDoubleCaratIcon } from 'shared/icon/form-double-carat.svg';
-import { ReactComponent as LockIcon } from 'shared/icon/lock.svg';
-import { ReactComponent as MapPinIcon } from 'shared/icon/map-pin.svg';
-import { ReactComponent as RotateClockwiseIcon } from 'shared/icon/rotate-clockwise.svg';
-import { ReactComponent as RotateCounterClockwiseIcon } from 'shared/icon/rotate-counter-clockwise.svg';
-import { ReactComponent as XHeavyIcon } from 'shared/icon/x-heavy.svg';
-import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
-import { ReactComponent as ZoomInIcon } from 'shared/icon/zoom-in.svg';
-import { ReactComponent as ZoomOutIcon } from 'shared/icon/zoom-out.svg';
+import { ReactComponent as ExternalLink } from 'shared/icon/external-link.svg';
 
 // Icons
+export default {
+  title: 'Global|Icons',
+  parameters: {
+    abstract: {
+      url: 'https://share.goabstract.com/eabef4a2-603e-4c3d-b249-0e580f1c8306?mode=design',
+    },
+  },
+};
 
-storiesOf('Global|Icons', module).add('all', () => (
+export const all = () => (
   <div style={{ padding: '20px', background: '#f0f0f0' }}>
     <h3>Icons</h3>
     <div id="icons" style={{ display: 'flex', flexWrap: 'wrap' }}>
       <div>
-        <AddIcon />
-        <code>add</code>
+        <FontAwesomeIcon icon={faFile} />
+        <code>documents | faFile</code>
       </div>
       <div>
-        <AlertIcon />
-        <code>alert</code>
+        <FontAwesomeIcon icon={faPen} />
+        <code>edit | faPen</code>
       </div>
       <div>
-        <ArrowRightIcon />
-        <code>arrow right</code>
+        <FontAwesomeIcon icon={faPlus} />
+        <code>add | faPlus</code>
       </div>
       <div>
-        <ChevLeftIcon />
-        <code>chevron left</code>
+        <FontAwesomeIcon icon={faChevronLeft} />
+        <code>chevron-left | faChevronLeft</code>
       </div>
       <div>
-        <ChevRightIcon />
-        <code>chevron right</code>
+        <FontAwesomeIcon icon={faChevronRight} />
+        <code>chevron-right | faChevronRight</code>
       </div>
       <div>
-        <CheckmarkIcon />
-        <code>checkmark</code>
+        <FontAwesomeIcon icon={faChevronDown} />
+        <code>chevron-down | faChevronDown</code>
       </div>
       <div>
-        <DocsIcon />
-        <code>documents</code>
+        <FontAwesomeIcon icon={faChevronUp} />
+        <code>chevron-up | faChevronUp</code>
       </div>
       <div>
-        <EditIcon />
-        <code>edit</code>
+        <FontAwesomeIcon icon={faCheck} />
+        <code>checkmark | faCheck</code>
       </div>
       <div>
-        <ExtenalLinkIcon />
-        <code>external link</code>
+        <FontAwesomeIcon icon={faTimes} />
+        <code> x | faTimes</code>
       </div>
       <div>
-        <FormCheckmarkIcon />
-        <code>form checkmark</code>
+        <FontAwesomeIcon icon={farCheckCircle} />
+        <code>accept | faCheckCircle (regular)</code>
       </div>
       <div>
-        <FormDoubleCaratIcon />
-        <code>form double carat</code>
+        <FontAwesomeIcon icon={faTimesCircle} />
+        <code>reject | faTimesCircle (regular)</code>
       </div>
       <div>
-        <LockIcon />
-        <code>lock</code>
+        <FontAwesomeIcon icon={faSearchPlus} />
+        <code>zoom in | faSearchPlus</code>
       </div>
       <div>
-        <MapPinIcon />
-        <code>map pin</code>
+        <FontAwesomeIcon icon={faSearchMinus} />
+        <code>zoom out | faSearchMinus</code>
       </div>
       <div>
-        <RotateClockwiseIcon />
-        <code>rotate clockwise</code>
+        <FontAwesomeIcon icon={faRedoAlt} />
+        <code>rotate clockwise | faRedoAlt</code>
       </div>
       <div>
-        <RotateCounterClockwiseIcon />
-        <code>rotate counter clockwise</code>
+        <FontAwesomeIcon icon={faUndoAlt} />
+        <code>rotate counter clockwise | faUndoAlt</code>
       </div>
       <div>
-        <XHeavyIcon />
-        <code>x heavy</code>
+        <FontAwesomeIcon icon={faLock} />
+        <code>lock | faLock</code>
       </div>
       <div>
-        <XLightIcon />
-        <code>x light</code>
+        <FontAwesomeIcon icon={faMapMarkerAlt} />
+        <code>map pin | faMapMarkerAlt</code>
       </div>
       <div>
-        <ZoomInIcon />
-        <code>zoom in</code>
+        <FontAwesomeIcon icon={faArrowRight} />
+        <code>arrow right | faArrowRight</code>
       </div>
       <div>
-        <ZoomOutIcon />
-        <code>zoom out</code>
+        <FontAwesomeIcon icon={faArrowLeft} />
+        <code>arrow left| faArrowLeft</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faThList} />
+        <code>doc menu | faThList</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faCalendar} />
+        <code>calendar | faCalendar</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faQuestionCircle} />
+        <code>question circle | faQuestionCircle</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faPhoneAlt} />
+        <code>phone | faPhoneAlt</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={fasCheckCircle} />
+        <code>check circle | faCheckCircle (solid)</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faClock} />
+        <code>clock | faClock</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faPlusCircle} />
+        <code>plus circle | faPlusCircle</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faPlayCircle} />
+        <code>play circle | faPlayCircle</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faPlusSquare} />
+        <code>plus square | faPlusSquare</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faSort} />
+        <code>sort | faSort</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faBan} />
+        <code>ban | faBan</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faExclamationCircle} />
+        <code>exclamation circle | faExclamationCircle</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faEnvelope} />
+        <code>envelope | faEnvelope</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faExternalLinkAlt} />
+        <code>external link (alt) | faExternalLinkAlt</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faMinusSquare} />
+        <code>minus square | faMinusSquare</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faSyncAlt} />
+        <code>sync (alt) | faSyncAlt</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faSpinner} />
+        <code>spinner | faSpinner</code>
+      </div>
+      <div>
+        <FontAwesomeIcon icon={faCaretDown} />
+        <code>caret down | faCaretDown</code>
+      </div>
+      <div>
+        <ExternalLink />
+        <code>
+          external link | <strong>uses local svg, not FontAwesome</strong>
+        </code>
       </div>
     </div>
   </div>
-));
+);

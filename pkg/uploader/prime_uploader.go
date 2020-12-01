@@ -5,8 +5,8 @@ import (
 	"io"
 	"path"
 
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
@@ -28,6 +28,9 @@ type PrimeUploader struct {
 func NewPrimeUploader(db *pop.Connection, logger Logger, storer storage.FileStorer, fileSizeLimit ByteSize) (*PrimeUploader, error) {
 	uploader, err := NewUploader(db, logger, storer, fileSizeLimit, models.UploadTypePRIME)
 	if err != nil {
+		if err == ErrFileSizeLimitExceedsMax {
+			return nil, err
+		}
 		return nil, fmt.Errorf("could not create uploader.PrimeUploader for PrimeUpload: %w", err)
 	}
 	return &PrimeUploader{

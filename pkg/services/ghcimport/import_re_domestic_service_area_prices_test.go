@@ -5,7 +5,9 @@ import (
 	"testing"
 
 	"github.com/gofrs/uuid"
+	"github.com/jackc/pgerrcode"
 
+	"github.com/transcom/mymove/pkg/db/dberr"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -38,7 +40,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceAreaPrices() 
 	suite.T().Run("run a second time; should fail immediately due to constraint violation", func(t *testing.T) {
 		err := gre.importREDomesticServiceAreaPrices(suite.DB())
 		if suite.Error(err) {
-			suite.Contains(err.Error(), "duplicate key value violates unique constraint")
+			suite.True(dberr.IsDBErrorForConstraint(err, pgerrcode.UniqueViolation, "re_domestic_service_area_prices_unique_key"))
 		}
 
 		// Check to see if anything else changed
@@ -49,10 +51,9 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceAreaPrices() 
 
 func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceAreaPricesFailures() {
 	suite.T().Run("stage_domestic_service_area_prices table missing", func(t *testing.T) {
-		// drop a staging table that we are depending on to do import
-		dropQuery := fmt.Sprintf("DROP TABLE IF EXISTS %s;", "stage_domestic_service_area_prices")
-		dropErr := suite.DB().RawQuery(dropQuery).Exec()
-		suite.NoError(dropErr)
+		renameQuery := fmt.Sprintf("ALTER TABLE stage_domestic_service_area_prices RENAME TO missing_stage_domestic_service_area_prices")
+		renameErr := suite.DB().RawQuery(renameQuery).Exec()
+		suite.NoError(renameErr)
 
 		gre := &GHCRateEngineImporter{
 			Logger:       suite.logger,
@@ -65,15 +66,19 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceAreaPricesFai
 
 		err = gre.importREDomesticServiceAreaPrices(suite.DB())
 		if suite.Error(err) {
-			suite.Equal("error looking up StageDomesticServiceAreaPrice data: unable to fetch records: pq: relation \"stage_domestic_service_area_prices\" does not exist", err.Error())
+			suite.True(dberr.IsDBError(err, pgerrcode.UndefinedTable))
 		}
+
+		renameQuery = fmt.Sprintf("ALTER TABLE missing_stage_domestic_service_area_prices RENAME TO stage_domestic_service_area_prices")
+		renameErr = suite.DB().RawQuery(renameQuery).Exec()
+		suite.NoError(renameErr)
 	})
 }
 
 func (suite *GHCRateEngineImportSuite) helperVerifyDomesticServiceAreaPrices() {
 	count, err := suite.DB().Count(&models.ReDomesticServiceAreaPrice{})
 	suite.NoError(err)
-	suite.Equal(56, count)
+	suite.Equal(70, count)
 }
 
 func (suite *GHCRateEngineImportSuite) helperCheckDomesticServiceAreaPriceValue() {

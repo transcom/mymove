@@ -1,6 +1,10 @@
 package models_test
 
 import (
+	"reflect"
+	"strconv"
+	"strings"
+	"testing"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -25,6 +29,7 @@ func (suite *ModelSuite) TestBasicMoveInstantiation() {
 
 func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
+	testdatagen.MakeDefaultContractor(suite.DB())
 	selectedMoveType := SelectedMoveTypeHHG
 
 	moveOptions := MoveOptions{
@@ -32,7 +37,6 @@ func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
 		Show:         swag.Bool(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
-	//move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType, true)
 
 	suite.NoError(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
@@ -42,9 +46,25 @@ func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
 	suite.NotRegexp("[0125AEIOULNSZ]", move.Locator)
 }
 
+func (suite *ModelSuite) TestGenerateReferenceID() {
+
+	refID, err := GenerateReferenceID(suite.DB())
+	suite.T().Run("reference id is properly created", func(t *testing.T) {
+		suite.NoError(err)
+		suite.NotZero(refID)
+		firstNum, _ := strconv.Atoi(strings.Split(refID, "-")[0])
+		secondNum, _ := strconv.Atoi(strings.Split(refID, "-")[1])
+		suite.Equal(reflect.TypeOf(refID).String(), "string")
+		suite.Equal(firstNum >= 0 && firstNum <= 9999, true)
+		suite.Equal(secondNum >= 0 && secondNum <= 9999, true)
+		suite.Equal(string(refID[4]), "-")
+	})
+}
+
 func (suite *ModelSuite) TestFetchMove() {
 	order1 := testdatagen.MakeDefaultOrder(suite.DB())
 	order2 := testdatagen.MakeDefaultOrder(suite.DB())
+	testdatagen.MakeDefaultContractor(suite.DB())
 
 	session := &auth.Session{
 		UserID:          order1.ServiceMember.UserID,
@@ -96,6 +116,7 @@ func (suite *ModelSuite) TestMoveCancellationWithReason() {
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	orders.Status = OrderStatusSUBMITTED // NEVER do this outside of a test.
 	suite.MustSave(&orders)
+	testdatagen.MakeDefaultContractor(suite.DB())
 
 	selectedMoveType := SelectedMoveTypeHHGPPM
 
@@ -126,6 +147,7 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	orders.Status = OrderStatusSUBMITTED // NEVER do this outside of a test.
 	suite.MustSave(&orders)
+	testdatagen.MakeDefaultContractor(suite.DB())
 
 	selectedMoveType := SelectedMoveTypeHHGPPM
 
@@ -153,8 +175,7 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 	move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, ppm)
 
 	// Once submitted
-	currentTime := time.Now()
-	err = move.Submit(currentTime)
+	err = move.Submit(time.Now())
 	suite.MustSave(move)
 	suite.DB().Reload(move)
 	suite.NoError(err)
@@ -172,6 +193,7 @@ func (suite *ModelSuite) TestCancelMoveCancelsOrdersPPM() {
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	orders.Status = OrderStatusSUBMITTED // NEVER do this outside of a test.
 	suite.MustSave(&orders)
+	testdatagen.MakeDefaultContractor(suite.DB())
 
 	selectedMoveType := SelectedMoveTypeHHGPPM
 
@@ -210,7 +232,7 @@ func (suite *ModelSuite) TestSaveMoveDependenciesFail() {
 	// Given: A move with Orders with unacceptable status
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	orders.Status = ""
-
+	testdatagen.MakeDefaultContractor(suite.DB())
 	selectedMoveType := SelectedMoveTypeHHGPPM
 
 	moveOptions := MoveOptions{
@@ -230,7 +252,7 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSuccess() {
 	// Given: A move with Orders with acceptable status
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	orders.Status = OrderStatusSUBMITTED
-
+	testdatagen.MakeDefaultContractor(suite.DB())
 	selectedMoveType := SelectedMoveTypeHHGPPM
 
 	moveOptions := MoveOptions{

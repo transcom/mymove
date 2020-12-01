@@ -70,7 +70,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		}
 
 		// Fetch document to ensure user has access to it
-		document, docErr := models.FetchDocument(ctx, h.DB(), session, documentID, false)
+		document, docErr := models.FetchDocument(ctx, h.DB(), session, documentID, true)
 		if docErr != nil {
 			return handlers.ResponseForError(logger, docErr)
 		}

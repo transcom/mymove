@@ -1,5 +1,25 @@
 import { isFinite } from 'lodash';
 import moment from 'moment';
+import numeral from 'numeral';
+import path from 'path';
+
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { DEPARTMENT_INDICATOR_OPTIONS, DEPARTMENT_INDICATOR_LABELS } from 'constants/departmentIndicators';
+import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS } from 'constants/orders';
+import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
+import { SERVICE_MEMBER_AGENCY_LABELS } from 'content/serviceMemberAgencies';
+import { MOVE_STATUS_OPTIONS } from 'constants/queues';
+
+/**
+ * Formats number into a dollar string. Eg. $1,234.12
+ *
+ * More info: http://numeraljs.com/
+ * @param num
+ * @returns {string}
+ */
+export function toDollarString(num) {
+  return numeral(num).format('$0,0.00');
+}
 
 export function formatNumber(num) {
   if (!isFinite(num)) {
@@ -167,10 +187,14 @@ export const displayDateRange = (dates, formatType = 'long') => {
 // Office Formatters
 
 // Format a date and ignore any time values, e.g. 03-Jan-18
-export function formatDate(date, inputFormat, locale = 'en', isStrict = false) {
+export function formatDate(date, inputFormat, outputFormat = 'DD-MMM-YY', locale = 'en', isStrict = false) {
   if (date) {
-    return moment(date, inputFormat, locale, isStrict).format('DD-MMM-YY');
+    return moment(date, inputFormat, locale, isStrict).format(outputFormat);
   }
+}
+
+export function formatDateFromIso(date, outputFormat) {
+  return formatDate(date, 'YYYY-MM-DDTHH:mm:ss.SSSZ', outputFormat);
 }
 
 export function formatDate4DigitYear(date) {
@@ -256,4 +280,67 @@ export const formatToOrdinal = (n) => {
   const v = n % 100;
   // eslint-disable-next-line security/detect-object-injection
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
+};
+
+// Map shipment types to friendly display names for mto shipments
+export const mtoShipmentTypeToFriendlyDisplay = (shipmentType) => {
+  switch (shipmentType) {
+    case SHIPMENT_OPTIONS.HHG:
+      return 'Household goods';
+    case SHIPMENT_OPTIONS.NTS:
+      return 'NTS release';
+    case SHIPMENT_OPTIONS.HHG_LONGHAUL_DOMESTIC:
+      return 'Household goods longhaul domestic';
+    case SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC:
+      return 'Household goods shorthaul domestic';
+    default:
+      return shipmentType;
+  }
+};
+
+export const departmentIndicatorReadable = (departmentIndicator) => {
+  return DEPARTMENT_INDICATOR_OPTIONS[`${departmentIndicator}`] || departmentIndicator;
+};
+
+export const departmentIndicatorLabel = (departmentIndicator) => {
+  return DEPARTMENT_INDICATOR_LABELS[`${departmentIndicator}`] || departmentIndicator;
+};
+
+export const serviceMemberAgencyLabel = (agency) => {
+  return SERVICE_MEMBER_AGENCY_LABELS[`${agency}`] || agency;
+};
+
+export const moveStatusLabel = (status) => {
+  return MOVE_STATUS_OPTIONS.find((option) => option.value === `${status}`)?.label || status;
+};
+
+export const ordersTypeReadable = (ordersType) => {
+  return ORDERS_TYPE_OPTIONS[`${ordersType}`] || ordersType;
+};
+
+export const ordersTypeDetailReadable = (ordersTypeDetail) => {
+  return ORDERS_TYPE_DETAILS_OPTIONS[`${ordersTypeDetail}`] || ordersTypeDetail;
+};
+
+export const paymentRequestStatusReadable = (paymentRequestStatus) => {
+  return PAYMENT_REQUEST_STATUS_LABELS[`${paymentRequestStatus}`] || paymentRequestStatus;
+};
+
+export const dropdownInputOptions = (options) => {
+  return Object.entries(options).map(([key, value]) => ({ key: key, value: value }));
+};
+
+export const filenameFromPath = (filePath) => {
+  return path.basename(filePath);
+};
+
+// Formats the numeric age input to a human readable string. Eg. 1.5 = 1 day, 2.5 = 2 days
+export const formatAgeToDays = (age) => {
+  if (age < 1) {
+    return 'Less than 1 day';
+  }
+  if (age >= 1 && age < 2) {
+    return '1 day';
+  }
+  return `${Math.floor(age)} days`;
 };

@@ -1,7 +1,7 @@
 package testdatagen
 
 import (
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -19,7 +19,7 @@ func MakeSignedCertification(db *pop.Connection, assertions Assertions) models.S
 		userID = sm.UserID
 	}
 
-	certificationType := models.SignedCertificationTypePPM
+	certificationType := models.SignedCertificationTypeSHIPMENT
 	signedCertification := models.SignedCertification{
 		MoveID:                   moveID,
 		SubmittingUserID:         userID,
@@ -33,7 +33,7 @@ func MakeSignedCertification(db *pop.Connection, assertions Assertions) models.S
 	// Overwrite values with those from assertions
 	mergeModels(&signedCertification, assertions.SignedCertification)
 
-	mustCreate(db, &signedCertification)
+	mustCreate(db, &signedCertification, assertions.Stub)
 
 	return signedCertification
 }

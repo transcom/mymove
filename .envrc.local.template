@@ -91,8 +91,7 @@ EOM
 export DPS_AUTH_COOKIE_SECRET_KEY=thisisakeywithalengthof32charsss
 # any string of any length
 export DPS_AUTH_SECRET_KEY=placeholder
-# any string of length 64
-export CSRF_AUTH_KEY=thisisakeywithalengthof64charsssthisisakeywithalengthof64charsss
+export CSRF_AUTH_KEY=d096fd8529eefaa46497849d11d2ff2e979ddfaed1aff058524ada9bceadd67c
 # any string of any length: More information can be found at https://www.here.com/
 export HERE_MAPS_APP_ID=placeholder
 # any string of any length: More information can be found at https://www.here.com/

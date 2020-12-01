@@ -3,7 +3,7 @@ package mtoserviceitem
 import (
 	"time"
 
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
@@ -26,7 +26,7 @@ func NewMTOServiceItemUpdater(builder mtoServiceItemQueryBuilder) services.MTOSe
 	return &mtoServiceItemUpdater{builder}
 }
 
-func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid.UUID, status models.MTOServiceItemStatus, reason *string, eTag string) (*models.MTOServiceItem, error) {
+func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid.UUID, status models.MTOServiceItemStatus, rejectionReason *string, eTag string) (*models.MTOServiceItem, error) {
 	var mtoServiceItem models.MTOServiceItem
 
 	queryFilters := []services.QueryFilter{
@@ -35,23 +35,26 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 	err := p.builder.FetchOne(&mtoServiceItem, queryFilters)
 
 	if err != nil {
-		return nil, services.NewNotFoundError(mtoServiceItem.ID, "MTOServiceItemID")
-	}
-
-	if mtoServiceItem.Status != models.MTOServiceItemStatusSubmitted || (status != models.MTOServiceItemStatusApproved && status != models.MTOServiceItemStatusRejected) {
-		return nil, services.NewConflictError(mtoServiceItem.ID, "MTOServiceItemID")
+		return nil, services.NewNotFoundError(mtoServiceItemID, "MTOServiceItemID")
 	}
 
 	mtoServiceItem.Status = status
-	mtoServiceItem.UpdatedAt = time.Now()
+	updatedAt := time.Now()
+	mtoServiceItem.UpdatedAt = updatedAt
 
 	if status == models.MTOServiceItemStatusRejected {
-		if reason == nil {
-			return nil, services.NewConflictError(mtoServiceItem.ID, "Rejecting an MTO Service item requires a rejection reason")
+		if rejectionReason == nil {
+			return nil, services.NewConflictError(mtoServiceItemID, "Rejecting an MTO Service item requires a rejection reason")
 		}
-		mtoServiceItem.Reason = reason
+		mtoServiceItem.RejectionReason = rejectionReason
+		mtoServiceItem.RejectedAt = &updatedAt
+		// clear field if previously accepted
+		mtoServiceItem.ApprovedAt = nil
 	} else if status == models.MTOServiceItemStatusApproved {
-		mtoServiceItem.Reason = nil
+		// clear fields if previously rejected
+		mtoServiceItem.RejectionReason = nil
+		mtoServiceItem.RejectedAt = nil
+		mtoServiceItem.ApprovedAt = &updatedAt
 	}
 
 	verrs, err := p.builder.UpdateOne(&mtoServiceItem, &eTag)
@@ -61,13 +64,65 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 	}
 
 	if err != nil {
-		if errors.Cause(err).Error() == "sql: no rows in result set" {
+		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
 			return nil, services.NewNotFoundError(mtoServiceItemID, "")
 		}
 
 		switch err.(type) {
 		case query.StaleIdentifierError:
 			return &models.MTOServiceItem{}, services.NewPreconditionFailedError(mtoServiceItemID, err)
+		}
+	}
+
+	var move models.Move
+	moveFilter := []services.QueryFilter{
+		query.NewQueryFilter("id", "=", mtoServiceItem.MoveTaskOrderID),
+	}
+	err = p.builder.FetchOne(&move, moveFilter)
+	if err != nil {
+		return nil, services.NewNotFoundError(mtoServiceItemID, "MTOServiceItemID")
+	}
+
+	// If there are no service items that are SUBMITTED then we need to change the move status to MOVE APPROVED
+	moveShouldBeMoveApproved := true
+	for _, mtoServiceItem := range move.MTOServiceItems {
+		if mtoServiceItem.Status == models.MTOServiceItemStatusSubmitted {
+			moveShouldBeMoveApproved = false
+			break
+		}
+	}
+	// Doing the change
+	if moveShouldBeMoveApproved {
+		err = move.Approve()
+		if err != nil {
+			return nil, err
+		}
+		verrs, err = p.builder.UpdateOne(&move, nil)
+		if verrs != nil && verrs.HasAny() {
+			return nil, services.NewInvalidInputError(move.ID, err, verrs, "")
+		}
+
+		if err != nil {
+			if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
+				return nil, services.NewNotFoundError(move.ID, "")
+			}
+		}
+	}
+	// If we didn't set to MOVE APPROVED and we aren't already at APPROVALS REQUESTED we need to get there
+	if move.Status != models.MoveStatusAPPROVALSREQUESTED && move.Status != models.MoveStatusAPPROVED {
+		err = move.SetApprovalsRequested()
+		if err != nil {
+			return nil, err
+		}
+		verrs, err = p.builder.UpdateOne(&move, nil)
+		if verrs != nil && verrs.HasAny() {
+			return nil, services.NewInvalidInputError(move.ID, err, verrs, "")
+		}
+
+		if err != nil {
+			if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
+				return nil, services.NewNotFoundError(move.ID, "")
+			}
 		}
 	}
 

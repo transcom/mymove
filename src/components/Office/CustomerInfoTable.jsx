@@ -1,5 +1,8 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
+import { get } from 'lodash';
+
+import { BackupContactShape } from 'types/backupContact';
 
 const CustomerInfoTable = ({ customerInfo }) => {
   return (
@@ -16,40 +19,59 @@ const CustomerInfoTable = ({ customerInfo }) => {
         </colgroup>
         <tbody>
           <tr>
-            <th scope="row">Name</th>
-            <td data-cy="name">{customerInfo.name}</td>
+            <th scope="row" className="text-bold">
+              Name
+            </th>
+            <td data-testid="name">{customerInfo.name}</td>
           </tr>
           <tr>
-            <th scope="row">DoD ID</th>
-            <td data-cy="dodId">{customerInfo.dodId}</td>
+            <th scope="row" className="text-bold">
+              DoD ID
+            </th>
+            <td data-testid="dodId">{customerInfo.dodId}</td>
           </tr>
           <tr>
-            <th scope="row">Phone</th>
-            <td data-cy="phone">{customerInfo.phone}</td>
+            <th scope="row" className="text-bold">
+              Phone
+            </th>
+            <td data-testid="phone">{customerInfo.phone}</td>
           </tr>
           <tr>
-            <th scope="row">Email</th>
-            <td data-cy="email">{customerInfo.email}</td>
+            <th scope="row" className="text-bold">
+              Email
+            </th>
+            <td data-testid="email">{customerInfo.email}</td>
           </tr>
           <tr>
-            <th scope="row">Current address</th>
-            <td data-cy="currentAddress">{`${customerInfo.currentAddress.street_address_1}, ${customerInfo.currentAddress.city}, ${customerInfo.currentAddress.state} ${customerInfo.currentAddress.postal_code}`}</td>
+            <th scope="row" className="text-bold">
+              Current address
+            </th>
+            <td data-testid="currentAddress">
+              {`${get(customerInfo, 'currentAddress.street_address_1')}, ${get(
+                customerInfo,
+                'currentAddress.city',
+              )}, ${get(customerInfo, 'currentAddress.state')} ${get(customerInfo, 'currentAddress.postal_code')}`}
+            </td>
           </tr>
           <tr>
-            <th scope="row">Destination address</th>
-            <td data-cy="destinationAddress">{`${customerInfo.destinationAddress.street_address_1}, ${customerInfo.destinationAddress.city}, ${customerInfo.destinationAddress.state} ${customerInfo.destinationAddress.postal_code}`}</td>
+            <th scope="row" className="text-bold">
+              Backup contact name
+            </th>
+            <td data-testid="backupContactName">{customerInfo.backupContact?.name}</td>
           </tr>
           <tr>
-            <th scope="row">Backup contact name</th>
-            <td data-cy="backupContactName">{customerInfo.backupContactName}</td>
+            <th scope="row" className="text-bold">
+              Backup contact email
+            </th>
+            <td data-testid="backupContactEmail">{customerInfo.backupContact?.email}</td>
           </tr>
           <tr>
-            <th scope="row">Backup contact phone</th>
-            <td data-cy="backupContactPhone">{customerInfo.backupContactPhone}</td>
-          </tr>
-          <tr>
-            <th scope="row">Backup contact email</th>
-            <td data-cy="backupContactEmail">{customerInfo.backupContactEmail}</td>
+            <th scope="row" className="text-bold">
+              Backup contact phone
+            </th>
+            <td data-testid="backupContactPhone">
+              {customerInfo.backupContact?.phone ? `+1 ${customerInfo.backupContact.phone}` : ''}
+            </td>
           </tr>
         </tbody>
       </table>
@@ -69,15 +91,7 @@ CustomerInfoTable.propTypes = {
       state: PropTypes.string,
       postal_code: PropTypes.string,
     }),
-    destinationAddress: PropTypes.shape({
-      street_address_1: PropTypes.string,
-      city: PropTypes.string,
-      state: PropTypes.string,
-      postal_code: PropTypes.string,
-    }),
-    backupContactName: PropTypes.string,
-    backupContactPhone: PropTypes.string,
-    backupContactEmail: PropTypes.string,
+    backupContact: BackupContactShape,
   }).isRequired,
 };
 

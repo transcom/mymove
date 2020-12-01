@@ -194,6 +194,7 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 
 func (suite *ModelSuite) TestCanceledMoveCancelsOrder() {
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
+	testdatagen.MakeDefaultContractor(suite.DB())
 
 	dutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)

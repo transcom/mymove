@@ -16,22 +16,22 @@ type MoveTaskOrderUpdater struct {
 	mock.Mock
 }
 
-// MakeAvailableToPrime provides a mock function with given fields: moveTaskOrderID, eTag
-func (_m *MoveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eTag string) (*models.MoveTaskOrder, error) {
-	ret := _m.Called(moveTaskOrderID, eTag)
+// MakeAvailableToPrime provides a mock function with given fields: moveTaskOrderID, eTag, includeServiceCodeMS, includeServiceCodeCS
+func (_m *MoveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eTag string, includeServiceCodeMS bool, includeServiceCodeCS bool) (*models.Move, error) {
+	ret := _m.Called(moveTaskOrderID, eTag, includeServiceCodeMS, includeServiceCodeCS)
 
-	var r0 *models.MoveTaskOrder
-	if rf, ok := ret.Get(0).(func(uuid.UUID, string) *models.MoveTaskOrder); ok {
-		r0 = rf(moveTaskOrderID, eTag)
+	var r0 *models.Move
+	if rf, ok := ret.Get(0).(func(uuid.UUID, string, bool, bool) *models.Move); ok {
+		r0 = rf(moveTaskOrderID, eTag, includeServiceCodeMS, includeServiceCodeCS)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.MoveTaskOrder)
+			r0 = ret.Get(0).(*models.Move)
 		}
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(uuid.UUID, string) error); ok {
-		r1 = rf(moveTaskOrderID, eTag)
+	if rf, ok := ret.Get(1).(func(uuid.UUID, string, bool, bool) error); ok {
+		r1 = rf(moveTaskOrderID, eTag, includeServiceCodeMS, includeServiceCodeCS)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -40,15 +40,15 @@ func (_m *MoveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID, 
 }
 
 // UpdatePostCounselingInfo provides a mock function with given fields: moveTaskOrderID, body, eTag
-func (_m *MoveTaskOrderUpdater) UpdatePostCounselingInfo(moveTaskOrderID uuid.UUID, body move_task_order.UpdateMTOPostCounselingInformationBody, eTag string) (*models.MoveTaskOrder, error) {
+func (_m *MoveTaskOrderUpdater) UpdatePostCounselingInfo(moveTaskOrderID uuid.UUID, body move_task_order.UpdateMTOPostCounselingInformationBody, eTag string) (*models.Move, error) {
 	ret := _m.Called(moveTaskOrderID, body, eTag)
 
-	var r0 *models.MoveTaskOrder
-	if rf, ok := ret.Get(0).(func(uuid.UUID, move_task_order.UpdateMTOPostCounselingInformationBody, string) *models.MoveTaskOrder); ok {
+	var r0 *models.Move
+	if rf, ok := ret.Get(0).(func(uuid.UUID, move_task_order.UpdateMTOPostCounselingInformationBody, string) *models.Move); ok {
 		r0 = rf(moveTaskOrderID, body, eTag)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.MoveTaskOrder)
+			r0 = ret.Get(0).(*models.Move)
 		}
 	}
 

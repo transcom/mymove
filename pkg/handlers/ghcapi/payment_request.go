@@ -5,6 +5,10 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/transcom/mymove/pkg/services/event"
+
+	"github.com/gobuffalo/validate/v3"
+
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/services/audit"
 
@@ -12,39 +16,12 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/services/query"
-
 	paymentrequestop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
-
-// ListPaymentRequestsHandler lists payments requests
-type ListPaymentRequestsHandler struct {
-	handlers.HandlerContext
-	services.PaymentRequestListFetcher
-}
-
-// Handle lists payment requests
-func (h ListPaymentRequestsHandler) Handle(params paymentrequestop.ListPaymentRequestsParams) middleware.Responder {
-	// TODO: add authorizations
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-
-	paymentRequests, err := h.FetchPaymentRequestList()
-	if err != nil {
-		logger.Error("Error listing payment requests err", zap.Error(err))
-		return paymentrequestop.NewListPaymentRequestsInternalServerError()
-	}
-
-	paymentRequestsList := make(ghcmessages.PaymentRequests, len(*paymentRequests))
-	for i, paymentRequest := range *paymentRequests {
-		paymentRequestsList[i] = payloads.PaymentRequest(&paymentRequest)
-	}
-
-	return paymentrequestop.NewListPaymentRequestsOK().WithPayload(paymentRequestsList)
-}
 
 // GetPaymentRequestHandler gets payment requests
 type GetPaymentRequestHandler struct {
@@ -62,13 +39,11 @@ func (h GetPaymentRequestHandler) Handle(params paymentrequestop.GetPaymentReque
 		return paymentrequestop.NewGetPaymentRequestInternalServerError()
 	}
 
-	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", paymentRequestID.String())}
-
-	paymentRequest, err := h.FetchPaymentRequest(filters)
+	paymentRequest, err := h.FetchPaymentRequest(paymentRequestID)
 
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error fetching Payment Request with ID: %s", params.PaymentRequestID.String()), zap.Error(err))
-		return paymentrequestop.NewGetPaymentRequestInternalServerError()
+		return paymentrequestop.NewGetPaymentRequestNotFound()
 	}
 
 	if reflect.DeepEqual(paymentRequest, models.PaymentRequest{}) {
@@ -76,7 +51,11 @@ func (h GetPaymentRequestHandler) Handle(params paymentrequestop.GetPaymentReque
 		return paymentrequestop.NewGetPaymentRequestNotFound()
 	}
 
-	returnPayload := payloads.PaymentRequest(&paymentRequest)
+	returnPayload, err := payloads.PaymentRequest(&paymentRequest, h.FileStorer())
+	if err != nil {
+		return paymentrequestop.NewGetPaymentRequestInternalServerError()
+	}
+
 	response := paymentrequestop.NewGetPaymentRequestOK().WithPayload(returnPayload)
 
 	return response
@@ -100,12 +79,11 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	}
 
 	// Let's fetch the existing payment request using the PaymentRequestFetcher service object
-	filter := []services.QueryFilter{query.NewQueryFilter("id", "=", paymentRequestID.String())}
-	existingPaymentRequest, err := h.PaymentRequestFetcher.FetchPaymentRequest(filter)
+	existingPaymentRequest, err := h.PaymentRequestFetcher.FetchPaymentRequest(paymentRequestID)
 
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error finding Payment Request for status update with ID: %s", params.PaymentRequestID.String()), zap.Error(err))
-		return paymentrequestop.NewGetPaymentRequestInternalServerError()
+		return paymentrequestop.NewGetPaymentRequestNotFound()
 	}
 
 	status := existingPaymentRequest.Status
@@ -184,12 +162,32 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 			return paymentrequestop.NewUpdatePaymentRequestStatusNotFound().WithPayload(payload)
 		case services.PreconditionFailedError:
 			return paymentrequestop.NewUpdatePaymentRequestStatusPreconditionFailed().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
+		case services.InvalidInputError:
+			payload := payloadForValidationError("Unable to complete request", err.Error(), h.GetTraceID(), validate.NewErrors())
+			return paymentrequestop.NewUpdatePaymentRequestStatusUnprocessableEntity().WithPayload(payload)
 		default:
 			logger.Error(fmt.Sprintf("Error saving payment request status for ID: %s: %s", paymentRequestID, err))
 			return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError()
 		}
 	}
 
-	returnPayload := payloads.PaymentRequest(updatedPaymentRequest)
+	_, err = event.TriggerEvent(event.Event{
+		EventKey:        event.PaymentRequestUpdateEventKey,
+		MtoID:           updatedPaymentRequest.MoveTaskOrderID,
+		UpdatedObjectID: updatedPaymentRequest.ID,
+		Request:         params.HTTPRequest,
+		EndpointKey:     event.GhcUpdatePaymentRequestStatusEndpointKey,
+		DBConnection:    h.DB(),
+		HandlerContext:  h,
+	})
+	if err != nil {
+		logger.Error("ghcapi.UpdatePaymentRequestStatusHandler could not generate the event")
+	}
+
+	returnPayload, err := payloads.PaymentRequest(updatedPaymentRequest, h.FileStorer())
+	if err != nil {
+		return paymentrequestop.NewGetPaymentRequestInternalServerError()
+	}
+
 	return paymentrequestop.NewUpdatePaymentRequestStatusOK().WithPayload(returnPayload)
 }

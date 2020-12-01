@@ -9,6 +9,9 @@ import (
 // TestYear is the default year for testing.
 var TestYear = 2018
 
+// GHCTestYear is the default for GHC rate engine testing
+var GHCTestYear = 2020
+
 // DefaultZip3 is the default zip3 for testing
 var DefaultZip3 = "902"
 
@@ -93,7 +96,7 @@ var cal = dates.NewUSCalendar()
 var NextValidMoveDate = dates.NextValidMoveDate(time.Now(), cal)
 
 // DefaultContractCode is the default contract code for testing
-const DefaultContractCode = "TEST"
+const DefaultContractCode = "TRUSS_TEST"
 
 // DefaultContractName name used for contractor in testing
 const DefaultContractName = "Default contractor name for test"
@@ -109,3 +112,6 @@ const DefaultServiceItemParamKeyName = "testkey"
 
 // DefaultContractNumber is the default contract number for  testing
 const DefaultContractNumber = "HTC111-11-1-1111"
+
+// DefaultWebhookSubscriptionCallbackURL is the default webhooksubscription callback url for testing
+const DefaultWebhookSubscriptionCallbackURL = "/some/callback/url"

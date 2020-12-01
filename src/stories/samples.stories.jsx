@@ -2,13 +2,12 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { withState } from '@dump247/storybook-state';
 import classNames from 'classnames';
-
 import { Button } from '@trussworks/react-uswds';
+
 import { Form, EditButton } from '../components/form';
 import { TextInput, TextInputMinimal } from '../components/form/fields';
 

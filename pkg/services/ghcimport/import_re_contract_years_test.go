@@ -3,13 +3,17 @@ package ghcimport
 import (
 	"testing"
 
+	"github.com/jackc/pgerrcode"
+
+	"github.com/transcom/mymove/pkg/db/dberr"
 	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *GHCRateEngineImportSuite) Test_importREContractYears() {
 	gre := &GHCRateEngineImporter{
-		Logger:       suite.logger,
-		ContractCode: testContractCode,
+		Logger:            suite.logger,
+		ContractCode:      testContractCode,
+		ContractStartDate: testContractStartDate,
 	}
 
 	suite.T().Run("import success", func(t *testing.T) {
@@ -26,7 +30,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREContractYears() {
 	suite.T().Run("run a second time; should fail immediately due to date range constraint", func(t *testing.T) {
 		err := gre.importREContractYears(suite.DB())
 		if suite.Error(err) {
-			suite.Contains(err.Error(), "re_contract_years_daterange_excl")
+			suite.True(dberr.IsDBErrorForConstraint(err, pgerrcode.ExclusionViolation, "re_contract_years_daterange_excl"))
 		}
 
 		// Check to see if anything else changed

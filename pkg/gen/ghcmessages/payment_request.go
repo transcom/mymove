@@ -6,21 +6,16 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"strconv"
-
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // PaymentRequest payment request
+//
 // swagger:model PaymentRequest
 type PaymentRequest struct {
-
-	// document package
-	DocumentPackage *ProofOfServicePackage `json:"documentPackage,omitempty"`
 
 	// e tag
 	ETag string `json:"eTag,omitempty"`
@@ -41,11 +36,18 @@ type PaymentRequest struct {
 	// Read Only: true
 	PaymentRequestNumber string `json:"paymentRequestNumber,omitempty"`
 
+	// proof of service docs
+	ProofOfServiceDocs ProofOfServiceDocs `json:"proofOfServiceDocs,omitempty"`
+
 	// rejection reason
 	RejectionReason *string `json:"rejectionReason,omitempty"`
 
-	// service item i ds
-	ServiceItemIDs []strfmt.UUID `json:"serviceItemIDs"`
+	// reviewed at
+	// Format: date-time
+	ReviewedAt *strfmt.DateTime `json:"reviewedAt,omitempty"`
+
+	// service items
+	ServiceItems PaymentServiceItems `json:"serviceItems,omitempty"`
 
 	// status
 	Status PaymentRequestStatus `json:"status,omitempty"`
@@ -55,10 +57,6 @@ type PaymentRequest struct {
 func (m *PaymentRequest) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateDocumentPackage(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -67,7 +65,15 @@ func (m *PaymentRequest) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateServiceItemIDs(formats); err != nil {
+	if err := m.validateProofOfServiceDocs(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateReviewedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateServiceItems(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -78,24 +84,6 @@ func (m *PaymentRequest) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *PaymentRequest) validateDocumentPackage(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.DocumentPackage) { // not required
-		return nil
-	}
-
-	if m.DocumentPackage != nil {
-		if err := m.DocumentPackage.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("documentPackage")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -125,18 +113,46 @@ func (m *PaymentRequest) validateMoveTaskOrderID(formats strfmt.Registry) error 
 	return nil
 }
 
-func (m *PaymentRequest) validateServiceItemIDs(formats strfmt.Registry) error {
+func (m *PaymentRequest) validateProofOfServiceDocs(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.ServiceItemIDs) { // not required
+	if swag.IsZero(m.ProofOfServiceDocs) { // not required
 		return nil
 	}
 
-	for i := 0; i < len(m.ServiceItemIDs); i++ {
-
-		if err := validate.FormatOf("serviceItemIDs"+"."+strconv.Itoa(i), "body", "uuid", m.ServiceItemIDs[i].String(), formats); err != nil {
-			return err
+	if err := m.ProofOfServiceDocs.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("proofOfServiceDocs")
 		}
+		return err
+	}
 
+	return nil
+}
+
+func (m *PaymentRequest) validateReviewedAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ReviewedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("reviewedAt", "body", "date-time", m.ReviewedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PaymentRequest) validateServiceItems(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ServiceItems) { // not required
+		return nil
+	}
+
+	if err := m.ServiceItems.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("serviceItems")
+		}
+		return err
 	}
 
 	return nil

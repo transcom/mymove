@@ -2,16 +2,18 @@ package ghcimport
 
 import (
 	"fmt"
+	"time"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 )
 
 // GHCRateEngineImporter is the rate engine importer for GHC
 type GHCRateEngineImporter struct {
-	Logger       Logger
-	ContractCode string
-	ContractName string
+	Logger            Logger
+	ContractCode      string
+	ContractName      string
+	ContractStartDate time.Time
 	// TODO: add reference maps here as needed for dependencies between tables
 	ContractID                   uuid.UUID
 	serviceAreaToIDMap           map[string]uuid.UUID
@@ -45,6 +47,12 @@ func (gre *GHCRateEngineImporter) runImports(dbTx *pop.Connection) error {
 	err = gre.importRERateArea(dbTx) // Also populates gre.domesticRateAreaToIDMap and gre.internationalRateAreaToIDMap
 	if err != nil {
 		return fmt.Errorf("failed to import re_rate_area: %w", err)
+	}
+
+	gre.Logger.Info("Mapping zip3s and zip5s to rate areas")
+	err = gre.mapZipCodesToRERateAreas(dbTx)
+	if err != nil {
+		return fmt.Errorf("failed to map zip3s and zip5s to re_rate_areas: %w", err)
 	}
 
 	gre.Logger.Info("Loading service map")

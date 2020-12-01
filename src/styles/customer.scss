@@ -1,0 +1,9 @@
+@import '../ghc_index.scss';
+
+.my-move-container,
+.my-move .usa-footer {
+    background-color: $bg-white;
+    @media (min-width:$tablet) {
+        background-color: $bg-gray;
+    }
+}

@@ -1,6 +1,6 @@
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
-module.exports = function (app) {
+module.exports = (app) => {
   app.use(createProxyMiddleware('/api', { target: 'http://milmovelocal:8080/' }));
   app.use(createProxyMiddleware('/internal', { target: 'http://milmovelocal:8080/' }));
   app.use(createProxyMiddleware('/admin', { target: 'http://milmovelocal:8080/' }));

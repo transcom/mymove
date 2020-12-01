@@ -6,17 +6,18 @@ package supportmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
 
 // UpdatePaymentRequestStatus update payment request status
+//
 // swagger:model UpdatePaymentRequestStatus
 type UpdatePaymentRequestStatus struct {
 
 	// Attribute of the payment request object that automatically changes when the request is updated. This matches the value passed in the header for `If-Match`. Required when sending PUT or PATCH requests to prevent updating stale data.
+	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// A written reason to provide context for the status.

@@ -6,112 +6,287 @@ package supportmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"bytes"
 	"encoding/json"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"io"
+	"io/ioutil"
 
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
-// MTOServiceItem m t o service item
-// swagger:model MTOServiceItem
-type MTOServiceItem struct {
-
-	// approved at
-	// Format: date
-	ApprovedAt strfmt.Date `json:"approvedAt,omitempty"`
-
-	// created at
-	// Format: date
-	CreatedAt strfmt.Date `json:"createdAt,omitempty"`
-
-	// deleted at
-	// Format: date
-	DeletedAt strfmt.Date `json:"deletedAt,omitempty"`
+// MTOServiceItem MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.
+//
+// swagger:discriminator MTOServiceItem modelType
+type MTOServiceItem interface {
+	runtime.Validatable
 
 	// description
-	Description string `json:"description,omitempty"`
+	Description() string
+	SetDescription(string)
 
 	// e tag
-	ETag string `json:"eTag,omitempty"`
+	// Read Only: true
+	ETag() string
+	SetETag(string)
 
 	// fee type
 	// Enum: [COUNSELING CRATING TRUCKING SHUTTLE]
-	FeeType string `json:"feeType,omitempty"`
+	FeeType() string
+	SetFeeType(string)
 
 	// id
-	// Required: true
 	// Format: uuid
-	ID *strfmt.UUID `json:"id"`
+	ID() strfmt.UUID
+	SetID(strfmt.UUID)
+
+	// model type
+	// Required: true
+	ModelType() MTOServiceItemModelType
+	SetModelType(MTOServiceItemModelType)
 
 	// move task order ID
 	// Required: true
 	// Format: uuid
-	MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
+	MoveTaskOrderID() *strfmt.UUID
+	SetMoveTaskOrderID(*strfmt.UUID)
 
 	// mto shipment ID
-	// Required: true
 	// Format: uuid
-	MtoShipmentID *strfmt.UUID `json:"mtoShipmentID"`
+	MtoShipmentID() strfmt.UUID
+	SetMtoShipmentID(strfmt.UUID)
 
 	// quantity
-	Quantity int64 `json:"quantity,omitempty"`
+	Quantity() int64
+	SetQuantity(int64)
 
 	// rate
-	Rate int64 `json:"rate,omitempty"`
-
-	// re service code
-	// Required: true
-	ReServiceCode *string `json:"reServiceCode"`
-
-	// re service ID
-	// Required: true
-	// Format: uuid
-	ReServiceID *strfmt.UUID `json:"reServiceID"`
+	Rate() int64
+	SetRate(int64)
 
 	// re service name
-	// Required: true
-	ReServiceName *string `json:"reServiceName"`
-
-	// rejected at
-	// Format: date
-	RejectedAt strfmt.Date `json:"rejectedAt,omitempty"`
+	ReServiceName() string
+	SetReServiceName(string)
 
 	// rejection reason
-	RejectionReason *string `json:"rejectionReason,omitempty"`
+	RejectionReason() *string
+	SetRejectionReason(*string)
 
 	// status
-	Status MTOServiceItemStatus `json:"status,omitempty"`
+	Status() MTOServiceItemStatus
+	SetStatus(MTOServiceItemStatus)
 
-	// submitted at
-	// Format: date
-	SubmittedAt strfmt.Date `json:"submittedAt,omitempty"`
+	// AdditionalProperties in base type shoud be handled just like regular properties
+	// At this moment, the base type property is pushed down to the subtype
+}
 
-	// total
-	Total int64 `json:"total,omitempty"`
+type mTOServiceItem struct {
+	descriptionField string
 
-	// updated at
-	// Format: datetime
-	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
+	eTagField string
+
+	feeTypeField string
+
+	idField strfmt.UUID
+
+	modelTypeField MTOServiceItemModelType
+
+	moveTaskOrderIdField *strfmt.UUID
+
+	mtoShipmentIdField strfmt.UUID
+
+	quantityField int64
+
+	rateField int64
+
+	reServiceNameField string
+
+	rejectionReasonField *string
+
+	statusField MTOServiceItemStatus
+}
+
+// Description gets the description of this polymorphic type
+func (m *mTOServiceItem) Description() string {
+	return m.descriptionField
+}
+
+// SetDescription sets the description of this polymorphic type
+func (m *mTOServiceItem) SetDescription(val string) {
+	m.descriptionField = val
+}
+
+// ETag gets the e tag of this polymorphic type
+func (m *mTOServiceItem) ETag() string {
+	return m.eTagField
+}
+
+// SetETag sets the e tag of this polymorphic type
+func (m *mTOServiceItem) SetETag(val string) {
+	m.eTagField = val
+}
+
+// FeeType gets the fee type of this polymorphic type
+func (m *mTOServiceItem) FeeType() string {
+	return m.feeTypeField
+}
+
+// SetFeeType sets the fee type of this polymorphic type
+func (m *mTOServiceItem) SetFeeType(val string) {
+	m.feeTypeField = val
+}
+
+// ID gets the id of this polymorphic type
+func (m *mTOServiceItem) ID() strfmt.UUID {
+	return m.idField
+}
+
+// SetID sets the id of this polymorphic type
+func (m *mTOServiceItem) SetID(val strfmt.UUID) {
+	m.idField = val
+}
+
+// ModelType gets the model type of this polymorphic type
+func (m *mTOServiceItem) ModelType() MTOServiceItemModelType {
+	return "MTOServiceItem"
+}
+
+// SetModelType sets the model type of this polymorphic type
+func (m *mTOServiceItem) SetModelType(val MTOServiceItemModelType) {
+}
+
+// MoveTaskOrderID gets the move task order ID of this polymorphic type
+func (m *mTOServiceItem) MoveTaskOrderID() *strfmt.UUID {
+	return m.moveTaskOrderIdField
+}
+
+// SetMoveTaskOrderID sets the move task order ID of this polymorphic type
+func (m *mTOServiceItem) SetMoveTaskOrderID(val *strfmt.UUID) {
+	m.moveTaskOrderIdField = val
+}
+
+// MtoShipmentID gets the mto shipment ID of this polymorphic type
+func (m *mTOServiceItem) MtoShipmentID() strfmt.UUID {
+	return m.mtoShipmentIdField
+}
+
+// SetMtoShipmentID sets the mto shipment ID of this polymorphic type
+func (m *mTOServiceItem) SetMtoShipmentID(val strfmt.UUID) {
+	m.mtoShipmentIdField = val
+}
+
+// Quantity gets the quantity of this polymorphic type
+func (m *mTOServiceItem) Quantity() int64 {
+	return m.quantityField
+}
+
+// SetQuantity sets the quantity of this polymorphic type
+func (m *mTOServiceItem) SetQuantity(val int64) {
+	m.quantityField = val
+}
+
+// Rate gets the rate of this polymorphic type
+func (m *mTOServiceItem) Rate() int64 {
+	return m.rateField
+}
+
+// SetRate sets the rate of this polymorphic type
+func (m *mTOServiceItem) SetRate(val int64) {
+	m.rateField = val
+}
+
+// ReServiceName gets the re service name of this polymorphic type
+func (m *mTOServiceItem) ReServiceName() string {
+	return m.reServiceNameField
+}
+
+// SetReServiceName sets the re service name of this polymorphic type
+func (m *mTOServiceItem) SetReServiceName(val string) {
+	m.reServiceNameField = val
+}
+
+// RejectionReason gets the rejection reason of this polymorphic type
+func (m *mTOServiceItem) RejectionReason() *string {
+	return m.rejectionReasonField
+}
+
+// SetRejectionReason sets the rejection reason of this polymorphic type
+func (m *mTOServiceItem) SetRejectionReason(val *string) {
+	m.rejectionReasonField = val
+}
+
+// Status gets the status of this polymorphic type
+func (m *mTOServiceItem) Status() MTOServiceItemStatus {
+	return m.statusField
+}
+
+// SetStatus sets the status of this polymorphic type
+func (m *mTOServiceItem) SetStatus(val MTOServiceItemStatus) {
+	m.statusField = val
+}
+
+// UnmarshalMTOServiceItemSlice unmarshals polymorphic slices of MTOServiceItem
+func UnmarshalMTOServiceItemSlice(reader io.Reader, consumer runtime.Consumer) ([]MTOServiceItem, error) {
+	var elements []json.RawMessage
+	if err := consumer.Consume(reader, &elements); err != nil {
+		return nil, err
+	}
+
+	var result []MTOServiceItem
+	for _, element := range elements {
+		obj, err := unmarshalMTOServiceItem(element, consumer)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, obj)
+	}
+	return result, nil
+}
+
+// UnmarshalMTOServiceItem unmarshals polymorphic MTOServiceItem
+func UnmarshalMTOServiceItem(reader io.Reader, consumer runtime.Consumer) (MTOServiceItem, error) {
+	// we need to read this twice, so first into a buffer
+	data, err := ioutil.ReadAll(reader)
+	if err != nil {
+		return nil, err
+	}
+	return unmarshalMTOServiceItem(data, consumer)
+}
+
+func unmarshalMTOServiceItem(data []byte, consumer runtime.Consumer) (MTOServiceItem, error) {
+	buf := bytes.NewBuffer(data)
+	buf2 := bytes.NewBuffer(data)
+
+	// the first time this is read is to fetch the value of the modelType property.
+	var getType struct {
+		ModelType string `json:"modelType"`
+	}
+	if err := consumer.Consume(buf, &getType); err != nil {
+		return nil, err
+	}
+
+	if err := validate.RequiredString("modelType", "body", getType.ModelType); err != nil {
+		return nil, err
+	}
+
+	// The value of modelType is used to determine which type to create and unmarshal the data into
+	switch getType.ModelType {
+	case "MTOServiceItem":
+		var result mTOServiceItem
+		if err := consumer.Consume(buf2, &result); err != nil {
+			return nil, err
+		}
+		return &result, nil
+	}
+	return nil, errors.New(422, "invalid modelType value: %q", getType.ModelType)
 }
 
 // Validate validates this m t o service item
-func (m *MTOServiceItem) Validate(formats strfmt.Registry) error {
+func (m *mTOServiceItem) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := m.validateApprovedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateCreatedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateDeletedAt(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := m.validateFeeType(formats); err != nil {
 		res = append(res, err)
@@ -129,76 +304,13 @@ func (m *MTOServiceItem) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateReServiceCode(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateReServiceID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateReServiceName(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateRejectedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateSubmittedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateUpdatedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *MTOServiceItem) validateApprovedAt(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.ApprovedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("approvedAt", "body", "date", m.ApprovedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MTOServiceItem) validateCreatedAt(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.CreatedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("createdAt", "body", "date", m.CreatedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MTOServiceItem) validateDeletedAt(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.DeletedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("deletedAt", "body", "date", m.DeletedAt.String(), formats); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -230,166 +342,78 @@ const (
 )
 
 // prop value enum
-func (m *MTOServiceItem) validateFeeTypeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, mTOServiceItemTypeFeeTypePropEnum); err != nil {
+func (m *mTOServiceItem) validateFeeTypeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, mTOServiceItemTypeFeeTypePropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (m *MTOServiceItem) validateFeeType(formats strfmt.Registry) error {
+func (m *mTOServiceItem) validateFeeType(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.FeeType) { // not required
+	if swag.IsZero(m.FeeType()) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := m.validateFeeTypeEnum("feeType", "body", m.FeeType); err != nil {
+	if err := m.validateFeeTypeEnum("feeType", "body", m.FeeType()); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (m *MTOServiceItem) validateID(formats strfmt.Registry) error {
+func (m *mTOServiceItem) validateID(formats strfmt.Registry) error {
 
-	if err := validate.Required("id", "body", m.ID); err != nil {
-		return err
-	}
-
-	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MTOServiceItem) validateMoveTaskOrderID(formats strfmt.Registry) error {
-
-	if err := validate.Required("moveTaskOrderID", "body", m.MoveTaskOrderID); err != nil {
-		return err
-	}
-
-	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MTOServiceItem) validateMtoShipmentID(formats strfmt.Registry) error {
-
-	if err := validate.Required("mtoShipmentID", "body", m.MtoShipmentID); err != nil {
-		return err
-	}
-
-	if err := validate.FormatOf("mtoShipmentID", "body", "uuid", m.MtoShipmentID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MTOServiceItem) validateReServiceCode(formats strfmt.Registry) error {
-
-	if err := validate.Required("reServiceCode", "body", m.ReServiceCode); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MTOServiceItem) validateReServiceID(formats strfmt.Registry) error {
-
-	if err := validate.Required("reServiceID", "body", m.ReServiceID); err != nil {
-		return err
-	}
-
-	if err := validate.FormatOf("reServiceID", "body", "uuid", m.ReServiceID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MTOServiceItem) validateReServiceName(formats strfmt.Registry) error {
-
-	if err := validate.Required("reServiceName", "body", m.ReServiceName); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MTOServiceItem) validateRejectedAt(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.RejectedAt) { // not required
+	if swag.IsZero(m.ID()) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("rejectedAt", "body", "date", m.RejectedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("id", "body", "uuid", m.ID().String(), formats); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (m *MTOServiceItem) validateStatus(formats strfmt.Registry) error {
+func (m *mTOServiceItem) validateMoveTaskOrderID(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.Status) { // not required
+	if err := validate.Required("moveTaskOrderID", "body", m.MoveTaskOrderID()); err != nil {
+		return err
+	}
+
+	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID().String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *mTOServiceItem) validateMtoShipmentID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.MtoShipmentID()) { // not required
 		return nil
 	}
 
-	if err := m.Status.Validate(formats); err != nil {
+	if err := validate.FormatOf("mtoShipmentID", "body", "uuid", m.MtoShipmentID().String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *mTOServiceItem) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status()) { // not required
+		return nil
+	}
+
+	if err := m.Status().Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")
 		}
 		return err
 	}
 
-	return nil
-}
-
-func (m *MTOServiceItem) validateSubmittedAt(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.SubmittedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("submittedAt", "body", "date", m.SubmittedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MTOServiceItem) validateUpdatedAt(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.UpdatedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("updatedAt", "body", "datetime", m.UpdatedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (m *MTOServiceItem) MarshalBinary() ([]byte, error) {
-	if m == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(m)
-}
-
-// UnmarshalBinary interface implementation
-func (m *MTOServiceItem) UnmarshalBinary(b []byte) error {
-	var res MTOServiceItem
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*m = res
 	return nil
 }

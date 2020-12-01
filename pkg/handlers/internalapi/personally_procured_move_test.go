@@ -4,6 +4,11 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/stretchr/testify/mock"
+
+	"github.com/transcom/mymove/pkg/rateengine"
+	"github.com/transcom/mymove/pkg/services/mocks"
+
 	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/go-openapi/strfmt"
@@ -14,7 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/route"
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
 )
@@ -144,6 +149,8 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveTest() {
 func (suite *HandlerSuite) TestCreatePPMHandler() {
 	user1 := testdatagen.MakeDefaultServiceMember(suite.DB())
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
+	testdatagen.MakeDefaultContractor(suite.DB())
+
 	selectedMoveType := models.SelectedMoveTypeHHGPPM
 
 	moveOptions := models.MoveOptions{
@@ -364,7 +371,12 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	}
 
 	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
-	handler.SetPlanner(route.NewTestingPlanner(900))
+	planner := &routemocks.Planner{}
+	planner.On("Zip5TransitDistanceLineHaul",
+		mock.Anything,
+		mock.Anything,
+	).Return(900, nil)
+	handler.SetPlanner(planner)
 	response := handler.Handle(patchPPMParams)
 
 	// assert we got back the 201 response
@@ -385,7 +397,7 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 	initialWeight := unit.Pound(4100)
 	newWeight := swag.Int64(4105)
 
-	// Date picked essentialy at random, but needs to be within TestYear
+	// Date picked essentially at random, but needs to be within TestYear
 	newMoveDate := time.Date(testdatagen.TestYear, time.November, 10, 23, 0, 0, 0, time.UTC)
 	initialMoveDate := newMoveDate.Add(-2 * 24 * time.Hour)
 
@@ -394,8 +406,8 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 	newHasAdditionalPostalCode := swag.Bool(false)
 	additionalPickupPostalCode := swag.String("90210")
 
-	hasSit := swag.Bool(true)
-	newHasSit := swag.Bool(false)
+	hasSit := swag.Bool(false)
+	newHasSit := swag.Bool(true)
 	daysInStorage := swag.Int64(3)
 	newPickupPostalCode := swag.String("32168")
 	newSitCost := swag.Int64(60)
@@ -425,8 +437,6 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 			NewDutyStation:   newDutyStation,
 		},
 	})
-
-	// move := testdatagen.MakeDefaultMove(suite.DB())
 
 	newAdvanceWorksheet := models.Document{
 		ServiceMember:   move.Orders.ServiceMember,
@@ -470,8 +480,14 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
+	mileage := 900
 	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
-	handler.SetPlanner(route.NewTestingPlanner(900))
+	planner := &routemocks.Planner{}
+	planner.On("Zip5TransitDistanceLineHaul",
+		mock.Anything,
+		mock.Anything,
+	).Return(mileage, nil)
+	handler.SetPlanner(planner)
 	response := handler.Handle(patchPPMParams)
 
 	// assert we got back the 201 response
@@ -490,16 +506,36 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 		PersonallyProcuredMoveID: strfmt.UUID(ppm1.ID.String()),
 	}
 
-	updatePPMEstimateHandler := UpdatePersonallyProcuredMoveEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
-	updatePPMEstimateHandler.SetPlanner(route.NewTestingPlanner(900))
+	mockedSitCharge := int64(55000)
+	linehaulCosts := rateengine.LinehaulCostComputation{
+		Mileage: mileage,
+	}
+	mockedCost := rateengine.CostComputation{
+		LinehaulCostComputation: linehaulCosts,
+		SITFee:                  255246,
+		SITMax:                  552344,
+		GCC:                     unit.Cents(4355223),
+		LHDiscount:              unit.DiscountRate(.51),
+		SITDiscount:             unit.DiscountRate(.50),
+		Weight:                  unit.Pound(*newWeight),
+	}
+	estimateCalculator := &mocks.EstimateCalculator{}
+	estimateCalculator.On("CalculateEstimates",
+		mock.AnythingOfType("*models.PersonallyProcuredMove"), move.ID, suite.TestLogger()).Return(mockedSitCharge, mockedCost, nil).Once()
+	updatePPMEstimateHandler := UpdatePersonallyProcuredMoveEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), estimateCalculator}
+	updatePPMEstimateHandler.SetPlanner(planner)
 	updatePPMEstimateResponse := updatePPMEstimateHandler.Handle(updatePPMEstimateParams)
 
 	// assert we got back the 201 response
 	updatePPMEstimateOkResponse := updatePPMEstimateResponse.(*ppmop.UpdatePersonallyProcuredMoveEstimateOK)
 	updatePPMEstimatePayload := updatePPMEstimateOkResponse.Payload
 
-	suite.Assertions.Equal(int64(242246), *updatePPMEstimatePayload.IncentiveEstimateMin)
-	suite.Assertions.Equal(int64(267746), *updatePPMEstimatePayload.IncentiveEstimateMax)
+	suite.Assertions.Equal(int64(4137462), *updatePPMEstimatePayload.IncentiveEstimateMin)
+	suite.Assertions.Equal(int64(4572984), *updatePPMEstimatePayload.IncentiveEstimateMax)
+	suite.Assertions.Equal(int64(900), *updatePPMEstimatePayload.Mileage)
+	suite.Assertions.Equal(int64(255246), *updatePPMEstimatePayload.PlannedSitMax)
+	suite.Assertions.Equal(int64(552344), *updatePPMEstimatePayload.SitMax)
+	suite.Assertions.Equal("$550.00", *updatePPMEstimatePayload.EstimatedStorageReimbursement)
 }
 
 func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
@@ -546,8 +582,14 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 		},
 	})
 
+	planner := &routemocks.Planner{}
+	planner.On("Zip5TransitDistanceLineHaul",
+		mock.Anything,
+		mock.Anything,
+	).Return(900, nil)
+
 	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
-	handler.SetPlanner(route.NewTestingPlanner(900))
+	handler.SetPlanner(planner)
 	response := handler.Handle(patchPPMParams)
 
 	// assert we got back the 201 response
@@ -618,6 +660,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	orders1 := testdatagen.MakeDefaultOrder(suite.DB())
+	testdatagen.MakeDefaultContractor(suite.DB())
 
 	selectedMoveType := models.SelectedMoveTypeHHGPPM
 

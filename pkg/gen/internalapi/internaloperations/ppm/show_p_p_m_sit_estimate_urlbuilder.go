@@ -16,11 +16,12 @@ import (
 
 // ShowPPMSitEstimateURL generates an URL for the show p p m sit estimate operation
 type ShowPPMSitEstimateURL struct {
-	DaysInStorage    int64
-	OrdersID         strfmt.UUID
-	OriginZip        string
-	OriginalMoveDate strfmt.Date
-	WeightEstimate   int64
+	DaysInStorage            int64
+	OrdersID                 strfmt.UUID
+	OriginZip                string
+	OriginalMoveDate         strfmt.Date
+	PersonallyProcuredMoveID strfmt.UUID
+	WeightEstimate           int64
 
 	_basePath string
 	// avoid unkeyed usage
@@ -74,6 +75,11 @@ func (o *ShowPPMSitEstimateURL) Build() (*url.URL, error) {
 	originalMoveDateQ := o.OriginalMoveDate.String()
 	if originalMoveDateQ != "" {
 		qs.Set("original_move_date", originalMoveDateQ)
+	}
+
+	personallyProcuredMoveIDQ := o.PersonallyProcuredMoveID.String()
+	if personallyProcuredMoveIDQ != "" {
+		qs.Set("personally_procured_move_id", personallyProcuredMoveIDQ)
 	}
 
 	weightEstimateQ := swag.FormatInt64(o.WeightEstimate)

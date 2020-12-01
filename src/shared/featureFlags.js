@@ -14,18 +14,31 @@ const defaultFlags = {
   moveInfoComboButton: true,
   sitPanel: true,
   ppmPaymentRequest: true,
-  too: false,
-  tio: false,
+  allOrdersTypes: false,
+  hhgFlow: false,
+  ghcFlow: false,
 };
 
 const environmentFlags = {
-  development: Object.assign({}, defaultFlags, { tio: true, too: true }),
+  development: Object.assign({}, defaultFlags, {
+    allOrdersTypes: true,
+    hhgFlow: true,
+    ghcFlow: true,
+  }),
 
   test: Object.assign({}, defaultFlags),
 
-  experimental: Object.assign({}, defaultFlags, { tio: true, too: true }),
+  experimental: Object.assign({}, defaultFlags, {
+    allOrdersTypes: true,
+    hhgFlow: true,
+    ghcFlow: true,
+  }),
 
-  staging: Object.assign({}, defaultFlags, { tio: true, too: true }),
+  staging: Object.assign({}, defaultFlags, {
+    allOrdersTypes: true,
+    hhgFlow: true,
+    ghcFlow: true,
+  }),
 
   production: Object.assign({}, defaultFlags, {
     sitPanel: false,
@@ -92,3 +105,15 @@ export function detectFlags(nodeEnv, host, search) {
   // eslint-disable-next-line security/detect-object-injection
   return Object.assign({}, environmentFlags[env], flagsFromURL(search));
 }
+
+export const createModifiedSchemaForOrdersTypesFlag = (schema) => {
+  const ordersTypeSchema = Object.assign({}, schema.properties.orders_type, {
+    enum: [schema.properties.orders_type.enum[0]],
+  });
+  const properties = Object.assign({}, schema.properties, { orders_type: ordersTypeSchema });
+  const modifiedSchema = Object.assign({}, schema, {
+    properties: properties,
+  });
+
+  return modifiedSchema;
+};

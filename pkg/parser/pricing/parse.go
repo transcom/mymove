@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gocarina/gocsv"
 	"github.com/pkg/errors"
 	"github.com/tealeg/xlsx"
@@ -126,19 +126,20 @@ type xlsxProcessInfo struct {
 
 // ParamConfig is the parameter conifguration
 type ParamConfig struct {
-	ProcessAll    bool
-	ShowOutput    bool
-	XlsxFilename  string
-	XlsxSheets    []string
-	SaveToFile    bool
-	RunTime       time.Time
-	XlsxFile      *xlsx.File
-	RunVerify     bool
-	RunImport     bool
-	UseTempTables bool
-	DropIfExists  bool
-	ContractCode  string
-	ContractName  string
+	ProcessAll        bool
+	ShowOutput        bool
+	XlsxFilename      string
+	XlsxSheets        []string
+	SaveToFile        bool
+	RunTime           time.Time
+	XlsxFile          *xlsx.File
+	RunVerify         bool
+	RunImport         bool
+	UseTempTables     bool
+	DropIfExists      bool
+	ContractCode      string
+	ContractName      string
+	ContractStartDate string
 }
 
 // InitDataSheetInfo - When adding new functions for parsing sheets, must add new XlsxDataSheetInfo

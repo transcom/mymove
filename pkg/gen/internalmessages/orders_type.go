@@ -8,13 +8,13 @@ package internalmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
 // OrdersType Orders type
+//
 // swagger:model OrdersType
 type OrdersType string
 
@@ -22,6 +22,12 @@ const (
 
 	// OrdersTypePERMANENTCHANGEOFSTATION captures enum value "PERMANENT_CHANGE_OF_STATION"
 	OrdersTypePERMANENTCHANGEOFSTATION OrdersType = "PERMANENT_CHANGE_OF_STATION"
+
+	// OrdersTypeRETIREMENT captures enum value "RETIREMENT"
+	OrdersTypeRETIREMENT OrdersType = "RETIREMENT"
+
+	// OrdersTypeSEPARATION captures enum value "SEPARATION"
+	OrdersTypeSEPARATION OrdersType = "SEPARATION"
 )
 
 // for schema
@@ -29,7 +35,7 @@ var ordersTypeEnum []interface{}
 
 func init() {
 	var res []OrdersType
-	if err := json.Unmarshal([]byte(`["PERMANENT_CHANGE_OF_STATION"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PERMANENT_CHANGE_OF_STATION","RETIREMENT","SEPARATION"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -38,7 +44,7 @@ func init() {
 }
 
 func (m OrdersType) validateOrdersTypeEnum(path, location string, value OrdersType) error {
-	if err := validate.Enum(path, location, value, ordersTypeEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, ordersTypeEnum, true); err != nil {
 		return err
 	}
 	return nil

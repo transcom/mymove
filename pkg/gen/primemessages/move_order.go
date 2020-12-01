@@ -6,14 +6,14 @@ package primemessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // MoveOrder move order
+//
 // swagger:model MoveOrder
 type MoveOrder struct {
 
@@ -31,6 +31,7 @@ type MoveOrder struct {
 	DestinationDutyStation *DutyStation `json:"destinationDutyStation,omitempty"`
 
 	// e tag
+	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// entitlement

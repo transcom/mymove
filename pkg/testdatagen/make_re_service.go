@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"log"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -19,7 +19,7 @@ func MakeReService(db *pop.Connection, assertions Assertions) models.ReService {
 	// Overwrite values with those from assertions
 	mergeModels(&reService, assertions.ReService)
 
-	mustCreate(db, &reService)
+	mustCreate(db, &reService, assertions.Stub)
 
 	return reService
 }
@@ -47,4 +47,59 @@ func FetchOrMakeReService(db *pop.Connection, assertions Assertions) models.ReSe
 // MakeDefaultReService makes a single ReService with default values
 func MakeDefaultReService(db *pop.Connection) models.ReService {
 	return MakeReService(db, Assertions{})
+}
+
+// MakeDDFSITReService creates the three destination SIT service codes: DDFSIT, DDASIT, DDDSIT. Returns DDFSIT only.
+func MakeDDFSITReService(db *pop.Connection) models.ReService {
+	assertionsDDFSIT := Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDDFSIT,
+		},
+	}
+	reService := MakeReService(db, assertionsDDFSIT)
+
+	assertionsDDASIT := Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDDASIT,
+		},
+	}
+	MakeReService(db, assertionsDDASIT)
+
+	assertionsDDDSIT := Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDDDSIT,
+		},
+	}
+	MakeReService(db, assertionsDDDSIT)
+
+	return reService
+}
+
+// MakeDOFSITReService creates the three origin SIT service codes: DOFSIT, DOPSIT, DOASIT. Returns DOFSIT only.
+func MakeDOFSITReService(db *pop.Connection, assertions Assertions) models.ReService {
+	assertionsDOFSIT := Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDOFSIT,
+		},
+	}
+	// Any assertions passed in should be applied to the DOFSIT only
+	mergeModels(&assertionsDOFSIT, assertions)
+
+	reService := MakeReService(db, assertionsDOFSIT)
+
+	assertionsDOASIT := Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDOASIT,
+		},
+	}
+	MakeReService(db, assertionsDOASIT)
+
+	assertionsDOPSIT := Assertions{
+		ReService: models.ReService{
+			Code: models.ReServiceCodeDOPSIT,
+		},
+	}
+	MakeReService(db, assertionsDOPSIT)
+
+	return reService
 }

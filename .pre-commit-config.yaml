@@ -1,3 +1,7 @@
+default_language_version:
+  # this should match the version in .node-version at the root of this project
+  node: 12.16.3
+
 repos:
   - repo: local
     hooks:
@@ -8,34 +12,57 @@ repos:
         types: [go]
 
   - repo: git://github.com/pre-commit/pre-commit-hooks
-    rev: v2.5.0
+    rev: v3.3.0
     hooks:
       - id: check-json
       - id: check-merge-conflict
       - id: check-yaml
         exclude: config/database.yml # database.yml is not a valid yaml file, it contains go templating
       - id: detect-private-key
+        #RA Summary: detect-private-key - Private key found
+        #RA: detect-private-key detected a private key in source control
+        #RA: config/tls/devlocal-*.key files are used in devlocal testing environments only.
+        #RA: pkg/server/testdata*.key files are used for testing purposes only.
+        #RA: pkg/auth/authentication/auth_test.go contains a static key, used for unit tests in devlocal and pipeline only.
+        #RA: pkg/cli/auth.go is a false positive; this code generates a keyfile at runtime, and its heuristics resemble an encoded key.
+        #RA: .envrc.local.template is used in devlocal environments only.
+        #RA: The risk of a production key being introduced is mitigated by this detect-private-key hook failing, and
+        #RA: the PR requiring approval by a team designated to gate changes to this file, specifically attempts to exclude
+        #RA: new key additions.
+        #RA Developer Status: Mitigated
+        #RA Validator Status: Mitigated
+        #RA Modified Severity: CAT III
         exclude: >
           (?x)^(
-            config/tls/devlocal-.+\.key$|
+            config/tls/devlocal-ca.key$|
+            config/tls/devlocal-client_auth_secret.key$|
+            config/tls/devlocal-faux-air-force-orders.key$|
+            config/tls/devlocal-faux-all-orders.key$|
+            config/tls/devlocal-faux-army-hrc-orders.key$|
+            config/tls/devlocal-faux-coast-guard-orders.key$|
+            config/tls/devlocal-faux-marine-corps-orders.key$|
+            config/tls/devlocal-faux-navy-orders.key$|
+            config/tls/devlocal-https.key$|
+            config/tls/devlocal-mtls.key$|
+            config/tls/devlocal-not-dps.key$|
             pkg/server/testdata/localhost.key$|
             pkg/server/testdata/localhost-invalid.key$|
             pkg/server/testdata/officelocal.key$|
             pkg/auth/authentication/auth_test.go$|
-            pkg/cli/auth.go$|
             .envrc.local.template|
+            pkg/cli/auth.go$|
           )$
       - id: trailing-whitespace
         exclude: public/swagger-ui/*
 
   - repo: git://github.com/golangci/golangci-lint
-    rev: v1.23.6
+    rev: v1.32.2
     hooks:
       - id: golangci-lint
         entry: bash -c 'exec golangci-lint run -v ${GOLANGCI_LINT_VERBOSE} -j=${GOLANGCI_LINT_CONCURRENCY:-1}' # custom bash so we can override concurrency for faster dev runs
 
-  - repo: git://github.com/igorshubovych/markdownlint-cli
-    rev: v0.22.0
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.24.0
     hooks:
       - id: markdownlint
         entry: markdownlint --ignore .github/*.md
@@ -57,9 +84,17 @@ repos:
     hooks:
       - id: eslint
         name: eslint
-        entry: node_modules/.bin/eslint --ext .js --ext .jsx --max-warnings=0
+        entry: node_modules/.bin/eslint --ext .js,.jsx --max-warnings=0
         language: node
         files: \.(js|jsx)$
+        exclude: >
+          (?x)^(
+            cypress/|
+            .storybook/|
+            wallaby.js|
+            config-overrides.js|
+            .happo.js
+          )
 
   - repo: local
     hooks:
@@ -80,10 +115,10 @@ repos:
         pass_filenames: false
 
   - repo: git://github.com/trussworks/pre-commit-hooks
-    rev: v0.0.3
+    rev: v1.0.0
     hooks:
       - id: gen-docs
-        args: ["docs/adr"]
+        args: ['docs/adr']
       - id: circleci-validate
       - id: markdown-toc
       - id: mdspell
@@ -97,20 +132,29 @@ repos:
   - repo: https://github.com/pryorda/dockerfilelint-precommit-hooks
     rev: v0.1.0
     hooks:
-    - id: dockerfilelint
+      - id: dockerfilelint
 
   - repo: local
     hooks:
-    - id: migrations-manifest
-      name: migrations manifest
-      entry: scripts/update-migrations-manifest
-      language: script
-      pass_filenames: false
+      - id: migrations-manifest
+        name: migrations manifest
+        entry: scripts/update-migrations-manifest
+        language: script
+        pass_filenames: false
 
   - repo: local
     hooks:
-    - id: scripts-docs
-      name: scripts are documented
-      entry: scripts/find-scripts-missing-in-readme
-      language: script
-      pass_filenames: false
+      - id: scripts-docs
+        name: scripts are documented
+        entry: scripts/find-scripts-missing-in-readme
+        language: script
+        pass_filenames: false
+
+  - repo: local
+    hooks:
+      - id: spectral
+        name: Spectral yaml linter
+        entry: scripts/lint-yaml-with-spectral
+        language: script
+        files: swagger/(support|prime).yaml
+        types: [yaml]

@@ -6,14 +6,14 @@ package primemessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // MTOAgent m t o agent
+//
 // swagger:model MTOAgent
 type MTOAgent struct {
 
@@ -22,11 +22,15 @@ type MTOAgent struct {
 
 	// created at
 	// Read Only: true
-	// Format: date
-	CreatedAt strfmt.Date `json:"createdAt,omitempty"`
+	// Format: date-time
+	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
+
+	// e tag
+	// Read Only: true
+	ETag string `json:"eTag,omitempty"`
 
 	// email
-	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+	// Pattern: ^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})?$
 	Email *string `json:"email,omitempty"`
 
 	// first name
@@ -46,13 +50,13 @@ type MTOAgent struct {
 	MtoShipmentID strfmt.UUID `json:"mtoShipmentID,omitempty"`
 
 	// phone
-	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+	// Pattern: ^([2-9]\d{2}-\d{3}-\d{4})?$
 	Phone *string `json:"phone,omitempty"`
 
 	// updated at
 	// Read Only: true
-	// Format: date
-	UpdatedAt strfmt.Date `json:"updatedAt,omitempty"`
+	// Format: date-time
+	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 }
 
 // Validate validates this m t o agent
@@ -115,7 +119,7 @@ func (m *MTOAgent) validateCreatedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("createdAt", "body", "date", m.CreatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -128,7 +132,7 @@ func (m *MTOAgent) validateEmail(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.Pattern("email", "body", string(*m.Email), `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
+	if err := validate.Pattern("email", "body", string(*m.Email), `^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})?$`); err != nil {
 		return err
 	}
 
@@ -167,7 +171,7 @@ func (m *MTOAgent) validatePhone(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.Pattern("phone", "body", string(*m.Phone), `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
+	if err := validate.Pattern("phone", "body", string(*m.Phone), `^([2-9]\d{2}-\d{3}-\d{4})?$`); err != nil {
 		return err
 	}
 
@@ -180,7 +184,7 @@ func (m *MTOAgent) validateUpdatedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("updatedAt", "body", "date", m.UpdatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
 		return err
 	}
 

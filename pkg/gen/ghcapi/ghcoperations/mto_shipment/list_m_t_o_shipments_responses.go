@@ -10,13 +10,13 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	ghcmessages "github.com/transcom/mymove/pkg/gen/ghcmessages"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 )
 
 // ListMTOShipmentsOKCode is the HTTP code returned for type ListMTOShipmentsOK
 const ListMTOShipmentsOKCode int = 200
 
-/*ListMTOShipmentsOK Successfully retrieved all line items for a move task order
+/*ListMTOShipmentsOK Successfully retrieved all mto shipments for a move task order
 
 swagger:response listMTOShipmentsOK
 */

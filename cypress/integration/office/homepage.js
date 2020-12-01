@@ -1,54 +1,105 @@
-/* global cy */
-import { officeAppName } from '../../support/constants';
+import { officeBaseURL } from '../../support/constants';
 
 describe('Office Home Page', function () {
-  beforeEach(() => {
-    cy.setupBaseUrl(officeAppName);
+  before(() => {
+    cy.prepareOfficeApp();
   });
-  it('creates new devlocal user', function () {
-    cy.signInAsNewOfficeUser();
-  });
+
   it('successfully loads when not logged in', function () {
     cy.logout();
-    officeUserIsOnSignInPage();
+    cy.contains('office.move.mil');
+    cy.contains('Sign In');
   });
+
   it('open accepted shipments queue and see moves', function () {
-    cy.signIntoOffice();
-    officeAllMoves();
+    cy.signInAsNewPPMOfficeUser();
+    cy.patientVisit('/queues/all');
+    cy.location().should((loc) => {
+      expect(loc.pathname).to.match(/^\/queues\/all/);
+    });
+    cy.get('[data-testid=locator]').contains('NOSHOW').should('not.exist');
   });
+
   it('office user can use a single click to view move info', function () {
     cy.waitForReactTableLoad();
-
-    cy.get('[data-cy=queueTableRow]:first').click();
+    cy.get('[data-testid=queueTableRow]:first').click();
     cy.url().should('include', '/moves/');
   });
 });
 
-describe('Queue staleness indicator', () => {
-  it('displays the correct time ago text', () => {
-    cy.clock();
-    cy.setupBaseUrl(officeAppName);
-    cy.signIntoOffice();
-    cy.patientVisit('/queues/all');
+describe('Office authorization', () => {
+  before(() => {
+    cy.prepareOfficeApp();
+  });
 
-    cy.get('[data-cy=staleness-indicator]').should('have.text', 'Last updated a few seconds ago');
+  beforeEach(() => {
+    cy.clearAllCookies();
+  });
 
-    cy.tick(120000);
+  it('redirects TOO to TOO homepage', () => {
+    cy.signInAsNewTOOUser();
+    cy.contains('All moves');
+    cy.url().should('eq', officeBaseURL + '/');
+  });
 
-    cy.get('[data-cy=staleness-indicator]').should('have.text', 'Last updated 2 mins ago');
+  it('redirects TIO to TIO homepage', () => {
+    cy.signInAsNewTIOUser();
+    cy.contains('Payment requests');
+    cy.url().should('eq', officeBaseURL + '/');
+  });
+
+  it('redirects PPM office user to old office queue', () => {
+    cy.signInAsNewPPMOfficeUser();
+    cy.contains('New moves');
+    cy.url().should('eq', officeBaseURL + '/');
+  });
+
+  describe('multiple role selection', () => {
+    beforeEach(() => {
+      cy.removeFetch();
+      cy.server();
+      cy.route('GET', '/ghc/v1/swagger.yaml').as('getGHCClient');
+      cy.route('GET', '/ghc/v1/queues/moves?**').as('getMoveOrders');
+      cy.route('GET', '/ghc/v1/queues/payment-requests?**').as('getPaymentRequests');
+    });
+
+    it('can switch between TOO & TIO roles', () => {
+      cy.signInAsMultiRoleOfficeUser();
+      cy.wait(['@getGHCClient', '@getMoveOrders']);
+      cy.contains('All moves'); // TOO home
+
+      cy.contains('Change user role').click();
+      cy.url().should('contain', '/select-application');
+
+      cy.contains('Select transportation_invoicing_officer').click();
+      cy.url().should('eq', officeBaseURL + '/');
+      cy.wait('@getPaymentRequests');
+      cy.contains('Payment requests');
+
+      cy.contains('Change user role').click();
+      cy.url().should('contain', '/select-application');
+      cy.contains('Select transportation_ordering_officer').click();
+      cy.wait('@getMoveOrders');
+      cy.url().should('eq', officeBaseURL + '/');
+      cy.contains('All moves');
+    });
   });
 });
 
-function officeUserIsOnSignInPage() {
-  cy.contains('office.move.mil');
-  cy.contains('Sign In');
-}
-
-function officeAllMoves() {
-  cy.patientVisit('/queues/all');
-  cy.location().should((loc) => {
-    expect(loc.pathname).to.match(/^\/queues\/all/);
+describe('Queue staleness indicator', () => {
+  before(() => {
+    cy.prepareOfficeApp();
   });
 
-  cy.get('[data-cy=locator]').contains('NOSHOW').should('not.exist');
-}
+  it('displays the correct time ago text', () => {
+    cy.clock();
+    cy.signInAsNewPPMOfficeUser();
+    cy.patientVisit('/queues/all');
+
+    cy.get('[data-testid=staleness-indicator]').should('have.text', 'Last updated a few seconds ago');
+
+    cy.tick(120000);
+
+    cy.get('[data-testid=staleness-indicator]').should('have.text', 'Last updated 2 mins ago');
+  });
+});

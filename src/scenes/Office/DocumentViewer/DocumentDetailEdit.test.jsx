@@ -24,14 +24,14 @@ describe('DocumentDetailEdit', () => {
 
       const documentForm = renderDocumentDetailEdit({ formValues, moveDocSchema });
 
-      const title = documentForm.find('[data-cy="title"]');
-      const moveDocumentType = documentForm.find('[data-cy="move-document-type"]');
-      const weightTicketSetType = documentForm.find('[data-cy="weight-ticket-set-type"]');
-      const make = documentForm.find('[data-cy="vehicle-make"]');
-      const model = documentForm.find('[data-cy="vehicle-model"]');
-      const vehicleNickname = documentForm.find('[data-cy="vehicle-nickname"]');
-      const status = documentForm.find('[data-cy="status"]');
-      const notes = documentForm.find('[data-cy="notes"]');
+      const title = documentForm.find('[data-testid="title"]');
+      const moveDocumentType = documentForm.find('[data-testid="move-document-type"]');
+      const weightTicketSetType = documentForm.find('[data-testid="weight-ticket-set-type"]');
+      const make = documentForm.find('[data-testid="vehicle-make"]');
+      const model = documentForm.find('[data-testid="vehicle-model"]');
+      const vehicleNickname = documentForm.find('[data-testid="vehicle-nickname"]');
+      const status = documentForm.find('[data-testid="status"]');
+      const notes = documentForm.find('[data-testid="notes"]');
 
       expect(title.props()).toHaveProperty('fieldName', 'title');
       expect(moveDocumentType.props()).toHaveProperty('fieldName', 'move_document_type');
@@ -53,14 +53,14 @@ describe('DocumentDetailEdit', () => {
 
       const documentForm = renderDocumentDetailEdit({ formValues, moveDocSchema });
 
-      const title = documentForm.find('[data-cy="title"]');
-      const moveDocumentType = documentForm.find('[data-cy="move-document-type"]');
-      const weightTicketSetType = documentForm.find('[data-cy="weight-ticket-set-type"]');
-      const make = documentForm.find('[data-cy="vehicle-make"]');
-      const model = documentForm.find('[data-cy="vehicle-model"]');
-      const vehicleNickname = documentForm.find('[data-cy="vehicle-nickname"]');
-      const status = documentForm.find('[data-cy="status"]');
-      const notes = documentForm.find('[data-cy="notes"]');
+      const title = documentForm.find('[data-testid="title"]');
+      const moveDocumentType = documentForm.find('[data-testid="move-document-type"]');
+      const weightTicketSetType = documentForm.find('[data-testid="weight-ticket-set-type"]');
+      const make = documentForm.find('[data-testid="vehicle-make"]');
+      const model = documentForm.find('[data-testid="vehicle-model"]');
+      const vehicleNickname = documentForm.find('[data-testid="vehicle-nickname"]');
+      const status = documentForm.find('[data-testid="status"]');
+      const notes = documentForm.find('[data-testid="notes"]');
 
       expect(title.props()).toHaveProperty('fieldName', 'title');
       expect(moveDocumentType.props()).toHaveProperty('fieldName', 'move_document_type');
@@ -81,16 +81,16 @@ describe('DocumentDetailEdit', () => {
       };
 
       const documentForm = renderDocumentDetailEdit({ formValues, moveDocSchema });
-      const title = documentForm.find('[data-cy="title"]');
-      const moveDocumentType = documentForm.find('[data-cy="move-document-type"]');
-      const weightTicketSetType = documentForm.find('[data-cy="weight-ticket-set-type"]');
-      const make = documentForm.find('[data-cy="vehicle-make"]');
-      const model = documentForm.find('[data-cy="vehicle-model"]');
-      const vehicleNickname = documentForm.find('[data-cy="vehicle-nickname"]');
-      const emptyWeight = documentForm.find('[data-cy="empty-weight"]');
-      const fullWeight = documentForm.find('[data-cy="full-weight"]');
-      const status = documentForm.find('[data-cy="status"]');
-      const notes = documentForm.find('[data-cy="notes"]');
+      const title = documentForm.find('[data-testid="title"]');
+      const moveDocumentType = documentForm.find('[data-testid="move-document-type"]');
+      const weightTicketSetType = documentForm.find('[data-testid="weight-ticket-set-type"]');
+      const make = documentForm.find('[data-testid="vehicle-make"]');
+      const model = documentForm.find('[data-testid="vehicle-model"]');
+      const vehicleNickname = documentForm.find('[data-testid="vehicle-nickname"]');
+      const emptyWeight = documentForm.find('[data-testid="empty-weight"]');
+      const fullWeight = documentForm.find('[data-testid="full-weight"]');
+      const status = documentForm.find('[data-testid="status"]');
+      const notes = documentForm.find('[data-testid="notes"]');
 
       expect(title.props()).toHaveProperty('fieldName', 'title');
       expect(moveDocumentType.props()).toHaveProperty('fieldName', 'move_document_type');
@@ -112,16 +112,16 @@ describe('DocumentDetailEdit', () => {
       };
 
       const documentForm = renderDocumentDetailEdit({ formValues, moveDocSchema });
-      const title = documentForm.find('[data-cy="title"]');
-      const moveDocumentType = documentForm.find('[data-cy="move-document-type"]');
-      const weightTicketSetType = documentForm.find('[data-cy="weight-ticket-set-type"]');
-      const make = documentForm.find('[data-cy="vehicle-make"]');
-      const model = documentForm.find('[data-cy="vehicle-model"]');
-      const progearType = documentForm.find('[data-cy="progear-type"]');
-      const emptyWeight = documentForm.find('[data-cy="empty-weight"]');
-      const fullWeight = documentForm.find('[data-cy="full-weight"]');
-      const status = documentForm.find('[data-cy="status"]');
-      const notes = documentForm.find('[data-cy="notes"]');
+      const title = documentForm.find('[data-testid="title"]');
+      const moveDocumentType = documentForm.find('[data-testid="move-document-type"]');
+      const weightTicketSetType = documentForm.find('[data-testid="weight-ticket-set-type"]');
+      const make = documentForm.find('[data-testid="vehicle-make"]');
+      const model = documentForm.find('[data-testid="vehicle-model"]');
+      const progearType = documentForm.find('[data-testid="progear-type"]');
+      const emptyWeight = documentForm.find('[data-testid="empty-weight"]');
+      const fullWeight = documentForm.find('[data-testid="full-weight"]');
+      const status = documentForm.find('[data-testid="status"]');
+      const notes = documentForm.find('[data-testid="notes"]');
 
       expect(title.props()).toHaveProperty('fieldName', 'title');
       expect(moveDocumentType.props()).toHaveProperty('fieldName', 'move_document_type');
@@ -145,12 +145,12 @@ describe('DocumentDetailEdit', () => {
       };
 
       const documentForm = renderDocumentDetailEdit({ formValues, moveDocSchema });
-      const title = documentForm.find('[data-cy="title"]');
-      const moveDocumentType = documentForm.find('[data-cy="move-document-type"]');
-      const storageStartDate = documentForm.find('[data-cy="storage-start-date"]');
-      const storageEndDate = documentForm.find('[data-cy="storage-end-date"]');
-      const status = documentForm.find('[data-cy="status"]');
-      const notes = documentForm.find('[data-cy="notes"]');
+      const title = documentForm.find('[data-testid="title"]');
+      const moveDocumentType = documentForm.find('[data-testid="move-document-type"]');
+      const storageStartDate = documentForm.find('[data-testid="storage-start-date"]');
+      const storageEndDate = documentForm.find('[data-testid="storage-end-date"]');
+      const status = documentForm.find('[data-testid="status"]');
+      const notes = documentForm.find('[data-testid="notes"]');
       const expenseDocumentForm = documentForm.find('ExpenseDocumentForm');
 
       expect(title.props()).toHaveProperty('fieldName', 'title');

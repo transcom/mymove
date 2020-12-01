@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 	"go.uber.org/zap"
 
 	"github.com/gofrs/uuid"
@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/event"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
 )
@@ -45,7 +46,7 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 		query.NewQueryFilter("id", "=", moveTaskOrderID.String()),
 	}
 
-	moveTaskOrder := &models.MoveTaskOrder{}
+	moveTaskOrder := &models.Move{}
 	err = h.Fetcher.FetchRecord(moveTaskOrder, queryFilters)
 	if err != nil {
 		logger.Error("Error fetching move task order: ", zap.Error(fmt.Errorf("Move Task Order ID: %s", moveTaskOrder.ID)), zap.Error(err))
@@ -54,7 +55,7 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 	}
 
 	queryFilters = []services.QueryFilter{
-		query.NewQueryFilter("move_task_order_id", "=", moveTaskOrderID.String()),
+		query.NewQueryFilter("move_id", "=", moveTaskOrderID.String()),
 	}
 	queryAssociations := query.NewQueryAssociations([]services.QueryAssociation{})
 
@@ -103,6 +104,21 @@ func (h PatchShipmentHandler) Handle(params mtoshipmentops.PatchMTOShipmentStatu
 		default:
 			return mtoshipmentops.NewPatchMTOShipmentStatusInternalServerError()
 		}
+	}
+
+	_, err = event.TriggerEvent(event.Event{
+		EndpointKey: event.GhcPatchMTOShipmentStatusEndpointKey,
+		// Endpoint that is being handled
+		EventKey:        event.MTOShipmentUpdateEventKey, // Event that you want to trigger
+		UpdatedObjectID: shipment.ID,                     // ID of the updated logical object
+		MtoID:           shipment.MoveTaskOrderID,        // ID of the associated Move
+		Request:         params.HTTPRequest,              // Pass on the http.Request
+		DBConnection:    h.DB(),                          // Pass on the pop.Connection
+		HandlerContext:  h,                               // Pass on the handlerContext
+	})
+	// If the event trigger fails, just log the error.
+	if err != nil {
+		logger.Error("ghcapi.PatchShipmentHandler could not generate the event")
 	}
 
 	payload := payloads.MTOShipment(shipment)

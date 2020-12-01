@@ -11,31 +11,35 @@ import (
 	"io"
 	"strconv"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // MoveTaskOrder move task order
+//
 // swagger:model MoveTaskOrder
 type MoveTaskOrder struct {
 
+	// available to prime at
+	// Read Only: true
+	// Format: date-time
+	AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
+
 	// created at
-	// Format: date
-	CreatedAt strfmt.Date `json:"createdAt,omitempty"`
+	// Read Only: true
+	// Format: date-time
+	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// e tag
+	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// id
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
-
-	// is available to prime
-	IsAvailableToPrime *bool `json:"isAvailableToPrime,omitempty"`
 
 	// is canceled
 	IsCanceled *bool `json:"isCanceled,omitempty"`
@@ -68,8 +72,9 @@ type MoveTaskOrder struct {
 	ReferenceID string `json:"referenceId,omitempty"`
 
 	// updated at
-	// Format: date
-	UpdatedAt strfmt.Date `json:"updatedAt,omitempty"`
+	// Read Only: true
+	// Format: date-time
+	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 }
 
 // MtoServiceItems gets the mto service items of this base type
@@ -85,13 +90,13 @@ func (m *MoveTaskOrder) SetMtoServiceItems(val []MTOServiceItem) {
 // UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
 func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 	var data struct {
-		CreatedAt strfmt.Date `json:"createdAt,omitempty"`
+		AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
+
+		CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 		ETag string `json:"eTag,omitempty"`
 
 		ID strfmt.UUID `json:"id,omitempty"`
-
-		IsAvailableToPrime *bool `json:"isAvailableToPrime,omitempty"`
 
 		IsCanceled *bool `json:"isCanceled,omitempty"`
 
@@ -111,7 +116,7 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 
 		ReferenceID string `json:"referenceId,omitempty"`
 
-		UpdatedAt strfmt.Date `json:"updatedAt,omitempty"`
+		UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 	}
 	buf := bytes.NewBuffer(raw)
 	dec := json.NewDecoder(buf)
@@ -128,6 +133,9 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 
 	var result MoveTaskOrder
 
+	// availableToPrimeAt
+	result.AvailableToPrimeAt = data.AvailableToPrimeAt
+
 	// createdAt
 	result.CreatedAt = data.CreatedAt
 
@@ -136,9 +144,6 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 
 	// id
 	result.ID = data.ID
-
-	// isAvailableToPrime
-	result.IsAvailableToPrime = data.IsAvailableToPrime
 
 	// isCanceled
 	result.IsCanceled = data.IsCanceled
@@ -180,13 +185,13 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 	var b1, b2, b3 []byte
 	var err error
 	b1, err = json.Marshal(struct {
-		CreatedAt strfmt.Date `json:"createdAt,omitempty"`
+		AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
+
+		CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 		ETag string `json:"eTag,omitempty"`
 
 		ID strfmt.UUID `json:"id,omitempty"`
-
-		IsAvailableToPrime *bool `json:"isAvailableToPrime,omitempty"`
 
 		IsCanceled *bool `json:"isCanceled,omitempty"`
 
@@ -204,16 +209,16 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 
 		ReferenceID string `json:"referenceId,omitempty"`
 
-		UpdatedAt strfmt.Date `json:"updatedAt,omitempty"`
+		UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 	}{
+
+		AvailableToPrimeAt: m.AvailableToPrimeAt,
 
 		CreatedAt: m.CreatedAt,
 
 		ETag: m.ETag,
 
 		ID: m.ID,
-
-		IsAvailableToPrime: m.IsAvailableToPrime,
 
 		IsCanceled: m.IsCanceled,
 
@@ -232,8 +237,7 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 		ReferenceID: m.ReferenceID,
 
 		UpdatedAt: m.UpdatedAt,
-	},
-	)
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -242,8 +246,7 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 	}{
 
 		MtoServiceItems: m.mtoServiceItemsField,
-	},
-	)
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -254,6 +257,10 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 // Validate validates this move task order
 func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateAvailableToPrimeAt(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateCreatedAt(formats); err != nil {
 		res = append(res, err)
@@ -297,13 +304,26 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MoveTaskOrder) validateAvailableToPrimeAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.AvailableToPrimeAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("availableToPrimeAt", "body", "date-time", m.AvailableToPrimeAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *MoveTaskOrder) validateCreatedAt(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.CreatedAt) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("createdAt", "body", "date", m.CreatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -429,7 +449,7 @@ const (
 
 // prop value enum
 func (m *MoveTaskOrder) validatePpmTypeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, moveTaskOrderTypePpmTypePropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, moveTaskOrderTypePpmTypePropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -455,7 +475,7 @@ func (m *MoveTaskOrder) validateUpdatedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("updatedAt", "body", "date", m.UpdatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
 		return err
 	}
 

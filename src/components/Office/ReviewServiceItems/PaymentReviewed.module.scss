@@ -1,0 +1,20 @@
+@import '../../../shared/styles/basics';
+@import '../../../shared/styles/mixins';
+@import '../../../shared/styles/colors';
+
+.content {
+  @include u-margin(0);
+  @include u-padding(2);
+  background-color: $bg-gray;
+  color: $base-darkest;
+  border: 1px solid $base-lighter;
+  @include u-radius('05');
+
+  p {
+    @include u-margin-top(0);
+    @include u-margin-bottom(1);
+  }
+  p:last-child {
+    @include u-margin-bottom(0);
+  }
+}

@@ -11,7 +11,7 @@
   align-items: center;
   justify-content: center;
   height: 42px;
-  @include u-margin('1');
+  @include u-margin-y('1');
   .icon svg path,
   .icon svg polygon {
     fill: white;
@@ -70,7 +70,8 @@
   } //close &--secondary
   &--icon {
     .icon {
-      @include u-padding-x('1');
+      @include u-padding-right('05');
+      @include u-margin(0);
     }
   }
   &--small {
@@ -86,8 +87,10 @@
     @include u-margin(0);
     @include u-padding-y(0);
     @include u-height('auto');
+    min-width: 44px;
     .icon {
-      @include u-padding-x('1');
+      @include u-padding-right('05');
+      @include u-margin(0);
       svg path {
         fill: $primary;
       }
@@ -175,10 +178,76 @@
   @include u-text('bold');
 }
 
+.usa-alert {
+  a {
+    @include u-text('base-darkest');
+    @include u-text('bold');
+  }
+}
+
+.usa-alert--system-error {
+  @include u-bg('warning');
+  @include u-padding-y(1.5);
+  @include u-padding-x(3);
+  .usa-alert__text {
+    @include u-padding(0);
+    @include u-margin(0);
+    @include u-maxw('desktop');
+  }
+  &:before {
+    @include u-width(0);
+  }
+}
+
 //Form
 
 .usa-label {
+  @include u-font-size('body', '3xs');
+  @include u-text('bold');
+  @include u-text('base-darkest');
+}
+
+.usa-radio__input:checked + .usa-radio__label::before {
+  box-shadow: 0 0 0 2px $primary, inset 0 0 0 2px white;
+}
+
+.usa-checkbox__label::before,
+.usa-radio__label::before {
+  box-shadow: 0 0 0 2px $primary;
+}
+
+.usa-checkbox__input:checked + .usa-checkbox__label::before {
+  background-color: $primary;
+  box-shadow: 0 0 0 2px $primary;
+}
+
+.usa-radio__input:checked + .usa-radio__label::before {
+  background-color: $primary;
+}
+
+.usa-error-message,
+.usa-checkbox__label,
+.usa-input {
   @include u-font-size('body', 'xs');
+}
+
+.usa-error-message {
+  @include u-padding(0);
+}
+
+.usa-fieldset {
+  @include u-padding-top(2);
+}
+
+.usa-select {
+  option {
+    background: white;
+    @include u-font-size('body', 'sm');
+  }
+  &:hover {
+    background-image: url('/static/media/arrow-both.0bfe2193.svg'), linear-gradient(transparent, transparent);
+    background-color: $link-light;
+  }
 }
 
 //Modals
@@ -192,30 +261,32 @@
   justify-content: space-between;
   @include u-padding-x(4);
   @include u-padding-y(3);
+
   h4 {
     @include u-margin-y(0);
     @include u-margin-bottom(3);
   }
+
+  > div {
+    padding: 0 !important;
+  }
+
+  > * + div {
+    border-top-color: white !important;
+  }
+
   .usa-form {
     max-width: 100%;
   }
+
   button {
     @include u-margin-y(0);
     &:first-child {
       @include u-margin-left(0);
     }
   }
+
   .display-flex {
     @include u-margin-top(3);
   }
-}
-
-.src-components-Modal-Modal-module__title--1M23p + .src-components-Modal-Modal-module__content--I6vZk,
-.src-components-Modal-Modal-module__content--I6vZk + .src-components-Modal-Modal-module__actions--20euu {
-  @include u-border-top('white');
-}
-.src-components-Modal-Modal-module__modal--FqeFw .src-components-Modal-Modal-module__title--1M23p,
-.src-components-Modal-Modal-module__modal--FqeFw .src-components-Modal-Modal-module__content--I6vZk,
-.src-components-Modal-Modal-module__modal--FqeFw .src-components-Modal-Modal-module__actions--20euu {
-  @include u-padding(0);
 }

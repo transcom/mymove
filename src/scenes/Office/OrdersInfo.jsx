@@ -10,7 +10,7 @@ import DocumentContent from 'shared/DocumentViewer/DocumentContent';
 import OrdersViewerPanel from './OrdersViewerPanel';
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { loadMove, selectMove } from 'shared/Entities/modules/moves';
-import { loadOrders, loadOrdersLabel, selectUplodsForOrders } from 'shared/Entities/modules/orders';
+import { loadOrders, loadOrdersLabel, selectUploadsForActiveOrders } from 'shared/Entities/modules/orders';
 import { loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { stringifyName } from 'shared/utils/serviceMember';
 
@@ -80,7 +80,7 @@ const mapStateToProps = (state, ownProps) => {
   const moveId = ownProps.match.params.moveId;
   const move = selectMove(state, moveId);
   const ordersId = move.orders_id;
-  const uploads = selectUplodsForOrders(state, ordersId);
+  const uploads = selectUploadsForActiveOrders(state);
   const serviceMemberId = move.service_member_id;
   const serviceMember = selectServiceMember(state, serviceMemberId);
   const loadOrdersRequest = getRequestStatus(state, loadOrdersLabel);

@@ -6,19 +6,29 @@ package supportmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"bytes"
 	"encoding/json"
+	"io"
 	"strconv"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // MoveTaskOrder move task order
+//
 // swagger:model MoveTaskOrder
 type MoveTaskOrder struct {
+
+	// Indicates this MoveTaskOrder is available for Prime API handling.
+	//
+	// In production, only MoveTaskOrders for which this is set will be available to the API.
+	//
+	// Format: date-time
+	AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
 
 	// ID associated with the contractor, in this case Prime
 	//
@@ -26,14 +36,16 @@ type MoveTaskOrder struct {
 	ContractorID strfmt.UUID `json:"contractorID,omitempty"`
 
 	// Date the MoveTaskOrder was created on.
-	// Format: date
-	CreatedAt strfmt.Date `json:"createdAt,omitempty"`
+	// Read Only: true
+	// Format: date-time
+	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// Uniquely identifies the state of the MoveTaskOrder object (but not the nested objects)
 	//
 	// It will change everytime the object is updated. Client should store the value.
 	// Updates to this MoveTaskOrder will require that this eTag be passed in with the If-Match header.
 	//
+	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
 
 	// ID of the MoveTaskOrder object.
@@ -41,16 +53,13 @@ type MoveTaskOrder struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
-	// Indicates this MoveTaskOrder is available for Prime API handling.
-	//
-	// In production, only MoveTaskOrders for which this is true will be available to the API.
-	//
-	IsAvailableToPrime *bool `json:"isAvailableToPrime,omitempty"`
-
 	// Indicated this MoveTaskOrder has been canceled.
 	IsCanceled *bool `json:"isCanceled,omitempty"`
 
-	// MoveOrder associated with this MoveTaskOrder.
+	// Unique 6-character code the customer can use to refer to their move
+	Locator string `json:"locator,omitempty"`
+
+	// move order
 	// Required: true
 	MoveOrder *MoveOrder `json:"moveOrder"`
 
@@ -58,13 +67,12 @@ type MoveTaskOrder struct {
 	// Format: uuid
 	MoveOrderID strfmt.UUID `json:"moveOrderID,omitempty"`
 
-	// Array of MTOServiceItems associated with this MoveTaskOrder.
-	MtoServiceItems []*MTOServiceItem `json:"mtoServiceItems"`
+	mtoServiceItemsField []MTOServiceItem
 
-	// array of MTOShipments associated with the MoveTaskOrder.
+	// mto shipments
 	MtoShipments MTOShipments `json:"mtoShipments,omitempty"`
 
-	// Array of PaymentRequests associated with this MoveTaskOrder.
+	// payment requests
 	PaymentRequests PaymentRequests `json:"paymentRequests,omitempty"`
 
 	// If the move is a PPM, this is the estimated weight in lbs.
@@ -81,14 +89,230 @@ type MoveTaskOrder struct {
 	//
 	ReferenceID string `json:"referenceId,omitempty"`
 
+	// status
+	Status MoveStatus `json:"status,omitempty"`
+
 	// Date on which this MoveTaskOrder was last updated.
-	// Format: date
-	UpdatedAt strfmt.Date `json:"updatedAt,omitempty"`
+	// Read Only: true
+	// Format: date-time
+	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
+}
+
+// MtoServiceItems gets the mto service items of this base type
+func (m *MoveTaskOrder) MtoServiceItems() []MTOServiceItem {
+	return m.mtoServiceItemsField
+}
+
+// SetMtoServiceItems sets the mto service items of this base type
+func (m *MoveTaskOrder) SetMtoServiceItems(val []MTOServiceItem) {
+	m.mtoServiceItemsField = val
+}
+
+// UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
+func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
+	var data struct {
+		AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
+
+		ContractorID strfmt.UUID `json:"contractorID,omitempty"`
+
+		CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
+
+		ETag string `json:"eTag,omitempty"`
+
+		ID strfmt.UUID `json:"id,omitempty"`
+
+		IsCanceled *bool `json:"isCanceled,omitempty"`
+
+		Locator string `json:"locator,omitempty"`
+
+		MoveOrder *MoveOrder `json:"moveOrder"`
+
+		MoveOrderID strfmt.UUID `json:"moveOrderID,omitempty"`
+
+		MtoServiceItems json.RawMessage `json:"mtoServiceItems"`
+
+		MtoShipments MTOShipments `json:"mtoShipments,omitempty"`
+
+		PaymentRequests PaymentRequests `json:"paymentRequests,omitempty"`
+
+		PpmEstimatedWeight int64 `json:"ppmEstimatedWeight,omitempty"`
+
+		PpmType string `json:"ppmType,omitempty"`
+
+		ReferenceID string `json:"referenceId,omitempty"`
+
+		Status MoveStatus `json:"status,omitempty"`
+
+		UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
+	}
+	buf := bytes.NewBuffer(raw)
+	dec := json.NewDecoder(buf)
+	dec.UseNumber()
+
+	if err := dec.Decode(&data); err != nil {
+		return err
+	}
+
+	var propMtoServiceItems []MTOServiceItem
+	if string(data.MtoServiceItems) != "null" {
+		mtoServiceItems, err := UnmarshalMTOServiceItemSlice(bytes.NewBuffer(data.MtoServiceItems), runtime.JSONConsumer())
+		if err != nil && err != io.EOF {
+			return err
+		}
+		propMtoServiceItems = mtoServiceItems
+	}
+
+	var result MoveTaskOrder
+
+	// availableToPrimeAt
+	result.AvailableToPrimeAt = data.AvailableToPrimeAt
+
+	// contractorID
+	result.ContractorID = data.ContractorID
+
+	// createdAt
+	result.CreatedAt = data.CreatedAt
+
+	// eTag
+	result.ETag = data.ETag
+
+	// id
+	result.ID = data.ID
+
+	// isCanceled
+	result.IsCanceled = data.IsCanceled
+
+	// locator
+	result.Locator = data.Locator
+
+	// moveOrder
+	result.MoveOrder = data.MoveOrder
+
+	// moveOrderID
+	result.MoveOrderID = data.MoveOrderID
+
+	// mtoServiceItems
+	result.mtoServiceItemsField = propMtoServiceItems
+
+	// mtoShipments
+	result.MtoShipments = data.MtoShipments
+
+	// paymentRequests
+	result.PaymentRequests = data.PaymentRequests
+
+	// ppmEstimatedWeight
+	result.PpmEstimatedWeight = data.PpmEstimatedWeight
+
+	// ppmType
+	result.PpmType = data.PpmType
+
+	// referenceId
+	result.ReferenceID = data.ReferenceID
+
+	// status
+	result.Status = data.Status
+
+	// updatedAt
+	result.UpdatedAt = data.UpdatedAt
+
+	*m = result
+
+	return nil
+}
+
+// MarshalJSON marshals this object with a polymorphic type to a JSON structure
+func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
+	var b1, b2, b3 []byte
+	var err error
+	b1, err = json.Marshal(struct {
+		AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
+
+		ContractorID strfmt.UUID `json:"contractorID,omitempty"`
+
+		CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
+
+		ETag string `json:"eTag,omitempty"`
+
+		ID strfmt.UUID `json:"id,omitempty"`
+
+		IsCanceled *bool `json:"isCanceled,omitempty"`
+
+		Locator string `json:"locator,omitempty"`
+
+		MoveOrder *MoveOrder `json:"moveOrder"`
+
+		MoveOrderID strfmt.UUID `json:"moveOrderID,omitempty"`
+
+		MtoShipments MTOShipments `json:"mtoShipments,omitempty"`
+
+		PaymentRequests PaymentRequests `json:"paymentRequests,omitempty"`
+
+		PpmEstimatedWeight int64 `json:"ppmEstimatedWeight,omitempty"`
+
+		PpmType string `json:"ppmType,omitempty"`
+
+		ReferenceID string `json:"referenceId,omitempty"`
+
+		Status MoveStatus `json:"status,omitempty"`
+
+		UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
+	}{
+
+		AvailableToPrimeAt: m.AvailableToPrimeAt,
+
+		ContractorID: m.ContractorID,
+
+		CreatedAt: m.CreatedAt,
+
+		ETag: m.ETag,
+
+		ID: m.ID,
+
+		IsCanceled: m.IsCanceled,
+
+		Locator: m.Locator,
+
+		MoveOrder: m.MoveOrder,
+
+		MoveOrderID: m.MoveOrderID,
+
+		MtoShipments: m.MtoShipments,
+
+		PaymentRequests: m.PaymentRequests,
+
+		PpmEstimatedWeight: m.PpmEstimatedWeight,
+
+		PpmType: m.PpmType,
+
+		ReferenceID: m.ReferenceID,
+
+		Status: m.Status,
+
+		UpdatedAt: m.UpdatedAt,
+	})
+	if err != nil {
+		return nil, err
+	}
+	b2, err = json.Marshal(struct {
+		MtoServiceItems []MTOServiceItem `json:"mtoServiceItems"`
+	}{
+
+		MtoServiceItems: m.mtoServiceItemsField,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return swag.ConcatJSON(b1, b2, b3), nil
 }
 
 // Validate validates this move task order
 func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateAvailableToPrimeAt(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateContractorID(formats); err != nil {
 		res = append(res, err)
@@ -126,6 +350,10 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateUpdatedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -133,6 +361,19 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *MoveTaskOrder) validateAvailableToPrimeAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.AvailableToPrimeAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("availableToPrimeAt", "body", "date-time", m.AvailableToPrimeAt.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -155,7 +396,7 @@ func (m *MoveTaskOrder) validateCreatedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("createdAt", "body", "date", m.CreatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -208,22 +449,17 @@ func (m *MoveTaskOrder) validateMoveOrderID(formats strfmt.Registry) error {
 
 func (m *MoveTaskOrder) validateMtoServiceItems(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.MtoServiceItems) { // not required
+	if swag.IsZero(m.MtoServiceItems()) { // not required
 		return nil
 	}
 
-	for i := 0; i < len(m.MtoServiceItems); i++ {
-		if swag.IsZero(m.MtoServiceItems[i]) { // not required
-			continue
-		}
+	for i := 0; i < len(m.MtoServiceItems()); i++ {
 
-		if m.MtoServiceItems[i] != nil {
-			if err := m.MtoServiceItems[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("mtoServiceItems" + "." + strconv.Itoa(i))
-				}
-				return err
+		if err := m.mtoServiceItemsField[i].Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("mtoServiceItems" + "." + strconv.Itoa(i))
 			}
+			return err
 		}
 
 	}
@@ -286,7 +522,7 @@ const (
 
 // prop value enum
 func (m *MoveTaskOrder) validatePpmTypeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, moveTaskOrderTypePpmTypePropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, moveTaskOrderTypePpmTypePropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -306,13 +542,29 @@ func (m *MoveTaskOrder) validatePpmType(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MoveTaskOrder) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status) { // not required
+		return nil
+	}
+
+	if err := m.Status.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("status")
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (m *MoveTaskOrder) validateUpdatedAt(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.UpdatedAt) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("updatedAt", "body", "date", m.UpdatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
 		return err
 	}
 

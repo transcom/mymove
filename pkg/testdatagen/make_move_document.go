@@ -1,7 +1,7 @@
 package testdatagen
 
 import (
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -51,7 +51,7 @@ func MakeMoveDocument(db *pop.Connection, assertions Assertions) models.MoveDocu
 	// Overwrite values with those from assertions
 	mergeModels(&moveDocument, assertions.MoveDocument)
 
-	mustCreate(db, &moveDocument)
+	mustCreate(db, &moveDocument, assertions.Stub)
 
 	return moveDocument
 }
@@ -81,7 +81,9 @@ func MakeMoveDocumentWeightTicketSet(db *pop.Connection, assertions Assertions) 
 	weightTicketSetDocument := MakeWeightTicketSetDocument(db, weightTicketSetAssertions)
 	moveDocument.WeightTicketSetDocument = &weightTicketSetDocument
 
-	mustSave(db, &moveDocument)
+	if !assertions.Stub {
+		mustSave(db, &moveDocument)
+	}
 
 	return moveDocument
 }

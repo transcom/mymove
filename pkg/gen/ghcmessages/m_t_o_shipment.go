@@ -8,14 +8,14 @@ package ghcmessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // MTOShipment m t o shipment
+//
 // swagger:model MTOShipment
 type MTOShipment struct {
 
@@ -24,7 +24,7 @@ type MTOShipment struct {
 	ApprovedDate strfmt.Date `json:"approvedDate,omitempty"`
 
 	// created at
-	// Format: datetime
+	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// customer remarks
@@ -46,6 +46,12 @@ type MTOShipment struct {
 
 	// pickup address
 	PickupAddress *Address `json:"pickupAddress,omitempty"`
+
+	// prime actual weight
+	PrimeActualWeight *int64 `json:"primeActualWeight,omitempty"`
+
+	// prime estimated weight
+	PrimeEstimatedWeight *int64 `json:"primeEstimatedWeight,omitempty"`
 
 	// rejection reason
 	RejectionReason *string `json:"rejectionReason,omitempty"`
@@ -73,7 +79,7 @@ type MTOShipment struct {
 	Status string `json:"status,omitempty"`
 
 	// updated at
-	// Format: datetime
+	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 }
 
@@ -154,7 +160,7 @@ func (m *MTOShipment) validateCreatedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("createdAt", "body", "datetime", m.CreatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -311,7 +317,7 @@ const (
 
 // prop value enum
 func (m *MTOShipment) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, mTOShipmentTypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, mTOShipmentTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -337,7 +343,7 @@ func (m *MTOShipment) validateUpdatedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("updatedAt", "body", "datetime", m.UpdatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
 		return err
 	}
 

@@ -3,8 +3,10 @@ package internalapi
 import (
 	"context"
 
+	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
+
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/cli"
@@ -37,31 +39,30 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 	}
 
 	serviceMemberPayload := internalmessages.ServiceMemberPayload{
-		ID:                      handlers.FmtUUID(serviceMember.ID),
-		CreatedAt:               handlers.FmtDateTime(serviceMember.CreatedAt),
-		UpdatedAt:               handlers.FmtDateTime(serviceMember.UpdatedAt),
-		UserID:                  handlers.FmtUUID(serviceMember.UserID),
-		Edipi:                   serviceMember.Edipi,
-		Orders:                  orders,
-		Affiliation:             (*internalmessages.Affiliation)(serviceMember.Affiliation),
-		Rank:                    (*internalmessages.ServiceMemberRank)(serviceMember.Rank),
-		FirstName:               serviceMember.FirstName,
-		MiddleName:              serviceMember.MiddleName,
-		LastName:                serviceMember.LastName,
-		Suffix:                  serviceMember.Suffix,
-		Telephone:               serviceMember.Telephone,
-		SecondaryTelephone:      serviceMember.SecondaryTelephone,
-		PhoneIsPreferred:        serviceMember.PhoneIsPreferred,
-		PersonalEmail:           serviceMember.PersonalEmail,
-		EmailIsPreferred:        serviceMember.EmailIsPreferred,
-		ResidentialAddress:      payloadForAddressModel(serviceMember.ResidentialAddress),
-		BackupMailingAddress:    payloadForAddressModel(serviceMember.BackupMailingAddress),
-		BackupContacts:          contactPayloads,
-		HasSocialSecurityNumber: handlers.FmtBool(serviceMember.SocialSecurityNumberID != nil),
-		IsProfileComplete:       handlers.FmtBool(serviceMember.IsProfileComplete()),
-		CurrentStation:          payloadForDutyStationModel(serviceMember.DutyStation),
-		RequiresAccessCode:      requiresAccessCode,
-		WeightAllotment:         weightAllotment,
+		ID:                   handlers.FmtUUID(serviceMember.ID),
+		CreatedAt:            handlers.FmtDateTime(serviceMember.CreatedAt),
+		UpdatedAt:            handlers.FmtDateTime(serviceMember.UpdatedAt),
+		UserID:               handlers.FmtUUID(serviceMember.UserID),
+		Edipi:                serviceMember.Edipi,
+		Orders:               orders,
+		Affiliation:          (*internalmessages.Affiliation)(serviceMember.Affiliation),
+		Rank:                 (*internalmessages.ServiceMemberRank)(serviceMember.Rank),
+		FirstName:            serviceMember.FirstName,
+		MiddleName:           serviceMember.MiddleName,
+		LastName:             serviceMember.LastName,
+		Suffix:               serviceMember.Suffix,
+		Telephone:            serviceMember.Telephone,
+		SecondaryTelephone:   serviceMember.SecondaryTelephone,
+		PhoneIsPreferred:     serviceMember.PhoneIsPreferred,
+		PersonalEmail:        serviceMember.PersonalEmail,
+		EmailIsPreferred:     serviceMember.EmailIsPreferred,
+		ResidentialAddress:   payloads.Address(serviceMember.ResidentialAddress),
+		BackupMailingAddress: payloads.Address(serviceMember.BackupMailingAddress),
+		BackupContacts:       contactPayloads,
+		IsProfileComplete:    handlers.FmtBool(serviceMember.IsProfileComplete()),
+		CurrentStation:       payloadForDutyStationModel(serviceMember.DutyStation),
+		RequiresAccessCode:   requiresAccessCode,
+		WeightAllotment:      weightAllotment,
 	}
 	return &serviceMemberPayload
 }
@@ -81,18 +82,6 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 
 	residentialAddress := addressModelFromPayload(params.CreateServiceMemberPayload.ResidentialAddress)
 	backupMailingAddress := addressModelFromPayload(params.CreateServiceMemberPayload.BackupMailingAddress)
-
-	ssnString := params.CreateServiceMemberPayload.SocialSecurityNumber
-	var ssn *models.SocialSecurityNumber
-	verrs := validate.NewErrors()
-	if ssnString != nil {
-		var err error
-		ssn, verrs, err = models.BuildSocialSecurityNumber(ctx, ssnString.String())
-		if err != nil {
-			return handlers.ResponseForError(logger, err)
-		}
-		// if there are any validation errors, they will get rolled up with the rest of them.
-	}
 
 	var stationID *uuid.UUID
 	var station models.DutyStation
@@ -126,15 +115,13 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 		EmailIsPreferred:     params.CreateServiceMemberPayload.EmailIsPreferred,
 		ResidentialAddress:   residentialAddress,
 		BackupMailingAddress: backupMailingAddress,
-		SocialSecurityNumber: ssn,
 		DutyStation:          station,
 		RequiresAccessCode:   h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode),
 		DutyStationID:        stationID,
 	}
 	smVerrs, err := models.SaveServiceMember(ctx, h.DB(), &newServiceMember)
-	verrs.Append(smVerrs)
-	if verrs.HasAny() || err != nil {
-		return handlers.ResponseForVErrors(logger, verrs, err)
+	if smVerrs.HasAny() || err != nil {
+		return handlers.ResponseForError(logger, err)
 	}
 	// Update session info
 	session.ServiceMemberID = newServiceMember.ID
@@ -151,7 +138,8 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 	// And return
 	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), newServiceMember, h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode))
 	responder := servicememberop.NewCreateServiceMemberCreated().WithPayload(serviceMemberPayload)
-	return handlers.NewCookieUpdateResponder(params.HTTPRequest, h.CookieSecret(), h.NoSessionTimeout(), logger, responder, h.UseSecureCookie())
+	sessionManager := h.SessionManager(session)
+	return handlers.NewCookieUpdateResponder(params.HTTPRequest, logger, responder, sessionManager, session)
 }
 
 // ShowServiceMemberHandler returns a serviceMember for a user and service member ID
@@ -260,16 +248,6 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(ctx context.Con
 		serviceMember.DutyStation = station
 		serviceMember.DutyStationID = &stationID
 	}
-	if payload.SocialSecurityNumber != nil {
-		if serviceMember.SocialSecurityNumber == nil {
-			newSsn := models.SocialSecurityNumber{}
-			serviceMember.SocialSecurityNumber = &newSsn
-		}
-
-		if verrs, err := serviceMember.SocialSecurityNumber.SetEncryptedHash(ctx, payload.SocialSecurityNumber.String()); verrs.HasAny() || err != nil {
-			return verrs, err
-		}
-	}
 	if payload.ResidentialAddress != nil {
 		if serviceMember.ResidentialAddress == nil {
 			serviceMember.ResidentialAddress = addressModelFromPayload(payload.ResidentialAddress)
@@ -288,27 +266,26 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(ctx context.Con
 	return validate.NewErrors(), nil
 }
 
-// ShowServiceMemberOrdersHandler returns latest orders for a serviceMember
+// ShowServiceMemberOrdersHandler returns latest orders for a logged in serviceMember
 type ShowServiceMemberOrdersHandler struct {
 	handlers.HandlerContext
 }
 
-// Handle retrieves orders for a service member
+// Handle retrieves orders for a logged in service member
 func (h ShowServiceMemberOrdersHandler) Handle(params servicememberop.ShowServiceMemberOrdersParams) middleware.Responder {
 
 	ctx := params.HTTPRequest.Context()
 
 	session, logger := h.SessionAndLoggerFromContext(ctx)
 
-	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
+	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, session.ServiceMemberID)
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return servicememberop.NewShowServiceMemberOrdersNotFound()
 	}
 
-	order, err := serviceMember.FetchLatestOrder(ctx, h.DB())
+	order, err := serviceMember.FetchLatestOrder(session, h.DB())
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		return servicememberop.NewShowServiceMemberOrdersNotFound()
 	}
 
 	orderPayload, err := payloadForOrdersModel(h.FileStorer(), order)

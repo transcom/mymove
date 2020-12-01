@@ -3,15 +3,15 @@ package models
 import (
 	"time"
 
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
-	"github.com/gobuffalo/validate/validators"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
+	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
 )
 
 // See: pkg/route/planner.go for more info on this interface
 type distanceCalculator interface {
-	Zip5TransitDistance(string, string) (int, error)
+	Zip5TransitDistanceLineHaul(string, string) (int, error)
 	TransitDistance(*Address, *Address) (int, error)
 }
 
@@ -34,7 +34,7 @@ func NewDistanceCalculation(planner distanceCalculator, origin Address, destinat
 	var err error
 
 	if useZipOnly {
-		distanceMiles, err = planner.Zip5TransitDistance(origin.PostalCode, destination.PostalCode)
+		distanceMiles, err = planner.Zip5TransitDistanceLineHaul(origin.PostalCode, destination.PostalCode)
 	} else {
 		distanceMiles, err = planner.TransitDistance(&origin, &destination)
 	}

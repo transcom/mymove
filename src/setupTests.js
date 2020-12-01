@@ -4,8 +4,12 @@ import 'jest-canvas-mock';
 
 // Set up enzyme's React adapter for use in other test files
 Enzyme.configure({ adapter: new Adapter() });
+
+// Window/global mocks
+global.scrollTo = () => {};
+
 global.performance = {
-  now: function () {
+  now: () => {
     return Date.now();
   },
 };

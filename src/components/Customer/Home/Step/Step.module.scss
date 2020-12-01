@@ -1,0 +1,96 @@
+@import 'shared/styles/colors';
+@import 'shared/styles/_basics';
+
+.step-container {
+  @include u-margin-bottom(6);
+}
+
+.step-header-container {
+  margin-top: 0px;
+  font-size: 17px;
+  display: flex;
+  align-items: center;
+  @include u-margin-bottom(2);
+
+  .edit-disabled {
+    color: $base-light;
+    cursor: not-allowed;
+  }
+}
+
+.accept {
+  display: inline-block;
+  color: $primary-darker;
+  width: 33px;
+  height: 33px;
+  margin-right: 12px;
+}
+
+.number-circle {
+  display: inline-block;
+  height: 33px;
+  width: 33px;
+  border-radius: 50%;
+  background-color: $primary-darker;
+  color: white;
+  text-align: center;
+  padding: 5px;
+  margin-right: 12px;
+  line-height: 1.4;
+  @include u-text(bold);
+}
+
+.action-btn {
+  @include u-margin-top(3);
+  margin-left: 0px;
+  margin-right: 0px;
+}
+
+.action-btn:disabled {
+  pointer-events: auto;
+  &:disabled:hover {
+    cursor: not-allowed;
+  }
+}
+
+.edit-btn {
+  background-color: transparent;
+  color: $primary;
+  text-decoration: none;
+  width: 42px;
+  font-size: 15px;
+  font-weight: normal;
+  text-align: center;
+  margin-left: auto;
+  &:active,
+  &:hover {
+    color: $primary;
+    background-color: white;
+  }
+
+  &:disabled {
+    color: $base-light;
+    background-color: transparent;
+  }
+}
+
+.edit-btn:disabled {
+  pointer-events: auto;
+  &:disabled:hover {
+    cursor: not-allowed;
+    background-color: transparent;
+  }
+}
+
+// TODO: remove when GHC styles are integrated into customer app and migrate to using "secondary" prop on button, you will still need the box-shadow tho since secondary has a different outline
+.action-button--secondary {
+  box-shadow: inset 0 0 0 2px $base-lighter;
+  &:active,
+  &:hover {
+    box-shadow: inset 0 0 0 2px $base-lighter;
+  }
+  &:focus,
+  &:not([disabled]):focus {
+    box-shadow: inset 0 0 0 2px $base-lighter;
+  }
+}

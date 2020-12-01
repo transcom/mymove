@@ -1,6 +1,8 @@
 import * as formatters from './formatters';
 import moment from 'moment';
 
+import PAYMENT_REQUEST_STATUS from 'constants/paymentRequestStatus';
+
 describe('formatters', () => {
   describe('formatWeight', () => {
     describe('when formatting a integer weight', () => {
@@ -51,14 +53,24 @@ describe('formatters', () => {
   describe('formatDate', () => {
     it('should be formatted as expected', () => {
       const inputFormat = 'MMM-DD-YY';
-      const formattedDate = formatters.formatDate('Nov-11-19', inputFormat, 'en', true);
+      const formattedDate = formatters.formatDate('Nov-11-19', inputFormat, 'DD-MMM-YY', 'en', true);
       expect(formattedDate).toBe('11-Nov-19');
     });
 
     it('should be invalid with unexpected input and strict mode on', () => {
       const inputFormat = 'MMM-DD-YY';
-      const formattedDate = formatters.formatDate('Nov-11-1999', inputFormat, 'en', true);
+      const formattedDate = formatters.formatDate('Nov-11-1999', inputFormat, 'DD-MMM-YY', 'en', true);
       expect(formattedDate).toBe('Invalid date');
+    });
+
+    it('should default to DD-MMM-YY ouptut format', () => {
+      expect(formatters.formatDate('Nov-11-99')).toBe('11-Nov-99');
+    });
+  });
+
+  describe('formatDateFromIso', () => {
+    it('should be formatted as expected', () => {
+      expect(formatters.formatDateFromIso('2020-08-11T21:00:59.126987Z', 'DD MMM YYYY')).toBe('11 Aug 2020');
     });
   });
 
@@ -90,5 +102,61 @@ describe('formatToOrdinal', () => {
     expect(formatters.formatToOrdinal(2)).toEqual('2nd');
     expect(formatters.formatToOrdinal(3)).toEqual('3rd');
     expect(formatters.formatToOrdinal(4)).toEqual('4th');
+  });
+});
+
+describe('toDollarString', () => {
+  it('returns string representation of a dollar', () => {
+    expect(formatters.toDollarString(1234.12)).toEqual('$1,234.12');
+  });
+});
+
+describe('filenameFromPath', () => {
+  it('returns last portion of path with default delimiter', () => {
+    expect(formatters.filenameFromPath('/home/user/folder/.hidden/My Long Filename.sql')).toEqual(
+      'My Long Filename.sql',
+    );
+  });
+
+  it('returns original filename if no path is included', () => {
+    expect(formatters.filenameFromPath('Just-A-gnarly_filemame(0) DRAFT.v2.docx')).toEqual(
+      'Just-A-gnarly_filemame(0) DRAFT.v2.docx',
+    );
+  });
+});
+
+describe('formatAgeToDays', () => {
+  it('returns expected string less than 1 day', () => {
+    expect(formatters.formatAgeToDays(0.99)).toEqual('Less than 1 day');
+  });
+
+  it('returns expected string for 1 day', () => {
+    expect(formatters.formatAgeToDays(1.5)).toEqual('1 day');
+  });
+
+  it('returns expected string greater than 1 day', () => {
+    expect(formatters.formatAgeToDays(2.99)).toEqual('2 days');
+  });
+});
+
+describe('paymentRequestStatusReadable', () => {
+  it('returns expected string for PENDING', () => {
+    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.PENDING)).toEqual('Payment requested');
+  });
+
+  it('returns expected string for REVIEWED', () => {
+    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.REVIEWED)).toEqual('Reviewed');
+  });
+
+  it('returns expected string for SENT_TO_GEX', () => {
+    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.SENT_TO_GEX)).toEqual('Reviewed');
+  });
+
+  it('returns expected string for RECEIVED_BY_GEX', () => {
+    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.RECEIVED_BY_GEX)).toEqual('Reviewed');
+  });
+
+  it('returns expected string for PAID', () => {
+    expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.PAID)).toEqual('Paid');
   });
 });

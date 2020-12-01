@@ -3,9 +3,9 @@ package models
 import (
 	"time"
 
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
-	"github.com/gobuffalo/validate/validators"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
+	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/unit"
@@ -13,6 +13,14 @@ import (
 
 // MTOShipmentType represents the type of shipments the mto shipment is
 type MTOShipmentType string
+
+// using these also in move.go selected move type
+const (
+	// NTSRaw is the raw string value of the NTS Shipment Type
+	NTSRaw = "HHG_INTO_NTS_DOMESTIC"
+	// NTSrRaw is the raw string value of the NTSr Shipment Type
+	NTSrRaw = "HHG_OUTOF_NTS_DOMESTIC"
+)
 
 const (
 	// MTOShipmentTypeHHG is an HHG Shipment Type default
@@ -26,9 +34,9 @@ const (
 	// MTOShipmentTypeHHGShortHaulDom is an HHG Shipment Type for Shothaul Domestic
 	MTOShipmentTypeHHGShortHaulDom MTOShipmentType = "HHG_SHORTHAUL_DOMESTIC"
 	// MTOShipmentTypeHHGIntoNTSDom is an HHG Shipment Type for going into NTS Domestic
-	MTOShipmentTypeHHGIntoNTSDom MTOShipmentType = "HHG_INTO_NTS_DOMESTIC"
+	MTOShipmentTypeHHGIntoNTSDom MTOShipmentType = NTSRaw
 	// MTOShipmentTypeHHGOutOfNTSDom is an HHG Shipment Type for going out of NTS Domestic
-	MTOShipmentTypeHHGOutOfNTSDom MTOShipmentType = "HHG_OUTOF_NTS_DOMESTIC"
+	MTOShipmentTypeHHGOutOfNTSDom MTOShipmentType = NTSrRaw
 	// MTOShipmentTypeMotorhome is a Shipment Type for Motorhome
 	MTOShipmentTypeMotorhome MTOShipmentType = "MOTORHOME"
 	// MTOShipmentTypeBoatHaulAway is a Shipment Type for Boat Haul Away
@@ -41,6 +49,8 @@ const (
 type MTOShipmentStatus string
 
 const (
+	// MTOShipmentStatusDraft is the draft status type for MTO Shipments
+	MTOShipmentStatusDraft MTOShipmentStatus = "DRAFT"
 	// MTOShipmentStatusSubmitted is the submitted status type for MTO Shipments
 	MTOShipmentStatusSubmitted MTOShipmentStatus = "SUBMITTED"
 	// MTOShipmentStatusApproved is the approved status type for MTO Shipments
@@ -52,10 +62,11 @@ const (
 // MTOShipment is an object representing data for a move task order shipment
 type MTOShipment struct {
 	ID                               uuid.UUID         `db:"id"`
-	MoveTaskOrder                    MoveTaskOrder     `belongs_to:"move_task_orders"`
-	MoveTaskOrderID                  uuid.UUID         `db:"move_task_order_id"`
+	MoveTaskOrder                    Move              `belongs_to:"moves"`
+	MoveTaskOrderID                  uuid.UUID         `db:"move_id"`
 	ScheduledPickupDate              *time.Time        `db:"scheduled_pickup_date"`
 	RequestedPickupDate              *time.Time        `db:"requested_pickup_date"`
+	RequestedDeliveryDate            *time.Time        `db:"requested_delivery_date"`
 	ApprovedDate                     *time.Time        `db:"approved_date"`
 	FirstAvailableDeliveryDate       *time.Time        `db:"first_available_delivery_date"`
 	ActualPickupDate                 *time.Time        `db:"actual_pickup_date"`
@@ -66,6 +77,7 @@ type MTOShipment struct {
 	DestinationAddress               *Address          `belongs_to:"addresses"`
 	DestinationAddressID             *uuid.UUID        `db:"destination_address_id"`
 	MTOAgents                        MTOAgents         `has_many:"mto_agents" fk_id:"mto_shipment_id"`
+	MTOServiceItems                  MTOServiceItems   `has_many:"mto_service_items" fk_id:"mto_shipment_id"`
 	SecondaryPickupAddress           *Address          `belongs_to:"addresses"`
 	SecondaryPickupAddressID         *uuid.UUID        `db:"secondary_pickup_address_id"`
 	SecondaryDeliveryAddress         *Address          `belongs_to:"addresses"`
@@ -76,6 +88,7 @@ type MTOShipment struct {
 	ShipmentType                     MTOShipmentType   `db:"shipment_type"`
 	Status                           MTOShipmentStatus `db:"status"`
 	RejectionReason                  *string           `db:"rejection_reason"`
+	Distance                         *unit.Miles       `db:"distance"`
 	CreatedAt                        time.Time         `db:"created_at"`
 	UpdatedAt                        time.Time         `db:"updated_at"`
 }
@@ -90,6 +103,7 @@ func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		string(MTOShipmentStatusApproved),
 		string(MTOShipmentStatusRejected),
 		string(MTOShipmentStatusSubmitted),
+		string(MTOShipmentStatusDraft),
 	}})
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.MoveTaskOrderID, Name: "MoveTaskOrderID"})
 	if m.PrimeEstimatedWeight != nil {

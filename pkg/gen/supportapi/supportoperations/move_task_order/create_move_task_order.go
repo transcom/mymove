@@ -8,7 +8,7 @@ package move_task_order
 import (
 	"net/http"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 // CreateMoveTaskOrderHandlerFunc turns a function with the right signature into a create move task order handler
@@ -42,8 +42,9 @@ It will currently create
 * User
 * Entitlement
 
-It will not create addresses or duty stations. <br />
-<br />
+It will not create addresses or duty stations. It requires an existing contractor ID, destination duty station ID,
+origin duty station ID, and an uploaded orders ID to be passed into the request.
+
 This is a support endpoint and will not be available in production.
 
 

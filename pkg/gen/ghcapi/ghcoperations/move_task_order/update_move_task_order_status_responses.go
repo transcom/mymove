@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	ghcmessages "github.com/transcom/mymove/pkg/gen/ghcmessages"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 )
 
 // UpdateMoveTaskOrderStatusOKCode is the HTTP code returned for type UpdateMoveTaskOrderStatusOK
@@ -219,6 +219,48 @@ func (o *UpdateMoveTaskOrderStatusNotFound) SetPayload(payload interface{}) {
 func (o *UpdateMoveTaskOrderStatusNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
+}
+
+// UpdateMoveTaskOrderStatusConflictCode is the HTTP code returned for type UpdateMoveTaskOrderStatusConflict
+const UpdateMoveTaskOrderStatusConflictCode int = 409
+
+/*UpdateMoveTaskOrderStatusConflict Conflict error
+
+swagger:response updateMoveTaskOrderStatusConflict
+*/
+type UpdateMoveTaskOrderStatusConflict struct {
+
+	/*
+	  In: Body
+	*/
+	Payload interface{} `json:"body,omitempty"`
+}
+
+// NewUpdateMoveTaskOrderStatusConflict creates UpdateMoveTaskOrderStatusConflict with default headers values
+func NewUpdateMoveTaskOrderStatusConflict() *UpdateMoveTaskOrderStatusConflict {
+
+	return &UpdateMoveTaskOrderStatusConflict{}
+}
+
+// WithPayload adds the payload to the update move task order status conflict response
+func (o *UpdateMoveTaskOrderStatusConflict) WithPayload(payload interface{}) *UpdateMoveTaskOrderStatusConflict {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update move task order status conflict response
+func (o *UpdateMoveTaskOrderStatusConflict) SetPayload(payload interface{}) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *UpdateMoveTaskOrderStatusConflict) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(409)
 	payload := o.Payload
 	if err := producer.Produce(rw, payload); err != nil {
 		panic(err) // let the recovery middleware deal with this

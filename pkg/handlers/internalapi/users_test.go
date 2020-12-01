@@ -3,6 +3,8 @@ package internalapi
 import (
 	"net/http/httptest"
 
+	officeuser "github.com/transcom/mymove/pkg/services/office_user"
+
 	"github.com/transcom/mymove/pkg/models/roles"
 
 	userop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"
@@ -12,7 +14,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
-	unknownUser := testdatagen.MakeDefaultUser(suite.DB())
+	unknownUser := testdatagen.MakeStubbedUser(suite.DB())
 
 	req := httptest.NewRequest("GET", "/users/logged_in", nil)
 	req = suite.AuthenticateUserRequest(req, unknownUser)
@@ -20,8 +22,9 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 	params := userop.ShowLoggedInUserParams{
 		HTTPRequest: req,
 	}
+	builder := officeuser.NewOfficeUserFetcherPop(suite.DB())
 
-	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), builder}
 
 	response := handler.Handle(params)
 
@@ -35,14 +38,20 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserRequiringAccessCodeHandl
 	smRole := roles.Role{
 		RoleType: roles.RoleTypeCustomer,
 	}
+
+	user := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
+		User: models.User{
+			Roles: []roles.Role{smRole},
+		},
+	})
+
 	suite.NoError(suite.DB().Save(&smRole))
 	sm := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			FirstName:          &firstName,
 			RequiresAccessCode: true,
-		},
-		User: models.User{
-			Roles: []roles.Role{smRole},
+			UserID:             user.ID,
+			User:               user,
 		},
 	})
 	req := httptest.NewRequest("GET", "/users/logged_in", nil)
@@ -55,7 +64,9 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserRequiringAccessCodeHandl
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	featureFlag := handlers.FeatureFlag{Name: "requires-access-code", Active: true}
 	context.SetFeatureFlag(featureFlag)
-	handler := ShowLoggedInUserHandler{context}
+	builder := officeuser.NewOfficeUserFetcherPop(suite.DB())
+
+	handler := ShowLoggedInUserHandler{context, builder}
 
 	response := handler.Handle(params)
 
@@ -86,7 +97,8 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserNotRequiringAccessCodeHa
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	featureFlag := handlers.FeatureFlag{Name: "requires-access-code", Active: false}
 	context.SetFeatureFlag(featureFlag)
-	handler := ShowLoggedInUserHandler{context}
+	builder := officeuser.NewOfficeUserFetcherPop(suite.DB())
+	handler := ShowLoggedInUserHandler{context, builder}
 
 	response := handler.Handle(params)
 
@@ -116,8 +128,8 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 	params := userop.ShowLoggedInUserParams{
 		HTTPRequest: req,
 	}
-
-	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	builder := officeuser.NewOfficeUserFetcherPop(suite.DB())
+	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), builder}
 
 	response := handler.Handle(params)
 

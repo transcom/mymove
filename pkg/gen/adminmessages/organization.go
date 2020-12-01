@@ -6,20 +6,20 @@ package adminmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // Organization organization
+//
 // swagger:model Organization
 type Organization struct {
 
 	// Created at
 	// Required: true
-	// Format: datetime
+	// Format: date-time
 	CreatedAt *strfmt.DateTime `json:"createdAt"`
 
 	// email
@@ -41,7 +41,7 @@ type Organization struct {
 
 	// Updated at
 	// Required: true
-	// Format: datetime
+	// Format: date-time
 	UpdatedAt *strfmt.DateTime `json:"updatedAt"`
 }
 
@@ -85,7 +85,7 @@ func (m *Organization) validateCreatedAt(formats strfmt.Registry) error {
 		return err
 	}
 
-	if err := validate.FormatOf("createdAt", "body", "datetime", m.CreatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -146,7 +146,7 @@ func (m *Organization) validateUpdatedAt(formats strfmt.Registry) error {
 		return err
 	}
 
-	if err := validate.FormatOf("updatedAt", "body", "datetime", m.UpdatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
 		return err
 	}
 

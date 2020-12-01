@@ -1,7 +1,9 @@
 import React from 'react';
 import { shallow } from 'enzyme';
+
+import CustomerRemarksAgentsDetails from './index';
+
 import DataPoint from 'components/DataPoint';
-import CustomerRemarksAgentsDetails from '.';
 
 describe('CustomerRemarksAgentsDetails', () => {
   it('renders empty details', () => {
@@ -25,10 +27,11 @@ describe('CustomerRemarksAgentsDetails', () => {
       email: 'test@test.com',
     };
     const wrapper = shallow(<CustomerRemarksAgentsDetails releasingAgent={releasingAgent} />);
-    expect(wrapper.find(DataPoint).at(index).dive().text()).toContain(releasingAgent.firstName);
-    expect(wrapper.find(DataPoint).at(index).dive().text()).toContain(releasingAgent.lastName);
-    expect(wrapper.find(DataPoint).at(index).dive().text()).toContain(releasingAgent.phone);
-    expect(wrapper.find(DataPoint).at(index).dive().text()).toContain(releasingAgent.email);
+    const releasingSection = wrapper.find(DataPoint).at(index).dive().text();
+    expect(releasingSection).toContain(releasingAgent.firstName);
+    expect(releasingSection).toContain(releasingAgent.lastName);
+    expect(releasingSection).toContain(releasingAgent.phone);
+    expect(releasingSection).toContain(releasingAgent.email);
   });
 
   it('renders with receiving agent details', () => {
@@ -40,9 +43,10 @@ describe('CustomerRemarksAgentsDetails', () => {
       email: 'test@test.com',
     };
     const wrapper = shallow(<CustomerRemarksAgentsDetails receivingAgent={receivingAgent} />);
-    expect(wrapper.find(DataPoint).at(index).dive().text()).toContain(receivingAgent.firstName);
-    expect(wrapper.find(DataPoint).at(index).dive().text()).toContain(receivingAgent.lastName);
-    expect(wrapper.find(DataPoint).at(index).dive().text()).toContain(receivingAgent.phone);
-    expect(wrapper.find(DataPoint).at(index).dive().text()).toContain(receivingAgent.email);
+    const receivingSection = wrapper.find(DataPoint).at(index).dive().text();
+    expect(receivingSection).toContain(receivingAgent.firstName);
+    expect(receivingSection).toContain(receivingAgent.lastName);
+    expect(receivingSection).toContain(receivingAgent.phone);
+    expect(receivingSection).toContain(receivingAgent.email);
   });
 });

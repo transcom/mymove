@@ -13,6 +13,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/arn"
+	"github.com/aws/aws-sdk-go/aws/endpoints"
 	"github.com/aws/aws-sdk-go/aws/request"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/private/protocol/json/jsonutil"
@@ -54,9 +55,10 @@ var servicesToEntryPoints = map[string][]string{
 	"app-client-tls": {fmt.Sprintf("%s serve", binMilMove)},
 	"app-migrations": {fmt.Sprintf("%s migrate", binMilMove)},
 	"app-tasks": {
-		fmt.Sprintf("%s save-fuel-price-data", binMilMoveTasks),
+		fmt.Sprintf("%s save-ghc-fuel-price-data", binMilMoveTasks),
 		fmt.Sprintf("%s send-post-move-survey", binMilMoveTasks),
 		fmt.Sprintf("%s send-payment-reminder", binMilMoveTasks),
+		fmt.Sprintf("%s post-file-to-gex", binMilMoveTasks),
 	},
 	"orders":            {fmt.Sprintf("%s serve", binOrders)},
 	"orders-migrations": {fmt.Sprintf("%s migrate", binOrders)},
@@ -352,13 +354,15 @@ func buildSecrets(serviceSSM *ssm.SSM, awsRegion, awsAccountID, serviceName, env
 		},
 	}
 
+	partition, _ := endpoints.PartitionForRegion(endpoints.DefaultPartitions(), awsRegion)
+
 	for p.Next() {
 		page := p.Page().(*ssm.DescribeParametersOutput)
 
 		for _, parameter := range page.Parameters {
 			if strings.HasPrefix(*parameter.Name, fmt.Sprintf("/%s-%s", serviceName, environmentName)) {
 				parameterARN := arn.ARN{
-					Partition: "aws",
+					Partition: partition.ID(),
 					Service:   "ssm",
 					Region:    awsRegion,
 					AccountID: awsAccountID,

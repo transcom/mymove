@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="133px" height="133px" viewBox="0 0 133 133" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>circle checked</title>
+    <defs>
+        <filter id="filter-1">
+            <feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 1.000000 0 0 0 0 1.000000 0 0 0 0 1.000000 0 0 0 1.000000 0"></feColorMatrix>
+        </filter>
+    </defs>
+    <g id="circle-checked" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Checklist_check" transform="translate(1.000000, 1.000000)">
+            <circle id="Oval" fill="#162E51" cx="65.5" cy="65.5" r="65.5"></circle>
+            <g id="Group" transform="translate(32.750000, 32.750000)" stroke-linecap="round" stroke-linejoin="round">
+                <g filter="url(#filter-1)" id="icon-/-check-copy-2">
+                    <g>
+                        <polyline id="Path" stroke="#000000" stroke-width="8.25" points="55.0950521 21.7480469 27.1850586 49.2955729 14.4986979 36.7739702"></polyline>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

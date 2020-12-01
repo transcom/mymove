@@ -15,7 +15,7 @@ import (
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/sts"
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -42,9 +42,6 @@ func initMigrateFlags(flag *pflag.FlagSet) {
 
 	// Migration Path Config
 	cli.InitMigrationPathFlags(flag)
-
-	// aws-vault Config
-	cli.InitVaultFlags(flag)
 
 	// Logging
 	cli.InitLoggingFlags(flag)
@@ -73,10 +70,6 @@ func checkMigrateConfig(v *viper.Viper, logger logger) error {
 	}
 
 	if err := cli.CheckMigrationPath(v); err != nil {
-		return err
-	}
-
-	if err := cli.CheckVault(v); err != nil {
 		return err
 	}
 

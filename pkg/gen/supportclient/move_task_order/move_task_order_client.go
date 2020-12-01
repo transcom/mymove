@@ -9,12 +9,11 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new move task order API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -26,10 +25,23 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
-/*
-CreateMoveTaskOrder creates move task order
+// ClientService is the interface for Client methods
+type ClientService interface {
+	CreateMoveTaskOrder(params *CreateMoveTaskOrderParams) (*CreateMoveTaskOrderCreated, error)
 
-Creates an instance of moveTaskOrder.
+	GetMoveTaskOrder(params *GetMoveTaskOrderParams) (*GetMoveTaskOrderOK, error)
+
+	ListMTOs(params *ListMTOsParams) (*ListMTOsOK, error)
+
+	MakeMoveTaskOrderAvailable(params *MakeMoveTaskOrderAvailableParams) (*MakeMoveTaskOrderAvailableOK, error)
+
+	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+  CreateMoveTaskOrder creates move task order
+
+  Creates an instance of moveTaskOrder.
 Current this will also create a number of nested objects but not all.
 It will currently create
 * MoveTaskOrder
@@ -38,8 +50,9 @@ It will currently create
 * User
 * Entitlement
 
-It will not create addresses or duty stations. <br />
-<br />
+It will not create addresses or duty stations. It requires an existing contractor ID, destination duty station ID,
+origin duty station ID, and an uploaded orders ID to be passed into the request.
+
 This is a support endpoint and will not be available in production.
 
 */
@@ -75,11 +88,14 @@ func (a *Client) CreateMoveTaskOrder(params *CreateMoveTaskOrderParams) (*Create
 }
 
 /*
-GetMoveTaskOrder gets move task order
+  GetMoveTaskOrder gets move task order
 
-Gets an individual move task order by ID. <br />
-<br />
-This is a support endpoint and will not be available in production.
+  ### Functionality
+This endpoint gets an individual MoveTaskOrder by ID.
+
+It will provide nested information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.
+
+This is a support endpoint and is not available in production.
 
 */
 func (a *Client) GetMoveTaskOrder(params *GetMoveTaskOrderParams) (*GetMoveTaskOrderOK, error) {
@@ -93,7 +109,7 @@ func (a *Client) GetMoveTaskOrder(params *GetMoveTaskOrderParams) (*GetMoveTaskO
 		Method:             "GET",
 		PathPattern:        "/move-task-orders/{moveTaskOrderID}",
 		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{""},
+		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},
 		Params:             params,
 		Reader:             &GetMoveTaskOrderReader{formats: a.formats},
@@ -114,41 +130,81 @@ func (a *Client) GetMoveTaskOrder(params *GetMoveTaskOrderParams) (*GetMoveTaskO
 }
 
 /*
-UpdateMoveTaskOrderStatus updates move task order status
+  ListMTOs lists m t os
 
-Updates move task order `isAvailableToPrime` to TRUE to make it available to prime. <br />
-<br />
-This is a support endpoint and will not be available in production.
+  ### Functionality
+This endpoint lists all MoveTaskOrders regardless of whether or not they have been made available to Prime.
+
+It will provide nested information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.
 
 */
-func (a *Client) UpdateMoveTaskOrderStatus(params *UpdateMoveTaskOrderStatusParams) (*UpdateMoveTaskOrderStatusOK, error) {
+func (a *Client) ListMTOs(params *ListMTOsParams) (*ListMTOsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewUpdateMoveTaskOrderStatusParams()
+		params = NewListMTOsParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "updateMoveTaskOrderStatus",
-		Method:             "PATCH",
-		PathPattern:        "/move-task-orders/{moveTaskOrderID}/status",
+		ID:                 "listMTOs",
+		Method:             "GET",
+		PathPattern:        "/move-task-orders",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},
 		Params:             params,
-		Reader:             &UpdateMoveTaskOrderStatusReader{formats: a.formats},
+		Reader:             &ListMTOsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*UpdateMoveTaskOrderStatusOK)
+	success, ok := result.(*ListMTOsOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
-	msg := fmt.Sprintf("unexpected success response for updateMoveTaskOrderStatus: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	msg := fmt.Sprintf("unexpected success response for listMTOs: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+  MakeMoveTaskOrderAvailable makes move task order available
+
+  Updates move task order `availableToPrimeAt` to make it available to prime. No request body required. <br />
+<br />
+This is a support endpoint and will not be available in production.
+
+*/
+func (a *Client) MakeMoveTaskOrderAvailable(params *MakeMoveTaskOrderAvailableParams) (*MakeMoveTaskOrderAvailableOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewMakeMoveTaskOrderAvailableParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "makeMoveTaskOrderAvailable",
+		Method:             "PATCH",
+		PathPattern:        "/move-task-orders/{moveTaskOrderID}/available-to-prime",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &MakeMoveTaskOrderAvailableReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*MakeMoveTaskOrderAvailableOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for makeMoveTaskOrderAvailable: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 

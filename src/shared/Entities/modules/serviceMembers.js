@@ -1,6 +1,8 @@
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient } from 'shared/Swagger/api';
 import { get } from 'lodash';
+import { selectLoggedInUser } from './user';
+
 const loadBackupContactsLabel = 'ServiceMember.loadBackupContacts';
 const updateBackupContactLabel = 'ServiceMember.updateBackupContact';
 export const loadServiceMemberLabel = 'ServiceMember.loadServiceMember';
@@ -38,6 +40,12 @@ export function updateServiceMember(serviceMemberId, serviceMember, label = upda
 
 export function selectServiceMember(state, serviceMemberId) {
   return get(state, `entities.serviceMembers.${serviceMemberId}`, {});
+}
+
+export function selectServiceMemberFromLoggedInUser(state) {
+  const user = selectLoggedInUser(state);
+  const serviceMemberId = user.service_member;
+  return selectServiceMember(state, serviceMemberId);
 }
 
 export function selectServiceMemberForOrders(state, ordersId) {

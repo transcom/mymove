@@ -6,8 +6,10 @@ DB_DOCKER_CONTAINER_DEPLOYED_MIGRATIONS = milmove-db-deployed-migrations
 DB_DOCKER_CONTAINER_TEST = milmove-db-test
 # The version of the postgres container should match production as closely
 # as possible.
-# https://github.com/transcom/ppp-infra/blob/7ba2e1086ab1b2a0d4f917b407890817327ffb3d/modules/aws-app-environment/database/variables.tf#L48
+# https://github.com/transcom/transcom-infrasec-com/blob/c32c45078f29ea6fd58b0c246f994dbea91be372/transcom-com-legacy/app-prod/main.tf#L62
 DB_DOCKER_CONTAINER_IMAGE = postgres:12.2
+REDIS_DOCKER_CONTAINER_IMAGE = redis:5.0.6
+REDIS_DOCKER_CONTAINER = milmove-redis
 TASKS_DOCKER_CONTAINER = tasks
 export PGPASSWORD=mysecretpassword
 
@@ -34,6 +36,8 @@ DB_PORT_DEV=5432
 DB_PORT_TEST=5433
 DB_PORT_DEPLOYED_MIGRATIONS=5434
 DB_PORT_DOCKER=5432
+REDIS_PORT=6379
+REDIS_PORT_DOCKER=6379
 ifdef CIRCLECI
 	DB_PORT_DEV=5432
 	DB_PORT_TEST=5432
@@ -47,6 +51,7 @@ ifdef GOLAND
 	GOLAND_GC_FLAGS=all=-N -l
 endif
 
+SCHEMASPY_OUTPUT=./tmp/schemaspy
 
 .PHONY: help
 help:  ## Print the help documentation
@@ -118,7 +123,7 @@ check_docker_size: ## Check the amount of disk space used by docker
 	scripts/check-docker-size
 
 .PHONY: deps
-deps: prereqs ensure_pre_commit client_deps bin/rds-ca-2019-root.pem ## Run all checks and install all depdendencies
+deps: prereqs ensure_pre_commit client_deps redis_pull bin/rds-ca-2019-root.pem bin/rds-ca-us-gov-west-1-2017-root.pem ## Run all checks and install all depdendencies
 
 .PHONY: test
 test: client_test server_test e2e_test ## Run all tests
@@ -194,7 +199,7 @@ bin/gin: .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/gin github.com/codegangsta/gin
 
 bin/soda: .check_go_version.stamp .check_gopath.stamp
-	go build -ldflags "$(LDFLAGS)" -o bin/soda github.com/gobuffalo/pop/soda
+	go build -ldflags "$(LDFLAGS)" -o bin/soda github.com/gobuffalo/pop/v5/soda
 
 # No static linking / $(LDFLAGS) because go-junit-report is only used for building the CirlceCi test report
 bin/go-junit-report: .check_go_version.stamp .check_gopath.stamp
@@ -210,73 +215,89 @@ bin/rds-ca-2019-root.pem:
 	mkdir -p bin/
 	curl -sSo bin/rds-ca-2019-root.pem https://s3.amazonaws.com/rds-downloads/rds-ca-2019-root.pem
 
+bin/rds-ca-us-gov-west-1-2017-root.pem:
+	mkdir -p bin/
+	curl -sSo bin/rds-ca-us-gov-west-1-2017-root.pem https://s3.us-gov-west-1.amazonaws.com/rds-downloads/rds-ca-us-gov-west-1-2017-root.pem
+
 ### MilMove Targets
 
-bin/big-cat:
+bin/big-cat: cmd/big-cat
 	go build -ldflags "$(LDFLAGS)" -o bin/big-cat ./cmd/big-cat
 
-bin/compare-secure-migrations:
+bin/compare-secure-migrations: cmd/compare-secure-migrations
 	go build -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare-secure-migrations
 
-bin/model-vet:
+bin/model-vet: cmd/model-vet
 	go build -ldflags "$(LDFLAGS)" -o bin/model-vet ./cmd/model-vet
 
-bin/ecs-deploy:
+bin/generate-deploy-notes: cmd/generate-deploy-notes
+	go build -ldflags "$(LDFLAGS)" -o bin/generate-deploy-notes ./cmd/generate-deploy-notes
+
+bin/ecs-deploy: cmd/ecs-deploy
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-deploy ./cmd/ecs-deploy
 
-bin/ecs-service-logs:
+bin/ecs-service-logs: cmd/ecs-service-logs
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
 
-bin/find-guardduty-user:
+bin/find-guardduty-user: cmd/find-guardduty-user
 	go build -ldflags "$(LDFLAGS)" -o bin/find-guardduty-user ./cmd/find-guardduty-user
 
-bin/generate-access-codes:
+bin/generate-access-codes: cmd/generate_access_codes
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-access-codes ./cmd/generate_access_codes
 
-bin/generate-shipment-summary:
+bin/generate-shipment-summary: cmd/generate_shipment_summary
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate_shipment_summary
 
-bin/generate-test-data:
+bin/generate-test-data: cmd/generate-test-data
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate-test-data
 
-bin/ghc-pricing-parser:
+bin/ghc-pricing-parser: cmd/ghc-pricing-parser
 	go build -ldflags "$(LDFLAGS)" -o bin/ghc-pricing-parser ./cmd/ghc-pricing-parser
 
-bin/ghc-transit-time-parser:
+bin/ghc-transit-time-parser: cmd/ghc-transit-time-parser
 	go build -ldflags "$(LDFLAGS)" -o bin/ghc-transit-time-parser ./cmd/ghc-transit-time-parser
 
-bin/health-checker:
+bin/health-checker: cmd/health-checker
 	go build -ldflags "$(LDFLAGS)" -o bin/health-checker ./cmd/health-checker
 
-bin/iws:
+bin/iws: cmd/iws
 	go build -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/iws/iws.go
 
-bin/milmove:
+bin/milmove: cmd/milmove
 	go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
-bin/milmove-tasks:
+bin/milmove-tasks: cmd/milmove-tasks
 	go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove-tasks ./cmd/milmove-tasks
 
-bin/prime-api-client:
+bin/prime-api-client: cmd/prime-api-client
 	go build -ldflags "$(LDFLAGS)" -o bin/prime-api-client ./cmd/prime-api-client
 
-bin/query-cloudwatch-logs:
+bin/webhook-client: cmd/webhook-client
+	go build -ldflags "$(LDFLAGS)" -o bin/webhook-client ./cmd/webhook-client
+
+bin/query-cloudwatch-logs: cmd/query-cloudwatch-logs
 	go build -ldflags "$(LDFLAGS)" -o bin/query-cloudwatch-logs ./cmd/query-cloudwatch-logs
 
-bin/query-lb-logs:
+bin/query-lb-logs: cmd/query-lb-logs
 	go build -ldflags "$(LDFLAGS)" -o bin/query-lb-logs ./cmd/query-lb-logs
 
-bin/read-alb-logs:
+bin/read-alb-logs: cmd/read-alb-logs
 	go build -ldflags "$(LDFLAGS)" -o bin/read-alb-logs ./cmd/read-alb-logs
 
-bin/report-ecs:
+bin/report-ecs: cmd/report-ecs
 	go build -ldflags "$(LDFLAGS)" -o bin/report-ecs ./cmd/report-ecs
 
-bin/send-to-gex: pkg/gen/
-	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
+bin/send-to-gex: pkg/gen/ cmd/send-to-gex
+	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send-to-gex
 
-bin/tls-checker:
+bin/send-to-syncada-via-sftp: pkg/gen/ cmd/send-to-syncada-via-sftp
+	go build -ldflags "$(LDFLAGS)" -o bin/send-to-syncada-via-sftp ./cmd/send-to-syncada-via-sftp
+
+bin/tls-checker: cmd/tls-checker
 	go build -ldflags "$(LDFLAGS)" -o bin/tls-checker ./cmd/tls-checker
+
+bin/generate-payment-request-edi: cmd/generate-payment-request-edi
+	go build -ldflags "$(LDFLAGS)" -o bin/generate-payment-request-edi ./cmd/generate-payment-request-edi
 
 pkg/assets/assets.go:
 	scripts/gen-assets
@@ -299,7 +320,7 @@ server_build: bin/milmove ## Build the server
 
 # This command is for running the server by itself, it will serve the compiled frontend on its own
 # Note: Don't double wrap with aws-vault because the pkg/cli/vault.go will handle it
-server_run_standalone: check_log_dir server_build client_build db_dev_run
+server_run_standalone: check_log_dir server_build client_build db_dev_run redis_run
 	DEBUG_LOGGING=true ./bin/milmove serve 2>&1 | tee -a log/dev.log
 
 # This command will rebuild the swagger go code and rerun server on any changes
@@ -308,7 +329,7 @@ server_run:
 # This command runs the server behind gin, a hot-reload server
 # Note: Gin is not being used as a proxy so assigning odd port and laddr to keep in IPv4 space.
 # Note: The INTERFACE envar is set to configure the gin build, milmove_gin, local IP4 space with default port GIN_PORT.
-server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir bin/gin build/index.html server_generate db_dev_run
+server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir bin/gin build/index.html server_generate db_dev_run redis_run
 	INTERFACE=localhost DEBUG_LOGGING=true \
 	$(AWS_VAULT) ./bin/gin \
 		--build ./cmd/milmove \
@@ -321,7 +342,7 @@ server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.sta
 		2>&1 | tee -a log/dev.log
 
 .PHONY: server_run_debug
-server_run_debug: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir build/index.html server_generate db_dev_run ## Debug the server
+server_run_debug: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir build/index.html server_generate db_dev_run redis_run ## Debug the server
 	scripts/kill-process-on-port 8080
 	scripts/kill-process-on-port 9443
 	$(AWS_VAULT) dlv debug cmd/milmove/*.go -- serve 2>&1 | tee -a log/dev.log
@@ -330,8 +351,10 @@ server_run_debug: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp
 build_tools: bin/gin \
 	bin/mockery \
 	bin/rds-ca-2019-root.pem \
+	bin/rds-ca-us-gov-west-1-2017-root.pem \
 	bin/big-cat \
 	bin/compare-secure-migrations \
+	bin/generate-deploy-notes \
 	bin/ecs-deploy \
 	bin/ecs-service-logs \
 	bin/find-guardduty-user \
@@ -357,7 +380,7 @@ build: server_build build_tools client_build ## Build the server, tools, and cli
 # acceptance_test runs a few acceptance tests against a local or remote environment.
 # This can help identify potential errors before deploying a container.
 .PHONY: acceptance_test
-acceptance_test: bin/rds-ca-2019-root.pem ## Run acceptance tests
+acceptance_test: bin/rds-ca-2019-root.pem bin/rds-ca-us-gov-west-1-2017-root.pem ## Run acceptance tests
 ifndef TEST_ACC_ENV
 	@echo "Running acceptance tests for webserver using local environment."
 	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
@@ -367,7 +390,7 @@ ifndef TEST_ACC_ENV
 	SERVE_ORDERS=true \
 	SERVE_DPS=true \
 	SERVE_API_INTERNAL=true \
-	SERVE_API_GHC=false \
+	SERVE_API_GHC=true \
 	MUTUAL_TLS_ENABLED=true \
 	go test -v -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
 else
@@ -392,7 +415,7 @@ mocks_generate: bin/mockery ## Generate mockery mocks for tests
 	go generate $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 .PHONY: server_test
-server_test: db_test_reset db_test_migrate server_test_standalone ## Run server unit tests
+server_test: db_test_reset db_test_migrate redis_reset server_test_standalone ## Run server unit tests
 
 .PHONY: server_test_standalone
 server_test_standalone: ## Run server unit tests with no deps
@@ -403,12 +426,12 @@ server_test_build:
 	NO_DB=1 DRY_RUN=1 scripts/run-server-test
 
 .PHONY: server_test_all
-server_test_all: db_dev_reset db_dev_migrate ## Run all server unit tests
+server_test_all: db_dev_reset db_dev_migrate redis_reset ## Run all server unit tests
 	# Like server_test but runs extended tests that may hit external services.
 	LONG_TEST=1 scripts/run-server-test
 
 .PHONY: server_test_coverage_generate
-server_test_coverage_generate: db_test_reset db_test_migrate server_test_coverage_generate_standalone ## Run server unit test coverage
+server_test_coverage_generate: db_test_reset db_test_migrate redis_reset server_test_coverage_generate_standalone ## Run server unit test coverage
 
 .PHONY: server_test_coverage_generate_standalone
 server_test_coverage_generate_standalone: ## Run server unit tests with coverage and no deps
@@ -416,7 +439,7 @@ server_test_coverage_generate_standalone: ## Run server unit tests with coverage
 	NO_DB=1 COVERAGE=1 scripts/run-server-test
 
 .PHONY: server_test_coverage
-server_test_coverage: db_test_reset db_test_migrate server_test_coverage_generate ## Run server unit test coverage with html output
+server_test_coverage: db_test_reset db_test_migrate redis_reset server_test_coverage_generate ## Run server unit test coverage with html output
 	DB_PORT=$(DB_PORT_TEST) go tool cover -html=coverage.out
 
 .PHONY: server_test_docker
@@ -432,8 +455,44 @@ server_test_docker_down:
 #
 
 #
+# ----- START REDIS TARGETS -----
+#
+
+.PHONY: redis_pull
+redis_pull: ## Pull redis image
+	docker pull $(REDIS_DOCKER_CONTAINER_IMAGE)
+
+.PHONY: redis_destroy
+redis_destroy: ## Destroy Redis
+	@echo "Destroying the ${REDIS_DOCKER_CONTAINER} docker redis container..."
+	docker rm -f $(REDIS_DOCKER_CONTAINER) || echo "No Redis container"
+
+.PHONY: redis_run
+redis_run: ## Run Redis
+ifndef CIRCLECI
+		@echo "Stopping the Redis brew service in case it's running..."
+		brew services stop redis 2> /dev/null || true
+endif
+	@echo "Starting the ${REDIS_DOCKER_CONTAINER} docker redis container..."
+	docker start $(REDIS_DOCKER_CONTAINER) || \
+		docker run -d --name $(REDIS_DOCKER_CONTAINER) \
+			-p $(REDIS_PORT):$(REDIS_PORT_DOCKER) \
+			$(REDIS_DOCKER_CONTAINER_IMAGE)
+
+.PHONY: redis_reset
+redis_reset: redis_destroy redis_run ## Reset Redis
+
+#
+# ----- END REDIS TARGETS -----
+#
+
+#
 # ----- START DB_DEV TARGETS -----
 #
+
+.PHONY: db_pull
+db_pull: ## Pull db image
+	docker pull $(DB_DOCKER_CONTAINER_IMAGE)
 
 .PHONY: db_dev_destroy
 db_dev_destroy: ## Destroy Dev DB
@@ -663,17 +722,17 @@ db_e2e_up: bin/generate-test-data ## Truncate Test DB and Generate e2e (end-to-e
 	DB_PORT=$(DB_PORT_TEST) bin/generate-test-data --named-scenario="e2e_basic" --db-env="test"
 
 .PHONY: db_e2e_init
-db_e2e_init: db_test_reset db_test_migrate db_e2e_up ## Initialize e2e (end-to-end) DB (reset, migrate, up)
+db_e2e_init: db_test_reset db_test_migrate redis_reset db_e2e_up ## Initialize e2e (end-to-end) DB (reset, migrate, up)
 
 .PHONY: db_dev_e2e_populate
 db_dev_e2e_populate: db_dev_reset db_dev_migrate ## Populate Dev DB with generated e2e (end-to-end) data
 	@echo "Ensure that you're running the correct APPLICATION..."
 	./scripts/ensure-application app
 	@echo "Populate the ${DB_NAME_DEV} database with docker command..."
-	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="e2e_basic" --db-env="development"
+	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="dev_seed" --db-env="development"
 
 .PHONY: db_test_e2e_populate
-db_test_e2e_populate: db_test_reset db_test_migrate build_tools db_e2e_up ## Populate Test DB with generated e2e (end-to-end) data
+db_test_e2e_populate: db_test_reset db_test_migrate redis_reset build_tools db_e2e_up ## Populate Test DB with generated e2e (end-to-end) data
 
 .PHONY: db_test_e2e_backup
 db_test_e2e_backup: ## Backup Test DB as 'e2e_test'
@@ -714,8 +773,8 @@ tasks_build_linux_docker:  ## Build Scheduled Task binaries (linux) and Docker i
 	@echo "Build the docker scheduled tasks container..."
 	docker build -f Dockerfile.tasks_local --tag $(TASKS_DOCKER_CONTAINER):latest .
 
-.PHONY: tasks_save_fuel_price_data
-tasks_save_fuel_price_data: tasks_build_linux_docker ## Run save-fuel-price-data from inside docker container
+.PHONY: tasks_save_ghc_fuel_price_data
+tasks_save_ghc_fuel_price_data: tasks_build_linux_docker ## Run save-ghc-fuel-price-data from inside docker container
 	@echo "Saving the fuel price data to the ${DB_NAME_DEV} database with docker command..."
 	DB_NAME=$(DB_NAME_DEV) DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_DEV) scripts/wait-for-db-docker
 	docker run \
@@ -730,7 +789,7 @@ tasks_save_fuel_price_data: tasks_build_linux_docker ## Run save-fuel-price-data
 		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
 		--rm \
 		$(TASKS_DOCKER_CONTAINER):latest \
-		milmove-tasks save-fuel-price-data
+		milmove-tasks save-ghc-fuel-price-data
 
 tasks_send_post_move_survey: tasks_build_linux_docker ## Run send-post-move-survey from inside docker container
 	@echo "sending post move survey with docker command..."
@@ -762,6 +821,21 @@ tasks_send_payment_reminder: tasks_build_linux_docker ## Run send-payment-remind
 		--rm \
 		$(TASKS_DOCKER_CONTAINER):latest \
 		milmove-tasks send-payment-reminder
+
+tasks_post_file_to_gex: tasks_build_linux_docker ## Run post-file-to-gex from inside docker container
+	@echo "sending payment reminder with docker command..."
+	DB_NAME=$(DB_NAME_DEV) DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_DEV) scripts/wait-for-db-docker
+	docker run \
+		-t \
+		-e DB_HOST="database" \
+		-e DB_NAME \
+		-e DB_PORT \
+		-e DB_USER \
+		-e DB_PASSWORD \
+		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
+		--rm \
+		$(TASKS_DOCKER_CONTAINER):latest \
+		milmove-tasks post-file-to-gex
 #
 # ----- END SCHEDULED TASK TARGETS -----
 #
@@ -770,34 +844,43 @@ tasks_send_payment_reminder: tasks_build_linux_docker ## Run send-payment-remind
 # ----- START Deployed MIGRATION TARGETS -----
 #
 
-.PHONY: run_prod_migrations
-run_prod_migrations: bin/milmove db_deployed_migrations_reset ## Run Prod migrations against Deployed Migrations DB
-	@echo "Migrating the prod-migrations database with prod migrations..."
-	MIGRATION_PATH="s3://transcom-ppp-app-prod-us-west-2/secure-migrations;file://migrations/$(APPLICATION)/schema" \
+.PHONY: run_prd_migrations
+run_prd_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud prd migrations against Deployed Migrations DB
+	@echo "Migrating the prd-migrations database with prd migrations..."
+	MIGRATION_PATH="s3://transcom-gov-milmove-prd-app-us-gov-west-1/secure-migrations;file://migrations/$(APPLICATION)/schema" \
 	DB_HOST=localhost \
 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
 	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
 	DB_DEBUG=0 \
+	DISABLE_AWS_VAULT_WRAPPER=1 \
+	AWS_REGION=us-gov-west-1 \
+	aws-vault exec transcom-gov-milmove-prd \
 	bin/milmove migrate
 
-.PHONY: run_staging_migrations
-run_staging_migrations: bin/milmove db_deployed_migrations_reset ## Run Staging migrations against Deployed Migrations DB
-	@echo "Migrating the prod-migrations database with staging migrations..."
-	MIGRATION_PATH="s3://transcom-ppp-app-staging-us-west-2/secure-migrations;file://migrations/$(APPLICATION)/schema" \
+.PHONY: run_stg_migrations
+run_stg_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud stg migrations against Deployed Migrations DB
+	@echo "Migrating the stg-migrations database with stg migrations..."
+	MIGRATION_PATH="s3://transcom-gov-milmove-stg-app-us-gov-west-1/secure-migrations;file://migrations/$(APPLICATION)/schema" \
 	DB_HOST=localhost \
 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
 	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
 	DB_DEBUG=0 \
+	DISABLE_AWS_VAULT_WRAPPER=1 \
+	AWS_REGION=us-gov-west-1 \
+	aws-vault exec transcom-gov-milmove-stg \
 	bin/milmove migrate
 
-.PHONY: run_experimental_migrations
-run_experimental_migrations: bin/milmove db_deployed_migrations_reset ## Run Experimental migrations against Deployed Migrations DB
-	@echo "Migrating the prod-migrations database with experimental migrations..."
-	MIGRATION_PATH="s3://transcom-ppp-app-experimental-us-west-2/secure-migrations;file://migrations/$(APPLICATION)/schema" \
+.PHONY: run_exp_migrations
+run_exp_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud exp migrations against Deployed Migrations DB
+	@echo "Migrating the exp-migrations database with exp migrations..."
+	MIGRATION_PATH="s3://transcom-gov-milmove-exp-app-us-gov-west-1/secure-migrations;file://migrations/$(APPLICATION)/schema" \
 	DB_HOST=localhost \
 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
 	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
 	DB_DEBUG=0 \
+	DISABLE_AWS_VAULT_WRAPPER=1 \
+	AWS_REGION=us-gov-west-1 \
+	aws-vault exec transcom-gov-milmove-exp \
 	bin/milmove migrate
 
 #
@@ -881,6 +964,7 @@ clean: ## Clean all generated files
 	rm -rf ./public/swagger-ui/*.{css,js,png}
 	rm -rf ./tmp/secure_migrations
 	rm -rf ./tmp/storage
+	rm -rf $(SCHEMASPY_OUTPUT)
 	rm -rf ./storybook-static
 	rm -rf ./coverage
 	rm -rf ./log
@@ -898,22 +982,17 @@ spellcheck: ## Run interactive spellchecker
 storybook: ## Start the storybook server
 	yarn run storybook
 
-.PHONY: storybook_docker
-storybook_docker: ## Start the storybook server in a docker container
-	docker-compose -f docker-compose.storybook.yml -f docker-compose.storybook_local.yml build --pull storybook
-	docker-compose -f docker-compose.storybook.yml -f docker-compose.storybook_local.yml up storybook
-
 .PHONY: storybook_build
 storybook_build: ## Build static storybook site
 	yarn run build-storybook
 
-.PHONY: storybook_tests
-storybook_tests: ## Run the Loki storybook tests to ensure no breaking changes
-	scripts/run-storybook-tests
-
-.PHONY: loki_approve_changes
-loki_approve_changes: ## Approves differences in Loki test results
-	yarn run loki approve
+.PHONY: schemaspy
+schemaspy: db_test_reset db_test_migrate ## Generates database documentation using schemaspy
+	rm -rf $(SCHEMASPY_OUTPUT)
+	docker run -v $(PWD)/$(SCHEMASPY_OUTPUT):/output schemaspy/schemaspy:latest \
+		-t pgsql11 -host host.docker.internal -port $(DB_PORT_TEST) -db $(DB_NAME_TEST) -u postgres -p $(PGPASSWORD) \
+		-norows -nopages
+	@echo "Schemaspy output can be found in $(SCHEMASPY_OUTPUT)"
 
 #
 # ----- END RANDOM TARGETS -----

@@ -7,7 +7,7 @@
 # Add language specific code owners if it becomes relevant
 
 # ADRs are architectural decisions records that should all be approved by all teams
-/docs/adr/* @tinyels @chrisrcoles @Ryan-Koch @chrisgilmerproj @jacquelineIO @LeDeep @lynzt
+/docs/adr/* @transcom/truss-sr-eng
 
 # Docs about the database should be reviewed by people working on our database guidelines
 /docs/database/* @transcom/truss-db
@@ -15,8 +15,15 @@
 # Migrations are where database schema changes are made and we want them reviewed by people working on our database guidelines
 /migrations/ @transcom/truss-db
 
-# Storybook Stories are stored in this directory and should be reviewed by desgin
-/src/stories/ @transcom/truss-design
+# Require design / frontend reviews on Storybook & CSS changes
+/src/stories/ @transcom/truss-design @suzubara
+*.stories.jsx @transcom/truss-design @suzubara
+*.css @transcom/truss-design @suzubara
+*.scss @transcom/truss-design @suzubara
 
-# The reference, ie approved, images for Loki tests of Storybook Stories are stored in this directory and should be reviewed by desgin
-/.loki/reference/ @transcom/truss-design
+# Require team Pamplemoose to review changes to configs that may affect cATO static analysis compliancy
+.golangci.yaml @transcom/Truss-Pamplemoose
+.pre-commit-config.yaml @transcom/Truss-Pamplemoose
+.circleci/config.yml @transcom/Truss-Pamplemoose
+
+

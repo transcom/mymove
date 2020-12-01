@@ -10,6 +10,7 @@ import (
 //go:generate mockery -name MTOShipmentUpdater
 type MTOShipmentUpdater interface {
 	UpdateMTOShipment(mtoShipment *models.MTOShipment, eTag string) (*models.MTOShipment, error)
+	MTOShipmentsMTOAvailableToPrime(mtoShipmentID uuid.UUID) (bool, error)
 }
 
 // MTOShipmentStatusUpdater is the exported interface for updating an MTO shipment status
@@ -22,4 +23,9 @@ type MTOShipmentStatusUpdater interface {
 //go:generate mockery -name MTOShipmentCreator
 type MTOShipmentCreator interface {
 	CreateMTOShipment(MTOShipment *models.MTOShipment, MTOServiceItems models.MTOServiceItems) (*models.MTOShipment, error)
+}
+
+// MTOShipmentAddressUpdater is the exported interface for updating an address on an MTO Shipment
+type MTOShipmentAddressUpdater interface {
+	UpdateMTOShipmentAddress(newAddress *models.Address, mtoShipmentID uuid.UUID, eTag string, mustBeAvailableToPrime bool) (*models.Address, error)
 }

@@ -1,0 +1,75 @@
+@import '../../../shared/styles/basics';
+@import '../../../shared/styles/mixins';
+@import '../../../shared/styles/colors';
+
+.DocViewerContent {
+  height: 100%;
+  position: relative;
+  @include u-bg('base-lighter');
+
+  :global {
+    .pdf-viewer-container {
+      height: 100%;
+    }
+
+    .pdf-viewer,
+    .photo-viewer-container {
+      height: 100%;
+      overflow-y: scroll;
+    }
+
+    .pdf-canvas {
+      text-align: center;
+      // spacing for controls/title bar
+      padding-top: 75px;
+      padding-bottom: 75px;
+    }
+
+    .photo-viewer-container {
+      align-items: unset; // must override to get it to respect calculating padding-top
+      padding-top: 75px;
+      // no zoom controls at bottom for image viewer, adding bottom padding could distort/make the image unnecessarily smaller
+    }
+  }
+}
+
+:global(.pg-viewer-wrapper) {
+  .controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.75);
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    svg {
+      @include u-margin-right(1);
+    }
+    @include icon-hover-state;
+
+    button {
+      display: flex;
+    }
+  }
+}
+
+// TODO
+/*
+.docArrows {
+  position: fixed;
+  top: 50vh;
+  display: flex;
+  justify-content: space-between;
+  width: $contentWidth;
+  @include icon-hover-state;
+  .arrowButton {
+    @include u-padding(1.5);
+    @include u-margin(1);
+    background: white;
+    @include u-radius('pill');
+    @include u-shadow(2);
+  }
+}
+*/

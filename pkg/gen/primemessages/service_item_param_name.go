@@ -8,20 +8,26 @@ package primemessages
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
 
 // ServiceItemParamName service item param name
+//
 // swagger:model ServiceItemParamName
 type ServiceItemParamName string
 
 const (
 
+	// ServiceItemParamNameActualPickupDate captures enum value "ActualPickupDate"
+	ServiceItemParamNameActualPickupDate ServiceItemParamName = "ActualPickupDate"
+
 	// ServiceItemParamNameCanStandAlone captures enum value "CanStandAlone"
 	ServiceItemParamNameCanStandAlone ServiceItemParamName = "CanStandAlone"
+
+	// ServiceItemParamNameContractCode captures enum value "ContractCode"
+	ServiceItemParamNameContractCode ServiceItemParamName = "ContractCode"
 
 	// ServiceItemParamNameCubicFeetBilled captures enum value "CubicFeetBilled"
 	ServiceItemParamNameCubicFeetBilled ServiceItemParamName = "CubicFeetBilled"
@@ -44,11 +50,17 @@ const (
 	// ServiceItemParamNameEIAFuelPrice captures enum value "EIAFuelPrice"
 	ServiceItemParamNameEIAFuelPrice ServiceItemParamName = "EIAFuelPrice"
 
+	// ServiceItemParamNameFSCWeightBasedDistanceMultiplier captures enum value "FSCWeightBasedDistanceMultiplier"
+	ServiceItemParamNameFSCWeightBasedDistanceMultiplier ServiceItemParamName = "FSCWeightBasedDistanceMultiplier"
+
 	// ServiceItemParamNameMarketDest captures enum value "MarketDest"
 	ServiceItemParamNameMarketDest ServiceItemParamName = "MarketDest"
 
 	// ServiceItemParamNameMarketOrigin captures enum value "MarketOrigin"
 	ServiceItemParamNameMarketOrigin ServiceItemParamName = "MarketOrigin"
+
+	// ServiceItemParamNameMTOAvailableToPrimeAt captures enum value "MTOAvailableToPrimeAt"
+	ServiceItemParamNameMTOAvailableToPrimeAt ServiceItemParamName = "MTOAvailableToPrimeAt"
 
 	// ServiceItemParamNameNumberDaysSIT captures enum value "NumberDaysSIT"
 	ServiceItemParamNameNumberDaysSIT ServiceItemParamName = "NumberDaysSIT"
@@ -170,7 +182,7 @@ var serviceItemParamNameEnum []interface{}
 
 func init() {
 	var res []ServiceItemParamName
-	if err := json.Unmarshal([]byte(`["CanStandAlone","CubicFeetBilled","CubicFeetCrating","DistanceZip3","DistanceZip5","DistanceZip5SITDest","DistanceZip5SITOrigin","EIAFuelPrice","MarketDest","MarketOrigin","NumberDaysSIT","PriceAreaDest","PriceAreaIntlDest","PriceAreaIntlOrigin","PriceAreaOrigin","PSI_LinehaulDom","PSI_LinehaulDomPrice","PSI_LinehaulShort","PSI_LinehaulShortPrice","PSI_PackingDom","PSI_PackingDomPrice","PSI_PackingHHGIntl","PSI_PackingHHGIntlPrice","PSI_PriceDomDest","PSI_PriceDomDestPrice","PSI_PriceDomOrigin","PSI_PriceDomOriginPrice","PSI_ShippingLinehaulIntlCO","PSI_ShippingLinehaulIntlCOPrice","PSI_ShippingLinehaulIntlOC","PSI_ShippingLinehaulIntlOCPrice","PSI_ShippingLinehaulIntlOO","PSI_ShippingLinehaulIntlOOPrice","RateAreaNonStdDest","RateAreaNonStdOrigin","RequestedPickupDate","ServiceAreaDest","ServiceAreaOrigin","ServicesScheduleDest","ServicesScheduleOrigin","SITScheduleDest","SITScheduleOrigin","WeightActual","WeightBilledActual","WeightEstimated","ZipDestAddress","ZipPickupAddress","ZipSITAddress"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["ActualPickupDate","CanStandAlone","ContractCode","CubicFeetBilled","CubicFeetCrating","DistanceZip3","DistanceZip5","DistanceZip5SITDest","DistanceZip5SITOrigin","EIAFuelPrice","FSCWeightBasedDistanceMultiplier","MarketDest","MarketOrigin","MTOAvailableToPrimeAt","NumberDaysSIT","PriceAreaDest","PriceAreaIntlDest","PriceAreaIntlOrigin","PriceAreaOrigin","PSI_LinehaulDom","PSI_LinehaulDomPrice","PSI_LinehaulShort","PSI_LinehaulShortPrice","PSI_PackingDom","PSI_PackingDomPrice","PSI_PackingHHGIntl","PSI_PackingHHGIntlPrice","PSI_PriceDomDest","PSI_PriceDomDestPrice","PSI_PriceDomOrigin","PSI_PriceDomOriginPrice","PSI_ShippingLinehaulIntlCO","PSI_ShippingLinehaulIntlCOPrice","PSI_ShippingLinehaulIntlOC","PSI_ShippingLinehaulIntlOCPrice","PSI_ShippingLinehaulIntlOO","PSI_ShippingLinehaulIntlOOPrice","RateAreaNonStdDest","RateAreaNonStdOrigin","RequestedPickupDate","ServiceAreaDest","ServiceAreaOrigin","ServicesScheduleDest","ServicesScheduleOrigin","SITScheduleDest","SITScheduleOrigin","WeightActual","WeightBilledActual","WeightEstimated","ZipDestAddress","ZipPickupAddress","ZipSITAddress"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -179,7 +191,7 @@ func init() {
 }
 
 func (m ServiceItemParamName) validateServiceItemParamNameEnum(path, location string, value ServiceItemParamName) error {
-	if err := validate.Enum(path, location, value, serviceItemParamNameEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, serviceItemParamNameEnum, true); err != nil {
 		return err
 	}
 	return nil

@@ -1,7 +1,7 @@
 package testdatagen
 
 import (
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -9,8 +9,8 @@ import (
 
 // MakeUser creates a single User.
 func MakeUser(db *pop.Connection, assertions Assertions) models.User {
+
 	user := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "first.last@login.gov.test",
 		Active:        true,
 	}
@@ -18,12 +18,22 @@ func MakeUser(db *pop.Connection, assertions Assertions) models.User {
 	// Overwrite values with those from assertions
 	mergeModels(&user, assertions.User)
 
-	mustCreate(db, &user)
+	mustCreate(db, &user, assertions.Stub)
 
 	return user
 }
 
 // MakeDefaultUser makes a user with default values
 func MakeDefaultUser(db *pop.Connection) models.User {
-	return MakeUser(db, Assertions{})
+	lgu := uuid.Must(uuid.NewV4())
+	return MakeUser(db, Assertions{
+		User: models.User{
+			LoginGovUUID: &lgu,
+		},
+	})
+}
+
+// MakeStubbedUser returns a user without hitting the DB
+func MakeStubbedUser(db *pop.Connection) models.User {
+	return MakeUser(db, Assertions{Stub: true})
 }

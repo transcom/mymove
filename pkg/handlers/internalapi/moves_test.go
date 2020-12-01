@@ -9,9 +9,10 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/go-openapi/swag"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/route/mocks"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
@@ -178,41 +179,87 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 
 }
 
-func (suite *HandlerSuite) TestSubmitPPMMoveForApprovalHandler() {
-	// Given: a set of orders, a move, user and servicemember
-	ppm := testdatagen.MakeDefaultPPM(suite.DB())
-	move := ppm.Move
+func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
+	suite.Run("Submits ppm success", func() {
+		// Given: a set of orders, a move, user and servicemember
+		ppm := testdatagen.MakeDefaultPPM(suite.DB())
+		move := ppm.Move
 
-	// And: the context contains the auth values
-	req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
-	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
-	submitDate := strfmt.DateTime(time.Now())
+		// And: the context contains the auth values
+		req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
+		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+		certType := internalmessages.SignedCertificationTypeCreateSHIPMENT
+		signingDate := strfmt.DateTime(time.Now())
+		ppmID := strfmt.UUID(ppm.ID.String())
+		certificate := internalmessages.CreateSignedCertificationPayload{
+			CertificationText:        swag.String("This is your legal message"),
+			CertificationType:        &certType,
+			PersonallyProcuredMoveID: &ppmID,
+			Date:                     &signingDate,
+			Signature:                swag.String("Jane Doe"),
+		}
+		newSubmitMoveForApprovalPayload := internalmessages.SubmitMoveForApprovalPayload{Certificate: &certificate}
 
-	newSubmitMoveForApprovalPayload := internalmessages.SubmitMoveForApprovalPayload{
-		PpmSubmitDate: &submitDate,
-	}
+		params := moveop.SubmitMoveForApprovalParams{
+			HTTPRequest:                  req,
+			MoveID:                       strfmt.UUID(move.ID.String()),
+			SubmitMoveForApprovalPayload: &newSubmitMoveForApprovalPayload,
+		}
+		// When: a move is submitted
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
+		handler := SubmitMoveHandler{context}
+		response := handler.Handle(params)
 
-	params := moveop.SubmitMoveForApprovalParams{
-		HTTPRequest:                  req,
-		MoveID:                       strfmt.UUID(move.ID.String()),
-		SubmitMoveForApprovalPayload: &newSubmitMoveForApprovalPayload,
-	}
-	// And: a move is submitted
-	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
-	handler := SubmitMoveHandler{context}
-	response := handler.Handle(params)
+		// Then: expect a 200 status code
+		suite.Assertions.IsType(&moveop.SubmitMoveForApprovalOK{}, response)
+		okResponse := response.(*moveop.SubmitMoveForApprovalOK)
 
-	// Then: expect a 200 status code
-	suite.Assertions.IsType(&moveop.SubmitMoveForApprovalOK{}, response)
-	okResponse := response.(*moveop.SubmitMoveForApprovalOK)
+		// And: Returned query to have an submitted status
+		suite.Assertions.Equal(internalmessages.MoveStatusSUBMITTED, okResponse.Payload.Status)
+		// And: Expect move's PPM's advance to have "Requested" status
+		suite.Assertions.Equal(
+			internalmessages.ReimbursementStatusREQUESTED,
+			*okResponse.Payload.PersonallyProcuredMoves[0].Advance.Status)
+		suite.Assertions.NotNil(okResponse.Payload.SubmittedAt)
+	})
+	suite.Run("Submits hhg shipment success", func() {
+		// Given: a set of orders, a move, user and servicemember
+		hhg := testdatagen.MakeDefaultMTOShipment(suite.DB())
+		move := hhg.MoveTaskOrder
 
-	// And: Returned query to have an approved status
-	suite.Assertions.Equal(internalmessages.MoveStatusSUBMITTED, okResponse.Payload.Status)
-	// And: Expect move's PPM's advance to have "Requested" status
-	suite.Assertions.Equal(
-		internalmessages.ReimbursementStatusREQUESTED,
-		*okResponse.Payload.PersonallyProcuredMoves[0].Advance.Status)
+		// And: the context contains the auth values
+		req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
+		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+		certType := internalmessages.SignedCertificationTypeCreateSHIPMENT
+		signingDate := strfmt.DateTime(time.Now())
+		certificate := internalmessages.CreateSignedCertificationPayload{
+			CertificationText: swag.String("This is your legal message"),
+			CertificationType: &certType,
+			Date:              &signingDate,
+			Signature:         swag.String("Jane Doe"),
+		}
+		newSubmitMoveForApprovalPayload := internalmessages.SubmitMoveForApprovalPayload{Certificate: &certificate}
+
+		params := moveop.SubmitMoveForApprovalParams{
+			HTTPRequest:                  req,
+			MoveID:                       strfmt.UUID(move.ID.String()),
+			SubmitMoveForApprovalPayload: &newSubmitMoveForApprovalPayload,
+		}
+		// And: a move is submitted
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		context.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal", suite.TestLogger()))
+		handler := SubmitMoveHandler{context}
+		response := handler.Handle(params)
+
+		// Then: expect a 200 status code
+		suite.Assertions.IsType(&moveop.SubmitMoveForApprovalOK{}, response)
+		okResponse := response.(*moveop.SubmitMoveForApprovalOK)
+
+		// And: Returned query to have a submitted status
+		suite.Assertions.Equal(internalmessages.MoveStatusSUBMITTED, okResponse.Payload.Status)
+	})
+
 }
 
 func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
@@ -286,9 +333,14 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 		MoveID:      moveID,
 		MoveDate:    moveDate,
 	}
+	planner := &mocks.Planner{}
+	planner.On("TransitDistance",
+		mock.Anything,
+		mock.Anything,
+	).Return(1125, nil)
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	context.SetPlanner(route.NewTestingPlanner(1125))
+	context.SetPlanner(planner)
 
 	showHandler := ShowMoveDatesSummaryHandler{context}
 	response := showHandler.Handle(params)
@@ -302,7 +354,6 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryHandler() {
 	suite.Equal(moveDate, *okResponse.Payload.MoveDate)
 
 	pack := []strfmt.Date{
-		strfmt.Date(time.Date(2018, 10, 4, 0, 0, 0, 0, time.UTC)),
 		strfmt.Date(time.Date(2018, 10, 5, 0, 0, 0, 0, time.UTC)),
 		strfmt.Date(time.Date(2018, 10, 9, 0, 0, 0, 0, time.UTC)),
 	}
@@ -353,9 +404,14 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryForbiddenUser() {
 		MoveID:      strfmt.UUID(move.ID.String()),
 		MoveDate:    moveDate,
 	}
+	planner := &mocks.Planner{}
+	planner.On("TransitDistance",
+		mock.Anything,
+		mock.Anything,
+	).Return(1125, nil)
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	context.SetPlanner(route.NewTestingPlanner(1125))
+	context.SetPlanner(planner)
 
 	showHandler := ShowMoveDatesSummaryHandler{context}
 	response := showHandler.Handle(params)
@@ -460,7 +516,11 @@ func (suite *HandlerSuite) TestShowShipmentSummaryWorksheet() {
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	planner := route.NewTestingPlanner(1044)
+	planner := &mocks.Planner{}
+	planner.On("Zip5TransitDistanceLineHaul",
+		mock.Anything,
+		mock.Anything,
+	).Return(1044, nil)
 	context.SetPlanner(planner)
 
 	handler := ShowShipmentSummaryWorksheetHandler{context}

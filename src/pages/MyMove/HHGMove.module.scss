@@ -1,0 +1,19 @@
+@import '../../shared/styles/basics';
+@import '../../shared/styles/mixins';
+@import '../../shared/styles/colors';
+
+.HHGMovePage {
+  h3 {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 64rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  :global {
+    .usa-button--outline {
+      color: white;
+    }
+  }
+}

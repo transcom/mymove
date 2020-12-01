@@ -11,8 +11,8 @@ import { convertDollarsToCents } from 'shared/utils';
 import { withLastLocation } from 'react-router-last-location';
 import RadioButton from 'shared/RadioButton';
 import { Link } from 'react-router-dom';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faQuestionCircle from '@fortawesome/fontawesome-free-solid/faQuestionCircle';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons/faQuestionCircle';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import Uploader from 'shared/Uploader';
 import Checkbox from 'shared/Checkbox';
@@ -253,7 +253,7 @@ class ExpensesUpload extends Component {
                   normalizeLabel
                 />
                 {isStorageExpense && missingReceipt && (
-                  <span data-cy="storage-warning">
+                  <span data-testid="storage-warning">
                     <Alert type="warning">
                       If you can, go online and print a new copy of your receipt, then upload it. <br />
                       Otherwise, write and sign a statement that explains why this receipt is missing, then upload it.

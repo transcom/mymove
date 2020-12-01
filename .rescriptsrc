@@ -1,3 +1,7 @@
 module.exports = [
+  // ['use-babel-config', '.babelrc'], // TODO add babel lodash plugin
   ['use-eslint-config', '.eslintrc'],
-]
+  require.resolve('./terser-rescript.js'),
+  require.resolve('./case-sensitive-paths-rescripts.js'),
+  // require.resolve('./lodash-webpack-rescript.js') // TODO add this in once we've reduced lodash usage
+];

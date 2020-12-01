@@ -1,18 +1,21 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-
 import Loadable from 'react-loadable';
+import { ConnectedRouter } from 'connected-react-router';
+import { PersistGate } from 'redux-persist/integration/react';
+import { ReactQueryConfigProvider } from 'react-query';
+import { ReactQueryDevtools } from 'react-query-devtools';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import { isOfficeSite, isAdminSite, isSystemAdminSite } from 'shared/constants.js';
-import { store } from 'shared/store';
+import { isOfficeSite, isAdminSite, isSystemAdminSite } from 'shared/constants';
+import { store, persistor, history } from 'shared/store';
 import { AppContext, defaultOfficeContext, defaultMyMoveContext, defaultAdminContext } from 'shared/AppContext';
-import { detectFlags } from 'shared/featureFlags.js';
+import { detectFlags } from 'shared/featureFlags';
 
 import './index.css';
 
 const Office = Loadable({
-  loader: () => import('scenes/Office'),
+  loader: () => import('pages/Office'),
   loading: () => <LoadingPlaceholder />,
 });
 
@@ -32,28 +35,49 @@ const SystemAdmin = Loadable({
   loading: () => <LoadingPlaceholder />,
 });
 
-const flags = detectFlags(process.env['NODE_ENV'], window.location.host, window.location.search);
+const flags = detectFlags(process.env.NODE_ENV, window.location.host, window.location.search);
 
-const officeContext = Object.assign({}, defaultOfficeContext, { flags });
-const myMoveContext = Object.assign({}, defaultMyMoveContext, { flags });
-const adminContext = Object.assign({}, defaultAdminContext, { flags });
+const officeContext = { ...defaultOfficeContext, flags };
+const myMoveContext = { ...defaultMyMoveContext, flags };
+const adminContext = { ...defaultAdminContext, flags };
+
+const officeQueryConfig = {
+  queries: {
+    retry: false, // default to no retries for now
+    refetchOnWindowFocus: true,
+    // onError: noop, // TODO - log errors?
+  },
+  mutations: {
+    // onError: noop, // TODO - log errors?
+  },
+};
 
 const App = () => {
   if (isOfficeSite)
     return (
-      <Provider store={store}>
-        <AppContext.Provider value={officeContext}>
-          <Office />
-        </AppContext.Provider>
-      </Provider>
+      <ReactQueryConfigProvider config={officeQueryConfig}>
+        <Provider store={store}>
+          <PersistGate loading={<LoadingPlaceholder />} persistor={persistor}>
+            <AppContext.Provider value={officeContext}>
+              <ConnectedRouter history={history}>
+                <Office />
+                <ReactQueryDevtools initialIsOpen={false} />
+              </ConnectedRouter>
+            </AppContext.Provider>
+          </PersistGate>
+        </Provider>
+      </ReactQueryConfigProvider>
     );
-  else if (isSystemAdminSite)
+
+  if (isSystemAdminSite)
     return (
       <AppContext.Provider value={adminContext}>
         <SystemAdmin />
       </AppContext.Provider>
     );
-  else if (isAdminSite) return <SystemAdmin />;
+
+  if (isAdminSite) return <SystemAdmin />;
+
   return (
     <Provider store={store}>
       <AppContext.Provider value={myMoveContext}>

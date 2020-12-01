@@ -4,26 +4,26 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/transcom/mymove/pkg/services/invoice"
+	internalmovetaskorder "github.com/transcom/mymove/pkg/services/support/move_task_order"
+
 	"github.com/go-openapi/loads"
 
 	"github.com/transcom/mymove/pkg/services/fetch"
-	"github.com/transcom/mymove/pkg/services/office_user/customer"
 	"github.com/transcom/mymove/pkg/services/query"
 
+	"github.com/transcom/mymove/pkg/gen/supportapi"
 	supportops "github.com/transcom/mymove/pkg/gen/supportapi/supportoperations"
+	"github.com/transcom/mymove/pkg/handlers"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
-
-	"github.com/transcom/mymove/pkg/gen/supportapi"
-	"github.com/transcom/mymove/pkg/handlers"
 )
 
 // NewSupportAPIHandler returns a handler for the Prime API
 func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 	queryBuilder := query.NewQueryBuilder(context.DB())
-
 	supportSpec, err := loads.Analyzed(supportapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)
@@ -31,9 +31,16 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	supportAPI := supportops.NewMymoveAPI(supportSpec)
 
-	supportAPI.MoveTaskOrderUpdateMoveTaskOrderStatusHandler = UpdateMoveTaskOrderStatusHandlerFunc{
+	supportAPI.ServeError = handlers.ServeCustomError
+
+	supportAPI.MoveTaskOrderListMTOsHandler = ListMTOsHandler{
 		context,
-		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder),
+		movetaskorder.NewMoveTaskOrderFetcher(context.DB()),
+	}
+
+	supportAPI.MoveTaskOrderMakeMoveTaskOrderAvailableHandler = MakeMoveTaskOrderAvailableHandlerFunc{
+		context,
+		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)),
 	}
 
 	supportAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandlerFunc{
@@ -42,13 +49,17 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	supportAPI.MoveTaskOrderCreateMoveTaskOrderHandler = CreateMoveTaskOrderHandler{
 		context,
-		customer.NewCustomerFetcher(context.DB()),
+		internalmovetaskorder.NewInternalMoveTaskOrderCreator(context.DB()),
 	}
 
-	supportAPI.PaymentRequestsUpdatePaymentRequestStatusHandler = UpdatePaymentRequestStatusHandler{
+	supportAPI.PaymentRequestUpdatePaymentRequestStatusHandler = UpdatePaymentRequestStatusHandler{
 		HandlerContext:              context,
 		PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
-		PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(queryBuilder),
+		PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(context.DB()),
+	}
+
+	supportAPI.PaymentRequestListMTOPaymentRequestsHandler = ListMTOPaymentRequestsHandler{
+		context,
 	}
 
 	supportAPI.MtoShipmentUpdateMTOShipmentStatusHandler = UpdateMTOShipmentStatusHandlerFunc{
@@ -59,5 +70,28 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 	}
 
 	supportAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{context, mtoserviceitem.NewMTOServiceItemUpdater(queryBuilder)}
+	supportAPI.WebhookPostWebhookNotifyHandler = PostWebhookNotifyHandler{context}
+
+	supportAPI.PaymentRequestGetPaymentRequestEDIHandler = GetPaymentRequestEDIHandler{
+		HandlerContext:                    context,
+		PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(context.DB()),
+		GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(context.DB()),
+	}
+
+	supportAPI.PaymentRequestProcessReviewedPaymentRequestsHandler = ProcessReviewedPaymentRequestsHandler{
+		HandlerContext:                context,
+		PaymentRequestFetcher:         paymentrequest.NewPaymentRequestFetcher(context.DB()),
+		PaymentRequestStatusUpdater:   paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
+		PaymentRequestReviewedFetcher: paymentrequest.NewPaymentRequestReviewedFetcher(context.DB()),
+		// Unable to get logger to pass in for the instantiation of
+		// paymentrequest.InitNewPaymentRequestReviewedProcessor(h.DB(), logger, true),
+		// This limitation has come up a few times
+		// - https://dp3.atlassian.net/browse/MB-2352 (story to address issue)
+		// - https://ustcdp3.slack.com/archives/CP6F568DC/p1592508325118600
+		// - https://github.com/transcom/mymove/blob/c42adf61735be8ee8e5e83f41a656206f1e59b9d/pkg/handlers/primeapi/api.go
+		// As a temporary workaround paymentrequest.InitNewPaymentRequestReviewedProcessor
+		// is called directly in the handler
+	}
+
 	return supportAPI.Serve(nil)
 }

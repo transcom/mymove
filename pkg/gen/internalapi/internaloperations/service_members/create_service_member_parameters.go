@@ -13,7 +13,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 
-	internalmessages "github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // NewCreateServiceMemberParams creates a new CreateServiceMemberParams object
@@ -53,7 +53,7 @@ func (o *CreateServiceMemberParams) BindRequest(r *http.Request, route *middlewa
 		var body internalmessages.CreateServiceMemberPayload
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
-				res = append(res, errors.Required("createServiceMemberPayload", "body"))
+				res = append(res, errors.Required("createServiceMemberPayload", "body", ""))
 			} else {
 				res = append(res, errors.NewParseError("createServiceMemberPayload", "body", "", err))
 			}
@@ -68,7 +68,7 @@ func (o *CreateServiceMemberParams) BindRequest(r *http.Request, route *middlewa
 			}
 		}
 	} else {
-		res = append(res, errors.Required("createServiceMemberPayload", "body"))
+		res = append(res, errors.Required("createServiceMemberPayload", "body", ""))
 	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)

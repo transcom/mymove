@@ -2,7 +2,7 @@ package testdatagen
 
 import (
 	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -26,7 +26,7 @@ func MakeBackupContact(db *pop.Connection, assertions Assertions) models.BackupC
 
 	mergeModels(&backupContact, assertions.BackupContact)
 
-	mustCreate(db, &backupContact)
+	mustCreate(db, &backupContact, assertions.Stub)
 
 	return backupContact
 }
@@ -34,11 +34,4 @@ func MakeBackupContact(db *pop.Connection, assertions Assertions) models.BackupC
 // MakeDefaultBackupContact returns a BackupContact with default values
 func MakeDefaultBackupContact(db *pop.Connection) models.BackupContact {
 	return MakeBackupContact(db, Assertions{})
-}
-
-// MakeBackupContactData created 5 BackupContacts (and in turn a User for each)
-func MakeBackupContactData(db *pop.Connection) {
-	for i := 0; i < 5; i++ {
-		MakeDefaultBackupContact(db)
-	}
 }

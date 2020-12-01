@@ -19,6 +19,13 @@ export const titleCase = (str) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
+export const MOVE_STATUSES = {
+  DRAFT: 'DRAFT',
+  SUBMITTED: 'SUBMITTED',
+  APPROVED: 'APPROVED',
+  CANCELED: 'CANCELED',
+};
+
 export const MOVE_DOC_TYPE = {
   WEIGHT_TICKET_SET: 'WEIGHT_TICKET_SET',
   EXPENSE: 'EXPENSE',
@@ -45,9 +52,67 @@ export const UPLOAD_SCAN_STATUS = {
   PROCESSING: 'PROCESSING',
 };
 
-export const SHIPMENT_TYPE = {
+export const CONUS_STATUS = {
+  CONUS: 'CONUS',
+  OCONUS: 'OCONUS',
+};
+
+export const SHIPMENT_OPTIONS = {
   HHG: 'HHG',
-  NTS: 'NTS',
+  PPM: 'PPM',
+  HHG_SHORTHAUL_DOMESTIC: 'HHG_SHORTHAUL_DOMESTIC',
+  HHG_LONGHAUL_DOMESTIC: 'HHG_LONGHAUL_DOMESTIC',
+  NTS: 'HHG_INTO_NTS_DOMESTIC',
+  NTSR: 'HHG_OUTOF_NTS_DOMESTIC',
+};
+
+export const SIGNED_CERT_OPTIONS = {
+  SHIPMENT: 'SHIPMENT',
+  PPM_PAYMENT: 'PPM_PAYMENT',
+};
+
+export const shipmentOptionLabels = [
+  { key: SHIPMENT_OPTIONS.NTSR, label: 'NTS-R' },
+  { key: SHIPMENT_OPTIONS.NTS, label: 'NTS' },
+  { key: SHIPMENT_OPTIONS.HHG, label: 'HHG' },
+  { key: SHIPMENT_OPTIONS.PPM, label: 'PPM' },
+  { key: SHIPMENT_OPTIONS.HHG_SHORTHAUL_DOMESTIC, label: 'HHG_SHORTHAUL_DOMESTIC' },
+];
+
+export const SERVICE_ITEM_STATUS = {
+  SUBMITTED: 'SUBMITTED',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+};
+
+export const PAYMENT_REQUEST_STATUS = {
+  PENDING: 'PENDING',
+  REVIEWED: 'REVIEWED',
+  SENT_TO_GEX: 'SENT_TO_GEX',
+  RECEIVED_BY_GEX: 'RECEIVED_BY_GEX',
+  PAID: 'PAID',
+};
+
+export const PAYMENT_SERVICE_ITEM_STATUS = {
+  DENIED: 'DENIED',
+  REQUESTED: 'REQUESTED',
+  APPROVED: 'APPROVED',
+};
+
+export const SERVICE_ITEM_CODES = {
+  CS: 'Counseling Services',
+  MS: 'Shipment Mgmt. Services',
+  DLH: 'Dom. Linehaul',
+  FSC: 'Fuel Surcharge',
+  DOP: 'Dom. Origin Price',
+  DDP: 'Dom. Destination Price',
+  DPK: 'Dom. Packing',
+  DUPK: 'Dom. Unpacking',
+};
+
+export const MTOAgentType = {
+  RELEASING: 'RELEASING_AGENT',
+  RECEIVING: 'RECEIVING_AGENT',
 };
 
 // These constants are used to track network requests using component state

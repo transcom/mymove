@@ -15,12 +15,17 @@ info:
 basePath: /prime/v1
 schemes:
   - http
+tags:
+  - name: moveTaskOrder
+  - name: mtoShipment
+  - name: paymentRequest
+  - name: mtoServiceItem
 paths:
   /move-task-orders:
     get:
       summary: fetchMTOUpdates
       description: >
-        Gets all move task orders where `isAvailableToPrime` is TRUE.
+        Gets all move task orders where `availableToPrimeAt` has been set.
         This prevents viewing any move task orders that have not been made available to the Prime.
       operationId: fetchMTOUpdates
       tags:
@@ -35,7 +40,7 @@ paths:
           description: Only return move task orders updated since this time.
       responses:
         '200':
-          description: Successfully retrieved move task orders where `isAvailableToPrime` is TRUE.
+          description: Successfully retrieved move task orders where `availableToPrimeAt` has been set.
           schema:
             $ref: '#/definitions/MoveTaskOrders'
         '400':
@@ -57,7 +62,12 @@ paths:
         type: string
     patch:
       summary: updateMTOPostCounselingInformation
-      description: Updates move task order after the counseling stage. Allows update of fields ppmType and ppmEstimatedWeight.
+      description: |
+        ### Functionality
+        This endpoint **updates** the MoveTaskOrder after the Prime has completed Counseling.
+
+        PPM related information is updated here. Most other fields will be found on the specific MTOShipment and updated using [updateMTOShipment](#operation/updateMTOShipment).
+
       operationId: updateMTOPostCounselingInformation
       consumes:
         - application/json
@@ -85,8 +95,8 @@ paths:
                 description: The estimated weight determined post counseling.
                 type: integer
               pointOfContact:
-                description: Email or id of a contact person for this update.
                 type: string
+                description: Email or id of a contact person for this update.
         - in: header
           name: If-Match
           type: string
@@ -138,7 +148,7 @@ paths:
         - in: body
           name: body
           schema:
-            $ref: '#/definitions/CreateShipmentPayload'
+            $ref: '#/definitions/CreateMTOShipment'
       responses:
         '200':
           description: Successfully created a MTO shipment.
@@ -216,13 +226,160 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  '/mto-shipments/{mtoShipmentID}/addresses/{addressID}':
+    put:
+      summary: updateMTOShipmentAddress
+      description: |
+        ### Functionality
+        This endpoint is used to **update** the addresses on an MTO Shipment. The address details completely replace the original, except for the UUID.
+        Therefore a complete address should be sent in the request.
+
+        This endpoint **cannot create** an address.
+        To create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.
+
+        ### Errors
+        The address must be associated with the mtoShipment passed in the url.
+        In other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress on the mtoShipment provided.
+        If it is not, caller will receive a **Conflict** Error.
+
+        The mtoShipment should be associated with an MTO that is available to prime.
+        If the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.
+
+      operationId: updateMTOShipmentAddress
+      tags:
+        - mtoShipment
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: mtoShipmentID
+          description: UUID of the shipment associated with the address
+          required: true
+          format: uuid
+          type: string
+        - in: path
+          name: addressID
+          description: UUID of the address being updated
+          required: true
+          format: uuid
+          type: string
+        - in: body
+          required: true
+          name: body
+          schema:
+            $ref: '#/definitions/Address'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+      responses:
+        '200':
+          description: Successfully updated the address.
+          schema:
+            $ref: '#/definitions/Address'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  '/mto-shipments/{mtoShipmentID}/agents/{agentID}':
+    put:
+      summary: updateMTOAgent
+      description: |
+        ### Functionality
+        This endpoint is used to **update** the agents for an MTO Shipment. Only the fields being modified need to be sent in the request body.
+
+        ### Errors:
+        The agent must always have a name and at least one method of contact (either `email` or `phone`).
+
+        The agent must be associated with the MTO shipment passed in the url.
+
+        The shipment should be associated with an MTO that is available to the Prime.
+        If the caller requests an update to an agent, and the shipment is not on an available MTO, the caller will receive a **NotFound** response.
+
+      operationId: updateMTOAgent
+      tags:
+        - mtoShipment
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: mtoShipmentID
+          description: UUID of the shipment associated with the agent
+          required: true
+          format: uuid
+          type: string
+        - in: path
+          name: agentID
+          description: UUID of the agent being updated
+          required: true
+          format: uuid
+          type: string
+        - in: body
+          required: true
+          name: body
+          schema:
+            $ref: '#/definitions/MTOAgent'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+      responses:
+        '200':
+          description: Successfully updated the agent.
+          schema:
+            $ref: '#/definitions/MTOAgent'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   '/mto-service-items':
     post:
       summary: createMTOServiceItem
-      description: >
-        Creates a new instance of mtoServiceItem, which come from the list of services that can be provided.
+      description: |
+        Creates one or more MTOServiceItems. Not all service items may be created, please see details below.
+
+        This endpoint supports different body definitions. In the modelType field below, select the modelType corresponding
+         to the service item you wish to create and the documentation will update with the new definition.
+
         Upon creation these items are associated with a Move Task Order and an MTO Shipment.
-        Must include UUIDs for the MTO and MTO Shipment connected to this service item.
+        The request must include UUIDs for the MTO and MTO Shipment connected to this service item. Some service item types require
+        additional service items to be autogenerated when added - all created service items, autogenerated included,
+        will be returned in the response.
+
+        To update a service item, please use [updateMTOServiceItem](#operation/updateMTOServiceItem) endpoint.
+
       operationId: createMTOServiceItem
       tags:
         - mtoServiceItem
@@ -234,13 +391,14 @@ paths:
         - in: body
           name: body
           schema:
-            description: This may be a MTOServiceItemBasic, MTOServiceItemDOFSIT or etc.
             $ref: '#/definitions/MTOServiceItem'
       responses:
         '200':
           description: Successfully created an MTO service item.
           schema:
-            $ref: '#/definitions/MTOServiceItem'
+            type: array
+            items:
+              $ref: '#/definitions/MTOServiceItem'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -249,10 +407,73 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  '/mto-service-items/{mtoServiceItemID}':
+    post:
+      summary: updateMTOServiceItem
+      description: |
+        Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.
+
+        This endpoint supports different body definitions. In the modelType field below, select the modelType corresponding
+         to the service item you wish to update and the documentation will update with the new definition.
+
+        To create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.
+
+        ### Errors
+
+        Currently this is not implemented and will generated the NotImplemented error.
+      operationId: updateMTOServiceItem
+      tags:
+        - mtoServiceItem
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema: # we use an update specific definition for the request
+            $ref: '#/definitions/UpdateMTOServiceItem'
+        - in: path
+          name: mtoServiceItemID
+          type: string
+          description: UUID of service item to update.
+          required: true
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: >
+            Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match
+            the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
+      responses:
+        '200':
+          description: Successfully updated the MTO service item.
+          schema:
+            type: array
+            items: # we return the same definition as the create function for the response
+              $ref: '#/definitions/MTOServiceItem'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+        '501':
+          $ref: '#/responses/NotImplemented'
   /payment-requests:
     post:
       summary: createPaymentRequest
@@ -263,7 +484,7 @@ paths:
         a final payment request can be marked using boolean `isFinal`.
       operationId: createPaymentRequest
       tags:
-        - paymentRequests
+        - paymentRequest
       consumes:
         - application/json
       produces:
@@ -272,7 +493,7 @@ paths:
         - in: body
           name: body
           schema:
-            $ref: '#/definitions/CreatePaymentRequestPayload'
+            $ref: '#/definitions/CreatePaymentRequest'
       responses:
         '201':
           description: Successfully created a paymentRequest object.
@@ -290,6 +511,8 @@ paths:
           description: The requested resource wasn't found.
           schema:
             $ref: '#/definitions/ClientError'
+        '409':
+          $ref: '#/responses/Conflict'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
@@ -297,10 +520,17 @@ paths:
   /payment-requests/{paymentRequestID}/uploads:
     post:
       summary: createUpload
-      description: Uploads represent a single digital file, such as a JPEG, PNG, or PDF.
+      description: |
+        ### Functionality
+        This endpoint **uploads** a Proof of Service document for a PaymentRequest.
+
+        The PaymentRequest should already exist.
+
+        PaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.
+
       operationId: createUpload
       tags:
-        - uploads
+        - paymentRequest
       consumes:
         - multipart/form-data
       produces:
@@ -329,6 +559,8 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
 definitions:
@@ -478,6 +710,7 @@ definitions:
         default: USA
       eTag:
         type: string
+        readOnly: true
     required:
       - streetAddress1
       - city
@@ -497,27 +730,7 @@ definitions:
       - title
       - detail
       - instance
-  CreatePaymentRequestPayload:
-    type: object
-    properties:
-      isFinal:
-        default: false
-        type: boolean
-      moveTaskOrderID:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-      serviceItems:
-        items:
-          $ref: '#/definitions/ServiceItem'
-        type: array
-      pointOfContact:
-        type: string
-        description: Email or id of a contact person for this update.
-    required:
-      - moveTaskOrderID
-      - serviceItems
-  CreateShipmentPayload:
+  CreateMTOShipment:
     type: object
     properties:
       moveTaskOrderID:
@@ -529,6 +742,7 @@ definitions:
       requestedPickupDate:
         format: date
         type: string
+        description: The date the customer requested that this shipment be picked up.
       customerRemarks:
         type: string
         example: handle with care
@@ -548,6 +762,31 @@ definitions:
           $ref: '#/definitions/MTOServiceItem'
     required:
       - moveTaskOrderID
+      - pickupAddress
+      - destinationAddress
+      - shipmentType
+      - requestedPickupDate
+  CreatePaymentRequest:
+    type: object
+    properties:
+      isFinal:
+        default: false
+        type: boolean
+      moveTaskOrderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      serviceItems:
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/definitions/ServiceItem'
+      pointOfContact:
+        type: string
+        description: Email or id of a contact person for this update.
+    required:
+      - moveTaskOrderID
+      - serviceItems
   Customer:
     type: object
     properties:
@@ -562,8 +801,6 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       currentAddress:
-        $ref: '#/definitions/Address'
-      destinationAddress:
         $ref: '#/definitions/Address'
       firstName:
         type: string
@@ -584,6 +821,13 @@ definitions:
         example: fake@example.com
       eTag:
         type: string
+        readOnly: true
+  DimensionType:
+    description: Describes a dimension type for a MTOServiceItemDimension.
+    type: string
+    enum:
+      - ITEM
+      - CRATE
   DutyStation:
     type: object
     properties:
@@ -594,7 +838,7 @@ definitions:
       name:
         type: string
         example: Fort Bragg North Station
-      addressId:
+      addressID:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -602,6 +846,7 @@ definitions:
         $ref: '#/definitions/Address'
       eTag:
         type: string
+        readOnly: true
   Entitlements:
     properties:
       id:
@@ -645,13 +890,20 @@ definitions:
         type: integer
       eTag:
         type: string
+        readOnly: true
     type: object
   Error:
     properties:
-      message:
+      title:
         type: string
+      detail:
+        type: string
+      instance:
+        type: string
+        format: uuid
     required:
-      - message
+      - title
+      - detail
     type: object
   MoveOrder:
     required:
@@ -691,6 +943,7 @@ definitions:
         type: string
       eTag:
         type: string
+        readOnly: true
     type: object
   MoveTaskOrder:
     type: object
@@ -704,8 +957,9 @@ definitions:
         format: uuid
         type: string
       createdAt:
-        format: date
+        format: date-time
         type: string
+        readOnly: true
       moveOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -715,15 +969,18 @@ definitions:
       referenceId:
         example: 1001-3456
         type: string
-      isAvailableToPrime:
-        type: boolean
+      availableToPrimeAt:
+        format: date-time
+        type: string
         x-nullable: true
+        readOnly: true
       isCanceled:
         type: boolean
         x-nullable: true
       updatedAt:
-        format: date
+        format: date-time
         type: string
+        readOnly: true
       paymentRequests:
         $ref: '#/definitions/PaymentRequests'
       mtoServiceItems:
@@ -741,13 +998,10 @@ definitions:
         type: integer
       eTag:
         type: string
+        readOnly: true
   MoveTaskOrders:
     items:
       $ref: '#/definitions/MoveTaskOrder'
-    type: array
-  MTOAgents:
-    items:
-      $ref: '#/definitions/MTOAgent'
     type: array
   MTOAgent:
     properties:
@@ -762,11 +1016,11 @@ definitions:
         type: string
         readOnly: true
       createdAt:
-        format: date
+        format: date-time
         type: string
         readOnly: true
       updatedAt:
-        format: date
+        format: date-time
         type: string
         readOnly: true
       firstName:
@@ -778,16 +1032,273 @@ definitions:
       email:
         type: string
         format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        pattern: '^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})?$'
         x-nullable: true
       phone:
         type: string
         format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        pattern: '^([2-9]\d{2}-\d{3}-\d{4})?$'
         x-nullable: true
       agentType:
         $ref: '#/definitions/MTOAgentType'
+      eTag:
+        type: string
+        readOnly: true
     type: object
+  MTOAgents:
+    items:
+      $ref: '#/definitions/MTOAgent'
+    type: array
+    maxItems: 2
+  MTOAgentType:
+    type: string
+    title: MTO Agent Type
+    example: RELEASING_AGENT
+    enum:
+      - RELEASING_AGENT
+      - RECEIVING_AGENT
+  MTOServiceItem:
+    description: MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.
+    type: object
+    discriminator: modelType
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        description: ID of the service item
+      moveTaskOrderID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        description: ID of the associated moveTaskOrder
+      mtoShipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        description: ID of the associated mtoShipment
+      reServiceName:
+        type: string
+        readOnly: true
+        description: Full descriptive name of the service
+      status:
+        $ref: '#/definitions/MTOServiceItemStatus'
+      rejectionReason:
+        example: item was too heavy
+        type: string
+        x-nullable: true
+        readOnly: true
+        description: Reason the service item was rejected by the TOO
+      modelType: # Base type and sub-types of MTOServiceItem
+        $ref: '#/definitions/MTOServiceItemModelType'
+      eTag:
+        type: string
+        readOnly: true
+        description: ETag identifier required to update this object
+    required:
+      - modelType
+      - moveTaskOrderID
+  MTOServiceItemBasic: # spectral oas2-unused-definition is OK here due to polymorphism
+    description: Describes a basic service item subtype of a MTOServiceItem.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            $ref: '#/definitions/ReServiceCode'
+        required:
+          - reServiceCode
+  MTOServiceItemDDFSIT: # spectral oas2-unused-definition is OK here due to polymorphism
+    description: Describes a domestic destination 1st day SIT service item subtype of a MTOServiceItem.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: Service code allowed for this model type.
+            enum:
+              - DDFSIT # Domestic Destination First Day SIT
+              - DDASIT # Domestic Destination Additional SIT
+          timeMilitary1:
+            type: string
+            example: 1400Z
+            description: Time of delivery corresponding to `firstAvailableDeliveryDate1`, in military format.
+            pattern: '\d{4}Z'
+          firstAvailableDeliveryDate1:
+            format: date
+            type: string
+            description: First available date that Prime can deliver SIT service item.
+          timeMilitary2:
+            type: string
+            example: 1400Z
+            description: Time of delivery corresponding to `firstAvailableDeliveryDate2`, in military format.
+            pattern: '\d{4}Z'
+          firstAvailableDeliveryDate2:
+            format: date
+            type: string
+            description: Second available date that Prime can deliver SIT service item.
+          sitEntryDate:
+            format: date
+            type: string
+            description: Entry date for the SIT
+          sitDepartureDate:
+            format: date
+            type: string
+            description: Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
+        required:
+          - reServiceCode
+          - timeMilitary1
+          - firstAvailableDeliveryDate1
+          - timeMilitary2
+          - firstAvailableDeliveryDate2
+          - sitEntryDate
+  MTOServiceItemDimension:
+    description: Describes a dimension object for the MTOServiceItem.
+    type: object
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      type:
+        $ref: '#/definitions/DimensionType'
+      length:
+        description: Length in thousandth inches. 1000 thou = 1 inch.
+        example: 1000
+        type: integer
+        format: int32
+      width:
+        description: Width in thousandth inches. 1000 thou = 1 inch.
+        example: 1000
+        type: integer
+        format: int32
+      height:
+        description: Height in thousandth inches. 1000 thou = 1 inch.
+        example: 1000
+        type: integer
+        format: int32
+    required:
+      - length
+      - width
+      - height
+  MTOServiceItemDOFSIT: # spectral oas2-unused-definition is OK here due to polymorphism
+    description: Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: Service code allowed for this model type.
+            enum:
+              - DOFSIT # Domestic Origin First Day SIT
+              - DOASIT # Domestic Origin Additional SIT
+          reason:
+            type: string
+            example: Storage items need to be picked up
+            description: Explanation of why Prime is picking up SIT item.
+          pickupPostalCode:
+            type: string
+            format: zip
+            example: "90210"
+            pattern: '^(\d{5}([\-]\d{4})?)$'
+          sitPostalCode:
+            type: string
+            format: zip
+            example: "90210"
+            pattern: '^(\d{5}([\-]\d{4})?)$'
+          sitEntryDate:
+            format: date
+            type: string
+            description: Entry date for the SIT
+          sitDepartureDate:
+            format: date
+            type: string
+            description: Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
+        required:
+          - reServiceCode
+          - reason
+          - sitPostalCode
+          - pickupPostalCode
+          - sitEntryDate
+  MTOServiceItemDomesticCrating: # spectral oas2-unused-definition is OK here due to polymorphism
+    description: Describes a domestic crating/uncrating service item subtype of a MTOServiceItem.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: Service codes allowed for this model type.
+            enum:
+              - DCRT # Domestic Crating
+              - DCRTSA # Domestic Crating - Standalone
+              - DUCRT # Domestic Uncrating
+          item:
+            $ref: '#/definitions/MTOServiceItemDimension'
+          crate:
+            $ref: '#/definitions/MTOServiceItemDimension'
+          description:
+            type: string
+            example: Decorated horse head to be crated.
+        required:
+          - reServiceCode
+          - item
+          - crate
+          - description
+  MTOServiceItemModelType:
+    description: |
+      Describes all model sub-types for a MTOServiceItem model.
+
+      Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.
+        * DOFSIT - MTOServiceItemDOFSIT
+        * DDFSIT - MTOServiceItemDDFSIT
+        * DOSHUT, DDSHUT - MTOServiceItemShuttle
+        * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating
+
+      The documentation will then update with the supported fields.
+
+    type: string
+    enum:
+      - MTOServiceItemBasic
+      - MTOServiceItemDOFSIT
+      - MTOServiceItemDDFSIT
+      - MTOServiceItemShuttle
+      - MTOServiceItemDomesticCrating
+      - MTOServiceItemSITDeparture
+  MTOServiceItemShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
+    description: Describes a shuttle service item.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: Service codes allowed for this model type.
+            enum:
+              - DOSHUT # Domestic Origin Shuttle Service
+              - DDSHUT # Domestic Destination Shuttle Service
+          reason:
+            type: string
+            example: Storage items need to be picked up.
+            description: Explanation of why a shuttle service is required.
+          description:
+            type: string
+            example: Things to be moved to the place by shuttle.
+            description: Further details about the shuttle service.
+        required:
+          - reason
+          - reServiceCode
+          - description
+  MTOServiceItemStatus:
+    description: Describes all statuses for a MTOServiceItem.
+    type: string
+    readOnly: true
+    enum:
+      - SUBMITTED
+      - APPROVED
+      - REJECTED
   MTOShipment:
     properties:
       moveTaskOrderID:
@@ -801,11 +1312,11 @@ definitions:
         type: string
         readOnly: true
       createdAt:
-        format: datetime
+        format: date-time
         type: string
         readOnly: true
       updatedAt:
-        format: datetime
+        format: date-time
         type: string
         readOnly: true
       approvedDate:
@@ -842,6 +1353,10 @@ definitions:
         readOnly: true
       agents:
         $ref: '#/definitions/MTOAgents'
+      mtoServiceItems:
+        items:
+          $ref: '#/definitions/MTOServiceItem'
+        type: array
       customerRemarks:
         type: string
         readOnly: true
@@ -891,215 +1406,6 @@ definitions:
       HHG: HHG
       INTERNATIONAL_HHG: International HHG
       INTERNATIONAL_UB: International UB
-  DimensionType:
-    description: Describes a dimension type for a MTOServiceItemDimension.
-    type: string
-    enum:
-      - ITEM
-      - CRATE
-  CustomerContactType:
-    description: Describes a customer contact type for a MTOServiceItemDomesticDestSIT.
-    type: string
-    enum:
-      - FIRST
-      - SECOND
-  MTOServiceItemDimension:
-    description: Describes a dimension object for the MTOServiceItem.
-    type: object
-    properties:
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      type:
-        $ref: '#/definitions/DimensionType'
-      length:
-        description: Length in thousandth inches. 1000 thou = 1 inch.
-        example: 1000
-        type: integer
-        format: int32
-      width:
-        description: Width in thousandth inches. 1000 thou = 1 inch.
-        example: 1000
-        type: integer
-        format: int32
-      height:
-        description: Height in thousandth inches. 1000 thou = 1 inch.
-        example: 1000
-        type: integer
-        format: int32
-    required:
-      - length
-      - width
-      - height
-  MTOServiceItemStatus:
-    description: Describes all statuses for a MTOServiceItem.
-    type: string
-    enum:
-      - SUBMITTED
-      - APPROVED
-      - REJECTED
-  MTOServiceItemModelType:
-    description: Describes all model sub-types for a MTOServiceItem model.
-    type: string
-    enum:
-      - MTOServiceItemBasic
-      - MTOServiceItemDOFSIT
-      - MTOServiceItemDDFSIT
-      - MTOServiceItemShuttle
-      - MTOServiceItemDomesticCrating
-  MTOAgentType:
-    type: string
-    title: MTO Agent Type
-    example: RELEASING_AGENT
-    enum:
-      - RELEASING_AGENT
-      - RECEIVING_AGENT
-  MTOServiceItem:
-    description: MTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.
-    type: object
-    discriminator: modelType
-    properties:
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      moveTaskOrderID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      mtoShipmentID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      reServiceID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      reServiceName:
-        type: string
-      status:
-        $ref: '#/definitions/MTOServiceItemStatus'
-      rejectionReason:
-        example: item was too heavy
-        type: string
-        x-nullable: true
-      modelType: # Base type and sub-types of MTOServiceItem
-        $ref: '#/definitions/MTOServiceItemModelType'
-      eTag:
-        type: string
-    required:
-      - modelType
-  MTOServiceItemBasic:
-    description: Describes a basic service item subtype of a MTOServiceItem.
-    allOf:
-      - $ref: '#/definitions/MTOServiceItem'
-      - type: object
-        properties:
-          reServiceCode:
-            $ref: '#/definitions/ReServiceCode'
-        required:
-          - reServiceCode
-  MTOServiceItemDOFSIT:
-    description: Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem.
-    allOf:
-      - $ref: '#/definitions/MTOServiceItem'
-      - type: object
-        properties:
-          reServiceCode:
-            $ref: '#/definitions/ReServiceCode'
-          reason:
-            type: string
-            example: Storage items need to be picked up
-          pickupPostalCode:
-            type: string
-            format: zip
-            example: 90210
-            pattern: '^(\d{5}([\-]\d{4})?)$'
-        required:
-          - reason
-          - pickupPostalCode
-  MTOServiceItemDDFSIT:
-    description: Describes a domestic destination 1st day SIT service item subtype of a MTOServiceItem.
-    allOf:
-      - $ref: '#/definitions/MTOServiceItem'
-      - type: object
-        properties:
-          reServiceCode:
-            $ref: '#/definitions/ReServiceCode'
-          type:
-            $ref: '#/definitions/CustomerContactType'
-          timeMilitary1:
-            type: string
-            example: 0400Z
-          firstAvailableDeliveryDate1:
-            format: date
-            type: string
-            example: 2020-01-20
-          timeMilitary2:
-            type: string
-            example: 0400Z
-          firstAvailableDeliveryDate2:
-            format: date
-            type: string
-            example: 2020-01-20
-        required:
-          - timeMilitary1
-          - firstAvailableDeliveryDate1
-          - timeMilitary2
-          - firstAvailableDeliveryDate2
-  MTOServiceItemShuttle:
-    description: Describes a shuttle service item.
-    allOf:
-      - $ref: '#/definitions/MTOServiceItem'
-      - type: object
-        properties:
-          reServiceCode:
-            type: string
-            enum:
-              - DOSHUT # Domestic Origin Shuttle Service
-              - DDSHUT # Domestic Destination Shuttle Service
-          reason:
-            type: string
-            example: Storage items need to be picked up.
-          description:
-            type: string
-            example: Things to be moved to the place by shuttle.
-        required:
-          - reason
-          - reServiceCode
-          - description
-  MTOServiceItemDomesticCrating:
-    description: Describes a domestic crating/uncrating service item subtype of a MTOServiceItem.
-    allOf:
-      - $ref: '#/definitions/MTOServiceItem'
-      - type: object
-        properties:
-          reServiceCode:
-            type: string
-            enum:
-              - DCRT # Domestic Crating
-              - DCRTSA # Domestic Crating - Standalone
-              - DUCRT # Domestic Uncrating
-          item:
-            $ref: '#/definitions/MTOServiceItemDimension'
-          crate:
-            $ref: '#/definitions/MTOServiceItemDimension'
-          description:
-            type: string
-            example: Decorated horse head to be crated.
-        required:
-          - reServiceCode
-          - item
-          - crate
-          - description
-  ProofOfServiceDocs:
-    properties:
-      uploads:
-        items:
-          $ref: '#/definitions/Upload'
-        type: array
-    type: object
   PaymentRequest:
     properties:
       id:
@@ -1121,7 +1427,7 @@ definitions:
       status:
         $ref: '#/definitions/PaymentRequestStatus'
       paymentRequestNumber:
-        example: 1234-5678-1
+        example: "1234-5678-1"
         readOnly: true
         type: string
       proofOfServiceDocs:
@@ -1130,7 +1436,12 @@ definitions:
         $ref: '#/definitions/PaymentServiceItems'
       eTag:
         type: string
+        readOnly: true
     type: object
+  PaymentRequests:
+    type: array
+    items:
+      $ref: '#/definitions/PaymentRequest'
   PaymentRequestStatus:
     enum:
       - PENDING
@@ -1140,10 +1451,6 @@ definitions:
       - PAID
     title: Payment Request Status
     type: string
-  PaymentRequests:
-    type: array
-    items:
-      $ref: '#/definitions/PaymentRequest'
   PaymentServiceItem:
     properties:
       id:
@@ -1170,24 +1477,16 @@ definitions:
         example: documentation was incomplete
         type: string
         x-nullable: true
+      referenceID:
+        example: 1234-5678-c56a4180
+        readOnly: true
+        format: string
       paymentServiceItemParams:
         $ref: '#/definitions/PaymentServiceItemParams'
       eTag:
         type: string
+        readOnly: true
     type: object
-  PaymentServiceItemStatus:
-    enum:
-      - REQUESTED
-      - APPROVED
-      - DENIED
-      - SENT_TO_GEX
-      - PAID
-    title: Payment Service Item Status
-    type: string
-  PaymentServiceItems:
-    type: array
-    items:
-      $ref: '#/definitions/PaymentServiceItem'
   PaymentServiceItemParam:
     properties:
       id:
@@ -1202,7 +1501,7 @@ definitions:
       key:
         $ref: '#/definitions/ServiceItemParamName'
       value:
-        example: 3025
+        example: "3025"
         type: string
       type:
         $ref: '#/definitions/ServiceItemParamType'
@@ -1210,33 +1509,39 @@ definitions:
         $ref: '#/definitions/ServiceItemParamOrigin'
       eTag:
         type: string
+        readOnly: true
     type: object
   PaymentServiceItemParams:
     type: array
     items:
       $ref: '#/definitions/PaymentServiceItemParam'
-  ServiceItem:
+  PaymentServiceItems:
+    type: array
+    items:
+      $ref: '#/definitions/PaymentServiceItem'
+  PaymentServiceItemStatus:
+    enum:
+      - REQUESTED
+      - APPROVED
+      - DENIED
+      - SENT_TO_GEX
+      - PAID
+    title: Payment Service Item Status
+    type: string
+  ProofOfServiceDocs:
     properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      params:
-        type: array
+      uploads:
         items:
-          properties:
-            key:
-              type: string
-              example: Service Item Parameter Name
-            value:
-              type: string
-              example: Service Item Parameter Value
-          type: object
-      eTag:
-        type: string
+          $ref: '#/definitions/Upload'
+        type: array
     type: object
   ReServiceCode:
     type: string
+    description: |
+      This is the full list of service items that can be found on a shipment. Not all service items
+      may be requested by the Prime, but may be returned in a response.
+
+      Documentation of all the service items will be provided.
     enum:
       - CS
       - DBHF
@@ -1288,10 +1593,34 @@ definitions:
       - MS
       - NSTH
       - NSTUB
+  ServiceItem:
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      params:
+        type: array
+        readOnly: true
+        items:
+          properties:
+            key:
+              type: string
+              example: Service Item Parameter Name
+            value:
+              type: string
+              example: Service Item Parameter Value
+          type: object
+      eTag:
+        type: string
+        readOnly: true
+    type: object
   ServiceItemParamName:
     type: string
     enum:
+      - ActualPickupDate
       - CanStandAlone
+      - ContractCode
       - CubicFeetBilled
       - CubicFeetCrating
       - DistanceZip3
@@ -1299,8 +1628,10 @@ definitions:
       - DistanceZip5SITDest
       - DistanceZip5SITOrigin
       - EIAFuelPrice
+      - FSCWeightBasedDistanceMultiplier
       - MarketDest
       - MarketOrigin
+      - MTOAvailableToPrimeAt
       - NumberDaysSIT
       - PriceAreaDest
       - PriceAreaIntlDest
@@ -1351,6 +1682,49 @@ definitions:
       - DATE
       - INTEGER
       - DECIMAL
+      - TIMESTAMP
+      - PaymentServiceItemUUID
+  UpdateMTOServiceItem:
+    description: UpdateMTOServiceItem describes a base type of a service item. Polymorphic type. Both Move Task Orders and MTO Shipments will have MTO Service Items.
+    type: object
+    discriminator: modelType
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        description: ID of the service item. Must match path.
+      modelType: # Base type and sub-types of MTOServiceItem
+        $ref: '#/definitions/UpdateMTOServiceItemModelType'
+    required:
+      - modelType
+  UpdateMTOServiceItemModelType:
+    description: |
+      Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.
+        * DDDSIT - UpdateMTOServiceItemSIT
+        * DOPSIT - UpdateMTOServiceItemSIT
+
+      The documentation will then update with the supported fields.
+    type: string
+    enum:
+      - UpdateMTOServiceItemSIT
+  UpdateMTOServiceItemSIT: # spectral oas2-unused-definition is OK here due to polymorphism
+    description: |
+      Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating and existing service item.
+    allOf:
+      - $ref: '#/definitions/UpdateMTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: Service code allowed for this model type.
+            enum:
+              - DDDSIT # Domestic Destination SIT Delivery
+              - DOPSIT # Domestic Origin SIT Pickup
+          sitDepartureDate:
+            format: date
+            type: string
+            description: Departure date for SIT. This is the end date of the SIT at either origin or destination.
   Upload:
     type: object
     properties:
@@ -1366,26 +1740,17 @@ definitions:
       createdAt:
         format: date-time
         type: string
+        readOnly: true
       updatedAt:
         format: date-time
         type: string
+        readOnly: true
     required:
       - filename
       - contentType
       - bytes
       - createdAt
       - updatedAt
-  UpdatePaymentRequestStatus:
-    properties:
-      rejectionReason:
-        example: documentation was incomplete
-        type: string
-        x-nullable: true
-      status:
-        $ref: '#/definitions/PaymentRequestStatus'
-      eTag:
-        type: string
-    type: object
   ValidationError:
     allOf:
       - $ref: '#/definitions/ClientError'
@@ -1409,12 +1774,20 @@ responses:
     description: The requested resource wasn't found.
     schema:
       $ref: '#/definitions/ClientError'
+  Conflict:
+    description: "The request could not be processed because of conflict in the current state of the resource."
+    schema:
+      $ref: '#/definitions/ClientError'
   PermissionDenied:
     description: The request was denied.
     schema:
       $ref: '#/definitions/ClientError'
   ServerError:
     description: A server error occurred.
+    schema:
+      $ref: '#/definitions/Error'
+  NotImplemented:
+    description: The requested feature is still in development.
     schema:
       $ref: '#/definitions/Error'
   PreconditionFailed:

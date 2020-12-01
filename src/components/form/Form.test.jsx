@@ -1,7 +1,8 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import { Form as UswdsForm, Button } from '@trussworks/react-uswds';
-import { Form } from '.';
+
+import { Form } from './index';
 
 const mockHandleReset = jest.fn();
 const mockHandleSubmit = jest.fn();

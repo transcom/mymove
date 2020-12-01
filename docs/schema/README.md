@@ -19,4 +19,4 @@ Loading is accomplished in a few steps:
 
 1. Reset the DB on your branch or master with `make db_dev_reset && make db_dev_migrate`
 2. Open SQLEditor and go to (File -> Import From Database).  Entering the `dev_db` connection information. ![settings](SQLEditor_import.png)
-3. After the data has been imported save the file as [dp3.sqs](https://github.com/transcom/mymove/blob/master/docs/schema/dp3.sqs) so you can refer to it.
+3. After the data has been imported save the file as dp3.sqs so you can refer to it.

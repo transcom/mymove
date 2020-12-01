@@ -14,7 +14,7 @@ function generateWrapper(props) {
 }
 
 describe('DocumentsUploaded Alert', () => {
-  const documentsUploadedContainer = '[data-cy="documents-uploaded"]';
+  const documentsUploadedContainer = '[data-testid="documents-uploaded"]';
   describe('No documents uploaded', () => {
     it('component does not render', () => {
       const wrapper = generateWrapper();

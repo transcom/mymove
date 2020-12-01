@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -38,7 +38,7 @@ func MakePrimeUpload(db *pop.Connection, assertions Assertions) models.PrimeUplo
 		// If an PrimeUploader is passed in, PrimeUpload assertions are ignored
 		var err error
 		var verrs *validate.Errors
-		file := fixture("test.pdf")
+		file := Fixture("test.pdf")
 		primeUpload, verrs, err = assertions.PrimeUploader.CreatePrimeUploadForDocument(&posDoc.ID, contractor.ID, uploader.File{File: file}, uploader.AllowedTypesServiceMember)
 		if verrs.HasAny() || err != nil {
 			log.Panic(fmt.Errorf("errors encountered saving prime upload %v, %v", verrs, err))
@@ -62,7 +62,7 @@ func MakePrimeUpload(db *pop.Connection, assertions Assertions) models.PrimeUplo
 
 		mergeModels(primeUpload, assertions.PrimeUpload)
 
-		mustCreate(db, primeUpload)
+		mustCreate(db, primeUpload, assertions.Stub)
 	}
 
 	return *primeUpload

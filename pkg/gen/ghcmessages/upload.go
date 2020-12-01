@@ -6,16 +6,16 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"io"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"encoding/json"
 
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // Upload upload
+//
 // swagger:model Upload
 type Upload struct {
 
@@ -34,13 +34,16 @@ type Upload struct {
 
 	// filename
 	// Required: true
-	// Format: binary
-	Filename io.ReadCloser `json:"filename"`
+	Filename *string `json:"filename"`
 
 	// id
 	// Required: true
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
+
+	// status
+	// Enum: [INFECTED CLEAN PROCESSING]
+	Status string `json:"status,omitempty"`
 
 	// updated at
 	// Required: true
@@ -74,6 +77,10 @@ func (m *Upload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -124,7 +131,7 @@ func (m *Upload) validateCreatedAt(formats strfmt.Registry) error {
 
 func (m *Upload) validateFilename(formats strfmt.Registry) error {
 
-	if err := validate.Required("filename", "body", io.ReadCloser(m.Filename)); err != nil {
+	if err := validate.Required("filename", "body", m.Filename); err != nil {
 		return err
 	}
 
@@ -138,6 +145,52 @@ func (m *Upload) validateID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var uploadTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["INFECTED","CLEAN","PROCESSING"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		uploadTypeStatusPropEnum = append(uploadTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// UploadStatusINFECTED captures enum value "INFECTED"
+	UploadStatusINFECTED string = "INFECTED"
+
+	// UploadStatusCLEAN captures enum value "CLEAN"
+	UploadStatusCLEAN string = "CLEAN"
+
+	// UploadStatusPROCESSING captures enum value "PROCESSING"
+	UploadStatusPROCESSING string = "PROCESSING"
+)
+
+// prop value enum
+func (m *Upload) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, uploadTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *Upload) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateStatusEnum("status", "body", m.Status); err != nil {
 		return err
 	}
 

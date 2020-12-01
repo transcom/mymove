@@ -75,7 +75,7 @@ export default class ConfirmWithReasonButton extends Component {
       );
     } else if (this.state.displayState === 'BUTTON') {
       return (
-        <button className="usa-button usa-button--outline" onClick={this.setConfirmState} disabled={buttonDisabled}>
+        <button className="usa-button usa-button--secondary" onClick={this.setConfirmState} disabled={buttonDisabled}>
           {buttonTitle}
         </button>
       );

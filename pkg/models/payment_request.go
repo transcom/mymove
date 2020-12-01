@@ -3,9 +3,9 @@ package models
 import (
 	"time"
 
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
-	"github.com/gobuffalo/validate/validators"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
+	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
 )
 
@@ -41,7 +41,7 @@ var validPaymentRequestStatus = []string{
 // PaymentRequest is an object representing a payment request on a move task order
 type PaymentRequest struct {
 	ID                   uuid.UUID            `json:"id" db:"id"`
-	MoveTaskOrderID      uuid.UUID            `db:"move_task_order_id"`
+	MoveTaskOrderID      uuid.UUID            `db:"move_id"`
 	IsFinal              bool                 `json:"is_final" db:"is_final"`
 	Status               PaymentRequestStatus `json:"status" db:"status"`
 	RejectionReason      *string              `json:"rejection_reason" db:"rejection_reason"`
@@ -56,7 +56,7 @@ type PaymentRequest struct {
 	UpdatedAt            time.Time            `db:"updated_at"`
 
 	// Associations
-	MoveTaskOrder       MoveTaskOrder       `belongs_to:"move_task_orders"`
+	MoveTaskOrder       Move                `belongs_to:"moves"`
 	PaymentServiceItems PaymentServiceItems `has_many:"payment_service_items"`
 	ProofOfServiceDocs  ProofOfServiceDocs  `has_many:"proof_of_service_docs"`
 }

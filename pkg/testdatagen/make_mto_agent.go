@@ -1,32 +1,45 @@
 package testdatagen
 
 import (
-	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakeMTOAgent creates a single MTOAgent and its associations.
+// MakeMTOAgent creates a single MTOAgent and associated MTOShipment
 func MakeMTOAgent(db *pop.Connection, assertions Assertions) models.MTOAgent {
-	// Will make an MTO if one is not provided via assertion.
+	var mtoShipmentID uuid.UUID
 	mtoShipment := assertions.MTOShipment
-	if isZeroUUID(mtoShipment.ID) {
+
+	if isZeroUUID(assertions.MTOAgent.MTOShipmentID) {
 		mtoShipment = MakeMTOShipment(db, assertions)
+		mtoShipmentID = mtoShipment.ID
 	}
 
-	mtoAgent := models.MTOAgent{
+	firstName := "Jason"
+	lastName := "Ash"
+	email := "jason.ash@example.com"
+	phone := "202-555-9301"
+
+	MTOAgent := models.MTOAgent{
 		MTOShipment:   mtoShipment,
-		MTOShipmentID: mtoShipment.ID,
-		FirstName:     swag.String("Test"),
-		LastName:      swag.String("Agent"),
+		MTOShipmentID: mtoShipmentID,
+		FirstName:     &firstName,
+		LastName:      &lastName,
+		Email:         &email,
+		Phone:         &phone,
 		MTOAgentType:  models.MTOAgentReleasing,
-		Email:         swag.String("test@test.email.com"),
 	}
 
-	// Overwrite default values with those from assertions.
-	mergeModels(&mtoAgent, assertions.MTOAgent)
-	mustCreate(db, &mtoAgent)
+	mergeModels(&MTOAgent, assertions.MTOAgent)
 
-	return mtoAgent
+	mustCreate(db, &MTOAgent, assertions.Stub)
+
+	return MTOAgent
+}
+
+// MakeDefaultMTOAgent returns a MTOAgent with default values
+func MakeDefaultMTOAgent(db *pop.Connection) models.MTOAgent {
+	return MakeMTOAgent(db, Assertions{})
 }

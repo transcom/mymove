@@ -10,10 +10,9 @@ import (
 	"io"
 
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	primemessages "github.com/transcom/mymove/pkg/gen/primemessages"
+	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
 // CreateMTOServiceItemReader is a Reader for the CreateMTOServiceItem structure.
@@ -54,6 +53,12 @@ func (o *CreateMTOServiceItemReader) ReadResponse(response runtime.ClientRespons
 			return nil, err
 		}
 		return nil, result
+	case 409:
+		result := NewCreateMTOServiceItemConflict()
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		return nil, result
 	case 422:
 		result := NewCreateMTOServiceItemUnprocessableEntity()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -82,21 +87,21 @@ func NewCreateMTOServiceItemOK() *CreateMTOServiceItemOK {
 Successfully created an MTO service item.
 */
 type CreateMTOServiceItemOK struct {
-	Payload primemessages.MTOServiceItem
+	Payload []primemessages.MTOServiceItem
 }
 
 func (o *CreateMTOServiceItemOK) Error() string {
 	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemOK  %+v", 200, o.Payload)
 }
 
-func (o *CreateMTOServiceItemOK) GetPayload() primemessages.MTOServiceItem {
+func (o *CreateMTOServiceItemOK) GetPayload() []primemessages.MTOServiceItem {
 	return o.Payload
 }
 
 func (o *CreateMTOServiceItemOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	// response payload as interface type
-	payload, err := primemessages.UnmarshalMTOServiceItem(response.Body(), consumer)
+	payload, err := primemessages.UnmarshalMTOServiceItemSlice(response.Body(), consumer)
 	if err != nil {
 		return err
 	}
@@ -226,6 +231,39 @@ func (o *CreateMTOServiceItemNotFound) GetPayload() *primemessages.ClientError {
 }
 
 func (o *CreateMTOServiceItemNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(primemessages.ClientError)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewCreateMTOServiceItemConflict creates a CreateMTOServiceItemConflict with default headers values
+func NewCreateMTOServiceItemConflict() *CreateMTOServiceItemConflict {
+	return &CreateMTOServiceItemConflict{}
+}
+
+/*CreateMTOServiceItemConflict handles this case with default header values.
+
+The request could not be processed because of conflict in the current state of the resource.
+*/
+type CreateMTOServiceItemConflict struct {
+	Payload *primemessages.ClientError
+}
+
+func (o *CreateMTOServiceItemConflict) Error() string {
+	return fmt.Sprintf("[POST /mto-service-items][%d] createMTOServiceItemConflict  %+v", 409, o.Payload)
+}
+
+func (o *CreateMTOServiceItemConflict) GetPayload() *primemessages.ClientError {
+	return o.Payload
+}
+
+func (o *CreateMTOServiceItemConflict) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(primemessages.ClientError)
 

@@ -3,14 +3,11 @@ package models
 import (
 	"time"
 
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
-	"github.com/gobuffalo/validate/validators"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/validate/v3"
+	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
 )
-
-// ReServiceName is a type of service name
-type ReServiceName string
 
 // ReServiceCode is the code of service
 type ReServiceCode string
@@ -122,6 +119,7 @@ const (
 type ReService struct {
 	ID        uuid.UUID     `json:"id" db:"id"`
 	Code      ReServiceCode `json:"code" db:"code"`
+	Priority  int           `db:"priority"`
 	Name      string        `json:"name" db:"name"`
 	CreatedAt time.Time     `json:"created_at" db:"created_at"`
 	UpdatedAt time.Time     `json:"updated_at" db:"updated_at"`

@@ -77,7 +77,7 @@ const bradyTXZip = "76825"
 const venturaCAZip = "93007"
 const fillmoreCAZip = "93015"
 
-func (suite *PlannerFullSuite) TestZip5Distance() {
+func (suite *PlannerFullSuite) TestZip5DistanceLineHaul() {
 	tests := []struct {
 		zip1        string
 		zip2        string
@@ -88,7 +88,7 @@ func (suite *PlannerFullSuite) TestZip5Distance() {
 		{zip1: fillmoreCAZip, zip2: venturaCAZip, distanceMin: 30, distanceMax: 49},
 	}
 	for _, ts := range tests {
-		distance, err := suite.planner.Zip5TransitDistance(ts.zip1, ts.zip2)
+		distance, err := suite.planner.Zip5TransitDistanceLineHaul(ts.zip1, ts.zip2)
 		if ts.distanceMax < 50 {
 			suite.NotNil(err, "Should get error from Zip5 not number")
 		} else {
@@ -100,9 +100,9 @@ func (suite *PlannerFullSuite) TestZip5Distance() {
 	}
 }
 
-const txZip3 = "768"
-const caZip3 = "930"
-const ca2Zip3 = "902"
+const txZip = "76825"
+const caZip = "93007"
+const ca2Zip = "93101"
 
 func (suite *PlannerFullSuite) TestZip3Distance() {
 	tests := []struct {
@@ -111,13 +111,21 @@ func (suite *PlannerFullSuite) TestZip3Distance() {
 		distanceMin int
 		distanceMax int
 	}{
-		{zip1: txZip3, zip2: caZip3, distanceMin: 1000, distanceMax: 3000},
-		{zip1: ca2Zip3, zip2: caZip3, distanceMin: 30, distanceMax: 49},
+		{zip1: txZip, zip2: caZip, distanceMin: 1000, distanceMax: 2000},
+		{zip1: ca2Zip, zip2: caZip, distanceMin: 30, distanceMax: 49},
+		{zip1: "902101234", zip2: caZip, distanceMin: 30, distanceMax: 49},
 	}
 	for _, ts := range tests {
 		distance, err := suite.planner.Zip3TransitDistance(ts.zip1, ts.zip2)
-		suite.NotNil(err, "Should get error from Zip3 not number")
-		suite.Equal(distance, 0)
+		if len(ts.zip1) > 5 {
+			suite.Error(err)
+			suite.Equal(distance, 0)
+		} else {
+			suite.NoError(err)
+			if distance < ts.distanceMin || distance > ts.distanceMax {
+				suite.Fail("Implausible distance", "Implausible distance from %s to %s: %d", ts.zip1, ts.zip2, distance)
+			}
+		}
 	}
 }
 

@@ -1,41 +1,26 @@
 .error-message {
-	margin-bottom: 1em;
+  margin-bottom: 1em;
 }
 .center {
-	text-align: center;
+  text-align: center;
 }
 
 .right-align {
-	text-align: right;
+  text-align: right;
 }
 
 .cancel {
-	-webkit-box-shadow: inset 0 0 0 0px;
-	-moz-box-shadow: inset 0 0 0 0px;
-	box-shadow: inset 0 0 0 0px;
+  -webkit-box-shadow: inset 0 0 0 0px;
+  -moz-box-shadow: inset 0 0 0 0px;
+  box-shadow: inset 0 0 0 0px;
 }
 
 .cancel:hover {
-	-webkit-box-shadow: inset 0 0 0 0px;
-	-moz-box-shadow: inset 0 0 0 0px;
-	box-shadow: inset 0 0 0 0px;
+  -webkit-box-shadow: inset 0 0 0 0px;
+  -moz-box-shadow: inset 0 0 0 0px;
+  box-shadow: inset 0 0 0 0px;
 }
 
 .hide-btn {
   display: none;
-}
-
-@media only screen and (max-width: 481px) {
-	.prev-next {
-		color: red;
-		min-width: 100%;
-	}
-	.prev {
-		float: left;
-		width: 45%;
-	}
-	.next {
-		float: right;
-		width: 45%;
-	}
 }

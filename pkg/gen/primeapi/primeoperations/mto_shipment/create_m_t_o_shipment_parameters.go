@@ -12,7 +12,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 
-	primemessages "github.com/transcom/mymove/pkg/gen/primemessages"
+	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
 // NewCreateMTOShipmentParams creates a new CreateMTOShipmentParams object
@@ -34,7 +34,7 @@ type CreateMTOShipmentParams struct {
 	/*
 	  In: body
 	*/
-	Body *primemessages.CreateShipmentPayload
+	Body *primemessages.CreateMTOShipment
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -48,7 +48,7 @@ func (o *CreateMTOShipmentParams) BindRequest(r *http.Request, route *middleware
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body primemessages.CreateShipmentPayload
+		var body primemessages.CreateMTOShipment
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			res = append(res, errors.NewParseError("body", "body", "", err))
 		} else {

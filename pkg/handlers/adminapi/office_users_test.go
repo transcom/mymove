@@ -1,12 +1,13 @@
 package adminapi
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 
 	"github.com/transcom/mymove/pkg/models/roles"
 
@@ -41,7 +42,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 	testdatagen.MakeOfficeUser(suite.DB(), assertions)
 	testdatagen.MakeDefaultOfficeUser(suite.DB())
 
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req := httptest.NewRequest("GET", "/office_users", nil)
 	req = suite.AuthenticateAdminRequest(req, requestUser)
 
@@ -115,7 +116,7 @@ func (suite *HandlerSuite) TestGetOfficeUserHandler() {
 	}
 	testdatagen.MakeOfficeUser(suite.DB(), assertions)
 
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req := httptest.NewRequest("GET", fmt.Sprintf("/office_users/%s", id), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
@@ -195,40 +196,63 @@ func (suite *HandlerSuite) TestGetOfficeUserHandler() {
 func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 	transportationOfficeID, _ := uuid.NewV4()
 	officeUserID, _ := uuid.FromString("00000000-0000-0000-0000-000000000000")
+	userID, _ := uuid.FromString("00000000-0000-0000-0000-000000000001")
 	officeUser := models.OfficeUser{
 		ID:                     officeUserID,
 		TransportationOfficeID: transportationOfficeID,
-		UserID:                 nil,
+		UserID:                 &userID,
 		Active:                 true,
 	}
 	queryFilter := mocks.QueryFilter{}
 	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
 
 	req := httptest.NewRequest("POST", "/office_users", nil)
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req = suite.AuthenticateUserRequest(req, requestUser)
+
+	tooRoleName := "Transportation Ordering Officer"
+	tooRoleType := string(roles.RoleTypeTOO)
+
+	tioRoleName := "Transportation Invoicing Officer"
+	tioRoleType := string(roles.RoleTypeTIO)
 
 	params := officeuserop.CreateOfficeUserParams{
 		HTTPRequest: req,
 		OfficeUser: &adminmessages.OfficeUserCreatePayload{
-			FirstName:              officeUser.FirstName,
-			LastName:               officeUser.LastName,
-			Telephone:              officeUser.Telephone,
+			FirstName: officeUser.FirstName,
+			LastName:  officeUser.LastName,
+			Telephone: officeUser.Telephone,
+			Roles: []*adminmessages.OfficeUserRole{
+				{
+					Name:     &tooRoleName,
+					RoleType: &tooRoleType,
+				},
+				{
+					Name:     &tioRoleName,
+					RoleType: &tioRoleType,
+				},
+			},
 			TransportationOfficeID: strfmt.UUID(officeUser.TransportationOfficeID.String()),
 		},
 	}
 
 	suite.T().Run("Successful create", func(t *testing.T) {
 		officeUserCreator := &mocks.OfficeUserCreator{}
+		userRolesAssociator := &mocks.UserRoleAssociator{}
 
 		officeUserCreator.On("CreateOfficeUser",
-			&officeUser,
+			mock.Anything,
 			mock.Anything).Return(&officeUser, nil, nil).Once()
+
+		userRolesAssociator.On("UpdateUserRoles",
+			mock.Anything,
+			mock.Anything).Return(nil, nil).Once()
 
 		handler := CreateOfficeUserHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			officeUserCreator,
 			newQueryFilter,
+			usersroles.NewUsersRolesCreator(suite.DB()),
 		}
 
 		response := handler.Handle(params)
@@ -239,17 +263,18 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 		officeUserCreator := &mocks.OfficeUserCreator{}
 
 		officeUserCreator.On("CreateOfficeUser",
-			&officeUser,
-			mock.Anything).Return(&officeUser, nil, nil).Once()
+			mock.Anything,
+			mock.Anything).Return(&officeUser, nil, errors.New("Could not save user")).Once()
 
 		handler := CreateOfficeUserHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			officeUserCreator,
 			newQueryFilter,
+			usersroles.NewUsersRolesCreator(suite.DB()),
 		}
 
 		response := handler.Handle(params)
-		suite.IsType(&officeuserop.CreateOfficeUserCreated{}, response)
+		suite.IsType(&officeuserop.CreateOfficeUserInternalServerError{}, response)
 	})
 }
 
@@ -261,7 +286,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 
 	endpoint := fmt.Sprintf("/office_users/%s", officeUserID)
 	req := httptest.NewRequest("PUT", endpoint, nil)
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	requestUser := testdatagen.MakeStubbedUser(suite.DB())
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
 	params := officeuserop.UpdateOfficeUserParams{

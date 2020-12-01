@@ -30,8 +30,8 @@ describe('basic alert with delete confirmation component', () => {
       </Provider>,
     );
     it('should render cancel button', () => {
-      expect(wrapper.find('.usa-button--outline')).toHaveLength(1);
-      wrapper.find('.usa-button--outline').simulate('click');
+      expect(wrapper.find('.usa-button--secondary')).toHaveLength(1);
+      wrapper.find('.usa-button--secondary').simulate('click');
       expect(mockCancelActionHandler).toHaveBeenCalled();
     });
   });

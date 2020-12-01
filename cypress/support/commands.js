@@ -1,83 +1,58 @@
 import * as mime from 'mime-types';
+import 'cypress-wait-until';
+
 import {
   milmoveBaseURL,
   officeBaseURL,
   milmoveAppName,
   officeAppName,
   milmoveUserType,
-  officeUserType,
-  dpsUserType,
+  PPMOfficeUserType,
+  TOOOfficeUserType,
+  TIOOfficeUserType,
   userTypeToBaseURL,
   longPageLoadTimeout,
 } from './constants';
-import moment from 'moment';
 
-/* global Cypress, cy */
-// ***********************************************
-// This example commands.js shows you how to
-// create various custom commands and overwrite
-// existing commands.
-//
-// For more comprehensive examples of custom
-// commands please read more here:
-// https://on.cypress.io/custom-commands
-// ***********************************************
-//
-//
-// -- This is a parent command --
-// Cypress.Commands.add("login", (email, password) => { ... })
-//
-//
-// -- This is a child command --
-// Cypress.Commands.add("drag", { prevSubject: 'element'}, (subject, options) => { ... })
-//
-//
-// -- This is a dual command --
-// Cypress.Commands.add("dismiss", { prevSubject: 'optional'}, (subject, options) => { ... })
-//
-//
-// -- This is will overwrite an existing command --
-// Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
+/**
+ * Use this file to define custom commands for Cypress
+ * Follow best practices: https://docs.cypress.io/api/cypress-api/custom-commands.html#Best-Practices
+ * Prefix commands that make direct calls to the API with 'api' (ie, apiSignInAsUser)
+ */
 
-Cypress.Commands.add('signInAsNewUser', (userType) => {
-  // make sure we visit all app urls and clear cookies
-  cy.setBaseUrlAndClearAllCookies(userType);
-
-  cy.visit('/devlocal-auth/login');
-  // should have both our csrf cookie tokens now
-  cy.getCookie('_gorilla_csrf').should('exist');
-  cy.getCookie('masked_gorilla_csrf').should('exist');
-  // select the user type and then login as new user
-  cy.get('button[data-hook="new-user-login-' + userType + '"]').click();
+/** Global */
+Cypress.Commands.add('prepareCustomerApp', () => {
+  Cypress.config('baseUrl', milmoveBaseURL);
 });
 
-Cypress.Commands.add('signInAsNewMilMoveUser', () => {
-  cy.signInAsNewUser(milmoveUserType);
-  cy.url().should('contain', milmoveBaseURL);
-  cy.location('pathname').should('contain', 'service-member');
-  cy.location('pathname').should('contain', 'create');
+Cypress.Commands.add('prepareOfficeApp', () => {
+  Cypress.config('baseUrl', officeBaseURL);
 });
 
-Cypress.Commands.add('signInAsNewOfficeUser', () => {
-  cy.signInAsNewUser(officeUserType);
-  cy.url().should('eq', officeBaseURL + '/queues/new');
+// Call this in your before or beforeEach hook when using cy.route / cy.wait
+// https://github.com/cypress-io/cypress/issues/95#issuecomment-347607198
+// deletes window.fetch to force fallback to supported XHR
+// https://github.com/cypress-io/cypress-example-recipes/tree/master/examples/stubbing-spying__window-fetch
+Cypress.Commands.add('removeFetch', () => {
+  cy.on('window:before:load', (win) => {
+    delete win.fetch;
+  });
 });
 
-Cypress.Commands.add('signInAsNewDPSUser', () => {
-  cy.signInAsNewUser(dpsUserType);
-  cy.url().should('contain', 'milmovelocal');
+Cypress.Commands.add('setFeatureFlag', (flagVal, url = '/queues/new') => {
+  cy.visit(`${url}?flag:${flagVal}`);
 });
 
-Cypress.Commands.add('signIntoMyMoveAsUser', (userId) => {
-  cy.signInAsUserPostRequest(milmoveAppName, userId);
+// Persist session cookies across multiple tests (use in beforeEach)
+Cypress.Commands.add('persistSessionCookies', () => {
+  Cypress.Cookies.preserveOnce('masked_gorilla_csrf', 'office_session_token', '_gorilla_csrf');
 });
 
-Cypress.Commands.add('signIntoOfficeAsUser', (userId) => {
-  cy.signInAsUserPostRequest(officeAppName, userId);
-  cy.waitForReactTableLoad();
-});
-Cypress.Commands.add('signIntoOffice', () => {
-  cy.signIntoOfficeAsUser('9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b');
+// Use this for issue where Cypress is not clearing cookies between tests
+// Delete ALL cookies across domains (milmove, office)
+// https://github.com/cypress-io/cypress/issues/781
+Cypress.Commands.add('clearAllCookies', () => {
+  cy.clearCookies({ domain: null });
 });
 
 // Reloads the page but makes an attempt to wait for the loading screen to disappear
@@ -105,98 +80,96 @@ Cypress.Commands.add('waitForReactTableLoad', () => {
   });
 });
 
-// Attempts to double-click a given move locator in a shipment queue list
-Cypress.Commands.add('selectQueueItemMoveLocator', (moveLocator) => {
+/** Log in */
+Cypress.Commands.add('signInAsNewUser', (userType) => {
+  cy.visit('/devlocal-auth/login');
+  // select the user type and then login as new user
+  cy.get('button[data-hook="new-user-login-' + userType + '"]').click();
+});
+
+Cypress.Commands.add('signInAsNewMilMoveUser', () => {
+  cy.signInAsNewUser(milmoveUserType);
+});
+
+Cypress.Commands.add('signInAsNewPPMOfficeUser', () => {
+  cy.signInAsNewUser(PPMOfficeUserType);
+});
+
+Cypress.Commands.add('signInAsNewTOOUser', () => {
+  cy.signInAsNewUser(TOOOfficeUserType);
+});
+
+Cypress.Commands.add('signInAsNewTIOUser', () => {
+  cy.signInAsNewUser(TIOOfficeUserType);
+});
+
+Cypress.Commands.add('signInAsMultiRoleOfficeUser', () => {
+  cy.apiSignInAsUser('9bda91d2-7a0c-4de1-ae02-b8cf8b4b858b', PPMOfficeUserType);
+});
+
+Cypress.Commands.add('signIntoOffice', () => {
+  cy.apiSignInAsUser('9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b', PPMOfficeUserType);
   cy.waitForReactTableLoad();
-
-  cy.get('div').contains(moveLocator).dblclick();
-
-  cy.waitForLoadingScreen();
 });
 
-Cypress.Commands.add('setFeatureFlag', (flagVal, url = '/queues/new') => {
-  cy.visit(`${url}?flag:${flagVal}`);
+// Log in via a direct API request, not the devlocal UI
+// Defaults to service member user type, pass in param if signing into Office app
+Cypress.Commands.add('apiSignInAsUser', (userId, userType = milmoveUserType) => {
+  // This API call is what sets CSRF cookies from the server
+  // cy.request('/internal/users/is_logged_in');
+
+  // TODO: Above is not working, I believe because of handling cross-domain cookies/setting baseUrl in between tests
+  // https://github.com/cypress-io/cypress/issues/781
+  cy.visit('/');
+
+  cy.waitUntil(() => cy.getCookie('masked_gorilla_csrf').then((cookie) => cookie && cookie.value)).then((csrfToken) => {
+    cy.request({
+      url: '/devlocal-auth/login',
+      method: 'POST',
+      headers: {
+        'X-CSRF-TOKEN': csrfToken,
+      },
+      body: {
+        id: userId,
+        userType,
+      },
+      form: true,
+      failOnStatusCode: false,
+    }).then((response) => {
+      cy.visit('/');
+    });
+  });
 });
 
-Cypress.Commands.add(
-  'signInAsUserPostRequest',
-  (
-    userType,
-    userId,
-    expectedStatusCode = 200,
-    expectedRespBody = null,
-    sendGorillaCSRF = true,
-    sendMaskedGorillaCSRF = true,
-    checkSessionToken = true,
-  ) => {
-    // setup baseurl
-    cy.setBaseUrlAndClearAllCookies(userType);
+// TODO: this is a temporary command for transition of home pages.  Remove when all paths in place
+// Log in via a direct API request, not the devlocal UI
+// Defaults to service member user type, pass in param if signing into Office app
+Cypress.Commands.add('apiSignInAsPpmUser', (userId, userType = milmoveUserType) => {
+  // This API call is what sets CSRF cookies from the server
+  // cy.request('/internal/users/is_logged_in');
 
-    // request use to log in
-    let sendRequest = (sendRequestUserType, maskedCSRFToken) => {
-      cy.request({
-        url: '/devlocal-auth/login',
-        method: 'POST',
-        headers: {
-          'X-CSRF-TOKEN': maskedCSRFToken,
-        },
-        body: {
-          id: userId,
-          userType: sendRequestUserType,
-        },
-        form: true,
-        failOnStatusCode: false,
-      }).then((resp) => {
-        cy.visit('/');
-        // Default status code to check is 200
-        expect(resp.status).to.eq(expectedStatusCode);
-        // check response body if needed
-        if (expectedRespBody) {
-          expect(resp.body).to.eq(expectedRespBody);
-        }
+  // TODO: Above is not working, I believe because of handling cross-domain cookies/setting baseUrl in between tests
+  // https://github.com/cypress-io/cypress/issues/781
+  cy.visit('/ppm');
 
-        // Login should provide named session tokens
-        if (checkSessionToken) {
-          // Check that two CSRF cookies and one session cookie exists
-          cy.getCookies().should('have.length', 3);
-          if (sendRequestUserType === milmoveAppName) {
-            cy.getCookie('mil_session_token').should('exist');
-            cy.getCookie('office_session_token').should('not.exist');
-          } else if (sendRequestUserType === officeAppName) {
-            cy.getCookie('mil_session_token').should('not.exist');
-            cy.getCookie('office_session_token').should('exist');
-          }
-        }
-      });
-    };
-
-    // make sure we log out first before sign in
-    cy.logout();
-    // GET landing page to get csrf cookies
-    cy.request('/');
-
-    // Wait for cookies to be present to make sure the page is fully loaded
-    // Otherwise we delete cookies before they exist
-    cy.getCookie('_gorilla_csrf').should('exist');
-    // Clear out cookies if we don't want to send in request
-    if (!sendGorillaCSRF) {
-      // Don't include cookie in request header
-      cy.clearCookie('_gorilla_csrf');
-    }
-
-    if (!sendMaskedGorillaCSRF) {
-      // Clear out the masked CSRF token
-      cy.clearCookie('masked_gorilla_csrf');
-      // Send request without masked token
-      sendRequest(userType);
-    } else {
-      // Send request with masked token
-      cy.getCookie('masked_gorilla_csrf').then((cookie) => {
-        sendRequest(userType, cookie.value);
-      });
-    }
-  },
-);
+  cy.waitUntil(() => cy.getCookie('masked_gorilla_csrf').then((cookie) => cookie && cookie.value)).then((csrfToken) => {
+    cy.request({
+      url: '/devlocal-auth/login',
+      method: 'POST',
+      headers: {
+        'X-CSRF-TOKEN': csrfToken,
+      },
+      body: {
+        id: userId,
+        userType,
+      },
+      form: true,
+      failOnStatusCode: false,
+    }).then((response) => {
+      cy.visit('/ppm');
+    });
+  });
+});
 
 Cypress.Commands.add('logout', () => {
   cy.patientVisit('/');
@@ -215,45 +188,31 @@ Cypress.Commands.add('logout', () => {
   });
 });
 
-Cypress.Commands.add('setBaseUrlAndClearAllCookies', (userType) => {
-  [milmoveBaseURL, officeBaseURL].forEach((url) => {
-    Cypress.config('baseUrl', url);
-    cy.visit('/');
-    cy.clearCookies();
-  });
-  const baseUrl = userTypeToBaseURL[userType]; // eslint-disable-line security/detect-object-injection
-  Cypress.config('baseUrl', baseUrl);
-  cy.visit('/');
+/** UI Shortcuts */
+// Attempts to double-click a given move locator in a shipment queue list
+Cypress.Commands.add('selectQueueItemMoveLocator', (moveLocator) => {
+  cy.waitForReactTableLoad();
+  cy.get('div').contains(moveLocator).dblclick();
+  cy.waitForLoadingScreen();
 });
 
 Cypress.Commands.add('nextPage', () => {
-  cy.get('button.next').should('be.enabled').click();
+  cy.get('[data-testid="wizardNextButton"]').should('be.enabled').click();
+});
+
+Cypress.Commands.add('completeFlow', () => {
+  cy.get('[data-testid="wizardCompleteButton"]').should('be.enabled').click();
 });
 
 Cypress.Commands.add('nextPageAndCheckLocation', (dataCyValue, pageTitle, locationMatch) => {
   const locationRegex = new RegExp(locationMatch); // eslint-disable-line security/detect-non-literal-regexp
 
   cy.nextPage();
-  cy.get(`[data-cy="${dataCyValue}"]`).contains(pageTitle);
+  cy.get(`[data-testid="${dataCyValue}"]`).contains(pageTitle);
   cy.location().should((loc) => {
     expect(loc.pathname).to.match(locationRegex);
   });
 });
-
-Cypress.Commands.add(
-  'resetDb',
-  () => {},
-  /*
-   * Resetting the DB in this manner is slow and should be avoided.
-   * Instead of adding this to a test please create a new data record for your test in pkg/testdatagen/scenario/e2ebasic.go
-   * For development you can issue `make db_e2e_reset` if you need to clean up your data.
-   *
-   * cy
-   *   .exec('make db_e2e_reset')
-   *   .its('code')
-   *   .should('eq', 0),
-   */
-);
 
 //from https://github.com/cypress-io/cypress/issues/669
 //Cypress doesn't give the right File constructor, so we grab the window's File
@@ -290,59 +249,7 @@ function genericSelect(inputData, fieldName, classSelector) {
   cy.get(classSelector).find('div[class*="option"]').first().click();
 }
 
-Cypress.Commands.add('typeInInput', ({ name, value }) => {
-  cy.get(`input[name="${name}"]`).clear().type(value).blur();
-});
-
-Cypress.Commands.add('clearInput', ({ name }) => {
-  cy.get(`input[name="${name}"]`).clear().blur();
-});
-
-// function typeInTextArea({ name, value }) {
-Cypress.Commands.add('typeInTextarea', ({ name, value }) => {
-  cy.get(`textarea[name="${name}"]`).clear().type(value).blur();
-});
-
 Cypress.Commands.add('selectDutyStation', (stationName, fieldName) => {
   let classSelector = '.duty-input-box';
   genericSelect(stationName, fieldName, classSelector);
-});
-
-Cypress.Commands.add('selectTariff400ngItem', (itemName) => {
-  let classSelector = '.tariff400-select';
-  let fieldName = 'tariff400ng_item';
-  genericSelect(itemName, fieldName, classSelector);
-});
-
-Cypress.Commands.add('setupBaseUrl', (appname) => {
-  // setup baseurl
-  switch (appname) {
-    case milmoveAppName:
-      Cypress.config('baseUrl', milmoveBaseURL);
-      break;
-    case officeAppName:
-      Cypress.config('baseUrl', officeBaseURL);
-      break;
-    default:
-      break;
-  }
-});
-
-Cypress.Commands.add('removeFetch', () => {
-  // cypress server/route/wait currently does not support window.fetch api
-  // https://github.com/cypress-io/cypress/issues/95#issuecomment-347607198
-  // delete window.fetch to force fallback to supported xhr.
-  // https://github.com/cypress-io/cypress-example-recipes/tree/master/examples/stubbing-spying__window-fetch
-  cy.on('window:before:load', (win) => {
-    delete win.fetch;
-  });
-});
-
-// calls /internal/calendar/available_move_dates for a given start date
-// and returns an array of moment.js dates
-Cypress.Commands.add('nextAvailable', (startDate = moment().format('YYYY-MM-DD')) => {
-  return cy.request(`/internal/calendar/available_move_dates?startDate=${startDate}`).then((response) => {
-    expect(response.body).to.have.property('available');
-    return response.body.available.map((date) => moment(date));
-  });
 });

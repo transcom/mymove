@@ -2,7 +2,6 @@ package models
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
 	"time"
 
@@ -10,11 +9,11 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/gobuffalo/validate"
-	"github.com/gobuffalo/validate/validators"
+	"github.com/gobuffalo/validate/v3"
+	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/rickar/cal"
 
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/unit"
@@ -33,23 +32,6 @@ func (v *StringIsNilOrNotBlank) IsValid(errors *validate.Errors) {
 	}
 	if strings.TrimSpace(*v.Field) == "" {
 		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s can not be blank.", v.Name))
-	}
-}
-
-// StringDoesNotContainSSN adds an error if the Field contains an SSN.
-type StringDoesNotContainSSN struct {
-	Name  string
-	Field string
-}
-
-var ignoredCharactersRegex = regexp.MustCompile(`(\s|-|\.|_)`)
-var nineDigitsRegex = regexp.MustCompile(`^\d{9}$`)
-
-// IsValid adds an error if the Field contains an SSN.
-func (v *StringDoesNotContainSSN) IsValid(errors *validate.Errors) {
-	cleanSSN := ignoredCharactersRegex.ReplaceAllString(v.Field, "")
-	if nineDigitsRegex.MatchString(cleanSSN) {
-		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s Cannot store a raw SSN in this field.", v.Name))
 	}
 }
 

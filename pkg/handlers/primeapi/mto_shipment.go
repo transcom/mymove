@@ -1,10 +1,15 @@
 package primeapi
 
 import (
+	"fmt"
 	"time"
 
+	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
+
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+
 	"github.com/go-openapi/strfmt"
-	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -16,48 +21,83 @@ import (
 
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/handlers/primeapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 // CreateMTOShipmentHandler is the handler to create MTO shipments
 type CreateMTOShipmentHandler struct {
 	handlers.HandlerContext
-	mtoShipmentCreator services.MTOShipmentCreator
+	mtoShipmentCreator     services.MTOShipmentCreator
+	mtoAvailabilityChecker services.MoveTaskOrderChecker
 }
 
 // Handle creates the mto shipment
 func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipmentParams) middleware.Responder {
-
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	payload := params.Body
+
 	if payload == nil {
 		logger.Error("Invalid mto shipment: params Body is nil")
-		return mtoshipmentops.NewCreateMTOShipmentBadRequest()
+		return mtoshipmentops.NewCreateMTOShipmentBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
+			"The MTO Shipment request body cannot be empty.", h.GetTraceID()))
+	}
+
+	for _, mtoServiceItem := range params.Body.MtoServiceItems() {
+		// restrict creation to a list
+		if _, ok := CreateableServiceItemMap[mtoServiceItem.ModelType()]; !ok {
+			// throw error if modelType() not on the list
+			mapKeys := GetMapKeys(CreateableServiceItemMap)
+			detailErr := fmt.Sprintf("MTOServiceItem modelType() not allowed: %s ", mtoServiceItem.ModelType())
+			verrs := validate.NewErrors()
+			verrs.Add("modelType", fmt.Sprintf("allowed modelType() %v", mapKeys))
+
+			logger.Error("primeapi.CreateMTOShipmentHandler error", zap.Error(verrs))
+			return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(
+				detailErr, h.GetTraceID(), verrs))
+		}
 	}
 
 	mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
+	mtoShipment.Status = models.MTOShipmentStatusSubmitted
+	mtoServiceItemsList, verrs := payloads.MTOServiceItemModelListFromCreate(payload)
 
-	mtoServiceItemsList, verrs := payloads.MTOServiceItemList(payload)
 	if verrs != nil && verrs.HasAny() {
 		logger.Error("Error validating mto service item list: ", zap.Error(verrs))
 
-		return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity()
+		return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(
+			"The MTO service item list is invalid.", h.GetTraceID(), nil))
 	}
 
-	//mtoShipment.MTOServiceItems = *mtoServiceItemsList
-	mtoShipment, err := h.mtoShipmentCreator.CreateMTOShipment(mtoShipment, mtoServiceItemsList)
+	moveTaskOrderID := uuid.FromStringOrNil(payload.MoveTaskOrderID.String())
+	mtoAvailableToPrime, err := h.mtoAvailabilityChecker.MTOAvailableToPrime(moveTaskOrderID)
+
+	if mtoAvailableToPrime {
+		mtoShipment, err = h.mtoShipmentCreator.CreateMTOShipment(mtoShipment, mtoServiceItemsList)
+	} else if err == nil {
+		logger.Error("primeapi.CreateMTOShipmentHandler error - MTO is not available to Prime")
+		return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(payloads.ClientError(
+			handlers.NotFoundMessage, fmt.Sprintf("id: %s not found for moveTaskOrder", moveTaskOrderID), h.GetTraceID()))
+	}
+
+	// Could be the error from MTOAvailableToPrime or CreateMTOShipment:
 	if err != nil {
-		switch err.(type) {
+		logger.Error("primeapi.CreateMTOShipmentHandler error", zap.Error(err))
+		switch e := err.(type) {
 		case services.NotFoundError:
-			logger.Error("move task order not found", zap.Error(err))
-			return mtoshipmentops.NewCreateMTOShipmentNotFound()
+			return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+		case services.InvalidInputError:
+			return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(err.Error(), h.GetTraceID(), e.ValidationErrors))
+		case services.QueryError:
+			if e.Unwrap() != nil {
+				// If you can unwrap, log the internal error (usually a pq error) for better debugging
+				logger.Error("primeapi.CreateMTOShipmentHandler query error", zap.Error(e.Unwrap()))
+			}
+			return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+		default:
+			return mtoshipmentops.NewCreateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
 		}
-		logger.Error("Error creating mto shipment: ", zap.Error(err))
-		return mtoshipmentops.NewCreateMTOShipmentInternalServerError()
 	}
-
 	returnPayload := payloads.MTOShipment(mtoShipment)
 	return mtoshipmentops.NewCreateMTOShipmentOK().WithPayload(returnPayload)
 }
@@ -154,33 +194,143 @@ type UpdateMTOShipmentHandler struct {
 func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	mtoShipment, fieldErrs := UpdateMTOShipmentModel(params.MtoShipmentID, params.Body)
-	if fieldErrs != nil {
-		logger.Error("primeapi.UpdateMTOShipmentHandler error - extra fields in request", zap.Error(fieldErrs))
+	mtoShipmentID := uuid.FromStringOrNil(params.MtoShipmentID.String())
 
-		errPayload := payloads.ValidationError("Fields that cannot be updated found in input",
-			h.GetTraceID(), fieldErrs)
-
-		return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(errPayload)
-	}
-
-	eTag := params.IfMatch
-	logger.Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
-	mtoShipment, err := h.mtoShipmentUpdater.UpdateMTOShipment(mtoShipment, eTag)
+	mtoAvailableToPrime, err := h.mtoShipmentUpdater.MTOShipmentsMTOAvailableToPrime(mtoShipmentID)
 	if err != nil {
-		logger.Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
+		logger.Error("primeapi.UpdateMTOShipmentHandler error - MTO is not available to prime", zap.Error(err))
 		switch e := err.(type) {
 		case services.NotFoundError:
-			return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
-		case services.InvalidInputError:
-			payload := payloads.ValidationError(err.Error(), h.GetTraceID(), e.ValidationErrors)
-			return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(payload)
-		case services.PreconditionFailedError:
-			return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
+			return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, e.Error(), h.GetTraceID()))
 		default:
-			return mtoshipmentops.NewUpdateMTOShipmentInternalServerError()
+			return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
 		}
 	}
-	mtoShipmentPayload := payloads.MTOShipment(mtoShipment)
-	return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(mtoShipmentPayload)
+
+	if mtoAvailableToPrime {
+		mtoShipment, fieldErrs := UpdateMTOShipmentModel(params.MtoShipmentID, params.Body)
+		if fieldErrs != nil {
+			logger.Error("primeapi.UpdateMTOShipmentHandler error - extra fields in request", zap.Error(fieldErrs))
+
+			errPayload := payloads.ValidationError("Fields that cannot be updated found in input",
+				h.GetTraceID(), fieldErrs)
+
+			return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(errPayload)
+		}
+
+		var dbShipment models.MTOShipment
+		err := h.DB().Eager("PickupAddress", "DestinationAddress").Find(&dbShipment, params.MtoShipmentID)
+		if err != nil {
+			return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+		}
+
+		mtoShipment, validationErrs := h.checkPrimeValidationsOnModel(mtoShipment, &dbShipment)
+		if validationErrs != nil && validationErrs.HasAny() {
+			logger.Error("primeapi.UpdateMTOShipmentHandler error - extra fields in request", zap.Error(validationErrs))
+
+			errPayload := payloads.ValidationError("Invalid data found in input",
+				h.GetTraceID(), validationErrs)
+
+			return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(errPayload)
+		}
+
+		eTag := params.IfMatch
+
+		logger.Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
+		mtoShipment, err = h.mtoShipmentUpdater.UpdateMTOShipment(mtoShipment, eTag)
+		if err != nil {
+			logger.Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
+			switch e := err.(type) {
+			case services.NotFoundError:
+				return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceID()))
+			case services.InvalidInputError:
+				payload := payloads.ValidationError(err.Error(), h.GetTraceID(), e.ValidationErrors)
+				return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(payload)
+			case services.PreconditionFailedError:
+				return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
+			default:
+				return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+			}
+		}
+		mtoShipmentPayload := payloads.MTOShipment(mtoShipment)
+		return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(mtoShipmentPayload)
+	}
+	return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceID()))
+}
+
+func (h UpdateMTOShipmentHandler) checkPrimeValidationsOnModel(mtoShipment *models.MTOShipment, dbShipment *models.MTOShipment) (*models.MTOShipment, *validate.Errors) {
+	verrs := validate.NewErrors()
+	if mtoShipment.RequestedPickupDate != nil {
+		requestedPickupDate := mtoShipment.RequestedPickupDate
+		// Prime cannot edit the customer's requestedPickupDate
+		// if requestedPickupDate isn't valid then return InvalidInputError
+		if !requestedPickupDate.Equal(*dbShipment.RequestedPickupDate) {
+			verrs.Add("requestedPickupDate", "must match what customer has requested")
+		}
+		mtoShipment.RequestedPickupDate = requestedPickupDate
+	}
+
+	if mtoShipment.PrimeEstimatedWeight != nil {
+		if dbShipment.PrimeEstimatedWeight != nil {
+			verrs.Add("primeEstimatedWeight", "cannot be updated after initial estimation")
+		}
+		scheduledPickupDate := dbShipment.ScheduledPickupDate
+		if mtoShipment.ScheduledPickupDate != nil {
+			scheduledPickupDate = mtoShipment.ScheduledPickupDate
+		}
+		now := time.Now()
+		if dbShipment.ApprovedDate != nil && scheduledPickupDate != nil {
+			err := validatePrimeEstimatedWeightRecordedDate(now, *scheduledPickupDate, *dbShipment.ApprovedDate)
+			if err != nil {
+				verrs.Add("primeEstimatedWeight", "the time period for updating the estimated weight for a shipment has expired, please contact the TOO directly to request updates to this shipment’s estimated weight")
+				verrs.Add("primeEstimatedWeight", err.Error())
+			}
+		} else if scheduledPickupDate == nil {
+			verrs.Add("primeEstimatedWeight", "the scheduled pickup date must be set before estimating the weight")
+		}
+		mtoShipment.PrimeEstimatedWeightRecordedDate = &now
+	}
+	pickupAddress := dbShipment.PickupAddress
+	if mtoShipment.PickupAddress != nil {
+		pickupAddress = mtoShipment.PickupAddress
+	}
+	destinationAddress := dbShipment.DestinationAddress
+	if mtoShipment.DestinationAddress != nil {
+		destinationAddress = mtoShipment.DestinationAddress
+	}
+	// Updated based on existing fields that may have been updated:
+	if mtoShipment.ScheduledPickupDate != nil && mtoShipment.PrimeEstimatedWeight != nil && pickupAddress != nil && destinationAddress != nil {
+
+		requiredDeliveryDate, err := mtoshipment.CalculateRequiredDeliveryDate(h.Planner(), h.DB(), *pickupAddress,
+			*destinationAddress, *mtoShipment.ScheduledPickupDate, mtoShipment.PrimeEstimatedWeight.Int())
+		if err != nil {
+			verrs.Add("requiredDeliveryDate", err.Error())
+		}
+		mtoShipment.RequiredDeliveryDate = requiredDeliveryDate
+	}
+
+	if len(mtoShipment.MTOAgents) > 0 {
+		if len(dbShipment.MTOAgents) < len(mtoShipment.MTOAgents) {
+			verrs.Add("agents", "cannot add MTO agents to a shipment")
+		}
+	}
+	return mtoShipment, verrs
+}
+
+func validatePrimeEstimatedWeightRecordedDate(estimatedWeightRecordedDate time.Time, scheduledPickupDate time.Time, approvedDate time.Time) error {
+	approvedDaysFromScheduled := scheduledPickupDate.Sub(approvedDate).Hours() / 24
+	daysFromScheduled := scheduledPickupDate.Sub(estimatedWeightRecordedDate).Hours() / 24
+	if approvedDaysFromScheduled >= 10 && daysFromScheduled >= 10 {
+		return nil
+	}
+
+	if (approvedDaysFromScheduled >= 3 && approvedDaysFromScheduled <= 9) && daysFromScheduled >= 3 {
+		return nil
+	}
+
+	if approvedDaysFromScheduled < 3 && daysFromScheduled >= 1 {
+		return nil
+	}
+
+	return services.InvalidInputError{}
 }

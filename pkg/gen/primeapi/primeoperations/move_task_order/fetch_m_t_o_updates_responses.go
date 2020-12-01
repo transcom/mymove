@@ -10,13 +10,13 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	primemessages "github.com/transcom/mymove/pkg/gen/primemessages"
+	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
 // FetchMTOUpdatesOKCode is the HTTP code returned for type FetchMTOUpdatesOK
 const FetchMTOUpdatesOKCode int = 200
 
-/*FetchMTOUpdatesOK Successfully retrieved move task orders where `isAvailableToPrime` is TRUE.
+/*FetchMTOUpdatesOK Successfully retrieved move task orders where `availableToPrimeAt` has been set.
 
 swagger:response fetchMTOUpdatesOK
 */
