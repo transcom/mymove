@@ -53,6 +53,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 
 		JSONProducer: runtime.JSONProducer(),
 
+		GetMovesLocatorPaymentRequestsHandler: GetMovesLocatorPaymentRequestsHandlerFunc(func(params GetMovesLocatorPaymentRequestsParams) middleware.Responder {
+			return middleware.NotImplemented("operation GetMovesLocatorPaymentRequests has not yet been implemented")
+		}),
 		MtoServiceItemDeleteMTOServiceItemHandler: mto_service_item.DeleteMTOServiceItemHandlerFunc(func(params mto_service_item.DeleteMTOServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.DeleteMTOServiceItem has not yet been implemented")
 		}),
@@ -158,6 +161,8 @@ type MymoveAPI struct {
 	//   - application/json
 	JSONProducer runtime.Producer
 
+	// GetMovesLocatorPaymentRequestsHandler sets the operation handler for the get moves locator payment requests operation
+	GetMovesLocatorPaymentRequestsHandler GetMovesLocatorPaymentRequestsHandler
 	// MtoServiceItemDeleteMTOServiceItemHandler sets the operation handler for the delete m t o service item operation
 	MtoServiceItemDeleteMTOServiceItemHandler mto_service_item.DeleteMTOServiceItemHandler
 	// MoveTaskOrderDeleteMoveTaskOrderHandler sets the operation handler for the delete move task order operation
@@ -272,6 +277,9 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
+	if o.GetMovesLocatorPaymentRequestsHandler == nil {
+		unregistered = append(unregistered, "GetMovesLocatorPaymentRequestsHandler")
+	}
 	if o.MtoServiceItemDeleteMTOServiceItemHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.DeleteMTOServiceItemHandler")
 	}
@@ -432,6 +440,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/moves/{locator}/payment-requests"] = NewGetMovesLocatorPaymentRequests(o.context, o.GetMovesLocatorPaymentRequestsHandler)
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}

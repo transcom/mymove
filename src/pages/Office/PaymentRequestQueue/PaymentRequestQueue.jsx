@@ -98,7 +98,7 @@ const PaymentRequestQueue = ({ history }) => {
   const showBranchFilter = office_user?.transportation_office?.gbloc !== GBLOC.USMC;
 
   const handleClick = (values) => {
-    history.push(`/moves/MOVE_CODE/payment-requests/${values.id}`);
+    history.push(`/moves/${values.locator}/payment-requests`);
   };
 
   if (isLoading) return <LoadingPlaceholder />;
