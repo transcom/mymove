@@ -1,16 +1,16 @@
-package fakedata_approved
+package fakedata
 
 import (
 	"fmt"
 )
 
 type fakeDataTestCase struct {
-	firstName   string
-	lastName    string
-	address     string
-	phone       string
-	email       string
-	expected    bool
+	firstName      string
+	lastName       string
+	address        string
+	phone          string
+	email          string
+	expected       bool
 	expectedStrict bool
 }
 
@@ -18,94 +18,94 @@ var fakeDataTestCases = []fakeDataTestCase{
 	// STRICT MATCH IS TRUE
 	{
 		// 0
-		firstName: "Jason",
-		lastName: "Ash",
-		address: "448 Washington Blvd NE",
-		phone: "999-999-9999",
-		email: "test@email.com",
-		expected: true,
+		firstName:      "Jason",
+		lastName:       "Ash",
+		address:        "448 Washington Blvd NE",
+		phone:          "999-999-9999",
+		email:          "test@email.com",
+		expected:       true,
 		expectedStrict: true,
 	},
 	{
 		// 1
-		firstName: "Gregory",
-		lastName: "Van der Heide",
-		address: "6622 Airport Way S #1430",
-		phone: "123-555-9999",
-		email: "test@example.com",
-		expected: true,
+		firstName:      "Gregory",
+		lastName:       "Van der Heide",
+		address:        "6622 Airport Way S #1430",
+		phone:          "123-555-9999",
+		email:          "test@example.com",
+		expected:       true,
 		expectedStrict: true,
 	},
 	{
 		// 2
-		firstName: "Christopher",
-		lastName: "Swinglehurst-Walters",
-		address: "4124 Apache Dr, Apt 18C",
-		phone: "456-555-9359",
-		email: "test@email.com",
-		expected: true,
+		firstName:      "Christopher",
+		lastName:       "Swinglehurst-Walters",
+		address:        "4124 Apache Dr, Apt 18C",
+		phone:          "456-555-9359",
+		email:          "test@email.com",
+		expected:       true,
 		expectedStrict: true,
 	},
 	{
 		// 3
-		firstName: "Jayden",
-		lastName: "Jackson Jr.",
-		address: "441 SW Río de la Plata Drive",
-		phone: "456-555-9359",
-		email: "test@email.com",
-		expected: true,
+		firstName:      "Jayden",
+		lastName:       "Jackson Jr.",
+		address:        "441 SW Río de la Plata Drive",
+		phone:          "456-555-9359",
+		email:          "test@email.com",
+		expected:       true,
 		expectedStrict: true,
 	},
 	// STRICT MATCH IS FALSE
 	{
 		// 4
-		firstName: "Christopher",
-		lastName: "Swinglehurst Walters", //"Swinglehurst-Walters"
-		address: "4124 Apache Dr Apt 18C", //"4124 Apache Dr, Apt 18C",
-		phone: "456-555-9359",
-		email: "test@email.com",
-		expected: true,
+		firstName:      "Christopher",
+		lastName:       "Swinglehurst Walters",   //"Swinglehurst-Walters"
+		address:        "4124 Apache Dr Apt 18C", //"4124 Apache Dr, Apt 18C",
+		phone:          "456-555-9359",
+		email:          "test@email.com",
+		expected:       true,
 		expectedStrict: false,
 	},
 	{
 		// 5
-		firstName: "Jayden",
-		lastName: "Jackson Jr", // "Jackson Jr."
-		address: "6622 Airport Way S 1430", //"6622 Airport Way S #1430"
-		phone: "456-555-9359",
-		email: "test@email.com",
-		expected: true,
+		firstName:      "Jayden",
+		lastName:       "Jackson Jr",              // "Jackson Jr."
+		address:        "6622 Airport Way S 1430", //"6622 Airport Way S #1430"
+		phone:          "456-555-9359",
+		email:          "test@email.com",
+		expected:       true,
 		expectedStrict: false,
 	},
 	{
 		// 6
-		firstName: "Barbara",
-		lastName: "St Juste", //"St. Juste"
-		address: "1292 Orchard Terrace, Building C Unit 10", //"1292 Orchard Terrace, Building C, Unit 10",
-		phone: "456-555-9359",
-		email: "test@email.com",
-		expected: true,
+		firstName:      "Barbara",
+		lastName:       "St Juste",                                 //"St. Juste"
+		address:        "1292 Orchard Terrace, Building C Unit 10", //"1292 Orchard Terrace, Building C, Unit 10",
+		phone:          "456-555-9359",
+		email:          "test@email.com",
+		expected:       true,
 		expectedStrict: false,
 	},
 	// FAKE DATA IS NOT VALID
 	{
 		// 7
-		firstName: "Paul", //"Jason"
-		lastName: "Ash",
-		address: "448 Washington NE", //"448 Washington Blvd NE",
-		phone: "999-199-9999",
-		email: "test@google.com",
-		expected: false,
+		firstName:      "Paul", //"Jason"
+		lastName:       "Ash",
+		address:        "448 Washington NE", //"448 Washington Blvd NE",
+		phone:          "999-199-9999",
+		email:          "test@google.com",
+		expected:       false,
 		expectedStrict: false,
 	},
 	{
 		// 8
-		firstName: "Gregxry", //"Gregory"
-		lastName: "Vaz der Zeide", //"Van der Heide"
-		address: "99 Airport Way S #1430", //"6622 Airport Way S #1430"
-		phone: "123-55-9999",
-		email: "test@ex.com",
-		expected: false,
+		firstName:      "Gregxry",                //"Gregory"
+		lastName:       "Vaz der Zeide",          //"Van der Heide"
+		address:        "99 Airport Way S #1430", //"6622 Airport Way S #1430"
+		phone:          "123-55-9999",
+		email:          "test@ex.com",
+		expected:       false,
 		expectedStrict: false,
 	},
 }

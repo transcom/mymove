@@ -6,7 +6,7 @@ https://docs.google.com/spreadsheets/d/1u1NO_ZWvKJc2ylOSF5-4mcm6Eg5X2zu7c_P-X4lD
  for testing purposes. Mostly likely to be used in experimental (exp) or staging (stg).
  ******/
 
-package fakedata_approved
+package fakedata
 
 import (
 	"regexp"
@@ -15,189 +15,189 @@ import (
 
 type fakeName struct {
 	first string
-	last string
+	last  string
 }
 
 var fakeNames = []fakeName{
 	{
 		first: "Jason",
-		last: "Ash",
+		last:  "Ash",
 	},
 	{
 		first: "Riley",
-		last: "Baker",
+		last:  "Baker",
 	},
 	{
 		first: "Aaliyah",
-		last: "Banks",
+		last:  "Banks",
 	},
 	{
 		first: "Ashley",
-		last: "Banks",
+		last:  "Banks",
 	},
 	{
 		first: "Angel",
-		last: "Bauer",
+		last:  "Bauer",
 	},
 	{
 		first: "Jaime",
-		last: "Childers",
+		last:  "Childers",
 	},
 	{
 		first: "Sofía",
-		last: "Clark-Nuñez",
+		last:  "Clark-Nuñez",
 	},
 	{
 		first: "Justice",
-		last: "Connelly",
+		last:  "Connelly",
 	},
 	{
 		first: "Zoya",
-		last: "Darvish",
+		last:  "Darvish",
 	},
 	{
 		first: "Reese",
-		last: "Embry",
+		last:  "Embry",
 	},
 	{
 		first: "Robin",
-		last: "Fenstermacher",
+		last:  "Fenstermacher",
 	},
 	{
 		first: "Grace",
-		last: "Griffin",
+		last:  "Griffin",
 	},
 	{
 		first: "Laura Jane",
-		last: "Henderson",
+		last:  "Henderson",
 	},
 	{
 		first: "Skyler",
-		last: "Hunt",
+		last:  "Hunt",
 	},
 	{
 		first: "Jayden",
-		last: "Jackson Jr.",
+		last:  "Jackson Jr.",
 	},
 	{
 		first: "Dorothy",
-		last: "Lagomarsino",
+		last:  "Lagomarsino",
 	},
 	{
 		first: "John",
-		last: "Lee",
+		last:  "Lee",
 	},
 	{
 		first: "Jonathan",
-		last: "Lee",
+		last:  "Lee",
 	},
 	{
 		first: "Lisa",
-		last: "Lee",
+		last:  "Lee",
 	},
 	{
 		first: "Susan",
-		last: "Lee",
+		last:  "Lee",
 	},
 	{
 		first: "W. Nathan",
-		last: "Millering",
+		last:  "Millering",
 	},
 	{
 		first: "Owen",
-		last: "Nance",
+		last:  "Nance",
 	},
 	{
 		first: "Avery",
-		last: "O'Keefe",
+		last:  "O'Keefe",
 	},
 	{
 		first: "Quinn",
-		last: "Ocampo",
+		last:  "Ocampo",
 	},
 	{
 		first: "Josh",
-		last: "Perez",
+		last:  "Perez",
 	},
 	{
 		first: "Jody",
-		last: "Pitkin",
+		last:  "Pitkin",
 	},
 	{
 		first: "Saqib",
-		last: "Rahman",
+		last:  "Rahman",
 	},
 	{
 		first: "Carol",
-		last: "Romilly",
+		last:  "Romilly",
 	},
 	{
 		first: "James",
-		last: "Rye",
+		last:  "Rye",
 	},
 	{
 		first: "Gabriela",
-		last: "Sáenz Perez",
+		last:  "Sáenz Perez",
 	},
 	{
 		first: "Jessica",
-		last: "Smith",
+		last:  "Smith",
 	},
 	{
 		first: "Kerry",
-		last: "Smith",
+		last:  "Smith",
 	},
 	{
 		first: "Ted",
-		last: "Smith",
+		last:  "Smith",
 	},
 	{
 		first: "Barbara",
-		last: "St. Juste",
+		last:  "St. Juste",
 	},
 	{
 		first: "Christopher",
-		last: "Swinglehurst-Walters",
+		last:  "Swinglehurst-Walters",
 	},
 	{
 		first: "Melissa",
-		last: "Taylor",
+		last:  "Taylor",
 	},
 	{
 		first: "Edgar",
-		last: "Taylor III",
+		last:  "Taylor III",
 	},
 	{
 		first: "Casey",
-		last: "Thompson",
+		last:  "Thompson",
 	},
 	{
 		first: "Gregory",
-		last: "Van der Heide",
+		last:  "Van der Heide",
 	},
 	{
 		first: "Catalina",
-		last: "Washington",
+		last:  "Washington",
 	},
 	{
 		first: "Rosalie",
-		last: "Wexler",
+		last:  "Wexler",
 	},
 	{
 		first: "Nevaeh",
-		last: "Wilson",
+		last:  "Wilson",
 	},
 	{
 		first: "Peyton",
-		last: "Wing",
+		last:  "Wing",
 	},
 	{
 		first: "Jo",
-		last: "Xi",
+		last:  "Xi",
 	},
 	{
 		first: "Earl",
-		last: "Yazzie",
+		last:  "Yazzie",
 	},
 }
 
@@ -221,10 +221,10 @@ var fakeAddress = []string{
 }
 
 /*
- IsValidFakeDataFullNameStrict - checks the first name and last name can be found in the
- fake data. If the name is found true is returned, if not found, false is returned.
- */
-func IsValidFakeDataFullNameStrict (firstName string, lastName string) (bool, error) {
+IsValidFakeDataFullNameStrict checks the first name and last name can be found in the
+fake data. If the name is found true is returned, if not found, false is returned.
+*/
+func IsValidFakeDataFullNameStrict(firstName string, lastName string) (bool, error) {
 	firstName = strings.TrimSpace(firstName)
 	lastName = strings.TrimSpace(lastName)
 
@@ -239,10 +239,10 @@ func IsValidFakeDataFullNameStrict (firstName string, lastName string) (bool, er
 }
 
 /*
- IsValidFakeDataFullName - checks the first name and last name can be found in the
- fake data. If the name is found true is returned, if not found, false is returned.
+IsValidFakeDataFullName checks the first name and last name can be found in the
+fake data. If the name is found true is returned, if not found, false is returned.
 */
-func IsValidFakeDataFullName (firstName string, lastName string) (bool, error) {
+func IsValidFakeDataFullName(firstName string, lastName string) (bool, error) {
 	// Make a Regex to say we only want letters and numbers
 	reg, err := regexp.Compile("[^a-zA-Z0-9]+")
 	if err != nil {
@@ -268,10 +268,10 @@ func IsValidFakeDataFullName (firstName string, lastName string) (bool, error) {
 }
 
 /*
- IsValidFakeDataAddress - checks the that the address can be found in the
- fake data. If the address is found true is returned, if not found, false is returned.
+IsValidFakeDataAddress checks the that the address can be found in the
+fake data. If the address is found true is returned, if not found, false is returned.
 */
-func IsValidFakeDataAddress (address string) (bool, error) {
+func IsValidFakeDataAddress(address string) (bool, error) {
 	// Make a Regex to say we only want letters and numbers
 	reg, err := regexp.Compile("[^a-zA-Z0-9]+")
 	if err != nil {
@@ -290,10 +290,10 @@ func IsValidFakeDataAddress (address string) (bool, error) {
 }
 
 /*
- IsValidFakeDataAddressStrict - checks the that the address can be found in the
- fake data. If the address is found true is returned, if not found, false is returned.
+IsValidFakeDataAddressStrict checks the that the address can be found in the
+fake data. If the address is found true is returned, if not found, false is returned.
 */
-func IsValidFakeDataAddressStrict (address string) (bool, error) {
+func IsValidFakeDataAddressStrict(address string) (bool, error) {
 	address = strings.TrimSpace(address)
 	for _, fake := range fakeAddress {
 		if strings.EqualFold(fake, address) {
@@ -307,8 +307,8 @@ func IsValidFakeDataAddressStrict (address string) (bool, error) {
 IsValidFakeDataPhone - checks for the format
  "999-999-999" or
  "###-555-####"
- */
-func IsValidFakeDataPhone (phone string) (bool, error) {
+*/
+func IsValidFakeDataPhone(phone string) (bool, error) {
 	// Make a Regex to say we only want numbers
 	reg, err := regexp.Compile("[^0-9]+")
 	if err != nil {
@@ -331,8 +331,8 @@ func IsValidFakeDataPhone (phone string) (bool, error) {
 IsValidFakeDataEmail - checks for the format
 @example.com or
 @email.com
- */
-func IsValidFakeDataEmail (email string) (bool, error) {
+*/
+func IsValidFakeDataEmail(email string) (bool, error) {
 	email = strings.TrimSpace(email)
 	lowerPhone := strings.ToLower(email)
 

@@ -1,7 +1,7 @@
-package fakedata_approved
+package fakedata
 
 import (
-"go.uber.org/zap"
+	"go.uber.org/zap"
 )
 
 // Logger is an interface that describes the logging requirements of this package.
