@@ -3,7 +3,7 @@ import { bool } from 'prop-types';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlusCircle } from '@fortawesome/free-solid-svg-icons/faPlusCircle';
+
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import { getMoveDocumentsForMove, deleteMoveDocument } from 'shared/Entities/modules/moveDocuments';
 import docsAddedCheckmarkImg from 'shared/images/docs_added_checkmark.png';
@@ -125,7 +125,7 @@ export class DocumentsUploaded extends Component {
             </div>
             {showLinks && (
               <Link data-testid="weight-ticket-link" to={`/moves/${moveId}/ppm-weight-ticket`} className="usa-link">
-                <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} /> Add weight ticket
+                <FontAwesomeIcon className="icon link-blue" icon="plus-circle" /> Add weight ticket
               </Link>
             )}
             <hr id="doc-summary-separator" />
@@ -146,7 +146,7 @@ export class DocumentsUploaded extends Component {
             {showLinks && (
               <div className="add-expense-link">
                 <Link data-testid="expense-link" to={`/moves/${moveId}/ppm-expenses`} className="usa-link">
-                  <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} /> Add expense
+                  <FontAwesomeIcon className="icon link-blue" icon="plus-circle" /> Add expense
                 </Link>
               </div>
             )}
