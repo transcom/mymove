@@ -28,6 +28,7 @@ type MoveTaskOrderFetcher interface {
 type MoveTaskOrderUpdater interface {
 	MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eTag string, includeServiceCodeMS bool, includeServiceCodeCS bool) (*models.Move, error)
 	UpdatePostCounselingInfo(moveTaskOrderID uuid.UUID, body movetaskorderops.UpdateMTOPostCounselingInformationBody, eTag string) (*models.Move, error)
+	Hide(moveTaskOrderID uuid.UUID, eTag string) (*models.Move, error)
 }
 
 //MoveTaskOrderChecker is the service object interface for checking if a MoveTaskOrder is in a certain state
