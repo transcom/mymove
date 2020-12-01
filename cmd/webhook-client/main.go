@@ -19,7 +19,8 @@ import (
 // initRootFlags initializes flags relating to the webhook client
 func initRootFlags(flag *pflag.FlagSet) {
 	cli.InitCACFlags(flag)
-	cli.InitVerboseFlags(flag)
+	// Logging Levels
+	cli.InitLoggingFlags(flag)
 	// DB Config
 	cli.InitDatabaseFlags(flag)
 
@@ -37,7 +38,7 @@ func InitRootConfig(v *viper.Viper) (*pop.Connection, utils.Logger, error) {
 	// LOGGER SETUP
 	// Get the db env to configure the logger level
 	dbEnv := v.GetString(cli.DbEnvFlag)
-	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
+	logger, err := logging.Config(dbEnv, v.GetString(cli.LoggingLevelFlag))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
@@ -55,7 +56,7 @@ func InitRootConfig(v *viper.Viper) (*pop.Connection, utils.Logger, error) {
 		return nil, logger, err
 	}
 
-	err = cli.CheckVerbose(v)
+	err = cli.CheckLogging(v)
 	if err != nil {
 		return nil, logger, err
 	}

@@ -95,7 +95,8 @@ func main() {
 		infoLogger.SetOutput(os.Stdout)
 	}
 
-	AWSConfig, errorConfig := cli.GetAWSConfig(v, v.GetBool(cli.VerboseFlag))
+	verbose := cli.LogLevelIsDebug(v)
+	AWSConfig, errorConfig := cli.GetAWSConfig(v, verbose)
 	if errorConfig != nil {
 		logger.Fatal(errors.Wrap(errorConfig, "error creating aws config").Error())
 	}

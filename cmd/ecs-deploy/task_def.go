@@ -229,8 +229,8 @@ func initTaskDefFlags(flag *pflag.FlagSet) {
 	flag.Int(cpuFlag, int(512), "The CPU reservation")
 	flag.Int(memFlag, int(2048), "The memory reservation")
 
-	// Verbose
-	cli.InitVerboseFlags(flag)
+	// Logging Levels
+	cli.InitLoggingFlags(flag)
 
 	// Dry Run or Registration
 	flag.Bool(dryRunFlag, false, "Execute as a dry-run without modifying AWS.")
@@ -451,7 +451,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	verbose := v.GetBool(cli.VerboseFlag)
+	verbose := cli.LogLevelIsDebug(v)
 	if !verbose {
 		// Disable any logging that isn't attached to the logger unless using the verbose flag
 		log.SetOutput(ioutil.Discard)
