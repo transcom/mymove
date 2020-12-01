@@ -5,6 +5,7 @@ import { adminReducer } from 'react-admin';
 import defaultMessages from 'ra-language-english';
 
 import authReducer from 'store/auth/reducer';
+import flashReducer from 'store/flash/reducer';
 import userReducer from 'shared/Data/users';
 import { swaggerReducerPublic, swaggerReducerInternal } from 'shared/Swagger/ducks';
 import { requestsReducer } from 'shared/Swagger/requestsReducer';
@@ -25,6 +26,7 @@ const i18nProvider = () => defaultMessages;
 
 const defaultReducers = {
   auth: authReducer,
+  flash: flashReducer,
   form: formReducer,
   swaggerPublic: swaggerReducerPublic,
   requests: requestsReducer,
