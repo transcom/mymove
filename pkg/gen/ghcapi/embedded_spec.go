@@ -1372,42 +1372,6 @@ func init() {
         }
       ]
     },
-    "/moves/{locator}/payment-requests": {
-      "get": {
-        "produces": [
-          "application/json"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully returned all moves matching the criteria",
-            "schema": {
-              "$ref": "#/definitions/QueuePaymentRequestsResult"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "Code used to identify a move in the system",
-          "name": "locator",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
     "/payment-requests/{paymentRequestID}": {
       "get": {
         "description": "Fetches an instance of a payment request by id",
@@ -5227,48 +5191,6 @@ func init() {
           "format": "uuid",
           "description": "ID of the shipment",
           "name": "shipmentID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
-    "/moves/{locator}/payment-requests": {
-      "get": {
-        "produces": [
-          "application/json"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully returned all moves matching the criteria",
-            "schema": {
-              "$ref": "#/definitions/QueuePaymentRequestsResult"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "Code used to identify a move in the system",
-          "name": "locator",
           "in": "path",
           "required": true
         }
