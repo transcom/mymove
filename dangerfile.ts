@@ -69,9 +69,87 @@ View the [frontend file org ADR](https://github.com/transcom/mymove/blob/master/
 };
 
 const bypassingLinterChecks = async () => {
-  // load all modified and new files
   const allFiles = danger.git.modified_files.concat(danger.git.created_files);
-  const bypassCodes = ['eslint-disable-next-line', 'eslint-disable-line', 'eslint-disable', '#nosec'];
+  const diffsByFile = await Promise.all(allFiles.map((f) => danger.git.diffForFile(f)));
+  const showDanger = checkPRHasProhibitedLinterOverride(diffsByFile);
+  if (showDanger) {
+    // throw dangerjs warning
+    warn(
+      `It looks like you are attempting to bypass a linter rule, which is not within
+      security compliance rules. Please remove the bypass code and address the underlying issue. cc: @transcom/Truss-Pamplemoose`,
+    );
+  }
+  return showDanger;
+};
+
+// linter check fn
+function checkPRHasProhibitedLinterOverride(dangerJSDiffCollection) {
+  let hasBadOverride = false;
+  for (let d in dangerJSDiffCollection) {
+    const diffFile = dangerJSDiffCollection[d];
+    const diff = diffFile.diff;
+    if (diffContainsNosec(diff)) {
+      hasBadOverride = true;
+      break;
+    }
+    if (!diffContainsEslint(diff)) {
+      continue;
+    }
+
+    // magic split into lines happen here
+    const lines = splitDiffOfAddedLines(diff);
+    for (let l in lines) {
+      const line = lines[l];
+      if (diffContainsEslint(line)) {
+        // check for comment marker (// or /*)
+        // then parse line after comment chars
+        // eg line: 'const whatever = something() // eslint-disable-line'
+        let lineParts = line.split('//');
+        if (lineParts.length === 1) {
+          // this is where marker isn't found
+          lineParts = line.split('/*');
+          if (lineParts.length === 1) {
+            throw new Error('uhhhh, how did we find eslint disable but no // or /*');
+          }
+        }
+
+        // eg lineParts: ['const whatever = something()', 'eslint-disable-line']
+        if (doesLineHaveProhibitedOverride(lineParts[1])) {
+          // fail because user shouldn't add new overrides without security / moose approval
+          hasBadOverride = true;
+        } // else continue
+      }
+    }
+  }
+  return hasBadOverride;
+}
+
+// linter check fn
+function diffContainsNosec(diffForFile) {
+  return !!diffForFile.includes('#nosec');
+}
+
+// linter check fn
+function diffContainsEslint(diffForFile) {
+  return !!diffForFile.includes('eslint-disable');
+}
+
+// linter check fn
+function splitDiffOfAddedLines(diffBlob) {
+  // remove lines that are subtracted, indicated by '-'
+  let linesToParse = [];
+  let lines = diffBlob.split('\n');
+  lines.forEach((l) => {
+    if (l[0] !== '-') {
+      linesToParse.push(l);
+    }
+  });
+  return linesToParse;
+}
+
+// linter check fn
+// comment characters location (where // or /* is in line string)
+function doesLineHaveProhibitedOverride(disablingString) {
   const okBypassRules = [
     'no-underscore-dangle',
     'prefer-object-spread',
@@ -87,48 +165,35 @@ const bypassingLinterChecks = async () => {
     'import/prefer-default-export',
     'import/no-named-as-default',
   ];
-  let hasBypass = false;
-  const diffs = await Promise.all(allFiles.map((f) => danger.git.diffForFile(f)));
+  let hasUnpermittedOverride = false;
+  // format: 'eslint-disable-next-line no-jsx, no-default'
+  // split along commas and/or commas and remove surrounding spaces
+  let disablingStringParts = disablingString
+    .trim()
+    .split(/[\s,]+/)
+    .map((item) => item.trim());
+  // disablingStringParts format: ['eslint-disable-next-line', 'no-jsx', 'no-default']
+  if (disablingStringParts[0] === 'eslint-disable') {
+    // fail because don't disable whole file please!
+    hasUnpermittedOverride = true;
+  }
 
-  for (let i = 0; i < diffs.length; i += 1) {
-    const diff = diffs[Number(i)];
-    let bypassCodesInDiff = [];
-    bypassCodes.forEach((b) => {
-      if (diff.diff.includes(b)) {
-        bypassCodesInDiff.push[b];
-      }
-    });
-    if (bypassCodesInDiff.length) {
-      for (const code in bypassCodesInDiff) {
-        const codeValue = bypassCodesInDiff[code];
-        if (codeValue !== '#nosec') {
-          for (const rule in okBypassRules) {
-            if (diff.diff.includes(codeValue + ' ' + okBypassRules[`${rule}`])) {
-              hasBypass = false;
-              break;
-            }
-          }
-        } else {
-          hasBypass = true;
-          break;
-        }
-        if (hasBypass) {
-          break;
-        }
-      }
-    }
-    if (hasBypass) {
+  if (disablingStringParts.length === 1) {
+    // fail because please specify rule
+    hasUnpermittedOverride = true;
+  }
+
+  // rules format: ['no-jsx', 'no-default']
+  let rules = disablingStringParts.slice(1);
+  for (let r in rules) {
+    const rule = rules[r];
+    if (!okBypassRules.includes(rule)) {
+      hasUnpermittedOverride = true;
       break;
     }
   }
-
-  if (hasBypass === true) {
-    warn(
-      `It looks like you are attempting to bypass a linter rule, which is not a sustainable solution to meet
-      security compliance rules. Please remove the bypass code and address the underlying issue. cc: @transcom/Truss-Pamplemoose`,
-    );
-  }
-};
+  return hasUnpermittedOverride;
+}
 
 const cypressUpdateChecks = async () => {
   // load all modified and new files
