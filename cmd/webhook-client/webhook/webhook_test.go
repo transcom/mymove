@@ -3,6 +3,7 @@ package webhook
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"testing"
 	"time"
@@ -606,24 +607,28 @@ func convertBodyToPayload(body []byte) Message {
 	return message
 }
 
-func (suite *WebhookClientTestingSuite) Test_GetSeverity() {
-	suite.T().Run("Returns severity level 3", func(t *testing.T) {
-		// engine, _, _ := setupEngineRun(suite)
-		// date := time.Date(2018, 01, 12, 22, 51, 48, 324359102, time.UTC)
-		// thresholdArray := [3]int{1800, 3600, 7200}
-		thresholdArray := make([]int, 0)
-		thresholdArray = append(thresholdArray, 1800, 3600, 7200)
-		currentTime := time.Now()
-		// firstAttempt := currentTime
-		firstAttempt := currentTime.Add(-3600 * time.Second)
-		severity := engine.GetSeverity(currentTime, firstAttempt, thresholdArray)
-		// Write 2 tests:Unit  and Integration
-		// If timeNow - firstAttempt = 0 minutes → severity = 3
-		suite.Equal(3, severity)
-	})
+type myData struct {
+	attempt       time.Duration
+	expectedLevel int
+}
 
-	// suite.T().Run("Returns severity level 3", func(t *testing.T) {
-	// })
+func (suite *WebhookClientTestingSuite) Test_GetSeverity() {
+	thresholds := []int{1800, 3600, 7200}
+	engine, _, _ := setupEngineRun(suite)
+	testData := []myData{
+		{attempt: -10 * time.Second, expectedLevel: 4},
+		{attempt: -3000 * time.Second, expectedLevel: 3},
+		{attempt: -3601 * time.Second, expectedLevel: 2},
+		{attempt: -7201 * time.Second, expectedLevel: 1},
+	}
+	for _, data := range testData {
+		suite.T().Run(fmt.Sprintf("Returns severity level %d", data.expectedLevel), func(t *testing.T) {
+			currentTime := time.Now()
+			attempt := currentTime.Add(data.attempt)
+			severity := engine.GetSeverity(currentTime, attempt, thresholds)
+			suite.Equal(data.expectedLevel, severity)
+		})
+	}
 
 	// suite.T().Run("Returns severity level 2", func(t *testing.T) {
 	// })
