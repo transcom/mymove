@@ -164,7 +164,7 @@ function doesLineHaveProhibitedOverride(disablingString) {
     'import/prefer-default-export',
     'import/no-named-as-default',
   ];
-  let hasUnpermittedOverride = false;
+  let hasProhibitedOverride = false;
   // disablingStringParts format: 'eslint-disable-next-line no-jsx, no-default'
   // split along commas and/or spaces and remove surrounding spaces
   let disablingStringParts = disablingString
@@ -174,12 +174,12 @@ function doesLineHaveProhibitedOverride(disablingString) {
   // disablingStringParts format: ['eslint-disable-next-line', 'no-jsx', 'no-default']
   if (disablingStringParts[0] === 'eslint-disable') {
     // fail because don't disable whole file please!
-    hasUnpermittedOverride = true;
+    hasProhibitedOverride = true;
   }
 
   if (disablingStringParts.length === 1) {
     // fail because rule should be specified
-    hasUnpermittedOverride = true;
+    hasProhibitedOverride = true;
   }
 
   // rules format: ['no-jsx', 'no-default']
@@ -187,11 +187,11 @@ function doesLineHaveProhibitedOverride(disablingString) {
   for (let r in rules) {
     const rule = rules[r];
     if (!okBypassRules.includes(rule)) {
-      hasUnpermittedOverride = true;
+      hasProhibitedOverride = true;
       break;
     }
   }
-  return hasUnpermittedOverride;
+  return hasProhibitedOverride;
 }
 
 const cypressUpdateChecks = async () => {
