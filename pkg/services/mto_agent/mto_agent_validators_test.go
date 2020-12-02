@@ -3,10 +3,8 @@ package mtoagent
 import (
 	"testing"
 
-	"github.com/getlantern/deepcopy"
 	"github.com/gobuffalo/validate/v3"
 
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -17,15 +15,9 @@ func (suite *MTOAgentServiceSuite) TestUpdateMTOAgentData() {
 	checker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
 	oldAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
 
-	// Set up an agent model for successful tests
-	var successAgent models.MTOAgent
-	err := deepcopy.Copy(&successAgent, &oldAgent)
-	suite.FatalNoError(err, "error while copying the old MTO Agent model to success model")
-
-	// Set up an agent model for error tests
-	var errorAgent models.MTOAgent
-	err = deepcopy.Copy(&errorAgent, &oldAgent)
-	suite.FatalNoError(err, "error while copying the old MTO Agent model to error model")
+	// Set up agent models for successful and unsuccessful tests
+	successAgent := oldAgent
+	errorAgent := oldAgent
 
 	// Test successful check for shipment ID
 	suite.T().Run("checkShipmentID - success", func(t *testing.T) {
@@ -62,9 +54,7 @@ func (suite *MTOAgentServiceSuite) TestUpdateMTOAgentData() {
 		oldAgentPrime := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
 			Move: testdatagen.MakeAvailableMove(suite.DB()),
 		})
-		var newAgentPrime models.MTOAgent
-		err := deepcopy.Copy(&newAgentPrime, &oldAgentPrime)
-		suite.FatalNoError(err, "error while copying Prime-available agent models")
+		newAgentPrime := oldAgentPrime
 
 		agentData := updateMTOAgentData{
 			updatedAgent:        newAgentPrime,
@@ -72,7 +62,7 @@ func (suite *MTOAgentServiceSuite) TestUpdateMTOAgentData() {
 			availabilityChecker: checker,
 			verrs:               validate.NewErrors(),
 		}
-		err = agentData.checkPrimeAvailability()
+		err := agentData.checkPrimeAvailability()
 
 		suite.NoError(err)
 		suite.NoVerrs(agentData.verrs)
