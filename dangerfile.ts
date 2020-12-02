@@ -82,31 +82,29 @@ const bypassingLinterChecks = async () => {
   return showDanger;
 };
 
-// linter check fn
+// fn for bypassingLinterChecks
 function checkPRHasProhibitedLinterOverride(dangerJSDiffCollection) {
-  let hasBadOverride = false;
+  let hasProhibitedOverride = false;
   for (let d in dangerJSDiffCollection) {
     const diffFile = dangerJSDiffCollection[d];
     const diff = diffFile.diff;
     if (diffContainsNosec(diff)) {
-      hasBadOverride = true;
+      hasProhibitedOverride = true;
       break;
     }
     if (!diffContainsEslint(diff)) {
       continue;
     }
 
-    // magic split into lines happen here
+    // split file diffs into lines
     const lines = splitDiffOfAddedLines(diff);
     for (let l in lines) {
       const line = lines[l];
       if (diffContainsEslint(line)) {
         // check for comment marker (// or /*)
-        // then parse line after comment chars
         // eg line: 'const whatever = something() // eslint-disable-line'
         let lineParts = line.split('//');
         if (lineParts.length === 1) {
-          // this is where marker isn't found
           lineParts = line.split('/*');
           if (lineParts.length === 1) {
             throw new Error('uhhhh, how did we find eslint disable but no // or /*');
@@ -114,31 +112,32 @@ function checkPRHasProhibitedLinterOverride(dangerJSDiffCollection) {
         }
 
         // eg lineParts: ['const whatever = something()', 'eslint-disable-line']
-        if (doesLineHaveProhibitedOverride(lineParts[1])) {
+        const stringAfterCommentMarker = lineParts[1];
+        if (doesLineHaveProhibitedOverride(stringAfterCommentMarker)) {
           // fail because user shouldn't add new overrides without security / moose approval
-          hasBadOverride = true;
-        } // else continue
+          hasProhibitedOverride = true;
+        }
       }
     }
   }
-  return hasBadOverride;
+  return hasProhibitedOverride;
 }
 
-// linter check fn
+// fn for bypassingLinterChecks
 function diffContainsNosec(diffForFile) {
   return !!diffForFile.includes('#nosec');
 }
 
-// linter check fn
+// fn for bypassingLinterChecks
 function diffContainsEslint(diffForFile) {
   return !!diffForFile.includes('eslint-disable');
 }
 
-// linter check fn
-function splitDiffOfAddedLines(diffBlob) {
+// fn for bypassingLinterChecks
+function splitDiffOfAddedLines(diffForFile) {
   // remove lines that are subtracted, indicated by '-'
   let linesToParse = [];
-  let lines = diffBlob.split('\n');
+  let lines = diffForFile.split('\n');
   lines.forEach((l) => {
     if (l[0] !== '-') {
       linesToParse.push(l);
@@ -147,7 +146,7 @@ function splitDiffOfAddedLines(diffBlob) {
   return linesToParse;
 }
 
-// linter check fn
+// fn for bypassingLinterChecks
 // comment characters location (where // or /* is in line string)
 function doesLineHaveProhibitedOverride(disablingString) {
   const okBypassRules = [
@@ -166,8 +165,8 @@ function doesLineHaveProhibitedOverride(disablingString) {
     'import/no-named-as-default',
   ];
   let hasUnpermittedOverride = false;
-  // format: 'eslint-disable-next-line no-jsx, no-default'
-  // split along commas and/or commas and remove surrounding spaces
+  // disablingStringParts format: 'eslint-disable-next-line no-jsx, no-default'
+  // split along commas and/or spaces and remove surrounding spaces
   let disablingStringParts = disablingString
     .trim()
     .split(/[\s,]+/)
@@ -179,7 +178,7 @@ function doesLineHaveProhibitedOverride(disablingString) {
   }
 
   if (disablingStringParts.length === 1) {
-    // fail because please specify rule
+    // fail because rule should be specified
     hasUnpermittedOverride = true;
   }
 
