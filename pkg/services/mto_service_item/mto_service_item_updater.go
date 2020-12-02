@@ -150,7 +150,6 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(mtoServiceItem *models.MTOS
 	queryFilters := []services.QueryFilter{
 		query.NewQueryFilter("id", "=", mtoServiceItem.ID),
 	}
-	// TODO check if we have associations after FetchOne. If not, get Move.
 	err := p.builder.FetchOne(&oldServiceItem, queryFilters)
 	if err != nil {
 		return nil, services.NewNotFoundError(mtoServiceItem.ID, "while looking for MTOServiceItem")
