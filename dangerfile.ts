@@ -71,25 +71,23 @@ View the [frontend file org ADR](https://github.com/transcom/mymove/blob/master/
 const bypassingLinterChecks = async () => {
   const allFiles = danger.git.modified_files.concat(danger.git.created_files);
   const diffsByFile = await Promise.all(allFiles.map((f) => danger.git.diffForFile(f)));
-  const showDanger = checkPRHasProhibitedLinterOverride(diffsByFile);
-  if (showDanger) {
-    // throw dangerjs warning
+  const dangerMsgSegment = checkPRHasProhibitedLinterOverride(diffsByFile);
+  if (dangerMsgSegment) {
     warn(
       `It looks like you are attempting to bypass a linter rule, which is not within
-      security compliance rules. Please remove the bypass code and address the underlying issue. cc: @transcom/Truss-Pamplemoose`,
+      security compliance rules.\n** ${dangerMsgSegment} **\n Please remove the bypass code and address the underlying issue. cc: @transcom/Truss-Pamplemoose`,
     );
   }
-  return showDanger;
 };
 
 // fn for bypassingLinterChecks
 function checkPRHasProhibitedLinterOverride(dangerJSDiffCollection) {
-  let hasProhibitedOverride = false;
+  let badOverrideMsg = '';
   for (let d in dangerJSDiffCollection) {
     const diffFile = dangerJSDiffCollection[d];
     const diff = diffFile.diff;
     if (diffContainsNosec(diff)) {
-      hasProhibitedOverride = true;
+      badOverrideMsg = 'Contains prohibited linter override "#nosec".';
       break;
     }
     if (!diffContainsEslint(diff)) {
@@ -113,14 +111,11 @@ function checkPRHasProhibitedLinterOverride(dangerJSDiffCollection) {
 
         // eg lineParts: ['const whatever = something()', 'eslint-disable-line']
         const stringAfterCommentMarker = lineParts[1];
-        if (doesLineHaveProhibitedOverride(stringAfterCommentMarker)) {
-          // fail because user shouldn't add new overrides without security / moose approval
-          hasProhibitedOverride = true;
-        }
+        badOverrideMsg = doesLineHaveProhibitedOverride(stringAfterCommentMarker);
       }
     }
   }
-  return hasProhibitedOverride;
+  return badOverrideMsg;
 }
 
 // fn for bypassingLinterChecks
@@ -164,7 +159,7 @@ function doesLineHaveProhibitedOverride(disablingString) {
     'import/prefer-default-export',
     'import/no-named-as-default',
   ];
-  let hasProhibitedOverride = false;
+  let prohibitedOverrideMsg = '';
   // disablingStringParts format: 'eslint-disable-next-line no-jsx, no-default'
   // split along commas and/or spaces and remove surrounding spaces
   let disablingStringParts = disablingString
@@ -174,12 +169,14 @@ function doesLineHaveProhibitedOverride(disablingString) {
   // disablingStringParts format: ['eslint-disable-next-line', 'no-jsx', 'no-default']
   if (disablingStringParts[0] === 'eslint-disable') {
     // fail because don't disable whole file please!
-    hasProhibitedOverride = true;
+    prohibitedOverrideMsg =
+      'Found "eslint-disable": this disables the whole file. Please specify rules if disable is permitted.';
   }
 
   if (disablingStringParts.length === 1) {
     // fail because rule should be specified
-    hasProhibitedOverride = true;
+    prohibitedOverrideMsg = 'Must specify the rule you are disabling';
+    return prohibitedOverrideMsg;
   }
 
   // rules format: ['no-jsx', 'no-default']
@@ -187,11 +184,13 @@ function doesLineHaveProhibitedOverride(disablingString) {
   for (let r in rules) {
     const rule = rules[r];
     if (!okBypassRules.includes(rule)) {
-      hasProhibitedOverride = true;
+      prohibitedOverrideMsg = `Contains a rule that is not in the permitted eslint list. Ok rules: (\n${okBypassRules.map(
+        (r) => `${r}\n`,
+      )})`;
       break;
     }
   }
-  return hasProhibitedOverride;
+  return prohibitedOverrideMsg;
 }
 
 const cypressUpdateChecks = async () => {
