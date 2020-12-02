@@ -17,4 +17,7 @@ type MTOServiceItemCreator interface {
 //go:generate mockery -name MTOServiceItemUpdater
 type MTOServiceItemUpdater interface {
 	UpdateMTOServiceItemStatus(mtoServiceItemID uuid.UUID, status models.MTOServiceItemStatus, rejectionReason *string, eTag string) (*models.MTOServiceItem, error)
+	UpdateMTOServiceItem(serviceItem *models.MTOServiceItem, eTag string, validator string) (*models.MTOServiceItem, error)
+	UpdateMTOServiceItemBase(serviceItem *models.MTOServiceItem, eTag string) (*models.MTOServiceItem, error)
+	UpdateMTOServiceItemPrime(serviceItem *models.MTOServiceItem, eTag string) (*models.MTOServiceItem, error)
 }
