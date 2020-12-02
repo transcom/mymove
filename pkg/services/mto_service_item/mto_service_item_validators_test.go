@@ -254,10 +254,12 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		suite.True(serviceItemData.verrs.HasAny())
 	})
 
-	// Test setNewMTOServiceItem for successful example TODO
+	// Test setNewMTOServiceItem for successful example
 	suite.T().Run("setNewMTOServiceItem - success", func(t *testing.T) {
 		successServiceItem.Description = handlers.FmtString("testing update service item validators")
 		successServiceItem.Reason = handlers.FmtString("")
+		successServiceItem.SITEntryDate = &now
+		successServiceItem.ApprovedAt = new(time.Time) // this is the zero time, what we need to nullify the field
 
 		serviceItemData := updateMTOServiceItemData{
 			updatedServiceItem: successServiceItem,
@@ -269,6 +271,8 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 
 		suite.NoVerrs(serviceItemData.verrs)
 		suite.Nil(newServiceItem.Reason)
+		suite.Nil(newServiceItem.ApprovedAt)
+		suite.Equal(newServiceItem.SITEntryDate, successServiceItem.SITEntryDate)
 		suite.Equal(newServiceItem.Description, successServiceItem.Description)
 		suite.NotEqual(newServiceItem.Description, oldServiceItem.Description)
 		suite.NotEqual(newServiceItem.Description, serviceItemData.oldServiceItem.Description)

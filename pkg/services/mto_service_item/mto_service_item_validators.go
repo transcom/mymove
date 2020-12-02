@@ -2,6 +2,7 @@ package mtoserviceitem
 
 import (
 	"strings"
+	"time"
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
@@ -198,66 +199,66 @@ func (v *updateMTOServiceItemData) getVerrs() error {
 func (v *updateMTOServiceItemData) setNewMTOServiceItem() *models.MTOServiceItem {
 	newMTOServiceItem := v.oldServiceItem
 
-	if v.updatedServiceItem.Reason != nil {
-		newMTOServiceItem.Reason = v.updatedServiceItem.Reason
-
-		if *v.updatedServiceItem.Reason == "" {
-			newMTOServiceItem.Reason = nil
-		}
-	}
-
-	if v.updatedServiceItem.Description != nil {
-		newMTOServiceItem.Description = v.updatedServiceItem.Description
-
-		if *v.updatedServiceItem.Description == "" {
-			newMTOServiceItem.Description = nil
-		}
-	}
-
 	if v.updatedServiceItem.Status != "" {
 		newMTOServiceItem.Status = v.updatedServiceItem.Status
 	}
 
-	if v.updatedServiceItem.RejectionReason != nil {
-		newMTOServiceItem.RejectionReason = v.updatedServiceItem.RejectionReason
+	// Set string fields:
+	newMTOServiceItem.Reason = setOptionalStringField(v.updatedServiceItem.Reason, newMTOServiceItem.Reason)
 
-		if *v.updatedServiceItem.RejectionReason == "" {
-			newMTOServiceItem.RejectionReason = nil
-		}
-	}
+	newMTOServiceItem.Description = setOptionalStringField(
+		v.updatedServiceItem.Description, newMTOServiceItem.Description)
 
-	// TODO must be IsZero? How to nullify dates reliably? approved, rejected, sit entry, sit departure
-	if v.updatedServiceItem.ApprovedAt != nil {
-		newMTOServiceItem.ApprovedAt = v.updatedServiceItem.ApprovedAt
-	}
-	if v.updatedServiceItem.RejectedAt != nil {
-		newMTOServiceItem.RejectedAt = v.updatedServiceItem.RejectedAt
-	}
+	newMTOServiceItem.RejectionReason = setOptionalStringField(
+		v.updatedServiceItem.RejectionReason, newMTOServiceItem.RejectionReason)
+
+	newMTOServiceItem.SITPostalCode = setOptionalStringField(
+		v.updatedServiceItem.SITPostalCode, newMTOServiceItem.SITPostalCode)
 
 	// TODO are we going to remove this field from the model at some point?
-	if v.updatedServiceItem.PickupPostalCode != nil {
-		newMTOServiceItem.PickupPostalCode = v.updatedServiceItem.PickupPostalCode
+	newMTOServiceItem.PickupPostalCode = setOptionalStringField(
+		v.updatedServiceItem.PickupPostalCode, newMTOServiceItem.PickupPostalCode)
 
-		if *v.updatedServiceItem.PickupPostalCode == "" {
-			newMTOServiceItem.PickupPostalCode = nil
-		}
-	}
+	// Set date fields:
+	newMTOServiceItem.ApprovedAt = setOptionalDateField(v.updatedServiceItem.ApprovedAt, newMTOServiceItem.ApprovedAt)
 
-	if v.updatedServiceItem.SITPostalCode != nil {
-		newMTOServiceItem.SITPostalCode = v.updatedServiceItem.SITPostalCode
+	newMTOServiceItem.RejectedAt = setOptionalDateField(v.updatedServiceItem.RejectedAt, newMTOServiceItem.RejectedAt)
 
-		if *v.updatedServiceItem.SITPostalCode == "" {
-			newMTOServiceItem.SITPostalCode = nil
-		}
-	}
+	newMTOServiceItem.SITEntryDate = setOptionalDateField(
+		v.updatedServiceItem.SITEntryDate, newMTOServiceItem.SITEntryDate)
 
-	if v.updatedServiceItem.SITEntryDate != nil {
-		newMTOServiceItem.SITEntryDate = v.updatedServiceItem.SITEntryDate
-	}
-
-	if v.updatedServiceItem.SITDepartureDate != nil {
-		newMTOServiceItem.SITDepartureDate = v.updatedServiceItem.SITDepartureDate
-	}
+	newMTOServiceItem.SITDepartureDate = setOptionalDateField(
+		v.updatedServiceItem.SITDepartureDate, newMTOServiceItem.SITDepartureDate)
 
 	return &newMTOServiceItem
+}
+
+// setOptionalDateField sets the correct new value for the updated date field. Can be nil.
+func setOptionalDateField(newDate *time.Time, oldDate *time.Time) *time.Time {
+	// check if the user wanted to keep this field the same:
+	if newDate == nil {
+		return oldDate
+	}
+
+	// check if the user wanted to nullify the value in this field:
+	if newDate.IsZero() {
+		return nil
+	}
+
+	return newDate // return the new intended value
+}
+
+// setOptionalStringField sets the correct new value for the updated string field. Can be nil.
+func setOptionalStringField(newString *string, oldString *string) *string {
+	// check if the user wanted to keep this field the same:
+	if newString == nil {
+		return oldString
+	}
+
+	// check if the user wanted to nullify the value in this field:
+	if *newString == "" {
+		return nil
+	}
+
+	return newString // return the new intended value
 }
