@@ -5,6 +5,8 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/go-openapi/swag"
+
 	"github.com/transcom/mymove/pkg/services/event"
 
 	"github.com/gobuffalo/validate/v3"
@@ -22,6 +24,37 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
+
+// GetPaymentRequestForMoveHandler gets payment requests associated with a move
+type GetPaymentRequestForMoveHandler struct {
+	handlers.HandlerContext
+	services.PaymentRequestListFetcher
+}
+
+// Handle handles the HTTP handling for GetPaymentRequestForMoveHandler
+func (h GetPaymentRequestForMoveHandler) Handle(params paymentrequestop.GetPaymentRequestsForMoveParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	locator := params.Locator
+
+	listPaymentRequestParams := services.FetchPaymentRequestListParams{
+		Locator: &locator,
+		Page:    swag.Int64(0),
+		PerPage: swag.Int64(0),
+	}
+
+	paymentRequests, _, err := h.FetchPaymentRequestList(session.OfficeUserID, &listPaymentRequestParams)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Error fetching Payment Request for locator: %s", locator), zap.Error(err))
+		return paymentrequestop.NewGetPaymentRequestNotFound()
+	}
+
+	returnPayload, err := payloads.PaymentRequests(paymentRequests, h.FileStorer())
+	if err != nil {
+		logger.Error(fmt.Sprintf("Error building payment requests payload for locator: %s", locator), zap.Error(err))
+	}
+
+	return paymentrequestop.NewGetPaymentRequestsForMoveOK().WithPayload(*returnPayload)
+}
 
 // GetPaymentRequestHandler gets payment requests
 type GetPaymentRequestHandler struct {

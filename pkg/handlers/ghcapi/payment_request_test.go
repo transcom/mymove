@@ -80,6 +80,56 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 	})
 }
 
+func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
+	prUUID, _ := uuid.NewV4()
+	paymentRequests := models.PaymentRequests{models.PaymentRequest{ID: prUUID}}
+	officeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+
+	suite.T().Run("Successful list fetch", func(t *testing.T) {
+		paymentRequestListFetcher := &mocks.PaymentRequestListFetcher{}
+		paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID,
+			mock.Anything,
+			mock.Anything).Return(&paymentRequests, 1, nil).Once()
+
+		request := httptest.NewRequest("GET", fmt.Sprintf("/payment-requests/move/%s", "ABC123"), nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		params := paymentrequestop.GetPaymentRequestsForMoveParams{
+			HTTPRequest: request,
+			Locator:     "ABC123",
+		}
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		handler := GetPaymentRequestForMoveHandler{
+			HandlerContext:            context,
+			PaymentRequestListFetcher: paymentRequestListFetcher,
+		}
+		response := handler.Handle(params)
+		suite.Assertions.IsType(&paymentrequestop.GetPaymentRequestsForMoveOK{}, response)
+		okResponse := response.(*paymentrequestop.GetPaymentRequestsForMoveOK)
+		suite.Equal(prUUID.String(), okResponse.Payload[0].ID.String())
+	})
+
+	suite.T().Run("Failed list fetch - Not found error ", func(t *testing.T) {
+		paymentRequestListFetcher := &mocks.PaymentRequestListFetcher{}
+		paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID,
+			mock.Anything,
+			mock.Anything).Return(nil, 0, errors.New("not found")).Once()
+
+		request := httptest.NewRequest("GET", fmt.Sprintf("/payment-requests/move/%s", "ABC123"), nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		params := paymentrequestop.GetPaymentRequestsForMoveParams{
+			HTTPRequest: request,
+			Locator:     "ABC123",
+		}
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		handler := GetPaymentRequestForMoveHandler{
+			HandlerContext:            context,
+			PaymentRequestListFetcher: paymentRequestListFetcher,
+		}
+		response := handler.Handle(params)
+		suite.Assertions.IsType(&paymentrequestop.GetPaymentRequestNotFound{}, response)
+	})
+}
+
 func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	paymentRequestID, _ := uuid.FromString("00000000-0000-0000-0000-000000000001")
 

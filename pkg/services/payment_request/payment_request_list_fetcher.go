@@ -39,7 +39,6 @@ func NewPaymentRequestListFetcher(db *pop.Connection) services.PaymentRequestLis
 type QueryOption func(*pop.Query)
 
 func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UUID, params *services.FetchPaymentRequestListParams) (*models.PaymentRequests, int, error) {
-
 	gblocFetcher := officeuser.NewOfficeUserGblocFetcher(f.db)
 	gbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(officeUserID)
 	if gblocErr != nil {
@@ -90,15 +89,35 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 	if params.PerPage == nil {
 		params.PerPage = swag.Int64(20)
 	}
-
-	err := query.GroupBy("payment_requests.id, service_members.id, moves.id").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, 0, services.NotFoundError{}
-		default:
+	var count int
+	// if we pass zeros for both of these then we don't want pagination to happen.
+	if *params.PerPage == 0 && *params.Page == 0 {
+		err := query.All(&paymentRequests)
+		if err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				return nil, 0, services.NotFoundError{}
+			default:
+				return nil, 0, err
+			}
+		}
+		count, err = query.Count(&paymentRequests)
+		if err != nil {
 			return nil, 0, err
 		}
+
+	} else {
+		err := query.GroupBy("payment_requests.id, service_members.id, moves.id").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
+		if err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				return nil, 0, services.NotFoundError{}
+			default:
+				return nil, 0, err
+			}
+		}
+		// Get the count
+		count = query.Paginator.TotalEntriesSize
 	}
 
 	for i := range paymentRequests {
@@ -109,9 +128,6 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 			f.db.Load(originDutyStation, "TransportationOffice")
 		}
 	}
-
-	// Get the count
-	count := query.Paginator.TotalEntriesSize
 
 	return &paymentRequests, count, nil
 }
