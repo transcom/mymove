@@ -1,9 +1,6 @@
 package mtoagent
 
 import (
-	"fmt"
-
-	"github.com/getlantern/deepcopy"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -140,12 +137,9 @@ func (v *updateMTOAgentData) getVerrs() error {
 }
 
 // setNewMTOAgent compares updatedAgent and oldAgent and updates a new MTOAgent instance with all data
-// (changed and unchanged) filled in
-func (v *updateMTOAgentData) setNewMTOAgent(newAgent *models.MTOAgent) error {
-	err := deepcopy.Copy(&newAgent, &v.oldAgent)
-	if err != nil {
-		return fmt.Errorf("error copying agent data %w", err)
-	}
+// (changed and unchanged) filled in. Does not return an error, data must be checked for validation before this step.
+func (v *updateMTOAgentData) setNewMTOAgent() *models.MTOAgent {
+	newAgent := v.oldAgent
 
 	if v.updatedAgent.MTOAgentType != "" {
 		newAgent.MTOAgentType = v.updatedAgent.MTOAgentType
@@ -179,5 +173,5 @@ func (v *updateMTOAgentData) setNewMTOAgent(newAgent *models.MTOAgent) error {
 		}
 	}
 
-	return nil
+	return &newAgent
 }

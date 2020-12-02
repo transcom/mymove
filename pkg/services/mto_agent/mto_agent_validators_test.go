@@ -149,6 +149,8 @@ func (suite *MTOAgentServiceSuite) TestUpdateMTOAgentData() {
 			availabilityChecker: checker,
 			verrs:               validate.NewErrors(),
 		}
+		_ = agentData.checkShipmentID() // this test should pass regardless of potential errors here
+		_ = agentData.checkContactInfo()
 		err := agentData.getVerrs()
 
 		suite.NoError(err)
@@ -172,17 +174,33 @@ func (suite *MTOAgentServiceSuite) TestUpdateMTOAgentData() {
 		suite.True(agentData.verrs.HasAny())
 	})
 
-	// Test setNewAgent for successful example
-	suite.T().Run("setNewAgent - success", func(t *testing.T) {
+	// Test setNewMTOAgent for successful example
+	suite.T().Run("setNewMTOAgent - success", func(t *testing.T) {
+		firstName := "First"
+		email := "email@email.email"
+		phone := ""
+
+		successAgent.FirstName = &firstName
+		successAgent.Email = &email
+		successAgent.Phone = &phone
+
 		agentData := updateMTOAgentData{
-			updatedAgent:        successAgent, // as-is, should succeed
+			updatedAgent:        successAgent,
 			oldAgent:            oldAgent,
 			availabilityChecker: checker,
 			verrs:               validate.NewErrors(),
 		}
-		err := agentData.getVerrs()
+		newAgent := agentData.setNewMTOAgent()
 
-		suite.NoError(err)
 		suite.NoVerrs(agentData.verrs)
+		suite.Equal(*newAgent.FirstName, *successAgent.FirstName)
+		suite.Equal(*newAgent.Email, *successAgent.Email)
+		suite.Nil(newAgent.Phone)
+		// Checking that the old agent instances weren't changed:
+		suite.NotEqual(*newAgent.FirstName, *oldAgent.FirstName)
+		suite.NotEqual(*newAgent.FirstName, *agentData.oldAgent.FirstName)
+		suite.NotNil(oldAgent.Phone)
+		suite.NotNil(agentData.oldAgent.Phone)
+		suite.Equal(*oldAgent.Phone, *agentData.oldAgent.Phone)
 	})
 }

@@ -87,8 +87,6 @@ func (f *mtoAgentUpdater) UpdateMTOAgent(mtoAgent *models.MTOAgent, eTag string,
 // Defaults to base validation if the empty string is entered as the key.
 // Returns an MTOAgent that has been set up for update.
 func ValidateUpdateMTOAgent(agentData *updateMTOAgentData, validatorKey string) (*models.MTOAgent, error) {
-	var newAgent models.MTOAgent
-
 	if validatorKey == "" {
 		validatorKey = UpdateMTOAgentBaseValidator
 	}
@@ -101,10 +99,8 @@ func ValidateUpdateMTOAgent(agentData *updateMTOAgentData, validatorKey string) 
 	if err != nil {
 		return nil, err
 	}
-	err = agentData.setNewMTOAgent(&newAgent)
-	if err != nil {
-		return nil, err
-	}
 
-	return &newAgent, nil
+	newAgent := agentData.setNewMTOAgent()
+
+	return newAgent, nil
 }
