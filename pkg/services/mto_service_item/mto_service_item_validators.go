@@ -63,6 +63,16 @@ func (v *primeUpdateMTOServiceItemValidator) validate(serviceItemData *updateMTO
 		return err
 	}
 
+	err = serviceItemData.checkPaymentRequests()
+	if err != nil {
+		return err
+	}
+
+	err = serviceItemData.checkSITDeparture()
+	if err != nil {
+		return err
+	}
+
 	err = serviceItemData.getVerrs()
 	if err != nil {
 		return err
@@ -114,38 +124,6 @@ func (v *updateMTOServiceItemData) checkPrimeAvailability() error {
 	return nil
 }
 
-// checkSITDeparture checks that
-func (v *updateMTOServiceItemData) checkSITDeparture() error {
-	// Check that the service item is actually a SIT departure service:
-	if v.oldServiceItem.ReService.Code != models.ReServiceCodeDDDSIT && v.oldServiceItem.ReService.Code != models.ReServiceCodeDOPSIT {
-		// Return an error if the user tried to update the departure date for a non-departure SIT service:
-		if v.updatedServiceItem.SITDepartureDate != nil && v.updatedServiceItem.SITDepartureDate != v.oldServiceItem.SITDepartureDate {
-			return services.NewConflictError(v.updatedServiceItem.ID,
-				"- SIT Departure Date may only be manually updated for DDDSIT and DOPSIT service items.")
-		}
-
-		return nil // no need to continue for a non-departure SIT service
-	}
-
-	// Check that there is no existing payment request for this service item:
-	var paymentServiceItem models.PaymentServiceItem
-	queryFilters := []services.QueryFilter{
-		query.NewQueryFilter("mto_service_item_id", "=", v.updatedServiceItem.ID),
-	}
-
-	err := v.builder.FetchOne(&paymentServiceItem, queryFilters)
-	if err == nil && paymentServiceItem.ID != uuid.Nil {
-		return services.NewConflictError(v.updatedServiceItem.ID,
-			"- cannot update the SIT Departure Date for a service item with an existing payment request.")
-	} else if err != nil && !strings.Contains(err.Error(), "sql: no rows in result set") {
-		return err
-	}
-
-	// TODO do we need to check anything else?
-
-	return nil
-}
-
 // checkNonPrimeFields checks that no fields were modified that are not allowed to be updated by the Prime
 func (v *updateMTOServiceItemData) checkNonPrimeFields() error {
 	if v.updatedServiceItem.Status != "" && v.updatedServiceItem.Status != v.oldServiceItem.Status {
@@ -162,6 +140,42 @@ func (v *updateMTOServiceItemData) checkNonPrimeFields() error {
 
 	if v.updatedServiceItem.RejectedAt != nil && v.updatedServiceItem.RejectedAt != v.oldServiceItem.RejectedAt {
 		v.verrs.Add("rejectedAt", "cannot be updated")
+	}
+
+	return nil
+}
+
+// checkSITDeparture checks that the service item is a DDDSIT or DOPSIT if the user is trying to update the
+// SITDepartureDate
+func (v *updateMTOServiceItemData) checkSITDeparture() error {
+	if v.updatedServiceItem.SITDepartureDate == nil || v.updatedServiceItem.SITDepartureDate == v.oldServiceItem.SITDepartureDate {
+		return nil // the SITDepartureDate isn't being updated, so we're fine here
+	}
+
+	if v.oldServiceItem.ReService.Code == models.ReServiceCodeDDDSIT || v.oldServiceItem.ReService.Code == models.ReServiceCodeDOPSIT {
+		return nil // the service item is a SIT departure service, so we're fine
+	}
+
+	// TODO do we need to check anything else?
+
+	return services.NewConflictError(v.updatedServiceItem.ID,
+		"- SIT Departure Date may only be manually updated for DDDSIT and DOPSIT service items.")
+}
+
+// checkPaymentRequests looks for any existing payment requests connected to this service item and returns a
+// Conflict Error if any are found
+func (v *updateMTOServiceItemData) checkPaymentRequests() error {
+	var paymentServiceItem models.PaymentServiceItem
+	queryFilters := []services.QueryFilter{
+		query.NewQueryFilter("mto_service_item_id", "=", v.updatedServiceItem.ID),
+	}
+
+	err := v.builder.FetchOne(&paymentServiceItem, queryFilters)
+	if err == nil && paymentServiceItem.ID != uuid.Nil {
+		return services.NewConflictError(v.updatedServiceItem.ID,
+			"- this service item has an existing payment request and can no longer be updated.")
+	} else if err != nil && !strings.Contains(err.Error(), "sql: no rows in result set") {
+		return err
 	}
 
 	return nil
