@@ -1,24 +1,19 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { useLocation } from 'react-router-dom';
 
 import { clearFlashMessage as clearFlashMessageAction } from 'store/flash/actions';
 import Alert from 'shared/Alert';
 
 export const FlashMessage = ({ children, flash, clearFlashMessage }) => {
-  const { pathname } = useLocation();
-
-  const isInitialMount = useRef(true);
-
   useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-    } else {
-      // only clear flash if an update occurs after mount
-      clearFlashMessage();
-    }
-  }, [pathname, clearFlashMessage]);
+    return () => {
+      if (flash && (flash.key || flash.message)) {
+        // only clear flash if one was displayed
+        clearFlashMessage();
+      }
+    };
+  });
 
   if (!flash) return null;
 
