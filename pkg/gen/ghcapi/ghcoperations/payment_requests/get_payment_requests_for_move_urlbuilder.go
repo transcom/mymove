@@ -40,7 +40,7 @@ func (o *GetPaymentRequestsForMoveURL) SetBasePath(bp string) {
 func (o *GetPaymentRequestsForMoveURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/payment-requests/move/{locator}"
+	var _path = "/moves/{locator}/payment-requests"
 
 	locator := o.Locator
 	if locator != "" {

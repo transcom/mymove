@@ -491,7 +491,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/payment-requests/move/{locator}"] = payment_requests.NewGetPaymentRequestsForMove(o.context, o.PaymentRequestsGetPaymentRequestsForMoveHandler)
+	o.handlers["GET"]["/moves/{locator}/payment-requests"] = payment_requests.NewGetPaymentRequestsForMove(o.context, o.PaymentRequestsGetPaymentRequestsForMoveHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

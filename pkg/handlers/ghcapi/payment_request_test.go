@@ -91,7 +91,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 			mock.Anything,
 			mock.Anything).Return(&paymentRequests, 1, nil).Once()
 
-		request := httptest.NewRequest("GET", fmt.Sprintf("/payment-requests/move/%s", "ABC123"), nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/payment-requests/", "ABC123"), nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 		params := paymentrequestop.GetPaymentRequestsForMoveParams{
 			HTTPRequest: request,
@@ -114,7 +114,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 			mock.Anything,
 			mock.Anything).Return(nil, 0, errors.New("not found")).Once()
 
-		request := httptest.NewRequest("GET", fmt.Sprintf("/payment-requests/move/%s", "ABC123"), nil)
+		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/payment-requests/", "ABC123"), nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 		params := paymentrequestop.GetPaymentRequestsForMoveParams{
 			HTTPRequest: request,

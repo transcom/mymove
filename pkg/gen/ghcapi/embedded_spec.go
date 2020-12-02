@@ -1372,7 +1372,7 @@ func init() {
         }
       ]
     },
-    "/payment-requests/move/{locator}": {
+    "/moves/{locator}/payment-requests": {
       "get": {
         "description": "Fetches payment requests for a move",
         "produces": [
@@ -5246,7 +5246,7 @@ func init() {
         }
       ]
     },
-    "/payment-requests/move/{locator}": {
+    "/moves/{locator}/payment-requests": {
       "get": {
         "description": "Fetches payment requests for a move",
         "produces": [

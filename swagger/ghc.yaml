@@ -919,7 +919,7 @@ paths:
       description: Fetches an instance of a payment request by id
       operationId: getPaymentRequest
       summary: Fetches a payment request by id
-  '/payment-requests/move/{locator}':
+  '/moves/{locator}/payment-requests':
     parameters:
       - description: move code to identify a move for payment requests
         format: string
