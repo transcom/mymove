@@ -3,7 +3,6 @@ package mtoagent
 import (
 	"testing"
 
-	"github.com/getlantern/deepcopy"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -21,9 +20,7 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 	oldAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
 	eTag := etag.GenerateEtag(oldAgent.UpdatedAt)
 
-	var newAgent models.MTOAgent
-	err := deepcopy.Copy(&newAgent, &oldAgent)
-	suite.FatalNoError(err, "error while copying agent models")
+	newAgent := oldAgent
 
 	// Test not found error
 	suite.T().Run("Not Found Error", func(t *testing.T) {
@@ -145,9 +142,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 
 	// Test successful Prime validation
 	suite.T().Run("UpdateMTOAgentPrimeValidator - success", func(t *testing.T) {
-		var newAgentPrime models.MTOAgent
-		err := deepcopy.Copy(&newAgentPrime, &oldAgentPrime)
-		suite.FatalNoError(err, "error while copying Prime-available agent models")
+		newAgentPrime := oldAgentPrime
 
 		// Ensure we have the minimum required contact info
 		firstName := "Carol"
