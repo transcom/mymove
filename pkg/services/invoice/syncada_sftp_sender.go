@@ -20,17 +20,6 @@ type SyncadaSenderSFTPSession struct {
 	syncadaInboundDirectory string
 }
 
-// NewSyncadaSFTPSession creates a new SyncadaSFTPSession service object
-func NewSyncadaSFTPSession(port string, userID string, remote string, password string, syncadaInboundDirectory string) services.SyncadaSFTPSender {
-	return &SyncadaSenderSFTPSession{
-		port,
-		userID,
-		remote,
-		password,
-		syncadaInboundDirectory,
-	}
-}
-
 // InitNewSyncadaSFTPSession initialize a NewSyncadaSFTPSession and return services.SyncadaSFTPSender
 func InitNewSyncadaSFTPSession() (services.SyncadaSFTPSender, error) {
 	port := os.Getenv("SYNCADA_SFTP_PORT")
@@ -58,7 +47,13 @@ func InitNewSyncadaSFTPSession() (services.SyncadaSFTPSender, error) {
 		return nil, fmt.Errorf("Invalid credentials sftp missing SYNCADA_SFTP_INBOUND_DIRECTORY")
 	}
 
-	return NewSyncadaSFTPSession(port, userID, ipAddress, password, inboundDir), nil
+	return &SyncadaSenderSFTPSession{
+		port,
+		userID,
+		ipAddress,
+		password,
+		inboundDir,
+	}, nil
 }
 
 // SendToSyncadaViaSFTP copies specified local content to Syncada's SFTP server
