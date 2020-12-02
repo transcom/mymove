@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v5"
@@ -603,4 +604,30 @@ func convertBodyToPayload(body []byte) Message {
 	message := Message{}
 	json.Unmarshal(body, &message)
 	return message
+}
+
+func (suite *WebhookClientTestingSuite) Test_GetSeverity() {
+	suite.T().Run("Returns severity level 3", func(t *testing.T) {
+		// engine, _, _ := setupEngineRun(suite)
+		// date := time.Date(2018, 01, 12, 22, 51, 48, 324359102, time.UTC)
+		// thresholdArray := [3]int{1800, 3600, 7200}
+		thresholdArray := make([]int, 0)
+		thresholdArray = append(thresholdArray, 1800, 3600, 7200)
+		currentTime := time.Now()
+		// firstAttempt := currentTime
+		firstAttempt := currentTime.Add(-3600 * time.Second)
+		severity := engine.GetSeverity(currentTime, firstAttempt, thresholdArray)
+		// Write 2 tests:Unit  and Integration
+		// If timeNow - firstAttempt = 0 minutes → severity = 3
+		suite.Equal(3, severity)
+	})
+
+	// suite.T().Run("Returns severity level 3", func(t *testing.T) {
+	// })
+
+	// suite.T().Run("Returns severity level 2", func(t *testing.T) {
+	// })
+
+	// suite.T().Run("Returns severity level 1", func(t *testing.T) {
+	// })
 }
