@@ -30,6 +30,11 @@
     svg + h3 {
       @include u-margin-left(2);
     }
+    .approved {
+      color: $success;
+      width:24px;
+      height: 24px;
+    }
   }
 
   .container {

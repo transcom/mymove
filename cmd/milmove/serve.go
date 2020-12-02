@@ -126,9 +126,6 @@ func initServeFlags(flag *pflag.FlagSet) {
 	// Middleware
 	cli.InitMiddlewareFlags(flag)
 
-	// aws-vault
-	cli.InitVaultFlags(flag)
-
 	// Logging
 	cli.InitLoggingFlags(flag)
 
@@ -231,10 +228,6 @@ func checkServeConfig(v *viper.Viper, logger logger) error {
 	}
 
 	if err := cli.CheckMiddleWare(v); err != nil {
-		return err
-	}
-
-	if err := cli.CheckVault(v); err != nil {
 		return err
 	}
 
@@ -458,7 +451,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	if v.GetBool(cli.DbDebugFlag) {
 		pop.Debug = true
 	}
-
 	var session *awssession.Session
 	if v.GetBool(cli.DbIamFlag) || (v.GetString(cli.EmailBackendFlag) == "ses") || (v.GetString(cli.StorageBackendFlag) == "s3") || (v.GetString(cli.StorageBackendFlag) == "cdn") {
 		c, errorConfig := cli.GetAWSConfig(v, v.GetBool(cli.VerboseFlag))

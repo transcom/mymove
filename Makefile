@@ -21,9 +21,6 @@ endif
 ifeq ($(STORAGE_BACKEND),cdn)
 	USE_AWS:=true
 endif
-ifeq ($(EMAIL_BACKEND),ses)
-	USE_AWS:=true
-endif
 
 ifeq ($(USE_AWS),true)
   AWS_VAULT:=aws-vault exec $(AWS_PROFILE) --
@@ -331,7 +328,7 @@ server_run:
 # Note: The INTERFACE envar is set to configure the gin build, milmove_gin, local IP4 space with default port GIN_PORT.
 server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir bin/gin build/index.html server_generate db_dev_run redis_run
 	INTERFACE=localhost DEBUG_LOGGING=true \
-	$(AWS_VAULT) ./bin/gin \
+		./bin/gin \
 		--build ./cmd/milmove \
 		--bin /bin/milmove_gin \
 		--laddr 127.0.0.1 --port "$(GIN_PORT)" \
@@ -805,7 +802,6 @@ tasks_send_post_move_survey: tasks_build_linux_docker ## Run send-post-move-surv
 		--rm \
 		$(TASKS_DOCKER_CONTAINER):latest \
 		milmove-tasks send-post-move-survey
-
 
 tasks_send_payment_reminder: tasks_build_linux_docker ## Run send-payment-reminder from inside docker container
 	@echo "sending payment reminder with docker command..."

@@ -4,7 +4,7 @@ import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import { formatCents } from 'shared/formatters';
 import { formatActualIncentiveRange, formatIncentiveRange } from 'shared/incentive';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons/faExclamationCircle';
+
 import { selectPPMEstimateRange, selectReimbursement } from 'shared/Entities/modules/ppms';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import styles from './PpmMoveDetails.module.scss';
@@ -39,7 +39,7 @@ const PpmMoveDetails = ({ advance, ppm, isMissingWeightTicketDocuments, estimate
         <>
           <div className="missing-label">
             Unknown
-            <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon={faExclamationCircle} />
+            <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon="exclamation-circle" />
           </div>
           <div className={styles.subText}>
             <em>Estimated payment will be given after resolving missing weight tickets.</em>

@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons/faQuestionCircle';
 import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
 import './PPMPaymentRequest.css';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -58,7 +57,7 @@ class PPMPaymentRequestIntro extends Component {
               <li>
                 <strong>Weight tickets,</strong> both empty & full, for <em>each</em> vehicle and trip{' '}
                 <Link className="weight-ticket-examples-link usa-link" to="/weight-ticket-examples">
-                  <FontAwesomeIcon aria-hidden className="color_blue_link" icon={faQuestionCircle} />
+                  <FontAwesomeIcon aria-hidden className="color_blue_link" icon="question-circle" />
                 </Link>
               </li>
               <li>

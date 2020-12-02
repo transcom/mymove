@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons/faExclamationCircle';
 import { get, isEmpty } from 'lodash';
 import moment from 'moment';
+
 import Alert from 'shared/Alert';
 import { formatCents } from 'shared/formatters';
 import { SIGNED_CERT_OPTIONS } from 'shared/constants';
@@ -155,11 +155,7 @@ class PaymentReview extends Component {
             {missingSomeWeightTicket ? (
               <>
                 <h4 className="missing-label">
-                  <FontAwesomeIcon
-                    style={{ marginLeft: 0, color: 'red' }}
-                    className="icon"
-                    icon={faExclamationCircle}
-                  />{' '}
+                  <FontAwesomeIcon style={{ marginLeft: 0, color: 'red' }} className="icon" icon="exclamation-circle" />{' '}
                   Your estimated payment is unknown
                 </h4>
                 <p>

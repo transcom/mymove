@@ -11,7 +11,6 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { defaultColumns } from './queueTableColumns';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSyncAlt } from '@fortawesome/free-solid-svg-icons/faSyncAlt';
 import 'react-table-6/react-table.css';
 
 class QueueTable extends Component {
@@ -187,7 +186,7 @@ class QueueTable extends Component {
             <FontAwesomeIcon
               data-testid="refreshQueue"
               className="link-blue"
-              icon={faSyncAlt}
+              icon="sync-alt"
               onClick={this.refresh.bind(this)}
               color="blue"
               size="lg"
