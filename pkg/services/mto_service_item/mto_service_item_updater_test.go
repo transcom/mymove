@@ -4,6 +4,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/models"
+
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -99,5 +101,162 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 }
 
 func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
-	// TODO
+	// Set up the data needed for updateMTOServiceItemData obj
+	builder := query.NewQueryBuilder(suite.DB())
+	oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+	oldServiceItemPrime := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		Move: testdatagen.MakeAvailableMove(suite.DB()),
+	})
+	now := time.Now()
+
+	// Test with bad string key
+	suite.T().Run("bad validatorKey - failure", func(t *testing.T) {
+		serviceItemData := updateMTOServiceItemData{}
+		fakeKey := "FakeKey"
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, fakeKey)
+
+		suite.Nil(updatedServiceItem)
+		suite.Error(err)
+		suite.Contains(err.Error(), fakeKey)
+	})
+
+	// Test successful Base validation
+	suite.T().Run("UpdateMTOServiceItemBaseValidator - success", func(t *testing.T) {
+		newServiceItem := models.MTOServiceItem{
+			ID:              oldServiceItem.ID,
+			MTOShipmentID:   oldServiceItem.MTOShipmentID,
+			MoveTaskOrderID: oldServiceItem.MoveTaskOrderID,
+		}
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem: newServiceItem,
+			oldServiceItem:     oldServiceItem,
+			verrs:              validate.NewErrors(),
+		}
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, UpdateMTOServiceItemBaseValidator)
+
+		suite.NoError(err)
+		suite.NotNil(updatedServiceItem)
+		suite.IsType(models.MTOServiceItem{}, *updatedServiceItem)
+	})
+
+	// Test unsuccessful Base validation
+	suite.T().Run("UpdateMTOServiceItemBaseValidator - failure", func(t *testing.T) {
+		newServiceItem := models.MTOServiceItem{
+			ID:            oldServiceItem.ID,
+			MTOShipmentID: &oldServiceItem.ID, // bad value
+		}
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem: newServiceItem,
+			oldServiceItem:     oldServiceItem,
+			verrs:              validate.NewErrors(),
+		}
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, UpdateMTOServiceItemBaseValidator)
+
+		suite.Nil(updatedServiceItem)
+		suite.Error(err)
+		suite.IsType(services.InvalidInputError{}, err)
+	})
+
+	// Test successful Prime validation
+	suite.T().Run("UpdateMTOServiceItemPrimeValidator - success", func(t *testing.T) {
+		newServiceItemPrime := oldServiceItemPrime
+
+		// Change something allowed by Prime:
+		reason := "because"
+		newServiceItemPrime.Reason = &reason
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem: newServiceItemPrime,
+			oldServiceItem:     oldServiceItemPrime,
+			verrs:              validate.NewErrors(),
+			builder:            builder,
+		}
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, UpdateMTOServiceItemPrimeValidator)
+
+		suite.NoError(err)
+		suite.NotNil(updatedServiceItem)
+		suite.IsType(models.MTOServiceItem{}, *updatedServiceItem)
+	})
+
+	// Test unsuccessful Prime validation - Not available to Prime
+	suite.T().Run("UpdateMTOServiceItemPrimeValidator - not available failure", func(t *testing.T) {
+		newServiceItemNotPrime := oldServiceItem // this service item should not be Prime-available
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem: newServiceItemNotPrime,
+			oldServiceItem:     oldServiceItem,
+			verrs:              validate.NewErrors(),
+			builder:            builder,
+		}
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, UpdateMTOServiceItemPrimeValidator)
+
+		suite.Nil(updatedServiceItem)
+		suite.Error(err)
+		suite.IsType(services.NotFoundError{}, err)
+	})
+
+	// Test unsuccessful Prime validation - Invalid input
+	suite.T().Run("UpdateMTOServiceItemPrimeValidator - invalid input failure", func(t *testing.T) {
+		newServiceItemPrime := oldServiceItemPrime
+
+		// Change something unavailable to Prime:
+		newServiceItemPrime.Status = models.MTOServiceItemStatusApproved
+		newServiceItemPrime.ApprovedAt = &now
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem: newServiceItemPrime,
+			oldServiceItem:     oldServiceItemPrime,
+			verrs:              validate.NewErrors(),
+			builder:            builder,
+		}
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, UpdateMTOServiceItemPrimeValidator)
+
+		suite.Nil(updatedServiceItem)
+		suite.Error(err)
+		suite.IsType(services.InvalidInputError{}, err)
+
+		invalidInputError := err.(services.InvalidInputError)
+		suite.True(invalidInputError.ValidationErrors.HasAny())
+		suite.Contains(invalidInputError.ValidationErrors.Keys(), "status")
+		suite.Contains(invalidInputError.ValidationErrors.Keys(), "approvedAt")
+	})
+
+	// Test unsuccessful Prime validation - Payment requests
+	suite.T().Run("UpdateMTOServiceItemPrimeValidator - payment request failure", func(t *testing.T) {
+		newServiceItemPrime := oldServiceItemPrime
+
+		// Create payment requests for service item:
+		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		testdatagen.MakePaymentServiceItem(suite.DB(), testdatagen.Assertions{
+			PaymentRequest: paymentRequest,
+			MTOServiceItem: oldServiceItemPrime,
+		})
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem: newServiceItemPrime,
+			oldServiceItem:     oldServiceItemPrime,
+			verrs:              validate.NewErrors(),
+			builder:            builder,
+		}
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, UpdateMTOServiceItemPrimeValidator)
+
+		suite.Nil(updatedServiceItem)
+		suite.Error(err)
+		suite.IsType(services.ConflictError{}, err)
+	})
+
+	// Test with empty string key (successful Base validation)
+	suite.T().Run("empty validatorKey - success", func(t *testing.T) {
+		newServiceItem := oldServiceItem
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem: newServiceItem,
+			oldServiceItem:     oldServiceItem,
+			verrs:              validate.NewErrors(),
+		}
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, "")
+
+		suite.NoError(err)
+		suite.NotNil(updatedServiceItem)
+		suite.IsType(models.MTOServiceItem{}, *updatedServiceItem)
+	})
 }
