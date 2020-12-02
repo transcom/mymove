@@ -38,12 +38,7 @@ import { selectActiveOrLatestMove } from 'shared/Entities/modules/moves';
 import { selectMTOShipmentsByMoveId, selectMTOShipmentForMTO } from 'shared/Entities/modules/mtoShipments';
 import { SHIPMENT_OPTIONS, MOVE_STATUSES } from 'shared/constants';
 import { selectActivePPMForMove } from 'shared/Entities/modules/ppms';
-import {
-  selectCurrentUser,
-  selectGetCurrentUserIsError,
-  selectGetCurrentUserIsLoading,
-  selectGetCurrentUserIsSuccess,
-} from 'shared/Data/users';
+import { selectCurrentUser, selectGetCurrentUserIsLoading, selectGetCurrentUserIsSuccess } from 'shared/Data/users';
 import { formatCustomerDate } from 'utils/formatters';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 
@@ -244,7 +239,11 @@ class Home extends Component {
     history.push(path);
   };
 
-  renderAlert = (loggedInUserError, createdServiceMemberError, moveSubmitSuccess, currentPpm) => {
+  renderAlert = (moveSubmitSuccess, currentPpm) => {
+    /**
+     * TODO: - confirm this behavior. right now currentPpm is always true because evals to empty object
+     * I think it should be one or the other based on whether SM has PPM or not?
+     */
     return (
       <div>
         {moveSubmitSuccess && !currentPpm && (
@@ -253,16 +252,6 @@ class Home extends Component {
           </Alert>
         )}
         {currentPpm && moveSubmitSuccess && <PpmAlert heading="Congrats - your move is submitted!" />}
-        {loggedInUserError && (
-          <Alert type="error" heading="An error occurred">
-            There was an error loading your user information.
-          </Alert>
-        )}
-        {createdServiceMemberError && (
-          <Alert type="error" heading="An error occurred">
-            There was an error creating your profile information.
-          </Alert>
-        )}
       </div>
     );
   };
@@ -290,12 +279,10 @@ class Home extends Component {
 
   render() {
     const {
-      createdServiceMemberError,
       currentPpm,
       isLoggedIn,
       isProfileComplete,
       location,
-      loggedInUserError,
       loggedInUserIsLoading,
       loggedInUserSuccess,
       move,
@@ -336,7 +323,7 @@ class Home extends Component {
               <>
                 {loggedInUserSuccess && (
                   <>
-                    {this.renderAlert(loggedInUserError, createdServiceMemberError, moveSubmitSuccess, currentPpm)}
+                    {this.renderAlert(moveSubmitSuccess, currentPpm)}
 
                     {this.renderHelper()}
                     <SectionWrapper>
@@ -476,9 +463,7 @@ Home.propTypes = {
   isLoggedIn: bool.isRequired,
   loggedInUserIsLoading: bool.isRequired,
   loggedInUserSuccess: bool.isRequired,
-  loggedInUserError: bool.isRequired,
   isProfileComplete: bool.isRequired,
-  createdServiceMemberError: string,
   moveSubmitSuccess: bool.isRequired,
   location: shape({}).isRequired,
   selectedMoveType: string,
@@ -499,7 +484,6 @@ Home.propTypes = {
 };
 
 Home.defaultProps = {
-  createdServiceMemberError: '',
   selectedMoveType: '',
   lastMoveIsCanceled: false,
   backupContacts: [],
@@ -522,8 +506,6 @@ const mapStateToProps = (state) => {
     isLoggedIn: user.isLoggedIn,
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
     loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
-    loggedInUserError: selectGetCurrentUserIsError(state),
-    createdServiceMemberError: state.serviceMember.error,
     isProfileComplete: isProfileCompleteCheck(state),
     moveSubmitSuccess: state.signedCertification.moveSubmitSuccess,
     orders: selectActiveOrLatestOrdersFromEntities(state),
