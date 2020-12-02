@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
-import { faCaretDown } from '@fortawesome/free-solid-svg-icons/faCaretDown';
+
 import './index.css';
 
 class ComboButton extends Component {
@@ -45,9 +44,9 @@ class ComboButton extends Component {
           disabled={disabled}
           onClick={this.handleButtonClick}
         >
-          {allAreApproved && <FontAwesomeIcon className="icon" icon={faCheck} />}
+          {allAreApproved && <FontAwesomeIcon className="icon" icon="check" />}
           {buttonText}
-          {!allAreApproved && <FontAwesomeIcon className="combo-button-icon" icon={faCaretDown} />}
+          {!allAreApproved && <FontAwesomeIcon className="combo-button-icon" icon="caret-down" />}
         </button>
         {this.state.displayDropDown && children}
       </span>

@@ -2,12 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import classnames from 'classnames';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { FilesShape } from '../types';
 
 import styles from './Menu.module.scss';
 
-import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
 import { filenameFromPath } from 'shared/formatters';
 
 const DocViewerMenu = ({ isOpen, files, handleClose, selectedFileIndex, handleSelectFile }) => (
@@ -16,7 +16,7 @@ const DocViewerMenu = ({ isOpen, files, handleClose, selectedFileIndex, handleSe
       <h3>Documents</h3>
       <div className={styles.menuControls}>
         <Button data-testid="closeMenu" type="button" onClick={handleClose} unstyled className={styles.menuClose}>
-          <XLightIcon />
+          <FontAwesomeIcon icon="times" title="Close menu" aria-label="Close menu" />
         </Button>
       </div>
     </div>
