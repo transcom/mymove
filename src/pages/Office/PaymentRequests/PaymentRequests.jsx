@@ -16,7 +16,9 @@ const PaymentRequests = ({ history, match }) => {
     <div className="grid-container-desktop-lg" data-testid="PaymentRequests">
       <h1>Payment requests</h1>
       <div className="container">
-        <Button onClick={handleClick}>Review service items</Button>
+        <Button data-testid="ReviewServiceItems" onClick={handleClick}>
+          Review service items
+        </Button>
       </div>
     </div>
   );
