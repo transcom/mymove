@@ -229,7 +229,7 @@ func init() {
       }
     },
     "/mto-service-items/{mtoServiceItemID}": {
-      "post": {
+      "put": {
         "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\nTo create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.\n\n### Errors\n\nCurrently this is not implemented and will generated the NotImplemented error.\n",
         "consumes": [
           "application/json"
@@ -2562,7 +2562,7 @@ func init() {
       }
     },
     "/mto-service-items/{mtoServiceItemID}": {
-      "post": {
+      "put": {
         "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\nTo create a service item, please use [createMTOServiceItem](#operation/createMTOServiceItem)) endpoint.\n\n### Errors\n\nCurrently this is not implemented and will generated the NotImplemented error.\n",
         "consumes": [
           "application/json"

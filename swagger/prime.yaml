@@ -414,7 +414,7 @@ paths:
         '500':
           $ref: '#/responses/ServerError'
   '/mto-service-items/{mtoServiceItemID}':
-    post:
+    put:
       summary: updateMTOServiceItem
       description: |
         Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.
