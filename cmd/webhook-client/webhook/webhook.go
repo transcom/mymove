@@ -272,7 +272,7 @@ func (eng *Engine) GetSeverity(currentTime time.Time, firstAttempt time.Time, th
 	var sev int
 	timeSinceFirstAttempt := int(currentTime.Sub(firstAttempt).Seconds())
 	levels := len(thresholdArray) + 1
-	// 1. Loop through the thresholdArray
+	// 1. Loop through the thresholdArray; EX:[30, 60]
 	// 2. Calculate severity if timeSinceFirstAttempt is less than each time in the thresholdArray
 	// 3. If you fall out of an the thresholdArray then you automatically return the highest level of severity
 	for index := 0; index < len(thresholdArray)-1; index++ {
