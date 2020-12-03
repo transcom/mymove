@@ -1,9 +1,0 @@
-{
-  "mtoServiceItemID": "2e7bd514-07ed-4ff7-b963-d942737a0613",
-  "ifMatch": "MjAyMC0xMS0xM1QxOTowOTozNi4yMTI2OFo",
-  "body": {
-    "modelType": "UpdateMTOServiceItemSIT",
-    "reServiceCode": "DDDSIT",
-    "sitDepartureDate": "2020-12-02"
-  }
-}
