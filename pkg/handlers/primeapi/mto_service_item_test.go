@@ -444,10 +444,6 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemHandler() {
 
 	// Under test: updateMTOServiceItemHandler.Handle function
 	//             MTOServiceItemUpdater.Update service object function
-	// Set up:     We create an mto service item using DOFSIT (which should create )
-	//             And send an update to the sit entry date
-	// Expected outcome:
-	//             Receive a success response with the SitDepartureDate updated
 	// SETUP
 	// Create the service item in the db
 	timeNow := time.Now()
@@ -467,7 +463,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemHandler() {
 	// Create the payload with the desired update
 	id := uuid.Must(uuid.NewV4())
 	payload := &primemessages.UpdateMTOServiceItemSIT{
-		ReServiceCode:    "DDDSIT",
+		ReServiceCode:    "DOPSIT",
 		SitDepartureDate: *handlers.FmtDate(time.Now()),
 	}
 	payload.SetID(strfmt.UUID(id.String()))
@@ -488,10 +484,58 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemHandler() {
 		IfMatch:     eTag,
 	}
 
-	// CALL FUNCTION UNDER TEST
-	suite.NoError(params.Body.Validate(strfmt.Default))
-	response := handler.Handle(params)
+	suite.T().Run("Successful PATCH - Updated SITDepartureDate on DOPSIT", func(t *testing.T) {
+		// Set up:     We create an mto service item using DOFSIT (which was created above)
+		//             And send an update to the sit entry date
+		// Expected outcome:
+		//             Receive a success response with the SitDepartureDate updated
 
-	// CHECK RESULTS
-	suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemOK{}, response)
+		// CALL FUNCTION UNDER TEST
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+
+		// CHECK RESULTS
+		suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemOK{}, response)
+	})
+
+	suite.T().Run("Failed PATCH - No DOFSIT found", func(t *testing.T) {
+		// Set up:     We use a move with no DOFSIT (which means we can't updated DOPSIT)
+		//             And send an update to DOPSIT to the SitDepartureDate
+		// Expected outcome:
+		//             Receive a fail response
+
+		// SETUP
+		// MYTODO: Create a move with no DOFSIT service item
+
+		// CALL FUNCTION UNDER TEST
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+
+		// CHECK RESULTS
+		suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemOK{}, response)
+	})
+
+	suite.T().Run("Failed PATCH - Attempted to update DDDSIT", func(t *testing.T) {
+		// Set up:     We use a move with a DOFSIT (which means we can updated DOPSIT)
+		//             But send an update to DDDSIT instead to the SitDepartureDate
+		// Expected outcome:
+		//             Receive a fail response
+
+		// SETUP
+		// Create the payload with the desired update
+		id := uuid.Must(uuid.NewV4())
+		payload := &primemessages.UpdateMTOServiceItemSIT{
+			ReServiceCode:    "DDDSIT",
+			SitDepartureDate: *handlers.FmtDate(time.Now()),
+		}
+		payload.SetID(strfmt.UUID(id.String()))
+
+		// CALL FUNCTION UNDER TEST
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+
+		// CHECK RESULTS
+		suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemOK{}, response)
+	})
+
 }
