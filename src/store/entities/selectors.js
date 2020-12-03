@@ -21,7 +21,7 @@ export const selectServiceMemberFromLoggedInUser = (state) => {
 
 export const selectCurrentDutyStation = (state) => {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
-  return serviceMember?.current_station;
+  return serviceMember?.current_station || null;
 };
 
 // TODO: this is similar to service_member.isProfileComplete and we should figure out how to use just one if possible

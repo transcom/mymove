@@ -215,7 +215,7 @@ const mapStateToProps = (state, props) => {
     currentPPM: selectActivePPMForMove(state, moveId),
     incentiveEstimateMin: selectPPMEstimateRange(state).range_min,
     incentiveEstimateMax: selectPPMEstimateRange(state).range_max,
-    originDutyStationZip: serviceMember?.current_station.address.postal_code,
+    originDutyStationZip: serviceMember?.current_station?.address?.postal_code,
     entitlement: loadEntitlementsFromState(state),
     orders: get(state, 'orders.currentOrders', {}),
   };

@@ -3,6 +3,7 @@ import {
   selectServiceMemberFromLoggedInUser,
   selectIsProfileComplete,
   selectBackupContacts,
+  selectCurrentDutyStation,
 } from './selectors';
 
 describe('selectLoggedInUser', () => {
@@ -88,6 +89,53 @@ describe('selectServiceMemberFromLoggedInUser', () => {
     };
 
     expect(selectServiceMemberFromLoggedInUser(testState)).toEqual(null);
+  });
+});
+
+describe('selectCurrentDutyStation', () => {
+  it('returns the service member’s current duty station', () => {
+    const testState = {
+      entities: {
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'serviceMemberId456',
+          },
+        },
+        serviceMembers: {
+          serviceMemberId456: {
+            id: 'serviceMemberId456',
+            current_station: {
+              id: 'dutyStationId890',
+            },
+          },
+        },
+      },
+    };
+
+    expect(selectCurrentDutyStation(testState)).toEqual(
+      testState.entities.serviceMembers.serviceMemberId456.current_station,
+    );
+  });
+
+  it('returns null if there is the service member has no current station', () => {
+    const testState = {
+      entities: {
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'serviceMemberId456',
+          },
+        },
+        serviceMembers: {
+          serviceMemberId456: {
+            id: 'serviceMemberId456',
+          },
+        },
+      },
+    };
+
+    expect(selectCurrentDutyStation(testState)).toEqual(null);
   });
 });
 
