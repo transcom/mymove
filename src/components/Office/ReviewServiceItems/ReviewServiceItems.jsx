@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { sortServiceItemsByGroup } from '../../../utils/serviceItems';
 
@@ -15,7 +16,6 @@ import PaymentReviewed from './PaymentReviewed';
 import Alert from 'shared/Alert';
 import { ServiceItemCardsShape } from 'types/serviceItemCard';
 import { PAYMENT_SERVICE_ITEM_STATUS, PAYMENT_REQUEST_STATUS } from 'shared/constants';
-import { ReactComponent as XLightIcon } from 'shared/icon/x-light.svg';
 import { toDollarString } from 'shared/formatters';
 import { PaymentRequestShape } from 'types/index';
 
@@ -118,7 +118,7 @@ const ReviewServiceItems = ({
       <div data-testid="ReviewServiceItems" className={styles.ReviewServiceItems}>
         <div className={styles.top}>
           <Button data-testid="closeSidebar" type="button" onClick={handleClose} unstyled>
-            <XLightIcon />
+            <FontAwesomeIcon icon="times" title="Close sidebar" aria-label="Close sidebar" />
           </Button>
           <h2 className={styles.header}>Complete request</h2>
         </div>
@@ -155,7 +155,7 @@ const ReviewServiceItems = ({
     <div data-testid="ReviewServiceItems" className={styles.ReviewServiceItems}>
       <div className={styles.top}>
         <Button data-testid="closeSidebar" type="button" onClick={handleClose} unstyled>
-          <XLightIcon />
+          <FontAwesomeIcon icon="times" aria-label="close" />
         </Button>
         <div data-testid="itemCount" className={styles.eyebrowTitle}>
           {curCardIndex + 1} OF {totalCards} ITEMS

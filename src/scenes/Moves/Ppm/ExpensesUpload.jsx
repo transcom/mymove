@@ -12,7 +12,6 @@ import { withLastLocation } from 'react-router-last-location';
 import RadioButton from 'shared/RadioButton';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons/faQuestionCircle';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import Uploader from 'shared/Uploader';
 import Checkbox from 'shared/Checkbox';
@@ -191,7 +190,7 @@ class ExpensesUpload extends Component {
           <p>
             Upload expenses one at a time.{' '}
             <Link to="/allowable-expenses" className="usa-link">
-              <FontAwesomeIcon aria-hidden className="color_blue_link" icon={faQuestionCircle} />
+              <FontAwesomeIcon aria-hidden className="color_blue_link" icon="question-circle" />
             </Link>
           </p>
           <form>
@@ -284,7 +283,7 @@ class ExpensesUpload extends Component {
                   <FontAwesomeIcon
                     aria-hidden
                     className="color_blue_link"
-                    icon={faQuestionCircle}
+                    icon="question-circle"
                     onClick={this.handleHowDidYouPayForThis}
                   />
                 </div>
