@@ -93,21 +93,21 @@ func NewUpdateMTOServiceItemOK() *UpdateMTOServiceItemOK {
 Successfully updated the MTO service item.
 */
 type UpdateMTOServiceItemOK struct {
-	Payload []primemessages.MTOServiceItem
+	Payload primemessages.MTOServiceItem
 }
 
 func (o *UpdateMTOServiceItemOK) Error() string {
-	return fmt.Sprintf("[POST /mto-service-items/{mtoServiceItemID}][%d] updateMTOServiceItemOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}][%d] updateMTOServiceItemOK  %+v", 200, o.Payload)
 }
 
-func (o *UpdateMTOServiceItemOK) GetPayload() []primemessages.MTOServiceItem {
+func (o *UpdateMTOServiceItemOK) GetPayload() primemessages.MTOServiceItem {
 	return o.Payload
 }
 
 func (o *UpdateMTOServiceItemOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	// response payload as interface type
-	payload, err := primemessages.UnmarshalMTOServiceItemSlice(response.Body(), consumer)
+	payload, err := primemessages.UnmarshalMTOServiceItem(response.Body(), consumer)
 	if err != nil {
 		return err
 	}
@@ -130,7 +130,7 @@ type UpdateMTOServiceItemBadRequest struct {
 }
 
 func (o *UpdateMTOServiceItemBadRequest) Error() string {
-	return fmt.Sprintf("[POST /mto-service-items/{mtoServiceItemID}][%d] updateMTOServiceItemBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}][%d] updateMTOServiceItemBadRequest  %+v", 400, o.Payload)
 }
 
 func (o *UpdateMTOServiceItemBadRequest) GetPayload() *primemessages.ClientError {
@@ -163,7 +163,7 @@ type UpdateMTOServiceItemUnauthorized struct {
 }
 
 func (o *UpdateMTOServiceItemUnauthorized) Error() string {
-	return fmt.Sprintf("[POST /mto-service-items/{mtoServiceItemID}][%d] updateMTOServiceItemUnauthorized  %+v", 401, o.Payload)
+	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}][%d] updateMTOServiceItemUnauthorized  %+v", 401, o.Payload)
 }
 
 func (o *UpdateMTOServiceItemUnauthorized) GetPayload() *primemessages.ClientError {
@@ -196,7 +196,7 @@ type UpdateMTOServiceItemForbidden struct {
 }
 
 func (o *UpdateMTOServiceItemForbidden) Error() string {
-	return fmt.Sprintf("[POST /mto-service-items/{mtoServiceItemID}][%d] updateMTOServiceItemForbidden  %+v", 403, o.Payload)
+	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}][%d] updateMTOServiceItemForbidden  %+v", 403, o.Payload)
 }
 
 func (o *UpdateMTOServiceItemForbidden) GetPayload() *primemessages.ClientError {
@@ -229,7 +229,7 @@ type UpdateMTOServiceItemNotFound struct {
 }
 
 func (o *UpdateMTOServiceItemNotFound) Error() string {
-	return fmt.Sprintf("[POST /mto-service-items/{mtoServiceItemID}][%d] updateMTOServiceItemNotFound  %+v", 404, o.Payload)
+	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}][%d] updateMTOServiceItemNotFound  %+v", 404, o.Payload)
 }
 
 func (o *UpdateMTOServiceItemNotFound) GetPayload() *primemessages.ClientError {
@@ -262,7 +262,7 @@ type UpdateMTOServiceItemConflict struct {
 }
 
 func (o *UpdateMTOServiceItemConflict) Error() string {
-	return fmt.Sprintf("[POST /mto-service-items/{mtoServiceItemID}][%d] updateMTOServiceItemConflict  %+v", 409, o.Payload)
+	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}][%d] updateMTOServiceItemConflict  %+v", 409, o.Payload)
 }
 
 func (o *UpdateMTOServiceItemConflict) GetPayload() *primemessages.ClientError {
@@ -295,7 +295,7 @@ type UpdateMTOServiceItemUnprocessableEntity struct {
 }
 
 func (o *UpdateMTOServiceItemUnprocessableEntity) Error() string {
-	return fmt.Sprintf("[POST /mto-service-items/{mtoServiceItemID}][%d] updateMTOServiceItemUnprocessableEntity  %+v", 422, o.Payload)
+	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}][%d] updateMTOServiceItemUnprocessableEntity  %+v", 422, o.Payload)
 }
 
 func (o *UpdateMTOServiceItemUnprocessableEntity) GetPayload() *primemessages.ValidationError {
@@ -328,7 +328,7 @@ type UpdateMTOServiceItemInternalServerError struct {
 }
 
 func (o *UpdateMTOServiceItemInternalServerError) Error() string {
-	return fmt.Sprintf("[POST /mto-service-items/{mtoServiceItemID}][%d] updateMTOServiceItemInternalServerError  %+v", 500, o.Payload)
+	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}][%d] updateMTOServiceItemInternalServerError  %+v", 500, o.Payload)
 }
 
 func (o *UpdateMTOServiceItemInternalServerError) GetPayload() *primemessages.Error {
@@ -361,7 +361,7 @@ type UpdateMTOServiceItemNotImplemented struct {
 }
 
 func (o *UpdateMTOServiceItemNotImplemented) Error() string {
-	return fmt.Sprintf("[POST /mto-service-items/{mtoServiceItemID}][%d] updateMTOServiceItemNotImplemented  %+v", 501, o.Payload)
+	return fmt.Sprintf("[PATCH /mto-service-items/{mtoServiceItemID}][%d] updateMTOServiceItemNotImplemented  %+v", 501, o.Payload)
 }
 
 func (o *UpdateMTOServiceItemNotImplemented) GetPayload() *primemessages.Error {

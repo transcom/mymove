@@ -1,6 +1,8 @@
 package payloads
 
 import (
+	"time"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
@@ -405,13 +407,21 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 	// here we determine which payload model to use based on the re service code
 	switch mtoServiceItem.ReService.Code {
 	case models.ReServiceCodeDOFSIT:
+		sitDepartureDate := strfmt.Date(time.Time{}) // Set to empty/zero time
+		if mtoServiceItem.SITDepartureDate != nil {
+			sitDepartureDate = strfmt.Date(*mtoServiceItem.SITDepartureDate)
+		}
 		payload = &primemessages.MTOServiceItemDOFSIT{
 			ReServiceCode:    handlers.FmtString(string(mtoServiceItem.ReService.Code)),
 			PickupPostalCode: mtoServiceItem.PickupPostalCode,
 			Reason:           mtoServiceItem.Reason,
+			SitDepartureDate: sitDepartureDate,
 		}
-		payload.SetID(strfmt.UUID(mtoServiceItem.ID.String()))
 	case models.ReServiceCodeDDFSIT:
+		sitDepartureDate := strfmt.Date(time.Time{}) // Set to empty/zero time
+		if mtoServiceItem.SITDepartureDate != nil {
+			sitDepartureDate = strfmt.Date(*mtoServiceItem.SITDepartureDate)
+		}
 		firstContact := getCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeFirst)
 		secondContact := getCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeSecond)
 		payload = &primemessages.MTOServiceItemDDFSIT{
@@ -420,6 +430,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			FirstAvailableDeliveryDate1: handlers.FmtDate(firstContact.FirstAvailableDeliveryDate),
 			TimeMilitary2:               handlers.FmtString(secondContact.TimeMilitary),
 			FirstAvailableDeliveryDate2: handlers.FmtDate(secondContact.FirstAvailableDeliveryDate),
+			SitDepartureDate:            sitDepartureDate,
 		}
 	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT, models.ReServiceCodeDCRTSA:
 		item := getDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)

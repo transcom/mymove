@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 
 	"github.com/stretchr/testify/mock"
@@ -441,15 +442,32 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDDFSITHandler() {
 
 func (suite *HandlerSuite) TestUpdateMTOServiceItemHandler() {
 
-	// Under test: updateMTOServiceItemHandler function
-	// Set up:     We hit the endpoint with any data really
+	// Under test: updateMTOServiceItemHandler.Handle function
+	//             MTOServiceItemUpdater.Update service object function
+	// Set up:     We create an mto service item using DOFSIT (which should create )
+	//             And send an update to the sit entry date
 	// Expected outcome:
-	//             Receive a 501 - Not Implemented Error
+	//             Receive a success response with the SitDepartureDate updated
 	// SETUP
-	// Create the payload
+	// Create the service item in the db
+	timeNow := time.Now()
+	mtoServiceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			AvailableToPrimeAt: &timeNow,
+		},
+		MTOServiceItem: models.MTOServiceItem{
+			SITEntryDate: swag.Time(time.Now()),
+		},
+		ReService: models.ReService{
+			Code: "DOFSIT",
+		},
+	})
+	mockUpdater := mocks.MTOServiceItemUpdater{}
+
+	// Create the payload with the desired update
 	id := uuid.Must(uuid.NewV4())
 	payload := &primemessages.UpdateMTOServiceItemSIT{
-		ReServiceCode:    "DDFSIT",
+		ReServiceCode:    "DDDSIT",
 		SitDepartureDate: *handlers.FmtDate(time.Now()),
 	}
 	payload.SetID(strfmt.UUID(id.String()))
@@ -457,9 +475,11 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemHandler() {
 	// Create the handler
 	handler := UpdateMTOServiceItemHandler{
 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+		&mockUpdater,
 	}
+	mockUpdater.On("UpdateMTOServiceItemStatus", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&mtoServiceItem, nil)
 
-	// CALL FUNCTION UNDER TEST
+	// create the params struct
 	req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-service_items/%s", payload.ID()), nil)
 	eTag := etag.GenerateEtag(time.Now())
 	params := mtoserviceitemops.UpdateMTOServiceItemParams{
@@ -467,8 +487,11 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemHandler() {
 		Body:        payload,
 		IfMatch:     eTag,
 	}
+
+	// CALL FUNCTION UNDER TEST
+	suite.NoError(params.Body.Validate(strfmt.Default))
 	response := handler.Handle(params)
 
 	// CHECK RESULTS
-	suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemNotImplemented{}, response)
+	suite.IsType(&mtoserviceitemops.UpdateMTOServiceItemOK{}, response)
 }

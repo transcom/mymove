@@ -25,7 +25,7 @@ type UpdateMTOServiceItemOK struct {
 	/*
 	  In: Body
 	*/
-	Payload []primemessages.MTOServiceItem `json:"body,omitempty"`
+	Payload primemessages.MTOServiceItem `json:"body,omitempty"`
 }
 
 // NewUpdateMTOServiceItemOK creates UpdateMTOServiceItemOK with default headers values
@@ -35,13 +35,13 @@ func NewUpdateMTOServiceItemOK() *UpdateMTOServiceItemOK {
 }
 
 // WithPayload adds the payload to the update m t o service item o k response
-func (o *UpdateMTOServiceItemOK) WithPayload(payload []primemessages.MTOServiceItem) *UpdateMTOServiceItemOK {
+func (o *UpdateMTOServiceItemOK) WithPayload(payload primemessages.MTOServiceItem) *UpdateMTOServiceItemOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update m t o service item o k response
-func (o *UpdateMTOServiceItemOK) SetPayload(payload []primemessages.MTOServiceItem) {
+func (o *UpdateMTOServiceItemOK) SetPayload(payload primemessages.MTOServiceItem) {
 	o.Payload = payload
 }
 
@@ -49,14 +49,11 @@ func (o *UpdateMTOServiceItemOK) SetPayload(payload []primemessages.MTOServiceIt
 func (o *UpdateMTOServiceItemOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(200)
-	payload := o.Payload
-	if payload == nil {
-		// return empty array
-		payload = make([]primemessages.MTOServiceItem, 0, 50)
-	}
-
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
