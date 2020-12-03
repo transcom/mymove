@@ -90,8 +90,8 @@ func CheckLogging(v *viper.Viper) error {
 }
 
 // LogLevelIsDebug is a helper for functions that require a boolean to determine
-// log versbosity
+// log verbosity
 func LogLevelIsDebug(v *viper.Viper) bool {
 	logLevel := strings.ToLower(v.GetString(LoggingLevelFlag))
-	return logLevel == "debug"
+	return logLevel == LoggingLevelDebug
 }
