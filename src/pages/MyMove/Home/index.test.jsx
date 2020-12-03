@@ -25,7 +25,6 @@ const defaultProps = {
   loggedInUserSuccess: true,
   loggedInUserError: false,
   isProfileComplete: true,
-  moveSubmitSuccess: false,
   currentPpm: {},
   loadMTOShipments: jest.fn(),
   orders: {},

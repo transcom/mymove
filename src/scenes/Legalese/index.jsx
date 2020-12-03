@@ -2,7 +2,6 @@ import { get } from 'lodash';
 import moment from 'moment';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { push } from 'connected-react-router';
 import PropTypes from 'prop-types';
 import { getFormValues } from 'redux-form';
@@ -18,8 +17,8 @@ import { SIGNED_CERT_OPTIONS } from 'shared/constants';
 import { selectActivePPMForMove, loadPPMs } from 'shared/Entities/modules/ppms';
 import { submitMoveForApproval } from 'shared/Entities/modules/moves';
 import { completeCertificationText } from './legaleseText';
-import { showSubmitSuccessBanner, removeSubmitSuccessBanner } from './ducks';
 import SectionWrapper from 'components/Customer/SectionWrapper';
+import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 
 const formName = 'signature-form';
 const SignatureWizardForm = reduxifyWizardForm(formName);
@@ -49,8 +48,12 @@ export class SignedCertification extends Component {
       this.props
         .submitMoveForApproval(moveId, certificate)
         .then(() => {
-          this.props.showSubmitSuccessBanner();
-          setTimeout(() => this.props.removeSubmitSuccessBanner(), 10000);
+          this.props.setFlashMessage(
+            'success',
+            'You’ve submitted your move request.',
+            'Success',
+            'MOVE_SUBMIT_SUCCESS',
+          );
           this.props.push(landingPath);
         })
         .catch(() => this.setState({ hasMoveSubmitError: true }));
@@ -149,6 +152,7 @@ SignedCertification.propTypes = {
   hasSubmitError: PropTypes.bool.isRequired,
   hasSubmitSuccess: PropTypes.bool.isRequired,
   ppmId: PropTypes.string,
+  setFlashMessage: PropTypes.func,
 };
 
 function mapStateToProps(state, ownProps) {
@@ -165,18 +169,12 @@ function mapStateToProps(state, ownProps) {
   };
 }
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    {
-      createSignedCertification,
-      loadPPMs,
-      submitMoveForApproval,
-      showSubmitSuccessBanner,
-      removeSubmitSuccessBanner,
-      push,
-    },
-    dispatch,
-  );
-}
+const mapDispatchToProps = {
+  createSignedCertification,
+  loadPPMs,
+  submitMoveForApproval,
+  push,
+  setFlashMessage: setFlashMessageAction,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(SignedCertification);

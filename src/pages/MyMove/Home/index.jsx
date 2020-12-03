@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import React, { Component } from 'react';
 import { arrayOf, bool, shape, string, node, oneOfType, func } from 'prop-types';
 import moment from 'moment';
@@ -17,8 +16,6 @@ import {
 
 import { withContext } from 'shared/AppContext';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
-import Alert from 'shared/Alert';
-import PpmAlert from 'scenes/PpmLanding/PpmAlert';
 import SignIn from 'shared/User/SignIn';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Step from 'components/Customer/Home/Step';
@@ -239,23 +236,6 @@ class Home extends Component {
     history.push(path);
   };
 
-  renderAlert = (moveSubmitSuccess, currentPpm) => {
-    /**
-     * TODO: - confirm this behavior. right now currentPpm is always true because evals to empty object
-     * I think it should be one or the other based on whether SM has PPM or not?
-     */
-    return (
-      <div>
-        {moveSubmitSuccess && !currentPpm && (
-          <Alert type="success" heading="Success">
-            You&apos;ve submitted your move
-          </Alert>
-        )}
-        {currentPpm && moveSubmitSuccess && <PpmAlert heading="Congrats - your move is submitted!" />}
-      </div>
-    );
-  };
-
   sortAllShipments = (mtoShipments, currentPpm) => {
     const allShipments = JSON.parse(JSON.stringify(mtoShipments));
     if (Object.keys(currentPpm).length) {
@@ -286,12 +266,12 @@ class Home extends Component {
       loggedInUserIsLoading,
       loggedInUserSuccess,
       move,
-      moveSubmitSuccess,
       mtoShipments,
       serviceMember,
       signedCertification,
       uploadedOrderDocuments,
     } = this.props;
+    // eslint-disable-next-line camelcase
     const { current_station } = serviceMember;
     const ordersPath = this.hasOrdersNoUpload ? '/orders/upload' : '/orders';
     const shipmentSelectionPath = this.hasAnyShipments
@@ -323,8 +303,6 @@ class Home extends Component {
               <>
                 {loggedInUserSuccess && (
                   <>
-                    {this.renderAlert(moveSubmitSuccess, currentPpm)}
-
                     {this.renderHelper()}
                     <SectionWrapper>
                       <Step
@@ -464,7 +442,6 @@ Home.propTypes = {
   loggedInUserIsLoading: bool.isRequired,
   loggedInUserSuccess: bool.isRequired,
   isProfileComplete: bool.isRequired,
-  moveSubmitSuccess: bool.isRequired,
   location: shape({}).isRequired,
   selectedMoveType: string,
   lastMoveIsCanceled: bool,
@@ -507,7 +484,6 @@ const mapStateToProps = (state) => {
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
     loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
     isProfileComplete: isProfileCompleteCheck(state),
-    moveSubmitSuccess: state.signedCertification.moveSubmitSuccess,
     orders: selectActiveOrLatestOrdersFromEntities(state),
     uploadedOrderDocuments: selectUploadedOrders(state),
     serviceMember,

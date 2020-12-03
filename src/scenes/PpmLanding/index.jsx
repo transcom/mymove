@@ -8,7 +8,6 @@ import { withLastLocation } from 'react-router-last-location';
 import { withContext } from 'shared/AppContext';
 
 import { PpmSummary } from './PpmSummary';
-import PpmAlert from './PpmAlert';
 import { selectedMoveType, lastMoveIsCanceled, updateMove } from 'scenes/Moves/ducks';
 import { isProfileComplete } from 'scenes/ServiceMembers/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
@@ -105,10 +104,8 @@ export class PpmLanding extends Component {
       isLoggedIn,
       loggedInUserIsLoading,
       loggedInUserSuccess,
-      loggedInUserError,
       isProfileComplete,
       createdServiceMemberError,
-      moveSubmitSuccess,
       entitlement,
       serviceMember,
       orders,
@@ -124,17 +121,6 @@ export class PpmLanding extends Component {
         {loggedInUserSuccess && (
           <Fragment>
             <div>
-              {moveSubmitSuccess && !ppm && (
-                <Alert type="success" heading="Success">
-                  You've submitted your move
-                </Alert>
-              )}
-              {ppm && moveSubmitSuccess && <PpmAlert heading="Congrats - your move is submitted!" />}
-              {loggedInUserError && (
-                <Alert type="error" heading="An error occurred">
-                  There was an error loading your user information.
-                </Alert>
-              )}
               {createdServiceMemberError && (
                 <Alert type="error" heading="An error occurred">
                   There was an error creating your profile information.
@@ -206,7 +192,6 @@ const mapStateToProps = (state) => {
     createdServiceMemberSuccess: state.serviceMember.hasSubmitSuccess,
     createdServiceMemberError: state.serviceMember.error,
     createdServiceMember: state.serviceMember.currentServiceMember,
-    moveSubmitSuccess: state.signedCertification.moveSubmitSuccess,
     entitlement: loadEntitlementsFromState(state),
     requestPaymentSuccess: state.ppm.requestPaymentSuccess,
   };
