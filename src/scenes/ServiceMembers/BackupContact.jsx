@@ -4,13 +4,22 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { getFormValues } from 'redux-form';
 
-import { updateBackupContact as updateBackupContactAction } from 'store/entities/actions';
-import { createBackupContactForServiceMember, patchBackupContact, getResponseError } from 'services/internalApi';
+import {
+  updateServiceMember as updateServiceMemberAction,
+  updateBackupContact as updateBackupContactAction,
+} from 'store/entities/actions';
+import {
+  getServiceMember,
+  createBackupContactForServiceMember,
+  patchBackupContact,
+  getResponseError,
+} from 'services/internalApi';
 import { renderField, recursivelyAnnotateRequiredFields } from 'shared/JsonSchemaForm';
 import { reduxForm } from 'redux-form';
 import { no_op } from 'shared/utils';
 import WizardPage from 'shared/WizardPage';
 import scrollToTop from 'shared/scrollToTop';
+import { selectBackupContacts } from 'store/entities/selectors';
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
 
@@ -78,7 +87,7 @@ export class BackupContact extends Component {
   }
 
   handleSubmit = () => {
-    const { values, updateBackupContact, currentBackupContacts, match } = this.props;
+    const { values, updateBackupContact, updateServiceMember, currentBackupContacts, match } = this.props;
 
     if (values) {
       const payload = {
@@ -87,12 +96,18 @@ export class BackupContact extends Component {
         permission: values.permission === undefined ? NonePermission : values.permission,
       };
 
+      const { serviceMemberId } = match.params;
+
       if (currentBackupContacts.length > 0) {
         const [firstBackupContact] = currentBackupContacts;
         payload.id = firstBackupContact.id;
         return patchBackupContact(payload)
           .then((response) => {
             updateBackupContact(response);
+          })
+          .then(() => getServiceMember(serviceMemberId))
+          .then((response) => {
+            updateServiceMember(response);
           })
           .catch((e) => {
             // TODO - error handling - below is rudimentary error handling to approximate existing UX
@@ -106,10 +121,13 @@ export class BackupContact extends Component {
             scrollToTop();
           });
       } else {
-        const { serviceMemberId } = match.params;
         return createBackupContactForServiceMember(serviceMemberId, payload)
           .then((response) => {
             updateBackupContact(response);
+          })
+          .then(() => getServiceMember(serviceMemberId))
+          .then((response) => {
+            updateServiceMember(response);
           })
           .catch((e) => {
             // TODO - error handling - below is rudimentary error handling to approximate existing UX
@@ -136,7 +154,7 @@ export class BackupContact extends Component {
   };
 
   render() {
-    const { pages, pageKey, error } = this.props;
+    const { pages, pageKey } = this.props;
     const { isValid, isDirty, errorMessage } = this.state;
 
     // eslint-disable-next-line
@@ -152,7 +170,7 @@ export class BackupContact extends Component {
         pageKey={pageKey}
         pageIsValid={isValid}
         dirty={isDirty}
-        error={error || errorMessage}
+        error={errorMessage}
       >
         <ContactForm
           ref="currentForm"
@@ -167,20 +185,19 @@ export class BackupContact extends Component {
 }
 BackupContact.propTypes = {
   schema: PropTypes.object.isRequired,
-  currentServiceMember: PropTypes.object,
-  error: PropTypes.object,
 };
 
 const mapDispatchToProps = {
   updateBackupContact: updateBackupContactAction,
+  updateServiceMember: updateServiceMemberAction,
 };
 
 function mapStateToProps(state) {
   return {
-    currentBackupContacts: state.serviceMember.currentBackupContacts,
-    error: state.serviceMember.error,
+    currentBackupContacts: selectBackupContacts(state),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberBackupContactPayload', {}),
     values: getFormValues(formName)(state),
   };
 }
+
 export default connect(mapStateToProps, mapDispatchToProps)(BackupContact);
