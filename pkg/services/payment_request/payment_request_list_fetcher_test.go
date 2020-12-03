@@ -16,6 +16,33 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
+func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListbyMove() {
+	paymentRequestListFetcher := NewPaymentRequestListFetcher(suite.DB())
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+
+	// The default GBLOC is "LKNQ" for office users and payment requests
+	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{Move: models.Move{Locator: "ABC123"}})
+	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "ABCD",
+		},
+	})
+	// Hidden move should not be returned
+	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			Show: swag.Bool(false),
+		},
+	})
+
+	suite.T().Run("Only returns visible (where Move.Show is not false) payment requests matching office user GBLOC", func(t *testing.T) {
+		expectedPaymentRequests, err := paymentRequestListFetcher.FetchPaymentRequestListByMove(officeUser.ID, "ABC123")
+
+		suite.NoError(err)
+		suite.Equal(1, len(*expectedPaymentRequests))
+	})
+
+}
+
 func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 	paymentRequestListFetcher := NewPaymentRequestListFetcher(suite.DB())
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())

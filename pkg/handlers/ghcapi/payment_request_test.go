@@ -87,9 +87,9 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 
 	suite.T().Run("Successful list fetch", func(t *testing.T) {
 		paymentRequestListFetcher := &mocks.PaymentRequestListFetcher{}
-		paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID,
+		paymentRequestListFetcher.On("FetchPaymentRequestListByMove", officeUser.ID,
 			mock.Anything,
-			mock.Anything).Return(&paymentRequests, 1, nil).Once()
+			mock.Anything).Return(&paymentRequests, nil).Once()
 
 		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/payment-requests/", "ABC123"), nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -110,9 +110,9 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 
 	suite.T().Run("Failed list fetch - Not found error ", func(t *testing.T) {
 		paymentRequestListFetcher := &mocks.PaymentRequestListFetcher{}
-		paymentRequestListFetcher.On("FetchPaymentRequestList", officeUser.ID,
+		paymentRequestListFetcher.On("FetchPaymentRequestListByMove", officeUser.ID,
 			mock.Anything,
-			mock.Anything).Return(nil, 0, errors.New("not found")).Once()
+			mock.Anything).Return(nil, errors.New("not found")).Once()
 
 		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/payment-requests/", "ABC123"), nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)

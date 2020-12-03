@@ -5,8 +5,6 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/go-openapi/swag"
-
 	"github.com/transcom/mymove/pkg/services/event"
 
 	"github.com/gobuffalo/validate/v3"
@@ -36,13 +34,7 @@ func (h GetPaymentRequestForMoveHandler) Handle(params paymentrequestop.GetPayme
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	locator := params.Locator
 
-	listPaymentRequestParams := services.FetchPaymentRequestListParams{
-		Locator: &locator,
-		Page:    swag.Int64(0),
-		PerPage: swag.Int64(0),
-	}
-
-	paymentRequests, _, err := h.FetchPaymentRequestList(session.OfficeUserID, &listPaymentRequestParams)
+	paymentRequests, err := h.FetchPaymentRequestListByMove(session.OfficeUserID, locator)
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error fetching Payment Request for locator: %s", locator), zap.Error(err))
 		return paymentrequestop.NewGetPaymentRequestNotFound()
