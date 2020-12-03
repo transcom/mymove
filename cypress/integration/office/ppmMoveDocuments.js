@@ -30,6 +30,6 @@ function officeUserViewsPpmPanel(locatorId) {
 }
 
 function officeUserChecksExpensePanelForAlert(alertShown) {
-  const exist = alertShown ? 'be.visible' : 'not.exist';
+  const exist = alertShown ? 'be.visible' : 'not.be.visible';
   cy.get('.awaiting-expenses-warning').should(`${exist}`);
 }
