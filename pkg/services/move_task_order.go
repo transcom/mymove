@@ -28,7 +28,12 @@ type MoveTaskOrderFetcher interface {
 type MoveTaskOrderUpdater interface {
 	MakeAvailableToPrime(moveTaskOrderID uuid.UUID, eTag string, includeServiceCodeMS bool, includeServiceCodeCS bool) (*models.Move, error)
 	UpdatePostCounselingInfo(moveTaskOrderID uuid.UUID, body movetaskorderops.UpdateMTOPostCounselingInformationBody, eTag string) (*models.Move, error)
-	Hide(moveTaskOrderID uuid.UUID, eTag string) (*models.Move, error)
+}
+
+//MoveTaskOrderHider is the service object interface for hiding MoveTaskOrders not using fake data
+//go:generate mockery -name MoveTaskOrderHider
+type MoveTaskOrderHider interface {
+	Hide() (models.Moves, error)
 }
 
 //MoveTaskOrderChecker is the service object interface for checking if a MoveTaskOrder is in a certain state

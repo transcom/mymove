@@ -74,43 +74,6 @@ func (h MakeMoveTaskOrderAvailableHandlerFunc) Handle(params movetaskorderops.Ma
 	return movetaskorderops.NewMakeMoveTaskOrderAvailableOK().WithPayload(moveTaskOrderPayload)
 }
 
-// HideMoveTaskOrderHandlerFunc updates hides a Move Task Order
-type HideMoveTaskOrderHandlerFunc struct {
-	handlers.HandlerContext
-	moveTaskOrderShowUpdater services.MoveTaskOrderUpdater
-}
-
-// Handle updates the prime availability of a MoveTaskOrder
-func (h HideMoveTaskOrderHandlerFunc) Handle(params movetaskorderops.HideMoveTaskOrderParams) middleware.Responder {
-	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	eTag := params.IfMatch
-
-	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
-
-	mto, err := h.moveTaskOrderShowUpdater.Hide(moveTaskOrderID, eTag)
-
-	if err != nil {
-		logger.Error("supportapi.HideMoveTaskOrderHandlerFunc error", zap.Error(err))
-		switch typedErr := err.(type) {
-		case services.NotFoundError:
-			return movetaskorderops.NewHideMoveTaskOrderNotFound().WithPayload(
-				payloads.ClientError(handlers.NotFoundMessage, *handlers.FmtString(err.Error()), h.GetTraceID()))
-		case services.InvalidInputError:
-			return movetaskorderops.NewHideMoveTaskOrderUnprocessableEntity().WithPayload(
-				payloads.ValidationError(err.Error(), h.GetTraceID(), typedErr.ValidationErrors))
-		case services.PreconditionFailedError:
-			return movetaskorderops.NewHideMoveTaskOrderPreconditionFailed().WithPayload(
-				payloads.ClientError(handlers.PreconditionErrMessage, *handlers.FmtString(err.Error()), h.GetTraceID()))
-		default:
-			return movetaskorderops.NewHideMoveTaskOrderInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
-		}
-	}
-
-	moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
-
-	return movetaskorderops.NewHideMoveTaskOrderOK().WithPayload(moveTaskOrderPayload)
-}
-
 // GetMoveTaskOrderHandlerFunc updates the status of a Move Task Order
 type GetMoveTaskOrderHandlerFunc struct {
 	handlers.HandlerContext
