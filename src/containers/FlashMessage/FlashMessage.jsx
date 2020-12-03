@@ -6,16 +6,10 @@ import { clearFlashMessage as clearFlashMessageAction } from 'store/flash/action
 import Alert from 'shared/Alert';
 
 export const FlashMessage = ({ children, flash, clearFlashMessage }) => {
-  useEffect(() => {
-    return () => {
-      if (flash && (flash.key || flash.message)) {
-        // only clear flash if one was displayed
-        clearFlashMessage();
-      }
-    };
+  useEffect(() => () => {
+    // Clear flash message on unmount (this will happen on navigation or if flash state changes)
+    clearFlashMessage();
   });
-
-  if (!flash) return null;
 
   const { message, title, type, key } = flash;
 
@@ -26,7 +20,6 @@ export const FlashMessage = ({ children, flash, clearFlashMessage }) => {
 
   // otherwise fall back to alert
   // message & type are required
-  if (!message || !type) return null;
   return (
     <Alert type={type} heading={title}>
       {message}
@@ -34,28 +27,65 @@ export const FlashMessage = ({ children, flash, clearFlashMessage }) => {
   );
 };
 
+FlashMessage.displayName = 'FlashMessage';
+
 FlashMessage.propTypes = {
   children: PropTypes.node,
   flash: PropTypes.shape({
     type: PropTypes.string,
     title: PropTypes.string,
     message: PropTypes.string,
-    key: PropTypes.string,
-  }),
+    key: PropTypes.string.isRequired,
+  }).isRequired,
   clearFlashMessage: PropTypes.func.isRequired,
 };
 
 FlashMessage.defaultProps = {
   children: null,
-  flash: null,
 };
 
-const mapDispatchToProps = {
-  clearFlashMessage: clearFlashMessageAction,
+const connectFlashMessage = (Component) => {
+  const ConnectedFlashMessage = (props) => {
+    const { flash } = props;
+
+    // Only render flash if a key is defined
+    const showFlash = flash?.key;
+
+    if (showFlash) {
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      return <Component {...props} />;
+    }
+
+    return null;
+  };
+
+  ConnectedFlashMessage.displayName = 'ConnectedFlashMessage';
+
+  ConnectedFlashMessage.propTypes = {
+    children: PropTypes.node,
+    flash: PropTypes.shape({
+      type: PropTypes.string,
+      title: PropTypes.string,
+      message: PropTypes.string,
+      key: PropTypes.string,
+    }),
+    clearFlashMessage: PropTypes.func.isRequired,
+  };
+
+  ConnectedFlashMessage.defaultProps = {
+    children: null,
+    flash: null,
+  };
+
+  const mapDispatchToProps = {
+    clearFlashMessage: clearFlashMessageAction,
+  };
+
+  const mapStateToProps = (state) => ({
+    flash: state.flash.flashMessage,
+  });
+
+  return connect(mapStateToProps, mapDispatchToProps)(ConnectedFlashMessage);
 };
 
-const mapStateToProps = (state) => ({
-  flash: state.flash.flashMessage,
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(FlashMessage);
+export default connectFlashMessage(FlashMessage);

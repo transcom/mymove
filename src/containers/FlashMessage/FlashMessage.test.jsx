@@ -6,29 +6,7 @@ import ConnectedFlashMessage, { FlashMessage } from './FlashMessage';
 import { MockProviders } from 'testUtils';
 
 describe('FlashMessage component', () => {
-  it('doesn’t crash if there is no flash object', () => {
-    const wrapper = mount(<FlashMessage clearFlashMessage={jest.fn()} />);
-    expect(wrapper.find('FlashMessage').exists()).toBe(true);
-  });
-
-  it('renders nothing if there is no flash message in Redux', () => {
-    const wrapper = mount(
-      <FlashMessage
-        flash={{
-          type: null,
-          message: null,
-          key: null,
-        }}
-        clearFlashMessage={jest.fn()}
-      />,
-    );
-
-    expect(wrapper.find('FlashMessage').exists()).toBe(true);
-    expect(wrapper.find('FlashMessage').children().length).toBe(0);
-    expect(wrapper.find('FlashMessage').html()).toBe(null);
-  });
-
-  it('renders an Alert if there is a flash message in Redux', () => {
+  it('renders an Alert if there is no children', () => {
     const wrapper = mount(
       <FlashMessage
         flash={{
@@ -62,25 +40,6 @@ describe('FlashMessage component', () => {
     expect(wrapper.find('FlashMessage').text()).toBe('This is my custom flash message');
   });
 
-  it('does not render children if there is no flash message in Redux', () => {
-    const wrapper = mount(
-      <FlashMessage
-        flash={{
-          type: null,
-          message: null,
-          key: null,
-        }}
-        clearFlashMessage={jest.fn()}
-      >
-        This is my custom flash message
-      </FlashMessage>,
-    );
-
-    expect(wrapper.find('FlashMessage').exists()).toBe(true);
-    expect(wrapper.find('FlashMessage').children().length).toBe(0);
-    expect(wrapper.find('FlashMessage').html()).toBe(null);
-  });
-
   it('clears the flash message when unmounting', () => {
     const mockClearFlash = jest.fn();
 
@@ -98,25 +57,6 @@ describe('FlashMessage component', () => {
     expect(mockClearFlash).toHaveBeenCalledTimes(0);
     wrapper.unmount();
     expect(mockClearFlash).toHaveBeenCalledTimes(1);
-  });
-
-  it('does not clear the flash message when unmounting if there was no flash', () => {
-    const mockClearFlash = jest.fn();
-
-    const wrapper = mount(
-      <FlashMessage
-        flash={{
-          type: null,
-          message: null,
-          key: null,
-        }}
-        clearFlashMessage={mockClearFlash}
-      />,
-    );
-
-    expect(mockClearFlash).toHaveBeenCalledTimes(0);
-    wrapper.unmount();
-    expect(mockClearFlash).toHaveBeenCalledTimes(0);
   });
 });
 
@@ -138,9 +78,7 @@ describe('ConnectedFlashMessage component', () => {
       </MockProviders>,
     );
 
-    expect(wrapper.find('FlashMessage').exists()).toBe(true);
-    expect(wrapper.find('FlashMessage').children().length).toBe(0);
-    expect(wrapper.find('FlashMessage').html()).toBe(null);
+    expect(wrapper.find('FlashMessage').exists()).toBe(false);
   });
 
   it('renders an Alert if there is a flash message in Redux', () => {
@@ -204,8 +142,6 @@ describe('ConnectedFlashMessage component', () => {
       </MockProviders>,
     );
 
-    expect(wrapper.find('FlashMessage').exists()).toBe(true);
-    expect(wrapper.find('FlashMessage').children().length).toBe(0);
-    expect(wrapper.find('FlashMessage').html()).toBe(null);
+    expect(wrapper.find('FlashMessage').exists()).toBe(false);
   });
 });
