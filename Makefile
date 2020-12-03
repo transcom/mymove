@@ -11,6 +11,7 @@ DB_DOCKER_CONTAINER_IMAGE = postgres:12.2
 REDIS_DOCKER_CONTAINER_IMAGE = redis:5.0.6
 REDIS_DOCKER_CONTAINER = milmove-redis
 TASKS_DOCKER_CONTAINER = tasks
+WEBHOOK_CLIENT_DOCKER_CONTAINER = webhook-client
 export PGPASSWORD=mysecretpassword
 
 # if S3 or CDN access is enabled, wrap webserver in aws-vault command
@@ -881,6 +882,22 @@ run_exp_migrations: bin/milmove db_deployed_migrations_reset ## Run GovCloud exp
 
 #
 # ----- END PROD_MIGRATION TARGETS -----
+#
+
+#
+# ----- START WEBHOOK CLIENT TARGETS -----
+#
+
+.PHONY: webhook_client_docker
+webhook_client_docker:
+	docker build -f Dockerfile.webhook_client_local -t $(WEBHOOK_CLIENT_DOCKER_CONTAINER):latest .
+
+.PHONY: webhook_client_test
+webhook_client_test:
+	echo "This is a placeholder for webhook-client tests"
+
+#
+# ----- END WEBHOOK CLIENT TARGETS -----
 #
 
 #
