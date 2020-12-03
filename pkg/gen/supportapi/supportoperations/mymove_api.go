@@ -56,6 +56,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PaymentRequestGetPaymentRequestEDIHandler: payment_request.GetPaymentRequestEDIHandlerFunc(func(params payment_request.GetPaymentRequestEDIParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_request.GetPaymentRequestEDI has not yet been implemented")
 		}),
+		MoveTaskOrderHideNonFakeMTOsHandler: move_task_order.HideNonFakeMTOsHandlerFunc(func(params move_task_order.HideNonFakeMTOsParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.HideNonFakeMTOs has not yet been implemented")
+		}),
 		PaymentRequestListMTOPaymentRequestsHandler: payment_request.ListMTOPaymentRequestsHandlerFunc(func(params payment_request.ListMTOPaymentRequestsParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_request.ListMTOPaymentRequests has not yet been implemented")
 		}),
@@ -124,6 +127,8 @@ type MymoveAPI struct {
 	MoveTaskOrderGetMoveTaskOrderHandler move_task_order.GetMoveTaskOrderHandler
 	// PaymentRequestGetPaymentRequestEDIHandler sets the operation handler for the get payment request e d i operation
 	PaymentRequestGetPaymentRequestEDIHandler payment_request.GetPaymentRequestEDIHandler
+	// MoveTaskOrderHideNonFakeMTOsHandler sets the operation handler for the hide non fake m t os operation
+	MoveTaskOrderHideNonFakeMTOsHandler move_task_order.HideNonFakeMTOsHandler
 	// PaymentRequestListMTOPaymentRequestsHandler sets the operation handler for the list m t o payment requests operation
 	PaymentRequestListMTOPaymentRequestsHandler payment_request.ListMTOPaymentRequestsHandler
 	// MoveTaskOrderListMTOsHandler sets the operation handler for the list m t os operation
@@ -214,6 +219,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PaymentRequestGetPaymentRequestEDIHandler == nil {
 		unregistered = append(unregistered, "payment_request.GetPaymentRequestEDIHandler")
+	}
+	if o.MoveTaskOrderHideNonFakeMTOsHandler == nil {
+		unregistered = append(unregistered, "move_task_order.HideNonFakeMTOsHandler")
 	}
 	if o.PaymentRequestListMTOPaymentRequestsHandler == nil {
 		unregistered = append(unregistered, "payment_request.ListMTOPaymentRequestsHandler")
@@ -339,6 +347,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/payment-requests/{paymentRequestID}/edi"] = payment_request.NewGetPaymentRequestEDI(o.context, o.PaymentRequestGetPaymentRequestEDIHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/move-task-orders/hide"] = move_task_order.NewHideNonFakeMTOs(o.context, o.MoveTaskOrderHideNonFakeMTOsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

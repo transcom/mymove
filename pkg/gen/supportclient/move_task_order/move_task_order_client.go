@@ -31,6 +31,8 @@ type ClientService interface {
 
 	GetMoveTaskOrder(params *GetMoveTaskOrderParams) (*GetMoveTaskOrderOK, error)
 
+	HideNonFakeMTOs(params *HideNonFakeMTOsParams) (*HideNonFakeMTOsOK, error)
+
 	ListMTOs(params *ListMTOsParams) (*ListMTOsOK, error)
 
 	MakeMoveTaskOrderAvailable(params *MakeMoveTaskOrderAvailableParams) (*MakeMoveTaskOrderAvailableOK, error)
@@ -126,6 +128,45 @@ func (a *Client) GetMoveTaskOrder(params *GetMoveTaskOrderParams) (*GetMoveTaskO
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for getMoveTaskOrder: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+  HideNonFakeMTOs hides non fake m t os
+
+  Updates move task order without fake user data `show` to false. No request body required. <br />
+<br />
+This is a support endpoint and will not be available in production.
+
+*/
+func (a *Client) HideNonFakeMTOs(params *HideNonFakeMTOsParams) (*HideNonFakeMTOsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewHideNonFakeMTOsParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "hideNonFakeMTOs",
+		Method:             "GET",
+		PathPattern:        "/move-task-orders/hide",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &HideNonFakeMTOsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*HideNonFakeMTOsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for hideNonFakeMTOs: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 
