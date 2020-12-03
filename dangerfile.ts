@@ -84,7 +84,7 @@ function checkPRHasProhibitedLinterOverride(dangerJSDiffCollection) {
   let badOverrideMsg = '';
   for (let d in dangerJSDiffCollection) {
     const diffFile = dangerJSDiffCollection[d];
-    const diff = diffFile.diff;
+    const diff = diffFile.added;
     if (diffContainsNosec(diff)) {
       badOverrideMsg = 'Contains prohibited linter override "#nosec".';
       break;
@@ -94,7 +94,7 @@ function checkPRHasProhibitedLinterOverride(dangerJSDiffCollection) {
     }
 
     // split file diffs into lines
-    const lines = splitDiffOfAddedLines(diff);
+    const lines = diffForFile.split('\n');
     for (let l in lines) {
       const line = lines[l];
       if (diffContainsEslint(line)) {
@@ -123,18 +123,6 @@ function diffContainsNosec(diffForFile) {
 
 function diffContainsEslint(diffForFile) {
   return !!diffForFile.includes('eslint-disable');
-}
-
-function splitDiffOfAddedLines(diffForFile) {
-  // remove lines that are subtracted, indicated by '-'
-  let linesToParse = [];
-  let lines = diffForFile.split('\n');
-  lines.forEach((l) => {
-    if (l[0] !== '-') {
-      linesToParse.push(l);
-    }
-  });
-  return linesToParse;
 }
 
 function doesLineHaveProhibitedOverride(disablingString) {
