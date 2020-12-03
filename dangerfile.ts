@@ -170,7 +170,7 @@ function doesLineHaveProhibitedOverride(disablingString) {
   if (disablingStringParts[0] === 'eslint-disable') {
     // fail because don't disable whole file please!
     prohibitedOverrideMsg =
-      'Found "eslint-disable": this disables the whole file. Please specify rules if disable is permitted.';
+      'Found `eslint-disable`. This disables the whole file, which is bad practice because it can allow security issues to slip in unnoticed. Please specify exact rules on a line by line basis, eg `eslint-disable-next-line no-underscore-dangle`.';
   }
 
   if (disablingStringParts.length === 1) {
