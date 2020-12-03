@@ -41,6 +41,7 @@ func (suite *SyncadaSftpSenderSuite) TestSendToSyncadaSftp() {
 				os.Unsetenv("SYNCADA_SFTP_IP_ADDRESS")
 				os.Unsetenv("SYNCADA_SFTP_PASSWORD")
 				os.Unsetenv("SYNCADA_SFTP_INBOUND_DIRECTORY")
+				os.Unsetenv("SYNCADA_SFTP_HOST_KEY")
 			},
 		},
 		{
@@ -51,6 +52,7 @@ func (suite *SyncadaSftpSenderSuite) TestSendToSyncadaSftp() {
 				os.Unsetenv("SYNCADA_SFTP_IP_ADDRESS")
 				os.Unsetenv("SYNCADA_SFTP_PASSWORD")
 				os.Unsetenv("SYNCADA_SFTP_INBOUND_DIRECTORY")
+				os.Unsetenv("SYNCADA_SFTP_HOST_KEY")
 			},
 		},
 		{
@@ -61,6 +63,7 @@ func (suite *SyncadaSftpSenderSuite) TestSendToSyncadaSftp() {
 				os.Unsetenv("SYNCADA_SFTP_IP_ADDRESS")
 				os.Unsetenv("SYNCADA_SFTP_PASSWORD")
 				os.Unsetenv("SYNCADA_SFTP_INBOUND_DIRECTORY")
+				os.Unsetenv("SYNCADA_SFTP_HOST_KEY")
 			},
 		},
 		{
@@ -71,6 +74,7 @@ func (suite *SyncadaSftpSenderSuite) TestSendToSyncadaSftp() {
 				os.Setenv("SYNCADA_SFTP_IP_ADDRESS", "127.0.0.1")
 				os.Unsetenv("SYNCADA_SFTP_PASSWORD")
 				os.Unsetenv("SYNCADA_SFTP_INBOUND_DIRECTORY")
+				os.Unsetenv("SYNCADA_SFTP_HOST_KEY")
 			},
 		},
 		{
@@ -81,10 +85,23 @@ func (suite *SyncadaSftpSenderSuite) TestSendToSyncadaSftp() {
 				os.Setenv("SYNCADA_SFTP_IP_ADDRESS", "127.0.0.1")
 				os.Setenv("SYNCADA_SFTP_PASSWORD", "FAKE PASSWORD")
 				os.Unsetenv("SYNCADA_SFTP_INBOUND_DIRECTORY")
+				os.Unsetenv("SYNCADA_SFTP_HOST_KEY")
+			},
+		},
+		{
+			TestEnvironmentVar: "SYNCADA_SFTP_HOST_KEY",
+			Setup: func() {
+				os.Setenv("SYNCADA_SFTP_PORT", "1234")
+				os.Setenv("SYNCADA_SFTP_USER_ID", "FAKE_USER_ID")
+				os.Setenv("SYNCADA_SFTP_IP_ADDRESS", "127.0.0.1")
+				os.Setenv("SYNCADA_SFTP_PASSWORD", "FAKE PASSWORD")
+				os.Setenv("SYNCADA_SFTP_INBOUND_DIRECTORY", "/Dropoff")
+				os.Unsetenv("SYNCADA_SFTP_HOST_KEY")
 			},
 		},
 	}
 
+	// Test failure if any environment variable is missing
 	for _, data := range missingCreds {
 		suite.T().Run(fmt.Sprintf("constructor fails if %s is missing", data.TestEnvironmentVar), func(t *testing.T) {
 			data.Setup()
@@ -101,8 +118,24 @@ func (suite *SyncadaSftpSenderSuite) TestSendToSyncadaSftp() {
 		os.Setenv("SYNCADA_SFTP_IP_ADDRESS", "127.0.0.1")
 		os.Setenv("SYNCADA_SFTP_PASSWORD", "FAKE PASSWORD")
 		os.Setenv("SYNCADA_SFTP_INBOUND_DIRECTORY", "/Dropoff")
+		// generated fake host key to pass parser used following command and only saved the pub key
+		//   ssh-keygen -q -N "" -t ecdsa -f /tmp/ssh_host_ecdsa_key
+		os.Setenv("SYNCADA_SFTP_HOST_KEY", "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBI+M4xIGU6D4On+Wxz9k/QT12TieNvaXA0lvosnW135MRQzwZp5VDThQ6Vx7yhp18shgjEIxFHFTLxpmUc6JdMc= fake@localhost")
 		sender, err := InitNewSyncadaSFTPSession()
 		suite.NoError(err)
 		suite.NotNil(sender)
+	})
+
+	suite.T().Run("constructor fails with invalid host key", func(t *testing.T) {
+		os.Setenv("SYNCADA_SFTP_PORT", "1234")
+		os.Setenv("SYNCADA_SFTP_USER_ID", "FAKE_USER_ID")
+		os.Setenv("SYNCADA_SFTP_IP_ADDRESS", "127.0.0.1")
+		os.Setenv("SYNCADA_SFTP_PASSWORD", "FAKE PASSWORD")
+		os.Setenv("SYNCADA_SFTP_INBOUND_DIRECTORY", "/Dropoff")
+		os.Setenv("SYNCADA_SFTP_HOST_KEY", "FAKE::HOSTKEY::INVALID")
+		sender, err := InitNewSyncadaSFTPSession()
+		suite.Error(err)
+		suite.Nil(sender)
+		suite.Equal("Failed to parse host key ssh: no key found", err.Error())
 	})
 }
