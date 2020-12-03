@@ -5,21 +5,14 @@ import { connect } from 'react-redux';
 import { clearFlashMessage as clearFlashMessageAction } from 'store/flash/actions';
 import Alert from 'shared/Alert';
 
-export const FlashMessage = ({ children, flash, clearFlashMessage }) => {
+export const FlashMessage = ({ flash, clearFlashMessage }) => {
   useEffect(() => () => {
     // Clear flash message on unmount (this will happen on navigation or if flash state changes)
     clearFlashMessage();
   });
 
-  const { message, title, type, key } = flash;
+  const { message, title, type } = flash;
 
-  // display children if passed in as a custom flash (using the key)
-  if (key && children) {
-    return children;
-  }
-
-  // otherwise fall back to alert
-  // message & type are required
   return (
     <Alert type={type} heading={title}>
       {message}
@@ -30,18 +23,13 @@ export const FlashMessage = ({ children, flash, clearFlashMessage }) => {
 FlashMessage.displayName = 'FlashMessage';
 
 FlashMessage.propTypes = {
-  children: PropTypes.node,
   flash: PropTypes.shape({
-    type: PropTypes.string,
+    type: PropTypes.string.isRequired,
     title: PropTypes.string,
-    message: PropTypes.string,
+    message: PropTypes.string.isRequired,
     key: PropTypes.string.isRequired,
   }).isRequired,
   clearFlashMessage: PropTypes.func.isRequired,
-};
-
-FlashMessage.defaultProps = {
-  children: null,
 };
 
 const connectFlashMessage = (Component) => {
@@ -62,7 +50,6 @@ const connectFlashMessage = (Component) => {
   ConnectedFlashMessage.displayName = 'ConnectedFlashMessage';
 
   ConnectedFlashMessage.propTypes = {
-    children: PropTypes.node,
     flash: PropTypes.shape({
       type: PropTypes.string,
       title: PropTypes.string,
@@ -73,7 +60,6 @@ const connectFlashMessage = (Component) => {
   };
 
   ConnectedFlashMessage.defaultProps = {
-    children: null,
     flash: null,
   };
 

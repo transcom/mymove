@@ -6,7 +6,7 @@ import ConnectedFlashMessage, { FlashMessage } from './FlashMessage';
 import { MockProviders } from 'testUtils';
 
 describe('FlashMessage component', () => {
-  it('renders an Alert if there is no children', () => {
+  it('renders an Alert', () => {
     const wrapper = mount(
       <FlashMessage
         flash={{
@@ -19,25 +19,10 @@ describe('FlashMessage component', () => {
     );
 
     expect(wrapper.find('FlashMessage').exists()).toBe(true);
-    expect(wrapper.find('Alert').exists()).toBe(true);
-    expect(wrapper.find('FlashMessage').children().length).toBe(1);
-  });
-
-  it('renders children if there is a flash message in Redux and it uses children', () => {
-    const wrapper = mount(
-      <FlashMessage
-        flash={{
-          key: 'TEST_CUSTOM_FLASH',
-        }}
-        clearFlashMessage={jest.fn()}
-      >
-        This is my custom flash message
-      </FlashMessage>,
-    );
-
-    expect(wrapper.find('FlashMessage').exists()).toBe(true);
-    expect(wrapper.find('Alert').exists()).toBe(false);
-    expect(wrapper.find('FlashMessage').text()).toBe('This is my custom flash message');
+    const alert = wrapper.find('Alert');
+    expect(alert.exists()).toBe(true);
+    expect(alert.prop('type')).toEqual('success');
+    expect(alert.text()).toEqual('This is a successful message!');
   });
 
   it('clears the flash message when unmounting', () => {
@@ -101,47 +86,5 @@ describe('ConnectedFlashMessage component', () => {
     expect(wrapper.find('FlashMessage').exists()).toBe(true);
     expect(wrapper.find('Alert').exists()).toBe(true);
     expect(wrapper.find('FlashMessage').children().length).toBe(1);
-  });
-
-  it('renders children if there is a flash message in Redux and it uses children', () => {
-    const testState = {
-      flash: {
-        flashMessage: {
-          type: 'success',
-          message: 'This is a successful message!',
-          key: 'TEST_SUCCESS_FLASH',
-        },
-      },
-    };
-
-    const wrapper = mount(
-      <MockProviders initialState={testState}>
-        <ConnectedFlashMessage>This is my custom flash message</ConnectedFlashMessage>
-      </MockProviders>,
-    );
-
-    expect(wrapper.find('FlashMessage').exists()).toBe(true);
-    expect(wrapper.find('Alert').exists()).toBe(false);
-    expect(wrapper.find('FlashMessage').text()).toBe('This is my custom flash message');
-  });
-
-  it('does not render children if there is no flash message in Redux', () => {
-    const testState = {
-      flash: {
-        flashMessage: {
-          type: null,
-          message: null,
-          key: null,
-        },
-      },
-    };
-
-    const wrapper = mount(
-      <MockProviders initialState={testState}>
-        <ConnectedFlashMessage>This is my custom flash message</ConnectedFlashMessage>
-      </MockProviders>,
-    );
-
-    expect(wrapper.find('FlashMessage').exists()).toBe(false);
   });
 });
