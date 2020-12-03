@@ -5,6 +5,8 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/transcom/mymove/pkg/models/roles"
+
 	"github.com/transcom/mymove/pkg/services/event"
 
 	"github.com/gobuffalo/validate/v3"
@@ -32,6 +34,14 @@ type GetPaymentRequestForMoveHandler struct {
 // Handle handles the HTTP handling for GetPaymentRequestForMoveHandler
 func (h GetPaymentRequestForMoveHandler) Handle(params paymentrequestop.GetPaymentRequestsForMoveParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	fmt.Println(session.IsOfficeUser())
+	fmt.Println(session.Roles)
+
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTIO) {
+		logger.Error("user is not authenticated with TIO office role")
+		return paymentrequestop.NewGetPaymentRequestsForMoveForbidden()
+	}
+
 	locator := params.Locator
 
 	paymentRequests, err := h.FetchPaymentRequestListByMove(session.OfficeUserID, locator)

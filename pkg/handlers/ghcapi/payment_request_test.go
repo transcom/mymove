@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/transcom/mymove/pkg/models/roles"
+
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/services"
 
@@ -83,12 +85,14 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 	prUUID, _ := uuid.NewV4()
 	paymentRequests := models.PaymentRequests{models.PaymentRequest{ID: prUUID}}
-	officeUser := testdatagen.MakeTIOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
+		RoleType: roles.RoleTypeTIO,
+	})
 
 	suite.T().Run("Successful list fetch", func(t *testing.T) {
 		paymentRequestListFetcher := &mocks.PaymentRequestListFetcher{}
-		paymentRequestListFetcher.On("FetchPaymentRequestListByMove", officeUser.ID,
-			mock.Anything,
+		paymentRequestListFetcher.On("FetchPaymentRequestListByMove", mock.Anything,
 			mock.Anything).Return(&paymentRequests, nil).Once()
 
 		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/payment-requests/", "ABC123"), nil)
@@ -110,8 +114,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 
 	suite.T().Run("Failed list fetch - Not found error ", func(t *testing.T) {
 		paymentRequestListFetcher := &mocks.PaymentRequestListFetcher{}
-		paymentRequestListFetcher.On("FetchPaymentRequestListByMove", officeUser.ID,
-			mock.Anything,
+		paymentRequestListFetcher.On("FetchPaymentRequestListByMove", mock.Anything,
 			mock.Anything).Return(nil, errors.New("not found")).Once()
 
 		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/payment-requests/", "ABC123"), nil)
@@ -127,6 +130,28 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 		}
 		response := handler.Handle(params)
 		suite.Assertions.IsType(&paymentrequestop.GetPaymentRequestNotFound{}, response)
+	})
+
+	suite.T().Run("Failed list fetch - Forbidden", func(t *testing.T) {
+		officeUserTOO := testdatagen.MakeTOOOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
+
+		paymentRequestListFetcher := &mocks.PaymentRequestListFetcher{}
+		paymentRequestListFetcher.On("FetchPaymentRequestListByMove", mock.Anything,
+			mock.Anything).Return(&paymentRequests, nil).Once()
+
+		request := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/payment-requests/", "ABC123"), nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUserTOO)
+		params := paymentrequestop.GetPaymentRequestsForMoveParams{
+			HTTPRequest: request,
+			Locator:     "ABC123",
+		}
+		context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+		handler := GetPaymentRequestForMoveHandler{
+			HandlerContext:            context,
+			PaymentRequestListFetcher: paymentRequestListFetcher,
+		}
+		response := handler.Handle(params)
+		suite.Assertions.IsType(&paymentrequestop.GetPaymentRequestsForMoveForbidden{}, response)
 	})
 }
 

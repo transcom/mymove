@@ -60,6 +60,48 @@ func (o *GetPaymentRequestsForMoveOK) WriteResponse(rw http.ResponseWriter, prod
 	}
 }
 
+// GetPaymentRequestsForMoveForbiddenCode is the HTTP code returned for type GetPaymentRequestsForMoveForbidden
+const GetPaymentRequestsForMoveForbiddenCode int = 403
+
+/*GetPaymentRequestsForMoveForbidden The request was denied
+
+swagger:response getPaymentRequestsForMoveForbidden
+*/
+type GetPaymentRequestsForMoveForbidden struct {
+
+	/*
+	  In: Body
+	*/
+	Payload interface{} `json:"body,omitempty"`
+}
+
+// NewGetPaymentRequestsForMoveForbidden creates GetPaymentRequestsForMoveForbidden with default headers values
+func NewGetPaymentRequestsForMoveForbidden() *GetPaymentRequestsForMoveForbidden {
+
+	return &GetPaymentRequestsForMoveForbidden{}
+}
+
+// WithPayload adds the payload to the get payment requests for move forbidden response
+func (o *GetPaymentRequestsForMoveForbidden) WithPayload(payload interface{}) *GetPaymentRequestsForMoveForbidden {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the get payment requests for move forbidden response
+func (o *GetPaymentRequestsForMoveForbidden) SetPayload(payload interface{}) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *GetPaymentRequestsForMoveForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(403)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
+}
+
 // GetPaymentRequestsForMoveNotFoundCode is the HTTP code returned for type GetPaymentRequestsForMoveNotFound
 const GetPaymentRequestsForMoveNotFoundCode int = 404
 

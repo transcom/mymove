@@ -1391,6 +1391,12 @@ func init() {
               "$ref": "#/definitions/PaymentRequests"
             }
           },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
@@ -5263,6 +5269,15 @@ func init() {
             "description": "Successfully retrieved all line items for a move task order",
             "schema": {
               "$ref": "#/definitions/PaymentRequests"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
             }
           },
           "404": {
