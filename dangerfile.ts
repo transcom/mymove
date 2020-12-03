@@ -184,7 +184,7 @@ function doesLineHaveProhibitedOverride(disablingString) {
   for (let r in rules) {
     const rule = rules[r];
     if (!okBypassRules.includes(rule)) {
-      prohibitedOverrideMsg = `Contains a rule that is not in the permitted eslint list. Ok rules: (\n${okBypassRules.map(
+      prohibitedOverrideMsg = `Contains a rule that is not in the permitted eslint list. You are free to disable only: (\n${okBypassRules.map(
         (r) => `${r}\n`,
       )})`;
       break;
