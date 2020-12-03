@@ -4,15 +4,15 @@ import classnames from 'classnames';
 
 import styles from './MovePaymentRequests.module.scss';
 
+import PaymentRequestCard from 'components/Office/PaymentRequestCard/PaymentRequestCard';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { useMovePaymentRequestsQueries } from 'hooks/queries';
 
 const MovePaymentRequests = () => {
-  const { moveOrderId } = useParams();
+  const { locator } = useParams();
 
-  // eslint-disable-next-line no-unused-vars
-  const { paymentRequests, isLoading, isError } = useMovePaymentRequestsQueries(moveOrderId);
+  const { paymentRequests, isLoading, isError } = useMovePaymentRequestsQueries(locator);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -20,6 +20,9 @@ const MovePaymentRequests = () => {
   return (
     <div className={classnames(styles.MovePaymentRequests, '.container')}>
       <h2>Payment Requests</h2>
+      {paymentRequests.map((paymentRequest) => (
+        <PaymentRequestCard paymentRequest={paymentRequest} />
+      ))}
     </div>
   );
 };

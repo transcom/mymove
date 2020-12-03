@@ -19,7 +19,6 @@ import carTrailerImg from 'shared/images/car-trailer_mobile.png';
 import carImg from 'shared/images/car_mobile.png';
 import { createWeightTicketSetDocument } from 'shared/Entities/modules/weightTicketSetDocuments';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons/faQuestionCircle';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { withContext } from 'shared/AppContext';
@@ -262,7 +261,7 @@ class WeightTicket extends Component {
                 <h3 className="expenses-header">Weight Tickets - {weightTicketSetOrdinal} set</h3>
                 Upload weight tickets for each vehicle trip and pro-gear weigh.{' '}
                 <Link to="/weight-ticket-examples" className="usa-link">
-                  <FontAwesomeIcon aria-hidden className="color_blue_link" icon={faQuestionCircle} />
+                  <FontAwesomeIcon aria-hidden className="color_blue_link" icon="question-circle" />
                 </Link>
                 <SwaggerField
                   fieldName="weight_ticket_set_type"

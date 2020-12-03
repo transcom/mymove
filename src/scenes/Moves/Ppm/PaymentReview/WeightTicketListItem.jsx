@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { forEach } from 'lodash';
 import { string, number, bool } from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons/faExclamationCircle';
+
 import carImg from 'shared/images/car_mobile.png';
 import boxTruckImg from 'shared/images/box_truck_mobile.png';
 import carTrailerImg from 'shared/images/car-trailer_mobile.png';
@@ -110,7 +110,7 @@ class WeightTicketListItem extends Component {
           {empty_weight_ticket_missing ? (
             <MissingLabel>
               Missing empty weight ticket{' '}
-              <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon={faExclamationCircle} />
+              <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon="exclamation-circle" />
             </MissingLabel>
           ) : (
             <p>Empty weight ticket {empty_weight} lbs</p>
@@ -118,7 +118,7 @@ class WeightTicketListItem extends Component {
           {full_weight_ticket_missing ? (
             <MissingLabel>
               Missing full weight ticket{' '}
-              <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon={faExclamationCircle} />
+              <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon="exclamation-circle" />
             </MissingLabel>
           ) : (
             <p>Full weight ticket {full_weight} lbs</p>
@@ -126,7 +126,7 @@ class WeightTicketListItem extends Component {
           {weight_ticket_set_type === WEIGHT_TICKET_SET_TYPE.CAR_TRAILER && trailer_ownership_missing && (
             <MissingLabel>
               Missing ownership documentation{' '}
-              <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon={faExclamationCircle} />
+              <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon="exclamation-circle" />
             </MissingLabel>
           )}
           {weight_ticket_set_type === WEIGHT_TICKET_SET_TYPE.CAR_TRAILER && !trailer_ownership_missing && (

@@ -4,7 +4,6 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/event"
 
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
@@ -43,37 +42,6 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 	}
 	moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
 	return movetaskorderops.NewGetMoveTaskOrderOK().WithPayload(moveTaskOrderPayload)
-}
-
-// GetMovePaymentRequestsHandler fetches Payment Requests for a Move
-type GetMovePaymentRequestsHandler struct {
-	handlers.HandlerContext
-	moveTaskOrderFetcher services.MoveTaskOrderFetcher
-}
-
-// Handle fetches a single MoveTaskOrder
-func (h GetMovePaymentRequestsHandler) Handle(params movetaskorderops.GetMovePaymentRequestsParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
-
-	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
-	_, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(moveTaskOrderID)
-	if err != nil {
-		logger.Error("ghcapi.GetMovePaymentRequestsHandler error", zap.Error(err))
-		switch err.(type) {
-		case services.NotFoundError:
-			return movetaskorderops.NewGetMoveTaskOrderNotFound()
-		case services.InvalidInputError:
-			return movetaskorderops.NewGetMoveTaskOrderBadRequest()
-		default:
-			return movetaskorderops.NewGetMoveTaskOrderInternalServerError()
-		}
-	}
-
-	paymentRequest1 := models.PaymentRequest{}
-	paymentRequest2 := models.PaymentRequest{}
-	paymentRequestsPayload := payloads.PaymentRequests(&models.PaymentRequests{paymentRequest1, paymentRequest2}, h.FileStorer())
-
-	return movetaskorderops.NewGetMovePaymentRequestsOK().WithPayload(*paymentRequestsPayload)
 }
 
 // UpdateMoveTaskOrderStatusHandlerFunc updates the status of a Move Task Order

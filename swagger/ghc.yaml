@@ -876,47 +876,6 @@ paths:
       description: Gets entitlements
       operationId: getEntitlements
       summary: Gets entitlements for a move order by ID
-  '/move-task-orders/{moveTaskOrderID}/payment-requests':
-    parameters:
-      - description: ID of move to use
-        in: path
-        name: moveTaskOrderID
-        required: true
-        type: string
-    get:
-      produces:
-        - application/json
-      parameters: []
-      tags:
-        - moveTaskOrder
-      responses:
-        '200':
-          description: Successfully retrieved payment requests
-          schema:
-            $ref: '#/definitions/PaymentRequests'
-        '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
-        '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
-        '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
-      description: Get list of all payment requests for a move
-      operationId: getMovePaymentRequests
-      summary: Get list of all payment requests for a move
   '/payment-requests/{paymentRequestID}':
     parameters:
       - description: UUID of payment request
@@ -960,6 +919,44 @@ paths:
       description: Fetches an instance of a payment request by id
       operationId: getPaymentRequest
       summary: Fetches a payment request by id
+  '/moves/{locator}/payment-requests':
+    parameters:
+      - description: move code to identify a move for payment requests
+        format: string
+        in: path
+        name: locator
+        required: true
+        type: string
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved all line items for a move task order
+          schema:
+            $ref: '#/definitions/PaymentRequests'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '422':
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - paymentRequests
+      description: Fetches payment requests for a move
+      operationId: getPaymentRequestsForMove
+      summary: Fetches payment requests using the move code (locator).
   '/payment-requests/{paymentRequestID}/status':
     patch:
       consumes:

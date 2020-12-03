@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { Button, Dropdown } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons/';
 
 import styles from './Table.module.scss';
 
@@ -116,7 +115,7 @@ const Table = ({
               onClick={previousPage}
               disabled={!canPreviousPage}
             >
-              <FontAwesomeIcon className={`${styles.paginationIconLeft} fas fa-chevron-left`} icon={faChevronLeft} />
+              <FontAwesomeIcon className={`${styles.paginationIconLeft} fas fa-chevron-left`} icon="chevron-left" />
               <span>Prev</span>
             </Button>
             <Dropdown
@@ -144,7 +143,7 @@ const Table = ({
               disabled={!canNextPage}
             >
               <span>Next</span>
-              <FontAwesomeIcon className={`${styles.paginationIconRight} fas fa-chevron-right`} icon={faChevronRight} />
+              <FontAwesomeIcon className={`${styles.paginationIconRight} fas fa-chevron-right`} icon="chevron-right" />
             </Button>
           </div>
         </div>

@@ -75,7 +75,7 @@ const TXOMoveInfo = () => {
             <PaymentRequestReview />
           </Route>
 
-          <Route path="/moves/:moveOrderId/payment-requests" exact>
+          <Route path="/moves/:locator/payment-requests" exact>
             <MovePaymentRequests />
           </Route>
 

@@ -55,6 +55,11 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 		paymentrequest.NewPaymentRequestFetcher(context.DB()),
 	}
 
+	ghcAPI.PaymentRequestsGetPaymentRequestsForMoveHandler = GetPaymentRequestForMoveHandler{
+		HandlerContext:            context,
+		PaymentRequestListFetcher: paymentrequest.NewPaymentRequestListFetcher(context.DB()),
+	}
+
 	ghcAPI.PaymentRequestsUpdatePaymentRequestStatusHandler = UpdatePaymentRequestStatusHandler{
 		HandlerContext:              context,
 		PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
@@ -68,11 +73,6 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 	}
 
 	ghcAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandler{
-		context,
-		movetaskorder.NewMoveTaskOrderFetcher(context.DB()),
-	}
-
-	ghcAPI.MoveTaskOrderGetMovePaymentRequestsHandler = GetMovePaymentRequestsHandler{
 		context,
 		movetaskorder.NewMoveTaskOrderFetcher(context.DB()),
 	}

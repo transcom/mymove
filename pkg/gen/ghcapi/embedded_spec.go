@@ -603,66 +603,6 @@ func init() {
         }
       ]
     },
-    "/move-task-orders/{moveTaskOrderID}/payment-requests": {
-      "get": {
-        "description": "Get list of all payment requests for a move",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moveTaskOrder"
-        ],
-        "summary": "Get list of all payment requests for a move",
-        "operationId": "getMovePaymentRequests",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved payment requests",
-            "schema": {
-              "$ref": "#/definitions/PaymentRequests"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "ID of move to use",
-          "name": "moveTaskOrderID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
     "/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status": {
       "patch": {
         "description": "Changes the status of a line item for a move order by ID",
@@ -1427,6 +1367,61 @@ func init() {
           "format": "uuid",
           "description": "ID of the shipment",
           "name": "shipmentID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/moves/{locator}/payment-requests": {
+      "get": {
+        "description": "Fetches payment requests for a move",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentRequests"
+        ],
+        "summary": "Fetches payment requests using the move code (locator).",
+        "operationId": "getPaymentRequestsForMove",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all line items for a move task order",
+            "schema": {
+              "$ref": "#/definitions/PaymentRequests"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "string",
+          "description": "move code to identify a move for payment requests",
+          "name": "locator",
           "in": "path",
           "required": true
         }
@@ -4340,81 +4335,6 @@ func init() {
         }
       ]
     },
-    "/move-task-orders/{moveTaskOrderID}/payment-requests": {
-      "get": {
-        "description": "Get list of all payment requests for a move",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moveTaskOrder"
-        ],
-        "summary": "Get list of all payment requests for a move",
-        "operationId": "getMovePaymentRequests",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved payment requests",
-            "schema": {
-              "$ref": "#/definitions/PaymentRequests"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "ID of move to use",
-          "name": "moveTaskOrderID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
     "/move-task-orders/{moveTaskOrderID}/payment-service-items/{paymentServiceItemID}/status": {
       "patch": {
         "description": "Changes the status of a line item for a move order by ID",
@@ -5326,6 +5246,70 @@ func init() {
           "format": "uuid",
           "description": "ID of the shipment",
           "name": "shipmentID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/moves/{locator}/payment-requests": {
+      "get": {
+        "description": "Fetches payment requests for a move",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentRequests"
+        ],
+        "summary": "Fetches payment requests using the move code (locator).",
+        "operationId": "getPaymentRequestsForMove",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all line items for a move task order",
+            "schema": {
+              "$ref": "#/definitions/PaymentRequests"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "string",
+          "description": "move code to identify a move for payment requests",
+          "name": "locator",
           "in": "path",
           "required": true
         }

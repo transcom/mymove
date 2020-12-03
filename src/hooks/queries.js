@@ -199,31 +199,13 @@ export const usePaymentRequestQueueQueries = ({ sort, order, filters = [], curre
   };
 };
 
-export const useMovePaymentRequestsQueries = (moveOrderId) => {
-  // eslint-disable-next-line no-unused-vars
-  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, moveOrderId], getMoveOrder);
-
-  // eslint-disable-next-line no-unused-vars
-  const { data: { moveTaskOrders } = {}, ...moveTaskOrderQuery } = useQuery(
-    [MOVE_TASK_ORDERS, moveOrderId],
-    getMoveTaskOrderList,
-  );
-
-  const moveTaskOrder = moveTaskOrders && Object.values(moveTaskOrders)[0];
-  const mtoID = moveTaskOrder?.id;
-
-  const { data: { paymentRequests } = {}, ...movePaymentRequestsQuery } = useQuery(
-    [MOVE_PAYMENT_REQUESTS, mtoID],
-    getMovePaymentRequests,
-    {
-      enabled: !!mtoID,
-    },
-  );
+export const useMovePaymentRequestsQueries = (locator) => {
+  const { data = {}, ...movePaymentRequestsQuery } = useQuery([MOVE_PAYMENT_REQUESTS, locator], getMovePaymentRequests);
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([movePaymentRequestsQuery]);
 
   return {
-    paymentRequests,
+    paymentRequests: data,
     isLoading,
     isError,
     isSuccess,

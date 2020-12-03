@@ -26,15 +26,17 @@ const PaymentRequestCard = ({ paymentRequest }) => {
   let approvedAmount = 0;
   let rejectedAmount = 0;
 
-  paymentRequest.serviceItems.forEach((item) => {
-    requestedAmount += item.priceCents;
+  if (paymentRequest.serviceItems) {
+    paymentRequest.serviceItems.forEach((item) => {
+      requestedAmount += item.priceCents;
 
-    if (item.status === 'APPROVED') {
-      approvedAmount += item.priceCents;
-    } else if (item.status === 'DENIED') {
-      rejectedAmount += item.priceCents;
-    }
-  });
+      if (item.status === 'APPROVED') {
+        approvedAmount += item.priceCents;
+      } else if (item.status === 'DENIED') {
+        rejectedAmount += item.priceCents;
+      }
+    });
+  }
 
   return (
     <div className={classnames(styles.PaymentRequestCard, 'container')}>

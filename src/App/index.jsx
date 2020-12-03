@@ -12,6 +12,7 @@ import { store, persistor, history } from 'shared/store';
 import { AppContext, defaultOfficeContext, defaultMyMoveContext, defaultAdminContext } from 'shared/AppContext';
 import { detectFlags } from 'shared/featureFlags';
 
+import '../icons';
 import './index.css';
 
 const Office = Loadable({

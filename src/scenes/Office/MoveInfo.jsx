@@ -3,16 +3,9 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { capitalize, get, includes } from 'lodash';
-
 import { NavTab, RoutedTabs } from 'react-router-tabs';
 import { NavLink, Redirect, Switch } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPhone } from '@fortawesome/free-solid-svg-icons/faPhone';
-import { faEnvelope } from '@fortawesome/free-solid-svg-icons/faEnvelope';
-import { faClock } from '@fortawesome/free-solid-svg-icons/faClock';
-import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
-import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons/faExclamationCircle';
-import { faPlayCircle } from '@fortawesome/free-solid-svg-icons/faPlayCircle';
 import moment from 'moment';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -182,14 +175,14 @@ class MoveInfo extends Component {
       if (this.props.ppmAdvance.status === 'APPROVED' || !this.props.ppmAdvance.status) {
         return (
           <span className="status">
-            <FontAwesomeIcon className="icon approval-ready" icon={faCheck} />
+            <FontAwesomeIcon className="icon approval-ready" icon="check" />
             Move pending
           </span>
         );
       } else {
         return (
           <span className="status">
-            <FontAwesomeIcon className="icon approval-waiting" icon={faClock} />
+            <FontAwesomeIcon className="icon approval-waiting" icon="clock" />
             Payment Requested
           </span>
         );
@@ -197,7 +190,7 @@ class MoveInfo extends Component {
     } else {
       return (
         <span className="status">
-          <FontAwesomeIcon className="icon approval-waiting" icon={faClock} />
+          <FontAwesomeIcon className="icon approval-waiting" icon="clock" />
           In review
         </span>
       );
@@ -262,9 +255,9 @@ class MoveInfo extends Component {
               <li>
                 {serviceMember.telephone}
                 {serviceMember.phone_is_preferred && (
-                  <FontAwesomeIcon className="icon icon-grey" icon={faPhone} flip="horizontal" />
+                  <FontAwesomeIcon className="icon icon-grey" icon="phone" flip="horizontal" />
                 )}
-                {serviceMember.email_is_preferred && <FontAwesomeIcon className="icon icon-grey" icon={faEnvelope} />}
+                {serviceMember.email_is_preferred && <FontAwesomeIcon className="icon icon-grey" icon="envelope" />}
                 &nbsp;
               </li>
               <li>Locator# {move.locator}&nbsp;</li>
@@ -281,7 +274,7 @@ class MoveInfo extends Component {
                   Basics
                 </span>
                 <span className="status">
-                  <FontAwesomeIcon className="icon" icon={faPlayCircle} />
+                  <FontAwesomeIcon className="icon" icon="play-circle" />
                   {capitalize(this.props.moveStatus)}
                 </span>
               </NavTab>
@@ -371,7 +364,7 @@ class MoveInfo extends Component {
                 <div>
                   {moveApproved ? (
                     <div className="panel-field">
-                      <FontAwesomeIcon style={{ color: 'green' }} className="icon" icon={faCheck} />
+                      <FontAwesomeIcon style={{ color: 'green' }} className="icon" icon="check" />
                       <a
                         href={ordersUrl}
                         target={`orders-${moveId}`}
@@ -389,7 +382,7 @@ class MoveInfo extends Component {
                     </div>
                   ) : (
                     <div className="panel-field">
-                      <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon={faExclamationCircle} />
+                      <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon="exclamation-circle" />
                       <a
                         href={ordersUrl}
                         target={`orders-${moveId}`}
