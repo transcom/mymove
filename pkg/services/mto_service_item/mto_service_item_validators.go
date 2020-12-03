@@ -164,7 +164,7 @@ func (v *updateMTOServiceItemData) checkSITDeparture() error {
 // Conflict Error if any are found
 func (v *updateMTOServiceItemData) checkPaymentRequests() error {
 	var paymentServiceItem models.PaymentServiceItem
-	err := v.db.Where("mto_service_item_id = $1", v.updatedServiceItem.ID).First(paymentServiceItem)
+	err := v.db.Where("mto_service_item_id = $1", v.updatedServiceItem.ID).First(&paymentServiceItem)
 
 	if err == nil && paymentServiceItem.ID != uuid.Nil {
 		return services.NewConflictError(v.updatedServiceItem.ID,
