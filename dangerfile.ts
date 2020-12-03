@@ -80,7 +80,6 @@ const bypassingLinterChecks = async () => {
   }
 };
 
-// fn for bypassingLinterChecks
 function checkPRHasProhibitedLinterOverride(dangerJSDiffCollection) {
   let badOverrideMsg = '';
   for (let d in dangerJSDiffCollection) {
@@ -118,17 +117,14 @@ function checkPRHasProhibitedLinterOverride(dangerJSDiffCollection) {
   return badOverrideMsg;
 }
 
-// fn for bypassingLinterChecks
 function diffContainsNosec(diffForFile) {
   return !!diffForFile.includes('#nosec');
 }
 
-// fn for bypassingLinterChecks
 function diffContainsEslint(diffForFile) {
   return !!diffForFile.includes('eslint-disable');
 }
 
-// fn for bypassingLinterChecks
 function splitDiffOfAddedLines(diffForFile) {
   // remove lines that are subtracted, indicated by '-'
   let linesToParse = [];
@@ -141,8 +137,6 @@ function splitDiffOfAddedLines(diffForFile) {
   return linesToParse;
 }
 
-// fn for bypassingLinterChecks
-// comment characters location (where // or /* is in line string)
 function doesLineHaveProhibitedOverride(disablingString) {
   const okBypassRules = [
     'no-underscore-dangle',
