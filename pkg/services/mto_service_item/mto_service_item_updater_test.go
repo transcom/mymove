@@ -44,7 +44,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		notFoundServiceItem := serviceItem
 		notFoundServiceItem.ID = uuid.FromStringOrNil(notFoundUUID)
 
-		updatedServiceItem, err := updater.UpdateMTOServiceItemBase(suite.DB(), &notFoundServiceItem, eTag)
+		updatedServiceItem, err := updater.UpdateMTOServiceItemBasic(suite.DB(), &notFoundServiceItem, eTag)
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
@@ -57,7 +57,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		invalidServiceItem := serviceItem
 		invalidServiceItem.MoveTaskOrderID = serviceItem.ID // invalid Move ID
 
-		updatedServiceItem, err := updater.UpdateMTOServiceItemBase(suite.DB(), &invalidServiceItem, eTag)
+		updatedServiceItem, err := updater.UpdateMTOServiceItemBasic(suite.DB(), &invalidServiceItem, eTag)
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
@@ -71,7 +71,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 	// Test precondition failed (stale eTag)
 	suite.T().Run("Precondition Failed", func(t *testing.T) {
 		newServiceItem := serviceItem
-		updatedServiceItem, err := updater.UpdateMTOServiceItemBase(suite.DB(), &newServiceItem, "bloop")
+		updatedServiceItem, err := updater.UpdateMTOServiceItemBasic(suite.DB(), &newServiceItem, "bloop")
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
@@ -88,7 +88,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		newServiceItem.SITEntryDate = &sitEntryDate
 		newServiceItem.Status = "" // should keep the status from the original service item
 
-		updatedServiceItem, err := updater.UpdateMTOServiceItemBase(suite.DB(), &newServiceItem, eTag)
+		updatedServiceItem, err := updater.UpdateMTOServiceItemBasic(suite.DB(), &newServiceItem, eTag)
 
 		suite.NoError(err)
 		suite.NotNil(updatedServiceItem)
@@ -122,8 +122,8 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 		suite.Contains(err.Error(), fakeKey)
 	})
 
-	// Test successful Base validation
-	suite.T().Run("UpdateMTOServiceItemBaseValidator - success", func(t *testing.T) {
+	// Test successful Basic validation
+	suite.T().Run("UpdateMTOServiceItemBasicValidator - success", func(t *testing.T) {
 		newServiceItem := models.MTOServiceItem{
 			ID:              oldServiceItem.ID,
 			MTOShipmentID:   oldServiceItem.MTOShipmentID,
@@ -134,15 +134,15 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		updatedServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, UpdateMTOServiceItemBaseValidator)
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, UpdateMTOServiceItemBasicValidator)
 
 		suite.NoError(err)
 		suite.NotNil(updatedServiceItem)
 		suite.IsType(models.MTOServiceItem{}, *updatedServiceItem)
 	})
 
-	// Test unsuccessful Base validation
-	suite.T().Run("UpdateMTOServiceItemBaseValidator - failure", func(t *testing.T) {
+	// Test unsuccessful Basic validation
+	suite.T().Run("UpdateMTOServiceItemBasicValidator - failure", func(t *testing.T) {
 		newServiceItem := models.MTOServiceItem{
 			ID:            oldServiceItem.ID,
 			MTOShipmentID: &oldServiceItem.ID, // bad value
@@ -152,7 +152,7 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 			oldServiceItem:     oldServiceItem,
 			verrs:              validate.NewErrors(),
 		}
-		updatedServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, UpdateMTOServiceItemBaseValidator)
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, UpdateMTOServiceItemBasicValidator)
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)

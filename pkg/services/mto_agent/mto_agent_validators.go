@@ -8,15 +8,15 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// UpdateMTOAgentBaseValidator is the key for generic validation on the MTO Agent
-const UpdateMTOAgentBaseValidator string = "UpdateMTOAgentBaseValidator"
+// UpdateMTOAgentBasicValidator is the key for generic validation on the MTO Agent
+const UpdateMTOAgentBasicValidator string = "UpdateMTOAgentBasicValidator"
 
 // UpdateMTOAgentPrimeValidator is the key for validating the MTO Agent for the Prime contractor
 const UpdateMTOAgentPrimeValidator string = "UpdateMTOAgentPrimeValidator"
 
 // UpdateMTOAgentValidators is the map connecting the constant keys to the correct validator
 var UpdateMTOAgentValidators = map[string]updateMTOAgentValidator{
-	UpdateMTOAgentBaseValidator:  new(baseUpdateMTOAgentValidator),
+	UpdateMTOAgentBasicValidator: new(basicUpdateMTOAgentValidator),
 	UpdateMTOAgentPrimeValidator: new(primeUpdateMTOAgentValidator),
 }
 
@@ -24,10 +24,10 @@ type updateMTOAgentValidator interface {
 	validate(agentData *updateMTOAgentData) error
 }
 
-// baseUpdateMTOAgentValidator is the type for validation that should happen no matter who uses this service object
-type baseUpdateMTOAgentValidator struct{}
+// basicUpdateMTOAgentValidator is the type for validation that should happen no matter who uses this service object
+type basicUpdateMTOAgentValidator struct{}
 
-func (v *baseUpdateMTOAgentValidator) validate(agentData *updateMTOAgentData) error {
+func (v *basicUpdateMTOAgentValidator) validate(agentData *updateMTOAgentData) error {
 	err := agentData.checkShipmentID()
 	if err != nil {
 		return err

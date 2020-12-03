@@ -39,8 +39,8 @@ func (_m *MTOServiceItemUpdater) UpdateMTOServiceItem(db *pop.Connection, servic
 	return r0, r1
 }
 
-// UpdateMTOServiceItemBase provides a mock function with given fields: db, serviceItem, eTag
-func (_m *MTOServiceItemUpdater) UpdateMTOServiceItemBase(db *pop.Connection, serviceItem *models.MTOServiceItem, eTag string) (*models.MTOServiceItem, error) {
+// UpdateMTOServiceItemBasic provides a mock function with given fields: db, serviceItem, eTag
+func (_m *MTOServiceItemUpdater) UpdateMTOServiceItemBasic(db *pop.Connection, serviceItem *models.MTOServiceItem, eTag string) (*models.MTOServiceItem, error) {
 	ret := _m.Called(db, serviceItem, eTag)
 
 	var r0 *models.MTOServiceItem

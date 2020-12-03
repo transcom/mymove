@@ -24,9 +24,9 @@ func NewMTOAgentUpdater(db *pop.Connection) services.MTOAgentUpdater {
 	}
 }
 
-// UpdateMTOAgentBase updates the MTO Agent using base validators
-func (f *mtoAgentUpdater) UpdateMTOAgentBase(mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error) {
-	return f.UpdateMTOAgent(mtoAgent, eTag, UpdateMTOAgentBaseValidator)
+// UpdateMTOAgentBasic updates the MTO Agent using base validators
+func (f *mtoAgentUpdater) UpdateMTOAgentBasic(mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error) {
+	return f.UpdateMTOAgent(mtoAgent, eTag, UpdateMTOAgentBasicValidator)
 }
 
 // UpdateMTOAgentPrime updates the MTO Agent using Prime API validators
@@ -88,7 +88,7 @@ func (f *mtoAgentUpdater) UpdateMTOAgent(mtoAgent *models.MTOAgent, eTag string,
 // Returns an MTOAgent that has been set up for update.
 func ValidateUpdateMTOAgent(agentData *updateMTOAgentData, validatorKey string) (*models.MTOAgent, error) {
 	if validatorKey == "" {
-		validatorKey = UpdateMTOAgentBaseValidator
+		validatorKey = UpdateMTOAgentBasicValidator
 	}
 	validator, ok := UpdateMTOAgentValidators[validatorKey]
 	if !ok {

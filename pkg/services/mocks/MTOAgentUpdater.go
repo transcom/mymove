@@ -35,8 +35,8 @@ func (_m *MTOAgentUpdater) UpdateMTOAgent(mtoAgent *models.MTOAgent, eTag string
 	return r0, r1
 }
 
-// UpdateMTOAgentBase provides a mock function with given fields: mtoAgent, eTag
-func (_m *MTOAgentUpdater) UpdateMTOAgentBase(mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error) {
+// UpdateMTOAgentBasic provides a mock function with given fields: mtoAgent, eTag
+func (_m *MTOAgentUpdater) UpdateMTOAgentBasic(mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error) {
 	ret := _m.Called(mtoAgent, eTag)
 
 	var r0 *models.MTOAgent

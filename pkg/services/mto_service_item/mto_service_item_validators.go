@@ -13,26 +13,26 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// UpdateMTOServiceItemBaseValidator is the key for generic validation on the MTO Service Item
-const UpdateMTOServiceItemBaseValidator string = "UpdateMTOServiceItemBaseValidator"
+// UpdateMTOServiceItemBasicValidator is the key for generic validation on the MTO Service Item
+const UpdateMTOServiceItemBasicValidator string = "UpdateMTOServiceItemBasicValidator"
 
 // UpdateMTOServiceItemPrimeValidator is the key for validating the MTO Service Item for the Prime contractor
 const UpdateMTOServiceItemPrimeValidator string = "UpdateMTOServiceItemPrimeValidator"
 
 // UpdateMTOServiceItemValidators is the map connecting the constant keys to the correct validator
 var UpdateMTOServiceItemValidators = map[string]updateMTOServiceItemValidator{
-	UpdateMTOServiceItemBaseValidator:  new(baseUpdateMTOServiceItemValidator),
+	UpdateMTOServiceItemBasicValidator: new(basicUpdateMTOServiceItemValidator),
 	UpdateMTOServiceItemPrimeValidator: new(primeUpdateMTOServiceItemValidator),
 }
 
 type updateMTOServiceItemValidator interface {
-	validate(agentData *updateMTOServiceItemData) error
+	validate(serviceItemData *updateMTOServiceItemData) error
 }
 
-// baseUpdateMTOServiceItemValidator is the type for validation that should happen no matter who uses this service object
-type baseUpdateMTOServiceItemValidator struct{}
+// basicUpdateMTOServiceItemValidator is the type for validation that should happen no matter who uses this service object
+type basicUpdateMTOServiceItemValidator struct{}
 
-func (v *baseUpdateMTOServiceItemValidator) validate(serviceItemData *updateMTOServiceItemData) error {
+func (v *basicUpdateMTOServiceItemValidator) validate(serviceItemData *updateMTOServiceItemData) error {
 	err := serviceItemData.checkLinkedIDs()
 	if err != nil {
 		return err

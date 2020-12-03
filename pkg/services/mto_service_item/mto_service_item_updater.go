@@ -136,9 +136,9 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 	return &mtoServiceItem, err
 }
 
-// UpdateMTOServiceItemBase updates the MTO Service Item using base validators
-func (p *mtoServiceItemUpdater) UpdateMTOServiceItemBase(db *pop.Connection, mtoServiceItem *models.MTOServiceItem, eTag string) (*models.MTOServiceItem, error) {
-	return p.UpdateMTOServiceItem(db, mtoServiceItem, eTag, UpdateMTOServiceItemBaseValidator)
+// UpdateMTOServiceItemBasic updates the MTO Service Item using base validators
+func (p *mtoServiceItemUpdater) UpdateMTOServiceItemBasic(db *pop.Connection, mtoServiceItem *models.MTOServiceItem, eTag string) (*models.MTOServiceItem, error) {
+	return p.UpdateMTOServiceItem(db, mtoServiceItem, eTag, UpdateMTOServiceItemBasicValidator)
 }
 
 // UpdateMTOServiceItemPrime updates the MTO Service Item using Prime API validators
@@ -204,7 +204,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(db *pop.Connection, mtoServ
 // Returns an MTOServiceItem that has been set up for update.
 func ValidateUpdateMTOServiceItem(serviceItemData *updateMTOServiceItemData, validatorKey string) (*models.MTOServiceItem, error) {
 	if validatorKey == "" {
-		validatorKey = UpdateMTOServiceItemBaseValidator
+		validatorKey = UpdateMTOServiceItemBasicValidator
 	}
 	validator, ok := UpdateMTOServiceItemValidators[validatorKey]
 	if !ok {

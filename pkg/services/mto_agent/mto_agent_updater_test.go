@@ -105,7 +105,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 	})
 
 	// Test successful Base validation
-	suite.T().Run("UpdateMTOAgentBaseValidator - success", func(t *testing.T) {
+	suite.T().Run("UpdateMTOAgentBasicValidator - success", func(t *testing.T) {
 		newAgent := models.MTOAgent{
 			ID:            oldAgent.ID,
 			MTOShipmentID: oldAgent.MTOShipmentID,
@@ -115,7 +115,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 			oldAgent:     oldAgent,
 			verrs:        validate.NewErrors(),
 		}
-		updatedAgent, err := ValidateUpdateMTOAgent(&agentData, UpdateMTOAgentBaseValidator)
+		updatedAgent, err := ValidateUpdateMTOAgent(&agentData, UpdateMTOAgentBasicValidator)
 
 		suite.NoError(err)
 		suite.NotNil(updatedAgent)
@@ -123,7 +123,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 	})
 
 	// Test unsuccessful Base validation
-	suite.T().Run("UpdateMTOAgentBaseValidator - failure", func(t *testing.T) {
+	suite.T().Run("UpdateMTOAgentBasicValidator - failure", func(t *testing.T) {
 		newAgent := models.MTOAgent{
 			ID:            oldAgent.ID,
 			MTOShipmentID: oldAgent.ID, // bad value
@@ -133,7 +133,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 			oldAgent:     oldAgent,
 			verrs:        validate.NewErrors(),
 		}
-		updatedAgent, err := ValidateUpdateMTOAgent(&agentData, UpdateMTOAgentBaseValidator)
+		updatedAgent, err := ValidateUpdateMTOAgent(&agentData, UpdateMTOAgentBasicValidator)
 
 		suite.Nil(updatedAgent)
 		suite.Error(err)
