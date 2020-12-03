@@ -125,7 +125,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(officeUserID u
 
 	paymentRequests := models.PaymentRequests{}
 
-	query := f.db.Q().
+	query := f.db.Q().EagerPreload("PaymentServiceItems").
 		InnerJoin("moves", "payment_requests.move_id = moves.id").
 		InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("duty_stations", "duty_stations.id = orders.origin_duty_station_id").
