@@ -4,12 +4,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gobuffalo/pop/v5"
+
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/query"
 )
 
 // UpdateMTOServiceItemBaseValidator is the key for generic validation on the MTO Service Item
@@ -84,10 +85,11 @@ func (v *primeUpdateMTOServiceItemValidator) validate(serviceItemData *updateMTO
 
 // updateMTOServiceItemData represents the data needed to validate an update on an MTOServiceItem
 type updateMTOServiceItemData struct {
-	updatedServiceItem models.MTOServiceItem
-	oldServiceItem     models.MTOServiceItem
-	builder            mtoServiceItemQueryBuilder
-	verrs              *validate.Errors
+	updatedServiceItem  models.MTOServiceItem
+	oldServiceItem      models.MTOServiceItem
+	availabilityChecker services.MoveTaskOrderChecker
+	db                  *pop.Connection
+	verrs               *validate.Errors
 }
 
 // checkLinkedIDs checks that the user didn't attempt to change the service item's move, shipment, or reService IDs
@@ -107,19 +109,10 @@ func (v *updateMTOServiceItemData) checkLinkedIDs() error {
 
 // checkPrimeAvailability checks that the service item is connected to a Prime-available move
 func (v *updateMTOServiceItemData) checkPrimeAvailability() error {
-	// NOTE: We cannot use the MoveTaskOrderChecker here because this service uses QueryBuilder and doesn't have access
-	// to the DB
-	var move models.Move
-	queryFilters := []services.QueryFilter{
-		query.NewQueryFilter("id", "=", v.updatedServiceItem.MoveTaskOrderID),
-	}
-	err := v.builder.FetchOne(&move, queryFilters)
-	if err != nil {
-		return services.NewNotFoundError(v.updatedServiceItem.MoveTaskOrderID, "for a move connected to this service item")
-	}
+	isAvailable, err := v.availabilityChecker.MTOAvailableToPrime(v.oldServiceItem.MoveTaskOrderID)
 
-	if move.AvailableToPrimeAt == nil || move.AvailableToPrimeAt.IsZero() {
-		return services.NewNotFoundError(v.updatedServiceItem.ID, "while looking for Prime-available MTOServiceItem")
+	if !isAvailable || err != nil {
+		return services.NewNotFoundError(v.oldServiceItem.ID, "while looking for Prime-available MTOServiceItem")
 	}
 
 	return nil
@@ -157,8 +150,6 @@ func (v *updateMTOServiceItemData) checkSITDeparture() error {
 		return nil // the service item is a SIT departure service, so we're fine
 	}
 
-	// TODO do we need to check anything else?
-
 	return services.NewConflictError(v.updatedServiceItem.ID,
 		"- SIT Departure Date may only be manually updated for DDDSIT and DOPSIT service items.")
 }
@@ -167,11 +158,8 @@ func (v *updateMTOServiceItemData) checkSITDeparture() error {
 // Conflict Error if any are found
 func (v *updateMTOServiceItemData) checkPaymentRequests() error {
 	var paymentServiceItem models.PaymentServiceItem
-	queryFilters := []services.QueryFilter{
-		query.NewQueryFilter("mto_service_item_id", "=", v.updatedServiceItem.ID),
-	}
+	err := v.db.Where("mto_service_item_id = $1", v.updatedServiceItem.ID).First(paymentServiceItem)
 
-	err := v.builder.FetchOne(&paymentServiceItem, queryFilters)
 	if err == nil && paymentServiceItem.ID != uuid.Nil {
 		return services.NewConflictError(v.updatedServiceItem.ID,
 			"- this service item has an existing payment request and can no longer be updated.")

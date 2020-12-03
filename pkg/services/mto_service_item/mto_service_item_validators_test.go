@@ -4,19 +4,20 @@ import (
 	"testing"
 	"time"
 
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 	// Set up the data needed for updateMTOServiceItemData obj
-	builder := query.NewQueryBuilder(suite.DB())
+	checker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
 	oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 	now := time.Now()
 
@@ -29,7 +30,6 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		serviceItemData := updateMTOServiceItemData{
 			updatedServiceItem: successServiceItem, // as-is, should succeed
 			oldServiceItem:     oldServiceItem,
-			builder:            builder,
 			verrs:              validate.NewErrors(),
 		}
 		err := serviceItemData.checkLinkedIDs()
@@ -48,7 +48,6 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		serviceItemData := updateMTOServiceItemData{
 			updatedServiceItem: errorServiceItem,
 			oldServiceItem:     oldServiceItem,
-			builder:            builder,
 			verrs:              validate.NewErrors(),
 		}
 		err := serviceItemData.checkLinkedIDs()
@@ -68,10 +67,10 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		newServiceItemPrime := oldServiceItemPrime
 
 		serviceItemData := updateMTOServiceItemData{
-			updatedServiceItem: newServiceItemPrime,
-			oldServiceItem:     oldServiceItemPrime,
-			builder:            builder,
-			verrs:              validate.NewErrors(),
+			updatedServiceItem:  newServiceItemPrime,
+			oldServiceItem:      oldServiceItemPrime,
+			availabilityChecker: checker,
+			verrs:               validate.NewErrors(),
 		}
 		err := serviceItemData.checkPrimeAvailability()
 
@@ -82,10 +81,10 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 	// Test unsuccessful check for Prime availability
 	suite.T().Run("checkPrimeAvailability - failure", func(t *testing.T) {
 		serviceItemData := updateMTOServiceItemData{
-			updatedServiceItem: errorServiceItem, // the default errorServiceItem should not be Prime-available
-			oldServiceItem:     oldServiceItem,
-			builder:            builder,
-			verrs:              validate.NewErrors(),
+			updatedServiceItem:  errorServiceItem, // the default errorServiceItem should not be Prime-available
+			oldServiceItem:      oldServiceItem,
+			availabilityChecker: checker,
+			verrs:               validate.NewErrors(),
 		}
 		err := serviceItemData.checkPrimeAvailability()
 
@@ -99,7 +98,6 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		serviceItemData := updateMTOServiceItemData{
 			updatedServiceItem: successServiceItem, // as-is, should succeed because all the values are the same
 			oldServiceItem:     oldServiceItem,
-			builder:            builder,
 			verrs:              validate.NewErrors(),
 		}
 		err := serviceItemData.checkNonPrimeFields()
@@ -119,7 +117,6 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		serviceItemData := updateMTOServiceItemData{
 			updatedServiceItem: errorServiceItem,
 			oldServiceItem:     oldServiceItem,
-			builder:            builder,
 			verrs:              validate.NewErrors(),
 		}
 		err := serviceItemData.checkNonPrimeFields()
@@ -137,7 +134,6 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		serviceItemData := updateMTOServiceItemData{
 			updatedServiceItem: successServiceItem, // default is not DDDSIT/DOPSIT
 			oldServiceItem:     oldServiceItem,
-			builder:            builder,
 			verrs:              validate.NewErrors(),
 		}
 		err := serviceItemData.checkSITDeparture()
@@ -159,7 +155,6 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		serviceItemData := updateMTOServiceItemData{
 			updatedServiceItem: newDDDSIT,
 			oldServiceItem:     oldDDDSIT,
-			builder:            builder,
 			verrs:              validate.NewErrors(),
 		}
 		err := serviceItemData.checkSITDeparture()
@@ -174,7 +169,6 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		serviceItemData := updateMTOServiceItemData{
 			updatedServiceItem: errorServiceItem, // default is not DDDSIT/DOPSIT
 			oldServiceItem:     oldServiceItem,
-			builder:            builder,
 			verrs:              validate.NewErrors(),
 		}
 		err := serviceItemData.checkSITDeparture()
@@ -190,7 +184,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		serviceItemData := updateMTOServiceItemData{
 			updatedServiceItem: successServiceItem, // as-is, should succeed
 			oldServiceItem:     oldServiceItem,
-			builder:            builder,
+			db:                 suite.DB(),
 			verrs:              validate.NewErrors(),
 		}
 		err := serviceItemData.checkPaymentRequests()
@@ -210,7 +204,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		serviceItemData := updateMTOServiceItemData{
 			updatedServiceItem: errorServiceItem,
 			oldServiceItem:     oldServiceItem,
-			builder:            builder,
+			db:                 suite.DB(),
 			verrs:              validate.NewErrors(),
 		}
 		err := serviceItemData.checkPaymentRequests()
@@ -226,7 +220,6 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		serviceItemData := updateMTOServiceItemData{
 			updatedServiceItem: successServiceItem, // as-is, should succeed
 			oldServiceItem:     oldServiceItem,
-			builder:            builder,
 			verrs:              validate.NewErrors(),
 		}
 		_ = serviceItemData.checkLinkedIDs() // this test should pass regardless of potential errors here
@@ -242,7 +235,6 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		serviceItemData := updateMTOServiceItemData{
 			updatedServiceItem: errorServiceItem, // as-is, should fail
 			oldServiceItem:     oldServiceItem,
-			builder:            builder,
 			verrs:              validate.NewErrors(),
 		}
 		_ = serviceItemData.checkLinkedIDs() // this test should pass regardless of potential errors here
@@ -264,7 +256,6 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		serviceItemData := updateMTOServiceItemData{
 			updatedServiceItem: successServiceItem,
 			oldServiceItem:     oldServiceItem,
-			builder:            builder,
 			verrs:              validate.NewErrors(),
 		}
 		newServiceItem := serviceItemData.setNewMTOServiceItem()

@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/gobuffalo/pop/v5"
+
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+
 	"github.com/transcom/mymove/pkg/etag"
 
 	"github.com/gobuffalo/validate/v3"
@@ -133,17 +137,17 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemStatus(mtoServiceItemID uuid
 }
 
 // UpdateMTOServiceItemBase updates the MTO Service Item using base validators
-func (p *mtoServiceItemUpdater) UpdateMTOServiceItemBase(mtoServiceItem *models.MTOServiceItem, eTag string) (*models.MTOServiceItem, error) {
-	return p.UpdateMTOServiceItem(mtoServiceItem, eTag, UpdateMTOServiceItemBaseValidator)
+func (p *mtoServiceItemUpdater) UpdateMTOServiceItemBase(db *pop.Connection, mtoServiceItem *models.MTOServiceItem, eTag string) (*models.MTOServiceItem, error) {
+	return p.UpdateMTOServiceItem(db, mtoServiceItem, eTag, UpdateMTOServiceItemBaseValidator)
 }
 
 // UpdateMTOServiceItemPrime updates the MTO Service Item using Prime API validators
-func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(mtoServiceItem *models.MTOServiceItem, eTag string) (*models.MTOServiceItem, error) {
-	return p.UpdateMTOServiceItem(mtoServiceItem, eTag, UpdateMTOServiceItemPrimeValidator)
+func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(db *pop.Connection, mtoServiceItem *models.MTOServiceItem, eTag string) (*models.MTOServiceItem, error) {
+	return p.UpdateMTOServiceItem(db, mtoServiceItem, eTag, UpdateMTOServiceItemPrimeValidator)
 }
 
 // UpdateMTOServiceItem updates the given service item
-func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(mtoServiceItem *models.MTOServiceItem, eTag string, validatorKey string) (*models.MTOServiceItem, error) {
+func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(db *pop.Connection, mtoServiceItem *models.MTOServiceItem, eTag string, validatorKey string) (*models.MTOServiceItem, error) {
 	oldServiceItem := models.MTOServiceItem{}
 
 	// Find the service item, return error if not found
@@ -155,11 +159,13 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(mtoServiceItem *models.MTOS
 		return nil, services.NewNotFoundError(mtoServiceItem.ID, "while looking for MTOServiceItem")
 	}
 
+	checker := movetaskorder.NewMoveTaskOrderChecker(db)
 	serviceItemData := updateMTOServiceItemData{
-		updatedServiceItem: *mtoServiceItem,
-		oldServiceItem:     oldServiceItem,
-		builder:            p.builder,
-		verrs:              validate.NewErrors(),
+		updatedServiceItem:  *mtoServiceItem,
+		oldServiceItem:      oldServiceItem,
+		availabilityChecker: checker,
+		db:                  db,
+		verrs:               validate.NewErrors(),
 	}
 
 	validServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, validatorKey)

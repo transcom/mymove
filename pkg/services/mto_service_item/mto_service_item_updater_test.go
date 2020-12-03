@@ -4,6 +4,8 @@ import (
 	"testing"
 	"time"
 
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+
 	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/gobuffalo/validate/v3"
@@ -42,7 +44,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		notFoundServiceItem := serviceItem
 		notFoundServiceItem.ID = uuid.FromStringOrNil(notFoundUUID)
 
-		updatedServiceItem, err := updater.UpdateMTOServiceItemBase(&notFoundServiceItem, eTag)
+		updatedServiceItem, err := updater.UpdateMTOServiceItemBase(suite.DB(), &notFoundServiceItem, eTag)
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
@@ -55,7 +57,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		invalidServiceItem := serviceItem
 		invalidServiceItem.MoveTaskOrderID = serviceItem.ID // invalid Move ID
 
-		updatedServiceItem, err := updater.UpdateMTOServiceItemBase(&invalidServiceItem, eTag)
+		updatedServiceItem, err := updater.UpdateMTOServiceItemBase(suite.DB(), &invalidServiceItem, eTag)
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
@@ -69,7 +71,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 	// Test precondition failed (stale eTag)
 	suite.T().Run("Precondition Failed", func(t *testing.T) {
 		newServiceItem := serviceItem
-		updatedServiceItem, err := updater.UpdateMTOServiceItemBase(&newServiceItem, "bloop")
+		updatedServiceItem, err := updater.UpdateMTOServiceItemBase(suite.DB(), &newServiceItem, "bloop")
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
@@ -86,7 +88,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		newServiceItem.SITEntryDate = &sitEntryDate
 		newServiceItem.Status = "" // should keep the status from the original service item
 
-		updatedServiceItem, err := updater.UpdateMTOServiceItemBase(&newServiceItem, eTag)
+		updatedServiceItem, err := updater.UpdateMTOServiceItemBase(suite.DB(), &newServiceItem, eTag)
 
 		suite.NoError(err)
 		suite.NotNil(updatedServiceItem)
@@ -102,7 +104,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 	// Set up the data needed for updateMTOServiceItemData obj
-	builder := query.NewQueryBuilder(suite.DB())
+	checker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
 	oldServiceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
 	oldServiceItemPrime := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		Move: testdatagen.MakeAvailableMove(suite.DB()),
@@ -166,10 +168,11 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 		newServiceItemPrime.Reason = &reason
 
 		serviceItemData := updateMTOServiceItemData{
-			updatedServiceItem: newServiceItemPrime,
-			oldServiceItem:     oldServiceItemPrime,
-			verrs:              validate.NewErrors(),
-			builder:            builder,
+			updatedServiceItem:  newServiceItemPrime,
+			oldServiceItem:      oldServiceItemPrime,
+			verrs:               validate.NewErrors(),
+			availabilityChecker: checker,
+			db:                  suite.DB(),
 		}
 		updatedServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, UpdateMTOServiceItemPrimeValidator)
 
@@ -183,10 +186,11 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 		newServiceItemNotPrime := oldServiceItem // this service item should not be Prime-available
 
 		serviceItemData := updateMTOServiceItemData{
-			updatedServiceItem: newServiceItemNotPrime,
-			oldServiceItem:     oldServiceItem,
-			verrs:              validate.NewErrors(),
-			builder:            builder,
+			updatedServiceItem:  newServiceItemNotPrime,
+			oldServiceItem:      oldServiceItem,
+			verrs:               validate.NewErrors(),
+			availabilityChecker: checker,
+			db:                  suite.DB(),
 		}
 		updatedServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, UpdateMTOServiceItemPrimeValidator)
 
@@ -204,10 +208,11 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 		newServiceItemPrime.ApprovedAt = &now
 
 		serviceItemData := updateMTOServiceItemData{
-			updatedServiceItem: newServiceItemPrime,
-			oldServiceItem:     oldServiceItemPrime,
-			verrs:              validate.NewErrors(),
-			builder:            builder,
+			updatedServiceItem:  newServiceItemPrime,
+			oldServiceItem:      oldServiceItemPrime,
+			verrs:               validate.NewErrors(),
+			availabilityChecker: checker,
+			db:                  suite.DB(),
 		}
 		updatedServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, UpdateMTOServiceItemPrimeValidator)
 
@@ -233,10 +238,11 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 		})
 
 		serviceItemData := updateMTOServiceItemData{
-			updatedServiceItem: newServiceItemPrime,
-			oldServiceItem:     oldServiceItemPrime,
-			verrs:              validate.NewErrors(),
-			builder:            builder,
+			updatedServiceItem:  newServiceItemPrime,
+			oldServiceItem:      oldServiceItemPrime,
+			verrs:               validate.NewErrors(),
+			availabilityChecker: checker,
+			db:                  suite.DB(),
 		}
 		updatedServiceItem, err := ValidateUpdateMTOServiceItem(&serviceItemData, UpdateMTOServiceItemPrimeValidator)
 
