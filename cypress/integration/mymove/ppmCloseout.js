@@ -8,13 +8,11 @@ describe('allows a SM to request a payment', function () {
   });
 
   beforeEach(() => {
-    cy.removeFetch();
-    cy.server();
-    cy.route('POST', '**/internal/uploads').as('postUploadDocument');
-    cy.route('POST', '**/moves/**/weight_ticket').as('postWeightTicket');
-    cy.route('POST', '**/moves/**/moving_expense_documents').as('postMovingExpense');
-    cy.route('POST', '**/internal/personally_procured_move/**/request_payment').as('requestPayment');
-    cy.route('POST', '**/moves/**/signed_certifications').as('signedCertifications');
+    cy.intercept('POST', '**/internal/uploads').as('postUploadDocument');
+    cy.intercept('POST', '**/moves/**/weight_ticket').as('postWeightTicket');
+    cy.intercept('POST', '**/moves/**/moving_expense_documents').as('postMovingExpense');
+    cy.intercept('POST', '**/internal/personally_procured_move/**/request_payment').as('requestPayment');
+    cy.intercept('POST', '**/moves/**/signed_certifications').as('signedCertifications');
   });
 
   const moveID = 'f9f10492-587e-43b3-af2a-9f67d2ac8757';

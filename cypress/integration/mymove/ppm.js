@@ -45,14 +45,11 @@ describe('the PPM flow', function () {
   it('service member should be able to continue requesting payment', () => {
     // ppm@continue.requestingpayment
     const userId = '4ebc03b7-c801-4c0d-806c-a95aed242102';
-
-    cy.removeFetch();
-    cy.server();
-    cy.route('POST', '**/internal/uploads').as('postUploadDocument');
-    cy.route('POST', '**/moves/**/weight_ticket').as('postWeightTicket');
-    cy.route('POST', '**/moves/**/moving_expense_documents').as('postMovingExpense');
-    cy.route('POST', '**/internal/personally_procured_move/**/request_payment').as('requestPayment');
-    cy.route('POST', '**/moves/**/signed_certifications').as('signedCertifications');
+    cy.intercept('POST', '**/internal/uploads').as('postUploadDocument');
+    cy.intercept('POST', '**/moves/**/weight_ticket').as('postWeightTicket');
+    cy.intercept('POST', '**/moves/**/moving_expense_documents').as('postMovingExpense');
+    cy.intercept('POST', '**/internal/personally_procured_move/**/request_payment').as('requestPayment');
+    cy.intercept('POST', '**/moves/**/signed_certifications').as('signedCertifications');
     cy.apiSignInAsPpmUser(userId);
     SMContinueRequestPayment();
   });

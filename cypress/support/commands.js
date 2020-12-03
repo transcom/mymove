@@ -29,16 +29,6 @@ Cypress.Commands.add('prepareOfficeApp', () => {
   Cypress.config('baseUrl', officeBaseURL);
 });
 
-// Call this in your before or beforeEach hook when using cy.route / cy.wait
-// https://github.com/cypress-io/cypress/issues/95#issuecomment-347607198
-// deletes window.fetch to force fallback to supported XHR
-// https://github.com/cypress-io/cypress-example-recipes/tree/master/examples/stubbing-spying__window-fetch
-Cypress.Commands.add('removeFetch', () => {
-  cy.on('window:before:load', (win) => {
-    delete win.fetch;
-  });
-});
-
 Cypress.Commands.add('setFeatureFlag', (flagVal, url = '/queues/new') => {
   cy.visit(`${url}?flag:${flagVal}`);
 });

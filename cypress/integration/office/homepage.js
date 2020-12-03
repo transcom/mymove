@@ -56,11 +56,9 @@ describe('Office authorization', () => {
 
   describe('multiple role selection', () => {
     beforeEach(() => {
-      cy.removeFetch();
-      cy.server();
-      cy.route('GET', '/ghc/v1/swagger.yaml').as('getGHCClient');
-      cy.route('GET', '/ghc/v1/queues/moves?**').as('getMoveOrders');
-      cy.route('GET', '/ghc/v1/queues/payment-requests?**').as('getPaymentRequests');
+      cy.intercept('GET', '/ghc/v1/swagger.yaml').as('getGHCClient');
+      cy.intercept('GET', '/ghc/v1/queues/moves?**').as('getMoveOrders');
+      cy.intercept('GET', '/ghc/v1/queues/payment-requests?**').as('getPaymentRequests');
     });
 
     it('can switch between TOO & TIO roles', () => {
