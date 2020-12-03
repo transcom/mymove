@@ -105,9 +105,7 @@ export class BackupContact extends Component {
           .then((response) => {
             updateBackupContact(response);
           })
-          .then(() => {
-            getServiceMember(serviceMemberId);
-          })
+          .then(() => getServiceMember(serviceMemberId))
           .then((response) => {
             updateServiceMember(response);
           })
