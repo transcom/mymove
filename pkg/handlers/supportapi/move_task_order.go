@@ -74,6 +74,40 @@ func (h MakeMoveTaskOrderAvailableHandlerFunc) Handle(params movetaskorderops.Ma
 	return movetaskorderops.NewMakeMoveTaskOrderAvailableOK().WithPayload(moveTaskOrderPayload)
 }
 
+// HideNonFakeMTOsHandlerFunc calls service to hide MTOs that are not using fake data
+type HideNonFakeMTOsHandlerFunc struct {
+	handlers.HandlerContext
+	services.HideNonFakeMTOs // TODO: Service needs to be implemented
+}
+
+// Handle updates the prime availability of a MoveTaskOrder
+func (h HideNonFakeMTOsHandlerFunc) Handle(params movetaskorderops.HideNonFakeMTOsParams) middleware.Responder {
+	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	mtos, err := h.HideNonFakeMTOs.Hide
+
+	if err != nil {
+		logger.Error("supportapi.HideNonFakeMTOsHandlerFunc error", zap.Error(err))
+		switch typedErr := err.(type) {
+		case services.NotFoundError:
+			return movetaskorderops.NewHideNonFakeMTOsNotFound().WithPayload(
+				payloads.ClientError(handlers.NotFoundMessage, *handlers.FmtString(err.Error()), h.GetTraceID()))
+		case services.InvalidInputError:
+			return movetaskorderops.NewHideNonFakeMTOsUnprocessableEntity().WithPayload(
+				payloads.ValidationError(err.Error(), h.GetTraceID(), typedErr.ValidationErrors))
+		case services.PreconditionFailedError:
+			return movetaskorderops.NewHideNonFakeMTOsPreconditionFailed().WithPayload(
+				payloads.ClientError(handlers.PreconditionErrMessage, *handlers.FmtString(err.Error()), h.GetTraceID()))
+		default:
+			return movetaskorderops.NewHideNonFakeMTOsInternalServerError().WithPayload(payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceID()))
+		}
+	}
+
+	payload := payloads.MoveTaskOrders(&mtos)
+
+	return movetaskorderops.NewHideNonFakeMTOsOK().WithPayload(payload)
+}
+
 // GetMoveTaskOrderHandlerFunc updates the status of a Move Task Order
 type GetMoveTaskOrderHandlerFunc struct {
 	handlers.HandlerContext

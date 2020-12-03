@@ -191,12 +191,12 @@ paths:
   '/move-task-orders/hide':
     parameters: []
     get:
-      summary: hideMoveTaskOrders
+      summary: hideNonFakeMTOs
       description: |
         Updates move task order without fake user data `show` to false. No request body required. <br />
         <br />
         This is a support endpoint and will not be available in production.
-      operationId: hideMoveTaskOrders
+      operationId: hideNonFakeMTOs
       tags:
         - moveTaskOrder
       consumes:
