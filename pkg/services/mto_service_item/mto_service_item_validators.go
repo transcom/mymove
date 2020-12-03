@@ -172,6 +172,7 @@ func (v *updateMTOServiceItemData) checkPaymentRequests() error {
 	} else if err != nil && !strings.Contains(err.Error(), "sql: no rows in result set") {
 		return err
 	}
+	// NOTE the third error case is when there are no payment requests found, which is good in this case!
 
 	return nil
 }
