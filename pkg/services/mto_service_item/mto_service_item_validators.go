@@ -50,31 +50,37 @@ func (v *basicUpdateMTOServiceItemValidator) validate(serviceItemData *updateMTO
 type primeUpdateMTOServiceItemValidator struct{}
 
 func (v *primeUpdateMTOServiceItemValidator) validate(serviceItemData *updateMTOServiceItemData) error {
+	// Checks that the MTO ID, Shipment ID, and ReService IDs haven't changed
 	err := serviceItemData.checkLinkedIDs()
 	if err != nil {
 		return err
 	}
 
+	// Checks that the Service Item is indeed available to the Prime
 	err = serviceItemData.checkPrimeAvailability()
 	if err != nil {
 		return err
 	}
 
+	// Checks that none of the fields that the Prime cannot update have been changed
 	err = serviceItemData.checkNonPrimeFields()
 	if err != nil {
 		return err
 	}
 
+	// Checks that there aren't any pending payment requests for this service item
 	err = serviceItemData.checkPaymentRequests()
 	if err != nil {
 		return err
 	}
 
+	// Checks that only SITDepartureDate is only updated for DDDSIT and DOPSIT objects
 	err = serviceItemData.checkSITDeparture()
 	if err != nil {
 		return err
 	}
 
+	// Gets any validation errors from the above checks
 	err = serviceItemData.getVerrs()
 	if err != nil {
 		return err
