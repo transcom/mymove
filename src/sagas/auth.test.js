@@ -3,6 +3,7 @@ import { takeLatest, put, call } from 'redux-saga/effects';
 import watchFetchUser, { fetchUser } from './auth';
 
 import { LOAD_USER } from 'store/auth/actions';
+import { setFlashMessage } from 'store/flash/actions';
 import { GetIsLoggedIn, GetLoggedInUser } from 'shared/User/api';
 import { getLoggedInActions } from 'shared/Data/users';
 import { addEntities } from 'shared/Entities/actions';
@@ -20,6 +21,37 @@ describe('watchFetchUser saga', () => {
 });
 
 describe('fetchUser saga', () => {
+  describe('if the get logged in request fails', () => {
+    const generator = fetchUser();
+
+    it('dispatches the GET_LOGGED_IN_USER_START action', () => {
+      expect(generator.next().value).toEqual(put(getLoggedInActions.start()));
+    });
+
+    it('makes the GetIsLoggedIn API call', () => {
+      expect(generator.next().value).toEqual(call(GetIsLoggedIn));
+    });
+
+    it('sets the flash error', () => {
+      const error = new Error('Logged In request failed');
+      expect(generator.throw(error).value).toEqual(
+        put(
+          setFlashMessage(
+            'error',
+            'There was an error loading your user information.',
+            'An error occurred',
+            'LOGGED_IN_GET_ERROR',
+          ),
+        ),
+      );
+    });
+
+    it('dispatches the User is not logged in error action', () => {
+      const error = new Error('Logged In request failed');
+      expect(generator.next(false).value).toEqual(put(getLoggedInActions.error(error)));
+    });
+  });
+
   describe('if the user is not logged in', () => {
     const generator = fetchUser();
 
@@ -37,6 +69,41 @@ describe('fetchUser saga', () => {
 
     it('is done', () => {
       expect(generator.next().done).toEqual(true);
+    });
+  });
+
+  describe('if the get user data request fails', () => {
+    const generator = fetchUser();
+
+    it('dispatches the GET_LOGGED_IN_USER_START action', () => {
+      expect(generator.next().value).toEqual(put(getLoggedInActions.start()));
+    });
+
+    it('makes the GetIsLoggedIn API call', () => {
+      expect(generator.next().value).toEqual(call(GetIsLoggedIn));
+    });
+
+    it('makes the GetLoggedInUser API call', () => {
+      expect(generator.next(true).value).toEqual(call(GetLoggedInUser));
+    });
+
+    it('sets the flash error', () => {
+      const error = new Error('Get user request failed');
+      expect(generator.throw(error).value).toEqual(
+        put(
+          setFlashMessage(
+            'error',
+            'There was an error loading your user information.',
+            'An error occurred',
+            'USER_GET_ERROR',
+          ),
+        ),
+      );
+    });
+
+    it('dispatches the User is not logged in error action', () => {
+      const error = new Error('Get user request failed');
+      expect(generator.next(false).value).toEqual(put(getLoggedInActions.error(error)));
     });
   });
 

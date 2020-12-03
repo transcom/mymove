@@ -23,7 +23,6 @@ const defaultProps = {
   isLoggedIn: true,
   loggedInUserIsLoading: false,
   loggedInUserSuccess: true,
-  loggedInUserError: false,
   isProfileComplete: true,
   currentPpm: {},
   loadMTOShipments: jest.fn(),
@@ -40,11 +39,13 @@ function mountHome(props = {}) {
     </Provider>,
   );
 }
+
 describe('Home component', () => {
   describe('with default props', () => {
     const wrapper = mountHome();
 
     it('renders Home with the right amount of components', () => {
+      expect(wrapper.find('ConnectedFlashMessage').length).toBe(1);
       expect(wrapper.find('Step').length).toBe(4);
       expect(wrapper.find('Helper').length).toBe(1);
       expect(wrapper.find('Contact').length).toBe(1);

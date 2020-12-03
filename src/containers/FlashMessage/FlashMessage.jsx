@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 
 import { clearFlashMessage as clearFlashMessageAction } from 'store/flash/actions';
 import Alert from 'shared/Alert';
+import { FlashMessageShape } from 'types/flash';
 
 export const FlashMessage = ({ flash, clearFlashMessage }) => {
   useEffect(() => () => {
@@ -23,12 +24,7 @@ export const FlashMessage = ({ flash, clearFlashMessage }) => {
 FlashMessage.displayName = 'FlashMessage';
 
 FlashMessage.propTypes = {
-  flash: PropTypes.shape({
-    type: PropTypes.string.isRequired,
-    title: PropTypes.string,
-    message: PropTypes.string.isRequired,
-    key: PropTypes.string.isRequired,
-  }).isRequired,
+  flash: FlashMessageShape.isRequired,
   clearFlashMessage: PropTypes.func.isRequired,
 };
 
@@ -50,12 +46,7 @@ const connectFlashMessage = (Component) => {
   ConnectedFlashMessage.displayName = 'ConnectedFlashMessage';
 
   ConnectedFlashMessage.propTypes = {
-    flash: PropTypes.shape({
-      type: PropTypes.string,
-      title: PropTypes.string,
-      message: PropTypes.string,
-      key: PropTypes.string,
-    }),
+    flash: FlashMessageShape,
     clearFlashMessage: PropTypes.func.isRequired,
   };
 

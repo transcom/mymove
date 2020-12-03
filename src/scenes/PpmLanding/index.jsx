@@ -11,12 +11,7 @@ import { PpmSummary } from './PpmSummary';
 import { selectedMoveType, lastMoveIsCanceled, updateMove } from 'scenes/Moves/ducks';
 import { isProfileComplete } from 'scenes/ServiceMembers/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import {
-  selectCurrentUser,
-  selectGetCurrentUserIsLoading,
-  selectGetCurrentUserIsSuccess,
-  selectGetCurrentUserIsError,
-} from 'shared/Data/users';
+import { selectCurrentUser, selectGetCurrentUserIsLoading, selectGetCurrentUserIsSuccess } from 'shared/Data/users';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
 import Alert from 'shared/Alert';
 import SignIn from 'shared/User/SignIn';
@@ -53,6 +48,7 @@ export class PpmLanding extends Component {
       this.props.loadPPMs(this.props.move.id);
     }
   }
+
   startMove = (values) => {
     const { serviceMember } = this.props;
     if (isEmpty(serviceMember)) {
@@ -99,6 +95,7 @@ export class PpmLanding extends Component {
       excludeHomePage,
     });
   };
+
   render() {
     const {
       isLoggedIn,
@@ -186,7 +183,6 @@ const mapStateToProps = (state) => {
     ppm: getPPM(state),
     loggedInUser: user,
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
-    loggedInUserError: selectGetCurrentUserIsError(state),
     loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
     createdServiceMemberIsLoading: state.serviceMember.isLoading,
     createdServiceMemberSuccess: state.serviceMember.hasSubmitSuccess,
