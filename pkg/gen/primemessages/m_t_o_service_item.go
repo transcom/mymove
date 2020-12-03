@@ -24,12 +24,12 @@ import (
 type MTOServiceItem interface {
 	runtime.Validatable
 
-	// e tag
+	// ETag identifier required to update this object
 	// Read Only: true
 	ETag() string
 	SetETag(string)
 
-	// id
+	// ID of the service item
 	// Format: uuid
 	ID() strfmt.UUID
 	SetID(strfmt.UUID)
@@ -39,23 +39,23 @@ type MTOServiceItem interface {
 	ModelType() MTOServiceItemModelType
 	SetModelType(MTOServiceItemModelType)
 
-	// move task order ID
+	// ID of the associated moveTaskOrder
 	// Required: true
 	// Format: uuid
 	MoveTaskOrderID() *strfmt.UUID
 	SetMoveTaskOrderID(*strfmt.UUID)
 
-	// mto shipment ID
+	// ID of the associated mtoShipment
 	// Format: uuid
 	MtoShipmentID() strfmt.UUID
 	SetMtoShipmentID(strfmt.UUID)
 
-	// re service name
+	// Full descriptive name of the service
 	// Read Only: true
 	ReServiceName() string
 	SetReServiceName(string)
 
-	// rejection reason
+	// Reason the service item was rejected by the TOO
 	// Read Only: true
 	RejectionReason() *string
 	SetRejectionReason(*string)
@@ -237,12 +237,6 @@ func unmarshalMTOServiceItem(data []byte, consumer runtime.Consumer) (MTOService
 		return &result, nil
 	case "MTOServiceItemDomesticCrating":
 		var result MTOServiceItemDomesticCrating
-		if err := consumer.Consume(buf2, &result); err != nil {
-			return nil, err
-		}
-		return &result, nil
-	case "MTOServiceItemSITDeparture":
-		var result MTOServiceItemSITDeparture
 		if err := consumer.Consume(buf2, &result); err != nil {
 			return nil, err
 		}

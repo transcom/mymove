@@ -4,12 +4,14 @@ import { Link } from 'react-router-dom';
 import { get } from 'lodash';
 import { object, string, shape, bool, number } from 'prop-types';
 import { Grid } from '@trussworks/react-uswds';
+
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import { selectActivePPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
 import { formatCentsRange, formatCents } from 'shared/formatters';
 import { formatDateSM } from 'shared/formatters';
 import { hasShortHaulError } from 'shared/incentive';
 import { getRequestStatus } from 'shared/Swagger/selectors';
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
 import './Review.css';
 
@@ -160,6 +162,7 @@ function mapStateToProps(state, ownProps) {
   );
   const ppmEstimateStatus = getRequestStatus(state, getPPMEstimateLabel);
   let hasError = !!ppmEstimateStatus.error;
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
 
   return {
     ...ownProps,
@@ -169,7 +172,7 @@ function mapStateToProps(state, ownProps) {
       hasEstimateSuccess: state.ppm.hasEstimateSuccess,
       hasEstimateInProgress: state.ppm.hasEstimateInProgress,
       rateEngineError: state.ppm.rateEngineError || null,
-      originDutyStationZip: state.serviceMember.currentServiceMember.current_station.address.postal_code,
+      originDutyStationZip: serviceMember?.current_station?.address?.postal_code,
       incentive_estimate_min,
       incentive_estimate_max,
     },

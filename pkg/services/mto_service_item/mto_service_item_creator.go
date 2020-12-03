@@ -110,6 +110,15 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		}
 	}
 
+	if serviceItem.ReService.Code == models.ReServiceCodeDDASIT {
+		// DDASIT must be associated with shipment that has DDFSIT
+		serviceItem, err = o.validateSITStandaloneServiceItem(serviceItem, models.ReServiceCodeDDFSIT)
+
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+
 	for index := range serviceItem.CustomerContacts {
 		createCustContacts := &serviceItem.CustomerContacts[index]
 		err = validateTimeMilitaryField(createCustContacts.TimeMilitary)
@@ -118,14 +127,14 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		}
 	}
 
-	if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT {
+	if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT || serviceItem.ReService.Code == models.ReServiceCodeDOPSIT {
 		verrs = validate.NewErrors()
 		verrs.Add("reServiceCode", fmt.Sprintf("%s cannot be created", serviceItem.ReService.Code))
 		return nil, nil, services.NewInvalidInputError(serviceItem.ID, nil, verrs,
 			fmt.Sprintf("A service item with reServiceCode %s cannot be manually created.", serviceItem.ReService.Code))
 	}
 
-	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT {
+	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT || serviceItem.ReService.Code == models.ReServiceCodeDOFSIT {
 		extraServiceItems, errSIT := o.validateFirstDaySITServiceItem(serviceItem)
 		if errSIT != nil {
 			return nil, nil, errSIT
@@ -180,12 +189,11 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 		return nil, verrs, services.NewQueryError("unknown", err, "")
 	}
 
-	// TODO: Fix error message to be conflict error instead of server error so user knows the Move status is wrong
 	// TODO: Determine if this should be in the same transaction as the service items (they get created even if this fails)
 	if move.Status != models.MoveStatusAPPROVALSREQUESTED {
 		err := move.SetApprovalsRequested()
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, services.NewConflictError(move.ID, err.Error())
 		}
 		verrs, err := o.builder.UpdateOne(&move, nil)
 		if verrs != nil || err != nil {
@@ -345,10 +353,18 @@ func (o *mtoServiceItemCreator) validateFirstDaySITServiceItem(serviceItem *mode
 
 	// create the extra service items for first day SIT
 	var reServiceCodes []models.ReServiceCode
-	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT {
+
+	switch serviceItem.ReService.Code {
+	case models.ReServiceCodeDDFSIT:
 		reServiceCodes = append(reServiceCodes, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT)
-	} else {
+	case models.ReServiceCodeDOFSIT:
 		reServiceCodes = append(reServiceCodes, models.ReServiceCodeDOASIT, models.ReServiceCodeDOPSIT)
+	default:
+		verrs := validate.NewErrors()
+		verrs.Add("reServiceCode", fmt.Sprintf("%s invalid code", serviceItem.ReService.Code))
+		return nil, services.NewInvalidInputError(serviceItem.ID, nil, verrs,
+			fmt.Sprintf(fmt.Sprintf("No additional items can be created for this service item with code %s", serviceItem.ReService.Code)))
+
 	}
 
 	for _, code := range reServiceCodes {

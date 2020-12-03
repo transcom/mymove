@@ -1051,6 +1051,12 @@ func init() {
               "$ref": "#/responses/NotFound"
             }
           },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/responses/Conflict"
+            }
+          },
           "412": {
             "description": "Precondition Failed",
             "schema": {
@@ -1548,7 +1554,7 @@ func init() {
               "lastName",
               "dodID",
               "branch",
-              "moveID",
+              "locator",
               "status",
               "destinationDutyStation"
             ],
@@ -1574,7 +1580,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "moveID",
+            "name": "locator",
             "in": "query"
           },
           {
@@ -1645,7 +1651,7 @@ func init() {
           {
             "enum": [
               "lastName",
-              "moveID",
+              "locator",
               "submittedAt",
               "branch",
               "status",
@@ -1691,7 +1697,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "moveID",
+            "name": "locator",
             "in": "query"
           },
           {
@@ -4818,6 +4824,15 @@ func init() {
               }
             }
           },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "description": "Conflict error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
           "412": {
             "description": "Precondition Failed",
             "schema": {
@@ -5396,7 +5411,7 @@ func init() {
               "lastName",
               "dodID",
               "branch",
-              "moveID",
+              "locator",
               "status",
               "destinationDutyStation"
             ],
@@ -5422,7 +5437,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "moveID",
+            "name": "locator",
             "in": "query"
           },
           {
@@ -5499,7 +5514,7 @@ func init() {
           {
             "enum": [
               "lastName",
-              "moveID",
+              "locator",
               "submittedAt",
               "branch",
               "status",
@@ -5545,7 +5560,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "moveID",
+            "name": "locator",
             "in": "query"
           },
           {

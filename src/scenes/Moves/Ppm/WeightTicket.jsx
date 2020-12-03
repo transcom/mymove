@@ -14,12 +14,12 @@ import Uploader from 'shared/Uploader';
 import Alert from 'shared/Alert';
 import { formatDateForSwagger } from 'shared/dates';
 import { documentSizeLimitMsg } from 'shared/constants';
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
 import carTrailerImg from 'shared/images/car-trailer_mobile.png';
 import carImg from 'shared/images/car_mobile.png';
 import { createWeightTicketSetDocument } from 'shared/Entities/modules/weightTicketSetDocuments';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons/faQuestionCircle';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { withContext } from 'shared/AppContext';
@@ -262,7 +262,7 @@ class WeightTicket extends Component {
                 <h3 className="expenses-header">Weight Tickets - {weightTicketSetOrdinal} set</h3>
                 Upload weight tickets for each vehicle trip and pro-gear weigh.{' '}
                 <Link to="/weight-ticket-examples" className="usa-link">
-                  <FontAwesomeIcon aria-hidden className="color_blue_link" icon={faQuestionCircle} />
+                  <FontAwesomeIcon aria-hidden className="color_blue_link" icon="question-circle" />
                 </Link>
                 <SwaggerField
                   fieldName="weight_ticket_set_type"
@@ -543,9 +543,10 @@ WeightTicket.propTypes = {
 
 function mapStateToProps(state, ownProps) {
   const moveId = ownProps.match.params.moveId;
-  const dutyStationId = get(state, 'serviceMember.currentServiceMember.current_station.id');
-  // TODO: get this from entities when getLoggedInUser info is normalized
-  const transportationOffice = get(state, 'user.userInfo.service_member.current_station.transportation_office', {});
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+  const dutyStationId = serviceMember?.current_station?.id;
+  const transportationOffice = serviceMember?.current_station.transportation_office;
+
   return {
     moveId: moveId,
     formValues: getFormValues(formName)(state),

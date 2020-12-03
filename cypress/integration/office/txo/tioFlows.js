@@ -24,6 +24,9 @@ describe('TIO user', () => {
     cy.server();
     cy.route('GET', '/ghc/v1/swagger.yaml').as('getGHCClient');
     cy.route('GET', '/ghc/v1/queues/payment-requests?**').as('getPaymentRequests');
+    cy.route('GET', '/ghc/v1/queues/payment-requests?sort=age&order=desc&page=1&perPage=20').as(
+      'getSortedPaymentRequests',
+    );
     cy.route('GET', '/ghc/v1/payment-requests/**').as('getPaymentRequest');
     cy.route('GET', '/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
     cy.route('GET', '/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
@@ -42,7 +45,7 @@ describe('TIO user', () => {
     const paymentRequestId = 'ea945ab7-099a-4819-82de-6968efe131dc';
 
     // TIO Payment Requests queue
-    cy.wait(['@getGHCClient', '@getPaymentRequests']);
+    cy.wait(['@getGHCClient', '@getPaymentRequests', '@getSortedPaymentRequests']);
     cy.get('[data-uuid="' + paymentRequestId + '"]').click();
 
     // Payment Request detail page
