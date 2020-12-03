@@ -279,10 +279,10 @@ describe('createServiceMember saga', () => {
       expect(generator.next().value).toEqual(
         put(
           setFlashMessage(
+            'SERVICE_MEMBER_CREATE_ERROR',
             'error',
             'There was an error creating your profile information.',
             'An error occurred',
-            'SERVICE_MEMBER_CREATE_ERROR',
           ),
         ),
       );

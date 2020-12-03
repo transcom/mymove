@@ -48,12 +48,7 @@ export class SignedCertification extends Component {
       this.props
         .submitMoveForApproval(moveId, certificate)
         .then(() => {
-          this.props.setFlashMessage(
-            'success',
-            'You’ve submitted your move request.',
-            'Success',
-            'MOVE_SUBMIT_SUCCESS',
-          );
+          this.props.setFlashMessage('MOVE_SUBMIT_SUCCESS', 'success', 'You’ve submitted your move request.');
           this.props.push(landingPath);
         })
         .catch(() => this.setState({ hasMoveSubmitError: true }));

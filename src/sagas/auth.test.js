@@ -37,10 +37,10 @@ describe('fetchUser saga', () => {
       expect(generator.throw(error).value).toEqual(
         put(
           setFlashMessage(
+            'LOGGED_IN_GET_ERROR',
             'error',
             'There was an error loading your user information.',
             'An error occurred',
-            'LOGGED_IN_GET_ERROR',
           ),
         ),
       );
@@ -92,10 +92,10 @@ describe('fetchUser saga', () => {
       expect(generator.throw(error).value).toEqual(
         put(
           setFlashMessage(
+            'USER_GET_ERROR',
             'error',
             'There was an error loading your user information.',
             'An error occurred',
-            'USER_GET_ERROR',
           ),
         ),
       );

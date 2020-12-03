@@ -1,12 +1,12 @@
 export const SET_FLASH_MESSAGE = 'SET_FLASH_MESSAGE';
 export const CLEAR_FLASH_MESSAGE = 'CLEAR_FLASH_MESSAGE';
 
-export const setFlashMessage = (messageType, message, title = '', key = null) => ({
+export const setFlashMessage = (key, messageType, message, title = '') => ({
   type: SET_FLASH_MESSAGE,
-  messageType,
-  title,
-  message,
   key,
+  messageType,
+  message,
+  title,
 });
 
 export const clearFlashMessage = () => ({
