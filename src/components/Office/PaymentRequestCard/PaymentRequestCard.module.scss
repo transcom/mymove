@@ -21,7 +21,8 @@
     @include u-margin-left(1);
     @include u-font-size('body', '3xs');
 
-    &.reviewed {
+    &.reviewed,
+    &.paid {
       background-color: $base-lighter;
     }
   }
@@ -47,9 +48,10 @@
     @include u-margin-bottom(0.5);
   }
 
-  .amountRequested,
-  .amountAccepted,
-  .amountRejected,
+  .amountAccepted {
+    margin-right: 6em;
+  }
+
   .reviewButton {
     flex-grow: 1;
   }

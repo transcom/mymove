@@ -63,14 +63,18 @@ const PaymentRequestCard = ({ paymentRequest }) => {
             </div>
           ) : (
             <>
-              <div className={styles.amountAccepted}>
-                <span>{approvedAmount}</span>
-                <span>Accepted</span>
-              </div>
-              <div className={styles.amountRejected}>
-                <span>{rejectedAmount}</span>
-                <span>Rejected</span>
-              </div>
+              {approvedAmount > 0 && (
+                <div className={styles.amountAccepted}>
+                  <h2>{toDollarString(formatCents(approvedAmount))}</h2>
+                  <span>Accepted</span>
+                </div>
+              )}
+              {rejectedAmount > 0 && (
+                <div className={styles.amountRejected}>
+                  <h2>{toDollarString(formatCents(rejectedAmount))}</h2>
+                  <span>Rejected</span>
+                </div>
+              )}
             </>
           )}
           {paymentRequest.status === 'PENDING' && (
@@ -91,7 +95,7 @@ const PaymentRequestCard = ({ paymentRequest }) => {
           {paymentRequest.status === 'PENDING' ? (
             <a href="moves/MOVE_CODE/orders">View orders</a>
           ) : (
-            <a href={paymentRequest.id}>View documents</a>
+            <a href={`moves/MOVE_CODE/payment-requests/${paymentRequest.id}`}>View documents</a>
           )}
           <div className={styles.toggleDrawer}>
             <button type="button">Show request details</button>
