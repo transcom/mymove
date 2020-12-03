@@ -111,7 +111,7 @@ func postFileToGEX(cmd *cobra.Command, args []string) error {
 	// make sure edi ends in new line
 	ediString = strings.TrimSpace(ediString) + "\n"
 
-	certLogger, err := logging.Config("development", "debug")
+	certLogger, err := logging.Config("development", v.GetString(cli.LoggingLevelFlag))
 	if err != nil {
 		logger.Fatal("Failed to initialize Zap loggingv", zap.Error(err))
 	}
