@@ -10,6 +10,7 @@ import {
   getDocument,
   getMovesQueue,
   getPaymentRequestsQueue,
+  getMovePaymentRequests,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
 import { getQueriesStatus } from 'utils/api';
@@ -18,6 +19,7 @@ import {
   MTO_SHIPMENTS,
   MTO_SERVICE_ITEMS,
   MOVE_ORDERS,
+  MOVE_PAYMENT_REQUESTS,
   MOVE_TASK_ORDERS,
   ORDERS_DOCUMENTS,
   MOVES_QUEUE,
@@ -191,6 +193,37 @@ export const usePaymentRequestQueueQueries = ({ sort, order, filters = [], curre
   const { queuePaymentRequests, ...dataProps } = data;
   return {
     queueResult: { data: queuePaymentRequests, ...dataProps },
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useMovePaymentRequestsQueries = (moveOrderId) => {
+  // eslint-disable-next-line no-unused-vars
+  const { data: { moveOrders } = {}, ...moveOrderQuery } = useQuery([MOVE_ORDERS, moveOrderId], getMoveOrder);
+
+  // eslint-disable-next-line no-unused-vars
+  const { data: { moveTaskOrders } = {}, ...moveTaskOrderQuery } = useQuery(
+    [MOVE_TASK_ORDERS, moveOrderId],
+    getMoveTaskOrderList,
+  );
+
+  const moveTaskOrder = moveTaskOrders && Object.values(moveTaskOrders)[0];
+  const mtoID = moveTaskOrder?.id;
+
+  const { data: { paymentRequests } = {}, ...movePaymentRequestsQuery } = useQuery(
+    [MOVE_PAYMENT_REQUESTS, mtoID],
+    getMovePaymentRequests,
+    {
+      enabled: !!mtoID,
+    },
+  );
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([movePaymentRequestsQuery]);
+
+  return {
+    paymentRequests,
     isLoading,
     isError,
     isSuccess,

@@ -80,6 +80,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MoveOrderGetMoveOrderHandler: move_order.GetMoveOrderHandlerFunc(func(params move_order.GetMoveOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_order.GetMoveOrder has not yet been implemented")
 		}),
+		MoveTaskOrderGetMovePaymentRequestsHandler: move_task_order.GetMovePaymentRequestsHandlerFunc(func(params move_task_order.GetMovePaymentRequestsParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.GetMovePaymentRequests has not yet been implemented")
+		}),
 		MoveTaskOrderGetMoveTaskOrderHandler: move_task_order.GetMoveTaskOrderHandlerFunc(func(params move_task_order.GetMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.GetMoveTaskOrder has not yet been implemented")
 		}),
@@ -176,6 +179,8 @@ type MymoveAPI struct {
 	MoveGetMoveHandler move.GetMoveHandler
 	// MoveOrderGetMoveOrderHandler sets the operation handler for the get move order operation
 	MoveOrderGetMoveOrderHandler move_order.GetMoveOrderHandler
+	// MoveTaskOrderGetMovePaymentRequestsHandler sets the operation handler for the get move payment requests operation
+	MoveTaskOrderGetMovePaymentRequestsHandler move_task_order.GetMovePaymentRequestsHandler
 	// MoveTaskOrderGetMoveTaskOrderHandler sets the operation handler for the get move task order operation
 	MoveTaskOrderGetMoveTaskOrderHandler move_task_order.GetMoveTaskOrderHandler
 	// QueuesGetMovesQueueHandler sets the operation handler for the get moves queue operation
@@ -298,6 +303,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MoveOrderGetMoveOrderHandler == nil {
 		unregistered = append(unregistered, "move_order.GetMoveOrderHandler")
+	}
+	if o.MoveTaskOrderGetMovePaymentRequestsHandler == nil {
+		unregistered = append(unregistered, "move_task_order.GetMovePaymentRequestsHandler")
 	}
 	if o.MoveTaskOrderGetMoveTaskOrderHandler == nil {
 		unregistered = append(unregistered, "move_task_order.GetMoveTaskOrderHandler")
@@ -468,6 +476,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/move-orders/{moveOrderID}"] = move_order.NewGetMoveOrder(o.context, o.MoveOrderGetMoveOrderHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}/payment-requests"] = move_task_order.NewGetMovePaymentRequests(o.context, o.MoveTaskOrderGetMovePaymentRequestsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

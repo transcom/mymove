@@ -28,6 +28,10 @@ export async function getMoveOrder(key, moveOrderID) {
   return makeGHCRequest('moveOrder.getMoveOrder', { moveOrderID });
 }
 
+export async function getMovePaymentRequests(key, moveTaskOrderID) {
+  return makeGHCRequest('moveTaskOrder.getMovePaymentRequests', { moveTaskOrderID });
+}
+
 export async function getMoveTaskOrderList(key, moveOrderID) {
   return makeGHCRequest('moveOrder.listMoveTaskOrders', { moveOrderID });
 }
