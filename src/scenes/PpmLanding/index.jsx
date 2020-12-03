@@ -1,5 +1,5 @@
-import React, { Component, Fragment } from 'react';
-import { get, isEmpty } from 'lodash';
+import React, { Component } from 'react';
+import { get } from 'lodash';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 import { bindActionCreators } from 'redux';
@@ -9,11 +9,10 @@ import { withContext } from 'shared/AppContext';
 
 import { PpmSummary } from './PpmSummary';
 import { selectedMoveType, lastMoveIsCanceled, updateMove } from 'scenes/Moves/ducks';
-import { isProfileComplete } from 'scenes/ServiceMembers/ducks';
+import { selectServiceMemberFromLoggedInUser, selectIsProfileComplete } from 'store/entities/selectors';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { selectCurrentUser, selectGetCurrentUserIsLoading, selectGetCurrentUserIsSuccess } from 'shared/Data/users';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
-import Alert from 'shared/Alert';
 import SignIn from 'shared/User/SignIn';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import scrollToTop from 'shared/scrollToTop';
@@ -38,11 +37,12 @@ export class PpmLanding extends Component {
   componentDidUpdate(prevProps) {
     const { serviceMember, loggedInUserSuccess, isProfileComplete } = this.props;
     if (loggedInUserSuccess) {
-      if (!isEmpty(serviceMember) && !isProfileComplete) {
+      if (serviceMember && !isProfileComplete) {
         // If the service member exists, but is not complete, redirect to next incomplete page.
         this.resumeMove();
       }
     }
+
     if (prevProps.move && prevProps.move.id !== this.props.move.id) {
       this.props.loadMTOShipments(this.props.move.id);
       this.props.loadPPMs(this.props.move.id);
@@ -51,9 +51,10 @@ export class PpmLanding extends Component {
 
   startMove = (values) => {
     const { serviceMember } = this.props;
-    if (isEmpty(serviceMember)) {
+    if (!serviceMember) {
       console.error('With no service member, you should have been redirected already.');
     }
+
     this.props.push(`service-member/${serviceMember.id}/create`);
   };
 
@@ -100,9 +101,7 @@ export class PpmLanding extends Component {
     const {
       isLoggedIn,
       loggedInUserIsLoading,
-      loggedInUserSuccess,
       isProfileComplete,
-      createdServiceMemberError,
       entitlement,
       serviceMember,
       orders,
@@ -110,36 +109,44 @@ export class PpmLanding extends Component {
       ppm,
       requestPaymentSuccess,
       updateMove,
+      location,
     } = this.props;
+
+    // early return if loading user
+    // TODO - handle this at the top level MyMove/index instead
+    if (loggedInUserIsLoading) {
+      return (
+        <div className="grid-container">
+          <LoadingPlaceholder />
+        </div>
+      );
+    }
+
+    // early return if not logged in
+    // TODO - handle this at the top level MyMove/index instead, and use a redirect instead
+    if (!isLoggedIn && !loggedInUserIsLoading) {
+      return (
+        <div className="grid-container">
+          <SignIn location={location} />
+        </div>
+      );
+    }
+
     return (
       <div className="grid-container">
-        {loggedInUserIsLoading && <LoadingPlaceholder />}
-        {!isLoggedIn && !loggedInUserIsLoading && <SignIn location={this.props.location} />}
-        {loggedInUserSuccess && (
-          <Fragment>
-            <div>
-              {createdServiceMemberError && (
-                <Alert type="error" heading="An error occurred">
-                  There was an error creating your profile information.
-                </Alert>
-              )}
-            </div>
-
-            {isLoggedIn && !isEmpty(serviceMember) && isProfileComplete && (
-              <PpmSummary
-                entitlement={entitlement}
-                profile={serviceMember}
-                orders={orders}
-                move={move}
-                ppm={ppm}
-                editMove={this.editMove}
-                resumeMove={this.resumeMove}
-                reviewProfile={this.reviewProfile}
-                requestPaymentSuccess={requestPaymentSuccess}
-                updateMove={updateMove}
-              />
-            )}
-          </Fragment>
+        {isProfileComplete && (
+          <PpmSummary
+            entitlement={entitlement}
+            profile={serviceMember}
+            orders={orders}
+            move={move}
+            ppm={ppm}
+            editMove={this.editMove}
+            resumeMove={this.resumeMove}
+            reviewProfile={this.reviewProfile}
+            requestPaymentSuccess={requestPaymentSuccess}
+            updateMove={updateMove}
+          />
         )}
       </div>
     );
@@ -166,7 +173,7 @@ PpmLanding.defaultProps = {
 
 const mapStateToProps = (state) => {
   const user = selectCurrentUser(state);
-  const serviceMember = get(state, 'serviceMember.currentServiceMember');
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const move = selectActiveOrLatestMove(state);
 
   const props = {
@@ -174,9 +181,9 @@ const mapStateToProps = (state) => {
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     selectedMoveType: selectedMoveType(state),
     isLoggedIn: user.isLoggedIn,
-    isProfileComplete: isProfileComplete(state),
-    serviceMember: serviceMember || {},
-    backupContacts: state.serviceMember.currentBackupContacts || [],
+    isProfileComplete: selectIsProfileComplete(state),
+    serviceMember,
+    backupContacts: serviceMember?.backup_contacts || [],
     orders: selectActiveOrLatestOrders(state),
     uploads: selectUploadsForActiveOrders(state),
     move: move,
@@ -184,10 +191,6 @@ const mapStateToProps = (state) => {
     loggedInUser: user,
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
     loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
-    createdServiceMemberIsLoading: state.serviceMember.isLoading,
-    createdServiceMemberSuccess: state.serviceMember.hasSubmitSuccess,
-    createdServiceMemberError: state.serviceMember.error,
-    createdServiceMember: state.serviceMember.currentServiceMember,
     entitlement: loadEntitlementsFromState(state),
     requestPaymentSuccess: state.ppm.requestPaymentSuccess,
   };

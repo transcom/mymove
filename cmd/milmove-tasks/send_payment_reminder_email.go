@@ -53,7 +53,7 @@ func initPaymentReminderFlags(flag *pflag.FlagSet) {
 }
 
 // Command (test eamil): go run ./cmd/milmove-tasks send-payment-reminder
-// Command (send email): go run ./cmd/milmove-tasks send-payment-reminder --email-backend=ses --aws-ses-domain=devlocal.dp3.us --aws-ses-region=us-west-2
+// Command (send email): go run ./cmd/milmove-tasks send-payment-reminder --email-backend=ses --aws-ses-domain=devlocal.dp3.us --aws-ses-region=us-gov-west-1
 func sendPaymentReminder(cmd *cobra.Command, args []string) error {
 	err := cmd.ParseFlags(args)
 	if err != nil {

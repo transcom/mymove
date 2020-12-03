@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useFormik } from 'formik';
 import * as PropTypes from 'prop-types';
 import { Button, Checkbox, Fieldset } from '@trussworks/react-uswds';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import ShipmentApprovalPreview from '../ShipmentApprovalPreview';
 
@@ -16,7 +17,6 @@ import {
   OrdersInfoShape,
 } from 'types/moveOrder';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
-import { ReactComponent as FormCheckmarkIcon } from 'shared/icon/form-checkmark.svg';
 import { formatDateFromIso } from 'shared/formatters';
 
 const RequestedShipments = ({
@@ -227,7 +227,7 @@ const RequestedShipments = ({
                       <td data-testid="basicServiceItemDate">
                         {serviceItem.status === 'APPROVED' && (
                           <span>
-                            <FormCheckmarkIcon className={styles.serviceItemApproval} />{' '}
+                            <FontAwesomeIcon icon="check" className={styles.serviceItemApproval} />{' '}
                             {formatDateFromIso(serviceItem.approvedAt, 'DD MMM YYYY')}
                           </span>
                         )}

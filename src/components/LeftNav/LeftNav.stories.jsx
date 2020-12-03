@@ -1,9 +1,8 @@
 import React from 'react';
 import { Tag } from '@trussworks/react-uswds';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import LeftNav from './index';
-
-import { ReactComponent as AlertIcon } from 'shared/icon/alert.svg';
 
 // Left Nav
 export default {
@@ -21,8 +20,8 @@ export const Basic = () => (
     <LeftNav>
       <a href="#" className="active">
         Requested Shipments
-        <Tag className="usa-tag--alert usa-tag--alert--small">
-          <AlertIcon />
+        <Tag className="usa-tag usa-tag--alert">
+          <FontAwesomeIcon icon="exclamation" />
         </Tag>
       </a>
       <a href="#orders-anchor">
@@ -44,8 +43,8 @@ export const Layout = () => (
       <LeftNav>
         <a href="#" className="active">
           Requested Shipments
-          <Tag className="usa-tag--alert usa-tag--alert--small">
-            <AlertIcon />
+          <Tag className="usa-tag usa-tag--alert">
+            <FontAwesomeIcon icon="exclamation" />
           </Tag>
         </a>
         <a href="#orders-anchor">

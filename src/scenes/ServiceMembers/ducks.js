@@ -1,5 +1,4 @@
-import { pick, without, cloneDeep, get, every } from 'lodash';
-import { NULL_UUID } from 'shared/constants';
+import { pick, without, cloneDeep, get } from 'lodash';
 
 import { GET_LOGGED_IN_USER } from 'shared/Data/users';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
@@ -22,23 +21,6 @@ export const INDEX_BACKUP_CONTACTS = ReduxHelpers.generateAsyncActionTypes(index
 
 export const UPDATE_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(updateBackupContactType);
 
-//this is similar to go service_member.IsProfileComplete and we should figure out how to use just one if possible
-export const isProfileComplete = (state) => {
-  const sm = get(state, 'serviceMember.currentServiceMember') || {};
-  return every([
-    sm.rank,
-    sm.edipi,
-    sm.affiliation,
-    sm.first_name,
-    sm.last_name,
-    sm.telephone,
-    sm.personal_email,
-    get(sm, 'current_station.id', NULL_UUID) !== NULL_UUID,
-    get(sm, 'residential_address.postal_code'),
-    get(sm, 'backup_mailing_address.postal_code'),
-    get(state, 'serviceMember.currentBackupContacts', []).length > 0,
-  ]);
-};
 // Reducer
 const initialState = {
   currentServiceMember: null,

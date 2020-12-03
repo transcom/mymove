@@ -4,6 +4,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
+
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -20,6 +21,7 @@ import Alert from 'shared/Alert';
 import { ValidateZipRateData } from 'shared/api';
 import { setInitialFormValues } from './ducks';
 import SectionWrapper from 'components/Customer/SectionWrapper';
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
 import './DateAndLocation.css';
 
@@ -201,21 +203,22 @@ DateAndLocation.propTypes = {
 
 function mapStateToProps(state) {
   const moveID = state.moves.currentMove.id;
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
 
-  const defaultPickupZip = get(state.serviceMember, 'currentServiceMember.residential_address.postal_code');
-  const originDutyStationZip = state.serviceMember.currentServiceMember.current_station.address.postal_code;
-
-  const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
+  const defaultPickupZip = serviceMember?.residential_address?.postal_code;
+  const originDutyStationZip = serviceMember?.current_station?.address?.postal_code;
+  const serviceMemberId = serviceMember?.id;
 
   const props = {
-    serviceMemberId: serviceMemberId,
+    serviceMemberId,
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
     currentPPM: selectActivePPMForMove(state, moveID),
     currentOrders: selectActiveOrLatestOrders(state),
     formValues: getFormValues(formName)(state),
     entitlement: loadEntitlementsFromState(state),
-    originDutyStationZip: state.serviceMember.currentServiceMember.current_station.address.postal_code,
+    originDutyStationZip: serviceMember?.current_station?.address?.postal_code,
   };
+
   props.initialValues = !isEmpty(props.currentPPM)
     ? props.currentPPM
     : defaultPickupZip

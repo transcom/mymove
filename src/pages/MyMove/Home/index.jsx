@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { arrayOf, bool, shape, string, node, oneOfType, func } from 'prop-types';
+import { arrayOf, bool, shape, string, node, func } from 'prop-types';
 import moment from 'moment';
 import { connect } from 'react-redux';
-import { get, isEmpty } from 'lodash';
+import { get } from 'lodash';
 import { Button } from '@trussworks/react-uswds';
 
 import styles from './Home.module.scss';
@@ -24,8 +24,7 @@ import ShipmentList from 'components/Customer/Home/ShipmentList';
 import Contact from 'components/Customer/Home/Contact';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import PrintableLegalese from 'components/Customer/Home/PrintableLegalese';
-import { isProfileComplete as isProfileCompleteCheck } from 'scenes/ServiceMembers/ducks';
-import { selectServiceMemberFromLoggedInUser } from 'shared/Entities/modules/serviceMembers';
+import { selectServiceMemberFromLoggedInUser, selectIsProfileComplete } from 'store/entities/selectors';
 import { selectUploadedOrders, selectActiveOrLatestOrdersFromEntities } from 'shared/Entities/modules/orders';
 import {
   getSignedCertification as getSignedCertificationAction,
@@ -67,17 +66,17 @@ class Home extends Component {
   componentDidUpdate(prevProps) {
     const { serviceMember, loggedInUserSuccess, isProfileComplete, move, getSignedCertification } = this.props;
     if (!prevProps.loggedInUserSuccess && loggedInUserSuccess) {
-      if (!isEmpty(serviceMember) && !isProfileComplete) {
+      if (serviceMember && !isProfileComplete) {
         // If the service member exists, but is not complete, redirect to next incomplete page.
         this.resumeMove();
       }
     }
 
-    if (isEmpty(prevProps.serviceMember) && !isEmpty(serviceMember) && !isProfileComplete) {
+    if (!prevProps.serviceMember && serviceMember && !isProfileComplete) {
       this.resumeMove();
     }
 
-    if (!isEmpty(prevProps.serviceMember) && prevProps.serviceMember !== serviceMember && !isProfileComplete) {
+    if (prevProps.serviceMember && prevProps.serviceMember !== serviceMember && !isProfileComplete) {
       // if service member existed but was updated, redirect to next incomplete page.
       this.resumeMove();
     }
@@ -264,13 +263,37 @@ class Home extends Component {
       isProfileComplete,
       location,
       loggedInUserIsLoading,
-      loggedInUserSuccess,
       move,
       mtoShipments,
       serviceMember,
       signedCertification,
       uploadedOrderDocuments,
     } = this.props;
+
+    // early return if loading user/service member
+    // TODO - handle this at the top level MyMove/index instead
+    if (loggedInUserIsLoading || (isLoggedIn && !serviceMember)) {
+      return (
+        <div className={styles.homeContainer}>
+          <div className={`usa-prose grid-container ${styles['grid-container']}`}>
+            <LoadingPlaceholder />
+          </div>
+        </div>
+      );
+    }
+
+    // early return if not logged in
+    // TODO - handle this at the top level MyMove/index instead, and use a redirect instead
+    if (!isLoggedIn && !loggedInUserIsLoading) {
+      return (
+        <div className={styles.homeContainer}>
+          <div className={`usa-prose grid-container ${styles['grid-container']}`}>
+            <SignIn location={location} />
+          </div>
+        </div>
+      );
+    }
+
     // eslint-disable-next-line camelcase
     const { current_station } = serviceMember;
     const ordersPath = this.hasOrdersNoUpload ? '/orders/upload' : '/orders';
@@ -285,126 +308,112 @@ class Home extends Component {
     return (
       <>
         <div className={styles.homeContainer}>
-          {isLoggedIn && (
-            <header data-testid="customer-header" className={styles['customer-header']}>
-              <div className={`usa-prose grid-container ${styles['grid-container']}`}>
-                <h2>
-                  {serviceMember.first_name} {serviceMember.last_name}
-                </h2>
-                {this.renderCustomerHeader()}
-              </div>
-            </header>
-          )}
+          <header data-testid="customer-header" className={styles['customer-header']}>
+            <div className={`usa-prose grid-container ${styles['grid-container']}`}>
+              <h2>
+                {serviceMember.first_name} {serviceMember.last_name}
+              </h2>
+              {this.renderCustomerHeader()}
+            </div>
+          </header>
           <div className={`usa-prose grid-container ${styles['grid-container']}`}>
-            {loggedInUserIsLoading && <LoadingPlaceholder />}
-            {!isLoggedIn && !loggedInUserIsLoading && <SignIn location={location} />}
             {isLoggedIn && <ConnectedFlashMessage />}
-            {isLoggedIn && !isEmpty(serviceMember) && isProfileComplete && (
+
+            {isProfileComplete && (
               <>
-                {loggedInUserSuccess && (
-                  <>
-                    {this.renderHelper()}
-                    <SectionWrapper>
-                      <Step
-                        complete={serviceMember.is_profile_complete}
-                        completedHeaderText="Profile complete"
-                        editBtnLabel="Edit"
-                        headerText="Profile complete"
-                        step="1"
-                        onEditBtnClick={() => this.handleNewPathClick(profileEditPath)}
-                      >
-                        <Description>
-                          Make sure to keep your personal information up to date during your move
-                        </Description>
-                      </Step>
-                      <Step
-                        complete={this.hasOrders}
-                        completedHeaderText="Orders uploaded"
-                        editBtnLabel={this.hasOrders && !this.hasSubmittedMove ? 'Edit' : ''}
-                        onEditBtnClick={() => this.handleNewPathClick(ordersEditPath)}
-                        headerText="Upload orders"
-                        actionBtnLabel={!this.hasOrders ? 'Add orders' : ''}
-                        onActionBtnClick={() => this.handleNewPathClick(ordersPath)}
-                        step="2"
-                      >
-                        {this.hasOrders ? (
-                          <DocsUploaded files={uploadedOrderDocuments} />
-                        ) : (
-                          <Description>Upload photos of each page, or upload a PDF.</Description>
+                {this.renderHelper()}
+                <SectionWrapper>
+                  <Step
+                    complete={serviceMember.is_profile_complete}
+                    completedHeaderText="Profile complete"
+                    editBtnLabel="Edit"
+                    headerText="Profile complete"
+                    step="1"
+                    onEditBtnClick={() => this.handleNewPathClick(profileEditPath)}
+                  >
+                    <Description>Make sure to keep your personal information up to date during your move</Description>
+                  </Step>
+                  <Step
+                    complete={this.hasOrders}
+                    completedHeaderText="Orders uploaded"
+                    editBtnLabel={this.hasOrders && !this.hasSubmittedMove ? 'Edit' : ''}
+                    onEditBtnClick={() => this.handleNewPathClick(ordersEditPath)}
+                    headerText="Upload orders"
+                    actionBtnLabel={!this.hasOrders ? 'Add orders' : ''}
+                    onActionBtnClick={() => this.handleNewPathClick(ordersPath)}
+                    step="2"
+                  >
+                    {this.hasOrders ? (
+                      <DocsUploaded files={uploadedOrderDocuments} />
+                    ) : (
+                      <Description>Upload photos of each page, or upload a PDF.</Description>
+                    )}
+                  </Step>
+                  <Step
+                    actionBtnLabel={this.shipmentActionBtnLabel}
+                    actionBtnDisabled={!this.hasOrders || (this.hasSubmittedMove && this.doesPpmAlreadyExist)}
+                    actionBtnId="shipment-selection-btn"
+                    onActionBtnClick={() => this.handleNewPathClick(shipmentSelectionPath)}
+                    complete={this.hasAnyShipments}
+                    completedHeaderText="Shipments"
+                    headerText="Shipment selection"
+                    secondaryBtn={this.hasAnyShipments}
+                    secondaryClassName="margin-top-2"
+                    step="3"
+                  >
+                    {this.hasAnyShipments ? (
+                      <div>
+                        {this.hasSubmittedMove && !this.doesPpmAlreadyExist && (
+                          <p className={styles.descriptionExtra}>If you need to add shipments, let your movers know.</p>
                         )}
-                      </Step>
-                      <Step
-                        actionBtnLabel={this.shipmentActionBtnLabel}
-                        actionBtnDisabled={!this.hasOrders || (this.hasSubmittedMove && this.doesPpmAlreadyExist)}
-                        actionBtnId="shipment-selection-btn"
-                        onActionBtnClick={() => this.handleNewPathClick(shipmentSelectionPath)}
-                        complete={this.hasAnyShipments}
-                        completedHeaderText="Shipments"
-                        headerText="Shipment selection"
-                        secondaryBtn={this.hasAnyShipments}
-                        secondaryClassName="margin-top-2"
-                        step="3"
-                      >
-                        {this.hasAnyShipments ? (
-                          <div>
-                            {this.hasSubmittedMove && !this.doesPpmAlreadyExist && (
-                              <p className={styles.descriptionExtra}>
-                                If you need to add shipments, let your movers know.
-                              </p>
-                            )}
-                            <ShipmentList
-                              shipments={allSortedShipments}
-                              onShipmentClick={this.handleShipmentClick}
-                              moveSubmitted={this.hasSubmittedMove}
-                            />
-                          </div>
-                        ) : (
-                          <Description>
-                            Tell us where you&apos;re going and when you want to get there. We&apos;ll help you set up
-                            shipments to make it work.
-                          </Description>
-                        )}
-                      </Step>
-                      <Step
-                        actionBtnDisabled={!this.hasAnyShipments}
-                        actionBtnId="review-and-submit-btn"
-                        actionBtnLabel={!this.hasSubmittedMove ? 'Review and submit' : 'Review your request'}
-                        complete={this.hasSubmittedMove}
-                        completedHeaderText="Move request confirmed"
-                        containerClassName="margin-bottom-8"
-                        headerText="Confirm move request"
-                        onActionBtnClick={() => this.handleNewPathClick(confirmationPath)}
-                        secondaryBtn={this.hasSubmittedMove}
-                        secondaryBtnClassName={styles.secondaryBtn}
-                        step="4"
-                      >
-                        {this.hasSubmittedMove ? (
-                          <Description
-                            className={styles.moveSubmittedDescription}
-                            dataTestId="move-submitted-description"
-                          >
-                            Move submitted {formatCustomerDate(move.submitted_at)}.<br />
-                            <Button unstyled onClick={this.handlePrintLegalese} className={styles.printBtn}>
-                              Print the legal agreement
-                            </Button>
-                          </Description>
-                        ) : (
-                          <Description>
-                            Review your move details and sign the legal paperwork, then send the info on to your move
-                            counselor.
-                          </Description>
-                        )}
-                      </Step>
-                    </SectionWrapper>
-                    <Contact
-                      header="Contacts"
-                      dutyStationName={current_station?.transportation_office?.name}
-                      officeType="Origin Transportation Office"
-                      telephone={current_station?.transportation_office?.phone_lines[0]}
-                      moveSubmitted={move.status === MOVE_STATUSES.SUBMITTED}
-                    />
-                  </>
-                )}
+                        <ShipmentList
+                          shipments={allSortedShipments}
+                          onShipmentClick={this.handleShipmentClick}
+                          moveSubmitted={this.hasSubmittedMove}
+                        />
+                      </div>
+                    ) : (
+                      <Description>
+                        Tell us where you&apos;re going and when you want to get there. We&apos;ll help you set up
+                        shipments to make it work.
+                      </Description>
+                    )}
+                  </Step>
+                  <Step
+                    actionBtnDisabled={!this.hasAnyShipments}
+                    actionBtnId="review-and-submit-btn"
+                    actionBtnLabel={!this.hasSubmittedMove ? 'Review and submit' : 'Review your request'}
+                    complete={this.hasSubmittedMove}
+                    completedHeaderText="Move request confirmed"
+                    containerClassName="margin-bottom-8"
+                    headerText="Confirm move request"
+                    onActionBtnClick={() => this.handleNewPathClick(confirmationPath)}
+                    secondaryBtn={this.hasSubmittedMove}
+                    secondaryBtnClassName={styles.secondaryBtn}
+                    step="4"
+                  >
+                    {this.hasSubmittedMove ? (
+                      <Description className={styles.moveSubmittedDescription} dataTestId="move-submitted-description">
+                        Move submitted {formatCustomerDate(move.submitted_at)}.<br />
+                        <Button unstyled onClick={this.handlePrintLegalese} className={styles.printBtn}>
+                          Print the legal agreement
+                        </Button>
+                      </Description>
+                    ) : (
+                      <Description>
+                        Review your move details and sign the legal paperwork, then send the info on to your move
+                        counselor.
+                      </Description>
+                    )}
+                  </Step>
+                </SectionWrapper>
+                <Contact
+                  header="Contacts"
+                  dutyStationName={current_station?.transportation_office?.name}
+                  officeType="Origin Transportation Office"
+                  telephone={current_station?.transportation_office?.phone_lines[0]}
+                  moveSubmitted={move.status === MOVE_STATUSES.SUBMITTED}
+                />
               </>
             )}
           </div>
@@ -420,7 +429,7 @@ Home.propTypes = {
   serviceMember: shape({
     first_name: string,
     last_name: string,
-  }).isRequired,
+  }),
   mtoShipments: arrayOf(
     shape({
       id: string,
@@ -445,7 +454,7 @@ Home.propTypes = {
   location: shape({}).isRequired,
   selectedMoveType: string,
   lastMoveIsCanceled: bool,
-  backupContacts: arrayOf(oneOfType([string, shape({})])),
+  backupContacts: arrayOf(string),
   context: shape({
     flags: shape({
       hhgFlow: bool,
@@ -461,6 +470,7 @@ Home.propTypes = {
 };
 
 Home.defaultProps = {
+  serviceMember: null,
   selectedMoveType: '',
   lastMoveIsCanceled: false,
   backupContacts: [],
@@ -483,11 +493,11 @@ const mapStateToProps = (state) => {
     isLoggedIn: user.isLoggedIn,
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
     loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
-    isProfileComplete: isProfileCompleteCheck(state),
+    isProfileComplete: selectIsProfileComplete(state),
     orders: selectActiveOrLatestOrdersFromEntities(state),
     uploadedOrderDocuments: selectUploadedOrders(state),
     serviceMember,
-    backupContacts: serviceMember.backup_contacts || state.serviceMember.currentBackupContacts || [],
+    backupContacts: serviceMember?.backup_contacts || [],
     signedCertification: selectSignedCertification(state),
     // TODO: change when we support PPM shipments as well
     mtoShipments: selectMTOShipmentsByMoveId(state, move.id),

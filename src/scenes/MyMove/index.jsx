@@ -53,6 +53,7 @@ import Home from 'pages/MyMove/Home';
 
 import { loadUser as loadUserAction } from 'store/auth/actions';
 import { initOnboarding as initOnboardingAction } from 'store/onboarding/actions';
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
 export class AppWrapper extends Component {
   state = { hasError: false };
@@ -199,7 +200,8 @@ AppWrapper.defaultProps = {
 };
 
 const mapStateToProps = (state) => {
-  const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+  const serviceMemberId = serviceMember?.id;
   const move = selectActiveOrLatestMove(state);
 
   return {

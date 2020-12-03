@@ -773,13 +773,15 @@ describe('ReviewServiceItems component', () => {
         reviewedComponent.update();
 
         let statusSummary = reviewedComponent.find('[data-testid="statusHeading"]');
-        expect(statusSummary.text()).toBe('form-checkmark.svgAccepted');
+        expect(statusSummary.find('FontAwesomeIcon').prop('icon')).toEqual('check');
+        expect(statusSummary.text()).toBe('Accepted');
 
         backButton.simulate('click');
         reviewedComponent.update();
 
         statusSummary = reviewedComponent.find('[data-testid="statusHeading"]');
-        expect(statusSummary.text()).toBe('x-heavy.svgRejected');
+        expect(statusSummary.find('FontAwesomeIcon').prop('icon')).toEqual('times');
+        expect(statusSummary.text()).toBe('Rejected');
         expect(reviewedComponent.find('[data-testid="rejectionReason"]').text()).toBe('Duplicate charge');
       });
     });
@@ -839,14 +841,16 @@ describe('ReviewServiceItems component', () => {
         reviewedComponent.update();
 
         let statusSummary = reviewedComponent.find('[data-testid="statusHeading"]');
-        expect(statusSummary.text()).toBe('x-heavy.svgRejected');
+        expect(statusSummary.find('FontAwesomeIcon').prop('icon')).toEqual('times');
+        expect(statusSummary.text()).toBe('Rejected');
         expect(reviewedComponent.find('[data-testid="rejectionReason"]').text()).toBe('Not applicable');
 
         backButton.simulate('click');
         reviewedComponent.update();
 
         statusSummary = reviewedComponent.find('[data-testid="statusHeading"]');
-        expect(statusSummary.text()).toBe('x-heavy.svgRejected');
+        expect(statusSummary.find('FontAwesomeIcon').prop('icon')).toEqual('times');
+        expect(statusSummary.text()).toBe('Rejected');
         expect(reviewedComponent.find('[data-testid="rejectionReason"]').text()).toBe('Duplicate charge');
       });
     });

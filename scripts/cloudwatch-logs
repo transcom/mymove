@@ -7,9 +7,9 @@
 readonly environment="$1"
 
 # Validate the environments
-if [[ "${environment}" != "experimental" ]] && [[ "${environment}" != "staging" ]] && [[ "${environment}" != "prod" ]] ; then
-  echo "<environment> must be one of experimental, staging, or prod"
+if [[ "${environment}" != "exp" ]] && [[ "${environment}" != "stg" ]] && [[ "${environment}" != "prd" ]] ; then
+  echo "<environment> must be one of exp, stg, prd."
   exit 1
 fi
 
-open "https://us-west-2.console.aws.amazon.com/cloudwatch/home?region=us-west-2#logStream:group=ecs-tasks-app-${environment}"
+open "https://console.amazonaws-us-gov.com/cloudwatch/home?region=us-gov-west-1#logsV2:log-groups/log-group/ecs-tasks-app-${environment}"
