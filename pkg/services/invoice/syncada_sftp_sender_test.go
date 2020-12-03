@@ -101,6 +101,7 @@ func (suite *SyncadaSftpSenderSuite) TestSendToSyncadaSftp() {
 		},
 	}
 
+	// Test failure if any environment variable is missing
 	for _, data := range missingCreds {
 		suite.T().Run(fmt.Sprintf("constructor fails if %s is missing", data.TestEnvironmentVar), func(t *testing.T) {
 			data.Setup()
@@ -123,19 +124,6 @@ func (suite *SyncadaSftpSenderSuite) TestSendToSyncadaSftp() {
 		sender, err := InitNewSyncadaSFTPSession()
 		suite.NoError(err)
 		suite.NotNil(sender)
-	})
-
-	suite.T().Run("constructor fails with no host key", func(t *testing.T) {
-		os.Setenv("SYNCADA_SFTP_PORT", "1234")
-		os.Setenv("SYNCADA_SFTP_USER_ID", "FAKE_USER_ID")
-		os.Setenv("SYNCADA_SFTP_IP_ADDRESS", "127.0.0.1")
-		os.Setenv("SYNCADA_SFTP_PASSWORD", "FAKE PASSWORD")
-		os.Setenv("SYNCADA_SFTP_INBOUND_DIRECTORY", "/Dropoff")
-		os.Setenv("SYNCADA_SFTP_HOST_KEY", "")
-		sender, err := InitNewSyncadaSFTPSession()
-		suite.Error(err)
-		suite.Nil(sender)
-		suite.Equal("Failed to parse host key ssh: no key found", err.Error())
 	})
 
 	suite.T().Run("constructor fails with invalid host key", func(t *testing.T) {
