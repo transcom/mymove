@@ -1,4 +1,4 @@
-package movetaskorder_test
+package movetaskorder
 
 import (
 	"testing"

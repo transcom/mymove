@@ -1,9 +1,7 @@
-package movetaskorder_test
+package movetaskorder
 
 import (
 	"testing"
-
-	. "github.com/transcom/mymove/pkg/services/move_task_order"
 )
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_Hide() {

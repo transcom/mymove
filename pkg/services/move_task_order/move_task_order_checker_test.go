@@ -1,10 +1,9 @@
-package movetaskorder_test
+package movetaskorder
 
 import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/services"
-	. "github.com/transcom/mymove/pkg/services/move_task_order"
 
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
