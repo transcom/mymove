@@ -1,7 +1,8 @@
 import React from 'react';
 import classnames from 'classnames';
 import moment from 'moment';
-import { Tag } from '@trussworks/react-uswds';
+import { Tag, Button } from '@trussworks/react-uswds';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './PaymentRequestCard.module.scss';
 
@@ -67,14 +68,24 @@ const PaymentRequestCard = ({ paymentRequest }) => {
             <>
               {approvedAmount > 0 && (
                 <div className={styles.amountAccepted}>
-                  <h2>{toDollarString(formatCents(approvedAmount))}</h2>
-                  <span>Accepted</span>
+                  <FontAwesomeIcon className="success" icon={['far', 'check-circle']} />
+                  <div>
+                    <h2>{toDollarString(formatCents(approvedAmount))}</h2>
+                    <span>Accepted</span>
+                  </div>
                 </div>
               )}
               {rejectedAmount > 0 && (
                 <div className={styles.amountRejected}>
-                  <h2>{toDollarString(formatCents(rejectedAmount))}</h2>
-                  <span>Rejected</span>
+                  {approvedAmount === 0 ? (
+                    <FontAwesomeIcon className="" icon="times" />
+                  ) : (
+                    <FontAwesomeIcon icon={['far', 'times-circle']} />
+                  )}
+                  <div>
+                    <h2>{toDollarString(formatCents(rejectedAmount))}</h2>
+                    <span>Rejected</span>
+                  </div>
                 </div>
               )}
             </>
@@ -88,19 +99,23 @@ const PaymentRequestCard = ({ paymentRequest }) => {
         <div className={styles.footer}>
           <dl>
             <dt>Contract Number:</dt>
-            <dd>HTC711-20-D-RO30</dd>
+            <dd />
             <dt>TAC/MDC:</dt>
-            <dd>1234</dd>
+            <dd />
             <dt>SAC/SDN:</dt>
-            <dd>1234567890987654</dd>
+            <dd />
           </dl>
           {paymentRequest.status === 'PENDING' ? (
             <a href="moves/MOVE_CODE/orders">View orders</a>
           ) : (
-            <a href={`moves/MOVE_CODE/payment-requests/${paymentRequest.id}`}>View documents</a>
+            <a href={`moves/MOVE_CODE/payment-requests/${paymentRequest.id}`}>
+              <FontAwesomeIcon icon="copy" /> View documents
+            </a>
           )}
           <div className={styles.toggleDrawer}>
-            <button type="button">Show request details</button>
+            <Button type="button" unstyled>
+              <FontAwesomeIcon icon="chevron-down" /> Show request details
+            </Button>
           </div>
         </div>
       </div>

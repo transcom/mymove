@@ -14,6 +14,7 @@
     @include u-display(flex);
     @include u-margin-top(0);
     @include u-margin-bottom(0);
+    color: $base;
     align-items: center;
   }
 
@@ -35,6 +36,7 @@
 
 .dateSubmitted {
   @include u-font-size('body', '3xs');
+  color: $base;
   flex: 1;
   text-align: right;
 }
@@ -49,7 +51,32 @@
   }
 
   .amountAccepted {
+    @include u-display(flex);
+    align-items: center;
     margin-right: 6em;
+
+    svg {
+      @include u-margin-right(2);
+      height: 24px;
+      width: 24px;
+      path {
+        fill: $success;
+      }
+    }
+  }
+
+  .amountRejected {
+    @include u-display(flex);
+    align-items: center;
+
+    svg {
+      @include u-margin-right(2);
+      height: 24px;
+      width: 24px;
+      path {
+        fill: $error;
+      }
+    }
   }
 
   .reviewButton {
@@ -92,6 +119,10 @@
   @include u-display(flex);
   flex: 1;
   justify-content: flex-end;
+
+  svg {
+    margin-right: 0.5em;
+  }
 }
 
 .drawer {
