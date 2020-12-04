@@ -299,6 +299,21 @@ func MTOAgents(mtoAgents *models.MTOAgents) *ghcmessages.MTOAgents {
 	return &payload
 }
 
+// PaymentRequests payload
+func PaymentRequests(prs *models.PaymentRequests, storer storage.FileStorer) (*ghcmessages.PaymentRequests, error) {
+	payload := make(ghcmessages.PaymentRequests, len(*prs))
+
+	for i, p := range *prs {
+		paymentRequest := p
+		pr, err := PaymentRequest(&paymentRequest, storer)
+		if err != nil {
+			return nil, err
+		}
+		payload[i] = pr
+	}
+	return &payload, nil
+}
+
 // PaymentRequest payload
 func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcmessages.PaymentRequest, error) {
 	serviceDocs := make(ghcmessages.ProofOfServiceDocs, len(pr.ProofOfServiceDocs))

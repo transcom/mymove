@@ -89,6 +89,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PaymentRequestsGetPaymentRequestHandler: payment_requests.GetPaymentRequestHandlerFunc(func(params payment_requests.GetPaymentRequestParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_requests.GetPaymentRequest has not yet been implemented")
 		}),
+		PaymentRequestsGetPaymentRequestsForMoveHandler: payment_requests.GetPaymentRequestsForMoveHandlerFunc(func(params payment_requests.GetPaymentRequestsForMoveParams) middleware.Responder {
+			return middleware.NotImplemented("operation payment_requests.GetPaymentRequestsForMove has not yet been implemented")
+		}),
 		QueuesGetPaymentRequestsQueueHandler: queues.GetPaymentRequestsQueueHandlerFunc(func(params queues.GetPaymentRequestsQueueParams) middleware.Responder {
 			return middleware.NotImplemented("operation queues.GetPaymentRequestsQueue has not yet been implemented")
 		}),
@@ -182,6 +185,8 @@ type MymoveAPI struct {
 	QueuesGetMovesQueueHandler queues.GetMovesQueueHandler
 	// PaymentRequestsGetPaymentRequestHandler sets the operation handler for the get payment request operation
 	PaymentRequestsGetPaymentRequestHandler payment_requests.GetPaymentRequestHandler
+	// PaymentRequestsGetPaymentRequestsForMoveHandler sets the operation handler for the get payment requests for move operation
+	PaymentRequestsGetPaymentRequestsForMoveHandler payment_requests.GetPaymentRequestsForMoveHandler
 	// QueuesGetPaymentRequestsQueueHandler sets the operation handler for the get payment requests queue operation
 	QueuesGetPaymentRequestsQueueHandler queues.GetPaymentRequestsQueueHandler
 	// MtoServiceItemListMTOServiceItemsHandler sets the operation handler for the list m t o service items operation
@@ -307,6 +312,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PaymentRequestsGetPaymentRequestHandler == nil {
 		unregistered = append(unregistered, "payment_requests.GetPaymentRequestHandler")
+	}
+	if o.PaymentRequestsGetPaymentRequestsForMoveHandler == nil {
+		unregistered = append(unregistered, "payment_requests.GetPaymentRequestsForMoveHandler")
 	}
 	if o.QueuesGetPaymentRequestsQueueHandler == nil {
 		unregistered = append(unregistered, "queues.GetPaymentRequestsQueueHandler")
@@ -480,6 +488,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/payment-requests/{paymentRequestID}"] = payment_requests.NewGetPaymentRequest(o.context, o.PaymentRequestsGetPaymentRequestHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/moves/{locator}/payment-requests"] = payment_requests.NewGetPaymentRequestsForMove(o.context, o.PaymentRequestsGetPaymentRequestsForMoveHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

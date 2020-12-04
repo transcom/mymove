@@ -5,6 +5,8 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/transcom/mymove/pkg/models/roles"
+
 	"github.com/transcom/mymove/pkg/services/event"
 
 	"github.com/gobuffalo/validate/v3"
@@ -23,6 +25,37 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
+// GetPaymentRequestForMoveHandler gets payment requests associated with a move
+type GetPaymentRequestForMoveHandler struct {
+	handlers.HandlerContext
+	services.PaymentRequestListFetcher
+}
+
+// Handle handles the HTTP handling for GetPaymentRequestForMoveHandler
+func (h GetPaymentRequestForMoveHandler) Handle(params paymentrequestop.GetPaymentRequestsForMoveParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTIO) {
+		logger.Error("user is not authenticated with TIO office role")
+		return paymentrequestop.NewGetPaymentRequestsForMoveForbidden()
+	}
+
+	locator := params.Locator
+
+	paymentRequests, err := h.FetchPaymentRequestListByMove(session.OfficeUserID, locator)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Error fetching Payment Request for locator: %s", locator), zap.Error(err))
+		return paymentrequestop.NewGetPaymentRequestNotFound()
+	}
+
+	returnPayload, err := payloads.PaymentRequests(paymentRequests, h.FileStorer())
+	if err != nil {
+		logger.Error(fmt.Sprintf("Error building payment requests payload for locator: %s", locator), zap.Error(err))
+	}
+
+	return paymentrequestop.NewGetPaymentRequestsForMoveOK().WithPayload(*returnPayload)
+}
+
 // GetPaymentRequestHandler gets payment requests
 type GetPaymentRequestHandler struct {
 	handlers.HandlerContext
@@ -31,7 +64,13 @@ type GetPaymentRequestHandler struct {
 
 // Handle gets payment requests
 func (h GetPaymentRequestHandler) Handle(params paymentrequestop.GetPaymentRequestParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTIO) {
+		logger.Error("user is not authenticated with TIO office role")
+		return paymentrequestop.NewGetPaymentRequestForbidden()
+	}
+
 	paymentRequestID, err := uuid.FromString(params.PaymentRequestID.String())
 
 	if err != nil {
@@ -71,6 +110,12 @@ type UpdatePaymentRequestStatusHandler struct {
 // Handle updates payment requests status
 func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.UpdatePaymentRequestStatusParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	if !session.IsOfficeUser() || !session.Roles.HasRole(roles.RoleTypeTIO) {
+		logger.Error("user is not authenticated with TIO office role")
+		return paymentrequestop.NewUpdatePaymentRequestStatusForbidden()
+	}
+
 	paymentRequestID, err := uuid.FromString(params.PaymentRequestID.String())
 
 	if err != nil {

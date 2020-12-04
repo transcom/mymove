@@ -11,7 +11,7 @@ const MoveTaskOrder = lazy(() => import('pages/Office/MoveTaskOrder/MoveTaskOrde
 const MoveOrders = lazy(() => import('pages/Office/MoveOrders/MoveOrders'));
 const PaymentRequestReview = lazy(() => import('pages/Office/PaymentRequestReview/PaymentRequestReview'));
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
-const PaymentRequests = lazy(() => import('pages/Office/PaymentRequests/PaymentRequests'));
+const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/MovePaymentRequests'));
 
 const TXOMoveInfo = () => {
   const { moveOrderId } = useParams();
@@ -75,8 +75,8 @@ const TXOMoveInfo = () => {
             <PaymentRequestReview />
           </Route>
 
-          <Route path="/moves/:moveOrderId/payment-requests" exact>
-            <PaymentRequests />
+          <Route path="/moves/:locator/payment-requests" exact>
+            <MovePaymentRequests />
           </Route>
 
           <Route path="/moves/:moveOrderId/history" exact>

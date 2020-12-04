@@ -45,3 +45,26 @@ func (_m *PaymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.U
 
 	return r0, r1, r2
 }
+
+// FetchPaymentRequestListByMove provides a mock function with given fields: officeUserID, locator
+func (_m *PaymentRequestListFetcher) FetchPaymentRequestListByMove(officeUserID uuid.UUID, locator string) (*models.PaymentRequests, error) {
+	ret := _m.Called(officeUserID, locator)
+
+	var r0 *models.PaymentRequests
+	if rf, ok := ret.Get(0).(func(uuid.UUID, string) *models.PaymentRequests); ok {
+		r0 = rf(officeUserID, locator)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.PaymentRequests)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(uuid.UUID, string) error); ok {
+		r1 = rf(officeUserID, locator)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
