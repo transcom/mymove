@@ -21,7 +21,7 @@ const MovePaymentRequests = () => {
     <div className={classnames(styles.MovePaymentRequests, 'grid-container-widescreen')} data-testid="PaymentRequests">
       <h2>Payment Requests</h2>
       {paymentRequests.map((paymentRequest) => (
-        <PaymentRequestCard paymentRequest={paymentRequest} />
+        <PaymentRequestCard paymentRequest={paymentRequest} key={paymentRequest.id} />
       ))}
     </div>
   );

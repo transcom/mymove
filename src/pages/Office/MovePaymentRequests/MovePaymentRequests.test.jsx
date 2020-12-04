@@ -5,15 +5,76 @@ import MovePaymentRequests from './MovePaymentRequests';
 
 import { MockProviders } from 'testUtils';
 
+jest.mock('hooks/queries', () => ({
+  useMovePaymentRequestsQueries: () => {
+    return {
+      paymentRequests: [
+        {
+          id: '09474c6a-69b6-4501-8e08-670a12512e5f',
+          createdAt: '2020-12-01T00:00:00.000Z',
+          moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
+          paymentRequestNumber: '1843-9061-1',
+          status: 'REVIEWED',
+          serviceItems: [
+            {
+              id: '09474c6a-69b6-4501-8e08-670a12512a5f',
+              createdAt: '2020-12-01T00:00:00.000Z',
+              mtoServiceItemID: 'f8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
+              priceCents: 2000001,
+              status: 'APPROVED',
+            },
+            {
+              id: '39474c6a-69b6-4501-8e08-670a12512a5f',
+              createdAt: '2020-12-01T00:00:00.000Z',
+              mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
+              priceCents: 4000001,
+              status: 'DENIED',
+              rejectionReason: 'Requested amount exceeds guideline',
+            },
+          ],
+          reviewedAt: '2020-12-01T00:00:00.000Z',
+        },
+        {
+          id: '29474c6a-69b6-4501-8e08-670a12512e5f',
+          createdAt: '2020-12-01T00:00:00.000Z',
+          moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
+          paymentRequestNumber: '1843-9061-2',
+          status: 'PENDING',
+          serviceItems: [
+            {
+              id: '09474c6a-69b6-4501-8e08-670a12512a5f',
+              createdAt: '2020-12-01T00:00:00.000Z',
+              mtoServiceItemID: 'f8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
+              priceCents: 2000001,
+              status: 'REQUESTED',
+            },
+            {
+              id: '39474c6a-69b6-4501-8e08-670a12512a5f',
+              createdAt: '2020-12-01T00:00:00.000Z',
+              mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
+              priceCents: 4000001,
+              status: 'REQUESTED',
+            },
+          ],
+        },
+      ],
+    };
+  },
+}));
+
 describe('MovePaymentRequests', () => {
-  const testMoveId = 'c3952bf1-b689-4fa1-aaef-95f33fa60390';
+  const testMoveLocator = 'L2BKD6';
   const component = mount(
-    <MockProviders initialEntries={[`/moves/${testMoveId}/payment-requests`]}>
+    <MockProviders initialEntries={[`/moves/${testMoveLocator}/payment-requests`]}>
       <MovePaymentRequests />
     </MockProviders>,
   );
 
   it('renders without errors', () => {
     expect(component.find('h2').contains('Payment Requests')).toBe(true);
+  });
+
+  it('renders mulitple payment requests', () => {
+    expect(component.find('PaymentRequestCard').length).toBe(2);
   });
 });
