@@ -1,0 +1,11 @@
+# make support-update-payment-request-status
+
+jq 'map(select(.id =="9c7b255c-2981-4bf8-839f-61c7458e2b4d")) | .[0] | .paymentRequests | map(select(.id == "a4ab562d-539c-4e87-86e3-8204cef32a74")) | .[0] | { "paymentRequestID": .id, "ifMatch": .eTag, "body": { "status": "REVIEWED" }}'
+
+# make support-update-mto-service-item-status
+
+jq 'map(select(.id =="9c7b255c-2981-4bf8-839f-61c7458e2b4d")) | .[0] | .paymentRequests | map(select(.id == "a4ab562d-539c-4e87-86e3-8204cef32a74")) | .[0] | .paymentServiceItems | map({"mtoServiceItemID": .id, "ifMatch": .eTag, "body": { "status": "APPROVED" }})'
+## one line each no wrapped array 
+jq -c 'map(select(.id =="9c7b255c-2981-4bf8-839f-61c7458e2b4d")) | .[0] | .paymentRequests | map(select(.id == "a4ab562d-539c-4e87-86e3-8204cef32a74")) | .[0] | .paymentServiceItems | map({"mtoServiceItemID": .id, "ifMatch": .eTag, "body": { "status": "APPROVED" }}) | .[]'
+
+
