@@ -38,9 +38,6 @@ func initFlags(flag *pflag.FlagSet) {
 	// Verbose
 	cli.InitVerboseFlags(flag)
 
-	// DB Config
-	cli.InitSyncadaFlags(flag)
-
 	flag.String("local-file-path", "", "The path where the file to be sent is located")
 	flag.String("syncada-file-name", "", "The name of the file to be stored in Syncada")
 
@@ -79,7 +76,10 @@ func main() {
 		logger.Fatal("invalid configuration", zap.Error(err))
 	}
 
-	syncadaSFTPSession := invoice.NewSyncadaSFTPSession(v.GetString(cli.SyncadaSFTPPortFlag), v.GetString(cli.SyncadaSFTPUserIDFlag), v.GetString(cli.SyncadaSFTPIPAddressFlag), v.GetString(cli.SyncadaSFTPPsswrdFlag), v.GetString(cli.SyncadaSFTPInboundDirectoryFlag))
+	syncadaSFTPSession, err := invoice.InitNewSyncadaSFTPSession()
+	if err != nil {
+		logger.Fatal("couldn't initialize sftp session", zap.Error(err))
+	}
 
 	// open local file
 	localFile, err := os.Open(filepath.Clean(v.GetString("local-file-path")))

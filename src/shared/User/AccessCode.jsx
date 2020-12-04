@@ -9,6 +9,7 @@ import { get } from 'lodash';
 import PropTypes from 'prop-types';
 
 import { validateAccessCode, claimAccessCode } from 'shared/Entities/modules/accessCodes';
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
 import styles from './AccessCode.module.scss';
 
@@ -104,10 +105,11 @@ AccessCode.propTypes = {
 };
 
 function mapStateToProps(state) {
-  const serviceMember = get(state, 'serviceMember.currentServiceMember');
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+
   const props = {
     schema: get(state, 'swaggerInternal.spec.definitions.ClaimAccessCode', {}),
-    serviceMemberId: get(serviceMember, 'id'),
+    serviceMemberId: serviceMember?.id,
     formValues: getFormValues(formName)(state),
   };
   return props;

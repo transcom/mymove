@@ -10,6 +10,7 @@ import scrollToTop from 'shared/scrollToTop';
 import ConnectedWizardPage from 'shared/WizardPage/index';
 import ConnectedSummary from 'components/Customer/Review/Summary/index';
 import 'scenes/Review/Review.css';
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
 class Review extends Component {
   componentDidMount() {
@@ -53,13 +54,16 @@ Review.propTypes = {
 };
 
 const mapStateToProps = (state, ownProps) => {
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+
   const ppmEstimate = {
     hasEstimateError: state.ppm.hasEstimateError,
     hasEstimateSuccess: state.ppm.hasEstimateSuccess,
     hasEstimateInProgress: state.ppm.hasEstimateInProgress,
     rateEngineError: state.ppm.rateEngineError || null,
-    originDutyStationZip: state.serviceMember.currentServiceMember.current_station.address.postal_code,
+    originDutyStationZip: serviceMember?.current_station?.address?.postal_code,
   };
+
   return {
     ...ownProps,
     ppmEstimate,

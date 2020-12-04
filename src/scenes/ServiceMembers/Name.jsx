@@ -8,6 +8,7 @@ import { patchServiceMember, getResponseError } from 'services/internalApi';
 import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
 
@@ -55,7 +56,7 @@ export class Name extends Component {
   };
 
   render() {
-    const { pages, pageKey, error, currentServiceMember } = this.props;
+    const { pages, pageKey, currentServiceMember } = this.props;
     const { errorMessage } = this.state;
 
     // initialValues has to be null until there are values from the action since only the first values are taken
@@ -67,7 +68,7 @@ export class Name extends Component {
         className={formName}
         pageList={pages}
         pageKey={pageKey}
-        serverError={error || errorMessage}
+        serverError={errorMessage}
         initialValues={initialValues}
         additionalParams={{ serviceMemberId }}
       >
@@ -88,7 +89,6 @@ Name.propTypes = {
   schema: PropTypes.object.isRequired,
   updateServiceMember: PropTypes.func.isRequired,
   currentServiceMember: PropTypes.object,
-  error: PropTypes.object,
 };
 
 const mapDispatchToProps = {
@@ -96,10 +96,12 @@ const mapDispatchToProps = {
 };
 
 function mapStateToProps(state) {
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+
   return {
     schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),
     values: getFormValues(formName)(state),
-    ...state.serviceMember,
+    currentServiceMember: serviceMember,
   };
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Name);
