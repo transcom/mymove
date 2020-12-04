@@ -1,9 +1,13 @@
 package movetaskorder
 
 import (
+	"fmt"
 	"testing"
 
+	"github.com/go-openapi/swag"
+
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_Hide() {
@@ -17,11 +21,27 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_Hide() {
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelMTOAgent() {
-	suite.T().Run("Clear path", func(t *testing.T) {
-		result, err := isValidFakeModelMTOAgent(models.MTOAgent{})
+	suite.T().Run("valid fake data", func(t *testing.T) {
+		agent := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{})
+		result, err := isValidFakeModelMTOAgent(agent)
 		suite.NoError(err)
 		suite.Equal(true, result)
 	})
+
+	badFakeData := []testdatagen.Assertions{
+		{MTOAgent: models.MTOAgent{FirstName: swag.String("Billy")}},
+		{MTOAgent: models.MTOAgent{LastName: swag.String("Smith")}},
+		{MTOAgent: models.MTOAgent{Phone: swag.String("111-111-1111")}},
+		{MTOAgent: models.MTOAgent{Email: swag.String("billy@move.mil")}},
+	}
+	for idx, badData := range badFakeData {
+		suite.T().Run(fmt.Sprintf("invalid fake data %d", idx), func(t *testing.T) {
+			agent := testdatagen.MakeMTOAgent(suite.DB(), badData)
+			result, err := isValidFakeModelMTOAgent(agent)
+			suite.NoError(err)
+			suite.Equal(false, result)
+		})
+	}
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelMTOShipment() {
