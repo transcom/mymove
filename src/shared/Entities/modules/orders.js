@@ -1,12 +1,14 @@
+import { denormalize } from 'normalizr';
+import { get, filter, isEmpty, isNull, head } from 'lodash';
+
 import { orders } from '../schema';
 import { ADD_ENTITIES } from '../actions';
-import { denormalize } from 'normalizr';
+
 import { swaggerRequest } from 'shared/Swagger/request';
 import { formatDateForSwagger } from 'shared/dates';
 import { getClient } from 'shared/Swagger/api';
-import { get, filter, isEmpty, isNull, head } from 'lodash';
 import { fetchActive } from 'shared/utils';
-import { selectServiceMemberFromLoggedInUser } from './serviceMembers';
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
 export const STATE_KEY = 'orders';
 export const loadOrdersLabel = 'Orders.loadOrders';

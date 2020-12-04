@@ -3,8 +3,10 @@ package webhook
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop/v5"
@@ -603,4 +605,28 @@ func convertBodyToPayload(body []byte) Message {
 	message := Message{}
 	json.Unmarshal(body, &message)
 	return message
+}
+
+type severityTestData struct {
+	attempt       time.Duration
+	expectedLevel int
+}
+
+func (suite *WebhookClientTestingSuite) Test_GetSeverity() {
+	thresholds := []int{1800, 3600, 7200}
+	engine, _, _ := setupEngineRun(suite)
+	testData := []severityTestData{
+		{attempt: -10 * time.Second, expectedLevel: 4},
+		{attempt: -3000 * time.Second, expectedLevel: 3},
+		{attempt: -3601 * time.Second, expectedLevel: 2},
+		{attempt: -7201 * time.Second, expectedLevel: 1},
+	}
+	for _, data := range testData {
+		suite.T().Run(fmt.Sprintf("Returns severity level %d", data.expectedLevel), func(t *testing.T) {
+			currentTime := time.Now()
+			attempt := currentTime.Add(data.attempt)
+			severity := engine.GetSeverity(currentTime, attempt, thresholds)
+			suite.Equal(data.expectedLevel, severity)
+		})
+	}
 }

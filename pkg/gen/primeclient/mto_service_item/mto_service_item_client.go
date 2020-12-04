@@ -146,7 +146,7 @@ func (a *Client) UpdateMTOServiceItem(params *UpdateMTOServiceItemParams) (*Upda
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "updateMTOServiceItem",
-		Method:             "POST",
+		Method:             "PATCH",
 		PathPattern:        "/mto-service-items/{mtoServiceItemID}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},

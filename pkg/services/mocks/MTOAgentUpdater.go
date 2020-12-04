@@ -34,3 +34,49 @@ func (_m *MTOAgentUpdater) UpdateMTOAgent(mtoAgent *models.MTOAgent, eTag string
 
 	return r0, r1
 }
+
+// UpdateMTOAgentBasic provides a mock function with given fields: mtoAgent, eTag
+func (_m *MTOAgentUpdater) UpdateMTOAgentBasic(mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error) {
+	ret := _m.Called(mtoAgent, eTag)
+
+	var r0 *models.MTOAgent
+	if rf, ok := ret.Get(0).(func(*models.MTOAgent, string) *models.MTOAgent); ok {
+		r0 = rf(mtoAgent, eTag)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.MTOAgent)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*models.MTOAgent, string) error); ok {
+		r1 = rf(mtoAgent, eTag)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// UpdateMTOAgentPrime provides a mock function with given fields: mtoAgent, eTag
+func (_m *MTOAgentUpdater) UpdateMTOAgentPrime(mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error) {
+	ret := _m.Called(mtoAgent, eTag)
+
+	var r0 *models.MTOAgent
+	if rf, ok := ret.Get(0).(func(*models.MTOAgent, string) *models.MTOAgent); ok {
+		r0 = rf(mtoAgent, eTag)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.MTOAgent)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*models.MTOAgent, string) error); ok {
+		r1 = rf(mtoAgent, eTag)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}

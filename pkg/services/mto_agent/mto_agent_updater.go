@@ -24,6 +24,16 @@ func NewMTOAgentUpdater(db *pop.Connection) services.MTOAgentUpdater {
 	}
 }
 
+// UpdateMTOAgentBasic updates the MTO Agent using base validators
+func (f *mtoAgentUpdater) UpdateMTOAgentBasic(mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error) {
+	return f.UpdateMTOAgent(mtoAgent, eTag, UpdateMTOAgentBasicValidator)
+}
+
+// UpdateMTOAgentPrime updates the MTO Agent using Prime API validators
+func (f *mtoAgentUpdater) UpdateMTOAgentPrime(mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error) {
+	return f.UpdateMTOAgent(mtoAgent, eTag, UpdateMTOAgentPrimeValidator)
+}
+
 // UpdateMTOAgent updates the MTO Agent
 func (f *mtoAgentUpdater) UpdateMTOAgent(mtoAgent *models.MTOAgent, eTag string, validatorKey string) (*models.MTOAgent, error) {
 	oldAgent := models.MTOAgent{}
@@ -77,10 +87,8 @@ func (f *mtoAgentUpdater) UpdateMTOAgent(mtoAgent *models.MTOAgent, eTag string,
 // Defaults to base validation if the empty string is entered as the key.
 // Returns an MTOAgent that has been set up for update.
 func ValidateUpdateMTOAgent(agentData *updateMTOAgentData, validatorKey string) (*models.MTOAgent, error) {
-	var newAgent models.MTOAgent
-
 	if validatorKey == "" {
-		validatorKey = UpdateMTOAgentBaseValidator
+		validatorKey = UpdateMTOAgentBasicValidator
 	}
 	validator, ok := UpdateMTOAgentValidators[validatorKey]
 	if !ok {
@@ -91,10 +99,8 @@ func ValidateUpdateMTOAgent(agentData *updateMTOAgentData, validatorKey string) 
 	if err != nil {
 		return nil, err
 	}
-	err = agentData.setNewMTOAgent(&newAgent)
-	if err != nil {
-		return nil, err
-	}
 
-	return &newAgent, nil
+	newAgent := agentData.setNewMTOAgent()
+
+	return newAgent, nil
 }

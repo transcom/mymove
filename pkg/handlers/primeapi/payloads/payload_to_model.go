@@ -297,6 +297,35 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 	return model, nil
 }
 
+// MTOServiceItemModelFromUpdate converts the payload from UpdateMTOServiceItem to a normal MTOServiceItem model.
+// The payload for this is different than the one for create.
+func MTOServiceItemModelFromUpdate(mtoServiceItem primemessages.UpdateMTOServiceItem) (*models.MTOServiceItem, *validate.Errors) {
+	verrs := validate.NewErrors()
+	if mtoServiceItem == nil {
+		verrs.Add("mtoServiceItem", "was nil")
+		return nil, verrs
+	}
+
+	// Create the service item model
+	model := &models.MTOServiceItem{
+		ID: uuid.FromStringOrNil(mtoServiceItem.ID().String()),
+	}
+
+	// Here we initialize more fields below for the specific model types.
+	// Currently only UpdateMTOServiceItemSIT is supported, more to be expected
+	modelType := mtoServiceItem.ModelType()
+	if modelType == primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemSIT {
+		sit := mtoServiceItem.(*primemessages.UpdateMTOServiceItemSIT)
+		model.SITDepartureDate = swag.Time(time.Time(sit.SitDepartureDate))
+		model.ReService.Code = models.ReServiceCode(sit.ReServiceCode)
+		return model, nil
+	}
+
+	verrs.Add("mtoServiceItem", "The model type of the service item is not allowed")
+	return nil, verrs
+
+}
+
 // validateDomesticCrating validates this mto service item domestic crating
 func validateDomesticCrating(m primemessages.MTOServiceItemDomesticCrating) *validate.Errors {
 	return validate.Validate(

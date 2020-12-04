@@ -1,6 +1,8 @@
 package payloads
 
 import (
+	"time"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
@@ -405,21 +407,24 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 	// here we determine which payload model to use based on the re service code
 	switch mtoServiceItem.ReService.Code {
 	case models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT, models.ReServiceCodeDOPSIT:
-		payload = &primemessages.MTOServiceItemOriginSIT{
-			ReServiceCode: handlers.FmtString(string(mtoServiceItem.ReService.Code)),
-			Reason:        mtoServiceItem.Reason,
-			SitEntryDate:  handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
-			SitPostalCode: mtoServiceItem.SITPostalCode,
+		sitDepartureDate := strfmt.Date(time.Time{}) // Set to empty/zero time
+		if mtoServiceItem.SITDepartureDate != nil {
+			sitDepartureDate = strfmt.Date(*mtoServiceItem.SITDepartureDate)
 		}
-		payload.SetID(strfmt.UUID(mtoServiceItem.ID.String()))
+		payload = &primemessages.MTOServiceItemOriginSIT{
+			ReServiceCode:    handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Reason:           mtoServiceItem.Reason,
+			SitDepartureDate: &sitDepartureDate,
+			SitEntryDate:     handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
+			SitPostalCode:    mtoServiceItem.SITPostalCode,
+		}
 	case models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT:
+		sitDepartureDate := strfmt.Date(time.Time{}) // Set to empty/zero time
+		if mtoServiceItem.SITDepartureDate != nil {
+			sitDepartureDate = strfmt.Date(*mtoServiceItem.SITDepartureDate)
+		}
 		firstContact := getCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeFirst)
 		secondContact := getCustomerContact(mtoServiceItem.CustomerContacts, models.CustomerContactTypeSecond)
-
-		var sitDepartureDate *strfmt.Date
-		if mtoServiceItem.SITDepartureDate != nil {
-			sitDepartureDate = handlers.FmtDate(*mtoServiceItem.SITDepartureDate)
-		}
 
 		payload = &primemessages.MTOServiceItemDestSIT{
 			ReServiceCode:               handlers.FmtString(string(mtoServiceItem.ReService.Code)),
@@ -427,8 +432,8 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			FirstAvailableDeliveryDate1: handlers.FmtDate(firstContact.FirstAvailableDeliveryDate),
 			TimeMilitary2:               handlers.FmtString(secondContact.TimeMilitary),
 			FirstAvailableDeliveryDate2: handlers.FmtDate(secondContact.FirstAvailableDeliveryDate),
+			SitDepartureDate:            &sitDepartureDate,
 			SitEntryDate:                handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
-			SitDepartureDate:            sitDepartureDate,
 		}
 
 	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT, models.ReServiceCodeDCRTSA:
@@ -471,7 +476,9 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 		shipmentIDStr = mtoServiceItem.MTOShipmentID.String()
 	}
 
-	payload.SetID(strfmt.UUID(mtoServiceItem.ID.String()))
+	one := mtoServiceItem.ID.String()
+	two := strfmt.UUID(one)
+	payload.SetID(two)
 	payload.SetMoveTaskOrderID(handlers.FmtUUID(mtoServiceItem.MoveTaskOrderID))
 	payload.SetMtoShipmentID(strfmt.UUID(shipmentIDStr))
 	payload.SetReServiceName(mtoServiceItem.ReService.Name)

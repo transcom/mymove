@@ -1,5 +1,7 @@
 import { get, isNull, sum, isEmpty } from 'lodash';
+
 import { selectActiveOrLatestOrders } from 'shared/Entities/modules/orders';
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
 export function selectEntitlements(rankEntitlement, hasDependents = false, spouseHasProGear = false) {
   if (!rankEntitlement) {
@@ -23,11 +25,15 @@ export function loadEntitlementsFromState(state) {
   if (isEmpty(orders)) {
     return {};
   }
+
   const hasDependents = get(orders, 'has_dependents', null);
   const spouseHasProGear = get(orders, 'spouse_has_pro_gear', null);
-  const weightAllotment = get(state, 'serviceMember.currentServiceMember.weight_allotment', null);
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+  const weightAllotment = serviceMember?.weight_allotment || null;
+
   if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(weightAllotment)) {
     return {};
   }
+
   return selectEntitlements(weightAllotment, hasDependents, spouseHasProGear);
 }
