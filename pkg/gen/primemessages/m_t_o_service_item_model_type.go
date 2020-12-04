@@ -16,8 +16,8 @@ import (
 // MTOServiceItemModelType Describes all model sub-types for a MTOServiceItem model.
 //
 // Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.
-//   * DOFSIT - MTOServiceItemOriginSIT
-//   * DDFSIT - MTOServiceItemDestSIT
+//   * DOFSIT, DOASIT - MTOServiceItemOriginSIT
+//   * DDFSIT, DDASIT - MTOServiceItemDestSIT
 //   * DOSHUT, DDSHUT - MTOServiceItemShuttle
 //   * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating
 //

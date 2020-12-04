@@ -15,7 +15,23 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MTOServiceItemOriginSIT Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem.
+// MTOServiceItemOriginSIT MTOServiceItemOriginSIT is a subtype of MTOServiceItem.
+//
+//    This model type describes a domestic origin SIT service item. Items can be created using this
+//    model type with the following codes:
+//
+//    **DOFSIT**
+//
+//    **1st day origin SIT service item**. When a DOFSIT is requested, the API will auto-create the following group of service items:
+//      * DOFSIT - Domestic origin 1st day SIT
+//      * DOASIT - Domestic origin Additional day SIT
+//      * DOPSIT - Domestic origin SIT pickup
+//
+//    **DOASIT**
+//
+//    **Addt'l day origin SIT service item**. This represents an additional day of storage for the same item.
+//    Additional DOASIT service items can be created and added to an existing shipment that **includes a DOFSIT service item**.
+//
 //
 // swagger:model MTOServiceItemOriginSIT
 type MTOServiceItemOriginSIT struct {
