@@ -21,7 +21,7 @@ const MovePaymentRequests = () => {
     <div className={classnames(styles.MovePaymentRequests, '.container')}>
       <h2>Payment Requests</h2>
       {paymentRequests.map((paymentRequest) => (
-        <PaymentRequestCard paymentRequest={paymentRequest} />
+        <PaymentRequestCard paymentRequest={paymentRequest} moveLocator={locator} />
       ))}
     </div>
   );

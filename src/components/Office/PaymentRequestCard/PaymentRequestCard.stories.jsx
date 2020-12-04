@@ -14,6 +14,8 @@ export default {
   ],
 };
 
+const moveLocator = 'K8NZ1E';
+
 const pendingPaymentRequest = {
   id: '09474c6a-69b6-4501-8e08-670a12512e5f',
   createdAt: '2020-12-01T00:00:00.000Z',
@@ -84,8 +86,10 @@ const rejectedPaymentRequest = {
   reviewedAt: '2020-12-01T00:00:00.000Z',
 };
 
-export const NeedsReview = () => <PaymentRequestCard paymentRequest={pendingPaymentRequest} />;
+export const NeedsReview = () => (
+  <PaymentRequestCard paymentRequest={pendingPaymentRequest} moveLocator={moveLocator} />
+);
 
-export const Reviewed = () => <PaymentRequestCard paymentRequest={reviewedPaymentRequest} />;
+export const Reviewed = () => <PaymentRequestCard paymentRequest={reviewedPaymentRequest} moveLocator={moveLocator} />;
 
-export const Rejected = () => <PaymentRequestCard paymentRequest={rejectedPaymentRequest} />;
+export const Rejected = () => <PaymentRequestCard paymentRequest={rejectedPaymentRequest} moveLocator={moveLocator} />;

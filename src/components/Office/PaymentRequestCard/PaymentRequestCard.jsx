@@ -3,6 +3,7 @@ import classnames from 'classnames';
 import moment from 'moment';
 import { Tag, Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import PropTypes from 'prop-types';
 
 import styles from './PaymentRequestCard.module.scss';
 
@@ -22,7 +23,7 @@ const paymentRequestStatusLabel = (status) => {
   }
 };
 
-const PaymentRequestCard = ({ paymentRequest }) => {
+const PaymentRequestCard = ({ paymentRequest, moveLocator }) => {
   let requestedAmount = 0;
   let approvedAmount = 0;
   let rejectedAmount = 0;
@@ -106,9 +107,9 @@ const PaymentRequestCard = ({ paymentRequest }) => {
             <dd />
           </dl>
           {paymentRequest.status === 'PENDING' ? (
-            <a href="moves/MOVE_CODE/orders">View orders</a>
+            <a href={`moves/${moveLocator}/orders`}>View orders</a>
           ) : (
-            <a href={`moves/MOVE_CODE/payment-requests/${paymentRequest.id}`}>
+            <a href={`moves/${moveLocator}/payment-requests/${paymentRequest.id}`}>
               <FontAwesomeIcon icon="copy" /> View documents
             </a>
           )}
@@ -126,6 +127,7 @@ const PaymentRequestCard = ({ paymentRequest }) => {
 
 PaymentRequestCard.propTypes = {
   paymentRequest: PaymentRequestShape.isRequired,
+  moveLocator: PropTypes.string.isRequired,
 };
 
 export default PaymentRequestCard;
