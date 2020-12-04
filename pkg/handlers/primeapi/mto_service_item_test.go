@@ -74,6 +74,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			mtoChecker,
 		}
 
+		suite.NoError(params.Body.Validate(strfmt.Default))
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
 
@@ -314,6 +315,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 			Body:        payloads.MTOServiceItem(&mtoServiceItem),
 		}
 
+		suite.NoError(params.Body.Validate(strfmt.Default))
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
 
@@ -335,6 +337,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 			Body:        payloads.MTOServiceItem(&mtoServiceItem),
 		}
 
+		suite.NoError(params.Body.Validate(strfmt.Default))
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
 
@@ -356,6 +359,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 			Body:        payloads.MTOServiceItem(&mtoServiceItem),
 		}
 
+		suite.NoError(params.Body.Validate(strfmt.Default))
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
 
@@ -389,7 +393,134 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 	})
 }
 
-func (suite *HandlerSuite) TestCreateMTOServiceItemDDFSITHandler() {
+func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
+	// Under test: createMTOServiceItemHandler function,
+	// - no DOPSIT standalone
+	// -  DOASIT standalone with DOFSIT
+
+	mto := testdatagen.MakeAvailableMove(suite.DB())
+	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move: mto,
+	})
+	testdatagen.MakeDOFSITReService(suite.DB(), testdatagen.Assertions{})
+	builder := query.NewQueryBuilder(suite.DB())
+	mtoChecker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
+
+	reason := "lorem ipsum"
+	sitEntryDate := time.Now()
+	sitPostalCode := "00000"
+
+	mtoServiceItem := models.MTOServiceItem{
+		MoveTaskOrderID: mto.ID,
+		MTOShipmentID:   &mtoShipment.ID,
+		ReService:       models.ReService{},
+		Reason:          &reason,
+		SITEntryDate:    &sitEntryDate,
+		SITPostalCode:   &sitPostalCode,
+	}
+
+	suite.T().Run("POST failure - 422 Cannot create DOPSIT standalone", func(t *testing.T) {
+		// Under test: createMTOServiceItemHandler function
+		// Set up:     We hit the endpoint with a DOPSIT MTOServiceItem
+		// Expected outcome:
+		//             Receive a 422 - Unprocessable Entity
+		// SETUP
+		// Create the payload
+		mtoServiceItem.ReService.Code = models.ReServiceCodeDOPSIT
+
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+			mtoChecker,
+		}
+
+		// CALL FUNCTION UNDER TEST
+		req := httptest.NewRequest("POST", "/mto-service-items", nil)
+		params := mtoserviceitemops.CreateMTOServiceItemParams{
+			HTTPRequest: req,
+			Body:        payloads.MTOServiceItem(&mtoServiceItem),
+		}
+
+		// CHECK RESULTS
+		suite.Error(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemUnprocessableEntity{}, response)
+
+	})
+
+	suite.T().Run("POST Failure - Cannot create DOASIT without DOFSIT", func(t *testing.T) {
+		// Under test: createMTOServiceItemHandler function
+		// Set up:     We hit the endpoint with a standalone DOASIT MTOServiceItem, no DOFSIT
+		// Expected outcome:
+		//             Receive a 404 - Not Found
+		// SETUP
+		// Create the payload
+		mtoServiceItem.ReService.Code = models.ReServiceCodeDOASIT
+
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+			mtoChecker,
+		}
+
+		// CALL FUNCTION UNDER TEST
+		req := httptest.NewRequest("POST", "/mto-service-items", nil)
+		params := mtoserviceitemops.CreateMTOServiceItemParams{
+			HTTPRequest: req,
+			Body:        payloads.MTOServiceItem(&mtoServiceItem),
+		}
+
+		// CHECK RESULTS
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemNotFound{}, response)
+
+	})
+
+	suite.T().Run("Sucessful POST - Create DOASIT with DOFSIT", func(t *testing.T) {
+		// Under test: createMTOServiceItemHandler function
+		// Set up:     We hit the endpoint with a standalone DOASIT MTOServiceItem
+		// Expected outcome:
+		//             Receive a 404 - Not Found
+		// SETUP
+		// Create the payload
+		testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+			ReService: models.ReService{
+				Code: models.ReServiceCodeDOFSIT,
+			},
+			Move:        mto,
+			MTOShipment: mtoShipment,
+		})
+
+		mtoServiceItem.ReService.Code = models.ReServiceCodeDOASIT
+
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+			mtoChecker,
+		}
+
+		// CALL FUNCTION UNDER TEST
+		req := httptest.NewRequest("POST", "/mto-service-items", nil)
+		params := mtoserviceitemops.CreateMTOServiceItemParams{
+			HTTPRequest: req,
+			Body:        payloads.MTOServiceItem(&mtoServiceItem),
+		}
+
+		// CHECK RESULTS
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
+
+	})
+
+}
+
+func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
+
 	mto := testdatagen.MakeAvailableMove(suite.DB())
 	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		Move: mto,
@@ -434,11 +565,90 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDDFSITHandler() {
 			mtoChecker,
 		}
 
+		suite.NoError(params.Body.Validate(strfmt.Default))
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
 
 		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
 		suite.NotZero(okResponse.Payload[0].ID())
+	})
+
+	suite.T().Run("Successful POST - Create DDASIT standalone", func(t *testing.T) {
+		mtoServiceItem.ReService.Code = models.ReServiceCodeDDASIT
+		params := mtoserviceitemops.CreateMTOServiceItemParams{
+			HTTPRequest: req,
+			Body:        payloads.MTOServiceItem(&mtoServiceItem),
+		}
+
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+			mtoChecker,
+		}
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
+
+		okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
+		suite.NotZero(okResponse.Payload[0].ID())
+
+	})
+
+	suite.T().Run("POST Failure - Cannot create DDASIT without DDFSIT", func(t *testing.T) {
+		mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{})
+
+		mtoServiceItem.ReService.Code = models.ReServiceCodeDDASIT
+		mtoServiceItem.MTOShipment = mtoShipment
+		mtoServiceItem.MTOShipmentID = &mtoShipment.ID
+
+		params := mtoserviceitemops.CreateMTOServiceItemParams{
+			HTTPRequest: req,
+			Body:        payloads.MTOServiceItem(&mtoServiceItem),
+		}
+
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+			mtoChecker,
+		}
+
+		// CHECK RESULTS
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemNotFound{}, response)
+
+	})
+
+	suite.T().Run("POST failure - 422 Cannot create DDDSIT standalone", func(t *testing.T) {
+		// Under test: createMTOServiceItemHandler function
+		// Set up:     We hit the endpoint with a DDDSIT MTOServiceItem
+		// Expected outcome:
+		//             Receive a 422 - Unprocessable Entity
+		// SETUP
+		// Create the payload
+		mtoServiceItem.ReService.Code = models.ReServiceCodeDDDSIT
+		creator := mtoserviceitem.NewMTOServiceItemCreator(builder)
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			creator,
+			mtoChecker,
+		}
+
+		// CALL FUNCTION UNDER TEST
+		req := httptest.NewRequest("POST", "/mto-service-items", nil)
+		params := mtoserviceitemops.CreateMTOServiceItemParams{
+			HTTPRequest: req,
+			Body:        payloads.MTOServiceItem(&mtoServiceItem),
+		}
+
+		// CHECK RESULTS
+		suite.Error(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemNotFound{}, response)
+
 	})
 }
 
