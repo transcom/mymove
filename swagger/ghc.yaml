@@ -1839,6 +1839,9 @@ definitions:
         format: date-time
         type: string
         x-nullable: true
+      createdAt:
+        format: date-time
+        type: string
     type: object
   PaymentRequests:
     items:
