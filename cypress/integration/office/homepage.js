@@ -87,6 +87,7 @@ describe('Office authorization', () => {
 describe('Queue staleness indicator', () => {
   before(() => {
     cy.prepareOfficeApp();
+    cy.clearAllCookies();
   });
 
   it('displays the correct time ago text', () => {
@@ -94,10 +95,10 @@ describe('Queue staleness indicator', () => {
     cy.signInAsNewPPMOfficeUser();
     cy.patientVisit('/queues/all');
 
-    cy.get('[data-testid=staleness-indicator]').should('have.text', 'Last updated a few seconds ago');
+    cy.get('[data-testid=staleness-indicator]').contains('Last updated a few seconds ago');
 
     cy.tick(120000);
 
-    cy.get('[data-testid=staleness-indicator]').should('have.text', 'Last updated 2 mins ago');
+    cy.get('[data-testid=staleness-indicator]').contains('Last updated 2 mins ago');
   });
 });
