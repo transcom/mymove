@@ -50,6 +50,36 @@ func isValidFakeModelAddress(a *models.Address) (bool, error) {
 	return true, nil
 }
 
+func isValidFakeModelBackupContact(bc models.BackupContact) (bool, error) {
+	ok, err := fakedata.IsValidFakeDataName(bc.Name)
+	if err != nil {
+		return false, err
+	}
+	if ok == false {
+		return false, nil
+	}
+
+	ok, err = fakedata.IsValidFakeDataEmail(bc.Email)
+	if err != nil {
+		return false, err
+	}
+	if ok == false {
+		return false, nil
+	}
+
+	if bc.Phone != nil {
+		ok, err := fakedata.IsValidFakeDataPhone(*bc.Phone)
+		if err != nil {
+			return false, err
+		}
+		if ok == false {
+			return false, nil
+		}
+	}
+
+	return true, nil
+}
+
 // isValidFakeServiceMember - checks if the contact info
 // of a service member is fake
 func isValidFakeServiceMember(sm models.ServiceMember) (bool, error) {
@@ -98,5 +128,17 @@ func isValidFakeServiceMember(sm models.ServiceMember) (bool, error) {
 			return false, nil
 		}
 	}
+
+	// might need to load BackupContacts
+	for _, backupContact := range sm.BackupContacts {
+		ok, err = isValidFakeModelBackupContact(backupContact)
+		if err != nil {
+			return false, err
+		}
+		if ok == false {
+			return false, nil
+		}
+	}
+
 	return true, nil
 }
