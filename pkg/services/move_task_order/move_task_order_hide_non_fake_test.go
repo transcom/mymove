@@ -118,23 +118,20 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeServic
 			StreetAddress1: "448 Washington Blvd NE",
 		},
 	})
-	validFakeData := []testdatagen.Assertions{
-		{ServiceMember: models.ServiceMember{FirstName: swag.String("Peyton")}},
-		{ServiceMember: models.ServiceMember{LastName: swag.String("Wing")}},
-		{ServiceMember: models.ServiceMember{Telephone: swag.String("999-999-9999")}},
-		{ServiceMember: models.ServiceMember{SecondaryTelephone: swag.String("999-999-9999")}},
-		{ServiceMember: models.ServiceMember{PersonalEmail: swag.String("peyton@example.com")}},
-		{ServiceMember: models.ServiceMember{ResidentialAddress: &address1}},
-		{ServiceMember: models.ServiceMember{BackupMailingAddress: &address2}},
-	}
-	for idx, validData := range validFakeData {
-		suite.T().Run(fmt.Sprintf("valid fake Service Member data %d", idx), func(t *testing.T) {
-			sm := testdatagen.MakeServiceMember(suite.DB(), validData)
-			result, err := isValidFakeModelServiceMember(sm)
-			suite.NoError(err)
-			suite.Equal(true, result)
-		})
-	}
+	sm := testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			FirstName:            swag.String("Peyton"),
+			LastName:             swag.String("Wing"),
+			Telephone:            swag.String("999-999-9999"),
+			SecondaryTelephone:   swag.String("999-999-9999"),
+			PersonalEmail:        swag.String("peyton@example.com"),
+			ResidentialAddress:   &address1,
+			BackupMailingAddress: &address2,
+		}},
+	)
+	result, err := isValidFakeModelServiceMember(sm)
+	suite.NoError(err)
+	suite.Equal(true, result)
 
 	invalidAddress1 := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 		Address: models.Address{
