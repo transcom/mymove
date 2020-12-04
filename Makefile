@@ -21,7 +21,6 @@ endif
 ifeq ($(STORAGE_BACKEND),cdn)
 	USE_AWS:=true
 endif
-
 ifeq ($(USE_AWS),true)
   AWS_VAULT:=aws-vault exec $(AWS_PROFILE) --
 endif
@@ -802,6 +801,7 @@ tasks_send_post_move_survey: tasks_build_linux_docker ## Run send-post-move-surv
 		--rm \
 		$(TASKS_DOCKER_CONTAINER):latest \
 		milmove-tasks send-post-move-survey
+
 
 tasks_send_payment_reminder: tasks_build_linux_docker ## Run send-payment-reminder from inside docker container
 	@echo "sending payment reminder with docker command..."
