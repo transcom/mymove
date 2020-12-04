@@ -14,7 +14,7 @@ import (
 )
 
 // MTOServiceItemModelType Describes all model sub-types for a MTOServiceItem model. Prime can only request the following service codes for which they will use the corresponding modelType
-//   * DOFSIT - MTOServiceItemDOFSIT
+//   * DOFSIT - MTOServiceItemOriginSIT
 //   * DOSHUT, DDSHUT - MTOServiceItemShuttle
 //   * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating
 //
@@ -27,8 +27,8 @@ const (
 	// MTOServiceItemModelTypeMTOServiceItemBasic captures enum value "MTOServiceItemBasic"
 	MTOServiceItemModelTypeMTOServiceItemBasic MTOServiceItemModelType = "MTOServiceItemBasic"
 
-	// MTOServiceItemModelTypeMTOServiceItemDOFSIT captures enum value "MTOServiceItemDOFSIT"
-	MTOServiceItemModelTypeMTOServiceItemDOFSIT MTOServiceItemModelType = "MTOServiceItemDOFSIT"
+	// MTOServiceItemModelTypeMTOServiceItemOriginSIT captures enum value "MTOServiceItemOriginSIT"
+	MTOServiceItemModelTypeMTOServiceItemOriginSIT MTOServiceItemModelType = "MTOServiceItemOriginSIT"
 
 	// MTOServiceItemModelTypeMTOServiceItemShuttle captures enum value "MTOServiceItemShuttle"
 	MTOServiceItemModelTypeMTOServiceItemShuttle MTOServiceItemModelType = "MTOServiceItemShuttle"
@@ -42,7 +42,7 @@ var mTOServiceItemModelTypeEnum []interface{}
 
 func init() {
 	var res []MTOServiceItemModelType
-	if err := json.Unmarshal([]byte(`["MTOServiceItemBasic","MTOServiceItemDOFSIT","MTOServiceItemShuttle","MTOServiceItemDomesticCrating"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["MTOServiceItemBasic","MTOServiceItemOriginSIT","MTOServiceItemShuttle","MTOServiceItemDomesticCrating"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

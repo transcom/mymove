@@ -25,8 +25,8 @@ import (
 // THIS WILL NEED TO BE UPDATED AS WE CONTINUE TO ADD MORE SERVICE ITEMS.
 // We will eventually remove this when all service items are added.
 var CreateableServiceItemMap = map[primemessages.MTOServiceItemModelType]bool{
-	primemessages.MTOServiceItemModelTypeMTOServiceItemDOFSIT:          true,
-	primemessages.MTOServiceItemModelTypeMTOServiceItemDDFSIT:          true,
+	primemessages.MTOServiceItemModelTypeMTOServiceItemOriginSIT:       true,
+	primemessages.MTOServiceItemModelTypeMTOServiceItemDestSIT:         true,
 	primemessages.MTOServiceItemModelTypeMTOServiceItemShuttle:         true,
 	primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating: true,
 }
@@ -57,6 +57,7 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 
 	// validation errors passed back if any
 	mtoServiceItem, verrs := payloads.MTOServiceItemModel(params.Body)
+
 	if verrs != nil && verrs.HasAny() {
 		return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
 			verrs.Error(), h.GetTraceID(), verrs))

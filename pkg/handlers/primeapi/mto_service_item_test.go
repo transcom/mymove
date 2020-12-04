@@ -48,16 +48,19 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	mtoChecker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
 
 	req := httptest.NewRequest("POST", "/mto-service-items", nil)
+	reason := "lorem ipsum"
+	sitEntryDate := time.Now()
+	sitPostalCode := "00000"
 
 	mtoServiceItem := models.MTOServiceItem{
-		MoveTaskOrderID:  mto.ID,
-		MTOShipmentID:    &mtoShipment.ID,
-		ReService:        models.ReService{Code: models.ReServiceCodeDOFSIT},
-		Reason:           nil,
-		PickupPostalCode: nil,
-		CreatedAt:        time.Now(),
-		UpdatedAt:        time.Now(),
+		MoveTaskOrderID: mto.ID,
+		MTOShipmentID:   &mtoShipment.ID,
+		ReService:       models.ReService{Code: models.ReServiceCodeDOFSIT},
+		Reason:          &reason,
+		SITEntryDate:    &sitEntryDate,
+		SITPostalCode:   &sitPostalCode,
 	}
+
 	params := mtoserviceitemops.CreateMTOServiceItemParams{
 		HTTPRequest: req,
 		Body:        payloads.MTOServiceItem(&mtoServiceItem),
@@ -234,13 +237,12 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		).Return(nil, nil, err)
 
 		mtoServiceItem := models.MTOServiceItem{
-			MoveTaskOrderID:  mto.ID,
-			MTOShipmentID:    &mtoShipment.ID,
-			ReService:        models.ReService{Code: models.ReServiceCodeMS},
-			Reason:           nil,
-			PickupPostalCode: nil,
-			CreatedAt:        time.Now(),
-			UpdatedAt:        time.Now(),
+			MoveTaskOrderID: mto.ID,
+			MTOShipmentID:   &mtoShipment.ID,
+			ReService:       models.ReService{Code: models.ReServiceCodeMS},
+			Reason:          nil,
+			CreatedAt:       time.Now(),
+			UpdatedAt:       time.Now(),
 		}
 		params := mtoserviceitemops.CreateMTOServiceItemParams{
 			HTTPRequest: req,
@@ -397,7 +399,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDDFSITHandler() {
 	mtoChecker := movetaskorder.NewMoveTaskOrderChecker(suite.DB())
 
 	req := httptest.NewRequest("POST", "/mto-service-items", nil)
-
+	sitEntryDate := time.Now()
 	mtoServiceItem := models.MTOServiceItem{
 		MoveTaskOrderID: mto.ID,
 		MTOShipmentID:   &mtoShipment.ID,
@@ -415,8 +417,9 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDDFSITHandler() {
 				FirstAvailableDeliveryDate: time.Now(),
 			},
 		},
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		CreatedAt:    time.Now(),
+		UpdatedAt:    time.Now(),
+		SITEntryDate: &sitEntryDate,
 	}
 	params := mtoserviceitemops.CreateMTOServiceItemParams{
 		HTTPRequest: req,

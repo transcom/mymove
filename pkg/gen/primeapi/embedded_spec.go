@@ -1259,7 +1259,7 @@ func init() {
         }
       ]
     },
-    "MTOServiceItemDDFSIT": {
+    "MTOServiceItemDestSIT": {
       "description": "Describes a domestic destination 1st day SIT service item subtype of a MTOServiceItem.",
       "allOf": [
         {
@@ -1297,7 +1297,8 @@ func init() {
             "sitDepartureDate": {
               "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
               "type": "string",
-              "format": "date"
+              "format": "date",
+              "x-nullable": true
             },
             "sitEntryDate": {
               "description": "Entry date for the SIT",
@@ -1315,61 +1316,6 @@ func init() {
               "type": "string",
               "pattern": "\\d{4}Z",
               "example": "1400Z"
-            }
-          }
-        }
-      ]
-    },
-    "MTOServiceItemDOFSIT": {
-      "description": "Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem.",
-      "allOf": [
-        {
-          "$ref": "#/definitions/MTOServiceItem"
-        },
-        {
-          "type": "object",
-          "required": [
-            "reServiceCode",
-            "reason",
-            "sitPostalCode",
-            "pickupPostalCode",
-            "sitEntryDate"
-          ],
-          "properties": {
-            "pickupPostalCode": {
-              "type": "string",
-              "format": "zip",
-              "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
-              "example": "90210"
-            },
-            "reServiceCode": {
-              "description": "Service code allowed for this model type.",
-              "type": "string",
-              "enum": [
-                "DOFSIT",
-                "DOASIT"
-              ]
-            },
-            "reason": {
-              "description": "Explanation of why Prime is picking up SIT item.",
-              "type": "string",
-              "example": "Storage items need to be picked up"
-            },
-            "sitDepartureDate": {
-              "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
-              "type": "string",
-              "format": "date"
-            },
-            "sitEntryDate": {
-              "description": "Entry date for the SIT",
-              "type": "string",
-              "format": "date"
-            },
-            "sitPostalCode": {
-              "type": "string",
-              "format": "zip",
-              "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
-              "example": "90210"
             }
           }
         }
@@ -1451,15 +1397,64 @@ func init() {
       ]
     },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT - MTOServiceItemDOFSIT\n  * DDFSIT - MTOServiceItemDDFSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT - MTOServiceItemOriginSIT\n  * DDFSIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
-        "MTOServiceItemDOFSIT",
-        "MTOServiceItemDDFSIT",
+        "MTOServiceItemOriginSIT",
+        "MTOServiceItemDestSIT",
         "MTOServiceItemShuttle",
         "MTOServiceItemDomesticCrating",
         "MTOServiceItemSITDeparture"
+      ]
+    },
+    "MTOServiceItemOriginSIT": {
+      "description": "Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reServiceCode",
+            "reason",
+            "sitPostalCode",
+            "sitEntryDate"
+          ],
+          "properties": {
+            "reServiceCode": {
+              "description": "Service code allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "DOFSIT",
+                "DOASIT"
+              ]
+            },
+            "reason": {
+              "description": "Explanation of why Prime is picking up SIT item.",
+              "type": "string",
+              "example": "Storage items need to be picked up"
+            },
+            "sitDepartureDate": {
+              "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitEntryDate": {
+              "description": "Entry date for the SIT",
+              "type": "string",
+              "format": "date"
+            },
+            "sitPostalCode": {
+              "type": "string",
+              "format": "zip",
+              "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+              "example": "90210"
+            }
+          }
+        }
       ]
     },
     "MTOServiceItemShuttle": {
@@ -3727,7 +3722,7 @@ func init() {
         }
       ]
     },
-    "MTOServiceItemDDFSIT": {
+    "MTOServiceItemDestSIT": {
       "description": "Describes a domestic destination 1st day SIT service item subtype of a MTOServiceItem.",
       "allOf": [
         {
@@ -3765,7 +3760,8 @@ func init() {
             "sitDepartureDate": {
               "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
               "type": "string",
-              "format": "date"
+              "format": "date",
+              "x-nullable": true
             },
             "sitEntryDate": {
               "description": "Entry date for the SIT",
@@ -3783,61 +3779,6 @@ func init() {
               "type": "string",
               "pattern": "\\d{4}Z",
               "example": "1400Z"
-            }
-          }
-        }
-      ]
-    },
-    "MTOServiceItemDOFSIT": {
-      "description": "Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem.",
-      "allOf": [
-        {
-          "$ref": "#/definitions/MTOServiceItem"
-        },
-        {
-          "type": "object",
-          "required": [
-            "reServiceCode",
-            "reason",
-            "sitPostalCode",
-            "pickupPostalCode",
-            "sitEntryDate"
-          ],
-          "properties": {
-            "pickupPostalCode": {
-              "type": "string",
-              "format": "zip",
-              "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
-              "example": "90210"
-            },
-            "reServiceCode": {
-              "description": "Service code allowed for this model type.",
-              "type": "string",
-              "enum": [
-                "DOFSIT",
-                "DOASIT"
-              ]
-            },
-            "reason": {
-              "description": "Explanation of why Prime is picking up SIT item.",
-              "type": "string",
-              "example": "Storage items need to be picked up"
-            },
-            "sitDepartureDate": {
-              "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
-              "type": "string",
-              "format": "date"
-            },
-            "sitEntryDate": {
-              "description": "Entry date for the SIT",
-              "type": "string",
-              "format": "date"
-            },
-            "sitPostalCode": {
-              "type": "string",
-              "format": "zip",
-              "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
-              "example": "90210"
             }
           }
         }
@@ -3919,15 +3860,64 @@ func init() {
       ]
     },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT - MTOServiceItemDOFSIT\n  * DDFSIT - MTOServiceItemDDFSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT - MTOServiceItemOriginSIT\n  * DDFSIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
-        "MTOServiceItemDOFSIT",
-        "MTOServiceItemDDFSIT",
+        "MTOServiceItemOriginSIT",
+        "MTOServiceItemDestSIT",
         "MTOServiceItemShuttle",
         "MTOServiceItemDomesticCrating",
         "MTOServiceItemSITDeparture"
+      ]
+    },
+    "MTOServiceItemOriginSIT": {
+      "description": "Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reServiceCode",
+            "reason",
+            "sitPostalCode",
+            "sitEntryDate"
+          ],
+          "properties": {
+            "reServiceCode": {
+              "description": "Service code allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "DOFSIT",
+                "DOASIT"
+              ]
+            },
+            "reason": {
+              "description": "Explanation of why Prime is picking up SIT item.",
+              "type": "string",
+              "example": "Storage items need to be picked up"
+            },
+            "sitDepartureDate": {
+              "description": "Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.",
+              "type": "string",
+              "format": "date",
+              "x-nullable": true
+            },
+            "sitEntryDate": {
+              "description": "Entry date for the SIT",
+              "type": "string",
+              "format": "date"
+            },
+            "sitPostalCode": {
+              "type": "string",
+              "format": "zip",
+              "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+              "example": "90210"
+            }
+          }
+        }
       ]
     },
     "MTOServiceItemShuttle": {

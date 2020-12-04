@@ -16,8 +16,8 @@ import (
 // MTOServiceItemModelType Describes all model sub-types for a MTOServiceItem model.
 //
 // Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.
-//   * DOFSIT - MTOServiceItemDOFSIT
-//   * DDFSIT - MTOServiceItemDDFSIT
+//   * DOFSIT - MTOServiceItemOriginSIT
+//   * DDFSIT - MTOServiceItemDestSIT
 //   * DOSHUT, DDSHUT - MTOServiceItemShuttle
 //   * DCRT, DCRTSA, DUCRT - MTOServiceItemDomesticCrating
 //
@@ -32,11 +32,11 @@ const (
 	// MTOServiceItemModelTypeMTOServiceItemBasic captures enum value "MTOServiceItemBasic"
 	MTOServiceItemModelTypeMTOServiceItemBasic MTOServiceItemModelType = "MTOServiceItemBasic"
 
-	// MTOServiceItemModelTypeMTOServiceItemDOFSIT captures enum value "MTOServiceItemDOFSIT"
-	MTOServiceItemModelTypeMTOServiceItemDOFSIT MTOServiceItemModelType = "MTOServiceItemDOFSIT"
+	// MTOServiceItemModelTypeMTOServiceItemOriginSIT captures enum value "MTOServiceItemOriginSIT"
+	MTOServiceItemModelTypeMTOServiceItemOriginSIT MTOServiceItemModelType = "MTOServiceItemOriginSIT"
 
-	// MTOServiceItemModelTypeMTOServiceItemDDFSIT captures enum value "MTOServiceItemDDFSIT"
-	MTOServiceItemModelTypeMTOServiceItemDDFSIT MTOServiceItemModelType = "MTOServiceItemDDFSIT"
+	// MTOServiceItemModelTypeMTOServiceItemDestSIT captures enum value "MTOServiceItemDestSIT"
+	MTOServiceItemModelTypeMTOServiceItemDestSIT MTOServiceItemModelType = "MTOServiceItemDestSIT"
 
 	// MTOServiceItemModelTypeMTOServiceItemShuttle captures enum value "MTOServiceItemShuttle"
 	MTOServiceItemModelTypeMTOServiceItemShuttle MTOServiceItemModelType = "MTOServiceItemShuttle"
@@ -53,7 +53,7 @@ var mTOServiceItemModelTypeEnum []interface{}
 
 func init() {
 	var res []MTOServiceItemModelType
-	if err := json.Unmarshal([]byte(`["MTOServiceItemBasic","MTOServiceItemDOFSIT","MTOServiceItemDDFSIT","MTOServiceItemShuttle","MTOServiceItemDomesticCrating","MTOServiceItemSITDeparture"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["MTOServiceItemBasic","MTOServiceItemOriginSIT","MTOServiceItemDestSIT","MTOServiceItemShuttle","MTOServiceItemDomesticCrating","MTOServiceItemSITDeparture"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

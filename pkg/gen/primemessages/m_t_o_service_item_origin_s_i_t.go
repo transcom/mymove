@@ -15,10 +15,10 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MTOServiceItemDOFSIT Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem.
+// MTOServiceItemOriginSIT Describes a domestic origin 1st day SIT service item subtype of a MTOServiceItem.
 //
-// swagger:model MTOServiceItemDOFSIT
-type MTOServiceItemDOFSIT struct {
+// swagger:model MTOServiceItemOriginSIT
+type MTOServiceItemOriginSIT struct {
 	eTagField string
 
 	idField strfmt.UUID
@@ -33,11 +33,6 @@ type MTOServiceItemDOFSIT struct {
 
 	statusField MTOServiceItemStatus
 
-	// pickup postal code
-	// Required: true
-	// Pattern: ^(\d{5}([\-]\d{4})?)$
-	PickupPostalCode *string `json:"pickupPostalCode"`
-
 	// Service code allowed for this model type.
 	// Required: true
 	// Enum: [DOFSIT DOASIT]
@@ -49,7 +44,7 @@ type MTOServiceItemDOFSIT struct {
 
 	// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
 	// Format: date
-	SitDepartureDate strfmt.Date `json:"sitDepartureDate,omitempty"`
+	SitDepartureDate *strfmt.Date `json:"sitDepartureDate,omitempty"`
 
 	// Entry date for the SIT
 	// Required: true
@@ -63,92 +58,87 @@ type MTOServiceItemDOFSIT struct {
 }
 
 // ETag gets the e tag of this subtype
-func (m *MTOServiceItemDOFSIT) ETag() string {
+func (m *MTOServiceItemOriginSIT) ETag() string {
 	return m.eTagField
 }
 
 // SetETag sets the e tag of this subtype
-func (m *MTOServiceItemDOFSIT) SetETag(val string) {
+func (m *MTOServiceItemOriginSIT) SetETag(val string) {
 	m.eTagField = val
 }
 
 // ID gets the id of this subtype
-func (m *MTOServiceItemDOFSIT) ID() strfmt.UUID {
+func (m *MTOServiceItemOriginSIT) ID() strfmt.UUID {
 	return m.idField
 }
 
 // SetID sets the id of this subtype
-func (m *MTOServiceItemDOFSIT) SetID(val strfmt.UUID) {
+func (m *MTOServiceItemOriginSIT) SetID(val strfmt.UUID) {
 	m.idField = val
 }
 
 // ModelType gets the model type of this subtype
-func (m *MTOServiceItemDOFSIT) ModelType() MTOServiceItemModelType {
-	return "MTOServiceItemDOFSIT"
+func (m *MTOServiceItemOriginSIT) ModelType() MTOServiceItemModelType {
+	return "MTOServiceItemOriginSIT"
 }
 
 // SetModelType sets the model type of this subtype
-func (m *MTOServiceItemDOFSIT) SetModelType(val MTOServiceItemModelType) {
+func (m *MTOServiceItemOriginSIT) SetModelType(val MTOServiceItemModelType) {
 }
 
 // MoveTaskOrderID gets the move task order ID of this subtype
-func (m *MTOServiceItemDOFSIT) MoveTaskOrderID() *strfmt.UUID {
+func (m *MTOServiceItemOriginSIT) MoveTaskOrderID() *strfmt.UUID {
 	return m.moveTaskOrderIdField
 }
 
 // SetMoveTaskOrderID sets the move task order ID of this subtype
-func (m *MTOServiceItemDOFSIT) SetMoveTaskOrderID(val *strfmt.UUID) {
+func (m *MTOServiceItemOriginSIT) SetMoveTaskOrderID(val *strfmt.UUID) {
 	m.moveTaskOrderIdField = val
 }
 
 // MtoShipmentID gets the mto shipment ID of this subtype
-func (m *MTOServiceItemDOFSIT) MtoShipmentID() strfmt.UUID {
+func (m *MTOServiceItemOriginSIT) MtoShipmentID() strfmt.UUID {
 	return m.mtoShipmentIdField
 }
 
 // SetMtoShipmentID sets the mto shipment ID of this subtype
-func (m *MTOServiceItemDOFSIT) SetMtoShipmentID(val strfmt.UUID) {
+func (m *MTOServiceItemOriginSIT) SetMtoShipmentID(val strfmt.UUID) {
 	m.mtoShipmentIdField = val
 }
 
 // ReServiceName gets the re service name of this subtype
-func (m *MTOServiceItemDOFSIT) ReServiceName() string {
+func (m *MTOServiceItemOriginSIT) ReServiceName() string {
 	return m.reServiceNameField
 }
 
 // SetReServiceName sets the re service name of this subtype
-func (m *MTOServiceItemDOFSIT) SetReServiceName(val string) {
+func (m *MTOServiceItemOriginSIT) SetReServiceName(val string) {
 	m.reServiceNameField = val
 }
 
 // RejectionReason gets the rejection reason of this subtype
-func (m *MTOServiceItemDOFSIT) RejectionReason() *string {
+func (m *MTOServiceItemOriginSIT) RejectionReason() *string {
 	return m.rejectionReasonField
 }
 
 // SetRejectionReason sets the rejection reason of this subtype
-func (m *MTOServiceItemDOFSIT) SetRejectionReason(val *string) {
+func (m *MTOServiceItemOriginSIT) SetRejectionReason(val *string) {
 	m.rejectionReasonField = val
 }
 
 // Status gets the status of this subtype
-func (m *MTOServiceItemDOFSIT) Status() MTOServiceItemStatus {
+func (m *MTOServiceItemOriginSIT) Status() MTOServiceItemStatus {
 	return m.statusField
 }
 
 // SetStatus sets the status of this subtype
-func (m *MTOServiceItemDOFSIT) SetStatus(val MTOServiceItemStatus) {
+func (m *MTOServiceItemOriginSIT) SetStatus(val MTOServiceItemStatus) {
 	m.statusField = val
 }
 
 // UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
-func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
+func (m *MTOServiceItemOriginSIT) UnmarshalJSON(raw []byte) error {
 	var data struct {
-
-		// pickup postal code
-		// Required: true
-		// Pattern: ^(\d{5}([\-]\d{4})?)$
-		PickupPostalCode *string `json:"pickupPostalCode"`
 
 		// Service code allowed for this model type.
 		// Required: true
@@ -161,7 +151,7 @@ func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
 
 		// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
 		// Format: date
-		SitDepartureDate strfmt.Date `json:"sitDepartureDate,omitempty"`
+		SitDepartureDate *strfmt.Date `json:"sitDepartureDate,omitempty"`
 
 		// Entry date for the SIT
 		// Required: true
@@ -208,7 +198,7 @@ func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
 		return err
 	}
 
-	var result MTOServiceItemDOFSIT
+	var result MTOServiceItemOriginSIT
 
 	result.eTagField = base.ETag
 
@@ -228,7 +218,6 @@ func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
 
 	result.statusField = base.Status
 
-	result.PickupPostalCode = data.PickupPostalCode
 	result.ReServiceCode = data.ReServiceCode
 	result.Reason = data.Reason
 	result.SitDepartureDate = data.SitDepartureDate
@@ -241,15 +230,10 @@ func (m *MTOServiceItemDOFSIT) UnmarshalJSON(raw []byte) error {
 }
 
 // MarshalJSON marshals this object with a polymorphic type to a JSON structure
-func (m MTOServiceItemDOFSIT) MarshalJSON() ([]byte, error) {
+func (m MTOServiceItemOriginSIT) MarshalJSON() ([]byte, error) {
 	var b1, b2, b3 []byte
 	var err error
 	b1, err = json.Marshal(struct {
-
-		// pickup postal code
-		// Required: true
-		// Pattern: ^(\d{5}([\-]\d{4})?)$
-		PickupPostalCode *string `json:"pickupPostalCode"`
 
 		// Service code allowed for this model type.
 		// Required: true
@@ -262,7 +246,7 @@ func (m MTOServiceItemDOFSIT) MarshalJSON() ([]byte, error) {
 
 		// Departure date for SIT. This is the end date of the SIT at either origin or destination. This is optional as it can be updated using the UpdateMTOServiceItemSIT modelType at a later date.
 		// Format: date
-		SitDepartureDate strfmt.Date `json:"sitDepartureDate,omitempty"`
+		SitDepartureDate *strfmt.Date `json:"sitDepartureDate,omitempty"`
 
 		// Entry date for the SIT
 		// Required: true
@@ -274,8 +258,6 @@ func (m MTOServiceItemDOFSIT) MarshalJSON() ([]byte, error) {
 		// Pattern: ^(\d{5}([\-]\d{4})?)$
 		SitPostalCode *string `json:"sitPostalCode"`
 	}{
-
-		PickupPostalCode: m.PickupPostalCode,
 
 		ReServiceCode: m.ReServiceCode,
 
@@ -331,8 +313,8 @@ func (m MTOServiceItemDOFSIT) MarshalJSON() ([]byte, error) {
 	return swag.ConcatJSON(b1, b2, b3), nil
 }
 
-// Validate validates this m t o service item d o f s i t
-func (m *MTOServiceItemDOFSIT) Validate(formats strfmt.Registry) error {
+// Validate validates this m t o service item origin s i t
+func (m *MTOServiceItemOriginSIT) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateID(formats); err != nil {
@@ -348,10 +330,6 @@ func (m *MTOServiceItemDOFSIT) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validatePickupPostalCode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -381,7 +359,7 @@ func (m *MTOServiceItemDOFSIT) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MTOServiceItemDOFSIT) validateID(formats strfmt.Registry) error {
+func (m *MTOServiceItemOriginSIT) validateID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ID()) { // not required
 		return nil
@@ -394,7 +372,7 @@ func (m *MTOServiceItemDOFSIT) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MTOServiceItemDOFSIT) validateMoveTaskOrderID(formats strfmt.Registry) error {
+func (m *MTOServiceItemOriginSIT) validateMoveTaskOrderID(formats strfmt.Registry) error {
 
 	if err := validate.Required("moveTaskOrderID", "body", m.MoveTaskOrderID()); err != nil {
 		return err
@@ -407,7 +385,7 @@ func (m *MTOServiceItemDOFSIT) validateMoveTaskOrderID(formats strfmt.Registry) 
 	return nil
 }
 
-func (m *MTOServiceItemDOFSIT) validateMtoShipmentID(formats strfmt.Registry) error {
+func (m *MTOServiceItemOriginSIT) validateMtoShipmentID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.MtoShipmentID()) { // not required
 		return nil
@@ -420,7 +398,7 @@ func (m *MTOServiceItemDOFSIT) validateMtoShipmentID(formats strfmt.Registry) er
 	return nil
 }
 
-func (m *MTOServiceItemDOFSIT) validateStatus(formats strfmt.Registry) error {
+func (m *MTOServiceItemOriginSIT) validateStatus(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Status()) { // not required
 		return nil
@@ -436,20 +414,7 @@ func (m *MTOServiceItemDOFSIT) validateStatus(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MTOServiceItemDOFSIT) validatePickupPostalCode(formats strfmt.Registry) error {
-
-	if err := validate.Required("pickupPostalCode", "body", m.PickupPostalCode); err != nil {
-		return err
-	}
-
-	if err := validate.Pattern("pickupPostalCode", "body", string(*m.PickupPostalCode), `^(\d{5}([\-]\d{4})?)$`); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-var mTOServiceItemDOFSITTypeReServiceCodePropEnum []interface{}
+var mTOServiceItemOriginSITTypeReServiceCodePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -457,19 +422,19 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		mTOServiceItemDOFSITTypeReServiceCodePropEnum = append(mTOServiceItemDOFSITTypeReServiceCodePropEnum, v)
+		mTOServiceItemOriginSITTypeReServiceCodePropEnum = append(mTOServiceItemOriginSITTypeReServiceCodePropEnum, v)
 	}
 }
 
 // property enum
-func (m *MTOServiceItemDOFSIT) validateReServiceCodeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, mTOServiceItemDOFSITTypeReServiceCodePropEnum, true); err != nil {
+func (m *MTOServiceItemOriginSIT) validateReServiceCodeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, mTOServiceItemOriginSITTypeReServiceCodePropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (m *MTOServiceItemDOFSIT) validateReServiceCode(formats strfmt.Registry) error {
+func (m *MTOServiceItemOriginSIT) validateReServiceCode(formats strfmt.Registry) error {
 
 	if err := validate.Required("reServiceCode", "body", m.ReServiceCode); err != nil {
 		return err
@@ -483,7 +448,7 @@ func (m *MTOServiceItemDOFSIT) validateReServiceCode(formats strfmt.Registry) er
 	return nil
 }
 
-func (m *MTOServiceItemDOFSIT) validateReason(formats strfmt.Registry) error {
+func (m *MTOServiceItemOriginSIT) validateReason(formats strfmt.Registry) error {
 
 	if err := validate.Required("reason", "body", m.Reason); err != nil {
 		return err
@@ -492,7 +457,7 @@ func (m *MTOServiceItemDOFSIT) validateReason(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MTOServiceItemDOFSIT) validateSitDepartureDate(formats strfmt.Registry) error {
+func (m *MTOServiceItemOriginSIT) validateSitDepartureDate(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.SitDepartureDate) { // not required
 		return nil
@@ -505,7 +470,7 @@ func (m *MTOServiceItemDOFSIT) validateSitDepartureDate(formats strfmt.Registry)
 	return nil
 }
 
-func (m *MTOServiceItemDOFSIT) validateSitEntryDate(formats strfmt.Registry) error {
+func (m *MTOServiceItemOriginSIT) validateSitEntryDate(formats strfmt.Registry) error {
 
 	if err := validate.Required("sitEntryDate", "body", m.SitEntryDate); err != nil {
 		return err
@@ -518,7 +483,7 @@ func (m *MTOServiceItemDOFSIT) validateSitEntryDate(formats strfmt.Registry) err
 	return nil
 }
 
-func (m *MTOServiceItemDOFSIT) validateSitPostalCode(formats strfmt.Registry) error {
+func (m *MTOServiceItemOriginSIT) validateSitPostalCode(formats strfmt.Registry) error {
 
 	if err := validate.Required("sitPostalCode", "body", m.SitPostalCode); err != nil {
 		return err
@@ -532,7 +497,7 @@ func (m *MTOServiceItemDOFSIT) validateSitPostalCode(formats strfmt.Registry) er
 }
 
 // MarshalBinary interface implementation
-func (m *MTOServiceItemDOFSIT) MarshalBinary() ([]byte, error) {
+func (m *MTOServiceItemOriginSIT) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -540,8 +505,8 @@ func (m *MTOServiceItemDOFSIT) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *MTOServiceItemDOFSIT) UnmarshalBinary(b []byte) error {
-	var res MTOServiceItemDOFSIT
+func (m *MTOServiceItemOriginSIT) UnmarshalBinary(b []byte) error {
+	var res MTOServiceItemOriginSIT
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

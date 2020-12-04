@@ -104,7 +104,6 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	if serviceItem.ReService.Code == models.ReServiceCodeDOASIT {
 		// DOASIT must be associated with shipment that has DOFSIT
 		serviceItem, err = o.validateSITStandaloneServiceItem(serviceItem, models.ReServiceCodeDOFSIT)
-
 		if err != nil {
 			return nil, nil, err
 		}
@@ -113,7 +112,6 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServ
 	if serviceItem.ReService.Code == models.ReServiceCodeDDASIT {
 		// DDASIT must be associated with shipment that has DDFSIT
 		serviceItem, err = o.validateSITStandaloneServiceItem(serviceItem, models.ReServiceCodeDDFSIT)
-
 		if err != nil {
 			return nil, nil, err
 		}
@@ -304,7 +302,6 @@ func (o *mtoServiceItemCreator) validateSITStandaloneServiceItem(serviceItem *mo
 	var mtoServiceItem models.MTOServiceItem
 	var mtoShipmentID uuid.UUID
 	var validReService models.ReService
-
 	mtoShipmentID = *serviceItem.MTOShipmentID
 
 	queryFilter := []services.QueryFilter{
@@ -333,6 +330,7 @@ func (o *mtoServiceItemCreator) validateSITStandaloneServiceItem(serviceItem *mo
 
 	// If the required first-day SIT item exists, we can update the related
 	// service item passed in with the parent item's field values
+
 	serviceItem.SITEntryDate = mtoServiceItem.SITEntryDate
 	serviceItem.SITDepartureDate = mtoServiceItem.SITDepartureDate
 	serviceItem.SITPostalCode = mtoServiceItem.SITPostalCode
