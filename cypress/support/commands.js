@@ -213,16 +213,14 @@ Cypress.Commands.add('upload_file', (selector, fileUrl) => {
   // mime returns false if lookup fails
   const type = rawType ? rawType : '';
   return cy.window().then((win) => {
-    return cy
-      .fixture(fileUrl, 'base64')
-      .then(Cypress.Blob.base64StringToBlob)
-      .then((blob) => {
-        const testFile = new win.File([blob], name, { type });
-        const event = {};
-        event.dataTransfer = new win.DataTransfer();
-        event.dataTransfer.items.add(testFile);
-        return cy.get(selector).trigger('drop', event);
-      });
+    return cy.fixture(fileUrl, 'base64').then((file) => {
+      const blob = Cypress.Blob.base64StringToBlob(file, type);
+      const testFile = new win.File([blob], name, { type });
+      const event = {};
+      event.dataTransfer = new win.DataTransfer();
+      event.dataTransfer.items.add(testFile);
+      return cy.get(selector).trigger('drop', event);
+    });
   });
 });
 
