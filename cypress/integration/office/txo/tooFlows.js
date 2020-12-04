@@ -69,9 +69,9 @@ describe('TOO user', () => {
 
       // Page refresh
       cy.url().should('include', `/moves/${moveOrderId}/details`);
-      cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.be.visible');
+      cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.exist');
       cy.wait(['@getMoveTaskOrders', '@getMTOShipments', '@getMTOServiceItems']);
-      cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.be.visible');
+      cy.get('#approvalConfirmationModal [data-testid="modal"]').should('not.exist');
       cy.get('#approved-shipments');
       cy.get('#requested-shipments').should('not.exist');
       cy.contains('Approve selected shipments').should('not.exist');
@@ -98,7 +98,7 @@ describe('TOO user', () => {
     cy.contains('Rejected service items').should('not.exist');
     cy.contains('Approved service items').should('not.exist');
 
-    cy.get('[data-testid="modal"]').should('not.be.visible');
+    cy.get('[data-testid="modal"]').should('not.exist');
 
     // Approve a requested service item
     cy.get('[data-testid="RequestedServiceItemsTable"]').within(($table) => {
@@ -122,7 +122,7 @@ describe('TOO user', () => {
       cy.get('button[type="submit"]').click();
     });
 
-    cy.get('[data-testid="modal"]').should('not.be.visible');
+    cy.get('[data-testid="modal"]').should('not.exist');
 
     cy.contains('Rejected service items (1 item)');
     cy.get('[data-testid="RejectedServiceItemsTable"] tbody tr').should('have.length', 1);
@@ -144,7 +144,7 @@ describe('TOO user', () => {
       cy.get('button[type="submit"]').click();
     });
 
-    cy.get('[data-testid="modal"]').should('not.be.visible');
+    cy.get('[data-testid="modal"]').should('not.exist');
 
     cy.contains('Rejected service items (1 item)');
     cy.get('[data-testid="RejectedServiceItemsTable"] tbody tr').should('have.length', 1);
