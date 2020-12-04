@@ -116,6 +116,54 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(officeUserID uuid.UU
 	return &paymentRequests, count, nil
 }
 
+func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(officeUserID uuid.UUID, locator string) (*models.PaymentRequests, error) {
+	gblocFetcher := officeuser.NewOfficeUserGblocFetcher(f.db)
+	gbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(officeUserID)
+	if gblocErr != nil {
+		return &models.PaymentRequests{}, gblocErr
+	}
+
+	paymentRequests := models.PaymentRequests{}
+
+	query := f.db.Q().EagerPreload("PaymentServiceItems").
+		InnerJoin("moves", "payment_requests.move_id = moves.id").
+		InnerJoin("orders", "orders.id = moves.orders_id").
+		InnerJoin("duty_stations", "duty_stations.id = orders.origin_duty_station_id").
+		InnerJoin("transportation_offices", "transportation_offices.id = duty_stations.transportation_office_id").
+		Where("moves.show = ?", swag.Bool(true))
+
+	var branchQuery QueryOption
+	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
+	// We also only want to do the gbloc filtering thing if we aren't a USMC user, which we cover with the else.
+	var gblocQuery QueryOption
+	if gbloc == "USMC" {
+		branchQuery = branchFilter(swag.String(string(models.AffiliationMARINES)))
+	} else {
+		gblocQuery = gblocFilter(gbloc)
+	}
+	locatorQuery := locatorFilter(&locator)
+
+	options := [3]QueryOption{branchQuery, gblocQuery, locatorQuery}
+
+	for _, option := range options {
+		if option != nil {
+			option(query)
+		}
+	}
+
+	err := query.All(&paymentRequests)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, services.NotFoundError{}
+		default:
+			return nil, err
+		}
+	}
+
+	return &paymentRequests, nil
+}
+
 func orderName(query *pop.Query, order *string) *pop.Query {
 	return query.Order(fmt.Sprintf("service_members.last_name %s, service_members.first_name %s", *order, *order))
 }
