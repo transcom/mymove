@@ -85,6 +85,46 @@ func isValidFakeModelMTOAgent(a models.MTOAgent) (bool, error) {
 }
 
 func isValidFakeModelMTOShipment(s models.MTOShipment) (bool, error) {
+	if s.PickupAddress != nil {
+		ok, err := isValidFakeModelAddress(s.PickupAddress)
+		if err != nil {
+			return false, err
+		}
+		if ok == false {
+			return false, nil
+		}
+	}
+
+	if s.SecondaryPickupAddress != nil {
+		ok, err := isValidFakeModelAddress(s.SecondaryPickupAddress)
+		if err != nil {
+			return false, err
+		}
+		if ok == false {
+			return false, nil
+		}
+	}
+
+	if s.DestinationAddress != nil {
+		ok, err := isValidFakeModelAddress(s.DestinationAddress)
+		if err != nil {
+			return false, err
+		}
+		if ok == false {
+			return false, nil
+		}
+	}
+
+	if s.SecondaryDeliveryAddress != nil {
+		ok, err := isValidFakeModelAddress(s.SecondaryDeliveryAddress)
+		if err != nil {
+			return false, err
+		}
+		if ok == false {
+			return false, nil
+		}
+	}
+
 	// may have to load MTOAgents
 	for _, agent := range s.MTOAgents {
 		ok, err := isValidFakeModelMTOAgent(agent)
