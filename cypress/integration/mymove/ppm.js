@@ -45,7 +45,11 @@ describe('the PPM flow', function () {
   it('service member should be able to continue requesting payment', () => {
     // ppm@continue.requestingpayment
     const userId = '4ebc03b7-c801-4c0d-806c-a95aed242102';
-    cy.intercept('POST', '**/internal/uploads').as('postUploadDocument');
+
+    // TODO - commenting this out for now because cy.intercept has an open bug related to file upload endpoints
+    // https://github.com/cypress-io/cypress/issues/9534
+    // cy.intercept('POST', '**/internal/uploads').as('postUploadDocument');
+
     cy.intercept('POST', '**/moves/**/weight_ticket').as('postWeightTicket');
     cy.intercept('POST', '**/moves/**/moving_expense_documents').as('postMovingExpense');
     cy.intercept('POST', '**/internal/personally_procured_move/**/request_payment').as('requestPayment');
@@ -303,12 +307,12 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true, ordina
   cy.get('input[name="empty_weight"]').type('1000');
 
   cy.upload_file('[data-testid=empty-weight-upload] .filepond--root', 'top-secret.png');
-  cy.wait('@postUploadDocument').its('response.statusCode').should('eq', 201);
+  // cy.wait('@postUploadDocument').its('response.statusCode').should('eq', 201);
   cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 1);
 
   cy.get('input[name="full_weight"]').type('5000');
   cy.upload_file('[data-testid=full-weight-upload] .filepond--root', 'top-secret.png');
-  cy.wait('@postUploadDocument').its('response.statusCode').should('eq', 201);
+  // cy.wait('@postUploadDocument').its('response.statusCode').should('eq', 201);
   cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 2);
   cy.get('input[name="weight_ticket_date"]').type('6/2/2018{enter}').blur();
   cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('not.be.checked');
@@ -317,10 +321,10 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true, ordina
     cy.get('input[name="additional_weight_ticket"][value="Yes"]+label').click();
     cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('be.checked');
     cy.get('button').contains('Save & Add Another').click();
-    cy.wait('@postWeightTicket').its('status').should('eq', 200);
+    cy.wait('@postWeightTicket').its('response.statusCode').should('eq', 200);
     cy.get('[data-testid=documents-uploaded]').should('exist');
   } else {
     cy.get('button').contains('Save & Continue').click();
-    cy.wait('@postWeightTicket').its('status').should('eq', 200);
+    cy.wait('@postWeightTicket').its('response.statusCode').should('eq', 200);
   }
 }
