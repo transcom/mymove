@@ -11,7 +11,6 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/validate/v3"
 	"go.uber.org/zap"
 
@@ -124,7 +123,8 @@ func (h UpdateMTOServiceItemHandler) Handle(params mtoserviceitemops.UpdateMTOSe
 			verrs.Error(), h.GetTraceID(), verrs))
 	}
 
-	updatedMTOServiceItem, err := h.MTOServiceItemUpdater.UpdateMTOServiceItemStatus(mtoServiceItem.ID, models.MTOServiceItemStatusApproved, swag.String("something"), params.IfMatch)
+	eTag := params.IfMatch
+	updatedMTOServiceItem, err := h.MTOServiceItemUpdater.UpdateMTOServiceItemPrime(h.DB(), mtoServiceItem, eTag)
 
 	if err != nil {
 		logger.Error("primeapi.UpdateMTOServiceItemHandler error", zap.Error(err))

@@ -407,6 +407,8 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 	// here we determine which payload model to use based on the re service code
 	switch mtoServiceItem.ReService.Code {
 	case models.ReServiceCodeDOFSIT:
+	case models.ReServiceCodeDOASIT:
+	case models.ReServiceCodeDOPSIT:
 		sitDepartureDate := strfmt.Date(time.Time{}) // Set to empty/zero time
 		if mtoServiceItem.SITDepartureDate != nil {
 			sitDepartureDate = strfmt.Date(*mtoServiceItem.SITDepartureDate)
@@ -416,8 +418,11 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			PickupPostalCode: mtoServiceItem.PickupPostalCode,
 			Reason:           mtoServiceItem.Reason,
 			SitDepartureDate: sitDepartureDate,
+			SitEntryDate:     handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
 		}
 	case models.ReServiceCodeDDFSIT:
+	case models.ReServiceCodeDDASIT:
+	case models.ReServiceCodeDDDSIT:
 		sitDepartureDate := strfmt.Date(time.Time{}) // Set to empty/zero time
 		if mtoServiceItem.SITDepartureDate != nil {
 			sitDepartureDate = strfmt.Date(*mtoServiceItem.SITDepartureDate)
@@ -431,6 +436,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			TimeMilitary2:               handlers.FmtString(secondContact.TimeMilitary),
 			FirstAvailableDeliveryDate2: handlers.FmtDate(secondContact.FirstAvailableDeliveryDate),
 			SitDepartureDate:            sitDepartureDate,
+			SitEntryDate:                handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
 		}
 	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT, models.ReServiceCodeDCRTSA:
 		item := getDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
