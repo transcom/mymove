@@ -18,10 +18,10 @@ const MovePaymentRequests = () => {
   if (isError) return <SomethingWentWrong />;
 
   return (
-    <div className={classnames(styles.MovePaymentRequests, '.container')}>
+    <div className={classnames(styles.MovePaymentRequests, 'grid-container-widescreen')} data-testid="PaymentRequests">
       <h2>Payment Requests</h2>
       {paymentRequests.map((paymentRequest) => (
-        <PaymentRequestCard paymentRequest={paymentRequest} moveLocator={locator} />
+        <PaymentRequestCard paymentRequest={paymentRequest} />
       ))}
     </div>
   );
