@@ -1,7 +1,12 @@
 import React from 'react';
+// import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import moment from 'moment';
-import { Tag } from '@trussworks/react-uswds';
+import { Button, Tag } from '@trussworks/react-uswds';
+import { withRouter } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import { HistoryShape } from '../../../types/router';
 
 import styles from './PaymentRequestCard.module.scss';
 
@@ -21,7 +26,8 @@ const paymentRequestStatusLabel = (status) => {
   }
 };
 
-const PaymentRequestCard = ({ paymentRequest }) => {
+const PaymentRequestCard = ({ paymentRequest, history }) => {
+  let handleClick = () => {};
   let requestedAmount = 0;
   let approvedAmount = 0;
   let rejectedAmount = 0;
@@ -36,6 +42,10 @@ const PaymentRequestCard = ({ paymentRequest }) => {
         rejectedAmount += item.priceCents;
       }
     });
+
+    handleClick = () => {
+      history.push(`payment-requests/${paymentRequest.id}`);
+    };
   }
 
   return (
@@ -81,7 +91,10 @@ const PaymentRequestCard = ({ paymentRequest }) => {
           )}
           {paymentRequest.status === 'PENDING' && (
             <div className={styles.reviewButton}>
-              <button type="button">Review service items</button>
+              <Button onClick={handleClick}>
+                <FontAwesomeIcon icon="copy" className={`${styles['docs-icon']} fas fa-copy`} />
+                Review service items
+              </Button>
             </div>
           )}
         </div>
@@ -110,7 +123,8 @@ const PaymentRequestCard = ({ paymentRequest }) => {
 };
 
 PaymentRequestCard.propTypes = {
+  history: HistoryShape.isRequired,
   paymentRequest: PaymentRequestShape.isRequired,
 };
 
-export default PaymentRequestCard;
+export default withRouter(PaymentRequestCard);
