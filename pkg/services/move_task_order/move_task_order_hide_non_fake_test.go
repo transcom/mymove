@@ -44,6 +44,26 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 	}
 }
 
+func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelAddress() {
+	suite.T().Run("valid fake data", func(t *testing.T) {
+		address := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+			Address: models.Address{
+				StreetAddress1: "3373 NW Martin Luther King Jr Blvd",
+			},
+		})
+		result, err := isValidFakeModelAddress(&address)
+		suite.NoError(err)
+		suite.Equal(true, result)
+	})
+
+	suite.T().Run("invalid fake data", func(t *testing.T) {
+		adress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{})
+		result, err := isValidFakeModelAddress(&adress)
+		suite.NoError(err)
+		suite.Equal(false, result)
+	})
+}
+
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelMTOShipment() {
 	suite.T().Run("Clear path", func(t *testing.T) {
 		result, err := isValidFakeModelMTOShipment(models.MTOShipment{})
