@@ -46,10 +46,13 @@ describe('FlashMessage component', () => {
 });
 
 describe('ConnectedFlashMessage component', () => {
-  it('renders nothing if there is no flash message in Redux', () => {
+  it('renders nothing if there is no flash message key set in Redux', () => {
     const testState = {
       flash: {
-        flashMessage: null,
+        flashMessage: {
+          type: 'success',
+          message: 'This is a successful message!',
+        },
       },
     };
 

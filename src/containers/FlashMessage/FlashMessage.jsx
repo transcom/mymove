@@ -46,7 +46,12 @@ const connectFlashMessage = (Component) => {
   ConnectedFlashMessage.displayName = 'ConnectedFlashMessage';
 
   ConnectedFlashMessage.propTypes = {
-    flash: FlashMessageShape,
+    flash: PropTypes.shape({
+      type: PropTypes.string,
+      title: PropTypes.string,
+      message: PropTypes.string,
+      key: PropTypes.string,
+    }),
     clearFlashMessage: PropTypes.func.isRequired,
   };
 
