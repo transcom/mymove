@@ -34,7 +34,7 @@ func (o *moveTaskOrderHider) Hide() (models.Moves, error) {
 	var invalidFakeMoves models.Moves
 	for _, mto := range mtos {
 		// what should we do if there is an error?
-		isValid, _ := isValidFakeServiceMember(mto.Orders.ServiceMember)
+		isValid, _ := isValidFakeModelServiceMember(mto.Orders.ServiceMember)
 		if !isValid {
 			dontShow := false
 			mto.Show = &dontShow
@@ -192,9 +192,9 @@ func isValidFakeModelBackupContact(bc models.BackupContact) (bool, error) {
 	return true, nil
 }
 
-// isValidFakeServiceMember - checks if the contact info
+// isValidFakeModelServiceMember - checks if the contact info
 // of a service member is fake
-func isValidFakeServiceMember(sm models.ServiceMember) (bool, error) {
+func isValidFakeModelServiceMember(sm models.ServiceMember) (bool, error) {
 	email := sm.PersonalEmail
 	if email != nil {
 		isValidFakeEmail, _ := fakedata.IsValidFakeDataEmail(*email)
