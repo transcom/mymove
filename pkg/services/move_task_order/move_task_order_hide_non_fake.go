@@ -84,6 +84,21 @@ func isValidFakeModelMTOAgent(a models.MTOAgent) (bool, error) {
 	return true, nil
 }
 
+func isValidFakeModelMTOShipment(s models.MTOShipment) (bool, error) {
+	// may have to load MTOAgents
+	for _, agent := range s.MTOAgents {
+		ok, err := isValidFakeModelMTOAgent(agent)
+		if err != nil {
+			return false, err
+		}
+		if ok == false {
+			return false, nil
+		}
+	}
+
+	return true, nil
+}
+
 func isValidFakeModelBackupContact(bc models.BackupContact) (bool, error) {
 	ok, err := fakedata.IsValidFakeDataName(bc.Name)
 	if err != nil {
