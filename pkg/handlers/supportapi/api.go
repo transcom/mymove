@@ -43,9 +43,9 @@ func NewSupportAPIHandler(context handlers.HandlerContext) http.Handler {
 		movetaskorder.NewMoveTaskOrderUpdater(context.DB(), queryBuilder, mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)),
 	}
 
-	supportAPI.MoveTaskOrderHideNonFakeMTOsHandler = HideNonFakeMTOsHandlerFunc{
+	supportAPI.MoveTaskOrderHideNonFakeMoveTaskOrderHandler = HideNonFakeMoveTaskOrdersHandlerFunc{
 		context,
-		movetaskorder.NewHideNonFakeMTOs, // TODO: File needs to be added to services/move_task_order with function NewHideNonFakeMTOs
+		movetaskorder.NewMoveTaskOrderHider(context.DB()),
 	}
 
 	supportAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandlerFunc{

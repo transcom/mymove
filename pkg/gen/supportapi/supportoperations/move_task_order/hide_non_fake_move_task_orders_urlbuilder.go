@@ -11,15 +11,15 @@ import (
 	golangswaggerpaths "path"
 )
 
-// HideNonFakeMTOsURL generates an URL for the hide non fake m t os operation
-type HideNonFakeMTOsURL struct {
+// HideNonFakeMoveTaskOrdersURL generates an URL for the hide non fake move task orders operation
+type HideNonFakeMoveTaskOrdersURL struct {
 	_basePath string
 }
 
 // WithBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *HideNonFakeMTOsURL) WithBasePath(bp string) *HideNonFakeMTOsURL {
+func (o *HideNonFakeMoveTaskOrdersURL) WithBasePath(bp string) *HideNonFakeMoveTaskOrdersURL {
 	o.SetBasePath(bp)
 	return o
 }
@@ -27,12 +27,12 @@ func (o *HideNonFakeMTOsURL) WithBasePath(bp string) *HideNonFakeMTOsURL {
 // SetBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *HideNonFakeMTOsURL) SetBasePath(bp string) {
+func (o *HideNonFakeMoveTaskOrdersURL) SetBasePath(bp string) {
 	o._basePath = bp
 }
 
 // Build a url path and query string
-func (o *HideNonFakeMTOsURL) Build() (*url.URL, error) {
+func (o *HideNonFakeMoveTaskOrdersURL) Build() (*url.URL, error) {
 	var _result url.URL
 
 	var _path = "/move-task-orders/hide"
@@ -47,7 +47,7 @@ func (o *HideNonFakeMTOsURL) Build() (*url.URL, error) {
 }
 
 // Must is a helper function to panic when the url builder returns an error
-func (o *HideNonFakeMTOsURL) Must(u *url.URL, err error) *url.URL {
+func (o *HideNonFakeMoveTaskOrdersURL) Must(u *url.URL, err error) *url.URL {
 	if err != nil {
 		panic(err)
 	}
@@ -58,17 +58,17 @@ func (o *HideNonFakeMTOsURL) Must(u *url.URL, err error) *url.URL {
 }
 
 // String returns the string representation of the path with query string
-func (o *HideNonFakeMTOsURL) String() string {
+func (o *HideNonFakeMoveTaskOrdersURL) String() string {
 	return o.Must(o.Build()).String()
 }
 
 // BuildFull builds a full url with scheme, host, path and query string
-func (o *HideNonFakeMTOsURL) BuildFull(scheme, host string) (*url.URL, error) {
+func (o *HideNonFakeMoveTaskOrdersURL) BuildFull(scheme, host string) (*url.URL, error) {
 	if scheme == "" {
-		return nil, errors.New("scheme is required for a full url on HideNonFakeMTOsURL")
+		return nil, errors.New("scheme is required for a full url on HideNonFakeMoveTaskOrdersURL")
 	}
 	if host == "" {
-		return nil, errors.New("host is required for a full url on HideNonFakeMTOsURL")
+		return nil, errors.New("host is required for a full url on HideNonFakeMoveTaskOrdersURL")
 	}
 
 	base, err := o.Build()
@@ -82,6 +82,6 @@ func (o *HideNonFakeMTOsURL) BuildFull(scheme, host string) (*url.URL, error) {
 }
 
 // StringFull returns the string representation of a complete url
-func (o *HideNonFakeMTOsURL) StringFull(scheme, host string) string {
+func (o *HideNonFakeMoveTaskOrdersURL) StringFull(scheme, host string) string {
 	return o.Must(o.BuildFull(scheme, host)).String()
 }

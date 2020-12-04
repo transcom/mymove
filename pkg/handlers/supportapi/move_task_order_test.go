@@ -62,6 +62,31 @@ func (suite *HandlerSuite) TestListMTOsHandler() {
 
 }
 
+func (suite *HandlerSuite) TestHideNonFakeMoveTaskOrdersHandler() {
+	request := httptest.NewRequest("GET", "/move-task-orders/hide", nil)
+	params := move_task_order.HideNonFakeMoveTaskOrdersParams{
+		HTTPRequest: request,
+	}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+	moves := []models.Move{
+		testdatagen.MakeAvailableMove(suite.DB()),
+		testdatagen.MakeAvailableMove(suite.DB()),
+	}
+	mockHider := supportMocks.MoveTaskOrderHider{}
+	handler := HideNonFakeMoveTaskOrdersHandlerFunc{
+		context,
+		&mockHider,
+	}
+	mockHider.On("Hide").Return(moves, nil)
+
+	response := handler.Handle(params)
+	suite.IsNotErrResponse(response)
+	hideMoveTaskOrdersResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
+	suite.Assertions.IsType(&move_task_order.NewHideNonFakeMoveTaskOrdersOK{}, response)
+	suite.Equal(len(hideMoveTaskOrdersResponse.Payload), 2)
+}
+
 func (suite *HandlerSuite) TestMakeMoveTaskOrderAvailableHandlerIntegrationSuccess() {
 	moveTaskOrder := testdatagen.MakeDefaultMove(suite.DB())
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/available-to-prime", nil)

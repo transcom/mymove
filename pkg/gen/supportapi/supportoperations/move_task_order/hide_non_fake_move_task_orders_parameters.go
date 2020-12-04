@@ -12,18 +12,18 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 )
 
-// NewHideNonFakeMTOsParams creates a new HideNonFakeMTOsParams object
+// NewHideNonFakeMoveTaskOrdersParams creates a new HideNonFakeMoveTaskOrdersParams object
 // no default values defined in spec.
-func NewHideNonFakeMTOsParams() HideNonFakeMTOsParams {
+func NewHideNonFakeMoveTaskOrdersParams() HideNonFakeMoveTaskOrdersParams {
 
-	return HideNonFakeMTOsParams{}
+	return HideNonFakeMoveTaskOrdersParams{}
 }
 
-// HideNonFakeMTOsParams contains all the bound params for the hide non fake m t os operation
+// HideNonFakeMoveTaskOrdersParams contains all the bound params for the hide non fake move task orders operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters hideNonFakeMTOs
-type HideNonFakeMTOsParams struct {
+// swagger:parameters hideNonFakeMoveTaskOrders
+type HideNonFakeMoveTaskOrdersParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
@@ -32,8 +32,8 @@ type HideNonFakeMTOsParams struct {
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls.
 //
-// To ensure default values, the struct must have been initialized with NewHideNonFakeMTOsParams() beforehand.
-func (o *HideNonFakeMTOsParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
+// To ensure default values, the struct must have been initialized with NewHideNonFakeMoveTaskOrdersParams() beforehand.
+func (o *HideNonFakeMoveTaskOrdersParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
 
 	o.HTTPRequest = r

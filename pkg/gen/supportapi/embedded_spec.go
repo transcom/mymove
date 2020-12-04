@@ -143,8 +143,8 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "hideNonFakeMTOs",
-        "operationId": "hideNonFakeMTOs",
+        "summary": "hideNonFakeMoveTaskOrders",
+        "operationId": "hideNonFakeMoveTaskOrders",
         "responses": {
           "200": {
             "description": "Successfully hid MTOs.",
@@ -2117,8 +2117,8 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "hideNonFakeMTOs",
-        "operationId": "hideNonFakeMTOs",
+        "summary": "hideNonFakeMoveTaskOrders",
+        "operationId": "hideNonFakeMoveTaskOrders",
         "responses": {
           "200": {
             "description": "Successfully hid MTOs.",
