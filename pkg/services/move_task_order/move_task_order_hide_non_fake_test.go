@@ -219,20 +219,17 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeServic
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelMTOAgent() {
-	validFakeData := []testdatagen.Assertions{
-		{MTOAgent: models.MTOAgent{FirstName: swag.String("Peyton")}},
-		{MTOAgent: models.MTOAgent{LastName: swag.String("Wing")}},
-		{MTOAgent: models.MTOAgent{Phone: swag.String("999-999-9999")}},
-		{MTOAgent: models.MTOAgent{Email: swag.String("peyton@example.com")}},
-	}
-	for idx, validData := range validFakeData {
-		suite.T().Run(fmt.Sprintf("valid fake MTOAgent data %d", idx), func(t *testing.T) {
-			agent := testdatagen.MakeMTOAgent(suite.DB(), validData)
-			result, err := isValidFakeModelMTOAgent(agent)
-			suite.NoError(err)
-			suite.Equal(true, result)
-		})
-	}
+	agent := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
+		MTOAgent: models.MTOAgent{
+			FirstName: swag.String("Peyton"),
+			LastName:  swag.String("Wing"),
+			Phone:     swag.String("999-999-9999"),
+			Email:     swag.String("peyton@example.com"),
+		},
+	})
+	result, err := isValidFakeModelMTOAgent(agent)
+	suite.NoError(err)
+	suite.Equal(true, result)
 
 	badFakeData := []testdatagen.Assertions{
 		{MTOAgent: models.MTOAgent{FirstName: swag.String("Billy")}},
@@ -295,20 +292,17 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 			StreetAddress1: "142 E Barrel Hoop Circle #4A",
 		},
 	})
-	validFakeData := []testdatagen.Assertions{
-		{MTOShipment: models.MTOShipment{PickupAddress: &validPickupAddress}},
-		{MTOShipment: models.MTOShipment{SecondaryPickupAddress: &validSecondaryPickupAddress}},
-		{MTOShipment: models.MTOShipment{DestinationAddress: &validDestinationAddress}},
-		{MTOShipment: models.MTOShipment{SecondaryDeliveryAddress: &validSecondaryDeliveryAddress}},
-	}
-	for idx, validData := range validFakeData {
-		suite.T().Run(fmt.Sprintf("valid fake MTOShipment data %d", idx), func(t *testing.T) {
-			shipment := testdatagen.MakeMTOShipment(suite.DB(), validData)
-			result, err := isValidFakeModelMTOShipment(shipment)
-			suite.NoError(err)
-			suite.Equal(true, result)
-		})
-	}
+	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{
+			PickupAddress:            &validPickupAddress,
+			SecondaryPickupAddress:   &validSecondaryPickupAddress,
+			DestinationAddress:       &validDestinationAddress,
+			SecondaryDeliveryAddress: &validSecondaryDeliveryAddress,
+		},
+	})
+	result, err := isValidFakeModelMTOShipment(shipment)
+	suite.NoError(err)
+	suite.Equal(true, result)
 
 	invalidPickupAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 		Address: models.Address{
@@ -368,18 +362,18 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 				StreetAddress1: "142 E Barrel Hoop Circle #4A",
 			},
 		})
-		validFakeData := []testdatagen.Assertions{
-			{MTOShipment: models.MTOShipment{PickupAddress: &validPickupAddress}},
-			{MTOShipment: models.MTOShipment{SecondaryPickupAddress: &validSecondaryPickupAddress}},
-			{MTOShipment: models.MTOShipment{DestinationAddress: &validDestinationAddress}},
-			{MTOShipment: models.MTOShipment{SecondaryDeliveryAddress: &validSecondaryDeliveryAddress}},
-		}
-		var shipments models.MTOShipments
-		for _, validData := range validFakeData {
-			shipment := testdatagen.MakeMTOShipment(suite.DB(), validData)
-			shipments = append(shipments, shipment)
-		}
 
+		var shipments models.MTOShipments
+
+		shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				PickupAddress:            &validPickupAddress,
+				SecondaryPickupAddress:   &validSecondaryPickupAddress,
+				DestinationAddress:       &validDestinationAddress,
+				SecondaryDeliveryAddress: &validSecondaryDeliveryAddress,
+			},
+		})
+		shipments = append(shipments, shipment)
 		result, err := isValidFakeModelMTOShipments(shipments)
 		suite.NoError(err)
 		suite.Equal(true, result)
