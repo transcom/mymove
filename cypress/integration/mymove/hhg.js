@@ -4,10 +4,10 @@ describe('A customer following HHG Setup flow', function () {
   });
 
   beforeEach(() => {
-    cy.intercept('POST', '/internal/service_members').as('createServiceMember');
+    cy.intercept('POST', '**/internal/service_members').as('createServiceMember');
     cy.intercept('PATCH', '**/internal/mto-shipments/**').as('patchShipment');
-    cy.intercept('GET', '/internal/moves/**/mto_shipments').as('getMTOShipments');
-    cy.intercept('GET', '/internal/users/logged_in').as('getLoggedInUser');
+    cy.intercept('**/internal/moves/**/mto_shipments').as('getMTOShipments');
+    cy.intercept('**/internal/users/logged_in').as('getLoggedInUser');
   });
 
   it('can create an HHG shipment, review and edit details, and submit their move', function () {

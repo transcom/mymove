@@ -6,15 +6,15 @@ describe('TOO user', () => {
   });
 
   beforeEach(() => {
-    cy.intercept('GET', '/ghc/v1/swagger.yaml').as('getGHCClient');
-    cy.intercept('GET', '/ghc/v1/queues/moves?**').as('getMoveOrders');
-    cy.intercept('GET', '/ghc/v1/queues/moves?page=1&perPage=20&sort=status&order=asc').as('getSortedMoveOrders');
-    cy.intercept('GET', '/ghc/v1/move-orders/**/move-task-orders').as('getMoveTaskOrders');
-    cy.intercept('GET', '/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
-    cy.intercept('GET', '/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
-    cy.intercept('PATCH', '/ghc/v1/move_task_orders/**/mto_shipments/**/status').as('patchMTOShipmentStatus');
-    cy.intercept('PATCH', '/ghc/v1/move-task-orders/**/status').as('patchMTOStatus');
-    cy.intercept('PATCH', '/ghc/v1/move-task-orders/**/service-items/**/status').as('patchMTOServiceItems');
+    cy.intercept('**/ghc/v1/swagger.yaml').as('getGHCClient');
+    cy.intercept('**/ghc/v1/queues/moves?**').as('getMoveOrders');
+    cy.intercept('**/ghc/v1/queues/moves?page=1&perPage=20&sort=status&order=asc').as('getSortedMoveOrders');
+    cy.intercept('**/ghc/v1/move-orders/**/move-task-orders').as('getMoveTaskOrders');
+    cy.intercept('**/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
+    cy.intercept('**/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
+    cy.intercept('PATCH', '**/ghc/v1/move_task_orders/**/mto_shipments/**/status').as('patchMTOShipmentStatus');
+    cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/status').as('patchMTOStatus');
+    cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/service-items/**/status').as('patchMTOServiceItems');
 
     const userId = 'dcf86235-53d3-43dd-8ee8-54212ae3078f';
     cy.apiSignInAsUser(userId, TOOOfficeUserType);

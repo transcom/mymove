@@ -20,19 +20,19 @@ describe('TIO user', () => {
   });
 
   beforeEach(() => {
-    cy.intercept('GET', '/ghc/v1/swagger.yaml').as('getGHCClient');
-    cy.intercept('GET', '/ghc/v1/queues/payment-requests?**').as('getPaymentRequests');
-    cy.intercept('GET', '/ghc/v1/queues/payment-requests?sort=age&order=desc&page=1&perPage=20').as(
+    cy.intercept('**/ghc/v1/swagger.yaml').as('getGHCClient');
+    cy.intercept('**/ghc/v1/queues/payment-requests?**').as('getPaymentRequests');
+    cy.intercept('**/ghc/v1/queues/payment-requests?sort=age&order=desc&page=1&perPage=20').as(
       'getSortedPaymentRequests',
     );
-    cy.intercept('GET', '/ghc/v1/payment-requests/**').as('getPaymentRequest');
-    cy.intercept('GET', '/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
-    cy.intercept('GET', '/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
+    cy.intercept('**/ghc/v1/payment-requests/**').as('getPaymentRequest');
+    cy.intercept('**/ghc/v1/move_task_orders/**/mto_shipments').as('getMTOShipments');
+    cy.intercept('**/ghc/v1/move_task_orders/**/mto_service_items').as('getMTOServiceItems');
 
-    cy.intercept('PATCH', '/ghc/v1/move-task-orders/**/payment-service-items/**/status').as(
+    cy.intercept('PATCH', '**/ghc/v1/move-task-orders/**/payment-service-items/**/status').as(
       'patchPaymentServiceItemStatus',
     );
-    cy.intercept('PATCH', '/ghc/v1/payment-requests/**/status').as('patchPaymentRequestStatus');
+    cy.intercept('PATCH', '**/ghc/v1/payment-requests/**/status').as('patchPaymentRequestStatus');
 
     const userId = '3b2cc1b0-31a2-4d1b-874f-0591f9127374';
     cy.apiSignInAsUser(userId, TIOOfficeUserType);
