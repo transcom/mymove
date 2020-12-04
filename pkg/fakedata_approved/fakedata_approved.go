@@ -11,8 +11,6 @@ package fakedata
 import (
 	"regexp"
 	"strings"
-
-	"github.com/transcom/mymove/pkg/models"
 )
 
 type fakeName struct {
@@ -361,58 +359,4 @@ func IsValidFakeDataEmail(email string) (bool, error) {
 	}
 
 	return false, nil
-}
-
-// IsValidFakeServiceMember - checks if the contact info
-// of a service member is fake
-func IsValidFakeServiceMember(sm models.ServiceMember) (bool, error) {
-	email := sm.PersonalEmail
-	if email != nil {
-		isValidFakeEmail, _ := IsValidFakeDataEmail(*email)
-		if !isValidFakeEmail {
-			return false, nil
-		}
-	}
-	phone := sm.Telephone
-	if phone != nil {
-		isValidFakePhone, _ := IsValidFakeDataPhone(*phone)
-		if isValidFakePhone == false {
-			return false, nil
-		}
-	}
-	secondaryPhone := sm.SecondaryTelephone
-	if secondaryPhone != nil {
-		isValidFakeSecondaryPhone, _ := IsValidFakeDataPhone(*secondaryPhone)
-		if !isValidFakeSecondaryPhone {
-			return false, nil
-		}
-	}
-	if sm.ResidentialAddress != nil {
-		address := sm.ResidentialAddress.StreetAddress1
-		if address != "" {
-			isValidFakeAddress, _ := IsValidFakeDataAddress(sm.ResidentialAddress.StreetAddress1)
-			if !isValidFakeAddress {
-				return false, nil
-			}
-		}
-	}
-	if sm.BackupMailingAddress != nil {
-		backupAddress := sm.BackupMailingAddress.StreetAddress1
-		if backupAddress != "" {
-			isValidFakeBackupAddress, _ := IsValidFakeDataAddress(sm.BackupMailingAddress.StreetAddress1)
-			if !isValidFakeBackupAddress {
-				return false, nil
-			}
-		}
-	}
-
-	fName := sm.FirstName
-	lName := sm.LastName
-	if fName != nil && lName != nil {
-		isValidFakeName, _ := IsValidFakeDataFullName(*fName, *lName)
-		if isValidFakeName == false {
-			return false, nil
-		}
-	}
-	return true, nil
 }

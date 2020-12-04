@@ -32,7 +32,7 @@ func (o *moveTaskOrderHider) Hide() (models.Moves, error) {
 
 	var invalidFakeMoves models.Moves
 	for _, mto := range mtos {
-		isValid, _ := fakedata.IsValidFakeServiceMember(mto.Orders.ServiceMember)
+		isValid, _ := isValidFakeServiceMember(mto.Orders.ServiceMember)
 		if !isValid {
 			dontShow := false
 			mto.Show = &dontShow
@@ -41,4 +41,58 @@ func (o *moveTaskOrderHider) Hide() (models.Moves, error) {
 	}
 
 	return invalidFakeMoves, nil
+}
+
+// isValidFakeServiceMember - checks if the contact info
+// of a service member is fake
+func isValidFakeServiceMember(sm models.ServiceMember) (bool, error) {
+	email := sm.PersonalEmail
+	if email != nil {
+		isValidFakeEmail, _ := fakedata.IsValidFakeDataEmail(*email)
+		if !isValidFakeEmail {
+			return false, nil
+		}
+	}
+	phone := sm.Telephone
+	if phone != nil {
+		isValidFakePhone, _ := fakedata.IsValidFakeDataPhone(*phone)
+		if isValidFakePhone == false {
+			return false, nil
+		}
+	}
+	secondaryPhone := sm.SecondaryTelephone
+	if secondaryPhone != nil {
+		isValidFakeSecondaryPhone, _ := fakedata.IsValidFakeDataPhone(*secondaryPhone)
+		if !isValidFakeSecondaryPhone {
+			return false, nil
+		}
+	}
+	if sm.ResidentialAddress != nil {
+		address := sm.ResidentialAddress.StreetAddress1
+		if address != "" {
+			isValidFakeAddress, _ := fakedata.IsValidFakeDataAddress(sm.ResidentialAddress.StreetAddress1)
+			if !isValidFakeAddress {
+				return false, nil
+			}
+		}
+	}
+	if sm.BackupMailingAddress != nil {
+		backupAddress := sm.BackupMailingAddress.StreetAddress1
+		if backupAddress != "" {
+			isValidFakeBackupAddress, _ := fakedata.IsValidFakeDataAddress(sm.BackupMailingAddress.StreetAddress1)
+			if !isValidFakeBackupAddress {
+				return false, nil
+			}
+		}
+	}
+
+	fName := sm.FirstName
+	lName := sm.LastName
+	if fName != nil && lName != nil {
+		isValidFakeName, _ := fakedata.IsValidFakeDataFullName(*fName, *lName)
+		if isValidFakeName == false {
+			return false, nil
+		}
+	}
+	return true, nil
 }
