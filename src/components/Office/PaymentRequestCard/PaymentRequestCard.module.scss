@@ -3,6 +3,7 @@
 @import 'shared/styles/colors';
 
 .PaymentRequestCard {
+  @include u-margin-x(0);
 }
 
 .summary {
