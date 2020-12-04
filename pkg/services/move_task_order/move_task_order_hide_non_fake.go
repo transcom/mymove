@@ -109,7 +109,7 @@ func isValidFakeServiceMember(sm models.ServiceMember) (bool, error) {
 		return false, err
 	}
 	if ok == false {
-		return ok, nil
+		return false, nil
 	}
 
 	ok, err = isValidFakeModelAddress(sm.BackupMailingAddress)
@@ -117,7 +117,7 @@ func isValidFakeServiceMember(sm models.ServiceMember) (bool, error) {
 		return false, err
 	}
 	if ok == false {
-		return ok, nil
+		return false, nil
 	}
 
 	fName := sm.FirstName
