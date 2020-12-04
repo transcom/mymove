@@ -629,10 +629,4 @@ func (suite *WebhookClientTestingSuite) Test_GetSeverity() {
 			suite.Equal(data.expectedLevel, severity)
 		})
 	}
-
-	// suite.T().Run("Returns severity level 2", func(t *testing.T) {
-	// })
-
-	// suite.T().Run("Returns severity level 1", func(t *testing.T) {
-	// })
 }
