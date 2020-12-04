@@ -8,8 +8,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 
-	mtoagent "github.com/transcom/mymove/pkg/services/mto_agent"
-
 	"github.com/transcom/mymove/pkg/services"
 
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
@@ -42,7 +40,7 @@ func (h UpdateMTOAgentHandler) Handle(params mtoshipmentops.UpdateMTOAgentParams
 	}
 
 	// Call the service object
-	updatedAgent, err := h.MTOAgentUpdater.UpdateMTOAgent(mtoAgent, eTag, mtoagent.UpdateMTOAgentPrimeValidator)
+	updatedAgent, err := h.MTOAgentUpdater.UpdateMTOAgentPrime(mtoAgent, eTag)
 
 	// Convert the errors into error responses to return to caller
 	if err != nil {

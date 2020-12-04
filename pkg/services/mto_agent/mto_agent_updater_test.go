@@ -3,7 +3,6 @@ package mtoagent
 import (
 	"testing"
 
-	"github.com/getlantern/deepcopy"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
@@ -21,9 +20,7 @@ func (suite *MTOAgentServiceSuite) TestMTOAgentUpdater() {
 	oldAgent := testdatagen.MakeDefaultMTOAgent(suite.DB())
 	eTag := etag.GenerateEtag(oldAgent.UpdatedAt)
 
-	var newAgent models.MTOAgent
-	err := deepcopy.Copy(&newAgent, &oldAgent)
-	suite.FatalNoError(err, "error while copying agent models")
+	newAgent := oldAgent
 
 	// Test not found error
 	suite.T().Run("Not Found Error", func(t *testing.T) {
@@ -108,7 +105,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 	})
 
 	// Test successful Base validation
-	suite.T().Run("UpdateMTOAgentBaseValidator - success", func(t *testing.T) {
+	suite.T().Run("UpdateMTOAgentBasicValidator - success", func(t *testing.T) {
 		newAgent := models.MTOAgent{
 			ID:            oldAgent.ID,
 			MTOShipmentID: oldAgent.MTOShipmentID,
@@ -118,7 +115,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 			oldAgent:     oldAgent,
 			verrs:        validate.NewErrors(),
 		}
-		updatedAgent, err := ValidateUpdateMTOAgent(&agentData, UpdateMTOAgentBaseValidator)
+		updatedAgent, err := ValidateUpdateMTOAgent(&agentData, UpdateMTOAgentBasicValidator)
 
 		suite.NoError(err)
 		suite.NotNil(updatedAgent)
@@ -126,7 +123,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 	})
 
 	// Test unsuccessful Base validation
-	suite.T().Run("UpdateMTOAgentBaseValidator - failure", func(t *testing.T) {
+	suite.T().Run("UpdateMTOAgentBasicValidator - failure", func(t *testing.T) {
 		newAgent := models.MTOAgent{
 			ID:            oldAgent.ID,
 			MTOShipmentID: oldAgent.ID, // bad value
@@ -136,7 +133,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 			oldAgent:     oldAgent,
 			verrs:        validate.NewErrors(),
 		}
-		updatedAgent, err := ValidateUpdateMTOAgent(&agentData, UpdateMTOAgentBaseValidator)
+		updatedAgent, err := ValidateUpdateMTOAgent(&agentData, UpdateMTOAgentBasicValidator)
 
 		suite.Nil(updatedAgent)
 		suite.Error(err)
@@ -145,9 +142,7 @@ func (suite *MTOAgentServiceSuite) TestValidateUpdateMTOAgent() {
 
 	// Test successful Prime validation
 	suite.T().Run("UpdateMTOAgentPrimeValidator - success", func(t *testing.T) {
-		var newAgentPrime models.MTOAgent
-		err := deepcopy.Copy(&newAgentPrime, &oldAgentPrime)
-		suite.FatalNoError(err, "error while copying Prime-available agent models")
+		newAgentPrime := oldAgentPrime
 
 		// Ensure we have the minimum required contact info
 		firstName := "Carol"
