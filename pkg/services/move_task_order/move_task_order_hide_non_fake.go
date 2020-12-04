@@ -44,24 +44,31 @@ func (o *moveTaskOrderHider) Hide() (models.Moves, error) {
 
 	var invalidFakeMoves models.Moves
 	for _, mto := range mtos {
-		// what should we do if there is an error?
+		// TODO: what should we do if there is an error?
 		isValid, _ := isValidFakeModelServiceMember(mto.Orders.ServiceMember)
-		if !isValid {
-			mto.Show = swag.Bool(false)
-			invalidFakeMoves = append(invalidFakeMoves, mto)
-			continue
+		if isValid {
+			// TODO: what should we do if there is an error?
+			isValid, _ = isValidFakeModelMTOShipments(mto.MTOShipments)
 		}
 
-		// what should we do if there is an error?
-		isValid, _ = isValidFakeModelMTOShipments(mto.MTOShipments)
 		if !isValid {
 			mto.Show = swag.Bool(false)
 			invalidFakeMoves = append(invalidFakeMoves, mto)
-			continue
 		}
 	}
 
-	// TODO: Update any invalid moves to save hide flag.
+	// TODO: Should we be doing this in a transaction?
+	for i := range invalidFakeMoves {
+		// Take the address of the slice element to avoid implicit memory aliasing of items from a range statement.
+		mto := invalidFakeMoves[i]
+		verrs, updateErr := o.db.ValidateAndUpdate(&mto)
+		if verrs != nil && verrs.HasAny() {
+			return nil, services.NewInvalidInputError(mto.ID, err, verrs, "")
+		}
+		if updateErr != nil {
+			return nil, services.NewQueryError("Move", err, fmt.Sprintf("Unexpected error when saving move: %v", err))
+		}
+	}
 
 	return invalidFakeMoves, nil
 }

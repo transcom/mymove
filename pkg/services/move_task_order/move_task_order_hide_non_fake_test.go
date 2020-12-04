@@ -11,152 +11,99 @@ import (
 )
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_Hide() {
-	mtoHider := NewMoveTaskOrderHider(suite.DB())
-	suite.T().Run("valid MTO, none to hide", func(t *testing.T) {
-		validAddress1 := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				StreetAddress1: "7 Q St",
-			},
-		})
-		validAddress2 := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				StreetAddress1: "448 Washington Blvd NE",
-			},
-		})
-		validAddress3 := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				StreetAddress1: "3373 NW Martin Luther King Jr Blvd",
-			},
-		})
-		validAddress4 := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				StreetAddress1: "142 E Barrel Hoop Circle #4A",
-			},
-		})
-
-		mtoAgent := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-			MTOAgent: models.MTOAgent{
-				FirstName: swag.String("Peyton"),
-				LastName:  swag.String("Wing"),
-				Phone:     swag.String("999-999-9999"),
-				Email:     swag.String("peyton@example.com"),
-			},
-		})
-
-		serviceMember := testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{
-			ServiceMember: models.ServiceMember{
-				FirstName:            swag.String("Gregory"),
-				LastName:             swag.String("Van der Heide"),
-				Telephone:            swag.String("999-999-9999"),
-				SecondaryTelephone:   swag.String("555-123-9999"),
-				PersonalEmail:        swag.String("peyton@example.com"),
-				ResidentialAddress:   &validAddress1,
-				BackupMailingAddress: &validAddress2,
-			},
-		})
-
-		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				ServiceMember: serviceMember,
-			},
-		})
-
-		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Order: order,
-		})
-
-		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: mto,
-			MTOShipment: models.MTOShipment{
-				PickupAddress:            &validAddress1,
-				SecondaryPickupAddress:   &validAddress2,
-				DestinationAddress:       &validAddress3,
-				SecondaryDeliveryAddress: &validAddress4,
-			},
-			MTOAgent: mtoAgent,
-		})
-
-		result, err := mtoHider.Hide()
-		suite.NoError(err)
-
-		for _, receivedMTO := range result {
-			suite.NotEqual(receivedMTO, mto)
-		}
+	// Set up a move with all valid data.
+	validAddress1 := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+		Address: models.Address{
+			StreetAddress1: "7 Q St",
+		},
+	})
+	validAddress2 := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+		Address: models.Address{
+			StreetAddress1: "448 Washington Blvd NE",
+		},
+	})
+	validAddress3 := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+		Address: models.Address{
+			StreetAddress1: "3373 NW Martin Luther King Jr Blvd",
+		},
+	})
+	validAddress4 := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+		Address: models.Address{
+			StreetAddress1: "142 E Barrel Hoop Circle #4A",
+		},
 	})
 
-	suite.T().Run("invalid MTO, none to hide", func(t *testing.T) {
-		address1 := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				StreetAddress1: "7 Q St",
-			},
-		})
-		address2 := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				StreetAddress1: "448 Washington Blvd NE",
-			},
-		})
-		address3 := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				StreetAddress1: "3373 NW Martin Luther King Jr Blvd",
-			},
-		})
-		address4 := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-			Address: models.Address{
-				StreetAddress1: "142 E Barrel Hoop Circle #4A",
-			},
-		})
+	serviceMember := testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			FirstName:              swag.String("Gregory"),
+			LastName:               swag.String("Van der Heide"),
+			Telephone:              swag.String("999-999-9999"),
+			SecondaryTelephone:     swag.String("123-555-9999"),
+			PersonalEmail:          swag.String("peyton@example.com"),
+			ResidentialAddressID:   &validAddress1.ID,
+			ResidentialAddress:     &validAddress1,
+			BackupMailingAddressID: &validAddress2.ID,
+			BackupMailingAddress:   &validAddress2,
+		},
+	})
 
-		mtoAgent := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
-			MTOAgent: models.MTOAgent{
-				FirstName: swag.String("Beyonce"),
-				LastName:  swag.String("Knowles-Carter"),
-				Phone:     swag.String("999-999-9999"),
-				Email:     swag.String("peyton@example.com"),
-			},
-		})
+	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID: serviceMember.ID,
+			ServiceMember:   serviceMember,
+		},
+	})
 
-		serviceMember := testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{
-			ServiceMember: models.ServiceMember{
-				FirstName:            swag.String("Mike"),
-				LastName:             swag.String("Jones"),
-				Telephone:            swag.String("999-999-9999"),
-				SecondaryTelephone:   swag.String("555-123-9999"),
-				PersonalEmail:        swag.String("peyton@example.com"),
-				ResidentialAddress:   &address1,
-				BackupMailingAddress: &address2,
-			},
-		})
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Order: order,
+	})
 
-		order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-			Order: models.Order{
-				ServiceMember: serviceMember,
-			},
-		})
+	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		Move:                     move,
+		PickupAddress:            validAddress1,
+		SecondaryPickupAddress:   validAddress2,
+		DestinationAddress:       validAddress3,
+		SecondaryDeliveryAddress: validAddress4,
+	})
 
-		mto := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-			Order: order,
-		})
+	mtoAgent := testdatagen.MakeMTOAgent(suite.DB(), testdatagen.Assertions{
+		MTOShipment: mtoShipment,
+		MTOAgent: models.MTOAgent{
+			MTOShipmentID: mtoShipment.ID,
+			FirstName:     swag.String("Peyton"),
+			LastName:      swag.String("Wing"),
+			Phone:         swag.String("999-999-9999"),
+			Email:         swag.String("peyton@example.com"),
+		},
+	})
 
-		testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
-			Move: mto,
-			MTOShipment: models.MTOShipment{
-				PickupAddress:            &address1,
-				SecondaryPickupAddress:   &address2,
-				DestinationAddress:       &address3,
-				SecondaryDeliveryAddress: &address4,
-			},
-			MTOAgent: mtoAgent,
-		})
+	mtoHider := NewMoveTaskOrderHider(suite.DB())
+
+	suite.T().Run("valid MTO, none to hide", func(t *testing.T) {
+		result, err := mtoHider.Hide()
+		suite.NoError(err)
+
+		suite.Len(result, 0)
+	})
+
+	suite.T().Run("invalid MTO, one to hide", func(t *testing.T) {
+		// Change an MTO agent name to an invalid name.
+		mtoAgent.FirstName = swag.String("Beyonce")
+		suite.MustSave(&mtoAgent)
 
 		result, err := mtoHider.Hide()
 		suite.NoError(err)
-		var foundMTO bool
-		for _, receivedMTO := range result {
-			if receivedMTO.ID.String() == mto.ID.String() {
-				foundMTO = true
-			}
+
+		if suite.Len(result, 1) {
+			suite.Equal(result[0].ID, move.ID)
+			suite.Equal(result[0].Show, swag.Bool(false))
+
+			// Check the database to make sure the move is truly hidden.
+			var savedMove models.Move
+			findErr := suite.DB().Find(&savedMove, move.ID)
+			suite.NoError(findErr)
+			suite.Equal(savedMove.Show, swag.Bool(false))
 		}
-		suite.Equal(true, foundMTO)
 	})
 }
 
