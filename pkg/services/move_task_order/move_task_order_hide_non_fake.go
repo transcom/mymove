@@ -24,7 +24,18 @@ func NewMoveTaskOrderHider(db *pop.Connection) services.MoveTaskOrderHider {
 func (o *moveTaskOrderHider) Hide() (models.Moves, error) {
 	var mtos models.Moves
 	err := o.db.Q().
-		Eager("Orders.ServiceMember").
+		// Note: We may be able to same some queries if we load on demand, but we'll need to
+		// refactor the methods that check for valid fake data to pass in the DB connection.
+		Eager(
+			"Orders.ServiceMember.ResidentialAddress",
+			"Orders.ServiceMember.BackupMailingAddress",
+			"Orders.ServiceMember.BackupContacts",
+			"MTOShipments.PickupAddress",
+			"MTOShipments.DestinationAddress",
+			"MTOShipments.SecondaryPickupAddress",
+			"MTOShipments.SecondaryDeliveryAddress",
+			"MTOShipments.MTOAgents",
+		).
 		Where("show = ?", swag.Bool(true)).
 		All(&mtos)
 	if err != nil {
@@ -36,19 +47,21 @@ func (o *moveTaskOrderHider) Hide() (models.Moves, error) {
 		// what should we do if there is an error?
 		isValid, _ := isValidFakeModelServiceMember(mto.Orders.ServiceMember)
 		if !isValid {
-			dontShow := false
-			mto.Show = &dontShow
+			mto.Show = swag.Bool(false)
 			invalidFakeMoves = append(invalidFakeMoves, mto)
+			continue
 		}
 
 		// what should we do if there is an error?
 		isValid, _ = isValidFakeModelMTOShipments(mto.MTOShipments)
 		if !isValid {
-			dontShow := false
-			mto.Show = &dontShow
+			mto.Show = swag.Bool(false)
 			invalidFakeMoves = append(invalidFakeMoves, mto)
+			continue
 		}
 	}
+
+	// TODO: Update any invalid moves to save hide flag.
 
 	return invalidFakeMoves, nil
 }
