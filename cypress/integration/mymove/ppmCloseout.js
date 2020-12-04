@@ -255,13 +255,13 @@ function serviceMemberUploadsExpenses(hasAnother = true, expenseNumber = null) {
   cy.get('input[name="haveMoreExpenses"][value="Yes"]+label').click();
   if (hasAnother) {
     cy.get('button').contains('Save & Add Another').click();
-    cy.wait('@postMovingExpense').its('status').should('eq', 200);
+    cy.wait('@postMovingExpense').its('response.statusCode').should('eq', 200);
     cy.get('[data-testid=documents-uploaded]').should('exist');
   } else {
     cy.get('input[name="haveMoreExpenses"][value="No"]+label').click();
     cy.get('input[name="haveMoreExpenses"][value="No"]').should('be.checked');
     cy.get('button').contains('Save & Continue').click();
-    cy.wait('@postMovingExpense').its('status').should('eq', 200);
+    cy.wait('@postMovingExpense').its('response.statusCode').should('eq', 200);
   }
 }
 
