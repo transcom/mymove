@@ -24,6 +24,7 @@ func NewMoveTaskOrderHider(db *pop.Connection) services.MoveTaskOrderHider {
 func (o *moveTaskOrderHider) Hide() (models.Moves, error) {
 	var mtos models.Moves
 	err := o.db.Q().
+		Eager("Orders.ServiceMember").
 		Where("show = ?", swag.Bool(true)).
 		All(&mtos)
 	if err != nil {
