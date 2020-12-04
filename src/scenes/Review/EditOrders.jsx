@@ -28,6 +28,7 @@ import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, 
 import scrollToTop from 'shared/scrollToTop';
 import { documentSizeLimitMsg } from 'shared/constants';
 import { createModifiedSchemaForOrdersTypesFlag } from 'shared/featureFlags';
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
 import './Review.css';
 import profileImage from './images/profile.png';
@@ -210,13 +211,14 @@ class EditOrders extends Component {
 }
 
 function mapStateToProps(state) {
-  const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+  const serviceMemberId = serviceMember?.id;
   const currentOrders = selectActiveOrLatestOrders(state);
   const uploads = selectUploadsForActiveOrders(state);
 
   const props = {
     currentOrders,
-    serviceMemberId: serviceMemberId,
+    serviceMemberId,
     existingUploads: uploads,
     document: selectDocument(state, currentOrders.uploaded_orders),
     error: get(state, 'orders.error'),

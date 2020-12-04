@@ -10,12 +10,12 @@ import {
   selectActiveOrLatestOrders,
   selectUploadsForActiveOrders,
 } from 'shared/Entities/modules/orders';
-
 import { createUpload, deleteUpload, selectDocument } from 'shared/Entities/modules/documents';
 import OrdersUploader from 'components/OrdersUploader';
 import UploadsTable from 'shared/Uploader/UploadsTable';
 import WizardPage from 'shared/WizardPage';
 import { documentSizeLimitMsg } from 'shared/constants';
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
 import './UploadOrders.css';
 import { no_op } from 'shared/utils';
@@ -124,15 +124,17 @@ UploadOrders.propTypes = {
 };
 
 function mapStateToProps(state) {
-  const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
+  const serviceMemberId = serviceMember?.id;
   const currentOrders = selectActiveOrLatestOrders(state);
 
   const props = {
-    serviceMemberId: serviceMemberId,
+    serviceMemberId,
     currentOrders,
     uploads: selectUploadsForActiveOrders(state),
     document: selectDocument(state, currentOrders.uploaded_orders),
   };
+
   return props;
 }
 

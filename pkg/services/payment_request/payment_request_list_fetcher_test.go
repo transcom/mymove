@@ -276,12 +276,6 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListWithPaginati
 	suite.Equal(1, len(*expectedPaymentRequests))
 	suite.Equal(2, count)
 
-	// Pagination disabled using zero values
-	expectedPaymentRequests, count, err = paymentRequestListFetcher.FetchPaymentRequestList(officeUser.ID, &services.FetchPaymentRequestListParams{Page: swag.Int64(0), PerPage: swag.Int64(0)})
-
-	suite.NoError(err)
-	suite.Equal(2, len(*expectedPaymentRequests))
-	suite.Equal(2, count)
 }
 
 func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {

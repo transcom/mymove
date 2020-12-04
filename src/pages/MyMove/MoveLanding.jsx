@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+
 export const MoveLanding = ({ serviceMember }) => {
   return (
     <div className="usa-grid">
@@ -21,9 +23,10 @@ MoveLanding.propTypes = {
 MoveLanding.defaultProps = {
   serviceMember: {},
 };
+
 function mapStateToProps(state) {
   return {
-    serviceMember: get(state, 'serviceMember.currentServiceMember'),
+    serviceMember: selectServiceMemberFromLoggedInUser(state),
   };
 }
 

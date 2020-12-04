@@ -157,16 +157,31 @@ func GetAWSConfig(v *viper.Viper, verbose bool) (*aws.Config, error) {
 		Region: aws.String(awsRegion),
 	}
 
-	// Attempt to retrieve AWS creds from envar
+	// Attempt to retrieve AWS creds from envar, if not move to aws-vault
 	creds := credentials.NewEnvCredentials()
 	_, err := creds.Get()
 	if err == nil {
 		// we have creds for envars return them
 		awsConfig.CredentialsChainVerboseErrors = aws.Bool(verbose)
 		awsConfig.Credentials = creds
-
-	} else {
-		return nil, errors.Wrap(err, "Unable to find AWS credentials as environment variables")
+	} else if awsVault := v.GetString(VaultAWSVaultFlag); len(awsVault) == 0 {
+		// If program is not wrapped in aws-vault wrapper then get credentials
+		keychainName := v.GetString(VaultAWSKeychainNameFlag)
+		awsProfile := v.GetString(VaultAWSProfileFlag)
+		if len(keychainName) > 0 && len(awsProfile) > 0 {
+			creds, getAWSCredsErr := GetAWSCredentialsFromKeyring(
+				keychainName,
+				awsProfile,
+				v.GetDuration(VaultAWSSessionDurationFlag),
+				v.GetDuration(VaultAWSAssumeRoleTTLFlag),
+			)
+			if getAWSCredsErr != nil {
+				return nil, errors.Wrap(getAWSCredsErr,
+					fmt.Sprintf("Unable to get AWS credentials from the keychain %s and profile %s", keychainName, awsProfile))
+			}
+			awsConfig.CredentialsChainVerboseErrors = aws.Bool(verbose)
+			awsConfig.Credentials = creds
+		}
 	}
 	return awsConfig, nil
 }
