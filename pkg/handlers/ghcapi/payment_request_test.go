@@ -37,8 +37,8 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUserUUID, _ := uuid.NewV4()
+	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true, OfficeUser: models.OfficeUser{ID: officeUserUUID}})
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTIO,
 	})
@@ -116,7 +116,8 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 	prUUID, _ := uuid.NewV4()
 	paymentRequests := models.PaymentRequests{models.PaymentRequest{ID: prUUID}}
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUserUUID, _ := uuid.NewV4()
+	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true, OfficeUser: models.OfficeUser{ID: officeUserUUID}})
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTIO,
 	})
@@ -188,7 +189,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 
 func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	paymentRequestID, _ := uuid.FromString("00000000-0000-0000-0000-000000000001")
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUserUUID, _ := uuid.NewV4()
+	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true, OfficeUser: models.OfficeUser{ID: officeUserUUID}})
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTIO,
 	})
