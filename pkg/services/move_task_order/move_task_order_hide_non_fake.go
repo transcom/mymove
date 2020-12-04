@@ -43,6 +43,13 @@ func (o *moveTaskOrderHider) Hide() (models.Moves, error) {
 	return invalidFakeMoves, nil
 }
 
+func isValidFakeModelAddress(a *models.Address) (bool, error) {
+	if a != nil {
+		return fakedata.IsValidFakeDataAddress(a.StreetAddress1)
+	}
+	return true, nil
+}
+
 // isValidFakeServiceMember - checks if the contact info
 // of a service member is fake
 func isValidFakeServiceMember(sm models.ServiceMember) (bool, error) {
@@ -67,23 +74,20 @@ func isValidFakeServiceMember(sm models.ServiceMember) (bool, error) {
 			return false, nil
 		}
 	}
-	if sm.ResidentialAddress != nil {
-		address := sm.ResidentialAddress.StreetAddress1
-		if address != "" {
-			isValidFakeAddress, _ := fakedata.IsValidFakeDataAddress(sm.ResidentialAddress.StreetAddress1)
-			if !isValidFakeAddress {
-				return false, nil
-			}
-		}
+	ok, err := isValidFakeModelAddress(sm.ResidentialAddress)
+	if err != nil {
+		return false, err
 	}
-	if sm.BackupMailingAddress != nil {
-		backupAddress := sm.BackupMailingAddress.StreetAddress1
-		if backupAddress != "" {
-			isValidFakeBackupAddress, _ := fakedata.IsValidFakeDataAddress(sm.BackupMailingAddress.StreetAddress1)
-			if !isValidFakeBackupAddress {
-				return false, nil
-			}
-		}
+	if ok == false {
+		return ok, nil
+	}
+
+	ok, err = isValidFakeModelAddress(sm.BackupMailingAddress)
+	if err != nil {
+		return false, err
+	}
+	if ok == false {
+		return ok, nil
 	}
 
 	fName := sm.FirstName
