@@ -113,7 +113,7 @@ type UpdateMTOServiceItemHandler struct {
 	services.MTOServiceItemUpdater
 }
 
-// Handle handler that updates a mto shipment
+// Handle handler that updates an MTOServiceItem. Only a limited number of service items and fields may be updated.
 func (h UpdateMTOServiceItemHandler) Handle(params mtoserviceitemops.UpdateMTOServiceItemParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
@@ -135,6 +135,8 @@ func (h UpdateMTOServiceItemHandler) Handle(params mtoserviceitemops.UpdateMTOSe
 			return mtoserviceitemops.NewUpdateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(e.Error(), h.GetTraceID(), e.ValidationErrors))
 		case services.ConflictError:
 			return mtoserviceitemops.NewUpdateMTOServiceItemConflict().WithPayload(payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceID()))
+		case services.PreconditionFailedError:
+			return mtoserviceitemops.NewUpdateMTOServiceItemPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceID()))
 		case services.QueryError:
 			if e.Unwrap() != nil {
 				// If you can unwrap, log the internal error (usually a pq error) for better debugging

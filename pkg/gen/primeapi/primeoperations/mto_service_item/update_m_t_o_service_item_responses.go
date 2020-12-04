@@ -277,6 +277,50 @@ func (o *UpdateMTOServiceItemConflict) WriteResponse(rw http.ResponseWriter, pro
 	}
 }
 
+// UpdateMTOServiceItemPreconditionFailedCode is the HTTP code returned for type UpdateMTOServiceItemPreconditionFailed
+const UpdateMTOServiceItemPreconditionFailedCode int = 412
+
+/*UpdateMTOServiceItemPreconditionFailed Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.
+
+swagger:response updateMTOServiceItemPreconditionFailed
+*/
+type UpdateMTOServiceItemPreconditionFailed struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *primemessages.ClientError `json:"body,omitempty"`
+}
+
+// NewUpdateMTOServiceItemPreconditionFailed creates UpdateMTOServiceItemPreconditionFailed with default headers values
+func NewUpdateMTOServiceItemPreconditionFailed() *UpdateMTOServiceItemPreconditionFailed {
+
+	return &UpdateMTOServiceItemPreconditionFailed{}
+}
+
+// WithPayload adds the payload to the update m t o service item precondition failed response
+func (o *UpdateMTOServiceItemPreconditionFailed) WithPayload(payload *primemessages.ClientError) *UpdateMTOServiceItemPreconditionFailed {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update m t o service item precondition failed response
+func (o *UpdateMTOServiceItemPreconditionFailed) SetPayload(payload *primemessages.ClientError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *UpdateMTOServiceItemPreconditionFailed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(412)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // UpdateMTOServiceItemUnprocessableEntityCode is the HTTP code returned for type UpdateMTOServiceItemUnprocessableEntity
 const UpdateMTOServiceItemUnprocessableEntityCode int = 422
 
@@ -357,50 +401,6 @@ func (o *UpdateMTOServiceItemInternalServerError) SetPayload(payload *primemessa
 func (o *UpdateMTOServiceItemInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
-	}
-}
-
-// UpdateMTOServiceItemNotImplementedCode is the HTTP code returned for type UpdateMTOServiceItemNotImplemented
-const UpdateMTOServiceItemNotImplementedCode int = 501
-
-/*UpdateMTOServiceItemNotImplemented The requested feature is still in development.
-
-swagger:response updateMTOServiceItemNotImplemented
-*/
-type UpdateMTOServiceItemNotImplemented struct {
-
-	/*
-	  In: Body
-	*/
-	Payload *primemessages.Error `json:"body,omitempty"`
-}
-
-// NewUpdateMTOServiceItemNotImplemented creates UpdateMTOServiceItemNotImplemented with default headers values
-func NewUpdateMTOServiceItemNotImplemented() *UpdateMTOServiceItemNotImplemented {
-
-	return &UpdateMTOServiceItemNotImplemented{}
-}
-
-// WithPayload adds the payload to the update m t o service item not implemented response
-func (o *UpdateMTOServiceItemNotImplemented) WithPayload(payload *primemessages.Error) *UpdateMTOServiceItemNotImplemented {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the update m t o service item not implemented response
-func (o *UpdateMTOServiceItemNotImplemented) SetPayload(payload *primemessages.Error) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *UpdateMTOServiceItemNotImplemented) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(501)
 	if o.Payload != nil {
 		payload := o.Payload
 		if err := producer.Produce(rw, payload); err != nil {

@@ -466,12 +466,12 @@ paths:
           $ref: '#/responses/NotFound'
         '409':
           $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
         '422':
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-        '501':
-          $ref: '#/responses/NotImplemented'
   /payment-requests:
     post:
       summary: createPaymentRequest

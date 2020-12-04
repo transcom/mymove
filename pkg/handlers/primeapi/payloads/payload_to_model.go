@@ -9,7 +9,6 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
-	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -214,8 +213,6 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 		model.ReService.Code = models.ReServiceCodeDOFSIT
 		model.Reason = dofsit.Reason
 		model.PickupPostalCode = dofsit.PickupPostalCode
-		model.SITDepartureDate = swag.Time(time.Time(dofsit.SitDepartureDate))
-		model.SITEntryDate = handlers.FmtDatePtrToPopPtr(dofsit.SitEntryDate)
 
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemDDFSIT:
 		ddfsit := mtoServiceItem.(*primemessages.MTOServiceItemDDFSIT)
@@ -232,8 +229,6 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 				FirstAvailableDeliveryDate: time.Time(*ddfsit.FirstAvailableDeliveryDate2),
 			},
 		}
-		model.SITDepartureDate = swag.Time(time.Time(ddfsit.SitDepartureDate))
-		model.SITEntryDate = handlers.FmtDatePtrToPopPtr(ddfsit.SitEntryDate)
 
 	case primemessages.MTOServiceItemModelTypeMTOServiceItemShuttle:
 		shuttleService := mtoServiceItem.(*primemessages.MTOServiceItemShuttle)
