@@ -32,7 +32,16 @@ func (o *moveTaskOrderHider) Hide() (models.Moves, error) {
 
 	var invalidFakeMoves models.Moves
 	for _, mto := range mtos {
+		// what should we do if there is an error?
 		isValid, _ := isValidFakeServiceMember(mto.Orders.ServiceMember)
+		if !isValid {
+			dontShow := false
+			mto.Show = &dontShow
+			invalidFakeMoves = append(invalidFakeMoves, mto)
+		}
+
+		// what should we do if there is an error?
+		isValid, _ = isValidFakeModelMTOShipments(mto.MTOShipments)
 		if !isValid {
 			dontShow := false
 			mto.Show = &dontShow
@@ -81,6 +90,19 @@ func isValidFakeModelMTOAgent(a models.MTOAgent) (bool, error) {
 		}
 	}
 
+	return true, nil
+}
+
+func isValidFakeModelMTOShipments(shipments models.MTOShipments) (bool, error) {
+	for _, shipment := range shipments {
+		ok, err := isValidFakeModelMTOShipment(shipment)
+		if err != nil {
+			return false, err
+		}
+		if ok == false {
+			return false, nil
+		}
+	}
 	return true, nil
 }
 

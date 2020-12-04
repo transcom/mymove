@@ -31,3 +31,11 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 		suite.Equal(true, result)
 	})
 }
+
+func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelMTOShipments() {
+	suite.T().Run("Clear path", func(t *testing.T) {
+		result, err := isValidFakeModelMTOShipments(models.MTOShipments{})
+		suite.NoError(err)
+		suite.Equal(true, result)
+	})
+}
