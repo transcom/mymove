@@ -109,7 +109,8 @@ const PaymentRequestCard = ({ paymentRequest }) => {
             <a href="orders">View orders</a>
           ) : (
             <a href={`payment-requests/${paymentRequest.id}`}>
-              <FontAwesomeIcon icon="copy" /> View documents
+              <FontAwesomeIcon icon="copy" />
+              View documents
             </a>
           )}
           <div className={styles.toggleDrawer}>
