@@ -50,6 +50,40 @@ func isValidFakeModelAddress(a *models.Address) (bool, error) {
 	return true, nil
 }
 
+func isValidFakeModelMTOAgent(a models.MTOAgent) (bool, error) {
+	if a.FirstName != nil && a.LastName != nil {
+		ok, err := fakedata.IsValidFakeDataFullName(*a.FirstName, *a.LastName)
+		if err != nil {
+			return false, err
+		}
+		if ok == false {
+			return false, nil
+		}
+	}
+
+	if a.Phone != nil {
+		ok, err := fakedata.IsValidFakeDataPhone(*a.Phone)
+		if err != nil {
+			return false, err
+		}
+		if ok == false {
+			return false, nil
+		}
+	}
+
+	if a.Email != nil {
+		ok, err := fakedata.IsValidFakeDataEmail(*a.Email)
+		if err != nil {
+			return false, err
+		}
+		if ok == false {
+			return false, nil
+		}
+	}
+
+	return true, nil
+}
+
 func isValidFakeModelBackupContact(bc models.BackupContact) (bool, error) {
 	ok, err := fakedata.IsValidFakeDataName(bc.Name)
 	if err != nil {

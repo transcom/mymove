@@ -2,6 +2,8 @@ package movetaskorder
 
 import (
 	"testing"
+
+	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_Hide() {
@@ -11,5 +13,13 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_Hide() {
 		result, err := mtoHider.Hide()
 		suite.NoError(err)
 		suite.Equal(0, len(result))
+	})
+}
+
+func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelMTOAgent() {
+	suite.T().Run("Clear path", func(t *testing.T) {
+		result, err := isValidFakeModelMTOAgent(models.MTOAgent{})
+		suite.NoError(err)
+		suite.Equal(true, result)
 	})
 }
