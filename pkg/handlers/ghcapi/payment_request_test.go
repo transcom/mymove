@@ -67,7 +67,7 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 	})
 
 	suite.T().Run("failed fetch for payment request - forbidden", func(t *testing.T) {
-		officeUserTOO := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUserTOO := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 			RoleType: roles.RoleTypeTOO,
 		})
@@ -232,7 +232,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	})
 
 	suite.T().Run("failed status update of payment request - forbidden", func(t *testing.T) {
-		officeUserTOO := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUserTOO := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{Stub: true})
 		officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 			RoleType: roles.RoleTypeTOO,
 		})
