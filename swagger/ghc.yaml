@@ -755,6 +755,10 @@ paths:
           description: The requested resource wasn't found
           schema:
             $ref: '#/responses/NotFound'
+        '409':
+          description: Conflict error
+          schema:
+            $ref: '#/responses/Conflict'
         '412':
           description: Precondition Failed
           schema:
@@ -915,6 +919,44 @@ paths:
       description: Fetches an instance of a payment request by id
       operationId: getPaymentRequest
       summary: Fetches a payment request by id
+  '/moves/{locator}/payment-requests':
+    parameters:
+      - description: move code to identify a move for payment requests
+        format: string
+        in: path
+        name: locator
+        required: true
+        type: string
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved all line items for a move task order
+          schema:
+            $ref: '#/definitions/PaymentRequests'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '422':
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - paymentRequests
+      description: Fetches payment requests for a move
+      operationId: getPaymentRequestsForMove
+      summary: Fetches payment requests using the move code (locator).
   '/payment-requests/{paymentRequestID}/status':
     patch:
       consumes:
@@ -1050,7 +1092,7 @@ paths:
         - in: query
           name: order
           type: string
-          enum: [ asc, desc ]
+          enum: [asc, desc]
           description: direction of sort order if applied
         - in: query
           name: branch
@@ -1105,12 +1147,12 @@ paths:
         - in: query
           name: sort
           type: string
-          enum: [ lastName, locator, submittedAt, branch, status, dodID, age]
+          enum: [lastName, locator, submittedAt, branch, status, dodID, age]
           description: field that results should be sorted by
         - in: query
           name: order
           type: string
-          enum: [ asc, desc ]
+          enum: [asc, desc]
           description: direction of sort order if applied
         - in: query
           name: page
@@ -1797,6 +1839,9 @@ definitions:
         format: date-time
         type: string
         x-nullable: true
+      createdAt:
+        format: date-time
+        type: string
     type: object
   PaymentRequests:
     items:

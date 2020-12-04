@@ -1,7 +1,6 @@
 import React from 'react';
 import { string, arrayOf, shape } from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFile } from '@fortawesome/free-solid-svg-icons';
 
 import styles from './DocsUploaded.module.scss';
 
@@ -12,7 +11,7 @@ const DocsUploaded = ({ files }) => (
     </h6>
     {files.map((file) => (
       <div key={file.filename} className={styles['doc-list-item']}>
-        <FontAwesomeIcon icon={faFile} className={styles['docs-icon']} />
+        <FontAwesomeIcon icon="file" className={styles['docs-icon']} />
         {file.filename}
       </div>
     ))}

@@ -6,7 +6,6 @@ import * as Yup from 'yup';
 import { Formik } from 'formik';
 import { queryCache, useMutation } from 'react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes as CloseIcon } from '@fortawesome/free-solid-svg-icons';
 
 import styles from './MoveOrders.module.scss';
 
@@ -127,7 +126,7 @@ const MoveOrders = ({ history, match }) => {
                     onClick={handleClose}
                     unstyled
                   >
-                    <FontAwesomeIcon icon={CloseIcon} title="Close sidebar" aria-label="Close sidebar" />
+                    <FontAwesomeIcon icon="times" title="Close sidebar" aria-label="Close sidebar" />
                   </Button>
                   <h2 className={styles.header}>View Orders</h2>
                   <div>

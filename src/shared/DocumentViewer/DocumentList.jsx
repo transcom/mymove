@@ -1,14 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
+
 import { renderStatusIcon, openLinkInNewWindow } from 'shared/utils';
 import styles from 'shared/DocumentViewer/DocumentList.module.scss';
 import { defaultRelativeWindowSize } from 'shared/constants';
 
-const documentUploadIcon = faPlusCircle;
 const DocumentList = ({
   currentMoveDocumentId,
   moveDocuments,
@@ -55,7 +53,7 @@ const DocumentList = ({
     {window.name === `docViewer-${moveId}` ? (
       <div className={`${styles['document-upload-link']} link-blue`}>
         <Link to={uploadDocumentUrl}>
-          <FontAwesomeIcon className="icon link-blue" icon={documentUploadIcon} />
+          <FontAwesomeIcon className="icon link-blue" icon="plus-circle" />
           Upload new document
         </Link>
       </div>
@@ -73,7 +71,7 @@ const DocumentList = ({
           )}
           className="usa-link"
         >
-          <FontAwesomeIcon className="icon link-blue" icon={documentUploadIcon} />
+          <FontAwesomeIcon className="icon link-blue" icon="plus-circle" />
           Upload new document
         </a>
       </div>

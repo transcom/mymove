@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes as XIcon } from '@fortawesome/free-solid-svg-icons';
 
 import { sortServiceItemsByGroup } from '../../../utils/serviceItems';
 
@@ -119,7 +118,7 @@ const ReviewServiceItems = ({
       <div data-testid="ReviewServiceItems" className={styles.ReviewServiceItems}>
         <div className={styles.top}>
           <Button data-testid="closeSidebar" type="button" onClick={handleClose} unstyled>
-            <FontAwesomeIcon icon={XIcon} title="Close sidebar" aria-label="Close sidebar" />
+            <FontAwesomeIcon icon="times" title="Close sidebar" aria-label="Close sidebar" />
           </Button>
           <h2 className={styles.header}>Complete request</h2>
         </div>
@@ -156,7 +155,7 @@ const ReviewServiceItems = ({
     <div data-testid="ReviewServiceItems" className={styles.ReviewServiceItems}>
       <div className={styles.top}>
         <Button data-testid="closeSidebar" type="button" onClick={handleClose} unstyled>
-          <FontAwesomeIcon icon={XIcon} ariaLabel="close" />
+          <FontAwesomeIcon icon="times" aria-label="close" />
         </Button>
         <div data-testid="itemCount" className={styles.eyebrowTitle}>
           {curCardIndex + 1} OF {totalCards} ITEMS

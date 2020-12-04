@@ -1,7 +1,6 @@
 import React from 'react';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
 
 import { AddressShape } from '../../../types/address';
 import { formatAddress } from '../../../utils/shipmentDisplay';
@@ -16,12 +15,12 @@ const ShipmentAddresses = ({ pickupAddress, destinationAddress, originDutyStatio
       <DataPoint
         columnHeaders={['Authorized addresses', '']}
         dataRow={[formatAddress(originDutyStation), formatAddress(destinationDutyStation)]}
-        Icon={<FontAwesomeIcon icon={faArrowRight} />}
+        icon={<FontAwesomeIcon icon="arrow-right" />}
       />
       <DataPoint
         columnHeaders={["Customer's addresses", '']}
         dataRow={[formatAddress(pickupAddress), formatAddress(destinationAddress)]}
-        Icon={<FontAwesomeIcon icon={faArrowRight} />}
+        icon={<FontAwesomeIcon icon="arrow-right" />}
       />
     </DataPointGroup>
   );

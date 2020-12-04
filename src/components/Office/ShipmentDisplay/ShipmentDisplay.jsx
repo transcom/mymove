@@ -2,8 +2,6 @@ import React from 'react';
 import * as PropTypes from 'prop-types';
 import { Checkbox } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheckCircle } from '@fortawesome/free-regular-svg-icons';
-import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 
 import ShipmentContainer from '../ShipmentContainer';
 import { AddressShape } from '../../../types/address';
@@ -29,9 +27,9 @@ const ShipmentDisplay = ({ shipmentType, displayInfo, onChange, shipmentId, isSu
               value={shipmentId}
             />
           )}
-          {!isSubmitted && <FontAwesomeIcon icon={faCheckCircle} className={styles.approved} />}
+          {!isSubmitted && <FontAwesomeIcon icon={['far', 'check-circle']} className={styles.approved} />}
           <h3>{displayInfo.heading}</h3>
-          <FontAwesomeIcon icon={faChevronDown} />
+          <FontAwesomeIcon icon="chevron-down" />
         </div>
         <dl>
           <div className={styles.row}>

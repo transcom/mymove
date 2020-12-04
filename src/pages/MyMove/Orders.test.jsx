@@ -48,9 +48,24 @@ describe('Orders page', () => {
 
   describe('with no existing orders', () => {
     const initialState = {
-      serviceMember: {
-        currentServiceMember: {
-          id: 'testServiceMember123',
+      user: {
+        userInfo: {
+          service_member: {
+            id: 'testServiceMember123',
+          },
+        },
+      },
+      entities: {
+        orders: {},
+        serviceMembers: {
+          testServiceMember123: {
+            id: 'testServiceMember123',
+          },
+        },
+        users: {
+          testUserId: {
+            service_member: 'testServiceMember123',
+          },
         },
       },
     };
@@ -91,15 +106,20 @@ describe('Orders page', () => {
           },
         },
       },
-      serviceMember: {
-        currentServiceMember: {
-          id: 'testServiceMember123',
-        },
-      },
       entities: {
         orders: {
           orders123: {
             service_member_id: 'testServiceMember123',
+          },
+        },
+        serviceMembers: {
+          testServiceMember123: {
+            id: 'testServiceMember123',
+          },
+        },
+        users: {
+          testUserId: {
+            service_member: 'testServiceMember123',
           },
         },
       },

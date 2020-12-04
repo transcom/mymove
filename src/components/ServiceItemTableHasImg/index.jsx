@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
 
 import { SERVICE_ITEM_STATUS } from '../../shared/constants';
 import { MTOServiceItemCustomerContactShape, MTOServiceItemDimensionShape } from '../../types/moveOrder';
@@ -53,7 +52,7 @@ const ServiceItemTableHasImg = ({
                 onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.APPROVED)}
               >
                 <span className="icon">
-                  <FontAwesomeIcon icon={faCheck} />
+                  <FontAwesomeIcon icon="check" />
                 </span>
                 <span>Accept</span>
               </Button>
@@ -65,7 +64,7 @@ const ServiceItemTableHasImg = ({
                 onClick={() => handleShowRejectionDialog(id)}
               >
                 <span className="icon">
-                  <FontAwesomeIcon icon={faTimes} />
+                  <FontAwesomeIcon icon="times" />
                 </span>
                 <span>Reject</span>
               </Button>
@@ -80,7 +79,7 @@ const ServiceItemTableHasImg = ({
                 onClick={() => handleShowRejectionDialog(id)}
               >
                 <span className="icon">
-                  <FontAwesomeIcon icon={faTimes} />
+                  <FontAwesomeIcon icon="times" />
                 </span>{' '}
                 Reject
               </Button>
@@ -95,7 +94,7 @@ const ServiceItemTableHasImg = ({
                 onClick={() => handleUpdateMTOServiceItemStatus(id, SERVICE_ITEM_STATUS.APPROVED)}
               >
                 <span className="icon">
-                  <FontAwesomeIcon icon={faTimes} />
+                  <FontAwesomeIcon icon="times" />
                 </span>{' '}
                 Approve
               </Button>

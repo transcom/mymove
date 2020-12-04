@@ -1,7 +1,5 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
-import { faBan } from '@fortawesome/free-solid-svg-icons/faBan';
 
 function AllowableExpenses(props) {
   function goBack() {
@@ -54,7 +52,7 @@ function AllowableExpenses(props) {
           </p>
           <hr className="divider" />
           <div className="bullet-li-header">
-            <FontAwesomeIcon aria-hidden className="icon" icon={faCheck} />
+            <FontAwesomeIcon aria-hidden className="icon" icon="check" />
             Some commonly claimed moving expenses:
           </div>
           <ul>
@@ -68,7 +66,7 @@ function AllowableExpenses(props) {
           </ul>
           <div className="divider dashed-divider" />
           <div className="bullet-li-header">
-            <FontAwesomeIcon aria-hidden className="icon" icon={faBan} />
+            <FontAwesomeIcon aria-hidden className="icon" icon="ban" />
             Some common expenses that are <em>not</em> claimable or reimbursable:
           </div>
           <ul>

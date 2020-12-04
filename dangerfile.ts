@@ -69,28 +69,111 @@ View the [frontend file org ADR](https://github.com/transcom/mymove/blob/master/
 };
 
 const bypassingLinterChecks = async () => {
-  // load all modified and new files
   const allFiles = danger.git.modified_files.concat(danger.git.created_files);
-  const bypassCodes = ['#nosec', 'eslint-disable', 'eslint-disable-next-line'];
-  let addedByPassCode = false;
-  const diffs = await Promise.all(allFiles.map((f) => danger.git.diffForFile(f)));
-
-  for (let i = 0; i < diffs.length; i += 1) {
-    const diff = diffs[Number(i)];
-    const diffsWithbypassCodes = bypassCodes.find((b) => diff.diff.includes(b));
-    if (diffsWithbypassCodes) {
-      addedByPassCode = true;
-      break;
-    }
-  }
-
-  if (addedByPassCode === true) {
+  const diffsByFile = await Promise.all(allFiles.map((f) => danger.git.diffForFile(f)));
+  const dangerMsgSegment = checkPRHasProhibitedLinterOverride(diffsByFile);
+  if (dangerMsgSegment) {
     warn(
-      `It looks like you are attempting to bypass a linter rule, which is not a sustainable solution to meet
-      security compliance rules. Please remove the bypass code and address the underlying issue. cc: @transcom/Truss-Pamplemoose`,
+      `It looks like you are attempting to bypass a linter rule, which is not within
+      security compliance rules.\n** ${dangerMsgSegment} **\n Please remove the bypass code and address the underlying issue. cc: @transcom/Truss-Pamplemoose`,
     );
   }
 };
+
+function checkPRHasProhibitedLinterOverride(dangerJSDiffCollection) {
+  let badOverrideMsg = '';
+  for (let d in dangerJSDiffCollection) {
+    const diffFile = dangerJSDiffCollection[d];
+    const diff = diffFile.added;
+    if (diffContainsNosec(diff)) {
+      badOverrideMsg = 'Contains prohibited linter override "#nosec".';
+      break;
+    }
+    if (!diffContainsEslint(diff)) {
+      continue;
+    }
+
+    // split file diffs into lines
+    const lines = diffForFile.split('\n');
+    for (let l in lines) {
+      const line = lines[l];
+      if (diffContainsEslint(line)) {
+        // check for comment marker (// or /*)
+        // eg line: 'const whatever = something() // eslint-disable-line'
+        let lineParts = line.split('//');
+        if (lineParts.length === 1) {
+          lineParts = line.split('/*');
+          if (lineParts.length === 1) {
+            throw new Error('uhhhh, how did we find eslint disable but no // or /*');
+          }
+        }
+
+        // eg lineParts: ['const whatever = something()', 'eslint-disable-line']
+        const stringAfterCommentMarker = lineParts[1];
+        badOverrideMsg = doesLineHaveProhibitedOverride(stringAfterCommentMarker);
+      }
+    }
+  }
+  return badOverrideMsg;
+}
+
+function diffContainsNosec(diffForFile) {
+  return !!diffForFile.includes('#nosec');
+}
+
+function diffContainsEslint(diffForFile) {
+  return !!diffForFile.includes('eslint-disable');
+}
+
+function doesLineHaveProhibitedOverride(disablingString) {
+  const okBypassRules = [
+    'no-underscore-dangle',
+    'prefer-object-spread',
+    'object-shorthand',
+    'camelcase',
+    'react/jsx-props-no-spreading',
+    'react/destructuring-assignment',
+    'react/forbid-prop-types',
+    'react/prefer-stateless-function',
+    'react/sort-comp',
+    'import/no-extraneous-dependencies',
+    'import/order',
+    'import/prefer-default-export',
+    'import/no-named-as-default',
+  ];
+  let prohibitedOverrideMsg = '';
+  // disablingStringParts format: 'eslint-disable-next-line no-jsx, no-default'
+  // split along commas and/or spaces and remove surrounding spaces
+  let disablingStringParts = disablingString
+    .trim()
+    .split(/[\s,]+/)
+    .map((item) => item.trim());
+  // disablingStringParts format: ['eslint-disable-next-line', 'no-jsx', 'no-default']
+  if (disablingStringParts[0] === 'eslint-disable') {
+    // fail because don't disable whole file please!
+    prohibitedOverrideMsg =
+      'Found `eslint-disable`. This disables the whole file, which is bad practice because it can allow security issues to slip in unnoticed. Please specify exact rules on a line by line basis, eg `eslint-disable-next-line no-underscore-dangle`.';
+  }
+
+  if (disablingStringParts.length === 1) {
+    // fail because rule should be specified
+    prohibitedOverrideMsg = 'Must specify the rule you are disabling';
+    return prohibitedOverrideMsg;
+  }
+
+  // rules format: ['no-jsx', 'no-default']
+  let rules = disablingStringParts.slice(1);
+  for (let r in rules) {
+    const rule = rules[r];
+    if (!okBypassRules.includes(rule)) {
+      prohibitedOverrideMsg = `Contains a rule that is not in the permitted eslint list. You are free to disable only: (\n${okBypassRules.map(
+        (r) => `${r}\n`,
+      )})`;
+      break;
+    }
+  }
+  return prohibitedOverrideMsg;
+}
 
 const cypressUpdateChecks = async () => {
   // load all modified and new files

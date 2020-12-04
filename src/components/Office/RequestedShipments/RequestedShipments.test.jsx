@@ -407,9 +407,11 @@ describe('RequestedShipments', () => {
     expect(approvedServiceItemDates.length).toBe(2);
 
     expect(approvedServiceItemNames.at(0).text()).toBe('Shipment Mgmt. Services');
-    expect(approvedServiceItemDates.at(0).text()).toBe('form-checkmark.svg 02 Oct 2020');
+    expect(approvedServiceItemDates.at(0).find('FontAwesomeIcon').prop('icon')).toEqual('check');
+    expect(approvedServiceItemDates.at(0).text()).toBe(' 02 Oct 2020');
 
     expect(approvedServiceItemNames.at(1).text()).toBe('Counseling Services');
-    expect(approvedServiceItemDates.at(1).text()).toBe('form-checkmark.svg 02 Oct 2020');
+    expect(approvedServiceItemDates.at(1).find('FontAwesomeIcon').prop('icon')).toEqual('check');
+    expect(approvedServiceItemDates.at(1).text()).toBe(' 02 Oct 2020');
   });
 });

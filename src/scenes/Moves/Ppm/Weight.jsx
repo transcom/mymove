@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { get, isNull, toUpper } from 'lodash';
 import PropTypes from 'prop-types';
+
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import Alert from 'shared/Alert';
 import { formatCentsRange } from 'shared/formatters';
@@ -27,6 +28,7 @@ import carGray from 'shared/icon/car-gray.svg';
 import trailerGray from 'shared/icon/trailer-gray.svg';
 import truckGray from 'shared/icon/truck-gray.svg';
 import SectionWrapper from 'components/Customer/SectionWrapper';
+import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 
 const WeightWizardForm = reduxifyWizardForm('weight-wizard-form');
 
@@ -413,14 +415,15 @@ PpmWeight.propTypes = {
   currentPPM: PropTypes.object.isRequired,
 };
 function mapStateToProps(state) {
+  const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const schema = get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {});
-  const originDutyStationZip = state.serviceMember.currentServiceMember.current_station.address.postal_code;
+  const originDutyStationZip = serviceMember?.current_station?.address?.postal_code;
   const moveID = state.moves.currentMove.id;
-  const serviceMemberId = get(state, 'serviceMember.currentServiceMember.id');
+  const serviceMemberId = serviceMember?.id;
 
   const props = {
     ...state.ppm,
-    serviceMemberId: serviceMemberId,
+    serviceMemberId,
     incentiveEstimateMin: selectPPMEstimateRange(state).range_min,
     incentiveEstimateMax: selectPPMEstimateRange(state).range_max,
     currentPPM: selectActivePPMForMove(state, moveID),

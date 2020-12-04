@@ -5,7 +5,6 @@ import {
   CREATE_BACKUP_CONTACT,
   UPDATE_BACKUP_CONTACT,
   INDEX_BACKUP_CONTACTS,
-  isProfileComplete,
   serviceMemberReducer,
 } from './ducks';
 
@@ -306,31 +305,6 @@ describe('Service Member Reducer', () => {
         indexBackupContactsSuccess: false,
         error: 'No bueno.',
       });
-    });
-  });
-});
-
-describe('isProfileComplete', () => {
-  describe('given a state with empty currentBackupContacts', () => {
-    const state = {
-      serviceMember: {
-        currentServiceMember: expectedSM,
-        currentBackupContacts: [],
-      },
-    };
-    it('isProfileComplete should return false', () => {
-      expect(isProfileComplete(state)).toBe(false);
-    });
-  });
-  describe('given a state with some currentBackupContacts', () => {
-    const state = {
-      serviceMember: {
-        currentServiceMember: expectedSM,
-        currentBackupContacts: ['something'],
-      },
-    };
-    it('isProfileComplete should return true', () => {
-      expect(isProfileComplete(state)).toBe(true);
     });
   });
 });

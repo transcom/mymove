@@ -19,7 +19,6 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons/faExternalLinkAlt';
 import PropTypes from 'prop-types';
 
 function renderEntitlements(entitlements, orders) {
@@ -63,7 +62,7 @@ const OrdersDisplay = (props) => {
             >
               <SwaggerValue fieldName="orders_number" {...fieldProps} />
               &nbsp;
-              <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
+              <FontAwesomeIcon className="icon" icon="external-link-alt" />
             </a>
           </PanelField>
         ) : (
@@ -83,7 +82,7 @@ const OrdersDisplay = (props) => {
             >
               <SwaggerValue fieldName="orders_number" {...fieldProps} />
               &nbsp;
-              <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
+              <FontAwesomeIcon className="icon" icon="external-link-alt" />
             </a>
           </PanelField>
         )}

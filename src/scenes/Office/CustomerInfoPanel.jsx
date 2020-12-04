@@ -18,8 +18,6 @@ import { stringifyName } from 'shared/utils/serviceMember';
 import { getRequestStatus } from 'shared/Swagger/selectors';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPhone } from '@fortawesome/free-solid-svg-icons/faPhone';
-import { faEnvelope } from '@fortawesome/free-solid-svg-icons/faEnvelope';
 
 const CustomerInfoDisplay = (props) => {
   const fieldProps = {
@@ -46,13 +44,13 @@ const CustomerInfoDisplay = (props) => {
         <PanelField title="Pref. contact" className="contact-prefs">
           {values.phone_is_preferred && (
             <span>
-              <FontAwesomeIcon icon={faPhone} flip="horizontal" />
+              <FontAwesomeIcon icon="phone" flip="horizontal" />
               phone
             </span>
           )}
           {values.email_is_preferred && (
             <span>
-              <FontAwesomeIcon icon={faEnvelope} />
+              <FontAwesomeIcon icon="envelope" />
               email
             </span>
           )}

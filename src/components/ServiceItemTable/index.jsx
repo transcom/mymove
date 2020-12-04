@@ -1,6 +1,5 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck } from '@fortawesome/free-solid-svg-icons';
 
 const ServiceItemTable = () => (
   <div className="table--service-item">
@@ -19,7 +18,7 @@ const ServiceItemTable = () => (
         <tr>
           <td>
             <span className="gray-out">
-              <FontAwesomeIcon icon={faCheck} />
+              <FontAwesomeIcon icon="check" />
             </span>
             05 Feb 2020
             <span className="gray-out">RJB</span>
@@ -30,7 +29,7 @@ const ServiceItemTable = () => (
         <tr>
           <td>
             <span className="gray-out">
-              <FontAwesomeIcon icon={faCheck} />
+              <FontAwesomeIcon icon="check" />
             </span>
             05 Feb 2020
             <span className="gray-out">RJB</span>
