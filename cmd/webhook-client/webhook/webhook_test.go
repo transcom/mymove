@@ -607,7 +607,7 @@ func convertBodyToPayload(body []byte) Message {
 	return message
 }
 
-type myData struct {
+type severityTestData struct {
 	attempt       time.Duration
 	expectedLevel int
 }
@@ -615,7 +615,7 @@ type myData struct {
 func (suite *WebhookClientTestingSuite) Test_GetSeverity() {
 	thresholds := []int{1800, 3600, 7200}
 	engine, _, _ := setupEngineRun(suite)
-	testData := []myData{
+	testData := []severityTestData{
 		{attempt: -10 * time.Second, expectedLevel: 4},
 		{attempt: -3000 * time.Second, expectedLevel: 3},
 		{attempt: -3601 * time.Second, expectedLevel: 2},
