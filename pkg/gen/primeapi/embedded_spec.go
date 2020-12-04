@@ -1260,7 +1260,7 @@ func init() {
       ]
     },
     "MTOServiceItemDestSIT": {
-      "description": "MTOServiceItemDestSIT is a subtype of MTOServiceItem.\n\n  This model type describes a domestic destination SIT service item. Items can be created using this\n  model type with the following codes:\n\n  **DDFSIT**\n\n  **1st day origin SIT service item**. When a DOFSIT is requested, the API will auto-create the following group of service items:\n    * DDFSIT - Domestic destination 1st day SIT\n    * DDASIT - Domestic destination Additional day SIT\n    * DDDSIT - Domestic destination SIT delivery\n\n  **DDASIT**\n\n  **Addt'l day destination SIT service item**. This represents an additional day of storage for the same item.\n  Additional DDASIT service items can be created and added to an existing shipment that **includes a DDFSIT service item**.\n",
+      "description": "Describes a domestic destination SIT service item. Subtype of a MTOServiceItem.",
       "allOf": [
         {
           "$ref": "#/definitions/MTOServiceItem"
@@ -1409,7 +1409,7 @@ func init() {
       ]
     },
     "MTOServiceItemOriginSIT": {
-      "description": "MTOServiceItemOriginSIT is a subtype of MTOServiceItem.\n\n   This model type describes a domestic origin SIT service item. Items can be created using this\n   model type with the following codes:\n\n   **DOFSIT**\n\n   **1st day origin SIT service item**. When a DOFSIT is requested, the API will auto-create the following group of service items:\n     * DOFSIT - Domestic origin 1st day SIT\n     * DOASIT - Domestic origin Additional day SIT\n     * DOPSIT - Domestic origin SIT pickup\n\n   **DOASIT**\n\n   **Addt'l day origin SIT service item**. This represents an additional day of storage for the same item.\n   Additional DOASIT service items can be created and added to an existing shipment that **includes a DOFSIT service item**.\n",
+      "description": "Describes a domestic origin SIT service item. Subtype of a MTOServiceItem.",
       "allOf": [
         {
           "$ref": "#/definitions/MTOServiceItem"
@@ -3723,7 +3723,7 @@ func init() {
       ]
     },
     "MTOServiceItemDestSIT": {
-      "description": "MTOServiceItemDestSIT is a subtype of MTOServiceItem.\n\n  This model type describes a domestic destination SIT service item. Items can be created using this\n  model type with the following codes:\n\n  **DDFSIT**\n\n  **1st day origin SIT service item**. When a DOFSIT is requested, the API will auto-create the following group of service items:\n    * DDFSIT - Domestic destination 1st day SIT\n    * DDASIT - Domestic destination Additional day SIT\n    * DDDSIT - Domestic destination SIT delivery\n\n  **DDASIT**\n\n  **Addt'l day destination SIT service item**. This represents an additional day of storage for the same item.\n  Additional DDASIT service items can be created and added to an existing shipment that **includes a DDFSIT service item**.\n",
+      "description": "Describes a domestic destination SIT service item. Subtype of a MTOServiceItem.",
       "allOf": [
         {
           "$ref": "#/definitions/MTOServiceItem"
@@ -3872,7 +3872,7 @@ func init() {
       ]
     },
     "MTOServiceItemOriginSIT": {
-      "description": "MTOServiceItemOriginSIT is a subtype of MTOServiceItem.\n\n   This model type describes a domestic origin SIT service item. Items can be created using this\n   model type with the following codes:\n\n   **DOFSIT**\n\n   **1st day origin SIT service item**. When a DOFSIT is requested, the API will auto-create the following group of service items:\n     * DOFSIT - Domestic origin 1st day SIT\n     * DOASIT - Domestic origin Additional day SIT\n     * DOPSIT - Domestic origin SIT pickup\n\n   **DOASIT**\n\n   **Addt'l day origin SIT service item**. This represents an additional day of storage for the same item.\n   Additional DOASIT service items can be created and added to an existing shipment that **includes a DOFSIT service item**.\n",
+      "description": "Describes a domestic origin SIT service item. Subtype of a MTOServiceItem.",
       "allOf": [
         {
           "$ref": "#/definitions/MTOServiceItem"

@@ -15,23 +15,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// MTOServiceItemDestSIT MTOServiceItemDestSIT is a subtype of MTOServiceItem.
-//
-//   This model type describes a domestic destination SIT service item. Items can be created using this
-//   model type with the following codes:
-//
-//   **DDFSIT**
-//
-//   **1st day origin SIT service item**. When a DOFSIT is requested, the API will auto-create the following group of service items:
-//     * DDFSIT - Domestic destination 1st day SIT
-//     * DDASIT - Domestic destination Additional day SIT
-//     * DDDSIT - Domestic destination SIT delivery
-//
-//   **DDASIT**
-//
-//   **Addt'l day destination SIT service item**. This represents an additional day of storage for the same item.
-//   Additional DDASIT service items can be created and added to an existing shipment that **includes a DDFSIT service item**.
-//
+// MTOServiceItemDestSIT Describes a domestic destination SIT service item. Subtype of a MTOServiceItem.
 //
 // swagger:model MTOServiceItemDestSIT
 type MTOServiceItemDestSIT struct {
