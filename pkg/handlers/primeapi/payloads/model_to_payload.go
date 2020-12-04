@@ -406,9 +406,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 	var payload primemessages.MTOServiceItem
 	// here we determine which payload model to use based on the re service code
 	switch mtoServiceItem.ReService.Code {
-	case models.ReServiceCodeDOFSIT:
-	case models.ReServiceCodeDOASIT:
-	case models.ReServiceCodeDOPSIT:
+	case models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT, models.ReServiceCodeDOPSIT:
 		sitDepartureDate := strfmt.Date(time.Time{}) // Set to empty/zero time
 		if mtoServiceItem.SITDepartureDate != nil {
 			sitDepartureDate = strfmt.Date(*mtoServiceItem.SITDepartureDate)
@@ -420,9 +418,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			SitDepartureDate: sitDepartureDate,
 			SitEntryDate:     handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
 		}
-	case models.ReServiceCodeDDFSIT:
-	case models.ReServiceCodeDDASIT:
-	case models.ReServiceCodeDDDSIT:
+	case models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT:
 		sitDepartureDate := strfmt.Date(time.Time{}) // Set to empty/zero time
 		if mtoServiceItem.SITDepartureDate != nil {
 			sitDepartureDate = strfmt.Date(*mtoServiceItem.SITDepartureDate)
@@ -478,7 +474,9 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 		shipmentIDStr = mtoServiceItem.MTOShipmentID.String()
 	}
 
-	payload.SetID(strfmt.UUID(mtoServiceItem.ID.String()))
+	one := mtoServiceItem.ID.String()
+	two := strfmt.UUID(one)
+	payload.SetID(two)
 	payload.SetMoveTaskOrderID(handlers.FmtUUID(mtoServiceItem.MoveTaskOrderID))
 	payload.SetMtoShipmentID(strfmt.UUID(shipmentIDStr))
 	payload.SetReServiceName(mtoServiceItem.ReService.Name)
