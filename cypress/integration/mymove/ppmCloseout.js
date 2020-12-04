@@ -199,11 +199,11 @@ function serviceMemberAddsWeightTicketSetWithMissingDocuments(hasAnother = false
     cy.get('input[name="additional_weight_ticket"][value="Yes"]+label').click();
     cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('be.checked');
     cy.get('button').contains('Save & Add Another').click();
-    cy.wait('@postWeightTicket').its('status').should('eq', 200);
+    cy.wait('@postWeightTicket').its('response.statusCode').should('eq', 200);
     cy.get('[data-testid=documents-uploaded]').should('exist');
   } else {
     cy.get('button').contains('Save & Continue').click();
-    cy.wait('@postWeightTicket').its('status').should('eq', 200);
+    cy.wait('@postWeightTicket').its('response.statusCode').should('eq', 200);
   }
 }
 function serviceMemberViewsExpensesLandingPage() {
@@ -352,7 +352,7 @@ function serviceMemberSubmitsWeightsTicketsWithoutReceipts() {
   cy.get('input[name="additional_weight_ticket"][value="Yes"]+label').click();
   cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('be.checked');
   cy.get('button').contains('Save & Add Another').click();
-  cy.wait('@postWeightTicket');
+  cy.wait('@postWeightTicket').should('eq', 200);
 }
 
 function serviceMemberStartsPPMPaymentRequest() {
@@ -393,10 +393,10 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true) {
     cy.get('input[name="additional_weight_ticket"][value="Yes"]+label').click();
     cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('be.checked');
     cy.get('button').contains('Save & Add Another').click();
-    cy.wait('@postWeightTicket').its('status').should('eq', 200);
+    cy.wait('@postWeightTicket').its('response.statusCode').should('eq', 200);
     cy.get('[data-testid=documents-uploaded]').should('exist');
   } else {
     cy.get('button').contains('Save & Continue').click();
-    cy.wait('@postWeightTicket').its('status').should('eq', 200);
+    cy.wait('@postWeightTicket').its('response.statusCode').should('eq', 200);
   }
 }
