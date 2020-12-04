@@ -51,6 +51,7 @@ func (h GetPaymentRequestForMoveHandler) Handle(params paymentrequestop.GetPayme
 	returnPayload, err := payloads.PaymentRequests(paymentRequests, h.FileStorer())
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error building payment requests payload for locator: %s", locator), zap.Error(err))
+		return paymentrequestop.NewGetPaymentRequestsForMoveInternalServerError()
 	}
 
 	return paymentrequestop.NewGetPaymentRequestsForMoveOK().WithPayload(*returnPayload)

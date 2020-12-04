@@ -338,6 +338,7 @@ func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcm
 		ServiceItems:         *PaymentServiceItems(&pr.PaymentServiceItems),
 		ReviewedAt:           handlers.FmtDateTimePtr(pr.ReviewedAt),
 		ProofOfServiceDocs:   serviceDocs,
+		CreatedAt:            strfmt.DateTime(pr.CreatedAt),
 	}, nil
 }
 
