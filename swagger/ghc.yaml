@@ -954,7 +954,6 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - paymentRequests
-        - gov
       description: Fetches payment requests for a move
       operationId: getPaymentRequestsForMove
       summary: Fetches payment requests using the move code (locator).

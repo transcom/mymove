@@ -1379,8 +1379,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests",
-          "gov"
+          "paymentRequests"
         ],
         "summary": "Fetches payment requests using the move code (locator).",
         "operationId": "getPaymentRequestsForMove",
@@ -5259,8 +5258,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests",
-          "gov"
+          "paymentRequests"
         ],
         "summary": "Fetches payment requests using the move code (locator).",
         "operationId": "getPaymentRequestsForMove",
