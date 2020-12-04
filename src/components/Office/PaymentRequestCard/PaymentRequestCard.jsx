@@ -110,7 +110,10 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
           {paymentRequest.status === 'PENDING' ? (
             <a href="moves/MOVE_CODE/orders">View orders</a>
           ) : (
-            <a href={`moves/MOVE_CODE/payment-requests/${paymentRequest.id}`}>View documents</a>
+            <a href={`payment-requests/${paymentRequest.id}`}>
+              <FontAwesomeIcon icon="copy" />
+              View documents
+            </a>
           )}
           <div className={styles.toggleDrawer}>
             <button type="button">Show request details</button>

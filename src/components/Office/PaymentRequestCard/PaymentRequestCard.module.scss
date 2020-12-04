@@ -114,6 +114,14 @@
     display: inline;
     @include u-margin-left(0.5);
   }
+
+  a svg {
+    @include u-margin-right(1);
+  }
+
+  a:visited {
+    color: #0050d8;
+  }
 }
 
 .toggleDrawer {
