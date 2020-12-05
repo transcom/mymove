@@ -893,8 +893,11 @@ webhook_client_docker:
 	docker build -f Dockerfile.webhook_client_local -t $(WEBHOOK_CLIENT_DOCKER_CONTAINER):latest .
 
 .PHONY: webhook_client_test
-webhook_client_test:
-	echo "This is a placeholder for webhook-client tests"
+webhook_client_test: db_test_e2e_populate webhook_client_test_standalone
+
+.PHONY: webhook_client_test_standalone
+webhook_client_test_standalone:
+	go test -v -count 1 -short ./cmd/webhook-client/webhook/...
 
 #
 # ----- END WEBHOOK CLIENT TARGETS -----
