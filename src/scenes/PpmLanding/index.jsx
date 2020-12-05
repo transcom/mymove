@@ -8,18 +8,11 @@ import { withLastLocation } from 'react-router-last-location';
 import { withContext } from 'shared/AppContext';
 
 import { PpmSummary } from './PpmSummary';
-import PpmAlert from './PpmAlert';
 import { selectedMoveType, lastMoveIsCanceled, updateMove } from 'scenes/Moves/ducks';
 import { selectServiceMemberFromLoggedInUser, selectIsProfileComplete } from 'store/entities/selectors';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import {
-  selectCurrentUser,
-  selectGetCurrentUserIsLoading,
-  selectGetCurrentUserIsSuccess,
-  selectGetCurrentUserIsError,
-} from 'shared/Data/users';
+import { selectCurrentUser, selectGetCurrentUserIsLoading, selectGetCurrentUserIsSuccess } from 'shared/Data/users';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
-import Alert from 'shared/Alert';
 import SignIn from 'shared/User/SignIn';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import scrollToTop from 'shared/scrollToTop';
@@ -108,9 +101,7 @@ export class PpmLanding extends Component {
     const {
       isLoggedIn,
       loggedInUserIsLoading,
-      loggedInUserError,
       isProfileComplete,
-      moveSubmitSuccess,
       entitlement,
       serviceMember,
       orders,
@@ -143,20 +134,6 @@ export class PpmLanding extends Component {
 
     return (
       <div className="grid-container">
-        <div>
-          {moveSubmitSuccess && !ppm && (
-            <Alert type="success" heading="Success">
-              You've submitted your move
-            </Alert>
-          )}
-          {ppm && moveSubmitSuccess && <PpmAlert heading="Congrats - your move is submitted!" />}
-          {loggedInUserError && (
-            <Alert type="error" heading="An error occurred">
-              There was an error loading your user information.
-            </Alert>
-          )}
-        </div>
-
         {isProfileComplete && (
           <PpmSummary
             entitlement={entitlement}
@@ -213,9 +190,7 @@ const mapStateToProps = (state) => {
     ppm: getPPM(state),
     loggedInUser: user,
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
-    loggedInUserError: selectGetCurrentUserIsError(state),
     loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
-    moveSubmitSuccess: state.signedCertification.moveSubmitSuccess,
     entitlement: loadEntitlementsFromState(state),
     requestPaymentSuccess: state.ppm.requestPaymentSuccess,
   };
