@@ -6,3 +6,4 @@ var IsValidFakeModelMTOAgent = isValidFakeModelMTOAgent
 var IsValidFakeModelMTOShipment = isValidFakeModelMTOShipment
 var IsValidFakeModelMTOShipments = isValidFakeModelMTOShipments
 var IsValidFakeModelServiceMember = isValidFakeModelServiceMember
+var IsValidFakeModelBackupContact = isValidFakeModelBackupContact
