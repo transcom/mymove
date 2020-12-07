@@ -67,7 +67,7 @@ model type with the following codes:
 
 **DOASIT**
 
-**Addt'l day origin SIT service item**. This represents an additional day of storage for the same item.
+**Addt'l days origin SIT service item**. This represents an additional day of storage for the same item.
 Additional DOASIT service items can be created and added to an existing shipment that **includes a DOFSIT service item**.
 
 ---
@@ -88,7 +88,7 @@ model type with the following codes:
 
 **DDASIT**
 
-**Addt'l day destination SIT service item**. This represents an additional day of storage for the same item.
+**Addt'l days destination SIT service item**. This represents an additional day of storage for the same item.
 Additional DDASIT service items can be created and added to an existing shipment that **includes a DDFSIT service item**.
 
 */
