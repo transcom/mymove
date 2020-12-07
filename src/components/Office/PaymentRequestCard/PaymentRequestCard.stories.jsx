@@ -9,7 +9,7 @@ export default {
   component: PaymentRequestCard,
   decorators: [
     (Story) => (
-      <div style={{ padding: '3em', backgroundColor: '#f9f9f9' }}>
+      <div style={{ padding: '1em', backgroundColor: '#f9f9f9' }}>
         <MockProviders initialEntries={['/moves/L0CATR/payment-requests']}>
           <Story />
         </MockProviders>

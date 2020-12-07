@@ -122,7 +122,9 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
             </a>
           )}
           <div className={styles.toggleDrawer}>
-            <button type="button">Show request details</button>
+            <Button type="button" unstyled>
+              <FontAwesomeIcon icon="chevron-down" /> Show request details
+            </Button>
           </div>
         </div>
       </div>
