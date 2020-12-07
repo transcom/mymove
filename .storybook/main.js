@@ -1,3 +1,3 @@
 module.exports = {
-  addons: ['@storybook/addon-a11y'],
+  stories: ['../src/**/*/stories.jsx'],
 };
