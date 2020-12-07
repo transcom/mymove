@@ -219,7 +219,7 @@ Cypress.Commands.add('upload_file', (selector, fileUrl) => {
       const event = {};
       event.dataTransfer = new win.DataTransfer();
       event.dataTransfer.items.add(testFile);
-      return cy.get(selector).trigger('drop', event);
+      return cy.get(selector).trigger('drop', event, { force: true });
     });
   });
 });

@@ -352,7 +352,7 @@ function serviceMemberSubmitsWeightsTicketsWithoutReceipts() {
   cy.get('input[name="additional_weight_ticket"][value="Yes"]+label').click();
   cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('be.checked');
   cy.get('button').contains('Save & Add Another').click();
-  cy.wait('@postWeightTicket').should('eq', 200);
+  cy.wait('@postWeightTicket').its('response.statusCode').should('eq', 200);
 }
 
 function serviceMemberStartsPPMPaymentRequest() {
