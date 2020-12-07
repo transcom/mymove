@@ -77,14 +77,20 @@ const PaymentRequestCard = ({ paymentRequest, history }) => {
             <>
               {approvedAmount > 0 && (
                 <div className={styles.amountAccepted}>
-                  <h2>{toDollarString(formatCents(approvedAmount))}</h2>
-                  <span>Accepted</span>
+                  <FontAwesomeIcon icon="check" />
+                  <div>
+                    <h2>{toDollarString(formatCents(approvedAmount))}</h2>
+                    <span>Accepted</span>
+                  </div>
                 </div>
               )}
               {rejectedAmount > 0 && (
                 <div className={styles.amountRejected}>
-                  <h2>{toDollarString(formatCents(rejectedAmount))}</h2>
-                  <span>Rejected</span>
+                  <FontAwesomeIcon icon="times" />
+                  <div>
+                    <h2>{toDollarString(formatCents(rejectedAmount))}</h2>
+                    <span>Rejected</span>
+                  </div>
                 </div>
               )}
             </>

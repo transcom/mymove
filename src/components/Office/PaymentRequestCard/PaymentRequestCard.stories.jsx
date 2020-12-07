@@ -2,13 +2,17 @@ import React from 'react';
 
 import PaymentRequestCard from './PaymentRequestCard';
 
+import { MockProviders } from 'testUtils';
+
 export default {
   title: 'TOO/TIO Components|PaymentRequestCard',
   component: PaymentRequestCard,
   decorators: [
     (Story) => (
       <div style={{ padding: '3em', backgroundColor: '#f9f9f9' }}>
-        <Story />
+        <MockProviders initialEntries={['/moves/L0CATR/payment-requests']}>
+          <Story />
+        </MockProviders>
       </div>
     ),
   ],
